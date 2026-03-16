@@ -9,7 +9,7 @@ This is a Turborepo monorepo starter for building full-stack TypeScript applicat
 - **Frontend**: React 19 + Vite + TanStack Query + tRPC Client
 - **Database**: PostgreSQL with Orchid ORM
 - **Auth**: Database-backed sessions with security tracking
-- **Package Manager**: Yarn (v1.22.22)
+- **Package Manager**: Yarn (v1.22.22) - pnpm setup in progress
 - **Node Version**: 22+
 
 ## Common Commands
