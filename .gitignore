@@ -2,3 +2,21 @@ node_modules/
 dist/
 .env
 .DS_Store
+
+# Antigravity & AI Context
+.context/workflow/
+.agent/cache/
+.agent/scripts/__pycache__/
+
+# Monorepo & Build
+.turbo/
+.next/
+*.log
+
+# Ferramentas AI pessoais (não são do projeto)
+.gemini/
+.codex/
+.claude/CLAUDE.md
+
+# Sistema
+.Trash-1000/

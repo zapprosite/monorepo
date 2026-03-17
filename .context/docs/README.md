@@ -1,9 +1,3 @@
-# Project Rules and Guidelines
-
-> Auto-generated from .context/docs on 2026-03-17T07:20:52.168Z
-
-## README
-
 # Documentation Index
 
 Welcome to the repository knowledge base. Start with the project overview, then dive into specific guides as needed.
@@ -37,4 +31,3 @@ Welcome to the repository knowledge base. Start with the project overview, then 
 | Data Flow & Integrations | `data-flow.md` | System diagrams, integration specs, queue topics |
 | Security & Compliance Notes | `security.md` | Auth model, secrets management, compliance requirements |
 | Tooling & Productivity Guide | `tooling.md` | CLI scripts, IDE configs, automation workflows |
-

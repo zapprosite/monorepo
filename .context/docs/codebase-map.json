@@ -1,0 +1,90 @@
+{
+  "version": "1.0.0",
+  "generated": "2026-03-16T20:57:42.879Z",
+  "stack": {
+    "primaryLanguage": "javascript",
+    "languages": [
+      "javascript"
+    ],
+    "frameworks": [],
+    "buildTools": [
+      "pnpm-workspace"
+    ],
+    "testFrameworks": [],
+    "packageManager": null,
+    "isMonorepo": true,
+    "hasDocker": false,
+    "hasCI": false,
+    "nodeVersion": ">=20.0.0"
+  },
+  "structure": {
+    "totalFiles": 4,
+    "rootPath": ".",
+    "topDirectories": [
+      {
+        "name": "apps",
+        "fileCount": 0,
+        "description": "Application entry (Next.js app router)"
+      },
+      {
+        "name": "packages",
+        "fileCount": 0,
+        "description": "Package definitions"
+      }
+    ],
+    "languageDistribution": [
+      {
+        "extension": ".md",
+        "count": 2
+      },
+      {
+        "extension": ".yaml",
+        "count": 1
+      },
+      {
+        "extension": ".json",
+        "count": 1
+      }
+    ]
+  },
+  "architecture": {
+    "layers": [],
+    "patterns": [],
+    "entryPoints": [],
+    "mainEntryPoints": [],
+    "moduleExports": []
+  },
+  "symbols": {
+    "classes": [],
+    "interfaces": [],
+    "functions": [],
+    "types": [],
+    "enums": []
+  },
+  "publicAPI": [],
+  "dependencies": {
+    "mostImported": []
+  },
+  "stats": {
+    "totalSymbols": 0,
+    "exportedSymbols": 0,
+    "analysisTimeMs": 14
+  },
+  "keyFiles": [
+    {
+      "path": "package.json",
+      "description": "Package manifest",
+      "category": "config"
+    }
+  ],
+  "navigation": {
+    "tests": "src/**/*.test.ts",
+    "config": [
+      "package.json"
+    ],
+    "types": [],
+    "mainLogic": [
+      "src"
+    ]
+  }
+}
