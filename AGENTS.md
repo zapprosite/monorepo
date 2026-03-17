@@ -152,15 +152,31 @@ yarn run db up                  # Run migrations
 ## Commands You Can Run Freely
 
 ```bash
-yarn install        # ✅ Safe
-yarn dev            # ✅ Safe (local dev only)
-yarn build          # ✅ Safe
-yarn lint           # ✅ Safe
-yarn format         # ✅ Safe
 yarn check-types    # ✅ Safe
-git commit -m       # ✅ Safe (if no secrets)
-git push            # ✅ Safe
+git commit -m       # ✅ Safe (Must follow Conventional Commits)
+git push            # ✅ Safe (Only to feature/* branches directly, PR to develop/main)
 ```
+
+## Git Governance (Senior Standard)
+
+### Branching Model
+- **`main`**: Production-only. Matches current release.
+- **`develop`**: Primary integration branch.
+- **`feature/`**: Feature development.
+- **`fix/`**: Bug fixes.
+- **`hotfix/`**: Critical production patches.
+
+### Commit Guidelines
+All commits MUST follow **Conventional Commits**:
+- `feat`: New capability
+- `fix`: Bug resolution
+- `chore`: Maintenance (deps, internal config)
+- `refactor`: Structural changes
+- `docs`: Documentation updates
+
+### Merge Strategy
+- PRs are required for `develop` and `main`.
+- Merge into `develop` via Squash & Merge to keep history clean.
 
 ## When Modifying Host Infrastructure
 
