@@ -1,4 +1,4 @@
-# Monorepo Agent Governance
+# Governança de Agentes do Monorepo
 
 **Project:** homelab-monorepo
 **Location:** /srv/monorepo
