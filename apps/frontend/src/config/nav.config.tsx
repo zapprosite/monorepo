@@ -8,6 +8,7 @@ import { HomeIcon } from "@connected-repo/ui-mui/icons/HomeIcon";
 import { ListIcon } from "@connected-repo/ui-mui/icons/ListIcon";
 import { PeopleIcon } from "@connected-repo/ui-mui/icons/PeopleIcon";
 import { PostAddIcon } from "@connected-repo/ui-mui/icons/PostAddIcon";
+import { NotificationsIcon } from "@connected-repo/ui-mui/icons/NotificationsIcon";
 import { TrendingUpIcon } from "@connected-repo/ui-mui/icons/TrendingUpIcon";
 
 export interface NavItem {
@@ -85,6 +86,12 @@ export const navItems: NavItem[] = [
 		path: "/editorial",
 		desktopIcon: <EventNoteIcon fontSize="small" />,
 		mobileIcon: <EventNoteIcon />,
+	},
+	{
+		label: "Lembretes",
+		path: "/reminders",
+		desktopIcon: <NotificationsIcon fontSize="small" />,
+		mobileIcon: <NotificationsIcon />,
 	},
 ];
 

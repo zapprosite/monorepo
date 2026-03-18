@@ -11,6 +11,7 @@ import { ApiProductRequestLogsTable } from "@backend/modules/logs/tables/api_pro
 import { PromptsTable } from "@backend/modules/prompts/tables/prompts.table";
 import { ContractsTable } from "@backend/modules/contracts/contracts.table";
 import { EditorialTable } from "@backend/modules/editorial/editorial.table";
+import { ReminderTable } from "@backend/modules/reminders/reminder.table";
 import { ScheduleTable } from "@backend/modules/schedule/schedule.table";
 import { MaterialItemTable } from "@backend/modules/service-orders/material_item.table";
 import { ServiceOrderTable } from "@backend/modules/service-orders/service_order.table";
@@ -49,5 +50,6 @@ export const db = orchidORM(
 		technicalReports: TechnicalReportTable,
 		materialItems: MaterialItemTable,
 		editorialItems: EditorialTable,
+		reminders: ReminderTable,
 	},
 );
