@@ -1,7 +1,10 @@
+import { BuildIcon } from "@connected-repo/ui-mui/icons/BuildIcon";
 import { DashboardIcon } from "@connected-repo/ui-mui/icons/DashboardIcon";
 import { HomeIcon } from "@connected-repo/ui-mui/icons/HomeIcon";
 import { ListIcon } from "@connected-repo/ui-mui/icons/ListIcon";
+import { PeopleIcon } from "@connected-repo/ui-mui/icons/PeopleIcon";
 import { PostAddIcon } from "@connected-repo/ui-mui/icons/PostAddIcon";
+import { TrendingUpIcon } from "@connected-repo/ui-mui/icons/TrendingUpIcon";
 
 export interface NavItem {
 	/** Display label for the nav item */
@@ -36,6 +39,24 @@ export const navItems: NavItem[] = [
 		path: "/journal-entries/new",
 		desktopIcon: <PostAddIcon fontSize="small" />,
 		mobileIcon: <PostAddIcon />,
+	},
+	{
+		label: "Leads",
+		path: "/leads",
+		desktopIcon: <TrendingUpIcon fontSize="small" />,
+		mobileIcon: <TrendingUpIcon />,
+	},
+	{
+		label: "Clientes",
+		path: "/clients",
+		desktopIcon: <PeopleIcon fontSize="small" />,
+		mobileIcon: <PeopleIcon />,
+	},
+	{
+		label: "Equipamentos",
+		path: "/equipment",
+		desktopIcon: <BuildIcon fontSize="small" />,
+		mobileIcon: <BuildIcon />,
 	},
 ];
 

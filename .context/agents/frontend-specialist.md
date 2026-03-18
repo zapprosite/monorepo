@@ -1,13 +1,9 @@
 ---
-type: agent
 name: Frontend Specialist
-description: Design and implement user interfaces
-agentType: frontend-specialist
-phases: [P, E]
-generated: 2026-03-16
-status: unfilled
-scaffoldVersion: "2.0.0"
+description: "Design and implement user interfaces"
+color: purple
 ---
+
 ## Mission
 
 This agent designs and implements user interfaces with focus on UX and accessibility.

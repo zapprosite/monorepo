@@ -27,13 +27,12 @@ export const DesktopNavbar = () => {
 			position="sticky"
 			elevation={0}
 			sx={{
-				bgcolor: "background.paper",
-				borderBottom: "1px solid",
-				borderColor: "divider",
+				bgcolor: "#0B1F3A",  // Navy 900 — Refrimix
+				borderBottom: "1px solid rgba(255,255,255,0.08)",
 			}}
 		>
 			<Toolbar sx={{ gap: 2 }}>
-				{/* Logo/Brand */}
+				{/* Logo/Brand — Refrimix Tecnologia */}
 				<Box
 					onClick={() => navigate("/dashboard")}
 					sx={{
@@ -41,27 +40,39 @@ export const DesktopNavbar = () => {
 						alignItems: "center",
 						cursor: "pointer",
 						mr: 4,
-						transition: "transform 0.2s ease-in-out",
-						"&:hover": {
-							transform: "scale(1.02)",
-						},
+						transition: "opacity 0.2s ease-in-out",
+						"&:hover": { opacity: 0.85 },
 					}}
 				>
-					<Typography
-						variant="h6"
-						component="div"
-						sx={{
-							fontWeight: 700,
-							color: "primary.main",
-							letterSpacing: -0.5,
-						}}
-					>
-						OneQ
-					</Typography>
+					<Box>
+						<Typography
+							variant="subtitle1"
+							component="div"
+							sx={{
+								fontWeight: 700,
+								color: "#ffffff",
+								letterSpacing: -0.3,
+								lineHeight: 1.2,
+							}}
+						>
+							Refrimix Tecnologia
+						</Typography>
+						<Typography
+							variant="caption"
+							sx={{
+								color: "#06B6D4",  // Ciano
+								fontWeight: 500,
+								letterSpacing: 0.3,
+								fontSize: "0.65rem",
+							}}
+						>
+							CRM Operacional
+						</Typography>
+					</Box>
 				</Box>
 
 				{/* Navigation Links */}
-				<Box sx={{ flexGrow: 1, display: "flex", gap: 1 }}>
+				<Box sx={{ flexGrow: 1, display: "flex", gap: 0.5 }}>
 					{navItems.map((item) => (
 						<Button
 							key={item.path}
@@ -70,23 +81,24 @@ export const DesktopNavbar = () => {
 							sx={{
 								px: 2,
 								py: 1,
-								borderRadius: 2,
+								borderRadius: 1.5,
 								color: isActive(item.path)
-									? "primary.main"
-									: "text.secondary",
+									? "#ffffff"
+									: "rgba(255,255,255,0.65)",
 								bgcolor: isActive(item.path)
-									? "primary.lighter"
+									? "rgba(29,78,216,0.5)"  // Azul institucional semi-transparente
 									: "transparent",
-								fontWeight: isActive(item.path) ? 600 : 500,
+								fontWeight: isActive(item.path) ? 600 : 400,
+								fontSize: "0.875rem",
 								transition: "all 0.2s ease-in-out",
-								"&:hover": {
-									bgcolor: isActive(item.path)
-										? "primary.light"
-										: "action.hover",
-									transform: "translateY(-2px)",
+								"& .MuiSvgIcon-root": {
+									color: isActive(item.path)
+										? "#06B6D4"
+										: "rgba(255,255,255,0.5)",
 								},
-								"&:active": {
-									transform: "translateY(0)",
+								"&:hover": {
+									bgcolor: "rgba(255,255,255,0.08)",
+									color: "#ffffff",
 								},
 							}}
 						>

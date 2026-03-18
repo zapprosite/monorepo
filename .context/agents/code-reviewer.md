@@ -1,13 +1,9 @@
 ---
-type: agent
 name: Code Reviewer
-description: Review code changes for quality, style, and best practices
-agentType: code-reviewer
-phases: [R, V]
-generated: 2026-03-16
-status: unfilled
-scaffoldVersion: "2.0.0"
+description: "Review code changes for quality, style, and best practices"
+color: yellow
 ---
+
 ## Mission
 
 This agent reviews code changes for quality, consistency, and adherence to project standards.

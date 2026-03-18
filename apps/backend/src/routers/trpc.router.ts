@@ -1,10 +1,11 @@
 import { authRouterTrpc } from "@backend/modules/auth/auth.trpc";
+import { clientsRouterTrpc } from "@backend/modules/clients/clients.trpc";
+import { equipmentRouterTrpc } from "@backend/modules/equipment/equipment.trpc";
 import { journalEntriesRouterTrpc } from "@backend/modules/journal-entries/journal_entries.trpc";
+import { leadsRouterTrpc } from "@backend/modules/leads/leads.trpc";
 import { promptsRouterTrpc } from "@backend/modules/prompts/prompts.trpc";
 import { usersRouterTrpc } from "@backend/modules/users/users.trpc";
 import { publicProcedure, trpcRouter } from "@backend/trpc";
-//import { tracing } from "./tracing-middleware";
-
 
 export const appTrpcRouter = trpcRouter({
 	hello: publicProcedure.query(async () => {
@@ -16,6 +17,9 @@ export const appTrpcRouter = trpcRouter({
 	journalEntries: journalEntriesRouterTrpc,
 	prompts: promptsRouterTrpc,
 	users: usersRouterTrpc,
+	leads: leadsRouterTrpc,
+	clients: clientsRouterTrpc,
+	equipment: equipmentRouterTrpc,
 });
 
 export type AppTrpcRouter = typeof appTrpcRouter;
