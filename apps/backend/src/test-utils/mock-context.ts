@@ -18,7 +18,7 @@ export const unauthContext = (): TrpcContext => ({
  * Mock tRPC context for authenticated requests.
  */
 export const authContext = (overrides?: Partial<SessionUser>): TrpcContext => {
-	const user: SessionUser & { userId: string } = {
+	const user: SessionUser = {
 		userId: "01JTEST000000000000000001",
 		email: "test@example.com",
 		name: "Test User",

@@ -15,8 +15,9 @@ import { useState } from "react";
 import { useNavigate } from "react-router";
 import { ScheduleStatusBadge } from "../components/ScheduleStatusBadge";
 
-function formatDate(iso: string): string {
-	return new Date(iso).toLocaleDateString("pt-BR", {
+function formatDate(timestamp: number | string): string {
+	const date = typeof timestamp === 'number' ? new Date(timestamp) : new Date(timestamp);
+	return date.toLocaleDateString("pt-BR", {
 		weekday: "long",
 		day: "2-digit",
 		month: "long",
@@ -24,19 +25,21 @@ function formatDate(iso: string): string {
 	});
 }
 
-function formatTime(iso: string): string {
-	return new Date(iso).toLocaleTimeString("pt-BR", {
+function formatTime(timestamp: number | string): string {
+	const date = typeof timestamp === 'number' ? new Date(timestamp) : new Date(timestamp);
+	return date.toLocaleTimeString("pt-BR", {
 		hour: "2-digit",
 		minute: "2-digit",
 	});
 }
 
 function groupByDay(
-	schedules: Array<{ scheduleId: string; dataHora: Date; [key: string]: unknown }>,
+	schedules: Array<{ scheduleId: string; dataHora: number | string; [key: string]: unknown }>,
 ): Map<string, typeof schedules> {
 	const groups = new Map<string, typeof schedules>();
 	for (const s of schedules) {
-		const day = new Date(s.dataHora).toISOString().slice(0, 10);
+		const date = typeof s.dataHora === 'number' ? new Date(s.dataHora) : new Date(s.dataHora);
+		const day = date.toISOString().slice(0, 10);
 		if (!groups.has(day)) groups.set(day, []);
 		groups.get(day)!.push(s);
 	}
@@ -70,7 +73,7 @@ export default function SchedulePage() {
 	}
 
 	const grouped = groupByDay(
-		(schedules ?? []) as Array<{ scheduleId: string; dataHora: Date; [key: string]: unknown }>,
+		(schedules ?? []) as Array<{ scheduleId: string; dataHora: number | string; [key: string]: unknown }>,
 	);
 	const days = Array.from(grouped.keys()).sort();
 
@@ -211,7 +214,7 @@ export default function SchedulePage() {
 									{daySchedules.map((schedule) => {
 										const s = schedule as {
 											scheduleId: string;
-											dataHora: Date;
+											dataHora: string | number;
 											tipo: ServiceType;
 											status: ScheduleStatus;
 											duracaoMinutos?: number;
@@ -252,7 +255,7 @@ export default function SchedulePage() {
 															color="primary.main"
 															sx={{ minWidth: 48 }}
 														>
-															{formatTime(new Date(s.dataHora).toISOString())}
+															{formatTime(s.dataHora)}
 														</Typography>
 														<Box>
 															<Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.5 }}>

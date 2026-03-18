@@ -1,10 +1,11 @@
 import { authRouterTrpc } from "@backend/modules/auth/auth.trpc";
 import { clientsRouterTrpc } from "@backend/modules/clients/clients.trpc";
 import { equipmentRouterTrpc } from "@backend/modules/equipment/equipment.trpc";
-import { scheduleRouterTrpc } from "@backend/modules/schedule/schedule.trpc";
 import { journalEntriesRouterTrpc } from "@backend/modules/journal-entries/journal_entries.trpc";
 import { leadsRouterTrpc } from "@backend/modules/leads/leads.trpc";
 import { promptsRouterTrpc } from "@backend/modules/prompts/prompts.trpc";
+import { scheduleRouterTrpc } from "@backend/modules/schedule/schedule.trpc";
+import { serviceOrdersRouterTrpc } from "@backend/modules/service-orders/service_orders.trpc";
 import { usersRouterTrpc } from "@backend/modules/users/users.trpc";
 import { publicProcedure, trpcRouter } from "@backend/trpc";
 
@@ -22,6 +23,7 @@ export const appTrpcRouter = trpcRouter({
 	clients: clientsRouterTrpc,
 	equipment: equipmentRouterTrpc,
 	schedule: scheduleRouterTrpc,
+	serviceOrders: serviceOrdersRouterTrpc,
 });
 
 export type AppTrpcRouter = typeof appTrpcRouter;

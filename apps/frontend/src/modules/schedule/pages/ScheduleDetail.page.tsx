@@ -16,8 +16,9 @@ import { useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { ScheduleStatusBadge } from "../components/ScheduleStatusBadge";
 
-function formatDateTime(date: Date): string {
-	return new Date(date).toLocaleString("pt-BR", {
+function formatDateTime(timestamp: number | string | Date): string {
+	const date = timestamp instanceof Date ? timestamp : new Date(timestamp);
+	return date.toLocaleString("pt-BR", {
 		weekday: "long",
 		day: "2-digit",
 		month: "long",
