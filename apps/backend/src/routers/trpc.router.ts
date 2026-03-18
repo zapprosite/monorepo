@@ -1,4 +1,5 @@
 import { authRouterTrpc } from "@backend/modules/auth/auth.trpc";
+import { contractsRouterTrpc } from "@backend/modules/contracts/contracts.trpc";
 import { clientsRouterTrpc } from "@backend/modules/clients/clients.trpc";
 import { equipmentRouterTrpc } from "@backend/modules/equipment/equipment.trpc";
 import { journalEntriesRouterTrpc } from "@backend/modules/journal-entries/journal_entries.trpc";
@@ -23,6 +24,7 @@ export const appTrpcRouter = trpcRouter({
 	clients: clientsRouterTrpc,
 	equipment: equipmentRouterTrpc,
 	schedule: scheduleRouterTrpc,
+	contracts: contractsRouterTrpc,
 	serviceOrders: serviceOrdersRouterTrpc,
 });
 
