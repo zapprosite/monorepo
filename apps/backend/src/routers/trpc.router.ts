@@ -1,4 +1,5 @@
 import { authRouterTrpc } from "@backend/modules/auth/auth.trpc";
+import { dashboardRouterTrpc } from "@backend/modules/dashboard/dashboard.trpc";
 import { contractsRouterTrpc } from "@backend/modules/contracts/contracts.trpc";
 import { editorialRouterTrpc } from "@backend/modules/editorial/editorial.trpc";
 import { remindersRouterTrpc } from "@backend/modules/reminders/reminders.trpc";
@@ -19,6 +20,7 @@ export const appTrpcRouter = trpcRouter({
 	}),
 
 	auth: authRouterTrpc,
+	dashboard: dashboardRouterTrpc,
 	journalEntries: journalEntriesRouterTrpc,
 	prompts: promptsRouterTrpc,
 	users: usersRouterTrpc,
