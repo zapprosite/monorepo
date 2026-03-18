@@ -1,6 +1,7 @@
 import { BuildIcon } from "@connected-repo/ui-mui/icons/BuildIcon";
 import { CalendarTodayIcon } from "@connected-repo/ui-mui/icons/CalendarTodayIcon";
 import { DashboardIcon } from "@connected-repo/ui-mui/icons/DashboardIcon";
+import { GridViewIcon } from "@connected-repo/ui-mui/icons/GridViewIcon";
 import { HomeIcon } from "@connected-repo/ui-mui/icons/HomeIcon";
 import { ListIcon } from "@connected-repo/ui-mui/icons/ListIcon";
 import { PeopleIcon } from "@connected-repo/ui-mui/icons/PeopleIcon";
@@ -64,6 +65,12 @@ export const navItems: NavItem[] = [
 		path: "/schedule",
 		desktopIcon: <CalendarTodayIcon fontSize="small" />,
 		mobileIcon: <CalendarTodayIcon />,
+	},
+	{
+		label: "Ordens de Serviço",
+		path: "/service-orders",
+		desktopIcon: <GridViewIcon fontSize="small" />,
+		mobileIcon: <GridViewIcon />,
 	},
 ];
 

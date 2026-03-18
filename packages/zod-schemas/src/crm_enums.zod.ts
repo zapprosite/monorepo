@@ -39,3 +39,7 @@ export type ReminderStatus = z.infer<typeof reminderStatusZod>;
 export const ADDRESS_TYPE_ENUM = ["Cobrança", "Entrega", "Técnica"] as const;
 export const addressTypeZod = z.enum(ADDRESS_TYPE_ENUM);
 export type AddressType = z.infer<typeof addressTypeZod>;
+
+export const SERVICE_ORDER_STATUS_ENUM = ["Aberta", "Em Andamento", "Aguardando Peças", "Concluída", "Cancelada"] as const;
+export const serviceOrderStatusZod = z.enum(SERVICE_ORDER_STATUS_ENUM);
+export type ServiceOrderStatus = z.infer<typeof serviceOrderStatusZod>;

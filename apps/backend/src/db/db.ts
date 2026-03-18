@@ -1,15 +1,18 @@
 import { dbConfig } from "@backend/db/config";
 import { SessionTable } from "@backend/modules/auth/tables/session.auth.table";
-import { JournalEntryTable } from "@backend/modules/journal-entries/tables/journal_entries.table";
-import { ApiProductRequestLogsTable } from "@backend/modules/logs/tables/api_product_request_logs.table";
 import { AddressesTable } from "@backend/modules/clients/addresses.table";
 import { ClientsTable } from "@backend/modules/clients/clients.table";
 import { ContactsTable } from "@backend/modules/clients/contacts.table";
 import { UnitsTable } from "@backend/modules/clients/units.table";
 import { EquipmentTable } from "@backend/modules/equipment/equipment.table";
+import { JournalEntryTable } from "@backend/modules/journal-entries/tables/journal_entries.table";
 import { LeadsTable } from "@backend/modules/leads/leads.table";
-import { ScheduleTable } from "@backend/modules/schedule/schedule.table";
+import { ApiProductRequestLogsTable } from "@backend/modules/logs/tables/api_product_request_logs.table";
 import { PromptsTable } from "@backend/modules/prompts/tables/prompts.table";
+import { ScheduleTable } from "@backend/modules/schedule/schedule.table";
+import { MaterialItemTable } from "@backend/modules/service-orders/material_item.table";
+import { ServiceOrderTable } from "@backend/modules/service-orders/service_order.table";
+import { TechnicalReportTable } from "@backend/modules/service-orders/technical_report.table";
 import { SubscriptionsTable } from "@backend/modules/subscriptions/tables/subscriptions.table";
 import { WebhookCallQueueTable } from "@backend/modules/subscriptions/tables/webhookCallQueue.table";
 import { TeamTable } from "@backend/modules/teams/tables/teams.table";
@@ -39,5 +42,8 @@ export const db = orchidORM(
 		units: UnitsTable,
 		equipment: EquipmentTable,
 		schedules: ScheduleTable,
+		serviceOrders: ServiceOrderTable,
+		technicalReports: TechnicalReportTable,
+		materialItems: MaterialItemTable,
 	},
 );
