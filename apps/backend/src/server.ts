@@ -80,11 +80,11 @@ export const build = async () => {
 const start = async () => {
 	try {
 		const server = await build();
-		await server.listen({ port: 3000, host: "0.0.0.0" });
+		await server.listen({ port: env.PORT, host: "0.0.0.0" });
 		if (process.send) {
 			process.send("ready"); // ✅ Let PM2 know the app is ready
 		}
-		logger.info({ url: "http://localhost:3000" }, "Server running");
+		logger.info({ url: `http://localhost:${env.PORT}` }, "Server running");
 	} catch (err) {
 		logger.error("Server failed to start");
 		logger.error(err);

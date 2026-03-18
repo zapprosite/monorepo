@@ -4,99 +4,87 @@ name: testing-strategy
 description: Test frameworks, patterns, coverage requirements, and quality gates
 category: testing
 generated: 2026-03-16
-status: unfilled
+updated: 2026-03-17
+status: active
 scaffoldVersion: "2.0.0"
 ---
 ## Testing Strategy
 
-This document outlines the testing strategy for maintaining code quality.
+## Frameworks
 
-**Testing Philosophy**:
-- Tests should be fast, isolated, and deterministic
-- Follow the test pyramid: many unit tests, fewer integration tests, minimal E2E tests
-- Test behavior, not implementation details
-- Every bug fix should include a regression test
+| App | Framework | Environment |
+|-----|-----------|-------------|
+| `apps/backend` | Vitest 4 | Node |
+| `apps/frontend` | Vitest 4 + jsdom | jsdom |
+
+**Configs:**
+- `apps/backend/vitest.config.ts` — tsconfig paths, Node environment
+- `apps/frontend/vitest.config.ts` — React SWC, jsdom, `@testing-library/jest-dom`
+- `apps/frontend/src/test-setup.ts` — setup global matchers
 
 ## Test Types
 
-**Unit Tests**:
-- Framework: Jest / Vitest
-- Location: `__tests__/` or co-located `*.test.ts` files
-- Purpose: Test individual functions and components in isolation
-- Mocking: Use jest mocks for external dependencies
+**Unit Tests** (`src/**/*.test.ts`, `src/**/*.test.tsx`):
+- Funções puras, utils, validações Zod
+- Componentes React isolados com `@testing-library/react`
 
-**Integration Tests**:
-- Framework: Jest / Vitest
-- Location: `tests/integration/` or `*.integration.test.ts`
-- Purpose: Test feature workflows and component interactions
-- Setup: May require test database or external services
+**Integration Tests** (`src/**/*.integration.test.ts`):
+- tRPC procedures contra banco de teste real
+- Requerem `DATABASE_URL` apontando para DB de teste
 
-**E2E Tests** (if applicable):
-- Framework: Playwright / Cypress
-- Location: `e2e/` or `tests/e2e/`
-- Purpose: Test critical user paths end-to-end
-- Environment: Requires full application stack
+**E2E** (futuro):
+- Playwright — testar fluxos críticos (auth, criação de entidade)
 
-## Running Tests
+## Comandos
 
-**Commands**:
 ```bash
-# Run all tests
-npm run test
-
-# Run tests in watch mode (for development)
-npm run test -- --watch
-
-# Run tests with coverage report
-npm run test -- --coverage
-
-# Run specific test file
-npm run test -- path/to/file.test.ts
-
-# Run tests matching pattern
-npm run test -- --testNamePattern="pattern"
+yarn test                    # Todos os apps via Turbo
+yarn test:watch              # Watch mode (por app)
+yarn workspace @connected-repo/backend test -- --coverage
+yarn workspace @connected-repo/frontend test -- --coverage
 ```
 
-## Quality Gates
+## Localização dos Arquivos
 
-**Coverage Requirements**:
-- Minimum overall coverage: 80%
-- New code should have higher coverage
-- Critical paths require 100% coverage
+```
+apps/backend/src/
+└── modules/[feature]/
+    ├── [feature].trpc.ts
+    └── [feature].trpc.test.ts   ← co-localizado
 
-**Pre-merge Checks**:
-- [ ] All tests pass
-- [ ] Coverage thresholds met
-- [ ] Linting passes (`npm run lint`)
-- [ ] Type checking passes (`npm run typecheck`)
-- [ ] Build succeeds (`npm run build`)
+apps/frontend/src/
+└── modules/[feature]/
+    └── pages/
+        ├── [Feature].page.tsx
+        └── [Feature].page.test.tsx
+```
 
-**CI Pipeline**:
-- Tests run automatically on every PR
-- Coverage reports generated and compared to baseline
-- Failed checks block merge
+## Padrões
 
-## Troubleshooting
+**Zod schemas** — testar validação de borda:
+```typescript
+it("rejects empty content", () => {
+  expect(journalEntryCreateInputZod.safeParse({ content: "" }).success).toBe(false);
+});
+```
 
-**Common Issues**:
+**tRPC procedures** — testar com caller direto:
+```typescript
+const caller = appTrpcRouter.createCaller({ user: mockUser });
+const result = await caller.journalEntries.getAll();
+```
 
-*Tests timing out*:
-- Increase timeout for slow operations
-- Check for unresolved promises
-- Verify mocks are properly configured
+**React components** — testar comportamento:
+```typescript
+render(<JournalEntryList entries={mockEntries} />);
+expect(screen.getByText("My Entry")).toBeInTheDocument();
+```
 
-*Flaky tests*:
-- Avoid time-dependent assertions
-- Use proper async/await patterns
-- Isolate tests from external state
+## CI
 
-*Environment issues*:
-- Ensure Node version matches project requirements
-- Clear node_modules and reinstall if dependencies are corrupted
-- Check for conflicting global installations
+GitHub Actions (`.github/workflows/ci.yml`) roda `yarn test` em todo PR para `main`.
+Postgres 15 disponível no CI para testes de integração.
 
 ## Related Resources
-
-<!-- Link to related documents for cross-navigation. -->
 
 - [development-workflow.md](./development-workflow.md)

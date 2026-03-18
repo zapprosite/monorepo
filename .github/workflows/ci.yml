@@ -1,0 +1,58 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  ci:
+    name: Type Check + Lint + Build
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: connected_repo_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Sync env
+        run: node scripts/sync-env.js
+
+      - name: Type check
+        run: yarn check-types
+
+      - name: Lint
+        run: npx @biomejs/biome ci .
+
+      - name: Build
+        run: yarn build
+
+      - name: Test
+        run: yarn test
+        if: ${{ hashFiles('**/vitest.config.ts') != '' }}
+        env:
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/connected_repo_test
