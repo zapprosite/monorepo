@@ -12,7 +12,7 @@ const VALID_EDITORIAL_INPUT = {
 	titulo: "Post Instagram Refrimix",
 	canal: "Instagram" as const,
 	formato: "Post" as const,
-	status: "Rascunho" as const,
+	status: "Ideia" as const,
 	dataPublicacao: "2026-04-01",
 };
 
@@ -91,11 +91,11 @@ describe("editorial — validação de input (Zod)", () => {
 
 	it("createEditorialItem rejeita sem titulo", async () => {
 		await expect(
+			// @ts-expect-error — titulo ausente proposital
 			caller.editorial.createEditorialItem({
-				// @ts-expect-error — titulo faltando proposital
 				canal: "Instagram",
 				formato: "Post",
-				status: "Rascunho",
+				status: "Ideia" as const,
 				dataPublicacao: "2026-04-01",
 			}),
 		).rejects.toThrow();
@@ -105,10 +105,9 @@ describe("editorial — validação de input (Zod)", () => {
 		await expect(
 			caller.editorial.createEditorialItem({
 				titulo: "Título válido",
-				// @ts-expect-error — canal inválido proposital
-				canal: "TikTokFake",
+				canal: "TikTokFake" as unknown as "Instagram",
 				formato: "Post",
-				status: "Rascunho",
+				status: "Ideia" as const,
 				dataPublicacao: "2026-04-01",
 			}),
 		).rejects.toThrow();
@@ -119,9 +118,8 @@ describe("editorial — validação de input (Zod)", () => {
 			caller.editorial.createEditorialItem({
 				titulo: "Título válido",
 				canal: "Instagram",
-				// @ts-expect-error — formato inválido proposital
-				formato: "FormatoInexistente",
-				status: "Rascunho",
+				formato: "FormatoInexistente" as unknown as "Post",
+				status: "Ideia" as const,
 				dataPublicacao: "2026-04-01",
 			}),
 		).rejects.toThrow();
@@ -133,7 +131,7 @@ describe("editorial — validação de input (Zod)", () => {
 				titulo: "Título válido",
 				canal: "Instagram",
 				formato: "Post",
-				status: "Rascunho",
+				status: "Ideia" as const,
 				dataPublicacao: "01-04-2026", // formato errado
 			}),
 		).rejects.toThrow();

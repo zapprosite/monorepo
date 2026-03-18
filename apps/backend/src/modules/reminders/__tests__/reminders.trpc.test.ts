@@ -10,7 +10,7 @@ const INVALID_UUID = "not-a-uuid";
 
 const VALID_REMINDER_INPUT = {
 	clienteId: FAKE_UUID,
-	tipo: "Retorno" as const,
+	tipo: "Email" as const,
 	status: "Pendente" as const,
 	dataLembrete: "2026-04-15",
 	titulo: "Retorno de visita técnica",
@@ -78,8 +78,7 @@ describe("reminders — validação de input (Zod)", () => {
 		await expect(
 			caller.reminders.createReminder({
 				...VALID_REMINDER_INPUT,
-				// @ts-expect-error — tipo inválido proposital
-				tipo: "TipoInexistente",
+				tipo: "TipoInexistente" as unknown as "Email",
 			}),
 		).rejects.toThrow();
 	});
@@ -88,8 +87,7 @@ describe("reminders — validação de input (Zod)", () => {
 		await expect(
 			caller.reminders.createReminder({
 				...VALID_REMINDER_INPUT,
-				// @ts-expect-error — status inválido proposital
-				status: "StatusInexistente",
+				status: "StatusInexistente" as unknown as "Pendente",
 			}),
 		).rejects.toThrow();
 	});
@@ -105,13 +103,12 @@ describe("reminders — validação de input (Zod)", () => {
 
 	it("createReminder rejeita sem titulo", async () => {
 		await expect(
+			// @ts-expect-error — titulo ausente proposital
 			caller.reminders.createReminder({
 				clienteId: FAKE_UUID,
-				tipo: "Retorno",
+				tipo: "Email",
 				status: "Pendente",
 				dataLembrete: "2026-04-15",
-				// @ts-expect-error — titulo faltando proposital
-				titulo: undefined,
 			}),
 		).rejects.toThrow();
 	});

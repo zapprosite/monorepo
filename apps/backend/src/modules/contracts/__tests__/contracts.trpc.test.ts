@@ -101,8 +101,7 @@ describe("contracts — validação de input (Zod)", () => {
 		await expect(
 			caller.contracts.createContract({
 				clienteId: FAKE_UUID,
-				// @ts-expect-error — tipo inválido proposital
-				tipo: "TipoInexistente",
+				tipo: "TipoInexistente" as unknown as "Comercial",
 				status: "Rascunho",
 				dataInicio: "2026-01-01",
 			}),
@@ -114,8 +113,7 @@ describe("contracts — validação de input (Zod)", () => {
 			caller.contracts.createContract({
 				clienteId: FAKE_UUID,
 				tipo: "PMOC",
-				// @ts-expect-error — status inválido proposital
-				status: "Inexistente",
+				status: "Inexistente" as unknown as "Rascunho",
 				dataInicio: "2026-01-01",
 			}),
 		).rejects.toThrow();
