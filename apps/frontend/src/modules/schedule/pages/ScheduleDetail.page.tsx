@@ -213,7 +213,7 @@ export default function ScheduleDetailPage() {
 			</Box>
 
 			{/* Cancel Modal */}
-			<Dialog open={cancelOpen} onClose={() => setCancelOpen(false)} maxWidth="sm" fullWidth>
+			<Dialog open={cancelOpen} onClose={() => { setCancelOpen(false); setMotivoCancelamento(""); }} maxWidth="sm" fullWidth>
 				<DialogTitle>Cancelar Agendamento</DialogTitle>
 				<DialogContent>
 					<Typography variant="body2" color="text.secondary" mb={2}>
@@ -229,7 +229,7 @@ export default function ScheduleDetailPage() {
 					/>
 				</DialogContent>
 				<DialogActions>
-					<Button onClick={() => setCancelOpen(false)} variant="outlined" disabled={cancelar.isPending}>
+					<Button onClick={() => { setCancelOpen(false); setMotivoCancelamento(""); }} variant="outlined" disabled={cancelar.isPending}>
 						Voltar
 					</Button>
 					<Button

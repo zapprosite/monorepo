@@ -8,7 +8,7 @@ import {
 } from "@connected-repo/zod-schemas/schedule.zod";
 import z from "zod";
 
-const SCHEDULES_MAX_LIMIT = 300;
+const SCHEDULES_MAX_LIMIT = 200;
 
 export const scheduleRouterTrpc = trpcRouter({
 	listSchedules: protectedProcedure
@@ -43,7 +43,9 @@ export const scheduleRouterTrpc = trpcRouter({
 	getScheduleDetail: protectedProcedure
 		.input(scheduleGetByIdZod)
 		.query(async ({ input: { scheduleId } }) => {
-			return db.schedules.find(scheduleId);
+			const schedule = await db.schedules.findOptional(scheduleId);
+			if (!schedule) throw new Error("Agendamento não encontrado");
+			return schedule;
 		}),
 
 	createSchedule: protectedProcedure
