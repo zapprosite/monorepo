@@ -36,6 +36,18 @@ export const CONTRACT_FREQUENCY_ENUM = ["Mensal", "Bimestral", "Trimestral", "Se
 export const contractFrequencyZod = z.enum(CONTRACT_FREQUENCY_ENUM);
 export type ContractFrequency = z.infer<typeof contractFrequencyZod>;
 
+export const EDITORIAL_STATUS_ENUM = ["Ideia", "Em Produção", "Revisão", "Aprovado", "Publicado", "Cancelado"] as const;
+export const editorialStatusZod = z.enum(EDITORIAL_STATUS_ENUM);
+export type EditorialStatus = z.infer<typeof editorialStatusZod>;
+
+export const EDITORIAL_CHANNEL_ENUM = ["Instagram", "Facebook", "LinkedIn", "TikTok", "YouTube", "Blog", "Email", "WhatsApp"] as const;
+export const editorialChannelZod = z.enum(EDITORIAL_CHANNEL_ENUM);
+export type EditorialChannel = z.infer<typeof editorialChannelZod>;
+
+export const EDITORIAL_FORMAT_ENUM = ["Post", "Carrossel", "Reels", "Story", "Blog Post", "Email", "Vídeo", "Newsletter"] as const;
+export const editorialFormatZod = z.enum(EDITORIAL_FORMAT_ENUM);
+export type EditorialFormat = z.infer<typeof editorialFormatZod>;
+
 export const REMINDER_TYPE_ENUM = ["Ligação", "Email", "Visita", "Manutenção", "Renovação"] as const;
 export const reminderTypeZod = z.enum(REMINDER_TYPE_ENUM);
 export type ReminderType = z.infer<typeof reminderTypeZod>;
