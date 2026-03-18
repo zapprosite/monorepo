@@ -4,85 +4,107 @@ name: tooling
 description: Scripts, IDE settings, automation, and developer productivity tips
 category: tooling
 generated: 2026-03-16
-status: unfilled
+updated: 2026-03-17
+status: active
 scaffoldVersion: "2.0.0"
 ---
 ## Tooling & Productivity Guide
 
-This guide covers the tools, scripts, and configurations that make development efficient.
+## ⚠️ Governância de Portas
 
-Following these setup recommendations ensures a consistent development experience across the team.
+**LEIA ANTES DE INICIAR QUALQUER SERVIÇO:**
+[`/srv/ops/ai-governance/PORTS.md`](/srv/ops/ai-governance/PORTS.md)
 
-## Required Tooling
+| Serviço | Porta | Observação |
+|---------|-------|-----------|
+| Backend (Fastify) | **4000** | `PORT=4000` no `.env` |
+| Frontend (Vite) | **5173** | padrão Vite |
+| PostgreSQL | **5432** | `connected_repo_db` |
+| ~~3000~~ | **OCUPADA** | CapRover Dashboard — nunca usar |
 
-**Runtime**:
-- Node.js (v18+ recommended)
-- npm / yarn / pnpm
+Skill de governância: `.agent/skills/port-governance/SKILL.md`
 
-**Version Management** (recommended):
-- [nvm](https://github.com/nvm-sh/nvm) for Node.js version management
-- `.nvmrc` file specifies project Node version
+---
 
-**Installation**:
+## Requisitos
+
+- **Node.js 22+** — obrigatório (`engines.node` no `package.json`)
+- **Yarn 1.22** — package manager (`packageManager` no `package.json`)
+- **Docker** — para PostgreSQL local
+
 ```bash
-# Using nvm (recommended)
-nvm install
-nvm use
-
-# Install dependencies
-npm install
+yarn install       # instalar dependências
+docker compose up -d  # subir banco
+yarn dev           # iniciar todos os apps
 ```
 
-## Recommended Automation
+## Scripts Raiz
 
-**Pre-commit Hooks**:
-The project uses [husky](https://typicode.github.io/husky/) for git hooks:
-- Pre-commit: Runs linting and type checking
-- Commit message: Validates commit message format
-
-**Code Quality Commands**:
 ```bash
-npm run lint          # Check code style
-npm run lint:fix      # Auto-fix style issues
-npm run format        # Format code with Prettier
-npm run typecheck     # TypeScript type checking
+yarn dev             # backend + frontend em paralelo (via Turbo)
+yarn build           # build de produção
+yarn check-types     # type check em todos os pacotes
+yarn test            # Vitest em todos os apps
+yarn format          # Biome format (substitui Prettier)
+yarn db -- g <name>  # gerar migration Orchid ORM
+yarn db -- up        # aplicar migrations
+yarn env:sync        # sincronizar .env entre apps
+yarn clean           # limpar node_modules + dist + cache
 ```
 
-**Watch Mode**:
+## Qualidade de Código
+
+**Biome** (substitui ESLint + Prettier):
 ```bash
-npm run dev           # Development with hot reload
-npm run test:watch    # Tests in watch mode
+yarn format                   # formatar tudo
+npx @biomejs/biome ci .       # checar sem modificar (usado no CI)
+```
+Config: `biome.json` na raiz.
+
+**TypeScript**:
+```bash
+yarn check-types              # todos os pacotes
+```
+Configs em `packages/typescript-config/` (base, library, react-library, vite).
+
+## Claude Code — Slash Commands
+
+Ativados com `/` no Claude Code (arquivos em `.claude/commands/`):
+
+| Comando | Descrição |
+|---------|-----------|
+| `/scaffold` | Gera módulo full-stack completo (Zod + ORM + tRPC + frontend) |
+| `/feature` | Cria branch `feature/[nome-criativo]` + upstream |
+| `/ship` | Commit semântico + push + PR no GitHub |
+| `/turbo` | Commit + merge + tag + nova branch (modo pressa) |
+| `/commit` | Gera mensagem Conventional Commits pelo diff |
+| `/code-review` | Review dos últimos N commits |
+
+Workflows completos em `.agent/workflows/`. Agentes em `.agent/agents/`.
+
+## CI/CD
+
+GitHub Actions em `.github/workflows/ci.yml`:
+- Trigger: push/PR para `main`
+- Steps: type check → Biome lint → build → test
+- PostgreSQL 15 disponível para integration tests
+
+## Database
+
+```bash
+yarn db -- g <migration_name>   # gerar migration
+yarn db -- up                   # aplicar
+yarn db -- down                 # reverter última
 ```
 
-## IDE / Editor Setup
+Scripts via `apps/backend/src/db/db_script.ts` (Orchid ORM CLI).
 
-**VS Code Recommended Extensions**:
-- ESLint — Inline linting
-- Prettier — Code formatting
-- TypeScript + JavaScript Language Features — IntelliSense
-- Error Lens — Inline error highlighting
+## IDE
 
-**Workspace Settings**:
-The `.vscode/` folder contains shared settings:
-- `settings.json` — Editor configuration
-- `extensions.json` — Recommended extensions
-- `launch.json` — Debug configurations
-
-## Productivity Tips
-
-**Useful Aliases**:
-```bash
-alias nr='npm run'
-alias nrd='npm run dev'
-alias nrt='npm run test'
-```
-
-**Quick Commands**:
-- `npm run build && npm run test` — Full verification before PR
-- `npm run clean` — Clear build artifacts and caches
+VS Code — settings em `.vscode/settings.json`.
+Biome extension recomendada (substitui ESLint + Prettier no editor).
 
 ## Related Resources
 
-<!-- Link to related documents for cross-navigation. -->
-
 - [development-workflow.md](./development-workflow.md)
+- [testing-strategy.md](./testing-strategy.md)

@@ -4,87 +4,99 @@ name: development-workflow
 description: Day-to-day engineering processes, branching, and contribution guidelines
 category: workflow
 generated: 2026-03-16
-status: unfilled
+updated: 2026-03-17
+status: active
 scaffoldVersion: "2.0.0"
 ---
 ## Development Workflow
 
-This document outlines the day-to-day engineering process for contributing to this repository.
+## ⚠️ Governância de Portas
 
-Following these guidelines ensures consistent code quality and smooth collaboration across the team.
+Antes de iniciar serviços, consulte: [`/srv/ops/ai-governance/PORTS.md`](/srv/ops/ai-governance/PORTS.md)
 
-## Branching & Releases
+**Portas deste projeto:**
+- Backend: `http://localhost:4000` (`PORT=4000` no `.env`)
+- Frontend: `http://localhost:5173`
+- PostgreSQL: `localhost:5432`
+- ❌ **Porta 3000 = CapRover** — nunca usar neste host
 
-**Branching Model**: Feature branches off `main`
+## Setup Inicial
 
-- `main` — Production-ready code, always deployable
-- `feature/*` — New features and enhancements
-- `fix/*` — Bug fixes
-- `chore/*` — Maintenance and tooling updates
-
-**Release Process**:
-1. Features are developed in branches
-2. PRs require review and passing CI
-3. Merged PRs are deployed automatically (or tagged for release)
-
-**Versioning**: Semantic versioning (semver) - MAJOR.MINOR.PATCH
-
-## Local Development
-
-**Setup**:
 ```bash
-# Clone and install
-git clone <repository-url>
-cd <project-name>
-npm install
+yarn install
+docker compose up -d   # PostgreSQL 15
+yarn db -- up          # aplicar migrations
+yarn dev               # backend :4000 + frontend :5173
 ```
 
-**Daily Commands**:
-- `npm run dev` — Start development server/watch mode
-- `npm run build` — Build for production
-- `npm run test` — Run test suite
-- `npm run lint` — Check code style
+## Branches
 
-**Before Committing**:
-```bash
-npm run lint && npm run test && npm run build
+| Prefixo | Uso |
+|---------|-----|
+| `main` | produção, sempre deployável |
+| `feature/*` | novas features |
+| `fix/*` | bug fixes |
+| `chore/*` | manutenção, tooling |
+
+Criar branch: `/feature` (gera nome criativo automaticamente)
+
+## Fluxo Diário
+
+```
+/feature          → cria feature/[nome] + upstream
+  ↓ implementar
+/ship             → commit semântico + push + PR
+  ↓ CI passa
+merge via PR      → main atualizada
 ```
 
-## Code Review Expectations
+**Modo pressa**: `/turbo` — commit + merge + tag + nova branch em sequência.
 
-**PR Requirements**:
-- Clear description of changes and motivation
-- Tests for new functionality
-- Documentation updates for API changes
-- Passing CI checks
+## Conventional Commits
 
-**Review Checklist**:
-- [ ] Code follows project conventions
-- [ ] Tests cover the changes adequately
-- [ ] No security vulnerabilities introduced
-- [ ] Documentation is updated
-- [ ] Commit messages follow conventions
+Formato: `tipo(escopo): descrição`
 
-**Approval**: At least one approving review required before merge.
+| Tipo | Quando usar |
+|------|-------------|
+| `feat` | nova funcionalidade |
+| `fix` | correção de bug |
+| `chore` | manutenção sem impacto funcional |
+| `refactor` | refatoração sem mudança de comportamento |
+| `docs` | apenas documentação |
+| `test` | adição/correção de testes |
 
-See [AGENTS.md](../../AGENTS.md) for AI assistant collaboration guidelines.
+Escopos derivados do path: `api`, `web`, `ui`, `core`, `claude`.
 
-## Onboarding Tasks
+## Novo Módulo Full-Stack
 
-**First Steps for New Contributors**:
-1. Read the [Project Overview](./project-overview.md)
-2. Set up local development environment
-3. Run the test suite to verify setup
-4. Look for issues labeled `good-first-issue` or `help-wanted`
+Usar `/scaffold` — gera automaticamente:
+1. Schema Zod em `packages/zod-schemas/`
+2. Orchid ORM table + migration
+3. tRPC router no backend
+4. Page + router no frontend
 
-**Helpful Resources**:
-- [Architecture Notes](./architecture.md) — System design overview
-- [Testing Strategy](./testing-strategy.md) — How to write tests
-- [CONTRIBUTING.md](../../CONTRIBUTING.md) — Contribution guidelines
+Ver [tooling.md](./tooling.md) para lista completa de slash commands.
+
+## CI/CD
+
+Todo PR para `main` passa por:
+1. `yarn check-types` — TypeScript
+2. `biome ci` — lint + format
+3. `yarn build` — build de produção
+4. `yarn test` — Vitest
+
+PRs bloqueados se qualquer check falhar.
+
+## Antes de Abrir PR
+
+```bash
+yarn check-types && yarn format && yarn test && yarn build
+```
+
+Ou usar `/ship` que faz tudo automaticamente.
 
 ## Related Resources
 
-<!-- Link to related documents for cross-navigation. -->
-
 - [testing-strategy.md](./testing-strategy.md)
 - [tooling.md](./tooling.md)
+- [AGENTS.md](../../AGENTS.md)

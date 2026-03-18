@@ -4,104 +4,100 @@ name: project-overview
 description: High-level overview of the project, its purpose, and key components
 category: overview
 generated: 2026-03-16
-status: unfilled
+updated: 2026-03-17
+status: active
 scaffoldVersion: "2.0.0"
 ---
 ## Project Overview
 
-This project provides [describe main functionality]. It helps [target users] to [key benefit].
+**connected-repo** é um monorepo full-stack de produção para desenvolvimento rápido de aplicações web. Funciona como uma **fábrica de features**: dado um nome de entidade, gera automaticamente schema, ORM, API e UI com `/scaffold`.
 
-The codebase is organized to support [main use case] with a focus on [key qualities like maintainability, performance, etc.].
-
-## Codebase Reference
-
-> **Detailed Analysis**: For complete symbol counts, architecture layers, and dependency graphs, see [`codebase-map.json`](./codebase-map.json).
+**Stack:** Fastify 5 + tRPC 11 + React 19 + Orchid ORM + PostgreSQL 15 + Zod 4
 
 ## Quick Facts
 
-- **Root**: `./`
-- **Primary Language**: [Language] ([X] files)
-- **Entry Point**: `src/index.ts` or `src/main.ts`
-- **Full Analysis**: [`codebase-map.json`](./codebase-map.json)
+| Item | Valor |
+|------|-------|
+| Package manager | Yarn 1.22 + workspaces |
+| Build system | Turbo 2 |
+| Node.js | 22+ |
+| Licença | AGPL-3.0-only |
+| Backend port | **4000** (não 3000 — CapRover) |
+| Frontend port | 5173 |
+| DB | PostgreSQL em `localhost:5432` |
 
-## Entry Points
+## Estrutura
 
-- **Main Entry**: `src/index.ts` - Primary module exports
-- **CLI**: `src/cli.ts` - Command-line interface (if applicable)
-- **Server**: `src/server.ts` - HTTP server entry (if applicable)
+```
+apps/
+├── backend/    — Fastify API (tRPC interno + REST/OpenAPI externo)
+└── frontend/   — React 19 SPA (tRPC client + TanStack Query)
 
-## Key Exports
+packages/
+├── zod-schemas/       — Schemas Zod compartilhados (tipo-safe ponta a ponta)
+├── ui-mui/            — Biblioteca de componentes Material-UI
+└── typescript-config/ — TSConfigs base
 
-See [`codebase-map.json`](./codebase-map.json) for the complete list of exported symbols.
+.agent/        — Antigravity Kit (21 agentes, 37 skills, 13 workflows)
+.claude/       — Slash commands Claude Code (/scaffold, /feature, /ship, /turbo...)
+.context/      — Documentação semântica do projeto
+```
 
-Key public APIs:
-- [List main exported classes/functions]
+## Fluxo de Desenvolvimento
 
-## File Structure & Code Organization
+```
+/feature → implementar → /ship → PR → CI → merge
+```
 
-- `src/` — Source code and main application logic
-- `tests/` or `__tests__/` — Test files and fixtures
-- `dist/` or `build/` — Compiled output (gitignored)
-- `docs/` — Documentation files
-- `scripts/` — Build and utility scripts
+Para criar um módulo completo do zero:
+```
+/scaffold → nome da entidade → gera Zod + ORM + tRPC + frontend
+```
 
-## Technology Stack Summary
+## Comandos Essenciais
 
-**Runtime**: Node.js
+```bash
+yarn install          # deps
+docker compose up -d  # PostgreSQL
+yarn db -- up         # migrations
+yarn dev              # backend :4000 + frontend :5173
+yarn test             # Vitest
+yarn build            # produção
+```
 
-**Language**: TypeScript/JavaScript
+## AI Agents & Workflows
 
-**Build Tools**:
-- TypeScript compiler (tsc) or bundler (esbuild, webpack, etc.)
-- Package manager: npm/yarn/pnpm
+Este repo tem um sistema de agentes integrado ao Claude Code:
 
-**Code Quality**:
-- Linting: ESLint
-- Formatting: Prettier
-- Type checking: TypeScript strict mode
+| Slash Command | Função |
+|---------------|--------|
+| `/scaffold` | Gera módulo full-stack completo |
+| `/feature` | Cria branch criativa + upstream |
+| `/ship` | Commit semântico + PR |
+| `/turbo` | Commit + merge + tag + branch (pressa) |
 
-## Core Framework Stack
+Ver `.agent/ARCHITECTURE.md` para catálogo completo.
 
-<!-- Document core frameworks per layer (backend, frontend, data, messaging). Mention architectural patterns enforced by these frameworks. -->
+## Governância de Portas
 
-_Add descriptive content here (optional)._
+⚠️ Este host tem serviços em portas específicas. Sempre consultar:
+[`/srv/ops/ai-governance/PORTS.md`](/srv/ops/ai-governance/PORTS.md)
 
-## UI & Interaction Libraries
+## Getting Started
 
-<!-- List UI kits, CLI interaction helpers, or design system dependencies. Note theming, accessibility, or localization considerations. -->
-
-_Add descriptive content here (optional)._
-
-## Development Tools Overview
-
-See [Tooling](./tooling.md) for detailed development environment setup.
-
-**Essential Commands**:
-- `npm install` — Install dependencies
-- `npm run build` — Build the project
-- `npm run test` — Run tests
-- `npm run dev` — Start development mode
-
-## Getting Started Checklist
-
-1. Clone the repository
-2. Install dependencies: `npm install`
-3. Copy environment template: `cp .env.example .env` (if applicable)
-4. Run tests to verify setup: `npm run test`
-5. Start development: `npm run dev`
-6. Review [Development Workflow](./development-workflow.md) for day-to-day tasks
-
-## Next Steps
-
-- Review [Architecture](./architecture.md) for system design details
-- See [Development Workflow](./development-workflow.md) for contribution guidelines
-- Check [Testing Strategy](./testing-strategy.md) for quality requirements
+```bash
+git clone <repo>
+cd monorepo
+cp .env.example .env   # editar com suas credenciais
+yarn install
+docker compose up -d
+yarn db -- up
+yarn dev
+```
 
 ## Related Resources
-
-<!-- Link to related documents for cross-navigation. -->
 
 - [architecture.md](./architecture.md)
 - [development-workflow.md](./development-workflow.md)
 - [tooling.md](./tooling.md)
-- [codebase-map.json](./codebase-map.json)
+- [testing-strategy.md](./testing-strategy.md)
