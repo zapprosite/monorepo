@@ -29,20 +29,23 @@ export default defineConfig({
 		},
 	},
 	build: {
+		chunkSizeWarningLimit: 700,
 		rollupOptions: {
 			output: {
-				manualChunks: {
-					// react: ['react', 'react-dom'],
-					// Add other big libs as needed
-					// mui: ['@mui/material'],
-					// zod: ['zod'], // '@connected-repo/zod-schemas'],
+				manualChunks(id) {
+					if (id.includes("node_modules/react") || id.includes("node_modules/react-dom") || id.includes("node_modules/scheduler")) {
+						return "react-vendor";
+					}
+					if (id.includes("node_modules/@mui") || id.includes("node_modules/@emotion")) {
+						return "mui-vendor";
+					}
+					if (id.includes("node_modules/zod") || id.includes("node_modules/@hookform")) {
+						return "zod-vendor";
+					}
+					if (id.includes("node_modules/@tanstack") || id.includes("node_modules/@trpc")) {
+						return "query-vendor";
+					}
 				},
-				// manualChunks(id) {
-				//   if (id.includes('zod')) {
-				//     console.log('Creating separate chunk for zod-schemas:', id);
-				//     return 'zod-schemas';
-				//   }
-				// }
 			},
 		},
 	},
