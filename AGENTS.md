@@ -27,9 +27,8 @@ Welcome to the repository knowledge base. Start with the project overview, then 
 ## Repository Snapshot
 - `AGENTS.md/`
 - `apps/`
-- `package.json/`
+- `package.json/` — Yarn workspaces config (`workspaces` field)
 - `packages/` — Workspace packages or modules.
-- `pnpm-workspace.yaml/`
 - `README.md/`
 
 ## Document Map
