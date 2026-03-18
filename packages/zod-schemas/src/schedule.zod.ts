@@ -4,7 +4,7 @@ import { zTimestamps, zText, zVarchar } from "./zod_utils.js";
 
 const scheduleMandatoryZod = z.object({
   clienteId: z.string().uuid(),
-  dataHora: z.string().datetime(), // ISO 8601
+  dataHora: z.string().datetime({ local: true }), // accepts datetime-local (no timezone)
   tipo: serviceTypeZod,
   status: scheduleStatusZod,
 });
@@ -39,11 +39,12 @@ export const listScheduleFilterZod = z.object({
   tecnicoId: z.string().uuid().optional(),
   status: scheduleStatusZod.optional(),
   tipo: serviceTypeZod.optional(),
-  dataInicio: z.string().datetime().optional(),
-  dataFim: z.string().datetime().optional(),
+  dataInicio: z.string().datetime({ local: true }).optional(),
+  dataFim: z.string().datetime({ local: true }).optional(),
 });
 
 export type ScheduleCreateInput = z.infer<typeof scheduleCreateInputZod>;
 export type ScheduleUpdateInput = z.infer<typeof scheduleUpdateInputZod>;
 export type ScheduleSelectAll = z.infer<typeof scheduleSelectAllZod>;
+export type ScheduleGetById = z.infer<typeof scheduleGetByIdZod>;
 export type ListScheduleFilter = z.infer<typeof listScheduleFilterZod>;
