@@ -9,6 +9,7 @@ import { JournalEntryTable } from "@backend/modules/journal-entries/tables/journ
 import { LeadsTable } from "@backend/modules/leads/leads.table";
 import { ApiProductRequestLogsTable } from "@backend/modules/logs/tables/api_product_request_logs.table";
 import { PromptsTable } from "@backend/modules/prompts/tables/prompts.table";
+import { ContractsTable } from "@backend/modules/contracts/contracts.table";
 import { ScheduleTable } from "@backend/modules/schedule/schedule.table";
 import { MaterialItemTable } from "@backend/modules/service-orders/material_item.table";
 import { ServiceOrderTable } from "@backend/modules/service-orders/service_order.table";
@@ -42,6 +43,7 @@ export const db = orchidORM(
 		units: UnitsTable,
 		equipment: EquipmentTable,
 		schedules: ScheduleTable,
+		contracts: ContractsTable,
 		serviceOrders: ServiceOrderTable,
 		technicalReports: TechnicalReportTable,
 		materialItems: MaterialItemTable,
