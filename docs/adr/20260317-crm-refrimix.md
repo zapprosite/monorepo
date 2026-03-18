@@ -5,7 +5,7 @@ document_type: "PRD"
 status: "in-execution"
 product_name: "Refrimix Tecnologia"
 updated_at: "2026-03-18"
-execution_phase: "Slice 5 — Contratos/PMOC (Ready to Start)"
+execution_phase: "Slice 8 — RBAC / Gestão de Usuários (Ready to Start)"
 language: "pt-BR"
 repository_template:
 backend: "backend/"
@@ -903,11 +903,19 @@ Implementar vertical slices preservando a estrutura do repo e produzindo código
 
 1. ✅ Leads/Clientes — Slice 1 (2026-03-17)
 2. ✅ Equipamentos/Unidades — Slice 2 (2026-03-17)
-3. ✅ Agenda — Slice 3 (2026-03-17)
-4. ✅ Relatórios Técnicos — Slice 4 (2026-03-18)
-5. 🔄 Contratos/PMOC — Slice 5 (Ready)
-6. ⏳ Calendário Editorial — Slice 6 (Planned)
-7. ⏳ Automação/Webhooks — Slice 7 (Planned)
+3. ✅ Agenda Operacional — Slice 3 (2026-03-17)
+4. ✅ Relatórios Técnicos / OS — Slice 4 (2026-03-18)
+5. ✅ Contratos / PMOC / Planos Residenciais — Slice 5 (2026-03-18)
+6. ✅ Calendário Editorial — Slice 6 (2026-03-18)
+7. ✅ Lembretes CRM — Slice 7 (2026-03-18)
+8. 🔄 RBAC / Gestão de Usuários — Slice 8 (Ready to Start)
+9. ⏳ Kanban Interno — Slice 9 (Planned)
+10. ⏳ Plano de Manutenção Residencial — Slice 10 (Planned)
+11. ⏳ Fidelização / Score de Fidelidade — Slice 11 (Planned)
+12. ⏳ Email Marketing / Campanhas — Slice 12 (Planned)
+13. ⏳ Webhooks / n8n Adapters — Slice 13 (Planned)
+14. ⏳ MCP Connectors / AI Provider Abstraction — Slice 14 (Planned)
+15. ⏳ Jornal Inteligente / Content Engine — Slice 15 (Planned)
 
 **Status de Slices Completadas**
 
@@ -917,6 +925,22 @@ Implementar vertical slices preservando a estrutura do repo e produzindo código
 | 2 | Clientes/Equipamentos | ✅ clients, units, equipment | ✅ clients.router, equipment.router | ✅ client, unit, equipment | Merged |
 | 3 | Agenda | ✅ schedules | ✅ schedule.router | ✅ schedule.zod | Merged |
 | 4 | Relatórios Técnicos | ✅ service_orders, technical_reports, material_items | ✅ service-orders.router | ✅ service_order, technical_report, material_item | Merged |
+| 5 | Contratos/PMOC | ✅ contracts | ✅ contracts.router | ✅ contract.zod | Merged |
+| 6 | Calendário Editorial | ✅ editorial_calendar_items | ✅ editorial.router | ✅ editorial.zod | Merged |
+| 7 | Lembretes CRM | ✅ reminders | ✅ reminders.router | ✅ reminder.zod | Merged |
+
+**Slices Planejadas (8–15)**
+
+| Slice | Componente | Épico | Prioridade |
+|-------|-----------|-------|-----------|
+| 8 | RBAC — Roles, Permissões, Usuários | A (Foundation) | 🔴 Alta |
+| 9 | Kanban Interno — Boards, Colunas, Cards | C (Field Ops) | 🟡 Média |
+| 10 | Plano de Manutenção Residencial — Catálogo, Períodos, Agenda | D (Contratos) | 🟡 Média |
+| 11 | Fidelização — Score, Reativação 90d, Automação | D (Contratos) | 🟡 Média |
+| 12 | Email Marketing — Listas, Templates, Campanhas | E (Marketing) | 🟢 Baixa |
+| 13 | Webhooks / n8n — Eventos, Filas, Retries, Adapters | F (Automação) | 🟡 Média |
+| 14 | MCP Connectors / AI Providers — Registry, Abstraction, Logs | F (Automação) | 🟢 Baixa |
+| 15 | Jornal Inteligente — Pipeline pauta→blog→carrossel→editorial | E (Marketing) | 🟢 Baixa |
 
 ### Task 2.6 — Testes da Fase ➜ `@implementer`
 
