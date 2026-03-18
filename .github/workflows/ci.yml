@@ -65,6 +65,9 @@ jobs:
           sed -i 's|GOOGLE_CLIENT_ID=.*|GOOGLE_CLIENT_ID=ci-test.apps.googleusercontent.com|' .env
           sed -i 's|GOOGLE_CLIENT_SECRET=.*|GOOGLE_CLIENT_SECRET=ci-google-secret|' .env
           sed -i 's|DB_NAME=connected_repo$|DB_NAME=connected_repo_test|' .env
+          # Criar workspace .env a partir do .env.example para que sync-env.js não os ignore
+          cp apps/backend/.env.example apps/backend/.env
+          cp apps/frontend/.env.example apps/frontend/.env
 
       - name: Sync env (workspace .env files)
         run: node scripts/sync-env.js
