@@ -2,9 +2,10 @@
 
 title: "PRD Técnico — Refrimix Tecnologia CRM Vertical para Climatização com IA, MCP e n8n"
 document_type: "PRD"
-status: "ready-for-execution"
+status: "in-execution"
 product_name: "Refrimix Tecnologia"
-updated_at: "2026-03-17"
+updated_at: "2026-03-18"
+execution_phase: "Slice 5 — Contratos/PMOC (Ready to Start)"
 language: "pt-BR"
 repository_template:
 backend: "backend/"
@@ -900,13 +901,22 @@ Implementar vertical slices preservando a estrutura do repo e produzindo código
 
 **Ordem**
 
-1. Leads/Clientes
-2. Equipamentos/Unidades
-3. Agenda
-4. Relatórios Técnicos
-5. Contratos/PMOC
-6. Calendário Editorial
-7. Automação/Webhooks
+1. ✅ Leads/Clientes — Slice 1 (2026-03-17)
+2. ✅ Equipamentos/Unidades — Slice 2 (2026-03-17)
+3. ✅ Agenda — Slice 3 (2026-03-17)
+4. ✅ Relatórios Técnicos — Slice 4 (2026-03-18)
+5. 🔄 Contratos/PMOC — Slice 5 (Ready)
+6. ⏳ Calendário Editorial — Slice 6 (Planned)
+7. ⏳ Automação/Webhooks — Slice 7 (Planned)
+
+**Status de Slices Completadas**
+
+| Slice | Componente | Backend Tables | Frontend Routes | Zod Schemas | Status |
+|-------|-----------|---|---|---|--------|
+| 1 | Leads | ✅ leads | ✅ leads.router | ✅ lead.zod | Merged |
+| 2 | Clientes/Equipamentos | ✅ clients, units, equipment | ✅ clients.router, equipment.router | ✅ client, unit, equipment | Merged |
+| 3 | Agenda | ✅ schedules | ✅ schedule.router | ✅ schedule.zod | Merged |
+| 4 | Relatórios Técnicos | ✅ service_orders, technical_reports, material_items | ✅ service-orders.router | ✅ service_order, technical_report, material_item | Merged |
 
 ### Task 2.6 — Testes da Fase ➜ `@implementer`
 
