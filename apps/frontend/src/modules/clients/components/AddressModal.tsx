@@ -1,14 +1,17 @@
 import { Typography } from "@connected-repo/ui-mui/data-display/Typography";
+import { Dialog } from "@connected-repo/ui-mui/feedback/Dialog";
+import { DialogActions } from "@connected-repo/ui-mui/feedback/DialogActions";
+import { DialogContent } from "@connected-repo/ui-mui/feedback/DialogContent";
+import { DialogTitle } from "@connected-repo/ui-mui/feedback/DialogTitle";
 import { Button } from "@connected-repo/ui-mui/form/Button";
 import { TextField } from "@connected-repo/ui-mui/form/TextField";
-import { MenuItem } from "@connected-repo/ui-mui/navigation/MenuItem";
 import { Box } from "@connected-repo/ui-mui/layout/Box";
-import { Dialog } from "@connected-repo/ui-mui/feedback/Dialog";
-import { DialogTitle } from "@connected-repo/ui-mui/feedback/DialogTitle";
-import { DialogContent } from "@connected-repo/ui-mui/feedback/DialogContent";
-import { DialogActions } from "@connected-repo/ui-mui/feedback/DialogActions";
+import { MenuItem } from "@connected-repo/ui-mui/navigation/MenuItem";
+import {
+	type AddressCreateInput,
+	addressCreateInputZod,
+} from "@connected-repo/zod-schemas/address.zod";
 import { ADDRESS_TYPE_ENUM } from "@connected-repo/zod-schemas/crm_enums.zod";
-import { addressCreateInputZod, type AddressCreateInput } from "@connected-repo/zod-schemas/address.zod";
 import { trpc } from "@frontend/utils/trpc.client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -23,25 +26,36 @@ interface AddressModalProps {
 export function AddressModal({ clienteId, open, onClose }: AddressModalProps) {
 	const queryClient = useQueryClient();
 
-	const { control, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<AddressCreateInput>({
+	const {
+		control,
+		handleSubmit,
+		reset,
+		formState: { errors, isSubmitting },
+	} = useForm<AddressCreateInput>({
 		resolver: zodResolver(addressCreateInputZod),
 		defaultValues: { clienteId },
 	});
 
-	const addAddress = useMutation(trpc.clients.addAddress.mutationOptions({
-		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: trpc.clients.listAddresses.queryKey({ clienteId }) });
-			reset({ clienteId });
-			onClose();
-		},
-	}));
+	const addAddress = useMutation(
+		trpc.clients.addAddress.mutationOptions({
+			onSuccess: () => {
+				queryClient.invalidateQueries({
+					queryKey: trpc.clients.listAddresses.queryKey({ clienteId }),
+				});
+				reset({ clienteId });
+				onClose();
+			},
+		}),
+	);
 
 	const onSubmit = (data: AddressCreateInput) => addAddress.mutate(data);
 
 	return (
 		<Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
 			<DialogTitle>
-				<Typography variant="h6" fontWeight={600}>Adicionar Endereço</Typography>
+				<Typography variant="h6" fontWeight={600}>
+					Adicionar Endereço
+				</Typography>
 			</DialogTitle>
 			<Box component="form" onSubmit={handleSubmit(onSubmit)}>
 				<DialogContent sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}>
@@ -61,7 +75,9 @@ export function AddressModal({ clienteId, open, onClose }: AddressModalProps) {
 							>
 								<MenuItem value="">Selecione...</MenuItem>
 								{ADDRESS_TYPE_ENUM.map((t) => (
-									<MenuItem key={t} value={t}>{t}</MenuItem>
+									<MenuItem key={t} value={t}>
+										{t}
+									</MenuItem>
 								))}
 							</TextField>
 						)}
@@ -167,7 +183,9 @@ export function AddressModal({ clienteId, open, onClose }: AddressModalProps) {
 					</Box>
 				</DialogContent>
 				<DialogActions sx={{ px: 3, pb: 3 }}>
-					<Button variant="outlined" onClick={onClose} disabled={isSubmitting}>Cancelar</Button>
+					<Button variant="outlined" onClick={onClose} disabled={isSubmitting}>
+						Cancelar
+					</Button>
 					<Button type="submit" variant="contained" disabled={isSubmitting}>
 						{isSubmitting ? "Salvando..." : "Adicionar"}
 					</Button>

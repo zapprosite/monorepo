@@ -1,6 +1,6 @@
-import RemindersPage from "@frontend/modules/reminders/pages/Reminders.page";
 import CreateReminderPage from "@frontend/modules/reminders/pages/CreateReminder.page";
 import ReminderDetailPage from "@frontend/modules/reminders/pages/ReminderDetail.page";
+import RemindersPage from "@frontend/modules/reminders/pages/Reminders.page";
 import { Route, Routes } from "react-router";
 
 export const RemindersRouter = () => {

@@ -1,1 +1,4 @@
-export { default as CircularProgress, type CircularProgressProps } from "@mui/material/CircularProgress";
+export {
+	type CircularProgressProps,
+	default as CircularProgress,
+} from "@mui/material/CircularProgress";

@@ -1,12 +1,15 @@
 import { Typography } from "@connected-repo/ui-mui/data-display/Typography";
+import { Dialog } from "@connected-repo/ui-mui/feedback/Dialog";
+import { DialogActions } from "@connected-repo/ui-mui/feedback/DialogActions";
+import { DialogContent } from "@connected-repo/ui-mui/feedback/DialogContent";
+import { DialogTitle } from "@connected-repo/ui-mui/feedback/DialogTitle";
 import { Button } from "@connected-repo/ui-mui/form/Button";
 import { TextField } from "@connected-repo/ui-mui/form/TextField";
 import { Box } from "@connected-repo/ui-mui/layout/Box";
-import { Dialog } from "@connected-repo/ui-mui/feedback/Dialog";
-import { DialogTitle } from "@connected-repo/ui-mui/feedback/DialogTitle";
-import { DialogContent } from "@connected-repo/ui-mui/feedback/DialogContent";
-import { DialogActions } from "@connected-repo/ui-mui/feedback/DialogActions";
-import { contactCreateInputZod, type ContactCreateInput } from "@connected-repo/zod-schemas/contact.zod";
+import {
+	type ContactCreateInput,
+	contactCreateInputZod,
+} from "@connected-repo/zod-schemas/contact.zod";
 import { trpc } from "@frontend/utils/trpc.client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -21,25 +24,36 @@ interface ContactModalProps {
 export function ContactModal({ clienteId, open, onClose }: ContactModalProps) {
 	const queryClient = useQueryClient();
 
-	const { control, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<ContactCreateInput>({
+	const {
+		control,
+		handleSubmit,
+		reset,
+		formState: { errors, isSubmitting },
+	} = useForm<ContactCreateInput>({
 		resolver: zodResolver(contactCreateInputZod),
 		defaultValues: { clienteId },
 	});
 
-	const addContact = useMutation(trpc.clients.addContact.mutationOptions({
-		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: trpc.clients.listContacts.queryKey({ clienteId }) });
-			reset({ clienteId });
-			onClose();
-		},
-	}));
+	const addContact = useMutation(
+		trpc.clients.addContact.mutationOptions({
+			onSuccess: () => {
+				queryClient.invalidateQueries({
+					queryKey: trpc.clients.listContacts.queryKey({ clienteId }),
+				});
+				reset({ clienteId });
+				onClose();
+			},
+		}),
+	);
 
 	const onSubmit = (data: ContactCreateInput) => addContact.mutate(data);
 
 	return (
 		<Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
 			<DialogTitle>
-				<Typography variant="h6" fontWeight={600}>Adicionar Contato</Typography>
+				<Typography variant="h6" fontWeight={600}>
+					Adicionar Contato
+				</Typography>
 			</DialogTitle>
 			<Box component="form" onSubmit={handleSubmit(onSubmit)}>
 				<DialogContent sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}>
@@ -102,7 +116,9 @@ export function ContactModal({ clienteId, open, onClose }: ContactModalProps) {
 					/>
 				</DialogContent>
 				<DialogActions sx={{ px: 3, pb: 3 }}>
-					<Button variant="outlined" onClick={onClose} disabled={isSubmitting}>Cancelar</Button>
+					<Button variant="outlined" onClick={onClose} disabled={isSubmitting}>
+						Cancelar
+					</Button>
 					<Button type="submit" variant="contained" disabled={isSubmitting}>
 						{isSubmitting ? "Salvando..." : "Adicionar"}
 					</Button>

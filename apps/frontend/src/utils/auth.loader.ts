@@ -1,8 +1,8 @@
+import { userContext } from "@frontend/contexts/UserContext";
 import { queryClient } from "@frontend/utils/queryClient";
 import { trpc } from "@frontend/utils/trpc.client";
-import { redirect } from "react-router";
 import type { LoaderFunctionArgs } from "react-router";
-import { userContext } from "@frontend/contexts/UserContext";
+import { redirect } from "react-router";
 
 /**
  * Auth loader for protected routes
@@ -11,9 +11,7 @@ import { userContext } from "@frontend/contexts/UserContext";
 export async function authLoader({ context }: LoaderFunctionArgs) {
 	try {
 		// Fetch session info from backend
-		const sessionInfo = await queryClient.fetchQuery(
-			trpc.auth.getSessionInfo.queryOptions()
-		);
+		const sessionInfo = await queryClient.fetchQuery(trpc.auth.getSessionInfo.queryOptions());
 
 		// No session - redirect to login
 		if (!sessionInfo.hasSession) {
@@ -30,7 +28,6 @@ export async function authLoader({ context }: LoaderFunctionArgs) {
 
 		// Return session data for loader
 		return sessionInfo;
-
 	} catch (error) {
 		console.error("Auth loader error:", error);
 		throw redirect("/auth/login");
@@ -44,9 +41,7 @@ export async function authLoader({ context }: LoaderFunctionArgs) {
 export async function guestLoader() {
 	try {
 		// Fetch session info from backend
-		const sessionInfo = await queryClient.fetchQuery(
-			trpc.auth.getSessionInfo.queryOptions()
-		);
+		const sessionInfo = await queryClient.fetchQuery(trpc.auth.getSessionInfo.queryOptions());
 
 		// Already registered - redirect to dashboard
 		if (sessionInfo.hasSession && sessionInfo.isRegistered) {

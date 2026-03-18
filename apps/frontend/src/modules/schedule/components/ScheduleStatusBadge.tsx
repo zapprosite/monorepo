@@ -17,12 +17,5 @@ interface ScheduleStatusBadgeProps {
 }
 
 export function ScheduleStatusBadge({ status }: ScheduleStatusBadgeProps) {
-	return (
-		<Chip
-			label={status}
-			color={STATUS_COLOR[status]}
-			size="small"
-			sx={{ fontWeight: 500 }}
-		/>
-	);
+	return <Chip label={status} color={STATUS_COLOR[status]} size="small" sx={{ fontWeight: 500 }} />;
 }

@@ -1,9 +1,8 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
 	journalEntryCreateInputZod,
-	journalEntryUpdateInputZod,
-	journalEntrySelectAllZod,
 	journalEntryGetByIdZod,
+	journalEntrySelectAllZod,
 } from "../journal_entry.zod.js";
 
 describe("journalEntryCreateInputZod", () => {

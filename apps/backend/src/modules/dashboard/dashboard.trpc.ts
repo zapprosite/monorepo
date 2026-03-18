@@ -24,8 +24,7 @@ export const dashboardRouterTrpc = trpcRouter({
 				.order({ createdAt: "DESC" })
 				.limit(5)
 				.select("contractId", "tipo", "status", "dataInicio", "valor", "clienteId"),
-			db.schedules
-				.whereSql`"dataHora" >= NOW()`
+			db.schedules.whereSql`"dataHora" >= NOW()`
 				.order({ dataHora: "ASC" })
 				.limit(5)
 				.select("scheduleId", "tipo", "status", "dataHora", "clienteId"),

@@ -1,6 +1,5 @@
 // Card components
-export { default as Card, type CardProps } from "@mui/material/Card";
-export { default as CardActions, type CardActionsProps } from "@mui/material/CardActions";
-export { default as CardContent, type CardContentProps } from "@mui/material/CardContent";
-export { default as CardHeader, type CardHeaderProps } from "@mui/material/CardHeader";
-
+export { type CardProps, default as Card } from "@mui/material/Card";
+export { type CardActionsProps, default as CardActions } from "@mui/material/CardActions";
+export { type CardContentProps, default as CardContent } from "@mui/material/CardContent";
+export { type CardHeaderProps, default as CardHeader } from "@mui/material/CardHeader";

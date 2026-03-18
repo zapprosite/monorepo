@@ -1,5 +1,5 @@
-import { LoadingSpinner } from "@connected-repo/ui-mui/components/LoadingSpinner";
 import { ErrorAlert } from "@connected-repo/ui-mui/components/ErrorAlert";
+import { LoadingSpinner } from "@connected-repo/ui-mui/components/LoadingSpinner";
 import { Typography } from "@connected-repo/ui-mui/data-display/Typography";
 import { Button } from "@connected-repo/ui-mui/form/Button";
 import { Box } from "@connected-repo/ui-mui/layout/Box";
@@ -13,7 +13,7 @@ import { EditorialStatusBadge } from "../components/EditorialStatusBadge";
 
 function formatDate(dateStr: string | null | undefined): string {
 	if (!dateStr) return "—";
-	const date = new Date(dateStr + "T12:00:00");
+	const date = new Date(`${dateStr}T12:00:00`);
 	return date.toLocaleDateString("pt-BR", {
 		day: "2-digit",
 		month: "long",
@@ -26,9 +26,11 @@ export default function EditorialDetailPage() {
 	const navigate = useNavigate();
 	const queryClient = useQueryClient();
 
-	const { data: item, isLoading, error } = useQuery(
-		trpc.editorial.getEditorialDetail.queryOptions({ editorialId: editorialId! }),
-	);
+	const {
+		data: item,
+		isLoading,
+		error,
+	} = useQuery(trpc.editorial.getEditorialDetail.queryOptions({ editorialId: editorialId! }));
 
 	const invalidate = () => {
 		queryClient.invalidateQueries({ queryKey: trpc.editorial.listEditorialItems.queryKey() });
@@ -159,20 +161,28 @@ export default function EditorialDetailPage() {
 					</Typography>
 					<Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
 						<Box>
-							<Typography variant="caption" color="text.secondary">Canal</Typography>
+							<Typography variant="caption" color="text.secondary">
+								Canal
+							</Typography>
 							<Typography variant="body2">{item.canal}</Typography>
 						</Box>
 						<Box>
-							<Typography variant="caption" color="text.secondary">Formato</Typography>
+							<Typography variant="caption" color="text.secondary">
+								Formato
+							</Typography>
 							<Typography variant="body2">{item.formato}</Typography>
 						</Box>
 						<Box>
-							<Typography variant="caption" color="text.secondary">Data de Publicação</Typography>
+							<Typography variant="caption" color="text.secondary">
+								Data de Publicação
+							</Typography>
 							<Typography variant="body2">{formatDate(item.dataPublicacao)}</Typography>
 						</Box>
 						{item.cta && (
 							<Box>
-								<Typography variant="caption" color="text.secondary">CTA</Typography>
+								<Typography variant="caption" color="text.secondary">
+									CTA
+								</Typography>
 								<Typography variant="body2">{item.cta}</Typography>
 							</Box>
 						)}
@@ -190,19 +200,29 @@ export default function EditorialDetailPage() {
 					<Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
 						{item.pauta && (
 							<Box>
-								<Typography variant="caption" color="text.secondary">Pauta</Typography>
-								<Typography variant="body2" sx={{ whiteSpace: "pre-wrap" }}>{item.pauta}</Typography>
+								<Typography variant="caption" color="text.secondary">
+									Pauta
+								</Typography>
+								<Typography variant="body2" sx={{ whiteSpace: "pre-wrap" }}>
+									{item.pauta}
+								</Typography>
 							</Box>
 						)}
 						{item.copy && (
 							<Box>
-								<Typography variant="caption" color="text.secondary">Copy</Typography>
-								<Typography variant="body2" sx={{ whiteSpace: "pre-wrap" }}>{item.copy}</Typography>
+								<Typography variant="caption" color="text.secondary">
+									Copy
+								</Typography>
+								<Typography variant="body2" sx={{ whiteSpace: "pre-wrap" }}>
+									{item.copy}
+								</Typography>
 							</Box>
 						)}
 						{item.observacoes && (
 							<Box>
-								<Typography variant="caption" color="text.secondary">Observações</Typography>
+								<Typography variant="caption" color="text.secondary">
+									Observações
+								</Typography>
 								<Typography variant="body2">{item.observacoes}</Typography>
 							</Box>
 						)}

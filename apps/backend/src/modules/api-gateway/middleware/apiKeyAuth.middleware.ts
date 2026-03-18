@@ -8,10 +8,7 @@ import type { FastifyReply, FastifyRequest } from "fastify";
  * Extracts x-api-key and x-team-id headers, verifies API key against team's hash
  * and attaches team data to request object if valid
  */
-export async function apiKeyAuthHook(
-	request: FastifyRequest,
-	reply: FastifyReply,
-) {
+export async function apiKeyAuthHook(request: FastifyRequest, reply: FastifyReply) {
 	// Extract headers
 	const apiKey = request.headers["x-api-key"];
 	const teamId = request.headers["x-team-id"];
@@ -33,9 +30,7 @@ export async function apiKeyAuthHook(
 	}
 
 	// Get team by ID with all columns including hidden ones
-	const team = await db.teams
-		.select("*", "apiSecretHash")
-		.findBy({ teamId });
+	const team = await db.teams.select("*", "apiSecretHash").findBy({ teamId });
 
 	if (!team) {
 		return reply.code(401).send({

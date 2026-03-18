@@ -1,5 +1,5 @@
-import { seedPrompts } from "@backend/db/seed/prompts.seed";
 import { seedCRM } from "@backend/db/seed/crm.seed";
+import { seedPrompts } from "@backend/db/seed/prompts.seed";
 
 export const seed = async () => {
 	console.log("Seeding database...");
@@ -9,4 +9,3 @@ export const seed = async () => {
 
 	console.log("Seeding completed successfully!");
 };
-

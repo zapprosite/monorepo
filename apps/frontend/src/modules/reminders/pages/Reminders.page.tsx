@@ -1,18 +1,18 @@
-import { LoadingSpinner } from "@connected-repo/ui-mui/components/LoadingSpinner";
 import { ErrorAlert } from "@connected-repo/ui-mui/components/ErrorAlert";
+import { LoadingSpinner } from "@connected-repo/ui-mui/components/LoadingSpinner";
 import { Chip } from "@connected-repo/ui-mui/data-display/Chip";
 import { Typography } from "@connected-repo/ui-mui/data-display/Typography";
 import { Button } from "@connected-repo/ui-mui/form/Button";
 import { TextField } from "@connected-repo/ui-mui/form/TextField";
-import { MenuItem } from "@connected-repo/ui-mui/navigation/MenuItem";
 import { Box } from "@connected-repo/ui-mui/layout/Box";
 import { Container } from "@connected-repo/ui-mui/layout/Container";
 import { Paper } from "@connected-repo/ui-mui/layout/Paper";
+import { MenuItem } from "@connected-repo/ui-mui/navigation/MenuItem";
+import type { ReminderStatus, ReminderType } from "@connected-repo/zod-schemas/crm_enums.zod";
 import {
 	REMINDER_STATUS_ENUM,
 	REMINDER_TYPE_ENUM,
 } from "@connected-repo/zod-schemas/crm_enums.zod";
-import type { ReminderStatus, ReminderType } from "@connected-repo/zod-schemas/crm_enums.zod";
 import { trpc } from "@frontend/utils/trpc.client";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
@@ -21,7 +21,7 @@ import { ReminderStatusBadge } from "../components/ReminderStatusBadge";
 
 function formatDate(dateStr: string | null | undefined): string {
 	if (!dateStr) return "—";
-	const date = new Date(dateStr + "T12:00:00");
+	const date = new Date(`${dateStr}T12:00:00`);
 	return date.toLocaleDateString("pt-BR", {
 		day: "2-digit",
 		month: "2-digit",
@@ -36,7 +36,11 @@ export default function RemindersPage() {
 	const [filterDataInicio, setFilterDataInicio] = useState("");
 	const [filterDataFim, setFilterDataFim] = useState("");
 
-	const { data: reminders, isLoading, error } = useQuery(
+	const {
+		data: reminders,
+		isLoading,
+		error,
+	} = useQuery(
 		trpc.reminders.listReminders.queryOptions({
 			status: filterStatus || undefined,
 			tipo: filterTipo || undefined,
@@ -70,7 +74,11 @@ export default function RemindersPage() {
 					<Typography
 						variant="h3"
 						component="h1"
-						sx={{ fontSize: { xs: "2rem", md: "2.5rem" }, fontWeight: 700, letterSpacing: "-0.01em" }}
+						sx={{
+							fontSize: { xs: "2rem", md: "2.5rem" },
+							fontWeight: 700,
+							letterSpacing: "-0.01em",
+						}}
 					>
 						Lembretes
 					</Typography>
@@ -81,7 +89,10 @@ export default function RemindersPage() {
 				<Button
 					variant="contained"
 					onClick={() => navigate("/reminders/new")}
-					sx={{ transition: "all 0.2s ease-in-out", "&:hover": { transform: "translateY(-2px)", boxShadow: 4 } }}
+					sx={{
+						transition: "all 0.2s ease-in-out",
+						"&:hover": { transform: "translateY(-2px)", boxShadow: 4 },
+					}}
 				>
 					Novo Lembrete
 				</Button>
@@ -109,7 +120,9 @@ export default function RemindersPage() {
 					>
 						<MenuItem value="">Todos</MenuItem>
 						{REMINDER_STATUS_ENUM.map((s) => (
-							<MenuItem key={s} value={s}>{s}</MenuItem>
+							<MenuItem key={s} value={s}>
+								{s}
+							</MenuItem>
 						))}
 					</TextField>
 
@@ -123,7 +136,9 @@ export default function RemindersPage() {
 					>
 						<MenuItem value="">Todos</MenuItem>
 						{REMINDER_TYPE_ENUM.map((t) => (
-							<MenuItem key={t} value={t}>{t}</MenuItem>
+							<MenuItem key={t} value={t}>
+								{t}
+							</MenuItem>
 						))}
 					</TextField>
 
@@ -205,7 +220,15 @@ export default function RemindersPage() {
 									<Typography variant="subtitle1" fontWeight={600} noWrap>
 										{reminder.titulo}
 									</Typography>
-									<Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mt: 0.5, flexWrap: "wrap" }}>
+									<Box
+										sx={{
+											display: "flex",
+											alignItems: "center",
+											gap: 1.5,
+											mt: 0.5,
+											flexWrap: "wrap",
+										}}
+									>
 										<Chip label={reminder.tipo} size="small" variant="outlined" />
 										<Typography variant="body2" color="text.secondary">
 											{reminder.clienteNome ?? "—"}

@@ -78,7 +78,7 @@ app.after(() => {
 				timeWindow: 1000 * 60, // per minute per IP (stricter than global)
 			}),
 		},
-		function (_request, reply) {
+		(_request, reply) => {
 			reply.code(404).send({
 				statusCode: 404,
 				error: "Not Found",

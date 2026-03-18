@@ -1,6 +1,9 @@
 import { isDev } from "@backend/configs/env.config";
-import { SessionSecurityLevel, validateSessionSecurity } from "@backend/middlewares/sessionSecurity.middleware";
-import { SessionUser } from "@backend/modules/auth/session.auth.utils";
+import {
+	SessionSecurityLevel,
+	validateSessionSecurity,
+} from "@backend/middlewares/sessionSecurity.middleware";
+import type { SessionUser } from "@backend/modules/auth/session.auth.utils";
 import { trpcErrorParser } from "@backend/utils/errorParser";
 import { getClientIpAddress } from "@backend/utils/request-metadata.utils";
 import { initTRPC, TRPCError } from "@trpc/server";
@@ -14,7 +17,7 @@ export const createTRPCContext = (input: CreateFastifyContextOptions) => {
 		req: input.req,
 		res: input.res,
 		user: user,
-	}
+	};
 };
 
 export type TrpcContext = Awaited<ReturnType<typeof createTRPCContext>>;
@@ -76,13 +79,13 @@ export const trpcRouter = t.router;
 const isAuthenticatedMiddleware = t.middleware(({ ctx, next }) => {
 	if (!ctx.user?.userId) {
 		throw new TRPCError({ code: "UNAUTHORIZED", message: "User is not authenticated" });
-	};
+	}
 
 	return next({
 		ctx: {
 			...ctx,
-			user: ctx.user as SessionUser & { userId: string }
-		}
+			user: ctx.user as SessionUser & { userId: string },
+		},
 	});
 });
 
@@ -91,18 +94,21 @@ const isAuthenticatedMiddleware = t.middleware(({ ctx, next }) => {
  * Uses MODERATE mode by default to avoid disrupting user experience
  * For sensitive operations, use sensitiveProcedure instead
  */
-const sessionSecurityMiddleware = (securityLevel: SessionSecurityLevel = SessionSecurityLevel.MODERATE) => t.middleware(({ ctx, next }) => {
-	const result = validateSessionSecurity(ctx.req, securityLevel);
+const sessionSecurityMiddleware = (
+	securityLevel: SessionSecurityLevel = SessionSecurityLevel.MODERATE,
+) =>
+	t.middleware(({ ctx, next }) => {
+		const result = validateSessionSecurity(ctx.req, securityLevel);
 
-	if (result.action === "block") {
-		throw new TRPCError({
-			code: "FORBIDDEN",
-			message: "Session security validation failed. Please log in again.",
-		});
-	}
+		if (result.action === "block") {
+			throw new TRPCError({
+				code: "FORBIDDEN",
+				message: "Session security validation failed. Please log in again.",
+			});
+		}
 
-	return next();
-});
+		return next();
+	});
 
 // Protected procedure with database error handling
 export const protectedProcedure = publicProcedure.use(isAuthenticatedMiddleware);
@@ -111,7 +117,9 @@ export const protectedProcedure = publicProcedure.use(isAuthenticatedMiddleware)
  * Sensitive procedure - for operations requiring additional security validation
  * Use this for: password changes, account deletion, payment processing, admin actions, etc.
  */
-export const sensitiveProcedure = protectedProcedure.use(sessionSecurityMiddleware(SessionSecurityLevel.STRICT));
+export const sensitiveProcedure = protectedProcedure.use(
+	sessionSecurityMiddleware(SessionSecurityLevel.STRICT),
+);
 
 /**
  * Rate limiting middleware for tRPC procedures

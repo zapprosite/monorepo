@@ -1,5 +1,5 @@
-import { createTheme } from "@mui/material/styles";
 import type { PaletteMode } from "@mui/material";
+import { createTheme } from "@mui/material/styles";
 import "./theme.types"; // Import type augmentations
 
 /**
@@ -93,53 +93,53 @@ export const createAppTheme = (mode: PaletteMode = "light") => {
 				? {
 						// Refrimix Tecnologia — paleta oficial
 						primary: {
-							main: "#1D4ED8",       // Azul institucional Refrimix
+							main: "#1D4ED8", // Azul institucional Refrimix
 							light: "#3B6FE8",
-							dark: "#123057",       // Navy 800
+							dark: "#123057", // Navy 800
 							lighter: "rgba(29, 78, 216, 0.08)",
 						},
 						secondary: {
-							main: "#6D28D9",       // Roxo IA/automação
+							main: "#6D28D9", // Roxo IA/automação
 							light: "#8B5CF6",
 							dark: "#4C1D95",
 							contrastText: "#fff",
 						},
 						success: {
-							main: "#16A34A",       // Verde sucesso Refrimix
+							main: "#16A34A", // Verde sucesso Refrimix
 							light: "#22C55E",
 							dark: "#15803D",
 							lighter: "rgba(22, 163, 74, 0.08)",
 							contrastText: "#fff",
 						},
 						error: {
-							main: "#DC2626",       // Vermelho crítico Refrimix
+							main: "#DC2626", // Vermelho crítico Refrimix
 							light: "#EF4444",
 							dark: "#B91C1C",
 							lighter: "rgba(220, 38, 38, 0.08)",
 							contrastText: "#fff",
 						},
 						warning: {
-							main: "#F59E0B",       // Amarelo alerta Refrimix
+							main: "#F59E0B", // Amarelo alerta Refrimix
 							light: "#FCD34D",
 							dark: "#D97706",
 							contrastText: "#000",
 						},
 						info: {
-							main: "#06B6D4",       // Ciano tecnológico Refrimix
+							main: "#06B6D4", // Ciano tecnológico Refrimix
 							light: "#22D3EE",
 							dark: "#0891B2",
 							contrastText: "#fff",
 						},
 						background: {
-							default: "#F5F7FB",    // Fundo claro Refrimix
+							default: "#F5F7FB", // Fundo claro Refrimix
 							paper: "#ffffff",
 						},
 						text: {
-							primary: "#0B1F3A",    // Navy 900 para texto principal
-							secondary: "#64748B",  // Texto secundário Refrimix
+							primary: "#0B1F3A", // Navy 900 para texto principal
+							secondary: "#64748B", // Texto secundário Refrimix
 							disabled: "#94A3B8",
 						},
-				  }
+					}
 				: {
 						// Dark mode colors
 						primary: {
@@ -189,7 +189,7 @@ export const createAppTheme = (mode: PaletteMode = "light") => {
 							secondary: "#b0b0b0",
 							disabled: "#666666",
 						},
-				  }),
+					}),
 		},
 	});
 };

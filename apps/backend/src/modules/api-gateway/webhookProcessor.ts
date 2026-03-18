@@ -36,10 +36,13 @@ export async function runWebhookProcessor(): Promise<{
 		const duration = Date.now() - startTime;
 
 		// Log summary
-		logger.info({
-			duration,
-			...results,
-		}, "Webhook processor completed successfully");
+		logger.info(
+			{
+				duration,
+				...results,
+			},
+			"Webhook processor completed successfully",
+		);
 
 		// Log details if webhooks were processed
 		if (results.processed > 0) {
@@ -58,10 +61,13 @@ export async function runWebhookProcessor(): Promise<{
 		const duration = Date.now() - startTime;
 		const errorMessage = error instanceof Error ? error.message : "Unknown error";
 
-		logger.error({
-			error,
-			duration,
-		}, "Webhook processor failed with error");
+		logger.error(
+			{
+				error,
+				duration,
+			},
+			"Webhook processor failed with error",
+		);
 
 		return {
 			success: false,

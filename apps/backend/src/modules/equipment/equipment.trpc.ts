@@ -3,16 +3,16 @@ import { protectedProcedure, trpcRouter } from "@backend/trpc";
 import {
 	equipmentCreateInputZod,
 	equipmentGetByIdZod,
-	equipmentUpdateInputZod,
 	equipmentsByClientZod,
 	equipmentsByUnitZod,
+	equipmentUpdateInputZod,
 	listEquipmentFilterZod,
 } from "@connected-repo/zod-schemas/equipment.zod";
 import {
 	unitCreateInputZod,
 	unitGetByIdZod,
-	unitUpdateInputZod,
 	unitsByClientZod,
+	unitUpdateInputZod,
 } from "@connected-repo/zod-schemas/unit.zod";
 
 export const equipmentRouterTrpc = trpcRouter({
@@ -23,19 +23,15 @@ export const equipmentRouterTrpc = trpcRouter({
 			return db.units.where({ clienteId }).order({ nome: "ASC" });
 		}),
 
-	getUnitDetail: protectedProcedure
-		.input(unitGetByIdZod)
-		.query(async ({ input: { unitId } }) => {
-			const unit = await db.units.find(unitId);
-			if (!unit) throw new Error("Unidade não encontrada");
-			return unit;
-		}),
+	getUnitDetail: protectedProcedure.input(unitGetByIdZod).query(async ({ input: { unitId } }) => {
+		const unit = await db.units.find(unitId);
+		if (!unit) throw new Error("Unidade não encontrada");
+		return unit;
+	}),
 
-	createUnit: protectedProcedure
-		.input(unitCreateInputZod)
-		.mutation(async ({ input }) => {
-			return db.units.create(input);
-		}),
+	createUnit: protectedProcedure.input(unitCreateInputZod).mutation(async ({ input }) => {
+		return db.units.create(input);
+	}),
 
 	updateUnit: protectedProcedure
 		.input(unitUpdateInputZod)
@@ -44,16 +40,14 @@ export const equipmentRouterTrpc = trpcRouter({
 		}),
 
 	// --- EQUIPMENT ---
-	listEquipment: protectedProcedure
-		.input(listEquipmentFilterZod)
-		.query(async ({ input }) => {
-			let query = db.equipment.select("*");
-			if (input.clienteId) query = query.where({ clienteId: input.clienteId });
-			if (input.unitId) query = query.where({ unitId: input.unitId });
-			if (input.status) query = query.where({ status: input.status });
-			if (input.ativo !== undefined) query = query.where({ ativo: input.ativo });
-			return query.order({ nome: "ASC" });
-		}),
+	listEquipment: protectedProcedure.input(listEquipmentFilterZod).query(async ({ input }) => {
+		let query = db.equipment.select("*");
+		if (input.clienteId) query = query.where({ clienteId: input.clienteId });
+		if (input.unitId) query = query.where({ unitId: input.unitId });
+		if (input.status) query = query.where({ status: input.status });
+		if (input.ativo !== undefined) query = query.where({ ativo: input.ativo });
+		return query.order({ nome: "ASC" });
+	}),
 
 	listEquipmentByClient: protectedProcedure
 		.input(equipmentsByClientZod)
@@ -75,11 +69,9 @@ export const equipmentRouterTrpc = trpcRouter({
 			return eq;
 		}),
 
-	createEquipment: protectedProcedure
-		.input(equipmentCreateInputZod)
-		.mutation(async ({ input }) => {
-			return db.equipment.create(input);
-		}),
+	createEquipment: protectedProcedure.input(equipmentCreateInputZod).mutation(async ({ input }) => {
+		return db.equipment.create(input);
+	}),
 
 	updateEquipment: protectedProcedure
 		.input(equipmentUpdateInputZod)

@@ -87,23 +87,8 @@ export function validateSessionSecurity(
 			case SessionSecurityLevel.STRICT:
 				result.isValid = false;
 				result.action = "block";
-				request.log.warn({
-					userId: request.session.user.userId,
-					email: request.session.user.email,
-					reasons: result.reasons,
-					storedFingerprint: storedMetadata.deviceFingerprint,
-					currentFingerprint,
-					storedIp: storedMetadata.ipAddress,
-					currentIp,
-				}, "Session security validation failed - BLOCKING (STRICT)");
-				break;
-
-			case SessionSecurityLevel.MODERATE:
-				// MODERATE blocks on fingerprint mismatch but allows IP changes
-				if (result.reasons.includes("Device fingerprint mismatch")) {
-					result.isValid = false;
-					result.action = "block";
-					request.log.warn({
+				request.log.warn(
+					{
 						userId: request.session.user.userId,
 						email: request.session.user.email,
 						reasons: result.reasons,
@@ -111,27 +96,54 @@ export function validateSessionSecurity(
 						currentFingerprint,
 						storedIp: storedMetadata.ipAddress,
 						currentIp,
-					}, "Session security validation failed - BLOCKING (MODERATE: device mismatch)");
+					},
+					"Session security validation failed - BLOCKING (STRICT)",
+				);
+				break;
+
+			case SessionSecurityLevel.MODERATE:
+				// MODERATE blocks on fingerprint mismatch but allows IP changes
+				if (result.reasons.includes("Device fingerprint mismatch")) {
+					result.isValid = false;
+					result.action = "block";
+					request.log.warn(
+						{
+							userId: request.session.user.userId,
+							email: request.session.user.email,
+							reasons: result.reasons,
+							storedFingerprint: storedMetadata.deviceFingerprint,
+							currentFingerprint,
+							storedIp: storedMetadata.ipAddress,
+							currentIp,
+						},
+						"Session security validation failed - BLOCKING (MODERATE: device mismatch)",
+					);
 				} else {
 					// Only IP change - warn but allow
 					result.action = "warn";
-					request.log.warn({
-						userId: request.session.user.userId,
-						email: request.session.user.email,
-						reasons: result.reasons,
-						storedIp: storedMetadata.ipAddress,
-						currentIp,
-					}, "Session security validation flagged suspicious activity - WARNING (IP change only)");
+					request.log.warn(
+						{
+							userId: request.session.user.userId,
+							email: request.session.user.email,
+							reasons: result.reasons,
+							storedIp: storedMetadata.ipAddress,
+							currentIp,
+						},
+						"Session security validation flagged suspicious activity - WARNING (IP change only)",
+					);
 				}
 				break;
 
 			case SessionSecurityLevel.LENIENT:
 				result.action = "allow";
-				request.log.info({
-					userId: request.session.user.userId,
-					email: request.session.user.email,
-					reasons: result.reasons,
-				}, "Session security validation detected anomaly - LOGGING ONLY");
+				request.log.info(
+					{
+						userId: request.session.user.userId,
+						email: request.session.user.email,
+						reasons: result.reasons,
+					},
+					"Session security validation detected anomaly - LOGGING ONLY",
+				);
 				break;
 		}
 	}
@@ -150,7 +162,9 @@ export function validateSessionSecurity(
  * app.addHook("onRequest", sessionSecurityHook(SessionSecurityLevel.MODERATE));
  * ```
  */
-export function sessionSecurityHook(securityLevel: SessionSecurityLevel = SessionSecurityLevel.MODERATE) {
+export function sessionSecurityHook(
+	securityLevel: SessionSecurityLevel = SessionSecurityLevel.MODERATE,
+) {
 	return async (request: FastifyRequest) => {
 		// Skip validation for public endpoints
 		if (!request.session?.user) {

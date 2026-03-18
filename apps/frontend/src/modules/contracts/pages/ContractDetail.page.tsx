@@ -1,5 +1,5 @@
-import { LoadingSpinner } from "@connected-repo/ui-mui/components/LoadingSpinner";
 import { ErrorAlert } from "@connected-repo/ui-mui/components/ErrorAlert";
+import { LoadingSpinner } from "@connected-repo/ui-mui/components/LoadingSpinner";
 import { Typography } from "@connected-repo/ui-mui/data-display/Typography";
 import { Button } from "@connected-repo/ui-mui/form/Button";
 import { Box } from "@connected-repo/ui-mui/layout/Box";
@@ -10,12 +10,12 @@ import { trpc } from "@frontend/utils/trpc.client";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router";
-import { ContractStatusBadge } from "../components/ContractStatusBadge";
 import { CancelContractModal } from "../components/CancelContractModal";
+import { ContractStatusBadge } from "../components/ContractStatusBadge";
 
 function formatDate(dateStr: string | null | undefined): string {
 	if (!dateStr) return "—";
-	const date = new Date(dateStr + "T12:00:00");
+	const date = new Date(`${dateStr}T12:00:00`);
 	return date.toLocaleDateString("pt-BR", {
 		day: "2-digit",
 		month: "long",
@@ -37,9 +37,11 @@ export default function ContractDetailPage() {
 	const queryClient = useQueryClient();
 	const [cancelOpen, setCancelOpen] = useState(false);
 
-	const { data: contract, isLoading, error } = useQuery(
-		trpc.contracts.getContractDetail.queryOptions({ contractId: contractId! }),
-	);
+	const {
+		data: contract,
+		isLoading,
+		error,
+	} = useQuery(trpc.contracts.getContractDetail.queryOptions({ contractId: contractId! }));
 
 	const invalidate = () => {
 		queryClient.invalidateQueries({ queryKey: trpc.contracts.listContracts.queryKey() });
@@ -57,18 +59,14 @@ export default function ContractDetailPage() {
 	const reactivate = useMutation(
 		trpc.contracts.reactivateContract.mutationOptions({ onSuccess: invalidate }),
 	);
-	const end = useMutation(
-		trpc.contracts.endContract.mutationOptions({ onSuccess: invalidate }),
-	);
+	const end = useMutation(trpc.contracts.endContract.mutationOptions({ onSuccess: invalidate }));
 
 	if (isLoading) return <LoadingSpinner text="Carregando contrato..." />;
 
 	if (error || !contract) {
 		return (
 			<Container maxWidth="lg" sx={{ py: 4 }}>
-				<ErrorAlert
-					message={`Erro ao carregar contrato: ${error?.message ?? "Não encontrado"}`}
-				/>
+				<ErrorAlert message={`Erro ao carregar contrato: ${error?.message ?? "Não encontrado"}`} />
 			</Container>
 		);
 	}
@@ -200,26 +198,36 @@ export default function ContractDetailPage() {
 					</Typography>
 					<Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
 						<Box>
-							<Typography variant="caption" color="text.secondary">Tipo</Typography>
+							<Typography variant="caption" color="text.secondary">
+								Tipo
+							</Typography>
 							<Typography variant="body2">{c.tipo}</Typography>
 						</Box>
 						<Box>
-							<Typography variant="caption" color="text.secondary">Data Início</Typography>
+							<Typography variant="caption" color="text.secondary">
+								Data Início
+							</Typography>
 							<Typography variant="body2">{formatDate(c.dataInicio)}</Typography>
 						</Box>
 						{c.dataFim && (
 							<Box>
-								<Typography variant="caption" color="text.secondary">Data Fim</Typography>
+								<Typography variant="caption" color="text.secondary">
+									Data Fim
+								</Typography>
 								<Typography variant="body2">{formatDate(c.dataFim)}</Typography>
 							</Box>
 						)}
 						<Box>
-							<Typography variant="caption" color="text.secondary">Valor Mensal</Typography>
+							<Typography variant="caption" color="text.secondary">
+								Valor Mensal
+							</Typography>
 							<Typography variant="body2">{formatCurrency(c.valor)}</Typography>
 						</Box>
 						{c.frequencia && (
 							<Box>
-								<Typography variant="caption" color="text.secondary">Frequência</Typography>
+								<Typography variant="caption" color="text.secondary">
+									Frequência
+								</Typography>
 								<Typography variant="body2">{c.frequencia}</Typography>
 							</Box>
 						)}
@@ -237,19 +245,25 @@ export default function ContractDetailPage() {
 					<Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
 						{c.descricao && (
 							<Box>
-								<Typography variant="caption" color="text.secondary">Descrição</Typography>
+								<Typography variant="caption" color="text.secondary">
+									Descrição
+								</Typography>
 								<Typography variant="body2">{c.descricao}</Typography>
 							</Box>
 						)}
 						{c.observacoes && (
 							<Box>
-								<Typography variant="caption" color="text.secondary">Observações</Typography>
+								<Typography variant="caption" color="text.secondary">
+									Observações
+								</Typography>
 								<Typography variant="body2">{c.observacoes}</Typography>
 							</Box>
 						)}
 						{c.motivoCancelamento && (
 							<Box>
-								<Typography variant="caption" color="error.main">Motivo do Cancelamento</Typography>
+								<Typography variant="caption" color="error.main">
+									Motivo do Cancelamento
+								</Typography>
 								<Typography variant="body2">{c.motivoCancelamento}</Typography>
 							</Box>
 						)}
@@ -264,7 +278,13 @@ export default function ContractDetailPage() {
 				{/* Unidades Vinculadas — placeholder */}
 				<Paper
 					elevation={0}
-					sx={{ border: "1px solid", borderColor: "divider", borderRadius: 2, p: 3, gridColumn: { md: "1 / -1" } }}
+					sx={{
+						border: "1px solid",
+						borderColor: "divider",
+						borderRadius: 2,
+						p: 3,
+						gridColumn: { md: "1 / -1" },
+					}}
 				>
 					<Typography variant="h6" fontWeight={600} mb={2}>
 						Unidades Vinculadas
@@ -277,7 +297,13 @@ export default function ContractDetailPage() {
 				{/* Histórico de Renovações — placeholder */}
 				<Paper
 					elevation={0}
-					sx={{ border: "1px solid", borderColor: "divider", borderRadius: 2, p: 3, gridColumn: { md: "1 / -1" } }}
+					sx={{
+						border: "1px solid",
+						borderColor: "divider",
+						borderRadius: 2,
+						p: 3,
+						gridColumn: { md: "1 / -1" },
+					}}
 				>
 					<Typography variant="h6" fontWeight={600} mb={2}>
 						Histórico de Renovações

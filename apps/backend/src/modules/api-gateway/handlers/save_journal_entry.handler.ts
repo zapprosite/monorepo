@@ -1,5 +1,8 @@
 import { db } from "@backend/db/db";
-import { JournalEntryCreateInput, JournalEntrySelectAll } from "@connected-repo/zod-schemas/journal_entry.zod";
+import type {
+	JournalEntryCreateInput,
+	JournalEntrySelectAll,
+} from "@connected-repo/zod-schemas/journal_entry.zod";
 import type { FastifyReply, FastifyRequest } from "fastify";
 
 /**
@@ -34,7 +37,7 @@ export async function saveJournalEntryHandler(
 		if (!userExists) {
 			// return empty response
 			return reply.code(204).send();
-		};
+		}
 
 		// Create journal entry in database
 		const journalEntry = await db.journalEntries.create({
@@ -45,21 +48,27 @@ export async function saveJournalEntryHandler(
 		});
 
 		// Log success for debugging
-		request.log.info({
-			journalEntryId: journalEntry.journalEntryId,
-			teamId,
-			teamUserReferenceId,
-			promptLength: prompt?.length ?? 0,
-			contentLength: content.length,
-		}, "Journal entry saved successfully");
+		request.log.info(
+			{
+				journalEntryId: journalEntry.journalEntryId,
+				teamId,
+				teamUserReferenceId,
+				promptLength: prompt?.length ?? 0,
+				contentLength: content.length,
+			},
+			"Journal entry saved successfully",
+		);
 
 		return reply.code(201).send(journalEntry);
 	} catch (error) {
-		request.log.error({
-			error,
-			teamId,
-			teamUserReferenceId,
-		}, "Failed to save journal entry");
+		request.log.error(
+			{
+				error,
+				teamId,
+				teamUserReferenceId,
+			},
+			"Failed to save journal entry",
+		);
 
 		return reply.code(500).send({
 			statusCode: 500,

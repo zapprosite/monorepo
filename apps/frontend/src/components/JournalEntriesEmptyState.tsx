@@ -1,6 +1,6 @@
-import { Box } from "@connected-repo/ui-mui/layout/Box";
 import { Typography } from "@connected-repo/ui-mui/data-display/Typography";
 import { Button } from "@connected-repo/ui-mui/form/Button";
+import { Box } from "@connected-repo/ui-mui/layout/Box";
 import { useNavigate } from "react-router";
 
 export function JournalEntriesEmptyState() {
@@ -34,13 +34,7 @@ export function JournalEntriesEmptyState() {
 				📔
 			</Box>
 
-			<Typography
-				variant="h4"
-				color="text.primary"
-				gutterBottom
-				fontWeight={600}
-				sx={{ mb: 2 }}
-			>
+			<Typography variant="h4" color="text.primary" gutterBottom fontWeight={600} sx={{ mb: 2 }}>
 				No Journal Entries Yet
 			</Typography>
 

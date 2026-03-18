@@ -10,31 +10,29 @@ import {
 const EDITORIAL_MAX_LIMIT = 500;
 
 export const editorialRouterTrpc = trpcRouter({
-	listEditorialItems: protectedProcedure
-		.input(listEditorialFilterZod)
-		.query(async ({ input }) => {
-			let query = db.editorialItems.select("*");
+	listEditorialItems: protectedProcedure.input(listEditorialFilterZod).query(async ({ input }) => {
+		let query = db.editorialItems.select("*");
 
-			if (input.status) {
-				query = query.where({ status: input.status });
-			}
-			if (input.canal) {
-				query = query.where({ canal: input.canal });
-			}
-			if (input.formato) {
-				query = query.where({ formato: input.formato });
-			}
-			if (input.dataInicio) {
-				const inicio = input.dataInicio;
-				query = query.whereSql`"dataPublicacao" >= ${inicio}::date`;
-			}
-			if (input.dataFim) {
-				const fim = input.dataFim;
-				query = query.whereSql`"dataPublicacao" <= ${fim}::date`;
-			}
+		if (input.status) {
+			query = query.where({ status: input.status });
+		}
+		if (input.canal) {
+			query = query.where({ canal: input.canal });
+		}
+		if (input.formato) {
+			query = query.where({ formato: input.formato });
+		}
+		if (input.dataInicio) {
+			const inicio = input.dataInicio;
+			query = query.whereSql`"dataPublicacao" >= ${inicio}::date`;
+		}
+		if (input.dataFim) {
+			const fim = input.dataFim;
+			query = query.whereSql`"dataPublicacao" <= ${fim}::date`;
+		}
 
-			return query.order({ dataPublicacao: "ASC" }).limit(EDITORIAL_MAX_LIMIT);
-		}),
+		return query.order({ dataPublicacao: "ASC" }).limit(EDITORIAL_MAX_LIMIT);
+	}),
 
 	getEditorialDetail: protectedProcedure
 		.input(editorialGetByIdZod)

@@ -2,6 +2,7 @@ import { sql } from "@backend/db/base_table";
 import type { db } from "@backend/db/db";
 import type { SessionStore } from "@fastify/session";
 import type { FastifyRequest } from "fastify";
+
 type Database = typeof db;
 
 /**
@@ -46,10 +47,10 @@ export class DatabaseSessionStore implements SessionStore {
 					},
 					create: {
 						sessionId,
-						userId: session.user?.userId || null,  // Database user ID (nullable for OAuth users pending registration)
-						email: session.user!.email,
-						name: session.user!.name,
-						displayPicture: session.user!.displayPicture || null,
+						userId: session.user?.userId || null, // Database user ID (nullable for OAuth users pending registration)
+						email: session.user?.email,
+						name: session.user?.name,
+						displayPicture: session.user?.displayPicture || null,
 						ipAddress: session.metadata?.ipAddress || null,
 						userAgent: session.metadata?.userAgent || null,
 						browser: session.metadata?.browser || null,
@@ -57,7 +58,7 @@ export class DatabaseSessionStore implements SessionStore {
 						device: session.metadata?.device || null,
 						deviceFingerprint: session.metadata?.deviceFingerprint || null,
 						markedInvalidAt: null,
-					}
+					},
 				});
 
 			callback();
@@ -79,9 +80,7 @@ export class DatabaseSessionStore implements SessionStore {
 				.select("*", {
 					user: (q) => q.user.select("name", "displayPicture"),
 				})
-				.findOptional(
-					sessionId,
-				);
+				.findOptional(sessionId);
 
 			// Session not found
 			if (!sessionData) {
@@ -91,7 +90,7 @@ export class DatabaseSessionStore implements SessionStore {
 			// Reconstruct session object for Fastify
 			const session = {
 				user: {
-					userId: sessionData.userId,  // OAuth provider ID (not stored in DB, only in-memory during OAuth flow)
+					userId: sessionData.userId, // OAuth provider ID (not stored in DB, only in-memory during OAuth flow)
 					email: sessionData.email,
 					name: sessionData.user?.name ?? sessionData.name,
 					displayPicture: sessionData.user?.displayPicture ?? sessionData.displayPicture,
@@ -118,10 +117,7 @@ export class DatabaseSessionStore implements SessionStore {
 	/**
 	 * Invalidate a session by setting markedInvalidAt timestamp
 	 */
-	async destroy(
-		sessionId: string,
-		callback: (err?: Error) => void,
-	): Promise<void> {
+	async destroy(sessionId: string, callback: (err?: Error) => void): Promise<void> {
 		try {
 			await this.db.sessions.findBy({ sessionId }).update({
 				markedInvalidAt: () => sql`NOW()`,
@@ -142,7 +138,6 @@ export class DatabaseSessionStore implements SessionStore {
 		callback: (err?: Error) => void,
 	): Promise<void> {
 		try {
-
 			await this.db.sessions.findBy({ sessionId }).update({
 				expiresAt: () => sql`NOW() + ${this.cookieMaxAgeSeconds} * INTERVAL '1 SECOND'`,
 			});

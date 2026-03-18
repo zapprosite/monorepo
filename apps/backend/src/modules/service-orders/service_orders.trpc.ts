@@ -104,17 +104,13 @@ export const serviceOrdersRouterTrpc = trpcRouter({
 	assinarTecnico: protectedProcedure
 		.input(technicalReportByServiceOrderZod)
 		.mutation(async ({ input: { serviceOrderId } }) => {
-			return db.technicalReports
-				.where({ serviceOrderId })
-				.update({ assinadoTecnico: true });
+			return db.technicalReports.where({ serviceOrderId }).update({ assinadoTecnico: true });
 		}),
 
 	assinarCliente: protectedProcedure
 		.input(technicalReportByServiceOrderZod)
 		.mutation(async ({ input: { serviceOrderId } }) => {
-			return db.technicalReports
-				.where({ serviceOrderId })
-				.update({ assinadoCliente: true });
+			return db.technicalReports.where({ serviceOrderId }).update({ assinadoCliente: true });
 		}),
 
 	// — Material Items —
@@ -128,9 +124,7 @@ export const serviceOrdersRouterTrpc = trpcRouter({
 				.limit(RELATED_MAX_LIMIT);
 		}),
 
-	addMaterial: protectedProcedure
-		.input(materialItemCreateInputZod)
-		.mutation(async ({ input }) => {
-			return db.materialItems.create(input);
-		}),
+	addMaterial: protectedProcedure.input(materialItemCreateInputZod).mutation(async ({ input }) => {
+		return db.materialItems.create(input);
+	}),
 });

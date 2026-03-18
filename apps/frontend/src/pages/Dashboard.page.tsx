@@ -23,7 +23,7 @@ import { useNavigate } from "react-router";
 
 function formatDate(dateStr: string | null | undefined): string {
 	if (!dateStr) return "—";
-	const date = new Date(dateStr + "T12:00:00");
+	const date = new Date(`${dateStr}T12:00:00`);
 	return date.toLocaleDateString("pt-BR", {
 		day: "2-digit",
 		month: "2-digit",
@@ -74,12 +74,21 @@ function KpiCard({ label, value, icon, color }: KpiCardProps) {
 			}}
 		>
 			<Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1 }}>
-				<Typography variant="caption" color="text.secondary" fontWeight={500} sx={{ textTransform: "uppercase", letterSpacing: "0.05em" }}>
+				<Typography
+					variant="caption"
+					color="text.secondary"
+					fontWeight={500}
+					sx={{ textTransform: "uppercase", letterSpacing: "0.05em" }}
+				>
 					{label}
 				</Typography>
 				<Box sx={{ color, display: "flex" }}>{icon}</Box>
 			</Box>
-			<Typography variant="h3" fontWeight={700} sx={{ color, fontSize: { xs: "2rem", md: "2.5rem" } }}>
+			<Typography
+				variant="h3"
+				fontWeight={700}
+				sx={{ color, fontSize: { xs: "2rem", md: "2.5rem" } }}
+			>
 				{value}
 			</Typography>
 		</Paper>
@@ -88,7 +97,10 @@ function KpiCard({ label, value, icon, color }: KpiCardProps) {
 
 function KpiCardSkeleton() {
 	return (
-		<Paper elevation={0} sx={{ border: "1px solid", borderColor: "divider", borderRadius: 2, p: 3 }}>
+		<Paper
+			elevation={0}
+			sx={{ border: "1px solid", borderColor: "divider", borderRadius: 2, p: 3 }}
+		>
 			<Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1 }}>
 				<Skeleton variant="text" width={80} height={16} />
 				<Skeleton variant="circular" width={20} height={20} />
@@ -109,8 +121,26 @@ interface PanelProps {
 
 function Panel({ title, actionLabel, onAction, children }: PanelProps) {
 	return (
-		<Paper elevation={0} sx={{ border: "1px solid", borderColor: "divider", borderRadius: 2, display: "flex", flexDirection: "column", overflow: "hidden" }}>
-			<Box sx={{ px: 3, py: 2, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+		<Paper
+			elevation={0}
+			sx={{
+				border: "1px solid",
+				borderColor: "divider",
+				borderRadius: 2,
+				display: "flex",
+				flexDirection: "column",
+				overflow: "hidden",
+			}}
+		>
+			<Box
+				sx={{
+					px: 3,
+					py: 2,
+					display: "flex",
+					alignItems: "center",
+					justifyContent: "space-between",
+				}}
+			>
 				<Typography variant="subtitle1" fontWeight={700}>
 					{title}
 				</Typography>
@@ -168,9 +198,15 @@ export default function DashboardPage() {
 					</Box>
 
 					{/* Panel skeletons */}
-					<Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "2fr 1fr 1fr" }, gap: 3 }}>
+					<Box
+						sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "2fr 1fr 1fr" }, gap: 3 }}
+					>
 						{Array.from({ length: 3 }).map((_, i) => (
-							<Paper key={i} elevation={0} sx={{ border: "1px solid", borderColor: "divider", borderRadius: 2, p: 3 }}>
+							<Paper
+								key={i}
+								elevation={0}
+								sx={{ border: "1px solid", borderColor: "divider", borderRadius: 2, p: 3 }}
+							>
 								<Skeleton variant="text" width="60%" height={28} sx={{ mb: 2 }} />
 								{Array.from({ length: 4 }).map((__, j) => (
 									<Skeleton key={j} variant="text" width="100%" height={20} sx={{ mb: 1 }} />
@@ -225,7 +261,10 @@ export default function DashboardPage() {
 					>
 						Dashboard
 					</Typography>
-					<Typography variant="body2" sx={{ color: "rgba(255,255,255,0.7)", mt: 0.5, textTransform: "capitalize" }}>
+					<Typography
+						variant="body2"
+						sx={{ color: "rgba(255,255,255,0.7)", mt: 0.5, textTransform: "capitalize" }}
+					>
 						Bem-vindo, {user?.name ?? user?.email ?? "Usuário"} &nbsp;·&nbsp; {todayPtBR()}
 					</Typography>
 				</Box>
@@ -322,27 +361,38 @@ export default function DashboardPage() {
 												<Typography
 													variant="subtitle2"
 													fontWeight={700}
-													sx={{ color: "#06B6D4", minWidth: 44, fontVariantNumeric: "tabular-nums" }}
+													sx={{
+														color: "#06B6D4",
+														minWidth: 44,
+														fontVariantNumeric: "tabular-nums",
+													}}
 												>
 													{formatTime(schedule.dataHora)}
 												</Typography>
 												<Box sx={{ flex: 1, minWidth: 0 }}>
-													<Chip label={schedule.tipo} size="small" variant="outlined" sx={{ mb: 0.25 }} />
+													<Chip
+														label={schedule.tipo}
+														size="small"
+														variant="outlined"
+														sx={{ mb: 0.25 }}
+													/>
 												</Box>
 												<Chip
 													label={schedule.status}
 													size="small"
 													sx={{
-														bgcolor: schedule.status === "Confirmado"
-															? "success.light"
-															: schedule.status === "Cancelado"
-																? "error.light"
-																: "info.light",
-														color: schedule.status === "Confirmado"
-															? "success.dark"
-															: schedule.status === "Cancelado"
-																? "error.dark"
-																: "info.dark",
+														bgcolor:
+															schedule.status === "Confirmado"
+																? "success.light"
+																: schedule.status === "Cancelado"
+																	? "error.light"
+																	: "info.light",
+														color:
+															schedule.status === "Confirmado"
+																? "success.dark"
+																: schedule.status === "Cancelado"
+																	? "error.dark"
+																	: "info.dark",
 														fontWeight: 600,
 														fontSize: "0.7rem",
 													}}
@@ -435,28 +485,41 @@ export default function DashboardPage() {
 												}}
 												onClick={() => navigate(`/contracts/${contract.contractId}`)}
 											>
-												<Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1 }}>
+												<Box
+													sx={{
+														display: "flex",
+														alignItems: "center",
+														justifyContent: "space-between",
+														gap: 1,
+													}}
+												>
 													<Chip label={contract.tipo} size="small" variant="outlined" />
 													<Chip
 														label={contract.status}
 														size="small"
 														sx={{
-															bgcolor: contract.status === "Ativo"
-																? "success.light"
-																: contract.status === "Cancelado"
-																	? "error.light"
-																	: "warning.light",
-															color: contract.status === "Ativo"
-																? "success.dark"
-																: contract.status === "Cancelado"
-																	? "error.dark"
-																	: "warning.dark",
+															bgcolor:
+																contract.status === "Ativo"
+																	? "success.light"
+																	: contract.status === "Cancelado"
+																		? "error.light"
+																		: "warning.light",
+															color:
+																contract.status === "Ativo"
+																	? "success.dark"
+																	: contract.status === "Cancelado"
+																		? "error.dark"
+																		: "warning.dark",
 															fontWeight: 600,
 															fontSize: "0.7rem",
 														}}
 													/>
 												</Box>
-												<Typography variant="body2" fontWeight={600} sx={{ mt: 0.5, color: "#06B6D4" }}>
+												<Typography
+													variant="body2"
+													fontWeight={600}
+													sx={{ mt: 0.5, color: "#06B6D4" }}
+												>
 													{formatCurrency(contract.valor)}
 												</Typography>
 												<Typography variant="caption" color="text.secondary">

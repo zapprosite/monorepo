@@ -22,11 +22,7 @@ function normalizeIPv6(ipv6: string): string {
 			.filter(Boolean);
 		const missingParts = 8 - leftParts.length - rightParts.length;
 
-		const expanded = [
-			...leftParts,
-			...Array(missingParts).fill("0"),
-			...rightParts,
-		];
+		const expanded = [...leftParts, ...Array(missingParts).fill("0"), ...rightParts];
 
 		return expanded.map((part) => part.padStart(4, "0")).join(":");
 	}
@@ -59,11 +55,7 @@ export function areSameSubnet(ip1: string, ip2: string): boolean {
 				return false;
 			}
 
-			return (
-				parts1[0] === parts2[0] &&
-				parts1[1] === parts2[1] &&
-				parts1[2] === parts2[2]
-			);
+			return parts1[0] === parts2[0] && parts1[1] === parts2[1] && parts1[2] === parts2[2];
 		}
 
 		// Check if both are IPv6
@@ -133,10 +125,7 @@ export function isIPWhitelisted(ip: string, whitelistEntry: string): boolean {
  * @param whitelistEntry - Whitelist entry (e.g., "example.com" or "*.example.com")
  * @returns True if domain matches
  */
-export function isDomainWhitelisted(
-	requestOrigin: string,
-	whitelistEntry: string,
-): boolean {
+export function isDomainWhitelisted(requestOrigin: string, whitelistEntry: string): boolean {
 	// Extract domain from origin (remove protocol and port)
 	let domain: string;
 	try {

@@ -30,9 +30,7 @@ export default function EquipmentDetailPage() {
 		data: equipment,
 		isLoading,
 		error,
-	} = useQuery(
-		trpc.equipment.getEquipmentDetail.queryOptions({ equipmentId: equipmentId! }),
-	);
+	} = useQuery(trpc.equipment.getEquipmentDetail.queryOptions({ equipmentId: equipmentId! }));
 
 	if (isLoading) return <LoadingSpinner text="Carregando equipamento..." />;
 

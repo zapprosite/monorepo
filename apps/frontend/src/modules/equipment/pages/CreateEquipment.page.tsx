@@ -6,7 +6,10 @@ import { Container } from "@connected-repo/ui-mui/layout/Container";
 import { Paper } from "@connected-repo/ui-mui/layout/Paper";
 import { MenuItem } from "@connected-repo/ui-mui/navigation/MenuItem";
 import { EQUIPMENT_STATUS_ENUM } from "@connected-repo/zod-schemas/crm_enums.zod";
-import { equipmentCreateInputZod, type EquipmentCreateInput } from "@connected-repo/zod-schemas/equipment.zod";
+import {
+	type EquipmentCreateInput,
+	equipmentCreateInputZod,
+} from "@connected-repo/zod-schemas/equipment.zod";
 import { trpc } from "@frontend/utils/trpc.client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -30,9 +33,7 @@ export default function CreateEquipmentPage() {
 
 	const clienteId = useWatch({ control, name: "clienteId" });
 
-	const { data: clients } = useQuery(
-		trpc.clients.listClients.queryOptions({}),
-	);
+	const { data: clients } = useQuery(trpc.clients.listClients.queryOptions({}));
 
 	const { data: units } = useQuery({
 		...trpc.equipment.listUnitsByClient.queryOptions({ clienteId: clienteId ?? "" }),
@@ -114,9 +115,7 @@ export default function CreateEquipmentPage() {
 						)}
 					/>
 
-					<Box
-						sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 3 }}
-					>
+					<Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 3 }}>
 						<Controller
 							name="tipo"
 							control={control}
@@ -166,11 +165,7 @@ export default function CreateEquipmentPage() {
 								fullWidth
 								disabled={!clienteId}
 								error={!!errors.unitId}
-								helperText={
-									!clienteId
-										? "Selecione um cliente primeiro"
-										: errors.unitId?.message
-								}
+								helperText={!clienteId ? "Selecione um cliente primeiro" : errors.unitId?.message}
 							>
 								<MenuItem value="">Nenhuma</MenuItem>
 								{units?.map((u) => (
@@ -183,9 +178,7 @@ export default function CreateEquipmentPage() {
 					/>
 
 					{/* Campos opcionais */}
-					<Box
-						sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 3 }}
-					>
+					<Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 3 }}>
 						<Controller
 							name="marca"
 							control={control}
@@ -216,9 +209,7 @@ export default function CreateEquipmentPage() {
 						/>
 					</Box>
 
-					<Box
-						sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 3 }}
-					>
+					<Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 3 }}>
 						<Controller
 							name="numeroDeSerie"
 							control={control}
@@ -243,9 +234,7 @@ export default function CreateEquipmentPage() {
 									label="Capacidade (BTU)"
 									type="number"
 									fullWidth
-									onChange={(e) =>
-										field.onChange(e.target.value ? Number(e.target.value) : null)
-									}
+									onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : null)}
 									error={!!errors.capacidadeBtu}
 									helperText={errors.capacidadeBtu?.message}
 								/>
@@ -266,9 +255,7 @@ export default function CreateEquipmentPage() {
 									label="Ano Fabricação"
 									type="number"
 									fullWidth
-									onChange={(e) =>
-										field.onChange(e.target.value ? Number(e.target.value) : null)
-									}
+									onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : null)}
 									error={!!errors.anoFabricacao}
 									helperText={errors.anoFabricacao?.message}
 								/>

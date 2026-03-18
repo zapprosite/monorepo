@@ -1,16 +1,19 @@
 import { Typography } from "@connected-repo/ui-mui/data-display/Typography";
 import { Button } from "@connected-repo/ui-mui/form/Button";
 import { TextField } from "@connected-repo/ui-mui/form/TextField";
-import { MenuItem } from "@connected-repo/ui-mui/navigation/MenuItem";
 import { Box } from "@connected-repo/ui-mui/layout/Box";
 import { Container } from "@connected-repo/ui-mui/layout/Container";
 import { Paper } from "@connected-repo/ui-mui/layout/Paper";
+import { MenuItem } from "@connected-repo/ui-mui/navigation/MenuItem";
 import {
-	EDITORIAL_STATUS_ENUM,
 	EDITORIAL_CHANNEL_ENUM,
 	EDITORIAL_FORMAT_ENUM,
+	EDITORIAL_STATUS_ENUM,
 } from "@connected-repo/zod-schemas/crm_enums.zod";
-import { editorialCreateInputZod, type EditorialCreateInput } from "@connected-repo/zod-schemas/editorial.zod";
+import {
+	type EditorialCreateInput,
+	editorialCreateInputZod,
+} from "@connected-repo/zod-schemas/editorial.zod";
 import { trpc } from "@frontend/utils/trpc.client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -21,7 +24,11 @@ export default function CreateEditorialPage() {
 	const navigate = useNavigate();
 	const queryClient = useQueryClient();
 
-	const { control, handleSubmit, formState: { errors, isSubmitting } } = useForm<EditorialCreateInput>({
+	const {
+		control,
+		handleSubmit,
+		formState: { errors, isSubmitting },
+	} = useForm<EditorialCreateInput>({
 		resolver: zodResolver(editorialCreateInputZod),
 		defaultValues: {
 			status: "Ideia",
@@ -100,7 +107,9 @@ export default function CreateEditorialPage() {
 					</Box>
 
 					{/* Row 2: Canal + Formato + Status */}
-					<Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr 1fr" }, gap: 3 }}>
+					<Box
+						sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr 1fr" }, gap: 3 }}
+					>
 						<Controller
 							name="canal"
 							control={control}
@@ -114,7 +123,9 @@ export default function CreateEditorialPage() {
 									helperText={errors.canal?.message}
 								>
 									{EDITORIAL_CHANNEL_ENUM.map((c) => (
-										<MenuItem key={c} value={c}>{c}</MenuItem>
+										<MenuItem key={c} value={c}>
+											{c}
+										</MenuItem>
 									))}
 								</TextField>
 							)}
@@ -133,7 +144,9 @@ export default function CreateEditorialPage() {
 									helperText={errors.formato?.message}
 								>
 									{EDITORIAL_FORMAT_ENUM.map((f) => (
-										<MenuItem key={f} value={f}>{f}</MenuItem>
+										<MenuItem key={f} value={f}>
+											{f}
+										</MenuItem>
 									))}
 								</TextField>
 							)}
@@ -152,7 +165,9 @@ export default function CreateEditorialPage() {
 									helperText={errors.status?.message}
 								>
 									{EDITORIAL_STATUS_ENUM.map((s) => (
-										<MenuItem key={s} value={s}>{s}</MenuItem>
+										<MenuItem key={s} value={s}>
+											{s}
+										</MenuItem>
 									))}
 								</TextField>
 							)}

@@ -16,7 +16,7 @@ export const MobileNavbar = () => {
 	// Map paths to bottom nav indices
 	const getBottomNavValue = () => {
 		// Check navigation items first
-		const navIndex = navItems.findIndex(item => item.path === location.pathname);
+		const navIndex = navItems.findIndex((item) => item.path === location.pathname);
 		if (navIndex !== -1) return navIndex;
 
 		// Profile is the last item

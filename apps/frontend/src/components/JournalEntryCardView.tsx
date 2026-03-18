@@ -1,7 +1,7 @@
+import { Chip } from "@connected-repo/ui-mui/data-display/Chip";
+import { Typography } from "@connected-repo/ui-mui/data-display/Typography";
 import { Box } from "@connected-repo/ui-mui/layout/Box";
 import { Card, CardContent } from "@connected-repo/ui-mui/layout/Card";
-import { Typography } from "@connected-repo/ui-mui/data-display/Typography";
-import { Chip } from "@connected-repo/ui-mui/data-display/Chip";
 import type { journalEntrySelectAllZod } from "@connected-repo/zod-schemas/journal_entry.zod";
 import type { z } from "zod";
 
@@ -68,7 +68,14 @@ export function JournalEntryCardView({ entries, onEntryClick }: JournalEntryCard
 							},
 						}}
 					>
-						<CardContent sx={{ flexGrow: 1, display: "flex", flexDirection: "column", p: { xs: 2, sm: 2.5, lg: 3 } }}>
+						<CardContent
+							sx={{
+								flexGrow: 1,
+								display: "flex",
+								flexDirection: "column",
+								p: { xs: 2, sm: 2.5, lg: 3 },
+							}}
+						>
 							{/* Prompt Section */}
 							<Box sx={{ mb: 2 }}>
 								<Chip

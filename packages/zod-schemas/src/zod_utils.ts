@@ -4,7 +4,7 @@ import { z } from "zod";
 export const zSmallint = (min = -32768, max = 32767) => z.int().min(min).max(max);
 export const zInteger = (min = -2147483648, max = 2147483647) => z.int32().min(min).max(max);
 export const zBigint = (min = -9223372036854775808n, max = 9223372036854775807n) =>
-  z.bigint().min(min).max(max);
+	z.bigint().min(min).max(max);
 
 export const zTimeEpoch = z.coerce.number().int().min(0);
 
@@ -64,7 +64,8 @@ export const zTimestamps = {
 
 export const zPrice = zDecimal(10, 2, 0.01);
 export const zQuantity = zDecimal(11, 3, 0.001);
-export const zAmount = (min = Number.NEGATIVE_INFINITY, max = Number.POSITIVE_INFINITY) => zDecimal(15, 2, min, max);
+export const zAmount = (min = Number.NEGATIVE_INFINITY, max = Number.POSITIVE_INFINITY) =>
+	zDecimal(15, 2, min, max);
 
 /* Compliance Doc Types */
 export const zGSTIN = zString
@@ -108,10 +109,13 @@ export const zPhoneNumber = z
 	.trim()
 	.min(10, "Phone number must be at least 10 digits")
 	.max(15, "Phone number must be at most 15 digits")
-	.regex(/^[+]?[1-9][\d\s\-\(\)]{8,14}$/, "Invalid phone number format");
+	.regex(/^[+]?[1-9][\d\s\-()]{8,14}$/, "Invalid phone number format");
 
 /* Location Types */
 // https://stackoverflow.com/questions/3518504/regular-expression-for-matching-latitude-longitude-coordinates/31408260#31408260
-export const zLatitude = zString.regex(/^(\+|-)?(?:90(?:(?:\.0{1,6})?)|(?:[0-9]|[1-8][0-9])(?:(?:\.[0-9]{1,6})?))$/);
-export const zLongitude = zString
-	.regex(/^(\+|-)?(?:180(?:(?:\.0{1,6})?)|(?:[0-9]|[1-9][0-9]|1[0-7][0-9])(?:(?:\.[0-9]{1,6})?))$/);
+export const zLatitude = zString.regex(
+	/^(\+|-)?(?:90(?:(?:\.0{1,6})?)|(?:[0-9]|[1-8][0-9])(?:(?:\.[0-9]{1,6})?))$/,
+);
+export const zLongitude = zString.regex(
+	/^(\+|-)?(?:180(?:(?:\.0{1,6})?)|(?:[0-9]|[1-9][0-9]|1[0-7][0-9])(?:(?:\.[0-9]{1,6})?))$/,
+);

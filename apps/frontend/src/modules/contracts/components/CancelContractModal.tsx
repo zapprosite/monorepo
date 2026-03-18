@@ -1,10 +1,10 @@
 import { Typography } from "@connected-repo/ui-mui/data-display/Typography";
-import { Button } from "@connected-repo/ui-mui/form/Button";
-import { TextField } from "@connected-repo/ui-mui/form/TextField";
 import { Dialog } from "@connected-repo/ui-mui/feedback/Dialog";
 import { DialogActions } from "@connected-repo/ui-mui/feedback/DialogActions";
 import { DialogContent } from "@connected-repo/ui-mui/feedback/DialogContent";
 import { DialogTitle } from "@connected-repo/ui-mui/feedback/DialogTitle";
+import { Button } from "@connected-repo/ui-mui/form/Button";
+import { TextField } from "@connected-repo/ui-mui/form/TextField";
 import { trpc } from "@frontend/utils/trpc.client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
@@ -16,7 +16,12 @@ interface CancelContractModalProps {
 	onSuccess: () => void;
 }
 
-export function CancelContractModal({ open, onClose, contractId, onSuccess }: CancelContractModalProps) {
+export function CancelContractModal({
+	open,
+	onClose,
+	contractId,
+	onSuccess,
+}: CancelContractModalProps) {
 	const [motivoCancelamento, setMotivoCancelamento] = useState("");
 	const queryClient = useQueryClient();
 

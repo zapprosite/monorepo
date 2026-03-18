@@ -1,9 +1,6 @@
 import { db } from "@backend/db/db";
 import { publicProcedure, trpcRouter } from "@backend/trpc";
-import {
-	promptGetActiveZod,
-	promptGetByIdZod,
-} from "@connected-repo/zod-schemas/prompt.zod";
+import { promptGetActiveZod, promptGetByIdZod } from "@connected-repo/zod-schemas/prompt.zod";
 
 export const promptsRouterTrpc = trpcRouter({
 	// Get all active prompts
@@ -19,8 +16,7 @@ export const promptsRouterTrpc = trpcRouter({
 	// Get a random active prompt
 	getRandomActive: publicProcedure.query(async () => {
 		// Get count of active prompts
-		const count = await db.prompts
-			.count();
+		const count = await db.prompts.count();
 
 		if (count === 0) {
 			throw new Error("No active prompts available");
@@ -33,7 +29,7 @@ export const promptsRouterTrpc = trpcRouter({
 
 			// Get the first active prompt at this offset
 			const prompt = await db.prompts
-				.where({ isActive: true, promptId: {gte: randomIndex} })
+				.where({ isActive: true, promptId: { gte: randomIndex } })
 				.select("*")
 				.limit(1)
 				.take();
@@ -48,27 +44,23 @@ export const promptsRouterTrpc = trpcRouter({
 	}),
 
 	// Get prompt by ID
-	getById: publicProcedure
-		.input(promptGetByIdZod)
-		.query(async ({ input: { promptId } }) => {
-			const prompt = await db.prompts.find(promptId);
+	getById: publicProcedure.input(promptGetByIdZod).query(async ({ input: { promptId } }) => {
+		const prompt = await db.prompts.find(promptId);
 
-			if (!prompt) {
-				throw new Error("Prompt not found");
-			}
+		if (!prompt) {
+			throw new Error("Prompt not found");
+		}
 
-			return prompt;
-		}),
+		return prompt;
+	}),
 
 	// Get prompts by category
-	getByCategory: publicProcedure
-		.input(promptGetActiveZod)
-		.query(async ({ input }) => {
-			const prompts = await db.prompts
-				.where({ isActive: input.isActive })
-				.select("*")
-				.order({ createdAt: "DESC" });
+	getByCategory: publicProcedure.input(promptGetActiveZod).query(async ({ input }) => {
+		const prompts = await db.prompts
+			.where({ isActive: input.isActive })
+			.select("*")
+			.order({ createdAt: "DESC" });
 
-			return prompts;
-		}),
+		return prompts;
+	}),
 });

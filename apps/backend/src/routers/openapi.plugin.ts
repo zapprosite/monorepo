@@ -15,18 +15,17 @@ import swagger from "@fastify/swagger";
 import swaggerUI from "@fastify/swagger-ui";
 import type { FastifyInstance } from "fastify";
 import {
+	type FastifyZodOpenApiSchema,
+	type FastifyZodOpenApiTypeProvider,
 	fastifyZodOpenApiPlugin,
-	FastifyZodOpenApiSchema,
 	fastifyZodOpenApiTransform,
 	fastifyZodOpenApiTransformObject,
-	FastifyZodOpenApiTypeProvider,
 	serializerCompiler,
-	validatorCompiler
+	validatorCompiler,
 } from "fastify-zod-openapi";
 import z from "zod";
 
 export const openapiPlugin = async (app: FastifyInstance) => {
-
 	// Set Zod validator and serializer for OpenAPI compatibility
 	// This enables automatic validation and serialization based on Zod schemas
 	app.setValidatorCompiler(validatorCompiler);
@@ -92,7 +91,7 @@ export const openapiPlugin = async (app: FastifyInstance) => {
 						description: "Response message from the API",
 						example: "Hello from API",
 					}),
-				})
+				}),
 			},
 		} satisfies FastifyZodOpenApiSchema,
 		handler: async (_req, reply) => {

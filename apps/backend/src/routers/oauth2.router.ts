@@ -1,4 +1,3 @@
-
 import rateLimit from "@fastify/rate-limit";
 import type { FastifyInstance } from "fastify";
 import { googleOAuth2Plugin } from "../modules/auth/oauth2/google-oauth2.auth.plugin";
@@ -29,7 +28,7 @@ export async function oauth2Router(app: FastifyInstance) {
 
 	// Register Google OAuth2 provider
 	await app.register(googleOAuth2Plugin, {
-		prefix: "/google"
+		prefix: "/google",
 	});
 
 	// Future: Add more OAuth2 providers here (GitHub, Facebook, etc.)

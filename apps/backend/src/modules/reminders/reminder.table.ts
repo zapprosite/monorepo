@@ -1,7 +1,7 @@
 import { BaseTable } from "@backend/db/base_table";
 import {
-	REMINDER_TYPE_ENUM,
 	REMINDER_STATUS_ENUM,
+	REMINDER_TYPE_ENUM,
 } from "@connected-repo/zod-schemas/crm_enums.zod";
 
 export class ReminderTable extends BaseTable {

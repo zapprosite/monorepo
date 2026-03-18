@@ -10,39 +10,33 @@ import {
 const LEADS_MAX_LIMIT = 200;
 
 export const leadsRouterTrpc = trpcRouter({
-	listLeads: protectedProcedure
-		.input(listLeadsFilterZod)
-		.query(async ({ input }) => {
-			let query = db.leads.select("*");
+	listLeads: protectedProcedure.input(listLeadsFilterZod).query(async ({ input }) => {
+		let query = db.leads.select("*");
 
-			if (input.status) {
-				query = query.where({ status: input.status });
-			}
-			if (input.origem) {
-				query = query.where({ origem: input.origem });
-			}
-			if (input.responsavelId) {
-				query = query.where({ responsavelId: input.responsavelId });
-			}
-			if (input.search) {
-				const term = `%${input.search}%`;
-				query = query.whereSql`"nome" ILIKE ${term}`;
-			}
+		if (input.status) {
+			query = query.where({ status: input.status });
+		}
+		if (input.origem) {
+			query = query.where({ origem: input.origem });
+		}
+		if (input.responsavelId) {
+			query = query.where({ responsavelId: input.responsavelId });
+		}
+		if (input.search) {
+			const term = `%${input.search}%`;
+			query = query.whereSql`"nome" ILIKE ${term}`;
+		}
 
-			return query.order({ createdAt: "DESC" }).limit(LEADS_MAX_LIMIT);
-		}),
+		return query.order({ createdAt: "DESC" }).limit(LEADS_MAX_LIMIT);
+	}),
 
-	getLeadDetail: protectedProcedure
-		.input(leadGetByIdZod)
-		.query(async ({ input: { leadId } }) => {
-			return db.leads.find(leadId);
-		}),
+	getLeadDetail: protectedProcedure.input(leadGetByIdZod).query(async ({ input: { leadId } }) => {
+		return db.leads.find(leadId);
+	}),
 
-	createLead: protectedProcedure
-		.input(leadCreateInputZod)
-		.mutation(async ({ input }) => {
-			return db.leads.create(input);
-		}),
+	createLead: protectedProcedure.input(leadCreateInputZod).mutation(async ({ input }) => {
+		return db.leads.create(input);
+	}),
 
 	updateLead: protectedProcedure
 		.input(leadUpdateInputZod)

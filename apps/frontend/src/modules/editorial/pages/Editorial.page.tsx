@@ -1,19 +1,23 @@
-import { LoadingSpinner } from "@connected-repo/ui-mui/components/LoadingSpinner";
 import { ErrorAlert } from "@connected-repo/ui-mui/components/ErrorAlert";
+import { LoadingSpinner } from "@connected-repo/ui-mui/components/LoadingSpinner";
 import { Chip } from "@connected-repo/ui-mui/data-display/Chip";
 import { Typography } from "@connected-repo/ui-mui/data-display/Typography";
 import { Button } from "@connected-repo/ui-mui/form/Button";
 import { TextField } from "@connected-repo/ui-mui/form/TextField";
-import { MenuItem } from "@connected-repo/ui-mui/navigation/MenuItem";
 import { Box } from "@connected-repo/ui-mui/layout/Box";
 import { Container } from "@connected-repo/ui-mui/layout/Container";
 import { Paper } from "@connected-repo/ui-mui/layout/Paper";
+import { MenuItem } from "@connected-repo/ui-mui/navigation/MenuItem";
+import type {
+	EditorialChannel,
+	EditorialFormat,
+	EditorialStatus,
+} from "@connected-repo/zod-schemas/crm_enums.zod";
 import {
-	EDITORIAL_STATUS_ENUM,
 	EDITORIAL_CHANNEL_ENUM,
 	EDITORIAL_FORMAT_ENUM,
+	EDITORIAL_STATUS_ENUM,
 } from "@connected-repo/zod-schemas/crm_enums.zod";
-import type { EditorialStatus, EditorialChannel, EditorialFormat } from "@connected-repo/zod-schemas/crm_enums.zod";
 import { trpc } from "@frontend/utils/trpc.client";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
@@ -22,7 +26,7 @@ import { EditorialStatusBadge } from "../components/EditorialStatusBadge";
 
 function formatDate(dateStr: string | null | undefined): string {
 	if (!dateStr) return "—";
-	const date = new Date(dateStr + "T12:00:00");
+	const date = new Date(`${dateStr}T12:00:00`);
 	return date.toLocaleDateString("pt-BR", {
 		day: "2-digit",
 		month: "2-digit",
@@ -38,7 +42,11 @@ export default function EditorialPage() {
 	const [filterDataInicio, setFilterDataInicio] = useState("");
 	const [filterDataFim, setFilterDataFim] = useState("");
 
-	const { data: items, isLoading, error } = useQuery(
+	const {
+		data: items,
+		isLoading,
+		error,
+	} = useQuery(
 		trpc.editorial.listEditorialItems.queryOptions({
 			status: filterStatus || undefined,
 			canal: filterCanal || undefined,
@@ -73,7 +81,11 @@ export default function EditorialPage() {
 					<Typography
 						variant="h3"
 						component="h1"
-						sx={{ fontSize: { xs: "2rem", md: "2.5rem" }, fontWeight: 700, letterSpacing: "-0.01em" }}
+						sx={{
+							fontSize: { xs: "2rem", md: "2.5rem" },
+							fontWeight: 700,
+							letterSpacing: "-0.01em",
+						}}
 					>
 						Calendário Editorial
 					</Typography>
@@ -84,7 +96,10 @@ export default function EditorialPage() {
 				<Button
 					variant="contained"
 					onClick={() => navigate("/editorial/new")}
-					sx={{ transition: "all 0.2s ease-in-out", "&:hover": { transform: "translateY(-2px)", boxShadow: 4 } }}
+					sx={{
+						transition: "all 0.2s ease-in-out",
+						"&:hover": { transform: "translateY(-2px)", boxShadow: 4 },
+					}}
 				>
 					Novo Item
 				</Button>
@@ -112,7 +127,9 @@ export default function EditorialPage() {
 					>
 						<MenuItem value="">Todos</MenuItem>
 						{EDITORIAL_STATUS_ENUM.map((s) => (
-							<MenuItem key={s} value={s}>{s}</MenuItem>
+							<MenuItem key={s} value={s}>
+								{s}
+							</MenuItem>
 						))}
 					</TextField>
 
@@ -126,7 +143,9 @@ export default function EditorialPage() {
 					>
 						<MenuItem value="">Todos</MenuItem>
 						{EDITORIAL_CHANNEL_ENUM.map((c) => (
-							<MenuItem key={c} value={c}>{c}</MenuItem>
+							<MenuItem key={c} value={c}>
+								{c}
+							</MenuItem>
 						))}
 					</TextField>
 
@@ -140,7 +159,9 @@ export default function EditorialPage() {
 					>
 						<MenuItem value="">Todos</MenuItem>
 						{EDITORIAL_FORMAT_ENUM.map((f) => (
-							<MenuItem key={f} value={f}>{f}</MenuItem>
+							<MenuItem key={f} value={f}>
+								{f}
+							</MenuItem>
 						))}
 					</TextField>
 
@@ -222,7 +243,15 @@ export default function EditorialPage() {
 									<Typography variant="subtitle1" fontWeight={600} noWrap>
 										{item.titulo}
 									</Typography>
-									<Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mt: 0.5, flexWrap: "wrap" }}>
+									<Box
+										sx={{
+											display: "flex",
+											alignItems: "center",
+											gap: 1.5,
+											mt: 0.5,
+											flexWrap: "wrap",
+										}}
+									>
 										<Chip label={item.canal} size="small" variant="outlined" />
 										<Chip label={item.formato} size="small" variant="outlined" />
 										<Typography variant="body2" color="text.secondary">

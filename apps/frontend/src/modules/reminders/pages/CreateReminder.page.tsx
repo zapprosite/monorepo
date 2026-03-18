@@ -1,15 +1,18 @@
 import { Typography } from "@connected-repo/ui-mui/data-display/Typography";
 import { Button } from "@connected-repo/ui-mui/form/Button";
 import { TextField } from "@connected-repo/ui-mui/form/TextField";
-import { MenuItem } from "@connected-repo/ui-mui/navigation/MenuItem";
 import { Box } from "@connected-repo/ui-mui/layout/Box";
 import { Container } from "@connected-repo/ui-mui/layout/Container";
 import { Paper } from "@connected-repo/ui-mui/layout/Paper";
+import { MenuItem } from "@connected-repo/ui-mui/navigation/MenuItem";
 import {
 	REMINDER_STATUS_ENUM,
 	REMINDER_TYPE_ENUM,
 } from "@connected-repo/zod-schemas/crm_enums.zod";
-import { reminderCreateInputZod, type ReminderCreateInput } from "@connected-repo/zod-schemas/reminder.zod";
+import {
+	type ReminderCreateInput,
+	reminderCreateInputZod,
+} from "@connected-repo/zod-schemas/reminder.zod";
 import { trpc } from "@frontend/utils/trpc.client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -22,7 +25,11 @@ export default function CreateReminderPage() {
 
 	const { data: clients } = useQuery(trpc.clients.listClients.queryOptions({}));
 
-	const { control, handleSubmit, formState: { errors, isSubmitting } } = useForm<ReminderCreateInput>({
+	const {
+		control,
+		handleSubmit,
+		formState: { errors, isSubmitting },
+	} = useForm<ReminderCreateInput>({
 		resolver: zodResolver(reminderCreateInputZod),
 		defaultValues: {
 			status: "Pendente",
@@ -82,7 +89,9 @@ export default function CreateReminderPage() {
 									helperText={errors.clienteId?.message}
 								>
 									{(clients ?? []).map((c) => (
-										<MenuItem key={c.clientId} value={c.clientId}>{c.nome}</MenuItem>
+										<MenuItem key={c.clientId} value={c.clientId}>
+											{c.nome}
+										</MenuItem>
 									))}
 								</TextField>
 							)}
@@ -120,7 +129,9 @@ export default function CreateReminderPage() {
 									helperText={errors.tipo?.message}
 								>
 									{REMINDER_TYPE_ENUM.map((t) => (
-										<MenuItem key={t} value={t}>{t}</MenuItem>
+										<MenuItem key={t} value={t}>
+											{t}
+										</MenuItem>
 									))}
 								</TextField>
 							)}
@@ -139,7 +150,9 @@ export default function CreateReminderPage() {
 									helperText={errors.status?.message}
 								>
 									{REMINDER_STATUS_ENUM.map((s) => (
-										<MenuItem key={s} value={s}>{s}</MenuItem>
+										<MenuItem key={s} value={s}>
+											{s}
+										</MenuItem>
 									))}
 								</TextField>
 							)}

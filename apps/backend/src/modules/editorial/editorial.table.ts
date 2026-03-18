@@ -1,8 +1,8 @@
 import { BaseTable } from "@backend/db/base_table";
 import {
-	EDITORIAL_STATUS_ENUM,
 	EDITORIAL_CHANNEL_ENUM,
 	EDITORIAL_FORMAT_ENUM,
+	EDITORIAL_STATUS_ENUM,
 } from "@connected-repo/zod-schemas/crm_enums.zod";
 
 export class EditorialTable extends BaseTable {

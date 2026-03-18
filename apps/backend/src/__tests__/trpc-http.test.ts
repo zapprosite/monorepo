@@ -8,9 +8,10 @@
  * Diferença dos testes unitários (mock-context):
  * esses passam pela camada HTTP completa — middlewares, session, error formatter.
  */
-import { describe, it, expect, beforeAll, afterAll } from "vitest";
+
 import { build } from "@backend/server";
 import type { FastifyInstance } from "fastify";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 let app: FastifyInstance;
 
@@ -34,9 +35,7 @@ function trpcInput(value: unknown): string {
 
 /** Faz uma query tRPC via GET (protocolo correto para queries) */
 async function trpcQuery(path: string, input?: unknown) {
-	const url = input !== undefined
-		? `/trpc/${path}?${trpcInput(input)}`
-		: `/trpc/${path}`;
+	const url = input !== undefined ? `/trpc/${path}?${trpcInput(input)}` : `/trpc/${path}`;
 	return app.inject({ method: "GET", url });
 }
 

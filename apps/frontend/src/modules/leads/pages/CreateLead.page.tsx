@@ -1,12 +1,12 @@
 import { Typography } from "@connected-repo/ui-mui/data-display/Typography";
 import { Button } from "@connected-repo/ui-mui/form/Button";
 import { TextField } from "@connected-repo/ui-mui/form/TextField";
-import { MenuItem } from "@connected-repo/ui-mui/navigation/MenuItem";
 import { Box } from "@connected-repo/ui-mui/layout/Box";
 import { Container } from "@connected-repo/ui-mui/layout/Container";
 import { Paper } from "@connected-repo/ui-mui/layout/Paper";
+import { MenuItem } from "@connected-repo/ui-mui/navigation/MenuItem";
 import { LEAD_SOURCE_ENUM, LEAD_STATUS_ENUM } from "@connected-repo/zod-schemas/crm_enums.zod";
-import { leadCreateInputZod, type LeadCreateInput } from "@connected-repo/zod-schemas/lead.zod";
+import { type LeadCreateInput, leadCreateInputZod } from "@connected-repo/zod-schemas/lead.zod";
 import { trpc } from "@frontend/utils/trpc.client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -17,7 +17,11 @@ export default function CreateLeadPage() {
 	const navigate = useNavigate();
 	const queryClient = useQueryClient();
 
-	const { control, handleSubmit, formState: { errors, isSubmitting } } = useForm<LeadCreateInput>({
+	const {
+		control,
+		handleSubmit,
+		formState: { errors, isSubmitting },
+	} = useForm<LeadCreateInput>({
 		resolver: zodResolver(leadCreateInputZod),
 		defaultValues: {
 			status: "Novo",
@@ -25,12 +29,14 @@ export default function CreateLeadPage() {
 		},
 	});
 
-	const createLead = useMutation(trpc.leads.createLead.mutationOptions({
-		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: trpc.leads.listLeads.queryKey() });
-			navigate("/leads");
-		},
-	}));
+	const createLead = useMutation(
+		trpc.leads.createLead.mutationOptions({
+			onSuccess: () => {
+				queryClient.invalidateQueries({ queryKey: trpc.leads.listLeads.queryKey() });
+				navigate("/leads");
+			},
+		}),
+	);
 
 	const onSubmit = (data: LeadCreateInput) => {
 		createLead.mutate(data);
@@ -121,7 +127,9 @@ export default function CreateLeadPage() {
 									helperText={errors.origem?.message}
 								>
 									{LEAD_SOURCE_ENUM.map((src) => (
-										<MenuItem key={src} value={src}>{src}</MenuItem>
+										<MenuItem key={src} value={src}>
+											{src}
+										</MenuItem>
 									))}
 								</TextField>
 							)}
@@ -139,7 +147,9 @@ export default function CreateLeadPage() {
 									helperText={errors.status?.message}
 								>
 									{LEAD_STATUS_ENUM.map((s) => (
-										<MenuItem key={s} value={s}>{s}</MenuItem>
+										<MenuItem key={s} value={s}>
+											{s}
+										</MenuItem>
 									))}
 								</TextField>
 							)}

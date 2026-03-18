@@ -32,14 +32,9 @@ export async function requestLoggerOnRequest(request: FastifyRequest) {
 		try {
 			if (typeof request.body === "string") {
 				req._logData.requestBody = request.body;
-				req._logData.requestBodyJson = JSON.parse(
-					request.body,
-				) as Record<string, unknown>;
+				req._logData.requestBodyJson = JSON.parse(request.body) as Record<string, unknown>;
 			} else if (typeof request.body === "object") {
-				req._logData.requestBodyJson = request.body as Record<
-					string,
-					unknown
-				>;
+				req._logData.requestBodyJson = request.body as Record<string, unknown>;
 				req._logData.requestBody = JSON.stringify(request.body);
 			}
 		} catch {
@@ -53,10 +48,7 @@ export async function requestLoggerOnRequest(request: FastifyRequest) {
  * Request Logger - onResponse Hook
  * Captures response data, calculates time, logs to database, increments usage
  */
-export async function requestLoggerOnResponse(
-	request: FastifyRequest,
-	reply: FastifyReply,
-) {
+export async function requestLoggerOnResponse(request: FastifyRequest, reply: FastifyReply) {
 	const req = request as RequestWithLogging;
 
 	// Skip logging if no log data (shouldn't happen)
@@ -104,10 +96,7 @@ export async function requestLoggerOnResponse(
 		await incrementSubscriptionUsage(request.subscription.subscriptionId);
 	} catch (error) {
 		// Log error but don't fail the request
-		request.log.error(
-			{ error, teamId: request.team.teamId },
-			"Failed to log API request",
-		);
+		request.log.error({ error, teamId: request.team.teamId }, "Failed to log API request");
 	}
 }
 

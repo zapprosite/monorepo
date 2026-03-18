@@ -18,11 +18,13 @@ export default function EquipmentPage() {
 	const navigate = useNavigate();
 	const [statusFilter, setStatusFilter] = useState<string>("");
 
-	const { data: equipment, isLoading, error } = useQuery(
+	const {
+		data: equipment,
+		isLoading,
+		error,
+	} = useQuery(
 		trpc.equipment.listEquipment.queryOptions(
-			statusFilter
-				? { status: statusFilter as (typeof EQUIPMENT_STATUS_ENUM)[number] }
-				: {},
+			statusFilter ? { status: statusFilter as (typeof EQUIPMENT_STATUS_ENUM)[number] } : {},
 		),
 	);
 

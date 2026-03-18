@@ -28,9 +28,16 @@ export default function JournalEntriesPage() {
 	const [viewMode, setViewMode] = useState<ViewMode>("card");
 	const [currentPage, setCurrentPage] = useState(1);
 
-	const { data: journalEntries, isLoading, error } = useQuery(trpc.journalEntries.getAll.queryOptions());
+	const {
+		data: journalEntries,
+		isLoading,
+		error,
+	} = useQuery(trpc.journalEntries.getAll.queryOptions());
 
-	const handleViewModeChange = (_event: React.MouseEvent<HTMLElement>, newMode: ViewMode | null) => {
+	const handleViewModeChange = (
+		_event: React.MouseEvent<HTMLElement>,
+		newMode: ViewMode | null,
+	) => {
 		if (newMode !== null) {
 			setViewMode(newMode);
 			setCurrentPage(1);

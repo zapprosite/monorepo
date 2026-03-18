@@ -1,7 +1,7 @@
-import { describe, it, expect } from "vitest";
-import { createCallerFactory } from "@backend/trpc";
 import { appTrpcRouter } from "@backend/routers/trpc.router";
-import { unauthContext, authContext } from "@backend/test-utils/mock-context";
+import { authContext, unauthContext } from "@backend/test-utils/mock-context";
+import { createCallerFactory } from "@backend/trpc";
+import { describe, expect, it } from "vitest";
 
 const createCaller = createCallerFactory(appTrpcRouter);
 
@@ -35,9 +35,9 @@ describe("reminders — auth guard (UNAUTHORIZED)", () => {
 	});
 
 	it("createReminder rejeita não autenticado", async () => {
-		await expect(
-			caller.reminders.createReminder(VALID_REMINDER_INPUT),
-		).rejects.toMatchObject({ code: "UNAUTHORIZED" });
+		await expect(caller.reminders.createReminder(VALID_REMINDER_INPUT)).rejects.toMatchObject({
+			code: "UNAUTHORIZED",
+		});
 	});
 
 	it("completeReminder rejeita não autenticado", async () => {
@@ -47,9 +47,9 @@ describe("reminders — auth guard (UNAUTHORIZED)", () => {
 	});
 
 	it("cancelReminder rejeita não autenticado", async () => {
-		await expect(
-			caller.reminders.cancelReminder({ reminderId: FAKE_UUID }),
-		).rejects.toMatchObject({ code: "UNAUTHORIZED" });
+		await expect(caller.reminders.cancelReminder({ reminderId: FAKE_UUID })).rejects.toMatchObject({
+			code: "UNAUTHORIZED",
+		});
 	});
 });
 
@@ -114,20 +114,14 @@ describe("reminders — validação de input (Zod)", () => {
 	});
 
 	it("completeReminder rejeita reminderId inválido", async () => {
-		await expect(
-			caller.reminders.completeReminder({ reminderId: INVALID_UUID }),
-		).rejects.toThrow();
+		await expect(caller.reminders.completeReminder({ reminderId: INVALID_UUID })).rejects.toThrow();
 	});
 
 	it("cancelReminder rejeita reminderId inválido", async () => {
-		await expect(
-			caller.reminders.cancelReminder({ reminderId: INVALID_UUID }),
-		).rejects.toThrow();
+		await expect(caller.reminders.cancelReminder({ reminderId: INVALID_UUID })).rejects.toThrow();
 	});
 
 	it("listReminders rejeita clienteId com formato inválido", async () => {
-		await expect(
-			caller.reminders.listReminders({ clienteId: INVALID_UUID }),
-		).rejects.toThrow();
+		await expect(caller.reminders.listReminders({ clienteId: INVALID_UUID })).rejects.toThrow();
 	});
 });

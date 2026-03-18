@@ -1,5 +1,5 @@
-import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { app } from "@backend/app";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 beforeAll(async () => {
 	await app.ready();

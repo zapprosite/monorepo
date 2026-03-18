@@ -9,25 +9,40 @@ import {
 
 export const journalEntriesRouterTrpc = trpcRouter({
 	// Get all journal entries for a team
-	getAll: protectedProcedure.query(async ( { ctx: {user: { userId }} }) => {
-		const journalEntries = await db.journalEntries.select("*", {
-			author: (t) => t.author.selectAll()
-		}).where({ authorUserId: userId });
-		return journalEntries;
-	}),
+	getAll: protectedProcedure.query(
+		async ({
+			ctx: {
+				user: { userId },
+			},
+		}) => {
+			const journalEntries = await db.journalEntries
+				.select("*", {
+					author: (t) => t.author.selectAll(),
+				})
+				.where({ authorUserId: userId });
+			return journalEntries;
+		},
+	),
 
 	// Get journal entry by ID
-	getById: protectedProcedure
-		.input(journalEntryGetByIdZod)
-		.query(async ({ input: { journalEntryId }, ctx: {user: { userId }} }) => {
-			const journalEntry = await db.journalEntries.find(journalEntryId).where({ authorUserId: userId });
+	getById: protectedProcedure.input(journalEntryGetByIdZod).query(
+		async ({
+			input: { journalEntryId },
+			ctx: {
+				user: { userId },
+			},
+		}) => {
+			const journalEntry = await db.journalEntries
+				.find(journalEntryId)
+				.where({ authorUserId: userId });
 
 			if (!journalEntry) {
 				throw new Error("Journal entry not found");
 			}
 
 			return journalEntry;
-		}),
+		},
+	),
 
 	// Create journal entry
 	create: protectedProcedure
@@ -43,25 +58,28 @@ export const journalEntriesRouterTrpc = trpcRouter({
 		}),
 
 	// Get journal entries by user
-	getByUser: protectedProcedure
-		.input(journalEntryGetByUserZod)
-		.query(async ({ input }) => {
-			const journalEntries = await db.journalEntries
-				.select("*", {
-					author: (t) => t.author.selectAll()
-				})
-				.where({ authorUserId: input.authorUserId })
-				.order({ createdAt: "DESC" });
+	getByUser: protectedProcedure.input(journalEntryGetByUserZod).query(async ({ input }) => {
+		const journalEntries = await db.journalEntries
+			.select("*", {
+				author: (t) => t.author.selectAll(),
+			})
+			.where({ authorUserId: input.authorUserId })
+			.order({ createdAt: "DESC" });
 
-			return journalEntries;
-		}),
+		return journalEntries;
+	}),
 
 	// Delete journal entry
-	delete: protectedProcedure
-		.input(journalEntryDeleteZod)
-		.mutation(async ({ input: { journalEntryId }, ctx: {user: {userId	}} }) => {
+	delete: protectedProcedure.input(journalEntryDeleteZod).mutation(
+		async ({
+			input: { journalEntryId },
+			ctx: {
+				user: { userId },
+			},
+		}) => {
 			await db.journalEntries.find(journalEntryId).where({ authorUserId: userId }).delete();
 
 			return { success: true };
-		}),
+		},
+	),
 });

@@ -1,7 +1,7 @@
-import { describe, it, expect } from "vitest";
-import { createCallerFactory } from "@backend/trpc";
 import { appTrpcRouter } from "@backend/routers/trpc.router";
-import { unauthContext, authContext } from "@backend/test-utils/mock-context";
+import { authContext, unauthContext } from "@backend/test-utils/mock-context";
+import { createCallerFactory } from "@backend/trpc";
+import { describe, expect, it } from "vitest";
 
 const createCaller = createCallerFactory(appTrpcRouter);
 
