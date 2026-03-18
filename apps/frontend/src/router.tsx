@@ -58,6 +58,18 @@ export const routerObjectWithNavbar: ReactRouterWithNavbar[] = [
 						Component: lazy(() => import("@frontend/modules/journal-entries/journal-entries.router")),
 					},
 					{
+						path: "leads/*",
+						Component: lazy(() => import("@frontend/modules/leads/leads.router")),
+					},
+					{
+						path: "clients/*",
+						Component: lazy(() => import("@frontend/modules/clients/clients.router")),
+					},
+					{
+						path: "equipment/*",
+						Component: lazy(() => import("@frontend/modules/equipment/equipment.router")),
+					},
+					{
 						path: "profile",
 						Component: lazy(() => import("@frontend/pages/Dashboard.page")), // TODO: Create Profile page
 					},

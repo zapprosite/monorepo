@@ -1,13 +1,9 @@
 ---
-type: agent
 name: Architect Specialist
-description: Design overall system architecture and patterns
-agentType: architect-specialist
-phases: [P, R]
-generated: 2026-03-16
-status: unfilled
-scaffoldVersion: "2.0.0"
+description: "Design overall system architecture and patterns"
+color: red
 ---
+
 ## Mission
 
 This agent designs overall system architecture and establishes technical standards.
