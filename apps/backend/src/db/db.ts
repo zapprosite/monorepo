@@ -2,6 +2,13 @@ import { dbConfig } from "@backend/db/config";
 import { SessionTable } from "@backend/modules/auth/tables/session.auth.table";
 import { JournalEntryTable } from "@backend/modules/journal-entries/tables/journal_entries.table";
 import { ApiProductRequestLogsTable } from "@backend/modules/logs/tables/api_product_request_logs.table";
+import { AddressesTable } from "@backend/modules/clients/addresses.table";
+import { ClientsTable } from "@backend/modules/clients/clients.table";
+import { ContactsTable } from "@backend/modules/clients/contacts.table";
+import { UnitsTable } from "@backend/modules/clients/units.table";
+import { EquipmentTable } from "@backend/modules/equipment/equipment.table";
+import { LeadsTable } from "@backend/modules/leads/leads.table";
+import { ScheduleTable } from "@backend/modules/schedule/schedule.table";
 import { PromptsTable } from "@backend/modules/prompts/tables/prompts.table";
 import { SubscriptionsTable } from "@backend/modules/subscriptions/tables/subscriptions.table";
 import { WebhookCallQueueTable } from "@backend/modules/subscriptions/tables/webhookCallQueue.table";
@@ -24,6 +31,13 @@ export const db = orchidORM(
 		subscriptions: SubscriptionsTable,
 		teams: TeamTable,
 		apiProductRequestLogs: ApiProductRequestLogsTable,
-		webhookCallQueues: WebhookCallQueueTable
+		webhookCallQueues: WebhookCallQueueTable,
+		leads: LeadsTable,
+		clients: ClientsTable,
+		contacts: ContactsTable,
+		addresses: AddressesTable,
+		units: UnitsTable,
+		equipment: EquipmentTable,
+		schedules: ScheduleTable,
 	},
 );

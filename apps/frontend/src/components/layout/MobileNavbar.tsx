@@ -41,14 +41,13 @@ export const MobileNavbar = () => {
 
 	return (
 		<>
-			{/* Top AppBar */}
+			{/* Top AppBar — Refrimix navy */}
 			<AppBar
 				position="sticky"
 				elevation={0}
 				sx={{
-					bgcolor: "background.paper",
-					borderBottom: "1px solid",
-					borderColor: "divider",
+					bgcolor: "#0B1F3A",
+					borderBottom: "1px solid rgba(255,255,255,0.08)",
 				}}
 			>
 				<Toolbar
@@ -67,17 +66,31 @@ export const MobileNavbar = () => {
 							cursor: "pointer",
 						}}
 					>
-						<Typography
-							variant="h6"
-							component="div"
-							sx={{
-								fontWeight: 700,
-								color: "primary.main",
-								letterSpacing: -0.5,
-							}}
-						>
-							OneQ
-						</Typography>
+						<Box>
+							<Typography
+								variant="subtitle2"
+								component="div"
+								sx={{
+									fontWeight: 700,
+									color: "#ffffff",
+									letterSpacing: -0.3,
+									lineHeight: 1.2,
+								}}
+							>
+								Refrimix Tecnologia
+							</Typography>
+							<Typography
+								variant="caption"
+								sx={{
+									color: "#06B6D4",
+									fontWeight: 500,
+									fontSize: "0.6rem",
+									letterSpacing: 0.3,
+								}}
+							>
+								CRM Operacional
+							</Typography>
+						</Box>
 					</Box>
 
 					{/* User Avatar - triggers menu */}
