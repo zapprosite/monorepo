@@ -22,8 +22,9 @@ import { Controller, useForm } from "react-hook-form";
 import { useNavigate, useParams } from "react-router";
 import { ServiceOrderStatusBadge } from "../components/ServiceOrderStatusBadge";
 
-function formatDateTime(iso: string): string {
-	return new Date(iso).toLocaleString("pt-BR", {
+function formatDateTime(timestamp: number | string): string {
+	const date = typeof timestamp === 'number' ? new Date(timestamp) : new Date(timestamp);
+	return date.toLocaleString("pt-BR", {
 		day: "2-digit",
 		month: "2-digit",
 		year: "numeric",
@@ -158,9 +159,11 @@ export default function ServiceOrderDetailPage() {
 	const isBusy = iniciar.isPending || concluir.isPending || cancelar.isPending;
 
 	const totalMateriais = (materials ?? []).reduce((acc, m) => {
-		const item = m as { quantidade: number; valorUnitario?: number | null };
-		if (item.valorUnitario != null) {
-			return acc + item.quantidade * item.valorUnitario;
+		const item = m as { quantidade: string | number; valorUnitario?: string | number | null };
+		const qty = typeof item.quantidade === 'string' ? parseFloat(item.quantidade) : item.quantidade;
+		const valor = item.valorUnitario ? (typeof item.valorUnitario === 'string' ? parseFloat(item.valorUnitario) : item.valorUnitario) : null;
+		if (valor != null && !isNaN(qty) && !isNaN(valor)) {
+			return acc + qty * valor;
 		}
 		return acc;
 	}, 0);
@@ -462,10 +465,12 @@ export default function ServiceOrderDetailPage() {
 							const item = m as {
 								materialItemId: string;
 								descricao: string;
-								quantidade: number;
+								quantidade: string | number;
 								unidade: string;
-								valorUnitario?: number | null;
+								valorUnitario?: string | number | null;
 							};
+							const qty = typeof item.quantidade === 'string' ? parseFloat(item.quantidade) : item.quantidade;
+							const valor = item.valorUnitario ? (typeof item.valorUnitario === 'string' ? parseFloat(item.valorUnitario) : item.valorUnitario) : null;
 							return (
 								<Box
 									key={item.materialItemId}
@@ -484,11 +489,11 @@ export default function ServiceOrderDetailPage() {
 										{item.descricao}
 									</Typography>
 									<Typography variant="body2" color="text.secondary">
-										{item.quantidade} {item.unidade}
+										{qty} {item.unidade}
 									</Typography>
-									{item.valorUnitario != null && (
+									{valor != null && !isNaN(qty) && !isNaN(valor) && (
 										<Typography variant="body2">
-											{formatCurrency(item.quantidade * item.valorUnitario)}
+											{formatCurrency(qty * valor)}
 										</Typography>
 									)}
 								</Box>
