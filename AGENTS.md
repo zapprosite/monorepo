@@ -1,12 +1,6 @@
 # Project Rules and Guidelines
 
-> Auto-generated from .context/docs on 2026-03-17T17:09:05.953Z
-
-## Infrastructure — Leitura Obrigatória
-
-Se sua tarefa envolver portas, serviços externos, subdomínios, Docker ou banco de dados, leia ANTES:
-- **[NETWORK_MAP.md](/srv/ops/ai-governance/NETWORK_MAP.md)** — mapa completo de rede, portas, subdomínios e estado dos serviços
-- **[SERVICE_MAP.md](/srv/ops/ai-governance/SERVICE_MAP.md)** — dependências entre containers e VRAM budget
+> Auto-generated from .context/docs on 2026-03-18T22:41:14.268Z
 
 ## README
 
@@ -27,8 +21,9 @@ Welcome to the repository knowledge base. Start with the project overview, then 
 ## Repository Snapshot
 - `AGENTS.md/`
 - `apps/`
-- `package.json/` — Yarn workspaces config (`workspaces` field)
+- `package.json/`
 - `packages/` — Workspace packages or modules.
+- `pnpm-workspace.yaml/`
 - `README.md/`
 
 ## Document Map
