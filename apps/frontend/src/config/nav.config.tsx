@@ -1,14 +1,14 @@
 import { BuildIcon } from "@connected-repo/ui-mui/icons/BuildIcon";
-import { EventNoteIcon } from "@connected-repo/ui-mui/icons/EventNoteIcon";
 import { CalendarTodayIcon } from "@connected-repo/ui-mui/icons/CalendarTodayIcon";
 import { DashboardIcon } from "@connected-repo/ui-mui/icons/DashboardIcon";
 import { DescriptionIcon } from "@connected-repo/ui-mui/icons/DescriptionIcon";
+import { EventNoteIcon } from "@connected-repo/ui-mui/icons/EventNoteIcon";
 import { GridViewIcon } from "@connected-repo/ui-mui/icons/GridViewIcon";
 import { HomeIcon } from "@connected-repo/ui-mui/icons/HomeIcon";
 import { ListIcon } from "@connected-repo/ui-mui/icons/ListIcon";
+import { NotificationsIcon } from "@connected-repo/ui-mui/icons/NotificationsIcon";
 import { PeopleIcon } from "@connected-repo/ui-mui/icons/PeopleIcon";
 import { PostAddIcon } from "@connected-repo/ui-mui/icons/PostAddIcon";
-import { NotificationsIcon } from "@connected-repo/ui-mui/icons/NotificationsIcon";
 import { TrendingUpIcon } from "@connected-repo/ui-mui/icons/TrendingUpIcon";
 
 export interface NavItem {

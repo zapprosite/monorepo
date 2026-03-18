@@ -1,15 +1,18 @@
 import { Typography } from "@connected-repo/ui-mui/data-display/Typography";
 import { Button } from "@connected-repo/ui-mui/form/Button";
 import { TextField } from "@connected-repo/ui-mui/form/TextField";
-import { MenuItem } from "@connected-repo/ui-mui/navigation/MenuItem";
 import { Box } from "@connected-repo/ui-mui/layout/Box";
 import { Container } from "@connected-repo/ui-mui/layout/Container";
 import { Paper } from "@connected-repo/ui-mui/layout/Paper";
+import { MenuItem } from "@connected-repo/ui-mui/navigation/MenuItem";
 import {
-	CONTRACT_TYPE_ENUM,
+	type ContractCreateInput,
+	contractCreateInputZod,
+} from "@connected-repo/zod-schemas/contract.zod";
+import {
 	CONTRACT_FREQUENCY_ENUM,
+	CONTRACT_TYPE_ENUM,
 } from "@connected-repo/zod-schemas/crm_enums.zod";
-import { contractCreateInputZod, type ContractCreateInput } from "@connected-repo/zod-schemas/contract.zod";
 import { trpc } from "@frontend/utils/trpc.client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -20,7 +23,11 @@ export default function CreateContractPage() {
 	const navigate = useNavigate();
 	const queryClient = useQueryClient();
 
-	const { control, handleSubmit, formState: { errors, isSubmitting } } = useForm<ContractCreateInput>({
+	const {
+		control,
+		handleSubmit,
+		formState: { errors, isSubmitting },
+	} = useForm<ContractCreateInput>({
 		resolver: zodResolver(contractCreateInputZod),
 		defaultValues: {
 			status: "Rascunho",
@@ -107,7 +114,9 @@ export default function CreateContractPage() {
 									helperText={errors.tipo?.message}
 								>
 									{CONTRACT_TYPE_ENUM.map((t) => (
-										<MenuItem key={t} value={t}>{t}</MenuItem>
+										<MenuItem key={t} value={t}>
+											{t}
+										</MenuItem>
 									))}
 								</TextField>
 							)}
@@ -151,7 +160,13 @@ export default function CreateContractPage() {
 					</Box>
 
 					{/* Row 3: Valor + Frequência */}
-					<Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: showFrequencia ? "1fr 1fr" : "1fr" }, gap: 3 }}>
+					<Box
+						sx={{
+							display: "grid",
+							gridTemplateColumns: { xs: "1fr", sm: showFrequencia ? "1fr 1fr" : "1fr" },
+							gap: 3,
+						}}
+					>
 						<Controller
 							name="valor"
 							control={control}
@@ -189,7 +204,9 @@ export default function CreateContractPage() {
 									>
 										<MenuItem value="">Nenhuma</MenuItem>
 										{CONTRACT_FREQUENCY_ENUM.map((f) => (
-											<MenuItem key={f} value={f}>{f}</MenuItem>
+											<MenuItem key={f} value={f}>
+												{f}
+											</MenuItem>
 										))}
 									</TextField>
 								)}

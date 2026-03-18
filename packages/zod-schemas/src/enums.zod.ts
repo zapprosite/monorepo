@@ -1,18 +1,27 @@
 import z from "zod";
 
-export const API_PRODUCT_REQUEST_STATUS_ENUM = ["AI Error", "No active subscription", "Requests exhausted", "Pending", "Server Error", "Success"] as const;
+export const API_PRODUCT_REQUEST_STATUS_ENUM = [
+	"AI Error",
+	"No active subscription",
+	"Requests exhausted",
+	"Pending",
+	"Server Error",
+	"Success",
+] as const;
 export const apiProductRequestStatusZod = z.enum(API_PRODUCT_REQUEST_STATUS_ENUM);
 export type ApiProductRequestStaus = z.infer<typeof apiProductRequestStatusZod>;
 
 export const API_PRODUCTS = [
-  {
-    name: "Save Journal Entry",
-    sku: "journal_entry_create",
-    unit_size: 100,
-    validity_days: 30,
-  }
-]as const;
-export const apiProductSkuEnum = API_PRODUCTS.map(product => product.sku) as ["journal_entry_create"];
+	{
+		name: "Save Journal Entry",
+		sku: "journal_entry_create",
+		unit_size: 100,
+		validity_days: 30,
+	},
+] as const;
+export const apiProductSkuEnum = API_PRODUCTS.map((product) => product.sku) as [
+	"journal_entry_create",
+];
 export const apiProductSkuZod = z.enum(apiProductSkuEnum);
 export type ApiProductSku = z.infer<typeof apiProductSkuZod>;
 

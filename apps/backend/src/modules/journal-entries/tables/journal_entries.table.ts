@@ -8,10 +8,13 @@ export class JournalEntryTable extends BaseTable {
 		journalEntryId: t.ulid().primaryKey(),
 
 		prompt: t.string(500).nullable(),
-		promptId: t.smallint().foreignKey("prompts", "promptId", {
-			onDelete: "SET NULL",
-			onUpdate: "RESTRICT",
-		}).nullable(),
+		promptId: t
+			.smallint()
+			.foreignKey("prompts", "promptId", {
+				onDelete: "SET NULL",
+				onUpdate: "RESTRICT",
+			})
+			.nullable(),
 		content: t.text(),
 		authorUserId: t.uuid().foreignKey("users", "userId", {
 			onDelete: "CASCADE",
@@ -25,6 +28,6 @@ export class JournalEntryTable extends BaseTable {
 		author: this.belongsTo(() => UserTable, {
 			columns: ["authorUserId"],
 			references: ["userId"],
-		})
+		}),
 	};
 }

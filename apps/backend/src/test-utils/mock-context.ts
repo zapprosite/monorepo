@@ -1,5 +1,5 @@
-import type { TrpcContext } from "@backend/trpc";
 import type { SessionUser } from "@backend/modules/auth/session.auth.utils";
+import type { TrpcContext } from "@backend/trpc";
 
 /**
  * Mock tRPC context for unauthenticated requests.

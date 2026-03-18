@@ -1,6 +1,6 @@
 import z from "zod";
 import { clientTypeZod } from "./crm_enums.zod.js";
-import { zTimestamps, zVarchar, zString } from "./zod_utils.js";
+import { zString, zTimestamps, zVarchar } from "./zod_utils.js";
 
 export const clientMandatoryZod = z.object({
 	nome: zVarchar(1, 255),

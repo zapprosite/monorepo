@@ -1,4 +1,4 @@
-import { TRPCError } from "@trpc/server";
+import type { TRPCError } from "@trpc/server";
 import { ZodError } from "zod";
 
 export interface CustomError {
@@ -47,7 +47,10 @@ export function trpcErrorParser(error: TRPCError): CustomError {
 		}
 
 		// Foreign key constraint violations
-		if (causeMessage.includes("foreign key") || causeMessage.includes("violates foreign key constraint")) {
+		if (
+			causeMessage.includes("foreign key") ||
+			causeMessage.includes("violates foreign key constraint")
+		) {
 			return {
 				message: "Invalid reference to related resource",
 				code: "INVALID_REFERENCE",
@@ -147,8 +150,6 @@ export function trpcErrorParser(error: TRPCError): CustomError {
 				userFriendlyMessage: "Too many requests. Please slow down",
 				actionRequired: "Wait a moment before trying again",
 			};
-
-		case "INTERNAL_SERVER_ERROR":
 		default:
 			return {
 				message: "An unexpected error occurred",

@@ -11,7 +11,7 @@ import z from "zod";
  * @returns Fastify preHandler function
  */
 export function subscriptionCheckHook(apiProductSku: ApiProductSku) {
-	return async function (request: FastifyRequest, reply: FastifyReply) {
+	return async (request: FastifyRequest, reply: FastifyReply) => {
 		// Ensure team is attached by apiKeyAuthHook
 		if (!request.team) {
 			return reply.code(401).send({
@@ -22,7 +22,7 @@ export function subscriptionCheckHook(apiProductSku: ApiProductSku) {
 		}
 
 		const { teamId } = request.team;
-		const { teamUserReferenceId } = z.object({teamUserReferenceId: zString}).parse(request.query);
+		const { teamUserReferenceId } = z.object({ teamUserReferenceId: zString }).parse(request.query);
 
 		// Find active subscription for this team and product
 		const subscription = await findActiveSubscription(teamId, teamUserReferenceId, apiProductSku);

@@ -1,7 +1,7 @@
-import { describe, it, expect } from "vitest";
-import { createCallerFactory } from "@backend/trpc";
 import { appTrpcRouter } from "@backend/routers/trpc.router";
-import { unauthContext, authContext } from "@backend/test-utils/mock-context";
+import { authContext, unauthContext } from "@backend/test-utils/mock-context";
+import { createCallerFactory } from "@backend/trpc";
+import { describe, expect, it } from "vitest";
 
 const createCaller = createCallerFactory(appTrpcRouter);
 
@@ -21,9 +21,9 @@ describe("journalEntries — unauthenticated access (UNAUTHORIZED guard)", () =>
 	});
 
 	it("create rejects unauthenticated", async () => {
-		await expect(
-			caller.journalEntries.create({ content: "test entry" }),
-		).rejects.toMatchObject({ code: "UNAUTHORIZED" });
+		await expect(caller.journalEntries.create({ content: "test entry" })).rejects.toMatchObject({
+			code: "UNAUTHORIZED",
+		});
 	});
 
 	it("delete rejects unauthenticated", async () => {
@@ -37,14 +37,10 @@ describe("journalEntries — input validation", () => {
 	const caller = createCaller(authContext());
 
 	it("create rejects empty content (Zod validation)", async () => {
-		await expect(
-			caller.journalEntries.create({ content: "" }),
-		).rejects.toThrow();
+		await expect(caller.journalEntries.create({ content: "" })).rejects.toThrow();
 	});
 
 	it("create rejects content over 50000 chars", async () => {
-		await expect(
-			caller.journalEntries.create({ content: "x".repeat(50001) }),
-		).rejects.toThrow();
+		await expect(caller.journalEntries.create({ content: "x".repeat(50001) })).rejects.toThrow();
 	});
 });

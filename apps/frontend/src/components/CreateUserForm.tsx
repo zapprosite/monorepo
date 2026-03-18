@@ -16,24 +16,26 @@ export function CreateUserForm() {
 	const [error, setError] = useState("");
 	const [success, setSuccess] = useState("");
 
-	const createUserMutation = useMutation(trpc.users.create.mutationOptions({
-		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: trpc.users.getAll.queryKey() });
-			setName("");
-			setEmail("");
-			setSuccess("User created successfully!");
-			setError("");
-			setTimeout(() => setSuccess(""), 3000);
-		},
-		onError: (error) => {
-			// Use the user-friendly message from our centralized error handling
-			const errorMessage = error.data?.userFriendlyMessage || error.message;
-			const actionRequired = error.data?.actionRequired;
+	const createUserMutation = useMutation(
+		trpc.users.create.mutationOptions({
+			onSuccess: () => {
+				queryClient.invalidateQueries({ queryKey: trpc.users.getAll.queryKey() });
+				setName("");
+				setEmail("");
+				setSuccess("User created successfully!");
+				setError("");
+				setTimeout(() => setSuccess(""), 3000);
+			},
+			onError: (error) => {
+				// Use the user-friendly message from our centralized error handling
+				const errorMessage = error.data?.userFriendlyMessage || error.message;
+				const actionRequired = error.data?.actionRequired;
 
-			setError(actionRequired ? `${errorMessage} - ${actionRequired}` : errorMessage);
-			setSuccess("");
-		},
-	}));
+				setError(actionRequired ? `${errorMessage} - ${actionRequired}` : errorMessage);
+				setSuccess("");
+			},
+		}),
+	);
 
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
@@ -70,10 +72,7 @@ export function CreateUserForm() {
 						fullWidth
 						required
 					/>
-					<PrimaryButton
-						type="submit"
-						loading={createUserMutation.isPending}
-					>
+					<PrimaryButton type="submit" loading={createUserMutation.isPending}>
 						Create User
 					</PrimaryButton>
 				</Stack>

@@ -1,24 +1,46 @@
 {
-	"$schema": "https://biomejs.dev/schemas/2.0.0/schema.json",
+	"$schema": "https://biomejs.dev/schemas/2.3.3/schema.json",
 	"vcs": {
-		"enabled": false,
+		"enabled": true,
 		"clientKind": "git",
-		"useIgnoreFile": false
+		"useIgnoreFile": true
 	},
 	"files": {
-		"ignoreUnknown": false,
-		"maxSize": 1048576
+		"ignoreUnknown": true,
+		"maxSize": 1048576,
+		"experimentalScannerIgnores": [
+			"**/dist/**",
+			"**/node_modules/**",
+			"worktrees/**",
+			".yarn/**",
+			"**/.turbo/**",
+			"**/coverage/**",
+			"**/.dev/**"
+		]
 	},
 	"formatter": {
 		"enabled": true,
 		"indentStyle": "tab",
 		"lineWidth": 100,
-		"includes": ["*.tsx", "*.ts", "*.md", "*.json", "*.js", "*.jsx", "*.css", "*.html"]
+		"includes": ["**/*.tsx", "**/*.ts", "**/*.js", "**/*.jsx", "**/*.json"]
 	},
 	"linter": {
 		"enabled": true,
 		"rules": {
-			"recommended": true
+			"recommended": true,
+			"style": {
+				"noNonNullAssertion": "off"
+			},
+			"correctness": {
+				"useExhaustiveDependencies": "off"
+			},
+			"suspicious": {
+				"noExplicitAny": "warn",
+				"noArrayIndexKey": "warn"
+			},
+			"a11y": {
+				"noSvgWithoutTitle": "warn"
+			}
 		}
 	},
 	"javascript": {

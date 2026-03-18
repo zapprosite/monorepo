@@ -17,10 +17,7 @@ import type { FastifyReply, FastifyRequest } from "fastify";
  * Note: Does NOT verify API key to keep preflight fast.
  * Actual requests still go through full apiKeyAuthHook.
  */
-export async function corsValidationHook(
-	request: FastifyRequest,
-	reply: FastifyReply,
-) {
+export async function corsValidationHook(request: FastifyRequest, reply: FastifyReply) {
 	// Only handle OPTIONS requests
 	if (request.method !== "OPTIONS") {
 		return;
@@ -39,9 +36,7 @@ export async function corsValidationHook(
 	}
 
 	// Lightweight team lookup - only fetch allowedDomains
-	const team = await db.teams
-		.select("allowedDomains")
-		.findBy({ teamId });
+	const team = await db.teams.select("allowedDomains").findBy({ teamId });
 
 	if (!team) {
 		return reply.code(401).send({
@@ -61,10 +56,7 @@ export async function corsValidationHook(
 	if (!allowedDomains || allowedDomains.length === 0 || !origin) {
 		reply.header("Access-Control-Allow-Origin", "*");
 		reply.header("Access-Control-Allow-Credentials", "true");
-		reply.header(
-			"Access-Control-Allow-Methods",
-			"GET, POST, PUT, DELETE, OPTIONS",
-		);
+		reply.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
 		reply.header(
 			"Access-Control-Allow-Headers",
 			"Content-Type, x-api-key, x-team-id, Authorization",
@@ -89,14 +81,8 @@ export async function corsValidationHook(
 	// Set CORS headers for allowed origin
 	reply.header("Access-Control-Allow-Origin", origin);
 	reply.header("Access-Control-Allow-Credentials", "true");
-	reply.header(
-		"Access-Control-Allow-Methods",
-		"GET, POST, PUT, DELETE, OPTIONS",
-	);
-	reply.header(
-		"Access-Control-Allow-Headers",
-		"Content-Type, x-api-key, x-team-id, Authorization",
-	);
+	reply.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+	reply.header("Access-Control-Allow-Headers", "Content-Type, x-api-key, x-team-id, Authorization");
 	reply.header("Access-Control-Max-Age", "604800"); // 7 days
 
 	return reply.code(204).send();

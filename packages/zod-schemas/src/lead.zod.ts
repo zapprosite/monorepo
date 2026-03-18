@@ -1,6 +1,6 @@
 import z from "zod";
 import { leadSourceZod, leadStatusZod } from "./crm_enums.zod.js";
-import { zTimestamps, zVarchar, zText, zString } from "./zod_utils.js";
+import { zString, zText, zTimestamps, zVarchar } from "./zod_utils.js";
 
 export const leadMandatoryZod = z.object({
 	nome: zVarchar(1, 255),

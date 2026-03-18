@@ -1,21 +1,23 @@
 import { env } from "@backend/configs/env.config";
 import { db } from "@backend/db/db";
-import { oauth2ErrorHandler, oauth2SuccessHandler } from "@backend/modules/auth/oauth2/oauth2_succes_error_handler.auth.utils";
-import { SessionUser } from "@backend/modules/auth/session.auth.utils";
+import {
+	oauth2ErrorHandler,
+	oauth2SuccessHandler,
+} from "@backend/modules/auth/oauth2/oauth2_succes_error_handler.auth.utils";
+import type { SessionUser } from "@backend/modules/auth/session.auth.utils";
 import type { OAuth2Namespace } from "@fastify/oauth2";
 import oauthPlugin from "@fastify/oauth2";
 import axios from "axios";
 import type { FastifyInstance } from "fastify";
 
 /**
- * Augment Fastify types to include Google-OAuth2 
+ * Augment Fastify types to include Google-OAuth2
  */
 declare module "fastify" {
 	interface FastifyInstance {
 		googleOAuth2: OAuth2Namespace;
 	}
 }
-
 
 /**
  * Google OAuth2 Configuration
@@ -47,9 +49,7 @@ interface GoogleUserInfo {
 /**
  * Fetches user info from Google OAuth2 using axios
  */
-async function fetchGoogleUserInfo(
-	accessToken: string,
-): Promise<GoogleUserInfo> {
+async function fetchGoogleUserInfo(accessToken: string): Promise<GoogleUserInfo> {
 	const response = await axios.get<GoogleUserInfo>(
 		"https://www.googleapis.com/oauth2/v2/userinfo",
 		{
@@ -67,7 +67,7 @@ async function fetchGoogleUserInfo(
  * Google OAuth2 Plugin
  * Registers Google OAuth2 and handles the callback
  */
-export async function googleOAuth2Plugin(app: FastifyInstance ) {
+export async function googleOAuth2Plugin(app: FastifyInstance) {
 	// Register Google OAuth2
 	await app.register(oauthPlugin, GOOGLE_OAUTH2_CONFIG);
 
@@ -75,8 +75,7 @@ export async function googleOAuth2Plugin(app: FastifyInstance ) {
 	app.get("/callback", async (request, reply) => {
 		try {
 			// Get the access token from Google via the OAuth2 plugin
-			const { token } =
-				await app.googleOAuth2.getAccessTokenFromAuthorizationCodeFlow(request);
+			const { token } = await app.googleOAuth2.getAccessTokenFromAuthorizationCodeFlow(request);
 
 			// Fetch user info from Google using the access token
 			const googleUserInfo = await fetchGoogleUserInfo(token.access_token);
@@ -94,23 +93,25 @@ export async function googleOAuth2Plugin(app: FastifyInstance ) {
 				app.log.info({ userId: existingUser.userId }, "Existing user found, linking session");
 				return oauth2SuccessHandler(request, reply, existingUser);
 			} else {
-
 				const sessionUser: SessionUser = {
 					userId: null,
 					email: googleUserInfo.email,
 					name: googleUserInfo.name,
 					displayPicture: googleUserInfo.picture || null,
-				}
+				};
 				// New user - create session with null userId and redirect to registration
 				app.log.info({ email: sessionUser.email }, "New user, redirecting to registration");
 				return oauth2SuccessHandler(request, reply, sessionUser);
 			}
 		} catch (error) {
-			app.log.error({
-				error,
-				message: error instanceof Error ? error.message : 'Unknown error',
-				stack: error instanceof Error ? error.stack : undefined,
-			}, "OAuth callback error");
+			app.log.error(
+				{
+					error,
+					message: error instanceof Error ? error.message : "Unknown error",
+					stack: error instanceof Error ? error.stack : undefined,
+				},
+				"OAuth callback error",
+			);
 			// Use centralized error handler for consistent error handling
 			return oauth2ErrorHandler(reply);
 		}

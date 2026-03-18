@@ -1,7 +1,7 @@
-import { describe, it, expect } from "vitest";
-import { createCallerFactory } from "@backend/trpc";
 import { appTrpcRouter } from "@backend/routers/trpc.router";
-import { unauthContext, authContext } from "@backend/test-utils/mock-context";
+import { authContext, unauthContext } from "@backend/test-utils/mock-context";
+import { createCallerFactory } from "@backend/trpc";
+import { describe, expect, it } from "vitest";
 
 const createCaller = createCallerFactory(appTrpcRouter);
 
@@ -35,9 +35,9 @@ describe("editorial — auth guard (UNAUTHORIZED)", () => {
 	});
 
 	it("createEditorialItem rejeita não autenticado", async () => {
-		await expect(
-			caller.editorial.createEditorialItem(VALID_EDITORIAL_INPUT),
-		).rejects.toMatchObject({ code: "UNAUTHORIZED" });
+		await expect(caller.editorial.createEditorialItem(VALID_EDITORIAL_INPUT)).rejects.toMatchObject(
+			{ code: "UNAUTHORIZED" },
+		);
 	});
 
 	it("updateEditorialItem rejeita não autenticado", async () => {
@@ -47,33 +47,33 @@ describe("editorial — auth guard (UNAUTHORIZED)", () => {
 	});
 
 	it("moveToProducao rejeita não autenticado", async () => {
-		await expect(
-			caller.editorial.moveToProducao({ editorialId: FAKE_UUID }),
-		).rejects.toMatchObject({ code: "UNAUTHORIZED" });
+		await expect(caller.editorial.moveToProducao({ editorialId: FAKE_UUID })).rejects.toMatchObject(
+			{ code: "UNAUTHORIZED" },
+		);
 	});
 
 	it("moveToRevisao rejeita não autenticado", async () => {
-		await expect(
-			caller.editorial.moveToRevisao({ editorialId: FAKE_UUID }),
-		).rejects.toMatchObject({ code: "UNAUTHORIZED" });
+		await expect(caller.editorial.moveToRevisao({ editorialId: FAKE_UUID })).rejects.toMatchObject({
+			code: "UNAUTHORIZED",
+		});
 	});
 
 	it("approveItem rejeita não autenticado", async () => {
-		await expect(
-			caller.editorial.approveItem({ editorialId: FAKE_UUID }),
-		).rejects.toMatchObject({ code: "UNAUTHORIZED" });
+		await expect(caller.editorial.approveItem({ editorialId: FAKE_UUID })).rejects.toMatchObject({
+			code: "UNAUTHORIZED",
+		});
 	});
 
 	it("publishItem rejeita não autenticado", async () => {
-		await expect(
-			caller.editorial.publishItem({ editorialId: FAKE_UUID }),
-		).rejects.toMatchObject({ code: "UNAUTHORIZED" });
+		await expect(caller.editorial.publishItem({ editorialId: FAKE_UUID })).rejects.toMatchObject({
+			code: "UNAUTHORIZED",
+		});
 	});
 
 	it("cancelItem rejeita não autenticado", async () => {
-		await expect(
-			caller.editorial.cancelItem({ editorialId: FAKE_UUID }),
-		).rejects.toMatchObject({ code: "UNAUTHORIZED" });
+		await expect(caller.editorial.cancelItem({ editorialId: FAKE_UUID })).rejects.toMatchObject({
+			code: "UNAUTHORIZED",
+		});
 	});
 });
 
@@ -144,14 +144,10 @@ describe("editorial — validação de input (Zod)", () => {
 	});
 
 	it("moveToProducao rejeita editorialId inválido", async () => {
-		await expect(
-			caller.editorial.moveToProducao({ editorialId: INVALID_UUID }),
-		).rejects.toThrow();
+		await expect(caller.editorial.moveToProducao({ editorialId: INVALID_UUID })).rejects.toThrow();
 	});
 
 	it("approveItem rejeita editorialId inválido", async () => {
-		await expect(
-			caller.editorial.approveItem({ editorialId: INVALID_UUID }),
-		).rejects.toThrow();
+		await expect(caller.editorial.approveItem({ editorialId: INVALID_UUID })).rejects.toThrow();
 	});
 });

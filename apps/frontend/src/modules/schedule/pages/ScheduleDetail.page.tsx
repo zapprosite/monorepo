@@ -1,15 +1,15 @@
-import { LoadingSpinner } from "@connected-repo/ui-mui/components/LoadingSpinner";
 import { ErrorAlert } from "@connected-repo/ui-mui/components/ErrorAlert";
+import { LoadingSpinner } from "@connected-repo/ui-mui/components/LoadingSpinner";
 import { Typography } from "@connected-repo/ui-mui/data-display/Typography";
+import { Dialog } from "@connected-repo/ui-mui/feedback/Dialog";
+import { DialogActions } from "@connected-repo/ui-mui/feedback/DialogActions";
+import { DialogContent } from "@connected-repo/ui-mui/feedback/DialogContent";
+import { DialogTitle } from "@connected-repo/ui-mui/feedback/DialogTitle";
 import { Button } from "@connected-repo/ui-mui/form/Button";
 import { TextField } from "@connected-repo/ui-mui/form/TextField";
 import { Box } from "@connected-repo/ui-mui/layout/Box";
 import { Container } from "@connected-repo/ui-mui/layout/Container";
 import { Paper } from "@connected-repo/ui-mui/layout/Paper";
-import { Dialog } from "@connected-repo/ui-mui/feedback/Dialog";
-import { DialogActions } from "@connected-repo/ui-mui/feedback/DialogActions";
-import { DialogContent } from "@connected-repo/ui-mui/feedback/DialogContent";
-import { DialogTitle } from "@connected-repo/ui-mui/feedback/DialogTitle";
 import { trpc } from "@frontend/utils/trpc.client";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
@@ -35,9 +35,11 @@ export default function ScheduleDetailPage() {
 	const [cancelOpen, setCancelOpen] = useState(false);
 	const [motivoCancelamento, setMotivoCancelamento] = useState("");
 
-	const { data: schedule, isLoading, error } = useQuery(
-		trpc.schedule.getScheduleDetail.queryOptions({ scheduleId: scheduleId! }),
-	);
+	const {
+		data: schedule,
+		isLoading,
+		error,
+	} = useQuery(trpc.schedule.getScheduleDetail.queryOptions({ scheduleId: scheduleId! }));
 
 	const invalidate = () => {
 		queryClient.invalidateQueries({ queryKey: trpc.schedule.listSchedules.queryKey() });
@@ -158,20 +160,28 @@ export default function ScheduleDetailPage() {
 					</Typography>
 					<Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
 						<Box>
-							<Typography variant="caption" color="text.secondary">Data e Hora</Typography>
+							<Typography variant="caption" color="text.secondary">
+								Data e Hora
+							</Typography>
 							<Typography variant="body2">{formatDateTime(schedule.dataHora)}</Typography>
 						</Box>
 						<Box>
-							<Typography variant="caption" color="text.secondary">Tipo de Serviço</Typography>
+							<Typography variant="caption" color="text.secondary">
+								Tipo de Serviço
+							</Typography>
 							<Typography variant="body2">{schedule.tipo}</Typography>
 						</Box>
 						<Box>
-							<Typography variant="caption" color="text.secondary">Duração</Typography>
+							<Typography variant="caption" color="text.secondary">
+								Duração
+							</Typography>
 							<Typography variant="body2">{schedule.duracaoMinutos ?? 60} minutos</Typography>
 						</Box>
 						{schedule.tecnicoId && (
 							<Box>
-								<Typography variant="caption" color="text.secondary">Técnico</Typography>
+								<Typography variant="caption" color="text.secondary">
+									Técnico
+								</Typography>
 								<Typography variant="body2">{schedule.tecnicoId}</Typography>
 							</Box>
 						)}
@@ -188,19 +198,25 @@ export default function ScheduleDetailPage() {
 					<Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
 						{schedule.descricao && (
 							<Box>
-								<Typography variant="caption" color="text.secondary">Descrição</Typography>
+								<Typography variant="caption" color="text.secondary">
+									Descrição
+								</Typography>
 								<Typography variant="body2">{schedule.descricao}</Typography>
 							</Box>
 						)}
 						{schedule.observacoes && (
 							<Box>
-								<Typography variant="caption" color="text.secondary">Observações</Typography>
+								<Typography variant="caption" color="text.secondary">
+									Observações
+								</Typography>
 								<Typography variant="body2">{schedule.observacoes}</Typography>
 							</Box>
 						)}
 						{schedule.motivoCancelamento && (
 							<Box>
-								<Typography variant="caption" color="error.main">Motivo do Cancelamento</Typography>
+								<Typography variant="caption" color="error.main">
+									Motivo do Cancelamento
+								</Typography>
 								<Typography variant="body2">{schedule.motivoCancelamento}</Typography>
 							</Box>
 						)}
@@ -214,7 +230,15 @@ export default function ScheduleDetailPage() {
 			</Box>
 
 			{/* Cancel Modal */}
-			<Dialog open={cancelOpen} onClose={() => { setCancelOpen(false); setMotivoCancelamento(""); }} maxWidth="sm" fullWidth>
+			<Dialog
+				open={cancelOpen}
+				onClose={() => {
+					setCancelOpen(false);
+					setMotivoCancelamento("");
+				}}
+				maxWidth="sm"
+				fullWidth
+			>
 				<DialogTitle>Cancelar Agendamento</DialogTitle>
 				<DialogContent>
 					<Typography variant="body2" color="text.secondary" mb={2}>
@@ -230,7 +254,14 @@ export default function ScheduleDetailPage() {
 					/>
 				</DialogContent>
 				<DialogActions>
-					<Button onClick={() => { setCancelOpen(false); setMotivoCancelamento(""); }} variant="outlined" disabled={cancelar.isPending}>
+					<Button
+						onClick={() => {
+							setCancelOpen(false);
+							setMotivoCancelamento("");
+						}}
+						variant="outlined"
+						disabled={cancelar.isPending}
+					>
 						Voltar
 					</Button>
 					<Button

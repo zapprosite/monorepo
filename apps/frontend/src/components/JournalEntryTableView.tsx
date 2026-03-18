@@ -1,7 +1,7 @@
 import { Box } from "@connected-repo/ui-mui/layout/Box";
 import { MaterialReactTable } from "@connected-repo/ui-mui/mrt/MaterialReactTable";
 import type { journalEntrySelectAllZod } from "@connected-repo/zod-schemas/journal_entry.zod";
-import { MRT_ColumnDef } from "material-react-table";
+import type { MRT_ColumnDef } from "material-react-table";
 import { useMemo } from "react";
 import type { z } from "zod";
 
@@ -66,7 +66,7 @@ export function JournalEntryTableView({ entries, onEntryClick }: JournalEntryTab
 				Cell: ({ cell }) => formatDate(cell.getValue<number>()),
 			},
 		],
-		[],
+		[formatDate, truncateContent],
 	);
 
 	return (

@@ -1,5 +1,5 @@
-import { LoadingSpinner } from "@connected-repo/ui-mui/components/LoadingSpinner";
 import { ErrorAlert } from "@connected-repo/ui-mui/components/ErrorAlert";
+import { LoadingSpinner } from "@connected-repo/ui-mui/components/LoadingSpinner";
 import { Chip } from "@connected-repo/ui-mui/data-display/Chip";
 import { Typography } from "@connected-repo/ui-mui/data-display/Typography";
 import { Button } from "@connected-repo/ui-mui/form/Button";
@@ -12,9 +12,7 @@ import { useNavigate } from "react-router";
 
 export default function ClientsPage() {
 	const navigate = useNavigate();
-	const { data: clients, isLoading, error } = useQuery(
-		trpc.clients.listClients.queryOptions({}),
-	);
+	const { data: clients, isLoading, error } = useQuery(trpc.clients.listClients.queryOptions({}));
 
 	if (isLoading) return <LoadingSpinner text="Carregando clientes..." />;
 
@@ -40,7 +38,11 @@ export default function ClientsPage() {
 					<Typography
 						variant="h3"
 						component="h1"
-						sx={{ fontSize: { xs: "2rem", md: "2.5rem" }, fontWeight: 700, letterSpacing: "-0.01em" }}
+						sx={{
+							fontSize: { xs: "2rem", md: "2.5rem" },
+							fontWeight: 700,
+							letterSpacing: "-0.01em",
+						}}
 					>
 						Clientes
 					</Typography>
@@ -51,7 +53,10 @@ export default function ClientsPage() {
 				<Button
 					variant="contained"
 					onClick={() => navigate("/clients/new")}
-					sx={{ transition: "all 0.2s ease-in-out", "&:hover": { transform: "translateY(-2px)", boxShadow: 4 } }}
+					sx={{
+						transition: "all 0.2s ease-in-out",
+						"&:hover": { transform: "translateY(-2px)", boxShadow: 4 },
+					}}
 				>
 					Novo Cliente
 				</Button>
@@ -99,7 +104,14 @@ export default function ClientsPage() {
 								},
 							}}
 						>
-							<Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 2 }}>
+							<Box
+								sx={{
+									display: "flex",
+									alignItems: "center",
+									justifyContent: "space-between",
+									gap: 2,
+								}}
+							>
 								<Box>
 									<Typography variant="subtitle1" fontWeight={600}>
 										{client.nome}
@@ -112,9 +124,7 @@ export default function ClientsPage() {
 								</Box>
 								<Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
 									<Chip label={client.tipo} size="small" variant="outlined" />
-									{!client.ativo && (
-										<Chip label="Inativo" size="small" color="default" />
-									)}
+									{!client.ativo && <Chip label="Inativo" size="small" color="default" />}
 								</Box>
 							</Box>
 						</Paper>

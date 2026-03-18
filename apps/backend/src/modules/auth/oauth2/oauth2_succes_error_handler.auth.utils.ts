@@ -1,5 +1,5 @@
 import { env } from "@backend/configs/env.config";
-import { SessionUser, setSession } from "@backend/modules/auth/session.auth.utils";
+import { type SessionUser, setSession } from "@backend/modules/auth/session.auth.utils";
 import type { FastifyReply, FastifyRequest } from "fastify";
 
 export const oauth2SuccessHandler = (
@@ -7,7 +7,6 @@ export const oauth2SuccessHandler = (
 	reply: FastifyReply,
 	sessionUser: SessionUser,
 ) => {
-
 	setSession(request, sessionUser);
 
 	// Redirect to frontend app
@@ -16,11 +15,8 @@ export const oauth2SuccessHandler = (
 	} else {
 		return reply.redirect(`${env.WEBAPP_URL}/auth/register`);
 	}
-}
+};
 
-export const oauth2ErrorHandler = (
-	reply: FastifyReply,
-	errorType = "oauth_failed",
-) => {
+export const oauth2ErrorHandler = (reply: FastifyReply, errorType = "oauth_failed") => {
 	return reply.redirect(`${env.WEBAPP_URL}/auth/login?error=${errorType}`);
-}
+};

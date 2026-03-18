@@ -1,6 +1,6 @@
 import z from "zod";
 import { serviceOrderStatusZod, serviceTypeZod } from "./crm_enums.zod.js";
-import { zText, zTimestamps, } from "./zod_utils.js";
+import { zText, zTimestamps } from "./zod_utils.js";
 
 const serviceOrderMandatoryZod = z.object({
 	clienteId: z.string().uuid(),

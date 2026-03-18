@@ -2,7 +2,13 @@ import { ErrorAlert } from "@connected-repo/ui-mui/components/ErrorAlert";
 import { LoadingSpinner } from "@connected-repo/ui-mui/components/LoadingSpinner";
 import { Typography } from "@connected-repo/ui-mui/data-display/Typography";
 import { Alert } from "@connected-repo/ui-mui/feedback/Alert";
-import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from "@connected-repo/ui-mui/feedback/Dialog";
+import {
+	Dialog,
+	DialogActions,
+	DialogContent,
+	DialogContentText,
+	DialogTitle,
+} from "@connected-repo/ui-mui/feedback/Dialog";
 import { Button } from "@connected-repo/ui-mui/form/Button";
 import { TextField } from "@connected-repo/ui-mui/form/TextField";
 import { ArrowBackIcon } from "@connected-repo/ui-mui/icons/ArrowBackIcon";
@@ -25,9 +31,11 @@ export default function JournalEntryDetailPage() {
 	const [confirmationText, setConfirmationText] = useState("");
 	const [deleteError, setDeleteError] = useState<string | null>(null);
 
-	const { data: journalEntry, isLoading, error } = useQuery(
-		trpc.journalEntries.getById.queryOptions({ journalEntryId: entryId || "" })
-	);
+	const {
+		data: journalEntry,
+		isLoading,
+		error,
+	} = useQuery(trpc.journalEntries.getById.queryOptions({ journalEntryId: entryId || "" }));
 
 	const deleteMutation = useMutation(trpc.journalEntries.delete.mutationOptions());
 
@@ -46,7 +54,7 @@ export default function JournalEntryDetailPage() {
 		try {
 			await deleteMutation.mutateAsync({ journalEntryId: entryId || "" });
 			navigate("/journal-entries", { replace: true });
-		} catch (error) {
+		} catch (_error) {
 			setDeleteError("Failed to delete journal entry. Please try again.");
 		}
 	};
@@ -219,12 +227,7 @@ export default function JournalEntryDetailPage() {
 			</Card>
 
 			{/* Delete Confirmation Dialog */}
-			<Dialog
-				open={deleteDialogOpen}
-				onClose={handleDeleteCancel}
-				maxWidth="sm"
-				fullWidth
-			>
+			<Dialog open={deleteDialogOpen} onClose={handleDeleteCancel} maxWidth="sm" fullWidth>
 				<DialogTitle>Delete Journal Entry?</DialogTitle>
 				<DialogContent>
 					<DialogContentText sx={{ mb: 3 }}>
@@ -252,10 +255,7 @@ export default function JournalEntryDetailPage() {
 					/>
 				</DialogContent>
 				<DialogActions sx={{ px: 3, pb: 3 }}>
-					<Button
-						onClick={handleDeleteCancel}
-						disabled={deleteMutation.isPending}
-					>
+					<Button onClick={handleDeleteCancel} disabled={deleteMutation.isPending}>
 						Cancel
 					</Button>
 					<Button

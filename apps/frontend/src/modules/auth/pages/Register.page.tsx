@@ -9,7 +9,7 @@ import { Stack } from "@connected-repo/ui-mui/layout/Stack";
 import { RhfSubmitButton } from "@connected-repo/ui-mui/rhf-form/RhfSubmitButton";
 import { RhfTextField } from "@connected-repo/ui-mui/rhf-form/RhfTextField";
 import { useRhfForm } from "@connected-repo/ui-mui/rhf-form/useRhfForm";
-import { UserCreateInput, userCreateInputZod } from "@connected-repo/zod-schemas/user.zod";
+import { type UserCreateInput, userCreateInputZod } from "@connected-repo/zod-schemas/user.zod";
 import { trpc, trpcFetch } from "@frontend/utils/trpc.client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSuspenseQuery } from "@tanstack/react-query";
@@ -22,7 +22,9 @@ const RegisterPage = () => {
 	const navigate = useNavigate();
 
 	// Fetch session info to pre-fill form
-	const { data: sessionInfo, isLoading: isLoadingSession } = useSuspenseQuery(trpc.auth.getSessionInfo.queryOptions());
+	const { data: sessionInfo, isLoading: isLoadingSession } = useSuspenseQuery(
+		trpc.auth.getSessionInfo.queryOptions(),
+	);
 
 	// Form setup with Zod validation and RHF
 	const { formMethods, RhfFormProvider } = useRhfForm<RegisterFormData>({
@@ -172,7 +174,12 @@ const RegisterPage = () => {
 							</RhfFormProvider>
 
 							{/* Terms */}
-							<Typography variant="caption" color="text.secondary" textAlign="center" sx={{ mt: 2 }}>
+							<Typography
+								variant="caption"
+								color="text.secondary"
+								textAlign="center"
+								sx={{ mt: 2 }}
+							>
 								By registering, you agree to our Terms of Service and Privacy Policy
 							</Typography>
 						</Stack>

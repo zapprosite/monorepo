@@ -1,6 +1,6 @@
 import CreateSchedulePage from "@frontend/modules/schedule/pages/CreateSchedule.page";
-import ScheduleDetailPage from "@frontend/modules/schedule/pages/ScheduleDetail.page";
 import SchedulePage from "@frontend/modules/schedule/pages/Schedule.page";
+import ScheduleDetailPage from "@frontend/modules/schedule/pages/ScheduleDetail.page";
 import { Route, Routes } from "react-router";
 
 export const ScheduleRouter = () => {

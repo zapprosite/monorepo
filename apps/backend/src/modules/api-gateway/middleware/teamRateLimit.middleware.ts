@@ -11,10 +11,7 @@ const teamRateLimiters = new Map<string, RateLimiterMemory>();
  * @param rateLimit - Requests per minute
  * @returns RateLimiterMemory instance
  */
-function getTeamRateLimiter(
-	teamId: string,
-	rateLimit: number,
-): RateLimiterMemory {
+function getTeamRateLimiter(teamId: string, rateLimit: number): RateLimiterMemory {
 	let limiter = teamRateLimiters.get(teamId);
 
 	// Create new limiter if doesn't exist or rate limit changed
@@ -37,10 +34,7 @@ function getTeamRateLimiter(
  * If null/undefined, skip rate limiting
  * Returns 429 Too Many Requests if exceeded
  */
-export async function teamRateLimitHook(
-	request: FastifyRequest,
-	reply: FastifyReply,
-) {
+export async function teamRateLimitHook(request: FastifyRequest, reply: FastifyReply) {
 	// Ensure team is attached by apiKeyAuthHook
 	if (!request.team) {
 		return reply.code(401).send({
@@ -53,7 +47,7 @@ export async function teamRateLimitHook(
 	const { teamId, rateLimitPerMinute } = request.team;
 
 	// Skip rate limiting if not configured
-	if ( !rateLimitPerMinute ) {
+	if (!rateLimitPerMinute) {
 		return; // No rate limit configured, proceed
 	}
 

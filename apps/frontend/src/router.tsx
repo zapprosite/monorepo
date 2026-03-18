@@ -55,7 +55,9 @@ export const routerObjectWithNavbar: ReactRouterWithNavbar[] = [
 					},
 					{
 						path: "journal-entries/*",
-						Component: lazy(() => import("@frontend/modules/journal-entries/journal-entries.router")),
+						Component: lazy(
+							() => import("@frontend/modules/journal-entries/journal-entries.router"),
+						),
 					},
 					{
 						path: "leads/*",
@@ -75,12 +77,7 @@ export const routerObjectWithNavbar: ReactRouterWithNavbar[] = [
 					},
 					{
 						path: "service-orders/*",
-						Component: lazy(
-							() =>
-								import(
-									"@frontend/modules/service-orders/service-orders.router"
-								),
-						),
+						Component: lazy(() => import("@frontend/modules/service-orders/service-orders.router")),
 					},
 					{
 						path: "contracts/*",

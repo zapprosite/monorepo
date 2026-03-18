@@ -1,5 +1,5 @@
-import { LoadingSpinner } from "@connected-repo/ui-mui/components/LoadingSpinner";
 import { ErrorAlert } from "@connected-repo/ui-mui/components/ErrorAlert";
+import { LoadingSpinner } from "@connected-repo/ui-mui/components/LoadingSpinner";
 import { Typography } from "@connected-repo/ui-mui/data-display/Typography";
 import { Button } from "@connected-repo/ui-mui/form/Button";
 import { Box } from "@connected-repo/ui-mui/layout/Box";
@@ -15,9 +15,11 @@ export default function LeadDetailPage() {
 	const { leadId } = useParams<{ leadId: string }>();
 	const navigate = useNavigate();
 
-	const { data: lead, isLoading, error } = useQuery(
-		trpc.leads.getLeadDetail.queryOptions({ leadId: leadId! }),
-	);
+	const {
+		data: lead,
+		isLoading,
+		error,
+	} = useQuery(trpc.leads.getLeadDetail.queryOptions({ leadId: leadId! }));
 
 	if (isLoading) return <LoadingSpinner text="Carregando lead..." />;
 
@@ -31,7 +33,15 @@ export default function LeadDetailPage() {
 
 	return (
 		<Container maxWidth="lg" sx={{ py: { xs: 3, md: 5 } }}>
-			<Box sx={{ mb: 4, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 2 }}>
+			<Box
+				sx={{
+					mb: 4,
+					display: "flex",
+					alignItems: "center",
+					justifyContent: "space-between",
+					gap: 2,
+				}}
+			>
 				<Box>
 					<Button
 						variant="text"
@@ -64,19 +74,25 @@ export default function LeadDetailPage() {
 					<Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
 						{lead.email && (
 							<Box>
-								<Typography variant="caption" color="text.secondary">Email</Typography>
+								<Typography variant="caption" color="text.secondary">
+									Email
+								</Typography>
 								<Typography variant="body2">{lead.email}</Typography>
 							</Box>
 						)}
 						{lead.telefone && (
 							<Box>
-								<Typography variant="caption" color="text.secondary">Telefone</Typography>
+								<Typography variant="caption" color="text.secondary">
+									Telefone
+								</Typography>
 								<Typography variant="body2">{lead.telefone}</Typography>
 							</Box>
 						)}
 						{lead.observacoes && (
 							<Box>
-								<Typography variant="caption" color="text.secondary">Observações</Typography>
+								<Typography variant="caption" color="text.secondary">
+									Observações
+								</Typography>
 								<Typography variant="body2">{lead.observacoes}</Typography>
 							</Box>
 						)}

@@ -32,7 +32,11 @@ export default function ServiceOrdersPage() {
 	const [filterTipo, setFilterTipo] = useState<ServiceType | "">("");
 	const [filterSearch, setFilterSearch] = useState("");
 
-	const { data: serviceOrders, isLoading, error } = useQuery(
+	const {
+		data: serviceOrders,
+		isLoading,
+		error,
+	} = useQuery(
 		trpc.serviceOrders.listServiceOrders.queryOptions({
 			status: filterStatus || undefined,
 			tipo: filterTipo || undefined,

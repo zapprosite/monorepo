@@ -11,7 +11,7 @@ export async function seedCRM() {
 	}
 
 	// --- Leads ---
-	const lead1 = await db.leads.create({
+	const _lead1 = await db.leads.create({
 		nome: "Supermercado BomPreço",
 		email: "manutencao@bompreco.com.br",
 		telefone: "(11) 98765-4321",
@@ -20,7 +20,7 @@ export async function seedCRM() {
 		observacoes: "Tem 8 splits e 2 câmaras frias. Contrato PMOC em vista.",
 	});
 
-	const lead2 = await db.leads.create({
+	const _lead2 = await db.leads.create({
 		nome: "Clínica Dr. Marcos",
 		email: "clinica@drmarcos.com.br",
 		telefone: "(11) 94321-8765",
@@ -148,7 +148,8 @@ export async function seedCRM() {
 		formato: "Carrossel",
 		status: "Em Produção",
 		dataPublicacao: futureDate.toISOString().slice(0, 10),
-		pauta: "Educar sobre sinais de alerta: cheiro ruim, gotejamento, ruído, calor excessivo, conta alta de energia.",
+		pauta:
+			"Educar sobre sinais de alerta: cheiro ruim, gotejamento, ruído, calor excessivo, conta alta de energia.",
 		cta: "Agende sua revisão pelo link na bio!",
 	});
 

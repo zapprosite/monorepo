@@ -1,12 +1,19 @@
 import { BaseTable } from "@backend/db/base_table";
-import { SERVICE_ORDER_STATUS_ENUM, SERVICE_TYPE_ENUM } from "@connected-repo/zod-schemas/crm_enums.zod";
+import {
+	SERVICE_ORDER_STATUS_ENUM,
+	SERVICE_TYPE_ENUM,
+} from "@connected-repo/zod-schemas/crm_enums.zod";
 
 export class ServiceOrderTable extends BaseTable {
 	readonly table = "service_orders";
 
 	columns = this.setColumns((t) => ({
 		serviceOrderId: t.uuid().primaryKey().default(t.sql`gen_random_uuid()`),
-		numero: t.varchar(50).default(t.sql`'OS-' || to_char(now(), 'YYYYMMDD') || '-' || substr(gen_random_uuid()::text, 1, 8)`),
+		numero: t
+			.varchar(50)
+			.default(
+				t.sql`'OS-' || to_char(now(), 'YYYYMMDD') || '-' || substr(gen_random_uuid()::text, 1, 8)`,
+			),
 		clienteId: t.uuid().foreignKey("clients", "clientId", {
 			onUpdate: "RESTRICT",
 			onDelete: "RESTRICT",

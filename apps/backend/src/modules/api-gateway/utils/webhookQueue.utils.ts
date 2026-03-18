@@ -66,9 +66,7 @@ export async function sendWebhook(
 			// Request made but no response received
 			return {
 				success: false,
-				error: axiosError.code === "ECONNABORTED"
-					? "Request timeout"
-					: "No response from server",
+				error: axiosError.code === "ECONNABORTED" ? "Request timeout" : "No response from server",
 			};
 		}
 
@@ -88,7 +86,7 @@ export async function sendWebhook(
 function calculateBackoff(attempt: number): number {
 	// Exponential backoff: 2^attempt * 1000ms
 	// Attempt 0: 1s, Attempt 1: 2s, Attempt 2: 4s
-	return Math.pow(2, attempt) * 1000;
+	return 2 ** attempt * 1000;
 }
 
 /**
@@ -117,9 +115,7 @@ export async function processWebhookQueue() {
 		results.processed++;
 
 		// Fetch team webhook bearer token (optional)
-		const team = await db.teams
-			.select("subscriptionAlertWebhookBearerToken")
-			.find(webhook.teamId);
+		const team = await db.teams.select("subscriptionAlertWebhookBearerToken").find(webhook.teamId);
 
 		// Send webhook with bearer token (if configured)
 		const result = await sendWebhook(
@@ -133,34 +129,40 @@ export async function processWebhookQueue() {
 
 		if (result.success) {
 			// Mark as sent
-			await db.webhookCallQueues.find(webhook.webhookCallQueueId).update({
-				status: "Sent",
-				lastAttemptAt: () => sql`NOW()`,
-				sentAt: () => sql`NOW()`,
-				errorMessage: null,
-			})
-			.increment("attempts");
+			await db.webhookCallQueues
+				.find(webhook.webhookCallQueueId)
+				.update({
+					status: "Sent",
+					lastAttemptAt: () => sql`NOW()`,
+					sentAt: () => sql`NOW()`,
+					errorMessage: null,
+				})
+				.increment("attempts");
 			results.succeeded++;
 		} else {
 			// Check if we should retry
 			if (newAttempts < webhook.maxAttempts) {
 				// Schedule retry with exponential backoff
 				const backoffMs = calculateBackoff(newAttempts);
-				await db.webhookCallQueues.find(webhook.webhookCallQueueId).update({
-					lastAttemptAt: () => sql`NOW()`,
-					scheduledFor: () => sql`NOW() + INTERVAL '${backoffMs} milliseconds'`,
-					errorMessage: result.error || "Unknown error",
-				})
-				.increment("attempts");
+				await db.webhookCallQueues
+					.find(webhook.webhookCallQueueId)
+					.update({
+						lastAttemptAt: () => sql`NOW()`,
+						scheduledFor: () => sql`NOW() + INTERVAL '${backoffMs} milliseconds'`,
+						errorMessage: result.error || "Unknown error",
+					})
+					.increment("attempts");
 				results.retried++;
 			} else {
 				// Max attempts reached, mark as failed
-				await db.webhookCallQueues.find(webhook.webhookCallQueueId).update({
-					status: "Failed",
-					lastAttemptAt: () => sql`NOW()`,
-					errorMessage: result.error || "Max retry attempts exceeded",
-				})
-				.increment("attempts");
+				await db.webhookCallQueues
+					.find(webhook.webhookCallQueueId)
+					.update({
+						status: "Failed",
+						lastAttemptAt: () => sql`NOW()`,
+						errorMessage: result.error || "Max retry attempts exceeded",
+					})
+					.increment("attempts");
 				results.failed++;
 			}
 		}

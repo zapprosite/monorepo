@@ -1,6 +1,10 @@
 import { sql } from "@backend/db/base_table";
 import { db } from "@backend/db/db";
-import { generateDeviceFingerprint, getClientIpAddress, parseUserAgent } from "@backend/utils/request-metadata.utils";
+import {
+	generateDeviceFingerprint,
+	getClientIpAddress,
+	parseUserAgent,
+} from "@backend/utils/request-metadata.utils";
 import type { FastifySessionObject } from "@fastify/session";
 import { TRPCError } from "@trpc/server";
 import type { FastifyRequest } from "fastify";
@@ -39,17 +43,14 @@ declare module "fastify" {
 	interface FastifyRequest {
 		session: FastifySessionObject;
 	}
-};
+}
 
 /**
  * Store user info in session
  * This will automatically persist to database via the custom session store
  * Also captures IP address, user agent, and device fingerprint for security tracking
  */
-export const setSession = (
-	request: FastifyRequest,
-	sessionUser: SessionUser,
-) => {
+export const setSession = (request: FastifyRequest, sessionUser: SessionUser) => {
 	// Store user info in session (works with any OAuth provider)
 	request.session.user = sessionUser;
 
@@ -88,11 +89,9 @@ export async function clearSession(request: FastifyRequest): Promise<void> {
  * Useful for forced logout across all devices
  */
 export async function invalidateAllUserSessions(userId: string): Promise<number> {
-	const result = await db.sessions
-		.where({ userId, markedInvalidAt: null })
-		.update({
-			markedInvalidAt: () => sql`NOW()`,
-		});
+	const result = await db.sessions.where({ userId, markedInvalidAt: null }).update({
+		markedInvalidAt: () => sql`NOW()`,
+	});
 
 	return result;
 }
@@ -102,14 +101,11 @@ export async function invalidateAllUserSessions(userId: string): Promise<number>
  * Called after user registration to link session to database user
  * Updates both in-memory session and database record
  */
-export async function updateSessionUserId(
-	request: FastifyRequest,
-	userId: string
-): Promise<void> {
+export async function updateSessionUserId(request: FastifyRequest, userId: string): Promise<void> {
 	if (!request.session.user) {
 		throw new TRPCError({
 			code: "UNAUTHORIZED",
-			message: "No session user found to update userId"
+			message: "No session user found to update userId",
 		});
 	}
 
@@ -117,7 +113,7 @@ export async function updateSessionUserId(
 	if (!sessionId) {
 		throw new TRPCError({
 			code: "INTERNAL_SERVER_ERROR",
-			message: "Session ID not found"
+			message: "Session ID not found",
 		});
 	}
 

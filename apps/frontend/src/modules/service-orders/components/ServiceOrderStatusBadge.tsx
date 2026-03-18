@@ -17,12 +17,5 @@ interface ServiceOrderStatusBadgeProps {
 }
 
 export function ServiceOrderStatusBadge({ status }: ServiceOrderStatusBadgeProps) {
-	return (
-		<Chip
-			label={status}
-			color={STATUS_COLOR[status]}
-			size="small"
-			sx={{ fontWeight: 500 }}
-		/>
-	);
+	return <Chip label={status} color={STATUS_COLOR[status]} size="small" sx={{ fontWeight: 500 }} />;
 }

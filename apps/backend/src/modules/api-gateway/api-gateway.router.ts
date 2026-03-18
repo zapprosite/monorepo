@@ -32,22 +32,22 @@ import {
 	ipWhitelistCheckHook,
 	requestLoggerHooks,
 	subscriptionCheckHook,
-	teamRateLimitHook
+	teamRateLimitHook,
 } from "@backend/modules/api-gateway/middleware";
 import { apiProductRequestLogSelectAllZod } from "@connected-repo/zod-schemas/api_request_log.zod";
 import { apiProductRequestStatusZod } from "@connected-repo/zod-schemas/enums.zod";
 import {
 	journalEntryCreateInputZod,
-	journalEntrySelectAllZod
+	journalEntrySelectAllZod,
 } from "@connected-repo/zod-schemas/journal_entry.zod";
 import {
-	SubscriptionSelectAll,
-	subscriptionSelectAllZod
+	type SubscriptionSelectAll,
+	subscriptionSelectAllZod,
 } from "@connected-repo/zod-schemas/subscription.zod";
-import { TeamSelectAll } from "@connected-repo/zod-schemas/team.zod";
+import type { TeamSelectAll } from "@connected-repo/zod-schemas/team.zod";
 import { zString, zTimeEpoch } from "@connected-repo/zod-schemas/zod_utils";
 import type { FastifyInstance } from "fastify";
-import { FastifyZodOpenApiSchema, FastifyZodOpenApiTypeProvider } from "fastify-zod-openapi";
+import type { FastifyZodOpenApiSchema, FastifyZodOpenApiTypeProvider } from "fastify-zod-openapi";
 import z from "zod";
 
 declare module "fastify" {
@@ -104,7 +104,7 @@ export const apiGatewayRouter = async (app: FastifyInstance) => {
 			},
 			querystring: z.object({
 				teamUserReferenceId: z.string(),
-			})
+			}),
 		} satisfies FastifyZodOpenApiSchema,
 		preHandler: [subscriptionCheckHook("journal_entry_create")],
 		onRequest: requestLoggerHooks.onRequest,
@@ -145,8 +145,7 @@ export const apiGatewayRouter = async (app: FastifyInstance) => {
 			}
 
 			// Get log by ID and verify it belongs to the team
-			const log = await db.apiProductRequestLogs.find(requestId)
-				.where({ teamId });
+			const log = await db.apiProductRequestLogs.find(requestId).where({ teamId });
 
 			if (!log) {
 				return reply.code(404).send({
@@ -168,8 +167,7 @@ export const apiGatewayRouter = async (app: FastifyInstance) => {
 		method: "GET",
 		url: "/v1/logs",
 		schema: {
-			description:
-				"Get paginated API request logs for team with optional filters",
+			description: "Get paginated API request logs for team with optional filters",
 			tags: ["Management API"],
 			headers: apiKeyHeaderZod,
 			querystring: z.object({
@@ -201,13 +199,7 @@ export const apiGatewayRouter = async (app: FastifyInstance) => {
 				});
 			}
 
-			const {
-				page = 1,
-				limit = 20,
-				status,
-				startDate,
-				endDate,
-			} = request.query;
+			const { page = 1, limit = 20, status, startDate, endDate } = request.query;
 
 			// Build query with filters
 			let query = db.apiProductRequestLogs.where({ teamId });
@@ -253,8 +245,7 @@ export const apiGatewayRouter = async (app: FastifyInstance) => {
 		method: "GET",
 		url: "/v1/journal_entry/subscriptions/active",
 		schema: {
-			description:
-				"Get active subscriptions for team with optional product filter",
+			description: "Get active subscriptions for team with optional product filter",
 			tags: ["Management API"],
 			headers: apiKeyHeaderZod,
 			querystring: z.object({

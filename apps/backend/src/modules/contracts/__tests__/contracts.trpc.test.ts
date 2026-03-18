@@ -1,7 +1,7 @@
-import { describe, it, expect } from "vitest";
-import { createCallerFactory } from "@backend/trpc";
 import { appTrpcRouter } from "@backend/routers/trpc.router";
-import { unauthContext, authContext } from "@backend/test-utils/mock-context";
+import { authContext, unauthContext } from "@backend/test-utils/mock-context";
+import { createCallerFactory } from "@backend/trpc";
+import { describe, expect, it } from "vitest";
 
 const createCaller = createCallerFactory(appTrpcRouter);
 
@@ -38,9 +38,9 @@ describe("contracts — auth guard (UNAUTHORIZED)", () => {
 	});
 
 	it("updateContract rejeita não autenticado", async () => {
-		await expect(
-			caller.contracts.updateContract({ contractId: FAKE_UUID }),
-		).rejects.toMatchObject({ code: "UNAUTHORIZED" });
+		await expect(caller.contracts.updateContract({ contractId: FAKE_UUID })).rejects.toMatchObject({
+			code: "UNAUTHORIZED",
+		});
 	});
 
 	it("activateContract rejeita não autenticado", async () => {
@@ -50,9 +50,9 @@ describe("contracts — auth guard (UNAUTHORIZED)", () => {
 	});
 
 	it("suspendContract rejeita não autenticado", async () => {
-		await expect(
-			caller.contracts.suspendContract({ contractId: FAKE_UUID }),
-		).rejects.toMatchObject({ code: "UNAUTHORIZED" });
+		await expect(caller.contracts.suspendContract({ contractId: FAKE_UUID })).rejects.toMatchObject(
+			{ code: "UNAUTHORIZED" },
+		);
 	});
 
 	it("reactivateContract rejeita não autenticado", async () => {
@@ -62,15 +62,15 @@ describe("contracts — auth guard (UNAUTHORIZED)", () => {
 	});
 
 	it("endContract rejeita não autenticado", async () => {
-		await expect(
-			caller.contracts.endContract({ contractId: FAKE_UUID }),
-		).rejects.toMatchObject({ code: "UNAUTHORIZED" });
+		await expect(caller.contracts.endContract({ contractId: FAKE_UUID })).rejects.toMatchObject({
+			code: "UNAUTHORIZED",
+		});
 	});
 
 	it("cancelContract rejeita não autenticado", async () => {
-		await expect(
-			caller.contracts.cancelContract({ contractId: FAKE_UUID }),
-		).rejects.toMatchObject({ code: "UNAUTHORIZED" });
+		await expect(caller.contracts.cancelContract({ contractId: FAKE_UUID })).rejects.toMatchObject({
+			code: "UNAUTHORIZED",
+		});
 	});
 });
 
@@ -143,20 +143,14 @@ describe("contracts — validação de input (Zod)", () => {
 	});
 
 	it("updateContract rejeita contractId inválido", async () => {
-		await expect(
-			caller.contracts.updateContract({ contractId: INVALID_UUID }),
-		).rejects.toThrow();
+		await expect(caller.contracts.updateContract({ contractId: INVALID_UUID })).rejects.toThrow();
 	});
 
 	it("cancelContract rejeita contractId inválido", async () => {
-		await expect(
-			caller.contracts.cancelContract({ contractId: INVALID_UUID }),
-		).rejects.toThrow();
+		await expect(caller.contracts.cancelContract({ contractId: INVALID_UUID })).rejects.toThrow();
 	});
 
 	it("listContracts rejeita clienteId com formato inválido", async () => {
-		await expect(
-			caller.contracts.listContracts({ clienteId: INVALID_UUID }),
-		).rejects.toThrow();
+		await expect(caller.contracts.listContracts({ clienteId: INVALID_UUID })).rejects.toThrow();
 	});
 });

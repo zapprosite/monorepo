@@ -1,5 +1,5 @@
-import { LoadingSpinner } from "@connected-repo/ui-mui/components/LoadingSpinner";
 import { ErrorAlert } from "@connected-repo/ui-mui/components/ErrorAlert";
+import { LoadingSpinner } from "@connected-repo/ui-mui/components/LoadingSpinner";
 import { Typography } from "@connected-repo/ui-mui/data-display/Typography";
 import { Button } from "@connected-repo/ui-mui/form/Button";
 import { Box } from "@connected-repo/ui-mui/layout/Box";
@@ -13,7 +13,7 @@ import { ReminderStatusBadge } from "../components/ReminderStatusBadge";
 
 function formatDate(dateStr: string | null | undefined): string {
 	if (!dateStr) return "—";
-	const date = new Date(dateStr + "T12:00:00");
+	const date = new Date(`${dateStr}T12:00:00`);
 	return date.toLocaleDateString("pt-BR", {
 		day: "2-digit",
 		month: "long",
@@ -26,9 +26,11 @@ export default function ReminderDetailPage() {
 	const navigate = useNavigate();
 	const queryClient = useQueryClient();
 
-	const { data: reminder, isLoading, error } = useQuery(
-		trpc.reminders.getReminderDetail.queryOptions({ reminderId: reminderId! }),
-	);
+	const {
+		data: reminder,
+		isLoading,
+		error,
+	} = useQuery(trpc.reminders.getReminderDetail.queryOptions({ reminderId: reminderId! }));
 
 	const invalidate = () => {
 		queryClient.invalidateQueries({ queryKey: trpc.reminders.listReminders.queryKey() });
@@ -49,9 +51,7 @@ export default function ReminderDetailPage() {
 	if (error || !reminder) {
 		return (
 			<Container maxWidth="lg" sx={{ py: 4 }}>
-				<ErrorAlert
-					message={`Erro ao carregar lembrete: ${error?.message ?? "Não encontrado"}`}
-				/>
+				<ErrorAlert message={`Erro ao carregar lembrete: ${error?.message ?? "Não encontrado"}`} />
 			</Container>
 		);
 	}
@@ -114,17 +114,25 @@ export default function ReminderDetailPage() {
 				</Typography>
 				<Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
 					<Box>
-						<Typography variant="caption" color="text.secondary">Tipo</Typography>
+						<Typography variant="caption" color="text.secondary">
+							Tipo
+						</Typography>
 						<Typography variant="body2">{reminder.tipo}</Typography>
 					</Box>
 					<Box>
-						<Typography variant="caption" color="text.secondary">Data do Lembrete</Typography>
+						<Typography variant="caption" color="text.secondary">
+							Data do Lembrete
+						</Typography>
 						<Typography variant="body2">{formatDate(reminder.dataLembrete)}</Typography>
 					</Box>
 					{reminder.descricao && (
 						<Box>
-							<Typography variant="caption" color="text.secondary">Descrição</Typography>
-							<Typography variant="body2" sx={{ whiteSpace: "pre-wrap" }}>{reminder.descricao}</Typography>
+							<Typography variant="caption" color="text.secondary">
+								Descrição
+							</Typography>
+							<Typography variant="body2" sx={{ whiteSpace: "pre-wrap" }}>
+								{reminder.descricao}
+							</Typography>
 						</Box>
 					)}
 					{!reminder.descricao && (

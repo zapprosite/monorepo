@@ -4,9 +4,7 @@ import { clearSession } from "./session.auth.utils";
 export const authRouterTrpc = trpcRouter({
 	// Get current session info (for pre-filling registration form)
 	// Rate limited to prevent DoS and session probing attacks (20 req/min per IP)
-	getSessionInfo: publicProcedure
-		.use(moderateRateLimit)
-		.query(async ({ ctx }) => {
+	getSessionInfo: publicProcedure.use(moderateRateLimit).query(async ({ ctx }) => {
 		// Return session user data if session exists
 		if (ctx.req.session?.user) {
 			return {

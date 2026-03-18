@@ -1,12 +1,15 @@
 import { Typography } from "@connected-repo/ui-mui/data-display/Typography";
 import { Button } from "@connected-repo/ui-mui/form/Button";
 import { TextField } from "@connected-repo/ui-mui/form/TextField";
-import { MenuItem } from "@connected-repo/ui-mui/navigation/MenuItem";
 import { Box } from "@connected-repo/ui-mui/layout/Box";
 import { Container } from "@connected-repo/ui-mui/layout/Container";
 import { Paper } from "@connected-repo/ui-mui/layout/Paper";
+import { MenuItem } from "@connected-repo/ui-mui/navigation/MenuItem";
 import { SCHEDULE_STATUS_ENUM, SERVICE_TYPE_ENUM } from "@connected-repo/zod-schemas/crm_enums.zod";
-import { scheduleCreateInputZod, type ScheduleCreateInput } from "@connected-repo/zod-schemas/schedule.zod";
+import {
+	type ScheduleCreateInput,
+	scheduleCreateInputZod,
+} from "@connected-repo/zod-schemas/schedule.zod";
 import { trpc } from "@frontend/utils/trpc.client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -17,7 +20,11 @@ export default function CreateSchedulePage() {
 	const navigate = useNavigate();
 	const queryClient = useQueryClient();
 
-	const { control, handleSubmit, formState: { errors, isSubmitting } } = useForm<ScheduleCreateInput>({
+	const {
+		control,
+		handleSubmit,
+		formState: { errors, isSubmitting },
+	} = useForm<ScheduleCreateInput>({
 		resolver: zodResolver(scheduleCreateInputZod),
 		defaultValues: {
 			status: "Agendado",
@@ -203,7 +210,9 @@ export default function CreateSchedulePage() {
 									helperText={errors.tipo?.message}
 								>
 									{SERVICE_TYPE_ENUM.map((t) => (
-										<MenuItem key={t} value={t}>{t}</MenuItem>
+										<MenuItem key={t} value={t}>
+											{t}
+										</MenuItem>
 									))}
 								</TextField>
 							)}
@@ -222,7 +231,9 @@ export default function CreateSchedulePage() {
 									helperText={errors.status?.message}
 								>
 									{SCHEDULE_STATUS_ENUM.map((s) => (
-										<MenuItem key={s} value={s}>{s}</MenuItem>
+										<MenuItem key={s} value={s}>
+											{s}
+										</MenuItem>
 									))}
 								</TextField>
 							)}

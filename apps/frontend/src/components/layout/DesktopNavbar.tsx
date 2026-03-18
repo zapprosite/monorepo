@@ -27,7 +27,7 @@ export const DesktopNavbar = () => {
 			position="sticky"
 			elevation={0}
 			sx={{
-				bgcolor: "#0B1F3A",  // Navy 900 — Refrimix
+				bgcolor: "#0B1F3A", // Navy 900 — Refrimix
 				borderBottom: "1px solid rgba(255,255,255,0.08)",
 			}}
 		>
@@ -60,7 +60,7 @@ export const DesktopNavbar = () => {
 						<Typography
 							variant="caption"
 							sx={{
-								color: "#06B6D4",  // Ciano
+								color: "#06B6D4", // Ciano
 								fontWeight: 500,
 								letterSpacing: 0.3,
 								fontSize: "0.65rem",
@@ -82,19 +82,15 @@ export const DesktopNavbar = () => {
 								px: 2,
 								py: 1,
 								borderRadius: 1.5,
-								color: isActive(item.path)
-									? "#ffffff"
-									: "rgba(255,255,255,0.65)",
+								color: isActive(item.path) ? "#ffffff" : "rgba(255,255,255,0.65)",
 								bgcolor: isActive(item.path)
-									? "rgba(29,78,216,0.5)"  // Azul institucional semi-transparente
+									? "rgba(29,78,216,0.5)" // Azul institucional semi-transparente
 									: "transparent",
 								fontWeight: isActive(item.path) ? 600 : 400,
 								fontSize: "0.875rem",
 								transition: "all 0.2s ease-in-out",
 								"& .MuiSvgIcon-root": {
-									color: isActive(item.path)
-										? "#06B6D4"
-										: "rgba(255,255,255,0.5)",
+									color: isActive(item.path) ? "#06B6D4" : "rgba(255,255,255,0.5)",
 								},
 								"&:hover": {
 									bgcolor: "rgba(255,255,255,0.08)",

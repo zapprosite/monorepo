@@ -5,12 +5,15 @@
  * Only syncs variables that are already defined in the workspace .env files
  */
 
-const fs = require("fs");
-const path = require("path");
+const fs = require("node:fs");
+const path = require("node:path");
 
 // Paths
 const ROOT_ENV = path.join(__dirname, "../.env");
-const WORKSPACES = [path.join(__dirname, "../apps/backend/.env"), path.join(__dirname, "../apps/frontend/.env")];
+const WORKSPACES = [
+	path.join(__dirname, "../apps/backend/.env"),
+	path.join(__dirname, "../apps/frontend/.env"),
+];
 
 /**
  * Parse .env file into key-value object
@@ -76,7 +79,7 @@ function syncEnvFile(workspacePath, rootEnv) {
 
 			// Special case: sync VITE_NODE_ENV to NODE_ENV for server workspace
 			if (isBackendWorkspace && key === "NODE_ENV" && "VITE_NODE_ENV" in rootEnv) {
-				const rootValue = rootEnv["VITE_NODE_ENV"];
+				const rootValue = rootEnv.VITE_NODE_ENV;
 				if (currentValue !== rootValue) {
 					updatedLines.push(`${key}=${rootValue}`);
 					updatedCount++;
@@ -107,7 +110,9 @@ function syncEnvFile(workspacePath, rootEnv) {
 	// Write updated content
 	if (updatedCount > 0) {
 		fs.writeFileSync(workspacePath, updatedLines.join("\n"));
-		console.log(`✅ Synced ${updatedCount} variable(s) to ${path.relative(process.cwd(), workspacePath)}\n`);
+		console.log(
+			`✅ Synced ${updatedCount} variable(s) to ${path.relative(process.cwd(), workspacePath)}\n`,
+		);
 	} else {
 		console.log(`✓ ${path.relative(process.cwd(), workspacePath)} is up to date\n`);
 	}

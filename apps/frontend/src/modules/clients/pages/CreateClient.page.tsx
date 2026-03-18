@@ -1,12 +1,15 @@
 import { Typography } from "@connected-repo/ui-mui/data-display/Typography";
 import { Button } from "@connected-repo/ui-mui/form/Button";
 import { TextField } from "@connected-repo/ui-mui/form/TextField";
-import { MenuItem } from "@connected-repo/ui-mui/navigation/MenuItem";
 import { Box } from "@connected-repo/ui-mui/layout/Box";
 import { Container } from "@connected-repo/ui-mui/layout/Container";
 import { Paper } from "@connected-repo/ui-mui/layout/Paper";
+import { MenuItem } from "@connected-repo/ui-mui/navigation/MenuItem";
+import {
+	type ClientCreateInput,
+	clientCreateInputZod,
+} from "@connected-repo/zod-schemas/client.zod";
 import { CLIENT_TYPE_ENUM } from "@connected-repo/zod-schemas/crm_enums.zod";
-import { clientCreateInputZod, type ClientCreateInput } from "@connected-repo/zod-schemas/client.zod";
 import { trpc } from "@frontend/utils/trpc.client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -17,7 +20,11 @@ export default function CreateClientPage() {
 	const navigate = useNavigate();
 	const queryClient = useQueryClient();
 
-	const { control, handleSubmit, formState: { errors, isSubmitting } } = useForm<ClientCreateInput>({
+	const {
+		control,
+		handleSubmit,
+		formState: { errors, isSubmitting },
+	} = useForm<ClientCreateInput>({
 		resolver: zodResolver(clientCreateInputZod),
 		defaultValues: {
 			tipo: "Pessoa Física",
@@ -25,12 +32,14 @@ export default function CreateClientPage() {
 		},
 	});
 
-	const createClient = useMutation(trpc.clients.createClient.mutationOptions({
-		onSuccess: (client) => {
-			queryClient.invalidateQueries({ queryKey: trpc.clients.listClients.queryKey() });
-			navigate(`/clients/${client.clientId}`);
-		},
-	}));
+	const createClient = useMutation(
+		trpc.clients.createClient.mutationOptions({
+			onSuccess: (client) => {
+				queryClient.invalidateQueries({ queryKey: trpc.clients.listClients.queryKey() });
+				navigate(`/clients/${client.clientId}`);
+			},
+		}),
+	);
 
 	const onSubmit = (data: ClientCreateInput) => createClient.mutate(data);
 
@@ -86,7 +95,9 @@ export default function CreateClientPage() {
 									helperText={errors.tipo?.message}
 								>
 									{CLIENT_TYPE_ENUM.map((t) => (
-										<MenuItem key={t} value={t}>{t}</MenuItem>
+										<MenuItem key={t} value={t}>
+											{t}
+										</MenuItem>
 									))}
 								</TextField>
 							)}

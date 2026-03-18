@@ -23,7 +23,7 @@ import { useNavigate, useParams } from "react-router";
 import { ServiceOrderStatusBadge } from "../components/ServiceOrderStatusBadge";
 
 function formatDateTime(timestamp: number | string): string {
-	const date = typeof timestamp === 'number' ? new Date(timestamp) : new Date(timestamp);
+	const date = typeof timestamp === "number" ? new Date(timestamp) : new Date(timestamp);
 	return date.toLocaleString("pt-BR", {
 		day: "2-digit",
 		month: "2-digit",
@@ -43,7 +43,11 @@ export default function ServiceOrderDetailPage() {
 	const queryClient = useQueryClient();
 	const [addMaterialOpen, setAddMaterialOpen] = useState(false);
 
-	const { data: serviceOrder, isLoading, error } = useQuery(
+	const {
+		data: serviceOrder,
+		isLoading,
+		error,
+	} = useQuery(
 		trpc.serviceOrders.getServiceOrderDetail.queryOptions({ serviceOrderId: serviceOrderId! }),
 	);
 
@@ -136,9 +140,7 @@ export default function ServiceOrderDetailPage() {
 	if (error || !serviceOrder) {
 		return (
 			<Container maxWidth="lg" sx={{ py: 4 }}>
-				<ErrorAlert
-					message={`Erro ao carregar OS: ${error?.message ?? "Não encontrada"}`}
-				/>
+				<ErrorAlert message={`Erro ao carregar OS: ${error?.message ?? "Não encontrada"}`} />
 			</Container>
 		);
 	}
@@ -160,9 +162,13 @@ export default function ServiceOrderDetailPage() {
 
 	const totalMateriais = (materials ?? []).reduce((acc, m) => {
 		const item = m as { quantidade: string | number; valorUnitario?: string | number | null };
-		const qty = typeof item.quantidade === 'string' ? parseFloat(item.quantidade) : item.quantidade;
-		const valor = item.valorUnitario ? (typeof item.valorUnitario === 'string' ? parseFloat(item.valorUnitario) : item.valorUnitario) : null;
-		if (valor != null && !isNaN(qty) && !isNaN(valor)) {
+		const qty = typeof item.quantidade === "string" ? parseFloat(item.quantidade) : item.quantidade;
+		const valor = item.valorUnitario
+			? typeof item.valorUnitario === "string"
+				? parseFloat(item.valorUnitario)
+				: item.valorUnitario
+			: null;
+		if (valor != null && !Number.isNaN(qty) && !Number.isNaN(valor)) {
 			return acc + qty * valor;
 		}
 		return acc;
@@ -191,9 +197,7 @@ export default function ServiceOrderDetailPage() {
 				</Box>
 				<Typography variant="body2" color="text.secondary" mt={0.5}>
 					Aberta em {formatDateTime(so.dataAbertura)}
-					{so.dataFechamento
-						? ` · Fechada em ${formatDateTime(so.dataFechamento)}`
-						: ""}
+					{so.dataFechamento ? ` · Fechada em ${formatDateTime(so.dataFechamento)}` : ""}
 				</Typography>
 			</Box>
 
@@ -334,9 +338,7 @@ export default function ServiceOrderDetailPage() {
 										variant={r.assinadoTecnico ? "outlined" : "contained"}
 										color={r.assinadoTecnico ? "success" : "primary"}
 										disabled={r.assinadoTecnico || assinarTecnico.isPending}
-										onClick={() =>
-											assinarTecnico.mutate({ serviceOrderId: so.serviceOrderId })
-										}
+										onClick={() => assinarTecnico.mutate({ serviceOrderId: so.serviceOrderId })}
 										size="small"
 									>
 										{r.assinadoTecnico ? "Técnico Assinou" : "Assinar (Técnico)"}
@@ -345,9 +347,7 @@ export default function ServiceOrderDetailPage() {
 										variant={r.assinadoCliente ? "outlined" : "contained"}
 										color={r.assinadoCliente ? "success" : "secondary"}
 										disabled={r.assinadoCliente || assinarCliente.isPending}
-										onClick={() =>
-											assinarCliente.mutate({ serviceOrderId: so.serviceOrderId })
-										}
+										onClick={() => assinarCliente.mutate({ serviceOrderId: so.serviceOrderId })}
 										size="small"
 									>
 										{r.assinadoCliente ? "Cliente Assinou" : "Assinar (Cliente)"}
@@ -392,9 +392,7 @@ export default function ServiceOrderDetailPage() {
 									rows={3}
 									fullWidth
 									error={!!reportForm.formState.errors.servicosExecutados}
-									helperText={
-										reportForm.formState.errors.servicosExecutados?.message
-									}
+									helperText={reportForm.formState.errors.servicosExecutados?.message}
 								/>
 							)}
 						/>
@@ -444,11 +442,7 @@ export default function ServiceOrderDetailPage() {
 					<Typography variant="h6" fontWeight={600}>
 						Materiais
 					</Typography>
-					<Button
-						variant="outlined"
-						size="small"
-						onClick={() => setAddMaterialOpen(true)}
-					>
+					<Button variant="outlined" size="small" onClick={() => setAddMaterialOpen(true)}>
 						+ Material
 					</Button>
 				</Box>
@@ -469,8 +463,13 @@ export default function ServiceOrderDetailPage() {
 								unidade: string;
 								valorUnitario?: string | number | null;
 							};
-							const qty = typeof item.quantidade === 'string' ? parseFloat(item.quantidade) : item.quantidade;
-							const valor = item.valorUnitario ? (typeof item.valorUnitario === 'string' ? parseFloat(item.valorUnitario) : item.valorUnitario) : null;
+							const qty =
+								typeof item.quantidade === "string" ? parseFloat(item.quantidade) : item.quantidade;
+							const valor = item.valorUnitario
+								? typeof item.valorUnitario === "string"
+									? parseFloat(item.valorUnitario)
+									: item.valorUnitario
+								: null;
 							return (
 								<Box
 									key={item.materialItemId}
@@ -491,10 +490,8 @@ export default function ServiceOrderDetailPage() {
 									<Typography variant="body2" color="text.secondary">
 										{qty} {item.unidade}
 									</Typography>
-									{valor != null && !isNaN(qty) && !isNaN(valor) && (
-										<Typography variant="body2">
-											{formatCurrency(qty * valor)}
-										</Typography>
+									{valor != null && !Number.isNaN(qty) && !Number.isNaN(valor) && (
+										<Typography variant="body2">{formatCurrency(qty * valor)}</Typography>
 									)}
 								</Box>
 							);
@@ -595,18 +592,14 @@ export default function ServiceOrderDetailPage() {
 										{...field}
 										value={field.value ?? ""}
 										onChange={(e) =>
-											field.onChange(
-												e.target.value === "" ? null : Number(e.target.value),
-											)
+											field.onChange(e.target.value === "" ? null : Number(e.target.value))
 										}
 										label="Valor Unit."
 										type="number"
 										fullWidth
 										inputProps={{ min: 0, step: 0.01 }}
 										error={!!materialForm.formState.errors.valorUnitario}
-										helperText={
-											materialForm.formState.errors.valorUnitario?.message
-										}
+										helperText={materialForm.formState.errors.valorUnitario?.message}
 									/>
 								)}
 							/>

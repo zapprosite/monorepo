@@ -1,14 +1,14 @@
-import { LoadingSpinner } from "@connected-repo/ui-mui/components/LoadingSpinner";
 import { ErrorAlert } from "@connected-repo/ui-mui/components/ErrorAlert";
+import { LoadingSpinner } from "@connected-repo/ui-mui/components/LoadingSpinner";
 import { Typography } from "@connected-repo/ui-mui/data-display/Typography";
 import { Button } from "@connected-repo/ui-mui/form/Button";
 import { TextField } from "@connected-repo/ui-mui/form/TextField";
-import { MenuItem } from "@connected-repo/ui-mui/navigation/MenuItem";
 import { Box } from "@connected-repo/ui-mui/layout/Box";
 import { Container } from "@connected-repo/ui-mui/layout/Container";
 import { Paper } from "@connected-repo/ui-mui/layout/Paper";
-import { SCHEDULE_STATUS_ENUM, SERVICE_TYPE_ENUM } from "@connected-repo/zod-schemas/crm_enums.zod";
+import { MenuItem } from "@connected-repo/ui-mui/navigation/MenuItem";
 import type { ScheduleStatus, ServiceType } from "@connected-repo/zod-schemas/crm_enums.zod";
+import { SCHEDULE_STATUS_ENUM, SERVICE_TYPE_ENUM } from "@connected-repo/zod-schemas/crm_enums.zod";
 import { trpc } from "@frontend/utils/trpc.client";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
@@ -16,7 +16,7 @@ import { useNavigate } from "react-router";
 import { ScheduleStatusBadge } from "../components/ScheduleStatusBadge";
 
 function formatDate(timestamp: number | string): string {
-	const date = typeof timestamp === 'number' ? new Date(timestamp) : new Date(timestamp);
+	const date = typeof timestamp === "number" ? new Date(timestamp) : new Date(timestamp);
 	return date.toLocaleDateString("pt-BR", {
 		weekday: "long",
 		day: "2-digit",
@@ -26,7 +26,7 @@ function formatDate(timestamp: number | string): string {
 }
 
 function formatTime(timestamp: number | string): string {
-	const date = typeof timestamp === 'number' ? new Date(timestamp) : new Date(timestamp);
+	const date = typeof timestamp === "number" ? new Date(timestamp) : new Date(timestamp);
 	return date.toLocaleTimeString("pt-BR", {
 		hour: "2-digit",
 		minute: "2-digit",
@@ -38,10 +38,10 @@ function groupByDay(
 ): Map<string, typeof schedules> {
 	const groups = new Map<string, typeof schedules>();
 	for (const s of schedules) {
-		const date = typeof s.dataHora === 'number' ? new Date(s.dataHora) : new Date(s.dataHora);
+		const date = typeof s.dataHora === "number" ? new Date(s.dataHora) : new Date(s.dataHora);
 		const day = date.toISOString().slice(0, 10);
 		if (!groups.has(day)) groups.set(day, []);
-		groups.get(day)!.push(s);
+		groups.get(day)?.push(s);
 	}
 	return groups;
 }
@@ -53,12 +53,16 @@ export default function SchedulePage() {
 	const [filterDataInicio, setFilterDataInicio] = useState("");
 	const [filterDataFim, setFilterDataFim] = useState("");
 
-	const { data: schedules, isLoading, error } = useQuery(
+	const {
+		data: schedules,
+		isLoading,
+		error,
+	} = useQuery(
 		trpc.schedule.listSchedules.queryOptions({
 			status: filterStatus || undefined,
 			tipo: filterTipo || undefined,
 			dataInicio: filterDataInicio ? new Date(filterDataInicio).toISOString() : undefined,
-			dataFim: filterDataFim ? new Date(filterDataFim + "T23:59:59").toISOString() : undefined,
+			dataFim: filterDataFim ? new Date(`${filterDataFim}T23:59:59`).toISOString() : undefined,
 		}),
 	);
 
@@ -73,7 +77,11 @@ export default function SchedulePage() {
 	}
 
 	const grouped = groupByDay(
-		(schedules ?? []) as Array<{ scheduleId: string; dataHora: number | string; [key: string]: unknown }>,
+		(schedules ?? []) as Array<{
+			scheduleId: string;
+			dataHora: number | string;
+			[key: string]: unknown;
+		}>,
 	);
 	const days = Array.from(grouped.keys()).sort();
 
@@ -92,7 +100,11 @@ export default function SchedulePage() {
 					<Typography
 						variant="h3"
 						component="h1"
-						sx={{ fontSize: { xs: "2rem", md: "2.5rem" }, fontWeight: 700, letterSpacing: "-0.01em" }}
+						sx={{
+							fontSize: { xs: "2rem", md: "2.5rem" },
+							fontWeight: 700,
+							letterSpacing: "-0.01em",
+						}}
 					>
 						Agenda
 					</Typography>
@@ -103,7 +115,10 @@ export default function SchedulePage() {
 				<Button
 					variant="contained"
 					onClick={() => navigate("/schedule/new")}
-					sx={{ transition: "all 0.2s ease-in-out", "&:hover": { transform: "translateY(-2px)", boxShadow: 4 } }}
+					sx={{
+						transition: "all 0.2s ease-in-out",
+						"&:hover": { transform: "translateY(-2px)", boxShadow: 4 },
+					}}
 				>
 					Novo Agendamento
 				</Button>
@@ -131,7 +146,9 @@ export default function SchedulePage() {
 					>
 						<MenuItem value="">Todos</MenuItem>
 						{SCHEDULE_STATUS_ENUM.map((s) => (
-							<MenuItem key={s} value={s}>{s}</MenuItem>
+							<MenuItem key={s} value={s}>
+								{s}
+							</MenuItem>
 						))}
 					</TextField>
 
@@ -145,7 +162,9 @@ export default function SchedulePage() {
 					>
 						<MenuItem value="">Todos</MenuItem>
 						{SERVICE_TYPE_ENUM.map((t) => (
-							<MenuItem key={t} value={t}>{t}</MenuItem>
+							<MenuItem key={t} value={t}>
+								{t}
+							</MenuItem>
 						))}
 					</TextField>
 
@@ -197,7 +216,7 @@ export default function SchedulePage() {
 				<Box sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
 					{days.map((day) => {
 						const daySchedules = grouped.get(day)!;
-						const firstDate = new Date(day + "T12:00:00");
+						const firstDate = new Date(`${day}T12:00:00`);
 						return (
 							<Box key={day}>
 								<Typography

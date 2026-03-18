@@ -10,10 +10,10 @@
  * - System administrators
  */
 
-import { env } from "@backend/configs/env.config";
 import { logger } from "@backend/app";
+import { env } from "@backend/configs/env.config";
 import { runWebhookProcessor } from "@backend/modules/api-gateway/webhookProcessor";
-import type { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
+import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 
 /**
  * Internal API Authentication Hook

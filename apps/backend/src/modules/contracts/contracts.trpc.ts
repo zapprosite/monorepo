@@ -11,45 +11,43 @@ import z from "zod";
 const CONTRACTS_MAX_LIMIT = 500;
 
 export const contractsRouterTrpc = trpcRouter({
-	listContracts: protectedProcedure
-		.input(listContractFilterZod)
-		.query(async ({ input }) => {
-			let query = db.contracts.select("*");
+	listContracts: protectedProcedure.input(listContractFilterZod).query(async ({ input }) => {
+		let query = db.contracts.select("*");
 
-			if (input.clienteId) {
-				query = query.where({ clienteId: input.clienteId });
-			}
-			if (input.status) {
-				query = query.where({ status: input.status });
-			}
-			if (input.tipo) {
-				query = query.where({ tipo: input.tipo });
-			}
-			if (input.dataInicio) {
-				const inicio = input.dataInicio;
-				query = query.whereSql`"dataInicio" >= ${inicio}::date`;
-			}
-			if (input.dataFim) {
-				const fim = input.dataFim;
-				query = query.whereSql`"dataInicio" <= ${fim}::date`;
-			}
+		if (input.clienteId) {
+			query = query.where({ clienteId: input.clienteId });
+		}
+		if (input.status) {
+			query = query.where({ status: input.status });
+		}
+		if (input.tipo) {
+			query = query.where({ tipo: input.tipo });
+		}
+		if (input.dataInicio) {
+			const inicio = input.dataInicio;
+			query = query.whereSql`"dataInicio" >= ${inicio}::date`;
+		}
+		if (input.dataFim) {
+			const fim = input.dataFim;
+			query = query.whereSql`"dataInicio" <= ${fim}::date`;
+		}
 
-			const contracts = await query.order({ dataInicio: "DESC" }).limit(CONTRACTS_MAX_LIMIT);
+		const contracts = await query.order({ dataInicio: "DESC" }).limit(CONTRACTS_MAX_LIMIT);
 
-			if (contracts.length === 0) return [];
+		if (contracts.length === 0) return [];
 
-			const clientIds = [...new Set(contracts.map((c) => c.clienteId))];
-			const clients = await db.clients
-				.where({ clientId: { in: clientIds } })
-				.select("clientId", "nome");
+		const clientIds = [...new Set(contracts.map((c) => c.clienteId))];
+		const clients = await db.clients
+			.where({ clientId: { in: clientIds } })
+			.select("clientId", "nome");
 
-			const clientMap = new Map(clients.map((c) => [c.clientId, c.nome]));
+		const clientMap = new Map(clients.map((c) => [c.clientId, c.nome]));
 
-			return contracts.map((c) => ({
-				...c,
-				clienteNome: clientMap.get(c.clienteId) ?? null,
-			}));
-		}),
+		return contracts.map((c) => ({
+			...c,
+			clienteNome: clientMap.get(c.clienteId) ?? null,
+		}));
+	}),
 
 	getContractDetail: protectedProcedure
 		.input(contractGetByIdZod)
@@ -68,11 +66,9 @@ export const contractsRouterTrpc = trpcRouter({
 			};
 		}),
 
-	createContract: protectedProcedure
-		.input(contractCreateInputZod)
-		.mutation(async ({ input }) => {
-			return db.contracts.create(input);
-		}),
+	createContract: protectedProcedure.input(contractCreateInputZod).mutation(async ({ input }) => {
+		return db.contracts.create(input);
+	}),
 
 	updateContract: protectedProcedure
 		.input(contractUpdateInputZod)

@@ -1,6 +1,4 @@
-import {
-	isIPWhitelisted
-} from "@backend/modules/api-gateway/utils/ipChecker.utils";
+import { isIPWhitelisted } from "@backend/modules/api-gateway/utils/ipChecker.utils";
 import { getClientIpAddress } from "@backend/utils/request-metadata.utils";
 import type { FastifyReply, FastifyRequest } from "fastify";
 
@@ -9,10 +7,7 @@ import type { FastifyReply, FastifyRequest } from "fastify";
  * Checks request origin against team.allowedDomains (if not empty)
  * Checks request IP against team.allowedIPs (exact match, if not empty)
  */
-export async function ipWhitelistCheckHook(
-	request: FastifyRequest,
-	reply: FastifyReply,
-) {
+export async function ipWhitelistCheckHook(request: FastifyRequest, reply: FastifyReply) {
 	// Ensure team is attached by apiKeyAuthHook
 	if (!request.team) {
 		return reply.code(401).send({

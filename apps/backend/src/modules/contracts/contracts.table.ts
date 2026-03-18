@@ -1,8 +1,8 @@
 import { BaseTable } from "@backend/db/base_table";
 import {
+	CONTRACT_FREQUENCY_ENUM,
 	CONTRACT_STATUS_ENUM,
 	CONTRACT_TYPE_ENUM,
-	CONTRACT_FREQUENCY_ENUM,
 } from "@connected-repo/zod-schemas/crm_enums.zod";
 
 export class ContractsTable extends BaseTable {

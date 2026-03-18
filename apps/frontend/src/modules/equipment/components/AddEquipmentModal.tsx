@@ -8,7 +8,10 @@ import { TextField } from "@connected-repo/ui-mui/form/TextField";
 import { Box } from "@connected-repo/ui-mui/layout/Box";
 import { MenuItem } from "@connected-repo/ui-mui/navigation/MenuItem";
 import { EQUIPMENT_STATUS_ENUM } from "@connected-repo/zod-schemas/crm_enums.zod";
-import { equipmentCreateInputZod, type EquipmentCreateInput } from "@connected-repo/zod-schemas/equipment.zod";
+import {
+	type EquipmentCreateInput,
+	equipmentCreateInputZod,
+} from "@connected-repo/zod-schemas/equipment.zod";
 import { trpc } from "@frontend/utils/trpc.client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -36,9 +39,7 @@ export function AddEquipmentModal({ clienteId, open, onClose }: AddEquipmentModa
 		},
 	});
 
-	const { data: units } = useQuery(
-		trpc.equipment.listUnitsByClient.queryOptions({ clienteId }),
-	);
+	const { data: units } = useQuery(trpc.equipment.listUnitsByClient.queryOptions({ clienteId }));
 
 	const createEquipment = useMutation(
 		trpc.equipment.createEquipment.mutationOptions({
