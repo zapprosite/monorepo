@@ -1,5 +1,6 @@
 # Project Rules and Guidelines
 
+> ⚠️ **DEPRECATED** — Este arquivo é duplicata de `AGENTS.md`. Use `AGENTS.md` como referência autoritativa.
 > Auto-generated from .context/docs on 2026-03-17T17:09:05.953Z
 
 ## README
@@ -21,9 +22,8 @@ Welcome to the repository knowledge base. Start with the project overview, then 
 ## Repository Snapshot
 - `AGENTS.md/`
 - `apps/`
-- `package.json/`
+- `package.json/` — Yarn workspaces config (`workspaces` field)
 - `packages/` — Workspace packages or modules.
-- `pnpm-workspace.yaml/`
 - `README.md/`
 
 ## Document Map
