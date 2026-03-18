@@ -4,7 +4,7 @@ name: data-flow
 description: How data moves through the system and external integrations
 category: data-flow
 generated: 2026-03-16
-updated: 2026-03-17
+updated: 2026-03-18
 status: active
 scaffoldVersion: "2.0.0"
 ---
@@ -103,12 +103,25 @@ subscriptionCheckHook detecta 90% de quota
 | PostgreSQL :5432 | Banco principal | Credenciais via env vars | Gerenciado pelo Orchid ORM |
 | Webhooks de clientes | Alertas de quota (90%) | Bearer token por equipe | Exponencial, máx 3x |
 
+## Serviços de IA (host)
+
+Serviços acessíveis via host (não parte do monorepo — infra separada):
+
+| Serviço | Porta | API | Uso típico |
+|---------|-------|-----|-----------|
+| LiteLLM Proxy | `:4000` / `llm.zappro.site` | OpenAI-compatible | Chat, embeddings (qwen3.5, bge-m3) |
+| Chatterbox TTS | `:8011` | `/v1/audio/speech` (OpenAI-compatible) | Síntese de voz PT-BR |
+| Speaches STT | `:8010` | `/v1/audio/transcriptions` (OpenAI-compatible) | Transcrição Whisper large-v3 |
+| Ollama | `:11434` | `/api/generate`, `/api/embed` | Modelos locais (qwen3.5, bge-m3) |
+
+> Documentação completa: `/srv/ops/ai-governance/NETWORK_MAP.md`
+
 ## Observabilidade
 
 - **Health check:** `GET /health` → `{ status: "ok" }`
 - **Logs de requisição:** cada chamada à API externa é persistida em `api_product_request_logs` com status, IP, timestamp
 - **Session metadata:** IP, user agent, browser, OS, device fingerprint por sessão
-- **OpenTelemetry:** integrado no backend (ver `DEPLOYMENT.md`)
+- **OpenTelemetry:** integrado no backend (ver `apps/backend/CLAUDE.md` → seção Deployment)
 - **Swagger UI:** `GET /api/documentation` — documentação live das rotas externas
 
 ## Related Resources
