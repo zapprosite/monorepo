@@ -8,6 +8,7 @@ import { ContactsTable } from "@backend/modules/clients/contacts.table";
 import { UnitsTable } from "@backend/modules/clients/units.table";
 import { EquipmentTable } from "@backend/modules/equipment/equipment.table";
 import { LeadsTable } from "@backend/modules/leads/leads.table";
+import { ScheduleTable } from "@backend/modules/schedule/schedule.table";
 import { PromptsTable } from "@backend/modules/prompts/tables/prompts.table";
 import { SubscriptionsTable } from "@backend/modules/subscriptions/tables/subscriptions.table";
 import { WebhookCallQueueTable } from "@backend/modules/subscriptions/tables/webhookCallQueue.table";
@@ -37,5 +38,6 @@ export const db = orchidORM(
 		addresses: AddressesTable,
 		units: UnitsTable,
 		equipment: EquipmentTable,
+		schedules: ScheduleTable,
 	},
 );

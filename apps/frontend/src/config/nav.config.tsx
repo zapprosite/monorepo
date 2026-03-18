@@ -1,4 +1,5 @@
 import { BuildIcon } from "@connected-repo/ui-mui/icons/BuildIcon";
+import { CalendarTodayIcon } from "@connected-repo/ui-mui/icons/CalendarTodayIcon";
 import { DashboardIcon } from "@connected-repo/ui-mui/icons/DashboardIcon";
 import { HomeIcon } from "@connected-repo/ui-mui/icons/HomeIcon";
 import { ListIcon } from "@connected-repo/ui-mui/icons/ListIcon";
@@ -57,6 +58,12 @@ export const navItems: NavItem[] = [
 		path: "/equipment",
 		desktopIcon: <BuildIcon fontSize="small" />,
 		mobileIcon: <BuildIcon />,
+	},
+	{
+		label: "Agenda",
+		path: "/schedule",
+		desktopIcon: <CalendarTodayIcon fontSize="small" />,
+		mobileIcon: <CalendarTodayIcon />,
 	},
 ];
 
