@@ -6,6 +6,7 @@ import { z } from "zod";
 const envSchema = z.object({
 	ALLOWED_ORIGINS: zString.optional(),
 	NODE_ENV: NODE_ENV_ZOD,
+	PORT: z.coerce.number().int().min(1024).max(65535).default(4000),
 	DB_HOST: zString.optional(),
 	DB_PORT: zString.optional(),
 	DB_USER: zString.optional(),
