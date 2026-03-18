@@ -1,4 +1,5 @@
 import { BuildIcon } from "@connected-repo/ui-mui/icons/BuildIcon";
+import { EventNoteIcon } from "@connected-repo/ui-mui/icons/EventNoteIcon";
 import { CalendarTodayIcon } from "@connected-repo/ui-mui/icons/CalendarTodayIcon";
 import { DashboardIcon } from "@connected-repo/ui-mui/icons/DashboardIcon";
 import { DescriptionIcon } from "@connected-repo/ui-mui/icons/DescriptionIcon";
@@ -78,6 +79,12 @@ export const navItems: NavItem[] = [
 		path: "/contracts",
 		desktopIcon: <DescriptionIcon fontSize="small" />,
 		mobileIcon: <DescriptionIcon />,
+	},
+	{
+		label: "Calendário Editorial",
+		path: "/editorial",
+		desktopIcon: <EventNoteIcon fontSize="small" />,
+		mobileIcon: <EventNoteIcon />,
 	},
 ];
 
