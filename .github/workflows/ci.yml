@@ -8,7 +8,7 @@ on:
 
 jobs:
   ci:
-    name: Type Check + Lint + Build
+    name: Type Check · Lint · Build · Test
     runs-on: ubuntu-latest
 
     services:
@@ -26,33 +26,61 @@ jobs:
           --health-timeout 5s
           --health-retries 5
 
+    env:
+      # DB vars expostas globalmente — env-setup.ts usa ?? então estas têm prioridade
+      DB_HOST: localhost
+      DB_PORT: "5432"
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: connected_repo_test
+      NODE_ENV: test
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Setup Node.js 22
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
-          cache: 'yarn'
+          node-version: "22"
+          cache: "yarn"
 
-      - name: Install dependencies
+      - name: Cache Turbo
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: turbo-${{ runner.os }}-${{ github.sha }}
+          restore-keys: |
+            turbo-${{ runner.os }}-
+
+      - name: Instalar dependências
         run: yarn install --frozen-lockfile
 
-      - name: Sync env
+      - name: Preparar .env para CI
+        run: |
+          cp .env.example .env
+          # Secrets falsos — testes usam env-setup.ts com mocks próprios
+          sed -i 's|SESSION_SECRET=.*|SESSION_SECRET=ci-session-secret-minimum-32-characters-ok!!|' .env
+          sed -i 's|INTERNAL_API_SECRET=.*|INTERNAL_API_SECRET=ci-internal-api-secret-minimum-32-chars!!|' .env
+          sed -i 's|GOOGLE_CLIENT_ID=.*|GOOGLE_CLIENT_ID=ci-test.apps.googleusercontent.com|' .env
+          sed -i 's|GOOGLE_CLIENT_SECRET=.*|GOOGLE_CLIENT_SECRET=ci-google-secret|' .env
+          sed -i 's|DB_NAME=connected_repo$|DB_NAME=connected_repo_test|' .env
+
+      - name: Sync env (workspace .env files)
         run: node scripts/sync-env.js
 
       - name: Type check
         run: yarn check-types
 
-      - name: Lint
-        run: npx @biomejs/biome ci .
+      - name: Lint (Biome)
+        run: npx biome check .
 
       - name: Build
         run: yarn build
+        env:
+          TURBO_CACHE_DIR: .turbo
 
       - name: Test
         run: yarn test
-        if: ${{ hashFiles('**/vitest.config.ts') != '' }}
         env:
-          DATABASE_URL: postgres://postgres:postgres@localhost:5432/connected_repo_test
+          TURBO_CACHE_DIR: .turbo
