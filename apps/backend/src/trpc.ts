@@ -128,6 +128,8 @@ const rateLimiters = {
 	),
 };
 
+export const createCallerFactory = t.createCallerFactory;
+
 export const moderateRateLimit = t.middleware(async ({ ctx, next }) => {
 	const ip = getClientIpAddress(ctx.req);
 	try {

@@ -4,118 +4,110 @@ name: architecture
 description: System architecture, layers, patterns, and design decisions
 category: architecture
 generated: 2026-03-16
-status: unfilled
+updated: 2026-03-17
+status: active
 scaffoldVersion: "2.0.0"
 ---
 ## Architecture Notes
 
-This document describes the system architecture, design patterns, and key technical decisions.
+## Estilo: Modular Monolith
 
-For complete symbol counts and dependency analysis, see [`codebase-map.json`](./codebase-map.json).
+Monorepo com dois apps (`backend`, `frontend`) e pacotes compartilhados. Cada app é dividido em módulos por domínio. Não há microserviços — tudo roda num processo único por app.
 
-## System Architecture Overview
+## Fluxo de Requisição
 
-**Architecture Style**: [Monolith / Modular Monolith / Microservices]
-
-**Key Components**:
-- **Entry Layer**: Handles incoming requests (CLI, HTTP, etc.)
-- **Service Layer**: Core business logic and orchestration
-- **Data Layer**: Persistence and external service integration
-
-**Request Flow**:
-1. Request enters through entry point
-2. Routed to appropriate service handler
-3. Service processes and returns response
-
-## Architectural Layers
-
-- **Entry Points**: Application entry and initialization (`src/`)
-- **Services**: Core business logic (`src/services/`)
-- **Models/Types**: Data structures and type definitions (`src/types/`)
-- **Utilities**: Shared helper functions (`src/utils/`)
-
-> See [`codebase-map.json`](./codebase-map.json) for complete symbol counts and dependency graphs.
-
-## Detected Design Patterns
-
-| Pattern | Locations | Description |
-|---------|-----------|-------------|
-| [Pattern Name] | `src/path/` | [Brief description] |
-
-*Update this table as patterns are identified in the codebase.*
-
-## Entry Points
-
-- [`src/index.ts`](../src/index.ts) — Main module entry
-- [`src/cli.ts`](../src/cli.ts) — CLI entry point (if applicable)
-
-## Public API
-
-| Symbol | Type | Location |
-|--------|------|----------|
-| [ExportName] | class/function/type | `src/path.ts` |
-
-See [`codebase-map.json`](./codebase-map.json) for the complete public API listing.
-
-## Internal System Boundaries
-
-<!-- Document seams between domains, bounded contexts, or service ownership. Note data ownership, synchronization strategies, and shared contract enforcement. -->
-
-_Add descriptive content here (optional)._
-
-## External Service Dependencies
-
-<!-- List SaaS platforms, third-party APIs, or infrastructure services. Describe authentication methods, rate limits, and failure considerations. -->
-
-- _Item 1 (optional)_
-- _Item 2_
-- _Item 3_
-
-## Key Decisions & Trade-offs
-
-Document key architectural decisions here. Consider creating Architecture Decision Records (ADRs) for significant choices.
-
-**Template**:
-- **Decision**: [What was decided]
-- **Context**: [Why this decision was needed]
-- **Alternatives**: [What else was considered]
-- **Consequences**: [Impact of this decision]
-
-## Diagrams
-
-```mermaid
-graph TD
-    A[Entry Point] --> B[Service Layer]
-    B --> C[Data Layer]
-    B --> D[External Services]
+```
+Browser
+  └──tRPC (HTTP POST)──▶ Fastify :4000
+                              │
+                         Session check
+                              │
+                         tRPC procedure
+                              │
+                         Orchid ORM ──▶ PostgreSQL :5432
 ```
 
-*Replace with actual system architecture diagram.*
+Para APIs externas (produtos):
+```
+Client ──REST──▶ /api/v1/* ──▶ API Gateway middleware chain
+                                 ├── apiKeyAuthHook
+                                 ├── corsValidationHook
+                                 ├── whitelistCheckHook
+                                 ├── teamRateLimitHook
+                                 ├── subscriptionCheckHook
+                                 └── requestLoggerHook
+                                          │
+                                     Handler
+```
 
-## Risks & Constraints
+## Camadas Backend
 
-<!-- Document performance constraints, scaling considerations, or external system assumptions. -->
+```
+apps/backend/src/
+├── server.ts          — entry point, porta via env.PORT (default 4000)
+├── app.ts             — Fastify instance, plugins (session, rate-limit, CORS)
+├── trpc.ts            — tRPC init, context, middlewares (auth, rate-limit)
+├── routers/           — agregação de rotas
+│   ├── app.router.ts  — /health, /, /oauth2, /trpc, openapi plugin
+│   ├── trpc.router.ts — AppTrpcRouter (agrega todos os módulos)
+│   └── oauth2.router.ts
+├── modules/[feature]/ — domínios de negócio
+│   ├── tables/        — Orchid ORM table definitions
+│   └── [feature].trpc.ts — procedures tRPC
+├── db/                — instância db, migrations, seed
+└── configs/           — env.config.ts (Zod), logger.config.ts
+```
 
-_Add descriptive content here (optional)._
+## Camadas Frontend
 
-## Top Directories Snapshot
+```
+apps/frontend/src/
+├── App.tsx            — providers (tRPC, QueryClient, Router)
+├── router.tsx         — React Router config (lazy-loaded por módulo)
+├── modules/[feature]/ — páginas + router por domínio
+├── components/        — componentes shared (layout, forms)
+└── utils/             — trpc.client.ts, queryClient.ts
+```
 
-- `src/` — Source code
-- `tests/` — Test files
-- `docs/` — Documentation
+## Padrões Detectados
 
-*See [`codebase-map.json`](./codebase-map.json) for detailed file counts.*
+| Padrão | Localização | Descrição |
+|--------|-------------|-----------|
+| Module per domain | `modules/[feature]/` | Cada feature é um módulo isolado |
+| Zod-first | `packages/zod-schemas/` | Schema único para back+front |
+| tRPC caller | `trpc.router.ts` | Type-safe sem codegen |
+| Protected procedure | `trpc.ts` | Auth middleware por procedure |
+| Session-backed auth | `modules/auth/` | DB sessions + OAuth2 Google |
+| API Gateway chain | `modules/api-gateway/` | Middleware chain para produto externo |
+
+## Decisões Arquiteturais
+
+**tRPC para interno, REST para externo**
+- tRPC: frontend ↔ backend, sem OpenAPI, tipo-safe automático
+- REST/OpenAPI: APIs de produto externas, Swagger UI, consumidores externos
+
+**Orchid ORM com migrations explícitas**
+- `yarn db -- g <name>` gera migration
+- `timestampNumber` (epoch ms) em vez de ISO strings — consistência com JS
+
+**Zod compartilhado**
+- `packages/zod-schemas/` é a fonte de verdade de validação
+- Import por path direto (sem barrel): `@connected-repo/zod-schemas/user.zod`
+
+**Port via env var**
+- Backend: `env.PORT` (default 4000) — porta 3000 está ocupada pelo CapRover
+- Ver: [`/srv/ops/ai-governance/PORTS.md`](/srv/ops/ai-governance/PORTS.md)
+
+## Dependências Externas
+
+| Serviço | Uso | Port |
+|---------|-----|------|
+| PostgreSQL | banco principal | 5432 |
+| Google OAuth2 | autenticação | HTTPS |
+| CapRover | deploy/proxy | 80/443/3000 |
 
 ## Related Resources
-
-- [Project Overview](./project-overview.md)
-- [Data Flow](./data-flow.md) (if applicable)
-- [Codebase Map](./codebase-map.json)
-
-## Related Resources
-
-<!-- Link to related documents for cross-navigation. -->
 
 - [project-overview.md](./project-overview.md)
 - [data-flow.md](./data-flow.md)
-- [codebase-map.json](./codebase-map.json)
+- [tooling.md](./tooling.md)
