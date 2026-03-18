@@ -4,7 +4,7 @@ import { ErrorFallback } from "@frontend/components/error_fallback";
 import { AppLayout } from "@frontend/components/layout/AppLayout";
 import { authLoader } from "@frontend/utils/auth.loader";
 import { lazy } from "react";
-import { createBrowserRouter, redirect, type RouteObject } from "react-router";
+import { createBrowserRouter, type RouteObject, redirect } from "react-router";
 
 type NavbarFields = {
 	nb_icon?: string;
@@ -72,6 +72,19 @@ export const routerObjectWithNavbar: ReactRouterWithNavbar[] = [
 					{
 						path: "schedule/*",
 						Component: lazy(() => import("@frontend/modules/schedule/schedule.router")),
+					},
+					{
+						path: "service-orders/*",
+						Component: lazy(
+							() =>
+								import(
+									"@frontend/modules/service-orders/service-orders.router"
+								),
+						),
+					},
+					{
+						path: "contracts/*",
+						Component: lazy(() => import("@frontend/modules/contracts/contracts.router")),
 					},
 					{
 						path: "profile",

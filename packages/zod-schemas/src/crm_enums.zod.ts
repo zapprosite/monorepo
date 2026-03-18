@@ -28,6 +28,14 @@ export const CONTRACT_STATUS_ENUM = ["Rascunho", "Ativo", "Suspenso", "Encerrado
 export const contractStatusZod = z.enum(CONTRACT_STATUS_ENUM);
 export type ContractStatus = z.infer<typeof contractStatusZod>;
 
+export const CONTRACT_TYPE_ENUM = ["Comercial", "PMOC", "Residencial"] as const;
+export const contractTypeZod = z.enum(CONTRACT_TYPE_ENUM);
+export type ContractType = z.infer<typeof contractTypeZod>;
+
+export const CONTRACT_FREQUENCY_ENUM = ["Mensal", "Bimestral", "Trimestral", "Semestral", "Anual"] as const;
+export const contractFrequencyZod = z.enum(CONTRACT_FREQUENCY_ENUM);
+export type ContractFrequency = z.infer<typeof contractFrequencyZod>;
+
 export const REMINDER_TYPE_ENUM = ["Ligação", "Email", "Visita", "Manutenção", "Renovação"] as const;
 export const reminderTypeZod = z.enum(REMINDER_TYPE_ENUM);
 export type ReminderType = z.infer<typeof reminderTypeZod>;
@@ -39,3 +47,7 @@ export type ReminderStatus = z.infer<typeof reminderStatusZod>;
 export const ADDRESS_TYPE_ENUM = ["Cobrança", "Entrega", "Técnica"] as const;
 export const addressTypeZod = z.enum(ADDRESS_TYPE_ENUM);
 export type AddressType = z.infer<typeof addressTypeZod>;
+
+export const SERVICE_ORDER_STATUS_ENUM = ["Aberta", "Em Andamento", "Aguardando Peças", "Concluída", "Cancelada"] as const;
+export const serviceOrderStatusZod = z.enum(SERVICE_ORDER_STATUS_ENUM);
+export type ServiceOrderStatus = z.infer<typeof serviceOrderStatusZod>;
