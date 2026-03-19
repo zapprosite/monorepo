@@ -22,6 +22,11 @@ import { TeamTable } from "@backend/modules/teams/tables/teams.table";
 import { KanbanBoardsTable } from "@backend/modules/kanban/kanban-boards.table";
 import { KanbanCardsTable } from "@backend/modules/kanban/kanban-cards.table";
 import { KanbanColumnsTable } from "@backend/modules/kanban/kanban-columns.table";
+import { MaintenancePlansTable } from "@backend/modules/maintenance/maintenance-plans.table";
+import { MaintenanceSchedulesTable } from "@backend/modules/maintenance/maintenance-schedules.table";
+import { LoyaltyScoresTable } from "@backend/modules/loyalty/loyalty-scores.table";
+import { EmailTemplatesTable } from "@backend/modules/email/email-templates.table";
+import { EmailCampaignsTable } from "@backend/modules/email/email-campaigns.table";
 import { UserRolesTable } from "@backend/modules/users/user-roles.table";
 import { UserTable } from "@backend/modules/users/users/users.table";
 import { orchidORM } from "orchid-orm/node-postgres";
@@ -59,5 +64,10 @@ export const db = orchidORM(
 		kanbanBoards: KanbanBoardsTable,
 		kanbanColumns: KanbanColumnsTable,
 		kanbanCards: KanbanCardsTable,
+		maintenancePlans: MaintenancePlansTable,
+		maintenanceSchedules: MaintenanceSchedulesTable,
+		loyaltyScores: LoyaltyScoresTable,
+		emailTemplates: EmailTemplatesTable,
+		emailCampaigns: EmailCampaignsTable,
 	},
 );

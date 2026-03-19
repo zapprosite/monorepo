@@ -13,6 +13,9 @@ import { scheduleRouterTrpc } from "@backend/modules/schedule/schedule.trpc";
 import { serviceOrdersRouterTrpc } from "@backend/modules/service-orders/service_orders.trpc";
 import { userRolesRouterTrpc } from "@backend/modules/users/user-roles.trpc";
 import { usersRouterTrpc } from "@backend/modules/users/users.trpc";
+import { maintenanceRouter } from "@backend/modules/maintenance/maintenance.trpc";
+import { loyaltyRouter } from "@backend/modules/loyalty/loyalty.trpc";
+import { emailRouter } from "@backend/modules/email/email.trpc";
 import { publicProcedure, trpcRouter } from "@backend/trpc";
 
 export const appTrpcRouter = trpcRouter({
@@ -36,6 +39,9 @@ export const appTrpcRouter = trpcRouter({
 	reminders: remindersRouterTrpc,
 	userRoles: userRolesRouterTrpc,
 	kanban: kanbanRouterTrpc,
+	maintenance: maintenanceRouter,
+	loyalty: loyaltyRouter,
+	email: emailRouter,
 });
 
 export type AppTrpcRouter = typeof appTrpcRouter;
