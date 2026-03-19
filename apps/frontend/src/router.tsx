@@ -92,6 +92,10 @@ export const routerObjectWithNavbar: ReactRouterWithNavbar[] = [
 						Component: lazy(() => import("@frontend/modules/reminders/reminders.router")),
 					},
 					{
+						path: "settings/*",
+						Component: lazy(() => import("@frontend/modules/settings/settings.router")),
+					},
+					{
 						path: "profile",
 						Component: lazy(() => import("@frontend/pages/Dashboard.page")), // TODO: Create Profile page
 					},

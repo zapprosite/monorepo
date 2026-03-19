@@ -10,6 +10,7 @@ import { promptsRouterTrpc } from "@backend/modules/prompts/prompts.trpc";
 import { remindersRouterTrpc } from "@backend/modules/reminders/reminders.trpc";
 import { scheduleRouterTrpc } from "@backend/modules/schedule/schedule.trpc";
 import { serviceOrdersRouterTrpc } from "@backend/modules/service-orders/service_orders.trpc";
+import { userRolesRouterTrpc } from "@backend/modules/users/user-roles.trpc";
 import { usersRouterTrpc } from "@backend/modules/users/users.trpc";
 import { publicProcedure, trpcRouter } from "@backend/trpc";
 
@@ -32,6 +33,7 @@ export const appTrpcRouter = trpcRouter({
 	serviceOrders: serviceOrdersRouterTrpc,
 	editorial: editorialRouterTrpc,
 	reminders: remindersRouterTrpc,
+	userRoles: userRolesRouterTrpc,
 });
 
 export type AppTrpcRouter = typeof appTrpcRouter;
