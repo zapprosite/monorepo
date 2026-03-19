@@ -27,6 +27,12 @@ import { MaintenanceSchedulesTable } from "@backend/modules/maintenance/maintena
 import { LoyaltyScoresTable } from "@backend/modules/loyalty/loyalty-scores.table";
 import { EmailTemplatesTable } from "@backend/modules/email/email-templates.table";
 import { EmailCampaignsTable } from "@backend/modules/email/email-campaigns.table";
+import { WebhooksTable } from "@backend/modules/webhooks/webhooks.table";
+import { WebhookDeliveriesTable } from "@backend/modules/webhooks/webhook-deliveries.table";
+import { EventosTable } from "@backend/modules/webhooks/eventos.table";
+import { McpConectoresTable } from "@backend/modules/mcp-connectors/mcp-conectores.table";
+import { ConteudosTable } from "@backend/modules/content-engine/conteudos.table";
+import { ConteudoRevsoesTable } from "@backend/modules/content-engine/conteudo-revisoes.table";
 import { UserRolesTable } from "@backend/modules/users/user-roles.table";
 import { UserTable } from "@backend/modules/users/users/users.table";
 import { orchidORM } from "orchid-orm/node-postgres";
@@ -69,5 +75,11 @@ export const db = orchidORM(
 		loyaltyScores: LoyaltyScoresTable,
 		emailTemplates: EmailTemplatesTable,
 		emailCampaigns: EmailCampaignsTable,
+		webhooks: WebhooksTable,
+		webhookDeliveries: WebhookDeliveriesTable,
+		eventos: EventosTable,
+		mcpConectores: McpConectoresTable,
+		conteudos: ConteudosTable,
+		conteudoRevisoes: ConteudoRevsoesTable,
 	},
 );
