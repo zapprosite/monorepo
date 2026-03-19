@@ -1,6 +1,7 @@
 import { authRouterTrpc } from "@backend/modules/auth/auth.trpc";
 import { clientsRouterTrpc } from "@backend/modules/clients/clients.trpc";
 import { contractsRouterTrpc } from "@backend/modules/contracts/contracts.trpc";
+import { kanbanRouterTrpc } from "@backend/modules/kanban/kanban.trpc";
 import { dashboardRouterTrpc } from "@backend/modules/dashboard/dashboard.trpc";
 import { editorialRouterTrpc } from "@backend/modules/editorial/editorial.trpc";
 import { equipmentRouterTrpc } from "@backend/modules/equipment/equipment.trpc";
@@ -34,6 +35,7 @@ export const appTrpcRouter = trpcRouter({
 	editorial: editorialRouterTrpc,
 	reminders: remindersRouterTrpc,
 	userRoles: userRolesRouterTrpc,
+	kanban: kanbanRouterTrpc,
 });
 
 export type AppTrpcRouter = typeof appTrpcRouter;

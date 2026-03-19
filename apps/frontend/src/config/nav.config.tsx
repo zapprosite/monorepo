@@ -8,6 +8,7 @@ import { HomeIcon } from "@connected-repo/ui-mui/icons/HomeIcon";
 import { ListIcon } from "@connected-repo/ui-mui/icons/ListIcon";
 import { NotificationsIcon } from "@connected-repo/ui-mui/icons/NotificationsIcon";
 import { PeopleIcon } from "@connected-repo/ui-mui/icons/PeopleIcon";
+import { ViewKanbanIcon } from "@connected-repo/ui-mui/icons/ViewKanbanIcon";
 import { PostAddIcon } from "@connected-repo/ui-mui/icons/PostAddIcon";
 import { SettingsIcon } from "@connected-repo/ui-mui/icons/SettingsIcon";
 import { TrendingUpIcon } from "@connected-repo/ui-mui/icons/TrendingUpIcon";
@@ -87,6 +88,12 @@ export const navItems: NavItem[] = [
 		path: "/editorial",
 		desktopIcon: <EventNoteIcon fontSize="small" />,
 		mobileIcon: <EventNoteIcon />,
+	},
+	{
+		label: "Kanban",
+		path: "/kanban",
+		desktopIcon: <ViewKanbanIcon fontSize="small" />,
+		mobileIcon: <ViewKanbanIcon />,
 	},
 	{
 		label: "Lembretes",
