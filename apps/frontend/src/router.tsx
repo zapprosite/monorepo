@@ -92,6 +92,10 @@ export const routerObjectWithNavbar: ReactRouterWithNavbar[] = [
 						Component: lazy(() => import("@frontend/modules/reminders/reminders.router")),
 					},
 					{
+						path: "kanban/*",
+						Component: lazy(() => import("@frontend/modules/kanban/kanban.router")),
+					},
+					{
 						path: "settings/*",
 						Component: lazy(() => import("@frontend/modules/settings/settings.router")),
 					},

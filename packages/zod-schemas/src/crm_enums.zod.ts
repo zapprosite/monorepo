@@ -153,3 +153,17 @@ export const SERVICE_ORDER_STATUS_ENUM = [
 ] as const;
 export const serviceOrderStatusZod = z.enum(SERVICE_ORDER_STATUS_ENUM);
 export type ServiceOrderStatus = z.infer<typeof serviceOrderStatusZod>;
+
+export const KANBAN_CARD_PRIORITY_ENUM = ["Baixa", "Media", "Alta", "Critica"] as const;
+export const kanbanCardPriorityZod = z.enum(KANBAN_CARD_PRIORITY_ENUM);
+export type KanbanCardPriority = z.infer<typeof kanbanCardPriorityZod>;
+
+export const KANBAN_CARD_STATUS_ENUM = [
+	"Aberto",
+	"Em Andamento",
+	"Bloqueado",
+	"Concluido",
+	"Cancelado",
+] as const;
+export const kanbanCardStatusZod = z.enum(KANBAN_CARD_STATUS_ENUM);
+export type KanbanCardStatus = z.infer<typeof kanbanCardStatusZod>;
