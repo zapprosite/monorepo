@@ -17,6 +17,8 @@ dist/
 .gemini/
 .codex/
 .claude/CLAUDE.md
+.claude/agents/
+rascunho.txt
 
 # Sistema
 .Trash-1000/
