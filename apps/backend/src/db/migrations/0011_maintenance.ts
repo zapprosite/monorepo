@@ -71,10 +71,22 @@ change(async (db) => {
 			proxima: t.timestamp().nullable(),
 			horasEstimadas: t.integer().default(2),
 			custoEstimado: t.decimal(10, 2).default(0),
-			clienteId: t.uuid().foreignKey("clients", "id"),
-			equipamentoId: t.uuid().foreignKey("equipment", "id"),
-			contratoId: t.uuid().foreignKey("contracts", "id").nullable(),
-			usuarioCriacaoId: t.uuid().foreignKey("users", "id"),
+			clienteId: t.uuid().foreignKey("clients", "clientId", {
+			onUpdate: "RESTRICT",
+			onDelete: "RESTRICT",
+		}),
+			equipamentoId: t.uuid().foreignKey("equipment", "equipmentId", {
+			onUpdate: "RESTRICT",
+			onDelete: "RESTRICT",
+		}),
+			contratoId: t.uuid().foreignKey("contracts", "contractId", {
+			onUpdate: "RESTRICT",
+			onDelete: "SET NULL",
+		}).nullable(),
+			usuarioCriacaoId: t.uuid().foreignKey("users", "userId", {
+			onUpdate: "RESTRICT",
+			onDelete: "RESTRICT",
+		}),
 			createdAt: t.timestamps().createdAt,
 			updatedAt: t.timestamps().updatedAt,
 		}),
@@ -97,11 +109,17 @@ change(async (db) => {
 			tecnicoAtribuidoId: t
 				.uuid()
 				.nullable()
-				.foreignKey("users", "id"),
+				.foreignKey("users", "userId", {
+			onUpdate: "RESTRICT",
+			onDelete: "RESTRICT",
+		}),
 			notasExecucao: t.text().nullable(),
 			materialUsado: t.json().nullable(),
 			tempoExecucao: t.integer().nullable(),
-			usuarioCriacaoId: t.uuid().foreignKey("users", "id"),
+			usuarioCriacaoId: t.uuid().foreignKey("users", "userId", {
+			onUpdate: "RESTRICT",
+			onDelete: "RESTRICT",
+		}),
 			createdAt: t.timestamps().createdAt,
 			updatedAt: t.timestamps().updatedAt,
 		}),
@@ -118,20 +136,49 @@ change(async (db) => {
 			id: t.uuid().primaryKey().default(t.sql`gen_random_uuid()`),
 			clienteId: t
 				.uuid()
-				.foreignKey("clients", "id", { onDelete: "CASCADE" }),
+				.foreignKey("clients", "clientId", {
+			onUpdate: "RESTRICT",
+			onDelete: "CASCADE",
+		}),
 			pontos: t.integer().default(0),
 			nivel: t.enum("nivel_fidelidade").default("bronze"),
 			ultimaCompra: t.timestamp().nullable(),
 			diasSemContato: t.integer().default(0),
 			statusReativacao: t.enum("status_reativacao").default("ativo"),
 			dataProximaReativacao: t.timestamp().nullable(),
-			usuarioCriacaoId: t.uuid().foreignKey("users", "id"),
+			usuarioCriacaoId: t.uuid().foreignKey("users", "userId", {
+			onUpdate: "RESTRICT",
+			onDelete: "RESTRICT",
+		}),
 			createdAt: t.timestamps().createdAt,
 			updatedAt: t.timestamps().updatedAt,
 		}),
 		(t) => [
 			t.index(["clienteId"]),
 			t.index(["statusReativacao"]),
+		],
+	);
+
+	// Email Templates table (must be created before email_campaigns due to FK)
+	await db.createTable(
+		"email_templates",
+		(t) => ({
+			id: t.uuid().primaryKey().default(t.sql`gen_random_uuid()`),
+			nome: t.text(),
+			assunto: t.text(),
+			corpo: t.text(),
+			categoriTemplate: t.enum("categ_template"),
+			variavelSuportadas: t.json().nullable(),
+			ativo: t.boolean().default(true),
+			usuarioCriacaoId: t.uuid().foreignKey("users", "userId", {
+			onUpdate: "RESTRICT",
+			onDelete: "RESTRICT",
+		}),
+			createdAt: t.timestamps().createdAt,
+			updatedAt: t.timestamps().updatedAt,
+		}),
+		(t) => [
+			t.index(["categoriTemplate"]),
 		],
 	);
 
@@ -146,7 +193,10 @@ change(async (db) => {
 			templateId: t
 				.uuid()
 				.nullable()
-				.foreignKey("email_templates", "id"),
+				.foreignKey("email_templates", "id", {
+			onUpdate: "RESTRICT",
+			onDelete: "SET NULL",
+		}),
 			destinatariosJSON: t.json(),
 			statusCampanha: t.enum("status_campanha").default("rascunho"),
 			dataAgendada: t.timestamp().nullable(),
@@ -155,32 +205,15 @@ change(async (db) => {
 			totalAberto: t.integer().default(0),
 			totalClicado: t.integer().default(0),
 			taxaAberturaPercent: t.decimal(5, 2).default(0),
-			usuarioCriacaoId: t.uuid().foreignKey("users", "id"),
+			usuarioCriacaoId: t.uuid().foreignKey("users", "userId", {
+			onUpdate: "RESTRICT",
+			onDelete: "RESTRICT",
+		}),
 			createdAt: t.timestamps().createdAt,
 			updatedAt: t.timestamps().updatedAt,
 		}),
 		(t) => [
 			t.index(["statusCampanha"]),
-		],
-	);
-
-	// Email Templates table
-	await db.createTable(
-		"email_templates",
-		(t) => ({
-			id: t.uuid().primaryKey().default(t.sql`gen_random_uuid()`),
-			nome: t.text(),
-			assunto: t.text(),
-			corpo: t.text(),
-			categoriTemplate: t.enum("categ_template"),
-			variavelSuportadas: t.json().nullable(),
-			ativo: t.boolean().default(true),
-			usuarioCriacaoId: t.uuid().foreignKey("users", "id"),
-			createdAt: t.timestamps().createdAt,
-			updatedAt: t.timestamps().updatedAt,
-		}),
-		(t) => [
-			t.index(["categoriTemplate"]),
 		],
 	);
 });

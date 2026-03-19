@@ -233,3 +233,76 @@ export const CATEG_TEMPLATE_ENUM = [
 ] as const;
 export const categTemplateZod = z.enum(CATEG_TEMPLATE_ENUM);
 export type CategTemplate = z.infer<typeof categTemplateZod>;
+
+// Slice 13 - Webhooks & Events
+export const EVENTO_TIPO_ENUM = [
+	"manutencao.agendada",
+	"manutencao.concluida",
+	"fidelidade.nivel-alterado",
+	"fidelidade.risco-deteccao",
+	"campanha.enviada",
+	"campanha.aberta",
+] as const;
+export const eventoTipoZod = z.enum(EVENTO_TIPO_ENUM);
+export type EventoTipo = z.infer<typeof eventoTipoZod>;
+
+export const WEBHOOK_STATUS_ENUM = [
+	"pendente",
+	"enviado",
+	"falha-retry",
+	"falha-definitiva",
+	"cancelado",
+] as const;
+export const webhookStatusZod = z.enum(WEBHOOK_STATUS_ENUM);
+export type WebhookStatus = z.infer<typeof webhookStatusZod>;
+
+export const WEBHOOK_EVENTO_TIPO_ENUM = [
+	"maintenance.scheduled",
+	"loyalty.tier_changed",
+	"loyalty.reactivation_triggered",
+	"campaign.sent",
+	"campaign.opened",
+	"campaign.clicked",
+] as const;
+export const webhookEventoTipoZod = z.enum(WEBHOOK_EVENTO_TIPO_ENUM);
+export type WebhookEventoTipo = z.infer<typeof webhookEventoTipoZod>;
+
+// Slice 14 - MCP Connectors
+export const MCP_PROVIDER_ENUM = [
+	"claude",
+	"anthropic",
+	"make",
+	"zapier",
+] as const;
+export const mcpProviderZod = z.enum(MCP_PROVIDER_ENUM);
+export type McpProvider = z.infer<typeof mcpProviderZod>;
+
+export const MCP_CONECTAR_STATUS_ENUM = [
+	"ativo",
+	"inativo",
+	"erro",
+	"pendente",
+] as const;
+export const mcpConectarStatusZod = z.enum(MCP_CONECTAR_STATUS_ENUM);
+export type McpConectarStatus = z.infer<typeof mcpConectarStatusZod>;
+
+// Slice 15 - Content Engine
+export const CONTEUDO_TIPO_ENUM = [
+	"blog-post",
+	"faq",
+	"landing-page",
+	"guia-usuario",
+	"case-study",
+] as const;
+export const conteudoTipoZod = z.enum(CONTEUDO_TIPO_ENUM);
+export type ConteudoTipo = z.infer<typeof conteudoTipoZod>;
+
+export const CONTEUDO_STATUS_ENUM = [
+	"rascunho",
+	"revisao",
+	"aprovado",
+	"publicado",
+	"arquivado",
+] as const;
+export const conteudoStatusZod = z.enum(CONTEUDO_STATUS_ENUM);
+export type ConteudoStatus = z.infer<typeof conteudoStatusZod>;
