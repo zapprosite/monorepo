@@ -19,6 +19,9 @@ import { TechnicalReportTable } from "@backend/modules/service-orders/technical_
 import { SubscriptionsTable } from "@backend/modules/subscriptions/tables/subscriptions.table";
 import { WebhookCallQueueTable } from "@backend/modules/subscriptions/tables/webhookCallQueue.table";
 import { TeamTable } from "@backend/modules/teams/tables/teams.table";
+import { KanbanBoardsTable } from "@backend/modules/kanban/kanban-boards.table";
+import { KanbanCardsTable } from "@backend/modules/kanban/kanban-cards.table";
+import { KanbanColumnsTable } from "@backend/modules/kanban/kanban-columns.table";
 import { UserRolesTable } from "@backend/modules/users/user-roles.table";
 import { UserTable } from "@backend/modules/users/users/users.table";
 import { orchidORM } from "orchid-orm/node-postgres";
@@ -53,5 +56,8 @@ export const db = orchidORM(
 		editorialItems: EditorialTable,
 		reminders: ReminderTable,
 		userRoles: UserRolesTable,
+		kanbanBoards: KanbanBoardsTable,
+		kanbanColumns: KanbanColumnsTable,
+		kanbanCards: KanbanCardsTable,
 	},
 );
