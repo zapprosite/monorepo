@@ -128,6 +128,18 @@ export const REMINDER_STATUS_ENUM = ["Pendente", "Concluído", "Cancelado"] as c
 export const reminderStatusZod = z.enum(REMINDER_STATUS_ENUM);
 export type ReminderStatus = z.infer<typeof reminderStatusZod>;
 
+export const USER_ROLE_ENUM = [
+	"Admin",
+	"Gestor",
+	"Comercial",
+	"Marketing",
+	"Tecnico",
+	"Atendimento",
+	"Financeiro",
+] as const;
+export const userRoleZod = z.enum(USER_ROLE_ENUM);
+export type UserRole = z.infer<typeof userRoleZod>;
+
 export const ADDRESS_TYPE_ENUM = ["Cobrança", "Entrega", "Técnica"] as const;
 export const addressTypeZod = z.enum(ADDRESS_TYPE_ENUM);
 export type AddressType = z.infer<typeof addressTypeZod>;

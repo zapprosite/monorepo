@@ -9,6 +9,7 @@ import { ListIcon } from "@connected-repo/ui-mui/icons/ListIcon";
 import { NotificationsIcon } from "@connected-repo/ui-mui/icons/NotificationsIcon";
 import { PeopleIcon } from "@connected-repo/ui-mui/icons/PeopleIcon";
 import { PostAddIcon } from "@connected-repo/ui-mui/icons/PostAddIcon";
+import { SettingsIcon } from "@connected-repo/ui-mui/icons/SettingsIcon";
 import { TrendingUpIcon } from "@connected-repo/ui-mui/icons/TrendingUpIcon";
 
 export interface NavItem {
@@ -92,6 +93,12 @@ export const navItems: NavItem[] = [
 		path: "/reminders",
 		desktopIcon: <NotificationsIcon fontSize="small" />,
 		mobileIcon: <NotificationsIcon />,
+	},
+	{
+		label: "Configurações",
+		path: "/settings",
+		desktopIcon: <SettingsIcon fontSize="small" />,
+		mobileIcon: <SettingsIcon />,
 	},
 ];
 
