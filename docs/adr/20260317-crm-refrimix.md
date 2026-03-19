@@ -5,7 +5,7 @@ document_type: "PRD"
 status: "in-execution"
 product_name: "Refrimix Tecnologia"
 updated_at: "2026-03-18"
-execution_phase: "Slices 10–12 — Manutenção / Fidelização / Email (Phase 2 In Progress)"
+execution_phase: "Slices 13–15 — Webhooks / MCP Connectors / Content Engine (Phase 3 In Progress)"
 updated_at: "2026-03-19T19:48:00Z"
 language: "pt-BR"
 repository_template:
@@ -914,9 +914,9 @@ Implementar vertical slices preservando a estrutura do repo e produzindo código
 10. 🔄 Plano de Manutenção Residencial — Slice 10 (2026-03-19)
 11. 🔄 Fidelização / Score de Fidelidade — Slice 11 (2026-03-19)
 12. 🔄 Email Marketing / Campanhas — Slice 12 (2026-03-19)
-13. ⏳ Webhooks / n8n Adapters — Slice 13 (Planned)
-14. ⏳ MCP Connectors / AI Provider Abstraction — Slice 14 (Planned)
-15. ⏳ Jornal Inteligente / Content Engine — Slice 15 (Planned)
+13. ✅ Webhooks / n8n Adapters — Slice 13 (Complete)
+14. ✅ MCP Connectors / AI Provider Abstraction — Slice 14 (Complete)
+15. ✅ Jornal Inteligente / Content Engine — Slice 15 (Complete)
 
 **Status de Slices Completadas**
 
