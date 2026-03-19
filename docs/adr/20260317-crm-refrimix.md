@@ -909,7 +909,7 @@ Implementar vertical slices preservando a estrutura do repo e produzindo código
 6. ✅ Calendário Editorial — Slice 6 (2026-03-18)
 7. ✅ Lembretes CRM — Slice 7 (2026-03-18)
 8. ✅ RBAC / Gestão de Usuários — Slice 8 (2026-03-18)
-9. ⏳ Kanban Interno — Slice 9 (Planned)
+9. ✅ Kanban Interno — Slice 9 (2026-03-19)
 10. ⏳ Plano de Manutenção Residencial — Slice 10 (Planned)
 11. ⏳ Fidelização / Score de Fidelidade — Slice 11 (Planned)
 12. ⏳ Email Marketing / Campanhas — Slice 12 (Planned)
@@ -928,13 +928,13 @@ Implementar vertical slices preservando a estrutura do repo e produzindo código
 | 5 | Contratos/PMOC | ✅ contracts | ✅ contracts.router | ✅ contract.zod | Merged |
 | 6 | Calendário Editorial | ✅ editorial_calendar_items | ✅ editorial.router | ✅ editorial.zod | Merged |
 | 7 | Lembretes CRM | ✅ reminders | ✅ reminders.router | ✅ reminder.zod | Merged |
+| 8 | RBAC / Usuários | ✅ user_roles | ✅ settings.router | ✅ user-role.zod | Merged |
+| 9 | Kanban Interno | ✅ kanban_boards, kanban_columns, kanban_cards | ✅ kanban.router | ✅ kanban.zod | Merged |
 
-**Slices Planejadas (8–15)**
+**Slices Planejadas (10–15)**
 
 | Slice | Componente | Épico | Prioridade |
 |-------|-----------|-------|-----------|
-| 8 | RBAC — Roles, Permissões, Usuários | A (Foundation) | ✅ Merged |
-| 9 | Kanban Interno — Boards, Colunas, Cards | C (Field Ops) | 🟡 Média |
 | 10 | Plano de Manutenção Residencial — Catálogo, Períodos, Agenda | D (Contratos) | 🟡 Média |
 | 11 | Fidelização — Score, Reativação 90d, Automação | D (Contratos) | 🟡 Média |
 | 12 | Email Marketing — Listas, Templates, Campanhas | E (Marketing) | 🟢 Baixa |
