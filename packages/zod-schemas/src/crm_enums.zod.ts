@@ -167,3 +167,69 @@ export const KANBAN_CARD_STATUS_ENUM = [
 ] as const;
 export const kanbanCardStatusZod = z.enum(KANBAN_CARD_STATUS_ENUM);
 export type KanbanCardStatus = z.infer<typeof kanbanCardStatusZod>;
+
+// Slice 10 - Maintenance Planning
+export const TIPO_EQUIPAMENTO_ENUM = [
+	"ar-condicionado",
+	"refrigerador",
+	"freezer",
+	"climatizador",
+] as const;
+export const tipoEquipamentoZod = z.enum(TIPO_EQUIPAMENTO_ENUM);
+export type TipoEquipamento = z.infer<typeof tipoEquipamentoZod>;
+
+export const STATUS_MANUTENCAO_ENUM = [
+	"agendada",
+	"em-progresso",
+	"concluida",
+	"cancelada",
+	"adiada",
+] as const;
+export const statusManutencaoZod = z.enum(STATUS_MANUTENCAO_ENUM);
+export type StatusManutencao = z.infer<typeof statusManutencaoZod>;
+
+// Slice 11 - Loyalty / Fidelization
+export const NIVEL_FIDELIDADE_ENUM = ["bronze", "prata", "ouro", "platinum"] as const;
+export const nivelFidelidadeZod = z.enum(NIVEL_FIDELIDADE_ENUM);
+export type NivelFidelidade = z.infer<typeof nivelFidelidadeZod>;
+
+export const STATUS_REATIVACAO_ENUM = [
+	"ativo",
+	"risco-30d",
+	"risco-60d",
+	"risco-90d",
+	"perdido",
+] as const;
+export const statusReativacaoZod = z.enum(STATUS_REATIVACAO_ENUM);
+export type StatusReativacao = z.infer<typeof statusReativacaoZod>;
+
+// Slice 12 - Email Marketing
+export const TIPO_CAMPANHA_ENUM = [
+	"marketing",
+	"reativacao",
+	"newsletter",
+	"promocional",
+	"transacional",
+] as const;
+export const tipoCampanhaZod = z.enum(TIPO_CAMPANHA_ENUM);
+export type TipoCampanha = z.infer<typeof tipoCampanhaZod>;
+
+export const STATUS_CAMPANHA_ENUM = [
+	"rascunho",
+	"agendada",
+	"enviando",
+	"enviada",
+	"cancelada",
+] as const;
+export const statusCampanhaZod = z.enum(STATUS_CAMPANHA_ENUM);
+export type StatusCampanha = z.infer<typeof statusCampanhaZod>;
+
+export const CATEG_TEMPLATE_ENUM = [
+	"bem-vindo",
+	"reativacao",
+	"promocional",
+	"newsletter",
+	"confirmacao",
+] as const;
+export const categTemplateZod = z.enum(CATEG_TEMPLATE_ENUM);
+export type CategTemplate = z.infer<typeof categTemplateZod>;
