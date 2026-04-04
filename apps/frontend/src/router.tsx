@@ -96,6 +96,18 @@ export const routerObjectWithNavbar: ReactRouterWithNavbar[] = [
 						Component: lazy(() => import("@frontend/modules/kanban/kanban.router")),
 					},
 					{
+						path: "email/*",
+						Component: lazy(() => import("@frontend/modules/email/email.router")),
+					},
+					{
+						path: "loyalty/*",
+						Component: lazy(() => import("@frontend/modules/loyalty/loyalty.router")),
+					},
+					{
+						path: "maintenance/*",
+						Component: lazy(() => import("@frontend/modules/maintenance/maintenance.router")),
+					},
+					{
 						path: "settings/*",
 						Component: lazy(() => import("@frontend/modules/settings/settings.router")),
 					},
