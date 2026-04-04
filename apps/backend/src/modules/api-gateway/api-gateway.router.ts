@@ -59,9 +59,10 @@ declare module "fastify" {
 }
 
 // API Key header schema for OpenAPI documentation
+// Made optional so middleware can handle dev-mode bypass
 const apiKeyHeaderZod = z.object({
-	"x-api-key": zString.describe("API key for authentication"),
-	"x-team-id": z.uuid().describe("Team ID"),
+	"x-api-key": zString.optional().describe("API key for authentication"),
+	"x-team-id": z.uuid().optional().describe("Team ID"),
 });
 
 // Generic error response schema
