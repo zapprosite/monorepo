@@ -1,3 +1,4 @@
+import { TRPCError } from "@trpc/server";
 import { db } from "@backend/db/db";
 import { protectedProcedure, trpcRouter } from "@backend/trpc";
 import {
@@ -42,7 +43,9 @@ export const clientsRouterTrpc = trpcRouter({
 	getClientDetail: protectedProcedure
 		.input(clientGetByIdZod)
 		.query(async ({ input: { clientId } }) => {
-			return db.clients.find(clientId);
+			const client = await db.clients.findOptional(clientId);
+			if (!client) throw new TRPCError({ code: "NOT_FOUND", message: "Cliente não encontrado" });
+			return client;
 		}),
 
 	createClient: protectedProcedure.input(clientCreateInputZod).mutation(async ({ input }) => {
@@ -52,7 +55,9 @@ export const clientsRouterTrpc = trpcRouter({
 	updateClient: protectedProcedure
 		.input(clientUpdateInputZod)
 		.mutation(async ({ input: { clientId, ...data } }) => {
-			return db.clients.find(clientId).update(data);
+			const client = await db.clients.findOptional(clientId);
+			if (!client) throw new TRPCError({ code: "NOT_FOUND", message: "Cliente não encontrado" });
+			return db.clients.where({ clientId }).update(data);
 		}),
 
 	addContact: protectedProcedure.input(contactCreateInputZod).mutation(async ({ input }) => {

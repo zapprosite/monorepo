@@ -1,3 +1,4 @@
+import { TRPCError } from "@trpc/server";
 import { db } from "@backend/db/db";
 import { protectedProcedure, trpcRouter } from "@backend/trpc";
 import {
@@ -51,7 +52,7 @@ export const remindersRouterTrpc = trpcRouter({
 		.input(reminderGetByIdZod)
 		.query(async ({ input: { reminderId } }) => {
 			const reminder = await db.reminders.findOptional(reminderId);
-			if (!reminder) throw new Error("Lembrete não encontrado");
+			if (!reminder) throw new TRPCError({ code: "NOT_FOUND", message: "Lembrete não encontrado" });
 
 			const client = await db.clients
 				.where({ clientId: reminder.clienteId })
@@ -65,18 +66,24 @@ export const remindersRouterTrpc = trpcRouter({
 		}),
 
 	createReminder: protectedProcedure.input(reminderCreateInputZod).mutation(async ({ input }) => {
+		const client = await db.clients.findOptional(input.clienteId);
+		if (!client) throw new TRPCError({ code: "NOT_FOUND", message: "Cliente não encontrado" });
 		return db.reminders.create(input);
 	}),
 
 	completeReminder: protectedProcedure
 		.input(reminderGetByIdZod)
 		.mutation(async ({ input: { reminderId } }) => {
-			return db.reminders.find(reminderId).update({ status: "Concluído" });
+			const reminder = await db.reminders.findOptional(reminderId);
+			if (!reminder) throw new TRPCError({ code: "NOT_FOUND", message: "Lembrete não encontrado" });
+			return db.reminders.where({ reminderId }).update({ status: "Concluído" });
 		}),
 
 	cancelReminder: protectedProcedure
 		.input(reminderGetByIdZod)
 		.mutation(async ({ input: { reminderId } }) => {
-			return db.reminders.find(reminderId).update({ status: "Cancelado" });
+			const reminder = await db.reminders.findOptional(reminderId);
+			if (!reminder) throw new TRPCError({ code: "NOT_FOUND", message: "Lembrete não encontrado" });
+			return db.reminders.where({ reminderId }).update({ status: "Cancelado" });
 		}),
 });
