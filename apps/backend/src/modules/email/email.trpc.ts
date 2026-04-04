@@ -1,4 +1,5 @@
 import { protectedProcedure, trpcRouter } from "@backend/trpc";
+import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
 const CampaignOutput = z.object({
@@ -32,18 +33,17 @@ export const emailRouter = trpcRouter({
 			}),
 		)
 		.mutation(async ({ input }) => {
-			const id = "template-" + Date.now();
-			return { success: true, id };
+			throw new TRPCError({ code: "NOT_IMPLEMENTED", message: "Template creation not yet implemented" });
 		}),
 
 	listTemplates: protectedProcedure.query(async () => {
-		return [];
+		throw new TRPCError({ code: "NOT_IMPLEMENTED", message: "Template listing not yet implemented" });
 	}),
 
 	getTemplate: protectedProcedure
 		.input(z.object({ id: z.string().uuid() }))
 		.query(async ({ input }) => {
-			return null;
+			throw new TRPCError({ code: "NOT_IMPLEMENTED", message: "Template retrieval not yet implemented" });
 		}),
 
 	createCampaign: protectedProcedure
@@ -59,13 +59,12 @@ export const emailRouter = trpcRouter({
 					"transacional",
 				]),
 				templateId: z.string().uuid().optional(),
-				destinatariosJSON: z.array(z.string()),
+				destinatariosJSON: z.array(z.string().email()),
 				dataAgendada: z.coerce.date().optional(),
 			}),
 		)
 		.mutation(async ({ input }) => {
-			const id = "campaign-" + Date.now();
-			return { success: true, id };
+			throw new TRPCError({ code: "NOT_IMPLEMENTED", message: "Campaign creation not yet implemented" });
 		}),
 
 	listCampaigns: protectedProcedure
@@ -80,18 +79,13 @@ export const emailRouter = trpcRouter({
 			}),
 		)
 		.query(async ({ input }) => {
-			return { data: [] as z.infer<typeof CampaignOutput>[] };
+			throw new TRPCError({ code: "NOT_IMPLEMENTED", message: "Campaign listing not yet implemented" });
 		}),
 
 	getCampaign: protectedProcedure
 		.input(z.object({ id: z.string().uuid() }))
 		.query(async ({ input }) => {
-			return {
-				stats: {
-					taxaAbertura: 0,
-					taxaClique: 0,
-				},
-			};
+			throw new TRPCError({ code: "NOT_IMPLEMENTED", message: "Campaign retrieval not yet implemented" });
 		}),
 
 	updateCampaign: protectedProcedure
@@ -109,24 +103,24 @@ export const emailRouter = trpcRouter({
 			}),
 		)
 		.mutation(async ({ input }) => {
-			return { success: true };
+			throw new TRPCError({ code: "NOT_IMPLEMENTED", message: "Campaign update not yet implemented" });
 		}),
 
 	sendTestEmail: protectedProcedure
 		.input(
 			z.object({
 				templateId: z.string().uuid(),
-				emailTeste: z.string(),
+				emailTeste: z.string().email(),
 				variaveis: z.record(z.string(), z.unknown()).optional(),
 			}),
 		)
 		.mutation(async ({ input }) => {
-			return { success: true, message: "Email de teste enviado" };
+			throw new TRPCError({ code: "NOT_IMPLEMENTED", message: "Test email sending not yet implemented" });
 		}),
 
 	sendCampaign: protectedProcedure
 		.input(z.object({ campaignId: z.string().uuid() }))
 		.mutation(async ({ input }) => {
-			return { success: true, message: "Campanha iniciada" };
+			throw new TRPCError({ code: "NOT_IMPLEMENTED", message: "Campaign sending not yet implemented" });
 		}),
 });
