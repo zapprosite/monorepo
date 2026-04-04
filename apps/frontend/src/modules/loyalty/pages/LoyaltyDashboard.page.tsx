@@ -1,90 +1,175 @@
-import React from "react";
+import { ErrorAlert } from "@connected-repo/ui-mui/components/ErrorAlert";
+import { LoadingSpinner } from "@connected-repo/ui-mui/components/LoadingSpinner";
+import { Chip } from "@connected-repo/ui-mui/data-display/Chip";
+import { Typography } from "@connected-repo/ui-mui/data-display/Typography";
+import { Box } from "@connected-repo/ui-mui/layout/Box";
+import { Container } from "@connected-repo/ui-mui/layout/Container";
+import { Paper } from "@connected-repo/ui-mui/layout/Paper";
+import { trpc } from "@frontend/utils/trpc.client";
 import { useQuery } from "@tanstack/react-query";
-import { trpc } from "@frontend/utils/trpc";
+import type React from "react";
 
 export const LoyaltyDashboardPage: React.FC = () => {
-  const { data: scores } = useQuery({
-    queryKey: ["loyalty.listLoyalty"],
-    queryFn: () =>
-      trpc.loyalty.listLoyalty.query({
-        limit: 50,
-        offset: 0,
-      }),
-  });
+	const {
+		data: scores,
+		isLoading,
+		error,
+	} = useQuery(
+		trpc.loyalty.listLoyalty.queryOptions({
+			limit: 50,
+			offset: 0,
+		}),
+	);
 
-  const getLevelColor = (level: string) => {
-    switch (level) {
-      case "bronze":
-        return "bg-orange-100";
-      case "prata":
-        return "bg-gray-100";
-      case "ouro":
-        return "bg-yellow-100";
-      case "platinum":
-        return "bg-purple-100";
-      default:
-        return "bg-gray-50";
-    }
-  };
+	if (isLoading) return <LoadingSpinner text="Carregando fidelização..." />;
 
-  const getStatusLabel = (status: string) => {
-    const labels: Record<string, string> = {
-      ativo: "✅ Ativo",
-      "risco-30d": "⚠️ Risco 30d",
-      "risco-60d": "⚠️ Risco 60d",
-      "risco-90d": "🔴 Risco 90d",
-      perdido: "❌ Perdido",
-    };
-    return labels[status] || status;
-  };
+	if (error) {
+		return (
+			<Container maxWidth="lg" sx={{ py: 4 }}>
+				<ErrorAlert message={`Erro ao carregar dados: ${error.message}`} />
+			</Container>
+		);
+	}
 
-  return (
-    <div className="p-6">
-      <h1 className="text-3xl font-bold mb-6">Dashboard de Fidelização</h1>
+	const getLevelColor = (level: string) => {
+		switch (level) {
+			case "bronze":
+				return "warning";
+			case "prata":
+				return "default";
+			case "ouro":
+				return "info";
+			case "platinum":
+				return "secondary";
+			default:
+				return "default";
+		}
+	};
 
-      <div className="grid grid-cols-4 gap-4 mb-6">
-        <div className="p-4 bg-blue-50 rounded">
-          <p className="text-sm text-gray-600">Total de Clientes</p>
-          <p className="text-2xl font-bold">{scores?.data?.length || 0}</p>
-        </div>
-        <div className="p-4 bg-green-50 rounded">
-          <p className="text-sm text-gray-600">Nível Platinum</p>
-          <p className="text-2xl font-bold">
-            {scores?.data?.filter((s: any) => s.nivel === "platinum").length || 0}
-          </p>
-        </div>
-        <div className="p-4 bg-yellow-50 rounded">
-          <p className="text-sm text-gray-600">Em Risco</p>
-          <p className="text-2xl font-bold">
-            {scores?.data?.filter((s: any) => s.statusReativacao.includes("risco")).length || 0}
-          </p>
-        </div>
-        <div className="p-4 bg-red-50 rounded">
-          <p className="text-sm text-gray-600">Perdidos</p>
-          <p className="text-2xl font-bold">
-            {scores?.data?.filter((s: any) => s.statusReativacao === "perdido").length || 0}
-          </p>
-        </div>
-      </div>
+	const getStatusColor = (status: string) => {
+		switch (status) {
+			case "ativo":
+				return "success";
+			case "risco-30d":
+			case "risco-60d":
+			case "risco-90d":
+				return "warning";
+			case "perdido":
+				return "error";
+			default:
+				return "default";
+		}
+	};
 
-      <div className="space-y-2">
-        {scores?.data?.map((score: any) => (
-          <div
-            key={score.clienteId}
-            className={`p-4 rounded ${getLevelColor(score.nivel)}`}
-          >
-            <div className="flex justify-between items-center">
-              <div>
-                <p className="font-bold">Cliente ID: {score.clienteId.slice(0, 8)}</p>
-                <p className="text-sm">
-                  Pontos: {score.pontos} | Nível: {score.nivel.toUpperCase()}
-                </p>
-              </div>
-              <span className="text-lg">{getStatusLabel(score.statusReativacao)}</span>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
+	return (
+		<Container maxWidth="xl" sx={{ py: { xs: 3, md: 5 } }}>
+			<Typography variant="h3" component="h1" fontWeight={700} mb={4}>
+				Dashboard de Fidelização
+			</Typography>
+
+			<Box
+				sx={{
+					display: "grid",
+					gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr", md: "1fr 1fr 1fr 1fr" },
+					gap: 3,
+					mb: 4,
+				}}
+			>
+				<Paper
+					elevation={0}
+					sx={{ p: 3, border: "1px solid", borderColor: "divider", borderRadius: 2 }}
+				>
+					<Typography variant="body2" color="text.secondary">
+						Total de Clientes
+					</Typography>
+					<Typography variant="h4" fontWeight={700}>
+						{scores?.data?.length || 0}
+					</Typography>
+				</Paper>
+				<Paper
+					elevation={0}
+					sx={{ p: 3, border: "1px solid", borderColor: "divider", borderRadius: 2 }}
+				>
+					<Typography variant="body2" color="text.secondary">
+						Nível Platinum
+					</Typography>
+					<Typography variant="h4" fontWeight={700}>
+						{scores?.data?.filter((s) => s.nivel === "platinum").length || 0}
+					</Typography>
+				</Paper>
+				<Paper
+					elevation={0}
+					sx={{ p: 3, border: "1px solid", borderColor: "divider", borderRadius: 2 }}
+				>
+					<Typography variant="body2" color="text.secondary">
+						Em Risco
+					</Typography>
+					<Typography variant="h4" fontWeight={700}>
+						{scores?.data?.filter((s) => s.statusReativacao.includes("risco")).length || 0}
+					</Typography>
+				</Paper>
+				<Paper
+					elevation={0}
+					sx={{ p: 3, border: "1px solid", borderColor: "divider", borderRadius: 2 }}
+				>
+					<Typography variant="body2" color="text.secondary">
+						Perdidos
+					</Typography>
+					<Typography variant="h4" fontWeight={700}>
+						{scores?.data?.filter((s) => s.statusReativacao === "perdido").length || 0}
+					</Typography>
+				</Paper>
+			</Box>
+
+			{!scores?.data || scores.data.length === 0 ? (
+				<Paper
+					elevation={0}
+					sx={{ p: 6, textAlign: "center", border: "1px solid", borderColor: "divider" }}
+				>
+					<Typography variant="h6" color="text.secondary" gutterBottom>
+						Nenhum dado de fidelização
+					</Typography>
+					<Typography variant="body2" color="text.disabled">
+						Os dados de fidelização aparecerão aqui
+					</Typography>
+				</Paper>
+			) : (
+				<Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+					{scores.data.map((score) => (
+						<Paper
+							key={score.clienteId}
+							elevation={0}
+							sx={{
+								p: 3,
+								border: "1px solid",
+								borderColor: "divider",
+								borderRadius: 2,
+								transition: "all 0.2s",
+								"&:hover": { borderColor: "primary.main", boxShadow: 2 },
+							}}
+						>
+							<Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+								<Box>
+									<Typography variant="subtitle1" fontWeight={600}>
+										Cliente ID: {score.clienteId.slice(0, 8)}
+									</Typography>
+									<Typography variant="body2" color="text.secondary">
+										Pontos: {score.pontos} | Nível: {score.nivel.toUpperCase()}
+									</Typography>
+								</Box>
+								<Box sx={{ display: "flex", gap: 1 }}>
+									<Chip label={score.nivel} size="small" color={getLevelColor(score.nivel)} />
+									<Chip
+										label={score.statusReativacao}
+										size="small"
+										color={getStatusColor(score.statusReativacao)}
+									/>
+								</Box>
+							</Box>
+						</Paper>
+					))}
+				</Box>
+			)}
+		</Container>
+	);
 };

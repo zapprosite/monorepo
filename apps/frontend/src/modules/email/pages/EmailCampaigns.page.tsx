@@ -1,119 +1,178 @@
-import React, { useState } from "react";
-import { useQuery, useMutation } from "@tanstack/react-query";
-import { trpc } from "@frontend/utils/trpc";
+import { ErrorAlert } from "@connected-repo/ui-mui/components/ErrorAlert";
+import { LoadingSpinner } from "@connected-repo/ui-mui/components/LoadingSpinner";
+import { Typography } from "@connected-repo/ui-mui/data-display/Typography";
+import { Button } from "@connected-repo/ui-mui/form/Button";
+import { Select } from "@connected-repo/ui-mui/form/Select";
+import { TextField } from "@connected-repo/ui-mui/form/TextField";
+import { Box } from "@connected-repo/ui-mui/layout/Box";
+import { Container } from "@connected-repo/ui-mui/layout/Container";
+import { Paper } from "@connected-repo/ui-mui/layout/Paper";
+import { MenuItem } from "@connected-repo/ui-mui/navigation/MenuItem";
+import { trpc } from "@frontend/utils/trpc.client";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import type React from "react";
+import { useState } from "react";
 
 export const EmailCampaignsPage: React.FC = () => {
-  const [showForm, setShowForm] = useState(false);
-  const [formData, setFormData] = useState({
-    nome: "",
-    tipoCampanha: "marketing" as const,
-    destinatariosJSON: [] as string[],
-  });
+	const [showForm, setShowForm] = useState(false);
+	const [formData, setFormData] = useState({
+		nome: "",
+		tipoCampanha: "marketing" as const,
+		destinatariosJSON: [] as string[],
+	});
+	const queryClient = useQueryClient();
 
-  const { data: campaigns, refetch } = useQuery({
-    queryKey: ["email.listCampaigns"],
-    queryFn: () =>
-      trpc.email.listCampaigns.query({
-        limit: 50,
-        offset: 0,
-      }),
-  });
+	const {
+		data: campaigns,
+		isLoading,
+		error,
+	} = useQuery(
+		trpc.email.listCampaigns.queryOptions({
+			limit: 50,
+			offset: 0,
+		}),
+	);
 
-  const createMutation = useMutation({
-    mutationFn: () => trpc.email.createCampaign.mutate(formData),
-    onSuccess: () => {
-      refetch();
-      setShowForm(false);
-      setFormData({
-        nome: "",
-        tipoCampanha: "marketing",
-        destinatariosJSON: [],
-      });
-    },
-  });
+	const createMutation = useMutation(
+		trpc.email.createCampaign.mutationOptions({
+			onSuccess: () => {
+				queryClient.invalidateQueries({ queryKey: trpc.email.listCampaigns.queryKey() });
+				setShowForm(false);
+				setFormData({
+					nome: "",
+					tipoCampanha: "marketing",
+					destinatariosJSON: [],
+				});
+			},
+		}),
+	);
 
-  const getStatusBadge = (status: string) => {
-    const styles: Record<string, string> = {
-      rascunho: "bg-gray-100 text-gray-800",
-      agendada: "bg-blue-100 text-blue-800",
-      enviando: "bg-yellow-100 text-yellow-800",
-      enviada: "bg-green-100 text-green-800",
-      cancelada: "bg-red-100 text-red-800",
-    };
-    return styles[status] || "bg-gray-100";
-  };
+	const onSubmit = () => {
+		createMutation.mutate(formData);
+	};
 
-  return (
-    <div className="p-6">
-      <div className="mb-6 flex justify-between">
-        <h1 className="text-3xl font-bold">Campanhas de Email</h1>
-        <button
-          onClick={() => setShowForm(!showForm)}
-          className="bg-blue-600 text-white px-4 py-2 rounded"
-        >
-          + Nova Campanha
-        </button>
-      </div>
+	if (isLoading) return <LoadingSpinner text="Carregando campanhas..." />;
 
-      {showForm && (
-        <div className="mb-6 p-4 border border-gray-300 rounded">
-          <h2 className="font-bold mb-4">Criar Nova Campanha</h2>
-          <input
-            type="text"
-            placeholder="Nome da Campanha"
-            value={formData.nome}
-            onChange={(e) =>
-              setFormData({ ...formData, nome: e.target.value })
-            }
-            className="w-full mb-2 p-2 border rounded"
-          />
-          <select
-            value={formData.tipoCampanha}
-            onChange={(e) =>
-              setFormData({
-                ...formData,
-                tipoCampanha: e.target.value as any,
-              })
-            }
-            className="w-full mb-2 p-2 border rounded"
-          >
-            <option value="marketing">Marketing</option>
-            <option value="reativacao">Reativação</option>
-            <option value="newsletter">Newsletter</option>
-            <option value="promocional">Promocional</option>
-            <option value="transacional">Transacional</option>
-          </select>
-          <button
-            onClick={() => createMutation.mutate()}
-            className="bg-green-600 text-white px-4 py-2 rounded"
-          >
-            Salvar
-          </button>
-        </div>
-      )}
+	if (error) {
+		return (
+			<Container maxWidth="lg" sx={{ py: 4 }}>
+				<ErrorAlert message={`Erro ao carregar campanhas: ${error.message}`} />
+			</Container>
+		);
+	}
 
-      <div className="space-y-2">
-        {campaigns?.data?.map((campaign: any) => (
-          <div key={campaign.id} className="p-4 border border-gray-200 rounded">
-            <div className="flex justify-between items-start">
-              <div>
-                <h3 className="font-bold">{campaign.nome}</h3>
-                <p className="text-sm text-gray-600">
-                  {campaign.tipoCampanha} | {campaign.totalEnviado} enviados
-                </p>
-                {campaign.totalEnviado > 0 && (
-                  <p className="text-xs text-gray-500 mt-1">
-                    Taxa de abertura: {campaign.taxaAberturaPercent?.toFixed(1) || 0}%
-                  </p>
-                )}
-              </div>
-              <span className={`px-3 py-1 rounded text-sm ${getStatusBadge(campaign.statusCampanha)}`}>
-                {campaign.statusCampanha}
-              </span>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
+	return (
+		<Container maxWidth="xl" sx={{ py: { xs: 3, md: 5 } }}>
+			<Box
+				sx={{
+					mb: 4,
+					display: "flex",
+					justifyContent: "space-between",
+					alignItems: "center",
+				}}
+			>
+				<Typography variant="h3" component="h1" fontWeight={700}>
+					Campanhas de Email
+				</Typography>
+				<Button variant="contained" onClick={() => setShowForm(!showForm)}>
+					+ Nova Campanha
+				</Button>
+			</Box>
+
+			{showForm && (
+				<Paper elevation={0} sx={{ p: 3, mb: 4, border: "1px solid", borderColor: "divider" }}>
+					<Typography variant="h6" mb={2}>
+						Criar Nova Campanha
+					</Typography>
+					<Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+						<TextField
+							label="Nome da Campanha"
+							value={formData.nome}
+							onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
+							fullWidth
+						/>
+						<Select
+							label="Tipo de Campanha"
+							value={formData.tipoCampanha}
+							onChange={(e) =>
+								setFormData({
+									...formData,
+									tipoCampanha: e.target.value as typeof formData.tipoCampanha,
+								})
+							}
+							fullWidth
+						>
+							<MenuItem value="marketing">Marketing</MenuItem>
+							<MenuItem value="reativacao">Reativação</MenuItem>
+							<MenuItem value="newsletter">Newsletter</MenuItem>
+							<MenuItem value="promocional">Promocional</MenuItem>
+							<MenuItem value="transacional">Transacional</MenuItem>
+						</Select>
+						<Button variant="contained" onClick={onSubmit} disabled={createMutation.isPending}>
+							{createMutation.isPending ? "Salvando..." : "Salvar"}
+						</Button>
+					</Box>
+				</Paper>
+			)}
+
+			{!campaigns?.data || campaigns.data.length === 0 ? (
+				<Paper
+					elevation={0}
+					sx={{ p: 6, textAlign: "center", border: "1px solid", borderColor: "divider" }}
+				>
+					<Typography variant="h6" color="text.secondary" gutterBottom>
+						Nenhuma campanha cadastrada
+					</Typography>
+					<Typography variant="body2" color="text.disabled" mb={3}>
+						Crie a primeira campanha para começar
+					</Typography>
+					<Button variant="contained" onClick={() => setShowForm(true)}>
+						Criar Campanha
+					</Button>
+				</Paper>
+			) : (
+				<Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+					{campaigns.data.map((campaign) => (
+						<Paper
+							key={campaign.id}
+							elevation={0}
+							sx={{
+								p: 3,
+								border: "1px solid",
+								borderColor: "divider",
+								borderRadius: 2,
+								transition: "all 0.2s",
+								"&:hover": { borderColor: "primary.main", boxShadow: 2 },
+							}}
+						>
+							<Box
+								sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}
+							>
+								<Box>
+									<Typography variant="subtitle1" fontWeight={600}>
+										{campaign.nome}
+									</Typography>
+									<Typography variant="body2" color="text.secondary">
+										{campaign.tipoCampanha}
+									</Typography>
+								</Box>
+								<Box
+									sx={{
+										px: 2,
+										py: 0.5,
+										borderRadius: 1,
+										bgcolor: "background.default",
+										border: "1px solid",
+										borderColor: "divider",
+									}}
+								>
+									<Typography variant="caption">{campaign.statusCampanha}</Typography>
+								</Box>
+							</Box>
+						</Paper>
+					))}
+				</Box>
+			)}
+		</Container>
+	);
 };
