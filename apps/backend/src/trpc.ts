@@ -3,6 +3,7 @@ import {
 	SessionSecurityLevel,
 	validateSessionSecurity,
 } from "@backend/middlewares/sessionSecurity.middleware";
+import { extractDevUser } from "@backend/middlewares/dev-auth-bypass";
 import type { SessionUser } from "@backend/modules/auth/session.auth.utils";
 import { trpcErrorParser } from "@backend/utils/errorParser";
 import { getClientIpAddress } from "@backend/utils/request-metadata.utils";
@@ -12,6 +13,18 @@ import { BurstyRateLimiter, RateLimiterMemory } from "rate-limiter-flexible";
 
 // Define user type
 export const createTRPCContext = (input: CreateFastifyContextOptions) => {
+	// In dev mode, allow auth bypass via X-Dev-User header
+	if (isDev) {
+		const devUser = extractDevUser(input.req);
+		if (devUser) {
+			return {
+				req: input.req,
+				res: input.res,
+				user: devUser,
+			};
+		}
+	}
+
 	const user = input.req.session.user;
 	return {
 		req: input.req,
