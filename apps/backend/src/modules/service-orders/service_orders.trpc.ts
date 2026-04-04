@@ -1,3 +1,4 @@
+import { TRPCError } from "@trpc/server";
 import { db } from "@backend/db/db";
 import { protectedProcedure, trpcRouter } from "@backend/trpc";
 import {
@@ -44,41 +45,72 @@ export const serviceOrdersRouterTrpc = trpcRouter({
 		.input(serviceOrderGetByIdZod)
 		.query(async ({ input: { serviceOrderId } }) => {
 			const order = await db.serviceOrders.findOptional(serviceOrderId);
-			if (!order) throw new Error("Ordem de Serviço não encontrada");
+			if (!order) throw new TRPCError({ code: "NOT_FOUND", message: "Ordem de Serviço não encontrada" });
 			return order;
 		}),
 
 	createServiceOrder: protectedProcedure
 		.input(serviceOrderCreateInputZod)
 		.mutation(async ({ input }) => {
+			const cliente = await db.clients.findOptional(input.clienteId);
+			if (!cliente) throw new TRPCError({ code: "NOT_FOUND", message: "Cliente não encontrado" });
+			if (input.tecnicoId) {
+				const tecnico = await db.users.findOptional(input.tecnicoId);
+				if (!tecnico) throw new TRPCError({ code: "NOT_FOUND", message: "Técnico não encontrado" });
+			}
+			if (input.equipmentId) {
+				const equipment = await db.equipment.findOptional(input.equipmentId);
+				if (!equipment) throw new TRPCError({ code: "NOT_FOUND", message: "Equipamento não encontrado" });
+			}
 			return db.serviceOrders.create(input);
 		}),
 
 	updateServiceOrder: protectedProcedure
 		.input(serviceOrderUpdateInputZod)
 		.mutation(async ({ input: { serviceOrderId, ...data } }) => {
-			return db.serviceOrders.find(serviceOrderId).update(data);
+			const order = await db.serviceOrders.findOptional(serviceOrderId);
+			if (!order) throw new TRPCError({ code: "NOT_FOUND", message: "Ordem de Serviço não encontrada" });
+			return db.serviceOrders.where({ serviceOrderId }).update(data);
 		}),
 
 	iniciarAtendimento: protectedProcedure
 		.input(serviceOrderGetByIdZod)
 		.mutation(async ({ input: { serviceOrderId } }) => {
-			return db.serviceOrders.find(serviceOrderId).update({ status: "Em Andamento" });
+			const order = await db.serviceOrders.findOptional(serviceOrderId);
+			if (!order) throw new TRPCError({ code: "NOT_FOUND", message: "Ordem de Serviço não encontrada" });
+			if (order.status !== "Aberta") {
+				throw new TRPCError({ code: "BAD_REQUEST", message: "Só é possível iniciar atendimento com status 'Aberta'" });
+			}
+			return db.serviceOrders.where({ serviceOrderId }).update({ status: "Em Andamento" });
 		}),
 
 	concluirOrdem: protectedProcedure
 		.input(serviceOrderGetByIdZod)
 		.mutation(async ({ input: { serviceOrderId } }) => {
-			return db.serviceOrders.find(serviceOrderId).update({
+			const order = await db.serviceOrders.findOptional(serviceOrderId);
+			if (!order) throw new TRPCError({ code: "NOT_FOUND", message: "Ordem de Serviço não encontrada" });
+			if (order.status !== "Em Andamento") {
+				throw new TRPCError({ code: "BAD_REQUEST", message: "Só é possível concluir ordem com status 'Em Andamento'" });
+			}
+			const dataFechamento = new Date().toISOString();
+			if (new Date(dataFechamento) < new Date(order.dataAbertura)) {
+				throw new TRPCError({ code: "BAD_REQUEST", message: "Data de fechamento não pode ser anterior à data de abertura" });
+			}
+			return db.serviceOrders.where({ serviceOrderId }).update({
 				status: "Concluída",
-				dataFechamento: new Date().toISOString(),
+				dataFechamento,
 			});
 		}),
 
 	cancelarOrdem: protectedProcedure
 		.input(serviceOrderGetByIdZod)
 		.mutation(async ({ input: { serviceOrderId } }) => {
-			return db.serviceOrders.find(serviceOrderId).update({ status: "Cancelada" });
+			const order = await db.serviceOrders.findOptional(serviceOrderId);
+			if (!order) throw new TRPCError({ code: "NOT_FOUND", message: "Ordem de Serviço não encontrada" });
+			if (order.status === "Concluída" || order.status === "Cancelada") {
+				throw new TRPCError({ code: "BAD_REQUEST", message: "Não é possível cancelar ordem com status 'Concluída' ou 'Cancelada'" });
+			}
+			return db.serviceOrders.where({ serviceOrderId }).update({ status: "Cancelada" });
 		}),
 
 	// — Technical Reports —
@@ -98,18 +130,24 @@ export const serviceOrdersRouterTrpc = trpcRouter({
 	updateReport: protectedProcedure
 		.input(technicalReportUpdateInputZod)
 		.mutation(async ({ input: { reportId, ...data } }) => {
-			return db.technicalReports.find(reportId).update(data);
+			const report = await db.technicalReports.findOptional(reportId);
+			if (!report) throw new TRPCError({ code: "NOT_FOUND", message: "Relatório técnico não encontrado" });
+			return db.technicalReports.where({ reportId }).update(data);
 		}),
 
 	assinarTecnico: protectedProcedure
 		.input(technicalReportByServiceOrderZod)
 		.mutation(async ({ input: { serviceOrderId } }) => {
+			const report = await db.technicalReports.where({ serviceOrderId }).takeOptional();
+			if (!report) throw new TRPCError({ code: "NOT_FOUND", message: "Relatório técnico não encontrado" });
 			return db.technicalReports.where({ serviceOrderId }).update({ assinadoTecnico: true });
 		}),
 
 	assinarCliente: protectedProcedure
 		.input(technicalReportByServiceOrderZod)
 		.mutation(async ({ input: { serviceOrderId } }) => {
+			const report = await db.technicalReports.where({ serviceOrderId }).takeOptional();
+			if (!report) throw new TRPCError({ code: "NOT_FOUND", message: "Relatório técnico não encontrado" });
 			return db.technicalReports.where({ serviceOrderId }).update({ assinadoCliente: true });
 		}),
 

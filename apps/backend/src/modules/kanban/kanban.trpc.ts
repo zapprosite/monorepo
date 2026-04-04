@@ -1,3 +1,4 @@
+import { TRPCError } from "@trpc/server";
 import { db } from "@backend/db/db";
 import { protectedProcedure, trpcRouter } from "@backend/trpc";
 import {
@@ -34,7 +35,7 @@ export const kanbanRouterTrpc = trpcRouter({
 		.input(boardGetByIdZod)
 		.query(async ({ input: { boardId } }) => {
 			const board = await db.kanbanBoards.findOptional(boardId);
-			if (!board) throw new Error("Board não encontrado");
+			if (!board) throw new TRPCError({ code: "NOT_FOUND", message: "Board não encontrado" });
 
 			const columns = await db.kanbanColumns
 				.where({ boardId })
@@ -69,13 +70,17 @@ export const kanbanRouterTrpc = trpcRouter({
 	updateBoard: protectedProcedure
 		.input(boardUpdateInputZod)
 		.mutation(async ({ input: { boardId, ...data } }) => {
-			return db.kanbanBoards.find(boardId).update(data);
+			const board = await db.kanbanBoards.findOptional(boardId);
+			if (!board) throw new TRPCError({ code: "NOT_FOUND", message: "Board não encontrado" });
+			return db.kanbanBoards.where({ boardId }).update(data);
 		}),
 
 	deleteBoard: protectedProcedure
 		.input(boardGetByIdZod)
 		.mutation(async ({ input: { boardId } }) => {
-			return db.kanbanBoards.find(boardId).delete();
+			const board = await db.kanbanBoards.findOptional(boardId);
+			if (!board) throw new TRPCError({ code: "NOT_FOUND", message: "Board não encontrado" });
+			return db.kanbanBoards.where({ boardId }).delete();
 		}),
 
 	// -------------------------------------------------------------------------
@@ -91,13 +96,17 @@ export const kanbanRouterTrpc = trpcRouter({
 	updateColumn: protectedProcedure
 		.input(columnUpdateInputZod)
 		.mutation(async ({ input: { columnId, ...data } }) => {
-			return db.kanbanColumns.find(columnId).update(data);
+			const column = await db.kanbanColumns.findOptional(columnId);
+			if (!column) throw new TRPCError({ code: "NOT_FOUND", message: "Coluna não encontrada" });
+			return db.kanbanColumns.where({ columnId }).update(data);
 		}),
 
 	deleteColumn: protectedProcedure
 		.input(z.object({ columnId: z.string().uuid() }))
 		.mutation(async ({ input: { columnId } }) => {
-			return db.kanbanColumns.find(columnId).delete();
+			const column = await db.kanbanColumns.findOptional(columnId);
+			if (!column) throw new TRPCError({ code: "NOT_FOUND", message: "Coluna não encontrada" });
+			return db.kanbanColumns.where({ columnId }).delete();
 		}),
 
 	reorderColumns: protectedProcedure
@@ -109,9 +118,11 @@ export const kanbanRouterTrpc = trpcRouter({
 		)
 		.mutation(async ({ input: { columnIds } }) => {
 			await Promise.all(
-				columnIds.map((columnId, index) =>
-					db.kanbanColumns.find(columnId).update({ ordem: index }),
-				),
+				columnIds.map(async (columnId, index) => {
+					const column = await db.kanbanColumns.findOptional(columnId);
+					if (!column) throw new TRPCError({ code: "NOT_FOUND", message: "Coluna não encontrada" });
+					return db.kanbanColumns.where({ columnId }).update({ ordem: index });
+				}),
 			);
 			return { success: true };
 		}),
@@ -149,7 +160,7 @@ export const kanbanRouterTrpc = trpcRouter({
 		.input(cardGetByIdZod)
 		.query(async ({ input: { cardId } }) => {
 			const card = await db.kanbanCards.findOptional(cardId);
-			if (!card) throw new Error("Card não encontrado");
+			if (!card) throw new TRPCError({ code: "NOT_FOUND", message: "Card não encontrado" });
 			return card;
 		}),
 
@@ -168,7 +179,9 @@ export const kanbanRouterTrpc = trpcRouter({
 	updateCard: protectedProcedure
 		.input(cardUpdateInputZod)
 		.mutation(async ({ input: { cardId, prioridade, status, ordem, ...rest } }) => {
-			return db.kanbanCards.find(cardId).update({
+			const card = await db.kanbanCards.findOptional(cardId);
+			if (!card) throw new TRPCError({ code: "NOT_FOUND", message: "Card não encontrado" });
+			return db.kanbanCards.where({ cardId }).update({
 				...rest,
 				...(prioridade !== undefined ? { prioridade: prioridade ?? undefined } : {}),
 				...(status !== undefined ? { status: status ?? undefined } : {}),
@@ -185,12 +198,16 @@ export const kanbanRouterTrpc = trpcRouter({
 			}),
 		)
 		.mutation(async ({ input: { cardId, columnId, ordem } }) => {
-			return db.kanbanCards.find(cardId).update({ columnId, ordem });
+			const card = await db.kanbanCards.findOptional(cardId);
+			if (!card) throw new TRPCError({ code: "NOT_FOUND", message: "Card não encontrado" });
+			return db.kanbanCards.where({ cardId }).update({ columnId, ordem });
 		}),
 
 	deleteCard: protectedProcedure
 		.input(cardGetByIdZod)
 		.mutation(async ({ input: { cardId } }) => {
-			return db.kanbanCards.find(cardId).delete();
+			const card = await db.kanbanCards.findOptional(cardId);
+			if (!card) throw new TRPCError({ code: "NOT_FOUND", message: "Card não encontrado" });
+			return db.kanbanCards.where({ cardId }).delete();
 		}),
 });

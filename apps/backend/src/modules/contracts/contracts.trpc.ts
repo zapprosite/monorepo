@@ -1,3 +1,4 @@
+import { TRPCError } from "@trpc/server";
 import { db } from "@backend/db/db";
 import { protectedProcedure, trpcRouter } from "@backend/trpc";
 import {
@@ -29,7 +30,7 @@ export const contractsRouterTrpc = trpcRouter({
 		}
 		if (input.dataFim) {
 			const fim = input.dataFim;
-			query = query.whereSql`"dataInicio" <= ${fim}::date`;
+			query = query.whereSql`"dataFim" <= ${fim}::date`;
 		}
 
 		const contracts = await query.order({ dataInicio: "DESC" }).limit(CONTRACTS_MAX_LIMIT);
@@ -53,7 +54,7 @@ export const contractsRouterTrpc = trpcRouter({
 		.input(contractGetByIdZod)
 		.query(async ({ input: { contractId } }) => {
 			const contract = await db.contracts.findOptional(contractId);
-			if (!contract) throw new Error("Contrato não encontrado");
+			if (!contract) throw new TRPCError({ code: "NOT_FOUND", message: "Contrato não encontrado" });
 
 			const client = await db.clients
 				.where({ clientId: contract.clienteId })
@@ -67,37 +68,61 @@ export const contractsRouterTrpc = trpcRouter({
 		}),
 
 	createContract: protectedProcedure.input(contractCreateInputZod).mutation(async ({ input }) => {
+		const cliente = await db.clients.findOptional(input.clienteId);
+		if (!cliente) throw new TRPCError({ code: "NOT_FOUND", message: "Cliente não encontrado" });
 		return db.contracts.create(input);
 	}),
 
 	updateContract: protectedProcedure
 		.input(contractUpdateInputZod)
 		.mutation(async ({ input: { contractId, ...data } }) => {
-			return db.contracts.find(contractId).update(data);
+			const contract = await db.contracts.findOptional(contractId);
+			if (!contract) throw new TRPCError({ code: "NOT_FOUND", message: "Contrato não encontrado" });
+			return db.contracts.where({ contractId }).update(data);
 		}),
 
 	activateContract: protectedProcedure
 		.input(contractGetByIdZod)
 		.mutation(async ({ input: { contractId } }) => {
-			return db.contracts.find(contractId).update({ status: "Ativo" });
+			const contract = await db.contracts.findOptional(contractId);
+			if (!contract) throw new TRPCError({ code: "NOT_FOUND", message: "Contrato não encontrado" });
+			if (contract.status !== "Rascunho" && contract.status !== "Suspenso") {
+				throw new TRPCError({ code: "BAD_REQUEST", message: "Só é possível ativar contrato com status 'Rascunho' ou 'Suspenso'" });
+			}
+			return db.contracts.where({ contractId }).update({ status: "Ativo" });
 		}),
 
 	suspendContract: protectedProcedure
 		.input(contractGetByIdZod)
 		.mutation(async ({ input: { contractId } }) => {
-			return db.contracts.find(contractId).update({ status: "Suspenso" });
+			const contract = await db.contracts.findOptional(contractId);
+			if (!contract) throw new TRPCError({ code: "NOT_FOUND", message: "Contrato não encontrado" });
+			if (contract.status !== "Ativo") {
+				throw new TRPCError({ code: "BAD_REQUEST", message: "Só é possível suspender contrato com status 'Ativo'" });
+			}
+			return db.contracts.where({ contractId }).update({ status: "Suspenso" });
 		}),
 
 	reactivateContract: protectedProcedure
 		.input(contractGetByIdZod)
 		.mutation(async ({ input: { contractId } }) => {
-			return db.contracts.find(contractId).update({ status: "Ativo" });
+			const contract = await db.contracts.findOptional(contractId);
+			if (!contract) throw new TRPCError({ code: "NOT_FOUND", message: "Contrato não encontrado" });
+			if (contract.status !== "Suspenso") {
+				throw new TRPCError({ code: "BAD_REQUEST", message: "Só é possível reativar contrato com status 'Suspenso'" });
+			}
+			return db.contracts.where({ contractId }).update({ status: "Ativo" });
 		}),
 
 	endContract: protectedProcedure
 		.input(contractGetByIdZod)
 		.mutation(async ({ input: { contractId } }) => {
-			return db.contracts.find(contractId).update({ status: "Encerrado" });
+			const contract = await db.contracts.findOptional(contractId);
+			if (!contract) throw new TRPCError({ code: "NOT_FOUND", message: "Contrato não encontrado" });
+			if (contract.status === "Encerrado" || contract.status === "Cancelado") {
+				throw new TRPCError({ code: "BAD_REQUEST", message: "Não é possível encerrar contrato com status 'Encerrado' ou 'Cancelado'" });
+			}
+			return db.contracts.where({ contractId }).update({ status: "Encerrado" });
 		}),
 
 	cancelContract: protectedProcedure
@@ -108,8 +133,11 @@ export const contractsRouterTrpc = trpcRouter({
 			}),
 		)
 		.mutation(async ({ input: { contractId, motivoCancelamento } }) => {
-			return db.contracts
-				.find(contractId)
-				.update({ status: "Cancelado", motivoCancelamento: motivoCancelamento ?? null });
+			const contract = await db.contracts.findOptional(contractId);
+			if (!contract) throw new TRPCError({ code: "NOT_FOUND", message: "Contrato não encontrado" });
+			if (contract.status === "Encerrado" || contract.status === "Cancelado") {
+				throw new TRPCError({ code: "BAD_REQUEST", message: "Não é possível cancelar contrato com status 'Encerrado' ou 'Cancelado'" });
+			}
+			return db.contracts.where({ contractId }).update({ status: "Cancelado", motivoCancelamento: motivoCancelamento ?? null });
 		}),
 });
