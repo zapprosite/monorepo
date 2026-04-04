@@ -15,6 +15,7 @@ import {
 	contactCreateInputZod,
 	contactsByClientZod,
 } from "@connected-repo/zod-schemas/contact.zod";
+import z from "zod";
 
 const CLIENTS_MAX_LIMIT = 200;
 const RELATED_MAX_LIMIT = 100;
@@ -73,6 +74,14 @@ export const clientsRouterTrpc = trpcRouter({
 				.limit(RELATED_MAX_LIMIT);
 		}),
 
+	updateContact: protectedProcedure
+		.input(contactCreateInputZod.omit({ clienteId: true }).extend({ contactId: z.string().uuid() }))
+		.mutation(async ({ input: { contactId, ...data } }) => {
+			const contact = await db.contacts.findOptional(contactId);
+			if (!contact) throw new TRPCError({ code: "NOT_FOUND", message: "Contato não encontrado" });
+			return db.contacts.where({ contactId }).update(data);
+		}),
+
 	addAddress: protectedProcedure.input(addressCreateInputZod).mutation(async ({ input }) => {
 		return db.addresses.create(input);
 	}),
@@ -81,5 +90,13 @@ export const clientsRouterTrpc = trpcRouter({
 		.input(addressesByClientZod)
 		.query(async ({ input: { clienteId } }) => {
 			return db.addresses.where({ clienteId }).limit(RELATED_MAX_LIMIT);
+		}),
+
+	updateAddress: protectedProcedure
+		.input(addressCreateInputZod.omit({ clienteId: true }).extend({ addressId: z.string().uuid() }))
+		.mutation(async ({ input: { addressId, ...data } }) => {
+			const address = await db.addresses.findOptional(addressId);
+			if (!address) throw new TRPCError({ code: "NOT_FOUND", message: "Endereço não encontrado" });
+			return db.addresses.where({ addressId }).update(data);
 		}),
 });
