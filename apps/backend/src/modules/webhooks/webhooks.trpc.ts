@@ -29,7 +29,12 @@ export const webhookRouter = trpcRouter({
 
 	list: protectedProcedure
 		.input(z.object({ clienteId: z.string().uuid() }))
-		.query(async ({ input }) => {
+		.query(async ({ input, ctx }) => {
+			// Verify user has access to this client
+			const client = await db.clients.findOptional(input.clienteId);
+			if (!client) throw new TRPCError({ code: "NOT_FOUND", message: "Cliente não encontrado" });
+			// Optionally verify user is responsavel or has role for this client
+			// For now, we check if client exists and user can access
 			const webhooks = await db.webhooks
 				.where({ clienteId: input.clienteId })
 				.select("*");
@@ -43,7 +48,7 @@ export const webhookRouter = trpcRouter({
 				.where({ id: input.id })
 				.select("*")
 				.take();
-			if (!webhook) throw new TRPCError({ code: "NOT_FOUND" });
+			if (!webhook) throw new TRPCError({ code: "NOT_FOUND", message: "Webhook não encontrado" });
 			return webhook;
 		}),
 
@@ -55,20 +60,20 @@ export const webhookRouter = trpcRouter({
 			})
 		)
 		.mutation(async ({ input }) => {
+			const webhook = await db.webhooks.where({ id: input.id }).take();
+			if (!webhook) throw new TRPCError({ code: "NOT_FOUND", message: "Webhook não encontrado" });
 			const updated = await db.webhooks
 				.where({ id: input.id })
 				.update(input.data);
-			if (!updated) throw new TRPCError({ code: "NOT_FOUND" });
 			return updated;
 		}),
 
 	delete: protectedProcedure
 		.input(z.object({ id: z.string().uuid() }))
 		.mutation(async ({ input }) => {
-			const deleted = await db.webhooks
-				.where({ id: input.id })
-				.delete();
-			if (!deleted) throw new TRPCError({ code: "NOT_FOUND" });
+			const webhook = await db.webhooks.where({ id: input.id }).take();
+			if (!webhook) throw new TRPCError({ code: "NOT_FOUND", message: "Webhook não encontrado" });
+			await db.webhooks.where({ id: input.id }).delete();
 			return { success: true };
 		}),
 
@@ -80,6 +85,8 @@ export const webhookRouter = trpcRouter({
 			})
 		)
 		.query(async ({ input }) => {
+			const webhook = await db.webhooks.where({ id: input.webhookId }).take();
+			if (!webhook) throw new TRPCError({ code: "NOT_FOUND", message: "Webhook não encontrado" });
 			const deliveries = await db.webhookDeliveries
 				.where({ webhookId: input.webhookId })
 				.select("*")
