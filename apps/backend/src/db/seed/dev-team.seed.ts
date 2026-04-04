@@ -13,11 +13,11 @@ import { sql } from "@backend/db/base_table";
  * Run: yarn db seed --filter @connected-repo/backend --only dev-team
  */
 export async function seedDevTeam() {
-	// Check if dev team already exists
+	// Check if dev team already exists - use takeOptional to avoid throwing
 	const existingTeam = await db.teams
 		.where({ name: "Dev Team" })
 		.limit(1)
-		.take();
+		.takeOptional();
 
 	if (existingTeam) {
 		console.log("Dev team already exists, skipping seed.");
@@ -64,7 +64,7 @@ export async function getDevTeamCredentials() {
 	const devTeam = await db.teams
 		.where({ name: "Dev Team" })
 		.limit(1)
-		.take();
+		.takeOptional();
 
 	if (!devTeam) return null;
 
