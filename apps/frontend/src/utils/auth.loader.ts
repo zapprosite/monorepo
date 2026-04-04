@@ -4,29 +4,45 @@ import { trpc } from "@frontend/utils/trpc.client";
 import type { LoaderFunctionArgs } from "react-router";
 import { redirect } from "react-router";
 
+const IS_DEV = import.meta.env.VITE_NODE_ENV === "development";
+
 /**
  * Auth loader for protected routes
  * Fetches session, sets React Router context, and redirects based on auth state
  */
 export async function authLoader({ context }: LoaderFunctionArgs) {
+	if (IS_DEV) {
+		const devUser = sessionStorage.getItem("dev_user");
+		if (devUser) {
+			const user = JSON.parse(devUser);
+			const sessionInfo = {
+				hasSession: true,
+				isRegistered: true,
+				user: {
+					id: user.id,
+					email: user.email,
+					name: user.name,
+					displayPicture: null,
+				},
+			};
+			context.set(userContext, sessionInfo);
+			return sessionInfo;
+		}
+		throw redirect("/auth/login");
+	}
+
 	try {
-		// Fetch session info from backend
 		const sessionInfo = await queryClient.fetchQuery(trpc.auth.getSessionInfo.queryOptions());
 
-		// No session - redirect to login
 		if (!sessionInfo.hasSession) {
 			throw redirect("/auth/login");
 		}
 
-		// Session exists but not registered - redirect to register
 		if (!sessionInfo.isRegistered) {
 			throw redirect("/auth/register");
 		}
 
-		// Set user context in React Router context
 		context.set(userContext, sessionInfo);
-
-		// Return session data for loader
 		return sessionInfo;
 	} catch (error) {
 		console.error("Auth loader error:", error);
@@ -39,16 +55,24 @@ export async function authLoader({ context }: LoaderFunctionArgs) {
  * Redirects to dashboard if already authenticated
  */
 export async function guestLoader() {
+	if (IS_DEV) {
+		const devUser = sessionStorage.getItem("dev_user");
+		if (devUser) {
+			const user = JSON.parse(devUser);
+			if (user) {
+				return redirect("/dashboard");
+			}
+		}
+		return null;
+	}
+
 	try {
-		// Fetch session info from backend
 		const sessionInfo = await queryClient.fetchQuery(trpc.auth.getSessionInfo.queryOptions());
 
-		// Already registered - redirect to dashboard
 		if (sessionInfo.hasSession && sessionInfo.isRegistered) {
 			return redirect("/dashboard");
 		}
 
-		// Not registered or no session - allow access to page
 		return sessionInfo;
 	} catch (error) {
 		console.error("Guest loader error:", error);
