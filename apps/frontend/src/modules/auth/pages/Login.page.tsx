@@ -3,25 +3,48 @@ import { Typography } from "@connected-repo/ui-mui/data-display/Typography";
 import { Alert } from "@connected-repo/ui-mui/feedback/Alert";
 import { Fade } from "@connected-repo/ui-mui/feedback/Fade";
 import { Button } from "@connected-repo/ui-mui/form/Button";
+import { TextField } from "@connected-repo/ui-mui/form/TextField";
 import { Box } from "@connected-repo/ui-mui/layout/Box";
 import { Container } from "@connected-repo/ui-mui/layout/Container";
 import { Paper } from "@connected-repo/ui-mui/layout/Paper";
 import { Stack } from "@connected-repo/ui-mui/layout/Stack";
 import { useState } from "react";
-import { useSearchParams } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+const IS_DEV = import.meta.env.VITE_NODE_ENV === "development";
 
 export const LoginPage = () => {
 	const [isLoading, setIsLoading] = useState(false);
 	const [showContent] = useState(true);
 	const [searchParams] = useSearchParams();
 	const error = searchParams.get("error");
+	const navigate = useNavigate();
+
+	const [devEmail, setDevEmail] = useState("dev@localhost");
+	const [devPassword, setDevPassword] = useState("dev123");
 
 	const handleGoogleLogin = () => {
 		setIsLoading(true);
-		// Redirect to backend OAuth endpoint
 		window.location.href = `${API_URL}/oauth2/google`;
+	};
+
+	const handleDevLogin = async (e: React.FormEvent) => {
+		e.preventDefault();
+		setIsLoading(true);
+		if (devEmail === "dev@localhost" && devPassword === "dev123") {
+			sessionStorage.setItem(
+				"dev_user",
+				JSON.stringify({
+					id: "dev-user-001",
+					email: "dev@localhost",
+					name: "Dev User",
+				}),
+			);
+			navigate("/dashboard");
+		} else {
+			setIsLoading(false);
+		}
 	};
 
 	return (
@@ -54,7 +77,6 @@ export const LoginPage = () => {
 						}}
 					>
 						<Stack spacing={4} alignItems="center">
-							{/* Header Section */}
 							<Box sx={{ textAlign: "center" }}>
 								<Typography
 									variant="h3"
@@ -78,24 +100,10 @@ export const LoginPage = () => {
 										fontSize: { xs: "1.1rem", sm: "1.25rem" },
 									}}
 								>
-									Scheduled Prompt & Journal
-								</Typography>
-								<Typography
-									variant="body1"
-									sx={{
-										color: "text.secondary",
-										lineHeight: 1.8,
-										fontSize: { xs: "0.95rem", sm: "1rem" },
-										maxWidth: 400,
-										mx: "auto",
-									}}
-								>
-									A simple way to journal and reflect on your day with timely, thought-provoking
-									prompts
+									Connected Repo CRM
 								</Typography>
 							</Box>
 
-							{/* Error Alert */}
 							{error && (
 								<Fade in>
 									<Alert
@@ -113,60 +121,88 @@ export const LoginPage = () => {
 								</Fade>
 							)}
 
-							{/* Google Sign In Button */}
-							<Box sx={{ width: "100%", maxWidth: 360 }}>
-								<Button
-									variant="outlined"
-									fullWidth
-									onClick={handleGoogleLogin}
-									disabled={isLoading}
-									sx={{
-										py: { xs: 1.75, sm: 1.5 },
-										px: 3,
-										fontSize: { xs: "1rem", sm: "0.95rem" },
-										fontWeight: 600,
-										textTransform: "none",
-										borderRadius: 2,
-										borderWidth: 2,
-										borderColor: "divider",
-										color: "text.primary",
-										bgcolor: "background.paper",
-										minHeight: { xs: 56, sm: 52 },
-										transition: "all 0.25s ease-in-out",
-										boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-										"&:hover": {
-											borderWidth: 2,
-											borderColor: "primary.main",
-											bgcolor: "primary.light",
-											transform: "translateY(-2px)",
-											boxShadow: "0 4px 16px rgba(102, 126, 234, 0.2)",
-										},
-										"&:active": {
-											transform: "translateY(0)",
-											boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-										},
-										"&.Mui-disabled": {
-											borderColor: "action.disabledBackground",
-											bgcolor: "action.disabledBackground",
-											color: "action.disabled",
-										},
-									}}
-								>
-									<Box
+							{IS_DEV && (
+								<Box sx={{ width: "100%", maxWidth: 360 }}>
+									<form onSubmit={handleDevLogin}>
+										<Stack spacing={2}>
+											<TextField
+												label="Email (dev)"
+												type="email"
+												value={devEmail}
+												onChange={(e) => setDevEmail(e.target.value)}
+												fullWidth
+												size="small"
+											/>
+											<TextField
+												label="Password (dev)"
+												type="password"
+												value={devPassword}
+												onChange={(e) => setDevPassword(e.target.value)}
+												fullWidth
+												size="small"
+											/>
+											<Button type="submit" variant="contained" fullWidth disabled={isLoading}>
+												{isLoading ? "Entrando..." : "Dev Login"}
+											</Button>
+										</Stack>
+									</form>
+								</Box>
+							)}
+
+							{!IS_DEV && (
+								<Box sx={{ width: "100%", maxWidth: 360 }}>
+									<Button
+										variant="outlined"
+										fullWidth
+										onClick={handleGoogleLogin}
+										disabled={isLoading}
 										sx={{
-											display: "flex",
-											alignItems: "center",
-											justifyContent: "center",
-											gap: 1.5,
+											py: { xs: 1.75, sm: 1.5 },
+											px: 3,
+											fontSize: { xs: "1rem", sm: "0.95rem" },
+											fontWeight: 600,
+											textTransform: "none",
+											borderRadius: 2,
+											borderWidth: 2,
+											borderColor: "divider",
+											color: "text.primary",
+											bgcolor: "background.paper",
+											minHeight: { xs: 56, sm: 52 },
+											transition: "all 0.25s ease-in-out",
+											boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+											"&:hover": {
+												borderWidth: 2,
+												borderColor: "primary.main",
+												bgcolor: "primary.light",
+												transform: "translateY(-2px)",
+												boxShadow: "0 4px 16px rgba(102, 126, 234, 0.2)",
+											},
+											"&:active": {
+												transform: "translateY(0)",
+												boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+											},
+											"&.Mui-disabled": {
+												borderColor: "action.disabledBackground",
+												bgcolor: "action.disabledBackground",
+												color: "action.disabled",
+											},
 										}}
 									>
-										<GoogleIcon width={20} height={20} />
-										<span>{isLoading ? "Connecting..." : "Continue with Google"}</span>
-									</Box>
-								</Button>
-							</Box>
+										<Box
+											sx={{
+												display: "flex",
+												alignItems: "center",
+												justifyContent: "center",
+												gap: 1.5,
+											}}
+										>
+											<GoogleIcon width={20} height={20} />
+											<span>{isLoading ? "Connecting..." : "Continue with Google"}</span>
+										</Box>
+									</Button>
+								</Box>
+							)}
 
-							{/* Feature Highlights */}
 							<Box
 								sx={{ mt: 4, pt: 4, borderTop: "1px solid", borderColor: "divider", width: "100%" }}
 							>
@@ -177,7 +213,6 @@ export const LoginPage = () => {
 								</Stack>
 							</Box>
 
-							{/* Footer */}
 							<Box sx={{ mt: 2 }}>
 								<Typography
 									variant="caption"
@@ -197,7 +232,6 @@ export const LoginPage = () => {
 	);
 };
 
-// Helper component for feature items
 const FeatureItem = ({ icon, text }: { icon: string; text: string }) => (
 	<Box
 		sx={{

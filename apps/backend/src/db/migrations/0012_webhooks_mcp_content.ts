@@ -28,19 +28,9 @@ change(async (db) => {
 		"campaign.clicked",
 	]);
 
-	await db.createEnum("public.mcp_provider", [
-		"claude",
-		"anthropic",
-		"make",
-		"zapier",
-	]);
+	await db.createEnum("public.mcp_provider", ["claude", "anthropic", "make", "zapier"]);
 
-	await db.createEnum("public.mcp_conectar_status", [
-		"ativo",
-		"inativo",
-		"erro",
-		"pendente",
-	]);
+	await db.createEnum("public.mcp_conectar_status", ["ativo", "inativo", "erro", "pendente"]);
 
 	await db.createEnum("public.conteudo_tipo", [
 		"blog-post",
@@ -80,11 +70,7 @@ change(async (db) => {
 			createdAt: t.timestamps().createdAt,
 			updatedAt: t.timestamps().updatedAt,
 		}),
-		(t) => [
-			t.index(["clienteId"]),
-			t.index(["eventoTipo"]),
-			t.index(["ativo"]),
-		],
+		(t) => [t.index(["clienteId"]), t.index(["eventoTipo"]), t.index(["ativo"])],
 	);
 
 	// Webhook delivery queue
@@ -107,11 +93,7 @@ change(async (db) => {
 			createdAt: t.timestamps().createdAt,
 			updatedAt: t.timestamps().updatedAt,
 		}),
-		(t) => [
-			t.index(["webhookId"]),
-			t.index(["statusEntrega"]),
-			t.index(["proximaTentativa"]),
-		],
+		(t) => [t.index(["webhookId"]), t.index(["statusEntrega"]), t.index(["proximaTentativa"])],
 	);
 
 	// Events audit log
@@ -130,11 +112,7 @@ change(async (db) => {
 			processado: t.boolean().default(false),
 			createdAt: t.timestamps().createdAt,
 		}),
-		(t) => [
-			t.index(["clienteId"]),
-			t.index(["tipo"]),
-			t.index(["processado"]),
-		],
+		(t) => [t.index(["clienteId"]), t.index(["tipo"]), t.index(["processado"])],
 	);
 
 	// SLICE 14 - MCP CONNECTORS
@@ -159,11 +137,7 @@ change(async (db) => {
 			createdAt: t.timestamps().createdAt,
 			updatedAt: t.timestamps().updatedAt,
 		}),
-		(t) => [
-			t.index(["clienteId"]),
-			t.index(["provider"]),
-			t.index(["status"]),
-		],
+		(t) => [t.index(["clienteId"]), t.index(["provider"]), t.index(["status"])],
 	);
 
 	// SLICE 15 - CONTENT ENGINE
@@ -183,7 +157,7 @@ change(async (db) => {
 			seoSlug: t.text().nullable(),
 			metaTags: t.json().nullable(),
 			dataPublicacao: t.timestamp().nullable(),
-			clienteId: t.uuid().foreignKey("clients", "clienteId", {
+			clienteId: t.uuid().foreignKey("clients", "clientId", {
 				onUpdate: "RESTRICT",
 				onDelete: "RESTRICT",
 			}),
@@ -194,12 +168,7 @@ change(async (db) => {
 			createdAt: t.timestamps().createdAt,
 			updatedAt: t.timestamps().updatedAt,
 		}),
-		(t) => [
-			t.index(["clienteId"]),
-			t.index(["tipo"]),
-			t.index(["status"]),
-			t.index(["slug"]),
-		],
+		(t) => [t.index(["clienteId"]), t.index(["tipo"]), t.index(["status"]), t.index(["slug"])],
 	);
 
 	// Content revisions
@@ -219,9 +188,6 @@ change(async (db) => {
 			}),
 			createdAt: t.timestamps().createdAt,
 		}),
-		(t) => [
-			t.index(["conteudoId"]),
-			t.index(["revisorId"]),
-		],
+		(t) => [t.index(["conteudoId"]), t.index(["revisorId"])],
 	);
 });
