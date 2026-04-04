@@ -1,5 +1,7 @@
+import { TRPCError } from "@trpc/server";
 import { db } from "@backend/db/db";
 import { protectedProcedure, trpcRouter } from "@backend/trpc";
+import { clientTypeZod } from "@connected-repo/zod-schemas/crm_enums.zod";
 import {
 	leadCreateInputZod,
 	leadGetByIdZod,
@@ -31,7 +33,9 @@ export const leadsRouterTrpc = trpcRouter({
 	}),
 
 	getLeadDetail: protectedProcedure.input(leadGetByIdZod).query(async ({ input: { leadId } }) => {
-		return db.leads.find(leadId);
+		const lead = await db.leads.findOptional(leadId);
+		if (!lead) throw new TRPCError({ code: "NOT_FOUND", message: "Lead não encontrado" });
+		return lead;
 	}),
 
 	createLead: protectedProcedure.input(leadCreateInputZod).mutation(async ({ input }) => {
@@ -41,24 +45,27 @@ export const leadsRouterTrpc = trpcRouter({
 	updateLead: protectedProcedure
 		.input(leadUpdateInputZod)
 		.mutation(async ({ input: { leadId, ...data } }) => {
-			return db.leads.find(leadId).update(data);
+			const lead = await db.leads.findOptional(leadId);
+			if (!lead) throw new TRPCError({ code: "NOT_FOUND", message: "Lead não encontrado" });
+			return db.leads.where({ leadId }).update(data);
 		}),
 
 	convertLeadToClient: protectedProcedure
-		.input(leadGetByIdZod)
-		.mutation(async ({ input: { leadId } }) => {
+		.input(leadGetByIdZod.extend({ tipo: clientTypeZod.optional() }))
+		.mutation(async ({ input: { leadId, tipo } }) => {
 			return db.$transaction(async () => {
-				const lead = await db.leads.find(leadId);
+				const lead = await db.leads.findOptional(leadId);
+				if (!lead) throw new TRPCError({ code: "NOT_FOUND", message: "Lead não encontrado" });
 
 				const client = await db.clients.create({
 					nome: lead.nome,
-					tipo: "Pessoa Física",
+					tipo: tipo ?? "Pessoa Física",
 					email: lead.email,
 					telefone: lead.telefone,
 					responsavelId: lead.responsavelId,
 				});
 
-				await db.leads.find(leadId).update({
+				await db.leads.where({ leadId }).update({
 					status: "Ganho",
 					convertidoClienteId: client.clientId,
 				});
