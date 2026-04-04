@@ -1,3 +1,4 @@
+import { TRPCError } from "@trpc/server";
 import { db } from "@backend/db/db";
 import { protectedProcedure, trpcRouter } from "@backend/trpc";
 import {
@@ -42,36 +43,50 @@ export const scheduleRouterTrpc = trpcRouter({
 		.input(scheduleGetByIdZod)
 		.query(async ({ input: { scheduleId } }) => {
 			const schedule = await db.schedules.findOptional(scheduleId);
-			if (!schedule) throw new Error("Agendamento não encontrado");
+			if (!schedule) throw new TRPCError({ code: "NOT_FOUND", message: "Agendamento não encontrado" });
 			return schedule;
 		}),
 
 	createSchedule: protectedProcedure.input(scheduleCreateInputZod).mutation(async ({ input }) => {
+		const cliente = await db.clients.findOptional(input.clienteId);
+		if (!cliente) throw new TRPCError({ code: "NOT_FOUND", message: "Cliente não encontrado" });
+		if (input.tecnicoId) {
+			const tecnico = await db.users.findOptional(input.tecnicoId);
+			if (!tecnico) throw new TRPCError({ code: "NOT_FOUND", message: "Técnico não encontrado" });
+		}
 		return db.schedules.create(input);
 	}),
 
 	updateSchedule: protectedProcedure
 		.input(scheduleUpdateInputZod)
 		.mutation(async ({ input: { scheduleId, ...data } }) => {
-			return db.schedules.find(scheduleId).update(data);
+			const schedule = await db.schedules.findOptional(scheduleId);
+			if (!schedule) throw new TRPCError({ code: "NOT_FOUND", message: "Agendamento não encontrado" });
+			return db.schedules.where({ scheduleId }).update(data);
 		}),
 
 	confirmarAgendamento: protectedProcedure
 		.input(scheduleGetByIdZod)
 		.mutation(async ({ input: { scheduleId } }) => {
-			return db.schedules.find(scheduleId).update({ status: "Confirmado" });
+			const schedule = await db.schedules.findOptional(scheduleId);
+			if (!schedule) throw new TRPCError({ code: "NOT_FOUND", message: "Agendamento não encontrado" });
+			return db.schedules.where({ scheduleId }).update({ status: "Confirmado" });
 		}),
 
 	iniciarAtendimento: protectedProcedure
 		.input(scheduleGetByIdZod)
 		.mutation(async ({ input: { scheduleId } }) => {
-			return db.schedules.find(scheduleId).update({ status: "Em Andamento" });
+			const schedule = await db.schedules.findOptional(scheduleId);
+			if (!schedule) throw new TRPCError({ code: "NOT_FOUND", message: "Agendamento não encontrado" });
+			return db.schedules.where({ scheduleId }).update({ status: "Em Andamento" });
 		}),
 
 	concluirAtendimento: protectedProcedure
 		.input(scheduleGetByIdZod)
 		.mutation(async ({ input: { scheduleId } }) => {
-			return db.schedules.find(scheduleId).update({ status: "Concluído" });
+			const schedule = await db.schedules.findOptional(scheduleId);
+			if (!schedule) throw new TRPCError({ code: "NOT_FOUND", message: "Agendamento não encontrado" });
+			return db.schedules.where({ scheduleId }).update({ status: "Concluído" });
 		}),
 
 	cancelarAgendamento: protectedProcedure
@@ -82,8 +97,8 @@ export const scheduleRouterTrpc = trpcRouter({
 			}),
 		)
 		.mutation(async ({ input: { scheduleId, motivoCancelamento } }) => {
-			return db.schedules
-				.find(scheduleId)
-				.update({ status: "Cancelado", motivoCancelamento: motivoCancelamento ?? null });
+			const schedule = await db.schedules.findOptional(scheduleId);
+			if (!schedule) throw new TRPCError({ code: "NOT_FOUND", message: "Agendamento não encontrado" });
+			return db.schedules.where({ scheduleId }).update({ status: "Cancelado", motivoCancelamento: motivoCancelamento ?? null });
 		}),
 });
