@@ -2,12 +2,14 @@
 
 title: "PRD Técnico — Refrimix Tecnologia CRM Vertical para Climatização com IA, MCP e n8n"
 document_type: "PRD"
-status: "in-execution"
+status: "deprecated"
 product_name: "Refrimix Tecnologia"
 updated_at: "2026-03-18"
 execution_phase: "Slices 13–15 — Webhooks / MCP Connectors / Content Engine (Phase 3 In Progress)"
 updated_at: "2026-03-19T19:48:00Z"
 language: "pt-BR"
+deprecated_reason: "Este PRD foi desmembrado em ADRs padronizados. See: ADR 0001-0010"
+deprecated_by: "adr-0001, adr-0002, adr-0003, adr-0004, adr-0005, adr-0006, adr-0007, adr-0008, adr-0009, adr-0010"
 repository_template:
 backend: "backend/"
 frontend: "frontend/"
