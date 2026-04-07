@@ -11,7 +11,7 @@
         {
           "id": "TASK-1A",
           "name": "Deploy AlertManager + Gotify",
-          "status": "pending",
+          "status": "completed",
           "files": [
             "/srv/apps/monitoring/docker-compose.yml",
             "/srv/apps/monitoring/alertmanager.yml"
@@ -22,7 +22,7 @@
         {
           "id": "TASK-1B",
           "name": "Health check cron with AlertManager",
-          "status": "pending",
+          "status": "completed",
           "files": [
             "/srv/ops/scripts/homelab-health-check.sh"
           ],
@@ -38,7 +38,7 @@
         {
           "id": "TASK-2A",
           "name": "Enhance Qdrant backup script",
-          "status": "pending",
+          "status": "completed",
           "files": [
             "/srv/ops/scripts/backup-qdrant.sh"
           ],
@@ -48,7 +48,7 @@
         {
           "id": "TASK-2B",
           "name": "Qdrant backup cron + verification",
-          "status": "pending",
+          "status": "completed",
           "files": [
             "/srv/ops/scripts/verify-qdrant-restore.sh"
           ],
