@@ -14,6 +14,7 @@ Conjunto de guias operacionais para manutenção e administração do homelab.
 - [OpenClaw MCP & TTS Setup](./openclaw-mcp-setup.md)
 - [OpenClaw Auto-Conhecimento](./openclaw-prompt.md)
 - [CEO MIX — Manual de Treinamento](./openclaw-training.md)
+- [CEO MIX — Habilidades de Infraestrutura](./openclaw-infra-abilities.md)
 
 ---
 
