@@ -81,7 +81,13 @@ MCPs/
 └── MCP_TOKENS_GUIDE.md      ← Guia de tokens MCP
 ```
 
-### Layer 4 — Templates
+### Layer 4 — AI Tools Workflow
+```
+WORKFLOW.md                   ← 3 tools + AI-CONTEXT (host + desktop + bot)
+AI-CONTEXT.md                 ← Sincronização de docs após feature
+```
+
+### Layer 5 — Templates
 ```
 TEMPLATES/
 ├── incident-report.md        ← Template de incidente
