@@ -1,0 +1,1 @@
+Identifica tasks bloqueadas que requerem aprovação humana antes de prosseguir. Deteta gates: security, needs-approval, blocked, PM-review, legal, UX-review. Lista cada gate com owner responsável e ação requerida.

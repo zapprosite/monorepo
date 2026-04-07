@@ -1,0 +1,40 @@
+#!/bin/bash
+# Pre-commit secrets audit
+# Scans staged files for exposed secrets before git commit
+
+set -e
+
+REPO_DIR="$(git rev-parse --show-toplevel 2>/dev/null || echo .)"
+cd "$REPO_DIR"
+
+# Patterns for secrets (GitHub tokens, AWS keys, OpenAI keys)
+PATTERNS="ghp_[A-Za-z0-9]\{36\}|gho_[A-Za-z0-9]\{36\}|ghu_[A-Za-z0-9]\{36\}|ghs_[A-Za-z0-9]\{36\}|ghr_[A-Za-z0-9]\{36\}|AKIA[0-9A-Z]\{16\}|sk-[A-Za-z0-9]\{40,\}"
+
+# Get list of staged files
+STAGED_FILES=$(git diff --cached --name-only 2>/dev/null || echo "")
+
+if [ -z "$STAGED_FILES" ]; then
+    exit 0
+fi
+
+# Check each file type for secrets
+FOUND=0
+for ext in ts js jsx tsx py go env yaml yml json sh; do
+    FILES=$(echo "$STAGED_FILES" | grep -E "\.$ext$" || true)
+    if [ -n "$FILES" ]; then
+        MATCHES=$(echo "$FILES" | xargs grep -rnE "$PATTERNS" 2>/dev/null || true)
+        if [ -n "$MATCHES" ]; then
+            echo "SECRETS DETECTED in staged files:"
+            echo "$MATCHES" | head -20
+            FOUND=1
+        fi
+    fi
+done
+
+if [ $FOUND -eq 1 ]; then
+    echo ""
+    echo "Commit BLOCKED - secrets found. Remove secrets or use --no-verify to bypass."
+    exit 1
+fi
+
+exit 0
