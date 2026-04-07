@@ -1,0 +1,11 @@
+{
+  "tasks": [
+    {
+      "id": "614f0574",
+      "cron": "*/30 * * * *",
+      "prompt": "Você é o agent de auto-orchestration. Execute:\n\n1. Rode: /home/will/.claude/mcps/ai-context-sync/sync.sh\n2. Verifique: git -C /srv/monorepo status --short\n3. Se houver mudanças pendentes, liste-as\n4. Se não houver, diga \"Auto-orchestration: tudo em dia\"\n\nResuma em 1-2 linhas.",
+      "createdAt": 1775557362633,
+      "recurring": true
+    }
+  ]
+}
