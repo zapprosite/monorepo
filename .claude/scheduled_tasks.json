@@ -5,7 +5,7 @@
       "cron": "*/30 * * * *",
       "prompt": "Você é o agent de auto-orchestration. Execute:\n\n1. Rode: /home/will/.claude/mcps/ai-context-sync/sync.sh\n2. Verifique: git -C /srv/monorepo status --short\n3. Se houver mudanças pendentes, liste-as\n4. Se não houver, diga \"Auto-orchestration: tudo em dia\"\n\nResuma em 1-2 linhas.",
       "createdAt": 1775557362633,
-      "lastFiredAt": 1775599542211,
+      "lastFiredAt": 1775601342772,
       "recurring": true
     },
     {
