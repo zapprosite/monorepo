@@ -1,0 +1,152 @@
+{
+  "name": "homelab-estavel",
+  "description": "Home Lab Stabilization Pipeline — Alerting, Backup, DNS, Offsite, Watchdog",
+  "version": "1.0.0",
+  "created": "2026-04-07",
+  "phases": [
+    {
+      "phase": 1,
+      "name": "Alerting & Monitoring",
+      "tasks": [
+        {
+          "id": "TASK-1A",
+          "name": "Deploy AlertManager + Gotify",
+          "status": "pending",
+          "files": [
+            "/srv/apps/monitoring/docker-compose.yml",
+            "/srv/apps/monitoring/alertmanager.yml"
+          ],
+          "verification": "Alert fires on service down within 60 seconds",
+          "test": "docker stop qdrant && sleep 60 && docker start qdrant"
+        },
+        {
+          "id": "TASK-1B",
+          "name": "Health check cron with AlertManager",
+          "status": "pending",
+          "files": [
+            "/srv/ops/scripts/homelab-health-check.sh"
+          ],
+          "verification": "Cron runs every 5min, alerts fire on failure",
+          "test": "crontab -l | grep health-check"
+        }
+      ]
+    },
+    {
+      "phase": 2,
+      "name": "Qdrant Backup System",
+      "tasks": [
+        {
+          "id": "TASK-2A",
+          "name": "Enhance Qdrant backup script",
+          "status": "pending",
+          "files": [
+            "/srv/ops/scripts/backup-qdrant.sh"
+          ],
+          "verification": "tar -tzf shows valid backup, old backups rotated",
+          "test": "./backup-qdrant.sh && tar -tzf /srv/backups/qdrant/*.tar.gz | head"
+        },
+        {
+          "id": "TASK-2B",
+          "name": "Qdrant backup cron + verification",
+          "status": "pending",
+          "files": [
+            "/srv/ops/scripts/verify-qdrant-restore.sh"
+          ],
+          "verification": "Backup exists from today, weekly restore test passes",
+          "test": "ls -la /srv/backups/qdrant/"
+        }
+      ]
+    },
+    {
+      "phase": 3,
+      "name": "Internal DNS",
+      "tasks": [
+        {
+          "id": "TASK-3A",
+          "name": "Deploy CoreDNS",
+          "status": "pending",
+          "files": [
+            "/srv/apps/dns/Corefile",
+            "/srv/apps/dns/docker-compose.yml"
+          ],
+          "verification": "curl http://qdrant:6333 works from any container",
+          "test": "docker exec openclaw-qgtzrmi6771lt8l7x8rqx72f getent hosts qdrant"
+        },
+        {
+          "id": "TASK-3B",
+          "name": "Update service configs to use hostnames",
+          "status": "pending",
+          "files": [
+            "/home/will/zappro-lite/config.yaml",
+            "/data/.openclaw/openclaw.json"
+          ],
+          "verification": "grep -r '10.0.' returns nothing",
+          "test": "grep -r '10\\.0\\.' /srv/apps/*/docker-compose.yml"
+        }
+      ]
+    },
+    {
+      "phase": 4,
+      "name": "Offsite Backup",
+      "tasks": [
+        {
+          "id": "TASK-4A",
+          "name": "Configure rclone to offsite target",
+          "status": "pending",
+          "files": [
+            "/srv/ops/scripts/backup-offsite.sh",
+            "/root/.config/rclone/rclone.conf"
+          ],
+          "verification": "rclone listremotes shows remote configured",
+          "test": "rclone listremotes"
+        },
+        {
+          "id": "TASK-4B",
+          "name": "Offsite backup script + monitoring",
+          "status": "pending",
+          "files": [
+            "/srv/ops/scripts/offsite-backup-alerts.sh"
+          ],
+          "verification": "Data exists offsite within 24h, Grafana shows backup age",
+          "test": "rclone ls remote:bucket/backup --max-age 48h"
+        }
+      ]
+    },
+    {
+      "phase": 5,
+      "name": "Watchdog Stabilization",
+      "tasks": [
+        {
+          "id": "TASK-5A",
+          "name": "Diagnose watchdog cycling root cause",
+          "status": "pending",
+          "files": [
+            "/srv/monorepo/docs/INFRASTRUCTURE/OPENCLAW_DEBUG.md"
+          ],
+          "verification": "Root cause documented",
+          "test": "cat /srv/monorepo/docs/INFRASTRUCTURE/OPENCLAW_DEBUG.md"
+        },
+        {
+          "id": "TASK-5B",
+          "name": "Stabilize Whisper STT endpoint",
+          "status": "pending",
+          "files": [
+            "/data/.openclaw/openclaw.json",
+            "/home/will/Desktop/voice-pipeline/scripts/openclaw-stt-watchdog.sh"
+          ],
+          "verification": "No cycling in 24h, STT responds consistently",
+          "test": "docker logs openclaw-qgtzrmi6771lt8l7x8rqx72f --since 24h | grep -i watchdog"
+        }
+      ]
+    }
+  ],
+  "current_state": {
+    "whisper_api": "container whisper-api-gpu on network qgtzrmi6771lt8l7x8rqx72f",
+    "kokoro_tts": "healthy on localhost:8012",
+    "llava_vision": "working via LiteLLM :4000",
+    "deepgram": "fallback STT cloud",
+    "infisical": "vault running on :8200",
+    "gpu": "RTX 4090 24GB, 2GB used"
+  },
+  "order": ["TASK-1A", "TASK-1B", "TASK-2A", "TASK-2B", "TASK-3A", "TASK-3B", "TASK-4A", "TASK-4B", "TASK-5A", "TASK-5B"]
+}
