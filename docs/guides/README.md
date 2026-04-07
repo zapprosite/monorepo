@@ -11,6 +11,9 @@ Conjunto de guias operacionais para manutenção e administração do homelab.
 - [Security Hardening](./security-hardening.md)
 - [Infisical Self-Hosted](./infisical.md)
 - [Whisper Auto Local](./whisper-auto-local.md)
+- [OpenClaw MCP & TTS Setup](./openclaw-mcp-setup.md)
+- [OpenClaw Auto-Conhecimento](./openclaw-prompt.md)
+- [CEO MIX — Manual de Treinamento](./openclaw-training.md)
 
 ---
 
