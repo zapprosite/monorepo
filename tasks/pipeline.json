@@ -138,6 +138,22 @@
           "test": "docker logs openclaw-qgtzrmi6771lt8l7x8rqx72f --since 24h | grep -i watchdog"
         }
       ]
+    },
+    {
+      "phase": 6,
+      "name": "AI Monitoring (Gemma4)",
+      "tasks": [
+        {
+          "id": "TASK-6A",
+          "name": "Gemma4 AI homelab monitor via Ollama",
+          "status": "completed",
+          "files": [
+            "/srv/ops/scripts/homelab-gemma-monitor.sh"
+          ],
+          "verification": "Gemma4 analisa logs a cada 15min e envia Telegram se encontrar problemas",
+          "test": "systemctl status homelab-gemma-monitor.timer"
+        }
+      ]
     }
   ],
   "current_state": {
@@ -146,7 +162,8 @@
     "llava_vision": "working via LiteLLM :4000",
     "deepgram": "fallback STT cloud",
     "infisical": "vault running on :8200",
-    "gpu": "RTX 4090 24GB, 2GB used"
+    "gpu": "RTX 4090 24GB, 2GB used",
+    "gemma4": "Ollama local — monitora homelab a cada 15min via systemd timer"
   },
-  "order": ["TASK-1A", "TASK-1B", "TASK-2A", "TASK-2B", "TASK-3A", "TASK-3B", "TASK-4A", "TASK-4B", "TASK-5A", "TASK-5B"]
+  "order": ["TASK-1A", "TASK-1B", "TASK-2A", "TASK-2B", "TASK-3A", "TASK-3B", "TASK-4A", "TASK-4B", "TASK-5A", "TASK-5B", "TASK-6A"]
 }
