@@ -32,6 +32,46 @@
       "lastFiredAt": null,
       "recurring": false,
       "oneShot": true
+    },
+    {
+      "id": "modo-dormir-daily",
+      "cron": "0 3 * * *",
+      "prompt": "Você é o agent modo-dormir. Execute:\n\n1. Escaneie docs/specflow/SPEC-*.md por specs pendentes\n2. Escaneie tasks/pipeline.json por tasks abertas\n3. Gere pipeline.json atualizado em tasks/pipeline.json\n4. Liste as 3 tasks mais prioritárias\n\nResuma em 2-3 linhas.",
+      "createdAt": 1775587500000,
+      "lastFiredAt": null,
+      "recurring": true
+    },
+    {
+      "id": "code-review-daily",
+      "cron": "0 4 * * *",
+      "prompt": "Você é o agent review-zappro. Execute code review dos últimos commits:\n\n1. git -C /srv/monorepo log --oneline -10\n2. Analise as mudanças principais\n3. Identifique issues críticos se houver\n\nSe tudo ok, diga 'Code review: OK — sem issues críticos'. Se encontrar problemas, liste-os.",
+      "createdAt": 1775587500000,
+      "lastFiredAt": null,
+      "recurring": true
+    },
+    {
+      "id": "test-coverage-daily",
+      "cron": "0 5 * * *",
+      "prompt": "Verifique coverage de testes:\n\n1. cd /srv/monorepo && bun run test --coverage 2>/dev/null || echo 'No coverage command'\n2. Liste áreas com coverage baixo (<70%)\n3. Liste testes que estão a falhar\n\nResuma em 2-3 linhas.",
+      "createdAt": 1775587500000,
+      "lastFiredAt": null,
+      "recurring": true
+    },
+    {
+      "id": "secrets-audit-daily",
+      "cron": "0 6 * * *",
+      "prompt": "Você é o agent secrets-audit. Execute scan de secrets:\n\n1. grep -rE '(ghp|gho|ghu|ghs|ghr)_[A-Za-z0-9]{36}|AKIA[0-9A-Z]{16}|sk-[A-Za-z0-9]{48}' /srv/monorepo --include='*.ts' --include='*.js' --include='*.env' 2>/dev/null | head -10\n2. Se encontrar secrets, liste locations\n3. Se não encontrar, diga 'Secrets audit: OK'\n\nResuma em 2-3 linhas.",
+      "createdAt": 1775587500000,
+      "lastFiredAt": null,
+      "recurring": true
+    },
+    {
+      "id": "mcp-health-daily",
+      "cron": "0 8 * * *",
+      "prompt": "Verifique estado dos MCP servers:\n\n1. ls ~/.claude/mcp-servers.json 2>/dev/null && cat ~/.claude/mcp-servers.json | jq '.servers[].name' 2>/dev/null || echo 'No MCP config'\n2. Liste cada server com status ( UP / DOWN / DEGRADED )\n\nSe todos OK, diga 'MCP health: OK — todos os servers up'. Se algum down, liste-os.",
+      "createdAt": 1775587500000,
+      "lastFiredAt": null,
+      "recurring": true
     }
   ]
 }
