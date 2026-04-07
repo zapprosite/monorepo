@@ -1,127 +1,140 @@
 #!/bin/bash
-# Smoke Test Runner — Simulates pipelines with errors/conflicts
-# Generates results for review
-
-set -e
+# Smoke Test Runner — Real health checks against services
+# Exit codes: 0=all pass, 1=some fail
 
 DIR="$(dirname "$0")"
 RESULTS_DIR="$DIR/results"
 mkdir -p "$RESULTS_DIR"
-TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-
-# Simulated results — pipeline errors and conflicts
-# Real execution would run actual commands
+TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+OVERALL_STATUS=0
 
 echo "=== Smoke Test Runner ==="
 echo "Timestamp: $TIMESTAMP"
 echo ""
 
-run_pipeline() {
-    local pipeline=$1
-    local name=$(basename "$pipeline" .yaml)
-    local result_file="$RESULTS_DIR/${name}.json"
+# Services on localhost (host network)
+declare -a LOCAL_TESTS=(
+    "whisper-api:8201:/health:200:true"
+    "ollama:11434:/api/tags:200:true"
+    "grafana:3100:/api/health:200:true"
+    "loki:3101:/ready:200:true"
+    "kokoro:8012:/v1/models:200:true"
+)
 
-    echo "Running: $name"
-    echo "---"
+echo "=== Local Services (Host Network) ==="
+for test_spec in "${LOCAL_TESTS[@]}"; do
+    IFS=':' read -r service port path expected critical <<< "$test_spec"
+    http_code=$(curl -s -o /dev/null -w "%{http_code}" "http://localhost:${port}${path}" 2>/dev/null || echo "000")
 
-    # Simulate different outcomes
-    case $name in
-        pipeline-whisper-gpu)
-            # SUCCESS — all green
-            cat > "$result_file" << 'EOF'
-{
-  "pipeline": "pipeline-whisper-gpu",
-  "status": "PASS",
-  "timestamp": "2026-04-07T18:30:00Z",
-  "results": [
-    {"id": "WT-001", "status": "PASS", "output": "18432"},
-    {"id": "WT-002", "status": "PASS", "output": "Up"},
-    {"id": "WT-003", "status": "PASS", "output": "200"},
-    {"id": "WT-004", "status": "PASS", "output": "1"},
-    {"id": "WT-005", "status": "PASS", "output": "/srv/data/whisper-models:/app/models"}
-  ],
-  "summary": {"passed": 5, "failed": 0, "warnings": 0}
-}
-EOF
-            echo "  Result: PASS (5/5 tests)"
-            ;;
+    passed=0
+    if [ "$http_code" = "$expected" ]; then
+        passed=1
+    fi
 
-        pipeline-alerting)
-            # CONFLICT — AL-005 timeout (warning, non-critical)
-            cat > "$result_file" << 'EOF'
-{
-  "pipeline": "pipeline-alerting",
-  "status": "CONFLICT",
-  "timestamp": "2026-04-07T18:31:00Z",
-  "results": [
-    {"id": "AL-001", "status": "PASS", "output": "Up"},
-    {"id": "AL-002", "status": "PASS", "output": "200"},
-    {"id": "AL-003", "status": "PASS", "output": "true"},
-    {"id": "AL-004", "status": "PASS", "output": "{\"ok\": true}"},
-    {"id": "AL-005", "status": "WARN", "output": "Connection timeout after 2s", "expected": "200", "actual": "timeout"}
-  ],
-  "summary": {"passed": 4, "failed": 0, "warnings": 1},
-  "issues": [
-    {
-      "severity": "WARNING",
-      "id": "AL-005",
-      "type": "CONFLICT",
-      "description": "AlertManager config reload endpoint unreachable (timeout)",
-      "impact": "Non-critical — AlertManager will reload on next container restart",
-      "fix": "Check if port 9093 is exposed and firewall allows localhost access"
-    }
-  ]
-}
-EOF
-            echo "  Result: CONFLICT (4 passed, 1 warning)"
-            echo "  ⚠️  AL-005: AlertManager reload timeout"
-            ;;
+    status="PASS"
+    if [ "$passed" -eq 0 ]; then
+        status="FAIL"
+        if [ "$critical" = "true" ]; then
+            OVERALL_STATUS=1
+        fi
+    fi
+    printf "  %-4s %-20s http://localhost:%s%s (HTTP: %s)\n" "[$status]" "$service" "$port" "$path" "$http_code"
+done
 
-        pipeline-dns)
-            # ERROR — DNS-002 wrong IP
-            cat > "$result_file" << 'EOF'
-{
-  "pipeline": "pipeline-dns",
-  "status": "FAIL",
-  "timestamp": "2026-04-07T18:32:00Z",
-  "results": [
-    {"id": "DNS-001", "status": "PASS", "output": "Up"},
-    {"id": "DNS-002", "status": "FAIL", "output": "10.0.1.10", "expected": "10.0.1.5", "actual": "10.0.1.10"},
-    {"id": "DNS-003", "status": "PASS", "output": "3"},
-    {"id": "DNS-004", "status": "PASS", "output": "open"}
-  ],
-  "summary": {"passed": 3, "failed": 1, "warnings": 0},
-  "issues": [
-    {
-      "severity": "CRITICAL",
-      "id": "DNS-002",
-      "type": "ERROR",
-      "description": "DNS resolution returns wrong IP for qdrant",
-      "impact": "Services cannot reach qdrant — vector search broken",
-      "fix": "Update Corefile forward rule: forward . 10.0.1.5"
-    }
-  ]
-}
-EOF
-            echo "  Result: FAIL (3 passed, 1 failed)"
-            echo "  ❌ DNS-002: Wrong IP for qdrant (expected 10.0.1.5, got 10.0.1.10)"
-            ;;
-    esac
+echo ""
+echo "=== Internal Services (Docker Networks) ==="
+# These are on Docker-internal networks, check via docker exec or just container status
+declare -a DOCKER_SERVICES=(
+    "zappro-litellm:4000:/health:200:true"
+    "qdrant:6333:/health:200:true"
+    "n8n:5678:/health:200:true"
+)
 
-    echo ""
-}
+for test_spec in "${DOCKER_SERVICES[@]}"; do
+    IFS=':' read -r service port path expected critical <<< "$test_spec"
+    # Try localhost first (might work via host network)
+    http_code=$(curl -s -o /dev/null -w "%{http_code}" "http://localhost:${port}${path}" 2>/dev/null || echo "000")
 
-# Run all pipelines
-for pipeline in "$DIR"/*.yaml; do
-    if [ -f "$pipeline" ]; then
-        run_pipeline "$pipeline"
+    # If that fails, check via docker network
+    if [ "$http_code" = "000" ]; then
+        # Try via docker network - find container IP
+        container_name=$(docker ps --format '{{.Names}}' | grep -i "$service" | head -1)
+        if [ -n "$container_name" ]; then
+            # Get container IP from its network
+            container_ip=$(docker inspect "$container_name" --format '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' 2>/dev/null)
+            if [ -n "$container_ip" ]; then
+                http_code=$(curl -s -o /dev/null -w "%{http_code}" "http://${container_ip}:${port}${path}" 2>/dev/null || echo "000")
+            fi
+        fi
+    fi
+
+    passed=0
+    if [ "$http_code" = "$expected" ]; then
+        passed=1
+    fi
+
+    status="PASS"
+    if [ "$passed" -eq 0 ]; then
+        status="WARN"
+        # Don't fail overall for internal services - container status is the real check
+    fi
+    printf "  %-4s %-20s :%s%s (HTTP: %s)\n" "[$status]" "$service" "$port" "$path" "$http_code"
+done
+
+echo ""
+echo "=== Container Status ==="
+declare -a CONTAINERS=(
+    "whisper-api-gpu"
+    "zappro-litellm"
+    "grafana"
+    "loki"
+    "prometheus"
+    "alertmanager"
+    "qdrant"
+    "n8n"
+    "zappro-kokoro"
+    "mcp-qdrant"
+)
+
+for container in "${CONTAINERS[@]}"; do
+    status=$(docker ps --filter "name=$container" --format '{{.Status}}' 2>/dev/null) || status=""
+    if [ -n "$status" ] && echo "$status" | grep -q "Up"; then
+        printf "  %-4s %s (%s)\n" "[PASS]" "$container" "$status"
+    else
+        printf "  %-4s %s (not running)\n" "[FAIL]" "$container"
+        OVERALL_STATUS=1
     fi
 done
 
-# Generate summary
-echo "=== Summary ==="
-echo "pipeline-whisper-gpu: PASS"
-echo "pipeline-alerting:    CONFLICT (1 warning)"
-echo "pipeline-dns:         FAIL (1 critical error)"
 echo ""
-echo "Full results in: $RESULTS_DIR/"
+echo "=== GPU Status ==="
+gpu_used=$(nvidia-smi --query-gpu=memory.used --format=csv,noheader,nounits 2>/dev/null) || gpu_used="N/A"
+gpu_total=$(nvidia-smi --query-gpu=memory.total --format=csv,noheader,nounits 2>/dev/null) || gpu_total="N/A"
+printf "  VRAM: %s / %s MiB\n" "$gpu_used" "$gpu_total"
+
+echo ""
+echo "=== ZFS Pool ==="
+zfs_status=$(zpool status tank 2>/dev/null | grep "state:" | awk '{print $2}')
+printf "  Pool 'tank': %s\n" "$zfs_status"
+
+echo ""
+echo "=== Summary ==="
+if [ "$OVERALL_STATUS" -eq 0 ]; then
+    echo "All checks: PASS"
+else
+    echo "Some checks: FAIL"
+fi
+
+# Write results JSON
+cat > "$RESULTS_DIR/latest.json" << EOF
+{
+  "timestamp": "$TIMESTAMP",
+  "status": $OVERALL_STATUS,
+  "services_checked": ${#CONTAINERS[@]},
+  "summary": "smoke tests completed"
+}
+EOF
+
+echo ""
+echo "Results saved to: $RESULTS_DIR/latest.json"
+exit $OVERALL_STATUS
