@@ -5,7 +5,7 @@
       "cron": "*/30 * * * *",
       "prompt": "Você é o agent de auto-orchestration. Execute:\n\n1. Rode: /home/will/.claude/mcps/ai-context-sync/sync.sh\n2. Verifique: git -C /srv/monorepo status --short\n3. Se houver mudanças pendentes, liste-as\n4. Se não houver, diga \"Auto-orchestration: tudo em dia\"\n\nResuma em 1-2 linhas.",
       "createdAt": 1775557362633,
-      "lastFiredAt": 1775586943046,
+      "lastFiredAt": 1775594018045,
       "recurring": true
     },
     {
@@ -13,56 +13,43 @@
       "cron": "*/90 * * * *",
       "prompt": "Rode: /home/will/.claude/mcps/ai-context-sync/checkpoint.sh\n\nSe houver output (changes), liste os arquivos pendentes. Se não, diga apenas 'Checkpoint: OK'.",
       "createdAt": 1775587500000,
-      "lastFiredAt": null,
-      "recurring": true
+      "recurring": true,
+      "lastFiredAt": 1775594018045
     },
     {
       "id": "context-meter",
       "cron": "*/60 * * * *",
       "prompt": "Rode: /home/will/.claude/mcps/ai-context-sync/context-meter.sh\n\nSe o output começar com '⚠️', responda com o alerta completo. Caso contrário, apenas confirme.",
       "createdAt": 1775587500000,
-      "lastFiredAt": null,
-      "recurring": true
-    },
-    {
-      "id": "preflight-onresume",
-      "cron": "once-on-resume",
-      "prompt": "Rode: /home/will/.claude/mcps/ai-context-sync/preflight.sh\n\nListe o output completo do pre-flight check.",
-      "createdAt": 1775587500000,
-      "lastFiredAt": null,
-      "recurring": false,
-      "oneShot": true
+      "recurring": true,
+      "lastFiredAt": 1775594018045
     },
     {
       "id": "modo-dormir-daily",
       "cron": "0 3 * * *",
-      "prompt": "Você é o agent modo-dormir. Execute:\n\n1. Escaneie docs/specflow/SPEC-*.md por specs pendentes\n2. Escaneie tasks/pipeline.json por tasks abertas\n3. Gere pipeline.json atualizado em tasks/pipeline.json\n4. Liste as 3 tasks mais prioritárias\n\nResuma em 2-3 linhas.",
+      "prompt": "Execute o slash command /rs (repo-scan) para escanear o repositório.\n\nUse o output para gerar/actualizar tasks/pipeline.json com tasks pendentes.\nListe as 3 tasks mais prioritárias.\n\nResuma em 2-3 linhas.",
       "createdAt": 1775587500000,
-      "lastFiredAt": null,
       "recurring": true
     },
     {
       "id": "code-review-daily",
       "cron": "0 4 * * *",
-      "prompt": "Você é o agent review-zappro. Execute code review dos últimos commits:\n\n1. git -C /srv/monorepo log --oneline -10\n2. Analise as mudanças principais\n3. Identifique issues críticos se houver\n\nSe tudo ok, diga 'Code review: OK — sem issues críticos'. Se encontrar problemas, liste-os.",
+      "prompt": "Execute code review dos últimos commits:\n\n1. git -C /srv/monorepo log --oneline -10\n2. Analise as mudanças principais\n3. Identifique issues críticos se houver\n\nSe tudo ok, diga 'Code review: OK — sem issues críticos'. Se encontrar problemas, liste-os.",
       "createdAt": 1775587500000,
-      "lastFiredAt": null,
       "recurring": true
     },
     {
       "id": "test-coverage-daily",
       "cron": "0 5 * * *",
-      "prompt": "Verifique coverage de testes:\n\n1. cd /srv/monorepo && bun run test --coverage 2>/dev/null || echo 'No coverage command'\n2. Liste áreas com coverage baixo (<70%)\n3. Liste testes que estão a falhar\n\nResuma em 2-3 linhas.",
+      "prompt": "Verifique coverage de testes:\n\n1. cd /srv/monorepo && (bun run test --coverage 2>/dev/null || bun test 2>/dev/null || echo 'TESTS_SKIP')\n2. Se output contiver 'coverage' liste áreas <70%\n3. Se output contiver 'FAIL' liste testes a falhar\n4. Se 'TESTS_SKIP' diga 'Testes: skip (sem comando)'\n\nResuma em 2-3 linhas.",
       "createdAt": 1775587500000,
-      "lastFiredAt": null,
       "recurring": true
     },
     {
       "id": "secrets-audit-daily",
       "cron": "0 6 * * *",
-      "prompt": "Você é o agent secrets-audit. Execute scan de secrets:\n\n1. grep -rE '(ghp|gho|ghu|ghs|ghr)_[A-Za-z0-9]{36}|AKIA[0-9A-Z]{16}|sk-[A-Za-z0-9]{48}' /srv/monorepo --include='*.ts' --include='*.js' --include='*.env' 2>/dev/null | head -10\n2. Se encontrar secrets, liste locations\n3. Se não encontrar, diga 'Secrets audit: OK'\n\nResuma em 2-3 linhas.",
+      "prompt": "Execute scan de secrets antes de push:\n\n1. grep -rE '(ghp_|gho_|ghu_|ghs_|ghr_)[A-Za-z0-9]{36}|AKIA[0-9A-Z]{16}|sk-[A-Za-z0-9]{48}' /srv/monorepo --include='*.ts' --include='*.js' --include='*.env' 2>/dev/null | head -10\n2. Se encontrar secrets, liste locations e aborta\n3. Se não encontrar, diga 'Secrets audit: OK'\n\nResuma em 2-3 linhas.",
       "createdAt": 1775587500000,
-      "lastFiredAt": null,
       "recurring": true
     },
     {
@@ -70,7 +57,6 @@
       "cron": "0 8 * * *",
       "prompt": "Verifique estado dos MCP servers:\n\n1. ls ~/.claude/mcp-servers.json 2>/dev/null && cat ~/.claude/mcp-servers.json | jq '.servers[].name' 2>/dev/null || echo 'No MCP config'\n2. Liste cada server com status ( UP / DOWN / DEGRADED )\n\nSe todos OK, diga 'MCP health: OK — todos os servers up'. Se algum down, liste-os.",
       "createdAt": 1775587500000,
-      "lastFiredAt": null,
       "recurring": true
     }
   ]

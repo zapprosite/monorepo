@@ -1,0 +1,1 @@
+Deteta tasks em múltiplos formatos no repositório: TASKMASTER (JSON), PRD (Markdown), ADR (docs/ADR/*.md), SLICE (*.slice.md + git branches), TODO (TODO.md), TURBO (turbo.json), SPEC (docs/specflow/SPEC-*.md). Lista tasks por priority e deteta human gates.

@@ -1,0 +1,13 @@
+{
+  "pipeline": "pipeline-whisper-gpu",
+  "status": "PASS",
+  "timestamp": "2026-04-07T18:30:00Z",
+  "results": [
+    {"id": "WT-001", "status": "PASS", "output": "18432"},
+    {"id": "WT-002", "status": "PASS", "output": "Up"},
+    {"id": "WT-003", "status": "PASS", "output": "200"},
+    {"id": "WT-004", "status": "PASS", "output": "1"},
+    {"id": "WT-005", "status": "PASS", "output": "/srv/data/whisper-models:/app/models"}
+  ],
+  "summary": {"passed": 5, "failed": 0, "warnings": 0}
+}
