@@ -117,6 +117,7 @@
 | 2222 | Gitea SSH | Anywhere (UFW) | ⚠️ Exposto — risco |
 | 3000 | — | — | Reservado (Open WebUI) |
 | 3100 | Grafana | LAN only (UFW) | ⚠️ Sem auth detectada |
+| 3101 | Loki | LAN only | Log aggregation (Promtail) |
 | 3300 | Gitea HTTP | LAN only (UFW) | Autenticado via Cloudflare |
 | 4000 | LiteLLM | localhost+LAN | ✅ Auth requerida |
 | 4001 | OpenClaw Bot | localhost | ✅ Auth requerida (401 sem creds) |
@@ -207,6 +208,8 @@
 | node-exporter | prom/node-exporter:latest | :9100 | monitoring | ✅ UP |
 | cadvisor | gcr.io/cadvisor/cadvisor:latest | :9250 | monitoring | ✅ healthy |
 | nvidia-gpu-exporter | utkuozdemir/nvidia_gpu_exporter:1.4.1 | :9835 | host | ✅ UP |
+| loki | grafana/loki:3.2.1 | :3101→:3100 | monitoring_monitoring | ✅ UP |
+| promtail | grafana/promtail:3.2.1 | :9080 | monitoring_monitoring | ✅ UP |
 
 ### DevOps & Secrets
 | Container | Imagem | Porta | Rede | Status |
@@ -351,4 +354,4 @@ bot.zappro.site
 
 ---
 
-**Atualizado:** 2026-04-06 | **Próxima revisão:** mensal ou ao adicionar serviço/subdomínio
+**Atualizado:** 2026-04-07 | **Próxima revisão:** mensal ou ao adicionar serviço/subdomínio
