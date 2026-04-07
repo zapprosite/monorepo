@@ -10,7 +10,7 @@ synced: 2026-04-07
 # Subdomains Registry
 
 **Última sincronização:** 2026-04-07
-**Total de records:** 10 (aurelia + chat removidos, painel ativado)
+**Total de records:** 11 (chat.zappro.site ATIVO)
 
 ## Tabela de Subdomínios
 
