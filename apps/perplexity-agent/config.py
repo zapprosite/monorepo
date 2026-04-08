@@ -41,19 +41,31 @@ def get_minimax_token() -> str:
 
 
 def get_oauth_client_id(persona: str) -> str | None:
-    """Fetch Google OAuth client ID for persona from Infisical vault."""
+    """Fetch Google OAuth client ID - tries persona-specific first, then generic."""
+    # Try persona-specific first
     key = f"GOOGLE_OAUTH_CLIENT_ID_{persona.upper()}"
     try:
         return _fetch_infisical_secret(key)
+    except RuntimeError:
+        pass
+    # Fall back to generic Google OAuth
+    try:
+        return _fetch_infisical_secret("GOOGLE_CLIENT_ID")
     except RuntimeError:
         return None
 
 
 def get_oauth_client_secret(persona: str) -> str | None:
-    """Fetch Google OAuth client secret for persona from Infisical vault."""
+    """Fetch Google OAuth client secret - tries persona-specific first, then generic."""
+    # Try persona-specific first
     key = f"GOOGLE_OAUTH_CLIENT_SECRET_{persona.upper()}"
     try:
         return _fetch_infisical_secret(key)
+    except RuntimeError:
+        pass
+    # Fall back to generic Google OAuth
+    try:
+        return _fetch_infisical_secret("GOOGLE_CLIENT_SECRET")
     except RuntimeError:
         return None
 
@@ -61,11 +73,19 @@ def get_oauth_client_secret(persona: str) -> str | None:
 # Initialize tokens
 MINIMAX_TOKEN = get_minimax_token()
 
-# OAuth credentials (optional - for real OAuth flow)
-GOOGLE_OAUTH_CLIENT_ID_GEMINI = os.environ.get("GOOGLE_OAUTH_CLIENT_ID_GEMINI")
-GOOGLE_OAUTH_CLIENT_SECRET_GEMINI = os.environ.get("GOOGLE_OAUTH_CLIENT_SECRET_GEMINI")
-GOOGLE_OAUTH_CLIENT_ID_PERPLEXITY = os.environ.get("GOOGLE_OAUTH_CLIENT_ID_PERPLEXITY")
-GOOGLE_OAUTH_CLIENT_SECRET_PERPLEXITY = os.environ.get("GOOGLE_OAUTH_CLIENT_SECRET_PERPLEXITY")
+# OAuth credentials (loaded lazily)
+OAUTH_CLIENT_ID_GEMINI = None  # Lazy load
+OAUTH_CLIENT_SECRET_GEMINI = None
+
+# Paths
+CHROME_PROFILE_PATH = os.environ.get(
+    "CHROME_PROFILE_PATH",
+    "/srv/data/perplexity-agent/chrome-profile"
+)
+
+AUTH_DIR = "/srv/data/openclaw/auth"
+
+STREAMLIT_PORT = int(os.environ.get("STREAMLIT_PORT", "4004"))
 
 # Paths
 CHROME_PROFILE_PATH = os.environ.get(
