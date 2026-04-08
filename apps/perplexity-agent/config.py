@@ -23,7 +23,7 @@ for s in secrets.secrets:
 """.format(token_path=token_path)
 
     result = subprocess.run(
-        ["/usr/bin/python3", "-c", script],
+        ["python3", "-c", script],
         capture_output=True,
         text=True,
         timeout=10,

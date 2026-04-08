@@ -69,7 +69,7 @@
       "cron": "*/5 * * * *",
       "prompt": "Execute /home/will/.claude/skills/gitea-coolify-deploy/scripts/auto-healer.sh and log output to /srv/ops/logs/healing.log. If any containers were restarted, report which ones.",
       "createdAt": 1775652662474,
-      "lastFiredAt": 1775655475243,
+      "lastFiredAt": 1775656023440,
       "recurring": true
     },
     {
