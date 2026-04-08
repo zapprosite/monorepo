@@ -5,7 +5,7 @@
       "cron": "*/30 * * * *",
       "prompt": "Você é o agent de auto-orchestration. Execute:\n\n1. Rode: /home/will/.claude/mcps/ai-context-sync/sync.sh\n2. Verifique: git -C /srv/monorepo status --short\n3. Se houver mudanças pendentes, liste-as\n4. Se não houver, diga \"Auto-orchestration: tudo em dia\"\n\nResuma em 1-2 linhas.",
       "createdAt": 1775557362633,
-      "lastFiredAt": 1775615742344,
+      "lastFiredAt": 1775617543004,
       "recurring": true
     },
     {
@@ -13,7 +13,7 @@
       "cron": "*/90 * * * *",
       "prompt": "Rode: /home/will/.claude/mcps/ai-context-sync/checkpoint.sh\n\nSe houver output (changes), liste os arquivos pendentes. Se não, diga apenas 'Checkpoint: OK'.",
       "createdAt": 1775587500000,
-      "lastFiredAt": 1775613600604,
+      "lastFiredAt": 1775617270786,
       "recurring": true
     },
     {
@@ -21,7 +21,7 @@
       "cron": "*/60 * * * *",
       "prompt": "Rode: /home/will/.claude/mcps/ai-context-sync/context-meter.sh\n\nSe o output começar com '⚠️', responda com o alerta completo. Caso contrário, apenas confirme.",
       "createdAt": 1775587500000,
-      "lastFiredAt": 1775613600604,
+      "lastFiredAt": 1775617270786,
       "recurring": true
     },
     {

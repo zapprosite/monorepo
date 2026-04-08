@@ -139,6 +139,77 @@ ls -la ~/.claude/projects/-srv-monorepo/memory/
 
 ---
 
+## Integração com OpenClaw
+
+O OpenClaw consulta o knowledge base via:
+- **MCP monorepo** (`10.0.19.50:4006`) — acesso read-only aos docs
+- **Qdrant collections** — memória vetorial (briefs, campaigns, knowledge)
+- **doc-librarian skill** — auditoria de docs stale
+
+```
+OpenClaw → MCP monorepo (docs) + Qdrant (memória vetorial)
+                     ↓
+              docs/index.md
+              docs/WORKFLOW.md
+              docs/AI-CONTEXT.md
+```
+
+### Claude Resolve Integration
+
+Claude Resolve é o mecanismo de resolução de contexto do sistema:
+
+```
+Claude Code → /ai-context → memória fresca → OpenClaw consulta
+                                              ↓
+                                    claude-resolve.md (em docs/context/)
+```
+
+**Fluxo de Resolução:**
+1. Claude Code sincroniza contexto após cada commit
+2. OpenClaw consulta via MCP monorepo para contexto persistente
+3. Claude Resolve indexa e resolve queries contra docs sincronizados
+
+---
+
+## Workflow de 3 Tools + AI-CONTEXT
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│  Claude Code CLI (host)                                      │
+│  /feature → implementa → /ship → COMMIT + PR                 │
+└──────────────────────────┬───────────────────────────────────┘
+                           ↓
+                    /ai-context
+                           ↓
+┌──────────────────────────────────────────────────────────────┐
+│  AI-CONTEXT (automatico)                                    │
+│  Sincroniza: docs/ → memory/ + SYSTEM_STATE.md              │
+└──────────────────────────┬───────────────────────────────────┘
+                           ↓
+┌──────────────────────────────────────────────────────────────┐
+│  OpenClaw Bot (Telegram)                                    │
+│  doc-librarian: verifica frescor dos docs                   │
+│  qdrant-rag: indexa nova documentação                        │
+└──────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## Verificação
+
+```bash
+# Ver últimos syncs
+cat /home/will/.claude/mcps/ai-context-sync/manifest.json | jq '.last_sync'
+
+# Verificar se memory está fresco
+ls -la ~/.claude/projects/-srv-monorepo/memory/
+
+# Testar via OpenClaw
+@CEO_REFRIMIX_bot /buscar "última sincronização ai-context"
+```
+
+---
+
 ## Docs Relacionados
 
 | Doc | O que |
@@ -146,4 +217,5 @@ ls -la ~/.claude/projects/-srv-monorepo/memory/
 | `docs/WORKFLOW.md` | Visão geral das 3 tools + AI-CONTEXT |
 | `docs/MCPs/AI_CONTEXT_MCP.md` | Setup técnico do MCP |
 | `docs/OPERATIONS/SKILLS/doc-librarian/SKILL.md` | Skill de auditoria de docs |
+| `docs/context/claude-resolve.md` | Mecanismo de resolução de contexto |
 | `/srv/ops/ai-governance/CONTRACT.md` | Princípios non-negotiable |

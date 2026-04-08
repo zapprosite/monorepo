@@ -31,7 +31,7 @@
 
 ## ADRs
 
-Ver [docs/adr/README.md](./adr/README.md) e [docs/ADR/README.md](./ADR/README.md)
+Ver [docs/ADRs/README.md](./ADRs/README.md) — consolidado de `docs/adr/`, `docs/ADR/` e `docs/adrs/`
 
 ## Context
 
