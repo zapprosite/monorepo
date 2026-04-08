@@ -124,8 +124,8 @@ def get_llm():
 
     # 3. Ollama fallback
     from langchain_ollama import ChatOllama
-    print("Falling back to Ollama gemma2-9b-it")
-    return ChatOllama(model="gemma2-9b-it:q4", base_url="http://127.0.0.1:11434")
+    print("Falling back to Ollama Qwen3-14B-Q4")
+    return ChatOllama(model="qwen3:14b", base_url="http://127.0.0.1:11434")
 
 
 def get_agent(chrome_profile_path: str = "/srv/data/perplexity-agent/chrome-profile"):
