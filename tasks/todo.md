@@ -1,141 +1,92 @@
-# TODO — Detective Mode & Homelab Persistence
-**Host:** will-zappro
-**Date:** 2026-04-07
-**Goal:** Detective mode research, systemd persistence, Gemma4 monitoring integration
+# Tasks — Use Case ROI Maximization
+
+**Source:** plan.md (2026-04-07)  
+**Status:** PENDING — awaiting human review
 
 ---
 
-## Slice 1: Detective Research
+## Slice 1: Corrigir Cron Jobs com Agents Errados
 
-- [ ] **TASK-1A:** Create `/srv/ops/agents/scripts/detective_agent.sh`
-  - **Verification:** `bash /srv/ops/agents/scripts/detective_agent.sh` produces JSON output
-  - **Files:** `/srv/ops/agents/scripts/detective_agent.sh` (new)
+**SPEC Reference:** SPEC-001:AC-1 (cron jobs)
 
-- [ ] **TASK-1B:** Research voice-pipeline similar repos in homelab
-  - **Verification:** Found `/home/will/Desktop/voice-pipeline` and related services
-  - **Files:** `/home/will/Desktop/voice-pipeline/` (existing)
+- [ ] **[SC-1.1]** Listar todos cron jobs com agent references errados
+- [ ] **[SC-1.2]** Substituir `modo-dormir-daily` → `/rs` (repo-scan)
+- [ ] **[SC-1.3]** Substituir `code-review-daily` → `/review`
+- [ ] **[SC-1.4]** Substituir `secrets-audit-daily` → `/sec`
+- [ ] **[SC-1.5]** Substituir `test-coverage-daily` → smarter fallback
 
-- [ ] **TASK-1C:** MCP forum research — stable versions as of 04/07/2026
-  - **Verification:** WebSearch results for faster-whisper, kokoro TTS stability
-  - **Files:** Rome Lab criteria report in `/srv/ops/agents/logs/detective/`
+**Verification:** `grep -rE "agent-|subagent" .claude/scheduled_tasks.json` retorna vazio
 
 ---
 
-## Slice 2: Audit Current State
+## Slice 2: Ativar Pre-commit Hook
 
-- [ ] **TASK-2A:** Create `/srv/ops/agents/scripts/audit_agent.sh`
-  - **Verification:** Script produces audit report in `/srv/ops/agents/logs/audit/`
-  - **Files:** `/srv/ops/agents/scripts/audit_agent.sh` (new)
+**SPEC Reference:** SPEC-001:AC-3 (security)
 
-- [ ] **TASK-2B:** Debug and fix failed systemd services
-  - **Verification:** `systemctl status homelab-gemma-monitor.service` shows ACTIVE
-  - **Files:** `/etc/systemd/system/homelab-gemma-monitor.service`, `/srv/ops/scripts/homelab-gemma-monitor.sh`
+- [ ] **[SC-2.1]** Copiar `.claude/hooks/pre-commit` → `.git/hooks/pre-commit`
+- [ ] **[SC-2.2]** Configurar `git config core.hooksPath .git/hooks`
+- [ ] **[SC-2.3]** Testar com staged file contendo "ghp_"
 
-- [ ] **TASK-2C:** Document all voice-pipeline related services
-  - **Verification:** `/srv/monorepo/docs/INFRASTRUCTURE/VOICE_SERVICES.md` exists
-  - **Files:** `/srv/monorepo/docs/INFRASTRUCTURE/VOICE_SERVICES.md` (new)
+**Verification:** `git commit` com secret no file → rejected
 
 ---
 
-## Slice 3: Systemd Service Persistence
+## Slice 3: Completar ADR Records
 
-- [ ] **TASK-3A:** Create `/etc/systemd/system/voice-pipeline-persist.service`
-  - **Verification:** Service starts whisper-api on boot
-  - **Files:** `/etc/systemd/system/voice-pipeline-persist.service` (new)
+**SPEC Reference:** SPEC-001:AC-4 (documentation)
 
-- [ ] **TASK-3B:** Fix `homelab-gemma-monitor.service` (EXEC error)
-  - **Verification:** `systemctl status homelab-gemma-monitor.service` shows ACTIVE (exited)
-  - **Files:** `/srv/ops/scripts/homelab-gemma-monitor.sh`
+- [ ] **[SC-3.1]** Listar todos ADRs com "pending" ou "TODO"
+- [ ] **[SC-3.2]** Preencher ADRs pendentes com context + justification
+- [ ] **[SC-3.3]** Criar novo ADR para Infisical integration decision
 
-- [ ] **TASK-3C:** Fix `homelab-health-check.service` (EXEC error 203)
-  - **Verification:** `systemctl status homelab-health-check.service` shows ACTIVE (exited)
-  - **Files:** `/srv/ops/scripts/homelab-health-check.sh`
-
-- [ ] **TASK-3D:** Verify services survive Ubuntu reboot
-  - **Verification:** After reboot, all homelab-* services ACTIVE
-  - **Files:** ZFS snapshot `@pre-reboot-timestamp`
+**Verification:** `grep -r "pending\|TODO" docs/adr/*.md` retorna vazio
 
 ---
 
-## Slice 4: Gemma4 Monitoring Integration
+## Slice 4: Voice Pipeline Test Suite
 
-- [ ] **TASK-4A:** Enhance `/srv/ops/agents/scripts/llm_agent.sh`
-  - **Verification:** Uses gemma4:latest, includes Rome Lab criteria
-  - **Files:** `/srv/ops/agents/scripts/llm_agent.sh` (enhanced)
+**SPEC Reference:** SPEC-001:AC-5 (voice pipeline)
 
-- [ ] **TASK-4B:** Configure Gemma4 analysis loop (15min timer)
-  - **Verification:** `systemctl list-timers | grep gemma` shows active
-  - **Files:** `/etc/systemd/system/homelab-gemma-monitor.timer`
+- [ ] **[SC-4.1]** Criar `tasks/smoke-tests/pipeline-voice.yaml`
+- [ ] **[SC-4.2]** Implementar test: Whisper API health check
+- [ ] **[SC-4.3]** Implementar test: Kokoro TTS health check
+- [ ] **[SC-4.4]** Implementar test: Telegram bot token validation
+- [ ] **[SC-4.5]** Executar suite e documentar resultados
 
-- [ ] **TASK-4C:** Integrate Telegram alerting
-  - **Verification:** Test Telegram message sends successfully
-  - **Files:** `send_telegram()` calls in monitoring scripts
+**Verification:** `bash tasks/smoke-tests/run-smoke-tests.sh voice` → 80%+ pass
 
 ---
 
-## Slice 5: Prepare Agents/Subagents/Tools
+## Slice 5: Infisical → Coolify Secret Migration
 
-- [ ] **TASK-5A:** Create detective subagent directory structure
-  - **Verification:** `ls /srv/ops/agents/scripts/detective/` shows all scripts
-  - **Files:** `/srv/ops/agents/scripts/detective/` (new)
+**SPEC Reference:** SPEC-001:AC-6 (secrets management)
 
-- [ ] **TASK-5B:** Create research tools (forum_search, repo_scan, stability_check)
-  - **Verification:** Each tool produces expected JSON output
-  - **Files:** `/srv/ops/agents/scripts/detective/*.sh` (new)
+- [ ] **[SC-5.1]** Mapear todos os .env files em `/srv/data/coolify/services/`
+- [ ] **[SC-5.2]** Identificar quais secrets já estão no vault
+- [ ] **[SC-5.3]** Criar script de migration para cada service
+- [ ] **[SC-5.4]** Migrar OpenClaw secrets primeiro (prioridade)
+- [ ] **[SC-5.5]** Migrar LiteLLM secrets
+- [ ] **[SC-5.6]** Remover .env files plain text após migration
 
-- [ ] **TASK-5C:** Prepare ai-context MCP sync for detective findings
-  - **Verification:** Detective logs appear in memory/ after sync
-  - **Files:** `/home/will/.claude/mcps/ai-context-sync/`
-
----
-
-## Critical Files Reference
-
-| File | Task | Purpose |
-|------|------|---------|
-| `/srv/ops/scripts/homelab-gemma-monitor.sh` | 3B | Gemma4 monitoring script |
-| `/srv/ops/scripts/homelab-health-check.sh` | 3C | Health check script |
-| `/etc/systemd/system/homelab-gemma-monitor.service` | 3B | Systemd service |
-| `/etc/systemd/system/homelab-health-check.service` | 3C | Systemd service |
-| `/home/will/Desktop/voice-pipeline/whisper_api.py` | 1B, 3A | Whisper API server |
-| `/srv/ops/agents/scripts/llm_agent.sh` | 4A | LLM analysis agent |
-| `/srv/ops/agents/scripts/detective_agent.sh` | 1A | Detective research agent |
-| `/srv/ops/agents/scripts/audit_agent.sh` | 2A | Audit agent |
+**Verification:** Nenhum .env em `/srv/data/coolify/services/*/.env` com API keys
 
 ---
 
-## Dependencies
+## Stats
+
+| Slice | Tasks | Priority |
+|-------|-------|----------|
+| SC-1 | 5 | CRITICAL |
+| SC-2 | 3 | CRITICAL |
+| SC-3 | 3 | HIGH |
+| SC-4 | 5 | HIGH |
+| SC-5 | 6 | MEDIUM |
+| **Total** | **22** | |
+
+---
+
+## Pipeline
 
 ```
-TASK-1A → TASK-1B → TASK-1C
-    │           │
-    └───────────┴──► TASK-2A → TASK-2B → TASK-2C
-                                        │
-                    ┌───────────────────┘
-                    ▼
-                TASK-3A → TASK-3B → TASK-3C → TASK-3D
-                                        │
-                    ┌───────────────────┘
-                    ▼
-                TASK-4A → TASK-4B → TASK-4C
-                                        │
-                    ┌───────────────────┘
-                    ▼
-                TASK-5A → TASK-5B → TASK-5C
+plan.md → todo.md → IMPLEMENT → REVIEW → SHIP
 ```
-
----
-
-## Checkpoints
-
-| Checkpoint | After | Criteria |
-|-----------|-------|----------|
-| CP-1 | Slice 1 | Detective agent finds voice-pipeline repo |
-| CP-2 | Slice 2 | Audit report clean, no FAILED services |
-| CP-3 | Slice 3 | All systemd services ACTIVE after reboot |
-| CP-4 | Slice 4 | Gemma4 fires every 15min, sends Telegram |
-| CP-5 | Slice 5 | All agents/subagents/tools ready |
-
----
-
-**Last Updated:** 2026-04-07
