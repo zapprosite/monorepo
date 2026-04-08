@@ -5,7 +5,7 @@
 ```
 OPERATIONS/
 ├── RUNBOOK.md
-├── RECOVERY.md
+├── RECOVERY.md (see ../GOVERNANCE/RECOVERY.md)
 ├── INCIDENTS.md
 ├── guide.md
 └── SKILLS/
