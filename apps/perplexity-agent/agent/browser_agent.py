@@ -24,7 +24,7 @@ for s in secrets.secrets:
         break
 """
     result = subprocess.run(
-        ["/usr/bin/python3", "-c", script],
+        ["python3", "-c", script],
         capture_output=True,
         text=True,
         timeout=10,
