@@ -1,9 +1,9 @@
 # SPEC.md — Perplexity-like Browser Agent
 
-**Versão:** 0.2
+**Versão:** 0.3
 **Data:** 2026-04-08
 **Status:** Draft
-**Stack:** Streamlit + browser-use + MiniMax Official API
+**Stack:** Streamlit + browser-use + OpenRouter (GPT-4o-mini)
 
 ---
 
@@ -14,7 +14,7 @@ Criar um agente de busca e navegação web autônomo (Perplexity-like) que:
 - Navega na web usando browser com sessão autenticada (Chrome profile)
 - Extrai conteúdo relevante
 - Responde com fontes e citations
-- Usa MiniMax-M2.7 via API oficial MiniMax (OpenAI-compatible)
+- Usa GPT-4o-mini via OpenRouter (custo-benefício) com fallbacks
 
 **Usuários:** Você (homelab will-zappro)
 
@@ -35,10 +35,10 @@ Criar um agente de busca e navegação web autônomo (Perplexity-like) que:
 │                    Agent (browser-use)                           │
 │                                                              │
 │   Task: "Search for X, navigate to Y, extract Z"           │
-│   LLM: ChatOpenAI(                                           │
-│          model="MiniMax-Text-01",                          │
-│          base_url="https://api.minimax.chat/v1",           │
-│          api_key=MINIMAX_TOKEN  ← Infisical                 │
+│   LLM (primary): ChatOpenAI(                                 │
+│          model="openai/gpt-4o-mini",                       │
+│          base_url="https://openrouter.ai/api/v1",           │
+│          api_key=OPENROUTER_API_KEY ← Infisical             │
 │        )                                                     │
 │   Browser: Playwright + Chrome Profile (sessões persistidas) │
 └──────────────────────────┬─────────────────────────────────┘
@@ -51,13 +51,13 @@ Criar um agente de busca e navegação web autônomo (Perplexity-like) que:
                               │
                               ▼
 ┌──────────────────────────────────────────────────────────────┐
-│                    MiniMax Official API                      │
-│   Endpoint: https://api.minimax.chat/v1                     │
-│   Model: MiniMax-Text-01 (ou minimax-m2.7)                  │
-│   Auth: MINIMAX_TOKEN (Infisical)                           │
-│   Custo: $0.0000003/1M tokens (prompt) + $0.0000012/1M     │
-│   Budget: $50/mês — 15k req/dia                             │
+│                    OpenRouter API                              │
+│   Model: openai/gpt-4o-mini                                  │
+│   Custo: $0.15/1M (prompt) + $0.60/1M (completion)          │
+│   Auth: OPENROUTER_API_KEY (Infisical)                       │
+│   Fallback: MiniMax M2.7 → Ollama qwen3:14b                  │
 └──────────────────────────────────────────────────────────────┘
+```
 ```
 
 ---
@@ -69,7 +69,9 @@ Criar um agente de busca e navegação web autônomo (Perplexity-like) que:
 | UI | Streamlit | `uv add streamlit` |
 | Agent | browser-use | `uv add browser-use` |
 | Browser | Playwright + Chrome | `uvx browser-use install` |
-| LLM | ChatOpenAI (MiniMax official, OpenAI-compatible) | browser-use built-in |
+| LLM Primary | ChatOpenAI (OpenRouter GPT-4o-mini) | `uv add langchain-openai` |
+| LLM Fallback | ChatAnthropic (MiniMax M2.7) + Ollama | `uv add langchain-anthropic langchain-ollama` |
+| Secrets | Infisical | system-wide |
 | Runtime | Python 3.11+ | uv |
 
 ---
@@ -130,15 +132,17 @@ uvx browser-use install
 ### Environment Variables
 
 ```bash
-MINIMAX_TOKEN=sk-cp-uA1oy3...  # MiniMax official API key (Infisical)
+OPENROUTER_API_KEY=sk-or-v1-...  # OpenRouter key (Infisical)
+MINIMAX_TOKEN=sk-cp-uA1oy3...    # MiniMax fallback (Infisical)
 CHROME_PROFILE_PATH=/srv/data/perplexity-agent/chrome-profile
 STREAMLIT_PORT=4004
 ```
 
 ### Secrets (Infisical)
 
-Adicionar ao Infisical project `zappro-p-tc-k`:
-- `MINIMAX_TOKEN` — MiniMax official API key
+No Infisical project `zappro-p-tc-k`:
+- `OPENROUTER_API_KEY` — OpenRouter API key (primary)
+- `MINIMAX_TOKEN` — MiniMax token (fallback)
 
 ---
 

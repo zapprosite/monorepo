@@ -1,18 +1,15 @@
-"""Browser agent using browser-use + MiniMax (with Ollama fallback)."""
-import os
+"""Browser agent using browser-use + OpenRouter (GPT-4o-mini) with fallbacks."""
 import subprocess
-from typing import Any, List, Optional, Union
+from typing import Any, Optional
 
 from browser_use import Agent
-from langchain_anthropic import ChatAnthropic
-from langchain_ollama import ChatOllama
-from langchain_core.messages import AIMessage, BaseMessage
+from langchain_openai import ChatOpenAI
 
 
-def get_minimax_token() -> str:
-    """Fetch MINIMAX_TOKEN (sk-cp-) from Infisical."""
+def _get_infisical_secret(secret_key: str) -> str:
+    """Fetch a secret from Infisical vault."""
     token_path = "/srv/ops/secrets/infisical.service-token"
-    script = """
+    script = f"""
 from infisical_sdk import InfisicalSDKClient
 import os
 token = os.environ.get('INFISICAL_TOKEN') or open('{token_path}').read().strip()
@@ -23,10 +20,10 @@ secrets = client.secrets.list_secrets(
     secret_path='/'
 )
 for s in secrets.secrets:
-    if s.secret_key == 'MINIMAX_TOKEN':
+    if s.secret_key == '{secret_key}':
         print(s.secret_value)
         break
-""".format(token_path=token_path)
+"""
     result = subprocess.run(
         ["/usr/bin/python3", "-c", script],
         capture_output=True,
@@ -34,58 +31,66 @@ for s in secrets.secrets:
         timeout=10,
     )
     if result.returncode != 0:
-        raise RuntimeError(f"Failed to fetch MINIMAX_TOKEN: {result.stderr}")
+        raise RuntimeError(f"Failed to fetch {secret_key}: {result.stderr}")
     return result.stdout.strip()
 
 
-def _filter_thinking(response: Any) -> Any:
-    """Remove thinking blocks from MiniMax response, keep only text."""
-    gens = response.generations
-    if not gens or not gens[0]:
-        raise ValueError("No generations in response")
-    gen = gens[0][0] if isinstance(gens[0], list) else gens[0]
-    msg: AIMessage = gen.message if hasattr(gen, 'message') else gen
-
-    text_parts = []
-    if isinstance(msg.content, list):
-        for block in msg.content:
-            if isinstance(block, dict):
-                if block.get('type') == 'text':
-                    text_parts.append(block['text'])
-            elif hasattr(block, 'type') and block.type == 'text':
-                text_parts.append(block.text)
-    else:
-        text_parts = [str(msg.content)]
-
-    text = "\n".join(text_parts) if text_parts else ""
-
-    # Return ChatResult with filtered message (flat generations list)
-    from langchain_core.outputs import ChatGeneration, ChatResult
-    filtered_msg = AIMessage(content=text)
-    filtered_gen = ChatGeneration(text=text, message=filtered_msg)
-    return ChatResult(generations=[filtered_gen])
+def get_openrouter_key() -> str:
+    """Fetch OPENROUTER_API_KEY from Infisical."""
+    return _get_infisical_secret("OPENROUTER_API_KEY")
 
 
-
-class MiniMaxM2_7(ChatAnthropic):
-    """ChatAnthropic wrapper that strips thinking blocks from MiniMax responses."""
-
-    def _generate(
-        self,
-        messages: list[BaseMessage],
-        stop: Union[list[str], None] = None,
-        run_manager: Any = None,
-        **kwargs: Any,
-    ) -> Any:
-        response = super()._generate(messages, stop=stop, run_manager=run_manager, **kwargs)
-        return _filter_thinking(response)
+def get_minimax_token() -> str:
+    """Fetch MINIMAX_TOKEN (sk-cp-) from Infisical."""
+    return _get_infisical_secret("MINIMAX_TOKEN")
 
 
-def get_llm_minimax() -> Optional[MiniMaxM2_7]:
-    """Try to create MiniMax LLM. Returns None if API unavailable."""
+# ── LLM Providers ─────────────────────────────────────────────────────────────
+
+def get_llm_openrouter() -> Optional[ChatOpenAI]:
+    """OpenRouter with GPT-4o-mini — best cost/benefit for browser agent."""
+    try:
+        api_key = get_openrouter_key()
+        return ChatOpenAI(
+            model="openai/gpt-4o-mini",
+            api_key=api_key,
+            base_url="https://openrouter.ai/api/v1",
+        )
+    except Exception as e:
+        print(f"OpenRouter unavailable: {e}")
+        return None
+
+
+def get_llm_minimax() -> Optional[ChatOpenAI]:
+    """MiniMax via Anthropic-compatible endpoint."""
     try:
         api_key = get_minimax_token()
-        return MiniMaxM2_7(
+        from langchain_anthropic import ChatAnthropic
+
+        class MiniMaxChat(ChatAnthropic):
+            def _generate(self, messages, stop=None, run_manager=None, **kwargs):
+                response = super()._generate(messages, stop=stop, run_manager=run_manager, **kwargs)
+                # Filter thinking blocks
+                from langchain_core.outputs import ChatGeneration, ChatResult
+                from langchain_core.messages import AIMessage
+                gens = response.generations
+                if not gens or not gens[0]:
+                    return response
+                gen = gens[0][0] if isinstance(gens[0], list) else gens[0]
+                msg: AIMessage = gen.message if hasattr(gen, 'message') else gen
+                if isinstance(msg.content, list):
+                    text_parts = [
+                        b.text if (isinstance(b, dict) and b.get('type') == 'text')
+                        else (b.text if hasattr(b, 'type') and b.type == 'text' else str(b))
+                        for b in msg.content
+                        if (isinstance(b, dict) and b.get('type') == 'text') or
+                           (hasattr(b, 'type') and b.type == 'text')
+                    ]
+                    msg.content = "\n".join(text_parts) if text_parts else ""
+                filtered_gen = ChatGeneration(text=str(msg.content), message=msg)
+                return ChatResult(generations=[filtered_gen])
+
+        return MiniMaxChat(
             model="MiniMax-M2.7",
             anthropic_api_key=api_key,
             base_url="https://api.minimax.io/anthropic",
@@ -95,47 +100,46 @@ def get_llm_minimax() -> Optional[MiniMaxM2_7]:
         return None
 
 
-def get_llm_ollama() -> ChatOllama:
-    """Create Ollama LLM as fallback."""
-    return ChatOllama(
-        model="qwen3:14b",
-        base_url="http://127.0.0.1:11434",
-    )
-
-
 def get_llm():
-    """Get best available LLM: MiniMax first, Ollama fallback."""
-    llm = get_llm_minimax()
-    if llm is None:
-        print("Falling back to Ollama gemma4:latest")
-        return get_llm_ollama()
+    """Get best available LLM: OpenRouter GPT-4o-mini → MiniMax → Ollama."""
+    # 1. OpenRouter GPT-4o-mini (best for function calling, cheapest)
+    llm = get_llm_openrouter()
+    if llm:
+        try:
+            llm.invoke("hi", max_tokens=5)
+            print("Using OpenRouter GPT-4o-mini")
+            return llm
+        except Exception as e:
+            print(f"OpenRouter failed: {e}")
 
-    # Quick health check - try one call
-    try:
-        llm.invoke("hi", max_tokens=5)
-        return llm
-    except Exception as e:
-        print(f"MiniMax API failed ({e}), falling back to Ollama")
-        return get_llm_ollama()
+    # 2. MiniMax via Anthropic endpoint
+    llm = get_llm_minimax()
+    if llm:
+        try:
+            llm.invoke("hi", max_tokens=5)
+            print("Using MiniMax M2.7")
+            return llm
+        except Exception as e:
+            print(f"MiniMax failed: {e}")
+
+    # 3. Ollama fallback
+    from langchain_ollama import ChatOllama
+    print("Falling back to Ollama gemma2-9b-it")
+    return ChatOllama(model="gemma2-9b-it:q4", base_url="http://127.0.0.1:11434")
 
 
 def get_agent(chrome_profile_path: str = "/srv/data/perplexity-agent/chrome-profile"):
     """Create browser-use Agent with Chrome profile persistence."""
     llm = get_llm()
-    agent = Agent(
+    return Agent(
         task="You are a helpful web browsing assistant.",
         llm=llm,
         chrome_profile_path=chrome_profile_path,
     )
-    return agent
 
 
 def test_connection():
     """Test LLM connection."""
     llm = get_llm()
-    if isinstance(llm, ChatOllama):
-        model = "gemma4:latest (Ollama)"
-    else:
-        model = "MiniMax-M2.7"
-    response = llm.invoke("Say OK")
-    return f"{model}: {response.content}"
+    response = llm.invoke("Say OK in 3 letters", max_tokens=20)
+    return f"GPT-4o-mini (OpenRouter): {response.content}"
