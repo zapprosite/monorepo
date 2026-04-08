@@ -2,7 +2,7 @@
 
 **Host:** will-zappro
 **Criado:** 2026-03-17
-**Atualizado:** 2026-03-17
+**Atualizado:** 2026-04-08
 **Autoridade:** Principal Engineer - Platform Governance
 
 ---
@@ -10,7 +10,7 @@
 ## 1. Visão Geral
 
 Este documento define políticas de organização, nomenclatura e ciclo de vida para:
-- **PostgreSQL** (Supabase, n8n-postgres, connected_repo_db)
+- **PostgreSQL** (Supabase, N8N containers, Coolify, Infisical)
 - **Qdrant** (collections de vetores)
 - **Catálogo Central** (schema `catalog` no Supabase)
 
@@ -18,14 +18,41 @@ Este documento define políticas de organização, nomenclatura e ciclo de vida 
 
 ## 2. Instâncias PostgreSQL
 
-### 2.1 Instâncias Ativas
+### 2.1 Inventário Completo (2026-04-08)
 
-| Instância | Porta Host | Banco | Propósito |
-|-----------|-----------|-------|-----------|
-| **supabase-db** (direto) | 5435 | postgres | Acesso direto via MCP (sem pooler) |
-| **supabase-pooler** | 5433 / 6543 | postgres | PgBouncer session/transaction |
-| **n8n-postgres** | interno | n8n | Banco do n8n (isolado, não usar) |
-| **connected_repo_db** | 5432 | postgres | Template monorepo (dev) |
+| # | Instância | Host | Porta | Base | Password (vault) | Config |
+|---|-----------|------|-------|------|-----------------|--------|
+| 1 | **Supabase Postgres** | supabase.zappro.site | 5433/5435 | postgres | `SUPABASE_POSTGRES_PASSWORD` | 🔑 vault |
+| 2 | **N8N Postgres-1** | localhost (Coolify) | 5432 | n8n | `SERVICE_PASSWORD_POSTGRES` (Coolify .env) | ⚙️ Coolify-managed |
+| 3 | **N8N Postgres-2** | localhost (Coolify) | 5432 | n8n | `SERVICE_PASSWORD_POSTGRES` (Coolify .env) | ⚙️ Coolify-managed |
+| 4 | **Coolify Postgres** | localhost | 5432 | coolify | `COOLIFY_DB_PASSWORD` | 🔑 vault |
+| 5 | **Infisical Postgres** | localhost | 5432 | infisical | `INFISICAL_DB_PASSWORD` | 🔑 vault |
+
+### 2.2 Regras de Conexão
+
+| Para usar... | Connection string | Auth env var |
+|-------------|-------------------|--------------|
+| Supabase via MCP | `postgresql://postgres:${SUPABASE_POSTGRES_PASSWORD}@localhost:5435/postgres` | `SUPABASE_POSTGRES_PASSWORD` |
+| Supabase via pooler | `postgresql://postgres:${SUPABASE_POSTGRES_PASSWORD}@localhost:5433/postgres` | `SUPABASE_POSTGRES_PASSWORD` |
+| N8N Postgres-1 | Não usar diretamente (N8N interno) | — |
+| N8N Postgres-2 | Não usar diretamente (N8N interno) | — |
+
+### 2.3 N8N Postgres (isolado — NÃO usar para aplicação)
+
+Cada instância N8N no Coolify tem o seu Postgres containerizado. **Não usar directamente.**
+
+- **N8N-1:** Coolify ID `ur0tcppyr7cdaifbnzumxtis`
+- **N8N-2:** Coolify ID `jbu1zy377ies2zhc3qmd03gz`
+
+Credentials no `.env` de cada serviço no Coolify — não estão no vault principal.
+
+### 2.4 Banco Principal: `supabase-db`
+
+Única instância para dados de aplicação e catálogo. Os outros bancos são isolados por propósito.
+
+**Conexão via MCP:** `postgresql://postgres:${SUPABASE_POSTGRES_PASSWORD}@localhost:5435/postgres`
+
+**⚠️ NUNCA hardcoded — usar sempre `${SUPABASE_POSTGRES_PASSWORD}` do vault**
 
 ### 2.2 Banco Principal: `supabase-db`
 

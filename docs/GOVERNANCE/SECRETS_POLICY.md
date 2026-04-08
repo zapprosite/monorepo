@@ -2,50 +2,43 @@
 
 **Host:** will-zappro
 **Effective:** 2026-03-16
+**Updated:** 2026-04-08
 
 Definitive rules for where secrets can and CANNOT live.
 
+---
+
+## 0. Source of Truth: Infisical Vault
+
+**Vault:** `vault.zappro.site` (Infisical self-hosted)
+**Project:** `zappro-p-tc-k` / `e42657ef-98b2-4b9c-9a04-46c093bd6d37`
+**Env:** `dev`
+
+Todos os secrets de aplicação/API **devem** estar no vault. Ver exceções em §1.
+
+Scripts de injection: `~/.claude/scripts/env-wrapper.sh`
+
+---
+
 ## 1. Where Secrets CAN Live
 
-### ✅ SAFE Locations
+### ✅ INFISICAL VAULT (PRIMARY)
 
-**`/root/.env` or `/root/.env.local`**
-- Purpose: System-wide secrets (database passwords, API keys)
-- Owner: Root only (permission 600)
-- Backup: NO (never backup secrets)
-- Git: NEVER commit
-- Rotation: Quarterly
-- Access: Root, specific services via env-var injection
-- Example:
-  ```
-  POSTGRES_PASSWORD=xyz123abc
-  N8N_JWT_SECRET=secretkey
-  QDRANT_API_KEY=key123
-  ```
+**Location:** Infisical (`vault.zappro.site`)
+**Purpose:** API keys, tokens, passwords de serviços cloud/externos
+**Access:** `~/.claude/scripts/env-wrapper.sh` injeta via env vars
+**Rotation:** Manual via `infisical-cli` ou SDK
 
-**Docker `.env` files** (not in repo)
-- Location: `/srv/apps/platform/.env` (not tracked)
-- Purpose: Service-specific secrets
-- Scope: Only visible to services via docker-compose
-- Backup: NO
-- Git: Add `/srv/apps/platform/.env` to `.gitignore` (already done)
-- Example:
-  ```
-  POSTGRES_PASSWORD=dbpass
-  N8N_ADMIN_EMAIL=admin@example.com
-  ```
+**Referência:** `DATABASE_GOVERNANCE.md` para inventário completo de Postgres
 
-**Kubernetes Secrets** (future)
-- Purpose: When K8s is added
-- Encrypted at rest: YES
-- Git: NEVER (use `sealed-secrets`)
-- Access: Only pods, not developers
+### ✅ Coolify `.env` (N8N containers — excepção)
 
-**AWS Secrets Manager / Vault** (future)
-- Purpose: Enterprise secrets management
-- Rotation: Automatic
-- Access control: Fine-grained
-- Audit: Full trail
+Cada serviço N8N no Coolify tem `.env` local com credenciais do Postgres containerizado.
+**NÃO vão para o vault principal** — são service-local.
+
+**Razão:** Credenciais geradas pelo Coolify por container, não partilhadas entre serviços.
+
+### ✅ `/root/.env` or `/root/.env.local`
 
 ### ⚠️ CONDITIONAL (Acceptable with care)
 
@@ -339,6 +332,6 @@ docker logs postgres | grep -i password
 
 ---
 
-**Last Updated:** 2026-03-16
+**Last Updated:** 2026-04-08
 **Audit Cycle:** Quarterly (check for exposures)
 **Rotation Cycle:** See schedule above
