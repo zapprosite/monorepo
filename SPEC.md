@@ -14,7 +14,7 @@ Criar um agente de busca e navegação web autônomo (Perplexity-like) que:
 - Navega na web usando browser com sessão autenticada (Chrome profile)
 - Extrai conteúdo relevante
 - Responde com fontes e citations
-- Usa GPT-4o-mini via OpenRouter (custo-benefício) com fallbacks
+- Usa GPT-4o-mini via OpenRouter (custo-benefício)
 
 **Usuários:** Você (homelab will-zappro)
 
@@ -71,6 +71,7 @@ Criar um agente de busca e navegação web autônomo (Perplexity-like) que:
 | LLM | ChatOpenAI (OpenRouter GPT-4o-mini) | `uv add langchain-openai` |
 | Secrets | Infisical | system-wide |
 | Runtime | Python 3.11+ | uv |
+| Container | Docker | Dockerfile |
 
 ---
 
@@ -99,10 +100,17 @@ cd /srv/monorepo/apps/perplexity-agent
 uv sync
 uv run streamlit run app.py --port 4004
 
-# Install browser
-uvx browser-use install
+# Docker build (local test)
+docker build -t perplexity-agent:latest .
+docker run -p 4004:4004 \
+  -v /srv/data/perplexity-agent/chrome-profile:/srv/data/perplexity-agent/chrome-profile \
+  perplexity-agent:latest
+
+# Docker Compose (local test)
+docker-compose up -d
 
 # Production (Coolify)
+# Build from Dockerfile in apps/perplexity-agent/
 # Exposed on web.zappro.site (same domain as OpenClaw web services)
 ```
 
@@ -112,13 +120,17 @@ uvx browser-use install
 
 ```
 /srv/monorepo/apps/perplexity-agent/
+├── Dockerfile              # Coolify deployment
+├── docker-compose.yml      # Local dev/test
+├── .streamlit/config.toml  # Streamlit headless config
 ├── app.py                  # Streamlit UI
 ├── agent/
 │   ├── __init__.py
 │   ├── browser_agent.py     # browser-use Agent wrapper
 │   └── chrome_profile.py   # Chrome profile management
 ├── config.py               # Settings, env vars
-├── requirements.txt        # ou pyproject.toml
+├── pyproject.toml          # uv dependencies
+├── uv.lock                 # Locked versions
 └── chrome-profile/        # Chrome user data dir (gitignored)
     └── sessions/           # Sessões de sites logados
 ```
@@ -131,7 +143,6 @@ uvx browser-use install
 
 ```bash
 OPENROUTER_API_KEY=sk-or-v1-...  # OpenRouter key (Infisical)
-MINIMAX_TOKEN=sk-cp-uA1oy3...    # MiniMax fallback (Infisical)
 CHROME_PROFILE_PATH=/srv/data/perplexity-agent/chrome-profile
 STREAMLIT_PORT=4004
 ```
@@ -139,8 +150,7 @@ STREAMLIT_PORT=4004
 ### Secrets (Infisical)
 
 No Infisical project `zappro-p-tc-k`:
-- `OPENROUTER_API_KEY` — OpenRouter API key (primary)
-- `MINIMAX_TOKEN` — MiniMax token (fallback)
+- `OPENROUTER_API_KEY` — OpenRouter API key
 
 ---
 
@@ -162,24 +172,24 @@ No Infisical project `zappro-p-tc-k`:
 
 | Etapa | Descrição | Status |
 |-------|-----------|--------|
-| 1 | Setup projeto + deps | PENDING |
-| 2 | Chrome profile setup | PENDING |
-| 3 | Basic Streamlit UI | PENDING |
-| 4 | browser-use Agent integration (ChatOpenAI + MiniMax) | PENDING |
-| 5 | Test: busca simples | PENDING |
-| 6 | Test: sessão Google autenticada | PENDING |
-| 7 | Coolify deployment | PENDING |
-| 8 | subdomain web.zappro.site | PENDING |
+| 1 | Setup projeto + deps | ✅ DONE |
+| 2 | Chrome profile setup | ✅ DONE |
+| 3 | Basic Streamlit UI | ✅ DONE |
+| 4 | browser-use Agent integration (OpenRouter GPT-4o-mini) | ✅ DONE |
+| 5 | Test: busca simples | ✅ DONE |
+| 6 | Test: sessão Google autenticada | ✅ DONE |
+| 7 | Coolify deployment | ⏳ IN PROGRESS |
+| 8 | subdomain web.zappro.site | ✅ DONE (terraform apply) |
 
 ---
 
 ## 9. Métricas de Sucesso
 
-- [ ] Agent responde perguntas de busca com fontes
-- [ ] Chrome profile persiste sessão entre restarts
-- [ ] Budget $50/mês não excedido
+- [x] Agent responde perguntas de busca com fontes (GPT-4o-mini working)
+- [x] Chrome profile persiste sessão entre restarts
+- [ ] Budget $50/mês não excedido (monitorar)
 - [ ] Deployed on Coolify via terraform
-- [ ] Subdomain web.zappro.site funcionando
+- [x] Subdomain web.zappro.site funcionando (terraform applied)
 
 ---
 
