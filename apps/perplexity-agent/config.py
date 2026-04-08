@@ -2,26 +2,28 @@
 import os
 import subprocess
 
+INFISICAL_PROJECT_ID = "e42657ef-98b2-4b9c-9a04-46c093bd6d37"
+INFISICAL_ENV = "dev"
+TOKEN_PATH = "/srv/ops/secrets/infisical.service-token"
 
-def get_minimax_token() -> str:
-    """Fetch MINIMAX_TOKEN from Infisical vault."""
-    token_path = "/srv/ops/secrets/infisical.service-token"
-    script = """
+
+def _fetch_infisical_secret(secret_key: str) -> str:
+    """Fetch a secret from Infisical vault."""
+    script = f"""
 from infisical_sdk import InfisicalSDKClient
 import os
-token = os.environ.get('INFISICAL_TOKEN') or open('{token_path}').read().strip()
+token = os.environ.get('INFISICAL_TOKEN') or open('{TOKEN_PATH}').read().strip()
 client = InfisicalSDKClient(host='http://127.0.0.1:8200', token=token)
 secrets = client.secrets.list_secrets(
-    project_id='e42657ef-98b2-4b9c-9a04-46c093bd6d37',
-    environment_slug='dev',
+    project_id='{INFISICAL_PROJECT_ID}',
+    environment_slug='{INFISICAL_ENV}',
     secret_path='/'
 )
 for s in secrets.secrets:
-    if s.secret_key == 'MINIMAX_TOKEN':
+    if s.secret_key == '{secret_key}':
         print(s.secret_value)
         break
-""".format(token_path=token_path)
-
+"""
     result = subprocess.run(
         ["python3", "-c", script],
         capture_output=True,
@@ -29,12 +31,43 @@ for s in secrets.secrets:
         timeout=10,
     )
     if result.returncode != 0:
-        raise RuntimeError(f"Failed to fetch MINIMAX_TOKEN: {result.stderr}")
+        raise RuntimeError(f"Failed to fetch {secret_key}: {result.stderr}")
     return result.stdout.strip()
 
 
+def get_minimax_token() -> str:
+    """Fetch MINIMAX_TOKEN from Infisical vault."""
+    return _fetch_infisical_secret("MINIMAX_TOKEN")
+
+
+def get_oauth_client_id(persona: str) -> str | None:
+    """Fetch Google OAuth client ID for persona from Infisical vault."""
+    key = f"GOOGLE_OAUTH_CLIENT_ID_{persona.upper()}"
+    try:
+        return _fetch_infisical_secret(key)
+    except RuntimeError:
+        return None
+
+
+def get_oauth_client_secret(persona: str) -> str | None:
+    """Fetch Google OAuth client secret for persona from Infisical vault."""
+    key = f"GOOGLE_OAUTH_CLIENT_SECRET_{persona.upper()}"
+    try:
+        return _fetch_infisical_secret(key)
+    except RuntimeError:
+        return None
+
+
+# Initialize tokens
 MINIMAX_TOKEN = get_minimax_token()
 
+# OAuth credentials (optional - for real OAuth flow)
+GOOGLE_OAUTH_CLIENT_ID_GEMINI = os.environ.get("GOOGLE_OAUTH_CLIENT_ID_GEMINI")
+GOOGLE_OAUTH_CLIENT_SECRET_GEMINI = os.environ.get("GOOGLE_OAUTH_CLIENT_SECRET_GEMINI")
+GOOGLE_OAUTH_CLIENT_ID_PERPLEXITY = os.environ.get("GOOGLE_OAUTH_CLIENT_ID_PERPLEXITY")
+GOOGLE_OAUTH_CLIENT_SECRET_PERPLEXITY = os.environ.get("GOOGLE_OAUTH_CLIENT_SECRET_PERPLEXITY")
+
+# Paths
 CHROME_PROFILE_PATH = os.environ.get(
     "CHROME_PROFILE_PATH",
     "/srv/data/perplexity-agent/chrome-profile"
