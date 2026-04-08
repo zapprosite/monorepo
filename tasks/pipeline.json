@@ -1,169 +1,254 @@
 {
-  "name": "homelab-estavel",
-  "description": "Home Lab Stabilization Pipeline — Alerting, Backup, DNS, Offsite, Watchdog",
-  "version": "1.0.0",
-  "created": "2026-04-07",
+  "name": "homelab-refactor",
+  "description": "Homelab Infrastructure Refactoring — Cloudflare Tunnel + Coolify + Cleanup (SPEC-002 + SPEC-002-CLEANUP)",
+  "version": "1.1.0",
+  "created": "2026-04-08",
+  "specs": [
+    "docs/specflow/SPEC-002-homelab-network-refactor.md",
+    "docs/specflow/SPEC-002-CLEANUP.md"
+  ],
   "phases": [
     {
       "phase": 1,
-      "name": "Alerting & Monitoring",
+      "name": "Snapshot & Backup (OBRIGATORIO antes de tudo)",
       "tasks": [
         {
           "id": "TASK-1A",
-          "name": "Deploy AlertManager + Gotify",
-          "status": "completed",
-          "files": [
-            "/srv/apps/monitoring/docker-compose.yml",
-            "/srv/apps/monitoring/alertmanager.yml"
-          ],
-          "verification": "Alert fires on service down within 60 seconds",
-          "test": "docker stop qdrant && sleep 60 && docker start qdrant"
+          "name": "ZFS snapshot pre-refactor",
+          "status": "pending",
+          "verification": "zfs list -t snapshot tank@pre-refactor-20260408 existe",
+          "test": "sudo zfs list -t snapshot -r tank | grep pre-refactor"
         },
         {
           "id": "TASK-1B",
-          "name": "Health check cron with AlertManager",
-          "status": "completed",
-          "files": [
-            "/srv/ops/scripts/homelab-health-check.sh"
-          ],
-          "verification": "Cron runs every 5min, alerts fire on failure",
-          "test": "crontab -l | grep health-check"
+          "name": "Backup Coolify DB",
+          "status": "pending",
+          "verification": "Arquivo /srv/backups/coolify-db-20260408.sql existe",
+          "test": "ls -lh /srv/backups/coolify-db-20260408.sql"
+        },
+        {
+          "id": "TASK-1C",
+          "name": "Commit estado atual ops",
+          "status": "pending",
+          "verification": "git -C /srv/ops log --oneline -1 mostra commit",
+          "test": "git -C /srv/ops log --oneline -1"
         }
       ]
     },
     {
       "phase": 2,
-      "name": "Qdrant Backup System",
+      "name": "Terraform Hardening (SPEC-002 Section 4)",
       "tasks": [
         {
           "id": "TASK-2A",
-          "name": "Enhance Qdrant backup script",
-          "status": "completed",
-          "files": [
-            "/srv/ops/scripts/backup-qdrant.sh"
-          ],
-          "verification": "tar -tzf shows valid backup, old backups rotated",
-          "test": "./backup-qdrant.sh && tar -tzf /srv/backups/qdrant/*.tar.gz | head"
+          "name": "Adicionar lifecycle prevent_destroy no tunnel_secret",
+          "status": "pending",
+          "file": "/srv/ops/terraform/cloudflare/main.tf",
+          "verification": "terraform plan mostra lifecycle block",
+          "test": "grep -A3 'lifecycle' /srv/ops/terraform/cloudflare/main.tf | grep prevent_destroy"
         },
         {
           "id": "TASK-2B",
-          "name": "Qdrant backup cron + verification",
-          "status": "completed",
-          "files": [
-            "/srv/ops/scripts/verify-qdrant-restore.sh"
-          ],
-          "verification": "Backup exists from today, weekly restore test passes",
-          "test": "ls -la /srv/backups/qdrant/"
+          "name": "Adicionar connectTimeout + tlsTimeout no ingress config",
+          "status": "pending",
+          "file": "/srv/ops/terraform/cloudflare/main.tf",
+          "verification": "terraform plan mostra connect_timeout e tls_timeout",
+          "test": "grep -E 'connect_timeout|tls_timeout' /srv/ops/terraform/cloudflare/main.tf"
+        },
+        {
+          "id": "TASK-2C",
+          "name": "Criar user cloudflared dedicado + chmod 600 credentials",
+          "status": "pending",
+          "verification": "useradd cloudflared existe, chmod 600 ~/.cloudflared/*.json",
+          "test": "id cloudflared && ls -la ~/.cloudflared/*.json"
+        },
+        {
+          "id": "TASK-2D",
+          "name": "Terraform apply + commit",
+          "status": "pending",
+          "file": "/srv/ops/terraform/cloudflare/",
+          "verification": "terraform plan mostra 0 changes, commit criado",
+          "test": "cd /srv/ops/terraform/cloudflare && terraform plan"
         }
       ]
     },
     {
       "phase": 3,
-      "name": "Internal DNS",
+      "name": "Cloudflared Systemd Service (SPEC-002 Section 5)",
       "tasks": [
         {
           "id": "TASK-3A",
-          "name": "Deploy CoreDNS",
+          "name": "Gerar cloudflared systemd unit com TUNNEL_TOKEN env var",
           "status": "pending",
-          "files": [
-            "/srv/apps/dns/Corefile",
-            "/srv/apps/dns/docker-compose.yml"
-          ],
-          "verification": "curl http://qdrant:6333 works from any container",
-          "test": "docker exec openclaw-qgtzrmi6771lt8l7x8rqx72f getent hosts qdrant"
+          "file": "/srv/ops/terraform/cloudflare/cloudflared.service",
+          "verification": "cloudflared.service existe em /etc/systemd/system/ e usa TUNNEL_TOKEN",
+          "test": "grep TUNNEL_TOKEN /etc/systemd/system/cloudflared.service"
         },
         {
           "id": "TASK-3B",
-          "name": "Update service configs to use hostnames",
+          "name": "Migrar cloudflared service para usar TUNNEL_TOKEN (nao credentials file)",
           "status": "pending",
-          "files": [
-            "/home/will/zappro-lite/config.yaml",
-            "/data/.openclaw/openclaw.json"
-          ],
-          "verification": "grep -r '10.0.' returns nothing",
-          "test": "grep -r '10\\.0\\.' /srv/apps/*/docker-compose.yml"
+          "verification": "systemctl show cloudflared | grep Environment=TUNNEL_TOKEN",
+          "test": "systemctl show cloudflared | grep Environment"
+        },
+        {
+          "id": "TASK-3C",
+          "name": "Habilitar cloudflared metrics endpoint :9090",
+          "status": "pending",
+          "verification": "curl localhost:9090/metrics retorna 200",
+          "test": "curl -s localhost:9090/metrics | head -5"
+        },
+        {
+          "id": "TASK-3D",
+          "name": "Restart cloudflared + verify tunnel active",
+          "status": "pending",
+          "verification": "systemctl status cloudflared mostra active (running), curl chat.zappro.site retorna 302",
+          "test": "systemctl status cloudflared && curl -s -o /dev/null -w '%{http_code}' https://chat.zappro.site"
         }
       ]
     },
     {
       "phase": 4,
-      "name": "Offsite Backup",
+      "name": "Coolify Network Stability (SPEC-002 Section 6)",
       "tasks": [
         {
           "id": "TASK-4A",
-          "name": "Configure rclone to offsite target",
+          "name": "Restart coolify-proxy para recuperar rotas open-webui",
           "status": "pending",
-          "files": [
-            "/srv/ops/scripts/backup-offsite.sh",
-            "/root/.config/rclone/rclone.conf"
-          ],
-          "verification": "rclone listremotes shows remote configured",
-          "test": "rclone listremotes"
+          "verification": "curl localhost:8080 retorna 200 do Open WebUI",
+          "test": "docker restart coolify-proxy && sleep 5 && curl -s localhost:8080 | head -3"
         },
         {
           "id": "TASK-4B",
-          "name": "Offsite backup script + monitoring",
+          "name": "Verificar IP open-webui estavel apos restart",
           "status": "pending",
-          "files": [
-            "/srv/ops/scripts/offsite-backup-alerts.sh"
-          ],
-          "verification": "Data exists offsite within 24h, Grafana shows backup age",
-          "test": "rclone ls remote:bucket/backup --max-age 48h"
+          "verification": "docker inspect open-webui-* --format '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' retorna IP valido",
+          "test": "docker inspect $(docker ps --filter 'name=open-webui' --format '{{.Names}}') --format '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}'"
+        },
+        {
+          "id": "TASK-4C",
+          "name": "Documentar health check strategy para open-webui (container restartable)",
+          "status": "pending",
+          "verification": "docs/INFRASTRUCTURE/HEALTH_CHECK.md existe e define estrategia",
+          "test": "cat /srv/monorepo/docs/INFRASTRUCTURE/HEALTH_CHECK.md"
         }
       ]
     },
     {
       "phase": 5,
-      "name": "Watchdog Stabilization",
+      "name": "Smoke Tests",
       "tasks": [
         {
           "id": "TASK-5A",
-          "name": "Diagnose watchdog cycling root cause",
+          "name": "Executar smoke test chat.zappro.site",
           "status": "pending",
-          "files": [
-            "/srv/monorepo/docs/INFRASTRUCTURE/OPENCLAW_DEBUG.md"
-          ],
-          "verification": "Root cause documented",
-          "test": "cat /srv/monorepo/docs/INFRASTRUCTURE/OPENCLAW_DEBUG.md"
+          "verification": "bash /srv/monorepo/smoke-tests/smoke-chat-zappro-site.sh passa 5/5",
+          "test": "bash /srv/monorepo/smoke-tests/smoke-chat-zappro-site.sh"
         },
         {
           "id": "TASK-5B",
-          "name": "Stabilize Whisper STT endpoint",
+          "name": "Testar todos os 11 subdomínios",
           "status": "pending",
-          "files": [
-            "/data/.openclaw/openclaw.json",
-            "/home/will/Desktop/voice-pipeline/scripts/openclaw-stt-watchdog.sh"
-          ],
-          "verification": "No cycling in 24h, STT responds consistently",
-          "test": "docker logs openclaw-qgtzrmi6771lt8l7x8rqx72f --since 24h | grep -i watchdog"
+          "verification": "todos respondem HTTP 2xx ou 3xx",
+          "test": "for site in chat bot api llm painel vault n8n coolify git qdrant monitor; do code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 5 https://${site}.zappro.site); echo \"${site}: $code\"; done"
         }
       ]
     },
     {
       "phase": 6,
-      "name": "AI Monitoring (Gemma4)",
+      "name": "Cleanup Pos-Refatoracao (SPEC-002-CLEANUP)",
       "tasks": [
         {
           "id": "TASK-6A",
-          "name": "Gemma4 AI homelab monitor via Ollama",
-          "status": "completed",
-          "files": [
-            "/srv/ops/scripts/homelab-gemma-monitor.sh"
-          ],
-          "verification": "Gemma4 analisa logs a cada 15min e envia Telegram se encontrar problemas",
-          "test": "systemctl status homelab-gemma-monitor.timer"
+          "name": "Docker ghosts — containers parados, volumes, networks",
+          "status": "pending",
+          "verification": "docker ps -a mostra apenas containers ativos",
+          "test": "docker ps -a --format '{{.Names}}\t{{.Status}}' | grep -v Up"
+        },
+        {
+          "id": "TASK-6B",
+          "name": "Logs — truncar Docker logs, journal vacuum",
+          "status": "pending",
+          "verification": "Docker logs truncados, journal entries antigas removidas",
+          "test": "du -sh /var/lib/docker/containers/*/  # verificar tamanho reduzido"
+        },
+        {
+          "id": "TASK-6C",
+          "name": "Terraform state drift — verificar + limpar entries deprecated",
+          "status": "pending",
+          "verification": "terraform plan mostra 0 changes",
+          "test": "cd /srv/ops/terraform/cloudflare && terraform plan"
+        },
+        {
+          "id": "TASK-6D",
+          "name": "Cloudflare DNS — deletar aurelia.zappro.site record",
+          "status": "pending",
+          "verification": "Cloudflare Dashboard nao mostra aurelia.zappro.site CNAME",
+          "test": "terraform plan | grep aurelia"
+        },
+        {
+          "id": "TASK-6E",
+          "name": "Cloudflare Zero Trust — deletar Homelab aurelia Access app",
+          "status": "pending",
+          "verification": "Zero Trust Dashboard nao mostra 'Homelab — aurelia'",
+          "test": "terraform plan | grep 'aurelia' | grep access"
+        },
+        {
+          "id": "TASK-6F",
+          "name": "Cron jobs — remover backup-supabase.sh, backup-caprover.sh",
+          "status": "pending",
+          "verification": "/etc/cron.daily/backup-supabase.sh e backup-caprover.sh nao existem",
+          "test": "ls /etc/cron.daily/ | grep -E 'supabase|caprover'"
+        },
+        {
+          "id": "TASK-6G",
+          "name": "Filesystem — archivar dirs supabase/caprover",
+          "status": "pending",
+          "verification": "/srv/backups/archive/YYYYMMDD/ contem dirs arquivados",
+          "test": "ls /srv/backups/archive/"
+        },
+        {
+          "id": "TASK-6H",
+          "name": "Monitoring — deletar Grafana dashboards supabase/caprover/voice",
+          "status": "pending",
+          "verification": "Grafana nao mostra dashboards dos servicos removidos",
+          "test": "docker exec grafana grafana-cli admin list dashboards 2>/dev/null | grep -iE 'supabase|caprover|voice'"
         }
       ]
     }
   ],
   "current_state": {
-    "whisper_api": "container whisper-api-gpu on network qgtzrmi6771lt8l7x8rqx72f",
-    "kokoro_tts": "healthy on localhost:8012",
-    "llava_vision": "working via LiteLLM :4000",
-    "deepgram": "fallback STT cloud",
-    "infisical": "vault running on :8200",
-    "gpu": "RTX 4090 24GB, 2GB used",
-    "gemma4": "Ollama local — monitora homelab a cada 15min via systemd timer"
+    "chat.zappro.site": "502 Bad Gateway — coolify-proxy perdeu rota open-webui apos container restart",
+    "cloudflared": "active (running) — systemd service",
+    "coolify-proxy": "Up 4 days — coolify-proxy container healthy",
+    "open-webui": "restarted 5 min ago — IP 10.0.5.2 pode ter mudado",
+    "terraform": "55ad49a + 6bd2e22 — 2 commits pendentes de push"
   },
-  "order": ["TASK-1A", "TASK-1B", "TASK-2A", "TASK-2B", "TASK-3A", "TASK-3B", "TASK-4A", "TASK-4B", "TASK-5A", "TASK-5B", "TASK-6A"]
+  "boundaries": {
+    "never": [
+      "terraform destroy sem snapshot ZFS",
+      "docker system prune -a sem verificar volumes",
+      "deletar tunnel credentials sem replacement",
+      "expor portas sem atualizar PORTS.md + SUBDOMAINS.md"
+    ],
+    "always_before": [
+      "ZFS snapshot antes de qualquer mudanca destrutiva",
+      "terraform plan antes de apply",
+      "commit antes de terraform apply em /srv/ops"
+    ],
+    "ask_before": [
+      "deletar Cloudflare DNS records",
+      "deletar Cloudflare Zero Trust Access apps",
+      "destruir ZFS datasets",
+      "modificar var.services no Terraform"
+    ]
+  },
+  "order": [
+    "TASK-1A", "TASK-1B", "TASK-1C",
+    "TASK-2A", "TASK-2B", "TASK-2C", "TASK-2D",
+    "TASK-3A", "TASK-3B", "TASK-3C", "TASK-3D",
+    "TASK-4A", "TASK-4B", "TASK-4C",
+    "TASK-5A", "TASK-5B",
+    "TASK-6A", "TASK-6B", "TASK-6C", "TASK-6D", "TASK-6E", "TASK-6F", "TASK-6G", "TASK-6H"
+  ]
 }
