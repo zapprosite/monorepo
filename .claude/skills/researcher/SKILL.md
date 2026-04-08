@@ -1,44 +1,50 @@
 ---
-name: Deep Researcher
-description: Especialista em pesquisa profunda de mercado e tecnologia.
+name: researcher
+description: Pesquisa profunda de mercado e tecnologia usando Tavily Search API. Use quando o utilizador pedir para pesquisar, investigar, analisar tendências ou obter informações actualizadas da web.
+user-invocable: true
+disable-model-invocation: false
+allowed-tools:
+  - Bash
+  - Read
+  - WebFetch
+paths:
+  - ~/.claude/skills/researcher/**
 version: 1.0.0
 ---
 
-# Researcher Skill
+# Skill: Researcher — Tavily Search
 
-## Objetivo
-Conduzir pesquisas aprofundadas sobre qualquer tema, sintetizando informações de múltiplas fontes em análises estruturadas e acionáveis.
+## Synopsis
 
-## Quando usar
-- Pesquisar concorrentes ou mercado antes de decisão de produto
-- Investigar tecnologia ou biblioteca antes de adotar
-- Analisar tendências de uma área
-- Produzir briefing sobre qualquer tema para tomada de decisão
+`/researcher <query>`
 
-## Como executar
+Pesquisa rápida na web usando Tavily Search API.
 
-### Fase 1: Escopo
-1. Defina a pergunta central que precisa ser respondida
-2. Identifique subtópicos relevantes (máximo 5)
-3. Determine o nível de profundidade necessário (visão geral vs. análise técnica)
+## Description
 
-### Fase 2: Coleta
-1. Busque fontes primárias quando possível (documentação oficial, papers, dados)
-2. Use fontes secundárias para contexto e síntese
-3. Identifique lacunas e controvérsias no tema
+Usa a Tavily Search API para obter resultados de pesquisa actualizados da web. Ideal para:
+- Pesquisar informações actuais (pós-2024)
+- Investigar produtos, tecnologias, competidores
+- Fact-checking rápido
+- Obter links e fontes para citations
 
-### Fase 3: Síntese
-1. Separe fatos de opiniões
-2. Identifique consensos e divergências
-3. Conecte as informações com o contexto do usuário
+## Usage
 
-### Fase 4: Output
-1. Estruture por relevância para a decisão, não por ordem de descoberta
-2. Inclua fontes para pontos críticos
-3. Termine com recomendação ou próximos passos claros
+```
+/researcher Claude Code CLI best practices 2026
+/researcher Tavily API pricing free tier
+/researcher Gemini API quota limits
+```
 
-## Output esperado
-- Resumo executivo (3-5 pontos principais)
-- Análise detalhada por subtópico
-- Pontos de atenção e limitações da pesquisa
-- Recomendação ou conclusão acionável
+## API
+
+- **Endpoint:** `https://api.tavily.com/search`
+- **Method:** POST (JSON body)
+- **Auth:** `api_key` no body
+- **Key:** TAVILY_API_KEY do vault Infisical
+
+## Sources
+
+- Tavily Docs: https://docs.tavily.com
+- Free Tier: 1000 queries/month
+- API: https://api.tavily.com/search
