@@ -5,7 +5,7 @@
       "cron": "*/30 * * * *",
       "prompt": "Você é o agent de auto-orchestration. Execute:\n\n1. Rode: /home/will/.claude/mcps/ai-context-sync/sync.sh\n2. Verifique: git -C /srv/monorepo status --short\n3. Se houver mudanças pendentes, liste-as\n4. Se não houver, diga \"Auto-orchestration: tudo em dia\"\n\nResuma em 1-2 linhas.",
       "createdAt": 1775557362633,
-      "lastFiredAt": 1775637364655,
+      "lastFiredAt": 1775640942538,
       "recurring": true
     },
     {
@@ -53,8 +53,8 @@
       "cron": "0 6 * * *",
       "prompt": "Execute scan de secrets antes de push:\n\n1. grep -rE '(ghp_|gho_|ghu_|ghs_|ghr_)[A-Za-z0-9]{36}|AKIA[0-9A-Z]{16}|sk-[A-Za-z0-9]{48}' /srv/monorepo --include='*.ts' --include='*.js' --include='*.env' 2>/dev/null | head -10\n2. Se encontrar secrets, liste locations e aborta\n3. Se não encontrar, diga 'Secrets audit: OK'\n\nResuma em 2-3 linhas.",
       "createdAt": 1775587500000,
-      "recurring": true,
-      "lastFiredAt": 1775638938573
+      "lastFiredAt": 1775638938573,
+      "recurring": true
     },
     {
       "id": "mcp-health-daily",

@@ -55,7 +55,6 @@ Criar um agente de busca e navegação web autônomo (Perplexity-like) que:
 │   Model: openai/gpt-4o-mini                                  │
 │   Custo: $0.15/1M (prompt) + $0.60/1M (completion)          │
 │   Auth: OPENROUTER_API_KEY (Infisical)                       │
-│   Fallback: MiniMax M2.7 → Ollama qwen3:14b                  │
 └──────────────────────────────────────────────────────────────┘
 ```
 ```
@@ -69,8 +68,7 @@ Criar um agente de busca e navegação web autônomo (Perplexity-like) que:
 | UI | Streamlit | `uv add streamlit` |
 | Agent | browser-use | `uv add browser-use` |
 | Browser | Playwright + Chrome | `uvx browser-use install` |
-| LLM Primary | ChatOpenAI (OpenRouter GPT-4o-mini) | `uv add langchain-openai` |
-| LLM Fallback | ChatAnthropic (MiniMax M2.7) + Ollama | `uv add langchain-anthropic langchain-ollama` |
+| LLM | ChatOpenAI (OpenRouter GPT-4o-mini) | `uv add langchain-openai` |
 | Secrets | Infisical | system-wide |
 | Runtime | Python 3.11+ | uv |
 
