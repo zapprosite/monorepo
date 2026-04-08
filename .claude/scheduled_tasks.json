@@ -5,7 +5,7 @@
       "cron": "*/30 * * * *",
       "prompt": "Você é o agent de auto-orchestration. Execute:\n\n1. Rode: /home/will/.claude/mcps/ai-context-sync/sync.sh\n2. Verifique: git -C /srv/monorepo status --short\n3. Se houver mudanças pendentes, liste-as\n4. Se não houver, diga \"Auto-orchestration: tudo em dia\"\n\nResuma em 1-2 linhas.",
       "createdAt": 1775557362633,
-      "lastFiredAt": 1775640942538,
+      "lastFiredAt": 1775655475243,
       "recurring": true
     },
     {
@@ -13,7 +13,7 @@
       "cron": "*/90 * * * *",
       "prompt": "Rode: /home/will/.claude/mcps/ai-context-sync/checkpoint.sh\n\nSe houver output (changes), liste os arquivos pendentes. Se não, diga apenas 'Checkpoint: OK'.",
       "createdAt": 1775587500000,
-      "lastFiredAt": 1775638938573,
+      "lastFiredAt": 1775653288381,
       "recurring": true
     },
     {
@@ -21,7 +21,7 @@
       "cron": "*/60 * * * *",
       "prompt": "Rode: /home/will/.claude/mcps/ai-context-sync/context-meter.sh\n\nSe o output começar com '⚠️', responda com o alerta completo. Caso contrário, apenas confirme.",
       "createdAt": 1775587500000,
-      "lastFiredAt": 1775638938573,
+      "lastFiredAt": 1775653288381,
       "recurring": true
     },
     {
@@ -61,6 +61,22 @@
       "cron": "0 8 * * *",
       "prompt": "Verifique estado dos MCP servers:\n\n1. ls ~/.claude/mcp-servers.json 2>/dev/null && cat ~/.claude/mcp-servers.json | jq '.servers[].name' 2>/dev/null || echo 'No MCP config'\n2. Liste cada server com status ( UP / DOWN / DEGRADED )\n\nSe todos OK, diga 'MCP health: OK — todos os servers up'. Se algum down, liste-os.",
       "createdAt": 1775587500000,
+      "lastFiredAt": 1775646715732,
+      "recurring": true
+    },
+    {
+      "id": "d201999d",
+      "cron": "*/5 * * * *",
+      "prompt": "Execute /home/will/.claude/skills/gitea-coolify-deploy/scripts/auto-healer.sh and log output to /srv/ops/logs/healing.log. If any containers were restarted, report which ones.",
+      "createdAt": 1775652662474,
+      "lastFiredAt": 1775655475243,
+      "recurring": true
+    },
+    {
+      "id": "95c72b71",
+      "cron": "3 */15 * * *",
+      "prompt": "Execute /home/will/.claude/skills/gitea-coolify-deploy/scripts/resource-monitor.sh and log output to /srv/ops/logs/resource-alerts.log. Report any resource usage above threshold (CPU >70%, Memory >80%).",
+      "createdAt": 1775652662499,
       "recurring": true
     }
   ]
