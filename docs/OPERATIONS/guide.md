@@ -1,6 +1,6 @@
 # 🚀 Guia Operacional - will-zappro Homelab
 
-**Versão:** 2026-04-04
+**Versão:** 2026-04-08
 **Host:** will-zappro (Ubuntu 24.04 LTS)
 **Governança:** `/srv/ops/ai-governance/`
 **Status:** ✅ Produção estável
@@ -148,7 +148,55 @@ codex-host "wipefs /dev/nvme0n1"
 
 ---
 
-### 2.3 GitHub Copilot (Opcional)
+### 2.3 Coolify + GitOps (Deploy Automatizado)
+
+**Quando usar:** Deploy de apps via Gitea Actions → Coolify API
+
+**Arquitetura:**
+```
+Gitea (git push) → Gitea Action → Coolify API → Container
+                                      └── Cloudflare Tunnel → web.zappro.site
+```
+
+**Skills disponíveis (em `/home/will/.claude/skills/`):**
+
+| Skill | Uso |
+|-------|-----|
+| `coolify-deploy-trigger/` | Trigger deploy manual |
+| `coolify-auto-healer/` | Monitora e restart se down (cron 5min) |
+| `coolify-health-check/` | Verifica health após deploy |
+| `coolify-resource-monitor/` | Alerta se CPU/mem > 80% (cron 15min) |
+| `coolify-incident-diagnostics/` | Diagnostica erros e sugere fixes |
+| `coolify-rollback/` | Rollback para versão anterior |
+
+**Uso com Claude Code CLI:**
+```bash
+# Trigger deploy
+claude -p "Deploy perplexity-agent via Coolify"
+
+# Health check
+claude -p "Run health check on web.zappro.site"
+
+# Auto-healer (já roda em cron)
+# Verificar status
+claude -p "List all Coolify apps with resource usage"
+```
+
+**Scripts de automação (em `/home/will/.claude/skills/gitea-coolify-deploy/scripts/`):**
+
+| Script | Função |
+|--------|--------|
+| `deploy.sh` | Deploy via Coolify API (SSRF protected) |
+| `smoke-test.sh` | Health check HTTP 200 pós-deploy |
+| `auto-healer.sh` | Restart containers degraded/down (cron 5min) |
+| `resource-monitor.sh` | CPU >70%, Memory >80% alerts (cron 15min) |
+
+**Secrets configurados (Infisical):**
+- ✅ `COOLIFY_API_KEY` adicionado
+- ✅ `COOLIFY_URL` disponível
+- ✅ `OPENROUTER_API_KEY` disponível
+
+### 2.4 GitHub Copilot (Opcional)
 
 **Quando usar:** Coding no GitHub editor ou CLI
 
@@ -624,6 +672,7 @@ docker logs n8n 2>&1 | grep -i error | tail -5
 
 ---
 
-**Última atualização:** 2026-03-16
+**Última atualização:** 2026-04-08
 **Manutentor:** will (você)
 **Suporte:** Veja /srv/ops/ai-governance/QUICK_START.md ou GUARDRAILS.md
+**Incidentes:** Ver `docs/INCIDENTS/INCIDENT-2026-04-08-perplexity-gitops-gap.md`
