@@ -1,124 +1,190 @@
-# SPEC.md — Homelab Infrastructure Refactoring
+# SPEC.md — Perplexity-like Browser Agent
 
-**Versão:** 1.0
+**Versão:** 0.2
 **Data:** 2026-04-08
-**Status:** Active
-**Dependência:** SPEC-002 (Homelab Infrastructure Refactoring)
+**Status:** Draft
+**Stack:** Streamlit + browser-use + MiniMax Official API
 
 ---
 
 ## 1. Objetivo
 
-Refatorar a arquitetura de rede do homelab `will-zappro` para usar Cloudflare Tunnel (cloudflared) como systemd service + Coolify (Traefik proxy) como gateway de aplicações, seguindo docs oficiais da Cloudflare, Coolify e Terraform Provider.
+Criar um agente de busca e navegação web autônomo (Perplexity-like) que:
+- Recebe perguntas em linguagem natural
+- Navega na web usando browser com sessão autenticada (Chrome profile)
+- Extrai conteúdo relevante
+- Responde com fontes e citations
+- Usa MiniMax-M2.7 via API oficial MiniMax (OpenAI-compatible)
+
+**Usuários:** Você (homelab will-zappro)
 
 ---
 
-## 2. Arquitetura-Alvo
+## 2. Arquitetura
 
 ```
-[Cloudflare Edge]
-      │
-      ▼
-Cloudflare Tunnel (cloudflared daemon — systemd service)
-      │  credentials: ~/.cloudflared/{tunnel-uuid}.json
-      │  config:      /etc/cloudflared/config.yml
-      │
-      ▼
-  Host:8000 (Coolify Traefik Proxy — coolify-proxy container)
-      │
-      ├── /  → coolify.zappro.site     (Coolify panel)
-      ├── /   → open-webui (:8080)     (Open WebUI — 10.0.5.2:8080)
-      ├── /   → n8n (:5678)            (n8n automation)
-      └── /   → grafana (:3100)        (Monitoring)
+┌──────────────────────────────────────────────────────────────┐
+│                    Streamlit UI (:4004)                         │
+│   - Chat input                                               │
+│   - Output: resposta + fontes + citations                   │
+│   - Status do browser                                        │
+└──────────────────────────┬─────────────────────────────────┘
+                              │
+                              ▼
+┌──────────────────────────────────────────────────────────────┐
+│                    Agent (browser-use)                           │
+│                                                              │
+│   Task: "Search for X, navigate to Y, extract Z"           │
+│   LLM: ChatOpenAI(                                           │
+│          model="MiniMax-Text-01",                          │
+│          base_url="https://api.minimax.chat/v1",           │
+│          api_key=MINIMAX_TOKEN  ← Infisical                 │
+│        )                                                     │
+│   Browser: Playwright + Chrome Profile (sessões persistidas) │
+└──────────────────────────┬─────────────────────────────────┘
+                              │
+                              ▼
+┌──────────────────────────────────────────────────────────────┐
+│                    Chrome Profile                               │
+│   Sessões logadas: Google, YouTube, sites autenticados       │
+└──────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌──────────────────────────────────────────────────────────────┐
+│                    MiniMax Official API                      │
+│   Endpoint: https://api.minimax.chat/v1                     │
+│   Model: MiniMax-Text-01 (ou minimax-m2.7)                  │
+│   Auth: MINIMAX_TOKEN (Infisical)                           │
+│   Custo: $0.0000003/1M tokens (prompt) + $0.0000012/1M     │
+│   Budget: $50/mês — 15k req/dia                             │
+└──────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 3. Componentes
+## 3. Tech Stack
 
-| Componente | Tecnologia | Estado |
-|-----------|------------|--------|
-| Tunnel | cloudflared 2026.3.0 systemd | ✅ Running |
-| DNS + Access | Terraform Cloudflare Provider 4.52.7 | ✅ Applied |
-| Proxy | Coolify Traefik (coolify-proxy) | ✅ Running |
-| Secrets | Infisical v0.146.2 | ✅ Configured |
-| Health checks | Smoke tests | ✅ Written |
-
----
-
-## 4. Terraform Resources
-
-| Resource | Propósito |
-|----------|-----------|
-| `cloudflare_zero_trust_tunnel_cloudflared.homelab` | Tunnel principal |
-| `cloudflare_zero_trust_tunnel_cloudflared_config.homelab` | Ingress rules (dynamic block) |
-| `cloudflare_record.tunnel_cname` | DNS CNAMEs (for_each = var.services) |
-| `cloudflare_zero_trust_access_application.services` | Access apps (exclui bot) |
-| `cloudflare_zero_trust_access_policy.owners` | Access policies (exclui bot) |
-| `random_password.tunnel_secret` | Secret para tunnel (prevent_destroy) |
+| Componente | Tecnologia | Instalação |
+|-----------|------------|------------|
+| UI | Streamlit | `uv add streamlit` |
+| Agent | browser-use | `uv add browser-use` |
+| Browser | Playwright + Chrome | `uvx browser-use install` |
+| LLM | ChatOpenAI (MiniMax official, OpenAI-compatible) | browser-use built-in |
+| Runtime | Python 3.11+ | uv |
 
 ---
 
-## 5. Variáveis — var.services
+## 4. Funcionalidades
 
-| Service | URL | Subdomain | http_host_header |
-|---------|-----|-----------|-----------------|
-| vault | http://localhost:8200 | vault | null |
-| n8n | http://10.0.6.3:5678 | n8n | null |
-| qdrant | http://localhost:6333 | qdrant | null |
-| monitor | http://localhost:3100 | monitor | null |
-| coolify | http://localhost:8000 | coolify | null |
-| git | http://localhost:3300 | git | null |
-| bot | http://localhost:80 | bot | openclaw-qgtzrmi6771lt8l7x8rqx72f.191.17.50.123.sslip.io |
-| painel | http://localhost:4003 | painel | null |
-| api | http://localhost:4000 | api | null |
-| llm | http://localhost:4000 | llm | null |
-| chat | http://localhost:8080 | chat | openwebui-wbmqefxhd7vdn2dme3i6s9an.191.17.50.123.sslip.io |
+### 4.1 Core Features
 
----
+- [ ] **Chat Interface** — input de pergunta, output de resposta
+- [ ] **Browser Automation** — Playwright controled por agente
+- [ ] **Chrome Profile Persistence** — manter sessões de login
+- [ ] **Stream de Respostas** — responder em tempo real (opcional)
+- [ ] **Citations** — listar fontes URLs usadas
+- [ ] **Search Integration** — buscar antes de navegar (DuckDuckGo ou Google)
 
-## 6. Security Hardening
+### 4.2 Browser Sessions
 
-- [x] `lifecycle { prevent_destroy = true }` em `random_password.tunnel_secret`
-- [x] `connect_timeout = 30`, `tls_timeout = 10` em `config.origin_request`
-- [x] `chmod 600` nas credenciais tunnel
-- [x] User `cloudflared` dedicado criado
-- [x] Secrets buscan do Infisical (não hardcoded)
-- [ ] Service cloudflared rodando como user `cloudflared` (PENDENTE)
+- Chrome profile em `/srv/data/perplexity-agent/chrome-profile/`
+- Sessões persistidas entre reinicializações
+- Você faz login manual nos sites que precisar (Google, etc.)
 
----
-
-## 7. Smoke Tests
+### 4.3 Commands
 
 ```bash
-bash /srv/monorepo/smoke-tests/smoke-chat-zappro-site.sh
-```
+# Development
+cd /srv/monorepo/apps/perplexity-agent
+uv sync
+uv run streamlit run app.py --port 4004
 
-Testa: HTTP→HTTPS (301), Access gate (302), Location header, SSL cert, login page.
+# Install browser
+uvx browser-use install
+
+# Production (Coolify)
+# Exposed on web.zappro.site (same domain as OpenClaw web services)
+```
 
 ---
 
-## 8. Condições de Borde
+## 5. Projeto Structure
+
+```
+/srv/monorepo/apps/perplexity-agent/
+├── app.py                  # Streamlit UI
+├── agent/
+│   ├── __init__.py
+│   ├── browser_agent.py     # browser-use Agent wrapper
+│   └── chrome_profile.py   # Chrome profile management
+├── config.py               # Settings, env vars
+├── requirements.txt        # ou pyproject.toml
+└── chrome-profile/        # Chrome user data dir (gitignored)
+    └── sessions/           # Sessões de sites logados
+```
+
+---
+
+## 6. Configuração
+
+### Environment Variables
+
+```bash
+MINIMAX_TOKEN=sk-cp-uA1oy3...  # MiniMax official API key (Infisical)
+CHROME_PROFILE_PATH=/srv/data/perplexity-agent/chrome-profile
+STREAMLIT_PORT=4004
+```
+
+### Secrets (Infisical)
+
+Adicionar ao Infisical project `zappro-p-tc-k`:
+- `MINIMAX_TOKEN` — MiniMax official API key
+
+---
+
+## 7. Condições de Borde
 
 ### ✅ Sempre fazer
-- Snapshot ZFS antes de qualquer change destrutivo
-- `terraform plan` antes de apply
-- Secrets busquem de Infisical (nunca hardcoded)
+- Manter Chrome profile com sessões de login
+- Budget tracking — alertas se $50/mês excedido
+- Logs de cada sessão de navegação
 
 ### ❌ Nunca fazer
-- `terraform destroy` sem snapshot
-- Expor portas sem atualizar PORTS.md + SUBDOMAINS.md
+-露天 Expor porta sem Cloudflare Access
+-露天 Commitar Chrome profile ou secrets
+-露天 Exceder budget de 15k req/dia sem aviso
+
+---
+
+## 8. Etapas de Implementação
+
+| Etapa | Descrição | Status |
+|-------|-----------|--------|
+| 1 | Setup projeto + deps | PENDING |
+| 2 | Chrome profile setup | PENDING |
+| 3 | Basic Streamlit UI | PENDING |
+| 4 | browser-use Agent integration (ChatOpenAI + MiniMax) | PENDING |
+| 5 | Test: busca simples | PENDING |
+| 6 | Test: sessão Google autenticada | PENDING |
+| 7 | Coolify deployment | PENDING |
+| 8 | subdomain web.zappro.site | PENDING |
 
 ---
 
 ## 9. Métricas de Sucesso
 
-| Métrica | Critério |
-|---------|---------|
-| `chat.zappro.site` | HTTP 302 → Cloudflare Access login |
-| `terraform plan` | 0 mudanças pendentes |
-| `cloudflared service` | active (running) |
-| `coolify-proxy` | healthy, logs sem errors |
-| `open-webui container` | healthy, IP 10.0.5.x estável |
-| Todos os 11 subdomínios | respondem (2xx ou 3xx) |
-| Metrics endpoint | `curl localhost:9090/metrics` → 200 |
+- [ ] Agent responde perguntas de busca com fontes
+- [ ] Chrome profile persiste sessão entre restarts
+- [ ] Budget $50/mês não excedido
+- [ ] Deployed on Coolify via terraform
+- [ ] Subdomain web.zappro.site funcionando
+
+---
+
+## 10. Não Escopo (Futuro)
+
+- Multiple browser profiles
+- Multi-user support
+- History persistence
+- Screenshot storage
+- Custom search engines

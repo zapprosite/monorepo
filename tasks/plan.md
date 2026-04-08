@@ -1,239 +1,317 @@
-# Plan: Maximizar ROI do Claude Code — Use Cases Otimizados
+# Plan: Perplexity-like Browser Agent
 
-**Host:** will-zappro  
-**Date:** 2026-04-07  
-**Context:** After Coolify audit, Infisical integration, and code review — focusing on highest-value AI assistant use cases for senior dev workflow.
+**Host:** will-zappro
+**Date:** 2026-04-08
+**Context:** SPEC.md criado para agente de busca com Streamlit + browser-use + MiniMax-M2.7 via API oficial (não OpenRouter).
 
 ---
 
 ## Executive Summary
 
-O objetivo é maximizar o retorno do Claude Code como "senior dev proxy" em tasks que:
-- Economizam tempo repetitivo
-- Reduzem erros humanos
-- Documentam decisões automaticamente
-- Mantêm consistência entre sessões
-
-**Não é sobre** usar IA para tudo — é sobre identificar onde ela agrega mais valor real.
+Criar um agente autônomo de busca e navegação web que usa MiniMax-M2.7 via API oficial (OpenAI-compatible endpoint `https://api.minimax.chat/v1`) com browser-use + Playwright para automação de browser com Chrome profile persistente.
 
 ---
 
-## Current State Assessment
+## Key Findings — MiniMax M2.7 API
 
-### Projetos no Monorepo
+### Dois Endpoints (não misturar!)
 
-| Project | Focus | Claude Code ROI |
-|---------|-------|----------------|
-| `homelab-monorepo` | Self-hosting, monitoring, AI/ML stack | ALTO — infra as code, scripts, configs |
-| `multi-claude` | CLI tool para API providers | MÉDIO — código straightforward |
-| `openclaw` | Voice AI pipeline | MÉDIO — foco em debugging |
+| Tipo | Base URL | Auth Env Var | SDK |
+|------|----------|--------------|-----|
+| **OpenAI-compatible** | `https://api.minimax.chat/v1` | `MINIMAX_TOKEN` | `ChatOpenAI` |
+| **Anthropic-compatible** | `https://api.minimax.io/anthropic` | `ANTHROPIC_API_KEY` | `ChatAnthropic` |
 
-### Infraestrutura Homelab
+**Decisão:** Usar **OpenAI-compatible** (`MINIMAX_TOKEN` do Infisical) + `ChatOpenAI`
 
-| Service | Status | AI Opportunity |
-|---------|--------|----------------|
-| Coolify | 38 containers | Deploy configs, troubleshooting |
-| Grafana + Prometheus | Monitoring stack | Alert debugging, dashboard creation |
-| Infisical | Secrets vault (127 secrets) | Secrets rotation, audit |
-| OpenClaw | Voice pipeline | Script generation, pipeline docs |
-| ZFS + snapshots | 3.64TB storage | Backup automation, snapshot policies |
+### Model Name
+- **Model:** `MiniMax-M2.7` (não `minimax/minimax-m2.7` que é formato OpenRouter)
+- **Context window:** 204,800 tokens
+- **Speed:** ~60 tps
 
----
-
-## Top 5 Use Cases por ROI (Prioridade)
-
-### Use Case 1:Infraestrutura como Código ✅ (JÁ BEM CONFIGURADO)
-
-**Descrição:** Claude Code gera e mantém Docker Compose, Prometheus alerts, Grafana dashboards, ZFS scripts.
-
-**Examples:**
-- `docker-compose.yml` generation from requirements
-- Alert rule creation from incident post-mortems
-- ZFS snapshot retention policies
-
-**ROI:** ALTO — infra muda pouco mas precisa de precisão máxima
-
-**Current state:** Partial. Alerts e dashboards já em git, mas sem spec-driven development para mudanças.
-
----
-
-### Use Case 2:Code Review Automatizado ✅ (JÁ CONFIGURADO)
-
-**Descrição:** Cron job `/code-review-daily` revisa commits, gera `REVIEW-*.md`, flagga issues.
-
-**Examples:**
-- Review de PRs antes de merge
-- Scan de security issues em novos scripts
-- Verificação de compliance com project conventions
-
-**ROI:** ALTO — reduz debt técnico acumulado silenciosamente
-
-**Current state:** Configurado mas cron `/code-review-daily` ainda usa agent inexistente.
-
----
-
-### Use Case 3:Documentação Automática 📝 (PARCIAL)
-
-**Descrição:** Após cada mudança significativa, Claude Code atualiza ADRs, README, architecture docs.
-
-**Examples:**
-- ADR para decisões de arquitectura
-- Actualização de NETWORK_MAP.md após mudanças de rede
-- Sync automático de docs → memory
-
-**ROI:** MÉDIO-ALTO — documentação rara mas valiosa quando precisa existir
-
-**Current state:** AI-CONTEXT MCP sync funciona. Mas ADRs estão desatualizados (alguns "pending").
-
----
-
-### Use Case 4:Secrets & Compliance Audit 🔐 (PARCIAL)
-
-**Descrição:** Scan automático de secrets em código, rotação de credenciais, compliance checks.
-
-**Examples:**
-- `grep -rE "ghp_|sk-|AKIA"` antes de push
-- Verificação de compliance com GUARDRAILS.md
-- Migration de .env para Infisical
-
-**ROI:** ALTO — previne vazamentos críticos
-
-**Current state:** Pre-commit hook existe mas não está ativo (não configurado via git hooks).
-
----
-
-### Use Case 5:Voice Pipeline Debugging & Automation 🎤 (OPORTUNIDADE)
-
-**Descrição:** Claude Code como "junior dev" para o OpenClaw — gera scripts de teste, debug output, documenta issues.
-
-**Examples:**
-- Analisar logs do Whisper STT quando falha
-- Gerar testes de integração para Kokoro TTS
-- Documentar pipeline de voz com diagrama
-
-**ROI:** MÉDIO — pipeline complexo com muitos pontos de falha
-
-**Current state:** STT ainda instável — prioridade conforme RESUMO COMPLETO.
-
----
-
-## Vertical Slices (Implementação por Prioridade)
-
-### Slice 1: Corrigir Cron Jobs com Agents Errados
-
-**Problema:** `/code-review-daily`, `/modo-dormir-daily` usam agents que não existem no monorepo.
-
-**Solução:** Atualizar prompts para usar slash commands nativos.
-
-**Files to modify:**
-- `.claude/scheduled_tasks.json` — 4 cron jobs com agent names errados
-
-**Verification:**
-```bash
-jq '.tasks[].prompt' .claude/scheduled_tasks.json | grep -E "agent-|subagent" || echo "OK: no agent references"
-```
-
----
-
-### Slice 2: Ativar Pre-commit Hook
-
-**Problema:** Secrets audit hook existe em `.claude/hooks/pre-commit` mas não está instalado.
-
-**Solução:** Configurar git hooks path e instalar.
-
-**Files to modify:**
-- `.git/hooks/pre-commit` → copiar de `.claude/hooks/pre-commit`
-
-**Verification:**
-```bash
-git log --oneline -1 --format="%H" | xargs -I{} git hooks list {} pre-commit 2>/dev/null || echo "Hook not installed"
-```
-
----
-
-### Slice 3: Completar ADR Records
-
-**Problema:** Alguns ADRs estão "pending" — decisões tomadas mas não documentadas.
-
-**Solução:** Preencher ADRs pendentes com contexto e justificativa.
-
-**Files to identify:**
-```bash
-grep -r "pending\|TODO" /srv/monorepo/docs/adr/ --include="*.md" | head -10
-```
-
----
-
-### Slice 4: Voice Pipeline Test Suite
-
-**Problema:** Whisper STT "não funciona via Telegram" — sem testes para identificar onde quebra.
-
-**Solução:** Criar smoke tests para voice pipeline.
-
-**Files to create:**
-- `tasks/smoke-tests/pipeline-voice.yaml` — testes de integração
-- `tasks/smoke-tests/results/pipeline-voice.json` — output
-
-**Verification:**
-```bash
-bash tasks/smoke-tests/run-smoke-tests.sh voice 2>&1 | tail -10
-```
-
----
-
-### Slice 5: Infisical → Coolify Secret Migration
-
-**Problema:** Secrets do Coolify ainda em `.env` plain text em `/srv/data/coolify/services/*/.env`.
-
-**Solução:** Usar Infisical SDK + wrapper script (já criado) para fazer bootstrap dos services.
-
-**Files to use:**
-- `/srv/ops/scripts/infisical-monitoring.sh` (já criado — adaptar para Coolify)
-
-**Verification:**
-```bash
-python3 -c "
-from infisical_sdk import InfisicalSDKClient
-c = InfisicalSDKClient(host='http://127.0.0.1:8200', token='$(cat /srv/ops/secrets/infisical.service-token)')
-secrets = c.secrets.list_secrets(project_id='e42657ef-98b2-4b9c-9a04-46c093bd6d37', environment_slug='dev', secret_path='/')
-print(f'Coolify secrets in vault: {len([s for s in secrets.secrets if \"coolify\" in s.secret_key.lower()])}')
-"
-```
+### browser-use Integration
+browser-use suporta `ChatOpenAI` (built-in) — compatível com MiniMax.
 
 ---
 
 ## Dependency Graph
 
 ```
-Slice 1 (Cron Fixes)
-    └── Slice 2 (Pre-commit Hook)     [independent, can parallel]
-            └── Slice 3 (ADRs)       [depends on Slice 1+2]
-
-Slice 4 (Voice Tests)
-    └── Slice 5 (Coolify Secrets)    [depends on understanding what's broken in voice]
+[1. Setup Projeto + Deps]
+        │
+        ▼
+[2. Chrome Profile Setup]
+        │
+        ▼
+[3. Basic Streamlit UI] ───────────────────────────────────┐
+        │                                                   │
+        ▼                                                   │
+[4. browser-use Agent (ChatOpenAI + MiniMax)]               │
+        │                                                   │
+        ▼                                                   │
+[5. Test: Busca Simples]                                    │
+        │                                                   │
+        ▼                                                   │
+[6. Test: Sessão Google Autenticada]                        │
+        │                                                   │
+        ▼                                                   │
+[7. Coolify Deployment] ─────────────────────────────────────┤
+        │                                                   │
+        ▼                                                   │
+[8. Subdomain + Cloudflare Tunnel] ◄────────────────────────┘
 ```
 
 ---
 
-## O Que NÃO Fazer
+## Vertical Slices
 
-- Não migrar tudo para Infisical de uma vez — risco de quebrar serviços
-- Não criar mais cron jobs sem testar os existentes primeiro
-- Não adicionar AI para decisões de arquitectura — documentar, não deciding
-- Não usar AI para coisas que um script bash resolve em 5 minutos
+### Slice 1: Setup Projeto + Deps
+
+**Objetivo:** Criar estrutura do projeto com uv e dependências.
+
+**Files to create:**
+```
+/srv/monorepo/apps/perplexity-agent/
+├── pyproject.toml
+├── app.py                  # Streamlit UI (placeholder)
+├── agent/
+│   ├── __init__.py
+│   ├── browser_agent.py     # placeholder
+│   └── chrome_profile.py    # placeholder
+├── config.py               # env vars
+└── chrome-profile/        # gitignored
+```
+
+**Commands:**
+```bash
+cd /srv/monorepo/apps
+mkdir -p perplexity-agent/agent perplexity-agent/chrome-profile
+cd perplexity-agent
+uv init --name perplexity-agent
+uv add streamlit browser-use
+uv add playwright  # se nãoInstalled
+uvx browser-use install
+```
+
+**Verification:**
+```bash
+cd /srv/monorepo/apps/perplexity-agent
+uv run python -c "import streamlit; import browser_use; print('OK')"
+```
+
+---
+
+### Slice 2: Chrome Profile Setup
+
+**Objetivo:** Criar diretório de Chrome profile e script de inicialização.
+
+**Files to create:**
+- `/srv/monorepo/apps/perplexity-agent/agent/chrome_profile.py`
+- Chrome profile path: `/srv/data/perplexity-agent/chrome-profile/`
+
+**Logic:**
+- Verificar se Chrome está instalado
+- Criar diretório de profile se não existir
+- Documentar como fazer login manual nos sites
+
+**Verification:**
+```bash
+ls -la /srv/data/perplexity-agent/chrome-profile/
+# Deve existir mas estar vazio (login é manual)
+```
+
+---
+
+### Slice 3: Basic Streamlit UI
+
+**Objetivo:** UI minimal para testar Chat interface.
+
+**Files to modify:**
+- `/srv/monorepo/apps/perplexity-agent/app.py`
+
+**Features:**
+- `st.title("Perplexity Agent")`
+- Chat input (`st.chat_input`)
+- Display chat history
+- Placeholder para resposta do agent
+- Status do browser (sidebar)
+
+**Verification:**
+```bash
+cd /srv/monorepo/apps/perplexity-agent
+uv run streamlit run app.py --port 4004 --server.headless true
+# Abrir http://localhost:4004
+```
+
+---
+
+### Slice 4: browser-use Agent Integration
+
+**Objetivo:** Integrar browser-use Agent com ChatOpenAI + MiniMax.
+
+**Files to modify:**
+- `/srv/monorepo/apps/perplexity-agent/agent/browser_agent.py`
+- `/srv/monorepo/apps/perplexity-agent/config.py`
+
+**Key implementation:**
+```python
+# config.py
+import os
+from infisical_sdk import InfisicalSDKClient
+
+def get_minimax_token():
+    client = InfisicalSDKClient(
+        host='http://127.0.0.1:8200',
+        token=os.environ.get('INFISICAL_TOKEN') or open('/srv/ops/secrets/infisical.service-token').read().strip()
+    )
+    secrets = client.secrets.list_secrets(
+        project_id='e42657ef-98b2-4b9c-9a04-46c093bd6d37',
+        environment_slug='dev',
+        secret_path='/'
+    )
+    for s in secrets.secrets:
+        if s.secret_key == 'MINIMAX_TOKEN':
+            return s.secret_value
+    raise ValueError("MINIMAX_TOKEN not found in Infisical")
+
+# browser_agent.py
+from browser_use import Agent
+from langchain_openai import ChatOpenAI
+
+llm = ChatOpenAI(
+    model="MiniMax-M2.7",
+    base_url="https://api.minimax.chat/v1",
+    api_key=get_minimax_token(),
+)
+```
+
+**Verification:**
+```bash
+cd /srv/monorepo/apps/perplexity-agent
+uv run python -c "
+from agent.browser_agent import get_agent
+print('Agent initialized OK')
+"
+```
+
+---
+
+### Slice 5: Test — Busca Simples
+
+**Objetivo:** Testar agent fazendo uma busca no DuckDuckGo.
+
+**Test:**
+```python
+agent = get_agent()
+result = agent.run("Search for 'what is Claude AI' on DuckDuckGo and tell me the first result")
+print(result)
+```
+
+**Verification:**
+- Agent retorna resposta com fonte
+- Nenhum erro de API
+- Browser abre e fecha corretamente
+
+---
+
+### Slice 6: Test — Sessão Google Autenticada
+
+**Objetivo:** Testar com Chrome profile que tem sessão Google.
+
+**Prerequisite:** Login manual no Google via Chrome.
+
+**Test:**
+```python
+agent = get_agent(chrome_profile_path="/srv/data/perplexity-agent/chrome-profile")
+result = agent.run("Go to Google and search for my emails - just check if you're logged in")
+```
+
+**Verification:**
+- Agent detecta que está logado
+- Não pede login
+- Retorna informação personalizada
+
+---
+
+### Slice 7: Coolify Deployment
+
+**Objetivo:** Deploy no Coolify via terraform.
+
+**Files to modify:**
+- `/srv/ops/terraform/cloudflare/variables.tf` — adicionar `perplexity` service
+- `/srv/ops/terraform/cloudflare/main.tf` — adicionar `cloudflare_zero_trust_tunnel_cloudflared_config` para perplexity
+
+**Commands:**
+```bash
+cd /srv/ops/terraform/cloudflare
+terraform plan -out=perplexity.tfplan
+terraform apply perplexity.tfplan
+```
+
+**Coolify:**
+- Build Docker image do projeto
+- Expor porta 4004 internamente
+- Configurar health check
+
+**Verification:**
+```bash
+curl -s -o /dev/null -w "%{http_code}" http://localhost:4004/health
+# Esperado: 200
+```
+
+---
+
+### Slice 8: Subdomain + Cloudflare Tunnel
+
+**Objetivo:** Expor web.zappro.site via Cloudflare Access.
+
+**Files to modify:**
+- `/srv/ops/terraform/cloudflare/variables.tf` — adicionar perplexity aos services
+- `/srv/ops/terraform/cloudflare/main.tf` — configurar ingress_rule
+
+**Verification:**
+```bash
+curl -s -o /dev/null -w "%{http_code}" https://web.zappro.site
+# Esperado: 200 (via Cloudflare Access)
+```
 
 ---
 
 ## Checkpoints
 
-1. **After Slice 1:** `jq '.tasks[].id' .claude/scheduled_tasks.json | wc -l` mostra 9 jobs sem errors
-2. **After Slice 2:** `git commit` trigger hook scanea staged files sem false positives
-3. **After Slice 3:** `ls docs/adr/*.md | wc -l` sem files com "pending" no content
-4. **After Slice 4:** Voice pipeline smoke tests passam 80%+
-5. **After Slice 5:** Coolify secrets migrados, .env plain text apagados
+1. **After Slice 1:** `uv run python -c "import streamlit; import browser_use"` OK
+2. **After Slice 2:** Chrome profile directory existe em `/srv/data/perplexity-agent/chrome-profile/`
+3. **After Slice 3:** Streamlit UI acessível em `:4004`
+4. **After Slice 4:** Agent inicializa com MiniMax API OK
+5. **After Slice 5:** Busca simples retorna resultado com fonte
+6. **After Slice 6:** Sessão Google persiste entre restarts
+7. **After Slice 7:** Container no Coolify rodando
+8. **After Slice 8:** web.zappro.site responde 200
+
+---
+
+## Condições de Borde
+
+### Sempre fazer
+- `MINIMAX_TOKEN` do Infisical (nunca hardcoded)
+- Chrome profile gitignored
+- Budget tracking ($50/mês)
+
+### Nunca fazer
+-露天 Expor sem Cloudflare Access
+-露天 Commitar Chrome profile ou secrets
+-露天 Exceder 15k req/dia
+
+---
+
+## O Que NÃO Fazer (Futuro)
+
+- Multiple browser profiles (escopo atual é 1)
+- Multi-user support (escopo atual é 1 usuário)
+- History persistence (escopo atual é stateless)
+- Screenshot storage (escopo atual é memory only)
 
 ---
 
 ## Last Updated
 
-2026-04-07 — after Coolify audit + Infisical integration + code review
+2026-04-08 — após análise docs MiniMax M2.7 API
