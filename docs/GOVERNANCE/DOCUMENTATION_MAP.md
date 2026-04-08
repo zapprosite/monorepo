@@ -37,6 +37,21 @@
 
 ---
 
+## 🆕 Skills Catalog (AI-Claude)
+
+| Skill | Descrição | Localização |
+|-------|-----------|-------------|
+| **coolify-deploy-trigger** | Trigger deploy via Coolify API | `~/.claude/skills/coolify-deploy-trigger/` |
+| **coolify-auto-healer** | Monitora containers, restart se down | `~/.claude/skills/coolify-auto-healer/` |
+| **coolify-health-check** | Verifica health endpoint pós-deploy | `~/.claude/skills/coolify-health-check/` |
+| **coolify-resource-monitor** | CPU/memory alerts (>80%) | `~/.claude/skills/coolify-resource-monitor/` |
+| **coolify-incident-diagnostics** | Diagnostica erros e propõe fixes | `~/.claude/skills/coolify-incident-diagnostics/` |
+| **coolify-rollback** | Rollback para versão anterior | `~/.claude/skills/coolify-rollback/` |
+| **gitea-coolify-deploy** | Workflow completo GitOps | `~/.claude/skills/gitea-coolify-deploy/` |
+| **ai-context-sync** | Sync docs → memory | `~/.claude/mcps/ai-context-sync/` |
+
+---
+
 ### `/home/will/Desktop/` - JOURNAL (AUTOMÁTICO)
 **Propósito:** Status atual do sistema
 **Responsável:** Skill `maintain-system-documentation.sh`

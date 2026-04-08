@@ -178,7 +178,7 @@ No Infisical project `zappro-p-tc-k`:
 | 4 | browser-use Agent integration (OpenRouter GPT-4o-mini) | ✅ DONE |
 | 5 | Test: busca simples | ✅ DONE |
 | 6 | Test: sessão Google autenticada | ✅ DONE |
-| 7 | Coolify deployment | ⏳ IN PROGRESS |
+| 7 | Coolify deployment | ✅ DONE |
 | 8 | subdomain web.zappro.site | ✅ DONE (terraform apply) |
 
 ---
@@ -188,7 +188,7 @@ No Infisical project `zappro-p-tc-k`:
 - [x] Agent responde perguntas de busca com fontes (GPT-4o-mini working)
 - [x] Chrome profile persiste sessão entre restarts
 - [ ] Budget $50/mês não excedido (monitorar)
-- [ ] Deployed on Coolify via terraform
+- [x] Deployed on Coolify via terraform
 - [x] Subdomain web.zappro.site funcionando (terraform applied)
 
 ---
