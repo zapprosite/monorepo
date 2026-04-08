@@ -87,3 +87,30 @@
 - **Inclua timeline:** facilita debugging futuro
 - **Lessons learned são obrigatórios:** o objetivo é não repetir
 - **Severidade:** use para priorizar revisão
+
+## Lesson Learned: Gitea vs GitHub Remotes
+
+**INCIDENT-2026-04-08-GITEA-PUSH:** Push de teste foi para GitHub em vez de Gitea.
+
+O monorepo tem dois remotes:
+- `origin` → `git@github.com:zapprosite/monorepo.git` (GitHub)
+- `gitea` → `git@git.zappro.site:will/monorepo.git` (Gitea)
+
+**Gitea Actions só dispara com push para `gitea` (git.zappro.site), NÃO para GitHub.**
+
+**Fluxo correto para testar Gitea Action:**
+```bash
+# 1. Verificar remote do workflow
+ls .gitea/workflows/  # existe? = Gitea
+
+# 2. Push para Gitea
+git remote -v  # confirmar remote gitea
+git push gitea main
+
+# 3. Verificar em git.zappro.site/{owner}/{repo}/actions
+```
+
+**Verificar antes de push:**
+```bash
+grep -l "gitea/workflows" .gitea/workflows/*.yml && echo "Gitea Actions found"
+```

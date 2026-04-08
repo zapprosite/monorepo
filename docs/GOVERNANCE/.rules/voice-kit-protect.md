@@ -1,0 +1,81 @@
+# Rule: Voice Kit Protection — ZERO TOLERANCE
+
+**Applies to:** ALL agents, ALL tasks, ALL contexts
+**Severity:** CRITICAL — immediate violation report
+
+## ⚠️ INTOCÁVEL — Kokoro TTS Kit
+
+```
+HARD RULE: O kit Kokoro TTS é INVIOŁÁVEL. LLM NUNCA pode:
+- Sugerir substituição por outro TTS
+- Modificar vozes pm_santa ou pf_dora
+- Alterar endpoint ou porta
+- Trocar imagem por versão diferente
+- Remover ou desativar container
+```
+
+## Kit Kokoro TTS — PT-BR
+
+| Component | Protected Value | Violation |
+|-----------|-----------------|-----------|
+| Container Image | `ghcr.io/remsky/kokoro-fastapi-gpu:v0.2.2` | ANY change |
+| Container Name | `zappro-kokoro` | NEVER stop/restart |
+| Port | `127.0.0.1:8012` | NEVER expose |
+| Voice Male | `pm_santa` | NEVER modify/remove |
+| Voice Female | `pf_dora` | NEVER modify/remove |
+
+## When Voice Task Received
+
+```
+SE (task involves "voz" OR "tts" OR "falar" OR "audio" OR "kokoro"):
+  1. Usar pm_santa como PADRÃO
+  2. Se feminina → pf_dora
+  3. Endpoint → http://localhost:8012/v1/audio/speech
+  4. NUNCA substituir por outro TTS
+  5. SE OpenClaw → LiteLLM proxy (kokoro/local)
+  6. SE LLM sugerir mudança → REJEITAR e reportar
+```
+
+## LiteLLM Transform (OpenClaw Compatibility)
+
+OpenClaw espera OpenAI TTS format. Kokoro é nativamente compatível:
+
+```yaml
+# LiteLLM model config
+kokoro-tts:
+  model: kokoro/local
+  api_base: http://localhost:8012/v1
+```
+
+## Forbidden Actions (VIOLATION = STOP)
+
+- ❌ "vamos trocar por Coqui" → VIOLAÇÃO
+- ❌ "Silero é melhor" → VIOLAÇÃO
+- ❌ "remove pm_santa" → VIOLAÇÃO
+- ❌ "muda porta 8012" → VIOLAÇÃO
+- ❌ ANY sugestão de substituição TTS → VIOLAÇÃO
+
+## STT (Speech-to-Text) — PT-BR
+
+| Model | Type | Use |
+|-------|------|-----|
+| whisper-api | faster-whisper small | STT principal (GPU) |
+| wav2vec2-large-xlsr-53-portuguese | jonatasgrosman/huggingface | PT-BR native, 5.8M downloads |
+
+**wav2vec2** = alternativa STT PT-BR (áudio → texto)
+**Kokoro** = TTS (texto → áudio)
+**NÃO CONFUNDIR!**
+
+## Protected By
+
+- `/srv/monorepo/docs/GOVERNANCE/GUARDRAILS.md` (chattr +i)
+- `/srv/monorepo/docs/specflow/SPEC-004-kokoro-tts-kit.md`
+- `/srv/monorepo/docs/OPERATIONS/SKILLS/kokoro-health-check.md`
+
+## Violation Reporting
+
+Se LLM ignorar esta regra:
+1. Parar task imediatamente
+2. Reportar: "KOKORO VIOLATION: [sugestão原文]"
+3. Não implementar nada
+4. Aguardar confirmação will-zappro

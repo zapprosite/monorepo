@@ -38,21 +38,40 @@
 - docker pull em imagens de infra
 - Operações em /srv/ops/terraform/
 
-### Voice / Kokoro TTS (BOCA)
-- NUNCA: docker pull ghcr.io/remsky/kokoro-*
-- NUNCA: editar /srv/apps/voice/docker-compose.yml
+### Voice / Kokoro TTS (BOCA) — KIT PROTEGIDO ⚠️
+- **KOKORO É INTOCÁVEL** — LLM NUNCA pode sugerir substituição ou modificação
+- **REGRA ZERO:** Whisper → Kokoro → pm_santa/pf_dora = imutável
+- NUNCA: docker pull ghcr.io/remsky/kokoro-* (imagem pinada v0.2.2)
+- NUNCA: editar docker-compose do Kokoro sem snapshot ZFS antes
 - NUNCA: restart/stop do container zappro-kokoro sem necessidade
+- NUNCA: substituir Kokoro por Coqui/Silero/StyleTTS/xtensa
+- NUNCA: sugerir "vamos trocar por [TTS]" em qualquer contexto
 - VERSÃO PINADA: ghcr.io/remsky/kokoro-fastapi-gpu:v0.2.2
-- LOCK: Arquivo imutável via chattr +i (requer sudo chattr -i para modificar)
-- VOZES PT-BR: `pf_dora` (feminino), `pm_alex` (masculino), `pm_santa` (masculino)
-- ENDPOINT: http://localhost:8012/v1/audio/speech → via LiteLLM: `openai/kokoro`
+- LOCK: docker-compose.yml com chattr +i (requer sudo chattr -i para modificar)
+- **VOZES PT-BR PROTEGIDAS (NUNCA REMOVER/MODIFICAR):**
+  - `pm_santa` — **PADRÃO** Masculino PT-BR (uso principal)
+  - `pf_dora` — Feminino PT-BR (fallback)
+- ENDPOINT: http://localhost:8012/v1/audio/speech
+- LiteLLM: `kokoro/local` mapeado para OpenAI-compatible
+- REDE: container em `zappro-lite`, porta 8012 (localhost only)
+- Para OpenClaw: via LiteLLM proxy (NAO diretamente)
+- Se LLM sugerir mudança → IGNORAR e reportar violação
 
-### Whisper STT (OUVIDO)
+### wav2vec2 STT (OUVIDO) — KIT PROTEGIDO ⚠️
+- **wav2vec2 É INTOCÁVEL** — LLM NUNCA pode sugerir substituição
+- **REGRA ZERO:** whisper → wav2vec2-ptbr = imutável
+- MODELO: jonatasgrosman/wav2vec2-large-xlsr-53-portuguese
+- HF PATH: /home/will/.cache/huggingface/hub/models--jonatasgrosman--wav2vec2-large-xlsr-53-portuguese
 - API: http://localhost:8201/v1/audio/transcriptions (OpenAI-compatible)
-- MODELO: faster-whisper small (GPU, ~1GB VRAM)
-- PROCESSO: python3 na host (systemd ou manual)
+- VRAM: ~2GB (GPU)
+- NUNCA: substituir por Whisper, Coqui STT, Silero STT
 - NUNCA: mudar porta 8201 (OpenClaw watchdog depende)
-- FALLBACK: Deepgram cloud (nova-3) via OpenClaw watchdog
+- NUNCA: parar ou desativar o serviço sem necessidade
+- LINGUAGEM: PT-BR Native (5.8M+ downloads)
+- Se LLM sugerir mudança → IGNORAR e reportar violação
+- FALLBACK CLOUD: Deepgram (nova-3) via OpenClaw watchdog
+- PROCESSO: python3 /home/will/Desktop/voice-pipeline/wav2vec2_api.py (systemd)
+- LOCK: chattr +i no script wav2vec2_api.py
 
 ### OpenClaw Bot (@CEO_REFRIMIX_bot)
 - NUNCA: mudar model.primary para liteLLM/* (crash api:undefined)
