@@ -79,7 +79,7 @@
 | `/turbo` | `turbo.md` | Commit+merge+tag+branch | Git turbo workflow |
 | `/code-review` | `code-review.md` | Commits → 5-axis review | Full review |
 | `/scaffold` | `scaffold.md` | Template → novo modulo | Scaffold projeto |
-| `/img` | `vision-local.md` | Ollama LLaVA | Análise de imagem |
+| `/img` | `vision-local.md` | Ollama Qwen2.5-VL | Análise de imagem |
 
 ---
 
