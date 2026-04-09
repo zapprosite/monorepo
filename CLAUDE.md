@@ -38,3 +38,24 @@ Welcome to the repository knowledge base. Start with the project overview, then 
 | Security & Compliance Notes | `security.md` | Auth model, secrets management, compliance requirements |
 | Tooling & Productivity Guide | `tooling.md` | CLI scripts, IDE configs, automation workflows |
 
+
+## Security Guidelines
+- NEVER hardcode secrets, API keys, tokens or passwords
+- Always use process.env.VARIABLE or ${ENV_VAR} in scripts
+- Secrets go in .env (gitignored) or Infisical
+- Before any deploy: bash scripts/pre-deploy-check.sh
+- Before any commit: sec hook scans automatically
+
+## API Architecture
+- API: apps/api (Fastify + tRPC + Zod)
+- Schemas: packages/zod-schemas
+- Routers: packages/trpc
+- DB: packages/db (Drizzle ORM)
+- Emergency rollback: git revert HEAD && pnpm run deploy
+
+## Development Flow
+1. /plan → gera PRD em docs/specflow/
+2. /pg → gera tasks em tasks/pipeline.json
+3. /cursor-loop → executa loop autônomo
+4. scripts/pipeline-runner.sh → valida testes e lint
+5. git push → Gitea CI → Coolify deploy automático
