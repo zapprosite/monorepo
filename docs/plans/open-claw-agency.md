@@ -127,6 +127,14 @@ Documentar todos os endpoints com auth para o bot consultar.
 
 ## FASE 5: Time de Agentes Especializados
 
+> **Kit de Implementação:** Usar [OpenClaw Agents Kit](../OPERATIONS/SKILLS/openclaw-agents-kit/SKILL.md)
+>
+> O kit inclui templates universais para criar leader + sub-agents sem perder contexto existente:
+> - `GOVERNANCE-TEMPLATE.md` — regras universais (PROIBIDO, Aprovação, Sempre Manter)
+> - `subagent-pattern.md` — padrão leader/worker com `default: true`
+> - `identity-patch.py` — atualiza identity sem sobrescrever agents/bindings
+> - `coolify-access.md` + `infisical-sdk.md` — acesso seguro via Coolify API / Infisical vault
+
 ### Arquitetura
 CEO MIX (main) orquestra e delega para 4 subagents:
 
@@ -137,8 +145,10 @@ CEO MIX (main) orquestra e delega para 4 subagents:
 | `social` | Calendario editorial, tendencias, timing, publicacao | minimax/MiniMax-M2.7 |
 | `project` | Gestao de tarefas, timeline, status reports | minimax/MiniMax-M2.7 |
 
-### 5.1 Criar agentes
+### 5.1 Criar agentes (via kit)
 ```bash
+# Via CoolifyClient Python (doc: openclaw-agents-kit/coolify-access.md)
+# Ou manualmente:
 docker exec openclaw-qgtzrmi6771lt8l7x8rqx72f openclaw agents add creative \
   --workspace /data/workspace/agents/creative --model "minimax/MiniMax-M2.7"
 # Repetir para design, social, project
@@ -153,6 +163,13 @@ Cada agente recebe system prompt especializado com:
 
 ### 5.3 Routing
 CEO MIX permanece como unico ponto de contato no Telegram. Ele delega via subagents (maxConcurrent=4, subagents=8 ja configurado).
+
+### 5.4 Governance (via kit)
+O [GOVERNANCE-TEMPLATE.md](../OPERATIONS/SKILLS/openclaw-agents-kit/GOVERNANCE-TEMPLATE.md) define:
+- Audio stack PROTEGIDO: STT wav2vec2, TTS Bridge :8013, voices pm_santa/pf_dora
+- LLM Primary: minimax/MiniMax-M2.7 DIRETO (não via LiteLLM)
+- Vision: litellm/llava via LiteLLM
+- Identity: Zappro (PATCH-ABLE via identity-patch.py)
 
 ---
 

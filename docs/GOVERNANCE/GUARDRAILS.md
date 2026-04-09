@@ -38,40 +38,41 @@
 - docker pull em imagens de infra
 - Operações em /srv/ops/terraform/
 
-### Voice / Kokoro TTS (BOCA) — KIT PROTEGIDO ⚠️
-- **KOKORO É INTOCÁVEL** — LLM NUNCA pode sugerir substituição ou modificação
-- **REGRA ZERO:** Whisper → Kokoro → pm_santa/pf_dora = imutável
-- NUNCA: docker pull ghcr.io/remsky/kokoro-* (imagem pinada v0.2.2)
-- NUNCA: editar docker-compose do Kokoro sem snapshot ZFS antes
-- NUNCA: restart/stop do container zappro-kokoro sem necessidade
-- NUNCA: substituir Kokoro por Coqui/Silero/StyleTTS/xtensa
-- NUNCA: sugerir "vamos trocar por [TTS]" em qualquer contexto
-- VERSÃO PINADA: ghcr.io/remsky/kokoro-fastapi-gpu:v0.2.2
-- LOCK: docker-compose.yml com chattr +i (requer sudo chattr -i para modificar)
-- **VOZES PT-BR PROTEGIDAS (NUNCA REMOVER/MODIFICAR):**
-  - `pm_santa` — **PADRÃO** Masculino PT-BR (uso principal)
-  - `pf_dora` — Feminino PT-BR (fallback)
-- ENDPOINT: http://localhost:8012/v1/audio/speech
-- LiteLLM: `kokoro/local` mapeado para OpenAI-compatible
-- REDE: container em `zappro-lite`, porta 8012 (localhost only)
-- Para OpenClaw: via LiteLLM proxy (NAO diretamente)
-- Se LLM sugerir mudança → IGNORAR e reportar violação
+### Voice / Audio Pipeline (BOCA + OUVIDO) — KIT PROTEGIDO ⚠️
 
-### wav2vec2 STT (OUVIDO) — KIT PROTEGIDO ⚠️
-- **wav2vec2 É INTOCÁVEL** — LLM NUNCA pode sugerir substituição
-- **REGRA ZERO:** whisper → wav2vec2-ptbr = imutável
-- MODELO: jonatasgrosman/wav2vec2-large-xlsr-53-portuguese
-- HF PATH: /home/will/.cache/huggingface/hub/models--jonatasgrosman--wav2vec2-large-xlsr-53-portuguese
-- API: http://localhost:8201/v1/audio/transcriptions (OpenAI-compatible)
-- VRAM: ~2GB (GPU)
-- NUNCA: substituir por Whisper, Coqui STT, Silero STT
-- NUNCA: mudar porta 8201 (OpenClaw watchdog depende)
-- NUNCA: parar ou desativar o serviço sem necessidade
-- LINGUAGEM: PT-BR Native (5.8M+ downloads)
-- Se LLM sugerir mudança → IGNORAR e reportar violação
-- FALLBACK CLOUD: Deepgram (nova-3) via OpenClaw watchdog
-- PROCESSO: python3 /home/will/Desktop/voice-pipeline/wav2vec2_api.py (systemd)
-- LOCK: chattr +i no script wav2vec2_api.py
+**Arquitetura atual (2026-04-08):**
+```
+OpenClaw → TTS Bridge (:8013) → Kokoro (:8880)
+           └─► pm_santa, pf_dora ONLY
+           └─► [OUTRAS] → 400 Bad Request
+OpenClaw → wav2vec2 (:8201) → STT PT-BR
+```
+
+**TTS Bridge (porta 8013):**
+- **INTOCÁVEL** — proxy Python stdlib
+- **Vozes:** ONLY pm_santa (masculino) e pf_dora (feminino)
+- **Todas outras vozes:** HTTP 400
+- **Endpoint:** `http://10.0.19.5:8013/v1` (NAO Kokoro direto)
+- NUNCA: mudar baseUrl para Kokoro direto
+- NUNCA: propor outras vozes Kokoro
+
+**STT (porta 8201):**
+- **Modelo:** wav2vec2 jonatasgrosman/wav2vec2-large-xlsr-53-portuguese
+- **VRAM:** ~2GB
+- **Linguagem:** PT-BR Native (5.8M+ downloads)
+- NUNCA: usar Deepgram, Whisper ou outro STT
+- ENDPOINT: `http://wav2vec2:8201/v1/audio/transcriptions`
+
+**PROIBIDO — Voice/Audio:**
+| O que | Por que |
+|-------|---------|
+| Kokoro direto (`:8880`) | Sem filtro de vozes |
+| Deepgram como STT | Foi REMOVIDO em 2026-04-07 |
+| Whisper como STT | Nao e PT-BR native |
+| Outras vozes Kokoro | TTS Bridge bloqueia |
+| LiteLLM como primario | Causa crash `api: undefined` |
+
+**Se LLM sugerir mudança → REJEITAR e reportar violação.**
 
 ### OpenClaw Bot (@CEO_REFRIMIX_bot)
 - NUNCA: mudar model.primary para liteLLM/* (crash api:undefined)
@@ -167,3 +168,61 @@ Models currently installed:
 - gemma4 (8B, Q4_K_M) → voz pipeline correção, screenshot
 - llava (7B, Q4_0) → visão screenshot
 - nomic-embed-text (137M, F16) → embeddings via LiteLLM
+
+---
+
+## 📌 ANTI-FRAGILITY MARKERS (2026-04-08)
+
+### Para Agentes: O Que Significa "Pinned"
+
+Quando um serviço ou config tem marker **📌 PINNED**, significa:
+- **NÃO PROPOR** mudanças, otimizações, ou "melhoramentos"
+- **NÃO SUGERIR** substituição por alternativas "melhores"
+- **NÃO REFATORAR** sem snapshot ZFS + aprovação explícita
+- **SE PEDIDO** para mudar algo pinned: recusar educadamente, indicar este doc
+
+### Marcadores de Estabilidade
+
+| Marcador | Significado | Ação do Agente |
+|----------|-------------|----------------|
+| `📌 PINNED` | Imutável sem snapshot | Recusar sugestões |
+| `⚠️ KIT PROTECTED` | Stack validated como unit | Não quebrar dependências |
+| `🔒 LOCKED` | Testado em conjunto | Propor mudança = violação |
+| `✅ STABLE` | Verificado funcionando | Mudanças requerem novo teste |
+
+### Serviços Com Marcadores de Estabilidade (2026-04-08)
+
+| Serviço | Marcador | Notas |
+|---------|----------|-------|
+| Kokoro TTS (zappro-kokoro) | ⚠️ KIT PROTECTED | Voice pipeline unit — não substituir |
+| wav2vec2 STT (zappro-wav2vec2) | ⚠️ KIT PROTECTED | STT pipeline unit — não substituir |
+| OpenClaw Bot | ⚠️ KIT PROTECTED + 🔒 LOCKED | Config validado 08/04/2026 |
+| LiteLLM Proxy (zappro-litellm) | 🔒 LOCKED | Roteamento GPU/voice dependente |
+| Traefik + Cloudflare Tunnel | 📌 PINNED | DNS routing — mudança requer Terraform |
+| Voice Pipeline (completo) | ⚠️ KIT PROTECTED | Testado como unit 15/15 |
+
+### Como Verificar Estabilidade
+
+Antes de propor qualquer mudança em serviços listados:
+```bash
+# 1. Verificar se está marcado pinned
+grep -r "PINNED\|KIT PROTECTED\|LOCKED" /srv/monorepo/docs/GOVERNANCE/
+
+# 2. Verificar última execução do smoke test
+cat /srv/monorepo/tasks/smoke-tests/pipeline-openclaw-voice.sh | head -5
+
+# 3. Verificar ZFS snapshots recentes
+sudo zfs list -t snapshot -r tank | tail -10
+```
+
+### O Que Acontece Se um Agente Propor Mudança em Serviço Pinned
+
+1. Recusar educadamente: "Este serviço está marcado como PINNED/KIT PROTECTED. Mudanças requerem snapshot ZFS + aprovação do Principal Engineer."
+2. Indicar este documento como fonte
+3. Propor pipeline completo de teste se mudança for aprovada
+4. Documentar razão da mudança para futuro
+
+### Revisão
+
+Este sistema de marcadores foi criado 2026-04-08 após incidentes onde LLMs propuseram "otimizações" que quebraram voice pipeline estável.
+**Próxima revisão:** 2026-05-08

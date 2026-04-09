@@ -15,6 +15,7 @@ Conjunto de guias operacionais para manutenção e administração do homelab.
 - [OpenClaw Auto-Conhecimento](./openclaw-prompt.md)
 - [CEO MIX — Manual de Treinamento](./openclaw-training.md)
 - [CEO MIX — Habilidades de Infraestrutura](./openclaw-infra-abilities.md)
+- [OpenClaw Agents Kit](../OPERATIONS/SKILLS/openclaw-agents-kit/SKILL.md) — Orquestrar time de agents para qualquer nicho
 
 ---
 
