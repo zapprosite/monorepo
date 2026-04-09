@@ -1,317 +1,268 @@
-# Plan: Perplexity-like Browser Agent
+# Plan: Pipeline Runner + Bootstrap Effect System
 
-**Host:** will-zappro
-**Date:** 2026-04-08
-**Context:** SPEC.md criado para agente de busca com Streamlit + browser-use + MiniMax-M2.7 via API oficial (não OpenRouter).
-
----
-
-## Executive Summary
-
-Criar um agente autônomo de busca e navegação web que usa MiniMax-M2.7 via API oficial (OpenAI-compatible endpoint `https://api.minimax.chat/v1`) com browser-use + Playwright para automação de browser com Chrome profile persistente.
+**Date:** 2026-04-09
+**Author:** will
+**Status:** PROPOSED
 
 ---
 
-## Key Findings — MiniMax M2.7 API
+## Context
 
-### Dois Endpoints (não misturar!)
+73 tasks em pipeline.json organizadas em 5 fases. O caminho crítico começa em P001-T01 (migrar secrets OpenClaw → Infisical). O usuário quer:
 
-| Tipo | Base URL | Auth Env Var | SDK |
-|------|----------|--------------|-----|
-| **OpenAI-compatible** | `https://api.minimax.chat/v1` | `MINIMAX_TOKEN` | `ChatOpenAI` |
-| **Anthropic-compatible** | `https://api.minimax.io/anthropic` | `ANTHROPIC_API_KEY` | `ChatAnthropic` |
-
-**Decisão:** Usar **OpenAI-compatible** (`MINIMAX_TOKEN` do Infisical) + `ChatOpenAI`
-
-### Model Name
-- **Model:** `MiniMax-M2.7` (não `minimax/minimax-m2.7` que é formato OpenRouter)
-- **Context window:** 204,800 tokens
-- **Speed:** ~60 tps
-
-### browser-use Integration
-browser-use suporta `ChatOpenAI` (built-in) — compatível com MiniMax.
+1. **Pipeline runner** — disparar as 73 tasks via `//pipeline`
+2. **Bootstrap effect JSON** — quando um sub-agent líder precisa de intervenção humana, entrega um smoke test/curl que simula o estado atual + lista de configurações pendentes para o humano
+3. **Human-in-the-loop inteligente** — não para "preciso de ajuda", mas entrega evidência + formulário de configuração
 
 ---
 
-## Dependency Graph
+## Architecture
 
 ```
-[1. Setup Projeto + Deps]
-        │
-        ▼
-[2. Chrome Profile Setup]
-        │
-        ▼
-[3. Basic Streamlit UI] ───────────────────────────────────┐
-        │                                                   │
-        ▼                                                   │
-[4. browser-use Agent (ChatOpenAI + MiniMax)]               │
-        │                                                   │
-        ▼                                                   │
-[5. Test: Busca Simples]                                    │
-        │                                                   │
-        ▼                                                   │
-[6. Test: Sessão Google Autenticada]                        │
-        │                                                   │
-        ▼                                                   │
-[7. Coolify Deployment] ─────────────────────────────────────┤
-        │                                                   │
-        ▼                                                   │
-[8. Subdomain + Cloudflare Tunnel] ◄────────────────────────┘
+//pipeline [task-id|phase|critical]
+├── Leader Agent (orchestrator)
+│   ├── Reads tasks/pipeline.json
+│   ├── Detects human-gate conditions
+│   └── Emits Bootstrap Effect JSON
+├── TaskExecutors (sub-agents)
+│   ├── Execute individual tasks
+│   ├── Report success/failure
+│   └── Emit checkpoint events
+└── BootstrapEffectEmitter (on human-gate)
+    ├── smoke_test: curl/health that proves current state
+    ├── pending_configs: list of values human must provide
+    └── instructions: what to do after configuring
 ```
 
 ---
 
-## Vertical Slices
+## Bootstrap Effect JSON Schema
 
-### Slice 1: Setup Projeto + Deps
+```json
+{
+  "bootstrap_effect": {
+    "task_id": "P001-T01",
+    "gate_type": "HUMAN_CONFIG | APPROVAL | SECRET_MISSING | MANUAL_ACTION",
+    "smoke_test": {
+      "description": "Smoke test que prova o estado atual",
+      "command": "curl -s http://localhost:8200/health",
+      "expected_output": "healthy",
+      "current_output": "connection refused"
+    },
+    "pending_configs": [
+      {
+        "key": "OPENCLAW_GATEWAY_TOKEN",
+        "source": "Infisical vault openclaw/gateway_token",
+        "current_value": "⚠️ NOT SET",
+        "required_for": "OpenClaw CDP authentication"
+      }
+    ],
+    "human_action_required": "Configurar COOLIFY_URL + COOLIFY_API_KEY via gh secret set",
+    "verify_command": "gh secret list | grep COOLIFY"
+  }
+}
+```
 
-**Objetivo:** Criar estrutura do projeto com uv e dependências.
+---
+
+## Human Gate Types
+
+| Gate Type | Trigger | Bootstrap Output |
+|-----------|---------|-------------------|
+| `SECRET_MISSING` | gh secret list vazio | `curl` para testar API + keys faltantes |
+| `HUMAN_APPROVAL` | PR sem approval | `gh pr view` + merge checklist |
+| `MANUAL_ACTION` | ZFS pool offline | `zpool status` + comandos de recovery |
+| `HUMAN_CONFIG` | Variável não configurada | Form com fields + values atuais |
+| `BLOCKER_DETECTED` | Bug/erro ambiguous | Log excerpt + diagnóstico |
+
+---
+
+## Dependency Graph (Critical Path)
+
+```
+Phase 1: P001-T01 → T02 → T03 → T04 → T05 → T06 → T07 → T08 → T09 → T10 → T11
+                │
+                ├── (P001-T01 done) ──────────────────────────────────────────────────────────┐
+                                                                                                  │
+Phase 2: P006-T01 → T02 → T03 → T04 → T05 → T06 → T07                                          │
+         P007-T01 → T02 → T03 → T04 → T05 → T06 ◄───────────────────────────────────────────────┘
+                         │
+                         ├── (P007-T01 done) ───────────────────────────────────────────────────────────────────┐
+                                                                                                            │
+Phase 3: P010-T01 → T02 → T03 → T04 → T05 → T06 → T07 ──────────────────────────────────────────────┐      │
+         P012-T01 → T02 → T03                                                                        │      │
+         P013-T01 → T02 → T03 → T04 → T05 → T06 → T07 → T08 ◄────────────────────────────────────────┘      │
+                                                       │                                                          │
+Phase 4: P014-T01 → T02 → T03 → T04 → T05 → T06 ─────────────────────┐                                   │
+         P015-T01 → T02 → T03 → T04 → T05 → T06                      │                                   │
+                                                       │           │                                   │
+Phase 5: P011-T01 → T02 → T03 → T04 → T05 → T06 → T07 → T08 → T09 → T10 ◄───────────────────────────────┘
+         P013CEO-T01 → T02 → T03 ◄────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## Tasks
+
+### Task 1: Bootstrap Effect Schema + Emitter Agent
 
 **Files to create:**
-```
-/srv/monorepo/apps/perplexity-agent/
-├── pyproject.toml
-├── app.py                  # Streamlit UI (placeholder)
-├── agent/
-│   ├── __init__.py
-│   ├── browser_agent.py     # placeholder
-│   └── chrome_profile.py    # placeholder
-├── config.py               # env vars
-└── chrome-profile/        # gitignored
-```
+- `tasks/bootstrap-effect-schema.json` — JSON Schema for validation
+- `.claude/agents/bootstrap-effect-emitter.md` — Agent que gera Bootstrap Effect JSON
 
-**Commands:**
-```bash
-cd /srv/monorepo/apps
-mkdir -p perplexity-agent/agent perplexity-agent/chrome-profile
-cd perplexity-agent
-uv init --name perplexity-agent
-uv add streamlit browser-use
-uv add playwright  # se nãoInstalled
-uvx browser-use install
-```
-
-**Verification:**
-```bash
-cd /srv/monorepo/apps/perplexity-agent
-uv run python -c "import streamlit; import browser_use; print('OK')"
-```
-
----
-
-### Slice 2: Chrome Profile Setup
-
-**Objetivo:** Criar diretório de Chrome profile e script de inicialização.
-
-**Files to create:**
-- `/srv/monorepo/apps/perplexity-agent/agent/chrome_profile.py`
-- Chrome profile path: `/srv/data/perplexity-agent/chrome-profile/`
-
-**Logic:**
-- Verificar se Chrome está instalado
-- Criar diretório de profile se não existir
-- Documentar como fazer login manual nos sites
-
-**Verification:**
-```bash
-ls -la /srv/data/perplexity-agent/chrome-profile/
-# Deve existir mas estar vazio (login é manual)
-```
-
----
-
-### Slice 3: Basic Streamlit UI
-
-**Objetivo:** UI minimal para testar Chat interface.
-
-**Files to modify:**
-- `/srv/monorepo/apps/perplexity-agent/app.py`
-
-**Features:**
-- `st.title("Perplexity Agent")`
-- Chat input (`st.chat_input`)
-- Display chat history
-- Placeholder para resposta do agent
-- Status do browser (sidebar)
-
-**Verification:**
-```bash
-cd /srv/monorepo/apps/perplexity-agent
-uv run streamlit run app.py --port 4004 --server.headless true
-# Abrir http://localhost:4004
-```
-
----
-
-### Slice 4: browser-use Agent Integration
-
-**Objetivo:** Integrar browser-use Agent com ChatOpenAI + MiniMax.
-
-**Files to modify:**
-- `/srv/monorepo/apps/perplexity-agent/agent/browser_agent.py`
-- `/srv/monorepo/apps/perplexity-agent/config.py`
-
-**Key implementation:**
+**Emitter logic:**
 ```python
-# config.py
-import os
-from infisical_sdk import InfisicalSDKClient
-
-def get_minimax_token():
-    client = InfisicalSDKClient(
-        host='http://127.0.0.1:8200',
-        token=os.environ.get('INFISICAL_TOKEN') or open('/srv/ops/secrets/infisical.service-token').read().strip()
-    )
-    secrets = client.secrets.list_secrets(
-        project_id='e42657ef-98b2-4b9c-9a04-46c093bd6d37',
-        environment_slug='dev',
-        secret_path='/'
-    )
-    for s in secrets.secrets:
-        if s.secret_key == 'MINIMAX_TOKEN':
-            return s.secret_value
-    raise ValueError("MINIMAX_TOKEN not found in Infisical")
-
-# browser_agent.py
-from browser_use import Agent
-from langchain_openai import ChatOpenAI
-
-llm = ChatOpenAI(
-    model="MiniMax-M2.7",
-    base_url="https://api.minimax.chat/v1",
-    api_key=get_minimax_token(),
-)
+def detect_gate_and_emit(task_id, current_state):
+    gate_type = classify_gate(task_id, current_state)
+    smoke = run_smoke_test(task_id)
+    configs = get_pending_configs(task_id)
+    return {
+        "bootstrap_effect": {
+            "task_id": task_id,
+            "gate_type": gate_type,
+            "smoke_test": smoke,
+            "pending_configs": configs,
+            "human_action_required": format_action(configs),
+            "verify_command": get_verify_cmd(gate_type)
+        }
+    }
 ```
 
-**Verification:**
-```bash
-cd /srv/monorepo/apps/perplexity-agent
-uv run python -c "
-from agent.browser_agent import get_agent
-print('Agent initialized OK')
-"
+**Acceptance:** Agent retorna JSON válido conforme schema
+
+---
+
+### Task 2: Pipeline Command
+
+**File:** `.claude/commands/pipeline.md`
+
+```markdown
+---
+description: Execute pipeline tasks with bootstrap effect on human gates
+argument-hint: [task-id|phase|critical|status|resume|dry-run]
+---
+
+Pipeline runner que executa tasks de tasks/pipeline.json.
+Cada checkpoint entre fases gera Bootstrap Effect se necessário.
 ```
 
----
-
-### Slice 5: Test — Busca Simples
-
-**Objetivo:** Testar agent fazendo uma busca no DuckDuckGo.
-
-**Test:**
-```python
-agent = get_agent()
-result = agent.run("Search for 'what is Claude AI' on DuckDuckGo and tell me the first result")
-print(result)
+**Interface:**
+```
+//pipeline              → dashboard
+//pipeline P001-T01     → task específica
+//pipeline phase 1     → Phase 1 completa
+//pipeline critical    → só caminho crítico
+//pipeline all         → todas (com checkpoints)
+//pipeline status      → estado atual
+//pipeline resume      → retoma do checkpoint
+//pipeline dry-run     → simula sem executar
 ```
 
-**Verification:**
-- Agent retorna resposta com fonte
-- Nenhum erro de API
-- Browser abre e fecha corretamente
+**Acceptance:** `/pipeline` responde em Claude Code
 
 ---
 
-### Slice 6: Test — Sessão Google Autenticada
+### Task 3: Pipeline State Machine
 
-**Objetivo:** Testar com Chrome profile que tem sessão Google.
+**File:** `tasks/pipeline-state.json`
 
-**Prerequisite:** Login manual no Google via Chrome.
-
-**Test:**
-```python
-agent = get_agent(chrome_profile_path="/srv/data/perplexity-agent/chrome-profile")
-result = agent.run("Go to Google and search for my emails - just check if you're logged in")
+```json
+{
+  "version": "1.0",
+  "last_checkpoint": "P001-T03",
+  "completed": ["P001-T01", "P001-T02"],
+  "failed": [],
+  "in_progress": ["P001-T03"],
+  "blocked_by": {
+    "P007-T01": {
+      "gate": "MANUAL_ACTION",
+      "bootstrap_effect": {...}
+    }
+  }
+}
 ```
 
-**Verification:**
-- Agent detecta que está logado
-- Não pede login
-- Retorna informação personalizada
+**Acceptance:** State persiste entre sessões, `//pipeline resume` funciona
 
 ---
 
-### Slice 7: Coolify Deployment
+### Task 4: Orchestrator Enhancement
 
-**Objetivo:** Deploy no Coolify via terraform.
+**File:** `.claude/agents/orchestrator.md`
 
-**Files to modify:**
-- `/srv/ops/terraform/cloudflare/variables.tf` — adicionar `perplexity` service
-- `/srv/ops/terraform/cloudflare/main.tf` — adicionar `cloudflare_zero_trust_tunnel_cloudflared_config` para perplexity
+Adds to existing orchestrator:
+- `detectHumanGate(task_id)` — inspect state before asking for help
+- `emitBootstrapEffect(task_id)` — invoke emitter on gate detection
+- `updatePipelineState(task_id, status)` — persist progress
 
-**Commands:**
-```bash
-cd /srv/ops/terraform/cloudflare
-terraform plan -out=perplexity.tfplan
-terraform apply perplexity.tfplan
-```
-
-**Coolify:**
-- Build Docker image do projeto
-- Expor porta 4004 internamente
-- Configurar health check
-
-**Verification:**
-```bash
-curl -s -o /dev/null -w "%{http_code}" http://localhost:4004/health
-# Esperado: 200
-```
+**Acceptance:** Orchestrator calls emitter BEFORE asking for generic help
 
 ---
 
-### Slice 8: Subdomain + Cloudflare Tunnel
+### Task 5: Phase 1 Execution (Critical Path First)
 
-**Objetivo:** Expor web.zappro.site via Cloudflare Access.
+**Execute:** P001-T01 through P001-T11 in order
 
-**Files to modify:**
-- `/srv/ops/terraform/cloudflare/variables.tf` — adicionar perplexity aos services
-- `/srv/ops/terraform/cloudflare/main.tf` — configurar ingress_rule
+For each task:
+1. Read acceptance_criteria
+2. Execute with sub-agent if needed
+3. Verify against acceptance_criteria
+4. Update pipeline-state.json
+5. If human-gate detected → emit bootstrap effect AND STOP (don't loop asking)
 
-**Verification:**
-```bash
-curl -s -o /dev/null -w "%{http_code}" https://web.zappro.site
-# Esperado: 200 (via Cloudflare Access)
-```
-
----
-
-## Checkpoints
-
-1. **After Slice 1:** `uv run python -c "import streamlit; import browser_use"` OK
-2. **After Slice 2:** Chrome profile directory existe em `/srv/data/perplexity-agent/chrome-profile/`
-3. **After Slice 3:** Streamlit UI acessível em `:4004`
-4. **After Slice 4:** Agent inicializa com MiniMax API OK
-5. **After Slice 5:** Busca simples retorna resultado com fonte
-6. **After Slice 6:** Sessão Google persiste entre restarts
-7. **After Slice 7:** Container no Coolify rodando
-8. **After Slice 8:** web.zappro.site responde 200
+**Acceptance:** Phase 1 completa com pipeline-state.json atualizado
 
 ---
 
-## Condições de Borde
+### Task 6: Phase 2-5 Parallel Execution
 
-### Sempre fazer
-- `MINIMAX_TOKEN` do Infisical (nunca hardcoded)
-- Chrome profile gitignored
-- Budget tracking ($50/mês)
+**Strategy:** Max 5 sub-agents simultaneously, phase-ordered
 
-### Nunca fazer
--露天 Expor sem Cloudflare Access
--露天 Commitar Chrome profile ou secrets
--露天 Exceder 15k req/dia
+Each phase has a "leader" sub-agent that:
+- Owns all tasks in that phase
+- Reports bootstrap effect if blocked
+- Updates pipeline-state on completion
 
----
-
-## O Que NÃO Fazer (Futuro)
-
-- Multiple browser profiles (escopo atual é 1)
-- Multi-user support (escopo atual é 1 usuário)
-- History persistence (escopo atual é stateless)
-- Screenshot storage (escopo atual é memory only)
+**Acceptance:** All 73 tasks executed or documented with bootstrap effect
 
 ---
 
-## Last Updated
+## Verification
 
-2026-04-08 — após análise docs MiniMax M2.7 API
+| Check | Command | Expected |
+|-------|---------|----------|
+| Schema valid | `jq . tasks/bootstrap-effect-schema.json` | sem erro |
+| Command exists | `ls .claude/commands/pipeline.md` | arquivo existe |
+| Orchestrator emits | `//pipeline P001-T01` | bootstrap effect JSON |
+| State persists | `cat tasks/pipeline-state.json` | estado válido |
+| Phase 1 done | `//pipeline phase 1` | 11/11 COMPLETE |
+| Resume works | `//pipeline resume` | continua do checkpoint |
+
+---
+
+## Checkpoints Entre Fases
+
+| Checkpoint | Gate | Condição |
+|------------|------|----------|
+| Post-Phase 1 | HUMAN_CONFIG | Secrets migrados? Health checks OK? |
+| Post-Phase 2 | HUMAN_APPROVAL | OAuth profiles? Playwright passa? |
+| Post-Phase 3 | MANUAL_ACTION | Skills instaladas? Symlink corrigido? |
+| Post-Phase 4 | HUMAN_APPROVAL | CI/CD enterprise? Human gates? |
+| Post-Phase 5 | FINAL_VERIFY | CEO MIX responde? Voice 15/15? |
+
+---
+
+## Risks
+
+| Risk | Impact | Mitigation |
+|------|--------|------------|
+| Gates muito frequentes | Pipeline para demais | Threshold: skip se N gates < 3 |
+| Bootstrap effect impreciso | Humano configura errado | Dry-run antes de cada gate |
+| 73 tasks = sessão longa | Timeout | Executar em background com cron |
+| Tavily MCP falha | Research agentes falham | Context7 fallback (já implementado) |
+
+---
+
+## Next Step After This Plan
+
+Comitar este plano → kemudian execute Task 1 (Bootstrap Effect Schema + Agent) → Task 2 (Pipeline command) → Task 3 (State) → Task 4 (Orchestrator) → Task 5 (Phase 1) → Task 6 (Phase 2-5)
