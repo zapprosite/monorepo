@@ -153,10 +153,12 @@ def api_request_stream(
     try:
         with urllib.request.urlopen(req, timeout=60) as resp:
             chunks = []
-            for line in resp:
-                line = line.decode("utf-8")
-                if line.startswith("data:"):
-                    payload = line[5:].strip()
+            raw_body = resp.read().decode("utf-8")
+
+            # Try SSE parsing first (lines starting with "data:")
+            sse_lines = [line[5:].strip() for line in raw_body.split("\n") if line.startswith("data:")]
+            if sse_lines and sse_lines[0] != "[DONE]":
+                for payload in sse_lines:
                     if payload == "[DONE]":
                         break
                     try:
@@ -167,6 +169,17 @@ def api_request_stream(
                             chunks.append(content)
                     except json.JSONDecodeError:
                         pass
+            else:
+                # Fallback: parse entire response as JSON (non-streaming)
+                try:
+                    parsed = json.loads(raw_body)
+                    msg = parsed.get("choices", [{}])[0].get("message", {})
+                    content = msg.get("content", "")
+                    if content:
+                        chunks.append(content)
+                except json.JSONDecodeError:
+                    pass
+
             return "".join(chunks)
     except urllib.error.HTTPError as e:
         body = e.read().decode()
