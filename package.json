@@ -10,12 +10,15 @@
 		"env:sync": "node scripts/sync-env.js",
 		"build": "yarn env:sync && turbo run build",
 		"clean": "turbo run clean && rm -rf node_modules && rm -rf .yarn/cache && yarn cache clean",
-		"db": "turbo db --",
+		"db:migrate": "turbo db:migrate --",
+		"db:seed": "turbo db:seed --",
 		"dev": "yarn env:sync && turbo run dev",
 		"lint": "turbo run lint",
 		"format": "biome format . --write",
 		"check-types": "turbo run check-types",
-		"test": "turbo run test"
+		"typecheck": "turbo run typecheck",
+		"test": "turbo run test",
+		"syncpack": "syncpack format"
 	},
 	"dependencies": {
 		"@trpc/server": "^11.7.0",

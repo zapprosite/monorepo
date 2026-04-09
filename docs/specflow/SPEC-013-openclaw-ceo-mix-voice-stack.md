@@ -14,7 +14,7 @@ Este documento define a configuração **definitiva e corrigida** para o CEO MIX
 **Stack Corretada:**
 - **STT:** wav2vec2 `:8201` (não Whisper, não LiteLLM)
 - **TTS:** TTS Bridge `:8013` → Kokoro `:8880` (vozes filtradas: pm_santa, pf_dora)
-- **VL:** litellm/llava via LiteLLM (input: ["text", "image"])
+- **VL:** litellm/qwen2.5-vl via LiteLLM (input: ["text", "image"])
 
 ---
 
@@ -59,7 +59,7 @@ CEO MIX (Telegram)
        │         └─► describeImagesWithModel()
        │                    │
        │                    ▼
-       │         litellm/llava via LiteLLM proxy
+       │         litellm/qwen2.5-vl via LiteLLM proxy
        │         input: ["text", "image"]
        │         Context: { messages: [{ role: "user", content: [
        │           { type: "image", data: "<base64>", mimeType: "image/jpeg" },
@@ -166,7 +166,7 @@ CEO MIX (Telegram)
         "baseUrl": "http://10.0.1.1:4000",
         "models": [
           {
-            "id": "llava",
+            "id": "qwen2.5-vl",
             "input": ["text", "image"]
           },
           {
@@ -312,7 +312,7 @@ def do_POST(self):
 
 ---
 
-## VL: litellm/llava para Imagens
+## VL: litellm/qwen2.5-vl para Imagens
 
 ### Como funciona (do source)
 
@@ -344,7 +344,7 @@ await complete(model, context, { apiKey, maxTokens });
         "baseUrl": "http://10.0.1.1:4000",
         "models": [
           {
-            "id": "llava",
+            "id": "qwen2.5-vl",
             "input": ["text", "image"]
           }
         ]
@@ -354,7 +354,7 @@ await complete(model, context, { apiKey, maxTokens });
 }
 ```
 
-O modelo `llava` é automaticamente reconhecido como capaz de imagens porque tem `input: ["text", "image"]`.
+O modelo `qwen2.5-vl` é o modelo configured (llava FOI SUBSTITUIDO 2026-04-09) como capaz de imagens porque tem `input: ["text", "image"]`.
 
 ---
 
@@ -374,7 +374,7 @@ O modelo `llava` é automaticamente reconhecido como capaz de imagens porque tem
 - **PROIBIDO:** liteLLM como primario
 
 ### LiteLLM (apenas para)
-- Vision: `llava`
+- Vision: `qwen2.5-vl` (llava SUBSTITUIDO)
 - Embeddings: `nomic-embed`
 - Modelos locais não-primários
 
@@ -418,12 +418,12 @@ curl -X POST http://localhost:8013/v1/audio/speech \
 # Esperado: 400
 ```
 
-### VL (llava)
+### VL (qwen2.5-vl)
 ```bash
 curl -X POST http://10.0.1.1:4000/v1/chat/completions \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "llava",
+    "model": "qwen2.5-vl",
     "messages": [{
       "role": "user",
       "content": [

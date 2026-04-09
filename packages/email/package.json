@@ -1,11 +1,9 @@
 {
-	"name": @repo/zod-schemas",
+	"name": @repo/email",
 	"version": "1.0.0",
-	"description": "Common Zod Schemas to be used everywhere",
+	"description": "React Email templates for the monorepo",
 	"type": "module",
 	"sideEffects": false,
-	"repository": "git@github.com:teziapp/connected-repo-starter.git",
-	"author": "Balkrishna Agarwal",
 	"license": "AGPL-3.0-only",
 	"private": true,
 	"scripts": {
@@ -14,21 +12,31 @@
 		"dev": "concurrently --kill-others \"tsc -w\" \"tsc-alias -w\"",
 		"clean": "rm -rf node_modules && rm -rf dist",
 		"lint": "biome check .",
-		"test": "vitest run",
-		"test:watch": "vitest",
-		"typecheck": "tsc --noEmit"
+		"typecheck": "tsc --noEmit",
+		"preview": "email dev"
 	},
 	"peerDependencies": {
-		"zod": "^4.1.12"
+		"react": "^19.2.0",
+		"@react-email/components": "^0.0.19",
+		"react-email": "^3.0.7"
 	},
 	"devDependencies": {
-		@repo/typescript-config": "*"
+		@repo/typescript-config": "*",
+		"@types/react": "^19.2.2"
+	},
+	"dependencies": {
+		"resend": "^4.1.2"
 	},
 	"exports": {
 		"./*": {
 			"types": "./src/*.ts",
 			"import": "./dist/*.js",
 			"default": "./dist/*.js"
+		},
+		"./templates/*": {
+			"types": "./src/templates/*.tsx",
+			"import": "./dist/templates/*.js",
+			"default": "./dist/templates/*.js"
 		}
 	}
 }

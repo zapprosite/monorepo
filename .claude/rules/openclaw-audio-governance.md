@@ -2,7 +2,7 @@
 
 **Applies to:** All LLMs operating in this monorepo
 **Host:** will-zappro homelab
-**Updated:** 2026-04-08
+**Updated:** 2026-04-09
 
 ---
 
@@ -24,12 +24,29 @@ STT → wav2vec2 :8201 → texto
 ```
 
 **PROIBIDO — NUNCA sugerir:**
-- Deepgram (cloud ou local) — foi REMOVIDO em 2026-04-07
+- Deepgram cloud diretamente (DEVE usar via proxy wav2vec2-proxy :8203)
 - Whisper (qualquer variant)
 - Silero STT
 - Qualquer outro STT
 
-**Por que:** wav2vec2 e PT-BR native com 5.8M+ downloads. Deepgram e cloud-only e foi removido por razao.
+**Por que:** O STT canonical usa Deepgram API format via wav2vec2-proxy. Deepgram direto foi removido.
+
+### REGRA: wav2vec2-proxy é o STT canonical
+
+O OpenClaw usa Deepgram API format mas através de um proxy local (wav2vec2-deepgram-proxy).
+
+**CORRETO:**
+```
+OpenClaw → api.deepgram.com → wav2vec2-proxy (:8203) → whisper-api (:8201)
+```
+
+O proxy implementa a API Deepgram (/v1/listen) e faz passthrough para whisper-api (wav2vec2).
+Enhancement PT-BR feito via Ollama (llama3-portuguese-tomcat-8b-instruct-q8).
+
+**PROIBIDO — NUNCA sugerir:**
+- Usar Deepgram cloud diretamente
+- Remover ou绕过 o wav2vec2-proxy
+- Alterar o endpoint para whisper-api direto
 
 ---
 
@@ -87,7 +104,7 @@ OpenClaw → minimax/MiniMax-M2.7 → https://api.minimax.io/anthropic
 ### REGRA: LiteLLM e usado APENAS para servicos GPU locais
 
 LiteLLM serve apenas como proxy para:
-- Vision: `llava` (LLaVA)
+- Vision: `qwen2.5-vl` (via Ollama)
 - Embeddings: `embedding-nomic`
 - Modelos Ollama locais (nao primarios)
 
@@ -95,17 +112,17 @@ LiteLLM serve apenas como proxy para:
 
 ## Vision Rules
 
-### REGRA: Apenas litellm/llava para visao
+### REGRA: Apenas litellm/qwen2.5-vl para visao
 
-O modelo de visao do OpenClaw e `litellm/llava`.
+O modelo de visao do OpenClaw e `litellm/qwen2.5-vl` (nao llava).
 
 **CORRETO:**
 ```
-Image → litellm/llava → descricao
+Image → litellm/qwen2.5-vl → descricao
 ```
 
 **PROIBIDO — NUNCA sugerir:**
-- `qwen2.5-vl` como modelo de visao primario
+- `llava` como modelo de visao (FOI SUBSTITUIDO por qwen2.5-vl em 2026-04-09)
 - `openai/gpt-4o` ou qualquer modelo GPT para visao
 - Claude Vision como alternativa
 
@@ -150,4 +167,4 @@ As seguintes mudancas REQUEREM aprovacao explicita de will:
 ---
 
 **Authority:** will-zappro
-**Last update:** 2026-04-08
+**Last update:** 2026-04-09
