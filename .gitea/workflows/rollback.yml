@@ -102,7 +102,7 @@ for a in data.get('data',[]):
           fi
 
           echo "Found application UUID: $APP_UUID"
-          echo "app_uuid=$APP_UUID" >> $GITHUB_OUTPUT || echo "app_uuid=$APP_UUID" >> $GITEA_OUTPUT
+          echo "app_uuid=$APP_UUID" >> $GITEA_OUTPUT
 
       - name: Get deployment history
         env:
@@ -165,7 +165,7 @@ if len(deploys) > 1:
             exit 1
           fi
 
-          echo "rollback_deployment_id=$TARGET_DEPLOYMENT_ID" >> $GITHUB_OUTPUT || echo "rollback_deployment_id=$TARGET_DEPLOYMENT_ID" >> $GITEA_OUTPUT
+          echo "rollback_deployment_id=$TARGET_DEPLOYMENT_ID" >> $GITEA_OUTPUT
 
       - name: Execute rollback
         env:
