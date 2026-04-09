@@ -1,3 +1,7 @@
+---
+description: Stage all → semantic commit → push → merge to main → tag → nova feature branch.
+---
+
 Stage all → semantic commit → push → merge to main → tag → nova feature branch.
 
 ⚠️ AVISO: Execute apenas se .gitignore contém .env e secrets antes de continuar.

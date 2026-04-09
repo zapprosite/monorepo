@@ -1,1 +1,0 @@
-Scan code for exposed secrets before git push. Searches for GitHub tokens (ghp_, gho_, ghu_, ghs_, ghr_), AWS keys (AKIA), OpenAI keys (sk-), and generic secrets in .ts, .js, .env files. If secrets found, exit with error before push.

@@ -1,3 +1,7 @@
+---
+description: Update CLAUDE.md e README.md com base nos últimos commits.
+---
+
 Update the instructions, architecture information, coding guidelines & practices followed as per recent changes (See last 5 commits specifically) in @packages/CLAUDE.md, @packages/zod-schemas/CLAUDE.md, @apps/web/CLAUDE.md, @apps/api/CLAUDE.md, @CLAUDE.md, & @README.md.
 
 Dont mention recent changes seperately just update files as per present code. Remove any old out-dated information.

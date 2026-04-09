@@ -1,3 +1,7 @@
+---
+description: Stage tracked → commit semântico → push → PR.
+---
+
 Stage tracked → commit semântico → push → PR.
 
 Passos:
