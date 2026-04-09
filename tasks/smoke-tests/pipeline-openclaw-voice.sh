@@ -40,6 +40,11 @@ OPENCLAW_CONTAINER_NAME="${OPENCLAW_CONTAINER_NAME:-openclaw-qgtzrmi6771lt8l7x8r
 OPENCLAW_FQDN="${OPENCLAW_FQDN:-openclaw-qgtzrmi6771lt8l7x8rqx72f.191.17.50.123.sslip.io}"
 LITELLM_URL="${LITELLM_URL:-http://localhost:4000}"
 
+# Service endpoints (from network map)
+TTS_BRIDGE_URL="${TTS_BRIDGE_URL:-http://localhost:8013}"
+WAV2VEC2_URL="${WAV2VEC2_URL:-http://localhost:8201}"
+KOKORO_URL="${KOKORO_URL:-http://localhost:8880}"
+
 # LITELLM_KEY — env var takes precedence, else try Infisical
 if [ -z "${LITELLM_KEY:-}" ]; then
     LITELLM_KEY=$(fetch_secret "LITELLM_MASTER_KEY")
@@ -98,14 +103,14 @@ tts_synthesize() {
     local code
     local json_payload
     # Use python3 json.dumps to safely embed user-controlled text in JSON
+    # Send to TTS Bridge (:8013) not LiteLLM — Bridge validates voice (pm_santa/pf_dora only)
     json_payload=$(python3 -c "
 import json, sys
 text = sys.argv[1]
 voice = sys.argv[2]
-print(json.dumps({'model': 'tts-1', 'input': text, 'voice': voice}))
+print(json.dumps({'model': 'kokoro', 'input': text, 'voice': voice}))
 " "$text" "$voice" 2>/dev/null)
-    code=$(curl -s -m 30 -X POST "$LITELLM_URL/v1/audio/speech" \
-        -H "Authorization: Bearer $LITELLM_KEY" \
+    code=$(curl -s -m 30 -X POST "$TTS_BRIDGE_URL/v1/audio/speech" \
         -H "Content-Type: application/json" \
         -d "$json_payload" \
         -o "$out" -w "%{http_code}")
@@ -114,10 +119,12 @@ print(json.dumps({'model': 'tts-1', 'input': text, 'voice': voice}))
 
 stt_transcribe() {
     local audio_file="$1"
-    curl -sf -m 30 -X POST "$LITELLM_URL/v1/audio/transcriptions" \
-        -H "Authorization: Bearer $LITELLM_KEY" \
+    # Send directly to wav2vec2 :8201 — OpenAI-compatible /audio/transcriptions endpoint
+    # No auth needed, multipart/form-data with model=wav2vec2
+    curl -sf -m 30 -X POST "$WAV2VEC2_URL/v1/audio/transcriptions" \
         -F "file=@$audio_file" \
-        -F "model=whisper-1" 2>/dev/null
+        -F "model=wav2vec2" \
+        -F "language=pt-BR" 2>/dev/null
 }
 
 # =============================================================================
@@ -215,7 +222,8 @@ fi
 # Verify /healthz inside container — bypasses host networking stack entirely.
 # Container is healthy per docker (1.1), this confirms the actual endpoint works.
 log "1.6 OpenClaw container /healthz..."
-docker exec "$OPENCLAW_CONTAINER_NAME" curl -sf -m 5 "http://127.0.0.1:8080/healthz" >/dev/null 2>&1
+OPENCLAW_INTERNAL_PORT="${OPENCLAW_INTERNAL_PORT:-8080}"
+docker exec "$OPENCLAW_CONTAINER_NAME" curl -sf -m 5 "http://127.0.0.1:${OPENCLAW_INTERNAL_PORT}/healthz" >/dev/null 2>&1
 test_result $? "OpenClaw /healthz inside container"
 
 # =============================================================================
@@ -225,15 +233,17 @@ log ""; log "=== 2. STT (Speech-to-Text) ==="
 
 # 2.1 wav2vec2 health
 log "2.1 wav2vec2 STT health..."
-curl_get "http://localhost:8201/health"
+curl_get "${WAV2VEC2_URL}/health"
 test_result $? "wav2vec2 STT :8201"
 
 # 2.2 wav2vec2 direct transcription
 log "2.2 wav2vec2 transcription..."
 AUDIO_FILE="/tmp/test_tts.wav"
 if [ -s "$AUDIO_FILE" ]; then
-    RESULT=$(curl -sf -m 30 -X POST "http://localhost:8201/v1/audio/transcriptions" \
-        -F "file=@$AUDIO_FILE" 2>/dev/null)
+    RESULT=$(curl -sf -m 30 -X POST "${WAV2VEC2_URL}/v1/audio/transcriptions" \
+        -F "file=@$AUDIO_FILE" \
+        -F "model=wav2vec2" \
+        -F "language=pt-BR" 2>/dev/null)
     TEXT=$(json_get "$RESULT" ".get('text','')")
     [ -n "$TEXT" ]
     test_result $? "wav2vec2 transcription: '$TEXT'"
@@ -241,12 +251,12 @@ else
     info "2.2 Skipped — no test audio at $AUDIO_FILE"
 fi
 
-# 2.3 STT via LiteLLM (whisper-1 → wav2vec2 container)
-log "2.3 STT via LiteLLM..."
+# 2.3 STT via wav2vec2 (transcribe helper)
+log "2.3 STT via wav2vec2..."
 if [ -s "$AUDIO_FILE" ]; then
     RESP=$(stt_transcribe "$AUDIO_FILE")
     echo "$RESP" | grep -q "text"
-    test_result $? "STT via LiteLLM (whisper-1)"
+    test_result $? "STT via wav2vec2 (pt-BR)"
 else
     info "2.3 Skipped — no test audio"
 fi
@@ -256,26 +266,40 @@ fi
 # =============================================================================
 log ""; log "=== 3. TTS (Text-to-Speech) ==="
 
-# 3.1 Kokoro TTS male (pm_santa)
-log "3.1 Kokoro TTS (pm_santa)..."
+# 3.0 TTS Bridge health
+log "3.0 TTS Bridge health..."
+curl_get "${TTS_BRIDGE_URL}/health"
+test_result $? "TTS Bridge :8013 health"
+
+# 3.1 Kokoro TTS male (pm_santa) via Bridge
+log "3.1 Kokoro TTS (pm_santa) via Bridge..."
 tts_synthesize "pm_santa" "Smoke test successful" "/tmp/smoke_tts.mp3"
 test_result $? "Kokoro TTS synthesis (pm_santa)"
 
-# 3.2 Kokoro TTS female (pf_dora)
-log "3.2 Kokoro TTS (pf_dora)..."
+# 3.2 Kokoro TTS female (pf_dora) via Bridge
+log "3.2 Kokoro TTS (pf_dora) via Bridge..."
 tts_synthesize "pf_dora" "Smoke test female voice" "/tmp/smoke_tts_female.mp3"
 test_result $? "Kokoro TTS (pf_dora female)"
+
+# 3.3 TTS Bridge blocks unauthorized voice
+log "3.3 TTS Bridge blocks unauthorized voice..."
+BLOCKED_CODE=$(curl -s -m 10 -X POST "${TTS_BRIDGE_URL}/v1/audio/speech" \
+    -H "Content-Type: application/json" \
+    -d '{"model":"kokoro","input":"test","voice":"af_sarah"}' \
+    -o /dev/null -w "%{http_code}")
+[ "$BLOCKED_CODE" = "400" ]
+test_result $? "TTS Bridge blocks af_sarah (HTTP $BLOCKED_CODE)"
 
 # =============================================================================
 # 4. Vision
 # =============================================================================
 log ""; log "=== 4. Vision ==="
 
-# 4.1 Vision — qwen2.5-vl text-only probe
-log "4.1 Vision qwen2.5-vl..."
-RESP=$(llm_post "qwen2.5-vl" "Say only: OK" 10)
+# 4.1 Vision — llava text-only probe
+log "4.1 Vision llava..."
+RESP=$(llm_post "llava" "Say only: OK" 10)
 echo "$RESP" | grep -q "OK"
-test_result $? "Vision qwen2.5-vl responding"
+test_result $? "Vision llava responding"
 
 # 4.2 Vision — with image (base64)
 log "4.2 Vision with image..."
@@ -286,7 +310,7 @@ if [ -s "$IMG_FILE" ]; then
 import json, base64, os
 with open(os.environ['IMG_PATH'], 'rb') as f:
     img_b64 = base64.b64encode(f.read()).decode()
-d = {'model': 'qwen2.5-vl', 'messages': [{'role': 'user', 'content': [{'type': 'text', 'text': 'Describe this image in one word.'}, {'type': 'image_url', 'image_url': {'url': 'data:image/jpeg;base64,' + img_b64}}]}], 'max_tokens': 20}
+d = {'model': 'llava', 'messages': [{'role': 'user', 'content': [{'type': 'text', 'text': 'Describe this image in one word.'}, {'type': 'image_url', 'image_url': {'url': 'data:image/jpeg;base64,' + img_b64}}]}], 'max_tokens': 20}
 print(json.dumps(d))
 ")
     RESP=$(curl -s -m 30 -X POST "$LITELLM_URL/v1/chat/completions" \
@@ -294,7 +318,7 @@ print(json.dumps(d))
         -H "Content-Type: application/json" \
         -d "$PAYLOAD")
     echo "$RESP" | grep -q "choices"
-    test_result $? "Vision qwen2.5-vl with image (base64)"
+    test_result $? "Vision llava with image (base64)"
 else
     info "4.2 Skipped — no test image at $IMG_FILE"
 fi
