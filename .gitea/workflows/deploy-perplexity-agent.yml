@@ -25,11 +25,11 @@ jobs:
         run: |
           APP_UUID=$(curl -s "${{ secrets.COOLIFY_URL }}/api/v1/applications" \
             -H "Authorization: Bearer ${{ secrets.COOLIFY_API_KEY }}" | \
-            python3 -c "import sys,json; data=json.load(sys.stdin); apps=data.get('data',[]); [print(a['uuid']) for a in apps if 'perplexity' in a.get('name','').lower()]")
+            python3 -c "import sys,json; data=json.load(sys.stdin); apps=data.get('data',[]); [print(a['uuid']) for a in apps if 'perplexity' in a.get('name','').lower()]" 2>/dev/null)
 
           [[ -z "$APP_UUID" ]] && { echo "❌ Could not find $APP_NAME UUID"; exit 1; }
           echo "App UUID: $APP_UUID"
-          echo "app_uuid=$APP_UUID" >> $GITHUB_ENV
+          echo "::set-env name=app_uuid::$APP_UUID"
 
       - name: Trigger Deploy
         run: |

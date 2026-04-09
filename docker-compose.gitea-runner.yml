@@ -1,0 +1,18 @@
+version: "3"
+
+services:
+  gitea-runner:
+    image: docker.io/gitea/act_runner:nightly
+    container_name: gitea-runner
+    restart: unless-stopped
+    environment:
+      CONFIG_FILE: /config.yaml
+      GITEA_INSTANCE_URL: http://10.0.1.1:3300
+      GITEA_RUNNER_REGISTRATION_TOKEN: ${GITEA_RUNNER_REGISTRATION_TOKEN}
+      GITEA_RUNNER_NAME: prod-runner-1
+      GITEA_RUNNER_LABELS: ubuntu-latest
+    volumes:
+      - ./runner/config.yaml:/config.yaml
+      - ./runner/data:/data
+      - /var/run/docker.sock:/var/run/docker.sock
+    network_mode: host
