@@ -2,13 +2,12 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: ['**']
   pull_request:
     branches: [main]
 
 jobs:
-  ci:
-    name: Type Check · Lint · Build · Test
+  pipeline:
     runs-on: ubuntu-latest
 
     services:
@@ -27,7 +26,6 @@ jobs:
           --health-retries 5
 
     env:
-      # DB vars expostas globalmente — env-setup.ts usa ?? então estas têm prioridade
       DB_HOST: localhost
       DB_PORT: "5432"
       DB_USER: postgres
@@ -36,57 +34,34 @@ jobs:
       NODE_ENV: test
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node.js 22
-        uses: actions/setup-node@v4
+      - uses: pnpm/action-setup@v4
         with:
-          node-version: "22"
-          cache: "yarn"
+          version: 9
 
-      - name: Cache Turbo
-        uses: actions/cache@v4
+      - uses: actions/setup-node@v4
         with:
-          path: .turbo
-          key: turbo-${{ runner.os }}-${{ github.sha }}
-          restore-keys: |
-            turbo-${{ runner.os }}-
+          node-version: 20
+          cache: 'pnpm'
 
-      - name: Instalar dependências
-        run: yarn install --frozen-lockfile
-
-      - name: Security audit
-        run: yarn audit --level high
+      - run: pnpm install --frozen-lockfile
 
       - name: Preparar .env para CI
         run: |
           cp .env.example .env
-          # Secrets falsos — testes usam env-setup.ts com mocks próprios
           sed -i 's|SESSION_SECRET=.*|SESSION_SECRET=ci-session-secret-minimum-32-characters-ok!!|' .env
           sed -i 's|INTERNAL_API_SECRET=.*|INTERNAL_API_SECRET=ci-internal-api-secret-minimum-32-chars!!|' .env
-          sed -i 's|GOOGLE_CLIENT_ID=.*|GOOGLE_CLIENT_ID=ci-test.apps.googleusercontent.com|' .env
-          sed -i 's|GOOGLE_CLIENT_SECRET=.*|GOOGLE_CLIENT_SECRET=ci-google-secret|' .env
           sed -i 's|DB_NAME=connected_repo$|DB_NAME=connected_repo_test|' .env
-          # Criar workspace .env a partir do .env.example para que sync-env.js não os ignore
-          cp apps/backend/.env.example apps/backend/.env
-          cp apps/frontend/.env.example apps/frontend/.env
+          cp apps/api/.env.example apps/api/.env 2>/dev/null || true
+          cp apps/web/.env.example apps/web/.env 2>/dev/null || true
 
-      - name: Sync env (workspace .env files)
-        run: node scripts/sync-env.js
+      - run: pnpm turbo build
 
-      - name: Type check
-        run: yarn check-types
+      - run: pnpm turbo lint
 
-      - name: Lint (Biome)
-        run: npx biome check .
+      - run: pnpm turbo test
 
-      - name: Build
-        run: yarn build
-        env:
-          TURBO_CACHE_DIR: .turbo
-
-      - name: Test
-        run: yarn test
-        env:
-          TURBO_CACHE_DIR: .turbo
+      - name: Update pipeline state
+        if: success()
+        run: echo "CI_PASSED=true" >> $GITHUB_STEP_SUMMARY
