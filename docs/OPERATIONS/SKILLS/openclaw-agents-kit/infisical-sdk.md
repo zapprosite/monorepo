@@ -97,22 +97,6 @@ def safe_fetch(secret_name: str) -> Optional[str]:
         return None
 ```
 
-## Environment Variables Pattern
-
-```python
-import os
-
-# Service endpoints (from network map)
-TTS_BRIDGE_URL = os.environ.get("TTS_BRIDGE_URL", "http://localhost:8013")
-WAV2VEC2_URL = os.environ.get("WAV2VEC2_URL", "http://localhost:8201")
-KOKORO_URL = os.environ.get("KOKORO_URL", "http://localhost:8880")
-OPENCLAW_INTERNAL_PORT = os.environ.get("OPENCLAW_INTERNAL_PORT", "8080")
-
-# API Keys
-LITELLM_KEY = os.environ.get("LITELLM_KEY", "") or fetch_secret("LITELLM_MASTER_KEY")
-MINIMAX_API_KEY = os.environ.get("MINIMAX_API_KEY", "") or fetch_secret("MINIMAX_API_KEY")
-```
-
 ## Shell Integration Pattern
 
 ```bash
@@ -144,31 +128,12 @@ for s in secrets.secrets:
 
 export LITELLM_KEY=$(fetch_secret "LITELLM_MASTER_KEY")
 export MINIMAX_API_KEY=$(fetch_secret "MINIMAX_API_KEY")
-export TELEGRAM_BOT_TOKEN=$(fetch_secret "TELEGRAM_BOT_TOKEN")
-
-# Voice pipeline endpoints (no secrets, just config)
-export TTS_BRIDGE_URL="http://localhost:8013"
-export WAV2VEC2_URL="http://localhost:8201"
-export KOKORO_URL="http://localhost:8880"
 ```
 
 ## Used In
 
-- `tasks/smoke-tests/pipeline-openclaw-voice.sh` — fetch LITELLM_KEY and MINIMAX_API_KEY, TTS_BRIDGE_URL, WAV2VEC2_URL, KOKORO_URL
+- `tasks/smoke-tests/pipeline-openclaw-voice.sh` — fetch LITELLM_KEY and MINIMAX_API_KEY
 - OpenClaw config — API keys via environment injection
-- `docs/OPERATIONS/SKILLS/openclaw-agents-kit/coolify-access.md` — Coolify API keys
-
-## Required Environment Variables
-
-| Variable | Source | Description |
-|----------|--------|-------------|
-| `INFISICAL_TOKEN` | Infisical vault | Service token for secrets |
-| `LITELLM_KEY` | Infisical (`LITELLM_MASTER_KEY`) | LiteLLM master key |
-| `MINIMAX_API_KEY` | Infisical (`MINIMAX_API_KEY`) | MiniMax API key |
-| `TTS_BRIDGE_URL` | Config | TTS Bridge endpoint (default: `http://localhost:8013`) |
-| `WAV2VEC2_URL` | Config | wav2vec2 STT endpoint (default: `http://localhost:8201`) |
-| `KOKORO_URL` | Config | Kokoro TTS endpoint (default: `http://localhost:8880`) |
-| `OPENCLAW_INTERNAL_PORT` | Config | OpenClaw internal port (default: `8080`) |
 
 ---
 
