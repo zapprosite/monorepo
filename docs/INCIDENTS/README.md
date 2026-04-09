@@ -1,11 +1,22 @@
 # Incidentes Registrados
 
+## 📌 PINNING MARKER
+
+**Este arquivo é fonte de verdade para incidentes. Não substitua sem aprovação.**
+**Valido desde:** 2026-04-08 | **Proxima revisão:** 2026-05-08
+**Total de incidentes registados:** 5 (todos resolvidos)
+
+---
+
 ## Índice de Incidentes
 
 | Data | ID | Título | Severidade | Status |
 |------|----|--------|------------|--------|
 | 2026-04-08 | INCIDENT-2026-04-08 | Perplexity Agent GitOps Gap | 🔴 HIGH | ✅ RESOLVIDO |
 | 2026-04-08 | INCIDENT-2026-04-08-wav2vec2 | LiteLLM STT Network Isolation | 🔴 HIGH | ✅ RESOLVIDO |
+| 2026-04-08 | INCIDENT-2026-04-08-voice | Voice Pipeline Stability Master Plan | 🔴 HIGH | ✅ RESOLVIDO |
+| 2026-04-08 | INCIDENT-2026-04-08-kokoro | Kokoro Voice Access Control | 🟡 MEDIUM | ✅ RESOLVIDO |
+| 2026-04-08 | INCIDENT-2026-04-08-gitea | Gitea Actions Runner — Workflows Não Executavam | 🟡 MEDIUM | ✅ RESOLVIDO |
 
 ---
 
@@ -16,6 +27,16 @@
 **Prevenção:** Verificar todos os itens do checklist em SPEC-PERPLEXITY-GITOPS.md
 
 **Arquivo:** `INCIDENT-2026-04-08-perplexity-gitops-gap.md`
+
+---
+
+## INCIDENT-2026-04-08-gitea: Gitea Actions Runner
+
+**Problema:** Workflows não executavam — runner não estava deployado
+**Root Cause:** act_runner nunca foi iniciado, secrets não configurados
+**Prevenção:** Verificar runner online antes de criar workflows
+
+**Arquivo:** `INCIDENT-2026-04-08-gitea-actions-runner.md`
 
 ---
 

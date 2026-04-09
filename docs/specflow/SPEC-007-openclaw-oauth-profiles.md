@@ -1,57 +1,69 @@
-# SPEC-007: OpenClaw OAuth Persistent Login (Multi-Account)
+# SPEC-007: OpenClaw OAuth Persistent Login (Multi-Service CLI-First)
 
 **Status:** PROPOSED
 **Created:** 2026-04-08
+**Updated:** 2026-04-08
 **Author:** will
 
 ---
 
 ## Overview
 
-Configurar perfis Chrome persistentes no OpenClaw para login OAuth de dois serviços distintos (Gemini + Perplexity) com sessões persistidas entre reinicializações do container.
+Configurar login OAuth persistente para OpenClaw (CEO MIX agent) comandar Perplexity Agent em `web.zappro.site`. Solução **CLI-first** — nenhum n8n ou webhook intermediary.
+
+---
+
+## Architecture (CLI-Only)
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                   CEO MIX (OpenClaw Bot)                    │
+│  Browser automation via CDP                                  │
+│  Navigate: https://web.zappro.site (OAuth session)          │
+│  Executes commands on Perplexity UI                         │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              │ (CDP direct navigation, no n8n)
+                              ↓
+┌─────────────────────────────────────────────────────────────┐
+│              Perplexity Agent (Streamlit)                    │
+│  🌐 web.zappro.site:4004                                    │
+│  OAuth UI: persona selector (gemini / perplexity)          │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**Perplexity Query CLI (alternativa direta, sem browser):**
+
+```bash
+# scripts/perplexity-query.sh
+PERPLEXITY_API_KEY="$(infisical get PERPLEXITY_API_KEY)" \
+curl -s -X POST "https://api.perplexity.ai/chat/completions" \
+  -H "Authorization: Bearer $PERPLEXITY_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d "{\"model\":\"sonar\",\"messages\":[{\"role\":\"user\",\"content\":\"$1\"}]}"
+```
 
 ---
 
 ## Goals
 
 ### Must Have
-- [ ] Perfil Chrome persistente via host path mount (`/srv/data/openclaw-chrome-profiles/`)
-- [ ] Login OAuth funcional em `web.zappro.site` com credenciais Gemini
-- [ ] Login OAuth funcional em `web.zappro.site` com credenciais Perplexity
+- [ ] Chrome profile persistente via host path mount (`/srv/data/openclaw-chrome-profiles/`)
+- [ ] Login OAuth funciona em `web.zappro.site` (Gemini + Perplexity personas)
 - [ ] Sessões persistem após restart do container `browser-*`
-- [ ] Múltiplos perfis Chrome (1 por serviço) gerenciados pelo OpenClaw
+- [ ] CEO MIX (OpenClaw) consegue navegar logado via CDP
 
 ### Should Have
-- [ ] Script de automation via CDP para pre-login (evitar setup manual)
-- [ ] Health check verificando sessões OAuth ativas
-- [ ] Credenciais separadas no Infisical (GEMINI_OAUTH_SESSION, PERPLEXITY_OAUTH_SESSION)
+- [ ] CLI script `perplexity-query.sh` para query direta API
+- [ ] Smoke test verificando OAuth ativo
 
 ---
 
 ## Non-Goals
 
-- Autenticação simultânea de ambos no mesmo perfil (dois contextos distintos)
-- Gerenciamento de tokens de refresh (escopo do OAuth provider)
-- Mobile app OAuth (web only)
-
----
-
-## Architecture
-
-```
-/srv/data/openclaw-chrome-profiles/
-├── gemini-profile/     → Chromium profile para Gemini
-│   └── Default/
-└── perplexity-profile/  → Chromium profile para Perplexity
-    └── Default/
-```
-
-**Stack:**
-- OpenClaw bot container (`openclaw-*`)
-- Browser container (`browser-*`) com Chromium
-- Chrome profiles montados do host → container via volume
-- CDP (Chrome DevTools Protocol) para automation
-- Infisical para credenciais
+- n8n ou qualquer webhook intermediary
+- Mobile app OAuth
+- Real-time token refresh automation
 
 ---
 
@@ -64,27 +76,63 @@ mkdir -p /srv/data/openclaw-chrome-profiles/{gemini-profile,perplexity-profile}/
 chmod -R 777 /srv/data/openclaw-chrome-profiles/
 ```
 
-### Step 2: Identificar como o browser container monta volumes
+### Step 2: Identificar volume mount do browser container
 
-O container `browser-qgtzrmi6771lt8l7x8rqx72f` monta:
+Container `browser-qgtzrmi6771lt8l7x8rqx72f` monta:
 - `qgtzrmi6771lt8l7x8rqx72f_browser-data` → `/config`
 
-O Chromium guarda perfil em `/config/.config/chromium/Default/`
+Chromium guarda perfil em `/config/.config/chromium/Default/`
 
 ### Step 3: Estratégia de mount
 
-**Opção A:** Substituir `/config/.config/chromium` por symlink para host path
-**Opção B:** Recriar container via Coolify com binds de volume customizados
-**Opção C:** Usar `chrome-profile-path` no openclaw.json se suportado
+**Opção A (recomendada):** Recriar container via Coolify com binds:
+```yaml
+# docker-compose override
+volumes:
+  - /srv/data/openclaw-chrome-profiles/gemini-profile:/config/.config/chromium/gemini
+  - /srv/data/openclaw-chrome-profiles/perplexity-profile:/config/.config/chromium/perplexity
+```
 
-### Step 4: Automation OAuth via CDP
+**Opção B:** Symlink dentro do container:
+```bash
+# inside container
+ln -sf /host/path/gemini-profile /config/.config/chromium/Default
+```
 
-Script Node.js/Playwright que:
-1. Conecta ao CDP do browser (`http://browser:9223`)
-2. Cria novo contexto (profile gemini ou perplexity)
-3. Navega para `web.zappro.site`
-4. Executa login OAuth com credenciais do Infisical
-5. Persiste cookies e localStorage no perfil
+### Step 4: OAuth Login Manual
+
+1. Abrir browser com perfil gemini → navegar para `web.zappro.site`
+2. Fazer login OAuth com conta Gemini
+3. Repetir para perfil perplexity
+4. Perfis guardados em `/srv/data/openclaw-chrome-profiles/`
+
+### Step 5: CLI Query Script
+
+```bash
+#!/bin/bash
+# scripts/perplexity-query.sh
+API_KEY="${PERPLEXITY_API_KEY:-$(infisical get PERPLEXITY_API_KEY)}"
+curl -s -X POST "https://api.perplexity.ai/chat/completions" \
+  -H "Authorization: Bearer $API_KEY" \
+  -H "Content-Type: application/json" \
+  -d "{\"model\":\"sonar\",\"messages\":[{\"role\":\"user\",\"content\":\"$1\"}]}"
+```
+
+---
+
+## File Structure
+
+```
+scripts/
+├── perplexity-query.sh                      # CLI query direta
+└── oauth-chrome-profiles.sh                 # setup dirs + validation
+
+docs/specflow/
+└── SPEC-007-openclaw-oauth-profiles.md     # esta spec
+
+apps/openclaw/
+└── n8n-workflows/                          # DELETED - sem n8n
+```
 
 ---
 
@@ -92,35 +140,21 @@ Script Node.js/Playwright que:
 
 | # | Criterion | Test |
 |---|-----------|------|
-| AC-1 | Gemini OAuth funciona em `web.zappro.site` | Login persiste após restart do container |
-| AC-2 | Perplexity OAuth funciona em `web.zappro.site` | Login persiste após restart do container |
-| AC-3 | Perfis são separados (cookies distintos) | Sem sangria de sessão entre contas |
-| AC-4 | OpenClaw consegue usar cada perfil | Bot pode browse logado como cada serviço |
-
----
-
-## Risks
-
-- **Coolify pode sobrescrever volumes** na próxima deploy → precisa de annotation ou bind permanente
-- **OAuth tokens expiram** → requer re-auth periódica ou token refresh
-- **Docker volume permissions** → usuário `abc` no container vs `will` no host
+| AC-1 | Chrome profile persiste | Restart container → cookies intactos |
+| AC-2 | Gemini OAuth funciona | Login persiste após restart |
+| AC-3 | Perplexity OAuth funciona | Login persiste após restart |
+| AC-4 | CEO MIX navega logado | OpenClaw CDP → web.zappro.site como usuário |
+| AC-5 | CLI query funciona | `./perplexity-query.sh "test"` → JSON response |
 
 ---
 
 ## Dependencies
 
 - OpenClaw deployment via Coolify
-- Infisical secrets para credenciais
+- Infisical secrets (PERPLEXITY_API_KEY)
 - Browser container com Chromium + CDP exposure
 
 ---
 
-## File Structure
-
-```
-docs/specflow/SPEC-007-openclaw-oauth-profiles.md  ← esta spec
-skills/openclaw-chrome-profiles/
-├── setup-profiles.sh                               ← cria dirs no host
-├── oauth-login.js                                  ← automation via CDP
-└── README.md
-```
+**Registrado:** 2026-04-08
+**Autor:** will
