@@ -17,6 +17,8 @@ Welcome to the repository knowledge base. Start with the project overview, then 
 - [Data Flow & Integrations](./data-flow.md)
 - [Security & Compliance Notes](./security.md)
 - [Tooling & Productivity Guide](./tooling.md)
+- [CLI Shortcuts Reference](./docs/CLI-SHORTCUTS.md)
+- [Toolchain Reference](./docs/TOOLCHAIN.md)
 
 ## Repository Snapshot
 - `AGENTS.md/`
@@ -37,4 +39,19 @@ Welcome to the repository knowledge base. Start with the project overview, then 
 | Data Flow & Integrations | `data-flow.md` | System diagrams, integration specs, queue topics |
 | Security & Compliance Notes | `security.md` | Auth model, secrets management, compliance requirements |
 | Tooling & Productivity Guide | `tooling.md` | CLI scripts, IDE configs, automation workflows |
+| CLI Shortcuts Reference | `docs/CLI-SHORTCUTS.md` | All `/` slash commands in Claude Code, git aliases, mirror push |
+| Toolchain Reference | `docs/TOOLCHAIN.md` | pnpm/bun/yarn/npm, Turbo, Biome, TypeScript, Python, Docker |
+
+## Scripts (`/srv/monorepo/scripts/`)
+
+Operational bash scripts for monorepo tasks:
+
+| Script | Purpose |
+|--------|---------|
+| `scripts/health-check.sh` | Full health: Docker, services, ZFS, disk, git status |
+| `scripts/deploy.sh` | Pre-deploy validation + optional ZFS snapshot + push |
+| `scripts/backup.sh` | Backup monorepo (git bundle, apps, packages, configs) |
+| `scripts/restore.sh <name>` | Restore from a named backup in `/srv/backups/monorepo/` |
+| `scripts/mirror-push.sh` | Push current branch to Gitea + GitHub simultaneously |
+| `scripts/sync-env.js` | Sync environment variables to workspaces (already existed) |
 

@@ -1,256 +1,278 @@
-# Plano: OpenClaw Agency Hub — Design & Marketing
+# Plano: OpenClaw Agency — Voice-First Marketing & Design
 
-**Data:** 2026-04-05 | **Host:** will-zappro | **Bot:** @CEO_REFRIMIX_bot
-
-## Contexto
-
-O bot OpenClaw Telegram funciona com MiniMax M2.7 direto. O host tem 37 containers rodando (Qdrant, Supabase, LiteLLM, Open WebUI, Firefox, N8N, Kokoro TTS, Ollama GPU, etc). O objetivo e transformar o bot em hub de agencia de design/marketing com: embeddings locais via Nomic → Qdrant, time de agents especializados, vault Obsidian, e dashboard de monitoramento.
+**Data:** 2026-04-08 (reimaginada) | **Host:** will-zappro | **Bot:** @CEO_REFRIMIX_bot
 
 ---
 
-## FASE 1: Pipeline de Embeddings (Nomic → LiteLLM → Qdrant)
+## Visao
 
-### 1.1 Testar embeddings via LiteLLM
-```bash
-curl -s http://10.0.1.1:4000/v1/embeddings \
-  -H "Authorization: Bearer sk-zappro-lm-2026-s8k3m9x2p7r6t5w1v4c8n0d5j7f9g3h6i2k4l6m8n0p1" \
-  -d '{"model":"embedding-nomic","input":"teste de embedding"}'
-```
+Ser a **primeira agencia de marketing voice-first do Brasil.** O cliente fala o briefing, recebe relatorios falados — tudo pelo Telegram. Sem formulários, sem planilhas, sem emails de acompanhamento.
 
-### 1.2 Criar 4 collections no Qdrant (dim 768 = nomic-embed-text)
-- `clients` — briefs, preferencias, historico
-- `brand-guides` — cores, fontes, identidade visual
-- `campaigns` — campanhas, metricas, resultados
-- `knowledge` — documentacao, processos, templates
+**Diferenciador:** Nenhuma agencia concorrente entrega briefings por audio e relatorios falados. Isso reduz o tempo de briefing de 2 dias para 30 segundos.
 
-```bash
-# De dentro do container (mesma rede Docker)
-docker exec openclaw-qgtzrmi6771lt8l7x8rqx72f curl -s -X PUT \
-  http://qdrant-c95x9bgnhpedt0zp7dfsims7:6333/collections/knowledge \
-  -H "api-key: vmEbyCYrU68bR7lkzCbL05Ey4BPnTZgr" \
-  -H "Content-Type: application/json" \
-  -d '{"vectors":{"size":768,"distance":"Cosine"}}'
-# Repetir para clients, brand-guides, campaigns
-```
-
-### 1.3 Snapshot ZFS antes de prosseguir
-```bash
-sudo zfs snapshot -r "tank@pre-$(date +%Y%m%d-%H%M%S)-agency-setup"
-```
-
-**Decisao:** NAO usar plugin `memory-lancedb` (hardcoded para dim 1536/3072). Criar skill customizada `qdrant-rag`.
+**Tagline:** "Sua agencia que você SCAVIZZ."
 
 ---
 
-## FASE 2: Skill customizada `qdrant-rag`
+## O Que Temos (Stack)
 
-### 2.1 Criar skill no workspace do bot
-**Arquivo:** `/data/workspace/skills/qdrant-rag/SKILL.md`
-
-Funcionalidade:
-- Embed texto via LiteLLM (`embedding-nomic`, 768 dims)
-- Search semantico no Qdrant (collections: clients, brand-guides, campaigns, knowledge)
-- Upsert de novos documentos
-- Tudo via tools nativos `exec` + `web_fetch` (sem binario externo)
-
-### 2.2 Script helper
-**Arquivo:** `/data/workspace/scripts/qdrant-helper.sh`
-- Funcoes: `embed()`, `search()`, `upsert()`, `ingest_folder()`
-- Bot invoca via tool `exec`
-
-### 2.3 Indexar workspace existente
-- Ler todos os `.md` do workspace
-- Chunkar em blocos de ~500 tokens
-- Gerar embeddings via LiteLLM
-- Inserir no Qdrant collection `knowledge`
+| Capacidade | Tecnologia | Diferencial Competitivo |
+|-----------|------------|--------------------------|
+| **Voice In** | wav2vec2 :8201 | Briefing por voz, natural |
+| **Voice Out** | Kokoro pm_santa/pf_dora | Relatorios falados |
+| **Visao** | llava via LiteLLM | Analise de designs, prints |
+| **Memoria** | Qdrant 768d | Contexto de cliente/marca |
+| **Automacao** | n8n + sub-agents | Pipeline completo |
+| **Seguranca** | Infisical vault | Secrets nunca expostos |
 
 ---
 
-## FASE 3: Conectar servicos como tools
+## Arquitetura de Time Virtual
 
-### Servicos ja acessiveis (mesma rede):
-| Servico | Endpoint (de dentro do container) |
-|---|---|
-| Qdrant | `qdrant-c95x9bgnhpedt0zp7dfsims7:6333` |
-| LiteLLM | `10.0.1.1:4000` |
-| Kokoro TTS | `10.0.19.6:8880` |
-| SearXNG | `10.0.1.1:8888` |
-
-### Servicos em rede separada (precisam bridge):
-```bash
-# Conectar Supabase Postgres a rede do OpenClaw
-docker network connect qgtzrmi6771lt8l7x8rqx72f ll01e4eis7wog1fnbzomc6jv
 ```
-
-### NAO conectar (interface humana, sem valor como tool):
-- Open WebUI (UI para humanos)
-- Firefox VNC (uso manual)
-
-### Atualizar TOOLS.md no workspace
-Documentar todos os endpoints com auth para o bot consultar.
+                    ┌─────────────────────────────────────────┐
+                    │         CEO MIX (Leader)                │
+                    │  @CEO_REFRIMIX_bot — Telegram            │
+                    │  default: true                            │
+                    │  - Unico ponto de contato                 │
+                    │  - Voice-first (in/out)                   │
+                    └─────────────────┬────────────────────────┘
+                                      │ delega
+          ┌───────────────────────────┼───────────────────────────┐
+          │                           │                           │
+          ▼                           ▼                           ▼
+    ┌──────────┐              ┌──────────┐               ┌──────────┐
+    │ CREATIVE │              │  DESIGN  │               │  SOCIAL  │
+    │ Copy,    │              │ Briefs,  │               │ Calendar,│
+    │ headlines│              │ Brand    │               │ Publish, │
+    │ AIDA/PAS │              │ guides,  │               │ Trends  │
+    └──────────┘              │ llava    │               └──────────┘
+                              └──────────┘                      │
+                                  │                             │
+                                  └─────────────────────────────┘
+                                              │
+                                              ▼
+                                       ┌──────────────┐
+                                       │   PROJECT    │
+                                       │  Timelines,  │
+                                       │  Reports,     │
+                                       │  Status      │
+                                       └──────────────┘
+```
 
 ---
 
-## FASE 4: Vault Obsidian (no workspace existente)
+## Roadmap por Fase
 
-**Decisao:** NAO instalar skill `obsidian` (requer Linuxbrew no container, pesado). Usar tools nativos `read`/`write` + Qdrant para busca semantica.
+### FASE 1: Voice Briefing (Semana 1)
 
-### 4.1 Reorganizar workspace como vault
+**Objetivo:** Cliente envia audio → CEO MIX gera copy
+
 ```
-/data/workspace/
-├── .obsidian/              # Config minima (compativel com Obsidian desktop via SSH mount)
-├── 00-inbox/               # Novos documentos
-├── 01-clients/             # Por cliente
-│   └── cliente-nome/
-│       ├── brief.md
-│       └── brand-guide.md
-├── 02-campaigns/           # Campanhas ativas
-├── 03-templates/           # Templates reutilizaveis
-│   ├── brief-template.md
-│   ├── campaign-template.md
-│   └── brand-guide-template.md
-├── 04-knowledge/           # Base de conhecimento
-├── architecture/           # Ja existe
-├── memory/                 # Ja existe
-├── skills/                 # Ja existe
-└── scripts/                # Helpers
+1. Cliente envia audio de briefing (Telegram)
+2. CEO MIX transcreve via wav2vec2 :8201
+3. Busca brand guide do cliente no Qdrant
+4. Gera copy com CREATIVE sub-agent
+5. Retorna: texto + TTS preview (pm_santa)
 ```
 
-### 4.2 Criar templates de agencia
-- Brief de cliente
-- Campanha de marketing
-- Brand guide
-- Calendario editorial
-- Post social media
+**Entregaveis:**
+- [ ] Skill `voice-briefing` operacional
+- [ ] Qdrant `clients` populado com 1 cliente teste
+- [ ] Copy gerada a partir de audio real
+
+### FASE 2: Sub-Agents Operacionais (Semana 2-3)
+
+**Objetivo:** Time virtual работает em paralelo
+
+```
+CEO MIX recebe briefing
+    │
+    ├── CREATIVE: "Gere copy AIDA para [produto]"
+    ├── DESIGN: "Crie brief visual para [campanha]"
+    └── SOCIAL: "Proponha 5 posts para [rede]"
+
+Execução paralela → CEO MIX compila → Cliente aprova
+```
+
+**Entregaveis:**
+- [ ] CREATIVE agent: SOUL.md + workspace
+- [ ] DESIGN agent: SOUL.md + workspace
+- [ ] SOCIAL agent: SOUL.md + workspace
+- [ ] Delegacao funcional via Telegram
+
+### FASE 3: Voice Reports (Semana 3-4)
+
+**Objetivo:** Cliente recebe relatorios por audio
+
+```
+Todo dia 30:
+CEO MIX compila relatorio mensal
+    - Campanhas ativas
+    - Metricas (impressoes, cliques, conversoes)
+    - Proximos passos
+    │
+    ▼
+TTS Bridge :8013 → Kokoro :8880
+    │
+    ▼
+Audio no Telegram (pm_santa)
+```
+
+**Entregaveis:**
+- [ ] Template de relatorio em Qdrant
+- [ ] Geracao de relatorio automatica
+- [ ] Envio por voice no Telegram
+
+### FASE 4: Social Automation (Semana 4-5)
+
+**Objetivo:** Publicacao automatica via n8n
+
+```
+Cliente aprova campanha
+    │
+    ▼
+n8n workflow dispara
+    │
+    ├── Instagram (via API)
+    ├── LinkedIn (via API)
+    └── Telegram (notificacao)
+```
+
+**Entregaveis:**
+- [ ] n8n workflow configurado
+- [ ] Sub-agent SOCIAL com calendario
+- [ ] Publicacao testada
+
+### FASE 5: Brand Guide Engine (Semana 5-6)
+
+**Objetivo:** Extrair brand guide automaticamente de imagens
+
+```
+Cliente envia imagens da marca
+    │
+    ▼
+llava analiza: cores, fontes, estilo, tom
+    │
+    ▼
+CEO MIX extrai brand guide
+    │
+    ▼
+Qdrant upsert(brand_guide)
+```
+
+**Entregaveis:**
+- [ ] Skill `brand-extractor` via llava
+- [ ] Brand guide gerado automaticamente
+- [ ] Validacao de consistencia
 
 ---
 
-## FASE 5: Time de Agentes Especializados
+## Qdrant Collections
 
-> **Kit de Implementação:** Usar [OpenClaw Agents Kit](../OPERATIONS/SKILLS/openclaw-agents-kit/SKILL.md)
->
-> O kit inclui templates universais para criar leader + sub-agents sem perder contexto existente:
-> - `GOVERNANCE-TEMPLATE.md` — regras universais (PROIBIDO, Aprovação, Sempre Manter)
-> - `subagent-pattern.md` — padrão leader/worker com `default: true`
-> - `identity-patch.py` — atualiza identity sem sobrescrever agents/bindings
-> - `coolify-access.md` + `infisical-sdk.md` — acesso seguro via Coolify API / Infisical vault
-
-### Arquitetura
-CEO MIX (main) orquestra e delega para 4 subagents:
-
-| Agente | Especialidade | Modelo |
-|---|---|---|
-| `creative` | Copywriting, headlines, textos, AIDA/PAS | minimax/MiniMax-M2.7 |
-| `design` | Briefs visuais, brand guides, analise de imagem (llava) | minimax/MiniMax-M2.7 |
-| `social` | Calendario editorial, tendencias, timing, publicacao | minimax/MiniMax-M2.7 |
-| `project` | Gestao de tarefas, timeline, status reports | minimax/MiniMax-M2.7 |
-
-### 5.1 Criar agentes (via kit)
-```bash
-# Via CoolifyClient Python (doc: openclaw-agents-kit/coolify-access.md)
-# Ou manualmente:
-docker exec openclaw-qgtzrmi6771lt8l7x8rqx72f openclaw agents add creative \
-  --workspace /data/workspace/agents/creative --model "minimax/MiniMax-M2.7"
-# Repetir para design, social, project
+### `clients`
+```json
+{
+  "payload": {
+    "nome": "ACME Corp",
+    "slug": "acme",
+    "brand_guide": {
+      "tom": "formal, confiavel",
+      "cores": ["#1a365d", "#c53030"],
+      "fontes": "Montserrat + Open Sans"
+    },
+    "contatos": { "telegram": "@manager_acme" },
+    "redes": ["instagram", "linkedin"]
+  }
+}
 ```
 
-### 5.2 SOUL.md de cada agente
-Cada agente recebe system prompt especializado com:
-- Papel e expertise
-- Tom de voz
-- Tools que deve usar (qdrant-rag, web_search, browser, etc)
-- Limites (nao publicar sem aprovacao do CEO MIX)
+### `campaigns`
+```json
+{
+  "payload": {
+    "cliente": "acme",
+    "tipo": "lancamento",
+    "copy": "...",
+    "brief_visual": "...",
+    "status": "aprovada|publicada|concluida"
+  }
+}
+```
 
-### 5.3 Routing
-CEO MIX permanece como unico ponto de contato no Telegram. Ele delega via subagents (maxConcurrent=4, subagents=8 ja configurado).
-
-### 5.4 Governance (via kit)
-O [GOVERNANCE-TEMPLATE.md](../OPERATIONS/SKILLS/openclaw-agents-kit/GOVERNANCE-TEMPLATE.md) define:
-- Audio stack PROTEGIDO: STT wav2vec2, TTS Bridge :8013, voices pm_santa/pf_dora
-- LLM Primary: minimax/MiniMax-M2.7 DIRETO (não via LiteLLM)
-- Vision: litellm/llava via LiteLLM
-- Identity: Zappro (PATCH-ABLE via identity-patch.py)
+### `templates`
+```json
+{
+  "payload": {
+    "tipo": "briefing|campanha|post|report",
+    "nome": "Nome do template",
+    "estrutura": { ... }
+  }
+}
+```
 
 ---
 
-## FASE 6: Dashboard OpenClaw-bot-review
+## Servicos (mesma rede Docker)
 
-### 6.1 Clonar repo
-```bash
-cd /home/will && git clone https://github.com/xmanrui/OpenClaw-bot-review.git
-```
-
-### 6.2 Deploy via Coolify
-- Recurso: Public Repository
-- URL: `https://github.com/xmanrui/OpenClaw-bot-review`
-- Build: Nixpacks (Next.js auto)
-- Env: Gateway URL + token do OpenClaw
-- **Porta:** Verificar PORTS.md (sugestao: 4010+)
-- **Subdominio:** Verificar SUBDOMAINS.md (sugestao: `agents.zappro.site`)
+| Servico | Endpoint | Uso |
+|---------|----------|-----|
+| Qdrant | `qdrant-c95x...:6333` | Memoria vetorial |
+| LiteLLM | `10.0.1.1:4000` | llava, nomic-embed |
+| TTS Bridge | `10.0.19.5:8013` | pm_santa, pf_dora |
+| wav2vec2 | `10.0.19.6:8201` | STT PT-BR |
+| Kokoro | `10.0.19.7:8880` | TTS |
+| n8n | `n8n:5678` | Automacao |
 
 ---
 
-## FASE 7: Skills adicionais
+## Metricas de Sucesso
 
-### Instalar via ClawHub:
-| Skill | Uso |
-|---|---|
-| `github` | Integracao Gitea (API compatible) |
-| `coding-agent` | Gerar codigo/automacoes |
-| `video-frames` | Extracao de frames para analise |
-| `model-usage` | Monitorar custo de tokens |
-
-### NAO instalar agora:
-- Slack/Discord/WhatsApp (canais nao ativos)
-- Apple Notes/Bear (macOS only)
-- Obsidian skill (substituida por vault + tools nativos)
+| Metrica | Target | Como Medir |
+|---------|--------|------------|
+| Tempo briefing → draft | <30 segundos | Log CEO MIX |
+| Taxa aprovacao copy | >80% | Qdrant campaigns |
+| Campanhas/mês/cliente | 4+ | Contagem Qdrant |
+| NPS cliente | >8 | Pesquisa mensal |
 
 ---
 
-## Sequencia de Execucao
+## Governance (do Kit)
 
-```
-Dia 1-2:  FASE 1 — Pipeline embeddings + collections Qdrant
-Dia 2-3:  FASE 2 — Skill qdrant-rag + ingestao
-Dia 3-4:  FASE 3 — Conectar servicos (Supabase bridge)
-Dia 4:    FASE 4 — Vault structure + templates
-Dia 5-7:  FASE 5 — Agents especializados + SOUL.md + testes
-Dia 7-8:  FASE 6 — Dashboard deploy
-Dia 8-10: FASE 7 — Skills extras + documentacao
-```
+**PROIBIDO:**
+- Alterar STT (wav2vec2 :8201)
+- Alterar TTS Bridge (:8013) ou voces
+- Usar outra voz que nao pm_santa/pf_dora
+- Mudar LLM primary para LiteLLM
 
-## Riscos
-
-| Risco | Mitigacao |
-|---|---|
-| memory-lancedb incompativel com nomic (768 dims) | Usar skill customizada qdrant-rag |
-| Supabase em rede separada | `docker network connect` |
-| Tokens MiniMax caros para subagents | Considerar gemma4 local para subagents |
-| Container sem obsidian-cli | Nao instalar — usar tools nativos |
-| Dashboard incompativel com OpenClaw 2026.2.6 | Testar local antes de Coolify |
-
-## Verificacao
-
-Apos cada fase:
-1. Snapshot ZFS
-2. Testar funcionalidade end-to-end via Telegram
-3. Verificar logs: `docker logs openclaw-qgtzrmi6771lt8l7x8rqx72f --tail 20`
-4. Confirmar que modelo primario continua `minimax/MiniMax-M2.7`
+**REQUER APROVACAO:**
+- Adicionar novo sub-agent
+- Mudar binding de canal
+- Publicar em nome do cliente
 
 ---
 
-**Arquivos criticos:**
-- Container: `/data/.openclaw/openclaw.json` — config principal
-- Host: `/home/will/zappro-lite/config.yaml` — LiteLLM config
-- Host: `/srv/ops/ai-governance/OPENCLAW_DEBUG.md` — guia de debug
-- Rule: `~/.claude/rules/openclaw-litellm-governance.md` — guardrails
+## Riscos e Mitigacoes
+
+| Risco | Prob | Mitigacao |
+|-------|------|-----------|
+| Cliente nao adapta a voice | Media | Text fallback + mostrar speed |
+| Token custo MiniMax | Alta | Cache brand guides |
+| Inconsistencia marca | Media | llava validacao |
+| Sub-agents divergem | Baixa | Governance template |
 
 ---
 
-## REGRA DE OURO (para qualquer LLM)
+## REGRA DE OURO
 
 ```
-MODELO PRIMARIO = minimax/MiniMax-M2.7 DIRETO (api.minimax.io)
-LITELLM = SOMENTE proxy GPU (llava, gemma4, nomic, kokoro-tts)
-NUNCA rotear o modelo primario pelo LiteLLM
+MODELO PRIMARIO = minimax/MiniMax-M2.7 DIRETO
+LITELLM = SOMENTE: llava, nomic-embed, kokoro-tts
+VOICE = VOICE-FIRST — tudo comecou e termina em audio
 ```
+
+---
+
+**Spec:** [SPEC-011](./specflow/SPEC-011-openclaw-agency-reimagined.md)
+**Tasks:** `tasks/todo-agency-reimagined.md`
+**Plan:** `tasks/plan-agency-reimagined.md`
