@@ -5,7 +5,7 @@
       "cron": "*/30 * * * *",
       "prompt": "Você é o agent de auto-orchestration. Execute:\n\n1. Rode: /home/will/.claude/mcps/ai-context-sync/sync.sh\n2. Verifique: git -C /srv/monorepo status --short\n3. Se houver mudanças pendentes, liste-as\n4. Se não houver, diga \"Auto-orchestration: tudo em dia\"\n\nResuma em 1-2 linhas.",
       "createdAt": 1775557362633,
-      "lastFiredAt": 1775743542211,
+      "lastFiredAt": 1775745416506,
       "recurring": true
     },
     {
@@ -69,7 +69,7 @@
       "cron": "*/5 * * * *",
       "prompt": "Execute /home/will/.claude/skills/gitea-coolify-deploy/scripts/auto-healer.sh and log output to /srv/ops/logs/healing.log. If any containers were restarted, report which ones.",
       "createdAt": 1775652662474,
-      "lastFiredAt": 1775744823241,
+      "lastFiredAt": 1775746765413,
       "recurring": true
     },
     {
