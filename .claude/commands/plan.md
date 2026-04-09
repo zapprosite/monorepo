@@ -1,19 +1,35 @@
-Invoca o workflow spec-driven development focado em planejamento.
+---
+description: Gera PRD completo com Opus. Use `c` para PRD final, `cm` para rascunho rápido.
+argument-hint: <descrição da feature>
+---
 
-Uso: `/plan <descrição-da-tarefa>`
+# /plan — Geração de PRD Enterprise
 
-Processo:
-1. Lê SPECs existentes em docs/specflow/
-2. Carrega o plano de tasks existente (tasks/plan.md, tasks/todo.md)
-3. Usa o agent Plan para decompor a tarefa em phases e tasks
-4. Atualiza tasks/plan.md com o plano gerado
-5. Presenta o plano para revisão humana antes de implementar
+## Modelo recomendado
+- Rascunho rápido → `cm` (MiniMax M2.7, barato)
+- PRD final → `c` (Claude Opus, máxima qualidade)
 
-Se não houver SPEC existente para a tarefa, redireciona para /spec primeiro.
+## Processo
 
-Exemplo:
-/plan implementar autenticação JWT
+1. Perguntar:
+   - Qual feature/problema?
+   - Qual slice alvo? (1=MVP, 2=Core, 3=Enhanced)
+   - Qual app afetado? (api/web/workers/perplexity-agent)
 
-Agents utilizados:
-- Plan agent: para decomposição em tasks
-- Explore agent: para entender código existente
+2. Ler contexto existente:
+   - docs/specflow/SPEC-*.md (specs existentes)
+   - tasks/pipeline.json (tasks em andamento)
+   - CLAUDE.md (regras do projeto)
+
+3. Gerar docs/specflow/PRD-[slug]-[YYYYMMDD].md
+   usando docs/TEMPLATES/PRD-template.md como base
+
+4. Gerar docs/specflow/SPEC-[slug]-[YYYYMMDD].md
+   usando docs/TEMPLATES/SPEC-template.md como base
+
+5. Chamar /pg para gerar tasks no pipeline.json
+
+6. Informar ao usuário:
+   - path do PRD gerado
+   - path do SPEC gerado
+   - número de tasks adicionadas ao pipeline.json
