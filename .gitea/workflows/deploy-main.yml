@@ -160,7 +160,7 @@ jobs:
           fi
 
           echo "App UUID: $APP_UUID"
-          echo "app_uuid=$APP_UUID" >> $GITHUB_OUTPUT || echo "app_uuid=$APP_UUID" >> $GITEA_OUTPUT
+          echo "app_uuid=$APP_UUID" >> $GITEA_OUTPUT
 
       - name: Trigger Deploy on Coolify
         env:

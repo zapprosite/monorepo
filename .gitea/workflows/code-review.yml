@@ -151,6 +151,13 @@ jobs:
           HEAD_BRANCH: ${{ gitea.head_branch }}
           BASE_BRANCH: ${{ gitea.event.pull_request.base.ref }}
         run: |
+          # Safely write PR_TITLE and PR_BODY to temp files using printf %s
+          # This prevents shell injection via malicious PR title/body content
+          printf '%s' "$PR_TITLE" > /tmp/pr_title.txt
+          printf '%s' "$PR_BODY" > /tmp/pr_body.txt
+          PR_TITLE=$(cat /tmp/pr_title.txt)
+          PR_BODY=$(cat /tmp/pr_body.txt)
+
           # Build the review prompt
           REVIEW_PROMPT="You are performing a code review on a Pull Request.
 
@@ -186,9 +193,9 @@ Output your review in structured markdown format."
         id: ai-review-status
         run: |
           if grep -q "ERROR\|FAIL" /tmp/ai-review-output.txt 2>/dev/null; then
-            echo "status=failed" >> $GITHUB_OUTPUT || echo "status=failed" >> $GITEA_OUTPUT
+            echo "status=failed" >> $GITEA_OUTPUT
           else
-            echo "status=completed" >> $GITHUB_OUTPUT || echo "status=completed" >> $GITEA_OUTPUT
+            echo "status=completed" >> $GITEA_OUTPUT
           fi
 
   # ─────────────────────────────────────────────────────────────────────────

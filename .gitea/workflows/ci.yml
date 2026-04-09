@@ -48,12 +48,15 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .turbo
-          key: turbo-${{ runner.os }}-${{ github.sha }}
+          key: turbo-${{ runner.os }}-${{ gitea.sha }}
           restore-keys: |
             turbo-${{ runner.os }}-
 
       - name: Instalar dependências
         run: yarn install --frozen-lockfile
+
+      - name: Security audit
+        run: yarn audit --level high
 
       - name: Preparar .env para CI
         run: |
