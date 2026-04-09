@@ -1,0 +1,93 @@
+name: CI Feature
+
+# Lightweight CI for feature branches — no human gate needed.
+# Runs on every push to a non-main branch (feature, fix, chore, etc.)
+on:
+  push:
+    branches-ignore:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: ci-feature-${{ gitea.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_ENV: test
+  DB_HOST: localhost
+  DB_PORT: "5432"
+  DB_USER: postgres
+  DB_PASSWORD: postgres
+  DB_NAME: connected_repo_test
+
+jobs:
+  ci-feature:
+    name: Type Check · Lint · Build · Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: connected_repo_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "yarn"
+
+      - name: Cache Turbo
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: turbo-${{ runner.os }}-${{ gitea.sha }}
+          restore-keys: |
+            turbo-${{ runner.os }}-
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Prepare .env for CI
+        run: |
+          cp .env.example .env
+          sed -i 's|SESSION_SECRET=.*|SESSION_SECRET=ci-session-secret-minimum-32-characters-ok!!|' .env
+          sed -i 's|INTERNAL_API_SECRET=.*|INTERNAL_API_SECRET=ci-internal-api-secret-minimum-32-chars!!|' .env
+          sed -i 's|GOOGLE_CLIENT_ID=.*|GOOGLE_CLIENT_ID=ci-test.apps.googleusercontent.com|' .env
+          sed -i 's|GOOGLE_CLIENT_SECRET=.*|GOOGLE_CLIENT_SECRET=ci-google-secret|' .env
+          sed -i 's|DB_NAME=connected_repo$|DB_NAME=connected_repo_test|' .env
+          cp apps/backend/.env.example apps/backend/.env
+          cp apps/frontend/.env.example apps/frontend/.env
+
+      - name: Sync env (workspace .env files)
+        run: node scripts/sync-env.js
+
+      - name: Type check
+        run: yarn check-types
+
+      - name: Lint (Biome)
+        run: npx biome check .
+
+      - name: Build
+        run: yarn build
+        env:
+          TURBO_CACHE_DIR: .turbo
+
+      - name: Test
+        run: yarn test
+        env:
+          TURBO_CACHE_DIR: .turbo
