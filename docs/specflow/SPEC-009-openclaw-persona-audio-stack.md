@@ -29,8 +29,8 @@ Este documento define a configuracao canonical do OpenClaw Bot para voz PT-BR. Q
     │         │         │
     ▼         ▼         ▼
 [OLHOS]  [OUVIDOS]  [BOCA]
- litellm/  wav2vec2  TTS Bridge
-  llava    :8201      :8013
+litellm/   wav2vec2  TTS Bridge
+qwen2.5-vl:8201      :8013
  (vision) (STT PT-BR) │
                       │ SOMENTE pm_santa, pf_dora
                       │ [OUTRAS] → 400 Bad Request
@@ -141,7 +141,7 @@ Todas as outras 65 vozes Kokoro retornam `400 Bad Request`:
 
 ## Vision — Image Understanding
 
-**Model:** litellm/llava (via LiteLLM)
+**Model:** litellm/qwen2.5-vl (via LiteLLM)
 **Endpoint:** `http://10.0.1.1:4000/v1/chat/completions`
 **Provider:** `liteLLM`
 **GPU:** Ollama local
@@ -153,9 +153,9 @@ Todas as outras 65 vozes Kokoro retornam `400 Bad Request`:
   "agents": {
     "defaults": {
       "imageModel": {
-        "primary": "litellm/llava",
+        "primary": "litellm/qwen2.5-vl",
         "providers": {
-          "litellm/llava": { "provider": "liteLLM" }
+          "litellm/qwen2.5-vl": { "provider": "liteLLM" }
         }
       }
     }
@@ -169,7 +169,7 @@ Todas as outras 65 vozes Kokoro retornam `400 Bad Request`:
 |-------|-------|
 | GPT-4V | Nao e local |
 | Claude Vision | Nao e o modelo configurado |
-| qwen2.5-vl como primario | llava e o modelo configured |
+| qwen2.5-vl como primario | qwen2.5-vl e o modelo configured (llava FOI SUBSTITUIDO) |
 
 ---
 
@@ -211,7 +211,7 @@ ANTES DE PROPOR QUALQUER MUDANCA:
 □ TTS: esta usando TTS Bridge :8013? (NAO Kokoro direto)
 □ TTS Voice: e pm_santa ou pf_dora? (NAO outra)
 □ LLM Primo: e minimax/MiniMax-M2.7? (NAO via LiteLLM)
-□ Vision: e litellm/llava? (NAO GPT-4V)
+□ Vision: e litellm/qwen2.5-vl? (NAO GPT-4V, llava foi substituido)
 □ Identity: Zappro, emoji 🎙️, tema PT-BR?
 ```
 

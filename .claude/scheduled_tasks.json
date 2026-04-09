@@ -5,7 +5,7 @@
       "cron": "*/30 * * * *",
       "prompt": "Você é o agent de auto-orchestration. Execute:\n\n1. Rode: /home/will/.claude/mcps/ai-context-sync/sync.sh\n2. Verifique: git -C /srv/monorepo status --short\n3. Se houver mudanças pendentes, liste-as\n4. Se não houver, diga \"Auto-orchestration: tudo em dia\"\n\nResuma em 1-2 linhas.",
       "createdAt": 1775557362633,
-      "lastFiredAt": 1775715169890,
+      "lastFiredAt": 1775729142831,
       "recurring": true
     },
     {
@@ -13,7 +13,7 @@
       "cron": "*/90 * * * *",
       "prompt": "Rode: /home/will/.claude/mcps/ai-context-sync/checkpoint.sh\n\nSe houver output (changes), liste os arquivos pendentes. Se não, diga apenas 'Checkpoint: OK'.",
       "createdAt": 1775587500000,
-      "lastFiredAt": 1775714400776,
+      "lastFiredAt": 1775728800618,
       "recurring": true
     },
     {
@@ -21,7 +21,7 @@
       "cron": "*/60 * * * *",
       "prompt": "Rode: /home/will/.claude/mcps/ai-context-sync/context-meter.sh\n\nSe o output começar com '⚠️', responda com o alerta completo. Caso contrário, apenas confirme.",
       "createdAt": 1775587500000,
-      "lastFiredAt": 1775714400776,
+      "lastFiredAt": 1775728800618,
       "recurring": true
     },
     {
@@ -37,7 +37,7 @@
       "cron": "0 4 * * *",
       "prompt": "Execute code review dos últimos commits:\n\n1. git -C /srv/monorepo log --oneline -10\n2. Analise as mudanças principais\n3. Identifique issues críticos se houver\n\nSe tudo ok, diga 'Code review: OK — sem issues críticos'. Se encontrar problemas, liste-os.",
       "createdAt": 1775587500000,
-      "lastFiredAt": 1775631600142,
+      "lastFiredAt": 1775718602250,
       "recurring": true
     },
     {
@@ -45,7 +45,7 @@
       "cron": "0 5 * * *",
       "prompt": "Verifique coverage de testes:\n\n1. cd /srv/monorepo && (bun run test --coverage 2>/dev/null || bun test 2>/dev/null || echo 'TESTS_SKIP')\n2. Se output contiver 'coverage' liste áreas <70%\n3. Se output contiver 'FAIL' liste testes a falhar\n4. Se 'TESTS_SKIP' diga 'Testes: skip (sem comando)'\n\nResuma em 2-3 linhas.",
       "createdAt": 1775587500000,
-      "lastFiredAt": 1775635200692,
+      "lastFiredAt": 1775721600291,
       "recurring": true
     },
     {
@@ -53,7 +53,7 @@
       "cron": "0 6 * * *",
       "prompt": "Execute scan de secrets antes de push:\n\n1. grep -rE '(ghp_|gho_|ghu_|ghs_|ghr_)[A-Za-z0-9]{36}|AKIA[0-9A-Z]{16}|sk-[A-Za-z0-9]{48}' /srv/monorepo --include='*.ts' --include='*.js' --include='*.env' 2>/dev/null | head -10\n2. Se encontrar secrets, liste locations e aborta\n3. Se não encontrar, diga 'Secrets audit: OK'\n\nResuma em 2-3 linhas.",
       "createdAt": 1775587500000,
-      "lastFiredAt": 1775638938573,
+      "lastFiredAt": 1775725200250,
       "recurring": true
     },
     {
@@ -69,7 +69,7 @@
       "cron": "*/5 * * * *",
       "prompt": "Execute /home/will/.claude/skills/gitea-coolify-deploy/scripts/auto-healer.sh and log output to /srv/ops/logs/healing.log. If any containers were restarted, report which ones.",
       "createdAt": 1775652662474,
-      "lastFiredAt": 1775716086066,
+      "lastFiredAt": 1775730569770,
       "recurring": true
     },
     {

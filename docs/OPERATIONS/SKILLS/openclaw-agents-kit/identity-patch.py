@@ -51,7 +51,8 @@ def patch_identity(
     # Create backup
     if backup:
         import shutil
-        shutil.copy(config_path, f"{config_path}.bak-$(date +%Y%m%d)")
+        import datetime
+        shutil.copy(config_path, f"{config_path}.bak-{datetime.now().strftime('%Y%m%d')}")
 
     # Ensure identity block exists
     if 'identity' not in config:

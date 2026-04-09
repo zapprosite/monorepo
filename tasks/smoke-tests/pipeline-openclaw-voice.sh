@@ -42,10 +42,13 @@ LITELLM_URL="${LITELLM_URL:-http://localhost:4000}"
 
 # Service endpoints (from network map)
 TTS_BRIDGE_URL="${TTS_BRIDGE_URL:-http://localhost:8013}"
-WAV2VEC2_URL="${WAV2VEC2_URL:-http://localhost:8201}"
+WAV2VEC2_URL="${WAV2VEC2_URL:-http://localhost:8203}"
 KOKORO_URL="${KOKORO_URL:-http://localhost:8880}"
 
-# LITELLM_KEY — env var takes precedence, else try Infisical
+# LITELLM_KEY — env var takes precedence, else try container (correct key), else Infisical
+if [ -z "${LITELLM_KEY:-}" ]; then
+    LITELLM_KEY=$(docker exec zappro-litellm env 2>/dev/null | grep 'LITELLM_MASTER_KEY=' | cut -d= -f2)
+fi
 if [ -z "${LITELLM_KEY:-}" ]; then
     LITELLM_KEY=$(fetch_secret "LITELLM_MASTER_KEY")
 fi
@@ -119,12 +122,12 @@ print(json.dumps({'model': 'kokoro', 'input': text, 'voice': voice}))
 
 stt_transcribe() {
     local audio_file="$1"
-    # Send directly to wav2vec2 :8201 — OpenAI-compatible /audio/transcriptions endpoint
-    # No auth needed, multipart/form-data with model=wav2vec2
-    curl -sf -m 30 -X POST "$WAV2VEC2_URL/v1/audio/transcriptions" \
-        -F "file=@$audio_file" \
-        -F "model=wav2vec2" \
-        -F "language=pt-BR" 2>/dev/null
+    # Send to wav2vec2-proxy :8203 — Deepgram API format via POST /v1/listen
+    # No auth needed, binary audio/mpeg with query params model+language
+    curl -sf -m 30 -X POST "${WAV2VEC2_URL}/v1/listen?model=nova-3&language=pt-BR" \
+        -H "Authorization: Token test" \
+        -H "Content-Type: audio/mpeg" \
+        --data-binary "@$audio_file" 2>/dev/null
 }
 
 # =============================================================================
@@ -234,29 +237,29 @@ log ""; log "=== 2. STT (Speech-to-Text) ==="
 # 2.1 wav2vec2 health
 log "2.1 wav2vec2 STT health..."
 curl_get "${WAV2VEC2_URL}/health"
-test_result $? "wav2vec2 STT :8201"
+test_result $? "wav2vec2 STT :8203"
 
-# 2.2 wav2vec2 direct transcription
-log "2.2 wav2vec2 transcription..."
-AUDIO_FILE="/tmp/test_tts.wav"
+# 2.2 wav2vec2-proxy direct transcription — uses hino_santos.mp3 (Santos FC anthem, 110s)
+log "2.2 wav2vec2-proxy transcription (hino Santos FC)..."
+AUDIO_FILE="/tmp/hino_santos.mp3"
 if [ -s "$AUDIO_FILE" ]; then
-    RESULT=$(curl -sf -m 30 -X POST "${WAV2VEC2_URL}/v1/audio/transcriptions" \
-        -F "file=@$AUDIO_FILE" \
-        -F "model=wav2vec2" \
-        -F "language=pt-BR" 2>/dev/null)
-    TEXT=$(json_get "$RESULT" ".get('text','')")
+    RESULT=$(curl -sf -m 60 -X POST "${WAV2VEC2_URL}/v1/listen?model=nova-3&language=pt-BR" \
+        -H "Authorization: Token test" \
+        -H "Content-Type: audio/mpeg" \
+        --data-binary "@$AUDIO_FILE" 2>/dev/null)
+    TEXT=$(json_get "$RESULT" "['results']['channels'][0]['alternatives'][0]['transcript']")
     [ -n "$TEXT" ]
-    test_result $? "wav2vec2 transcription: '$TEXT'"
+    test_result $? "wav2vec2-proxy transcription: '$(echo "$TEXT" | cut -c1-60)...'"
 else
     info "2.2 Skipped — no test audio at $AUDIO_FILE"
 fi
 
 # 2.3 STT via wav2vec2 (transcribe helper)
-log "2.3 STT via wav2vec2..."
+log "2.3 STT via wav2vec2-proxy (helper)..."
 if [ -s "$AUDIO_FILE" ]; then
     RESP=$(stt_transcribe "$AUDIO_FILE")
-    echo "$RESP" | grep -q "text"
-    test_result $? "STT via wav2vec2 (pt-BR)"
+    echo "$RESP" | grep -q "transcript"
+    test_result $? "STT via wav2vec2-proxy (pt-BR)"
 else
     info "2.3 Skipped — no test audio"
 fi
@@ -273,12 +276,12 @@ test_result $? "TTS Bridge :8013 health"
 
 # 3.1 Kokoro TTS male (pm_santa) via Bridge
 log "3.1 Kokoro TTS (pm_santa) via Bridge..."
-tts_synthesize "pm_santa" "Smoke test successful" "/tmp/smoke_tts.mp3"
+tts_synthesize "pm_santa" "Teste de voz OK. Pipeline do Santos FC funcionando perfeitamente." "/tmp/smoke_tts.mp3"
 test_result $? "Kokoro TTS synthesis (pm_santa)"
 
 # 3.2 Kokoro TTS female (pf_dora) via Bridge
 log "3.2 Kokoro TTS (pf_dora) via Bridge..."
-tts_synthesize "pf_dora" "Smoke test female voice" "/tmp/smoke_tts_female.mp3"
+tts_synthesize "pf_dora" "Voz feminina funcionando. Tudo certo com o sistema." "/tmp/smoke_tts_female.mp3"
 test_result $? "Kokoro TTS (pf_dora female)"
 
 # 3.3 TTS Bridge blocks unauthorized voice
@@ -295,30 +298,31 @@ test_result $? "TTS Bridge blocks af_sarah (HTTP $BLOCKED_CODE)"
 # =============================================================================
 log ""; log "=== 4. Vision ==="
 
-# 4.1 Vision — llava text-only probe
-log "4.1 Vision llava..."
-RESP=$(llm_post "llava" "Say only: OK" 10)
+# 4.1 Vision — qwen2.5-vl text-only probe
+log "4.1 Vision qwen2.5-vl..."
+RESP=$(llm_post "qwen2.5-vl" "Say only: OK" 10)
 echo "$RESP" | grep -q "OK"
-test_result $? "Vision llava responding"
+test_result $? "Vision qwen2.5-vl responding"
 
 # 4.2 Vision — with image (base64)
 log "4.2 Vision with image..."
 IMG_FILE="/tmp/smoke_img.jpg"
 if [ -s "$IMG_FILE" ]; then
-    # Safely generate JSON payload — Python reads file directly, avoids shell injection
-    PAYLOAD=$(IMG_PATH="$IMG_FILE" python3 -c "
+    # Write payload to file to avoid "Argument list too long" with large base64 images
+    IMG_PATH="$IMG_FILE" python3 -c "
 import json, base64, os
 with open(os.environ['IMG_PATH'], 'rb') as f:
     img_b64 = base64.b64encode(f.read()).decode()
-d = {'model': 'llava', 'messages': [{'role': 'user', 'content': [{'type': 'text', 'text': 'Describe this image in one word.'}, {'type': 'image_url', 'image_url': {'url': 'data:image/jpeg;base64,' + img_b64}}]}], 'max_tokens': 20}
-print(json.dumps(d))
-")
+d = {'model': 'qwen2.5-vl', 'messages': [{'role': 'user', 'content': [{'type': 'text', 'text': 'Describe this image in one word.'}, {'type': 'image_url', 'image_url': {'url': 'data:image/png;base64,' + img_b64}}]}], 'max_tokens': 20}
+with open('/tmp/vision_payload.json', 'w') as f:
+    json.dump(d, f)
+"
     RESP=$(curl -s -m 30 -X POST "$LITELLM_URL/v1/chat/completions" \
         -H "Authorization: Bearer $LITELLM_KEY" \
         -H "Content-Type: application/json" \
-        -d "$PAYLOAD")
+        -d @/tmp/vision_payload.json)
     echo "$RESP" | grep -q "choices"
-    test_result $? "Vision llava with image (base64)"
+    test_result $? "Vision qwen2.5-vl with image (Santos logo)"
 else
     info "4.2 Skipped — no test image at $IMG_FILE"
 fi
