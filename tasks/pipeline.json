@@ -1,254 +1,582 @@
 {
-  "name": "homelab-refactor",
-  "description": "Homelab Infrastructure Refactoring — Cloudflare Tunnel + Coolify + Cleanup (SPEC-002 + SPEC-002-CLEANUP)",
-  "version": "1.1.0",
-  "created": "2026-04-08",
-  "specs": [
-    "docs/specflow/SPEC-002-homelab-network-refactor.md",
-    "docs/specflow/SPEC-002-CLEANUP.md"
-  ],
+  "version": "1.0",
+  "generated": "2026-04-09",
   "phases": [
     {
-      "phase": 1,
-      "name": "Snapshot & Backup (OBRIGATORIO antes de tudo)",
+      "name": "Phase 1 — Security Foundation (SPEC-001)",
       "tasks": [
         {
-          "id": "TASK-1A",
-          "name": "ZFS snapshot pre-refactor",
-          "status": "pending",
-          "verification": "zfs list -t snapshot tank@pre-refactor-20260408 existe",
-          "test": "sudo zfs list -t snapshot -r tank | grep pre-refactor"
+          "id": "P001-T01",
+          "title": "Migrar secrets do OpenClaw .env para Infisical",
+          "status": "PENDING",
+          "priority": "critical",
+          "spec_ref": "SPEC-001-workflow-performatico.md",
+          "acceptance_criteria": "vault.zappro.site mostra secrets sem env vars"
         },
         {
-          "id": "TASK-1B",
-          "name": "Backup Coolify DB",
-          "status": "pending",
-          "verification": "Arquivo /srv/backups/coolify-db-20260408.sql existe",
-          "test": "ls -lh /srv/backups/coolify-db-20260408.sql"
+          "id": "P001-T02",
+          "title": "Criar skill audit-workflow em .claude/skills/",
+          "status": "PENDING",
+          "priority": "critical",
+          "spec_ref": "SPEC-001-workflow-performatico.md",
+          "acceptance_criteria": "Skill responde a /audit-workflow e lista log"
         },
         {
-          "id": "TASK-1C",
-          "name": "Commit estado atual ops",
-          "status": "pending",
-          "verification": "git -C /srv/ops log --oneline -1 mostra commit",
-          "test": "git -C /srv/ops log --oneline -1"
+          "id": "P001-T03",
+          "title": "Adicionar healthchecks ao scheduled_tasks.json",
+          "status": "PENDING",
+          "priority": "high",
+          "spec_ref": "SPEC-001-workflow-performatico.md",
+          "acceptance_criteria": "Cron job verifica health antes de executar task"
+        },
+        {
+          "id": "P001-T04",
+          "title": "Verificar BROWSER_EVALUATE_ENABLED=false no OpenClaw",
+          "status": "PENDING",
+          "priority": "high",
+          "spec_ref": "SPEC-001-workflow-performatico.md",
+          "acceptance_criteria": "docker inspect mostra false"
+        },
+        {
+          "id": "P001-T05",
+          "title": "Criar SPEC-001-workflow-performatico.md",
+          "status": "PENDING",
+          "priority": "high",
+          "spec_ref": "SPEC-001-workflow-performatico.md",
+          "acceptance_criteria": "Commit no main"
+        },
+        {
+          "id": "P001-T06",
+          "title": "Criar pipeline.json com workflow como codigo",
+          "status": "PENDING",
+          "priority": "high",
+          "spec_ref": "SPEC-001-workflow-performatico.md",
+          "acceptance_criteria": "Agent consegue ler e executar"
+        },
+        {
+          "id": "P001-T07",
+          "title": "Skill /audit-workflow funcional e documentada",
+          "status": "PENDING",
+          "priority": "high",
+          "spec_ref": "SPEC-001-workflow-performatico.md",
+          "acceptance_criteria": "/audit-workflow lista ultimas 50 medicoes"
+        },
+        {
+          "id": "P001-T08",
+          "title": "Health check script cobre todas as 3 tools",
+          "status": "PENDING",
+          "priority": "high",
+          "spec_ref": "SPEC-001-workflow-performatico.md",
+          "acceptance_criteria": "Script retorna OK/DOWN para cada tool"
+        },
+        {
+          "id": "P001-T09",
+          "title": "Cron job auto-detectar secrets plaintext",
+          "status": "PENDING",
+          "priority": "high",
+          "spec_ref": "SPEC-001-workflow-performatico.md",
+          "acceptance_criteria": "Cron detecta e envia alerta Telegram"
+        },
+        {
+          "id": "P001-T10",
+          "title": "Alerta Telegram quando tool nao reporta (>1h)",
+          "status": "PENDING",
+          "priority": "medium",
+          "spec_ref": "SPEC-001-workflow-performatico.md",
+          "acceptance_criteria": "health-check.sh detecta DOWN -> Telegram"
+        },
+        {
+          "id": "P001-T11",
+          "title": "Verification checklist SPEC-001",
+          "status": "PENDING",
+          "priority": "medium",
+          "spec_ref": "SPEC-001-workflow-performatico.md",
+          "acceptance_criteria": "Todos os itens verificados"
         }
       ]
     },
     {
-      "phase": 2,
-      "name": "Terraform Hardening (SPEC-002 Section 4)",
+      "name": "Phase 2 — OAuth + E2E Testing (SPEC-006, SPEC-007)",
       "tasks": [
         {
-          "id": "TASK-2A",
-          "name": "Adicionar lifecycle prevent_destroy no tunnel_secret",
-          "status": "pending",
-          "file": "/srv/ops/terraform/cloudflare/main.tf",
-          "verification": "terraform plan mostra lifecycle block",
-          "test": "grep -A3 'lifecycle' /srv/ops/terraform/cloudflare/main.tf | grep prevent_destroy"
+          "id": "P006-T01",
+          "title": "Playwright smoke test perplexity-agent (HTTP 200)",
+          "status": "PENDING",
+          "priority": "high",
+          "spec_ref": "SPEC-006-playwright-e2e.md",
+          "acceptance_criteria": "curl localhost:4004/_stcore/health retorna 200"
         },
         {
-          "id": "TASK-2B",
-          "name": "Adicionar connectTimeout + tlsTimeout no ingress config",
-          "status": "pending",
-          "file": "/srv/ops/terraform/cloudflare/main.tf",
-          "verification": "terraform plan mostra connect_timeout e tls_timeout",
-          "test": "grep -E 'connect_timeout|tls_timeout' /srv/ops/terraform/cloudflare/main.tf"
+          "id": "P006-T02",
+          "title": "Playwright E2E test for search interaction",
+          "status": "PENDING",
+          "priority": "high",
+          "spec_ref": "SPEC-006-playwright-e2e.md",
+          "acceptance_criteria": "Chat input aceita texto e retorna resposta"
         },
         {
-          "id": "TASK-2C",
-          "name": "Criar user cloudflared dedicado + chmod 600 credentials",
-          "status": "pending",
-          "verification": "useradd cloudflared existe, chmod 600 ~/.cloudflared/*.json",
-          "test": "id cloudflared && ls -la ~/.cloudflared/*.json"
+          "id": "P006-T03",
+          "title": "Chrome extension testing via OpenClaw MCP protocol",
+          "status": "PENDING",
+          "priority": "high",
+          "spec_ref": "SPEC-006-playwright-e2e.md",
+          "acceptance_criteria": "WebSocket / JSON-RPC responde"
         },
         {
-          "id": "TASK-2D",
-          "name": "Terraform apply + commit",
-          "status": "pending",
-          "file": "/srv/ops/terraform/cloudflare/",
-          "verification": "terraform plan mostra 0 changes, commit criado",
-          "test": "cd /srv/ops/terraform/cloudflare && terraform plan"
+          "id": "P006-T04",
+          "title": "CI/CD integrateable (exit 0/1)",
+          "status": "PENDING",
+          "priority": "high",
+          "spec_ref": "SPEC-006-playwright-e2e.md",
+          "acceptance_criteria": "Playwright test em CI retorna exit code valido"
+        },
+        {
+          "id": "P006-T05",
+          "title": "Screenshots on failure",
+          "status": "PENDING",
+          "priority": "medium",
+          "spec_ref": "SPEC-006-playwright-e2e.md",
+          "acceptance_criteria": "Screenshot gerado quando teste falha"
+        },
+        {
+          "id": "P006-T06",
+          "title": "Video recording on failure",
+          "status": "PENDING",
+          "priority": "low",
+          "spec_ref": "SPEC-006-playwright-e2e.md",
+          "acceptance_criteria": "Video gerado quando teste falha"
+        },
+        {
+          "id": "P006-T07",
+          "title": "Parallel execution",
+          "status": "PENDING",
+          "priority": "low",
+          "spec_ref": "SPEC-006-playwright-e2e.md",
+          "acceptance_criteria": "Testes correm em paralelo"
+        },
+        {
+          "id": "P007-T01",
+          "title": "Chrome profile persistente via host path mount",
+          "status": "PENDING",
+          "priority": "critical",
+          "spec_ref": "SPEC-007-openclaw-oauth-profiles.md",
+          "acceptance_criteria": "Perfis em /srv/data/openclaw-chrome-profiles/"
+        },
+        {
+          "id": "P007-T02",
+          "title": "Login OAuth funciona em web.zappro.site",
+          "status": "PENDING",
+          "priority": "critical",
+          "spec_ref": "SPEC-007-openclaw-oauth-profiles.md",
+          "acceptance_criteria": "Gemini + Perplexity personas funcionam"
+        },
+        {
+          "id": "P007-T03",
+          "title": "Sessoes persistem apos restart do container",
+          "status": "PENDING",
+          "priority": "critical",
+          "spec_ref": "SPEC-007-openclaw-oauth-profiles.md",
+          "acceptance_criteria": "Cookies intactos apos restart"
+        },
+        {
+          "id": "P007-T04",
+          "title": "CEO MIX navega logado via CDP",
+          "status": "PENDING",
+          "priority": "critical",
+          "spec_ref": "SPEC-007-openclaw-oauth-profiles.md",
+          "acceptance_criteria": "OpenClaw CDP consegue acessar web.zappro.site logado"
+        },
+        {
+          "id": "P007-T05",
+          "title": "CLI script perplexity-query.sh",
+          "status": "PENDING",
+          "priority": "medium",
+          "spec_ref": "SPEC-007-openclaw-oauth-profiles.md",
+          "acceptance_criteria": "./perplexity-query.sh test retorna JSON"
+        },
+        {
+          "id": "P007-T06",
+          "title": "Smoke test verificando OAuth ativo",
+          "status": "PENDING",
+          "priority": "medium",
+          "spec_ref": "SPEC-007-openclaw-oauth-profiles.md",
+          "acceptance_criteria": "Smoke test passa apos setup"
         }
       ]
     },
     {
-      "phase": 3,
-      "name": "Cloudflared Systemd Service (SPEC-002 Section 5)",
+      "name": "Phase 3 — Agents Kit + CLI Integration (SPEC-010, SPEC-012, SPEC-013)",
       "tasks": [
         {
-          "id": "TASK-3A",
-          "name": "Gerar cloudflared systemd unit com TUNNEL_TOKEN env var",
-          "status": "pending",
-          "file": "/srv/ops/terraform/cloudflare/cloudflared.service",
-          "verification": "cloudflared.service existe em /etc/systemd/system/ e usa TUNNEL_TOKEN",
-          "test": "grep TUNNEL_TOKEN /etc/systemd/system/cloudflared.service"
+          "id": "P010-T01",
+          "title": "Criar SKILL.md openclaw-agents-kit",
+          "status": "PENDING",
+          "priority": "high",
+          "spec_ref": "SPEC-010-openclaw-agents-kit.md",
+          "acceptance_criteria": "Skill carrega quando user pede configurar OpenClaw"
         },
         {
-          "id": "TASK-3B",
-          "name": "Migrar cloudflared service para usar TUNNEL_TOKEN (nao credentials file)",
-          "status": "pending",
-          "verification": "systemctl show cloudflared | grep Environment=TUNNEL_TOKEN",
-          "test": "systemctl show cloudflared | grep Environment"
+          "id": "P010-T02",
+          "title": "Criar openclaw-config-template.md",
+          "status": "PENDING",
+          "priority": "high",
+          "spec_ref": "SPEC-010-openclaw-agents-kit.md",
+          "acceptance_criteria": "Template JSON5 valido"
         },
         {
-          "id": "TASK-3C",
-          "name": "Habilitar cloudflared metrics endpoint :9090",
-          "status": "pending",
-          "verification": "curl localhost:9090/metrics retorna 200",
-          "test": "curl -s localhost:9090/metrics | head -5"
+          "id": "P010-T03",
+          "title": "Criar subagent-pattern.md (Leader + Sub-agents)",
+          "status": "PENDING",
+          "priority": "high",
+          "spec_ref": "SPEC-010-openclaw-agents-kit.md",
+          "acceptance_criteria": "Padrao leader/sub-agents documentado"
         },
         {
-          "id": "TASK-3D",
-          "name": "Restart cloudflared + verify tunnel active",
-          "status": "pending",
-          "verification": "systemctl status cloudflared mostra active (running), curl chat.zappro.site retorna 302",
-          "test": "systemctl status cloudflared && curl -s -o /dev/null -w '%{http_code}' https://chat.zappro.site"
+          "id": "P010-T04",
+          "title": "Criar coolify-access.md",
+          "status": "PENDING",
+          "priority": "high",
+          "spec_ref": "SPEC-010-openclaw-agents-kit.md",
+          "acceptance_criteria": "38 tools MCP documentadas"
+        },
+        {
+          "id": "P010-T05",
+          "title": "Criar identity-patch.md",
+          "status": "PENDING",
+          "priority": "high",
+          "spec_ref": "SPEC-010-openclaw-agents-kit.md",
+          "acceptance_criteria": "Patch identity sem perder contexto"
+        },
+        {
+          "id": "P010-T06",
+          "title": "Criar infisical-sdk.md",
+          "status": "PENDING",
+          "priority": "medium",
+          "spec_ref": "SPEC-010-openclaw-agents-kit.md",
+          "acceptance_criteria": "SDK patterns documentados"
+        },
+        {
+          "id": "P010-T07",
+          "title": "Criar GOVERNANCE-TEMPLATE.md",
+          "status": "PENDING",
+          "priority": "high",
+          "spec_ref": "SPEC-010-openclaw-agents-kit.md",
+          "acceptance_criteria": "Template universal de governance"
+        },
+        {
+          "id": "P012-T01",
+          "title": "Scan local skills com METADATA.json",
+          "status": "PENDING",
+          "priority": "high",
+          "spec_ref": "SPEC-012-openclaw-update-discoverer.md",
+          "acceptance_criteria": "scan_local_skills() retorna skills com metadata"
+        },
+        {
+          "id": "P012-T02",
+          "title": "Inference de SKILL.md quando METADATA.json falta",
+          "status": "PENDING",
+          "priority": "high",
+          "spec_ref": "SPEC-012-openclaw-update-discoverer.md",
+          "acceptance_criteria": "Fallback para frontmatter parsing"
+        },
+        {
+          "id": "P012-T03",
+          "title": "Dual-track discovery (external + local)",
+          "status": "PENDING",
+          "priority": "high",
+          "spec_ref": "SPEC-012-openclaw-update-discoverer.md",
+          "acceptance_criteria": "Output mostra ambos EXTERNAL e LOCAL tracks"
+        },
+        {
+          "id": "P013-T01",
+          "title": "Circular symlink removed from .agent/",
+          "status": "PENDING",
+          "priority": "critical",
+          "spec_ref": "SPEC-013-UNIFIED-CLAUDE-AGENT-MONOREPO.md",
+          "acceptance_criteria": "find .agent/ -type l retorna vazio"
+        },
+        {
+          "id": "P013-T02",
+          "title": "Skills deduplicated between .claude/ and ~/.claude/",
+          "status": "PENDING",
+          "priority": "high",
+          "spec_ref": "SPEC-013-UNIFIED-CLAUDE-AGENT-MONOREPO.md",
+          "acceptance_criteria": "Sem duplicados ou conflitos"
+        },
+        {
+          "id": "P013-T03",
+          "title": "Session data archived (target < 50MB)",
+          "status": "PENDING",
+          "priority": "high",
+          "spec_ref": "SPEC-013-UNIFIED-CLAUDE-AGENT-MONOREPO.md",
+          "acceptance_criteria": "du -sh ~/.claude/projects/-srv-monorepo/ < 50MB"
+        },
+        {
+          "id": "P013-T04",
+          "title": "github/workflows deprecated (document)",
+          "status": "PENDING",
+          "priority": "medium",
+          "spec_ref": "SPEC-013-UNIFIED-CLAUDE-AGENT-MONOREPO.md",
+          "acceptance_criteria": "Documentacao de deprecacao existente"
+        },
+        {
+          "id": "P013-T05",
+          "title": "Human gates configured in Gitea environments",
+          "status": "PENDING",
+          "priority": "critical",
+          "spec_ref": "SPEC-013-UNIFIED-CLAUDE-AGENT-MONOREPO.md",
+          "acceptance_criteria": "Gitea environment exige aprovacao humana"
+        },
+        {
+          "id": "P013-T06",
+          "title": "AI review workflow tested with test PR",
+          "status": "PENDING",
+          "priority": "high",
+          "spec_ref": "SPEC-013-UNIFIED-CLAUDE-AGENT-MONOREPO.md",
+          "acceptance_criteria": "Test PR recebe review comments"
+        },
+        {
+          "id": "P013-T07",
+          "title": "Commands tested end-to-end (/feature, /ship, /turbo)",
+          "status": "PENDING",
+          "priority": "high",
+          "spec_ref": "SPEC-013-UNIFIED-CLAUDE-AGENT-MONOREPO.md",
+          "acceptance_criteria": "Todos os comandos funcionam corretamente"
+        },
+        {
+          "id": "P013-T08",
+          "title": "SPEC-013-UNIFIED-CLAUDE-AGENT-MONOREPO checklist",
+          "status": "PENDING",
+          "priority": "medium",
+          "spec_ref": "SPEC-013-UNIFIED-CLAUDE-AGENT-MONOREPO.md",
+          "acceptance_criteria": "Todas as tasks verificadas"
         }
       ]
     },
     {
-      "phase": 4,
-      "name": "Coolify Network Stability (SPEC-002 Section 6)",
+      "name": "Phase 4 — CI/CD Enterprise (SPEC-014, SPEC-015)",
       "tasks": [
         {
-          "id": "TASK-4A",
-          "name": "Restart coolify-proxy para recuperar rotas open-webui",
-          "status": "pending",
-          "verification": "curl localhost:8080 retorna 200 do Open WebUI",
-          "test": "docker restart coolify-proxy && sleep 5 && curl -s localhost:8080 | head -3"
+          "id": "P014-T01",
+          "title": "AI review gate implemented in .gitea/workflows/ai-review.yml",
+          "status": "PENDING",
+          "priority": "critical",
+          "spec_ref": "SPEC-014-CURSOR-AI-CICD-PATTERN.md",
+          "acceptance_criteria": "Workflow corre em PRs"
         },
         {
-          "id": "TASK-4B",
-          "name": "Verificar IP open-webui estavel apos restart",
-          "status": "pending",
-          "verification": "docker inspect open-webui-* --format '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' retorna IP valido",
-          "test": "docker inspect $(docker ps --filter 'name=open-webui' --format '{{.Names}}') --format '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}'"
+          "id": "P014-T02",
+          "title": "Cursor CLI authenticated in Gitea Secrets",
+          "status": "PENDING",
+          "priority": "critical",
+          "spec_ref": "SPEC-014-CURSOR-AI-CICD-PATTERN.md",
+          "acceptance_criteria": "CURSOR_API_KEY configurado em secrets"
         },
         {
-          "id": "TASK-4C",
-          "name": "Documentar health check strategy para open-webui (container restartable)",
-          "status": "pending",
-          "verification": "docs/INFRASTRUCTURE/HEALTH_CHECK.md existe e define estrategia",
-          "test": "cat /srv/monorepo/docs/INFRASTRUCTURE/HEALTH_CHECK.md"
+          "id": "P014-T03",
+          "title": "Human gates documented and enforced",
+          "status": "PENDING",
+          "priority": "high",
+          "spec_ref": "SPEC-014-CURSOR-AI-CICD-PATTERN.md",
+          "acceptance_criteria": "Documentacao completa e gates funcionais"
+        },
+        {
+          "id": "P014-T04",
+          "title": "TaskMaster evaluated for TDD autopilot",
+          "status": "PENDING",
+          "priority": "medium",
+          "spec_ref": "SPEC-014-CURSOR-AI-CICD-PATTERN.md",
+          "acceptance_criteria": "Avaliacao concluida com decisao"
+        },
+        {
+          "id": "P014-T05",
+          "title": "Lovable/Bolt patterns reviewed for potential adoption",
+          "status": "PENDING",
+          "priority": "low",
+          "spec_ref": "SPEC-014-CURSOR-AI-CICD-PATTERN.md",
+          "acceptance_criteria": "Review documentado"
+        },
+        {
+          "id": "P014-T06",
+          "title": "Security review of AI agent permissions",
+          "status": "PENDING",
+          "priority": "high",
+          "spec_ref": "SPEC-014-CURSOR-AI-CICD-PATTERN.md",
+          "acceptance_criteria": "Review de seguranca completo"
+        },
+        {
+          "id": "P015-T01",
+          "title": "ephemeral runner pattern implemented",
+          "status": "PENDING",
+          "priority": "high",
+          "spec_ref": "SPEC-015-GITEA-ACTIONS-ENTERPRISE.md",
+          "acceptance_criteria": "Runner limpa after cada job"
+        },
+        {
+          "id": "P015-T02",
+          "title": "act_runner pool configured",
+          "status": "PENDING",
+          "priority": "high",
+          "spec_ref": "SPEC-015-GITEA-ACTIONS-ENTERPRISE.md",
+          "acceptance_criteria": "Pool de runners funcional"
+        },
+        {
+          "id": "P015-T03",
+          "title": "Deploy workflow with rollback implemented",
+          "status": "PENDING",
+          "priority": "high",
+          "spec_ref": "SPEC-015-GITEA-ACTIONS-ENTERPRISE.md",
+          "acceptance_criteria": "Rollback funciona em failure"
+        },
+        {
+          "id": "P015-T04",
+          "title": "CI workflow implemented",
+          "status": "PENDING",
+          "priority": "high",
+          "spec_ref": "SPEC-015-GITEA-ACTIONS-ENTERPRISE.md",
+          "acceptance_criteria": "CI passa em todos os PRs"
+        },
+        {
+          "id": "P015-T05",
+          "title": "Code review workflow with approval gates",
+          "status": "PENDING",
+          "priority": "high",
+          "spec_ref": "SPEC-015-GITEA-ACTIONS-ENTERPRISE.md",
+          "acceptance_criteria": "Human approval gate configurado"
+        },
+        {
+          "id": "P015-T06",
+          "title": "Infisical integration for secrets",
+          "status": "PENDING",
+          "priority": "high",
+          "spec_ref": "SPEC-015-GITEA-ACTIONS-ENTERPRISE.md",
+          "acceptance_criteria": "Secrets lidos do Infisical em workflows"
         }
       ]
     },
     {
-      "phase": 5,
-      "name": "Smoke Tests",
+      "name": "Phase 5 — Complex Systems (SPEC-011, SPEC-013-CEO-MIX)",
       "tasks": [
         {
-          "id": "TASK-5A",
-          "name": "Executar smoke test chat.zappro.site",
-          "status": "pending",
-          "verification": "bash /srv/monorepo/smoke-tests/smoke-chat-zappro-site.sh passa 5/5",
-          "test": "bash /srv/monorepo/smoke-tests/smoke-chat-zappro-site.sh"
+          "id": "P011-T01",
+          "title": "CEO MIX — Orquestrador Principal implementado",
+          "status": "PENDING",
+          "priority": "critical",
+          "spec_ref": "SPEC-011-openclaw-agency-reimagined.md",
+          "acceptance_criteria": "CEO MIX responde a comandos basicos"
         },
         {
-          "id": "TASK-5B",
-          "name": "Testar todos os 11 subdomínios",
-          "status": "pending",
-          "verification": "todos respondem HTTP 2xx ou 3xx",
-          "test": "for site in chat bot api llm painel vault n8n coolify git qdrant monitor; do code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 5 https://${site}.zappro.site); echo \"${site}: $code\"; done"
-        }
-      ]
-    },
-    {
-      "phase": 6,
-      "name": "Cleanup Pos-Refatoracao (SPEC-002-CLEANUP)",
-      "tasks": [
-        {
-          "id": "TASK-6A",
-          "name": "Docker ghosts — containers parados, volumes, networks",
-          "status": "pending",
-          "verification": "docker ps -a mostra apenas containers ativos",
-          "test": "docker ps -a --format '{{.Names}}\t{{.Status}}' | grep -v Up"
+          "id": "P011-T02",
+          "title": "EDITOR DE VIDEO agent implementado",
+          "status": "PENDING",
+          "priority": "high",
+          "spec_ref": "SPEC-011-openclaw-agency-reimagined.md",
+          "acceptance_criteria": "Agent consegue processar video"
         },
         {
-          "id": "TASK-6B",
-          "name": "Logs — truncar Docker logs, journal vacuum",
-          "status": "pending",
-          "verification": "Docker logs truncados, journal entries antigas removidas",
-          "test": "du -sh /var/lib/docker/containers/*/  # verificar tamanho reduzido"
+          "id": "P011-T03",
+          "title": "ORGANIZADOR agent implementado",
+          "status": "PENDING",
+          "priority": "high",
+          "spec_ref": "SPEC-011-openclaw-agency-reimagined.md",
+          "acceptance_criteria": "Agent cria estrutura de pastas"
         },
         {
-          "id": "TASK-6C",
-          "name": "Terraform state drift — verificar + limpar entries deprecated",
-          "status": "pending",
-          "verification": "terraform plan mostra 0 changes",
-          "test": "cd /srv/ops/terraform/cloudflare && terraform plan"
+          "id": "P011-T04",
+          "title": "ONBOARDING agent flow implementado",
+          "status": "PENDING",
+          "priority": "high",
+          "spec_ref": "SPEC-011-openclaw-agency-reimagined.md",
+          "acceptance_criteria": "Fluxo de onboarding completo funciona"
         },
         {
-          "id": "TASK-6D",
-          "name": "Cloudflare DNS — deletar aurelia.zappro.site record",
-          "status": "pending",
-          "verification": "Cloudflare Dashboard nao mostra aurelia.zappro.site CNAME",
-          "test": "terraform plan | grep aurelia"
+          "id": "P011-T05",
+          "title": "CREATIVE (Copywriter) agent implementado",
+          "status": "PENDING",
+          "priority": "medium",
+          "spec_ref": "SPEC-011-openclaw-agency-reimagined.md",
+          "acceptance_criteria": "Agent gera copy persuasivo"
         },
         {
-          "id": "TASK-6E",
-          "name": "Cloudflare Zero Trust — deletar Homelab aurelia Access app",
-          "status": "pending",
-          "verification": "Zero Trust Dashboard nao mostra 'Homelab — aurelia'",
-          "test": "terraform plan | grep 'aurelia' | grep access"
+          "id": "P011-T06",
+          "title": "DESIGN agent implementado",
+          "status": "PENDING",
+          "priority": "medium",
+          "spec_ref": "SPEC-011-openclaw-agency-reimagined.md",
+          "acceptance_criteria": "Agent acessa assets e paleta de cores"
         },
         {
-          "id": "TASK-6F",
-          "name": "Cron jobs — remover backup-supabase.sh, backup-caprover.sh",
-          "status": "pending",
-          "verification": "/etc/cron.daily/backup-supabase.sh e backup-caprover.sh nao existem",
-          "test": "ls /etc/cron.daily/ | grep -E 'supabase|caprover'"
+          "id": "P011-T07",
+          "title": "SOCIAL MEDIA agent implementado",
+          "status": "PENDING",
+          "priority": "medium",
+          "spec_ref": "SPEC-011-openclaw-agency-reimagined.md",
+          "acceptance_criteria": "Agent gerencia calendario de posts"
         },
         {
-          "id": "TASK-6G",
-          "name": "Filesystem — archivar dirs supabase/caprover",
-          "status": "pending",
-          "verification": "/srv/backups/archive/YYYYMMDD/ contem dirs arquivados",
-          "test": "ls /srv/backups/archive/"
+          "id": "P011-T08",
+          "title": "PROJECT MANAGER agent implementado",
+          "status": "PENDING",
+          "priority": "medium",
+          "spec_ref": "SPEC-011-openclaw-agency-reimagined.md",
+          "acceptance_criteria": "Agent atualiza TaskBoard em Canvas"
         },
         {
-          "id": "TASK-6H",
-          "name": "Monitoring — deletar Grafana dashboards supabase/caprover/voice",
-          "status": "pending",
-          "verification": "Grafana nao mostra dashboards dos servicos removidos",
-          "test": "docker exec grafana grafana-cli admin list dashboards 2>/dev/null | grep -iE 'supabase|caprover|voice'"
+          "id": "P011-T09",
+          "title": "Qdrant collections schema implementado",
+          "status": "PENDING",
+          "priority": "high",
+          "spec_ref": "SPEC-011-openclaw-agency-reimagined.md",
+          "acceptance_criteria": "Colecoes rag_governance, assets, clients operacionais"
+        },
+        {
+          "id": "P011-T10",
+          "title": "Router de agentes configurado",
+          "status": "PENDING",
+          "priority": "critical",
+          "spec_ref": "SPEC-011-openclaw-agency-reimagined.md",
+          "acceptance_criteria": "Tabela de decisao de roteamento funciona"
+        },
+        {
+          "id": "P013CEO-T01",
+          "title": "CEO MIX voice stack STT configurado (wav2vec2 :8201)",
+          "status": "PENDING",
+          "priority": "critical",
+          "spec_ref": "SPEC-013-openclaw-ceo-mix-voice-stack.md",
+          "acceptance_criteria": "Transcricao de audio funciona via wav2vec2"
+        },
+        {
+          "id": "P013CEO-T02",
+          "title": "CEO MIX TTS Bridge configurado (:8013)",
+          "status": "PENDING",
+          "priority": "critical",
+          "spec_ref": "SPEC-013-openclaw-ceo-mix-voice-stack.md",
+          "acceptance_criteria": "TTS funciona com pm_santa e pf_dora"
+        },
+        {
+          "id": "P013CEO-T03",
+          "title": "CEO MIX VL configurado (litellm/llava)",
+          "status": "PENDING",
+          "priority": "high",
+          "spec_ref": "SPEC-013-openclaw-ceo-mix-voice-stack.md",
+          "acceptance_criteria": "Image understanding funciona"
         }
       ]
     }
   ],
-  "current_state": {
-    "chat.zappro.site": "502 Bad Gateway — coolify-proxy perdeu rota open-webui apos container restart",
-    "cloudflared": "active (running) — systemd service",
-    "coolify-proxy": "Up 4 days — coolify-proxy container healthy",
-    "open-webui": "restarted 5 min ago — IP 10.0.5.2 pode ter mudado",
-    "terraform": "55ad49a + 6bd2e22 — 2 commits pendentes de push"
-  },
-  "boundaries": {
-    "never": [
-      "terraform destroy sem snapshot ZFS",
-      "docker system prune -a sem verificar volumes",
-      "deletar tunnel credentials sem replacement",
-      "expor portas sem atualizar PORTS.md + SUBDOMAINS.md"
-    ],
-    "always_before": [
-      "ZFS snapshot antes de qualquer mudanca destrutiva",
-      "terraform plan antes de apply",
-      "commit antes de terraform apply em /srv/ops"
-    ],
-    "ask_before": [
-      "deletar Cloudflare DNS records",
-      "deletar Cloudflare Zero Trust Access apps",
-      "destruir ZFS datasets",
-      "modificar var.services no Terraform"
-    ]
-  },
-  "order": [
-    "TASK-1A", "TASK-1B", "TASK-1C",
-    "TASK-2A", "TASK-2B", "TASK-2C", "TASK-2D",
-    "TASK-3A", "TASK-3B", "TASK-3C", "TASK-3D",
-    "TASK-4A", "TASK-4B", "TASK-4C",
-    "TASK-5A", "TASK-5B",
-    "TASK-6A", "TASK-6B", "TASK-6C", "TASK-6D", "TASK-6E", "TASK-6F", "TASK-6G", "TASK-6H"
+  "total_pending": 73,
+  "critical_path": [
+    "P001-T01",
+    "P001-T02",
+    "P007-T01",
+    "P007-T02",
+    "P007-T03",
+    "P007-T04",
+    "P013-T01",
+    "P013-T05",
+    "P013CEO-T01",
+    "P013CEO-T02",
+    "P011-T01",
+    "P011-T10"
   ]
 }

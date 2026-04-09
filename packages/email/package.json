@@ -1,0 +1,42 @@
+{
+	"name": @repo/email",
+	"version": "1.0.0",
+	"description": "React Email templates for the monorepo",
+	"type": "module",
+	"sideEffects": false,
+	"license": "AGPL-3.0-only",
+	"private": true,
+	"scripts": {
+		"check-types": "tsc --noEmit",
+		"build": "tsc && tsc-alias",
+		"dev": "concurrently --kill-others \"tsc -w\" \"tsc-alias -w\"",
+		"clean": "rm -rf node_modules && rm -rf dist",
+		"lint": "biome check .",
+		"typecheck": "tsc --noEmit",
+		"preview": "email dev"
+	},
+	"peerDependencies": {
+		"react": "^19.2.0",
+		"@react-email/components": "^0.0.19",
+		"react-email": "^3.0.7"
+	},
+	"devDependencies": {
+		@repo/typescript-config": "*",
+		"@types/react": "^19.2.2"
+	},
+	"dependencies": {
+		"resend": "^4.1.2"
+	},
+	"exports": {
+		"./*": {
+			"types": "./src/*.ts",
+			"import": "./dist/*.js",
+			"default": "./dist/*.js"
+		},
+		"./templates/*": {
+			"types": "./src/templates/*.tsx",
+			"import": "./dist/templates/*.js",
+			"default": "./dist/templates/*.js"
+		}
+	}
+}

@@ -1,0 +1,87 @@
+{
+	"name": @repo/ui-mui",
+	"version": "1.0.0",
+	"description": "Common Material-UI components for the monorepo",
+	"type": "module",
+	"sideEffects": false,
+	"repository": "git@github.com:teziapp/connected-repo-starter.git",
+	"author": "Balkrishna Agarwal",
+	"license": "AGPL-3.0-only",
+	"private": true,
+	"scripts": {
+		"check-types": "tsc --noEmit",
+		"build": "tsc && tsc-alias",
+		"dev": "concurrently --kill-others \"tsc -w\" \"tsc-alias -w\"",
+		"clean": "rm -rf node_modules && rm -rf dist",
+		"lint": "biome check .",
+		"typecheck": "tsc --noEmit"
+	},
+	"peerDependencies": {
+		"@emotion/react": "^11.14.0",
+		"@emotion/styled": "^11.14.1",
+		"@mui/icons-material": "^7.3.4",
+		"@mui/material": "^7.3.4",
+		"@hookform/resolvers": "^5.2.2",
+		"material-react-table": "3.2.1",
+		"react": "^19.2.0",
+		"react-dom": "^19.2.0",
+		"react-hook-form": "^7.66.0"
+	},
+	"devDependencies": {
+		@repo/typescript-config": "*",
+		"@types/react": "^19.2.2",
+		"@types/react-dom": "^19.2.2"
+	},
+	"exports": {
+		"./components/*": {
+			"types": "./src/components/*.tsx",
+			"import": "./dist/components/*.js",
+			"default": "./dist/components/*.js"
+		},
+		"./data-display/*": {
+			"types": "./src/data-display/*.tsx",
+			"import": "./dist/data-display/*.js",
+			"default": "./dist/data-display/*.js"
+		},
+		"./feedback/*": {
+			"types": "./src/feedback/*.tsx",
+			"import": "./dist/feedback/*.js",
+			"default": "./dist/feedback/*.js"
+		},
+		"./form/*": {
+			"types": "./src/form/*.tsx",
+			"import": "./dist/form/*.js",
+			"default": "./dist/form/*.js"
+		},
+		"./icons/*": {
+			"types": "./src/icons/*.ts",
+			"import": "./dist/icons/*.js",
+			"default": "./dist/icons/*.js"
+		},
+		"./layout/*": {
+			"types": "./src/layout/*.tsx",
+			"import": "./dist/layout/*.js",
+			"default": "./dist/layout/*.js"
+		},
+		"./mrt/*": {
+			"types": "./src/mrt/*.tsx",
+			"import": "./dist/mrt/*.js",
+			"default": "./dist/mrt/*.js"
+		},
+		"./navigation/*": {
+			"types": "./src/navigation/*.ts",
+			"import": "./dist/navigation/*.js",
+			"default": "./dist/navigation/*.js"
+		},
+		"./rhf-form/*": {
+			"types": "./src/rhf-form/*.tsx",
+			"import": "./dist/rhf-form/*.js",
+			"default": "./dist/rhf-form/*.js"
+		},
+		"./theme/*": {
+			"types": "./src/theme/*.tsx",
+			"import": "./dist/theme/*.js",
+			"default": "./dist/theme/*.js"
+		}
+	}
+}

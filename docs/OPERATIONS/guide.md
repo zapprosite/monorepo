@@ -613,6 +613,7 @@ docker logs n8n 2>&1 | grep -i error | tail -5
 **Histórico (mantenha atualizado):**
 - `~/Desktop/SYSTEM_ARCHITECTURE.md` - Seu journal operacional
 - `/srv/ops/ai-governance/INCIDENTS.md` - Log de issues passados
+- `docs/INCIDENTS/` - Incident reports (INCIDENT-2026-04-08-*.md)
 
 ---
 
@@ -662,7 +663,59 @@ docker logs n8n 2>&1 | grep -i error | tail -5
 
 ---
 
-## 11. Próximas Ações Recomendadas
+## 11. OPERATIONS SKILLS
+
+Automated operational skills for monitoring, diagnosis, and self-healing.
+
+### Skills Directory
+
+All skills are in: `docs/OPERATIONS/SKILLS/`
+
+**Index:** [SKILLS/README.md](../OPERATIONS/SKILLS/README.md)
+
+### Quick Reference
+
+| Command | Purpose |
+|---------|---------|
+| `bash docs/OPERATIONS/SKILLS/verify-network.sh` | Check container network isolation |
+| `bash docs/OPERATIONS/SKILLS/container-health-check.sh` | Detailed container status |
+| `bash docs/OPERATIONS/SKILLS/self-healing.sh` | Auto-restart failing containers |
+| `bash docs/OPERATIONS/SKILLS/deploy-validator.sh` | Full pre-deploy validation |
+
+### Daily Health Check
+
+```bash
+# Run container + network check
+bash docs/OPERATIONS/SKILLS/container-health-check.sh
+bash docs/OPERATIONS/SKILLS/verify-network.sh
+
+# Watch self-healing logs
+tail -f /srv/ops/logs/self-healing.log
+```
+
+### Incident Response
+
+See [incident-runbook.md](../OPERATIONS/SKILLS/incident-runbook.md) for systematic triage.
+
+### Skill Categories
+
+| Category | Skills |
+|----------|--------|
+| **Diagnostic** | traefik-health-check, traefik-route-tester, verify-network, container-health-check, litellm-health-check, wav2vec2-health-check |
+| **Deploy** | deploy-validator |
+| **Monitoring** | self-healing-cron, container-health-check, liteLLM-usage |
+| **Incident** | incident-runbook |
+
+### Cron Jobs (if installed)
+
+```cron
+*/5 * * * * /srv/monorepo/docs/OPERATIONS/SKILLS/self-healing.sh >> /srv/ops/logs/self-healing-cron.log 2>&1
+*/5 * * * * /srv/monorepo/docs/OPERATIONS/SKILLS/container-health-check.sh --json >> /srv/ops/logs/container-health.log 2>&1
+```
+
+---
+
+## 12. Próximas Ações Recomendadas
 
 - [ ] Leia QUICK_START.md (5 min)
 - [ ] Teste `codex-host "check qdrant health"` (2 min)

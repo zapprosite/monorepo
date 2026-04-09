@@ -1,0 +1,20 @@
+services:
+  wav2vec2-proxy:
+    build:
+      context: /srv/monorepo
+      dockerfile: docs/OPERATIONS/SKILLS/wav2vec2-deepgram-proxy.dockerfile
+    container_name: zappro-wav2vec2-proxy
+    restart: unless-stopped
+    ports:
+      - "8203:8203"
+    environment:
+      - PORT=8203
+      - WHISPER_API=http://10.0.19.8:8201
+      - OLLAMA_HOST=http://10.0.19.1:11434
+      - OLLAMA_MODEL=llama3-portuguese-tomcat-8b-instruct-q8:latest
+    networks:
+      - qgtzrmi6771lt8l7x8rqx72f
+
+networks:
+  qgtzrmi6771lt8l7x8rqx72f:
+    external: true

@@ -66,8 +66,23 @@ curl -s -H "Authorization: Bearer $COOLIFY_TOKEN" \
 
 ### 6. Fetch Secrets via Infisical
 ```python
-from docs.OPERATIONS.SKILLS.openclaw-agents-kit.infisical_sdk import fetch_secret
-LITELLM_KEY = fetch_secret("LITELLM_MASTER_KEY")
+# O pacote instalado é 'infisical_sdk', não um módulo local
+from infisical_sdk import InfisicalSDKClient, InfisicalError
+
+client = InfisicalSDKClient(
+    host="http://127.0.0.1:8200",
+    token=os.environ.get("INFISICAL_TOKEN", ""),
+    cache_ttl=60
+)
+secret = client.secrets.get_secret_by_name(
+    secret_name="LITELLM_MASTER_KEY",
+    project_id="e42657ef-98b2-4b9c-9a04-46c093bd6d37",
+    environment_slug="dev",
+    secret_path="/",
+    expand_secret_references=True,
+    view_secret_value=True
+)
+LITELLM_KEY = secret.secret_value
 ```
 
 ## Ficheiros no Kit
@@ -92,7 +107,7 @@ O bot DEVE usar apenas:
 | TTS Bridge | :8013 | Kokoro direto |
 | TTS Voices | pm_santa, pf_dora | Todas outras |
 | LLM Primary | minimax/MiniMax-M2.7 | LiteLLM como primario |
-| Vision | litellm/llava | Outros VL |
+| Vision | litellm/qwen2.5-vl | Outros VL |
 
 ## Leader Pattern
 
