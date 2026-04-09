@@ -1,0 +1,18 @@
+{
+  "version": "1.0",
+  "generated": "2026-04-09",
+  "last_checkpoint": null,
+  "completed": [],
+  "failed": [],
+  "in_progress": [],
+  "blocked_by": {},
+  "phase": 1,
+  "total_tasks": 73,
+  "phases": [
+    {"name": "Phase 1 — Security Foundation", "tasks": 11, "completed": 0},
+    {"name": "Phase 2 — OAuth + E2E", "tasks": 13, "completed": 0},
+    {"name": "Phase 3 — Agents Kit + CLI", "tasks": 18, "completed": 0},
+    {"name": "Phase 4 — CI/CD Enterprise", "tasks": 12, "completed": 0},
+    {"name": "Phase 5 — Complex Systems", "tasks": 13, "completed": 0}
+  ]
+}

@@ -1,140 +1,118 @@
-# Tasks — Perplexity-like Browser Agent
+# Tasks — Pipeline Runner + Bootstrap Effect System
 
-**Source:** plan.md (2026-04-08)
+**Source:** tasks/plan.md (2026-04-09)
 **Status:** PENDING — awaiting human review
 
 ---
 
-## Slice 1: Setup Projeto + Deps
+## Task 1: Bootstrap Effect Schema + Emitter Agent
 
-**SPEC Reference:** SPEC.md §8 Etapa 1
+**SPEC Reference:** plan.md §Task 1
 
-- [ ] **[T-1.1]** Criar diretório `/srv/monorepo/apps/perplexity-agent/`
-- [ ] **[T-1.2]** Inicializar projeto uv: `uv init --name perplexity-agent`
-- [ ] **[T-1.3]** Adicionar deps: `uv add streamlit browser-use`
-- [ ] **[T-1.4]** Instalar Playwright: `uvx browser-use install`
-- [ ] **[T-1.5]** Criar estrutura de diretórios (agent/, chrome-profile/)
-- [ ] **[T-1.6]** Criar placeholder app.py com "hello world"
-- [ ] **[T-1.7]** Gitignore chrome-profile/
+- [ ] **[T-BE-1]** Criar `tasks/bootstrap-effect-schema.json` (JSON Schema)
+- [ ] **[T-BE-2]** Criar `.claude/agents/bootstrap-effect-emitter.md`
+- [ ] **[T-BE-3]** Implementar `detect_gate_and_emit()` no emitter
+- [ ] **[T-BE-4]** Testar com P001-T01 (secret migration gate)
 
-**Verification:** `uv run python -c "import streamlit; import browser_use; print('OK')"`
+**Verification:** `jq . tasks/bootstrap-effect-schema.json` → válido
 
 ---
 
-## Slice 2: Chrome Profile Setup
+## Task 2: Pipeline Command
 
-**SPEC Reference:** SPEC.md §8 Etapa 2
+**SPEC Reference:** plan.md §Task 2
 
-- [ ] **[T-2.1]** Criar `/srv/monorepo/apps/perplexity-agent/agent/chrome_profile.py`
-- [ ] **[T-2.2]** Criar diretório `/srv/data/perplexity-agent/chrome-profile/` (gitignored no projeto)
-- [ ] **[T-2.3]** Implementar função para verificar Chrome instalado
-- [ ] **[T-2.4]** Documentar como fazer login manual nos sites
+- [ ] **[T-PL-1]** Criar `.claude/commands/pipeline.md`
+- [ ] **[T-PL-2]** Implementar subcommands: status, resume, dry-run
+- [ ] **[T-PL-3]** Criar dashboard view (tasks pendentes por fase)
+- [ ] **[T-PL-4]** Testar com `//pipeline status`
 
-**Verification:** `ls -la /srv/data/perplexity-agent/chrome-profile/` OK
-
----
-
-## Slice 3: Basic Streamlit UI
-
-**SPEC Reference:** SPEC.md §8 Etapa 3
-
-- [ ] **[T-3.1]** Implementar `st.title("Perplexity Agent")`
-- [ ] **[T-3.2]** Chat input (`st.chat_input`) para perguntas
-- [ ] **[T-3.3]** Chat history display
-- [ ] **[T-3.4]** Placeholder para resposta do agent
-- [ ] **[T-3.5]** Sidebar com status do browser
-
-**Verification:** `uv run streamlit run app.py --port 4004` → UI carrega
+**Verification:** `/pipeline` responde em Claude Code
 
 ---
 
-## Slice 4: browser-use Agent Integration
+## Task 3: Pipeline State Machine
 
-**SPEC Reference:** SPEC.md §8 Etapa 4
+**SPEC Reference:** plan.md §Task 3
 
-- [ ] **[T-4.1]** Criar `config.py` com Infisical SDK + `get_minimax_token()`
-- [ ] **[T-4.2]** Implementar `agent/browser_agent.py` com ChatOpenAI + MiniMax
-- [ ] **[T-4.3]** Configurar `base_url="https://api.minimax.chat/v1"`
-- [ ] **[T-4.4]** Configurar `model="MiniMax-M2.7"`
-- [ ] **[T-4.5]** Integrar com Streamlit UI (chat input → agent → response)
+- [ ] **[T-ST-1]** Criar `tasks/pipeline-state.json` (schema)
+- [ ] **[T-ST-2]** Implementar reader/writer functions
+- [ ] **[T-ST-3]** Hook para `//pipeline resume`
+- [ ] **[T-ST-4]** Testar persistência entre sessões
 
-**Verification:** Agent inicializa sem erro de API
-
----
-
-## Slice 5: Test — Busca Simples
-
-**SPEC Reference:** SPEC.md §8 Etapa 5
-
-- [ ] **[T-5.1]** Testar busca no DuckDuckGo via agent
-- [ ] **[T-5.2]** Verificar que resposta inclui fontes/citations
-- [ ] **[T-5.3]** Verificar que não há erros de API (budget, rate limit)
-- [ ] **[T-5.4]** Medir latency da resposta
-
-**Verification:** `uv run python -c "from agent.browser_agent import test_search; test_search()"` OK
+**Verification:** `//pipeline resume` recupera último checkpoint
 
 ---
 
-## Slice 6: Test — Sessão Google Autenticada
+## Task 4: Orchestrator Enhancement
 
-**SPEC Reference:** SPEC.md §8 Etapa 6
+**SPEC Reference:** plan.md §Task 4
 
-- [ ] **[T-6.1]** Fazer login manual no Google via Chrome profile
-- [ ] **[T-6.2]** Testar agent com Chrome profile path
-- [ ] **[T-6.3]** Verificar que agent detecta sessão logada
-- [ ] **[T-6.4]** Verificar persistência entre restarts
+- [ ] **[T-OR-1]** Adicionar `detectHumanGate()` ao orchestrator
+- [ ] **[T-OR-2]** Integrar `bootstrap-effect-emitter` no orchestrator
+- [ ] **[T-OR-3]** Hook `updatePipelineState()` após cada task
+- [ ] **[T-OR-4]** Testar: orchestrator PARA antes de pedir ajuda genérica
 
-**Verification:** Chrome profile mantém sessão após restart
-
----
-
-## Slice 7: Coolify Deployment (Inside OpenClaw)
-
-**SPEC Reference:** SPEC.md §8 Etapa 7
-
-- [ ] **[T-7.1]** Adicionar `web` service em `variables.tf` (já feito)
-- [ ] **[T-7.2]** Terraform apply para criar ingress rule + DNS
-- [ ] **[T-7.3]** Integrar Streamlit ao docker-compose do OpenClaw (porta 4004)
-- [ ] **[T-7.4]** Configurar health check na porta 4004
-- [ ] **[T-7.5]** Deploy e verificar container running
-
-**Verification:** `curl localhost:4004` → 200
+**Verification:** Orchestrator emite bootstrap effect (não "preciso de ajuda")
 
 ---
 
-## Slice 8: Subdomain + Cloudflare Tunnel
+## Task 5: Phase 1 Execution (Critical Path)
 
-**SPEC Reference:** SPEC.md §8 Etapa 8
+**SPEC Reference:** plan.md §Task 5
+**Tasks:** P001-T01 → T02 → T03 → T04 → T05 → T06 → T07 → T08 → T09 → T10 → T11
 
-- [ ] **[T-8.1]** Terraform apply (já atualizado com `web` service)
-- [ ] **[T-8.2]** Verificar DNS + ingress rule criados
-- [ ] **[T-8.3]** Configurar Cloudflare Access (OAuth) para web.zappro.site
-- [ ] **[T-8.4]** Verificar HTTPS + Access policies
+- [ ] **[T-PH1-1]** Executar P001-T01 (migrate secrets → Infisical)
+- [ ] **[T-PH1-2]** Executar P001-T02 (criar audit-workflow skill)
+- [ ] **[T-PH1-3]** Executar P001-T03 (healthchecks em scheduled_tasks)
+- [ ] **[T-PH1-4]** Executar P001-T04 (BROWSER_EVALUATE_ENABLED=false)
+- [ ] **[T-PH1-5]** Executar P001-T05 (SPEC-001 commit)
+- [ ] **[T-PH1-6]** Executar P001-T06 (pipeline.json workflow as code)
+- [ ] **[T-PH1-7]** Executar P001-T07 (/audit-workflow functional)
+- [ ] **[T-PH1-8]** Executar P001-T08 (health check script OK)
+- [ ] **[T-PH1-9]** Executar P001-T09 (cron auto-detect secrets plaintext)
+- [ ] **[T-PH1-10]** Executar P001-T10 (Telegram alert >1h)
+- [ ] **[T-PH1-11]** Executar P001-T11 (verification checklist)
 
-**Verification:** `curl https://web.zappro.site` → 200 (via Cloudflare Access)
+**Verification:** `//pipeline phase 1` → 11/11 COMPLETE
+
+---
+
+## Task 6: Phase 2-5 Execution (Parallel)
+
+**SPEC Reference:** plan.md §Task 6
+
+- [ ] **[T-PH2-1]** Executar P006-T01 → T07 (Playwright E2E)
+- [ ] **[T-PH2-2]** Executar P007-T01 → T06 (OAuth profiles)
+- [ ] **[T-PH3-1]** Executar P010-T01 → T07 (OpenClaw agents kit)
+- [ ] **[T-PH3-2]** Executar P012-T01 → T03 (update discoverer)
+- [ ] **[T-PH3-3]** Executar P013-T01 → T08 (unified agent monorepo)
+- [ ] **[T-PH4-1]** Executar P014-T01 → T06 (Cursor AI CI/CD)
+- [ ] **[T-PH4-2]** Executar P015-T01 → T06 (Gitea Actions enterprise)
+- [ ] **[T-PH5-1]** Executar P011-T01 → T10 (CEO MIX + agency)
+- [ ] **[T-PH5-2]** Executar P013CEO-T01 → T03 (voice stack)
+
+**Verification:** `//pipeline all` → 73/73 EXECUTED ou HUMAN_GATE (com bootstrap effect)
 
 ---
 
 ## Stats
 
-| Slice | Tasks | Priority |
-|-------|-------|----------|
-| S1 | 7 | CRITICAL |
-| S2 | 4 | CRITICAL |
-| S3 | 5 | HIGH |
-| S4 | 5 | HIGH |
-| S5 | 4 | HIGH |
-| S6 | 4 | MEDIUM |
-| S7 | 6 | HIGH |
-| S8 | 4 | HIGH |
-| **Total** | **39** | |
+| Task | Files | Priority |
+|------|-------|----------|
+| T1 (Bootstrap Emitter) | 2 | CRITICAL |
+| T2 (Pipeline Cmd) | 1 | CRITICAL |
+| T3 (State) | 1 | HIGH |
+| T4 (Orchestrator) | 1 | CRITICAL |
+| T5 (Phase 1) | 11 | CRITICAL |
+| T6 (Phase 2-5) | 73 | HIGH |
 
 ---
 
 ## Pipeline
 
 ```
-plan.md → todo.md → SLICE 1-8 → REVIEW → SHIP
+plan.md → todo.md → Task 1-4 → Task 5 (Phase 1) → Task 6 (Phase 2-5)
 ```
 
 ---
@@ -142,14 +120,22 @@ plan.md → todo.md → SLICE 1-8 → REVIEW → SHIP
 ## Dependencies
 
 ```
-Slice 1 (Setup)
-    └── Slice 2 (Chrome Profile)
-            └── Slice 3 (Streamlit UI)
-                    └── Slice 4 (Agent Integration)
-                            ├──→ Slice 5 (Test: Busca)
-                            └──→ Slice 6 (Test: Google)
-                                    │
-Slice 7 (Coolify) ──────────────────┤
-        │                            │
-Slice 8 (Subdomain) ◄───────────────┘
+Task 1 (Bootstrap Emitter)
+    └── Task 2 (Pipeline Command)
+            └── Task 3 (State)
+                    └── Task 4 (Orchestrator)
+                            └── Task 5 (Phase 1)
+                                    └── Task 6 (Phase 2-5)
 ```
+
+---
+
+## Gate Types (para Bootstrap Effect)
+
+| Gate | Trigger | Smoke Test |
+|------|---------|------------|
+| SECRET_MISSING | gh secret list vazio | `curl https://coolify.zappro.site/api/v1/health` |
+| HUMAN_CONFIG | Variável não setada | `gh variable list` |
+| HUMAN_APPROVAL | PR sem approval | `gh pr view --comments` |
+| MANUAL_ACTION | ZFS offline | `zpool status` |
+| BLOCKER_DETECTED | Bug ambiguous | Log excerpt |

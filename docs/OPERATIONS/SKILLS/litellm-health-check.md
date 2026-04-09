@@ -7,12 +7,13 @@
 
 ## LiteLLM Info
 
-- **Endpoint:** `localhost:4000` (direct) / `localhost:4004` (rate-limited via nginx)
-- **Tipo:** Python process (`/home/will/litellm-venv`)
+- **Endpoint:** `localhost:4000` (direct)
+- **Tipo:** Docker container (`zappro-litellm`) via docker-compose
+- **Container rede:** `zappro-lite_default` (mesma do wav2vec2, Ollama, Kokoro)
 - **Config:** `/home/will/zappro-lite/config.yaml`
-- **Models:** gemma3-27b (Ollama), qwen2.5-0.5b (Ollama), openrouter models
-- **Rate Limiting:** nginx proxy on :4004 — 10 req/min, burst 5 (stateless mode sem DB = sem rate limit no LiteLLM)
-- **Nota:** Sem database (desabilitado) — `no_db_connection` é normal
+- **Models:** whisper-1 (STT/wav2vec2), tts-1 (TTS/Kokoro), qwen2.5-vl (Vision), tom-cat-8b (LLM PT-BR), embedding-nomic
+- **Database:** PostgreSQL via `zappro-litellm-db` container (persistência de keys/costs)
+- **DB Connection:** `postgresql://litellm:litellm_pass_2026@zappro-litellm-db:5432/litellm`
 
 ## Procedure
 

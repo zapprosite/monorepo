@@ -83,11 +83,15 @@
     responsePrefix: "{{RESPONSE_PREFIX}}",
     tts: {
       auto: "inbound",
+      provider: "openai",
       openai: {
-        apiKey: "{{TTS_API_KEY}}",
-        baseUrl: "{{TTS_BRIDGE_URL}}",
-        model: "tts-1",
-        voice: "{{DEFAULT_VOICE}}"
+        // AVISO: baseUrl dentro de tts.openai é IGNORADO pelo schema do OpenClaw
+        // O OpenClaw valida o schema e stripped campos não-reconhecidos.
+        // Para configurar baseUrl, usar env var OPENAI_TTS_BASE_URL (via Coolify UI)
+        // O valor abaixo é documentativo — a config real vem da env var.
+        // baseUrl: "http://10.0.19.5:8013/v1"  // ← via env var, não aqui
+        model: "kokoro",           // ← Kokoro TTS (não "tts-1")
+        voice: "{{DEFAULT_VOICE}}"  // pm_santa ou pf_dora
       }
     }
   },
@@ -134,10 +138,11 @@
 | `{{LEADER_THEME}}` | Leader theme | líder de agentes |
 | `{{LEADER_EMOJI}}` | Leader emoji | 👑 |
 | `{{PRIMARY_MODEL}}` | Primary LLM | minimax/MiniMax-M2.7 |
-| `{{VISION_MODEL}}` | Vision model | litellm/llava |
-| `{{TTS_BRIDGE_URL}}` | TTS Bridge endpoint | http://10.0.19.5:8013/v1 |
-| `{{DEFAULT_VOICE}}` | Default TTS voice | pm_santa |
+| `{{VISION_MODEL}}` | Vision model | litellm/qwen2.5-vl |
+| `{{DEFAULT_VOICE}}` | Default TTS voice | pm_santa (ou pf_dora) |
 | `{{RESPONSE_PREFIX}}` | Prefix for responses | @nome siga! |
+
+**Nota sobre TTS baseUrl:** `OPENAI_TTS_BASE_URL=http://10.0.19.5:8013/v1` (via env var, não no config JSON)
 
 ## Complete Example
 
@@ -152,8 +157,8 @@
     defaults: {
       model: { primary: "minimax/MiniMax-M2.7" },
       imageModel: {
-        primary: "litellm/llava",
-        providers: { "litellm/llava": { provider: "liteLLM" } }
+        primary: "litellm/qwen2.5-vl",
+        providers: { "litellm/qwen2.5-vl": { provider: "liteLLM" } }
       }
     },
     list: [
@@ -174,9 +179,10 @@
     responsePrefix: "@willrefimix siga!",
     tts: {
       auto: "inbound",
+      provider: "openai",
       openai: {
-        baseUrl: "http://10.0.19.5:8013/v1",
-        model: "tts-1",
+        // baseUrl: via env var OPENAI_TTS_BASE_URL (não neste ficheiro)
+        model: "kokoro",
         voice: "pm_santa"
       }
     }
