@@ -29,6 +29,14 @@
 |-------|-----------|
 | [OpenClaw Agency Hub](./plans/open-claw-agency.md) | Plano de transformação em hub de agência |
 
+## Skills
+
+| Skill | Descrição |
+|-------|-----------|
+| [OpenClaw Agents Kit](./OPERATIONS/SKILLS/openclaw-agents-kit/SKILL.md) | Kit universal: transforma OpenClaw em orquestrador de agents (leader + sub-agents). Inclui: Coolify API, Infisical SDK, identity-patch, governance template, sub-agent patterns |
+| [TTS Bridge](./OPERATIONS/SKILLS/tts-bridge.md) | Filtro de vozes Kokoro (pm_santa/pf_dora only) |
+| [Container Health Check](./OPERATIONS/SKILLS/container-health-check.md) | Health + recursos de containers |
+
 ## ADRs
 
 Ver [docs/ADRs/README.md](./ADRs/README.md) — consolidado de `docs/adr/`, `docs/ADR/` e `docs/adrs/`

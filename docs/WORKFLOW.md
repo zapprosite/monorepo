@@ -1,6 +1,6 @@
 # AI Tools Workflow — will-zappro
 
-**Data:** 2026-04-07
+**Data:** 2026-04-08
 **Stack:** Claude Code CLI + OpenCode CLI + OpenClaw Bot + ai-context MCP
 
 ---
@@ -11,7 +11,7 @@
 |------|-------------|--------|
 | **Claude Code CLI** | Dev, código, debug, refactor | Host terminal (`c` alias) |
 | **OpenCode CLI** | Quick tasks, modelos diferentes, desktop | Desktop (`opencode`) |
-| **OpenClaw Bot** | CEO MIX, clientes, agentes, voice | Telegram (@CEO_REFRIMIX_bot) |
+| **OpenClaw Bot** | CEO MIX — assistente e dev senior que orquestra time de agents | Telegram (@CEO_REFRIMIX_bot) |
 | **ai-context MCP** | Sincronizar docs → memory após feature | Auto ou manual |
 
 ---
@@ -110,25 +110,28 @@ opencode --model minimax/MiniMax-M2.7 "task"
 ### OpenClaw Bot (@CEO_REFRIMIX_bot)
 
 **Use para:**
-- CEO MIX — agente de marketing/design
+- **CEO MIX — assistente e dev senior que orquestra time de agents** para qualquer nicho (design, marketing, dev, etc)
+- Criar e coordenar sub-agents especializados via [OpenClaw Agents Kit](../OPERATIONS/SKILLS/openclaw-agents-kit/SKILL.md)
 - Multi-client work (cada cliente isolado)
-- TTS voice responses (Kokoro pm_alex)
+- TTS voice responses (Kokoro — pm_santa ou pf_dora)
 - Escalation: infra → Claude Code CLI
 
-**Ele sabe:**
+**Ele sabe (via kit):**
 - Skills: `qdrant-rag`, `monorepo-explorer`, `openclaw-repo-hunter`
 - MCP: `mcp-monorepo` (read-only /srv/monorepo)
 - Qdrant collections: clients-briefs, clients-brand-guides, clients-campaigns, clients-knowledge
+- Coolify API + Infisical SDK (acesso seguro a config e secrets)
+- Sub-agent patterns: leader designation, bindings, heartbeat, SOUL.md por agente
 
 **Ele NÃO sabe:**
 - Secrets (use vault.zappro.site)
-- Edição de código (use Claude Code CLI)
+- Edição de código pesado (use Claude Code CLI)
 
 **Escalation:**
 ```
 Infra/Docker/ZFS → "Rode 'c' no terminal"
 Secrets → vault.zappro.site
-Dev/Código → Claude Code CLI
+Dev/Código pesado → Claude Code CLI
 ```
 
 ---
@@ -272,6 +275,7 @@ opencode --model X "task"     # Modelo específico
 |------|-------|
 | `docs/GOVERNANCE/CONTRACT.md` | Princípios non-negotiable |
 | `docs/GOVERNANCE/GUARDRAILS.md` | O que pode e não pode |
+| `docs/OPERATIONS/SKILLS/openclaw-agents-kit/SKILL.md` | Kit universal — transformar OpenClaw em orquestrador de agents |
 | `docs/guides/openclaw-*.md` | OpenClaw completo |
 | `docs/MCPs/AI_CONTEXT_MCP.md` | ai-context setup |
 | `docs/MCPs/MCP_BLUEPRINT.md` | Criar MCP servers |

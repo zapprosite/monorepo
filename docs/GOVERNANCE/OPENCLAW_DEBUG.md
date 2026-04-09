@@ -1,9 +1,10 @@
 # OpenClaw Bot — Guia de Debug e Configuracao Pinada
 
-**Host:** will-zappro | **Atualizado:** 2026-04-07
+**Host:** will-zappro | **Atualizado:** 2026-04-08
 **Bot:** @CEO_REFRIMIX_bot | **Container:** openclaw-qgtzrmi6771lt8l7x8rqx72f
 **Versao:** OpenClaw 2026.2.6 (PINADA)
 **Fix 2026-04-07:** llava registrado no provider liteLLM com provider map corrigido
+**Fix 2026-04-08:** TTS Bridge adicionado — filtro de vozes Kokoro (apenas pm_santa + pf_dora)
 
 ---
 
@@ -18,9 +19,10 @@
             +-------------+-------------+
             |                           |
       [CEREBRO]                   [BOCA - TTS]
-      minimax/MiniMax-M2.7       Kokoro PT-BR
-      (chat principal)           10.0.19.6:8880
-                                 voice: pm_santa
+      minimax/MiniMax-M2.7       TTS Bridge (:8013)
+      (chat principal)             ├─► pm_santa ✓ → Kokoro :8880
+                                  └─► pf_dora ✓ → Kokoro :8880
+                                       [OUTRAS] ✗ → 400 Bad Request
             |
       +-----+-----+
       |           |

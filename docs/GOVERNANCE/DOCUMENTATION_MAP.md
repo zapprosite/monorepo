@@ -215,6 +215,38 @@ grep -r "^[^#]*[A-Z][a-z]*\s\+[A-Z][a-z]*" /home/will/*.md /srv/ops/ai-governanc
 
 ---
 
+## ANTI-FRAGILITY CATALOG (2026-04-08)
+
+Documentos que protegem configurações estáveis de "otimizações" que quebram produção.
+
+| Doc | Propósito | Quando Ler |
+|-----|-----------|-----------|
+| ANTI-FRAGILITY.md | Regras para proteger configs estáveis | Antes de propor qualquer mudança |
+| PINNED-SERVICES.md | Registry de serviços imutáveis | Antes de tocar voice/AI stack |
+| GUARDRAILS.md §Anti-Fragility | Marcadores de estabilidade | Quando LLM propor "melhoria" |
+
+### Marcadores de Estabilidade (LEGEND)
+- 📌 PINNED = não mudar sem snapshot + aprovação
+- ⚠️ KIT PROTECTED = stack validado como unit
+- 🔒 LOCKED = testado em conjunto, quebrar viola
+- ✅ STABLE = verificado funcionando
+
+### Fluxo: Proposta de Mudança em Serviço PINNED
+
+```
+1. Agente propõe mudança
+         ↓
+2. LEIA GUARDRAILS.md §Anti-Fragility
+         ↓
+3. Serviço tem marcador? → SIM → Recusar, indicar ANTI-FRAGILITY.md
+                          → NÃO → Proceed with CHANGE_POLICY.md
+```
+
+**Criado:** 2026-04-08
+**Razão:** Prevenir "otimizações" que quebram production stable configs
+
+---
+
 **Gerado:** 2026-03-16
 **Próxima Revisão:** Semanal (junto com SYSTEM_ARCHITECTURE.md)
 **Linguagem:** 🇧🇷 Português Brasileiro Obrigatório
