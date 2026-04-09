@@ -210,3 +210,32 @@ OpenWebUI → /v1/audio/transcriptions → wav2vec2 (:8201) → whisper-api → 
 
 **Data:** 2026-04-09
 **Updated:** 2026-04-09 — Added fixes applied, resolved status
+
+---
+
+## CLI/API Control Findings (09/04/2026)
+
+### Verified Working Endpoints (external access via https://chat.zappro.site)
+
+| Endpoint | Method | Auth | Status |
+|----------|--------|------|--------|
+| /api/v1/auths/signin | POST | JSON body | ✅ WORKS |
+| /api/v1/models | GET | Bearer JWT | ✅ WORKS |
+| /api/v1/chat/completions | POST | Bearer JWT | ✅ WORKS |
+| /api/v1/users | GET | Bearer JWT | ⚠️ HTML (needs path fix) |
+| /api/v1/config | GET | Bearer JWT | ⚠️ HTML redirect |
+
+### Authentication
+- JWT token obtained via POST /api/v1/auths/signin with email+password
+- Credentials: admin@openwebui.local / AdminPass123! (created during this session)
+
+### Models Available
+- llama3-portuguese-tomcat-8b-instruct-q8:latest
+- qwen2.5vl:7b
+- nomic-embed-text:latest
+- arena-model
+
+### CLI Tools Created
+- /srv/monorepo/docs/OPERATIONS/SKILLS/openwebui_admin.py - Admin CLI
+- /srv/monorepo/docs/OPERATIONS/SKILLS/openwebui_mcp.py - MCP server wrapper (pending)
+- /srv/monorepo/tasks/smoke-tests/openwebui-api.sh - Smoke tests (pending)
