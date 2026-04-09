@@ -4,6 +4,7 @@
 **Autor:** @will
 **Status:** DRAFT | REVIEW | APPROVED
 **Versão:** 1.0
+**App afetado:** api | web | workers | perplexity-agent
 
 ---
 
@@ -14,11 +15,11 @@
 > O que queremos alcançar? Métrica de sucesso?
 
 ## 3. Usuários Afetados
-> Quem usa isso? Qual o fluxo atual vs desejado?
+> Quem usa? Fluxo atual vs desejado?
 
 ## 4. Requisitos Funcionais
-- [ ] RF-001: ...
-- [ ] RF-002: ...
+- [ ] RF-001:
+- [ ] RF-002:
 
 ## 5. Requisitos Não-Funcionais
 - [ ] RNF-001: Performance — p95 < 200ms
@@ -26,37 +27,23 @@
 - [ ] RNF-003: Observabilidade — logs estruturados
 
 ## 6. Fora de Escopo
-> O que explicitamente NÃO faz parte desta entrega?
 
 ## 7. Arquitetura Proposta
-> Diagrama ou descrição de como será implementado
 
 ## 8. Dependências
-> Outros times, sistemas ou features que precisam estar prontos
 
-## 9. Critérios de Aceitação
+## 9. Riscos
+| Risco | Probabilidade | Impacto | Mitigação |
+|-------|--------------|---------|-----------|
+
+## 10. Critérios de Aceitação
 - [ ] AC-001: Dado X, quando Y, então Z
-- [ ] AC-002: ...
+- [ ] AC-002:
 
-## 10. Slices de Entrega
-| Slice | Descrição | Status |
-|-------|------------|--------|
-| 1 | ... | PENDING |
-| 2 | ... | PENDING |
-| 3 | ... | PENDING |
+## 11. Slices de Entrega
+### Slice 1 — MVP (must have)
+### Slice 2 — Core (should have)
+### Slice 3 — Enhanced (could have)
 
-## 11. Stack Tecnológica
-> Framework, linguagem, bibliotecas principais
-
-## 12. Timeline
-| Marco | Data | Status |
-|-------|------|--------|
-| PRD Aprovado | YYYY-MM-DD | PENDING |
-| SPEC Finalizada | YYYY-MM-DD | PENDING |
-| Slice 1 Done | YYYY-MM-DD | PENDING |
-| Slice N Done | YYYY-MM-DD | PENDING |
-
----
-
-**PRD Link:** [Link para PRD]
-**SPEC Link:** [Link para SPEC-*.md após /spec]
+## 12. Tasks
+> Gerado automaticamente por /pg
