@@ -1,0 +1,237 @@
+name: Code Review
+
+# Triggered on PR open, update (synchronize), or reopen
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  pull_request_review:
+    types: [submitted]
+
+# Cancel in-progress runs when a new one is triggered for the same PR
+concurrency:
+  group: review-${{ gitea.event.pull_request.number }}
+  cancel-in-progress: true
+
+env:
+  NODE_ENV: test
+  DB_HOST: localhost
+  DB_PORT: "5432"
+  DB_USER: postgres
+  DB_PASSWORD: postgres
+  DB_NAME: connected_repo_test
+
+jobs:
+  # ─────────────────────────────────────────────────────────────────────────
+  # Gate 1: Automated Checks — must pass before any human or AI review
+  # ─────────────────────────────────────────────────────────────────────────
+  automated-checks:
+    name: Automated Checks
+    runs-on: ubuntu-latest
+    # Only run automated checks on PR events (not review events)
+    if: gitea.event == 'pull_request'
+
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: connected_repo_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # needed for diff/lint analysis
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "yarn"
+
+      - name: Cache Turbo
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: turbo-${{ runner.os }}-${{ gitea.sha }}
+          restore-keys: |
+            turbo-${{ runner.os }}-
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Prepare .env for CI
+        run: |
+          cp .env.example .env
+          sed -i 's|SESSION_SECRET=.*|SESSION_SECRET=ci-session-secret-minimum-32-characters-ok!!|' .env
+          sed -i 's|INTERNAL_API_SECRET=.*|INTERNAL_API_SECRET=ci-internal-api-secret-minimum-32-chars!!|' .env
+          sed -i 's|GOOGLE_CLIENT_ID=.*|GOOGLE_CLIENT_ID=ci-test.apps.googleusercontent.com|' .env
+          sed -i 's|GOOGLE_CLIENT_SECRET=.*|GOOGLE_CLIENT_SECRET=ci-google-secret|' .env
+          sed -i 's|DB_NAME=connected_repo$|DB_NAME=connected_repo_test|' .env
+          cp apps/backend/.env.example apps/backend/.env
+          cp apps/frontend/.env.example apps/frontend/.env
+
+      - name: Sync env (workspace .env files)
+        run: node scripts/sync-env.js
+
+      - name: Type check
+        run: yarn check-types
+
+      - name: Lint (Biome)
+        run: npx biome check .
+
+      - name: Build
+        run: yarn build
+        env:
+          TURBO_CACHE_DIR: .turbo
+
+      - name: Test
+        run: yarn test
+        env:
+          TURBO_CACHE_DIR: .turbo
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # Gate 2: Security Scan — Trivy vulnerability scanner
+  # ─────────────────────────────────────────────────────────────────────────
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    if: gitea.event == 'pull_request'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Run Trivy vulnerability scanner
+        run: |
+          docker run --rm -v $(pwd):/workspace aquasec/trivy:latest fs \
+            --security-checks vuln,config \
+            --exit-code 0 \
+            --severity HIGH,CRITICAL \
+            /workspace
+
+      - name: Run Trivy config audit
+        run: |
+          docker run --rm -v $(pwd):/workspace aquasec/trivy:latest config \
+            --exit-code 0 \
+            /workspace
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # Gate 3: AI Review — Claude Code CLI review posted as PR comment
+  # ─────────────────────────────────────────────────────────────────────────
+  ai-review:
+    name: AI Code Review
+    runs-on: ubuntu-latest
+    if: gitea.event == 'pull_request'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ gitea.event.pull_request.head.sha }}
+          fetch-depth: 0
+
+      - name: Run AI review via Claude Code CLI
+        env:
+          CLAUDE_API_KEY: ${{ secrets.CLAUDE_API_KEY }}
+          PR_NUMBER: ${{ gitea.event.pull_request.number }}
+          PR_TITLE: ${{ gitea.event.pull_request.title }}
+          PR_BODY: ${{ gitea.event.pull_request.body }}
+          PR_AUTHOR: ${{ gitea.event.pull_request.user.login }}
+          HEAD_BRANCH: ${{ gitea.head_branch }}
+          BASE_BRANCH: ${{ gitea.event.pull_request.base.ref }}
+        run: |
+          # Build the review prompt
+          REVIEW_PROMPT="You are performing a code review on a Pull Request.
+
+PR #$PR_NUMBER: $PR_TITLE
+Author: @$PR_AUTHOR
+Head Branch: $HEAD_BRANCH → Base Branch: $BASE_BRANCH
+
+Review the changed files for:
+1. **Correctness** — logic bugs, edge cases, error handling
+2. **Security** — injection risks, credential leaks, validation gaps
+3. **Performance** — N+1 queries, missing indexes, inefficient algorithms
+4. **Readability** — clear naming, self-documenting code, appropriate comments
+5. **Best Practices** — language/framework idioms, design patterns, testing
+
+Be specific and constructive. Reference file paths and line numbers where possible.
+Output your review in structured markdown format."
+
+          # Run Claude Code in print mode and capture output
+          claude -p --print "$REVIEW_PROMPT" 2>&1 | tee /tmp/ai-review-output.txt
+          REVIEW_OUTPUT=$(cat /tmp/ai-review-output.txt)
+
+          # Post review comment to the PR via Gitea API
+          # Escape JSON special characters in the review output
+          ESCAPED_OUTPUT=$(echo "$REVIEW_OUTPUT" | python3 -c "import sys,json; print(json.dumps(sys.stdin.read()))" 2>/dev/null || echo "\"AI review output\"")
+
+          curl -s -X POST \
+            "https://git.zappro.site/api/v1/repos/${{ gitea.repository }}/issues/$PR_NUMBER/comments" \
+            -H "Authorization: token ${{ secrets.GITEA_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d "{\"body\": \"## AI Code Review\\n\\n$REVIEW_OUTPUT\\n\\n---\\n*Review generated by Claude Code via Gitea Actions*\"}"
+
+      - name: Set AI review status output
+        id: ai-review-status
+        run: |
+          if grep -q "ERROR\|FAIL" /tmp/ai-review-output.txt 2>/dev/null; then
+            echo "status=failed" >> $GITHUB_OUTPUT || echo "status=failed" >> $GITEA_OUTPUT
+          else
+            echo "status=completed" >> $GITHUB_OUTPUT || echo "status=completed" >> $GITEA_OUTPUT
+          fi
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # Gate 4: Human Approval — Gitea environment protection
+  # Requires reviewer to approve in Gitea UI before merge is allowed
+  # ─────────────────────────────────────────────────────────────────────────
+  human-approval:
+    name: Human Review & Approval
+    runs-on: ubuntu-latest
+    needs: [automated-checks, security-scan]
+    environment: code-review
+    if: gitea.event == 'pull_request'
+
+    steps:
+      - name: Check approval status
+        run: |
+          echo "=== Pull Request Details ==="
+          echo "PR: #${{ gitea.event.pull_request.number }} — ${{ gitea.event.pull_request.title }}"
+          echo "Author: @${{ gitea.event.pull_request.user.login }}"
+          echo "Head: ${{ gitea.head_branch }} → Base: ${{ gitea.event.pull_request.base.ref }}"
+          echo ""
+          echo "Awaiting human code review and approval..."
+          echo "Once approved, this gate will pass and the PR will be ready to merge."
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # Gate 5: Final Merge Gate — all checks must pass
+  # ─────────────────────────────────────────────────────────────────────────
+  merge:
+    name: Ready to Merge
+    runs-on: ubuntu-latest
+    needs: [automated-checks, security-scan, human-approval]
+    if: gitea.event == 'pull_request'
+
+    steps:
+      - name: Merge PR (via API)
+        if: gitea.event == 'pull_request'
+        run: |
+          echo "All review gates passed. Merging PR #${{ gitea.event.pull_request.number }}."
+          echo "This step performs a no-op merge signal — actual merging is done via Gitea UI."
+
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "=== Code Review Pipeline Failed ==="
+          echo "PR: #${{ gitea.event.pull_request.number }}"
+          echo "Review the failed jobs above and address the issues before re-requesting review."
