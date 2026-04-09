@@ -1,141 +1,136 @@
-# Tasks — Pipeline Runner + Bootstrap Effect System
+# TODO: Retry Loop com Auto-Recovery
 
-**Source:** tasks/plan.md (2026-04-09)
+**Generated:** 2026-04-09
+**Plan:** tasks/plan.md
 **Status:** PENDING — awaiting human review
 
 ---
 
-## Task 1: Bootstrap Effect Schema + Emitter Agent
+## Task 1: Atualizar pipeline-state.json schema
 
-**SPEC Reference:** plan.md §Task 1
+**File:** `tasks/pipeline-state.json`
 
-- [ ] **[T-BE-1]** Criar `tasks/bootstrap-effect-schema.json` (JSON Schema)
-- [ ] **[T-BE-2]** Criar `.claude/agents/bootstrap-effect-emitter.md`
-- [ ] **[T-BE-3]** Implementar `detect_gate_and_emit()` no emitter
-- [ ] **[T-BE-4]** Testar com P001-T01 (secret migration gate)
+- [ ] **[T-RS-1]** Adicionar campos: retryCount, maxRetries, retryHistory, humanGateRequired, blockedReason, notificationSent
 
-**Verification:** `jq . tasks/bootstrap-effect-schema.json` → válido
+**Verification:** `jq '.retryCount, .maxRetries, .humanGateRequired' tasks/pipeline-state.json`
 
 ---
 
-## Task 2: Pipeline Command
+## Task 2: Reescrever pipeline-runner.sh com retry
 
-**SPEC Reference:** plan.md §Task 2
+**File:** `scripts/pipeline-runner.sh`
 
-- [ ] **[T-PL-1]** Criar `.claude/commands/pipeline.md`
-- [ ] **[T-PL-2]** Implementar subcommands: status, resume, dry-run
-- [ ] **[T-PL-3]** Criar dashboard view (tasks pendentes por fase)
-- [ ] **[T-PL-4]** Testar com `//pipeline status`
+- [ ] **[T-RR-1]** Implementar MAX_RETRIES=3
+- [ ] **[T-RR-2]** Implementar increment_retry()
+- [ ] **[T-RR-3]** Implementar block_for_human() com Telegram
+- [ ] **[T-RR-4]** Implementar run_step() com retry loop
+- [ ] **[T-RR-5]** Chamar auto-fix.sh antes de retry (se TEST falhar)
 
-**Verification:** `/pipeline` responde em Claude Code
-
----
-
-## Task 3: Pipeline State Machine
-
-**SPEC Reference:** plan.md §Task 3
-
-- [ ] **[T-ST-1]** Criar `tasks/pipeline-state.json` (schema)
-- [ ] **[T-ST-2]** Implementar reader/writer functions
-- [ ] **[T-ST-3]** Hook para `//pipeline resume`
-- [ ] **[T-ST-4]** Testar persistência entre sessões
-
-**Verification:** `//pipeline resume` recupera último checkpoint
+**Verification:** `grep MAX_RETRIES scripts/pipeline-runner.sh` → `MAX_RETRIES=3`
 
 ---
 
-## Task 4: Orchestrator Enhancement
+## Task 3: Criar auto-fix.sh
 
-**SPEC Reference:** plan.md §Task 4
+**File:** `scripts/auto-fix.sh`
 
-- [ ] **[T-OR-1]** Adicionar `detectHumanGate()` ao orchestrator
-- [ ] **[T-OR-2]** Integrar `bootstrap-effect-emitter` no orchestrator
-- [ ] **[T-OR-3]** Hook `updatePipelineState()` após cada task
-- [ ] **[T-OR-4]** Testar: orchestrator PARA antes de pedir ajuda genérica
+- [ ] **[T-AF-1]** `pnpm turbo lint -- --fix`
+- [ ] **[T-AF-2]** `pnpm turbo typecheck`
+- [ ] **[T-AF-3]** `pnpm turbo clean`
 
-**Verification:** Orchestrator emite bootstrap effect (não "preciso de ajuda")
-
----
-
-## Task 5: Phase 1 Execution (Critical Path)
-
-**SPEC Reference:** plan.md §Task 5
-**Tasks:** P001-T01 → T02 → T03 → T04 → T05 → T06 → T07 → T08 → T09 → T10 → T11
-
-- [ ] **[T-PH1-1]** Executar P001-T01 (migrate secrets → Infisical)
-- [ ] **[T-PH1-2]** Executar P001-T02 (criar audit-workflow skill)
-- [ ] **[T-PH1-3]** Executar P001-T03 (healthchecks em scheduled_tasks)
-- [ ] **[T-PH1-4]** Executar P001-T04 (BROWSER_EVALUATE_ENABLED=false)
-- [ ] **[T-PH1-5]** Executar P001-T05 (SPEC-001 commit)
-- [ ] **[T-PH1-6]** Executar P001-T06 (pipeline.json workflow as code)
-- [ ] **[T-PH1-7]** Executar P001-T07 (/audit-workflow functional)
-- [ ] **[T-PH1-8]** Executar P001-T08 (health check script OK)
-- [ ] **[T-PH1-9]** Executar P001-T09 (cron auto-detect secrets plaintext)
-- [ ] **[T-PH1-10]** Executar P001-T10 (Telegram alert >1h)
-- [ ] **[T-PH1-11]** Executar P001-T11 (verification checklist)
-
-**Verification:** `//pipeline phase 1` → 11/11 COMPLETE
+**Verification:** `[ -x scripts/auto-fix.sh ] && echo "OK"`
 
 ---
 
-## Task 6: Phase 2-5 Execution (Parallel)
+## Task 4: Criar pipeline-watcher.sh
 
-**SPEC Reference:** plan.md §Task 6
+**File:** `scripts/pipeline-watcher.sh`
 
-- [ ] **[T-PH2-1]** Executar P006-T01 → T07 (Playwright E2E)
-- [ ] **[T-PH2-2]** Executar P007-T01 → T06 (OAuth profiles)
-- [ ] **[T-PH3-1]** Executar P010-T01 → T07 (OpenClaw agents kit)
-- [ ] **[T-PH3-2]** Executar P012-T01 → T03 (update discoverer)
-- [ ] **[T-PH3-3]** Executar P013-T01 → T08 (unified agent monorepo)
-- [ ] **[T-PH4-1]** Executar P014-T01 → T06 (Cursor AI CI/CD)
-- [ ] **[T-PH4-2]** Executar P015-T01 → T06 (Gitea Actions enterprise)
-- [ ] **[T-PH5-1]** Executar P011-T01 → T10 (CEO MIX + agency)
-- [ ] **[T-PH5-2]** Executar P013CEO-T01 → T03 (voice stack)
+- [ ] **[T-PW-1]** Loop com CHECK_INTERVAL=10
+- [ ] **[T-PW-2]** Monitora humanGateRequired
+- [ ] **[T-PW-3]** Envia Telegram notification
+- [ ] **[T-PW-4]** Atualiza notificationSent=true
 
-**Verification:** `//pipeline all` → 73/73 EXECUTED ou HUMAN_GATE (com bootstrap effect)
+**Verification:** `nohup bash scripts/pipeline-watcher.sh &` → processo rodando
 
 ---
 
-## Stats
+## Task 5: Criar unblock.sh
 
-| Task | Files | Priority |
-|------|-------|----------|
-| T1 (Bootstrap Emitter) | 2 | CRITICAL |
-| T2 (Pipeline Cmd) | 1 | CRITICAL |
-| T3 (State) | 1 | HIGH |
-| T4 (Orchestrator) | 1 | CRITICAL |
-| T5 (Phase 1) | 11 | CRITICAL |
-| T6 (Phase 2-5) | 73 | HIGH |
+**File:** `scripts/unblock.sh`
+
+- [ ] **[T-UB-1]** Reseta currentState para IDLE
+- [ ] **[T-UB-2]** Limpa retryCount, retryHistory
+- [ ] **[T-UB-3]** Reseta humanGateRequired, blockedReason
+- [ ] **[T-UB-4]** Aceita razão como argumento
+
+**Verification:** `bash scripts/unblock.sh "teste" && jq '.currentState' tasks/pipeline-state.json` → `"IDLE"`
 
 ---
 
-## Pipeline
+## Task 6: Atualizar cursor-loop-leader.md
 
-```
-plan.md → todo.md → Task 1-4 → Task 5 (Phase 1) → Task 6 (Phase 2-5)
-```
+**File:** `.claude/agents/cursor-loop-leader.md`
+
+- [ ] **[T-LR-1]** Adicionar seção "Retry e Recovery" após "Fonte de Verdade"
+- [ ] **[T-LR-2]** Leader para se BLOCKED_HUMAN_REQUIRED
+- [ ] **[T-LR-3]** Leader verifica retryCount antes de continuar
+
+**Verification:** `grep -A5 "Retry e Recovery" .claude/agents/cursor-loop-leader.md`
+
+---
+
+## Task 7: Adicionar TELEGRAM vars ao .env.example
+
+**File:** `.env.example`
+
+- [ ] **[T-TV-1]** TELEGRAM_BOT_TOKEN comentado
+- [ ] **[T-TV-2]** TELEGRAM_CHAT_ID comentado
+
+**Verification:** `grep TELEGRAM .env.example`
+
+---
+
+## Task 8: Criar failure-report.yml
+
+**File:** `.gitea/workflows/failure-report.yml`
+
+- [ ] **[T-FR-1]** Trigger on CI workflow failure
+- [ ] **[T-FR-2]** Gera GitHub summary
+- [ ] **[T-FR-3]** Envia Telegram se configurado
+
+**Verification:** `cat .gitea/workflows/failure-report.yml | head -15`
 
 ---
 
 ## Dependencies
 
 ```
-Task 1 (Bootstrap Emitter)
-    └── Task 2 (Pipeline Command)
-            └── Task 3 (State)
-                    └── Task 4 (Orchestrator)
-                            └── Task 5 (Phase 1)
-                                    └── Task 6 (Phase 2-5)
+Task 1 → Task 2 → Task 3 → Task 4 → Task 5 → Task 6 → Task 7 → Task 8
 ```
 
 ---
 
-## Gate Types (para Bootstrap Effect)
+## Stats
 
-| Gate | Trigger | Smoke Test |
-|------|---------|------------|
-| SECRET_MISSING | gh secret list vazio | `curl https://coolify.zappro.site/api/v1/health` |
-| HUMAN_CONFIG | Variável não setada | `gh variable list` |
-| HUMAN_APPROVAL | PR sem approval | `gh pr view --comments` |
-| MANUAL_ACTION | ZFS offline | `zpool status` |
-| BLOCKER_DETECTED | Bug ambiguous | Log excerpt |
+| # | Task | Priority |
+|---|------|----------|
+| 1 | pipeline-state.json schema | HIGH |
+| 2 | pipeline-runner.sh retry | CRITICAL |
+| 3 | auto-fix.sh | HIGH |
+| 4 | pipeline-watcher.sh | MEDIUM |
+| 5 | unblock.sh | HIGH |
+| 6 | cursor-loop-leader retry | CRITICAL |
+| 7 | TELEGRAM vars | LOW |
+| 8 | failure-report.yml | MEDIUM |
+
+---
+
+## Telegram Credentials (TEST ONLY)
+
+```
+BOT_TOKEN: 8707160343:AAEcaP-_eJS9pXxpoYzCGpsTP3j-StC55fE
+CHAT_ID: 7220607041
+```
+
+⚠️ **NOTA:** Não commit credentials.
