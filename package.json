@@ -8,11 +8,11 @@
 	"private": true,
 	"scripts": {
 		"env:sync": "node scripts/sync-env.js",
-		"build": "yarn env:sync && turbo run build",
-		"clean": "turbo run clean && rm -rf node_modules && rm -rf .yarn/cache && yarn cache clean",
+		"build": "pnpm env:sync && turbo run build",
+		"clean": "turbo run clean && rm -rf node_modules && rm -rf .pnpm-store",
 		"db:migrate": "turbo db:migrate --",
 		"db:seed": "turbo db:seed --",
-		"dev": "yarn env:sync && turbo run dev",
+		"dev": "pnpm env:sync && turbo run dev",
 		"lint": "turbo run lint",
 		"format": "biome format . --write",
 		"check-types": "turbo run check-types",
@@ -37,7 +37,7 @@
 	"engines": {
 		"node": ">=22"
 	},
-	"packageManager": "yarn@1.22.22",
+	"packageManager": "pnpm@9.0.0",
 	"workspaces": [
 		"apps/*",
 		"packages/*"
