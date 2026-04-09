@@ -1,229 +1,199 @@
-# Plan: Pipeline Runner + Bootstrap Effect System
+# Plan: Retry Loop com Auto-Recovery
 
 **Date:** 2026-04-09
 **Author:** will
 **Status:** PROPOSED
+**Spec Ref:** docs/specflow/SPEC-RETRY-LOOP.md (pending creation)
 
 ---
 
 ## Context
 
-73 tasks em pipeline.json organizadas em 5 fases. O caminho crítico começa em P001-T01 (migrar secrets OpenClaw → Infisical). O usuário quer:
-
-1. **Pipeline runner** — disparar as 73 tasks via `//pipeline`
-2. **Bootstrap effect JSON** — quando um sub-agent líder precisa de intervenção humana, entrega um smoke test/curl que simula o estado atual + lista de configurações pendentes para o humano
-3. **Human-in-the-loop inteligente** — não para "preciso de ajuda", mas entrega evidência + formulário de configuração
-
----
-
-## Architecture
-
-```
-//pipeline [task-id|phase|critical]
-├── Leader Agent (orchestrator)
-│   ├── Reads tasks/pipeline.json
-│   ├── Detects human-gate conditions
-│   └── Emits Bootstrap Effect JSON
-├── TaskExecutors (sub-agents)
-│   ├── Execute individual tasks
-│   ├── Report success/failure
-│   └── Emit checkpoint events
-└── BootstrapEffectEmitter (on human-gate)
-    ├── smoke_test: curl/health that proves current state
-    ├── pending_configs: list of values human must provide
-    └── instructions: what to do after configuring
-```
+Pipeline runner atual não tem retry. Quando falha, para e espera intervenção humana manual. O objetivo é:
+1. **Auto-retry** até 3x antes de bloquear
+2. **Auto-fix** tenta corrigir automaticamente antes do retry
+3. **Watcher** em background monitora estado e notifica via Telegram
+4. **Unblock** script para retomada limpa após intervenção humana
 
 ---
 
-## Bootstrap Effect JSON Schema
-
-```json
-{
-  "bootstrap_effect": {
-    "task_id": "P001-T01",
-    "gate_type": "HUMAN_CONFIG | APPROVAL | SECRET_MISSING | MANUAL_ACTION",
-    "smoke_test": {
-      "description": "Smoke test que prova o estado atual",
-      "command": "curl -s http://localhost:8200/health",
-      "expected_output": "healthy",
-      "current_output": "connection refused"
-    },
-    "pending_configs": [
-      {
-        "key": "OPENCLAW_GATEWAY_TOKEN",
-        "source": "Infisical vault openclaw/gateway_token",
-        "current_value": "⚠️ NOT SET",
-        "required_for": "OpenClaw CDP authentication"
-      }
-    ],
-    "human_action_required": "Configurar COOLIFY_URL + COOLIFY_API_KEY via gh secret set",
-    "verify_command": "gh secret list | grep COOLIFY"
-  }
-}
-```
-
----
-
-## Human Gate Types
-
-| Gate Type | Trigger | Bootstrap Output |
-|-----------|---------|-------------------|
-| `SECRET_MISSING` | gh secret list vazio | `curl` para testar API + keys faltantes |
-| `HUMAN_APPROVAL` | PR sem approval | `gh pr view` + merge checklist |
-| `MANUAL_ACTION` | ZFS pool offline | `zpool status` + comandos de recovery |
-| `HUMAN_CONFIG` | Variável não configurada | Form com fields + values atuais |
-| `BLOCKER_DETECTED` | Bug/erro ambiguous | Log excerpt + diagnóstico |
-
----
-
-## Dependency Graph (Critical Path)
+## Dependency Graph
 
 ```
-Phase 1: P001-T01 → T02 → T03 → T04 → T05 → T06 → T07 → T08 → T09 → T10 → T11
-                │
-                ├── (P001-T01 done) ──────────────────────────────────────────────────────────┐
-                                                                                                  │
-Phase 2: P006-T01 → T02 → T03 → T04 → T05 → T06 → T07                                          │
-         P007-T01 → T02 → T03 → T04 → T05 → T06 ◄───────────────────────────────────────────────┘
-                         │
-                         ├── (P007-T01 done) ───────────────────────────────────────────────────────────────────┐
-                                                                                                            │
-Phase 3: P010-T01 → T02 → T03 → T04 → T05 → T06 → T07 ──────────────────────────────────────────────┐      │
-         P012-T01 → T02 → T03                                                                        │      │
-         P013-T01 → T02 → T03 → T04 → T05 → T06 → T07 → T08 ◄────────────────────────────────────────┘      │
-                                                       │                                                          │
-Phase 4: P014-T01 → T02 → T03 → T04 → T05 → T06 ─────────────────────┐                                   │
-         P015-T01 → T02 → T03 → T04 → T05 → T06                      │                                   │
-                                                       │           │                                   │
-Phase 5: P011-T01 → T02 → T03 → T04 → T05 → T06 → T07 → T08 → T09 → T10 ◄───────────────────────────────┘
-         P013CEO-T01 → T02 → T03 ◄────────────────────────────────────────────────────────────────────────┘
+pipeline-runner.sh (retry logic)
+    │
+    ├── auto-fix.sh (tentativas de correção)
+    │
+    ├── pipeline-state.json (retryCount, retryHistory, humanGateRequired)
+    │
+    ├── pipeline-watcher.sh (background monitor)
+    │       │
+    │       └── Telegram notification (se configurado)
+    │
+    └── unblock.sh (retomada pós-intervenção)
+            │
+            └── cursor-loop-leader.md (retry awareness)
 ```
 
 ---
 
 ## Tasks
 
-### Task 1: Bootstrap Effect Schema + Emitter Agent
-
-**Files to create:**
-- `tasks/bootstrap-effect-schema.json` — JSON Schema for validation
-- `.claude/agents/bootstrap-effect-emitter.md` — Agent que gera Bootstrap Effect JSON
-
-**Emitter logic:**
-```python
-def detect_gate_and_emit(task_id, current_state):
-    gate_type = classify_gate(task_id, current_state)
-    smoke = run_smoke_test(task_id)
-    configs = get_pending_configs(task_id)
-    return {
-        "bootstrap_effect": {
-            "task_id": task_id,
-            "gate_type": gate_type,
-            "smoke_test": smoke,
-            "pending_configs": configs,
-            "human_action_required": format_action(configs),
-            "verify_command": get_verify_cmd(gate_type)
-        }
-    }
-```
-
-**Acceptance:** Agent retorna JSON válido conforme schema
-
----
-
-### Task 2: Pipeline Command
-
-**File:** `.claude/commands/pipeline.md`
-
-```markdown
----
-description: Execute pipeline tasks with bootstrap effect on human gates
-argument-hint: [task-id|phase|critical|status|resume|dry-run]
----
-
-Pipeline runner que executa tasks de tasks/pipeline.json.
-Cada checkpoint entre fases gera Bootstrap Effect se necessário.
-```
-
-**Interface:**
-```
-//pipeline              → dashboard
-//pipeline P001-T01     → task específica
-//pipeline phase 1     → Phase 1 completa
-//pipeline critical    → só caminho crítico
-//pipeline all         → todas (com checkpoints)
-//pipeline status      → estado atual
-//pipeline resume      → retoma do checkpoint
-//pipeline dry-run     → simula sem executar
-```
-
-**Acceptance:** `/pipeline` responde em Claude Code
-
----
-
-### Task 3: Pipeline State Machine
+### Task 1: Atualizar pipeline-state.json schema
 
 **File:** `tasks/pipeline-state.json`
 
+**Change:** Adicionar campos de retry:
 ```json
 {
-  "version": "1.0",
-  "last_checkpoint": "P001-T03",
-  "completed": ["P001-T01", "P001-T02"],
-  "failed": [],
-  "in_progress": ["P001-T03"],
-  "blocked_by": {
-    "P007-T01": {
-      "gate": "MANUAL_ACTION",
-      "bootstrap_effect": {...}
-    }
-  }
+  "version": "2.0",
+  "currentState": "IDLE",
+  "currentTask": null,
+  "lastCheckpoint": null,
+  "iterationCount": 0,
+  "maxIterations": 10,
+  "retryCount": 0,
+  "maxRetries": 3,
+  "testsPassed": false,
+  "lintPassed": false,
+  "readyToShip": false,
+  "blockedReason": null,
+  "blockedAt": null,
+  "humanGateRequired": false,
+  "humanGateReason": null,
+  "notificationSent": false,
+  "pendingTasks": [],
+  "completedTasks": [],
+  "failedTasks": [],
+  "retryHistory": []
 }
 ```
 
-**Acceptance:** State persiste entre sessões, `//pipeline resume` funciona
+**Acceptance:** `jq '.' tasks/pipeline-state.json` retorna JSON válido com novos campos
+**Verify:** `jq '.retryCount, .maxRetries, .humanGateRequired' tasks/pipeline-state.json`
 
 ---
 
-### Task 4: Orchestrator Enhancement
+### Task 2: Reescrever pipeline-runner.sh com retry
 
-**File:** `.claude/agents/orchestrator.md`
+**File:** `scripts/pipeline-runner.sh`
 
-Adds to existing orchestrator:
-- `detectHumanGate(task_id)` — inspect state before asking for help
-- `emitBootstrapEffect(task_id)` — invoke emitter on gate detection
-- `updatePipelineState(task_id, status)` — persist progress
+**Logic:**
+- `MAX_RETRIES=3` por step
+- `increment_retry()` após cada falha
+- `block_for_human()` após 3 falhas
+- `auto-fix.sh` chamado antes do retry (se TEST falhar)
+- Telegram notification se `TELEGRAM_BOT_TOKEN` configurado
 
-**Acceptance:** Orchestrator calls emitter BEFORE asking for generic help
+**Functions:**
+```bash
+update_state()       # Atualiza currentState no JSON
+increment_retry()  # Incrementa retryCount, adiciona ao retryHistory
+block_for_human()   # Marca BLOCKED_HUMAN_REQUIRED, notifica Telegram
+run_step()         # Executa step com retry loop
+```
 
----
-
-### Task 5: Phase 1 Execution (Critical Path First)
-
-**Execute:** P001-T01 through P001-T11 in order
-
-For each task:
-1. Read acceptance_criteria
-2. Execute with sub-agent if needed
-3. Verify against acceptance_criteria
-4. Update pipeline-state.json
-5. If human-gate detected → emit bootstrap effect AND STOP (don't loop asking)
-
-**Acceptance:** Phase 1 completa com pipeline-state.json atualizado
+**Acceptance:** `./scripts/pipeline-runner.sh` executa lint → test e bloqueia após 3 falhas
+**Verify:** `grep MAX_RETRIES scripts/pipeline-runner.sh` → `MAX_RETRIES=3`
 
 ---
 
-### Task 6: Phase 2-5 Parallel Execution
+### Task 3: Criar auto-fix.sh
 
-**Strategy:** Max 5 sub-agents simultaneously, phase-ordered
+**File:** `scripts/auto-fix.sh`
 
-Each phase has a "leader" sub-agent that:
-- Owns all tasks in that phase
-- Reports bootstrap effect if blocked
-- Updates pipeline-state on completion
+**Logic:**
+1. `pnpm turbo lint -- --fix`
+2. `pnpm turbo typecheck`
+3. `pnpm turbo clean` (limpa cache)
 
-**Acceptance:** All 73 tasks executed or documented with bootstrap effect
+**Acceptance:** Arquivo existe e `chmod +x`
+**Verify:** `[ -x scripts/auto-fix.sh ] && echo "OK"`
+
+---
+
+### Task 4: Criar pipeline-watcher.sh
+
+**File:** `scripts/pipeline-watcher.sh`
+
+**Logic:**
+- Loop infinito com `CHECK_INTERVAL=10`
+- Monitora `humanGateRequired` no state
+- Envia Telegram se bloqueado e `notificationSent=false`
+- Atualiza `notificationSent=true` após envio
+
+**Acceptance:** Daemon inicia e monitora sem bloquear terminal
+**Verify:** `nohup bash scripts/pipeline-watcher.sh &` → processo rodando
+
+---
+
+### Task 5: Criar unblock.sh
+
+**File:** `scripts/unblock.sh`
+
+**Logic:**
+- Reseta estado para IDLE
+- Limpa `retryCount`, `retryHistory`
+- Reseta `humanGateRequired`, `blockedReason`
+- Aceita razão da resolução como argumento
+
+**Acceptance:** Após executar, state volta para IDLE
+**Verify:** `bash scripts/unblock.sh "teste" && jq '.currentState' tasks/pipeline-state.json` → `"IDLE"`
+
+---
+
+### Task 6: Atualizar cursor-loop-leader.md
+
+**File:** `.claude/agents/cursor-loop-leader.md`
+
+**Add Section (após "Fonte de Verdade"):**
+```markdown
+## Retry e Recovery
+
+Antes de cada ciclo verificar em tasks/pipeline-state.json:
+
+- currentState = "BLOCKED_HUMAN_REQUIRED"
+  → PARAR. Executar: bash scripts/unblock.sh
+  
+- retryCount >= maxRetries
+  → Aguardar scripts/unblock.sh
+  
+- currentState = "IDLE"
+  → Ciclo normal
+```
+
+**Acceptance:** Leader para se BLOCKED_HUMAN_REQUIRED
+**Verify:** `grep -A5 "Retry e Recovery" .claude/agents/cursor-loop-leader.md`
+
+---
+
+### Task 7: Adicionar TELEGRAM vars ao .env.example
+
+**File:** `.env.example`
+
+**Append:**
+```bash
+# Pipeline notifications (opcional)
+# TELEGRAM_BOT_TOKEN=seu_bot_token_aqui
+# TELEGRAM_CHAT_ID=seu_chat_id_aqui
+```
+
+**Acceptance:** Variáveis documentadas
+**Verify:** `grep TELEGRAM .env.example`
+
+---
+
+### Task 8: Criar failure-report.yml
+
+**File:** `.gitea/workflows/failure-report.yml`
+
+**Logic:**
+- Trigger on CI workflow failure
+- Gera summary no GitHub
+- Envia Telegram se configurado
+
+**Acceptance:** Workflow existe e é válido
+**Verify:** `cat .gitea/workflows/failure-report.yml | head -10`
 
 ---
 
@@ -231,24 +201,25 @@ Each phase has a "leader" sub-agent that:
 
 | Check | Command | Expected |
 |-------|---------|----------|
-| Schema valid | `jq . tasks/bootstrap-effect-schema.json` | sem erro |
-| Command exists | `ls .claude/commands/pipeline.md` | arquivo existe |
-| Orchestrator emits | `//pipeline P001-T01` | bootstrap effect JSON |
-| State persists | `cat tasks/pipeline-state.json` | estado válido |
-| Phase 1 done | `//pipeline phase 1` | 11/11 COMPLETE |
-| Resume works | `//pipeline resume` | continua do checkpoint |
+| State schema v2 | `jq '.version' tasks/pipeline-state.json` | `"2.0"` |
+| Retry count | `jq '.retryCount' tasks/pipeline-state.json` | `0` |
+| Max retries | `grep MAX_RETRIES scripts/pipeline-runner.sh` | `MAX_RETRIES=3` |
+| auto-fix exists | `[ -f scripts/auto-fix.sh ]` | true |
+| watcher exists | `[ -f scripts/pipeline-watcher.sh ]` | true |
+| unblock exists | `[ -f scripts/unblock.sh ]` | true |
+| Leader has retry | `grep "Retry e Recovery" .claude/agents/cursor-loop-leader.md` | found |
+| Telegram in .env | `grep TELEGRAM .env.example` | found |
 
 ---
 
-## Checkpoints Entre Fases
+## Checkpoints
 
 | Checkpoint | Gate | Condição |
 |------------|------|----------|
-| Post-Phase 1 | HUMAN_CONFIG | Secrets migrados? Health checks OK? |
-| Post-Phase 2 | HUMAN_APPROVAL | OAuth profiles? Playwright passa? |
-| Post-Phase 3 | MANUAL_ACTION | Skills instaladas? Symlink corrigido? |
-| Post-Phase 4 | HUMAN_APPROVAL | CI/CD enterprise? Human gates? |
-| Post-Phase 5 | FINAL_VERIFY | CEO MIX responde? Voice 15/15? |
+| Post-Task 1 | Schema válido | `jq . tasks/pipeline-state.json` sem erro |
+| Post-Task 2 | Retry funciona | Testar com `exit 1` forçado |
+| Post-Task 5 | Unblock funciona | State reseta para IDLE |
+| Post-Task 6 | Leader para | Verifica state antes de executar |
 
 ---
 
@@ -256,13 +227,12 @@ Each phase has a "leader" sub-agent that:
 
 | Risk | Impact | Mitigation |
 |------|--------|------------|
-| Gates muito frequentes | Pipeline para demais | Threshold: skip se N gates < 3 |
-| Bootstrap effect impreciso | Humano configura errado | Dry-run antes de cada gate |
-| 73 tasks = sessão longa | Timeout | Executar em background com cron |
-| Tavily MCP falha | Research agentes falham | Context7 fallback (já implementado) |
+| Retry infinito | Loop perigoso | maxRetries=3 hardcap |
+| Telegram token inválido | Notification falha | `|| true` não bloqueia |
+| State corrupto | Pipeline para | jq validation antes de update |
 
 ---
 
-## Next Step After This Plan
+## Next Step
 
-Comitar este plano → kemudian execute Task 1 (Bootstrap Effect Schema + Agent) → Task 2 (Pipeline command) → Task 3 (State) → Task 4 (Orchestrator) → Task 5 (Phase 1) → Task 6 (Phase 2-5)
+Após aprovar: executar Tasks 1-8 em ordem. Commits atômicos por task.

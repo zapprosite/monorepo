@@ -13,7 +13,23 @@ Se task-master-ai MCP disponível:
 - taskmaster:get_task {id} → detalhe
 - taskmaster:set_task_status {id, status} → atualizar
 
-Se MCP não disponível: ler tasks/pipeline.json diretamente via Read tool.
+Se MCP não disponível: ler tasks/pipeline-state.json diretamente via Read tool.
+
+## Retry e Recovery
+
+Antes de cada ciclo verificar em tasks/pipeline-state.json:
+
+- `currentState = "BLOCKED_HUMAN_REQUIRED"`
+  → **PARAR.** Executar: `bash scripts/unblock.sh`
+
+- `retryCount >= maxRetries`
+  → **AGUARDAR.** scripts/unblock.sh antes de continuar
+
+- `currentState = "IDLE"`
+  → Ciclo normal prossegue
+
+- `currentState = "RUNNING"`
+  → Aguardar conclusão ou verificar se stuck
 
 ## Modelo por Fase
 - RESEARCH + SPEC + PLAN → `c` (Opus — máxima qualidade)
@@ -23,6 +39,7 @@ Se MCP não disponível: ler tasks/pipeline.json diretamente via Read tool.
 - currentState = "IDLE" → pegar próxima task do pipeline
 - currentState = "TEST_FAILED" → chamar cursor-loop-debug
 - currentState = "READY_TO_SHIP" → chamar cursor-loop-ship
+- currentState = "BLOCKED_HUMAN_REQUIRED" → **PARAR**, aguardando scripts/unblock.sh
 - currentState = "BLOCKED" → chamar hg (human gate)
 - iterationCount >= maxIterations → parar e reportar
 

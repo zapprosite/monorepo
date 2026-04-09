@@ -141,7 +141,8 @@
 **Docker Bridge Networks (Coolify):**
 | Rede | Subnet | Serviços |
 |------|--------|----------|
-| `qgtzrmi6771lt8l7x8rqx72f` | 10.0.19.0/24 | OpenClaw (:8080), Browser (:9222) |
+| `wbmqefxhd7vdn2dme3i6s9an` | 10.0.5.0/24 | OpenWebUI (:8080, IP 10.0.5.2) |
+| `qgtzrmi6771lt8l7x8rqx72f` | 10.0.19.0/24 | OpenClaw (:8080), Browser (:9222), wav2vec2 (:8201), wav2vec2-proxy (:8203) |
 | `bridge` | host | Kokoro (:8880), Qdrant (:6333) |
 | `zappro-lite` | docker0 (10.0.1.x) | LiteLLM Proxy (:4000) |
 
@@ -149,9 +150,12 @@
 | Serviço | IP | Rede origem | Rede destino |
 |---------|-----|------------|--------------|
 | Ollama (host) | 10.0.1.1:11434 | docker0 (10.0.1.x) | host |
+| Ollama (host) | 10.0.5.1:11434 | wbmqefxhd7vdn2dme3i6s9an | host |
 | LiteLLM Proxy | 10.0.1.1:4000 | qgtzrmi... | docker0 |
 | Kokoro TTS | 10.0.19.7:8880 | qgtzrmi... | bridge |
 | Qdrant (Coolify) | 10.0.19.5:6333 | qgtzrmi... | bridge |
+| wav2vec2 (whisper-api) | 10.0.19.8:8201 | qgtzrmi... | STT endpoint |
+| wav2vec2-proxy | 10.0.19.9:8203 | qgtzrmi... | Deepgram-to-Whisper proxy |
 | MCP Monorepo | 10.0.19.50:4006 | qgtzrmi... | host (/srv/monorepo) |
 | MCP Qdrant | 10.0.19.51:4011 | qgtzrmi... | bridge (openclaw-memory) |
 
@@ -176,7 +180,7 @@
 | zappro-litellm-db | postgres:15-alpine | :5432 | zappro-lite | ✅ healthy |
 | zappro-qdrant | qdrant/qdrant:v1.17.1 | :6333 | bridge | ✅ UP |
 | zappro-kokoro | ghcr.io/remsky/kokoro-fastapi-gpu:v0.2.2 | :8012→:8880 | bridge | ✅ UP |
-| open-webui-wbmqefx... | ghcr.io/openwebui/open-webui:main | :8080 | zappro-lite | ✅ UP |
+| open-webui-wbmqefx... | ghcr.io/openwebui/open-webui:main | :8080 | wbmqefxhd7vdn2dme3i6s9an + qgtzrmi... | ✅ UP |
 | openclaw-qgtzrmi... | coollabsio/openclaw:2026.2.6 | :4001→:8080 | qgtzrmi... | ✅ healthy |
 | browser-qgtzrmi... | coollabsio/openclaw-browser:latest | :3000-3001 | qgtzrmi... | ✅ healthy |
 | browser-y9yb5xw... | coollabsio/openclaw-browser:latest | :3000-3001 | — | ✅ healthy |
@@ -191,14 +195,17 @@
 | LiteLLM Proxy | ghcr.io/berriai/litellm:main-stable | :4000 (docker0) | zappro-lite | ✅ UP |
 | Kokoro TTS | ghcr.io/remsky/kokoro-fastapi-gpu:v0.2.2 | :8880 (bridge) | bridge | ✅ UP |
 | Qdrant (Coolify) | qdrant/qdrant:v1.17.1 | :6333 | qgtzrmi... | ✅ UP |
+| zappro-wav2vec2 | whisper-api | :8201 | qgtzrmi... | ✅ UP |
+| zappro-wav2vec2-proxy | wav2vec2-deepgram-proxy | :8203 | qgtzrmi... | ✅ UP |
 
 **Modelos disponíveis via LiteLLM (10.0.1.1:4000):**
 - `gemma4` (instruction following, via Ollama host)
 - `llava` (visão, via Ollama host)
 - `embedding-nomic` (embeddings, via Ollama host)
 
-**TTS:** Kokoro local (`http://10.0.19.6:8880/v1`) com voz `pm_santa` (PT-BR)
-**STT:** Whisper API local (:8201, 10.0.1.1:8201) — configurado via watchdog, sem Deepgram cloud
+**TTS:** Kokoro local (`http://10.0.19.7:8880/v1`) com voz `pm_santa` (PT-BR)
+**STT:** whisper-api local (`10.0.19.8:8201`) — OpenAI-compatible `/v1/audio/transcriptions`
+**STT Proxy:** wav2vec2-proxy (`10.0.19.9:8203`) — Deepgram API format → whisper-api proxy (PT-BR enhancement)
 
 ### Observability
 | Container | Imagem | Porta | Rede | Status |
