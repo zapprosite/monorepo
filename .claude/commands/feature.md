@@ -1,3 +1,7 @@
+---
+description: Cria feature branch, implementa, testa e abre PR.
+---
+
 Cria feature branch, implementa, testa e abre PR.
 Uso: /feature <descricao>
 

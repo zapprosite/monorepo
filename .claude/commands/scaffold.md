@@ -1,3 +1,7 @@
+---
+description: Cria estrutura de novo app ou package no monorepo.
+---
+
 Cria estrutura de novo app ou package no monorepo.
 Uso: /scaffold <tipo> <nome>
 Tipos: app | package

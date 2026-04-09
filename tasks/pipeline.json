@@ -3,7 +3,85 @@
   "generated": "2026-04-09",
   "phases": [
     {
-      "name": "Phase 1 — Security Foundation (SPEC-001)",
+      "name": "Phase 0 \u2014 Security Critical (2026-04-09 Audit)",
+      "tasks": [
+        {
+          "id": "P000-T01",
+          "title": "chmod 600 /data/coolify/source/.env",
+          "status": "DONE",
+          "priority": "critical",
+          "verification": "stat -c %a /data/coolify/source/.env → 600",
+          "acceptance_criteria": "File permissions are 600, not world-readable"
+        },
+        {
+          "id": "P000-T02",
+          "title": "Revoke OAuth secret GOCSPX-fgKPRDB9UcWb-i8Pr6eblXI (manual: Google Cloud Console)",
+          "status": "MANUAL",
+          "priority": "critical",
+          "verification": "curl https://oauth2.googleapis.com/tokeninfo?access_token=GOCSPX-fgKPRDB9UcWb-i8Pr6eblXI → error",
+          "acceptance_criteria": "Secret returns error at Google OAuth endpoint"
+        },
+        {
+          "id": "P000-T03",
+          "title": "Git rm --cached runner/data/.runner + add to .gitignore",
+          "status": "DONE",
+          "priority": "critical",
+          "verification": "git ls-files | grep runner/data/.runner → empty",
+          "acceptance_criteria": "runner/data/.runner not tracked in git"
+        },
+        {
+          "id": "P000-T04",
+          "title": "Rotate Gitea runner token (Gitea UI > Actions > Runners > Deregister + Re-register)",
+          "status": "BLOCKED",
+          "priority": "critical",
+          "blocked_by": [
+            "P000-T03"
+          ],
+          "verification": "docker exec zappro-gitea gitea actions run-task → new token works",
+          "acceptance_criteria": "Runner connects with new token"
+        },
+        {
+          "id": "P000-T05",
+          "title": "Rotate Grafana credentials + restrict OAuth to zappro.site only",
+          "status": "PARTIAL",
+          "priority": "critical",
+          "verification": "Grafana login works + OAuth restricted",
+          "acceptance_criteria": "New admin password + new OAuth secret in Infisical + allowlist=zappro.site",
+          "notes": "OAuth allowlist → zappro.site ✅ | Admin password rotation PENDING | OAuth secret rotation PENDING"
+        },
+        {
+          "id": "P000-T06",
+          "title": "Encrypt existing backups in /srv/backups/ with openssl",
+          "status": "DONE",
+          "priority": "critical",
+          "verification": "find /srv/backups -name '*.sql' ! -name '*.age' ! -name '*.enc' → empty",
+          "acceptance_criteria": "No plaintext .sql files in /srv/backups/"
+        },
+        {
+          "id": "P000-T07",
+          "title": "Fix coolify-sentinel: remove --privileged, use docker.sock readonly mount",
+          "status": "BLOCKED",
+          "priority": "critical",
+          "verification": "docker inspect coolify-sentinel --format '{{.HostConfig.Privileged}}' → false",
+          "acceptance_criteria": "Container not privileged, docker.sock is read-only mount",
+          "notes": "coolify-sentinel managed by Coolify API (label=coolify.managed:true) — requires Coolify UI to edit"
+        },
+        {
+          "id": "P000-T08",
+          "title": "Enable n8n basic auth + chmod 600 /home/node/.n8n/config",
+          "status": "BLOCKED",
+          "priority": "critical",
+          "blocked_by": [
+            "P000-T05"
+          ],
+          "verification": "curl -o /dev/null -w '%{http_code}' http://localhost:5678 → 401",
+          "acceptance_criteria": "n8n requires basic auth, config file is 600",
+          "notes": "Blocked by P000-T05 (needs password from rotation)"
+        }
+      ]
+    },
+    {
+      "name": "Phase 1 \u2014 Security Foundation (SPEC-001)",
       "tasks": [
         {
           "id": "P001-T01",
@@ -96,7 +174,7 @@
       ]
     },
     {
-      "name": "Phase 2 — OAuth + E2E Testing (SPEC-006, SPEC-007)",
+      "name": "Phase 2 \u2014 OAuth + E2E Testing (SPEC-006, SPEC-007)",
       "tasks": [
         {
           "id": "P006-T01",
@@ -205,7 +283,7 @@
       ]
     },
     {
-      "name": "Phase 3 — Agents Kit + CLI Integration (SPEC-010, SPEC-012, SPEC-013)",
+      "name": "Phase 3 \u2014 Agents Kit + CLI Integration (SPEC-010, SPEC-012, SPEC-013)",
       "tasks": [
         {
           "id": "P010-T01",
@@ -354,7 +432,7 @@
       ]
     },
     {
-      "name": "Phase 4 — CI/CD Enterprise (SPEC-014, SPEC-015)",
+      "name": "Phase 4 \u2014 CI/CD Enterprise (SPEC-014, SPEC-015)",
       "tasks": [
         {
           "id": "P014-T01",
@@ -455,11 +533,11 @@
       ]
     },
     {
-      "name": "Phase 5 — Complex Systems (SPEC-011, SPEC-013-CEO-MIX)",
+      "name": "Phase 5 \u2014 Complex Systems (SPEC-011, SPEC-013-CEO-MIX)",
       "tasks": [
         {
           "id": "P011-T01",
-          "title": "CEO MIX — Orquestrador Principal implementado",
+          "title": "CEO MIX \u2014 Orquestrador Principal implementado",
           "status": "PENDING",
           "priority": "critical",
           "spec_ref": "SPEC-011-openclaw-agency-reimagined.md",
@@ -564,8 +642,16 @@
       ]
     }
   ],
-  "total_pending": 73,
+  "total_pending": 75,
   "critical_path": [
+    "P000-T01",
+    "P000-T02",
+    "P000-T03",
+    "P000-T04",
+    "P000-T05",
+    "P000-T06",
+    "P000-T07",
+    "P000-T08",
     "P001-T01",
     "P001-T02",
     "P007-T01",

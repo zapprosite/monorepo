@@ -1,3 +1,7 @@
+---
+description: Analisa imagem com LLaVA local via Ollama.
+---
+
 Analisa imagem com LLaVA local via Ollama.
 
 Uso: `/img <caminho-da-imagem>`
