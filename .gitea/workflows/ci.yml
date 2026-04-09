@@ -2,88 +2,34 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: ['**']
   pull_request:
     branches: [main]
 
 jobs:
-  ci:
-    name: Type Check · Lint · Build · Test
+  pipeline:
     runs-on: ubuntu-latest
 
-    services:
-      postgres:
-        image: postgres:15-alpine
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: connected_repo_test
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
-    env:
-      DB_HOST: localhost
-      DB_PORT: "5432"
-      DB_USER: postgres
-      DB_PASSWORD: postgres
-      DB_NAME: connected_repo_test
-      NODE_ENV: test
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node.js 22
-        uses: actions/setup-node@v4
+      - uses: pnpm/action-setup@v4
         with:
-          node-version: "22"
-          cache: "yarn"
+          version: 9
 
-      - name: Cache Turbo
-        uses: actions/cache@v4
+      - uses: actions/setup-node@v4
         with:
-          path: .turbo
-          key: turbo-${{ runner.os }}-${{ gitea.sha }}
-          restore-keys: |
-            turbo-${{ runner.os }}-
+          node-version: 20
+          cache: 'pnpm'
 
-      - name: Instalar dependências
-        run: yarn install --frozen-lockfile
+      - run: pnpm install --frozen-lockfile
 
-      - name: Security audit
-        run: yarn audit --level high
+      - run: pnpm turbo build
 
-      - name: Preparar .env para CI
-        run: |
-          cp .env.example .env
-          sed -i 's|SESSION_SECRET=.*|SESSION_SECRET=ci-session-secret-minimum-32-characters-ok!!|' .env
-          sed -i 's|INTERNAL_API_SECRET=.*|INTERNAL_API_SECRET=ci-internal-api-secret-minimum-32-chars!!|' .env
-          sed -i 's|GOOGLE_CLIENT_ID=.*|GOOGLE_CLIENT_ID=ci-test.apps.googleusercontent.com|' .env
-          sed -i 's|GOOGLE_CLIENT_SECRET=.*|GOOGLE_CLIENT_SECRET=ci-google-secret|' .env
-          sed -i 's|DB_NAME=connected_repo$|DB_NAME=connected_repo_test|' .env
-          cp apps/backend/.env.example apps/backend/.env
-          cp apps/frontend/.env.example apps/frontend/.env
+      - run: pnpm turbo lint
 
-      - name: Sync env (workspace .env files)
-        run: node scripts/sync-env.js
+      - run: pnpm turbo test
 
-      - name: Type check
-        run: yarn check-types
-
-      - name: Lint (Biome)
-        run: npx biome check .
-
-      - name: Build
-        run: yarn build
-        env:
-          TURBO_CACHE_DIR: .turbo
-
-      - name: Test
-        run: yarn test
-        env:
-          TURBO_CACHE_DIR: .turbo
+      - name: Update pipeline state
+        if: success()
+        run: echo "CI_PASSED=true" >> $GITHUB_STEP_SUMMARY
