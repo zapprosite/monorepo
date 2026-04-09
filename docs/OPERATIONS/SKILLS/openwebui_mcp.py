@@ -122,10 +122,31 @@ def api_request(
             content = resp.read()
             if not content:
                 return {}
-            return json.loads(content)
+            content_str = content.decode("utf-8")
+            if "<html" in content_str.lower() and content_str.lstrip().startswith("<"):
+                raise Exception(f"Endpoint {path} returned HTML (auth required or endpoint disabled)")
+            return json.loads(content_str)
     except urllib.error.HTTPError as e:
         body = e.read().decode()
         raise Exception(f"API request failed ({e.code}): {body}")
+
+
+def api_request_raw(
+    path: str,
+    method: str = "GET",
+    data: Optional[Dict[str, Any]] = None,
+    token: Optional[str] = None,
+    timeout: int = 30
+) -> urllib.request.Request:
+    """Make raw request to OpenWebUI API, return Request object for multipart."""
+    if token is None:
+        token = get_auth_token()
+
+    headers = {"Authorization": f"Bearer {token}"}
+    body = json.dumps(data).encode() if data else None
+    url = f"{WEBUI_BASE_URL}{path}"
+
+    return urllib.request.Request(url, data=body, headers=headers, method=method)
 
 
 def api_request_stream(
@@ -206,6 +227,11 @@ def list_models() -> Dict[str, Any]:
     }
 
 
+def get_model(model_id: str) -> Dict[str, Any]:
+    """Get details of a specific model."""
+    return api_request(f"/api/v1/models/{model_id}")
+
+
 def chat(model: str, message: str, session_id: Optional[str] = None) -> Dict[str, Any]:
     """Send chat message and return the assistant's response."""
     payload = {
@@ -215,7 +241,6 @@ def chat(model: str, message: str, session_id: Optional[str] = None) -> Dict[str
     if session_id:
         payload["session_id"] = session_id
 
-    # Streaming chat for better UX
     reply = api_request_stream("/api/v1/chat/completions", method="POST", data=payload)
 
     return {
@@ -242,12 +267,15 @@ def get_users() -> Dict[str, Any]:
     }
 
 
+def get_user(user_id: str) -> Dict[str, Any]:
+    """Get a specific user by ID."""
+    return api_request(f"/api/v1/users/{user_id}")
+
+
 def transcribe_audio(audio_data: str, model: str = "whisper") -> Dict[str, Any]:
     """Transcribe audio data (base64 encoded audio file)."""
     import base64
 
-    # audio_data can be a file path or base64 data
-    # If it's a file path, read the file
     if os.path.isfile(audio_data):
         with open(audio_data, "rb") as f:
             audio_bytes = f.read()
@@ -266,6 +294,120 @@ def transcribe_audio(audio_data: str, model: str = "whisper") -> Dict[str, Any]:
     except urllib.error.HTTPError as e:
         body = e.read().decode()
         raise Exception(f"Transcription failed ({e.code}): {body}")
+
+
+def _check_html_result(result: Any, endpoint: str) -> Any:
+    """Check if result is HTML (OpenWebUI returning login page for restricted endpoints)."""
+    if isinstance(result, str) and "<html" in result.lower():
+        raise Exception(f"Endpoint {endpoint} returned HTML — admin access may be required")
+    return result
+
+
+def list_chats() -> Dict[str, Any]:
+    """List all chat conversations."""
+    result = api_request("/api/v1/chats")
+    chats = result if isinstance(result, list) else result.get("data", result.get("chats", []))
+    return {
+        "chats": [
+            {
+                "id": c.get("id", ""),
+                "title": c.get("title", ""),
+                "updated_at": c.get("updated_at", ""),
+            }
+            for c in chats
+        ]
+    }
+
+
+def get_chat(chat_id: str) -> Dict[str, Any]:
+    """Get a specific chat with full message history."""
+    return api_request(f"/api/v1/chats/{chat_id}")
+
+
+def get_config() -> Dict[str, Any]:
+    """Get OpenWebUI server configuration."""
+    result = api_request("/api/v1/config")
+    # /api/v1/config may return HTML login page if not admin - return raw result
+    if isinstance(result, dict) and "<html" in str(result).lower():
+        return {"error": "Config endpoint not accessible (admin required)", "config": result}
+    return result
+
+
+def list_collections() -> Dict[str, Any]:
+    """List knowledge collections."""
+    result = api_request("/api/v1/collections")
+    collections = result if isinstance(result, list) else result.get("data", result.get("collections", []))
+    return {"collections": collections}
+
+
+def create_collection(name: str, description: str = "") -> Dict[str, Any]:
+    """Create a new knowledge collection."""
+    payload = {"name": name}
+    if description:
+        payload["description"] = description
+    return api_request("/api/v1/collections", method="POST", data=payload)
+
+
+def list_files() -> Dict[str, Any]:
+    """List all uploaded files."""
+    result = api_request("/api/v1/files/")
+    files = result if isinstance(result, list) else result.get("data", result.get("files", []))
+    return {
+        "files": [
+            {
+                "id": f.get("id", ""),
+                "filename": f.get("filename", ""),
+                "size": f.get("size", 0),
+                "created_at": f.get("created_at", ""),
+            }
+            for f in files
+        ]
+    }
+
+
+def upload_file(file_path: str, name: str = "") -> Dict[str, Any]:
+    """Upload a file to OpenWebUI."""
+    import base64
+
+    if not os.path.isfile(file_path):
+        raise Exception(f"File not found: {file_path}")
+
+    with open(file_path, "rb") as f:
+        file_data = f.read()
+    file_b64 = base64.b64encode(file_data).decode()
+
+    filename = name or os.path.basename(file_path)
+    payload = {
+        "filename": filename,
+        "data": file_b64,
+    }
+
+    return api_request("/api/v1/files/", method="POST", data=payload)
+
+
+def get_file(file_id: str) -> Dict[str, Any]:
+    """Get file info/content by ID."""
+    return api_request(f"/api/v1/files/{file_id}")
+
+
+def get_analytics_summary() -> Dict[str, Any]:
+    """Get analytics summary."""
+    return api_request("/api/v1/analytics/summary")
+
+
+def get_analytics_models() -> Dict[str, Any]:
+    """Get per-model usage analytics."""
+    return api_request("/api/v1/analytics/models")
+
+
+def get_analytics_users() -> Dict[str, Any]:
+    """Get per-user usage analytics."""
+    return api_request("/api/v1/analytics/users")
+
+
+def share_chat(chat_id: str) -> Dict[str, Any]:
+    """Share a chat publicly."""
+    return api_request(f"/api/v1/chats/{chat_id}/share", method="POST", data={})
 
 
 # =============================================================================
@@ -335,7 +477,6 @@ class MCPHandler(BaseHTTPRequestHandler):
             return
 
         if path == "/sse":
-            # SSE endpoint for streaming - send initial connection event
             self.send_sse(sse_event("message", {"type": "connected"}))
             return
 
@@ -382,58 +523,150 @@ class MCPHandler(BaseHTTPRequestHandler):
         if method == "tools/list":
             return {
                 "tools": [
+                    # Models
                     {
                         "name": "list_models",
                         "description": "List available models from OpenWebUI",
+                        "inputSchema": {"type": "object", "properties": {}}
+                    },
+                    {
+                        "name": "get_model",
+                        "description": "Get details of a specific model by ID",
                         "inputSchema": {
                             "type": "object",
-                            "properties": {}
+                            "properties": {"model_id": {"type": "string", "description": "Model ID"}},
+                            "required": ["model_id"]
                         }
                     },
+                    # Chat
                     {
                         "name": "chat",
                         "description": "Send a chat message and get a response",
                         "inputSchema": {
                             "type": "object",
                             "properties": {
-                                "model": {
-                                    "type": "string",
-                                    "description": "Model ID to use"
-                                },
-                                "message": {
-                                    "type": "string",
-                                    "description": "Message content"
-                                },
-                                "session_id": {
-                                    "type": "string",
-                                    "description": "Optional session ID for conversation continuity"
-                                }
+                                "model": {"type": "string", "description": "Model ID to use"},
+                                "message": {"type": "string", "description": "Message content"},
+                                "session_id": {"type": "string", "description": "Optional session ID for conversation continuity"}
                             },
                             "required": ["model", "message"]
                         }
                     },
+                    # Chat History
                     {
-                        "name": "get_users",
-                        "description": "List users from OpenWebUI",
+                        "name": "list_chats",
+                        "description": "List all chat conversations",
+                        "inputSchema": {"type": "object", "properties": {}}
+                    },
+                    {
+                        "name": "get_chat",
+                        "description": "Get a specific chat with full message history",
                         "inputSchema": {
                             "type": "object",
-                            "properties": {}
+                            "properties": {"chat_id": {"type": "string", "description": "Chat ID"}},
+                            "required": ["chat_id"]
                         }
                     },
+                    {
+                        "name": "share_chat",
+                        "description": "Share a chat publicly",
+                        "inputSchema": {
+                            "type": "object",
+                            "properties": {"chat_id": {"type": "string", "description": "Chat ID to share"}},
+                            "required": ["chat_id"]
+                        }
+                    },
+                    # Users
+                    {
+                        "name": "get_users",
+                        "description": "List all users from OpenWebUI",
+                        "inputSchema": {"type": "object", "properties": {}}
+                    },
+                    {
+                        "name": "get_user",
+                        "description": "Get a specific user by ID",
+                        "inputSchema": {
+                            "type": "object",
+                            "properties": {"user_id": {"type": "string", "description": "User ID"}},
+                            "required": ["user_id"]
+                        }
+                    },
+                    # Files
+                    {
+                        "name": "list_files",
+                        "description": "List all uploaded files",
+                        "inputSchema": {"type": "object", "properties": {}}
+                    },
+                    {
+                        "name": "upload_file",
+                        "description": "Upload a file to OpenWebUI",
+                        "inputSchema": {
+                            "type": "object",
+                            "properties": {
+                                "file_path": {"type": "string", "description": "Path to the file to upload"},
+                                "name": {"type": "string", "description": "Optional name for the file"}
+                            },
+                            "required": ["file_path"]
+                        }
+                    },
+                    {
+                        "name": "get_file",
+                        "description": "Get file info/content by ID",
+                        "inputSchema": {
+                            "type": "object",
+                            "properties": {"file_id": {"type": "string", "description": "File ID"}},
+                            "required": ["file_id"]
+                        }
+                    },
+                    # Collections
+                    {
+                        "name": "list_collections",
+                        "description": "List knowledge collections",
+                        "inputSchema": {"type": "object", "properties": {}}
+                    },
+                    {
+                        "name": "create_collection",
+                        "description": "Create a new knowledge collection",
+                        "inputSchema": {
+                            "type": "object",
+                            "properties": {
+                                "name": {"type": "string", "description": "Collection name"},
+                                "description": {"type": "string", "description": "Optional description"}
+                            },
+                            "required": ["name"]
+                        }
+                    },
+                    # Config
+                    {
+                        "name": "get_config",
+                        "description": "Get OpenWebUI server configuration",
+                        "inputSchema": {"type": "object", "properties": {}}
+                    },
+                    # Analytics
+                    {
+                        "name": "get_analytics_summary",
+                        "description": "Get analytics summary (usage stats)",
+                        "inputSchema": {"type": "object", "properties": {}}
+                    },
+                    {
+                        "name": "get_analytics_models",
+                        "description": "Get per-model usage analytics",
+                        "inputSchema": {"type": "object", "properties": {}}
+                    },
+                    {
+                        "name": "get_analytics_users",
+                        "description": "Get per-user usage analytics",
+                        "inputSchema": {"type": "object", "properties": {}}
+                    },
+                    # Audio
                     {
                         "name": "transcribe_audio",
                         "description": "Transcribe audio data to text",
                         "inputSchema": {
                             "type": "object",
                             "properties": {
-                                "audio_data": {
-                                    "type": "string",
-                                    "description": "Base64 encoded audio data or path to audio file"
-                                },
-                                "model": {
-                                    "type": "string",
-                                    "description": "Transcription model (default: whisper)"
-                                }
+                                "audio_data": {"type": "string", "description": "Base64 encoded audio data or path to audio file"},
+                                "model": {"type": "string", "description": "Transcription model (default: whisper)"}
                             },
                             "required": ["audio_data"]
                         }
@@ -447,6 +680,8 @@ class MCPHandler(BaseHTTPRequestHandler):
 
             if tool_name == "list_models":
                 return list_models()
+            elif tool_name == "get_model":
+                return get_model(arguments.get("model_id", ""))
             elif tool_name == "chat":
                 return chat(
                     model=arguments.get("model", ""),
@@ -455,11 +690,43 @@ class MCPHandler(BaseHTTPRequestHandler):
                 )
             elif tool_name == "get_users":
                 return get_users()
+            elif tool_name == "get_user":
+                return get_user(arguments.get("user_id", ""))
             elif tool_name == "transcribe_audio":
                 return transcribe_audio(
                     audio_data=arguments.get("audio_data", ""),
                     model=arguments.get("model", "whisper")
                 )
+            elif tool_name == "list_chats":
+                return list_chats()
+            elif tool_name == "get_chat":
+                return get_chat(arguments.get("chat_id", ""))
+            elif tool_name == "get_config":
+                return get_config()
+            elif tool_name == "list_collections":
+                return list_collections()
+            elif tool_name == "create_collection":
+                return create_collection(
+                    name=arguments.get("name", ""),
+                    description=arguments.get("description", "")
+                )
+            elif tool_name == "list_files":
+                return list_files()
+            elif tool_name == "upload_file":
+                return upload_file(
+                    file_path=arguments.get("file_path", ""),
+                    name=arguments.get("name", "")
+                )
+            elif tool_name == "get_file":
+                return get_file(arguments.get("file_id", ""))
+            elif tool_name == "get_analytics_summary":
+                return get_analytics_summary()
+            elif tool_name == "get_analytics_models":
+                return get_analytics_models()
+            elif tool_name == "get_analytics_users":
+                return get_analytics_users()
+            elif tool_name == "share_chat":
+                return share_chat(arguments.get("chat_id", ""))
             else:
                 raise Exception(f"Unknown tool: {tool_name}")
 
@@ -468,7 +735,7 @@ class MCPHandler(BaseHTTPRequestHandler):
                 "protocolVersion": "2024-11-05",
                 "serverInfo": {
                     "name": "openwebui-mcp",
-                    "version": "1.0.0"
+                    "version": "1.1.0"
                 },
                 "capabilities": {
                     "tools": {}
@@ -494,7 +761,7 @@ def main():
     print(f"  GET  /health  - Health check", file=sys.stderr)
     print(f"  POST /mcp     - MCP RPC", file=sys.stderr)
     print(f"  GET  /sse     - SSE stream", file=sys.stderr)
-    print(f"Tools: list_models, chat, get_users, transcribe_audio", file=sys.stderr)
+    print(f"Tools: 19 (list_models, get_model, chat, list_chats, get_chat, share_chat, get_users, get_user, list_files, upload_file, get_file, list_collections, create_collection, get_config, get_analytics_summary, get_analytics_models, get_analytics_users, transcribe_audio)", file=sys.stderr)
 
     try:
         server.serve_forever()
