@@ -355,3 +355,50 @@ yarn lint
 # Sync env
 node scripts/sync-env.js
 ```
+
+---
+
+## Encoding and Localization Guidance
+
+**Regra:** Docs e UI em PT-BR. Código (variáveis, funções, classes, commits) em EN.
+
+### Antes de qualquer alteração de texto user-facing
+
+1. Verificar que o arquivo alvo usa UTF-8
+2. Confirmar que acentos portugueses renderizam corretamente
+3. Se o arquivo já exibe mojibake ou acentos quebrados — corrigir o encoding ANTES de introduzir novo texto
+
+### Escopo de verificação obrigatória
+
+Aplicar este check antes de editar:
+- Labels, títulos, descrições, tooltips
+- Tabs e linhas de tabela
+- Mensagens de validação
+- Empty states
+- Conteúdo exportado user-facing
+- Documentação gerada automaticamente
+
+### Verificação final para mudanças em PT-BR
+
+Após qualquer alteração de texto em português, confirmar que os seguintes termos
+(e similares) estão renderizando corretamente:
+
+- Projeção
+- Receita Líquida
+- Lucro Bruto
+- Configuração, Ação, Descrição, Número
+
+Estender essa verificação a exports e docs gerados quando a mudança
+introduz ou atualiza texto em português.
+
+### Padrão do repositório
+
+| Camada | Idioma |
+|--------|--------|
+| Código-fonte (vars, funções, classes, types) | 🇺🇸 English |
+| Commits e branch names | 🇺🇸 English |
+| Comentários técnicos inline | 🇺🇸 English |
+| Docs (CLAUDE.md, AGENTS.md, ADRs, runbooks) | 🇧🇷 PT-BR |
+| UI / texto user-facing | 🇧🇷 PT-BR (UTF-8) |
+| Mensagens de erro user-facing | 🇧🇷 PT-BR (UTF-8) |
+| Logs internos de sistema | 🇺🇸 English |
