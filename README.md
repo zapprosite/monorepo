@@ -1,76 +1,40 @@
-# Connected Repo
+# HVAC-R WhatsApp Swarm
 
-Full-stack monorepo — Fastify · tRPC · React 19 · Orchid ORM · PostgreSQL
+Multi-agent swarm para atendimento técnico HVAC-R via WhatsApp.
 
-## Stack
+## Status
 
-| Layer | Tech |
-|-------|------|
-| Backend | Fastify 5 + tRPC 11 |
-| Frontend | React 19 + Vite 7 + React Router 7 |
-| ORM | Orchid ORM + PostgreSQL 15 |
-| Validation | Zod 4 (shared) |
-| UI | Material-UI (@connected-repo/ui-mui) |
-| Build | Turbo 2 + Yarn workspaces |
-| Quality | Biome (lint) + TypeScript 5.9 |
+**Phase:** SPEC Draft (8 SPECs created)
 
-## Structure
+## Architecture
 
-```
-apps/
-├── api/     # Fastify API — tRPC (internal) + REST/OpenAPI (external)
-└── web/     # React SPA — tRPC client + TanStack Query
+- Go 1.23+ goroutines
+- Redis 7 (task board + state)
+- Qdrant 1.13 (vector search)
+- Gemini 2.5 Flash (LLM)
+- WhatsApp Cloud API
 
-packages/
-├── zod-schemas/       # Shared Zod schemas
-├── ui-mui/            # Material-UI components
-└── typescript-config/ # TSConfigs
-```
+## SPECs
+
+| # | Title | Status |
+|---|-------|--------|
+| SPEC-001 | Core Swarm Architecture | DRAFT |
+| SPEC-002 | Redis Task Board | DRAFT |
+| SPEC-003 | Memory Layers | DRAFT |
+| SPEC-004 | WhatsApp Integration | DRAFT |
+| SPEC-005 | RAG Pipeline | DRAFT |
+| SPEC-006 | Billing & Stripe | DRAFT |
+| SPEC-007 | Deployment | DRAFT |
+| SPEC-008 | All Agents | DRAFT |
 
 ## Quick Start
 
 ```bash
-# Install + start
-yarn install
-docker compose up -d
-yarn db -- up
-yarn dev
+make dev   # Development
+make build # Build binary
+make test  # Run tests
 ```
 
-Access:
-- Frontend: http://localhost:5173
-- API: http://localhost:4000
-- Swagger: http://localhost:4000/api/documentation
+## Reference
 
-## Commands
-
-```bash
-yarn dev        # Dev mode (all apps)
-yarn build      # Production build
-yarn test       # Tests (Vitest)
-yarn format     # Biome format
-yarn lint       # Biome lint
-yarn db -- g    # Generate migration
-yarn db -- up   # Apply migrations
-```
-
-## Adding Features
-
-1. Create SPEC: `/spec <description>`
-2. Generate tasks: `/pg`
-3. Implement following SPEC
-4. Ship: `/ship`
-
-Manual:
-1. `packages/zod-schemas/src/<entity>.zod.ts` — Zod schemas
-2. `apps/api/src/modules/<entity>/tables/<entity>.table.ts` — DB table
-3. `apps/api/src/modules/<entity>/<entity>.trpc.ts` — tRPC procedures
-4. Register in `db/db.ts` and `routers/trpc.router.ts`
-5. `yarn db -- g <name>` then `yarn db -- up`
-6. `apps/web/src/modules/<entity>/` — pages + routes
-
-See `apps/*/CLAUDE.md` for details.
-
-## License
-
-AGPL-3.0-only
+See \`REFERENCE-blueprint.md\` for full architecture (2306 lines).
