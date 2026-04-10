@@ -2,28 +2,34 @@
 
 **Status:** PASSIVE MIRROR — Do NOT edit directly
 
-This vault is a **passive mirror** of `/srv/monorepo/docs/`.
+This vault is a **read-only mirror** of `/srv/monorepo/docs/`.
+
+## Directory Structure
+
+```
+obsidian/
+├── SPECS/      # Mirrors docs/specflow/ (SPEC-*.md, ARCHITECTURE-*.md)
+├── ADRs/       # Mirrors docs/plans/ (architecture decision records)
+├── GUIDES/     # Mirrors docs/context/
+└── REFERENCE/  # Index and overview docs
+```
 
 ## Purpose
 
 Provides Obsidian-compatible view of documentation for users who prefer
 the Obsidian UI. The canonical source of truth is `docs/`.
 
-## Sync Method
-
-This is a **one-way passive mirror**. There is NO active sync.
-
-- Obsidian CLI is NOT used
-- All changes must be made in `docs/` first
-- This mirror is manually updated or accessed read-only
-
-## How to Sync (Manual)
-
-```bash
-rsync -av --delete /srv/monorepo/docs/ /srv/monorepo/obsidian/
-```
-
 ## Rule
 
 **DO NOT edit files directly in this vault.**
-**All changes belong in `docs/`.**
+**All changes belong in `docs/` — this vault syncs from there.**
+
+## How to Sync
+
+Run T08 or manually:
+```bash
+rsync -av --delete docs/specflow/ obsidian/SPECS/
+rsync -av --delete docs/plans/ obsidian/ADRs/
+rsync -av --delete docs/context/ obsidian/GUIDES/
+rsync -av --delete docs/README.md docs/index.md obsidian/REFERENCE/
+```

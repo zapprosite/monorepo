@@ -1,136 +1,187 @@
-# TODO: Retry Loop com Auto-Recovery
+# TODO: Docs Enterprise Simplification
 
-**Generated:** 2026-04-09
+**Generated:** 2026-04-10
 **Plan:** tasks/plan.md
-**Status:** PENDING — awaiting human review
+**Status:** READY TO IMPLEMENT
 
 ---
 
-## Task 1: Atualizar pipeline-state.json schema
+## T01 — Auditar docs atual ⏳
 
-**File:** `tasks/pipeline-state.json`
+**Goal:** Categorizar todos os ficheiros .md em docs/
 
-- [ ] **[T-RS-1]** Adicionar campos: retryCount, maxRetries, retryHistory, humanGateRequired, blockedReason, notificationSent
+- [ ] Listar todos os ficheiros .md em docs/
+- [ ] Categorizar: SPEC, ADR, GUIDE, REFERENCE, LEGACY
+- [ ] Identificar duplicados e órfãos
+- [ ] Output: Lista categorizada
 
-**Verification:** `jq '.retryCount, .maxRetries, .humanGateRequired' tasks/pipeline-state.json`
-
----
-
-## Task 2: Reescrever pipeline-runner.sh com retry
-
-**File:** `scripts/pipeline-runner.sh`
-
-- [ ] **[T-RR-1]** Implementar MAX_RETRIES=3
-- [ ] **[T-RR-2]** Implementar increment_retry()
-- [ ] **[T-RR-3]** Implementar block_for_human() com Telegram
-- [ ] **[T-RR-4]** Implementar run_step() com retry loop
-- [ ] **[T-RR-5]** Chamar auto-fix.sh antes de retry (se TEST falhar)
-
-**Verification:** `grep MAX_RETRIES scripts/pipeline-runner.sh` → `MAX_RETRIES=3`
+**Verification:** `find docs -name "*.md" | wc -l`
 
 ---
 
-## Task 3: Criar auto-fix.sh
+## T02 — Criar estrutura enterprise ⏳
 
-**File:** `scripts/auto-fix.sh`
+**Goal:** Criar `docs/SPECS/`, `docs/GUIDES/`, `docs/REFERENCE/`
 
-- [ ] **[T-AF-1]** `pnpm turbo lint -- --fix`
-- [ ] **[T-AF-2]** `pnpm turbo typecheck`
-- [ ] **[T-AF-3]** `pnpm turbo clean`
+- [ ] `docs/SPECS/` directory
+- [ ] `docs/GUIDES/` directory
+- [ ] `docs/REFERENCE/` directory
+- [ ] Manter `docs/ADRs/` (já existe)
 
-**Verification:** `[ -x scripts/auto-fix.sh ] && echo "OK"`
-
----
-
-## Task 4: Criar pipeline-watcher.sh
-
-**File:** `scripts/pipeline-watcher.sh`
-
-- [ ] **[T-PW-1]** Loop com CHECK_INTERVAL=10
-- [ ] **[T-PW-2]** Monitora humanGateRequired
-- [ ] **[T-PW-3]** Envia Telegram notification
-- [ ] **[T-PW-4]** Atualiza notificationSent=true
-
-**Verification:** `nohup bash scripts/pipeline-watcher.sh &` → processo rodando
+**Verification:** `ls -d docs/{SPECS,GUIDES,REFERENCE,ADRs}/`
 
 ---
 
-## Task 5: Criar unblock.sh
+## T03 — Mover SPECs para docs/SPECS ⏳
 
-**File:** `scripts/unblock.sh`
+**Goal:** Mover SPECs reais de specflow/ para SPECS/
 
-- [ ] **[T-UB-1]** Reseta currentState para IDLE
-- [ ] **[T-UB-2]** Limpa retryCount, retryHistory
-- [ ] **[T-UB-3]** Reseta humanGateRequired, blockedReason
-- [ ] **[T-UB-4]** Aceita razão como argumento
+- [ ] Identificar SPECs reais (não templates/guides)
+- [ ] `git mv docs/specflow/SPEC-*.md docs/SPECS/`
+- [ ] Ignorar: SPEC-INDEX.md, SPEC-TEMPLATE.md, SPEC-README.md
 
-**Verification:** `bash scripts/unblock.sh "teste" && jq '.currentState' tasks/pipeline-state.json` → `"IDLE"`
-
----
-
-## Task 6: Atualizar cursor-loop-leader.md
-
-**File:** `.claude/agents/cursor-loop-leader.md`
-
-- [ ] **[T-LR-1]** Adicionar seção "Retry e Recovery" após "Fonte de Verdade"
-- [ ] **[T-LR-2]** Leader para se BLOCKED_HUMAN_REQUIRED
-- [ ] **[T-LR-3]** Leader verifica retryCount antes de continuar
-
-**Verification:** `grep -A5 "Retry e Recovery" .claude/agents/cursor-loop-leader.md`
+**Verification:** `git ls-files docs/SPECS/ | wc -l`
 
 ---
 
-## Task 7: Adicionar TELEGRAM vars ao .env.example
+## T04 — Mover ADRs para docs/ADRs ⏳
 
-**File:** `.env.example`
+**Goal:** ADRs separados de SPECs
 
-- [ ] **[T-TV-1]** TELEGRAM_BOT_TOKEN comentado
-- [ ] **[T-TV-2]** TELEGRAM_CHAT_ID comentado
+- [ ] Identificar ADRs que estão em SPECs
+- [ ] `git mv` para docs/ADRs/
 
-**Verification:** `grep TELEGRAM .env.example`
-
----
-
-## Task 8: Criar failure-report.yml
-
-**File:** `.gitea/workflows/failure-report.yml`
-
-- [ ] **[T-FR-1]** Trigger on CI workflow failure
-- [ ] **[T-FR-2]** Gera GitHub summary
-- [ ] **[T-FR-3]** Envia Telegram se configurado
-
-**Verification:** `cat .gitea/workflows/failure-report.yml | head -15`
+**Verification:** `ls docs/ADRs/*.md | wc -l`
 
 ---
 
-## Dependencies
+## T05 — Mover GUIDEs para docs/GUIDES ⏳
+
+**Goal:** How-to documents separados
+
+- [ ] CANVAS-CURSOR-LOOP.md → docs/GUIDES/
+- [ ] CODE-REVIEW-GUIDE.md → docs/GUIDES/
+- [ ] voice-pipeline-loop.md → docs/GUIDES/
+- [ ] plans/PLAN-*.md → docs/GUIDES/
+
+**Verification:** `ls docs/GUIDES/*.md | wc -l`
+
+---
+
+## T06 — Mover REFERENCE para docs/REFERENCE ⏳
+
+**Goal:** Technical references separados
+
+- [ ] AI-CONTEXT.md → docs/REFERENCE/AI-CONTEXT.md
+- [ ] ARCHITECTURE-MODELS.md → docs/REFERENCE/
+- [ ] TOOLCHAIN.md → docs/REFERENCE/
+
+**Verification:** `ls docs/REFERENCE/*.md`
+
+---
+
+## T07 — Limpar folders legacy ⏳
+
+**Goal:** Remover placeholders vazios
+
+- [ ] Limpar `docs/specflow/` (mover residual)
+- [ ] Limpar `docs/plans/`
+- [ ] Limpar `docs/context/`
+- [ ] DELETE `docs/adr/` `docs/ADR/` `docs/adrs/`
+
+**Verification:** `ls docs/specflow/` deve ter só residual
+
+---
+
+## T08 — Atualizar obsidian mirror ⏳
+
+**Goal:** Sincronizar docs/ → obsidian/ (read-only)
+
+- [ ] rsync docs/SPECS/ → obsidian/SPECS/
+- [ ] rsync docs/ADRs/ → obsidian/ADRs/
+- [ ] rsync docs/GUIDES/ → obsidian/GUIDES/
+- [ ] rsync docs/REFERENCE/ → obsidian/REFERENCE/
+- [ ] README em obsidian/ explica que é espelho
+
+**Verification:** `ls obsidian/SPECS/` existe
+
+---
+
+## T09 — Criar docs/CLAUDE.md com regras ⏳
+
+**Goal:** Documentar regras de estrutura enterprise
+
+- [ ] Estrutura: SPECS/, ADRs/, GUIDES/, REFERENCE/
+- [ ] Naming conventions
+- [ ] Obsidian is read-only
+- [ ] Workflow: SPEC → ADR → GUIDE
+
+**Verification:** `cat docs/CLAUDE.md`
+
+---
+
+## T10 — Atualizar .claude/CLAUDE.md ⏳
+
+**Goal:** Main CLAUDE.md com novas paths
+
+- [ ] Secção SPECflow atualizada (SPECS/ não specflow/)
+- [ ] Remover refs a specflow/
+- [ ] Adicionar docs/REFERENCE/
+
+**Verification:** `grep "SPECS/" .claude/CLAUDE.md`
+
+---
+
+## Dependency Graph
 
 ```
-Task 1 → Task 2 → Task 3 → Task 4 → Task 5 → Task 6 → Task 7 → Task 8
+T01 (audit)
+    │
+    ├── T02 (create structure)
+    │       │
+    │       ├── T03 (move SPECs)
+    │       │       │
+    │       │       └── T04 (move ADRs)
+    │       │
+    │       ├── T05 (move GUIDEs)
+    │       │       │
+    │       │       └── T06 (move REFERENCE)
+    │       │               │
+    │       └── T07 (clean legacy)
+    │               │
+    └── T08 (obsidian sync)
+            │
+            └── T09 (CLAUDE.md rules)
+                    │
+                    └── T10 (.claude/CLAUDE.md)
 ```
 
 ---
 
-## Stats
+## Files to Migrate (SPECs → GUIDEs)
 
-| # | Task | Priority |
-|---|------|----------|
-| 1 | pipeline-state.json schema | HIGH |
-| 2 | pipeline-runner.sh retry | CRITICAL |
-| 3 | auto-fix.sh | HIGH |
-| 4 | pipeline-watcher.sh | MEDIUM |
-| 5 | unblock.sh | HIGH |
-| 6 | cursor-loop-leader retry | CRITICAL |
-| 7 | TELEGRAM vars | LOW |
-| 8 | failure-report.yml | MEDIUM |
+These specflow files are NOT specs, should go to GUIDES/:
+
+| File | Target |
+|------|--------|
+| CANVAS-CURSOR-LOOP.md | GUIDES/ |
+| CODE-REVIEW-GUIDE.md | GUIDES/ |
+| voice-pipeline-loop.md | GUIDES/ |
+| discovery.md | GUIDES/ |
+| SPEC-022-CURSOR-LOOP-CLI-SOLUTIONS.md | GUIDES/ |
+| SPEC-TEMPLATE.md | SPECS/TEMPLATE.md |
+| SPEC-INDEX.md | (delete or merge) |
+| SPEC-README.md | (delete or merge) |
+| PLAN-docs-reorganization-20260408.md | GUIDES/ |
 
 ---
 
-## Telegram Credentials (TEST ONLY)
+## Stats Estimate
 
-```
-BOT_TOKEN: 8707160343:AAEcaP-_eJS9pXxpoYzCGpsTP3j-StC55fE
-CHAT_ID: 7220607041
-```
-
-⚠️ **NOTA:** Não commit credentials.
+| Metric | Count |
+|--------|-------|
+| SPECs to move | ~30 |
+| GUIDEs to move | ~10 |
+| REFERENCE to move | ~5 |
+| Legacy to delete | ~6 dirs |
+| Obsidian to sync | ~4 dirs |

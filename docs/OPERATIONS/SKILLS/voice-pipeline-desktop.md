@@ -15,13 +15,19 @@
 | Ficheiro | Modelo | Porta | Uso |
 |----------|--------|-------|-----|
 | `voice.sh` | `llama3-portuguese-tomcat-8b-instruct-q8` | `:11434` | Correção PT-BR |
-| `speak.sh` | (não usa LLM) | — | Kokoro direto |
+| `speak.sh` | `llama3-portuguese-tomcat-8b-instruct-q8` | `:11434` | Humanização TTS PT-BR |
+
+### Voz TTS
+
+- **Voz:** `pf_dora` (feminina PT-BR) — Kokoro na porta `:8012`
+- **Anterior:** `pm_santa` (masculina)
 
 ### Sintomas de Modelo Desatualizado
 
 - STT transcreve mas correção falha
 - Texto colado fica vazio ou em inglês
 - Erro `model not found` no log
+- TTS devolve texto vazio
 
 ### Verificar Modelo Atual
 
@@ -31,12 +37,17 @@ curl -s http://localhost:11434/api/tags | jq '.models[].name'
 
 ### Para Trocar Modelo
 
-1. Editar `/home/will/Desktop/voice-pipeline/scripts/voice.sh` linha 89:
+1. Editar `/home/will/Desktop/voice-pipeline/scripts/voice.sh` — linha do payload:
 ```bash
 "model": "llama3-portuguese-tomcat-8b-instruct-q8",  # trocar aqui
 ```
 
-2. Testar:
+2. Editar `/home/will/Desktop/voice-pipeline/scripts/speak.sh` — linha do payload:
+```bash
+"model": "llama3-portuguese-tomcat-8b-instruct-q8",  # trocar aqui
+```
+
+3. Testar:
 ```bash
 bash /home/will/Desktop/voice-pipeline/scripts/voice.sh /tmp/test_audio.wav
 ```
@@ -48,7 +59,7 @@ bash /home/will/Desktop/voice-pipeline/scripts/voice.sh /tmp/test_audio.wav
 | Tecla | Script | Função |
 |-------|--------|--------|
 | **F12** | `record.sh` | Gravar voz → transcreve → Ctrl+Shift+V cola |
-| **Ctrl+Shift+C** | `speak.sh` | Texto selecionado → Kokoro → headset |
+| **Ctrl+Shift+C** | `speak.sh` | Texto selecionado → LLM humaniza → Kokoro `pf_dora` → headset |
 | **Ícone** | `voice-toggle.sh` | Clique toggle gravação |
 
 ### Hotkey Restore
@@ -61,6 +72,12 @@ Se hotkeys desaparecerem após reboot, executar:
 ```bash
 bash /home/will/Desktop/voice-pipeline/scripts/hotkey-restore.sh
 ```
+
+### Ubuntu Dock — Pinned
+
+O Voice Pipeline está pinned no Ubuntu Dock (GNOME) via:
+- Ficheiro: `~/.local/share/applications/voice-pipeline.desktop`
+- Entrada GNOME: `org.gnome.shell favorite-apps`
 
 ---
 

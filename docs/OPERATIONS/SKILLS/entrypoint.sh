@@ -58,6 +58,11 @@ else
         fi
     done
 
+    # Aliases para backward compatibility
+    if [ -n "$OPENCLAW_GATEWAY_TOKEN" ] && [ -z "$OPENCLAW_TOKEN" ]; then
+        export OPENCLAW_TOKEN="$OPENCLAW_GATEWAY_TOKEN"
+    fi
+
     echo "[entrypoint] Fetched ${fetched} secrets from Infisical" >&2
 fi
 
