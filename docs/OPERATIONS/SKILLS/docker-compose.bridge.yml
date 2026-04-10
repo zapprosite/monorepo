@@ -9,8 +9,7 @@ services:
       context: .
       dockerfile: Dockerfile.openclaw-mcp-wrapper
     container_name: openclaw-mcp-wrapper
-    ports:
-      - "3457:3457"
+    network_mode: host
     environment:
       PORT: 3457
       # Infisical secrets (set via Coolify or export before docker compose)
@@ -18,14 +17,13 @@ services:
       INFISICAL_PROJECT_ID: "${INFISICAL_PROJECT_ID:-}"
       INFISICAL_ENV: "${INFISICAL_ENV:-dev}"
       INFISICAL_SECRET_PATH: "${INFISICAL_SECRET_PATH:-/}"
-      SECRET_KEYS: "OPENCLAW_GATEWAY_TOKEN"
+      INFISICAL_DOMAIN: "${INFISICAL_DOMAIN:-http://127.0.0.1:8200}"
+      SECRET_KEYS: "OPENCLAW_GATEWAY_TOKEN,OPENCLAW_USER,OPENCLAW_PASSWORD"
       # Fallback dev only
       OPENCLAW_BASE_URL: "${OPENCLAW_BASE_URL:-http://10.0.19.4:8080}"
       OPENCLAW_TOKEN: "${OPENCLAW_GATEWAY_TOKEN:-}"
       OPENCLAW_USER: "${OPENCLAW_USER:-}"
       OPENCLAW_PASSWORD: "${OPENCLAW_PASSWORD:-}"
-    networks:
-      - qgtzrmi6771lt8l7x8rqx72f
     healthcheck:
       test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:3457/health')"]
       interval: 30s
@@ -47,8 +45,7 @@ services:
       context: .
       dockerfile: Dockerfile.openwebui-bridge-agent
     container_name: openwebui-bridge-agent
-    ports:
-      - "3456:3456"
+    network_mode: host
     environment:
       PORT: 3456
       # Infisical secrets (set via Coolify or export before docker compose)
@@ -56,13 +53,11 @@ services:
       INFISICAL_PROJECT_ID: "${INFISICAL_PROJECT_ID:-}"
       INFISICAL_ENV: "${INFISICAL_ENV:-dev}"
       INFISICAL_SECRET_PATH: "${INFISICAL_SECRET_PATH:-/}"
+      INFISICAL_DOMAIN: "${INFISICAL_DOMAIN:-http://127.0.0.1:8200}"
       SECRET_KEYS: "OPENCLAW_GATEWAY_TOKEN"
-      # Bridge agent points to the local mcp-wrapper (no auth needed between containers)
-      OPENCLAW_BASE_URL: "http://openclaw-mcp-wrapper:3457"
+      # Bridge agent points to openclaw-mcp-wrapper on host network
+      OPENCLAW_BASE_URL: "http://localhost:3457"
       OPENCLAW_TOKEN: "${OPENCLAW_GATEWAY_TOKEN:-}"
-    networks:
-      - qgtzrmi6771lt8l7x8rqx72f
-      - wbmqefxhd7vdn2dme3i6s9an
     depends_on:
       openclaw-mcp-wrapper:
         condition: service_healthy
