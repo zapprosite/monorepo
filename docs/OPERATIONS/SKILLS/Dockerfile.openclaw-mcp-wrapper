@@ -2,8 +2,13 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# Install Infisical SDK (for secret fetching at startup)
-RUN pip install --no-cache-dir infisical-python>=0.22.0
+# Install Node.js and Infisical CLI (for secret fetching at startup)
+RUN apt-get update -qq && apt-get install -y -qq curl gnupg > /dev/null 2>&1 \
+    && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - > /dev/null 2>&1 \
+    && apt-get install -y -qq nodejs > /dev/null 2>&1 \
+    && npm install -g @infisical/cli > /dev/null 2>&1 \
+    && apt-get clean > /dev/null 2>&1 \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Copy application files
 COPY openclaw_mcp_wrapper.py /app/
