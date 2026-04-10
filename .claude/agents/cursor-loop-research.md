@@ -1,6 +1,7 @@
 ---
 name: Cursor Loop Research
 description: Research agent using MCP Tavily and Context7 to find solutions for CI failures. Part of Cursor AI-like autonomous loop.
+model: cm
 ---
 
 # Cursor Loop Research Agent

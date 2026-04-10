@@ -1,6 +1,7 @@
 ---
 name: Cursor Loop Sync
 description: Triggers ai-context-sync after PR merge. Part of Cursor AI-like autonomous loop.
+model: cm
 ---
 
 # Cursor Loop Sync Agent

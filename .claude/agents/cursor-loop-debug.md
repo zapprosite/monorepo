@@ -1,6 +1,7 @@
 ---
 name: Cursor Loop Debug
 description: Runs /debug on failing code to generate fix recommendations. Part of Cursor AI-like autonomous loop.
+model: cm
 ---
 
 # Cursor Loop Debug Agent

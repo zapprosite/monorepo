@@ -1,6 +1,7 @@
 ---
 name: Cursor Loop Leader
 description: Leader orchestrator for Cursor AI-like autonomous loop. Checks Infisical secrets, validates env vars, coordinates 10 agents.
+model: cm
 ---
 
 ## Fonte de Verdade — Ler ANTES de qualquer ciclo

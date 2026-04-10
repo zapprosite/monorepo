@@ -1,6 +1,7 @@
 ---
 name: Cursor Loop Mirror
 description: Git mirror - merge to main, push to both remotes, create new random branch. Part of Cursor AI-like autonomous loop.
+model: cm
 ---
 
 # Cursor Loop Mirror Agent

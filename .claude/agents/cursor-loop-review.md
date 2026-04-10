@@ -1,6 +1,7 @@
 ---
 name: Cursor Loop Review
 description: AI code review agent - posts comments on PR, blocks if critical. Part of Cursor AI-like autonomous loop.
+model: cm
 ---
 
 # Cursor Loop Review Agent
