@@ -1,5 +1,5 @@
 {
-	"name": @repo/ui-mui",
+	"name": "@repo/ui-mui",
 	"version": "1.0.0",
 	"description": "Common Material-UI components for the monorepo",
 	"type": "module",
@@ -28,7 +28,7 @@
 		"react-hook-form": "^7.66.0"
 	},
 	"devDependencies": {
-		@repo/typescript-config": "*",
+		"@repo/typescript-config": "*",
 		"@types/react": "^19.2.2",
 		"@types/react-dom": "^19.2.2"
 	},

@@ -111,7 +111,7 @@ def list_sessions() -> Dict[str, Any]:
 
 def send_message(session_id: str, message: str) -> Dict[str, Any]:
     """Send a message to an OpenClaw session."""
-    result = invoke_tool("sessions_send_message", action="json", args={"sessionId": session_id, "message": message})
+    result = invoke_tool("sessions_send", action="json", args={"sessionKey": session_id, "message": message})
     if "error" in result or (isinstance(result, dict) and result.get("ok") == False):
         return {"error": "Message tool not available - browser may not be running"}
     return result
@@ -237,7 +237,7 @@ class MCPHandler(BaseHTTPRequestHandler):
                         "inputSchema": {
                             "type": "object",
                             "properties": {
-                                "session_id": {"type": "string", "description": "Session ID to send message to"},
+                                "session_id": {"type": "string", "description": "Session ID (sessionKey from list_sessions)"},
                                 "message": {"type": "string", "description": "Message text to send"}
                             },
                             "required": ["session_id", "message"]

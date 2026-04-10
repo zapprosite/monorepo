@@ -289,6 +289,78 @@ jobs:
 
 ---
 
+## Implementation (2026-04-10)
+
+### Scripts Created
+
+| Script | Purpose | Status |
+|--------|---------|--------|
+| `scripts/approve.sh` | Human gate polling + approval | ✅ DONE |
+| `scripts/query-gate.sh` | Query pipeline state | ✅ DONE |
+| `scripts/pipeline-state.sh` | CRUD for pipeline-state.json | ✅ DONE |
+| `scripts/bootstrap-check.sh` | Secrets verification + Bootstrap Effect JSON | ✅ DONE |
+| `scripts/bootstrap-effect.sh` | Format Bootstrap Effect for display | ✅ DONE |
+| `scripts/cursor-loop-runner.sh` | Main orchestrator | ✅ DONE |
+| `scripts/cursor-loop-research.sh` | Context7/Tavily research | ✅ DONE |
+| `scripts/cursor-loop-refactor.sh` | Auto-fix based on research | ✅ DONE |
+
+### Usage
+
+```bash
+# Check pipeline state
+bash scripts/query-gate.sh
+
+# Approve blocked pipeline
+bash scripts/approve.sh --approve
+
+# Abort blocked pipeline
+bash scripts/approve.sh --abort
+
+# Check secrets and emit Bootstrap Effect
+bash scripts/bootstrap-check.sh
+
+# Format Bootstrap Effect for display
+bash scripts/bootstrap-check.sh --json | bash scripts/bootstrap-effect.sh
+
+# Run full loop (dry-run)
+bash scripts/cursor-loop-runner.sh --dry-run
+
+# Run full loop (real)
+bash scripts/cursor-loop-runner.sh
+
+# Research an error
+bash scripts/cursor-loop-research.sh "pnpm version mismatch"
+
+# Apply fixes from research
+bash scripts/cursor-loop-refactor.sh .cursor-loop/logs/research-latest.md
+```
+
+### State Management
+
+Pipeline state is stored in `tasks/pipeline-state.json`:
+
+```bash
+# CRUD operations
+bash scripts/pipeline-state.sh create <task_id>
+bash scripts/pipeline-state.sh status
+bash scripts/pipeline-state.sh set-state RUNNING
+bash scripts/pipeline-state.sh approve
+bash scripts/pipeline-state.sh abort
+bash scripts/pipeline-state.sh reset
+```
+
+### Human Gate Flow
+
+```
+1. Pipeline blocks → humanGateRequired=true
+2. approve.sh polls every 30s (configurable)
+3. Dev runs: bash scripts/approve.sh --approve
+4. State resets → humanGateRequired=false
+5. Pipeline resumes
+```
+
+---
+
 ## Success Criteria
 
 | # | Criterion | Verification |
@@ -306,20 +378,32 @@ jobs:
 ## Boundaries
 
 ### Always do
-- Check Infisical secrets before CI run
+- Check Infisical secrets before CI run (bootstrap-check.sh)
 - Emit Bootstrap Effect on secret gap
 - Use `--force-with-lease` for git push
 - Include Co-Authored-By in commits
 - Random branch names (adjective-noun-hex format)
+- Set `COREPACK_ENABLE_STRICT=0` for pnpm version mismatches
 
 ### Ask first
 - Modify Bootstrap Effect schema
 - Change test runner (Jest → Vitest)
-- Disable any agent in the loop
+- Disable any script in the loop
 
 ### Never do
-- `--force` git push
+- `--force` git push (use `--force-with-lease`)
 - Commit secrets
 - Skip tests before ship
 - Ignore Bootstrap Effect
 - Merge without AI review approval
+- Hardcode API keys (use env vars + Infisical)
+
+### MCP Status (2026-04-10)
+
+| MCP | Status | Notes |
+|-----|--------|-------|
+| Context7 | ✅ Configurado | Usar para documentation lookup |
+| Tavily | ⚠️ Configurado (API key missing) | Adicionar TAVILY_API_KEY ao Infisical |
+| taskmaster-ai | ❌ Não instalado | Não usar como dependência |
+| GitHub | ⚠️ Via `gh` CLI | Usar tea CLI para Gitea |
+| Infisical | ⚠️ Python SDK | Não é MCP, usar diretamente |

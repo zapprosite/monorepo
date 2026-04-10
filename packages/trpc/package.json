@@ -1,5 +1,5 @@
 {
-	"name": @repo/trpc",
+	"name": "@repo/trpc",
 	"version": "1.0.0",
 	"description": "tRPC routers and client for the monorepo",
 	"type": "module",
@@ -20,7 +20,7 @@
 		"zod": "^4.1.12"
 	},
 	"devDependencies": {
-		@repo/typescript-config": "*",
+		"@repo/typescript-config": "*",
 		"@types/node": "^20.11.0"
 	},
 	"exports": {

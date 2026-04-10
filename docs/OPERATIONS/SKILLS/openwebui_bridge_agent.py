@@ -38,42 +38,45 @@ OPENCLAW_PASSWORD = os.environ.get("OPENCLAW_PASSWORD", "")
 
 
 # =============================================================================
-# OpenClaw API
+# OpenClaw MCP
 # =============================================================================
 
-def make_basic_auth() -> str:
-    """Create Basic Auth header value."""
-    credentials = f"{OPENCLAW_USER}:{OPENCLAW_PASSWORD}"
-    encoded = base64.b64encode(credentials.encode()).decode()
-    return f"Basic {encoded}"
-
-
-def api_request(
-    path: str,
-    method: str = "GET",
-    data: Optional[Dict[str, Any]] = None,
-    timeout: int = 30
-) -> Dict[str, Any]:
-    """Make request to OpenClaw API with Basic Auth."""
-    headers = {
-        "Authorization": make_basic_auth(),
-        "Content-Type": "application/json"
+def mcp_request(tool_name: str, arguments: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    """Make MCP JSON-RPC request to openclaw-mcp-wrapper."""
+    payload = {
+        "jsonrpc": "2.0",
+        "method": "tools/call",
+        "params": {
+            "name": tool_name,
+            "arguments": arguments or {}
+        },
+        "id": 1
     }
 
-    body = json.dumps(data).encode() if data else None
-    url = f"{OPENCLAW_BASE_URL}{path}"
+    body = json.dumps(payload).encode()
+    url = f"{OPENCLAW_BASE_URL}/mcp"
 
-    req = urllib.request.Request(url, data=body, headers=headers, method=method)
+    headers = {"Content-Type": "application/json"}
+    if OPENCLAW_USER and OPENCLAW_PASSWORD:
+        credentials = f"{OPENCLAW_USER}:{OPENCLAW_PASSWORD}"
+        encoded = base64.b64encode(credentials.encode()).decode()
+        headers["Authorization"] = f"Basic {encoded}"
+
+    req = urllib.request.Request(url, data=body, headers=headers, method="POST")
 
     try:
-        with urllib.request.urlopen(req, timeout=timeout) as resp:
+        with urllib.request.urlopen(req, timeout=60) as resp:
             content = resp.read()
             if not content:
                 return {}
-            return json.loads(content)
+            result = json.loads(content)
+            # Extract result or error
+            if "error" in result:
+                raise Exception(f"MCP error: {result['error']}")
+            return result.get("result", {})
     except urllib.error.HTTPError as e:
-        body = e.read().decode()
-        raise Exception(f"OpenClaw API failed ({e.code}): {body}")
+        body_e = e.read().decode()
+        raise Exception(f"OpenClaw API failed ({e.code}): {body_e}")
     except Exception as e:
         raise Exception(f"OpenClaw API error: {str(e)}")
 
@@ -86,25 +89,28 @@ def bridge_chat(message: str, session_id: Optional[str] = None) -> Dict[str, Any
     """
     Send a message to OpenClaw via send_message tool.
     Returns response in CEO MIX format.
+    Uses agent:main:main as default session.
     """
     try:
-        payload = {
-            "tool": "send_message",
-            "action": "json",
-            "args": {
-                "message": message
-            }
-        }
+        args: Dict[str, Any] = {"message": message, "session_id": session_id or "agent:main:main"}
 
-        if session_id:
-            payload["args"]["session_id"] = session_id
+        result = mcp_request("send_message", args)
 
-        result = api_request("/tools/invoke", method="POST", data=payload)
-
-        # Format response in CEO MIX style
-        response_text = result.get("response", "") or result.get("text", "") or str(result)
-        if isinstance(result, str):
-            response_text = result
+        # Extract reply from OpenClaw sessions_send response
+        # Wrapper result structure: {"ok": true, "result": {"content": [{"type": "text", "text": "{\"reply\": \"...\", ...}"}]}}
+        response_text = str(result)  # fallback
+        if isinstance(result, dict):
+            # Navigate: wrapper_result.result.content[0].text → OpenClaw JSON
+            inner_result = result.get("result", result)
+            content = inner_result.get("content", []) if isinstance(inner_result, dict) else []
+            if isinstance(content, list) and content:
+                first = content[0]
+                if isinstance(first, dict) and "text" in first:
+                    try:
+                        inner = json.loads(first["text"])
+                        response_text = inner.get("reply", inner.get("text", str(result)))
+                    except (json.JSONDecodeError, ValueError):
+                        response_text = first.get("text", str(result))
 
         return {
             "response": response_text,
@@ -124,8 +130,7 @@ def bridge_chat(message: str, session_id: Optional[str] = None) -> Dict[str, Any
 def bridge_status() -> Dict[str, Any]:
     """Check if OpenClaw is reachable and return status."""
     try:
-        # Try health endpoint
-        result = api_request("/", method="GET", timeout=5)
+        result = mcp_request("get_status")
         return {
             "status": "ok",
             "openclaw_reachable": True,
@@ -140,19 +145,14 @@ def bridge_status() -> Dict[str, Any]:
 
 
 def bridge_list_tools() -> Dict[str, Any]:
-    """List available OpenClaw tools from sessions_list result."""
+    """List available OpenClaw tools."""
     try:
-        # Invoke sessions_list to get available tools
-        result = api_request("/tools/invoke", method="POST", data={
-            "tool": "sessions_list",
-            "action": "json"
-        })
+        result = mcp_request("list_sessions")
 
         # Extract tools from sessions_list response
         tools: List[Dict[str, Any]] = []
 
         if isinstance(result, dict):
-            # Try to find tools in common structures
             sessions = result.get("sessions", result.get("data", []))
             if isinstance(sessions, list):
                 for session in sessions:
@@ -165,7 +165,6 @@ def bridge_list_tools() -> Dict[str, Any]:
                                 elif isinstance(t, str) and {"name": t} not in tools:
                                     tools.append({"name": t})
 
-        # Fallback: if no tools found, return generic list
         if not tools:
             tools = [
                 {"name": "send_message", "description": "Send a message to OpenClaw"},
