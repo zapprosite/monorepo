@@ -50,13 +50,13 @@ def api_request(
 ) -> Dict[str, Any]:
     """Make request to OpenClaw API with Bearer token auth."""
     headers = {}
-    if OPENCLAW_TOKEN:
-        headers["Authorization"] = f"Bearer {OPENCLAW_TOKEN}"
-    elif OPENCLAW_USER and OPENCLAW_PASSWORD:
-        # Fallback to Basic Auth (dev only)
+    if OPENCLAW_USER and OPENCLAW_PASSWORD:
+        # Basic Auth for nginx gate (nginx forwards Bearer to upstream)
         auth_str = f"{OPENCLAW_USER}:{OPENCLAW_PASSWORD}"
         auth_bytes = base64.b64encode(auth_str.encode()).decode()
         headers["Authorization"] = f"Basic {auth_bytes}"
+    elif OPENCLAW_TOKEN:
+        headers["Authorization"] = f"Bearer {OPENCLAW_TOKEN}"
 
     if data is not None:
         headers["Content-Type"] = "application/json"
@@ -82,9 +82,8 @@ def api_request(
 # =============================================================================
 
 def get_status() -> Dict[str, Any]:
-    """Get OpenClaw status (health check)."""
-    result = api_request("/")
-    return {"status": "ok", "openclaw": result}
+    """Get OpenClaw status (health check via sessions_list)."""
+    return invoke_tool("sessions_list", action="json", args={})
 
 
 def invoke_tool(tool: str, action: str = "json", args: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:

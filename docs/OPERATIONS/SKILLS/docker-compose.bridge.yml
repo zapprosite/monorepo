@@ -22,6 +22,8 @@ services:
       # Fallback dev only
       OPENCLAW_BASE_URL: "${OPENCLAW_BASE_URL:-http://10.0.19.4:8080}"
       OPENCLAW_TOKEN: "${OPENCLAW_GATEWAY_TOKEN:-}"
+      OPENCLAW_USER: "${OPENCLAW_USER:-}"
+      OPENCLAW_PASSWORD: "${OPENCLAW_PASSWORD:-}"
     networks:
       - qgtzrmi6771lt8l7x8rqx72f
     healthcheck:
