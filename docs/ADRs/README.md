@@ -29,6 +29,55 @@ We use the [MADR](https://adr.github.io/madr/) format (Markdown Any Decision Rec
 3. Number sequentially (001, 002, ...)
 4. Status: `proposto`, `aceito`, `depreciado`, `substituído`
 
+## Task Slicing from SPECs (09/04/2026)
+
+Cada SPEC gera slices (Must/Should/Could) que se tornam ADRs:
+
+```
+SPEC-*.md (Goals section)
+    │
+    ├── Must Have → ADR-001-NNN-mvp.md
+    ├── Should Have → ADR-002-NNN-should.md
+    └── Could Have → ADR-003-NNN-could.md
+```
+
+**Fluxo:**
+1. `/spec <descrição>` gera SPEC com slices
+2. Cada slice gera ADR em `docs/ADRs/`
+3. `/pg` gera `tasks/pipeline.json` a partir dos ADRs
+
+**ADR Naming:**
+```
+ADR-001-<spec-id>-<slice-name>.md
+ADR-002-openclaw-oauth-mvp.md
+ADR-002-openclaw-oauth-should.md
+```
+
+**Exemplo de ADR slice:**
+
+```markdown
+# ADR-NNN: [Feature] Slice — Must Have
+
+**Data:** 2026-04-09
+**Status:** proposto
+**SPEC ref:** SPEC-007-openclaw-oauth-profiles.md
+
+## Contexto
+Slice MVP do SPEC-007: OAuth profiles persistentes.
+
+## Decisão
+Implementar OAuth com tokens persistentes em cookie.
+
+## Consequências
+### Positivas
+- Login automático após primeiro acesso
+### Negativas
+- Requer renew token no background
+
+## Task Reference
+P002-T01 em tasks/pipeline.json
+```
+
 ## Index
 
 ### Legacy Numbering (0000-series)
