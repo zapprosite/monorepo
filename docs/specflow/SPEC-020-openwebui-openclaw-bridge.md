@@ -107,4 +107,4 @@ OpenWebUI (chat UI)
 - [x] entrypoint.sh com Infisical SDK
 - [x] docker-compose.bridge.yml com redes qgtzrmi + wbmqefx
 - [ ] Deploy via Coolify API (pending)
-- [ ] E2E test (pending)
+- [ ] E2E smoke test (super E2E created: smoke-bridge-stack-e2e.sh)

@@ -23,6 +23,7 @@ Comprehensive index of all operational skills for the homelab. These skills are 
 | [wav2vec2-health-check.md](wav2vec2-health-check.md) | wav2vec2 STT health | Before transcription tasks |
 | [liteLLM-usage.md](liteLLM-usage.md) | LiteLLM usage analytics | Cost monitoring |
 | [tts-bridge.md](tts-bridge.md) + [tts-bridge.py](tts-bridge.py) | Kokoro voice filter (pm_santa/pf_dora only) | Restrict TTS voices |
+| [voice-pipeline-desktop.md](voice-pipeline-desktop.md) | Voice pipeline desktop (F12, Ctrl+Shift+C, hotkeys) | Voice recording and TTS on Ubuntu desktop |
 | [openclaw-agents-kit](./openclaw-agents-kit/SKILL.md) | OpenClaw multi-agent orchestration | Create leader + sub-agent teams for any niche |
 
 ---

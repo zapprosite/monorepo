@@ -300,7 +300,7 @@ class ReuseAddrHTTPServer(HTTPServer):
     allow_reuse_address = True
 
 def main():
-    server = ReuseAddrHTTPServer(("127.0.0.1", PORT), MCPHandler)
+    server = ReuseAddrHTTPServer(("0.0.0.0", PORT), MCPHandler)
     print(f"OpenClaw MCP Wrapper running on port {PORT}", file=sys.stderr)
     print(f"OpenClaw base URL: {OPENCLAW_BASE_URL}", file=sys.stderr)
     print(f"Tools: get_status, invoke_tool, restart_browser, list_sessions, send_message, get_browser_status", file=sys.stderr)
