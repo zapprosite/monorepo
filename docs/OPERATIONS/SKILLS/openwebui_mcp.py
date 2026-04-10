@@ -410,6 +410,43 @@ def share_chat(chat_id: str) -> Dict[str, Any]:
     return api_request(f"/api/v1/chats/{chat_id}/share", method="POST", data={})
 
 
+def openclaw_bridge_chat(message: str, session_id: Optional[str] = None) -> Dict[str, Any]:
+    """Chat with OpenClaw via bridge agent - CEO MIX style responses."""
+    BRIDGE_URL = "http://localhost:3335/mcp"
+
+    payload = {
+        "jsonrpc": "2.0",
+        "method": "tools/call",
+        "params": {
+            "name": "bridge_chat",
+            "arguments": {
+                "message": message,
+                **( {"session_id": session_id} if session_id else {} )
+            }
+        },
+        "id": 1
+    }
+
+    req = urllib.request.Request(
+        BRIDGE_URL,
+        data=json.dumps(payload).encode("utf-8"),
+        headers={"Content-Type": "application/json"},
+        method="POST"
+    )
+
+    try:
+        with urllib.request.urlopen(req, timeout=60) as resp:
+            result = json.loads(resp.read().decode("utf-8"))
+            if "result" in result:
+                return result["result"]
+            if "error" in result:
+                raise Exception(f"Bridge error: {result['error']}")
+            return result
+    except urllib.error.HTTPError as e:
+        body = e.read().decode()
+        raise Exception(f"Bridge request failed ({e.code}): {body}")
+
+
 # =============================================================================
 # MCP Protocol Helpers
 # =============================================================================
@@ -670,6 +707,19 @@ class MCPHandler(BaseHTTPRequestHandler):
                             },
                             "required": ["audio_data"]
                         }
+                    },
+                    # OpenClaw Bridge
+                    {
+                        "name": "openclaw_bridge_chat",
+                        "description": "Chat with OpenClaw via bridge agent - CEO MIX style responses",
+                        "inputSchema": {
+                            "type": "object",
+                            "properties": {
+                                "message": {"type": "string", "description": "Message to send to OpenClaw"},
+                                "session_id": {"type": "string", "description": "Optional session ID"}
+                            },
+                            "required": ["message"]
+                        }
                     }
                 ]
             }
@@ -727,6 +777,11 @@ class MCPHandler(BaseHTTPRequestHandler):
                 return get_analytics_users()
             elif tool_name == "share_chat":
                 return share_chat(arguments.get("chat_id", ""))
+            elif tool_name == "openclaw_bridge_chat":
+                return openclaw_bridge_chat(
+                    message=arguments.get("message", ""),
+                    session_id=arguments.get("session_id")
+                )
             else:
                 raise Exception(f"Unknown tool: {tool_name}")
 
@@ -761,7 +816,7 @@ def main():
     print(f"  GET  /health  - Health check", file=sys.stderr)
     print(f"  POST /mcp     - MCP RPC", file=sys.stderr)
     print(f"  GET  /sse     - SSE stream", file=sys.stderr)
-    print(f"Tools: 19 (list_models, get_model, chat, list_chats, get_chat, share_chat, get_users, get_user, list_files, upload_file, get_file, list_collections, create_collection, get_config, get_analytics_summary, get_analytics_models, get_analytics_users, transcribe_audio)", file=sys.stderr)
+    print(f"Tools: 20 (list_models, get_model, chat, list_chats, get_chat, share_chat, get_users, get_user, list_files, upload_file, get_file, list_collections, create_collection, get_config, get_analytics_summary, get_analytics_models, get_analytics_users, transcribe_audio, openclaw_bridge_chat)", file=sys.stderr)
 
     try:
         server.serve_forever()
