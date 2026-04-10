@@ -1,809 +1,199 @@
 {
-  "version": "1.0",
-  "generated": "2026-04-10",
-  "phases": [
+  "tasks": [
     {
-      "name": "Phase 0 — Security Critical (2026-04-09 Audit)",
-      "tasks": [
-        {
-          "id": "P000-T01",
-          "title": "chmod 600 /data/coolify/source/.env",
-          "status": "DONE",
-          "priority": "critical",
-          "verification": "stat -c %a /data/coolify/source/.env → 600",
-          "acceptance_criteria": "File permissions are 600, not world-readable"
-        },
-        {
-          "id": "P000-T02",
-          "title": "Revoke OAuth secret GOCSPX-fgKPRDB9UcWb-i8Pr6eblXI (manual: Google Cloud Console)",
-          "status": "MANUAL",
-          "priority": "critical",
-          "verification": "curl https://oauth2.googleapis.com/tokeninfo?access_token=GOCSPX-fgKPRDB9UcWb-i8Pr6eblXI → error",
-          "acceptance_criteria": "Secret returns error at Google OAuth endpoint"
-        },
-        {
-          "id": "P000-T03",
-          "title": "Git rm --cached runner/data/.runner + add to .gitignore",
-          "status": "DONE",
-          "priority": "critical",
-          "verification": "git ls-files | grep runner/data/.runner → empty",
-          "acceptance_criteria": "runner/data/.runner not tracked in git"
-        },
-        {
-          "id": "P000-T04",
-          "title": "Rotate Gitea runner token (Gitea UI > Actions > Runners > Deregister + Re-register)",
-          "status": "BLOCKED",
-          "priority": "critical",
-          "blocked_by": ["P000-T03"],
-          "verification": "docker exec zappro-gitea gitea actions run-task → new token works",
-          "acceptance_criteria": "Runner connects with new token"
-        },
-        {
-          "id": "P000-T05",
-          "title": "Rotate Grafana credentials + restrict OAuth to zappro.site only",
-          "status": "PARTIAL",
-          "priority": "critical",
-          "verification": "Grafana login works + OAuth restricted",
-          "acceptance_criteria": "New admin password + new OAuth secret in Infisical + allowlist=zappro.site",
-          "notes": "OAuth allowlist → zappro.site ✅ | Admin password rotation PENDING | OAuth secret rotation PENDING"
-        },
-        {
-          "id": "P000-T06",
-          "title": "Encrypt existing backups in /srv/backups/ with openssl",
-          "status": "DONE",
-          "priority": "critical",
-          "verification": "find /srv/backups -name '*.sql' ! -name '*.age' ! -name '*.enc' → empty",
-          "acceptance_criteria": "No plaintext .sql files in /srv/backups/"
-        },
-        {
-          "id": "P000-T07",
-          "title": "Fix coolify-sentinel: remove --privileged, use docker.sock readonly mount",
-          "status": "BLOCKED",
-          "priority": "critical",
-          "verification": "docker inspect coolify-sentinel --format '{{.HostConfig.Privileged}}' → false",
-          "acceptance_criteria": "Container not privileged, docker.sock is read-only mount",
-          "notes": "coolify-sentinel managed by Coolify API (label=coolify.managed:true) — requires Coolify UI to edit"
-        },
-        {
-          "id": "P000-T08",
-          "title": "Enable n8n basic auth + chmod 600 /home/node/.n8n/config",
-          "status": "BLOCKED",
-          "priority": "critical",
-          "blocked_by": ["P000-T05"],
-          "verification": "curl -o /dev/null -w '%{http_code}' http://localhost:5678 → 401",
-          "acceptance_criteria": "n8n requires basic auth, config file is 600",
-          "notes": "Blocked by P000-T05 (needs password from rotation)"
-        }
-      ]
+      "id": 1,
+      "title": "Create task.go - SwarmTask struct + JSON marshaling",
+      "description": "Define SwarmTask, TaskStatus, NodeStatus types. Implement JSON marshaling/unmarshaling.",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [],
+      "subtasks": [
+        {"id": "1.1", "title": "Define SwarmTask struct with all fields", "status": "pending"},
+        {"id": "1.2", "title": "Implement JSON marshal/unmarshal", "status": "pending"},
+        {"id": "1.3", "title": "Add task status constants", "status": "pending"}
+      ],
+      "acceptanceCriteria": [],
+      "files": ["internal/swarm/task.go"],
+      "testRequired": true,
+      "specRef": "SPEC-001-core-swarm.md"
     },
     {
-      "name": "Phase 1 — Security Foundation (SPEC-001)",
-      "tasks": [
-        {
-          "id": "P001-T01",
-          "title": "Migrar secrets do OpenClaw .env para Infisical",
-          "status": "PENDING",
-          "priority": "critical",
-          "spec_ref": "SPEC-001-workflow-performatico.md",
-          "acceptance_criteria": "vault.zappro.site mostra secrets sem env vars"
-        },
-        {
-          "id": "P001-T02",
-          "title": "Criar skill audit-workflow em .claude/skills/",
-          "status": "PENDING",
-          "priority": "critical",
-          "spec_ref": "SPEC-001-workflow-performatico.md",
-          "acceptance_criteria": "Skill responde a /audit-workflow e lista log"
-        },
-        {
-          "id": "P001-T03",
-          "title": "Adicionar healthchecks ao scheduled_tasks.json",
-          "status": "PENDING",
-          "priority": "high",
-          "spec_ref": "SPEC-001-workflow-performatico.md",
-          "acceptance_criteria": "Cron job verifica health antes de executar task"
-        },
-        {
-          "id": "P001-T04",
-          "title": "Verificar BROWSER_EVALUATE_ENABLED=false no OpenClaw",
-          "status": "PENDING",
-          "priority": "high",
-          "spec_ref": "SPEC-001-workflow-performatico.md",
-          "acceptance_criteria": "docker inspect mostra false"
-        },
-        {
-          "id": "P001-T05",
-          "title": "Criar SPEC-001-workflow-performatico.md",
-          "status": "PENDING",
-          "priority": "high",
-          "spec_ref": "SPEC-001-workflow-performatico.md",
-          "acceptance_criteria": "Commit no main"
-        },
-        {
-          "id": "P001-T06",
-          "title": "Criar pipeline.json com workflow como codigo",
-          "status": "PENDING",
-          "priority": "high",
-          "spec_ref": "SPEC-001-workflow-performatico.md",
-          "acceptance_criteria": "Agent consegue ler e executar"
-        },
-        {
-          "id": "P001-T07",
-          "title": "Skill /audit-workflow funcional e documentada",
-          "status": "PENDING",
-          "priority": "high",
-          "spec_ref": "SPEC-001-workflow-performatico.md",
-          "acceptance_criteria": "/audit-workflow lista ultimas 50 medicoes"
-        },
-        {
-          "id": "P001-T08",
-          "title": "Health check script cobre todas as 3 tools",
-          "status": "PENDING",
-          "priority": "high",
-          "spec_ref": "SPEC-001-workflow-performatico.md",
-          "acceptance_criteria": "Script retorna OK/DOWN para cada tool"
-        },
-        {
-          "id": "P001-T09",
-          "title": "Cron job auto-detectar secrets plaintext",
-          "status": "PENDING",
-          "priority": "high",
-          "spec_ref": "SPEC-001-workflow-performatico.md",
-          "acceptance_criteria": "Cron detecta e envia alerta Telegram"
-        },
-        {
-          "id": "P001-T10",
-          "title": "Alerta Telegram quando tool nao reporta (>1h)",
-          "status": "PENDING",
-          "priority": "medium",
-          "spec_ref": "SPEC-001-workflow-performatico.md",
-          "acceptance_criteria": "health-check.sh detecta DOWN -> Telegram"
-        },
-        {
-          "id": "P001-T11",
-          "title": "Verification checklist SPEC-001",
-          "status": "PENDING",
-          "priority": "medium",
-          "spec_ref": "SPEC-001-workflow-performatico.md",
-          "acceptance_criteria": "Todos os itens verificados"
-        }
-      ]
+      "id": 2,
+      "title": "Create graph.go - ExecutionGraph + DAG resolver",
+      "description": "Implement ExecutionGraph with resolveReady() method. Handle node status transitions.",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [1],
+      "subtasks": [
+        {"id": "2.1", "title": "Define ExecutionGraph struct", "status": "pending"},
+        {"id": "2.2", "title": "Implement resolveReady() - find nodes with all deps completed", "status": "pending"},
+        {"id": "2.3", "title": "Implement AddNode() and AddEdge()", "status": "pending"},
+        {"id": "2.4", "title": "AddConditionalSkip() for access_control block", "status": "pending"},
+        {"id": "2.5", "title": "IsComplete() check", "status": "pending"}
+      ],
+      "acceptanceCriteria": ["AC-2"],
+      "files": ["internal/swarm/graph.go"],
+      "testRequired": true,
+      "specRef": "SPEC-001-core-swarm.md"
     },
     {
-      "name": "Phase 2 — OpenWebUI ↔ OpenClaw Bridge (SPEC-020)",
-      "tasks": [
-        {
-          "id": "P020-T01",
-          "title": "Criar Docker Compose para openclaw-mcp-wrapper (porta 3457)",
-          "status": "DONE",
-          "priority": "critical",
-          "spec_ref": "SPEC-020-openwebui-openclaw-bridge.md",
-          "acceptance_criteria": "Container corre na porta 3457, tools respondem",
-          "files": ["docs/OPERATIONS/SKILLS/Dockerfile.openclaw-mcp-wrapper"],
-          "subtasks": [
-            {"id": "P020-T01.1", "title": "Criar Dockerfile para openclaw-mcp-wrapper (python:3.11-slim, porta 3457)", "status": "done"},
-            {"id": "P020-T01.2", "title": "Adicionar healthcheck GET /health ao container", "status": "done"},
-            {"id": "P020-T01.3", "title": "Testar container standalone: docker run -p 3457:3457", "status": "done"}
-          ]
-        },
-        {
-          "id": "P020-T02",
-          "title": "Criar Docker Compose para openwebui_bridge_agent (porta 3456)",
-          "status": "DONE",
-          "priority": "critical",
-          "spec_ref": "SPEC-020-openwebui-openclaw-bridge.md",
-          "acceptance_criteria": "Container corre na porta 3456, bridge_chat funciona",
-          "files": ["docs/OPERATIONS/SKILLS/Dockerfile.openwebui-bridge-agent"],
-          "subtasks": [
-            {"id": "P020-T02.1", "title": "Criar Dockerfile para openwebui-bridge-agent (python:3.11-slim, porta 3456)", "status": "done"},
-            {"id": "P020-T02.2", "title": "Adicionar healthcheck GET /health ao container", "status": "done"},
-            {"id": "P020-T02.3", "title": "Testar container standalone: docker run -p 3456:3456", "status": "done"}
-          ]
-        },
-        {
-          "id": "P020-T03",
-          "title": "E2E test: OpenWebUI → bridge_agent → openclaw_mcp_wrapper → OpenClaw",
-          "status": "PENDING",
-          "priority": "critical",
-          "spec_ref": "SPEC-020-openwebui-openclaw-bridge.md",
-          "acceptance_criteria": "curl bridge responde com CEO MIX format"
-        },
-        {
-          "id": "P020-T04",
-          "title": "Docker compose stack: openwebui-mcp + bridge + wrapper",
-          "status": "DONE",
-          "priority": "high",
-          "spec_ref": "SPEC-020-openwebui-openclaw-bridge.md",
-          "acceptance_criteria": "docker compose up funciona com 3 containers",
-          "blocked_by": ["P020-T01", "P020-T02"],
-          "subtasks": [
-            {"id": "P020-T04.1", "title": "Criar docker-compose.yml com 3 services (bridge-agent, mcp-wrapper, internal network)", "status": "done"},
-            {"id": "P020-T04.2", "title": "Configurar depends_on e healthcheck entre containers", "status": "done"},
-            {"id": "P020-T04.3", "title": "Testar docker compose up via Coolify (deploy)", "status": "pending"},
-            {"id": "P020-T04.4", "title": "Testar docker compose logs bridge-agent", "status": "pending"}
-          ]
-        },
-        {
-          "id": "P020-T07",
-          "title": "Super E2E smoke test: smoke-bridge-stack-e2e.sh",
-          "status": "DONE",
-          "priority": "high",
-          "spec_ref": "SPEC-020-openwebui-openclaw-bridge.md",
-          "acceptance_criteria": "smoke test passes for bridge stack containers",
-          "files": ["smoke-tests/smoke-bridge-stack-e2e.sh"]
-        },
-        {
-          "id": "P020-T05",
-          "title": "Claude Code MCP lista bridge tools",
-          "status": "PENDING",
-          "priority": "high",
-          "spec_ref": "SPEC-020-openwebui-openclaw-bridge.md",
-          "acceptance_criteria": "claude mcp list mostra openwebui com 20+ tools"
-        },
-        {
-          "id": "P020-T06",
-          "title": "CEO MIX format validation nos responses",
-          "status": "PENDING",
-          "priority": "high",
-          "spec_ref": "SPEC-020-openwebui-openclaw-bridge.md",
-          "acceptance_criteria": "Respostas seguem formato CEO MIX (curto, directo)"
-        }
-      ]
+      "id": 3,
+      "title": "Create graph_builder.go - BuildMessageGraph factory",
+      "description": "Factory function to create the full WhatsApp message DAG with all 9 nodes.",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [2],
+      "subtasks": [
+        {"id": "3.1", "title": "BuildMessageGraph() - 9 nodes: intake, classifier, access_control, rag, billing, memory_pre, ranking, response, memory_post", "status": "pending"},
+        {"id": "3.2", "title": "Define edges: classifier→access_control, access_control→rag+billing+memory_pre", "status": "pending"},
+        {"id": "3.3", "title": "Define edges: rag→ranking, ranking+access_control→response, response→memory_post", "status": "pending"},
+        {"id": "3.4", "title": "Add conditional skip: access_control.block → skip rag,ranking,response,memory_post", "status": "pending"}
+      ],
+      "acceptanceCriteria": [],
+      "files": ["internal/swarm/graph_builder.go"],
+      "testRequired": true,
+      "specRef": "SPEC-001-core-swarm.md"
     },
     {
-      "name": "Phase 3 — OAuth + E2E Testing (SPEC-006, SPEC-007)",
-      "tasks": [
-        {
-          "id": "P006-T01",
-          "title": "Playwright smoke test perplexity-agent (HTTP 200)",
-          "status": "PENDING",
-          "priority": "high",
-          "spec_ref": "SPEC-006-playwright-e2e.md",
-          "acceptance_criteria": "curl localhost:4004/_stcore/health retorna 200"
-        },
-        {
-          "id": "P006-T02",
-          "title": "Playwright E2E test for search interaction",
-          "status": "PENDING",
-          "priority": "high",
-          "spec_ref": "SPEC-006-playwright-e2e.md",
-          "acceptance_criteria": "Chat input aceita texto e retorna resposta"
-        },
-        {
-          "id": "P006-T03",
-          "title": "Chrome extension testing via OpenClaw MCP protocol",
-          "status": "PENDING",
-          "priority": "high",
-          "spec_ref": "SPEC-006-playwright-e2e.md",
-          "acceptance_criteria": "WebSocket / JSON-RPC responde"
-        },
-        {
-          "id": "P006-T04",
-          "title": "CI/CD integrateable (exit 0/1)",
-          "status": "PENDING",
-          "priority": "high",
-          "spec_ref": "SPEC-006-playwright-e2e.md",
-          "acceptance_criteria": "Playwright test em CI retorna exit code valido"
-        },
-        {
-          "id": "P006-T05",
-          "title": "Screenshots on failure",
-          "status": "PENDING",
-          "priority": "medium",
-          "spec_ref": "SPEC-006-playwright-e2e.md",
-          "acceptance_criteria": "Screenshot gerado quando teste falha"
-        },
-        {
-          "id": "P006-T06",
-          "title": "Video recording on failure",
-          "status": "PENDING",
-          "priority": "low",
-          "spec_ref": "SPEC-006-playwright-e2e.md",
-          "acceptance_criteria": "Video gerado quando teste falha"
-        },
-        {
-          "id": "P006-T07",
-          "title": "Parallel execution",
-          "status": "PENDING",
-          "priority": "low",
-          "spec_ref": "SPEC-006-playwright-e2e.md",
-          "acceptance_criteria": "Testes correm em paralelo"
-        },
-        {
-          "id": "P007-T01",
-          "title": "Chrome profile persistente via host path mount",
-          "status": "PENDING",
-          "priority": "critical",
-          "spec_ref": "SPEC-007-openclaw-oauth-profiles.md",
-          "acceptance_criteria": "Perfis em /srv/data/openclaw-chrome-profiles/"
-        },
-        {
-          "id": "P007-T02",
-          "title": "Login OAuth funciona em web.zappro.site",
-          "status": "PENDING",
-          "priority": "critical",
-          "spec_ref": "SPEC-007-openclaw-oauth-profiles.md",
-          "acceptance_criteria": "Gemini + Perplexity personas funcionam"
-        },
-        {
-          "id": "P007-T03",
-          "title": "Sessoes persistem apos restart do container",
-          "status": "PENDING",
-          "priority": "critical",
-          "spec_ref": "SPEC-007-openclaw-oauth-profiles.md",
-          "acceptance_criteria": "Cookies intactos apos restart"
-        },
-        {
-          "id": "P007-T04",
-          "title": "CEO MIX navega logado via CDP",
-          "status": "PENDING",
-          "priority": "critical",
-          "spec_ref": "SPEC-007-openclaw-oauth-profiles.md",
-          "acceptance_criteria": "OpenClaw CDP consegue acessar web.zappro.site logado"
-        },
-        {
-          "id": "P007-T05",
-          "title": "CLI script perplexity-query.sh",
-          "status": "PENDING",
-          "priority": "medium",
-          "spec_ref": "SPEC-007-openclaw-oauth-profiles.md",
-          "acceptance_criteria": "./perplexity-query.sh test retorna JSON"
-        },
-        {
-          "id": "P007-T06",
-          "title": "Smoke test verificando OAuth ativo",
-          "status": "PENDING",
-          "priority": "medium",
-          "spec_ref": "SPEC-007-openclaw-oauth-profiles.md",
-          "acceptance_criteria": "Smoke test passa apos setup"
-        }
-      ]
+      "id": 4,
+      "title": "Create agents/interface.go - AgentInterface",
+      "description": "Define the interface all agents must implement.",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [],
+      "subtasks": [
+        {"id": "4.1", "title": "Define AgentInterface interface with Execute(ctx, task)", "status": "pending"},
+        {"id": "4.2", "title": "Document contract: input, output, error handling", "status": "pending"}
+      ],
+      "acceptanceCriteria": [],
+      "files": ["internal/agents/interface.go"],
+      "testRequired": false,
+      "specRef": "SPEC-001-core-swarm.md"
     },
     {
-      "name": "Phase 4 — Agents Kit + CLI Integration (SPEC-010, SPEC-012, SPEC-013)",
-      "tasks": [
-        {
-          "id": "P010-T01",
-          "title": "Criar SKILL.md openclaw-agents-kit",
-          "status": "PENDING",
-          "priority": "high",
-          "spec_ref": "SPEC-010-openclaw-agents-kit.md",
-          "acceptance_criteria": "Skill carrega quando user pede configurar OpenClaw"
-        },
-        {
-          "id": "P010-T02",
-          "title": "Criar openclaw-config-template.md",
-          "status": "PENDING",
-          "priority": "high",
-          "spec_ref": "SPEC-010-openclaw-agents-kit.md",
-          "acceptance_criteria": "Template JSON5 valido"
-        },
-        {
-          "id": "P010-T03",
-          "title": "Criar subagent-pattern.md (Leader + Sub-agents)",
-          "status": "PENDING",
-          "priority": "high",
-          "spec_ref": "SPEC-010-openclaw-agents-kit.md",
-          "acceptance_criteria": "Padrao leader/sub-agents documentado"
-        },
-        {
-          "id": "P010-T04",
-          "title": "Criar coolify-access.md",
-          "status": "PENDING",
-          "priority": "high",
-          "spec_ref": "SPEC-010-openclaw-agents-kit.md",
-          "acceptance_criteria": "38 tools MCP documentadas"
-        },
-        {
-          "id": "P010-T05",
-          "title": "Criar identity-patch.md",
-          "status": "PENDING",
-          "priority": "high",
-          "spec_ref": "SPEC-010-openclaw-agents-kit.md",
-          "acceptance_criteria": "Patch identity sem perder contexto"
-        },
-        {
-          "id": "P010-T06",
-          "title": "Criar infisical-sdk.md",
-          "status": "PENDING",
-          "priority": "medium",
-          "spec_ref": "SPEC-010-openclaw-agents-kit.md",
-          "acceptance_criteria": "SDK patterns documentados"
-        },
-        {
-          "id": "P010-T07",
-          "title": "Criar GOVERNANCE-TEMPLATE.md",
-          "status": "PENDING",
-          "priority": "high",
-          "spec_ref": "SPEC-010-openclaw-agents-kit.md",
-          "acceptance_criteria": "Template universal de governance"
-        },
-        {
-          "id": "P012-T01",
-          "title": "Scan local skills com METADATA.json",
-          "status": "PENDING",
-          "priority": "high",
-          "spec_ref": "SPEC-012-openclaw-update-discoverer.md",
-          "acceptance_criteria": "scan_local_skills() retorna skills com metadata"
-        },
-        {
-          "id": "P012-T02",
-          "title": "Inference de SKILL.md quando METADATA.json falta",
-          "status": "PENDING",
-          "priority": "high",
-          "spec_ref": "SPEC-012-openclaw-update-discoverer.md",
-          "acceptance_criteria": "Fallback para frontmatter parsing"
-        },
-        {
-          "id": "P012-T03",
-          "title": "Dual-track discovery (external + local)",
-          "status": "PENDING",
-          "priority": "high",
-          "spec_ref": "SPEC-012-openclaw-update-discoverer.md",
-          "acceptance_criteria": "Output mostra ambos EXTERNAL e LOCAL tracks"
-        },
-        {
-          "id": "P013-T01",
-          "title": "Circular symlink removed from .agent/",
-          "status": "PENDING",
-          "priority": "critical",
-          "spec_ref": "SPEC-013-UNIFIED-CLAUDE-AGENT-MONOREPO.md",
-          "acceptance_criteria": "find .agent/ -type l retorna vazio"
-        },
-        {
-          "id": "P013-T02",
-          "title": "Skills deduplicated between .claude/ and ~/.claude/",
-          "status": "PENDING",
-          "priority": "high",
-          "spec_ref": "SPEC-013-UNIFIED-CLAUDE-AGENT-MONOREPO.md",
-          "acceptance_criteria": "Sem duplicados ou conflitos"
-        },
-        {
-          "id": "P013-T03",
-          "title": "Session data archived (target < 50MB)",
-          "status": "PENDING",
-          "priority": "high",
-          "spec_ref": "SPEC-013-UNIFIED-CLAUDE-AGENT-MONOREPO.md",
-          "acceptance_criteria": "du -sh ~/.claude/projects/-srv-monorepo/ < 50MB"
-        },
-        {
-          "id": "P013-T04",
-          "title": "github/workflows deprecated (document)",
-          "status": "PENDING",
-          "priority": "medium",
-          "spec_ref": "SPEC-013-UNIFIED-CLAUDE-AGENT-MONOREPO.md",
-          "acceptance_criteria": "Documentacao de deprecacao existente"
-        },
-        {
-          "id": "P013-T05",
-          "title": "Human gates configured in Gitea environments",
-          "status": "PENDING",
-          "priority": "critical",
-          "spec_ref": "SPEC-013-UNIFIED-CLAUDE-AGENT-MONOREPO.md",
-          "acceptance_criteria": "Gitea environment exige aprovacao humana"
-        },
-        {
-          "id": "P013-T06",
-          "title": "AI review workflow tested with test PR",
-          "status": "PENDING",
-          "priority": "high",
-          "spec_ref": "SPEC-013-UNIFIED-CLAUDE-AGENT-MONOREPO.md",
-          "acceptance_criteria": "Test PR recebe review comments"
-        },
-        {
-          "id": "P013-T07",
-          "title": "Commands tested end-to-end (/feature, /ship, /turbo)",
-          "status": "PENDING",
-          "priority": "high",
-          "spec_ref": "SPEC-013-UNIFIED-CLAUDE-AGENT-MONOREPO.md",
-          "acceptance_criteria": "Todos os comandos funcionam corretamente"
-        },
-        {
-          "id": "P013-T08",
-          "title": "SPEC-013-UNIFIED-CLAUDE-AGENT-MONOREPO checklist",
-          "status": "PENDING",
-          "priority": "medium",
-          "spec_ref": "SPEC-013-UNIFIED-CLAUDE-AGENT-MONOREPO.md",
-          "acceptance_criteria": "Todas as tasks verificadas"
-        }
-      ]
+      "id": 5,
+      "title": "Create worker.go - SwarmWorker loop",
+      "description": "Implement SwarmWorker with infinite loop: claim → execute → heartbeat.",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [1, 4],
+      "subtasks": [
+        {"id": "5.1", "title": "Define SwarmWorker struct with Redis, Agent, queues", "status": "pending"},
+        {"id": "5.2", "title": "Implement Run() - infinite loop until ctx.Done()", "status": "pending"},
+        {"id": "5.3", "title": "Implement claimTask() - BRPOP + work-stealing fallback", "status": "pending"},
+        {"id": "5.4", "title": "Implement executeTask() - call Agent.Execute(), handle result/error", "status": "pending"},
+        {"id": "5.5", "title": "Implement heartbeatLoop() - SETEX every 5s", "status": "pending"},
+        {"id": "5.6", "title": "Implement handleFailure() - retry or dead-letter", "status": "pending"},
+        {"id": "5.7", "title": "Register/deregister in agent registry", "status": "pending"}
+      ],
+      "acceptanceCriteria": ["AC-1"],
+      "files": ["internal/swarm/worker.go"],
+      "testRequired": true,
+      "specRef": "SPEC-001-core-swarm.md"
     },
     {
-      "name": "Phase 5 — CI/CD Enterprise (SPEC-014, SPEC-015)",
-      "tasks": [
-        {
-          "id": "P014-T01",
-          "title": "AI review gate implemented in .gitea/workflows/ai-review.yml",
-          "status": "PENDING",
-          "priority": "critical",
-          "spec_ref": "SPEC-014-CURSOR-AI-CICD-PATTERN.md",
-          "acceptance_criteria": "Workflow corre em PRs"
-        },
-        {
-          "id": "P014-T02",
-          "title": "Cursor CLI authenticated in Gitea Secrets",
-          "status": "PENDING",
-          "priority": "critical",
-          "spec_ref": "SPEC-014-CURSOR-AI-CICD-PATTERN.md",
-          "acceptance_criteria": "CURSOR_API_KEY configurado em secrets"
-        },
-        {
-          "id": "P014-T03",
-          "title": "Human gates documented and enforced",
-          "status": "PENDING",
-          "priority": "high",
-          "spec_ref": "SPEC-014-CURSOR-AI-CICD-PATTERN.md",
-          "acceptance_criteria": "Documentacao completa e gates funcionais"
-        },
-        {
-          "id": "P014-T04",
-          "title": "TaskMaster evaluated for TDD autopilot",
-          "status": "PENDING",
-          "priority": "medium",
-          "spec_ref": "SPEC-014-CURSOR-AI-CICD-PATTERN.md",
-          "acceptance_criteria": "Avaliacao concluida com decisao"
-        },
-        {
-          "id": "P014-T05",
-          "title": "Lovable/Bolt patterns reviewed for potential adoption",
-          "status": "PENDING",
-          "priority": "low",
-          "spec_ref": "SPEC-014-CURSOR-AI-CICD-PATTERN.md",
-          "acceptance_criteria": "Review documentado"
-        },
-        {
-          "id": "P014-T06",
-          "title": "Security review of AI agent permissions",
-          "status": "PENDING",
-          "priority": "high",
-          "spec_ref": "SPEC-014-CURSOR-AI-CICD-PATTERN.md",
-          "acceptance_criteria": "Review de seguranca completo"
-        },
-        {
-          "id": "P015-T01",
-          "title": "ephemeral runner pattern implemented",
-          "status": "PENDING",
-          "priority": "high",
-          "spec_ref": "SPEC-015-GITEA-ACTIONS-ENTERPRISE.md",
-          "acceptance_criteria": "Runner limpa after cada job"
-        },
-        {
-          "id": "P015-T02",
-          "title": "act_runner pool configured",
-          "status": "PENDING",
-          "priority": "high",
-          "spec_ref": "SPEC-015-GITEA-ACTIONS-ENTERPRISE.md",
-          "acceptance_criteria": "Pool de runners funcional"
-        },
-        {
-          "id": "P015-T03",
-          "title": "Deploy workflow with rollback implemented",
-          "status": "PENDING",
-          "priority": "high",
-          "spec_ref": "SPEC-015-GITEA-ACTIONS-ENTERPRISE.md",
-          "acceptance_criteria": "Rollback funciona em failure"
-        },
-        {
-          "id": "P015-T04",
-          "title": "CI workflow implemented",
-          "status": "PENDING",
-          "priority": "high",
-          "spec_ref": "SPEC-015-GITEA-ACTIONS-ENTERPRISE.md",
-          "acceptance_criteria": "CI passa em todos os PRs"
-        },
-        {
-          "id": "P015-T05",
-          "title": "Code review workflow with approval gates",
-          "status": "PENDING",
-          "priority": "high",
-          "spec_ref": "SPEC-015-GITEA-ACTIONS-ENTERPRISE.md",
-          "acceptance_criteria": "Human approval gate configurado"
-        },
-        {
-          "id": "P015-T06",
-          "title": "Infisical integration for secrets",
-          "status": "PENDING",
-          "priority": "high",
-          "spec_ref": "SPEC-015-GITEA-ACTIONS-ENTERPRISE.md",
-          "acceptance_criteria": "Secrets lidos do Infisical em workflows"
-        }
-      ]
+      "id": 6,
+      "title": "Create controller.go - Scheduler + OrphanWatchdog + Rebalancer",
+      "description": "Main controller: scheduler tick, orphan watchdog, rebalance loop.",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [2, 3, 5],
+      "subtasks": [
+        {"id": "6.1", "title": "Define SwarmController struct with Redis + registry", "status": "pending"},
+        {"id": "6.2", "title": "Implement SchedulerLoop() - 10ms tick, resolveReady(), enqueueNode()", "status": "pending"},
+        {"id": "6.3", "title": "Implement OrphanWatchdog() - 10s tick, detect dead workers, redistribute tasks", "status": "pending"},
+        {"id": "6.4", "title": "Implement RebalanceLoop() - 30s tick, detect congestion", "status": "pending"},
+        {"id": "6.5", "title": "Implement MetricsCollector() - 5s tick", "status": "pending"},
+        {"id": "6.6", "title": "ProcessEvent() - handle task_completed, propagate output, evaluate conditions", "status": "pending"}
+      ],
+      "acceptanceCriteria": ["AC-3"],
+      "files": ["internal/swarm/controller.go"],
+      "testRequired": true,
+      "specRef": "SPEC-001-core-swarm.md"
     },
     {
-      "name": "Phase 6 — Voice Pipeline + Auto-Healer (SPEC-016, SPEC-017)",
-      "tasks": [
-        {
-          "id": "P016-T01",
-          "title": "voice-pipeline-loop.sh orchestrator",
-          "status": "PENDING",
-          "priority": "critical",
-          "spec_ref": "SPEC-016-voice-pipeline-cursor-loop.md",
-          "acceptance_criteria": "Script executa a cada 5 min via cron"
-        },
-        {
-          "id": "P016-T02",
-          "title": "Smoke test integration (pipeline-openclaw-voice.sh)",
-          "status": "PENDING",
-          "priority": "critical",
-          "spec_ref": "SPEC-016-voice-pipeline-cursor-loop.md",
-          "acceptance_criteria": "Loop executa smoke test e parse results"
-        },
-        {
-          "id": "P016-T03",
-          "title": "Auto-heal rules (TTS Bridge, OpenClaw, wav2vec2)",
-          "status": "PENDING",
-          "priority": "critical",
-          "spec_ref": "SPEC-016-voice-pipeline-cursor-loop.md",
-          "acceptance_criteria": "Auto-heal tenta recover antes de alerta"
-        },
-        {
-          "id": "P016-T04",
-          "title": "Telegram alerts com screenshot on failure",
-          "status": "PENDING",
-          "priority": "critical",
-          "spec_ref": "SPEC-016-voice-pipeline-cursor-loop.md",
-          "acceptance_criteria": "Alerta enviado quando heal falha"
-        },
-        {
-          "id": "P016-T05",
-          "title": "Log estruturado em /srv/monorepo/logs/voice-pipeline/",
-          "status": "PENDING",
-          "priority": "high",
-          "spec_ref": "SPEC-016-voice-pipeline-cursor-loop.md",
-          "acceptance_criteria": "Logs estruturados com timestamps"
-        },
-        {
-          "id": "P017-T01",
-          "title": "Docker deployment voice-api",
-          "status": "PENDING",
-          "priority": "high",
-          "spec_ref": "SPEC-017-voice-api-deploy.md",
-          "acceptance_criteria": "Container voice-api operacional"
-        },
-        {
-          "id": "P017-T02",
-          "title": "wav2vec2 API deployment",
-          "status": "PENDING",
-          "priority": "high",
-          "spec_ref": "SPEC-017-voice-api-deploy.md",
-          "acceptance_criteria": "wav2vec2 API responde na porta"
-        }
-      ]
+      "id": 7,
+      "title": "Create board.go - SSE dashboard endpoint",
+      "description": "HTTP handler for /api/swarm/board with Server-Sent Events.",
+      "status": "pending",
+      "priority": "medium",
+      "dependencies": [6],
+      "subtasks": [
+        {"id": "7.1", "title": "GET /api/swarm/board - SSE stream", "status": "pending"},
+        {"id": "7.2", "title": "GET /api/swarm/board/snapshot - initial state", "status": "pending"},
+        {"id": "7.3", "title": "Subscribe to Redis Pub/Sub channels", "status": "pending"},
+        {"id": "7.4", "title": "GET /api/swarm/graphs/:id - graph status", "status": "pending"}
+      ],
+      "acceptanceCriteria": ["AC-4"],
+      "files": ["internal/swarm/board.go"],
+      "testRequired": true,
+      "specRef": "SPEC-001-core-swarm.md"
     },
     {
-      "name": "Phase 7 — Complex Systems (SPEC-011, SPEC-013-CEO-MIX)",
-      "tasks": [
-        {
-          "id": "P011-T01",
-          "title": "CEO MIX — Orquestrador Principal implementado",
-          "status": "PENDING",
-          "priority": "critical",
-          "spec_ref": "SPEC-011-openclaw-agency-reimagined.md",
-          "acceptance_criteria": "CEO MIX responde a comandos basicos"
-        },
-        {
-          "id": "P011-T02",
-          "title": "EDITOR DE VIDEO agent implementado",
-          "status": "PENDING",
-          "priority": "high",
-          "spec_ref": "SPEC-011-openclaw-agency-reimagined.md",
-          "acceptance_criteria": "Agent consegue processar video"
-        },
-        {
-          "id": "P011-T03",
-          "title": "ORGANIZADOR agent implementado",
-          "status": "PENDING",
-          "priority": "high",
-          "spec_ref": "SPEC-011-openclaw-agency-reimagined.md",
-          "acceptance_criteria": "Agent cria estrutura de pastas"
-        },
-        {
-          "id": "P011-T04",
-          "title": "ONBOARDING agent flow implementado",
-          "status": "PENDING",
-          "priority": "high",
-          "spec_ref": "SPEC-011-openclaw-agency-reimagined.md",
-          "acceptance_criteria": "Fluxo de onboarding completo funciona"
-        },
-        {
-          "id": "P011-T05",
-          "title": "CREATIVE (Copywriter) agent implementado",
-          "status": "PENDING",
-          "priority": "medium",
-          "spec_ref": "SPEC-011-openclaw-agency-reimagined.md",
-          "acceptance_criteria": "Agent gera copy persuasivo"
-        },
-        {
-          "id": "P011-T06",
-          "title": "DESIGN agent implementado",
-          "status": "PENDING",
-          "priority": "medium",
-          "spec_ref": "SPEC-011-openclaw-agency-reimagined.md",
-          "acceptance_criteria": "Agent acessa assets e paleta de cores"
-        },
-        {
-          "id": "P011-T07",
-          "title": "SOCIAL MEDIA agent implementado",
-          "status": "PENDING",
-          "priority": "medium",
-          "spec_ref": "SPEC-011-openclaw-agency-reimagined.md",
-          "acceptance_criteria": "Agent gerencia calendario de posts"
-        },
-        {
-          "id": "P011-T08",
-          "title": "PROJECT MANAGER agent implementado",
-          "status": "PENDING",
-          "priority": "medium",
-          "spec_ref": "SPEC-011-openclaw-agency-reimagined.md",
-          "acceptance_criteria": "Agent atualiza TaskBoard em Canvas"
-        },
-        {
-          "id": "P011-T09",
-          "title": "Qdrant collections schema implementado",
-          "status": "PENDING",
-          "priority": "high",
-          "spec_ref": "SPEC-011-openclaw-agency-reimagined.md",
-          "acceptance_criteria": "Colecoes rag_governance, assets, clients operacionais"
-        },
-        {
-          "id": "P011-T10",
-          "title": "Router de agentes configurado",
-          "status": "PENDING",
-          "priority": "critical",
-          "spec_ref": "SPEC-011-openclaw-agency-reimagined.md",
-          "acceptance_criteria": "Tabela de decisao de roteamento funciona"
-        },
-        {
-          "id": "P013CEO-T01",
-          "title": "CEO MIX voice stack STT configurado (wav2vec2 :8201)",
-          "status": "PENDING",
-          "priority": "critical",
-          "spec_ref": "SPEC-013-openclaw-ceo-mix-voice-stack.md",
-          "acceptance_criteria": "Transcricao de audio funciona via wav2vec2"
-        },
-        {
-          "id": "P013CEO-T02",
-          "title": "CEO MIX TTS Bridge configurado (:8013)",
-          "status": "PENDING",
-          "priority": "critical",
-          "spec_ref": "SPEC-013-openclaw-ceo-mix-voice-stack.md",
-          "acceptance_criteria": "TTS funciona com pm_santa e pf_dora"
-        },
-        {
-          "id": "P013CEO-T03",
-          "title": "CEO MIX VL configurado (litellm/llava)",
-          "status": "PENDING",
-          "priority": "high",
-          "spec_ref": "SPEC-013-openclaw-ceo-mix-voice-stack.md",
-          "acceptance_criteria": "Image understanding funciona"
-        }
-      ]
+      "id": 8,
+      "title": "Update cmd/swarm/main.go - Bootstrap complete",
+      "description": "Wire everything together: load config, connect Redis, spawn workers, start controller, HTTP server.",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [5, 6, 7],
+      "subtasks": [
+        {"id": "8.1", "title": "Load config from environment", "status": "pending"},
+        {"id": "8.2", "title": "Connect to Redis", "status": "pending"},
+        {"id": "8.3", "title": "Load agents.json config", "status": "pending"},
+        {"id": "8.4", "title": "Spawn workers (goroutines)", "status": "pending"},
+        {"id": "8.5", "title": "Start controller loops (scheduler, watchdog, rebalancer)", "status": "pending"},
+        {"id": "8.6", "title": "Start HTTP server on :8080", "status": "pending"},
+        {"id": "8.7", "title": "Graceful shutdown on SIGTERM", "status": "pending"}
+      ],
+      "acceptanceCriteria": [],
+      "files": ["cmd/swarm/main.go"],
+      "testRequired": false,
+      "specRef": "SPEC-001-core-swarm.md"
+    },
+    {
+      "id": 9,
+      "title": "Write unit tests for graph.go",
+      "description": "Test ExecutionGraph resolveReady() logic with mock nodes.",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [2],
+      "subtasks": [
+        {"id": "9.1", "title": "Test resolveReady() with no dependencies", "status": "pending"},
+        {"id": "9.2", "title": "Test resolveReady() waits for dependencies", "status": "pending"},
+        {"id": "9.3", "title": "Test resolveReady() with parallel nodes (rag+billing+memory_pre)", "status": "pending"},
+        {"id": "9.4", "title": "Test IsComplete() returns true when all done", "status": "pending"},
+        {"id": "9.5", "title": "Test conditional skip when access_control=block", "status": "pending"}
+      ],
+      "acceptanceCriteria": ["AC-2"],
+      "files": ["internal/swarm/graph_test.go"],
+      "testRequired": true,
+      "specRef": "SPEC-001-core-swarm.md"
+    },
+    {
+      "id": 10,
+      "title": "Write unit tests for worker.go",
+      "description": "Test SwarmWorker claim, execute, heartbeat, failure handling.",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [5],
+      "subtasks": [
+        {"id": "10.1", "title": "Test claimTask() - BRPOP returns task", "status": "pending"},
+        {"id": "10.2", "title": "Test claimTask() - work-stealing when queue empty", "status": "pending"},
+        {"id": "10.3", "title": "Test handleFailure() - retries then dead-letter", "status": "pending"},
+        {"id": "10.4", "title": "Test heartbeat expires after 15s", "status": "pending"}
+      ],
+      "acceptanceCriteria": ["AC-1"],
+      "files": ["internal/swarm/worker_test.go"],
+      "testRequired": true,
+      "specRef": "SPEC-001-core-swarm.md"
     }
   ],
-  "total_pending": 82,
-  "critical_path": [
-    "P000-T01",
-    "P000-T02",
-    "P000-T03",
-    "P000-T04",
-    "P000-T05",
-    "P000-T06",
-    "P000-T07",
-    "P000-T08",
-    "P001-T01",
-    "P001-T02",
-    "P020-T01",
-    "P020-T02",
-    "P020-T03",
-    "P007-T01",
-    "P007-T02",
-    "P007-T03",
-    "P007-T04",
-    "P013-T01",
-    "P013-T05",
-    "P013CEO-T01",
-    "P013CEO-T02",
-    "P011-T01",
-    "P011-T10"
-  ]
+  "meta": {
+    "totalTasks": 10,
+    "completedTasks": 0,
+    "pendingTasks": 10,
+    "generatedAt": "2026-04-10T04:45:00Z",
+    "projectName": "hvacr-swarm",
+    "version": "1.0"
+  }
 }
