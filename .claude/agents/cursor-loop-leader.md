@@ -7,13 +7,22 @@ description: Leader orchestrator for Cursor AI-like autonomous loop. Checks Infi
 
 SEMPRE ler tasks/pipeline.json antes de iniciar.
 
-Se task-master-ai MCP disponível:
+Se task-master-ai MCP disponível (futuro):
 - taskmaster:get_tasks → listar pending
 - taskmaster:next_task → próxima por prioridade/dependência
-- taskmaster:get_task {id} → detalhe
-- taskmaster:set_task_status {id, status} → atualizar
 
 Se MCP não disponível: ler tasks/pipeline-state.json diretamente via Read tool.
+
+## MCPs Disponíveis vs Planejados
+
+| MCP | Status | Como Usar |
+|-----|--------|-----------|
+| openwebui | ✅ Configurado | `openwebui_*` tools |
+| ai-context-sync | ✅ Script real | `~/.claude/mcps/ai-context-sync/sync.sh` |
+| taskmaster-ai | ⚠️ Planejado | Ainda não instalado |
+| Infisical | ⚠️ Python SDK | Disponível via Python script, não MCP |
+| Tavily | ⚠️ Planejado | Para research |
+| GitHub | ⚠️ CLI `gh` | `gh pr create`, `gh pr diff` |
 
 ## Retry e Recovery
 
@@ -66,25 +75,24 @@ Check all required secrets in Infisical:
 Validate env vars consistency vs required secrets.
 
 ### 3. Bootstrap Effect Emission
-If gaps found, emit Bootstrap Effect JSON:
-```json
+Se gaps encontrados, emitir para stdout ( Claude Code exibe automaticamente ):
+```
+=== BOOTSTRAP EFFECT ===
 {
-  "bootstrap_effect": {
-    "task_id": "CURSOR-LEADER-01",
-    "gate_type": "SECRET_MISSING",
-    "smoke_test": {
-      "command": "curl -s http://127.0.0.1:8200/health",
-      "expected_output": "healthy"
-    },
-    "pending_configs": [...],
-    "human_action_required": "gh secret set KEY --body 'value'",
-    "verify_command": "gh secret list | grep KEY"
-  }
+  "task_id": "CURSOR-LEADER-01",
+  "gate_type": "SECRET_MISSING",
+  "smoke_test": {
+    "command": "curl -s http://127.0.0.1:8200/health",
+    "expected_output": "healthy"
+  },
+  "pending_configs": [...],
+  "human_action_required": "gh secret set KEY --body 'value'"
 }
+=== FIM BOOTSTRAP EFFECT ===
 ```
 
 ### 4. Coordinate 10 Agents
-Decision: continue loop or stop based on Bootstrap Effect.
+Nota: Os agents cursor-loop-* estão em .claude/agents/ (não em .agent/agents/).
 
 ## Loop Flow
 ```

@@ -2,7 +2,7 @@
 
 > **Data:** 2026-04-09
 > **Authority:** Claude Code CLI + Gitea Actions + Antigravity Kit (.agent/)
-> **Stack:** Yarn workspaces + Turbo pipeline + Biome lint + Playwright E2E
+> **Stack:** pnpm workspaces + Turbo pipeline + Biome lint + Playwright E2E
 
 ---
 
@@ -44,7 +44,7 @@
 |----------|------|-----|
 | `turbo.json` | Turbo | Pipeline de build/test/lint |
 | `biome.json` | Biome | Lint + Format (substitui ESLint+Prettier) |
-| `yarn.lock` | Yarn Berry | Package manager c/ workspaces |
+| `yarn.lock` | Yarn Berry | Package manager c/ workspaces | ⚠️ DEPRECATED — use pnpm |
 | `pnpm-workspace.yaml` | pnpm | Workspace definition |
 | `package.json` | Node.js | Scripts e dependências |
 | `docker-compose.yml` | Docker | Containers de desenvolvimento |
@@ -55,8 +55,8 @@
 
 | App/Package | Tipo | Stack | Notas |
 |-------------|------|-------|-------|
-| `apps/backend` | API | Fastify + OrchidORM + tRPC | PostgreSQL |
-| `apps/frontend` | Web | React 19 + MUI + tRPC | — |
+| `apps/api` | API | Fastify + OrchidORM + tRPC | PostgreSQL |
+| `apps/web` | Web | React 19 + MUI + tRPC | — |
 | `apps/orchestrator` | Agent | Node.js + tRPC + YAML | Human gates |
 | `apps/perplexity-agent` | Agent | Python + Streamlit + LangChain | Browser automation |
 | `packages/ui-mui` | UI Lib | React + Material UI | → frontend |

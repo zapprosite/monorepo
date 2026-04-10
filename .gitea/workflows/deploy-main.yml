@@ -60,18 +60,18 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "22"
-          cache: "yarn"
+          cache: "pnpm"
 
-      - name: Cache Turbo
+      - name: Cache pnpm
         uses: actions/cache@v4
         with:
-          path: .turbo
-          key: turbo-${{ runner.os }}-${{ gitea.sha }}
+          path: ~/.pnpm-store
+          key: pnpm-${{ runner.os }}-${{ gitea.sha }}
           restore-keys: |
-            turbo-${{ runner.os }}-
+            pnpm-${{ runner.os }}-
 
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: pnpm install --frozen-lockfile
 
       - name: Prepare .env for CI
         run: |
@@ -81,25 +81,25 @@ jobs:
           sed -i 's|GOOGLE_CLIENT_ID=.*|GOOGLE_CLIENT_ID=ci-test.apps.googleusercontent.com|' .env
           sed -i 's|GOOGLE_CLIENT_SECRET=.*|GOOGLE_CLIENT_SECRET=ci-google-secret|' .env
           sed -i 's|DB_NAME=connected_repo$|DB_NAME=connected_repo_test|' .env
-          cp apps/backend/.env.example apps/backend/.env
-          cp apps/frontend/.env.example apps/frontend/.env
+          cp apps/api/.env.example apps/api/.env
+          cp apps/web/.env.example apps/web/.env
 
       - name: Sync env (workspace .env files)
         run: node scripts/sync-env.js
 
       - name: Type check
-        run: yarn check-types
+        run: pnpm check-types
 
       - name: Lint (Biome)
-        run: npx biome check .
+        run: pnpm biome check .
 
       - name: Build
-        run: yarn build
+        run: pnpm build
         env:
           TURBO_CACHE_DIR: .turbo
 
       - name: Test
-        run: yarn test
+        run: pnpm test
         env:
           TURBO_CACHE_DIR: .turbo
 
