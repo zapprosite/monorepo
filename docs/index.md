@@ -69,4 +69,4 @@ Todas as ferramentas do MCP estão disponíveis em `/mcp-monorepo/server.py`.
 
 ---
 
-*Última atualização: 2026-04-07*
+*Última atualização: 2026-04-10*

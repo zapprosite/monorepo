@@ -23,14 +23,14 @@
 | `/img` | Image analysis (Qwen2.5-VL) |
 
 ## Rules
-- Docs: PT-BR | Code: EN
+- Docs: PT-BR | Code: EN (see encoding guidance in AGENTS.md)
 - No secrets in code
 - Test before commit
 - Keep modules independent
 
 ## Spec-Driven Flow
 ```
-/spec <desc> → docs/PRDs/ → docs/specflow/SPEC-*.md → /pg → tasks/pipeline.json
+/spec <desc> → docs/SPECS/SPEC-*.md → /pg → tasks/pipeline.json
 ```
 
 ## Secrets

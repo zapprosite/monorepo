@@ -28,6 +28,11 @@ docs/
 3. How-to → GUIDE in docs/GUIDES/
 4. Reference → REFERENCE in docs/REFERENCE/
 
+## Spec-Driven Flow
+```
+/spec <desc> → docs/SPECS/SPEC-*.md → /pg → tasks/pipeline.json
+```
+
 ## Obsidian Mirror
 docs/ is source of truth. obsidian/ is READ-ONLY mirror.
 Sync: `rsync -av docs/SPECS/ obsidian/SPECS/` etc.

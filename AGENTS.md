@@ -1,6 +1,6 @@
 # AGENTS.md — Monorepo Command Center
 
-> **Data:** 2026-04-09
+> **Data:** 2026-04-10
 > **Authority:** Claude Code CLI + Gitea Actions + Antigravity Kit (.agent/)
 > **Stack:** pnpm workspaces + Turbo pipeline + Biome lint + Playwright E2E
 
@@ -11,24 +11,29 @@
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                    CLAUDE CODE CLI                          │
-│  (Orchestrator principal — tokens infinitos, 20 agents)     │
+│  (Orchestrator principal — tokens infinitos, 20 agents)    │
+│  Nota: Os 20 agents do CLAUDE.md refere-se ao Antigravity   │
+│  Kit (.claude/skills/ — 34 skills). O dir .agent/agents/    │
+│  está vazio; os agents vivem em .claude/skills/ e .agent/   │
+│  workflows/.                                                │
 ├─────────────────────────────────────────────────────────────┤
 │  .claude/commands/    .claude/skills/    .claude/workflows/│
-│  → 33 slash commands  → 33 skills         → 7 workflows     │
+│  → 9 slash commands  → 34 skills         → 3 workflows     │
 ├─────────────────────────────────────────────────────────────┤
 │                    TURBO PIPELINE                           │
 │  turbo.json defines build/lint/test pipeline                │
-│  yarn workspaces (apps/, packages/)                         │
+│  pnpm workspaces (apps/, packages/)                        │
 ├─────────────────────────────────────────────────────────────┤
 │  .gitea/workflows/        .agent/                          │
-│  → 4 Gitea Actions       → 18 specialist agents             │
-│  → ci-feature            → 20 workflows (Antigravity Kit)  │
+│  → 5 Gitea Actions       → 0 specialist agents            │
+│  → ci-feature            → 3 workflows (Antigravity Kit)  │
 │  → code-review                                           │
 │  → deploy-main                                          │
 │  → rollback                                              │
+│  → deploy-perplexity-agent                                 │
 ├─────────────────────────────────────────────────────────────┤
-│  scripts/          smoke-tests/        docs/specflow/      │
-│  → health-check    → E2E (Playwright) → 15+ SPECs        │
+│  scripts/          smoke-tests/        docs/SPECS/        │
+│  → health-check    → E2E (Playwright) → 35 SPECs          │
 │  → deploy          → smoke-chat        → tasks.md          │
 │  → backup           → smoke-openclaw    → reviews/          │
 │  → restore          → +more                                   │
@@ -59,8 +64,8 @@
 | `apps/web` | Web | React 19 + MUI + tRPC | — |
 | `apps/orchestrator` | Agent | Node.js + tRPC + YAML | Human gates |
 | `apps/perplexity-agent` | Agent | Python + Streamlit + LangChain | Browser automation |
-| `packages/ui-mui` | UI Lib | React + Material UI | → frontend |
-| `packages/zod-schemas` | Schemas | TypeScript + Zod | → backend, frontend, orchestrator |
+| `packages/ui-mui` | UI Lib | React + Material UI | `@repo/ui-mui` |
+| `packages/zod-schemas` | Schemas | TypeScript + Zod | `@repo/zod-schemas` |
 | `packages/typescript-config` | Config | TypeScript | Dev tooling |
 
 ---
@@ -85,7 +90,7 @@
 
 ## Skills (`.claude/skills/`)
 
-**33 skills locais** — ativados automaticamente via `AGENTS.md`:
+**34 skills locais** — ativados automaticamente via `AGENTS.md`:
 
 | Skill | Propósito | Trigger |
 |-------|-----------|---------|
@@ -150,13 +155,13 @@
 
 ## Antigravity Kit (`.agent/`)
 
-18 agents especializados + 20 workflows, 10 skills:
+**34 agent skills**, 3 workflows:
 
 ### Agentes
-`architect-specialist`, `backend-specialist`, `bug-fixer`, `code-reviewer`, `database-specialist`, `debugger`, `devops-specialist`, `documentation-writer`, `feature-developer`, `frontend-specialist`, `mobile-specialist`, `module-architect`, `orchestrator`, `performance-optimizer`, `refactoring-specialist`, `security-auditor`, `executive-ceo`, `context-optimizer`
+`.agent/agents/` — vazio (agents agora via `.claude/skills/`)
 
 ### Workflows
-`api-design`, `bug-investigation`, `code-review`, `commit-message`, `debug`, `documentation`, `feature-breakdown`, `git-feature`, `git-mirror-gitea-github`, `git-ship`, `git-turbo`, `pr-review`, `refactoring`, `security-audit`, `sincronizar-tudo`, `test-generation`, `ui-ux-pro-max`, +more
+`code-review-workflow`, `debug`, `ui-ux-pro-max`
 
 ### Integration
 `.claude/` → `.agent/` (automatic search via `search.md` rules)
@@ -164,13 +169,15 @@
 
 ---
 
-## Spec-Driven Development (`docs/specflow/`)
+## Spec-Driven Development (`docs/SPECS/`)
 
 ```
 SPEC-TEMPLATE.md → SPEC-*.md → tasks.md → pipeline.json
                                         → smoke-tests/
                                         → REVIEW-*.md
 ```
+
+**35 SPECs** em `docs/SPECS/`. Principais:
 
 | SPEC | Tópico |
 |------|--------|
@@ -179,6 +186,9 @@ SPEC-TEMPLATE.md → SPEC-*.md → tasks.md → pipeline.json
 | SPEC-013 | Unified Claude Agent Monorepo |
 | SPEC-014 | Cursor AI CI/CD Pattern |
 | SPEC-015 | Gitea Actions Enterprise |
+| SPEC-018 | wav2vec2 Deepgram proxy |
+| SPEC-020 | OpenWebUI-OpenClaw bridge |
+| SPEC-021 | Claude Code Cursor Loop |
 
 ---
 
@@ -217,10 +227,13 @@ AI review finds issue → AI fixes → re-commit → re-review
 ```json
 {
   "pipeline": {
-    "build":    { "dependsOn": ["^build"], "outputs": ["dist/**"] },
+    "build":    { "dependsOn": ["^build"], "outputs": [".next/**", "dist/**"] },
     "test":     { "dependsOn": ["build"],  "outputs": ["coverage/**"] },
     "lint":     { "outputs": [] },
-    "typecheck": { "outputs": [] }
+    "typecheck": { "dependsOn": ["build"], "outputs": [] },
+    "dev":      { "cache": false, "persistent": true },
+    "db:migrate": { "cache": false },
+    "db:seed":  { "cache": false }
   }
 }
 ```
@@ -249,25 +262,25 @@ biome lint --write .    # Fix linting
 
 ```bash
 # Install
-yarn install
+pnpm install
 
 # Build (turbo)
-yarn build              # turbo run build
-yarn build --filter=apps/backend
+pnpm build              # turbo run build
+pnpm build --filter=apps/api
 
 # Test
-yarn test              # turbo run test
-yarn test --filter=apps/frontend -- --coverage
+pnpm test              # turbo run test
+pnpm test --filter=apps/web -- --coverage
 
 # Lint (biome)
-yarn lint              # biome ci .
+pnpm lint              # biome ci .
 
 # Dev
-yarn dev               # turbo run dev
-yarn dev --filter=apps/frontend
+pnpm dev               # turbo run dev
+pnpm dev --filter=apps/web
 
 # Type check
-yarn typecheck         # turbo run typecheck
+pnpm typecheck         # turbo run typecheck
 ```
 
 ---
@@ -347,10 +360,10 @@ bash smoke-tests/smoke-chat-zappro-site.sh
 node smoke-tests/playwright-chat-e2e.mjs chat.zappro.site
 
 # Turb build
-yarn build
+pnpm build
 
 # Biome lint
-yarn lint
+pnpm lint
 
 # Sync env
 node scripts/sync-env.js
