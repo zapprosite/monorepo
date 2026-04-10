@@ -326,7 +326,7 @@ class ReuseAddrHTTPServer(HTTPServer):
         super().server_bind()
 
 def main():
-    server = ReuseAddrHTTPServer(("127.0.0.1", PORT), MCPHandler, bind_and_activate=False)
+    server = ReuseAddrHTTPServer(("0.0.0.0", PORT), MCPHandler, bind_and_activate=False)
     server.allow_reuse_address = True
     server.server_bind()
     server.server_activate()

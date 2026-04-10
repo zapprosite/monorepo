@@ -211,7 +211,7 @@
         {
           "id": "P020-T04",
           "title": "Docker compose stack: openwebui-mcp + bridge + wrapper",
-          "status": "IN_PROGRESS",
+          "status": "DONE",
           "priority": "high",
           "spec_ref": "SPEC-020-openwebui-openclaw-bridge.md",
           "acceptance_criteria": "docker compose up funciona com 3 containers",
@@ -222,6 +222,15 @@
             {"id": "P020-T04.3", "title": "Testar docker compose up via Coolify (deploy)", "status": "pending"},
             {"id": "P020-T04.4", "title": "Testar docker compose logs bridge-agent", "status": "pending"}
           ]
+        },
+        {
+          "id": "P020-T07",
+          "title": "Super E2E smoke test: smoke-bridge-stack-e2e.sh",
+          "status": "DONE",
+          "priority": "high",
+          "spec_ref": "SPEC-020-openwebui-openclaw-bridge.md",
+          "acceptance_criteria": "smoke test passes for bridge stack containers",
+          "files": ["smoke-tests/smoke-bridge-stack-e2e.sh"]
         },
         {
           "id": "P020-T05",
@@ -771,7 +780,7 @@
       ]
     }
   ],
-  "total_pending": 81,
+  "total_pending": 82,
   "critical_path": [
     "P000-T01",
     "P000-T02",

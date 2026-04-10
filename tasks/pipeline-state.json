@@ -16,17 +16,20 @@
   "humanGateReason": null,
   "notificationSent": false,
   "pendingTasks": [],
-  "completedTasks": [],
+  "completedTasks": ["P020-T01", "P020-T02", "P020-T04", "P020-T07"],
   "failedTasks": [],
   "retryHistory": [],
-  "generated": "2026-04-09",
-  "phase": 1,
-  "total_tasks": 73,
+  "generated": "2026-04-10",
+  "phase": 2,
+  "total_tasks": 82,
   "phases": [
+    {"name": "Phase 0 — Security Critical", "tasks": 8, "completed": 5},
     {"name": "Phase 1 — Security Foundation", "tasks": 11, "completed": 0},
-    {"name": "Phase 2 — OAuth + E2E", "tasks": 13, "completed": 0},
-    {"name": "Phase 3 — Agents Kit + CLI", "tasks": 18, "completed": 0},
-    {"name": "Phase 4 — CI/CD Enterprise", "tasks": 12, "completed": 0},
-    {"name": "Phase 5 — Complex Systems", "tasks": 13, "completed": 0}
+    {"name": "Phase 2 — OpenWebUI ↔ OpenClaw Bridge (SPEC-020)", "tasks": 7, "completed": 4},
+    {"name": "Phase 3 — OAuth + E2E Testing", "tasks": 13, "completed": 0},
+    {"name": "Phase 4 — Agents Kit + CLI", "tasks": 18, "completed": 0},
+    {"name": "Phase 5 — CI/CD Enterprise", "tasks": 12, "completed": 0},
+    {"name": "Phase 6 — Voice Pipeline + Auto-Healer", "tasks": 7, "completed": 0},
+    {"name": "Phase 7 — Complex Systems", "tasks": 13, "completed": 0}
   ]
 }

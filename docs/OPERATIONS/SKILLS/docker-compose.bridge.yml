@@ -77,6 +77,24 @@ services:
         max-size: "10m"
         max-file: "3"
 
+  # =============================================================================
+  # Auto-Heal — monitors and restarts unhealthy containers
+  # =============================================================================
+  autoheal:
+    image: willfarrell/autoheal
+    container_name: autoheal
+    environment:
+      AUTOHEAL_CONTAINER_LABEL: all
+      AUTOHEAL_INTERVAL: 60
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "5m"
+        max-file: "2"
+
 networks:
   qgtzrmi6771lt8l7x8rqx72f:
     external: true
