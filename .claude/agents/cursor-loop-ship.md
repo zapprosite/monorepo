@@ -1,6 +1,7 @@
 ---
 name: Cursor Loop Ship
 description: Git ship to PR - stage, commit, push, create PR. Part of Cursor AI-like autonomous loop.
+model: cm
 ---
 
 # Cursor Loop Ship Agent

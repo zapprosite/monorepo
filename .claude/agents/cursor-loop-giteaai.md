@@ -1,6 +1,7 @@
 ---
 name: Cursor Loop GiteaAI
 description: Triggers Gitea Actions CI pipeline and monitors test results. Part of Cursor AI-like autonomous loop.
+model: cm
 ---
 
 # Cursor Loop GiteaAI Agent

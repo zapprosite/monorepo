@@ -1,6 +1,7 @@
 ---
 name: Cursor Loop Spec
 description: Updates SPEC.md documentation when code changes. Part of Cursor AI-like autonomous loop.
+model: cm
 ---
 
 # Cursor Loop Spec Agent

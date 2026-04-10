@@ -1,6 +1,7 @@
 ---
 name: Cursor Loop Refactor
 description: Applies code fixes based on research findings. Part of Cursor AI-like autonomous loop.
+model: cm
 ---
 
 # Cursor Loop Refactor Agent
