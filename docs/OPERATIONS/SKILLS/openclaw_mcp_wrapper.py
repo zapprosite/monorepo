@@ -18,6 +18,7 @@ Environment variables:
 import os
 import sys
 import json
+import base64
 import threading
 import urllib.request
 import urllib.error
@@ -30,9 +31,11 @@ from typing import Optional, Dict, Any
 # Configuration
 # =============================================================================
 
-PORT = int(os.environ.get("PORT", 3334))
+PORT = int(os.environ.get("PORT", 3457))
 OPENCLAW_BASE_URL = os.environ.get("OPENCLAW_BASE_URL", "http://localhost:8080")
-OPENCLAW_TOKEN = os.environ.get("OPENCLAW_TOKEN", "")
+OPENCLAW_TOKEN = os.environ.get("OPENCLAW_TOKEN", "") or os.environ.get("OPENCLAW_GATEWAY_TOKEN", "")
+OPENCLAW_USER = os.environ.get("OPENCLAW_USER", "")
+OPENCLAW_PASSWORD = os.environ.get("OPENCLAW_PASSWORD", "")
 
 
 # =============================================================================
@@ -43,14 +46,18 @@ def api_request(
     path: str,
     method: str = "GET",
     data: Optional[Dict[str, Any]] = None,
-    token: Optional[str] = None,
     timeout: int = 30
 ) -> Dict[str, Any]:
-    """Make request to OpenClaw API."""
-    if token is None:
-        token = OPENCLAW_TOKEN
+    """Make request to OpenClaw API with Bearer token auth."""
+    headers = {}
+    if OPENCLAW_TOKEN:
+        headers["Authorization"] = f"Bearer {OPENCLAW_TOKEN}"
+    elif OPENCLAW_USER and OPENCLAW_PASSWORD:
+        # Fallback to Basic Auth (dev only)
+        auth_str = f"{OPENCLAW_USER}:{OPENCLAW_PASSWORD}"
+        auth_bytes = base64.b64encode(auth_str.encode()).decode()
+        headers["Authorization"] = f"Basic {auth_bytes}"
 
-    headers = {"Authorization": f"Bearer {token}"}
     if data is not None:
         headers["Content-Type"] = "application/json"
 
@@ -96,6 +103,30 @@ def restart_browser() -> Dict[str, Any]:
         return {"status": "restarted"}
     except Exception as e:
         return {"error": str(e)}
+
+
+def list_sessions() -> Dict[str, Any]:
+    """List all OpenClaw sessions."""
+    return invoke_tool("sessions_list", action="json", args={})
+
+
+def send_message(session_id: str, message: str) -> Dict[str, Any]:
+    """Send a message to an OpenClaw session."""
+    result = invoke_tool("sessions_send_message", action="json", args={"sessionId": session_id, "message": message})
+    if "error" in result or (isinstance(result, dict) and result.get("ok") == False):
+        return {"error": "Message tool not available - browser may not be running"}
+    return result
+
+
+def get_browser_status() -> Dict[str, Any]:
+    """Check if OpenClaw browser is running via browser_is_running tool."""
+    try:
+        result = invoke_tool("browser_is_running", action="json", args={})
+        if "error" in str(result).lower() or (isinstance(result, dict) and not result.get("ok", True)):
+            return {"browser_running": False, "error": "Browser status tool not available"}
+        return {"browser_running": True, "details": result}
+    except Exception as e:
+        return {"browser_running": False, "error": str(e)}
 
 
 # =============================================================================
@@ -195,6 +226,28 @@ class MCPHandler(BaseHTTPRequestHandler):
                         "name": "restart_browser",
                         "description": "Restart OpenClaw browser (stop + start)",
                         "inputSchema": {"type": "object", "properties": {}}
+                    },
+                    {
+                        "name": "list_sessions",
+                        "description": "List all OpenClaw sessions",
+                        "inputSchema": {"type": "object", "properties": {}}
+                    },
+                    {
+                        "name": "send_message",
+                        "description": "Send a message to an OpenClaw session",
+                        "inputSchema": {
+                            "type": "object",
+                            "properties": {
+                                "session_id": {"type": "string", "description": "Session ID to send message to"},
+                                "message": {"type": "string", "description": "Message text to send"}
+                            },
+                            "required": ["session_id", "message"]
+                        }
+                    },
+                    {
+                        "name": "get_browser_status",
+                        "description": "Check if OpenClaw browser is running",
+                        "inputSchema": {"type": "object", "properties": {}}
                     }
                 ]
             }
@@ -213,6 +266,15 @@ class MCPHandler(BaseHTTPRequestHandler):
                 )
             elif tool_name == "restart_browser":
                 return restart_browser()
+            elif tool_name == "list_sessions":
+                return list_sessions()
+            elif tool_name == "send_message":
+                return send_message(
+                    session_id=arguments.get("session_id", ""),
+                    message=arguments.get("message", "")
+                )
+            elif tool_name == "get_browser_status":
+                return get_browser_status()
             else:
                 raise Exception(f"Unknown tool: {tool_name}")
 
@@ -234,11 +296,14 @@ class MCPHandler(BaseHTTPRequestHandler):
 # Main
 # =============================================================================
 
+class ReuseAddrHTTPServer(HTTPServer):
+    allow_reuse_address = True
+
 def main():
-    server = HTTPServer(("0.0.0.0", PORT), MCPHandler)
+    server = ReuseAddrHTTPServer(("127.0.0.1", PORT), MCPHandler)
     print(f"OpenClaw MCP Wrapper running on port {PORT}", file=sys.stderr)
     print(f"OpenClaw base URL: {OPENCLAW_BASE_URL}", file=sys.stderr)
-    print(f"Tools: get_status, invoke_tool, restart_browser", file=sys.stderr)
+    print(f"Tools: get_status, invoke_tool, restart_browser, list_sessions, send_message, get_browser_status", file=sys.stderr)
 
     try:
         server.serve_forever()

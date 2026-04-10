@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.git/
+*.md
+Dockerfile*
+docker-compose*
+*.log
+.pytest_cache/
+.coverage
+htmlcov/

@@ -1,0 +1,26 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Install Infisical SDK (for secret fetching at startup)
+RUN pip install --no-cache-dir infisical-python>=0.22.0
+
+# Copy application files
+COPY openclaw_mcp_wrapper.py /app/
+COPY entrypoint.sh /app/
+RUN chmod +x /app/entrypoint.sh
+
+# Required env vars (must be set at runtime via Coolify/Infisical)
+ENV PORT=3457
+# INFISICAL_TOKEN, INFISICAL_PROJECT_ID, INFISICAL_ENV, INFISICAL_SECRET_PATH
+# SECRET_KEYS=OPENCLAW_USER,OPENCLAW_PASSWORD (optional, defaults set below)
+ENV SECRET_KEYS=OPENCLAW_GATEWAY_TOKEN,OPENCLAW_BASE_URL
+ENV OPENCLAW_BASE_URL=http://10.0.19.4:8080
+
+EXPOSE 3457
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
+  CMD python3 -c "import urllib.request; urllib.request.urlopen('http://localhost:3457/health')" || exit 1
+
+ENTRYPOINT ["/app/entrypoint.sh"]
+CMD ["python3", "openclaw_mcp_wrapper.py"]
