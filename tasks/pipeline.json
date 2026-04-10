@@ -1,9 +1,9 @@
 {
   "version": "1.0",
-  "generated": "2026-04-09",
+  "generated": "2026-04-10",
   "phases": [
     {
-      "name": "Phase 0 \u2014 Security Critical (2026-04-09 Audit)",
+      "name": "Phase 0 — Security Critical (2026-04-09 Audit)",
       "tasks": [
         {
           "id": "P000-T01",
@@ -34,9 +34,7 @@
           "title": "Rotate Gitea runner token (Gitea UI > Actions > Runners > Deregister + Re-register)",
           "status": "BLOCKED",
           "priority": "critical",
-          "blocked_by": [
-            "P000-T03"
-          ],
+          "blocked_by": ["P000-T03"],
           "verification": "docker exec zappro-gitea gitea actions run-task → new token works",
           "acceptance_criteria": "Runner connects with new token"
         },
@@ -71,9 +69,7 @@
           "title": "Enable n8n basic auth + chmod 600 /home/node/.n8n/config",
           "status": "BLOCKED",
           "priority": "critical",
-          "blocked_by": [
-            "P000-T05"
-          ],
+          "blocked_by": ["P000-T05"],
           "verification": "curl -o /dev/null -w '%{http_code}' http://localhost:5678 → 401",
           "acceptance_criteria": "n8n requires basic auth, config file is 600",
           "notes": "Blocked by P000-T05 (needs password from rotation)"
@@ -81,7 +77,7 @@
       ]
     },
     {
-      "name": "Phase 1 \u2014 Security Foundation (SPEC-001)",
+      "name": "Phase 1 — Security Foundation (SPEC-001)",
       "tasks": [
         {
           "id": "P001-T01",
@@ -174,7 +170,79 @@
       ]
     },
     {
-      "name": "Phase 2 \u2014 OAuth + E2E Testing (SPEC-006, SPEC-007)",
+      "name": "Phase 2 — OpenWebUI ↔ OpenClaw Bridge (SPEC-020)",
+      "tasks": [
+        {
+          "id": "P020-T01",
+          "title": "Criar Docker Compose para openclaw-mcp-wrapper (porta 3457)",
+          "status": "DONE",
+          "priority": "critical",
+          "spec_ref": "SPEC-020-openwebui-openclaw-bridge.md",
+          "acceptance_criteria": "Container corre na porta 3457, tools respondem",
+          "files": ["docs/OPERATIONS/SKILLS/Dockerfile.openclaw-mcp-wrapper"],
+          "subtasks": [
+            {"id": "P020-T01.1", "title": "Criar Dockerfile para openclaw-mcp-wrapper (python:3.11-slim, porta 3457)", "status": "done"},
+            {"id": "P020-T01.2", "title": "Adicionar healthcheck GET /health ao container", "status": "done"},
+            {"id": "P020-T01.3", "title": "Testar container standalone: docker run -p 3457:3457", "status": "done"}
+          ]
+        },
+        {
+          "id": "P020-T02",
+          "title": "Criar Docker Compose para openwebui_bridge_agent (porta 3456)",
+          "status": "DONE",
+          "priority": "critical",
+          "spec_ref": "SPEC-020-openwebui-openclaw-bridge.md",
+          "acceptance_criteria": "Container corre na porta 3456, bridge_chat funciona",
+          "files": ["docs/OPERATIONS/SKILLS/Dockerfile.openwebui-bridge-agent"],
+          "subtasks": [
+            {"id": "P020-T02.1", "title": "Criar Dockerfile para openwebui-bridge-agent (python:3.11-slim, porta 3456)", "status": "done"},
+            {"id": "P020-T02.2", "title": "Adicionar healthcheck GET /health ao container", "status": "done"},
+            {"id": "P020-T02.3", "title": "Testar container standalone: docker run -p 3456:3456", "status": "done"}
+          ]
+        },
+        {
+          "id": "P020-T03",
+          "title": "E2E test: OpenWebUI → bridge_agent → openclaw_mcp_wrapper → OpenClaw",
+          "status": "PENDING",
+          "priority": "critical",
+          "spec_ref": "SPEC-020-openwebui-openclaw-bridge.md",
+          "acceptance_criteria": "curl bridge responde com CEO MIX format"
+        },
+        {
+          "id": "P020-T04",
+          "title": "Docker compose stack: openwebui-mcp + bridge + wrapper",
+          "status": "IN_PROGRESS",
+          "priority": "high",
+          "spec_ref": "SPEC-020-openwebui-openclaw-bridge.md",
+          "acceptance_criteria": "docker compose up funciona com 3 containers",
+          "blocked_by": ["P020-T01", "P020-T02"],
+          "subtasks": [
+            {"id": "P020-T04.1", "title": "Criar docker-compose.yml com 3 services (bridge-agent, mcp-wrapper, internal network)", "status": "done"},
+            {"id": "P020-T04.2", "title": "Configurar depends_on e healthcheck entre containers", "status": "done"},
+            {"id": "P020-T04.3", "title": "Testar docker compose up via Coolify (deploy)", "status": "pending"},
+            {"id": "P020-T04.4", "title": "Testar docker compose logs bridge-agent", "status": "pending"}
+          ]
+        },
+        {
+          "id": "P020-T05",
+          "title": "Claude Code MCP lista bridge tools",
+          "status": "PENDING",
+          "priority": "high",
+          "spec_ref": "SPEC-020-openwebui-openclaw-bridge.md",
+          "acceptance_criteria": "claude mcp list mostra openwebui com 20+ tools"
+        },
+        {
+          "id": "P020-T06",
+          "title": "CEO MIX format validation nos responses",
+          "status": "PENDING",
+          "priority": "high",
+          "spec_ref": "SPEC-020-openwebui-openclaw-bridge.md",
+          "acceptance_criteria": "Respostas seguem formato CEO MIX (curto, directo)"
+        }
+      ]
+    },
+    {
+      "name": "Phase 3 — OAuth + E2E Testing (SPEC-006, SPEC-007)",
       "tasks": [
         {
           "id": "P006-T01",
@@ -283,7 +351,7 @@
       ]
     },
     {
-      "name": "Phase 3 \u2014 Agents Kit + CLI Integration (SPEC-010, SPEC-012, SPEC-013)",
+      "name": "Phase 4 — Agents Kit + CLI Integration (SPEC-010, SPEC-012, SPEC-013)",
       "tasks": [
         {
           "id": "P010-T01",
@@ -432,7 +500,7 @@
       ]
     },
     {
-      "name": "Phase 4 \u2014 CI/CD Enterprise (SPEC-014, SPEC-015)",
+      "name": "Phase 5 — CI/CD Enterprise (SPEC-014, SPEC-015)",
       "tasks": [
         {
           "id": "P014-T01",
@@ -533,11 +601,72 @@
       ]
     },
     {
-      "name": "Phase 5 \u2014 Complex Systems (SPEC-011, SPEC-013-CEO-MIX)",
+      "name": "Phase 6 — Voice Pipeline + Auto-Healer (SPEC-016, SPEC-017)",
+      "tasks": [
+        {
+          "id": "P016-T01",
+          "title": "voice-pipeline-loop.sh orchestrator",
+          "status": "PENDING",
+          "priority": "critical",
+          "spec_ref": "SPEC-016-voice-pipeline-cursor-loop.md",
+          "acceptance_criteria": "Script executa a cada 5 min via cron"
+        },
+        {
+          "id": "P016-T02",
+          "title": "Smoke test integration (pipeline-openclaw-voice.sh)",
+          "status": "PENDING",
+          "priority": "critical",
+          "spec_ref": "SPEC-016-voice-pipeline-cursor-loop.md",
+          "acceptance_criteria": "Loop executa smoke test e parse results"
+        },
+        {
+          "id": "P016-T03",
+          "title": "Auto-heal rules (TTS Bridge, OpenClaw, wav2vec2)",
+          "status": "PENDING",
+          "priority": "critical",
+          "spec_ref": "SPEC-016-voice-pipeline-cursor-loop.md",
+          "acceptance_criteria": "Auto-heal tenta recover antes de alerta"
+        },
+        {
+          "id": "P016-T04",
+          "title": "Telegram alerts com screenshot on failure",
+          "status": "PENDING",
+          "priority": "critical",
+          "spec_ref": "SPEC-016-voice-pipeline-cursor-loop.md",
+          "acceptance_criteria": "Alerta enviado quando heal falha"
+        },
+        {
+          "id": "P016-T05",
+          "title": "Log estruturado em /srv/monorepo/logs/voice-pipeline/",
+          "status": "PENDING",
+          "priority": "high",
+          "spec_ref": "SPEC-016-voice-pipeline-cursor-loop.md",
+          "acceptance_criteria": "Logs estruturados com timestamps"
+        },
+        {
+          "id": "P017-T01",
+          "title": "Docker deployment voice-api",
+          "status": "PENDING",
+          "priority": "high",
+          "spec_ref": "SPEC-017-voice-api-deploy.md",
+          "acceptance_criteria": "Container voice-api operacional"
+        },
+        {
+          "id": "P017-T02",
+          "title": "wav2vec2 API deployment",
+          "status": "PENDING",
+          "priority": "high",
+          "spec_ref": "SPEC-017-voice-api-deploy.md",
+          "acceptance_criteria": "wav2vec2 API responde na porta"
+        }
+      ]
+    },
+    {
+      "name": "Phase 7 — Complex Systems (SPEC-011, SPEC-013-CEO-MIX)",
       "tasks": [
         {
           "id": "P011-T01",
-          "title": "CEO MIX \u2014 Orquestrador Principal implementado",
+          "title": "CEO MIX — Orquestrador Principal implementado",
           "status": "PENDING",
           "priority": "critical",
           "spec_ref": "SPEC-011-openclaw-agency-reimagined.md",
@@ -642,7 +771,7 @@
       ]
     }
   ],
-  "total_pending": 75,
+  "total_pending": 81,
   "critical_path": [
     "P000-T01",
     "P000-T02",
@@ -654,6 +783,9 @@
     "P000-T08",
     "P001-T01",
     "P001-T02",
+    "P020-T01",
+    "P020-T02",
+    "P020-T03",
     "P007-T01",
     "P007-T02",
     "P007-T03",
