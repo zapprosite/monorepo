@@ -2,57 +2,57 @@
 
 > **Purpose:** All toolchain commands for the monorepo — npm/pnpm/bun, Node.js, Python, bash scripts.
 > **Location:** `/srv/monorepo/docs/TOOLCHAIN.md`
-> **Runtime:** Node.js >=22, Yarn 1.x, Turbo 2.x, Bun (for `@leogomide/multi-claude` CLI)
+> **Runtime:** Node.js >=22, pnpm@9.0.0, Turbo 2.x, Bun (for `@leogomide/multi-claude` CLI)
 
 ---
 
 ## 1. Node.js / Package Manager
 
-The monorepo uses **Yarn 1.x** as package manager (per `packageManager` field) and **Turbo** for workspace orchestration.
+The monorepo uses **pnpm@9.0.0** as package manager (per `packageManager` field) and **Turbo** for workspace orchestration.
 
 ### Package Manager Commands
 
 ```bash
 # Install all workspace dependencies
-yarn install
+pnpm install
 
 # Add a dependency to a specific workspace
-yarn workspace @repo/api add zod
-yarn workspace @repo/web add react
+pnpm workspace @repo/api add zod
+pnpm workspace @repo/web add react
 
 # Run a script in a specific workspace
-yarn workspace @repo/api run dev
+pnpm workspace @repo/api run dev
 
 # Remove a dependency
-yarn workspace @repo/web remove some-package
+pnpm workspace @repo/web remove some-package
 ```
 
 ### Monorepo Scripts (from package.json)
 
 ```bash
 # Build all workspaces (runs env:sync first)
-yarn build
+pnpm build
 
 # Development mode (runs env:sync first, then turbo dev)
-yarn dev
+pnpm dev
 
 # Lint all workspaces
-yarn lint
+pnpm lint
 
 # Type check all workspaces
-yarn check-types
+pnpm check-types
 
 # Run tests across all workspaces
-yarn test
+pnpm test
 
 # Format code with Biome
-yarn format
+pnpm format
 
 # Database operations (workspace-specific)
-yarn db
+pnpm db
 
-# Clean everything (node_modules, .yarn/cache, then turbo clean)
-yarn clean
+# Clean everything (node_modules, .pnpm/cache, then turbo clean)
+pnpm clean
 ```
 
 ### Environment Sync
@@ -60,7 +60,7 @@ yarn clean
 ```bash
 # Sync environment variables to workspaces before build/dev
 node scripts/sync-env.js
-yarn env:sync
+pnpm env:sync
 ```
 
 ---
@@ -96,7 +96,7 @@ turbo run build --force
 
 ```bash
 # Format all files (writes in place)
-yarn format
+pnpm format
 
 # Check formatting without writing
 biome format .
@@ -117,7 +117,7 @@ biome check --write .
 
 ```bash
 # Type check all workspaces (via turbo)
-yarn check-types
+pnpm check-types
 
 # Type check a specific workspace
 cd apps/api && npx tsc --noEmit
@@ -132,10 +132,10 @@ npx tsc-alias
 
 ```bash
 # All workspaces
-yarn test
+pnpm test
 
 # Specific workspace
-yarn workspace @repo/api run test
+pnpm workspace @repo/api run test
 
 # With Playwright (if installed)
 npx playwright test
@@ -298,14 +298,14 @@ df -h /srv
 
 ```bash
 # Development
-yarn dev              # Start all workspaces
-yarn build            # Build all
-yarn lint             # Lint all
-yarn test             # Test all
+pnpm dev              # Start all workspaces
+pnpm build            # Build all
+pnpm lint             # Lint all
+pnpm test             # Test all
 
 # Code quality
-yarn format           # Format with Biome
-yarn check-types      # TypeScript check
+pnpm format           # Format with Biome
+pnpm check-types      # TypeScript check
 
 # Git
 git add -A && git commit -m "feat: description"  # Commit
