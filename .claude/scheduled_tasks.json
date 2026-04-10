@@ -1,83 +1,59 @@
 {
   "tasks": [
     {
-      "id": "614f0574",
+      "id": "f72c7852",
       "cron": "*/30 * * * *",
-      "prompt": "Você é o agent de auto-orchestration. Execute:\n\n1. Rode: /home/will/.claude/mcps/ai-context-sync/sync.sh\n2. Verifique: git -C /srv/monorepo status --short\n3. Se houver mudanças pendentes, liste-as\n4. Se não houver, diga \"Auto-orchestration: tudo em dia\"\n\nResuma em 1-2 linhas.",
-      "createdAt": 1775557362633,
-      "lastFiredAt": 1775781866586,
+      "prompt": "Sync docs to memory: Run /srv/monorepo/scripts/sync-memory.sh or similar to synchronize documentation changes to the memory index. Check git status for pending doc changes and update MEMORY.md index accordingly.",
+      "createdAt": 1775847723434,
       "recurring": true
     },
     {
-      "id": "checkpoint-90min",
-      "cron": "*/90 * * * *",
-      "prompt": "Rode: /home/will/.claude/mcps/ai-context-sync/checkpoint.sh\n\nSe houver output (changes), liste os arquivos pendentes. Se não, diga apenas 'Checkpoint: OK'.",
-      "createdAt": 1775587500000,
-      "lastFiredAt": 1775779200951,
-      "recurring": true
-    },
-    {
-      "id": "context-meter",
-      "cron": "*/60 * * * *",
-      "prompt": "Rode: /home/will/.claude/mcps/ai-context-sync/context-meter.sh\n\nSe o output começar com '⚠️', responda com o alerta completo. Caso contrário, apenas confirme.",
-      "createdAt": 1775587500000,
-      "lastFiredAt": 1775779200951,
-      "recurring": true
-    },
-    {
-      "id": "modo-dormir-daily",
+      "id": "14d0bbe8",
       "cron": "0 3 * * *",
-      "prompt": "Execute o slash command /rs (repo-scan) para escanear o repositório.\n\nUse o output para gerar/actualizar tasks/pipeline.json com tasks pendentes.\nListe as 3 tasks mais prioritárias.\n\nResuma em 2-3 linhas.",
-      "createdAt": 1775587500000,
-      "lastFiredAt": 1775714400776,
+      "prompt": "Modo dormir: Scan docs/SPECS/ for pending SPECs, generate or update tasks/pipeline.json using the pipeline-gen skill. Check for SPECs without tasks and update the project board.",
+      "createdAt": 1775847723439,
       "recurring": true
     },
     {
-      "id": "code-review-daily",
+      "id": "8b052672",
       "cron": "0 4 * * *",
-      "prompt": "Execute code review dos últimos commits:\n\n1. git -C /srv/monorepo log --oneline -10\n2. Analise as mudanças principais\n3. Identifique issues críticos se houver\n\nSe tudo ok, diga 'Code review: OK — sem issues críticos'. Se encontrar problemas, liste-os.",
-      "createdAt": 1775587500000,
-      "lastFiredAt": 1775718602250,
+      "prompt": "Code review daily: Run /review on recent commits and changes. Generate REVIEW-*.md reports in docs/SPECS/reviews/ and submit via gh or save findings.",
+      "createdAt": 1775847723443,
       "recurring": true
     },
     {
-      "id": "test-coverage-daily",
+      "id": "d38dae54",
       "cron": "0 5 * * *",
-      "prompt": "Verifique coverage de testes:\n\n1. cd /srv/monorepo && (bun run test --coverage 2>/dev/null || bun test 2>/dev/null || echo 'TESTS_SKIP')\n2. Se output contiver 'coverage' liste áreas <70%\n3. Se output contiver 'FAIL' liste testes a falhar\n4. Se 'TESTS_SKIP' diga 'Testes: skip (sem comando)'\n\nResuma em 2-3 linhas.",
-      "createdAt": 1775587500000,
-      "lastFiredAt": 1775721600291,
+      "prompt": "Test coverage check: Run test coverage analysis on the monorepo. Report any packages/apps with coverage below threshold. Update coverage metrics if possible.",
+      "createdAt": 1775847723446,
       "recurring": true
     },
     {
-      "id": "secrets-audit-daily",
+      "id": "238fccfa",
       "cron": "0 6 * * *",
-      "prompt": "Execute scan de secrets antes de push:\n\n1. grep -rE '(ghp_|gho_|ghu_|ghs_|ghr_)[A-Za-z0-9]{36}|AKIA[0-9A-Z]{16}|sk-[A-Za-z0-9]{48}' /srv/monorepo --include='*.ts' --include='*.js' --include='*.env' 2>/dev/null | head -10\n2. Se encontrar secrets, liste locations e aborta\n3. Se não encontrar, diga 'Secrets audit: OK'\n\nResuma em 2-3 linhas.",
-      "createdAt": 1775587500000,
-      "lastFiredAt": 1775725200250,
+      "prompt": "Secrets audit: Run /se or secrets scan on recent commits. Check for hardcoded secrets, API keys, or credentials in the codebase. Report any findings.",
+      "createdAt": 1775847723449,
       "recurring": true
     },
     {
-      "id": "mcp-health-daily",
+      "id": "165ff990",
       "cron": "0 8 * * *",
-      "prompt": "Verifique estado dos MCP servers:\n\n1. ls ~/.claude/mcp-servers.json 2>/dev/null && cat ~/.claude/mcp-servers.json | jq '.servers[].name' 2>/dev/null || echo 'No MCP config'\n2. Liste cada server com status ( UP / DOWN / DEGRADED )\n\nSe todos OK, diga 'MCP health: OK — todos os servers up'. Se algum down, liste-os.",
-      "createdAt": 1775587500000,
-      "lastFiredAt": 1775732400766,
+      "prompt": "MCP health check: Verify all MCP servers are responding. Check ai-context, gitea-access, coolify-access, and other MCP tools. Report any that are down.",
+      "createdAt": 1775847723453,
       "recurring": true
     },
     {
-      "id": "d201999d",
+      "id": "8812f46c",
       "cron": "*/5 * * * *",
-      "prompt": "Execute /home/will/.claude/skills/gitea-coolify-deploy/scripts/auto-healer.sh and log output to /srv/ops/logs/healing.log. If any containers were restarted, report which ones.",
-      "createdAt": 1775652662474,
-      "lastFiredAt": 1775782623769,
+      "prompt": "Auto-healer: Check Coolify services status via coolify-access. Monitor for failed containers or services and attempt auto-restart if possible. Log any actions taken.",
+      "createdAt": 1775847723457,
       "recurring": true
     },
     {
-      "id": "95c72b71",
+      "id": "4cb53930",
       "cron": "3 */15 * * *",
-      "prompt": "Execute /home/will/.claude/skills/gitea-coolify-deploy/scripts/resource-monitor.sh and log output to /srv/ops/logs/resource-alerts.log. Report any resource usage above threshold (CPU >70%, Memory >80%).",
-      "createdAt": 1775652662499,
-      "lastFiredAt": 1775759580498,
+      "prompt": "Resource monitor: Check system resources (disk, memory, CPU) on the homelab. Report if any thresholds are exceeded. Check ZFS pool status and backup completion.",
+      "createdAt": 1775847723461,
       "recurring": true
     }
   ]

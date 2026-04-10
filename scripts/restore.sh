@@ -68,7 +68,7 @@ rsync -a --delete "$BACKUP_PATH/scripts/" /srv/monorepo/scripts/ 2>&1 | tee -a "
 # ── Reinstall deps ──────────────────────────────────────────────
 log "Reinstalling dependencies..."
 cd /srv/monorepo
-yarn install 2>&1 | tee -a "$LOG_FILE" || fail "yarn install failed"
+pnpm install 2>&1 | tee -a "$LOG_FILE" || fail "pnpm install failed"
 
 ok "Restore complete from $BACKUP_NAME"
 log "Restore done at $(date '+%Y-%m-%d %H:%M:%S')"

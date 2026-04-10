@@ -128,4 +128,3 @@
 - **SPEC-014** appears twice: Cursor AI CI/CD Pattern (DRAFT) and OpenClaw TTS Route Fix (IMPLEMENTING)
 - **SPEC-020** appears twice: OpenWebUI↔OpenClaw Bridge (DRAFT) and Voice Pipeline Humanizado PT-BR (REVIEW)
 - PROTEGIDO specs use `PROTEGIDO — NÃO ALTERAR` status and require explicit approval for any changes
-- SPEC-011 (OpenClaw Agency) was read but not found in glob — may be missing or renamed
