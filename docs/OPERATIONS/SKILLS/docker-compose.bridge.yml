@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   # =============================================================================
   # OpenClaw MCP Wrapper — exposes OpenClaw tools via MCP protocol
@@ -9,7 +7,11 @@ services:
       context: .
       dockerfile: Dockerfile.openclaw-mcp-wrapper
     container_name: openclaw-mcp-wrapper
-    network_mode: host
+    networks:
+      - bridge_internal
+      - qgtzrmi6771lt8l7x8rqx72f
+    ports:
+      - "3457:3457"
     environment:
       PORT: 3457
       # Infisical secrets (set via Coolify or export before docker compose)
@@ -46,6 +48,7 @@ services:
       dockerfile: Dockerfile.openwebui-bridge-agent
     container_name: openwebui-bridge-agent
     networks:
+      - bridge_internal
       - wbmqefxhd7vdn2dme3i6s9an
     environment:
       PORT: 3456
@@ -97,6 +100,8 @@ services:
         max-file: "2"
 
 networks:
+  bridge_internal:
+    driver: bridge
   qgtzrmi6771lt8l7x8rqx72f:
     external: true
   wbmqefxhd7vdn2dme3i6s9an:
