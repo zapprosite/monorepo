@@ -1,51 +1,60 @@
-"""Browser agent using browser-use + OpenRouter (GPT-4o-mini)."""
-import subprocess
+"""Browser agent using browser-use + MiniMax M2.7 via ChatAnthropic (base_url=api.minimax.io/anthropic)."""
+import os
 
 from browser_use import Agent
-from langchain_openai import ChatOpenAI
+from browser_use.llm.anthropic.chat import ChatAnthropic
+from infisical_client import InfisicalClient
+from infisical_client.schemas import ClientSettings, ListSecretsOptions
+
+INFISICAL_PROJECT_ID = "e42657ef-98b2-4b9c-9a04-46c093bd6d37"
+INFISICAL_ENV = "dev"
+TOKEN_PATH = "/srv/ops/secrets/infisical.service-token"
 
 
-def _get_infisical_secret(secret_key: str) -> str:
-    """Fetch a secret from Infisical vault."""
-    token_path = "/srv/ops/secrets/infisical.service-token"
-    script = f"""
-from infisical_sdk import InfisicalSDKClient
-import os
-token = os.environ.get('INFISICAL_TOKEN') or open('{token_path}').read().strip()
-client = InfisicalSDKClient(host='http://127.0.0.1:8200', token=token)
-secrets = client.secrets.list_secrets(
-    project_id='e42657ef-98b2-4b9c-9a04-46c093bd6d37',
-    environment_slug='dev',
-    secret_path='/'
-)
-for s in secrets.secrets:
-    if s.secret_key == '{secret_key}':
-        print(s.secret_value)
-        break
-"""
-    result = subprocess.run(
-        ["python3", "-c", script],
-        capture_output=True,
-        text=True,
-        timeout=10,
+def get_minimax_key() -> str:
+    """Get MINIMAX_TOKEN from environment or Infisical vault."""
+    env_token = os.environ.get("MINIMAX_TOKEN")
+    if env_token:
+        return env_token
+
+    # Read token from mounted secrets
+    try:
+        with open(TOKEN_PATH, "r") as f:
+            token = f.read().strip()
+    except FileNotFoundError:
+        raise RuntimeError(
+            f"MINIMAX_TOKEN not set and {TOKEN_PATH} not found. "
+            "Mount secrets or set MINIMAX_TOKEN env var."
+        )
+
+    settings = ClientSettings(
+        access_token=token,
+        site_url="http://127.0.0.1:8200",
     )
-    if result.returncode != 0:
-        raise RuntimeError(f"Failed to fetch {secret_key}: {result.stderr}")
-    return result.stdout.strip()
+    client = InfisicalClient(settings=settings)
+
+    options = ListSecretsOptions(
+        environment=INFISICAL_ENV,
+        project_id=INFISICAL_PROJECT_ID,
+        path="/",
+        recursive=True,
+    )
+    secrets = client.listSecrets(options)
+
+    for s in secrets:
+        if s.secret_key == "MINIMAX_TOKEN":
+            return s.secret_value
+
+    raise RuntimeError("MINIMAX_TOKEN not found in Infisical vault")
 
 
-def get_openrouter_key() -> str:
-    """Fetch OPENROUTER_API_KEY from Infisical."""
-    return _get_infisical_secret("OPENROUTER_API_KEY")
-
-
-def get_llm() -> ChatOpenAI:
-    """OpenRouter with GPT-4o-mini — best cost/benefit for browser agent."""
-    api_key = get_openrouter_key()
-    return ChatOpenAI(
-        model="openai/gpt-4o-mini",
-        api_key=api_key,
-        base_url="https://openrouter.ai/api/v1",
+def get_llm() -> ChatAnthropic:
+    """MiniMax M2.7 via browser-use ChatAnthropic with api.minimax.io/anthropic base URL."""
+    return ChatAnthropic(
+        model="MiniMax-M2.7",
+        api_key=get_minimax_key(),
+        base_url="https://api.minimax.io/anthropic",
+        max_tokens=8192,
     )
 
 
@@ -59,8 +68,10 @@ def get_agent(chrome_profile_path: str = "/srv/data/perplexity-agent/chrome-prof
     )
 
 
-def test_connection():
+async def test_connection() -> str:
     """Test LLM connection."""
     llm = get_llm()
-    response = llm.invoke("Say OK in 3 letters", max_tokens=20)
-    return f"GPT-4o-mini (OpenRouter): {response.content}"
+    from browser_use.llm.messages import HumanMessage
+
+    result = await llm.ainvoke([HumanMessage(content="Say OK in 3 letters")])
+    return f"MiniMax-M2.7: {result.content}"

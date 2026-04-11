@@ -7,9 +7,11 @@ services:
       - "4004:4004"
     volumes:
       - /srv/data/perplexity-agent/chrome-profile:/srv/data/perplexity-agent/chrome-profile
+      - /srv/ops/secrets:/srv/ops/secrets:ro  # Infisical service token (read-only)
     environment:
       - STREAMLIT_PORT=4004
       - CHROME_PROFILE_PATH=/srv/data/perplexity-agent/chrome-profile
+      # MINIMAX_TOKEN injected via Coolify secret management
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:4004/_stcore/health')"]
@@ -17,3 +19,5 @@ services:
       timeout: 10s
       retries: 3
       start_period: 60s
+    # Security: run as non-root user (Coolify overrides this if configured)
+    user: "1000:1000"
