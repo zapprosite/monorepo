@@ -1,0 +1,72 @@
+{
+  "workflow": {
+    "name": "ai-tools-performatico",
+    "version": "1.0.0",
+    "spec_ref": "SPEC-001-workflow-performatico",
+    "description": "Performatico AI tools workflow for will-zappro homelab",
+    "tools": [
+      {
+        "name": "claude-code-cli",
+        "binary": "claude",
+        "version_cmd": "claude --version",
+        "escalation": "terminal"
+      },
+      {
+        "name": "opencode-cli",
+        "binary": "opencode",
+        "version_cmd": "opencode --version",
+        "escalation": "desktop"
+      },
+      {
+        "name": "openclaw-bot",
+        "health_endpoint": "http://localhost:8080/health",
+        "escalation": "telegram"
+      }
+    ],
+    "audit": {
+      "format": "jsonl",
+      "path": "~/.claude/audit/",
+      "file_pattern": "workflow-YYYYMMDD.jsonl"
+    },
+    "alerts": {
+      "channel": "telegram",
+      "recipient": "@CEO_REFRIMIX_bot"
+    },
+    "phases": [
+      {
+        "phase": 1,
+        "name": "Hardening",
+        "tasks": [
+          "Migrate OpenClaw secrets to Infisical",
+          "Create audit-workflow skill",
+          "Add healthchecks to cron jobs",
+          "Verify BROWSER_EVALUATE_ENABLED=false"
+        ]
+      },
+      {
+        "phase": 2,
+        "name": "Consolidation",
+        "tasks": [
+          "Create SPEC-001-workflow-performatico.md",
+          "Create pipeline.json with workflow as code",
+          "Skill /audit-workflow functional",
+          "Health check script covers all 3 tools"
+        ]
+      },
+      {
+        "phase": 3,
+        "name": "Automation",
+        "tasks": [
+          "Cron job auto-detect plaintext secrets",
+          "Alerts when tool does not report (>1h)"
+        ]
+      }
+    ],
+    "boundaries": {
+      "zfs_snapshot_before_changes": true,
+      "audit_log_after_cross_tool_action": true,
+      "never_commit_env": true,
+      "never_use_env_file_in_docker_compose": true
+    }
+  }
+}

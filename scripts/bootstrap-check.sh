@@ -33,10 +33,27 @@ secret_is_set() {
   [[ -n "$value" && "$value" != "null" && "$value" != "" ]]
 }
 
-secret_masked() {
+# Try Infisical vault if env var not set
+secret_from_vault() {
+  local key=$1
+  env INFISICAL_TOKEN="${INFISICAL_TOKEN:-st.799590ae-d36f-4e64-b940-aea0fb85cad8.6e0c269870bb4b5e004e3ed6ab3a1fe1.c9872f2b30bc650e7b27c851df04b0ad}" INFISICAL_API_URL="${INFISICAL_API_URL:-http://127.0.0.1:8200}" infisical secrets get "$key" --plain 2>/dev/null || true
+}
+
+
+resolve_secret() {
   local key=$1
   local value="${!key:-}"
-  if [[ -z "$value" ]]; then
+  if [[ -n "$value" && "$value" != "null" && "$value" != "" ]]; then
+    echo "$value"
+  else
+    secret_from_vault "$key"
+  fi
+}
+
+secret_masked() {
+  local key=$1
+  local value=$(resolve_secret "$key")
+  if [[ -z "$value" || "$value" == "null" || "$value" == "" ]]; then
     echo "NOT SET"
   elif [[ ${#value} -le 8 ]]; then
     echo "$value"
@@ -70,7 +87,8 @@ main() {
   local infisical_health=$(check_infisical_health)
 
   for secret in "${REQUIRED_SECRETS[@]}"; do
-    if secret_is_set "$secret"; then
+    local resolved=$(resolve_secret "$secret")
+    if [[ -n "$resolved" && "$resolved" != "null" && "$resolved" != "" ]]; then
       present+=("$secret")
     else
       missing+=("$secret")
@@ -123,8 +141,9 @@ EOF
 
   echo "Required Secrets ($present_count ✅, $missing_count ❌):"
   for secret in "${REQUIRED_SECRETS[@]}"; do
-    if secret_is_set "$secret"; then
-      echo "  ✅ $secret: $(secret_masked $secret)"
+    local resolved=$(resolve_secret "$secret")
+    if [[ -n "$resolved" && "$resolved" != "null" && "$resolved" != "" ]]; then
+      echo "  ✅ $secret: $(secret_masked "$secret")"
     else
       echo "  ❌ $secret: NOT SET"
     fi
@@ -133,8 +152,9 @@ EOF
   echo ""
   echo "Optional Secrets:"
   for secret in "${OPTIONAL_SECRETS[@]}"; do
-    if secret_is_set "$secret"; then
-      echo "  ✅ $secret: $(secret_masked $secret)"
+    local resolved=$(resolve_secret "$secret")
+    if [[ -n "$resolved" && "$resolved" != "null" && "$resolved" != "" ]]; then
+      echo "  ✅ $secret: $(secret_masked "$secret")"
     else
       echo "  ⚠️  $secret: NOT SET"
     fi
