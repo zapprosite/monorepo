@@ -22,7 +22,7 @@ export const usersRouterTrpc = trpcRouter({
 			.take();
 
 		if (!user) {
-			throw new Error("User not found");
+			throw new TRPCError({ code: "NOT_FOUND", message: "User not found" });
 		}
 
 		return user;

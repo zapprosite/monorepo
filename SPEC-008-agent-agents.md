@@ -18,11 +18,11 @@ Implementar todos os 8 agentes do swarm.
 | Agent | Workers | LLM | Timeout |
 |-------|---------|-----|---------|
 | intake_agent | 2 | — | 10s |
-| classifier_agent | 2 | Gemini 2.5 Flash | 8s |
+| classifier_agent | 2 | MiniMax M2.7 | 8s |
 | access_control_agent | 1 | — | 3s |
-| rag_agent | 3 | Gemini Embedding 2 | 30s |
-| ranking_agent | 2 | Gemini 2.5 Flash | 15s |
-| response_agent | 2 | Gemini 2.5 Flash | 20s |
+| rag_agent | 3 | MiniMax Embedding | 30s |
+| ranking_agent | 2 | MiniMax M2.7 | 15s |
+| response_agent | 2 | MiniMax M2.7 | 20s |
 | billing_agent | 1 | — | 10s |
 | memory_agent | 1 | — | 5s |
 
@@ -113,7 +113,7 @@ type RAGAgent struct{}
 func (r *RAGAgent) Execute(ctx context.Context, task *SwarmTask) (map[string]any, error) {
     // 1. Read rewritten_query, entities from state
     // 2. Check cache
-    // 3. Generate embedding (Gemini)
+    // 3. Generate embedding (MiniMax)
     // 4. Hybrid search Qdrant
     // 5. Return top-20 candidates
 }
@@ -128,7 +128,7 @@ type RankingAgent struct{}
 
 func (r *RankingAgent) Execute(ctx context.Context, task *SwarmTask) (map[string]any, error) {
     // 1. Read candidates from state
-    // 2. Re-rank with cross-encoder or Gemini
+    // 2. Re-rank with cross-encoder or MiniMax
     // 3. Filter score < 0.5
     // 4. Assemble context (max 4000 tokens)
 }
@@ -143,7 +143,7 @@ type ResponseAgent struct{}
 
 func (r *ResponseAgent) Execute(ctx context.Context, task *SwarmTask) (map[string]any, error) {
     // 1. Read assembled_context from state
-    // 2. LLM: generate response (Gemini 2.5 Flash)
+    // 2. LLM: generate response (MiniMax M2.7)
     // 3. Anti-hallucination check
     // 4. Format for WhatsApp (4096 char limit)
     // 5. Send via WhatsApp Cloud API

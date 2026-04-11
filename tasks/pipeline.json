@@ -2,198 +2,208 @@
   "tasks": [
     {
       "id": 1,
-      "title": "Create task.go - SwarmTask struct + JSON marshaling",
-      "description": "Define SwarmTask, TaskStatus, NodeStatus types. Implement JSON marshaling/unmarshaling.",
-      "status": "pending",
-      "priority": "high",
+      "title": "[CRITICAL] Wire Worker Pool in main.go",
+      "description": "cmd/swarm/main.go has TODOs at lines 75-86 and 188-194. SwarmWorker and SwarmController are implemented but never instantiated. This blocks the entire swarm from processing messages.",
+      "status": "completed",
+      "priority": "critical",
       "dependencies": [],
       "subtasks": [
-        {"id": "1.1", "title": "Define SwarmTask struct with all fields", "status": "pending"},
-        {"id": "1.2", "title": "Implement JSON marshal/unmarshal", "status": "pending"},
-        {"id": "1.3", "title": "Add task status constants", "status": "pending"}
+        {"id": "1.1", "title": "Wire SwarmWorker pool", "status": "completed"},
+        {"id": "1.2", "title": "Wire SwarmController", "status": "completed"},
+        {"id": "1.3", "title": "Verify scheduler loop starts", "status": "completed"},
+        {"id": "1.4", "title": "Verify orphan watchdog starts", "status": "completed"},
+        {"id": "1.5", "title": "Verify rebalance loop starts", "status": "completed"}
       ],
-      "acceptanceCriteria": [],
-      "files": ["internal/swarm/task.go"],
+      "acceptanceCriteria": ["SPEC-001 AC-1", "SPEC-001 AC-3"],
+      "files": ["cmd/swarm/main.go"],
       "testRequired": true,
       "specRef": "SPEC-001-core-swarm.md"
     },
     {
       "id": 2,
-      "title": "Create graph.go - ExecutionGraph + DAG resolver",
-      "description": "Implement ExecutionGraph with resolveReady() method. Handle node status transitions.",
+      "title": "Implement Gemini API calls in agents",
+      "description": "classifier_agent, ranking_agent, and response_agent have callGemini() stubs that always return error. Need to implement actual Gemini API calls.",
       "status": "pending",
       "priority": "high",
       "dependencies": [1],
       "subtasks": [
-        {"id": "2.1", "title": "Define ExecutionGraph struct", "status": "pending"},
-        {"id": "2.2", "title": "Implement resolveReady() - find nodes with all deps completed", "status": "pending"},
-        {"id": "2.3", "title": "Implement AddNode() and AddEdge()", "status": "pending"},
-        {"id": "2.4", "title": "AddConditionalSkip() for access_control block", "status": "pending"},
-        {"id": "2.5", "title": "IsComplete() check", "status": "pending"}
+        {"id": "2.1", "title": "classifier_agent.go:216 - Implement callGemini() for intent classification", "status": "pending"},
+        {"id": "2.2", "title": "ranking_agent.go:127 - Implement Gemini reranker", "status": "pending"},
+        {"id": "2.3", "title": "response_agent.go:172 - Implement Gemini response generation", "status": "pending"},
+        {"id": "2.4", "title": "memory_agent.go - Implement Gemini fact extraction", "status": "pending"}
       ],
-      "acceptanceCriteria": ["AC-2"],
-      "files": ["internal/swarm/graph.go"],
+      "acceptanceCriteria": ["SPEC-005 AC-3", "SPEC-008 AC-1"],
+      "files": [
+        "internal/agents/classifier_agent.go",
+        "internal/agents/ranking_agent.go",
+        "internal/agents/response_agent.go",
+        "internal/agents/memory_agent.go"
+      ],
       "testRequired": true,
-      "specRef": "SPEC-001-core-swarm.md"
+      "specRef": "SPEC-005-rag-pipeline.md"
     },
     {
       "id": 3,
-      "title": "Create graph_builder.go - BuildMessageGraph factory",
-      "description": "Factory function to create the full WhatsApp message DAG with all 9 nodes.",
+      "title": "Implement Qdrant vector search",
+      "description": "internal/memory/qdrant_layer.go has placeholder at line 44. Hybrid search not implemented.",
       "status": "pending",
       "priority": "high",
-      "dependencies": [2],
+      "dependencies": [1],
       "subtasks": [
-        {"id": "3.1", "title": "BuildMessageGraph() - 9 nodes: intake, classifier, access_control, rag, billing, memory_pre, ranking, response, memory_post", "status": "pending"},
-        {"id": "3.2", "title": "Define edges: classifier→access_control, access_control→rag+billing+memory_pre", "status": "pending"},
-        {"id": "3.3", "title": "Define edges: rag→ranking, ranking+access_control→response, response→memory_post", "status": "pending"},
-        {"id": "3.4", "title": "Add conditional skip: access_control.block → skip rag,ranking,response,memory_post", "status": "pending"}
+        {"id": "3.1", "title": "qdrant_layer.go:44 - Implement hybrid search (dense + sparse + RRF)", "status": "pending"},
+        {"id": "3.2", "title": "Add collection schema hvacr_knowledge", "status": "pending"},
+        {"id": "3.3", "title": "Add metadata filters (brand, model, btu, error_code)", "status": "pending"}
       ],
-      "acceptanceCriteria": [],
-      "files": ["internal/swarm/graph_builder.go"],
+      "acceptanceCriteria": ["SPEC-003 AC-3"],
+      "files": ["internal/memory/qdrant_layer.go"],
       "testRequired": true,
-      "specRef": "SPEC-001-core-swarm.md"
+      "specRef": "SPEC-003-memory-layers.md"
     },
     {
       "id": 4,
-      "title": "Create agents/interface.go - AgentInterface",
-      "description": "Define the interface all agents must implement.",
+      "title": "Implement SQLite sync",
+      "description": "internal/memory/sync.go has placeholder at line 114. SQLite sync every 60s not implemented.",
+      "status": "pending",
+      "priority": "medium",
+      "dependencies": [3],
+      "subtasks": [
+        {"id": "4.1", "title": "sync.go:114 - Implement SyncToSQLite() with 60s interval", "status": "pending"},
+        {"id": "4.2", "title": "Implement WAL table writes (users, billing_events, audit_log, conversations)", "status": "pending"}
+      ],
+      "acceptanceCriteria": ["SPEC-003 AC-4"],
+      "files": ["internal/memory/sync.go"],
+      "testRequired": true,
+      "specRef": "SPEC-003-memory-layers.md"
+    },
+    {
+      "id": 5,
+      "title": "Fix WhatsApp sender implementation",
+      "description": "internal/whatsapp/sender.go is stub. Also intake_agent.go:251 has media download placeholder.",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [1],
+      "subtasks": [
+        {"id": "5.1", "title": "sender.go - Implement WhatsApp Cloud API send", "status": "pending"},
+        {"id": "5.2", "title": "intake_agent.go:251 - Implement media download via Graph API", "status": "pending"},
+        {"id": "5.3", "title": "Implement getMediaURL() for image/audio retrieval", "status": "pending"}
+      ],
+      "acceptanceCriteria": ["SPEC-004 AC-3"],
+      "files": [
+        "internal/whatsapp/sender.go",
+        "internal/agents/intake_agent.go"
+      ],
+      "testRequired": true,
+      "specRef": "SPEC-004-whatsapp-integration.md"
+    },
+    {
+      "id": 6,
+      "title": "Configure Stripe Price IDs",
+      "description": "internal/billing/plans.go lines 53-54 have empty Stripe Price IDs. Billing checkout will fail.",
       "status": "pending",
       "priority": "high",
       "dependencies": [],
       "subtasks": [
-        {"id": "4.1", "title": "Define AgentInterface interface with Execute(ctx, task)", "status": "pending"},
-        {"id": "4.2", "title": "Document contract: input, output, error handling", "status": "pending"}
+        {"id": "6.1", "title": "Set STRIPE_PRICE_PRO environment variable", "status": "pending"},
+        {"id": "6.2", "title": "Set STRIPE_PRICE_ENTERPRISE environment variable", "status": "pending"},
+        {"id": "6.3", "title": "Update plans.go to read from env vars", "status": "pending"}
       ],
-      "acceptanceCriteria": [],
-      "files": ["internal/agents/interface.go"],
+      "acceptanceCriteria": ["SPEC-006 AC-2"],
+      "files": ["internal/billing/plans.go"],
       "testRequired": false,
-      "specRef": "SPEC-001-core-swarm.md"
-    },
-    {
-      "id": 5,
-      "title": "Create worker.go - SwarmWorker loop",
-      "description": "Implement SwarmWorker with infinite loop: claim → execute → heartbeat.",
-      "status": "pending",
-      "priority": "high",
-      "dependencies": [1, 4],
-      "subtasks": [
-        {"id": "5.1", "title": "Define SwarmWorker struct with Redis, Agent, queues", "status": "pending"},
-        {"id": "5.2", "title": "Implement Run() - infinite loop until ctx.Done()", "status": "pending"},
-        {"id": "5.3", "title": "Implement claimTask() - BRPOP + work-stealing fallback", "status": "pending"},
-        {"id": "5.4", "title": "Implement executeTask() - call Agent.Execute(), handle result/error", "status": "pending"},
-        {"id": "5.5", "title": "Implement heartbeatLoop() - SETEX every 5s", "status": "pending"},
-        {"id": "5.6", "title": "Implement handleFailure() - retry or dead-letter", "status": "pending"},
-        {"id": "5.7", "title": "Register/deregister in agent registry", "status": "pending"}
-      ],
-      "acceptanceCriteria": ["AC-1"],
-      "files": ["internal/swarm/worker.go"],
-      "testRequired": true,
-      "specRef": "SPEC-001-core-swarm.md"
-    },
-    {
-      "id": 6,
-      "title": "Create controller.go - Scheduler + OrphanWatchdog + Rebalancer",
-      "description": "Main controller: scheduler tick, orphan watchdog, rebalance loop.",
-      "status": "pending",
-      "priority": "high",
-      "dependencies": [2, 3, 5],
-      "subtasks": [
-        {"id": "6.1", "title": "Define SwarmController struct with Redis + registry", "status": "pending"},
-        {"id": "6.2", "title": "Implement SchedulerLoop() - 10ms tick, resolveReady(), enqueueNode()", "status": "pending"},
-        {"id": "6.3", "title": "Implement OrphanWatchdog() - 10s tick, detect dead workers, redistribute tasks", "status": "pending"},
-        {"id": "6.4", "title": "Implement RebalanceLoop() - 30s tick, detect congestion", "status": "pending"},
-        {"id": "6.5", "title": "Implement MetricsCollector() - 5s tick", "status": "pending"},
-        {"id": "6.6", "title": "ProcessEvent() - handle task_completed, propagate output, evaluate conditions", "status": "pending"}
-      ],
-      "acceptanceCriteria": ["AC-3"],
-      "files": ["internal/swarm/controller.go"],
-      "testRequired": true,
-      "specRef": "SPEC-001-core-swarm.md"
+      "specRef": "SPEC-006-billing-stripe.md"
     },
     {
       "id": 7,
-      "title": "Create board.go - SSE dashboard endpoint",
-      "description": "HTTP handler for /api/swarm/board with Server-Sent Events.",
+      "title": "Create Docker Compose deployment files",
+      "description": "SPEC-007 requires docker-compose files in deployments/ directory. Currently no Docker configuration exists.",
       "status": "pending",
       "priority": "medium",
-      "dependencies": [6],
+      "dependencies": [],
       "subtasks": [
-        {"id": "7.1", "title": "GET /api/swarm/board - SSE stream", "status": "pending"},
-        {"id": "7.2", "title": "GET /api/swarm/board/snapshot - initial state", "status": "pending"},
-        {"id": "7.3", "title": "Subscribe to Redis Pub/Sub channels", "status": "pending"},
-        {"id": "7.4", "title": "GET /api/swarm/graphs/:id - graph status", "status": "pending"}
+        {"id": "7.1", "title": "deployments/docker-compose.local.yml - Redis + Qdrant + swarm", "status": "pending"},
+        {"id": "7.2", "title": "deployments/docker-compose.staging.yml - Full stack", "status": "pending"},
+        {"id": "7.3", "title": "deployments/docker-compose.prod.yml - Production config", "status": "pending"},
+        {"id": "7.4", "title": "Add health checks to all services", "status": "pending"},
+        {"id": "7.5", "title": "Add restart policies", "status": "pending"}
       ],
-      "acceptanceCriteria": ["AC-4"],
-      "files": ["internal/swarm/board.go"],
+      "acceptanceCriteria": ["SPEC-007 AC-1", "SPEC-007 AC-3", "SPEC-007 AC-4"],
+      "files": ["deployments/"],
       "testRequired": true,
-      "specRef": "SPEC-001-core-swarm.md"
+      "specRef": "SPEC-007-deployment.md"
     },
     {
       "id": 8,
-      "title": "Update cmd/swarm/main.go - Bootstrap complete",
-      "description": "Wire everything together: load config, connect Redis, spawn workers, start controller, HTTP server.",
+      "title": "Add cache TTL to RAG agent",
+      "description": "rag_agent.go:136-142 sets cache without TTL. Memory leak potential.",
       "status": "pending",
-      "priority": "high",
-      "dependencies": [5, 6, 7],
+      "priority": "medium",
+      "dependencies": [3],
       "subtasks": [
-        {"id": "8.1", "title": "Load config from environment", "status": "pending"},
-        {"id": "8.2", "title": "Connect to Redis", "status": "pending"},
-        {"id": "8.3", "title": "Load agents.json config", "status": "pending"},
-        {"id": "8.4", "title": "Spawn workers (goroutines)", "status": "pending"},
-        {"id": "8.5", "title": "Start controller loops (scheduler, watchdog, rebalancer)", "status": "pending"},
-        {"id": "8.6", "title": "Start HTTP server on :8080", "status": "pending"},
-        {"id": "8.7", "title": "Graceful shutdown on SIGTERM", "status": "pending"}
+        {"id": "8.1", "title": "Add TTL to cache:query:{sha256} (1h)", "status": "pending"},
+        {"id": "8.2", "title": "Add TTL to cache:embedding:{sha256} (24h)", "status": "pending"}
       ],
       "acceptanceCriteria": [],
-      "files": ["cmd/swarm/main.go"],
-      "testRequired": false,
-      "specRef": "SPEC-001-core-swarm.md"
+      "files": ["internal/agents/rag_agent.go"],
+      "testRequired": true,
+      "specRef": "SPEC-005-rag-pipeline.md"
     },
     {
       "id": 9,
-      "title": "Write unit tests for graph.go",
-      "description": "Test ExecutionGraph resolveReady() logic with mock nodes.",
+      "title": "Fix error handling issues",
+      "description": "Multiple error handling issues identified in code review.",
       "status": "pending",
-      "priority": "high",
-      "dependencies": [2],
+      "priority": "medium",
+      "dependencies": [],
       "subtasks": [
-        {"id": "9.1", "title": "Test resolveReady() with no dependencies", "status": "pending"},
-        {"id": "9.2", "title": "Test resolveReady() waits for dependencies", "status": "pending"},
-        {"id": "9.3", "title": "Test resolveReady() with parallel nodes (rag+billing+memory_pre)", "status": "pending"},
-        {"id": "9.4", "title": "Test IsComplete() returns true when all done", "status": "pending"},
-        {"id": "9.5", "title": "Test conditional skip when access_control=block", "status": "pending"}
+        {"id": "9.1", "title": "intake_agent.go:151 - Add array bounds check", "status": "pending"},
+        {"id": "9.2", "title": "intake_agent.go:203 - Log media download failures instead of silent fail", "status": "pending"},
+        {"id": "9.3", "title": "controller.go:44 - Reduce scheduler tick from 10ms to 100ms", "status": "pending"},
+        {"id": "9.4", "title": "apps/api/errorHandler.ts:120 - Use request.log.error() instead of console.log", "status": "pending"},
+        {"id": "9.5", "title": "apps/api/users.trpc.ts:25 - Use TRPCError instead of plain Error", "status": "pending"}
       ],
-      "acceptanceCriteria": ["AC-2"],
-      "files": ["internal/swarm/graph_test.go"],
-      "testRequired": true,
-      "specRef": "SPEC-001-core-swarm.md"
+      "acceptanceCriteria": [],
+      "files": [
+        "internal/agents/intake_agent.go",
+        "internal/swarm/controller.go",
+        "apps/api/src/middlewares/errorHandler.ts",
+        "apps/api/src/modules/users/users.trpc.ts"
+      ],
+      "testRequired": false,
+      "specRef": null
     },
     {
       "id": 10,
-      "title": "Write unit tests for worker.go",
-      "description": "Test SwarmWorker claim, execute, heartbeat, failure handling.",
+      "title": "Add missing unit tests",
+      "description": "Several modules lack test coverage per code review.",
       "status": "pending",
-      "priority": "high",
-      "dependencies": [5],
+      "priority": "low",
+      "dependencies": [],
       "subtasks": [
-        {"id": "10.1", "title": "Test claimTask() - BRPOP returns task", "status": "pending"},
-        {"id": "10.2", "title": "Test claimTask() - work-stealing when queue empty", "status": "pending"},
-        {"id": "10.3", "title": "Test handleFailure() - retries then dead-letter", "status": "pending"},
-        {"id": "10.4", "title": "Test heartbeat expires after 15s", "status": "pending"}
+        {"id": "10.1", "title": "internal/swarm/controller.go - No tests", "status": "pending"},
+        {"id": "10.2", "title": "internal/swarm/board.go - No tests", "status": "pending"},
+        {"id": "10.3", "title": "internal/billing/webhook.go - No tests", "status": "pending"},
+        {"id": "10.4", "title": "internal/gemini/embedder.go - No tests", "status": "pending"},
+        {"id": "10.5", "title": "internal/memory/layers.go - No tests", "status": "pending"}
       ],
-      "acceptanceCriteria": ["AC-1"],
-      "files": ["internal/swarm/worker_test.go"],
+      "acceptanceCriteria": [],
+      "files": [
+        "internal/swarm/controller.go",
+        "internal/swarm/board.go",
+        "internal/billing/webhook.go",
+        "internal/gemini/embedder.go",
+        "internal/memory/layers.go"
+      ],
       "testRequired": true,
-      "specRef": "SPEC-001-core-swarm.md"
+      "specRef": null
     }
   ],
   "meta": {
     "totalTasks": 10,
-    "completedTasks": 0,
-    "pendingTasks": 10,
-    "generatedAt": "2026-04-10T04:45:00Z",
+    "completedTasks": 1,
+    "pendingTasks": 9,
+    "generatedAt": "2026-04-10T17:48:00Z",
     "projectName": "hvacr-swarm",
-    "version": "1.0"
+    "version": "2.0",
+    "notes": "Task 1 COMPLETED: Worker pool and controller wired in main.go. Agents with all dependencies configured (intake, classifier, response, memory) will spawn. Agents requiring stubs (rag, ranking, billing) are skipped with logs."
   }
 }

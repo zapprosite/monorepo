@@ -9,11 +9,11 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"sync"
 	"syscall"
 	"time"
 
 	"github.com/redis/go-redis/v9"
+	"github.com/will-zappro/hvacr-swarm/internal/agents"
 	"github.com/will-zappro/hvacr-swarm/internal/swarm"
 )
 
@@ -69,19 +69,18 @@ func main() {
 	}
 	log.Printf("[swarm] loaded %d agent types from %s", len(agentsCfg.Agents), cfg.AgentsPath)
 
-	// 4. Build agent registry and worker pool.
+	// 4. Build agent registry and Redis client wrapper.
 	registry := swarm.NewAgentRegistry()
+	swarmRedis := swarm.NewRedisClientWithClient(redisClient)
 
-	// TODO: Replace with actual SwarmWorker implementation (id 5).
-	// workers := buildWorkerPool(ctx, redisClient, agentsCfg, registry)
-	log.Printf("[swarm] worker pool ready (%d agent types)", len(agentsCfg.Agents))
+	// 5. Create and spawn worker pool.
+	var workerStoppers []context.CancelFunc
+	workerStoppers = buildWorkerPool(ctx, swarmRedis, agentsCfg, registry, workerStoppers)
+	log.Printf("[swarm] worker pool ready (%d agent types, %d workers)", len(agentsCfg.Agents), countWorkers(agentsCfg))
 
-	// 5. Start controller loops.
-	// TODO: Replace with actual SwarmController implementation (id 6).
-	// ctrl := swarm.NewSwarmController(redisClient, registry)
-	// go ctrl.SchedulerLoop(ctx)
-	// go ctrl.OrphanWatchdog(ctx)
-	// go ctrl.RebalanceLoop(ctx)
+	// 6. Start controller loops.
+	ctrl := swarm.NewSwarmController(swarmRedis, registry)
+	go ctrl.Run()
 	log.Println("[swarm] controllers started (scheduler, watchdog, rebalancer)")
 
 	// 6. Setup HTTP server with board SSE endpoints.
@@ -185,15 +184,84 @@ func getEnv(key, defaultVal string) string {
 }
 
 // buildWorkerPool spawns goroutine workers for each agent type.
-// TODO: Wire with actual SwarmWorker (id 5).
-func buildWorkerPool(ctx context.Context, redisClient *redis.Client, cfg *AgentsConfig, registry *swarm.AgentRegistry) *sync.WaitGroup {
-	var wg sync.WaitGroup
-	for _, agent := range cfg.Agents {
-		for i := 0; i < agent.PoolSize; i++ {
-			wg.Add(1)
-			// TODO: go swarmWorker.Run(ctx, agent.Type, agent.QueueName, &wg)
-			log.Printf("[swarm] would spawn worker for %s (queue=%s)", agent.Type, agent.QueueName)
+func buildWorkerPool(ctx context.Context, redisClient *swarm.RedisClient, cfg *AgentsConfig, registry *swarm.AgentRegistry, stoppers []context.CancelFunc) []context.CancelFunc {
+	for _, agentDef := range cfg.Agents {
+		for i := 0; i < agentDef.PoolSize; i++ {
+			worker := createWorker(agentDef.Type, redisClient, registry)
+			if worker != nil {
+				go func(w *swarm.SwarmWorker) {
+					if err := w.Run(); err != nil {
+						log.Printf("[swarm] worker error: %v", err)
+					}
+				}(worker)
+				log.Printf("[swarm] spawned worker for %s (queue=%s)", agentDef.Type, agentDef.QueueName)
+			} else {
+				log.Printf("[swarm] skipped worker for %s: agent not initialized", agentDef.Type)
+			}
 		}
 	}
-	return &wg
+	_ = stoppers // TODO: track worker cancel funcs for graceful shutdown
+	return stoppers
+}
+
+// countWorkers returns the total number of workers from agent pool sizes.
+func countWorkers(cfg *AgentsConfig) int {
+	total := 0
+	for _, a := range cfg.Agents {
+		total += a.PoolSize
+	}
+	return total
+}
+
+// createWorker creates a SwarmWorker for the given agent type.
+func createWorker(agentType string, redisClient *swarm.RedisClient, registry *swarm.AgentRegistry) *swarm.SwarmWorker {
+	var agent agents.AgentInterface
+
+	switch agentType {
+	case "intake":
+		agent = agents.NewIntakeAgent(os.Getenv("WHATSAPP_SECRET"), os.Getenv("WHATSAPP_TOKEN"))
+	case "classifier":
+		agent = agents.NewClassifierAgent(os.Getenv("GEMINI_API_KEY"))
+	case "access_control":
+		agent = agents.NewAccessControlAgent(nil, 10) // TODO: pass real Redis client
+	case "rag":
+		// RAG agent needs embedder and qdrant - skip if not configured
+		if os.Getenv("GEMINI_API_KEY") == "" {
+			log.Printf("[swarm] rag agent skipped: GEMINI_API_KEY not set")
+			return nil
+		}
+		// agent = agents.NewRAGAgent(...) // TODO: wire when embedder/qdrant ready
+		return nil
+	case "ranking":
+		// agent = agents.NewRankingAgent(...) // TODO: wire when ready
+		return nil
+	case "response":
+		if os.Getenv("GEMINI_API_KEY") == "" || os.Getenv("WHATSAPP_TOKEN") == "" {
+			log.Printf("[swarm] response agent skipped: GEMINI_API_KEY or WHATSAPP_TOKEN not set")
+			return nil
+		}
+		agent = agents.NewResponseAgent(
+			os.Getenv("GEMINI_API_KEY"),
+			os.Getenv("WHATSAPP_TOKEN"),
+			os.Getenv("WHATSAPP_PHONE_ID"),
+		)
+	case "billing":
+		// agent = agents.NewBillingAgent(...) // TODO: wire when stripe ready
+		return nil
+	case "memory", "memory_pre", "memory_post":
+		if os.Getenv("GEMINI_API_KEY") == "" {
+			log.Printf("[swarm] memory agent skipped: GEMINI_API_KEY not set")
+			return nil
+		}
+		agent = agents.NewMemoryAgent(nil, os.Getenv("GEMINI_API_KEY")) // TODO: pass real Redis client
+	default:
+		log.Printf("[swarm] unknown agent type: %s", agentType)
+		return nil
+	}
+
+	if agent == nil {
+		return nil
+	}
+
+	return swarm.NewSwarmWorker(agent, redisClient, registry)
 }

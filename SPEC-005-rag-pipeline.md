@@ -17,10 +17,10 @@ Implementar pipeline RAG multimodal: embedding + hybrid search + ranking.
 
 | Component | Technology |
 |-----------|------------|
-| Embedding | Gemini Embedding 2 (768D) |
+| Embedding | MiniMax Embedding (768D) |
 | Vector DB | Qdrant 1.13 |
-| Reranker | Gemini as judge |
-| LLM | Gemini 2.5 Flash |
+| Reranker | MiniMax as judge |
+| LLM | MiniMax-M2 |
 
 ---
 
@@ -43,7 +43,7 @@ type RAGAgent struct{}
 
 func (r *RAGAgent) Execute(ctx context.Context, task *SwarmTask) (map[string]any, error) {
     // 1. Cache check
-    // 2. Generate embedding (Gemini Embedding 2)
+    // 2. Generate embedding (MiniMax Embedding)
     // 3. Hybrid search: dense + sparse + RRF fusion
     // 4. Metadata filters (brand, model, btu, error_code)
     // 5. Return top-20 candidates
@@ -57,7 +57,7 @@ func (r *RAGAgent) Execute(ctx context.Context, task *SwarmTask) (map[string]any
 ```go
 func (r *RankingAgent) Execute(ctx context.Context, task *SwarmTask) (map[string]any, error) {
     // 1. Read candidates from state
-    // 2. Re-rank using cross-encoder or Gemini
+    // 2. Re-rank using cross-encoder or MiniMax
     // 3. Filter score < 0.5
     // 4. Assemble context (max 4000 tokens)
     // 5. Return top-5 + assembled_context

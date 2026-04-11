@@ -117,7 +117,7 @@ export const handleError = (
 export const registerErrorHandler = (server: FastifyInstance) => {
 	// Set default error handler
 	server.setErrorHandler((error, request, reply) => {
-		console.log("ERROR HANDLER ACTIVATED", error);
+		request.log.error("ERROR HANDLER ACTIVATED: %s", error);
 		handleError(error, request, reply);
 	});
 
