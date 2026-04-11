@@ -2117,9 +2117,209 @@
           ]
         }
       ]
+    },
+    {
+      "name": "Phase 10 \u2014 Intelligent Operations Index (SPEC-025)",
+      "tasks": [
+        {
+          "id": "P025-T01",
+          "title": "Create .claude/skill-index.json with all operator guides",
+          "spec": "SPEC-025",
+          "status": "PENDING",
+          "priority": "critical",
+          "owner": "will-zappro",
+          "files_affected": [
+            ".claude/skill-index.json"
+          ],
+          "acceptance_criteria": [
+            "All 15 operator guides listed with metadata",
+            "Machine-readable format for agents",
+            "Includes: name, aliases, location, operations, auth, quality"
+          ]
+        },
+        {
+          "id": "P025-T02",
+          "title": "Create .claude/skill-index.md (human-readable)",
+          "spec": "SPEC-025",
+          "status": "PENDING",
+          "priority": "high",
+          "owner": "will-zappro",
+          "files_affected": [
+            ".claude/skill-index.md"
+          ],
+          "acceptance_criteria": [
+            "Categorized by operation type",
+            "Quick reference table",
+            "Links to full guides"
+          ]
+        },
+        {
+          "id": "P025-T03",
+          "title": "Create .claude/decision-tree.md",
+          "spec": "SPEC-025",
+          "status": "PENDING",
+          "priority": "critical",
+          "owner": "will-zappro",
+          "files_affected": [
+            ".claude/decision-tree.md"
+          ],
+          "acceptance_criteria": [
+            "Covers 90% of common operations",
+            "Fast lookup: what skill for X?",
+            "Decision nodes with skill references"
+          ]
+        },
+        {
+          "id": "P025-T04",
+          "title": "Add metadata frontmatter to all operator guides",
+          "spec": "SPEC-025",
+          "status": "PENDING",
+          "priority": "high",
+          "owner": "will-zappro",
+          "files_affected": [
+            "docs/OPERATIONS/SKILLS/*.md"
+          ],
+          "acceptance_criteria": [
+            "Each guide has: name, type, category, invokable_as_skill, skill_alias",
+            "Each guide has: dependencies (Infisical secrets), endpoints",
+            "Quality verified"
+          ]
+        },
+        {
+          "id": "P025-T05",
+          "title": "Create symlinks .claude/skills/*.md -> docs/OPERATIONS/SKILLS/",
+          "spec": "SPEC-025",
+          "status": "PENDING",
+          "priority": "high",
+          "owner": "will-zappro",
+          "files_affected": [
+            ".claude/skills/"
+          ],
+          "acceptance_criteria": [
+            "All 15 operator guides accessible from .claude/skills/",
+            "ln -sf verification succeeds"
+          ]
+        },
+        {
+          "id": "P025-T06",
+          "title": "Create scripts/memory-sync.sh (bidirectional)",
+          "spec": "SPEC-025",
+          "status": "PENDING",
+          "priority": "high",
+          "owner": "will-zappro",
+          "files_affected": [
+            "scripts/memory-sync.sh"
+          ],
+          "acceptance_criteria": [
+            "docs -> memory push works",
+            "memory -> docs pull works (for memory-generated content)",
+            "Auto-updates skill-index on new guides",
+            "Dry-run mode available"
+          ]
+        },
+        {
+          "id": "P025-T07",
+          "title": "Create .claude/AGENT-PANEL.md",
+          "spec": "SPEC-025",
+          "status": "PENDING",
+          "priority": "high",
+          "owner": "will-zappro",
+          "files_affected": [
+            ".claude/AGENT-PANEL.md"
+          ],
+          "acceptance_criteria": [
+            "Quick access table (operation -> skill -> command)",
+            "Active monitoring links",
+            "Skill categories",
+            "Decision tree reference"
+          ]
+        },
+        {
+          "id": "P025-T08",
+          "title": "Update AGENTS.md to reference skill-index",
+          "spec": "SPEC-025",
+          "status": "PENDING",
+          "priority": "medium",
+          "owner": "will-zappro",
+          "files_affected": [
+            ".claude/AGENTS.md"
+          ],
+          "acceptance_criteria": [
+            "Agents check skill-index before searching",
+            "Skill lookup added to startup sequence"
+          ]
+        },
+        {
+          "id": "P025-T09",
+          "title": "Integrate skill-index into /cursor-loop leader",
+          "spec": "SPEC-025",
+          "status": "PENDING",
+          "priority": "high",
+          "owner": "will-zappro",
+          "files_affected": [
+            ".claude/commands/cursor-loop.md"
+          ],
+          "acceptance_criteria": [
+            "Loop can find right skill for each step",
+            "Infisical check uses infisical-sdk guide",
+            "Coolify deploy uses coolify-deploy skill"
+          ],
+          "dependencies": [
+            "P025-T01",
+            "P025-T03"
+          ]
+        },
+        {
+          "id": "P025-T10",
+          "title": "Verify all 15 operator guides have working code",
+          "spec": "SPEC-025",
+          "status": "PENDING",
+          "priority": "medium",
+          "owner": "will-zappro",
+          "files_affected": [
+            "docs/OPERATIONS/SKILLS/"
+          ],
+          "acceptance_criteria": [
+            "Each guide tested end-to-end",
+            "Code examples verified",
+            "Outdated patterns fixed"
+          ]
+        },
+        {
+          "id": "P025-T11",
+          "title": "Add skill lookup to /spec workflow",
+          "spec": "SPEC-025",
+          "status": "PENDING",
+          "priority": "medium",
+          "owner": "will-zappro",
+          "files_affected": [
+            ".claude/commands/spec.md"
+          ],
+          "acceptance_criteria": [
+            "/spec suggests relevant skills for the spec being created",
+            "Skill dependencies auto-added to spec"
+          ]
+        },
+        {
+          "id": "P025-T12",
+          "title": "Audit memory state vs docs reality",
+          "spec": "SPEC-025",
+          "status": "PENDING",
+          "priority": "medium",
+          "owner": "will-zappro",
+          "files_affected": [
+            ".claude/memory/"
+          ],
+          "acceptance_criteria": [
+            "Orphan memory entries identified",
+            "Stale entries updated or removed",
+            "Memory reflects current docs"
+          ]
+        }
+      ]
     }
   ],
-  "total_pending": 139,
+  "total_pending": 151,
   "critical_path": [
     "P000-T01",
     "P000-T02",
@@ -2159,6 +2359,13 @@
     "P024-CLI-T03",
     "P024-CLI-T04",
     "P024-CURSOR-T01",
-    "P024-CURSOR-T04"
+    "P024-CURSOR-T04",
+    "P025-T01",
+    "P025-T03",
+    "P025-T04",
+    "P025-T05",
+    "P025-T06",
+    "P025-T07",
+    "P025-T09"
   ]
 }
