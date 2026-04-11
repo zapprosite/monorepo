@@ -1,6 +1,6 @@
 module github.com/will-zappro/hvacr-swarm
 
-go 1.24.0
+go 1.26.1
 
 require (
 	github.com/alicebob/miniredis/v2 v2.37.0
@@ -10,6 +10,8 @@ require (
 	github.com/redis/go-redis/v9 v9.5.1
 	github.com/stretchr/testify v1.11.1
 )
+
+require github.com/will-zappro/hvacr-swarm/internal/whatsapp v0.0.0-00010101000000-000000000000
 
 require (
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
@@ -26,3 +28,7 @@ require (
 	google.golang.org/protobuf v1.36.11 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
+
+replace github.com/will-zappro/hvacr-swarm/internal/whatsapp => ./internal/whatsapp
+
+replace github.com/will-zappro/hvacr-swarm/internal/minimax => ./internal/minimax
