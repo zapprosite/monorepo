@@ -3,14 +3,14 @@
   "generated": "2026-04-10",
   "phases": [
     {
-      "name": "Phase 0 — Security Critical (2026-04-09 Audit)",
+      "name": "Phase 0 \u2014 Security Critical (2026-04-09 Audit)",
       "tasks": [
         {
           "id": "P000-T01",
           "title": "chmod 600 /data/coolify/source/.env",
           "status": "DONE",
           "priority": "critical",
-          "verification": "stat -c %a /data/coolify/source/.env → 600",
+          "verification": "stat -c %a /data/coolify/source/.env \u2192 600",
           "acceptance_criteria": "File permissions are 600, not world-readable"
         },
         {
@@ -18,7 +18,7 @@
           "title": "Revoke OAuth secret GOCSPX-fgKPRDB9UcWb-i8Pr6eblXI (manual: Google Cloud Console)",
           "status": "MANUAL",
           "priority": "critical",
-          "verification": "curl https://oauth2.googleapis.com/tokeninfo?access_token=GOCSPX-fgKPRDB9UcWb-i8Pr6eblXI → error",
+          "verification": "curl https://oauth2.googleapis.com/tokeninfo?access_token=GOCSPX-fgKPRDB9UcWb-i8Pr6eblXI \u2192 error",
           "acceptance_criteria": "Secret returns error at Google OAuth endpoint"
         },
         {
@@ -26,7 +26,7 @@
           "title": "Git rm --cached runner/data/.runner + add to .gitignore",
           "status": "DONE",
           "priority": "critical",
-          "verification": "git ls-files | grep runner/data/.runner → empty",
+          "verification": "git ls-files | grep runner/data/.runner \u2192 empty",
           "acceptance_criteria": "runner/data/.runner not tracked in git"
         },
         {
@@ -34,8 +34,10 @@
           "title": "Rotate Gitea runner token (Gitea UI > Actions > Runners > Deregister + Re-register)",
           "status": "BLOCKED",
           "priority": "critical",
-          "blocked_by": ["P000-T03"],
-          "verification": "docker exec zappro-gitea gitea actions run-task → new token works",
+          "blocked_by": [
+            "P000-T03"
+          ],
+          "verification": "docker exec zappro-gitea gitea actions run-task \u2192 new token works",
           "acceptance_criteria": "Runner connects with new token"
         },
         {
@@ -45,14 +47,14 @@
           "priority": "critical",
           "verification": "Grafana login works + OAuth restricted",
           "acceptance_criteria": "New admin password + new OAuth secret in Infisical + allowlist=zappro.site",
-          "notes": "OAuth allowlist → zappro.site ✅ | Admin password rotation PENDING | OAuth secret rotation PENDING"
+          "notes": "OAuth allowlist \u2192 zappro.site \u2705 | Admin password rotation PENDING | OAuth secret rotation PENDING"
         },
         {
           "id": "P000-T06",
           "title": "Encrypt existing backups in /srv/backups/ with openssl",
           "status": "DONE",
           "priority": "critical",
-          "verification": "find /srv/backups -name '*.sql' ! -name '*.age' ! -name '*.enc' → empty",
+          "verification": "find /srv/backups -name '*.sql' ! -name '*.age' ! -name '*.enc' \u2192 empty",
           "acceptance_criteria": "No plaintext .sql files in /srv/backups/"
         },
         {
@@ -60,117 +62,141 @@
           "title": "Fix coolify-sentinel: remove --privileged, use docker.sock readonly mount",
           "status": "BLOCKED",
           "priority": "critical",
-          "verification": "docker inspect coolify-sentinel --format '{{.HostConfig.Privileged}}' → false",
+          "verification": "docker inspect coolify-sentinel --format '{{.HostConfig.Privileged}}' \u2192 false",
           "acceptance_criteria": "Container not privileged, docker.sock is read-only mount",
-          "notes": "coolify-sentinel managed by Coolify API (label=coolify.managed:true) — requires Coolify UI to edit"
+          "notes": "coolify-sentinel managed by Coolify API (label=coolify.managed:true) \u2014 requires Coolify UI to edit"
         },
         {
           "id": "P000-T08",
           "title": "Enable n8n basic auth + chmod 600 /home/node/.n8n/config",
           "status": "BLOCKED",
           "priority": "critical",
-          "blocked_by": ["P000-T05"],
-          "verification": "curl -o /dev/null -w '%{http_code}' http://localhost:5678 → 401",
+          "blocked_by": [
+            "P000-T05"
+          ],
+          "verification": "curl -o /dev/null -w '%{http_code}' http://localhost:5678 \u2192 401",
           "acceptance_criteria": "n8n requires basic auth, config file is 600",
           "notes": "Blocked by P000-T05 (needs password from rotation)"
         }
       ]
     },
     {
-      "name": "Phase 1 — Security Foundation (SPEC-001)",
+      "name": "Phase 1 \u2014 Security Foundation (SPEC-001)",
       "tasks": [
         {
           "id": "P001-T01",
           "title": "Migrar secrets do OpenClaw .env para Infisical",
-          "status": "PENDING",
+          "status": "DONE",
           "priority": "critical",
           "spec_ref": "SPEC-001-workflow-performatico.md",
-          "acceptance_criteria": "vault.zappro.site mostra secrets sem env vars"
+          "acceptance_criteria": "vault.zappro.site mostra secrets sem env vars",
+          "completed_at": "2026-04-10T21:39-03:00",
+          "pr": "https://github.com/zapprosite/monorepo/pull/1"
         },
         {
           "id": "P001-T02",
           "title": "Criar skill audit-workflow em .claude/skills/",
-          "status": "PENDING",
+          "status": "DONE",
           "priority": "critical",
           "spec_ref": "SPEC-001-workflow-performatico.md",
-          "acceptance_criteria": "Skill responde a /audit-workflow e lista log"
+          "acceptance_criteria": "Skill responde a /audit-workflow e lista log",
+          "completed_at": "2026-04-10T21:39-03:00",
+          "pr": "https://github.com/zapprosite/monorepo/pull/1"
         },
         {
           "id": "P001-T03",
           "title": "Adicionar healthchecks ao scheduled_tasks.json",
-          "status": "PENDING",
+          "status": "DONE",
           "priority": "high",
           "spec_ref": "SPEC-001-workflow-performatico.md",
-          "acceptance_criteria": "Cron job verifica health antes de executar task"
+          "acceptance_criteria": "Cron job verifica health antes de executar task",
+          "completed_at": "2026-04-10T21:39-03:00",
+          "pr": "https://github.com/zapprosite/monorepo/pull/1"
         },
         {
           "id": "P001-T04",
           "title": "Verificar BROWSER_EVALUATE_ENABLED=false no OpenClaw",
-          "status": "PENDING",
+          "status": "DONE",
           "priority": "high",
           "spec_ref": "SPEC-001-workflow-performatico.md",
-          "acceptance_criteria": "docker inspect mostra false"
+          "acceptance_criteria": "docker inspect mostra false",
+          "completed_at": "2026-04-10T21:39-03:00",
+          "pr": "https://github.com/zapprosite/monorepo/pull/1"
         },
         {
           "id": "P001-T05",
           "title": "Criar SPEC-001-workflow-performatico.md",
-          "status": "PENDING",
+          "status": "DONE",
           "priority": "high",
           "spec_ref": "SPEC-001-workflow-performatico.md",
-          "acceptance_criteria": "Commit no main"
+          "acceptance_criteria": "Commit no main",
+          "completed_at": "2026-04-10T21:39-03:00",
+          "pr": "https://github.com/zapprosite/monorepo/pull/1"
         },
         {
           "id": "P001-T06",
           "title": "Criar pipeline.json com workflow como codigo",
-          "status": "PENDING",
+          "status": "DONE",
           "priority": "high",
           "spec_ref": "SPEC-001-workflow-performatico.md",
-          "acceptance_criteria": "Agent consegue ler e executar"
+          "acceptance_criteria": "Agent consegue ler e executar",
+          "completed_at": "2026-04-10T21:39-03:00",
+          "pr": "https://github.com/zapprosite/monorepo/pull/1"
         },
         {
           "id": "P001-T07",
           "title": "Skill /audit-workflow funcional e documentada",
-          "status": "PENDING",
+          "status": "DONE",
           "priority": "high",
           "spec_ref": "SPEC-001-workflow-performatico.md",
-          "acceptance_criteria": "/audit-workflow lista ultimas 50 medicoes"
+          "acceptance_criteria": "/audit-workflow lista ultimas 50 medicoes",
+          "completed_at": "2026-04-10T21:39-03:00",
+          "pr": "https://github.com/zapprosite/monorepo/pull/1"
         },
         {
           "id": "P001-T08",
           "title": "Health check script cobre todas as 3 tools",
-          "status": "PENDING",
+          "status": "DONE",
           "priority": "high",
           "spec_ref": "SPEC-001-workflow-performatico.md",
-          "acceptance_criteria": "Script retorna OK/DOWN para cada tool"
+          "acceptance_criteria": "Script retorna OK/DOWN para cada tool",
+          "completed_at": "2026-04-10T21:39-03:00",
+          "pr": "https://github.com/zapprosite/monorepo/pull/1"
         },
         {
           "id": "P001-T09",
           "title": "Cron job auto-detectar secrets plaintext",
-          "status": "PENDING",
+          "status": "NOT_NEEDED",
           "priority": "high",
           "spec_ref": "SPEC-001-workflow-performatico.md",
-          "acceptance_criteria": "Cron detecta e envia alerta Telegram"
+          "acceptance_criteria": "Cron detecta e envia alerta Telegram",
+          "completed_at": "2026-04-10T21:39-03:00",
+          "pr": "https://github.com/zapprosite/monorepo/pull/1"
         },
         {
           "id": "P001-T10",
           "title": "Alerta Telegram quando tool nao reporta (>1h)",
-          "status": "PENDING",
+          "status": "NOT_NEEDED",
           "priority": "medium",
           "spec_ref": "SPEC-001-workflow-performatico.md",
-          "acceptance_criteria": "health-check.sh detecta DOWN -> Telegram"
+          "acceptance_criteria": "health-check.sh detecta DOWN -> Telegram",
+          "completed_at": "2026-04-10T21:39-03:00",
+          "pr": "https://github.com/zapprosite/monorepo/pull/1"
         },
         {
           "id": "P001-T11",
           "title": "Verification checklist SPEC-001",
-          "status": "PENDING",
+          "status": "DONE",
           "priority": "medium",
           "spec_ref": "SPEC-001-workflow-performatico.md",
-          "acceptance_criteria": "Todos os itens verificados"
+          "acceptance_criteria": "Todos os itens verificados",
+          "completed_at": "2026-04-10T21:39-03:00",
+          "pr": "https://github.com/zapprosite/monorepo/pull/1"
         }
       ]
     },
     {
-      "name": "Phase 2 — OpenWebUI ↔ OpenClaw Bridge (SPEC-020)",
+      "name": "Phase 2 \u2014 OpenWebUI \u2194 OpenClaw Bridge (SPEC-020)",
       "tasks": [
         {
           "id": "P020-T01",
@@ -179,11 +205,25 @@
           "priority": "critical",
           "spec_ref": "SPEC-020-openwebui-openclaw-bridge.md",
           "acceptance_criteria": "Container corre na porta 3457, tools respondem",
-          "files": ["docs/OPERATIONS/SKILLS/Dockerfile.openclaw-mcp-wrapper"],
+          "files": [
+            "docs/OPERATIONS/SKILLS/Dockerfile.openclaw-mcp-wrapper"
+          ],
           "subtasks": [
-            {"id": "P020-T01.1", "title": "Criar Dockerfile para openclaw-mcp-wrapper (python:3.11-slim, porta 3457)", "status": "done"},
-            {"id": "P020-T01.2", "title": "Adicionar healthcheck GET /health ao container", "status": "done"},
-            {"id": "P020-T01.3", "title": "Testar container standalone: docker run -p 3457:3457", "status": "done"}
+            {
+              "id": "P020-T01.1",
+              "title": "Criar Dockerfile para openclaw-mcp-wrapper (python:3.11-slim, porta 3457)",
+              "status": "done"
+            },
+            {
+              "id": "P020-T01.2",
+              "title": "Adicionar healthcheck GET /health ao container",
+              "status": "done"
+            },
+            {
+              "id": "P020-T01.3",
+              "title": "Testar container standalone: docker run -p 3457:3457",
+              "status": "done"
+            }
           ]
         },
         {
@@ -193,16 +233,30 @@
           "priority": "critical",
           "spec_ref": "SPEC-020-openwebui-openclaw-bridge.md",
           "acceptance_criteria": "Container corre na porta 3456, bridge_chat funciona",
-          "files": ["docs/OPERATIONS/SKILLS/Dockerfile.openwebui-bridge-agent"],
+          "files": [
+            "docs/OPERATIONS/SKILLS/Dockerfile.openwebui-bridge-agent"
+          ],
           "subtasks": [
-            {"id": "P020-T02.1", "title": "Criar Dockerfile para openwebui-bridge-agent (python:3.11-slim, porta 3456)", "status": "done"},
-            {"id": "P020-T02.2", "title": "Adicionar healthcheck GET /health ao container", "status": "done"},
-            {"id": "P020-T02.3", "title": "Testar container standalone: docker run -p 3456:3456", "status": "done"}
+            {
+              "id": "P020-T02.1",
+              "title": "Criar Dockerfile para openwebui-bridge-agent (python:3.11-slim, porta 3456)",
+              "status": "done"
+            },
+            {
+              "id": "P020-T02.2",
+              "title": "Adicionar healthcheck GET /health ao container",
+              "status": "done"
+            },
+            {
+              "id": "P020-T02.3",
+              "title": "Testar container standalone: docker run -p 3456:3456",
+              "status": "done"
+            }
           ]
         },
         {
           "id": "P020-T03",
-          "title": "E2E test: OpenWebUI → bridge_agent → openclaw_mcp_wrapper → OpenClaw",
+          "title": "E2E test: OpenWebUI \u2192 bridge_agent \u2192 openclaw_mcp_wrapper \u2192 OpenClaw",
           "status": "PENDING",
           "priority": "critical",
           "spec_ref": "SPEC-020-openwebui-openclaw-bridge.md",
@@ -215,12 +269,31 @@
           "priority": "high",
           "spec_ref": "SPEC-020-openwebui-openclaw-bridge.md",
           "acceptance_criteria": "docker compose up funciona com 3 containers",
-          "blocked_by": ["P020-T01", "P020-T02"],
+          "blocked_by": [
+            "P020-T01",
+            "P020-T02"
+          ],
           "subtasks": [
-            {"id": "P020-T04.1", "title": "Criar docker-compose.yml com 3 services (bridge-agent, mcp-wrapper, internal network)", "status": "done"},
-            {"id": "P020-T04.2", "title": "Configurar depends_on e healthcheck entre containers", "status": "done"},
-            {"id": "P020-T04.3", "title": "Testar docker compose up via Coolify (deploy)", "status": "pending"},
-            {"id": "P020-T04.4", "title": "Testar docker compose logs bridge-agent", "status": "pending"}
+            {
+              "id": "P020-T04.1",
+              "title": "Criar docker-compose.yml com 3 services (bridge-agent, mcp-wrapper, internal network)",
+              "status": "done"
+            },
+            {
+              "id": "P020-T04.2",
+              "title": "Configurar depends_on e healthcheck entre containers",
+              "status": "done"
+            },
+            {
+              "id": "P020-T04.3",
+              "title": "Testar docker compose up via Coolify (deploy)",
+              "status": "pending"
+            },
+            {
+              "id": "P020-T04.4",
+              "title": "Testar docker compose logs bridge-agent",
+              "status": "pending"
+            }
           ]
         },
         {
@@ -230,7 +303,9 @@
           "priority": "high",
           "spec_ref": "SPEC-020-openwebui-openclaw-bridge.md",
           "acceptance_criteria": "smoke test passes for bridge stack containers",
-          "files": ["smoke-tests/smoke-bridge-stack-e2e.sh"]
+          "files": [
+            "smoke-tests/smoke-bridge-stack-e2e.sh"
+          ]
         },
         {
           "id": "P020-T05",
@@ -251,7 +326,7 @@
       ]
     },
     {
-      "name": "Phase 3 — OAuth + E2E Testing (SPEC-006, SPEC-007)",
+      "name": "Phase 3 \u2014 OAuth + E2E Testing (SPEC-006, SPEC-007)",
       "tasks": [
         {
           "id": "P006-T01",
@@ -360,7 +435,7 @@
       ]
     },
     {
-      "name": "Phase 4 — Agents Kit + CLI Integration (SPEC-010, SPEC-012, SPEC-013)",
+      "name": "Phase 4 \u2014 Agents Kit + CLI Integration (SPEC-010, SPEC-012, SPEC-013)",
       "tasks": [
         {
           "id": "P010-T01",
@@ -509,7 +584,7 @@
       ]
     },
     {
-      "name": "Phase 5 — CI/CD Enterprise (SPEC-014, SPEC-015)",
+      "name": "Phase 5 \u2014 CI/CD Enterprise (SPEC-014, SPEC-015)",
       "tasks": [
         {
           "id": "P014-T01",
@@ -610,7 +685,7 @@
       ]
     },
     {
-      "name": "Phase 6 — Voice Pipeline + Auto-Healer (SPEC-016, SPEC-017)",
+      "name": "Phase 6 \u2014 Voice Pipeline + Auto-Healer (SPEC-016, SPEC-017)",
       "tasks": [
         {
           "id": "P016-T01",
@@ -671,11 +746,11 @@
       ]
     },
     {
-      "name": "Phase 7 — Complex Systems (SPEC-011, SPEC-013-CEO-MIX)",
+      "name": "Phase 7 \u2014 Complex Systems (SPEC-011, SPEC-013-CEO-MIX)",
       "tasks": [
         {
           "id": "P011-T01",
-          "title": "CEO MIX — Orquestrador Principal implementado",
+          "title": "CEO MIX \u2014 Orquestrador Principal implementado",
           "status": "PENDING",
           "priority": "critical",
           "spec_ref": "SPEC-011-openclaw-agency-reimagined.md",
@@ -792,8 +867,12 @@
           "priority": "high",
           "owner": "will-zappro",
           "critical_gap": true,
-          "files_affected": ["scripts/approve.sh"],
-          "dependencies": ["SPEC-021"]
+          "files_affected": [
+            "scripts/approve.sh"
+          ],
+          "dependencies": [
+            "SPEC-021"
+          ]
         },
         {
           "id": "P022-T02",
@@ -803,8 +882,12 @@
           "priority": "high",
           "owner": "will-zappro",
           "critical_gap": true,
-          "files_affected": ["scripts/query-gate.sh"],
-          "dependencies": ["SPEC-021"]
+          "files_affected": [
+            "scripts/query-gate.sh"
+          ],
+          "dependencies": [
+            "SPEC-021"
+          ]
         },
         {
           "id": "P022-T03",
@@ -814,8 +897,12 @@
           "priority": "high",
           "owner": "will-zappro",
           "critical_gap": true,
-          "files_affected": ["tasks/pipeline-runner"],
-          "dependencies": ["SPEC-021"]
+          "files_affected": [
+            "tasks/pipeline-runner"
+          ],
+          "dependencies": [
+            "SPEC-021"
+          ]
         },
         {
           "id": "P022-T04",
@@ -825,8 +912,12 @@
           "priority": "high",
           "owner": "will-zappro",
           "critical_gap": true,
-          "files_affected": ["scripts/telegram-alert.sh"],
-          "dependencies": ["SPEC-021"]
+          "files_affected": [
+            "scripts/telegram-alert.sh"
+          ],
+          "dependencies": [
+            "SPEC-021"
+          ]
         },
         {
           "id": "P022-T05",
@@ -835,8 +926,12 @@
           "status": "PENDING",
           "priority": "medium",
           "owner": "will-zappro",
-          "files_affected": ["scripts/spec-validate.sh"],
-          "dependencies": ["SPEC-021"]
+          "files_affected": [
+            "scripts/spec-validate.sh"
+          ],
+          "dependencies": [
+            "SPEC-021"
+          ]
         },
         {
           "id": "P022-T06",
@@ -845,7 +940,9 @@
           "status": "PENDING",
           "priority": "medium",
           "owner": "will-zappro",
-          "files_affected": [".claude/settings.json"],
+          "files_affected": [
+            ".claude/settings.json"
+          ],
           "dependencies": []
         },
         {
@@ -855,8 +952,12 @@
           "status": "PENDING",
           "priority": "medium",
           "owner": "will-zappro",
-          "files_affected": ["docs/SPECS/SPEC-021-cursor-loop-autonomous.md"],
-          "dependencies": ["SPEC-021"]
+          "files_affected": [
+            "docs/SPECS/SPEC-021-cursor-loop-autonomous.md"
+          ],
+          "dependencies": [
+            "SPEC-021"
+          ]
         },
         {
           "id": "P022-T08",
@@ -877,7 +978,9 @@
           "priority": "high",
           "owner": "will-zappro",
           "critical_gap": true,
-          "files_affected": ["docker-compose.yml (node-exporter)"],
+          "files_affected": [
+            "docker-compose.yml (node-exporter)"
+          ],
           "dependencies": []
         },
         {
@@ -888,7 +991,9 @@
           "priority": "high",
           "owner": "will-zappro",
           "critical_gap": true,
-          "files_affected": ["docker-compose.yml (loki)"],
+          "files_affected": [
+            "docker-compose.yml (loki)"
+          ],
           "dependencies": []
         },
         {
@@ -899,7 +1004,10 @@
           "priority": "high",
           "owner": "will-zappro",
           "critical_gap": true,
-          "files_affected": ["docs/GOVERNANCE/HEALING-RULES.md", "scripts/restart-loop-protection.sh"],
+          "files_affected": [
+            "docs/GOVERNANCE/HEALING-RULES.md",
+            "scripts/restart-loop-protection.sh"
+          ],
           "dependencies": []
         },
         {
@@ -910,7 +1018,10 @@
           "priority": "high",
           "owner": "will-zappro",
           "critical_gap": true,
-          "files_affected": ["docs/GOVERNANCE/PINNED-SERVICES.md", "docker-compose.yml"],
+          "files_affected": [
+            "docs/GOVERNANCE/PINNED-SERVICES.md",
+            "docker-compose.yml"
+          ],
           "dependencies": []
         },
         {
@@ -921,7 +1032,9 @@
           "priority": "high",
           "owner": "will-zappro",
           "critical_gap": true,
-          "files_affected": ["prometheus.yml"],
+          "files_affected": [
+            "prometheus.yml"
+          ],
           "dependencies": []
         },
         {
@@ -931,7 +1044,9 @@
           "status": "PENDING",
           "priority": "medium",
           "owner": "will-zappro",
-          "files_affected": ["docs/OPERATIONS/SKILLS/health_agent.sh"],
+          "files_affected": [
+            "docs/OPERATIONS/SKILLS/health_agent.sh"
+          ],
           "dependencies": []
         },
         {
@@ -941,7 +1056,9 @@
           "status": "PENDING",
           "priority": "medium",
           "owner": "will-zappro",
-          "files_affected": ["docker-compose.yml"],
+          "files_affected": [
+            "docker-compose.yml"
+          ],
           "dependencies": []
         },
         {
@@ -951,17 +1068,22 @@
           "status": "PENDING",
           "priority": "medium",
           "owner": "will-zappro",
-          "files_affected": ["prometheus.yml", "docker-compose.yml"],
+          "files_affected": [
+            "prometheus.yml",
+            "docker-compose.yml"
+          ],
           "dependencies": []
         },
         {
           "id": "P023-T09",
-          "title": "Verify Alert routing: Prometheus → AlertManager → Telegram",
+          "title": "Verify Alert routing: Prometheus \u2192 AlertManager \u2192 Telegram",
           "spec": "SPEC-023",
           "status": "PENDING",
           "priority": "medium",
           "owner": "will-zappro",
-          "files_affected": ["docs/GOVERNANCE/ALERT-ROUTING.md"],
+          "files_affected": [
+            "docs/GOVERNANCE/ALERT-ROUTING.md"
+          ],
           "dependencies": []
         },
         {
@@ -971,17 +1093,21 @@
           "status": "PENDING",
           "priority": "medium",
           "owner": "will-zappro",
-          "files_affected": ["tasks/smoke-tests/pipeline-healing.yaml"],
+          "files_affected": [
+            "tasks/smoke-tests/pipeline-healing.yaml"
+          ],
           "dependencies": []
         },
         {
           "id": "P023-T11",
-          "title": "Plan Promail → Grafana Alloy migration",
+          "title": "Plan Promail \u2192 Grafana Alloy migration",
           "spec": "SPEC-023",
           "status": "PENDING",
           "priority": "low",
           "owner": "will-zappro",
-          "files_affected": ["docs/GOVERNANCE/MONITORING-STACK-POLICY.md"],
+          "files_affected": [
+            "docs/GOVERNANCE/MONITORING-STACK-POLICY.md"
+          ],
           "dependencies": []
         },
         {
@@ -991,84 +1117,105 @@
           "status": "PENDING",
           "priority": "low",
           "owner": "will-zappro",
-          "files_affected": ["/srv/data/monitoring/alertmanager/"],
+          "files_affected": [
+            "/srv/data/monitoring/alertmanager/"
+          ],
           "dependencies": []
         },
         {
           "id": "P023-CLI-T01",
-          "title": "heal status — enumerate all containers, show health, restart count, flags",
+          "title": "heal status \u2014 enumerate all containers, show health, restart count, flags",
           "spec": "SPEC-023-unified-healing-cli",
           "status": "PENDING",
           "priority": "high",
           "owner": "will-zappro",
-          "files_affected": ["scripts/heal", "docs/OPERATIONS/SKILLS/self-healing.sh"],
+          "files_affected": [
+            "scripts/heal",
+            "docs/OPERATIONS/SKILLS/self-healing.sh"
+          ],
           "dependencies": []
         },
         {
           "id": "P023-CLI-T02",
-          "title": "heal restart — check pinned, check rate limit, confirm, snapshot, restart, verify",
+          "title": "heal restart \u2014 check pinned, check rate limit, confirm, snapshot, restart, verify",
           "spec": "SPEC-023-unified-healing-cli",
           "status": "PENDING",
           "priority": "high",
           "owner": "will-zappro",
-          "files_affected": ["scripts/heal"],
-          "dependencies": ["P023-T04"]
+          "files_affected": [
+            "scripts/heal"
+          ],
+          "dependencies": [
+            "P023-T04"
+          ]
         },
         {
           "id": "P023-CLI-T03",
-          "title": "heal unblock — remove entry from rate limit file",
+          "title": "heal unblock \u2014 remove entry from rate limit file",
           "spec": "SPEC-023-unified-healing-cli",
           "status": "PENDING",
           "priority": "high",
           "owner": "will-zappro",
-          "files_affected": ["scripts/heal"],
+          "files_affected": [
+            "scripts/heal"
+          ],
           "dependencies": []
         },
         {
           "id": "P023-CLI-T04",
-          "title": "heal logs — wrap docker logs with follow and filters",
+          "title": "heal logs \u2014 wrap docker logs with follow and filters",
           "spec": "SPEC-023-unified-healing-cli",
           "status": "PENDING",
           "priority": "medium",
           "owner": "will-zappro",
-          "files_affected": ["scripts/heal"],
+          "files_affected": [
+            "scripts/heal"
+          ],
           "dependencies": []
         },
         {
           "id": "P023-CLI-T05",
-          "title": "heal snapshot — ZFS snapshot with confirmation",
+          "title": "heal snapshot \u2014 ZFS snapshot with confirmation",
           "spec": "SPEC-023-unified-healing-cli",
           "status": "PENDING",
           "priority": "medium",
           "owner": "will-zappro",
-          "files_affected": ["scripts/heal"],
+          "files_affected": [
+            "scripts/heal"
+          ],
           "dependencies": []
         },
         {
           "id": "P023-CLI-T06",
-          "title": "heal alert test — Telegram API call with error handling",
+          "title": "heal alert test \u2014 Telegram API call with error handling",
           "spec": "SPEC-023-unified-healing-cli",
           "status": "PENDING",
           "priority": "medium",
           "owner": "will-zappro",
-          "files_affected": ["scripts/heal"],
-          "dependencies": ["P022-T04"]
+          "files_affected": [
+            "scripts/heal"
+          ],
+          "dependencies": [
+            "P022-T04"
+          ]
         },
         {
           "id": "P023-CLI-T07",
-          "title": "heal dashboard — print/open Grafana URL",
+          "title": "heal dashboard \u2014 print/open Grafana URL",
           "spec": "SPEC-023-unified-healing-cli",
           "status": "PENDING",
           "priority": "low",
           "owner": "will-zappro",
-          "files_affected": ["scripts/heal"],
+          "files_affected": [
+            "scripts/heal"
+          ],
           "dependencies": []
         }
       ]
     },
     {
       "phase": 10,
-      "name": "Monitoring Implementation — SPEC-024",
+      "name": "Monitoring Implementation \u2014 SPEC-024",
       "description": "SPEC-024 unified monitoring & self-healing implementation: HEALTHCHECKs, restart loop protection, pinned whitelist, Grafana dashboards, AlertManager routing, Grafana Alloy migration, /heal CLI",
       "tasks": [
         {
@@ -1079,8 +1226,13 @@
           "priority": "high",
           "owner": "will-zappro",
           "critical_gap": true,
-          "files_affected": ["docker-compose.monitoring.yml"],
-          "acceptance_criteria": ["node-exporter HEALTHCHECK returns healthy", "docker inspect node-exporter shows Status=healthy"]
+          "files_affected": [
+            "docker-compose.monitoring.yml"
+          ],
+          "acceptance_criteria": [
+            "node-exporter HEALTHCHECK returns healthy",
+            "docker inspect node-exporter shows Status=healthy"
+          ]
         },
         {
           "id": "P024-T02",
@@ -1090,8 +1242,13 @@
           "priority": "high",
           "owner": "will-zappro",
           "critical_gap": true,
-          "files_affected": ["docker-compose.monitoring.yml"],
-          "acceptance_criteria": ["loki HEALTHCHECK returns healthy", "docker inspect loki shows Status=healthy"]
+          "files_affected": [
+            "docker-compose.monitoring.yml"
+          ],
+          "acceptance_criteria": [
+            "loki HEALTHCHECK returns healthy",
+            "docker inspect loki shows Status=healthy"
+          ]
         },
         {
           "id": "P024-T03",
@@ -1101,8 +1258,13 @@
           "priority": "high",
           "owner": "will-zappro",
           "critical_gap": true,
-          "files_affected": ["/tmp/container-restart-attempts.json"],
-          "acceptance_criteria": ["Rate limit file schema: container→{count,window_start,blocked_until,blocked_reason}", "Schema supports count, window_start, blocked_until, blocked_reason"]
+          "files_affected": [
+            "/tmp/container-restart-attempts.json"
+          ],
+          "acceptance_criteria": [
+            "Rate limit file schema: container\u2192{count,window_start,blocked_until,blocked_reason}",
+            "Schema supports count, window_start, blocked_until, blocked_reason"
+          ]
         },
         {
           "id": "P024-T04",
@@ -1112,9 +1274,16 @@
           "priority": "high",
           "owner": "will-zappro",
           "critical_gap": true,
-          "files_affected": ["health_agent.sh"],
-          "acceptance_criteria": ["RestartCount≥3 in 1h AND avg_interval<30s → block 10min + ZFS snapshot + Telegram CRITICAL", "RestartCount≥3 but interval≥30s → ZFS snapshot + WARNING"],
-          "dependencies": ["P024-T03"]
+          "files_affected": [
+            "health_agent.sh"
+          ],
+          "acceptance_criteria": [
+            "RestartCount\u22653 in 1h AND avg_interval<30s \u2192 block 10min + ZFS snapshot + Telegram CRITICAL",
+            "RestartCount\u22653 but interval\u226530s \u2192 ZFS snapshot + WARNING"
+          ],
+          "dependencies": [
+            "P024-T03"
+          ]
         },
         {
           "id": "P024-T05",
@@ -1124,9 +1293,15 @@
           "priority": "high",
           "owner": "will-zappro",
           "critical_gap": true,
-          "files_affected": ["health_agent.sh"],
-          "acceptance_criteria": ["Snapshot tank@heal-blocked-YYYYMMDD-HHMMSS created before heal"],
-          "dependencies": ["P024-T04"]
+          "files_affected": [
+            "health_agent.sh"
+          ],
+          "acceptance_criteria": [
+            "Snapshot tank@heal-blocked-YYYYMMDD-HHMMSS created before heal"
+          ],
+          "dependencies": [
+            "P024-T04"
+          ]
         },
         {
           "id": "P024-T06",
@@ -1135,9 +1310,17 @@
           "status": "PENDING",
           "priority": "high",
           "owner": "will-zappro",
-          "files_affected": ["docker-compose.monitoring.yml", "health_agent.sh"],
-          "acceptance_criteria": ["docker-autoheal respects blocked containers", "AUTOHEAL_CONTAINER_LABEL=monitoring targets non-pinned"],
-          "dependencies": ["P024-T04"]
+          "files_affected": [
+            "docker-compose.monitoring.yml",
+            "health_agent.sh"
+          ],
+          "acceptance_criteria": [
+            "docker-autoheal respects blocked containers",
+            "AUTOHEAL_CONTAINER_LABEL=monitoring targets non-pinned"
+          ],
+          "dependencies": [
+            "P024-T04"
+          ]
         },
         {
           "id": "P024-T07",
@@ -1146,8 +1329,13 @@
           "status": "PENDING",
           "priority": "medium",
           "owner": "will-zappro",
-          "files_affected": ["/srv/monorepo/docs/OPERATIONS/SKILLS/health_agent.sh"],
-          "acceptance_criteria": ["Second cron instance fails fast with lock error", "flock /tmp/health_agent.lock pattern applied"],
+          "files_affected": [
+            "/srv/monorepo/docs/OPERATIONS/SKILLS/health_agent.sh"
+          ],
+          "acceptance_criteria": [
+            "Second cron instance fails fast with lock error",
+            "flock /tmp/health_agent.lock pattern applied"
+          ],
           "dependencies": []
         },
         {
@@ -1158,8 +1346,13 @@
           "priority": "high",
           "owner": "will-zappro",
           "critical_gap": true,
-          "files_affected": ["/srv/monorepo/docs/OPERATIONS/SKILLS/health_agent.sh", "/srv/monorepo/docs/GOVERNANCE/PINNED-SERVICES.md"],
-          "acceptance_criteria": ["is_pinned() returns true for coolify-db, prometheus, grafana, loki, alertmanager, n8n, cloudflared, coolify-proxy"]
+          "files_affected": [
+            "/srv/monorepo/docs/OPERATIONS/SKILLS/health_agent.sh",
+            "/srv/monorepo/docs/GOVERNANCE/PINNED-SERVICES.md"
+          ],
+          "acceptance_criteria": [
+            "is_pinned() returns true for coolify-db, prometheus, grafana, loki, alertmanager, n8n, cloudflared, coolify-proxy"
+          ]
         },
         {
           "id": "P024-T09",
@@ -1168,9 +1361,16 @@
           "status": "PENDING",
           "priority": "high",
           "owner": "will-zappro",
-          "files_affected": ["docker-compose.monitoring.yml"],
-          "acceptance_criteria": ["AUTOHEAL_CONTAINER_LABEL=monitoring set", "Only non-pinned containers have 'monitoring' label"],
-          "dependencies": ["P024-T08"]
+          "files_affected": [
+            "docker-compose.monitoring.yml"
+          ],
+          "acceptance_criteria": [
+            "AUTOHEAL_CONTAINER_LABEL=monitoring set",
+            "Only non-pinned containers have 'monitoring' label"
+          ],
+          "dependencies": [
+            "P024-T08"
+          ]
         },
         {
           "id": "P024-T10",
@@ -1180,8 +1380,13 @@
           "priority": "high",
           "owner": "will-zappro",
           "critical_gap": true,
-          "files_affected": ["/srv/data/monitoring/prometheus.yml"],
-          "acceptance_criteria": ["cadvisor scrape_timeout: 30s", "cadvisor target shows Up in Prometheus UI"],
+          "files_affected": [
+            "/srv/data/monitoring/prometheus.yml"
+          ],
+          "acceptance_criteria": [
+            "cadvisor scrape_timeout: 30s",
+            "cadvisor target shows Up in Prometheus UI"
+          ],
           "dependencies": []
         },
         {
@@ -1191,8 +1396,13 @@
           "status": "PENDING",
           "priority": "medium",
           "owner": "will-zappro",
-          "files_affected": ["/srv/data/monitoring/prometheus.yml"],
-          "acceptance_criteria": ["nvidia-gpu job has scrape_timeout: 30s", "loki job has scrape_timeout: 30s"],
+          "files_affected": [
+            "/srv/data/monitoring/prometheus.yml"
+          ],
+          "acceptance_criteria": [
+            "nvidia-gpu job has scrape_timeout: 30s",
+            "loki job has scrape_timeout: 30s"
+          ],
           "dependencies": []
         },
         {
@@ -1202,8 +1412,13 @@
           "status": "PENDING",
           "priority": "high",
           "owner": "will-zappro",
-          "files_affected": ["/srv/data/monitoring/grafana/dashboards/homelab-datacenter-overview.json"],
-          "acceptance_criteria": ["UID: efg9h1u7ja6tcb", "9 panels: CPU%, Memory%, Container Count, Disk /srv%, ZFS tank%, GPU Temp, GPU VRAM%, Exporter Health, Alert Count 24h"]
+          "files_affected": [
+            "/srv/data/monitoring/grafana/dashboards/homelab-datacenter-overview.json"
+          ],
+          "acceptance_criteria": [
+            "UID: efg9h1u7ja6tcb",
+            "9 panels: CPU%, Memory%, Container Count, Disk /srv%, ZFS tank%, GPU Temp, GPU VRAM%, Exporter Health, Alert Count 24h"
+          ]
         },
         {
           "id": "P024-T13",
@@ -1212,8 +1427,13 @@
           "status": "PENDING",
           "priority": "high",
           "owner": "will-zappro",
-          "files_affected": ["/srv/data/monitoring/grafana/dashboards/healing-events.json"],
-          "acceptance_criteria": ["UID: healing-events", "Panels: Restart Events 7d, Blocked Loops table, Healing Actions Loki, ZFS Snapshots 7d"]
+          "files_affected": [
+            "/srv/data/monitoring/grafana/dashboards/healing-events.json"
+          ],
+          "acceptance_criteria": [
+            "UID: healing-events",
+            "Panels: Restart Events 7d, Blocked Loops table, Healing Actions Loki, ZFS Snapshots 7d"
+          ]
         },
         {
           "id": "P024-T14",
@@ -1222,8 +1442,14 @@
           "status": "PENDING",
           "priority": "high",
           "owner": "will-zappro",
-          "files_affected": ["/srv/data/monitoring/alertmanager/alertmanager.yml"],
-          "acceptance_criteria": ["Routes critical/warning/info to telegram receivers", "send_resolved: true for critical", "inhibit rules configured"]
+          "files_affected": [
+            "/srv/data/monitoring/alertmanager/alertmanager.yml"
+          ],
+          "acceptance_criteria": [
+            "Routes critical/warning/info to telegram receivers",
+            "send_resolved: true for critical",
+            "inhibit rules configured"
+          ]
         },
         {
           "id": "P024-T15",
@@ -1232,8 +1458,14 @@
           "status": "PENDING",
           "priority": "high",
           "owner": "will-zappro",
-          "files_affected": ["/etc/prometheus/alerts.yml"],
-          "acceptance_criteria": ["ContainerDown fires after 1m", "ContainerRestartLoop fires when rate≥3 in 1h", "HighCPU, HighMemory, DiskSpaceLow, GPUTemperatureHigh configured"]
+          "files_affected": [
+            "/etc/prometheus/alerts.yml"
+          ],
+          "acceptance_criteria": [
+            "ContainerDown fires after 1m",
+            "ContainerRestartLoop fires when rate\u22653 in 1h",
+            "HighCPU, HighMemory, DiskSpaceLow, GPUTemperatureHigh configured"
+          ]
         },
         {
           "id": "P024-T16",
@@ -1242,8 +1474,15 @@
           "status": "PENDING",
           "priority": "high",
           "owner": "will-zappro",
-          "files_affected": ["docker-compose.monitoring.yml", "alert-sender/"],
-          "acceptance_criteria": ["alert-sender running on :8080", "/webhook POST from AlertManager", "Telegram messages formatted as CRITICAL🟡ℹ️"]
+          "files_affected": [
+            "docker-compose.monitoring.yml",
+            "alert-sender/"
+          ],
+          "acceptance_criteria": [
+            "alert-sender running on :8080",
+            "/webhook POST from AlertManager",
+            "Telegram messages formatted as CRITICAL\ud83d\udfe1\u2139\ufe0f"
+          ]
         },
         {
           "id": "P024-T17",
@@ -1253,8 +1492,13 @@
           "priority": "medium",
           "owner": "will-zappro",
           "files_affected": [],
-          "acceptance_criteria": ["/heal alert test shows success", "Telegram receives formatted test alert"],
-          "dependencies": ["P024-T16"]
+          "acceptance_criteria": [
+            "/heal alert test shows success",
+            "Telegram receives formatted test alert"
+          ],
+          "dependencies": [
+            "P024-T16"
+          ]
         },
         {
           "id": "P024-T18",
@@ -1263,8 +1507,13 @@
           "status": "PENDING",
           "priority": "medium",
           "owner": "will-zappro",
-          "files_affected": ["docker-compose.monitoring.yml"],
-          "acceptance_criteria": ["Alloy container running on monitoring network", "Docker discovery accessible"]
+          "files_affected": [
+            "docker-compose.monitoring.yml"
+          ],
+          "acceptance_criteria": [
+            "Alloy container running on monitoring network",
+            "Docker discovery accessible"
+          ]
         },
         {
           "id": "P024-T19",
@@ -1273,9 +1522,17 @@
           "status": "PENDING",
           "priority": "medium",
           "owner": "will-zappro",
-          "files_affected": ["/srv/data/monitoring/alloy/config.alloy"],
-          "acceptance_criteria": ["loki.source.docker configured", "loki.process regex extracts level", "loki.write to Loki :3101"],
-          "dependencies": ["P024-T18"]
+          "files_affected": [
+            "/srv/data/monitoring/alloy/config.alloy"
+          ],
+          "acceptance_criteria": [
+            "loki.source.docker configured",
+            "loki.process regex extracts level",
+            "loki.write to Loki :3101"
+          ],
+          "dependencies": [
+            "P024-T18"
+          ]
         },
         {
           "id": "P024-T20",
@@ -1285,8 +1542,13 @@
           "priority": "medium",
           "owner": "will-zappro",
           "files_affected": [],
-          "acceptance_criteria": ["Loki query {app=\"docker\"} returns container logs", "Logs include container_name label"],
-          "dependencies": ["P024-T19"]
+          "acceptance_criteria": [
+            "Loki query {app=\"docker\"} returns container logs",
+            "Logs include container_name label"
+          ],
+          "dependencies": [
+            "P024-T19"
+          ]
         },
         {
           "id": "P024-T21",
@@ -1295,9 +1557,16 @@
           "status": "PENDING",
           "priority": "low",
           "owner": "will-zappro",
-          "files_affected": ["docker-compose.monitoring.yml"],
-          "acceptance_criteria": ["Promail container removed", "Loki still receiving logs via Alloy"],
-          "dependencies": ["P024-T20"]
+          "files_affected": [
+            "docker-compose.monitoring.yml"
+          ],
+          "acceptance_criteria": [
+            "Promail container removed",
+            "Loki still receiving logs via Alloy"
+          ],
+          "dependencies": [
+            "P024-T20"
+          ]
         },
         {
           "id": "P024-T22",
@@ -1307,7 +1576,10 @@
           "priority": "medium",
           "owner": "will-zappro",
           "files_affected": [],
-          "acceptance_criteria": ["All containers have json-file log driver", "All containers have max-size=10m, max-files=3"]
+          "acceptance_criteria": [
+            "All containers have json-file log driver",
+            "All containers have max-size=10m, max-files=3"
+          ]
         },
         {
           "id": "P024-T23",
@@ -1316,8 +1588,13 @@
           "status": "PENDING",
           "priority": "high",
           "owner": "will-zappro",
-          "files_affected": ["docs/OPERATIONS/SKILLS/heal.sh"],
-          "acceptance_criteria": ["Table output: container, status, health, restarts, flags", "Summary line: Up | Exited | Blocked"]
+          "files_affected": [
+            "docs/OPERATIONS/SKILLS/heal.sh"
+          ],
+          "acceptance_criteria": [
+            "Table output: container, status, health, restarts, flags",
+            "Summary line: Up | Exited | Blocked"
+          ]
         },
         {
           "id": "P024-T24",
@@ -1326,9 +1603,18 @@
           "status": "PENDING",
           "priority": "high",
           "owner": "will-zappro",
-          "files_affected": ["docs/OPERATIONS/SKILLS/heal.sh"],
-          "acceptance_criteria": ["Fails for pinned containers with E_CONTAINER_PINNED", "Fails for rate-limited with E_RATE_LIMITED", "Creates ZFS snapshot before restart"],
-          "dependencies": ["P024-T08", "P024-T23"]
+          "files_affected": [
+            "docs/OPERATIONS/SKILLS/heal.sh"
+          ],
+          "acceptance_criteria": [
+            "Fails for pinned containers with E_CONTAINER_PINNED",
+            "Fails for rate-limited with E_RATE_LIMITED",
+            "Creates ZFS snapshot before restart"
+          ],
+          "dependencies": [
+            "P024-T08",
+            "P024-T23"
+          ]
         },
         {
           "id": "P024-T25",
@@ -1337,9 +1623,16 @@
           "status": "PENDING",
           "priority": "high",
           "owner": "will-zappro",
-          "files_affected": ["docs/OPERATIONS/SKILLS/heal.sh"],
-          "acceptance_criteria": ["Removes entry from /tmp/container-restart-attempts.json", "Counter reset to 0"],
-          "dependencies": ["P024-T23"]
+          "files_affected": [
+            "docs/OPERATIONS/SKILLS/heal.sh"
+          ],
+          "acceptance_criteria": [
+            "Removes entry from /tmp/container-restart-attempts.json",
+            "Counter reset to 0"
+          ],
+          "dependencies": [
+            "P024-T23"
+          ]
         },
         {
           "id": "P024-T26",
@@ -1348,9 +1641,15 @@
           "status": "PENDING",
           "priority": "medium",
           "owner": "will-zappro",
-          "files_affected": ["docs/OPERATIONS/SKILLS/heal.sh"],
-          "acceptance_criteria": ["--lines/-n, --follow/-f, --timestamps/-t, --since flags work"],
-          "dependencies": ["P024-T23"]
+          "files_affected": [
+            "docs/OPERATIONS/SKILLS/heal.sh"
+          ],
+          "acceptance_criteria": [
+            "--lines/-n, --follow/-f, --timestamps/-t, --since flags work"
+          ],
+          "dependencies": [
+            "P024-T23"
+          ]
         },
         {
           "id": "P024-T27",
@@ -1359,8 +1658,13 @@
           "status": "PENDING",
           "priority": "high",
           "owner": "will-zappro",
-          "files_affected": ["docs/OPERATIONS/SKILLS/heal.sh"],
-          "acceptance_criteria": ["Creates tank@manual-YYYYMMDD-HHMMSS", "--pool, --name, --dry-run, --recursive/-r flags"]
+          "files_affected": [
+            "docs/OPERATIONS/SKILLS/heal.sh"
+          ],
+          "acceptance_criteria": [
+            "Creates tank@manual-YYYYMMDD-HHMMSS",
+            "--pool, --name, --dry-run, --recursive/-r flags"
+          ]
         },
         {
           "id": "P024-T28",
@@ -1369,9 +1673,15 @@
           "status": "PENDING",
           "priority": "high",
           "owner": "will-zappro",
-          "files_affected": ["docs/OPERATIONS/SKILLS/heal.sh"],
-          "acceptance_criteria": ["Test alert arrives in Telegram @HOMELAB_LOPS"],
-          "dependencies": ["P024-T16"]
+          "files_affected": [
+            "docs/OPERATIONS/SKILLS/heal.sh"
+          ],
+          "acceptance_criteria": [
+            "Test alert arrives in Telegram @HOMELAB_LOPS"
+          ],
+          "dependencies": [
+            "P024-T16"
+          ]
         },
         {
           "id": "P024-T29",
@@ -1380,8 +1690,13 @@
           "status": "PENDING",
           "priority": "medium",
           "owner": "will-zappro",
-          "files_affected": ["docs/OPERATIONS/SKILLS/heal.sh"],
-          "acceptance_criteria": ["Prints https://monitor.zappro.site", "--open/-o and --host flags work"]
+          "files_affected": [
+            "docs/OPERATIONS/SKILLS/heal.sh"
+          ],
+          "acceptance_criteria": [
+            "Prints https://monitor.zappro.site",
+            "--open/-o and --host flags work"
+          ]
         },
         {
           "id": "P024-CLI-T01",
@@ -1390,8 +1705,13 @@
           "status": "PENDING",
           "priority": "critical",
           "owner": "will-zappro",
-          "files_affected": ["scripts/approve.sh"],
-          "acceptance_criteria": ["Polls pipeline-state.json until approval status != pending", "Exits 0 when approved"],
+          "files_affected": [
+            "scripts/approve.sh"
+          ],
+          "acceptance_criteria": [
+            "Polls pipeline-state.json until approval status != pending",
+            "Exits 0 when approved"
+          ],
           "dependencies": []
         },
         {
@@ -1401,8 +1721,12 @@
           "status": "PENDING",
           "priority": "critical",
           "owner": "will-zappro",
-          "files_affected": ["scripts/query-gate.sh"],
-          "acceptance_criteria": ["Returns gate status for cursor-loop"],
+          "files_affected": [
+            "scripts/query-gate.sh"
+          ],
+          "acceptance_criteria": [
+            "Returns gate status for cursor-loop"
+          ],
           "dependencies": []
         },
         {
@@ -1412,9 +1736,16 @@
           "status": "PENDING",
           "priority": "critical",
           "owner": "will-zappro",
-          "files_affected": ["scripts/pipeline-runner"],
-          "acceptance_criteria": ["wait_for_human() polls until .humanGateRequired=false"],
-          "dependencies": ["P024-CLI-T01", "P024-CLI-T02"]
+          "files_affected": [
+            "scripts/pipeline-runner"
+          ],
+          "acceptance_criteria": [
+            "wait_for_human() polls until .humanGateRequired=false"
+          ],
+          "dependencies": [
+            "P024-CLI-T01",
+            "P024-CLI-T02"
+          ]
         },
         {
           "id": "P024-CLI-T04",
@@ -1423,9 +1754,15 @@
           "status": "PENDING",
           "priority": "critical",
           "owner": "will-zappro",
-          "files_affected": ["scripts/telegram-alert.sh"],
-          "acceptance_criteria": ["Human gate notifications sent to Telegram with inline approve/reject buttons"],
-          "dependencies": ["P024-CLI-T01"]
+          "files_affected": [
+            "scripts/telegram-alert.sh"
+          ],
+          "acceptance_criteria": [
+            "Human gate notifications sent to Telegram with inline approve/reject buttons"
+          ],
+          "dependencies": [
+            "P024-CLI-T01"
+          ]
         },
         {
           "id": "P024-CLI-T05",
@@ -1434,8 +1771,12 @@
           "status": "PENDING",
           "priority": "high",
           "owner": "will-zappro",
-          "files_affected": ["scripts/spec-validate.sh"],
-          "acceptance_criteria": ["Validates SPEC structure, required fields, checklist completeness"]
+          "files_affected": [
+            "scripts/spec-validate.sh"
+          ],
+          "acceptance_criteria": [
+            "Validates SPEC structure, required fields, checklist completeness"
+          ]
         },
         {
           "id": "P024-CLI-T06",
@@ -1445,7 +1786,9 @@
           "priority": "medium",
           "owner": "will-zappro",
           "files_affected": [],
-          "acceptance_criteria": ["claude mcp add tavily with API key configured"],
+          "acceptance_criteria": [
+            "claude mcp add tavily with API key configured"
+          ],
           "dependencies": []
         },
         {
@@ -1455,62 +1798,106 @@
           "status": "PENDING",
           "priority": "medium",
           "owner": "will-zappro",
-          "files_affected": ["docs/SPECS/SPEC-021-CLAUDE-CODE-CURSOR-LOOP.md"],
-          "acceptance_criteria": ["tea CLI commands documented for Gitea Actions"]
+          "files_affected": [
+            "docs/SPECS/SPEC-021-CLAUDE-CODE-CURSOR-LOOP.md"
+          ],
+          "acceptance_criteria": [
+            "tea CLI commands documented for Gitea Actions"
+          ]
         },
         {
           "id": "P024-AGENT-T01",
-          "title": "CEO MIX — Configuration and Intent Routing",
+          "title": "CEO MIX \u2014 Configuration and Intent Routing",
           "spec": "SPEC-011",
           "status": "PENDING",
           "priority": "high",
           "owner": "will-zappro",
-          "files_affected": ["openclaw.json", "agents/ceo-mix/SOUL.md", "skills/ceo-mix/SKILL.md"],
-          "acceptance_criteria": ["CEO MIX routes to 10 specialized agents", "Qdrant ceo_context collection populated"],
-          "dependencies": ["P024-AGENT-T04", "P024-AGENT-T05"]
+          "files_affected": [
+            "openclaw.json",
+            "agents/ceo-mix/SOUL.md",
+            "skills/ceo-mix/SKILL.md"
+          ],
+          "acceptance_criteria": [
+            "CEO MIX routes to 10 specialized agents",
+            "Qdrant ceo_context collection populated"
+          ],
+          "dependencies": [
+            "P024-AGENT-T04",
+            "P024-AGENT-T05"
+          ]
         },
         {
           "id": "P024-AGENT-T02",
-          "title": "ONBOARDING — Complete Intake Flow (10 steps)",
+          "title": "ONBOARDING \u2014 Complete Intake Flow (10 steps)",
           "spec": "SPEC-011",
           "status": "PENDING",
           "priority": "high",
           "owner": "will-zappro",
-          "files_affected": ["skills/onboarding/SKILL.md", "n8n/workflows/welcome_package_send.yaml"],
-          "acceptance_criteria": ["10-step flow complete", "Audio transcription via wav2vec2", "Voice responses via TTS Bridge"],
-          "dependencies": ["P024-AGENT-T01"]
+          "files_affected": [
+            "skills/onboarding/SKILL.md",
+            "n8n/workflows/welcome_package_send.yaml"
+          ],
+          "acceptance_criteria": [
+            "10-step flow complete",
+            "Audio transcription via wav2vec2",
+            "Voice responses via TTS Bridge"
+          ],
+          "dependencies": [
+            "P024-AGENT-T01"
+          ]
         },
         {
           "id": "P024-AGENT-T03",
-          "title": "ORGANIZADOR — Client Folder Structure Creation",
+          "title": "ORGANIZADOR \u2014 Client Folder Structure Creation",
           "spec": "SPEC-011",
           "status": "PENDING",
           "priority": "high",
           "owner": "will-zappro",
-          "files_affected": ["skills/organizador/SKILL.md", "scripts/create_client_structure.sh"],
-          "acceptance_criteria": ["Folder hierarchy created at ~/.openclaw/workspace/clientes/{slug}/", "Naming convention enforced", "n8n webhook integration"],
-          "dependencies": ["P024-AGENT-T04"]
+          "files_affected": [
+            "skills/organizador/SKILL.md",
+            "scripts/create_client_structure.sh"
+          ],
+          "acceptance_criteria": [
+            "Folder hierarchy created at ~/.openclaw/workspace/clientes/{slug}/",
+            "Naming convention enforced",
+            "n8n webhook integration"
+          ],
+          "dependencies": [
+            "P024-AGENT-T04"
+          ]
         },
         {
           "id": "P024-AGENT-T04",
-          "title": "Qdrant Collections — Full Schema Setup (9 collections)",
+          "title": "Qdrant Collections \u2014 Full Schema Setup (9 collections)",
           "spec": "SPEC-011",
           "status": "PENDING",
           "priority": "high",
           "owner": "will-zappro",
-          "files_affected": ["scripts/qdrant_client_setup.py"],
-          "acceptance_criteria": ["All 9 collections created: clients, campaigns, assets, brand_guides, analytics, templates, video_metadata, approvals_history, ceo_context"],
-          "dependencies": ["LiteLLM :4000", "nomic-embed-text model"]
+          "files_affected": [
+            "scripts/qdrant_client_setup.py"
+          ],
+          "acceptance_criteria": [
+            "All 9 collections created: clients, campaigns, assets, brand_guides, analytics, templates, video_metadata, approvals_history, ceo_context"
+          ],
+          "dependencies": [
+            "LiteLLM :4000",
+            "nomic-embed-text model"
+          ]
         },
         {
           "id": "P024-AGENT-T05",
-          "title": "Infisical — Secrets Configuration",
+          "title": "Infisical \u2014 Secrets Configuration",
           "spec": "SPEC-011",
           "status": "PENDING",
           "priority": "high",
           "owner": "will-zappro",
-          "files_affected": ["Infisical vault"],
-          "acceptance_criteria": ["No hardcoded credentials in any SKILL/SOUL file", "All secrets via Infisical reference"],
+          "files_affected": [
+            "Infisical vault"
+          ],
+          "acceptance_criteria": [
+            "No hardcoded credentials in any SKILL/SOUL file",
+            "All secrets via Infisical reference"
+          ],
           "dependencies": []
         },
         {
@@ -1520,19 +1907,28 @@
           "status": "PENDING",
           "priority": "high",
           "owner": "will-zappro",
-          "files_affected": ["/data/.openclaw/openclaw.json"],
-          "acceptance_criteria": ["OpenClaw uses wav2vec2 at :8201 for STT", "NOT via LiteLLM or Whisper"],
+          "files_affected": [
+            "/data/.openclaw/openclaw.json"
+          ],
+          "acceptance_criteria": [
+            "OpenClaw uses wav2vec2 at :8201 for STT",
+            "NOT via LiteLLM or Whisper"
+          ],
           "dependencies": []
         },
         {
           "id": "P024-AGENT-T07",
-          "title": "Fix TTS config: TTS Bridge :8013 → Kokoro :8880 with pm_santa",
+          "title": "Fix TTS config: TTS Bridge :8013 \u2192 Kokoro :8880 with pm_santa",
           "spec": "SPEC-013",
           "status": "PENDING",
           "priority": "high",
           "owner": "will-zappro",
-          "files_affected": ["/data/.openclaw/openclaw.json"],
-          "acceptance_criteria": ["TTS Bridge filters voices — only pm_santa/pf_dora allowed"],
+          "files_affected": [
+            "/data/.openclaw/openclaw.json"
+          ],
+          "acceptance_criteria": [
+            "TTS Bridge filters voices \u2014 only pm_santa/pf_dora allowed"
+          ],
           "dependencies": []
         },
         {
@@ -1542,8 +1938,12 @@
           "status": "PENDING",
           "priority": "high",
           "owner": "will-zappro",
-          "files_affected": ["/data/.openclaw/openclaw.json"],
-          "acceptance_criteria": ["Vision model is litellm/qwen2.5-vl via LiteLLM"],
+          "files_affected": [
+            "/data/.openclaw/openclaw.json"
+          ],
+          "acceptance_criteria": [
+            "Vision model is litellm/qwen2.5-vl via LiteLLM"
+          ],
           "dependencies": []
         },
         {
@@ -1553,9 +1953,19 @@
           "status": "PENDING",
           "priority": "high",
           "owner": "will-zappro",
-          "files_affected": ["/data/workspace/IDENTITY.md", "/data/workspace/SOUL.md", "/data/workspace/MEMORY.md"],
-          "acceptance_criteria": ["Documents updated with STT:wav2vec2, TTS:Bridge→Kokoro, VL:qwen2.5-vl"],
-          "dependencies": ["P024-AGENT-T06", "P024-AGENT-T07", "P024-AGENT-T08"]
+          "files_affected": [
+            "/data/workspace/IDENTITY.md",
+            "/data/workspace/SOUL.md",
+            "/data/workspace/MEMORY.md"
+          ],
+          "acceptance_criteria": [
+            "Documents updated with STT:wav2vec2, TTS:Bridge\u2192Kokoro, VL:qwen2.5-vl"
+          ],
+          "dependencies": [
+            "P024-AGENT-T06",
+            "P024-AGENT-T07",
+            "P024-AGENT-T08"
+          ]
         },
         {
           "id": "P024-AGENT-T10",
@@ -1564,9 +1974,17 @@
           "status": "PENDING",
           "priority": "high",
           "owner": "will-zappro",
-          "files_affected": ["docs/SPECS/SPEC-009-openclaw-persona-audio-stack.md"],
-          "acceptance_criteria": ["SPEC-009 reflects source code canonical config"],
-          "dependencies": ["P024-AGENT-T06", "P024-AGENT-T07", "P024-AGENT-T08"]
+          "files_affected": [
+            "docs/SPECS/SPEC-009-openclaw-persona-audio-stack.md"
+          ],
+          "acceptance_criteria": [
+            "SPEC-009 reflects source code canonical config"
+          ],
+          "dependencies": [
+            "P024-AGENT-T06",
+            "P024-AGENT-T07",
+            "P024-AGENT-T08"
+          ]
         },
         {
           "id": "P024-CURSOR-T01",
@@ -1575,9 +1993,15 @@
           "status": "PENDING",
           "priority": "critical",
           "owner": "will-zappro",
-          "files_affected": ["gitea-mcp.py"],
-          "acceptance_criteria": ["gitea-mcp.py runs as MCP server"],
-          "dependencies": ["P024-CURSOR-T04"]
+          "files_affected": [
+            "gitea-mcp.py"
+          ],
+          "acceptance_criteria": [
+            "gitea-mcp.py runs as MCP server"
+          ],
+          "dependencies": [
+            "P024-CURSOR-T04"
+          ]
         },
         {
           "id": "P024-CURSOR-T02",
@@ -1587,8 +2011,12 @@
           "priority": "high",
           "owner": "will-zappro",
           "files_affected": [],
-          "acceptance_criteria": ["cursor-loop works end-to-end via Coolify MCP"],
-          "dependencies": ["P024-CURSOR-T01"]
+          "acceptance_criteria": [
+            "cursor-loop works end-to-end via Coolify MCP"
+          ],
+          "dependencies": [
+            "P024-CURSOR-T01"
+          ]
         },
         {
           "id": "P024-CURSOR-T03",
@@ -1598,8 +2026,12 @@
           "priority": "high",
           "owner": "will-zappro",
           "files_affected": [],
-          "acceptance_criteria": ["smoke-bridge-stack-e2e.sh passes"],
-          "dependencies": ["P024-CURSOR-T04"]
+          "acceptance_criteria": [
+            "smoke-bridge-stack-e2e.sh passes"
+          ],
+          "dependencies": [
+            "P024-CURSOR-T04"
+          ]
         },
         {
           "id": "P024-CURSOR-T04",
@@ -1609,7 +2041,9 @@
           "priority": "critical",
           "owner": "will-zappro",
           "files_affected": [],
-          "acceptance_criteria": ["tank@pre-* snapshot created before any change"],
+          "acceptance_criteria": [
+            "tank@pre-* snapshot created before any change"
+          ],
           "dependencies": []
         },
         {
@@ -1619,9 +2053,18 @@
           "status": "PENDING",
           "priority": "high",
           "owner": "will-zappro",
-          "files_affected": [".claude/agents/cursor-loop-leader.md", ".claude/agents/cursor-loop-ship.md"],
-          "acceptance_criteria": ["Infisical → Gitea push → Gitea CI → Coolify deploy → Cloudflare DNS → Smoke test"],
-          "dependencies": ["P024-CURSOR-T01", "P024-CURSOR-T02", "P024-CURSOR-T03"]
+          "files_affected": [
+            ".claude/agents/cursor-loop-leader.md",
+            ".claude/agents/cursor-loop-ship.md"
+          ],
+          "acceptance_criteria": [
+            "Infisical \u2192 Gitea push \u2192 Gitea CI \u2192 Coolify deploy \u2192 Cloudflare DNS \u2192 Smoke test"
+          ],
+          "dependencies": [
+            "P024-CURSOR-T01",
+            "P024-CURSOR-T02",
+            "P024-CURSOR-T03"
+          ]
         },
         {
           "id": "P024-BRIDGE-T01",
@@ -1630,8 +2073,15 @@
           "status": "PENDING",
           "priority": "high",
           "owner": "will-zappro",
-          "files_affected": ["docker-compose.bridge.yml", "openclaw-mcp-wrapper/", "openwebui-bridge-agent/"],
-          "acceptance_criteria": ["Bridge stack deployed via Coolify API", "Networks qgtzrmi + wbmqefx configured"],
+          "files_affected": [
+            "docker-compose.bridge.yml",
+            "openclaw-mcp-wrapper/",
+            "openwebui-bridge-agent/"
+          ],
+          "acceptance_criteria": [
+            "Bridge stack deployed via Coolify API",
+            "Networks qgtzrmi + wbmqefx configured"
+          ],
           "dependencies": []
         },
         {
@@ -1641,9 +2091,15 @@
           "status": "PENDING",
           "priority": "high",
           "owner": "will-zappro",
-          "files_affected": ["smoke-bridge-stack-e2e.sh"],
-          "acceptance_criteria": ["smoke-bridge-stack-e2e.sh exits 0"],
-          "dependencies": ["P024-BRIDGE-T01"]
+          "files_affected": [
+            "smoke-bridge-stack-e2e.sh"
+          ],
+          "acceptance_criteria": [
+            "smoke-bridge-stack-e2e.sh exits 0"
+          ],
+          "dependencies": [
+            "P024-BRIDGE-T01"
+          ]
         },
         {
           "id": "P024-BRIDGE-T03",
@@ -1652,8 +2108,13 @@
           "status": "PENDING",
           "priority": "high",
           "owner": "will-zappro",
-          "files_affected": ["voice.sh", "speak.sh"],
-          "acceptance_criteria": ["Arrow symbols read as 'para', titles with pause+prefix, numbered lists as 'Primeiro:', lettered as 'Letra A:'"]
+          "files_affected": [
+            "voice.sh",
+            "speak.sh"
+          ],
+          "acceptance_criteria": [
+            "Arrow symbols read as 'para', titles with pause+prefix, numbered lists as 'Primeiro:', lettered as 'Letra A:'"
+          ]
         }
       ]
     }
