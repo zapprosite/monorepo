@@ -5,44 +5,45 @@
 **Host:** will-zappro homelab | Grafana: `https://monitor.zappro.site` (:3100 external, :3000 internal)
 **Version:** Grafana 12.4.2 | Prometheus 3.11.1 | AlertManager 0.31.1 | Loki 3.7.0 | Grafana Alloy 1.12.0
 
+> **AUTHENTICATION:** Grafana open source uses **Service Accounts + Tokens** — NOT API Keys (those are Grafana Cloud only).
+> **Source of Truth:** See `docs/GOVERNANCE/GRAFANA-SERVICE-ACCOUNT.md` for definitive auth reference.
+
 ---
 
 ## 1. Authentication
 
-### 1.1 API Key Authentication
+### 1.1 Service Account Token (CORRETO — open source)
 
-All Grafana API requests require a Bearer token. The API key for this instance is stored in Infisical at `vault.zappro.site` under the key `grafana_api_key`.
+Grafana open source usa **Service Accounts + Tokens** para autenticação API.
 
 **Header Format:**
 ```
-Authorization: Bearer <API_KEY>
+Authorization: Bearer <SERVICE_ACCOUNT_TOKEN>
 ```
 
-**Base URL:** `https://monitor.zappro.site/api`
+**Token format:** `glsa_xxxxxxxx...`
 
-### 1.2 Getting the API Key from Infisical
+**Base URL:** `http://localhost:3000/api` (local) ou `https://monitor.zappro.site/api` (external)
+
+### 1.2 Getting the Token from Infisical (SDK v2)
 
 ```python
-# Python: Fetch Grafana API key from Infisical
-import requests
+# Python: Fetch Grafana Service Account token from Infisical
+from infisical_client import InfisicalClient
+from infisical_client.schemas import ClientSettings, GetSecretOptions
 
-def get_grafana_api_key():
-    """
-    Fetch Grafana API key from Infisical vault.
-    Requires INFISICAL_TOKEN environment variable or project token.
-    """
-    response = requests.get(
-        "https://vault.zappro.site/api/v3/secrets/raw",
-        headers={
-            "Authorization": f"Bearer {os.environ['INFISICAL_TOKEN']}"
-        },
-        params={"projectId": "your-project-id", "environment": "production", "secretPath": "/"}
-    )
-    secrets = response.json().get("secrets", [])
-    for secret in secrets:
-        if secret.get("key") == "grafana_api_key":
-            return secret.get("value")
-    return None
+def get_grafana_token():
+    """Fetch Grafana Service Account token from Infisical vault."""
+    client = InfisicalClient(settings=ClientSettings(
+        access_token=open('/srv/ops/secrets/infisical.service-token').read().strip(),
+        site_url='http://127.0.0.1:8200',
+    ))
+    return client.getSecret(GetSecretOptions(
+        environment='dev',
+        project_id='e42657ef-98b2-4b9c-9a04-46c093bd6d37',
+        secret_name='GRAFANA_SERVICE_ACCOUNT_TOKEN',
+        path='/',
+    )).secret_value
 ```
 
 ### 1.3 Python HTTP Client Setup

@@ -36,22 +36,76 @@ https://git.zappro.site/api/v1/swagger
 **Create via UI:**
 1. Open https://git.zappro.site/user/settings/applications
 2. "Create New Token"
-3. Name: `llm-agent-token` (or similar)
+3. Name: `cursor-loop-token` (or similar)
 4. Scopes: `repo`, `workflow`, `read:user`
 5. Save token immediately — shown only once
 
-**Store in Infisical:**
-```bash
-infisical secrets set gitea-access-token --value="your-token-here"
+**Store in Infisical (SDK):**
+```python
+from infisical_client import InfisicalClient
+from infisical_client.schemas import ClientSettings, CreateSecretOptions
+
+client = InfisicalClient(settings=ClientSettings(
+    access_token=open('/srv/ops/secrets/infisical.service-token').read().strip(),
+    site_url='http://127.0.0.1:8200',
+))
+
+# Create (se não existir) ou update
+client.createSecret(CreateSecretOptions(
+    environment='dev',
+    project_id='e42657ef-98b2-4b9c-9a04-46c093bd6d37',
+    secret_name='GITEA_TOKEN',
+    secret_value='tok_your_token_here',
+    path='/',
+))
 ```
 
 **Project ID:** `e42657ef-98b2-4b9c-9a04-46c093bd6d37`
 **Environment:** `dev`
 **Secret path:** `/`
 
-**Usage:**
+**Usage (via Infisical SDK):**
+```python
+from infisical_client import InfisicalClient
+from infisical_client.schemas import ClientSettings, GetSecretOptions
+
+client = InfisicalClient(settings=ClientSettings(
+    access_token=open('/srv/ops/secrets/infisical.service-token').read().strip(),
+    site_url='http://127.0.0.1:8200',
+))
+
+token = client.getSecret(GetSecretOptions(
+    environment='dev',
+    project_id='e42657ef-98b2-4b9c-9a04-46c093bd6d37',
+    secret_name='GITEA_TOKEN',
+    path='/',
+)).secret_value
+
+import requests
+response = requests.get(
+    'https://git.zappro.site/api/v1/user',
+    headers={'Authorization': f'token {token}'}
+)
+```
+
+**Usage (via CLI env var):**
 ```bash
-curl -H "Authorization: token ${GITEA_ACCESS_TOKEN}" \
+export GITEA_TOKEN="$(python3 -c "
+from infisical_client import InfisicalClient
+from infisical_client.schemas import ClientSettings, GetSecretOptions
+c = InfisicalClient(settings=ClientSettings(
+    access_token=open('/srv/ops/secrets/infisical.service-token').read().strip(),
+    site_url='http://127.0.0.1:8200',
+))
+print(c.getSecret(GetSecretOptions(
+    environment='dev',
+    project_id='e42657ef-98b2-4b9c-9a04-46c093bd6d37',
+    secret_name='GITEA_TOKEN',
+    path='/',
+)).secret_value)
+")"
+
+curl -H "Authorization: token $GITEA_TOKEN" \
   https://git.zappro.site/api/v1/user
 ```
 

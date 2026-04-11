@@ -48,10 +48,53 @@ git push --force-with-lease origin HEAD
 
 ### 4. Create PRs (Optional)
 
-**Gitea:**
+**Gitea (via Infisical SDK):**
+```python
+# Python — usar Infisical SDK para obter token
+from infisical_client import InfisicalClient
+from infisical_client.schemas import ClientSettings, GetSecretOptions
+
+client = InfisicalClient(settings=ClientSettings(
+    access_token=open('/srv/ops/secrets/infisical.service-token').read().strip(),
+    site_url='http://127.0.0.1:8200',
+))
+
+token = client.getSecret(GetSecretOptions(
+    environment='dev',
+    project_id='e42657ef-98b2-4b9c-9a04-46c093bd6d37',
+    secret_name='GITEA_TOKEN',
+    path='/',
+)).secret_value
+
+# Depois usar o token:
+import subprocess
+result = subprocess.run([
+    'curl', '-s', '-X', 'POST',
+    'https://gitea.zappro.site/api/v1/repos/will-zappro/monorepo/pulls',
+    '-H', f'Authorization: Bearer {token}',
+    '-H', 'Content-Type: application/json',
+    '-d', f'{{"title":"{title}","head":"{branch}","base":"main"}}'
+], capture_output=True, text=True)
+```
+
+**Gitea (via CLI com env var):**
 ```bash
-# Via API
-GITEA_TOKEN="$(cat ~/.config/gitea/_token 2>/dev/null || echo '')"
+# Exportar do Infisical antes de usar
+export GITEA_TOKEN="$(python3 -c "
+from infisical_client import InfisicalClient
+from infisical_client.schemas import ClientSettings, GetSecretOptions
+c = InfisicalClient(settings=ClientSettings(
+    access_token=open('/srv/ops/secrets/infisical.service-token').read().strip(),
+    site_url='http://127.0.0.1:8200',
+))
+print(c.getSecret(GetSecretOptions(
+    environment='dev',
+    project_id='e42657ef-98b2-4b9c-9a04-46c093bd6d37',
+    secret_name='GITEA_TOKEN',
+    path='/',
+)).secret_value)
+")"
+
 curl -X POST "https://gitea.zappro.site/api/v1/repos/will-zappro/monorepo/pulls" \
   -H "Authorization: Bearer $GITEA_TOKEN" \
   -H "Content-Type: application/json" \
