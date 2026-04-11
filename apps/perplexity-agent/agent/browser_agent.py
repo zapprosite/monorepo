@@ -4,48 +4,55 @@ import os
 from browser_use import Agent
 from browser_use.llm.anthropic.chat import ChatAnthropic
 from infisical_client import InfisicalClient
-from infisical_client.schemas import ClientSettings, ListSecretsOptions
+from infisical_client.schemas import ClientSettings, GetSecretOptions
 
-INFISICAL_PROJECT_ID = "e42657ef-98b2-4b9c-9a04-46c093bd6d37"
-INFISICAL_ENV = "dev"
-TOKEN_PATH = "/srv/ops/secrets/infisical.service-token"
+# Configuration from environment variables
+INFISICAL_PROJECT_ID = os.environ.get("INFISICAL_PROJECT_ID", "e42657ef-98b2-4b9c-9a04-46c093bd6d37")
+INFISICAL_ENV = os.environ.get("INFISICAL_ENV", "dev")
+INFISICAL_SITE_URL = os.environ.get("INFISICAL_SITE_URL", "http://127.0.0.1:8200")
+TOKEN_PATH = os.environ.get("INFISICAL_TOKEN_PATH", "/srv/ops/secrets/infisical.service-token")
 
 
 def get_minimax_key() -> str:
-    """Get MINIMAX_TOKEN from environment or Infisical vault."""
+    """Get MINIMAX_TOKEN from environment or Infisical vault.
+
+    Priority:
+    1. MINIMAX_TOKEN env var (Coolify secret injection)
+    2. Infisical vault via service token (for containerized deployments)
+    """
+    # Priority 1: env var (Coolify/host injection)
     env_token = os.environ.get("MINIMAX_TOKEN")
     if env_token:
         return env_token
 
-    # Read token from mounted secrets
+    # Priority 2: Infisical vault
     try:
         with open(TOKEN_PATH, "r") as f:
             token = f.read().strip()
     except FileNotFoundError:
         raise RuntimeError(
-            f"MINIMAX_TOKEN not set and {TOKEN_PATH} not found. "
-            "Mount secrets or set MINIMAX_TOKEN env var."
+            f"MINIMAX_TOKEN not set and token file not found at {TOKEN_PATH}"
         )
+    except PermissionError:
+        raise RuntimeError(f"Permission denied reading token file at {TOKEN_PATH}")
+
+    if not token:
+        raise RuntimeError("Infisical token file is empty")
 
     settings = ClientSettings(
         access_token=token,
-        site_url="http://127.0.0.1:8200",
+        site_url=INFISICAL_SITE_URL,
     )
     client = InfisicalClient(settings=settings)
 
-    options = ListSecretsOptions(
+    options = GetSecretOptions(
         environment=INFISICAL_ENV,
         project_id=INFISICAL_PROJECT_ID,
+        secret_name="MINIMAX_TOKEN",
         path="/",
-        recursive=True,
     )
-    secrets = client.listSecrets(options)
-
-    for s in secrets:
-        if s.secret_key == "MINIMAX_TOKEN":
-            return s.secret_value
-
-    raise RuntimeError("MINIMAX_TOKEN not found in Infisical vault")
+    secret = client.getSecret(options)
+    return secret.secret_value
 
 
 def get_llm() -> ChatAnthropic:
