@@ -12,6 +12,8 @@ Comprehensive index of all operational skills for the homelab. These skills are 
 
 | Skill | Purpose | When to Use |
 |-------|---------|--------------|
+| [cloudflare-guide.md](cloudflare-guide.md) | Cloudflare API v4, DNS, Tunnels, Access, Workers | Add subdomains, manage tunnel, Cloudflare API operations |
+| [terraform-guide.md](terraform-guide.md) | Terraform IaC for Cloudflare, tunnels, DNS, Access | Terraform workflow for homelab infra |
 | [traefik-health-check.md](traefik-health-check.md) | Diagnose Traefik routing issues | When site returns 502/504 |
 | [traefik-route-tester.md](traefik-route-tester.md) | Test all Traefik routes | After any routing change |
 | [verify-network.md](verify-network.md) + [verify-network.sh](verify-network.sh) | Network isolation checks | When containers can't talk |
@@ -130,6 +132,7 @@ curl -sf -m 5 http://localhost:80/ping && echo " Traefik OK" || echo " Traefik F
 | oom-killer | Diagnostic | Medium |
 | resource-monitor | Monitoring | Low |
 | self-healing-cron | Monitoring | Medium |
+| terraform-guide | Infrastructure as Code | Medium |
 | traefik-health-check | Diagnostic | Low |
 | traefik-route-tester | Diagnostic | Low |
 | verify-network | Diagnostic | Medium |
@@ -220,5 +223,5 @@ bash docs/OPERATIONS/SKILLS/verify-network.sh
 
 ---
 
-**Last updated:** 2026-04-08
+**Last updated:** 2026-04-11
 **Maintainer:** will
