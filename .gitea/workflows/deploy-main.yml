@@ -112,7 +112,7 @@ jobs:
     needs: [build-and-test]
     environment:
       name: ${{ inputs.environment || 'production' }}
-      url: https://web.zappro.site
+      url: https://git.zappro.site
     # This job always passes; the gate is enforced by the Gitea environment
     # protection rule. An approver must visit the environment URL and click
     # "Approve" in the Gitea Actions UI before the deploy job can start.
@@ -220,7 +220,7 @@ jobs:
 
       - name: Smoke Test
         env:
-          HEALTH_URL: https://web.zappro.site/_stcore/health
+          HEALTH_URL: http://localhost:4004/_stcore/health
         run: |
           ELAPSED=0
           echo "Running smoke test against $HEALTH_URL..."

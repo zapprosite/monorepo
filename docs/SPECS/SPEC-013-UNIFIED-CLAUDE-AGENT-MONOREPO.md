@@ -420,7 +420,7 @@ jobs:
       - name: Smoke Test
         run: |
           curl -s -o /dev/null -w "%{http_code}" --max-time 15 \
-            "https://web.zappro.site/_stcore/health" | grep -q "200" && exit 0 || exit 1
+            "http://localhost:4004/_stcore/health" | grep -q "200" && exit 0 || exit 1
 ```
 
 ### Human Gate Configuration

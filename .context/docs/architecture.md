@@ -115,7 +115,7 @@ Gitea (git push)
     └── Gitea Action
             └── Coolify API (deploy trigger)
                     └── Coolify (container orchestration)
-                            └── Cloudflare Tunnel → web.zappro.site
+                            └── Cloudflare Tunnel → localhost:4004 (perplexity-agent)
 ```
 
 ### API Coolify

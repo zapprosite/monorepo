@@ -1,0 +1,8 @@
+This directory was archived on 2026-04-11 as part of SPEC-024 cleanup.
+
+The apps/web React application (Bundle Visualiser) was never deployed and
+is now orphaned. The service previously targeted by web.zappro.site has
+been replaced by perplexity-agent (port 4004).
+
+Archived location: /srv/monorepo/archive/apps-web-20260411/
+Related: SPEC-024, SPEC-PERPLEXITY-GITOPS

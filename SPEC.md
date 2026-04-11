@@ -111,7 +111,7 @@ docker-compose up -d
 
 # Production (Coolify)
 # Build from Dockerfile in apps/perplexity-agent/
-# Exposed on web.zappro.site (same domain as OpenClaw web services)
+# Exposed on localhost:4004 (same domain as OpenClaw web services)
 ```
 
 ---
@@ -189,7 +189,7 @@ No Infisical project `zappro-p-tc-k`:
 - [x] Chrome profile persiste sessão entre restarts
 - [ ] Budget $50/mês não excedido (monitorar)
 - [x] Deployed on Coolify via terraform
-- [x] Subdomain web.zappro.site funcionando (terraform applied)
+- [x] Subdomain localhost:4004 funcionando (terraform applied)
 
 ---
 

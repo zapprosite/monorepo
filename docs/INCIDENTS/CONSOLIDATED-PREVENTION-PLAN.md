@@ -130,7 +130,7 @@
 | Component | Health Check | Smoke Test | Auto-healer | Cron |
 |-----------|-------------|------------|-------------|------|
 | **Gitea Runner** | `/admin/actions/runners` UI | Push trigger test | N/A | N/A |
-| **Perplexity Agent** | `https://web.zappro.site/_stcore/health` | HTTP 200 + content check | ✅ | `*/5 * * * *` |
+| **Perplexity Agent** | `http://localhost:4004/_stcore/health` | HTTP 200 + content check | ✅ | `*/5 * * * *` |
 | **wav2vec2 STT** | `http://wav2vec2:8201/health` | STT via LiteLLM | ✅ | N/A |
 | **TTS Bridge** | `http://localhost:8013/v1/audio/speech` (pm_santa) | 3 voices (2 pass, 1 blocked) | N/A | N/A |
 | **OpenClaw** | `https://bot.zappro.site/` via Tunnel | Full pipeline test | ✅ | N/A |

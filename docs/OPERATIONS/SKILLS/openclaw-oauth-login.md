@@ -7,7 +7,7 @@
 
 ## Overview
 
-O OpenClaw (CEO MIX agent) precisa de sessão OAuth ativa em `web.zappro.site` para comandar o Perplexity Agent. Este guia explica como fazer login e manter sessões persistentes.
+O OpenClaw (CEO MIX agent) precisa de sessão OAuth ativa em localhost:4004 para comandar o Perplexity Agent. Este guia explica como fazer login e manter sessões persistentes.
 
 ---
 
@@ -46,7 +46,7 @@ Copie e cole **tudo em uma linha**.
 ## Passo 3: Fazer Login
 
 1. Chrome abre no desktop
-2. Navegue para: **https://web.zappro.site**
+2. Navegue para: **https://localhost:4004**
 3. Login com conta **Google** (ex: `will.gemini@gmail.com`)
 4. Aguarde página carregar completamente
 5. **NÃO FECHE O CHROME** enquanto faz o próximo passo
@@ -56,7 +56,7 @@ Copie e cole **tudo em uma linha**.
 ## Passo 4: Verificar Login
 
 No Chrome aberto:
-- Verifique que está logado em `web.zappro.site`
+- Verifique que está logado em localhost:4004
 - Foto/avatar no canto superior = LOGIN OK
 
 ---
@@ -124,7 +124,7 @@ curl -s http://localhost:9222/json | head
 
 | Recurso | URL |
 |---------|-----|
-| web.zappro.site | https://web.zappro.site |
+| Perplexity Agent (web.zappro.site legacy) | http://localhost:4004 |
 | Perplexity Agent UI | http://localhost:4004 |
 | Chrome DevTools | chrome://inspect |
 | Google OAuth Console | https://console.cloud.google.com/apis/credentials |

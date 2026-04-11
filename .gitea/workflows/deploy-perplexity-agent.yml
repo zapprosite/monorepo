@@ -10,7 +10,7 @@ on:
 
 env:
   APP_NAME: perplexity-agent
-  HEALTH_URL: https://web.zappro.site/_stcore/health
+  HEALTH_URL: http://localhost:4004/_stcore/health
   HEALTH_TIMEOUT: 60
   HEALTH_INTERVAL: 5
 

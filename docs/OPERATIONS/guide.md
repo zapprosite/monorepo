@@ -155,7 +155,7 @@ codex-host "wipefs /dev/nvme0n1"
 **Arquitetura:**
 ```
 Gitea (git push) → Gitea Action → Coolify API → Container
-                                      └── Cloudflare Tunnel → web.zappro.site
+                                      └── Cloudflare Tunnel → localhost:4004 (perplexity-agent)
 ```
 
 **Skills disponíveis (em `/home/will/.claude/skills/`):**
@@ -175,7 +175,7 @@ Gitea (git push) → Gitea Action → Coolify API → Container
 claude -p "Deploy perplexity-agent via Coolify"
 
 # Health check
-claude -p "Run health check on web.zappro.site"
+claude -p "Run health check on localhost:4004"
 
 # Auto-healer (já roda em cron)
 # Verificar status

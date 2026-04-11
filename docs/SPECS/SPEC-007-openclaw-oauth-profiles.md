@@ -9,7 +9,7 @@
 
 ## Overview
 
-Configurar login OAuth persistente para OpenClaw (CEO MIX agent) comandar Perplexity Agent em `web.zappro.site`. Solução **CLI-first** — nenhum n8n ou webhook intermediary.
+Configurar login OAuth persistente para OpenClaw (CEO MIX agent) comandar Perplexity Agent em `localhost:4004`. Solução **CLI-first** — nenhum n8n ou webhook intermediary.
 
 ---
 
@@ -19,7 +19,7 @@ Configurar login OAuth persistente para OpenClaw (CEO MIX agent) comandar Perple
 ┌─────────────────────────────────────────────────────────────┐
 │                   CEO MIX (OpenClaw Bot)                    │
 │  Browser automation via CDP                                  │
-│  Navigate: https://web.zappro.site (OAuth session)          │
+│  Navigate: https://localhost:4004 (OAuth session)          │
 │  Executes commands on Perplexity UI                         │
 └─────────────────────────────────────────────────────────────┘
                               │
@@ -27,7 +27,7 @@ Configurar login OAuth persistente para OpenClaw (CEO MIX agent) comandar Perple
                               ↓
 ┌─────────────────────────────────────────────────────────────┐
 │              Perplexity Agent (Streamlit)                    │
-│  🌐 web.zappro.site:4004                                    │
+│  🌐 localhost:4004:4004                                    │
 │  OAuth UI: persona selector (gemini / perplexity)          │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -49,7 +49,7 @@ curl -s -X POST "https://api.perplexity.ai/chat/completions" \
 
 ### Must Have
 - [ ] Chrome profile persistente via host path mount (`/srv/data/openclaw-chrome-profiles/`)
-- [ ] Login OAuth funciona em `web.zappro.site` (Gemini + Perplexity personas)
+- [ ] Login OAuth funciona em `localhost:4004` (Gemini + Perplexity personas)
 - [ ] Sessões persistem após restart do container `browser-*`
 - [ ] CEO MIX (OpenClaw) consegue navegar logado via CDP
 
@@ -101,7 +101,7 @@ ln -sf /host/path/gemini-profile /config/.config/chromium/Default
 
 ### Step 4: OAuth Login Manual
 
-1. Abrir browser com perfil gemini → navegar para `web.zappro.site`
+1. Abrir browser com perfil gemini → navegar para `localhost:4004`
 2. Fazer login OAuth com conta Gemini
 3. Repetir para perfil perplexity
 4. Perfis guardados em `/srv/data/openclaw-chrome-profiles/`
@@ -143,7 +143,7 @@ apps/openclaw/
 | AC-1 | Chrome profile persiste | Restart container → cookies intactos |
 | AC-2 | Gemini OAuth funciona | Login persiste após restart |
 | AC-3 | Perplexity OAuth funciona | Login persiste após restart |
-| AC-4 | CEO MIX navega logado | OpenClaw CDP → web.zappro.site como usuário |
+| AC-4 | CEO MIX navega logado | OpenClaw CDP → localhost:4004 como usuário |
 | AC-5 | CLI query funciona | `./perplexity-query.sh "test"` → JSON response |
 
 ---

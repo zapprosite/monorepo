@@ -12,7 +12,7 @@ on:
 env:
   IMAGE_NAME: voice-proxy
   REGISTRY: registry.zappro.site
-  HEALTH_URL: https://web.zappro.site/_stcore/health
+  HEALTH_URL: http://localhost:4004/_stcore/health
   HEALTH_TIMEOUT: 120
   HEALTH_INTERVAL: 5
 

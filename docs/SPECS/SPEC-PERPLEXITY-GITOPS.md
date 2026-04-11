@@ -37,7 +37,7 @@ Este documento define o padrão estável de deployment para o `perplexity-agent`
 - [x] Secrets nunca em código (Infisical + Gitea Secrets)
 - [x] SSRF protection no deploy script
 - [x] Health check após deploy (60s timeout)
-- [x] Container exposto em porta 4004 (web.zappro.site)
+- [x] Container exposto em porta 4004 (localhost:4004)
 
 ### Should Have
 - [ ] Auto-rollback em caso de deploy failure
@@ -95,7 +95,7 @@ Este documento define o padrão estável de deployment para o `perplexity-agent`
 └─────────────────────────────────────────────────────────────┘
                               │
                               ▼
-                    web.zappro.site (Cloudflare Tunnel)
+                    localhost:4004 (Cloudflare Tunnel)
 ```
 
 ---
@@ -247,7 +247,7 @@ jobs:
 | AC-1 | Push à `main` em `apps/perplexity-agent/` dispara Gitea Action | Fazer push e verificar em git.zappro.site |
 | AC-2 | Gitea Action faz deploy no Coolify sem errors | Ver logs do Action em git.zappro.site |
 | AC-3 | Container fica `Up (healthy)` no Coolify dashboard | Verificar coolify.zappro.site |
-| AC-4 | web.zappro.site retorna HTTP 200 | `curl -I https://web.zappro.site` |
+| AC-4 | localhost:4004 retorna HTTP 200 | `curl -I https://localhost:4004` |
 | AC-5 | Secrets nunca aparecem em logs do Gitea Action | Review dos logs (redacted por padrão) |
 
 ---
@@ -281,7 +281,7 @@ jobs:
 | Coolify API v1 | ✅ OK | Endpoint `/api/v1/applications` |
 | Infisical SDK | ✅ OK | Python SDK para secrets |
 | Gitea Actions | ✅ OK | Workflow syntax compatível |
-| Cloudflare Tunnel | ✅ OK | web.zappro.site exposto |
+| Cloudflare Tunnel | ✅ OK | localhost:4004 exposto |
 | Terraform Cloudflare | ✅ OK | DNS subdomain gerenciado |
 
 ---

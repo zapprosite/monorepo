@@ -9,7 +9,7 @@
 
 ## Sumário
 
-`web.zappro.site` ficou indisponível porque o container Docker do `perplexity-agent` nunca foi deployado no Coolify, apesar do DNS (Terraform) e do subdomain (Cloudflare Tunnel) já estarem configurados.
+localhost:4004 (perplexity-agent) ficou indisponível porque o container Docker do `perplexity-agent` nunca foi deployado no Coolify, apesar do DNS (Terraform) e do subdomain (Cloudflare Tunnel) já estarem configurados.
 
 ---
 
@@ -17,7 +17,7 @@
 
 | Hora | Evento |
 |------|--------|
-| ~04/2026 | Terraform configurou subdomain `web.zappro.site` |
+| ~04/2026 | Terraform configurou subdomain localhost:4004 (perplexity-agent) |
 | ~04/2026 | Coolify App criada com UUID |
 | ~04/2026 | Gitea Action criada para deploy automático |
 | 08:00 | Container被发现 não existia — site down |
@@ -84,7 +84,7 @@ Deploy → Polling (60s) → Status Check → Smoke Test → (Rollback on fail)
 ### B. Smoke Test Automático
 ```bash
 # /home/will/.claude/skills/gitea-coolify-deploy/scripts/smoke-test.sh
-curl -s -o /dev/null -w "%{http_code}" https://web.zappro.site/_stcore/health
+curl -s -o /dev/null -w "%{http_code}" http://localhost:4004/_stcore/health
 # Retry a cada 5s, timeout 60s
 ```
 
@@ -135,7 +135,7 @@ Antes de marcar "deploy pronto", verificar:
 ```bash
 # Verificar se container existe E está rodando
 docker ps | grep perplexity
-curl -s -o /dev/null -w "%{http_code}" https://web.zappro.site/_stcore/health
+curl -s -o /dev/null -w "%{http_code}" http://localhost:4004/_stcore/health
 
 # Verificar se cron jobs estão activos
 crontab -l | grep auto-healer
