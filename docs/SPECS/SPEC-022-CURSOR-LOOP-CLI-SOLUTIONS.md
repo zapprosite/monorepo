@@ -64,12 +64,14 @@ Dos 19 agentes de pesquisa, as principais conclusões são:
 
 **Solução CLI:**
 ```bash
-# Deploy via API
-curl -X GET "https://cloud.zappro.site/api/v1/deploy?uuid=${UUID}" \
+# Deploy via API (CORRETO: coolify.zappro.site, NOT cloud.zappro.site)
+# cloud.zappro.site = Cloudflare dashboard (WRONG for Coolify)
+# coolify.zappro.site = Coolify PaaS API (CORRETO)
+curl -X GET "https://coolify.zappro.site/api/v1/deploy?uuid=${UUID}" \
   -H "Authorization: Bearer ${COOLIFY_ACCESS_TOKEN}"
 
 # Deploy com force rebuild
-curl -X GET "https://cloud.zappro.site/api/v1/deploy?uuid=${UUID}&force=true"
+curl -X GET "https://coolify.zappro.site/api/v1/deploy?uuid=${UUID}&force=true"
 ```
 
 **CLI alternativo:**
