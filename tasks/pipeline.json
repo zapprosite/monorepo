@@ -2317,9 +2317,167 @@
           ]
         }
       ]
+    },
+    {
+      "name": "Phase 11 \u2014 Critical Audit Fixes (2026-04-11)",
+      "tasks": [
+        {
+          "id": "PA1-T01",
+          "title": "Add monitoring=true label to all healable containers",
+          "spec": "SPEC-023",
+          "status": "PENDING",
+          "priority": "critical",
+          "owner": "will-zappro",
+          "files_affected": [
+            "docker-compose.monitoring.yml",
+            "docker-compose.yml"
+          ],
+          "acceptance_criteria": [
+            "docker-autoheal detects containers (label present)",
+            "Verify: curl http://localhost:8000/api/v1/containers | jq '.[].Labels.monitoring'"
+          ]
+        },
+        {
+          "id": "PA1-T02",
+          "title": "Add Docker HEALTHCHECK to node-exporter",
+          "spec": "SPEC-023",
+          "status": "PENDING",
+          "priority": "critical",
+          "owner": "will-zappro",
+          "files_affected": [
+            "docker-compose.monitoring.yml"
+          ],
+          "acceptance_criteria": [
+            "HEALTHCHECK directive present: wget -qO- http://localhost:9100/-/healthy",
+            "docker inspect node-exporter shows Health"
+          ]
+        },
+        {
+          "id": "PA1-T03",
+          "title": "Add Docker HEALTHCHECK to loki",
+          "spec": "SPEC-023",
+          "status": "PENDING",
+          "priority": "critical",
+          "owner": "will-zappro",
+          "files_affected": [
+            "docker-compose.monitoring.yml"
+          ],
+          "acceptance_criteria": [
+            "HEALTHCHECK directive present: wget -qO- http://localhost:3101/ready",
+            "docker inspect loki shows Health"
+          ]
+        },
+        {
+          "id": "PA1-T04",
+          "title": "Fix yarn vs pnpm CI/CD split",
+          "spec": "SPEC-013",
+          "status": "PENDING",
+          "priority": "high",
+          "owner": "will-zappro",
+          "files_affected": [
+            ".github/workflows/ci.yml",
+            ".gitea/workflows/ci.yml"
+          ],
+          "acceptance_criteria": [
+            "Both GitHub and Gitea CI use the SAME package manager",
+            "pnpm used consistently (per CLAUDE.md turbo/pnpm stack)"
+          ]
+        },
+        {
+          "id": "PA1-T05",
+          "title": "Fix deploy-main.yml target (monorepo-web is archived)",
+          "spec": "SPEC-024",
+          "status": "PENDING",
+          "priority": "high",
+          "owner": "will-zappro",
+          "files_affected": [
+            ".github/workflows/deploy-main.yml",
+            ".gitea/workflows/deploy-main.yml"
+          ],
+          "acceptance_criteria": [
+            "Deploys to valid Coolify application",
+            "UUID matches actual application in Coolify"
+          ]
+        },
+        {
+          "id": "PA1-T06",
+          "title": "Add ZFS snapshot to cursor-loop (CONTRATO violation)",
+          "spec": "SPEC-021",
+          "status": "PENDING",
+          "priority": "critical",
+          "owner": "will-zappro",
+          "files_affected": [
+            ".claude/commands/cursor-loop.md"
+          ],
+          "acceptance_criteria": [
+            "Snapshot created BEFORE any code modifications",
+            "Naming: tank/monorepo@cursor-loop-YYYY-MM-DD-HHMMSS"
+          ]
+        },
+        {
+          "id": "PA1-T07",
+          "title": "Fix memory-sync cron (references non-existent script)",
+          "spec": "SPEC-025",
+          "status": "PENDING",
+          "priority": "high",
+          "owner": "will-zappro",
+          "files_affected": [
+            ".claude/scheduled_tasks.json"
+          ],
+          "acceptance_criteria": [
+            "Cron job references /home/will/.claude/mcps/ai-context-sync/sync.sh",
+            "Or create the script at the referenced path"
+          ]
+        },
+        {
+          "id": "PA1-T08",
+          "title": "Create CLAUDE.md for apps/orchestrator",
+          "spec": "SPEC-013",
+          "status": "PENDING",
+          "priority": "medium",
+          "owner": "will-zappro",
+          "files_affected": [
+            "apps/orchestrator/CLAUDE.md"
+          ],
+          "acceptance_criteria": [
+            "Documents purpose, stack, commands",
+            "Explains human gates and agent pool"
+          ]
+        },
+        {
+          "id": "PA1-T09",
+          "title": "Create CLAUDE.md for apps/perplexity-agent",
+          "spec": "SPEC-013",
+          "status": "PENDING",
+          "priority": "medium",
+          "owner": "will-zappro",
+          "files_affected": [
+            "apps/perplexity-agent/CLAUDE.md"
+          ],
+          "acceptance_criteria": [
+            "Documents GitOps pattern with Coolify",
+            "Infisical SDK usage documented"
+          ]
+        },
+        {
+          "id": "PA1-T10",
+          "title": "Audit apps/workers directory (empty, purpose unclear)",
+          "spec": "SPEC-013",
+          "status": "PENDING",
+          "priority": "low",
+          "owner": "will-zappro",
+          "files_affected": [
+            "apps/workers/"
+          ],
+          "acceptance_criteria": [
+            "Either document purpose or remove/deprecate",
+            "Remove from AGENTS.md if empty"
+          ]
+        }
+      ]
     }
   ],
-  "total_pending": 151,
+  "total_pending": 161,
   "critical_path": [
     "P000-T01",
     "P000-T02",
@@ -2366,6 +2524,10 @@
     "P025-T05",
     "P025-T06",
     "P025-T07",
-    "P025-T09"
+    "P025-T09",
+    "PA1-T01",
+    "PA1-T02",
+    "PA1-T03",
+    "PA1-T06"
   ]
 }
