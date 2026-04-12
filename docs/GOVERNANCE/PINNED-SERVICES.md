@@ -209,7 +209,7 @@ models_pinned:
   - "kokoro/local"        # → Kokoro TTS
   - "whisper-stt"         # → wav2vec2 :8201
   - "gemma4"              # GPU
-  - "llava"               # Vision
+  - "qwen2.5-vl"          # Vision
   - "embedding-nomic"     # Embeddings
   - "qwen3.6-plus"        # LLM
   - "minimax-m2.7"        # LLM direto (não via proxy)
