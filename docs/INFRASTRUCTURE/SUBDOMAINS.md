@@ -4,13 +4,13 @@ description: >
   Registry automático de subdomínios Cloudflare.
   Sincronizado de /srv/ops/terraform/cloudflare/ em 2026-04-05.
 type: governance
-synced: 2026-04-07
+synced: 2026-04-12
 ---
 
 # Subdomains Registry
 
-**Última sincronização:** 2026-04-07
-**Total de records:** 12 (chat.zappro.site ATIVO)
+**Última sincronização:** 2026-04-12
+**Total de records:** 13 (chat.zappro.site ATIVO)
 
 ## Tabela de Subdomínios
 
@@ -34,6 +34,7 @@ synced: 2026-04-07
 `/srv/ops/terraform/cloudflare/main.tf` (state: serial 137)
 
 ## Mudanças Recentes
+- **2026-04-12**: list.zappro.site ATIVADO — tools list HTML/JS, Google OAuth direto (sem Cloudflare Access), porta 4080
 - **2026-04-07**: chat.zappro.site ATIVADO — Open WebUI via Coolify :8080, Google OAuth
 - **2026-04-05**: SUBDOMAINS.md corrigido — aurelia e chat REMOVIDOS do registry (TF + cloudflared), painel ATIVO
 - **2026-04-05**: bot.zappro.site FIX (port mapping 4001→8080 adicionado ao compose)

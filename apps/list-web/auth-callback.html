@@ -66,10 +66,10 @@
         };
         localStorage.setItem('list_web_session', JSON.stringify(session));
 
-        document.getElementById('status').textContent = 'Login OK! Redirecionando...';
+        document.getElementById('status').textContent = 'Login OK!';
         document.getElementById('status').className = 'success';
 
-        setTimeout(() => { window.location.href = '/'; }, 1000);
+        // NO RELOAD — renderApp() in index.html handles the rest
       } catch (err) {
         document.getElementById('status').textContent = 'Erro: ' + err.message;
         document.getElementById('status').className = 'error';

@@ -139,6 +139,7 @@ Don't know? → ASK BEFORE DOING
 
 | App/Package | Tipo | Stack | Notas |
 |-------------|------|-------|-------|
+| `apps/list-web` | Web | Static HTML+JS | Google OAuth, tools list |
 | `apps/api` | API | Fastify + OrchidORM + tRPC | PostgreSQL |
 | `apps/web` | Web | React 19 + MUI + tRPC | — |
 | `apps/orchestrator` | Agent | Node.js + tRPC + YAML | Human gates |
