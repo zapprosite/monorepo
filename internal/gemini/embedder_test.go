@@ -6,9 +6,11 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"github.com/will-zappro/hvacr-swarm/internal/circuitbreaker"
 )
 
 func TestNewEmbedder(t *testing.T) {
@@ -40,6 +42,7 @@ func TestEmbedder_Embed_SingleText(t *testing.T) {
 		model:      "gemini-embedding-2",
 		endpoint:   server.URL,
 		httpClient: &http.Client{},
+		cb:        circuitbreaker.New(5, 30*time.Second),
 	}
 
 	ctx := context.Background()
@@ -57,6 +60,7 @@ func TestEmbedder_Embed_NoAPIKey(t *testing.T) {
 		model:      "gemini-embedding-2",
 		endpoint:   "https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-002:batchEmbedContents",
 		httpClient: &http.Client{},
+		cb:        circuitbreaker.New(5, 30*time.Second),
 	}
 
 	ctx := context.Background()
@@ -87,6 +91,7 @@ func TestEmbedder_BatchEmbed_MultipleTexts(t *testing.T) {
 		model:      "gemini-embedding-2",
 		endpoint:   server.URL,
 		httpClient: &http.Client{},
+		cb:        circuitbreaker.New(5, 30*time.Second),
 	}
 
 	ctx := context.Background()
@@ -109,6 +114,7 @@ func TestEmbedder_BatchEmbed_APIError(t *testing.T) {
 		model:      "gemini-embedding-2",
 		endpoint:   server.URL,
 		httpClient: &http.Client{},
+		cb:        circuitbreaker.New(5, 30*time.Second),
 	}
 
 	ctx := context.Background()
@@ -131,6 +137,7 @@ func TestEmbedder_BatchEmbed_EmptyResponse(t *testing.T) {
 		model:      "gemini-embedding-2",
 		endpoint:   server.URL,
 		httpClient: &http.Client{},
+		cb:        circuitbreaker.New(5, 30*time.Second),
 	}
 
 	ctx := context.Background()
@@ -151,6 +158,7 @@ func TestEmbedder_BatchEmbed_JSONDecodeError(t *testing.T) {
 		model:      "gemini-embedding-2",
 		endpoint:   server.URL,
 		httpClient: &http.Client{},
+		cb:        circuitbreaker.New(5, 30*time.Second),
 	}
 
 	ctx := context.Background()
@@ -223,6 +231,7 @@ func TestEmbedder_BatchEmbed_EmptyTexts(t *testing.T) {
 		model:      "gemini-embedding-2",
 		endpoint:   server.URL,
 		httpClient: &http.Client{},
+		cb:        circuitbreaker.New(5, 30*time.Second),
 	}
 
 	ctx := context.Background()

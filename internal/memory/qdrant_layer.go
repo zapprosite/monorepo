@@ -9,14 +9,14 @@ import (
 	"unicode"
 
 	"github.com/qdrant/go-client/qdrant"
-	"github.com/will-zappro/hvacr-swarm/internal/gemini"
+	"github.com/will-zappro/hvacr-swarm/internal/minimax"
 )
 
 // QdrantLayer implements the vector layer using Qdrant.
 type QdrantLayer struct {
 	client     *qdrant.Client
 	collection string
-	embedder   *gemini.Embedder // Gemini embedder for dense vectors (optional)
+	embedder   *minimax.Embedder // MiniMax embedder for dense vectors (optional)
 }
 
 // RRF constant - typically 60 in production
@@ -31,7 +31,7 @@ func NewQdrantLayer(client *qdrant.Client) *QdrantLayer {
 }
 
 // NewQdrantLayerWithEmbedder creates a new Qdrant layer with an embedder for dense vectors.
-func NewQdrantLayerWithEmbedder(client *qdrant.Client, embedder *gemini.Embedder) *QdrantLayer {
+func NewQdrantLayerWithEmbedder(client *qdrant.Client, embedder *minimax.Embedder) *QdrantLayer {
 	return &QdrantLayer{
 		client:     client,
 		collection: "hvacr_knowledge",

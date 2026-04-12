@@ -1,6 +1,188 @@
 {
   "tasks": [
     {
+      "id": 11,
+      "title": "Setup Qdrant collection hvac_service_manuals",
+      "description": "Create Qdrant collection with proper schema for HVAC service manuals. Include metadata filters: brand, btu_range, type, technology, compressor_type, refrigerant, error_code.",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [],
+      "subtasks": [
+        {"id": "11.1", "title": "Create collection with 1024 dimensions (MiniMax embed)", "status": "pending"},
+        {"id": "11.2", "title": "Add metadata field types: brand, btu_value, type, technology, compressor_type, refrigerant, error_code", "status": "pending"},
+        {"id": "11.3", "title": "Create named vectors for hybrid search", "status": "pending"},
+        {"id": "11.4", "title": "Add payload index for fast filtering", "status": "pending"}
+      ],
+      "acceptanceCriteria": ["SPEC-026 AC-1"],
+      "files": ["internal/rag/qdrant/client.go"],
+      "testRequired": true,
+      "specRef": "docs/specflow/SPEC-026-hvac-service-manuals-rag.md"
+    },
+    {
+      "id": 12,
+      "title": "Implement HVAC model data loader",
+      "description": "Load real HVAC model data from Buscapé (416+ SKUs) into internal/rag/models/hvac_models.go. Include: Springer/Midea, LG, Samsung, Daikin, Consul, Electrolux, Philco, Gree, Elgin.",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [],
+      "subtasks": [
+        {"id": "12.1", "title": "Create hvac_models.go with model structs", "status": "pending"},
+        {"id": "12.2", "title": "Add Springer/Midea models (AI Ecomaster, Xtreme Save Connect)", "status": "pending"},
+        {"id": "12.3", "title": "Add LG models (Dual Inverter Compact, Voice, Artcool)", "status": "pending"},
+        {"id": "12.4", "title": "Add Samsung models (Wind-Free, Digital Inverter)", "status": "pending"},
+        {"id": "12.5", "title": "Add Daikin, Consul, Electrolux, Philco, Gree, Elgin", "status": "pending"}
+      ],
+      "acceptanceCriteria": ["SPEC-026 AC-4"],
+      "files": ["internal/rag/models/hvac_models.go"],
+      "testRequired": true,
+      "specRef": "docs/specflow/SPEC-026-hvac-service-manuals-rag.md"
+    },
+    {
+      "id": 13,
+      "title": "Implement error code database",
+      "description": "Create structured error code database based on Coolfix GitHub and hvac-troubleshoot-pro. Include 50+ error codes for Springer/Midea, LG, Samsung, Daikin, Consul/Electrolux.",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [],
+      "subtasks": [
+        {"id": "13.1", "title": "Create error_code.go with ErrorCode struct", "status": "pending"},
+        {"id": "13.2", "title": "Add Springer/Midea error codes (E0-E8)", "status": "pending"},
+        {"id": "13.3", "title": "Add LG error codes (E1, CH10)", "status": "pending"},
+        {"id": "13.4", "title": "Add Samsung error codes (E1, E4)", "status": "pending"},
+        {"id": "13.5", "title": "Add Daikin, Consul/Electrolux error codes", "status": "pending"}
+      ],
+      "acceptanceCriteria": ["SPEC-026 AC-3"],
+      "files": ["internal/rag/parser/errorcode.go"],
+      "testRequired": true,
+      "specRef": "docs/specflow/SPEC-026-hvac-service-manuals-rag.md"
+    },
+    {
+      "id": 14,
+      "title": "Implement PDF parser for manuals",
+      "description": "Create basic PDF parser using mupdf for extracting manual content. Extract: model, brand, error codes, procedures, tables, diagrams.",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [11],
+      "subtasks": [
+        {"id": "14.1", "title": "Create internal/rag/parser/pdf.go with PDFParser struct", "status": "pending"},
+        {"id": "14.2", "title": "Implement ExtractText() using mupdf", "status": "pending"},
+        {"id": "14.3", "title": "Extract model/brand metadata from PDF content", "status": "pending"},
+        {"id": "14.4", "title": "Extract error codes and diagnostic procedures", "status": "pending"}
+      ],
+      "acceptanceCriteria": ["SPEC-026 AC-1"],
+      "files": ["internal/rag/parser/pdf.go"],
+      "testRequired": true,
+      "specRef": "docs/specflow/SPEC-026-hvac-service-manuals-rag.md"
+    },
+    {
+      "id": 15,
+      "title": "Implement YouTube transcription pipeline",
+      "description": "Create YouTube pipeline: fetch videos, transcribe with Whisper/wav2vec2, filter content (diagnostic/repair/tutorial only), then embed and index.",
+      "status": "pending",
+      "priority": "medium",
+      "dependencies": [11, 14],
+      "subtasks": [
+        {"id": "15.1", "title": "Create internal/rag/parser/youtube.go", "status": "pending"},
+        {"id": "15.2", "title": "Implement video fetcher for HVAC channels", "status": "pending"},
+        {"id": "15.3", "title": "Implement Whisper transcription via wav2vec2 :8201", "status": "pending"},
+        {"id": "15.4", "title": "Content filter: keep diagnostic/repair/tutorial only", "status": "pending"},
+        {"id": "15.5", "title": "Embed and upload to Qdrant", "status": "pending"}
+      ],
+      "acceptanceCriteria": ["SPEC-026 AC-2"],
+      "files": ["internal/rag/parser/youtube.go"],
+      "testRequired": true,
+      "specRef": "docs/specflow/SPEC-026-hvac-service-manuals-rag.md"
+    },
+    {
+      "id": 16,
+      "title": "Implement RAG query agent",
+      "description": "Create rag_query_agent.go that routes queries to Qdrant, applies metadata filters (brand, btu, error_code), re-ranks with MiniMax, and generates responses.",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [11, 13],
+      "subtasks": [
+        {"id": "16.1", "title": "Create rag_query_agent.go with QueryRouter", "status": "pending"},
+        {"id": "16.2", "title": "Implement intent classification (DiagnosticQuery, ErrorCodeQuery, ProcedureQuery)", "status": "pending"},
+        {"id": "16.3", "title": "Implement metadata filter extraction from query", "status": "pending"},
+        {"id": "16.4", "title": "Implement semantic search with Qdrant", "status": "pending"},
+        {"id": "16.5", "title": "Implement MiniMax response generation", "status": "pending"}
+      ],
+      "acceptanceCriteria": ["SPEC-026 AC-5"],
+      "files": ["internal/agents/rag_query_agent.go"],
+      "testRequired": true,
+      "specRef": "docs/specflow/SPEC-026-hvac-service-manuals-rag.md"
+    },
+    {
+      "id": 17,
+      "title": "Implement RAG indexer agent",
+      "description": "Create rag_indexer_agent.go that orchestrates the indexing pipeline: parse PDF/YouTube/forum content, chunk, embed, and upsert to Qdrant.",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [11, 12, 13, 14],
+      "subtasks": [
+        {"id": "17.1", "title": "Create rag_indexer_agent.go", "status": "pending"},
+        {"id": "17.2", "title": "Implement content source routing (PDF/YouTube/Forum)", "status": "pending"},
+        {"id": "17.3", "title": "Implement chunking (512 tokens)", "status": "pending"},
+        {"id": "17.4", "title": "Implement MiniMax embedding", "status": "pending"},
+        {"id": "17.5", "title": "Implement Qdrant upsert", "status": "pending"}
+      ],
+      "acceptanceCriteria": ["SPEC-026 AC-1", "SPEC-026 AC-2"],
+      "files": ["internal/agents/rag_indexer_agent.go"],
+      "testRequired": true,
+      "specRef": "docs/specflow/SPEC-026-hvac-service-manuals-rag.md"
+    },
+    {
+      "id": 18,
+      "title": "Implement error code lookup agent",
+      "description": "Create error_code_agent.go that performs fast lookup of error codes by brand and code, returns structured diagnostic information.",
+      "status": "pending",
+      "priority": "medium",
+      "dependencies": [13],
+      "subtasks": [
+        {"id": "18.1", "title": "Create error_code_agent.go", "status": "pending"},
+        {"id": "18.2", "title": "Implement brand+code lookup", "status": "pending"},
+        {"id": "18.3", "title": "Return diagnostic steps and likely replacement", "status": "pending"}
+      ],
+      "acceptanceCriteria": ["SPEC-026 AC-3"],
+      "files": ["internal/agents/error_code_agent.go"],
+      "testRequired": true,
+      "specRef": "docs/specflow/SPEC-026-hvac-service-manuals-rag.md"
+    },
+    {
+      "id": 19,
+      "title": "Index 50 pilot manuals",
+      "description": "Index 50 pilot manuals from ManualsLib (Midea, LG, Samsung) to validate the pipeline. Priority: split type, inverter, 9k-24k BTU.",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [17],
+      "subtasks": [
+        {"id": "19.1", "title": "Index 20 Midea manuals", "status": "pending"},
+        {"id": "19.2", "title": "Index 15 LG manuals", "status": "pending"},
+        {"id": "19.3", "title": "Index 15 Samsung manuals", "status": "pending"}
+      ],
+      "acceptanceCriteria": ["SPEC-026 AC-1"],
+      "files": [],
+      "testRequired": false,
+      "specRef": "docs/specflow/SPEC-026-hvac-service-manuals-rag.md"
+    },
+    {
+      "id": 20,
+      "title": "Performance validation <2s query",
+      "description": "Validate that query response time is under 2 seconds for semantic search. Tune if necessary.",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [16, 19],
+      "subtasks": [
+        {"id": "20.1", "title": "Run query latency benchmarks", "status": "pending"},
+        {"id": "20.2", "title": "Tune Qdrant HNSW parameters if needed", "status": "pending"},
+        {"id": "20.3", "title": "Add response caching if needed", "status": "pending"}
+      ],
+      "acceptanceCriteria": ["SPEC-026 AC-6"],
+      "files": [],
+      "testRequired": true,
+      "specRef": "docs/specflow/SPEC-026-hvac-service-manuals-rag.md"
+    },
+    {
       "id": 1,
       "title": "[CRITICAL] Wire Worker Pool in main.go",
       "description": "cmd/swarm/main.go has TODOs at lines 75-86 and 188-194. SwarmWorker and SwarmController are implemented but never instantiated. This blocks the entire swarm from processing messages.",
@@ -195,15 +377,120 @@
       ],
       "testRequired": true,
       "specRef": null
+    },
+    {
+      "id": 21,
+      "title": "[CRITICAL] Wire RAG Agent in main.go",
+      "description": "cmd/swarm/main.go:242 - rag := agents.NewRAGAgent(nil, nil, nil) returns nil. Wire with real redisClient, qdrantClient, geminiClient.",
+      "status": "completed",
+      "priority": "critical",
+      "dependencies": [],
+      "subtasks": [
+        {"id": "21.1", "title": "Verify qdrantClient and geminiClient exist in main.go", "status": "completed"},
+        {"id": "21.2", "title": "Wire RAG agent with real clients", "status": "completed"},
+        {"id": "21.3", "title": "Remove TODO: wire RAG agent comment", "status": "completed"},
+        {"id": "21.4", "title": "Test with go build ./cmd/swarm", "status": "completed"}
+      ],
+      "acceptanceCriteria": ["SC-1"],
+      "files": ["cmd/swarm/main.go"],
+      "testRequired": true,
+      "specRef": "docs/specflow/SPEC-028-swarm-mvp-wiring-fixes.md"
+    },
+    {
+      "id": 22,
+      "title": "[CRITICAL] Wire Ranking Agent in main.go",
+      "description": "cmd/swarm/main.go:245 - ranking := agents.NewRankingAgent(nil, nil) returns nil. Wire with real redisClient, minimaxClient.",
+      "status": "completed",
+      "priority": "critical",
+      "dependencies": [],
+      "subtasks": [
+        {"id": "22.1", "title": "Verify minimaxClient exists in main.go", "status": "completed"},
+        {"id": "22.2", "title": "Wire Ranking agent with real clients", "status": "completed"},
+        {"id": "22.3", "title": "Remove TODO: wire ranking agent comment", "status": "completed"}
+      ],
+      "acceptanceCriteria": ["SC-1"],
+      "files": ["cmd/swarm/main.go"],
+      "testRequired": true,
+      "specRef": "docs/specflow/SPEC-028-swarm-mvp-wiring-fixes.md"
+    },
+    {
+      "id": 23,
+      "title": "[CRITICAL] Wire Billing Agent in main.go",
+      "description": "cmd/swarm/main.go:266 - billing := agents.NewBillingAgent(nil, nil) returns nil. Wire with real redisClient, stripeClient.",
+      "status": "completed",
+      "priority": "critical",
+      "dependencies": [],
+      "subtasks": [
+        {"id": "23.1", "title": "Verify stripeClient exists in main.go", "status": "completed"},
+        {"id": "23.2", "title": "Wire Billing agent with real clients", "status": "completed"},
+        {"id": "23.3", "title": "Remove TODO: wire billing agent comment", "status": "completed"}
+      ],
+      "acceptanceCriteria": ["SC-1"],
+      "files": ["cmd/swarm/main.go"],
+      "testRequired": true,
+      "specRef": "docs/specflow/SPEC-028-swarm-mvp-wiring-fixes.md"
+    },
+    {
+      "id": 24,
+      "title": "[HIGH] Implement Condition Evaluation in graph.go",
+      "description": "AddConditionalSkip stores targets but doesn't evaluate when node completes. Implement EvaluateConditions() in ExecutionGraph.",
+      "status": "completed",
+      "priority": "high",
+      "dependencies": [],
+      "subtasks": [
+        {"id": "24.1", "title": "Add OutputField and TriggerValue to Condition struct", "status": "completed"},
+        {"id": "24.2", "title": "Implement EvaluateConditions in graph.go", "status": "completed"},
+        {"id": "24.3", "title": "Call EvaluateConditions in controller.go when node completes", "status": "completed"},
+        {"id": "24.4", "title": "Add test for access_control=block skip behavior", "status": "completed"}
+      ],
+      "acceptanceCriteria": ["SC-2"],
+      "files": ["internal/swarm/graph.go", "internal/swarm/controller.go"],
+      "testRequired": true,
+      "specRef": "docs/specflow/SPEC-028-swarm-mvp-wiring-fixes.md"
+    },
+    {
+      "id": 25,
+      "title": "[MEDIUM] Create Circuit Breaker Stub",
+      "description": "internal/circuitbreaker/breaker.go is empty. Implement 3-state circuit breaker (closed/open/half-open) for Gemini/Qdrant protection.",
+      "status": "completed",
+      "priority": "medium",
+      "dependencies": [],
+      "subtasks": [
+        {"id": "25.1", "title": "Create internal/circuitbreaker/breaker.go", "status": "completed"},
+        {"id": "25.2", "title": "Implement 3-state circuit breaker", "status": "completed"},
+        {"id": "25.3", "title": "Integrate with gemini client", "status": "completed"},
+        {"id": "25.4", "title": "Integrate with qdrant client", "status": "completed"}
+      ],
+      "acceptanceCriteria": ["SC-3"],
+      "files": ["internal/circuitbreaker/breaker.go", "internal/gemini/", "internal/memory/"],
+      "testRequired": true,
+      "specRef": "docs/specflow/SPEC-028-swarm-mvp-wiring-fixes.md"
+    },
+    {
+      "id": 26,
+      "title": "[MEDIUM] Create tasks.json and queue_schema.json",
+      "description": "configs/tasks.json and configs/queue_schema.json are missing. Create from blueprint section 7.2 and 7.4.",
+      "status": "completed",
+      "priority": "medium",
+      "dependencies": [],
+      "subtasks": [
+        {"id": "26.1", "title": "Create tasks.json from blueprint section 7.2", "status": "completed"},
+        {"id": "26.2", "title": "Create queue_schema.json from blueprint section 7.4", "status": "completed"},
+        {"id": "26.3", "title": "Load in main.go via viper", "status": "completed"}
+      ],
+      "acceptanceCriteria": ["SC-4"],
+      "files": ["configs/tasks.json", "configs/queue_schema.json", "cmd/swarm/main.go"],
+      "testRequired": false,
+      "specRef": "docs/specflow/SPEC-028-swarm-mvp-wiring-fixes.md"
     }
   ],
   "meta": {
-    "totalTasks": 10,
-    "completedTasks": 1,
-    "pendingTasks": 9,
-    "generatedAt": "2026-04-10T17:48:00Z",
+    "totalTasks": 26,
+    "completedTasks": 7,
+    "pendingTasks": 19,
+    "generatedAt": "2026-04-12T10:30:00Z",
     "projectName": "hvacr-swarm",
-    "version": "2.0",
-    "notes": "Task 1 COMPLETED: Worker pool and controller wired in main.go. Agents with all dependencies configured (intake, classifier, response, memory) will spawn. Agents requiring stubs (rag, ranking, billing) are skipped with logs."
+    "version": "2.3",
+    "notes": "Tasks 24,25,26 completed. Condition eval, circuit breaker, configs done."
   }
 }

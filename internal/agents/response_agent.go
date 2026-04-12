@@ -18,7 +18,7 @@ type ResponseAgent struct {
 	minimaxAPIKey   string
 	whatsappToken   string
 	phoneNumberID   string
-	whatsappSender  *whatsapp.GraphAPIClient
+	whatsappSender  whatsapp.SenderClient
 }
 
 // NewResponseAgent creates a new ResponseAgent.
@@ -28,8 +28,10 @@ func NewResponseAgent(minimaxAPIKey, whatsappToken, phoneNumberID string) *Respo
 		whatsappToken:  whatsappToken,
 		phoneNumberID:  phoneNumberID,
 	}
-	// Initialize WhatsApp sender if credentials are available
-	if whatsappToken != "" && phoneNumberID != "" {
+	// Initialize WhatsApp sender - use simulator if SIMULATE_WHATSAPP=true, otherwise use real API if credentials available
+	if whatsapp.IsSimulated() {
+		agent.whatsappSender = whatsapp.NewSimulatedGraphAPIClient()
+	} else if whatsappToken != "" && phoneNumberID != "" {
 		agent.whatsappSender = whatsapp.NewGraphAPIClient(phoneNumberID, whatsappToken)
 	}
 	return agent
@@ -199,7 +201,7 @@ func (r *ResponseAgent) callMiniMax(ctx context.Context, prompt string) (string,
 	}
 
 	reqBody := MiniMaxRequest{
-		Model: "MiniMax-M2.7",
+		Model: "MiniMax-M2",
 		Messages: []MiniMaxMessage{
 			{
 				Role:    "user",
@@ -214,7 +216,7 @@ func (r *ResponseAgent) callMiniMax(ctx context.Context, prompt string) (string,
 		return "", fmt.Errorf("marshal request: %w", err)
 	}
 
-	endpoint := "https://api.minimax.io/anthropic/v1/messages"
+	endpoint := "https://api.minimax.io/v1/messages"
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, endpoint, bytes.NewReader(jsonBody))
 	if err != nil {
 		return "", fmt.Errorf("create request: %w", err)
@@ -222,6 +224,7 @@ func (r *ResponseAgent) callMiniMax(ctx context.Context, prompt string) (string,
 	req.Header.Set("Authorization", "Bearer "+r.minimaxAPIKey)
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("anthropic-version", "2023-06-01")
+	req.Header.Set("anthropic-dangerous-direct-browser-access", "true")
 
 	client := &http.Client{Timeout: 15 * time.Second}
 	resp, err := client.Do(req)

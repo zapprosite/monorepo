@@ -312,7 +312,7 @@ func (r *RankingAgent) callMiniMax(ctx context.Context, prompt string) (string, 
 	}
 
 	reqBody := MiniMaxRequest{
-		Model: "MiniMax-M2.7",
+		Model: "MiniMax-M2",
 		Messages: []MiniMaxMessage{
 			{
 				Role:    "user",
@@ -327,14 +327,15 @@ func (r *RankingAgent) callMiniMax(ctx context.Context, prompt string) (string, 
 		return "", fmt.Errorf("marshal request: %w", err)
 	}
 
-	endpoint := "https://api.minimax.io/anthropic/v1/messages"
+	endpoint := "https://api.minimax.io/v1/messages"
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, endpoint, bytes.NewReader(jsonBody))
 	if err != nil {
 		return "", fmt.Errorf("create request: %w", err)
 	}
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("x-api-key", r.minimaxAPIKey)
+	req.Header.Set("Authorization", "Bearer "+r.minimaxAPIKey)
 	req.Header.Set("anthropic-version", "2023-06-01")
+	req.Header.Set("anthropic-dangerous-direct-browser-access", "true")
 
 	client := &http.Client{Timeout: 10 * time.Second}
 	resp, err := client.Do(req)

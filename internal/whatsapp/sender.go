@@ -9,6 +9,14 @@ import (
 	"time"
 )
 
+// SenderClient is the interface for WhatsApp message senders.
+type SenderClient interface {
+	SendText(ctx context.Context, to, message string) (*SendTextResponse, error)
+	SendImage(ctx context.Context, to, link, caption string) (*SendTextResponse, error)
+	SendVideo(ctx context.Context, to, link, caption string) (*SendTextResponse, error)
+	SendDocument(ctx context.Context, to, link, filename, caption string) (*SendTextResponse, error)
+}
+
 // GraphAPIClient sends messages via the Facebook WhatsApp Cloud API.
 type GraphAPIClient struct {
 	PhoneNumberID string

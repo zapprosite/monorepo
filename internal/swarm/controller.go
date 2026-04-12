@@ -392,6 +392,9 @@ func (c *SwarmController) HandleGraphEvent(graphID string, nodeID string, status
 	if status == NodeStatusCompleted && output != nil {
 		data, _ := json.Marshal(output)
 		graph.SetState(nodeID+".output", data)
+
+		// Evaluate conditional skip rules (e.g., access_control=block skips rag+ranking)
+		graph.EvaluateConditions(nodeID, output)
 	}
 
 	if graph.IsComplete() {

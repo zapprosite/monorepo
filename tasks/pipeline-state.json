@@ -15,5 +15,8 @@
   "blockedTasks": [],
   "completedTasks": [1, 2, 3, 5, 6, 7, 9, 10],
   "lastCheckpoint": "2026-04-10T23:05:00Z",
-  "lastUnblockReason": "Phase 2: Tasks 4 and 8 now unblocked after Qdrant completion"
+  "lastUnblockReason": "Phase 2: Tasks 4 and 8 now unblocked after Qdrant completion",
+  "spec026Tasks": [11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
+  "spec026Status": "IN_PROGRESS",
+  "spec026Notes": "SPEC-026 HVAC Service Manuals RAG - 10 tasks added. Data sources: Buscapé (416+ SKUs), Coolfix GitHub (errorCodes.json), hvac-troubleshoot-pro (18-table schema). Sources confirmed: manufacturers do NOT publish service manuals - use ManualsLib, WhatsApp groups, HVAC-Talk."
 }

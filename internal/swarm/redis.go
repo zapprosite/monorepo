@@ -113,6 +113,15 @@ func (c *RedisClient) PushTask(ctx context.Context, agentType string, task *Task
 	return c.rdb.LPush(ctx, QueueKey(agentType), data).Err()
 }
 
+// EnqueueTask adds a task to the queue from a map (used by webhooks).
+func (c *RedisClient) EnqueueTask(ctx context.Context, queueName string, taskData map[string]any) error {
+	data, err := json.Marshal(taskData)
+	if err != nil {
+		return fmt.Errorf("failed to marshal task: %w", err)
+	}
+	return c.rdb.LPush(ctx, QueueKey(queueName), data).Err()
+}
+
 // PopTaskBlocking waits for a task from the queue (BRPOP).
 func (c *RedisClient) PopTaskBlocking(ctx context.Context, agentType string, timeout time.Duration) (*Task, error) {
 	result, err := c.rdb.BRPop(ctx, timeout, QueueKey(agentType)).Result()

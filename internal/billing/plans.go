@@ -68,10 +68,21 @@ var Plans = map[Plan]PlanDefinition{
 	PlanEnterprise: PlanEnterpriseDef,
 }
 
+// stripePriceFallback is used when the env var is not set.
+const stripePriceFallback = "STRIPE_PRICE_NOT_CONFIGURED"
+
+// stripePriceEnv gets the Stripe Price ID from env var, or returns fallback.
+func stripePriceEnv(key string) string {
+	if val := os.Getenv(key); val != "" {
+		return val
+	}
+	return stripePriceFallback
+}
+
 // StripePriceIDs maps plan to Stripe Price IDs (from env).
 var StripePriceIDs = map[Plan]string{
-	PlanPro:        os.Getenv("STRIPE_PRICE_PRO"),
-	PlanEnterprise: os.Getenv("STRIPE_PRICE_ENTERPRISE"),
+	PlanPro:        stripePriceEnv("STRIPE_PRICE_PRO"),
+	PlanEnterprise: stripePriceEnv("STRIPE_PRICE_ENTERPRISE"),
 }
 
 // IsStripeConfigured returns true if Stripe Price IDs are set.

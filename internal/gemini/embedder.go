@@ -7,6 +7,9 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"time"
+
+	"github.com/will-zappro/hvacr-swarm/internal/circuitbreaker"
 )
 
 // Embedder generates embeddings using Gemini Embedding API.
@@ -15,6 +18,7 @@ type Embedder struct {
 	model     string
 	endpoint  string
 	httpClient *http.Client
+	cb        *circuitbreaker.CircuitBreaker
 }
 
 // NewEmbedder creates a new Gemini Embedder.
@@ -26,6 +30,7 @@ func NewEmbedder() *Embedder {
 		model:     "gemini-embedding-2", // 768 dimensions
 		endpoint:  "https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-002:batchEmbedContents",
 		httpClient: &http.Client{},
+		cb:        circuitbreaker.New(5, 30*time.Second),
 	}
 }
 
@@ -36,6 +41,7 @@ func NewEmbedderWithKey(apiKey string) *Embedder {
 		model:     "gemini-embedding-2",
 		endpoint:  "https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-002:batchEmbedContents",
 		httpClient: &http.Client{},
+		cb:        circuitbreaker.New(5, 30*time.Second),
 	}
 }
 
@@ -70,6 +76,25 @@ func (e *Embedder) Embed(ctx context.Context, text string) ([]float32, error) {
 
 // BatchEmbed generates embeddings for multiple text inputs.
 func (e *Embedder) BatchEmbed(ctx context.Context, texts []string) ([][]float32, error) {
+	var embeddings [][]float32
+	var cbErr error
+
+	cbErr = e.cb.Call(func() error {
+		embs, err := e.batchEmbedInternal(ctx, texts)
+		if err != nil {
+			return err
+		}
+		embeddings = embs
+		return nil
+	})
+	if cbErr != nil {
+		return nil, cbErr
+	}
+	return embeddings, nil
+}
+
+// batchEmbedInternal performs the actual batch embedding request.
+func (e *Embedder) batchEmbedInternal(ctx context.Context, texts []string) ([][]float32, error) {
 	if e.apiKey == "" {
 		return nil, fmt.Errorf("GEMINI_API_KEY not set")
 	}
@@ -101,13 +126,13 @@ func (e *Embedder) BatchEmbed(ctx context.Context, texts []string) ([][]float32,
 		return nil, fmt.Errorf("API returned status %d", resp.StatusCode)
 	}
 
-	var result BatchEmbedContentsResponse
-	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+	var batchResult BatchEmbedContentsResponse
+	if err := json.NewDecoder(resp.Body).Decode(&batchResult); err != nil {
 		return nil, fmt.Errorf("decode response: %w", err)
 	}
 
-	embeddings := make([][]float32, 0, len(result.Embeddings))
-	for _, emb := range result.Embeddings {
+	embeddings := make([][]float32, 0, len(batchResult.Embeddings))
+	for _, emb := range batchResult.Embeddings {
 		embeddings = append(embeddings, emb.Values)
 	}
 

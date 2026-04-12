@@ -7,6 +7,9 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"time"
+
+	"github.com/will-zappro/hvacr-swarm/internal/circuitbreaker"
 )
 
 // Embedder generates embeddings using MiniMax Embedding API.
@@ -15,6 +18,7 @@ type Embedder struct {
 	model      string
 	endpoint   string
 	httpClient *http.Client
+	cb         *circuitbreaker.CircuitBreaker
 }
 
 // NewEmbedder creates a new MiniMax Embedder.
@@ -25,6 +29,7 @@ func NewEmbedder() *Embedder {
 		model:      "embedding-256",
 		endpoint:   "https://api.minimax.io/v1/embeddings",
 		httpClient: &http.Client{},
+		cb:         circuitbreaker.New(5, 30*time.Second),
 	}
 }
 
@@ -35,6 +40,7 @@ func NewEmbedderWithKey(apiKey string) *Embedder {
 		model:      "embedding-256",
 		endpoint:   "https://api.minimax.io/v1/embeddings",
 		httpClient: &http.Client{},
+		cb:         circuitbreaker.New(5, 30*time.Second),
 	}
 }
 
@@ -125,6 +131,25 @@ type BatchEmbedResponse struct {
 
 // BatchEmbed generates embeddings for multiple text inputs.
 func (e *Embedder) BatchEmbed(ctx context.Context, texts []string) ([][]float32, error) {
+	var embeddings [][]float32
+	var cbErr error
+
+	cbErr = e.cb.Call(func() error {
+		embs, err := e.batchEmbedInternal(ctx, texts)
+		if err != nil {
+			return err
+		}
+		embeddings = embs
+		return nil
+	})
+	if cbErr != nil {
+		return nil, cbErr
+	}
+	return embeddings, nil
+}
+
+// batchEmbedInternal performs the actual batch embedding request.
+func (e *Embedder) batchEmbedInternal(ctx context.Context, texts []string) ([][]float32, error) {
 	if e.apiKey == "" {
 		return nil, fmt.Errorf("MINIMAX_API_KEY not set")
 	}
@@ -162,12 +187,12 @@ func (e *Embedder) BatchEmbed(ctx context.Context, texts []string) ([][]float32,
 		return nil, fmt.Errorf("decode response: %w", err)
 	}
 
-	embeddings := make([][]float32, 0, len(result.Data))
+	embeds := make([][]float32, 0, len(result.Data))
 	for _, emb := range result.Data {
-		embeddings = append(embeddings, emb.Embedding)
+		embeds = append(embeds, emb.Embedding)
 	}
 
-	return embeddings, nil
+	return embeds, nil
 }
 
 // EmbedderInterface defines the interface for embedding providers.

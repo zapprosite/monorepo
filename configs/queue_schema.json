@@ -1,0 +1,92 @@
+{
+  "queue_schema": {
+    "version": "1.0.0",
+    "engine": "Redis 7 (LIST + HASH + LMOVE)",
+    "architecture": "work-stealing with per-agent queues",
+    "queues": {
+      "intake": {
+        "key": "swarm:queue:intake",
+        "processing_key": "swarm:queue:intake:processing",
+        "dead_letter_key": "swarm:queue:intake:dead",
+        "max_retries": 3,
+        "timeout_ms": 10000,
+        "priority_class": "critical",
+        "claim_strategy": "BRPOP 100ms → steal from classifier"
+      },
+      "classifier": {
+        "key": "swarm:queue:classifier",
+        "processing_key": "swarm:queue:classifier:processing",
+        "dead_letter_key": "swarm:queue:classifier:dead",
+        "max_retries": 2,
+        "timeout_ms": 8000,
+        "priority_class": "critical",
+        "claim_strategy": "BRPOP 100ms → steal from intake, rag"
+      },
+      "access_control": {
+        "key": "swarm:queue:access_control",
+        "processing_key": "swarm:queue:access_control:processing",
+        "dead_letter_key": "swarm:queue:access_control:dead",
+        "max_retries": 2,
+        "timeout_ms": 3000,
+        "priority_class": "critical",
+        "claim_strategy": "BRPOP 100ms (no stealing — specialized)"
+      },
+      "rag": {
+        "key": "swarm:queue:rag",
+        "processing_key": "swarm:queue:rag:processing",
+        "dead_letter_key": "swarm:queue:rag:dead",
+        "max_retries": 3,
+        "timeout_ms": 30000,
+        "priority_class": "high",
+        "claim_strategy": "BRPOP 100ms → steal from ranking"
+      },
+      "ranking": {
+        "key": "swarm:queue:ranking",
+        "processing_key": "swarm:queue:ranking:processing",
+        "dead_letter_key": "swarm:queue:ranking:dead",
+        "max_retries": 2,
+        "timeout_ms": 15000,
+        "priority_class": "high",
+        "claim_strategy": "BRPOP 100ms → steal from rag, response"
+      },
+      "response": {
+        "key": "swarm:queue:response",
+        "processing_key": "swarm:queue:response:processing",
+        "dead_letter_key": "swarm:queue:response:dead",
+        "max_retries": 3,
+        "timeout_ms": 20000,
+        "priority_class": "critical",
+        "claim_strategy": "BRPOP 100ms → steal from ranking"
+      },
+      "billing": {
+        "key": "swarm:queue:billing",
+        "processing_key": "swarm:queue:billing:processing",
+        "dead_letter_key": "swarm:queue:billing:dead",
+        "max_retries": 5,
+        "timeout_ms": 10000,
+        "priority_class": "low",
+        "claim_strategy": "BRPOP 100ms → steal from memory"
+      },
+      "memory": {
+        "key": "swarm:queue:memory",
+        "processing_key": "swarm:queue:memory:processing",
+        "dead_letter_key": "swarm:queue:memory:dead",
+        "max_retries": 1,
+        "timeout_ms": 5000,
+        "priority_class": "low",
+        "claim_strategy": "BRPOP 100ms → steal from billing"
+      }
+    },
+    "work_stealing": {
+      "condition": "own_queue_empty AND target_queue_len > 1",
+      "operation": "LMOVE target_queue own_queue RIGHT LEFT",
+      "atomic": true,
+      "tracking": "swarm:agents:stats:{worker_id}:tasks_stolen INCR"
+    },
+    "orphan_detection": {
+      "interval_seconds": 10,
+      "heartbeat_ttl_seconds": 15,
+      "action": "re-enqueue to original agent queue"
+    }
+  }
+}
