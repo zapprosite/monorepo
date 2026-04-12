@@ -62,6 +62,9 @@ Before any work in this repository, EVERY LLM **MUST** read:
 | **[docs/GOVERNANCE/RECOVERY.md](../../docs/GOVERNANCE/RECOVERY.md)** | ZFS rollback/DB restore step-by-step | 🔴 CRITICAL |
 | **[docs/GOVERNANCE/ANTI-FRAGILITY.md](../../docs/GOVERNANCE/ANTI-FRAGILITY.md)** | What NOT to do — antipatterns, pinned services | 🔴 CRITICAL |
 | **[docs/SPECS/SPEC-009-openclaw-persona-audio-stack.md](../../docs/SPECS/SPEC-009-openclaw-persona-audio-stack.md)** | Immutable audio stack — STT/TTS/LLM canonical | 🔴 CRITICAL |
+| **[.claude/rules/openclaw-audio-governance.md](../../.claude/rules/openclaw-audio-governance.md)** | ZERO TOLERANCE — Kokoro voices (pm_santa/pf_dora ONLY), STT/TTS rules | 🔴 CRITICAL |
+| **[docs/GOVERNANCE/.rules/voice-kit-protect.md](../../docs/GOVERNANCE/.rules/voice-kit-protect.md)** | Kokoro TTS kit INVIOŁÁVEL — container/port/voice locked | 🔴 CRITICAL |
+| **[docs/GOVERNANCE/.rules/wav2vec2-stt-protect.md](../../docs/GOVERNANCE/.rules/wav2vec2-stt-protect.md)** | wav2vec2 STT kit INVIOŁÁVEL — whisper/coqui PROIBIDO | 🔴 CRITICAL |
 | **[docs/SPECS/SPEC-HOMELAB-GOVERNANCE-DEFINITIVO.md](../../docs/SPECS/SPEC-HOMELAB-GOVERNANCE-DEFINITIVO.md)** | Datacenter enterprise governance framework | 🔴 CRITICAL |
 | **[docs/INCIDENTS/CONSOLIDATED-PREVENTION-PLAN.md](../../docs/INCIDENTS/CONSOLIDATED-PREVENTION-PLAN.md)** | Anti-patterns AP-1 to AP-4 (Docker TCP, host-as-backend, DNS) | 🔴 CRITICAL |
 | **[docs/GOVERNANCE/CHANGE_POLICY.md](../../docs/GOVERNANCE/CHANGE_POLICY.md)** | Snapshot before changes + preflight checklist | 🟡 HIGH |
