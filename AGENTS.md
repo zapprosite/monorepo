@@ -8,24 +8,81 @@
 
 ## ⚠️ OBRIGATÓRIO PARA TODOS OS LLMs — LEIA PRIMEIRO
 
-Antes de qualquer açãon neste repositório, TODO LLM **DEVE** ler:
+Antes de qualquer ação neste repositório, TODO LLM **DEVE** ler:
 
 | Documento | Porquê | Prioridade |
 |-----------|--------|------------|
-| **[docs/GOVERNANCE/SECRETS-MANDATE.md](../../docs/GOVERNANCE/SECRETS-MANDATE.md)** | **Zero tolerance** — Infisical SDK mandatory, sem exceptions. Tokens hardcoded = rejeição imediata. | 🔴 CRÍTICO |
-| **[docs/GOVERNANCE/GUARDRAILS.md](../../docs/GOVERNANCE/GUARDRAILS.md)** | Operações proibidas e que requerem aprovação | 🔴 CRÍTICO |
-| **[docs/GOVERNANCE/CONTRACT.md](../../docs/GOVERNANCE/CONTRACT.md)** | Princípios inegociáveis | 🟡 ALTA |
-| **[.claude/CLAUDE.md](../../.claude/CLAUDE.md)** | Este projeto: regras Claude Code, git mirror, version lock | 🟡 ALTA |
+| **[docs/GOVERNANCE/SECRETS-MANDATE.md](../../docs/GOVERNANCE/SECRETS-MANDATE.md)** | **Zero tolerance** — Infisical SDK mandatory. Tokens hardcoded = rejeição imediata. Alucinação de tokens = banido. | 🔴 CRÍTICO |
+| **[docs/GOVERNANCE/GUARDRAILS.md](../../docs/GOVERNANCE/GUARDRAILS.md)** | Operações proibidas,anti-fragilidade, audio stack imutável | 🔴 CRÍTICO |
+| **[docs/GOVERNANCE/APPROVAL_MATRIX.md](../../docs/GOVERNANCE/APPROVAL_MATRIX.md)** | "Posso fazer isto?" — tabela de aprovações por operação | 🔴 CRÍTICO |
+| **[docs/GOVERNANCE/CHANGE_POLICY.md](../../docs/GOVERNANCE/CHANGE_POLICY.md)** | Snapshot antes de mudanças + checklist preflight | 🟡 ALTA |
+| **[docs/GOVERNANCE/IMMUTABLE-SERVICES.md](../../docs/GOVERNANCE/IMMUTABLE-SERVICES.md)** | Serviços que nunca se tocam (coolify-proxy, prometheus, cloudflared...) | 🔴 CRÍTICO |
+| **[docs/GOVERNANCE/PINNED-SERVICES.md](../../docs/GOVERNANCE/PINNED-SERVICES.md)** | Stack de voz: Kokoro/wav2vec2/OpenClaw — só estes, só assim | 🔴 CRÍTICO |
+| **[docs/GOVERNANCE/DUPLICATE-SERVICES-RULE.md](../../docs/GOVERNANCE/DUPLICATE-SERVICES-RULE.md)** | Port registry, auto-heal whitelist — portas reservadas | 🟡 ALTA |
+| **[docs/GOVERNANCE/INCIDENTS.md](../../docs/GOVERNANCE/INCIDENTS.md)** | Severity levels, incident response checklist | 🔴 CRÍTICO |
+| **[docs/GOVERNANCE/RECOVERY.md](../../docs/GOVERNANCE/RECOVERY.md)** | ZFS rollback/DB restore step-by-step | 🔴 CRÍTICO |
+| **[docs/GOVERNANCE/ANTI-FRAGILITY.md](../../docs/GOVERNANCE/ANTI-FRAGILITY.md)** | O que NÃO fazer — antipatterns, serviços pinned | 🔴 CRÍTICO |
+| **[docs/GOVERNANCE/CONTRACT.md](../../docs/GOVERNANCE/CONTRACT.md)** | Princípios inegociáveis (dados sacrossantos, snapshot mandatory) | 🟡 ALTA |
+| **[docs/SPECS/SPEC-009-openclaw-persona-audio-stack.md](../../docs/SPECS/SPEC-009-openclaw-persona-audio-stack.md)** | Audio stack imutável — STT/TTS/LLM canonical | 🔴 CRÍTICO |
+| **[docs/SPECS/SPEC-HOMELAB-GOVERNANCE-DEFINITIVO.md](../../docs/SPECS/SPEC-HOMELAB-GOVERNANCE-DEFINITIVO.md)** | Datacenter enterprise governance framework | 🔴 CRÍTICO |
+| **[docs/GOVERNANCE/master-password-procedure.md](../../docs/GOVERNANCE/MASTER-PASSWORD-PROCEDURE.md)** | Credential handling procedure | 🟡 ALTA |
+| **[docs/GOVERNANCE/DATABASE_GOVERNANCE.md](../../docs/GOVERNANCE/DATABASE_GOVERNANCE.md)** | Protected schemas, destructive-operation rules | 🟡 ALTA |
+| **[docs/INCIDENTS/CONSOLIDATED-PREVENTION-PLAN.md](../../docs/INCIDENTS/CONSOLIDATED-PREVENTION-PLAN.md)** | Anti-patterns AP-1 a AP-4 (Docker TCP, host-as-backend, DNS) | 🔴 CRÍTICO |
+| **[docs/GUIDES/INFISICAL-SDK-PATTERN.md](../../docs/GUIDES/INFISICAL-SDK-PATTERN.md)** | Como usar Infisical SDK (Python/JS/Bash) | 🟡 ALTA |
+| **[docs/GUIDES/CODE-REVIEW-GUIDE.md](../../docs/GUIDES/CODE-REVIEW-GUIDE.md)** | 5-axis review framework | 🟡 ALTA |
+| **[docs/GOVERNANCE/SECRETS_POLICY.md](../../docs/GOVERNANCE/SECRETS_POLICY.md)** | Secrets policy complementar | 🟡 ALTA |
+| **[.claude/CLAUDE.md](../../.claude/CLAUDE.md)** | Regras Claude Code, git mirror, version lock | 🟡 ALTA |
 
 ### TL;DR (para LLMs com pressa)
 
 ```
-SEcrets → Infisical SDK APENAS
-Hardcoded tokens → REJEITAR COMMIT
-Não sabe se é secret? → PERGUNTE ANTES
+SEcrets → Infisical SDK APENAS — sem alucinação
+Immutable/Pinned Services → NUNCA tocar
+Audio Stack (SPEC-009) → só Kokoro:TTS Bridge:wav2vec2:MiniMax-M2.7
+Anti-patterns (AP-1/2/3) → Docker TCP bridge, host-as-backend, localhost testing
+Não sabe? → PERGUNTE ANTES DE FAZER
 ```
 
 **Sem ler estes documentos, não faça NADA.**
+
+---
+
+## ⚠️ IMPORTANT FOR ALL LLMs — READ FIRST
+
+Before any work in this repository, EVERY LLM **MUST** read:
+
+| Document | Why | Priority |
+|---------|-----|----------|
+| **[docs/GOVERNANCE/SECRETS-MANDATE.md](../../docs/GOVERNANCE/SECRETS-MANDATE.md)** | **Zero tolerance** — Infisical SDK only. Hardcoded tokens = instant rejection. Token hallucination = banned. | 🔴 CRITICAL |
+| **[docs/GOVERNANCE/GUARDRAILS.md](../../docs/GOVERNANCE/GUARDRAILS.md)** | Forbidden ops, anti-fragility, immutable audio stack | 🔴 CRITICAL |
+| **[docs/GOVERNANCE/APPROVAL_MATRIX.md](../../docs/GOVERNANCE/APPROVAL_MATRIX.md)** | "Can I do this?" — approval table by operation type | 🔴 CRITICAL |
+| **[docs/GOVERNANCE/IMMUTABLE-SERVICES.md](../../docs/GOVERNANCE/IMMUTABLE-SERVICES.md)** | Services that are never touched (coolify-proxy, prometheus, cloudflared...) | 🔴 CRITICAL |
+| **[docs/GOVERNANCE/PINNED-SERVICES.md](../../docs/GOVERNANCE/PINNED-SERVICES.md)** | Voice stack: Kokoro/wav2vec2/OpenClaw — only these, only this way | 🔴 CRITICAL |
+| **[docs/GOVERNANCE/INCIDENTS.md](../../docs/GOVERNANCE/INCIDENTS.md)** | Severity levels, incident response checklist | 🔴 CRITICAL |
+| **[docs/GOVERNANCE/RECOVERY.md](../../docs/GOVERNANCE/RECOVERY.md)** | ZFS rollback/DB restore step-by-step | 🔴 CRITICAL |
+| **[docs/GOVERNANCE/ANTI-FRAGILITY.md](../../docs/GOVERNANCE/ANTI-FRAGILITY.md)** | What NOT to do — antipatterns, pinned services | 🔴 CRITICAL |
+| **[docs/SPECS/SPEC-009-openclaw-persona-audio-stack.md](../../docs/SPECS/SPEC-009-openclaw-persona-audio-stack.md)** | Immutable audio stack — STT/TTS/LLM canonical | 🔴 CRITICAL |
+| **[docs/SPECS/SPEC-HOMELAB-GOVERNANCE-DEFINITIVO.md](../../docs/SPECS/SPEC-HOMELAB-GOVERNANCE-DEFINITIVO.md)** | Datacenter enterprise governance framework | 🔴 CRITICAL |
+| **[docs/INCIDENTS/CONSOLIDATED-PREVENTION-PLAN.md](../../docs/INCIDENTS/CONSOLIDATED-PREVENTION-PLAN.md)** | Anti-patterns AP-1 to AP-4 (Docker TCP, host-as-backend, DNS) | 🔴 CRITICAL |
+| **[docs/GOVERNANCE/CHANGE_POLICY.md](../../docs/GOVERNANCE/CHANGE_POLICY.md)** | Snapshot before changes + preflight checklist | 🟡 HIGH |
+| **[docs/GOVERNANCE/DUPLICATE-SERVICES-RULE.md](../../docs/GOVERNANCE/DUPLICATE-SERVICES-RULE.md)** | Port registry, auto-heal whitelist, reserved ports | 🟡 HIGH |
+| **[docs/GOVERNANCE/master-password-procedure.md](../../docs/GOVERNANCE/MASTER-PASSWORD-PROCEDURE.md)** | Credential handling procedure | 🟡 HIGH |
+| **[docs/GOVERNANCE/DATABASE_GOVERNANCE.md](../../docs/GOVERNANCE/DATABASE_GOVERNANCE.md)** | Protected schemas, destructive-operation rules | 🟡 HIGH |
+| **[docs/GUIDES/INFISICAL-SDK-PATTERN.md](../../docs/GUIDES/INFISICAL-SDK-PATTERN.md)** | How to use Infisical SDK (Python/JS/Bash) | 🟡 HIGH |
+| **[docs/GUIDES/CODE-REVIEW-GUIDE.md](../../docs/GUIDES/CODE-REVIEW-GUIDE.md)** | 5-axis review framework | 🟡 HIGH |
+| **[.claude/CLAUDE.md](../../.claude/CLAUDE.md)** | Claude Code rules, git mirror, version lock | 🟡 HIGH |
+
+### TL;DR (for LLMs in a hurry)
+
+```
+Secrets → Infisical SDK ONLY — no hallucination
+Immutable/Pinned Services → NEVER touch
+Audio Stack (SPEC-009) → only Kokoro:TTS Bridge:wav2vec2:MiniMax-M2.7
+Anti-patterns (AP-1/2/3) → Docker TCP bridge, host-as-backend, localhost testing
+Don't know? → ASK BEFORE DOING
+```
+
+**Without reading these documents, do NOTHING.**
 
 ---
 
