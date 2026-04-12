@@ -5,7 +5,7 @@
       "cron": "*/30 * * * *",
       "prompt": "Você é o agent de auto-orchestration. Execute:\n\n1. Rode: /home/will/.claude/mcps/ai-context-sync/sync.sh\n2. Verifique: git -C /srv/monorepo status --short\n3. Se houver mudanças pendentes, liste-as\n4. Se não houver, diga \"Auto-orchestration: tudo em dia\"\n\nResuma em 1-2 linhas.",
       "createdAt": 1775557362633,
-      "lastFiredAt": 1775826342413,
+      "lastFiredAt": 1775986760692,
       "recurring": true
     },
     {
@@ -13,7 +13,7 @@
       "cron": "*/90 * * * *",
       "prompt": "Rode: /home/will/.claude/mcps/ai-context-sync/checkpoint.sh\n\nSe houver output (changes), liste os arquivos pendentes. Se não, diga apenas 'Checkpoint: OK'.",
       "createdAt": 1775587500000,
-      "lastFiredAt": 1775826000209,
+      "lastFiredAt": 1775986760692,
       "recurring": true
     },
     {
@@ -21,7 +21,7 @@
       "cron": "*/60 * * * *",
       "prompt": "Rode: /home/will/.claude/mcps/ai-context-sync/context-meter.sh\n\nSe o output começar com '⚠️', responda com o alerta completo. Caso contrário, apenas confirme.",
       "createdAt": 1775587500000,
-      "lastFiredAt": 1775826000209,
+      "lastFiredAt": 1775986760692,
       "recurring": true
     },
     {
@@ -29,7 +29,7 @@
       "cron": "0 3 * * *",
       "prompt": "Execute o slash command /rs (repo-scan) para escanear o repositório.\n\nUse o output para gerar/actualizar tasks/pipeline.json com tasks pendentes.\nListe as 3 tasks mais prioritárias.\n\nResuma em 2-3 linhas.",
       "createdAt": 1775587500000,
-      "lastFiredAt": 1775820268186,
+      "lastFiredAt": 1775986760692,
       "recurring": true
     },
     {
@@ -37,7 +37,7 @@
       "cron": "0 4 * * *",
       "prompt": "Execute code review dos últimos commits:\n\n1. git -C /srv/monorepo log --oneline -10\n2. Analise as mudanças principais\n3. Identifique issues críticos se houver\n\nSe tudo ok, diga 'Code review: OK — sem issues críticos'. Se encontrar problemas, liste-os.",
       "createdAt": 1775587500000,
-      "lastFiredAt": 1775820268186,
+      "lastFiredAt": 1775986760692,
       "recurring": true
     },
     {
@@ -45,7 +45,7 @@
       "cron": "0 5 * * *",
       "prompt": "Verifique coverage de testes:\n\n1. cd /srv/monorepo && (bun run test --coverage 2>/dev/null || bun test 2>/dev/null || echo 'TESTS_SKIP')\n2. Se output contiver 'coverage' liste áreas <70%\n3. Se output contiver 'FAIL' liste testes a falhar\n4. Se 'TESTS_SKIP' diga 'Testes: skip (sem comando)'\n\nResuma em 2-3 linhas.",
       "createdAt": 1775587500000,
-      "lastFiredAt": 1775820268186,
+      "lastFiredAt": 1775986760692,
       "recurring": true
     },
     {
@@ -53,7 +53,7 @@
       "cron": "0 6 * * *",
       "prompt": "Execute scan de secrets antes de push:\n\n1. grep -rE '(ghp_|gho_|ghu_|ghs_|ghr_)[A-Za-z0-9]{36}|AKIA[0-9A-Z]{16}|sk-[A-Za-z0-9]{48}' /srv/monorepo --include='*.ts' --include='*.js' --include='*.env' 2>/dev/null | head -10\n2. Se encontrar secrets, liste locations e aborta\n3. Se não encontrar, diga 'Secrets audit: OK'\n\nResuma em 2-3 linhas.",
       "createdAt": 1775587500000,
-      "lastFiredAt": 1775820268186,
+      "lastFiredAt": 1775986760692,
       "recurring": true
     },
     {
@@ -61,7 +61,7 @@
       "cron": "0 8 * * *",
       "prompt": "Verifique estado dos MCP servers:\n\n1. ls ~/.claude/mcp-servers.json 2>/dev/null && cat ~/.claude/mcp-servers.json | jq '.servers[].name' 2>/dev/null || echo 'No MCP config'\n2. Liste cada server com status ( UP / DOWN / DEGRADED )\n\nSe todos OK, diga 'MCP health: OK — todos os servers up'. Se algum down, liste-os.",
       "createdAt": 1775587500000,
-      "lastFiredAt": 1775820268186,
+      "lastFiredAt": 1775986760692,
       "recurring": true
     },
     {
@@ -69,7 +69,7 @@
       "cron": "*/5 * * * *",
       "prompt": "Execute /home/will/.claude/skills/gitea-coolify-deploy/scripts/auto-healer.sh and log output to /srv/ops/logs/healing.log. If any containers were restarted, report which ones.",
       "createdAt": 1775652662474,
-      "lastFiredAt": 1775827023946,
+      "lastFiredAt": 1775986923960,
       "recurring": true
     },
     {
@@ -77,7 +77,7 @@
       "cron": "3 */15 * * *",
       "prompt": "Execute /home/will/.claude/skills/gitea-coolify-deploy/scripts/resource-monitor.sh and log output to /srv/ops/logs/resource-alerts.log. Report any resource usage above threshold (CPU >70%, Memory >80%).",
       "createdAt": 1775652662499,
-      "lastFiredAt": 1775820268186,
+      "lastFiredAt": 1775986760692,
       "recurring": true
     }
   ]
