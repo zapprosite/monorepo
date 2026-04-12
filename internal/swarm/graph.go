@@ -9,11 +9,22 @@ import (
 
 // ExecutionGraph represents the DAG of tasks for a single message processing run.
 type ExecutionGraph struct {
-	ID    string              `json:"id"`
-	Nodes map[string]*GraphNode `json:"nodes"`
-	Edges map[string][]string   `json:"edges"` // node_id → dependent nodes (this node depends on the ones in DependsOn)
-	State *SharedState          `json:"state,omitempty"`
-	mu    sync.RWMutex
+	ID         string              `json:"id"`
+	Nodes      map[string]*GraphNode `json:"nodes"`
+	Edges      map[string][]string   `json:"edges"` // node_id → dependent nodes (this node depends on the ones in DependsOn)
+	State      *SharedState          `json:"state,omitempty"`
+	Conditions []Condition           `json:"conditions,omitempty"`
+	mu         sync.RWMutex
+}
+
+// Condition defines a conditional skip rule for nodes.
+// When SourceNode produces an output where OutputField equals TriggerValue,
+// all TargetNodes are marked as skipped.
+type Condition struct {
+	SourceNode   string   `json:"source_node"`
+	OutputField  string   `json:"output_field"`
+	TriggerValue any      `json:"trigger_value"`
+	TargetNodes  []string `json:"target_nodes"`
 }
 
 // GraphNode represents a single node in the execution graph.
@@ -203,7 +214,8 @@ func (g *ExecutionGraph) SetState(key string, value json.RawMessage) {
 
 // AddConditionalSkip adds a conditional skip rule to a node.
 // When the gate condition evaluates to true, the target nodes are marked skipped.
-func (g *ExecutionGraph) AddConditionalSkip(gateNodeID string, targetNodeIDs []string, conditionFunc func(*GraphNode) bool) error {
+// The condition triggers when output[outputField] == triggerValue.
+func (g *ExecutionGraph) AddConditionalSkip(gateNodeID, outputField string, triggerValue any, targetNodeIDs []string) error {
 	g.mu.Lock()
 	defer g.mu.Unlock()
 
@@ -211,10 +223,15 @@ func (g *ExecutionGraph) AddConditionalSkip(gateNodeID string, targetNodeIDs []s
 		return fmt.Errorf("gate node %s does not exist", gateNodeID)
 	}
 
-	// Store the skip targets in the shared state.
-	// The conditionFunc is reserved for future dynamic conditions.
-	_ = conditionFunc
+	// Append condition for later evaluation
+	g.Conditions = append(g.Conditions, Condition{
+		SourceNode:   gateNodeID,
+		OutputField:  outputField,
+		TriggerValue: triggerValue,
+		TargetNodes:  targetNodeIDs,
+	})
 
+	// Also store skip targets in shared state for backwards compatibility
 	if g.State.Data == nil {
 		g.State.Data = make(map[string]json.RawMessage)
 	}
@@ -223,6 +240,33 @@ func (g *ExecutionGraph) AddConditionalSkip(gateNodeID string, targetNodeIDs []s
 	g.State.Data["skip_"+gateNodeID] = skipTargets
 
 	return nil
+}
+
+// EvaluateConditions checks all conditions and skips target nodes when the trigger is met.
+// Called when a node completes with its output map.
+func (g *ExecutionGraph) EvaluateConditions(nodeID string, output map[string]any) {
+	g.mu.Lock()
+	defer g.mu.Unlock()
+
+	for _, cond := range g.Conditions {
+		if cond.SourceNode != nodeID {
+			continue
+		}
+
+		triggerVal, exists := output[cond.OutputField]
+		if !exists {
+			continue
+		}
+
+		// Compare trigger values
+		if triggerVal == cond.TriggerValue {
+			for _, targetID := range cond.TargetNodes {
+				if node, ok := g.Nodes[targetID]; ok {
+					node.Status = NodeStatusSkipped
+				}
+			}
+		}
+	}
 }
 
 // NodeCount returns total number of nodes in the graph.

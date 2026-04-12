@@ -5,6 +5,9 @@ import (
 	"sync"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestNewExecutionGraph(t *testing.T) {
@@ -270,7 +273,7 @@ func TestExecutionGraph_AddConditionalSkip(t *testing.T) {
 	g.AddNode(&GraphNode{ID: "rag", AgentType: "rag", Status: NodeStatusPending})
 	g.AddNode(&GraphNode{ID: "ranking", AgentType: "ranking", Status: NodeStatusPending})
 
-	err := g.AddConditionalSkip("gate", []string{"rag", "ranking"}, nil)
+	err := g.AddConditionalSkip("gate", "decision", "block", []string{"rag", "ranking"})
 	if err != nil {
 		t.Fatalf("AddConditionalSkip failed: %v", err)
 	}
@@ -396,9 +399,7 @@ func TestConditionalSkip_AccessControlBlock(t *testing.T) {
 	g.AddNode(&GraphNode{ID: "billing", AgentType: "billing", Status: NodeStatusPending})
 
 	// When access_control returns block, both rag and billing should be skipped
-	err := g.AddConditionalSkip("access_control", []string{"rag", "billing"}, func(node *GraphNode) bool {
-		return node.AgentType == "access_control"
-	})
+	err := g.AddConditionalSkip("access_control", "decision", "block", []string{"rag", "billing"})
 	require.NoError(t, err, "AddConditionalSkip should not error")
 
 	// Manually set skip in state (simulating access_control gate evaluation)
@@ -412,4 +413,88 @@ func TestConditionalSkip_AccessControlBlock(t *testing.T) {
 	err = json.Unmarshal(v, &targets)
 	require.NoError(t, err, "should unmarshal skip targets")
 	assert.Equal(t, []string{"rag", "billing"}, targets)
+}
+
+func TestGraph_EvaluateConditions_BlockSkips(t *testing.T) {
+	g := NewExecutionGraph("test")
+
+	// Build graph: intake -> access_control -> [rag, ranking, response]
+	g.AddNode(&GraphNode{ID: "intake", AgentType: "intake", Status: NodeStatusPending})
+	g.AddNode(&GraphNode{ID: "access_control", AgentType: "access_control", Status: NodeStatusPending, DependsOn: []string{"intake"}})
+	g.AddNode(&GraphNode{ID: "rag", AgentType: "rag", Status: NodeStatusPending, DependsOn: []string{"access_control"}})
+	g.AddNode(&GraphNode{ID: "ranking", AgentType: "ranking", Status: NodeStatusPending, DependsOn: []string{"access_control"}})
+	g.AddNode(&GraphNode{ID: "response", AgentType: "response", Status: NodeStatusPending, DependsOn: []string{"access_control"}})
+
+	// Add condition: when access_control.decision == "block", skip rag and ranking
+	err := g.AddConditionalSkip("access_control", "decision", "block", []string{"rag", "ranking"})
+	require.NoError(t, err, "AddConditionalSkip should not error")
+
+	// Simulate access_control completing with decision="block"
+	g.SetNodeStatus("access_control", NodeStatusCompleted)
+	output := map[string]any{"decision": "block", "reason": "unauthorized"}
+	g.EvaluateConditions("access_control", output)
+
+	// Verify rag and ranking are skipped
+	ragNode, ok := g.Node("rag")
+	require.True(t, ok, "rag node should exist")
+	assert.Equal(t, NodeStatusSkipped, ragNode.Status, "rag should be skipped when access_control=block")
+
+	rankingNode, ok := g.Node("ranking")
+	require.True(t, ok, "ranking node should exist")
+	assert.Equal(t, NodeStatusSkipped, rankingNode.Status, "ranking should be skipped when access_control=block")
+
+	// Verify response is NOT skipped (not in target list)
+	responseNode, ok := g.Node("response")
+	require.True(t, ok, "response node should exist")
+	assert.Equal(t, NodeStatusPending, responseNode.Status, "response should NOT be skipped")
+}
+
+func TestGraph_EvaluateConditions_AllowDoesNotSkip(t *testing.T) {
+	g := NewExecutionGraph("test")
+
+	// Build graph: intake -> access_control -> [rag, ranking]
+	g.AddNode(&GraphNode{ID: "intake", AgentType: "intake", Status: NodeStatusPending})
+	g.AddNode(&GraphNode{ID: "access_control", AgentType: "access_control", Status: NodeStatusPending, DependsOn: []string{"intake"}})
+	g.AddNode(&GraphNode{ID: "rag", AgentType: "rag", Status: NodeStatusPending, DependsOn: []string{"access_control"}})
+	g.AddNode(&GraphNode{ID: "ranking", AgentType: "ranking", Status: NodeStatusPending, DependsOn: []string{"access_control"}})
+
+	// Add condition: when access_control.decision == "block", skip rag and ranking
+	err := g.AddConditionalSkip("access_control", "decision", "block", []string{"rag", "ranking"})
+	require.NoError(t, err, "AddConditionalSkip should not error")
+
+	// Simulate access_control completing with decision="allow"
+	g.SetNodeStatus("access_control", NodeStatusCompleted)
+	output := map[string]any{"decision": "allow"}
+	g.EvaluateConditions("access_control", output)
+
+	// Verify rag and ranking are NOT skipped (decision=allow, not block)
+	ragNode, ok := g.Node("rag")
+	require.True(t, ok, "rag node should exist")
+	assert.Equal(t, NodeStatusPending, ragNode.Status, "rag should NOT be skipped when access_control=allow")
+
+	rankingNode, ok := g.Node("ranking")
+	require.True(t, ok, "ranking node should exist")
+	assert.Equal(t, NodeStatusPending, rankingNode.Status, "ranking should NOT be skipped when access_control=allow")
+}
+
+func TestGraph_EvaluateConditions_WrongNode(t *testing.T) {
+	g := NewExecutionGraph("test")
+
+	g.AddNode(&GraphNode{ID: "access_control", AgentType: "access_control", Status: NodeStatusPending})
+	g.AddNode(&GraphNode{ID: "rag", AgentType: "rag", Status: NodeStatusPending})
+
+	// Add condition on access_control
+	err := g.AddConditionalSkip("access_control", "decision", "block", []string{"rag"})
+	require.NoError(t, err, "AddConditionalSkip should not error")
+
+	// Evaluate conditions for a different node (intake, not access_control)
+	// This should NOT trigger the condition even with the same output
+	g.SetNodeStatus("access_control", NodeStatusCompleted)
+	output := map[string]any{"decision": "block"}
+	g.EvaluateConditions("intake", output) // Note: wrong node ID
+
+	// rag should NOT be skipped because the condition source is access_control, not intake
+	ragNode, ok := g.Node("rag")
+	require.True(t, ok, "rag node should exist")
+	assert.Equal(t, NodeStatusPending, ragNode.Status, "rag should NOT be skipped when evaluating wrong node")
 }

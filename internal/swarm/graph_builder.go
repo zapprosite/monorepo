@@ -163,7 +163,7 @@ func BuildMessageGraph(graphID string) (*ExecutionGraph, error) {
 	}
 
 	// Conditional skip: access_control.block → skip rag, ranking, response, memory_post
-	if err := g.AddConditionalSkip(NodeAccessControl, []string{NodeRAG, NodeRanking, NodeResponse, NodeMemoryPost}, nil); err != nil {
+	if err := g.AddConditionalSkip(NodeAccessControl, "decision", "block", []string{NodeRAG, NodeRanking, NodeResponse, NodeMemoryPost}); err != nil {
 		return nil, err
 	}
 

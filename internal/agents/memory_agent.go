@@ -257,7 +257,7 @@ func (m *MemoryAgent) callMiniMax(ctx context.Context, prompt string) (string, e
 	}
 
 	reqBody := MiniMaxRequest{
-		Model: "MiniMax-M2.7",
+		Model: "MiniMax-M2",
 		Messages: []MiniMaxMessage{
 			{
 				Role:    "user",
@@ -277,9 +277,10 @@ func (m *MemoryAgent) callMiniMax(ctx context.Context, prompt string) (string, e
 	if err != nil {
 		return "", fmt.Errorf("create request: %w", err)
 	}
-	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+m.minimaxAPIKey)
+	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("anthropic-version", "2023-06-01")
+	req.Header.Set("anthropic-dangerous-direct-browser-access", "true")
 
 	client := &http.Client{Timeout: 10 * time.Second}
 	resp, err := client.Do(req)
