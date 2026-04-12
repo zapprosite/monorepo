@@ -2117,13 +2117,305 @@
       ],
       "testRequired": false,
       "specRef": "docs/SPECS/SPEC-031-homelab-maintenance.md"
+    },
+    {
+      "id": 50,
+      "title": "SPEC-032: smoke-tunnel.sh — smoke test all subdomains",
+      "description": "Create /srv/ops/scripts/smoke-tunnel.sh — loop through all subdomains from SUBDOMAINS.md, curl -sfI each one, report 000 as DOWN, exit 1 if any DOWN. Output: table format (subdomain | expected | actual | status).",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [],
+      "subtasks": [
+        {
+          "id": "50.1",
+          "title": "Create /srv/ops/scripts/smoke-tunnel.sh",
+          "status": "pending"
+        },
+        {
+          "id": "50.2",
+          "title": "Read subdomains from SUBDOMAINS.md (parse markdown table)",
+          "status": "pending"
+        },
+        {
+          "id": "50.3",
+          "title": "curl -sfI each subdomain, check for 200 or 302",
+          "status": "pending"
+        },
+        {
+          "id": "50.4",
+          "title": "Report 000 (connection refused) as DOWN",
+          "status": "pending"
+        },
+        {
+          "id": "50.5",
+          "title": "Exit 1 if any DOWN found",
+          "status": "pending"
+        }
+      ],
+      "acceptanceCriteria": [
+        "AC-1: smoke-tunnel.sh exists and is executable",
+        "AC-2: Reports all 12 subdomains with status",
+        "AC-3: Exit 1 if any DOWN"
+      ],
+      "files": [
+        "/srv/ops/scripts/smoke-tunnel.sh"
+      ],
+      "testRequired": true,
+      "specRef": "docs/SPECS/SPEC-032-tunnel-health-automation.md"
+    },
+    {
+      "id": 51,
+      "title": "SPEC-032: pre-commit-subdomain-check.sh",
+      "description": "Create /srv/ops/scripts/pre-commit-subdomain-check.sh — validate any new subdomain in variables.tf has SUBDOMAINS.md entry, validate subdomain URL is reachable (curl test). Called from git hooks or CI.",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [50],
+      "subtasks": [
+        {
+          "id": "51.1",
+          "title": "Create pre-commit-subdomain-check.sh",
+          "status": "pending"
+        },
+        {
+          "id": "51.2",
+          "title": "Parse variables.tf for new subdomain entries",
+          "status": "pending"
+        },
+        {
+          "id": "51.3",
+          "title": "Check SUBDOMAINS.md has entry for new subdomain",
+          "status": "pending"
+        },
+        {
+          "id": "51.4",
+          "title": "curl test new subdomain URL",
+          "status": "pending"
+        },
+        {
+          "id": "51.5",
+          "title": "Exit 1 if validation fails",
+          "status": "pending"
+        }
+      ],
+      "acceptanceCriteria": [
+        "AC-1: Script exists and is executable",
+        "AC-2: Catches subdomain without SUBDOMAINS.md entry",
+        "AC-3: Catches subdomain with unreachable URL"
+      ],
+      "files": [
+        "/srv/ops/scripts/pre-commit-subdomain-check.sh"
+      ],
+      "testRequired": true,
+      "specRef": "docs/SPECS/SPEC-032-tunnel-health-automation.md"
+    },
+    {
+      "id": 52,
+      "title": "SPEC-032: validate-ingress.sh — tunnel ingress validation",
+      "description": "Create /srv/ops/scripts/validate-ingress.sh — read variables.tf service URLs, verify each IP is reachable (curl or nc), flag localhost URLs pointing to services that should use container IPs (10.0.x.x).",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [50],
+      "subtasks": [
+        {
+          "id": "52.1",
+          "title": "Create validate-ingress.sh",
+          "status": "pending"
+        },
+        {
+          "id": "52.2",
+          "title": "Parse variables.tf for ingress rules",
+          "status": "pending"
+        },
+        {
+          "id": "52.3",
+          "title": "For each URL, verify IP:port is reachable",
+          "status": "pending"
+        },
+        {
+          "id": "52.4",
+          "title": "Flag localhost URLs (should use container IPs)",
+          "status": "pending"
+        },
+        {
+          "id": "52.5",
+          "title": "Report unreachable ingress rules",
+          "status": "pending"
+        }
+      ],
+      "acceptanceCriteria": [
+        "AC-1: Script exists and is executable",
+        "AC-2: Detects localhost ingress pointing to container-only services",
+        "AC-3: Reports all unreachable ingress rules"
+      ],
+      "files": [
+        "/srv/ops/scripts/validate-ingress.sh"
+      ],
+      "testRequired": true,
+      "specRef": "docs/SPECS/SPEC-032-tunnel-health-automation.md"
+    },
+    {
+      "id": 53,
+      "title": "SPEC-032: tunnel-autoheal.sh — auto-heal cloudflared",
+      "description": "Create /srv/ops/scripts/tunnel-autoheal.sh — if cloudflared status != active, ZFS snapshot then systemctl restart cloudflared. If tunnel has 0 ingress rules, alert immediately.",
+      "status": "pending",
+      "priority": "critical",
+      "dependencies": [50],
+      "subtasks": [
+        {
+          "id": "53.1",
+          "title": "Create tunnel-autoheal.sh",
+          "status": "pending"
+        },
+        {
+          "id": "53.2",
+          "title": "Check cloudflared service status",
+          "status": "pending"
+        },
+        {
+          "id": "53.3",
+          "title": "ZFS snapshot before restart (rpool/srv)",
+          "status": "pending"
+        },
+        {
+          "id": "53.4",
+          "title": "systemctl restart cloudflared if down",
+          "status": "pending"
+        },
+        {
+          "id": "53.5",
+          "title": "Alert via Gotify if 0 ingress rules active",
+          "status": "pending"
+        }
+      ],
+      "acceptanceCriteria": [
+        "AC-1: Script exists and is executable",
+        "AC-2: ZFS snapshot before restart",
+        "AC-3: cloudflared restarted within 5 min of failure",
+        "AC-4: Gotify alert if 0 ingress rules"
+      ],
+      "files": [
+        "/srv/ops/scripts/tunnel-autoheal.sh"
+      ],
+      "testRequired": true,
+      "specRef": "docs/SPECS/SPEC-032-tunnel-health-automation.md"
+    },
+    {
+      "id": 54,
+      "title": "SPEC-032: gotify-alert.sh helper",
+      "description": "Create /srv/ops/scripts/gotify-alert.sh — helper to send Gotify alerts (POST to http://localhost:8050/gotify). Used by smoke-tunnel.sh and tunnel-autoheal.sh.",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [],
+      "subtasks": [
+        {
+          "id": "54.1",
+          "title": "Create gotify-alert.sh",
+          "status": "pending"
+        },
+        {
+          "id": "54.2",
+          "title": "POST message to localhost:8050/gotify",
+          "status": "pending"
+        },
+        {
+          "id": "54.3",
+          "title": "Support title, message, priority args",
+          "status": "pending"
+        }
+      ],
+      "acceptanceCriteria": [
+        "AC-1: Script exists and is executable",
+        "AC-2: Sends alert to Gotify",
+        "AC-3: Used by other scripts"
+      ],
+      "files": [
+        "/srv/ops/scripts/gotify-alert.sh"
+      ],
+      "testRequired": true,
+      "specRef": "docs/SPECS/SPEC-032-tunnel-health-automation.md"
+    },
+    {
+      "id": 55,
+      "title": "SPEC-032: Cron job smoke-tunnel every 30 min",
+      "description": "Add cron job: */30 * * * * /srv/ops/scripts/smoke-tunnel.sh. If DOWN detected → gotify-alert.sh. Log to /srv/ops/logs/tunnel-health.log.",
+      "status": "pending",
+      "priority": "critical",
+      "dependencies": [50, 54],
+      "subtasks": [
+        {
+          "id": "55.1",
+          "title": "Add cron entry: */30 * * * *",
+          "status": "pending"
+        },
+        {
+          "id": "55.2",
+          "title": "Ensure /srv/ops/logs/ directory exists",
+          "status": "pending"
+        },
+        {
+          "id": "55.3",
+          "title": "smoke-tunnel.sh logs to /srv/ops/logs/tunnel-health.log",
+          "status": "pending"
+        },
+        {
+          "id": "55.4",
+          "title": "DOWN result triggers gotify-alert.sh",
+          "status": "pending"
+        }
+      ],
+      "acceptanceCriteria": [
+        "AC-1: cron entry exists: */30 * * * *",
+        "AC-2: Log file created at /srv/ops/logs/tunnel-health.log",
+        "AC-3: Gotify alert sent when DOWN detected"
+      ],
+      "files": [
+        "/srv/ops/logs/tunnel-health.log",
+        "crontab"
+      ],
+      "testRequired": true,
+      "specRef": "docs/SPECS/SPEC-032-tunnel-health-automation.md"
+    },
+    {
+      "id": 56,
+      "title": "SPEC-032: Commit list-web-from-zero-to-deploy skill",
+      "description": "Commit the skill created by the background agent to /srv/monorepo/.claude/skills/list-web-from-zero-to-deploy/",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [],
+      "subtasks": [
+        {
+          "id": "56.1",
+          "title": "Verify skill directory exists",
+          "status": "pending"
+        },
+        {
+          "id": "56.2",
+          "title": "Verify SKILL.md + 6 reference files exist",
+          "status": "pending"
+        },
+        {
+          "id": "56.3",
+          "title": "Stage and commit skill",
+          "status": "pending"
+        }
+      ],
+      "acceptanceCriteria": [
+        "AC-1: Skill directory exists",
+        "AC-2: All 7 files present",
+        "AC-3: Git commit created"
+      ],
+      "files": [
+        ".claude/skills/list-web-from-zero-to-deploy/"
+      ],
+      "testRequired": false,
+      "specRef": "docs/SPECS/SPEC-032-tunnel-health-automation.md"
     }
   ],
   "meta": {
-    "totalTasks": 49,
-    "completedTasks": 0,
-    "pendingTasks": 49,
-    "generatedAt": "2026-04-12T12:45:00Z",
+    "totalTasks": 56,
+    "completedTasks": 1,
+    "pendingTasks": 55,
+    "generatedAt": "2026-04-12T20:50:00Z",
     "projectName": "zappro-monorepo",
     "version": "2.0"
   }
