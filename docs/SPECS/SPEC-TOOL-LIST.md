@@ -91,7 +91,7 @@ const TOOLS = [
   },
   {
     name: 'Prometheus',
-    url: 'http://localhost:9090',
+    url: 'https://monitor.zappro.site/graph',
     description: 'Metrics collection',
     icon: '🎯',
     status: 'up',
@@ -99,7 +99,7 @@ const TOOLS = [
   },
   {
     name: 'OpenClaw',
-    url: 'https://openclaw.zappro.site',
+    url: 'https://bot.zappro.site',
     description: 'Voice AI bot',
     icon: '🎙️',
     status: 'up',
@@ -123,7 +123,7 @@ const TOOLS = [
   },
   {
     name: 'Infisical',
-    url: 'https://infisical.zappro.site',
+    url: 'https://vault.zappro.site',
     description: 'Secrets manager',
     icon: '🔐',
     status: 'up',
@@ -131,7 +131,7 @@ const TOOLS = [
   },
   {
     name: 'Kokoro TTS',
-    url: 'http://localhost:8013',
+    url: 'http://localhost:8012',
     description: 'Text-to-Speech',
     icon: '🔊',
     status: 'up',
