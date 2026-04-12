@@ -8,12 +8,26 @@
       "priority": "high",
       "dependencies": [],
       "subtasks": [
-        {"id": "1.1", "title": "Define SwarmTask struct with all fields", "status": "pending"},
-        {"id": "1.2", "title": "Implement JSON marshal/unmarshal", "status": "pending"},
-        {"id": "1.3", "title": "Add task status constants", "status": "pending"}
+        {
+          "id": "1.1",
+          "title": "Define SwarmTask struct with all fields",
+          "status": "pending"
+        },
+        {
+          "id": "1.2",
+          "title": "Implement JSON marshal/unmarshal",
+          "status": "pending"
+        },
+        {
+          "id": "1.3",
+          "title": "Add task status constants",
+          "status": "pending"
+        }
       ],
       "acceptanceCriteria": [],
-      "files": ["internal/swarm/task.go"],
+      "files": [
+        "internal/swarm/task.go"
+      ],
       "testRequired": true,
       "specRef": "SPEC-001-core-swarm.md"
     },
@@ -23,16 +37,42 @@
       "description": "Implement ExecutionGraph with resolveReady() method. Handle node status transitions.",
       "status": "pending",
       "priority": "high",
-      "dependencies": [1],
-      "subtasks": [
-        {"id": "2.1", "title": "Define ExecutionGraph struct", "status": "pending"},
-        {"id": "2.2", "title": "Implement resolveReady() - find nodes with all deps completed", "status": "pending"},
-        {"id": "2.3", "title": "Implement AddNode() and AddEdge()", "status": "pending"},
-        {"id": "2.4", "title": "AddConditionalSkip() for access_control block", "status": "pending"},
-        {"id": "2.5", "title": "IsComplete() check", "status": "pending"}
+      "dependencies": [
+        1
       ],
-      "acceptanceCriteria": ["AC-2"],
-      "files": ["internal/swarm/graph.go"],
+      "subtasks": [
+        {
+          "id": "2.1",
+          "title": "Define ExecutionGraph struct",
+          "status": "pending"
+        },
+        {
+          "id": "2.2",
+          "title": "Implement resolveReady() - find nodes with all deps completed",
+          "status": "pending"
+        },
+        {
+          "id": "2.3",
+          "title": "Implement AddNode() and AddEdge()",
+          "status": "pending"
+        },
+        {
+          "id": "2.4",
+          "title": "AddConditionalSkip() for access_control block",
+          "status": "pending"
+        },
+        {
+          "id": "2.5",
+          "title": "IsComplete() check",
+          "status": "pending"
+        }
+      ],
+      "acceptanceCriteria": [
+        "AC-2"
+      ],
+      "files": [
+        "internal/swarm/graph.go"
+      ],
       "testRequired": true,
       "specRef": "SPEC-001-core-swarm.md"
     },
@@ -42,15 +82,35 @@
       "description": "Factory function to create the full WhatsApp message DAG with all 9 nodes.",
       "status": "pending",
       "priority": "high",
-      "dependencies": [2],
+      "dependencies": [
+        2
+      ],
       "subtasks": [
-        {"id": "3.1", "title": "BuildMessageGraph() - 9 nodes: intake, classifier, access_control, rag, billing, memory_pre, ranking, response, memory_post", "status": "pending"},
-        {"id": "3.2", "title": "Define edges: classifier→access_control, access_control→rag+billing+memory_pre", "status": "pending"},
-        {"id": "3.3", "title": "Define edges: rag→ranking, ranking+access_control→response, response→memory_post", "status": "pending"},
-        {"id": "3.4", "title": "Add conditional skip: access_control.block → skip rag,ranking,response,memory_post", "status": "pending"}
+        {
+          "id": "3.1",
+          "title": "BuildMessageGraph() - 9 nodes: intake, classifier, access_control, rag, billing, memory_pre, ranking, response, memory_post",
+          "status": "pending"
+        },
+        {
+          "id": "3.2",
+          "title": "Define edges: classifier\u2192access_control, access_control\u2192rag+billing+memory_pre",
+          "status": "pending"
+        },
+        {
+          "id": "3.3",
+          "title": "Define edges: rag\u2192ranking, ranking+access_control\u2192response, response\u2192memory_post",
+          "status": "pending"
+        },
+        {
+          "id": "3.4",
+          "title": "Add conditional skip: access_control.block \u2192 skip rag,ranking,response,memory_post",
+          "status": "pending"
+        }
       ],
       "acceptanceCriteria": [],
-      "files": ["internal/swarm/graph_builder.go"],
+      "files": [
+        "internal/swarm/graph_builder.go"
+      ],
       "testRequired": true,
       "specRef": "SPEC-001-core-swarm.md"
     },
@@ -62,32 +122,77 @@
       "priority": "high",
       "dependencies": [],
       "subtasks": [
-        {"id": "4.1", "title": "Define AgentInterface interface with Execute(ctx, task)", "status": "pending"},
-        {"id": "4.2", "title": "Document contract: input, output, error handling", "status": "pending"}
+        {
+          "id": "4.1",
+          "title": "Define AgentInterface interface with Execute(ctx, task)",
+          "status": "pending"
+        },
+        {
+          "id": "4.2",
+          "title": "Document contract: input, output, error handling",
+          "status": "pending"
+        }
       ],
       "acceptanceCriteria": [],
-      "files": ["internal/agents/interface.go"],
+      "files": [
+        "internal/agents/interface.go"
+      ],
       "testRequired": false,
       "specRef": "SPEC-001-core-swarm.md"
     },
     {
       "id": 5,
       "title": "Create worker.go - SwarmWorker loop",
-      "description": "Implement SwarmWorker with infinite loop: claim → execute → heartbeat.",
+      "description": "Implement SwarmWorker with infinite loop: claim \u2192 execute \u2192 heartbeat.",
       "status": "pending",
       "priority": "high",
-      "dependencies": [1, 4],
-      "subtasks": [
-        {"id": "5.1", "title": "Define SwarmWorker struct with Redis, Agent, queues", "status": "pending"},
-        {"id": "5.2", "title": "Implement Run() - infinite loop until ctx.Done()", "status": "pending"},
-        {"id": "5.3", "title": "Implement claimTask() - BRPOP + work-stealing fallback", "status": "pending"},
-        {"id": "5.4", "title": "Implement executeTask() - call Agent.Execute(), handle result/error", "status": "pending"},
-        {"id": "5.5", "title": "Implement heartbeatLoop() - SETEX every 5s", "status": "pending"},
-        {"id": "5.6", "title": "Implement handleFailure() - retry or dead-letter", "status": "pending"},
-        {"id": "5.7", "title": "Register/deregister in agent registry", "status": "pending"}
+      "dependencies": [
+        1,
+        4
       ],
-      "acceptanceCriteria": ["AC-1"],
-      "files": ["internal/swarm/worker.go"],
+      "subtasks": [
+        {
+          "id": "5.1",
+          "title": "Define SwarmWorker struct with Redis, Agent, queues",
+          "status": "pending"
+        },
+        {
+          "id": "5.2",
+          "title": "Implement Run() - infinite loop until ctx.Done()",
+          "status": "pending"
+        },
+        {
+          "id": "5.3",
+          "title": "Implement claimTask() - BRPOP + work-stealing fallback",
+          "status": "pending"
+        },
+        {
+          "id": "5.4",
+          "title": "Implement executeTask() - call Agent.Execute(), handle result/error",
+          "status": "pending"
+        },
+        {
+          "id": "5.5",
+          "title": "Implement heartbeatLoop() - SETEX every 5s",
+          "status": "pending"
+        },
+        {
+          "id": "5.6",
+          "title": "Implement handleFailure() - retry or dead-letter",
+          "status": "pending"
+        },
+        {
+          "id": "5.7",
+          "title": "Register/deregister in agent registry",
+          "status": "pending"
+        }
+      ],
+      "acceptanceCriteria": [
+        "AC-1"
+      ],
+      "files": [
+        "internal/swarm/worker.go"
+      ],
       "testRequired": true,
       "specRef": "SPEC-001-core-swarm.md"
     },
@@ -97,17 +202,49 @@
       "description": "Main controller: scheduler tick, orphan watchdog, rebalance loop.",
       "status": "pending",
       "priority": "high",
-      "dependencies": [2, 3, 5],
-      "subtasks": [
-        {"id": "6.1", "title": "Define SwarmController struct with Redis + registry", "status": "pending"},
-        {"id": "6.2", "title": "Implement SchedulerLoop() - 10ms tick, resolveReady(), enqueueNode()", "status": "pending"},
-        {"id": "6.3", "title": "Implement OrphanWatchdog() - 10s tick, detect dead workers, redistribute tasks", "status": "pending"},
-        {"id": "6.4", "title": "Implement RebalanceLoop() - 30s tick, detect congestion", "status": "pending"},
-        {"id": "6.5", "title": "Implement MetricsCollector() - 5s tick", "status": "pending"},
-        {"id": "6.6", "title": "ProcessEvent() - handle task_completed, propagate output, evaluate conditions", "status": "pending"}
+      "dependencies": [
+        2,
+        3,
+        5
       ],
-      "acceptanceCriteria": ["AC-3"],
-      "files": ["internal/swarm/controller.go"],
+      "subtasks": [
+        {
+          "id": "6.1",
+          "title": "Define SwarmController struct with Redis + registry",
+          "status": "pending"
+        },
+        {
+          "id": "6.2",
+          "title": "Implement SchedulerLoop() - 10ms tick, resolveReady(), enqueueNode()",
+          "status": "pending"
+        },
+        {
+          "id": "6.3",
+          "title": "Implement OrphanWatchdog() - 10s tick, detect dead workers, redistribute tasks",
+          "status": "pending"
+        },
+        {
+          "id": "6.4",
+          "title": "Implement RebalanceLoop() - 30s tick, detect congestion",
+          "status": "pending"
+        },
+        {
+          "id": "6.5",
+          "title": "Implement MetricsCollector() - 5s tick",
+          "status": "pending"
+        },
+        {
+          "id": "6.6",
+          "title": "ProcessEvent() - handle task_completed, propagate output, evaluate conditions",
+          "status": "pending"
+        }
+      ],
+      "acceptanceCriteria": [
+        "AC-3"
+      ],
+      "files": [
+        "internal/swarm/controller.go"
+      ],
       "testRequired": true,
       "specRef": "SPEC-001-core-swarm.md"
     },
@@ -117,15 +254,37 @@
       "description": "HTTP handler for /api/swarm/board with Server-Sent Events.",
       "status": "pending",
       "priority": "medium",
-      "dependencies": [6],
-      "subtasks": [
-        {"id": "7.1", "title": "GET /api/swarm/board - SSE stream", "status": "pending"},
-        {"id": "7.2", "title": "GET /api/swarm/board/snapshot - initial state", "status": "pending"},
-        {"id": "7.3", "title": "Subscribe to Redis Pub/Sub channels", "status": "pending"},
-        {"id": "7.4", "title": "GET /api/swarm/graphs/:id - graph status", "status": "pending"}
+      "dependencies": [
+        6
       ],
-      "acceptanceCriteria": ["AC-4"],
-      "files": ["internal/swarm/board.go"],
+      "subtasks": [
+        {
+          "id": "7.1",
+          "title": "GET /api/swarm/board - SSE stream",
+          "status": "pending"
+        },
+        {
+          "id": "7.2",
+          "title": "GET /api/swarm/board/snapshot - initial state",
+          "status": "pending"
+        },
+        {
+          "id": "7.3",
+          "title": "Subscribe to Redis Pub/Sub channels",
+          "status": "pending"
+        },
+        {
+          "id": "7.4",
+          "title": "GET /api/swarm/graphs/:id - graph status",
+          "status": "pending"
+        }
+      ],
+      "acceptanceCriteria": [
+        "AC-4"
+      ],
+      "files": [
+        "internal/swarm/board.go"
+      ],
       "testRequired": true,
       "specRef": "SPEC-001-core-swarm.md"
     },
@@ -135,18 +294,52 @@
       "description": "Wire everything together: load config, connect Redis, spawn workers, start controller, HTTP server.",
       "status": "pending",
       "priority": "high",
-      "dependencies": [5, 6, 7],
+      "dependencies": [
+        5,
+        6,
+        7
+      ],
       "subtasks": [
-        {"id": "8.1", "title": "Load config from environment", "status": "pending"},
-        {"id": "8.2", "title": "Connect to Redis", "status": "pending"},
-        {"id": "8.3", "title": "Load agents.json config", "status": "pending"},
-        {"id": "8.4", "title": "Spawn workers (goroutines)", "status": "pending"},
-        {"id": "8.5", "title": "Start controller loops (scheduler, watchdog, rebalancer)", "status": "pending"},
-        {"id": "8.6", "title": "Start HTTP server on :8080", "status": "pending"},
-        {"id": "8.7", "title": "Graceful shutdown on SIGTERM", "status": "pending"}
+        {
+          "id": "8.1",
+          "title": "Load config from environment",
+          "status": "pending"
+        },
+        {
+          "id": "8.2",
+          "title": "Connect to Redis",
+          "status": "pending"
+        },
+        {
+          "id": "8.3",
+          "title": "Load agents.json config",
+          "status": "pending"
+        },
+        {
+          "id": "8.4",
+          "title": "Spawn workers (goroutines)",
+          "status": "pending"
+        },
+        {
+          "id": "8.5",
+          "title": "Start controller loops (scheduler, watchdog, rebalancer)",
+          "status": "pending"
+        },
+        {
+          "id": "8.6",
+          "title": "Start HTTP server on :8080",
+          "status": "pending"
+        },
+        {
+          "id": "8.7",
+          "title": "Graceful shutdown on SIGTERM",
+          "status": "pending"
+        }
       ],
       "acceptanceCriteria": [],
-      "files": ["cmd/swarm/main.go"],
+      "files": [
+        "cmd/swarm/main.go"
+      ],
       "testRequired": false,
       "specRef": "SPEC-001-core-swarm.md"
     },
@@ -156,16 +349,42 @@
       "description": "Test ExecutionGraph resolveReady() logic with mock nodes.",
       "status": "pending",
       "priority": "high",
-      "dependencies": [2],
-      "subtasks": [
-        {"id": "9.1", "title": "Test resolveReady() with no dependencies", "status": "pending"},
-        {"id": "9.2", "title": "Test resolveReady() waits for dependencies", "status": "pending"},
-        {"id": "9.3", "title": "Test resolveReady() with parallel nodes (rag+billing+memory_pre)", "status": "pending"},
-        {"id": "9.4", "title": "Test IsComplete() returns true when all done", "status": "pending"},
-        {"id": "9.5", "title": "Test conditional skip when access_control=block", "status": "pending"}
+      "dependencies": [
+        2
       ],
-      "acceptanceCriteria": ["AC-2"],
-      "files": ["internal/swarm/graph_test.go"],
+      "subtasks": [
+        {
+          "id": "9.1",
+          "title": "Test resolveReady() with no dependencies",
+          "status": "pending"
+        },
+        {
+          "id": "9.2",
+          "title": "Test resolveReady() waits for dependencies",
+          "status": "pending"
+        },
+        {
+          "id": "9.3",
+          "title": "Test resolveReady() with parallel nodes (rag+billing+memory_pre)",
+          "status": "pending"
+        },
+        {
+          "id": "9.4",
+          "title": "Test IsComplete() returns true when all done",
+          "status": "pending"
+        },
+        {
+          "id": "9.5",
+          "title": "Test conditional skip when access_control=block",
+          "status": "pending"
+        }
+      ],
+      "acceptanceCriteria": [
+        "AC-2"
+      ],
+      "files": [
+        "internal/swarm/graph_test.go"
+      ],
       "testRequired": true,
       "specRef": "SPEC-001-core-swarm.md"
     },
@@ -175,15 +394,37 @@
       "description": "Test SwarmWorker claim, execute, heartbeat, failure handling.",
       "status": "pending",
       "priority": "high",
-      "dependencies": [5],
-      "subtasks": [
-        {"id": "10.1", "title": "Test claimTask() - BRPOP returns task", "status": "pending"},
-        {"id": "10.2", "title": "Test claimTask() - work-stealing when queue empty", "status": "pending"},
-        {"id": "10.3", "title": "Test handleFailure() - retries then dead-letter", "status": "pending"},
-        {"id": "10.4", "title": "Test heartbeat expires after 15s", "status": "pending"}
+      "dependencies": [
+        5
       ],
-      "acceptanceCriteria": ["AC-1"],
-      "files": ["internal/swarm/worker_test.go"],
+      "subtasks": [
+        {
+          "id": "10.1",
+          "title": "Test claimTask() - BRPOP returns task",
+          "status": "pending"
+        },
+        {
+          "id": "10.2",
+          "title": "Test claimTask() - work-stealing when queue empty",
+          "status": "pending"
+        },
+        {
+          "id": "10.3",
+          "title": "Test handleFailure() - retries then dead-letter",
+          "status": "pending"
+        },
+        {
+          "id": "10.4",
+          "title": "Test heartbeat expires after 15s",
+          "status": "pending"
+        }
+      ],
+      "acceptanceCriteria": [
+        "AC-1"
+      ],
+      "files": [
+        "internal/swarm/worker_test.go"
+      ],
       "testRequired": true,
       "specRef": "SPEC-001-core-swarm.md"
     },
@@ -195,12 +436,26 @@
       "priority": "high",
       "dependencies": [],
       "subtasks": [
-        {"id": "11.1", "title": "Create scripts/mirror-sync.sh", "status": "pending"},
-        {"id": "11.2", "title": "Add git push --mirror to both remotes", "status": "pending"},
-        {"id": "11.3", "title": "Add error handling and logging", "status": "pending"}
+        {
+          "id": "11.1",
+          "title": "Create scripts/mirror-sync.sh",
+          "status": "pending"
+        },
+        {
+          "id": "11.2",
+          "title": "Add git push --mirror to both remotes",
+          "status": "pending"
+        },
+        {
+          "id": "11.3",
+          "title": "Add error handling and logging",
+          "status": "pending"
+        }
       ],
       "acceptanceCriteria": [],
-      "files": ["scripts/mirror-sync.sh"],
+      "files": [
+        "scripts/mirror-sync.sh"
+      ],
       "testRequired": false,
       "specRef": "SPEC-026.md"
     },
@@ -212,12 +467,26 @@
       "priority": "medium",
       "dependencies": [],
       "subtasks": [
-        {"id": "12.1", "title": "Create scripts/audit-branches.sh", "status": "pending"},
-        {"id": "12.2", "title": "Detect branches not merged to main/develop in 30+ days", "status": "pending"},
-        {"id": "12.3", "title": "Report list of stale branches", "status": "pending"}
+        {
+          "id": "12.1",
+          "title": "Create scripts/audit-branches.sh",
+          "status": "pending"
+        },
+        {
+          "id": "12.2",
+          "title": "Detect branches not merged to main/develop in 30+ days",
+          "status": "pending"
+        },
+        {
+          "id": "12.3",
+          "title": "Report list of stale branches",
+          "status": "pending"
+        }
       ],
       "acceptanceCriteria": [],
-      "files": ["scripts/audit-branches.sh"],
+      "files": [
+        "scripts/audit-branches.sh"
+      ],
       "testRequired": false,
       "specRef": "SPEC-026.md"
     },
@@ -227,14 +496,30 @@
       "description": "Create scripts/cleanup-branches.sh to safely remove stale branches after approval.",
       "status": "pending",
       "priority": "medium",
-      "dependencies": [12],
+      "dependencies": [
+        12
+      ],
       "subtasks": [
-        {"id": "13.1", "title": "Create scripts/cleanup-branches.sh", "status": "pending"},
-        {"id": "13.2", "title": "Require confirmation before deletion", "status": "pending"},
-        {"id": "13.3", "title": "Delete only approved stale branches", "status": "pending"}
+        {
+          "id": "13.1",
+          "title": "Create scripts/cleanup-branches.sh",
+          "status": "pending"
+        },
+        {
+          "id": "13.2",
+          "title": "Require confirmation before deletion",
+          "status": "pending"
+        },
+        {
+          "id": "13.3",
+          "title": "Delete only approved stale branches",
+          "status": "pending"
+        }
       ],
       "acceptanceCriteria": [],
-      "files": ["scripts/cleanup-branches.sh"],
+      "files": [
+        "scripts/cleanup-branches.sh"
+      ],
       "testRequired": false,
       "specRef": "SPEC-026.md"
     },
@@ -244,10 +529,20 @@
       "description": "Run audit-branches.sh and report all stale branches across all remotes.",
       "status": "pending",
       "priority": "medium",
-      "dependencies": [12],
+      "dependencies": [
+        12
+      ],
       "subtasks": [
-        {"id": "14.1", "title": "Run audit-branches.sh on all remotes", "status": "pending"},
-        {"id": "14.2", "title": "Document stale branch list", "status": "pending"}
+        {
+          "id": "14.1",
+          "title": "Run audit-branches.sh on all remotes",
+          "status": "pending"
+        },
+        {
+          "id": "14.2",
+          "title": "Document stale branch list",
+          "status": "pending"
+        }
       ],
       "acceptanceCriteria": [],
       "files": [],
@@ -262,8 +557,16 @@
       "priority": "medium",
       "dependencies": [],
       "subtasks": [
-        {"id": "15.1", "title": "List all tags and check v* prefix", "status": "pending"},
-        {"id": "15.2", "title": "Report non-compliant tags", "status": "pending"}
+        {
+          "id": "15.1",
+          "title": "List all tags and check v* prefix",
+          "status": "pending"
+        },
+        {
+          "id": "15.2",
+          "title": "Report non-compliant tags",
+          "status": "pending"
+        }
       ],
       "acceptanceCriteria": [],
       "files": [],
@@ -276,11 +579,25 @@
       "description": "Test mirror-sync.sh successfully pushes to both Gitea and GitHub remotes.",
       "status": "pending",
       "priority": "high",
-      "dependencies": [11],
+      "dependencies": [
+        11
+      ],
       "subtasks": [
-        {"id": "16.1", "title": "Run mirror-sync.sh dry-run", "status": "pending"},
-        {"id": "16.2", "title": "Verify push to Gitea", "status": "pending"},
-        {"id": "16.3", "title": "Verify push to GitHub", "status": "pending"}
+        {
+          "id": "16.1",
+          "title": "Run mirror-sync.sh dry-run",
+          "status": "pending"
+        },
+        {
+          "id": "16.2",
+          "title": "Verify push to Gitea",
+          "status": "pending"
+        },
+        {
+          "id": "16.3",
+          "title": "Verify push to GitHub",
+          "status": "pending"
+        }
       ],
       "acceptanceCriteria": [],
       "files": [],
@@ -293,10 +610,20 @@
       "description": "Delete approved stale branches using cleanup-branches.sh.",
       "status": "pending",
       "priority": "medium",
-      "dependencies": [14],
+      "dependencies": [
+        14
+      ],
       "subtasks": [
-        {"id": "17.1", "title": "Get approval for branch deletion list", "status": "pending"},
-        {"id": "17.2", "title": "Run cleanup-branches.sh with approved list", "status": "pending"}
+        {
+          "id": "17.1",
+          "title": "Get approval for branch deletion list",
+          "status": "pending"
+        },
+        {
+          "id": "17.2",
+          "title": "Run cleanup-branches.sh with approved list",
+          "status": "pending"
+        }
       ],
       "acceptanceCriteria": [],
       "files": [],
@@ -309,11 +636,25 @@
       "description": "Final validation that mirror-sync.sh works end-to-end and all remotes are in sync.",
       "status": "pending",
       "priority": "high",
-      "dependencies": [16],
+      "dependencies": [
+        16
+      ],
       "subtasks": [
-        {"id": "18.1", "title": "Verify all branches on both remotes", "status": "pending"},
-        {"id": "18.2", "title": "Verify all tags on both remotes", "status": "pending"},
-        {"id": "18.3", "title": "Confirm sync status report", "status": "pending"}
+        {
+          "id": "18.1",
+          "title": "Verify all branches on both remotes",
+          "status": "pending"
+        },
+        {
+          "id": "18.2",
+          "title": "Verify all tags on both remotes",
+          "status": "pending"
+        },
+        {
+          "id": "18.3",
+          "title": "Confirm sync status report",
+          "status": "pending"
+        }
       ],
       "acceptanceCriteria": [],
       "files": [],
@@ -328,12 +669,33 @@
       "priority": "critical",
       "dependencies": [],
       "subtasks": [
-        {"id": "19.1", "title": "Restart TTS Bridge with memory limits (--memory=512m)", "status": "pending"},
-        {"id": "19.2", "title": "Update OpenClaw config to use Bridge (baseUrl http://10.0.19.5:8013)", "status": "pending"},
-        {"id": "19.3", "title": "Update docs to remove :8880 and pm_alex references", "status": "pending"}
+        {
+          "id": "19.1",
+          "title": "Restart TTS Bridge with memory limits (--memory=512m)",
+          "status": "pending"
+        },
+        {
+          "id": "19.2",
+          "title": "Update OpenClaw config to use Bridge (baseUrl http://10.0.19.5:8013)",
+          "status": "pending"
+        },
+        {
+          "id": "19.3",
+          "title": "Update docs to remove :8880 and pm_alex references",
+          "status": "pending"
+        }
       ],
-      "acceptanceCriteria": ["AC-1: TTS Bridge UP", "AC-2: pm_alex blocked (400)", "AC-3: pm_santa works (200)", "AC-4: OpenClaw uses Bridge", "AC-5: OpenClaw uses pm_santa", "AC-6: Smoke test 15/15"],
-      "files": ["docs/SPECS/SPEC-014-openclaw-tts-route-fix.md"],
+      "acceptanceCriteria": [
+        "AC-1: TTS Bridge UP",
+        "AC-2: pm_alex blocked (400)",
+        "AC-3: pm_santa works (200)",
+        "AC-4: OpenClaw uses Bridge",
+        "AC-5: OpenClaw uses pm_santa",
+        "AC-6: Smoke test 15/15"
+      ],
+      "files": [
+        "docs/SPECS/SPEC-014-openclaw-tts-route-fix.md"
+      ],
       "testRequired": true,
       "specRef": "SPEC-014-openclaw-tts-route-fix.md"
     },
@@ -343,14 +705,35 @@
       "description": "Create voice-pipeline-loop.sh orchestrator - smoke test, auto-heal, Telegram alerts.",
       "status": "pending",
       "priority": "critical",
-      "dependencies": [19],
-      "subtasks": [
-        {"id": "20.1", "title": "Create voice-pipeline-loop.sh orchestrator", "status": "pending"},
-        {"id": "20.2", "title": "Create voice-pipeline-e2e-telegram.sh", "status": "pending"},
-        {"id": "20.3", "title": "Verify cron every 5 min", "status": "pending"}
+      "dependencies": [
+        19
       ],
-      "acceptanceCriteria": ["AC-1: Cron every 5 min", "AC-2: Smoke test 18/18 passes", "AC-3: TTS DOWN → auto-restart", "AC-4: Persistent failure → Telegram alert"],
-      "files": ["tasks/smoke-tests/voice-pipeline-loop.sh"],
+      "subtasks": [
+        {
+          "id": "20.1",
+          "title": "Create voice-pipeline-loop.sh orchestrator",
+          "status": "pending"
+        },
+        {
+          "id": "20.2",
+          "title": "Create voice-pipeline-e2e-telegram.sh",
+          "status": "pending"
+        },
+        {
+          "id": "20.3",
+          "title": "Verify cron every 5 min",
+          "status": "pending"
+        }
+      ],
+      "acceptanceCriteria": [
+        "AC-1: Cron every 5 min",
+        "AC-2: Smoke test 18/18 passes",
+        "AC-3: TTS DOWN \u2192 auto-restart",
+        "AC-4: Persistent failure \u2192 Telegram alert"
+      ],
+      "files": [
+        "tasks/smoke-tests/voice-pipeline-loop.sh"
+      ],
       "testRequired": true,
       "specRef": "SPEC-016-voice-pipeline-cursor-loop.md"
     },
@@ -362,14 +745,40 @@
       "priority": "high",
       "dependencies": [],
       "subtasks": [
-        {"id": "21.1", "title": "Create voice-api.py STT Bridge on :8202", "status": "pending"},
-        {"id": "21.2", "title": "Create voice-api.dockerfile", "status": "pending"},
-        {"id": "21.3", "title": "Create voice-api.compose.yml", "status": "pending"},
-        {"id": "21.4", "title": "Deploy via Coolify API", "status": "pending"},
-        {"id": "21.5", "title": "Configure Cloudflare for voice-api.zappro.site", "status": "pending"}
+        {
+          "id": "21.1",
+          "title": "Create voice-api.py STT Bridge on :8202",
+          "status": "pending"
+        },
+        {
+          "id": "21.2",
+          "title": "Create voice-api.dockerfile",
+          "status": "pending"
+        },
+        {
+          "id": "21.3",
+          "title": "Create voice-api.compose.yml",
+          "status": "pending"
+        },
+        {
+          "id": "21.4",
+          "title": "Deploy via Coolify API",
+          "status": "pending"
+        },
+        {
+          "id": "21.5",
+          "title": "Configure Cloudflare for voice-api.zappro.site",
+          "status": "pending"
+        }
       ],
-      "acceptanceCriteria": ["AC-1: voice-api responds on :8202", "AC-2: OpenClaw can call voice-api", "AC-3: subdomain resolves"],
-      "files": ["docs/OPERATIONS/SKILLS/voice-api.py"],
+      "acceptanceCriteria": [
+        "AC-1: voice-api responds on :8202",
+        "AC-2: OpenClaw can call voice-api",
+        "AC-3: subdomain resolves"
+      ],
+      "files": [
+        "docs/OPERATIONS/SKILLS/voice-api.py"
+      ],
       "testRequired": true,
       "specRef": "SPEC-017-voice-api-deploy.md"
     },
@@ -381,14 +790,43 @@
       "priority": "critical",
       "dependencies": [],
       "subtasks": [
-        {"id": "22.1", "title": "Fix /ship wrapper to find .agent/workflows/git-ship.md", "status": "pending"},
-        {"id": "22.2", "title": "Fix /feature wrapper", "status": "pending"},
-        {"id": "22.3", "title": "Fix /turbo wrapper", "status": "pending"},
-        {"id": "22.4", "title": "Create .claude/commands/pipeline.md", "status": "pending"},
-        {"id": "22.5", "title": "Implement Bootstrap Effect JSON schema", "status": "pending"}
+        {
+          "id": "22.1",
+          "title": "Fix /ship wrapper to find .agent/workflows/git-ship.md",
+          "status": "pending"
+        },
+        {
+          "id": "22.2",
+          "title": "Fix /feature wrapper",
+          "status": "pending"
+        },
+        {
+          "id": "22.3",
+          "title": "Fix /turbo wrapper",
+          "status": "pending"
+        },
+        {
+          "id": "22.4",
+          "title": "Create .claude/commands/pipeline.md",
+          "status": "pending"
+        },
+        {
+          "id": "22.5",
+          "title": "Implement Bootstrap Effect JSON schema",
+          "status": "pending"
+        }
       ],
-      "acceptanceCriteria": ["SC-1: /ship works", "SC-2: /feature works", "SC-3: /turbo works", "SC-4: /pipeline command loads"],
-      "files": [".claude/commands/feature.md", ".claude/commands/ship.md", ".claude/commands/turbo.md"],
+      "acceptanceCriteria": [
+        "SC-1: /ship works",
+        "SC-2: /feature works",
+        "SC-3: /turbo works",
+        "SC-4: /pipeline command loads"
+      ],
+      "files": [
+        ".claude/commands/feature.md",
+        ".claude/commands/ship.md",
+        ".claude/commands/turbo.md"
+      ],
       "testRequired": false,
       "specRef": "SPEC-100-PIPELINE-BOOTSTRAP.md"
     },
@@ -398,22 +836,77 @@
       "description": "Create autonomous cursor-loop command and all 10 cursor-loop agents.",
       "status": "pending",
       "priority": "critical",
-      "dependencies": [22],
-      "subtasks": [
-        {"id": "23.1", "title": "Create cursor-loop command file", "status": "pending"},
-        {"id": "23.2", "title": "Create cursor-loop-leader agent", "status": "pending"},
-        {"id": "23.3", "title": "Create cursor-loop-giteaai agent", "status": "pending"},
-        {"id": "23.4", "title": "Create cursor-loop-research agent", "status": "pending"},
-        {"id": "23.5", "title": "Create cursor-loop-refactor agent", "status": "pending"},
-        {"id": "23.6", "title": "Create cursor-loop-spec agent", "status": "pending"},
-        {"id": "23.7", "title": "Create cursor-loop-debug agent", "status": "pending"},
-        {"id": "23.8", "title": "Create cursor-loop-ship agent", "status": "pending"},
-        {"id": "23.9", "title": "Create cursor-loop-review agent", "status": "pending"},
-        {"id": "23.10", "title": "Create cursor-loop-sync agent", "status": "pending"},
-        {"id": "23.11", "title": "Create cursor-loop-mirror agent", "status": "pending"}
+      "dependencies": [
+        22
       ],
-      "acceptanceCriteria": ["SC-1: Leader checks Infisical first", "SC-2: Gitea Actions CI on push", "SC-3: FAIL → research+refactor loop", "SC-4: PASS → git ship → PR", "SC-5: PR merged → ai-context sync → git-mirror"],
-      "files": [".claude/commands/cursor-loop.md", ".claude/agents/cursor-loop-*.md"],
+      "subtasks": [
+        {
+          "id": "23.1",
+          "title": "Create cursor-loop command file",
+          "status": "pending"
+        },
+        {
+          "id": "23.2",
+          "title": "Create cursor-loop-leader agent",
+          "status": "pending"
+        },
+        {
+          "id": "23.3",
+          "title": "Create cursor-loop-giteaai agent",
+          "status": "pending"
+        },
+        {
+          "id": "23.4",
+          "title": "Create cursor-loop-research agent",
+          "status": "pending"
+        },
+        {
+          "id": "23.5",
+          "title": "Create cursor-loop-refactor agent",
+          "status": "pending"
+        },
+        {
+          "id": "23.6",
+          "title": "Create cursor-loop-spec agent",
+          "status": "pending"
+        },
+        {
+          "id": "23.7",
+          "title": "Create cursor-loop-debug agent",
+          "status": "pending"
+        },
+        {
+          "id": "23.8",
+          "title": "Create cursor-loop-ship agent",
+          "status": "pending"
+        },
+        {
+          "id": "23.9",
+          "title": "Create cursor-loop-review agent",
+          "status": "pending"
+        },
+        {
+          "id": "23.10",
+          "title": "Create cursor-loop-sync agent",
+          "status": "pending"
+        },
+        {
+          "id": "23.11",
+          "title": "Create cursor-loop-mirror agent",
+          "status": "pending"
+        }
+      ],
+      "acceptanceCriteria": [
+        "SC-1: Leader checks Infisical first",
+        "SC-2: Gitea Actions CI on push",
+        "SC-3: FAIL \u2192 research+refactor loop",
+        "SC-4: PASS \u2192 git ship \u2192 PR",
+        "SC-5: PR merged \u2192 ai-context sync \u2192 git-mirror"
+      ],
+      "files": [
+        ".claude/commands/cursor-loop.md",
+        ".claude/agents/cursor-loop-*.md"
+      ],
       "testRequired": false,
       "specRef": "SPEC-CURSOR-LOOP.md"
     },
@@ -425,16 +918,50 @@
       "priority": "high",
       "dependencies": [],
       "subtasks": [
-        {"id": "24.1", "title": "Create SKILL.md for openclaw-agents-kit", "status": "pending"},
-        {"id": "24.2", "title": "Create openclaw-config-template.md", "status": "pending"},
-        {"id": "24.3", "title": "Create subagent-pattern.md", "status": "pending"},
-        {"id": "24.4", "title": "Create coolify-access.md", "status": "pending"},
-        {"id": "24.5", "title": "Create infisical-sdk.md", "status": "pending"},
-        {"id": "24.6", "title": "Create identity-patch.md", "status": "pending"},
-        {"id": "24.7", "title": "Create GOVERNANCE-TEMPLATE.md", "status": "pending"}
+        {
+          "id": "24.1",
+          "title": "Create SKILL.md for openclaw-agents-kit",
+          "status": "pending"
+        },
+        {
+          "id": "24.2",
+          "title": "Create openclaw-config-template.md",
+          "status": "pending"
+        },
+        {
+          "id": "24.3",
+          "title": "Create subagent-pattern.md",
+          "status": "pending"
+        },
+        {
+          "id": "24.4",
+          "title": "Create coolify-access.md",
+          "status": "pending"
+        },
+        {
+          "id": "24.5",
+          "title": "Create infisical-sdk.md",
+          "status": "pending"
+        },
+        {
+          "id": "24.6",
+          "title": "Create identity-patch.md",
+          "status": "pending"
+        },
+        {
+          "id": "24.7",
+          "title": "Create GOVERNANCE-TEMPLATE.md",
+          "status": "pending"
+        }
       ],
-      "acceptanceCriteria": ["SC-1: Kit created", "SC-3: Skill loadable via /openclaw-agents-kit", "SC-4: Template universal"],
-      "files": ["docs/OPERATIONS/SKILLS/openclaw-agents-kit/"],
+      "acceptanceCriteria": [
+        "SC-1: Kit created",
+        "SC-3: Skill loadable via /openclaw-agents-kit",
+        "SC-4: Template universal"
+      ],
+      "files": [
+        "docs/OPERATIONS/SKILLS/openclaw-agents-kit/"
+      ],
       "testRequired": false,
       "specRef": "SPEC-010-openclaw-agents-kit.md"
     },
@@ -446,15 +973,46 @@
       "priority": "high",
       "dependencies": [],
       "subtasks": [
-        {"id": "25.1", "title": "Remove circular .agent/ → .claude/ symlinks", "status": "pending"},
-        {"id": "25.2", "title": "Deduplicate skills in both locations", "status": "pending"},
-        {"id": "25.3", "title": "Archive sessions > 30 days (target < 50MB)", "status": "pending"},
-        {"id": "25.4", "title": "Remove deprecated .github/workflows/", "status": "pending"},
-        {"id": "25.5", "title": "Configure human gates in Gitea environments", "status": "pending"},
-        {"id": "25.6", "title": "Test /feature, /ship, /turbo commands", "status": "pending"}
+        {
+          "id": "25.1",
+          "title": "Remove circular .agent/ \u2192 .claude/ symlinks",
+          "status": "pending"
+        },
+        {
+          "id": "25.2",
+          "title": "Deduplicate skills in both locations",
+          "status": "pending"
+        },
+        {
+          "id": "25.3",
+          "title": "Archive sessions > 30 days (target < 50MB)",
+          "status": "pending"
+        },
+        {
+          "id": "25.4",
+          "title": "Remove deprecated .github/workflows/",
+          "status": "pending"
+        },
+        {
+          "id": "25.5",
+          "title": "Configure human gates in Gitea environments",
+          "status": "pending"
+        },
+        {
+          "id": "25.6",
+          "title": "Test /feature, /ship, /turbo commands",
+          "status": "pending"
+        }
       ],
-      "acceptanceCriteria": ["SC-8: No circular symlinks", "SC-9: Session data < 50MB"],
-      "files": [".agent/skills/", ".claude/skills/", "~/.claude/skills/"],
+      "acceptanceCriteria": [
+        "SC-8: No circular symlinks",
+        "SC-9: Session data < 50MB"
+      ],
+      "files": [
+        ".agent/skills/",
+        ".claude/skills/",
+        "~/.claude/skills/"
+      ],
       "testRequired": false,
       "specRef": "SPEC-013-UNIFIED-CLAUDE-AGENT-MONOREPO.md"
     },
@@ -466,14 +1024,45 @@
       "priority": "high",
       "dependencies": [],
       "subtasks": [
-        {"id": "26.1", "title": "Deploy act_runner as ephemeral K8s Deployment with HPA", "status": "pending"},
-        {"id": "26.2", "title": "Consolidate dual workflows (keep .gitea/, deprecate .github/)", "status": "pending"},
-        {"id": "26.3", "title": "Add PR Code Review Workflow with gates", "status": "pending"},
-        {"id": "26.4", "title": "Implement chained workflows (CI → Deploy)", "status": "pending"},
-        {"id": "26.5", "title": "Create AI agent webhook endpoint", "status": "pending"}
+        {
+          "id": "26.1",
+          "title": "Deploy act_runner as ephemeral K8s Deployment with HPA",
+          "status": "pending"
+        },
+        {
+          "id": "26.2",
+          "title": "Consolidate dual workflows (keep .gitea/, deprecate .github/)",
+          "status": "pending"
+        },
+        {
+          "id": "26.3",
+          "title": "Add PR Code Review Workflow with gates",
+          "status": "pending"
+        },
+        {
+          "id": "26.4",
+          "title": "Implement chained workflows (CI \u2192 Deploy)",
+          "status": "pending"
+        },
+        {
+          "id": "26.5",
+          "title": "Create AI agent webhook endpoint",
+          "status": "pending"
+        }
       ],
-      "acceptanceCriteria": ["SC-1: act_runner ephemeral deployed", "SC-3: CI workflow on ephemeral runner", "SC-4: AI agent triggers workflow", "SC-5: Webhook sends events to AI agent", "SC-6: Chained workflows", "SC-7: Rollback workflow", "SC-8: PR code-review blocks merge"],
-      "files": [".gitea/workflows/", "k8s/act-runner-deploy.yaml"],
+      "acceptanceCriteria": [
+        "SC-1: act_runner ephemeral deployed",
+        "SC-3: CI workflow on ephemeral runner",
+        "SC-4: AI agent triggers workflow",
+        "SC-5: Webhook sends events to AI agent",
+        "SC-6: Chained workflows",
+        "SC-7: Rollback workflow",
+        "SC-8: PR code-review blocks merge"
+      ],
+      "files": [
+        ".gitea/workflows/",
+        "k8s/act-runner-deploy.yaml"
+      ],
       "testRequired": true,
       "specRef": "SPEC-015-GITEA-ACTIONS-ENTERPRISE.md"
     },
@@ -483,17 +1072,46 @@
       "description": "Create approve.sh, query-gate.sh, polling loop, Telegram alerts, spec-validate.sh.",
       "status": "pending",
       "priority": "high",
-      "dependencies": [23],
+      "dependencies": [
+        23
+      ],
       "subtasks": [
-        {"id": "27.1", "title": "Create approve.sh", "status": "pending"},
-        {"id": "27.2", "title": "Create query-gate.sh", "status": "pending"},
-        {"id": "27.3", "title": "Add polling loop to pipeline-runner", "status": "pending"},
-        {"id": "27.4", "title": "Integrate Telegram alerts", "status": "pending"},
-        {"id": "27.5", "title": "Create spec-validate.sh", "status": "pending"},
-        {"id": "27.6", "title": "Install Tavily MCP", "status": "pending"}
+        {
+          "id": "27.1",
+          "title": "Create approve.sh",
+          "status": "pending"
+        },
+        {
+          "id": "27.2",
+          "title": "Create query-gate.sh",
+          "status": "pending"
+        },
+        {
+          "id": "27.3",
+          "title": "Add polling loop to pipeline-runner",
+          "status": "pending"
+        },
+        {
+          "id": "27.4",
+          "title": "Integrate Telegram alerts",
+          "status": "pending"
+        },
+        {
+          "id": "27.5",
+          "title": "Create spec-validate.sh",
+          "status": "pending"
+        },
+        {
+          "id": "27.6",
+          "title": "Install Tavily MCP",
+          "status": "pending"
+        }
       ],
       "acceptanceCriteria": [],
-      "files": ["scripts/approve.sh", "scripts/query-gate.sh"],
+      "files": [
+        "scripts/approve.sh",
+        "scripts/query-gate.sh"
+      ],
       "testRequired": false,
       "specRef": "SPEC-022-CURSOR-LOOP-CLI-SOLUTIONS.md"
     },
@@ -503,14 +1121,34 @@
       "description": "Add local skills scanning to check_updates.py, create METADATA.json for openclaw-agents-kit.",
       "status": "pending",
       "priority": "medium",
-      "dependencies": [24],
-      "subtasks": [
-        {"id": "28.1", "title": "Update SKILL.md with Local Skills section", "status": "pending"},
-        {"id": "28.2", "title": "Add scan_local_skills() to check_updates.py", "status": "pending"},
-        {"id": "28.3", "title": "Create METADATA.json for openclaw-agents-kit", "status": "pending"}
+      "dependencies": [
+        24
       ],
-      "acceptanceCriteria": ["AC-1: check_updates.py returns local skills", "AC-3: openclaw-agents-kit appears as NEW"],
-      "files": ["check_updates.py", "METADATA.json"],
+      "subtasks": [
+        {
+          "id": "28.1",
+          "title": "Update SKILL.md with Local Skills section",
+          "status": "pending"
+        },
+        {
+          "id": "28.2",
+          "title": "Add scan_local_skills() to check_updates.py",
+          "status": "pending"
+        },
+        {
+          "id": "28.3",
+          "title": "Create METADATA.json for openclaw-agents-kit",
+          "status": "pending"
+        }
+      ],
+      "acceptanceCriteria": [
+        "AC-1: check_updates.py returns local skills",
+        "AC-3: openclaw-agents-kit appears as NEW"
+      ],
+      "files": [
+        "check_updates.py",
+        "METADATA.json"
+      ],
       "testRequired": false,
       "specRef": "SPEC-012-openclaw-update-discoverer.md"
     },
@@ -522,12 +1160,32 @@
       "priority": "medium",
       "dependencies": [],
       "subtasks": [
-        {"id": "29.1", "title": "Create Chrome profiles directory structure", "status": "pending"},
-        {"id": "29.2", "title": "Implement OAuth login manual steps", "status": "pending"},
-        {"id": "29.3", "title": "Create scripts/perplexity-query.sh", "status": "pending"}
+        {
+          "id": "29.1",
+          "title": "Create Chrome profiles directory structure",
+          "status": "pending"
+        },
+        {
+          "id": "29.2",
+          "title": "Implement OAuth login manual steps",
+          "status": "pending"
+        },
+        {
+          "id": "29.3",
+          "title": "Create scripts/perplexity-query.sh",
+          "status": "pending"
+        }
       ],
-      "acceptanceCriteria": ["AC-1: Chrome profile persists", "AC-2: Gemini OAuth persists", "AC-3: Perplexity OAuth persists", "AC-5: CLI query returns JSON"],
-      "files": ["scripts/perplexity-query.sh", "scripts/oauth-chrome-profiles.sh"],
+      "acceptanceCriteria": [
+        "AC-1: Chrome profile persists",
+        "AC-2: Gemini OAuth persists",
+        "AC-3: Perplexity OAuth persists",
+        "AC-5: CLI query returns JSON"
+      ],
+      "files": [
+        "scripts/perplexity-query.sh",
+        "scripts/oauth-chrome-profiles.sh"
+      ],
       "testRequired": true,
       "specRef": "SPEC-007-openclaw-oauth-profiles.md"
     },
@@ -539,12 +1197,33 @@
       "priority": "medium",
       "dependencies": [],
       "subtasks": [
-        {"id": "30.1", "title": "TC-01: Smoke Test HTTP Health", "status": "pending"},
-        {"id": "30.2", "title": "TC-02: Streamlit UI Loads", "status": "pending"},
-        {"id": "30.3", "title": "TC-03: Chat Input Works", "status": "pending"},
-        {"id": "30.4", "title": "TC-04: Chrome Extension OpenClaw MCP", "status": "pending"}
+        {
+          "id": "30.1",
+          "title": "TC-01: Smoke Test HTTP Health",
+          "status": "pending"
+        },
+        {
+          "id": "30.2",
+          "title": "TC-02: Streamlit UI Loads",
+          "status": "pending"
+        },
+        {
+          "id": "30.3",
+          "title": "TC-03: Chat Input Works",
+          "status": "pending"
+        },
+        {
+          "id": "30.4",
+          "title": "TC-04: Chrome Extension OpenClaw MCP",
+          "status": "pending"
+        }
       ],
-      "acceptanceCriteria": ["AC-1: HTTP 200 on /_stcore/health", "AC-2: Streamlit UI loads < 5s", "AC-3: Chat input accepts text", "AC-4: MCP protocol responds"],
+      "acceptanceCriteria": [
+        "AC-1: HTTP 200 on /_stcore/health",
+        "AC-2: Streamlit UI loads < 5s",
+        "AC-3: Chat input accepts text",
+        "AC-4: MCP protocol responds"
+      ],
       "files": [],
       "testRequired": true,
       "specRef": "SPEC-006-playwright-e2e.md"
@@ -557,13 +1236,36 @@
       "priority": "high",
       "dependencies": [],
       "subtasks": [
-        {"id": "31.1", "title": "Configure cloudflared as systemd service", "status": "pending"},
-        {"id": "31.2", "title": "Configure Terraform Cloudflare resources", "status": "pending"},
-        {"id": "31.3", "title": "Configure Coolify proxy network and health checks", "status": "pending"},
-        {"id": "31.4", "title": "Post-refactoring cleanup (ghost artifacts, DNS, orphan cron)", "status": "pending"}
+        {
+          "id": "31.1",
+          "title": "Configure cloudflared as systemd service",
+          "status": "pending"
+        },
+        {
+          "id": "31.2",
+          "title": "Configure Terraform Cloudflare resources",
+          "status": "pending"
+        },
+        {
+          "id": "31.3",
+          "title": "Configure Coolify proxy network and health checks",
+          "status": "pending"
+        },
+        {
+          "id": "31.4",
+          "title": "Post-refactoring cleanup (ghost artifacts, DNS, orphan cron)",
+          "status": "pending"
+        }
       ],
-      "acceptanceCriteria": ["terraform plan shows 0 changes", "cloudflared service active running", "open-webui container healthy"],
-      "files": ["/etc/systemd/system/cloudflared.service", "Terraform config"],
+      "acceptanceCriteria": [
+        "terraform plan shows 0 changes",
+        "cloudflared service active running",
+        "open-webui container healthy"
+      ],
+      "files": [
+        "/etc/systemd/system/cloudflared.service",
+        "Terraform config"
+      ],
       "testRequired": false,
       "specRef": "SPEC-002-homelab-network-refactor.md"
     },
@@ -575,17 +1277,58 @@
       "priority": "high",
       "dependencies": [],
       "subtasks": [
-        {"id": "32.1", "title": "Implement base Scanner class with async scan()", "status": "pending"},
-        {"id": "32.2", "title": "Create Docker scanner", "status": "pending"},
-        {"id": "32.3", "title": "Create Ollama scanner", "status": "pending"},
-        {"id": "32.4", "title": "Create LiteLLM scanner", "status": "pending"},
-        {"id": "32.5", "title": "Create Coolify scanner", "status": "pending"},
-        {"id": "32.6", "title": "Create ZFS scanner", "status": "pending"},
-        {"id": "32.7", "title": "Set up Telegram alerts", "status": "pending"},
-        {"id": "32.8", "title": "Index state in Qdrant rag_governance", "status": "pending"}
+        {
+          "id": "32.1",
+          "title": "Implement base Scanner class with async scan()",
+          "status": "pending"
+        },
+        {
+          "id": "32.2",
+          "title": "Create Docker scanner",
+          "status": "pending"
+        },
+        {
+          "id": "32.3",
+          "title": "Create Ollama scanner",
+          "status": "pending"
+        },
+        {
+          "id": "32.4",
+          "title": "Create LiteLLM scanner",
+          "status": "pending"
+        },
+        {
+          "id": "32.5",
+          "title": "Create Coolify scanner",
+          "status": "pending"
+        },
+        {
+          "id": "32.6",
+          "title": "Create ZFS scanner",
+          "status": "pending"
+        },
+        {
+          "id": "32.7",
+          "title": "Set up Telegram alerts",
+          "status": "pending"
+        },
+        {
+          "id": "32.8",
+          "title": "Index state in Qdrant rag_governance",
+          "status": "pending"
+        }
       ],
-      "acceptanceCriteria": ["AC-1: scan all returns JSON < 5s", "AC-2: Docker detects containers without healthcheck", "AC-3: Ollama detects GPU loaded vs not", "AC-5: ZFS detects DEGRADED state", "AC-6: Telegram alerts arrive", "AC-7: State indexed in Qdrant"],
-      "files": ["/srv/ops/homelab-monitor/scanners/"],
+      "acceptanceCriteria": [
+        "AC-1: scan all returns JSON < 5s",
+        "AC-2: Docker detects containers without healthcheck",
+        "AC-3: Ollama detects GPU loaded vs not",
+        "AC-5: ZFS detects DEGRADED state",
+        "AC-6: Telegram alerts arrive",
+        "AC-7: State indexed in Qdrant"
+      ],
+      "files": [
+        "/srv/ops/homelab-monitor/scanners/"
+      ],
       "testRequired": true,
       "specRef": "SPEC-002-homelab-monitor-agent.md"
     },
@@ -597,17 +1340,60 @@
       "priority": "high",
       "dependencies": [],
       "subtasks": [
-        {"id": "33.1", "title": "FASE 1: Migrate OpenClaw .env to Infisical", "status": "pending"},
-        {"id": "33.2", "title": "FASE 1: Create /audit-workflow skill", "status": "pending"},
-        {"id": "33.3", "title": "FASE 1: Add healthchecks to scheduled_tasks.json", "status": "pending"},
-        {"id": "33.4", "title": "FASE 1: Verify BROWSER_EVALUATE_ENABLED=false", "status": "pending"},
-        {"id": "33.5", "title": "FASE 2: Create SPEC-001-workflow-performatico.md", "status": "pending"},
-        {"id": "33.6", "title": "FASE 2: health-check.sh covers all 3 tools", "status": "pending"},
-        {"id": "33.7", "title": "FASE 3: Auto-detect plaintext secrets", "status": "pending"},
-        {"id": "33.8", "title": "FASE 3: Telegram alert when tool not reporting > 1h", "status": "pending"}
+        {
+          "id": "33.1",
+          "title": "FASE 1: Migrate OpenClaw .env to Infisical",
+          "status": "pending"
+        },
+        {
+          "id": "33.2",
+          "title": "FASE 1: Create /audit-workflow skill",
+          "status": "pending"
+        },
+        {
+          "id": "33.3",
+          "title": "FASE 1: Add healthchecks to scheduled_tasks.json",
+          "status": "pending"
+        },
+        {
+          "id": "33.4",
+          "title": "FASE 1: Verify BROWSER_EVALUATE_ENABLED=false",
+          "status": "pending"
+        },
+        {
+          "id": "33.5",
+          "title": "FASE 2: Create SPEC-001-workflow-performatico.md",
+          "status": "pending"
+        },
+        {
+          "id": "33.6",
+          "title": "FASE 2: health-check.sh covers all 3 tools",
+          "status": "pending"
+        },
+        {
+          "id": "33.7",
+          "title": "FASE 3: Auto-detect plaintext secrets",
+          "status": "pending"
+        },
+        {
+          "id": "33.8",
+          "title": "FASE 3: Telegram alert when tool not reporting > 1h",
+          "status": "pending"
+        }
       ],
-      "acceptanceCriteria": ["1.1: Secrets in Infisical", "1.2: /audit-workflow functional", "1.3: Healthchecks added", "1.4: BROWSER_EVALUATE_ENABLED=false verified", "2.1: SPEC created", "2.3: /audit-workflow functional", "3.1: Auto-detect plaintext secrets"],
-      "files": ["docs/SPECS/SPEC-001-workflow-performatico.md", ".claude/skills/workflow-performatico/"],
+      "acceptanceCriteria": [
+        "1.1: Secrets in Infisical",
+        "1.2: /audit-workflow functional",
+        "1.3: Healthchecks added",
+        "1.4: BROWSER_EVALUATE_ENABLED=false verified",
+        "2.1: SPEC created",
+        "2.3: /audit-workflow functional",
+        "3.1: Auto-detect plaintext secrets"
+      ],
+      "files": [
+        "docs/SPECS/SPEC-001-workflow-performatico.md",
+        ".claude/skills/workflow-performatico/"
+      ],
       "testRequired": false,
       "specRef": "SPEC-001-workflow-performatico.md"
     },
@@ -619,37 +1405,121 @@
       "priority": "medium",
       "dependencies": [],
       "subtasks": [
-        {"id": "34.1", "title": "Phase 1 Batch 1: DELETE junk files", "status": "pending"},
-        {"id": "34.2", "title": "Phase 1 Batch 2: ARCHIVE old files", "status": "pending"},
-        {"id": "34.3", "title": "Phase 1 Batch 3: MERGE stubs to .claude/skills/", "status": "pending"},
-        {"id": "34.4", "title": "Phase 2: Create docs/core/, docs/governance/, docs/infrastructure/", "status": "pending"},
-        {"id": "34.5", "title": "Phase 3: Empty dirs and cache cleanup", "status": "pending"},
-        {"id": "34.6", "title": "Phase 4: Extract template/ structure", "status": "pending"}
+        {
+          "id": "34.1",
+          "title": "Phase 1 Batch 1: DELETE junk files",
+          "status": "pending"
+        },
+        {
+          "id": "34.2",
+          "title": "Phase 1 Batch 2: ARCHIVE old files",
+          "status": "pending"
+        },
+        {
+          "id": "34.3",
+          "title": "Phase 1 Batch 3: MERGE stubs to .claude/skills/",
+          "status": "pending"
+        },
+        {
+          "id": "34.4",
+          "title": "Phase 2: Create docs/core/, docs/governance/, docs/infrastructure/",
+          "status": "pending"
+        },
+        {
+          "id": "34.5",
+          "title": "Phase 3: Empty dirs and cache cleanup",
+          "status": "pending"
+        },
+        {
+          "id": "34.6",
+          "title": "Phase 4: Extract template/ structure",
+          "status": "pending"
+        }
       ],
-      "acceptanceCriteria": ["SC-1: Zero broken symlinks", "SC-2: Docs reorganized", "SC-3: Zero empty stubs", "SC-4: Commands still work", "SC-5: CI/CD workflows valid", "SC-6: Obsidian index updated", "SC-7: Template extracted"],
-      "files": ["docs/core/", "docs/governance/", "docs/infrastructure/", "template/"],
+      "acceptanceCriteria": [
+        "SC-1: Zero broken symlinks",
+        "SC-2: Docs reorganized",
+        "SC-3: Zero empty stubs",
+        "SC-4: Commands still work",
+        "SC-5: CI/CD workflows valid",
+        "SC-6: Obsidian index updated",
+        "SC-7: Template extracted"
+      ],
+      "files": [
+        "docs/core/",
+        "docs/governance/",
+        "docs/infrastructure/",
+        "template/"
+      ],
       "testRequired": false,
       "specRef": "SPEC-TRANSFORM-MONOREPO.md"
     },
     {
       "id": 35,
       "title": "SPEC-TROCAR-ROUPA: Monorepo + ~/.claude rename",
-      "description": "Rename apps (backend→api, frontend→web), create packages (db, trpc, env, email), wire ~/.claude settings.",
+      "description": "Rename apps (backend\u2192api, frontend\u2192web), create packages (db, trpc, env, email), wire ~/.claude settings.",
       "status": "pending",
       "priority": "medium",
-      "dependencies": [34],
-      "subtasks": [
-        {"id": "35.1", "title": "Rename apps: backend→api, frontend→web", "status": "pending"},
-        {"id": "35.2", "title": "Create apps/workers/", "status": "pending"},
-        {"id": "35.3", "title": "Rename typescript-config→config, ui-mui→ui", "status": "pending"},
-        {"id": "35.4", "title": "Create packages: db/, trpc/, env/, email/", "status": "pending"},
-        {"id": "35.5", "title": "Create turbo.json, pnpm-workspace.yaml", "status": "pending"},
-        {"id": "35.6", "title": "Create tests/unit/, tests/integration/, tests/e2e/", "status": "pending"},
-        {"id": "35.7", "title": "Wire ~/.claude/settings.json hooks", "status": "pending"},
-        {"id": "35.8", "title": "Create aliases in ~/.bashrc", "status": "pending"}
+      "dependencies": [
+        34
       ],
-      "acceptanceCriteria": ["SC-1: apps/api/ exists", "SC-2: apps/web/ exists", "SC-3: packages/config/ exists", "SC-4: turbo.json válido", "SC-5: pnpm-workspace.yaml válido", "SC-6: tests/ criado", "SC-7: settings.json has hooks"],
-      "files": ["apps/backend/", "apps/frontend/", "packages/typescript-config/", "packages/ui-mui/"],
+      "subtasks": [
+        {
+          "id": "35.1",
+          "title": "Rename apps: backend\u2192api, frontend\u2192web",
+          "status": "pending"
+        },
+        {
+          "id": "35.2",
+          "title": "Create apps/workers/",
+          "status": "pending"
+        },
+        {
+          "id": "35.3",
+          "title": "Rename typescript-config\u2192config, ui-mui\u2192ui",
+          "status": "pending"
+        },
+        {
+          "id": "35.4",
+          "title": "Create packages: db/, trpc/, env/, email/",
+          "status": "pending"
+        },
+        {
+          "id": "35.5",
+          "title": "Create turbo.json, pnpm-workspace.yaml",
+          "status": "pending"
+        },
+        {
+          "id": "35.6",
+          "title": "Create tests/unit/, tests/integration/, tests/e2e/",
+          "status": "pending"
+        },
+        {
+          "id": "35.7",
+          "title": "Wire ~/.claude/settings.json hooks",
+          "status": "pending"
+        },
+        {
+          "id": "35.8",
+          "title": "Create aliases in ~/.bashrc",
+          "status": "pending"
+        }
+      ],
+      "acceptanceCriteria": [
+        "SC-1: apps/api/ exists",
+        "SC-2: apps/web/ exists",
+        "SC-3: packages/config/ exists",
+        "SC-4: turbo.json v\u00e1lido",
+        "SC-5: pnpm-workspace.yaml v\u00e1lido",
+        "SC-6: tests/ criado",
+        "SC-7: settings.json has hooks"
+      ],
+      "files": [
+        "apps/backend/",
+        "apps/frontend/",
+        "packages/typescript-config/",
+        "packages/ui-mui/"
+      ],
       "testRequired": false,
       "specRef": "SPEC-TROCAR-ROUPA.md"
     },
@@ -659,16 +1529,48 @@
       "description": "Update IDENTITY.md, SOUL.md, MEMORY.md with correct audio stack, update SPEC-009 and SPEC-012.",
       "status": "pending",
       "priority": "critical",
-      "dependencies": [19],
-      "subtasks": [
-        {"id": "36.1", "title": "Update IDENTITY.md with correct audio stack", "status": "pending"},
-        {"id": "36.2", "title": "Update SOUL.md with correct audio stack", "status": "pending"},
-        {"id": "36.3", "title": "Update MEMORY.md with correct audio stack", "status": "pending"},
-        {"id": "36.4", "title": "Update SPEC-009-openclaw-persona-audio-stack.md", "status": "pending"},
-        {"id": "36.5", "title": "Update SPEC-012-openclaw-update-discoverer.md", "status": "pending"}
+      "dependencies": [
+        19
       ],
-      "acceptanceCriteria": ["AC-1: CEO MIX responds with voice (pm_santa)", "AC-2: CEO MIX understands audio PT-BR", "AC-3: CEO MIX understands images via VL", "AC-4: TTS Bridge blocks unauthorized voices", "AC-5: Smoke test 15/15 passes"],
-      "files": ["/data/workspace/IDENTITY.md", "/data/workspace/SOUL.md", "/data/workspace/MEMORY.md"],
+      "subtasks": [
+        {
+          "id": "36.1",
+          "title": "Update IDENTITY.md with correct audio stack",
+          "status": "pending"
+        },
+        {
+          "id": "36.2",
+          "title": "Update SOUL.md with correct audio stack",
+          "status": "pending"
+        },
+        {
+          "id": "36.3",
+          "title": "Update MEMORY.md with correct audio stack",
+          "status": "pending"
+        },
+        {
+          "id": "36.4",
+          "title": "Update SPEC-009-openclaw-persona-audio-stack.md",
+          "status": "pending"
+        },
+        {
+          "id": "36.5",
+          "title": "Update SPEC-012-openclaw-update-discoverer.md",
+          "status": "pending"
+        }
+      ],
+      "acceptanceCriteria": [
+        "AC-1: CEO MIX responds with voice (pm_santa)",
+        "AC-2: CEO MIX understands audio PT-BR",
+        "AC-3: CEO MIX understands images via VL",
+        "AC-4: TTS Bridge blocks unauthorized voices",
+        "AC-5: Smoke test 15/15 passes"
+      ],
+      "files": [
+        "/data/workspace/IDENTITY.md",
+        "/data/workspace/SOUL.md",
+        "/data/workspace/MEMORY.md"
+      ],
       "testRequired": true,
       "specRef": "SPEC-013-openclaw-ceo-mix-voice-stack.md"
     },
@@ -678,15 +1580,41 @@
       "description": "Add Cursor CLI to CI pipeline, implement AI review gate, TaskMaster integration.",
       "status": "pending",
       "priority": "high",
-      "dependencies": [22],
-      "subtasks": [
-        {"id": "37.1", "title": "Add Cursor CLI to Gitea Actions", "status": "pending"},
-        {"id": "37.2", "title": "Implement AI review gate blocking critical security", "status": "pending"},
-        {"id": "37.3", "title": "Migrate SPEC-PERPLEXITY-GITOPS pattern", "status": "pending"},
-        {"id": "37.4", "title": "Adopt TaskMaster TDD autopilot", "status": "pending"}
+      "dependencies": [
+        22
       ],
-      "acceptanceCriteria": ["AC-1: AI reviews PR < 5 min", "AC-2: AI creates feature branch", "AC-3: AI cannot merge without human approval", "AC-4: Cursor CLI in Gitea Actions", "AC-5: Secrets never in CI logs"],
-      "files": [".gitea/workflows/ai-review.yml"],
+      "subtasks": [
+        {
+          "id": "37.1",
+          "title": "Add Cursor CLI to Gitea Actions",
+          "status": "pending"
+        },
+        {
+          "id": "37.2",
+          "title": "Implement AI review gate blocking critical security",
+          "status": "pending"
+        },
+        {
+          "id": "37.3",
+          "title": "Migrate SPEC-PERPLEXITY-GITOPS pattern",
+          "status": "pending"
+        },
+        {
+          "id": "37.4",
+          "title": "Adopt TaskMaster TDD autopilot",
+          "status": "pending"
+        }
+      ],
+      "acceptanceCriteria": [
+        "AC-1: AI reviews PR < 5 min",
+        "AC-2: AI creates feature branch",
+        "AC-3: AI cannot merge without human approval",
+        "AC-4: Cursor CLI in Gitea Actions",
+        "AC-5: Secrets never in CI logs"
+      ],
+      "files": [
+        ".gitea/workflows/ai-review.yml"
+      ],
       "testRequired": false,
       "specRef": "SPEC-014-CURSOR-AI-CICD-PATTERN.md"
     },
@@ -698,14 +1626,40 @@
       "priority": "critical",
       "dependencies": [],
       "subtasks": [
-        {"id": "38.1", "title": "docker ps -a | grep tts-bridge — verificar estado atual", "status": "pending"},
-        {"id": "38.2", "title": "docker stop + rm zappro-tts-bridge", "status": "pending"},
-        {"id": "38.3", "title": "Recriar com --memory=512m --memory-swap=512m", "status": "pending"},
-        {"id": "38.4", "title": "curl localhost:8013/health — verificar 200", "status": "pending"},
-        {"id": "38.5", "title": "Verificar OpenClaw usa Bridge (não Kokoro direto)", "status": "pending"}
+        {
+          "id": "38.1",
+          "title": "docker ps -a | grep tts-bridge \u2014 verificar estado atual",
+          "status": "pending"
+        },
+        {
+          "id": "38.2",
+          "title": "docker stop + rm zappro-tts-bridge",
+          "status": "pending"
+        },
+        {
+          "id": "38.3",
+          "title": "Recriar com --memory=512m --memory-swap=512m",
+          "status": "pending"
+        },
+        {
+          "id": "38.4",
+          "title": "curl localhost:8013/health \u2014 verificar 200",
+          "status": "pending"
+        },
+        {
+          "id": "38.5",
+          "title": "Verificar OpenClaw usa Bridge (n\u00e3o Kokoro direto)",
+          "status": "pending"
+        }
       ],
-      "acceptanceCriteria": ["TTS Bridge responde 200 em localhost:8013/health", "OpenClaw config usa Bridge (não :8880)", "pm_santa funciona, pm_alex retorna 400"],
-      "files": ["docker-compose.yml"],
+      "acceptanceCriteria": [
+        "TTS Bridge responde 200 em localhost:8013/health",
+        "OpenClaw config usa Bridge (n\u00e3o :8880)",
+        "pm_santa funciona, pm_alex retorna 400"
+      ],
+      "files": [
+        "docker-compose.yml"
+      ],
       "testRequired": true,
       "specRef": "SPEC-AUDIT-FIXES-2026-04-12.md"
     },
@@ -717,14 +1671,41 @@
       "priority": "critical",
       "dependencies": [],
       "subtasks": [
-        {"id": "39.1", "title": "ls -la tasks/smoke-tests/voice-pipeline-loop.sh — verificar existencia", "status": "pending"},
-        {"id": "39.2", "title": "mkdir -p logs/voice-pipeline/ — criar dir de log", "status": "pending"},
-        {"id": "39.3", "title": "Adicionar cron: */5 * * * *", "status": "pending"},
-        {"id": "39.4", "title": "crontab -l | grep voice-pipeline — verificar", "status": "pending"},
-        {"id": "39.5", "title": "Aguardar 5 min, verificar loop.log criado", "status": "pending"}
+        {
+          "id": "39.1",
+          "title": "ls -la tasks/smoke-tests/voice-pipeline-loop.sh \u2014 verificar existencia",
+          "status": "pending"
+        },
+        {
+          "id": "39.2",
+          "title": "mkdir -p logs/voice-pipeline/ \u2014 criar dir de log",
+          "status": "pending"
+        },
+        {
+          "id": "39.3",
+          "title": "Adicionar cron: */5 * * * *",
+          "status": "pending"
+        },
+        {
+          "id": "39.4",
+          "title": "crontab -l | grep voice-pipeline \u2014 verificar",
+          "status": "pending"
+        },
+        {
+          "id": "39.5",
+          "title": "Aguardar 5 min, verificar loop.log criado",
+          "status": "pending"
+        }
       ],
-      "acceptanceCriteria": ["Cron entry existe: */5 * * * *", "Script executa sem erro", "Log file criado em logs/voice-pipeline/loop.log"],
-      "files": ["tasks/smoke-tests/voice-pipeline-loop.sh", "crontab"],
+      "acceptanceCriteria": [
+        "Cron entry existe: */5 * * * *",
+        "Script executa sem erro",
+        "Log file criado em logs/voice-pipeline/loop.log"
+      ],
+      "files": [
+        "tasks/smoke-tests/voice-pipeline-loop.sh",
+        "crontab"
+      ],
       "testRequired": true,
       "specRef": "SPEC-AUDIT-FIXES-2026-04-12.md"
     },
@@ -736,14 +1717,40 @@
       "priority": "critical",
       "dependencies": [],
       "subtasks": [
-        {"id": "40.1", "title": "cat /sys/module/zfs/parameters/zfs_arc_max — verificar atual", "status": "pending"},
-        {"id": "40.2", "title": "Criar /etc/modprobe.d/zfs-arc-limit.conf com zfs_arc_max=8589934592", "status": "pending"},
-        {"id": "40.3", "title": "echo 8589934592 > /sys/module/zfs/parameters/zfs_arc_max — aplicar sem reboot", "status": "pending"},
-        {"id": "40.4", "title": "update-initramfs -u — persistir para reboot", "status": "pending"},
-        {"id": "40.5", "title": "free -h apos 1h — verificar swap < 50%", "status": "pending"}
+        {
+          "id": "40.1",
+          "title": "cat /sys/module/zfs/parameters/zfs_arc_max \u2014 verificar atual",
+          "status": "pending"
+        },
+        {
+          "id": "40.2",
+          "title": "Criar /etc/modprobe.d/zfs-arc-limit.conf com zfs_arc_max=8589934592",
+          "status": "pending"
+        },
+        {
+          "id": "40.3",
+          "title": "echo 8589934592 > /sys/module/zfs/parameters/zfs_arc_max \u2014 aplicar sem reboot",
+          "status": "pending"
+        },
+        {
+          "id": "40.4",
+          "title": "update-initramfs -u \u2014 persistir para reboot",
+          "status": "pending"
+        },
+        {
+          "id": "40.5",
+          "title": "free -h apos 1h \u2014 verificar swap < 50%",
+          "status": "pending"
+        }
       ],
-      "acceptanceCriteria": ["zfs_arc_max = 8589934592 (8GB)", "swap usado < 50% apos 1h", "containers estaveis sem OOM"],
-      "files": ["/etc/modprobe.d/zfs-arc-limit.conf"],
+      "acceptanceCriteria": [
+        "zfs_arc_max = 8589934592 (8GB)",
+        "swap usado < 50% apos 1h",
+        "containers estaveis sem OOM"
+      ],
+      "files": [
+        "/etc/modprobe.d/zfs-arc-limit.conf"
+      ],
       "testRequired": true,
       "specRef": "SPEC-AUDIT-FIXES-2026-04-12.md"
     },
@@ -755,42 +1762,368 @@
       "priority": "high",
       "dependencies": [],
       "subtasks": [
-        {"id": "41.1", "title": "curl -sf -o /dev/null -w '%{http_code}' https://chat.zappro.site/ — testar", "status": "pending"},
-        {"id": "41.2", "title": "cd /srv/ops/terraform/cloudflare && terraform plan — verificar drift", "status": "pending"},
-        {"id": "41.3", "title": "Se gap: adicionar Access policy em access.tf", "status": "pending"},
-        {"id": "41.4", "title": "terraform apply — aplicar se necessario", "status": "pending"},
-        {"id": "41.5", "title": "Testar novamente: deve retornar auth challenge", "status": "pending"}
+        {
+          "id": "41.1",
+          "title": "curl -sf -o /dev/null -w '%{http_code}' https://chat.zappro.site/ \u2014 testar",
+          "status": "pending"
+        },
+        {
+          "id": "41.2",
+          "title": "cd /srv/ops/terraform/cloudflare && terraform plan \u2014 verificar drift",
+          "status": "pending"
+        },
+        {
+          "id": "41.3",
+          "title": "Se gap: adicionar Access policy em access.tf",
+          "status": "pending"
+        },
+        {
+          "id": "41.4",
+          "title": "terraform apply \u2014 aplicar se necessario",
+          "status": "pending"
+        },
+        {
+          "id": "41.5",
+          "title": "Testar novamente: deve retornar auth challenge",
+          "status": "pending"
+        }
       ],
-      "acceptanceCriteria": ["curl https://chat.zappro.site/ retorna auth challenge ou redirect", "Terraform plan nao mostra drift", "Access policy existe em Cloudflare dashboard"],
-      "files": ["/srv/ops/terraform/cloudflare/access.tf"],
+      "acceptanceCriteria": [
+        "curl https://chat.zappro.site/ retorna auth challenge ou redirect",
+        "Terraform plan nao mostra drift",
+        "Access policy existe em Cloudflare dashboard"
+      ],
+      "files": [
+        "/srv/ops/terraform/cloudflare/access.tf"
+      ],
       "testRequired": true,
       "specRef": "SPEC-AUDIT-FIXES-2026-04-12.md"
     },
     {
       "id": 42,
       "title": "AUDIT-FIX 5: Adicionar Gitea e Infisical Backup ao Cron",
-      "description": "Só Qdrant tem backup. Adicionar Gitea dump e Infisical DB backup ao crontab.",
+      "description": "S\u00f3 Qdrant tem backup. Adicionar Gitea dump e Infisical DB backup ao crontab.",
       "status": "pending",
       "priority": "high",
       "dependencies": [],
       "subtasks": [
-        {"id": "42.1", "title": "docker exec gitea gitea dump — testar dump manual", "status": "pending"},
-        {"id": "42.2", "title": "cp /tmp/gitea-dump-*.zip /srv/backups/ — copiar para backups", "status": "pending"},
-        {"id": "42.3", "title": "Adicionar cron Gitea: 0 2 * * *", "status": "pending"},
-        {"id": "42.4", "title": "Verificar cron: crontab -l | grep gitea-dump", "status": "pending"},
-        {"id": "42.5", "title": "Testar Infisical DB backup similar", "status": "pending"}
+        {
+          "id": "42.1",
+          "title": "docker exec gitea gitea dump \u2014 testar dump manual",
+          "status": "pending"
+        },
+        {
+          "id": "42.2",
+          "title": "cp /tmp/gitea-dump-*.zip /srv/backups/ \u2014 copiar para backups",
+          "status": "pending"
+        },
+        {
+          "id": "42.3",
+          "title": "Adicionar cron Gitea: 0 2 * * *",
+          "status": "pending"
+        },
+        {
+          "id": "42.4",
+          "title": "Verificar cron: crontab -l | grep gitea-dump",
+          "status": "pending"
+        },
+        {
+          "id": "42.5",
+          "title": "Testar Infisical DB backup similar",
+          "status": "pending"
+        }
       ],
-      "acceptanceCriteria": ["Gitea dump executa sem erro", "Arquivo .zip aparece em /srv/backups/", "Cron entry existe"],
-      "files": ["crontab", "/srv/backups/"],
+      "acceptanceCriteria": [
+        "Gitea dump executa sem erro",
+        "Arquivo .zip aparece em /srv/backups/",
+        "Cron entry existe"
+      ],
+      "files": [
+        "crontab",
+        "/srv/backups/"
+      ],
       "testRequired": true,
       "specRef": "SPEC-AUDIT-FIXES-2026-04-12.md"
+    },
+    {
+      "id": 43,
+      "title": "SPEC-031 Task 7: Sync.sh verification + MEMORY.md index",
+      "description": "Run sync.sh and verify SPECs/ADRs/GUIDEs/REFERENCE synced. Check memory dirs. Verify manifest last_sync updated.",
+      "status": "pending",
+      "priority": "medium",
+      "dependencies": [],
+      "subtasks": [
+        {
+          "id": "43.1",
+          "title": "Run sync.sh without errors",
+          "status": "pending"
+        },
+        {
+          "id": "43.2",
+          "title": "Verify memory/specs/ has 10+ SPEC files",
+          "status": "pending"
+        },
+        {
+          "id": "43.3",
+          "title": "Verify memory/adrs/ has ADR files",
+          "status": "pending"
+        },
+        {
+          "id": "43.4",
+          "title": "Verify memory/guides/ has GUIDE files",
+          "status": "pending"
+        },
+        {
+          "id": "43.5",
+          "title": "Verify manifest last_sync = today",
+          "status": "pending"
+        }
+      ],
+      "acceptanceCriteria": [
+        "AC-031-7"
+      ],
+      "files": [
+        "/home/will/.claude/mcps/ai-context-sync/sync.sh",
+        "/home/will/.claude/mcps/ai-context-sync/manifest.json"
+      ],
+      "testRequired": false,
+      "specRef": "docs/SPECS/SPEC-031-homelab-maintenance.md"
+    },
+    {
+      "id": 44,
+      "title": "SPEC-031 Task 6: APPROVAL_MATRIX.md update - voice services",
+      "description": "Add voice pipeline services (TTS Bridge, OpenClaw, Kokoro) to APPROVAL_MATRIX.md. Update date to 2026-04-12.",
+      "status": "pending",
+      "priority": "medium",
+      "dependencies": [],
+      "subtasks": [
+        {
+          "id": "44.1",
+          "title": "Read current APPROVAL_MATRIX.md",
+          "status": "pending"
+        },
+        {
+          "id": "44.2",
+          "title": "Add TTS Bridge, OpenClaw, Kokoro rows to table",
+          "status": "pending"
+        },
+        {
+          "id": "44.3",
+          "title": "Update date to 2026-04-12",
+          "status": "pending"
+        },
+        {
+          "id": "44.4",
+          "title": "Commit + sync",
+          "status": "pending"
+        }
+      ],
+      "acceptanceCriteria": [
+        "AC-031-6"
+      ],
+      "files": [
+        "docs/GOVERNANCE/APPROVAL_MATRIX.md"
+      ],
+      "testRequired": false,
+      "specRef": "docs/SPECS/SPEC-031-homelab-maintenance.md"
+    },
+    {
+      "id": 45,
+      "title": "SPEC-031 Task 5: ZFS snapshot retention cron",
+      "description": "Create /srv/ops/scripts/zfs-snapshot-prune.sh. Add to crontab every 3h. Test prune dry-run.",
+      "status": "pending",
+      "priority": "medium",
+      "dependencies": [],
+      "subtasks": [
+        {
+          "id": "45.1",
+          "title": "Create zfs-snapshot-prune.sh script",
+          "status": "pending"
+        },
+        {
+          "id": "45.2",
+          "title": "Add cron: 0 */3 * * *",
+          "status": "pending"
+        },
+        {
+          "id": "45.3",
+          "title": "Manual run creates snapshot",
+          "status": "pending"
+        },
+        {
+          "id": "45.4",
+          "title": "Test prune dry-run",
+          "status": "pending"
+        }
+      ],
+      "acceptanceCriteria": [
+        "AC-031-5"
+      ],
+      "files": [
+        "/srv/ops/scripts/zfs-snapshot-prune.sh"
+      ],
+      "testRequired": false,
+      "specRef": "docs/SPECS/SPEC-031-homelab-maintenance.md"
+    },
+    {
+      "id": 46,
+      "title": "SPEC-031 Task 4: cadvisor scrape timeout 30s",
+      "description": "Update Prometheus scrape config for cadvisor: change scrape_timeout 10s to 30s. Reload without restart.",
+      "status": "pending",
+      "priority": "low",
+      "dependencies": [],
+      "subtasks": [
+        {
+          "id": "46.1",
+          "title": "Find prometheus scrape config",
+          "status": "pending"
+        },
+        {
+          "id": "46.2",
+          "title": "Change scrape_timeout 10s to 30s",
+          "status": "pending"
+        },
+        {
+          "id": "46.3",
+          "title": "Reload Prometheus (kill -HUP)",
+          "status": "pending"
+        },
+        {
+          "id": "46.4",
+          "title": "Verify no cadvisor scrape errors",
+          "status": "pending"
+        }
+      ],
+      "acceptanceCriteria": [
+        "AC-031-4"
+      ],
+      "files": [
+        "/srv/monorepo/docker/prometheus.yml"
+      ],
+      "testRequired": false,
+      "specRef": "docs/SPECS/SPEC-031-homelab-maintenance.md"
+    },
+    {
+      "id": 47,
+      "title": "SPEC-031 Task 3: loki HEALTHCHECK",
+      "description": "Add HEALTHCHECK to loki container: --interval=30s --timeout=10s --retries=3 CMD curl -f http://localhost:3100/ready",
+      "status": "pending",
+      "priority": "medium",
+      "dependencies": [],
+      "subtasks": [
+        {
+          "id": "47.1",
+          "title": "Find loki container configuration",
+          "status": "pending"
+        },
+        {
+          "id": "47.2",
+          "title": "Add HEALTHCHECK to loki container",
+          "status": "pending"
+        },
+        {
+          "id": "47.3",
+          "title": "Restart loki container",
+          "status": "pending"
+        },
+        {
+          "id": "47.4",
+          "title": "Verify curl localhost:3100/ready returns 200",
+          "status": "pending"
+        }
+      ],
+      "acceptanceCriteria": [
+        "AC-031-3"
+      ],
+      "files": [
+        "/srv/monorepo/docker-compose.yml"
+      ],
+      "testRequired": false,
+      "specRef": "docs/SPECS/SPEC-031-homelab-maintenance.md"
+    },
+    {
+      "id": 48,
+      "title": "SPEC-031 Task 2: node-exporter HEALTHCHECK",
+      "description": "Add HEALTHCHECK to node-exporter container: --interval=30s --timeout=10s --retries=3 CMD curl -f http://localhost:9100/",
+      "status": "pending",
+      "priority": "medium",
+      "dependencies": [],
+      "subtasks": [
+        {
+          "id": "48.1",
+          "title": "Find node-exporter container configuration",
+          "status": "pending"
+        },
+        {
+          "id": "48.2",
+          "title": "Add HEALTHCHECK to node-exporter",
+          "status": "pending"
+        },
+        {
+          "id": "48.3",
+          "title": "Restart node-exporter container",
+          "status": "pending"
+        },
+        {
+          "id": "48.4",
+          "title": "Verify docker inspect shows Healthcheck",
+          "status": "pending"
+        }
+      ],
+      "acceptanceCriteria": [
+        "AC-031-2"
+      ],
+      "files": [
+        "/srv/monorepo/docker-compose.yml"
+      ],
+      "testRequired": false,
+      "specRef": "docs/SPECS/SPEC-031-homelab-maintenance.md"
+    },
+    {
+      "id": 49,
+      "title": "SPEC-031 Task 1: Kokoro v0.2.4 research (APPROVAL REQUIRED)",
+      "description": "Research Kokoro FastAPI v0.2.4 changes via Context7. Report to will-zappro for approval. DO NOT UPDATE without explicit approval.",
+      "status": "pending",
+      "priority": "low",
+      "dependencies": [],
+      "subtasks": [
+        {
+          "id": "49.1",
+          "title": "Context7 research: kokoro-fastapi v0.2.4 changelog",
+          "status": "pending"
+        },
+        {
+          "id": "49.2",
+          "title": "Compare audio quality improvements",
+          "status": "pending"
+        },
+        {
+          "id": "49.3",
+          "title": "Report to will-zappro for approval",
+          "status": "pending"
+        },
+        {
+          "id": "49.4",
+          "title": "WAITING for will-zappro approval",
+          "status": "pending"
+        }
+      ],
+      "acceptanceCriteria": [
+        "AC-031-1"
+      ],
+      "files": [
+        "VERSION-LOCK.md",
+        "/srv/monorepo/docker-compose.yml"
+      ],
+      "testRequired": false,
+      "specRef": "docs/SPECS/SPEC-031-homelab-maintenance.md"
     }
   ],
   "meta": {
-    "totalTasks": 42,
+    "totalTasks": 49,
     "completedTasks": 0,
-    "pendingTasks": 37,
-    "generatedAt": "2026-04-12T10:15:00Z",
+    "pendingTasks": 49,
+    "generatedAt": "2026-04-12T12:45:00Z",
     "projectName": "zappro-monorepo",
     "version": "2.0"
   }
