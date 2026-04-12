@@ -2,7 +2,7 @@
 
 **Versão:** 2026-04-08
 **Host:** will-zappro (Ubuntu 24.04 LTS)
-**Governança:** `/srv/ops/ai-governance/`
+**Governança:** `docs/GOVERNANCE/`
 **Status:** ✅ Produção estável
 
 ---
@@ -41,7 +41,7 @@ Monorepo      /srv/monorepo       ← Desenvolvimento de apps
 **Tudo em /srv = ZFS-backed = sobrevive reinstalação do OS**
 
 **Arquitetura completa:** `~/Desktop/SYSTEM_ARCHITECTURE.md`
-**Mapa de serviços:** `/srv/ops/ai-governance/SERVICE_MAP.md`
+**Mapa de serviços:** `docs/GOVERNANCE/SERVICE_MAP.md`
 
 ---
 
@@ -403,8 +403,8 @@ docker-compose -f /srv/apps/platform/docker-compose.yml up -d qdrant
 ```
 
 **Se erro persiste:**
-- Leia /srv/ops/ai-governance/RECOVERY.md (passo a passo)
-- Procure pelo serviço específico em RECOVERY.md
+- Leia docs/GOVERNANCE/RECOVERY.md (passo a passo)
+- Procure pelo serviço específico em docs/GOVERNANCE/RECOVERY.md
 - Siga a procedure de restore
 
 ### 5.2 Disco Cheio
@@ -434,7 +434,7 @@ zpool status tank  # aguarde
 zpool import tank
 
 # Se muito quebrado
-# → Ver /srv/ops/ai-governance/RECOVERY.md seção "ZFS Pool Recovery"
+# → Ver docs/GOVERNANCE/RECOVERY.md seção "ZFS Pool Recovery"
 ```
 
 ### 5.4 PostgreSQL Não Sobe
@@ -448,7 +448,7 @@ docker restart n8n-postgres
 docker logs n8n-postgres
 
 # Se não voltar
-# → Restore from backup: /srv/ops/ai-governance/RECOVERY.md
+# → Restore from backup: docs/GOVERNANCE/RECOVERY.md
 ```
 
 ### 5.5 Restaurar de Snapshot
@@ -518,7 +518,7 @@ docker restart n8n
 curl http://localhost:5678/api/v1/health
 
 # 5. Se DB corrompeu
-# → /srv/ops/ai-governance/RECOVERY.md → "PostgreSQL Recovery"
+# → docs/GOVERNANCE/RECOVERY.md → "PostgreSQL Recovery"
 ```
 
 ### "Disco cheio, nada funciona"
@@ -588,31 +588,31 @@ docker logs qdrant 2>&1 | grep -i error | tail -5
 docker logs n8n 2>&1 | grep -i error | tail -5
 
 # 7. Se algo parece ruim: registre em INCIDENTS.md
-# /srv/ops/ai-governance/INCIDENTS.md
+# docs/GOVERNANCE/INCIDENTS.md
 ```
 
 **Se tudo passou:** ✅ Sistema saudável
-**Se algo falhou:** Procure a seção relevante em /srv/ops/ai-governance/RECOVERY.md
+**Se algo falhou:** Procure a seção relevante em docs/GOVERNANCE/RECOVERY.md
 
 ---
 
 ## 8. Contatos Rápidos (Arquivos Críticos)
 
 **Governança (leia em caso de dúvida):**
-- `/srv/ops/ai-governance/QUICK_START.md` - 5 min overview
-- `/srv/ops/ai-governance/GUARDRAILS.md` - O que é proibido
-- `/srv/ops/ai-governance/CHANGE_POLICY.md` - Como fazer mudança segura
-- `/srv/ops/ai-governance/APPROVAL_MATRIX.md` - Tabela de sim/não/ask
-- `/srv/ops/ai-governance/RECOVERY.md` - Recovery procedures
+- `docs/GOVERNANCE/QUICK_START.md` - 5 min overview
+- `docs/GOVERNANCE/GUARDRAILS.md` - O que é proibido
+- `docs/GOVERNANCE/CHANGE_POLICY.md` - Como fazer mudança segura
+- `docs/GOVERNANCE/APPROVAL_MATRIX.md` - Tabela de sim/não/ask
+- `docs/GOVERNANCE/RECOVERY.md` - Recovery procedures
 
 **Operacional:**
-- `/srv/ops/ai-governance/SERVICE_MAP.md` - O que temos rodando
-- `/srv/ops/ai-governance/RUNBOOK.md` - Comandos oficiais
-- `/srv/ops/ai-governance/PORTS.md` - Alocações de porta
+- `docs/GOVERNANCE/SERVICE_MAP.md` - O que temos rodando
+- `docs/GOVERNANCE/RUNBOOK.md` - Comandos oficiais
+- `docs/INFRASTRUCTURE/PORTS.md` - Alocações de porta
 
 **Histórico (mantenha atualizado):**
 - `~/Desktop/SYSTEM_ARCHITECTURE.md` - Seu journal operacional
-- `/srv/ops/ai-governance/INCIDENTS.md` - Log de issues passados
+- `docs/GOVERNANCE/INCIDENTS.md` - Log de issues passados
 - `docs/INCIDENTS/` - Incident reports (INCIDENT-2026-04-08-*.md)
 
 ---
@@ -646,7 +646,7 @@ docker logs n8n 2>&1 | grep -i error | tail -5
 
 5. DOCUMENTAÇÃO
    ├─ Atualize ~/Desktop/SYSTEM_ARCHITECTURE.md
-   ├─ Registre em /srv/ops/ai-governance/INCIDENTS.md se mudança
+   ├─ Registre em docs/GOVERNANCE/INCIDENTS.md se mudança
    └─ Commit no git se código modificado
 ```
 
@@ -727,5 +727,5 @@ See [incident-runbook.md](../OPERATIONS/SKILLS/incident-runbook.md) for systemat
 
 **Última atualização:** 2026-04-08
 **Manutentor:** will (você)
-**Suporte:** Veja /srv/ops/ai-governance/QUICK_START.md ou GUARDRAILS.md
+**Suporte:** Veja docs/GOVERNANCE/QUICK_START.md ou docs/GOVERNANCE/GUARDRAILS.md
 **Incidentes:** Ver `docs/INCIDENTS/INCIDENT-2026-04-08-perplexity-gitops-gap.md`

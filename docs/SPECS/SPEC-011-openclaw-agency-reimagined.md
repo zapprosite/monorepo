@@ -142,7 +142,7 @@ O OpenClaw Agency Suite transforma o OpenClaw em um sistema nervoso central da a
 ║  │                  │  │                 │  │                   │          ║
 ║  │ LiteLLM :4000    │  │ wav2vec2 :8201  │  │ Qdrant :6333      │          ║
 ║  │ ├─ MiniMax M2.7  │  │ (STT PT-BR)     │  │ (768d vectors)    │          ║
-║  │ ├─ llava         │  │                 │  │                   │          ║
+║  │ ├─ qwen2.5-vl    │  │                 │  │                   │          ║
 ║  │ └─ nomic-embed   │  │ Kokoro :8880    │  │ nomic-embed-text  │          ║
 ║  │    (embedding)   │  │ (TTS engine)    │  │ (embedding model) │          ║
 ║  └──────────────────┘  │                 │  └───────────────────┘          ║
@@ -163,7 +163,7 @@ O OpenClaw Agency Suite transforma o OpenClaw em um sistema nervoso central da a
 | Serviço | Host/IP | Porta | Protocolo | Função |
 |---------|---------|-------|-----------|--------|
 | Qdrant | qdrant-c95x... | 6333 | HTTP/gRPC | Vector DB (768d) |
-| LiteLLM | 10.0.1.1 | 4000 | HTTP | Proxy LLM (llava, nomic-embed, kokoro-tts) |
+| LiteLLM | 10.0.1.1 | 4000 | HTTP | Proxy LLM (qwen2.5-vl, nomic-embed, kokoro-tts) |
 | TTS Bridge | 10.0.19.5 | 8013 | HTTP | Conversão TTS → áudio canal |
 | wav2vec2 | 10.0.19.6 | 8201 | HTTP | STT PT-BR |
 | Kokoro | 10.0.19.7 | 8880 | HTTP | TTS engine (pm_santa / pf_dora) |
@@ -391,7 +391,7 @@ Você é o parceiro técnico do editor humano, eliminando as tarefas repetitivas
 ## Especialidades
 - Decupagem automática e indexação de footage
 - Geração de legendas e closed captions (SRT/VTT)
-- Extração e análise de frames via llava
+- Extração e análise de frames via qwen2.5-vl
 - Sugestão de cortes e pontos de entrada/saída
 - Análise de consistência visual com brand guide
 
@@ -410,8 +410,8 @@ Você é o parceiro técnico do editor humano, eliminando as tarefas repetitivas
 | Extração de frames | ffmpeg (script local) | Thumbnails a cada N segundos |
 | Transcrição de áudio | wav2vec2 :8201 | STT PT-BR → texto bruto |
 | Geração de SRT/VTT | script Python (scripts/srt_gen.py) | Timestamps + texto |
-| Análise de frames | llava via LiteLLM :4000 | Verificação de cor, qualidade, brand |
-| Thumbnail suggestions | llava + scripts/thumb_rank.py | Ranking de frames por relevância |
+| Análise de frames | qwen2.5-vl via LiteLLM :4000 | Verificação de cor, qualidade, brand |
+| Thumbnail suggestions | qwen2.5-vl + scripts/thumb_rank.py | Ranking de frames por relevância |
 | Decupagem automática | scripts/decupagem_gen.py | Markdown + JSON com timecodes |
 | Versionamento | Qdrant (video_metadata) | Metadados de cada versão de edição |
 | Nomenclatura | scripts/rename_batch.py | Rename em lote conforme convenção |
@@ -496,7 +496,7 @@ def obter_duracao_ffprobe(video_path: str) -> float:
 #### Coleções Qdrant Acessadas
 
 - `video_metadata` — metadados de todos os vídeos (versão, status, timecodes)
-- `clients` — brand guide do cliente para validação llava
+- `clients` — brand guide do cliente para validação qwen2.5-vl
 - `brand_guides` — paleta de cores, fontes, referências visuais
 
 #### Exemplo de Interação
@@ -507,7 +507,7 @@ Etapa 1/7: Receber footage
 Etapa 2/7: Transcrever áudio (wav2vec2)
 Etapa 3/7: Gerar SRT/VTT
 Etapa 4/7: Extrair frames-chave (ffmpeg)
-Etapa 5/7: Analisar frames com llava (brand consistency)
+Etapa 5/7: Analisar frames com qwen2.5-vl (brand consistency)
 Etapa 6/7: Gerar sheet de decupagem
 Etapa 7/7: Notificar editor humano via CEO MIX
 
@@ -935,7 +935,7 @@ visual, contraste e movimento. Você não executa o design (isso é para o
 designer humano e Canva/Figma) — você gera o BRIEF que vai orientar a execução.
 
 ## Especialidades
-- Brand consistency via análise de imagem (llava)
+- Brand consistency via análise de imagem (qwen2.5-vl)
 - Briefs de design ricos: dimensões, cores hex, fontes, espaçamento
 - Extração de paleta de cores de referências
 - Recomendações por plataforma (Stories 9:16, Feed 1:1, Landscape 16:9)
@@ -953,19 +953,19 @@ designer humano e Canva/Figma) — você gera o BRIEF que vai orientar a execuç
 
 | Capacidade | Serviço/Tool | Detalhe |
 |-----------|-------------|---------|
-| Brand consistency check | llava via LiteLLM :4000 | Análise de imagem vs brand guide |
+| Brand consistency check | qwen2.5-vl via LiteLLM :4000 | Análise de imagem vs brand guide |
 | Color palette extraction | scripts/color_extract.py | De imagens de referência |
 | Brief generation | LLM + templates | Markdown + JSON |
 | Platform dimensions | references/platform_dimensions.yaml | Specs por plataforma |
 | Typography recommendations | LLM + brand guide lookup | Baseado em brand guide |
-| Mood board generation | assets/ curadoria + llava | Referências semânticas |
-| Visual scoring | llava + scoring rubric | Score 0-10 por critério |
+| Mood board generation | assets/ curadoria + qwen2.5-vl | Referências semânticas |
+| Visual scoring | qwen2.5-vl + scoring rubric | Score 0-10 por critério |
 
-#### Análise de Brand Consistency (llava)
+#### Análise de Brand Consistency (qwen2.5-vl)
 
 ```python
 # skills/design/scripts/brand_check.py
-# Usa llava via LiteLLM para verificar consistência de brand
+# Usa qwen2.5-vl via LiteLLM para verificar consistência de brand
 
 BRAND_CHECK_PROMPT = """
 Analise esta imagem em relação ao brand guide fornecido e responda em JSON:
@@ -993,7 +993,7 @@ def verificar_brand_consistency(image_path: str, brand_guide: dict) -> dict:
         image_b64 = base64.b64encode(f.read()).decode()
     
     response = litellm.completion(
-        model="llava",
+        model="qwen2.5-vl",
         messages=[{
             "role": "user",
             "content": [
@@ -1476,7 +1476,7 @@ memória. Você é implacável com inconsistências, mas sempre construtivo —
 nunca rejeita sem explicar o problema e sugerir a correção.
 
 ## O que você verifica
-### Visual (via llava)
+### Visual (via qwen2.5-vl)
 - Cores: hex codes dentro da paleta aprovada?
 - Tipografia: fontes corretas? Peso, tamanho, espaçamento?
 - Logo: proporcional? Área de proteção respeitada?
@@ -1511,7 +1511,7 @@ Conteúdo gerado (copy + visual)
   │               │
   │ 1. Análise     │
   │    visual     │
-  │    (llava)    │
+  │    (qwen2.5-vl)    │
   │               │
   │ 2. Análise     │
   │    textual    │
@@ -2160,7 +2160,7 @@ VIDEO EDITOR inicia TaskFlow: video_production_pipeline
     ╚════╤══════════════════════════════════════════╝
          │
     ╔════╧══════════════════════════════════════════╗
-    ║  ETAPA 5: Análise de Brand (llava)           ║
+    ║  ETAPA 5: Análise de Brand (qwen2.5-vl)           ║
     ║  Verificar: cores, logo, qualidade           ║
     ║  → frames_aprovados, frames_alerta           ║
     ╚════╤══════════════════════════════════════════╝
@@ -2233,7 +2233,7 @@ Conteúdo Gerado (copy + visual)
   ┌──────────────────────────────────────────────────┐
   │              BRAND GUARDIAN                     │
   │                                                  │
-  │  Análise Visual (llava):                        │
+  │  Análise Visual (qwen2.5-vl):                        │
   │  ├─ Score de cor: X/10                          │
   │  ├─ Score tipografia: X/10                      │
   │  ├─ Score layout: X/10                          │
@@ -2707,7 +2707,7 @@ Trigger: inotifywait evento em ~/.openclaw/workspace/clientes/
 | R01 | Falha do LiteLLM (modelo indisponível) | Médio | Alto | 🔴 Alto | Fallback chain: MiniMax M2.7 → GPT-4o-mini; retry 3x |
 | R02 | Qdrant OOM com muitos clientes | Baixo | Alto | 🟡 Médio | Sharding por cliente; monitoramento de memória |
 | R03 | wav2vec2 timeout em vídeos longos | Alto | Médio | 🟡 Médio | Chunking de 10min; processamento assíncrono |
-| R04 | llava falsa negativa em brand check | Médio | Médio | 🟡 Médio | Revisão humana obrigatória para score 7-8 |
+| R04 | qwen2.5-vl falsa negativa em brand check [DEPRECATED - era llava] | Médio | Médio | 🟡 Médio | Revisão humana obrigatória para score 7-8 |
 | R05 | n8n fila saturada (muitos posts) | Baixo | Médio | 🟢 Baixo | Rate limiting por cliente; queue prioritária |
 | R06 | ACP deadlock entre agentes | Baixo | Alto | 🟡 Médio | Timeout de 30min em sessions_send; circuit breaker |
 | R07 | Infisical vault indisponível | Muito Baixo | Crítico | 🟡 Médio | Cache local de secrets (TTL 1h); failover manual |
@@ -2771,7 +2771,7 @@ Semana 3-4: CEO MIX + ONBOARDING
 ```
 Semana 5-6: CREATIVE + DESIGN
 ├─ CREATIVE: copy com frameworks A/B/C
-├─ DESIGN: brand check com llava
+├─ DESIGN: brand check com qwen2.5-vl
 └─ Integração: copy + design → mesmo contexto
 
 Semana 7-8: BRAND GUARDIAN
@@ -2800,7 +2800,7 @@ Semana 11-12: VIDEO EDITOR
 ├─ Pipeline wav2vec2 → SRT/VTT
 ├─ Extração de frames com ffmpeg
 ├─ Decupagem automática
-└─ Brand check de frames com llava
+└─ Brand check de frames com qwen2.5-vl
 
 Semana 13-14: PROJECT MANAGER
 ├─ TaskFlow para todos os tipos de projeto
@@ -3142,7 +3142,7 @@ cria sheets de decupagem automaticamente.
 
 ## Serviços Externos
 - wav2vec2 (10.0.19.6:8201) — transcrição de áudio
-- LiteLLM (10.0.1.1:4000) — llava para análise de frames
+- LiteLLM (10.0.1.1:4000) — qwen2.5-vl para análise de frames
 - Qdrant — indexação de metadados
 
 ## Exemplos de Uso

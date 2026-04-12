@@ -1,6 +1,6 @@
 # Port Allocation — will-zappro
 
-**Autoridade:** [NETWORK_MAP.md](/srv/ops/ai-governance/NETWORK_MAP.md) (leia este primeiro)
+**Autoridade:** [NETWORK_MAP.md](./NETWORK_MAP.md) (leia este primeiro)
 **Última verificação:** 2026-04-12 — audit ports: adicionado 8202/3457/8050/8051/9080, corrigido 8201/4003/4007
 
 ---
@@ -43,7 +43,7 @@
 | Porta | Processo | Acesso | Função |
 |-------|----------|--------|--------|
 | **22** | sshd | host | SSH |
-| **11434** | ollama (systemd) | localhost + docker0 bridge | LLM local (gemma4, llava, nomic-embed-text) — GPU via `10.0.1.1:11434` |
+| **11434** | ollama (systemd) | localhost + docker0 bridge | LLM local (gemma4, qwen2.5-vl, nomic-embed-text) — GPU via `10.0.1.1:11434` |
 | **8201** | whisper-api (container) | host port 8202→8201 | Faster-Whisper small STT (OpenAI-compatible `/v1/audio/transcriptions`) — acessar via `:8202` no host |
 
 ### Monitoring & Alerting (SPEC-023)
@@ -139,9 +139,9 @@ ss -tlnp | grep :PORTA
 
 1. `ss -tlnp | grep :PORTA` — confirmar livre
 2. Adicionar nesta tabela
-3. Atualizar [NETWORK_MAP.md](/srv/ops/ai-governance/NETWORK_MAP.md)
-4. Se subdomínio público: atualizar [SUBDOMAINS.md](/srv/ops/ai-governance/SUBDOMAINS.md) + tunnel config remota + Terraform
+3. Atualizar [NETWORK_MAP.md](./NETWORK_MAP.md)
+4. Se subdomínio público: atualizar [SUBDOMAINS.md](./SUBDOMAINS.md) + tunnel config remota + Terraform
 
 ---
 
-**Ver também:** [NETWORK_MAP.md](/srv/ops/ai-governance/NETWORK_MAP.md) | [SUBDOMAINS.md](/srv/ops/ai-governance/SUBDOMAINS.md)
+**Ver também:** [NETWORK_MAP.md](./NETWORK_MAP.md) | [SUBDOMAINS.md](./SUBDOMAINS.md)

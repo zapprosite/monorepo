@@ -315,7 +315,7 @@ Any OpenClaw bot instance.
 | TTS Bridge | :8013 | Kokoro direto |
 | TTS Voices | pm_santa, pf_dora | Outras vozes |
 | LLM Primary | minimax/MiniMax-M2.7 | LiteLLM como primario |
-| Vision | litellm/llava | Outros VL |
+| Vision | litellm/qwen2.5-vl | Outros VL |
 
 ## Leader Pattern
 

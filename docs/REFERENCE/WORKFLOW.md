@@ -42,7 +42,7 @@
 │                                                                 │
 │     Source: docs/                                                 │
 │       ↓                                                           │
-│       ├→ /srv/ops/ai-governance/SYSTEM_STATE.md                   │
+│       ├→ docs/GOVERNANCE/SYSTEM_STATE.md                   │
 │       └→ ~/.claude/projects/-home-will/memory/system_state.md      │
 │                                                                 │
 │     Trigger: /ai-context ou automatico via skill                  │
@@ -141,7 +141,7 @@ Dev/Código pesado → Claude Code CLI
 ### O que é
 
 ai-context MCP sincroniza documentação entre:
-- `/srv/ops/ai-governance/` (source of truth)
+- `docs/` (source of truth)
 - `~/.claude/projects/-home-will/memory/` (persistent context)
 
 ### Quando Rodar
@@ -170,7 +170,7 @@ cat ~/.claude/mcps/ai-context-sync/manifest.json
 
 | Source | Target |
 |--------|--------|
-| `/srv/ops/ai-governance/SYSTEM_STATE.md` | `~/.claude/projects/.../memory/system_state.md` |
+| `docs/GOVERNANCE/SYSTEM_STATE.md` | `~/.claude/projects/.../memory/system_state.md` |
 | `/srv/monorepo/docs/` | Memory context (incremental) |
 
 ---

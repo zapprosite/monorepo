@@ -16,7 +16,7 @@
   ↓
 ~/.claude/mcps/ai-context-sync/sync.sh (MCP executor)
   ↓
-  ├→ /srv/ops/ai-governance/SYSTEM_STATE.md (source of truth)
+  ├→ docs/GOVERNANCE/SYSTEM_STATE.md (source of truth)
   └→ ~/.claude/projects/-home-will/memory/system_state.md (memory context)
 ```
 
@@ -104,7 +104,7 @@ Log:     /srv/ops/ai-governance/logs/ai-context-sync.log
 2. Monitor logs: `tail -f /srv/ops/ai-governance/logs/ai-context-sync.log`
 3. Review synced docs:
    - Desktop: `~/Desktop/SYSTEM_ARCHITECTURE.md`
-   - Governance: `/srv/ops/ai-governance/SYSTEM_STATE.md`
+   - Governance: `docs/GOVERNANCE/SYSTEM_STATE.md`
    - Memory: `~/.claude/projects/-home-will/memory/system_state.md`
 
 ---

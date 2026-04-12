@@ -190,5 +190,5 @@ docker exec zappro-litellm curl -sf -m 5 "http://wav2vec2:8201/health"
 - Kokoro direto (sem TTS Bridge)
 - Deepgram cloud direto (use wav2vec2-proxy :8203)
 - Whisper como STT
-- llava para vision
+- llava [DEPRECATED - agora qwen2.5-vl] para vision
 - speaches, chatterbox (REMOVIDOS em 2026-03)

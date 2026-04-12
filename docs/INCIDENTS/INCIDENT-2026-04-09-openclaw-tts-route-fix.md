@@ -81,7 +81,7 @@ config['messages']['tts']['openai']['baseUrl'] = 'http://10.0.19.5:8013/v1'
 ```
 Total:   15
 Passed:  13
-Failed:  2 (Vision llava - LiteLLM instável no momento)
+Failed:  2 (Vision llava [DEPRECATED - now qwen2.5-vl] - LiteLLM instável no momento)
 ```
 
 TTS Bridge verification: ✅ 3/3 testes passam

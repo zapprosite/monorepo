@@ -213,8 +213,8 @@ bash docs/OPERATIONS/SKILLS/verify-network.sh
 ## Related Documentation
 
 - `/srv/monorepo/docs/OPERATIONS/guide.md` — Operations guide
-- `/srv/ops/ai-governance/CONTRACT.md` — Governance contract
-- `/srv/ops/ai-governance/GUARDRAILS.md` — Guardrails (forbidden/approval required)
+- `docs/GOVERNANCE/CONTRACT.md` — Governance contract
+- `docs/GOVERNANCE/GUARDRAILS.md` — Guardrails (forbidden/approval required)
 - `docs/INCIDENTS/` — Incident reports
 - `HOMELAB-SURVIVAL-GUIDE.md` — Golden rules for the homelab
 

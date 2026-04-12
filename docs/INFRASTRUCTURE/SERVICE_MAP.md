@@ -139,7 +139,7 @@
 - **STT (ouvidos):** wav2vec2-proxy :8203 → Whisper API :8201 (Deepgram API format via proxy local)
 - **Config:** Volume persistente `/data/.openclaw/openclaw.json`
 - **Health:** `docker logs openclaw-qgtzrmi6771lt8l7x8rqx72f --tail 5`
-- **Debug:** `/srv/ops/ai-governance/OPENCLAW_DEBUG.md`
+- **Debug:** `docs/GOVERNANCE/OPENCLAW_DEBUG.md`
 - **Depende de:** MiniMax API (cloud), LiteLLM (visao), Kokoro (TTS)
 
 #### Browser (Chrome DevTools)
@@ -165,7 +165,7 @@
 
 - **Comportamento:** descarrega modelos após ~5 min de inatividade
 - **Verificar carregados:** `curl http://localhost:11434/api/ps`
-- **Depende de:** nada | **Usado por:** n8n, monorepo worker-ai, OpenClaw (llava)
+- **Depende de:** nada | **Usado por:** n8n, monorepo worker-ai, OpenClaw (qwen2.5-vl)
 
 ---
 

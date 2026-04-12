@@ -73,7 +73,7 @@ OpenClaw → TTS Bridge (:8013) → Kokoro (:8880)
 
 | Attribute | Value | Proibido |
 |-----------|-------|----------|
-| Model | litellm/llava | GPT-4V, Claude Vision |
+| Model | litellm/qwen2.5-vl | GPT-4V, Claude Vision |
 | Provider | liteLLM | - |
 
 ---

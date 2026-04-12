@@ -119,7 +119,7 @@ bash /srv/monorepo/scripts/mirror-push.sh
 | Context | What It Sets Up |
 |---------|-----------------|
 | `/srv/monorepo` | Standard monorepo dev context (AGENTS.md rules) |
-| `/srv/ops/ai-governance/` | Host governance context — required before infra changes |
+| `docs/GOVERNANCE/` | Host governance context — required before infra changes |
 | `~/.claude/rules/` | User-specific rules and skills |
 
 ---
