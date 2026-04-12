@@ -86,7 +86,7 @@ OpenClaw → wav2vec2 (:8201) → STT PT-BR
 - NUNCA: mudar minimax.api (DEVE ser anthropic-messages)
 - NUNCA: usar LiteLLM como provider primario (SO para GPU/voz/visao)
 - PINADO: OpenClaw 2026.2.6 | minimax/MiniMax-M2.7 direto
-- DEBUG: /srv/ops/ai-governance/OPENCLAW_DEBUG.md
+- DEBUG: ./OPENCLAW_DEBUG.md
 
 ### LiteLLM Proxy (10.0.1.1:4000)
 - NUNCA: mudar papel do LiteLLM (proxy GPU, NAO provider primario)

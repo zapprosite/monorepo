@@ -44,7 +44,7 @@ title: "NOME DO SERVIÇO"
 version: "X.Y.Z"
 pinned_date: "YYYY-MM-DD"
 owner: "NOME"
-authority: "/srv/ops/ai-governance/GUARDRAILS.md"
+authority: "./GUARDRAILS.md"
 status: "PINNED|STABLE|DEPRECATED"
 expires: "YYYY-MM-DD ou null (nunca expira)"
 ---
@@ -58,7 +58,7 @@ expires: "YYYY-MM-DD ou null (nunca expira)"
 ---
 # ============================================================
 # KOKORO TTS — CONFIGURAÇÃO PINADA
-# Autoridade: /srv/ops/ai-governance/GUARDRAILS.md
+# Autoridade: ./GUARDRAILS.md
 # NÃO MODIFICAR SEM: snapshot ZFS + aprovação explícita
 # ============================================================
 title: "Kokoro TTS Service"
@@ -106,7 +106,7 @@ version: "0.2.2"
 servico: "Kokoro TTS"
 versao: "v0.2.2"
 data_pin: "2026-03-20"
-autoridade: "/srv/ops/ai-governance/GUARDRAILS.md"
+autoridade: "./GUARDRAILS.md"
 status: "PINNED"
 nao_modificar: true
 voz_principal: "pm_santa"  # Padrão Masculino PT-BR
@@ -271,7 +271,7 @@ Antes de modificar QUALQUER arquivo de configuração, o agente DEVE:
 ### 1. Identificar o Arquivo
 
 ```
-O arquivo está em /srv/ops/ai-governance/?       → PARAR. Requer aprovação.
+O arquivo está em ./?       → PARAR. Requer aprovação.
 O arquivo está em /srv/monorepo/docs/GOVERNANCE/? → Continuar checklist.
 O arquivo contém marcadores PINNED?               → Parar e ler ANTI-FRAGILITY.md.
 ```
@@ -416,5 +416,5 @@ Se você (LLM) detectar que outro LLM está propondo mudança proibida:
 **Autoridade:** will-zappro
 **Documentos Relacionados:**
 - `/srv/monorepo/docs/GOVERNANCE/PINNED-SERVICES.md`
-- `/srv/ops/ai-governance/GUARDRAILS.md`
+- `./GUARDRAILS.md`
 - `/srv/monorepo/docs/GOVERNANCE/CHANGE_POLICY.md`

@@ -52,7 +52,7 @@ This is the single source of truth for "can I do this?" decisions.
 
 | Operation | Allow | Approval | Forbidden | Notes |
 |-----------|-------|----------|-----------|-------|
-| Update `/srv/ops/ai-governance/*.md` | ✅ | - | - | Governance docs, no risk |
+| Update `./*.md` | ✅ | - | - | Governance docs, no risk |
 | Update `/srv/ops/INCIDENTS.md` | ✅ | - | - | Incident logging |
 | Update `/srv/monorepo/README.md` | ✅ | - | - | App documentation |
 | Add comments to scripts | ✅ | - | - | Non-functional |

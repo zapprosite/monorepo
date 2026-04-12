@@ -13,7 +13,7 @@ date: 2026-03-16
 
 ## 🏛️ Estrutura de Responsabilidades
 
-### `/srv/ops/ai-governance/` - GOVERNO (IMUTÁVEL)
+### `./` - GOVERNO (IMUTÁVEL)
 **Propósito:** Regras, políticas, recuperação
 **Responsável:** Sistema de governança
 **Atualização:** Manual, antes de mudanças estruturais
@@ -107,9 +107,9 @@ date: 2026-03-16
 | **Status Serviços** | SYSTEM_ARCHITECTURE.md | `/home/will/Desktop/` | ✅ Automático |
 | **Fases (1-3)** | SYSTEM_ARCHITECTURE.md | `/home/will/Desktop/` | ✅ Atualizado |
 | **MCPs** | TOP-10-MCP-2026.md | `/home/will/` | ✅ Completo |
-| **Políticas** | /srv/ops/ai-governance/* | `/srv/ops/ai-governance/` | ✅ Governo |
-| **Catálogo de Dados** | DOC_CATALOG.md | `/srv/ops/ai-governance/` | ✅ Auto-gerado |
-| **Governança DB** | DATABASE_GOVERNANCE.md | `/srv/ops/ai-governance/` | ✅ Completo |
+| **Políticas** | ./* | `./` | ✅ Governo |
+| **Catálogo de Dados** | DOC_CATALOG.md | `./` | ✅ Auto-gerado |
+| **Governança DB** | DATABASE_GOVERNANCE.md | `./` | ✅ Completo |
 | **Histórico Dev** | Vários | `/home/will/` | ⚠️ Para referência |
 
 ---
@@ -118,13 +118,13 @@ date: 2026-03-16
 
 ```
 ┌─ Você quer saber...              → Vá para
-├─ "É permitido fazer X?"          → /srv/ops/ai-governance/GUARDRAILS.md
-├─ "Como mudo algo?"               → /srv/ops/ai-governance/CHANGE_POLICY.md
-├─ "Qual é a política?"            → /srv/ops/ai-governance/CONTRACT.md
+├─ "É permitido fazer X?"          → ./GUARDRAILS.md
+├─ "Como mudo algo?"               → ./CHANGE_POLICY.md
+├─ "Qual é a política?"            → ./CONTRACT.md
 ├─ "Status do sistema agora?"      → /home/will/Desktop/SYSTEM_ARCHITECTURE.md
 ├─ "Qual MCP é melhor?"            → /home/will/TOP-10-MCP-2026.md
-├─ "O que existe no banco/Qdrant?"  → /srv/ops/ai-governance/DOC_CATALOG.md
-├─ "Política de schemas/collections?"→ /srv/ops/ai-governance/DATABASE_GOVERNANCE.md
+├─ "O que existe no banco/Qdrant?"  → ./DOC_CATALOG.md
+├─ "Política de schemas/collections?"→ ./DATABASE_GOVERNANCE.md
 ├─ "Como manter os serviços?"       → /home/will/Desktop/HOMELAB-MAINTENANCE.md
 ├─ "Como usar o Antigravity IDE?"   → /home/will/Desktop/guide-antigravity.md
 ├─ "Como o tRPC funciona?"         → /home/will/ARQUITETURA-DETALHADA.md
@@ -149,7 +149,7 @@ MANUAL (conforme necessário):
   → Atualizar secrets, tokens, credenciais
 
 RARAMENTE:
-  /srv/ops/ai-governance/
+  ./
   → Apenas quando políticas mudam
   → Antes de mudanças estruturais
 
@@ -185,7 +185,7 @@ Para detalhes técnicos, veja: [ARQUITETURA-DETALHADA.md](/home/will/ARQUITETURA
 Nunca colocar política em `/home/will/` ou Desktop.
 
 ### Regra 4: Status Vive em Desktop
-Nunca copiar status para `/srv/ops/ai-governance/`.
+Nunca copiar status para `./`.
 
 ### Regra 5: SÓ PORTUGUÊS EM ARQUIVOS .md
 Todos os arquivos .md devem estar em português brasileiro.
@@ -197,16 +197,16 @@ Todos os arquivos .md devem estar em português brasileiro.
 Executar regularmente:
 ```bash
 # Ver se há duplicação de status
-grep -r "rodando\|parado" /home/will/ /srv/ops/ai-governance/ | grep -v SYSTEM_ARCHITECTURE | wc -l
+grep -r "rodando\|parado" /home/will/ ./ | grep -v SYSTEM_ARCHITECTURE | wc -l
 
 # Ver se há referências quebradas
-grep -r "\/home\/will\/" /srv/ops/ai-governance/ | wc -l
+grep -r "\/home\/will\/" ./ | wc -l
 
 # Versão de todos os arquivos
 find /srv/ops/ai-governance -name "*.md" -newer /home/will/Desktop/SYSTEM_ARCHITECTURE.md | wc -l
 
 # Verificar se há conteúdo em inglês em .md
-grep -r "^[^#]*[A-Z][a-z]*\s\+[A-Z][a-z]*" /home/will/*.md /srv/ops/ai-governance/*.md | grep -v "Português\|Qdrant\|PostgreSQL\|n8n\|tRPC\|RTX\|NVMe" | head -20
+grep -r "^[^#]*[A-Z][a-z]*\s\+[A-Z][a-z]*" /home/will/*.md ./*.md | grep -v "Português\|Qdrant\|PostgreSQL\|n8n\|tRPC\|RTX\|NVMe" | head -20
 ```
 
 ---
@@ -214,7 +214,7 @@ grep -r "^[^#]*[A-Z][a-z]*\s\+[A-Z][a-z]*" /home/will/*.md /srv/ops/ai-governanc
 ## 🚀 COMO USAR ESTE MAPA
 
 1. **Você está perdido?** → Leia este arquivo primeiro
-2. **Quer saber política?** → Vá para `/srv/ops/ai-governance/`
+2. **Quer saber política?** → Vá para `./`
 3. **Quer saber status?** → Vá para `/home/will/Desktop/SYSTEM_ARCHITECTURE.md`
 4. **Quer entender tecnicamente?** → Vá para `/home/will/ARQUITETURA-DETALHADA.md`
 5. **Quer ver histórico?** → Leia fases em `/home/will/Desktop/SYSTEM_ARCHITECTURE.md`

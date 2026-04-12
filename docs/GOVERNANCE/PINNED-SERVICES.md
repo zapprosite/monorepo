@@ -316,10 +316,10 @@ Este documento é parte da governança do homelab. Para mudanças formais:
 
 | Fonte | Local | Quando Usar |
 |-------|-------|------------|
-| **Governança Principal** | `/srv/ops/ai-governance/` | Mudanças em produção |
+| **Governança Principal** | `./` | Mudanças em produção |
 | **Anti-Fragility** | `/srv/monorepo/docs/GOVERNANCE/ANTI-FRAGILITY.md` | Antes de propor mudanças |
-| **Guardrails** | `/srv/ops/ai-governance/GUARDRAILS.md` | Regras de proibido/permitido |
-| **Change Policy** | `/srv/ops/ai-governance/CHANGE_POLICY.md` | Como fazer mudanças seguras |
+| **Guardrails** | `./GUARDRAILS.md` | Regras de proibido/permitido |
+| **Change Policy** | `./CHANGE_POLICY.md` | Como fazer mudanças seguras |
 
 ---
 
@@ -429,8 +429,8 @@ Se usuário insiste:
 | Documento | Caminho | Quando usar |
 |-----------|---------|-------------|
 | Anti-Fragility | `docs/GOVERNANCE/ANTI-FRAGILITY.md` | Antes de propor mudanças |
-| Guardrails | `/srv/ops/ai-governance/GUARDRAILS.md` | Regras de proibido/permitido |
-| Change Policy | `/srv/ops/ai-governance/CHANGE_POLICY.md` | Como fazer mudanças seguras |
+| Guardrails | `./GUARDRAILS.md` | Regras de proibido/permitido |
+| Change Policy | `./CHANGE_POLICY.md` | Como fazer mudanças seguras |
 | Incidents | `docs/GOVERNANCE/INCIDENTS.md` | Registrar emergências |
 | Approval Matrix | `docs/GOVERNANCE/APPROVAL_MATRIX.md` | Matriz de decisões |
 | IMMUTABLE-SERVICES | `docs/GOVERNANCE/IMMUTABLE-SERVICES.md` | Dual-layer governance (IMMUTABLE + PINNED) |
@@ -445,6 +445,6 @@ Se usuário insiste:
 
 **Documentos Relacionados:**
 - `/srv/monorepo/docs/GOVERNANCE/ANTI-FRAGILITY.md`
-- `/srv/ops/ai-governance/GUARDRAILS.md`
-- `/srv/ops/ai-governance/CHANGE_POLICY.md`
+- `./GUARDRAILS.md`
+- `./CHANGE_POLICY.md`
 - `/srv/monorepo/tasks/smoke-tests/pipeline-openclaw-voice.sh`

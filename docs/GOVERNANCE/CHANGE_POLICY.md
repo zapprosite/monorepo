@@ -177,7 +177,7 @@ docker stats --no-stream
 **Immediate actions:**
 1. **STOP.** Do not attempt further changes.
 2. **ASSESS.** What went wrong? Can you fix it quickly?
-3. **LOG.** Update /srv/ops/ai-governance/INCIDENTS.md
+3. **LOG.** Update ./INCIDENTS.md
 
 **If you can fix it:**
 ```bash
@@ -315,7 +315,7 @@ docker compose -f /srv/apps/platform/docker-compose.yml ps
 
 ## 10. Mandatory Logging
 
-Every change must be logged to: `/srv/ops/ai-governance/logs/CHANGE_LOG.txt`
+Every change must be logged to: `./logs/CHANGE_LOG.txt`
 
 Format:
 ```
