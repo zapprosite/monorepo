@@ -1,3 +1,9 @@
+---
+version: 1.0
+author: will-zappro
+date: 2026-04-08
+---
+
 # Governança de Banco de Dados & Dados Semânticos
 
 **Host:** will-zappro
