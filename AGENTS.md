@@ -66,10 +66,12 @@ Before any work in this repository, EVERY LLM **MUST** read:
 | **[docs/INCIDENTS/CONSOLIDATED-PREVENTION-PLAN.md](../../docs/INCIDENTS/CONSOLIDATED-PREVENTION-PLAN.md)** | Anti-patterns AP-1 to AP-4 (Docker TCP, host-as-backend, DNS) | 🔴 CRITICAL |
 | **[docs/GOVERNANCE/CHANGE_POLICY.md](../../docs/GOVERNANCE/CHANGE_POLICY.md)** | Snapshot before changes + preflight checklist | 🟡 HIGH |
 | **[docs/GOVERNANCE/DUPLICATE-SERVICES-RULE.md](../../docs/GOVERNANCE/DUPLICATE-SERVICES-RULE.md)** | Port registry, auto-heal whitelist, reserved ports | 🟡 HIGH |
-| **[docs/GOVERNANCE/master-password-procedure.md](../../docs/GOVERNANCE/MASTER-PASSWORD-PROCEDURE.md)** | Credential handling procedure | 🟡 HIGH |
+| **[docs/GOVERNANCE/MASTER-PASSWORD-PROCEDURE.md](../../docs/GOVERNANCE/MASTER-PASSWORD-PROCEDURE.md)** | Credential handling procedure | 🟡 HIGH |
 | **[docs/GOVERNANCE/DATABASE_GOVERNANCE.md](../../docs/GOVERNANCE/DATABASE_GOVERNANCE.md)** | Protected schemas, destructive-operation rules | 🟡 HIGH |
+| **[docs/REFERENCE/ARCHITECTURE-MASTER.md](../../docs/REFERENCE/ARCHITECTURE-MASTER.md)** | Full monorepo structure, CI/CD, directory layout | 🟡 HIGH |
 | **[docs/GUIDES/INFISICAL-SDK-PATTERN.md](../../docs/GUIDES/INFISICAL-SDK-PATTERN.md)** | How to use Infisical SDK (Python/JS/Bash) | 🟡 HIGH |
 | **[docs/GUIDES/CODE-REVIEW-GUIDE.md](../../docs/GUIDES/CODE-REVIEW-GUIDE.md)** | 5-axis review framework | 🟡 HIGH |
+| **[docs/REFERENCE/TOOLCHAIN.md](../../docs/REFERENCE/TOOLCHAIN.md)** | pnpm, turbo, biome, git, docker, zfs commands | 🟡 HIGH |
 | **[.claude/CLAUDE.md](../../.claude/CLAUDE.md)** | Claude Code rules, git mirror, version lock | 🟡 HIGH |
 
 ### TL;DR (for LLMs in a hurry)
