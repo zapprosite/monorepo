@@ -32,6 +32,9 @@ Antes de qualquer ação neste repositório, TODO LLM **DEVE** ler:
 | **[docs/GUIDES/CODE-REVIEW-GUIDE.md](../../docs/GUIDES/CODE-REVIEW-GUIDE.md)** | 5-axis review framework | 🟡 ALTA |
 | **[docs/GOVERNANCE/SECRETS_POLICY.md](../../docs/GOVERNANCE/SECRETS_POLICY.md)** | Secrets policy complementar | 🟡 ALTA |
 | **[.claude/CLAUDE.md](../../.claude/CLAUDE.md)** | Regras Claude Code, git mirror, version lock | 🟡 ALTA |
+| **[docs/GOVERNANCE/.rules/voice-kit-protect.md](../../docs/GOVERNANCE/.rules/voice-kit-protect.md)** | Kokoro TTS kit INVIOŁÁVEL — pm_santa/pf_dora ONLY | 🔴 CRÍTICO |
+| **[docs/GOVERNANCE/.rules/wav2vec2-stt-protect.md](../../docs/GOVERNANCE/.rules/wav2vec2-stt-protect.md)** | wav2vec2 STT kit INVIOŁÁVEL — só este STT | 🔴 CRÍTICO |
+| **[.claude/rules/openclaw-audio-governance.md](../../.claude/rules/openclaw-audio-governance.md)** | Audio stack imutável — ZERO TOLERANCE | 🔴 CRÍTICO |
 
 ### TL;DR (para LLMs com pressa)
 
@@ -439,6 +442,40 @@ yarn lint
 
 # Sync env
 node scripts/sync-env.js
+
+# AI-CONTEXT sync (OBRIGATÓRIO após cada feature)
+bash /home/will/.claude/mcps/ai-context-sync/sync.sh
+```
+
+---
+
+## AI-CONTEXT Sync (SPEC-027)
+
+**⚠️ OBRIGATÓRIO após cada feature/PR merge**
+
+Após fazer commit + push de qualquer feature, **SEMPRE** executar:
+```bash
+bash /home/will/.claude/mcps/ai-context-sync/sync.sh
+```
+
+**Porquê:** Mantém o memory dos agentes atualizado. Sem sync, o próximo agente não tem contexto das mudanças.
+
+**O que sincroniza:**
+- `docs/GOVERNANCE/` → `memory/` (regras imutáveis)
+- `docs/SPECS/` → `memory/` (specs atualizadas)
+- `docs/SKILLS/` → `memory/skills/`
+- `.context/docs/` → `memory/` (contexto auto-gerado)
+
+**Docs rígidos que exigem sync após mudança:**
+- `VERSION-LOCK.md` — versões pinned
+- `AGENTS.md` — regras de agentes
+- `docs/GOVERNANCE/*` — governance do homelab
+- `docs/SPECS/SPEC-*.md` — especificações
+- `docs/OPERATIONS/SKILLS/*.md` — skills de operação
+
+**Verificação:**
+```bash
+cat /home/will/.claude/mcps/ai-context-sync/manifest.json | jq '.last_sync'
 ```
 
 ---
