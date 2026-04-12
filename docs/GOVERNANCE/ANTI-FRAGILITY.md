@@ -1,3 +1,9 @@
+---
+version: 1.0
+author: will-zappro
+date: 2026-04-08
+---
+
 # Anti-Fragility — Como Manter Configs Estáveis de Não Quebrar
 
 **Versão:** 1.0 | **Data:** 2026-04-08

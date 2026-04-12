@@ -1,4 +1,10 @@
-# OpenClaw Bot — Guia de Debug e Configuracao Pinada
+---
+version: 1.0
+author: will-zappro
+date: 2026-04-08
+---
+
+# OpenClaw Bot Debug — Guia de Debug e Configuracao Pinada
 
 **Host:** will-zappro | **Atualizado:** 2026-04-08
 **Bot:** @CEO_REFRIMIX_bot | **Container:** openclaw-qgtzrmi6771lt8l7x8rqx72f

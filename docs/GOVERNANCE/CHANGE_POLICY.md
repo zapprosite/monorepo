@@ -1,3 +1,9 @@
+---
+version: 1.0
+author: will-zappro
+date: 2026-03-16
+---
+
 # Change Policy: Safe Modification Process
 
 **Host:** will-zappro

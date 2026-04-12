@@ -1,3 +1,9 @@
+---
+version: 1.0
+author: will-zappro
+date: 2026-03-16
+---
+
 # Approval Matrix: Decision Table
 
 **Host:** will-zappro
