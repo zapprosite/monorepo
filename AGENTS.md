@@ -358,6 +358,38 @@ node scripts/sync-env.js
 
 ---
 
+## Git Workflow (SPEC-026)
+
+### Mirror Sync
+
+Before any merge:
+```bash
+bash /srv/ops/scripts/mirror-sync.sh
+```
+
+### Audit
+
+Weekly branch audit:
+```bash
+bash /srv/ops/scripts/audit-branches.sh
+```
+
+### Tag Policy
+
+See `docs/GOVERNANCE/TAG-POLICY.md`
+
+| Format | Use |
+|--------|-----|
+| vMAJOR.MINOR.PATCH | Releases |
+| phase/N-name | Process milestones |
+| feat/NAME | Feature flags |
+
+### Never
+
+- ❌ Push directly to main
+- ❌ Date-based tags (v20260412...)
+- ❌ Non-feature branch names (feat/* only)
+
 ## Encoding and Localization Guidance
 
 **Regra:** Docs e UI em PT-BR. Código (variáveis, funções, classes, commits) em EN.
