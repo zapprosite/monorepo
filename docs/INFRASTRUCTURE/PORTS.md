@@ -67,6 +67,7 @@
 | **4003** | nginx:alpine (painel) | host | Claude Code Panel (nginx:alpine) | painel.zappro.site |
 | **4006** | mcp-monorepo | qgtzrmi net (10.0.19.50) | MCP Filesystem /srv/monorepo → OpenClaw | — |
 | **4011** | mcp-qdrant | qgtzrmi net (10.0.19.51) | MCP Qdrant semantic search (openclaw-memory) | — |
+| **5433** | supabase-health-proxy | host | HTTP health proxy → Postgres :5432 (coolify net) | supabase.zappro.site |
 | **8202** | zappro-wav2vec2 | host | Faster-Whisper STT (host mapping 8202→8201) | — |
 
 ### Novos Serviços (2026-04-03)
@@ -113,7 +114,6 @@
 | Porta | Serviço | Motivo |
 |-------|---------|--------|
 | 80 / 443 / 3000 | captain-nginx / CapRover | substituído por Coolify |
-| 5433 / 5435 / 6543 | Supabase PgBouncer / Postgres | Supabase removido |
 | 8001 / 8443 / 54323 | Supabase Kong / Studio | Supabase removido |
 | 8020 | whisper-local STT | substituído por Deepgram cloud |
 | 5440 | litellm-db | removido |

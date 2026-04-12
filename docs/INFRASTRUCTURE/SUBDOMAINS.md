@@ -2,7 +2,7 @@
 name: subdomains-registry
 description: >
   Registry automático de subdomínios Cloudflare.
-  Sincronizado de /srv/ops/terraform/cloudflare/ em 2026-04-05.
+  Sincronizado de /srv/ops/terraform/cloudflare/ em 2026-04-12.
 type: governance
 synced: 2026-04-12
 ---
@@ -10,7 +10,7 @@ synced: 2026-04-12
 # Subdomains Registry
 
 **Última sincronização:** 2026-04-12
-**Total de records:** 13 (chat.zappro.site ATIVO)
+**Total de records:** 14 (supabase.zappro.site ATIVO)
 
 ## Tabela de Subdomínios
 
@@ -27,6 +27,7 @@ synced: 2026-04-12
 | [painel.zappro.site](https://painel.zappro.site) | 4003 | ✅ ATIVO | Claude Code Panel (nginx:alpine) — :4003 |
 | [qdrant.zappro.site](https://qdrant.zappro.site) | 6333 | ✅ ATIVO | Qdrant vector DB — tunnel fix aplicado (302 CF Access, não DOWN) — container IP OK |
 | [vault.zappro.site](https://vault.zappro.site) | 8200 | ✅ ATIVO | Infisical Secret Manager — :8200 |
+| [supabase.zappro.site](https://supabase.zappro.site) | 5433 | ✅ ATIVO | Supabase Postgres (health proxy on 5433) — container IP 10.0.0.4:5432 |
 | [chat.zappro.site](https://chat.zappro.site) | 8080 | ✅ ATIVO | Open WebUI (LLM chat UI) — :8080 (Coolify) — **IP corrigido: 10.0.5.3** |
 
 ## Terraform Source
@@ -37,10 +38,10 @@ synced: 2026-04-12
 
 | Subdomínio | Origem | Ação |
 |------------|--------|------|
-| `supabase.zappro.site` | Supabase removido, tunnel ativa | Remover do cloudflared config |
 | `web.zappro.site` | nginx-ratelimit → :4004 | Túnel órfão — nginx-ratelimit não exposto na LAN — remover do cloudflared |
 
 ## Mudanças Recentes
+- **2026-04-12**: supabase.zappro.site ATIVADO — Supabase Postgres via HTTP health proxy (:5433 → container :5432) — container IP 10.0.0.4, coolify network
 - **2026-04-12**: list.zappro.site ATIVADO — tools list HTML/JS, Google OAuth direto (sem Cloudflare Access), porta 4080
 - **2026-04-07**: chat.zappro.site ATIVADO — Open WebUI via Coolify :8080, Google OAuth
 - **2026-04-05**: SUBDOMAINS.md corrigido — aurelia e chat REMOVIDOS do registry (TF + cloudflared), painel ATIVO
