@@ -1,3 +1,9 @@
+---
+version: 1.1
+author: will-zappro
+date: 2026-04-06
+---
+
 # GUARDRAILS — Infraestrutura Zappro (will-zappro)
 ## Versão: 1.1 | 2026-04-06
 

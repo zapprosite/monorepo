@@ -1,3 +1,9 @@
+---
+version: 1.0
+author: will-zappro
+date: 2026-03-16
+---
+
 # 📍 Mapa Centralizado de Documentação
 
 **Última Atualização:** 2026-03-16 16:10 UTC
