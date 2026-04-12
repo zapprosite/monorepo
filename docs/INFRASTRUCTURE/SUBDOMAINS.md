@@ -10,7 +10,7 @@ synced: 2026-04-07
 # Subdomains Registry
 
 **Última sincronização:** 2026-04-07
-**Total de records:** 11 (chat.zappro.site ATIVO)
+**Total de records:** 12 (chat.zappro.site ATIVO)
 
 ## Tabela de Subdomínios
 
@@ -21,6 +21,7 @@ synced: 2026-04-07
 | [coolify.zappro.site](https://coolify.zappro.site) | 8000 | ✅ ATIVO | Coolify PaaS panel — :8000 |
 | [git.zappro.site](https://git.zappro.site) | 3300 | ✅ ATIVO | Gitea Git Server — :3300 |
 | [llm.zappro.site](https://llm.zappro.site) | 4000 | ✅ ATIVO | LiteLLM proxy (Cloudflare Access) — :4000 |
+| [list.zappro.site](https://list.zappro.site) | 4080 | ✅ ATIVO | List service — :4080 |
 | [monitor.zappro.site](https://monitor.zappro.site) | 3100 | ✅ ATIVO | Grafana dashboard (LAN only) — :3100 |
 | [n8n.zappro.site](https://n8n.zappro.site) | 5678 | ✅ ATIVO | n8n workflow automation — :5678 (Docker net) |
 | [painel.zappro.site](https://painel.zappro.site) | 4003 | ✅ ATIVO | Claude Code Panel (nginx:alpine) — :4003 |

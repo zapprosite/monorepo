@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ferramentas — list.zappro.site</title>
+  <meta name="description" content="Lista de ferramentas do homelab will-zappro">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ===== RESET & BASE ===== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-primary:    #1a1a2e;
+      --bg-secondary:  #16213e;
+      --bg-card:       #0f3460;
+      --bg-card-hover: #1a4a7a;
+      --accent:        #e94560;
+      --accent-hover:  #ff6b81;
+      --text-primary:  #eaeaea;
+      --text-secondary: #b0b0b0;
+      --text-muted:    #7a7a8a;
+      --border:        #2a2a4a;
+      --status-up:     #00c853;
+      --status-down:   #ff1744;
+      --status-degraded: #ffab00;
+      --radius:        12px;
+      --radius-sm:     8px;
+      --shadow:        0 4px 24px rgba(0,0,0,0.4);
+      --transition:    all 0.2s ease;
+      --font:          'Inter', system-ui, -apple-system, sans-serif;
+    }
+
+    html { font-size: 16px; }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      line-height: 1.5;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    button { font-family: inherit; cursor: pointer; border: none; outline: none; }
+
+    /* ===== SCROLLBAR ===== */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: var(--bg-primary); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+    /* ===== HEADER ===== */
+    .site-header {
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+      padding: 0 clamp(1rem, 4vw, 2rem);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+      gap: 1rem;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.625rem;
+      flex-shrink: 0;
+    }
+
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      background: var(--accent);
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+    }
+
+    .logo-text {
+      font-size: 1.125rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .logo-text span { color: var(--accent); }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .user-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--bg-card);
+      border: 2px solid var(--accent);
+      object-fit: cover;
+    }
+
+    .user-name {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text-primary);
+      display: none;
+    }
+
+    @media (min-width: 480px) { .user-name { display: block; } }
+
+    .logout-btn {
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: 0.8125rem;
+      padding: 0.375rem 0.75rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      transition: var(--transition);
+    }
+
+    .logout-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* ===== MAIN ===== */
+    main {
+      flex: 1;
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+      padding: clamp(1.5rem, 4vw, 2.5rem) clamp(1rem, 4vw, 2rem);
+    }
+
+    /* ===== AUTH SECTION ===== */
+    .auth-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 60vh;
+      text-align: center;
+      gap: 1.5rem;
+    }
+
+    .auth-icon { font-size: 4rem; }
+
+    .auth-title {
+      font-size: clamp(1.25rem, 3vw, 1.75rem);
+      font-weight: 700;
+    }
+
+    .auth-subtitle {
+      font-size: 1rem;
+      color: var(--text-secondary);
+      max-width: 400px;
+    }
+
+    .google-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      background: #fff;
+      color: #3c4043;
+      font-size: 0.9375rem;
+      font-weight: 600;
+      padding: 0.75rem 1.5rem;
+      border-radius: var(--radius);
+      border: none;
+      transition: var(--transition);
+      box-shadow: var(--shadow);
+    }
+
+    .google-btn:hover {
+      background: #f8f8f8;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 32px rgba(0,0,0,0.5);
+    }
+
+    .google-btn svg { width: 20px; height: 20px; }
+
+    /* ===== SECTION HEADER ===== */
+    .section-header { margin-bottom: 1.5rem; }
+
+    .section-title {
+      font-size: clamp(1.125rem, 2.5vw, 1.375rem);
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    /* ===== CATEGORY SECTION ===== */
+    .category { margin-bottom: 2.5rem; }
+
+    .category-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .category-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ===== TOOLS GRID ===== */
+    .tools-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1rem;
+    }
+
+    /* ===== TOOL CARD ===== */
+    .tool-card {
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      border: 1px solid transparent;
+      transition: var(--transition);
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      cursor: pointer;
+    }
+
+    .tool-card:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--accent);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow);
+    }
+
+    .tool-card:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    .tool-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+
+    .tool-icon { font-size: 1.75rem; line-height: 1; }
+
+    .tool-status {
+      font-size: 0.6875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 0.25rem 0.5rem;
+      border-radius: 20px;
+      flex-shrink: 0;
+    }
+
+    .tool-status.up {
+      background: rgba(0, 200, 83, 0.15);
+      color: var(--status-up);
+    }
+
+    .tool-status.down {
+      background: rgba(255, 23, 68, 0.15);
+      color: var(--status-down);
+    }
+
+    .tool-status.degraded {
+      background: rgba(255, 171, 0, 0.15);
+      color: var(--status-degraded);
+    }
+
+    .tool-name {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .tool-desc {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      line-height: 1.4;
+      flex: 1;
+    }
+
+    .tool-url {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      word-break: break-all;
+    }
+
+    /* ===== FOOTER ===== */
+    .site-footer {
+      background: var(--bg-secondary);
+      border-top: 1px solid var(--border);
+      padding: 1rem clamp(1rem, 4vw, 2rem);
+      margin-top: auto;
+    }
+
+    .footer-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .footer-left {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--status-up);
+    }
+
+    .footer-right {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* ===== LOADING ===== */
+    .loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 40vh;
+      gap: 0.75rem;
+      color: var(--text-secondary);
+    }
+
+    .spinner {
+      width: 24px;
+      height: 24px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ===== ERROR ===== */
+    .error-msg {
+      background: rgba(255, 23, 68, 0.1);
+      border: 1px solid var(--status-down);
+      border-radius: var(--radius);
+      padding: 1rem;
+      color: var(--status-down);
+      text-align: center;
+    }
+
+    /* ===== UTIL ===== */
+    .sr-only {
+      position: absolute; width: 1px; height: 1px;
+      padding: 0; margin: -1px; overflow: hidden;
+      clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===== HEADER ===== -->
+  <header class="site-header" role="banner">
+    <div class="header-inner">
+      <a href="/" class="logo" aria-label="list.zappro.site — pagina inicial">
+        <div class="logo-icon" aria-hidden="true">&#9881;</div>
+        <div class="logo-text"><span>zappro</span> tools</div>
+      </a>
+      <div class="header-right" id="header-right">
+        <!-- populated by JS -->
+      </div>
+    </div>
+  </header>
+
+  <!-- ===== MAIN ===== -->
+  <main id="app" role="main">
+    <div class="loading" id="loading" aria-live="polite">
+      <div class="spinner" aria-hidden="true"></div>
+      <span>Carregando...</span>
+    </div>
+  </main>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="site-footer" role="contentinfo">
+    <div class="footer-inner">
+      <div class="footer-left">
+        <div class="status-dot" aria-hidden="true"></div>
+        <span> homelab status: operational</span>
+      </div>
+      <div class="footer-right">
+        &copy; 2026 will-zappro &middot; all systems nominal
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    /* ================================================================
+       CONFIGURATION
+       GOOGLE_CLIENT_ID is injected at deploy time via Infisical.
+       During local dev, set window.__ENV__.GOOGLE_CLIENT_ID.
+    ================================================================ */
+    const CONFIG = {
+      googleClientId: window.__ENV__?.GOOGLE_CLIENT_ID || '29245472860-6d5bvhphmk2pl3s1volthifqfhbg0iji.apps.googleusercontent.com',
+      redirectUri: 'https://list.zappro.site/auth/callback',
+      authEndpoint: 'https://accounts.google.com/o/oauth2/v2/auth',
+      scope: 'email profile',
+      sessionKey: 'list_web_session',
+    };
+
+    /* ================================================================
+       TOOLS DATA — matches SPEC-TOOL-LIST.md
+    ================================================================ */
+    const TOOLS = [
+      {
+        name: 'OpenWebUI',
+        url: 'https://chat.zappro.site',
+        description: 'Chat AI interface com LLM local via Ollama',
+        icon: '\u{1F4AC}',
+        status: 'up',
+        category: 'ai'
+      },
+      {
+        name: 'Grafana',
+        url: 'https://monitor.zappro.site',
+        description: 'Dashboards de monitoring e alertas',
+        icon: '\u{1F4CA}',
+        status: 'up',
+        category: 'monitoring'
+      },
+      {
+        name: 'Prometheus',
+        url: 'http://localhost:9090',
+        description: 'Coleta de metricas e storage time-series',
+        icon: '\u{1F3AF}',
+        status: 'up',
+        category: 'monitoring'
+      },
+      {
+        name: 'OpenClaw',
+        url: 'https://openclaw.zappro.site',
+        description: 'Voice AI bot com STT wav2vec2 + TTS Kokoro',
+        icon: '\u{1F3A4}',
+        status: 'up',
+        category: 'ai'
+      },
+      {
+        name: 'Coolify',
+        url: 'https://coolify.zappro.site',
+        description: 'PaaS dashboard para deploy de aplicacoes',
+        icon: '\u2601\uFE0F',
+        status: 'up',
+        category: 'infra'
+      },
+      {
+        name: 'Gitea',
+        url: 'https://git.zappro.site',
+        description: 'Servidor Git com repositorios privados',
+        icon: '\u{1F4E6}',
+        status: 'up',
+        category: 'dev'
+      },
+      {
+        name: 'Infisical',
+        url: 'https://infisical.zappro.site',
+        description: 'Gerenciador de secrets e configuracoes',
+        icon: '\u{1F510}',
+        status: 'up',
+        category: 'infra'
+      },
+      {
+        name: 'Kokoro TTS',
+        url: 'http://localhost:8012',
+        description: 'Text-to-Speech GPU com vozes PT-BR',
+        icon: '\u{1F50A}',
+        status: 'up',
+        category: 'ai'
+      },
+      {
+        name: 'n8n',
+        url: 'https://n8n.zappro.site',
+        description: 'Workflow automation e integracoes',
+        icon: '\u{1F4CC}',
+        status: 'up',
+        category: 'infra'
+      },
+      {
+        name: 'Qdrant',
+        url: 'https://qdrant.zappro.site',
+        description: 'Vector database para semantic search',
+        icon: '\u{1F3AF}',
+        status: 'up',
+        category: 'ai'
+      },
+      {
+        name: 'Claude Code Panel',
+        url: 'https://painel.zappro.site',
+        description: 'Claude Code com sessao persistente',
+        icon: '\u{1F916}',
+        status: 'up',
+        category: 'dev'
+      },
+      {
+        name: 'LiteLLM Proxy',
+        url: 'http://localhost:4000',
+        description: 'Proxy unificado para modelos LLM locais',
+        icon: '\u{1F310}',
+        status: 'up',
+        category: 'ai'
+      },
+    ];
+
+    /* ================================================================
+       CATEGORY LABELS
+    ================================================================ */
+    const CATEGORY_LABELS = {
+      ai:         { label: 'Inteligencia Artificial', icon: '\u{1F9E0}' },
+      monitoring: { label: 'Monitoramento',           icon: '\u{1F4CA}' },
+      infra:     { label: 'Infraestrutura',           icon: '\u26A1'    },
+      dev:       { label: 'Desenvolvimento',         icon: '\u{1F4BB}' },
+    };
+
+    /* ================================================================
+       SESSION MANAGEMENT
+    ================================================================ */
+    function getSession() {
+      try {
+        const raw = localStorage.getItem(CONFIG.sessionKey);
+        if (!raw) return null;
+        const session = JSON.parse(raw);
+        if (session.exp && Date.now() / 1000 > session.exp) {
+          localStorage.removeItem(CONFIG.sessionKey);
+          return null;
+        }
+        return session;
+      } catch { return null; }
+    }
+
+    function setSession(userinfo) {
+      const session = {
+        ...userinfo,
+        exp: userinfo.exp || (Date.now() / 1000 + 3600 * 24 * 7),
+      };
+      localStorage.setItem(CONFIG.sessionKey, JSON.stringify(session));
+    }
+
+    function clearSession() {
+      localStorage.removeItem(CONFIG.sessionKey);
+    }
+
+    /* ================================================================
+       GOOGLE OAUTH URL BUILDER
+    ================================================================ */
+    function buildOAuthUrl() {
+      const params = new URLSearchParams({
+        client_id:     CONFIG.googleClientId,
+        redirect_uri: CONFIG.redirectUri,
+        response_type: 'code',
+        scope:         CONFIG.scope,
+        access_type:   'online',
+        prompt:        'select_account',
+      });
+      return CONFIG.authEndpoint + '?' + params.toString();
+    }
+
+    /* ================================================================
+       OAUTH CALLBACK HANDLER
+       The page at /auth/callback is loaded by Google after login.
+       Without a backend, code exchange is done via a lightweight
+       Cloudflare Worker or the API app. Here we simulate the flow.
+    ================================================================ */
+    async function handleOAuthCallback() {
+      const params = new URLSearchParams(window.location.search);
+      const code  = params.get('code');
+      const error = params.get('error');
+
+      if (error) { renderAuthError('OAuth error: ' + error); return; }
+      if (!code)  { window.location.href = buildOAuthUrl(); return; }
+
+      try {
+        // ----------------------------------------------------------------
+        // NOTE: In production, exchange `code` for tokens via a backend
+        // endpoint (e.g. Cloudflare Worker /api/auth/callback).
+        // Static sites cannot securely call the token endpoint directly.
+        // For now, store a mock session — replace with real exchange.
+        // ----------------------------------------------------------------
+        setSession({ name: 'zappro user', email: 'zappro@zappro.site', picture: null });
+        window.history.replaceState({}, '', '/');
+        renderApp();
+      } catch (err) {
+        renderAuthError('Falha ao processar callback: ' + err.message);
+      }
+    }
+
+    /* ================================================================
+       RENDER: AUTH UI
+    ================================================================ */
+    function renderAuthUI() {
+      const app = document.getElementById('app');
+      app.innerHTML = `
+        <section class="auth-section" aria-labelledby="auth-title">
+          <div class="auth-icon" aria-hidden="true">\u{1F510}</div>
+          <h1 class="auth-title" id="auth-title">Autenticacao necessaria</h1>
+          <p class="auth-subtitle">
+            Faca login com sua conta Google para acessar a lista de
+            ferramentas do homelab.
+          </p>
+          ${CONFIG.googleClientId
+            ? `<button class="google-btn" id="login-btn" aria-label="Entrar com Google">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                </svg>
+                Entrar com Google
+               </button>`
+            : `<p class="error-msg">
+                GOOGLE_CLIENT_ID nao configurado.<br>
+                Deploy com Infisical para habilitar OAuth.
+               </p>`
+          }
+        </section>
+      `;
+
+      const loginBtn = document.getElementById('login-btn');
+      if (loginBtn) loginBtn.addEventListener('click', () => { window.location.href = buildOAuthUrl(); });
+    }
+
+    function renderAuthError(msg) {
+      const app = document.getElementById('app');
+      app.innerHTML = `
+        <section class="auth-section">
+          <div class="auth-icon" aria-hidden="true">\u274C</div>
+          <h1 class="auth-title">Erro de autenticacao</h1>
+          <p class="error-msg">${escapeHTML(msg)}</p>
+          <button class="google-btn" id="login-btn">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+            </svg>
+            Tentar novamente
+          </button>
+        </section>
+      `;
+      document.getElementById('login-btn').addEventListener('click', () => { window.location.href = buildOAuthUrl(); });
+    }
+
+    /* ================================================================
+       RENDER: TOOLS GRID
+    ================================================================ */
+    function renderToolsGrid() {
+      const app    = document.getElementById('app');
+      const session = getSession();
+
+      const byCategory = {};
+      for (const tool of TOOLS) {
+        if (!byCategory[tool.category]) byCategory[tool.category] = [];
+        byCategory[tool.category].push(tool);
+      }
+
+      let html = '';
+
+      for (const [catKey, catTools] of Object.entries(byCategory)) {
+        const catMeta = CATEGORY_LABELS[catKey] || { label: catKey, icon: '\u{1F3AF}' };
+        html += `
+          <section class="category" aria-labelledby="cat-${escapeHTML(catKey)}">
+            <h2 class="category-title" id="cat-${escapeHTML(catKey)}">
+              <span aria-hidden="true">${catMeta.icon}</span>
+              ${escapeHTML(catMeta.label)}
+            </h2>
+            <div class="tools-grid" role="list">
+        `;
+
+        for (const tool of catTools) {
+          const statusLabel = { up: 'UP', down: 'DOWN', degraded: 'DEGRADED' }[tool.status] || tool.status;
+          html += `
+            <a href="${escapeHTML(tool.url)}"
+               class="tool-card"
+               role="listitem"
+               target="_blank"
+               rel="noopener noreferrer"
+               aria-label="${escapeHTML(tool.name)} — ${tool.description}">
+              <div class="tool-header">
+                <span class="tool-icon" aria-hidden="true">${tool.icon}</span>
+                <span class="tool-status ${tool.status}" aria-label="Status: ${statusLabel}">${statusLabel}</span>
+              </div>
+              <div class="tool-name">${escapeHTML(tool.name)}</div>
+              <div class="tool-desc">${escapeHTML(tool.description)}</div>
+              <div class="tool-url">${escapeHTML(tool.url)}</div>
+            </a>
+          `;
+        }
+
+        html += `</div></section>`;
+      }
+
+      app.innerHTML = html;
+      renderHeader(session);
+    }
+
+    /* ================================================================
+       RENDER: HEADER USER INFO
+    ================================================================ */
+    function renderHeader(session) {
+      const headerRight = document.getElementById('header-right');
+      if (!session) { headerRight.innerHTML = ''; return; }
+
+      const avatar = session.picture
+        ? `<img src="${escapeHTML(session.picture)}" alt="" class="user-avatar" aria-hidden="true">`
+        : `<div class="user-avatar" aria-hidden="true">\u{1F464}</div>`;
+
+      headerRight.innerHTML = `
+        <div class="user-info">
+          ${avatar}
+          <span class="user-name">${escapeHTML(session.name || session.email)}</span>
+        </div>
+        <button class="logout-btn" id="logout-btn" aria-label="Fazer logout">Sair</button>
+      `;
+
+      document.getElementById('logout-btn').addEventListener('click', () => {
+        clearSession();
+        window.location.href = '/';
+      });
+    }
+
+    /* ================================================================
+       MAIN RENDER
+    ================================================================ */
+    function renderApp() {
+      const loading = document.getElementById('loading');
+      if (loading) loading.remove();
+      renderToolsGrid();
+    }
+
+    /* ================================================================
+       UTILITY
+    ================================================================ */
+    function escapeHTML(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    /* ================================================================
+       BOOTSTRAP
+    ================================================================ */
+    (function bootstrap() {
+      if (window.location.pathname.startsWith('/auth/')) {
+        handleOAuthCallback();
+        return;
+      }
+      const session = getSession();
+      if (!session) { renderAuthUI(); return; }
+      renderApp();
+    })();
+  </script>
+</body>
+</html>
