@@ -25,6 +25,19 @@ Critical tool versions pinned for homelab-monorepo.
 **Kokoro direto:** `:8880` — **NUNCA usar diretamente** (sem filtro)
 **Voices permitidas via TTS Bridge:** APENAS `pm_santa` e `pf_dora`
 
+## Voice Pipeline Desktop — Ctrl+Shift+C
+
+| Component | Value |
+|-----------|-------|
+| **Shortcut** | `Ctrl+Shift+C` (GNOME custom keybinding) |
+| **Script** | `/home/will/Desktop/voice-pipeline/scripts/speak.sh` |
+| **Voice** | `pf_dora` (feminino PT-BR) |
+| **Endpoint** | TTS Bridge `:8013` |
+| **Flow** | xclip (primary selection) → LLM humanização → TTS Bridge → Kokoro → pw-play |
+| **Debounce** | 3 segundos entre ativações |
+| **Hotkey install** | `hotkey-speak.sh` |
+| **Hotkey remove** | `hotkey-unspeak.sh` |
+
 ## Update Policy
 
 AI agents CANNOT update pinned components without:

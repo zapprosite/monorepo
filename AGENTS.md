@@ -463,11 +463,12 @@ bash /home/will/.claude/mcps/ai-context-sync/sync.sh
 - `.context/docs/` → `memory/` (contexto auto-gerado)
 
 **Docs rígidos que exigem sync após mudança:**
-- `VERSION-LOCK.md` — versões pinned
+- `VERSION-LOCK.md` — versões pinned (inclui voice pipeline desktop)
 - `AGENTS.md` — regras de agentes
 - `docs/GOVERNANCE/*` — governance do homelab
 - `docs/SPECS/SPEC-*.md` — especificações
 - `docs/OPERATIONS/SKILLS/*.md` — skills de operação
+- `docs/OPERATIONS/SKILLS/voice-pipeline-desktop.md` — Ctrl+Shift+C shortcut
 
 **Verificação:**
 ```bash
