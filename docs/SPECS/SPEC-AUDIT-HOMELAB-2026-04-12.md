@@ -59,43 +59,49 @@
 
 ### P0 — CRÍTICO (Fazer agora)
 
-#### 1. TTS Bridge está DOWN
-**Problema:** auto-healer detecta TTS Bridge DOWN. Exit 137 (OOM). OpenClaw está usando Kokoro direto :8880 com pm_alex — viola governance.
-**Solução:**
+#### 1. TTS Bridge — RESTARTED (partial)
+**Status:** TTS Bridge reiniciado e UP há 40h. Health 200 OK. Memory limits nao aplicadas.
+**Problema:** Exit 137 (OOM). OpenClaw estava usando Kokoro direto :8880 com pm_alex — viola governance.
+**Solução aplicada:**
 ```bash
-# Restart TTS Bridge com memory limits
-docker stop zappro-tts-bridge
-docker rm zappro-tts-bridge
-# Recriar com --memory=512m --memory-swap=512m
+docker stop zappro-tts-bridge && docker rm zappro-tts-bridge
+docker run ... # restart sem --memory=512m
 ```
-**Dependência:** SPEC-014 bloqueado até resolver
+**Verificacao 2026-04-12:** `curl localhost:8013/health` → 200; `docker ps` → `zappro-tts-bridge Up 40 hours`
+**Pendende:** Recriar container com `--memory=512m --memory-swap=512m` via Coolify/docker-compose
+**Dependência:** SPEC-014 previamente bloqueado — agora livre
 
-#### 2. ZFS ARC em conflito com containers
-**Problema:** 7.8GB/8GB swap usado. ARC está tomando memória que containers precisam.
-**Solução:**
+#### 2. ZFS ARC — CONFIGURADO (monitorando)
+**Status:** zfs_arc_max=8589934592 aplicado. Swap ainda 100% — precisa monitoramento.
+**Problema:** 7.8GB/8GB swap usado. ARC estava tomando memória que containers precisam.
+**Solução aplicada:**
 ```bash
-# /etc/modprobe.d/zfs.conf
-options zfs zfs_arc_max=8589934592    # 8GB max
-options zfs zfs_arc_min=2147483648    # 2GB min
+echo 8589934592 > /sys/module/zfs/parameters/zfs_arc_max
 ```
-**Dependência:** Requer reboot ou remount
+**Verificacao 2026-04-12:** `cat /sys/module/zfs/parameters/zfs_arc_max` → `8589934592`
+**Pendente:** swap < 50% após 1h de observacao; container stability sem OOM
+**Dependência:** nenhuma (aplicado sem reboot)
 
-#### 3. voice-pipeline-loop.sh NÃO está no crontab
-**Problema:** Script existe em `tasks/smoke-tests/` mas cron não está ativo.
-**Solução:**
+#### 3. voice-pipeline-loop.sh — ATIVADO
+**Status:** CRON ATIVO. Loop executando a cada 5 min com log.
+**Problema:** Script existe em `tasks/smoke-tests/` mas cron não estava ativo.
+**Solução aplicada:**
 ```bash
-# Adicionar ao crontab
-echo "*/5 * * * * /srv/monorepo/tasks/smoke-tests/voice-pipeline-loop.sh >> /srv/monorepo/logs/voice-pipeline/loop.log 2>&1" | crontab -
+(crontab -l 2>/dev/null | grep -v voice-pipeline-loop; \
+echo "*/5 * * * * /srv/monorepo/tasks/smoke-tests/voice-pipeline-loop.sh >> /srv/monorepo/logs/voice-pipeline/loop.log 2>&1") | crontab -
 ```
+**Verificacao 2026-04-12:** `crontab -l` → `*/5 * * * * /srv/monorepo/tasks/smoke-tests/voice-pipeline-loop.sh`; loop.log existente em `/srv/monorepo/logs/voice-pipeline/`
 
-#### 4. SPEC Conflicts — Numeração Colidida
+#### 4. SPEC Conflicts — PENDENTE
+**Status:** Nao resolvido. Documentado em SPEC-AUDIT-FIXES-2026-04-12.
 **Problema:** 
 - SPEC-001 = template (DONE) E SPEC-001 = workflow-performatico (DRAFT)
 - SPEC-002 = network-refactor (DRAFT) E SPEC-002 = homelab-monitor-agent (DRAFT)
 - SPEC-014 = TTS route fix E SPEC-014 = CURSOR-AI-CICD-PATTERN
 - SPEC-013 = 5 versões diferentes
 
-**Solução:** Criar SPEC-AUDIT-RESOLUTION.md para renumerar e consolidar
+**Solução:** Requer SPEC-AUDIT-RESOLUTION.md para renumerar e consolidar
+**Dependência:** Historico de multiplos agentes — requer decisao manual
 
 ---
 
