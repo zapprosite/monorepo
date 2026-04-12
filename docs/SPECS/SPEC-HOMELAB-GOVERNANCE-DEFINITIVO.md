@@ -87,7 +87,7 @@ GOVERNANCE DOCS: upgrade never without explicit user approval
 ```bash
 # ANTES: criar rollback point
 ollama cp gemma2-9b-it gemma2-9b-it-v1
-ollama cp llava llava-v1
+ollama cp llava llava-v1  # [DEPRECATED - qwen2.5-vl agora é o modelo de visão]
 ollama cp nomic-embed-text nomic-embed-text-v1
 
 # UPGRADE: pull novo modelo
@@ -723,7 +723,7 @@ Se um agente viola este governance:
 | Grafana | 12.4.2 | 2026-03-01 | IMMUTABLE |
 | Loki | 3.4.2 | 2026-03-01 | IMMUTABLE |
 | ZFS ARC max | 8GB | 2026-04-12 | 2026-05-12 |
-| Ollama models | gemma2-9b-it, llava, nomic-embed-text | various | Per model |
+| Ollama models | gemma2-9b-it, qwen2.5-vl [DEPRECATED - era llava], nomic-embed-text | various | Per model |
 
 ---
 
