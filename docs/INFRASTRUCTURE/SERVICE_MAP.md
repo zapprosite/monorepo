@@ -1,7 +1,7 @@
 # Mapa de Serviços & Dependências
 
 **Host:** will-zappro
-**Atualizado:** 2026-04-06
+**Atualizado:** 2026-04-12
 **Total containers ativos:** 26
 
 ---
@@ -52,20 +52,21 @@
 
 ### Stack: CapRover (`/srv/apps/caprover/`)
 
-| Container | Porta Host | Função |
-|-----------|-----------|--------|
-| captain-nginx | 80, 443 | Reverse proxy + SSL |
-| captain-captain | 3000 | Dashboard CapRover |
-| captain-certbot | interno | Renovação SSL automática |
+> ⚠️ **Stack desativado.** CapRover foi removido do ambiente.
 
-- **Status:** ✅ Ativo (sem domínio público ainda)
-- **Depende de:** nada | **Usado por:** futuras apps públicas via domínio
+| Container | Status |替代 |
+|-----------|--------|-----|
+| captain-nginx | REMOVED | — |
+| captain-captain | REMOVED | — |
+| captain-certbot | REMOVED | — |
+
+- **Depende de:** nada | **Usado por:** nada (stack removido)
 
 ---
 
 ### Stack: Voz (`/srv/apps/voice/docker-compose.yml`) — **REMOVED 2026-04-06**
 
-> ⚠️ **Stack desativado.** speaches e chatterbox foram removidos.Voice pipeline agora usa Kokoro TTS e Whisper API como serviços independentes.
+> ⚠️ **Stack desativado.** Voice pipeline agora usa Kokoro TTS, Whisper API e wav2vec2-proxy como serviços independentes ( Coolify managed).
 
 | Componente | Status |替代 |
 |-----------|--------|-----|
@@ -98,9 +99,10 @@
 
 ---
 
-### tts-bridge — **REMOVED 2026-04-06**
-
-> Serviço de bridge Kokoro → outros formatos. Removido após consolidação do stack de voz.
+### tts-bridge (Coolify managed)
+- **Container:** zappro-tts-bridge | **Porta:** 8013 (host)
+- **Função:** Bridge Kokoro → formatos alternativos, filtro de vozes PT-BR (pm_santa, pf_dora)
+- **Status:** ✅ UP (2h) | **Depende de:** Kokoro :8880 | **Usado por:** OpenClaw
 
 ---
 
@@ -132,9 +134,9 @@
 - **Container:** openclaw-qgtzrmi6771lt8l7x8rqx72f | **Porta:** 8080 (nginx)
 - **Bot:** @CEO_REFRIMIX_bot (Telegram polling)
 - **Modelo primario:** minimax/MiniMax-M2.7 (DIRETO via api.minimax.io)
-- **Visao (olhos):** liteLLM/llava (via LiteLLM -> Ollama GPU)
+- **Visao (olhos):** liteLLM/qwen2.5-vl (via LiteLLM -> Ollama GPU)
 - **TTS (boca):** Kokoro PT-BR (10.0.19.6:8880, voice pm_santa)
-- **STT (ouvidos):** Deepgram nova-3 (cloud)
+- **STT (ouvidos):** wav2vec2-proxy :8203 → Whisper API :8201 (Deepgram API format via proxy local)
 - **Config:** Volume persistente `/data/.openclaw/openclaw.json`
 - **Health:** `docker logs openclaw-qgtzrmi6771lt8l7x8rqx72f --tail 5`
 - **Debug:** `/srv/ops/ai-governance/OPENCLAW_DEBUG.md`
@@ -157,7 +159,7 @@
 |--------|--------|-------|------|----------|-------------|
 | qwen3.5 | 9,65B | Q4_K_M | ~6,5 GB | 262.144 tokens | completion, vision, tools, **thinking** |
 | gemma4 | 12B | Q4_K_M | ~7 GB | 32.768 tokens | completion, instruction |
-| llava | 7B | Q4_K_M | ~4,5 GB | 8.192 tokens | vision (multi-modal) |
+| qwen2.5-vl | 7B | Q4_K_M | ~6 GB | 8.192 tokens | vision (multi-modal) |
 | nomic-embed-text | 274M | F16 | ~0,5 GB | 8.192 tokens | embedding (1024 dims) |
 | bge-m3 | 566M | F16 | ~1,2 GB | 8.192 tokens | embedding (1024 dims) |
 
@@ -201,12 +203,12 @@ RTX 4090 (GPU CDI)
 
 OpenClaw :8080 (@CEO_REFRIMIX_bot)
     ├── → MiniMax API (cloud, direto, cerebro)
-    ├── → LiteLLM :4000 (llava=olhos via Ollama)
+    ├── → LiteLLM :4000 (qwen2.5-vl=olhos via Ollama)
     ├── → Kokoro :8880 (TTS=boca)
-    └── → Deepgram (cloud, STT=ouvidos)
+    └── → wav2vec2-proxy :8203 → Whisper API :8201 (STT=ouvidos)
 
 LiteLLM :4000 (→ llm.zappro.site)
-    ├── → Ollama :11434 (qwen3.5, gemma4, llava, nomic-embed-text)
+    ├── → Ollama :11434 (qwen3.5, gemma4, qwen2.5-vl, nomic-embed-text)
     ├── → Whisper API :8201 (STT)
     ├── → Kokoro :8012 (TTS)
     └── → litellm-db :5440 (virtual keys)
@@ -214,7 +216,7 @@ LiteLLM :4000 (→ llm.zappro.site)
 Ollama :11434
     ├── qwen3.5 (LLM, ~6.5GB VRAM)
     ├── gemma4 (LLM, ~7GB VRAM)
-    ├── llava (vision, ~4.5GB VRAM)
+    ├── qwen2.5-vl (vision, ~6GB VRAM)
     ├── bge-m3 (embeddings, ~1.2GB VRAM)
     └── nomic-embed-text (embeddings, ~0.5GB VRAM)
 
@@ -239,7 +241,7 @@ n8n :5678
 | Kokoro TTS (ONNX) | ~1,5 GB | sob demanda |
 | Qwen 3.5 Q4_K_M | ~6,5 GB | sob demanda (Ollama) |
 | Gemma4 Q4_K_M | ~7 GB | sob demanda (Ollama) |
-| Llava Q4_K_M | ~4,5 GB | sob demanda (OpenClaw vision) |
+| Llava | ~4,5 GB | REMOVED (substituido por qwen2.5-vl para OpenClaw vision) |
 | BGE-M3 F16 | ~1,2 GB | sob demanda (Ollama) |
 | Nomic-embed-text F16 | ~0,5 GB | sob demanda (Ollama) |
 | **Pior caso total** | **~25,7 GB** | **Excede! Gerenciar carga** |
@@ -254,12 +256,10 @@ n8n :5678
 ```
 1. Docker Engine (systemd)
 2. docker-compose -f /srv/apps/platform/docker-compose.yml up -d
-3. docker-compose -f /srv/apps/supabase/docker/docker-compose.yml up -d
-4. docker-compose -f /srv/apps/caprover/docker-compose.yml up -d
-5. docker-compose -f /srv/apps/voice/docker-compose.yml up -d
-6. docker-compose -f /srv/apps/monitoring/docker-compose.yml up -d
-7. docker-compose -f /srv/apps/litellm/docker-compose.yml up -d
-8. systemctl start ollama                         (Ollama — se não autostart)
+3. docker-compose -f /srv/apps/monitoring/docker-compose.yml up -d
+4. docker-compose -f /srv/apps/litellm/docker-compose.yml up -d
+5. systemctl start ollama                         (Ollama — se não autostart)
+6. Coolify: iniciar n8n, openclaw e demais apps gerenciadas
 ```
 
 ---
@@ -272,9 +272,6 @@ docker-compose -f /srv/apps/voice/docker-compose.yml up -d
 
 # Plataforma down
 docker-compose -f /srv/apps/platform/docker-compose.yml up -d
-
-# Supabase down
-docker-compose -f /srv/apps/supabase/docker/docker-compose.yml up -d
 
 # Ver todos os containers
 docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
