@@ -186,14 +186,147 @@
       "files": ["internal/swarm/worker_test.go"],
       "testRequired": true,
       "specRef": "SPEC-001-core-swarm.md"
+    },
+    {
+      "id": 11,
+      "title": "Create mirror-sync.sh script",
+      "description": "Create scripts/mirror-sync.sh for bidirectional Git remote sync (Gitea <-> GitHub).",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [],
+      "subtasks": [
+        {"id": "11.1", "title": "Create scripts/mirror-sync.sh", "status": "pending"},
+        {"id": "11.2", "title": "Add git push --mirror to both remotes", "status": "pending"},
+        {"id": "11.3", "title": "Add error handling and logging", "status": "pending"}
+      ],
+      "acceptanceCriteria": [],
+      "files": ["scripts/mirror-sync.sh"],
+      "testRequired": false,
+      "specRef": "SPEC-026.md"
+    },
+    {
+      "id": 12,
+      "title": "Create audit-branches.sh script",
+      "description": "Create scripts/audit-branches.sh to detect stale branches not on main or develop.",
+      "status": "pending",
+      "priority": "medium",
+      "dependencies": [],
+      "subtasks": [
+        {"id": "12.1", "title": "Create scripts/audit-branches.sh", "status": "pending"},
+        {"id": "12.2", "title": "Detect branches not merged to main/develop in 30+ days", "status": "pending"},
+        {"id": "12.3", "title": "Report list of stale branches", "status": "pending"}
+      ],
+      "acceptanceCriteria": [],
+      "files": ["scripts/audit-branches.sh"],
+      "testRequired": false,
+      "specRef": "SPEC-026.md"
+    },
+    {
+      "id": 13,
+      "title": "Create cleanup-branches.sh script",
+      "description": "Create scripts/cleanup-branches.sh to safely remove stale branches after approval.",
+      "status": "pending",
+      "priority": "medium",
+      "dependencies": [12],
+      "subtasks": [
+        {"id": "13.1", "title": "Create scripts/cleanup-branches.sh", "status": "pending"},
+        {"id": "13.2", "title": "Require confirmation before deletion", "status": "pending"},
+        {"id": "13.3", "title": "Delete only approved stale branches", "status": "pending"}
+      ],
+      "acceptanceCriteria": [],
+      "files": ["scripts/cleanup-branches.sh"],
+      "testRequired": false,
+      "specRef": "SPEC-026.md"
+    },
+    {
+      "id": 14,
+      "title": "Audit all branches (report stale)",
+      "description": "Run audit-branches.sh and report all stale branches across all remotes.",
+      "status": "pending",
+      "priority": "medium",
+      "dependencies": [12],
+      "subtasks": [
+        {"id": "14.1", "title": "Run audit-branches.sh on all remotes", "status": "pending"},
+        {"id": "14.2", "title": "Document stale branch list", "status": "pending"}
+      ],
+      "acceptanceCriteria": [],
+      "files": [],
+      "testRequired": false,
+      "specRef": "SPEC-026.md"
+    },
+    {
+      "id": 15,
+      "title": "Audit all tags (report non-compliant)",
+      "description": "Audit all tags for version compliance (v* format) and report non-compliant tags.",
+      "status": "pending",
+      "priority": "medium",
+      "dependencies": [],
+      "subtasks": [
+        {"id": "15.1", "title": "List all tags and check v* prefix", "status": "pending"},
+        {"id": "15.2", "title": "Report non-compliant tags", "status": "pending"}
+      ],
+      "acceptanceCriteria": [],
+      "files": [],
+      "testRequired": false,
+      "specRef": "SPEC-026.md"
+    },
+    {
+      "id": 16,
+      "title": "Verify remote sync works",
+      "description": "Test mirror-sync.sh successfully pushes to both Gitea and GitHub remotes.",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [11],
+      "subtasks": [
+        {"id": "16.1", "title": "Run mirror-sync.sh dry-run", "status": "pending"},
+        {"id": "16.2", "title": "Verify push to Gitea", "status": "pending"},
+        {"id": "16.3", "title": "Verify push to GitHub", "status": "pending"}
+      ],
+      "acceptanceCriteria": [],
+      "files": [],
+      "testRequired": false,
+      "specRef": "SPEC-026.md"
+    },
+    {
+      "id": 17,
+      "title": "Clean up stale branches (after approval)",
+      "description": "Delete approved stale branches using cleanup-branches.sh.",
+      "status": "pending",
+      "priority": "medium",
+      "dependencies": [14],
+      "subtasks": [
+        {"id": "17.1", "title": "Get approval for branch deletion list", "status": "pending"},
+        {"id": "17.2", "title": "Run cleanup-branches.sh with approved list", "status": "pending"}
+      ],
+      "acceptanceCriteria": [],
+      "files": [],
+      "testRequired": false,
+      "specRef": "SPEC-026.md"
+    },
+    {
+      "id": 18,
+      "title": "Run mirror-sync validation",
+      "description": "Final validation that mirror-sync.sh works end-to-end and all remotes are in sync.",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [16],
+      "subtasks": [
+        {"id": "18.1", "title": "Verify all branches on both remotes", "status": "pending"},
+        {"id": "18.2", "title": "Verify all tags on both remotes", "status": "pending"},
+        {"id": "18.3", "title": "Confirm sync status report", "status": "pending"}
+      ],
+      "acceptanceCriteria": [],
+      "files": [],
+      "testRequired": false,
+      "specRef": "SPEC-026.md"
     }
   ],
   "meta": {
-    "totalTasks": 10,
+    "totalTasks": 18,
     "completedTasks": 0,
-    "pendingTasks": 10,
-    "generatedAt": "2026-04-10T04:45:00Z",
+    "pendingTasks": 18,
+    "generatedAt": "2026-04-12T00:00:00Z",
     "projectName": "hvacr-swarm",
-    "version": "1.0"
+    "version": "1.1"
   }
 }
