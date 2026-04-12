@@ -1,7 +1,7 @@
 ---
 name: SPEC-029-INFISICAL-SDK-MANDATORY
 description: Infisical SDK mandatory pattern — all secrets via vault, env vars pattern, zero-tolerance hardcode policy
-status: PROPOSED
+status: ACTIVE
 priority: critical
 author: will-zappro
 date: 2026-04-12

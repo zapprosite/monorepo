@@ -6,6 +6,29 @@
 
 ---
 
+## ⚠️ OBRIGATÓRIO PARA TODOS OS LLMs — LEIA PRIMEIRO
+
+Antes de qualquer açãon neste repositório, TODO LLM **DEVE** ler:
+
+| Documento | Porquê | Prioridade |
+|-----------|--------|------------|
+| **[docs/GOVERNANCE/SECRETS-MANDATE.md](../../docs/GOVERNANCE/SECRETS-MANDATE.md)** | **Zero tolerance** — Infisical SDK mandatory, sem exceptions. Tokens hardcoded = rejeição imediata. | 🔴 CRÍTICO |
+| **[docs/GOVERNANCE/GUARDRAILS.md](../../docs/GOVERNANCE/GUARDRAILS.md)** | Operações proibidas e que requerem aprovação | 🔴 CRÍTICO |
+| **[docs/GOVERNANCE/CONTRACT.md](../../docs/GOVERNANCE/CONTRACT.md)** | Princípios inegociáveis | 🟡 ALTA |
+| **[.claude/CLAUDE.md](../../.claude/CLAUDE.md)** | Este projeto: regras Claude Code, git mirror, version lock | 🟡 ALTA |
+
+### TL;DR (para LLMs com pressa)
+
+```
+SEcrets → Infisical SDK APENAS
+Hardcoded tokens → REJEITAR COMMIT
+Não sabe se é secret? → PERGUNTE ANTES
+```
+
+**Sem ler estes documentos, não faça NADA.**
+
+---
+
 ## Arquitectura Unified (09/04/2026)
 
 ```
