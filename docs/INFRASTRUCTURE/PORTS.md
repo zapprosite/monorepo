@@ -1,7 +1,7 @@
 # Port Allocation — will-zappro
 
 **Autoridade:** [NETWORK_MAP.md](/srv/ops/ai-governance/NETWORK_MAP.md) (leia este primeiro)
-**Última verificação:** 2026-04-06 — audit homelab: removido open-webui do :8080, adicionado tts-bridge :4007, painel :4003, searxng :8888
+**Última verificação:** 2026-04-12 — audit ports: adicionado 8202/3457/8050/8051/9080, corrigido 8201/4003/4007
 
 ---
 
@@ -44,7 +44,15 @@
 |-------|----------|--------|--------|
 | **22** | sshd | host | SSH |
 | **11434** | ollama (systemd) | localhost + docker0 bridge | LLM local (gemma4, llava, nomic-embed-text) — GPU via `10.0.1.1:11434` |
-| **8201** | whisper-api (host) | localhost + docker0 bridge | Faster-Whisper small STT (OpenAI-compatible `/v1/audio/transcriptions`) |
+| **8201** | whisper-api (container) | host port 8202→8201 | Faster-Whisper small STT (OpenAI-compatible `/v1/audio/transcriptions`) — acessar via `:8202` no host |
+
+### Monitoring & Alerting (SPEC-023)
+
+| Porta | Container | Acesso | Função | Subdomínio |
+|-------|-----------|--------|--------|------------|
+| **8050** | gotify | localhost (127.0.0.1) | Notification server (alerts sink) | — |
+| **8051** | alert-sender | localhost (127.0.0.1) | Alert dispatcher → Gotify | — |
+| **9080** | promtail | host | Log scraping → Loki (:3101) | — |
 
 ---
 
@@ -53,18 +61,19 @@
 | Porta | Container | Acesso | Função | Subdomínio |
 |-------|-----------|--------|--------|------------|
 | **3300** | gitea | host | Gitea Git server | git.zappro.site |
+| **3457** | openclaw-mcp-wrapper | host | OpenClaw MCP wrapper (universal tool bridge) | — |
 | **4001** | openclaw-qgtzrmi... | localhost | OpenClaw Bot UI | bot.zappro.site |
-| **4003** | painel | host | Claude Code Panel (nginx:alpine) | painel.zappro.site |
+| **4003** | nginx:alpine (painel) | host | Claude Code Panel (nginx:alpine) | painel.zappro.site |
 | **4006** | mcp-monorepo | qgtzrmi net (10.0.19.50) | MCP Filesystem /srv/monorepo → OpenClaw | — |
 | **4011** | mcp-qdrant | qgtzrmi net (10.0.19.51) | MCP Qdrant semantic search (openclaw-memory) | — |
-| **8201** | whisper-api | host | Faster-Whisper STT (OpenAI-compatible) | — |
+| **8202** | zappro-wav2vec2 | host | Faster-Whisper STT (host mapping 8202→8201) | — |
 
 ### Novos Serviços (2026-04-03)
 
 | Porta | Container | Acesso | Função | Subdomínio |
 |-------|-----------|--------|--------|------------|
 | **4002** | — | localhost | ShieldGemma 9B (PENDENTE — nunca deployado) | — |
-| **4003** | python http.server | host | Claude Code Panel HTML estático | painel.zappro.site |
+| **4007** | zappro-tts-bridge | localhost | TTS Bridge → Kokoro :8880 (UP, ver :8013) | — |
 | **8200** | infisical | localhost | Infisical vault self-hosted | vault.zappro.site |
 
 ## ⏳ Portas RESERVADAS — Pendente Deploy (Coolify)
