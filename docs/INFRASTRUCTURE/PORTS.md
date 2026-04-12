@@ -24,8 +24,8 @@
 | **4000** | zappro-litellm | host | LiteLLM proxy (venv) | api.zappro.site / llm.zappro.site |
 | **4004** | nginx-ratelimit | host | nginx rate-limited proxy → :4000 | — |
 | **4005** | ai-router | host | AI Router (FastAPI) - intelligent routing | — |
-| **5678** | n8n | host | Workflow automation | n8n.zappro.site |
-| **6333** | zappro-qdrant | host | Qdrant REST | qdrant.zappro.site |
+| **5678** | n8n | host | Workflow automation | n8n.zappro.site ⚠️ DOWN — tunnel IP 10.0.6.3 errado, corrigir para 10.0.6.2 |
+| **6333** | qdrant (Coolify) | Coolify net (10.0.4.x) — NÃO localhost | Qdrant REST ⚠️ DOWN — tunnel usa localhost:6333 mas container não expõe ao host |
 | **6334** | zappro-qdrant | host | Qdrant gRPC | — |
 | **6379** | zappro-redis | host | Redis cache/pubsub | — |
 | **6381** | aurelia-redis | localhost | Redis (aurelia stack) | — |
@@ -53,6 +53,7 @@
 | **8050** | gotify | localhost (127.0.0.1) | Notification server (alerts sink) | — |
 | **8051** | alert-sender | localhost (127.0.0.1) | Alert dispatcher → Gotify | — |
 | **9080** | promtail | host | Log scraping → Loki (:3101) | — |
+| **8203** | zappro-wav2vec2-proxy | host | Deepgram API proxy → whisper-api (:8201) — canonical STT endpoint para OpenClaw | — |
 
 ---
 
