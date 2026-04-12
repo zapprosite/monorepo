@@ -23,9 +23,9 @@ synced: 2026-04-12
 | [llm.zappro.site](https://llm.zappro.site) | 4000 | ✅ ATIVO | LiteLLM proxy (Cloudflare Access) — :4000 |
 | [list.zappro.site](https://list.zappro.site) | 4080 | ✅ ATIVO | List service — :4080 |
 | [monitor.zappro.site](https://monitor.zappro.site) | 3100 | ✅ ATIVO | Grafana dashboard (LAN only) — :3100 |
-| [n8n.zappro.site](https://n8n.zappro.site) | 5678 | ⚠️ DOWN | n8n workflow — tunnel IP errado (10.0.6.3→correto 10.0.6.2) |
+| [n8n.zappro.site](https://n8n.zappro.site) | 5678 | ✅ ATIVO | n8n workflow — tunnel fix aplicado (302 CF Access, não DOWN) — IP 10.0.6.2 OK |
 | [painel.zappro.site](https://painel.zappro.site) | 4003 | ✅ ATIVO | Claude Code Panel (nginx:alpine) — :4003 |
-| [qdrant.zappro.site](https://qdrant.zappro.site) | 6333 | ⚠️ DOWN | Qdrant vector DB — tunnel错配置 (localhost:6333 inacessível, corrigir para IP do container) |
+| [qdrant.zappro.site](https://qdrant.zappro.site) | 6333 | ✅ ATIVO | Qdrant vector DB — tunnel fix aplicado (302 CF Access, não DOWN) — container IP OK |
 | [vault.zappro.site](https://vault.zappro.site) | 8200 | ✅ ATIVO | Infisical Secret Manager — :8200 |
 | [chat.zappro.site](https://chat.zappro.site) | 8080 | ✅ ATIVO | Open WebUI (LLM chat UI) — :8080 (Coolify) — **IP corrigido: 10.0.5.3** |
 
@@ -38,7 +38,7 @@ synced: 2026-04-12
 | Subdomínio | Origem | Ação |
 |------------|--------|------|
 | `supabase.zappro.site` | Supabase removido, tunnel ativa | Remover do cloudflared config |
-| `web.zappro.site` | nginx-ratelimit:4004, não documentado | Documentar ou remover do tunnel |
+| `web.zappro.site` | nginx-ratelimit → :4004 | Túnel órfão — nginx-ratelimit não exposto na LAN — remover do cloudflared |
 
 ## Mudanças Recentes
 - **2026-04-12**: list.zappro.site ATIVADO — tools list HTML/JS, Google OAuth direto (sem Cloudflare Access), porta 4080
