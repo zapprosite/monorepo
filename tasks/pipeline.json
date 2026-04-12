@@ -689,10 +689,105 @@
       "files": [".gitea/workflows/ai-review.yml"],
       "testRequired": false,
       "specRef": "SPEC-014-CURSOR-AI-CICD-PATTERN.md"
+    },
+    {
+      "id": 38,
+      "title": "AUDIT-FIX 1: Restart TTS Bridge com Memory Limits",
+      "description": "Fix TTS Bridge DOWN (OOM). Recriar container com --memory=512m. Verificar OpenClaw usa Bridge.",
+      "status": "pending",
+      "priority": "critical",
+      "dependencies": [],
+      "subtasks": [
+        {"id": "38.1", "title": "docker ps -a | grep tts-bridge — verificar estado atual", "status": "pending"},
+        {"id": "38.2", "title": "docker stop + rm zappro-tts-bridge", "status": "pending"},
+        {"id": "38.3", "title": "Recriar com --memory=512m --memory-swap=512m", "status": "pending"},
+        {"id": "38.4", "title": "curl localhost:8013/health — verificar 200", "status": "pending"},
+        {"id": "38.5", "title": "Verificar OpenClaw usa Bridge (não Kokoro direto)", "status": "pending"}
+      ],
+      "acceptanceCriteria": ["TTS Bridge responde 200 em localhost:8013/health", "OpenClaw config usa Bridge (não :8880)", "pm_santa funciona, pm_alex retorna 400"],
+      "files": ["docker-compose.yml"],
+      "testRequired": true,
+      "specRef": "SPEC-AUDIT-FIXES-2026-04-12.md"
+    },
+    {
+      "id": 39,
+      "title": "AUDIT-FIX 2: Ativar voice-pipeline-loop Cron",
+      "description": "Script existe em tasks/smoke-tests/ mas cron nao esta ativo. Adicionar ao crontab.",
+      "status": "pending",
+      "priority": "critical",
+      "dependencies": [],
+      "subtasks": [
+        {"id": "39.1", "title": "ls -la tasks/smoke-tests/voice-pipeline-loop.sh — verificar existencia", "status": "pending"},
+        {"id": "39.2", "title": "mkdir -p logs/voice-pipeline/ — criar dir de log", "status": "pending"},
+        {"id": "39.3", "title": "Adicionar cron: */5 * * * *", "status": "pending"},
+        {"id": "39.4", "title": "crontab -l | grep voice-pipeline — verificar", "status": "pending"},
+        {"id": "39.5", "title": "Aguardar 5 min, verificar loop.log criado", "status": "pending"}
+      ],
+      "acceptanceCriteria": ["Cron entry existe: */5 * * * *", "Script executa sem erro", "Log file criado em logs/voice-pipeline/loop.log"],
+      "files": ["tasks/smoke-tests/voice-pipeline-loop.sh", "crontab"],
+      "testRequired": true,
+      "specRef": "SPEC-AUDIT-FIXES-2026-04-12.md"
+    },
+    {
+      "id": 40,
+      "title": "AUDIT-FIX 3: Fix ZFS ARC Memory Conflict",
+      "description": "ZFS ARC tomando memoria demais (7.8GB/8GB swap). Limitar ARC a 8GB max.",
+      "status": "pending",
+      "priority": "critical",
+      "dependencies": [],
+      "subtasks": [
+        {"id": "40.1", "title": "cat /sys/module/zfs/parameters/zfs_arc_max — verificar atual", "status": "pending"},
+        {"id": "40.2", "title": "Criar /etc/modprobe.d/zfs-arc-limit.conf com zfs_arc_max=8589934592", "status": "pending"},
+        {"id": "40.3", "title": "echo 8589934592 > /sys/module/zfs/parameters/zfs_arc_max — aplicar sem reboot", "status": "pending"},
+        {"id": "40.4", "title": "update-initramfs -u — persistir para reboot", "status": "pending"},
+        {"id": "40.5", "title": "free -h apos 1h — verificar swap < 50%", "status": "pending"}
+      ],
+      "acceptanceCriteria": ["zfs_arc_max = 8589934592 (8GB)", "swap usado < 50% apos 1h", "containers estaveis sem OOM"],
+      "files": ["/etc/modprobe.d/zfs-arc-limit.conf"],
+      "testRequired": true,
+      "specRef": "SPEC-AUDIT-FIXES-2026-04-12.md"
+    },
+    {
+      "id": 41,
+      "title": "AUDIT-FIX 4: Verificar chat.zappro.site Access Policy",
+      "description": "OpenWebUI potencialmente exposto. Testar acesso e adicionar Access policy se necessario.",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [],
+      "subtasks": [
+        {"id": "41.1", "title": "curl -sf -o /dev/null -w '%{http_code}' https://chat.zappro.site/ — testar", "status": "pending"},
+        {"id": "41.2", "title": "cd /srv/ops/terraform/cloudflare && terraform plan — verificar drift", "status": "pending"},
+        {"id": "41.3", "title": "Se gap: adicionar Access policy em access.tf", "status": "pending"},
+        {"id": "41.4", "title": "terraform apply — aplicar se necessario", "status": "pending"},
+        {"id": "41.5", "title": "Testar novamente: deve retornar auth challenge", "status": "pending"}
+      ],
+      "acceptanceCriteria": ["curl https://chat.zappro.site/ retorna auth challenge ou redirect", "Terraform plan nao mostra drift", "Access policy existe em Cloudflare dashboard"],
+      "files": ["/srv/ops/terraform/cloudflare/access.tf"],
+      "testRequired": true,
+      "specRef": "SPEC-AUDIT-FIXES-2026-04-12.md"
+    },
+    {
+      "id": 42,
+      "title": "AUDIT-FIX 5: Adicionar Gitea e Infisical Backup ao Cron",
+      "description": "Só Qdrant tem backup. Adicionar Gitea dump e Infisical DB backup ao crontab.",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [],
+      "subtasks": [
+        {"id": "42.1", "title": "docker exec gitea gitea dump — testar dump manual", "status": "pending"},
+        {"id": "42.2", "title": "cp /tmp/gitea-dump-*.zip /srv/backups/ — copiar para backups", "status": "pending"},
+        {"id": "42.3", "title": "Adicionar cron Gitea: 0 2 * * *", "status": "pending"},
+        {"id": "42.4", "title": "Verificar cron: crontab -l | grep gitea-dump", "status": "pending"},
+        {"id": "42.5", "title": "Testar Infisical DB backup similar", "status": "pending"}
+      ],
+      "acceptanceCriteria": ["Gitea dump executa sem erro", "Arquivo .zip aparece em /srv/backups/", "Cron entry existe"],
+      "files": ["crontab", "/srv/backups/"],
+      "testRequired": true,
+      "specRef": "SPEC-AUDIT-FIXES-2026-04-12.md"
     }
   ],
   "meta": {
-    "totalTasks": 37,
+    "totalTasks": 42,
     "completedTasks": 0,
     "pendingTasks": 37,
     "generatedAt": "2026-04-12T10:15:00Z",
