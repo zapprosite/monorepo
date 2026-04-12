@@ -24,7 +24,7 @@ IDEA / PROBLEMA
       ↓
 /plan (Opus 4.6 discovery)
       ↓
-PRD (docs/specflow/PRD-*.md)
+PRD (docs/SPECS/PRD-*.md)
       ↓
 /spec (SPEC-*.md com slices)
       ↓
@@ -67,7 +67,7 @@ DONE / HUMAN GATE
 ```
 1. Receber descrição da feature ou problema
 2. Opus 4.6 faz discovery (lê docs/, .agent/, contexto)
-3. Gera PRD rascunho em docs/specflow/[date]-PRD-[slug].md
+3. Gera PRD rascunho em docs/SPECS/[date]-PRD-[slug].md
 4. Aguarda aprovação humana
 ```
 
@@ -82,7 +82,7 @@ DONE / HUMAN GATE
 
 ### Passo 3: /pg
 ```
-1. Lê todas as SPEC-*.md em docs/specflow/
+1. Lê todas as SPEC-*.md em docs/SPECS/
 2. Extrai tasks e ACs
 3. Gera tasks/pipeline.json no padrão TaskMaster
 ```

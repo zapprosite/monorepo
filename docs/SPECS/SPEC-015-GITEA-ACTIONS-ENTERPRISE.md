@@ -10,7 +10,7 @@ type: specification
 **Created:** 2026-04-08
 **Updated:** 2026-04-08
 **Author:** will
-**Related:** SPEC-PERPLEXITY-GITOPS, SPEC-001, SPEC-002
+**Related:** SPEC-028, SPEC-001, SPEC-002
 
 ---
 
@@ -1063,7 +1063,7 @@ act_runner exec \
 
 ## Implementation Recommendations for the Monorepo
 
-### Current State (SPEC-PERPLEXITY-GITOPS)
+### Current State (SPEC-028)
 
 The monorepo already has:
 - `.gitea/workflows/ci.yml` — CI workflow (type check, lint, build, test)
@@ -1257,7 +1257,7 @@ act_runner exec \
 
 - [Gitea Actions Documentation](https://docs.gitea.com/usage/actions/overview)
 - [act_runner Configuration](https://gitea.com/act_runner/act_runner)
-- [SPEC-PERPLEXITY-GITOPS](./SPEC-PERPLEXITY-GITOPS.md) — Existing deploy pattern
+- [SPEC-028](./SPEC-028.md) — Existing deploy pattern
 - [Gitea API v1](https://git.zappro.site/api/v1/swagger) — Swagger docs at your instance
 
 ---

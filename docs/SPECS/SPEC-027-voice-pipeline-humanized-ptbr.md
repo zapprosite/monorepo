@@ -1,4 +1,4 @@
-# SPEC-020 — Voice Pipeline Humanizado PT-BR
+# SPEC-027 — Voice Pipeline Humanizado PT-BR
 
 **Data:** 2026-04-10
 **Estado:** Partial Implementation
@@ -10,8 +10,10 @@
 
 O voice pipeline atual tem dois problemas:
 
-1. **Whisper STT** → transcreve texto mas fica "robotizado" (seta direita, ícones, pontos sem contexto)
+1. **STT** → transcreve texto mas fica "robotizado" (seta direita, ícones, pontos sem contexto)
 2. **Kokoro TTS** → lê tudo mecanicamente, não como brasileiro NATURAL
+
+> ⚠️ **SPEC-009 Audio Stack Rules:** STT deve usar wav2vec2 em :8201. Whisper é PROIBIDO como STT. Este pipeline usa humanização no processamento de texto pós-STT, não troca o motor STT.
 
 O utilizador precisa de:
 - Transcrição que entende "seta direita" = apenas texto, não lê o símbolo
@@ -23,7 +25,7 @@ O utilizador precisa de:
 ## Fluxo Desejado
 
 ```
-[AUDIO] → Whisper → LLM Humanizado PT-BR → Kokoro TTS → headset
+[AUDIO] → wav2vec2 :8201 → LLM Humanizado PT-BR → Kokoro TTS → headset
                                                     ↑
                                          texto lido como brasileiro
                                          "título" → pausa antes
@@ -37,17 +39,19 @@ O utilizador precisa de:
 
 ```
 voice.sh:
-  ffmpeg → whisper → llama3-ptbr → clipboard → Ctrl+V
+  ffmpeg → wav2vec2 :8201 → llama3-ptbr → clipboard → Ctrl+V
 
 speak.sh:
-  xclip → Kokoro direto → headset
+  xclip → TTS Bridge :8013 → Kokoro
 ```
+
+> ⚠️ **SPEC-009 Governance:** Kokoro deve ser acessado via TTS Bridge :8013, nunca diretamente.
 
 ## Arquitetura Proposta
 
 ### STT Enhancement (voice.sh)
 
-**Problema:** Whisper lê "seta direita" como "seta para direita"
+**Problema:** STT genérico lê "seta direita" como "seta para direita" sem contexto
 
 **Solução:** Post-processing com LLM para:
 1. Detetar e remover símbolos/ícones (→, ←, ★, etc)
@@ -78,10 +82,11 @@ speak.sh:
 - Few-shot prompting com 2-4 exemplos
 - Temperature 0.7-0.9 para tarefas criativas
 
-### Agent 2: Whisper PT-BR Humanized
+### Agent 2: STT Post-Processing PT-BR
 
-- Dataset: `freds0/distil-whisper-large-v3-ptbr` (fine-tuned pt-BR)
-- Pipeline: Whisper → Punctuation → Disfluency removal → Humanization
+> ⚠️ **SPEC-009:** STT usa wav2vec2 :8201. Post-processing com LLM para humanização não substitui o motor STT.
+
+- Pipeline: wav2vec2 → Punctuation → Disfluency removal → Humanization
 - Remover fillers: eh, né, sei lá, hmm
 - Expandir números e telefones por extenso
 - Usar `respunct` para pontuação em PT-BR
@@ -134,7 +139,7 @@ Texto: {input}
 
 | Ficheiro | Modificação |
 |----------|-------------|
-| `voice.sh` | Trocar whisper para `distil-whisper-large-v3-ptbr` (ou LoRA) |
+| `voice.sh` | Usar wav2vec2 :8201 (SPEC-009) + LLM humanização |
 | `voice.sh` | Adicionar prompt humanizado no LLM correction |
 | `speak.sh` | Pre-processamento texto (pausas, títulos, símbolos) |
 | `speak.sh` | Limite 3000 chars |
@@ -146,7 +151,7 @@ Texto: {input}
 | Serviço | Limite Atual | Limite Proposto |
 |---------|-------------|-----------------|
 | Kokoro TTS | 1500 chars | 3000 chars |
-| Whisper | medium | distil-whisper-large-v3-ptbr |
+| wav2vec2 STT | xlsr-53-pt | distil-wav2vec2-ptbr (futuro) |
 
 ---
 
@@ -192,6 +197,8 @@ Texto: {input}
 
 ## Referências
 
-- `freds0/distil-whisper-large-v3-ptbr` (HuggingFace)
+- `jonatasgrosman/wav2vec2-large-xlsr-53-portuguese` (STT Canonical - SPEC-009)
 - `respunct` (portuguese punctuation)
-- Llama 3.1 8B-Instruct
+- Llama 3.1 8B-Instruct (humanização)
+- SPEC-009 (audio stack imutável)
+- SPEC-018 (wav2vec2-deepgram-proxy)

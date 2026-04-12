@@ -1,3 +1,13 @@
+---
+name: change-proposal
+description: Template for infrastructure/configuration change proposals with rollback plan
+status: PROPOSED
+priority: high
+author: will-zappro
+date: YYYY-MM-DD
+specRef: GOVERNANCE/CHANGE_POLICY.md
+---
+
 # Change Proposal Template
 
 **Change ID:** [AUTO-YYYYMMDD-NNNNN]

@@ -1,16 +1,18 @@
 ---
-name: SPEC Template
-description: Template for feature specifications in specflow
-type: specification
+name: SPEC-TEMPLATE
+description: Template for feature specifications in SPECS/ directory
+status: PROPOSED
+priority: medium
+author: will-zappro
+date: YYYY-MM-DD
+specRef: related SPECs (optional)
 ---
 
 # SPEC-NNN: [Feature Name]
 
-**Status:** DRAFT | REVIEW | APPROVED | IMPLEMENTING | DONE | STALE | PROTEGIDO
-**Created:** YYYY-MM-DD
-**Updated:** YYYY-MM-DD
-**Author:** will
-**Related:** SPEC-XXX (parent), SPEC-YYY (child), ADR-NNN
+> ⚠️ **SPEC-009 Audio Stack:** Se a feature envolve STT/TTS/voice, verificar SPEC-009 antes de propor mudanças. Motor STT é wav2vec2 :8201 (PROIBIDO trocar por Whisper). TTS via TTS Bridge :8013 (PROIBIDO Kokoro direto).
+
+> ⚠️ **Governance:** Antes de modificar serviços imutáveis (Kokoro, wav2vec2, OpenClaw), verificar docs/GOVERNANCE/IMMUTABLE-SERVICES.md e .claude/rules/ para regras de aprovação.
 
 ---
 

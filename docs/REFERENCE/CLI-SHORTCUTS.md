@@ -15,7 +15,7 @@ These are the built-in slash commands available in Claude Code CLI. They invoke 
 |---------|--------------|-------------|
 | `/spec` | Start spec-driven development — write a structured SPEC-*.md before writing code | Beginning a new feature, project, or significant change with no specification yet |
 | `/plan` | Break work into small verifiable tasks with acceptance criteria and dependency ordering | After you have a spec and need to plan implementation steps |
-| `/pg` | Generate pipeline.json from SPECs in `docs/specflow/SPEC-*.md` | After writing 3+ specs, extract all tasks into a unified pipeline |
+| `/pg` | Generate pipeline.json from SPECs in `docs/SPECS/SPEC-*.md` | After writing 3+ specs, extract all tasks into a unified pipeline |
 | `/rr` | Generate a code review report (REVIEW-*.md) | Before committing significant changes, to catch issues |
 | `/se` | Scan code for exposed secrets before git push (ghp_, gho_, ghu_, ghs_, etc.) | Before any `git push` — mandatory safety gate |
 | `/hg` | Identify tasks blocked by human-approval gates | When you hit a blocker and need to know what requires human sign-off |

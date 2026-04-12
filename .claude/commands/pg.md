@@ -7,7 +7,7 @@ argument-hint: [--spec <path>|--all]
 
 ## Processo
 
-1. Ler todos docs/specflow/SPEC-*.md com status PENDING ou IN_PROGRESS
+1. Ler todos docs/SPECS/SPEC-*.md com status PENDING ou IN_PROGRESS
 
 2. Para cada SPEC extrair:
    - ID único (SPEC-001, SPEC-002...)
@@ -32,7 +32,7 @@ argument-hint: [--spec <path>|--all]
       "acceptanceCriteria": ["AC-001"],
       "files": ["apps/api/src/..."],
       "testRequired": true,
-      "specRef": "docs/specflow/SPEC-xxx.md"
+      "specRef": "docs/SPECS/SPEC-xxx.md"
     }
   ],
   "meta": {

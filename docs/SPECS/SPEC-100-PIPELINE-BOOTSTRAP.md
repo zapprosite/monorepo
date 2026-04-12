@@ -199,7 +199,7 @@ Unificar `.claude/commands/` (wrapper commands) com `.agent/workflows/` (Antigra
 │   ├── pipeline-state.json    # Estado persistente
 │   └── bootstrap-effect-schema.json  # NOVO: JSON Schema
 │
-└── docs/specflow/
+└── docs/SPECS/
     ├── SPEC-100-PIPELINE-BOOTSTRAP.md  # ESTE DOCUMENTO
     └── SPEC-015-GITEA-ACTIONS-ENTERPRISE.md  # CI/CD enterprise spec
 ```

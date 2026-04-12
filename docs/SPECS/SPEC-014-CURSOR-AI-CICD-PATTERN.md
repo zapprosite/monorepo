@@ -4,7 +4,7 @@
 **Created:** 2026-04-08
 **Updated:** 2026-04-08
 **Author:** will
-**Related:** SPEC-PERPLEXITY-GITOPS, SPEC-010 (OpenClaw Agents Kit), SPEC-011 (Agency Suite)
+**Related:** SPEC-028, SPEC-010 (OpenClaw Agents Kit), SPEC-011 (Agency Suite)
 
 ---
 
@@ -25,7 +25,7 @@ Synthesize state-of-the-art CI/CD loop patterns from Cursor AI, Lovable, Bolt, a
 | TaskMaster (GitHub) | TDD workflow, RED→GREEN→COMMIT cycle, autopilot | High |
 | Lovable Dev (context7) | GitHub integration, pinning, branching strategy | Medium |
 | Bolt.new (context7) | AI full-stack, Expo deploy, one-click deployment | Medium |
-| SPEC-PERPLEXITY-GITOPS | Gitea + Coolify GitOps pattern (production) | High |
+| SPEC-028 | Gitea + Coolify GitOps pattern (production) | High |
 
 ---
 
@@ -255,7 +255,7 @@ This pattern appears across OpenClaw agents (SPEC-011), TaskMaster, and Cursor s
 │   └── scheduled_tasks.json    # Cron jobs
 ├── apps/                      # Application code
 ├── docs/                      # Documentation
-└── docs/specflow/             # SPEC-driven development
+└── docs/SPECS/             # SPEC-driven development
     ├── SPEC-001-workflow-performatico.md
     ├── SPEC-002-homelab-network-refactor.md
     └── SPEC-014-CURSOR-AI-CICD-PATTERN.md  # This document
@@ -368,7 +368,7 @@ tm autopilot start → RED phase (write failing test)
 
 ### 5.3 Gitea Actions Workflow for AI Agents
 
-**Existing pattern from SPEC-PERPLEXITY-GITOPS:**
+**Existing pattern from SPEC-028:**
 ```yaml
 name: Deploy Perplexity Agent
 on:
@@ -453,7 +453,7 @@ jobs:
 
 1. **Add Cursor CLI to CI pipeline** — enable `agent -p` in Gitea Actions for PR review
 2. **Implement AI review gate** — block merges on critical security findings
-3. **Migrate SPEC-PERPLEXITY-GITOPS pattern** — extend to other apps in monorepo
+3. **Migrate SPEC-028 pattern** — extend to other apps in monorepo
 
 ### 6.2 Short-term (2-4 Weeks)
 
@@ -597,4 +597,4 @@ jobs:
 ---
 
 **Last updated:** 2026-04-08
-**Sources:** Cursor docs (Context7), TaskMaster GitHub, Lovable Dev Guide, Bolt.new docs, SPEC-PERPLEXITY-GITOPS
+**Sources:** Cursor docs (Context7), TaskMaster GitHub, Lovable Dev Guide, Bolt.new docs, SPEC-028

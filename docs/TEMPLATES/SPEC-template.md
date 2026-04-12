@@ -1,3 +1,13 @@
+---
+name: SPEC-template
+description: SPEC template for spec-driven development workflow
+status: PROPOSED
+priority: medium
+author: will-zappro
+date: YYYY-MM-DD
+specRef: SPEC-TEMPLATE.md
+---
+
 # SPEC — [Nome]
 
 **PRD:** [link]

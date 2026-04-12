@@ -156,7 +156,7 @@ infisical secrets set GOOGLE_CLIENT_SECRET=<NOVO_CLIENT_SECRET> --env=prod
 
 ## Referências
 
-- SPEC-019: `/srv/monorepo/docs/specflow/SPEC-019-openwebui-repair.md`
+- SPEC-019: `/srv/monorepo/docs/SPECS/SPEC-019-openwebui-repair.md`
 - Docker compose: `/data/coolify/services/wbmqefxhd7vdn2dme3i6s9an/docker-compose.yml`
 - Environment: `/data/coolify/services/wbmqefxhd7vdn2dme3i6s9an/.env`
 - Terraform access: `/srv/ops/terraform/cloudflare/access.tf`

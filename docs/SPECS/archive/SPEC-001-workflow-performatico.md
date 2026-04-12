@@ -192,7 +192,7 @@ curl -sf http://localhost:8080/health &>/dev/null \
 
 | Task | Acceptance | Verify | Files |
 |------|------------|--------|-------|
-| 2.1 | Criar SPEC-001-workflow-performatico.md | Commit no main | `docs/specflow/SPEC-001-workflow-performatico.md` |
+| 2.1 | Criar SPEC-001-workflow-performatico.md | Commit no main | `docs/SPECS/SPEC-001-workflow-performatico.md` |
 | 2.2 | Criar `pipeline.json` com workflow como código | Agent consegue ler e executar | `.claude/pipeline.json` |
 | 2.3 | Skill `/audit-workflow` funcional e documentada | `/audit-workflow` lista últimas 50 execuções | `.claude/skills/workflow-performatico/` |
 | 2.4 | Health check script cobre todas as 3 tools | Script retorna OK/DOWN para cada tool | `.claude/skills/workflow-performatico/health-check.sh` |
@@ -209,7 +209,7 @@ curl -sf http://localhost:8080/health &>/dev/null \
 
 | Task | Acceptance | Verify | Files |
 |------|------------|--------|-------|
-| 4.1 | Spec separado para multi-host | Spec-002 | `docs/specflow/SPEC-002-multi-host.md` |
+| 4.1 | Spec separado para multi-host | Spec-002 | `docs/SPECS/SPEC-002-multi-host.md` |
 | 4.2 | Shared memory entre instâncias | Qdrant collection `shared-memory` | Infra |
 | 4.3 | OpenClaw como orchestration layer | OpenClaw sabe estado de todos os hosts | OpenClaw skills |
 
@@ -229,7 +229,7 @@ curl -sf http://localhost:8080/health &>/dev/null \
 
 ## Verification Checklist
 
-- [ ] SPEC-001 criado em `docs/specflow/`
+- [ ] SPEC-001 criado em `docs/SPECS/`
 - [ ] Pipeline.json válido (`jq .workflow .claude/pipeline.json`)
 - [ ] Audit log funciona (`~/.claude/audit/workflow-*.jsonl`)
 - [ ] Health check cobre Claude Code CLI, OpenCode CLI, OpenClaw

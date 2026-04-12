@@ -24,7 +24,7 @@
 
 **Problema:** Container não deployado, site down por ~4h
 **Root Cause:** Gap entre Terraform (DNS) e Coolify (Deploy)
-**Prevenção:** Verificar todos os itens do checklist em SPEC-PERPLEXITY-GITOPS.md
+**Prevenção:** Verificar todos os itens do checklist em SPEC-028-PERPLEXITY-GITOPS.md
 
 **Arquivo:** `INCIDENT-2026-04-08-perplexity-gitops-gap.md`
 

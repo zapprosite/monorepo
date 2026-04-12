@@ -71,7 +71,7 @@ Pipeline Completo:
    - Whisper (any variant)
    - Coqui STT
    - Silero STT
-   - Deepgram (cloud fallback OK, mas não substituir local)
+   - Deepgram (cloud substituindo local — Proxy Deepgram via wav2vec2-proxy :8203 é o path correto)
 
 ### ⚠️ REQUER APROVAÇÃO
 
@@ -117,7 +117,7 @@ curl -s -X POST http://localhost:8201/v1/audio/transcriptions \
 ## Referências
 
 - Skill: `/srv/monorepo/docs/OPERATIONS/SKILLS/wav2vec2-health-check.md` (a criar)
-- SPEC: `/srv/monorepo/docs/specflow/SPEC-004-kokoro-tts-kit.md`
+- SPEC: `/srv/monorepo/docs/SPECS/SPEC-004-kokoro-tts-kit.md`
 - GUARDRAILS: `/srv/monorepo/docs/GOVERNANCE/GUARDRAILS.md`
 
 ---

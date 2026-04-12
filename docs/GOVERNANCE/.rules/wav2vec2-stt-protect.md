@@ -58,8 +58,8 @@ TTS = Text-to-Speech = Kokoro (texto → áudio)
 ## Protected By
 
 - `/srv/monorepo/docs/GOVERNANCE/GUARDRAILS.md` (chattr +i)
-- `/srv/monorepo/docs/specflow/SPEC-005-wav2vec2-stt-kit.md`
-- `/srv/monorepo/docs/specflow/SPEC-004-kokoro-tts-kit.md`
+- `/srv/monorepo/docs/SPECS/SPEC-005-wav2vec2-stt-kit.md`
+- `/srv/monorepo/docs/SPECS/SPEC-004-kokoro-tts-kit.md`
 
 ## Violation Reporting
 

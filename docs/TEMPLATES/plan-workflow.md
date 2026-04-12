@@ -1,3 +1,13 @@
+---
+name: plan-workflow
+description: Workflow for generating PRD documents using /plan command
+status: PROPOSED
+priority: medium
+author: will-zappro
+date: YYYY-MM-DD
+specRef: SPEC-TEMPLATE.md
+---
+
 # /plan — Geração de PRD com Opus 4.6
 
 Gera PRD (Product Requirements Document) a partir de uma ideia ou problema.
@@ -31,4 +41,4 @@ Usa `docs/TEMPLATES/PRD-template.md` como base.
 
 ## Output
 
-PRD salvo em: `docs/specflow/[YYYYMMDD]-PRD-[slug].md`
+PRD salvo em: `docs/SPECS/[YYYYMMDD]-PRD-[slug].md`

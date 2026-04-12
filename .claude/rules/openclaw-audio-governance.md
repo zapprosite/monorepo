@@ -8,7 +8,7 @@
 
 ## Core Rule — Audio Stack Imutavel
 
-O OpenClaw Bot tem uma configuracao de audio canonical que NENHUM LLM pode propor alteracoes. Antes de sugerir qualquer mudanca relacionada a voz, STT, TTS, ou LLM, o LLM DEVE verificar `docs/specflow/SPEC-009-openclaw-persona-audio-stack.md`.
+O OpenClaw Bot tem uma configuracao de audio canonical que NENHUM LLM pode propor alteracoes. Antes de sugerir qualquer mudanca relacionada a voz, STT, TTS, ou LLM, o LLM DEVE verificar `docs/SPECS/SPEC-009-openclaw-persona-audio-stack.md`.
 
 ---
 
@@ -148,7 +148,7 @@ O OpenClaw tem identity configurado:
 
 Antes de propor qualquer mudanca relacionada a audio ou voz:
 
-1. Ler `docs/specflow/SPEC-009-openclaw-persona-audio-stack.md`
+1. Ler `docs/SPECS/SPEC-009-openclaw-persona-audio-stack.md`
 2. Verificar se a mudanca respeita as regras acima
 3. Se a mudanca envolver qualquer item em "PROIBIDO", RECUSAR
 4. Se nao tiver certeza, perguntar a will antes de continuar

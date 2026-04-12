@@ -47,8 +47,9 @@
 | [SPEC-CURSOR-LOOP](./SPEC-CURSOR-LOOP.md) | Autonomous Cursor AI-like Loop with Gitea Sandbox | 2026-04-09 | will |
 | [SPEC-TRANSFORM-MONOREPO](./SPEC-TRANSFORM-MONOREPO.md) | Monorepo Refinement + Template Extraction | 2026-04-09 | will + agents |
 | [SPEC-TROCAR-ROUPA](./SPEC-TROCAR-ROUPA.md) | Monorepo + ~/.claude Template Clothing Swap | 2026-04-09 | will |
-| [SPEC-013-openclaw-ceo-mix-voice-stack](./SPEC-013-openclaw-ceo-mix-voice-stack.md) | OpenClaw CEO MIX — Voice Stack Definitiva | 2026-04-09 | will + Claude Code |
-| [SPEC-014-openclaw-tts-route-fix](./SPEC-014-openclaw-tts-route-fix.md) | OpenClaw TTS Route — Corrigir Bridge + Voice | 2026-04-09 | will + Claude Code |
+| [SPEC-024-UNIFIED-CLAUDE-AGENT-MONOREPO](./SPEC-024-UNIFIED-CLAUDE-AGENT-MONOREPO.md) | Unified Claude Agent + Monorepo CI/CD Architecture | 2026-04-08 | will |
+| [SPEC-025-openclaw-ceo-mix-voice-stack](./SPEC-025-openclaw-ceo-mix-voice-stack.md) | OpenClaw CEO MIX — Voice Stack Definitiva | 2026-04-09 | will + Claude Code |
+| [SPEC-026-openclaw-tts-route-fix](./SPEC-026-openclaw-tts-route-fix.md) | OpenClaw TTS Route — Corrigir Bridge + Voice | 2026-04-09 | will + Claude Code |
 
 ---
 
@@ -56,7 +57,7 @@
 
 | # | Title | Date | Author |
 |---|-------|------|--------|
-| [SPEC-PERPLEXITY-GITOPS](./SPEC-PERPLEXITY-GITOPS.md) | Perplexity Agent — GitOps Deployment Pattern | 2026-04-08 | will |
+| [SPEC-PERPLEXITY-GITOPS](./SPEC-028-PERPLEXITY-GITOPS.md) | Perplexity Agent — GitOps Deployment Pattern | 2026-04-08 | will |
 
 ---
 
@@ -64,8 +65,8 @@
 
 | # | Title | Date | Author |
 |---|-------|------|--------|
-| [SPEC-013-CLAUDE-CODE-CLI-INTEGRATION](./SPEC-013-CLAUDE-CODE-CLI-INTEGRATION.md) | Claude Code CLI Integration | 2026-04-08 | will |
-| [SPEC-020-voice-pipeline-humanized-ptbr](./SPEC-020-voice-pipeline-humanized-ptbr.md) | Voice Pipeline Humanizado PT-BR | 2026-04-10 | will |
+| [SPEC-023-CLAUDE-CODE-CLI-INTEGRATION](./SPEC-023-CLAUDE-CODE-CLI-INTEGRATION.md) | Claude Code CLI Integration | 2026-04-08 | will |
+| [SPEC-027-voice-pipeline-humanized-ptbr](./SPEC-027-voice-pipeline-humanized-ptbr.md) | Voice Pipeline Humanizado PT-BR | 2026-04-10 | will |
 
 ---
 
@@ -87,7 +88,7 @@
 | [SPEC-020-openwebui-openclaw-bridge](./SPEC-020-openwebui-openclaw-bridge.md) | OpenWebUI ↔ OpenClaw Bridge | 2026-04-09 | will |
 | [SPEC-021-CLAUDE-CODE-CURSOR-LOOP](./SPEC-021-CLAUDE-CODE-CURSOR-LOOP.md) | Claude Code CLI: Cursor-Loop + Skills Architecture | 2026-04-10 | will |
 | [SPEC-022-CURSOR-LOOP-CLI-SOLUTIONS](./SPEC-022-CURSOR-LOOP-CLI-SOLUTIONS.md) | Cursor-Loop CLI Solutions — Barreiras e Soluções Full-CLI | 2026-04-10 | will |
-| [SPEC-013-UNIFIED-CLAUDE-AGENT-MONOREPO](./SPEC-013-UNIFIED-CLAUDE-AGENT-MONOREPO.md) | Unified Claude Agent + Monorepo CI/CD Architecture | 2026-04-08 | will |
+| [SPEC-013-UNIFIED-CLAUDE-AGENT-MONOREPO](./SPEC-024-UNIFIED-CLAUDE-AGENT-MONOREPO.md) | Unified Claude Agent + Monorepo CI/CD Architecture | 2026-04-08 | will |
 | [SPEC-PLANNING-PIPELINE](./SPEC-PLANNING-PIPELINE.md) | Enterprise Planning Pattern | 2026-04-09 | will |
 
 ---
@@ -98,11 +99,10 @@
 |--------|-------|
 | PROTEGIDO | 3 |
 | DONE | 3 |
-| IMPLEMENTING | 6 |
-| APPROVED | 1 |
+| IMPLEMENTING | 9 |
 | REVIEW | 2 |
-| DRAFT | 14 |
-| **Total** | **29** |
+| DRAFT | 15 |
+| **Total** | **32** |
 
 ---
 
@@ -110,22 +110,20 @@
 
 | Topic | Related SPECs |
 |-------|-------------|
-| Voice Pipeline (PT-BR) | SPEC-004, SPEC-005, SPEC-009, SPEC-013 (ceo-mix), SPEC-014 (tts-route-fix), SPEC-016, SPEC-018, SPEC-020 (humanized) |
-| OpenClaw Bot | SPEC-007, SPEC-009, SPEC-010, SPEC-012, SPEC-013 (ceo-mix), SPEC-014 (tts-route-fix), SPEC-020 (bridge) |
+| Voice Pipeline (PT-BR) | SPEC-004, SPEC-005, SPEC-009, SPEC-025, SPEC-026, SPEC-016, SPEC-018, SPEC-027 |
+| OpenClaw Bot | SPEC-007, SPEC-009, SPEC-010, SPEC-012, SPEC-025, SPEC-026, SPEC-020 (bridge) |
 | Cursor-Loop | SPEC-CURSOR-LOOP, SPEC-021, SPEC-022, SPEC-100 |
-| CI/CD Enterprise | SPEC-015, SPEC-PERPLEXITY-GITOPS, SPEC-100 |
+| CI/CD Enterprise | SPEC-015, SPEC-028, SPEC-100 |
 | Monorepo Transform | SPEC-TRANSFORM-MONOREPO, SPEC-TROCAR-ROUPA, SPEC-PLANNING-PIPELINE |
 | OpenWebUI | SPEC-019, SPEC-020 (bridge + humanized) |
-| Claude Code CLI | SPEC-013 (cli-integration), SPEC-014 (cursor-ai), SPEC-021 |
+| Claude Code CLI | SPEC-023, SPEC-014-CURSOR-AI-CICD-PATTERN, SPEC-021 |
+| Monitoring & Self-Healing | SPEC-023-unified-monitoring-self-healing, SPEC-023-unified-healing-cli |
 
 ---
 
 ## Notes
 
-- **SPEC-001** appears twice: one for template fusion (DONE), one for workflow performatico (DRAFT)
-- **SPEC-002** appears twice: one for network refactor (DRAFT), one for monitor agent (DRAFT)
-- **SPEC-013** appears multiple times with different suffixes: CLI-INTEGRATION, openclaw-ceo-mix-voice-stack, UNIFIED-CLAUDE-AGENT-MONOREPO
-- **SPEC-014** appears twice: Cursor AI CI/CD Pattern (DRAFT) and OpenClaw TTS Route Fix (IMPLEMENTING)
-- **SPEC-020** appears twice: OpenWebUI↔OpenClaw Bridge (DRAFT) and Voice Pipeline Humanizado PT-BR (REVIEW)
-- PROTEGIDO specs use `PROTEGIDO — NÃO ALTERAR` status and require explicit approval for any changes
+- SPEC numbers were reorganized to eliminate conflicts. Previously duplicate numbers (SPEC-013, SPEC-014, SPEC-020) now have unique IDs (SPEC-023 to SPEC-028).
+- PROTEGIDO specs use `PROTEGIDO — NÃO ALTERAR` status and require explicit approval for any changes.
+- SPEC-023-unified-monitoring-self-healing.md and SPEC-023-unified-healing-cli.md are the authoritative docs for monitoring (split from the original SPEC-023).
 - SPEC-011 (OpenClaw Agency) was read but not found in glob — may be missing or renamed

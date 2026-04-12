@@ -1,3 +1,13 @@
+---
+name: PRD-template
+description: PRD template for product requirements documentation
+status: PROPOSED
+priority: medium
+author: will-zappro
+date: YYYY-MM-DD
+specRef: SPEC-TEMPLATE.md
+---
+
 # PRD — [Nome da Feature]
 
 **Data:** YYYY-MM-DD

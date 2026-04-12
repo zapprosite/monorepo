@@ -124,7 +124,7 @@ Implementar um loop autônomo "Cursor AI-like" onde:
 │   ├── git-mirror-gitea-github.md   # Merge + new branch
 │   ├── git-ship.md                 # Ship to PR
 │   └── code-review-workflow.md      # AI review
-└── docs/specflow/
+└── docs/SPECS/
     └── SPEC-CURSOR-LOOP.md          # ESTE DOCUMENTO
 ```
 

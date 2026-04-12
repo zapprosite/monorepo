@@ -136,7 +136,7 @@ voice-pipeline-loop.sh
 
 - `docs/INCIDENTS/CONSOLIDATED-PREVENTION-PLAN.md`
 - `tasks/smoke-tests/pipeline-openclaw-voice.sh`
-- `docs/specflow/SPEC-014-openclaw-tts-route-fix.md`
+- `docs/SPECS/SPEC-026-openclaw-tts-route-fix.md`
 - `.claude/rules/openclaw-audio-governance.md`
 
 ---

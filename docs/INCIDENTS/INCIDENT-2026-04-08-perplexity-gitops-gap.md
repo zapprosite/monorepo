@@ -97,7 +97,7 @@ curl -s -o /dev/null -w "%{http_code}" https://web.zappro.site/_stcore/health
 ### D. Rollback Automático
 Se smoke test falha após timeout, o workflow busca o commit anterior e faz rollback automaticamente.
 
-### E. SPEC-PERPLEXITY-GITOPS.md
+### E. SPEC-028-PERPLEXITY-GITOPS.md
 Documentação completa do padrão para evitar gap futuro.
 
 ---
@@ -149,7 +149,7 @@ tail -20 /srv/ops/logs/healing.log
 
 ## Referências
 
-- **SPEC:** `/srv/monorepo/docs/specflow/SPEC-PERPLEXITY-GITOPS.md`
+- **SPEC:** `/srv/monorepo/docs/SPECS/SPEC-028-PERPLEXITY-GITOPS.md`
 - **Workflow:** `/.gitea/workflows/deploy-perplexity-agent.yml`
 - **Scripts:** `/home/will/.claude/skills/gitea-coolify-deploy/scripts/`
 - **Guia Operacional:** `/srv/monorepo/docs/OPERATIONS/guide.md`

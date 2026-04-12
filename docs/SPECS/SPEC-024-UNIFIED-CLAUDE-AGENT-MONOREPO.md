@@ -1,5 +1,5 @@
 ---
-name: SPEC-013-UNIFIED-CLAUDE-AGENT-MONOREPO
+name: SPEC-024-UNIFIED-CLAUDE-AGENT-MONOREPO
 description: Unified Claude Code + Antigravity Kit + Gitea Actions architecture for enterprise CI/CD loop
 type: specification
 ---
@@ -211,7 +211,7 @@ Unify all AI tooling in the monorepo into a single coherent system: `.claude/` (
 ├── packages/                         # Workspace packages
 ├── docs/                            # Documentation
 │   └── specflow/                    # SPEC-driven development
-│       ├── SPEC-013-UNIFIED-CLAUDE-AGENT-MONOREPO.md  # THIS FILE
+│       ├── SPEC-024-UNIFIED-CLAUDE-AGENT-MONOREPO.md  # THIS FILE
 │       └── SPEC-TEMPLATE.md
 │
 └── README.md

@@ -43,7 +43,7 @@ O template `claude-code-minimax` tinha skills e agents avançados mas não estav
 │   └── pre-commit  (secrets audit)
 ├── scheduled_tasks.json  (9 cron jobs)
 └── CLAUDE.md (actualizado com specflow)
-docs/specflow/
+docs/SPECS/
 ├── SPEC-README.md
 ├── SPEC-TEMPLATE.md
 ├── discovery.md
@@ -93,7 +93,7 @@ jq '.tasks[].id' .claude/scheduled_tasks.json
 git config --get core.hooksPath  # → .claude/hooks
 
 # Verificar SPEC
-ls docs/specflow/SPEC-*.md
+ls docs/SPECS/SPEC-*.md
 ```
 
 ## Commit

@@ -148,7 +148,7 @@ Este documento define o padrão estável de deployment para o `perplexity-agent`
 │       ├── Dockerfile
 │       ├── docker-compose.yml
 │       └── ... (app files)
-└── docs/specflow/
+└── docs/SPECS/
     └── SPEC-PERPLEXITY-GITOPS.md        # Esta spec
 
 /home/will/.claude/skills/

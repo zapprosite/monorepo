@@ -1,3 +1,13 @@
+---
+name: new-schema
+description: Template for proposing new PostgreSQL schemas
+status: PROPOSED
+priority: medium
+author: will-zappro
+date: YYYY-MM-DD
+specRef: REFERENCE/DOC_CATALOG.md
+---
+
 # Template: Proposta de Novo Schema
 
 **Instruções:** Copiar este arquivo, preencher todos os campos, e aguardar aprovação antes de criar o schema.

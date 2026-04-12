@@ -158,7 +158,7 @@ docker run -d \
 
 ## Referencias
 
-- SPEC-013-openclaw-ceo-mix-voice-stack.md
+- SPEC-025-openclaw-ceo-mix-voice-stack.md
 - docs/OPERATIONS/SKILLS/tts-bridge.py
 - docs/guides/openclaw-mcp-setup.md
 - .claude/rules/openclaw-audio-governance.md

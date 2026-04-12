@@ -69,7 +69,7 @@ kokoro-tts:
 ## Protected By
 
 - `/srv/monorepo/docs/GOVERNANCE/GUARDRAILS.md` (chattr +i)
-- `/srv/monorepo/docs/specflow/SPEC-004-kokoro-tts-kit.md`
+- `/srv/monorepo/docs/SPECS/SPEC-004-kokoro-tts-kit.md`
 - `/srv/monorepo/docs/OPERATIONS/SKILLS/kokoro-health-check.md`
 
 ## Violation Reporting

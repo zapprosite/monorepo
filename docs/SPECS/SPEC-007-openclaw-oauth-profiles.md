@@ -127,7 +127,7 @@ scripts/
 ├── perplexity-query.sh                      # CLI query direta
 └── oauth-chrome-profiles.sh                 # setup dirs + validation
 
-docs/specflow/
+docs/SPECS/
 └── SPEC-007-openclaw-oauth-profiles.md     # esta spec
 
 apps/openclaw/
