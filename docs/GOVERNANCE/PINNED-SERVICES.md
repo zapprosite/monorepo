@@ -1,6 +1,3 @@
-<<<<<<< Updated upstream
-# PINNED-SERVICES — Serviços que NÃO DEVEM Mudar
-=======
 ---
 version: 2.0
 author: will-zappro
@@ -8,7 +5,6 @@ date: 2026-04-12
 ---
 
 # PINNED-SERVICES — Regra de Imutabilidade dos Serviços
->>>>>>> Stashed changes
 
 **Versão:** 1.0 | **Data:** 2026-04-08
 **Propósito:** Registry de configurações estáveis que outros LLMs não devem "melhorar" ou "refatorar"
@@ -411,11 +407,6 @@ All tests passed!
 
 ---
 
-<<<<<<< Updated upstream
-**Criado:** 2026-04-08
-**Última Verificação:** 2026-04-08
-**Próxima Verificação:** 2026-04-15 (semanal)
-=======
 ## ANTIGOVERNANCE
 
 Qualquer LLM que propor alteração em serviço PINNED sem MASTER_PASSWORD está violando esta regra.
@@ -449,7 +440,7 @@ Se usuário insiste:
 
 **Criado:** 2026-04-12
 **Última verificação:** 2026-04-12
->>>>>>> Stashed changes
+**Autoridade:** will-zappro
 **Autoridade:** will-zappro
 
 **Documentos Relacionados:**
