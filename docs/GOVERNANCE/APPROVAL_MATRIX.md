@@ -1,13 +1,13 @@
 ---
 version: 1.0
 author: will-zappro
-date: 2026-03-16
+date: 2026-04-12
 ---
 
 # Approval Matrix: Decision Table
 
 **Host:** will-zappro
-**Effective:** 2026-03-16
+**Effective:** 2026-04-12
 
 This is the single source of truth for "can I do this?" decisions.
 
@@ -191,6 +191,20 @@ This is the single source of truth for "can I do this?" decisions.
 
 ---
 
+## VOICE PIPELINE SERVICES
+
+### Voice Pipeline Services
+
+| Operation | Service | Can Execute | Requires Approval |
+|-----------|---------|-------------|-------------------|
+| TTS Bridge restart | zappro-tts-bridge | Autoheal (3/h limit) | will-zappro |
+| Voice change | pm_santa / pf_dora | NEVER | will-zappro |
+| OpenClaw config edit | openclaw-qgtzrmi | NEVER | will-zappro |
+| Kokoro container stop | zappro-kokoro | NEVER | will-zappro |
+| wav2vec2 STT change | zappro-wav2vec2 | NEVER | will-zappro |
+
+---
+
 ## SUMMARY TABLE (By Risk Level)
 
 ### SAFE (No approval needed)
@@ -224,6 +238,6 @@ This is the single source of truth for "can I do this?" decisions.
 
 ---
 
-**Last Updated:** 2026-03-16
+**Last Updated:** 2026-04-12
 **Enforcement:** Check before every action
 **Questions:** Consult CONTRACT.md, GUARDRAILS.md, or ask human
