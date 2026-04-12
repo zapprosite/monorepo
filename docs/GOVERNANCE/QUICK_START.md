@@ -1,3 +1,9 @@
+---
+version: 1.0
+author: will-zappro
+date: 2026-03-16
+---
+
 # Governança IA — Guia de Início Rápido
 
 **Primeira vez aqui?** Comece por este arquivo (5 minutos)
