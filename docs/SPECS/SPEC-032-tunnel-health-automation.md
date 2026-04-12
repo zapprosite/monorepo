@@ -1,7 +1,7 @@
 # SPEC-032 — Homelab Tunnel Health Automation
 
 **Date:** 2026-04-12
-**Status:** PENDING
+**Status:** IN_PROGRESS
 **Type:** Operations / Self-Healing
 
 ---
