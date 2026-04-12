@@ -33,7 +33,7 @@ STT → wav2vec2 :8201 → texto
 
 ### REGRA: wav2vec2-proxy é o STT canonical
 
-O OpenClaw usa Deepgram API format mas através de um proxy local (wav2vec2-deepgram-proxy).
+O OpenClaw usa Deepgram API format mas através de um proxy local (wav2vec2-deepgram-proxy, SPEC-018).
 
 **CORRETO:**
 ```
@@ -41,6 +41,7 @@ OpenClaw → api.deepgram.com → wav2vec2-proxy (:8203) → whisper-api (:8201)
 ```
 
 O proxy implementa a API Deepgram (/v1/listen) e faz passthrough para whisper-api (wav2vec2).
+Container `zappro-wav2vec2-proxy` está operacional na porta 8203.
 Enhancement PT-BR feito via Ollama (llama3-portuguese-tomcat-8b-instruct-q8).
 
 **PROIBIDO — NUNCA sugerir:**
