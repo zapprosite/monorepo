@@ -1,4 +1,8 @@
-"""Credential management using Infisical SDK."""
+"""Credential management using Infisical REST API via curl + jq.
+
+Replaces infisical-sdk dependency to avoid pydantic version conflicts.
+Uses curl subprocess against Infisical v3 REST endpoint — zero Python SDK deps.
+"""
 import os
 import subprocess
 from typing import Optional
@@ -6,6 +10,16 @@ from typing import Optional
 INFISICAL_PROJECT_ID = "e42657ef-98b2-4b9c-9a04-46c093bd6d37"
 INFISICAL_ENV = "dev"
 TOKEN_PATH = "/srv/ops/secrets/infisical.service-token"
+
+# INFISICAL_HOST defaults to localhost (host execution).
+# When running in Docker, docker-compose.scraper.yml sets:
+#   INFISICAL_HOST=http://host.docker.internal:8200
+INFISICAL_HOST = os.environ.get("INFISICAL_HOST", "http://127.0.0.1:8200")
+
+# Path to the bash helper that calls curl + jq
+FETCH_SECRET_SCRIPT = os.environ.get(
+    "FETCH_SECRET_SCRIPT", "/srv/hvacr-swarm/scripts/fetch-secret.sh"
+)
 
 # Brand credential keys
 BRAND_CREDENTIALS = {
@@ -29,31 +43,32 @@ BRAND_CREDENTIALS = {
 
 
 def _fetch_infisical_secret(secret_key: str) -> str:
-    """Fetch a secret from Infisical vault."""
-    script = f"""
-from infisical_sdk import InfisicalSDKClient
-import os
-token = os.environ.get('INFISICAL_TOKEN') or open('{TOKEN_PATH}').read().strip()
-client = InfisicalSDKClient(host='http://127.0.0.1:8200', token=token)
-secrets = client.secrets.list_secrets(
-    project_id='{INFISICAL_PROJECT_ID}',
-    environment_slug='{INFISICAL_ENV}',
-    secret_path='/'
-)
-for s in secrets.secrets:
-    if s.secret_key == '{secret_key}':
-        print(s.secret_value)
-        break
-"""
+    """Fetch a secret from Infisical vault via curl + jq (no SDK required).
+
+    Calls fetch-secret.sh which uses the Infisical v3 REST API directly.
+    Works on host and inside Docker — no infisical-sdk / pydantic dependency.
+    """
+    env = os.environ.copy()
+    env["INFISICAL_HOST"] = INFISICAL_HOST
+    env["INFISICAL_PROJECT_ID"] = INFISICAL_PROJECT_ID
+    env["INFISICAL_ENV"] = INFISICAL_ENV
+    env["INFISICAL_TOKEN_PATH"] = TOKEN_PATH
+
     result = subprocess.run(
-        ["python3", "-c", script],
+        ["bash", FETCH_SECRET_SCRIPT, secret_key],
         capture_output=True,
         text=True,
-        timeout=10,
+        timeout=15,
+        env=env,
     )
     if result.returncode != 0:
-        raise RuntimeError(f"Failed to fetch {secret_key}: {result.stderr}")
-    return result.stdout.strip()
+        raise RuntimeError(
+            f"Failed to fetch secret '{secret_key}': {result.stderr.strip()}"
+        )
+    value = result.stdout.strip()
+    if not value:
+        raise RuntimeError(f"Secret '{secret_key}' returned empty value from Infisical")
+    return value
 
 
 def get_brand_credentials(brand: str) -> dict:
@@ -71,6 +86,11 @@ def get_brand_credentials(brand: str) -> dict:
 def get_openrouter_key() -> str:
     """Fetch OPENROUTER_API_KEY from Infisical."""
     return _fetch_infisical_secret("OPENROUTER_API_KEY")
+
+
+def get_groq_key() -> str:
+    """Fetch GROQ_API_KEY from Infisical."""
+    return _fetch_infisical_secret("GROQ_API_KEY")
 
 
 class BrandCredentials:
