@@ -171,13 +171,13 @@ grafana:
 curl -s http://localhost:9090/api/v1/targets | python3 -c "import sys,json; d=json.load(sys.stdin); [print(t['labels']['job'],':',t['health']) for t in d['data']['activeTargets']]"
 
 # 2. Ver datasource Grafana (deve mostrar http://prometheus:9090)
-curl -s -u "admin:2LCwzksQxxF7PhFnbgB5dF1G" "http://localhost:3100/api/datasources" | python3 -c "import sys,json; [print(d['name'],':',d['url']) for d in json.load(sys.stdin)]"
+curl -s -u "admin:[GRAFANA_ADMIN_PASSWORD]" "http://localhost:3100/api/datasources" | python3 -c "import sys,json; [print(d['name'],':',d['url']) for d in json.load(sys.stdin)]"
 
 # 3. Ver métricas do Grafana (query direta ao datasource)
-curl -s -u "admin:2LCwzksQxxF7PhFnbgB5dF1G" "http://localhost:3100/api/datasources/proxy/1/api/v1/query?query=up" | python3 -c "import sys,json; d=json.load(sys.stdin); print('Status:', d.get('status'), '| Resultados:', len(d.get('data',{}).get('result',[])))"
+curl -s -u "admin:[GRAFANA_ADMIN_PASSWORD]" "http://localhost:3100/api/datasources/proxy/1/api/v1/query?query=up" | python3 -c "import sys,json; d=json.load(sys.stdin); print('Status:', d.get('status'), '| Resultados:', len(d.get('data',{}).get('result',[])))"
 
 # 4. Ver dashboards carregados
-curl -s -u "admin:2LCwzksQxxF7PhFnbgB5dF1G" "http://localhost:3100/api/search?type=dash-db" | python3 -c "import sys,json; [print(g['title'],':', g['uid']) for g in json.load(sys.stdin)]"
+curl -s -u "admin:[GRAFANA_ADMIN_PASSWORD]" "http://localhost:3100/api/search?type=dash-db" | python3 -c "import sys,json; [print(g['title'],':', g['uid']) for g in json.load(sys.stdin)]"
 ```
 
 ** Esperado:** todos os 4 targets UP, datasource com URL `http://prometheus:9090`, dashboards carregados.

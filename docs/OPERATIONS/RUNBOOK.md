@@ -613,7 +613,7 @@ curl -s -X POST http://localhost:8012/v1/audio/speech \
 ls -lh /tmp/test.wav
 
 # Redis cache
-docker exec zappro-redis redis-cli -a Fifine156458* ping
+docker exec zappro-redis redis-cli -a [REDIS_PASSWORD] ping
 ```
 
 ---
