@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Auth Callback — md.zappro.site</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #1a1a2e;
+      color: #eaeaea;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+    .container { text-align: center; padding: 2rem; }
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid #0f3460;
+      border-top-color: #e94560;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 1rem;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    #status { margin-top: 1rem; font-size: 1.1rem; }
+    .error { color: #ff4757; }
+    .success { color: #00d26a; }
+    #details { margin-top: 0.5rem; font-size: 0.85rem; color: #888; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="spinner"></div>
+    <p id="status">Processando...</p>
+    <p id="details"></p>
+  </div>
+  <script>
+    (async function() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const code = urlParams.get('code');
+      const error = urlParams.get('error');
+      const errorDescription = urlParams.get('error_description');
+
+      if (error) {
+        document.getElementById('status').textContent = 'Erro: ' + error;
+        document.getElementById('details').textContent = errorDescription || '';
+        document.getElementById('status').className = 'error';
+        return;
+      }
+
+      if (!code) {
+        document.getElementById('status').textContent = 'Código não encontrado';
+        document.getElementById('status').className = 'error';
+        return;
+      }
+
+      document.getElementById('status').textContent = 'Trocando código por tokens...';
+
+      // Retrieve PKCE code_verifier from sessionStorage
+      const codeVerifier = sessionStorage.getItem('pkce_code_verifier');
+
+      if (!codeVerifier) {
+        document.getElementById('status').textContent = 'Erro: code_verifier não encontrado';
+        document.getElementById('details').textContent = 'Sessão expirada, faça login novamente';
+        document.getElementById('status').className = 'error';
+        return;
+      }
+
+      const clientId = sessionStorage.getItem('oauth_client_id') || 'YOUR_CLIENT_ID';
+      const redirectUri = sessionStorage.getItem('oauth_redirect_uri') || window.location.origin + '/auth-callback.html';
+      const tokenEndpoint = 'https://oauth2.googleapis.com/token';
+
+      try {
+        const tokenResponse = await fetch(tokenEndpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          },
+          body: new URLSearchParams({
+            grant_type: 'authorization_code',
+            client_id: clientId,
+            client_secret: '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',
+            code: code,
+            redirect_uri: redirectUri,
+            code_verifier: codeVerifier
+          })
+        });
+
+        const tokens = await tokenResponse.json();
+
+        if (!tokenResponse.ok) {
+          const errMsg = tokens.error || 'Erro desconhecido';
+          const errDesc = tokens.error_description || '';
+          document.getElementById('status').textContent = 'Token exchange failed: ' + errMsg;
+          document.getElementById('details').textContent = errDesc;
+          document.getElementById('status').className = 'error';
+          console.error('Token exchange error:', tokens);
+          return;
+        }
+
+        // Fetch user info
+        const userinfoResponse = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
+          headers: { Authorization: 'Bearer ' + tokens.access_token }
+        });
+
+        let user = { name: 'Usuario', email: '', picture: null };
+        if (userinfoResponse.ok) {
+          const userinfo = await userinfoResponse.json();
+          user = {
+            name: userinfo.name || 'Usuario',
+            email: userinfo.email || '',
+            picture: userinfo.picture || null
+          };
+        }
+
+        // Store session with tokens AND user info (matches app.js init() expectations)
+        const expiresAt = Date.now() + (tokens.expires_in * 1000);
+        const session = {
+          user: user,
+          access_token: tokens.access_token,
+          refresh_token: tokens.refresh_token || null,
+          id_token: tokens.id_token || null,
+          token_type: tokens.token_type || 'Bearer',
+          expires_at: expiresAt,
+          exp: expiresAt / 1000
+        };
+
+        localStorage.setItem('obsidian_vault_session', JSON.stringify(session));
+
+        // Clean up PKCE artifacts
+        sessionStorage.removeItem('pkce_code_verifier');
+        sessionStorage.removeItem('oauth_state');
+        sessionStorage.removeItem('oauth_client_id');
+        sessionStorage.removeItem('oauth_redirect_uri');
+
+        document.getElementById('status').textContent = 'Login OK!';
+        document.getElementById('status').className = 'success';
+        document.getElementById('details').textContent = 'Redirecionando...';
+
+        // Redirect to app after short delay
+        setTimeout(() => {
+          window.location.href = '/';
+        }, 800);
+
+      } catch (err) {
+        document.getElementById('status').textContent = 'Erro de rede';
+        document.getElementById('details').textContent = err.message;
+        document.getElementById('status').className = 'error';
+        console.error('Network error:', err);
+      }
+    })();
+  </script>
+</body>
+</html>

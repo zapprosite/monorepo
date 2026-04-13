@@ -77,6 +77,7 @@
 | **4002** | — | localhost | ShieldGemma 9B (PENDENTE — nunca deployado) | — |
 | **4007** | zappro-tts-bridge | localhost | TTS Bridge → Kokoro :8880 (UP, ver :8013) | — |
 | **4080** | list-web | host | Web list viewer service | — |
+| **4081** | obsidian-web | host | Obsidian vault UI (OAuth native) | md.zappro.site |
 | **8200** | infisical | localhost | Infisical vault self-hosted | vault.zappro.site |
 
 ## ⏳ Portas RESERVADAS — Pendente Deploy (Coolify)
