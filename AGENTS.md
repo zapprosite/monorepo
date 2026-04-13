@@ -1,6 +1,6 @@
 # AGENTS.md — Monorepo Command Center
 
-> **Data:** 2026-04-09
+> **Data:** 2026-04-13
 > **Authority:** Claude Code CLI + Gitea Actions + Antigravity Kit (.agent/)
 > **Stack:** pnpm workspaces + Turbo pipeline + Biome lint + Playwright E2E
 
@@ -102,7 +102,7 @@ Don't know? → ASK BEFORE DOING
 ├─────────────────────────────────────────────────────────────┤
 │                    TURBO PIPELINE                           │
 │  turbo.json defines build/lint/test pipeline                │
-│  yarn workspaces (apps/, packages/)                         │
+│  pnpm workspaces (apps/, packages/)                         │
 ├─────────────────────────────────────────────────────────────┤
 │  .gitea/workflows/        .agent/                          │
 │  → 4 Gitea Actions       → 18 specialist agents             │
@@ -111,7 +111,7 @@ Don't know? → ASK BEFORE DOING
 │  → deploy-main                                          │
 │  → rollback                                              │
 ├─────────────────────────────────────────────────────────────┤
-│  scripts/          smoke-tests/        docs/specflow/      │
+│  scripts/          smoke-tests/        docs/SPECS/         │
 │  → health-check    → E2E (Playwright) → 15+ SPECs        │
 │  → deploy          → smoke-chat        → tasks.md          │
 │  → backup           → smoke-openclaw    → reviews/          │
@@ -128,7 +128,7 @@ Don't know? → ASK BEFORE DOING
 |----------|------|-----|
 | `turbo.json` | Turbo | Pipeline de build/test/lint |
 | `biome.json` | Biome | Lint + Format (substitui ESLint+Prettier) |
-| `yarn.lock` | Yarn Berry | Package manager c/ workspaces | ⚠️ DEPRECATED — use pnpm |
+| `yarn.lock` | Yarn Berry | Package manager c/ workspaces | ⚠️ DEPRECATED — use pnpm. Todos os comandos de build usam pnpm (ver Build Commands) |
 | `pnpm-workspace.yaml` | pnpm | Workspace definition |
 | `package.json` | Node.js | Scripts e dependências |
 | `docker-compose.yml` | Docker | Containers de desenvolvimento |
@@ -174,6 +174,7 @@ Don't know? → ASK BEFORE DOING
 | `/trpc` | `trpc.md` | Add tRPC router | MiniMax router composition |
 | `/infra-gen` | `infra-gen.md` | Docker/TF/Prometheus/Gitea | MiniMax infra generation |
 | `/mxr` | `mxr.md` | PR review long-context | MiniMax holistic review |
+| `/md` | `md.md` | Modo dormir: escaneia SPECs pendentes e gera pipeline | pasta: monorepo |
 
 ---
 
@@ -372,25 +373,25 @@ biome lint --write .    # Fix linting
 
 ```bash
 # Install
-yarn install
+pnpm install
 
 # Build (turbo)
-yarn build              # turbo run build
-yarn build --filter=apps/backend
+pnpm build              # turbo run build
+pnpm build --filter=apps/backend
 
 # Test
-yarn test              # turbo run test
-yarn test --filter=apps/frontend -- --coverage
+pnpm test              # turbo run test
+pnpm test --filter=apps/frontend -- --coverage
 
 # Lint (biome)
-yarn lint              # biome ci .
+pnpm lint              # biome ci .
 
 # Dev
-yarn dev               # turbo run dev
-yarn dev --filter=apps/frontend
+pnpm dev               # turbo run dev
+pnpm dev --filter=apps/frontend
 
 # Type check
-yarn typecheck         # turbo run typecheck
+pnpm typecheck         # turbo run typecheck
 ```
 
 ---
@@ -517,11 +518,7 @@ bash /srv/ops/scripts/gotify-alert.sh "Tunnel Test" "Smoke test passed 13/13"
 |-------|---------|---------|
 | `list-web-from-zero-to-deploy` | `/new-list-web` | Create list-web app zero→deploy |
 | `repo-scan` | `/rs` | Scan tasks in SPEC/TODO/TASKMASTER formats |
-| `universal-code-review` | `/review` | 5-axis code review |
 | `security-audit` | `/sec` | OWASP top 10 vulnerability scan |
-| `context-prune` | auto | Reduce context window |
-| `deploy-validate` | auto | Pre-deploy checks |
-| `mcp-health` | auto | MCP server health |
 
 ---
 
