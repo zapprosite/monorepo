@@ -23,6 +23,7 @@ synced: 2026-04-13
 | [llm.zappro.site](https://llm.zappro.site) | 4000 | ✅ ATIVO | LiteLLM proxy (Cloudflare Access) — :4000 |
 | [list.zappro.site](https://list.zappro.site) | 4080 | ✅ ATIVO | List service (publico, OAuth native) — :4080 |
 | [md.zappro.site](https://md.zappro.site) | 4081 | ✅ ATIVO | Obsidian vault UI (publico, OAuth native) — :4081 |
+| [grafana.zappro.site](https://grafana.zappro.site) | 3100 | ✅ ATIVO | Grafana dashboard — alias de monitor.zappro.site — container IP 10.0.16.7 |
 | [monitor.zappro.site](https://monitor.zappro.site) | 3100 | ✅ ATIVO | Grafana dashboard (LAN only) — :3100 |
 | [n8n.zappro.site](https://n8n.zappro.site) | 5678 | ✅ ATIVO | n8n workflow — tunnel fix aplicado (302 CF Access, não DOWN) — IP 10.0.6.2 OK |
 | [painel.zappro.site](https://painel.zappro.site) | 4003 | ✅ ATIVO | Claude Code Panel (nginx:alpine) — :4003 |
@@ -43,6 +44,7 @@ synced: 2026-04-13
 | `web.zappro.site` | nginx-ratelimit → :4004 | Túnel órfão — nginx-ratelimit não exposto na LAN — remover do cloudflared |
 
 ## Mudanças Recentes
+- **2026-04-13**: grafana.zappro.site ADICIONADO — alias Grafana dashboard (Cloudflare Access) :3100, container IP 10.0.16.7
 - **2026-04-13**: prometheus.zappro.site ADICIONADO — Prometheus metrics scraper (Cloudflare Access) :9090
 - **2026-04-12**: supabase.zappro.site ATIVADO — Supabase Postgres via HTTP health proxy (:5433 → container :5432) — container IP 10.0.0.4, coolify network
 - **2026-04-12**: list.zappro.site ATIVADO — tools list HTML/JS, Google OAuth direto (sem Cloudflare Access), porta 4080
