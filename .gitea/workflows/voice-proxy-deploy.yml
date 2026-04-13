@@ -58,15 +58,15 @@ jobs:
       - name: Trigger Deploy
         run: |
           RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
-            "http://localhost:8000/api/v1/deployments" \
+            "${{ vars.COOLIFY_URL }}/api/v1/deployments" \
             -H "Authorization: Bearer ${{ secrets.COOLIFY_SERVICE_TOKEN }}" \
             -H "Content-Type: application/json" \
             -d '{
               "image": "${{ env.IMAGE_TAG }}",
               "env": {
                 "PORT": "8203",
-                "WHISPER_API": "http://10.0.19.8:8201",
-                "OLLAMA_HOST": "http://10.0.19.1:11434",
+                "WHISPER_API": "${{ vars.WHISPER_API_URL || 'http://10.0.19.8:8201' }}",
+                "OLLAMA_HOST": "${{ vars.OLLAMA_HOST_URL || 'http://10.0.19.1:11434' }}",
                 "OLLAMA_MODEL": "llama3-portuguese-tomcat-8b-instruct-q8:latest"
               }
             }')
