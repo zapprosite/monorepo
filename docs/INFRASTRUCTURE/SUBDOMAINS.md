@@ -10,7 +10,7 @@ synced: 2026-04-13
 # Subdomains Registry
 
 **Última sincronização:** 2026-04-13
-**Total de records:** 15 (md.zappro.site OAuth funcionando)
+**Total de records:** 16 (prometheus.zappro.site adicionado com IP)
 
 ## Tabela de Subdomínios
 
@@ -26,8 +26,8 @@ synced: 2026-04-13
 | [monitor.zappro.site](https://monitor.zappro.site) | 3100 | ✅ ATIVO | Grafana dashboard (LAN only) — :3100 |
 | [n8n.zappro.site](https://n8n.zappro.site) | 5678 | ✅ ATIVO | n8n workflow — tunnel fix aplicado (302 CF Access, não DOWN) — IP 10.0.6.2 OK |
 | [painel.zappro.site](https://painel.zappro.site) | 4003 | ✅ ATIVO | Claude Code Panel (nginx:alpine) — :4003 |
-| [prometheus.zappro.site](https://prometheus.zappro.site) | 9090 | ✅ ATIVO | Prometheus metrics scraper (Cloudflare Access) — :9090 |
-| [qdrant.zappro.site](https://qdrant.zappro.site) | 6333 | ✅ ATIVO | Qdrant vector DB — tunnel fix aplicado (302 CF Access, não DOWN) — container IP OK |
+| [prometheus.zappro.site](https://prometheus.zappro.site) | 9090 | ✅ ATIVO | Prometheus metrics scraper (Cloudflare Access) — :9090 — container IP 10.0.16.3 |
+| [qdrant.zappro.site](https://qdrant.zappro.site) | 6333 | ✅ ATIVO | Qdrant vector DB — tunnel fix aplicado (302 CF Access, não DOWN) — container IP 10.0.19.5 |
 | [vault.zappro.site](https://vault.zappro.site) | 8200 | ✅ ATIVO | Infisical Secret Manager — :8200 |
 | [supabase.zappro.site](https://supabase.zappro.site) | 5433 | ✅ ATIVO | Supabase Postgres (health proxy on 5433) — container IP 10.0.0.4:5432 |
 | [chat.zappro.site](https://chat.zappro.site) | 8080 | ✅ ATIVO | Open WebUI (LLM chat UI) — :8080 (Coolify) — **IP corrigido: 10.0.19.3** |
