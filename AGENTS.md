@@ -776,7 +776,7 @@ introduz ou atualiza texto em português.
 ### Workflow Obrigatório
 
 ```
-1. SYNC DOCS  → bash /srv/ops/scripts/sync-memory.sh
+1. SYNC DOCS  → ~/.claude/mcps/ai-context-sync/sync.sh
 2. COMMIT     → git add -A && git commit semântico
 3. PUSH BOTH  → git push origin HEAD && git push gitea HEAD
 4. MERGE MAIN → Merge main em ambos remotes (origin + gitea)
@@ -794,16 +794,18 @@ introduz ou atualiza texto em português.
 
 | Script | Uso |
 |--------|-----|
-| `/srv/ops/scripts/sync-memory.sh` | Sincroniza docs → memory |
+| `~/.claude/mcps/ai-context-sync/sync.sh` | Sincroniza docs → memory |
 | `/srv/ops/scripts/mirror-sync.sh` | Sincroniza git mirrors |
+| `/srv/ops/scripts/cleanup-sessions.sh` | Limpa sessões Claude Code velhas |
 | Skill `/sync` | Stage → commit → push (single remote) |
+| Skill `/ship` | End-of-session sync pattern completo |
 | Skill `/cursor-loop` | Loop autónomo completo |
 
 ### Exemplo de Execução
 
 ```bash
 # 1. Sync docs → memory
-bash /srv/ops/scripts/sync-memory.sh
+bash ~/.claude/mcps/ai-context-sync/sync.sh
 
 # 2. Commit com tipo semântico
 git add -A && git commit -m "fix(session): add safe cleanup cron"
