@@ -1,3 +1,11 @@
+---
+archived: true
+superseded_by: SPEC-009-openclaw-persona-audio-stack.md, SPEC-027-voice-pipeline.md
+see_also: [SPEC-009-openclaw-persona-audio-stack.md, SPEC-027-voice-pipeline.md]
+---
+
+> **ARCHIVED** — This specification has been superseded by [SPEC-009-openclaw-persona-audio-stack.md](./SPEC-009-openclaw-persona-audio-stack.md) (audio canonical) and SPEC-027 (voice pipeline). Kept for historical reference only.
+
 # SPEC-013: CEO MIX — Voice Stack Definitiva
 
 **Status:** DRAFT

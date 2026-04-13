@@ -1,3 +1,11 @@
+---
+archived: true
+superseded_by: SPEC-023-unified-monitoring-self-healing.md
+see_also: [SPEC-023-unified-monitoring-self-healing.md, SPEC-024-UNIFIED-CLAUDE-AGENT-MONOREPO.md]
+---
+
+> **ARCHIVED** — This specification has been superseded by [SPEC-023-unified-monitoring-self-healing.md](./SPEC-023-unified-monitoring-self-healing.md) and is kept for historical reference only.
+
 # SPEC-013: Claude Code CLI Integration
 
 **Date:** 2026-04-08
