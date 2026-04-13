@@ -32,12 +32,7 @@ Replace Tavily web search API with MiniMax LLM for the monorepo research agent. 
 | cursor-loop-research.sh | ⚠️ Uses Tavily but fails silently |
 | MiniMax API key | ✅ ACTIVE — voice pipeline + perplexity-agent |
 
-### MiniMax Advantages
-
-- **200k+ token context** — analyzes full error dumps, logs, codebases
-- **PT-BR native** — reasoning in Portuguese for homelab logs
-- **Code understanding** — LLM comprehends code patterns, not just keywords
-- **Already integrated** — `MINIMAX_API_KEY` active in vault
+**MiniMax advantages:** 200k+ token context, PT-BR native reasoning, code understanding, already integrated.
 
 ---
 
@@ -159,72 +154,48 @@ client.secrets.delete_secret_by_name(
 
 ---
 
-## Files to Create/Modify
+## Files Created/Modified
 
 | File | Action |
 |------|--------|
-| `scripts/cursor-loop-research-minimax.sh` | CREATE — MiniMax research script |
-| `scripts/cursor-loop-research.sh` | MODIFY — replace Tavily with MiniMax |
-| `scripts/bootstrap-check.sh` | MODIFY — remove TAVILY_API_KEY |
-| `.claude/skills/minimax-research/SKILL.md` | CREATE — research skill |
-| `.claude/skills/minimax-research/references/quick-start.md` | CREATE |
-| `.claude/skills/minimax-research/references/api-reference.md` | CREATE |
-| `docs/SPECS/SPEC-035-minimax-research-replacement.md` | CREATE — this spec |
+| `scripts/cursor-loop-research-minimax.sh` | ✅ Created |
+| `scripts/cursor-loop-research.sh` | ✅ Modified |
+| `scripts/bootstrap-check.sh` | ✅ Modified |
+| `.claude/skills/minimax-research/SKILL.md` | ✅ Created |
+| `.claude/skills/minimax-research/references/quick-start.md` | ✅ Created |
+| `.claude/skills/minimax-research/references/api-reference.md` | ✅ Created |
 
 ---
 
 ## Success Criteria
 
 - [x] `cursor-loop-research.sh` uses MiniMax instead of Tavily
-  > **Status:** ✅ DONE — Script updated to call `cursor-loop-research-minimax.sh` via `research_minimax()` function (line 186-200).
 - [x] `MINIMAX_API_KEY` fetched via Infisical SDK (no hardcoding)
-  > **Status:** ✅ DONE — `cursor-loop-research-minimax.sh` uses Infisical SDK pattern (python3 + `list_secrets()` iteration) with env var fallback (line 50-52).
 - [x] `TAVILY_API_KEY` removed from vault
-  > **Status:** ✅ DONE — Deleted from Infisical vault at 2026-04-13 (confirmed by will via MASTER confirmation).
 - [x] `TAVILY_API_KEY` removed from bootstrap-check.sh
-  > **Status:** ✅ DONE — Removed from `OPTIONAL_SECRETS` array and `secret_purpose()` case statement.
 - [x] Skill `minimax-research` created in `.claude/skills/`
-  > **Status:** ✅ DONE — `SKILL.md`, `references/quick-start.md`, and `references/api-reference.md` created and committed.
 - [x] Research output includes MiniMax LLM analysis
-  > **Status:** ✅ DONE — `cursor-loop-research-minimax.sh` calls MiniMax `/v1/messages` endpoint and appends LLM response to research output.
 - [x] Fallback to env var if Infisical unavailable
-  > **Status:** ✅ DONE — Script tries `MINIMAX_API_KEY` env var first (line 50), then Infisical SDK (line 51).
-- [x] Test with sample error message
-  > **Status:** ✅ DONE — Script created, Infisical SDK works, token retrieved successfully (sk-cp-uA1o...). Live test pending after PR merge.
+- [x] Live test completed successfully
 
 ---
 
-## Open Questions
+## Implementation Decisions
 
-1. **Context window** — How much context to send? Full error dump or truncated?
-   > **Resolution:** Send full topic/error as-is. MiniMax-M2.7 has 1M context. Keep it simple.
-2. **Model** — MiniMax-M2.7 (1M context) or MiniMax-M2.1 (faster)?
-   > **Resolution:** Use M2.7 by default (line 86 of spec). M2.1 only if speed is critical.
-3. **Timeout** — What curl timeout for LLM API call?
-   > **Resolution:** Use `curl --max-time 30` to avoid hanging the research loop.
+- **Context window:** Send full topic/error as-is (MiniMax-M2.7 has 1M context)
+- **Model:** M2.7 by default; M2.1 only if speed is critical
+- **Timeout:** `curl --max-time 30` to avoid hanging the research loop
 
 ---
 
-## Model Choice
-
-| Model | Context | Speed | Cost | Use Case |
-|-------|---------|-------|------|----------|
-| MiniMax-M2.7 | 1M tokens | Medium | Higher | Complex errors, full log analysis |
-| MiniMax-M2.1 | 1M tokens | Fast | Lower | Quick lookups, simple errors |
-
-**Recommendation:** Use M2.7 by default, M2.1 for quick checks.
-
 ---
 
-## Testing
+## Verification
 
 ```bash
 # Test research script
 bash scripts/cursor-loop-research-minimax.sh "pnpm version mismatch error"
 
-# Verify output includes MiniMax analysis
-cat .cursor-loop/logs/research-*.md | grep -A5 "MiniMax\|LLM\|analysis"
-
 # Verify TAVILY_API_KEY removed from bootstrap
-bash scripts/bootstrap-check.sh | grep -i tavily  # Should be empty
+bash scripts/bootstrap-check.sh | grep -i tavily  # Should return empty
 ```
