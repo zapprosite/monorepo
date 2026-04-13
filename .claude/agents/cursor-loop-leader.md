@@ -22,7 +22,7 @@ Se MCP não disponível: ler tasks/pipeline-state.json diretamente via Read tool
 | ai-context-sync | ✅ Script real | `~/.claude/mcps/ai-context-sync/sync.sh` |
 | taskmaster-ai | ⚠️ Planejado | Ainda não instalado |
 | Infisical | ⚠️ Python SDK | Disponível via Python script, não MCP |
-| Tavily | ⚠️ Planejado | Para research |
+| Tavily | ❌ Removido | Replace por MiniMax M2.7 research |
 | GitHub | ⚠️ CLI `gh` | `gh pr create`, `gh pr diff` |
 
 ## Retry e Recovery
