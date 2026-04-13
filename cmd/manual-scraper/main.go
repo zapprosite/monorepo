@@ -23,7 +23,7 @@ var (
 	maxFlag       = flag.Int("max", 0, "Max downloads (0 = unlimited)")
 	pipelineFlag  = flag.String("pipeline", "", "Run full pipeline for brand (lg,samsung,springer)")
 	ollamaFlag    = flag.String("ollama", "http://localhost:11434", "Ollama API URL")
-	qdrantFlag    = flag.String("qdrant", "localhost:6334", "Qdrant address")
+	qdrantFlag    = flag.String("qdrant", "10.0.19.2:6333", "Qdrant address")
 	verboseFlag   = flag.Bool("verbose", false, "Enable verbose logging")
 )
 
