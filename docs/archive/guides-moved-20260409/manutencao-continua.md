@@ -424,7 +424,7 @@ print(f'Secrets no vault: {len(s.secrets)}')
 - `APP_KEY` → Coolify root
 - `POSTGRES_PASSWORD` → coolify-db-password-2026
 - `REDIS_PASSWORD` → coolify-redis-password-2026
-- `ROOT_USER_PASSWORD` → Zappro2026!
+- `ROOT_USER_PASSWORD` → [COOLIFY_ROOT_PASSWORD]
 - `AUTH_SECRET` / `JWT_AUTH_SECRET` → OpenClaw auth
 - `OPENCLAW_GATEWAY_TOKEN` → OpenClaw gateway
 - `GF_SECURITY_ADMIN_PASSWORD` → Grafana admin
@@ -458,7 +458,7 @@ EOF
 | `APP_KEY` | coolify/app_key | `base64:jRrMu3906d/...` | Coolify |
 | `DB_PASSWORD` | coolify/db_password | `coolify-db-password-2026` | coolify-db |
 | `REDIS_PASSWORD` | coolify/redis_password | `coolify-redis-password-2026` | coolify-redis |
-| `ROOT_USER_PASSWORD` | coolify/root_password | `Zappro2026!` | Coolify admin |
+| `ROOT_USER_PASSWORD` | coolify/root_password | `[COOLIFY_ROOT_PASSWORD]` | Coolify admin |
 | `SENTINEL_TOKEN` | coolify/sentinel_token | JWT em server_settings | Sentinel auth |
 
 ### Referência Completa

@@ -228,7 +228,7 @@ All identical-value pairs confirmed by vault inspection:
 | `OPENCLAW_DEEPGRAM_API_KEY` | `DEEPGRAM_API_KEY` | `0215eb87...` | ✅ Deleted `DEEPGRAM_API_KEY` |
 | `TELEGRAM_BOT_TOKEN` | `CEO_MIX_TOKEN` | `8793928549:...` | ✅ Deleted `CEO_MIX_TOKEN` |
 | `REDIS_PASSWORD` | `LITELLM_REDIS_PASSWORD` | `Fifine156458*` | ✅ Deleted `LITELLM_REDIS_PASSWORD` |
-| `COOLIFY_ROOT_USER_PASSWORD` | `ROOT_USER_PASSWORD` | `Zappro2026!` | ✅ Deleted `ROOT_USER_PASSWORD` |
+| `COOLIFY_ROOT_USER_PASSWORD` | `ROOT_USER_PASSWORD` | `[COOLIFY_ROOT_PASSWORD]` | ✅ Deleted `ROOT_USER_PASSWORD` |
 
 **Root cause:** Bootstrap script duplicated keys during initial population.
 

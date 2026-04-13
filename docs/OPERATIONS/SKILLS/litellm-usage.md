@@ -137,10 +137,10 @@ embedding-nomic
 
 ## Telegram — Enviar Audio/Voz
 
-**Bot Token:** `8759194670:AAGHntxPUsfvbSrYNwOhBGuNUpmeCUw1-qY`
+**Bot Token:** `[TELEGRAM_BOT_TOKEN]`
 
 ```bash
-TELEGRAM_BOT_TOKEN="8759194670:AAGHntxPUsfvbSrYNwOhBGuNUpmeCUw1-qY"
+TELEGRAM_BOT_TOKEN="[TELEGRAM_BOT_TOKEN]"
 TEST_CHAT_ID="${TEST_CHAT_ID:?TEST_CHAT_ID not set}"
 
 # Enviar audio

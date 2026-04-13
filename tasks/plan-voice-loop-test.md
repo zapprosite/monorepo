@@ -237,7 +237,7 @@ Se Vision falha:
 ## 6. Dependências
 
 ```
-Telegram Bot Token: 8759194670:AAGHntxPUsfvbSrYNwOhBGuNUpmeCUw1-qY
+Telegram Bot Token: [TELEGRAM_BOT_TOKEN]
 LiteLLM Key: [LITELLM_API_KEY]
 OpenClaw Container: openclaw-qgtzrmi6771lt8l7x8rqx72f
 LiteLLM Container: zappro-litellm (10.0.1.1:4000)
