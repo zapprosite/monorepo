@@ -14,7 +14,41 @@ description: Gitea API integration for Claude Code — list repos, trigger workf
 2. Criar novo token com scopes: `repo`, `workflow`, `read:user`
 3. Guardar em Infisical: `gitea-access-token`
 
-**Opção B — Usar Runner Registration Token (só para Actions):**
+### Token configured
+
+**Gitea Token:** `50fca86d6a9ee37871f3a0cc3fa4efc7fc7cfb91`
+
+**Endpoints disponíveis:**
+- Local (docker): `http://localhost:3300` (porta 3300→3000)
+- Remoto: `https://gitea.zappro.site`
+
+### 2. Guardar Token em Infisical
+
+```bash
+# No teu terminal local, com acesso ao vault:
+infisical secrets set gitea-access-token --value="your-token-here"
+```
+
+**Project ID Infisical:** `e42657ef-98b2-4b9c-9a04-46c093bd6d37`
+**Environment:** `dev`
+**Secret path:** `/`
+
+### 3. Script Automatizado
+
+```bash
+# Criar PR automaticamente (branch atual → main)
+.claude/scripts/gitea-pr.sh "feat: descrição" main
+
+# Funcionalidades:
+# - Push automático da branch atual para gitea
+# - Cria PR com commits como body
+# - Deteta PRs existentes (422 = PR já existe)
+# - Fallback: lista PR existente em vez de duplicar
+```
+
+### 4. Configurar no Claude Code
+
+Adicionar ao `settings.json`:
 - `GITEA_RUNNER_REGISTRATION_TOKEN` já existe em Infisical
 - Não funciona para API normal — só para registo de runners
 
