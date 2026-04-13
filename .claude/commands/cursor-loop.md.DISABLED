@@ -22,8 +22,8 @@ This command implements the full autonomous loop as defined in SPEC-CURSOR-LOOP.
 
 ### 3. RESEARCH + REFACTOR (5 agents parallel)
 When CI fails, trigger:
-1. **cursor-loop-research** (MCP Tavily + Context7): Analyze failure
-2. **cursor-loop-refactor** (MCP Tavily + Context7): Apply fixes
+1. **cursor-loop-research** (MCP MiniMax + Context7): Analyze failure
+2. **cursor-loop-refactor** (MCP MiniMax + Context7): Apply fixes
 3. **cursor-loop-spec** (SPEC updater): Update SPEC.md
 4. **cursor-loop-debug** (/debug): Generate fix recommendations
 5. **cursor-loop-leader**: Coordinate and decide
