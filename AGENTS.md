@@ -165,12 +165,21 @@ Don't know? → ASK BEFORE DOING
 | `/code-review` | `code-review.md` | Commits → 5-axis review | Full review |
 | `/scaffold` | `scaffold.md` | Template → novo modulo | Scaffold projeto |
 | `/img` | `vision-local.md` | Ollama Qwen2.5-VL | Análise de imagem |
+| `/codegen` | `codegen.md` | Zod schema → tRPC router | MiniMax code generation |
+| `/msec` | `msec.md` | Security audit pre-commit | MiniMax semantic security |
+| `/dm` | `dm.md` | API ref, PORTS, SUBDOMAINS | MiniMax doc maintenance |
+| `/bug-triage` | `bug-triage.md` | Docker crash, tunnel DOWN | MiniMax bug triage |
+| `/bcaffold` | `bcaffold.md` | Zod schema → Fastify+tRPC | MiniMax backend scaffold |
+| `/migrate` | `migrate.md` | OrchidORM migration | MiniMax DB migration |
+| `/trpc` | `trpc.md` | Add tRPC router | MiniMax router composition |
+| `/infra-gen` | `infra-gen.md` | Docker/TF/Prometheus/Gitea | MiniMax infra generation |
+| `/mxr` | `mxr.md` | PR review long-context | MiniMax holistic review |
 
 ---
 
 ## Skills (`.claude/skills/`)
 
-**33 skills locais** — ativados automaticamente via `AGENTS.md`:
+**33 skills locais + 10 MiniMax-enhanced skills (SPEC-034)**:
 
 | Skill | Propósito | Trigger |
 |-------|-----------|---------|
@@ -194,6 +203,15 @@ Don't know? → ASK BEFORE DOING
 | `cost-reducer` | Optimizar custos | — |
 | `browser-dev` | Browser automation | — |
 | `researcher` | Web research (Tavily) | — |
+| `minimax-code-gen` | tRPC router from Zod schema | `/codegen` |
+| `minimax-security-audit` | OWASP + Infisical SDK enforcement | `/msec` |
+| `doc-maintenance` | Docs sync: API ref, PORTS, SUBDOMAINS | `/dm` |
+| `minimax-debugger` | Docker crash + tunnel + 529 triage | `/bug-triage` |
+| `backend-scaffold` | Fastify + tRPC from Zod schema | `/bcaffold` |
+| `db-migration` | OrchidORM migration + rollback | `/migrate` |
+| `trpc-compose` | Add new tRPC router | `/trpc` |
+| `infra-from-spec` | Infrastructure from natural language | `/infra-gen` |
+| `review-minimax` | Holistic PR review (204k context) | `/mxr` |
 
 ---
 
@@ -249,6 +267,23 @@ Don't know? → ASK BEFORE DOING
 
 ---
 
+## MiniMax LLM Integration (SPEC-034)
+
+**Modelo:** MiniMax M2.7 (204k token context window)
+**API:** `https://api.minimax.io/anthropic/v1`
+**Skills:** 10 novos skills para code gen, security, docs, debugging, backend scaffold, infra generation, e code review
+
+Ver `docs/SPECS/SPEC-034-minimax-agent-use-cases.md` para pesquisa completa de 14 domains.
+
+**Quick wins com MiniMax:**
+- `/codegen contract` — gera tRPC router completo de Zod schema (~30min → 5min)
+- `/msec` — security audit semantic (OWASP + Infisical SDK pattern)
+- `/dm ports` — detecta drift entre ss -tlnp e PORTS.md automaticamente
+- `/bug-triage` — diagnostica Docker crash loops e tunnel DOWN com contexto de 204k tokens
+- `/mxr` — holistic PR review (30+ files analisados juntos)
+
+---
+
 ## Spec-Driven Development (`docs/specflow/`)
 
 ```
@@ -264,6 +299,7 @@ SPEC-TEMPLATE.md → SPEC-*.md → tasks.md → pipeline.json
 | SPEC-013 | Unified Claude Agent Monorepo |
 | SPEC-014 | Cursor AI CI/CD Pattern |
 | SPEC-015 | Gitea Actions Enterprise |
+| SPEC-034 | MiniMax LLM use cases (10 new skills) |
 
 ---
 
@@ -410,6 +446,8 @@ git push --force-with-lease gitea HEAD && git push --force-with-lease origin HEA
 | `mcp-health-daily` | `0 8 * * *` | MCP server health |
 | `d201999d` | `*/5 * * * *` | Auto-healer (Coolify) |
 | `95c72b71` | `3 */15 * * *` | Resource monitor |
+| `minimax-doc-sync-daily` | `0 7 * * *` | MiniMax: PORTS.md + SUBDOMAINS.md vs live → SERVICE_STATE.md |
+| `minimax-bug-triage-daily` | `0 8 * * *` | MiniMax: health-check.log → proactive anomaly report |
 
 ---
 
@@ -581,6 +619,53 @@ See `docs/GOVERNANCE/TAG-POLICY.md`
 - ❌ Push directly to main
 - ❌ Date-based tags (v20260412...)
 - ❌ Non-feature branch names (feat/* only)
+
+## MiniMax Quick Reference (SPEC-034)
+
+```bash
+# Code generation — tRPC router from Zod schema
+/codegen contract
+
+# Semantic security audit pre-commit (OWASP + Infisical SDK)
+/msec
+
+# Documentation maintenance — API ref, PORTS, SUBDOMAINS
+/dm api-ref      # Update TRPC-API.md from routers
+/dm ports        # ss -tlnp vs PORTS.md drift
+/dm subdomains   # curl health vs SUBDOMAINS.md
+
+# Bug triage — Docker crash, tunnel DOWN, 529 errors
+/bug-triage
+
+# Backend scaffold — Fastify + tRPC from Zod
+/bcaffold contract packages/zod-schemas/src/contract.zod.ts
+
+# DB migration — OrchidORM migration + rollback
+/migrate contract
+
+# Add tRPC router to monorepo
+/trpc myRouter
+
+# Infrastructure generation — Docker, Terraform, Prometheus, Gitea
+/infra-gen terraform subdomain chat http://10.0.5.2:8080
+/infra-gen prometheus alerts loki
+/infra-gen gitea workflow deploy-prd push
+
+# Holistic PR review (204k token context)
+/mxr 42
+/mxr --commit abc123
+```
+
+**Crons MiniMax:**
+```bash
+# 07h — PORTS.md + SUBDOMAINS.md vs live system → SERVICE_STATE.md
+0 7 * * * /srv/monorepo/.claude/skills/doc-maintenance/sync.sh
+
+# 08h — Proactive anomaly report from health-check.log
+0 8 * * * /srv/monorepo/.claude/skills/minimax-debugger/triage.sh
+```
+
+---
 
 ## Encoding and Localization Guidance
 

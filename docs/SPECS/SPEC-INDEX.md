@@ -21,6 +21,7 @@ status: ACTIVE
 | Maintenance | SPEC-031-homelab-maintenance.md | ✅ ACTIVE | 7 tasks: Kokoro, node-exporter, loki, cadvisor, ZFS cron |
 | Tunnel Health | SPEC-032-tunnel-health-automation.md | ✅ ACTIVE | smoke-tunnel.sh, pre-commit hook, autoheal, cron |
 | Supabase Tunnel | SPEC-033-supabase-tunnel-exposure.md | ✅ ACTIVE | HTTP health proxy at :5433, supabase.zappro.site |
+| MiniMax Agents | SPEC-034-minimax-agent-use-cases.md | ✅ ACTIVE | 10 new skills: /codegen, /msec, /dm, /bug-triage, /bcaffold, /mxr + more |
 
 ## Archived Specs (Historical)
 
