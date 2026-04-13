@@ -1,3 +1,11 @@
+> ⚠️ ARCHIVED + MERGED — Content integrated into [SPEC-009](./SPEC-009-openclaw-persona-audio-stack.md) as historical context.
+
+---
+archived: true
+superseded_by: SPEC-009-openclaw-persona-audio-stack
+merged_into: SPEC-009
+---
+
 # SPEC-005: wav2vec2 STT Kit — PT-BR Speech-to-Text
 
 ## Status: PROTEGIDO — NÃO ALTERAR
