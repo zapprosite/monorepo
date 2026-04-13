@@ -1,3 +1,15 @@
+---
+archived: true
+superseded_by:
+  - SPEC-024 (monorepo bootstrap with Infisical vault resolution)
+  - /srv/monorepo/CLAUDE.md
+see_also:
+  - SPEC-024
+  - CLAUDE.md
+---
+
+> ⚠️ ARCHIVED — This spec is historical. See [SPEC-024](../SPEC-024.md) for the current implementation.
+
 # SPEC-001: Template claude-code-minimax Fusionado
 
 **Status:** COMPLETED

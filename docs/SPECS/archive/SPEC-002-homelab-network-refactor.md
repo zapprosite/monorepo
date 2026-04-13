@@ -1,3 +1,16 @@
+---
+archived: true
+superseded_by:
+  - /srv/ops/ai-governance/SUBDOMAINS.md
+  - /srv/ops/ai-governance/PORTS.md
+see_also:
+  - SUBDOMAINS.md
+  - PORTS.md
+  - NETWORK_MAP.md
+---
+
+> ⚠️ ARCHIVED — This spec is historical. See [SUBDOMAINS.md](/srv/ops/ai-governance/SUBDOMAINS.md) and [PORTS.md](/srv/ops/ai-governance/PORTS.md) for the current implementation.
+
 # SPEC-002: Homelab Infrastructure Refactoring — Cloudflare Tunnel + Coolify
 
 **Versão:** 1.0

@@ -1,3 +1,14 @@
+---
+archived: true
+superseded_by: SPEC-023 (unified monitoring and self-healing)
+see_also:
+  - SPEC-023
+  - SPEC-023-unified-monitoring-self-healing.md
+  - SPEC-023-unified-healing-cli.md
+---
+
+> ⚠️ ARCHIVED — This spec is historical. See [SPEC-023](./SPEC-023.md) for the current implementation.
+
 # Spec: HomeLab Monitor Agent
 
 ## Objective
