@@ -189,21 +189,28 @@ Rotation completed in previous session:
 
 ---
 
-## GitHub Token Validation — 2026-04-13
+## GitHub/Gitea Token Validation — 2026-04-13
 
-All GitHub-related tokens tested against GitHub API:
+### GitHub Tokens
 
 | Token | API Test | Result |
 |-------|----------|--------|
-| `GH_TOKEN` | `curl -H "Authorization: Bearer ghp_RG3..."` | ❌ 401 Bad credentials — **EXPIRED/REVOKED** |
+| `GH_TOKEN` | `curl -H "Authorization: token ghp_Na..."` | ✅ **VALID** — `zapprosite` org (created 2025-08-02) |
 | `GITHUB_TOKEN` | `curl -H "Authorization: Bearer ghp_V1m..."` | ❌ 401 Bad credentials — **EXPIRED/REVOKED** |
-| `GITEA_TOKEN` | GitHub API test | ❌ 401 (expected — Gitea token, not GitHub) |
 
-**Conclusion:** Both `GH_TOKEN` and `GITHUB_TOKEN` are invalid/expired. Neither is being used in monorepo code or workflows. **Recommend deletion of both** — they serve no purpose if revoked.
+**New GH_TOKEN:** `ghp_Na...` — Added to vault ✅
+**Old GH_TOKEN (ghp_RG3...):** Deleted ✅
 
-**Gitea token validity unknown** — needs testing against Gitea instance (`https://git.zappro.site`).
+### Gitea Token
 
-**Action:** Delete `GH_TOKEN` and `GITHUB_TOKEN` from vault (both return 401 Bad credentials, not usable).
+| Token | API Test | Result |
+|-------|----------|--------|
+| `GITEA_TOKEN` | `curl http://10.0.13.2:3000/api/v1/user` (internal) | ✅ **VALID** — `will-zappro` (admin) |
+| Old token `b167...` | Rotated | ❌ Replaced |
+
+**New rotated token:** `50fca...` ✅ Updated in vault
+
+**Note:** GitHub mirror uses SSH (`git push`), not GitHub API tokens. GitHub Actions workflows use `secrets.GITEA_TOKEN` via Gitea Actions, not GitHub tokens directly.
 
 ---
 
@@ -270,9 +277,9 @@ Before removing, confirm these services are not in use:
 | 3 | Delete `~/.zappro/config/secrets.env` (plaintext legacy, outside monorepo scope) | ⚠️ PENDING — outside scope, manual |
 | 4 | Set GitHub Actions secrets: `COOLIFY_URL`, `COOLIFY_API_KEY`, `CLAUDE_API_KEY`, `GITEA_TOKEN` | ⚠️ PENDING — different management plane |
 | 5 | Investigate remaining 9 unused secrets (TAVILY_API_KEY, GROQ_API_KEY, etc.) before deletion | 🔍 INVESTIGATE |
-| 6 | Delete expired `GH_TOKEN` (401 Bad credentials) | ✅ DONE — deleted from vault |
+| 6 | Delete expired `GH_TOKEN` (401 Bad credentials) | ✅ DONE — replaced with new valid `ghp_Na...` token |
 | 7 | Delete expired `GITHUB_TOKEN` (401 Bad credentials) | ✅ DONE — deleted from vault |
-| 8 | Verify `GITEA_TOKEN` against Gitea instance | 🔍 INVESTIGATE |
+| 8 | Verify `GITEA_TOKEN` against Gitea instance | ✅ DONE — token valid, updated in vault |
 
 ---
 
