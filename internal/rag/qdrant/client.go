@@ -147,6 +147,29 @@ func (c *Client) Search(ctx context.Context, vector []float32, filters map[strin
 	return convertToSearchResults(results), nil
 }
 
+// Query performs vector search and returns raw Qdrant results with scores.
+func (c *Client) Query(ctx context.Context, vector []float32, filters map[string]string, limit int) ([]SearchResult, error) {
+	return c.Search(ctx, vector, filters, limit)
+}
+
+// QueryWithScore performs vector search with a minimum score threshold.
+func (c *Client) QueryWithScore(ctx context.Context, vector []float32, filters map[string]string, limit int, minScore float64) ([]SearchResult, error) {
+	results, err := c.Search(ctx, vector, filters, limit)
+	if err != nil {
+		return nil, err
+	}
+
+	// Filter by minimum score
+	var filtered []SearchResult
+	for _, r := range results {
+		if r.Score >= minScore {
+			filtered = append(filtered, r)
+		}
+	}
+
+	return filtered, nil
+}
+
 // SearchResult represents a search result from Qdrant
 type SearchResult struct {
 	ID      string

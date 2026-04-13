@@ -12,6 +12,8 @@ import (
 	"regexp"
 	"strings"
 	"time"
+
+	"github.com/will-zappro/hvacr-swarm/internal/rag/qdrant"
 )
 
 // Video represents a YouTube video for HVAC learning
@@ -37,6 +39,13 @@ type DiagnosticChannelCriteria struct {
 // Pipeline handles YouTube content extraction and indexing
 type Pipeline struct {
 	criteria DiagnosticChannelCriteria
+	qdrant  *qdrant.Client
+}
+
+// WithQdrant sets the Qdrant client for RAG indexing
+func (p *Pipeline) WithQdrant(client *qdrant.Client) *Pipeline {
+	p.qdrant = client
+	return p
 }
 
 // NewPipeline creates a YouTube learning pipeline
@@ -321,7 +330,7 @@ func (p *Pipeline) fetchCaptionViaAPI(ctx context.Context, videoID, apiKey strin
 // SearchHVACVideos searches for HVAC diagnostic videos
 func (p *Pipeline) SearchHVACVideos(ctx context.Context, query string) ([]Video, error) {
 	// Primary: YouTube Data API v3
-	if apiKey := os.Getenv("GOOGLE_API_KEY"); apiKey != "" {
+	if apiKey := os.Getenv("YOUTUBE_API_KEY"); apiKey != "" {
 		return p.searchViaAPI(ctx, apiKey, query)
 	}
 
@@ -381,6 +390,229 @@ func (p *Pipeline) searchViaAPI(ctx context.Context, apiKey, query string) ([]Vi
 	}
 
 	return p.filterByChannelCriteria(videos), nil
+}
+
+// FetchVideoDetails fetches additional metadata (duration, description) via YouTube Data API v3
+func (p *Pipeline) FetchVideoDetails(ctx context.Context, videoID string) (*Video, error) {
+	apiKey := os.Getenv("YOUTUBE_API_KEY")
+	if apiKey == "" {
+		// Fallback to yt-dlp
+		return p.fetchVideoDetailsViaYtdlp(ctx, videoID)
+	}
+
+	urlStr := fmt.Sprintf(
+		"https://www.googleapis.com/youtube/v3/videos?part=contentDetails,snippet&id=%s&key=%s",
+		videoID, apiKey,
+	)
+
+	req, err := http.NewRequestWithContext(ctx, "GET", urlStr, nil)
+	if err != nil {
+		return nil, fmt.Errorf("create request: %w", err)
+	}
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("execute request: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(resp.Body)
+		return nil, fmt.Errorf("youtube api: status %d: %s", resp.StatusCode, string(body))
+	}
+
+	var result struct {
+		Items []struct {
+			Snippet struct {
+				Title       string `json:"title"`
+				ChannelTitle string `json:"channelTitle"`
+				PublishedAt string `json:"publishedAt"`
+				Description string `json:"description"`
+			} `json:"snippet"`
+			ContentDetails struct {
+				Duration string `json:"duration"` // ISO 8601 duration, e.g., "PT5M30S"
+			} `json:"contentDetails"`
+		} `json:"items"`
+	}
+
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return nil, fmt.Errorf("decode response: %w", err)
+	}
+
+	if len(result.Items) == 0 {
+		return nil, fmt.Errorf("video not found: %s", videoID)
+	}
+
+	item := result.Items[0]
+	uploadedAt, _ := time.Parse(time.RFC3339, item.Snippet.PublishedAt)
+	duration := parseDuration(item.ContentDetails.Duration)
+
+	return &Video{
+		ID:         videoID,
+		Title:      item.Snippet.Title,
+		Channel:    item.Snippet.ChannelTitle,
+		Duration:   duration,
+		UploadedAt: uploadedAt,
+	}, nil
+}
+
+// fetchVideoDetailsViaYtdlp gets video details using yt-dlp
+func (p *Pipeline) fetchVideoDetailsViaYtdlp(ctx context.Context, videoID string) (*Video, error) {
+	cmd := exec.CommandContext(ctx, "yt-dlp",
+		"--dump-json",
+		"--no-playlist",
+		fmt.Sprintf("https://www.youtube.com/watch?v=%s", videoID))
+
+	out, err := cmd.Output()
+	if err != nil {
+		return nil, fmt.Errorf("yt-dlp: %w", err)
+	}
+
+	var entry struct {
+		ID          string `json:"id"`
+		Title      string `json:"title"`
+		Channel    string `json:"channel"`
+		Duration   int    `json:"duration"`
+		Date       string `json:"date"`
+		UploadDate string `json:"upload_date"`
+	}
+	if err := json.Unmarshal(out, &entry); err != nil {
+		return nil, fmt.Errorf("parse yt-dlp output: %w", err)
+	}
+
+	uploadedAt := time.Now()
+	if entry.UploadDate != "" {
+		if t, err := time.Parse("20060102", entry.UploadDate); err == nil {
+			uploadedAt = t
+		}
+	}
+
+	return &Video{
+		ID:           entry.ID,
+		Title:        entry.Title,
+		Channel:      entry.Channel,
+		Duration:     entry.Duration,
+		UploadedAt:   uploadedAt,
+		IsDiagnostic: p.isDiagnosticByTitle(entry.Title),
+	}, nil
+}
+
+// parseDuration parses ISO 8601 duration to seconds
+func parseDuration(d string) int {
+	// ISO 8601 duration format: PT5M30S, PT1H2M3S, PT30S
+	d = strings.TrimPrefix(d, "PT")
+	var duration int
+	var num int
+	for _, c := range d {
+		switch c {
+		case 'H':
+			duration += num * 3600
+			num = 0
+		case 'M':
+			duration += num * 60
+			num = 0
+		case 'S':
+			duration += num
+			num = 0
+		default:
+			if c >= '0' && c <= '9' {
+				num = num*10 + int(c-'0')
+			}
+		}
+	}
+	return duration
+}
+
+// IndexTranscriptChunks indexes video transcript chunks to Qdrant for RAG
+func (p *Pipeline) IndexTranscriptChunks(ctx context.Context, video *Video, chunks []TranscriptChunk, embeddings [][]float32) error {
+	if p.qdrant == nil {
+		return fmt.Errorf("qdrant client not configured, call WithQdrant() first")
+	}
+
+	if len(chunks) != len(embeddings) {
+		return fmt.Errorf("chunks (%d) and embeddings (%d) count mismatch", len(chunks), len(embeddings))
+	}
+
+	for i, chunk := range chunks {
+		chunk.VideoID = video.ID
+		chunk.Channel = video.Channel
+
+		payload := map[string]any{
+			"text":         chunk.Text,
+			"token_count":  chunk.TokenCount,
+			"content_type": chunk.ContentType,
+			"video_id":     video.ID,
+			"channel":      video.Channel,
+			"video_title":  video.Title,
+			"timestamps":   chunk.Timestamps,
+			"error_codes":  chunk.ErrorCodes,
+		}
+
+		pointID := fmt.Sprintf("youtube_%s_chunk_%d", video.ID, i)
+		if err := p.qdrant.UpsertPoint(ctx, pointID, embeddings[i], payload); err != nil {
+			return fmt.Errorf("upsert chunk %d: %w", i, err)
+		}
+	}
+
+	return nil
+}
+
+// ProcessVideo runs the full pipeline: fetch details -> fetch captions -> chunk -> index
+func (p *Pipeline) ProcessVideo(ctx context.Context, videoID string, embedder func(string) ([]float32, error)) (*Video, []TranscriptChunk, error) {
+	// Step 1: Fetch video details (duration, title, channel)
+	video, err := p.FetchVideoDetails(ctx, videoID)
+	if err != nil {
+		return nil, nil, fmt.Errorf("fetch video details: %w", err)
+	}
+
+	// Step 2: Filter for diagnostic videos
+	if !p.isDiagnostic(video) {
+		return video, nil, fmt.Errorf("video does not meet diagnostic criteria")
+	}
+
+	// Step 3: Fetch captions/transcript
+	transcript, err := p.FetchCaptions(ctx, videoID)
+	if err != nil {
+		return video, nil, fmt.Errorf("fetch captions: %w", err)
+	}
+	video.Transcript = transcript
+
+	// Step 4: Extract error codes
+	video.ErrorCodes = p.ExtractErrorCodesFromTranscript(transcript)
+
+	// Step 5: Chunk transcript for RAG
+	chunks := p.ChunkTranscript(transcript, 512)
+
+	// Step 6: Index to Qdrant if client configured
+	if p.qdrant != nil && embedder != nil {
+		for i, chunk := range chunks {
+			embedding, err := embedder(chunk.Text)
+			if err != nil {
+				return video, chunks, fmt.Errorf("embed chunk %d: %w", i, err)
+			}
+			chunk.VideoID = video.ID
+			chunk.Channel = video.Channel
+			chunks[i] = chunk
+
+			payload := map[string]any{
+				"text":         chunk.Text,
+				"token_count":  chunk.TokenCount,
+				"content_type": chunk.ContentType,
+				"video_id":     video.ID,
+				"channel":      video.Channel,
+				"video_title":  video.Title,
+				"timestamps":   chunk.Timestamps,
+				"error_codes":  chunk.ErrorCodes,
+			}
+
+			pointID := fmt.Sprintf("youtube_%s_chunk_%d", video.ID, i)
+			if err := p.qdrant.UpsertPoint(ctx, pointID, embedding, payload); err != nil {
+				return video, chunks, fmt.Errorf("upsert chunk %d: %w", i, err)
+			}
+		}
+	}
+
+	return video, chunks, nil
 }
 
 // searchViaYtdlp uses yt-dlp to scrape search results
