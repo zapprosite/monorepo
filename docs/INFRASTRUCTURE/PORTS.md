@@ -84,8 +84,8 @@
 
 | Porta | Serviço Planejado | Subdomínio | Status |
 |-------|------------------|------------|--------|
-| **3000** | Reservada | — | ⚠️ DEPRECATED — OpenWebUI foi removido do :8080 |
-| **3010** | Open WebUI (se precisar) | chat.zappro.site | ⏳ Deploy via Coolify pendente |
+| **3000** | Reservada | — | Reservada para proxy futuro |
+| **8080** | Open WebUI (Coolify) | chat.zappro.site | ✅ ATIVO — openwebui-bridge-agent UP 3 dias |
 
 ---
 
