@@ -202,7 +202,7 @@ Don't know? → ASK BEFORE DOING
 | `snapshot-safe` | ZFS safe operations | — |
 | `cost-reducer` | Optimizar custos | — |
 | `browser-dev` | Browser automation | — |
-| `researcher` | Web research (Tavily) | — |
+| `researcher` | Web research (MiniMax M2.7) | — |
 | `minimax-code-gen` | tRPC router from Zod schema | `/codegen` |
 | `minimax-security-audit` | OWASP + Infisical SDK enforcement | `/msec` |
 | `doc-maintenance` | Docs sync: API ref, PORTS, SUBDOMAINS | `/dm` |
@@ -664,6 +664,45 @@ See `docs/GOVERNANCE/TAG-POLICY.md`
 # 08h — Proactive anomaly report from health-check.log
 0 8 * * * /srv/monorepo/.claude/skills/minimax-debugger/triage.sh
 ```
+
+---
+
+## Research Agent (SPEC-035 — COMPLETED)
+
+** Tavily API replaced with MiniMax M2.7 for research (2026-04-13)**
+
+The `/researcher` skill uses MiniMax LLM instead of Tavily web search:
+
+| Aspect | Tavily (DEPRECATED) | MiniMax M2.7 (ACTIVE) |
+|--------|---------------------|------------------------|
+| Method | Web search API | LLM inference |
+| Context | URLs + snippets | Full error/code analysis |
+| Key | `TAVILY_API_KEY` | `MINIMAX_API_KEY` |
+| Source | Orphaned vault secret | Infisical SDK |
+
+### Script
+
+`scripts/cursor-loop-research-minimax.sh` — Research agent using MiniMax LLM:
+
+```bash
+# Usage
+bash scripts/cursor-loop-research-minimax.sh "<topic or error message>"
+```
+
+- **Auth:** `MINIMAX_API_KEY` fetched via Infisical SDK (fallback to env var)
+- **Endpoint:** `https://api.minimax.io/anthropic/v1/messages` (same pattern as voice pipeline)
+- **Model:** MiniMax-M2.7 (1M context, PT-BR native reasoning)
+
+### Migration (SPEC-035)
+
+| Step | Status |
+|------|--------|
+| cursor-loop-research.sh updated | ✅ COMPLETED |
+| MINIMAX_API_KEY via Infisical SDK | ✅ COMPLETED |
+| TAVILY_API_KEY removed from vault | ✅ COMPLETED |
+| minimax-research skill created | ✅ COMPLETED |
+
+See `docs/SPECS/SPEC-035-minimax-research-replacement.md` for full details.
 
 ---
 
