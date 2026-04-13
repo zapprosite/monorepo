@@ -13,6 +13,7 @@
 
   var CONFIG = {
     client_id: window.__ENV__?.GOOGLE_CLIENT_ID || '',
+    client_secret: window.__ENV__?.GOOGLE_CLIENT_SECRET || '',
     redirect_uri: 'https://md.zappro.site/auth/callback',
     scope: 'email profile',
     auth_endpoint: 'https://accounts.google.com/o/oauth2/v2/auth',
@@ -243,7 +244,7 @@
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: new URLSearchParams({
         client_id: CONFIG.client_id,
-        client_secret: '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',
+        client_secret: CONFIG.client_secret,
         code: code,
         code_verifier: verifier,
         redirect_uri: CONFIG.redirect_uri,

@@ -38,6 +38,7 @@
     <p id="status">Processando...</p>
     <p id="details"></p>
   </div>
+  <script src="/env.js"></script>
   <script>
     (async function() {
       const urlParams = new URLSearchParams(window.location.search);
@@ -70,7 +71,8 @@
         return;
       }
 
-      const clientId = sessionStorage.getItem('oauth_client_id') || 'YOUR_CLIENT_ID';
+      const clientId = sessionStorage.getItem('oauth_client_id') || window.__ENV__?.GOOGLE_CLIENT_ID || '';
+      const clientSecret = window.__ENV__?.GOOGLE_CLIENT_SECRET || '';
       const redirectUri = sessionStorage.getItem('oauth_redirect_uri') || window.location.origin + '/auth-callback.html';
       const tokenEndpoint = 'https://oauth2.googleapis.com/token';
 
@@ -83,7 +85,7 @@
           body: new URLSearchParams({
             grant_type: 'authorization_code',
             client_id: clientId,
-            client_secret: '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',
+            client_secret: clientSecret,
             code: code,
             redirect_uri: redirectUri,
             code_verifier: codeVerifier
