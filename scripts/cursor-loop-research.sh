@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# cursor-loop-research.sh — Research agent using pattern matching + Tavily
+# cursor-loop-research.sh — Research agent using pattern matching + MiniMax LLM
 # Usage: bash scripts/cursor-loop-research.sh "<topic or error message>"
 #
-# Note: Uses Tavily API if TAVILY_API_KEY is set.
+# Note: Uses MiniMax LLM (cursor-loop-research-minimax.sh) for web research.
 # Claude -p is NOT used because it requires interactive terminal.
 
 set -euo pipefail
@@ -182,35 +182,19 @@ EOF
   echo "" >> "$RESEARCH_OUTPUT"
 }
 
-# ── Tavily research ────────────────────────────────────────────
-research_tavily() {
-  if [[ -z "${TAVILY_API_KEY:-}" ]]; then
-    echo "⚠️  TAVILY_API_KEY not set, skipping Tavily" >> "$RESEARCH_OUTPUT"
-    return 1
-  fi
-
-  echo "=== Tavily Web Research ===" >> "$RESEARCH_OUTPUT"
+# ── MiniMax LLM research ────────────────────────────────────────
+research_minimax() {
+  echo "=== MiniMax LLM Research ===" >> "$RESEARCH_OUTPUT"
   echo "" >> "$RESEARCH_OUTPUT"
 
-  local result
-  result=$(curl -s -X POST "https://api.tavily.com/search" \
-    -H "Content-Type: application/json" \
-    -d "{\"api_key\": \"$TAVILY_API_KEY\", \"query\": \"$TOPIC\", \"max_results\": 3}" 2>/dev/null) || {
-    echo "Tavily request failed" >> "$RESEARCH_OUTPUT"
-    return 1
-  }
-
-  if echo "$result" | jq -e '.results' >/dev/null 2>&1; then
-    echo "## Web Results" >> "$RESEARCH_OUTPUT"
-    echo "" >> "$RESEARCH_OUTPUT"
-    echo "$result" | jq -r '.results[] | "- **[" + .title + "](" + .url + ")**\n" + .content + "\n"' >> "$RESEARCH_OUTPUT"
-    echo "" >> "$RESEARCH_OUTPUT"
-    echo "✅ Tavily research complete" >> "$RESEARCH_OUTPUT"
+  if [[ -f "scripts/cursor-loop-research-minimax.sh" ]]; then
+    bash scripts/cursor-loop-research-minimax.sh "$TOPIC" >> "$RESEARCH_OUTPUT" 2>&1
+    echo "✅ MiniMax research complete" >> "$RESEARCH_OUTPUT"
     return 0
+  else
+    echo "⚠️  cursor-loop-research-minimax.sh not found, skipping LLM research" >> "$RESEARCH_OUTPUT"
+    return 1
   fi
-
-  echo "Tavily returned no results" >> "$RESEARCH_OUTPUT"
-  return 1
 }
 
 # ── Investigation commands ──────────────────────────────────────
@@ -251,8 +235,8 @@ main() {
     # Pattern analysis (always runs)
     analyze_pattern
 
-    # Try Tavily web research (if API key available)
-    research_tavily || true
+    # Try MiniMax LLM research
+    research_minimax || true
 
     # Add investigation commands
     add_investigation

@@ -20,7 +20,6 @@ REQUIRED_SECRETS=(
 
 # ── Optional secrets ──────────────────────────────────────────
 OPTIONAL_SECRETS=(
-  "TAVILY_API_KEY"
   "CONTEXT7_API_KEY"
   "TELEGRAM_BOT_TOKEN"
   "TELEGRAM_CHAT_ID"
@@ -55,7 +54,6 @@ secret_purpose() {
     COOLIFY_API_KEY) echo "Coolify API authentication" ;;
     GITEA_TOKEN) echo "Gitea Actions authentication" ;;
     CLAUDE_API_KEY) echo "Claude API for AI operations" ;;
-    TAVILY_API_KEY) echo "Web research API" ;;
     CONTEXT7_API_KEY) echo "Documentation lookup API" ;;
     TELEGRAM_BOT_TOKEN) echo "Telegram notifications" ;;
     TELEGRAM_CHAT_ID) echo "Telegram chat for notifications" ;;

@@ -2120,8 +2120,8 @@
     },
     {
       "id": 50,
-      "title": "SPEC-032: smoke-tunnel.sh — smoke test all subdomains",
-      "description": "Create /srv/ops/scripts/smoke-tunnel.sh — loop through all subdomains from SUBDOMAINS.md, curl -sfI each one, report 000 as DOWN, exit 1 if any DOWN. Output: table format (subdomain | expected | actual | status).",
+      "title": "SPEC-032: smoke-tunnel.sh \u2014 smoke test all subdomains",
+      "description": "Create /srv/ops/scripts/smoke-tunnel.sh \u2014 loop through all subdomains from SUBDOMAINS.md, curl -sfI each one, report 000 as DOWN, exit 1 if any DOWN. Output: table format (subdomain | expected | actual | status).",
       "status": "pending",
       "priority": "high",
       "dependencies": [],
@@ -2166,10 +2166,12 @@
     {
       "id": 51,
       "title": "SPEC-032: pre-commit-subdomain-check.sh",
-      "description": "Create /srv/ops/scripts/pre-commit-subdomain-check.sh — validate any new subdomain in variables.tf has SUBDOMAINS.md entry, validate subdomain URL is reachable (curl test). Called from git hooks or CI.",
+      "description": "Create /srv/ops/scripts/pre-commit-subdomain-check.sh \u2014 validate any new subdomain in variables.tf has SUBDOMAINS.md entry, validate subdomain URL is reachable (curl test). Called from git hooks or CI.",
       "status": "pending",
       "priority": "high",
-      "dependencies": [50],
+      "dependencies": [
+        50
+      ],
       "subtasks": [
         {
           "id": "51.1",
@@ -2210,11 +2212,13 @@
     },
     {
       "id": 52,
-      "title": "SPEC-032: validate-ingress.sh — tunnel ingress validation",
-      "description": "Create /srv/ops/scripts/validate-ingress.sh — read variables.tf service URLs, verify each IP is reachable (curl or nc), flag localhost URLs pointing to services that should use container IPs (10.0.x.x).",
+      "title": "SPEC-032: validate-ingress.sh \u2014 tunnel ingress validation",
+      "description": "Create /srv/ops/scripts/validate-ingress.sh \u2014 read variables.tf service URLs, verify each IP is reachable (curl or nc), flag localhost URLs pointing to services that should use container IPs (10.0.x.x).",
       "status": "pending",
       "priority": "high",
-      "dependencies": [50],
+      "dependencies": [
+        50
+      ],
       "subtasks": [
         {
           "id": "52.1",
@@ -2255,11 +2259,13 @@
     },
     {
       "id": 53,
-      "title": "SPEC-032: tunnel-autoheal.sh — auto-heal cloudflared",
-      "description": "Create /srv/ops/scripts/tunnel-autoheal.sh — if cloudflared status != active, ZFS snapshot then systemctl restart cloudflared. If tunnel has 0 ingress rules, alert immediately.",
+      "title": "SPEC-032: tunnel-autoheal.sh \u2014 auto-heal cloudflared",
+      "description": "Create /srv/ops/scripts/tunnel-autoheal.sh \u2014 if cloudflared status != active, ZFS snapshot then systemctl restart cloudflared. If tunnel has 0 ingress rules, alert immediately.",
       "status": "pending",
       "priority": "critical",
-      "dependencies": [50],
+      "dependencies": [
+        50
+      ],
       "subtasks": [
         {
           "id": "53.1",
@@ -2302,7 +2308,7 @@
     {
       "id": 54,
       "title": "SPEC-032: gotify-alert.sh helper",
-      "description": "Create /srv/ops/scripts/gotify-alert.sh — helper to send Gotify alerts (POST to http://localhost:8050/gotify). Used by smoke-tunnel.sh and tunnel-autoheal.sh.",
+      "description": "Create /srv/ops/scripts/gotify-alert.sh \u2014 helper to send Gotify alerts (POST to http://localhost:8050/gotify). Used by smoke-tunnel.sh and tunnel-autoheal.sh.",
       "status": "pending",
       "priority": "high",
       "dependencies": [],
@@ -2337,10 +2343,13 @@
     {
       "id": 55,
       "title": "SPEC-032: Cron job smoke-tunnel every 30 min",
-      "description": "Add cron job: */30 * * * * /srv/ops/scripts/smoke-tunnel.sh. If DOWN detected → gotify-alert.sh. Log to /srv/ops/logs/tunnel-health.log.",
+      "description": "Add cron job: */30 * * * * /srv/ops/scripts/smoke-tunnel.sh. If DOWN detected \u2192 gotify-alert.sh. Log to /srv/ops/logs/tunnel-health.log.",
       "status": "pending",
       "priority": "critical",
-      "dependencies": [50, 54],
+      "dependencies": [
+        50,
+        54
+      ],
       "subtasks": [
         {
           "id": "55.1",
@@ -2409,13 +2418,223 @@
       ],
       "testRequired": false,
       "specRef": "docs/SPECS/SPEC-032-tunnel-health-automation.md"
+    },
+    {
+      "id": 57,
+      "title": "SPEC-035: Create cursor-loop-research-minimax.sh",
+      "description": "Create research script using MiniMax LLM instead of Tavily. Fetch MINIMAX_API_KEY via Infisical SDK.",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [],
+      "subtasks": [
+        {
+          "id": "57.1",
+          "title": "Create cursor-loop-research-minimax.sh with Infisical SDK",
+          "status": "pending"
+        },
+        {
+          "id": "57.2",
+          "title": "Test MiniMax API call works",
+          "status": "pending"
+        },
+        {
+          "id": "57.3",
+          "title": "Verify executable",
+          "status": "pending"
+        }
+      ],
+      "acceptanceCriteria": [
+        "AC-1: Script uses MiniMax API",
+        "AC-2: MINIMAX_API_KEY from Infisical",
+        "AC-3: No hardcoded secrets"
+      ],
+      "files": [
+        "scripts/cursor-loop-research-minimax.sh"
+      ],
+      "testRequired": true,
+      "specRef": "docs/SPECS/SPEC-035-minimax-research-replacement.md"
+    },
+    {
+      "id": 58,
+      "title": "SPEC-035: Update cursor-loop-research.sh \u2014 replace Tavily with MiniMax",
+      "description": "Replace research_tavily() call with research_minimax() from new script.",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [
+        57
+      ],
+      "subtasks": [
+        {
+          "id": "58.1",
+          "title": "Remove research_tavily() function",
+          "status": "pending"
+        },
+        {
+          "id": "58.2",
+          "title": "Add call to cursor-loop-research-minimax.sh",
+          "status": "pending"
+        },
+        {
+          "id": "58.3",
+          "title": "Update header comment noting MiniMax",
+          "status": "pending"
+        }
+      ],
+      "acceptanceCriteria": [
+        "AC-1: No Tavily references remain",
+        "AC-2: MiniMax is called"
+      ],
+      "files": [
+        "scripts/cursor-loop-research.sh"
+      ],
+      "testRequired": true,
+      "specRef": "docs/SPECS/SPEC-035-minimax-research-replacement.md"
+    },
+    {
+      "id": 59,
+      "title": "SPEC-035: Update bootstrap-check.sh \u2014 remove TAVILY_API_KEY",
+      "description": "Remove TAVILY_API_KEY from secrets check list.",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [
+        58
+      ],
+      "subtasks": [
+        {
+          "id": "59.1",
+          "title": "Remove TAVILY_API_KEY from secrets list",
+          "status": "pending"
+        },
+        {
+          "id": "59.2",
+          "title": "Remove TAVILY_API_KEY optional check section",
+          "status": "pending"
+        }
+      ],
+      "acceptanceCriteria": [
+        "AC-1: No TAVILY_API_KEY references in bootstrap-check.sh"
+      ],
+      "files": [
+        "scripts/bootstrap-check.sh"
+      ],
+      "testRequired": true,
+      "specRef": "docs/SPECS/SPEC-035-minimax-research-replacement.md"
+    },
+    {
+      "id": 60,
+      "title": "SPEC-035: Create minimax-research skill",
+      "description": "Create .claude/skills/minimax-research/ with SKILL.md and references.",
+      "status": "pending",
+      "priority": "medium",
+      "dependencies": [],
+      "subtasks": [
+        {
+          "id": "60.1",
+          "title": "Create skill directory structure",
+          "status": "pending"
+        },
+        {
+          "id": "60.2",
+          "title": "Create SKILL.md",
+          "status": "pending"
+        },
+        {
+          "id": "60.3",
+          "title": "Create references/quick-start.md",
+          "status": "pending"
+        },
+        {
+          "id": "60.4",
+          "title": "Create references/api-reference.md",
+          "status": "pending"
+        }
+      ],
+      "acceptanceCriteria": [
+        "AC-1: Skill is loadable",
+        "AC-2: All reference docs present"
+      ],
+      "files": [
+        ".claude/skills/minimax-research/"
+      ],
+      "testRequired": false,
+      "specRef": "docs/SPECS/SPEC-035-minimax-research-replacement.md"
+    },
+    {
+      "id": 61,
+      "title": "SPEC-035: Delete TAVILY_API_KEY from vault",
+      "description": "Remove orphaned TAVILY_API_KEY from Infisical vault after confirming no references remain.",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [
+        58,
+        59
+      ],
+      "subtasks": [
+        {
+          "id": "61.1",
+          "title": "Verify no TAVILY references in code",
+          "status": "pending"
+        },
+        {
+          "id": "61.2",
+          "title": "Delete from Infisical vault",
+          "status": "pending"
+        },
+        {
+          "id": "61.3",
+          "title": "Verify deletion",
+          "status": "pending"
+        }
+      ],
+      "acceptanceCriteria": [
+        "AC-1: TAVILY_API_KEY not in vault",
+        "AC-2: Vault count reduced"
+      ],
+      "files": [],
+      "testRequired": true,
+      "specRef": "docs/SPECS/SPEC-035-minimax-research-replacement.md"
+    },
+    {
+      "id": 62,
+      "title": "SPEC-035: Integration test \u2014 full research workflow",
+      "description": "Run cursor-loop-research-minimax.sh with sample error, verify MiniMax response.",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [
+        57,
+        58
+      ],
+      "subtasks": [
+        {
+          "id": "62.1",
+          "title": "Test with pnpm version error",
+          "status": "pending"
+        },
+        {
+          "id": "62.2",
+          "title": "Verify MiniMax analysis in output",
+          "status": "pending"
+        },
+        {
+          "id": "62.3",
+          "title": "No Tavily output present",
+          "status": "pending"
+        }
+      ],
+      "acceptanceCriteria": [
+        "AC-1: Output contains MiniMax analysis",
+        "AC-2: No Tavily errors"
+      ],
+      "files": [],
+      "testRequired": true,
+      "specRef": "docs/SPECS/SPEC-035-minimax-research-replacement.md"
     }
   ],
   "meta": {
-    "totalTasks": 56,
+    "totalTasks": 62,
     "completedTasks": 1,
-    "pendingTasks": 55,
-    "generatedAt": "2026-04-12T20:50:00Z",
+    "pendingTasks": 62,
+    "generatedAt": "2026-04-13T11:15:00Z",
     "projectName": "zappro-monorepo",
     "version": "2.0"
   }

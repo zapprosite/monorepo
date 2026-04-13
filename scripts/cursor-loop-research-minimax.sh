@@ -2,7 +2,7 @@
 # Cursor Loop Research Agent — MiniMax LLM
 # Fetches research analysis using MiniMax-M2.1 via Infisical SDK secret
 
-set -e
+# NOTE: No set -e — script must complete even if some steps fail
 
 TOPIC="${1:-}"
 if [ -z "$TOPIC" ]; then
@@ -73,13 +73,26 @@ Format your response with clear sections:
 Be thorough but concise. Format with markdown headings (##)."
 
 # =============================================================================
-# Call MiniMax API
+# Call MiniMax API — escape JSON content properly
 # =============================================================================
+
+PAYLOAD=$(python3 -c "
+import json, sys
+content = '''$RESEARCH_PROMPT'''
+payload = {
+    'model': 'MiniMax-M2.1',
+    'messages': [{'role': 'user', 'content': content}],
+    'max_tokens': 1024,
+    'thinking': {'type': 'disabled'}
+}
+print(json.dumps(payload))
+")
+
 RESPONSE=$(curl -s -m 30 -X POST "https://api.minimax.io/anthropic/v1/messages" \
     -H "Authorization: Bearer $MINIMAX_API_KEY" \
     -H "Content-Type: application/json" \
     -H "anthropic-version: 2023-06-01" \
-    -d "{\"model\":\"MiniMax-M2.1\",\"messages\":[{\"role\":\"user\",\"content\":$(echo "$RESEARCH_PROMPT" | jq -Rs .)}],\"max_tokens\":1024,\"thinking\":{\"type\":\"disabled\"}}" 2>/dev/null)
+    -d "$PAYLOAD" 2>/dev/null)
 
 # Parse response — extract content from MiniMax response
 echo "$RESPONSE" | python3 -c "
@@ -95,10 +108,10 @@ try:
         print(data['error'].get('message', ''), file=sys.stderr)
         sys.exit(1)
     else:
+        # Output raw for debugging
         print(data, file=sys.stderr)
         sys.exit(1)
 except Exception as e:
     print(f\"Parse error: {e}\", file=sys.stderr)
-    print(sys.stdin.read()[:500], file=sys.stderr)
     sys.exit(1)
 "
