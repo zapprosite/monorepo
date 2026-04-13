@@ -1,0 +1,613 @@
+package parser
+
+import (
+	"sort"
+
+	"github.com/ArtifexSoftware/mupdf-go/mupdf"
+)
+
+// TableExtractor handles table detection and extraction from PDF pages.
+type TableExtractor struct {
+	minLineLength float64 // minimum line length to be considered a table boundary
+	lineThresh    float64 // threshold for merging nearly-aligned lines
+}
+
+// NewTableExtractor creates a new TableExtractor with default thresholds.
+func NewTableExtractor() *TableExtractor {
+	return &TableExtractor{
+		minLineLength: 20.0, // minimum 20 points length
+		lineThresh:    5.0,  // merge lines within 5 points
+	}
+}
+
+// Table represents an extracted table with boundaries and content.
+type Table struct {
+	Rows       [][]string
+	Bounds     mupdf.Rectangle // bounding box of the table
+	HeaderRow  int             // index of detected header row, -1 if not detected
+	PageNum    int
+	Confidence float64 // detection confidence 0-1
+}
+
+// ExtractTables extracts all tables from a PDF page.
+// Returns nil if no tables detected, with fallback to plain text extraction.
+func (te *TableExtractor) ExtractTables(page *mupdf.Page) (*Table, error) {
+	// Get structured text page for content analysis
+	stext, err := page.TextPage()
+	if err != nil {
+		return nil, err
+	}
+
+	// Detect table boundaries via line extraction
+	hLines, vLines := te.detectLineBoundaries(stext)
+
+	// If insufficient lines for table structure, return nil for fallback
+	if len(hLines) < 2 || len(vLines) < 2 {
+		return nil, nil // fallback to text extraction
+	}
+
+	// Build grid from detected lines
+	grid := te.buildGrid(hLines, vLines)
+
+	// Extract cell content from grid
+	rows, err := te.extractGridContent(stext, grid)
+	if err != nil {
+		return nil, err
+	}
+
+	// Validate table structure
+	if len(rows) < 2 || te.isEmptyTable(rows) {
+		return nil, nil
+	}
+
+	// Detect header row
+	headerRow := te.detectHeaderRow(rows)
+
+	// Calculate bounding box
+	bounds := te.calculateBounds(hLines, vLines)
+
+	// Estimate confidence based on line regularity and content density
+	confidence := te.calculateConfidence(hLines, vLines, rows)
+
+	return &Table{
+		Rows:       rows,
+		Bounds:     bounds,
+		HeaderRow:  headerRow,
+		PageNum:    0,
+		Confidence: confidence,
+	}, nil
+}
+
+// line represents a horizontal or vertical line segment.
+type line struct {
+	Start, End float64 // y for horizontal, x for vertical
+	Pos        float64 // position (y for h-lines, x for v-lines)
+}
+
+// detectLineBoundaries extracts horizontal and vertical lines from structured text.
+// Uses the path-walking approach from mupdf's drawing device.
+func (te *TableExtractor) detectLineBoundaries(stext *mupdf.StextPage) (hLines, vLines []line) {
+	// Structured text blocks contain line information
+	// Walk through text blocks to find alignment patterns suggesting table structure
+	blockPtr := stext.FirstBlock()
+
+	for blockPtr != nil {
+		block := blockPtr.AsTextBlock()
+		if block == nil {
+			blockPtr = blockPtr.Next()
+			continue
+		}
+
+		// Check block type - text blocks may contain line alignment hints
+		if te.isTableBlock(block) {
+			// Extract lines from this block
+			te.extractBlockLines(block, &hLines, &vLines)
+		}
+
+		blockPtr = blockPtr.Next()
+	}
+
+	// Merge nearly-parallel lines and dedupe
+	hLines = te.mergeLines(hLines, true)
+	vLines = te.mergeLines(vLines, false)
+
+	return
+}
+
+// isTableBlock heuristics: block has multiple lines with similar x or y starts
+func (te *TableExtractor) isTableBlock(block *mupdf.TextBlock) bool {
+	if block == nil {
+		return false
+	}
+
+	// Count lines and check alignment consistency
+	linePtr := block.FirstLine()
+	if linePtr == nil {
+		return false
+	}
+
+	var firstX float64 = -1
+	lineCount := 0
+
+	for linePtr != nil {
+		l := linePtr.AsTextLine()
+		if l != nil {
+			lineCount++
+			if firstX < 0 {
+				firstX = l.BBox.X
+			}
+		}
+		linePtr = linePtr.Next()
+	}
+
+	// A potential table block has multiple lines with some x-alignment
+	return lineCount >= 3
+}
+
+// extractBlockLines extracts line positions from a text block.
+func (te *TableExtractor) extractBlockLines(block *mupdf.TextBlock, hLines, vLines *[]line) {
+	linePtr := block.FirstLine()
+
+	for linePtr != nil {
+		l := linePtr.AsTextLine()
+		if l != nil {
+			bbox := l.BBox
+
+			// Horizontal line detection: compare y-coordinates of consecutive lines
+			// This simulates vertical grid lines via text alignment
+			if bbox.Height() > 2 && bbox.Width() > te.minLineLength {
+				*hLines = append(*hLines, line{
+					Start: bbox.X,
+					End:   bbox.X + bbox.Width(),
+					Pos:   bbox.Y,
+				})
+			}
+
+			// Vertical alignment detection: track x positions of text starts
+			// These become our vertical grid lines
+			if bbox.Width() > 5 {
+				*vLines = append(*vLines, line{
+					Start: bbox.Y,
+					End:   bbox.Y + bbox.Height(),
+					Pos:   bbox.X,
+				})
+			}
+		}
+		linePtr = linePtr.Next()
+	}
+}
+
+// mergeLines removes duplicate and merges nearly-aligned lines.
+func (te *TableExtractor) mergeLines(lines []line, horizontal bool) []line {
+	if len(lines) == 0 {
+		return nil
+	}
+
+	// Sort by position
+	sort.Slice(lines, func(i, j int) bool {
+		if horizontal {
+			return lines[i].Pos < lines[j].Pos
+		}
+		return lines[i].Start < lines[j].Start
+	})
+
+	// Merge nearby lines
+	var merged []line
+	threshold := te.lineThresh
+
+	if horizontal {
+		var current line
+		for i, l := range lines {
+			if i == 0 {
+				current = l
+				continue
+			}
+			// If close in position, extend range
+			if l.Pos-current.Pos <= threshold && l.Start <= current.End+threshold {
+				current.End = max(current.End, l.End)
+				current.Start = min(current.Start, l.Start)
+			} else {
+				if current.End-current.Start >= te.minLineLength {
+					merged = append(merged, current)
+				}
+				current = l
+			}
+		}
+		if current.End-current.Start >= te.minLineLength {
+			merged = append(merged, current)
+		}
+	} else {
+		// Vertical lines: sort by position, merge if close
+		sort.Style(lines, func(i, j int) bool { return lines[i].Pos < lines[j].Pos })
+		current := lines[0]
+		for i := 1; i < len(lines); i++ {
+			l := lines[i]
+			if l.Pos-current.Pos <= threshold {
+				current.End = max(current.End, l.End)
+				current.Start = min(current.Start, l.Start)
+			} else {
+				if current.End-current.Start >= te.minLineLength {
+					merged = append(merged, current)
+				}
+				current = l
+			}
+		}
+		if current.End-current.Start >= te.minLineLength {
+			merged = append(merged, current)
+		}
+	}
+
+	return merged
+}
+
+// gridCell represents a cell in the table grid.
+type gridCell struct {
+	Row, Col      int
+	Bounds        mupdf.Rectangle
+	Content       string
+	IsHeader      bool
+	IsEmpty       bool
+}
+
+// buildGrid creates a table grid from detected horizontal and vertical lines.
+func (te *TableExtractor) buildGrid(hLines, vLines []line) [][]gridCell {
+	if len(hLines) < 2 || len(vLines) < 2 {
+		return nil
+	}
+
+	// Create grid cells between line intersections
+	rows := len(hLines) - 1
+	cols := len(vLines) - 1
+
+	grid := make([][]gridCell, rows)
+	for i := range grid {
+		grid[i] = make([]gridCell, cols)
+	}
+
+	// Fill grid cell bounds
+	for r := 0; r < rows; r++ {
+		hTop := hLines[r]
+		hBot := hLines[r+1]
+		for c := 0; c < cols; c++ {
+			vLeft := vLines[c]
+			vRight := vLines[c+1]
+
+			grid[r][c] = gridCell{
+				Row:  r,
+				Col:  c,
+				Bounds: mupdf.Rectangle{
+					X0: vLeft.Pos,
+					Y0: hTop.Pos,
+					X1: vRight.Pos,
+					Y1: hBot.Pos,
+				},
+			}
+		}
+	}
+
+	return grid
+}
+
+// extractGridContent extracts text content from each cell in the grid.
+func (te *TableExtractor) extractGridContent(stext *mupdf.StextPage, grid [][]gridCell) ([][]string, error) {
+	if grid == nil {
+		return nil, nil
+	}
+
+	rows := len(grid)
+	cols := len(grid[0])
+	result := make([][]string, rows)
+
+	for r := 0; r < rows; r++ {
+		result[r] = make([]string, cols)
+		for c := 0; c < cols; c++ {
+			cell := &grid[r][c]
+			content := te.extractCellContent(stext, cell.Bounds)
+			result[r][c] = content
+			cell.Content = content
+			cell.IsEmpty = content == ""
+		}
+	}
+
+	return result, nil
+}
+
+// extractCellContent extracts text content within a bounding box.
+func (te *TableExtractor) extractCellContent(stext *mupdf.StextPage, bounds mupdf.Rectangle) string {
+	if stext == nil {
+		return ""
+	}
+
+	var text string
+	blockPtr := stext.FirstBlock()
+
+	for blockPtr != nil {
+		block := blockPtr.AsTextBlock()
+		if block == nil {
+			blockPtr = blockPtr.Next()
+			continue
+		}
+
+		linePtr := block.FirstLine()
+		for linePtr != nil {
+			l := linePtr.AsTextLine()
+			if l != nil {
+				// Check if line intersects with cell bounds
+				lineBBox := l.BBox
+				if te.boundsIntersect(lineBBox, bounds) {
+					// Extract character content from this line
+					text += te.extractLineContent(l)
+					text += " "
+				}
+			}
+			linePtr = linePtr.Next()
+		}
+
+		blockPtr = blockPtr.Next()
+	}
+
+	return trimWhiteSpace(text)
+}
+
+// extractLineContent extracts text content from a text line.
+func (te *TableExtractor) extractLineContent(line *mupdf.TextLine) string {
+	if line == nil {
+		return ""
+	}
+
+	var text string
+	spanPtr := line.FirstSpan()
+
+	for spanPtr != nil {
+		span := spanPtr.AsTextSpan()
+		if span != nil {
+			charPtr := span.FirstChar()
+			for charPtr != nil {
+				ch := charPtr.AsRune()
+				if ch != nil {
+					text += string(ch.Rune)
+				}
+				charPtr = charPtr.Next()
+			}
+		}
+		spanPtr = spanPtr.Next()
+	}
+
+	return text
+}
+
+// boundsIntersect checks if two rectangles intersect.
+func (te *TableExtractor) boundsIntersect(a, b mupdf.Rectangle) bool {
+	return a.X0 < b.X1 && a.X1 > b.X0 && a.Y0 < b.Y1 && a.Y1 > b.Y0
+}
+
+// isEmptyTable checks if the table has insufficient content.
+func (te *TableExtractor) isEmptyTable(rows [][]string) bool {
+	if len(rows) < 2 {
+		return true
+	}
+
+	nonEmptyCells := 0
+	totalCells := 0
+
+	for _, row := range rows {
+		for _, cell := range row {
+			totalCells++
+			if cell != "" {
+				nonEmptyCells++
+			}
+		}
+	}
+
+	// Table is empty if less than 30% cells have content
+	return totalCells > 0 && float64(nonEmptyCells)/float64(totalCells) < 0.3
+}
+
+// detectHeaderRow attempts to detect which row is a header.
+// Uses heuristics: first row with mostly short text and distinct formatting.
+func (te *TableExtractor) detectHeaderRow(rows [][]string) int {
+	if len(rows) < 2 {
+		return -1
+	}
+
+	// Check first row - typical headers have shorter text
+	firstRow := rows[0]
+	avgLen := 0
+	for _, cell := range firstRow {
+		avgLen += len(cell)
+	}
+	avgLen /= len(firstRow)
+
+	// Header cells are typically shorter and all non-empty
+	allNonEmpty := true
+	for _, cell := range firstRow {
+		if cell == "" {
+			allNonEmpty = false
+			break
+		}
+	}
+
+	if allNonEmpty && avgLen < 30 {
+		return 0
+	}
+
+	return -1
+}
+
+// calculateBounds computes the bounding rectangle of the table.
+func (te *TableExtractor) calculateBounds(hLines, vLines []line) mupdf.Rectangle {
+	if len(hLines) == 0 || len(vLines) == 0 {
+		return mupdf.Rectangle{}
+	}
+
+	return mupdf.Rectangle{
+		X0: vLines[0].Pos,
+		Y0: hLines[0].Pos,
+		X1: vLines[len(vLines)-1].Pos,
+		Y1: hLines[len(hLines)-1].Pos,
+	}
+}
+
+// calculateConfidence estimates table detection quality.
+func (te *TableExtractor) calculateConfidence(hLines, vLines []line, rows [][]string) float64 {
+	// Base confidence on line regularity
+	var hScore, vScore float64 = 0.5, 0.5
+
+	if len(hLines) >= 3 {
+		// Check horizontal line spacing regularity
+		var spacing []float64
+		for i := 1; i < len(hLines); i++ {
+			spacing = append(spacing, hLines[i].Pos-hLines[i-1].Pos)
+		}
+		if len(spacing) > 0 {
+			avg := average(spacing)
+			// Lower variance = higher score
+			variance := variance(spacing, avg)
+			hScore = 1.0 - min(variance/avg, 1.0)
+		}
+	}
+
+	if len(vLines) >= 2 {
+		var spacing []float64
+		for i := 1; i < len(vLines); i++ {
+			spacing = append(spacing, vLines[i].Pos-vLines[i-1].Pos)
+		}
+		if len(spacing) > 0 {
+			avg := average(spacing)
+			variance := variance(spacing, avg)
+			vScore = 1.0 - min(variance/avg, 1.0)
+		}
+	}
+
+	// Content density score
+	var density float64 = 0.5
+	if len(rows) > 0 {
+		filled := 0
+		total := 0
+		for _, row := range rows {
+			for _, cell := range row {
+				total++
+				if cell != "" {
+					filled++
+				}
+			}
+		}
+		density = float64(filled) / float64(total)
+	}
+
+	return (hScore*0.3 + vScore*0.3 + density*0.4)
+}
+
+// Helper functions
+func min(a, b float64) float64 {
+	if a < b {
+		return a
+	}
+	return b
+}
+
+func max(a, b float64) float64 {
+	if a > b {
+		return a
+	}
+	return b
+}
+
+func average(vals []float64) float64 {
+	if len(vals) == 0 {
+		return 0
+	}
+	sum := 0.0
+	for _, v := range vals {
+		sum += v
+	}
+	return sum / float64(len(vals))
+}
+
+func variance(vals []float64, avg float64) float64 {
+	if len(vals) == 0 {
+		return 0
+	}
+	sum := 0.0
+	for _, v := range vals {
+		d := v - avg
+		sum += d * d
+	}
+	return sum / float64(len(vals))
+}
+
+func trimWhiteSpace(s string) string {
+	// Simple whitespace trimming
+	result := ""
+	inSpace := false
+	for _, c := range s {
+		if c == ' ' || c == '\t' || c == '\n' || c == '\r' {
+			if inSpace || result == "" {
+				continue
+			}
+			result += " "
+			inSpace = true
+		} else {
+			result += string(c)
+			inSpace = false
+		}
+	}
+	// Trim trailing space
+	for len(result) > 0 && result[len(result)-1] == ' ' {
+		result = result[:len(result)-1]
+	}
+	return result
+}
+
+// ExtractPageText extracts plain text from a PDF page (fallback when no table).
+func ExtractPageText(page *mupdf.Page) (string, error) {
+	stext, err := page.TextPage()
+	if err != nil {
+		return "", err
+	}
+
+	var text string
+	blockPtr := stext.FirstBlock()
+
+	for blockPtr != nil {
+		block := blockPtr.AsTextBlock()
+		if block != nil {
+			linePtr := block.FirstLine()
+			for linePtr != nil {
+				l := linePtr.AsTextLine()
+				if l != nil {
+					text += extractLineContentSimple(l)
+					text += "\n"
+				}
+				linePtr = linePtr.Next()
+			}
+		}
+		blockPtr = blockPtr.Next()
+	}
+
+	return text, nil
+}
+
+func extractLineContentSimple(line *mupdf.TextLine) string {
+	if line == nil {
+		return ""
+	}
+
+	var text string
+	spanPtr := line.FirstSpan()
+	for spanPtr != nil {
+		span := spanPtr.AsTextSpan()
+		if span != nil {
+			charPtr := span.FirstChar()
+			for charPtr != nil {
+				ch := charPtr.AsRune()
+				if ch != nil {
+					text += string(ch.Rune)
+				}
+				charPtr = charPtr.Next()
+			}
+		}
+		spanPtr = spanPtr.Next()
+	}
+	return text
+}
