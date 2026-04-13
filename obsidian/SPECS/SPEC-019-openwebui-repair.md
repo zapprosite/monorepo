@@ -79,7 +79,7 @@ docker logs open-webui-wbmqefxhd7vdn2dme3i6s9an --tail 50
 OAUTH_GOOGLE_REDIRECT_URL=https://chat.zappro.site/oauth/google/callback
 SERVICE_URL_OPENWEBUI=http://openwebui-wbmqefxhd7vdn2dme3i6s9an.191.17.50.123.sslip.io
 OAUTH_GOOGLE_CLIENT_ID=297107448858-324eplshrg5vv2br911l4dtm8bjh0sl1.apps.googleusercontent.com
-OAUTH_GOOGLE_CLIENT_SECRET=GOCSPX-fgKPRDB9UcWb-i8Pr6eblXI
+OAUTH_GOOGLE_CLIENT_SECRET=[GOOGLE_OAUTH_SECRET]
 ```
 
 ---

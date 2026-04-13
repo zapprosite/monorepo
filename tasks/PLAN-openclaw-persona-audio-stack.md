@@ -175,8 +175,8 @@ find /tmp -name "*.wav" -o -name "*.mp3" -o -name "*.ogg" 2>/dev/null | head -20
 
 ```bash
 # Full smoke test
-LITELLM_KEY="sk-zappro-lm-2026-s8k3m9x2p7r6t5w1v4c8n0d5j7f9g3h6i2k4l6m8n0p1" \
-MINIMAX_API_KEY="sk-cp-uA1oy3YNYtSeBSs4-o3kFktK" \
+LITELLM_KEY="[LITELLM_API_KEY]" \
+MINIMAX_API_KEY="[MINIMAX_API_KEY]" \
 bash tasks/smoke-tests/pipeline-openclaw-voice.sh
 
 # Voice filter verification

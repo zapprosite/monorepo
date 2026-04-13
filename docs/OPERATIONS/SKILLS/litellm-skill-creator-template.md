@@ -20,7 +20,7 @@ O skill deve poder:
 - Analisar imagens com qwen2.5-vl
 - Responder em PT-BR com tom-cat-8b
 
-Usa sempre o endpoint http://localhost:4000/v1 com a API key sk-zappro-lm-2026-s8k3m9x2p7r6t5w1v4c8n0d5j7f9g3h6i2k4l6m8n0p1
+Usa sempre o endpoint http://localhost:4000/v1 com a API key [LITELLM_API_KEY]
 
 Os modelos disponíveis são:
 - tts-1 (Kokoro) para síntese de voz
