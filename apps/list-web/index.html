@@ -445,104 +445,117 @@
     };
 
     /* ================================================================
-       TOOLS DATA — matches SPEC-TOOL-LIST.md
+       TOOLS DATA — 13 subdomains verified 2026-04-13 (tunnel v22)
+       Source of truth: /srv/ops/ai-governance/SUBDOMAINS.md
     ================================================================ */
     const TOOLS = [
+      // ── AI ─────────────────────────────────────────────────────────
       {
         name: 'OpenWebUI',
         url: 'https://chat.zappro.site',
-        description: 'Chat AI interface com LLM local via Ollama',
+        description: 'Chat AI com modelos LLM locais via Ollama',
         icon: '\u{1F4AC}',
         status: 'up',
         category: 'ai'
       },
       {
-        name: 'Grafana',
-        url: 'https://monitor.zappro.site',
-        description: 'Dashboards de monitoring e alertas',
-        icon: '\u{1F4CA}',
+        name: 'LiteLLM',
+        url: 'https://llm.zappro.site',
+        description: 'Proxy unificado LLM — interface UI e API',
+        icon: '\u{1F9E0}',
         status: 'up',
-        category: 'monitoring'
+        category: 'ai'
       },
       {
-        name: 'Prometheus',
-        url: 'https://monitor.zappro.site/graph',
-        description: 'Coleta de metricas e storage time-series',
-        icon: '\u{1F3AF}',
+        name: 'LiteLLM API',
+        url: 'https://api.zappro.site',
+        description: 'API endpoint programatico para modelos LLM',
+        icon: '\u{1F310}',
         status: 'up',
-        category: 'monitoring'
+        category: 'ai'
       },
       {
-        name: 'OpenClaw',
+        name: 'OpenClaw Bot',
         url: 'https://bot.zappro.site',
-        description: 'Voice AI bot com STT wav2vec2 + TTS Kokoro',
+        description: 'Voice AI bot com STT wav2vec2 + TTS Kokoro PT-BR',
         icon: '\u{1F3A4}',
         status: 'up',
         category: 'ai'
       },
       {
+        name: 'Qdrant',
+        url: 'https://qdrant.zappro.site',
+        description: 'Vector database para busca semantica e RAG',
+        icon: '\u{1F50D}',
+        status: 'up',
+        category: 'ai'
+      },
+      // ── MONITORING ─────────────────────────────────────────────────
+      {
+        name: 'Grafana',
+        url: 'https://monitor.zappro.site',
+        description: 'Dashboards de monitoring, metricas e alertas',
+        icon: '\u{1F4CA}',
+        status: 'up',
+        category: 'monitoring'
+      },
+      // ── INFRA ──────────────────────────────────────────────────────
+      {
         name: 'Coolify',
         url: 'https://coolify.zappro.site',
-        description: 'PaaS dashboard para deploy de aplicacoes',
+        description: 'PaaS self-hosted para deploy de aplicacoes',
         icon: '\u2601\uFE0F',
         status: 'up',
         category: 'infra'
       },
       {
-        name: 'Gitea',
-        url: 'https://git.zappro.site',
-        description: 'Servidor Git com repositorios privados',
-        icon: '\u{1F4E6}',
-        status: 'up',
-        category: 'dev'
-      },
-      {
-        name: 'Infisical',
-        url: 'https://vault.zappro.site',
-        description: 'Gerenciador de secrets e configuracoes',
-        icon: '\u{1F510}',
-        status: 'up',
-        category: 'infra'
-      },
-      {
-        name: 'Kokoro TTS',
-        url: 'https://bot.zappro.site:8012',
-        description: 'Text-to-Speech GPU com vozes PT-BR',
-        icon: '\u{1F50A}',
-        status: 'up',
-        category: 'ai'
-      },
-      {
         name: 'n8n',
         url: 'https://n8n.zappro.site',
-        description: 'Workflow automation e integracoes',
+        description: 'Workflow automation e integracoes low-code',
         icon: '\u{1F4CC}',
         status: 'up',
         category: 'infra'
       },
       {
-        name: 'Qdrant',
-        url: 'https://qdrant.zappro.site',
-        description: 'Vector database para semantic search',
-        icon: '\u{1F3AF}',
+        name: 'Infisical',
+        url: 'https://vault.zappro.site',
+        description: 'Gerenciador de secrets e variaveis de ambiente',
+        icon: '\u{1F510}',
         status: 'up',
-        category: 'ai'
+        category: 'infra'
+      },
+      // ── DEV ────────────────────────────────────────────────────────
+      {
+        name: 'Gitea',
+        url: 'https://git.zappro.site',
+        description: 'Servidor Git self-hosted com CI/CD Gitea Actions',
+        icon: '\u{1F4E6}',
+        status: 'up',
+        category: 'dev'
       },
       {
         name: 'Claude Code Panel',
         url: 'https://painel.zappro.site',
-        description: 'Claude Code com sessao persistente',
+        description: 'Claude Code CLI com sessao persistente no browser',
         icon: '\u{1F916}',
         status: 'up',
         category: 'dev'
       },
       {
-        name: 'LiteLLM Proxy',
-        url: 'https://api.zappro.site',
-        description: 'Proxy unificado para modelos LLM locais',
-        icon: '\u{1F310}',
+        name: 'Obsidian Vault',
+        url: 'https://md.zappro.site',
+        description: 'Documentacao e notas em Markdown com busca full-text',
+        icon: '\u{1F4DD}',
         status: 'up',
-        category: 'ai'
+        category: 'dev'
+      },
+      {
+        name: 'Ferramentas',
+        url: 'https://list.zappro.site',
+        description: 'Lista de todos os servicos do homelab (esta pagina)',
+        icon: '\u{1F5C2}\uFE0F',
+        status: 'up',
+        category: 'dev'
       },
     ];
 
