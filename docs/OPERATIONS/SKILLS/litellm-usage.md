@@ -9,7 +9,7 @@
 
 ```bash
 # Exportar credenciais
-export LITELLM_KEY="sk-zappro-lm-2026-s8k3m9x2p7r6t5w1v4c8n0d5j7f9g3h6i2k4l6m8n0p1"
+export LITELLM_KEY="[LITELLM_API_KEY]"
 export LITELLM_URL="${LITELLM_URL:-http://localhost:4000}"
 ```
 

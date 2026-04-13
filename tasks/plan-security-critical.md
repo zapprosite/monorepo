@@ -47,12 +47,12 @@ ls -la /data/coolify/source/.env
 
 ### Task 2: Revoke OAuth Secret (manual, 5 min)
 
-**Action:** Go to Google Cloud Console → APIs & Services → Credentials → Delete OAuth Client `GOCSPX-fgKPRDB9UcWb-i8Pr6eblXI`
+**Action:** Go to Google Cloud Console → APIs & Services → Credentials → Delete OAuth Client `[GOOGLE_OAUTH_SECRET]`
 
 **Verification:**
 ```bash
 # After revocation, this secret should fail:
-curl -s "https://oauth2.googleapis.com/tokeninfo?access_token=GOCSPX-fgKPRDB9UcWb-i8Pr6eblXI"
+curl -s "https://oauth2.googleapis.com/tokeninfo?access_token=[GOOGLE_OAUTH_SECRET]"
 # Expected: error response
 ```
 
@@ -217,7 +217,7 @@ echo -n "1. coolify .env perms: "
 [ "$(stat -c %a /data/coolify/source/.env)" = "600" ] && echo "PASS" || echo "FAIL"
 
 echo -n "2. OAuth secret revoked: "
-curl -s "https://oauth2.googleapis.com/tokeninfo?access_token=GOCSPX-fgKPRDB9UcWb-i8Pr6eblXI" | grep -q error && echo "PASS (revoked)" || echo "FAIL (still valid)"
+curl -s "https://oauth2.googleapis.com/tokeninfo?access_token=[GOOGLE_OAUTH_SECRET]" | grep -q error && echo "PASS (revoked)" || echo "FAIL (still valid)"
 
 echo -n "3. runner token not in git: "
 git ls-files | grep -q "runner/data/.runner" && echo "FAIL" || echo "PASS"

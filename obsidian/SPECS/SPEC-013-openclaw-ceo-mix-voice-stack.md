@@ -175,7 +175,7 @@ CEO MIX (Telegram)
         ]
       },
       "minimax": {
-        "apiKey": "Bearer tok_b9k2mxQp4rf7qSv8f3w4n6t1c5d8e0g3h6i9j2k4l7m0p1"
+        "apiKey": "[BEARER_TOKEN]"
       }
     }
   },
