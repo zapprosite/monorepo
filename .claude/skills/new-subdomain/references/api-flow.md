@@ -13,11 +13,11 @@ export CLOUDFLARE_API_TOKEN=$(infisical secrets get --key=CLOUDFLARE_API_TOKEN -
 
 | Variable | Value |
 |----------|-------|
-| ZONE_ID | `c0cf47bc153a6662f884d0f91e8da7c2` |
-| TUNNEL_ID | `aee7a93d-c2e2-4c77-a395-71edc1821402` |
-| ACCOUNT_ID | `1a41f45591a50585050f664fa015d01b` |
+| ZONE_ID | `${CF_ZONE_ID}` (Infisical: `cloudflare/ZONE_ID`) |
+| TUNNEL_ID | `${CF_TUNNEL_ID}` (Infisical: `cloudflare/TUNNEL_ID`) |
+| ACCOUNT_ID | `${CF_ACCOUNT_ID}` (Infisical: `cloudflare/ACCOUNT_ID`) |
 | BASE_DOMAIN | `zappro.site` |
-| TUNNEL_CNAME | `aee7a93d-c2e2-4c77-a395-71edc1821402.cfargotunnel.com` |
+| TUNNEL_CNAME | `${CF_TUNNEL_ID}.cfargotunnel.com` |
 
 ---
 
@@ -76,8 +76,8 @@ curl -s -X POST "https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/dns_recor
 ## Step 3 — Get current tunnel configuration
 
 ```bash
-curl -s -X GET "https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/tunnels/${TUNNEL_ID}" \
-  -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" | jq '.result.config'
+curl -s -X GET "https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/cfd_tunnel/${TUNNEL_ID}/configurations" \
+  -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" | jq '.result'
 ```
 
 **Success response:**
@@ -97,17 +97,14 @@ curl -s -X GET "https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/tunn
 Insert new ingress rule **BEFORE** the catch-all (`*.zappro.site`).
 
 ```bash
-curl -s -X PUT "https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/tunnels/${TUNNEL_ID}" \
+curl -s -X PUT "https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/cfd_tunnel/${TUNNEL_ID}/configurations" \
   -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
   -H "Content-Type: application/json" \
   -d "{
-    \"name\": \"will-zappro-homelab\",
-    \"config\": {
-      \"ingress\": [
-        {\"hostname\": \"${SUBDOMAIN}.zappro.site\", \"service\": \"${SERVICE_URL}\"},
-        {\"hostname\": \"*.zappro.site\", \"service\": \"http_status:404\"}
-      ]
-    }
+    \"ingress\": [
+      {\"hostname\": \"${SUBDOMAIN}.zappro.site\", \"service\": \"${SERVICE_URL}\"},
+      {\"hostname\": \"*.zappro.site\", \"service\": \"http_status:404\"}
+    ]
   }" | jq '{success: .success, errors: .errors}'
 ```
 
@@ -156,10 +153,10 @@ Creating `demo.zappro.site` → `http://10.0.5.50:3000`:
 ```bash
 SUBDOMAIN=demo
 SERVICE_URL=http://10.0.5.50:3000
-ZONE_ID=c0cf47bc153a6662f884d0f91e8da7c2
-TUNNEL_ID=aee7a93d-c2e2-4c77-a395-71edc1821402
-ACCOUNT_ID=1a41f45591a50585050f664fa015d01b
-TUNNEL_CNAME=aee7a93d-c2e2-4c77-a395-71edc1821402.cfargotunnel.com
+ZONE_ID=${CF_ZONE_ID}
+TUNNEL_ID=${CF_TUNNEL_ID}
+ACCOUNT_ID=${CF_ACCOUNT_ID}
+TUNNEL_CNAME=${CF_TUNNEL_ID}.cfargotunnel.com
 
 # 1. Create DNS
 curl -s -X POST "https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/dns_records" \
@@ -168,10 +165,10 @@ curl -s -X POST "https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/dns_recor
   -d "{\"type\": \"CNAME\", \"name\": \"${SUBDOMAIN}\", \"content\": \"${TUNNEL_CNAME}\", \"proxied\": true}" | jq .success
 
 # 2. Update tunnel
-curl -s -X PUT "https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/tunnels/${TUNNEL_ID}" \
+curl -s -X PUT "https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/cfd_tunnel/${TUNNEL_ID}/configurations" \
   -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
   -H "Content-Type: application/json" \
-  -d "{\"name\": \"will-zappro-homelab\", \"config\": {\"ingress\": [{\"hostname\": \"${SUBDOMAIN}.zappro.site\", \"service\": \"${SERVICE_URL}\"}, {\"hostname\": \"*.zappro.site\", \"service\": \"http_status:404\"}]}}" | jq .success
+  -d "{\"ingress\": [{\"hostname\": \"${SUBDOMAIN}.zappro.site\", \"service\": \"${SERVICE_URL}\"}, {\"hostname\": \"*.zappro.site\", \"service\": \"http_status:404\"}]}" | jq .success
 
 # 3. Verify
 curl -sfI --max-time 10 "https://${SUBDOMAIN}.zappro.site/" | head -1
@@ -191,9 +188,9 @@ RECORD_ID=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones/${ZONE_ID
 curl -s -X DELETE "https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/dns_records/${RECORD_ID}" \
   -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" | jq .success
 
-# 2. Remove from tunnel (restore original ingress)
-curl -s -X PUT "https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/tunnels/${TUNNEL_ID}" \
+# 2. Remove from tunnel (restore original ingress — use cfd_tunnel/configurations endpoint)
+curl -s -X PUT "https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/cfd_tunnel/${TUNNEL_ID}/configurations" \
   -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
   -H "Content-Type: application/json" \
-  -d '{"name": "will-zappro-homelab", "config": {"ingress": [{"hostname": "*.zappro.site", "service": "http_status:404"}]}}' | jq .success
+  -d '{"ingress": [{"hostname": "*.zappro.site", "service": "http_status:404"}]}' | jq .success
 ```

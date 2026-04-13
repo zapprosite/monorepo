@@ -45,18 +45,51 @@ app-name/
 3. Adicionar redirect URI: `https://SUBDOMAIN.zappro.site/auth/callback`
 4. Guardar client_id e client_secret no Infisical (nao hardcodar)
 
-### 4. TERRAFORM
-1. Ler `/srv/ops/terraform/cloudflare/variables.tf` (bloco var.services)
-2. Adicionar entrada em var.services:
-   ```hcl
-   app_name = {
-     url              = "http://10.0.X.X:PORT"   # IP DO CONTAINER, nao localhost
-     subdomain        = "app-name"
-     http_host_header = null
-   }
+### 4. SUBDOMAIN (API Fast Path)
+
+Para deploy rapido, usar a API direta (30s) ao inves de Terraform:
+
+1. Verificar subdomain disponivel em `/srv/ops/ai-governance/SUBDOMAINS.md`
+2. Verificar porta disponivel em `/srv/ops/ai-governance/PORTS.md` + `ss -tlnp | grep :PORT`
+3. Obter CLOUDFLARE_API_TOKEN do Infisical (project: homelab-infra)
+4. Criar CNAME DNS record via API:
+   ```bash
+   curl -s -X POST "https://api.cloudflare.com/client/v4/zones/c0cf47bc153a6662f884d0f91e8da7c2/dns_records" \
+     -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+     -H "Content-Type: application/json" \
+     -d '{
+       "type": "CNAME",
+       "name": "<subdomain>",
+       "content": "aee7a93d-c2e2-4c77-a395-71edc1821402.cfargotunnel.com",
+       "proxied": true
+     }'
    ```
-3. `cd /srv/ops/terraform/cloudflare && terraform apply`
-4. Verificar DNS criado
+5. Obter tunnel config e adicionar ingress rule (antes do catch-all):
+   ```bash
+   # GET current config
+   curl -s -X GET "https://api.cloudflare.com/client/v4/accounts/1a41f45591a50585050f664fa015d01b/tunnels/aee7a93d-c2e2-4c77-a395-71edc1821402" \
+     -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" | jq '.result.config'
+
+   # PUT updated config com novo ingress
+   curl -s -X PUT "https://api.cloudflare.com/client/v4/accounts/1a41f45591a50585050f664fa015d01b/tunnels/aee7a93d-c2e2-4c77-a395-71edc1821402" \
+     -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+     -H "Content-Type: application/json" \
+     -d '{
+       "name": "will-zappro-homelab",
+       "config": {
+         "ingress": [
+           {"hostname": "<subdomain>.zappro.site", "service": "http://10.0.X.X:PORT"},
+           {"hostname": "*.zappro.site", "service": "http_status:404"}
+         ]
+       }
+     }'
+   ```
+6. Verificar: `curl -sfI https://<subdomain>.zappro.site`
+
+**Apos API fast path, sync para Terraform** (manter estado):
+- Adicionar em `/srv/ops/terraform/cloudflare/variables.tf`
+- `cd /srv/ops/terraform/cloudflare && terraform apply`
+- Atualizar SUBDOMAINS.md e PORTS.md
 
 ### 5. DEPLOY
 1. Build: `docker compose build`
@@ -91,19 +124,57 @@ O erro mais comum em OAuth client-side apps é `client_secret is missing`.
 Quando o app faz exchange de authorization code por tokens no browser:
 
 ```javascript
-// app.js ou auth-callback.html
+// auth-callback.html (via env.js injection)
 POST https://oauth2.googleapis.com/token
 Content-Type: application/x-www-form-urlencoded
 
 grant_type=authorization_code
-&client_id=GOOGLE_CLIENT_ID        → Infisical: obsidian-web/GOOLE_CLIENT_ID
-&client_secret=GOOGLE_CLIENT_SECRET → Infisical: obsidian-web/GOOGLE_CLIENT_SECRET
+&client_id=window.__ENV__.GOOGLE_CLIENT_ID
+&client_secret=window.__ENV__.GOOGLE_CLIENT_SECRET
 &code=AUTH_CODE
 &code_verifier=PKCE_VERIFIER
 &redirect_uri=https://subdomain.zappro.site/auth/callback
 ```
 
 **Sem `client_secret` → `invalid_client` ou `client_secret is missing`**
+
+### PKCE Implementation (OBRIGATÓRIO)
+
+Web apps DEVEM usar PKCE para authorization code exchange:
+
+```javascript
+// Gerar PKCE verifier e challenge
+function generateRandomString(length) {
+  const array = new Uint8Array(length);
+  crypto.getRandomValues(array);
+  return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
+}
+
+async function sha256(plain) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(plain);
+  const hash = await crypto.subtle.digest('SHA-256', data);
+  return btoa(String.fromCharCode(...new Uint8Array(hash)));
+}
+
+async function generatePKCE() {
+  const verifier = generateRandomString(64);
+  const challenge = await sha256(verifier);
+  sessionStorage.setItem('pkce_verifier', verifier);
+  return { verifier, challenge };
+}
+```
+
+### env.js Injection Pattern (OBRIGATÓRIO)
+
+O container DEVE injetar credenciais via env.js, NAO sed placeholders:
+
+```javascript
+// window.__ENV__?.GOOGLE_CLIENT_ID
+// window.__ENV__?.GOOGLE_CLIENT_SECRET
+```
+
+O env.js e criado pelo entrypoint do container a partir de secrets Infisical.
 
 ### Credentials (homelab — via Infisical)
 
@@ -168,7 +239,7 @@ vault.zappro.site → Cloudflare Access (@zappro.site) → OAuth Google
 ```
 
 ### Como configurar OAuth-only (MVP)
-1. Em `access.tf`, adicionar novo subdomain à exclusão:
+1. Adicionar subdomain via API (new-subdomain skill) ou via Terraform:
    ```hcl
    access_services = { for k, v in var.services : k => v if k != "bot" && k != "list" && k != "md" && k != "NOVO" }
    ```
@@ -184,12 +255,14 @@ vault.zappro.site → Cloudflare Access (@zappro.site) → OAuth Google
 - **client_secret SEMPRE no token exchange POST body**
 
 ## References
-- `references/file-structure.md` — Templates de todos os arquivos
-- `references/oauth-flow.md` — Passos Google OAuth setup (inclui token exchange)
+- `references/file-structure.md` — Templates de todos os arquivos (com env.js pattern)
+- `references/oauth-flow.md` — Passos Google OAuth setup (PKCE + token exchange)
 - `references/tunnel-setup.md` — Como adicionar subdomain no Terraform
 - `references/container-deploy.md` — Docker build e deploy
 - `references/smoke-test.md` — Checklist de verificacao
 - `references/troubleshooting.md` — Erros comuns e solucoes
+- `new-subdomain` skill — Fast path API para subdomain (30s)
+- `oauth-google-direct` skill — Implementacao completa OAuth com PKCE
 
 ## Incidentes Conhecidos
 

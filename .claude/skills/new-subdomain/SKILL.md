@@ -31,17 +31,17 @@ type: skill
 
 | Key | Value |
 |-----|-------|
-| Zone ID | `c0cf47bc153a6662f884d0f91e8da7c2` |
-| Tunnel ID | `aee7a93d-c2e2-4c77-a395-71edc1821402` |
-| Account ID | `1a41f45591a50585050f664fa015d01b` |
-| Tunnel CNAME | `aee7a93d-c2e2-4c77-a395-71edc1821402.cfargotunnel.com` |
+| Zone ID | `${CF_ZONE_ID}` (Infisical: `cloudflare/ZONE_ID`) |
+| Tunnel ID | `${CF_TUNNEL_ID}` (Infisical: `cloudflare/TUNNEL_ID`) |
+| Account ID | `${CF_ACCOUNT_ID}` (Infisical: `cloudflare/ACCOUNT_ID`) |
+| Tunnel CNAME | `${CF_TUNNEL_ID}.cfargotunnel.com` |
 
 ## Process (7 steps)
 
 ### Step 1: Check existing DNS records
 
 ```bash
-curl -s -X GET "https://api.cloudflare.com/client/v4/zones/c0cf47bc153a6662f884d0f91e8da7c2/dns_records" \
+curl -s -X GET "https://api.cloudflare.com/client/v4/zones/${CF_ZONE_ID}/dns_records" \
   -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
   -H "Content-Type: application/json" | jq '.result[] | select(.type == "CNAME") | {name, content}'
 ```
@@ -51,13 +51,13 @@ Verify subdomain NOT already in use.
 ### Step 2: Create CNAME DNS record
 
 ```bash
-curl -s -X POST "https://api.cloudflare.com/client/v4/zones/c0cf47bc153a6662f884d0f91e8da7c2/dns_records" \
+curl -s -X POST "https://api.cloudflare.com/client/v4/zones/${CF_ZONE_ID}/dns_records" \
   -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
     "type": "CNAME",
     "name": "<subdomain>",
-    "content": "aee7a93d-c2e2-4c77-a395-71edc1821402.cfargotunnel.com",
+    "content": "${CF_TUNNEL_ID}.cfargotunnel.com",
     "proxied": true
   }' | jq '{success: .success, record: .result}'
 ```
@@ -65,8 +65,9 @@ curl -s -X POST "https://api.cloudflare.com/client/v4/zones/c0cf47bc153a6662f884
 ### Step 3: Get current tunnel config
 
 ```bash
-curl -s -X GET "https://api.cloudflare.com/client/v4/accounts/1a41f45591a50585050f664fa015d01b/tunnels/aee7a93d-c2e2-4c77-a395-71edc1821402" \
-  -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" | jq '.result.config'
+curl -s -X GET "https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT_ID}/cfd_tunnel/${CF_TUNNEL_ID}/configurations" \
+  -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+  -H "Content-Type: application/json" | jq '.result'
 ```
 
 ### Step 4: Build new ingress config
@@ -91,17 +92,14 @@ Example new ingress (insert before catch-all):
 ### Step 5: PUT updated tunnel config
 
 ```bash
-curl -s -X PUT "https://api.cloudflare.com/client/v4/accounts/1a41f45591a50585050f664fa015d01b/tunnels/aee7a93d-c2e2-4c77-a395-71edc1821402" \
+curl -s -X PUT "https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT_ID}/cfd_tunnel/${CF_TUNNEL_ID}/configurations" \
   -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
-    "name": "will-zappro-homelab",
-    "config": {
-      "ingress": [
-        {"hostname": "<subdomain>.zappro.site", "service": "<service-url>"},
-        {"hostname": "*.zappro.site", "service": "http_status:404"}
-      ]
-    }
+    "ingress": [
+      {"hostname": "<subdomain>.zappro.site", "service": "<service-url>"},
+      {"hostname": "*.zappro.site", "service": "http_status:404"}
+    ]
   }' | jq '{success: .success}'
 ```
 

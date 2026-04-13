@@ -144,6 +144,7 @@ Don't know? → ASK BEFORE DOING
 | `apps/web` | Web | React 19 + MUI + tRPC | — |
 | `apps/orchestrator` | Agent | Node.js + tRPC + YAML | Human gates |
 | `apps/perplexity-agent` | Agent | Python + Streamlit + LangChain | Browser automation |
+| `apps/todo-web` | Web | Static HTML+JS + Google OAuth 2.0 + PKCE | nginx:alpine, container: todo-web |
 | `packages/ui-mui` | UI Lib | React + Material UI | → frontend |
 | `packages/zod-schemas` | Schemas | TypeScript + Zod | → backend, frontend, orchestrator |
 | `packages/typescript-config` | Config | TypeScript | Dev tooling |
