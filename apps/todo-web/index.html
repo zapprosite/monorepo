@@ -102,19 +102,17 @@
       }
     }
 
-    function buildLoginButton() {
-      var verifier = '';
+    async function buildLoginButton() {
       var array = new Uint8Array(32);
       crypto.getRandomValues(array);
-      for (var i = 0; i < array.length; i++) {
-        verifier += String.fromCharCode(array[i]);
-      }
-      verifier = base64urlencode(array);
+      var verifier = base64urlencode(array);
       sessionStorage.setItem('pkce_verifier', verifier);
-      var encodedVerifier = encodeURIComponent(verifier);
+      // S256: code_challenge = BASE64URL(SHA256(verifier))
+      var hashBuffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(verifier));
+      var codeChallenge = base64urlencode(hashBuffer);
       var params = 'client_id=' + encodeURIComponent(CONFIG.GOOGLE_CLIENT_ID || '') +
         '&redirect_uri=' + encodeURIComponent(CONFIG.GOOGLE_REDIRECT_URI || 'https://todo.zappro.site/auth/callback') +
-        '&response_type=code&scope=email%20profile&access_type=online&prompt=select_account&code_challenge_method=S256&code_challenge=' + encodeURIComponent(verifier);
+        '&response_type=code&scope=email%20profile&access_type=online&prompt=select_account&code_challenge_method=S256&code_challenge=' + encodeURIComponent(codeChallenge);
       document.getElementById('login-btn').href = AUTH_ENDPOINT + '?' + params;
     }
 
