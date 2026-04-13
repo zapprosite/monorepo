@@ -48,6 +48,7 @@ docs/
 .context/
 .gemini/
 .codex/
+obsidian/
 
 # Temporary
 tmp/
