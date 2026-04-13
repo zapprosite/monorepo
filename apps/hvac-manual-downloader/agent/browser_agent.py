@@ -18,7 +18,7 @@ def get_llm() -> ChatOpenAI:
     )
 
 
-def get_browser_profile(headless: bool = True) -> BrowserProfile:
+def get_browser_profile(headless: bool = True, user_data_dir: str = None) -> BrowserProfile:
     """Build BrowserProfile with Docker-safe Chrome flags.
 
     CHROME_EXTRA_ARGS env var controls extra flags, e.g.:
@@ -26,6 +26,8 @@ def get_browser_profile(headless: bool = True) -> BrowserProfile:
     Set automatically by docker-compose.scraper.yml.
 
     PLAYWRIGHT_HEADLESS=1 forces headless mode (no display required).
+
+    user_data_dir enables persistent Chrome profile (cookies, session).
     """
     extra_args_env = os.environ.get("CHROME_EXTRA_ARGS", "")
     extra_chromium_args = [a for a in extra_args_env.split() if a]
@@ -39,6 +41,7 @@ def get_browser_profile(headless: bool = True) -> BrowserProfile:
     return BrowserProfile(
         headless=headless,
         extra_chromium_args=extra_chromium_args,
+        user_data_dir=user_data_dir,
     )
 
 
@@ -48,10 +51,13 @@ def get_agent(chrome_profile_path: str):
     When PLAYWRIGHT_HEADLESS=1 (set in docker-compose.scraper.yml) the agent
     runs fully headless with --no-sandbox so it works inside a container without
     a display server or host Chrome installation.
+
+    chrome_profile_path is the user_data_dir for persistent Chrome profile.
+    Session cookies are saved here for brand login persistence.
     """
     llm = get_llm()
     headless = os.environ.get("PLAYWRIGHT_HEADLESS", "0") == "1"
-    browser_profile = get_browser_profile(headless=headless)
+    browser_profile = get_browser_profile(headless=headless, user_data_dir=chrome_profile_path)
     return Agent(
         task="You are a helpful HVAC web browsing assistant that downloads service manuals.",
         llm=llm,
