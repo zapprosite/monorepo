@@ -25,6 +25,24 @@
 | `coolify-deploy-trigger` | Trigger Coolify deploy via API | No health-check wait; no rollback |
 | `coolify-health-check` | Verify health endpoint after deploy | Waits and validates HTTP 200 |
 
+### Key Integration Points Already Exist
+- `prd-to-deploy` → `cloudflare-terraform` → `coolify-access` chain is defined
+- `/infra-gen terraform subdomain` reads PORTS.md/SUBDOMAINS.md before generating
+- MiniMax LLM (1M context) handles multi-file generation in single call
+- `list-web-from-zero-to-deploy/references/` has all file templates
+
+### What's Still Needed (Gap Analysis)
+
+| Gap | Impact | Workaround |
+|-----|--------|------------|
+| No automatic port allocation | Manual port selection can cause conflicts | Read PORTS.md manually, pick from range 4002-4099 |
+| No compose-generator skill | Must manually create docker-compose.yml | Use list-web-from-zero-to-deploy templates |
+| No rollback on failure | Failed deploy requires manual cleanup | `terraform apply` rollback manually |
+| No subdomains health watcher | New app not monitored post-deploy | Manual `smoke-tunnel.sh` cron |
+| No changelog generator | No auto-CHANGELOG entry | Manual entry |
+| No DNS propagation checker | Smoke test fails immediately after terraform | Wait 30s manually |
+| No post-deploy reporter | No summary with URLs + next steps | Manual notification |
+
 ---
 
 ## 2. Missing Skills (to create)
