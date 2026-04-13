@@ -20,7 +20,7 @@ type Browser struct {
 func NewBrowser(headless bool) (*Browser, error) {
 	browser := rod.New()
 
-	u := launcher.New().Headless(true).MustLaunch()
+	u := launcher.New().Headless(true).Set("no-sandbox", "").Set("disable-dev-shm-usage", "").MustLaunch()
 	browser = rod.New().ControlURL(u)
 
 	if err := browser.MustConnect(); err != nil {

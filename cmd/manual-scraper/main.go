@@ -81,8 +81,8 @@ func main() {
 func scrapeSingle(ctx context.Context, url string) error {
 	log.Printf("Starting single URL scrape: %s", url)
 
-	// Launch browser with Rod
-	u := launcher.New().Headless(true).MustLaunch()
+	// Launch browser with Rod (--no-sandbox required for Linux root/containers)
+	u := launcher.New().Headless(true).Set("no-sandbox", "").Set("disable-dev-shm-usage", "").MustLaunch()
 	browser := rod.New().ControlURL(u).MustConnect()
 	defer browser.MustClose()
 
