@@ -83,6 +83,83 @@
 
 ---
 
+## Tool System (`.claude/tools/`)
+
+**Painel de tools para agentes descobrirem e usarem automaticamente.**
+
+### Filosofia
+- Tools são **descobertas** por agents via contexto (AGENTS.md)
+- Output **JSON** para orquestração entre tools
+- **Dependency graph** para chaining automático
+- **Cron triggers** para auto-execução
+
+### Tool Panel
+
+| Tool | Alias | Descrição | Dependency |
+|------|-------|-----------|------------|
+| `/sync` | — | ai-context-sync → memory | cron:30min |
+| `/heal` | — | Auto-healer Docker containers | cron:5min |
+| `/scraper` | — | Pipeline HVAC: scrape→download→extract→embed→qdrant | chains |
+| `/extract` | — | docling table extraction from PDFs | used by scraper |
+| `/embed` | — | Ollama nomic-embed-text (768D) | used by scraper |
+| `/qdrant` | — | Vector upsert/search (hvac_service_manuals) | used by scraper |
+| `/github` | — | Sync GitHub repos HVAC (coolfix, hvac-pro) | cron:daily |
+| `/build` | — | Go build com caching | pre-deploy |
+| `/deploy` | — | Coolify API deploy | post-build |
+| `/status` | — | Homelab overview (containers, resources) | cron:daily |
+
+### Dependency Graph (Orquestração)
+
+```
+/github ──→ /scraper ──→ /extract
+                           │
+                      /embed ──→ /qdrant
+                           ↑
+                           │
+/build ──→ /deploy ──→ /heal
+                    ↑
+                    │
+/sync ──→ /status ◄── /heal
+```
+
+### Tool Definitions (`.claude/tools/`)
+
+```json
+{
+  "name": "scraper",
+  "alias": "/scraper",
+  "description": "Pipeline HVAC manuals",
+  "flags": ["--pipeline {lg,samsung,springer}", "--max N", "--verbose"],
+  "orchestrates": ["/extract", "/embed", "/qdrant"],
+  "output": "json"
+}
+```
+
+### Fluxo de Execução
+
+1. **Trigger**: cron ou agent invoca tool
+2. **Execute**: Script com flags → JSON stdout
+3. **Parse**: Agent ou orchestrator lê output
+4. **Chain**: Se dependent tool, dispara próximo
+
+### Fragile Containers (para /heal)
+
+| Container | Risco | Fallback |
+|-----------|-------|----------|
+| openclaw-* | Crash loop em bad env vars | Skip restart, alert |
+| perplexity-agent | GitOps gap (DNS up, container down) | Verificar container existe |
+| wav2vec2 | TCP bridge isolation | Health check sem route |
+| gitea-runner | Token expiry | Regenerar token |
+| node-exporter/cadvisor | OOM kills | Não restartar em loop |
+
+### Rate Limiting (para /scraper, /github)
+
+- **Default**: 2s entre requests
+- **On 429**: Exponential backoff 1→2→4→8→16s com jitter ±500ms
+- **On CAPTCHA**: Skip + log + `login_required: true`
+
+---
+
 ## Skills (`.claude/skills/`)
 
 **33 skills locais** — ativados automaticamente via `AGENTS.md`:

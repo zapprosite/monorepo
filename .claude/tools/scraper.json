@@ -1,0 +1,30 @@
+{
+  "name": "scraper",
+  "alias": "/scraper",
+  "description": "Pipeline completo: scrape → download → extract → chunk → embed → qdrant",
+  "script": "cmd/manual-scraper/manual-scraper",
+  "triggers": ["manual", "cron:daily"],
+  "output": "json",
+  "flags": [
+    {"name": "--pipeline", "type": "string", "required": true, "values": ["lg", "samsung", "springer"]},
+    {"name": "--max", "type": "int", "default": 0},
+    {"name": "--verbose", "type": "bool", "default": false},
+    {"name": "--ollama", "type": "string", "default": "http://localhost:11434"},
+    {"name": "--qdrant", "type": "string", "default": "localhost:6334"}
+  ],
+  "examples": [
+    "/scraper lg --max 10",
+    "/scraper samsung --verbose",
+    "/scraper springer"
+  ],
+  "depends_on": ["extract", "embed", "qdrant"],
+  "orchestrates": ["extract", "embed", "qdrant", "github"],
+  "pipeline_flow": {
+    "1_scrape": "Rod browser → FindPDFLinks",
+    "2_download": "HTTP download → brand dir",
+    "3_extract": "docling tables → JSON",
+    "4_chunk": "ChunkFromPDF → []ChunkResult",
+    "5_embed": "nomic-embed-text → 768D vector",
+    "6_upsert": "Qdrant → hvac_service_manuals"
+  }
+}

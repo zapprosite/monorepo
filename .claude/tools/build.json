@@ -1,0 +1,24 @@
+{
+  "name": "build",
+  "alias": "/build",
+  "description": "Build Go binaries com caching",
+  "script": "go build ./...",
+  "triggers": ["manual", "pre-deploy"],
+  "output": "text",
+  "flags": [
+    {"name": "target", "type": "string", "default": "./..."},
+    {"name": "--output", "type": "string"},
+    {"name": "--tags", "type": "string"}
+  ],
+  "examples": [
+    "/build cmd/manual-scraper",
+    "/build ./...",
+    "/build cmd/swarm --output bin/swarm"
+  ],
+  "depends_on": [],
+  "orchestrates": [],
+  "artifacts": {
+    "manual-scraper": "cmd/manual-scraper/manual-scraper",
+    "swarm": "cmd/swarm/main.go"
+  }
+}

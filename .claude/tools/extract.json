@@ -1,0 +1,19 @@
+{
+  "name": "extract",
+  "alias": "/extract",
+  "description": "Extrai tabelas de PDFs usando docling",
+  "script": "cmd/manual-scraper/extractor/tables.py",
+  "triggers": ["manual"],
+  "output": "json",
+  "flags": [
+    {"name": "pdf_path", "type": "string", "required": true},
+    {"name": "-o", "--output", "type": "string", "default": "stdout"}
+  ],
+  "examples": [
+    "/extract /srv/data/manuals/lg/AR-09NS1.pdf",
+    "/extract /srv/data/manuals/lg/AR-09NS1.pdf -o tables.json"
+  ],
+  "depends_on": [],
+  "orchestrates": [],
+  "table_types": ["error_codes", "wiring_diagrams", "specifications"]
+}
