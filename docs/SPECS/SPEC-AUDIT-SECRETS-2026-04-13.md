@@ -11,7 +11,7 @@ author: will + 10 MiniMax agents (10/10 completed)
 
 ## Executive Summary
 
-**68 secrets** remaining in Infisical vault (down from 77 — 9 deleted during audit).
+**66 secrets** remaining in Infisical vault (down from 77 — 11 deleted during audit).
 
 **Actions taken:**
 - Deleted 4 unused: `OLLAMA_URL`, `OLLAMA_BASE_URL`, `QDRANT_URL`, `QDRANT_URL_PUBLIC`
@@ -270,8 +270,8 @@ Before removing, confirm these services are not in use:
 | 3 | Delete `~/.zappro/config/secrets.env` (plaintext legacy, outside monorepo scope) | ⚠️ PENDING — outside scope, manual |
 | 4 | Set GitHub Actions secrets: `COOLIFY_URL`, `COOLIFY_API_KEY`, `CLAUDE_API_KEY`, `GITEA_TOKEN` | ⚠️ PENDING — different management plane |
 | 5 | Investigate remaining 9 unused secrets (TAVILY_API_KEY, GROQ_API_KEY, etc.) before deletion | 🔍 INVESTIGATE |
-| 6 | Delete expired `GH_TOKEN` (401 Bad credentials) | 🔍 READY — confirm before delete |
-| 7 | Delete expired `GITHUB_TOKEN` (401 Bad credentials) | 🔍 READY — confirm before delete |
+| 6 | Delete expired `GH_TOKEN` (401 Bad credentials) | ✅ DONE — deleted from vault |
+| 7 | Delete expired `GITHUB_TOKEN` (401 Bad credentials) | ✅ DONE — deleted from vault |
 | 8 | Verify `GITEA_TOKEN` against Gitea instance | 🔍 INVESTIGATE |
 
 ---
