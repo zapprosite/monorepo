@@ -202,7 +202,8 @@ Don't know? → ASK BEFORE DOING
 | `snapshot-safe` | ZFS safe operations | — |
 | `cost-reducer` | Optimizar custos | — |
 | `browser-dev` | Browser automation | — |
-| `researcher` | Web research (MiniMax M2.7) | — |
+| `researcher` | Web research (MiniMax M2.1) | — |
+| `minimax-research` | Deep code/error analysis (MiniMax M2.1) | `/minimax-research` |
 | `minimax-code-gen` | tRPC router from Zod schema | `/codegen` |
 | `minimax-security-audit` | OWASP + Infisical SDK enforcement | `/msec` |
 | `doc-maintenance` | Docs sync: API ref, PORTS, SUBDOMAINS | `/dm` |
@@ -300,6 +301,7 @@ SPEC-TEMPLATE.md → SPEC-*.md → tasks.md → pipeline.json
 | SPEC-014 | Cursor AI CI/CD Pattern |
 | SPEC-015 | Gitea Actions Enterprise |
 | SPEC-034 | MiniMax LLM use cases (10 new skills) |
+| SPEC-035 | MiniMax Research replacement — Tavily → M2.1 |
 
 ---
 
@@ -669,16 +671,23 @@ See `docs/GOVERNANCE/TAG-POLICY.md`
 
 ## Research Agent (SPEC-035 — COMPLETED)
 
-** Tavily API replaced with MiniMax M2.7 for research (2026-04-13)**
+** Tavily API replaced with MiniMax M2.1 for research (2026-04-13)**
 
-The `/researcher` skill uses MiniMax LLM instead of Tavily web search:
+The `/minimax-research` skill uses MiniMax LLM instead of Tavily web search:
 
-| Aspect | Tavily (DEPRECATED) | MiniMax M2.7 (ACTIVE) |
+| Aspect | Tavily (DEPRECATED) | MiniMax M2.1 (ACTIVE) |
 |--------|---------------------|------------------------|
 | Method | Web search API | LLM inference |
 | Context | URLs + snippets | Full error/code analysis |
 | Key | `TAVILY_API_KEY` | `MINIMAX_API_KEY` |
 | Source | Orphaned vault secret | Infisical SDK |
+| Use case | General web research | Deep code/error analysis |
+
+### Skill
+
+Trigger: `/minimax-research <query>`
+
+For error analysis, architecture research, or code investigation. See `.claude/skills/minimax-research/SKILL.md`.
 
 ### Script
 
@@ -691,7 +700,14 @@ bash scripts/cursor-loop-research-minimax.sh "<topic or error message>"
 
 - **Auth:** `MINIMAX_API_KEY` fetched via Infisical SDK (fallback to env var)
 - **Endpoint:** `https://api.minimax.io/anthropic/v1/messages` (same pattern as voice pipeline)
-- **Model:** MiniMax-M2.7 (1M context, PT-BR native reasoning)
+- **Model:** MiniMax-M2.1 (200k+ context, fast inference)
+
+### Cron Jobs
+
+| Job | Schedule | Function |
+|-----|----------|----------|
+| `minimax-doc-sync-daily` | `0 7 * * *` | MiniMax: PORTS.md + SUBDOMAINS.md vs live → SERVICE_STATE.md |
+| `minimax-bug-triage-daily` | `0 9 * * *` | MiniMax: health-check.log → proactive anomaly report |
 
 ### Migration (SPEC-035)
 
