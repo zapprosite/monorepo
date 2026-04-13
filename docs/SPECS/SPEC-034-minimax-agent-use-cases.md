@@ -15,7 +15,7 @@ specRef: SPEC-024, SPEC-030
 
 **Data:** 12/04/2026
 **Pesquisa:** 14 agents parallel MiniMax research (7 completaram, 7 x 529 API overload)
-**Modelo:** MiniMax M2.7 (204k context window)
+**Modelo:** MiniMax M2.7 (1M token context window — 1,048,576 tokens)
 
 ---
 
@@ -175,7 +175,7 @@ Dev define Zod schema → /bcaffold contract → MiniMax gera:
 
 **MiniMax Strengths:**
 - YAML/Terraform generation (formata exatamente como monorepo usa: `map(object({...}))`)
-- Long-context infra reasoning (204k — lê PORTS.md + SUBDOMAINS.md + variables.tf antes de gerar)
+- Long-context infra reasoning (1M — lê PORTS.md + SUBDOMAINS.md + variables.tf antes de gerar)
 - Docker Compose + healthchecks + networks + volumes
 - Prometheus alert rules (loki, cadvisor, node-exporter patterns de SPEC-023)
 - Gitea Actions workflow generation
@@ -202,7 +202,7 @@ Dev define Zod schema → /bcaffold contract → MiniMax gera:
 ### 7. Code Review Quality — `/mxr` (AGENT-11)
 
 **MiniMax Strengths:**
-- 204k token context — analiza PRs inteiros (30+ files) + SPECs + review history
+- 1M token context — analiza PRs inteiros (30+ files) + SPECs + review history
 - TypeScript deep analysis (inverted generics, `infer` misuse, non-exhaustive discriminated unions, type drift)
 - PR description generation (conventional commits format + breaking changes + smoke tests)
 - Review history tracking (SQLite `reviews/review-log.jsonl` — recurring issues)
@@ -253,7 +253,7 @@ PR open → code-review.yml triggered
 
 ## PT-BR Synthesis
 
-MiniMax M2.7 com 204k tokens é o modelo ideal para este monorepo por 3 razões:
+MiniMax M2.7 com 1M tokens é o modelo ideal para este monorepo por 3 razões:
 1. **Contexto longo** — elimina chunking manual em logs, PRs, e specs
 2. **Custo baixo para automação** — viabiliza cron jobs de triage e documentação (Claude seria proibitivo)
 3. **PT-BR nativo** — raciocina em português nos logs do homelab com mais precisão

@@ -211,7 +211,7 @@ Don't know? → ASK BEFORE DOING
 | `db-migration` | OrchidORM migration + rollback | `/migrate` |
 | `trpc-compose` | Add new tRPC router | `/trpc` |
 | `infra-from-spec` | Infrastructure from natural language | `/infra-gen` |
-| `review-minimax` | Holistic PR review (204k context) | `/mxr` |
+| `review-minimax` | Holistic PR review (1M context) | `/mxr` |
 
 ---
 
@@ -269,7 +269,7 @@ Don't know? → ASK BEFORE DOING
 
 ## MiniMax LLM Integration (SPEC-034)
 
-**Modelo:** MiniMax M2.7 (204k token context window)
+**Modelo:** MiniMax M2.7 (1M token context window)
 **API:** `https://api.minimax.io/anthropic/v1`
 **Skills:** 10 novos skills para code gen, security, docs, debugging, backend scaffold, infra generation, e code review
 
@@ -279,7 +279,7 @@ Ver `docs/SPECS/SPEC-034-minimax-agent-use-cases.md` para pesquisa completa de 1
 - `/codegen contract` — gera tRPC router completo de Zod schema (~30min → 5min)
 - `/msec` — security audit semantic (OWASP + Infisical SDK pattern)
 - `/dm ports` — detecta drift entre ss -tlnp e PORTS.md automaticamente
-- `/bug-triage` — diagnostica Docker crash loops e tunnel DOWN com contexto de 204k tokens
+- `/bug-triage` — diagnostica Docker crash loops e tunnel DOWN com contexto de 1M tokens
 - `/mxr` — holistic PR review (30+ files analisados juntos)
 
 ---
@@ -447,7 +447,7 @@ git push --force-with-lease gitea HEAD && git push --force-with-lease origin HEA
 | `d201999d` | `*/5 * * * *` | Auto-healer (Coolify) |
 | `95c72b71` | `3 */15 * * *` | Resource monitor |
 | `minimax-doc-sync-daily` | `0 7 * * *` | MiniMax: PORTS.md + SUBDOMAINS.md vs live → SERVICE_STATE.md |
-| `minimax-bug-triage-daily` | `0 8 * * *` | MiniMax: health-check.log → proactive anomaly report |
+| `minimax-bug-triage-daily` | `0 9 * * *` | MiniMax: health-check.log → proactive anomaly report |
 
 ---
 
@@ -651,7 +651,7 @@ See `docs/GOVERNANCE/TAG-POLICY.md`
 /infra-gen prometheus alerts loki
 /infra-gen gitea workflow deploy-prd push
 
-# Holistic PR review (204k token context)
+# Holistic PR review (1M token context)
 /mxr 42
 /mxr --commit abc123
 ```
