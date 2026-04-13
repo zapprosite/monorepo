@@ -189,6 +189,24 @@ Rotation completed in previous session:
 
 ---
 
+## GitHub Token Validation — 2026-04-13
+
+All GitHub-related tokens tested against GitHub API:
+
+| Token | API Test | Result |
+|-------|----------|--------|
+| `GH_TOKEN` | `curl -H "Authorization: Bearer ghp_RG3..."` | ❌ 401 Bad credentials — **EXPIRED/REVOKED** |
+| `GITHUB_TOKEN` | `curl -H "Authorization: Bearer ghp_V1m..."` | ❌ 401 Bad credentials — **EXPIRED/REVOKED** |
+| `GITEA_TOKEN` | GitHub API test | ❌ 401 (expected — Gitea token, not GitHub) |
+
+**Conclusion:** Both `GH_TOKEN` and `GITHUB_TOKEN` are invalid/expired. Neither is being used in monorepo code or workflows. **Recommend deletion of both** — they serve no purpose if revoked.
+
+**Gitea token validity unknown** — needs testing against Gitea instance (`https://git.zappro.site`).
+
+**Action:** Delete `GH_TOKEN` and `GITHUB_TOKEN` from vault (both return 401 Bad credentials, not usable).
+
+---
+
 ## Duplicate Secrets Identified (by agent adff29d8)
 
 All identical-value pairs confirmed by vault inspection:
@@ -215,18 +233,24 @@ These secrets appear to be for services not deployed via monorepo. Before deleti
 3. `QDRANT_URL` — not referenced in monorepo
 4. `QDRANT_URL_PUBLIC` — not referenced in monorepo
 
+### DELETE (expired/revoked)
+Both tokens tested and confirmed invalid against GitHub API:
+
+1. `GH_TOKEN` — ❌ 401 Bad credentials (expired/revoked) — **DELETE**
+2. `GITHUB_TOKEN` — ❌ 401 Bad credentials (expired/revoked) — **DELETE**
+
 ### INVESTIGATE (unused, verify before delete)
 Before removing, confirm these services are not in use:
 
-1. `GH_TOKEN` — no reference in monorepo (may be for external CI)
-2. `TAVILY_API_KEY` — no reference in monorepo
-3. `GROQ_API_KEY` — no reference in monorepo
-4. `KIMI_BASE_URL` — no reference in monorepo
-5. `MOONSHOT_BASE_URL` — no reference in monorepo
-6. `OPENCLAW_GATEWAY_TOKEN` — no reference in monorepo
-7. `CEO_MIX_TOKEN` — no reference in monorepo
-8. `OPENCODE_API_KEY` — no reference in monorepo
-9. `CONTEXT7_API_KEY` — no reference in monorepo
+1. `TAVILY_API_KEY` — no reference in monorepo (used in cursor-loop-research.sh)
+2. `GROQ_API_KEY` — no reference in monorepo
+3. `KIMI_BASE_URL` — no reference in monorepo
+4. `MOONSHOT_BASE_URL` — no reference in monorepo
+5. `OPENCLAW_GATEWAY_TOKEN` — no reference in monorepo
+6. `CEO_MIX_TOKEN` — no reference in monorepo
+7. `OPENCODE_API_KEY` — no reference in monorepo
+8. `CONTEXT7_API_KEY` — no reference in monorepo
+9. `GITEA_TOKEN` — referenced in bootstrap-check.sh and code-review.yml — **KEEP but verify**
 
 ### KEEP (actively used)
 - `MINIMAX_API_KEY` ✅ (voice pipeline)
@@ -245,7 +269,10 @@ Before removing, confirm these services are not in use:
 | 2 | Delete duplicate `MINIMAX_TOKEN`, `DEEPGRAM_API_KEY`, `CEO_MIX_TOKEN`, `LITELLM_REDIS_PASSWORD`, `ROOT_USER_PASSWORD` | ✅ DONE |
 | 3 | Delete `~/.zappro/config/secrets.env` (plaintext legacy, outside monorepo scope) | ⚠️ PENDING — outside scope, manual |
 | 4 | Set GitHub Actions secrets: `COOLIFY_URL`, `COOLIFY_API_KEY`, `CLAUDE_API_KEY`, `GITEA_TOKEN` | ⚠️ PENDING — different management plane |
-| 5 | Investigate remaining 9 unused secrets (GH_TOKEN, TAVILY_API_KEY, etc.) before deletion | 🔍 INVESTIGATE |
+| 5 | Investigate remaining 9 unused secrets (TAVILY_API_KEY, GROQ_API_KEY, etc.) before deletion | 🔍 INVESTIGATE |
+| 6 | Delete expired `GH_TOKEN` (401 Bad credentials) | 🔍 READY — confirm before delete |
+| 7 | Delete expired `GITHUB_TOKEN` (401 Bad credentials) | 🔍 READY — confirm before delete |
+| 8 | Verify `GITEA_TOKEN` against Gitea instance | 🔍 INVESTIGATE |
 
 ---
 
