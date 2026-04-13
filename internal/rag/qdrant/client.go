@@ -3,11 +3,27 @@ package qdrant
 import (
 	"context"
 	"fmt"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/qdrant/go-client/qdrant"
 	"github.com/will-zappro/hvacr-swarm/internal/circuitbreaker"
 )
+
+// parseAddr splits "host:port" into separate host and port.
+// Defaults port to 6334 if not specified.
+func parseAddr(addr string) (host string, port int, err error) {
+	host = addr
+	port = 6334
+	if idx := strings.LastIndex(addr, ":"); idx > 0 {
+		host = addr[:idx]
+		if p, err := strconv.Atoi(addr[idx+1:]); err == nil {
+			port = p
+		}
+	}
+	return
+}
 
 const (
 	// CollectionName is the Qdrant collection name for HVAC service manuals
@@ -30,8 +46,17 @@ func NewClient(addr string) (*Client, error) {
 
 // NewClientWithBreaker creates a new Qdrant client with a custom circuit breaker
 func NewClientWithBreaker(addr string, cb *circuitbreaker.CircuitBreaker) (*Client, error) {
+	// Parse host:port - qdrant client uses separate Host and Port fields
+	host := addr
+	port := 6334
+	if h, p, err := parseAddr(addr); err == nil {
+		host = h
+		port = p
+	}
 	client, err := qdrant.NewClient(&qdrant.Config{
-		Host: addr,
+		Host:                    host,
+		Port:                    port,
+		SkipCompatibilityCheck:  true,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("qdrant client: %w", err)
