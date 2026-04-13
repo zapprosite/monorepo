@@ -482,15 +482,350 @@
       "files": ["configs/tasks.json", "configs/queue_schema.json", "cmd/swarm/main.go"],
       "testRequired": false,
       "specRef": "docs/specflow/SPEC-028-swarm-mvp-wiring-fixes.md"
+    },
+    {
+      "id": 27,
+      "title": "[CRITICAL] Stripe v80 → v84: Backup Branch",
+      "description": "Create backup branch before migrating stripe-go. Branch: backup/pre-migration-stripe-v84",
+      "status": "pending",
+      "priority": "critical",
+      "dependencies": [],
+      "subtasks": [
+        {"id": "27.1", "title": "Create backup branch from current HEAD", "status": "pending"},
+        {"id": "27.2", "title": "Push backup branch to origin", "status": "pending"}
+      ],
+      "acceptanceCriteria": ["SC-1"],
+      "files": [],
+      "testRequired": false,
+      "specRef": "docs/specflow/SPEC-030-stripe-v80-v84-migration.md"
+    },
+    {
+      "id": 28,
+      "title": "[CRITICAL] Stripe v80 → v84: go.mod Update",
+      "description": "Update go.mod from stripe-go/v80 to stripe-go/v84. Run: go get github.com/stripe/stripe-go/v84@v84.2.0",
+      "status": "pending",
+      "priority": "critical",
+      "dependencies": [27],
+      "subtasks": [
+        {"id": "28.1", "title": "Run go get stripe-go/v84@v84.2.0", "status": "pending"},
+        {"id": "28.2", "title": "Verify go.mod shows stripe-go/v84", "status": "pending"},
+        {"id": "28.3", "title": "Run go mod tidy", "status": "pending"}
+      ],
+      "acceptanceCriteria": ["SC-2"],
+      "files": ["go.mod", "go.sum"],
+      "testRequired": false,
+      "specRef": "docs/specflow/SPEC-030-stripe-v80-v84-migration.md"
+    },
+    {
+      "id": 29,
+      "title": "[CRITICAL] Stripe v80 → v84: stripe.go Migration",
+      "description": "Migrate internal/billing/stripe.go to new client pattern: stripe.NewClient() + sc.V1CheckoutSessions.New(ctx, params)",
+      "status": "pending",
+      "priority": "critical",
+      "dependencies": [28],
+      "subtasks": [
+        {"id": "29.1", "title": "Add sc *stripe.Client field to StripeBilling struct", "status": "pending"},
+        {"id": "29.2", "title": "Replace stripe.Key = apiKey with sc := stripe.NewClient(apiKey)", "status": "pending"},
+        {"id": "29.3", "title": "Replace session.New(params) with s.sc.V1CheckoutSessions.New(ctx, params)", "status": "pending"},
+        {"id": "29.4", "title": "Update imports from v80 to v84", "status": "pending"}
+      ],
+      "acceptanceCriteria": ["SC-3"],
+      "files": ["internal/billing/stripe.go"],
+      "testRequired": true,
+      "specRef": "docs/specflow/SPEC-030-stripe-v80-v84-migration.md"
+    },
+    {
+      "id": 30,
+      "title": "[MEDIUM] Stripe v80 → v84: webhook.go Review",
+      "description": "Review internal/billing/webhook.go for stripe client usage. Signature verification uses local hmacSHA256 - no stripe dependency.",
+      "status": "pending",
+      "priority": "medium",
+      "dependencies": [28],
+      "subtasks": [
+        {"id": "30.1", "title": "Check if webhook.go uses stripe.Key or stripe.Client", "status": "pending"},
+        {"id": "30.2", "title": "Verify hmacSHA256 signature verification is independent", "status": "pending"},
+        {"id": "30.3", "title": "Update imports if needed", "status": "pending"}
+      ],
+      "acceptanceCriteria": ["SC-3"],
+      "files": ["internal/billing/webhook.go"],
+      "testRequired": true,
+      "specRef": "docs/specflow/SPEC-030-stripe-v80-v84-migration.md"
+    },
+    {
+      "id": 31,
+      "title": "[HIGH] Stripe v80 → v84: Import Cleanup",
+      "description": "Verify no stripe-go/v80 imports remain after migration. grep -r stripe-go/v80 --include=\"*.go\"",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [29, 30],
+      "subtasks": [
+        {"id": "31.1", "title": "grep for stripe-go/v80 imports", "status": "pending"},
+        {"id": "31.2", "title": "Update any remaining v80 imports to v84", "status": "pending"}
+      ],
+      "acceptanceCriteria": ["SC-3"],
+      "files": [],
+      "testRequired": true,
+      "specRef": "docs/specflow/SPEC-030-stripe-v80-v84-migration.md"
+    },
+    {
+      "id": 32,
+      "title": "[CRITICAL] Stripe v80 → v84: Build Verification",
+      "description": "Verify go build ./... passes after migration",
+      "status": "pending",
+      "priority": "critical",
+      "dependencies": [29, 30],
+      "subtasks": [
+        {"id": "32.1", "title": "Run go build ./...", "status": "pending"},
+        {"id": "32.2", "title": "Fix any compilation errors", "status": "pending"}
+      ],
+      "acceptanceCriteria": ["SC-4"],
+      "files": [],
+      "testRequired": true,
+      "specRef": "docs/specflow/SPEC-030-stripe-v80-v84-migration.md"
+    },
+    {
+      "id": 33,
+      "title": "[CRITICAL] Stripe v80 → v84: Unit Tests",
+      "description": "Run go test ./internal/billing/... -v to verify all billing tests pass",
+      "status": "pending",
+      "priority": "critical",
+      "dependencies": [32],
+      "subtasks": [
+        {"id": "33.1", "title": "Run go test ./internal/billing/... -v", "status": "pending"},
+        {"id": "33.2", "title": "Fix any failing tests", "status": "pending"}
+      ],
+      "acceptanceCriteria": ["SC-5"],
+      "files": ["internal/billing/"],
+      "testRequired": true,
+      "specRef": "docs/specflow/SPEC-030-stripe-v80-v84-migration.md"
+    },
+    {
+      "id": 34,
+      "title": "[HIGH] Stripe v80 → v84: Integration Tests",
+      "description": "Run tests/integration/billing_test.go or create if missing. Verify checkout flow with test mode.",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [33],
+      "subtasks": [
+        {"id": "34.1", "title": "Check if tests/integration/billing_test.go exists", "status": "pending"},
+        {"id": "34.2", "title": "Update test client pattern to stripe.NewClient()", "status": "pending"},
+        {"id": "34.3", "title": "Run integration tests", "status": "pending"}
+      ],
+      "acceptanceCriteria": ["SC-6"],
+      "files": ["tests/integration/billing_test.go"],
+      "testRequired": true,
+      "specRef": "docs/specflow/SPEC-030-stripe-v80-v84-migration.md"
+    },
+    {
+      "id": 35,
+      "title": "[HIGH] Stripe v80 → v84: Migration Report",
+      "description": "Document all changes, test results, issues found. Update SPEC-030 with final status.",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [33, 34],
+      "subtasks": [
+        {"id": "35.1", "title": "Document files changed", "status": "pending"},
+        {"id": "35.2", "title": "Document test results", "status": "pending"},
+        {"id": "35.3", "title": "Update SPEC-030 status to COMPLETED", "status": "pending"}
+      ],
+      "acceptanceCriteria": ["SC-7", "SC-8", "SC-9", "SC-10"],
+      {
+      "id": 36,
+      "title": "[HIGH] Implement Semantic Chunking for HVAC Manuals",
+      "description": "Implement chunking semântico para manuais HVAC: 512 tokens (error codes), 1024 tokens (specs), overlap 15%. Split por seção (ERROR_CODES, SPECS, INSTALLATION, TROUBLESHOOTING). Metadata: brand, model, btu, error_code, page_ref.",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [],
+      "subtasks": [
+        {"id": "36.1", "title": "Create internal/rag/chunker.go with ChunkConfig struct", "status": "pending"},
+        {"id": "36.2", "title": "Implement 512-token chunking for error code tables", "status": "pending"},
+        {"id": "36.3", "title": "Implement 1024-token chunking for specs", "status": "pending"},
+        {"id": "36.4", "title": "Add 15% overlap (75 tokens error, 150 tokens specs)", "status": "pending"},
+        {"id": "36.5", "title": "Add metadata: brand, model, btu, error_code, page_ref", "status": "pending"}
+      ],
+      "acceptanceCriteria": ["SPEC-031 SC-7"],
+      "files": ["internal/rag/chunker.go"],
+      "testRequired": true,
+      "specRef": "docs/specflow/SPEC-031-rag-refinement-hvac-inverter.md"
+    },
+    {
+      "id": 37,
+      "title": "[HIGH] Create Whitelist/Blacklist PostgreSQL Schema",
+      "description": "Criar schema PostgreSQL para whitelist/blacklist de manuais. Table hvac_model_whitelist (brand, model, btu, codes aceitos) e hvac_manual_blacklist (hash, reason, rejected_at). Existing BrandModels in hvac_models.go como source.",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [],
+      "subtasks": [
+        {"id": "37.1", "title": "Create table hvac_model_whitelist (brand, model, btu, codes)", "status": "pending"},
+        {"id": "37.2", "title": "Create table hvac_manual_blacklist (hash, reason, rejected_at)", "status": "pending"},
+        {"id": "37.3", "title": "Create table hvac_manual_chunks (indexed chunks)", "status": "pending"},
+        {"id": "37.4", "title": "Add indexes for fast lookup", "status": "pending"},
+        {"id": "37.5", "title": "Populate from existing hvac_models.go", "status": "pending"}
+      ],
+      "acceptanceCriteria": ["SPEC-031 SC-2"],
+      "files": ["internal/rag/whitelist.go"],
+      "testRequired": true,
+      "specRef": "docs/specflow/SPEC-031-rag-refinement-hvac-inverter.md"
+    },
+    {
+      "id": 38,
+      "title": "[HIGH] Implement qwen2.5-vl Visual Verification",
+      "description": "Implementar verificação visual de manuais via qwen2.5-vl. Render PDF → base64 PNG → call litellm/qwen2.5-vl → JSON response com document_type, has_diagnostic_content, confidence. Rejeitar manuais falsos/duplicados.",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [],
+      "subtasks": [
+        {"id": "38.1", "title": "Create internal/rag/verifier.go with Verifier struct", "status": "pending"},
+        {"id": "38.2", "title": "Implement PDF → base64 PNG rendering", "status": "pending"},
+        {"id": "38.3", "title": "Call qwen2.5-vl via LiteLLM", "status": "pending"},
+        {"id": "38.4", "title": "Parse JSON response", "status": "pending"},
+        {"id": "38.5", "title": "Implement blacklist logic for fake manuals", "status": "pending"}
+      ],
+      "acceptanceCriteria": ["SPEC-031 SC-2", "SPEC-031 SC-3"],
+      "files": ["internal/rag/verifier.go"],
+      "testRequired": true,
+      "specRef": "docs/specflow/SPEC-031-rag-refinement-hvac-inverter.md"
+    },
+    {
+      "id": 39,
+      "title": "[MEDIUM] Implement YouTube Learning Pipeline",
+      "description": "Implementar pipeline de aprendizado de vídeos HVAC. YouTube API → fetch captions → semantic chunking (512 tokens) → Qdrant index. Filtrar: canal técnico, não promocional, diagnóstico/reparo.",
+      "status": "pending",
+      "priority": "medium",
+      "dependencies": [],
+      "subtasks": [
+        {"id": "39.1", "title": "Create internal/youtube/pipeline.go", "status": "pending"},
+        {"id": "39.2", "title": "Implement YouTube search for HVAC diagnostic", "status": "pending"},
+        {"id": "39.3", "title": "Implement caption extraction via youtube-transcript-api", "status": "pending"},
+        {"id": "39.4", "title": "Implement semantic chunking with timestamp preservation", "status": "pending"},
+        {"id": "39.5", "title": "Tag video_id, timestamp, channel, error_codes", "status": "pending"}
+      ],
+      "acceptanceCriteria": ["SPEC-031 SC-6"],
+      "files": ["internal/youtube/pipeline.go"],
+      "testRequired": true,
+      "specRef": "docs/specflow/SPEC-031-rag-refinement-hvac-inverter.md"
+    },
+    {
+      "id": 40,
+      "title": "[HIGH] Implement WhatsApp DEV Simulation",
+      "description": "Implementar simulação completa no terminal. CLI tool ./bin/whatsapp-simulator, Redis LPUSH para queue intake, log all messages. SIMULATE_WHATSAPP=true + DEV_MODE=true.",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [],
+      "subtasks": [
+        {"id": "40.1", "title": "Create cmd/whatsapp-simulator/main.go", "status": "pending"},
+        {"id": "40.2", "title": "Implement Redis LPUSH to swarm:queue:intake", "status": "pending"},
+        {"id": "40.3", "title": "Implement terminal logging output", "status": "pending"},
+        {"id": "40.4", "title": "Add SIMULATE_WHATSAPP env var handling", "status": "pending"},
+        {"id": "40.5", "title": "Create docs/guides/whatsapp-dev-simulation.md", "status": "pending"}
+      ],
+      "acceptanceCriteria": ["SPEC-031 SC-4"],
+      "files": ["cmd/whatsapp-simulator/main.go"],
+      "testRequired": true,
+      "specRef": "docs/specflow/SPEC-031-rag-refinement-hvac-inverter.md"
+    },
+    {
+      "id": 41,
+      "title": "[HIGH] Create Error Codes Database",
+      "description": "Criar database completo de códigos de erro inverter. Universal: E1-E9, F0-F9, P0-P9. LG: CH01-CH99. Samsung: E101-E502. Daikin: A1-C99. Midea/Springer/Consul: E01-F45. Fields: code, description, user_fixable, diagnostic_steps.",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [],
+      "subtasks": [
+        {"id": "41.1", "title": "Create internal/billing/error_codes.go with ErrorCode struct", "status": "pending"},
+        {"id": "41.2", "title": "Add universal codes (E1-E9, F0-F9, P0-P9)", "status": "pending"},
+        {"id": "41.3", "title": "Add LG codes (CH01-CH99)", "status": "pending"},
+        {"id": "41.4", "title": "Add Samsung codes (E101-E502)", "status": "pending"},
+        {"id": "41.5", "title": "Add Daikin + Midea/Springer/Consul codes", "status": "pending"}
+      ],
+      "acceptanceCriteria": ["SPEC-031 SC-5"],
+      "files": ["internal/billing/error_codes.go"],
+      "testRequired": true,
+      "specRef": "docs/specflow/SPEC-031-rag-refinement-hvac-inverter.md"
+    },
+    {
+      "id": 42,
+      "title": "[HIGH] Implement Response Refinement Engine",
+      "description": "Implementar refinement de resposta com confiança calibrada. Confidence thresholds: high(>=0.85), medium(0.60-0.84), low(0.40-0.59), none(<0.40). PT-BR phrases per band. Compact format (max 4096 chars, 3 bullets).",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [],
+      "subtasks": [
+        {"id": "42.1", "title": "Create internal/rag/refiner.go with Refiner struct", "status": "pending"},
+        {"id": "42.2", "title": "Implement confidence scoring (4 bands)", "status": "pending"},
+        {"id": "42.3", "title": "Add PT-BR response templates per band", "status": "pending"},
+        {"id": "42.4", "title": "Implement compact format (3 bullets, source citation)", "status": "pending"},
+        {"id": "42.5", "title": "Add max 4096 chars enforcement", "status": "pending"}
+      ],
+      "acceptanceCriteria": ["SPEC-031 SC-1", "SPEC-031 SC-3"],
+      "files": ["internal/rag/refiner.go"],
+      "testRequired": true,
+      "specRef": "docs/specflow/SPEC-031-rag-refinement-hvac-inverter.md"
+    },
+    {
+      "id": 43,
+      "title": "[MEDIUM] MiniMax Embedding Quality Upgrade",
+      "description": "Verificar se embedding-256 MiniMax é suficiente ou migrar para 1024d bge-m3 local. Test: query 'E8 Springer' vs 'CH10 LG' separation. Decision: MiniMax ou local Ollama (bge-m3).",
+      "status": "pending",
+      "priority": "medium",
+      "dependencies": [],
+      "subtasks": [
+        {"id": "43.1", "title": "Test embedding-256 vs bge-m3 separation", "status": "pending"},
+        {"id": "43.2", "title": "Implement comparison test (E8 Springer vs CH10 LG)", "status": "pending"},
+        {"id": "43.3", "title": "Measure Recall@5 for error codes", "status": "pending"},
+        {"id": "43.4", "title": "Decision: MiniMax (256d) vs Ollama bge-m3 (1024d)", "status": "pending"}
+      ],
+      "acceptanceCriteria": ["SPEC-031 SC-1"],
+      "files": ["internal/rag/embedder.go"],
+      "testRequired": true,
+      "specRef": "docs/specflow/SPEC-031-rag-refinement-hvac-inverter.md"
+    },
+    {
+      "id": 44,
+      "title": "[HIGH] PDF Parser Integration with mupdf",
+      "description": "Integrar mupdf para extração de manuais. Use github.com/ArtifexSoftware/mupdf-go. Extract text + tables, section detection via heuristics, model/brand extraction from filename + headers.",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [],
+      "subtasks": [
+        {"id": "44.1", "title": "Create internal/rag/parser/pdf.go with PDFParser struct", "status": "pending"},
+        {"id": "44.2", "title": "Implement text extraction via mupdf", "status": "pending"},
+        {"id": "44.3", "title": "Implement section detection (ERROR_CODES, SPECS, etc)", "status": "pending"},
+        {"id": "44.4", "title": "Extract model/brand from filename and headers", "status": "pending"},
+        {"id": "44.5", "title": "Return structured JSON with pages and sections", "status": "pending"}
+      ],
+      "acceptanceCriteria": ["SPEC-031 SC-1"],
+      "files": ["internal/rag/parser/pdf.go"],
+      "testRequired": true,
+      "specRef": "docs/specflow/SPEC-031-rag-refinement-hvac-inverter.md"
+    },
+    {
+      "id": 45,
+      "title": "[HIGH] RAG Quality Evaluation",
+      "description": "Implementar métricas de qualidade. Test set: 50 perguntas de diagnóstico. Metrics: MRR (primary), HitRate@5, Faithfulness. LLM-as-judge. Continuous improvement loop with user feedback.",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [36, 37, 38, 42],
+      "subtasks": [
+        {"id": "45.1", "title": "Create test set with 50 diagnostic questions", "status": "pending"},
+        {"id": "45.2", "title": "Implement MRR evaluation", "status": "pending"},
+        {"id": "45.3", "title": "Implement HitRate@5 evaluation", "status": "pending"},
+        {"id": "45.4", "title": "Implement LLM-as-judge evaluation", "status": "pending"},
+        {"id": "45.5", "title": "Build feedback loop integration", "status": "pending"}
+      ],
+      "acceptanceCriteria": ["SPEC-031 SC-1"],
+      "files": ["internal/rag/evaluator.go"],
+      "testRequired": true,
+      "specRef": "docs/specflow/SPEC-031-rag-refinement-hvac-inverter.md"
     }
   ],
   "meta": {
-    "totalTasks": 26,
+    "totalTasks": 45,
     "completedTasks": 7,
-    "pendingTasks": 19,
-    "generatedAt": "2026-04-12T10:30:00Z",
+    "pendingTasks": 38,
+    "generatedAt": "2026-04-12T07:22:00Z",
     "projectName": "hvacr-swarm",
-    "version": "2.3",
-    "notes": "Tasks 24,25,26 completed. Condition eval, circuit breaker, configs done."
+    "version": "2.5",
+    "notes": "Added SPEC-031 RAG refinement: 10 tasks (36-45). Focus: HVAC inverter only (chunking, whitelist/blacklist, qwen2.5-vl, YouTube, WhatsApp DEV, error codes, refinement, embedding, PDF parser, evaluation)."
   }
 }
