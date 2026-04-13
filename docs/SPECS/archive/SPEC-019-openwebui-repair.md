@@ -1,3 +1,12 @@
+---
+archived: true
+superseded_by: SUBDOMAINS.md (chat.zappro.site routing fixed)
+see_also:
+  - SUBDOMAINS.md
+---
+
+> ⚠️ ARCHIVED — Superseded by [SPEC-024](../SPEC-024.md) and related canonical specs.
+
 # SPEC-019: OpenWebUI Repair — Tunnel + OAuth + Voice STT
 
 **Status:** RESOLVED

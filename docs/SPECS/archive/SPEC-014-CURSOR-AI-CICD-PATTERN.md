@@ -1,3 +1,12 @@
+---
+archived: true
+superseded_by: SPEC-024 (monorepo CI/CD) + cursor-loop skill
+see_also:
+  - SPEC-024, cursor-loop
+---
+
+> ⚠️ ARCHIVED — Superseded by [SPEC-024](../SPEC-024.md) and related canonical specs.
+
 # SPEC-014: Cursor AI CI/CD Pattern — Autonomous Coding & GitOps for Monorepo
 
 **Status:** DRAFT

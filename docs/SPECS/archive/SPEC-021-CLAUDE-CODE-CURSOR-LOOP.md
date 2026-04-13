@@ -1,3 +1,12 @@
+---
+archived: true
+superseded_by: cursor-loop skill + SPEC-024
+see_also:
+  - cursor-loop, SPEC-024
+---
+
+> ⚠️ ARCHIVED — Superseded by [SPEC-024](../SPEC-024.md) and related canonical specs.
+
 # SPEC-021 — Claude Code CLI: Cursor-Loop + Skills Architecture
 
 **Versão:** 2.0 (fused from SPEC-021)

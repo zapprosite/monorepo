@@ -12,7 +12,7 @@ specRef: SPEC-032 (tunnel health automation), docs/INFRASTRUCTURE/SUBDOMAINS.md
 # SPEC-033 — Supabase Tunnel Exposure
 
 **Date:** 2026-04-12
-**Status:** PENDING
+**Status:** IMPLEMENTED
 **Type:** Infrastructure / Tunnel
 **Priority:** 🔴 HIGH — supabase database exists, subdomain is ghost
 

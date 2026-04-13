@@ -1,3 +1,13 @@
+---
+archived: true
+superseded_by: SPEC-009-openclaw-persona-audio-stack
+see_also:
+  - SPEC-009
+  - bot.zappro.site OAuth implementation
+---
+
+> ⚠️ ARCHIVED — Superseded by [SPEC-009](../SPEC-009-openclaw-persona-audio-stack.md) (OAuth implemented in bot.zappro.site).
+
 # SPEC-007: OpenClaw OAuth Persistent Login (Multi-Service CLI-First)
 
 **Status:** PROPOSED

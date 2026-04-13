@@ -1,3 +1,12 @@
+---
+archived: true
+superseded_by: SPEC-024 (monorepo) + SPEC-025-openclaw-ceo-mix-voice-stack
+see_also:
+  - SPEC-024, SPEC-025
+---
+
+> ⚠️ ARCHIVED — Superseded by [SPEC-024](../SPEC-024.md) and related canonical specs.
+
 # SPEC-025-REPORT: Auto-Cure Execution Report
 
 **Date/Time:** 2026-04-12 06:34

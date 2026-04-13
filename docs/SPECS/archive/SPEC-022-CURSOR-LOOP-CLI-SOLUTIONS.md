@@ -1,8 +1,11 @@
 ---
-name: SPEC-022 Cursor-Loop CLI Solutions
-description: Research findings and implementation plan for full-CLI autonomous cursor-loop without dashboard dependencies
-type: specification
+archived: true
+superseded_by: cursor-loop skill + SPEC-024
+see_also:
+  - cursor-loop, SPEC-024
 ---
+
+> ⚠️ ARCHIVED — Superseded by [SPEC-024](../SPEC-024.md) and related canonical specs.
 
 # SPEC-022: Cursor-Loop CLI Solutions — Barreiras e Soluções Full-CLI
 

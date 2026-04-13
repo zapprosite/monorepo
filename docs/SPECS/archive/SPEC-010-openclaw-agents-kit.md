@@ -1,3 +1,17 @@
+---
+archived: true
+superseded_by:
+  - SPEC-009-openclaw-persona-audio-stack
+  - openclaw-audio-governance.md
+see_also:
+  - SPEC-009
+  - openclaw-audio-governance.md
+  - openclaw-mcp-wrapper
+  - openclaw-bridge-agent
+---
+
+> ⚠️ ARCHIVED — Superseded by [SPEC-009](../SPEC-009-openclaw-persona-audio-stack.md) and [openclaw-audio-governance.md](../../.claude/rules/openclaw-audio-governance.md) (implemented as openclaw-mcp-wrapper, openclaw-bridge-agent).
+
 # SPEC-010: OpenClaw Agents Kit — Universal Sub-Agent Governance
 
 **Status:** DRAFT

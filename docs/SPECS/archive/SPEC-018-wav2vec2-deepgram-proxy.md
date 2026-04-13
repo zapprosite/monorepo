@@ -1,3 +1,12 @@
+---
+archived: true
+superseded_by: SPEC-009 (wav2vec2 canonical) + SPEC-027
+see_also:
+  - SPEC-009, SPEC-027
+---
+
+> ⚠️ ARCHIVED — Superseded by [SPEC-024](../SPEC-024.md) and related canonical specs.
+
 # SPEC-018: wav2vec2 como Deepgram Proxy (STT PT-BR Local)
 
 **Status:** COMPLETED

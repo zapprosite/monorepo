@@ -1,3 +1,13 @@
+---
+archived: true
+superseded_by: SPEC-023 (unified monitoring and self-healing)
+see_also:
+  - SPEC-023
+  - SPEC-023-unified-monitoring-self-healing.md
+---
+
+> ⚠️ ARCHIVED — Superseded by [SPEC-023](../SPEC-023.md) (monitoring stack monitors updates via health checks).
+
 # SPEC-012: openclaw-update-discoverer — Corrigir Local Scan
 
 **Status:** DRAFT

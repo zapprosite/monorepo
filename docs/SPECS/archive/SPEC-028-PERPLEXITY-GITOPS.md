@@ -1,8 +1,11 @@
 ---
-name: SPEC-Perplexity-GitOps
-description: Padrão estável de deploy GitOps para Perplexity Agent via Gitea + Coolify
-type: specification
+archived: true
+superseded_by: SPEC-024 (gitops monorepo) + perplexity-agent Coolify deploy
+see_also:
+  - SPEC-024, perplexity-agent
 ---
+
+> ⚠️ ARCHIVED — Superseded by [SPEC-024](../SPEC-024.md) and related canonical specs.
 
 # SPEC-001: Perplexity Agent — GitOps Deployment Pattern
 

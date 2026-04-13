@@ -1,8 +1,11 @@
 ---
-name: SPEC-015: Gitea Actions Enterprise
-description: Enterprise-grade CI/CD architecture with Gitea Actions — runner setup, workflow patterns, AI agent integration, and comparison with GitHub Actions
-type: specification
+archived: true
+superseded_by: SPEC-024 (git mirror CI/CD) + git mirror scripts
+see_also:
+  - SPEC-024
 ---
+
+> ⚠️ ARCHIVED — Superseded by [SPEC-024](../SPEC-024.md) and related canonical specs.
 
 # SPEC-015: Gitea Actions — Enterprise CI/CD Architecture
 

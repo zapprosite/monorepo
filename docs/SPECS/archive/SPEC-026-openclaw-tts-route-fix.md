@@ -1,3 +1,12 @@
+---
+archived: true
+superseded_by: SPEC-009 (audio canonical) + openclaw-audio-governance.md
+see_also:
+  - SPEC-009, openclaw-audio-governance.md
+---
+
+> ⚠️ ARCHIVED — Superseded by [SPEC-024](../SPEC-024.md) and related canonical specs.
+
 # SPEC-014: OpenClaw TTS Route — Corrigir Bridge + Voice
 
 **Status:** SPEC

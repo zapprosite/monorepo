@@ -1,3 +1,12 @@
+---
+archived: true
+superseded_by: SPEC-027 (voice pipeline) + SPEC-032 (tunnel health)
+see_also:
+  - SPEC-027, SPEC-032
+---
+
+> ⚠️ ARCHIVED — Superseded by [SPEC-024](../SPEC-024.md) and related canonical specs.
+
 # SPEC-017: Voice API — Deploy via Coolify CLI (No Dashboard)
 
 **Status:** SPEC

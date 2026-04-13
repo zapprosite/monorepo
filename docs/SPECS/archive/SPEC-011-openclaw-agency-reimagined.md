@@ -1,3 +1,15 @@
+---
+archived: true
+superseded_by:
+  - SPEC-009-openclaw-persona-audio-stack
+  - SPEC-027-voice-pipeline-humanized-ptbr
+see_also:
+  - SPEC-009
+  - SPEC-027
+---
+
+> ⚠️ ARCHIVED — Superseded by [SPEC-009](../SPEC-009-openclaw-persona-audio-stack.md) and [SPEC-027](./SPEC-027-voice-pipeline-humanized-ptbr.md) (audio stack + voice pipeline implemented).
+
 # SPEC-011 — OpenClaw Agency Suite: Reimaginado
 <!-- ================================================================
      SPEC-011-openclaw-agency-reimagined-v2.md
