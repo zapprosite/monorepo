@@ -19,6 +19,7 @@ REQUIRED_SECRETS=(
 )
 
 # ── Optional secrets ──────────────────────────────────────────
+# TELEGRAM_CHAT_ID is only useful when TELEGRAM_BOT_TOKEN is set
 OPTIONAL_SECRETS=(
   "CONTEXT7_API_KEY"
   "TELEGRAM_BOT_TOKEN"
@@ -26,6 +27,17 @@ OPTIONAL_SECRETS=(
 )
 
 # ── Helpers ────────────────────────────────────────────────────
+declare -A SECRET_PURPOSE
+SECRET_PURPOSE=(
+  ["COOLIFY_URL"]="Coolify API endpoint"
+  ["COOLIFY_API_KEY"]="Coolify API authentication"
+  ["GITEA_TOKEN"]="Gitea Actions authentication"
+  ["CLAUDE_API_KEY"]="Claude API for AI operations"
+  ["CONTEXT7_API_KEY"]="Documentation lookup API"
+  ["TELEGRAM_BOT_TOKEN"]="Telegram notifications"
+  ["TELEGRAM_CHAT_ID"]="Telegram chat for notifications"
+)
+
 secret_is_set() {
   local key=$1
   local value="${!key:-}"
@@ -49,16 +61,7 @@ check_infisical_health() {
 }
 
 secret_purpose() {
-  case "$1" in
-    COOLIFY_URL) echo "Coolify API endpoint" ;;
-    COOLIFY_API_KEY) echo "Coolify API authentication" ;;
-    GITEA_TOKEN) echo "Gitea Actions authentication" ;;
-    CLAUDE_API_KEY) echo "Claude API for AI operations" ;;
-    CONTEXT7_API_KEY) echo "Documentation lookup API" ;;
-    TELEGRAM_BOT_TOKEN) echo "Telegram notifications" ;;
-    TELEGRAM_CHAT_ID) echo "Telegram chat for notifications" ;;
-    *) echo "Unknown" ;;
-  esac
+  echo "${SECRET_PURPOSE[$1]:-Unknown}"
 }
 
 # ── Main ──────────────────────────────────────────────────────
