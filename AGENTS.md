@@ -150,6 +150,97 @@ Don't know? → ASK BEFORE DOING
 
 ---
 
+## 🌐 Creating New Subdomains + OAuth
+
+### Quick Decision: Which Method?
+
+| Situation | Method | Time |
+|-----------|--------|------|
+| MVP / quick test / prototyping | Direct OAuth (no CF Access) | ~10 min |
+| Production / team / security critical | CF Access Zero Trust | ~20 min |
+| Internal tool / single developer | Direct OAuth | ~10 min |
+| Multi-user / company dashboard | CF Access | ~20 min |
+
+### Method 1: Direct OAuth (MVP Fast Path)
+
+For quick prototyping — Google OAuth handled in the app JS, no Cloudflare Access.
+
+#### Step 0: FIRST — Print OAuth URI for user (BEFORE writing any code)
+
+```bash
+echo "Add to Google Cloud Console → OAuth Client → Authorized Redirect URIs:"
+echo "https://SUBDOMAIN.zappro.site/auth/callback"
+echo ""
+echo "Add to Authorized JavaScript Origins:"
+echo "https://SUBDOMAIN.zappro.site"
+```
+
+#### Steps:
+1. Print OAuth URIs → wait for user to configure Google Console
+2. Create subdomain via Cloudflare API (fast, ~30s):
+   ```bash
+   /srv/ops/scripts/create-subdomain.sh SUBDOMAIN http://localhost:PORT
+   ```
+3. Generate app files (HTML + nginx + Dockerfile)
+4. Deploy: `docker compose up -d`
+5. Smoke test: `curl -sk https://SUBDOMAIN.zappro.site`
+6. Update SUBDOMAINS.md + PORTS.md
+
+#### Skills:
+- `/new-subdomain` — create subdomain via Cloudflare API
+- `/oauth-google-direct` — OAuth in app JS
+- `/prd-to-deploy` — full orchestrator (one-shot)
+
+### Method 2: CF Access Zero Trust (V2 Production)
+
+Google OAuth handled by Cloudflare Edge — app receives pre-authenticated requests.
+
+#### Step 0: FIRST — Print TWO URIs for user
+
+```bash
+echo "STEP 1 — Google Cloud Console:"
+echo "  Redirect URI: https://TEAM_DOMAIN/cdn-cgi/access/callback"
+echo ""
+echo "STEP 2 — Cloudflare Zero Trust Dashboard:"
+echo "  one.dash.cloudflare.com → Settings → Authentication → Add Google IdP"
+```
+
+#### Steps:
+1. Print both URIs → wait for user to configure both
+2. Create subdomain via Terraform (add to variables.tf → terraform apply)
+3. Add CF Access application + policy to access.tf → terraform apply
+4. Deploy app (no OAuth code needed!)
+5. Test: request should require Google login
+
+#### Skills:
+- `/cloudflare-terraform` — Terraform-based subdomain + CF Access
+- `/oauth-google-cloudflare` — CF Access setup guide
+
+### Scripts Available
+
+| Script | Purpose |
+|--------|---------|
+| `/srv/ops/scripts/create-subdomain.sh` | Create subdomain via Cloudflare API (fast) |
+| `/srv/ops/scripts/setup-oauth.sh` | Print OAuth URIs + generate config |
+
+### One-Shot Flow: PRD → Deploy
+
+```
+Human: /prd-to-deploy "I want X app"
+  → Step 0: Print OAuth URIs immediately
+  → Generate SPEC
+  → Create subdomain
+  → ⏸️ Wait for user OAuth config
+  → Generate files
+  → Deploy + smoke test
+  → Update docs
+  → ✅ Done
+```
+
+See: `/prd-to-deploy` skill + SPEC-035-one-shot-prd-to-deploy.md
+
+---
+
 ## Slash Commands (`.claude/commands/`)
 
 | Comando | Ficheiro |链 | Uso |
