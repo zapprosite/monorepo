@@ -22,6 +22,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Get APP UUID
+        id: get-app-uuid
         run: |
           APP_UUID=$(curl -s "${{ secrets.COOLIFY_URL }}/api/v1/applications" \
             -H "Authorization: Bearer ${{ secrets.COOLIFY_API_KEY }}" | \
@@ -29,12 +30,12 @@ jobs:
 
           [[ -z "$APP_UUID" ]] && { echo "❌ Could not find $APP_NAME UUID"; exit 1; }
           echo "App UUID: $APP_UUID"
-          echo "::set-env name=app_uuid::$APP_UUID"
+          echo "app_uuid=$APP_UUID" >> $GITHUB_OUTPUT
 
       - name: Trigger Deploy
         run: |
           RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
-            "${{ secrets.COOLIFY_URL }}/api/v1/applications/${{ env.app_uuid }}/deploy" \
+            "${{ secrets.COOLIFY_URL }}/api/v1/applications/${{ steps.get-app-uuid.outputs.app_uuid }}/deploy" \
             -H "Authorization: Bearer ${{ secrets.COOLIFY_API_KEY }}" \
             -H "Content-Type: application/json" \
             -d '{"pull_request_id": "main"}')
@@ -48,7 +49,7 @@ jobs:
         run: |
           ELAPSED=0
           while [[ $ELAPSED -lt $HEALTH_TIMEOUT ]]; do
-            STATUS=$(curl -s "${{ secrets.COOLIFY_URL }}/api/v1/applications/${{ env.app_uuid }}" \
+            STATUS=$(curl -s "${{ secrets.COOLIFY_URL }}/api/v1/applications/${{ steps.get-app-uuid.outputs.app_uuid }}" \
               -H "Authorization: Bearer ${{ secrets.COOLIFY_API_KEY }}" | \
               python3 -c "import sys,json; print(json.load(sys.stdin).get('status',''))" 2>/dev/null || echo "unknown")
 
@@ -68,14 +69,14 @@ jobs:
         if: failure()
         run: |
           echo "=== ROLLBACK: Deploy failed ==="
-          DEPLOYMENTS=$(curl -s "${{ secrets.COOLIFY_URL }}/api/v1/applications/${{ env.app_uuid }}/deployments" \
+          DEPLOYMENTS=$(curl -s "${{ secrets.COOLIFY_URL }}/api/v1/applications/${{ steps.get-app-uuid.outputs.app_uuid }}/deployments" \
             -H "Authorization: Bearer ${{ secrets.COOLIFY_API_KEY }}")
 
           PREV_COMMIT=$(echo "$DEPLOYMENTS" | python3 -c "import sys,json; data=json.load(sys.stdin); deploys=data.get('data',[]); print(deploys[1].get('commit','') if len(deploys) > 1 else '')" 2>/dev/null || echo "")
 
           if [[ -n "$PREV_COMMIT" ]]; then
             echo "Rolling back to commit: $PREV_COMMIT"
-            curl -s -X POST "${{ secrets.COOLIFY_URL }}/api/v1/applications/${{ env.app_uuid }}/deploy" \
+            curl -s -X POST "${{ secrets.COOLIFY_URL }}/api/v1/applications/${{ steps.get-app-uuid.outputs.app_uuid }}/deploy" \
               -H "Authorization: Bearer ${{ secrets.COOLIFY_API_KEY }}" \
               -H "Content-Type: application/json" \
               -d "{\"commit\": \"$PREV_COMMIT\"}"
