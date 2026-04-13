@@ -1,0 +1,21 @@
+{
+  "name": "embed",
+  "alias": "/embed",
+  "description": "Gera embeddings via Ollama nomic-embed-text (768D)",
+  "script": "cmd/manual-scraper/indexer/embedder.go",
+  "triggers": ["manual"],
+  "output": "json",
+  "flags": [
+    {"name": "--text", "type": "string", "required": true},
+    {"name": "--model", "type": "string", "default": "nomic-embed-text"},
+    {"name": "--ollama", "type": "string", "default": "http://localhost:11434"}
+  ],
+  "examples": [
+    "/embed --text 'Error code E8 indicates compressor overload'",
+    "/embed --text '...' --model nomic-embed-text"
+  ],
+  "depends_on": ["qdrant"],
+  "orchestrates": [],
+  "model": "nomic-embed-text",
+  "dimension": 768
+}

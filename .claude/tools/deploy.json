@@ -1,0 +1,26 @@
+{
+  "name": "deploy",
+  "alias": "/deploy",
+  "description": "Deploy containers via Coolify API",
+  "script": "Coolify API",
+  "triggers": ["manual", "post-build"],
+  "output": "json",
+  "flags": [
+    {"name": "app", "type": "string", "required": true},
+    {"name": "--image", "type": "string"},
+    {"name": "--env", "type": "string"}
+  ],
+  "examples": [
+    "/deploy perplexity-agent",
+    "/deploy hvacr-swarm:latest",
+    "/deploy openclaw --image openclaw:v2"
+  ],
+  "depends_on": ["build"],
+  "orchestrates": ["heal"],
+  "apps": [
+    "perplexity-agent",
+    "hvacr-swarm",
+    "openclaw",
+    "openwebui"
+  ]
+}

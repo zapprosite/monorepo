@@ -1,0 +1,38 @@
+{
+  "version": "1.0",
+  "tools_directory": ".claude/tools",
+  "tools": [
+    "sync",
+    "heal",
+    "scraper",
+    "extract",
+    "embed",
+    "qdrant",
+    "github",
+    "build",
+    "deploy",
+    "status"
+  ],
+  "dependency_graph": {
+    "/scraper": ["/extract", "/embed", "/qdrant", "/github"],
+    "/extract": [],
+    "/embed": [],
+    "/qdrant": ["/embed"],
+    "/github": [],
+    "/deploy": ["/build"],
+    "/build": [],
+    "/sync": ["//checkpoint", "//context"],
+    "/heal": [],
+    "/status": ["/heal"],
+    "//checkpoint": [],
+    "//context": []
+  },
+  "cron_schedule": {
+    "/sync": "*/30 * * * *",
+    "/heal": "*/5 * * * *",
+    "//checkpoint": "23 */1.5 * * *",
+    "//context": "0 * * * *",
+    "/github": "0 3 * * *",
+    "/status": "0 8 * * *"
+  }
+}

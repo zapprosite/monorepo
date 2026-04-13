@@ -1,0 +1,32 @@
+{
+  "name": "status",
+  "alias": "/status",
+  "description": "Overview do homelab - containers, resources, health",
+  "script": "aggregated",
+  "triggers": ["manual", "cron:daily:8am"],
+  "output": "json",
+  "flags": [],
+  "examples": [
+    "/status"
+  ],
+  "depends_on": ["heal"],
+  "orchestrates": [],
+  "sections": {
+    "containers": {
+      "count": 11,
+      "healthy": "heal.healthy",
+      "unhealthy": "heal.unhealthy"
+    },
+    "resources": {
+      "cpu": "docker stats --no-stream --format '{{.CPUPerc}}'",
+      "memory": "docker stats --no-stream --format '{{.MemPerc}}'",
+      "disk": "df -h /srv"
+    },
+    "services": {
+      "qdrant": "localhost:6334",
+      "ollama": "localhost:11434",
+      "redis": "localhost:6379",
+      "gitea": "gitea.zappro.site"
+    }
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "name": "heal",
+  "alias": "/heal",
+  "description": "Verifica health de containers Docker, reinicia se necessário",
+  "script": "/home/will/.claude/skills/gitea-coolify-deploy/scripts/auto-healer.sh",
+  "triggers": ["cron:5min"],
+  "output": "json",
+  "log": "/srv/ops/logs/healing.log",
+  "flags": [],
+  "examples": [
+    "/heal"
+  ],
+  "depends_on": [],
+  "orchestrates": [],
+  "containers_monitored": [
+    "perplexity-agent",
+    "openclaw-qgtzrmi",
+    "zappro-tts-bridge",
+    "openclaw-mcp-wrapper",
+    "zappro-wav2vec2-proxy",
+    "zappro-wav2vec2",
+    "zappro-litellm",
+    "zappro-litellm-db",
+    "zappro-kokoro",
+    "zappro-gitea",
+    "zappro-redis"
+  ]
+}
