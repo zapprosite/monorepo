@@ -75,6 +75,7 @@ build.log
 .cursorrules
 .windsurf/
 .zed/
+obsidian/
 
 # =============================================================================
 # MONOREPO SPECIFICS
