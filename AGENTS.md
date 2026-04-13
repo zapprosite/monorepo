@@ -773,15 +773,30 @@ introduz ou atualiza texto em português.
 
 **Aplica-se a:** TODO e QUALQUER trabalho feito no monorepo — SEMPRE no final de cada sessão.
 
-### Workflow Obrigatório
+### Comandos Canónicos
+
+| Comando | Uso | Docs sync | Tag | PR |
+|---------|-----|-----------|-----|-----|
+| `/ship` | Fim de sessão completo | ✅ | ❌ | ❌ |
+| `/turbo` | Feature pronta (quick ship) | ❌ | ✅ | ❌ |
+
+### Workflow `/ship`
 
 ```
-1. SYNC DOCS  → ~/.claude/mcps/ai-context-sync/sync.sh
-2. COMMIT     → git add -A && git commit semântico
-3. PUSH BOTH  → git push origin HEAD && git push gitea HEAD
-4. MERGE MAIN → Merge main em ambos remotes (origin + gitea)
-5. NEW BRANCH → Criar feature branch com nome aleatório
+SYNC DOCS → COMMIT → PUSH BOTH → MERGE MAIN → NEW BRANCH
 ```
+
+### Workflow `/turbo`
+
+```
+COMMIT → PUSH BOTH → MERGE MAIN → TAG → NEW BRANCH
+```
+
+### Branch Naming (pre-push hook)
+
+- **Formato:** `feature/xxx-yyy` (primeiro segmento = letras, não números)
+- **Exemplos:** `feature/quantum-helix-done` ✅ | `feature/1776082911-done` ❌
+- **Excepções:** `main` e `master` têm bypass automático
 
 ### Porquê
 
@@ -797,36 +812,20 @@ introduz ou atualiza texto em português.
 | `~/.claude/mcps/ai-context-sync/sync.sh` | Sincroniza docs → memory |
 | `/srv/ops/scripts/mirror-sync.sh` | Sincroniza git mirrors |
 | `/srv/ops/scripts/cleanup-sessions.sh` | Limpa sessões Claude Code velhas |
-| Skill `/sync` | Stage → commit → push (single remote) |
-| Skill `/ship` | End-of-session sync pattern completo |
-| Skill `/cursor-loop` | Loop autónomo completo |
-
-### Exemplo de Execução
-
-```bash
-# 1. Sync docs → memory
-bash ~/.claude/mcps/ai-context-sync/sync.sh
-
-# 2. Commit com tipo semântico
-git add -A && git commit -m "fix(session): add safe cleanup cron"
-
-# 3. Push para ambos remotes
-git push origin HEAD && git push gitea HEAD
-
-# 4. Merge main em ambos (após verificar divergência)
-git fetch origin gitea
-git push origin main && git push gitea main
-
-# 5. Nova feature branch
-git checkout -b feature/session-cleanup-$(date +%s)
-```
+| `/ship` skill | End-of-session sync pattern completo |
+| `/turbo` command | Quick feature ship com tag |
 
 ### NÃO FAÇA
 
 - ❌ Commitar diretamente em `main`
 - ❌ Push para apenas um remote (origin OU gitea)
-- ❌ Pular o sync de docs → memory
-- ❌ Criar branch com nome fixo (sempre random/timestamp)
+- ❌ Pular o sync de docs → memory (usa `/ship`)
+- ❌ Criar branch com nome fixo (sempre random suffix)
+- ❌ Branch names com primeiro segmento só números (e.g. `feature/12345-x`)
+
+### Pre-Push Hook Fix (13/04/2026)
+
+O hook `.git/hooks/pre-push` agora permite `main`/`master` sem bloquear. Mantém o formato `feature/xxx-yyy` para todas as outras branches.
 
 ### Autoridade
 
