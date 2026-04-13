@@ -413,6 +413,78 @@ git push --force-with-lease gitea HEAD && git push --force-with-lease origin HEA
 
 ---
 
+## Ops Infrastructure Tools (Tunnel, Health, Auto-Heal)
+
+**Critical scripts** for tunnel management, health monitoring, and homelab operations.
+These are NOT in the monorepo — they're in `/srv/ops/` and `/srv/monorepo/tasks/`.
+
+### Tunnel Health (SPEC-032)
+
+| Script | Purpose | Cron |
+|--------|---------|------|
+| `/srv/ops/scripts/smoke-tunnel.sh` | Curl all 13 subdomains, report DOWN | `*/30 * * * *` |
+| `/srv/ops/scripts/tunnel-autoheal.sh` | Restart cloudflared if DOWN >5min, ZFS snapshot | on-demand |
+| `/srv/ops/scripts/validate-ingress.sh` | Verify ingress rules → reachable IPs (nc check) | on-demand |
+| `/srv/ops/scripts/gotify-alert.sh` | Alert helper → POST `localhost:8050/gotify` | — |
+| `/srv/ops/scripts/pre-commit-subdomain-check.sh` | Validate new subdomain entries in variables.tf | pre-commit hook |
+
+**Usage:**
+```bash
+# Smoke test all subdomains
+bash /srv/ops/scripts/smoke-tunnel.sh
+
+# Validate tunnel ingress rules
+bash /srv/ops/scripts/validate-ingress.sh
+
+# Auto-heal (rate-limited, ZFS snapshot first)
+bash /srv/ops/scripts/tunnel-autoheal.sh
+
+# Alert test
+bash /srv/ops/scripts/gotify-alert.sh "Tunnel Test" "Smoke test passed 13/13"
+```
+
+### Backup & Recovery
+
+| Script | Purpose |
+|--------|---------|
+| `/srv/ops/scripts/backup-zfs-snapshot.sh` | ZFS snapshot of tank pool |
+| `/srv/ops/scripts/restore-zfs-snapshot.sh` | Restore from named ZFS snapshot |
+| `/srv/ops/scripts/backup-qdrant.sh` | Qdrant vector DB backup |
+| `/srv/ops/scripts/backup-postgres.sh` | Postgres backup (n8n, gitea dbs) |
+| `/srv/ops/scripts/zfs-snapshot-prune.sh` | Prune ZFS snapshots >7 days |
+
+### Homelab Monitoring
+
+| Script | Purpose |
+|--------|---------|
+| `/srv/ops/scripts/homelab-health-check.sh` | Full health: Docker, ZFS, disk, services |
+| `/srv/ops/scripts/homelab-gemma-monitor.sh` | GPU + memory monitoring |
+| `/srv/ops/scripts/ollama-healthcheck.sh` | Ollama LLM status |
+| `/srv/monorepo/tasks/smoke-tests/pipeline-openclaw-voice.sh` | Voice pipeline smoke test |
+
+### Ops Infrastructure
+
+| Script | Purpose |
+|--------|---------|
+| `/srv/ops/scripts/mirror-sync.sh` | Push to Gitea + GitHub remotes |
+| `/srv/ops/scripts/audit-branches.sh` | Audit stale branches |
+| `/srv/ops/scripts/cleanup-branches.sh` | Remove stale branches (needs approval) |
+| `/srv/ops/terraform/cloudflare/variables.tf` | Cloudflare Tunnel ingress rules |
+
+### Skills (`.claude/skills/`)
+
+| Skill | Trigger | Purpose |
+|-------|---------|---------|
+| `list-web-from-zero-to-deploy` | `/new-list-web` | Create list-web app zero→deploy |
+| `repo-scan` | `/rs` | Scan tasks in SPEC/TODO/TASKMASTER formats |
+| `universal-code-review` | `/review` | 5-axis code review |
+| `security-audit` | `/sec` | OWASP top 10 vulnerability scan |
+| `context-prune` | auto | Reduce context window |
+| `deploy-validate` | auto | Pre-deploy checks |
+| `mcp-health` | auto | MCP server health |
+
+---
+
 ## Quick Reference
 
 ```bash
