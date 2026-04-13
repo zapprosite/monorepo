@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"regexp"
 	"strings"
 	"time"
 )
@@ -299,12 +300,32 @@ func (c *ClassifierAgent) ruleBasedClassification(text string) Intent {
 // ruleBasedEntityExtraction provides fallback entity extraction without LLM.
 func (c *ClassifierAgent) ruleBasedEntityExtraction(text string) *Entity {
 	entity := &Entity{}
+	textLower := strings.ToLower(text)
+	textUpper := strings.ToUpper(text)
 
-	// Common brands
-	brands := []string{"springer", "midea", "lg", "daikin", "carrier", "york", "trane", "panasonic", "electrolux", "consul", "philco", "adt", "hitachi", "mitsubishi"}
-	for _, b := range brands {
-		if strings.Contains(strings.ToLower(text), b) {
-			entity.Brand = b
+	// Common brands (including Samsung and common misspellings)
+	brandMap := map[string]string{
+		"springer":   "springer",
+		"midea":      "midea",
+		"lg":         "lg",
+		"daikin":     "daikin",
+		"carrier":    "carrier",
+		"york":       "york",
+		"trane":      "trane",
+		"panasonic":  "panasonic",
+		"electrolux": "electrolux",
+		"consul":     "consul",
+		"philco":     "philco",
+		"adt":        "adt",
+		"hitachi":    "hitachi",
+		"mitsubishi": "mitsubishi",
+		"samsung":    "samsung",
+		"samgsung":   "samsung",
+		"samung":     "samsung",
+	}
+	for match, brand := range brandMap {
+		if strings.Contains(textLower, match) {
+			entity.Brand = brand
 			break
 		}
 	}
@@ -320,8 +341,50 @@ func (c *ClassifierAgent) ruleBasedEntityExtraction(text string) *Entity {
 
 	// Error code patterns (E1, F5, P2, etc.)
 	errorCodes := []string{"E0", "E1", "E2", "E3", "E4", "E5", "F1", "F2", "F3", "F4", "F5", "P1", "P2", "P3", "P4", "P5"}
-	textUpper := strings.ToUpper(text)
 	for _, ec := range errorCodes {
+		if strings.Contains(textUpper, ec) {
+			entity.ErrorCode = ec
+			break
+		}
+	}
+
+	// LG error codes: CH01-CH99
+	lgErrorPattern := regexp.MustCompile(`CH\d{2}`)
+	if match := lgErrorPattern.FindString(textUpper); match != "" {
+		entity.ErrorCode = match
+	}
+
+	// Samsung error codes: E101-E502
+	samsungErrorPattern := regexp.MustCompile(`E1[0-9][0-9]|E2[0-9][0-9]|E3[0-9][0-9]|E4[0-2][0-9]|E5[0-2]`)
+	if match := samsungErrorPattern.FindString(textUpper); match != "" {
+		entity.ErrorCode = match
+	}
+
+	// Daikin error codes: A1-C99
+	daikinErrorPattern := regexp.MustCompile(`[ABC][0-9]{1,2}`)
+	if match := daikinErrorPattern.FindString(textUpper); match != "" {
+		entity.ErrorCode = match
+	}
+
+	// Specific known error codes for each brand
+	knownLGErrors := []string{"CH01", "CH02", "CH06", "CH08", "CH10", "CH11", "CH29", "CH57", "CH59", "CH99"}
+	for _, ec := range knownLGErrors {
+		if strings.Contains(textUpper, ec) {
+			entity.ErrorCode = ec
+			break
+		}
+	}
+
+	knownSamsungErrors := []string{"E101", "E121", "E126", "E128", "E129", "E154", "E201", "E261", "E306", "E401", "E502"}
+	for _, ec := range knownSamsungErrors {
+		if strings.Contains(textUpper, ec) {
+			entity.ErrorCode = ec
+			break
+		}
+	}
+
+	knownDaikinErrors := []string{"A1", "A5", "A6", "C1", "C4", "C28", "C30", "C35", "C36", "C59"}
+	for _, ec := range knownDaikinErrors {
 		if strings.Contains(textUpper, ec) {
 			entity.ErrorCode = ec
 			break
@@ -331,7 +394,7 @@ func (c *ClassifierAgent) ruleBasedEntityExtraction(text string) *Entity {
 	// Refrigerant patterns
 	refrigerants := []string{"r-410a", "r-22", "r-134a", "r-32", "r-290", "r-407c"}
 	for _, r := range refrigerants {
-		if strings.Contains(strings.ToLower(text), r) {
+		if strings.Contains(textLower, r) {
 			entity.Refrigerant = strings.ToUpper(r)
 			break
 		}

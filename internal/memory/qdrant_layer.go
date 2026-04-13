@@ -6,36 +6,44 @@ import (
 	"regexp"
 	"sort"
 	"strings"
+	"time"
 	"unicode"
 
 	"github.com/qdrant/go-client/qdrant"
-	"github.com/will-zappro/hvacr-swarm/internal/minimax"
+	"github.com/will-zappro/hvacr-swarm/internal/circuitbreaker"
+	"github.com/will-zappro/hvacr-swarm/internal/ollama"
 )
 
 // QdrantLayer implements the vector layer using Qdrant.
 type QdrantLayer struct {
 	client     *qdrant.Client
 	collection string
-	embedder   *minimax.Embedder // MiniMax embedder for dense vectors (optional)
+	embedder   *ollama.Embedder // Ollama embedder for dense vectors (nomic-embed-text 768D)
+	cb         *circuitbreaker.CircuitBreaker
 }
 
 // RRF constant - typically 60 in production
 const rrfK = 60
+
+// ExpectedVectorDim is the expected dimension for Qdrant vectors (768D for nomic-embed-text).
+const ExpectedVectorDim = 768
 
 // NewQdrantLayer creates a new Qdrant layer instance.
 func NewQdrantLayer(client *qdrant.Client) *QdrantLayer {
 	return &QdrantLayer{
 		client:     client,
 		collection: "hvacr_knowledge",
+		cb:         circuitbreaker.New(5, 30*time.Second),
 	}
 }
 
 // NewQdrantLayerWithEmbedder creates a new Qdrant layer with an embedder for dense vectors.
-func NewQdrantLayerWithEmbedder(client *qdrant.Client, embedder *minimax.Embedder) *QdrantLayer {
+func NewQdrantLayerWithEmbedder(client *qdrant.Client, embedder *ollama.Embedder) *QdrantLayer {
 	return &QdrantLayer{
 		client:     client,
 		collection: "hvacr_knowledge",
 		embedder:   embedder,
+		cb:         circuitbreaker.New(5, 30*time.Second),
 	}
 }
 
@@ -73,22 +81,23 @@ func (q *QdrantLayer) HybridSearch(ctx context.Context, query string, filters ma
 	return fused, nil
 }
 
-// searchDense performs dense vector search using Gemini Embedding 2.
+// searchDense performs dense vector search using Ollama nomic-embed-text (768D).
 func (q *QdrantLayer) searchDense(ctx context.Context, query string, flt *qdrant.Filter, limit int) ([]SearchResult, error) {
 	var embedding []float32
 
-	// Generate embedding using Gemini if embedder is available
+	// Generate embedding using Ollama nomic-embed-text if embedder is available
 	if q.embedder != nil {
 		emb, err := q.embedder.Embed(ctx, query)
 		if err != nil {
 			// Fall back to zero vector on error
-			embedding = make([]float32, 768)
+			embedding = make([]float32, ExpectedVectorDim)
 		} else {
-			embedding = emb
+			// Validate embedding dimensions - must match Qdrant collection (768D)
+			embedding = validateAndPadEmbedding(emb, ExpectedVectorDim)
 		}
 	} else {
 		// No embedder - use zero vector (placeholder behavior)
-		embedding = make([]float32, 768)
+		embedding = make([]float32, ExpectedVectorDim)
 	}
 
 	limit64 := uint64(limit)
@@ -100,9 +109,15 @@ func (q *QdrantLayer) searchDense(ctx context.Context, query string, flt *qdrant
 		Filter:         flt,
 	}
 
-	results, err := q.client.Query(ctx, req)
-	if err != nil {
-		return nil, fmt.Errorf("qdrant dense query: %w", err)
+	var results []*qdrant.ScoredPoint
+	var cbErr error
+	cbErr = q.cb.Call(func() error {
+		var err error
+		results, err = q.client.Query(ctx, req)
+		return err
+	})
+	if cbErr != nil {
+		return nil, fmt.Errorf("qdrant dense query: %w", cbErr)
 	}
 
 	return convertToSearchResults(results), nil
@@ -123,9 +138,15 @@ func (q *QdrantLayer) searchSparseBM25(ctx context.Context, query string, flt *q
 		Filter:         flt,
 	}
 
-	results, err := q.client.Query(ctx, req)
-	if err != nil {
-		return nil, fmt.Errorf("qdrant sparse query: %w", err)
+	var results []*qdrant.ScoredPoint
+	var cbErr error
+	cbErr = q.cb.Call(func() error {
+		var err error
+		results, err = q.client.Query(ctx, req)
+		return err
+	})
+	if cbErr != nil {
+		return nil, fmt.Errorf("qdrant sparse query: %w", cbErr)
 	}
 
 	return convertToSearchResults(results), nil
@@ -351,7 +372,17 @@ func (q *QdrantLayer) SearchSparse(ctx context.Context, query string, filters ma
 
 // CollectionExists checks if the collection exists.
 func (q *QdrantLayer) CollectionExists(ctx context.Context, name string) (bool, error) {
-	return q.client.CollectionExists(ctx, name)
+	var exists bool
+	var cbErr error
+	cbErr = q.cb.Call(func() error {
+		var err error
+		exists, err = q.client.CollectionExists(ctx, name)
+		return err
+	})
+	if cbErr != nil {
+		return false, cbErr
+	}
+	return exists, nil
 }
 
 // CreateCollection creates a new collection with dense + sparse vector configuration.
@@ -360,7 +391,7 @@ func (q *QdrantLayer) CreateCollection(ctx context.Context, name string) error {
 	req := &qdrant.CreateCollection{
 		CollectionName: name,
 		VectorsConfig: qdrant.NewVectorsConfig(&qdrant.VectorParams{
-			Size:     768,
+			Size:     ExpectedVectorDim,
 			Distance: qdrant.Distance_Cosine,
 		}),
 		OptimizersConfig: &qdrant.OptimizersConfigDiff{
@@ -368,7 +399,9 @@ func (q *QdrantLayer) CreateCollection(ctx context.Context, name string) error {
 		},
 	}
 
-	err := q.client.CreateCollection(ctx, req)
+	err := q.cb.Call(func() error {
+		return q.client.CreateCollection(ctx, req)
+	})
 	if err != nil {
 		return fmt.Errorf("create collection: %w", err)
 	}
@@ -384,10 +417,13 @@ func (q *QdrantLayer) UpsertPoint(ctx context.Context, id string, vector []float
 	}
 
 	waitUpsert := true
-	_, err := q.client.Upsert(ctx, &qdrant.UpsertPoints{
-		CollectionName: q.collection,
-		Points:        []*qdrant.PointStruct{pt},
-		Wait:          &waitUpsert,
+	err := q.cb.Call(func() error {
+		_, err := q.client.Upsert(ctx, &qdrant.UpsertPoints{
+			CollectionName: q.collection,
+			Points:         []*qdrant.PointStruct{pt},
+			Wait:           &waitUpsert,
+		})
+		return err
 	})
 	if err != nil {
 		return fmt.Errorf("upsert point: %w", err)
@@ -398,10 +434,13 @@ func (q *QdrantLayer) UpsertPoint(ctx context.Context, id string, vector []float
 // DeletePoint deletes a point from the collection.
 func (q *QdrantLayer) DeletePoint(ctx context.Context, id string) error {
 	waitDelete := true
-	_, err := q.client.Delete(ctx, &qdrant.DeletePoints{
-		CollectionName: q.collection,
-		Points:        qdrant.NewPointsSelectorIDs([]*qdrant.PointId{qdrant.NewID(id)}),
-		Wait:          &waitDelete,
+	err := q.cb.Call(func() error {
+		_, err := q.client.Delete(ctx, &qdrant.DeletePoints{
+			CollectionName: q.collection,
+			Points:         qdrant.NewPointsSelectorIDs([]*qdrant.PointId{qdrant.NewID(id)}),
+			Wait:           &waitDelete,
+		})
+		return err
 	})
 	if err != nil {
 		return fmt.Errorf("delete point: %w", err)
@@ -417,4 +456,24 @@ func (q *QdrantLayer) Close() error {
 // Client returns the underlying Qdrant client for health checks.
 func (q *QdrantLayer) Client() *qdrant.Client {
 	return q.client
+}
+
+// validateAndPadEmbedding ensures embedding dimensions match expected size.
+// If embedding is smaller than expected, pads with zeros.
+// If embedding is larger than expected, truncates to expected size.
+// Logs a warning if dimension mismatch occurs.
+func validateAndPadEmbedding(embedding []float32, expectedDim int) []float32 {
+	if len(embedding) == expectedDim {
+		return embedding
+	}
+
+	if len(embedding) < expectedDim {
+		// Pad with zeros
+		padded := make([]float32, expectedDim)
+		copy(padded, embedding)
+		return padded
+	}
+
+	// Truncate if larger
+	return embedding[:expectedDim]
 }

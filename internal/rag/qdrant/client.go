@@ -3,8 +3,10 @@ package qdrant
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/qdrant/go-client/qdrant"
+	"github.com/will-zappro/hvacr-swarm/internal/circuitbreaker"
 )
 
 const (
@@ -17,11 +19,17 @@ const (
 // Client wraps the Qdrant client for HVAC RAG operations
 type Client struct {
 	client     *qdrant.Client
+	cb         *circuitbreaker.CircuitBreaker
 	collection string
 }
 
-// NewClient creates a new Qdrant client for HVAC RAG
+// NewClient creates a new Qdrant client for HVAC RAG with default circuit breaker
 func NewClient(addr string) (*Client, error) {
+	return NewClientWithBreaker(addr, circuitbreaker.New(5, 30*time.Second))
+}
+
+// NewClientWithBreaker creates a new Qdrant client with a custom circuit breaker
+func NewClientWithBreaker(addr string, cb *circuitbreaker.CircuitBreaker) (*Client, error) {
 	client, err := qdrant.NewClient(&qdrant.Config{
 		Host: addr,
 	})
@@ -30,6 +38,7 @@ func NewClient(addr string) (*Client, error) {
 	}
 	return &Client{
 		client:     client,
+		cb:         cb,
 		collection: CollectionName,
 	}, nil
 }
@@ -37,7 +46,12 @@ func NewClient(addr string) (*Client, error) {
 // CreateCollection creates the hvac_service_manuals collection with proper schema
 func (c *Client) CreateCollection(ctx context.Context) error {
 	// Check if collection already exists
-	exists, err := c.client.CollectionExists(ctx, c.collection)
+	var exists bool
+	err := c.cb.Call(func() error {
+		var cbErr error
+		exists, cbErr = c.client.CollectionExists(ctx, c.collection)
+		return cbErr
+	})
 	if err != nil {
 		return fmt.Errorf("check collection exists: %w", err)
 	}
@@ -58,7 +72,9 @@ func (c *Client) CreateCollection(ctx context.Context) error {
 		},
 	}
 
-	err = c.client.CreateCollection(ctx, req)
+	err = c.cb.Call(func() error {
+		return c.client.CreateCollection(ctx, req)
+	})
 	if err != nil {
 		return fmt.Errorf("create collection: %w", err)
 	}
@@ -75,10 +91,16 @@ func (c *Client) UpsertPoint(ctx context.Context, id string, vector []float32, p
 	}
 
 	waitUpsert := true
-	_, err := c.client.Upsert(ctx, &qdrant.UpsertPoints{
+	req := &qdrant.UpsertPoints{
 		CollectionName: c.collection,
 		Points:        []*qdrant.PointStruct{pt},
 		Wait:          &waitUpsert,
+	}
+
+	var err error
+	err = c.cb.Call(func() error {
+		_, upsertErr := c.client.Upsert(ctx, req)
+		return upsertErr
 	})
 	if err != nil {
 		return fmt.Errorf("upsert point: %w", err)
@@ -112,7 +134,12 @@ func (c *Client) Search(ctx context.Context, vector []float32, filters map[strin
 		Filter:         flt,
 	}
 
-	results, err := c.client.Query(ctx, req)
+	var results []*qdrant.ScoredPoint
+	err := c.cb.Call(func() error {
+		var cbErr error
+		results, cbErr = c.client.Query(ctx, req)
+		return cbErr
+	})
 	if err != nil {
 		return nil, fmt.Errorf("qdrant query: %w", err)
 	}
@@ -152,5 +179,7 @@ func convertToSearchResults(results []*qdrant.ScoredPoint) []SearchResult {
 
 // Close closes the Qdrant client
 func (c *Client) Close() error {
-	return c.client.Close()
+	return c.cb.Call(func() error {
+		return c.client.Close()
+	})
 }

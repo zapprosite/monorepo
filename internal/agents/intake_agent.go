@@ -10,6 +10,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"os"
 	"strings"
 	"unicode"
 
@@ -18,12 +19,18 @@ import (
 
 // IntakeAgent handles incoming WhatsApp webhook payloads.
 // It validates signatures, extracts message content, normalizes text,
-// and downloads media when necessary.
+// downloads media when necessary, and routes to the classifier queue.
 type IntakeAgent struct {
 	whatsappSecret string
 	accessToken    string
 	httpClient     *http.Client
 	graphAPIURL    string
+	redisClient    RedisEnqueuer
+}
+
+// RedisEnqueuer interface for enqueueing tasks to Redis.
+type RedisEnqueuer interface {
+	EnqueueTask(ctx context.Context, queueName string, taskData map[string]any) error
 }
 
 // NewIntakeAgent creates a new IntakeAgent.
@@ -36,6 +43,23 @@ func NewIntakeAgent(whatsappSecret, accessToken string) *IntakeAgent {
 		},
 		graphAPIURL: "https://graph.facebook.com/v18.0",
 	}
+}
+
+// NewIntakeAgentWithRedis creates a new IntakeAgent with Redis client for routing.
+func NewIntakeAgentWithRedis(whatsappSecret, accessToken string, redisClient RedisEnqueuer) *IntakeAgent {
+	agent := NewIntakeAgent(whatsappSecret, accessToken)
+	agent.redisClient = redisClient
+	return agent
+}
+
+// isDevMode returns true if DEV_MODE environment variable is set.
+func isDevMode() bool {
+	return os.Getenv("DEV_MODE") == "true"
+}
+
+// isWhatsAppSimulated returns true if SIMULATE_WHATSAPP environment variable is set.
+func isWhatsAppSimulated() bool {
+	return os.Getenv("SIMULATE_WHATSAPP") == "true"
 }
 
 // AgentType returns the agent type identifier.
@@ -127,87 +151,70 @@ type WhatsAppWebhookPayload struct {
 
 // Execute processes the incoming WhatsApp webhook payload.
 func (i *IntakeAgent) Execute(ctx context.Context, task *SwarmTask) (map[string]any, error) {
-	// 1. Parse WhatsApp webhook payload from task input
-	payloadData, ok := task.Input["webhook_payload"]
-	if !ok {
-		return nil, fmt.Errorf("missing webhook_payload in task input")
+	// 1. Check for DEV_MODE bypass - skip signature validation in dev
+	devMode := isDevMode()
+	simulated := isWhatsAppSimulated()
+
+	// Check if this is a simulated message (from whatsapp-simulator)
+	if simulatedFlag, ok := task.Input["simulated"].(bool); ok && simulatedFlag {
+		simulated = true
 	}
 
-	payloadBytes, err := json.Marshal(payloadData)
-	if err != nil {
-		return nil, fmt.Errorf("failed to marshal webhook payload: %w", err)
-	}
-
-	var payload WhatsAppWebhookPayload
-	if err := json.Unmarshal(payloadBytes, &payload); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal webhook payload: %w", err)
-	}
-
-	// 2. Validate X-Hub-Signature-256 if provided
-	signature, ok := task.Input["x_hub_signature_256"].(string)
-	if ok && i.whatsappSecret != "" {
-		if !i.validateSignature(payloadBytes, signature) {
-			return nil, fmt.Errorf("invalid X-Hub-Signature-256")
+	// In DEV_MODE or SIMULATE_WHATSAPP mode, skip signature validation
+	if !devMode && !simulated && i.whatsappSecret != "" {
+		signature, ok := task.Input["x_hub_signature_256"].(string)
+		if ok {
+			// Get raw payload for signature validation
+			payloadBytes, ok := task.Input["_raw_payload"].([]byte)
+			if ok && !i.validateSignature(payloadBytes, signature) {
+				return nil, fmt.Errorf("invalid X-Hub-Signature-256")
+			}
 		}
 	}
 
-	// Extract message data
-	if len(payload.Entry) == 0 || len(payload.Entry[0].Changes) == 0 || len(payload.Entry[0].Changes[0].Value.Messages) == 0 {
-		return nil, fmt.Errorf("no messages in payload")
+	// 2. Extract message data from task input (fields set by WhatsApp webhook handler)
+	// The webhook handler sends individual fields, not a nested webhook_payload
+	phone, ok := task.Input["phone"].(string)
+	if !ok || phone == "" {
+		return nil, fmt.Errorf("missing phone in task input")
 	}
 
-	msg := payload.Entry[0].Changes[0].Value.Messages[0]
-	phone := msg.From
-	messageType := msg.Type
-
-	// 3. Extract text and normalize
-	var text string
-	switch messageType {
-	case "text":
-		if msg.Text != nil {
-			text = msg.Text.Body
-		}
-	case "image":
-		if msg.Image != nil {
-			text = msg.Image.Caption
-		}
-	case "audio":
-		text = ""
-	case "document":
-		if msg.Document != nil {
-			text = msg.Document.Caption
-		}
-	case "location":
-		if msg.Location != nil {
-			text = fmt.Sprintf("Location: %s (%f, %f)", msg.Location.Name, msg.Location.Latitude, msg.Location.Longitude)
-		}
-	default:
-		text = ""
+	messageID, _ := task.Input["message_id"].(string)
+	timestamp, _ := task.Input["timestamp"].(string)
+	messageType, _ := task.Input["message_type"].(string)
+	if messageType == "" {
+		messageType = "text"
 	}
 
-	// 4. Normalize UTF-8
-	normalizedText := normalizeUTF8(text)
+	// Get text - try normalized_text first, then text or query
+	normalizedText, _ := task.Input["normalized_text"].(string)
+	if normalizedText == "" {
+		normalizedText, _ = task.Input["text"].(string)
+	}
+	if normalizedText == "" {
+		normalizedText, _ = task.Input["query"].(string)
+	}
 
-	// 5. Download media via Graph API if needed
+	// 3. Handle simulated messages - mark as simulated and use fallback
+	if simulated {
+		log.Printf("[intake] processing simulated message (DEV_MODE=%v, SIMULATE_WHATSAPP=%v)", devMode, simulated)
+	}
+
+	// 4. Normalize UTF-8 if we have text
+	if normalizedText != "" {
+		normalizedText = normalizeUTF8(normalizedText)
+	}
+
+	// 5. Download media via Graph API if needed (skip in simulation mode)
 	var mediaURL string
 	var mediaID string
-	if messageType == "image" || messageType == "audio" || messageType == "document" {
-		var mediaIDStr string
-		switch messageType {
-		case "image":
-			mediaIDStr = msg.Image.ID
-		case "audio":
-			mediaIDStr = msg.Audio.ID
-		case "document":
-			mediaIDStr = msg.Document.ID
-		}
-
+	if !simulated && (messageType == "image" || messageType == "audio" || messageType == "document") {
+		mediaIDStr, _ := task.Input["media_id"].(string)
 		if mediaIDStr != "" {
-			mediaURL, err = i.getMediaURL(ctx, mediaIDStr)
+			_, err := i.getMediaURL(ctx, mediaIDStr)
 			if err != nil {
 				// Log but don't fail - media download is best effort
 				log.Printf("media download failed for ID %s: %v", mediaIDStr, err)
-				mediaURL = ""
 			}
 			mediaID = mediaIDStr
 		}
@@ -217,18 +224,51 @@ func (i *IntakeAgent) Execute(ctx context.Context, task *SwarmTask) (map[string]
 	requestID := uuid.New().String()
 
 	result := map[string]any{
-		"request_id":     requestID,
-		"phone":          phone,
-		"message_type":   messageType,
+		"request_id":      requestID,
+		"phone":           phone,
+		"message_type":    messageType,
 		"normalized_text": normalizedText,
-		"message_id":     msg.ID,
-		"timestamp":      msg.Timestamp,
-		"intake.success": true,
+		"message_id":      messageID,
+		"timestamp":      timestamp,
+		"intake.success":  true,
+		"simulated":       simulated,
 	}
 
 	if mediaURL != "" {
 		result["media_url"] = mediaURL
 		result["media_id"] = mediaID
+	}
+
+	// 7. Route to classifier queue
+	if i.redisClient != nil {
+		classifierTask := map[string]any{
+			"task_id":         uuid.New().String(),
+			"graph_id":        task.GraphID,
+			"node_id":         "classifier",
+			"type":            "classifier",
+			"status":          "pending",
+			"priority":        1,
+			"phone":           phone,
+			"message_id":      messageID,
+			"timestamp":       timestamp,
+			"normalized_text": normalizedText,
+			"message_type":    messageType,
+			"media_id":        mediaID,
+			"media_url":       mediaURL,
+			"intake_output":   result,
+			"retries":         0,
+			"max_retries":     3,
+			"timeout_ms":      15000,
+		}
+
+		if err := i.redisClient.EnqueueTask(ctx, "classifier", classifierTask); err != nil {
+			log.Printf("[intake] failed to enqueue classifier task: %v", err)
+			// Don't fail the intake task - log error and continue
+		} else {
+			log.Printf("[intake] routed to classifier queue: request_id=%s", requestID)
+		}
+	} else {
+		log.Printf("[intake] warning: no Redis client configured, skipping classifier routing")
 	}
 
 	return result, nil
