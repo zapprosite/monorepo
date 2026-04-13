@@ -1,35 +1,26 @@
 # MiniMax Research - Quick Start
 
-## Running Research
-
-### Basic Usage
+## Uso basico
 
 ```bash
 bash scripts/cursor-loop-research-minimax.sh "your research question"
 ```
 
-### Error Analysis Example
+## Exemplos
+
+### Analise de erro
 
 ```bash
 bash scripts/cursor-loop-research-minimax.sh "TypeError: Cannot read property 'map' of undefined at transformer.ts:45"
 ```
 
-### Architecture Research Example
+### Arquitetura
 
 ```bash
 bash scripts/cursor-loop-research-minimax.sh "Compare the Fastify vs Express patterns in apps/api"
 ```
 
-## Integration with Cursor Loop
-
-The `cursor-loop-research-minimax.sh` script is designed to integrate with the autonomous cursor loop system:
-
-1. **Called** when `/minimax-research` or `/research` is invoked
-2. **Retrieves** MiniMax API token via Infisical SDK
-3. **Sends** research query to MiniMax M2.7
-4. **Returns** formatted analysis with code references
-
-## Example Output
+## Output esperado
 
 ```
 === MiniMax Research Agent ===
@@ -45,11 +36,13 @@ Analysis:
 Recommendation: Implement token refresh mechanism
 ```
 
-## Environment Variables
+## Variaveis de ambiente
 
-The script requires:
-- `INFISICAL_CLIENT_ID` - Infisical client ID
-- `INFISICAL_CLIENT_SECRET` - Infisical client secret
-- `INFISICAL_WORKSPACE_ID` - Infisical workspace ID
+O script usa Infisical automaticamente. Para debug local:
 
-These are automatically loaded from the monorepo's Infisical configuration.
+| Variavel | Descricao |
+|----------|-----------|
+| `MINIMAX_API_KEY` | Override: usa este token em vez de buscar no vault |
+| `INFISICAL_TOKEN` | Override: usa este token Infisical em vez do service-token |
+
+**Nota:** Em producao, o script usa `infisical.service-token` em `/srv/ops/secrets/`.

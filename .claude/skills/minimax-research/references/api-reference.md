@@ -8,78 +8,59 @@ POST https://api.minimax.io/anthropic/v1/messages
 
 ## Authentication
 
-Bearer token retrieved via Infisical SDK:
-
-```typescript
-const token = await infisicalClient.getSecret({
-  secretName: 'MINIMAX_API_TOKEN',
-});
+```
+Authorization: Bearer <MINIMAX_API_KEY>
+anthropic-version: 2023-06-01
 ```
 
-Header format:
-```
-Authorization: Bearer <token>
-```
+Token retrieved via Infisical SDK (Python):
+- Project ID: e42657ef-98b2-4b9c-9a04-46c093bd6d37
+- Environment: dev
+- Secret name: MINIMAX_API_KEY
 
-## Models
+## Model
 
-| Model | Model ID | Use Case |
-|-------|----------|----------|
-| MiniMax-M2.7 | `MiniMax-M2.7` | Deep research, complex analysis (default) |
-| MiniMax-M2.1 | `MiniMax-M2.1` | Quick lookups, simpler tasks (fast) |
+| Model | Model ID | Uso |
+|-------|----------|-----|
+| MiniMax-M2.1 | MiniMax-M2.1 | Default, 1024 max_tokens |
 
-## Request Format
+## Request
 
 ```json
 {
-  "model": "MiniMax-M2.7",
+  "model": "MiniMax-M2.1",
   "max_tokens": 1024,
+  "thinking": {"type": "disabled"},
   "messages": [
     {
       "role": "user",
-      "content": "your research query"
+      "content": "research query"
     }
   ]
 }
 ```
 
-## Response Format
+## Response
 
 ```json
 {
-  "content": [
-    {
-      "type": "text",
-      "text": "analysis response"
-    }
-  ],
+  "content": [{"type": "text", "text": "analysis response"}],
   "id": "msg_xxx",
-  "model": "MiniMax-M2.7",
+  "model": "MiniMax-M2.1",
   "role": "assistant",
   "stop_reason": "end_turn"
 }
 ```
 
+## Error Codes
+
+| Code | Meaning |
+|------|---------|
+| 401 | Token invalido ou faltando |
+| 429 | Rate limit excedido |
+| 500 | Erro interno MiniMax |
+
 ## Rate Limits
 
-- Default: 2048 tokens per request
-- Max tokens: 1024 (configurable)
-
-## Error Handling
-
-| Error Code | Description |
-|------------|-------------|
-| 401 | Invalid or missing API token |
-| 429 | Rate limit exceeded |
-| 500 | MiniMax API server error |
-
-## Infisical Secret Configuration
-
-```typescript
-{
-  secretName: 'MINIMAX_API_TOKEN',
-  workspaceId: process.env.INFISICAL_WORKSPACE_ID,
-  environment: 'production',
-  secretPath: '/'
-}
-```
+- Timeout: 30s per request
+- Max tokens: 1024 (response)

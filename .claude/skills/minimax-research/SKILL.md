@@ -1,84 +1,63 @@
-# Skill: MiniMax Research Agent
+---
+name: minimax-research
+description: Research agent using MiniMax LLM for monorepo code/error analysis
+trigger: /minimax-research
+---
 
-**name:** minimax-research
-**description:** Research agent using MiniMax LLM for monorepo code/error analysis
-**trigger:** /minimax-research or /research
+# MiniMax Research Agent
 
-## Overview
+## Objetivo
 
-This skill leverages MiniMax M2.7 LLM via the `cursor-loop-research-minimax.sh` script to perform deep code analysis, error investigation, and architectural research within the monorepo.
+Perform deep code analysis, error investigation, and architectural research using MiniMax M2.1 via `cursor-loop-research-minimax.sh`.
 
-## Usage
+## Quando usar
 
-### Basic Research Query
+- Analisar erros complexos no monorepo (TypeErrors, runtime crashes)
+- Investigar arquitetura de codigo (padrões Fastify, ORM, etc.)
+- Pesquisa rapida sobre codigo ou APIs
 
-```
-/minimax-research How does the auth middleware work in apps/api?
-```
+**Nao usar** para seguranca (use `/security-audit`) ou reviews genericos (use `/review`).
 
-### Error Analysis
+## Como executar
+
+### Erro/Analise de codigo
 
 ```
 /minimax-research TypeError: Cannot read property 'map' of undefined at transformer.ts:45
 ```
 
-### Architecture Research
+### Arquitetura
 
 ```
-/minimax-research Compare the Fastify vs Express patterns in the backend
+/minimax-research Compare the Fastify vs Express patterns in apps/api
 ```
 
-## Running Research
+### Query livre
 
-### Via CLI Script
+```
+/minimax-research How does the auth middleware work?
+```
+
+## Output esperado
+
+Retorna analise estruturada:
+- **Root cause** (para erros)
+- **Code locations** com caminhos completos
+- **Suggested fixes**
+- **Related patterns** no codebase
+
+## Script subjacente
 
 ```bash
-bash scripts/cursor-loop-research-minimax.sh "your research question or error message"
+bash scripts/cursor-loop-research-minimax.sh "<query>"
 ```
 
-### Via Cursor Loop Integration
+O script:
+1. Recupera `MINIMAX_API_KEY` do Infisical (vault: dev, project: e42657ef-98b2-4b9c-9a04-46c093bd6d37)
+2. Faz POST para `https://api.minimax.io/anthropic/v1/messages`
+3. Usa modelo `MiniMax-M2.1` com max_tokens 1024
 
-The script integrates with the cursor loop system:
-1. When running `/minimax-research`, it calls `cursor-loop-research-minimax.sh`
-2. The script retrieves the MiniMax API token from Infisical
-3. Executes the research query against MiniMax M2.7
-4. Returns formatted analysis
+## Referências
 
-## Infisical SDK Pattern
-
-The script uses Infisical SDK to securely retrieve the MiniMax API token:
-
-```typescript
-import { InfisicalClient } from '@infisical/sdk';
-
-async function getMinimaxToken(): Promise<string> {
-  const client = new InfisicalClient({
-    clientId: process.env.INFISICAL_CLIENT_ID,
-    clientSecret: process.env.INFISICAL_CLIENT_SECRET,
-  });
-
-  const secret = await client.getSecret({
-    workspaceId: process.env.INFISICAL_WORKSPACE_ID,
-    environment: 'production',
-    secretPath: '/',
-    secretName: 'MINIMAX_API_TOKEN',
-  });
-
-  return secret.secretValue;
-}
-```
-
-## Models
-
-| Model | Use Case | Speed |
-|-------|----------|-------|
-| MiniMax-M2.7 | Deep research, complex analysis | Default |
-| MiniMax-M2.1 | Quick lookups, simpler tasks | Fast |
-
-## Output
-
-The research agent returns:
-- Root cause analysis (for errors)
-- Code location references
-- Suggested fixes
-- Related patterns in codebase
+- `references/quick-start.md` — Guia rapido de uso
+- `references/api-reference.md` — Referencia da API MiniMax
