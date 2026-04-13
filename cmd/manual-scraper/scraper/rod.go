@@ -17,15 +17,24 @@ type Browser struct {
 }
 
 // NewBrowser creates a new Rod browser instance
-func NewBrowser(headless bool) (*Browser, error) {
-	browser := rod.New()
-
-	u := launcher.New().Headless(true).Set("no-sandbox", "").Set("disable-dev-shm-usage", "").MustLaunch()
-	browser = rod.New().ControlURL(u)
-
-	if err := browser.MustConnect(); err != nil {
-		return nil, fmt.Errorf("connect to browser: %w", err)
+func NewBrowser(headless bool, chromePath string) (*Browser, error) {
+	if chromePath == "" {
+		chromePath = "/usr/bin/google-chrome"
 	}
+	u := launcher.New().
+		Bin(chromePath).
+		Headless(true).
+		Set("no-sandbox", "").
+		Set("disable-dev-shm-usage", "").
+		Set("disable-gpu", "").
+		Set("single-process", "").
+		Devtools(true).
+		MustLaunch()
+
+	browser := rod.New().ControlURL(u)
+
+	// Give Chrome a moment to fully initialize
+	time.Sleep(500 * time.Millisecond)
 
 	return &Browser{
 		browser:   browser,
@@ -38,9 +47,16 @@ func (b *Browser) SetRateLimit(d time.Duration) {
 	b.rateLimit = d
 }
 
-// Close closes the browser
+// Close closes the browser (panics are recovered to allow graceful shutdown)
 func (b *Browser) Close() {
-	b.browser.MustClose()
+	defer func() {
+		if r := recover(); r != nil {
+			// Browser was in bad state, ignore
+		}
+	}()
+	if b.browser != nil {
+		b.browser.MustClose()
+	}
 }
 
 // Navigate opens a URL and waits for content to load

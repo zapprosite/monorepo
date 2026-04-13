@@ -127,6 +127,7 @@ func runPipeline(ctx context.Context, sources string) error {
 		RateLimit:    *rateLimitFlag,
 		MaxDownloads: *maxFlag,
 		Verbose:      *verboseFlag,
+		ChromePath:   os.Getenv("CHROME_BIN"),
 	}
 
 	pipeline, err := NewPipeline(cfg)

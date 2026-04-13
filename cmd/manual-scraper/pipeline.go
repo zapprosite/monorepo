@@ -22,6 +22,7 @@ type PipelineConfig struct {
 	RateLimit    time.Duration
 	MaxDownloads int
 	Verbose      bool
+	ChromePath   string
 }
 
 // Pipeline orchestrates the full scraping → indexing flow
@@ -42,7 +43,7 @@ func NewPipeline(cfg PipelineConfig) (*Pipeline, error) {
 	}))
 
 	// Initialize components
-	browser, err := scraper.NewBrowser(true)
+	browser, err := scraper.NewBrowser(true, cfg.ChromePath)
 	if err != nil {
 		return nil, fmt.Errorf("create browser: %w", err)
 	}
