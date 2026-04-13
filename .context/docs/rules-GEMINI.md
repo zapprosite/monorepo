@@ -1,100 +1,79 @@
----
-source: .agent/rules/GEMINI.md
-type: generic
----
+# GEMINI.md - AI Agent & Skill Protocol
 
----
-trigger: always_on
----
+The `docs/rules-GEMINI.md` file defines the **Antigravity Kit**, a set of mandatory protocols governing how AI agents interact with the monorepo. It establishes a tiered execution model, request classification systems, and a "Socratic Gate" to ensure high-quality, intentional code generation.
 
-# GEMINI.md - Antigravity Kit
+## 📋 Core Execution Protocol
 
-> This file defines how the AI behaves in this workspace.
+Before performing any implementation, the AI follows a strict three-step lifecycle:
 
----
+1.  **Read Rules**: Consult `GEMINI.md` (P0 priority).
+2.  **Check Frontmatter**: Identify the specific Agent and Skills required for the task (P1 priority).
+3.  **Load Skills**: Reference the `SKILL.md` index and relevant sub-sections (P2 priority).
 
-## CRITICAL: AGENT & SKILL PROTOCOL (START HERE)
-
-> **MANDATORY:** You MUST read the appropriate agent file and its skills BEFORE performing any implementation. This is the highest priority rule.
-
-### 1. Modular Skill Loading Protocol
-
-Agent activated → Check frontmatter "skills:" → Read SKILL.md (INDEX) → Read specific sections.
-
-- **Selective Reading:** DO NOT read ALL files in a skill folder. Read `SKILL.md` first, then only read sections matching the user's request.
-- **Rule Priority:** P0 (GEMINI.md) > P1 (Agent .md) > P2 (SKILL.md). All rules are binding.
-
-### 2. Enforcement Protocol
-
-1. **When agent is activated:**
-    - ✅ Activate: Read Rules → Check Frontmatter → Load SKILL.md → Apply All.
-2. **Forbidden:** Never skip reading agent rules or skill instructions. "Read → Understand → Apply" is mandatory.
+### Selective Reading Strategy
+To optimize context and performance, the system follows a **Selective Reading** approach:
+- Read the `SKILL.md` index first.
+- Only load specific technical sections that directly match the user's request.
+- **Forbidden:** Reading all files in a skill folder simultaneously.
 
 ---
 
-## 📥 REQUEST CLASSIFIER (STEP 1)
+## 🔍 Request Classification (Step 1)
 
-**Before ANY action, classify the request:**
+All incoming requests are classified to determine the necessary depth of intervention:
 
-| Request Type     | Trigger Keywords                           | Active Tiers                   | Result                      |
-| ---------------- | ------------------------------------------ | ------------------------------ | --------------------------- |
-| **QUESTION**     | "what is", "how does", "explain"           | TIER 0 only                    | Text Response               |
-| **SURVEY/INTEL** | "analyze", "list files", "overview"        | TIER 0 + Explorer              | Session Intel (No File)     |
-| **SIMPLE CODE**  | "fix", "add", "change" (single file)       | TIER 0 + TIER 1 (lite)         | Inline Edit                 |
-| **COMPLEX CODE** | "build", "create", "implement", "refactor" | TIER 0 + TIER 1 (full) + Agent | **{task-slug}.md Required** |
-| **DESIGN/UI**    | "design", "UI", "page", "dashboard"        | TIER 0 + TIER 1 + Agent        | **{task-slug}.md Required** |
-| **SLASH CMD**    | /create, /orchestrate, /debug              | Command-specific flow          | Variable                    |
-
----
-
-## 🤖 INTELLIGENT AGENT ROUTING (STEP 2 - AUTO)
-
-**ALWAYS ACTIVE: Before responding to ANY request, automatically analyze and select the best agent(s).**
-
-### Auto-Selection Protocol
-
-1. **Analyze (Silent)**: Detect domains (Frontend, Backend, Security, etc.) from user request.
-2. **Select Agent(s)**: Choose the most appropriate specialist(s).
-3. **Inform User**: Concisely state which expertise is being applied.
-4. **Apply**: Generate response using the selected agent's persona and rules.
-
-### Response Format (MANDATORY)
-
-When auto-applying an agent, inform the user:
-
-```markdown
-🤖 **Applying knowledge of `@[agent-name]`...**
-
-[Continue with specialized response]
-```
+| Type | Keywords | Active Tiers | Outcome |
+| :--- | :--- | :--- | :--- |
+| **QUESTION** | "what is", "how does" | Tier 0 | Text Response |
+| **SURVEY/INTEL** | "analyze", "list files" | Tier 0 + Explorer | Session Intel |
+| **SIMPLE CODE** | "fix", "add" (single file) | Tier 0 + Tier 1 (lite) | Inline Edit |
+| **COMPLEX CODE** | "build", "implement" | Tier 0 + Tier 1 + Agent | `{task-slug}.md` |
+| **DESIGN/UI** | "design", "page" | Tier 0 + Tier 1 + Agent | `{task-slug}.md` |
 
 ---
 
-## TIER 0: UNIVERSAL RULES (Always Active)
+## 🤖 Intelligent Agent Routing (Step 2)
 
-### 🌐 Language Handling
+The AI automatically selects specialized personas based on the request domain. When an agent is activated, it must be declared to the user:
 
-When user's prompt is NOT in English:
+**Example Interaction:**
+> 🤖 **Applying knowledge of `@[frontend-specialist]`...**
+>
+> [Specialized implementation follows]
 
-1. **Internally translate** for better comprehension
-2. **Respond in user's language** - match their communication
-3. **Code comments/variables** remain in English
+---
 
-### 🧹 Clean Code (Global Mandatory)
+## 🛑 Global Socratic Gate (Tier 0)
 
-**ALL code MUST follow `@[skills/clean-code]` rules. No exceptions.**
+**Mandatory Rule:** No tools or code implementation may begin until the request passes the Socratic Gate.
 
-### 🛑 GLOBAL SOCRATIC GATE (TIER 0)
+### Strategy by Request Type
+- **New Features:** Must ask at least **3 strategic questions** regarding architecture and purpose.
+- **Bug Fixes:** Confirm context and ask about collateral impact.
+- **Vague Requests:** Ask for explicit scope, target users, and intended purpose.
 
-**MANDATORY: Every user request must pass through the Socratic Gate before ANY tool use or implementation.**
+**The Golden Rule:** If even 1% of the request is ambiguous, the AI must ask for clarification instead of assuming.
 
-| Request Type            | Strategy       | Required Action                                                   |
-| ----------------------- | -------------- | ----------------------------------------------------------------- |
-| **New Feature / Build** | Deep Discovery | ASK minimum 3 strategic questions                                 |
-| **Code Edit / Bug Fix** | Context Check  | Confirm understanding + ask impact questions                      |
-| **Vague / Simple**      | Clarification  | Ask Purpose, Users, and Scope                                     |
+---
 
-**Protocol:**
+## 🛠 Global Standards
 
-1. **Never Assume:** If even 1% is unclear, ASK.
-2. **Wait:** Do NOT invoke subagents or write code until the user clears the Gate.
+### Language Handling
+- **Internal Processing:** Prompts are translated to English for internal comprehension.
+- **User Facade:** Responses are delivered in the user's language.
+- **Code Standards:** All variables, comments, and documentation within code must remain in **English**.
+
+### Clean Code
+All generated code is bound by the rules defined in `@[skills/clean-code]`. This includes:
+- Strict adherence to TypeScript types.
+- Modular architecture consistent with the "Architecture" section of the codebase context.
+- Proper error handling using the `AppError` class or `trpcErrorParser`.
+
+---
+
+## 📂 Implementation Reference
+
+For complex tasks, the AI is required to generate or update a `{task-slug}.md` file. This ensures that:
+1. The plan is documented before execution.
+2. Changes across multiple packages (e.g., `packages/zod-schemas` and `apps/api`) are tracked.
+3. The relationship between UI components in `packages/ui` and business logic in `apps/web` is maintained.
