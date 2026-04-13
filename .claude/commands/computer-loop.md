@@ -1,4 +1,4 @@
-description: Autonomous Cursor AI-like loop: Infisical check → Gitea CI → Research → Refactor → Ship → Mirror
+description: Autonomous Cursor AI-like loop: Infisical check → Gitea CI → MiniMax Research → Refactor → Ship → Mirror
 argument-hint: [--dry-run|--resume]
 ---
 
@@ -10,7 +10,7 @@ This command implements the full autonomous loop as defined in SPEC-CURSOR-LOOP.
 
 1. Check Infisical secrets
 2. Run Gitea Actions CI pipeline
-3. Research (MCP Tavily + Context7)
+3. Research (MiniMax LLM via cursor-loop-research-minimax.sh)
 4. Refactor code
 5. Ship (commit + PR)
 6. Mirror to both remotes (origin + gitea)
