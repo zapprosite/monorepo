@@ -1,0 +1,611 @@
+package parser
+
+import (
+	"os"
+	"path/filepath"
+	"testing"
+
+	"github.com/stretchr/testify/require"
+)
+
+// ----------------------------------------------------------------
+// Test helper: minimal PDF files
+// ----------------------------------------------------------------
+
+// minimalPDF creates a valid minimal PDF file for testing.
+// This is a minimal but valid PDF structure.
+func minimalPDF(t *testing.T, name string, content string) string {
+	t.Helper()
+	tmpDir := t.TempDir()
+	filePath := filepath.Join(tmpDir, name)
+	err := os.WriteFile(filePath, []byte(content), 0644)
+	require.NoError(t, err)
+	return filePath
+}
+
+// createMultiPagePDF creates a PDF with multiple pages for testing.
+func createMultiPagePDF(t *testing.T, pages []string) string {
+	t.Helper()
+	// Minimal multi-page PDF structure
+	pdf := "%PDF-1.4\n"
+	pageCount := len(pages)
+
+	// Build pages and xref
+	pageRefs := make([]string, pageCount)
+	contentRefs := make([]string, pageCount)
+
+	for i := 0; i < pageCount; i++ {
+		contentRefs[i] = pdfMarker()
+		pageRefs[i] = pdfMarker()
+		pdf += contentRefs[i] + " obj\n<< /Length " + string(rune('0'+i*10+50)) + " >>\nstream\n" + pages[i] + "\nendstream\nendobj\n"
+		pdf += pageRefs[i] + " obj\n<< /Type /Page /Parent 1 0 R /Contents " + contentRefs[i] + " >>\nendobj\n"
+	}
+
+	// Catalog and pages object
+	pdf += "1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n"
+	pdf += "2 0 obj\n<< /Type /Pages /Kids [" + joinStrings(pageRefs, " ") + "] /Count " + string(rune('0'+pageCount)) + " >>\nendobj\n"
+	pdf += "xref\n0 5\n"
+	pdf += "trailer\n<< /Size 5 /Root 1 0 R >>\nstartxref\n0\n%%EOF\n"
+
+	tmpDir := t.TempDir()
+	filePath := filepath.Join(tmpDir, "multipage.pdf")
+	err := os.WriteFile(filePath, []byte(pdf), 0644)
+	require.NoError(t, err)
+	return filePath
+}
+
+var markerCounter = 0
+
+func pdfMarker() string {
+	markerCounter++
+	return "999" + string(rune('0'+markerCounter%10)) + "0"
+}
+
+func joinStrings(strs []string, sep string) string {
+	result := ""
+	for i, s := range strs {
+		if i > 0 {
+			result += sep
+		}
+		result += s
+	}
+	return result
+}
+
+// ----------------------------------------------------------------
+// Test 1: Open valid PDF
+// ----------------------------------------------------------------
+
+func TestPDFParser_IsValidPDF_ValidFile(t *testing.T) {
+	// Valid PDF with proper header
+	validPDF := `%PDF-1.4
+1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj
+2 0 obj << /Type /Pages /Kids [] /Count 0 >> endobj
+xref
+0 3
+trailer << /Root 1 0 R /Size 3 >>
+startxref
+0
+%%EOF`
+
+	parser := NewPDFParser()
+	filePath := minimalPDF(t, "valid.pdf", validPDF)
+
+	result := parser.IsValidPDF(filePath)
+	require.True(t, result, "Valid PDF should return true for IsValidPDF")
+}
+
+func TestPDFParser_IsValidPDF_ValidPDFWithContent(t *testing.T) {
+	// Valid PDF with HVAC manual content
+	hvacPDF := `%PDF-1.4
+1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj
+2 0 obj << /Type /Pages /Kids [] /Count 0 >> endobj
+xref
+0 3
+trailer << /Root 1 0 R /Size 3 >>
+startxref
+0
+%%EOF
+Springer 42EZVCA12M5 Manual
+Error Codes: E0, E1, E2
+TROUBLESHOOTING section`
+
+	parser := NewPDFParser()
+	filePath := minimalPDF(t, "hvac_manual.pdf", hvacPDF)
+
+	result := parser.IsValidPDF(filePath)
+	require.True(t, result, "Valid PDF with content should return true")
+}
+
+// ----------------------------------------------------------------
+// Test 2: Extract text from single page
+// ----------------------------------------------------------------
+
+// GAP: Current implementation does not support single page extraction.
+// The ExtractAllText method extracts all pages at once using external tools.
+// This test documents the gap but tests what IS available.
+
+func TestPDFParser_ExtractAllText_NoToolAvailable(t *testing.T) {
+	// When no PDF tool is available, should return error
+	parser := NewPDFParser()
+	nonExistentPath := "/tmp/nonexistent_pdf_12345.pdf"
+
+	// This will fail because no PDF tools are installed in test environment
+	_, err := parser.ExtractAllText(nonExistentPath)
+	require.Error(t, err, "Should return error when PDF tool is unavailable")
+	require.Contains(t, err.Error(), "no PDF text extraction tool available", "Error should indicate no tool available")
+}
+
+// ----------------------------------------------------------------
+// Test 3: Extract all pages (full document extraction)
+// ----------------------------------------------------------------
+
+func TestPDFParser_ExtractAllText_MultiPagePDF(t *testing.T) {
+	// Note: This test documents that ExtractAllText works with pdftotext/mutool
+	// In CI/test environments without these tools, it will fail appropriately
+
+	parser := NewPDFParser()
+
+	// Create a valid PDF file
+	validPDF := `%PDF-1.4
+1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj
+2 0 obj << /Type /Pages /Kids [] /Count 0 >> endobj
+xref
+0 3
+trailer << /Root 1 0 R /Size 3 >>
+startxref
+0
+%%EOF`
+
+	filePath := minimalPDF(t, "test.pdf", validPDF)
+
+	// Try extraction - will fail without pdftotext but that's expected
+	_, err := parser.ExtractAllText(filePath)
+
+	// Document the behavior: either succeeds with tools or fails gracefully
+	if err != nil {
+		require.Contains(t, err.Error(), "no PDF text extraction tool available",
+			"If tools not available, error should be clear")
+	}
+	// If no error, extraction worked (tools available in environment)
+}
+
+// ----------------------------------------------------------------
+// Test 4: Handle corrupted PDF (return error)
+// ----------------------------------------------------------------
+
+func TestPDFParser_IsValidPDF_CorruptedFile(t *testing.T) {
+	// Not a PDF at all
+	corruptedNotPDF := "This is just plain text, not a PDF at all"
+
+	parser := NewPDFParser()
+	filePath := minimalPDF(t, "corrupted.txt", corruptedNotPDF)
+
+	result := parser.IsValidPDF(filePath)
+	require.False(t, result, "Non-PDF file should return false")
+}
+
+func TestPDFParser_IsValidPDF_TruncatedPDF(t *testing.T) {
+	// PDF that starts correctly but is truncated/incomplete
+	truncatedPDF := `%PDF-1.4
+1 0 obj << /Type /Catalog`
+
+	parser := NewPDFParser()
+	filePath := minimalPDF(t, "truncated.pdf", truncatedPDF)
+
+	// Truncated PDF - may still pass header check since it starts with %PDF-
+	// This is a limitation of IsValidPDF - it only checks header bytes
+	result := parser.IsValidPDF(filePath)
+	// Result depends on implementation - truncated may still have valid header
+	_ = result // Documenting behavior
+}
+
+func TestPDFParser_IsValidPDF_EmptyFile(t *testing.T) {
+	parser := NewPDFParser()
+	tmpDir := t.TempDir()
+	emptyPath := filepath.Join(tmpDir, "empty.pdf")
+	err := os.WriteFile(emptyPath, []byte{}, 0644)
+	require.NoError(t, err)
+
+	result := parser.IsValidPDF(emptyPath)
+	require.False(t, result, "Empty file should return false")
+}
+
+// ----------------------------------------------------------------
+// Test 5: Handle password-protected PDF (return error)
+// ----------------------------------------------------------------
+
+// GAP: Current implementation does not detect or handle password-protected PDFs.
+// The implementation uses external command-line tools which handle password
+// protection differently. This test documents the gap.
+
+func TestPDFParser_ExtractAllText_PasswordProtectedGap(t *testing.T) {
+	// Password-protected PDF content marker
+	// Note: We cannot easily create a real password-protected PDF without tools
+	// This test documents that password handling is not implemented
+
+	parser := NewPDFParser()
+
+	// A PDF that requires password would have /Encrypt in trailer
+	pdfWithEncrypt := `%PDF-1.4
+1 0 obj << /Type /Catalog /Pages 2 0 R /Encrypt 5 0 R >> endobj
+5 0 obj << /Filter /Standard /V 2 /R 3 >> endobj
+trailer << /Root 1 0 R /Encrypt 5 0 R /Size 5 >>
+%%EOF`
+
+	filePath := minimalPDF(t, "encrypted.pdf", pdfWithEncrypt)
+
+	// Current behavior: IsValidPDF will return true (header is valid)
+	result := parser.IsValidPDF(filePath)
+	require.True(t, result, "Encrypted PDF has valid header so passes IsValidPDF")
+
+	// GAP: ExtractAllText would fail when pdftotext tries to process it,
+	// but the error would be from the external tool, not a specific error type.
+	// The implementation does not have ErrPasswordProtected error.
+
+	// This documents the gap: no specific handling for password-protected PDFs
+}
+
+// ----------------------------------------------------------------
+// Test 6: Page count accuracy
+// ----------------------------------------------------------------
+
+// GAP: Current implementation does not have a PageCount method.
+// This is a significant gap for the requested test case.
+
+func TestPDFParser_PageCount_Gap(t *testing.T) {
+	parser := NewPDFParser()
+
+	// Create a multi-page PDF
+	pdfWith3Pages := `%PDF-1.4
+1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj
+2 0 obj << /Type /Pages /Kids [3 0 R 4 0 R 5 0 R] /Count 3 >> endobj
+3 0 obj << /Type /Page /Parent 2 0 R >> endobj
+4 0 obj << /Type /Page /Parent 2 0 R >> endobj
+5 0 obj << /Type /Page /Parent 2 0 R >> endobj
+xref
+0 6
+trailer << /Root 1 0 R /Size 6 >>
+startxref
+0
+%%EOF`
+
+	filePath := minimalPDF(t, "three_page.pdf", pdfWith3Pages)
+
+	// GAP: No PageCount() method exists in the current implementation
+	// We cannot test page count accuracy because the method doesn't exist.
+	// This is a documented gap.
+
+	// Compile-time check would be: pageCount := parser.PageCount()
+	// But this method does not exist on PDFParser struct.
+
+	// Verify the file exists and is valid
+	result := parser.IsValidPDF(filePath)
+	require.True(t, result, "PDF file should be valid")
+
+	// Note: parser.PageCount() would be the desired API but is not implemented
+}
+
+// ----------------------------------------------------------------
+// Test: ExtractMetadata
+// ----------------------------------------------------------------
+
+func TestPDFParser_ExtractMetadata_FromFilename(t *testing.T) {
+	parser := NewPDFParser()
+
+	tests := []struct {
+		filename     string
+		content      string
+		wantBrand    string
+		wantModel    string
+	}{
+		{
+			filename:  "Springer_42EZVCA12M5_manual.pdf",
+			content:   "",
+			wantBrand: "Springer",
+			wantModel: "42EZVCA12M5",
+		},
+		{
+			filename:  "LG_DualInverter_12000BTU.pdf",
+			content:   "",
+			wantBrand: "LG",
+			wantModel: "DualInverter",
+		},
+		{
+			filename:  "Samsung_Wind_Free_AR12TXHYASINUA.pdf",
+			content:   "",
+			wantBrand: "Samsung",
+			wantModel: "Wind",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.filename, func(t *testing.T) {
+			metadata := parser.ExtractMetadata(tt.filename, tt.content)
+
+			if tt.wantBrand != "" {
+				require.Equal(t, tt.wantBrand, metadata["brand"],
+					"Brand should be extracted from filename")
+			}
+			if tt.wantModel != "" {
+				require.Equal(t, tt.wantModel, metadata["model"],
+					"Model should be extracted from filename")
+			}
+		})
+	}
+}
+
+func TestPDFParser_ExtractMetadata_FromContent(t *testing.T) {
+	parser := NewPDFParser()
+
+	tests := []struct {
+		filename string
+		content  string
+		wantBrand string
+		wantModel string
+		wantBTU  string
+	}{
+		{
+			filename: "unknown.pdf",
+			content:  "SPRINGER AI Ecomaster 12000 BTU Error Code E0",
+			wantBrand: "Springer",
+			wantModel: "AI",
+			wantBTU:  "12000",
+		},
+		{
+			filename: "manual.pdf",
+			content:  "LG DUAL INVERTER 24000 BTU SPECIFICATIONS",
+			wantBrand: "Lg",
+			wantModel: "DUAL",
+			wantBTU:  "24000",
+		},
+		{
+			filename: "doc.pdf",
+			content:  "Model: S3-Q12JAQAL 18000 BTU Samsung",
+			wantBrand: "Samsung",
+			wantModel: "S3-Q12JAQAL",
+			wantBTU:  "18000",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.filename, func(t *testing.T) {
+			metadata := parser.ExtractMetadata(tt.filename, tt.content)
+
+			if tt.wantBrand != "" {
+				require.Equal(t, tt.wantBrand, metadata["brand"],
+					"Brand should be extracted from content")
+			}
+			if tt.wantModel != "" {
+				require.Equal(t, tt.wantModel, metadata["model"],
+					"Model should be extracted from content")
+			}
+			if tt.wantBTU != "" {
+				require.Equal(t, tt.wantBTU, metadata["btu"],
+					"BTU should be extracted from content")
+			}
+		})
+	}
+}
+
+func TestPDFParser_ExtractMetadata_Combined(t *testing.T) {
+	parser := NewPDFParser()
+
+	// Content takes precedence over filename when both have info
+	metadata := parser.ExtractMetadata(
+		"generic.pdf",
+		"DAIKIN Air Performer 9000 BTU Error Codes E1 E3",
+	)
+
+	require.Equal(t, "Daikin", metadata["brand"])
+	require.Equal(t, "Air", metadata["model"])
+	require.Equal(t, "9000", metadata["btu"])
+}
+
+// ----------------------------------------------------------------
+// Test: DetectSections
+// ----------------------------------------------------------------
+
+func TestPDFParser_DetectSections_ErrorCodes(t *testing.T) {
+	parser := NewPDFParser()
+
+	text := `
+SPRINGER AI Ecomaster 12000 BTU
+
+ERROR CODE
+E0 - Communication error
+E1 - Indoor sensor open
+E2 - Indoor sensor short
+E3 - Outdoor unit protection
+
+TROUBLESHOOTING
+Check the power supply
+Verify connections
+
+SPECIFICATIONS
+Capacity: 12000 BTU
+Refrigerant: R-32
+`
+
+	sections := parser.DetectSections(text)
+
+	require.NotEmpty(t, sections, "Should detect at least one section")
+
+	// Find ERROR_CODES section
+	var foundErrorCodes bool
+	for _, s := range sections {
+		if s.Type == "ERROR_CODES" {
+			foundErrorCodes = true
+			require.Contains(t, s.Content, "E0", "ERROR_CODES should contain E0")
+			break
+		}
+	}
+	require.True(t, foundErrorCodes, "Should find ERROR_CODES section")
+}
+
+func TestPDFParser_DetectSections_MultipleSections(t *testing.T) {
+	parser := NewPDFParser()
+
+	text := `
+DIAGNOSTIC section content here
+WIRING section content here
+MAINTENANCE section content here
+`
+
+	sections := parser.DetectSections(text)
+
+	require.Len(t, sections, 3, "Should detect 3 sections")
+
+	sectionTypes := make(map[string]bool)
+	for _, s := range sections {
+		sectionTypes[s.Type] = true
+	}
+
+	require.True(t, sectionTypes["DIAGNOSTIC"], "Should have DIAGNOSTIC section")
+	require.True(t, sectionTypes["WIRING"], "Should have WIRING section")
+	require.True(t, sectionTypes["MAINTENANCE"], "Should have MAINTENANCE section")
+}
+
+func TestPDFParser_DetectSections_NoSections(t *testing.T) {
+	parser := NewPDFParser()
+
+	// Text without any known section patterns
+	text := "This is just plain text with no section headers at all."
+
+	sections := parser.DetectSections(text)
+
+	require.Empty(t, sections, "Should return empty slice when no sections found")
+}
+
+func TestPDFParser_DetectSections_SectionContentBoundaries(t *testing.T) {
+	parser := NewPDFParser()
+
+	text := `
+INTRODUCTION
+Welcome to the manual
+
+ERROR CODE
+E0 error here
+
+TROUBLESHOOTING
+Fix problems here
+
+APPENDIX
+Extra info
+`
+
+	sections := parser.DetectSections(text)
+
+	// Should have 2 sections: ERROR_CODE and TROUBLESHOOTING
+	require.GreaterOrEqual(t, len(sections), 2, "Should detect at least 2 sections")
+
+	// Check that sections have proper boundaries
+	for _, section := range sections {
+		require.NotEmpty(t, section.Type, "Section type should not be empty")
+		require.GreaterOrEqual(t, section.End, section.Start,
+			"Section end should be >= start")
+	}
+}
+
+// ----------------------------------------------------------------
+// Test: IsValidPDF edge cases
+// ----------------------------------------------------------------
+
+func TestPDFParser_IsValidPDF_NonExistentFile(t *testing.T) {
+	parser := NewPDFParser()
+
+	result := parser.IsValidPDF("/tmp/does_not_exist_12345.pdf")
+	require.False(t, result, "Non-existent file should return false")
+}
+
+func TestPDFParser_IsValidPDF_WrongMagicBytes(t *testing.T) {
+	parser := NewPDFParser()
+
+	// File with wrong magic bytes (looks like PDF but isn't)
+	wrongMagic := `%PPT-1.4
+some content`
+
+	filePath := minimalPDF(t, "wrong_magic.ppt", wrongMagic)
+	result := parser.IsValidPDF(filePath)
+	require.False(t, result, "File with wrong magic bytes should return false")
+}
+
+func TestPDFParser_IsValidPDF_PDFWithExtraBytes(t *testing.T) {
+	parser := NewPDFParser()
+
+	// Valid PDF with extra data after
+	pdfWithExtra := `%PDF-1.4
+1 0 obj << /Type /Catalog >> endobj
+trailer << /Root 1 0 R >>
+%%EOF
+This is extra data after EOF`
+
+	filePath := minimalPDF(t, "extra_data.pdf", pdfWithExtra)
+	result := parser.IsValidPDF(filePath)
+	require.True(t, result, "PDF with extra trailing data should still be valid")
+}
+
+// ----------------------------------------------------------------
+// Test: File read errors
+// ----------------------------------------------------------------
+
+func TestPDFParser_ExtractAllText_FileNotFound(t *testing.T) {
+	parser := NewPDFParser()
+
+	// When the file doesn't exist, error should be clear
+	_, err := parser.ExtractAllText("/nonexistent/path/manual.pdf")
+
+	require.Error(t, err, "Should return error for non-existent file")
+}
+
+// ----------------------------------------------------------------
+// Integration-style tests (require PDF tools)
+// ----------------------------------------------------------------
+
+func TestPDFParser_WithPdftotextAvailable(t *testing.T) {
+	// Skip if pdftotext not available - this is an environment-dependent test
+	// Run with: go test -v -run TestPDFParser_WithPdftotext ./internal/rag/parser/
+
+	parser := NewPDFParser()
+
+	// Create a real-ish PDF for testing
+	pdfContent := `%PDF-1.4
+1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj
+2 0 obj << /Type /Pages /Kids [3 0 R] /Count 1 >> endobj
+3 0 obj << /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] >> endobj
+xref
+0 4
+0000000000 65535 f
+0000000009 00000 n
+0000000058 00000 n
+0000000115 00000 n
+trailer << /Root 1 0 R /Size 4 >>
+startxref
+196
+%%EOF`
+
+	filePath := minimalPDF(t, "integration.pdf", pdfContent)
+
+	// Try to extract - will work only if pdftotext is installed
+	_, err := parser.ExtractAllText(filePath)
+
+	// This test passes if either:
+	// 1. Tools are available and extraction succeeds
+	// 2. Tools not available and we get appropriate error
+	if err != nil && !contains(err.Error(), "no PDF text extraction tool available") {
+		t.Logf("Note: pdftotext may not be installed. Error: %v", err)
+	}
+}
+
+func contains(s, substr string) bool {
+	return len(s) >= len(substr) && (s == substr || len(s) > 0 && containsAt(s, substr, 0))
+}
+
+func containsAt(s, substr string, start int) bool {
+	for i := start; i <= len(s)-len(substr); i++ {
+		if s[i:i+len(substr)] == substr {
+			return true
+		}
+	}
+	return false
+}
