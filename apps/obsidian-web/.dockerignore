@@ -1,0 +1,46 @@
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Git
+.git
+.gitignore
+
+# Build
+node_modules/
+dist/
+.turbo/
+*.tsbuildinfo
+
+# Source
+src/
+public/
+
+# Configs
+*.config.*
+!nginx.conf
+vite.config.ts
+vitest.config.ts
+tsconfig*.json
+
+# Docs
+*.md
+CLAUDE.md
+README.md
+
+# IDE
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# Logs
+*.log
+logs/
+
+# Test
+coverage/
+*.test.*
+*.spec.*
+__tests__/

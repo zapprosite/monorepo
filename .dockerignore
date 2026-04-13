@@ -1,0 +1,59 @@
+# SECRETS
+.env
+.env.*
+!.env.example
+
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+.pnpm-store/
+
+# Build outputs
+.turbo/
+dist/
+.next/
+out/
+*.tsbuildinfo
+
+# Git
+.git/
+.gitignore
+
+# CI/CD
+.github/
+.gitea/
+
+# Editor
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# Logs
+logs/
+*.log
+
+# Test
+coverage/
+test-results/
+
+# Docs (não necessário em builds)
+*.md
+docs/
+
+# AI tools
+.claude/
+.agent/
+.context/
+.gemini/
+.codex/
+
+# Temporary
+tmp/
+temp/
+.cache/
+
+# Archive
+archive/
+runner/data/
