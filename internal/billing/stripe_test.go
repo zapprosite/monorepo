@@ -116,14 +116,14 @@ type MockStripeCheckoutSession struct {
 }
 
 // TestStripeCheckout_URLGenerated tests that CreateCheckout generates a valid URL.
-// Note: StripeBilling.CreateCheckout requires a real Stripe session.New() call,
-// which needs STRIPE_API_KEY env var. This test validates the logic flow.
+// Note: StripeBilling.CreateCheckout requires a real Stripe client.
+// Full integration test requires Stripe API key.
 func TestStripeCheckout_URLGenerated(t *testing.T) {
 	// This test verifies the checkout creation logic path.
 	// Full integration test requires Stripe API key.
 
-	// Verify that free/trial plans are rejected before checkout
-	billing := &StripeBilling{}
+	// Create StripeBilling with test key (won't actually call Stripe for free/trial/missing price ID)
+	billing := NewStripeBillingWithKey("sk_test_xxx")
 
 	// Free plan should error
 	_, err := billing.CreateCheckout(context.Background(), "+5511987654321", "free")

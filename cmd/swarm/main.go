@@ -18,8 +18,9 @@ import (
 	"github.com/will-zappro/hvacr-swarm/internal/billing"
 	"github.com/will-zappro/hvacr-swarm/internal/gemini"
 	"github.com/will-zappro/hvacr-swarm/internal/memory"
-	"github.com/will-zappro/hvacr-swarm/internal/minimax"
+	"github.com/will-zappro/hvacr-swarm/internal/ollama"
 	"github.com/will-zappro/hvacr-swarm/internal/swarm"
+	"github.com/will-zappro/hvacr-swarm/internal/rag"
 	"github.com/will-zappro/hvacr-swarm/internal/whatsapp"
 )
 
@@ -47,6 +48,15 @@ func (a *redisClientAdapter) HGet(ctx context.Context, key, field string) (strin
 
 func (a *redisClientAdapter) HSet(ctx context.Context, key string, values map[string]interface{}) error {
 	return a.rdb.HSet(ctx, key, values).Err()
+}
+
+// EnqueueTask implements agents.RedisEnqueuer for intake agent routing.
+func (a *redisClientAdapter) EnqueueTask(ctx context.Context, queueName string, taskData map[string]any) error {
+	data, err := json.Marshal(taskData)
+	if err != nil {
+		return fmt.Errorf("failed to marshal task: %w", err)
+	}
+	return a.rdb.LPush(ctx, "swarm:queue:"+queueName, data).Err()
 }
 
 // memoryRedisAdapter implements agents.MemoryRedisInterface for memory agent.
@@ -141,7 +151,6 @@ func main() {
 
 	// 3. Initialize external service clients.
 	geminiAPIKey := os.Getenv("GEMINI_API_KEY")
-	minimaxAPIKey := os.Getenv("MINIMAX_API_KEY")
 	stripeKey := os.Getenv("STRIPE_SECRET_KEY")
 
 	// Create Redis layer for agent state (implements RedisCacheLayer, etc).
@@ -157,14 +166,9 @@ func main() {
 		log.Printf("[swarm] gemini embedder skipped: GEMINI_API_KEY not set")
 	}
 
-	// Create MiniMax embedder for Qdrant layer.
-	var minimaxEmbedder *minimax.Embedder
-	if minimaxAPIKey != "" {
-		minimaxEmbedder = minimax.NewEmbedderWithKey(minimaxAPIKey)
-		log.Println("[swarm] minimax embedder ready")
-	} else {
-		log.Printf("[swarm] minimax embedder skipped: MINIMAX_API_KEY not set")
-	}
+	// Create Ollama embedder for Qdrant layer (nomic-embed-text 768D).
+	ollamaEmbedder := ollama.NewEmbedder()
+	log.Println("[swarm] ollama embedder ready (nomic-embed-text 768D)")
 
 	// Create Qdrant client and layer.
 	var qdrantLayer *memory.QdrantLayer
@@ -175,11 +179,7 @@ func main() {
 		if err != nil {
 			log.Printf("[swarm] qdrant client error: %v", err)
 		} else {
-			if minimaxEmbedder != nil {
-				qdrantLayer = memory.NewQdrantLayerWithEmbedder(qdrantClient, minimaxEmbedder)
-			} else {
-				qdrantLayer = memory.NewQdrantLayer(qdrantClient)
-			}
+			qdrantLayer = memory.NewQdrantLayerWithEmbedder(qdrantClient, ollamaEmbedder)
 			log.Printf("[swarm] qdrant client ready (addr=%s)", cfg.QdrantAddr)
 		}
 	} else {
@@ -194,6 +194,19 @@ func main() {
 	} else {
 		log.Printf("[swarm] stripe billing skipped: STRIPE_SECRET_KEY not set")
 	}
+
+	// 3a. Create RAG components.
+	chunker := rag.NewChunker()
+	log.Println("[swarm] rag chunker ready")
+
+	refiner := rag.NewRefiner()
+	log.Println("[swarm] rag refiner ready")
+
+	verifier := rag.NewVerifier()
+	log.Println("[swarm] rag verifier ready")
+
+	whitelistManager := rag.NewWhitelistManager()
+	log.Println("[swarm] rag whitelist manager ready")
 
 	// 4. Load agents.json config.
 	agentsCfg, err := loadAgentsConfig(cfg.AgentsPath)
@@ -226,7 +239,7 @@ func main() {
 
 	// 6. Create and spawn worker pool.
 	var workerStoppers []context.CancelFunc
-	workerStoppers = buildWorkerPool(ctx, swarmRedis, agentsCfg, registry, workerStoppers, geminiEmbedder, qdrantLayer, stripeBilling, redisClient, memoryRedisLayer)
+	workerStoppers = buildWorkerPool(ctx, swarmRedis, agentsCfg, registry, workerStoppers, geminiEmbedder, qdrantLayer, stripeBilling, redisClient, memoryRedisLayer, chunker, refiner, verifier, whitelistManager)
 	log.Printf("[swarm] worker pool ready (%d agent types, %d workers)", len(agentsCfg.Agents), countWorkers(agentsCfg))
 
 	// 7. Start controller loops.
@@ -462,10 +475,10 @@ func getEnv(key, defaultVal string) string {
 }
 
 // buildWorkerPool spawns goroutine workers for each agent type.
-func buildWorkerPool(ctx context.Context, redisClient *swarm.RedisClient, cfg *AgentsConfig, registry *swarm.AgentRegistry, stoppers []context.CancelFunc, geminiEmbedder gemini.EmbedderInterface, qdrantLayer *memory.QdrantLayer, stripeBilling *billing.StripeBilling, rdb *redis.Client, memoryLayer *memory.RedisLayer) []context.CancelFunc {
+func buildWorkerPool(ctx context.Context, redisClient *swarm.RedisClient, cfg *AgentsConfig, registry *swarm.AgentRegistry, stoppers []context.CancelFunc, geminiEmbedder gemini.EmbedderInterface, qdrantLayer *memory.QdrantLayer, stripeBilling *billing.StripeBilling, rdb *redis.Client, memoryLayer *memory.RedisLayer, chunker *rag.Chunker, refiner *rag.Refiner, verifier *rag.Verifier, whitelistManager *rag.WhitelistManager) []context.CancelFunc {
 	for _, agentDef := range cfg.Agents {
 		for i := 0; i < agentDef.PoolSize; i++ {
-			worker := createWorker(agentDef.Type, redisClient, registry, geminiEmbedder, qdrantLayer, stripeBilling, rdb, memoryLayer)
+			worker := createWorker(agentDef.Type, redisClient, registry, geminiEmbedder, qdrantLayer, stripeBilling, rdb, memoryLayer, chunker, refiner, verifier, whitelistManager)
 			if worker != nil {
 				go func(w *swarm.SwarmWorker) {
 					if err := w.Run(); err != nil {
@@ -492,12 +505,13 @@ func countWorkers(cfg *AgentsConfig) int {
 }
 
 // createWorker creates a SwarmWorker for the given agent type.
-func createWorker(agentType string, redisClient *swarm.RedisClient, registry *swarm.AgentRegistry, geminiEmbedder gemini.EmbedderInterface, qdrantLayer *memory.QdrantLayer, stripeBilling *billing.StripeBilling, rdb *redis.Client, memoryLayer *memory.RedisLayer) *swarm.SwarmWorker {
+func createWorker(agentType string, redisClient *swarm.RedisClient, registry *swarm.AgentRegistry, geminiEmbedder gemini.EmbedderInterface, qdrantLayer *memory.QdrantLayer, stripeBilling *billing.StripeBilling, rdb *redis.Client, memoryLayer *memory.RedisLayer, chunker *rag.Chunker, refiner *rag.Refiner, verifier *rag.Verifier, whitelistManager *rag.WhitelistManager) *swarm.SwarmWorker {
 	var agent agents.AgentInterface
 
 	switch agentType {
 	case "intake":
-		agent = agents.NewIntakeAgent(os.Getenv("WHATSAPP_SECRET"), os.Getenv("WHATSAPP_TOKEN"))
+		redisAdapter := &redisClientAdapter{rdb: rdb}
+		agent = agents.NewIntakeAgentWithRedis(os.Getenv("WHATSAPP_SECRET"), os.Getenv("WHATSAPP_TOKEN"), redisAdapter)
 	case "classifier":
 		agent = agents.NewClassifierAgent(os.Getenv("GEMINI_API_KEY"))
 	case "access_control":
@@ -551,6 +565,16 @@ func createWorker(agentType string, redisClient *swarm.RedisClient, registry *sw
 		// Use memoryRedisAdapter to implement MemoryRedisInterface.
 		memAdapter := &memoryRedisAdapter{rdb: rdb}
 		agent = agents.NewMemoryAgent(memAdapter, os.Getenv("GEMINI_API_KEY"))
+	case "rag_query":
+		// RAG query agent with chunker, refiner, verifier, whitelist
+		if chunker == nil || refiner == nil {
+			log.Printf("[swarm] rag_query agent skipped: chunker or refiner not available")
+			return nil
+		}
+		agent = agents.NewRAGQueryAgentWithDeps(chunker, refiner, verifier, whitelistManager)
+		if agent != nil {
+			log.Printf("[swarm] rag_query agent ready (chunker, refiner, verifier, whitelist)")
+		}
 	default:
 		log.Printf("[swarm] unknown agent type: %s", agentType)
 		return nil

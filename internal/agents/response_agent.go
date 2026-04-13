@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/will-zappro/hvacr-swarm/internal/rag"
 	"github.com/will-zappro/hvacr-swarm/internal/whatsapp"
 )
 
@@ -19,6 +20,7 @@ type ResponseAgent struct {
 	whatsappToken   string
 	phoneNumberID   string
 	whatsappSender  whatsapp.SenderClient
+	refiner         *rag.Refiner
 }
 
 // NewResponseAgent creates a new ResponseAgent.
@@ -27,9 +29,11 @@ func NewResponseAgent(minimaxAPIKey, whatsappToken, phoneNumberID string) *Respo
 		minimaxAPIKey:  minimaxAPIKey,
 		whatsappToken:  whatsappToken,
 		phoneNumberID:  phoneNumberID,
+		refiner:        rag.NewRefiner(),
 	}
-	// Initialize WhatsApp sender - use simulator if SIMULATE_WHATSAPP=true, otherwise use real API if credentials available
-	if whatsapp.IsSimulated() {
+	// Initialize WhatsApp sender - use simulator if DEV_MODE=true or SIMULATE_WHATSAPP=true
+	// This allows outbound message simulation during development without Meta API calls
+	if isDevMode() || whatsapp.IsSimulated() {
 		agent.whatsappSender = whatsapp.NewSimulatedGraphAPIClient()
 	} else if whatsappToken != "" && phoneNumberID != "" {
 		agent.whatsappSender = whatsapp.NewGraphAPIClient(phoneNumberID, whatsappToken)
@@ -104,15 +108,24 @@ func (r *ResponseAgent) Execute(ctx context.Context, task *SwarmTask) (map[strin
 	}
 
 	// 3. Anti-hallucination check
+	hallucinationDetected := false
 	if err := r.checkHallucination(responseText, assembledContext); err != nil {
 		// If hallucination detected, use fallback response
 		responseText = r.getFallbackResponse(intent)
+		hallucinationDetected = true
 	}
 
-	// 4. Format for WhatsApp (4096 char limit)
-	formattedMessages := r.formatForWhatsApp(responseText)
+	// 4. Calculate confidence and refine response using rag.Refiner
+	confidence := r.calculateConfidence(responseText, assembledContext, hallucinationDetected, intent)
+	metadata := map[string]string{
+		"intent": intent,
+	}
+	refinedResult := r.refiner.RefineDirect(responseText, confidence, metadata)
 
-	// 5. Send via WhatsApp Cloud API
+	// 5. Format for WhatsApp using Refiner's formatting (with confidence indicators)
+	formattedMessages := r.formatRefinedForWhatsApp(refinedResult)
+
+	// 6. Send via WhatsApp Cloud API
 	var sentMessages []string
 	for _, msg := range formattedMessages {
 		if err := r.sendWhatsAppMessage(ctx, phone, msg); err != nil {
@@ -122,12 +135,15 @@ func (r *ResponseAgent) Execute(ctx context.Context, task *SwarmTask) (map[strin
 		sentMessages = append(sentMessages, msg)
 	}
 
-	// 6. Write to shared state
+	// 7. Write to shared state
 	result := map[string]any{
-		"response_text":     responseText,
+		"response_text":     refinedResult.Response,
 		"sent_messages":     sentMessages,
 		"message_count":     len(sentMessages),
 		"response.success":  true,
+		"confidence":        refinedResult.ConfidencePct,
+		"confidence_level":  confidenceLevelToString(refinedResult.Confidence),
+		"needs_technician":  refinedResult.NeedsTech,
 	}
 
 	if messageID != "" {
@@ -135,6 +151,91 @@ func (r *ResponseAgent) Execute(ctx context.Context, task *SwarmTask) (map[strin
 	}
 
 	return result, nil
+}
+
+// calculateConfidence determines the confidence score for the response.
+func (r *ResponseAgent) calculateConfidence(responseText, context string, hallucinationDetected bool, intent string) float64 {
+	// No response generated
+	if responseText == "" {
+		return 0.0
+	}
+
+	// Hallucination detected = low confidence
+	if hallucinationDetected {
+		return 0.45
+	}
+
+	// No context available = medium-low confidence
+	if context == "" {
+		return 0.55
+	}
+
+	// High confidence indicators: good context + non-fallback response + specific intent
+	contextQuality := float64(min(len(context), 500)) / 500.0 // 0-1 based on context length, capped at 500
+	if contextQuality > 1.0 {
+		contextQuality = 1.0
+	}
+
+	// Base confidence from context
+	baseConfidence := 0.60 + (contextQuality * 0.25) // 0.60-0.85
+
+	// Boost for specific intents that can be answered well
+	switch intent {
+	case "technical", "billing", "commercial":
+		baseConfidence += 0.05
+	case "greeting":
+		baseConfidence = 0.90 // Greetings are always high confidence
+	}
+
+	// Cap at 0.84 (medium-high, not quite high >= 0.85)
+	if baseConfidence > 0.84 {
+		baseConfidence = 0.84
+	}
+
+	return baseConfidence
+}
+
+// formatRefinedForWhatsApp formats a RefineResult for WhatsApp with confidence indicator.
+func (r *ResponseAgent) formatRefinedForWhatsApp(result rag.RefineResult) []string {
+	const maxLength = 4096
+
+	// Use the refiner's built-in WhatsApp formatting
+	formatted := r.refiner.FormatForWhatsApp(result)
+
+	if len(formatted) <= maxLength {
+		return []string{formatted}
+	}
+
+	// Split into chunks of maxLength, trying to break at sentence boundaries
+	var messages []string
+	remaining := formatted
+
+	for len(remaining) > maxLength {
+		// Find the last sentence boundary before maxLength
+		chunk := remaining[:maxLength]
+		lastPeriod := strings.LastIndex(chunk, ".")
+		lastNewline := strings.LastIndex(chunk, "\n")
+		lastBreak := lastPeriod
+		if lastNewline > lastBreak {
+			lastBreak = lastNewline
+		}
+
+		// If no good break point, break at maxLength
+		if lastBreak < maxLength/2 {
+			lastBreak = maxLength - 1
+		} else {
+			lastBreak++ // Include the break character
+		}
+
+		messages = append(messages, strings.TrimSpace(remaining[:lastBreak]))
+		remaining = remaining[lastBreak:]
+	}
+
+	if len(remaining) > 0 {
+		messages = append(messages, strings.TrimSpace(remaining))
+	}
+
+	return messages
 }
 
 // generateResponse generates a response using MiniMax M2.7.
@@ -275,46 +376,6 @@ func (r *ResponseAgent) checkHallucination(response, context string) error {
 	return nil
 }
 
-// formatForWhatsApp splits response into WhatsApp-compatible chunks.
-func (r *ResponseAgent) formatForWhatsApp(response string) []string {
-	const maxLength = 4096
-
-	if len(response) <= maxLength {
-		return []string{response}
-	}
-
-	// Split into chunks of maxLength, trying to break at sentence boundaries
-	var messages []string
-	remaining := response
-
-	for len(remaining) > maxLength {
-		// Find the last sentence boundary before maxLength
-		chunk := remaining[:maxLength]
-		lastPeriod := strings.LastIndex(chunk, ".")
-		lastNewline := strings.LastIndex(chunk, "\n")
-		lastBreak := lastPeriod
-		if lastNewline > lastBreak {
-			lastBreak = lastNewline
-		}
-
-		// If no good break point, break at maxLength
-		if lastBreak < maxLength/2 {
-			lastBreak = maxLength - 1
-		} else {
-			lastBreak++ // Include the break character
-		}
-
-		messages = append(messages, strings.TrimSpace(remaining[:lastBreak]))
-		remaining = remaining[lastBreak:]
-	}
-
-	if len(remaining) > 0 {
-		messages = append(messages, strings.TrimSpace(remaining))
-	}
-
-	return messages
-}
-
 // sendWhatsAppMessage sends a message via WhatsApp Cloud API.
 func (r *ResponseAgent) sendWhatsAppMessage(ctx context.Context, to, text string) error {
 	if r.whatsappSender == nil {
@@ -350,3 +411,17 @@ func (r *ResponseAgent) getFallbackResponse(intent string) string {
 
 // Ensure ResponseAgent implements AgentInterface
 var _ AgentInterface = (*ResponseAgent)(nil)
+
+// confidenceLevelToString converts a ConfidenceLevel to its string representation.
+func confidenceLevelToString(level rag.ConfidenceLevel) string {
+	switch level {
+	case rag.ConfidenceHigh:
+		return "high"
+	case rag.ConfidenceMedium:
+		return "medium"
+	case rag.ConfidenceLow:
+		return "low"
+	default:
+		return "none"
+	}
+}

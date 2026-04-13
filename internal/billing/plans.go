@@ -69,6 +69,7 @@ var Plans = map[Plan]PlanDefinition{
 }
 
 // stripePriceFallback is used when the env var is not set.
+// NOTE: This constant is mirrored in stripe.go for billing simulation.
 const stripePriceFallback = "STRIPE_PRICE_NOT_CONFIGURED"
 
 // stripePriceEnv gets the Stripe Price ID from env var, or returns fallback.
@@ -80,14 +81,15 @@ func stripePriceEnv(key string) string {
 }
 
 // StripePriceIDs maps plan to Stripe Price IDs (from env).
+// If env var not set, price ID equals stripePriceFallback which triggers ErrNoPriceID.
 var StripePriceIDs = map[Plan]string{
 	PlanPro:        stripePriceEnv("STRIPE_PRICE_PRO"),
 	PlanEnterprise: stripePriceEnv("STRIPE_PRICE_ENTERPRISE"),
 }
 
-// IsStripeConfigured returns true if Stripe Price IDs are set.
+// IsStripeConfigured returns true if Stripe Price IDs are set (not fallback).
 func IsStripeConfigured() bool {
-	return StripePriceIDs[PlanPro] != "" && StripePriceIDs[PlanEnterprise] != ""
+	return StripePriceIDs[PlanPro] != stripePriceFallback && StripePriceIDs[PlanEnterprise] != stripePriceFallback
 }
 
 // GetStripePriceID returns the Stripe Price ID for a plan, or empty string if not set.
