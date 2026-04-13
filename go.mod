@@ -5,20 +5,24 @@ go 1.26.1
 require (
 	github.com/alicebob/miniredis/v2 v2.37.0
 	github.com/google/uuid v1.6.0
+	github.com/ledongthuc/pdf v0.0.0-20250511090121-5959a4027728
 	github.com/mattn/go-sqlite3 v1.14.42
 	github.com/qdrant/go-client v1.17.1
-	github.com/redis/go-redis/v9 v9.5.1
+	github.com/redis/go-redis/v9 v9.5.5
 	github.com/stretchr/testify v1.11.1
 )
 
-require github.com/will-zappro/hvacr-swarm/internal/whatsapp v0.0.0-00010101000000-000000000000
+require (
+	github.com/stripe/stripe-go/v84 v84.2.0
+	github.com/will-zappro/hvacr-swarm/internal/whatsapp v0.0.0-00010101000000-000000000000
+)
 
 require (
+	github.com/ArtifexSoftware/mupdf v0.0.0-20260409171623-0c4c35e34246 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/stripe/stripe-go/v80 v80.2.1
 	github.com/yuin/gopher-lua v1.1.1 // indirect
 	golang.org/x/net v0.50.0 // indirect
 	golang.org/x/sys v0.41.0 // indirect
