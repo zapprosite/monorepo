@@ -321,6 +321,186 @@ O cursor-loop pode usar Cloudflare para:
 - **Backup:** `terraform.tfstate.backup`
 - **Tunnel credentials:** `~/.cloudflared/config.yml`
 
+
+
+## Quick API Flow (no Terraform)
+
+Para casos em que `terraform apply` é lento ou indisponivel, usar a Cloudflare API diretamente.
+
+### IDs Fixos (homelab)
+
+```
+Account ID:  1a41f45591a50585050f664fa015d01b
+Zone ID:     c0cf47bc153a6662f884d0f91e8da7c2
+Tunnel ID:   aee7a93d-c2e2-4c77-a395-71edc1821402
+Tunnel CNAME: aee7a93d-c2e2-4c77-a395-71edc1821402.cfargotunnel.com
+Zone:        zappro.site
+```
+
+### Variaveis de Ambiente
+
+```bash
+export CF_API_TOKEN="your-cloudflare-api-token"    # Infisical: cloudflare/API_TOKEN
+export CF_ACCOUNT_ID="1a41f45591a50585050f664fa015d01b"
+export CF_ZONE_ID="c0cf47bc153a6662f884d0f91e8da7c2"
+export CF_TUNNEL_ID="aee7a93d-c2e2-4c77-a395-71edc1821402"
+```
+
+### Fluxo: Adicionar subdomain (exemplo: grafana → localhost:3100)
+
+**Passo 1: GET config atual do tunnel**
+
+```bash
+curl -s -X GET \
+  "https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT_ID}/cfd_tunnel/${CF_TUNNEL_ID}/configurations" \
+  -H "Authorization: Bearer ${CF_API_TOKEN}" \
+  -H "Content-Type: application/json" | jq .
+```
+
+**Passo 2: Parse e adicionar ingress (Python)**
+
+```python
+import json
+import sys
+
+data = json.load(sys.stdin)
+config = data["result"]
+
+ingress_list = config["ingress"].copy()
+
+# NOVO: adicionar antes do catchall (ultimo)
+new_ingress = {
+    "hostname": "grafana.zappro.site",
+    "service": "http://localhost:3100",
+    "originRequest": {
+        "httpHostHeader": "grafana.zappro.site"
+    }
+}
+
+# Inserir antes do catchall (remove ultimo, adiciona novo, readiciona catchall)
+catchall = ingress_list.pop()
+ingress_list.append(new_ingress)
+ingress_list.append(catchall)
+
+config["ingress"] = ingress_list
+print(json.dumps(config, indent=2))
+```
+
+**Passo 3: PUT config atualizada**
+
+```bash
+# Guardar output do python em config.json e fazer PUT
+curl -s -X PUT \
+  "https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT_ID}/cfd_tunnel/${CF_TUNNEL_ID}/configurations" \
+  -H "Authorization: Bearer ${CF_API_TOKEN}" \
+  -H "Content-Type: application/json" \
+  -d @config.json | jq .
+```
+
+**Passo 4: Criar DNS CNAME record**
+
+```bash
+curl -s -X POST \
+  "https://api.cloudflare.com/client/v4/zones/${CF_ZONE_ID}/dns_records" \
+  -H "Authorization: Bearer ${CF_API_TOKEN}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "type": "CNAME",
+    "name": "grafana",
+    "content": "aee7a93d-c2e2-4c77-a395-71edc1821402.cfargotunnel.com",
+    "proxied": true
+  }' | jq .
+```
+
+**Passo 5: Verificar**
+
+```bash
+curl -sfI https://grafana.zappro.site/
+# Esperado: 200, 301, 302
+```
+
+### Script one-shot completo
+
+```bash
+#!/bin/bash
+# Usage: ./cf-quick-add.sh <subdomain> <target_host> <target_port> [http_host_header]
+set -e
+
+SUBDOMAIN="$1"
+TARGET_HOST="$2"
+TARGET_PORT="$3"
+HTTP_HOST_HEADER="${4:-$SUBDOMAIN.zappro.site}"
+
+export CF_API_TOKEN="${CLOUDFLARE_API_TOKEN}"
+export CF_ACCOUNT_ID="1a41f45591a50585050f664fa015d01b"
+export CF_ZONE_ID="c0cf47bc153a6662f884d0f91e8da7c2"
+export CF_TUNNEL_ID="aee7a93d-c2e2-4c77-a395-71edc1821402"
+
+# 1. GET current config
+CONFIG=$(curl -s -X GET \
+  "https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT_ID}/cfd_tunnel/${CF_TUNNEL_ID}/configurations" \
+  -H "Authorization: Bearer ${CF_API_TOKEN}" \
+  -H "Content-Type: application/json")
+
+# 2. Parse and patch with Python
+MODIFIED_CONFIG=$(echo "$CONFIG" | python3 -c "
+import json, sys
+data = json.load(sys.stdin)
+config = data['result']
+ingress_list = config['ingress'].copy()
+catchall = ingress_list.pop()
+ingress_list.append({
+    'hostname': '${SUBDOMAIN}.zappro.site',
+    'service': 'http://${TARGET_HOST}:${TARGET_PORT}',
+    'originRequest': {'httpHostHeader': '${HTTP_HOST_HEADER}'}
+})
+ingress_list.append(catchall)
+config['ingress'] = ingress_list
+print(json.dumps(config, indent=2))
+")
+
+# 3. PUT updated config
+curl -s -X PUT \
+  "https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT_ID}/cfd_tunnel/${CF_TUNNEL_ID}/configurations" \
+  -H "Authorization: Bearer ${CF_API_TOKEN}" \
+  -H "Content-Type: application/json" \
+  -d "$MODIFIED_CONFIG" | jq '.success'
+
+# 4. Create DNS CNAME
+curl -s -X POST \
+  "https://api.cloudflare.com/client/v4/zones/${CF_ZONE_ID}/dns_records" \
+  -H "Authorization: Bearer ${CF_API_TOKEN}" \
+  -H "Content-Type: application/json" \
+  -d "{
+    \"type\": \"CNAME\",
+    \"name\": \"${SUBDOMAIN}",
+    \"content\": \"aee7a93d-c2e2-4c77-a395-71edc1821402.cfargotunnel.com\",
+    \"proxied\": true
+  }" | jq '.success'
+
+echo "Done: https://${SUBDOMAIN}.zappro.site/"
+```
+
+**Uso:**
+```bash
+# grafana.zappro.site → localhost:3100
+./cf-quick-add.sh grafana localhost 3100
+
+# chat.zappro.site → 10.0.5.2:8080
+./cf-quick-add.sh chat 10.0.5.2 8080
+```
+
+### Remover subdomain
+
+```bash
+#GET config → remover entrada do ingress → PUT → DELETE DNS
+```
+
+### Referencias
+
+- [quick-api-flow.md](./references/quick-api-flow.md) — Comandos curl exatos + script Python
+- [oauth-integration.md](./references/oauth-integration.md) — Cloudflare Access + Google OAuth
+
 ---
 
 ## Referências
