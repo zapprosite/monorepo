@@ -1,0 +1,39 @@
+services:
+  obsidian-web:
+    container_name: obsidian-web
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: Dockerfile
+    user: root
+    ports:
+      - "127.0.0.1:4081:80"
+    volumes:
+      - obsidian-web-cache:/var/cache/nginx
+    # OAuth env vars — values injected at deploy time from Infisical or host env.
+    # GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET must be set in the host environment
+    # (e.g. via `infisical run -- docker compose up`) before starting the container.
+    environment:
+      GOOGLE_CLIENT_ID: "${GOOGLE_CLIENT_ID}"  # Set via: infisical run -- docker compose up
+      GOOGLE_CLIENT_SECRET: "${GOOGLE_CLIENT_SECRET}"
+      GOOGLE_REDIRECT_URI: https://md.zappro.site/auth/callback
+    # Runtime config injection: generate env.js from container env vars before nginx starts.
+    # The static app reads window.__ENV__ (see app.js CONFIG block).
+    # $$VAR escapes docker-compose substitution so the shell inside the container expands it.
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        printf 'window.__ENV__ = {\n  GOOGLE_CLIENT_ID: "%s",\n  GOOGLE_CLIENT_SECRET: "%s",\n  GOOGLE_REDIRECT_URI: "%s"\n};\n' \
+          "$$GOOGLE_CLIENT_ID" "$$GOOGLE_CLIENT_SECRET" "$$GOOGLE_REDIRECT_URI" \
+          > /usr/share/nginx/html/env.js
+        exec nginx -g 'daemon off;'
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+
+volumes:
+  obsidian-web-cache:

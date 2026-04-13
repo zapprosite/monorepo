@@ -43,7 +43,7 @@ app-name/
 1. Google Cloud Console → APIs e servicos → Credenciais
 2. Criar OAuth 2.0 Client ID
 3. Adicionar redirect URI: `https://SUBDOMAIN.zappro.site/auth/callback`
-4. Guardar client_id no Infisical (nao hardcodar)
+4. Guardar client_id e client_secret no Infisical (nao hardcodar)
 
 ### 4. TERRAFORM
 1. Ler `/srv/ops/terraform/cloudflare/variables.tf` (bloco var.services)
@@ -82,6 +82,38 @@ docker inspect --format='{{.State.Health.Status}}' CONTAINER_NAME
 - Atualizar AGENTS.md se aplicavel
 - Documentar credenciais Infisical
 
+## OAuth Token Exchange (CRÍTICO)
+
+O erro mais comum em OAuth client-side apps é `client_secret is missing`.
+
+### Token Exchange POST Body — OBRIGATÓRIO
+
+Quando o app faz exchange de authorization code por tokens no browser:
+
+```javascript
+// app.js ou auth-callback.html
+POST https://oauth2.googleapis.com/token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=authorization_code
+&client_id=GOOGLE_CLIENT_ID        → Infisical: obsidian-web/GOOLE_CLIENT_ID
+&client_secret=GOOGLE_CLIENT_SECRET → Infisical: obsidian-web/GOOGLE_CLIENT_SECRET
+&code=AUTH_CODE
+&code_verifier=PKCE_VERIFIER
+&redirect_uri=https://subdomain.zappro.site/auth/callback
+```
+
+**Sem `client_secret` → `invalid_client` ou `client_secret is missing`**
+
+### Credentials (homelab — via Infisical)
+
+```
+GOOGLE_CLIENT_ID=→ Infisical: GOOGLE_CLIENT_ID
+GOOGLE_CLIENT_SECRET=→ Infisical: GOOGLE_CLIENT_SECRET
+```
+
+**NUNCA hardcodar. Usar Infisical SDK.**
+
 ## Regras Importantes
 
 ### IPs de Container (NAO localhost)
@@ -117,18 +149,48 @@ const secret = await client.getSecret('GOOGLE_CLIENT_ID');
 - [ ] PORTS.md actualizado
 - [ ] AGENTS.md actualizado
 - [ ] Smoke test passou
+- [ ] OAuth login testado e funciona (não só HTTP 200)
+
+## Cloudflare Access vs OAuth Nativo
+
+### MVP Pattern (RECOMENDADO para apps初)
+Apps MVP usam apenas Google OAuth nativo do app — SEM Cloudflare Access:
+
+```
+md.zappro.site → OAuth Google nativo do app → sem proteção Cloudflare
+```
+
+### v2 Pattern (para apps maduros)
+Apps que precisam de proteção extra usam Cloudflare Access + OAuth:
+
+```
+vault.zappro.site → Cloudflare Access (@zappro.site) → OAuth Google
+```
+
+### Como configurar OAuth-only (MVP)
+1. Em `access.tf`, adicionar novo subdomain à exclusão:
+   ```hcl
+   access_services = { for k, v in var.services : k => v if k != "bot" && k != "list" && k != "md" && k != "NOVO" }
+   ```
+2. `terraform apply`
+3. App usa Google OAuth diretamente (sem Cloudflare)
 
 ## Stack de Referencia
 - nginx:alpine (stateless, healthcheck built-in)
 - docker-compose com healthcheck
-- Cloudflare Zero Trust Tunnel
-- Google OAuth 2.0
+- Cloudflare Zero Trust Tunnel (ingress only)
+- Google OAuth 2.0 nativo (SEM Cloudflare Access para MVP)
 - Infisical SDK para secrets
+- **client_secret SEMPRE no token exchange POST body**
 
 ## References
 - `references/file-structure.md` — Templates de todos os arquivos
-- `references/oauth-flow.md` — Passos Google OAuth setup
+- `references/oauth-flow.md` — Passos Google OAuth setup (inclui token exchange)
 - `references/tunnel-setup.md` — Como adicionar subdomain no Terraform
 - `references/container-deploy.md` — Docker build e deploy
 - `references/smoke-test.md` — Checklist de verificacao
 - `references/troubleshooting.md` — Erros comuns e solucoes
+
+## Incidentes Conhecidos
+
+- **INCIDENT-2026-04-13**: `client_secret is missing` — OAuth broken até adicionar secret ao POST body. Ver `docs/INFRASTRUCTURE/INCIDENTS/INCIDENT-2026-04-13-md-zappro-site-oauth.md`

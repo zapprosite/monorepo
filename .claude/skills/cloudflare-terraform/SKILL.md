@@ -54,8 +54,83 @@ terraform apply tfplan
 ### Passo 4: Verificar
 
 ```bash
-curl -s -o /dev/null -w "%{http_code}" https://newservice.zappro.site/
-# Esperado: 200, 401, ou 404 (não " Connection refused")
+curl -sfI https://newservice.zappro.site/
+# Esperado: 200, 301, 302 (não "Connection refused")
+```
+
+### Passo 5: Smoke Test OAuth (se aplicável)
+
+Se o serviço usa Google OAuth native (MVP pattern sem Cloudflare Access):
+
+```bash
+# Teste de callback OAuth
+curl -sfI https://newservice.zappro.site/auth/callback
+# Deve retornar HTTP 200
+
+# Verificar que Cloudflare Access NÃO bloqueia (excluir do access.tf)
+# O access.tf exclui: bot, list, md (OAuth native, sem Access)
+```
+
+---
+
+## Padrão OAuth: MVP vs Cloudflare Access
+
+### MVP Pattern (OAuth Native — sem Cloudflare Access)
+
+Apps como `list-web`, `md.zappro.site` usam **Google OAuth direto** sem proteção Cloudflare:
+
+```hcl
+# access.tf — exclude da Cloudflare Access
+access_services = { for k, v in var.services : k => v if k != "bot" && k != "list" && k != "md" }
+```
+
+O app serve o OAuth flow completo (login Google → callback → token exchange).
+
+### Cloudflare Access Pattern (protegido)
+
+Serviços como `vault.zappro.site` usam Cloudflare Access + Google OAuth.
+
+---
+
+## OAuth Client Configuration (CRÍTICO)
+
+### Para apps com Google OAuth client-side
+
+Quando o app faz token exchange no browser (não via backend), o `client_secret` **DEVE** ser incluído no POST body:
+
+```javascript
+// Token exchange POST body — OBRIGATÓRIO
+POST https://oauth2.googleapis.com/token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=authorization_code
+&client_id=GOOGLE_CLIENT_ID
+&client_secret=GOOGLE_CLIENT_SECRET    ← SEMPRE PRESENTE
+&code=AUTH_CODE
+&code_verifier=PKCE_VERIFIER
+&redirect_uri=https://subdomain.zappro.site/auth/callback
+```
+
+**Sem `client_secret` → `invalid_client` ou `client_secret is missing`**
+
+### Google OAuth Credentials (homelab)
+
+```
+GOOGLE_CLIENT_ID=→ Infisical: GOOGLE_CLIENT_ID (project: obsidian-web)
+GOOGLE_CLIENT_SECRET=→ Infisical: GOOGLE_CLIENT_SECRET (project: obsidian-web)
+```
+
+**NÃO usar credenciais legacy:**
+- `297107448858-324eplshrg5vv2br911l4dtm8bjh0sl1.apps.googleusercontent.com` → LEGACY, não usar
+
+### Env vars no docker-compose.yml
+
+```yaml
+services:
+  app-name:
+    environment:
+      GOOGLE_CLIENT_ID: "${GOOGLE_CLIENT_ID}"  # Infisical: obsidian-web/GOOGLE_CLIENT_ID
+      GOOGLE_CLIENT_SECRET: "${GOOGLE_CLIENT_SECRET}"  # Infisical: obsidian-web/GOOGLE_CLIENT_SECRET
 ```
 
 ---
@@ -64,20 +139,21 @@ curl -s -o /dev/null -w "%{http_code}" https://newservice.zappro.site/
 
 ### `services` map — todos os subdomínios
 
-| Subdomain | URL | http_host_header | Notas |
-|-----------|-----|------------------|-------|
-| `vault.zappro.site` | localhost:8200 | - | Infisical |
-| `n8n.zappro.site` | 10.0.6.3:5678 | - | n8n |
-| `qdrant.zappro.site` | localhost:6333 | - | Qdrant |
-| `bot.zappro.site` | localhost:80 | `openclaw-qgtzrmi...sslip.io` | OpenClaw |
-| `chat.zappro.site` | 10.0.5.2:8080 | `openwebui-wbmqefx...sslip.io` | OpenWebUI |
-| `llm.zappro.site` | localhost:4000 | - | LiteLLM |
-| `git.zappro.site` | localhost:3300 | - | Gitea |
-| `coolify.zappro.site` | localhost:8000 | - | Coolify |
-| `api.zappro.site` | localhost:4000 | - | API |
-| `web.zappro.site` | localhost:4004 | - | Web |
-| `monitor.zappro.site` | localhost:3100 | - | Grafana |
-| `painel.zappro.site` | localhost:4003 | - | Painel |
+| Subdomain | URL | http_host_header | Acesso | Notas |
+|-----------|-----|------------------|--------|-------|
+| `api.zappro.site` | 10.0.1.1:4000 | - | Cloudflare Access | LiteLLM |
+| `bot.zappro.site` | localhost:4001 | openclaw-qgtzrmi... | **OAuth native** | sem Access |
+| `chat.zappro.site` | 10.0.5.2:8080 | openwebui-wbmqefx... | Cloudflare Access | OpenWebUI |
+| `coolify.zappro.site` | localhost:8000 | - | Cloudflare Access | Coolify |
+| `git.zappro.site` | localhost:3300 | - | Cloudflare Access | Gitea |
+| `llm.zappro.site` | 10.0.1.1:4000 | - | Cloudflare Access | LiteLLM |
+| `list.zappro.site` | localhost:4080 | - | **OAuth native** | sem Access |
+| `md.zappro.site` | localhost:4081 | - | **OAuth native** | sem Access |
+| `monitor.zappro.site` | localhost:3100 | - | LAN only | Grafana |
+| `n8n.zappro.site` | 10.0.6.2:5678 | - | Cloudflare Access | n8n |
+| `painel.zappro.site` | localhost:4003 | - | Cloudflare Access | Painel |
+| `qdrant.zappro.site` | 10.0.19.5:6333 | - | Cloudflare Access | Qdrant |
+| `vault.zappro.site` | localhost:8200 | - | Cloudflare Access | Infisical |
 
 ### `tunnel_name`
 - Default: `will-zappro-homelab`
@@ -137,12 +213,19 @@ resource "cloudflare_access_application" "api" {
 }
 ```
 
-### Access Policy existente (access.tf)
+### OAuth Native apps (MVP) — NÃO adiciona a Access
 
-O `access.tf` já tem políticas para:
-- `vault.zappro.site` — só emails @zappro.site
-- `n8n.zappro.site` — proteção similar
-- `qdrant.zappro.site` — proteção similar
+Apps que usam OAuth nativo (Google login direto no app) DEVEM ser **excluídos** do Cloudflare Access:
+
+```hcl
+# access.tf —Exclude OAuth-native apps
+access_services = { for k, v in var.services : k => v if k != "bot" && k != "list" && k != "md" }
+```
+
+**Quando adicionar novo subdomain OAuth-native:**
+1. Adicionar em `variables.tf` normalmente
+2. NÃO adicionar em access.tf (já exclui via filter)
+3. O app implementa OAuth flow completo
 
 ---
 
@@ -183,7 +266,16 @@ for s in secrets.secrets:
 ### "Connection refused" no subdomain
 - Cloudflare Tunnel pode estar a apontar para IP errado
 - Verificar `http_host_header` em `variables.tf`
-- O `http_host_header` é necessário quando o serviço faz bind a um hostname específico (como OpenClaw)
+- O `http_host_header` é necessário quando o serviço faz bind a um hostname específico
+
+### "invalid_client" OAuth error
+1. Verificar que `client_secret` está no token exchange POST body
+2. Verificar que `client_id` e `client_secret` são os corretos (não legacy)
+3. Verificar redirect_uri em Google Cloud Console
+
+### "client_secret is missing"
+- O token exchange POST body **não inclui** `client_secret`
+- Adicionar `client_secret` ao body → Infisical: obsidian-web/GOOGLE_CLIENT_SECRET
 
 ### Terraform state desactualizado
 ```bash
@@ -219,6 +311,7 @@ O cursor-loop pode usar Cloudflare para:
 **Permitido automaticamente:**
 - Adicionar novo subdomain a serviço existente
 - Actualizar `http_host_header`
+- Excluir novo subdomain da Access (se OAuth-native)
 
 ---
 
@@ -235,3 +328,5 @@ O cursor-loop pode usar Cloudflare para:
 - [Terraform Cloudflare Provider](https://registry.terraform.io/providers/cloudflare/cloudflare/latest/docs)
 - [Cloudflare Zero Trust Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/)
 - [Cloudflare Access Application](https://developers.cloudflare.com/cloudflare-one/identity/users/policy-engine/)
+- [Google OAuth Token Exchange](https://developers.google.com/identity/protocols/oauth2#exchange-code)
+- INCIDENT-2026-04-13-md-zappro-site-oauth.md — Debug OAuth client_secret missing

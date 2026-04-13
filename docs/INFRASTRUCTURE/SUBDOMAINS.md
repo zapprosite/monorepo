@@ -2,15 +2,15 @@
 name: subdomains-registry
 description: >
   Registry automático de subdomínios Cloudflare.
-  Sincronizado de /srv/ops/terraform/cloudflare/ em 2026-04-12.
+  Sincronizado de /srv/ops/terraform/cloudflare/ em 2026-04-13.
 type: governance
-synced: 2026-04-12
+synced: 2026-04-13
 ---
 
 # Subdomains Registry
 
-**Última sincronização:** 2026-04-12
-**Total de records:** 14 (supabase.zappro.site ATIVO)
+**Última sincronização:** 2026-04-13
+**Total de records:** 14 (md.zappro.site OAuth funcionando)
 
 ## Tabela de Subdomínios
 
@@ -21,7 +21,8 @@ synced: 2026-04-12
 | [coolify.zappro.site](https://coolify.zappro.site) | 8000 | ✅ ATIVO | Coolify PaaS panel — :8000 |
 | [git.zappro.site](https://git.zappro.site) | 3300 | ✅ ATIVO | Gitea Git Server — :3300 |
 | [llm.zappro.site](https://llm.zappro.site) | 4000 | ✅ ATIVO | LiteLLM proxy (Cloudflare Access) — :4000 |
-| [list.zappro.site](https://list.zappro.site) | 4080 | ✅ ATIVO | List service — :4080 |
+| [list.zappro.site](https://list.zappro.site) | 4080 | ✅ ATIVO | List service (publico, OAuth native) — :4080 |
+| [md.zappro.site](https://md.zappro.site) | 4081 | ✅ ATIVO | Obsidian vault UI (publico, OAuth native) — :4081 |
 | [monitor.zappro.site](https://monitor.zappro.site) | 3100 | ✅ ATIVO | Grafana dashboard (LAN only) — :3100 |
 | [n8n.zappro.site](https://n8n.zappro.site) | 5678 | ✅ ATIVO | n8n workflow — tunnel fix aplicado (302 CF Access, não DOWN) — IP 10.0.6.2 OK |
 | [painel.zappro.site](https://painel.zappro.site) | 4003 | ✅ ATIVO | Claude Code Panel (nginx:alpine) — :4003 |
