@@ -1,24 +1,87 @@
 {
   "queue_schema": {
-    "version": "1.0.0",
+    "version": "1.1.0",
     "engine": "Redis 7 (LIST + HASH + LMOVE)",
     "architecture": "work-stealing with per-agent queues",
+    "sources": {
+      "whatsapp_simulator": {
+        "entry_queue": "intake",
+        "description": "WhatsApp Cloud API webhook / simulator → intake queue"
+      }
+    },
+    "sinks": {
+      "whatsapp": {
+        "source_queue": "response",
+        "description": "response queue → WhatsApp Cloud API"
+      }
+    },
+    "routing": {
+      "whatsapp_flow": [
+        "intake",
+        "classifier",
+        "access_control",
+        "rag",
+        "ranking",
+        "response"
+      ],
+      "edges": {
+        "intake": ["classifier"],
+        "classifier": ["access_control"],
+        "access_control": ["rag", "billing", "memory_pre", "response"],
+        "rag": ["ranking"],
+        "ranking": ["response"],
+        "response": ["memory_post"]
+      },
+      "conditional_skip": {
+        "access_control.block": ["rag", "ranking", "response", "memory_post"]
+      }
+    },
+    "message_schema": {
+      "base": {
+        "task_id": "string (required) - unique message ID",
+        "graph_id": "string (required) - execution graph ID (phone number for WhatsApp)",
+        "node_id": "string (required) - current processing node",
+        "type": "string (required) - task type (intake, classifier, etc.)",
+        "status": "string (pending|running|completed|failed)",
+        "priority": "integer",
+        "retries": "integer",
+        "max_retries": "integer",
+        "timeout_ms": "integer"
+      },
+      "whatsapp_intake": {
+        "phone": "string (required) - sender phone number",
+        "message_id": "string (required) - WhatsApp message ID",
+        "timestamp": "string (required) - Unix timestamp from WhatsApp",
+        "text": "string (required) - message body",
+        "normalized_text": "string - lowercase trimmed text for NLP",
+        "query": "string - alias for text",
+        "message_type": "string - text|image|video|document",
+        "media_id": "string (optional) - media ID if not text"
+      },
+      "internal": {
+        "worker_id": "string - agent processing this task",
+        "input": "json - processing input data",
+        "output": "json - processing result",
+        "stolen_from": "string - queue stolen from if work-stealing"
+      }
+    },
     "queues": {
       "intake": {
         "key": "swarm:queue:intake",
         "processing_key": "swarm:queue:intake:processing",
         "dead_letter_key": "swarm:queue:intake:dead",
         "max_retries": 3,
-        "timeout_ms": 10000,
+        "timeout_ms": 30000,
         "priority_class": "critical",
-        "claim_strategy": "BRPOP 100ms → steal from classifier"
+        "claim_strategy": "BRPOP 100ms → steal from classifier",
+        "input_schema": "whatsapp_intake"
       },
       "classifier": {
         "key": "swarm:queue:classifier",
         "processing_key": "swarm:queue:classifier:processing",
         "dead_letter_key": "swarm:queue:classifier:dead",
         "max_retries": 2,
-        "timeout_ms": 8000,
+        "timeout_ms": 15000,
         "priority_class": "critical",
         "claim_strategy": "BRPOP 100ms → steal from intake, rag"
       },
@@ -26,8 +89,8 @@
         "key": "swarm:queue:access_control",
         "processing_key": "swarm:queue:access_control:processing",
         "dead_letter_key": "swarm:queue:access_control:dead",
-        "max_retries": 2,
-        "timeout_ms": 3000,
+        "max_retries": 1,
+        "timeout_ms": 5000,
         "priority_class": "critical",
         "claim_strategy": "BRPOP 100ms (no stealing — specialized)"
       },
@@ -45,7 +108,7 @@
         "processing_key": "swarm:queue:ranking:processing",
         "dead_letter_key": "swarm:queue:ranking:dead",
         "max_retries": 2,
-        "timeout_ms": 15000,
+        "timeout_ms": 20000,
         "priority_class": "high",
         "claim_strategy": "BRPOP 100ms → steal from rag, response"
       },
@@ -54,7 +117,7 @@
         "processing_key": "swarm:queue:response:processing",
         "dead_letter_key": "swarm:queue:response:dead",
         "max_retries": 3,
-        "timeout_ms": 20000,
+        "timeout_ms": 45000,
         "priority_class": "critical",
         "claim_strategy": "BRPOP 100ms → steal from ranking"
       },
@@ -62,7 +125,7 @@
         "key": "swarm:queue:billing",
         "processing_key": "swarm:queue:billing:processing",
         "dead_letter_key": "swarm:queue:billing:dead",
-        "max_retries": 5,
+        "max_retries": 2,
         "timeout_ms": 10000,
         "priority_class": "low",
         "claim_strategy": "BRPOP 100ms → steal from memory"
@@ -71,10 +134,11 @@
         "key": "swarm:queue:memory",
         "processing_key": "swarm:queue:memory:processing",
         "dead_letter_key": "swarm:queue:memory:dead",
-        "max_retries": 1,
-        "timeout_ms": 5000,
+        "max_retries": 2,
+        "timeout_ms": 10000,
         "priority_class": "low",
-        "claim_strategy": "BRPOP 100ms → steal from billing"
+        "claim_strategy": "BRPOP 100ms → steal from billing",
+        "note": "handles both memory_pre and memory_post nodes"
       }
     },
     "work_stealing": {

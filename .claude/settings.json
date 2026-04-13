@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      { "command": "go", "args": ["vet", "./..."] },
+      { "command": "go", "args": ["build", "./cmd/..."] },
+      { "command": "go", "args": ["test", "-v", "-race", "./..."] },
+      { "command": "go", "args": ["test", "-cover", "./..."] },
+      { "command": "go", "args": ["tool", "cover"] }
+    ]
+  },
+  "agentsDir": ".claude/agents",
+  "skillsDir": ".claude/skills",
+  "hooks": [
+    {
+      "match": "Write|Edit",
+      "matchFiles": "*.go",
+      "hook": ".claude/hooks/check-spec-exists.sh"
+    },
+    {
+      "match": "Write|Edit",
+      "matchFiles": "*.go",
+      "hook": ".claude/hooks/run-go-checks.sh"
+    }
+  ]
+}
