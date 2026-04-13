@@ -1,185 +1,87 @@
----
-type: doc
-name: architecture
-description: System architecture, layers, patterns, and design decisions
-category: architecture
-generated: 2026-03-16
-updated: 2026-03-17
-status: active
-scaffoldVersion: "2.0.0"
----
-## Architecture Notes
+# Architecture Notes
 
-## Estilo: Modular Monolith
+The system is designed as a **Modular Monolith** within a monorepo structure. This design choice prioritizes developer velocity and type safety by keeping the backend and frontend in a single repository while strictly enforcing domain boundaries through a directory-per-module pattern. The architecture avoids the operational complexity of microservices but maintains a "service-ready" structure where domains (e.g., Auth, Kanban, CRM) are decoupled at the logic layer.
 
-Monorepo com dois apps (`backend`, `frontend`) e pacotes compartilhados. Cada app é dividido em módulos por domínio. Não há microserviços — tudo roda num processo único por app.
+A centralized `packages/zod-schemas` library serves as the single source of truth for data validation, ensuring that the database (Orchid ORM), the API (tRPC/Fastify), and the Frontend (React) always share synchronized type definitions without manual code generation steps.
 
-## Fluxo de Requisição
+## System Architecture Overview
 
-```
-Browser
-  └──tRPC (HTTP POST)──▶ Fastify :4000
-                              │
-                         Session check
-                              │
-                         tRPC procedure
-                              │
-                         Orchid ORM ──▶ PostgreSQL :5432
-```
+The system follows a top-level topology of a **Monolithic Monorepo** deployed as containerized services via Coolify. 
 
-Para APIs externas (produtos):
-```
-Client ──REST──▶ /api/v1/* ──▶ API Gateway middleware chain
-                                 ├── apiKeyAuthHook
-                                 ├── corsValidationHook
-                                 ├── whitelistCheckHook
-                                 ├── teamRateLimitHook
-                                 ├── subscriptionCheckHook
-                                 └── requestLoggerHook
-                                          │
-                                     Handler
-```
+- **Frontend Connectivity:** Requests originate from the browser using the tRPC client, providing a type-safe bridge to the backend procedures. 
+- **Backend Processing:** The backend is powered by **Fastify**, acting as both a tRPC server for the internal frontend and a standard REST API Gateway for external product integrations.
+- **Control Pivot:** Control pivots from the transport layer (Fastify/tRPC) to the domain logic layer (Modules) via identified user sessions.
+- **Data Layer:** The system uses **PostgreSQL** with **Orchid ORM**, which provides a TypeScript-native query builder that mirrors the Zod schemas used in the upper layers.
+- **Orchestration:** A dedicated `orchestrator` service handles complex workflows involving LLMs (Claude/Anthropic), MCP (Model Context Protocol) adapters, and human-in-the-loop approval gates.
 
-## Camadas Backend
+## Architectural Layers
 
-```
-apps/backend/src/
-├── server.ts          — entry point, porta via env.PORT (default 4000)
-├── app.ts             — Fastify instance, plugins (session, rate-limit, CORS)
-├── trpc.ts            — tRPC init, context, middlewares (auth, rate-limit)
-├── routers/           — agregação de rotas
-│   ├── app.router.ts  — /health, /, /oauth2, /trpc, openapi plugin
-│   ├── trpc.router.ts — AppTrpcRouter (agrega todos os módulos)
-│   └── oauth2.router.ts
-├── modules/[feature]/ — domínios de negócio
-│   ├── tables/        — Orchid ORM table definitions
-│   └── [feature].trpc.ts — procedures tRPC
-├── db/                — instância db, migrations, seed
-└── configs/           — env.config.ts (Zod), logger.config.ts
-```
+- **Apps**: High-level entry points and deployment units (`apps/api`, `apps/web`, `apps/orchestrator`).
+- **Modules**: Domain-specific business logic, controllers, and table definitions (`apps/api/src/modules/`).
+- **Core Orchestrator**: Workflow engines and state machines for agentic behavior (`apps/orchestrator/src/core/`).
+- **Packages**: Shared libraries for schemas, UI components, and environment configuration (`packages/`).
 
-## Camadas Frontend
+> See [`codebase-map.json`](./codebase-map.json) for complete symbol counts and dependency graphs.
 
-```
-apps/frontend/src/
-├── App.tsx            — providers (tRPC, QueryClient, Router)
-├── router.tsx         — React Router config (lazy-loaded por módulo)
-├── modules/[feature]/ — páginas + router por domínio
-├── components/        — componentes shared (layout, forms)
-└── utils/             — trpc.client.ts, queryClient.ts
-```
+## Detected Design Patterns
 
-## Padrões Detectados
+| Pattern | Confidence | Locations | Description |
+|---------|------------|-----------|-------------|
+| **Modular Monolith** | 100% | `apps/api/src/modules/` | Domain-based directory structure with isolated logic. |
+| **State Machine** | 90% | `WorkflowStateMachine` | Manages complex LLM-driven workflow states in the orchestrator. |
+| **Adapter Pattern** | 95% | `ClaudeMcpAdapter`, `ZapierMcpAdapter` | Standardizes different MCP tool providers into a unified interface. |
+| **Middleware Chain** | 100% | `apps/api/src/modules/api-gateway/middleware/` | Sequential processing for API keys, rate limits, and logging. |
+| **Repository/Table** | 95% | `*.table.ts` | Orchid ORM table objects acting as the data access layer. |
+| **Event Bus** | 80% | `apps/orchestrator/src/core/event-bus.ts` | Decouples workflow steps from side effects like notifications. |
 
-| Padrão | Localização | Descrição |
-|--------|-------------|-----------|
-| Module per domain | `modules/[feature]/` | Cada feature é um módulo isolado |
-| Zod-first | `packages/zod-schemas/` | Schema único para back+front |
-| tRPC caller | `trpc.router.ts` | Type-safe sem codegen |
-| Protected procedure | `trpc.ts` | Auth middleware por procedure |
-| Session-backed auth | `modules/auth/` | DB sessions + OAuth2 Google |
-| API Gateway chain | `modules/api-gateway/` | Middleware chain para produto externo |
+## Entry Points
 
-## Decisões Arquiteturais
+- [Backend Server (`apps/api/src/server.ts`)](../apps/api/src/server.ts): The main Fastify server entry point.
+- [Frontend Entry (`apps/web/src/App.tsx`)](../apps/web/src/App.tsx): React application root with providers.
+- [Orchestrator (`apps/orchestrator/src/core/workflow-engine.ts`)](../apps/orchestrator/src/core/workflow-engine.ts): Entry for the agentic workflow system.
+- [API Gateway (`apps/api/src/modules/api-gateway/api-gateway.router.ts`)](../apps/api/src/modules/api-gateway/api-gateway.router.ts): REST entry for external consumers.
 
-**tRPC para interno, REST para externo**
-- tRPC: frontend ↔ backend, sem OpenAPI, tipo-safe automático
-- REST/OpenAPI: APIs de produto externas, Swagger UI, consumidores externos
+## Public API
 
-**Orchid ORM com migrations explícitas**
-- `yarn db -- g <name>` gera migration
-- `timestampNumber` (epoch ms) em vez de ISO strings — consistência com JS
+| Symbol | Type | Location |
+|--------|------|----------|
+| `AppTrpcRouter` | Router | `apps/api/src/routers/trpc.router.ts` |
+| `OrchestratorEngine` | Class | `apps/orchestrator/src/core/workflow-engine.ts` |
+| `UserTable` | Class | `apps/api/src/modules/users/users/users.table.ts` |
+| `createTRPCClient` | Function | `packages/trpc/src/client.ts` |
+| `AgentPool` | Interface | `apps/orchestrator/src/modules/agent-pool/types.ts` |
+| `ApiKeyAuthHook` | Middleware | `apps/api/src/modules/api-gateway/middleware/apiKeyAuth.middleware.ts` |
 
-**Zod compartilhado**
-- `packages/zod-schemas/` é a fonte de verdade de validação
-- Import por path direto (sem barrel): `@connected-repo/zod-schemas/user.zod`
+## Internal System Boundaries
 
-**Port via env var**
-- Backend: `env.PORT` (default 4000) — porta 3000 está ocupada pelo CapRover
-- Ver: [`/srv/ops/ai-governance/PORTS.md`](/srv/ops/ai-governance/PORTS.md)
+The system enforces boundaries between **Internal Core** and **External Gateway**:
+- **Internal Boundary:** Communication between `apps/web` and `apps/api` is exclusively via tRPC. This boundary assumes a shared session and full trust in the types provided by the shared schema package.
+- **External Boundary:** The `api-gateway` module creates a "DMZ" where incoming REST requests are strictly validated, rate-limited by team/subscription quotas, and logged for auditing before hitting internal services.
+- **Domain Seams:** Each module in `apps/api/src/modules` is intended to own its tables. Cross-domain queries are minimized, usually handled at the tRPC router aggregation level.
 
-## Dependências Externas
+## External Service Dependencies
 
-| Serviço | Uso | Port |
-|---------|-----|------|
-| PostgreSQL | banco principal | 5432 |
-| Google OAuth2 | autenticação | HTTPS |
-| CapRover | deploy/proxy | 80/443/3000 |
+- **PostgreSQL**: Primary persistence layer.
+- **Google OAuth2**: Secondary authentication provider for SSO.
+- **Claude/Anthropic API**: Core LLM providers for the Orchestrator.
+- **Coolify/CapRover**: Deployment and container orchestration infrastructure.
+- **Cloudflare Tunnels**: Secure ingress for local and staging environments.
 
-## Infraestrutura: Coolify + GitOps
+## Key Decisions & Trade-offs
 
-### Arquitetura de Deploy
+- **tRPC vs. REST/GraphQL:** tRPC was chosen for the primary internal API to eliminate the need for OpenAPI code generation while maintaining 100% type safety. REST is maintained only for external product APIs where third-party compatibility is required.
+- **Epoch Timestamps:** The decision to use `timestampNumber` (milliseconds since epoch) across the DB and API was made to prevent time-zone-related string parsing issues common in JavaScript.
+- **Modular vs. Microservices:** A modular monolith was selected to keep deployment simple (single Docker image per app) while allowing for extraction into microservices later if load on specific domains (like the Content Engine) warrants it.
 
-```
-Gitea (git push)
-    └── Gitea Action
-            └── Coolify API (deploy trigger)
-                    └── Coolify (container orchestration)
-                            └── Cloudflare Tunnel → web.zappro.site
-```
+## Top Directories Snapshot
 
-### API Coolify
-
-| Endpoint | Método | Uso |
-|----------|--------|-----|
-| `/api/v1/applications` | GET | Listar apps |
-| `/api/v1/applications/{uuid}/deploy` | POST | Trigger deploy |
-| `/api/v1/applications/{uuid}/restart` | POST | Restart container |
-| `/api/v1/applications/{uuid}/logs` | GET | Ver logs |
-| `/api/v1/applications/{uuid}` | GET | Status detalhado |
-
-### Secrets (Infisical)
-
-| Secret | Projeto | Uso |
-|--------|---------|-----|
-| `OPENROUTER_API_KEY` | `zappro-p-tc-k` | LLM do agent |
-| `COOLIFY_API_KEY` | `zappro-p-tc-k` | API Coolify |
-| `COOLIFY_URL` | `zappro-p-tc-k` | http://localhost:8000 |
-
-### Skills de Automação Coolify
-
-| Skill | Descrição | Trigger |
-|-------|-----------|---------|
-| `coolify-deploy-trigger` | Trigger deploy via API | manual |
-| `coolify-auto-healer` | Monitora + restart se degraded/down | cron 5min |
-| `coolify-health-check` | Verifica health endpoint pós-deploy | manual |
-| `coolify-resource-monitor` | CPU/memory alerts (>80%) | cron 15min |
-| `coolify-incident-diagnostics` | Diagnóstico de erros + sugestões | manual |
-| `coolify-rollback` | Rollback para versão anterior | manual |
-
-### Scripts de Deploy (gitea-coolify-deploy)
-
-| Script | Função |
-|--------|--------|
-| `deploy.sh` | Deploy via Coolify API (SSRF protected, HEREDOC Python) |
-| `smoke-test.sh` | Health check HTTP 200 com retry (timeout 60s) |
-| `auto-healer.sh` | Restart containers degraded/down (cron 5min) |
-| `resource-monitor.sh` | CPU >70%, Memory >80% alerts (cron 15min) |
-
-Localização: `/home/will/.claude/skills/gitea-coolify-deploy/scripts/`
-
-### Gitea Workflow (deploy-perplexity-agent.yml)
-
-Fluxo completo:
-```
-1. Checkout code
-2. Get APP UUID (lookup por nome)
-3. Trigger deploy (POST /deploy)
-4. Wait for status (polling, 60s timeout)
-5. Smoke test (HTTP 200 em /_stcore/health)
-6. Rollback on failure (auto, se smoke test fail)
-```
-
-Localização: `/.gitea/workflows/deploy-perplexity-agent.yml`
-
-### Incident Registrado
-
-**INCIDENT-2026-04-08:** Container não deployado — GitOps gap entre Terraform (DNS) e Coolify (Deploy).
-
-Prevenção: ver checklist em `SPEC-PERPLEXITY-GITOPS.md` antes de marcar "deploy pronto".
+- `apps/api/src/modules/`: ~45 directories (Feature-rich domain layer)
+- `apps/web/src/modules/`: ~20 directories (Frontend feature pages)
+- `packages/zod-schemas/src/`: ~35 files (Centralized data contracts)
+- `apps/orchestrator/src/core/`: ~10 files (Workflow engine internals)
 
 ## Related Resources
 
-- [project-overview.md](./project-overview.md)
-- [data-flow.md](./data-flow.md)
-- [tooling.md](./tooling.md)
+- [Project Overview](./project-overview.md)
+- [Data Flow Documentation](./data-flow.md)
+- [Codebase Map](./codebase-map.json)

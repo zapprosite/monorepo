@@ -1,102 +1,57 @@
+# Development Workflow
+
+The engineering process in this repository is designed for high velocity with a strong emphasis on automation and type safety. We follow a standardized daily routine that leverages our internal CLI tools to minimize context switching and boilerplate. Engineers are expected to work in a "test-first" or "types-first" manner, defining Zod schemas in `packages/zod-schemas` before implementing business logic in the API or UI. All changes must originate from a dedicated feature branch and pass the automated CI pipeline before merging into the trunk.
+
+## Branching & Releases
+
+Our repository follows a **Trunk-Based Development** model with short-lived feature branches:
+
+- **Main Branch (`main`)**: The source of truth. It represents the production-ready state of the codebase. All code in `main` must pass all CI checks and builds.
+- **Feature Branches (`feature/*`)**: Used for all new development. Use the `/feature` command to generate a standardized branch name.
+- **Fix Branches (`fix/*`)**: Specifically for bug fixes identified in production or during QA.
+- **Chore Branches (`chore/*`)**: For dependency updates, configuration changes, or non-functional maintenance.
+- **Release Tagging**: We use Semantic Versioning (SemVer). Production releases are triggered by merging to `main`, which automatically generates a version tag (e.g., `v1.2.3`) based on the conventional commits in the cycle.
+
+## Local Development
+
+Follow these steps to get your environment ready and run the services safely. Note the port governance requirements to avoid conflicts with infrastructure like CapRover.
+
+- **Pre-requisite**: Ensure Docker is running.
+- **Install Dependencies**: `yarn install`
+- **Infrastructure**: `docker compose up -d` (Starts PostgreSQL 15 and Redis)
+- **Database Migrations**: `yarn db -- up` (Synchronizes Orchid ORM schemas)
+- **Run Application**: `yarn dev` (Starts Backend on `:4000` and Frontend on `:5173`)
+- **Build Services**: `yarn build` (Validates the entire monorepo build)
+- **Type Check**: `yarn check-types`
+
+**Port Safety Check:**
+- Backend API: `http://localhost:4000`
+- Web Frontend: `http://localhost:5173`
+- **NEVER** use port `3000` on the local host as it is reserved for CapRover infrastructure.
+
+## Code Review Expectations
+
+All Pull Requests (PRs) require at least one approval from a maintainer before they can be merged. The review focuses on:
+
+1.  **Type Integrity**: Ensuring Zod schemas correctly reflect the database and API contracts.
+2.  **Performance**: Checking for "N+1" queries in the API (`apps/api`) and unnecessary re-renders in the frontend (`apps/web`).
+3.  **Consistency**: Following the [Tooling Guide](./tooling.md) for slash commands and using established components from `packages/ui`.
+4.  **Testing**: Verify the PR includes relevant Vitest or E2E tests as defined in the [Testing Strategy](./testing-strategy.md).
+
+**Agent Collaboration**: When working with AI agents (e.g., Cursor, Claude), please refer to [AGENTS.md](../../AGENTS.md) for prompt instructions and workflow tips to ensure agent-generated code adheres to our monorepo patterns.
+
+## Onboarding Tasks
+
+If you are new to the repository, please start with these tasks to familiarize yourself with the stack:
+
+1.  **Environment Setup**: Run the local development commands and ensure you can log in to the dashboard using the credentials found in `seedDevTeam`.
+2.  **Explore the Schema**: Look at `packages/zod-schemas/src/user.zod.ts` to understand how our data models are defined.
+3.  **First Issue**: Look for tickets tagged with `good-first-issue` in our project management system. These usually involve adding a simple field to a CRUD module or fixing a UI glitch in `packages/ui`.
+4.  **Run a Scaffold**: Try creating a test module using `/scaffold` to see how the API, DB, and UI layers are automatically connected.
+
 ---
-type: doc
-name: development-workflow
-description: Day-to-day engineering processes, branching, and contribution guidelines
-category: workflow
-generated: 2026-03-16
-updated: 2026-03-17
-status: active
-scaffoldVersion: "2.0.0"
----
-## Development Workflow
 
-## ⚠️ Governância de Portas
-
-Antes de iniciar serviços, consulte: [`/srv/ops/ai-governance/PORTS.md`](/srv/ops/ai-governance/PORTS.md)
-
-**Portas deste projeto:**
-- Backend: `http://localhost:4000` (`PORT=4000` no `.env`)
-- Frontend: `http://localhost:5173`
-- PostgreSQL: `localhost:5432`
-- ❌ **Porta 3000 = CapRover** — nunca usar neste host
-
-## Setup Inicial
-
-```bash
-yarn install
-docker compose up -d   # PostgreSQL 15
-yarn db -- up          # aplicar migrations
-yarn dev               # backend :4000 + frontend :5173
-```
-
-## Branches
-
-| Prefixo | Uso |
-|---------|-----|
-| `main` | produção, sempre deployável |
-| `feature/*` | novas features |
-| `fix/*` | bug fixes |
-| `chore/*` | manutenção, tooling |
-
-Criar branch: `/feature` (gera nome criativo automaticamente)
-
-## Fluxo Diário
-
-```
-/feature          → cria feature/[nome] + upstream
-  ↓ implementar
-/ship             → commit semântico + push + PR
-  ↓ CI passa
-merge via PR      → main atualizada
-```
-
-**Modo pressa**: `/turbo` — commit + merge + tag + nova branch em sequência.
-
-## Conventional Commits
-
-Formato: `tipo(escopo): descrição`
-
-| Tipo | Quando usar |
-|------|-------------|
-| `feat` | nova funcionalidade |
-| `fix` | correção de bug |
-| `chore` | manutenção sem impacto funcional |
-| `refactor` | refatoração sem mudança de comportamento |
-| `docs` | apenas documentação |
-| `test` | adição/correção de testes |
-
-Escopos derivados do path: `api`, `web`, `ui`, `core`, `claude`.
-
-## Novo Módulo Full-Stack
-
-Usar `/scaffold` — gera automaticamente:
-1. Schema Zod em `packages/zod-schemas/`
-2. Orchid ORM table + migration
-3. tRPC router no backend
-4. Page + router no frontend
-
-Ver [tooling.md](./tooling.md) para lista completa de slash commands.
-
-## CI/CD
-
-Todo PR para `main` passa por:
-1. `yarn check-types` — TypeScript
-2. `biome ci` — lint + format
-3. `yarn build` — build de produção
-4. `yarn test` — Vitest
-
-PRs bloqueados se qualquer check falhar.
-
-## Antes de Abrir PR
-
-```bash
-yarn check-types && yarn format && yarn test && yarn build
-```
-
-Ou usar `/ship` que faz tudo automaticamente.
-
-## Related Resources
-
-- [testing-strategy.md](./testing-strategy.md)
-- [tooling.md](./tooling.md)
-- [AGENTS.md](../../AGENTS.md)
+### Related Resources
+- [Testing Strategy](./testing-strategy.md) - Learn about our unit and E2E testing patterns.
+- [Tooling Guide](./tooling.md) - Reference for `/feature`, `/ship`, and `/scaffold` commands.
+- [Agent Guidelines](../../AGENTS.md) - Best practices for AI-assisted engineering.

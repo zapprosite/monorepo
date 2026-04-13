@@ -1,50 +1,50 @@
 ---
 name: researcher
-description: Pesquisa profunda de mercado e tecnologia usando Tavily Search API. Use quando o utilizador pedir para pesquisar, investigar, analisar tendências ou obter informações actualizadas da web.
+description: Pesquisa usando MiniMax LLM para análise de código e erros do monorepo. Use quando o utilizador pedir para pesquisar, investigar, analisar código ou erros.
 user-invocable: true
 disable-model-invocation: false
 allowed-tools:
   - Bash
   - Read
-  - WebFetch
+  - Grep
 paths:
   - ~/.claude/skills/researcher/**
-version: 1.0.0
+version: 2.0.0
 ---
 
-# Skill: Researcher — Tavily Search
+# Skill: Researcher — MiniMax LLM
 
 ## Synopsis
 
 `/researcher <query>`
 
-Pesquisa rápida na web usando Tavily Search API.
+Pesquisa usando MiniMax M2.7 LLM para análise de código, erros e arquitetura do monorepo.
 
 ## Description
 
-Usa a Tavily Search API para obter resultados de pesquisa actualizados da web. Ideal para:
-- Pesquisar informações actuais (pós-2024)
-- Investigar produtos, tecnologias, competidores
-- Fact-checking rápido
-- Obter links e fontes para citations
+Usa MiniMax LLM via `cursor-loop-research-minimax.sh` para análise inteligente:
+- Análise de erros e bugs
+- Investigação de código (stack traces, imports, patterns)
+- Pesquisa arquitetural (Fastify, tRPC, OrchidORM)
+- Contexto PT-BR nativo para logs do homelab
 
 ## Usage
 
 ```
-/researcher Claude Code CLI best practices 2026
-/researcher Tavily API pricing free tier
-/researcher Gemini API quota limits
+/researcher TypeError: Cannot read property 'map' of undefined
+/researcher How does the auth middleware work in apps/api?
+/researcher Compare Fastify vs Express patterns in backend
 ```
 
 ## API
 
-- **Endpoint:** `https://api.tavily.com/search`
-- **Method:** POST (JSON body)
-- **Auth:** `api_key` no body
-- **Key:** TAVILY_API_KEY do vault Infisical
+- **Script:** `scripts/cursor-loop-research-minimax.sh`
+- **Auth:** MINIMAX_API_KEY via Infisical SDK (ou env var)
+- **Endpoint:** `POST https://api.minimax.io/anthropic/v1/messages`
+- **Model:** MiniMax-M2.7 (1M context window)
 
 ## Sources
 
-- Tavily Docs: https://docs.tavily.com
-- Free Tier: 1000 queries/month
-- API: https://api.tavily.com/search
+- Script: `/srv/monorepo/scripts/cursor-loop-research-minimax.sh`
+- Skill: `.claude/skills/minimax-research/`
+- MiniMax API: https://api.minimax.io/anthropic/v1/messages

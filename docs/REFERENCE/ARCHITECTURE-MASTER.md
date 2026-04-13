@@ -167,7 +167,7 @@
 | **Slash Commands** | `.claude/commands/` | Thin wrappers that invoke `.agent/workflows/` |
 | **Skills** | `.claude/skills/` | Full skills with references/. User-level, gitignored |
 | **Domain Skills** | `.agent/skills/` | Proven skills that can be shared across users |
-| **SPECs** | `docs/specflow/SPEC-*.md` | One dir, sequential numbering |
+| **SPECs** | `docs/SPECS/SPEC-*.md` | One dir, sequential numbering |
 | **ADRs** | `docs/ADRs/` | One dir, date-based 2026-series + 001-series |
 | **Operational Skills** | `docs/OPERATIONS/SKILLS/` | Host-level runbooks, health checks |
 | **Governance** | `docs/GOVERNANCE/` | Contracts, guardrails, change policy |
@@ -277,7 +277,7 @@ Slash commands are registered in `.claude/commands/`. All commands follow the pa
 |---------|----------------|--------------|
 | `/spec` | `spec-driven-development/SKILL.md` | Start SPEC-driven workflow: SPECIFY → PLAN → TASKS → IMPLEMENT → REVIEW → SHIP |
 | `/plan` | `spec-driven-development/SKILL.md` | Create SPEC from requirements |
-| `/pg` | `pipeline-gen/SKILL.md` | Generate `pipeline.json` from SPECs in `docs/specflow/` |
+| `/pg` | `pipeline-gen/SKILL.md` | Generate `pipeline.json` from SPECs in `docs/SPECS/` |
 | `/rs` | `repo-scan/SKILL.md` | Detect tasks in TASKMASTER/PRD/ADR formats |
 
 ### 3.3 Quality Assurance Commands
@@ -446,16 +446,16 @@ Developer invokes /ship
 
 ### 6.1 SPECs — Single Location
 
-**Canonical:** `docs/specflow/SPEC-*.md`
+**Canonical:** `docs/SPECS/SPEC-*.md`
 
-All SPECs live in `docs/specflow/`. The naming convention is `SPEC-NNN-title-slug.md` where NNN is a 3-digit sequential number. When a SPEC reaches COMPLETED status, it remains as historical record.
+All SPECs live in `docs/SPECS/`. The naming convention is `SPEC-NNN-title-slug.md` where NNN is a 3-digit sequential number. When a SPEC reaches COMPLETED status, it remains as historical record.
 
 **SPEC Status Lifecycle:**
 ```
 DRAFT → REVIEW → APPROVED → IMPLEMENTING → DONE / COMPLETED
 ```
 
-**SPEC README** (`docs/specflow/SPEC-README.md`) is the index and entry point.
+**SPEC README** (`docs/SPECS/SPEC-README.md`) is the index and entry point.
 
 **SPEC PROTECTED status** (like `SPEC-009-openclaw-persona-audio-stack.md`) is a flag meaning: "Changes require explicit human approval before merge." This is enforced by:
 1. Human gates in `/hg` command
@@ -517,7 +517,7 @@ refactor(agent): clarified skill vs workflow distinction in .agent/workflows/
 | MEDIUM | Resolve SPEC-001 numbering collision (two SPEC-001 files) | Planner |
 | MEDIUM | Add "PROTECTED" enforcement: `SPEC-*.md` with PROTECTED status require `/hg` approval | DevOps |
 | LOW | Migrate SPEC-TEMPLATE.md to `SPEC-000-template.md` to free `SPEC-001` | Planner |
-| LOW | Add `docs/specflow/discovery.md` → update SPEC-README.md index | Documentation |
+| LOW | Add `docs/SPECS/discovery.md` → update SPEC-README.md index | Documentation |
 
 ---
 

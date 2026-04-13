@@ -1,90 +1,79 @@
----
-type: doc
-name: testing-strategy
-description: Test frameworks, patterns, coverage requirements, and quality gates
-category: testing
-generated: 2026-03-16
-updated: 2026-03-17
-status: active
-scaffoldVersion: "2.0.0"
----
-## Testing Strategy
+# Testing Strategy
 
-## Frameworks
+The quality of the monorepo is maintained through a multi-layered testing strategy that combines static analysis, isolated unit tests, and integrated functional tests. Our goal is to ensure that every change—from a Zod schema modification in `packages/zod-schemas` to a UI component update in `packages/ui`—is validated before reaching production. 
 
-| App | Framework | Environment |
-|-----|-----------|-------------|
-| `apps/backend` | Vitest 4 | Node |
-| `apps/frontend` | Vitest 4 + jsdom | jsdom |
-
-**Configs:**
-- `apps/backend/vitest.config.ts` — tsconfig paths, Node environment
-- `apps/frontend/vitest.config.ts` — React SWC, jsdom, `@testing-library/jest-dom`
-- `apps/frontend/src/test-setup.ts` — setup global matchers
+Quality is enforced through automated pipelines that run on every pull request, ensuring that regressions are caught early and that the contract between the frontend and backend (via tRPC) remains intact.
 
 ## Test Types
 
-**Unit Tests** (`src/**/*.test.ts`, `src/**/*.test.tsx`):
-- Funções puras, utils, validações Zod
-- Componentes React isolados com `@testing-library/react`
+- **Unit Tests**:
+    - **Tools**: Vitest 4, `@testing-library/react`, `@testing-library/jest-dom`.
+    - **Naming Convention**: `*.test.ts` or `*.test.tsx`.
+    - **Scope**: Used for pure functions, utility methods in `apps/web/src/utils`, and Zod validation logic in `packages/zod-schemas`. React components are tested in isolation using JSDOM.
+- **Integration Tests**:
+    - **Tools**: Vitest, tRPC Callers.
+    - **Naming Convention**: `*.integration.test.ts`.
+    - **Scenario**: Testing tRPC procedures against a live test database. This ensures that the `apps/api` routers, middlewares (like `apiKeyAuthHook`), and database tables (e.g., `UsersTable`, `ContractsTable`) work together correctly.
+- **E2E (End-to-End)**:
+    - **Tools**: Playwright.
+    - **Naming Convention**: Located in `apps/perplexity-agent/e2e` or similar `e2e/` directories.
+    - **Scenario**: Validating critical user journeys such as OAuth2 login flows, complex form submissions in the Kanban module, and real-time event processing in the Orchestrator.
 
-**Integration Tests** (`src/**/*.integration.test.ts`):
-- tRPC procedures contra banco de teste real
-- Requerem `DATABASE_URL` apontando para DB de teste
+## Running Tests
 
-**E2E** (futuro):
-- Playwright — testar fluxos críticos (auth, criação de entidade)
+Tests can be executed globally from the root using Turbo or individually within each workspace.
 
-## Comandos
-
+- **Run all tests**:
 ```bash
-yarn test                    # Todos os apps via Turbo
-yarn test:watch              # Watch mode (por app)
-yarn workspace @connected-repo/backend test -- --coverage
-yarn workspace @connected-repo/frontend test -- --coverage
+# From the monorepo root
+yarn test
 ```
 
-## Localização dos Arquivos
-
-```
-apps/backend/src/
-└── modules/[feature]/
-    ├── [feature].trpc.ts
-    └── [feature].trpc.test.ts   ← co-localizado
-
-apps/frontend/src/
-└── modules/[feature]/
-    └── pages/
-        ├── [Feature].page.tsx
-        └── [Feature].page.test.tsx
+- **Run tests in Watch Mode**:
+```bash
+# Specific to a workspace (e.g., the API)
+yarn workspace @connected-repo/api test --watch
 ```
 
-## Padrões
-
-**Zod schemas** — testar validação de borda:
-```typescript
-it("rejects empty content", () => {
-  expect(journalEntryCreateInputZod.safeParse({ content: "" }).success).toBe(false);
-});
+- **Generate Coverage Report**:
+```bash
+# Runs tests and produces a coverage summary
+yarn workspace @connected-repo/web test --coverage
 ```
 
-**tRPC procedures** — testar com caller direto:
-```typescript
-const caller = appTrpcRouter.createCaller({ user: mockUser });
-const result = await caller.journalEntries.getAll();
+- **Run specific test file**:
+```bash
+# Useful during development
+npx vitest apps/api/src/modules/auth/__tests__/session.test.ts
 ```
 
-**React components** — testar comportamento:
-```typescript
-render(<JournalEntryList entries={mockEntries} />);
-expect(screen.getByText("My Entry")).toBeInTheDocument();
-```
+## Quality Gates
 
-## CI
+To maintain high code standards, the following quality gates must be passed before merging any Pull Request:
 
-GitHub Actions (`.github/workflows/ci.yml`) roda `yarn test` em todo PR para `main`.
-Postgres 15 disponível no CI para testes de integração.
+- **Coverage Requirements**: 
+    - Minimum **80%** line coverage for core business logic in `apps/api/src/modules`.
+    - **100%** coverage for shared schemas in `packages/zod-schemas`.
+- **Linting & Formatting**: 
+    - `yarn lint` must pass with zero errors.
+    - `yarn format:check` must confirm code adheres to Prettier configurations.
+- **Type Safety**:
+    - `yarn typecheck` must pass across the entire monorepo to ensure tRPC interfaces and Zod-inferred types are consistent.
+- **CI/CD Pipeline**:
+    - All tests must pass in the GitHub Actions environment, which spins up a Postgres 15 service container for integration suites.
 
-## Related Resources
+## Troubleshooting
 
-- [development-workflow.md](./development-workflow.md)
+### Flaky Database Tests
+Integration tests for the API require a clean state. If tests are failing due to unique constraint violations (e.g., `UserTable` or `TeamTable` entries), ensure that the test suite uses the `truncate` utility in the `beforeEach` hook.
+
+### JSDOM Environment Issues
+When testing components in `packages/ui`, you may encounter errors related to missing browser APIs (like `IntersectionObserver`). These should be mocked in `apps/web/src/test-setup.ts`.
+
+### Long-Running Suites
+The Orchestrator's `WorkflowStateMachine` and `EventBus` tests can be resource-intensive. If the CI environment is timing out, consider using the `--shard` flag in Vitest to split the load across multiple runners.
+
+---
+
+**See Also:**
+- [development-workflow.md](./development-workflow.md) for instructions on local environment setup.

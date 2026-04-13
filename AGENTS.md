@@ -6,6 +6,90 @@
 
 ---
 
+## ⚠️ OBRIGATÓRIO PARA TODOS OS LLMs — LEIA PRIMEIRO
+
+Antes de qualquer ação neste repositório, TODO LLM **DEVE** ler:
+
+| Documento | Porquê | Prioridade |
+|-----------|--------|------------|
+| **[docs/GOVERNANCE/SECRETS-MANDATE.md](../../docs/GOVERNANCE/SECRETS-MANDATE.md)** | **Zero tolerance** — Infisical SDK mandatory. Tokens hardcoded = rejeição imediata. Alucinação de tokens = banido. | 🔴 CRÍTICO |
+| **[docs/GOVERNANCE/GUARDRAILS.md](../../docs/GOVERNANCE/GUARDRAILS.md)** | Operações proibidas,anti-fragilidade, audio stack imutável | 🔴 CRÍTICO |
+| **[docs/GOVERNANCE/APPROVAL_MATRIX.md](../../docs/GOVERNANCE/APPROVAL_MATRIX.md)** | "Posso fazer isto?" — tabela de aprovações por operação | 🔴 CRÍTICO |
+| **[docs/GOVERNANCE/CHANGE_POLICY.md](../../docs/GOVERNANCE/CHANGE_POLICY.md)** | Snapshot antes de mudanças + checklist preflight | 🟡 ALTA |
+| **[docs/GOVERNANCE/IMMUTABLE-SERVICES.md](../../docs/GOVERNANCE/IMMUTABLE-SERVICES.md)** | Serviços que nunca se tocam (coolify-proxy, prometheus, cloudflared...) | 🔴 CRÍTICO |
+| **[docs/GOVERNANCE/PINNED-SERVICES.md](../../docs/GOVERNANCE/PINNED-SERVICES.md)** | Stack de voz: Kokoro/wav2vec2/OpenClaw — só estes, só assim | 🔴 CRÍTICO |
+| **[docs/GOVERNANCE/DUPLICATE-SERVICES-RULE.md](../../docs/GOVERNANCE/DUPLICATE-SERVICES-RULE.md)** | Port registry, auto-heal whitelist — portas reservadas | 🟡 ALTA |
+| **[docs/GOVERNANCE/INCIDENTS.md](../../docs/GOVERNANCE/INCIDENTS.md)** | Severity levels, incident response checklist | 🔴 CRÍTICO |
+| **[docs/GOVERNANCE/RECOVERY.md](../../docs/GOVERNANCE/RECOVERY.md)** | ZFS rollback/DB restore step-by-step | 🔴 CRÍTICO |
+| **[docs/GOVERNANCE/ANTI-FRAGILITY.md](../../docs/GOVERNANCE/ANTI-FRAGILITY.md)** | O que NÃO fazer — antipatterns, serviços pinned | 🔴 CRÍTICO |
+| **[docs/GOVERNANCE/CONTRACT.md](../../docs/GOVERNANCE/CONTRACT.md)** | Princípios inegociáveis (dados sacrossantos, snapshot mandatory) | 🟡 ALTA |
+| **[docs/SPECS/SPEC-009-openclaw-persona-audio-stack.md](../../docs/SPECS/SPEC-009-openclaw-persona-audio-stack.md)** | Audio stack imutável — STT/TTS/LLM canonical | 🔴 CRÍTICO |
+| **[docs/SPECS/SPEC-HOMELAB-GOVERNANCE-DEFINITIVO.md](../../docs/SPECS/SPEC-HOMELAB-GOVERNANCE-DEFINITIVO.md)** | Datacenter enterprise governance framework | 🔴 CRÍTICO |
+| **[docs/GOVERNANCE/master-password-procedure.md](../../docs/GOVERNANCE/MASTER-PASSWORD-PROCEDURE.md)** | Credential handling procedure | 🟡 ALTA |
+| **[docs/GOVERNANCE/DATABASE_GOVERNANCE.md](../../docs/GOVERNANCE/DATABASE_GOVERNANCE.md)** | Protected schemas, destructive-operation rules | 🟡 ALTA |
+| **[docs/INCIDENTS/CONSOLIDATED-PREVENTION-PLAN.md](../../docs/INCIDENTS/CONSOLIDATED-PREVENTION-PLAN.md)** | Anti-patterns AP-1 a AP-4 (Docker TCP, host-as-backend, DNS) | 🔴 CRÍTICO |
+| **[docs/GUIDES/INFISICAL-SDK-PATTERN.md](../../docs/GUIDES/INFISICAL-SDK-PATTERN.md)** | Como usar Infisical SDK (Python/JS/Bash) | 🟡 ALTA |
+| **[docs/GUIDES/CODE-REVIEW-GUIDE.md](../../docs/GUIDES/CODE-REVIEW-GUIDE.md)** | 5-axis review framework | 🟡 ALTA |
+| **[docs/GOVERNANCE/SECRETS_POLICY.md](../../docs/GOVERNANCE/SECRETS_POLICY.md)** | Secrets policy complementar | 🟡 ALTA |
+| **[.claude/CLAUDE.md](../../.claude/CLAUDE.md)** | Regras Claude Code, git mirror, version lock | 🟡 ALTA |
+| **[.claude/rules/openclaw-audio-governance.md](../../.claude/rules/openclaw-audio-governance.md)** | Audio stack imutável — ZERO TOLERANCE | 🔴 CRÍTICO |
+
+### TL;DR (para LLMs com pressa)
+
+```
+SEcrets → Infisical SDK APENAS — sem alucinação
+Immutable/Pinned Services → NUNCA tocar
+Audio Stack (SPEC-009) → só Kokoro:TTS Bridge:wav2vec2:MiniMax-M2.7
+Anti-patterns (AP-1/2/3) → Docker TCP bridge, host-as-backend, localhost testing
+Não sabe? → PERGUNTE ANTES DE FAZER
+```
+
+**Sem ler estes documentos, não faça NADA.**
+
+---
+
+## ⚠️ IMPORTANT FOR ALL LLMs — READ FIRST
+
+Before any work in this repository, EVERY LLM **MUST** read:
+
+| Document | Why | Priority |
+|---------|-----|----------|
+| **[docs/GOVERNANCE/SECRETS-MANDATE.md](../../docs/GOVERNANCE/SECRETS-MANDATE.md)** | **Zero tolerance** — Infisical SDK only. Hardcoded tokens = instant rejection. Token hallucination = banned. | 🔴 CRITICAL |
+| **[docs/GOVERNANCE/GUARDRAILS.md](../../docs/GOVERNANCE/GUARDRAILS.md)** | Forbidden ops, anti-fragility, immutable audio stack | 🔴 CRITICAL |
+| **[docs/GOVERNANCE/APPROVAL_MATRIX.md](../../docs/GOVERNANCE/APPROVAL_MATRIX.md)** | "Can I do this?" — approval table by operation type | 🔴 CRITICAL |
+| **[docs/GOVERNANCE/IMMUTABLE-SERVICES.md](../../docs/GOVERNANCE/IMMUTABLE-SERVICES.md)** | Services that are never touched (coolify-proxy, prometheus, cloudflared...) | 🔴 CRITICAL |
+| **[docs/GOVERNANCE/PINNED-SERVICES.md](../../docs/GOVERNANCE/PINNED-SERVICES.md)** | Voice stack: Kokoro/wav2vec2/OpenClaw — only these, only this way | 🔴 CRITICAL |
+| **[docs/GOVERNANCE/INCIDENTS.md](../../docs/GOVERNANCE/INCIDENTS.md)** | Severity levels, incident response checklist | 🔴 CRITICAL |
+| **[docs/GOVERNANCE/RECOVERY.md](../../docs/GOVERNANCE/RECOVERY.md)** | ZFS rollback/DB restore step-by-step | 🔴 CRITICAL |
+| **[docs/GOVERNANCE/ANTI-FRAGILITY.md](../../docs/GOVERNANCE/ANTI-FRAGILITY.md)** | What NOT to do — antipatterns, pinned services | 🔴 CRITICAL |
+| **[docs/SPECS/SPEC-009-openclaw-persona-audio-stack.md](../../docs/SPECS/SPEC-009-openclaw-persona-audio-stack.md)** | Immutable audio stack — STT/TTS/LLM canonical | 🔴 CRITICAL |
+| **[.claude/rules/openclaw-audio-governance.md](../../.claude/rules/openclaw-audio-governance.md)** | ZERO TOLERANCE — Kokoro voices (pm_santa/pf_dora ONLY), STT/TTS rules | 🔴 CRITICAL |
+| **[docs/SPECS/SPEC-HOMELAB-GOVERNANCE-DEFINITIVO.md](../../docs/SPECS/SPEC-HOMELAB-GOVERNANCE-DEFINITIVO.md)** | Datacenter enterprise governance framework | 🔴 CRITICAL |
+| **[docs/INCIDENTS/CONSOLIDATED-PREVENTION-PLAN.md](../../docs/INCIDENTS/CONSOLIDATED-PREVENTION-PLAN.md)** | Anti-patterns AP-1 to AP-4 (Docker TCP, host-as-backend, DNS) | 🔴 CRITICAL |
+| **[docs/GOVERNANCE/CHANGE_POLICY.md](../../docs/GOVERNANCE/CHANGE_POLICY.md)** | Snapshot before changes + preflight checklist | 🟡 HIGH |
+| **[docs/GOVERNANCE/DUPLICATE-SERVICES-RULE.md](../../docs/GOVERNANCE/DUPLICATE-SERVICES-RULE.md)** | Port registry, auto-heal whitelist, reserved ports | 🟡 HIGH |
+| **[docs/GOVERNANCE/MASTER-PASSWORD-PROCEDURE.md](../../docs/GOVERNANCE/MASTER-PASSWORD-PROCEDURE.md)** | Credential handling procedure | 🟡 HIGH |
+| **[docs/GOVERNANCE/DATABASE_GOVERNANCE.md](../../docs/GOVERNANCE/DATABASE_GOVERNANCE.md)** | Protected schemas, destructive-operation rules | 🟡 HIGH |
+| **[docs/REFERENCE/ARCHITECTURE-MASTER.md](../../docs/REFERENCE/ARCHITECTURE-MASTER.md)** | Full monorepo structure, CI/CD, directory layout | 🟡 HIGH |
+| **[docs/GUIDES/INFISICAL-SDK-PATTERN.md](../../docs/GUIDES/INFISICAL-SDK-PATTERN.md)** | How to use Infisical SDK (Python/JS/Bash) | 🟡 HIGH |
+| **[docs/GUIDES/CODE-REVIEW-GUIDE.md](../../docs/GUIDES/CODE-REVIEW-GUIDE.md)** | 5-axis review framework | 🟡 HIGH |
+| **[docs/REFERENCE/TOOLCHAIN.md](../../docs/REFERENCE/TOOLCHAIN.md)** | pnpm, turbo, biome, git, docker, zfs commands | 🟡 HIGH |
+| **[.claude/CLAUDE.md](../../.claude/CLAUDE.md)** | Claude Code rules, git mirror, version lock | 🟡 HIGH |
+
+### TL;DR (for LLMs in a hurry)
+
+```
+Secrets → Infisical SDK ONLY — no hallucination
+Immutable/Pinned Services → NEVER touch
+Audio Stack (SPEC-009) → only Kokoro:TTS Bridge:wav2vec2:MiniMax-M2.7
+Anti-patterns (AP-1/2/3) → Docker TCP bridge, host-as-backend, localhost testing
+Don't know? → ASK BEFORE DOING
+```
+
+**Without reading these documents, do NOTHING.**
+
+---
+
 ## Arquitectura Unified (09/04/2026)
 
 ```
@@ -55,6 +139,7 @@
 
 | App/Package | Tipo | Stack | Notas |
 |-------------|------|-------|-------|
+| `apps/list-web` | Web | Static HTML+JS | Google OAuth, tools list |
 | `apps/api` | API | Fastify + OrchidORM + tRPC | PostgreSQL |
 | `apps/web` | Web | React 19 + MUI + tRPC | — |
 | `apps/orchestrator` | Agent | Node.js + tRPC + YAML | Human gates |
@@ -80,12 +165,21 @@
 | `/code-review` | `code-review.md` | Commits → 5-axis review | Full review |
 | `/scaffold` | `scaffold.md` | Template → novo modulo | Scaffold projeto |
 | `/img` | `vision-local.md` | Ollama Qwen2.5-VL | Análise de imagem |
+| `/codegen` | `codegen.md` | Zod schema → tRPC router | MiniMax code generation |
+| `/msec` | `msec.md` | Security audit pre-commit | MiniMax semantic security |
+| `/dm` | `dm.md` | API ref, PORTS, SUBDOMAINS | MiniMax doc maintenance |
+| `/bug-triage` | `bug-triage.md` | Docker crash, tunnel DOWN | MiniMax bug triage |
+| `/bcaffold` | `bcaffold.md` | Zod schema → Fastify+tRPC | MiniMax backend scaffold |
+| `/migrate` | `migrate.md` | OrchidORM migration | MiniMax DB migration |
+| `/trpc` | `trpc.md` | Add tRPC router | MiniMax router composition |
+| `/infra-gen` | `infra-gen.md` | Docker/TF/Prometheus/Gitea | MiniMax infra generation |
+| `/mxr` | `mxr.md` | PR review long-context | MiniMax holistic review |
 
 ---
 
 ## Skills (`.claude/skills/`)
 
-**33 skills locais** — ativados automaticamente via `AGENTS.md`:
+**33 skills locais + 10 MiniMax-enhanced skills (SPEC-034)**:
 
 | Skill | Propósito | Trigger |
 |-------|-----------|---------|
@@ -108,7 +202,17 @@
 | `snapshot-safe` | ZFS safe operations | — |
 | `cost-reducer` | Optimizar custos | — |
 | `browser-dev` | Browser automation | — |
-| `researcher` | Web research (Tavily) | — |
+| `researcher` | Web research (MiniMax M2.1) | — |
+| `minimax-research` | Deep code/error analysis (MiniMax M2.1) | `/minimax-research` |
+| `minimax-code-gen` | tRPC router from Zod schema | `/codegen` |
+| `minimax-security-audit` | OWASP + Infisical SDK enforcement | `/msec` |
+| `doc-maintenance` | Docs sync: API ref, PORTS, SUBDOMAINS | `/dm` |
+| `minimax-debugger` | Docker crash + tunnel + 529 triage | `/bug-triage` |
+| `backend-scaffold` | Fastify + tRPC from Zod schema | `/bcaffold` |
+| `db-migration` | OrchidORM migration + rollback | `/migrate` |
+| `trpc-compose` | Add new tRPC router | `/trpc` |
+| `infra-from-spec` | Infrastructure from natural language | `/infra-gen` |
+| `review-minimax` | Holistic PR review (1M context) | `/mxr` |
 
 ---
 
@@ -164,6 +268,23 @@
 
 ---
 
+## MiniMax LLM Integration (SPEC-034)
+
+**Modelo:** MiniMax M2.7 (1M token context window)
+**API:** `https://api.minimax.io/anthropic/v1`
+**Skills:** 10 novos skills para code gen, security, docs, debugging, backend scaffold, infra generation, e code review
+
+Ver `docs/SPECS/SPEC-034-minimax-agent-use-cases.md` para pesquisa completa de 14 domains.
+
+**Quick wins com MiniMax:**
+- `/codegen contract` — gera tRPC router completo de Zod schema (~30min → 5min)
+- `/msec` — security audit semantic (OWASP + Infisical SDK pattern)
+- `/dm ports` — detecta drift entre ss -tlnp e PORTS.md automaticamente
+- `/bug-triage` — diagnostica Docker crash loops e tunnel DOWN com contexto de 1M tokens
+- `/mxr` — holistic PR review (30+ files analisados juntos)
+
+---
+
 ## Spec-Driven Development (`docs/specflow/`)
 
 ```
@@ -179,6 +300,8 @@ SPEC-TEMPLATE.md → SPEC-*.md → tasks.md → pipeline.json
 | SPEC-013 | Unified Claude Agent Monorepo |
 | SPEC-014 | Cursor AI CI/CD Pattern |
 | SPEC-015 | Gitea Actions Enterprise |
+| SPEC-034 | MiniMax LLM use cases (10 new skills) |
+| SPEC-035 | MiniMax Research replacement — Tavily → M2.1 |
 
 ---
 
@@ -325,6 +448,80 @@ git push --force-with-lease gitea HEAD && git push --force-with-lease origin HEA
 | `mcp-health-daily` | `0 8 * * *` | MCP server health |
 | `d201999d` | `*/5 * * * *` | Auto-healer (Coolify) |
 | `95c72b71` | `3 */15 * * *` | Resource monitor |
+| `minimax-doc-sync-daily` | `0 7 * * *` | MiniMax: PORTS.md + SUBDOMAINS.md vs live → SERVICE_STATE.md |
+| `minimax-bug-triage-daily` | `0 9 * * *` | MiniMax: health-check.log → proactive anomaly report |
+
+---
+
+## Ops Infrastructure Tools (Tunnel, Health, Auto-Heal)
+
+**Critical scripts** for tunnel management, health monitoring, and homelab operations.
+These are NOT in the monorepo — they're in `/srv/ops/` and `/srv/monorepo/tasks/`.
+
+### Tunnel Health (SPEC-032)
+
+| Script | Purpose | Cron |
+|--------|---------|------|
+| `/srv/ops/scripts/smoke-tunnel.sh` | Curl all 13 subdomains, report DOWN | `*/30 * * * *` |
+| `/srv/ops/scripts/tunnel-autoheal.sh` | Restart cloudflared if DOWN >5min, ZFS snapshot | on-demand |
+| `/srv/ops/scripts/validate-ingress.sh` | Verify ingress rules → reachable IPs (nc check) | on-demand |
+| `/srv/ops/scripts/gotify-alert.sh` | Alert helper → POST `localhost:8050/gotify` | — |
+| `/srv/ops/scripts/pre-commit-subdomain-check.sh` | Validate new subdomain entries in variables.tf | pre-commit hook |
+
+**Usage:**
+```bash
+# Smoke test all subdomains
+bash /srv/ops/scripts/smoke-tunnel.sh
+
+# Validate tunnel ingress rules
+bash /srv/ops/scripts/validate-ingress.sh
+
+# Auto-heal (rate-limited, ZFS snapshot first)
+bash /srv/ops/scripts/tunnel-autoheal.sh
+
+# Alert test
+bash /srv/ops/scripts/gotify-alert.sh "Tunnel Test" "Smoke test passed 13/13"
+```
+
+### Backup & Recovery
+
+| Script | Purpose |
+|--------|---------|
+| `/srv/ops/scripts/backup-zfs-snapshot.sh` | ZFS snapshot of tank pool |
+| `/srv/ops/scripts/restore-zfs-snapshot.sh` | Restore from named ZFS snapshot |
+| `/srv/ops/scripts/backup-qdrant.sh` | Qdrant vector DB backup |
+| `/srv/ops/scripts/backup-postgres.sh` | Postgres backup (n8n, gitea dbs) |
+| `/srv/ops/scripts/zfs-snapshot-prune.sh` | Prune ZFS snapshots >7 days |
+
+### Homelab Monitoring
+
+| Script | Purpose |
+|--------|---------|
+| `/srv/ops/scripts/homelab-health-check.sh` | Full health: Docker, ZFS, disk, services |
+| `/srv/ops/scripts/homelab-gemma-monitor.sh` | GPU + memory monitoring |
+| `/srv/ops/scripts/ollama-healthcheck.sh` | Ollama LLM status |
+| `/srv/monorepo/tasks/smoke-tests/pipeline-openclaw-voice.sh` | Voice pipeline smoke test |
+
+### Ops Infrastructure
+
+| Script | Purpose |
+|--------|---------|
+| `/srv/ops/scripts/mirror-sync.sh` | Push to Gitea + GitHub remotes |
+| `/srv/ops/scripts/audit-branches.sh` | Audit stale branches |
+| `/srv/ops/scripts/cleanup-branches.sh` | Remove stale branches (needs approval) |
+| `/srv/ops/terraform/cloudflare/variables.tf` | Cloudflare Tunnel ingress rules |
+
+### Skills (`.claude/skills/`)
+
+| Skill | Trigger | Purpose |
+|-------|---------|---------|
+| `list-web-from-zero-to-deploy` | `/new-list-web` | Create list-web app zero→deploy |
+| `repo-scan` | `/rs` | Scan tasks in SPEC/TODO/TASKMASTER formats |
+| `universal-code-review` | `/review` | 5-axis code review |
+| `security-audit` | `/sec` | OWASP top 10 vulnerability scan |
+| `context-prune` | auto | Reduce context window |
+| `deploy-validate` | auto | Pre-deploy checks |
+| `mcp-health` | auto | MCP server health |
 
 ---
 
@@ -354,6 +551,41 @@ yarn lint
 
 # Sync env
 node scripts/sync-env.js
+
+# AI-CONTEXT sync (OBRIGATÓRIO após cada feature)
+bash /home/will/.claude/mcps/ai-context-sync/sync.sh
+```
+
+---
+
+## AI-CONTEXT Sync (SPEC-027)
+
+**⚠️ OBRIGATÓRIO após cada feature/PR merge**
+
+Após fazer commit + push de qualquer feature, **SEMPRE** executar:
+```bash
+bash /home/will/.claude/mcps/ai-context-sync/sync.sh
+```
+
+**Porquê:** Mantém o memory dos agentes atualizado. Sem sync, o próximo agente não tem contexto das mudanças.
+
+**O que sincroniza:**
+- `docs/GOVERNANCE/` → `memory/` (regras imutáveis)
+- `docs/SPECS/` → `memory/` (specs atualizadas)
+- `docs/SKILLS/` → `memory/skills/`
+- `.context/docs/` → `memory/` (contexto auto-gerado)
+
+**Docs rígidos que exigem sync após mudança:**
+- `VERSION-LOCK.md` — versões pinned (inclui voice pipeline desktop)
+- `AGENTS.md` — regras de agentes
+- `docs/GOVERNANCE/*` — governance do homelab
+- `docs/SPECS/SPEC-*.md` — especificações
+- `docs/OPERATIONS/SKILLS/*.md` — skills de operação
+- `docs/OPERATIONS/SKILLS/voice-pipeline-desktop.md` — Ctrl+Shift+C shortcut
+
+**Verificação:**
+```bash
+cat /home/will/.claude/mcps/ai-context-sync/manifest.json | jq '.last_sync'
 ```
 
 ---
@@ -389,6 +621,106 @@ See `docs/GOVERNANCE/TAG-POLICY.md`
 - ❌ Push directly to main
 - ❌ Date-based tags (v20260412...)
 - ❌ Non-feature branch names (feat/* only)
+
+## MiniMax Quick Reference (SPEC-034)
+
+```bash
+# Code generation — tRPC router from Zod schema
+/codegen contract
+
+# Semantic security audit pre-commit (OWASP + Infisical SDK)
+/msec
+
+# Documentation maintenance — API ref, PORTS, SUBDOMAINS
+/dm api-ref      # Update TRPC-API.md from routers
+/dm ports        # ss -tlnp vs PORTS.md drift
+/dm subdomains   # curl health vs SUBDOMAINS.md
+
+# Bug triage — Docker crash, tunnel DOWN, 529 errors
+/bug-triage
+
+# Backend scaffold — Fastify + tRPC from Zod
+/bcaffold contract packages/zod-schemas/src/contract.zod.ts
+
+# DB migration — OrchidORM migration + rollback
+/migrate contract
+
+# Add tRPC router to monorepo
+/trpc myRouter
+
+# Infrastructure generation — Docker, Terraform, Prometheus, Gitea
+/infra-gen terraform subdomain chat http://10.0.5.2:8080
+/infra-gen prometheus alerts loki
+/infra-gen gitea workflow deploy-prd push
+
+# Holistic PR review (1M token context)
+/mxr 42
+/mxr --commit abc123
+```
+
+**Crons MiniMax:**
+```bash
+# 07h — PORTS.md + SUBDOMAINS.md vs live system → SERVICE_STATE.md
+0 7 * * * /srv/monorepo/.claude/skills/doc-maintenance/sync.sh
+
+# 08h — Proactive anomaly report from health-check.log
+0 8 * * * /srv/monorepo/.claude/skills/minimax-debugger/triage.sh
+```
+
+---
+
+## Research Agent (SPEC-035 — COMPLETED)
+
+** Tavily API replaced with MiniMax M2.1 for research (2026-04-13)**
+
+The `/minimax-research` skill uses MiniMax LLM instead of Tavily web search:
+
+| Aspect | Tavily (DEPRECATED) | MiniMax M2.1 (ACTIVE) |
+|--------|---------------------|------------------------|
+| Method | Web search API | LLM inference |
+| Context | URLs + snippets | Full error/code analysis |
+| Key | `TAVILY_API_KEY` | `MINIMAX_API_KEY` |
+| Source | Orphaned vault secret | Infisical SDK |
+| Use case | General web research | Deep code/error analysis |
+
+### Skill
+
+Trigger: `/minimax-research <query>`
+
+For error analysis, architecture research, or code investigation. See `.claude/skills/minimax-research/SKILL.md`.
+
+### Script
+
+`scripts/cursor-loop-research-minimax.sh` — Research agent using MiniMax LLM:
+
+```bash
+# Usage
+bash scripts/cursor-loop-research-minimax.sh "<topic or error message>"
+```
+
+- **Auth:** `MINIMAX_API_KEY` fetched via Infisical SDK (fallback to env var)
+- **Endpoint:** `https://api.minimax.io/anthropic/v1/messages` (same pattern as voice pipeline)
+- **Model:** MiniMax-M2.1 (200k+ context, fast inference)
+
+### Cron Jobs
+
+| Job | Schedule | Function |
+|-----|----------|----------|
+| `minimax-doc-sync-daily` | `0 7 * * *` | MiniMax: PORTS.md + SUBDOMAINS.md vs live → SERVICE_STATE.md |
+| `minimax-bug-triage-daily` | `0 9 * * *` | MiniMax: health-check.log → proactive anomaly report |
+
+### Migration (SPEC-035)
+
+| Step | Status |
+|------|--------|
+| cursor-loop-research.sh updated | ✅ COMPLETED |
+| MINIMAX_API_KEY via Infisical SDK | ✅ COMPLETED |
+| TAVILY_API_KEY removed from vault | ✅ COMPLETED |
+| minimax-research skill created | ✅ COMPLETED |
+
+See `docs/SPECS/SPEC-035-minimax-research-replacement.md` for full details.
+
+---
 
 ## Encoding and Localization Guidance
 

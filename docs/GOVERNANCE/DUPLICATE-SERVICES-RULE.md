@@ -153,7 +153,7 @@ curl -sf http://localhost:4000/health
 3. **Use correct port range:** Dev services MUST use 4002–4099
 4. **Update this document:** Add the new service to the Port Registry
 5. **Classify for auto-heal:** If stateless and non-critical, add to whitelist; otherwise, add to blacklist
-6. **If public-facing:** Update [PORTS.md](https://srv/monorepo/docs/INFRASTRUCTURE/PORTS.md) and [SUBDOMAINS.md](https://srv/ops/ai-governance/SUBDOMAINS.md)
+6. **If public-facing:** Update [PORTS.md](https://srv/monorepo/docs/INFRASTRUCTURE/PORTS.md) and [SUBDOMAINS.md](https:/./SUBDOMAINS.md)
 
 ---
 
@@ -162,4 +162,4 @@ curl -sf http://localhost:4000/health
 - [PINNED-SERVICES.md](../GOVERNANCE/PINNED-SERVICES.md) — Stable service configurations
 - [ANTI-FRAGILITY.md](../GOVERNANCE/ANTI-FRAGILITY.md) — Anti-fragility rules
 - [PORTS.md](../../INFRASTRUCTURE/PORTS.md) — Infrastructure port allocation
-- [NETWORK_MAP.md](/srv/ops/ai-governance/NETWORK_MAP.md) — Network topology
+- [NETWORK_MAP.md](./NETWORK_MAP.md) — Network topology

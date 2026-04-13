@@ -82,7 +82,7 @@ Alert only sent after 3 consecutive failures (alert_count >= 3). Counter resets 
 |------|---------|
 | `tasks/smoke-tests/voice-pipeline-loop.sh` | Orchestrator + auto-healer |
 | `tasks/smoke-tests/voice-pipeline-e2e-telegram.sh` | Lightweight Telegram E2E (~15s) |
-| `docs/specflow/SPEC-016-voice-pipeline-cursor-loop.md` | SPEC |
+| `docs/SPECS/SPEC-016-voice-pipeline-cursor-loop.md` | SPEC |
 | `logs/voice-pipeline/smoke.log.YYYYMMDD` | Daily smoke test log |
 | `logs/voice-pipeline/.heal_counters.json` | Persistent counters |
 

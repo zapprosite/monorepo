@@ -12,11 +12,12 @@ Remover `localhost:18789` e usar rota via Cloudflare Tunnel ou Traefik directo.
 
 ### Tarefa 2: Criar Subdomain `openclaw.zappro.site`
 **Ficheiro:** `/srv/ops/terraform/cloudflare/variables.tf`
-**Status:** pending
+**Status:** OBSOLETO — OpenClaw já disponível em `bot.zappro.site`
 
-Adicionar `openclaw.zappro.site` → `http://localhost:80` com `http_host_header` correcto.
+O subdomain `openclaw.zappro.site` NÃO existe no DNS. OpenClaw usa `bot.zappro.site` (já configurado).
+Não criar — usar bot.zappro.site em vez disso.
 
-**Critério aceite:** `https://openclaw.zappro.site/` → routing OK
+**Critério aceite:** N/A — não aplicar
 
 ---
 

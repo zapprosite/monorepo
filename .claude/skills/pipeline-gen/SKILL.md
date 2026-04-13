@@ -10,7 +10,7 @@ Gera `tasks/pipeline.json` a partir de SPEC-*.md ficheiros.
 
 ## Input
 
-Lê todos os ficheiros em `docs/specflow/SPEC-*.md` exceto TEMPLATE e README.
+Lê todos os ficheiros em `docs/SPECS/SPEC-*.md` exceto TEMPLATE e README.
 
 ## Output
 

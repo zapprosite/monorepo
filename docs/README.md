@@ -1,7 +1,7 @@
 # Docs — Source of Truth
 
 > **Autoridade:** Este diretório é o source of truth para TODA a documentação do homelab.
-> O `/srv/ops/ai-governance/` é um espelho fino pointing para cá.
+> O `docs/GOVERNANCE/` é o local dos arquivos de governance.
 > O OpenClaw (@CEO_REFRIMIX_bot) mantém este docs via skill `doc-librarian`.
 
 ## Quick Answers
@@ -113,7 +113,7 @@ TEMPLATES/
 ### Auditoria de Docs (doc-librarian skill)
 - Last full audit: 2026-04-07
 - Frescor: arquivos >30 dias sem review = stale
-- Logs: `/srv/ops/ai-governance/logs/`
+- Logs: `logs/` (inside docs/GOVERNANCE/)
 
 ---
 

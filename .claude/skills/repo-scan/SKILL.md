@@ -18,7 +18,7 @@ Deteta tasks em múltiplos formatos: TASKMASTER, PRD, ADR, SLICE, TODO, TURBO.
 | SLICE | `**/*.slice.md` | Markdown + Git |
 | TODO | `**/TODO.md` | Markdown |
 | TURBO | `**/turbo.json` | JSON |
-| SPEC | `docs/specflow/SPEC-*.md` | Markdown |
+| SPEC | `docs/SPECS/SPEC-*.md` | Markdown |
 
 ## Output
 

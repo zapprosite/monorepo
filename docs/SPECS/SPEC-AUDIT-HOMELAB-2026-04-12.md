@@ -1,8 +1,14 @@
-# Homelab Audit — 2026-04-12
+---
+name: SPEC-AUDIT-HOMELAB-2026-04-12
+description: Auditoria completa do homelab com 15 agents parallel — estado atual e roadmap P0-P3
+status: COMPLETED
+priority: critical
+author: will-zappro
+date: 2026-04-12
+specRef: SPEC-AUDIT-FIXES-2026-04-12.md, SPEC-009-openclaw-persona-audio-stack.md, SPEC-HOMELAB-GOVERNANCE-DEFINITIVO.md
+---
 
-**Auditor:** Claude Code CLI (15 agents parallel research)
-**Data:** 2026-04-12
-**Branch:** `feature/next-1775987520`
+# Homelab Audit — 2026-04-12
 
 ---
 
@@ -43,7 +49,7 @@
 - RTX 4090 24GB GDDR6X — top-tier para inference
 - VRAM: 19.5GB usado, 5GB livre — cabeça saudável
 - gemma2-9b-it:q4 (Q4_K_M — balance correto)
-- llava:latest + nomic-embed-text carregados
+- llava:latest [DEPRECATED - agora qwen2.5-vl] + nomic-embed-text carregados
 - Temp 43C (water cooled), P2 state
 
 ### 7. Security Hardening

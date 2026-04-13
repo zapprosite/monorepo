@@ -1,0 +1,21 @@
+services:
+  list-web:
+    container_name: list-web
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: Dockerfile
+    user: root
+    ports:
+      - "127.0.0.1:4080:80"
+    volumes:
+      - list-web-cache:/var/cache/nginx
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+
+volumes:
+  list-web-cache:

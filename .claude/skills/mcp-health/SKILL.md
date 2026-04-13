@@ -18,7 +18,6 @@ Diagnostica o estado de todos os MCP servers configurados.
 | memory-keeper | ? | ?ms | |
 | github | ? | ?ms | |
 | playwright | ? | ?ms | |
-| tavily | ? | ?ms | |
 
 ## Checks
 
@@ -33,7 +32,7 @@ Diagnostica o estado de todos os MCP servers configurados.
 ## MCP Health Check
 
 **Timestamp:** YYYY-MM-DD HH:mm
-**Total:** 7 servers
+**Total:** 6 servers
 
 | Server | Status | Latency | Issue |
 |--------|--------|---------|-------|

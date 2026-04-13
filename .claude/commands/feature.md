@@ -10,7 +10,7 @@ Uso: /feature <descricao>
 Passos:
 1. git checkout main && git pull
 2. git checkout -b feat/<slug-da-descricao>
-3. if [ -f "docs/specflow/SPEC-*.md" ]; then implementar seguindo spec; else implementar diretamente; fi
+3. if [ -f "docs/SPECS/SPEC-*.md" ]; then implementar seguindo spec; else implementar diretamente; fi
 4. pnpm test (se disponivel)
 5. pnpm lint
 6. git add -u && commit semântico

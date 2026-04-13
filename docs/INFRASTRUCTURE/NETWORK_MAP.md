@@ -136,7 +136,7 @@
 | 9100 | Node Exporter | host network | — |
 | 9250 | Cadvisor | 127.0.0.1 (UFW) | — |
 | 9835 | nvidia-gpu-exporter | 0.0.0.0 (UFW) | ⚠️ Exposto LAN — métricas GPU |
-| 11434 | Ollama | 127.0.0.1 (UFW) | GPU models (gemma3, llava, nomic-embed) |
+| 11434 | Ollama | 127.0.0.1 (UFW) | GPU models (gemma3, qwen2.5-vl, nomic-embed) |
 
 **Docker Bridge Networks (Coolify):**
 | Rede | Subnet | Serviços |
@@ -200,7 +200,7 @@
 
 **Modelos disponíveis via LiteLLM (10.0.1.1:4000):**
 - `gemma4` (instruction following, via Ollama host)
-- `llava` (visão, via Ollama host)
+- `qwen2.5-vl` (visão, via Ollama host)
 - `embedding-nomic` (embeddings, via Ollama host)
 
 **TTS:** Kokoro local (`http://10.0.19.7:8880/v1`) com voz `pm_santa` (PT-BR)
@@ -355,9 +355,9 @@ bot.zappro.site
 | `/srv/ops/terraform/cloudflare/variables.tf` | Service URLs (fonte das URLs de ingress) |
 | `/srv/ops/terraform/cloudflare/terraform.tfstate` | State (serial 136, local) |
 | `~/.cloudflared/config.yml` | Referência local das ingress rules |
-| `/srv/ops/ai-governance/PORTS.md` | Tabela completa de portas |
-| `/srv/ops/ai-governance/SUBDOMAINS.md` | Registro de subdomínios |
-| `/srv/ops/ai-governance/GUARDRAILS.md` | Operações proibidas |
+| `PORTS.md` | Tabela completa de portas |
+| `SUBDOMAINS.md` | Registro de subdomínios |
+| `GUARDRAILS.md` | Operações proibidas |
 
 ---
 

@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Autenticando... | Connected Repo</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #333;
+    }
+
+    .container {
+      background: white;
+      padding: 2.5rem 3rem;
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+      text-align: center;
+      max-width: 420px;
+      width: 90%;
+    }
+
+    .spinner {
+      width: 48px;
+      height: 48px;
+      border: 4px solid #e0e0e0;
+      border-top-color: #667eea;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 1.5rem;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #1a1a1a;
+      margin-bottom: 0.5rem;
+    }
+
+    .message {
+      font-size: 0.95rem;
+      color: #666;
+      line-height: 1.5;
+      margin-bottom: 1.5rem;
+    }
+
+    .error-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+
+    .success-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      font-weight: 500;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      margin: 0.25rem 0.5rem;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn-secondary {
+      background: #f0f0f0;
+      color: #333;
+    }
+
+    .btn-secondary:hover {
+      background: #e0e0e0;
+    }
+
+    .error-box {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      border-radius: 12px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .error-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #dc2626;
+      margin-bottom: 0.5rem;
+    }
+
+    .error-detail {
+      font-size: 0.85rem;
+      color: #991b1b;
+      word-break: break-word;
+    }
+
+    .redirect-info {
+      font-size: 0.8rem;
+      color: #999;
+      margin-top: 1rem;
+    }
+
+    .user-info {
+      background: #f8f9fa;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      text-align: left;
+    }
+
+    .user-info p {
+      font-size: 0.9rem;
+      color: #333;
+      margin-bottom: 0.5rem;
+    }
+
+    .user-info p:last-child {
+      margin-bottom: 0;
+    }
+
+    .user-info strong {
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Loading State -->
+    <div id="loading-state">
+      <div class="spinner"></div>
+      <h1 class="title">Autenticando...</h1>
+      <p class="message">Conectando com Google. Por favor, aguarde.</p>
+    </div>
+
+    <!-- Success State -->
+    <div id="success-state" class="hidden">
+      <div class="success-icon">&#10004;</div>
+      <h1 class="title">Sucesso!</h1>
+      <p class="message">Autenticacao concluida. Redirecionando...</p>
+      <div class="user-info" id="user-info"></div>
+      <p class="redirect-info">Redirecionando automaticamente em <span id="countdown">3</span> segundos...</p>
+    </div>
+
+    <!-- Error State -->
+    <div id="error-state" class="hidden">
+      <div class="error-icon">&#10006;</div>
+      <h1 class="title">Erro na Autenticacao</h1>
+
+      <div class="error-box">
+        <p class="error-title">Algo deu errado</p>
+        <p class="error-detail" id="error-message">Erro desconhecido</p>
+      </div>
+
+      <p class="message">Verifique se você permitiu o acesso à sua conta Google.</p>
+
+      <div>
+        <button id="retry-btn" class="btn btn-primary">Tentar Novamente</button>
+        <a href="/auth/login" class="btn btn-secondary">Voltar ao Login</a>
+      </div>
+
+      <p class="redirect-info" id="auto-redirect-info">Redirecionando automaticamente em <span id="error-countdown">10</span> segundos...</p>
+    </div>
+  </div>
+
+  <script src="/src/auth.js"></script>
+  <script>
+    (function() {
+      'use strict';
+
+      const REDIRECT_DELAY_SUCCESS = 3000;
+      const REDIRECT_DELAY_ERROR = 10000;
+      const COUNTDOWN_INTERVAL = 1000;
+
+      const loadingState = document.getElementById('loading-state');
+      const successState = document.getElementById('success-state');
+      const errorState = document.getElementById('error-state');
+      const userInfoEl = document.getElementById('user-info');
+      const errorMessageEl = document.getElementById('error-message');
+      const retryBtn = document.getElementById('retry-btn');
+
+      let redirectTimeout = null;
+      let countdownInterval = null;
+
+      /**
+       * Extract error from URL or default to generic
+       */
+      function getUrlError() {
+        const params = new URLSearchParams(window.location.search);
+        return params.get('error');
+      }
+
+      /**
+       * Extract code from URL
+       */
+      function getCode() {
+        const params = new URLSearchParams(window.location.search);
+        return params.get('code');
+      }
+
+      /**
+       * Show specific state and hide others
+       */
+      function showState(state) {
+        loadingState.classList.add('hidden');
+        successState.classList.add('hidden');
+        errorState.classList.add('hidden');
+        if (state) {
+          document.getElementById(state + '-state').classList.remove('hidden');
+        }
+      }
+
+      /**
+       * Countdown timer for auto-redirect
+       */
+      function startCountdown(seconds, onComplete, countdownEl) {
+        let remaining = seconds;
+        const countdownSpan = document.getElementById(countdownEl || 'countdown');
+
+        if (countdownSpan) {
+          countdownSpan.textContent = remaining;
+        }
+
+        countdownInterval = setInterval(function() {
+          remaining--;
+          if (countdownSpan) {
+            countdownSpan.textContent = remaining;
+          }
+          if (remaining <= 0) {
+            clearInterval(countdownInterval);
+            onComplete();
+          }
+        }, COUNTDOWN_INTERVAL);
+      }
+
+      /**
+       * Clear all timers
+       */
+      function clearTimers() {
+        if (redirectTimeout) {
+          clearTimeout(redirectTimeout);
+          redirectTimeout = null;
+        }
+        if (countdownInterval) {
+          clearInterval(countdownInterval);
+          countdownInterval = null;
+        }
+      }
+
+      /**
+       * Redirect to destination
+       */
+      function redirectTo(destination) {
+        clearTimers();
+        window.location.href = destination;
+      }
+
+      /**
+       * Handle successful authentication
+       */
+      function handleSuccess(user) {
+        showState('success');
+
+        // Store user info in sessionStorage for consistency with auth.js
+        if (user) {
+          sessionStorage.setItem('user', JSON.stringify(user));
+          sessionStorage.setItem('auth_source', 'google');
+
+          userInfoEl.innerHTML =
+            '<p><strong>Email:</strong> ' + escapeHtml(user.email || 'N/A') + '</p>' +
+            '<p><strong>Nome:</strong> ' + escapeHtml(user.name || 'N/A') + '</p>';
+        }
+
+        // Start success countdown
+        startCountdown(3, function() {
+          redirectTo('/');
+        }, 'countdown');
+      }
+
+      /**
+       * Handle authentication error
+       */
+      function handleError(message) {
+        showState('error');
+
+        // Set error message
+        let displayMessage = message || 'Erro desconhecido during authentication';
+
+        // Provide helpful messages based on error type
+        if (message && message.includes('Invalid state')) {
+          displayMessage = 'CSRF validation failed. Please try again - ensure cookies are enabled.';
+        } else if (message && message.includes('No authorization code')) {
+          displayMessage = 'No authorization code received from Google.';
+        } else if (message && message.includes('OAuth error')) {
+          displayMessage = 'Google denied access. Please allow the application to access your account.';
+        }
+
+        errorMessageEl.textContent = displayMessage;
+
+        // Start error countdown
+        startCountdown(10, function() {
+          redirectTo('/auth/login');
+        }, 'error-countdown');
+      }
+
+      /**
+       * Escape HTML to prevent XSS
+       */
+      function escapeHtml(text) {
+        var div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+      }
+
+      /**
+       * Initialize the callback handler
+       */
+      async function init() {
+        // Check for error in URL first
+        const urlError = getUrlError();
+        if (urlError) {
+          handleError('OAuth error: ' + urlError);
+          return;
+        }
+
+        // Get authorization code
+        const code = getCode();
+        if (!code) {
+          handleError('No authorization code found in URL');
+          return;
+        }
+
+        try {
+          // Wait for auth.js to load and call handleCallback
+          if (typeof window.OAuth === 'undefined') {
+            throw new Error('Authentication module not loaded. Please refresh the page.');
+          }
+
+          // handleCallback returns user info on success
+          const user = await window.OAuth.handleCallback(code);
+          handleSuccess(user);
+        } catch (err) {
+          console.error('OAuth callback error:', err);
+          handleError(err.message || 'Authentication failed');
+        }
+      }
+
+      // Retry button handler
+      retryBtn.addEventListener('click', function() {
+        redirectTo('/auth/login');
+      });
+
+      // Clean URL without losing history
+      window.history.replaceState({}, '', '/auth/callback');
+
+      // Start initialization
+      init();
+    })();
+  </script>
+</body>
+</html>

@@ -1,3 +1,12 @@
+---
+name: TEMPLATES-index
+description: Index of document templates for spec-driven development
+status: COMPLETED
+priority: low
+author: will-zappro
+date: 2026-04-07
+---
+
 # TEMPLATES
 
 ## Contents

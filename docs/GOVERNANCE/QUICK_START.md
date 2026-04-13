@@ -23,19 +23,19 @@ date: 2026-03-16
 ## 📖 Leia Primeiro (Ordem de Prioridade)
 
 ### Para usuários do Claude Code
-1. `/srv/ops/ai-governance/CONTRACT.md` (5 min) — Princípios não-negociáveis
-2. `/srv/ops/ai-governance/GUARDRAILS.md` (10 min) — O que é proibido
-3. `/srv/ops/ai-governance/CHANGE_POLICY.md` (10 min) — Como mudar com segurança
+1. `./CONTRACT.md` (5 min) — Princípios não-negociáveis
+2. `./GUARDRAILS.md` (10 min) — O que é proibido
+3. `./CHANGE_POLICY.md` (10 min) — Como mudar com segurança
 
 ### Para usuários do Codex
 1. `~/.codex/rules/default.rules` (10 min) — Regras de decisão
 2. `codex-host` (1 min) — Testar o wrapper
-3. `/srv/ops/ai-governance/RUNBOOK.md` (5 min) — Comandos oficiais
+3. `./RUNBOOK.md` (5 min) — Comandos oficiais
 
 ### Para operações manuais
-1. `/srv/ops/ai-governance/APPROVAL_MATRIX.md` (10 min) — Tabela Sim/Não/Perguntar
-2. `/srv/ops/ai-governance/RUNBOOK.md` (10 min) — Comandos seguros
-3. `/srv/ops/ai-governance/RECOVERY.md` (quando necessário) — Procedimentos de emergência
+1. `./APPROVAL_MATRIX.md` (10 min) — Tabela Sim/Não/Perguntar
+2. `./RUNBOOK.md` (10 min) — Comandos seguros
+3. `./RECOVERY.md` (quando necessário) — Procedimentos de emergência
 
 ---
 
@@ -63,7 +63,7 @@ docker logs servicename              # View logs
 zpool status tank                    # Check disk health
 /srv/ops/scripts/backup-*.sh         # Create backups
 cd /srv/monorepo && pnpm dev         # Application development
-cat /srv/ops/ai-governance/*.md      # Read documentation
+cat ./*.md      # Read documentation
 ```
 
 ---
@@ -207,6 +207,6 @@ tailscale status
 
 ---
 
-**Pronto.** Para mais detalhes, veja a governança completa em /srv/ops/ai-governance/
+**Pronto.** Para mais detalhes, veja a governança completa em ./
 
 Gerado: 2026-03-16 | Atualizado: 2026-03-17

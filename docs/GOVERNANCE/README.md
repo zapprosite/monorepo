@@ -6,7 +6,7 @@ date: 2026-04-12
 
 # GOVERNANCE
 
-This directory contains governance documents moved from /srv/ops/ai-governance/
+This directory contains governance documents moved from ./
 
 ## Contents
 

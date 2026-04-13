@@ -556,7 +556,7 @@ curl -s http://localhost:11434/api/embed \
 
 **Modelos disponíveis:**
 - `gemma4` — 12B Q4_K_M, instruction-tuned, ~7 GB VRAM
-- `llava` — 7B Q4_K_M, vision model, ~4.5 GB VRAM
+- `qwen2.5-vl` — 7B Q4_K_M, vision model, ~4.5 GB VRAM
 - `nomic-embed-text` — embedding model, lazy load
 
 **Skills de diagnóstico:**

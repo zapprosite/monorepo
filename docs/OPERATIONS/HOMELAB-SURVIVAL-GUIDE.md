@@ -164,3 +164,31 @@ docker exec zappro-litellm curl -sf -m 5 "http://wav2vec2:8201/health"
 | DNS OK = service OK | Tunnel pode estar UP sem container | Verificar container |
 | `localhost:18789` | loopback-only | `https://bot.zappro.site/` |
 | Health check OK = routing OK | pode ser route isolado | Testar rota completa |
+
+---
+
+## Voice Stack (PT-BR)
+
+**Canonical Stack (SPEC-009):**
+- STT: `wav2vec2` @ :8201 (whisper-api container, host :8202→:8201)
+- STT Proxy: `wav2vec2-deepgram-proxy` @ :8203 (Deepgram API format)
+- TTS: `Kokoro` @ :8880 via `TTS Bridge` @ :8013
+- Voices: `pm_santa` (male default), `pf_dora` (female fallback)
+- Vision: `litellm/qwen2.5-vl` (not llava)
+- LLM: MiniMax M2.7 direct (not via LiteLLM)
+
+**Ports:**
+
+| Service | Port | Container |
+|---------|------|-----------|
+| whisper-api (wav2vec2) | 8202→8201 | zappro-wav2vec2 |
+| wav2vec2-deepgram-proxy | 8203 | zappro-wav2vec2 |
+| TTS Bridge | 8013 | zappro-tts-bridge |
+| Kokoro | 8880 | koro-zappro |
+
+**PROIBIDO:**
+- Kokoro direto (sem TTS Bridge)
+- Deepgram cloud direto (use wav2vec2-proxy :8203)
+- Whisper como STT
+- llava [DEPRECATED - agora qwen2.5-vl] para vision
+- speaches, chatterbox (REMOVIDOS em 2026-03)

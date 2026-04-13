@@ -67,9 +67,9 @@ Log of incidents and how to handle them.
   - Criar skill `monitoring-zfs-snapshot.md` para snapshot antes de changes na stack
   - Documentar que containers devem ser criados via `docker compose` para manter network consistente
 - **Skills criadas:**
-  - `/srv/ops/ai-governance/skills/monitoring-health-check.md`
-  - `/srv/ops/ai-governance/skills/monitoring-diagnostic.md`
-  - `/srv/ops/ai-governance/skills/monitoring-zfs-snapshot.md`
+  - `./skills/monitoring-health-check.md`
+  - `./skills/monitoring-diagnostic.md`
+  - `./skills/monitoring-zfs-snapshot.md`
 
 ---
 
