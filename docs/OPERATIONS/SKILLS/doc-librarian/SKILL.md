@@ -9,7 +9,7 @@ This skill teaches how to audit, organize, update, and maintain docs.
 
 ```
 Source of Truth: /srv/monorepo/docs/
-Thin Mirror:     /srv/ops/ai-governance/ (read-only stubs)
+Thin Mirror:     docs/GOVERNANCE/ (read-only stubs)
 
 Read via: MCP monorepo at 10.0.19.50:4006
 Write via: git push → Claude Code approval

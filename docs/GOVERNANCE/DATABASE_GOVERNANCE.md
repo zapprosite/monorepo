@@ -315,7 +315,7 @@ Workflow n8n + qwen3.5:
 2. Coleta collections reais do Qdrant
 3. Compara com `catalog.schema_registry` e `catalog.collection_registry`
 4. Gera relatório de divergências com qwen3.5
-5. Log em `/srv/ops/ai-governance/logs/catalog-audit.log`
+5. Log em `./logs/catalog-audit.log`
 
 ---
 
@@ -372,7 +372,7 @@ AND (table_schema, table_name) NOT IN (
 
 ### 10.2 Arquivo de Auditoria
 
-`/srv/ops/ai-governance/logs/catalog-audit.log` — gerado pela skill `catalog-sync.md`
+`./logs/catalog-audit.log` — gerado pela skill `catalog-sync.md`
 
 ---
 
@@ -395,7 +395,7 @@ AND (table_schema, table_name) NOT IN (
 | Collection | Dims | Vinculada a | Propósito |
 |-----------|------|-------------|-----------|
 | `catalog_embeddings` | 1024 | catalog.* | Busca semântica no catálogo |
-| `rag_governance_v1` | 1024 | /srv/ops/ai-governance/ | RAG sobre docs de governança |
+| `rag_governance_v1` | 1024 | ./ | RAG sobre docs de governança |
 | `app_journal_v1` | 1024 | app_journal.entries | Busca semântica em entradas |
 | `app_voice_v1` | 1024 | app_voice.transcriptions | Busca semântica em transcrições |
 

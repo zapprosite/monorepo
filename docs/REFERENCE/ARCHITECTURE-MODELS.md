@@ -12,7 +12,7 @@
 | | MiniMax Official | LiteLLM Proxy |
 |--|--|--|
 | **Tipo** | API oficial do provedor | Proxy/ gateway p/ múltiplos provedores |
-| **Endpoint** | `https://api.minimax.chat` | `https://api.zappro.site` |
+| **Endpoint** | `https://api.minimax.chat` | `localhost:4000` |
 | **Auth** | `MINIMAX_TOKEN` | `LITELLM_MASTER_KEY` |
 | **Models** | `MiniMax-Text-01`, `MiniMax-Embedding` | Unificado (OpenAI-style) |
 | **Uso direto** | ✅ Sim | ✅ Sim |
@@ -41,7 +41,7 @@ response = requests.post(
 
 ---
 
-## LiteLLM Proxy (api.zappro.site)
+## LiteLLM Proxy (localhost:4000)
 
 **Quando usar:** Proxy unificado para múltiplos provedores (OpenAI, Claude, Groq, MiniMax, etc.)
 
@@ -51,7 +51,7 @@ import os
 LITELLM_KEY = os.environ.get("LITELLM_MASTER_KEY")
 
 response = requests.post(
-    "https://api.zappro.site/v1/chat/completions",
+    "http://localhost:4000/v1/chat/completions",
     headers={"Authorization": f"Bearer {LITELLM_KEY}"},
     json={"model": "gpt-4o", ...}
 )
@@ -73,7 +73,7 @@ minimax-ot-01 (MiniMax via LiteLLM), ...
 
 ```
                     ┌─────────────────────────────────────┐
-                    │           api.zappro.site           │
+                    │         localhost:4000           │
                     │            (LiteLLM proxy)          │
                     │                                     │
   OpenClaw ────────│  LITELLM_MASTER_KEY ──────────────►│
@@ -104,7 +104,7 @@ minimax-ot-01 (MiniMax via LiteLLM), ...
 **Referência:** `/srv/data/openclaw/AURELIA_SECRETS.env`
 
 ```
-LITELLM_MASTER_KEY=sk-master-b83cfa00...   # LiteLLM proxy (api.zappro.site)
+LITELLM_MASTER_KEY=sk-master-b83cfa00...   # LiteLLM proxy (localhost:4000)
 MINIMAX_TOKEN=sk-cp-uA1oy3...              # MiniMax direto
 ```
 

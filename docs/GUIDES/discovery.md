@@ -290,8 +290,8 @@ pnpm syncpack         # syncpack format
 ## Related Governance
 
 For infrastructure decisions (Docker, ZFS, services):
-- `/srv/ops/ai-governance/CONTRACT.md`
-- `/srv/ops/ai-governance/GUARDRAILS.md`
-- `/srv/ops/ai-governance/NETWORK_MAP.md`
-- `/srv/ops/ai-governance/PORTS.md`
-- `/srv/ops/ai-governance/SUBDOMAINS.md`
+- `./GOVERNANCE/CONTRACT.md`
+- `./GOVERNANCE/GUARDRAILS.md`
+- `./INFRASTRUCTURE/NETWORK_MAP.md`
+- `./INFRASTRUCTURE/PORTS.md`
+- `./INFRASTRUCTURE/SUBDOMAINS.md`

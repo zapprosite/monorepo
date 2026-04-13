@@ -129,7 +129,7 @@ This document establishes the non-negotiable operational contract between human 
 
 | Component | Source | Backup | Owner |
 |-----------|--------|--------|-------|
-| Host governance | /srv/ops/ai-governance/ | ZFS snapshots | Principal Engineer |
+| Host governance | ./ | ZFS snapshots | Principal Engineer |
 | Application code | /srv/monorepo | Git + ZFS | Development team |
 | Service data | /srv/data/* | /srv/backups + snapshots | PostgreSQL/Qdrant/n8n |
 | Docker config | /etc/docker/daemon.json | /srv/ops/setup.log | Infrastructure |
@@ -223,9 +223,9 @@ Updates must:
 
 ### 10.1 Mandatory Network Awareness
 Before any action involving services, ports, containers, or subdomains, agents MUST read:
-- **[NETWORK_MAP.md](/srv/ops/ai-governance/NETWORK_MAP.md)** — estado atual completo (portas, subdomínios, GPU, serviços DOWN)
-- **[PORTS.md](/srv/ops/ai-governance/PORTS.md)** — tabela de alocação de portas
-- **[SUBDOMAINS.md](/srv/ops/ai-governance/SUBDOMAINS.md)** — subdomínios públicos e Cloudflare Tunnel
+- **[NETWORK_MAP.md](./NETWORK_MAP.md)** — estado atual completo (portas, subdomínios, GPU, serviços DOWN)
+- **[PORTS.md](./PORTS.md)** — tabela de alocação de portas
+- **[SUBDOMAINS.md](./SUBDOMAINS.md)** — subdomínios públicos e Cloudflare Tunnel
 
 ### 10.2 Rules
 - **NEVER assume a port is free** without `ss -tlnp | grep :PORT`

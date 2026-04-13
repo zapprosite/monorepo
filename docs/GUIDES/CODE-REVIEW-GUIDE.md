@@ -224,7 +224,7 @@ When suggesting fixes, use this structure:
 
 Each formal review produces a file at:
 ```
-docs/specflow/reviews/REVIEW-NNN.md
+docs/SPECS/reviews/REVIEW-NNN.md
 ```
 
 Use the template:

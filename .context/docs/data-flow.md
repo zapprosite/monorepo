@@ -1,130 +1,94 @@
----
-type: doc
-name: data-flow
-description: How data moves through the system and external integrations
-category: data-flow
-generated: 2026-03-16
-updated: 2026-03-18
-status: active
-scaffoldVersion: "2.0.0"
----
+# Document Structure: Data Flow & Integrations
+
+**Type:** doc  
+**Tone:** technical  
+**Audience:** architects  
+**Description:** How data moves through the system and external integrations
+
 ## Data Flow & Integrations
 
-## Fluxo tRPC (Frontend ↔ Backend)
+The system operates as a distributed monorepo where data flows primarily through three distinct channels: internal tRPC communication for the web interface, a secured REST API Gateway for external consumers, and an asynchronous Orchestration engine for workflow execution.
 
-Toda comunicação interna usa tRPC via HTTP POST para `/trpc/*`:
+Data enters the system via the `apps/web` (React) frontend or external API consumers. The `apps/api` service acts as the central traffic controller, enforcing session security and multi-tenant isolation before persisting data to PostgreSQL via Orchid ORM. For complex logic, the `apps/orchestrator` manages stateful transitions and external tool calls (MCP), ensuring that long-running operations do not block the primary request-response cycle.
 
-```
-Browser (React 19)
-  └── trpc.client.ts (TanStack Query)
-        └── HTTP POST /trpc/[procedure]
-              └── Fastify :4000
-                    ├── Session check (@fastify/session → PostgreSQL sessions table)
-                    ├── isAuthenticated middleware (ctx.user.userId)
-                    ├── centralTrpcErrorMiddleware
-                    └── tRPC procedure
-                          └── Orchid ORM → PostgreSQL :5432
-```
+## Module Dependencies
 
-**Ciclo de vida de uma mutation tRPC:**
-1. Frontend chama `trpc.[module].[procedure].mutate(input)`
-2. TanStack Query serializa input e faz POST para `/trpc/[module].[procedure]`
-3. Fastify valida sessão via `@fastify/session` (banco de dados)
-4. Middleware `isAuthenticated` verifica `ctx.user.userId`
-5. Procedure executa lógica de negócio via Orchid ORM
-6. Resultado retorna como JSON; TanStack Query atualiza cache
+- **apps/web** → `packages/trpc`, `packages/ui`, `packages/zod-schemas`
+- **apps/api** → `packages/db`, `packages/zod-schemas`, `packages/env`
+- **apps/orchestrator** → `packages/db`, `packages/zod-schemas`, `apps/api` (via shared tables)
+- **packages/db** → `packages/zod-schemas`, `packages/env`
+- **packages/trpc** → `packages/zod-schemas`, `apps/api` (server definitions)
 
-## Fluxo REST/API Gateway (Clientes Externos)
+## Service Layer
 
-Produtos externos acessam via `GET/POST /api/v1/*`:
+The service layer is abstracted into specialized modules within the API and Orchestrator apps:
 
-```
-External Client
-  └── REST /api/v1/[endpoint]
-        └── Fastify :4000
-              └── API Gateway middleware chain (em ordem):
-                    1. apiKeyAuthHook      — valida x-api-key + x-team-id → attach team
-                    2. corsValidationHook  — valida origin vs team.allowedDomains
-                    3. whitelistCheckHook  — valida IP vs team.allowedIps
-                    4. teamRateLimitHook   — enforça team.rateLimitPerMinute
-                    5. subscriptionCheckHook — verifica quota ativa
-                    6. requestLoggerHook   — loga em api_product_request_logs
-                          └── Handler → Orchid ORM → PostgreSQL
-```
+- **Auth Service**: `apps/api/src/modules/auth/session.auth.utils.ts` - Manages session lifecycle and security.
+- **Workflow Engine**: `apps/orchestrator/src/core/workflow-engine.ts` - Orchestrates multi-step state machines.
+- **Approval Gate Service**: `apps/orchestrator/src/modules/human-gates/approval-service.ts` - Handles human-in-the-loop interventions.
+- **MCP Adapter Service**: `apps/orchestrator/src/modules/mcp/mcp-adapter.ts` - Standardizes communication with Model Context Protocol servers.
+- **Webhook Emitter**: `apps/orchestrator/src/modules/webhooks/webhook-emitter.ts` - Manages outbound event delivery.
+- **Subscription Tracker**: `apps/api/src/modules/api-gateway/utils/subscriptionTracker.utils.ts` - Monitors and enforces usage quotas.
 
-## Fluxo OAuth2 (Autenticação)
+## High-level Flow
 
-```
-Browser
-  └── GET /oauth2/google
-        └── Redirect → Google OAuth2
-              └── Callback → /oauth2/callback
-                    ├── Troca code por tokens Google
-                    ├── setSession(request, { email, name, displayPicture, userId })
-                    │     ├── Persiste em PostgreSQL (sessions table)
-                    │     └── Captura IP, user agent, device fingerprint
-                    └── Redirect → frontend (isRegistered ? dashboard : register)
+The primary pipeline follows a "Request-Validate-Execute-Notify" pattern:
+
+1.  **Ingress**: A request arrives at the Fastify server (`apps/api`).
+2.  **Middleware Chain**: 
+    - Session or API Key validation occurs.
+    - Rate limiting and IP whitelisting are enforced via `teamRateLimitHook` and `ipWhitelistCheckHook`.
+    - Subscription credits are checked and decremented.
+3.  **Processing**: 
+    - For CRUD, the `AppTrpcRouter` interacts directly with the database.
+    - For complex workflows, a message is emitted to the `OrchestratorEngine`.
+4.  **State Transition**: The `WorkflowStateMachine` progresses the task, potentially calling external AI models or MCP tools.
+5.  **Egress**: Results are returned to the client, and side effects (like 90% quota alerts) are queued in the `WebhookCallQueueTable`.
+
+```mermaid
+graph TD
+    User((User)) -->|tRPC| WebApp[apps/web]
+    External((API Client)) -->|REST| Gateway[API Gateway/Fastify]
+    WebApp --> Gateway
+    Gateway -->|Auth/ACL| Logic[Business Logic/Orchid ORM]
+    Logic --> DB[(PostgreSQL)]
+    Logic -->|Trigger| Orch[Orchestrator Engine]
+    Orch -->|Tool Call| MCP[MCP Connectors]
+    Orch -->|State| DB
+    Orch -->|Callback| Webhook[Webhook Emitter]
 ```
 
-**Estados de sessão:**
-- `hasSession: false` → usuário não autenticado
-- `hasSession: true, isRegistered: false` → OAuth OK, mas sem `userId` (novo usuário)
-- `hasSession: true, isRegistered: true` → autenticado e registrado
+## Internal Movement
 
-## Fluxo de Webhook (Async)
+Modules collaborate through a combination of shared database state and an internal `EventBus`:
 
-```
-subscriptionCheckHook detecta 90% de quota
-  └── Enfileira em webhook_call_queue (status: Pending)
-        └── Cron → POST /internal/process-webhooks (INTERNAL_API_SECRET)
-              └── Lê até 50 webhooks Pending
-                    ├── POST team.webhookUrl (Bearer token auth)
-                    │     ├── Sucesso → status: Sent
-                    │     └── Falha → retry exponencial (máx 3 tentativas)
-                    └── status: Failed após 3 erros
-```
+- **Shared Database**: The `apps/api` and `apps/orchestrator` share access to the same PostgreSQL instance, allowing the Orchestrator to monitor tables like `KanbanCardsTable` or `ServiceOrderTable` for changes.
+- **Event Bus**: Within the orchestrator, the `EventBus` class facilitates decoupled communication between the engine and notification services.
+- **Internal API**: High-privilege actions (like manual webhook processing) are triggered via an internal router protected by `INTERNAL_API_SECRET`.
 
-## Módulos e Dependências
+## External Integrations
 
-| Módulo | Tabelas | Dependências |
-|--------|---------|--------------|
-| `auth` | `sessions` | `@fastify/session`, Google OAuth2 |
-| `users` | `users` | `auth` (userId da sessão) |
-| `teams` | `teams`, `team_members` | `users` |
-| `subscriptions` | `subscriptions` | `teams`, `enums.zod` (API_PRODUCTS) |
-| `journal-entries` | `journal_entries` | `users` (authorUserId) |
-| `api-gateway` | `api_product_request_logs`, `webhook_call_queue` | `teams`, `subscriptions` |
+- **Google OAuth2**:
+    - **Purpose**: Identity provider for user login.
+    - **Auth**: Authorization Code Flow.
+    - **Payload**: User profile (email, name, picture).
+- **Model Context Protocol (MCP)**:
+    - **Purpose**: Extending AI capabilities with external tools (Claude, Zapier, Make).
+    - **Adapters**: `ClaudeMcpAdapter`, `ZapierMcpAdapter`.
+    - **Retry**: Handled by the Orchestrator step definition with exponential backoff.
+- **Customer Webhooks**:
+    - **Purpose**: Real-time quota alerts and system events.
+    - **Authentication**: Bearer tokens defined per team.
+    - **Strategy**: Max 3 retries with exponential backoff.
 
-## Integrações Externas
+## Observability & Failure Modes
 
-| Serviço | Propósito | Auth | Retry |
-|---------|-----------|------|-------|
-| Google OAuth2 | Autenticação de usuários | OAuth2 Authorization Code | N/A — redirecionamento |
-| PostgreSQL :5432 | Banco principal | Credenciais via env vars | Gerenciado pelo Orchid ORM |
-| Webhooks de clientes | Alertas de quota (90%) | Bearer token por equipe | Exponencial, máx 3x |
+- **Request Logging**: Every external API call is recorded in `ApiProductRequestLogsTable`, capturing latency, status codes, and security metadata (IP/UA).
+- **Failure Recovery**: The `OnFailureDefinition` in workflows allows for compensating actions or transitions to an "Error" state in the `WorkflowStateMachine`.
+- **Dead-Letter Handling**: Webhooks that exhaust their 3 retry attempts are marked as `Failed` in the `WebhookCallQueueTable` for manual audit and replay.
+- **Metrics**: Subscription usage is tracked in real-time, triggering 90% threshold webhooks to prevent hard-stops for clients.
 
-## Serviços de IA (host)
-
-Serviços acessíveis via host (não parte do monorepo — infra separada):
-
-| Serviço | Porta | API | Uso típico |
-|---------|-------|-----|-----------|
-| LiteLLM Proxy | `:4000` / `llm.zappro.site` | OpenAI-compatible | Chat, embeddings (qwen3.5, bge-m3) |
-| Chatterbox TTS | `:8011` | `/v1/audio/speech` (OpenAI-compatible) | Síntese de voz PT-BR |
-| Speaches STT | `:8010` | `/v1/audio/transcriptions` (OpenAI-compatible) | Transcrição Whisper large-v3 |
-| Ollama | `:11434` | `/api/generate`, `/api/embed` | Modelos locais (qwen3.5, bge-m3) |
-
-> Documentação completa: `/srv/ops/ai-governance/NETWORK_MAP.md`
-
-## Observabilidade
-
-- **Health check:** `GET /health` → `{ status: "ok" }`
-- **Logs de requisição:** cada chamada à API externa é persistida em `api_product_request_logs` com status, IP, timestamp
-- **Session metadata:** IP, user agent, browser, OS, device fingerprint por sessão
-- **OpenTelemetry:** integrado no backend (ver `apps/backend/CLAUDE.md` → seção Deployment)
-- **Swagger UI:** `GET /api/documentation` — documentação live das rotas externas
-
-## Related Resources
-
-- [architecture.md](./architecture.md)
-- [security.md](./security.md)
+---
+**Cross-References:**
+- See [architecture.md](./architecture.md) for detailed package structures.
+- See [security.md](./security.md) for details on the API Gateway middleware implementation.

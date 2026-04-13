@@ -1,7 +1,7 @@
 # Port Allocation — will-zappro
 
-**Autoridade:** [NETWORK_MAP.md](/srv/ops/ai-governance/NETWORK_MAP.md) (leia este primeiro)
-**Última verificação:** 2026-04-06 — audit homelab: removido open-webui do :8080, adicionado tts-bridge :4007, painel :4003, searxng :8888
+**Autoridade:** [NETWORK_MAP.md](./NETWORK_MAP.md) (leia este primeiro)
+**Última verificação:** 2026-04-12 — audit ports: adicionado 8202/3457/8050/8051/9080, corrigido 8201/4003/4007
 
 ---
 
@@ -24,8 +24,8 @@
 | **4000** | zappro-litellm | host | LiteLLM proxy (venv) | api.zappro.site / llm.zappro.site |
 | **4004** | nginx-ratelimit | host | nginx rate-limited proxy → :4000 | — |
 | **4005** | ai-router | host | AI Router (FastAPI) - intelligent routing | — |
-| **5678** | n8n | host | Workflow automation | n8n.zappro.site |
-| **6333** | zappro-qdrant | host | Qdrant REST | qdrant.zappro.site |
+| **5678** | n8n | host | Workflow automation | n8n.zappro.site ⚠️ DOWN — tunnel IP 10.0.6.3 errado, corrigir para 10.0.6.2 |
+| **6333** | qdrant (Coolify) | Coolify net (10.0.4.x) — NÃO localhost | Qdrant REST ⚠️ DOWN — tunnel usa localhost:6333 mas container não expõe ao host |
 | **6334** | zappro-qdrant | host | Qdrant gRPC | — |
 | **6379** | zappro-redis | host | Redis cache/pubsub | — |
 | **6381** | aurelia-redis | localhost | Redis (aurelia stack) | — |
@@ -43,8 +43,17 @@
 | Porta | Processo | Acesso | Função |
 |-------|----------|--------|--------|
 | **22** | sshd | host | SSH |
-| **11434** | ollama (systemd) | localhost + docker0 bridge | LLM local (gemma4, llava, nomic-embed-text) — GPU via `10.0.1.1:11434` |
-| **8201** | whisper-api (host) | localhost + docker0 bridge | Faster-Whisper small STT (OpenAI-compatible `/v1/audio/transcriptions`) |
+| **11434** | ollama (systemd) | localhost + docker0 bridge | LLM local (gemma4, qwen2.5-vl, nomic-embed-text) — GPU via `10.0.1.1:11434` |
+| **8201** | whisper-api (container) | host port 8202→8201 | Faster-Whisper small STT (OpenAI-compatible `/v1/audio/transcriptions`) — acessar via `:8202` no host |
+
+### Monitoring & Alerting (SPEC-023)
+
+| Porta | Container | Acesso | Função | Subdomínio |
+|-------|-----------|--------|--------|------------|
+| **8050** | gotify | localhost (127.0.0.1) | Notification server (alerts sink) | — |
+| **8051** | alert-sender | localhost (127.0.0.1) | Alert dispatcher → Gotify | — |
+| **9080** | promtail | host | Log scraping → Loki (:3101) | — |
+| **8203** | zappro-wav2vec2-proxy | host | Deepgram API proxy → whisper-api (:8201) — canonical STT endpoint para OpenClaw | — |
 
 ---
 
@@ -53,18 +62,21 @@
 | Porta | Container | Acesso | Função | Subdomínio |
 |-------|-----------|--------|--------|------------|
 | **3300** | gitea | host | Gitea Git server | git.zappro.site |
+| **3457** | openclaw-mcp-wrapper | host | OpenClaw MCP wrapper (universal tool bridge) | — |
 | **4001** | openclaw-qgtzrmi... | localhost | OpenClaw Bot UI | bot.zappro.site |
-| **4003** | painel | host | Claude Code Panel (nginx:alpine) | painel.zappro.site |
+| **4003** | nginx:alpine (painel) | host | Claude Code Panel (nginx:alpine) | painel.zappro.site |
 | **4006** | mcp-monorepo | qgtzrmi net (10.0.19.50) | MCP Filesystem /srv/monorepo → OpenClaw | — |
 | **4011** | mcp-qdrant | qgtzrmi net (10.0.19.51) | MCP Qdrant semantic search (openclaw-memory) | — |
-| **8201** | whisper-api | host | Faster-Whisper STT (OpenAI-compatible) | — |
+| **5433** | supabase-health-proxy | host | HTTP health proxy → Postgres :5432 (coolify net) | supabase.zappro.site |
+| **8202** | zappro-wav2vec2 | host | Faster-Whisper STT (host mapping 8202→8201) | — |
 
 ### Novos Serviços (2026-04-03)
 
 | Porta | Container | Acesso | Função | Subdomínio |
 |-------|-----------|--------|--------|------------|
 | **4002** | — | localhost | ShieldGemma 9B (PENDENTE — nunca deployado) | — |
-| **4003** | python http.server | host | Claude Code Panel HTML estático | painel.zappro.site |
+| **4007** | zappro-tts-bridge | localhost | TTS Bridge → Kokoro :8880 (UP, ver :8013) | — |
+| **4080** | list-web | host | Web list viewer service | — |
 | **8200** | infisical | localhost | Infisical vault self-hosted | vault.zappro.site |
 
 ## ⏳ Portas RESERVADAS — Pendente Deploy (Coolify)
@@ -102,7 +114,6 @@
 | Porta | Serviço | Motivo |
 |-------|---------|--------|
 | 80 / 443 / 3000 | captain-nginx / CapRover | substituído por Coolify |
-| 5433 / 5435 / 6543 | Supabase PgBouncer / Postgres | Supabase removido |
 | 8001 / 8443 / 54323 | Supabase Kong / Studio | Supabase removido |
 | 8020 | whisper-local STT | substituído por Deepgram cloud |
 | 5440 | litellm-db | removido |
@@ -130,9 +141,9 @@ ss -tlnp | grep :PORTA
 
 1. `ss -tlnp | grep :PORTA` — confirmar livre
 2. Adicionar nesta tabela
-3. Atualizar [NETWORK_MAP.md](/srv/ops/ai-governance/NETWORK_MAP.md)
-4. Se subdomínio público: atualizar [SUBDOMAINS.md](/srv/ops/ai-governance/SUBDOMAINS.md) + tunnel config remota + Terraform
+3. Atualizar [NETWORK_MAP.md](./NETWORK_MAP.md)
+4. Se subdomínio público: atualizar [SUBDOMAINS.md](./SUBDOMAINS.md) + tunnel config remota + Terraform
 
 ---
 
-**Ver também:** [NETWORK_MAP.md](/srv/ops/ai-governance/NETWORK_MAP.md) | [SUBDOMAINS.md](/srv/ops/ai-governance/SUBDOMAINS.md)
+**Ver também:** [NETWORK_MAP.md](./NETWORK_MAP.md) | [SUBDOMAINS.md](./SUBDOMAINS.md)

@@ -1,7 +1,7 @@
 ---
 name: SPEC-AUDIT-FIXES
 description: Fixes operacionais identificados na auditoria 12/04/2026
-status: PROPOSED
+status: COMPLETED
 priority: critical
 author: will-zappro
 date: 2026-04-12

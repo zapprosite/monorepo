@@ -220,5 +220,5 @@ Is this a security change?
 
 ## Related Documents
 
-- [CODE-REVIEW-GUIDE.md](../../docs/specflow/CODE-REVIEW-GUIDE.md) - Full review standards
+- [CODE-REVIEW-GUIDE.md](../../docs/SPECS/CODE-REVIEW-GUIDE.md) - Full review standards
 - [code-review-workflow.md](../../.agent/workflows/code-review-workflow.md) - How to run reviews

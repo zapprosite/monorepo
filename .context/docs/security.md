@@ -1,108 +1,85 @@
----
-type: doc
-name: security
-description: Security policies, authentication, secrets management, and compliance requirements
-category: security
-generated: 2026-03-16
-updated: 2026-03-17
-status: active
-scaffoldVersion: "2.0.0"
----
+# Security & Compliance Notes
+
+This document outlines the security policies, authentication mechanisms, secrets management, and compliance guardrails implemented within the monorepo. It serves as a guide for developers to maintain a secure posture when contributing to the API, Orchestrator, or Web applications.
+
 ## Security & Compliance Notes
 
-## Autenticação
+The project operates under a "Secure by Design" philosophy, leveraging Zod for strict input validation, a centralized API Gateway for external traffic, and multi-layered middleware for session integrity. All data access must pass through validated procedures (tRPC) or authenticated REST endpoints.
 
-**Google OAuth2 + Database Sessions:**
-- Usuário autentica via Google OAuth2 (Authorization Code Flow)
-- Após callback, sessão é criada e persistida no PostgreSQL (não em memória)
-- Sessões expiram em **7 dias** (`markedInvalidAt` para soft-delete)
-- Logout gera novo session ID via `session.regenerate()` — invalida a sessão anterior no banco
+**Core Guardrails:**
+- **Zero Trust Internal Communication:** Internal routes (e.g., `/internal/*`) require shared secret authentication even within the private network.
+- **Strict Schema Validation:** Every input into the system is parsed and stripped of unknown fields using Zod schemas found in `packages/zod-schemas`.
+- **Least Privilege:** Database roles and API keys are scoped to specific teams and functional requirements.
 
-**Estado de autenticação:**
-```
-hasSession: false            → não autenticado
-hasSession: true, !userId    → OAuth OK, ainda não registrado
-hasSession: true, userId     → autenticado e registrado (acesso pleno)
-```
+## Authentication & Authorization
 
-**Session security middleware** (`sessionSecurity.middleware.ts`):
-- Valida device fingerprint + IP
-- Modo `MODERATE` em procedures normais; modo `STRICT` em `sensitiveProcedure`
-- Ação `block` → TRPCError `FORBIDDEN` + logout implícito
+### Identity Providers
+The primary identity provider is **Google OAuth2**. The authentication flow follows the standard Authorization Code Flow:
+1. User authenticates via Google.
+2. The `googleOAuth2Plugin` (in `apps/api`) handles the callback and fetches user info.
+3. A session is established and linked to a user record in the `UserTable`.
 
-## Autorização
+### Session Management
+Identity is maintained using database-backed sessions via the `DatabaseSessionStore`.
+- **Persistence:** Sessions are stored in the PostgreSQL `sessions` table, not in-memory, ensuring persistence across server restarts.
+- **Expiration:** Sessions are valid for **7 days**. Systematic rotation occurs via `session.regenerate()` upon login/logout.
+- **Security Hooks:** The `sessionSecurityHook` monitors for anomalies by comparing the current request's IP address and device fingerprint against the session metadata.
 
-| Procedure Type | Requisito |
-|----------------|-----------|
-| `publicProcedure` | Nenhum — acessível sem autenticação |
-| `protectedProcedure` | `ctx.user.userId` presente → `UNAUTHORIZED` se ausente |
-| `sensitiveProcedure` | `protectedProcedure` + session security `STRICT` |
+### Authorization Model (RBAC)
+Authorizations are managed through specific tRPC procedure wrappers:
 
-**API Gateway** (rotas externas `/api/v1/*`):
-- `x-api-key` + `x-team-id` headers obrigatórios
-- API key validada contra hash scrypt no banco — nunca comparada em plaintext
-- Origin validado contra `team.allowedDomains` (CORS por equipe)
-- IP validado contra `team.allowedIps` (whitelist por equipe)
-- Rate limit por equipe via `team.rateLimitPerMinute`
+| Procedure Level | Requirement | Usage |
+| :--- | :--- | :--- |
+| `publicProcedure` | None | Landing pages, public assets. |
+| `protectedProcedure` | Valid `userId` in session | Standard authenticated user actions. |
+| `sensitiveProcedure` | Valid `userId` + `STRICT` security level | Account settings, billing, security-critical configs. |
+| `adminProcedure` | `assertAdmin` Check | System-wide configuration and user management. |
 
-## Rate Limiting
+### API Gateway Authorization
+For external integrations (`/api/v1/*`), the system utilizes:
+- **API Keys:** Generated via `generateApiKey` and stored as scrypt hashes (`hashApiKey`).
+- **Domain/IP Whitelisting:** The `ipWhitelistCheckHook` and `corsValidationHook` verify that requests originate from `team.allowedIps` or `team.allowedDomains`.
 
-| Camada | Limite | Middleware |
-|--------|--------|-----------|
-| Global (Fastify) | 2 req/s, burst 5/10s em produção | `@fastify/rate-limit` |
-| tRPC `moderateRateLimit` | 20 req/min, burst 5/2min por IP | `rate-limiter-flexible` |
-| tRPC `strictRateLimit` | 5 req/min, burst 2/5min por IP | `rate-limiter-flexible` |
-| `404` handler | Rate mais restrito | Fastify hook |
-| API Gateway por equipe | `team.rateLimitPerMinute` | `teamRateLimitHook` |
+## Secrets & Sensitive Data
 
-## Gerenciamento de Secrets
+### Storage & Management
+Secrets are managed through environment variables validated at runtime by `packages/env`.
+- **Vaulting:** In production, secrets should be injected via a secret manager (e.g., AWS Parameter Store, HashiCorp Vault).
+- **Encryption:** Sensitive fields such as `apiSecretHash` or `subscriptionAlertWebhookBearerToken` are never returned to the frontend; they are explicitly removed using Zod's `.omit()` or `.strip()` methods in the schema layer.
 
-**Variáveis de ambiente obrigatórias** (definidas via `env.config.ts` + Zod):
+### Critical Secrets
+| Secret Key | Purpose | Rotation Cadence |
+| :--- | :--- | :--- |
+| `SESSION_SECRET` | Signing session cookies | 90 Days |
+| `INTERNAL_API_SECRET` | Authenticating internal service mesh calls | 180 Days |
+| `GOOGLE_CLIENT_SECRET` | OAuth2 integration with Google | Yearly |
 
-| Variável | Uso | Mínimo |
-|----------|-----|--------|
-| `SESSION_SECRET` | Assinar cookies de sessão | 32 chars |
-| `INTERNAL_API_SECRET` | Autenticar rotas internas (`/internal/*`) | 32 chars |
-| `GOOGLE_CLIENT_ID` | OAuth2 app ID | — |
-| `GOOGLE_CLIENT_SECRET` | OAuth2 app secret | — |
-| `DB_PASSWORD` | Acesso ao PostgreSQL | — |
+### Data Classification
+- **Public:** UI components, public documentation, non-sensitive metadata.
+- **Internal:** System logs (filtered), internal service configurations.
+- **Confidential:** User PII (email, names), Team API keys (hashed), Database credentials.
 
-**Regras:**
-- Nunca commitar `.env` — use `.env.example` como template
-- API keys armazenadas como hash scrypt (nunca plaintext)
-- `subscriptionAlertWebhookBearerToken` omitido de responses via `.omit()` no schema Zod
-- `apiSecretHash` omitido de responses via `.omit()` no schema Zod
+## Compliance & Policies
 
-## CORS
+The project adheres to several internal and industry-standard policies:
+- **AGPL-3.0 Compliance:** As per the license, any modifications to the core logic must be made available to the community if the software is run as a service.
+- **GDPR/LGPD Readiness:**
+  - **Data Minimization:** We only collect necessary OAuth2 data (email/name).
+  - **Right to be Forgotten:** `invalidateAllUserSessions` and soft-delete patterns are implemented.
+  - **Audit Logs:** The `logKanbanEvent` and `ApiProductRequestLogsTable` provide a clear audit trail of data modifications and API usage.
+- **Secure Handling of Webhooks:** All outbound webhooks include a retry policy with exponential backoff and support signed payloads to prevent spoofing at the destination.
 
-- **Global:** `fastify-cors` permite todas as origens (necessário para Swagger UI)
-- **Por equipe:** `corsValidationHook` valida `Origin` contra `team.allowedDomains`
-- Preflight `OPTIONS` é tratado explicitamente pela chain de middleware
-- tRPC não usa CORS separado — servido pelo mesmo Fastify
+## Incident Response
 
-## Dados Sensíveis
+In the event of a security breach or anomaly detection (e.g., triggered by `sessionSecurity.middleware.ts` failing with a high severity):
 
-| Dado | Proteção |
-|------|---------|
-| Senhas / API keys | Hashed (scrypt) — nunca armazenadas em plaintext |
-| Session tokens | DB-backed + HTTP-only cookie |
-| Device fingerprint | Armazenado para detecção de anomalias, não para tracking |
-| Dados de pagamento | Não processados internamente — delegados a gateway externo |
-| Logs de API | Armazenados sem payload completo (somente status/IP/timestamp) |
+1. **Detection:** Anomaly patterns in fingerprints or IP subnets trigger an automatic session invalidation.
+2. **Triaging:** On-call developers should review `ApiProductRequestLogsTable` for anomalous patterns.
+3. **Containment:** 
+   - Use `invalidateAllUserSessions(userId)` to force-logout specific users.
+   - Revoke `x-api-key` in the API Gateway by removing the record from the database.
+4. **Post-Incident:** All security incidents require a post-mortem stored in the `docs/OPERATIONS` directory.
 
-## Proteção de Rotas Internas
-
-- `POST /internal/process-webhooks` exige header `Authorization: Bearer $INTERNAL_API_SECRET`
-- Sem esse header → `401 Unauthorized`
-- Rota não é exposta via Swagger UI (prefixo `/internal/`)
-
-## Observações de Compliance
-
-- Licença: **AGPL-3.0-only** — modificações devem ser open source se o software for servido
-- Sessões com device fingerprint estão sujeitas a políticas de privacidade (LGPD/GDPR se aplicável)
-- Logs de request não armazenam payload completo — apenas metadados
-
-## Related Resources
-
-- [architecture.md](./architecture.md)
-- [data-flow.md](./data-flow.md)
+---
+**Related Documents:**
+- [Architecture & System Design](./architecture.md)

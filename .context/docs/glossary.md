@@ -1,98 +1,70 @@
----
-type: doc
-name: glossary
-description: Project terminology, type definitions, domain entities, and business rules
-category: glossary
-generated: 2026-03-16
-updated: 2026-03-17
-status: active
-scaffoldVersion: "2.0.0"
----
+# Glossary & Domain Concepts
+
+The project utilizes a domain-driven approach to manage AI-assisted journal entries, multi-tenant team structures, and a robust API Gateway for external integrations. The system is built on a monorepo architecture where types are shared between the core API, the Orchestrator (workflow engine), and the web frontend.
+
 ## Glossary & Domain Concepts
 
-## Entidades do Domínio
+### Domain Entities
+- **User**: A natural person authenticated via Google OAuth2. Users can belong to multiple Teams.
+- **Team**: The primary unit of multi-tenancy. Subscriptions and API Keys are scoped to a Team.
+- **Subscription**: A contractual agreement allowing a Team to consume specific API products (SKUs) within defined quotas.
+- **Journal Entry**: The core functional unit of the application—a time-stamped record, often processed via AI prompts.
+- **Service Order**: A specialized entity for managing maintenance or technical requests, including technical reports and material items.
+- **Orchestrator**: The central engine (located in `apps/orchestrator`) that manages complex workflows, human-in-the-loop approvals, and agentic steps.
+- **MCP (Model Context Protocol)**: A standard used to connect AI models to external tools and data sources via adapters (Claude, Anthropic, Zapier).
 
-| Entidade | Tabela | Arquivo Zod | Descrição |
-|----------|--------|-------------|-----------|
-| **User** | `users` | `user.zod.ts` | Usuário autenticado via Google OAuth2 |
-| **Session** | `sessions` | — | Sessão de browser (DB-backed, com metadata de dispositivo) |
-| **Team** | `teams` | `team.zod.ts` | Organização que consome a API de produto |
-| **TeamMember** | `team_members` | — | Relação N:N entre User e Team |
-| **Subscription** | `subscriptions` | `subscription.zod.ts` | Plano de uso de produto da API por equipe |
-| **JournalEntry** | `journal_entries` | `journal_entry.zod.ts` | Entrada de diário (feature principal do produto) |
-| **ApiRequestLog** | `api_product_request_logs` | `api_request_log.zod.ts` | Log de cada chamada à API externa |
-| **WebhookCallQueue** | `webhook_call_queue` | `webhook_call_queue.zod.ts` | Fila de webhooks pendentes/retry |
-| **Prompt** | `prompts` | `prompt.zod.ts` | Prompts IA associados ao módulo de journal |
+### Personas / Actors
+- **End User**: Interacts with the Web UI to manage personal journal entries and view team dashboards.
+- **Team Administrator**: Manages subscriptions, invites members, and monitors API usage/quotas.
+- **External Developer**: Consumes the product API via REST endpoints using API Keys.
+- **System Agent**: Autonomous and semi-autonomous processes within the Orchestrator that execute workflow steps.
 
-## Tipos TypeScript Principais
+## Type Definitions
 
-| Tipo | Origem | Descrição |
-|------|--------|-----------|
-| `SessionUser` | `auth/session.auth.utils.ts` | `{ userId, email, name, displayPicture }` — dados do usuário na sessão |
-| `TrpcContext` | `trpc.ts` | `{ req, res, user }` — contexto injetado em toda procedure |
-| `UserSelectAll` | `user.zod.ts` | Tipo completo do usuário com timestamps |
-| `UserCreateInput` | `user.zod.ts` | Input para criar usuário (mandatory + optional parcial) |
-| `ApiProductSku` | `enums.zod.ts` | `"journal_entry_create"` — SKUs dos produtos disponíveis |
-| `WebhookStatus` | `enums.zod.ts` | `"Pending" \| "Sent" \| "Failed"` |
-| `ApiProductRequestStatus` | `enums.zod.ts` | Status de uma chamada à API externa |
+Key types are centralized in `packages/zod-schemas` to ensure end-to-end type safety across the monorepo.
 
-## Enums
+- **`UserSelectAll`**: Represents the complete user record including metadata and timestamps. [packages/zod-schemas/src/user.zod.ts]
+- **`AgentSession`**: State and history of an active AI agent interaction. [apps/orchestrator/src/core/types.ts]
+- **`WorkflowDefinition`**: The blueprint for a multi-phase automated process. [apps/orchestrator/src/core/types.ts]
+- **`SubscriptionCreateInput`**: Data required to initialize a new billing/quota relationship for a team. [packages/zod-schemas/src/subscription.zod.ts]
+- **`AddressType`**: Contextual categorization for physical locations (e.g., Billing, Shipping). [packages/zod-schemas/src/crm_enums.zod.ts]
+- **`SessionUser`**: The subset of user data stored within the encrypted session cookie. [apps/api/src/modules/auth/session.auth.utils.ts]
+- **`McpStep`**: A workflow step definition specifically for Model Context Protocol interactions. [apps/orchestrator/src/core/types.ts]
 
-| Enum | Valores | Uso |
-|------|---------|-----|
-| `API_PRODUCTS` | `journal_entry_create` (100 req / 30 dias) | Catálogo de produtos vendáveis |
-| `WEBHOOK_STATUS_ENUM` | `Pending`, `Sent`, `Failed` | Estado de entrega de webhook |
-| `API_PRODUCT_REQUEST_STATUS_ENUM` | `Success`, `Pending`, `AI Error`, `Server Error`, `No active subscription`, `Requests exhausted` | Resultado de request à API |
-| `API_REQUEST_METHOD_ENUM` | `GET`, `POST`, `PUT`, `DELETE` | Método HTTP registrado no log |
+## Enumerations
 
-## Padrão de Schema Zod
+- **`ApiProductSku`**: Definitive list of sellable API capabilities (e.g., `journal_entry_create`). [packages/zod-schemas/src/enums.zod.ts]
+- **`ApiProductStatus`**: State of an API request (Success, Failed, No active subscription, Requests exhausted). [packages/zod-schemas/src/enums.zod.ts]
+- **`ApprovalStatus`**: Status of a human-gate intervention (Pending, Approved, Rejected). [apps/orchestrator/src/core/types.ts]
+- **`SessionSecurityLevel`**: Controls the strictness of session validation (Standard, Strict). [apps/api/src/middlewares/sessionSecurity.middleware.ts]
+- **`WebhookStatus`**: Delivery state for outgoing system events (Pending, Sent, Failed). [packages/zod-schemas/src/enums.zod.ts]
+- **`CategoryTemplate`**: Categorization for CRM-related entities. [packages/zod-schemas/src/crm_enums.zod.ts]
 
-Cada entidade em `packages/zod-schemas/src/` segue:
+## Core Terms
 
-```
-<entity>MandatoryZod     — campos obrigatórios na criação
-<entity>OptionalZod      — campos opcionais/nullable
-<entity>AutoGeneratedZod — gerados pelo banco (IDs, timestamps)
-<entity>CreateInputZod   — mandatory + optional.partial()
-<entity>UpdateInputZod   — tudo partial (patch)
-<entity>SelectAllZod     — todos os campos (mandatory + optional + auto)
-<entity>GetByIdZod       — { <entity>Id: z.uuid() }
-```
+- **tRPC (TypeScript Remote Procedure Call)**: Used for internal communication between the Web app and API. It provides a shared type boundary without needing code generation.
+- **API Gateway**: A specialized router in `apps/api` that handles external REST traffic, enforcing API Key authentication, IP whitelisting, and rate limiting.
+- **Human Gate**: A workflow checkpoint in the Orchestrator that pauses execution until a human actor provides approval or input.
+- **Internal API Secret**: A pre-shared key used for secure communication between internal services (e.g., Orchestrator calling the API's webhook processor).
+- **Quota Tracking**: The logic that monitors `api_product_request_logs` against `subscriptions` to enforce usage limits.
+- **Exponential Backoff**: The algorithm used by the `webhookQueue` to retry failed deliveries with increasing delays.
 
-Import externo: `import { userCreateInputZod } from '@connected-repo/zod-schemas/user.zod'`
+## Acronyms & Abbreviations
 
-## Terminologia de Infraestrutura
+- **MCP**: Model Context Protocol (AI-to-tool integration standard).
+- **RHF**: React Hook Form (Standardized form handling in `packages/ui`).
+- **SKU**: Stock Keeping Unit (Used here to identify specific API features for billing).
+- **ULID**: Universally Unique Lexicographically Sortable Identifier (Used for non-sequential, sortable database IDs).
+- **TRPC**: internal communication protocol ensuring type safety.
 
-| Termo | Definição |
-|-------|-----------|
-| **tRPC** | Protocolo type-safe interno. Sem codegen — tipos compartilhados diretamente |
-| **protectedProcedure** | tRPC procedure que exige `ctx.user.userId` — lança `UNAUTHORIZED` se ausente |
-| **sensitiveProcedure** | Estende `protectedProcedure` com `sessionSecurityMiddleware(STRICT)` |
-| **publicProcedure** | Acessível sem autenticação (ex: login, health check) |
-| **API Gateway** | Chain de middlewares para APIs REST externas (auth, CORS, quota, rate-limit) |
-| **timestampNumber** | Timestamps armazenados como epoch milliseconds (não ISO strings) |
-| **Orchid ORM** | ORM ativo usado no backend; migrations via `yarn db -- g <name>` |
-| **DatabaseSessionStore** | Sessões persistidas em PostgreSQL (não Redis/memory) |
-| **ULID** | ID gerado para journal entries — ordenável por tempo, sem colisão |
+## Domain Rules & Invariants
 
-## Personas / Atores
-
-| Ator | Descrição | Ponto de entrada |
-|------|-----------|-----------------|
-| **Usuário final** | Autentica via Google, cria entradas de diário | Frontend :5173 |
-| **Desenvolvedor externo** | Consome a API de produto com API key | REST `/api/v1/*` |
-| **Sistema interno** | Processa webhooks pendentes | `/internal/process-webhooks` (INTERNAL_API_SECRET) |
-
-## Regras de Negócio
-
-- Um usuário com `hasSession: true` mas `isRegistered: false` completou OAuth mas ainda não criou conta (`userId` ausente)
-- API keys são hasheadas com scrypt antes do armazenamento — nunca armazenadas em plaintext
-- Subscriptions têm limite de quota; ao atingir 90%, webhook é enfileirado automaticamente
-- Sessões expiram em 7 dias; `markedInvalidAt` é o padrão de soft-delete
-- Backend roda sempre na porta `env.PORT` (default 4000) — porta 3000 é reservada para CapRover
+- **Subscription Quota**: When a team reaches 90% of its monthly quota, the system must automatically queue a notification webhook.
+- **API Key Security**: API Keys are never stored in plain text. They are hashed using `scrypt` before being persisted to the database.
+- **Session Expiry**: Sessions are valid for 7 days. Any "soft-delete" of a session is handled via the `markedInvalidAt` timestamp.
+- **Multi-Tenancy**: All data (Journal Entries, Leads, Contracts) must be scoped to a `teamId`. Direct access to data without a valid team context is prohibited by query-level filters.
+- **Workflow Persistence**: Every step of an Orchestrator workflow must be logged to the `EventBus` to allow for state recovery and auditability.
 
 ## Related Resources
-
-- [project-overview.md](./project-overview.md)
-- [architecture.md](./architecture.md)
-- [data-flow.md](./data-flow.md)
+- [Project Overview](./project-overview.md)
+- [Architecture Guide](./architecture.md)

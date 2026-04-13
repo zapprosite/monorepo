@@ -1,3 +1,13 @@
+---
+name: incident-report
+description: Template for incident reports with RCA and postmortem
+status: PROPOSED
+priority: critical
+author: will-zappro
+date: YYYY-MM-DD
+specRef: GOVERNANCE/INCIDENTS.md
+---
+
 # Incident Report Template
 
 **Incident ID:** [AUTO-YYYYMMDD-NNNNN]

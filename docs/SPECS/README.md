@@ -15,4 +15,4 @@ This directory contains feature specifications (SPECs) that define what to build
 
 ## See Also
 
-- `/srv/monorepo/docs/specflow/` - Full specflow documentation
+- `/srv/monorepo/docs/SPECS/` - Full specflow documentation

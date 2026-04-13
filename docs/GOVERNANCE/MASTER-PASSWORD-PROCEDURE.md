@@ -120,7 +120,7 @@ If the USB drive containing the master password is lost, stolen, or destroyed:
 | Locked config | `/srv/ops/locked-config/` | Pinned service configs |
 | Unlock script | `/srv/ops/scripts/unlock-config.sh` | Decrypt and mount |
 | Lock script | `/srv/ops/scripts/lock-config.sh` | Re-encrypt and unmount |
-| Incident log | `/srv/ops/ai-governance/INCIDENTS.md` | Change documentation |
+| Incident log | `./INCIDENTS.md` | Change documentation |
 
 ---
 

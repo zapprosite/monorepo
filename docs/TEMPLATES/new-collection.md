@@ -1,3 +1,13 @@
+---
+name: new-collection
+description: Template for proposing new Qdrant vector collections
+status: PROPOSED
+priority: medium
+author: will-zappro
+date: YYYY-MM-DD
+specRef: REFERENCE/DOC_CATALOG.md
+---
+
 # Template: Proposta de Nova Collection Qdrant
 
 **Instruções:** Copiar este arquivo, preencher todos os campos, e aguardar aprovação.

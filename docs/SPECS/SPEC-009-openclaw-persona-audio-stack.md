@@ -231,6 +231,53 @@ ANTES DE PROPOR QUALQUER MUDANCA:
 
 ---
 
+## Historical Context — Archived Specs
+
+> ⚠️ ARCHIVED + MERGED — Content integrated into [SPEC-009](./SPEC-009-openclaw-persona-audio-stack.md) as historical context.
+
+### SPEC-004: Kokoro TTS Kit (Archive)
+
+**Original Purpose:** Define PT-BR voice synthesis kit for homelab via Kokoro TTS.
+
+**Key Decisions:**
+- Container: `zappro-kokoro` using `ghcr.io/remsky/kokoro-fastapi-gpu:v0.2.2`
+- Voices: `pm_santa` (masculino, padrão) and `pf_dora` (feminino, fallback)
+- OpenClaw integration via OpenAI-compatible `/v1/audio/speech` endpoint
+- Redis cache via `zappro-redis` for performance
+- LiteLLM passthrough configured for OpenClaw compatibility
+- VRAM estimate: ~300-500MB (ONNX, leve)
+
+**Protection Rules Established:**
+- Container image locked with `chattr +i`
+- Voices `pm_santa` and `pf_dora` marked INVIOLÁVEIS
+- Substitution by Coqui TTS, Silero TTS, StyleTTS, or any other TTS explicitly PROIBIDO
+- Any upgrade requires `will-zappro` approval
+
+**Implementation:** Kokoro deployed at `127.0.0.1:8012` on network `zappro-lite`, later bridged through TTS Bridge at `:8013` for voice filtering.
+
+---
+
+### SPEC-005: wav2vec2 STT Kit (Archive)
+
+**Original Purpose:** Define PT-BR speech-to-text kit for homelab via wav2vec2.
+
+**Key Decisions:**
+- Model: `jonatasgrosman/wav2vec2-large-xlsr-53-portuguese` (5.8M+ downloads)
+- Port: `0.0.0.0:8201` on network `zappro-lite_default`
+- OpenAI-compatible `/v1/audio/transcriptions` API
+- VRAM: ~2GB
+- PT-BR Native — no alternative STT allowed for Brazilian Portuguese
+
+**Protection Rules Established:**
+- wav2vec2 model marked IMUTÁVEL
+- API endpoint `http://localhost:8201/v1/audio/transcriptions` is OFICIAL
+- Substitution by Whisper, Coqui STT, Silero STT, or Deepgram (cloud replacing local) explicitly PROIBIDO
+- Deepgram cloud path redirected through `wav2vec2-proxy :8203` instead
+
+**Implementation:** STT service deployed as `whisper-api` container, OpenClaw uses via `OLLAMA_BASE_URL=http://wav2vec2:8201`.
+
+---
+
 **PROTEGIDO**: Alteracoes neste documento requerem aprovacao de will-zappro.
 **Valido desde:** 2026-04-08
 **Proxima revisão:** 2026-05-08

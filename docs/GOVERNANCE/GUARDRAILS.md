@@ -86,12 +86,12 @@ OpenClaw → wav2vec2 (:8201) → STT PT-BR
 - NUNCA: mudar minimax.api (DEVE ser anthropic-messages)
 - NUNCA: usar LiteLLM como provider primario (SO para GPU/voz/visao)
 - PINADO: OpenClaw 2026.2.6 | minimax/MiniMax-M2.7 direto
-- DEBUG: /srv/ops/ai-governance/OPENCLAW_DEBUG.md
+- DEBUG: ./OPENCLAW_DEBUG.md
 
 ### LiteLLM Proxy (10.0.1.1:4000)
 - NUNCA: mudar papel do LiteLLM (proxy GPU, NAO provider primario)
 - CONFIG: /home/will/zappro-lite/config.yaml
-- MODELOS: gemma4, llava, embedding-nomic, qwen3.6-plus, minimax-m2.7, kokoro-tts, whisper-stt (direto :8201)
+- MODELOS: gemma4, qwen2.5-vl, embedding-nomic, qwen3.6-plus, minimax-m2.7, kokoro-tts, whisper-stt (direto :8201)
 
 ---
 
@@ -172,7 +172,7 @@ sudo zfs snapshot -r tank@pre-$(date +%Y%m%d-%H%M%S)-prune
 
 Models currently installed:
 - gemma4 (8B, Q4_K_M) → voz pipeline correção, screenshot
-- llava (7B, Q4_0) → visão screenshot
+- qwen2.5-vl (7B, Q4_0) → visão screenshot
 - nomic-embed-text (137M, F16) → embeddings via LiteLLM
 
 ---
