@@ -104,3 +104,4 @@ temp/
 *.tsbuildinfo
 apps/perplexity-agent/.venv/
 .eslintcache
+.worktrees/
