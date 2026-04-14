@@ -25,7 +25,11 @@ type: skill
 
 1. **Check subdomain available** — Read `/srv/ops/ai-governance/SUBDOMAINS.md`
 2. **Check port available** — Read `/srv/ops/ai-governance/PORTS.md` + verify with `ss -tlnp | grep :PORT`
-3. **Get Cloudflare token** — From Infisical: `CLOUDFLARE_API_TOKEN` (project: homelab-infra)
+3. **Cloudflare credentials** — Source from `.env` at project root:
+   - `CLOUDFLARE_API_TOKEN`
+   - `CF_ZONE_ID`
+   - `CF_TUNNEL_ID`
+   - `CF_ACCOUNT_ID`
 
 ## Key Values (homelab zappro.site)
 

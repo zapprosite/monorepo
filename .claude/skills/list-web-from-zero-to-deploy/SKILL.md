@@ -54,34 +54,31 @@ Para deploy rapido, usar a API direta (30s) ao inves de Terraform:
 3. Obter CLOUDFLARE_API_TOKEN do Infisical (project: homelab-infra)
 4. Criar CNAME DNS record via API:
    ```bash
-   curl -s -X POST "https://api.cloudflare.com/client/v4/zones/c0cf47bc153a6662f884d0f91e8da7c2/dns_records" \
+   curl -s -X POST "https://api.cloudflare.com/client/v4/zones/${CF_ZONE_ID}/dns_records" \
      -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
      -H "Content-Type: application/json" \
      -d '{
        "type": "CNAME",
        "name": "<subdomain>",
-       "content": "aee7a93d-c2e2-4c77-a395-71edc1821402.cfargotunnel.com",
+       "content": "${CF_TUNNEL_ID}.cfargotunnel.com",
        "proxied": true
      }'
    ```
 5. Obter tunnel config e adicionar ingress rule (antes do catch-all):
    ```bash
    # GET current config
-   curl -s -X GET "https://api.cloudflare.com/client/v4/accounts/1a41f45591a50585050f664fa015d01b/tunnels/aee7a93d-c2e2-4c77-a395-71edc1821402" \
-     -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" | jq '.result.config'
+   curl -s -X GET "https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT_ID}/cfd_tunnel/${CF_TUNNEL_ID}/configurations" \
+     -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" | jq '.result'
 
    # PUT updated config com novo ingress
-   curl -s -X PUT "https://api.cloudflare.com/client/v4/accounts/1a41f45591a50585050f664fa015d01b/tunnels/aee7a93d-c2e2-4c77-a395-71edc1821402" \
+   curl -s -X PUT "https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT_ID}/cfd_tunnel/${CF_TUNNEL_ID}/configurations" \
      -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
      -H "Content-Type: application/json" \
      -d '{
-       "name": "will-zappro-homelab",
-       "config": {
-         "ingress": [
-           {"hostname": "<subdomain>.zappro.site", "service": "http://10.0.X.X:PORT"},
-           {"hostname": "*.zappro.site", "service": "http_status:404"}
-         ]
-       }
+       "ingress": [
+         {"hostname": "<subdomain>.zappro.site", "service": "http://10.0.X.X:PORT"},
+         {"hostname": "*.zappro.site", "service": "http_status:404"}
+       ]
      }'
    ```
 6. Verificar: `curl -sfI https://<subdomain>.zappro.site`
@@ -176,14 +173,18 @@ O container DEVE injetar credenciais via env.js, NAO sed placeholders:
 
 O env.js e criado pelo entrypoint do container a partir de secrets Infisical.
 
-### Credentials (homelab — via Infisical)
+### Credentials (homelab — via .env)
+
+**Padrao: .env como fonte canonica de secrets.**
+Secrets sao syncados do Infisical para .env via sync script.
 
 ```
-GOOGLE_CLIENT_ID=→ Infisical: GOOGLE_CLIENT_ID
-GOOGLE_CLIENT_SECRET=→ Infisical: GOOGLE_CLIENT_SECRET
+GOOGLE_CLIENT_ID=→ .env (synced from Infisical)
+GOOGLE_CLIENT_SECRET=→ .env (synced from Infisical)
+INFISICAL_WORKSPACE_ID=→ .env (synced from Infisical)
 ```
 
-**NUNCA hardcodar. Usar Infisical SDK.**
+**NUNCA hardcodar. Ler de .env via process.env (web apps) ou window.__ENV__ (env.js injection).**
 
 ## Regras Importantes
 

@@ -42,6 +42,7 @@ Immutable/Pinned Services → NUNCA tocar
 Audio Stack (SPEC-009) → só Kokoro:TTS Bridge:wav2vec2:MiniMax-M2.7
 Anti-patterns (AP-1/2/3) → Docker TCP bridge, host-as-backend, localhost testing
 Não sabe? → PERGUNTE ANTES DE FAZER
+Hardcoded Values → USAR VARIÁVEIS DE AMBIENTE — nunca hardcodar URLs, IPs, portas, tokens
 ```
 
 **Sem ler estes documentos, não faça NADA.**
@@ -84,6 +85,7 @@ Immutable/Pinned Services → NEVER touch
 Audio Stack (SPEC-009) → only Kokoro:TTS Bridge:wav2vec2:MiniMax-M2.7
 Anti-patterns (AP-1/2/3) → Docker TCP bridge, host-as-backend, localhost testing
 Don't know? → ASK BEFORE DOING
+Hardcoded Values → USE ENVIRONMENT VARIABLES — never hardcode URLs, IPs, ports, tokens
 ```
 
 **Without reading these documents, do NOTHING.**

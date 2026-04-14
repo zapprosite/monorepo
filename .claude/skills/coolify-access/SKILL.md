@@ -12,19 +12,19 @@ description: Coolify API integration for Claude Code — deploy services, manage
 **Opção A — Bearer Token (para API):**
 1. Abrir https://cloud.zappro.site/settings/tokens
 2. Criar novo token com scopes: `read`, `write`
-3. Guardar em Infisical: `coolify-access-token`
+3. Guardar no `.env` como `COOLIFY_ACCESS_TOKEN`
 
 **Opção B — API Key (alternativa):**
-- Available em `COOLIFY_API_KEY` no Infisical
+- Available como `COOLIFY_API_KEY`
 - Usar com header `Authorization: Bearer <token>`
 
-### 2. Guardar Token em Infisical
+### 2. Guardar Token no .env
 
 ```bash
-# Project ID: e42657ef-98b2-4b9c-9a04-46c093bd6d37
-# Environment: dev
-# Secret path: /
-infisical secrets set coolify-access-token --value="your-token-here"
+# Em /srv/monorepo/.env (nunca comitar!)
+COOLIFY_ACCESS_TOKEN=your-token-here
+COOLIFY_API_KEY=your-api-key
+COOLIFY_BASE_URL=http://127.0.0.1:8000
 ```
 
 ### 3. Configurar no Claude Code

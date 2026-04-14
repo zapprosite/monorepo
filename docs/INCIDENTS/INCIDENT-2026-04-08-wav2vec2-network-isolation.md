@@ -21,7 +21,7 @@ Smoke test do voice pipeline (`pipeline-openclaw-voice.sh`) morria com **exit 13
 | 09:26 | Smoke test detecta problema — exit 137 no teste 2.3 (STT via LiteLLM) |
 | 09:30 | Investigação começa — subprocess é morto por SIGKILL após timeout implícito |
 | 09:35 | LiteLLM `/v1/audio/transcriptions` retorna timeout — endpoint nunca completa |
-| 09:40 | Teste direto do wav2vec2 em `localhost:8201` funciona (0.8s) |
+| 09:40 | Teste direto do wav2vec2 em `localhost:${WAV2VEC2_PORT:-8201}` funciona (0.8s) |
 | 09:45 | LiteLLM em chat completions funciona — problema é específico do endpoint de audio |
 | 09:50 | LiteLLM não recebe sequer o request — POST não aparece nos logs |
 | 09:55 | Container LiteLLM não consegue TCP em `10.0.2.1:8201` (timeout) |
@@ -55,9 +55,11 @@ Smoke test do voice pipeline (`pipeline-openclaw-voice.sh`) morria com **exit 13
 | 80 | HTTP | ✅ OK |
 | 8000 | Coolify | ✅ OK (container Docker) |
 | 4000 | LiteLLM (host) | ❌ TIMEOUT |
-| 8201 | wav2vec2 (host) | ❌ TIMEOUT |
+| ${WAV2VEC2_PORT:-8201} | wav2vec2 (host) | ❌ TIMEOUT |
 
 **Padrão identificado:** portas de serviços **Docker** = OK. Portas de serviços **nativos do host** = TIMEOUT.
+
+> **Nota:** Os valores de IP hardcoded (e.g. `10.0.2.1:8201`) sao valores historicos do incidente. Em producao, usar variaveis de ambiente: `${WAV2VEC2_HOST}`, `${WAV2VEC2_PORT}`, `${HOST_IP}`.
 
 ---
 
@@ -65,7 +67,7 @@ Smoke test do voice pipeline (`pipeline-openclaw-voice.sh`) morria com **exit 13
 
 | Sintoma | Por que era enganoso |
 |--------|---------------------|
-| `curl localhost:8201` funciona do host | O teste no host usa loopback, não passa pela bridge Docker |
+| `curl localhost:${WAV2VEC2_PORT:-8201}` funciona do host | O teste no host usa loopback, não passa pela bridge Docker |
 | `ping 10.0.2.1` funciona do container | ICMP funciona (echo request/reply), mas TCP em portas específicas não |
 | LiteLLM responde em chat completions | rotas Ollama/Kokoro usam IPs de containers Docker (`10.0.1.x`, `10.0.2.x`), não o IP do host |
 | `docker ps` mostra LiteLLM rodando | container está no ar, mas a rota interna para `10.0.2.1:8201` é que estava quebrada |
@@ -103,10 +105,10 @@ Adicionado serviço `wav2vec2` ao docker-compose com:
 **Ficheiro:** `/home/will/zappro-lite/config.yaml`
 
 ```yaml
-# ANTES:
-api_base: http://10.0.2.1:8201/v1
-# DEPOIS:
-api_base: http://wav2vec2:8201/v1
+# ANTES (hardcoded):
+api_base: http://${HOST_IP}:${WAV2VEC2_PORT:-8201}/v1
+# DEPOIS (containerizado):
+api_base: http://${WAV2VEC2_HOST:-wav2vec2}:${WAV2VEC2_PORT:-8201}/v1
 ```
 
 ### 3. Dockerfile wav2vec2 rewrite
@@ -142,11 +144,11 @@ Atualizado para refletir arquitetura containerizada (processo host → container
 
 | Componente | Host Port | Container/Internal | Via LiteLLM | Status |
 |------------|-----------|-------------------|-------------|--------|
-| wav2vec2 STT | 8202 | wav2vec2:8201 | whisper-1 | ✅ |
-| Kokoro TTS | — | 10.0.2.4:8880 | tts-1 | ✅ |
-| Ollama (VL) | — | 10.0.1.1:11434 | qwen2.5-vl | ✅ |
-| Ollama (LLM) | — | 10.0.1.1:11434 | tom-cat-8b | ✅ |
-| LiteLLM | 4000 | — | — | ✅ |
+| wav2vec2 STT | ${WAV2VEC2_EXPOSE_PORT:-8202} | ${WAV2VEC2_HOST:-wav2vec2}:${WAV2VEC2_PORT:-8201} | whisper-1 | ✅ |
+| Kokoro TTS | — | ${KOKORO_HOST:-10.0.2.4}:${KOKORO_PORT:-8880} | tts-1 | ✅ |
+| Ollama (VL) | — | ${OLLAMA_HOST:-10.0.1.1}:${OLLAMA_PORT:-11434} | qwen2.5-vl | ✅ |
+| Ollama (LLM) | — | ${OLLAMA_HOST:-10.0.1.1}:${OLLAMA_PORT:-11434} | tom-cat-8b | ✅ |
+| LiteLLM | ${LITELLM_PORT:-4000} | — | — | ✅ |
 
 ---
 

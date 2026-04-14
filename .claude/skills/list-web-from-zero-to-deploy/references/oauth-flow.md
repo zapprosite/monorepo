@@ -47,8 +47,9 @@ async function getGoogleClientId(): Promise<string> {
 
   const secret = await client.getSecret({
     secretName: 'GOOGLE_CLIENT_ID',
-    workspaceId: 'e42657ef-98b2-4b9c-9a04-46c093bd6d37',
-    environment: 'dev',
+    // workspaceId e environment via .env (nao hardcodar)
+    workspaceId: process.env.INFISICAL_WORKSPACE_ID!,
+    environment: process.env.INFISICAL_ENVIRONMENT || 'dev',
   });
 
   return secret.secretValue;

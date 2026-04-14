@@ -1,7 +1,29 @@
 /**
  * Ferramentas do homelab - list.zappro.site
  * Categorias: ai, monitoring, infra, dev, security
+ *
+ * URLs internos vem de VITE_* env vars (Vite) ou window.__ENV__ (static deploy)
+ * Em dev: crie .env com VITE_HERMES_GATEWAY_URL=http://10.0.2.4:4001 etc
+ * Em prod: injete via --build-arg ou window.__ENV__
  */
+
+const INTERNAL_URLS = {
+  // AI
+  litellm:        import.meta.env.VITE_LITELLM_URL        || window.__ENV__?.LITELLM_URL        || 'http://10.0.19.7:4000',
+  hermesGateway:  import.meta.env.VITE_HERMES_GATEWAY_URL || window.__ENV__?.HERMES_GATEWAY_URL || 'http://10.0.2.4:4001',
+  kokoro:         import.meta.env.VITE_KOKORO_URL         || window.__ENV__?.KOKORO_URL         || 'http://10.0.19.7:8880',
+  ttsBridge:      import.meta.env.VITE_TTS_BRIDGE_URL     || window.__ENV__?.TTS_BRIDGE_URL     || 'http://10.0.2.4:8013',
+  ollama:         import.meta.env.VITE_OLLAMA_URL         || window.__ENV__?.OLLAMA_URL         || 'http://10.0.5.1:11434',
+  // Monitoring
+  prometheus:     import.meta.env.VITE_PROMETHEUS_URL     || window.__ENV__?.PROMETHEUS_URL     || 'http://10.0.19.7:9090',
+  loki:           import.meta.env.VITE_LOKI_URL            || window.__ENV__?.LOKI_URL           || 'http://10.0.19.7:3100',
+  alertmanager:   import.meta.env.VITE_ALERTMANAGER_URL   || window.__ENV__?.ALERTMANAGER_URL   || 'http://10.0.19.7:9093',
+  nodeExporter:   import.meta.env.VITE_NODE_EXPORTER_URL  || window.__ENV__?.NODE_EXPORTER_URL || 'http://10.0.19.7:9100',
+  cadvisor:       import.meta.env.VITE_CADVISOR_URL       || window.__ENV__?.CADVISOR_URL      || 'http://10.0.19.7:8080',
+  // Infra
+  n8n:            import.meta.env.VITE_N8N_URL             || window.__ENV__?.N8N_URL            || 'http://10.0.19.7:5678',
+  qdrant:         import.meta.env.VITE_QDRANT_URL          || window.__ENV__?.QDRANT_URL         || 'http://10.0.19.7:6333',
+};
 
 export const tools = [
   // ========== AI ==========
@@ -18,16 +40,16 @@ export const tools = [
     id: 'litellm',
     name: 'LiteLLM Proxy',
     description: 'Proxy unificado para modelos Ollama locais (vision, embeddings)',
-    url: 'http://10.0.19.7:4000',
+    url: INTERNAL_URLS.litellm,
     category: 'ai',
     icon: '🔗',
     status: 'operational'
   },
   {
-    id: 'openclaw',
-    name: 'OpenClaw Bot',
-    description: 'Bot de voz PT-BR com STT wav2vec2 + TTS Kokoro + LLM MiniMax',
-    url: 'http://10.0.2.4:4001',
+    id: 'hermes',
+    name: 'Hermes Gateway',
+    description: 'Gateway unificado de voz e LLM — STT wav2vec2 + TTS Kokoro + MiniMax',
+    url: INTERNAL_URLS.hermesGateway,
     category: 'ai',
     icon: '🎙️',
     status: 'operational'
@@ -36,7 +58,7 @@ export const tools = [
     id: 'kokoro',
     name: 'Kokoro TTS',
     description: 'Motor TTS para síntese de voz PT-BR (vozes pm_santa e pf_dora)',
-    url: 'http://10.0.19.7:8880',
+    url: INTERNAL_URLS.kokoro,
     category: 'ai',
     icon: '🔊',
     status: 'operational'
@@ -45,7 +67,7 @@ export const tools = [
     id: 'tts-bridge',
     name: 'TTS Bridge',
     description: 'Proxy滤 voz do Kokoro - única porta de acesso ao TTS',
-    url: 'http://10.0.2.4:8013',
+    url: INTERNAL_URLS.ttsBridge,
     category: 'ai',
     icon: '🌉',
     status: 'operational'
@@ -54,7 +76,7 @@ export const tools = [
     id: 'ollama',
     name: 'Ollama',
     description: 'Runtime para modelos LLM locais (qwen2.5-vl, llama3.3)',
-    url: 'http://10.0.5.1:11434',
+    url: INTERNAL_URLS.ollama,
     category: 'ai',
     icon: '🦙',
     status: 'operational'
@@ -74,7 +96,7 @@ export const tools = [
     id: 'prometheus',
     name: 'Prometheus',
     description: 'Coleta de métricas e time-series database',
-    url: 'http://10.0.19.7:9090',
+    url: INTERNAL_URLS.prometheus,
     category: 'monitoring',
     icon: '📈',
     status: 'operational'
@@ -83,7 +105,7 @@ export const tools = [
     id: 'loki',
     name: 'Loki',
     description: 'Agregador de logs otimizado para Kubernetes',
-    url: 'http://10.0.19.7:3100',
+    url: INTERNAL_URLS.loki,
     category: 'monitoring',
     icon: '📋',
     status: 'operational'
@@ -92,7 +114,7 @@ export const tools = [
     id: 'alertmanager',
     name: 'AlertManager',
     description: 'Gerenciamento de alertas e notificações',
-    url: 'http://10.0.19.7:9093',
+    url: INTERNAL_URLS.alertmanager,
     category: 'monitoring',
     icon: '🚨',
     status: 'operational'
@@ -101,7 +123,7 @@ export const tools = [
     id: 'node-exporter',
     name: 'Node Exporter',
     description: 'Métricas de hardware e sistema do host',
-    url: 'http://10.0.19.7:9100',
+    url: INTERNAL_URLS.nodeExporter,
     category: 'monitoring',
     icon: '🖥️',
     status: 'operational'
@@ -110,7 +132,7 @@ export const tools = [
     id: 'cadvisor',
     name: 'cAdvisor',
     description: 'Métricas de containers Docker',
-    url: 'http://10.0.19.7:8080',
+    url: INTERNAL_URLS.cadvisor,
     category: 'monitoring',
     icon: '📦',
     status: 'operational'
@@ -130,7 +152,7 @@ export const tools = [
     id: 'n8n',
     name: 'n8n',
     description: 'Automação low-code de workflows',
-    url: 'http://10.0.19.7:5678',
+    url: INTERNAL_URLS.n8n,
     category: 'infra',
     icon: '🔄',
     status: 'operational'
@@ -139,7 +161,7 @@ export const tools = [
     id: 'qdrant',
     name: 'Qdrant',
     description: 'Vector database para RAG e embeddings',
-    url: 'http://10.0.19.7:6333',
+    url: INTERNAL_URLS.qdrant,
     category: 'infra',
     icon: '🔢',
     status: 'operational'

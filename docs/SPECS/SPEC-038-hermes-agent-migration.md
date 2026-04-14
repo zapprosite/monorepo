@@ -1,7 +1,7 @@
 ---
 name: SPEC-038-hermes-agent-migration
 description: OPERAÇÃO OVERLORD — Migração OpenClaw → Hermes-Agent no Ubuntu Desktop
-status: DRAFT
+status: IMPLEMENTATION_IN_PROGRESS
 priority: critical
 author: will-zappro
 date: 2026-04-14
@@ -182,18 +182,38 @@ perplexity_browser/
 
 ## Success Criteria
 
-| # | Criterion | Status |
-|---|-----------|--------|
-| SC-1 | Hermes-Agent instalado e configurado no Ubuntu Desktop | ⏳ |
-| SC-2 | `hermes claw migrate` executado com sucesso | ⏳ |
-| SC-3 | MiniMax 2.7 configurado como primary model | ⏳ |
-| SC-4 | Ollama gemma4 configurado como fallback (RTX 4090) | ⏳ |
-| SC-5 | perplexity_browser skill criada e funcional | ⏳ |
-| SC-6 | coolify_sre skill com restart loop detection | ✅ |
-| SC-7 | hermes.json com crons centralizados | ⏳ |
-| SC-8 | OpenClaw disable (dry-run OK, execute pendente) | ⏳ |
-| SC-9 | MCP server para Open WebUI configurado | ⏳ |
-| SC-10 | Zero true duplicates nos crons | ✅ |
+| # | Criterion | Status | Notes |
+|---|-----------|--------|-------|
+| SC-1 | Hermes-Agent instalado e configurado no Ubuntu Desktop | ✅ | hermes v0.9.0 installed |
+| SC-2 | `hermes claw migrate` executado com sucesso | ✅ | 21 items migrated |
+| SC-3 | MiniMax 2.7 configurado como primary model | ✅ | In config.yaml |
+| SC-4 | Ollama qwen2.5vl:7b configurado como fallback (RTX 4090) | ✅ | Changed from gemma4 (gemma4 is legacy) |
+| SC-5 | perplexity_browser skill criada e funcional | ✅ | |
+| SC-6 | coolify_sre skill com restart loop detection | ✅ | sre-monitor.sh active |
+| SC-7 | hermes.json com crons centralizados | ⚠️ | Created but crons not yet installed |
+| SC-8 | OpenClaw disable (dry-run OK, execute pendente) | ✅ | Containers stopped, Coolify showing wrong status |
+| SC-9 | MCP server para Open WebUI configurado | ❌ | hermes mcp serve exits after each request (not persistent) |
+| SC-10 | Zero true duplicates nos crons | ✅ | |
+
+---
+
+## Implementation Notes
+
+### hermes mcp serve Limitation
+
+O `hermes mcp serve` **não é persistente** — ele fecha após cada requisição JSON-RPC. Isso significa:
+
+- MCPO bridge falha porque precisa de modo long-running
+- hermes-agent não consegue servir como MCP server tradicional para Open WebUI
+- **Solução recomendada:** Usar hermes gateway como endpoint para bot.zappro.site
+
+### Recommended Path Forward
+
+Para bot.zappro.site, o **hermes gateway** é o caminho recomendado em vez de MCPO bridge.
+
+### OpenClaw Status
+
+Containers OpenClaw foram parados mas o Coolify ainda mostra status desatualizado (precisa refresh manual).
 
 ---
 

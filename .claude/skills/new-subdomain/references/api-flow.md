@@ -5,8 +5,12 @@ Exact curl commands for creating a subdomain via Cloudflare API (fast path).
 ## Prerequisites
 
 ```bash
-# Set token from Infisical
-export CLOUDFLARE_API_TOKEN=$(infisical secrets get --key=CLOUDFLARE_API_TOKEN --project=homelab-infra --env=dev --path=/ 2>/dev/null || echo "$CLOUDFLARE_API_TOKEN")
+# Source credentials from .env
+export $(grep -v '^#' /srv/monorepo/.env | xargs) 2>/dev/null
+
+# Verify required variables
+echo "CLOUDFLARE_API_TOKEN: ${CLOUDFLARE_API_TOKEN:0:10}..."
+echo "CF_ZONE_ID: $CF_ZONE_ID"
 ```
 
 ## Constants
@@ -33,7 +37,7 @@ curl -s -X GET "https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/dns_record
 ```json
 {
   "name": "bot.zappro.site",
-  "content": "aee7a93d-c2e2-4c77-a395-71edc1821402.cfargotunnel.com",
+  "content": "${CF_TUNNEL_ID}.cfargotunnel.com",
   "proxied": true
 }
 ```
@@ -65,7 +69,7 @@ curl -s -X POST "https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/dns_recor
     "id": "abc123",
     "name": "myapp.zappro.site",
     "type": "CNAME",
-    "content": "aee7a93d-c2e2-4c77-a395-71edc1821402.cfargotunnel.com",
+    "content": "${CF_TUNNEL_ID}.cfargotunnel.com",
     "proxied": true
   }
 }

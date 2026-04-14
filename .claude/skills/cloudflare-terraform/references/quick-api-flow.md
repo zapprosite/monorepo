@@ -8,18 +8,26 @@ Criar subdomains diretamente via Cloudflare API, sem Terraform. Usar quando `ter
 
 | Variavel | Valor |
 |----------|-------|
-| `CF_ACCOUNT_ID` | `1a41f45591a50585050f664fa015d01b` |
-| `CF_ZONE_ID` | `c0cf47bc153a6662f884d0f91e8da7c2` |
-| `CF_TUNNEL_ID` | `aee7a93d-c2e2-4c77-a395-71edc1821402` |
+| `CLOUDFLARE_ACCOUNT_ID` | `1a41f45591a50585050f664fa015d01b` |
+| `CLOUDFLARE_ZONE_ID` | `c0cf47bc153a6662f884d0f91e8da7c2` |
+| `CLOUDFLARE_TUNNEL_ID` | `aee7a93d-c2e2-4c77-a395-71edc1821402` |
 | Tunnel CNAME | `aee7a93d-c2e2-4c77-a395-71edc1821402.cfargotunnel.com` |
 
 ## Env Setup
 
+**IMPORTANT: Source .env before running any commands below.**
+
 ```bash
 export CLOUDFLARE_API_TOKEN="your-token"  # Infisical: cloudflare/API_TOKEN
-export CF_ACCOUNT_ID="1a41f45591a50585050f664fa015d01b"
-export CF_ZONE_ID="c0cf47bc153a6662f884d0f91e8da7c2"
-export CF_TUNNEL_ID="aee7a93d-c2e2-4c77-a395-71edc1821402"
+export CLOUDFLARE_ACCOUNT_ID="1a41f45591a50585050f664fa015d01b"
+export CLOUDFLARE_ZONE_ID="c0cf47bc153a6662f884d0f91e8da7c2"
+export CLOUDFLARE_TUNNEL_ID="aee7a93d-c2e2-4c77-a395-71edc1821402"
+```
+
+Or source from .env:
+```bash
+source /srv/monorepo/.env
+# Uses: CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID, CLOUDFLARE_ZONE_ID, CLOUDFLARE_TUNNEL_ID
 ```
 
 ---
@@ -28,7 +36,7 @@ export CF_TUNNEL_ID="aee7a93d-c2e2-4c77-a395-71edc1821402"
 
 ```bash
 curl -s -X GET \
-  "https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT_ID}/cfd_tunnel/${CF_TUNNEL_ID}/configurations" \
+  "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/cfd_tunnel/${CLOUDFLARE_TUNNEL_ID}/configurations" \
   -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
   -H "Content-Type: application/json" | jq .
 ```
@@ -136,7 +144,7 @@ if __name__ == "__main__":
 ```bash
 # Guardar GET response, pipe through python, guardar output
 curl -s -X GET \
-  "https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT_ID}/cfd_tunnel/${CF_TUNNEL_ID}/configurations" \
+  "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/cfd_tunnel/${CLOUDFLARE_TUNNEL_ID}/configurations" \
   -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
   -H "Content-Type: application/json" \
   | python3 add_ingress.py \
@@ -152,7 +160,7 @@ curl -s -X GET \
 
 ```bash
 curl -s -X PUT \
-  "https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT_ID}/cfd_tunnel/${CF_TUNNEL_ID}/configurations" \
+  "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/cfd_tunnel/${CLOUDFLARE_TUNNEL_ID}/configurations" \
   -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
   -H "Content-Type: application/json" \
   -d @config_updated.json | jq '.success, .errors'
@@ -166,13 +174,13 @@ curl -s -X PUT \
 
 ```bash
 curl -s -X POST \
-  "https://api.cloudflare.com/client/v4/zones/${CF_ZONE_ID}/dns_records" \
+  "https://api.cloudflare.com/client/v4/zones/${CLOUDFLARE_ZONE_ID}/dns_records" \
   -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
   -H "Content-Type: application/json" \
   -d "{
     \"type\": \"CNAME\",
     \"name\": \"grafana\",
-    \"content\": \"aee7a93d-c2e2-4c77-a395-71edc1821402.cfargotunnel.com\",
+    \"content\": \"${CLOUDFLARE_TUNNEL_ID}.cfargotunnel.com\",
     \"proxied\": true
   }" | jq '.result.id, .success'
 ```
@@ -194,19 +202,18 @@ curl -sfI https://grafana.zappro.site/
 ```bash
 #!/bin/bash
 set -e
+
+# Source credentials from .env
+source /srv/monorepo/.env
+
 SUBDOMAIN="grafana"
 TARGET_HOST="localhost"
 TARGET_PORT="3100"
 HTTP_HOST_HEADER="grafana.zappro.site"
 
-export CLOUDFLARE_API_TOKEN="${CLOUDFLARE_API_TOKEN}"
-export CF_ACCOUNT_ID="1a41f45591a50585050f664fa015d01b"
-export CF_ZONE_ID="c0cf47bc153a6662f884d0f91e8da7c2"
-export CF_TUNNEL_ID="aee7a93d-c2e2-4c77-a395-71edc1821402"
-
 echo "==> Fetching current tunnel config..."
 CONFIG=$(curl -s -X GET \
-  "https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT_ID}/cfd_tunnel/${CF_TUNNEL_ID}/configurations" \
+  "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/cfd_tunnel/${CLOUDFLARE_TUNNEL_ID}/configurations" \
   -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
   -H "Content-Type: application/json")
 
@@ -218,7 +225,7 @@ MODIFIED_CONFIG=$(echo "$CONFIG" | python3 /srv/ops/scripts/add_ingress.py \
 
 echo "==> Updating tunnel config..."
 RESULT=$(curl -s -X PUT \
-  "https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT_ID}/cfd_tunnel/${CF_TUNNEL_ID}/configurations" \
+  "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/cfd_tunnel/${CLOUDFLARE_TUNNEL_ID}/configurations" \
   -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
   -H "Content-Type: application/json" \
   -d "$MODIFIED_CONFIG")
@@ -226,13 +233,13 @@ echo "$RESULT" | jq '.success'
 
 echo "==> Creating DNS CNAME..."
 DNS_RESULT=$(curl -s -X POST \
-  "https://api.cloudflare.com/client/v4/zones/${CF_ZONE_ID}/dns_records" \
+  "https://api.cloudflare.com/client/v4/zones/${CLOUDFLARE_ZONE_ID}/dns_records" \
   -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
   -H "Content-Type: application/json" \
   -d "{
     \"type\": \"CNAME\",
     \"name\": \"${SUBDOMAIN}\",
-    \"content\": \"aee7a93d-c2e2-4c77-a395-71edc1821402.cfargotunnel.com\",
+    \"content\": \"${CLOUDFLARE_TUNNEL_ID}.cfargotunnel.com\",
     \"proxied\": true
   }")
 echo "$DNS_RESULT" | jq '.result.id, .success'
@@ -261,11 +268,11 @@ print(json.dumps(config, indent=2))
 curl -s -X PUT ... -d "$MODIFIED"
 
 # 4. DELETE DNS record
-DNS_ID=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones/${CF_ZONE_ID}/dns_records?type=CNAME&name=grafana" \
+DNS_ID=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones/${CLOUDFLARE_ZONE_ID}/dns_records?type=CNAME&name=grafana" \
   -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" | jq -r '.result[0].id')
 
 curl -s -X DELETE \
-  "https://api.cloudflare.com/client/v4/zones/${CF_ZONE_ID}/dns_records/${DNS_ID}" \
+  "https://api.cloudflare.com/client/v4/zones/${CLOUDFLARE_ZONE_ID}/dns_records/${DNS_ID}" \
   -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" | jq '.success'
 ```
 

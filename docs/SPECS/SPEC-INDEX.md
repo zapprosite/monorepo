@@ -89,6 +89,20 @@ Monorepo/git/CI           → SPEC-024
 Homelab maintenance       → SPEC-031
 ```
 
+## Environment Variables Standard
+
+All secrets and environment-specific values MUST:
+
+| Standard | Description |
+|----------|-------------|
+| **Secrets** | Store in `.env` files, read via `process.env` or Infisical SDK |
+| **No hardcoding** | Never embed tokens/keys directly in SPECs or code |
+| **Reference format** | Use `${SECRET_NAME}` syntax (e.g., `${CLOUDFLARE_API_TOKEN}`, `${TELEGRAM_BOT_TOKEN}`) |
+| **Infisical SDK** | Use Infisical SDK for runtime secret retrieval in code |
+| **Historical docs** | Audit logs and SPEC-AUDIT files may reference redacted tokens for traceability |
+
+See [SPEC-029-INFISICAL-SDK-MANDATORY.md](./SPEC-029-INFISICAL-SDK-MANDATORY.md) for enforcement details.
+
 ## Obsidian Navigation
 
 Archived specs contain `see_also:` links for Obsidian cross-referencing. Each archived spec has:

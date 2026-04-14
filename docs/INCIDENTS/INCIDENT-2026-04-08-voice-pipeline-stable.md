@@ -46,10 +46,10 @@ openclaw networks:     qgtzrmi6771lt8l7x8rqx72f  ✅ (partilham)
 ```
 
 Felizmente OpenClaw e Traefik **partilham** `qgtzrmi6771lt8l7x8rqx72f`. O problema real era que:
-1. `localhost:18789` (OpenClaw Gateway) é **loopback-only** dentro do container — nunca acessível externamente
+1. `localhost:${OPENCLAW_GATEWAY_PORT:-18789}` (OpenClaw Gateway) é **loopback-only** dentro do container — nunca acessível externamente
 2. Smoke test usava `localhost:18789` — rota incorrecta
 
-**Solução:** Smoke test usa rota via Cloudflare Tunnel (`https://bot.zappro.site/`).
+**Solução:** Smoke test usa rota via Cloudflare Tunnel (`${OPENCLAW_TUNNEL_URL}`).
 
 ---
 
@@ -60,9 +60,9 @@ O cloud provider (Hetzner?) bloqueia portas 80/443 externamente. Cloudflare Tunn
 
 | Acesso | Resultado |
 |--------|-----------|
-| `curl http://191.17.50.123/health` (host local) | ❌ Timeout |
+| `curl http://${HOST_IP}/health` (host local) | ❌ Timeout |
 | `curl http://localhost:80/ping` (host) | ✅ OK |
-| `curl https://bot.zappro.site/` (externo) | ✅ OK (via Cloudflare Tunnel) |
+| `curl ${OPENCLAW_TUNNEL_URL}/` (externo) | ✅ OK (via Cloudflare Tunnel) |
 
 ---
 
@@ -128,8 +128,8 @@ curl http://localhost:PORT/health  # verificação real end-to-end
 ### AP-4: DNS/Tunnel UP = Service UP
 **NÃO ASSUMIR:**
 ```
-nslookup bot.zappro.site → OK
-curl https://bot.zappro.site/ → 502 Bad Gateway
+nslookup ${OPENCLAW_TUNNEL_URL} → OK
+curl ${OPENCLAW_TUNNEL_URL}/ → 502 Bad Gateway
 ```
 **PORQUÊ:** Tunnel pode estar UP mas backend não estar a correr.
 
@@ -314,10 +314,10 @@ check_host_service_reachable() {
 **Teste de routing completo:**
 ```bash
 # 1. DNS resolve
-nslookup openclaw.191.17.50.123.sslip.io
+nslookup openclaw.${HOST_IP}.sslip.io
 
 # 2. Cloudflare Tunnel routing
-curl -sf -m 10 -o /dev/null -w "%{http_code}" "https://bot.zappro.site/"
+curl -sf -m 10 -o /dev/null -w "%{http_code}" "${OPENCLAW_TUNNEL_URL}/"
 
 # 3. Traefik → Backend
 curl -sf -m 10 "http://localhost:80/ping"  # Traefik OK
