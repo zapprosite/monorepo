@@ -401,14 +401,14 @@
       "id": 19,
       "title": "SPEC-031 Task 5: ZFS snapshot retention cron",
       "description": "Create /srv/ops/scripts/zfs-snapshot-prune.sh. Script: zfs list -t snapshot -r tank + prune snaps older than 7 days. Add to crontab: 0 */3 * * *",
-      "status": "pending",
+      "status": "done",
       "priority": "medium",
       "dependencies": [],
       "subtasks": [
-        { "id": "19.1", "title": "Create zfs-snapshot-prune.sh script", "status": "pending" },
-        { "id": "19.2", "title": "Add cron: 0 */3 * * *", "status": "pending" },
-        { "id": "19.3", "title": "Manual run creates snapshot of tank", "status": "pending" },
-        { "id": "19.4", "title": "Test prune dry-run", "status": "pending" }
+        { "id": "19.1", "title": "Create zfs-snapshot-prune.sh script", "status": "done" },
+        { "id": "19.2", "title": "Add cron: 0 */3 * * *", "status": "done" },
+        { "id": "19.3", "title": "Manual run creates snapshot of tank", "status": "done" },
+        { "id": "19.4", "title": "Test prune dry-run", "status": "done" }
       ],
       "acceptanceCriteria": ["AC-031-5"],
       "files": ["/srv/ops/scripts/zfs-snapshot-prune.sh"],
@@ -419,14 +419,14 @@
       "id": 20,
       "title": "SPEC-031 Task 7: Sync.sh verification + MEMORY.md index",
       "description": "Run sync.sh and verify SPECs/ADRs/GUIDEs/REFERENCE synced. Check memory dirs exist with files. Verify manifest last_sync updated",
-      "status": "pending",
+      "status": "done",
       "priority": "medium",
       "dependencies": [],
       "subtasks": [
-        { "id": "20.1", "title": "Run sync.sh without errors", "status": "pending" },
-        { "id": "20.2", "title": "Verify memory/specs/ has 10+ SPEC files", "status": "pending" },
-        { "id": "20.3", "title": "Verify memory/adrs/ has ADR files", "status": "pending" },
-        { "id": "20.4", "title": "Verify manifest last_sync = today", "status": "pending" }
+        { "id": "20.1", "title": "Run sync.sh without errors", "status": "done" },
+        { "id": "20.2", "title": "Verify memory/specs/ has 10+ SPEC files", "status": "done" },
+        { "id": "20.3", "title": "Verify memory/adrs/ has ADR files", "status": "done" },
+        { "id": "20.4", "title": "Verify manifest last_sync = today", "status": "done" }
       ],
       "acceptanceCriteria": ["AC-031-7"],
       "files": [
