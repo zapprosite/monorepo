@@ -9,7 +9,7 @@
 
 | Total | Done | In Progress | Pending |
 | ----- | ---- | ----------- | ------- |
-| 15    | 6    | 2           | 7       |
+| 15    | 7    | 2           | 6       |
 
 ---
 
@@ -150,7 +150,7 @@
 
 **Title:** End-to-end validation of Hermes-Agent deployment
 **Priority:** P0
-**Status:** pending
+**Status:** done
 **Notes:** Full smoke test after all tasks complete. Validate:
 
 - LLM responses (MiniMax primary + Ollama fallback)
