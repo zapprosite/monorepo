@@ -76,21 +76,16 @@ User → Cloudflare Edge → CF Access (Zero Trust) → Google OAuth → CF JWT 
 ### 1.1 Get credentials from Infisical
 
 ```bash
-# Using Infisical SDK to get credentials
+# Credentials are synced from Infisical to .env — read from environment
 python3 << 'EOF'
-from infisical_sdk import InfisicalSDKClient
-client = InfisicalSDKClient(
-    host='http://127.0.0.1:8200',
-    token=open('/srv/ops/secrets/infisical.service-token').read().strip()
-)
-secrets = client.secrets.list_secrets(
-    project_id='e42657ef-98b2-4b9c-9a04-46c093bd6d37',
-    environment_slug='dev',
-    secret_path='/'
-)
-for s in secrets.secrets:
-    if s.secret_key in ['GOOGLE_CLIENT_ID', 'GOOGLE_CLIENT_SECRET']:
-        print(f"{s.secret_key}={s.secret_value}")
+import os
+
+# Read Google OAuth credentials from .env (synced from Infisical)
+google_client_id = os.environ.get("GOOGLE_CLIENT_ID")
+google_client_secret = os.environ.get("GOOGLE_CLIENT_SECRET")
+if not google_client_id or not google_client_secret:
+    raise RuntimeError("Google OAuth credentials not found in environment — ensure .env is synced from Infisical")
+print(f"GOOGLE_CLIENT_ID={google_client_id}")
 EOF
 ```
 

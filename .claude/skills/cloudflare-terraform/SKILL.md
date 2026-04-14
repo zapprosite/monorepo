@@ -255,19 +255,13 @@ access_services = { for k, v in var.services : k => v if k != "bot" && k != "lis
 ### Obter valores do Infisical
 
 ```python
-from infisical_sdk import InfisicalSDKClient
-client = InfisicalSDKClient(
-    host='http://127.0.0.1:8200',
-    token=open('/srv/ops/secrets/infisical.service-token').read().strip()
-)
-secrets = client.secrets.list_secrets(
-    project_id='e42657ef-98b2-4b9c-9a04-46c093bd6d37',
-    environment_slug='dev',
-    secret_path='/'
-)
-for s in secrets.secrets:
-    if s.secret_key == 'CLOUDFLARE_API_TOKEN':
-        print(s.secret_value)
+import os
+
+# Read CLOUDFLARE_API_TOKEN from .env (synced from Infisical)
+token = os.environ.get("CLOUDFLARE_API_TOKEN")
+if not token:
+    raise RuntimeError("CLOUDFLARE_API_TOKEN not found in environment — ensure .env is synced from Infisical")
+print(token)
 ```
 
 ---
