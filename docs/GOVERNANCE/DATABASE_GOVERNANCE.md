@@ -16,6 +16,7 @@ date: 2026-04-08
 ## 1. Visão Geral
 
 Este documento define políticas de organização, nomenclatura e ciclo de vida para:
+
 - **PostgreSQL** (Supabase, N8N containers, Coolify, Infisical)
 - **Qdrant** (collections de vetores)
 - **Catálogo Central** (schema `catalog` no Supabase)
@@ -26,22 +27,22 @@ Este documento define políticas de organização, nomenclatura e ciclo de vida 
 
 ### 2.1 Inventário Completo (2026-04-08)
 
-| # | Instância | Host | Porta | Base | Password (vault) | Config |
-|---|-----------|------|-------|------|-----------------|--------|
-| 1 | **Supabase Postgres** | supabase.zappro.site | 5433/5435 | postgres | `SUPABASE_POSTGRES_PASSWORD` | 🔑 vault |
-| 2 | **N8N Postgres-1** | localhost (Coolify) | 5432 | n8n | `SERVICE_PASSWORD_POSTGRES` (Coolify .env) | ⚙️ Coolify-managed |
-| 3 | **N8N Postgres-2** | localhost (Coolify) | 5432 | n8n | `SERVICE_PASSWORD_POSTGRES` (Coolify .env) | ⚙️ Coolify-managed |
-| 4 | **Coolify Postgres** | localhost | 5432 | coolify | `COOLIFY_DB_PASSWORD` | 🔑 vault |
-| 5 | **Infisical Postgres** | localhost | 5432 | infisical | `INFISICAL_DB_PASSWORD` | 🔑 vault |
+| #   | Instância              | Host                             | Porta | Base      | Password (vault)                           | Config             |
+| --- | ---------------------- | -------------------------------- | ----- | --------- | ------------------------------------------ | ------------------ |
+| 1   | **Supabase Postgres**  | PRUNED (discontinued 2026-04-14) | —     | —         | —                                          | —                  |
+| 2   | **N8N Postgres-1**     | localhost (Coolify)              | 5432  | n8n       | `SERVICE_PASSWORD_POSTGRES` (Coolify .env) | ⚙️ Coolify-managed |
+| 3   | **N8N Postgres-2**     | localhost (Coolify)              | 5432  | n8n       | `SERVICE_PASSWORD_POSTGRES` (Coolify .env) | ⚙️ Coolify-managed |
+| 4   | **Coolify Postgres**   | localhost                        | 5432  | coolify   | `COOLIFY_DB_PASSWORD`                      | 🔑 vault           |
+| 5   | **Infisical Postgres** | localhost                        | 5432  | infisical | `INFISICAL_DB_PASSWORD`                    | 🔑 vault           |
 
 ### 2.2 Regras de Conexão
 
-| Para usar... | Connection string | Auth env var |
-|-------------|-------------------|--------------|
-| Supabase via MCP | `postgresql://postgres:${SUPABASE_POSTGRES_PASSWORD}@localhost:5435/postgres` | `SUPABASE_POSTGRES_PASSWORD` |
+| Para usar...        | Connection string                                                             | Auth env var                 |
+| ------------------- | ----------------------------------------------------------------------------- | ---------------------------- |
+| Supabase via MCP    | `postgresql://postgres:${SUPABASE_POSTGRES_PASSWORD}@localhost:5435/postgres` | `SUPABASE_POSTGRES_PASSWORD` |
 | Supabase via pooler | `postgresql://postgres:${SUPABASE_POSTGRES_PASSWORD}@localhost:5433/postgres` | `SUPABASE_POSTGRES_PASSWORD` |
-| N8N Postgres-1 | Não usar diretamente (N8N interno) | — |
-| N8N Postgres-2 | Não usar diretamente (N8N interno) | — |
+| N8N Postgres-1      | Não usar diretamente (N8N interno)                                            | —                            |
+| N8N Postgres-2      | Não usar diretamente (N8N interno)                                            | —                            |
 
 ### 2.3 N8N Postgres (isolado — NÃO usar para aplicação)
 
@@ -74,28 +75,28 @@ Credentials no `.env` de cada serviço no Coolify — não estão no vault princ
 
 Criados e gerenciados pelo Supabase internamente. Nunca criar tabelas nesses schemas.
 
-| Schema | Dono | Propósito |
-|--------|------|-----------|
-| `public` | Supabase | Tabelas públicas via PostgREST |
-| `auth` | Supabase | Autenticação (GoTrue) |
-| `storage` | Supabase | Object storage |
-| `realtime` | Supabase | Websockets |
-| `extensions` | Supabase | PostgreSQL extensions |
-| `_supabase` | Supabase | Dados internos |
-| `_analytics` | Supabase | Analytics (Logflare) |
-| `graphql_public` | Supabase | GraphQL |
-| `pgsodium` | Supabase | Criptografia |
-| `vault` | Supabase | Segredos criptografados |
-| `pgbouncer` | Supabase | Pooler metadata |
-| `pgmq_public` | Supabase | Message queue |
-| `supabase_migrations` | Supabase | Migrations |
+| Schema                | Dono     | Propósito                      |
+| --------------------- | -------- | ------------------------------ |
+| `public`              | Supabase | Tabelas públicas via PostgREST |
+| `auth`                | Supabase | Autenticação (GoTrue)          |
+| `storage`             | Supabase | Object storage                 |
+| `realtime`            | Supabase | Websockets                     |
+| `extensions`          | Supabase | PostgreSQL extensions          |
+| `_supabase`           | Supabase | Dados internos                 |
+| `_analytics`          | Supabase | Analytics (Logflare)           |
+| `graphql_public`      | Supabase | GraphQL                        |
+| `pgsodium`            | Supabase | Criptografia                   |
+| `vault`               | Supabase | Segredos criptografados        |
+| `pgbouncer`           | Supabase | Pooler metadata                |
+| `pgmq_public`         | Supabase | Message queue                  |
+| `supabase_migrations` | Supabase | Migrations                     |
 
 ### 3.2 Schemas de Aplicação (Gerenciados por nós)
 
-| Prefixo | Uso | Exemplo |
-|---------|-----|---------|
-| `catalog` | Registro central (único) | `catalog` |
-| `app_` | Dados de aplicação | `app_hvac`, `app_controle` |
+| Prefixo   | Uso                               | Exemplo                         |
+| --------- | --------------------------------- | ------------------------------- |
+| `catalog` | Registro central (único)          | `catalog`                       |
+| `app_`    | Dados de aplicação                | `app_hvac`, `app_controle`      |
 | `shared_` | Tabelas compartilhadas entre apps | `shared_users`, `shared_config` |
 
 ### 3.3 Ciclo de Vida de Schemas
@@ -123,6 +124,7 @@ Fonte de verdade estruturada para tudo que existe nos bancos e no Qdrant.
 ### 4.2 Tabelas
 
 #### `catalog.schema_registry`
+
 Registra todos os schemas do Supabase.
 
 ```sql
@@ -143,6 +145,7 @@ CREATE TABLE catalog.schema_registry (
 ```
 
 #### `catalog.collection_registry`
+
 Registra todas as collections do Qdrant.
 
 ```sql
@@ -163,6 +166,7 @@ CREATE TABLE catalog.collection_registry (
 ```
 
 #### `catalog.table_registry`
+
 Registra tabelas relevantes em schemas gerenciados.
 
 ```sql
@@ -178,6 +182,7 @@ CREATE TABLE catalog.table_registry (
 ```
 
 #### `catalog.embedding_registry`
+
 Registra modelos de embedding disponíveis.
 
 ```sql
@@ -198,12 +203,12 @@ CREATE TABLE catalog.embedding_registry (
 
 ### 5.1 Collections Ativas
 
-| Collection | Tipo | Dimensões | Modelo | Status | Propósito |
-|------------|------|-----------|--------|--------|-----------|
-| `catalog_embeddings` | catalog | 1024 | bge-m3 | ativo | Busca semântica no catálogo |
-| `rag_governance` | rag | 1024 | bge-m3 | ativo | Docs de governança indexadas |
-| `main` | test | 384 | fast-all-minilm-l6-v2 | deprecated | Collection antiga (não usar) |
-| `rag_docs` | rag | 1024 | bge-m3 | deprecated | Dados mistos (migrar) |
+| Collection           | Tipo    | Dimensões | Modelo                | Status     | Propósito                    |
+| -------------------- | ------- | --------- | --------------------- | ---------- | ---------------------------- |
+| `catalog_embeddings` | catalog | 1024      | bge-m3                | ativo      | Busca semântica no catálogo  |
+| `rag_governance`     | rag     | 1024      | bge-m3                | ativo      | Docs de governança indexadas |
+| `main`               | test    | 384       | fast-all-minilm-l6-v2 | deprecated | Collection antiga (não usar) |
+| `rag_docs`           | rag     | 1024      | bge-m3                | deprecated | Dados mistos (migrar)        |
 
 ### 5.2 Regras para Collections
 
@@ -227,25 +232,26 @@ Usar template `templates/new-collection.md` para proposta.
 
 ### 6.1 Schemas
 
-| Prefixo | Uso | Exemplo |
-|---------|-----|---------|
-| `app_` | Dados de uma aplicação específica | `app_hvac` |
-| `shared_` | Dados compartilhados entre apps | `shared_users` |
-| `catalog` | Registro central (único, sem prefixo numérico) | `catalog` |
+| Prefixo   | Uso                                            | Exemplo        |
+| --------- | ---------------------------------------------- | -------------- |
+| `app_`    | Dados de uma aplicação específica              | `app_hvac`     |
+| `shared_` | Dados compartilhados entre apps                | `shared_users` |
+| `catalog` | Registro central (único, sem prefixo numérico) | `catalog`      |
 
 **Regras:**
+
 - Minúsculas com underscore
 - Nome descritivo e curto
 - Sem números ou caracteres especiais (exceto underscore)
 
 ### 6.2 Collections Qdrant
 
-| Prefixo | Uso | Modelo obrigatório | Exemplo |
-|---------|-----|-------------------|---------|
-| `rag_` | Docs/conhecimento para RAG | bge-m3 1024D | `rag_hvac` |
-| `app_*_vectors` | Vetores de aplicação | bge-m3 1024D | `app_hvac_vectors` |
-| `catalog_embeddings` | Busca no catálogo (único) | bge-m3 1024D | (único) |
-| `test_` | Experimentos | qualquer | `test_novo_modelo` |
+| Prefixo              | Uso                        | Modelo obrigatório | Exemplo            |
+| -------------------- | -------------------------- | ------------------ | ------------------ |
+| `rag_`               | Docs/conhecimento para RAG | bge-m3 1024D       | `rag_hvac`         |
+| `app_*_vectors`      | Vetores de aplicação       | bge-m3 1024D       | `app_hvac_vectors` |
+| `catalog_embeddings` | Busca no catálogo (único)  | bge-m3 1024D       | (único)            |
+| `test_`              | Experimentos               | qualquer           | `test_novo_modelo` |
 
 ### 6.3 Metadata Padrão (Qdrant)
 
@@ -270,10 +276,10 @@ Todo ponto armazenado no Qdrant **deve** ter esse metadata:
 
 ## 7. Modelos de Embedding
 
-| Modelo | Dimensões | Provider | Endpoint | Status |
-|--------|-----------|----------|----------|--------|
-| `bge-m3` | 1024 | Ollama (local) | http://localhost:11434 | ativo — usar para tudo novo |
-| `fast-all-minilm-l6-v2` | 384 | Ollama (local) | http://localhost:11434 | deprecated — somente retrocompatibilidade |
+| Modelo                  | Dimensões | Provider       | Endpoint               | Status                                    |
+| ----------------------- | --------- | -------------- | ---------------------- | ----------------------------------------- |
+| `bge-m3`                | 1024      | Ollama (local) | http://localhost:11434 | ativo — usar para tudo novo               |
+| `fast-all-minilm-l6-v2` | 384       | Ollama (local) | http://localhost:11434 | deprecated — somente retrocompatibilidade |
 
 **Regra:** Nunca misturar dimensões numa mesma collection.
 
@@ -311,6 +317,7 @@ REGISTRO:
 ### 8.3 Via n8n (Auditoria Automática Semanal)
 
 Workflow n8n + qwen3.5:
+
 1. Coleta schemas reais do PostgreSQL
 2. Coleta collections reais do Qdrant
 3. Compara com `catalog.schema_registry` e `catalog.collection_registry`
@@ -327,20 +334,21 @@ Nunca criar tabelas em schemas Supabase internos. Ver GUARDRAILS.md seção 9.
 
 ### 9.2 Regras de Operação no Banco
 
-| Operação | Classificação | Requer Aprovação? |
-|----------|--------------|------------------|
-| SELECT em qualquer schema | Segura | Não |
-| CREATE SCHEMA app_* ou shared_* | Estrutural | Sim (snapshot antes) |
-| CREATE TABLE em schemas gerenciados | Estrutural | Sim |
-| DROP SCHEMA | Destrutivo | Sim + backup |
-| DROP TABLE | Destrutivo | Sim + backup |
-| DELETE em massa | Destrutivo | Sim |
-| TRUNCATE | Destrutivo | Sim |
-| ALTER TABLE | Estrutural | Sim |
+| Operação                            | Classificação | Requer Aprovação?    |
+| ----------------------------------- | ------------- | -------------------- |
+| SELECT em qualquer schema           | Segura        | Não                  |
+| CREATE SCHEMA app*\* ou shared*\*   | Estrutural    | Sim (snapshot antes) |
+| CREATE TABLE em schemas gerenciados | Estrutural    | Sim                  |
+| DROP SCHEMA                         | Destrutivo    | Sim + backup         |
+| DROP TABLE                          | Destrutivo    | Sim + backup         |
+| DELETE em massa                     | Destrutivo    | Sim                  |
+| TRUNCATE                            | Destrutivo    | Sim                  |
+| ALTER TABLE                         | Estrutural    | Sim                  |
 
 ### 9.3 Backup Antes de DDL
 
 Antes de qualquer `DROP` ou `ALTER` destrutivo:
+
 ```bash
 # Backup do schema específico
 docker exec supabase-db pg_dump -U postgres -n app_nome postgres > /srv/backups/postgres/app_nome-$(date +%Y%m%d).sql
@@ -382,22 +390,22 @@ AND (table_schema, table_name) NOT IN (
 
 ### Schemas Ativos
 
-| Schema | Tipo | Tabelas | Propósito |
-|--------|------|---------|-----------|
-| `catalog` | catalog | 4 | Registry central — fonte de verdade |
-| `app_journal` | app | 4 | Journal pessoal (entries, prompts, tags, entry_tags) |
-| `app_voice` | app | 2 | Histórico STT/TTS (transcriptions, syntheses) |
-| `app_n8n` | app | 1 | Logs de workflows n8n (workflow_logs) |
-| `shared_config` | shared | 1 | Configurações globais (settings) |
+| Schema          | Tipo    | Tabelas | Propósito                                            |
+| --------------- | ------- | ------- | ---------------------------------------------------- |
+| `catalog`       | catalog | 4       | Registry central — fonte de verdade                  |
+| `app_journal`   | app     | 4       | Journal pessoal (entries, prompts, tags, entry_tags) |
+| `app_voice`     | app     | 2       | Histórico STT/TTS (transcriptions, syntheses)        |
+| `app_n8n`       | app     | 1       | Logs de workflows n8n (workflow_logs)                |
+| `shared_config` | shared  | 1       | Configurações globais (settings)                     |
 
 ### Collections Qdrant Ativas
 
-| Collection | Dims | Vinculada a | Propósito |
-|-----------|------|-------------|-----------|
-| `catalog_embeddings` | 1024 | catalog.* | Busca semântica no catálogo |
-| `rag_governance_v1` | 1024 | ./ | RAG sobre docs de governança |
-| `app_journal_v1` | 1024 | app_journal.entries | Busca semântica em entradas |
-| `app_voice_v1` | 1024 | app_voice.transcriptions | Busca semântica em transcrições |
+| Collection           | Dims | Vinculada a              | Propósito                       |
+| -------------------- | ---- | ------------------------ | ------------------------------- |
+| `catalog_embeddings` | 1024 | catalog.\*               | Busca semântica no catálogo     |
+| `rag_governance_v1`  | 1024 | ./                       | RAG sobre docs de governança    |
+| `app_journal_v1`     | 1024 | app_journal.entries      | Busca semântica em entradas     |
+| `app_voice_v1`       | 1024 | app_voice.transcriptions | Busca semântica em transcrições |
 
 ---
 
