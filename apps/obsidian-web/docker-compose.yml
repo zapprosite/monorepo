@@ -1,0 +1,21 @@
+services:
+  obsidian-web:
+    build: .
+    container_name: obsidian-web
+    ports:
+      - "4081:80"
+    volumes:
+      - /home/will/obsidian-vault:/usr/share/nginx/html/vault:ro
+    env_file:
+      - /srv/monorepo/.env
+    environment:
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - GOOGLE_REDIRECT_URI=${GOOGLE_REDIRECT_URI_OBSIDIAN}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s

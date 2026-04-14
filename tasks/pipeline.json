@@ -2628,12 +2628,84 @@
       "files": [],
       "testRequired": true,
       "specRef": "docs/SPECS/SPEC-035-minimax-research-replacement.md"
+    },
+    {
+      "id": 63,
+      "title": "SPEC-036: Setup Qdrant collections (hvacr_knowledge + openclaw_memory)",
+      "description": "Configure Qdrant with chunk_size=768 and embedding_dim=1536 for both collections",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [],
+      "subtasks": [
+        {"id": "63.1", "title": "Create hvacr_knowledge collection with 768 chunk, 1536 dim", "status": "pending"},
+        {"id": "63.2", "title": "Create openclaw_memory collection with 768 chunk, 1536 dim", "status": "pending"},
+        {"id": "63.3", "title": "Verify collections respond to queries", "status": "pending"}
+      ],
+      "acceptanceCriteria": ["AC-1"],
+      "specRef": "SPEC-036"
+    },
+    {
+      "id": 64,
+      "title": "SPEC-036: Verify memory-keeper backup cron",
+      "description": "Confirm backup script exists and cron 0 3 * * * is active",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [],
+      "subtasks": [
+        {"id": "64.1", "title": "Find backup script in /srv/ops/scripts/", "status": "pending"},
+        {"id": "64.2", "title": "Verify cron entry: 0 3 * * *", "status": "pending"},
+        {"id": "64.3", "title": "Test manual backup execution", "status": "pending"},
+        {"id": "64.4", "title": "Verify backup file in /srv/backups/memory-keeper/", "status": "pending"}
+      ],
+      "acceptanceCriteria": ["AC-2"],
+      "specRef": "SPEC-036"
+    },
+    {
+      "id": 65,
+      "title": "SPEC-036: Verify Obsidian vault sync to GitHub",
+      "description": "Confirm obsidian-git plugin syncs to monorepo-obsidian GitHub repo",
+      "status": "pending",
+      "priority": "medium",
+      "dependencies": [],
+      "subtasks": [
+        {"id": "65.1", "title": "Check obsidian-git plugin status", "status": "pending"},
+        {"id": "65.2", "title": "Verify monorepo-obsidian GitHub repo exists", "status": "pending"},
+        {"id": "65.3", "title": "Check recent git log commits", "status": "pending"}
+      ],
+      "acceptanceCriteria": ["AC-3"],
+      "specRef": "SPEC-036"
+    },
+    {
+      "id": 66,
+      "title": "SPEC-036: Integrate 4-layer memory into AGENTS.md",
+      "description": "Add memory architecture documentation and layer verification to AGENTS.md",
+      "status": "pending",
+      "priority": "medium",
+      "dependencies": [63, 64, 65],
+      "subtasks": [
+        {"id": "66.1", "title": "Document 4-layer architecture in AGENTS.md", "status": "pending"},
+        {"id": "66.2", "title": "Add layer verification commands", "status": "pending"},
+        {"id": "66.3", "title": "Update CLAUDE.md with memory layer references", "status": "pending"}
+      ],
+      "acceptanceCriteria": ["AC-4"],
+      "specRef": "SPEC-036"
+    },
+    {
+      "id": 67,
+      "title": "SPEC-037: Mark as IMPLEMENTED — obsidian-web deployed and working",
+      "description": "obsidian-web app already deployed and OAuth working. Update SPEC status to IMPLEMENTED.",
+      "status": "completed",
+      "priority": "high",
+      "dependencies": [],
+      "subtasks": [],
+      "acceptanceCriteria": ["AC-1", "AC-2", "AC-3", "AC-4", "AC-5", "AC-6", "AC-7"],
+      "specRef": "SPEC-037"
     }
   ],
   "meta": {
-    "totalTasks": 62,
-    "completedTasks": 1,
-    "pendingTasks": 62,
+    "totalTasks": 67,
+    "completedTasks": 2,
+    "pendingTasks": 66,
     "generatedAt": "2026-04-13T11:15:00Z",
     "projectName": "zappro-monorepo",
     "version": "2.0"

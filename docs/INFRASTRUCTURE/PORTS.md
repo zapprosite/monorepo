@@ -24,7 +24,6 @@
 | **4000** | zappro-litellm | host | LiteLLM proxy (venv) | api.zappro.site / llm.zappro.site |
 | **4004** | nginx-ratelimit | host | nginx rate-limited proxy → :4000 | — |
 | **4005** | ai-router | host | AI Router (FastAPI) - intelligent routing | — |
-| **5678** | n8n | host | Workflow automation | n8n.zappro.site ⚠️ DOWN — tunnel IP 10.0.6.3 errado, corrigir para 10.0.6.2 |
 | **6333** | qdrant (Coolify) | Coolify net (10.0.4.x) — NÃO localhost | Qdrant REST ⚠️ DOWN — tunnel usa localhost:6333 mas container não expõe ao host |
 | **6334** | zappro-qdrant | host | Qdrant gRPC | — |
 | **6379** | zappro-redis | host | Redis cache/pubsub | — |
@@ -77,14 +76,14 @@
 | **4002** | — | localhost | ShieldGemma 9B (PENDENTE — nunca deployado) | — |
 | **4007** | zappro-tts-bridge | localhost | TTS Bridge → Kokoro :8880 (UP, ver :8013) | — |
 | **4080** | list-web | host | Web list viewer service | — |
-| **8200** | infisical | localhost | Infisical vault self-hosted | vault.zappro.site |
+| **4081** | obsidian-web | host | Obsidian vault UI (OAuth native) | md.zappro.site |
 
 ## ⏳ Portas RESERVADAS — Pendente Deploy (Coolify)
 
 | Porta | Serviço Planejado | Subdomínio | Status |
 |-------|------------------|------------|--------|
-| **3000** | Reservada | — | ⚠️ DEPRECATED — OpenWebUI foi removido do :8080 |
-| **3010** | Open WebUI (se precisar) | chat.zappro.site | ⏳ Deploy via Coolify pendente |
+| **3000** | Reservada | — | Reservada para proxy futuro |
+| **8080** | Open WebUI (Coolify) | chat.zappro.site | ✅ ATIVO — openwebui-bridge-agent UP 3 dias |
 
 ---
 

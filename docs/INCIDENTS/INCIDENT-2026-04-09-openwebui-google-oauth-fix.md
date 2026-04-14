@@ -32,7 +32,7 @@ OpenWebUI em `chat.zappro.site` não mostrava botão Google OAuth. Após remoç�
 
 **3 problemas combinados:**
 
-1. **Credenciais OAuth erradas** — `CLIENT_ID` e `CLIENT_SECRET` eram placeholders/temporários (`GOCSPX-fgKPRDB9UcWb-i8Pr6eblXI`) em vez das credenciais reais do Google Cloud Console para `chat.zappro.site`
+1. **Credenciais OAuth erradas** — `CLIENT_ID` e `CLIENT_SECRET` eram placeholders/temporários (`[GOOGLE_OAUTH_SECRET]`) em vez das credenciais reais do Google Cloud Console para `chat.zappro.site`
 
 2. **Cloudflare Access protegia o domínio** — `chat.zappro.site` estava no filtro `access_services` do Terraform, fazendo redirect para `zappro.cloudflareaccess.com` em vez de deixar passar direto ao OpenWebUI
 
@@ -87,10 +87,10 @@ COOLIFY_URL: 'https://chat.zappro.site'
 
 ```env
 # ANTES (errado)
-OAUTH_GOOGLE_CLIENT_ID=297107448858-324eplshrg5vv2br911l4dtm8bjh0sl1.apps.googleusercontent.com
-GOOGLE_CLIENT_ID=297107448858-324eplshrg5vv2br911l4dtm8bjh0sl1.apps.googleusercontent.com
-OAUTH_GOOGLE_CLIENT_SECRET=GOCSPX-fgKPRDB9UcWb-i8Pr6eblXI
-GOOGLE_CLIENT_SECRET=GOCSPX-fgKPRDB9UcWb-i8Pr6eblXI
+OAUTH_GOOGLE_CLIENT_ID=[REDACTED-GOOGLE-OAUTH-CLIENT-ID]
+GOOGLE_CLIENT_ID=[REDACTED-GOOGLE-OAUTH-CLIENT-ID]
+OAUTH_GOOGLE_CLIENT_SECRET=[GOOGLE_OAUTH_SECRET]
+GOOGLE_CLIENT_SECRET=[GOOGLE_OAUTH_SECRET]
 
 # DEPOIS (correcto)
 OAUTH_GOOGLE_CLIENT_ID=<REDACTED - ver Infisical>
@@ -149,7 +149,7 @@ infisical secrets set GOOGLE_CLIENT_SECRET=<NOVO_CLIENT_SECRET> --env=prod
 ## Action Items
 
 - [ ] Atualizar Infisical com as credenciais corretas
-- [ ] Revogar secret antigo `GOCSPX-fgKPRDB9UcWb-i8Pr6eblXI` no Google Cloud Console (pode ter sido comprometido)
+- [ ] Revogar secret antigo `[GOOGLE_OAUTH_SECRET]` no Google Cloud Console (pode ter sido comprometido)
 - [ ] Verificar se o `WEBUI_SECRET_KEY` gerado (`ab621c4f...`) está persistente ou foi gerado novo a cada reinício — se sim, gerar um fixo
 
 ---

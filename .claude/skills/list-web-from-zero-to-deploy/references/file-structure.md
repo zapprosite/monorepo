@@ -121,7 +121,12 @@ app-name/
 
 ---
 
-## auth-callback.html
+## auth-callback.html (OBRIGATORIO — token exchange real)
+
+⚠️ **CRÍTICO:** O auth-callback.html DEVE fazer token exchange com Google OAuth.
+O `client_secret` é **OBRIGATÓRIO** no POST body para web apps.
+
+O padrão correto (igual ao obsidian-web em produção):
 
 ```html
 <!DOCTYPE html>
@@ -162,11 +167,15 @@ app-name/
     <div class="spinner"></div>
     <p id="status">Processando...</p>
   </div>
+
+  <!-- Carregar env.js injetado pelo container entrypoint -->
+  <script src="/env.js"></script>
   <script>
     (async function() {
       const urlParams = new URLSearchParams(window.location.search);
       const code = urlParams.get('code');
       const error = urlParams.get('error');
+      const codeVerifier = sessionStorage.getItem('code_verifier');
 
       if (error) {
         document.getElementById('status').textContent = 'Erro: ' + error;
@@ -183,19 +192,61 @@ app-name/
       document.getElementById('status').textContent = 'Autenticando...';
 
       try {
-        // Em producao: trocar code por tokens via backend/Cloudflare Worker
-        // Sem backend: simular session para demo
+        // Ler client_secret de window.__ENV__ (injetado via env.js)
+        const clientId = window.__ENV__?.GOOGLE_CLIENT_ID || '';
+        const clientSecret = window.__ENV__?.GOOGLE_CLIENT_SECRET || '';
+        const redirectUri = window.location.origin + '/auth/callback';
+
+        // Token exchange POST body — SEMPRE com client_secret
+        // Sem client_secret → invalid_client ou client_secret is missing
+        const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: new URLSearchParams({
+            grant_type: 'authorization_code',
+            client_id: clientId,
+            client_secret: clientSecret,  // ← OBRIGATORIO
+            code: code,
+            redirect_uri: redirectUri,
+            code_verifier: codeVerifier || ''
+          })
+        });
+
+        if (!tokenResponse.ok) {
+          const errData = await tokenResponse.json().catch(() => ({}));
+          throw new Error(errData.error_description || errData.error || 'Token exchange failed');
+        }
+
+        const tokens = await tokenResponse.json();
+
+        // Buscar userinfo com o access_token
+        const userinfoResponse = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+          headers: { 'Authorization': 'Bearer ' + tokens.access_token }
+        });
+
+        if (!userinfoResponse.ok) {
+          throw new Error('Failed to fetch userinfo');
+        }
+
+        const userinfo = await userinfoResponse.json();
+
+        // Guardar session com tokens
         const session = {
-          name: 'Usuario',
-          email: 'usuario@zappro.site',
-          picture: null,
-          exp: Date.now() / 1000 + (24 * 60 * 60)
+          name: userinfo.name,
+          email: userinfo.email,
+          picture: userinfo.picture,
+          access_token: tokens.access_token,
+          refresh_token: tokens.refresh_token,
+          exp: Date.now() / 1000 + (tokens.expires_in || 3600)
         };
         localStorage.setItem('app_session', JSON.stringify(session));
+        sessionStorage.removeItem('code_verifier');
 
         document.getElementById('status').textContent = 'Login OK!';
         document.getElementById('status').className = 'success';
-        // Redirect tratado pelo index.html (nao recarregar)
+
+        // Redirect para index.html
+        window.location.href = '/';
       } catch (err) {
         document.getElementById('status').textContent = 'Erro: ' + err.message;
         document.getElementById('status').className = 'error';
@@ -205,6 +256,8 @@ app-name/
 </body>
 </html>
 ```
+
+**SEM `client_secret` → `invalid_client` ou `client_secret is missing`**
 
 ---
 

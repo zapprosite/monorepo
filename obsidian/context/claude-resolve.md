@@ -81,12 +81,12 @@
   "providers": {
     "minimax": {
       "baseUrl": "https://api.minimax.io/anthropic",
-      "apiKey": "sk-cp-uA1oy3YNYtSeBSs4-o3kFktKLXMIyX3n27bosa2o4iNsYHoZLt-DqyTqXL3Ytezkol3ALOXVgaO3EeNUpOSIgPASNmQqr8fipYEa2RGQHDZCuhKhfmxwd8Q",
+      "apiKey": "[MINIMAX_API_KEY]",
       "models": [{ "id": "MiniMax-M2.1" }]  // ⚠️ SÓ TEM M2.1!
     },
     "liteLLM": {
       "baseUrl": "http://10.0.1.1:4000/v1",
-      "apiKey": "sk-zappro-lm-2026-s8k3m9x2p7r6t5w1v4c8n0d5j7f9g3h6i2k4l6m8n0p1",
+      "apiKey": "[LITELLM_API_KEY]",
       "models": [{ "id": "minimax-m2.7" }]
     }
   }
@@ -181,12 +181,12 @@ docker exec openclaw-qgtzrmi6771lt8l7x8rqx72f openclaw channels status
 docker exec openclaw-qgtzrmi6771lt8l7x8rqx72f openclaw pairing list telegram
 
 # Testar LiteLLM direto
-curl -H "Authorization: Bearer sk-zappro-lm-2026-s8k3m9x2p7r6t5w1v4c8n0d5j7f9g3h6i2k4l6m8n0p1" \
+curl -H "Authorization: Bearer [LITELLM_API_KEY]" \
   http://10.0.1.1:4000/v1/models
 
 # Testar MiniMax direto
 curl -X POST "https://api.minimax.io/anthropic/v1/messages" \
-  -H "Authorization: Bearer sk-cp-uA1oy3YNYtSeBSs4-o3kFktKLXMIyX3n27bosa2o4iNsYHoZLt-DqyTqXL3Ytezkol3ALOXVgaO3EeNUpOSIgPASNmQqr8fipYEa2RGQHDZCuhKhfmxwd8Q" \
+  -H "Authorization: Bearer [MINIMAX_API_KEY]" \
   -d '{"model":"MiniMax-M2.7","max_tokens":10,"messages":[{"role":"user","content":"hi"}]}'
 ```
 

@@ -72,7 +72,7 @@ async function handleOAuthCallback(code) {
       body: new URLSearchParams({
         code,
         client_id: GOOGLE_OAUTH.client_id,
-        client_secret: 'get_from_infisical', // Backend handles this
+        client_secret: window.__ENV__?.GOOGLE_CLIENT_SECRET || '', // Backend handles this
         redirect_uri: GOOGLE_OAUTH.redirect_uri,
         grant_type: 'authorization_code'
       })

@@ -52,10 +52,13 @@ Retorna analise estruturada:
 bash scripts/cursor-loop-research-minimax.sh "<query>"
 ```
 
-O script:
-1. Recupera `MINIMAX_API_KEY` do Infisical (vault: dev, project: e42657ef-98b2-4b9c-9a04-46c093bd6d37)
-2. Faz POST para `https://api.minimax.io/anthropic/v1/messages`
-3. Usa modelo `MiniMax-M2.1` com max_tokens 1024
+**Fluxo de secrets (.env canonical):**
+1. `cursor-loop-research-minimax.sh` sourceia `.env` na mesma directoria
+2. `.env` é a fonte canónica — segredos são sync'd from Infisical by external process
+3. Se `MINIMAX_API_KEY` not in `.env` → erro com hint para configurar
+4. **NUNCA usar Infisical SDK diretamente em scripts**
+
+**NUNCA usar Infisical SDK directly in scripts.** Usar o padrão `.env canonical`.
 
 ## Referências
 

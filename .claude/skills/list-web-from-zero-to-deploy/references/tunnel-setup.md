@@ -52,14 +52,16 @@ list = {
 
 O `http_host_header` e necessario quando o servico faz bind a um hostname especifico.
 
-Exemplo — OpenClaw precisa porque o servico responde a um hostname diferente:
+Exemplo — Hermes-Agent (OpenClaw successor) precisa de http_host_header quando o servico responde a um hostname diferente:
 ```hcl
-bot = {
-  url              = "http://localhost:80"
+hermes = {
+  url              = "http://10.0.X.X:8080"   # IP do container Hermes
   subdomain        = "bot"
-  http_host_header = "openclaw-qgtzrmi6771lt8l7x8rqx72f.191.17.50.123.sslip.io"
+  http_host_header = "bot.zappro.site"
 }
 ```
+
+**Nota:** O Hermes-Agent substituiu o OpenClaw. O `http_host_header` e necessario apenas quando o servico faz bind a um hostname especifico diferente do subdomain.
 
 Para apps nginx normais, usar `null`.
 

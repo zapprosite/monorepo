@@ -54,7 +54,6 @@ specRef: SPEC-AUDIT-FIXES-2026-04-12.md, SPEC-009-openclaw-persona-audio-stack.m
 
 ### 7. Security Hardening
 - MASTER_PASSWORD USB + SHA256 hash
-- Infisical self-hosted (vault.zappro.site)
 - Cloudflare Access + Zero Trust
 - 8 serviços IMMUTABLE, 6 PINNED
 - ZFS encryption em uso

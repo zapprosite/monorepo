@@ -4,7 +4,12 @@ set -e
 # Smoke Test Script for Slices 10-12 (Maintenance, Loyalty, Email)
 # Tests all tRPC endpoints via curl
 
-BASE_URL="http://localhost:4001/trpc"
+# Source .env for environment variables
+set -a
+source /srv/monorepo/.env
+set +a
+
+BASE_URL="${API_BASE_URL:-http://localhost:4001/trpc}"
 HEADER_CONTENT_TYPE="Content-Type: application/json"
 
 # Color output

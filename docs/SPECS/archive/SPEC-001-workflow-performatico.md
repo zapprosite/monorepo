@@ -25,7 +25,6 @@ Criar o **workflow performatico de AI tools** para o host `will-zappro`: um sist
 
 | Componente | Tecnologia |
 |------------|------------|
-| Vault | Infisical v0.146.2 (`vault.zappro.site`) |
 | SDK | Python `infisicalsdk>=0.1.3,<1.0.17` |
 | Audit | JSONL append-only em `~/.claude/audit/` |
 | Logs centralizados | Loki/Promtail (já existe no host) |
@@ -183,7 +182,6 @@ curl -sf http://localhost:8080/health &>/dev/null \
 
 | Task | Acceptance | Verify | Files |
 |------|------------|--------|-------|
-| 1.1 | Migrar secrets do OpenClaw `.env` para Infisical | `vault.zappro.site` mostra secrets sem env vars | `/srv/data/coolify/services/qgtzrmi.../` |
 | 1.2 | Criar skill `audit-workflow` em `.claude/skills/` | Skill responde a `/audit-workflow` e lista log | `.claude/skills/workflow-performatico/SKILL.md` |
 | 1.3 | Adicionar healthchecks ao `scheduled_tasks.json` | Cron job verifica health antes de executar task | `.claude/scheduled_tasks.json` |
 | 1.4 | Verificar `BROWSER_EVALUATE_ENABLED=false` no OpenClaw | `docker inspect` mostra `false` | docker-compose.yml |

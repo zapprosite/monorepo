@@ -1,6 +1,6 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "globalDependencies": [".env.example"],
+  "globalDependencies": ["turbo.json", ".env", ".env.example"],
   "pipeline": {
     "build": {
       "dependsOn": ["^build"],
@@ -26,6 +26,18 @@
     },
     "db:seed": {
       "cache": false
+    },
+    "deploy": {
+      "cache": false,
+      "dependsOn": ["build"]
+    },
+    "clean": {
+      "cache": false,
+      "outputs": []
+    },
+    "db:generate": {
+      "cache": false,
+      "dependsOn": []
     }
   }
 }

@@ -1,6 +1,6 @@
 # AGENTS.md — Monorepo Command Center
 
-> **Data:** 2026-04-09
+> **Data:** 2026-04-13
 > **Authority:** Claude Code CLI + Gitea Actions + Antigravity Kit (.agent/)
 > **Stack:** pnpm workspaces + Turbo pipeline + Biome lint + Playwright E2E
 
@@ -33,15 +33,19 @@ Antes de qualquer ação neste repositório, TODO LLM **DEVE** ler:
 | **[docs/GOVERNANCE/SECRETS_POLICY.md](../../docs/GOVERNANCE/SECRETS_POLICY.md)** | Secrets policy complementar | 🟡 ALTA |
 | **[.claude/CLAUDE.md](../../.claude/CLAUDE.md)** | Regras Claude Code, git mirror, version lock | 🟡 ALTA |
 | **[.claude/rules/openclaw-audio-governance.md](../../.claude/rules/openclaw-audio-governance.md)** | Audio stack imutável — ZERO TOLERANCE | 🔴 CRÍTICO |
+| **[.claude/rules/anti-hardcoded-secrets.md](../../.claude/rules/anti-hardcoded-secrets.md)** | Anti-hardcoded secrets pattern | 🔴 CRÍTICO |
 
 ### TL;DR (para LLMs com pressa)
 
 ```
-SEcrets → Infisical SDK APENAS — sem alucinação
+SEcrets → .env como fonte canónica — Infisical SDK só em scripts de infra
 Immutable/Pinned Services → NUNCA tocar
 Audio Stack (SPEC-009) → só Kokoro:TTS Bridge:wav2vec2:MiniMax-M2.7
 Anti-patterns (AP-1/2/3) → Docker TCP bridge, host-as-backend, localhost testing
 Não sabe? → PERGUNTE ANTES DE FAZER
+Hardcoded Values → USAR VARIÁVEIS DE AMBIENTE — nunca hardcodar URLs, IPs, portas, tokens
+
+ANTES DE QUALQUER AÇÃO: verificar .env → .claude/skills/ → AGENTS.md → .claude/CLAUDE.md
 ```
 
 **Sem ler estes documentos, não faça NADA.**
@@ -84,6 +88,7 @@ Immutable/Pinned Services → NEVER touch
 Audio Stack (SPEC-009) → only Kokoro:TTS Bridge:wav2vec2:MiniMax-M2.7
 Anti-patterns (AP-1/2/3) → Docker TCP bridge, host-as-backend, localhost testing
 Don't know? → ASK BEFORE DOING
+Hardcoded Values → USE ENVIRONMENT VARIABLES — never hardcode URLs, IPs, ports, tokens
 ```
 
 **Without reading these documents, do NOTHING.**
@@ -102,7 +107,7 @@ Don't know? → ASK BEFORE DOING
 ├─────────────────────────────────────────────────────────────┤
 │                    TURBO PIPELINE                           │
 │  turbo.json defines build/lint/test pipeline                │
-│  yarn workspaces (apps/, packages/)                         │
+│  pnpm workspaces (apps/, packages/)                         │
 ├─────────────────────────────────────────────────────────────┤
 │  .gitea/workflows/        .agent/                          │
 │  → 4 Gitea Actions       → 18 specialist agents             │
@@ -111,7 +116,7 @@ Don't know? → ASK BEFORE DOING
 │  → deploy-main                                          │
 │  → rollback                                              │
 ├─────────────────────────────────────────────────────────────┤
-│  scripts/          smoke-tests/        docs/specflow/      │
+│  scripts/          smoke-tests/        docs/SPECS/         │
 │  → health-check    → E2E (Playwright) → 15+ SPECs        │
 │  → deploy          → smoke-chat        → tasks.md          │
 │  → backup           → smoke-openclaw    → reviews/          │
@@ -128,7 +133,7 @@ Don't know? → ASK BEFORE DOING
 |----------|------|-----|
 | `turbo.json` | Turbo | Pipeline de build/test/lint |
 | `biome.json` | Biome | Lint + Format (substitui ESLint+Prettier) |
-| `yarn.lock` | Yarn Berry | Package manager c/ workspaces | ⚠️ DEPRECATED — use pnpm |
+| `yarn.lock` | Yarn Berry | Package manager c/ workspaces | ⚠️ DEPRECATED — use pnpm. Todos os comandos de build usam pnpm (ver Build Commands) |
 | `pnpm-workspace.yaml` | pnpm | Workspace definition |
 | `package.json` | Node.js | Scripts e dependências |
 | `docker-compose.yml` | Docker | Containers de desenvolvimento |
@@ -144,9 +149,101 @@ Don't know? → ASK BEFORE DOING
 | `apps/web` | Web | React 19 + MUI + tRPC | — |
 | `apps/orchestrator` | Agent | Node.js + tRPC + YAML | Human gates |
 | `apps/perplexity-agent` | Agent | Python + Streamlit + LangChain | Browser automation |
+| `apps/todo-web` | Web | Static HTML+JS + Google OAuth 2.0 + PKCE | nginx:alpine, container: todo-web |
 | `packages/ui-mui` | UI Lib | React + Material UI | → frontend |
 | `packages/zod-schemas` | Schemas | TypeScript + Zod | → backend, frontend, orchestrator |
 | `packages/typescript-config` | Config | TypeScript | Dev tooling |
+
+---
+
+## 🌐 Creating New Subdomains + OAuth
+
+### Quick Decision: Which Method?
+
+| Situation | Method | Time |
+|-----------|--------|------|
+| MVP / quick test / prototyping | Direct OAuth (no CF Access) | ~10 min |
+| Production / team / security critical | CF Access Zero Trust | ~20 min |
+| Internal tool / single developer | Direct OAuth | ~10 min |
+| Multi-user / company dashboard | CF Access | ~20 min |
+
+### Method 1: Direct OAuth (MVP Fast Path)
+
+For quick prototyping — Google OAuth handled in the app JS, no Cloudflare Access.
+
+#### Step 0: FIRST — Print OAuth URI for user (BEFORE writing any code)
+
+```bash
+echo "Add to Google Cloud Console → OAuth Client → Authorized Redirect URIs:"
+echo "https://SUBDOMAIN.zappro.site/auth/callback"
+echo ""
+echo "Add to Authorized JavaScript Origins:"
+echo "https://SUBDOMAIN.zappro.site"
+```
+
+#### Steps:
+1. Print OAuth URIs → wait for user to configure Google Console
+2. Create subdomain via Cloudflare API (fast, ~30s):
+   ```bash
+   /srv/ops/scripts/create-subdomain.sh SUBDOMAIN http://localhost:PORT
+   ```
+3. Generate app files (HTML + nginx + Dockerfile)
+4. Deploy: `docker compose up -d`
+5. Smoke test: `curl -sk https://SUBDOMAIN.zappro.site`
+6. Update SUBDOMAINS.md + PORTS.md
+
+#### Skills:
+- `/new-subdomain` — create subdomain via Cloudflare API
+- `/oauth-google-direct` — OAuth in app JS
+- `/prd-to-deploy` — full orchestrator (one-shot)
+
+### Method 2: CF Access Zero Trust (V2 Production)
+
+Google OAuth handled by Cloudflare Edge — app receives pre-authenticated requests.
+
+#### Step 0: FIRST — Print TWO URIs for user
+
+```bash
+echo "STEP 1 — Google Cloud Console:"
+echo "  Redirect URI: https://TEAM_DOMAIN/cdn-cgi/access/callback"
+echo ""
+echo "STEP 2 — Cloudflare Zero Trust Dashboard:"
+echo "  one.dash.cloudflare.com → Settings → Authentication → Add Google IdP"
+```
+
+#### Steps:
+1. Print both URIs → wait for user to configure both
+2. Create subdomain via Terraform (add to variables.tf → terraform apply)
+3. Add CF Access application + policy to access.tf → terraform apply
+4. Deploy app (no OAuth code needed!)
+5. Test: request should require Google login
+
+#### Skills:
+- `/cloudflare-terraform` — Terraform-based subdomain + CF Access
+- `/oauth-google-cloudflare` — CF Access setup guide
+
+### Scripts Available
+
+| Script | Purpose |
+|--------|---------|
+| `/srv/ops/scripts/create-subdomain.sh` | Create subdomain via Cloudflare API (fast) |
+| `/srv/ops/scripts/setup-oauth.sh` | Print OAuth URIs + generate config |
+
+### One-Shot Flow: PRD → Deploy
+
+```
+Human: /prd-to-deploy "I want X app"
+  → Step 0: Print OAuth URIs immediately
+  → Generate SPEC
+  → Create subdomain
+  → ⏸️ Wait for user OAuth config
+  → Generate files
+  → Deploy + smoke test
+  → Update docs
+  → ✅ Done
+```
+
+See: `/prd-to-deploy` skill + SPEC-035-one-shot-prd-to-deploy.md
 
 ---
 
@@ -174,6 +271,7 @@ Don't know? → ASK BEFORE DOING
 | `/trpc` | `trpc.md` | Add tRPC router | MiniMax router composition |
 | `/infra-gen` | `infra-gen.md` | Docker/TF/Prometheus/Gitea | MiniMax infra generation |
 | `/mxr` | `mxr.md` | PR review long-context | MiniMax holistic review |
+| `/md` | `md.md` | Modo dormir: escaneia SPECs pendentes e gera pipeline | pasta: monorepo |
 
 ---
 
@@ -372,32 +470,31 @@ biome lint --write .    # Fix linting
 
 ```bash
 # Install
-yarn install
+pnpm install
 
 # Build (turbo)
-yarn build              # turbo run build
-yarn build --filter=apps/backend
+pnpm build              # turbo run build
+pnpm build --filter=apps/backend
 
 # Test
-yarn test              # turbo run test
-yarn test --filter=apps/frontend -- --coverage
+pnpm test              # turbo run test
+pnpm test --filter=apps/frontend -- --coverage
 
 # Lint (biome)
-yarn lint              # biome ci .
+pnpm lint              # biome ci .
 
 # Dev
-yarn dev               # turbo run dev
-yarn dev --filter=apps/frontend
+pnpm dev               # turbo run dev
+pnpm dev --filter=apps/frontend
 
 # Type check
-yarn typecheck         # turbo run typecheck
+pnpm typecheck         # turbo run typecheck
 ```
 
 ---
 
 ## Secrets (Infisical)
 
-**Host:** `vault.zappro.site:8200` (localhost:8200)
 **Project ID:** `e42657ef-98b2-4b9c-9a04-46c093bd6d37`
 **Service Token:** `/srv/ops/secrets/infisical.service-token`
 
@@ -517,11 +614,7 @@ bash /srv/ops/scripts/gotify-alert.sh "Tunnel Test" "Smoke test passed 13/13"
 |-------|---------|---------|
 | `list-web-from-zero-to-deploy` | `/new-list-web` | Create list-web app zero→deploy |
 | `repo-scan` | `/rs` | Scan tasks in SPEC/TODO/TASKMASTER formats |
-| `universal-code-review` | `/review` | 5-axis code review |
 | `security-audit` | `/sec` | OWASP top 10 vulnerability scan |
-| `context-prune` | auto | Reduce context window |
-| `deploy-validate` | auto | Pre-deploy checks |
-| `mcp-health` | auto | MCP server health |
 
 ---
 
@@ -773,15 +866,30 @@ introduz ou atualiza texto em português.
 
 **Aplica-se a:** TODO e QUALQUER trabalho feito no monorepo — SEMPRE no final de cada sessão.
 
-### Workflow Obrigatório
+### Comandos Canónicos
+
+| Comando | Uso | Docs sync | Tag | PR |
+|---------|-----|-----------|-----|-----|
+| `/ship` | Fim de sessão completo | ✅ | ❌ | ❌ |
+| `/turbo` | Feature pronta (quick ship) | ❌ | ✅ | ❌ |
+
+### Workflow `/ship`
 
 ```
-1. SYNC DOCS  → ~/.claude/mcps/ai-context-sync/sync.sh
-2. COMMIT     → git add -A && git commit semântico
-3. PUSH BOTH  → git push origin HEAD && git push gitea HEAD
-4. MERGE MAIN → Merge main em ambos remotes (origin + gitea)
-5. NEW BRANCH → Criar feature branch com nome aleatório
+SYNC DOCS → COMMIT → PUSH BOTH → MERGE MAIN → NEW BRANCH
 ```
+
+### Workflow `/turbo`
+
+```
+COMMIT → PUSH BOTH → MERGE MAIN → TAG → NEW BRANCH
+```
+
+### Branch Naming (pre-push hook)
+
+- **Formato:** `feature/xxx-yyy` (primeiro segmento = letras, não números)
+- **Exemplos:** `feature/quantum-helix-done` ✅ | `feature/1776082911-done` ❌
+- **Excepções:** `main` e `master` têm bypass automático
 
 ### Porquê
 
@@ -797,36 +905,20 @@ introduz ou atualiza texto em português.
 | `~/.claude/mcps/ai-context-sync/sync.sh` | Sincroniza docs → memory |
 | `/srv/ops/scripts/mirror-sync.sh` | Sincroniza git mirrors |
 | `/srv/ops/scripts/cleanup-sessions.sh` | Limpa sessões Claude Code velhas |
-| Skill `/sync` | Stage → commit → push (single remote) |
-| Skill `/ship` | End-of-session sync pattern completo |
-| Skill `/cursor-loop` | Loop autónomo completo |
-
-### Exemplo de Execução
-
-```bash
-# 1. Sync docs → memory
-bash ~/.claude/mcps/ai-context-sync/sync.sh
-
-# 2. Commit com tipo semântico
-git add -A && git commit -m "fix(session): add safe cleanup cron"
-
-# 3. Push para ambos remotes
-git push origin HEAD && git push gitea HEAD
-
-# 4. Merge main em ambos (após verificar divergência)
-git fetch origin gitea
-git push origin main && git push gitea main
-
-# 5. Nova feature branch
-git checkout -b feature/session-cleanup-$(date +%s)
-```
+| `/ship` skill | End-of-session sync pattern completo |
+| `/turbo` command | Quick feature ship com tag |
 
 ### NÃO FAÇA
 
 - ❌ Commitar diretamente em `main`
 - ❌ Push para apenas um remote (origin OU gitea)
-- ❌ Pular o sync de docs → memory
-- ❌ Criar branch com nome fixo (sempre random/timestamp)
+- ❌ Pular o sync de docs → memory (usa `/ship`)
+- ❌ Criar branch com nome fixo (sempre random suffix)
+- ❌ Branch names com primeiro segmento só números (e.g. `feature/12345-x`)
+
+### Pre-Push Hook Fix (13/04/2026)
+
+O hook `.git/hooks/pre-push` agora permite `main`/`master` sem bloquear. Mantém o formato `feature/xxx-yyy` para todas as outras branches.
 
 ### Autoridade
 

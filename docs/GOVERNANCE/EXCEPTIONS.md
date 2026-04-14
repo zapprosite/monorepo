@@ -1,9 +1,9 @@
 # exceptions
 
-Documented exceptions to the Infisical SDK mandatory policy.
+Documented exceptions to the .env canonical secrets policy.
 
-**Spec:** SPEC-029-INFISICAL-SDK-MANDATORY.md
-**Last updated:** 2026-04-12
+**Spec:** SPEC-029-INFISICAL-SDK-MANDATORY.md, ADR-001
+**Last updated:** 2026-04-13
 
 ---
 
@@ -34,7 +34,7 @@ Documented exceptions to the Infisical SDK mandatory policy.
 Example:
 
 ```markdown
-| `COOLIFY_API_KEY` | Bootstrap script runs before Infisical init | will-zappro | 2026-05-12 | Migrate bootstrap-emitter.sh to use InfisicalClient |
+| `LEGACY_SYSTEM_TOKEN` | Legacy system requires direct env var access during migration | will-zappro | 2026-05-13 | Migrate to .env pattern after legacy deprecation |
 ```
 
 ---

@@ -112,6 +112,15 @@ The script outputs JSON to stdout for external monitoring:
 
 ## Installation
 
+### 0. Environment Setup
+
+The script automatically sources `.env` from the monorepo root. Ensure tokens are available:
+
+```bash
+# Verify .env exists with required tokens
+cat /srv/monorepo/.env | grep -E "LITELLM_KEY|MINIMAX_API_KEY"
+```
+
 ### 1. Make script executable
 
 ```bash
