@@ -5,7 +5,7 @@
       "cron": "*/30 * * * *",
       "prompt": "Sync docs to memory: Run /srv/monorepo/scripts/sync-memory.sh or similar to synchronize documentation changes to the memory index. Check git status for pending doc changes and update MEMORY.md index accordingly.",
       "createdAt": 1775847723434,
-      "lastFiredAt": 1776159992081,
+      "lastFiredAt": 1776176069855,
       "recurring": true
     },
     {
@@ -21,7 +21,7 @@
       "cron": "*/90 * * * *",
       "prompt": "Rode: /home/will/.claude/mcps/ai-context-sync/checkpoint.sh\n\nSe houver output (changes), liste os arquivos pendentes. Se não, diga apenas 'Checkpoint: OK'.",
       "createdAt": 1775587500000,
-      "lastFiredAt": 1776157200912,
+      "lastFiredAt": 1776175200485,
       "recurring": true
     },
     {
@@ -29,7 +29,7 @@
       "cron": "*/60 * * * *",
       "prompt": "Rode: /home/will/.claude/mcps/ai-context-sync/context-meter.sh\n\nSe o output começar com '⚠️', responda com o alerta completo. Caso contrário, apenas confirme.",
       "createdAt": 1775587500000,
-      "lastFiredAt": 1776157200912,
+      "lastFiredAt": 1776175200485,
       "recurring": true
     },
     {
@@ -37,7 +37,7 @@
       "cron": "*/5 * * * *",
       "prompt": "SRE Monitor: Run /srv/monorepo/.claude/skills/coolify-sre/scripts/sre-monitor.sh to check Coolify apps, Docker containers, health endpoints, resource usage, and subdomain tunnel status. Auto-heal degraded/down containers (whitelist only). Log results. Replaces old auto-healer (8812f46c) and resource-monitor (4cb53930).",
       "createdAt": 1776124800000,
-      "lastFiredAt": 1776160633298,
+      "lastFiredAt": 1776175747790,
       "recurring": true
     },
     {
@@ -69,7 +69,7 @@
       "cron": "0 8 * * *",
       "prompt": "MCP health check: Verify all MCP servers are responding. Check ai-context, gitea-access, coolify-access, and other MCP tools. Report any that are down.",
       "createdAt": 1775847723453,
-      "lastFiredAt": 1776119879417,
+      "lastFiredAt": 1776166200977,
       "recurring": true
     }
   ]

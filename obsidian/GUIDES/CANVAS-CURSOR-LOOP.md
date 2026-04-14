@@ -400,7 +400,6 @@ INFRAESTRUTURA
 ───────────────
   Deploy:      Coolify (localhost:8000)
   CI/CD:       Gitea Actions + GitHub Actions
-  Secrets:     Infisical (vault.zappro.site:8200)
   DNS:         Cloudflare + Terraform
   Vector DB:   Qdrant (10.0.19.5:6333)
 

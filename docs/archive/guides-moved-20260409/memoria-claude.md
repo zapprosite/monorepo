@@ -200,7 +200,6 @@ journalctl -u cloudflared --tail 20 --no-pager
 
 ## 📦 Infisical Vault (env-wrapper.sh)
 
-O wrapper injeta secrets do vault `vault.zappro.site` no Claude Code.
 
 ```bash
 # Uso direto

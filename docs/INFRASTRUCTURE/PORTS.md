@@ -62,11 +62,11 @@
 |-------|-----------|--------|--------|------------|
 | **3300** | gitea | host | Gitea Git server | git.zappro.site |
 | **3457** | openclaw-mcp-wrapper | host | OpenClaw MCP wrapper (universal tool bridge) | — |
-| **4001** | openclaw-qgtzrmi... | localhost | OpenClaw Bot UI | bot.zappro.site |
+| **4001** | — | — | **LIVRE** — OpenClaw Bot removido (PRUNED) | — |
 | **4003** | nginx:alpine (painel) | host | Claude Code Panel (nginx:alpine) | painel.zappro.site |
 | **4006** | mcp-monorepo | qgtzrmi net (10.0.19.50) | MCP Filesystem /srv/monorepo → OpenClaw | — |
 | **4011** | mcp-qdrant | qgtzrmi net (10.0.19.51) | MCP Qdrant semantic search (openclaw-memory) | — |
-| **5433** | supabase-health-proxy | host | HTTP health proxy → Postgres :5432 (coolify net) | supabase.zappro.site |
+| **5433** | — | — | **LIVRE** — Supabase removido (PRUNED) | — |
 | **8202** | zappro-wav2vec2 | host | Faster-Whisper STT (host mapping 8202→8201) | — |
 
 ### Novos Serviços (2026-04-03)
@@ -75,8 +75,9 @@
 |-------|-----------|--------|--------|------------|
 | **4002** | — | localhost | ShieldGemma 9B (PENDENTE — nunca deployado) | — |
 | **4007** | zappro-tts-bridge | localhost | TTS Bridge → Kokoro :8880 (UP, ver :8013) | — |
-| **4080** | list-web | host | Web list viewer service | — |
+| **4080** | list-web | host | Web list viewer service | list.zappro.site |
 | **4081** | obsidian-web | host | Obsidian vault UI (OAuth native) | md.zappro.site |
+| **4082** | todo-web | host | Todo app with Google OAuth | todo.zappro.site |
 
 ## ⏳ Portas RESERVADAS — Pendente Deploy (Coolify)
 
@@ -87,14 +88,19 @@
 
 ---
 
-## ✅ Portas LIVRES (confirmado 2026-04-02)
+## ✅ Portas LIVRES (confirmado 2026-04-14)
 
 | Porta | Observação |
 |-------|-----------|
 | **80 / 443** | CapRover removido — livres (reservar para proxy futuro) |
 | **3001 / 3002** | livres |
 | **3333** | monorepo dev — não rodando |
+| **4001** | livre — OpenClaw Bot removido |
 | **4002–4099** | faixa livre para microserviços |
+| **5433** | livre — Supabase removido |
+| **5678** | livre — n8n removido |
+| **5680** | livre — n8n task runners removido |
+| **8200** | livre — Infisical Vault removido |
 | **8443** | livre (Supabase removido) |
 | **9000** | livre |
 
@@ -126,7 +132,6 @@
 ❌ NUNCA usar :8000 → Coolify
 ❌ NUNCA usar :4000 em dev local sem checar zappro-litellm
 ❌ NUNCA usar :3000 → reservada para Open WebUI (Coolify)
-❌ NUNCA usar :4001 → reservada para OpenClaw Bot (Coolify)
 ✅ Dev local no monorepo: usar PORT=4002+ ou PORT=5173 (Vite)
 ```
 

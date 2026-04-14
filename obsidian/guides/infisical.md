@@ -1,7 +1,6 @@
 # Manual de Manutenção — Infisical Self-Hosted
 
 **Host:** will-zappro | **Data:** 2026-04-04
-**Vault:** https://vault.zappro.site | **Porta local:** 127.0.0.1:8200
 **Versão:** v0.146.2 (infisical/infisical:latest-postgres)
 **Projeto:** zappro-p-tc-k | **Environment:** dev (production com problema de folder root)
 
@@ -24,7 +23,6 @@ AUTH_SECRET=HDY/uoI9iBEDxN2lvyApu7eNY3jrye2DQo+v0ZJ/EKw=
 JWT_AUTH_SECRET=ivqWfplD62/+FuaPUJ71Jvdujp/v+Hf2zRHQaNfsNvPUO/w9pCvQpKrKGJgGbqMz459VvghkVVoYLzL6z8yP5w==
 DB_CONNECTION_URI=postgresql://infisical:d30038411740b8d08b49ae932a99a4df@infisical-db:5432/infisical
 REDIS_URL=redis://:infisical-redis-2026-secure@infisical-redis:6379
-SITE_URL=https://vault.zappro.site
 ```
 
 ### Machine Identity (criada manualmente no dashboard)
@@ -124,10 +122,8 @@ client.secrets.update_secret_by_name(
 ### Local (via túnel cloudflared)
 ```bash
 # Testar
-curl -s https://vault.zappro.site/api/status
 
 # O vault usa Cloudflare Access — exige login via browser
-# Abrir: https://vault.zappro.site
 ```
 
 ### Via Tailscale (mesma rede VPN)
@@ -147,7 +143,6 @@ docker ps --filter "name=infisical"
 curl -s http://127.0.0.1:8200/api/status | python3 -m json.tool
 
 # 3. Vault via túnel?
-curl -s https://vault.zappro.site/api/status
 
 # 4. Token ainda válido?
 python3 -c "
@@ -168,7 +163,6 @@ journalctl -u cloudflared --no-pager -n 5 | grep -E "healthy|ERR|WRN"
 ### "Folder with path '/' not found" em production
 O root folder `/` não existe no environment `production`.
 **Solução:** Usar `dev` (funciona) OU criar a pasta via dashboard:
-1. Abrir https://vault.zappro.site → Project zappro-p-tc-k → Settings → Environments → production
 2. Criar folder `/`
 
 ### "Token has invalid signature" (403)
@@ -181,7 +175,6 @@ O token foi emitido para uma identity antiga. Gerar novo:
 ```bash
 sudo systemctl restart cloudflared
 sleep 5
-curl -s https://vault.zappro.site/api/status
 ```
 
 ### Container parado
@@ -193,7 +186,6 @@ docker ps --filter "name=infisical"
 
 ### Service Token expirado/revogado
 Recriar identity:
-1. https://vault.zappro.site → Organization Settings → Access Control → Identities
 2. Criar nova identity → Universal Auth → Create Client Secret
 3. Gerar service token e atualizar `/srv/ops/secrets/infisical.service-token`
 
@@ -268,7 +260,6 @@ docker stats infisical infisical-db infisical-redis --no-stream
 - **Versão:** v0.146.2 (subir para latest? testar antes com snapshot)
 - **Storage:**Dados em `/srv/data/infisical-db` (ZFS)
 - **Backup:** snapshots ZFS em `tank`
-- **Access:** cloudflared tunnel → vault.zappro.site (Cloudflare Access)
 - **Token TTL:** Service Token não expira (criado sem TTL)
 - **Python SDK:** 0.1.3 (v1.0+ incompatível com esta versão do servidor)
 

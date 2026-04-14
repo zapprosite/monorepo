@@ -290,3 +290,91 @@ PRÓXIMOS:
 - Cloudflare API Token (cf_ token para tunnel update)
 - bot.zappro.site → Hermes tunnel update via Cloudflare API
 ```
+
+---
+
+## TASK-HERMES-007: coolify_sre Hermes CLI Integration (2026-04-14)
+
+**Objetivo:** Integrar skill `coolify_sre` com Hermes CLI wrapper para invocacao via tools Hermes.
+
+**Componentes criados:**
+
+| File | Descricao |
+|------|-----------|
+| `~/.hermes/skills/coolify_sre/hermes_integration.py` | Python wrapper para sre-monitor.sh — saida JSON |
+| `/srv/ops/scripts/hermes-sre-monitor.sh` | Bash CLI wrapper com comandos `status`, `heal`, `restart`, `diagnose`, `health`, `parse` |
+| `~/.hermes/hermes.json` (skills) | Entry `coolify_sre` com command e python_wrapper |
+
+**Comandos disponiveis:**
+
+```bash
+# Status SRE completo (containers + endpoints + logs)
+hermes-sre-monitor.sh status
+
+# Heal/restart container (com restart-loop guard)
+hermes-sre-monitor.sh heal <container>
+
+# RCA / diagnostico de container
+hermes-sre-monitor.sh diagnose <container>
+
+# Health check rapido (endpoints + subdomains)
+hermes-sre-monitor.sh health
+
+# Parse log entries como JSON
+hermes-sre-monitor.sh parse [limit=50]
+```
+
+**Python wrapper usage:**
+
+```python
+# Via hermes_integration.py
+python3 ~/.hermes/skills/coolify_sre/hermes_integration.py status
+python3 ~/.hermes/skills/coolify_sre/hermes_integration.py heal zappro-litellm
+python3 ~/.hermes/skills/coolify_sre/hermes_integration.py parse
+```
+
+**hermes.json entry:**
+
+```json
+{
+  "name": "coolify_sre",
+  "description": "SRE monitoring + auto-heal via sre-monitor.sh",
+  "command": "/srv/ops/scripts/hermes-sre-monitor.sh",
+  "python_wrapper": "/home/will/.hermes/skills/coolify_sre/hermes_integration.py"
+}
+```
+
+**Testes executados:**
+- `status` — ✅ 34 containers listados, sre-monitor.sh executado com exit 0
+- `health` — ✅ 5 endpoints + 12 subdomains verificados
+- `diagnose zappro-litellm` — ✅ RCA executado, logs extraidos, causa provavel: Connection-Refused (Redis unavailable)
+- `parse` — ✅ JSON com ultimos 20 logs do sre-monitor.log
+
+---
+
+## TASK-HERMES-011: OpenClaw Disable Enforcement (2026-04-14)
+
+**Problema:** Containers OpenClaw foram stopados via Docker, mas Coolify ainda mostrava status stale (`running:healthy`) para o servico `open-webui`.
+
+**Ação executada via Coolify API:**
+
+1. **Listagem de servicos** — GET `/api/v1/services`
+   - Encontrado: `open-webui-wbmqefxhd7vdn2dme3i6s9an` (UUID: `wbmqefxhd7vdn2dme3i6s9an`)
+   - Status anterior: `running:healthy`
+
+2. **Edicao do restart policy** — PATCH `/api/v1/services/{uuid}`
+   - Alterado `restart: unless-stopped` → `restart: never` no docker_compose_raw
+   - Necessario para evitar auto-restart apos stop
+
+3. **Stop forcado** — POST `/api/v1/services/{uuid}/stop`
+   - HTTP 200 — "Service stopping request queued."
+
+4. **Verificacao final:**
+   - Coolify: `status: exited`
+   - Docker: sem containers open-webui
+
+**Tokens usados:**
+- `COOLIFY_API_KEY=7|2Lqe2UXliI2jBckqIttjmPjmpf9yBVISDNNu0C4s38a54332`
+- Base URL: `http://127.0.0.1:8000`
+
+**Nota:** Os containers `zappro-tts-bridge` e `openwebui-bridge-agent` continuam a correr como Docker standalone (nao geridos pelo Coolify) — fora do scope desta tarefa.

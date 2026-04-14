@@ -301,7 +301,6 @@ curl -sI https://git.zappro.site
 | Gitea SSH | 2222 | (não exposto via tunnel) |
 | Coolify | 8000 | coolify.zappro.site |
 | OpenClaw | 4001 | bot.zappro.site |
-| Vault | 8200 | vault.zappro.site |
 
 **Nota:** O config local (`~/.cloudflared/config.yml`) é o que importa para cloudflared.
 O Terraform gerencia apenas o DNS e Cloudflare Access, não o tunnel ingress.
@@ -399,7 +398,6 @@ ausearch -k user_mod --i | tail -10
 ### Configuração
 | Item | Valor |
 |------|-------|
-| Vault URL | https://vault.zappro.site |
 | Local API | http://127.0.0.1:8200 |
 | Projeto | zappro-p-tc-k |
 | Environment | dev |

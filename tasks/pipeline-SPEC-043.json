@@ -1,0 +1,96 @@
+{
+  "spec": "SPEC-043",
+  "title": "Subdomain Prune & Hermes Migration",
+  "status": "in_progress",
+  "tasks": [
+    {
+      "id": "T-001",
+      "title": "Verify Hermes Gateway is responding",
+      "command": "curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8642/health",
+      "expected": "200",
+      "critical": true
+    },
+    {
+      "id": "T-002",
+      "title": "Update Terraform variables.tf - hermes URL to localhost:8642",
+      "file": "/srv/ops/terraform/cloudflare/variables.tf",
+      "replace": {
+        "from": "hermes = {\\n      url              = \"http://10.0.5.2:8642\"",
+        "to": "hermes = {\\n      url              = \"http://localhost:8642\""
+      },
+      "critical": true
+    },
+    {
+      "id": "T-003",
+      "title": "Remove bot.zappro.site from Terraform services",
+      "file": "/srv/ops/terraform/cloudflare/variables.tf",
+      "action": "remove_entry",
+      "entry": "bot",
+      "critical": true
+    },
+    {
+      "id": "T-004",
+      "title": "Remove supabase.zappro.site from Terraform services",
+      "file": "/srv/ops/terraform/cloudflare/variables.tf",
+      "action": "remove_entry",
+      "entry": "supabase",
+      "critical": true
+    },
+    {
+      "id": "T-005",
+      "title": "Run terraform plan",
+      "command": "cd /srv/ops/terraform/cloudflare && terraform plan -out=prune-plan.tfplan 2>&1",
+      "capture": true,
+      "critical": true
+    },
+    {
+      "id": "T-006",
+      "title": "Human approval gate - review terraform plan",
+      "gate": "human",
+      "requires_review": true
+    },
+    {
+      "id": "T-007",
+      "title": "Apply terraform plan",
+      "command": "cd /srv/ops/terraform/cloudflare && terraform apply prune-plan.tfplan 2>&1",
+      "critical": true
+    },
+    {
+      "id": "T-008",
+      "title": "Update SUBDOMAINS.md - remove supabase, add hermes",
+      "files": [
+        "/srv/ops/ai-governance/SUBDOMAINS.md",
+        "/srv/monorepo/docs/INFRASTRUCTURE/SUBDOMAINS.md"
+      ],
+      "action": "update_entries",
+      "critical": false
+    },
+    {
+      "id": "T-009",
+      "title": "Update NETWORK_MAP.md - bot routing deprecated",
+      "file": "/srv/monorepo/docs/INFRASTRUCTURE/NETWORK_MAP.md",
+      "action": "update_bot_routing",
+      "critical": false
+    },
+    {
+      "id": "T-010",
+      "title": "Verify hermes.zappro.site responds after terraform apply",
+      "command": "sleep 10 && curl -s -o /dev/null -w '%{http_code}' http://hermes.zappro.site/health",
+      "expected": "200",
+      "critical": true
+    },
+    {
+      "id": "T-011",
+      "title": "Verify bot.zappro.site is removed/deprecated",
+      "command": "curl -s -o /dev/null -w '%{http_code}' http://bot.zappro.site",
+      "expected": "404|502",
+      "critical": false
+    },
+    {
+      "id": "T-012",
+      "title": "Commit changes with /ship",
+      "gate": "commit",
+      "critical": false
+    }
+  ]
+}

@@ -75,7 +75,6 @@
 
 **Não use para:**
 - Tarefas administrativas simples (use OpenCode)
-- Acessar secrets (use vault.zappro.site)
 - Operações destrutivas (NUNCA sozinho)
 
 **Comandos:**
@@ -124,13 +123,11 @@ opencode --model minimax/MiniMax-M2.7 "task"
 - Sub-agent patterns: leader designation, bindings, heartbeat, SOUL.md por agente
 
 **Ele NÃO sabe:**
-- Secrets (use vault.zappro.site)
 - Edição de código pesado (use Claude Code CLI)
 
 **Escalation:**
 ```
 Infra/Docker/ZFS → "Rode 'c' no terminal"
-Secrets → vault.zappro.site
 Dev/Código pesado → Claude Code CLI
 ```
 
@@ -262,7 +259,6 @@ opencode --model X "task"     # Modelo específico
 | Errado | Correto |
 |--------|---------|
 | OpenClaw edita código | Claude Code CLI edita código |
-| Claude Code acessa secrets | vault.zappro.site |
 | OpenCode para dev pesado | Claude Code CLI para dev |
 | Fazer deploy sem ai-context | Sempre sincronizar docs após mudança |
 | Ignorar Qdrant para cliente | Indexar tudo relevante |
