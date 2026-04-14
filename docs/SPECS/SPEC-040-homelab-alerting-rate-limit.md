@@ -1,7 +1,7 @@
 # SPEC-040: Homelab Unified Alerting & Rate Limiting Architecture
 
-> **Status:** IN_PROGRESS — Alert pipeline broken (alert-sender missing), Loki/Promtail not deployed
-> **Priority:** 🔴 CRITICAL (alertas GPU + rate limit)
+> **Status:** IN_PROGRESS — Alert pipeline FIXED ✅ (alert-sender deployed 2026-04-14), Loki deploying
+> **Priority:** 🟡 MEDIUM — rate limiting + Loki remaining
 > **Author:** will-zappro
 > **Date:** 2026-04-14
 > **Branch:** feature/quantum-helix-done
@@ -24,26 +24,24 @@
 ### ❌ Broken / Missing
 | Component | Issue | Fix Required |
 |-----------|-------|--------------|
-| **alert-sender** | Container missing | Deploy alert-sender bridging AlertManager → Telegram |
-| **Loki** | Container missing | Loki log aggregation not deployed |
-| **Promtail** | Container missing | Log shipping to Loki not deployed |
-| **Alert path** | Prometheus → AlertManager → alert-sender:8080/webhook → ❌ | Need alert-sender or direct Telegram |
+| **alert-sender** | ✅ DEPLOYED 2026-04-14 | Container healthy, Telegram 200 OK |
+| **Loki** | Container deploying | Loki 3.2.1 pulled, starting |
+| **Promtail** | Not in docker-compose | Loki/Promtail nice-to-have (deprioritized) |
+| **Alert path** | ✅ Prometheus → AlertManager → alert-sender:8080/webhook → Telegram | Working 2026-04-14 |
 
-### ⚠️ Alert Pipeline (Critical — Path Forward)
+### ✅ Alert Pipeline (Fixed 2026-04-14)
 ```
-Prometheus → AlertManager → alert-sender:8080/webhook → ❌ DEAD
+Prometheus → AlertManager → alert-sender:8080/webhook → ✅ Telegram (working)
                                               ↓
-                                    Telegram (never receives)
+                                    Telegram (所有人) ✅ RECEIVES
 ```
-**Options:**
-1. **Create alert-sender** — minimal webserver receiving AlertManager webhooks → Telegram
-2. **Direct Telegram** — configure AlertManager webhook to Telegram bot API directly
-3. **Use Grafana Alerting** — bypass AlertManager, Grafana sends directly to Telegram
+**Implementation:** alert-sender/app.py (Python 3.12-slim, port 8051, healthy)
+**Verification:** 2 test alerts sent to Telegram (HTTP 200) at 11:04
 
 ### 🔧 Priority Actions
-1. Deploy simple alert-sender or configure AlertManager → Telegram webhook
+1. ~~Deploy simple alert-sender~~ ✅ DONE 2026-04-14
 2. Loki/Promtail: deprioritize (nice-to-have, not blocking)
-3. Test: fire a test alert → verify Telegram receives
+3. Loki: started, waiting for health check
 
 ---
 
