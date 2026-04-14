@@ -244,16 +244,111 @@ The monorepo currently does NOT have services that call LLM APIs directly with A
 
 ---
 
-## 5. Hermes vs bot.zappro.site Replacement
+## 5. Smart Fallback Strategy (SPEC-038 TASK)
 
-### 5.1 Current State
+### 5.1 Current Fallback Configuration
+
+Hermes has **two layers** of fallback:
+
+| Layer           | Config                     | Trigger                                   | Behavior                                  |
+| --------------- | -------------------------- | ----------------------------------------- | ----------------------------------------- |
+| **Error-based** | `llm.fallback` list        | MiniMax fails (429, 500, 503, auth error) | Automatic failover to Ollama              |
+| **One-shot**    | `fallback_model` top-level | Primary fails once per session            | Switches provider permanently for session |
+
+**Current config** (`~/.hermes/config.yaml`):
+
+```yaml
+llm:
+  primary:
+    provider: minimax
+    model: MiniMax-M2.7
+    api_key: ${MINIMAX_API_KEY}
+    base_url: https://api.minimax.io/anthropic
+  fallback:
+    - provider: ollama
+      model: qwen2.5vl:7b
+      base_url: http://localhost:11434
+```
+
+**Ollama models available** (RTX 4090):
+
+- `qwen2.5vl:7b` - Vision-language, 5.9GB (fallback target)
+- `llama3-portuguese-tomcat-8b-instruct-q8:latest` - Portuguese-specialized, 8.5GB
+- `nomic-embed-text:latest` - Embeddings, 274MB
+
+### 5.2 Optimized Fallback Strategy
+
+**Goal:** Preserve MiniMax quota by routing tasks intelligently.
+
+| Task Type                                 | Provider              | Rationale                                |
+| ----------------------------------------- | --------------------- | ---------------------------------------- |
+| Complex reasoning, coding, analysis       | MiniMax M2.7          | Best quality for complex tasks           |
+| Simple Q&A, classification, summarization | Ollama (qwen2.5vl:7b) | Free, local, fast                        |
+| Vision tasks (screenshots)                | Ollama (qwen2.5vl:7b) | Already configured in `auxiliary.vision` |
+| Error recovery                            | Ollama                | Automatic on primary failure             |
+
+**Implemented optimizations:**
+
+1. **Auxiliary tasks use Ollama** - Vision, compression, web extraction configured to use Ollama:
+
+   ```yaml
+   auxiliary:
+     vision:
+       provider: ollama
+       model: qwen2.5vl:7b
+       base_url: http://localhost:11434
+   ```
+
+2. **Cron jobs should use Ollama** - For recurring simple tasks:
+
+   ```python
+   cronjob(
+       action="create",
+       schedule="every 1h",
+       prompt="Check status",
+       provider="ollama",
+       model="qwen2.5vl:7b"  # Preserve MiniMax quota
+   )
+   ```
+
+3. **One-shot fallback model** - Add to `~/.hermes/config.yaml` for error resilience:
+   ```yaml
+   fallback_model:
+     provider: ollama
+     model: qwen2.5vl:7b
+     base_url: http://localhost:11434
+   ```
+
+### 5.3 Qdrant Response Caching (DEPRECATED - QDRANT UNAVAILABLE)
+
+**Status:** Qdrant endpoint unreachable (container port not mapped, API key mismatch)
+
+Qdrant was planned for response caching to reduce LLM calls for RAG, but currently has issues:
+
+- Container not exposing ports to host (PortBindings empty)
+- Wrong API key in `.env`
+- Native Qdrant process (PID 12200) competing on ports
+
+**Impact:** No response caching currently available. RAG queries hit MiniMax directly.
+
+**Resolution (pending):**
+
+1. Fix container port mapping or use native process
+2. Correct `QDRANT_API_KEY` in `.env`
+3. Re-enable response caching for RAG queries
+
+---
+
+## 6. Hermes vs bot.zappro.site Replacement
+
+### 6.1 Current State
 
 | Subdomain            | Target                      | Status                              |
 | -------------------- | --------------------------- | ----------------------------------- |
 | `bot.zappro.site`    | `10.0.19.7:8080` (OpenClaw) | OFFLINE - 502                       |
 | `hermes.zappro.site` | `10.0.5.2:8642` (Hermes)    | ✅ Tunnel verified working (200 OK) |
 
-### 5.2 Should hermes.zappro.site Replace bot.zappro.site?
+### 6.2 Should hermes.zappro.site Replace bot.zappro.site?
 
 **Recommendation: YES, with a phased approach**
 
@@ -271,19 +366,20 @@ The monorepo currently does NOT have services that call LLM APIs directly with A
 4. Cost savings: MiniMax quotas preserved for critical tasks
 5. Skills system provides extensibility
 
-### 5.3 Hermes Gateway Limitations
+### 6.3 Hermes Gateway Limitations
 
 | Limitation                                  | Impact                                | Mitigation                                |
 | ------------------------------------------- | ------------------------------------- | ----------------------------------------- |
 | `hermes mcp serve` exits after each request | Cannot serve as persistent MCP server | Use Hermes Gateway API directly           |
 | Single model (`hermes-agent`) in /v1/models | No model selection per request        | Configured at startup, fallback automatic |
 | No streaming support (presumed)             | Real-time apps may be affected        | Test with streaming requests              |
+| Qdrant unavailable                          | No RAG caching                        | Fix container/API key issues              |
 
 ---
 
-## 6. Services That Should Integrate with Hermes
+## 7. Services That Should Integrate with Hermes
 
-### 6.1 Priority Integration Candidates
+### 7.1 Priority Integration Candidates
 
 | Service                          | Current LLM Method     | Recommended Hermes Integration                            |
 | -------------------------------- | ---------------------- | --------------------------------------------------------- |
@@ -292,7 +388,7 @@ The monorepo currently does NOT have services that call LLM APIs directly with A
 | **n8n workflows**                | LiteLLM or direct      | Add Hermes as additional LLM provider                     |
 | **OpenWebUI (chat.zappro.site)** | LiteLLM proxy          | Keep LiteLLM, use Hermes for specific skills              |
 
-### 6.2 NOT Recommended for Hermes Integration
+### 7.2 NOT Recommended for Hermes Integration
 
 | Service                     | Reason                                                         |
 | --------------------------- | -------------------------------------------------------------- |
@@ -302,7 +398,7 @@ The monorepo currently does NOT have services that call LLM APIs directly with A
 
 ---
 
-## 7. Environment Variables for Hermes Integration
+## 8. Environment Variables for Hermes Integration
 
 ```env
 # Hermes Gateway
@@ -320,9 +416,9 @@ LITELLM_URL=http://10.0.19.7:4000
 
 ---
 
-## 8. Health Monitoring
+## 9. Health Monitoring
 
-### 8.1 Hermes Gateway Health
+### 9.1 Hermes Gateway Health
 
 ```bash
 # Local health check
@@ -349,7 +445,7 @@ async function isHermesHealthy(): Promise<boolean> {
 
 ---
 
-## 9. Security Considerations
+## 10. Security Considerations
 
 | Concern                   | Mitigation                                    |
 | ------------------------- | --------------------------------------------- |
@@ -360,7 +456,7 @@ async function isHermesHealthy(): Promise<boolean> {
 
 ---
 
-## 10. Migration Checklist
+## 11. Migration Checklist
 
 ### Phase 1: Validate Hermes Gateway (DONE)
 
@@ -385,7 +481,7 @@ async function isHermesHealthy(): Promise<boolean> {
 
 ---
 
-## 11. References
+## 12. References
 
 | Document                          | Path                                                      |
 | --------------------------------- | --------------------------------------------------------- |
@@ -398,7 +494,7 @@ async function isHermesHealthy(): Promise<boolean> {
 
 ---
 
-**Status:** Phase 2 complete — hermes.zappro.site verified working
+**Status:** Phase 2 complete — hermes.zappro.site verified working; Smart Fallback Strategy documented (Section 5)
 
 **Next Actions:**
 
@@ -406,3 +502,4 @@ async function isHermesHealthy(): Promise<boolean> {
 2. ✅ Test external health: `curl https://hermes.zappro.site/health`
 3. Update SUBDOMAINS.md with hermes.zappro.site entry (Telegram bot DNS)
 4. Document HERMES_API_KEY retrieval in skills
+5. ✅ Smart Fallback Strategy documented (Section 5) - MiniMax quota optimization via Ollama for auxiliary tasks
