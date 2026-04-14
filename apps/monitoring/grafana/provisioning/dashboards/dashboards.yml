@@ -1,0 +1,29 @@
+# Grafana Dashboard Provisioning
+#
+# ⚠️ CAMINHO: /etc/grafana/provisioning/dashboards (caminho dentro do container)
+#   O host mounta: /srv/data/monitoring/grafana/provisioning/dashboards
+#                → /etc/grafana/provisioning/dashboards (dentro do container)
+#
+# Estrutura dentro do host:
+#   dashboards/
+#     dashboards.yml      — este arquivo (provider config)
+#     datacenter/         — painel JSON do dashboard Datacenter
+#     homelab/            — painel JSON do dashboard Homelab Overview
+#
+# ⚠️ DASHBOARD UID: O datasource Grafana é criado pelo provisionamento com UID gerado
+#   (ex: efg9h1u7ja6tcb). O dashboard referencia este UID via datasource field.
+#
+# Ref: docs/SPECS/SPEC-040-homelab-alerting-rate-limit.md
+
+apiVersion: 1
+providers:
+  - name: 'Datacenter'
+    folder: 'Datacenter'
+    type: file
+    options:
+      path: /etc/grafana/provisioning/dashboards/datacenter
+  - name: 'Homelab'
+    folder: 'Homelab'
+    type: file
+    options:
+      path: /etc/grafana/provisioning/dashboards/homelab
