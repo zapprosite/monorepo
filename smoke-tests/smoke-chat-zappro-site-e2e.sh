@@ -8,7 +8,7 @@
 # 3. Verify authenticated response + app functionality
 #
 # Secrets from: .env (canonical source) or environment variables
-# Project ID: INFISICAL_PROJECT_ID env var (fallback: e42657ef-98b2-4b9c-9a04-46c093bd6d37)
+# Project ID: INFISICAL_PROJECT_ID env var
 
 set -euo pipefail
 
@@ -42,7 +42,7 @@ GOOGLE_CLIENT_ID="${GOOGLE_CLIENT_ID:-}"
 GOOGLE_CLIENT_SECRET="${GOOGLE_CLIENT_SECRET:-}"
 CHROME_SESSION_EMAIL="${CHROME_SESSION_EMAIL:-}"
 
-PROJECT_ID="${INFISICAL_PROJECT_ID:-e42657ef-98b2-4b9c-9a04-46c093bd6d37}"
+PROJECT_ID="${INFISICAL_PROJECT_ID}"
 
 echo "  Service Token: ${SERVICE_TOKEN_ID:+✅ configured}"
 echo "  Service Token Secret: ${SERVICE_TOKEN_SECRET:+✅ configured}"

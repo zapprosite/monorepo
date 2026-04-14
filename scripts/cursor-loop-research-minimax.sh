@@ -31,7 +31,7 @@ MINIMAX_API_KEY="${MINIMAX_API_KEY:-}"
 # Fallback: Infisical REST API via service token (only if .env lookup failed)
 if [ -z "$MINIMAX_API_KEY" ]; then
     TOKEN_PATH="/srv/ops/secrets/infisical.service-token"
-    INFISICAL_PROJECT_ID="${INFISICAL_PROJECT_ID:-e42657ef-98b2-4b9c-9a04-46c093bd6d37}"
+    INFISICAL_PROJECT_ID="${INFISICAL_PROJECT_ID}"
     INFISICAL_ENV="${INFISICAL_ENV:-dev}"
 
     if [[ -f "$TOKEN_PATH" ]]; then

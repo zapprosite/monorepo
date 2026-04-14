@@ -28,7 +28,7 @@ if not token and os.path.exists('/srv/ops/secrets/infisical.service-token'):
     token = open('/srv/ops/secrets/infisical.service-token').read().strip()
 client = InfisicalSDKClient(host='http://127.0.0.1:8200', token=token)
 secrets = client.secrets.list_secrets(
-    project_id='e42657ef-98b2-4b9c-9a04-46c093bd6d37',
+    project_id=os.environ.get("INFISICAL_PROJECT_ID"),
     environment_slug='dev',
     secret_path='/'
 )
