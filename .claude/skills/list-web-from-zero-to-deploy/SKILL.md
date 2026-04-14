@@ -181,7 +181,6 @@ Secrets sao syncados do Infisical para .env via sync script.
 ```
 GOOGLE_CLIENT_ID=→ .env (synced from Infisical)
 GOOGLE_CLIENT_SECRET=→ .env (synced from Infisical)
-INFISICAL_WORKSPACE_ID=→ .env (synced from Infisical)
 ```
 
 **NUNCA hardcodar. Ler de .env via process.env (web apps) ou window.__ENV__ (env.js injection).**
@@ -206,13 +205,17 @@ Antes de fazer commit, verificar:
 - [ ] PORTS.md actualizado com nova porta
 - [ ] AGENTS.md actualizado se necessario
 
-### Infisical SDK
-NUNCA hardcodar OAuth client_id. Usar Infisical SDK:
+### Secrets Pattern
+NUNCA hardcodar OAuth client_id. Usar .env como fonte canonica:
 ```typescript
-import { InfisicalClient } from '@infisical/sdk';
-const client = new InfisicalClient({ clientId: process.env.INFISICAL_CLIENT_ID });
-const secret = await client.getSecret('GOOGLE_CLIENT_ID');
+// Web apps: via env.js injection
+const clientId = window.__ENV__?.GOOGLE_CLIENT_ID;
+
+// Node/Fastify: via process.env
+const clientId = process.env.GOOGLE_CLIENT_ID;
 ```
+
+**Padrao: secrets syncados do Infisical para .env via sync script. Ler de .env, nunca do Infisical diretamente.**
 
 ## Tunnel Checklist (OBRIGATORIO antes de commit)
 - [ ] curl -sfI https://NOVO.zappro.site → 200 ou 302

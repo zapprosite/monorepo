@@ -148,7 +148,6 @@ services:
       - "3457:3457"
     environment:
       - SECRET_KEYS=OPENCLAW_GATEWAY_TOKEN,OPENCLAW_BASE_URL
-      - INFISICAL_HOST=http://127.0.0.1:8200
       - OPENCLAW_BASE_URL=http://10.0.19.4:8080
     networks:
       - qgtzrmi6771lt8l7x8rqx72f
@@ -166,7 +165,6 @@ services:
       - "3456:3456"
     environment:
       - SECRET_KEYS=OPENCLAW_GATEWAY_TOKEN,OPENCLAW_BASE_URL
-      - INFISICAL_HOST=http://127.0.0.1:8200
       - OPENCLAW_BASE_URL=http://10.0.19.4:8080
     networks:
       - qgtzrmi6771lt8l7x8rqx72f

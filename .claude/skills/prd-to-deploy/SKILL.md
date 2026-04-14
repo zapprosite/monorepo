@@ -142,12 +142,17 @@ grant_type=authorization_code
 &redirect_uri=https://SUBDOMAIN.zappro.site/auth/callback
 ```
 
-**No hardcoded secrets — use Infisical SDK:**
+**No hardcoded secrets — use .env canonical:**
 ```typescript
-import { InfisicalClient } from '@infisical/sdk';
-const client = new InfisicalClient({ clientId: process.env.INFISICAL_CLIENT_ID });
-const secret = await client.getSecret('GOOGLE_CLIENT_ID');
+// Via env.js injection (web app)
+const clientId = window.__ENV__?.GOOGLE_CLIENT_ID;
+const clientSecret = window.__ENV__?.GOOGLE_CLIENT_SECRET;
+
+// Via process.env (Node/Fastify)
+const clientId = process.env.GOOGLE_CLIENT_ID;
 ```
+
+**Secrets syncados do Infisical para .env. NUNCA usar Infisical SDK em app code.**
 
 ---
 
