@@ -293,17 +293,17 @@
       "id": 17,
       "title": "SPEC-031 Task 2: node-exporter HEALTHCHECK",
       "description": "Add HEALTHCHECK to node-exporter container: --interval=30s --timeout=10s --retries=3 CMD wget -qO- http://localhost:9100/",
-      "status": "pending",
+      "status": "done",
       "priority": "medium",
       "dependencies": [],
       "subtasks": [
-        {"id": "17.1", "title": "Find node-exporter container configuration", "status": "pending"},
-        {"id": "17.2", "title": "Add HEALTHCHECK to node-exporter", "status": "pending"},
-        {"id": "17.3", "title": "Restart node-exporter container", "status": "pending"},
-        {"id": "17.4", "title": "Verify docker inspect shows Healthcheck", "status": "pending"}
+        {"id": "17.1", "title": "Find node-exporter container configuration", "status": "done"},
+        {"id": "17.2", "title": "Add HEALTHCHECK to node-exporter", "status": "done"},
+        {"id": "17.3", "title": "Restart node-exporter container", "status": "done"},
+        {"id": "17.4", "title": "Verify docker inspect shows Healthcheck", "status": "done"}
       ],
       "acceptanceCriteria": ["AC-031-2"],
-      "files": ["/srv/monorepo/docker-compose.yml"],
+      "files": ["/srv/apps/monitoring/docker-compose.yml"],
       "testRequired": false,
       "specRef": "docs/SPECS/SPEC-031-homelab-maintenance.md"
     },
@@ -311,17 +311,17 @@
       "id": 18,
       "title": "SPEC-031 Task 3: loki HEALTHCHECK",
       "description": "Add HEALTHCHECK to loki container: --interval=30s --timeout=10s --retries=3 CMD wget -qO- http://localhost:3100/ready",
-      "status": "pending",
+      "status": "done",
       "priority": "medium",
       "dependencies": [],
       "subtasks": [
-        {"id": "18.1", "title": "Find loki container configuration", "status": "pending"},
-        {"id": "18.2", "title": "Add HEALTHCHECK to loki container", "status": "pending"},
-        {"id": "18.3", "title": "Restart loki container", "status": "pending"},
-        {"id": "18.4", "title": "Verify curl localhost:3100/ready returns 200", "status": "pending"}
+        {"id": "18.1", "title": "Find loki container configuration", "status": "done"},
+        {"id": "18.2", "title": "Add HEALTHCHECK to loki container", "status": "done"},
+        {"id": "18.3", "title": "Restart loki container", "status": "done"},
+        {"id": "18.4", "title": "Verify curl localhost:3100/ready returns 200", "status": "done"}
       ],
       "acceptanceCriteria": ["AC-031-3"],
-      "files": ["/srv/monorepo/docker-compose.yml"],
+      "files": ["/srv/apps/monitoring/docker-compose.yml"],
       "testRequired": false,
       "specRef": "docs/SPECS/SPEC-031-homelab-maintenance.md"
     },
