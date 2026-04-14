@@ -1,11 +1,11 @@
 ---
-version: 1.3
+version: 1.4
 author: will-zappro
 date: 2026-04-14
 ---
 
-# GUARDRAILS v1.3 — Infraestrutura Zappro (will-zappro)
-## Versão: 1.3 | 2026-04-14
+# GUARDRAILS v1.4 — Infraestrutura Zappro (will-zappro)
+## Versão: 1.4 | 2026-04-14
 ## Base: 12 DevOps Senior SRE Agents + 3 INCIDENTs (INC-004, INC-005, INC-006)
 
 ---
@@ -140,6 +140,22 @@ command: ["--api-url=http://wav2vec2:8201"]
 - GF_SERVER_ROOT_URL: "http://localhost:9090"
 ```
 
+**Regras obrigatórias de HEALTHCHECK (INC-005 / INC-006):**
+- NUNCA: usar `curl` em healthcheck — imagens `prom/node-exporter`, `gotify`, e similares NÃO têm curl
+  - ✅ USAR: `wget -qO- http://127.0.0.1:{PORT}/health || exit 1`
+  - ❌ ERRADO: `curl -f http://localhost:{PORT}/health`
+- NUNCA: `localhost` — resolver para `::1` (IPv6) quando o serviço só escuta em IPv4 → "Connection refused"
+  - ✅ USAR: `127.0.0.1` sempre
+  - ❌ ERRADO: `http://localhost/health`
+- NUNCA: healthcheck sem `start_period` — container fica "unhealthy" durante inicialização → restart loop
+  - ✅ OBRIGATÓRIO: `start_period: 15s` (ou maior para apps lentos)
+- NUNCA: usar `CMD` para shell commands — usar `CMD-SHELL` para comandos shell
+  - ✅ CORRETO: `CMD-SHELL ["wget -qO- http://127.0.0.1:9100/ || exit 1"]`
+  - ❌ ERRADO: `CMD ["wget", "--spider", "http://localhost/health"]`
+- NUNCA: `--spider` com wget — não valida resposta HTTP, só conecta
+  - ✅ CORRETO: `wget -qO- http://127.0.0.1:{PORT}/health || exit 1`
+  - ❌ ERRADO: `wget --spider http://localhost/health`
+
 ---
 
 ## 🚫 NGINX / REVERSE PROXY
@@ -232,6 +248,40 @@ terraform plan  # deve mostrar 0 diff
 
 ---
 
+## 🚫 HEALTHCHECK PATTERNS (INC-005 / INC-006 lessons learned)
+
+### Padrão Correto
+```yaml
+healthcheck:
+  test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:9100/ || exit 1"]
+  interval: 30s
+  timeout: 10s
+  retries: 3
+  start_period: 15s
+```
+
+### Exemplos Corretos e Incorretos
+
+| Scenario | ✅ Correto | ❌ Incorreto |
+|----------|-----------|-------------|
+| Prometheus exporter | `wget -qO- http://127.0.0.1:9100/ \|\| exit 1` | `curl -f http://localhost:9100/` |
+| Nginx app | `wget -qO- http://127.0.0.1:80/health \|\| exit 1` | `wget --spider http://localhost/health` |
+| API service | `wget -qO- http://127.0.0.1:3000/health \|\| exit 1` | `curl -sf http://localhost:3000/health` |
+
+### Image-Specific Notes
+- **`prom/node-exporter`**: não tem `curl` — usar `wget` apenas
+- **`gotify/gotify`**: não tem `curl` — usar `wget` apenas
+- **`nginx`**: binds em `0.0.0.0` (IPv4), `localhost` resolve para `::1` (IPv6) dentro do container
+
+### Common Mistakes
+1. **Missing binary**: `curl` não existe em imagens Alpine/scratch-based
+2. **IPv6 resolution**: `localhost` → `::1` quando serviço só escuta em `0.0.0.0` (IPv4)
+3. **No start_period**: container marcadas "unhealthy" durante init → restart loop
+4. **Wrong test type**: `CMD` para shell command → `CMD-SHELL` é correto
+5. **--spider flag**: não valida HTTP response code, só verifica conexão
+
+---
+
 ## 🚫 GIT / REMOTE OPERATIONS
 **SPEC-026 source:** Git mirror significa que force push destrói dois remotes simultaneamente.
 
@@ -279,8 +329,17 @@ terraform plan  # deve mostrar 0 diff
 ## 🔍 SCAN COMMANDS (verificação rápida)
 
 ```bash
-# Healthchecks com localhost (INC-006 pattern)
-grep -rn "localhost" /srv/apps/ /srv/monorepo/apps/ --include="docker-compose*.yml" | grep healthcheck
+# Healthchecks com localhost (INC-006 pattern — localhost → 127.0.0.1)
+grep -rn "localhost" /srv/apps/ /srv/monorepo/apps/ --include="docker-compose*.yml" | grep -i healthcheck
+
+# Healthchecks com curl (INC-005 pattern — curl → wget)
+grep -rn "curl" /srv/apps/ /srv/monorepo/apps/ --include="docker-compose*.yml" | grep -i healthcheck
+
+# Healthchecks com --spider (INC-006 pattern — --spider não valida HTTP)
+grep -rn "wget.*--spider" /srv/apps/ /srv/monorepo/apps/ --include="docker-compose*.yml"
+
+# Healthchecks sem start_period (restart loop risk)
+grep -rn "healthcheck" /srv/apps/ /srv/monorepo/apps/ --include="docker-compose*.yml" | grep -v "start_period"
 
 # Secrets hardcoded
 grep -rnE "cfut_|ghp_|sk-|AKIA|AIzaSy" /srv/monorepo --include="*.ts" --include="*.py" --include="*.js"
@@ -300,6 +359,6 @@ git remote -v
 
 ---
 
-**Versão:** 1.3 | **Data:** 2026-04-14
+**Versão:** 1.4 | **Data:** 2026-04-14
 **12 DevOps Senior SRE Agents + 3 INCIDENTs (INC-004, INC-005, INC-006)**
-**Anterior:** v1.2 (2026-04-14) — INC-005/006 healthcheck fixes
+**Anterior:** v1.3 (2026-04-14) — INC-005/006 healthcheck hardened
