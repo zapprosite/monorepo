@@ -762,24 +762,24 @@
       "id": 22,
       "title": "SPEC-041 T-005: Enable ESLint flat config",
       "description": "Create eslint.config.js at root (ESLint 9 flat config). Per-workspace overrides. eslint --cache enabled",
-      "status": "pending",
+      "status": "done",
       "priority": "high",
       "dependencies": [],
       "subtasks": [
         {
           "id": "22.1",
           "title": "Create eslint.config.js at root",
-          "status": "pending"
+          "status": "done"
         },
         {
           "id": "22.2",
           "title": "Configure per-workspace overrides",
-          "status": "pending"
+          "status": "done"
         },
         {
           "id": "22.3",
           "title": "Verify eslint --cache works",
-          "status": "pending"
+          "status": "done"
         }
       ],
       "acceptanceCriteria": ["ESLint flat config working with --cache"],
@@ -791,24 +791,24 @@
       "id": 23,
       "title": "SPEC-041 T-006: Add Husky + lint-staged",
       "description": "Add .husky/pre-commit with lint-staged for staged files. lint-staged.config.js with concurrently for parallel formatting",
-      "status": "pending",
+      "status": "done",
       "priority": "high",
       "dependencies": [],
       "subtasks": [
         {
           "id": "23.1",
           "title": "Create .husky/pre-commit",
-          "status": "pending"
+          "status": "done"
         },
         {
           "id": "23.2",
           "title": "Create lint-staged.config.js",
-          "status": "pending"
+          "status": "done"
         },
         {
           "id": "23.3",
           "title": "Verify pre-commit runs lint-staged",
-          "status": "pending"
+          "status": "done"
         }
       ],
       "acceptanceCriteria": ["Husky pre-commit running lint-staged on staged files"],

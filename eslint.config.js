@@ -2,6 +2,8 @@
 import eslint from '@eslint/js';
 import tseslint from '@typescript-eslint/eslint-plugin';
 import tsparser from '@typescript-eslint/parser';
+import importPlugin from 'eslint-plugin-import';
+import globals from 'globals';
 
 export default [
   // Ignore patterns
@@ -12,6 +14,8 @@ export default [
       'dist/**',
       '.next/**',
       'coverage/**',
+      '**/dist/**',
+      '**/.turbo/**',
     ],
   },
 
@@ -24,40 +28,45 @@ export default [
     languageOptions: {
       parser: tsparser,
       parserOptions: {
-        project: true,
-        tsconfigRootDir: process.cwd(),
+        project: null,
+      },
+      globals: {
+        ...globals.browser,
+        ...globals.node,
+        ...globals.es2022,
       },
     },
     plugins: {
       '@typescript-eslint': tseslint,
+      import: importPlugin,
     },
     rules: {
       ...tseslint.configs.recommended.rules,
-      '@typescript-eslint/no-unused-vars': ['warn', {
-        argsIgnorePattern: '^_',
-        varsIgnorePattern: '^_',
-      }],
+      '@typescript-eslint/no-unused-vars': [
+        'warn',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+        },
+      ],
+      'no-unused-vars': 'warn',
+      'no-console': 'warn',
+      'import/no-unresolved': 'off',
     },
   },
 
-  // Environment configuration
+  // JS files with relaxed rules
   {
+    files: ['**/*.js', '**/*.jsx'],
     languageOptions: {
-      env: {
-        browser: true,
-        node: true,
-        es2022: true,
+      globals: {
+        ...globals.browser,
+        ...globals.node,
+        ...globals.es2022,
       },
     },
-  },
-
-  // Global rules
-  {
     rules: {
-      'no-unused-vars': ['warn', {
-        argsIgnorePattern: '^_',
-        varsIgnorePattern: '^_',
-      }],
+      'no-unused-vars': 'warn',
       'no-console': 'warn',
     },
   },
