@@ -1,131 +1,128 @@
-# SPEC Index — All Specifications
-
-**Updated:** 2026-04-10
-**Total SPECs:** 29
-**Author:** will (+ Claude Code)
-
+---
+name: SPEC-INDEX
+description: Canonical index of all SPECs — source of truth for agent navigation
+type: reference
+status: ACTIVE
 ---
 
-## Table of Contents
+# SPEC Canonical Index
 
-- [PROTEGIDO](#protegido) (3)
-- [DONE](#done) (3)
-- [IMPLEMENTING](#implementing) (6)
-- [APPROVED](#approved) (1)
-- [REVIEW](#review) (2)
-- [DRAFT](#draft) (14)
+**Purpose:** Every agent working in this monorepo should read this index FIRST to understand which specs are source of truth and which are historical.
 
----
+## Canonical Specs (ACTIVE)
 
-## PROTEGIDO
+| Domain | SPEC | Status | Notes |
+|--------|------|--------|-------|
+| Audio Stack | SPEC-009-openclaw-persona-audio-stack.md | ✅ ACTIVE | Kokoro + wav2vec2 + TTS Bridge — immutable, PROTECTED |
+| Voice Pipeline | SPEC-027-voice-pipeline-humanized-ptbr.md | ✅ ACTIVE | cron active, humanized PT-BR, Kokoro v0.2.4 |
+| Infisical SDK | SPEC-029-INFISICAL-SDK-MANDATORY.md | ✅ ACTIVE | Zero tolerance mandate, no exceptions |
+| Maintenance | SPEC-031-homelab-maintenance.md | 🟡 IN_PROGRESS | 7 tasks: node-exporter, loki, cadvisor HEALTHCHECKs, ZFS cron |
+| Tunnel Health | SPEC-032-tunnel-health-automation.md | 🟡 IN_PROGRESS | smoke-tunnel.sh ✅, pre-commit hook ✅, autoheal ✅, cron ⏳ |
+| MiniMax Agents | SPEC-034-minimax-agent-use-cases.md | 🟡 IN_PROGRESS | Skills created: minimax-code-gen, minimax-debugger, minimax-refactor, minimax-research, minimax-security-audit, review-minimax |
+| Hermes Migration | SPEC-038-hermes-agent-migration.md | 🚧 IMPLEMENTING | OPERAÇÃO OVERLORD — OpenClaw → Hermes-Agent |
+| Hermes Tunnel | SPEC-039-hermes-gateway-tunnel.md | ✅ ACTIVE | hermes.zappro.site → :8642, cloudflared tunnel |
+| Alerting | SPEC-040-homelab-alerting-rate-limit.md | 🟡 IN_PROGRESS | alert-sender deployed, Loki deploying |
+| Monorepo Polish | SPEC-041-monorepo-estado-arte-polish.md | 📋 SPECIFIED | Tech debt resolution, ESLint flat config, TypeScript upgrade |
+| Todo Web | SPEC-036-todo-web.md | ✅ DONE | todo.zappro.site deployed with OAuth (2026-04-13) |
+| md.zappro.site | SPEC-037-md-zappro-site.md | 📋 PROPOSED | Obsidian vault UI via Google OAuth |
+| Subdomain Prune | SPEC-043-subdomain-prune-hermes-migration.md | ✅ DONE | bot/supabase PRUNED, hermes.zappro.site ACTIVE (2026-04-14) |
 
-> These specs define immutable audio/config stacks. NEVER propose changes without explicit approval.
+## Archived Specs (Historical)
 
-| # | Title | Date | Author |
-|---|-------|------|--------|
-| [SPEC-004](./SPEC-004-kokoro-tts-kit.md) | Kokoro TTS Kit — PT-BR Voice Synthesis | 2026-04-08 | will |
-| [SPEC-005](./SPEC-005-wav2vec2-stt-kit.md) | wav2vec2 STT Kit — PT-BR Speech-to-Text | 2026-04-08 | will |
-| [SPEC-009](./SPEC-009-openclaw-persona-audio-stack.md) | OpenClaw Persona + Audio Stack — PT-BR | 2026-04-08 | will + Claude Code |
+| SPEC | Title | Canonical Replacement |
+|------|-------|----------------------|
+| SPEC-001 | Template fusionado | SPEC-024 + CLAUDE.md |
+| SPEC-002a | HomeLab Monitor Agent | SPEC-023 (monitoring) |
+| SPEC-002b | Homelab Network Refactor | SUBDOMAINS.md + PORTS.md |
+| SPEC-004 | Kokoro TTS Kit | SPEC-009 (merged as historical appendix) |
+| SPEC-005 | wav2vec2 STT Kit | SPEC-009 (merged as historical appendix) |
+| SPEC-006 | Playwright E2E | SPEC-024 (test pipeline) |
+| SPEC-007 | OpenClaw OAuth Profiles | SPEC-009 (OAuth implemented in bot.zappro.site) |
+| SPEC-010 | OpenClaw Agents Kit | SPEC-009 + openclaw-audio-governance.md |
+| SPEC-011 | OpenClaw Agency Suite | SPEC-009 + SPEC-027 (conceptual, never fully implemented) |
+| SPEC-012 | openclaw-update-discoverer | SPEC-023 (monitoring stack) |
+| SPEC-014 | Cursor AI CI/CD Pattern | SPEC-024 + cursor-loop skill |
+| SPEC-015 | Gitea Actions Enterprise | SPEC-024 + git mirror scripts |
+| SPEC-016 | Voice Pipeline Cursor Loop | SPEC-027 + SPEC-032 |
+| SPEC-017 | Voice API Deploy | SPEC-027 + SPEC-032 |
+| SPEC-018 | wav2vec2 Deepgram Proxy | SPEC-009 + SPEC-027 |
+| SPEC-019 | OpenWebUI Repair | SUBDOMAINS.md (chat.zappro.site routing fixed) |
+| SPEC-020 | OpenWebUI OpenClaw Bridge | SPEC-027 + SPEC-032 |
+| SPEC-021 | Claude Code Cursor Loop | cursor-loop skill + SPEC-024 |
+| SPEC-022 | Cursor Loop CLI Solutions | cursor-loop skill + SPEC-024 |
+| SPEC-023 | Claude Code CLI Integration | SPEC-023-unified-monitoring-self-healing.md |
+| SPEC-025 | OpenClaw CEO Mix Voice Stack | SPEC-009 + SPEC-027 |
+| SPEC-025-REPORT | CEO Mix Report | SPEC-024 + SPEC-025 |
+| SPEC-026 | OpenClaw TTS Route Fix | SPEC-009 + openclaw-audio-governance.md |
+| SPEC-028 | Perplexity GitOps | SPEC-024 + perplexity-agent |
+| SPEC-024 | Unified Claude Agent Monorepo | SPEC-041 (monorepo polish) + current .claude/ structure |
+| SPEC-030 | AGENTS.md Top Links Audit | SPEC-041 + current AGENTS.md (completed 2026-04-12) |
+| SPEC-033 | Supabase Tunnel Exposure | SPEC-043 (supabase PRUNED — ghost entry removed) |
 
----
+## How to Use This Index
 
-## DONE
+1. **Before starting any work**, check if your domain has a canonical SPEC above
+2. **If yes, read that SPEC first** — it's the source of truth
+3. **If your feature intersects an archived SPEC**, check the replacement column
+4. **When creating new specs**, update this index
 
-| # | Title | Date | Author |
-|---|-------|------|--------|
-| [SPEC-001-template-fusionado](./SPEC-001-template-fusionado.md) | Template claude-code-minimax Fusionado | 2026-04-07 | will |
-| [SPEC-018](./SPEC-018-wav2vec2-deepgram-proxy.md) | wav2vec2 como Deepgram Proxy (STT PT-BR Local) | 2026-04-09 | will + Claude Code |
-| [SPEC-019](./SPEC-019-openwebui-repair.md) | OpenWebUI Repair — Tunnel + OAuth + Voice STT | 2026-04-09 | will + Claude Code |
+## Spec Domains
 
----
+- **Audio Stack:** SPEC-009 (canonical, PROTECTED), SPEC-027 (voice pipeline)
+- **Infrastructure:** SPEC-032 (tunnel health), SPEC-031 (maintenance), SPEC-038/039 (Hermes), SPEC-043 (subdomain prune)
+- **Agent/CLI:** SPEC-041 (monorepo polish), SPEC-034 (MiniMax skills)
+- **Voice Pipeline:** SPEC-027 (canonical voice pipeline)
+- **Infisical:** SPEC-029 (mandate)
+- **Maintenance:** SPEC-031 (homelab improvements)
+- **Apps:** SPEC-036 (todo-web DONE), SPEC-037 (md.zappro.site proposed)
 
-## IMPLEMENTING
+## Protected Specs
 
-| # | Title | Date | Author |
-|---|-------|------|--------|
-| [SPEC-100](./SPEC-100-PIPELINE-BOOTSTRAP.md) | Unified Claude/Agent Pipeline — Enterprise CI/CD Loop | 2026-04-09 | will |
-| [SPEC-CURSOR-LOOP](./SPEC-CURSOR-LOOP.md) | Autonomous Cursor AI-like Loop with Gitea Sandbox | 2026-04-09 | will |
-| [SPEC-TRANSFORM-MONOREPO](./SPEC-TRANSFORM-MONOREPO.md) | Monorepo Refinement + Template Extraction | 2026-04-09 | will + agents |
-| [SPEC-TROCAR-ROUPA](./SPEC-TROCAR-ROUPA.md) | Monorepo + ~/.claude Template Clothing Swap | 2026-04-09 | will |
-| [SPEC-013-openclaw-ceo-mix-voice-stack](./SPEC-013-openclaw-ceo-mix-voice-stack.md) | OpenClaw CEO MIX — Voice Stack Definitiva | 2026-04-09 | will + Claude Code |
-| [SPEC-014-openclaw-tts-route-fix](./SPEC-014-openclaw-tts-route-fix.md) | OpenClaw TTS Route — Corrigir Bridge + Voice | 2026-04-09 | will + Claude Code |
+These specs are **PROTEGIDO** — changes require explicit approval from will-zappro:
 
----
+- ✅ SPEC-009 — Audio stack immutable (STT, TTS, TTS Bridge, voices)
+- ✅ SPEC-027 — Voice pipeline canonical
+- ✅ SPEC-029 — Infisical SDK mandate (zero tolerance)
 
-## APPROVED
+## Quick Reference
 
-| # | Title | Date | Author |
-|---|-------|------|--------|
-| [SPEC-PERPLEXITY-GITOPS](./SPEC-PERPLEXITY-GITOPS.md) | Perplexity Agent — GitOps Deployment Pattern | 2026-04-08 | will |
+```
+Audio/STT/TTS issues         → SPEC-009
+Voice pipeline                → SPEC-027
+Infisical/secrets            → SPEC-029
+Tunnel/subdomain health      → SPEC-032
+Hermes Agent migration        → SPEC-038
+Hermes Gateway tunnel         → SPEC-039
+Alerting & rate limiting     → SPEC-040
+Monorepo polish              → SPEC-041
+Todo web app (done)          → SPEC-036
+Subdomain prune (done)       → SPEC-043
+Homelab maintenance          → SPEC-031
+MiniMax agent skills         → SPEC-034
+```
 
----
+## Environment Variables Standard
 
-## REVIEW
+All secrets and environment-specific values MUST:
 
-| # | Title | Date | Author |
-|---|-------|------|--------|
-| [SPEC-013-CLAUDE-CODE-CLI-INTEGRATION](./SPEC-013-CLAUDE-CODE-CLI-INTEGRATION.md) | Claude Code CLI Integration | 2026-04-08 | will |
-| [SPEC-020-voice-pipeline-humanized-ptbr](./SPEC-020-voice-pipeline-humanized-ptbr.md) | Voice Pipeline Humanizado PT-BR | 2026-04-10 | will |
+| Standard | Description |
+|----------|-------------|
+| **Secrets** | Store in `.env` files, read via `process.env` or Infisical SDK |
+| **No hardcoding** | Never embed tokens/keys directly in SPECs or code |
+| **Reference format** | Use `${SECRET_NAME}` syntax (e.g., `${CLOUDFLARE_API_TOKEN}`, `${TELEGRAM_BOT_TOKEN}`) |
+| **Infisical SDK** | Use Infisical SDK for runtime secret retrieval in code |
+| **Historical docs** | Audit logs and SPEC-AUDIT files may reference redacted tokens for traceability |
 
----
+See [SPEC-029-INFISICAL-SDK-MANDATORY.md](./SPEC-029-INFISICAL-SDK-MANDATORY.md) for enforcement details.
 
-## DRAFT
+## Obsidian Navigation
 
-| # | Title | Date | Author |
-|---|-------|------|--------|
-| [SPEC-001-workflow-performatico](./SPEC-001-workflow-performatico.md) | Workflow Performatico de AI Tools | 2026-04-08 | will |
-| [SPEC-002-homelab-network-refactor](./SPEC-002-homelab-network-refactor.md) | Homelab Infrastructure Refactoring — Cloudflare Tunnel + Coolify | 2026-04-08 | Claude Code |
-| [SPEC-002-homelab-monitor-agent](./SPEC-002-homelab-monitor-agent.md) | Homelab Monitor Agent | 2026-04-08 | will + Claude Code |
-| [SPEC-006](./SPEC-006-playwright-e2e.md) | Playwright E2E + Chrome Extension Testing | 2026-04-08 | will |
-| [SPEC-007](./SPEC-007-openclaw-oauth-profiles.md) | OpenClaw OAuth Persistent Login (Multi-Service CLI-First) | 2026-04-08 | will |
-| [SPEC-010](./SPEC-010-openclaw-agents-kit.md) | OpenClaw Agents Kit — Universal Sub-Agent Governance | 2026-04-09 | will + Claude Code |
-| [SPEC-012](./SPEC-012-openclaw-update-discoverer.md) | openclaw-update-discoverer — Corrigir Local Scan | 2026-04-09 | will + Claude Code |
-| [SPEC-014-CURSOR-AI-CICD-PATTERN](./SPEC-014-CURSOR-AI-CICD-PATTERN.md) | Cursor AI CI/CD Pattern — Autonomous Coding & GitOps for Monorepo | 2026-04-08 | will |
-| [SPEC-015-GITEA-ACTIONS-ENTERPRISE](./SPEC-015-GITEA-ACTIONS-ENTERPRISE.md) | Gitea Actions Enterprise — Enterprise CI/CD Architecture | 2026-04-08 | will |
-| [SPEC-016](./SPEC-016-voice-pipeline-cursor-loop.md) | Voice Pipeline Cursor-Loop (Auto-Healer) | 2026-04-09 | will + Claude Code |
-| [SPEC-017](./SPEC-017-voice-api-deploy.md) | Voice API — Deploy via Coolify CLI (No Dashboard) | 2026-04-09 | will + Claude Code |
-| [SPEC-020-openwebui-openclaw-bridge](./SPEC-020-openwebui-openclaw-bridge.md) | OpenWebUI ↔ OpenClaw Bridge | 2026-04-09 | will |
-| [SPEC-021-CLAUDE-CODE-CURSOR-LOOP](./SPEC-021-CLAUDE-CODE-CURSOR-LOOP.md) | Claude Code CLI: Cursor-Loop + Skills Architecture | 2026-04-10 | will |
-| [SPEC-022-CURSOR-LOOP-CLI-SOLUTIONS](./SPEC-022-CURSOR-LOOP-CLI-SOLUTIONS.md) | Cursor-Loop CLI Solutions — Barreiras e Soluções Full-CLI | 2026-04-10 | will |
-| [SPEC-013-UNIFIED-CLAUDE-AGENT-MONOREPO](./SPEC-013-UNIFIED-CLAUDE-AGENT-MONOREPO.md) | Unified Claude Agent + Monorepo CI/CD Architecture | 2026-04-08 | will |
-| [SPEC-PLANNING-PIPELINE](./SPEC-PLANNING-PIPELINE.md) | Enterprise Planning Pattern | 2026-04-09 | will |
+Archived specs contain `see_also:` links for Obsidian cross-referencing. Each archived spec has:
+- `archived: true` frontmatter
+- `superseded_by:` pointing to canonical replacement
+- `see_also:` pointing to related active specs
+- Warning banner at top
 
----
+## Archive Location
 
-## Statistics
-
-| Status | Count |
-|--------|-------|
-| PROTEGIDO | 3 |
-| DONE | 3 |
-| IMPLEMENTING | 6 |
-| APPROVED | 1 |
-| REVIEW | 2 |
-| DRAFT | 14 |
-| **Total** | **29** |
-
----
-
-## Key Relationships
-
-| Topic | Related SPECs |
-|-------|-------------|
-| Voice Pipeline (PT-BR) | SPEC-004, SPEC-005, SPEC-009, SPEC-013 (ceo-mix), SPEC-014 (tts-route-fix), SPEC-016, SPEC-018, SPEC-020 (humanized) |
-| OpenClaw Bot | SPEC-007, SPEC-009, SPEC-010, SPEC-012, SPEC-013 (ceo-mix), SPEC-014 (tts-route-fix), SPEC-020 (bridge) |
-| Cursor-Loop | SPEC-CURSOR-LOOP, SPEC-021, SPEC-022, SPEC-100 |
-| CI/CD Enterprise | SPEC-015, SPEC-PERPLEXITY-GITOPS, SPEC-100 |
-| Monorepo Transform | SPEC-TRANSFORM-MONOREPO, SPEC-TROCAR-ROUPA, SPEC-PLANNING-PIPELINE |
-| OpenWebUI | SPEC-019, SPEC-020 (bridge + humanized) |
-| Claude Code CLI | SPEC-013 (cli-integration), SPEC-014 (cursor-ai), SPEC-021 |
-
----
-
-## Notes
-
-- **SPEC-001** appears twice: one for template fusion (DONE), one for workflow performatico (DRAFT)
-- **SPEC-002** appears twice: one for network refactor (DRAFT), one for monitor agent (DRAFT)
-- **SPEC-013** appears multiple times with different suffixes: CLI-INTEGRATION, openclaw-ceo-mix-voice-stack, UNIFIED-CLAUDE-AGENT-MONOREPO
-- **SPEC-014** appears twice: Cursor AI CI/CD Pattern (DRAFT) and OpenClaw TTS Route Fix (IMPLEMENTING)
-- **SPEC-020** appears twice: OpenWebUI↔OpenClaw Bridge (DRAFT) and Voice Pipeline Humanizado PT-BR (REVIEW)
-- PROTEGIDO specs use `PROTEGIDO — NÃO ALTERAR` status and require explicit approval for any changes
-- SPEC-011 (OpenClaw Agency) was read but not found in glob — may be missing or renamed
+All archived specs are in: `docs/SPECS/archive/`

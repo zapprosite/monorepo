@@ -5,7 +5,7 @@
       "cron": "*/30 * * * *",
       "prompt": "Sync docs to memory: Run /srv/monorepo/scripts/sync-memory.sh or similar to synchronize documentation changes to the memory index. Check git status for pending doc changes and update MEMORY.md index accordingly.",
       "createdAt": 1775847723434,
-      "lastFiredAt": 1776176069855,
+      "lastFiredAt": 1776181469554,
       "recurring": true
     },
     {
@@ -21,7 +21,7 @@
       "cron": "*/90 * * * *",
       "prompt": "Rode: /home/will/.claude/mcps/ai-context-sync/checkpoint.sh\n\nSe houver output (changes), liste os arquivos pendentes. Se não, diga apenas 'Checkpoint: OK'.",
       "createdAt": 1775587500000,
-      "lastFiredAt": 1776175200485,
+      "lastFiredAt": 1776178899202,
       "recurring": true
     },
     {
@@ -29,7 +29,7 @@
       "cron": "*/60 * * * *",
       "prompt": "Rode: /home/will/.claude/mcps/ai-context-sync/context-meter.sh\n\nSe o output começar com '⚠️', responda com o alerta completo. Caso contrário, apenas confirme.",
       "createdAt": 1775587500000,
-      "lastFiredAt": 1776175200485,
+      "lastFiredAt": 1776178899202,
       "recurring": true
     },
     {

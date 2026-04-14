@@ -42,7 +42,7 @@ SPECIFY → PLAN → TASKS → IMPLEMENT → REVIEW → SHIP
 ## Ficheiros
 
 ```
-docs/specflow/
+docs/SPECS/
 ├── SPEC-README.md              ← Este ficheiro
 ├── SPEC-TEMPLATE.md            ← Template para novas SPECs
 ├── SPEC-INDEX.md               ← Índice auto-gerado de todas as SPECs

@@ -48,7 +48,7 @@ cat /home/will/.claude/mcps/ai-context-sync/manifest.json
 
 | Source | Target | O que |
 |--------|--------|-------|
-| `/srv/ops/ai-governance/SYSTEM_STATE.md` | `memory/system_state.md` | Estado atual do sistema |
+| `docs/GOVERNANCE/SYSTEM_STATE.md` | `memory/system_state.md` | Estado atual do sistema |
 | `/srv/monorepo/docs/` | Memory context | Docs incrementais |
 | `.context/docs/` (monorepo) | Memory | Docs auto-gerados |
 
@@ -164,4 +164,4 @@ Claude Code → /ai-context → memória fresca → OpenClaw consulta
 | `docs/MCPs/AI_CONTEXT_MCP.md` | Setup técnico do MCP |
 | `docs/OPERATIONS/SKILLS/doc-librarian/SKILL.md` | Skill de auditoria de docs |
 | `docs/context/claude-resolve.md` | Mecanismo de resolução de contexto |
-| `/srv/ops/ai-governance/CONTRACT.md` | Princípios non-negotiable |
+| `docs/GOVERNANCE/CONTRACT.md` | Princípios non-negotiable |
