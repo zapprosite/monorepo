@@ -58,13 +58,14 @@ Migrar o **OpenClaw Bot** para o **Hermes-Agent** como novo Core do homelab. O H
 
 **Objetivo:** Extrair lógica Playwright/browser-use do monorepo e criar skill Hermes autônoma.
 
-| File | Action | Notes |
-|------|--------|-------|
-| `apps/perplexity-agent/agent/browser_agent.py` | ANALISAR | 67L, browser-use + OpenRouter + LangChain |
-| `~/.hermes/skills/perplexity_browser/` | **CRIAR** | Skill Python para Hermes |
-| `~/.hermes/config.yaml` | **ATUALIZAR** | MCP server config para Open WebUI |
+| File                                           | Action        | Notes                                     |
+| ---------------------------------------------- | ------------- | ----------------------------------------- |
+| `apps/perplexity-agent/agent/browser_agent.py` | ANALISAR      | 67L, browser-use + OpenRouter + LangChain |
+| `~/.hermes/skills/perplexity_browser/`         | **CRIAR**     | Skill Python para Hermes                  |
+| `~/.hermes/config.yaml`                        | **ATUALIZAR** | MCP server config para Open WebUI         |
 
 **Skill estrutura:**
+
 ```
 perplexity_browser/
 ├── SKILL.md
@@ -77,15 +78,15 @@ perplexity_browser/
 
 **Objetivo:** Rastrear crons dispersos e centralizar no `hermes.json`.
 
-| Cron Atual | Script | Status | Ação |
-|-----------|--------|--------|------|
-| STT watchdog | `openclaw-stt-watchdog.sh` | 1x | Manter (até migrar) |
-| Qdrant backup | `backup-qdrant.sh` | 1x | Migrar para hermes.json |
-| Gitea backup | crontab inline | 1x | Migrar para hermes.json |
-| Claude sessions | `cleanup-sessions.sh` | 1x | Migrar para hermes.json |
-| MCP health | `/mcp-health` skill | 1x | Migrar para hermes.json |
-| tunnel health | `smoke-tunnel.sh` + `tunnel-health-check.sh` | 2x overlap | Unificar |
-| modo-dormir | Claude Code cron | 1x | Manter (diferente) |
+| Cron Atual      | Script                                       | Status     | Ação                    |
+| --------------- | -------------------------------------------- | ---------- | ----------------------- |
+| STT watchdog    | `openclaw-stt-watchdog.sh`                   | 1x         | Manter (até migrar)     |
+| Qdrant backup   | `backup-qdrant.sh`                           | 1x         | Migrar para hermes.json |
+| Gitea backup    | crontab inline                               | 1x         | Migrar para hermes.json |
+| Claude sessions | `cleanup-sessions.sh`                        | 1x         | Migrar para hermes.json |
+| MCP health      | `/mcp-health` skill                          | 1x         | Migrar para hermes.json |
+| tunnel health   | `smoke-tunnel.sh` + `tunnel-health-check.sh` | 2x overlap | Unificar                |
+| modo-dormir     | Claude Code cron                             | 1x         | Manter (diferente)      |
 
 **Resultado:** Zero true duplicates — apenas trabalho overlap do tunnel health.
 
@@ -93,11 +94,11 @@ perplexity_browser/
 
 **Objetivo:** Hermes como SRE verdadeiro — controle total sobre containers.
 
-| File | Action | Notes |
-|------|--------|-------|
-| `~/.hermes/skills/coolify_sre/` | **MANTER** | Já criado (+206 SKILL.md, +252 sre-monitor.sh) |
-| `.claude/skills/coolify-access/` | **MANTER** | MCP tools (38 tools) |
-| Integração Coolify API | **SCRIPT** | hermes-coolify-cli.sh |
+| File                             | Action     | Notes                                          |
+| -------------------------------- | ---------- | ---------------------------------------------- |
+| `~/.hermes/skills/coolify_sre/`  | **MANTER** | Já criado (+206 SKILL.md, +252 sre-monitor.sh) |
+| `.claude/skills/coolify-access/` | **MANTER** | MCP tools (38 tools)                           |
+| Integração Coolify API           | **SCRIPT** | hermes-coolify-cli.sh                          |
 
 **Gap identificado:** restart loop detection foi FIXADO (+3 alterações no sre-monitor.sh)
 
@@ -114,6 +115,7 @@ perplexity_browser/
 ```
 
 **Importado por `hermes claw migrate`:**
+
 - `SOUL.md` → `~/.hermes/personalities/master_agency.md`
 - `USER.md` + `MEMORY.md` → `~/.hermes/memory/`
 - Skills OpenClaw → `~/.hermes/skills/openclaw-imports/`
@@ -125,30 +127,30 @@ perplexity_browser/
 
 ### Criar (Hermes Skill Structure)
 
-| Path | Descrição |
-|------|-----------|
-| `~/.hermes/skills/perplexity_browser/SKILL.md` | Skill metadata |
-| `~/.hermes/skills/perplexity_browser/agent.py` | Browser-use Agent |
-| `~/.hermes/skills/coolify_sre/hermes_integration.py` | Hermes CLI wrapper |
-| `/srv/ops/scripts/hermes-coolify-cli.sh` | CLI para controle Coolify via Hermes |
-| `~/.hermes/cron/homelab_scheduler.py` | Scheduler unificado |
+| Path                                                 | Descrição                            |
+| ---------------------------------------------------- | ------------------------------------ |
+| `~/.hermes/skills/perplexity_browser/SKILL.md`       | Skill metadata                       |
+| `~/.hermes/skills/perplexity_browser/agent.py`       | Browser-use Agent                    |
+| `~/.hermes/skills/coolify_sre/hermes_integration.py` | Hermes CLI wrapper                   |
+| `/srv/ops/scripts/hermes-coolify-cli.sh`             | CLI para controle Coolify via Hermes |
+| `~/.hermes/cron/homelab_scheduler.py`                | Scheduler unificado                  |
 
 ### Modificar
 
-| Path | Mudança |
-|------|--------|
-| `~/.hermes/config.yaml` | MiniMax primary, Ollama fallback, MCP server |
-| `~/.hermes/personalities/master_agency.md` | SOUL.md migrado |
-| `/srv/monorepo/.claude/skills/coolify-sre/scripts/sre-monitor.sh` | ✅ FIXO (restart loop) |
+| Path                                                              | Mudança                                      |
+| ----------------------------------------------------------------- | -------------------------------------------- |
+| `~/.hermes/config.yaml`                                           | MiniMax primary, Ollama fallback, MCP server |
+| `~/.hermes/personalities/master_agency.md`                        | SOUL.md migrado                              |
+| `/srv/monorepo/.claude/skills/coolify-sre/scripts/sre-monitor.sh` | ✅ FIXO (restart loop)                       |
 
 ### Executar
 
-| Ação | Comando |
-|------|---------|
-| Preview migração | `hermes claw migrate --dry-run` |
-| Executar migração | `hermes claw migrate --preset user-data` |
-| Instalar Hermes | `curl -fsSL https://raw.githubusercontent.com/NousResearch/hermes-agent/main/scripts/install.sh \| bash` |
-| Configurar model | `hermes model` → MiniMax 2.7 |
+| Ação              | Comando                                                                                                  |
+| ----------------- | -------------------------------------------------------------------------------------------------------- |
+| Preview migração  | `hermes claw migrate --dry-run`                                                                          |
+| Executar migração | `hermes claw migrate --preset user-data`                                                                 |
+| Instalar Hermes   | `curl -fsSL https://raw.githubusercontent.com/NousResearch/hermes-agent/main/scripts/install.sh \| bash` |
+| Configurar model  | `hermes model` → MiniMax 2.7                                                                             |
 
 ---
 
@@ -156,21 +158,21 @@ perplexity_browser/
 
 ### Gargalo MiniMax 2.7 (15k/5h)
 
-| Estratégia | Implementação |
-|-----------|--------------|
+| Estratégia            | Implementação                                              |
+| --------------------- | ---------------------------------------------------------- |
 | **Cache inteligente** | Usar Qdrant para cache de embeddings de queries frequentes |
-| **Fallback Ollama** | gemma4:latest na RTX 4090 para queries não-críticas |
-| **Rate limiting** | Implementar token bucket no Hermes config |
+| **Fallback Ollama**   | gemma4:latest na RTX 4090 para queries não-críticas        |
+| **Rate limiting**     | Implementar token bucket no Hermes config                  |
 
 ### Hermes 0.6.0+ vs OpenClaw
 
-| Aspeto | OpenClaw | Hermes 0.6.0+ |
-|--------|----------|---------------|
-| Cron | Crontab disperso | `hermes.json` nativo |
-| Skills | Bash scripts | Python skills + agentskills.io |
-| MCP | Custom wrapper | Native MCP support |
-| Memory | Manual | Auto-managed + FTS5 |
-| Personas | SOUL.md | `~/.hermes/personalities/` |
+| Aspeto   | OpenClaw         | Hermes 0.6.0+                  |
+| -------- | ---------------- | ------------------------------ |
+| Cron     | Crontab disperso | `hermes.json` nativo           |
+| Skills   | Bash scripts     | Python skills + agentskills.io |
+| MCP      | Custom wrapper   | Native MCP support             |
+| Memory   | Manual           | Auto-managed + FTS5            |
+| Personas | SOUL.md          | `~/.hermes/personalities/`     |
 
 ### Integração Coolify
 
@@ -182,20 +184,20 @@ perplexity_browser/
 
 ## Success Criteria
 
-| # | Criterion | Status | Notes |
-|---|-----------|--------|-------|
-| SC-1 | Hermes-Agent instalado e configurado no Ubuntu Desktop | ✅ | hermes v0.9.0 installed |
-| SC-2 | `hermes claw migrate` executado com sucesso | ✅ | 21 items migrated |
-| SC-3 | MiniMax 2.7 configurado como primary model | ✅ | In config.yaml |
-| SC-4 | Ollama qwen2.5vl:7b configurado como fallback (RTX 4090) | ✅ | Changed from gemma4 (gemma4 is legacy) |
-| SC-5 | perplexity_browser skill criada e funcional | ✅ | |
-| SC-6 | coolify_sre skill com restart loop detection | ✅ | sre-monitor.sh active |
-| SC-7 | hermes.json com crons centralizados | ✅ | Crons installed and operational |
-| SC-8 | OpenClaw disable executado | ✅ | Containers stopped, migration complete |
-| SC-9 | MCP server para Open WebUI configurado | ⚠️ | hermes mcp serve exits after each request (not persistent) — MCPO bridge not viable |
-| SC-10 | Zero true duplicates nos crons | ✅ | |
-| SC-11 | Hermes Gateway instalado e configurado | ✅ | 2026-04-14 — gateway as endpoint for bot.zappro.site |
-| SC-12 | Voice Pipeline integrado ao Hermes | ✅ | Kokoro TTS + wav2vec2 STT + TTS Bridge |
+| #     | Criterion                                                | Status | Notes                                                                               |
+| ----- | -------------------------------------------------------- | ------ | ----------------------------------------------------------------------------------- |
+| SC-1  | Hermes-Agent instalado e configurado no Ubuntu Desktop   | ✅     | hermes v0.9.0 installed                                                             |
+| SC-2  | `hermes claw migrate` executado com sucesso              | ✅     | 21 items migrated                                                                   |
+| SC-3  | MiniMax 2.7 configurado como primary model               | ✅     | In config.yaml                                                                      |
+| SC-4  | Ollama qwen2.5vl:7b configurado como fallback (RTX 4090) | ✅     | Changed from gemma4 (gemma4 is legacy)                                              |
+| SC-5  | perplexity_browser skill criada e funcional              | ✅     |                                                                                     |
+| SC-6  | coolify_sre skill com restart loop detection             | ✅     | sre-monitor.sh active                                                               |
+| SC-7  | hermes.json com crons centralizados                      | ✅     | Crons installed and operational                                                     |
+| SC-8  | OpenClaw disable executado                               | ✅     | Containers stopped, migration complete                                              |
+| SC-9  | MCP server para Open WebUI configurado                   | ⚠️     | hermes mcp serve exits after each request (not persistent) — MCPO bridge not viable |
+| SC-10 | Zero true duplicates nos crons                           | ✅     |                                                                                     |
+| SC-11 | Hermes Gateway instalado e configurado                   | ✅     | 2026-04-14 — gateway as endpoint for bot.zappro.site                                |
+| SC-12 | Voice Pipeline integrado ao Hermes                       | ✅     | Kokoro TTS + wav2vec2 STT + TTS Bridge                                              |
 
 ---
 
@@ -233,13 +235,14 @@ Hermes Gateway instalado e configurado como endpoint primário para bot.zappro.s
 
 O Hermes-Agent serve como core para a infraestrutura de voz do homelab:
 
-| Componente | Endpoint | Vozes | Status |
-|-----------|----------|-------|--------|
-| **Kokoro TTS** | localhost:8012 | pm_santa, pf_dora | ✅ Running |
-| **wav2vec2 STT** | localhost:8202 | — | ✅ Running |
-| **TTS Bridge** | localhost:8013 | voice-filtering governance | ✅ Running |
+| Componente       | Endpoint       | Vozes                      | Status     |
+| ---------------- | -------------- | -------------------------- | ---------- |
+| **Kokoro TTS**   | localhost:8012 | pm_santa, pf_dora          | ✅ Running |
+| **wav2vec2 STT** | localhost:8202 | —                          | ✅ Running |
+| **TTS Bridge**   | localhost:8013 | voice-filtering governance | ✅ Running |
 
 **Arquitetura:**
+
 ```
 Telegram/Voice Input → wav2vec2 STT (:8202) → Hermes Agent → Kokoro TTS (:8012) → Telegram/Voice Output
                                                       ↓
@@ -248,6 +251,7 @@ Telegram/Voice Input → wav2vec2 STT (:8202) → Hermes Agent → Kokoro TTS (:
 ```
 
 **Integração Hermes:**
+
 - Hermes polling Telegram para mensagens de voz
 - STT via wav2vec2 local
 - TTS via Kokoro com vozes PT-BR (pf_dora, pm_santa)
@@ -258,16 +262,19 @@ Telegram/Voice Input → wav2vec2 STT (:8202) → Hermes Agent → Kokoro TTS (:
 ## TTS/STT Infrastructure Findings
 
 ### Kokoro TTS
+
 - **Endpoint:** localhost:8012
 - **Vozes PT-BR:** `pf_dora` (feminina), `pm_santa` (masculina)
 - **Uso:** Transformar texto do Hermes em áudio para resposta de voz
 
 ### wav2vec2 STT
+
 - **Endpoint:** localhost:8202
 - **Modelo:** wav2vec2 para reconhecimento de fala PT-BR
 - **Uso:** Transcrever áudio do Telegram para texto
 
 ### TTS Bridge
+
 - **Endpoint:** localhost:8013
 - **Função:** Voice-filtering governance — filtra e normaliza output de voz
 - **Status:** Operacional como layer de governance
@@ -299,11 +306,11 @@ PRÓXIMOS:
 
 **Componentes criados:**
 
-| File | Descricao |
-|------|-----------|
-| `~/.hermes/skills/coolify_sre/hermes_integration.py` | Python wrapper para sre-monitor.sh — saida JSON |
-| `/srv/ops/scripts/hermes-sre-monitor.sh` | Bash CLI wrapper com comandos `status`, `heal`, `restart`, `diagnose`, `health`, `parse` |
-| `~/.hermes/hermes.json` (skills) | Entry `coolify_sre` com command e python_wrapper |
+| File                                                 | Descricao                                                                                |
+| ---------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| `~/.hermes/skills/coolify_sre/hermes_integration.py` | Python wrapper para sre-monitor.sh — saida JSON                                          |
+| `/srv/ops/scripts/hermes-sre-monitor.sh`             | Bash CLI wrapper com comandos `status`, `heal`, `restart`, `diagnose`, `health`, `parse` |
+| `~/.hermes/hermes.json` (skills)                     | Entry `coolify_sre` com command e python_wrapper                                         |
 
 **Comandos disponiveis:**
 
@@ -345,6 +352,7 @@ python3 ~/.hermes/skills/coolify_sre/hermes_integration.py parse
 ```
 
 **Testes executados:**
+
 - `status` — ✅ 34 containers listados, sre-monitor.sh executado com exit 0
 - `health` — ✅ 5 endpoints + 12 subdomains verificados
 - `diagnose zappro-litellm` — ✅ RCA executado, logs extraidos, causa provavel: Connection-Refused (Redis unavailable)
@@ -374,7 +382,44 @@ python3 ~/.hermes/skills/coolify_sre/hermes_integration.py parse
    - Docker: sem containers open-webui
 
 **Tokens usados:**
+
 - `COOLIFY_API_KEY=7|2Lqe2UXliI2jBckqIttjmPjmpf9yBVISDNNu0C4s38a54332`
 - Base URL: `http://127.0.0.1:8000`
 
 **Nota:** Os containers `zappro-tts-bridge` e `openwebui-bridge-agent` continuam a correr como Docker standalone (nao geridos pelo Coolify) — fora do scope desta tarefa.
+
+---
+
+## TASK-HERMES-013: Configure hermes gateway for bot.zappro.site (2026-04-14)
+
+**Problema:** bot.zappro.site retorna 530 (tunnel degraded). Hermes gateway a correr em localhost:8642.
+
+**Analise:**
+
+- bot.zappro.site: **PRUNED** — DNS CNAME removido da Cloudflare (SUBDOMAINS.md)
+- hermes.zappro.site: **ATIVO** — ingress configurado para localhost:8642
+- Hermes gateway: **Running** (PID 3265372, `hermes gateway run --replace`)
+
+**Acoes executadas:**
+
+1. **Verificou-se estado do tunnel** via Cloudflare API:
+
+   ```json
+   { "hostname": "hermes.zappro.site", "service": "http://localhost:8642" }
+   ```
+
+   Ingress configurado corretamente.
+
+2. **Testou-se endpoints:**
+   | Endpoint | Result |
+   |----------|--------|
+   | `curl localhost:8642/health` | ✅ `{"status":"ok"}` HTTP 200 |
+   | `curl https://hermes.zappro.site/health` | ✅ HTTP 200 |
+   | `curl https://hermes.zappro.site/v1/health` | ✅ HTTP 200 |
+   | `curl https://hermes.zappro.site/` | ⚠️ HTTP 404 (expected - no root handler) |
+
+3. **Conclusao:** hermes.zappro.site funciona como endpoint do Hermes Gateway. bot.zappro.site nao pode ser restaurado (DNS removido).
+
+**Resultado:** hermes.zappro.site ✅ operacional. bot.zappro.site ❌ PRUNED (sem acao possivel).
+
+**Documentacao atualizada:** SPEC-039 "Current State" atualizado com estado final.
