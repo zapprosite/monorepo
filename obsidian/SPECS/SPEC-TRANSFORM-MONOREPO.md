@@ -45,7 +45,7 @@
 - `docs/GOVERNANCE/` — CONTRATO, GUARDRAILS, APPROVAL_MATRIX, CHANGE_POLICY
 - `docs/ARCHITECTURE/` — decisões arquiteturais
 - `docs/INFRASTRUCTURE/` — NETWORK_MAP, PORTS, SERVICE_MAP, MONITORING
-- `docs/specflow/SPEC-*.md` — especificações
+- `docs/SPECS/SPEC-*.md` — especificações
 - `docs/OPERATIONS/` — runbooks, guias
 - `docs/MCPs/` — MCP documentation
 - `docs/guides/` — guias de ferramentas
@@ -581,7 +581,7 @@ docs/
 1. Atualizar docs/index.md com nova estrutura
 2. Atualizar .context/docs/ com novos paths
 3. Atualizar obsidian/ vault com novos índices
-4. Gerar docs/specflow/SPEC-INDEX.md atualizado
+4. Gerar docs/SPECS/SPEC-INDEX.md atualizado
 ```
 
 ---
