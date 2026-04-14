@@ -35,6 +35,7 @@ Utilizador final (@bot)
 ```
 
 **Stack atual:**
+
 - Hermes Gateway: Running, Telegram connected, PID 1990953
 - Bot token: `${TELEGRAM_BOT_TOKEN}` (stored in .env)
 - Gateway API: port 8642 on Ubuntu Desktop (10.0.5.2)
@@ -44,22 +45,22 @@ Utilizador final (@bot)
 
 ## Condições Atuais
 
-| Componente | Estado |
-|------------|--------|
-| Hermes Gateway | ✅ Running (PID 1990953) |
-| Telegram Bot | ✅ Connected (polling mode) |
-| bot.zappro.site | ⚠️ Aponta para OpenClaw OFFLINE (será deprecated) |
-| hermes.zappro.site | ❌ Não existe ainda |
+| Componente         | Estado                                            |
+| ------------------ | ------------------------------------------------- |
+| Hermes Gateway     | ✅ Running (PID 1990953)                          |
+| Telegram Bot       | ✅ Connected (polling mode)                       |
+| bot.zappro.site    | ⚠️ Aponta para OpenClaw OFFLINE (será deprecated) |
+| hermes.zappro.site | ❌ Não existe ainda                               |
 
 ---
 
 ## Cloudflare IDs (Fixos — homelab)
 
-| ID | Valor |
-|----|-------|
-| Account ID | `1a41f45591a50585050f664fa015d01b` |
-| Zone ID | `c0cf47bc153a6662f884d0f91e8da7c2` |
-| Tunnel ID | `aee7a93d-c2e2-4c77-a395-71edc1821402` |
+| ID           | Valor                                                   |
+| ------------ | ------------------------------------------------------- |
+| Account ID   | `1a41f45591a50585050f664fa015d01b`                      |
+| Zone ID      | `c0cf47bc153a6662f884d0f91e8da7c2`                      |
+| Tunnel ID    | `aee7a93d-c2e2-4c77-a395-71edc1821402`                  |
 | Tunnel CNAME | `aee7a93d-c2e2-4c77-a395-71edc1821402.cfargotunnel.com` |
 
 ---
@@ -91,6 +92,7 @@ curl -s -X GET \
 ```
 
 **Expected output (current):**
+
 ```json
 [
   {"hostname": "bot.zappro.site", "service": "http://10.0.19.7:8080", ...},
@@ -114,11 +116,12 @@ curl -s -X POST \
 ```
 
 **Success response:**
+
 ```json
 {
   "success": true,
   "errors": [],
-  "result": {"id": "abc123", "name": "hermes.zappro.site"}
+  "result": { "id": "abc123", "name": "hermes.zappro.site" }
 }
 ```
 
@@ -198,6 +201,7 @@ sudo systemctl status cloudflared --no-pager
 ## Exact Cloudflare API Calls Summary
 
 ### 1. GET current tunnel config
+
 ```bash
 curl -s -X GET \
   "https://api.cloudflare.com/client/v4/accounts/1a41f45591a50585050f664fa015d01b/cfd_tunnel/aee7a93d-c2e2-4c77-a395-71edc1821402/configurations" \
@@ -205,6 +209,7 @@ curl -s -X GET \
 ```
 
 ### 2. POST DNS CNAME record
+
 ```bash
 curl -s -X POST \
   "https://api.cloudflare.com/client/v4/zones/c0cf47bc153a6662f884d0f91e8da7c2/dns_records" \
@@ -214,6 +219,7 @@ curl -s -X POST \
 ```
 
 ### 3. PUT tunnel ingress (full config)
+
 ```bash
 curl -s -X PUT \
   "https://api.cloudflare.com/client/v4/accounts/1a41f45591a50585050f664fa015d01b/cfd_tunnel/aee7a93d-c2e2-4c77-a395-71edc1821402/configurations" \
@@ -226,93 +232,75 @@ curl -s -X PUT \
 
 ## Success Criteria
 
-| # | Criterion | Verification Command | Expected |
-|---|-----------|---------------------|----------|
-| SC-1 | hermes.zappro.site DNS record existe | `dig +short hermes.zappro.site CNAME` | `aee7a93d...cfargotunnel.com.` |
-| SC-2 | Tunnel ingress configurado | `curl -sfI https://hermes.zappro.site/` | HTTP 200/301/302 (not 502) |
-| SC-3 | Hermes Gateway recebe requests | `curl -sf --max-time 10 https://hermes.zappro.site/ -o /dev/null -w "HTTP %{http_code}\n"` | HTTP 200 |
-| SC-4 | Telegram polling funciona | `curl -s http://localhost:8642/health` | `{"status":"ok"}` |
-| SC-5 | bot.zappro.site continua a funcionar (legacy) | `curl -sfI https://bot.zappro.site/` | HTTP 200 (ou 502 se OpenClaw OFF) |
+| #    | Criterion                                     | Verification Command                                                                       | Expected                          |
+| ---- | --------------------------------------------- | ------------------------------------------------------------------------------------------ | --------------------------------- |
+| SC-1 | hermes.zappro.site DNS record existe          | `dig +short hermes.zappro.site CNAME`                                                      | `aee7a93d...cfargotunnel.com.`    |
+| SC-2 | Tunnel ingress configurado                    | `curl -sfI https://hermes.zappro.site/`                                                    | HTTP 200/301/302 (not 502)        |
+| SC-3 | Hermes Gateway recebe requests                | `curl -sf --max-time 10 https://hermes.zappro.site/ -o /dev/null -w "HTTP %{http_code}\n"` | HTTP 200                          |
+| SC-4 | Telegram polling funciona                     | `curl -s http://localhost:8642/health`                                                     | `{"status":"ok"}`                 |
+| SC-5 | bot.zappro.site continua a funcionar (legacy) | `curl -sfI https://bot.zappro.site/`                                                       | HTTP 200 (ou 502 se OpenClaw OFF) |
 
 ---
 
-## Current State (2026-04-14)
+## Current State (2026-04-14) — UPDATED
 
-### Tunnel Configuration (from Cloudflare API)
-
-The tunnel `aee7a93d-c2e2-4c77-a395-71edc1821402` is already configured with:
+### Tunnel Configuration (verified via Cloudflare API)
 
 ```json
 {
   "ingress": [
-    {"hostname": "hermes.zappro.site", "service": "https://10.0.5.2:8642"},
+    {"hostname": "hermes.zappro.site", "service": "http://localhost:8642"},
     {"hostname": "bot.zappro.site", "service": "http://10.0.19.7:8080"},
     ...
   ]
 }
 ```
 
-| Subdomain | Target | Status | Issue |
-|-----------|--------|--------|-------|
-| hermes.zappro.site | https://10.0.5.2:8642 | Connection refused | Hermes gateway API server not listening on 8642 |
-| bot.zappro.site | http://10.0.19.7:8080 | HTTP 502 | OpenClaw OFFLINE |
+| Subdomain          | Target                | Status               | Issue                             |
+| ------------------ | --------------------- | -------------------- | --------------------------------- |
+| hermes.zappro.site | http://localhost:8642 | ✅ HTTP 200          | Working - tunnel routes correctly |
+| bot.zappro.site    | http://10.0.19.7:8080 | ❌ NXDOMAIN (PRUNED) | DNS removed, cannot restore       |
 
-### Hermes Gateway Status
+### Hermes Gateway Status ✅
 
 ```bash
-$ hermes gateway status
-✗ Gateway is not running
+$ curl -s http://localhost:8642/health
+{"status":"ok","platform":"hermes-agent"}
 
 $ ps aux | grep hermes | grep gateway
-will 2047806 - /home/will/.hermes/hermes-agent/venv/bin/python3 ... hermes gateway run
+will 3265372 - hermes_cli.main gateway run --replace
 ```
 
-**Problem:** Hermes gateway process exists but API server is NOT listening on port 8642.
+**Result:** Hermes gateway is running (PID 3265372) and listening on port 8642.
 
-### bot.zappro.site Cleanup Options
+### hermes.zappro.site Verification
 
-| Option | Description | Status | Recommendation |
-|--------|-------------|--------|----------------|
-| **A: Update tunnel** | Change bot.zappro.site to point to Hermes | Requires Hermes running first | Temporary - won't work until Hermes is fixed |
-| **B: Create hermes.zappro.site** | Already created in tunnel! | Fails - Hermes not running | **Recommended once Hermes is fixed** |
-| **C: Deprecate bot.zappro.site** | Keep DNS, no tunnel routing | bot.zappro.site will 502 | Fallback |
+| Test          | Command                                               | Result                                           |
+| ------------- | ----------------------------------------------------- | ------------------------------------------------ |
+| Local health  | `curl localhost:8642/health`                          | ✅ `{"status":"ok"}`                             |
+| Tunnel health | `curl https://hermes.zappro.site/health`              | ✅ HTTP 200                                      |
+| Tunnel v1     | `curl https://hermes.zappro.site/v1/health`           | ✅ HTTP 200                                      |
+| Root path     | `curl https://hermes.zappro.site/`                    | ⚠️ HTTP 404 (expected - no root handler)         |
+| Telegram API  | `curl https://hermes.zappro.site/botTOKEN/getUpdates` | ⚠️ HTTP 404 (polling mode - no webhook endpoint) |
 
-### Required Action: Fix Hermes Gateway
+**Note:** 404 on Telegram API paths is expected since Hermes Gateway uses polling mode, not webhook. The `/health` endpoint confirms the gateway is reachable.
 
-Before any tunnel changes work, Hermes gateway must be running on port 8642:
+### bot.zappro.site — Cannot Restore
 
-```bash
-# Check if Hermes is listening
-ss -tlnp | grep 8642
+**bot.zappro.site is PRUNED** (DNS CNAME removed from Cloudflare). Per SUBDOMAINS.md:
 
-# Try starting gateway
-hermes gateway stop
-sleep 2
-hermes gateway run
-sleep 5
-hermes gateway status
-```
+- bot.zappro.site DNS status: NXDOMAIN
+- OpenClaw containers: stopped
+- Decision: hermes.zappro.site is the canonical endpoint for Hermes
 
-**Known issues:**
-- Telegram polling conflict with other bot instance
-- Cron scheduler errors in logs
-- Gateway process exists but doesn't bind to port 8642
+**No action possible** - DNS record no longer exists. hermes.zappro.site is the working replacement.
 
-### Terraform Update (when Hermes is fixed)
+### Terraform Update — NOT NEEDED
 
-To point bot.zappro.site to Hermes (Option A - temporary fix):
+The tunnel ingress was updated via Cloudflare API directly (not Terraform). The current state is:
 
-```bash
-# Update variables.tf
-# Change bot service URL from http://10.0.19.7:8080 to http://10.0.5.2:8642
-
-# Apply via Terraform (zero downtime - just updates ingress)
-cd /srv/ops/terraform/cloudflare
-terraform plan
-terraform apply
-```
-
-**Note:** This is NOT recreating the tunnel - just updating ingress rules. PINNED-SERVICES.md warning about "tunnel não pode ser recriado" refers to destroying the tunnel UUID, not modifying ingress.
+- hermes.zappro.site → `http://localhost:8642` ✅
+- bot.zappro.site → remains in tunnel config but DNS is NXDOMAIN (no target to route to)
 
 ---
 
