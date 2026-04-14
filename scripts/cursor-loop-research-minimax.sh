@@ -1,6 +1,7 @@
 #!/bin/bash
 # Cursor Loop Research Agent — MiniMax LLM
-# Fetches research analysis using MiniMax-M2.1 via Infisical SDK secret
+# Fetches research analysis using MiniMax-M2.1
+# Secrets: .env as canonical source (synced from Infisical by external process)
 
 set -e
 
@@ -12,40 +13,60 @@ if [ -z "$TOPIC" ]; then
 fi
 
 # =============================================================================
-# Infisical — fetch MINIMAX_API_KEY (env var takes precedence)
+# .env canonical source — no direct Infisical SDK calls
+# All secrets synced from Infisical to .env by external process
 # =============================================================================
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
+ENV_FILE="${SCRIPT_DIR}/.env"
+
+# Load from .env (supports ${VAR:-default} syntax via set -a)
+if [[ -f "$ENV_FILE" ]]; then
+  set -a
+  source "$ENV_FILE"
+  set +a
+fi
+
 MINIMAX_API_KEY="${MINIMAX_API_KEY:-}"
 
+# Fallback: Infisical REST API via service token (only if .env lookup failed)
 if [ -z "$MINIMAX_API_KEY" ]; then
-    # Use canonical get_secret_by_name pattern from docs
-    MINIMAX_API_KEY=$(python3 -c "
-from infisical_sdk import InfisicalSDKClient
-import os
+    TOKEN_PATH="/srv/ops/secrets/infisical.service-token"
+    INFISICAL_PROJECT_ID="${INFISICAL_PROJECT_ID:-e42657ef-98b2-4b9c-9a04-46c093bd6d37}"
+    INFISICAL_ENV="${INFISICAL_ENV:-dev}"
 
-token = os.environ.get('INFISICAL_TOKEN', '')
-if not token:
-    token_path = '/srv/ops/secrets/infisical.service-token'
-    if os.path.exists(token_path):
-        token = open(token_path).read().strip()
+    if [[ -f "$TOKEN_PATH" ]]; then
+        INFISICAL_TOKEN=$(<"$TOKEN_PATH")
+        if [[ -n "$INFISICAL_TOKEN" ]]; then
+            # Use REST API (no SDK) — Infisical must be running locally on port 8200
+            MINIMAX_API_KEY=$(python3 -c "
+import urllib.request, urllib.error, json, os
 
-if not token:
-    raise SystemExit(1)
+token = '''$INFISICAL_TOKEN'''.strip()
+project_id = '''$INFISICAL_PROJECT_ID'''
+env_slug = '''$INFISICAL_ENV'''
 
-client = InfisicalSDKClient(host='http://127.0.0.1:8200', token=token)
-secret = client.secrets.get_secret_by_name(
-    secret_name='MINIMAX_API_KEY',
-    project_id='e42657ef-98b2-4b9c-9a04-46c093bd6d37',
-    environment_slug='dev',
-    secret_path='/',
-    expand_secret_references=True,
-    view_secret_value=True
+req = urllib.request.Request(
+    f'http://127.0.0.1:8200/api/v3/secrets/raw/MINIMAX_API_KEY',
+    headers={
+        'Authorization': f'Bearer {token}',
+        'X-Infisical-Project-ID': project_id,
+        'X-Infisical-Environment': env_slug,
+    }
 )
-print(secret.secret_value, end='')
-")
+try:
+    with urllib.request.urlopen(req, timeout=10) as resp:
+        data = json.load(resp)
+        print(data.get('secret', {}).get('secretValue', ''))
+except urllib.error.URLError:
+    print('', end='')
+" 2>/dev/null || echo "")
+        fi
+    fi
 fi
 
 if [ -z "$MINIMAX_API_KEY" ]; then
-    echo "ERROR: MINIMAX_API_KEY not found in env or Infisical vault" >&2
+    echo "ERROR: MINIMAX_API_KEY not found in .env or Infisical vault" >&2
+    echo "Hint: Ensure secrets are synced from Infisical to .env" >&2
     exit 1
 fi
 

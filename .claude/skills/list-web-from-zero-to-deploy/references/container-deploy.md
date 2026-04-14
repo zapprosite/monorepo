@@ -36,10 +36,11 @@ O container usa usuario nginxapp (uid 1001) em vez de root. Isso e importante pa
 services:
   app-name:
     environment:
-      - INFISICAL_CLIENT_ID=${INFISICAL_CLIENT_ID}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
 ```
 
-O app busca o secret em runtime usando Infisical SDK.
+O app usa env.js para injetar secrets (syncados do Infisical para .env).
 
 ## Ports
 

@@ -7,14 +7,12 @@
 # 2. If no service token, try PLAYWRIGHT real login (E2E completo)
 # 3. Verify authenticated response + app functionality
 #
-# Secrets from: Infisical (vault.zappro.site:8200)
-# Project ID: e42657ef-98b2-4b9c-9a04-46c093bd6d37
+# Secrets from: .env (canonical source) or environment variables
+# Project ID: INFISICAL_PROJECT_ID env var (fallback: e42657ef-98b2-4b9c-9a04-46c093bd6d37)
 
 set -euo pipefail
 
 SITE="chat.zappro.site"
-INFISICAL_TOKEN_FILE="/srv/ops/secrets/infisical.service-token"
-PROJECT_ID="e42657ef-98b2-4b9c-9a04-46c093bd6d37"
 ENV="dev"
 DEBUG="${DEBUG:-0}"
 
@@ -23,46 +21,28 @@ echo "Date: $(date -Iseconds)"
 echo ""
 
 # =============================================================================
-# STEP 1: Fetch secrets from Infisical (batch - single Python call)
+# STEP 1: Load secrets from .env (canonical source)
 # =============================================================================
-echo "[STEP 1] Fetching secrets from Infisical..."
+echo "[STEP 1] Loading secrets from .env..."
 
-INFISICAL_TOKEN="${INFISICAL_TOKEN:-}"
-if [ -z "$INFISICAL_TOKEN" ] && [ -f "$INFISICAL_TOKEN_FILE" ]; then
-    INFISICAL_TOKEN=$(cat "$INFISICAL_TOKEN_FILE" | tr -d '\n')
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
+ENV_FILE="${SCRIPT_DIR}/.env"
+if [[ -f "$ENV_FILE" ]]; then
+    set -a
+    source "$ENV_FILE"
+    set +a
+    echo "  ✅ Loaded env from: $ENV_FILE"
+else
+    echo "  ⚠️  .env not found at: $ENV_FILE"
 fi
 
-if [ -z "$INFISICAL_TOKEN" ]; then
-    echo "❌ INFISICAL_TOKEN not available"
-    exit 1
-fi
+SERVICE_TOKEN_ID="${CF_ACCESS_CLIENT_ID:-}"
+SERVICE_TOKEN_SECRET="${CF_ACCESS_CLIENT_SECRET:-}"
+GOOGLE_CLIENT_ID="${GOOGLE_CLIENT_ID:-}"
+GOOGLE_CLIENT_SECRET="${GOOGLE_CLIENT_SECRET:-}"
+CHROME_SESSION_EMAIL="${CHROME_SESSION_EMAIL:-}"
 
-# Batch fetch all secrets in one Python call
-ALL_SECRETS=$(python3 - "$INFISICAL_TOKEN" "$PROJECT_ID" "$ENV" << 'PYEOF' 2>/dev/null
-import sys
-from infisical_sdk import InfisicalSDKClient
-token = sys.argv[1]
-project_id = sys.argv[2]
-env_slug = sys.argv[3]
-client = InfisicalSDKClient(host='http://127.0.0.1:8200', token=token)
-secrets = client.secrets.list_secrets(
-    project_id=project_id,
-    environment_slug=env_slug,
-    secret_path='/'
-)
-for s in secrets.secrets:
-    if s.secret_key in ('CF_ACCESS_CLIENT_ID', 'CF_ACCESS_CLIENT_SECRET',
-                        'GOOGLE_CLIENT_ID', 'GOOGLE_CLIENT_SECRET',
-                        'CHROME_SESSION_EMAIL', 'CHROME_SESSION_PASSWORD'):
-        print(f"{s.secret_key}={s.secret_value}")
-PYEOF
-) || true
-
-SERVICE_TOKEN_ID="$(echo "$ALL_SECRETS" | grep '^CF_ACCESS_CLIENT_ID=' | cut -d= -f2-)"
-SERVICE_TOKEN_SECRET="$(echo "$ALL_SECRETS" | grep '^CF_ACCESS_CLIENT_SECRET=' | cut -d= -f2-)"
-GOOGLE_CLIENT_ID="$(echo "$ALL_SECRETS" | grep '^GOOGLE_CLIENT_ID=' | cut -d= -f2-)"
-GOOGLE_CLIENT_SECRET="$(echo "$ALL_SECRETS" | grep '^GOOGLE_CLIENT_SECRET=' | cut -d= -f2-)"
-CHROME_SESSION_EMAIL="$(echo "$ALL_SECRETS" | grep '^CHROME_SESSION_EMAIL=' | cut -d= -f2-)"
+PROJECT_ID="${INFISICAL_PROJECT_ID:-e42657ef-98b2-4b9c-9a04-46c093bd6d37}"
 
 echo "  Service Token: ${SERVICE_TOKEN_ID:+✅ configured}"
 echo "  Service Token Secret: ${SERVICE_TOKEN_SECRET:+✅ configured}"
@@ -167,6 +147,6 @@ echo "E2E Test completed at $(date -Iseconds)"
 echo ""
 echo "📋 E2E Evidence:"
 [ -f "$SCREENSHOT" ] && echo "  Screenshot: $SCREENSHOT"
-echo "  Secrets: Infisical (vault.zappro.site:8200)"
-echo "  Project: $PROJECT_ID"
+echo "  Secrets: .env (canonical source)"
+echo "  Project: ${INFISICAL_PROJECT_ID:-default}"
 echo "  Environment: $ENV"

@@ -38,14 +38,20 @@ services = {
 }
 ```
 
-### Passo 2: Plan
+### Passo 2: Source .env
 
 ```bash
 cd /srv/ops/terraform/cloudflare
+source /srv/monorepo/.env  # Loads CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID, CLOUDFLARE_ZONE_ID
+```
+
+### Passo 3: Plan
+
+```bash
 terraform plan -out=tfplan
 ```
 
-### Passo 3: Apply
+### Passo 4: Apply
 
 ```bash
 terraform apply tfplan
@@ -54,8 +60,82 @@ terraform apply tfplan
 ### Passo 4: Verificar
 
 ```bash
-curl -s -o /dev/null -w "%{http_code}" https://newservice.zappro.site/
-# Esperado: 200, 401, ou 404 (não " Connection refused")
+curl -sfI https://newservice.zappro.site/
+# Esperado: 200, 301, 302 (não "Connection refused")
+```
+
+### Passo 5: Smoke Test OAuth (se aplicável)
+
+Se o serviço usa Google OAuth native (MVP pattern sem Cloudflare Access):
+
+```bash
+# Teste de callback OAuth
+curl -sfI https://newservice.zappro.site/auth/callback
+# Deve retornar HTTP 200
+
+# Verificar que Cloudflare Access NÃO bloqueia (excluir do access.tf)
+# O access.tf exclui: bot, list, md (OAuth native, sem Access)
+```
+
+---
+
+## Padrão OAuth: MVP vs Cloudflare Access
+
+### MVP Pattern (OAuth Native — sem Cloudflare Access)
+
+Apps como `list-web`, `md.zappro.site` usam **Google OAuth direto** sem proteção Cloudflare:
+
+```hcl
+# access.tf — exclude da Cloudflare Access
+access_services = { for k, v in var.services : k => v if k != "bot" && k != "list" && k != "md" }
+```
+
+O app serve o OAuth flow completo (login Google → callback → token exchange).
+
+### Cloudflare Access Pattern (protegido)
+
+
+---
+
+## OAuth Client Configuration (CRÍTICO)
+
+### Para apps com Google OAuth client-side
+
+Quando o app faz token exchange no browser (não via backend), o `client_secret` **DEVE** ser incluído no POST body:
+
+```javascript
+// Token exchange POST body — OBRIGATÓRIO
+POST https://oauth2.googleapis.com/token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=authorization_code
+&client_id=GOOGLE_CLIENT_ID
+&client_secret=GOOGLE_CLIENT_SECRET    ← SEMPRE PRESENTE
+&code=AUTH_CODE
+&code_verifier=PKCE_VERIFIER
+&redirect_uri=https://subdomain.zappro.site/auth/callback
+```
+
+**Sem `client_secret` → `invalid_client` ou `client_secret is missing`**
+
+### Google OAuth Credentials (homelab)
+
+```
+GOOGLE_CLIENT_ID=→ Infisical: GOOGLE_CLIENT_ID (project: obsidian-web)
+GOOGLE_CLIENT_SECRET=→ Infisical: GOOGLE_CLIENT_SECRET (project: obsidian-web)
+```
+
+**NÃO usar credenciais legacy:**
+- `297107448858-324eplshrg5vv2br911l4dtm8bjh0sl1.apps.googleusercontent.com` → LEGACY, não usar
+
+### Env vars no docker-compose.yml
+
+```yaml
+services:
+  app-name:
+    environment:
+      GOOGLE_CLIENT_ID: "${GOOGLE_CLIENT_ID}"  # Infisical: obsidian-web/GOOGLE_CLIENT_ID
+      GOOGLE_CLIENT_SECRET: "${GOOGLE_CLIENT_SECRET}"  # Infisical: obsidian-web/GOOGLE_CLIENT_SECRET
 ```
 
 ---
@@ -64,20 +144,19 @@ curl -s -o /dev/null -w "%{http_code}" https://newservice.zappro.site/
 
 ### `services` map — todos os subdomínios
 
-| Subdomain | URL | http_host_header | Notas |
-|-----------|-----|------------------|-------|
-| `vault.zappro.site` | localhost:8200 | - | Infisical |
-| `n8n.zappro.site` | 10.0.6.3:5678 | - | n8n |
-| `qdrant.zappro.site` | localhost:6333 | - | Qdrant |
-| `bot.zappro.site` | localhost:80 | `openclaw-qgtzrmi...sslip.io` | OpenClaw |
-| `chat.zappro.site` | 10.0.5.2:8080 | `openwebui-wbmqefx...sslip.io` | OpenWebUI |
-| `llm.zappro.site` | localhost:4000 | - | LiteLLM |
-| `git.zappro.site` | localhost:3300 | - | Gitea |
-| `coolify.zappro.site` | localhost:8000 | - | Coolify |
-| `api.zappro.site` | localhost:4000 | - | API |
-| `web.zappro.site` | localhost:4004 | - | Web |
-| `monitor.zappro.site` | localhost:3100 | - | Grafana |
-| `painel.zappro.site` | localhost:4003 | - | Painel |
+| Subdomain | URL | http_host_header | Acesso | Notas |
+|-----------|-----|------------------|--------|-------|
+| `api.zappro.site` | 10.0.1.1:4000 | - | Cloudflare Access | LiteLLM |
+| `bot.zappro.site` | localhost:4001 | openclaw-qgtzrmi... | **OAuth native** | sem Access |
+| `chat.zappro.site` | 10.0.5.2:8080 | openwebui-wbmqefx... | Cloudflare Access | OpenWebUI |
+| `coolify.zappro.site` | localhost:8000 | - | Cloudflare Access | Coolify |
+| `git.zappro.site` | localhost:3300 | - | Cloudflare Access | Gitea |
+| `llm.zappro.site` | 10.0.1.1:4000 | - | Cloudflare Access | LiteLLM |
+| `list.zappro.site` | localhost:4080 | - | **OAuth native** | sem Access |
+| `md.zappro.site` | localhost:4081 | - | **OAuth native** | sem Access |
+| `monitor.zappro.site` | localhost:3100 | - | LAN only | Grafana |
+| `painel.zappro.site` | localhost:4003 | - | Cloudflare Access | Painel |
+| `qdrant.zappro.site` | 10.0.19.5:6333 | - | Cloudflare Access | Qdrant |
 
 ### `tunnel_name`
 - Default: `will-zappro-homelab`
@@ -90,8 +169,13 @@ curl -s -o /dev/null -w "%{http_code}" https://newservice.zappro.site/
 
 ## Comandos Terraform
 
+**IMPORTANT: Source .env before running any terraform commands.**
+
 ```bash
 cd /srv/ops/terraform/cloudflare
+
+# Source credentials from .env (loads CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID, CLOUDFLARE_ZONE_ID)
+source /srv/monorepo/.env
 
 # Validar configuração
 terraform validate
@@ -137,12 +221,19 @@ resource "cloudflare_access_application" "api" {
 }
 ```
 
-### Access Policy existente (access.tf)
+### OAuth Native apps (MVP) — NÃO adiciona a Access
 
-O `access.tf` já tem políticas para:
-- `vault.zappro.site` — só emails @zappro.site
-- `n8n.zappro.site` — proteção similar
-- `qdrant.zappro.site` — proteção similar
+Apps que usam OAuth nativo (Google login direto no app) DEVEM ser **excluídos** do Cloudflare Access:
+
+```hcl
+# access.tf —Exclude OAuth-native apps
+access_services = { for k, v in var.services : k => v if k != "bot" && k != "list" && k != "md" }
+```
+
+**Quando adicionar novo subdomain OAuth-native:**
+1. Adicionar em `variables.tf` normalmente
+2. NÃO adicionar em access.tf (já exclui via filter)
+3. O app implementa OAuth flow completo
 
 ---
 
@@ -161,19 +252,13 @@ O `access.tf` já tem políticas para:
 ### Obter valores do Infisical
 
 ```python
-from infisical_sdk import InfisicalSDKClient
-client = InfisicalSDKClient(
-    host='http://127.0.0.1:8200',
-    token=open('/srv/ops/secrets/infisical.service-token').read().strip()
-)
-secrets = client.secrets.list_secrets(
-    project_id='e42657ef-98b2-4b9c-9a04-46c093bd6d37',
-    environment_slug='dev',
-    secret_path='/'
-)
-for s in secrets.secrets:
-    if s.secret_key == 'CLOUDFLARE_API_TOKEN':
-        print(s.secret_value)
+import os
+
+# Read CLOUDFLARE_API_TOKEN from .env (synced from Infisical)
+token = os.environ.get("CLOUDFLARE_API_TOKEN")
+if not token:
+    raise RuntimeError("CLOUDFLARE_API_TOKEN not found in environment — ensure .env is synced from Infisical")
+print(token)
 ```
 
 ---
@@ -183,7 +268,16 @@ for s in secrets.secrets:
 ### "Connection refused" no subdomain
 - Cloudflare Tunnel pode estar a apontar para IP errado
 - Verificar `http_host_header` em `variables.tf`
-- O `http_host_header` é necessário quando o serviço faz bind a um hostname específico (como OpenClaw)
+- O `http_host_header` é necessário quando o serviço faz bind a um hostname específico
+
+### "invalid_client" OAuth error
+1. Verificar que `client_secret` está no token exchange POST body
+2. Verificar que `client_id` e `client_secret` são os corretos (não legacy)
+3. Verificar redirect_uri em Google Cloud Console
+
+### "client_secret is missing"
+- O token exchange POST body **não inclui** `client_secret`
+- Adicionar `client_secret` ao body → Infisical: obsidian-web/GOOGLE_CLIENT_SECRET
 
 ### Terraform state desactualizado
 ```bash
@@ -219,6 +313,7 @@ O cursor-loop pode usar Cloudflare para:
 **Permitido automaticamente:**
 - Adicionar novo subdomain a serviço existente
 - Actualizar `http_host_header`
+- Excluir novo subdomain da Access (se OAuth-native)
 
 ---
 
@@ -228,6 +323,192 @@ O cursor-loop pode usar Cloudflare para:
 - **Backup:** `terraform.tfstate.backup`
 - **Tunnel credentials:** `~/.cloudflared/config.yml`
 
+
+
+## Quick API Flow (no Terraform)
+
+Para casos em que `terraform apply` é lento ou indisponivel, usar a Cloudflare API diretamente.
+
+### IDs Fixos (homelab)
+
+```
+Account ID:  1a41f45591a50585050f664fa015d01b
+Zone ID:     c0cf47bc153a6662f884d0f91e8da7c2
+Tunnel ID:   aee7a93d-c2e2-4c77-a395-71edc1821402
+Tunnel CNAME: aee7a93d-c2e2-4c77-a395-71edc1821402.cfargotunnel.com
+Zone:        zappro.site
+```
+
+### Variaveis de Ambiente
+
+**IMPORTANT: Source .env before running any commands below.**
+
+```bash
+export CLOUDFLARE_API_TOKEN="your-cloudflare-api-token"    # Infisical: cloudflare/API_TOKEN
+export CLOUDFLARE_ACCOUNT_ID="1a41f45591a50585050f664fa015d01b"
+export CLOUDFLARE_ZONE_ID="c0cf47bc153a6662f884d0f91e8da7c2"
+export CLOUDFLARE_TUNNEL_ID="aee7a93d-c2e2-4c77-a395-71edc1821402"
+```
+
+Or source from .env:
+```bash
+source /srv/monorepo/.env
+# Uses: CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID, CLOUDFLARE_ZONE_ID, CLOUDFLARE_TUNNEL_ID
+```
+
+### Fluxo: Adicionar subdomain (exemplo: grafana → localhost:3100)
+
+**Passo 1: GET config atual do tunnel**
+
+```bash
+curl -s -X GET \
+  "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/cfd_tunnel/${CLOUDFLARE_TUNNEL_ID}/configurations" \
+  -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+  -H "Content-Type: application/json" | jq .
+```
+
+**Passo 2: Parse e adicionar ingress (Python)**
+
+```python
+import json
+import sys
+
+data = json.load(sys.stdin)
+config = data["result"]
+
+ingress_list = config["ingress"].copy()
+
+# NOVO: adicionar antes do catchall (ultimo)
+new_ingress = {
+    "hostname": "grafana.zappro.site",
+    "service": "http://localhost:3100",
+    "originRequest": {
+        "httpHostHeader": "grafana.zappro.site"
+    }
+}
+
+# Inserir antes do catchall (remove ultimo, adiciona novo, readiciona catchall)
+catchall = ingress_list.pop()
+ingress_list.append(new_ingress)
+ingress_list.append(catchall)
+
+config["ingress"] = ingress_list
+print(json.dumps(config, indent=2))
+```
+
+**Passo 3: PUT config atualizada**
+
+```bash
+# Guardar output do python em config.json e fazer PUT
+curl -s -X PUT \
+  "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/cfd_tunnel/${CLOUDFLARE_TUNNEL_ID}/configurations" \
+  -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+  -H "Content-Type: application/json" \
+  -d @config.json | jq .
+```
+
+**Passo 4: Criar DNS CNAME record**
+
+```bash
+curl -s -X POST \
+  "https://api.cloudflare.com/client/v4/zones/${CLOUDFLARE_ZONE_ID}/dns_records" \
+  -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "type": "CNAME",
+    "name": "grafana",
+    "content": "${CLOUDFLARE_TUNNEL_ID}.cfargotunnel.com",
+    "proxied": true
+  }' | jq .
+```
+
+**Passo 5: Verificar**
+
+```bash
+curl -sfI https://grafana.zappro.site/
+# Esperado: 200, 301, 302
+```
+
+### Script one-shot completo
+
+```bash
+#!/bin/bash
+# Usage: ./cf-quick-add.sh <subdomain> <target_host> <target_port> [http_host_header]
+set -e
+
+# Source credentials from .env
+source /srv/monorepo/.env
+
+SUBDOMAIN="$1"
+TARGET_HOST="$2"
+TARGET_PORT="$3"
+HTTP_HOST_HEADER="${4:-$SUBDOMAIN.zappro.site}"
+
+# 1. GET current config
+CONFIG=$(curl -s -X GET \
+  "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/cfd_tunnel/${CLOUDFLARE_TUNNEL_ID}/configurations" \
+  -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+  -H "Content-Type: application/json")
+
+# 2. Parse and patch with Python
+MODIFIED_CONFIG=$(echo "$CONFIG" | python3 -c "
+import json, sys
+data = json.load(sys.stdin)
+config = data['result']
+ingress_list = config['ingress'].copy()
+catchall = ingress_list.pop()
+ingress_list.append({
+    'hostname': '${SUBDOMAIN}.zappro.site',
+    'service': 'http://${TARGET_HOST}:${TARGET_PORT}',
+    'originRequest': {'httpHostHeader': '${HTTP_HOST_HEADER}'}
+})
+ingress_list.append(catchall)
+config['ingress'] = ingress_list
+print(json.dumps(config, indent=2))
+")
+
+# 3. PUT updated config
+curl -s -X PUT \
+  "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/cfd_tunnel/${CLOUDFLARE_TUNNEL_ID}/configurations" \
+  -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+  -H "Content-Type: application/json" \
+  -d "$MODIFIED_CONFIG" | jq '.success'
+
+# 4. Create DNS CNAME
+curl -s -X POST \
+  "https://api.cloudflare.com/client/v4/zones/${CLOUDFLARE_ZONE_ID}/dns_records" \
+  -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+  -H "Content-Type: application/json" \
+  -d "{
+    \"type\": \"CNAME\",
+    \"name\": \"${SUBDOMAIN}",
+    \"content\": \"${CLOUDFLARE_TUNNEL_ID}.cfargotunnel.com\",
+    \"proxied\": true
+  }" | jq '.success'
+
+echo "Done: https://${SUBDOMAIN}.zappro.site/"
+```
+
+**Uso:**
+```bash
+# grafana.zappro.site → localhost:3100
+./cf-quick-add.sh grafana localhost 3100
+
+# chat.zappro.site → 10.0.5.2:8080
+./cf-quick-add.sh chat 10.0.5.2 8080
+```
+
+### Remover subdomain
+
+```bash
+#GET config → remover entrada do ingress → PUT → DELETE DNS
+```
+
+### Referencias
+
+- [quick-api-flow.md](./references/quick-api-flow.md) — Comandos curl exatos + script Python
+- [oauth-integration.md](./references/oauth-integration.md) — Cloudflare Access + Google OAuth
+
 ---
 
 ## Referências
@@ -235,3 +516,5 @@ O cursor-loop pode usar Cloudflare para:
 - [Terraform Cloudflare Provider](https://registry.terraform.io/providers/cloudflare/cloudflare/latest/docs)
 - [Cloudflare Zero Trust Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/)
 - [Cloudflare Access Application](https://developers.cloudflare.com/cloudflare-one/identity/users/policy-engine/)
+- [Google OAuth Token Exchange](https://developers.google.com/identity/protocols/oauth2#exchange-code)
+- INCIDENT-2026-04-13-md-zappro-site-oauth.md — Debug OAuth client_secret missing

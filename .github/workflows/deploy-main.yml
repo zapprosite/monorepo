@@ -60,7 +60,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "22"
-          cache: "yarn"
+          cache: "pnpm"
 
       - name: Cache Turbo
         uses: actions/cache@v4
@@ -71,7 +71,7 @@ jobs:
             turbo-${{ runner.os }}-
 
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: pnpm install --frozen-lockfile
 
       - name: Prepare .env for CI
         run: |
@@ -88,18 +88,18 @@ jobs:
         run: node scripts/sync-env.js
 
       - name: Type check
-        run: yarn check-types
+        run: pnpm check-types
 
       - name: Lint (Biome)
         run: npx biome check .
 
       - name: Build
-        run: yarn build
+        run: pnpm build
         env:
           TURBO_CACHE_DIR: .turbo
 
       - name: Test
-        run: yarn test
+        run: pnpm test
         env:
           TURBO_CACHE_DIR: .turbo
 

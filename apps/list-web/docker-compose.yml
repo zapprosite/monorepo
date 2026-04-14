@@ -10,6 +10,21 @@ services:
       - "127.0.0.1:4080:80"
     volumes:
       - list-web-cache:/var/cache/nginx
+    environment:
+      GOOGLE_CLIENT_ID: "${GOOGLE_CLIENT_ID}"
+      GOOGLE_CLIENT_SECRET: "${GOOGLE_CLIENT_SECRET}"
+      GOOGLE_REDIRECT_URI: https://list.zappro.site/auth/callback
+    # Runtime config injection: generate env.js from container env vars before nginx starts.
+    # The static app reads window.__ENV__ (see index.html CONFIG block).
+    # $$VAR escapes docker-compose substitution so the shell inside the container expands it.
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        printf 'window.__ENV__ = {\n  GOOGLE_CLIENT_ID: "%s",\n  GOOGLE_CLIENT_SECRET: "%s",\n  GOOGLE_REDIRECT_URI: "%s"\n};\n' \
+          "$$GOOGLE_CLIENT_ID" "$$GOOGLE_CLIENT_SECRET" "$$GOOGLE_REDIRECT_URI" \
+          > /usr/share/nginx/html/env.js
+        exec nginx -g 'daemon off;'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/"]
       interval: 30s

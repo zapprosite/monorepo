@@ -15,7 +15,7 @@
 ## Task T-1: Revoke OAuth Secret (manual)
 
 **Status:** PENDING
-**Verification:** Google Console → Delete OAuth Client GOCSPX-fgKPRDB9UcWb-i8Pr6eblXI
+**Verification:** Google Console → Delete OAuth Client [GOOGLE_OAUTH_SECRET]
 
 ---
 

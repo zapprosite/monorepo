@@ -3,6 +3,11 @@
 # Usage: bash /srv/monorepo/scripts/health-check.sh
 set -euo pipefail
 
+# Source .env for environment variables
+set -a
+source /srv/monorepo/.env
+set +a
+
 TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
 LOG_PREFIX="[health-check ${TIMESTAMP}]"
 LOG_FILE="${LOG_FILE:-/srv/ops/logs/health-check.log}"
@@ -24,8 +29,8 @@ fi
 # ── Monorepo services ──────────────────────────────────────────
 log "Checking monorepo services..."
 SERVICES=(
-    "6333:Qdrant:http://localhost:6333/health"
-    "5678:n8n:http://localhost:5678/api/v1/health"
+    "6333:Qdrant:${QDRANT_URL:-http://localhost:6333}/health"
+    "5678:n8n:${N8N_URL:-http://localhost:5678}/api/v1/health"
 )
 for entry in "${SERVICES[@]}"; do
     IFS=':' read -r port name url <<< "$entry"

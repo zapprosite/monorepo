@@ -7,7 +7,7 @@
 > - Diagnosticar falhas de conectividade
 
 **Host:** will-zappro | **GPU:** RTX 4090 (24 GB VRAM) | **Driver:** NVIDIA 580.126.20
-**Kernel:** 6.17.0-20-generic | **Última atualização:** 2026-04-07
+**Kernel:** 6.17.0-20-generic | **Última atualização:** 2026-04-13
 
 ---
 
@@ -39,9 +39,7 @@
         │  chat.zappro.site   → http://localhost:8080      │
         │  coolify.zappro.site → http://localhost:8000     │
         │  git.zappro.site    → http://localhost:3300      │
-        │  vault.zappro.site  → http://localhost:8200      │
         │  painel.zappro.site → http://localhost:4003     │
-        │  n8n.zappro.site   → http://10.0.6.3:5678       │
         │  qdrant.zappro.site → http://localhost:6333     │
         │  monitor.zappro.site → http://localhost:3100    │
         │  llm.zappro.site   → http://localhost:4000      │
@@ -94,10 +92,8 @@
 | `git.zappro.site` | `:3300` | zappro.ia@gmail.com | ✅ UP | — |
 | `llm.zappro.site` | `:4000` | zappro.ia@gmail.com | ✅ UP | — |
 | `monitor.zappro.site` | `:3100` | LAN only (192.168.0.0/16) | ✅ UP | — |
-| `n8n.zappro.site` | `:5678` (Docker net IP 10.0.6.3) | zappro.ia@gmail.com | ✅ UP | — |
 | `painel.zappro.site` | `:4003` | zappro.ia@gmail.com | ✅ UP | — |
 | `qdrant.zappro.site` | `:6333` | zappro.ia@gmail.com | ✅ UP | — |
-| `vault.zappro.site` | `:8200` | zappro.ia@gmail.com | ✅ UP | — |
 | `aurelia.zappro.site` | `:3334` | zappro.ia@gmail.com | ⚠️ DEPRECATED | — |
 
 ### Google OAuth (Zero Trust)
@@ -121,15 +117,23 @@
 | 3300 | Gitea HTTP | LAN only (UFW) | Autenticado via Cloudflare |
 | 4000 | LiteLLM | localhost+LAN | ✅ Auth requerida |
 | 4001 | OpenClaw Bot | localhost | ✅ Auth requerida (401 sem creds) |
-| 4007 | tts-bridge | host | ⚠️ NÃO DOCUMENTADO — verificar propósito antes de usar | — |
 | 4003 | Claude Code Panel | localhost | ✅ Auth requerida |
+| 4004 | perplexity-agent | localhost | ✅ Auth requerida |
+| 3456 | openwebui-bridge-agent | localhost | ✅ Auth requerida |
+| 3457 | openclaw-mcp-wrapper | localhost | ✅ Auth requerida |
 | 5432 | PostgreSQL | 127.0.0.1 (UFW) | 3 instâncias: coolify-db, infisical-db, connected_repo_db |
 | 5678 | n8n | Via tunnel (10.0.6.3) | Via Docker network, não localhost |
+| 4080 | list-web | LAN only | ⚠️ Sem auth |
+| 4081 | obsidian-web | LAN only | ⚠️ Sem auth |
+| 5433 | supabase-health-proxy | 127.0.0.1 (UFW) | ⚠️ Sem auth (proxy to :3000) |
+| 5680 | n8n task runners | localhost | n8n workers |
 | 6333 | Qdrant | 127.0.0.1 (UFW) | ⚠️ Sem auth API |
 | 6379 | Redis | 127.0.0.1 (UFW) | 3 instâncias |
 | 6381 | Redis opencode | 127.0.0.1 (UFW) | — |
 | 8000 | Coolify | Via tunnel (Cloudflare) | Via tunnel, exposto em LAN via UFW |
 | 8012 | Kokoro TTS | 127.0.0.1 (UFW) | GPU TTS (host bridge) |
+| 8050 | gotify | LAN only | ⚠️ Sem auth |
+| 8051 | alert-sender | LAN only | ⚠️ Sem auth |
 | 8200 | Infisical | 127.0.0.1 (UFW) | — |
 | 8888 | SearXNG | 127.0.0.1 (UFW) | — |
 | 9090 | Prometheus | 127.0.0.1 (UFW) | ⚠️ Sem auth |
@@ -141,10 +145,14 @@
 **Docker Bridge Networks (Coolify):**
 | Rede | Subnet | Serviços |
 |------|--------|----------|
-| `wbmqefxhd7vdn2dme3i6s9an` | 10.0.5.0/24 | OpenWebUI (:8080, IP 10.0.5.2) |
-| `qgtzrmi6771lt8l7x8rqx72f` | 10.0.19.0/24 | OpenClaw (:8080), Browser (:9222), wav2vec2 (:8201), wav2vec2-proxy (:8203) |
+| `wbmqefxhd7vdn2dme3i6s9an` | 10.0.5.0/24 | OpenWebUI (:8080, IP 10.0.5.3) |
+| `qgtzrmi6771lt8l7x8rqx72f` | 10.0.19.0/24 | OpenClaw (:8080), Browser (:9222), wav2vec2 (:8201), wav2vec2-proxy (:8203), TTS Bridge (:8013) |
 | `bridge` | host | Kokoro (:8880), Qdrant (:6333) |
 | `zappro-lite` | docker0 (10.0.1.x) | LiteLLM Proxy (:4000) |
+| `list-web_default` | 10.0.12.0/24 | list-web (:80→4080) |
+| `obsidian-web_default` | 10.0.14.0/24 | obsidian-web (:80→4081) |
+| `monitoring_monitoring` | 10.0.16.0/24 | Grafana, Prometheus, gotify (:80→8050), alert-sender (:8080→8051) |
+| `skills_bridge_internal` | 10.0.9.0/24 | openclaw-mcp-wrapper (:3457) |
 
 **Service IPs (Cross-network):**
 | Serviço | IP | Rede origem | Rede destino |
@@ -152,10 +160,11 @@
 | Ollama (host) | 10.0.1.1:11434 | docker0 (10.0.1.x) | host |
 | Ollama (host) | 10.0.5.1:11434 | wbmqefxhd7vdn2dme3i6s9an | host |
 | LiteLLM Proxy | 10.0.1.1:4000 | qgtzrmi... | docker0 |
-| Kokoro TTS | 10.0.19.7:8880 | qgtzrmi... | bridge |
-| Qdrant (Coolify) | 10.0.19.5:6333 | qgtzrmi... | bridge |
+| Kokoro TTS | 10.0.19.10:8880 | qgtzrmi... | bridge |
+| Qdrant (Coolify) | 10.0.19.2:6333 | qgtzrmi... | bridge |
 | wav2vec2 (whisper-api) | 10.0.19.8:8201 | qgtzrmi... | STT endpoint |
-| wav2vec2-proxy | 10.0.19.9:8203 | qgtzrmi... | Deepgram-to-Whisper proxy |
+| wav2vec2-proxy | 10.0.19.5:8203 | qgtzrmi... | Deepgram-to-Whisper proxy |
+| TTS Bridge | 10.0.19.11:8013 | qgtzrmi... | TTS endpoint |
 | MCP Monorepo | 10.0.19.50:4006 | qgtzrmi... | host (/srv/monorepo) |
 | MCP Qdrant | 10.0.19.51:4011 | qgtzrmi... | bridge (openclaw-memory) |
 
@@ -172,6 +181,8 @@
 | coolify-redis | redis:7-alpine | :6379 | coolify | ✅ healthy |
 | coolify-sentinel | ghcr.io/coollabsio/sentinel:0.0.21 | — | coolify | ✅ healthy |
 | coolify-realtime | ghcr.io/coollabsio/coolify-realtime:1.0.11 | :6001, :6002 | coolify | ✅ healthy |
+| gitea-runner | gitea-runner:latest | — | coolify | ✅ healthy |
+| task-runners-* | n8n-executor:latest | :5680 | coolify | 🔄 starting |
 
 ### AI/ML Stack
 | Container | Imagem | Porta | Rede | Status |
@@ -183,10 +194,12 @@
 | open-webui-wbmqefx... | ghcr.io/openwebui/open-webui:main | :8080 | wbmqefxhd7vdn2dme3i6s9an + qgtzrmi... | ✅ UP |
 | openclaw-qgtzrmi... | coollabsio/openclaw:2026.2.6 | :4001→:8080 | qgtzrmi... | ✅ healthy |
 | browser-qgtzrmi... | coollabsio/openclaw-browser:latest | :3000-3001 | qgtzrmi... | ✅ healthy |
-| browser-y9yb5xw... | coollabsio/openclaw-browser:latest | :3000-3001 | — | ✅ healthy |
-| browser-q7lyxl6... | coollabsio/openclaw-browser:latest | :3000-3001 | — | ✅ healthy |
 | mcp-monorepo | mcp-monorepo:local | :4006→:4006 | qgtzrmi... | ✅ UP |
 | mcp-qdrant | python:3.11-slim | :4011→:4011 | qgtzrmi... | ✅ UP |
+| perplexity-agent | perplexity-agent:latest | :4004 | bridge | ✅ healthy |
+| openwebui-bridge-agent | openwebui-bridge-agent:latest | :3456 | qgtzrmi... + wbmqefxhd7vdn2dme3i6s9an | ✅ healthy |
+| openclaw-mcp-wrapper | openclaw-mcp-wrapper:latest | :3457 | skills_bridge_internal | ✅ healthy |
+| zappro-tts-bridge | zappro-tts-bridge:latest | :8013→:8013 | qgtzrmi... | ✅ healthy |
 
 ### Voice Pipeline (AI Local — GPU)
 | Container | Imagem | Porta | Rede | Status |
@@ -203,9 +216,10 @@
 - `qwen2.5-vl` (visão, via Ollama host)
 - `embedding-nomic` (embeddings, via Ollama host)
 
-**TTS:** Kokoro local (`http://10.0.19.7:8880/v1`) com voz `pm_santa` (PT-BR)
+**TTS:** Kokoro local (`http://10.0.19.10:8880/v1`) com voz `pm_santa` (PT-BR)
+**TTS Bridge:** zappro-tts-bridge (`http://10.0.19.11:8013`) — filtro de vozes (pm_santa, pf_dora)
 **STT:** whisper-api local (`10.0.19.8:8201`) — OpenAI-compatible `/v1/audio/transcriptions`
-**STT Proxy:** wav2vec2-proxy (`10.0.19.9:8203`) — Deepgram API format → whisper-api proxy (PT-BR enhancement)
+**STT Proxy:** wav2vec2-proxy (`10.0.19.5:8203`) — Deepgram API format → whisper-api proxy (PT-BR enhancement)
 
 ### Observability
 | Container | Imagem | Porta | Rede | Status |
@@ -217,13 +231,17 @@
 | nvidia-gpu-exporter | utkuozdemir/nvidia_gpu_exporter:1.4.1 | :9835 | host | ✅ UP |
 | loki | grafana/loki:3.2.1 | :3101→:3100 | monitoring_monitoring | ✅ UP |
 | promtail | grafana/promtail:3.2.1 | :9080 | monitoring_monitoring | ✅ UP |
+| gotify | gotify/server:latest | :8050→:80 | monitoring_monitoring | ✅ healthy |
+| alert-sender | alert-sender:latest | :8051→:8080 | monitoring_monitoring | ✅ healthy |
 
 ### DevOps & Secrets
 | Container | Imagem | Porta | Rede | Status |
 |----------|--------|-------|------|--------|
 | painel | nginx:alpine | :4003 | host | ✅ healthy |
-| firefox-pgasow... | jlesage/firefox | :5800, :5900 | — | ✅ healthy |
 | searxng | searxng/searxng:latest | :8888 | bridge | ✅ UP |
+| list-web | list-web:latest | :4080→:80 | list-web_default | ✅ healthy |
+| obsidian-web | obsidian-web:latest | :4081→:80 | obsidian-web_default | ✅ healthy |
+| supabase-health-proxy | supabase-health-proxy:latest | :5433→:3000 | bridge | ⚠️ unhealthy |
 | connected_repo_db | postgres:15-alpine | :5432 | monorepo_default | ✅ UP |
 | zappro-redis | redis:7.2.4-alpine | :6379 | bridge | ✅ UP |
 | redis-opencode | redis:7.2.4-alpine | :6381 | bridge | ✅ UP |
@@ -316,7 +334,6 @@ bot.zappro.site
 ### Drift conhecido (resolvido 2026-04-06)
 | Subdomain | Antigo (config.yml local) | Correto (Terraform/API) |
 |-----------|--------------------------|------------------------|
-| n8n | `https://n8n.zappro.site` (loop) | `http://10.0.6.3:5678` |
 | aurelia | `http://localhost:8080` | `http://localhost:3334` |
 
 ---

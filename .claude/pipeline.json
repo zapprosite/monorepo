@@ -1,0 +1,9 @@
+{
+  "current_phase": 3,
+  "current_task": "Hermes install冲刺 — 12 agents running in parallel",
+  "dirty": true,
+  "last_updated": "2026-04-14T00:40:00Z",
+  "project": "homelab-monorepo",
+  "branch": "feature/quantum-helix-done",
+  "notes": "Hermes install: hermes binary install + claw migrate + secrets + config MiniMax primary + SOUL.md rescue + OpenWebUI setup + cron + launcher + status script"
+}

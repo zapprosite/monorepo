@@ -97,7 +97,7 @@ echo "Ollama direct: 10/10 completed"
 ### 6. nginx Rate Limit Proxy (4004 → 4000)
 
 ```bash
-AUTH="Authorization: Bearer sk-zappro-lm-2026-s8k3m9x2p7r6t5w1v4c8n0d5j7f9g3h6i2k4l6m8n0p1"
+AUTH="Authorization: Bearer [LITELLM_API_KEY]"
 MODEL='{"model":"gemma3-27b","messages":[{"role":"user","content":"Hi"}],"max_tokens":10}'
 
 echo "nginx rate limit test (4004 → 4000)..."

@@ -43,20 +43,50 @@ app-name/
 1. Google Cloud Console → APIs e servicos → Credenciais
 2. Criar OAuth 2.0 Client ID
 3. Adicionar redirect URI: `https://SUBDOMAIN.zappro.site/auth/callback`
-4. Guardar client_id no Infisical (nao hardcodar)
+4. Guardar client_id e client_secret no Infisical (nao hardcodar)
 
-### 4. TERRAFORM
-1. Ler `/srv/ops/terraform/cloudflare/variables.tf` (bloco var.services)
-2. Adicionar entrada em var.services:
-   ```hcl
-   app_name = {
-     url              = "http://10.0.X.X:PORT"   # IP DO CONTAINER, nao localhost
-     subdomain        = "app-name"
-     http_host_header = null
-   }
+### 4. SUBDOMAIN (API Fast Path)
+
+Para deploy rapido, usar a API direta (30s) ao inves de Terraform:
+
+1. Verificar subdomain disponivel em `/srv/ops/ai-governance/SUBDOMAINS.md`
+2. Verificar porta disponivel em `/srv/ops/ai-governance/PORTS.md` + `ss -tlnp | grep :PORT`
+3. Obter CLOUDFLARE_API_TOKEN do Infisical (project: homelab-infra)
+4. Criar CNAME DNS record via API:
+   ```bash
+   curl -s -X POST "https://api.cloudflare.com/client/v4/zones/${CF_ZONE_ID}/dns_records" \
+     -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+     -H "Content-Type: application/json" \
+     -d '{
+       "type": "CNAME",
+       "name": "<subdomain>",
+       "content": "${CF_TUNNEL_ID}.cfargotunnel.com",
+       "proxied": true
+     }'
    ```
-3. `cd /srv/ops/terraform/cloudflare && terraform apply`
-4. Verificar DNS criado
+5. Obter tunnel config e adicionar ingress rule (antes do catch-all):
+   ```bash
+   # GET current config
+   curl -s -X GET "https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT_ID}/cfd_tunnel/${CF_TUNNEL_ID}/configurations" \
+     -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" | jq '.result'
+
+   # PUT updated config com novo ingress
+   curl -s -X PUT "https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT_ID}/cfd_tunnel/${CF_TUNNEL_ID}/configurations" \
+     -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+     -H "Content-Type: application/json" \
+     -d '{
+       "ingress": [
+         {"hostname": "<subdomain>.zappro.site", "service": "http://10.0.X.X:PORT"},
+         {"hostname": "*.zappro.site", "service": "http_status:404"}
+       ]
+     }'
+   ```
+6. Verificar: `curl -sfI https://<subdomain>.zappro.site`
+
+**Apos API fast path, sync para Terraform** (manter estado):
+- Adicionar em `/srv/ops/terraform/cloudflare/variables.tf`
+- `cd /srv/ops/terraform/cloudflare && terraform apply`
+- Atualizar SUBDOMAINS.md e PORTS.md
 
 ### 5. DEPLOY
 1. Build: `docker compose build`
@@ -82,6 +112,79 @@ docker inspect --format='{{.State.Health.Status}}' CONTAINER_NAME
 - Atualizar AGENTS.md se aplicavel
 - Documentar credenciais Infisical
 
+## OAuth Token Exchange (CRÍTICO)
+
+O erro mais comum em OAuth client-side apps é `client_secret is missing`.
+
+### Token Exchange POST Body — OBRIGATÓRIO
+
+Quando o app faz exchange de authorization code por tokens no browser:
+
+```javascript
+// auth-callback.html (via env.js injection)
+POST https://oauth2.googleapis.com/token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=authorization_code
+&client_id=window.__ENV__.GOOGLE_CLIENT_ID
+&client_secret=window.__ENV__.GOOGLE_CLIENT_SECRET
+&code=AUTH_CODE
+&code_verifier=PKCE_VERIFIER
+&redirect_uri=https://subdomain.zappro.site/auth/callback
+```
+
+**Sem `client_secret` → `invalid_client` ou `client_secret is missing`**
+
+### PKCE Implementation (OBRIGATÓRIO)
+
+Web apps DEVEM usar PKCE para authorization code exchange:
+
+```javascript
+// Gerar PKCE verifier e challenge
+function generateRandomString(length) {
+  const array = new Uint8Array(length);
+  crypto.getRandomValues(array);
+  return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
+}
+
+async function sha256(plain) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(plain);
+  const hash = await crypto.subtle.digest('SHA-256', data);
+  return btoa(String.fromCharCode(...new Uint8Array(hash)));
+}
+
+async function generatePKCE() {
+  const verifier = generateRandomString(64);
+  const challenge = await sha256(verifier);
+  sessionStorage.setItem('pkce_verifier', verifier);
+  return { verifier, challenge };
+}
+```
+
+### env.js Injection Pattern (OBRIGATÓRIO)
+
+O container DEVE injetar credenciais via env.js, NAO sed placeholders:
+
+```javascript
+// window.__ENV__?.GOOGLE_CLIENT_ID
+// window.__ENV__?.GOOGLE_CLIENT_SECRET
+```
+
+O env.js e criado pelo entrypoint do container a partir de secrets Infisical.
+
+### Credentials (homelab — via .env)
+
+**Padrao: .env como fonte canonica de secrets.**
+Secrets sao syncados do Infisical para .env via sync script.
+
+```
+GOOGLE_CLIENT_ID=→ .env (synced from Infisical)
+GOOGLE_CLIENT_SECRET=→ .env (synced from Infisical)
+```
+
+**NUNCA hardcodar. Ler de .env via process.env (web apps) ou window.__ENV__ (env.js injection).**
+
 ## Regras Importantes
 
 ### IPs de Container (NAO localhost)
@@ -102,13 +205,17 @@ Antes de fazer commit, verificar:
 - [ ] PORTS.md actualizado com nova porta
 - [ ] AGENTS.md actualizado se necessario
 
-### Infisical SDK
-NUNCA hardcodar OAuth client_id. Usar Infisical SDK:
+### Secrets Pattern
+NUNCA hardcodar OAuth client_id. Usar .env como fonte canonica:
 ```typescript
-import { InfisicalClient } from '@infisical/sdk';
-const client = new InfisicalClient({ clientId: process.env.INFISICAL_CLIENT_ID });
-const secret = await client.getSecret('GOOGLE_CLIENT_ID');
+// Web apps: via env.js injection
+const clientId = window.__ENV__?.GOOGLE_CLIENT_ID;
+
+// Node/Fastify: via process.env
+const clientId = process.env.GOOGLE_CLIENT_ID;
 ```
+
+**Padrao: secrets syncados do Infisical para .env via sync script. Ler de .env, nunca do Infisical diretamente.**
 
 ## Tunnel Checklist (OBRIGATORIO antes de commit)
 - [ ] curl -sfI https://NOVO.zappro.site → 200 ou 302
@@ -117,18 +224,49 @@ const secret = await client.getSecret('GOOGLE_CLIENT_ID');
 - [ ] PORTS.md actualizado
 - [ ] AGENTS.md actualizado
 - [ ] Smoke test passou
+- [ ] OAuth login testado e funciona (não só HTTP 200)
+
+## Cloudflare Access vs OAuth Nativo
+
+### MVP Pattern (RECOMENDADO para apps初)
+Apps MVP usam apenas Google OAuth nativo do app — SEM Cloudflare Access:
+
+```
+md.zappro.site → OAuth Google nativo do app → sem proteção Cloudflare
+```
+
+### v2 Pattern (para apps maduros)
+Apps que precisam de proteção extra usam Cloudflare Access + OAuth:
+
+```
+```
+
+### Como configurar OAuth-only (MVP)
+1. Adicionar subdomain via API (new-subdomain skill) ou via Terraform:
+   ```hcl
+   access_services = { for k, v in var.services : k => v if k != "bot" && k != "list" && k != "md" && k != "NOVO" }
+   ```
+2. `terraform apply`
+3. App usa Google OAuth diretamente (sem Cloudflare)
 
 ## Stack de Referencia
 - nginx:alpine (stateless, healthcheck built-in)
 - docker-compose com healthcheck
-- Cloudflare Zero Trust Tunnel
-- Google OAuth 2.0
+- Cloudflare Zero Trust Tunnel (ingress only)
+- Google OAuth 2.0 nativo (SEM Cloudflare Access para MVP)
 - Infisical SDK para secrets
+- **client_secret SEMPRE no token exchange POST body**
 
 ## References
-- `references/file-structure.md` — Templates de todos os arquivos
-- `references/oauth-flow.md` — Passos Google OAuth setup
+- `references/file-structure.md` — Templates de todos os arquivos (com env.js pattern)
+- `references/oauth-flow.md` — Passos Google OAuth setup (PKCE + token exchange)
 - `references/tunnel-setup.md` — Como adicionar subdomain no Terraform
 - `references/container-deploy.md` — Docker build e deploy
 - `references/smoke-test.md` — Checklist de verificacao
 - `references/troubleshooting.md` — Erros comuns e solucoes
+- `new-subdomain` skill — Fast path API para subdomain (30s)
+- `oauth-google-direct` skill — Implementacao completa OAuth com PKCE
+
+## Incidentes Conhecidos
+
+- **INCIDENT-2026-04-13**: `client_secret is missing` — OAuth broken até adicionar secret ao POST body. Ver `docs/INFRASTRUCTURE/INCIDENTS/INCIDENT-2026-04-13-md-zappro-site-oauth.md`

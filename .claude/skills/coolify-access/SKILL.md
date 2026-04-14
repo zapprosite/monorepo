@@ -12,19 +12,19 @@ description: Coolify API integration for Claude Code — deploy services, manage
 **Opção A — Bearer Token (para API):**
 1. Abrir https://cloud.zappro.site/settings/tokens
 2. Criar novo token com scopes: `read`, `write`
-3. Guardar em Infisical: `coolify-access-token`
+3. Guardar no `.env` como `COOLIFY_ACCESS_TOKEN`
 
 **Opção B — API Key (alternativa):**
-- Available em `COOLIFY_API_KEY` no Infisical
+- Available como `COOLIFY_API_KEY`
 - Usar com header `Authorization: Bearer <token>`
 
-### 2. Guardar Token em Infisical
+### 2. Guardar Token no .env
 
 ```bash
-# Project ID: e42657ef-98b2-4b9c-9a04-46c093bd6d37
-# Environment: dev
-# Secret path: /
-infisical secrets set coolify-access-token --value="your-token-here"
+# Em /srv/monorepo/.env (nunca comitar!)
+COOLIFY_ACCESS_TOKEN=your-token-here
+COOLIFY_API_KEY=your-api-key
+COOLIFY_BASE_URL=http://127.0.0.1:8000
 ```
 
 ### 3. Configurar no Claude Code
@@ -148,7 +148,6 @@ services:
       - "3457:3457"
     environment:
       - SECRET_KEYS=OPENCLAW_GATEWAY_TOKEN,OPENCLAW_BASE_URL
-      - INFISICAL_HOST=http://127.0.0.1:8200
       - OPENCLAW_BASE_URL=http://10.0.19.4:8080
     networks:
       - qgtzrmi6771lt8l7x8rqx72f
@@ -166,7 +165,6 @@ services:
       - "3456:3456"
     environment:
       - SECRET_KEYS=OPENCLAW_GATEWAY_TOKEN,OPENCLAW_BASE_URL
-      - INFISICAL_HOST=http://127.0.0.1:8200
       - OPENCLAW_BASE_URL=http://10.0.19.4:8080
     networks:
       - qgtzrmi6771lt8l7x8rqx72f

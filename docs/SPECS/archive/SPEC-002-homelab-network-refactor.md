@@ -73,13 +73,11 @@ Cloudflare Tunnel (cloudflared daemon — systemd service)
 ### Ingress Rules — Ordem de Prioridade
 
 ```
-1. n8n.zappro.site       → http://10.0.6.3:5678        (Docker net coolify)
 2. qdrant.zappro.site    → http://localhost:6333      (host)
 3. monitor.zappro.site   → http://localhost:3100      (host)
 4. coolify.zappro.site   → http://localhost:8000      (host)
 5. git.zappro.site       → http://localhost:3300      (host)
 6. painel.zappro.site   → http://localhost:4003      (host)
-7. vault.zappro.site     → http://localhost:8200      (host)
 8. api.zappro.site      → http://localhost:4000      (host)
 9. llm.zappro.site      → http://localhost:4000      (host)
 10. bot.zappro.site     → http://localhost:80          (host)

@@ -1,27 +1,107 @@
+# =============================================================================
+# FUNDACAO — Node / Package Managers
+# =============================================================================
+
 node_modules/
-dist/
-.env
-.DS_Store
+.pnp
+.pnp.js
+.pnpm-store/
 
-# Antigravity & AI Context
-.context/workflow/
-.agent/cache/
-.agent/scripts/__pycache__/
+# =============================================================================
+# BUILD OUTPUTS — Turbo / Framework Builds
+# =============================================================================
 
-# Monorepo & Build
 .turbo/
+dist/
+build/
 .next/
-*.log
+out/
+apps/*/dist/
+packages/*/dist/
+*.local
 
-# Ferramentas AI pessoais (não são do projeto)
-.gemini/
-.codex/
+# =============================================================================
+# ENVIRONMENT FILES — Security Critical
+# =============================================================================
+
+.env
+!.env.example
+.env.local
+.env.development
+.env.production
+.env.test
+.env.*.local
+
+# =============================================================================
+# LOGS & TEST OUTPUTS
+# =============================================================================
+
+test-results/
+coverage/
+logs/
+.turbo/debug-logs/
+*.log
+build.log
+
+# =============================================================================
+# EDITOR & IDE
+# =============================================================================
+
+.vscode/
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+.vs/
+*.sw?
+*.swo
+*~
+.DS_Store
+.DS_Store?
+
+# =============================================================================
+# AI TOOLS
+# =============================================================================
+
 .claude/CLAUDE.md
 .claude/agents/
-rascunho.txt
+.claude/rules/
+.agent/cache/
+.agent/scripts/__pycache__/
+.context/
+.gemini/
+.codex/
+.cursor-loop/
+.continue/
+.cursorrules
+.windsurf/
+.zed/
+obsidian/
 
-# Sistema
-.Trash-1000/
+# =============================================================================
+# MONOREPO SPECIFICS
+# =============================================================================
+
 worktrees/
-runner/data/.runner
+archive/
 runner/data/
+runner/.env
+.Trash-1000/
+
+# =============================================================================
+# TEMPORARY / DEVELOPMENT
+# =============================================================================
+
+tmp/
+temp/
+.temp/
+*.tmp
+.cache/
+
+# =============================================================================
+# LANGUAGE / FRAMEWORK
+# =============================================================================
+
+*.tsbuildinfo
+apps/perplexity-agent/.venv/
+.eslintcache
+.worktrees/

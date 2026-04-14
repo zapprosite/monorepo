@@ -33,36 +33,25 @@ Client ID: XXXXXXXX-XXXXXXXX.apps.googleusercontent.com
 
 **Guardar no Infisical IMMEDIATAMENTE** — nao hardcodar no codigo.
 
-## Infisical SDK Usage
+## Secrets Pattern (.env canonical)
 
-### Buscar secret em runtime
+### Buscar secret via env.js injection (web app)
 
-```typescript
-import { InfisicalClient } from '@infisical/sdk';
-
-async function getGoogleClientId(): Promise<string> {
-  const client = new InfisicalClient({
-    clientId: process.env.INFISICAL_CLIENT_ID!,
-  });
-
-  const secret = await client.getSecret({
-    secretName: 'GOOGLE_CLIENT_ID',
-    workspaceId: 'e42657ef-98b2-4b9c-9a04-46c093bd6d37',
-    environment: 'dev',
-  });
-
-  return secret.secretValue;
-}
+```javascript
+// window.__ENV__ e injetado via env.js no container
+const clientId = window.__ENV__?.GOOGLE_CLIENT_ID;
+const clientSecret = window.__ENV__?.GOOGLE_CLIENT_SECRET;
 ```
 
-### Inject via environment no docker-compose
+### Via environment no docker-compose
 
 ```yaml
 services:
   app-name:
     environment:
-      - INFISICAL_CLIENT_ID=${INFISICAL_CLIENT_ID}
-    # O app busca GOOGLE_CLIENT_ID do Infisical na inicializacao
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+    # Secrets syncados do Infisical para .env
 ```
 
 ## Fluxo OAuth Completo

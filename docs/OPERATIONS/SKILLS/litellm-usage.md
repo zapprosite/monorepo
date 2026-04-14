@@ -9,7 +9,7 @@
 
 ```bash
 # Exportar credenciais
-export LITELLM_KEY="sk-zappro-lm-2026-s8k3m9x2p7r6t5w1v4c8n0d5j7f9g3h6i2k4l6m8n0p1"
+export LITELLM_KEY="[LITELLM_API_KEY]"
 export LITELLM_URL="${LITELLM_URL:-http://localhost:4000}"
 ```
 
@@ -137,10 +137,10 @@ embedding-nomic
 
 ## Telegram — Enviar Audio/Voz
 
-**Bot Token:** `8759194670:AAGHntxPUsfvbSrYNwOhBGuNUpmeCUw1-qY`
+**Bot Token:** `[TELEGRAM_BOT_TOKEN]`
 
 ```bash
-TELEGRAM_BOT_TOKEN="8759194670:AAGHntxPUsfvbSrYNwOhBGuNUpmeCUw1-qY"
+TELEGRAM_BOT_TOKEN="[TELEGRAM_BOT_TOKEN]"
 TEST_CHAT_ID="${TEST_CHAT_ID:?TEST_CHAT_ID not set}"
 
 # Enviar audio

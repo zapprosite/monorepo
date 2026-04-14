@@ -2,37 +2,16 @@
 import os
 import subprocess
 
-INFISICAL_PROJECT_ID = "e42657ef-98b2-4b9c-9a04-46c093bd6d37"
+INFISICAL_PROJECT_ID = os.environ.get("INFISICAL_PROJECT_ID", "e42657ef-98b2-4b9c-9a04-46c093bd6d37")
 INFISICAL_ENV = "dev"
 TOKEN_PATH = "/srv/ops/secrets/infisical.service-token"
 
 
 def _fetch_infisical_secret(secret_key: str) -> str:
-    """Fetch a secret from Infisical vault."""
-    script = f"""
-from infisical_sdk import InfisicalSDKClient
-import os
-token = os.environ.get('INFISICAL_TOKEN') or open('{TOKEN_PATH}').read().strip()
-client = InfisicalSDKClient(host='http://127.0.0.1:8200', token=token)
-secrets = client.secrets.list_secrets(
-    project_id='{INFISICAL_PROJECT_ID}',
-    environment_slug='{INFISICAL_ENV}',
-    secret_path='/'
-)
-for s in secrets.secrets:
-    if s.secret_key == '{secret_key}':
-        print(s.secret_value)
-        break
-"""
-    result = subprocess.run(
-        ["python3", "-c", script],
-        capture_output=True,
-        text=True,
-        timeout=10,
-    )
-    if result.returncode != 0:
-        raise RuntimeError(f"Failed to fetch {secret_key}: {result.stderr}")
-    return result.stdout.strip()
+    value = os.environ.get(secret_key)
+    if value is None:
+        raise RuntimeError(f"Secret {secret_key} not found in environment — ensure .env is synced from Infisical")
+    return value
 
 
 def get_minimax_token() -> str:

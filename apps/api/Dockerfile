@@ -1,12 +1,15 @@
 FROM node:22-alpine
 
-# Install turbo globally for workspace pruning
-RUN npm install -g turbo@^2
+# Install turbo and pnpm globally
+RUN npm install -g turbo@^2 pnpm@^9
 
 # Install build dependencies for native modules (required by pg)
 RUN apk add --no-cache python3 make g++
 
 WORKDIR /app
+
+# Copy package files first for better layer caching
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./ 2>/dev/null || true
 
 # Copy entire monorepo for pruning
 COPY . .
@@ -20,8 +23,11 @@ RUN cp -r out/json/. . && \
     cp -r out/full/. . && \
     rm -rf out
 
+# Verify pnpm installation
+RUN pnpm --version
+
 # Install dependencies using pruned lockfile
-RUN yarn install --frozen-lockfile
+RUN pnpm install --frozen-lockfile
 
 # Build the backend using Turbo (automatically builds dependencies like zod-schemas first)
 RUN turbo run build --filter=@connected-repo/backend
@@ -55,4 +61,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
   }).on('error', () => process.exit(1));"
 
 # Run migrations then start server
-CMD ["sh", "-c", "cd apps/backend && yarn db up && node dist/server.js"]
+CMD ["sh", "-c", "cd apps/backend && pnpm db:up && node dist/server.js"]

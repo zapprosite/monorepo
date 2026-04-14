@@ -2,31 +2,107 @@
 
 **Applies to:** All code in `/srv/monorepo`
 **Authority:** will-zappro
-**Updated:** 2026-04-12
-**Spec:** SPEC-029-INFISICAL-SDK-MANDATORY.md
+**Updated:** 2026-04-13
+**Spec:** SPEC-029-INFISICAL-SDK-MANDATORY.md, ADR-001
 
 ---
 
-## Core Rule — Infisical SDK Mandatory
+## Core Rule — .env as Canonical Source
 
-Todo secret deve ser obtido via **Infisical SDK**. NUNCA hardcoded.
+All secrets are stored in `.env` files (synced from Infisical). Application code reads secrets via `os.getenv()` / `process.env`, **never directly from the Infisical SDK**.
+
+```
+Infisical (vault)
+    │
+    │  sync mechanism (infra scripts, not app code)
+    ▼
+.env file (canonical on-disk source)
+    │
+    │  dotenv load at process startup
+    ▼
+os.getenv("SECRET_NAME")  ← application code uses this
+```
+
+### Canonical Pattern — Python
 
 ```python
-# ✅ CORRETO
+import os
+from dotenv import load_dotenv
+
+# Load .env at process startup — BEFORE any other imports
+load_dotenv()
+
+# Read secrets via os.getenv
+api_key = os.getenv("OPENROUTER_API_KEY")
+
+# Use api_key in your application
+...
+```
+
+### Canonical Pattern — Node.js
+
+```javascript
+import 'dotenv/config';
+
+const apiKey = process.env.OPENROUTER_API_KEY;
+```
+
+### Canonical Pattern — Shell
+
+```bash
+#!/bin/bash
+set -a
+source .env
+set +a
+# secrets now available as environment variables
+```
+
+---
+
+## Infisical SDK — Infrastructure Only
+
+The Infisical SDK is used **only** by:
+
+1. **Infrastructure scripts** — sync secrets from Infisical to `.env`
+2. **CI/CD pipelines** — inject secrets at deploy time
+3. **Memory-keeper and sync scripts** — not application code
+
+Application code must **never** import or call the Infisical SDK.
+
+```python
+# ✅ CORRETO — application code reads from environment
+import os
+from dotenv import load_dotenv
+load_dotenv()
+secret = os.getenv("MY_SECRET")
+
+# ✅ CORRETO — infrastructure/sync script uses Infisical SDK
 from infisical import InfisicalClient
 client = InfisicalClient()
+secret = client.get_secret("MY_SECRET")  # writes to .env
+
+# ❌ PROIBIDO — application code using Infisical SDK
+from infisical import InfisicalClient
+client = InfisicalClient()  # NOT in application code
 secret = client.get_secret("MY_SECRET")
 
-# ❌ PROIBIDO
-import os
-MY_SECRET = os.getenv("MY_SECRET")  # pode não existir no vault
-
-# ❌ PROIBIDO
+# ❌ PROIBIDO — hardcoded secret
 MY_SECRET = "hardcoded_value_123"
 
-# ❌ PROIBIDO — even if it looks like a reference
-MY_SECRET = os.environ.get("GITHUB_TOKEN")  # sem guarantee vault-backed
+# ❌ PROIBIDO — direct env access without dotenv load
+MY_SECRET = os.getenv("MY_SECRET")  # without load_dotenv() first
 ```
+
+---
+
+## .env Loading — Process/Script Startup
+
+The `.env` file must be loaded at the **start of every process or script**:
+
+1. **Python**: `load_dotenv()` before any imports that need secrets
+2. **Node.js**: `import 'dotenv/config'` at the top of entry point
+3. **Shell**: `set -a && source .env && set +a` at script start
+4. **Docker**: Use `env_file:` in docker-compose or Coolify environment injection
 
 ---
 
@@ -50,22 +126,27 @@ sk-[a-zA-Z0-9]{48}
 ghu_[a-zA-Z0-9]{36}
 ```
 
-### Allowed env var patterns
+### Allowed .env patterns
 
 ```regex
-# Env var que referencia vault (formato Infisical)
-INFISICAL_[A-Z_]+=[^\s"']+
-INFINISICAL_CLIENT_ID=.+
-INFINISICAL_CLIENT_SECRET=.+
+# .env file entries (synced from Infisical)
+^[A-Z_]+=.+
 
-# Config local (nao secrets)
-OLLAMA_BASE_URL=http
-NODE_ENV=production
-PORT=[0-9]+
+# dotenv load indicators (canonical pattern)
+^load_dotenv\(\)
+^import ['"]dotenv/config['"]
 
-# Non-sensitive flags
-DEBUG=(true|false)
-LOG_LEVEL=debug|info|warn|error
+# Environment variable access (after dotenv load)
+os\.getenv\(|process\.env\.
+```
+
+### Infisical SDK usage — where allowed
+
+```regex
+# ONLY in infrastructure/sync scripts
+(?:infisical|InfisicalClient|get_secret)\s*\(
+
+# Blocked in application code
 ```
 
 ---
@@ -74,21 +155,23 @@ LOG_LEVEL=debug|info|warn|error
 
 Quando fizeres code review, verifica:
 
-- [ ] Changed files usam `InfisicalClient` para secrets?
-- [ ] Não há `os.getenv("TOKEN_SECRET_APIKEY")` patterns?
-- [ ] Não há strings com formato de token (`ghp_`, `sk-`, `ghu_`) hardcoded?
-- [ ] Exceptions têm `APPROVED_BY: will-zappro` comment?
-- [ ] Secrets são lidos em runtime, não em module load?
+- [ ] `.env` is loaded at process startup (dotenv/config)?
+- [ ] Secrets accessed via `os.getenv()` / `process.env`, not Infisical SDK?
+- [ ] No `InfisicalClient` in application code files?
+- [ ] No hardcoded secrets (`ghp_`, `sk-`, strings resembling tokens)?
+- [ ] Exceptions have `APPROVED_BY: will-zappro` comment with expiry?
+- [ ] Shell scripts use `set -a` before `source .env`?
 
 ### Patterns que Rejeitam PR
 
 | Pattern | Severity | Action |
 |---------|----------|--------|
+| `InfisicalClient` in application code | CRITICAL | Reject + block |
 | `ghp_[a-zA-Z0-9]{36}` | CRITICAL | Reject + block |
 | `sk-[a-zA-Z0-9]{48}` | CRITICAL | Reject + block |
-| `os.getenv("...")` para secrets | HIGH | Request changes |
-| `secrets.env` path em código | HIGH | Request changes |
-| Sem `InfisicalClient` em files que precisam de secrets | MEDIUM | Suggest fix |
+| Hardcoded secret string | CRITICAL | Reject + block |
+| `os.getenv("...")` without `load_dotenv()` | HIGH | Request changes |
+| Shell script missing `set -a` before `source .env` | HIGH | Request changes |
 
 ---
 
@@ -96,32 +179,34 @@ Quando fizeres code review, verifica:
 
 Exceções requerem:
 
-1. **Written justification** — por que não pode usar Infisical SDK
-2. **will-zappro approval** — comment com `@will-zappro approved 2026-04-12`
+1. **Written justification** — por que não pode usar .env pattern
+2. **will-zappro approval** — comment com `@will-zappro approved 2026-04-13`
 3. **Expiry date** — nenhuma exceção permanente
 4. **Tracking** — listadas em `docs/GOVERNANCE/EXCEPTIONS.md`
 
 Exemplo de exceção válida:
 
 ```python
-# 例外: Temporary bridge para legacy system sem Infisical support
-# APPROVED_BY: will-zappro 2026-04-12
-# EXPIRES: 2026-05-01
-# ISSUE: migration-to-infisical-required
+# 例外: Temporary bridge para legacy system sem .env support
+# APPROVED_BY: will-zappro 2026-04-13
+# EXPIRES: 2026-05-13
+# ISSUE: migration-to-denv-required
 LEGACY_TOKEN = os.getenv("LEGACY_BRIDGE_TOKEN")  # only for migration period
 ```
 
 ---
 
-## Secrets to Migrate
+## Secrets Sync — Infrastructure Scripts Only
 
-| Secret | Current Location | Target | Status |
-|--------|-----------------|--------|--------|
-| `GITHUB_TOKEN` | `~/.git-credentials` | Infisical workspace | PENDING |
-| `TELEGRAM_BOT_TOKEN` | `~/.zappro/config/secrets.env` | Infisical workspace | PENDING |
-| `OPENROUTER_API_KEY` | `~/.zappro/config/secrets.env` | Infisical workspace | PENDING |
-| `QDRANT_API_KEY` | `~/.zappro/config/secrets.env` | Infisical workspace | PENDING |
-| `COOLIFY_API_KEY` | bootstrap-emitter.sh | Infisical workspace | PENDING |
+The following are the **only** scripts that should use the Infisical SDK:
+
+| Script | Purpose | Location |
+|--------|---------|----------|
+| memory-keeper sync | Sync secrets to .env for Claude Code sessions | `/srv/backups/memory-keeper/` |
+| bootstrap-emitter | Initial host setup | `/srv/ops/scripts/` |
+| CI/CD pipelines | Inject secrets at deploy | GitHub Actions / Gitea |
+
+Application code must not use Infisical SDK.
 
 ---
 
@@ -140,7 +225,7 @@ LEGACY_TOKEN = os.getenv("LEGACY_BRIDGE_TOKEN")  # only for migration period
 # 1. Identificar token comprometido
 # 2. Revogar no provider (GitHub, Telegram, etc.)
 # 3. Criar novo secret no Infisical vault
-# 4. Update all references
+# 4. Trigger sync to update .env
 # 5. Confirmar não há duplicates no codebase
 ```
 
@@ -154,15 +239,22 @@ Para verificar que o enforcement funciona:
 # Scan for hardcoded secrets
 grep -rE "ghp_[a-zA-Z0-9]{36}|sk-[a-zA-Z0-9]{48}" --include="*.py" --include="*.ts" --include="*.js" .
 
-# Verificar que InfisicalClient está a ser usado
-grep -r "InfisicalClient" --include="*.py" .
+# Scan for InfisicalClient in application code (should only be in infra scripts)
+grep -r "InfisicalClient" --include="*.py" . | grep -v "srv/backups/memory-keeper" | grep -v "srv/ops/scripts"
 
-# Verificar exceptions
-cat docs/GOVERNANCE/EXCEPTIONS.md
+# Verify dotenv usage
+grep -r "load_dotenv\|dotenv/config" --include="*.py" apps/ packages/
 ```
 
 ---
 
+## Related Documents
+
+- [ADR-001](../ADRs/ADR-001-denv-as-canonical-secrets-source.md) — Full ADR explaining the .env canonical pattern
+- [EXCEPTIONS.md](./EXCEPTIONS.md) — Active and expired exceptions
+
+---
+
 **Authority:** will-zappro
-**Spec:** SPEC-029-INFISICAL-SDK-MANDATORY.md
-**Last updated:** 2026-04-12
+**Spec:** SPEC-029-INFISICAL-SDK-MANDATORY.md, ADR-001
+**Last updated:** 2026-04-13

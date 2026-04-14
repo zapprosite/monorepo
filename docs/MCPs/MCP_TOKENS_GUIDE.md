@@ -12,7 +12,6 @@
 **Por quê:** O MCP `@n8n/mcp-server` precisa de API key para comunicar com o n8n local.
 
 **Como obter:**
-1. Acesse https://n8n.zappro.site (primeiro acesso: criar conta com email/senha livre)
 2. Vá em: Settings → n8n API → Create an API key
 3. Copie o token gerado
 
@@ -148,7 +147,6 @@ nano ~/.bashrc
 
 # Adicionar ao final:
 # === MCP TOKENS ===
-export N8N_API_KEY=""          # Obter em n8n.zappro.site/settings/api
 export GITHUB_TOKEN=""         # Obter via gh auth login
 
 # Aplicar:
