@@ -163,18 +163,18 @@
 
 ## Success Criteria Checklist
 
-| ID    | Criterion                               | Status     | Notes                                |
-| ----- | --------------------------------------- | ---------- | ------------------------------------ |
-| SC-1  | Hermes-Agent installed and configured   | ✅ DONE    | hermes v0.9.0 installed              |
-| SC-2  | `hermes claw migrate` executed          | ✅ DONE    | 21 items migrated                    |
-| SC-3  | MiniMax 2.7 as primary model            | ✅ DONE    | Configured in config.yaml            |
-| SC-4  | Ollama qwen2.5vl:7b as fallback         | ✅ DONE    | Changed from gemma4 (RTX 4090)       |
-| SC-5  | perplexity_browser skill functional     | ⏳ PENDING | Blocked by SPEC-039                  |
-| SC-6  | coolify_sre with restart loop detection | ✅ DONE    | sre-monitor.sh active                |
-| SC-7  | hermes.json crons centralized           | ⏳ PARTIAL | hermes.json created, not installed   |
-| SC-8  | OpenClaw disable executed               | ⏳ PARTIAL | Containers stopped, Coolify stale    |
-| SC-9  | MCP server for Open WebUI               | ⏳ PENDING | DEPENDS ON SPEC-039 (hermes gateway) |
-| SC-10 | Zero true cron duplicates               | ✅ DONE    | Only tunnel health overlap           |
+| ID    | Criterion                               | Status     | Notes                                         |
+| ----- | --------------------------------------- | ---------- | --------------------------------------------- |
+| SC-1  | Hermes-Agent installed and configured   | ✅ DONE    | hermes v0.9.0 installed                       |
+| SC-2  | `hermes claw migrate` executed          | ✅ DONE    | 21 items migrated                             |
+| SC-3  | MiniMax 2.7 as primary model            | ✅ DONE    | Configured in config.yaml                     |
+| SC-4  | Ollama qwen2.5vl:7b as fallback         | ✅ DONE    | Changed from gemma4 (RTX 4090)                |
+| SC-5  | perplexity_browser skill functional     | ✅ DONE    | Skill at ~/.hermes/skills/perplexity_browser/ |
+| SC-6  | coolify_sre with restart loop detection | ✅ DONE    | sre-monitor.sh active                         |
+| SC-7  | hermes.json crons centralized           | ⏳ PARTIAL | hermes.json created, not installed            |
+| SC-8  | OpenClaw disable executed               | ⏳ PARTIAL | Containers stopped, Coolify stale             |
+| SC-9  | MCP server for Open WebUI               | ⏳ PENDING | DEPENDS ON SPEC-039 (hermes gateway)          |
+| SC-10 | Zero true cron duplicates               | ✅ DONE    | Only tunnel health overlap                    |
 
 ---
 
