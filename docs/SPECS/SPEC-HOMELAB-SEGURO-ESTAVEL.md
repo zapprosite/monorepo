@@ -20,16 +20,16 @@ Estabilizar e proteger o homelab após auditoria de 12/04/2026 com 15 agents. Im
 
 ### Audit Findings Summary
 
-| Finding | Severity | Status |
-|---------|----------|--------|
-| TTS Bridge OOM | Critical | ✅ Fixed |
-| voice-pipeline-loop cron missing | High | ✅ Fixed |
-| ZFS ARC conflicting with containers | Critical | ✅ Fixed |
+| Finding                                | Severity | Status               |
+| -------------------------------------- | -------- | -------------------- |
+| TTS Bridge OOM                         | Critical | ✅ Fixed             |
+| voice-pipeline-loop cron missing       | High     | ✅ Fixed             |
+| ZFS ARC conflicting with containers    | Critical | ✅ Fixed             |
 | chat.zappro.site Access policy missing | Critical | ✅ Fixed (terraform) |
-| Gitea backup missing | High | ✅ Fixed |
-| OpenClaw usando Kokoro direto | Critical | ✅ Fixed |
-| Infisical backup missing | Medium | ✅ Fixed |
-| GH_TOKEN no .env | High | 🔄 In Progress |
+| Gitea backup missing                   | High     | ✅ Fixed             |
+| OpenClaw usando Kokoro direto          | Critical | ✅ Fixed             |
+| Infisical backup missing               | Medium   | ✅ Fixed             |
+| GH_TOKEN no .env                       | High     | 🔄 In Progress       |
 
 ---
 
@@ -40,6 +40,7 @@ Estabilizar e proteger o homelab após auditoria de 12/04/2026 com 15 agents. Im
 **Problema:** OpenClaw违规使用 Kokoro direto绕过 TTS Bridge
 
 **Regras Imutáveis:**
+
 - STT: wav2vec2 :8201 (nunca Deepgram direto)
 - TTS: TTS Bridge :8013 (nunca Kokoro direto)
 - Vozes: pm_santa (padrao), pf_dora (fallback) — todas outras 400
@@ -47,6 +48,7 @@ Estabilizar e proteger o homelab após auditoria de 12/04/2026 com 15 agents. Im
 - Vision: litellm/qwen2.5-vl
 
 **Verification:**
+
 ```bash
 curl -sf http://localhost:8013/health
 curl -X POST http://localhost:8013/tts -d "text=ola&voice=pm_santa" | head -c 100
@@ -58,18 +60,21 @@ curl -X POST http://localhost:8013/tts -d "text=ola&voice=pm_alex" | grep -q "40
 ### 2. Memory Management
 
 **ZFS ARC Limit:**
+
 ```
 zfs_arc_max = 8589934592 (8GB)
 zfs_arc_min = 2147483648 (2GB)
 ```
 
 **Verification:**
+
 ```bash
 cat /sys/module/zfs/parameters/zfs_arc_max  # deve mostrar 8589934592
 free -h | grep -E "Swap|Mem"
 ```
 
 **TTS Bridge Memory Limit:**
+
 ```
 --memory=512m --memory-swap=512m
 ```
@@ -78,14 +83,15 @@ free -h | grep -E "Swap|Mem"
 
 ### 3. Backup Strategy
 
-| Service | Schedule | Retention | Location |
-|---------|----------|-----------|----------|
-| Gitea | 02:30 daily | 7 dias | /srv/backups/gitea-dump-YYYYMMDD.tar.gz |
-| Infisical | 02:45 daily | 7 dias | /srv/backups/infisical-db-YYYYMMDD.sql |
-| Qdrant | 03:00 daily | 7 dias | /srv/backups/qdrant-YYYYMMDD.snap |
-| ZFS pools | weekly | 4 semanas | zfs snapshot |
+| Service   | Schedule    | Retention | Location                                |
+| --------- | ----------- | --------- | --------------------------------------- |
+| Gitea     | 02:30 daily | 7 dias    | /srv/backups/gitea-dump-YYYYMMDD.tar.gz |
+| Infisical | 02:45 daily | 7 dias    | /srv/backups/infisical-db-YYYYMMDD.sql  |
+| Qdrant    | 03:00 daily | 7 dias    | /srv/backups/qdrant-YYYYMMDD.snap       |
+| ZFS pools | weekly      | 4 semanas | zfs snapshot                            |
 
 **Cron entries:**
+
 ```bash
 30 2 * * * docker exec gitea gitea dump --database --target /tmp/gitea-dump-$(date +\%Y\%m%d).zip && cp /tmp/gitea-dump-*.zip /srv/backups/
 45 2 * * * docker exec infisical infisical dump --env production > /srv/backups/infisical-db-$(date +\%Y\%m\%d).sql
@@ -96,15 +102,18 @@ free -h | grep -E "Swap|Mem"
 ### 4. Auto-Healing Pipeline
 
 **voice-pipeline-loop.sh** executa a cada 5 minutos:
+
 - Smoke test: TTS Bridge, OpenClaw, wav2vec2
 - Auto-restart containers falhados
 - Log em /srv/monorepo/logs/voice-pipeline/loop.log
 
 **docker-autoheal** (container):
+
 - Restart containers com HEALTHCHECK fallidos
 - Rate limit: 3 restarts por hora por container
 
 **Verification:**
+
 ```bash
 docker ps | grep -E "autoheal|tts-bridge|openwebui|openclaw"
 crontab -l | grep voice-pipeline
@@ -115,6 +124,7 @@ crontab -l | grep voice-pipeline
 ### 5. Monitoring Stack
 
 **Prometheus targets (all UP ✅):**
+
 - node-exporter :9100
 - cadvisor :8080
 - prometheus :9090
@@ -122,10 +132,12 @@ crontab -l | grep voice-pipeline
 - alertmanager :9093
 
 **Dashboards:**
+
 - Grafana: http://10.0.5.1:3000 (admin configurado)
 - Prometheus: http://10.0.5.1:9090
 
 **Critical gaps (SPEC-023):**
+
 - node-exporter HEALTHCHECK missing
 - loki HEALTHCHECK missing
 - restart loop protection
@@ -136,27 +148,29 @@ crontab -l | grep voice-pipeline
 ### 6. Cloudflare Access Policy
 
 **chat.zappro.site:**
+
 - App ID: 99c85419
-- Policy ID: 4a668d84
--验证: `curl -sf -o /dev/null -w "%{http_code}" https://chat.zappro.site/` deve retornar auth challenge
+- Policy ID: 4a668d84 -验证: `curl -sf -o /dev/null -w "%{http_code}" https://chat.zappro.site/` deve retornar auth challenge
 
 ---
 
 ### 7. Secrets Management
 
 **GH_TOKEN:**
+
 - Currently in /srv/monorepo/.env (not committed)
 - Need: PAT with `repo` scope for merge operations
 - Token atual: `ghp_...` (read-only, insufficient for merge)
 
 **Infisical:**
+
 - 144 secrets catalogued
 - CLI login requires interactive session
 - Secrets: COOLIFY_API_KEY, COOLIFY_URL, GH_TOKEN, etc.
 
 ---
 
-## TODO
+## Pending Tasks
 
 - [ ] Store GH_TOKEN with `repo` scope in Infisical
 - [ ] Push /srv/ops terraform changes to git

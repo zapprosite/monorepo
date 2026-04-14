@@ -1,153 +1,181 @@
 # Port Allocation — will-zappro
 
-**Autoridade:** [NETWORK_MAP.md](./NETWORK_MAP.md) (leia este primeiro)
-**Última verificação:** 2026-04-12 — audit ports: adicionado 8202/3457/8050/8051/9080, corrigido 8201/4003/4007
+**Authority:** [NETWORK_MAP.md](./NETWORK_MAP.md) (read this first)
+**Last verified:** 2026-04-14 — aligned with SPEC-045 Services Inventory
+**Source of truth:** SPEC-045 §7 Services Inventory
 
 ---
 
-## ✅ Portas ATIVAS — verificado 2026-04-02
+## Services Inventory (Canonical — SPEC-045)
 
-### Stack Coolify `/data/coolify/`
-
-| Porta | Container | Acesso | Função |
-|-------|-----------|--------|--------|
-| **6001** | coolify-realtime (soketi) | host | WebSocket real-time |
-| **6002** | coolify-realtime (soketi) | host | WebSocket real-time |
-| **8000** | coolify (→ :8080 interno) | host | PaaS panel → coolify.zappro.site |
-
-### Stack Zappro `~/zappro/` (formerly aurelia)
-
-| Porta | Container | Acesso | Função | Subdomínio |
-|-------|-----------|--------|--------|------------|
-| **3100** | grafana | host | Dashboard | monitor.zappro.site |
-| **3334** | zappro-litellm | host | LiteLLM UI/dashboard interno | — |
-| **4000** | zappro-litellm | host | LiteLLM proxy (venv) | api.zappro.site / llm.zappro.site |
-| **4004** | nginx-ratelimit | host | nginx rate-limited proxy → :4000 | — |
-| **4005** | ai-router | host | AI Router (FastAPI) - intelligent routing | — |
-| **6333** | qdrant (Coolify) | Coolify net (10.0.4.x) — NÃO localhost | Qdrant REST ⚠️ DOWN — tunnel usa localhost:6333 mas container não expõe ao host |
-| **6334** | zappro-qdrant | host | Qdrant gRPC | — |
-| **6379** | zappro-redis | host | Redis cache/pubsub | — |
-| **6381** | aurelia-redis | localhost | Redis (aurelia stack) | — |
-| **8012** | zappro-kokoro | localhost | Kokoro TTS (GPU) | — |
-| **8880** | zappro-kokoro | bridge (Coolify net) | Kokoro TTS — IP `10.0.19.7:8880` para containers Coolify | — |
-| **8080** | — | host | Deprecated (era aurelia-api) | aurelia.zappro.site |
-| **8888** | searxng | host | Search engine (OpenCode) | — |
-| **9090** | prometheus | localhost | TSDB métricas 30d | — |
-| **9100** | node-exporter | host | Métricas host | — |
-| **9250** | cadvisor | localhost | Métricas containers | — |
-| **9835** | nvidia-gpu-exporter | host | NVIDIA GPU metrics (Prometheus) | — |
-
-### Serviços Non-Docker
-
-| Porta | Processo | Acesso | Função |
-|-------|----------|--------|--------|
-| **22** | sshd | host | SSH |
-| **11434** | ollama (systemd) | localhost + docker0 bridge | LLM local (gemma4, qwen2.5-vl, nomic-embed-text) — GPU via `10.0.1.1:11434` |
-| **8201** | whisper-api (container) | host port 8202→8201 | Faster-Whisper small STT (OpenAI-compatible `/v1/audio/transcriptions`) — acessar via `:8202` no host |
-
-### Monitoring & Alerting (SPEC-023)
-
-| Porta | Container | Acesso | Função | Subdomínio |
-|-------|-----------|--------|--------|------------|
-| **8050** | gotify | localhost (127.0.0.1) | Notification server (alerts sink) | — |
-| **8051** | alert-sender | localhost (127.0.0.1) | Alert dispatcher → Gotify | — |
-| **9080** | promtail | host | Log scraping → Loki (:3101) | — |
-| **8203** | zappro-wav2vec2-proxy | host | Deepgram API proxy → whisper-api (:8201) — canonical STT endpoint para OpenClaw | — |
+| Service        | Host              | Port   | Purpose                        |
+| -------------- | ----------------- | ------ | ------------------------------ |
+| Coolify        | Ubuntu Desktop    | 8000   | Container management (PaaS)    |
+| Coolify Proxy  | Ubuntu Desktop    | 80/443 | SSL termination                |
+| Qdrant         | Coolify           | 6333   | RAG / embeddings               |
+| OpenWebUI      | Coolify           | 8080   | Chat interface                 |
+| Hermes Gateway | Ubuntu bare metal | 8642   | Agent brain                    |
+| Hermes MCP     | Ubuntu bare metal | 8092   | MCP proxy (MCPO bridge)        |
+| Ollama         | Ubuntu Desktop    | 11434  | Local LLM inference (RTX 4090) |
+| LiteLLM        | Docker Compose    | 4000   | Multi-provider LLM proxy       |
+| Grafana        | Docker Compose    | 3100   | Metrics visualization          |
+| Loki           | Docker Compose    | 3101   | Log aggregation                |
+| Prometheus     | Docker Compose    | 9090   | Metrics collection             |
 
 ---
 
-### Stack Gitea/OpenClaw (Coolify)
+## Reserved Ports (System-Restricted)
 
-| Porta | Container | Acesso | Função | Subdomínio |
-|-------|-----------|--------|--------|------------|
-| **3300** | gitea | host | Gitea Git server | git.zappro.site |
-| **3457** | openclaw-mcp-wrapper | host | OpenClaw MCP wrapper (universal tool bridge) | — |
-| **4001** | — | — | **LIVRE** — OpenClaw Bot removido (PRUNED) | — |
-| **4003** | nginx:alpine (painel) | host | Claude Code Panel (nginx:alpine) | painel.zappro.site |
-| **4006** | mcp-monorepo | qgtzrmi net (10.0.19.50) | MCP Filesystem /srv/monorepo → OpenClaw | — |
-| **4011** | mcp-qdrant | qgtzrmi net (10.0.19.51) | MCP Qdrant semantic search (openclaw-memory) | — |
-| **5433** | — | — | **LIVRE** — Supabase removido (PRUNED) | — |
-| **8202** | zappro-wav2vec2 | host | Faster-Whisper STT (host mapping 8202→8201) | — |
+These ports are permanently reserved and MUST NOT be used without updating this document + NETWORK_MAP.md + SUBDOMAINS.md.
 
-### Novos Serviços (2026-04-03)
-
-| Porta | Container | Acesso | Função | Subdomínio |
-|-------|-----------|--------|--------|------------|
-| **4002** | — | localhost | ShieldGemma 9B (PENDENTE — nunca deployado) | — |
-| **4007** | zappro-tts-bridge | localhost | TTS Bridge → Kokoro :8880 (UP, ver :8013) | — |
-| **4080** | list-web | host | Web list viewer service | list.zappro.site |
-| **4081** | obsidian-web | host | Obsidian vault UI (OAuth native) | md.zappro.site |
-| **4082** | todo-web | host | Todo app with Google OAuth | todo.zappro.site |
-
-## ⏳ Portas RESERVADAS — Pendente Deploy (Coolify)
-
-| Porta | Serviço Planejado | Subdomínio | Status |
-|-------|------------------|------------|--------|
-| **3000** | Reservada | — | Reservada para proxy futuro |
-| **8080** | Open WebUI (Coolify) | chat.zappro.site | ✅ ATIVO — openwebui-bridge-agent UP 3 dias |
+| Port | Reserved For             | Status                     |
+| ---- | ------------------------ | -------------------------- |
+| 3000 | Open WebUI proxy         | RESERVED                   |
+| 4000 | LiteLLM production       | RESERVED                   |
+| 4001 | OpenClaw Bot             | RESERVED (service removed) |
+| 8000 | Coolify PaaS             | RESERVED                   |
+| 8080 | Open WebUI (Coolify)     | RESERVED                   |
+| 8642 | Hermes Gateway           | RESERVED                   |
+| 6333 | Qdrant (Coolify managed) | RESERVED                   |
 
 ---
 
-## ✅ Portas LIVRES (confirmado 2026-04-14)
+## Available Ports (Dev Use)
 
-| Porta | Observação |
-|-------|-----------|
-| **80 / 443** | CapRover removido — livres (reservar para proxy futuro) |
-| **3001 / 3002** | livres |
-| **3333** | monorepo dev — não rodando |
-| **4001** | livre — OpenClaw Bot removido |
-| **4002–4099** | faixa livre para microserviços |
-| **5433** | livre — Supabase removido |
-| **5678** | livre — n8n removido |
-| **5680** | livre — n8n task runners removido |
-| **8200** | livre — Infisical Vault removido |
-| **8443** | livre (Supabase removido) |
-| **9000** | livre |
+| Port Range | Use Case            |
+| ---------- | ------------------- |
+| 4002–4099  | Microservices (dev) |
+| 5173       | Vite frontend dev   |
 
-### Cross-Network Access (Docker Bridge → Host/Coolify)
+### Free Ports (Confirmed 2026-04-14)
 
-| Porta | Destino | Rede Destino | Acesso via |
-|-------|---------|--------------|------------|
-| **4000** | LiteLLM Proxy | docker0 (10.0.1.1) | Coolify containers via `10.0.1.1:4000` |
-| **8880** | Kokoro TTS | bridge (10.0.19.7) | Coolify containers via `10.0.19.7:8880` |
-| **6333** | Qdrant (Coolify) | Coolify network (10.0.19.5) | Containers via `10.0.19.5:6333` |
+| Port        | Status                                     |
+| ----------- | ------------------------------------------ |
+| 3001 / 3002 | Free                                       |
+| 3333        | Free (monorepo dev not running)            |
+| 5433        | Free (Supabase removed)                    |
+| 5678        | Free (n8n removed)                         |
+| 5680        | Free (n8n task runners removed)            |
+| 8200        | Free (Infisical Vault removed)             |
+| 8443        | Free                                       |
+| 9000        | Free                                       |
+| 80 / 443    | Free (CapRover removed — for proxy future) |
 
 ---
 
-## ❌ Portas REMOVIDAS (serviços extintos)
+## Active Ports — Full Registry
 
-| Porta | Serviço | Motivo |
-|-------|---------|--------|
-| 80 / 443 / 3000 | captain-nginx / CapRover | substituído por Coolify |
-| 8001 / 8443 / 54323 | Supabase Kong / Studio | Supabase removido |
-| 8020 | whisper-local STT | substituído por Deepgram cloud |
-| 5440 | litellm-db | removido |
-| 6379 | aurelia-redis (legado) | substituído por `zappro-redis` (:6379) + `redis-opencode` (:6381) |
+### Bare Metal / System Services (Ubuntu Desktop)
+
+| Port  | Process                  | Access              | Function                                             |
+| ----- | ------------------------ | ------------------- | ---------------------------------------------------- |
+| 22    | sshd                     | host                | SSH                                                  |
+| 8000  | coolify                  | host                | PaaS panel → coolify.zappro.site                     |
+| 8092  | hermes-mcp (systemd)     | localhost           | MCPO / Hermes MCP proxy                              |
+| 8642  | hermes-gateway (systemd) | localhost           | Hermes Gateway agent brain                           |
+| 11434 | ollama (systemd)         | localhost + docker0 | LLM inference (gemma4, qwen2.5-vl, nomic-embed-text) |
+
+### Docker Compose Stack (`~/zappro/`)
+
+| Port | Container           | Access                 | Function                                             | Subdomain                         |
+| ---- | ------------------- | ---------------------- | ---------------------------------------------------- | --------------------------------- |
+| 3100 | grafana             | host                   | Metrics dashboards                                   | monitor.zappro.site               |
+| 3101 | loki                | host                   | Log aggregation                                      | via Grafana                       |
+| 3334 | zappro-litellm      | host                   | LiteLLM UI (internal)                                | —                                 |
+| 4000 | zappro-litellm      | host                   | LiteLLM proxy                                        | api.zappro.site / llm.zappro.site |
+| 4004 | nginx-ratelimit     | host                   | nginx rate-limited → :4000                           | —                                 |
+| 4005 | ai-router           | host                   | AI Router (FastAPI)                                  | —                                 |
+| 4007 | zappro-tts-bridge   | localhost              | TTS Bridge → Kokoro :8880                            | —                                 |
+| 6333 | qdrant              | Coolify net (10.0.4.x) | Qdrant REST                                          | —                                 |
+| 6334 | zappro-qdrant       | host                   | Qdrant gRPC                                          | —                                 |
+| 6379 | zappro-redis        | host                   | Redis cache/pubsub                                   | —                                 |
+| 8012 | zappro-kokoro       | localhost              | Kokoro TTS (GPU)                                     | —                                 |
+| 8880 | zappro-kokoro       | bridge (Coolify net)   | Kokoro TTS — `10.0.19.7:8880` for Coolify containers | —                                 |
+| 8888 | searxng             | host                   | Search engine                                        | —                                 |
+| 9090 | prometheus          | localhost              | TSDB metrics (30d)                                   | —                                 |
+| 9100 | node-exporter       | host                   | Host metrics                                         | —                                 |
+| 9250 | cadvisor            | localhost              | Container metrics                                    | —                                 |
+| 9835 | nvidia-gpu-exporter | host                   | NVIDIA GPU metrics                                   | —                                 |
+
+### Coolify Managed Services
+
+| Port | Container                 | Access      | Function                    |
+| ---- | ------------------------- | ----------- | --------------------------- |
+| 6001 | coolify-realtime (soketi) | host        | WebSocket real-time         |
+| 6002 | coolify-realtime (soketi) | host        | WebSocket real-time         |
+| 6333 | qdrant                    | Coolify net | Vector DB                   |
+| 8080 | openwebui-bridge-agent    | host        | Open WebUI (chat interface) |
+
+### Web Applications (Coolify)
+
+| Port | Container    | Access | Function          | Subdomain        |
+| ---- | ------------ | ------ | ----------------- | ---------------- |
+| 4080 | list-web     | host   | Web list viewer   | list.zappro.site |
+| 4081 | obsidian-web | host   | Obsidian vault UI | md.zappro.site   |
+| 4082 | todo-web     | host   | Todo app + OAuth  | todo.zappro.site |
+
+### Monitoring & Alerting Stack (SPEC-023)
+
+| Port | Container             | Access    | Function                                    |
+| ---- | --------------------- | --------- | ------------------------------------------- |
+| 8050 | gotify                | localhost | Notification server (alert sink)            |
+| 8051 | alert-sender          | localhost | Alert dispatcher → Gotify                   |
+| 9080 | promtail              | host      | Log scraping → Loki (:3101)                 |
+| 8202 | zappro-wav2vec2       | host      | Faster-Whisper STT (host mapping 8202→8201) |
+| 8203 | zappro-wav2vec2-proxy | host      | Deepgram API proxy → whisper-api (:8201)    |
+
+### Legacy / Deprecated
+
+| Port | Status                       | Reason                                         |
+| ---- | ---------------------------- | ---------------------------------------------- |
+| 8080 | Deprecated (was aurelia-api) | Replaced by Coolify services                   |
+| 6381 | Legacy                       | aurelia-redis replaced by zappro-redis (:6379) |
+| 8020 | Removed                      | whisper-local STT → Deepgram cloud             |
+| 5440 | Removed                      | litellm-db removed                             |
 
 ---
 
-## Regras Anti-Conflito
+## Cross-Network Access (Docker ↔ Host/Coolify)
+
+| Port  | Destination   | Network                 | Access Via                           |
+| ----- | ------------- | ----------------------- | ------------------------------------ |
+| 4000  | LiteLLM Proxy | docker0 (10.0.1.1)      | Coolify containers: `10.0.1.1:4000`  |
+| 8880  | Kokoro TTS    | bridge (10.0.19.7)      | Coolify containers: `10.0.19.7:8880` |
+| 6333  | Qdrant        | Coolify net (10.0.19.5) | Containers: `10.0.19.5:6333`         |
+| 11434 | Ollama        | docker0                 | Containers: `10.0.1.1:11434`         |
+
+---
+
+## Anti-Conflict Rules
 
 ```
-❌ NUNCA usar :8000 → Coolify
-❌ NUNCA usar :4000 em dev local sem checar zappro-litellm
-❌ NUNCA usar :3000 → reservada para Open WebUI (Coolify)
-✅ Dev local no monorepo: usar PORT=4002+ ou PORT=5173 (Vite)
+NEVER use :8000   → Coolify
+NEVER use :4000   → LiteLLM (production)
+NEVER use :3000   → Reserved (Open WebUI proxy)
+NEVER use :8080   → Reserved (Open WebUI Coolify)
+NEVER use :8642   → Hermes Gateway
+NEVER use :8092   → Hermes MCP / MCPO
+Dev local:        → PORT=4002+ or PORT=5173 (Vite)
 ```
 
-## Verificar Porta em Uso
+---
+
+## Port Verification
 
 ```bash
 ss -tlnp | grep :PORTA
 ```
 
-## Ao Adicionar Nova Porta
+---
 
-1. `ss -tlnp | grep :PORTA` — confirmar livre
-2. Adicionar nesta tabela
-3. Atualizar [NETWORK_MAP.md](./NETWORK_MAP.md)
-4. Se subdomínio público: atualizar [SUBDOMAINS.md](./SUBDOMAINS.md) + tunnel config remota + Terraform
+## Adding a New Port
+
+1. `ss -tlnp | grep :PORTA` — confirm port is free
+2. Check if port falls in reserved ranges above
+3. Add to this document with: Service, Host, Port, Purpose
+4. Update [NETWORK_MAP.md](./NETWORK_MAP.md)
+5. If public subdomain: update [SUBDOMAINS.md](./SUBDOMAINS.md) + tunnel config + Terraform
 
 ---
 
-**Ver também:** [NETWORK_MAP.md](./NETWORK_MAP.md) | [SUBDOMAINS.md](./SUBDOMAINS.md)
+**See also:** [NETWORK_MAP.md](./NETWORK_MAP.md) | [SUBDOMAINS.md](./SUBDOMAINS.md) | [SPEC-045 §7](./SPECS/SPEC-045-governance-reform-communication.md)

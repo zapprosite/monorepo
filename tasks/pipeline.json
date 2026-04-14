@@ -1006,17 +1006,209 @@
       "files": ["scripts/sync-obsidian-mirror.sh", "docs/CLAUDE.md"],
       "testRequired": false,
       "specRef": "SPEC-041"
+    },
+    {
+      "id": 29,
+      "title": "SPEC-046 Step 1: Activate Telegram polling",
+      "description": "Run hermes gateway install to activate Telegram polling for @CEO_REFRIMIX_bot. Verify bot responds to /start on Telegram.",
+      "status": "done",
+      "priority": "high",
+      "dependencies": [],
+      "subtasks": [
+        {
+          "id": "29.1",
+          "title": "Check channel_directory.json for Telegram config",
+          "status": "done"
+        },
+        {
+          "id": "29.2",
+          "title": "Run hermes gateway install if needed",
+          "status": "done"
+        },
+        {
+          "id": "29.3",
+          "title": "Verify Telegram bot responds to /start",
+          "status": "done"
+        },
+        {
+          "id": "29.4",
+          "title": "Verify curl localhost:8642/platforms shows telegram",
+          "status": "done"
+        }
+      ],
+      "acceptanceCriteria": [
+        "Telegram polling active",
+        "Bot responds to /start",
+        "curl localhost:8642/platforms shows telegram platform"
+      ],
+      "files": ["~/.hermes/hermes.json", "~/.hermes/.env"],
+      "testRequired": true,
+      "specRef": "docs/SPECS/SPEC-046-hermes-agent-improvements.md"
+    },
+    {
+      "id": 30,
+      "title": "SPEC-046 Step 2: Consolidate duplicate crons",
+      "description": "Remove cron overlaps: SRE monitor + voice smoke (both */5), tunnel health + tunnel smoke (both */15). Unify into clean schedule.",
+      "status": "done",
+      "priority": "high",
+      "dependencies": [],
+      "subtasks": [
+        {
+          "id": "30.1",
+          "title": "List all current cron entries",
+          "status": "done"
+        },
+        {
+          "id": "30.2",
+          "title": "Remove duplicate */5 entries (SRE + voice)",
+          "status": "done"
+        },
+        {
+          "id": "30.3",
+          "title": "Remove duplicate */15 entries (tunnel health + smoke)",
+          "status": "done"
+        },
+        {
+          "id": "30.4",
+          "title": "Verify unique intervals: */5, */15, */30, hourly, daily",
+          "status": "done"
+        }
+      ],
+      "acceptanceCriteria": [
+        "No duplicate intervals",
+        "All critical monitoring still covered",
+        "crontab -l clean"
+      ],
+      "files": ["~/.hermes/hermes.json", "crontab"],
+      "testRequired": false,
+      "specRef": "docs/SPECS/SPEC-046-hermes-agent-improvements.md"
+    },
+    {
+      "id": 31,
+      "title": "SPEC-046 Step 3: Fill SOUL.md with homelab context",
+      "description": "Populate ~/.hermes/SOUL.md with: identity (Hermes agent), stack overview (Ollama, Qdrant, LiteLLM, Coolify), personality (concise, Portuguese), known services",
+      "status": "done",
+      "priority": "medium",
+      "dependencies": [],
+      "subtasks": [
+        {
+          "id": "31.1",
+          "title": "Write Identity + Personality section",
+          "status": "done"
+        },
+        {
+          "id": "31.2",
+          "title": "Write Stack overview (LLM, local, TTS, STT, containers)",
+          "status": "done"
+        },
+        {
+          "id": "31.3",
+          "title": "Write Known Services table",
+          "status": "done"
+        },
+        {
+          "id": "31.4",
+          "title": "Verify wc -l SOUL.md > 20 lines",
+          "status": "done"
+        }
+      ],
+      "acceptanceCriteria": [
+        "SOUL.md has >20 lines",
+        "Mentions Ollama, Qdrant, LiteLLM, Coolify, hermes.zappro.site"
+      ],
+      "files": ["~/.hermes/SOUL.md"],
+      "testRequired": false,
+      "specRef": "docs/SPECS/SPEC-046-hermes-agent-improvements.md"
+    },
+    {
+      "id": 32,
+      "title": "SPEC-046 Step 4: Migrate useful skills from openclaw-imports",
+      "description": "Audit ~/.hermes/skills/openclaw-imports/ for relevant skills. Migrate any non-deprecated skills to ~/.hermes/skills/ and register in hermes.json",
+      "status": "done",
+      "priority": "low",
+      "dependencies": [],
+      "subtasks": [
+        {
+          "id": "32.1",
+          "title": "List all skills in openclaw-imports/",
+          "status": "done"
+        },
+        {
+          "id": "32.2",
+          "title": "Audit each skill for relevance",
+          "status": "done"
+        },
+        {
+          "id": "32.3",
+          "title": "Migrate relevant skills to ~/.hermes/skills/",
+          "status": "done"
+        },
+        {
+          "id": "32.4",
+          "title": "Register in hermes.json skills array",
+          "status": "done"
+        }
+      ],
+      "acceptanceCriteria": ["openclaw-imports audited", "Useful skills migrated and registered"],
+      "files": ["~/.hermes/skills/openclaw-imports/", "~/.hermes/hermes.json"],
+      "testRequired": false,
+      "specRef": "docs/SPECS/SPEC-046-hermes-agent-improvements.md"
+    },
+    {
+      "id": 33,
+      "title": "SPEC-046 Step 5: Aggressive auto-healing (restart on fail)",
+      "description": "Create ~/.hermes/scripts/restart-on-fail.sh that restarts services on failure instead of just alerting. Register as cron for hermes-gateway, hermes-mcp, ollama, litellm",
+      "status": "done",
+      "priority": "high",
+      "dependencies": [],
+      "subtasks": [
+        {
+          "id": "33.1",
+          "title": "Create restart-on-fail.sh script",
+          "status": "done"
+        },
+        {
+          "id": "33.2",
+          "title": "Add healthcheck for hermes-gateway (:8642)",
+          "status": "done"
+        },
+        {
+          "id": "33.3",
+          "title": "Add healthcheck for hermes-mcp (:8092)",
+          "status": "done"
+        },
+        {
+          "id": "33.4",
+          "title": "Add healthcheck for ollama (:11434)",
+          "status": "done"
+        },
+        {
+          "id": "33.5",
+          "title": "Test restart-on-fail for one service",
+          "status": "done"
+        }
+      ],
+      "acceptanceCriteria": [
+        "restart-on-fail.sh exists and executable",
+        "Hermes gateway restarts automatically on failure"
+      ],
+      "files": ["~/.hermes/scripts/restart-on-fail.sh"],
+      "testRequired": true,
+      "specRef": "docs/SPECS/SPEC-046-hermes-agent-improvements.md"
     }
   ],
   "meta": {
-    "totalTasks": 28,
-    "completedTasks": 21,
+    "totalTasks": 33,
+    "completedTasks": 26,
     "pendingTasks": 7,
-    "generatedAt": "2026-04-14T15:00:00Z",
+    "generatedAt": "2026-04-14T17:50:00Z",
     "projectName": "zappro-monorepo",
-    "version": "3.2",
-    "completed": [1, 2, 3, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 11],
+    "version": "3.3",
+    "completed": [
+      1, 2, 3, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
+      32, 33
+    ],
     "pending": [4, 5, 6, 7, 8, 9, 10],
-    "note": "Tasks 20/27 done. Obsidian mirror sync automated."
+    "note": "SPEC-046 Hermes improvements added (tasks 29-33). Telegram activation first."
   }
 }

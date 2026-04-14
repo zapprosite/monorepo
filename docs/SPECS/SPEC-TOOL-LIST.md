@@ -17,6 +17,7 @@ Criar `list.zappro.site` — uma web app estática (HTML/JS/CSS) que lista ferra
 ## Identity Visual
 
 **Painel.zappro.site clone:**
+
 - Font: System fonts (Inter fallback)
 - Colors: Dark theme — primary `#1a1a2e`, accent `#e94560`
 - Header: Logo + nav
@@ -27,13 +28,13 @@ Criar `list.zappro.site` — uma web app estática (HTML/JS/CSS) que lista ferra
 
 ## Stack
 
-| Layer | Tech |
-|-------|------|
-| Frontend | HTML + CSS + Vanilla JS (single file) |
-| Auth | Google OAuth (same as OpenWebUI/Grafana) |
-| Secrets | Infisical SDK (client_id only) |
-| Hosting | Cloudflare Tunnel → list.zappro.site |
-| Proxy | Cloudflare Access (same as chat.zappro.site) |
+| Layer    | Tech                                         |
+| -------- | -------------------------------------------- |
+| Frontend | HTML + CSS + Vanilla JS (single file)        |
+| Auth     | Google OAuth (same as OpenWebUI/Grafana)     |
+| Secrets  | Infisical SDK (client_id only)               |
+| Hosting  | Cloudflare Tunnel → list.zappro.site         |
+| Proxy    | Cloudflare Access (same as chat.zappro.site) |
 
 ---
 
@@ -49,7 +50,7 @@ const GOOGLE_OAUTH = {
   scope: 'email profile',
   auth_endpoint: 'https://accounts.google.com/o/oauth2/v2/auth',
   token_endpoint: 'https://oauth2.googleapis.com/token',
-  userinfo_endpoint: 'https://www.googleapis.com/oauth2/v2/userinfo'
+  userinfo_endpoint: 'https://www.googleapis.com/oauth2/v2/userinfo',
 };
 ```
 
@@ -59,13 +60,13 @@ const GOOGLE_OAUTH = {
 
 ## Infraestrutura
 
-| Component | Value |
-|-----------|-------|
-| **Subdomain** | `list.zappro.site` |
-| **Cloudflare Tunnel** | `cloudflared` (already running) |
-| **Auth** | Cloudflare Access + Google OAuth |
-| **Container** | Static files (nginx or direct) |
-| **Port** | TBD (via PORTS.md) |
+| Component             | Value                            |
+| --------------------- | -------------------------------- |
+| **Subdomain**         | `list.zappro.site`               |
+| **Cloudflare Tunnel** | `cloudflared` (already running)  |
+| **Auth**              | Cloudflare Access + Google OAuth |
+| **Container**         | Static files (nginx or direct)   |
+| **Port**              | `4080` (list-web, LAN only)      |
 
 ---
 
@@ -79,7 +80,7 @@ const TOOLS = [
     description: 'Chat AI interface',
     icon: '💬',
     status: 'up',
-    category: 'ai'
+    category: 'ai',
   },
   {
     name: 'Grafana',
@@ -87,7 +88,7 @@ const TOOLS = [
     description: 'Monitoring dashboards',
     icon: '📊',
     status: 'up',
-    category: 'monitoring'
+    category: 'monitoring',
   },
   {
     name: 'Prometheus',
@@ -95,7 +96,7 @@ const TOOLS = [
     description: 'Metrics collection',
     icon: '🎯',
     status: 'up',
-    category: 'monitoring'
+    category: 'monitoring',
   },
   {
     name: 'OpenClaw',
@@ -103,7 +104,7 @@ const TOOLS = [
     description: 'Voice AI bot',
     icon: '🎙️',
     status: 'up',
-    category: 'ai'
+    category: 'ai',
   },
   {
     name: 'Coolify',
@@ -111,7 +112,7 @@ const TOOLS = [
     description: 'PaaS dashboard',
     icon: '☁️',
     status: 'up',
-    category: 'infra'
+    category: 'infra',
   },
   {
     name: 'Gitea',
@@ -119,14 +120,14 @@ const TOOLS = [
     description: 'Git repositories',
     icon: '📦',
     status: 'up',
-    category: 'dev'
+    category: 'dev',
   },
   {
     name: 'Infisical',
     description: 'Secrets manager',
     icon: '🔐',
     status: 'up',
-    category: 'infra'
+    category: 'infra',
   },
   {
     name: 'Kokoro TTS',
@@ -134,8 +135,8 @@ const TOOLS = [
     description: 'Text-to-Speech',
     icon: '🔊',
     status: 'up',
-    category: 'ai'
-  }
+    category: 'ai',
+  },
 ];
 ```
 
@@ -164,14 +165,14 @@ const TOOLS = [
 
 ## Files Created
 
-| File | Purpose |
-|------|---------|
-| `apps/list-web/index.html` | Single page app |
-| `apps/list-web/styles.css` | Dark theme |
-| `apps/list-web/app.js` | OAuth + tools render |
+| File                                    | Purpose              |
+| --------------------------------------- | -------------------- |
+| `apps/list-web/index.html`              | Single page app      |
+| `apps/list-web/styles.css`              | Dark theme           |
+| `apps/list-web/app.js`                  | OAuth + tools render |
 | `apps/list-web/infisical-get-secret.js` | Get GOOGLE_CLIENT_ID |
-| `apps/list-web/auth.js` | OAuth flow |
-| `apps/list-web/tools.js` | Tools data + render |
+| `apps/list-web/auth.js`                 | OAuth flow           |
+| `apps/list-web/tools.js`                | Tools data + render  |
 
 ---
 
