@@ -2,11 +2,7 @@ const { concurrent } = require('tinyexec');
 
 /** @type {import('lint-staged').Configuration} */
 module.exports = {
-  '*.{ts,tsx,js,jsx}': [
-    'biome check --no-errors-on-unmatched',
-    'biome format --write',
-  ],
-  '*.{json,md,mdx}': [
-    'prettier --write',
-  ],
+  '*.{ts,tsx}': ['eslint --fix', 'prettier --write'],
+  '*.{js,jsx}': ['eslint --fix', 'prettier --write'],
+  '*.{json,md,mdx}': ['prettier --write'],
 };
