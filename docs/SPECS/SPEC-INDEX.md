@@ -14,14 +14,18 @@ status: ACTIVE
 | Domain | SPEC | Status | Notes |
 |--------|------|--------|-------|
 | Audio Stack | SPEC-009-openclaw-persona-audio-stack.md | ✅ ACTIVE | Kokoro + wav2vec2 + TTS Bridge — immutable, PROTECTED |
-| Agent Monorepo | SPEC-024-UNIFIED-CLAUDE-AGENT-MONOREPO.md | ✅ ACTIVE | Turbo pipeline + git mirror + CI/CD |
 | Voice Pipeline | SPEC-027-voice-pipeline-humanized-ptbr.md | ✅ ACTIVE | cron active, humanized PT-BR, Kokoro v0.2.4 |
 | Infisical SDK | SPEC-029-INFISICAL-SDK-MANDATORY.md | ✅ ACTIVE | Zero tolerance mandate, no exceptions |
-| List Web | SPEC-030-AGENTS-MD-TOP-LINKS.md | ✅ ACTIVE | /new-list-web skill — zero-to-deploy |
-| Maintenance | SPEC-031-homelab-maintenance.md | ✅ ACTIVE | 7 tasks: Kokoro, node-exporter, loki, cadvisor, ZFS cron |
-| Tunnel Health | SPEC-032-tunnel-health-automation.md | ✅ ACTIVE | smoke-tunnel.sh, pre-commit hook, autoheal, cron |
-| Supabase Tunnel | SPEC-033-supabase-tunnel-exposure.md | ✅ ACTIVE | HTTP health proxy at :5433, supabase.zappro.site |
-| MiniMax Agents | SPEC-034-minimax-agent-use-cases.md | ✅ ACTIVE | 10 new skills: /codegen, /msec, /dm, /bug-triage, /bcaffold, /mxr + more |
+| Maintenance | SPEC-031-homelab-maintenance.md | 🟡 IN_PROGRESS | 7 tasks: node-exporter, loki, cadvisor HEALTHCHECKs, ZFS cron |
+| Tunnel Health | SPEC-032-tunnel-health-automation.md | 🟡 IN_PROGRESS | smoke-tunnel.sh ✅, pre-commit hook ✅, autoheal ✅, cron ⏳ |
+| MiniMax Agents | SPEC-034-minimax-agent-use-cases.md | 🟡 IN_PROGRESS | Skills created: minimax-code-gen, minimax-debugger, minimax-refactor, minimax-research, minimax-security-audit, review-minimax |
+| Hermes Migration | SPEC-038-hermes-agent-migration.md | 🚧 IMPLEMENTING | OPERAÇÃO OVERLORD — OpenClaw → Hermes-Agent |
+| Hermes Tunnel | SPEC-039-hermes-gateway-tunnel.md | ✅ ACTIVE | hermes.zappro.site → :8642, cloudflared tunnel |
+| Alerting | SPEC-040-homelab-alerting-rate-limit.md | 🟡 IN_PROGRESS | alert-sender deployed, Loki deploying |
+| Monorepo Polish | SPEC-041-monorepo-estado-arte-polish.md | 📋 SPECIFIED | Tech debt resolution, ESLint flat config, TypeScript upgrade |
+| Todo Web | SPEC-036-todo-web.md | ✅ DONE | todo.zappro.site deployed with OAuth (2026-04-13) |
+| md.zappro.site | SPEC-037-md-zappro-site.md | 📋 PROPOSED | Obsidian vault UI via Google OAuth |
+| Subdomain Prune | SPEC-043-subdomain-prune-hermes-migration.md | ✅ DONE | bot/supabase PRUNED, hermes.zappro.site ACTIVE (2026-04-14) |
 
 ## Archived Specs (Historical)
 
@@ -51,6 +55,9 @@ status: ACTIVE
 | SPEC-025-REPORT | CEO Mix Report | SPEC-024 + SPEC-025 |
 | SPEC-026 | OpenClaw TTS Route Fix | SPEC-009 + openclaw-audio-governance.md |
 | SPEC-028 | Perplexity GitOps | SPEC-024 + perplexity-agent |
+| SPEC-024 | Unified Claude Agent Monorepo | SPEC-041 (monorepo polish) + current .claude/ structure |
+| SPEC-030 | AGENTS.md Top Links Audit | SPEC-041 + current AGENTS.md (completed 2026-04-12) |
+| SPEC-033 | Supabase Tunnel Exposure | SPEC-043 (supabase PRUNED — ghost entry removed) |
 
 ## How to Use This Index
 
@@ -62,11 +69,12 @@ status: ACTIVE
 ## Spec Domains
 
 - **Audio Stack:** SPEC-009 (canonical, PROTECTED), SPEC-027 (voice pipeline)
-- **Infrastructure:** SPEC-032 (tunnel health), SPEC-033 (supabase tunnel), SPEC-031 (maintenance)
-- **Agent/CLI:** SPEC-024 (monorepo), SPEC-030 (list-web skill)
+- **Infrastructure:** SPEC-032 (tunnel health), SPEC-031 (maintenance), SPEC-038/039 (Hermes), SPEC-043 (subdomain prune)
+- **Agent/CLI:** SPEC-041 (monorepo polish), SPEC-034 (MiniMax skills)
 - **Voice Pipeline:** SPEC-027 (canonical voice pipeline)
 - **Infisical:** SPEC-029 (mandate)
 - **Maintenance:** SPEC-031 (homelab improvements)
+- **Apps:** SPEC-036 (todo-web DONE), SPEC-037 (md.zappro.site proposed)
 
 ## Protected Specs
 
@@ -79,14 +87,18 @@ These specs are **PROTEGIDO** — changes require explicit approval from will-za
 ## Quick Reference
 
 ```
-Audio/STT/TTS issues     → SPEC-009
-Voice pipeline            → SPEC-027
-Infisical/secrets        → SPEC-029
-List-web from zero        → SPEC-030
-Tunnel/subdomain health   → SPEC-032
-Supabase database         → SPEC-033
-Monorepo/git/CI           → SPEC-024
-Homelab maintenance       → SPEC-031
+Audio/STT/TTS issues         → SPEC-009
+Voice pipeline                → SPEC-027
+Infisical/secrets            → SPEC-029
+Tunnel/subdomain health      → SPEC-032
+Hermes Agent migration        → SPEC-038
+Hermes Gateway tunnel         → SPEC-039
+Alerting & rate limiting     → SPEC-040
+Monorepo polish              → SPEC-041
+Todo web app (done)          → SPEC-036
+Subdomain prune (done)       → SPEC-043
+Homelab maintenance          → SPEC-031
+MiniMax agent skills         → SPEC-034
 ```
 
 ## Environment Variables Standard
