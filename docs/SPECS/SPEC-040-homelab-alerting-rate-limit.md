@@ -1,10 +1,49 @@
 # SPEC-040: Homelab Unified Alerting & Rate Limiting Architecture
 
-> **Status:** SPEC-DRAFT
+> **Status:** IN_PROGRESS — Alert pipeline broken (alert-sender missing), Loki/Promtail not deployed
 > **Priority:** 🔴 CRITICAL (alertas GPU + rate limit)
 > **Author:** will-zappro
 > **Date:** 2026-04-14
 > **Branch:** feature/quantum-helix-done
+
+---
+
+## Implementation Status (2026-04-14)
+
+### ✅ Working
+| Component | Status | Notes |
+|-----------|--------|-------|
+| Prometheus | Running | localhost:9090, all targets UP |
+| AlertManager | Running | localhost:9093, webhook receiver configured |
+| Grafana | Running | localhost:3100, dashboards available |
+| Gotify | Running | localhost:8050, P3 alerts OK |
+| Docker-autoheal | Running | Container restart on failure |
+| cadvisor/node-exporter/nvidia-gpu-exporter | Running | Metrics collection OK |
+| GPU alerts (Prometheus rules) | Configured | GPUCryptojacking, GPUMemory, GPUTemp |
+
+### ❌ Broken / Missing
+| Component | Issue | Fix Required |
+|-----------|-------|--------------|
+| **alert-sender** | Container missing | Deploy alert-sender bridging AlertManager → Telegram |
+| **Loki** | Container missing | Loki log aggregation not deployed |
+| **Promtail** | Container missing | Log shipping to Loki not deployed |
+| **Alert path** | Prometheus → AlertManager → alert-sender:8080/webhook → ❌ | Need alert-sender or direct Telegram |
+
+### ⚠️ Alert Pipeline (Critical — Path Forward)
+```
+Prometheus → AlertManager → alert-sender:8080/webhook → ❌ DEAD
+                                              ↓
+                                    Telegram (never receives)
+```
+**Options:**
+1. **Create alert-sender** — minimal webserver receiving AlertManager webhooks → Telegram
+2. **Direct Telegram** — configure AlertManager webhook to Telegram bot API directly
+3. **Use Grafana Alerting** — bypass AlertManager, Grafana sends directly to Telegram
+
+### 🔧 Priority Actions
+1. Deploy simple alert-sender or configure AlertManager → Telegram webhook
+2. Loki/Promtail: deprioritize (nice-to-have, not blocking)
+3. Test: fire a test alert → verify Telegram receives
 
 ---
 
