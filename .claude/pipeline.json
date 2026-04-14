@@ -1,9 +1,9 @@
 {
   "current_phase": 3,
-  "current_task": "Phase 2 complete — executing Phase 3",
+  "current_task": "Hermes install冲刺 — 12 agents running in parallel",
   "dirty": true,
-  "last_updated": "2026-04-14T00:20:00Z",
+  "last_updated": "2026-04-14T00:40:00Z",
   "project": "homelab-monorepo",
   "branch": "feature/quantum-helix-done",
-  "notes": "Phase 2 done: hermes config updated (env-only secrets), Groq/Kimi already clean, deploy-on-green.yml fixed, ZFS ARC persist confirmed, hermes-install.sh created. Phase 3: hermes-secrets-setup, migrate dry-run, SOUL.md rescue, obsidian-web OAuth, Gitea repo create."
+  "notes": "Hermes install: hermes binary install + claw migrate + secrets + config MiniMax primary + SOUL.md rescue + OpenWebUI setup + cron + launcher + status script"
 }
