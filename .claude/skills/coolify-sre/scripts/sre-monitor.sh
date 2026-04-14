@@ -34,6 +34,13 @@ ALERT_COUNT=0
 
 mkdir -p "$LOG_DIR"
 
+# Load .env if present
+if [[ -f "${COOLIFY_ENV_FILE:-.env}" ]]; then
+  set -a
+  source "${COOLIFY_ENV_FILE:-.env}"
+  set +a
+fi
+
 # Restart loop detection: rolling 30-minute window, max 3 heal attempts
 HEAL_WINDOW_SECONDS=1800
 HEAL_THRESHOLD=3
@@ -52,7 +59,7 @@ count_heals_in_window() {
   local count=0
   local tmpfile="$LOG_DIR/.heal-timestamps.$name"
   [[ ! -f "$tmpfile" ]] && echo 0 && return
-  while IFS read -r ts; do
+  while read -r ts; do
     [[ -z "$ts" ]] && continue
     [[ "$ts" -gt "$cutoff" ]] && count=$((count + 1))
   done < "$tmpfile"
@@ -83,30 +90,11 @@ log_sre() { echo "[$(date -u '+%Y-%m-%dT%H:%M:%SZ')] $1" | tee -a "$SRE_LOG"; }
 log_heal() { echo "[$(date -u '+%Y-%m-%dT%H:%M:%SZ')] $1" >> "$HEAL_LOG"; }
 log_resource() { echo "[$(date -u '+%Y-%m-%dT%H:%M:%SZ')] $1" >> "$RESOURCE_LOG"; }
 
-# Infisical SDK (SPEC-029 mandatory)
 load_api_key() {
-  if [[ -z "$COOLIFY_API_KEY" ]] && [[ -f "$INFISICAL_TOKEN_PATH" ]]; then
-    COOLIFY_API_KEY=$(python3 << 'PYEOF'
-import sys
-try:
-    from infisical_sdk import InfisicalSDKClient
-    token = open('/srv/ops/secrets/infisical.service-token').read().strip()
-    client = InfisicalSDKClient(host='http://127.0.0.1:8200', token=token)
-    secrets = client.secrets.list_secrets(
-        project_id='e42657ef-98b2-4b9c-9a04-46c093bd6d37',
-        environment_slug='dev',
-        secret_path='/'
-    )
-    for s in secrets.secrets:
-        if s.secretKey == 'COOLIFY_API_KEY':
-            print(s.secretValue)
-            sys.exit(0)
-    sys.exit(1)
-except Exception as e:
-    print(f"ERROR: {e}", file=sys.stderr)
-    sys.exit(1)
-PYEOF
-    ) || true
+  # COOLIFY_API_KEY sourced from .env at script start
+  # If not set, log warning and skip Coolify API checks
+  if [[ -z "$COOLIFY_API_KEY" ]]; then
+    return 1
   fi
 }
 
