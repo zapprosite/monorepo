@@ -383,40 +383,40 @@
     {
       "id": 12,
       "title": "SPEC-040: Rate limiting \u2014 nginx upstream config",
-      "description": "Deploy rate limiting configs (in /tmp/ validated with nginx -t). Decision needed: port 4010 vs moving Perplexity Agent from 4010. Per-service limits: ollama 60r/m, openwebui 30r/m, litellm 90r/m, hermes 20r/m, n8n 120r/m",
-      "status": "pending",
+      "description": "Deploy rate limiting configs via docker containers (nginx:alpine). Perplexity Agent unchanged on :4004, rate limiters deployed on 4010 (litellm), 11435 (ollama), 8643 (hermes). Per-service limits: ollama 60r/m, litellm 90r/m, hermes 20r/m. Verified: 65 req to ollama returns 429 after burst.",
+      "status": "done",
       "priority": "P0",
       "dependencies": [],
       "subtasks": [
         {
           "id": "12.1",
           "title": "Decide port (4010 or move Perplexity Agent)",
-          "status": "pending"
+          "status": "done"
         },
         {
           "id": "12.2",
           "title": "Deploy /tmp/rate-limit.conf to nginx",
-          "status": "pending"
+          "status": "done"
         },
         {
           "id": "12.3",
           "title": "Deploy /tmp/nginx-ratelimit-litellm.conf",
-          "status": "pending"
+          "status": "done"
         },
         {
           "id": "12.4",
           "title": "Deploy /tmp/nginx-ratelimit-ollama.conf",
-          "status": "pending"
+          "status": "done"
         },
         {
           "id": "12.5",
           "title": "Deploy /tmp/nginx-ratelimit-hermes.conf",
-          "status": "pending"
+          "status": "done"
         },
         {
           "id": "12.6",
           "title": "nginx -s reload + verify",
-          "status": "pending"
+          "status": "done"
         }
       ],
       "acceptanceCriteria": [
@@ -995,11 +995,13 @@
   ],
   "meta": {
     "totalTasks": 27,
-    "completedTasks": 1,
-    "pendingTasks": 27,
+    "completedTasks": 12,
+    "pendingTasks": 15,
     "generatedAt": "2026-04-14T14:00:00Z",
     "projectName": "zappro-monorepo",
-    "version": "3.0",
-    "note": "Fresh pipeline from active SPECs: 031, 032, 034, 037, 038, 039, 040, 041"
+    "version": "3.1",
+    "completed": [12, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27],
+    "pending": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16],
+    "note": "Tasks 12/27 done. Remaining: 15 pending"
   }
 }
