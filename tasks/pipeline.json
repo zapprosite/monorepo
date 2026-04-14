@@ -29,10 +29,7 @@
         "AC-2: log file created",
         "AC-3: Gotify alert when DOWN"
       ],
-      "files": [
-        "/srv/ops/logs/tunnel-health.log",
-        "crontab"
-      ],
+      "files": ["/srv/ops/logs/tunnel-health.log", "crontab"],
       "testRequired": true,
       "specRef": "docs/SPECS/SPEC-032-tunnel-health-automation.md"
     },
@@ -70,9 +67,7 @@
         "AC-2: detects localhost ingress",
         "AC-3: reports unreachable ingress"
       ],
-      "files": [
-        "/srv/ops/scripts/validate-ingress.sh"
-      ],
+      "files": ["/srv/ops/scripts/validate-ingress.sh"],
       "testRequired": true,
       "specRef": "docs/SPECS/SPEC-032-tunnel-health-automation.md"
     },
@@ -116,9 +111,7 @@
         "AC-3: cloudflared restarted within 5min",
         "AC-4: Gotify alert if 0 ingress"
       ],
-      "files": [
-        "/srv/ops/scripts/tunnel-autoheal.sh"
-      ],
+      "files": ["/srv/ops/scripts/tunnel-autoheal.sh"],
       "testRequired": true,
       "specRef": "docs/SPECS/SPEC-032-tunnel-health-automation.md"
     },
@@ -128,9 +121,7 @@
       "description": "Extract browser-use logic from apps/perplexity-agent/agent/browser_agent.py → create ~/.hermes/skills/perplexity_browser/{SKILL.md, agent.py, config.py}",
       "status": "pending",
       "priority": "P1",
-      "dependencies": [
-        "SPEC-039"
-      ],
+      "dependencies": ["SPEC-039"],
       "subtasks": [
         {
           "id": "4.1",
@@ -153,12 +144,8 @@
           "status": "pending"
         }
       ],
-      "acceptanceCriteria": [
-        "SC-5: perplexity_browser skill functional"
-      ],
-      "files": [
-        "apps/perplexity-agent/agent/browser_agent.py"
-      ],
+      "acceptanceCriteria": ["SC-5: perplexity_browser skill functional"],
+      "files": ["apps/perplexity-agent/agent/browser_agent.py"],
       "testRequired": false,
       "specRef": "docs/SPECS/SPEC-038-hermes-agent-migration.md"
     },
@@ -186,9 +173,7 @@
           "status": "pending"
         }
       ],
-      "acceptanceCriteria": [
-        "SC-6: coolify_sre with Hermes wrapper"
-      ],
+      "acceptanceCriteria": ["SC-6: coolify_sre with Hermes wrapper"],
       "files": [
         "~/.hermes/skills/coolify_sre/hermes_integration.py",
         "/srv/ops/scripts/hermes-coolify-cli.sh"
@@ -230,12 +215,8 @@
           "status": "pending"
         }
       ],
-      "acceptanceCriteria": [
-        "SC-7: hermes.json crons centralized"
-      ],
-      "files": [
-        "hermes.json"
-      ],
+      "acceptanceCriteria": ["SC-7: hermes.json crons centralized"],
+      "files": ["hermes.json"],
       "testRequired": false,
       "specRef": "docs/SPECS/SPEC-038-hermes-agent-migration.md"
     },
@@ -263,9 +244,7 @@
           "status": "pending"
         }
       ],
-      "acceptanceCriteria": [
-        "SC-8: OpenClaw disable enforced in Coolify"
-      ],
+      "acceptanceCriteria": ["SC-8: OpenClaw disable enforced in Coolify"],
       "files": [],
       "testRequired": false,
       "specRef": "docs/SPECS/SPEC-038-hermes-agent-migration.md"
@@ -276,9 +255,7 @@
       "description": "Configure MCP server for Open WebUI. DEPENDS ON SPEC-039 (hermes gateway tunnel must be working). hermes mcp serve exits after each request → SPEC-039 gateway as path forward.",
       "status": "pending",
       "priority": "P1",
-      "dependencies": [
-        "SPEC-039"
-      ],
+      "dependencies": ["SPEC-039"],
       "subtasks": [
         {
           "id": "8.1",
@@ -296,9 +273,7 @@
           "status": "pending"
         }
       ],
-      "acceptanceCriteria": [
-        "SC-9: MCP server for Open WebUI"
-      ],
+      "acceptanceCriteria": ["SC-9: MCP server for Open WebUI"],
       "files": [],
       "testRequired": false,
       "specRef": "docs/SPECS/SPEC-038-hermes-agent-migration.md"
@@ -309,9 +284,7 @@
       "description": "SPEC-039 scope. Hermes Gateway running in polling mode. Cloudflare tunnel needs update to point to 10.0.5.2:8642. SPEC-039 recommends Option B (new subdomain hermes.zappro.site).",
       "status": "pending",
       "priority": "P1",
-      "dependencies": [
-        "SPEC-039"
-      ],
+      "dependencies": ["SPEC-039"],
       "subtasks": [
         {
           "id": "9.1",
@@ -329,9 +302,7 @@
           "status": "pending"
         }
       ],
-      "acceptanceCriteria": [
-        "hermes.zappro.site → :8642 working"
-      ],
+      "acceptanceCriteria": ["hermes.zappro.site → :8642 working"],
       "files": [],
       "testRequired": false,
       "specRef": "docs/SPECS/SPEC-038-hermes-agent-migration.md"
@@ -342,9 +313,7 @@
       "description": "hermes mcp serve exits after each JSON-RPC request (not persistent). May require feature request to NousResearch if no local solution. Workaround: hermes gateway (TASK-HERMES-013) bypasses this.",
       "status": "pending",
       "priority": "P0",
-      "dependencies": [
-        "SPEC-039"
-      ],
+      "dependencies": ["SPEC-039"],
       "subtasks": [
         {
           "id": "10.1",
@@ -362,9 +331,7 @@
           "status": "pending"
         }
       ],
-      "acceptanceCriteria": [
-        "hermes mcp serve is persistent OR gateway workaround functional"
-      ],
+      "acceptanceCriteria": ["hermes mcp serve is persistent OR gateway workaround functional"],
       "files": [],
       "testRequired": false,
       "specRef": "docs/SPECS/SPEC-038-hermes-agent-migration.md"
@@ -375,15 +342,7 @@
       "description": "Full smoke test after all tasks complete. Validate: LLM responses (MiniMax + Ollama fallback), MCP server connectivity, Coolify API integration, cron execution, bot.zappro.site gateway",
       "status": "pending",
       "priority": "P0",
-      "dependencies": [
-        4,
-        5,
-        6,
-        7,
-        8,
-        9,
-        10
-      ],
+      "dependencies": [4, 5, 6, 7, 8, 9, 10],
       "subtasks": [
         {
           "id": "11.1",
@@ -416,9 +375,7 @@
           "status": "pending"
         }
       ],
-      "acceptanceCriteria": [
-        "All SC criteria from SPEC-038"
-      ],
+      "acceptanceCriteria": ["All SC criteria from SPEC-038"],
       "files": [],
       "testRequired": true,
       "specRef": "docs/SPECS/SPEC-038-hermes-agent-migration.md"
@@ -462,10 +419,7 @@
           "status": "done"
         }
       ],
-      "acceptanceCriteria": [
-        "SC-2: Rate limits enforced",
-        "Load test >100 req/min → 429 returned"
-      ],
+      "acceptanceCriteria": ["SC-2: Rate limits enforced", "Load test >100 req/min → 429 returned"],
       "files": [
         "/tmp/rate-limit.conf",
         "/tmp/nginx-ratelimit-litellm.conf",
@@ -504,14 +458,8 @@
           "status": "done"
         }
       ],
-      "acceptanceCriteria": [
-        "P1→Telegram immediately",
-        "P3→Gotify",
-        "routing by severity label"
-      ],
-      "files": [
-        "/srv/monorepo/apps/monitoring/alertmanager.yml"
-      ],
+      "acceptanceCriteria": ["P1→Telegram immediately", "P3→Gotify", "routing by severity label"],
+      "files": ["/srv/monorepo/apps/monitoring/alertmanager.yml"],
       "testRequired": true,
       "specRef": "docs/SPECS/SPEC-040-homelab-alerting-rate-limit.md"
     },
@@ -549,9 +497,7 @@
           "status": "done"
         }
       ],
-      "acceptanceCriteria": [
-        "SC-5: Grafana dashboard shows all services"
-      ],
+      "acceptanceCriteria": ["SC-5: Grafana dashboard shows all services"],
       "files": [
         "apps/monitoring/grafana/provisioning/dashboards/",
         "apps/monitoring/grafana/provisioning/datasources/"
@@ -588,12 +534,8 @@
           "status": "done"
         }
       ],
-      "acceptanceCriteria": [
-        "Alerts fire for respective conditions"
-      ],
-      "files": [
-        "apps/monitoring/prometheus/alerts.yml"
-      ],
+      "acceptanceCriteria": ["Alerts fire for respective conditions"],
+      "files": ["apps/monitoring/prometheus/alerts.yml"],
       "testRequired": true,
       "specRef": "docs/SPECS/SPEC-040-homelab-alerting-rate-limit.md"
     },
@@ -626,12 +568,8 @@
           "status": "done"
         }
       ],
-      "acceptanceCriteria": [
-        "Logs appear in Loki/Grafana"
-      ],
-      "files": [
-        "docker-compose.yml"
-      ],
+      "acceptanceCriteria": ["Logs appear in Loki/Grafana"],
+      "files": ["docker-compose.yml"],
       "testRequired": true,
       "specRef": "docs/SPECS/SPEC-040-homelab-alerting-rate-limit.md"
     },
@@ -664,12 +602,8 @@
           "status": "done"
         }
       ],
-      "acceptanceCriteria": [
-        "AC-031-2"
-      ],
-      "files": [
-        "/srv/apps/monitoring/docker-compose.yml"
-      ],
+      "acceptanceCriteria": ["AC-031-2"],
+      "files": ["/srv/apps/monitoring/docker-compose.yml"],
       "testRequired": false,
       "specRef": "docs/SPECS/SPEC-031-homelab-maintenance.md"
     },
@@ -702,12 +636,8 @@
           "status": "done"
         }
       ],
-      "acceptanceCriteria": [
-        "AC-031-3"
-      ],
-      "files": [
-        "/srv/apps/monitoring/docker-compose.yml"
-      ],
+      "acceptanceCriteria": ["AC-031-3"],
+      "files": ["/srv/apps/monitoring/docker-compose.yml"],
       "testRequired": false,
       "specRef": "docs/SPECS/SPEC-031-homelab-maintenance.md"
     },
@@ -740,12 +670,8 @@
           "status": "done"
         }
       ],
-      "acceptanceCriteria": [
-        "AC-031-5"
-      ],
-      "files": [
-        "/srv/ops/scripts/zfs-snapshot-prune.sh"
-      ],
+      "acceptanceCriteria": ["AC-031-5"],
+      "files": ["/srv/ops/scripts/zfs-snapshot-prune.sh"],
       "testRequired": false,
       "specRef": "docs/SPECS/SPEC-031-homelab-maintenance.md"
     },
@@ -778,9 +704,7 @@
           "status": "done"
         }
       ],
-      "acceptanceCriteria": [
-        "AC-031-7"
-      ],
+      "acceptanceCriteria": ["AC-031-7"],
       "files": [
         "/home/will/.claude/mcps/ai-context-sync/sync.sh",
         "/home/will/.claude/mcps/ai-context-sync/manifest.json"
@@ -817,9 +741,7 @@
           "status": "done"
         }
       ],
-      "acceptanceCriteria": [
-        "Zero hardcoded project IDs"
-      ],
+      "acceptanceCriteria": ["Zero hardcoded project IDs"],
       "files": [
         "apps/perplexity-agent/config.py",
         "apps/perplexity-agent/agent/browser_agent.py",
@@ -853,12 +775,8 @@
           "status": "done"
         }
       ],
-      "acceptanceCriteria": [
-        "ESLint flat config working with --cache"
-      ],
-      "files": [
-        "eslint.config.js"
-      ],
+      "acceptanceCriteria": ["ESLint flat config working with --cache"],
+      "files": ["eslint.config.js"],
       "testRequired": false,
       "specRef": "docs/SPECS/SPEC-041-monorepo-estado-arte-polish.md"
     },
@@ -886,13 +804,8 @@
           "status": "done"
         }
       ],
-      "acceptanceCriteria": [
-        "Husky pre-commit running lint-staged on staged files"
-      ],
-      "files": [
-        ".husky/pre-commit",
-        "lint-staged.config.js"
-      ],
+      "acceptanceCriteria": ["Husky pre-commit running lint-staged on staged files"],
+      "files": [".husky/pre-commit", "lint-staged.config.js"],
       "testRequired": false,
       "specRef": "docs/SPECS/SPEC-041-monorepo-estado-arte-polish.md"
     },
@@ -925,12 +838,8 @@
           "status": "done"
         }
       ],
-      "acceptanceCriteria": [
-        "turbo.json valid with new tasks"
-      ],
-      "files": [
-        "turbo.json"
-      ],
+      "acceptanceCriteria": ["turbo.json valid with new tasks"],
+      "files": ["turbo.json"],
       "testRequired": false,
       "specRef": "docs/SPECS/SPEC-041-monorepo-estado-arte-polish.md"
     },
@@ -958,12 +867,8 @@
           "status": "done"
         }
       ],
-      "acceptanceCriteria": [
-        "TypeScript strict mode enabled globally"
-      ],
-      "files": [
-        "tsconfig.base.json"
-      ],
+      "acceptanceCriteria": ["TypeScript strict mode enabled globally"],
+      "files": ["tsconfig.base.json"],
       "testRequired": false,
       "specRef": "docs/SPECS/SPEC-041-monorepo-estado-arte-polish.md"
     },
@@ -1016,9 +921,7 @@
           "status": "done"
         }
       ],
-      "acceptanceCriteria": [
-        "AC-1 through AC-6 from SPEC-034"
-      ],
+      "acceptanceCriteria": ["AC-1 through AC-6 from SPEC-034"],
       "files": [
         ".claude/skills/minimax-code-gen/",
         ".claude/skills/minimax-security-audit/",
@@ -1078,51 +981,20 @@
         "SC-5: Navigation functional",
         "SC-6: Search works (mock data)"
       ],
-      "files": [
-        "apps/obsidian-web/"
-      ],
+      "files": ["apps/obsidian-web/"],
       "testRequired": false,
       "specRef": "docs/SPECS/SPEC-037-md-zappro-site.md"
     }
   ],
   "meta": {
     "totalTasks": 27,
-    "completedTasks": 14,
-    "pendingTasks": 13,
+    "completedTasks": 13,
+    "pendingTasks": 14,
     "generatedAt": "2026-04-14T15:00:00Z",
     "projectName": "zappro-monorepo",
     "version": "3.1",
-    "completed": [
-      12,
-      14,
-      16,
-      17,
-      18,
-      19,
-      20,
-      21,
-      22,
-      23,
-      24,
-      25,
-      26,
-      27
-    ],
-    "pending": [
-      1,
-      2,
-      3,
-      4,
-      5,
-      6,
-      7,
-      8,
-      9,
-      10,
-      11,
-      13,
-      15
-    ],
+    "completed": [2, 12, 14, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27],
+    "pending": [1, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 15],
     "note": "Tasks 14/27 done. Remaining: 13 pending"
   }
 }
