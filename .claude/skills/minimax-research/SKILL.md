@@ -55,8 +55,8 @@ bash scripts/cursor-loop-research-minimax.sh "<query>"
 **Fluxo de secrets (.env canonical):**
 1. `cursor-loop-research-minimax.sh` sourceia `.env` na mesma directoria
 2. `.env` é a fonte canónica — segredos são sync'd from Infisical by external process
-3. Fallback: REST API do Infisical via service token (`/srv/ops/secrets/infisical.service-token`) **only if** `MINIMAX_API_KEY` not in `.env`
-4. Se nem `.env` nem Infisical tiverem a key → erro com hint
+3. Se `MINIMAX_API_KEY` not in `.env` → erro com hint para configurar
+4. **NUNCA usar Infisical SDK diretamente em scripts**
 
 **NUNCA usar Infisical SDK directly in scripts.** Usar o padrão `.env canonical`.
 

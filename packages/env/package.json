@@ -7,7 +7,6 @@
     ".": "./src/index.ts"
   },
   "dependencies": {
-    "@infisical/sdk": "^3.5.0",
     "zod": "^3.23.0",
     "dotenv": "^16.4.0"
   }

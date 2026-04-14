@@ -37,12 +37,14 @@ Antes de qualquer ação neste repositório, TODO LLM **DEVE** ler:
 ### TL;DR (para LLMs com pressa)
 
 ```
-SEcrets → Infisical SDK APENAS — sem alucinação
+SEcrets → .env como fonte canónica — Infisical SDK só em scripts de infra
 Immutable/Pinned Services → NUNCA tocar
 Audio Stack (SPEC-009) → só Kokoro:TTS Bridge:wav2vec2:MiniMax-M2.7
 Anti-patterns (AP-1/2/3) → Docker TCP bridge, host-as-backend, localhost testing
 Não sabe? → PERGUNTE ANTES DE FAZER
 Hardcoded Values → USAR VARIÁVEIS DE AMBIENTE — nunca hardcodar URLs, IPs, portas, tokens
+
+ANTES DE QUALQUER AÇÃO: verificar .env → .claude/skills/ → AGENTS.md → .claude/CLAUDE.md
 ```
 
 **Sem ler estes documentos, não faça NADA.**

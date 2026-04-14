@@ -38,11 +38,10 @@ Recommendation: Implement token refresh mechanism
 
 ## Variaveis de ambiente
 
-O script usa Infisical automaticamente. Para debug local:
+O script sourceia `.env` na mesma directoria. Secrets syncados do Infisical para .env.
 
 | Variavel | Descricao |
 |----------|-----------|
-| `MINIMAX_API_KEY` | Override: usa este token em vez de buscar no vault |
-| `INFISICAL_TOKEN` | Override: usa este token Infisical em vez do service-token |
+| `MINIMAX_API_KEY` | Token da API MiniMax (synced from Infisical) |
 
-**Nota:** Em producao, o script usa `infisical.service-token` em `/srv/ops/secrets/`.
+**Nota:** Se `MINIMAX_API_KEY` não estiver em `.env`, o script retorna erro com hint.

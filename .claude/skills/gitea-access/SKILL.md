@@ -18,16 +18,14 @@ description: Gitea API integration for Claude Code — list repos, trigger workf
 - `GITEA_RUNNER_REGISTRATION_TOKEN` já existe em Infisical
 - Não funciona para API normal — só para registo de runners
 
-### 2. Guardar Token em Infisical
+### 2. Guardar Token no .env
 
 ```bash
-# No teu terminal local, com acesso ao vault:
-infisical secrets set gitea-access-token --value="your-token-here"
+# Adicionar ao .env (synced from Infisical to .env)
+GITEA_ACCESS_TOKEN=your-token-here
 ```
 
-**Project ID Infisical:** `e42657ef-98b2-4b9c-9a04-46c093bd6d37`
-**Environment:** `dev`
-**Secret path:** `/`
+**Nota:** O token e synced from Infisical para `.env` via external sync process.
 
 ### 3. Configurar no Claude Code
 
