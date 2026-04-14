@@ -47,7 +47,7 @@ O Qdrant está a ouvir dentro da network Docker, não no host.
 ### 2. API Key Errada no .env
 ```
 .env: QDRANT_API_KEY = 71cae77676e2a5fd552d172caa1c3200  ← ERRADO
-Container: QDRANT__SERVICE__API_KEY = vmEbyCYrU68bR7lkzCbL05Ey4BPnTZgr  ← CORRETO
+Container: QDRANT__SERVICE__API_KEY = [REDACTED-QDRANT-API-KEY]  ← CORRETO
 ```
 
 ### 3. Processo Nativo Competindo
@@ -66,7 +66,7 @@ Há um processo Qdrant nativo (PID 12200) a correr diretamente nos ports 6333/63
 | REST API | 10.0.4.3:6333 (network `c95x9bgnhpedt0zp7dfsims7`) |
 | REST API | 10.0.19.2:6333 (network `qgtzrmi6771lt8l7x8rqx72f`) |
 | gRPC | 6334 (interno) |
-| API Key | `vmEbyCYrU68bR7lkzCbL05Ey4BPnTZgr` |
+| API Key | `[REDACTED-QDRANT-API-KEY]` |
 | Health | `/healthz` é público (não requer auth) |
 
 ### Qdrant Nativo (Host)
@@ -81,7 +81,7 @@ Há um processo Qdrant nativo (PID 12200) a correr diretamente nos ports 6333/63
 
 ## Collections Presentes
 
-Com API key correta (`vmEbyCYrU68bR7lkzCbL05Ey4BPnTZgr`):
+Com API key correta (`[REDACTED-QDRANT-API-KEY]`):
 - `knowledge`
 - `campaigns`
 - `clients`
@@ -131,7 +131,7 @@ docker network connect monitoring_monitoring qdrant-c95x9bgnhpedt0zp7dfsims7
 
 ## Ações Imediatas
 
-- [ ] Corrigir `QDRANT_API_KEY` no `.env` para `vmEbyCYrU68bR7lkzCbL05Ey4BPnTZgr`
+- [ ] Corrigir `QDRANT_API_KEY` no `.env` para `[REDACTED-QDRANT-API-KEY]`
 - [ ] Decidir: manter processo nativo OU container Docker (evitar conflito)
 - [ ] Mapear portas do container OU usar health check interno
 - [ ] Atualizar PORTS.md com IPs e networks corretos
@@ -143,7 +143,7 @@ docker network connect monitoring_monitoring qdrant-c95x9bgnhpedt0zp7dfsims7
 
 | Ficheiro | Modificação |
 |----------|-------------|
-| `/srv/monorepo/.env` | `QDRANT_API_KEY=vmEbyCYrU68bR7lkzCbL05Ey4BPnTZgr` |
+| `/srv/monorepo/.env` | `QDRANT_API_KEY=[REDACTED-QDRANT-API-KEY]` |
 | `/srv/monorepo/.claude/skills/coolify-sre/scripts/sre-monitor.sh` | Mudar health check para IP interno |
 | `/srv/ops/ai-governance/PORTS.md` | Documentar IPs e networks |
 | `/srv/monorepo/docs/INFRASTRUCTURE/NETWORK_MAP.md` | Atualizar Qdrant network info |

@@ -8,7 +8,7 @@ set -euo pipefail
 
 COOLIFY_URL="${COOLIFY_URL:-http://localhost:8000}"
 COOLIFY_API_KEY=""
-INFISICAL_PROJECT_ID="e42657ef-98b2-4b9c-9a04-46c093bd6d37"
+INFISICAL_PROJECT_ID="${INFISICAL_PROJECT_ID:-e42657ef-98b2-4b9c-9a04-46c093bd6d37}"
 INFISICAL_ENV="dev"
 INFISICAL_TOKEN_PATH="/srv/ops/secrets/infisical.service-token"
 

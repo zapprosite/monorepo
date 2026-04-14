@@ -29,8 +29,8 @@ O codebase contém múltiplos pontos de acesso a secrets:
 
 ### Policy Existente (SPEC-001)
 
-> "**Zero tolerance for secrets in code** — Use Infisical only"
-> "**Infisical SDK mandatory** — No os.getenv, use Infisical SDK for secret retrieval"
+> "**Zero tolerance for secrets in code** — Use .env as canonical source"
+> "**Infisical SDK FORBIDDEN** — No direct SDK calls in code, use .env after Infisical sync"
 > "Duplicates detected = automatic rejection"
 
 ### Gap
@@ -45,26 +45,33 @@ A policy existe mas **não há mecanismo de enforcement**. O código continua co
 
 ## Technical Approach
 
-### Padrão Canonical: Infisical SDK Pattern
+### Padrão Canonical: .env Pattern
 
-Todo código que necessita de secrets deve usar:
+Todo código que necessita de secrets deve usar .env como fonte canónica:
 
-```python
-# ✅ CORRETO — Infisical SDK
-from infisical import InfisicalClient
+```bash
+# ✅ CORRETO — Scripts: source .env e ler de env vars
+source .env
+API_KEY="$INFISICAL_SERVICE_API_KEY"  # ou diretamente a var synced
 
-client = InfisicalClient()  # auto-discovers from env/config
+# ✅ CORRETO — Python: ler de os.environ ( após sync )
+import os
+API_KEY = os.environ.get("SERVICE_API_KEY")  # synced from Infisical to .env
+
+# ✅ CORRETO — TypeScript/Node: process.env
+const apiKey = process.env.SERVICE_API_KEY;  // synced from Infisical to .env
+
+# ❌ PROIBIDO — Infisical SDK diretamente em código
+from infisical import InfisicalClient  # NUNCA em scripts/apps
+client = InfisicalClient()
 secret = client.get_secret("SERVICE_API_KEY")
-value = secret.secret_value
-
-# ✅ CORRETO — env var que aponta para Infisical (não secret hardcoded)
-API_KEY = os.getenv("INFISICAL_SERVICE_API_KEY")  # value = ref to vault
 
 # ❌ PROIBIDO — hardcoded secret
 API_KEY = "ghp_EXAMPLE_TOKEN_REPLACE_WITH_REAL_VALUE"
 
-# ❌ PROIBIDO — os.getenv sem vault reference
-API_KEY = os.getenv("GITHUB_TOKEN")  # sem guarantee que vem do vault
+# ❌ PROIBIDO — ler secrets.env diretamente
+with open("~/.zappro/config/secrets.env") as f:
+    token = f.read().strip()
 ```
 
 ### Arquitetura de Acesso
@@ -89,13 +96,13 @@ API_KEY = os.getenv("GITHUB_TOKEN")  # sem guarantee que vem do vault
 
 | Tipo | Exemplo | Status |
 |------|---------|--------|
-| **Vault reference** | `INFISICAL_TOKEN=auto` | ✅ Permitido |
+| **.env var (synced)** | `API_KEY=sk-123...` (em .env) | ✅ Permitido |
 | **Config local** | `OLLAMA_BASE_URL=http://localhost:11434` | ✅ Permitido |
 | **Non-secret flags** | `NODE_ENV=production` | ✅ Permitido |
-| **Infisical client creds** | `INFISICAL_CLIENT_ID=...` | ✅ Permitido |
-| **Hardcoded secret** | `API_KEY=sk-123...` | ❌ Proibido |
-| **os.getenv sem vault** | `GITHUB_TOKEN=x` | ❌ Proibido |
-| **Plain text credentials** | `secrets.env` com tokens | ❌ Proibido |
+| **source .env** | `source .env && echo $VAR` | ✅ Permitido (scripts) |
+| **Hardcoded secret** | `API_KEY="sk-123..."` no código | ❌ Proibido |
+| **Infisical SDK** | `InfisicalClient()` em código | ❌ Proibido |
+| **Direct secrets.env** | `open("secrets.env")` | ❌ Proibido |
 
 ### Exceções Controladas
 
