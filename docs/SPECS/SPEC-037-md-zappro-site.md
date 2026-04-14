@@ -1,7 +1,7 @@
 ---
 name: SPEC-037-md-zappro-site
 description: Obsidian vault UI accessible via Google OAuth
-status: PROPOSED
+status: IMPLEMENTED
 priority: high
 author: will-zappro
 date: 2026-04-13
