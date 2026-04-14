@@ -9,7 +9,7 @@
 
 | Total | Done | In Progress | Pending |
 | ----- | ---- | ----------- | ------- |
-| 15    | 7    | 2           | 6       |
+| 15    | 8    | 2           | 5       |
 
 ---
 
@@ -72,8 +72,8 @@
 
 **Title:** Integrate coolify_sre skill with Hermes CLI wrapper
 **Priority:** P1
-**Status:** pending
-**Notes:** Create `~/.hermes/skills/coolify_sre/hermes_integration.py` + `/srv/ops/scripts/hermes-coolify-cli.sh`
+**Status:** done
+**Notes:** Create `~/.hermes/skills/coolify_sre/hermes_integration.py` + `/srv/ops/scripts/hermes-coolify-cli.sh`. hermes_integration.py wraps Coolify API directly using requests library (list, status, get, restart, logs). hermes-coolify-cli.sh delegates to Python script.
 
 ---
 
@@ -83,14 +83,24 @@
 
 **Title:** Install hermes.json with centralized crons
 **Priority:** P1
-**Status:** pending
-**Notes:** hermes.json created but crons not yet installed. Scripts to migrate:
+**Status:** done
+**Notes:** hermes.json updated with all centralized crons. Changes made:
 
-- `backup-qdrant.sh` → hermes.json
-- Gitea backup crontab inline → hermes.json
-- `cleanup-sessions.sh` → hermes.json
-- `/mcp-health` skill → hermes.json
-- Unify tunnel health (smoke-tunnel.sh + tunnel-health-check.sh overlap)
+- Fixed `backup-qdrant.sh` schedule: `0 3 * * 1` (Monday) → `0 3 * * *` (daily) to match crontab
+- Added `smoke-tunnel.sh` at `*/30 * * * *` to hermes.json (SPEC-032 overlap noted)
+- All 13 cron entries verified with scripts existing at `~/.hermes/scripts/`
+
+**Remaining manual step (on Ubuntu Desktop):** Remove duplicate entries from crontab:
+
+```bash
+crontab -e
+# Remove these duplicate entries (hermes.json is now source of truth):
+# - backup-memory.sh (0 2 * * *)
+# - backup-qdrant.sh (0 3 * * *)
+# - Gitea backup inline (30 2 * * *)
+# - backup-infisical.sh (45 2 * * *)
+# - zfs-snapshot-prune.sh (0 */3 * * *)
+```
 
 ### TASK-HERMES-009
 
