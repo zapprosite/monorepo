@@ -1,7 +1,7 @@
 # Backup Runbook — will-zappro Homelab
 
 **Host:** will-zappro
-**Last Updated:** 2026-04-14
+**Last Updated:** 2026-04-14 (revised)
 **Review Cycle:** Monthly
 
 ---
@@ -26,14 +26,17 @@ Scrub:    Sun Apr 12 20:31:48 2026 — 0 errors
 |---------|------------|------|---------|
 | `tank` | /tank | 24K | Pool root |
 | `tank/backups` | /srv/backups | 268M | Backup archives |
-| `tank/coolify` | /srv/data/coolify | 153K | Coolify PaaS |
-| `tank/data` | /tank/data | 24K | Data container |
+| `tank/coolify` | /srv/data/coolify | 194K | Coolify PaaS |
+| `tank/data` | /tank/data | 170K | Data container (see below) |
 | `tank/data/openclaw` | /srv/data/openclaw | 118K | OpenClaw Bot |
+| `tank/data/openclaw/data` | /srv/data/openclaw/data | 24K | OpenClaw data |
 | `tank/data/zappro-router` | /srv/data/zappro-router | 27K | Aurelia Router |
 | `tank/docker-data` | /srv/docker-data | 24.9G | Docker images/layers |
 | `tank/models` | /srv/models | 38.6G | AI models (Ollama) |
-| `tank/monorepo` | /srv/monorepo | 4.59G | Application code |
+| `tank/monorepo` | /srv/monorepo | 4.60G | Application code |
 | `tank/qdrant` | /srv/data/qdrant | 208M | Vector database |
+
+> **Note:** The following datasets were listed in previous versions but do NOT exist: `tank/data/n8n`, `tank/data/n8n-postgres`, `tank/data/grafana`, `tank/data/prometheus`, `tank/data/infisical-db`, `tank/data/infisical-redis`. Services like n8n, Grafana, Prometheus, and Infisical are running as Docker containers but their data resides under `tank/docker-data` or container-named datasets, not under `tank/data/`.
 
 ---
 
@@ -49,19 +52,22 @@ Scrub:    Sun Apr 12 20:31:48 2026 — 0 errors
 
 ### Retention Policy
 
-| Backup Type | Frequency | Retention | Location |
-|-------------|------------|-----------|----------|
-| ZFS Snapshots | Every 6h | 7 daily, 4 weekly, 6 monthly | tank |
-| PostgreSQL dumps | Daily | 7 versions | /srv/backups/postgres |
-| Qdrant archives | Daily | 7 versions | /srv/backups/qdrant |
-| n8n archives | Daily | 7 versions | /srv/backups/n8n |
-| Gitea dumps | Daily | 7 versions | /srv/backups |
-| Cloudflared credentials | Every 6h | 30 days | /srv/backups/cloudflared |
-| Terraform state | Every 6h | 30 days | /srv/backups/terraform |
-| .env secrets | Every 6h | 30 days | /srv/backups/env-secrets |
-| Systemd services | Every 6h | 30 days | /srv/backups/systemd |
-| Obsidian vault | Every 10min | Git remote | GitHub |
-| Memory-keeper DB | Periodic | 7 versions | /srv/backups/memory-keeper |
+| Backup Type | Frequency | Retention | Location | Status |
+|-------------|------------|-----------|----------|--------|
+| ZFS Snapshots | Every 6h | 7 daily, 4 weekly, 6 monthly | tank | OK |
+| PostgreSQL dumps | Daily (cron missing) | 7 versions | /srv/backups/postgres | ⚠️ No cron |
+| Qdrant archives | Daily 03:00 | 7 versions | /srv/backups/qdrant | OK |
+| n8n archives | Daily (cron missing) | 7 versions | /srv/backups/n8n | ⚠️ No cron |
+| Gitea dumps | Daily 02:30 | 7 versions | /srv/backups | OK |
+| Infisical DB dumps | Daily 02:45 | 7 versions | /srv/backups | ❌ Broken (0 bytes) |
+| Cloudflared credentials | Every 6h | 30 days | /srv/backups/cloudflared | OK |
+| Terraform state | Every 6h | 30 days | /srv/backups/terraform | OK |
+| .env secrets | Every 6h | 30 days | /srv/backups/env-secrets | OK |
+| Systemd services | Every 6h | 30 days | /srv/backups/systemd | OK |
+| Obsidian vault | Every 10min | Git remote | GitHub | OK |
+| Memory-keeper DB | Daily 02:00 | 7 versions | /srv/backups/memory-keeper | OK |
+
+> **Action Required:** `backup-postgres.sh` and `backup-n8n.sh` have no cron entries. Add cron schedules. Infisical DB backup produces 0-byte files (docker exec may be failing).
 
 ---
 
@@ -74,20 +80,16 @@ All scripts located in `/srv/ops/scripts/`.
 **Script:** `/srv/ops/scripts/backup-zfs-snapshot.sh`
 **Frequency:** Every 6 hours via systemd timer
 **Datasets snapshotted:**
-- tank/data/n8n
-- tank/data/n8n-postgres
-- tank/data/qdrant
-- tank/data/grafana
-- tank/data/prometheus
-- tank/data/infisical-db
-- tank/data/infisical-redis
-- tank/data/coolify
+- tank/coolify
 - tank/data/openclaw
-- tank/data/aurelia-router
+- tank/data/zappro-router
 - tank/docker-data
 - tank/monorepo
 - tank/models
+- tank/qdrant
 - tank/backups
+
+> **Historical Note:** The following datasets were previously snapshotted but NO LONGER EXIST: `tank/data/n8n`, `tank/data/n8n-postgres`, `tank/data/grafana`, `tank/data/prometheus`, `tank/data/infisical-db`, `tank/data/infisical-redis`.
 
 **Snapshot naming:** `tank@backup-dataset-YYYYMMDD-HHMMSS`
 **Scrub:** Sundays at 00:00
@@ -192,7 +194,7 @@ docker compose -f /srv/apps/platform/docker-compose.yml up -d
 
 # 5. Verify
 docker ps
-curl http://localhost:6333/health
+docker exec qdrant curl -s http://localhost:6333/health
 ```
 
 ### 5.2 Restore PostgreSQL
@@ -255,9 +257,11 @@ docker compose -f /srv/apps/platform/docker-compose.yml up -d qdrant
 
 # 8. Verify
 sleep 5
-curl http://localhost:6333/health
-curl http://localhost:6333/collections
+docker exec qdrant curl -s http://localhost:6333/health
+docker exec qdrant curl -s http://localhost:6333/collections
 ```
+
+> **Note:** Qdrant runs inside Docker network. Use `docker exec qdrant curl localhost:6333/...` instead of `curl localhost:6333/...` from the host.
 
 ### 5.4 Restore n8n
 
