@@ -4,24 +4,24 @@
       "id": 1,
       "title": "SPEC-032: cron smoke-tunnel every 30min",
       "description": "Add cron job: */30 * * * * /srv/ops/scripts/smoke-tunnel.sh \u2192 Gotify alert if DOWN \u2192 log /srv/ops/logs/tunnel-health.log",
-      "status": "pending",
+      "status": "done",
       "priority": "high",
       "dependencies": [],
       "subtasks": [
         {
           "id": "1.1",
           "title": "Add cron entry: */30 * * * *",
-          "status": "pending"
+          "status": "done"
         },
         {
           "id": "1.2",
           "title": "Ensure /srv/ops/logs/ directory exists",
-          "status": "pending"
+          "status": "done"
         },
         {
           "id": "1.3",
           "title": "DOWN result triggers gotify-alert.sh",
-          "status": "pending"
+          "status": "done"
         }
       ],
       "acceptanceCriteria": [
@@ -75,34 +75,34 @@
       "id": 3,
       "title": "SPEC-032: tunnel-autoheal.sh \u2014 auto-heal cloudflared",
       "description": "If cloudflared status != active \u2192 ZFS snapshot \u2192 systemctl restart. If 0 ingress rules \u2192 alert immediately via Gotify",
-      "status": "pending",
+      "status": "done",
       "priority": "critical",
       "dependencies": [],
       "subtasks": [
         {
           "id": "3.1",
           "title": "Create tunnel-autoheal.sh",
-          "status": "pending"
+          "status": "done"
         },
         {
           "id": "3.2",
           "title": "Check cloudflared service status",
-          "status": "pending"
+          "status": "done"
         },
         {
           "id": "3.3",
           "title": "ZFS snapshot before restart (rpool/srv)",
-          "status": "pending"
+          "status": "done"
         },
         {
           "id": "3.4",
           "title": "systemctl restart cloudflared if down",
-          "status": "pending"
+          "status": "done"
         },
         {
           "id": "3.5",
           "title": "Alert via Gotify if 0 ingress rules active",
-          "status": "pending"
+          "status": "done"
         }
       ],
       "acceptanceCriteria": [
@@ -436,29 +436,29 @@
       "id": 13,
       "title": "SPEC-040: AlertManager severity routing + Gotify receiver",
       "description": "Fix AlertManager: currently all alerts route to single webhook. Add severity-based routing: critical\u2192Telegram P1, warning\u2192Telegram P2, info\u2192Gotify, debug\u2192Grafana only",
-      "status": "pending",
+      "status": "done",
       "priority": "high",
       "dependencies": [],
       "subtasks": [
         {
           "id": "13.1",
           "title": "Add severity routing to alertmanager.yml",
-          "status": "pending"
+          "status": "done"
         },
         {
           "id": "13.2",
           "title": "Add Gotify receiver configuration",
-          "status": "pending"
+          "status": "done"
         },
         {
           "id": "13.3",
           "title": "Configure Telegram P1/P2 channels",
-          "status": "pending"
+          "status": "done"
         },
         {
           "id": "13.4",
           "title": "Test alert routing by severity",
-          "status": "pending"
+          "status": "done"
         }
       ],
       "acceptanceCriteria": [
