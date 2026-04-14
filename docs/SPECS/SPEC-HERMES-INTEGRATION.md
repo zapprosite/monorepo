@@ -12,13 +12,18 @@
 
 Hermes Agent is now running as the central AI gateway for the homelab. This document defines integration patterns for other services to consume LLM capabilities through Hermes instead of calling providers directly.
 
-**Current Status (2026-04-14 10:xx UTC):**
-- Hermes Gateway: RUNNING on `localhost:8642`
-- Health: `{"status":"ok","platform":"hermes-agent"}`
+**Current Status (2026-04-14 14:56 UTC) — VERIFIED:**
+
+- Hermes Gateway: RUNNING on `localhost:8642` (PID 3265372)
+- Health: `{"status":"ok","platform":"hermes-agent"}` (local and remote verified)
+- hermes.zappro.site: ✅ 200 OK (Cloudflare tunnel working)
 - API: OpenAI-compatible `/v1/chat/completions` + `/v1/models`
 - Primary LLM: MiniMax/MiniMax-M2.7
 - Fallback LLM: Ollama/qwen2.5vl:7b (local RTX 4090)
-- Telegram: Connected (polling mode)
+- Telegram: ✅ Connected (polling mode)
+  - Bot: @CEO_REFRIMIX_bot (verified via getMe)
+  - Registered DM: William Rodrigues (ID: 7220607041)
+  - bot.zappro.site: ❌ 530 (degraded — OpenClaw legacy)
 
 ---
 
@@ -62,11 +67,11 @@ Hermes Agent is now running as the central AI gateway for the homelab. This docu
 
 ### 2.1 Endpoints
 
-| Endpoint | Method | Auth | Description |
-|----------|--------|------|-------------|
-| `/health` | GET | None | Health check |
-| `/v1/models` | GET | Bearer | List available models |
-| `/v1/chat/completions` | POST | Bearer | OpenAI-compatible chat completions |
+| Endpoint               | Method | Auth   | Description                        |
+| ---------------------- | ------ | ------ | ---------------------------------- |
+| `/health`              | GET    | None   | Health check                       |
+| `/v1/models`           | GET    | Bearer | List available models              |
+| `/v1/chat/completions` | POST   | Bearer | OpenAI-compatible chat completions |
 
 ### 2.2 Authentication
 
@@ -89,16 +94,19 @@ curl -X POST http://localhost:8642/v1/chat/completions \
 ```
 
 **Response:**
+
 ```json
 {
   "id": "chatcmpl-xxxxx",
   "object": "chat.completion",
   "model": "hermes-agent",
-  "choices": [{
-    "message": {"role": "assistant", "content": "Hi! How can I help you?"},
-    "finish_reason": "stop"
-  }],
-  "usage": {"prompt_tokens": 12, "completion_tokens": 44, "total_tokens": 56}
+  "choices": [
+    {
+      "message": { "role": "assistant", "content": "Hi! How can I help you?" },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": { "prompt_tokens": 12, "completion_tokens": 44, "total_tokens": 56 }
 }
 ```
 
@@ -110,10 +118,11 @@ curl http://localhost:8642/v1/models \
 ```
 
 **Response:**
+
 ```json
 {
   "object": "list",
-  "data": [{"id": "hermes-agent", "object": "model", "owned_by": "hermes"}]
+  "data": [{ "id": "hermes-agent", "object": "model", "owned_by": "hermes" }]
 }
 ```
 
@@ -135,13 +144,13 @@ async function chat(prompt: string): Promise<string> {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${HERMES_API_KEY}`
+      Authorization: `Bearer ${HERMES_API_KEY}`,
     },
     body: JSON.stringify({
       model: 'hermes-agent',
       messages: [{ role: 'user', content: prompt }],
-      max_tokens: 1000
-    })
+      max_tokens: 1000,
+    }),
   });
   const data = await response.json();
   return data.choices[0].message.content;
@@ -149,6 +158,7 @@ async function chat(prompt: string): Promise<string> {
 ```
 
 **Environment Variables:**
+
 ```env
 HERMES_GATEWAY_URL=http://localhost:8642
 HERMES_API_KEY=<from ~/.hermes/secrets.env>
@@ -163,13 +173,13 @@ import OpenAI from 'openai';
 
 const client = new OpenAI({
   apiKey: process.env.HERMES_API_KEY,
-  baseURL: `${process.env.HERMES_GATEWAY_URL}/v1`
+  baseURL: `${process.env.HERMES_GATEWAY_URL}/v1`,
 });
 
 // Use exactly as OpenAI API
 const completion = await client.chat.completions.create({
   model: 'hermes-agent',
-  messages: [{ role: 'user', content: 'Hello' }]
+  messages: [{ role: 'user', content: 'Hello' }],
 });
 ```
 
@@ -184,6 +194,7 @@ hermes mcp call <tool> <args> # Call a specific tool
 ```
 
 **Available MCP Skills (sample):**
+
 - `coolify_sre` - Coolify SRE monitoring
 - `perplexity_browser` - Web browsing via Perplexity
 - `github/*` - GitHub operations
@@ -201,12 +212,12 @@ User Voice → Telegram → wav2vec2 STT (:8202) → Hermes → Kokoro TTS (:801
 // Voice-enabled bot integration
 const voiceResponse = await fetch(`${HERMES_URL}/v1/chat/completions`, {
   method: 'POST',
-  headers: { 'Authorization': `Bearer ${HERMES_API_KEY}` },
+  headers: { Authorization: `Bearer ${HERMES_API_KEY}` },
   body: JSON.stringify({
     model: 'hermes-agent',
     messages: [{ role: 'user', content: audioTranscript }],
     // TTS auto-rendered via Kokoro if voice output requested
-  })
+  }),
 });
 ```
 
@@ -219,13 +230,14 @@ const voiceResponse = await fetch(`${HERMES_URL}/v1/chat/completions`, {
 **Services calling LLM APIs directly:** NONE
 **Services referencing LLM URLs:** 1 file
 
-| File | Type | Usage |
-|------|------|-------|
+| File                     | Type                | Usage                                                                  |
+| ------------------------ | ------------------- | ---------------------------------------------------------------------- |
 | `apps/list-web/tools.js` | URL references only | Defines `LITELLM_URL`, `HERMES_GATEWAY_URL`, `OLLAMA_URL` for UI links |
 
 ### 4.2 Conclusion
 
 The monorepo currently does NOT have services that call LLM APIs directly with API keys. All AI capabilities are accessed via:
+
 1. LiteLLM Proxy (port 4000) for OpenWebUI and other apps
 2. Hermes Gateway (port 8642) for Telegram bot and voice pipeline
 3. Direct Ollama (port 11434) for local models
@@ -236,22 +248,23 @@ The monorepo currently does NOT have services that call LLM APIs directly with A
 
 ### 5.1 Current State
 
-| Subdomain | Target | Status |
-|-----------|--------|--------|
-| `bot.zappro.site` | `10.0.19.7:8080` (OpenClaw) | OFFLINE - 502 |
-| `hermes.zappro.site` | `10.0.5.2:8642` (Hermes) | Tunnel configured, needs validation |
+| Subdomain            | Target                      | Status                              |
+| -------------------- | --------------------------- | ----------------------------------- |
+| `bot.zappro.site`    | `10.0.19.7:8080` (OpenClaw) | OFFLINE - 502                       |
+| `hermes.zappro.site` | `10.0.5.2:8642` (Hermes)    | ✅ Tunnel verified working (200 OK) |
 
 ### 5.2 Should hermes.zappro.site Replace bot.zappro.site?
 
 **Recommendation: YES, with a phased approach**
 
-| Phase | Action | Rationale |
-|-------|--------|-----------|
-| Phase 1 | Keep both subdomains | bot.zappro.site returns 502, hermes.zappro.site becomes primary |
-| Phase 2 | Update clients to use hermes.zappro.site | Migrate Telegram bot to hermes.zappro.site |
-| Phase 3 | Deprecate bot.zappro.site | Remove from tunnel, return 404 |
+| Phase   | Action                                   | Rationale                                                       |
+| ------- | ---------------------------------------- | --------------------------------------------------------------- |
+| Phase 1 | Keep both subdomains                     | bot.zappro.site returns 502, hermes.zappro.site becomes primary |
+| Phase 2 | Update clients to use hermes.zappro.site | Migrate Telegram bot to hermes.zappro.site                      |
+| Phase 3 | Deprecate bot.zappro.site                | Remove from tunnel, return 404                                  |
 
 **Rationale:**
+
 1. Hermes Gateway provides OpenAI-compatible API + Telegram + Voice Pipeline
 2. Single endpoint for all AI capabilities
 3. Hermes has built-in fallback to Ollama (local RTX 4090)
@@ -260,11 +273,11 @@ The monorepo currently does NOT have services that call LLM APIs directly with A
 
 ### 5.3 Hermes Gateway Limitations
 
-| Limitation | Impact | Mitigation |
-|------------|--------|------------|
-| `hermes mcp serve` exits after each request | Cannot serve as persistent MCP server | Use Hermes Gateway API directly |
-| Single model (`hermes-agent`) in /v1/models | No model selection per request | Configured at startup, fallback automatic |
-| No streaming support (presumed) | Real-time apps may be affected | Test with streaming requests |
+| Limitation                                  | Impact                                | Mitigation                                |
+| ------------------------------------------- | ------------------------------------- | ----------------------------------------- |
+| `hermes mcp serve` exits after each request | Cannot serve as persistent MCP server | Use Hermes Gateway API directly           |
+| Single model (`hermes-agent`) in /v1/models | No model selection per request        | Configured at startup, fallback automatic |
+| No streaming support (presumed)             | Real-time apps may be affected        | Test with streaming requests              |
 
 ---
 
@@ -272,20 +285,20 @@ The monorepo currently does NOT have services that call LLM APIs directly with A
 
 ### 6.1 Priority Integration Candidates
 
-| Service | Current LLM Method | Recommended Hermes Integration |
-|---------|-------------------|-------------------------------|
-| **Claude Code agents** | Direct API calls | Use Hermes for non-critical tasks, preserve MiniMax quota |
-| **Voice Pipeline** | Direct Kokoro/wav2vec2 | Already integrated via Hermes Gateway |
-| **n8n workflows** | LiteLLM or direct | Add Hermes as additional LLM provider |
-| **OpenWebUI (chat.zappro.site)** | LiteLLM proxy | Keep LiteLLM, use Hermes for specific skills |
+| Service                          | Current LLM Method     | Recommended Hermes Integration                            |
+| -------------------------------- | ---------------------- | --------------------------------------------------------- |
+| **Claude Code agents**           | Direct API calls       | Use Hermes for non-critical tasks, preserve MiniMax quota |
+| **Voice Pipeline**               | Direct Kokoro/wav2vec2 | Already integrated via Hermes Gateway                     |
+| **n8n workflows**                | LiteLLM or direct      | Add Hermes as additional LLM provider                     |
+| **OpenWebUI (chat.zappro.site)** | LiteLLM proxy          | Keep LiteLLM, use Hermes for specific skills              |
 
 ### 6.2 NOT Recommended for Hermes Integration
 
-| Service | Reason |
-|---------|--------|
-| **OpenWebUI** | Already has direct LiteLLM integration with model selection UI |
-| **Gitea AI features** | May require specific model support |
-| **Prometheus AlertManager** | Uses fixed alert templates, not LLM |
+| Service                     | Reason                                                         |
+| --------------------------- | -------------------------------------------------------------- |
+| **OpenWebUI**               | Already has direct LiteLLM integration with model selection UI |
+| **Gitea AI features**       | May require specific model support                             |
+| **Prometheus AlertManager** | Uses fixed alert templates, not LLM                            |
 
 ---
 
@@ -338,12 +351,12 @@ async function isHermesHealthy(): Promise<boolean> {
 
 ## 9. Security Considerations
 
-| Concern | Mitigation |
-|---------|-----------|
-| Hermes API key exposure | Store in `~/.hermes/secrets.env`, not in code |
-| External access to Hermes | Cloudflare Access for hermes.zappro.site |
-| Rate limiting | Hermes handles via MiniMax quotas |
-| Audit logging | Check Hermes logs in `~/.hermes/logs/` |
+| Concern                   | Mitigation                                    |
+| ------------------------- | --------------------------------------------- |
+| Hermes API key exposure   | Store in `~/.hermes/secrets.env`, not in code |
+| External access to Hermes | Cloudflare Access for hermes.zappro.site      |
+| Rate limiting             | Hermes handles via MiniMax quotas             |
+| Audit logging             | Check Hermes logs in `~/.hermes/logs/`        |
 
 ---
 
@@ -357,12 +370,12 @@ async function isHermesHealthy(): Promise<boolean> {
 - [x] Telegram bot connected
 - [x] Voice pipeline components integrated
 
-### Phase 2: Expose hermes.zappro.site (PENDING)
+### Phase 2: Expose hermes.zappro.site (VERIFIED 2026-04-14)
 
-- [ ] Cloudflare tunnel ingress configured
-- [ ] hermes.zappro.site DNS propagated
-- [ ] External health check returns 200
-- [ ] Telegram bot functional via hermes.zappro.site
+- [x] Cloudflare tunnel ingress configured
+- [x] hermes.zappro.site DNS propagated
+- [x] External health check returns 200 ✅
+- [ ] Telegram bot functional via hermes.zappro.site (polling mode - not webhook)
 
 ### Phase 3: Deprecate bot.zappro.site (FUTURE)
 
@@ -374,21 +387,22 @@ async function isHermesHealthy(): Promise<boolean> {
 
 ## 11. References
 
-| Document | Path |
-|---------|------|
-| SPEC-038 (Hermes-Agent Migration) | `docs/SPECS/SPEC-038-hermes-agent-migration.md` |
-| SPEC-039 (Takeover Validation) | `docs/SPECS/SPEC-039-hermes-takeover-validation.md` |
-| SPEC-043 (Subdomain Prune) | `docs/SPECS/SPEC-043-subdomain-prune-hermes-migration.md` |
-| Voice Pipeline | `memory/voice-pipeline-hermes-14-04-2026.md` |
-| Hermes Config | `~/.hermes/config.yaml` |
-| Hermes Crons | `~/.hermes/hermes.json` |
+| Document                          | Path                                                      |
+| --------------------------------- | --------------------------------------------------------- |
+| SPEC-038 (Hermes-Agent Migration) | `docs/SPECS/SPEC-038-hermes-agent-migration.md`           |
+| SPEC-039 (Takeover Validation)    | `docs/SPECS/SPEC-039-hermes-takeover-validation.md`       |
+| SPEC-043 (Subdomain Prune)        | `docs/SPECS/SPEC-043-subdomain-prune-hermes-migration.md` |
+| Voice Pipeline                    | `memory/voice-pipeline-hermes-14-04-2026.md`              |
+| Hermes Config                     | `~/.hermes/config.yaml`                                   |
+| Hermes Crons                      | `~/.hermes/hermes.json`                                   |
 
 ---
 
-**Status:** Ready for implementation of Phase 2 (expose hermes.zappro.site)
+**Status:** Phase 2 complete — hermes.zappro.site verified working
 
 **Next Actions:**
-1. Verify Cloudflare tunnel ingress for hermes.zappro.site → :8642
-2. Test external health: `curl https://hermes.zappro.site/health`
-3. Update SUBDOMAINS.md with hermes.zappro.site entry
+
+1. ✅ Verify Cloudflare tunnel ingress for hermes.zappro.site → :8642
+2. ✅ Test external health: `curl https://hermes.zappro.site/health`
+3. Update SUBDOMAINS.md with hermes.zappro.site entry (Telegram bot DNS)
 4. Document HERMES_API_KEY retrieval in skills
