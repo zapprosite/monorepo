@@ -23,7 +23,6 @@
      ├── llm.zappro.site → http://localhost:4000 ─────────┤
      │     (LiteLLM, protegido por Cloudflare Access)     │
      │                                                    │
-     └── n8n.zappro.site → http://10.0.6.3:5678 ─────────┘
 
 [Host localhost]
      ├── :80   → Traefik (coolify-proxy) ← funciona localmente
@@ -38,9 +37,7 @@
 |-----------|---------|---------------|--------|
 | `bot.zappro.site` | Cloudflare → Traefik → OpenClaw | Nenhum (público) | ✅ Working |
 | `llm.zappro.site` | Cloudflare → localhost:4000 | Cloudflare Access (Google OAuth) | ✅ Working |
-| `n8n.zappro.site` | Cloudflare → Docker IP:5678 | Cloudflare Access | ✅ Working |
 | `qdrant.zappro.site` | Cloudflare → localhost:6333 | Cloudflare Access | ✅ Working |
-| `vault.zappro.site` | Cloudflare → localhost:8200 | Cloudflare Access | ✅ Working |
 
 ### O Que NÃO Funciona ❌
 
