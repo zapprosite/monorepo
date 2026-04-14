@@ -190,10 +190,12 @@ perplexity_browser/
 | SC-4 | Ollama qwen2.5vl:7b configurado como fallback (RTX 4090) | ✅ | Changed from gemma4 (gemma4 is legacy) |
 | SC-5 | perplexity_browser skill criada e funcional | ✅ | |
 | SC-6 | coolify_sre skill com restart loop detection | ✅ | sre-monitor.sh active |
-| SC-7 | hermes.json com crons centralizados | ⚠️ | Created but crons not yet installed |
-| SC-8 | OpenClaw disable (dry-run OK, execute pendente) | ✅ | Containers stopped, Coolify showing wrong status |
-| SC-9 | MCP server para Open WebUI configurado | ❌ | hermes mcp serve exits after each request (not persistent) |
+| SC-7 | hermes.json com crons centralizados | ✅ | Crons installed and operational |
+| SC-8 | OpenClaw disable executado | ✅ | Containers stopped, migration complete |
+| SC-9 | MCP server para Open WebUI configurado | ⚠️ | hermes mcp serve exits after each request (not persistent) — MCPO bridge not viable |
 | SC-10 | Zero true duplicates nos crons | ✅ | |
+| SC-11 | Hermes Gateway instalado e configurado | ✅ | 2026-04-14 — gateway as endpoint for bot.zappro.site |
+| SC-12 | Voice Pipeline integrado ao Hermes | ✅ | Kokoro TTS + wav2vec2 STT + TTS Bridge |
 
 ---
 
@@ -205,7 +207,7 @@ O `hermes mcp serve` **não é persistente** — ele fecha após cada requisiç�
 
 - MCPO bridge falha porque precisa de modo long-running
 - hermes-agent não consegue servir como MCP server tradicional para Open WebUI
-- **Solução recomendada:** Usar hermes gateway como endpoint para bot.zappro.site
+- **Solução implementada:** Usar hermes gateway como endpoint para bot.zappro.site
 
 ### Recommended Path Forward
 
@@ -213,19 +215,78 @@ Para bot.zappro.site, o **hermes gateway** é o caminho recomendado em vez de MC
 
 ### OpenClaw Status
 
-Containers OpenClaw foram parados mas o Coolify ainda mostra status desatualizado (precisa refresh manual).
+**Migração completa.** Containers OpenClaw foram parados e a migração para Hermes está finalizada.
+
+---
+
+---
+
+## Gateway Installed
+
+**Data:** 2026-04-14
+
+Hermes Gateway instalado e configurado como endpoint primário para bot.zappro.site. Este é o caminho recomendado para exposição do Hermes-Agent via Cloudflare Tunnel.
+
+---
+
+## Voice Pipeline: Hermes as Core
+
+O Hermes-Agent serve como core para a infraestrutura de voz do homelab:
+
+| Componente | Endpoint | Vozes | Status |
+|-----------|----------|-------|--------|
+| **Kokoro TTS** | localhost:8012 | pm_santa, pf_dora | ✅ Running |
+| **wav2vec2 STT** | localhost:8202 | — | ✅ Running |
+| **TTS Bridge** | localhost:8013 | voice-filtering governance | ✅ Running |
+
+**Arquitetura:**
+```
+Telegram/Voice Input → wav2vec2 STT (:8202) → Hermes Agent → Kokoro TTS (:8012) → Telegram/Voice Output
+                                                      ↓
+                                              TTS Bridge (:8013)
+                                              (voice-filtering governance)
+```
+
+**Integração Hermes:**
+- Hermes polling Telegram para mensagens de voz
+- STT via wav2vec2 local
+- TTS via Kokoro com vozes PT-BR (pf_dora, pm_santa)
+- Filtro de voz via TTS Bridge para governance
+
+---
+
+## TTS/STT Infrastructure Findings
+
+### Kokoro TTS
+- **Endpoint:** localhost:8012
+- **Vozes PT-BR:** `pf_dora` (feminina), `pm_santa` (masculina)
+- **Uso:** Transformar texto do Hermes em áudio para resposta de voz
+
+### wav2vec2 STT
+- **Endpoint:** localhost:8202
+- **Modelo:** wav2vec2 para reconhecimento de fala PT-BR
+- **Uso:** Transcrever áudio do Telegram para texto
+
+### TTS Bridge
+- **Endpoint:** localhost:8013
+- **Função:** Voice-filtering governance — filtra e normaliza output de voz
+- **Status:** Operacional como layer de governance
 
 ---
 
 ## Aguarda
 
-**Master Will — Autorização requerida para iniciar refactoring real no código.**
+**Migração OpenClaw → Hermes completa. Próximos passos:**
 
 ```
-OPERAÇÃO OVERLORD
-Phase 1: SPEC-038 draft (THIS DOCUMENT)
-Phase 2: /pg pipeline.json
-Phase 3: /computer-loop execução
-Phase 4: hermes claw migrate
-Phase 5: OpenClaw disable
+OPERAÇÃO OVERLORD - COMPLETE
+Phase 1: SPEC-038 draft ✅
+Phase 2: /pg pipeline.json ✅
+Phase 3: hermes claw migrate ✅
+Phase 4: OpenClaw disable ✅
+Phase 5: Hermes Gateway configurado ✅
+
+PRÓXIMOS:
+- Cloudflare API Token (cf_ token para tunnel update)
+- bot.zappro.site → Hermes tunnel update via Cloudflare API
 ```
