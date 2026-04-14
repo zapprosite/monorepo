@@ -1,4 +1,4 @@
-# NETWORK_MAP — Mapa de Rede do will-zappro Homelab
+# NETWORK_MAP — Mapa de Rede do Homelab
 
 > **LEITURA OBRIGATÓRIA** para qualquer agente que vá:
 >
@@ -7,7 +7,7 @@
 > - Restartar containers ou stacks
 > - Diagnosticar falhas de conectividade
 
-**Host:** will-zappro | **GPU:** RTX 4090 (24 GB VRAM) | **Driver:** NVIDIA 580.126.20
+**Host:** homelab | **GPU:** RTX 4090 (24 GB VRAM) | **Driver:** NVIDIA 580.126.20
 **Kernel:** 6.17.0-20-generic | **Última atualização:** 2026-04-13
 
 ---
@@ -24,7 +24,7 @@
         ┌────────────────────────┴────────────────────────┐
         │         Cloudflare Zero Trust Tunnel              │
         │  ID: aee7a93d-c2e2-4c77-a395-71edc1821402       │
-        │  Nome: will-zappro-homelab                        │
+        │  Nome: homelab-tunnel                        │
         │  CNAME: aee7a93d-...cfargotunnel.com             │
         └────────────────────────┬────────────────────────┘
                                  │
@@ -52,7 +52,7 @@
                                  │
                                  ▼
                  ┌──────────────────────────────┐
-                 │       HOST: will-zappro        │
+                 │       HOST: homelab        │
                  │  127.0.0.1 + 192.168.15.83   │
                  └──────────────────────────────┘
                           │            │
@@ -74,7 +74,7 @@
   │ :2222  GiteaSSH │                     │    → litellm-db:5432│
   └─────────────────┘                     └─────────────────────┘
 
-    Tailscale VPN: 100.83.45.79 (will-zappro.tailnet)
+    Tailscale VPN: 100.83.45.79 (homelab.tailnet)
     └─ Acesso direto a todos os serviços acima (mesmo sem Cloudflare)
 ```
 
@@ -88,19 +88,19 @@
 
 | Subdomínio            | Target (localhost) | Access Policy             | Status             | VRAM |
 | --------------------- | ------------------ | ------------------------- | ------------------ | ---- |
-| `api.zappro.site`     | `:4000`            | zappro.ia@gmail.com       | ✅ UP              | —    |
-| `chat.zappro.site`    | `:8080` (Coolify)  | zappro.ia@gmail.com       | ✅ UP (Open WebUI) | —    |
-| `coolify.zappro.site` | `:8000`            | zappro.ia@gmail.com       | ✅ UP              | —    |
-| `git.zappro.site`     | `:3300`            | zappro.ia@gmail.com       | ✅ UP              | —    |
-| `hermes.zappro.site`  | `:8642`            | zappro.ia@gmail.com       | ✅ UP              | —    |
-| `llm.zappro.site`     | `:4000`            | zappro.ia@gmail.com       | ✅ UP              | —    |
+| `api.zappro.site`     | `:4000`            | —                         | ✅ UP              | —    |
+| `chat.zappro.site`    | `:8080` (Coolify)  | —                         | ✅ UP (Open WebUI) | —    |
+| `coolify.zappro.site` | `:8000`            | —                         | ✅ UP              | —    |
+| `git.zappro.site`     | `:3300`            | —                         | ✅ UP              | —    |
+| `hermes.zappro.site`  | `:8642`            | —                         | ✅ UP              | —    |
+| `llm.zappro.site`     | `:4000`            | —                         | ✅ UP              | —    |
 | `list.zappro.site`    | `:4080`            | LAN only                  | ✅ UP              | —    |
 | `md.zappro.site`      | `:4081`            | LAN only                  | ✅ UP              | —    |
 | `monitor.zappro.site` | `:3100`            | LAN only (192.168.0.0/16) | ✅ UP              | —    |
-| `painel.zappro.site`  | `:4003`            | zappro.ia@gmail.com       | ✅ UP              | —    |
-| `qdrant.zappro.site`  | `:6333`            | zappro.ia@gmail.com       | ✅ UP              | —    |
+| `painel.zappro.site`  | `:4003`            | —                         | ✅ UP              | —    |
+| `qdrant.zappro.site`  | `:6333`            | —                         | ✅ UP              | —    |
 | `todo.zappro.site`    | `:4082`            | LAN only                  | ✅ UP              | —    |
-| `aurelia.zappro.site` | `:3334`            | zappro.ia@gmail.com       | ⚠️ DEPRECATED      | —    |
+| `aurelia.zappro.site` | `:3334`            | —                         | ⚠️ DEPRECATED      | —    |
 
 ### Google OAuth (Zero Trust)
 

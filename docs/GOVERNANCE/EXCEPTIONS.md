@@ -9,17 +9,17 @@ Documented exceptions to the .env canonical secrets policy.
 
 ## Active Exceptions
 
-| Secret | Reason | APPROVED_BY | EXPIRES | Mitigation |
-|--------|--------|-------------|---------|------------|
-| None currently | - | - | - | - |
+| Secret         | Reason | APPROVED_BY | EXPIRES | Mitigation |
+| -------------- | ------ | ----------- | ------- | ---------- |
+| None currently | -      | -           | -       | -          |
 
 ---
 
 ## Expired Exceptions
 
 | Secret | Reason | APPROVED_BY | EXPIRES | Notes |
-|--------|--------|-------------|---------|-------|
-| None | - | - | - | - |
+| ------ | ------ | ----------- | ------- | ----- |
+| None   | -      | -           | -       | -     |
 
 ---
 
@@ -34,7 +34,7 @@ Documented exceptions to the .env canonical secrets policy.
 Example:
 
 ```markdown
-| `LEGACY_SYSTEM_TOKEN` | Legacy system requires direct env var access during migration | will-zappro | 2026-05-13 | Migrate to .env pattern after legacy deprecation |
+| `LEGACY_SYSTEM_TOKEN` | Legacy system requires direct env var access during migration | Principal Engineer | 2026-05-13 | Migrate to .env pattern after legacy deprecation |
 ```
 
 ---
@@ -42,9 +42,9 @@ Example:
 ## Review Process
 
 - Exceptions reviewed monthly
-- Will-zappro approves all exceptions
+- Principal Engineer approves all exceptions
 - Unreviewed exceptions after expiry = automatic revocation
 
 ---
 
-**Authority:** will-zappro
+**Authority:** Platform Governance

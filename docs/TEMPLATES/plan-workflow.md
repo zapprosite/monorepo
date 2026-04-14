@@ -3,7 +3,7 @@ name: plan-workflow
 description: Workflow for generating PRD documents using /plan command
 status: PROPOSED
 priority: medium
-author: will-zappro
+author: Principal Engineer
 date: YYYY-MM-DD
 specRef: SPEC-TEMPLATE.md
 ---
@@ -25,15 +25,15 @@ Ou em conversa: descrever a feature → usar `/plan` para formalizar.
 1. **Análise:** Opus 4.6 faz discovery e valida suposições
 2. **PRD Rascunho:** Gera rascunho em `docs/TEMPLATES/[feature-name].prd.md`
 3. **Revisão:** Human aprova ou ajusta
-4. **SPEC:** Após aprovação, invocar `/spec` para transformar em SPEC-*.md
+4. **SPEC:** Após aprovação, invocar `/spec` para transformar em SPEC-\*.md
 
 ## Comandos Relacionados
 
-| Comando | Função |
-|---------|--------|
-| `/spec` | Transforma PRD aprovado em SPEC-*.md |
-| `/pg` | Gera tasks/pipeline.json a partir de SPEC-*.md |
-| `/cursor-loop` | Executa tasks do pipeline autonomously |
+| Comando        | Função                                          |
+| -------------- | ----------------------------------------------- |
+| `/spec`        | Transforma PRD aprovado em SPEC-\*.md           |
+| `/pg`          | Gera tasks/pipeline.json a partir de SPEC-\*.md |
+| `/cursor-loop` | Executa tasks do pipeline autonomously          |
 
 ## Template
 

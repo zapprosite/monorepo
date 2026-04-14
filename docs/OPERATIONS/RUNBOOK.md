@@ -1,6 +1,6 @@
 # Runbook: Referência Oficial de Comandos
 
-**Host:** will-zappro
+**Host:** homelab
 **Atualizado:** 2026-04-04
 
 Comandos seguros e testados para operações. Operações somente-leitura podem ser executadas livremente.
@@ -555,11 +555,13 @@ curl -s http://localhost:11434/api/embed \
 ```
 
 **Modelos disponíveis:**
+
 - `gemma4` — 12B Q4_K_M, instruction-tuned, ~7 GB VRAM
 - `qwen2.5-vl` — 7B Q4_K_M, vision model, ~4.5 GB VRAM
 - `nomic-embed-text` — embedding model, lazy load
 
 **Skills de diagnóstico:**
+
 - `ollama-health-check.md` — verificação completa
 - `litellm-health-check.md` — LiteLLM proxy
 - `kokoro-health-check.md` — Kokoro TTS
@@ -683,6 +685,7 @@ journalctl -u cloudflared -n 50 --no-pager
 ```
 
 **IPs:**
+
 - Tailscale: 100.83.45.79 (autenticado)
 - Cloudflare Tunnel: ativo via systemd cloudflared.service
 
@@ -735,11 +738,13 @@ docker logs prometheus --tail=30
 ```
 
 **Problemas comuns:**
+
 - `Created-not-Started` → `docker start nvidia-gpu-exporter`
 - Network mismatch → `docker network connect aurelia-net grafana`
 - Prometheus DOWN → `docker restart prometheus`
 
 **Skills de diagnóstico:**
+
 - `monitoring-health-check.md` — verificação completa
 - `monitoring-diagnostic.md` — árvore de decisão
 - `monitoring-zfs-snapshot.md` — snapshot antes de changes

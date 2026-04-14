@@ -1,7 +1,7 @@
 # SPEC-043: Subdomain Prune & Hermes Migration
 
 **Date:** 2026-04-14
-**Author:** will-zappro
+**Author:** Principal Engineer
 **Status:** PROPOSED
 **Type:** Infrastructure Cleanup
 

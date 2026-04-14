@@ -1,12 +1,12 @@
 ---
 version: 1.0
-author: will-zappro
+author: Principal Engineer
 date: 2026-04-08
 ---
 
 # Secrets Management Policy
 
-**Host:** will-zappro
+**Host:** homelab
 **Effective:** 2026-03-16
 **Updated:** 2026-04-08
 
@@ -47,6 +47,7 @@ Cada serviço N8N no Coolify tem `.env` local com credenciais do Postgres contai
 ### ⚠️ CONDITIONAL (Acceptable with care)
 
 **`/srv/monorepo/.env` (local dev only)**
+
 - Purpose: Local development secrets
 - Scope: Developer machine only
 - Git: NEVER commit (`.gitignore` must include `.env`)
@@ -55,6 +56,7 @@ Cada serviço N8N no Coolify tem `.env` local com credenciais do Postgres contai
 - Security: Low (local machine only)
 
 **Environment variables (at runtime)**
+
 - Purpose: Injected at service start
 - Scope: Only visible inside running container
 - Backup: NO (environment not persistent)
@@ -67,6 +69,7 @@ Cada serviço N8N no Coolify tem `.env` local com credenciais do Postgres contai
 ### ❌ FORBIDDEN Locations
 
 **Git repository (any branch)**
+
 - NEVER hardcode secrets in code
 - NEVER in config files tracked by Git
 - NEVER in .env if committed
@@ -75,30 +78,36 @@ Cada serviço N8N no Coolify tem `.env` local com credenciais do Postgres contai
 - NEVER in Docker images
 
 **Git history (even deleted)**
+
 - If committed and deleted, it persists in history
 - `git filter-branch` can remove, but risky
 - Better: Never commit in the first place
 
 **Docker images**
+
 - NEVER build secrets into images
 - NEVER use ARG/ENV in Dockerfile for secrets
 - Instead: Inject at runtime via environment or volume
 
 **Markdown documentation**
+
 - NEVER example values are real
 - NEVER place dummy passwords that look like real ones
 - Use: `POSTGRES_PASSWORD=<your-password-here>`
 
 **Public repositories**
+
 - If repo is public, NEVER have `_example` files with real values
 - Use: `.env.example` with placeholders only
 
 **Logs**
+
 - NEVER log secrets
 - Most apps auto-redact (check), but don't rely on it
 - Docker logs: `docker logs | grep -i password` (should be empty)
 
 **Backups without encryption**
+
 - NEVER backup .env files unencrypted
 - If backing up: Encrypt with GPG
 - Or: Don't backup secrets at all (regenerate on restore)
@@ -108,39 +117,46 @@ Cada serviço N8N no Coolify tem `.env` local com credenciais do Postgres contai
 ## 3. Secret Categories & Policies
 
 ### Tier 1: Database Passwords
+
 **Sensitivity:** CRITICAL
 **Storage:** `/root/.env`
 **Rotation:** Every 6 months
 **Backup:** NO (regenerate on restore)
 **Example:**
+
 ```
 POSTGRES_PASSWORD=UseStrongRandomPassword123!
 POSTGRES_USER=n8n
 ```
 
 ### Tier 2: API Keys (Internal)
+
 **Sensitivity:** HIGH
 **Storage:** `/root/.env`
 **Rotation:** Yearly or when team changes
 **Backup:** NO
 **Example:**
+
 ```
 QDRANT_API_KEY=sk-1234567890abcdef
 N8N_JWT_SECRET=UseStrongRandomSecret
 ```
 
 ### Tier 3: Third-Party API Keys (Future)
+
 **Sensitivity:** HIGH
 **Storage:** Kubernetes Secrets (when deployed) or HashiCorp Vault
 **Rotation:** Per 3rd party policy (usually yearly)
 **Backup:** Encrypted, version controlled in Vault
 **Example:**
+
 ```
 OPENAI_API_KEY=sk-...
 STRIPE_SECRET_KEY=sk_live_...
 ```
 
 ### Tier 4: SSH Keys
+
 **Sensitivity:** CRITICAL
 **Storage:** `/root/.ssh/` (permissions 700)
 **Rotation:** Every 2 years or on team change
@@ -148,6 +164,7 @@ STRIPE_SECRET_KEY=sk_live_...
 **Recovery:** Regenerate and update repos/hosts
 
 ### Tier 5: TLS Certificates
+
 **Sensitivity:** HIGH
 **Storage:** `/etc/letsencrypt` (if using Let's Encrypt)
 **Rotation:** Automatic (Let's Encrypt every 90 days)
@@ -161,11 +178,13 @@ STRIPE_SECRET_KEY=sk_live_...
 **Purpose:** Template for developers (no actual secrets)
 
 **Must contain:**
+
 - All env vars the service needs
 - Placeholder values (not real)
 - Comments explaining each var
 
 **Example (CORRECT):**
+
 ```bash
 # PostgreSQL configuration
 POSTGRES_USER=n8n                    # Default username
@@ -181,6 +200,7 @@ QDRANT_API_KEY=change_me             # Optional, for authentication
 ```
 
 **Example (WRONG - DO NOT DO THIS):**
+
 ```bash
 # ❌ WRONG: Real password
 POSTGRES_PASSWORD=Myp@ssw0rdIsABC123
@@ -196,40 +216,47 @@ POSTGRES_PASSWORD=postgres123
 
 ## 5. Secret Rotation Schedule
 
-| Secret | Rotation | Trigger | Who |
-|--------|----------|---------|-----|
-| Database password | Every 6 months | Calendar | DevOps |
-| API keys | Every 12 months | Calendar | DevOps |
-| JWT secrets | Yearly or on incident | Calendar/incident | DevOps |
-| SSH keys | Every 2 years | Calendar | DevOps |
-| TLS certificates | 90 days | Automatic (ACME) | Automated |
+| Secret            | Rotation              | Trigger           | Who       |
+| ----------------- | --------------------- | ----------------- | --------- |
+| Database password | Every 6 months        | Calendar          | DevOps    |
+| API keys          | Every 12 months       | Calendar          | DevOps    |
+| JWT secrets       | Yearly or on incident | Calendar/incident | DevOps    |
+| SSH keys          | Every 2 years         | Calendar          | DevOps    |
+| TLS certificates  | 90 days               | Automatic (ACME)  | Automated |
 
 ---
 
 ## 6. Secret Generation Standards
 
 ### Strong Passwords
+
 **Minimum 16 characters, mix of:**
+
 - Uppercase letters (A-Z)
 - Lowercase letters (a-z)
 - Numbers (0-9)
-- Special characters (!@#$%^&*)
+- Special characters (!@#$%^&\*)
 
 **Generate with:**
+
 ```bash
 openssl rand -base64 32        # 32-char base64
 python3 -c 'import secrets; print(secrets.token_urlsafe(32))'  # URL-safe
 ```
 
 ### API Keys
+
 **Minimum 32 characters, cryptographically random**
+
 ```bash
 openssl rand -hex 16           # 32-char hex
 dd if=/dev/urandom bs=32 count=1 | base64
 ```
 
 ### JWT Secrets
+
 **Minimum 32 bytes, base64 encoded**
+
 ```bash
 openssl rand -base64 32
 ```
@@ -239,6 +266,7 @@ openssl rand -base64 32
 ## 7. Secret Audit
 
 ### Scan for Secrets in Git
+
 ```bash
 # Check if any secrets are in git (should be empty)
 git log -p | grep -i password
@@ -249,6 +277,7 @@ git log -p | grep -i key
 ```
 
 ### Scan for Secrets in Code
+
 ```bash
 # Find .env files (should only be .env.example)
 find . -name ".env" -type f
@@ -260,6 +289,7 @@ grep -r "api_key\s*=" .
 ```
 
 ### Scan for Secrets in Logs
+
 ```bash
 # Docker logs (should have no passwords)
 docker logs n8n | grep -i password
@@ -297,18 +327,21 @@ docker logs postgres | grep -i password
 ## 9. Enforcement
 
 ### For Developers
+
 - Copy `.env.example` → `.env`
 - Fill in YOUR OWN secrets (never share)
 - Never commit `.env`
 - `.gitignore` blocks this, but don't try to bypass
 
 ### For DevOps
+
 - Store in `/root/.env` or external Vault
 - Inject via environment at runtime
 - Never log secrets
 - Audit quarterly
 
 ### For CI/CD (future)
+
 - Use masked variables
 - No secret printing
 - Encrypted artifact storage

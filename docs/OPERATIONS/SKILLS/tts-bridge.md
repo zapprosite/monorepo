@@ -1,7 +1,7 @@
 # TTS Bridge — Voice Access Control for Kokoro TTS
 
 **Data:** 2026-04-08
-**Autor:** will-zappro
+**Autor:** Principal Engineer
 **Status:** ✅ OPERACIONAL
 
 ---
@@ -31,26 +31,27 @@ OpenClaw Bot
 
 ## Endpoints
 
-| Método | Path | Descrição |
-|--------|------|-----------|
-| GET | `/health` | Health check — `{"status": "ok", "service": "tts-bridge", "allowed_voices": ["pm_santa", "pf_dora"]}` |
-| GET | `/v1/audio/voices` | Lista filtrada de vozes disponíveis |
-| POST | `/v1/audio/speech` | Síntese TTS — valida voice, faz passthrough para Kokoro |
+| Método | Path               | Descrição                                                                                             |
+| ------ | ------------------ | ----------------------------------------------------------------------------------------------------- |
+| GET    | `/health`          | Health check — `{"status": "ok", "service": "tts-bridge", "allowed_voices": ["pm_santa", "pf_dora"]}` |
+| GET    | `/v1/audio/voices` | Lista filtrada de vozes disponíveis                                                                   |
+| POST   | `/v1/audio/speech` | Síntese TTS — valida voice, faz passthrough para Kokoro                                               |
 
 ---
 
 ## Vozes Permitidas
 
-| Voice ID | Tipo | Uso |
-|----------|------|-----|
+| Voice ID   | Tipo            | Uso                              |
+| ---------- | --------------- | -------------------------------- |
 | `pm_santa` | Masculino PT-BR | **PADRÃO** — usado pelo OpenClaw |
-| `pf_dora` | Feminino PT-BR | Fallback / alternativo |
+| `pf_dora`  | Feminino PT-BR  | Fallback / alternativo           |
 
 ---
 
 ## Vozes Bloqueadas
 
 Todas as outras vozes Kokoro retornam HTTP 400:
+
 - `af_*` (American Female) — 18 vozes bloqueadas
 - `am_*` (American Male) — 12 vozes bloqueadas
 - `bf_*`, `bm_*` (British) — 11 vozes bloqueadas
@@ -62,18 +63,21 @@ Todas as outras vozes Kokoro retornam HTTP 400:
 ## Verificação
 
 ### Health check
+
 ```bash
 curl -sf http://localhost:8013/health
 # {"status": "ok", "service": "tts-bridge", "allowed_voices": ["pm_santa", "pf_dora"]}
 ```
 
 ### Lista de vozes (filtrada)
+
 ```bash
 curl -sf http://localhost:8013/v1/audio/voices
 # {"voices": ["pm_santa", "pf_dora"], "note": "Only PT-BR natural voices are available"}
 ```
 
 ### Síntese pm_santa (deve funcionar)
+
 ```bash
 curl -sf -X POST http://localhost:8013/v1/audio/speech \
   -H "Content-Type: application/json" \
@@ -83,6 +87,7 @@ curl -sf -X POST http://localhost:8013/v1/audio/speech \
 ```
 
 ### Síntese pf_dora (deve funcionar)
+
 ```bash
 curl -sf -X POST http://localhost:8013/v1/audio/speech \
   -H "Content-Type: application/json" \
@@ -92,6 +97,7 @@ curl -sf -X POST http://localhost:8013/v1/audio/speech \
 ```
 
 ### Voz bloqueada (deve retornar 400)
+
 ```bash
 curl -sf -X POST http://localhost:8013/v1/audio/speech \
   -H "Content-Type: application/json" \
@@ -109,7 +115,7 @@ curl -sf -X POST http://localhost:8013/v1/audio/speech \
 container_name: zappro-tts-bridge
 image: python:3.11-slim
 ports:
-  - "127.0.0.1:8013:8013"
+  - '127.0.0.1:8013:8013'
 networks:
   - qgtzrmi6771lt8l7x8rqx72f
   - zappro-lite_default
@@ -123,11 +129,11 @@ restart: unless-stopped
 
 ## Ficheiros
 
-| Ficheiro | Descrição |
-|----------|-----------|
-| `docs/OPERATIONS/SKILLS/tts-bridge.py` | Script Python stdlib — zero dependencies |
-| `docs/OPERATIONS/SKILLS/tts-bridge-docker-compose.yml` | Docker compose para deploy |
-| `docs/OPERATIONS/SKILLS/tts-bridge.md` | Esta documentação |
+| Ficheiro                                               | Descrição                                |
+| ------------------------------------------------------ | ---------------------------------------- |
+| `docs/OPERATIONS/SKILLS/tts-bridge.py`                 | Script Python stdlib — zero dependencies |
+| `docs/OPERATIONS/SKILLS/tts-bridge-docker-compose.yml` | Docker compose para deploy               |
+| `docs/OPERATIONS/SKILLS/tts-bridge.md`                 | Esta documentação                        |
 
 ---
 
@@ -136,6 +142,7 @@ restart: unless-stopped
 O OpenClaw aponta para o TTS Bridge (não Kokoro direto):
 
 **openclaw.json** (`messages.tts.openai`):
+
 ```json
 {
   "apiKey": "[LITELLM_API_KEY]",
@@ -156,5 +163,5 @@ O OpenClaw aponta para o TTS Bridge (não Kokoro direto):
 ---
 
 **Criado:** 2026-04-08
-**Autoridade:** will-zappro
+**Autoridade:** Platform Governance
 **Revisão:** semanal (2026-04-15)

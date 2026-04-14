@@ -6,28 +6,28 @@
 
 ## Project Overview
 
-**homelab-monorepo** is a full-stack monorepo serving the will-zappro homelab infrastructure.
+**homelab-monorepo** is a full-stack monorepo serving the homelab infrastructure.
 
-| Field | Value |
-|-------|-------|
-| Repository | `git@github.com:zapprosite/homelab-monorepo.git` |
-| Package Manager | pnpm 9.0.0 |
-| Node | >=22 |
-| License | AGPL-3.0-only |
+| Field           | Value                                            |
+| --------------- | ------------------------------------------------ |
+| Repository      | `git@github.com:zapprosite/homelab-monorepo.git` |
+| Package Manager | pnpm 9.0.0                                       |
+| Node            | >=22                                             |
+| License         | AGPL-3.0-only                                    |
 
 ---
 
 ## Tech Stack
 
-| Layer | Tech | Notes |
-|-------|------|-------|
-| Backend API | Fastify 5 + tRPC 11 | REST/OpenAPI on external routes |
-| Frontend | React 19 + Vite 7 + React Router 7 | TanStack Query + tRPC client |
-| ORM | Orchid ORM + PostgreSQL 15 | DB-backed sessions, snake_case columns |
-| Validation | Zod 4 (shared) | Entity schemas in packages/zod-schemas |
-| UI | @connected-repo/ui-mui (MUI) | Component library via workspace packages |
-| Build | Turbo 2 + pnpm workspaces | `turbo.json` pipeline |
-| Quality | Biome 2.3 + TypeScript 5.9 | Lint + format + type checking |
+| Layer       | Tech                               | Notes                                    |
+| ----------- | ---------------------------------- | ---------------------------------------- |
+| Backend API | Fastify 5 + tRPC 11                | REST/OpenAPI on external routes          |
+| Frontend    | React 19 + Vite 7 + React Router 7 | TanStack Query + tRPC client             |
+| ORM         | Orchid ORM + PostgreSQL 15         | DB-backed sessions, snake_case columns   |
+| Validation  | Zod 4 (shared)                     | Entity schemas in packages/zod-schemas   |
+| UI          | @connected-repo/ui-mui (MUI)       | Component library via workspace packages |
+| Build       | Turbo 2 + pnpm workspaces          | `turbo.json` pipeline                    |
+| Quality     | Biome 2.3 + TypeScript 5.9         | Lint + format + type checking            |
 
 ---
 
@@ -142,29 +142,29 @@
 
 ## Scripts (in /srv/monorepo/scripts/)
 
-| Script | Purpose |
-|--------|---------|
-| `approve.sh` | Human gate approval for pipeline steps |
-| `auto-fix.sh` | Automatic fix for lint/type errors |
-| `backup.sh` | Backup snapshots (ZFS-aware) |
-| `bootstrap-check.sh` | Pre-flight checks before CI bootstrap |
-| `bootstrap-effect.sh` | Bootstrap effect executor |
-| `cursor-loop-refactor.sh` | Refactor phase of cursor loop |
-| `cursor-loop-research.sh` | Research phase of cursor loop |
-| `cursor-loop-runner.sh` | Main cursor loop orchestration |
-| `db-migrate.sh` | Run Orchid ORM migrations |
-| `db-seed.sh` | Seed database |
-| `deploy.sh` | Deploy application |
-| `health-check.sh` | Health check for running services |
-| `mirror-push.sh` | Push to both Gitea and GitHub simultaneously |
-| `pipeline-runner.sh` | Execute pipeline tasks |
-| `pipeline-state.sh` | Query/update pipeline state |
-| `pipeline-watcher.sh` | Watch for pipeline changes |
-| `query-gate.sh` | Query gate decisions |
-| `restore.sh` | Restore from backup |
-| `sync-env.js` | Sync environment variables |
-| `unblock.sh` | Unblock stuck operations |
-| `validate-env.sh` | Validate environment configuration |
+| Script                    | Purpose                                      |
+| ------------------------- | -------------------------------------------- |
+| `approve.sh`              | Human gate approval for pipeline steps       |
+| `auto-fix.sh`             | Automatic fix for lint/type errors           |
+| `backup.sh`               | Backup snapshots (ZFS-aware)                 |
+| `bootstrap-check.sh`      | Pre-flight checks before CI bootstrap        |
+| `bootstrap-effect.sh`     | Bootstrap effect executor                    |
+| `cursor-loop-refactor.sh` | Refactor phase of cursor loop                |
+| `cursor-loop-research.sh` | Research phase of cursor loop                |
+| `cursor-loop-runner.sh`   | Main cursor loop orchestration               |
+| `db-migrate.sh`           | Run Orchid ORM migrations                    |
+| `db-seed.sh`              | Seed database                                |
+| `deploy.sh`               | Deploy application                           |
+| `health-check.sh`         | Health check for running services            |
+| `mirror-push.sh`          | Push to both Gitea and GitHub simultaneously |
+| `pipeline-runner.sh`      | Execute pipeline tasks                       |
+| `pipeline-state.sh`       | Query/update pipeline state                  |
+| `pipeline-watcher.sh`     | Watch for pipeline changes                   |
+| `query-gate.sh`           | Query gate decisions                         |
+| `restore.sh`              | Restore from backup                          |
+| `sync-env.js`             | Sync environment variables                   |
+| `unblock.sh`              | Unblock stuck operations                     |
+| `validate-env.sh`         | Validate environment configuration           |
 
 ---
 
@@ -193,17 +193,17 @@ obsidian/           # Read-only mirror of docs/
 
 ### SPECS Index (highlights)
 
-| SPEC | Title |
-|------|-------|
-| SPEC-002 | Homelab Network Refactor |
-| SPEC-007 | OpenClaw OAuth Profiles |
+| SPEC     | Title                        |
+| -------- | ---------------------------- |
+| SPEC-002 | Homelab Network Refactor     |
+| SPEC-007 | OpenClaw OAuth Profiles      |
 | SPEC-009 | OpenClaw Persona Audio Stack |
-| SPEC-010 | OpenClaw Agents Kit |
-| SPEC-013 | Claude Code CLI Integration |
-| SPEC-014 | Cursor AI CI/CD Pattern |
-| SPEC-016 | Voice Pipeline Cursor Loop |
-| SPEC-019 | OpenWebUI Repair |
-| SPEC-021 | Claude Code Cursor Loop |
+| SPEC-010 | OpenClaw Agents Kit          |
+| SPEC-013 | Claude Code CLI Integration  |
+| SPEC-014 | Cursor AI CI/CD Pattern      |
+| SPEC-016 | Voice Pipeline Cursor Loop   |
+| SPEC-019 | OpenWebUI Repair             |
+| SPEC-021 | Claude Code Cursor Loop      |
 
 ### ADRs Index (highlights)
 
@@ -248,13 +248,13 @@ pnpm syncpack         # syncpack format
 ```json
 {
   "pipeline": {
-    "build":     { "dependsOn": ["^build"], "outputs": [".next/**", "dist/**"] },
-    "test":      { "dependsOn": ["build"], "outputs": ["coverage/**"] },
-    "lint":      { "outputs": [] },
+    "build": { "dependsOn": ["^build"], "outputs": [".next/**", "dist/**"] },
+    "test": { "dependsOn": ["build"], "outputs": ["coverage/**"] },
+    "lint": { "outputs": [] },
     "typecheck": { "dependsOn": ["build"], "outputs": [] },
-    "dev":       { "cache": false, "persistent": true },
-    "db:migrate":{ "cache": false },
-    "db:seed":   { "cache": false }
+    "dev": { "cache": false, "persistent": true },
+    "db:migrate": { "cache": false },
+    "db:seed": { "cache": false }
   }
 }
 ```
@@ -263,33 +263,34 @@ pnpm syncpack         # syncpack format
 
 ## Key Files
 
-| File | Purpose |
-|------|---------|
-| `/srv/monorepo/AGENTS.md` | Agent system, workflows, tools |
-| `/srv/monorepo/CLAUDE.md` | Project rules |
-| `/srv/monorepo/apps/api/CLAUDE.md` | API development rules |
-| `/srv/monorepo/apps/web/CLAUDE.md` | Frontend development rules |
-| `/srv/monorepo/packages/zod-schemas/CLAUDE.md` | Zod schema patterns |
-| `/srv/monorepo/turbo.json` | Build pipeline |
-| `/srv/monorepo/pnpm-workspace.yaml` | Workspace definition |
-| `/srv/monorepo/docker-compose.yml` | Local dev containers |
-| `/srv/monorepo/.claude/scheduled_tasks.json` | Cron jobs |
+| File                                           | Purpose                        |
+| ---------------------------------------------- | ------------------------------ |
+| `/srv/monorepo/AGENTS.md`                      | Agent system, workflows, tools |
+| `/srv/monorepo/CLAUDE.md`                      | Project rules                  |
+| `/srv/monorepo/apps/api/CLAUDE.md`             | API development rules          |
+| `/srv/monorepo/apps/web/CLAUDE.md`             | Frontend development rules     |
+| `/srv/monorepo/packages/zod-schemas/CLAUDE.md` | Zod schema patterns            |
+| `/srv/monorepo/turbo.json`                     | Build pipeline                 |
+| `/srv/monorepo/pnpm-workspace.yaml`            | Workspace definition           |
+| `/srv/monorepo/docker-compose.yml`             | Local dev containers           |
+| `/srv/monorepo/.claude/scheduled_tasks.json`   | Cron jobs                      |
 
 ---
 
 ## Ports (Local Dev)
 
-| Port | Service |
-|------|---------|
+| Port | Service                  |
+| ---- | ------------------------ |
 | 5173 | Vite frontend dev server |
-| 4000 | API (Fastify) |
-| 5432 | PostgreSQL |
+| 4000 | API (Fastify)            |
+| 5432 | PostgreSQL               |
 
 ---
 
 ## Related Governance
 
 For infrastructure decisions (Docker, ZFS, services):
+
 - `./GOVERNANCE/CONTRACT.md`
 - `./GOVERNANCE/GUARDRAILS.md`
 - `./INFRASTRUCTURE/NETWORK_MAP.md`

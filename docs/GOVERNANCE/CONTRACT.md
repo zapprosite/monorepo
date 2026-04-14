@@ -1,6 +1,6 @@
 ---
 version: 1.0
-author: will-zappro
+author: Principal Engineer
 date: 2026-03-16
 ---
 
@@ -10,7 +10,7 @@ date: 2026-03-16
 **Scope:** All AI agents (Claude Code, Codex, Copilot, future agents)
 **Authority:** Principal Engineer - Platform Governance
 
-This document establishes the non-negotiable operational contract between human operators and AI agents on the will-zappro homelab.
+This document establishes the non-negotiable operational contract between human operators and AI agents on the homelab.
 
 ## 1. Core Principles
 

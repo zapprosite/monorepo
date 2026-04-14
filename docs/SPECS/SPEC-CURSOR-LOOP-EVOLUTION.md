@@ -1,7 +1,7 @@
 # SPEC-CURSOR-LOOP-EVOLUTION
 
 **Date:** 2026-04-14
-**Author:** will-zappro
+**Author:** Principal Engineer
 **Status:** PROPOSED
 **Type:** Autonomous Agent Enhancement
 
@@ -15,26 +15,26 @@ Avaliar criticamente `/cursor-loop` e `/computer-loop` e propor melhorias que tr
 
 ### Pontos Fortes Atuais
 
-| Aspeto | Estado |
-|--------|--------|
-| Pipeline faseado | ✅ Implementado (Init → Dev → Review → Deploy) |
-| Human gates | ✅ Pausa para aprovação |
-| Checkpoint persistence | ✅ `~/.claude/pipeline.json` |
-| Audit trail | ✅ `~/.claude/audit/pipeline-runner.log` |
-| Auto-recovery | ✅ Basic retry on failure |
+| Aspeto                 | Estado                                         |
+| ---------------------- | ---------------------------------------------- |
+| Pipeline faseado       | ✅ Implementado (Init → Dev → Review → Deploy) |
+| Human gates            | ✅ Pausa para aprovação                        |
+| Checkpoint persistence | ✅ `~/.claude/pipeline.json`                   |
+| Audit trail            | ✅ `~/.claude/audit/pipeline-runner.log`       |
+| Auto-recovery          | ✅ Basic retry on failure                      |
 
 ### Fraquezas Identificadas (Enterprise Audit 14/04)
 
-| Fraqueza | Impacto | Evidência |
-|----------|---------|-----------|
-| **Sem geração automática de SPEC** | Loop executa sem spec formal | SPECs criados manualmente |
-| **Sem ADR generation** | Decisões técnicas perdidas | ADRs existentes mas não gerados pelo loop |
-| **Sem SLO tracking** | Sem métricas de sucesso | Incidents sem visibilidade |
-| **Sem distributed tracing** | Requests não correlacionados | Debug é detective work |
-| **Sem chaos engineering** | Failures não antecipados | INC-002 OOM proof |
-| **Sem backup verification** | Recovery procedures untested | RECOVERY.md existe mas não testado |
-| **Sem team scalability** | Single-developer only | `will-zappro` hardcoded |
-| **Docs não gerados automaticamente** | Drift entre código e docs | 8 SPECs stale |
+| Fraqueza                             | Impacto                      | Evidência                                 |
+| ------------------------------------ | ---------------------------- | ----------------------------------------- |
+| **Sem geração automática de SPEC**   | Loop executa sem spec formal | SPECs criados manualmente                 |
+| **Sem ADR generation**               | Decisões técnicas perdidas   | ADRs existentes mas não gerados pelo loop |
+| **Sem SLO tracking**                 | Sem métricas de sucesso      | Incidents sem visibilidade                |
+| **Sem distributed tracing**          | Requests não correlacionados | Debug é detective work                    |
+| **Sem chaos engineering**            | Failures não antecipados     | INC-002 OOM proof                         |
+| **Sem backup verification**          | Recovery procedures untested | RECOVERY.md existe mas não testado        |
+| **Sem team scalability**             | Single-developer only        | `owner` hardcoded                         |
+| **Docs não gerados automaticamente** | Drift entre código e docs    | 8 SPECs stale                             |
 
 ## Melhorias Propostas
 
@@ -45,6 +45,7 @@ Avaliar criticamente `/cursor-loop` e `/computer-loop` e propor melhorias que tr
 **Problema:** Não há visibilidade do que o loop está a fazer durante execução.
 
 **Solução:**
+
 ```bash
 # Terminal dashboard com progress real-time
 ┌─────────────────────────────────────────────┐
@@ -79,6 +80,7 @@ Avaliar criticamente `/cursor-loop` e `/computer-loop` e propor melhorias que tr
 ```
 
 **SLO por fase:**
+
 - Init: < 2 min
 - Dev: < 30 min
 - Review: < 10 min
@@ -151,6 +153,7 @@ with tracer.start_as_current_span("T-003:docker-build") as span:
 **Problema:** O loop atual faz heal sem verificar se funcionou.
 
 **Solução:**
+
 ```bash
 # Ciclo completo de heal
 while attempts < max_attempts:
@@ -205,9 +208,10 @@ notify("Change rolled back automatically")
 
 #### M4.1: Multi-Approver Support
 
-**Problema:** Só `will-zappro` pode aprovar.
+**Problema:** Só `owner` pode aprovar.
 
 **Solução:**
+
 ```yaml
 # Pipeline config
 human_gates:
@@ -228,6 +232,7 @@ human_gates:
 **Problema:** Não há ownership por área.
 
 **Solução:**
+
 ```bash
 # Detetar área afetada pelo PR
 affected_paths = get_affected_paths(diff)
@@ -268,11 +273,7 @@ for owner in owners:
     "failure_rate": "8.3%",
     "most_common_failure": "docker-build-timeout",
     "slo_violations_week": 2,
-    "top_review_comments": [
-      "Missing error handling",
-      "Hardcoded timeout",
-      "No tests for edge case"
-    ]
+    "top_review_comments": ["Missing error handling", "Hardcoded timeout", "No tests for edge case"]
   }
 }
 ```
@@ -283,34 +284,37 @@ for owner in owners:
 # Pipeline Report — Week 16
 
 ## Resumo
-| Métrica | Valor | vs Last Week |
-|---------|-------|-------------|
-| PRs merged | 12 | +3 |
-| Avg pipeline duration | 14.2 min | -2.1 min |
-| SLO compliance | 91.7% | +4.2% |
-| Incidents | 1 | -1 |
+
+| Métrica               | Valor    | vs Last Week |
+| --------------------- | -------- | ------------ |
+| PRs merged            | 12       | +3           |
+| Avg pipeline duration | 14.2 min | -2.1 min     |
+| SLO compliance        | 91.7%    | +4.2%        |
+| Incidents             | 1        | -1           |
 
 ## Melhorias Implementadas
+
 1. Auto-ADR generation — evitou 3 decisões sem documentação
 2. Chaos engineering pre-deploy — capturou 2 failures antes de produção
 
 ## Action Items
+
 - [ ] Investigar docker-build-timeout (causa raiz)
 - [ ] Adicionar SLO para coverage (70% → 80%)
 ```
 
 ## Comparativo: Antes vs Depois
 
-| Aspeto | Cursor-Loop Atual | Cursor-Loop Evolved |
-|--------|------------------|---------------------|
-| SPEC generation | Manual | Auto do PR |
-| ADR generation | Manual | Auto em decisões |
-| Heal verification | Basic restart | Verify-and-heal cycle |
-| Chaos engineering | Nenhum | Pre-deploy injection |
-| SLO tracking | Nenhum | Full telemetry |
-| Multi-approver | Single | Team-based |
-| Executive reporting | Nenhum | Weekly digest |
-| Observabilidade | Logs | Traces + metrics |
+| Aspeto              | Cursor-Loop Atual | Cursor-Loop Evolved   |
+| ------------------- | ----------------- | --------------------- |
+| SPEC generation     | Manual            | Auto do PR            |
+| ADR generation      | Manual            | Auto em decisões      |
+| Heal verification   | Basic restart     | Verify-and-heal cycle |
+| Chaos engineering   | Nenhum            | Pre-deploy injection  |
+| SLO tracking        | Nenhum            | Full telemetry        |
+| Multi-approver      | Single            | Team-based            |
+| Executive reporting | Nenhum            | Weekly digest         |
+| Observabilidade     | Logs              | Traces + metrics      |
 
 ## Tech Stack para Implementação
 
@@ -331,14 +335,14 @@ dependencies:
 
 ## Cronograma de Implementação
 
-| Fase | Descrição | Esforço | Prioridade |
-|------|-----------|---------|------------|
-| M1.1 | Dashboard tempo real | 2 dias | 🔴 ALTA |
-| M1.2 | Métricas SLO | 1 dia | 🔴 ALTA |
-| M2.1 | Auto-SPEC do PR | 3 dias | 🟡 MÉDIA |
-| M3.1 | Verify-and-heal | 2 dias | 🔴 ALTA |
-| M4.1 | Multi-approver | 2 dias | 🟡 MÉDIA |
-| M5.1 | Analytics dashboard | 3 dias | 🟡 MÉDIA |
+| Fase | Descrição            | Esforço | Prioridade |
+| ---- | -------------------- | ------- | ---------- |
+| M1.1 | Dashboard tempo real | 2 dias  | 🔴 ALTA    |
+| M1.2 | Métricas SLO         | 1 dia   | 🔴 ALTA    |
+| M2.1 | Auto-SPEC do PR      | 3 dias  | 🟡 MÉDIA   |
+| M3.1 | Verify-and-heal      | 2 dias  | 🔴 ALTA    |
+| M4.1 | Multi-approver       | 2 dias  | 🟡 MÉDIA   |
+| M5.1 | Analytics dashboard  | 3 dias  | 🟡 MÉDIA   |
 
 ## Success Criteria
 
@@ -351,11 +355,11 @@ dependencies:
 
 ## Riscos
 
-| Risco | Probabilidade | Mitigação |
-|-------|---------------|-----------|
-| Over-engineering | Alta | Prioritizar M1.1 + M3.1 primeiro |
-| Too much automation | Alta | Manter human gates |
-| Alert fatigue | Média | SLO-based only |
+| Risco               | Probabilidade | Mitigação                        |
+| ------------------- | ------------- | -------------------------------- |
+| Over-engineering    | Alta          | Prioritizar M1.1 + M3.1 primeiro |
+| Too much automation | Alta          | Manter human gates               |
+| Alert fatigue       | Média         | SLO-based only                   |
 
 ---
 

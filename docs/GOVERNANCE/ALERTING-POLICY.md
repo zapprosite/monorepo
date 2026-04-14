@@ -1,13 +1,13 @@
 ---
 version: 1.0
-author: will-zappro
+author: Principal Engineer
 date: 2026-04-14
 review-cycle: monthly
 ---
 
 # SRE Alerting & Escalation Policy
 
-**Host:** will-zappro
+**Host:** homelab
 **Scope:** homelab-monorepo (/srv/monorepo)
 **Stack:** Prometheus + AlertManager + Grafana + SRE Monitor + Cloudflare Health Checks
 **Related:** [SPEC-023](./SPECS/SPEC-023-unified-monitoring-self-healing.md), [SPEC-040](./SPECS/SPEC-040-homelab-alerting-rate-limit.md), [INCIDENTS.md](./INCIDENTS.md)
@@ -16,18 +16,19 @@ review-cycle: monthly
 
 ## 1. Alert Severity Levels
 
-| Level | Name | Icon | Color | Response Time | Example |
-|-------|------|------|-------|---------------|---------|
-| **P1** | CRITICAL | 🔴 | Red | Immediate (< 1 min) | Service completely down, data loss risk, security breach |
-| **P2** | HIGH | 🟠 | Orange | 5 minutes | Performance degraded, partial outage |
-| **P3** | MEDIUM | 🟡 | Yellow | 15 minutes | Warning signs, restart loops |
-| **P4** | LOW | ⚪ | Gray | Next business day | Info, health mismatches, resource warnings |
+| Level  | Name     | Icon | Color  | Response Time       | Example                                                  |
+| ------ | -------- | ---- | ------ | ------------------- | -------------------------------------------------------- |
+| **P1** | CRITICAL | 🔴   | Red    | Immediate (< 1 min) | Service completely down, data loss risk, security breach |
+| **P2** | HIGH     | 🟠   | Orange | 5 minutes           | Performance degraded, partial outage                     |
+| **P3** | MEDIUM   | 🟡   | Yellow | 15 minutes          | Warning signs, restart loops                             |
+| **P4** | LOW      | ⚪   | Gray   | Next business day   | Info, health mismatches, resource warnings               |
 
 ### P1 — CRITICAL (Immediate Action Required)
 
 **Definition:** Service completely down, data loss risk, or security breach.
 
 **Examples:**
+
 - Container in `dead`/`exited` state (non-immutable)
 - Subdomain returning HTTP 000 (connection refused)
 - Disk space < 5%
@@ -36,10 +37,12 @@ review-cycle: monthly
 - ZFS pool degraded
 
 **Notification:**
+
 - Telegram: `@will` + broadcast to alerting channel
 - AlertManager: Routes to `telegram-critical` receiver
 
 **Actions:**
+
 1. SRE Monitor attempts container restart (if not immutable)
 2. If restart fails → manual intervention required
 3. Create incident in INCIDENTS.md
@@ -52,6 +55,7 @@ review-cycle: monthly
 **Definition:** Performance degraded, partial outage, or service returning errors.
 
 **Examples:**
+
 - Container `unhealthy` (healthcheck failing)
 - Subdomain returning HTTP 502/503
 - CPU > 90% sustained 5 minutes
@@ -60,10 +64,12 @@ review-cycle: monthly
 - GPU temperature > 80°C sustained 5 minutes
 
 **Notification:**
+
 - Telegram: `@will` only
 - AlertManager: Routes to `telegram-warning` receiver
 
 **Actions:**
+
 1. SRE Monitor attempts container restart (if not immutable)
 2. Check logs: `docker logs <container> --tail 50`
 3. If restart loop detected (3 restarts in 30 min) → block healing, escalate to P1
@@ -76,6 +82,7 @@ review-cycle: monthly
 **Definition:** Warning signs, restart loops, or non-critical health mismatches.
 
 **Examples:**
+
 - Container restarting repeatedly (but below threshold)
 - Health endpoint returning unexpected HTTP code
 - Resource usage > threshold but below critical
@@ -83,10 +90,12 @@ review-cycle: monthly
 - Container `restarting` state
 
 **Notification:**
+
 - Gotify: P3 channel (port 8050)
 - Log only: `/srv/ops/logs/sre-monitor.log`
 
 **Actions:**
+
 1. Log to `/srv/ops/logs/healing.log` with reason
 2. Run RCA via `rca_container` function
 3. Monitor发展趋势 — if pattern worsens, escalate
@@ -99,6 +108,7 @@ review-cycle: monthly
 **Definition:** Informational alerts, health mismatches, or minor issues.
 
 **Examples:**
+
 - Subdomain returning HTTP 301/302 (redirect, not an error)
 - Container health `starting` (still initializing)
 - Resource usage approaching threshold
@@ -106,10 +116,12 @@ review-cycle: monthly
 - Cloudflare tunnel latency spike
 
 **Notification:**
+
 - Grafana dashboard only
 - Log to `/srv/ops/logs/sre-monitor.log`
 
 **Actions:**
+
 1. Log for trend analysis
 2. No immediate action required
 3. Review in weekly SRE review
@@ -127,6 +139,7 @@ Prometheus ──→ AlertManager ──→ alert-sender:8080/webhook ──→ 
 ```
 
 **AlertManager Config:**
+
 ```yaml
 route:
   group_by: ['alertname', 'severity']
@@ -154,6 +167,7 @@ route:
 **Schedule:** `*/5 * * * *` (every 5 minutes)
 
 **Checks:**
+
 1. Coolify apps (via Docker inspect)
 2. Docker containers (all)
 3. Health endpoints (HTTP checks)
@@ -161,6 +175,7 @@ route:
 5. Subdomain tunnel status (HTTPS checks)
 
 **Output:**
+
 - `/srv/ops/logs/sre-monitor.log` — main log
 - `/srv/ops/logs/healing.log` — heal attempts
 - `/srv/ops/logs/resource-alerts.log` — resource warnings
@@ -170,13 +185,13 @@ route:
 
 **Method:** `GET https://<subdomain>` with timeout 15s
 
-| HTTP Code | Interpretation |
-|-----------|---------------|
-| 000 | Connection refused — service down |
-| 200 | Healthy |
-| 301/302 | Redirect (Cloudflare Access) — healthy |
-| 502/503 | Backend error — degraded |
-| Other | Investigate |
+| HTTP Code | Interpretation                         |
+| --------- | -------------------------------------- |
+| 000       | Connection refused — service down      |
+| 200       | Healthy                                |
+| 301/302   | Redirect (Cloudflare Access) — healthy |
+| 502/503   | Backend error — degraded               |
+| Other     | Investigate                            |
 
 ---
 
@@ -184,12 +199,12 @@ route:
 
 ### 3.1 When to Escalate
 
-| From | To | Trigger |
-|------|-----|---------|
-| P1 | — | Immediate, no auto-resolution |
-| P2 | P1 | Not resolved in 10 minutes |
-| P3 | P2 | Restart loop detected (3x in 30 min) |
-| P4 | P3 | Pattern persists 24+ hours |
+| From | To  | Trigger                              |
+| ---- | --- | ------------------------------------ |
+| P1   | —   | Immediate, no auto-resolution        |
+| P2   | P1  | Not resolved in 10 minutes           |
+| P3   | P2  | Restart loop detected (3x in 30 min) |
+| P4   | P3  | Pattern persists 24+ hours           |
 
 ### 3.2 Escalation Chain
 
@@ -230,6 +245,7 @@ alertmanager coolify-redis
 **Threshold:** 3 heal attempts in 30-minute rolling window
 
 **Behavior:**
+
 - Count exceeds threshold → block healing, log `RESTART_LOOP_BLOCKED`
 - Escalate to P2 for manual review
 
@@ -238,6 +254,7 @@ alertmanager coolify-redis
 ### 4.2 Heal Verification
 
 After each restart:
+
 1. Wait 15 seconds
 2. Check container state and health
 3. If `running` + (`healthy` or `none`) → success
@@ -247,6 +264,7 @@ After each restart:
 ### 4.3 RCA Triggers
 
 Run root cause analysis before healing:
+
 - Container restart attempt
 - Healthcheck failure
 - Unexpected exit
@@ -268,22 +286,23 @@ Run root cause analysis before healing:
 
 ### 5.1 Telegram
 
-| Channel | Severity | URL |
-|---------|----------|-----|
-| `telegram-critical` | P1 | `@will` + homelab-alerts |
-| `telegram-warning` | P2 | `@will` only |
+| Channel             | Severity | URL                      |
+| ------------------- | -------- | ------------------------ |
+| `telegram-critical` | P1       | `@will` + homelab-alerts |
+| `telegram-warning`  | P2       | `@will` only             |
 
 **Via alert-sender:** `POST http://alert-sender:8080/webhook`
 
 ### 5.2 Gotify
 
 | Channel | Severity | Port |
-|---------|----------|------|
-| Default | P3/P4 | 8050 |
+| ------- | -------- | ---- |
+| Default | P3/P4    | 8050 |
 
 ### 5.3 Grafana
 
 **Dashboards:**
+
 - Homelab Overview (containers, GPU, subdomains)
 - Rate Limiting (RPM per service)
 - Alert State (firing/pending/none)
@@ -377,12 +396,12 @@ docker ps --format '{{.Names}}' | grep <process_name>
 
 ## 7. Alert Integration Matrix
 
-| Source | P1 | P2 | P3 | P4 |
-|--------|----|----|----|----|
-| Prometheus/AlertManager | Telegram | Telegram | Gotify | Grafana |
-| SRE Monitor | Telegram | Telegram | Gotify | Log only |
-| Cloudflare Health | Telegram | Telegram | Log | Log |
-| Manual (human) | PagerDuty (future) | Email | Log | Log |
+| Source                  | P1                 | P2       | P3     | P4       |
+| ----------------------- | ------------------ | -------- | ------ | -------- |
+| Prometheus/AlertManager | Telegram           | Telegram | Gotify | Grafana  |
+| SRE Monitor             | Telegram           | Telegram | Gotify | Log only |
+| Cloudflare Health       | Telegram           | Telegram | Log    | Log      |
+| Manual (human)          | PagerDuty (future) | Email    | Log    | Log      |
 
 ---
 
@@ -390,45 +409,45 @@ docker ps --format '{{.Names}}' | grep <process_name>
 
 ### 8.1 Thresholds
 
-| Metric | Warning | Critical | Unit |
-|--------|---------|----------|------|
-| CPU | 70 | 90 | % |
-| Memory | 80 | 90 | % |
-| Disk | 15 | 5 | % |
-| GPU Memory | 90 | 98 | % |
-| GPU Temp | 80 | 85 | °C |
-| GPU Util | 90 | 98 | % |
+| Metric     | Warning | Critical | Unit |
+| ---------- | ------- | -------- | ---- |
+| CPU        | 70      | 90       | %    |
+| Memory     | 80      | 90       | %    |
+| Disk       | 15      | 5        | %    |
+| GPU Memory | 90      | 98       | %    |
+| GPU Temp   | 80      | 85       | °C   |
+| GPU Util   | 90      | 98       | %    |
 
 ### 8.2 Timing
 
-| Parameter | Value | Description |
-|-----------|-------|-------------|
-| `HEAL_WINDOW_SECONDS` | 1800 | 30-minute rolling window |
-| `HEAL_THRESHOLD` | 3 | Max heal attempts in window |
-| `SRE_MONITOR_INTERVAL` | 5 | Minutes between runs |
-| `HEALTH_CHECK_TIMEOUT` | 10 | Seconds for HTTP checks |
-| `SUBDOMAIN_CHECK_TIMEOUT` | 15 | Seconds for subdomain checks |
+| Parameter                 | Value | Description                  |
+| ------------------------- | ----- | ---------------------------- |
+| `HEAL_WINDOW_SECONDS`     | 1800  | 30-minute rolling window     |
+| `HEAL_THRESHOLD`          | 3     | Max heal attempts in window  |
+| `SRE_MONITOR_INTERVAL`    | 5     | Minutes between runs         |
+| `HEALTH_CHECK_TIMEOUT`    | 10    | Seconds for HTTP checks      |
+| `SUBDOMAIN_CHECK_TIMEOUT` | 15    | Seconds for subdomain checks |
 
 ---
 
 ## 9. Success Criteria
 
-| # | Criterion | Verification |
-|---|-----------|-------------|
-| SC-1 | P1 alerts reach Telegram < 30s | Container DOWN → Telegram notification |
-| SC-2 | P2 alerts reach Telegram < 5 min | Unhealthy container → Telegram |
-| SC-3 | Restart loop guard prevents infinite restarts | 4th restart in 30 min → blocked |
-| SC-4 | Immutable services never restarted | coolify-proxy, grafana, etc. never touched |
-| SC-5 | SRE Monitor heals non-immutable containers | Unhealthy → restart → healthy |
-| SC-6 | RCA logged for every heal | Check `/srv/ops/logs/rca.log` |
+| #    | Criterion                                     | Verification                               |
+| ---- | --------------------------------------------- | ------------------------------------------ |
+| SC-1 | P1 alerts reach Telegram < 30s                | Container DOWN → Telegram notification     |
+| SC-2 | P2 alerts reach Telegram < 5 min              | Unhealthy container → Telegram             |
+| SC-3 | Restart loop guard prevents infinite restarts | 4th restart in 30 min → blocked            |
+| SC-4 | Immutable services never restarted            | coolify-proxy, grafana, etc. never touched |
+| SC-5 | SRE Monitor heals non-immutable containers    | Unhealthy → restart → healthy              |
+| SC-6 | RCA logged for every heal                     | Check `/srv/ops/logs/rca.log`              |
 
 ---
 
 ## 10. Revision History
 
-| Version | Date | Author | Changes |
-|---------|------|--------|---------|
-| 1.0 | 2026-04-14 | will-zappro | Initial version based on SPEC-023, SPEC-040 |
+| Version | Date       | Author             | Changes                                     |
+| ------- | ---------- | ------------------ | ------------------------------------------- |
+| 1.0     | 2026-04-14 | Principal Engineer | Initial version based on SPEC-023, SPEC-040 |
 
 ---
 

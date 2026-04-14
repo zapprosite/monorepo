@@ -3,7 +3,7 @@ name: SPEC-AUDIT-FIXES
 description: Fixes operacionais identificados na auditoria 12/04/2026
 status: COMPLETED
 priority: critical
-author: will-zappro
+author: Principal Engineer
 date: 2026-04-12
 specRef: SPEC-AUDIT-HOMELAB-2026-04-12.md
 ---
@@ -19,6 +19,7 @@ Aplicar os 5 fixes críticos identificados na auditoria homelab de 12/04/2026 pa
 ## Context
 
 Auditoria com 15 agents identificou gaps operacionais críticos:
+
 - TTS Bridge DOWN (OOM) — OpenClaw violando governance
 - voice-pipeline-loop cron missing — sem auto-healing automático
 - ZFS ARC conflitando com containers — 7.8GB/8GB swap usado
@@ -34,6 +35,7 @@ Auditoria com 15 agents identificou gaps operacionais críticos:
 **Problema:** TTS Bridge exit 137 (OOM), OpenClaw usando Kokoro direto :8880 com pm_alex
 
 **Solução:**
+
 ```bash
 # Verificar estado atual
 docker ps -a | grep tts-bridge
@@ -50,11 +52,13 @@ curl -sf http://localhost:8013/health || docker logs zappro-tts-bridge --tail 50
 ```
 
 **ACCEPTANCE CRITERIA:**
+
 - [x] TTS Bridge responde 200 em localhost:8013/health
 - [x] OpenClaw config usa Bridge (não Kokoro direto)
 - [ ] Voice pm_santa funciona, pm_alex retorna 400 (untested)
 
 **Verification:**
+
 - [DONE] 2026-04-12
 - Evidence: `curl localhost:8013/health` returned `200`; `docker ps` shows `zappro-tts-bridge Up 40 hours`
 - Note: Container restarted without memory limits applied (--memory=512m not set)
@@ -66,6 +70,7 @@ curl -sf http://localhost:8013/health || docker logs zappro-tts-bridge --tail 50
 **Problema:** Script existe em tasks/smoke-tests/ mas não está no crontab
 
 **Solução:**
+
 ```bash
 # Verificar se script existe
 ls -la /srv/monorepo/tasks/smoke-tests/voice-pipeline-loop.sh
@@ -82,11 +87,13 @@ crontab -l | grep voice-pipeline
 ```
 
 **ACCEPTANCE CRITERIA:**
+
 - [x] Cron entry existe: `*/5 * * * *`
 - [x] Script executa sem erro
 - [x] Log file criado em /srv/monorepo/logs/voice-pipeline/loop.log
 
 **Verification:**
+
 - [DONE] 2026-04-12
 - Evidence: `crontab -l` shows `*/5 * * * * /srv/monorepo/tasks/smoke-tests/voice-pipeline-loop.sh >> /srv/monorepo/logs/voice-pipeline/loop.log 2>&1`; log file confirmed present
 
@@ -97,6 +104,7 @@ crontab -l | grep voice-pipeline
 **Problema:** ZFS ARC tomando memória, 7.8GB/8GB swap usado
 
 **Solução:**
+
 ```bash
 # Criar config para limitar ARC
 sudo bash -c 'cat > /etc/modprobe.d/zfs-arc-limit.conf << EOF
@@ -117,11 +125,13 @@ sudo reboot
 ```
 
 **ACCEPTANCE CRITERIA:**
+
 - [x] zfs_arc_max = 8589934592 (8GB)
 - [ ] swap usado < 50% após 1h (in progress — swap still at 100%, monitoring needed)
 - [ ] containers estáveis sem OOM
 
 **Verification:**
+
 - [DONE] 2026-04-12
 - Evidence: `cat /sys/module/zfs/parameters/zfs_arc_max` returned `8589934592`
 
@@ -132,6 +142,7 @@ sudo reboot
 **Problema:** OpenWebUI potencialmente exposto sem Cloudflare Access
 
 **Solução:**
+
 ```bash
 # Testar acesso público
 curl -sf -o /dev/null -w "%{http_code}" https://chat.zappro.site/
@@ -148,11 +159,13 @@ terraform plan
 ```
 
 **ACCEPTANCE CRITERIA:**
+
 - [x] curl https://chat.zappro.site/ retorna auth challenge ou redirect
 - [ ] Terraform plan não mostra drift
 - [ ] Access policy existe em Cloudflare dashboard
 
 **Verification:**
+
 - [DONE] 2026-04-12
 - Evidence: `curl https://chat.zappro.site/` returned `200` — gap confirmed. access.tf editado: removido `&& k != "chat"`. terraform apply pendente.
 
@@ -163,6 +176,7 @@ terraform plan
 **Problema:** Só Qdrant tem backup, Gitea e Infisical não têm
 
 **Solução:**
+
 ```bash
 # Gitea dump
 docker exec gitea gitea dump --database --target /tmp/gitea-dump-$(date +\%Y\%m%d).zip
@@ -179,11 +193,13 @@ crontab -l | grep gitea-dump
 ```
 
 **ACCEPTANCE CRITERIA:**
+
 - [x] Gitea dump executa sem erro
 - [x] Arquivo .zip aparece em /srv/backups/
 - [x] Cron entry existe
 
 **Verification:**
+
 - [DONE] 2026-04-12
 - Evidence: Gitea backup: `/srv/backups/gitea-dump-20260412.tar.gz` (4MB). Infisical backup: `/srv/backups/infisical-db-20260412.sql` (911KB). Cron entries: `30 2 * * *` (Gitea), `45 2 * * *` (Infisical), retention 7 dias.
 
@@ -210,6 +226,7 @@ CRITICAL — Estabilizar ambiente antes de continuar com SPECs novos.
 ## Verification
 
 Após cada fix, executar:
+
 ```bash
 docker ps | grep -E "tts-bridge|openwebui"
 curl -sf http://localhost:8013/health

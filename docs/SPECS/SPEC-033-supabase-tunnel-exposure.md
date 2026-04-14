@@ -4,7 +4,7 @@ description: Expor supabase.zappro.site via Cloudflare Tunnel — Postgres em co
 type: infrastructure
 status: PENDING
 priority: high
-author: will-zappro
+author: Principal Engineer
 date: 2026-04-12
 specRef: SPEC-032 (tunnel health automation), docs/INFRASTRUCTURE/SUBDOMAINS.md
 ---
@@ -35,12 +35,12 @@ Expor `supabase.zappro.site` via Cloudflare Tunnel. O container Postgres (`ll01e
 
 ## Tech Stack
 
-| Component | Technology | Notes |
-|-----------|------------|-------|
-| Database | PostgreSQL 17.4 (supabase/postgres:17.4.1.032) | Coolify managed |
-| Network | coolify bridge (10.0.0.0/24) | Container IP: 10.0.0.4 |
-| Tunnel | Cloudflare Tunnel (cloudflared) | Terraform managed |
-| Terraform | variables.tf | Ingress rules |
+| Component | Technology                                     | Notes                  |
+| --------- | ---------------------------------------------- | ---------------------- |
+| Database  | PostgreSQL 17.4 (supabase/postgres:17.4.1.032) | Coolify managed        |
+| Network   | coolify bridge (10.0.0.0/24)                   | Container IP: 10.0.0.4 |
+| Tunnel    | Cloudflare Tunnel (cloudflared)                | Terraform managed      |
+| Terraform | variables.tf                                   | Ingress rules          |
 
 ---
 
@@ -78,11 +78,11 @@ cd /srv/ops/terraform/cloudflare && terraform show | grep -A5 supabase
 
 ## Files to Modify
 
-| File | Action |
-|------|--------|
-| `/srv/ops/terraform/cloudflare/variables.tf` | Adicionar entrada supabase em var.services |
+| File                                              | Action                                                |
+| ------------------------------------------------- | ----------------------------------------------------- |
+| `/srv/ops/terraform/cloudflare/variables.tf`      | Adicionar entrada supabase em var.services            |
 | `/srv/monorepo/docs/INFRASTRUCTURE/SUBDOMAINS.md` | Atualizar entrada supabase (ghost → ativo) + IP/porta |
-| `/srv/monorepo/docs/INFRASTRUCTURE/PORTS.md` | Adicionar porta 5432 como supabase |
+| `/srv/monorepo/docs/INFRASTRUCTURE/PORTS.md`      | Adicionar porta 5432 como supabase                    |
 
 ---
 

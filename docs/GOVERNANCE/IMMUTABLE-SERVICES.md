@@ -1,6 +1,6 @@
 ---
 version: 2.0
-author: will-zappro
+author: Principal Engineer
 date: 2026-04-12
 ---
 
@@ -8,7 +8,7 @@ date: 2026-04-12
 
 **Versão:** 2.0 | **Data:** 2026-04-12
 **Modelo:** PINNED + IMMUTABLE dual-layer
-**Autoridade:** will-zappro
+**Autoridade:** Platform Governance
 
 ---
 
@@ -153,4 +153,4 @@ These services benefit from auto-healing but remain PINNED — changes still req
 
 **Criado:** 2026-04-12
 **Modelo:** PINNED + IMMUTABLE dual-layer
-**Autoridade:** will-zappro
+**Autoridade:** Platform Governance

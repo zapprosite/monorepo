@@ -3,7 +3,7 @@ name: new-collection
 description: Template for proposing new Qdrant vector collections
 status: PROPOSED
 priority: medium
-author: will-zappro
+author: Principal Engineer
 date: YYYY-MM-DD
 specRef: REFERENCE/DOC_CATALOG.md
 ---
@@ -16,12 +16,12 @@ specRef: REFERENCE/DOC_CATALOG.md
 
 ## Identificação
 
-| Campo | Valor |
-|-------|-------|
-| **Nome da collection** | `rag_dominio` |
-| **Tipo** | `rag` / `app` / `catalog` / `test` |
-| **Solicitante** | will |
-| **Data da proposta** | YYYY-MM-DD |
+| Campo                  | Valor                              |
+| ---------------------- | ---------------------------------- |
+| **Nome da collection** | `rag_dominio`                      |
+| **Tipo**               | `rag` / `app` / `catalog` / `test` |
+| **Solicitante**        | will                               |
+| **Data da proposta**   | YYYY-MM-DD                         |
 
 ## Descrição
 
@@ -31,12 +31,12 @@ specRef: REFERENCE/DOC_CATALOG.md
 
 ## Especificação Técnica
 
-| Parâmetro | Valor |
-|-----------|-------|
-| **Modelo de embedding** | `bge-m3` (padrão) |
-| **Dimensões** | `1024` |
-| **Métrica de distância** | `Cosine` |
-| **Estimativa de pontos** | ~N pontos |
+| Parâmetro                | Valor             |
+| ------------------------ | ----------------- |
+| **Modelo de embedding**  | `bge-m3` (padrão) |
+| **Dimensões**            | `1024`            |
+| **Métrica de distância** | `Cosine`          |
+| **Estimativa de pontos** | ~N pontos         |
 
 ## Domínio
 
@@ -72,6 +72,7 @@ specRef: REFERENCE/DOC_CATALOG.md
 ## Comandos de Criação
 
 ### Via API REST
+
 ```bash
 curl -X PUT http://localhost:6333/collections/rag_dominio \
   -H "Content-Type: application/json" \
@@ -85,6 +86,7 @@ curl -X PUT http://localhost:6333/collections/rag_dominio \
 ```
 
 ### Registro no Catálogo
+
 ```sql
 INSERT INTO catalog.collection_registry
     (collection_name, collection_type, description, embedding_model, dimensions, distance_metric)

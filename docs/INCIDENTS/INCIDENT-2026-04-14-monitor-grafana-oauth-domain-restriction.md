@@ -16,15 +16,15 @@ Após tentativa de corrigir Cloudflare Access no `monitor.zappro.site`, o login 
 
 ## Timeline
 
-| Hora | Evento |
-|------|--------|
-| ~04:00 | Remoção do Cloudflare Access app de `monitor.zappro.site` (via Cloudflare API) |
-| ~04:05 | Acesso direto ao Grafana exposto — OAuth Google solicita login |
+| Hora   | Evento                                                                                                            |
+| ------ | ----------------------------------------------------------------------------------------------------------------- |
+| ~04:00 | Remoção do Cloudflare Access app de `monitor.zappro.site` (via Cloudflare API)                                    |
+| ~04:05 | Acesso direto ao Grafana exposto — OAuth Google solicita login                                                    |
 | ~04:06 | Erro `"Required email domain not fulfilled"` — `GF_AUTH_GOOGLE_ALLOWED_DOMAINS=zappro.site` bloqueia `@gmail.com` |
-| ~04:08 | Cloudflare Access recriado temporariamente como workaround |
-| ~04:12 | Corrigido `GF_AUTH_GOOGLE_ALLOWED_DOMAINS` em `/srv/apps/monitoring/docker-compose.yml` |
-| ~04:13 | Container Grafana reiniciado com novo domínio aceite |
-| ~04:15 | Login OAuth Google confirmado a funcionar |
+| ~04:08 | Cloudflare Access recriado temporariamente como workaround                                                        |
+| ~04:12 | Corrigido `GF_AUTH_GOOGLE_ALLOWED_DOMAINS` em `/srv/apps/monitoring/docker-compose.yml`                           |
+| ~04:13 | Container Grafana reiniciado com novo domínio aceite                                                              |
+| ~04:15 | Login OAuth Google confirmado a funcionar                                                                         |
 
 ---
 
@@ -34,7 +34,7 @@ Após tentativa de corrigir Cloudflare Access no `monitor.zappro.site`, o login 
 
 1. **Cloudflare Access removido** — A app Access que protegia `monitor.zappro.site` foi acidentalmente apagada na sequência de comandos. Isto expôs o Grafana diretamente, que aplica as suas próprias regras OAuth.
 
-2. **`GF_AUTH_GOOGLE_ALLOWED_DOMAINS=zappro.site`** — O Grafana estava configurado para aceitar apenas emails do domínio `zappro.site`. O utilizador `zappro.ia@gmail.com` foi rejeitado.
+2. **`GF_AUTH_GOOGLE_ALLOWED_DOMAINS=zappro.site`** — O Grafana estava configurado para aceitar apenas emails do domínio `zappro.site`. O utilizador `—` foi rejeitado.
 
 **Nota:** O Cloudflare Access usava o próprio OAuth do Google para autenticar — permitia qualquer conta Google. Quando foi removido, o Grafana passou a aplicar a sua restrição interna de domínio.
 
@@ -55,6 +55,7 @@ GF_AUTH_GOOGLE_ALLOWED_DOMAINS: "zappro.site gmail.com"
 ```
 
 **Apply:**
+
 ```bash
 cd /srv/apps/monitoring && docker-compose down grafana && docker-compose up -d grafana
 ```
@@ -70,16 +71,18 @@ Utilizador → Cloudflare Edge → Cloudflare Access → Grafana → Google OAut
 ```
 
 **Antes da remoção do Access:**
+
 - Cloudflare Access interceptava o pedido
 - OAuth Google era feito pelo Access (aceitava qualquer conta Google)
 - Grafana recebia sessão autenticada via Access cookie
 - **Resultado:** login funcionava para qualquer email Google
 
 **Após remoção do Access:**
+
 - Pedido ia direto ao Grafana
 - Grafana aplicava `GF_AUTH_GOOGLE_ALLOWED_DOMAINS=zappro.site`
 - Qualquer email não-`@zappro.site` era rejeitado na hora do login OAuth
-- **Resultado:** `zappro.ia@gmail.com` bloqueado
+- **Resultado:** `—` bloqueado
 
 ---
 

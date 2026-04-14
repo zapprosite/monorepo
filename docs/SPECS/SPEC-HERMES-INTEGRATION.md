@@ -1,7 +1,7 @@
 # SPEC-HERMES-INTEGRATION: Hermes Agent Integration Patterns
 
 **Date:** 2026-04-14
-**Author:** will-zappro
+**Author:** Principal Engineer
 **Status:** RESEARCH_COMPLETE
 **Type:** Architecture
 **Branch:** feature/quantum-helix-done
@@ -22,7 +22,7 @@ Hermes Agent is now running as the central AI gateway for the homelab. This docu
 - Fallback LLM: Ollama/qwen2.5vl:7b (local RTX 4090)
 - Telegram: ✅ Connected (polling mode)
   - Bot: @CEO_REFRIMIX_bot (verified via getMe)
-  - Registered DM: William Rodrigues (ID: 7220607041)
+  - Registered DM: Telegram user (ID: <user_id>)
   - bot.zappro.site: ❌ 530 (degraded — OpenClaw legacy)
 
 ---

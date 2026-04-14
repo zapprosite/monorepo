@@ -1,6 +1,6 @@
 # Physical Partitions & Allocation Map
 
-**Host:** will-zappro (Ubuntu 24.04 LTS)
+**Host:** homelab (Ubuntu 24.04 LTS)
 **Last Updated:** 2026-03-16
 
 This document is the authoritative map of where data lives and why.
@@ -8,6 +8,7 @@ This document is the authoritative map of where data lives and why.
 ## 1. Physical Disks
 
 ### nvme1n1: System Disk (Kingston SNV3S1000G - 931.5 GB)
+
 **Purpose:** Operating system, boot, user profiles
 **NEVER alter this disk at raw level.**
 
@@ -19,6 +20,7 @@ nvme1n1 (931.5 GB total)
 ```
 
 **Capacity Usage:**
+
 - `/`: 30 GB / 274 GB (12% - mostly OS, temp, logs)
 - `/home`: ~100 GB / 651 GB (15% - user files, caches)
 
@@ -28,6 +30,7 @@ nvme1n1 (931.5 GB total)
 ---
 
 ### nvme0n1: Data Disk (Crucial CT4000T700SSD3 - 3.64 TB)
+
 **Purpose:** All persistent application data
 **CRITICAL: ZFS pool "tank" lives entirely on this disk.**
 **NEVER alter this disk at raw level.**
@@ -41,6 +44,7 @@ nvme0n1 (3.64 TB total)
 ```
 
 **NEVER:**
+
 - Run `wipefs` on this disk
 - Run `dd` on this disk
 - Create filesystems on this disk outside ZFS
@@ -56,6 +60,7 @@ nvme0n1 (3.64 TB total)
 ### Pool "tank" (3.64 TB)
 
 **Properties:**
+
 - `compression=lz4` (fast, good ratio)
 - `atime=off` (reduces disk writes)
 - `recordsize=128KB` (good for mixed workload)
@@ -137,27 +142,28 @@ tank/                                    (root of pool)
 
 ## 3. Mountpoint Allocation
 
-| Mountpoint | Device/Dataset | Size | Purpose | Can Delete? | Backup? |
-|-----------|-----------------|------|---------|-------------|---------|
-| `/boot/efi` | nvme1n1p1 | 1 GB | EFI boot | NO | NO |
-| `/` | nvme1n1p2 | 274 GB | OS root | NO | NO |
-| `/home` | nvme1n1p3 | 651 GB | User home | NO | NO |
-| `/srv` | (symlink to /srv) | - | Persistence root | NO | YES (ZFS) |
-| `/srv/docker-data` | tank/docker-data | ~2 GB | Docker | NO | YES (snapshots) |
-| `/srv/data/postgres` | tank/postgres | ~500 MB | n8n DB | NO | YES (backups) |
-| `/srv/data/qdrant` | tank/qdrant | ~1 GB | Vector DB | NO | YES (backups) |
-| `/srv/data/n8n` | tank/n8n | ~200 MB | Workflows | NO | YES (backups) |
-| `/srv/monorepo` | tank/monorepo | ~500 MB | App code | NO | YES (Git + ZFS) |
-| `/srv/backups` | tank/backups | ~5 GB | Archives | NO | YES (external) |
-| `/srv/models` | tank/models | ~0 GB | Reserved | NO | YES (future) |
-| `/tank/supabase` | tank/supabase | ~24 KB | Supabase configs | NO | YES (Supabase stack) |
-| `/tank/supabase-db` | tank/supabase-db | ~24 KB | Supabase PostgreSQL | NO | YES (pg_dump) |
+| Mountpoint           | Device/Dataset    | Size    | Purpose             | Can Delete? | Backup?              |
+| -------------------- | ----------------- | ------- | ------------------- | ----------- | -------------------- |
+| `/boot/efi`          | nvme1n1p1         | 1 GB    | EFI boot            | NO          | NO                   |
+| `/`                  | nvme1n1p2         | 274 GB  | OS root             | NO          | NO                   |
+| `/home`              | nvme1n1p3         | 651 GB  | User home           | NO          | NO                   |
+| `/srv`               | (symlink to /srv) | -       | Persistence root    | NO          | YES (ZFS)            |
+| `/srv/docker-data`   | tank/docker-data  | ~2 GB   | Docker              | NO          | YES (snapshots)      |
+| `/srv/data/postgres` | tank/postgres     | ~500 MB | n8n DB              | NO          | YES (backups)        |
+| `/srv/data/qdrant`   | tank/qdrant       | ~1 GB   | Vector DB           | NO          | YES (backups)        |
+| `/srv/data/n8n`      | tank/n8n          | ~200 MB | Workflows           | NO          | YES (backups)        |
+| `/srv/monorepo`      | tank/monorepo     | ~500 MB | App code            | NO          | YES (Git + ZFS)      |
+| `/srv/backups`       | tank/backups      | ~5 GB   | Archives            | NO          | YES (external)       |
+| `/srv/models`        | tank/models       | ~0 GB   | Reserved            | NO          | YES (future)         |
+| `/tank/supabase`     | tank/supabase     | ~24 KB  | Supabase configs    | NO          | YES (Supabase stack) |
+| `/tank/supabase-db`  | tank/supabase-db  | ~24 KB  | Supabase PostgreSQL | NO          | YES (pg_dump)        |
 
 ---
 
 ## 4. Data Classification
 
 ### TIER 1 (Critical - Must have backups)
+
 - `/srv/data/postgres` (n8n workflows are business logic)
 - `/srv/data/qdrant` (trained embeddings are expensive to recreate)
 - `/srv/data/n8n` (workflow configs are irreplaceable)
@@ -166,17 +172,20 @@ tank/                                    (root of pool)
 **Backup Policy:** Daily, 7-day rotation, tested restore
 
 ### TIER 2 (Important - Should have snapshots)
+
 - `/srv/monorepo` (application code)
 - `/srv/docker-data` (Docker configuration, cached images)
 
 **Backup Policy:** Pre-change snapshots, Git commits
 
 ### TIER 3 (Convenience - Optional snapshots)
+
 - `/home` (user files, caches)
 
 **Backup Policy:** User discretion
 
 ### TIER 4 (Ephemeral - No backup needed)
+
 - `/tmp`, `/var/tmp`
 - `/var/log` (logs rotate automatically)
 
@@ -187,24 +196,28 @@ tank/                                    (root of pool)
 ## 5. Never Mix These
 
 ### ❌ System + Application Data
+
 **Bad:** Storing n8n config in `/home/user/n8n.db`
 **Good:** Storing n8n config in `/srv/data/n8n`
 
 **Why:** System disk can be rebuilt; application data cannot.
 
 ### ❌ Docker Volumes + System
+
 **Bad:** Docker data-root at default `/var/lib/docker` (on `/`)
 **Good:** Docker data-root at `/srv/docker-data` (on ZFS)
 
 **Why:** Enables snapshots, backups, and relocation.
 
 ### ❌ Live Data + Backups in Same Mount
+
 **Bad:** Backups in `/srv/data/backups/` (same mount as source)
 **Good:** Backups in `/srv/backups/` (separate dataset)
 
 **Why:** If mount corrupts, don't lose both source and backup.
 
 ### ❌ Credentials + Code
+
 **Bad:** Secrets in `/srv/monorepo/config.js`
 **Good:** Secrets in `/root/.env` (external)
 
@@ -215,8 +228,10 @@ tank/                                    (root of pool)
 ## 6. Disk Failure Scenarios
 
 ### Scenario A: nvme1n1 (System Disk) Fails
+
 **Impact:** OS unusable, but all data in /srv survives
 **Recovery:**
+
 1. Replace disk
 2. Install fresh Ubuntu 24.04 LTS
 3. Mount nvme0n1 at `/srv` from external or recovery mode
@@ -226,8 +241,10 @@ tank/                                    (root of pool)
 **RPO:** 0 (all data in ZFS)
 
 ### Scenario B: nvme0n1 (Data Disk) Fails
+
 **Impact:** All persistent data lost, services cannot start
 **Recovery:**
+
 1. Replace disk
 2. From backup (external): `zpool import -d /path/to/backup tank`
 3. Or restore from /srv/backups archives
@@ -236,8 +253,10 @@ tank/                                    (root of pool)
 **RPO:** 24 hours (last daily backup)
 
 ### Scenario C: ZFS Pool Corruption
+
 **Impact:** Data unreadable
 **Recovery:**
+
 1. If pool still importable: `sudo zpool import tank`
 2. If not: restore from backup external drive
 3. Or rollback to last clean snapshot: `sudo zfs rollback tank@snapshot-name`
@@ -250,24 +269,28 @@ tank/                                    (root of pool)
 ## 7. Allocation Policy
 
 ### Can Live in /srv/data
+
 - PostgreSQL databases
 - Vector stores (Qdrant, Weaviate, etc.)
 - Workflow configs (n8n, Make, Zapier-like)
 - Persistent caches that are expensive to rebuild
 
 ### CANNOT Live in /srv/data
+
 - Source code (must be in /srv/monorepo + Git)
 - Temporary files (use /tmp)
 - OS system files (use /)
 - User home files (use /home)
 
 ### Can Live in /srv/docker-data
+
 - Docker images (pulled)
 - Container layers (built)
 - Docker configs
 - Volumes marked persistent
 
 ### CANNOT Live in /srv/docker-data
+
 - User home (never)
 - Application config (use /srv/monorepo or /srv/data)
 - Secrets (manage externally)
@@ -302,16 +325,19 @@ df -h /srv/*
 ## 9. Capacity Planning
 
 ### Current Usage
+
 - System disk: ~30% used (system is ~50 GB, leaving 240 GB)
 - Data disk: ~0.2% used (3.64 TB, only ~5 GB in use)
 
 ### Growth Headroom
+
 - PostgreSQL: Can grow to 1 TB before concern
 - Qdrant: Can grow to 500 GB (embeddings scale linearly)
 - Docker: Can grow to 100 GB (many images)
 - Backups: Auto-rotate, capped at 7 days
 
 ### Action Items
+
 - When `/srv/data` reaches 50%, review and archive old data
 - When `/srv/docker-data` reaches 50 GB, prune old images
 - Monitor postgres size: `SELECT pg_database_size('n8n');`

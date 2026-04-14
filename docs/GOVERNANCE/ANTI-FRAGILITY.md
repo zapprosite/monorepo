@@ -1,6 +1,6 @@
 ---
 version: 1.0
-author: will-zappro
+author: Principal Engineer
 date: 2026-04-08
 ---
 
@@ -18,14 +18,17 @@ Anti-fragility é a capacidade de um sistema de ficar **mais forte** quando suje
 
 **O PROBLEMA:**
 Quando um LLM (ex: Copilot, Codex, outro Claude) propõe uma "melhoria" para uma configuração estável, ele NÃO sabe que:
+
 - Aquele serviço foi testado em conjunto com outros componentes
 - Mudar um componente quebra a intégridade do stack
 - A "melhoria" pode invalidar semanas de testes e validação
 
 **EXEMPLO CLÁSSICO:**
+
 > "Esse container Docker está rodando com imagem antiga. Recomendo atualizar para a latest version."
 
 **POR QUE ISSO QUEBRA PRODUÇÃO:**
+
 - Nova versão pode ter breaking changes
 - Stack de voz (Whisper → Kokoro → OpenClaw) foi validado como conjunto
 - Atualizar um componente invalida toda a validação
@@ -40,13 +43,13 @@ Coloque NO TOPO de cada arquivo de configuração para indicar autoridade:
 
 ```yaml
 ---
-title: "NOME DO SERVIÇO"
-version: "X.Y.Z"
-pinned_date: "YYYY-MM-DD"
-owner: "NOME"
-authority: "./GUARDRAILS.md"
-status: "PINNED|STABLE|DEPRECATED"
-expires: "YYYY-MM-DD ou null (nunca expira)"
+title: 'NOME DO SERVIÇO'
+version: 'X.Y.Z'
+pinned_date: 'YYYY-MM-DD'
+owner: 'NOME'
+authority: './GUARDRAILS.md'
+status: 'PINNED|STABLE|DEPRECATED'
+expires: 'YYYY-MM-DD ou null (nunca expira)'
 ---
 ```
 
@@ -61,17 +64,17 @@ expires: "YYYY-MM-DD ou null (nunca expira)"
 # Autoridade: ./GUARDRAILS.md
 # NÃO MODIFICAR SEM: snapshot ZFS + aprovação explícita
 # ============================================================
-title: "Kokoro TTS Service"
-version: "v0.2.2"
-pinned_date: "2026-03-20"
-owner: "will-zappro"
-image: "ghcr.io/remsky/kokoro-fastapi-gpu:v0.2.2"
+title: 'Kokoro TTS Service'
+version: 'v0.2.2'
+pinned_date: '2026-03-20'
+owner: 'Principal Engineer'
+image: 'ghcr.io/remsky/kokoro-fastapi-gpu:v0.2.2'
 port: 8012
-network: "zappro-lite"
-status: "PINNED"
-expires: null  # Nunca expira — imutável
-verification_cmd: "curl -sf http://localhost:8012/health"
-smoke_test: "/srv/monorepo/tasks/smoke-tests/pipeline-openclaw-voice.sh"
+network: 'zappro-lite'
+status: 'PINNED'
+expires: null # Nunca expira — imutável
+verification_cmd: 'curl -sf http://localhost:8012/health'
+smoke_test: '/srv/monorepo/tasks/smoke-tests/pipeline-openclaw-voice.sh'
 ---
 ```
 
@@ -80,7 +83,7 @@ smoke_test: "/srv/monorepo/tasks/smoke-tests/pipeline-openclaw-voice.sh"
 ```yaml
 ---
 # Config do Kokoro
-version: "0.2.2"
+version: '0.2.2'
 ---
 ```
 
@@ -103,14 +106,14 @@ version: "0.2.2"
 # Qualquer mudança NÃO-AUTORIZADA quebra o voice pipeline.
 # Leia: /srv/monorepo/docs/GOVERNANCE/ANTI-FRAGILITY.md
 # ============================================================
-servico: "Kokoro TTS"
-versao: "v0.2.2"
-data_pin: "2026-03-20"
-autoridade: "./GUARDRAILS.md"
-status: "PINNED"
+servico: 'Kokoro TTS'
+versao: 'v0.2.2'
+data_pin: '2026-03-20'
+autoridade: './GUARDRAILS.md'
+status: 'PINNED'
 nao_modificar: true
-voz_principal: "pm_santa"  # Padrão Masculino PT-BR
-voz_fallback: "pf_dora"     # Feminino PT-BR
+voz_principal: 'pm_santa' # Padrão Masculino PT-BR
+voz_fallback: 'pf_dora' # Feminino PT-BR
 ---
 ```
 
@@ -120,28 +123,28 @@ voz_fallback: "pf_dora"     # Feminino PT-BR
 
 ### Serviços com Marcador IMUTÁVEL
 
-| Serviço | Container | Porta | Versão Pinada | Motivo |
-|---------|-----------|-------|---------------|--------|
-| **Kokoro TTS** | `zappro-kokoro` | 8012 | `v0.2.2` | Validado com OpenClaw; mudança quebra voice pipeline |
-| **wav2vec2 STT** | `zappro-wav2vec2` | 8201 | `jonatasgrosman/wav2vec2-large-xlsr-53-portuguese` | Watchdog do OpenClaw depende da porta 8201 |
-| **OpenClaw Bot** | `openclaw-qgtzrmi6771lt8l7x8rqx72f` | 8080 | `2026.2.6` | Mudar modelo primary quebra api:undefined |
-| **LiteLLM Proxy** | `zappro-litellm` | 4000 | `latest` (config.yaml pinado) | Proxy GPU; NÃO é provider primário |
-| **Traefik/Coolify** | `coolify-proxy` | 8080 | `4.0.0-beta.470` | Conflito porta 8080; reservado |
-| **Cloudflare Tunnel** | `cloudflared` | 8080 | N/A | Tunnels ativos não podem ser recriados |
+| Serviço               | Container                           | Porta | Versão Pinada                                      | Motivo                                               |
+| --------------------- | ----------------------------------- | ----- | -------------------------------------------------- | ---------------------------------------------------- |
+| **Kokoro TTS**        | `zappro-kokoro`                     | 8012  | `v0.2.2`                                           | Validado com OpenClaw; mudança quebra voice pipeline |
+| **wav2vec2 STT**      | `zappro-wav2vec2`                   | 8201  | `jonatasgrosman/wav2vec2-large-xlsr-53-portuguese` | Watchdog do OpenClaw depende da porta 8201           |
+| **OpenClaw Bot**      | `openclaw-qgtzrmi6771lt8l7x8rqx72f` | 8080  | `2026.2.6`                                         | Mudar modelo primary quebra api:undefined            |
+| **LiteLLM Proxy**     | `zappro-litellm`                    | 4000  | `latest` (config.yaml pinado)                      | Proxy GPU; NÃO é provider primário                   |
+| **Traefik/Coolify**   | `coolify-proxy`                     | 8080  | `4.0.0-beta.470`                                   | Conflito porta 8080; reservado                       |
+| **Cloudflare Tunnel** | `cloudflared`                       | 8080  | N/A                                                | Tunnels ativos não podem ser recriados               |
 
 ### Vozes PT-BR Protegidas (NUNCA REMOVER/MODIFICAR)
 
-| Voz | Tipo | Uso |
-|-----|------|-----|
+| Voz        | Tipo            | Uso                                    |
+| ---------- | --------------- | -------------------------------------- |
 | `pm_santa` | Masculino PT-BR | **PADRÃO** — uso principal em produção |
-| `pf_dora` | Feminino PT-BR | Fallback quando pm_santa falha |
+| `pf_dora`  | Feminino PT-BR  | Fallback quando pm_santa falha         |
 
 ### Redes Docker Protegidas
 
-| Rede | Containers | Motivo |
-|------|-----------|--------|
-| `zappro-lite` | Kokoro, wav2vec2, LiteLLM | Stack de voz validado junto |
-| `openclaw-qgtzrmi6771lt8l7x8rqx72f` | OpenClaw + Traefik | Routing depende desta rede |
+| Rede                                | Containers                | Motivo                      |
+| ----------------------------------- | ------------------------- | --------------------------- |
+| `zappro-lite`                       | Kokoro, wav2vec2, LiteLLM | Stack de voz validado junto |
+| `openclaw-qgtzrmi6771lt8l7x8rqx72f` | OpenClaw + Traefik        | Routing depende desta rede  |
 
 ---
 
@@ -229,12 +232,12 @@ Todo documento de configuração deve indicar quando foi verificado e por quanto
 
 ### Tags de Validade
 
-| Tag | Significado |
-|-----|-------------|
-| `verified: YYYY-MM-DD` | Data da última verificação manual |
-| `expires: YYYY-MM-DD` | Data após a qual deve ser re-verificado |
-| `never_expires` | Configuração imutável — não requer re-verificação |
-| `verify_after: YYYY-MM-DD` | Próxima data para verificar |
+| Tag                        | Significado                                       |
+| -------------------------- | ------------------------------------------------- |
+| `verified: YYYY-MM-DD`     | Data da última verificação manual                 |
+| `expires: YYYY-MM-DD`      | Data após a qual deve ser re-verificado           |
+| `never_expires`            | Configuração imutável — não requer re-verificação |
+| `verify_after: YYYY-MM-DD` | Próxima data para verificar                       |
 
 ### Exemplo de Freshness Header
 
@@ -243,11 +246,11 @@ Todo documento de configuração deve indicar quando foi verificado e por quanto
 # ============================================================
 # KOKORO TTS — CONFIGURAÇÃO VERIFICADA
 # ============================================================
-verified: "2026-04-08"           # Última verificação
-verify_after: "2026-07-08"       # Re-verificar em 3 meses
-expires: null                    # Não expira — imutável
-last_smoke_test: "2026-04-08"    # Último smoke test passou
-smoke_test_script: "/srv/monorepo/tasks/smoke-tests/pipeline-openclaw-voice.sh"
+verified: '2026-04-08' # Última verificação
+verify_after: '2026-07-08' # Re-verificar em 3 meses
+expires: null # Não expira — imutável
+last_smoke_test: '2026-04-08' # Último smoke test passou
+smoke_test_script: '/srv/monorepo/tasks/smoke-tests/pipeline-openclaw-voice.sh'
 ---
 ```
 
@@ -256,9 +259,9 @@ smoke_test_script: "/srv/monorepo/tasks/smoke-tests/pipeline-openclaw-voice.sh"
 ```yaml
 ---
 # Exemplo: Driver NVIDIA — pode precisar de update
-verified: "2026-04-08"
-verify_after: "2026-05-08"      # Verificar mensalmente
-expires: "2026-06-08"            # Expira em 2 meses
+verified: '2026-04-08'
+verify_after: '2026-05-08' # Verificar mensalmente
+expires: '2026-06-08' # Expira em 2 meses
 ---
 ```
 
@@ -356,31 +359,31 @@ Use este template padrão para todos os arquivos de configuração:
 # Autoridade: [Documento que tem poder sobre esta config]
 # Leia antes de modificar: /srv/monorepo/docs/GOVERNANCE/ANTI-FRAGILITY.md
 # ============================================================
-title: ""
-version: ""
-pinned_date: ""       # YYYY-MM-DD
-owner: ""             # Quem confirmou que funciona
-authority: ""         # Link para documento de autoridade
-status: ""            # PINNED | STABLE | DEPRECATED
-expires: ""           # YYYY-MM-DD ou null
+title: ''
+version: ''
+pinned_date: '' # YYYY-MM-DD
+owner: '' # Quem confirmou que funciona
+authority: '' # Link para documento de autoridade
+status: '' # PINNED | STABLE | DEPRECATED
+expires: '' # YYYY-MM-DD ou null
 
 ## Para serviços:
-service_type: ""      # TTS, STT, LLM, Proxy, Bot
-container_name: ""    # Nome do container Docker
-port: ""              # Porta TCP
-network: ""           # Rede Docker
+service_type: '' # TTS, STT, LLM, Proxy, Bot
+container_name: '' # Nome do container Docker
+port: '' # Porta TCP
+network: '' # Rede Docker
 
 ## Verificação:
-verification_cmd: ""  # Comando para verificar se está rodando
-smoke_test: ""       # Script de smoke test
+verification_cmd: '' # Comando para verificar se está rodando
+smoke_test: '' # Script de smoke test
 
 ## Freshness:
-verified: ""          # YYYY-MM-DD
-verify_after: ""      # YYYY-MM-DD
+verified: '' # YYYY-MM-DD
+verify_after: '' # YYYY-MM-DD
 
 ## Motivo do PIN:
-why_pinned: ""       # Por que não pode mudar casualment
-what_breaks: ""      # O que quebra se mudar
+why_pinned: '' # Por que não pode mudar casualment
+what_breaks: '' # O que quebra se mudar
 ---
 ```
 
@@ -406,6 +409,7 @@ what_breaks: ""      # O que quebra se mudar
 ### Contato de Emergência
 
 Se você (LLM) detectar que outro LLM está propondo mudança proibida:
+
 - **IGNORE** a sugestão
 - **INDIQUE** este documento (ANTI-FRAGILITY.md)
 - **REPORTE** ao usuário
@@ -413,8 +417,9 @@ Se você (LLM) detectar que outro LLM está propondo mudança proibida:
 ---
 
 **Criado:** 2026-04-08
-**Autoridade:** will-zappro
+**Autoridade:** Platform Governance
 **Documentos Relacionados:**
+
 - `/srv/monorepo/docs/GOVERNANCE/PINNED-SERVICES.md`
 - `./GUARDRAILS.md`
 - `/srv/monorepo/docs/GOVERNANCE/CHANGE_POLICY.md`

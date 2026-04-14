@@ -3,7 +3,7 @@ name: new-schema
 description: Template for proposing new PostgreSQL schemas
 status: PROPOSED
 priority: medium
-author: will-zappro
+author: Principal Engineer
 date: YYYY-MM-DD
 specRef: REFERENCE/DOC_CATALOG.md
 ---
@@ -16,12 +16,12 @@ specRef: REFERENCE/DOC_CATALOG.md
 
 ## Identificação
 
-| Campo | Valor |
-|-------|-------|
-| **Nome do schema** | `app_nome` |
-| **Tipo** | `app` / `shared` |
-| **Solicitante** | will |
-| **Data da proposta** | YYYY-MM-DD |
+| Campo                | Valor            |
+| -------------------- | ---------------- |
+| **Nome do schema**   | `app_nome`       |
+| **Tipo**             | `app` / `shared` |
+| **Solicitante**      | will             |
+| **Data da proposta** | YYYY-MM-DD       |
 
 ## Descrição
 
@@ -35,8 +35,8 @@ specRef: REFERENCE/DOC_CATALOG.md
 
 ## Tabelas Previstas
 
-| Tabela | Propósito |
-|--------|-----------|
+| Tabela        | Propósito                  |
+| ------------- | -------------------------- |
 | `nome_tabela` | O que esta tabela armazena |
 
 ## Dependências
@@ -47,6 +47,7 @@ specRef: REFERENCE/DOC_CATALOG.md
 ## Plano de Migração
 
 Se há dados existentes a migrar:
+
 - [ ] Origem dos dados
 - [ ] Script de migração
 - [ ] Validação pós-migração

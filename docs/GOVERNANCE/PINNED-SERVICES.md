@@ -1,6 +1,6 @@
 ---
 version: 2.0
-author: will-zappro
+author: Principal Engineer
 date: 2026-04-12
 ---
 
@@ -16,16 +16,16 @@ date: 2026-04-12
 
 ### Tabela Central
 
-| Serviço               | Container                | Porta                      | Versão/Pin                                         | Owner       | Desde      |
-| --------------------- | ------------------------ | -------------------------- | -------------------------------------------------- | ----------- | ---------- |
-| **TTS Bridge**        | `zappro-tts-bridge`      | 8013                       | `python:3.11-slim + tts-bridge.py`                 | will-zappro | 2026-04-08 |
-| **Kokoro TTS**        | `zappro-kokoro`          | 8012                       | `ghcr.io/remsky/kokoro-fastapi-gpu:v0.2.2`         | will-zappro | 2026-03-20 |
-| **wav2vec2 STT**      | `zappro-wav2vec2`        | 8201                       | `jonatasgrosman/wav2vec2-large-xlsr-53-portuguese` | will-zappro | 2026-03-15 |
-| **Hermes Agent**      | `hermes-agent` (systemd) | 8642 (gateway), 8092 (MCP) | `0.9.0+`                                           | will-zappro | 2026-04-14 |
-| **Ollama**            | `ollama` (systemd)       | 11434                      | `qwen2.5vl:7b` (RTX 4090)                          | will-zappro | 2026-04-14 |
-| **LiteLLM Proxy**     | `zappro-litellm`         | 4000                       | `latest` (config.yaml pinado)                      | will-zappro | 2026-03-01 |
-| **Coolify Traefik**   | `coolify-proxy`          | 8080                       | `4.0.0-beta.470`                                   | will-zappro | 2026-03-01 |
-| **Cloudflare Tunnel** | `cloudflared`            | 8080                       | N/A (ativo)                                        | will-zappro | 2026-02-15 |
+| Serviço               | Container                | Porta                      | Versão/Pin                                         | Owner              | Desde      |
+| --------------------- | ------------------------ | -------------------------- | -------------------------------------------------- | ------------------ | ---------- |
+| **TTS Bridge**        | `zappro-tts-bridge`      | 8013                       | `python:3.11-slim + tts-bridge.py`                 | Principal Engineer | 2026-04-08 |
+| **Kokoro TTS**        | `zappro-kokoro`          | 8012                       | `ghcr.io/remsky/kokoro-fastapi-gpu:v0.2.2`         | Principal Engineer | 2026-03-20 |
+| **wav2vec2 STT**      | `zappro-wav2vec2`        | 8201                       | `jonatasgrosman/wav2vec2-large-xlsr-53-portuguese` | Principal Engineer | 2026-03-15 |
+| **Hermes Agent**      | `hermes-agent` (systemd) | 8642 (gateway), 8092 (MCP) | `0.9.0+`                                           | Principal Engineer | 2026-04-14 |
+| **Ollama**            | `ollama` (systemd)       | 11434                      | `qwen2.5vl:7b` (RTX 4090)                          | Principal Engineer | 2026-04-14 |
+| **LiteLLM Proxy**     | `zappro-litellm`         | 4000                       | `latest` (config.yaml pinado)                      | Principal Engineer | 2026-03-01 |
+| **Coolify Traefik**   | `coolify-proxy`          | 8080                       | `4.0.0-beta.470`                                   | Principal Engineer | 2026-03-01 |
+| **Cloudflare Tunnel** | `cloudflared`            | 8080                       | N/A (ativo)                                        | Principal Engineer | 2026-02-15 |
 
 ---
 
@@ -39,7 +39,7 @@ port: 8013
 image: 'python:3.11-slim + tts-bridge.py (stdlib)'
 network: 'qgtzrmi6771lt8l8rqx72f + zappro-lite_default'
 endpoint: 'http://localhost:8013/v1/audio/speech'
-owner: 'will-zappro'
+owner: 'Principal Engineer'
 pinned_date: '2026-04-08'
 status: 'PINNED'
 why_pinned: 'Filtra vozes Kokoro — apenas pm_santa e pf_dora permitidas. Bloqueia 65 vozes não-autorizadas.'
@@ -105,7 +105,7 @@ port: 8012
 image: 'ghcr.io/remsky/kokoro-fastapi-gpu:v0.2.2'
 network: 'zappro-lite'
 endpoint: 'http://localhost:8012/v1/audio/speech'
-owner: 'will-zappro'
+owner: 'Principal Engineer'
 pinned_date: '2026-03-20'
 status: 'PINNED'
 why_pinned: 'Validado com OpenClaw watchdog e LiteLLM proxy. Mudar quebra routing de TTS.'
@@ -143,7 +143,7 @@ port: 8201
 model: 'jonatasgrosman/wav2vec2-large-xlsr-53-portuguese'
 network: 'zappro-lite'
 endpoint: 'http://localhost:8201/v1/audio/transcriptions'
-owner: 'will-zappro'
+owner: 'Principal Engineer'
 pinned_date: '2026-03-15'
 status: 'PINNED'
 why_pinned: 'Watchdog do OpenClaw depende da porta 8201. HF model cache é grande (5.8GB).'
@@ -182,7 +182,7 @@ image: 'ghcr.io/openclaw/openclaw:2026.2.6'
 network: 'openclaw-qgtzrmi6771lt8l7x8rqx72f'
 fqdn: 'openclaw-qgtzrmi6771lt8l7x8rqx72f.191.17.50.123.sslip.io'
 tunnel_fqdn: 'bot.zappro.site' # PRUNED — DNS removed 2026-04-14
-owner: 'will-zappro'
+owner: 'Principal Engineer'
 pinned_date: '2026-03-10'
 status: 'DEPRECATED'
 primary_model: 'minimax/MiniMax-M2.7'
@@ -218,7 +218,7 @@ container_name: 'zappro-litellm'
 port: 4000
 network: 'zappro-lite'
 config_file: '/home/will/zappro-lite/config.yaml'
-owner: 'will-zappro'
+owner: 'Principal Engineer'
 pinned_date: '2026-03-01'
 status: 'PINNED'
 why_pinned: 'Proxy GPU para TTS, STT, Vision. NÃO é provider primário. Config.yaml foi validado.'
@@ -253,7 +253,7 @@ container_name: 'coolify-proxy'
 port: 8080
 version: '4.0.0-beta.470'
 network: 'bridge,coolify'
-owner: 'will-zappro'
+owner: 'Principal Engineer'
 pinned_date: '2026-03-01'
 status: 'PINNED'
 why_pinned: 'Conflito de porta 8080 detectado em 2026-04-05. Reservado para Traefik + cloudflared.'
@@ -284,7 +284,7 @@ container_name: 'cloudflared'
 port: 8080
 tunnel_name: 'openclaw-tunnel'
 tunnel_fqdn: 'hermes.zappro.site' # primary routing — *.zappro.site
-owner: 'will-zappro'
+owner: 'Principal Engineer'
 pinned_date: '2026-02-15'
 status: 'PINNED'
 why_pinned: 'Tunnel ativo — multiplos subdomains dependem dele'
@@ -318,7 +318,7 @@ ports: "8642 (gateway), 8092 (MCP)"
 version: "0.9.0+"
 model: "minimax/MiniMax-M2.7 via MiniMax API"
 fqdn: "hermes.zappro.site"
-owner: will-zappro
+owner: Principal Engineer
 pinned_date: "2026-04-14"
 status: "PINNED"
 why_pinned: "Agent brain — self-improving, Telegram polling, skill creation. State must persist across sessions."
@@ -355,7 +355,7 @@ service: "Ollama"
 container: "ollama" (systemd, bare metal Ubuntu Desktop)
 port: 11434
 model: "qwen2.5vl:7b" (RTX 4090)
-owner: will-zappro
+owner: Principal Engineer
 pinned_date: "2026-04-14"
 status: "PINNED"
 why_pinned: "Local GPU inference — RTX 4090. Model cache 5GB+. LiteLLM proxy routing depends on it."
@@ -545,8 +545,8 @@ Se usuário insiste:
 
 **Criado:** 2026-04-12
 **Última verificação:** 2026-04-12
-**Autoridade:** will-zappro
-**Autoridade:** will-zappro
+**Autoridade:** Platform Governance
+**Autoridade:** Platform Governance
 
 **Documentos Relacionados:**
 

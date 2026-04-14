@@ -1,12 +1,12 @@
 ---
 version: 1.0
-author: will-zappro
+author: Principal Engineer
 date: 2026-03-17
 ---
 
 # Incident Management & Postmortem
 
-**Host:** will-zappro
+**Host:** homelab
 **Last Updated:** 2026-03-17
 
 Log of incidents and how to handle them.
@@ -14,6 +14,7 @@ Log of incidents and how to handle them.
 ## Incident Log
 
 ### INC-001 — Voice Stack + GPU Exporter Down (pós-update NVIDIA 580.126.20)
+
 - **Date:** 2026-03-17
 - **Severity:** Medium
 - **Duration:** ~1 dia (detectado na auditoria pós-update)
@@ -28,6 +29,7 @@ Log of incidents and how to handle them.
 - **Prevention:** Containers GPU com `restart: unless-stopped` já configurados. Após updates de driver, executar `docker ps -a` para verificar containers parados.
 
 ### INC-002 — Antigravity Memory Leak → OOM → System Reboot (2026-03-25/26)
+
 - **Date:** 2026-03-25 22:40 → 2026-03-26 03:27
 - **Severity:** High
 - **Duration:** ~5h entre OOM kill e reboot; reboot não-gracioso
@@ -44,9 +46,11 @@ Log of incidents and how to handle them.
 - **Prevention:** Ver GUARDRAILS.md §11 — todo novo serviço DEVE ter `MemoryMax` antes de produção.
 
 ## Current Incidents
+
 (Nenhum aberto)
 
 ### INC-003 — Monitoring Stack Fragmentada, nvidia-gpu-exporter Created-not-Started (2026-04-04)
+
 - **Date:** 2026-04-04
 - **Severity:** Medium
 - **Duration:** ~30min (encontrado durante verificação de dashboard vazio)
@@ -72,15 +76,16 @@ Log of incidents and how to handle them.
   - `./skills/monitoring-zfs-snapshot.md`
 
 ### INC-004 — Cloudflared Multi-Daemon Conflict (2026-04-14)
+
 - **Date:** 2026-04-14 10:17-10:22
 - **Severity:** Medium
 - **Duration:** ~5min (detectado durante SRE monitor)
-- **Services Affected:** Todos os subdomínios (*.zappro.site) — HTTP 000
+- **Services Affected:** Todos os subdomínios (\*.zappro.site) — HTTP 000
 - **Root Cause:**
   1. Systemd cloudflared.service foi desactivado manualemente (07:42)
   2. Daemon manual iniciado (PID 3275599, 07:43) com config desatualizada (hermes → 10.0.5.2:8642)
   3. `systemctl restart cloudflared` às 10:17 criou novo daemon (PID 550048) com config correta
-  4. **Dois daemons em conflito** — mesmo tunnel name `will-zappro-homelab` — cloudflared mal gerido
+  4. **Dois daemons em conflito** — mesmo tunnel name `homelab-tunnel` — cloudflared mal gerido
 - **Resolution:**
   1. Identificados PIDs: `ps aux | grep cloudflared`
   2. `sudo kill 3275599` — mata daemon manual
@@ -93,11 +98,12 @@ Log of incidents and how to handle them.
   - SRE monitor detecta múltiplos daemons
 - **Lessons Learned:**
   - Múltiplos cloudflared com mesmo credentials = comportamento imprevisível
-  -Daemon manual vs systemd = confusion tracking
+    -Daemon manual vs systemd = confusion tracking
 - **Files Modified:**
   - `sre-monitor.sh` — fix subdomain URL parsing (`https://$sub` → `https://${sub}.zappro.site`)
 
 ### INC-005 — node-exporter Healthcheck False Positive (curl not found) (2026-04-14)
+
 - **Date:** 2026-04-14 10:46 — discovered 13:45
 - **Severity:** Medium
 - **Duration:** ~3h (false health failures triggering restart loop guard)
@@ -134,12 +140,14 @@ Log of incidents and how to handle them.
   - `docs/GOVERNANCE/GUARDRAILS.md` — adicionar regra healthcheck
 
 ### INC-006 — obsidian-web Healthcheck localhost vs 127.0.0.1 IPv6/IPv4 (2026-04-14)
+
 - **Date:** 2026-04-14 10:27 — discovered 13:50
 - **Severity:** Medium
 - **Duration:** ~3h (mesmo periodo que INC-005)
 - **Services Affected:** obsidian-web (monitor.zappro.site)
 - **Root Cause:** Healthcheck `wget -q --spider http://localhost/health` — `localhost` dentro do container resolve para `::1` (IPv6) mas nginx só escuta em `0.0.0.0:80` (IPv4). Resultado: "Connection refused" mesmo com nginx a correr. Restart loop guard ativado (3 restarts/30min).
 - **Evidence:**
+
   ```
   docker exec obsidian-web wget --spider http://localhost/health
   → wget: can't connect to remote host: Connection refused
@@ -149,6 +157,7 @@ Log of incidents and how to handle them.
 
   ss -tlnp inside container → tcp 0.0.0.0:80 (IPv4 only)
   ```
+
 - **Resolution:**
   1. Identificado via `docker exec obsidian-web wget http://127.0.0.1:80/health` (funciona vs localhost fail)
   2. Alterado healthcheck de `localhost` para `127.0.0.1` em `/srv/monorepo/apps/obsidian-web/docker-compose.yml`
@@ -178,6 +187,7 @@ Use this format when something breaks.
 # Incident Report: [TITLE]
 
 ## Summary
+
 - **Date/Time:** YYYY-MM-DD HH:MM UTC
 - **Duration:** XX minutes
 - **Severity:** Critical / High / Medium / Low
@@ -185,6 +195,7 @@ Use this format when something breaks.
 - **User Impact:** [What couldn't users do?]
 
 ## Timeline
+
 - HH:MM - Event started (what happened)
 - HH:MM - Detection (how did we notice)
 - HH:MM - Initial response (what did we try)
@@ -194,26 +205,31 @@ Use this format when something breaks.
 - HH:MM - Incident closed
 
 ## Root Cause
+
 [Why did this happen? What was the underlying issue?]
 
 Example: "Docker image tag 'latest' pulled unexpected version upgrade that broke API compatibility."
 
 ## Impact
+
 - **Downtime:** XX minutes
 - **Data Lost:** Yes/No, [if yes, what]
 - **Blast Radius:** Single service / Multiple services / All services
 
 ## Recovery Steps Taken
+
 1. [Step 1 - did this work?]
 2. [Step 2 - did this work?]
 3. [Step 3 - final resolution]
 
 ## Resolution
+
 [How was it fixed? Was rollback used?]
 
 Example: "Rolled back docker-compose to previous Qdrant image version. Service restored."
 
 ## Prevention
+
 [What changes prevent this in future?]
 
 - [ ] Add automated test for [issue]
@@ -223,10 +239,12 @@ Example: "Rolled back docker-compose to previous Qdrant image version. Service r
 - [ ] Update documentation
 
 ## Lessons Learned
+
 1. [What did we learn?]
 2. [What should we do differently?]
 
 ## Postmortem Owner
+
 - Reported by: [Name]
 - Investigation lead: [Name]
 - Date: YYYY-MM-DD
@@ -237,12 +255,14 @@ Example: "Rolled back docker-compose to previous Qdrant image version. Service r
 ## Severity Levels
 
 ### CRITICAL (RTO: 15 minutes, RPO: 0)
+
 - All services down
 - Data loss occurring
 - Security breach active
 - Cannot be worked around
 
 **Examples:**
+
 - ZFS pool corrupted
 - Docker daemon won't start
 - All disks full
@@ -250,11 +270,13 @@ Example: "Rolled back docker-compose to previous Qdrant image version. Service r
 **Response:** Immediate (call if needed)
 
 ### HIGH (RTO: 1 hour, RPO: 1 hour)
+
 - One major service down (breaks workflows)
 - Data loss possible but not yet occurred
 - Requires manual intervention
 
 **Examples:**
+
 - n8n won't start (workflows blocked)
 - PostgreSQL corrupted (n8n non-functional)
 - Qdrant crashed (AI features unavailable)
@@ -262,11 +284,13 @@ Example: "Rolled back docker-compose to previous Qdrant image version. Service r
 **Response:** Within 30 minutes
 
 ### MEDIUM (RTO: 4 hours, RPO: 24 hours)
+
 - Service degraded but usable
 - Feature unavailable
 - Workaround exists
 
 **Examples:**
+
 - Service slow (memory leak)
 - Minor API failure
 - Backup script failed
@@ -274,11 +298,13 @@ Example: "Rolled back docker-compose to previous Qdrant image version. Service r
 **Response:** Within business hours
 
 ### LOW (RTO: Next business day, RPO: None)
+
 - Documentation issue
 - Non-critical feature broken
 - Can wait for next maintenance window
 
 **Examples:**
+
 - README outdated
 - Health check false positive
 - Non-essential metric broken
@@ -290,6 +316,7 @@ Example: "Rolled back docker-compose to previous Qdrant image version. Service r
 ## Incident Response Checklist
 
 ### Immediate (First 5 minutes)
+
 - [ ] Assess severity
 - [ ] Stop making changes (don't make it worse)
 - [ ] Take snapshot of current state: `sudo zfs snapshot -r tank@incident-TIMESTAMP`
@@ -297,18 +324,21 @@ Example: "Rolled back docker-compose to previous Qdrant image version. Service r
 - [ ] Check RECOVERY.md for applicable procedure
 
 ### Short-term (Next 30 minutes)
+
 - [ ] Execute recovery procedure (or rollback)
 - [ ] Verify services restored
 - [ ] Check data integrity
 - [ ] Notify stakeholders if needed
 
 ### Medium-term (Next 24 hours)
+
 - [ ] Document incident using template above
 - [ ] Identify root cause
 - [ ] Plan prevention steps
 - [ ] Update relevant procedure docs
 
 ### Long-term (Next week)
+
 - [ ] Implement prevention measures
 - [ ] Test procedures to ensure they work
 - [ ] Update this file with lessons learned
@@ -318,6 +348,7 @@ Example: "Rolled back docker-compose to previous Qdrant image version. Service r
 ## Common Incidents & Quick Recovery
 
 ### "Qdrant won't start"
+
 ```bash
 # Check logs
 docker logs qdrant | tail -50
@@ -329,9 +360,11 @@ docker compose -f /srv/apps/platform/docker-compose.yml restart qdrant
 sudo zfs rollback tank/qdrant@pre-timestamp
 docker compose -f /srv/apps/platform/docker-compose.yml up -d qdrant
 ```
+
 **Severity:** High (AI features unavailable)
 
 ### "n8n giving errors"
+
 ```bash
 # Check PostgreSQL first
 docker compose -f /srv/apps/platform/docker-compose.yml ps n8n-postgres
@@ -342,9 +375,11 @@ docker logs n8n | tail -50
 # Restart
 docker compose -f /srv/apps/platform/docker-compose.yml restart n8n
 ```
+
 **Severity:** High (workflows blocked)
 
 ### "Disk full"
+
 ```bash
 # Find what's using space
 du -sh /srv/*
@@ -358,9 +393,11 @@ docker image prune -a -f
 # Verify
 df -h /srv
 ```
+
 **Severity:** High (new backups/logs might fail)
 
 ### "Service keeps restarting"
+
 ```bash
 # Check logs for repeating error
 docker logs service-name | tail -100
@@ -371,9 +408,11 @@ docker inspect service-name | grep -A 10 "HealthCheck"
 # Disable health check temporarily if false-positive
 # Edit docker-compose.yml and rebuild
 ```
+
 **Severity:** Medium (service eventually starts, but cycling)
 
 ### "Data corruption suspected"
+
 ```bash
 # Take snapshot immediately
 sudo zfs snapshot -r tank@pre-incident-TIMESTAMP
@@ -384,6 +423,7 @@ sudo zfs status tank
 # Restore from backup if data is gone
 # See RECOVERY.md
 ```
+
 **Severity:** Critical (potential data loss)
 
 ---
@@ -393,6 +433,7 @@ sudo zfs status tank
 After incident resolved:
 
 1. **Clean up snapshots:** Keep only incident snapshot (for investigation) and pre-change snapshots
+
    ```bash
    zfs list -t snapshot
    sudo zfs destroy tank@old-incident-snapshot
@@ -428,12 +469,14 @@ After incident resolved:
 ## Review & Learning
 
 Review this file:
+
 - After every incident
 - Monthly (even if no incidents)
 - When procedure changes
 - When adding new services
 
 **Questions to ask:**
+
 1. Could this have been prevented?
 2. How could we detect this faster?
 3. How could we recover faster?

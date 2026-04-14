@@ -1,7 +1,7 @@
 # Secrets Enforcement Rules
 
 **Applies to:** All code in `/srv/monorepo`
-**Authority:** will-zappro
+**Authority:** Platform Governance
 **Updated:** 2026-04-13
 **Spec:** SPEC-029-INFISICAL-SDK-MANDATORY.md, ADR-001
 
@@ -159,19 +159,19 @@ Quando fizeres code review, verifica:
 - [ ] Secrets accessed via `os.getenv()` / `process.env`, not Infisical SDK?
 - [ ] No `InfisicalClient` in application code files?
 - [ ] No hardcoded secrets (`ghp_`, `sk-`, strings resembling tokens)?
-- [ ] Exceptions have `APPROVED_BY: will-zappro` comment with expiry?
+- [ ] Exceptions have `APPROVED_BY: Principal Engineer` comment with expiry?
 - [ ] Shell scripts use `set -a` before `source .env`?
 
 ### Patterns que Rejeitam PR
 
-| Pattern | Severity | Action |
-|---------|----------|--------|
-| `InfisicalClient` in application code | CRITICAL | Reject + block |
-| `ghp_[a-zA-Z0-9]{36}` | CRITICAL | Reject + block |
-| `sk-[a-zA-Z0-9]{48}` | CRITICAL | Reject + block |
-| Hardcoded secret string | CRITICAL | Reject + block |
-| `os.getenv("...")` without `load_dotenv()` | HIGH | Request changes |
-| Shell script missing `set -a` before `source .env` | HIGH | Request changes |
+| Pattern                                            | Severity | Action          |
+| -------------------------------------------------- | -------- | --------------- |
+| `InfisicalClient` in application code              | CRITICAL | Reject + block  |
+| `ghp_[a-zA-Z0-9]{36}`                              | CRITICAL | Reject + block  |
+| `sk-[a-zA-Z0-9]{48}`                               | CRITICAL | Reject + block  |
+| Hardcoded secret string                            | CRITICAL | Reject + block  |
+| `os.getenv("...")` without `load_dotenv()`         | HIGH     | Request changes |
+| Shell script missing `set -a` before `source .env` | HIGH     | Request changes |
 
 ---
 
@@ -180,7 +180,7 @@ Quando fizeres code review, verifica:
 Exceções requerem:
 
 1. **Written justification** — por que não pode usar .env pattern
-2. **will-zappro approval** — comment com `@will-zappro approved 2026-04-13`
+2. **owner approval** — comment com `@owner approved 2026-04-13`
 3. **Expiry date** — nenhuma exceção permanente
 4. **Tracking** — listadas em `docs/GOVERNANCE/EXCEPTIONS.md`
 
@@ -188,7 +188,7 @@ Exemplo de exceção válida:
 
 ```python
 # 例外: Temporary bridge para legacy system sem .env support
-# APPROVED_BY: will-zappro 2026-04-13
+# APPROVED_BY: Principal Engineer 2026-04-13
 # EXPIRES: 2026-05-13
 # ISSUE: migration-to-denv-required
 LEGACY_TOKEN = os.getenv("LEGACY_BRIDGE_TOKEN")  # only for migration period
@@ -200,11 +200,11 @@ LEGACY_TOKEN = os.getenv("LEGACY_BRIDGE_TOKEN")  # only for migration period
 
 The following are the **only** scripts that should use the Infisical SDK:
 
-| Script | Purpose | Location |
-|--------|---------|----------|
+| Script             | Purpose                                       | Location                      |
+| ------------------ | --------------------------------------------- | ----------------------------- |
 | memory-keeper sync | Sync secrets to .env for Claude Code sessions | `/srv/backups/memory-keeper/` |
-| bootstrap-emitter | Initial host setup | `/srv/ops/scripts/` |
-| CI/CD pipelines | Inject secrets at deploy | GitHub Actions / Gitea |
+| bootstrap-emitter  | Initial host setup                            | `/srv/ops/scripts/`           |
+| CI/CD pipelines    | Inject secrets at deploy                      | GitHub Actions / Gitea        |
 
 Application code must not use Infisical SDK.
 
@@ -255,6 +255,6 @@ grep -r "load_dotenv\|dotenv/config" --include="*.py" apps/ packages/
 
 ---
 
-**Authority:** will-zappro
+**Authority:** Platform Governance
 **Spec:** SPEC-029-INFISICAL-SDK-MANDATORY.md, ADR-001
 **Last updated:** 2026-04-13

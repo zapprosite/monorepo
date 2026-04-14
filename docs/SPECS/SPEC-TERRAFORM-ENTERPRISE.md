@@ -3,7 +3,7 @@ name: SPEC-TERRAFORM-ENTERPRISE
 description: Enterprise Cloudflare Terraform refactor — modular file structure, data sources, bootstrap/drift scripts
 status: PROPOSED
 priority: high
-author: will-zappro
+author: Principal Engineer
 date: 2026-04-14
 specRef: SPEC-023 (monitoring), SPEC-040 (alerting/rate-limiting), monorepo-audit-14-04-2026
 ---
@@ -19,6 +19,7 @@ Refactor `/srv/ops/terraform/cloudflare/` from a monolithic `main.tf` into a mod
 ## Motivation
 
 **Current Problems (from 12-agent audit):**
+
 1. Monolithic `main.tf` mixes tunnel lifecycle, ingress rules, DNS, and Access policies
 2. No data sources — Terraform creates duplicate resources instead of reading existing ones (1010 errors)
 3. No pre-apply validation of token permissions
@@ -26,6 +27,7 @@ Refactor `/srv/ops/terraform/cloudflare/` from a monolithic `main.tf` into a mod
 5. Tight coupling makes iterative changes risky
 
 **Benefits:**
+
 - Separation of concerns: each file has one responsibility
 - Idempotent: uses data sources to detect existing resources
 - Safe: bootstrap validates permissions before apply
@@ -35,13 +37,13 @@ Refactor `/srv/ops/terraform/cloudflare/` from a monolithic `main.tf` into a mod
 
 ## Tech Stack
 
-| Component | Technology | Notes |
-|-----------|------------|-------|
-| IaC | Terraform >= 1.0 | Cloudflare provider ~>4.0 |
-| Secrets | Infisical | Service token at `/srv/ops/secrets/infisical.service-token` |
-| Tunnel | Cloudflare Zero Trust Tunnel | `cloudflared` daemon |
-| DNS | Cloudflare API | Zone `zappro.site` |
-| Access | Cloudflare Zero Trust Access | OAuth + email policies |
+| Component | Technology                   | Notes                                                       |
+| --------- | ---------------------------- | ----------------------------------------------------------- |
+| IaC       | Terraform >= 1.0             | Cloudflare provider ~>4.0                                   |
+| Secrets   | Infisical                    | Service token at `/srv/ops/secrets/infisical.service-token` |
+| Tunnel    | Cloudflare Zero Trust Tunnel | `cloudflared` daemon                                        |
+| DNS       | Cloudflare API               | Zone `zappro.site`                                          |
+| Access    | Cloudflare Zero Trust Access | OAuth + email policies                                      |
 
 ---
 
@@ -360,7 +362,7 @@ variable "domain" {
 variable "tunnel_name" {
   description = "Name of Cloudflare Tunnel (used to detect existing tunnel)"
   type        = string
-  default     = "will-zappro-homelab"
+  default     = "homelab-tunnel"
 }
 
 variable "tunnel_http_host_header" {
@@ -563,7 +565,7 @@ cloudflare_zone_id     = "..."
 
 # Tunnel configuration
 domain                 = "zappro.site"
-tunnel_name            = "will-zappro-homelab"
+tunnel_name            = "homelab-tunnel"
 
 # Access control — Zero Trust
 allowed_emails = ["you@example.com"]
@@ -930,13 +932,13 @@ The `data.tf` file reads existing resources before Terraform attempts to create 
 
 ### 2. Separation of Concerns
 
-| File | Responsibility |
-|------|---------------|
-| `01-tunnel.tf` | Tunnel lifecycle only |
-| `02-ingress.tf` | Ingress rules only |
-| `03-dns.tf` | DNS records only |
-| `04-access.tf` | Access apps + policies only |
-| `data.tf` | Read-only data sources |
+| File            | Responsibility              |
+| --------------- | --------------------------- |
+| `01-tunnel.tf`  | Tunnel lifecycle only       |
+| `02-ingress.tf` | Ingress rules only          |
+| `03-dns.tf`     | DNS records only            |
+| `04-access.tf`  | Access apps + policies only |
+| `data.tf`       | Read-only data sources      |
 
 ### 3. Locals for Cross-File References
 

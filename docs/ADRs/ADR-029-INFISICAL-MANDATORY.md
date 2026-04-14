@@ -2,7 +2,7 @@
 name: ADR-029-INFISICAL-MANDATORY
 description: Architecture Decision Record — Infisical SDK mandatory for all secrets access
 status: PROPOSED
-author: will-zappro
+author: Principal Engineer
 date: 2026-04-12
 specRef: SPEC-029-INFISICAL-SDK-MANDATORY.md
 ---
@@ -11,7 +11,7 @@ specRef: SPEC-029-INFISICAL-SDK-MANDATORY.md
 
 **Status:** PROPOSED
 **Date:** 2026-04-12
-**Author:** will-zappro
+**Author:** Principal Engineer
 
 ---
 
@@ -25,6 +25,7 @@ O projeto homelab-monorepo accumulateu múltiplas formas de acesso a secrets:
 4. **Bootstrap scripts** — algumas ferramentas leem secrets directamente de `.env` files
 
 Esta situação cria:
+
 - **Risk de leak** — tokens em plaintext são um vector de ataque
 - **Duplicates** — o mesmo secret em múltiplos lugares, impossível fazer rotate at scale
 - **No audit trail** — não há como saber quem acedeu a quê
@@ -46,29 +47,32 @@ Esta situação cria:
 
 ### Alternatives Considered
 
-| Alternative | Pros | Cons |
-|-------------|------|------|
-| **HashiCorp Vault** | Mature, feature-rich | Complex setup, requires infrastructure |
-| **AWS Secrets Manager** | AWS-native | Vendor lock-in, not self-hosted |
-| **1Password CLI** | User-friendly | No programmatic access, not designed for CI |
-| **GitHub Secrets** | Built-in to GitHub | Limited to GitHub Actions, not for local dev |
-| **os.getenv pattern** | Simple | No guarantee vault-backed, duplicates, no audit |
+| Alternative             | Pros                 | Cons                                            |
+| ----------------------- | -------------------- | ----------------------------------------------- |
+| **HashiCorp Vault**     | Mature, feature-rich | Complex setup, requires infrastructure          |
+| **AWS Secrets Manager** | AWS-native           | Vendor lock-in, not self-hosted                 |
+| **1Password CLI**       | User-friendly        | No programmatic access, not designed for CI     |
+| **GitHub Secrets**      | Built-in to GitHub   | Limited to GitHub Actions, not for local dev    |
+| **os.getenv pattern**   | Simple               | No guarantee vault-backed, duplicates, no audit |
 
 ### Consequences
 
 **Positive:**
+
 - Zero duplicates of secrets
 - Complete audit trail
 - Instant rotation capability
 - Compliance-ready
 
 **Negative:**
+
 - Requires Infisical account/workspace
 - Learning curve for SDK usage
 - Legacy code migration effort
 - Dependency on Infisical availability
 
 **Neutral:**
+
 - Must maintain INFISICAL_CLIENT_ID + INFISICAL_CLIENT_SECRET credentials
 
 ---
@@ -103,8 +107,9 @@ Phase 4 (Future):
 ## Exceptions
 
 Temporary exceptions allowed with:
+
 - Written justification
-- will-zappro approval
+- Principal Engineer approval
 - Expiry date (max 30 days)
 - Tracking in `docs/GOVERNANCE/EXCEPTIONS.md`
 
@@ -120,5 +125,5 @@ Temporary exceptions allowed with:
 
 ---
 
-**Authority:** will-zappro
+**Authority:** Platform Governance
 **Review:** Required after 90 days (2026-07-12)

@@ -3,7 +3,7 @@ name: voice-pipeline-watchdog
 description: Voice Pipeline Watchdog — cron-based smoke test and auto-healer for TTS Bridge, OpenClaw, and wav2vec2
 status: operational
 priority: critical
-author: will-zappro
+author: Principal Engineer
 date: 2026-04-12
 ---
 
@@ -15,25 +15,25 @@ The voice-pipeline watchdog is a cron-triggered smoke test and auto-healer that 
 
 ## Overview
 
-| Attribute | Value |
-|-----------|-------|
-| Script | `tasks/smoke-tests/voice-pipeline-loop.sh` |
-| Cron | `*/5 * * * *` (every 5 minutes) |
-| Log Dir | `/srv/monorepo/logs/voice-pipeline` |
+| Attribute    | Value                                          |
+| ------------ | ---------------------------------------------- |
+| Script       | `tasks/smoke-tests/voice-pipeline-loop.sh`     |
+| Cron         | `*/5 * * * *` (every 5 minutes)                |
+| Log Dir      | `/srv/monorepo/logs/voice-pipeline`            |
 | Smoke Script | `tasks/smoke-tests/pipeline-openclaw-voice.sh` |
 
 ---
 
 ## What It Checks
 
-| Step | Endpoint | Check |
-|------|----------|-------|
-| 1.0 | TTS Bridge `:8013` | `GET /health` — returns allowed voices list |
-| 2.1 | wav2vec2 `:8201` | `GET /v1/listen` — STT transcription endpoint |
-| 3.0 | TTS Bridge `:8013` | `POST /v1/audio/speech` — TTS synthesis |
-| 3.1 | TTS pm_santa voice | `POST /v1/audio/speech` with `pm_santa` |
-| 5.x | LiteLLM endpoints | Vision + embeddings |
-| OpenClaw container | `openclaw-qgtzrmi6771lt8l7x8rqx72f` | Container is Up |
+| Step               | Endpoint                            | Check                                         |
+| ------------------ | ----------------------------------- | --------------------------------------------- |
+| 1.0                | TTS Bridge `:8013`                  | `GET /health` — returns allowed voices list   |
+| 2.1                | wav2vec2 `:8201`                    | `GET /v1/listen` — STT transcription endpoint |
+| 3.0                | TTS Bridge `:8013`                  | `POST /v1/audio/speech` — TTS synthesis       |
+| 3.1                | TTS pm_santa voice                  | `POST /v1/audio/speech` with `pm_santa`       |
+| 5.x                | LiteLLM endpoints                   | Vision + embeddings                           |
+| OpenClaw container | `openclaw-qgtzrmi6771lt8l7x8rqx72f` | Container is Up                               |
 
 ---
 
@@ -41,12 +41,12 @@ The voice-pipeline watchdog is a cron-triggered smoke test and auto-healer that 
 
 The watchdog attempts self-healing for these failure modes:
 
-| Failure Detected | Action |
-|-----------------|--------|
-| TTS Bridge container DOWN | `docker start zappro-tts-bridge` |
-| OpenClaw container DOWN | `docker restart openclaw-qgtzrmi...` |
-| wav2vec2 container DOWN | `docker restart wav2vec2` |
-| LiteLLM container DOWN | `docker restart zappro-litellm` |
+| Failure Detected          | Action                               |
+| ------------------------- | ------------------------------------ |
+| TTS Bridge container DOWN | `docker start zappro-tts-bridge`     |
+| OpenClaw container DOWN   | `docker restart openclaw-qgtzrmi...` |
+| wav2vec2 container DOWN   | `docker restart wav2vec2`            |
+| LiteLLM container DOWN    | `docker restart zappro-litellm`      |
 
 If a self-heal succeeds, the watchdog re-runs the smoke test after 15s. If tests pass, the loop resets counters and exits silently.
 
@@ -54,13 +54,14 @@ If a self-heal succeeds, the watchdog re-runs the smoke test after 15s. If tests
 
 ## Rate Limits
 
-| Parameter | Value |
-|-----------|-------|
-| Max restart attempts per container | 3 |
-| Alert threshold (consecutive failures) | 3 |
-| Cooldown between alerts | Suppressed until 3 consecutive failures |
+| Parameter                              | Value                                   |
+| -------------------------------------- | --------------------------------------- |
+| Max restart attempts per container     | 3                                       |
+| Alert threshold (consecutive failures) | 3                                       |
+| Cooldown between alerts                | Suppressed until 3 consecutive failures |
 
 After 3 failed smoke tests with no resolution, a Telegram alert is sent with:
+
 - Failed endpoints
 - Container restart commands
 - Log path for manual investigation
