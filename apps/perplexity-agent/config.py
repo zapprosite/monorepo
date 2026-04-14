@@ -2,7 +2,7 @@
 import os
 import subprocess
 
-INFISICAL_PROJECT_ID = "e42657ef-98b2-4b9c-9a04-46c093bd6d37"
+INFISICAL_PROJECT_ID = os.environ.get("INFISICAL_PROJECT_ID", "e42657ef-98b2-4b9c-9a04-46c093bd6d37")
 INFISICAL_ENV = "dev"
 TOKEN_PATH = "/srv/ops/secrets/infisical.service-token"
 
