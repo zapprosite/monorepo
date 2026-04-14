@@ -516,29 +516,29 @@
       "id": 15,
       "title": "SPEC-040: Prometheus alert rules \u2014 ContainerUnhealthy, HighCPU, SubdomainDown",
       "description": "Add missing alert rules to prometheus alerts.yml: ContainerUnhealthy, HighCPU, SubdomainDown (based on SPEC-040 Section 5)",
-      "status": "pending",
+      "status": "done",
       "priority": "P1",
       "dependencies": [],
       "subtasks": [
         {
           "id": "15.1",
           "title": "Add ContainerUnhealthy alert",
-          "status": "pending"
+          "status": "done"
         },
         {
           "id": "15.2",
           "title": "Add HighCPU alert (90% for 5min)",
-          "status": "pending"
+          "status": "done"
         },
         {
           "id": "15.3",
           "title": "Add SubdomainDown alert (probe_success=0)",
-          "status": "pending"
+          "status": "done"
         },
         {
           "id": "15.4",
           "title": "Verify AlertManager receives alerts",
-          "status": "pending"
+          "status": "done"
         }
       ],
       "acceptanceCriteria": ["Alerts fire for respective conditions"],
