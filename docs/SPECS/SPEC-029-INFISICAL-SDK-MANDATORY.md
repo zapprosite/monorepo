@@ -3,7 +3,7 @@ name: SPEC-029-INFISICAL-SDK-MANDATORY
 description: Infisical SDK mandatory pattern — all secrets via vault, env vars pattern, zero-tolerance hardcode policy
 status: ACTIVE
 priority: critical
-author: will-zappro
+author: Principal Engineer
 date: 2026-04-12
 specRef: SPEC-001.md, SPEC-025-REPORT.md
 ---
@@ -36,10 +36,11 @@ O codebase contém múltiplos pontos de acesso a secrets:
 ### Gap
 
 A policy existe mas **não há mecanismo de enforcement**. O código continua com `os.getenv` dispersos, e não há documento que:
+
 1. Defina o pattern exato de implementação
-2.Liste os serviços suportados
-3.Estabeleça o workflow de rotação de secrets
-4.Crie exceptions controlada
+   2.Liste os serviços suportados
+   3.Estabeleça o workflow de rotação de secrets
+   4.Crie exceptions controlada
 
 ---
 
@@ -94,15 +95,15 @@ with open("~/.zappro/config/secrets.env") as f:
 
 ### Variaveis de Ambiente: O Que É Permitido
 
-| Tipo | Exemplo | Status |
-|------|---------|--------|
-| **.env var (synced)** | `API_KEY=sk-123...` (em .env) | ✅ Permitido |
-| **Config local** | `OLLAMA_BASE_URL=http://localhost:11434` | ✅ Permitido |
-| **Non-secret flags** | `NODE_ENV=production` | ✅ Permitido |
-| **source .env** | `source .env && echo $VAR` | ✅ Permitido (scripts) |
-| **Hardcoded secret** | `API_KEY="sk-123..."` no código | ❌ Proibido |
-| **Infisical SDK** | `InfisicalClient()` em código | ❌ Proibido |
-| **Direct secrets.env** | `open("secrets.env")` | ❌ Proibido |
+| Tipo                   | Exemplo                                  | Status                 |
+| ---------------------- | ---------------------------------------- | ---------------------- |
+| **.env var (synced)**  | `API_KEY=sk-123...` (em .env)            | ✅ Permitido           |
+| **Config local**       | `OLLAMA_BASE_URL=http://localhost:11434` | ✅ Permitido           |
+| **Non-secret flags**   | `NODE_ENV=production`                    | ✅ Permitido           |
+| **source .env**        | `source .env && echo $VAR`               | ✅ Permitido (scripts) |
+| **Hardcoded secret**   | `API_KEY="sk-123..."` no código          | ❌ Proibido            |
+| **Infisical SDK**      | `InfisicalClient()` em código            | ❌ Proibido            |
+| **Direct secrets.env** | `open("secrets.env")`                    | ❌ Proibido            |
 
 ### Exceções Controladas
 
@@ -110,7 +111,7 @@ Exceções requerem APPROVAL explícita e documented justification:
 
 ```
 # 例外: Legacy system sem suporte Infisical
-# Autorização: will-zappro 2026-04-12
+# Autorização: Principal Engineer 2026-04-12
 # Tipo: temporary bridge (deve ser migrated)
 # Expira: 2026-05-01
 LEGACY_SYSTEM_TOKEN=bridge_to_infisical
@@ -123,6 +124,7 @@ LEGACY_SYSTEM_TOKEN=bridge_to_infisical
 ### Fase 1: Criar Documentos de Policy
 
 **`docs/GOVERNANCE/SECRETS-MANDATE.md`** (novo)
+
 ```
 Top-level policy document:
 - Zero tolerance stance
@@ -133,6 +135,7 @@ Top-level policy document:
 ```
 
 **`docs/GUIDES/INFISICAL-SDK-PATTERN.md`** (novo)
+
 ```
 Guia de implementação prática:
 - Setup do InfisicalClient
@@ -146,6 +149,7 @@ Guia de implementação prática:
 ### Fase 2: Regras de Code Review
 
 **`.claude/rules/secrets-enforcement.md`** (novo)
+
 ```
 Regras para universal-code-review skill:
 - Detetar hardcoded secrets (regex patterns)
@@ -155,6 +159,7 @@ Regras para universal-code-review skill:
 ```
 
 **`docs/ADRs/ADR-029-INFISICAL-MANDATORY.md`** (novo)
+
 ```
 ADR documentando a decisão архитектурная:
 - Contexto: why Infisical
@@ -188,10 +193,10 @@ hooks/pre-commit:
 
 ## Open Questions
 
-| # | Question | Resolution |
-|---|----------|------------|
+| #    | Question                                                         | Resolution                                            |
+| ---- | ---------------------------------------------------------------- | ----------------------------------------------------- |
 | OQ-1 | Como migrar `secrets.env` existente para Infisical sem downtime? | Create parallel credentials, test, switch, revoke old |
-| OQ-2 | Tokens de CI/CD (GitHub Actions) podem ficar em git-credentials? | Sim, mas apenas scopes mínimos necessários |
-| OQ-3 | Como validar que o Infisical SDK está a ser usado em PR? | Pre-commit hook + code review skill |
-| OQ-4 | Exceptions para legacy systems — limite de tempo? | Max 30 dias, depois migrate ou deprecate |
-| OQ-5 | Como lidar com secrets que não existem no vault? | ERROR, não fallback — Missing secret é bug |
+| OQ-2 | Tokens de CI/CD (GitHub Actions) podem ficar em git-credentials? | Sim, mas apenas scopes mínimos necessários            |
+| OQ-3 | Como validar que o Infisical SDK está a ser usado em PR?         | Pre-commit hook + code review skill                   |
+| OQ-4 | Exceptions para legacy systems — limite de tempo?                | Max 30 dias, depois migrate ou deprecate              |
+| OQ-5 | Como lidar com secrets que não existem no vault?                 | ERROR, não fallback — Missing secret é bug            |

@@ -3,7 +3,7 @@ name: SPEC-HOMELAB-SEGURO-ESTAVEL
 description: Estabilização e segurança do homelab após auditoria 12/04/2026
 status: IN_PROGRESS
 priority: critical
-author: will-zappro
+author: Principal Engineer
 date: 2026-04-12
 specRef: SPEC-AUDIT-HOMELAB-2026-04-12.md, SPEC-AUDIT-FIXES-2026-04-12.md
 ---

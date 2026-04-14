@@ -1,8 +1,8 @@
 # Governanca — Indice Central
 
-**Host:** will-zappro
+**Host:** homelab
 **Ambito:** /srv/monorepo/docs/GOVERNANCE/
-**Autoridade:** will-zappro
+**Autoridade:** Platform Governance
 
 ---
 
@@ -144,12 +144,12 @@ const apiKey = process.env.MINIMAX_API_KEY
 
 ## Historico de Revisoes
 
-| Versao | Data       | Autor       | Mudancas                                               |
-| ------ | ---------- | ----------- | ------------------------------------------------------ |
-| 1.0    | 2026-04-12 | will-zappro | Indice inicial (legacy)                                |
-| 2.0    | 2026-04-14 | Claude Code | Indice centralizado com sumario de regras e hierarquia |
+| Versao | Data       | Autor              | Mudancas                                               |
+| ------ | ---------- | ------------------ | ------------------------------------------------------ |
+| 1.0    | 2026-04-12 | Principal Engineer | Indice inicial (legacy)                                |
+| 2.0    | 2026-04-14 | Claude Code        | Indice centralizado com sumario de regras e hierarquia |
 
 ---
 
-**Autoridade:** will-zappro
+**Autoridade:** Platform Governance
 **Proxima revisao:** 2026-05-14

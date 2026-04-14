@@ -1,4 +1,4 @@
-# MCP Tokens Guide — will-zappro
+# MCP Tokens Guide — homelab
 
 **Data:** 2026-03-16
 **Propósito:** Instruções para obter e configurar tokens de MCPs que requerem credenciais externas
@@ -11,11 +11,10 @@
 
 **Por quê:** O MCP `@n8n/mcp-server` precisa de API key para comunicar com o n8n local.
 
-**Como obter:**
-2. Vá em: Settings → n8n API → Create an API key
-3. Copie o token gerado
+**Como obter:** 2. Vá em: Settings → n8n API → Create an API key 3. Copie o token gerado
 
 **Como instalar:**
+
 ```bash
 # Exportar variável (adicionar ao ~/.bashrc para persistir)
 export N8N_API_KEY="n8n_api_xxxxxxxxxxxxxxxx"
@@ -28,6 +27,7 @@ claude mcp add --scope user n8n \
 ```
 
 **Verificar:**
+
 ```bash
 claude mcp list | grep n8n
 ```
@@ -39,6 +39,7 @@ claude mcp list | grep n8n
 **Por quê:** O MCP `@modelcontextprotocol/server-github` precisa de PAT para criar/editar issues, PRs, reviews.
 
 **Como obter:**
+
 ```bash
 # Opção 1 (recomendada): GitHub CLI
 gh auth login
@@ -46,7 +47,7 @@ gh auth login
 
 # Opção 2: PAT clássico manual
 # 1. Acessar: https://github.com/settings/tokens/new
-# 2. Nome: "will-zappro-mcp"
+# 2. Nome: "homelab-mcp"
 # 3. Escopos necessários:
 #    - repo (acesso completo a repositórios)
 #    - read:org
@@ -55,6 +56,7 @@ gh auth login
 ```
 
 **Como instalar:**
+
 ```bash
 # Exportar (adicionar ao ~/.bashrc para persistir):
 export GITHUB_TOKEN="ghp_xxxxxxxxxxxxxxxxxx"
@@ -66,6 +68,7 @@ claude mcp add --scope user github \
 ```
 
 **Verificar:**
+
 ```bash
 claude mcp list | grep github
 ```
@@ -75,21 +78,25 @@ claude mcp list | grep github
 ## Tokens Já Configurados
 
 ### Cloudflare Bearer Token ✅
+
 - **Token:** Salvo em ~/.claude.json (MCPs HTTP cloudflare-api, cloudflare-observability, cloudflare-radar)
 - **Status:** Funcional porém precisa autenticação OAuth na primeira sessão
 - **Localização:** rascunho-s.txt → API Token Cloudflare
 
 ### Qdrant API Key ✅
+
 - **Key:** `71cae77676e2a5fd552d172caa1c3200`
 - **Status:** Configurado no MCP qdrant (env QDRANT_API_KEY)
-- **Fonte:** Docker container env (QDRANT__SERVICE__API_KEY)
+- **Fonte:** Docker container env (QDRANT**SERVICE**API_KEY)
 
 ### Supabase PostgreSQL ✅
+
 - **Connection:** `postgresql://postgres:PASS@localhost:5433/postgres`
 - **Status:** MCP postgres conectado
 - **Fonte:** rascunho-s.txt → POSTGRES_PASSWORD
 
 ### Context7 ✅
+
 - **Token:** ctx7sk-191572ec-fa7d-4d0e-83c9-957f5c1d3bf4 (fornecido pelo usuário)
 - **Status:** Context7 não requer token por padrão — instalado sem token
 - **Nota:** Token disponível se necessário no futuro

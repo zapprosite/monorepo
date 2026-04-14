@@ -1,6 +1,6 @@
 ---
 version: 1.0
-author: will-zappro
+author: Principal Engineer
 date: 2026-04-13
 ---
 
@@ -13,6 +13,7 @@ Plugin Obsidian para busca semantica via embeddings locais (Ollama).
 Smart Connections permite consultar o vault usando linguagem natural. Em vez de buscar por palavras-chave, o plugin encontra notas **semanticamente relacionadas** usando vetores de embeddings.
 
 **Stack:**
+
 - **Plugin:** Smart Connections (Obsidian Community)
 - **Embeddings:** Ollama local (`nomic-embed-text`)
 - **Contexto:** 2048 tokens maximo
@@ -63,11 +64,11 @@ ollama pull nomic-embed-text
 
 ### 2.2 Chunk Size e Overlap
 
-| Parametro | Valor | Descricao |
-|-----------|-------|-----------|
-| Chunk Size | 512 | Tokens por chunk (artigos longos = menor) |
-| Chunk Overlap | 50 | Tokens sobrepostos entre chunks |
-| Max Context | 2048 | Contexto maximo do modelo |
+| Parametro     | Valor | Descricao                                 |
+| ------------- | ----- | ----------------------------------------- |
+| Chunk Size    | 512   | Tokens por chunk (artigos longos = menor) |
+| Chunk Overlap | 50    | Tokens sobrepostos entre chunks           |
+| Max Context   | 2048  | Contexto maximo do modelo                 |
 
 **Nota:** Chunk size maior = menos chunks, busca mais rapida. Para documentacao tecnica, 512 funciona bem.
 
@@ -88,16 +89,14 @@ ollama pull nomic-embed-text
 ```yaml
 # .obsidian/smart-connections.json (manual)
 {
-  "embeddings": {
-    "provider": "ollama",
-    "model": "nomic-embed-text",
-    "baseURL": "http://localhost:11434"
-  },
-  "indexing": {
-    "chunkSize": 512,
-    "chunkOverlap": 50,
-    "excludeFolders": ["_Daily", "_Templates", ".obsidian"]
-  }
+  'embeddings':
+    { 'provider': 'ollama', 'model': 'nomic-embed-text', 'baseURL': 'http://localhost:11434' },
+  'indexing':
+    {
+      'chunkSize': 512,
+      'chunkOverlap': 50,
+      'excludeFolders': ['_Daily', '_Templates', '.obsidian'],
+    },
 }
 ```
 
@@ -139,11 +138,11 @@ Smart Connections panel → Status indicator
 
 ### 4.2 Exemplo de Queries
 
-| Query | Retorna |
-|-------|---------|
+| Query                          | Retorna                |
+| ------------------------------ | ---------------------- |
 | "como configuro o TTS bridge?" | Notas sobre TTS Bridge |
-| "monitoramento Prometheus" | Docs de monitoring |
-| "automatizacoes n8n" | Workflows e guias n8n |
+| "monitoramento Prometheus"     | Docs de monitoring     |
+| "automatizacoes n8n"           | Workflows e guias n8n  |
 
 ### 4.3 Embed in Note
 
@@ -189,6 +188,7 @@ ollama pull nomic-embed-text
 **Sintoma:** Indexacao demora muito
 
 Solucoes:
+
 - Reduzir `chunkSize` para 256
 - Excluir mais pastas (node_modules, arquivos binarios)
 - Verificar se Ollama tem recursos suficientes (`ollama ps`)
@@ -198,11 +198,13 @@ Solucoes:
 **Sintoma:** Notas similares nao facem sentido
 
 Causas:
+
 - Vault muito pequeno (< 20 notas) - embeddings precisam de contexto
 - Chunk size muito grande para conteudo curto
 - Indexacao desatualizada
 
 Solucao:
+
 ```bash
 # Limpar e reindexar
 rm -rf .obsidian/smart-connections-index
@@ -225,12 +227,12 @@ ollama stop nomic-embed-text
 
 ## 6. Performance
 
-| Metrica | Valor |
-|---------|-------|
+| Metrica             | Valor                        |
+| ------------------- | ---------------------------- |
 | Embedding por chunk | ~50-100ms (nomic-embed-text) |
-| Vault com 500 notas | ~2-5 min indexacao |
-| RAM Ollama (idle) | ~500MB |
-| RAM Ollama (nomic) | ~1-2GB |
+| Vault com 500 notas | ~2-5 min indexacao           |
+| RAM Ollama (idle)   | ~500MB                       |
+| RAM Ollama (nomic)  | ~1-2GB                       |
 
 ---
 
@@ -256,7 +258,7 @@ services:
     volumes:
       - /srv/data/ollama:/root/.ollama
     ports:
-      - "11434:11434"
+      - '11434:11434'
     restart: unless-stopped
     # Para GPU NVIDIA
     # deploy:
@@ -285,6 +287,6 @@ services:
 - [ ] Smart Connections instalado no Obsidian
 - [ ] Configurado provider: Ollama / URL: localhost:11434 / Model: nomic-embed-text
 - [ ] Chunk size: 512 / Overlap: 50
-- [ ] Pastas _Daily e _Templates excluidas
+- [ ] Pastas \_Daily e \_Templates excluidas
 - [ ] Vault indexado
 - [ ] Teste: buscar nota relacionada

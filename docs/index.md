@@ -1,41 +1,41 @@
 # Home Lab Knowledge Base
 
-**Host:** will-zappro | **Repo:** github.com/zapprosite/monelab | **MCP:** 10.0.19.50:4006
+**Host:** homelab | **Repo:** github.com/zapprosite/monelab | **MCP:** 10.0.19.50:4006
 
 ---
 
 ## Guias
 
-| Guia | Descrição |
-|------|-----------|
-| [Gitea + Coolify](./guides/gitea-coolify.md) | CLI tools para Gitea e Coolify |
-| [Manutenção Contínua](./guides/manutencao-continua.md) | Procedimentos de manutenção |
-| [Memória Claude](./guides/memoria-claude.md) | Configuração e uso do Claude Code |
-| [OpenCode](./guides/opencode.md) | Guide OpenCode |
-| [Security Hardening](./guides/security-hardening.md) | Fortalecimento de segurança |
-| [Infisical](./guides/infisical.md) | Vault Infisical self-hosted |
-| [Whisper Auto Local](./guides/whisper-auto-local.md) | Transcrição automática local |
+| Guia                                                   | Descrição                         |
+| ------------------------------------------------------ | --------------------------------- |
+| [Gitea + Coolify](./guides/gitea-coolify.md)           | CLI tools para Gitea e Coolify    |
+| [Manutenção Contínua](./guides/manutencao-continua.md) | Procedimentos de manutenção       |
+| [Memória Claude](./guides/memoria-claude.md)           | Configuração e uso do Claude Code |
+| [OpenCode](./guides/opencode.md)                       | Guide OpenCode                    |
+| [Security Hardening](./guides/security-hardening.md)   | Fortalecimento de segurança       |
+| [Infisical](./guides/infisical.md)                     | Vault Infisical self-hosted       |
+| [Whisper Auto Local](./guides/whisper-auto-local.md)   | Transcrição automática local      |
 
 ## Logs
 
-| Log | Descrição |
-|-----|-----------|
-| [Homelab](./logs/homelab.md) | Registro de operações do homelab |
-| [OpenClaw](./logs/openclaw.md) | Log do bot OpenClaw |
+| Log                            | Descrição                        |
+| ------------------------------ | -------------------------------- |
+| [Homelab](./logs/homelab.md)   | Registro de operações do homelab |
+| [OpenClaw](./logs/openclaw.md) | Log do bot OpenClaw              |
 
 ## Planos
 
-| Plano | Descrição |
-|-------|-----------|
+| Plano                                              | Descrição                                |
+| -------------------------------------------------- | ---------------------------------------- |
 | [OpenClaw Agency Hub](./plans/open-claw-agency.md) | Plano de transformação em hub de agência |
 
 ## Skills
 
-| Skill | Descrição |
-|-------|-----------|
+| Skill                                                                   | Descrição                                                                                                                                                                       |
+| ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | [OpenClaw Agents Kit](./OPERATIONS/SKILLS/openclaw-agents-kit/SKILL.md) | Kit universal: transforma OpenClaw em orquestrador de agents (leader + sub-agents). Inclui: Coolify API, Infisical SDK, identity-patch, governance template, sub-agent patterns |
-| [TTS Bridge](./OPERATIONS/SKILLS/tts-bridge.md) | Filtro de vozes Kokoro (pm_santa/pf_dora only) |
-| [Container Health Check](./OPERATIONS/SKILLS/container-health-check.md) | Health + recursos de containers |
+| [TTS Bridge](./OPERATIONS/SKILLS/tts-bridge.md)                         | Filtro de vozes Kokoro (pm_santa/pf_dora only)                                                                                                                                  |
+| [Container Health Check](./OPERATIONS/SKILLS/container-health-check.md) | Health + recursos de containers                                                                                                                                                 |
 
 ## ADRs
 
@@ -43,8 +43,8 @@ Ver [docs/ADRs/README.md](./ADRs/README.md) — consolidado de `docs/adr/`, `doc
 
 ## Context
 
-| Contexto | Descrição |
-|----------|-----------|
+| Contexto                                      | Descrição                     |
+| --------------------------------------------- | ----------------------------- |
 | [Claude Resolve](./context/claude-resolve.md) | Resolução de problemas Claude |
 
 ---
@@ -69,4 +69,4 @@ Todas as ferramentas do MCP estão disponíveis em `/mcp-monorepo/server.py`.
 
 ---
 
-*Última atualização: 2026-04-07*
+_Última atualização: 2026-04-07_

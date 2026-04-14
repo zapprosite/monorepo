@@ -3,7 +3,7 @@ id: SPEC-035
 title: One-Shot PRD-to-Deploy Pipeline
 status: PENDING
 priority: high
-author: will-zappro
+author: Principal Engineer
 date: 2026-04-13
 specRef: SPEC-026, SPEC-034, SPEC-032
 ---
@@ -26,14 +26,14 @@ Criar um pipeline automatizado end-to-end que permite ao usuario descrever uma a
 
 ## Tech Stack
 
-| Component | Technology | Notes |
-|-----------|------------|-------|
-| Orchestrator | Claude Code CLI | `/prd-to-deploy` skill |
-| Infrastructure | Terraform + Cloudflare Tunnel | Subdomain creation |
-| Runtime | Docker + Coolify | Container deployment |
-| OAuth | Google OAuth 2.0 | Native (MVP) ou Cloudflare Access (v2) |
-| Secrets | Infisical SDK | Zero hardcoded secrets |
-| Documentation | ai-context-sync | Auto-update docs |
+| Component      | Technology                    | Notes                                  |
+| -------------- | ----------------------------- | -------------------------------------- |
+| Orchestrator   | Claude Code CLI               | `/prd-to-deploy` skill                 |
+| Infrastructure | Terraform + Cloudflare Tunnel | Subdomain creation                     |
+| Runtime        | Docker + Coolify              | Container deployment                   |
+| OAuth          | Google OAuth 2.0              | Native (MVP) ou Cloudflare Access (v2) |
+| Secrets        | Infisical SDK                 | Zero hardcoded secrets                 |
+| Documentation  | ai-context-sync               | Auto-update docs                       |
 
 ---
 
@@ -103,6 +103,7 @@ Human: /prd-to-deploy "I want a dashboard showing X with Google login"
 Apps MVP usam Google OAuth nativo diretamente no browser. Sem Cloudflare Access.
 
 **Fluxo:**
+
 ```
 User → https://dashboard.zappro.site
      → App redirect para Google OAuth
@@ -113,10 +114,12 @@ User → https://dashboard.zappro.site
 ```
 
 **URIs para Google Console:**
+
 - **Redirect URI:** `https://dashboard.zappro.site/auth/callback`
 - **JavaScript Origin:** `https://dashboard.zappro.site`
 
 **OAuth Token Exchange (CRÍTICO):**
+
 ```javascript
 // auth-callback.html
 POST https://oauth2.googleapis.com/token
@@ -137,6 +140,7 @@ grant_type=authorization_code
 Apps que precisam de protecao extra usam Cloudflare Access + OAuth Google.
 
 **Fluxo:**
+
 ```
      → Cloudflare Access intercepta
      → OAuth Google via Cloudflare
@@ -145,6 +149,7 @@ Apps que precisam de protecao extra usam Cloudflare Access + OAuth Google.
 ```
 
 **Configuracao:**
+
 1. Em `access.tf`, adicionar subdomain à excecao de protection:
    ```hcl
    access_services = { for k, v in var.services : k => v if k != "bot" && k != "vault" }
@@ -156,14 +161,14 @@ Apps que precisam de protecao extra usam Cloudflare Access + OAuth Google.
 
 ## Skills Required
 
-| Skill | Trigger | Purpose |
-|-------|---------|---------|
-| `prd-to-deploy` | `/prd-to-deploy <description>` | **Orchestrator principal** — coordena todo o pipeline |
-| `new-subdomain` | `/new-subdomain` | Create subdomain via Terraform + Cloudflare API |
-| `oauth-google-direct` | `/oauth-google-direct` | Setup OAuth Google native (MVP) |
-| `oauth-google-cloudflare` | `/oauth-google-cloudflare` | Setup OAuth via Cloudflare Access (v2) |
-| `spec` | `/spec` | Spec generation — cria SPEC doc a partir do PRD |
-| `list-web-from-zero-to-deploy` | `/new-list-web` | Create static web app zero→deploy (referencia) |
+| Skill                          | Trigger                        | Purpose                                               |
+| ------------------------------ | ------------------------------ | ----------------------------------------------------- |
+| `prd-to-deploy`                | `/prd-to-deploy <description>` | **Orchestrator principal** — coordena todo o pipeline |
+| `new-subdomain`                | `/new-subdomain`               | Create subdomain via Terraform + Cloudflare API       |
+| `oauth-google-direct`          | `/oauth-google-direct`         | Setup OAuth Google native (MVP)                       |
+| `oauth-google-cloudflare`      | `/oauth-google-cloudflare`     | Setup OAuth via Cloudflare Access (v2)                |
+| `spec`                         | `/spec`                        | Spec generation — cria SPEC doc a partir do PRD       |
+| `list-web-from-zero-to-deploy` | `/new-list-web`                | Create static web app zero→deploy (referencia)        |
 
 ---
 
@@ -289,10 +294,10 @@ EOF
 
 O pipelinetem exatamente **2 gates humanos** obrigatorios:
 
-| Gate | Quando | Prompt | User Action |
-|------|--------|--------|-------------|
-| **Gate 1** | Apos Step 0 | "Add these URIs to Google Console. Press ENTER when done." | Configurar OAuth no Google Cloud Console |
-| **Gate 2** | Apos Step 7 (opcional) | "Deployment ready. Approve final deploy? [Y/n]" | Aprovar ou cancelar deploy |
+| Gate       | Quando                 | Prompt                                                     | User Action                              |
+| ---------- | ---------------------- | ---------------------------------------------------------- | ---------------------------------------- |
+| **Gate 1** | Apos Step 0            | "Add these URIs to Google Console. Press ENTER when done." | Configurar OAuth no Google Cloud Console |
+| **Gate 2** | Apos Step 7 (opcional) | "Deployment ready. Approve final deploy? [Y/n]"            | Aprovar ou cancelar deploy               |
 
 **Regra:** Nunca prosegi sem Gate 1 confirmado. Gate 2 opcional depending on deploy strategy.
 
@@ -300,51 +305,51 @@ O pipelinetem exatamente **2 gates humanos** obrigatorios:
 
 ## Acceptance Criteria
 
-| # | Criterion | Test |
-|---|-----------|------|
-| AC-1 | PRD → live URL em < 15 minutos | Timer do primeiro ao ultimo passo |
-| AC-2 | OAuth URI impressa ANTES de qualquer codigo escrito | Log do pipeline mostra Step 0 primeiro |
-| AC-3 | User inputs apenas: PRD description + ENTER (apos OAuth config) | Zero commands alem do trigger |
-| AC-4 | Subdomain criado automaticamente | `curl -sfI https://SUB.zappro.site` retorna 200/302 |
-| AC-5 | Smoke test passa antes de declarar sucesso | `curl -sfI https://SUB.zappro.site` + container health OK |
-| AC-6 | Docs atualizados automaticamente | SUBDOMAINS.md, PORTS.md, AGENTS.md verificados pos-deploy |
-| AC-7 | Zero hardcoded secrets | Secrets via Infisical SDK apenas |
+| #    | Criterion                                                       | Test                                                      |
+| ---- | --------------------------------------------------------------- | --------------------------------------------------------- |
+| AC-1 | PRD → live URL em < 15 minutos                                  | Timer do primeiro ao ultimo passo                         |
+| AC-2 | OAuth URI impressa ANTES de qualquer codigo escrito             | Log do pipeline mostra Step 0 primeiro                    |
+| AC-3 | User inputs apenas: PRD description + ENTER (apos OAuth config) | Zero commands alem do trigger                             |
+| AC-4 | Subdomain criado automaticamente                                | `curl -sfI https://SUB.zappro.site` retorna 200/302       |
+| AC-5 | Smoke test passa antes de declarar sucesso                      | `curl -sfI https://SUB.zappro.site` + container health OK |
+| AC-6 | Docs atualizados automaticamente                                | SUBDOMAINS.md, PORTS.md, AGENTS.md verificados pos-deploy |
+| AC-7 | Zero hardcoded secrets                                          | Secrets via Infisical SDK apenas                          |
 
 ---
 
 ## Files Affected
 
-| File | Change |
-|------|--------|
-| `docs/SPECS/SPEC-NNN-nome.md` | Created by pipeline |
-| `apps/<app-name>/` | Created by pipeline (HTML, nginx, Dockerfile, docker-compose) |
-| `/srv/ops/terraform/cloudflare/variables.tf` | Subdomain entry added |
-| `docs/GOVERNANCE/SUBDOMAINS.md` | Updated with new subdomain |
-| `docs/GOVERNANCE/PORTS.md` | Updated with new port |
-| `AGENTS.md` | Updated if new skill created |
-| `.claude/skills/prd-to-deploy/SKILL.md` | Created |
+| File                                         | Change                                                        |
+| -------------------------------------------- | ------------------------------------------------------------- |
+| `docs/SPECS/SPEC-NNN-nome.md`                | Created by pipeline                                           |
+| `apps/<app-name>/`                           | Created by pipeline (HTML, nginx, Dockerfile, docker-compose) |
+| `/srv/ops/terraform/cloudflare/variables.tf` | Subdomain entry added                                         |
+| `docs/GOVERNANCE/SUBDOMAINS.md`              | Updated with new subdomain                                    |
+| `docs/GOVERNANCE/PORTS.md`                   | Updated with new port                                         |
+| `AGENTS.md`                                  | Updated if new skill created                                  |
+| `.claude/skills/prd-to-deploy/SKILL.md`      | Created                                                       |
 
 ---
 
 ## Reference Skills
 
-| Skill | File | Relevance |
-|-------|------|-----------|
+| Skill                          | File                                                   | Relevance                                   |
+| ------------------------------ | ------------------------------------------------------ | ------------------------------------------- |
 | `list-web-from-zero-to-deploy` | `.claude/skills/list-web-from-zero-to-deploy/SKILL.md` | Template para estrutura de arquivos e OAuth |
-| `cloudflare-terraform` | `.claude/skills/cloudflare-terraform/SKILL.md` | Subdomain creation via Terraform |
-| `spec` | `.claude/skills/spec/SKILL.md` | Spec generation |
-| `oauth-google-direct` | `.claude/skills/oauth-google-direct/SKILL.md` | OAuth setup (MVP) |
+| `cloudflare-terraform`         | `.claude/skills/cloudflare-terraform/SKILL.md`         | Subdomain creation via Terraform            |
+| `spec`                         | `.claude/skills/spec/SKILL.md`                         | Spec generation                             |
+| `oauth-google-direct`          | `.claude/skills/oauth-google-direct/SKILL.md`          | OAuth setup (MVP)                           |
 
 ---
 
 ## Decisions Log
 
-| Date | Decision | Rationale |
-|------|----------|-----------|
+| Date       | Decision                                        | Rationale                                                                                   |
+| ---------- | ----------------------------------------------- | ------------------------------------------------------------------------------------------- |
 | 2026-04-13 | Pipeline imprimie URIs antes de qualquer codigo | User precisa configurar Google Console primeiro — passo async que nao pode ser automatizado |
-| 2026-04-13 | Gate 1 obrigatorio, Gate 2 opcional | OAuth configuracao critica para seguranca; deploy final pode ser auto-aprovado |
-| 2026-04-13 | Mode 1 (Direct OAuth) como default | Simplicidade — Cloudflare Access e overhead desnecessario para apps MVP |
-| 2026-04-13 | client_secret OBRIGATORIO no token exchange | INCIDENT-2026-04-13 provou que sem secret o OAuth falha silenciosamente |
+| 2026-04-13 | Gate 1 obrigatorio, Gate 2 opcional             | OAuth configuracao critica para seguranca; deploy final pode ser auto-aprovado              |
+| 2026-04-13 | Mode 1 (Direct OAuth) como default              | Simplicidade — Cloudflare Access e overhead desnecessario para apps MVP                     |
+| 2026-04-13 | client_secret OBRIGATORIO no token exchange     | INCIDENT-2026-04-13 provou que sem secret o OAuth falha silenciosamente                     |
 
 ---
 
@@ -358,22 +363,22 @@ O pipelinetem exatamente **2 gates humanos** obrigatorios:
 
 ## Dependencies
 
-| Dependency | Status | Notes |
-|------------|--------|-------|
-| Terraform + Cloudflare provider | READY | ja configurado em `/srv/ops/terraform/cloudflare/` |
-| Infisical SDK | READY | ja em uso no monorepo |
-| Docker + Coolify | READY | ja configurado |
-| Google OAuth 2.0 | READY | reque apenas configuracao manual no Console |
-| `list-web-from-zero-to-deploy` skill | READY | template para estrutura |
+| Dependency                           | Status | Notes                                              |
+| ------------------------------------ | ------ | -------------------------------------------------- |
+| Terraform + Cloudflare provider      | READY  | ja configurado em `/srv/ops/terraform/cloudflare/` |
+| Infisical SDK                        | READY  | ja em uso no monorepo                              |
+| Docker + Coolify                     | READY  | ja configurado                                     |
+| Google OAuth 2.0                     | READY  | reque apenas configuracao manual no Console        |
+| `list-web-from-zero-to-deploy` skill | READY  | template para estrutura                            |
 
 ---
 
 ## Open Questions
 
-| # | Question | Impact | Priority |
-|---|----------|--------|----------|
-| OQ-1 | Como lidar com multi-tenant OAuth (varios apps com o mesmo Google Client)? | Medium | Med |
-| OQ-2 | Devemos suportar OAuth via GitHub alem de Google? | Low | Low |
+| #    | Question                                                                   | Impact | Priority |
+| ---- | -------------------------------------------------------------------------- | ------ | -------- |
+| OQ-1 | Como lidar com multi-tenant OAuth (varios apps com o mesmo Google Client)? | Medium | Med      |
+| OQ-2 | Devemos suportar OAuth via GitHub alem de Google?                          | Low    | Low      |
 
 ---
 

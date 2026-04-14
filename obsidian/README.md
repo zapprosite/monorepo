@@ -1,131 +1,136 @@
-# Docs — Source of Truth
+# Homelab Monorepo — Documentacao
 
-> **Autoridade:** Este diretório é o source of truth para TODA a documentação do homelab.
-> O `docs/GOVERNANCE/` é o local dos arquivos de governance.
-> O OpenClaw (@CEO_REFRIMIX_bot) mantém este docs via skill `doc-librarian`.
+**O que e:** Monorepo do homelab zappro.site — infraestrutura auto-hospedada com GPU, agentes AI, e pipelines de deploy via Cloudflare Tunnel.
 
-## Quick Answers
-
-| Pergunta | Resposta |
-|---|---|
-| "Posso fazer X?" | → [GOVERNANCE/APPROVAL_MATRIX.md](./GOVERNANCE/APPROVAL_MATRIX.md) |
-| "O que é proibido?" | → [GOVERNANCE/GUARDRAILS.md](./GOVERNANCE/GUARDRAILS.md) |
-| "Como recupero de um incidente?" | → [GOVERNANCE/RECOVERY.md](./GOVERNANCE/RECOVERY.md) |
-| "Qual porta está livre?" | → [INFRASTRUCTURE/PORTS.md](./INFRASTRUCTURE/PORTS.md) |
-| "Subdomain existe?" | → [INFRASTRUCTURE/SUBDOMAINS.md](./INFRASTRUCTURE/SUBDOMAINS.md) |
-| "Como fazer mudança segura?" | → [GOVERNANCE/CHANGE_POLICY.md](./GOVERNANCE/CHANGE_POLICY.md) |
+**Doc de arquitetura:** [ARCHITECTURE-OVERVIEW.md](./ARCHITECTURE-OVERVIEW.md) — stack completo com topologia de rede, servicos, e conexoes.
 
 ---
 
-## Browse by Layer
+## Estrutura de Docs
 
-### Layer 0 — Governance (Imutable, approval required para editar)
 ```
-GOVERNANCE/
-├── CONTRACT.md              ← Princípios não-negociáveis
-├── GUARDRAILS.md            ← Proibido / Approval / Safe
-├── APPROVAL_MATRIX.md       ← Matriz de decisões
-├── CHANGE_POLICY.md         ← Processo de mudança segura
-├── INCIDENTS.md            ← Log de incidentes
-├── SECRETS_POLICY.md       ← Política de credenciais
-├── DATABASE_GOVERNANCE.md   ← Governance de dados
-├── RECOVERY.md             ← Procedimentos de recuperação
-├── QUICK_START.md           ← Onboarding 5-min
-├── OPENCLAW_DEBUG.md         ← Debug do OpenClaw bot
-└── DOCUMENTATION_MAP.md     ← Mapa de documentação
-```
-
-### Layer 1 — Operations
-```
-OPERATIONS/
-├── guide.md                ← Guia operacional completo
-├── RUNBOOK.md               ← Comandos oficiais
-├── DATABASE_GOVERNANCE.md   ← DB governance
-├── DB_HISTORY.md           ← Histórico de schemas
-└── SKILLS/                 ← 16 skills operacionais
-    ├── zfs-snapshot-and-rollback.md
-    ├── zfs-smart-scrub.md
-    ├── docker-health-watcher.md
-    ├── container-self-healer.md
-    ├── oom-killer.md
-    ├── monitoring-health-check.md
-    ├── monitoring-diagnostic.md
-    ├── monitoring-zfs-snapshot.md
-    ├── ollama-health-check.md
-    ├── litellm-health-check.md
-    ├── kokoro-health-check.md
-    ├── resource-monitor.md
-    ├── ai-stress-test.md
-    ├── catalog-sync.md
-    ├── alert-deduplicator.md
-    ├── backup-rotate-verify.md
-    └── maintain-system-documentation.md
-```
-
-### Layer 2 — Infrastructure
-```
-INFRASTRUCTURE/
-├── NETWORK_MAP.md           ← Topologia de rede completa
-├── PORTS.md                 ← Alocação de portas
-├── SUBDOMAINS.md            ← Registro de subdomínios
-├── PARTITIONS.md            ← Alocação ZFS
-├── SERVICE_MAP.md            ← Serviços e dependências
-└── SYSTEM_STATE.md           ← Snapshot de estado atual
-```
-
-### Layer 3 — Integration
-```
-MCPs/
-├── AI_CONTEXT_MCP.md         ← AiContext MCP setup
-├── MCP_BLUEPRINT.md          ← Como criar MCP servers
-└── MCP_TOKENS_GUIDE.md      ← Guia de tokens MCP
-```
-
-### Layer 4 — AI Tools Workflow
-```
-WORKFLOW.md                   ← 3 tools + AI-CONTEXT (host + desktop + bot)
-AI-CONTEXT.md                 ← Sincronização de docs após feature
-```
-
-### Layer 5 — Templates
-```
-TEMPLATES/
-├── incident-report.md        ← Template de incidente
-├── change-proposal.md        ← Template de mudança
-├── new-schema.md            ← Template de novo schema
-└── new-collection.md        ← Template de nova collection
+docs/
+├── GOVERNANCE/         <- Regras, permissoes, politicas (imutavel)
+├── INFRASTRUCTURE/     <- Rede, portas, subdomínios, ZFS
+├── SPECS/              <- Especificacoes de features e servicos
+├── GUIDES/             <- Guias operacionais
+├── ADRs/               <- Architecture Decision Records
+├── OPERATIONS/         <- Skills e scripts operacionais
+├── MCPs/               <- MCP servers e integracoes
+├── REFERENCE/          <- Referencia tecnica
+└── TEMPLATES/          <- Templates para incidentes, mudancas, etc.
 ```
 
 ---
 
-## Para Agentes
+## Onde Ir
 
-### Claude Code (host terminal)
-- Lê: `/srv/monorepo/docs/GOVERNANCE/`, `/srv/monorepo/docs/INFRASTRUCTURE/`
-- Edita: todos os docs (com approval quando necessário)
-- Scripts: `/srv/ops/scripts/`
+### GOVERNANCE/ — Regras do Sistema
 
-### OpenClaw (@CEO_REFRIMIX_bot)
-- Lê: via MCP monorepo em `10.0.19.50:4006`
-- Skills: `doc-librarian`, `qdrant-rag`, `infra-guide`
-- Workspace: `/data/workspace/` (dentro do container)
+| Pergunta                     | Doc                                                   |
+| ---------------------------- | ----------------------------------------------------- |
+| "Posso fazer X?"             | [APPROVAL_MATRIX.md](./GOVERNANCE/APPROVAL_MATRIX.md) |
+| "O que e proibido?"          | [GUARDRAILS.md](./GOVERNANCE/GUARDRAILS.md)           |
+| "Como fazer mudanca segura?" | [CHANGE_POLICY.md](./GOVERNANCE/CHANGE_POLICY.md)     |
+| "Secrets: onde estao?"       | [SECRETS-MANDATE.md](./GOVERNANCE/SECRETS-MANDATE.md) |
+| "Recuperacao de incidente?"  | [RECOVERY.md](./GOVERNANCE/RECOVERY.md)               |
+| "Onboarding rapido?"         | [QUICK_START.md](./GOVERNANCE/QUICK_START.md)         |
 
-### Auditoria de Docs (doc-librarian skill)
-- Last full audit: 2026-04-07
-- Frescor: arquivos >30 dias sem review = stale
-- Logs: `logs/` (inside docs/GOVERNANCE/)
+### INFRASTRUCTURE/ — Infraestrutura Tecnica
+
+| Pergunta                   | Doc                                               |
+| -------------------------- | ------------------------------------------------- |
+| "Qual porta esta livre?"   | [PORTS.md](./INFRASTRUCTURE/PORTS.md)             |
+| "Subdominio existe?"       | [SUBDOMAINS.md](./INFRASTRUCTURE/SUBDOMAINS.md)   |
+| "Topologia de rede?"       | [NETWORK_MAP.md](./INFRASTRUCTURE/NETWORK_MAP.md) |
+| "ZFS: quais pools/discos?" | [PARTITIONS.md](./INFRASTRUCTURE/PARTITIONS.md)   |
+| "Servicos: onde correm?"   | [SERVICE_MAP.md](./INFRASTRUCTURE/SERVICE_MAP.md) |
+
+### SPECS/ — Features e Servicos
+
+| Pergunta                   | Doc                                                                                        |
+| -------------------------- | ------------------------------------------------------------------------------------------ |
+| "O que faz Hermes?"        | [SPEC-038-hermes-agent-migration.md](./SPECS/SPEC-038-hermes-agent-migration.md)           |
+| "Como funciona o tunnel?"  | [SPEC-039-hermes-gateway-tunnel.md](./SPECS/SPEC-039-hermes-gateway-tunnel.md)             |
+| "Alertas e rate limiting?" | [SPEC-040-homelab-alerting-rate-limit.md](./SPECS/SPEC-040-homelab-alerting-rate-limit.md) |
+| "Infraestrutura overview?" | [ARCHITECTURE-OVERVIEW.md](./ARCHITECTURE-OVERVIEW.md)                                     |
+
+Ver [SPEC-INDEX.md](./SPECS/SPEC-INDEX.md) para lista completa de SPECs activos.
 
 ---
 
-## Comandos
+## Stack de Infraestrutura (TL;DR)
+
+| Servico        | Tipo            | Host              | Porta | Proposito                            |
+| -------------- | --------------- | ----------------- | ----- | ------------------------------------ |
+| Coolify        | PaaS            | Ubuntu Desktop    | 8000  | Gestao de containers Docker          |
+| Qdrant         | Vector DB       | Coolify           | 6333  | RAG / embeddings                     |
+| Hermes Gateway | Agent           | Ubuntu bare metal | 8642  | Agent brain + messaging              |
+| Hermes MCP     | MCP Server      | Ubuntu bare metal | 8092  | MCP proxy                            |
+| Ollama         | LLM Engine      | Ubuntu Desktop    | 11434 | Inference local (RTX 4090)           |
+| LiteLLM        | LLM Proxy       | Docker Compose    | 4000  | Multi-provider proxy + rate limiting |
+| Grafana        | Dashboards      | Docker Compose    | 3100  | Visualizacao de metricas             |
+| Loki           | Log aggregation | Docker Compose    | 3101  | Logs centralizados                   |
+| Prometheus     | Metrics         | Docker Compose    | 9090  | Coleccao de metricas                 |
+
+Ver [ARCHITECTURE-OVERVIEW.md](./ARCHITECTURE-OVERVIEW.md) para diagrama completo de topologia.
+
+---
+
+## Secrets — Regra de Ouro
+
+**Todas as secrets estao em `.env`** (fonte canonica). Nunca ler de Infisical directamente em codigo.
+
+| Variavel               | Descricao                   |
+| ---------------------- | --------------------------- |
+| `CLOUDFLARE_API_TOKEN` | Cloudflare API Token        |
+| `COOLIFY_ACCESS_TOKEN` | Coolify Bearer Token        |
+| `GITEA_ACCESS_TOKEN`   | Gitea Personal Access Token |
+| `INFISICAL_TOKEN`      | Infisical Service Token     |
+| `TELEGRAM_BOT_TOKEN`   | Hermes Gateway Telegram     |
+
+Ver [SECRETS-MANDATE.md](./GOVERNANCE/SECRETS-MANDATE.md) para politica completa.
+
+---
+
+## Para Agentes Claude Code
+
+1. **Ler antes de trabalhar:** [ARCHITECTURE-OVERVIEW.md](./ARCHITECTURE-OVERVIEW.md)
+2. **Regras de governanca:** [GOVERNANCE/](./GOVERNANCE/)
+3. **Estado actual da infra:** [INFRASTRUCTURE/](./INFRASTRUCTURE/)
+4. **Secrets:** `.env` na raiz do monorepo — nunca perguntar por valores
+
+### Skills Disponiveis
+
+| Skill                           | Uso                               |
+| ------------------------------- | --------------------------------- |
+| `cloudflare-tunnel-enterprise/` | Gerir tunnels e subdomínios       |
+| `coolify-access/`               | Deploy e gestao de containers     |
+| `new-subdomain/`                | Criar novo subdominio (fast path) |
+| `secrets-audit/`                | Scan de secrets antes de push     |
+
+---
+
+## Comandos Uteis
 
 ```bash
-# Ver frescor dos docs
-find docs -name "*.md" -mtime +30 | head -10
+# Ver ports em uso
+ss -tlnp | grep -E ':[0-9]+'
 
-# Ver stale governance docs
-ls -la GOVERNANCE/ | grep -E "^-.*[3-9][0-9] days|months"
+# Ver subdomínios activos
+cat docs/INFRASTRUCTURE/SUBDOMAINS.md
 
-# Verificar immutable flags
-lsattr GOVERNANCE/*.md | grep -v "----" 
+# Ver servicos e estado
+cat docs/INFRASTRUCTURE/SERVICE_MAP.md
+
+# Audit de branches (antes de push)
+bash /srv/ops/scripts/audit-branches.sh
 ```
+
+---
+
+## Atualizacao de Docs
+
+Docs sao sincronizados para memory via ai-context apos cada commit. Ver [AI-CONTEXT.md](./AI-CONTEXT.md).
+
+**Regra:** Todo doc em `docs/` e source of truth. Não fazer commit de .env ou secrets.

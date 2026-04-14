@@ -1,12 +1,12 @@
 ---
 version: 1.0
-author: will-zappro
+author: Principal Engineer
 date: 2026-04-08
 ---
 
 # Governança de Banco de Dados & Dados Semânticos
 
-**Host:** will-zappro
+**Host:** homelab
 **Criado:** 2026-03-17
 **Atualizado:** 2026-04-08
 **Autoridade:** Principal Engineer - Platform Governance

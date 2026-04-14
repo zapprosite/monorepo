@@ -1,12 +1,12 @@
 ---
 version: 1.0
-author: will-zappro
+author: Principal Engineer
 date: 2026-03-16
 ---
 
 # Recovery Procedures
 
-**Host:** will-zappro
+**Host:** homelab
 **Last Updated:** 2026-03-16
 
 Step-by-step procedures to recover from various failures.
@@ -239,6 +239,7 @@ docker compose -f /srv/apps/platform/docker-compose.yml ps
 **Data loss:** None if backup available
 
 ### Prerequisites
+
 - External drive with ZFS pool backup
 - nvme0n1 installed and visible to system
 
@@ -284,6 +285,7 @@ curl http://localhost:5678/api/v1/health
 **Data loss:** None (all in /srv on nvme0n1)
 
 ### Prerequisites
+
 - Ubuntu 24.04 LTS installation media
 - nvme0n1 still healthy with all /srv data
 

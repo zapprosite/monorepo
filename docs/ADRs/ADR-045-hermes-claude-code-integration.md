@@ -3,7 +3,7 @@ name: ADR-045-hermes-claude-code-integration
 description: Hermes-Agent integration with Claude Code CLI — subprocess and MCP bridge patterns
 status: PROPOSED
 priority: high
-author: will-zappro
+author: Principal Engineer
 date: 2026-04-14
 specRef: SPEC-038
 ---

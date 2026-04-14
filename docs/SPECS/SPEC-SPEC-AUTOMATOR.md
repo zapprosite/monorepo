@@ -9,6 +9,7 @@
 ## Objective
 
 Zero-touch pipeline: user creates `/auto-spec [idea]`, system does EVERYTHING else:
+
 - Create SPEC from idea
 - Run `/pg` to generate tasks
 - AI chooses loop (/computer-loop fast vs /cursor-loop enterprise)
@@ -47,23 +48,27 @@ Reads SPEC → complexity score → chooses loop
 ## Components
 
 ### 1. auto-spec Command
+
 - File: `.claude/commands/auto-spec.md`
 - Creates SPEC from user prompt
 - Triggers main orchestrator
 
 ### 2. spec-automator.sh
+
 - Main orchestrator script
 - Coordinates all phases
 - Runs context-monitor in background
 - Handles completion
 
 ### 3. context-monitor.sh
+
 - Background process
 - Checks context usage every 30s
 - At 70%: sync to memory
 - At 90%: checkpoint + sync + /clear
 
 ### 4. completion-handler.sh
+
 - Runs after successful loop
 - Executes: commit + push + PR + sync + /clear + new branch
 - Called by spec-automator.sh on success
@@ -74,11 +79,11 @@ Reads SPEC → complexity score → chooses loop
 
 Claude Code CLI (AI) reads SPEC and decides:
 
-| Complexity Score | Loop | Reason |
-|-----------------|------|--------|
-| 0-30 (simple) | `/computer-loop --fast` | 1 task, no pg needed |
-| 31-60 (medium) | `/computer-loop --standard` | Multiple tasks, pg needed |
-| 61+ (complex) | `/cursor-loop --enterprise` | Full pipeline, checkpoints |
+| Complexity Score | Loop                        | Reason                     |
+| ---------------- | --------------------------- | -------------------------- |
+| 0-30 (simple)    | `/computer-loop --fast`     | 1 task, no pg needed       |
+| 31-60 (medium)   | `/computer-loop --standard` | Multiple tasks, pg needed  |
+| 61+ (complex)    | `/cursor-loop --enterprise` | Full pipeline, checkpoints |
 
 **AI decision is autonomous — no script forces it.**
 
@@ -104,14 +109,15 @@ score += new_dependencies_count * 8
 
 ### Thresholds
 
-| Context Usage | Action |
-|---------------|--------|
-| > 70% | Sync to memory (backup) |
-| > 90% | Full checkpoint + /clear |
+| Context Usage | Action                   |
+| ------------- | ------------------------ |
+| > 70%         | Sync to memory (backup)  |
+| > 90%         | Full checkpoint + /clear |
 
 ### Implementation
 
 Background script running every 30s:
+
 ```bash
 # Monitor context
 if [ "$context_pct" -gt 90 ]; then
@@ -126,6 +132,7 @@ fi
 ### /clear Authorization
 
 User explicitly authorizes `/clear` in this SPEC:
+
 > **MASTER AUTHORIZATION:** System may call `/clear` automatically when context > 90% to optimize performance. This keeps the CLI responsive.
 
 ---
@@ -168,6 +175,7 @@ echo "✅ Feature complete. Branch: $NEW_BRANCH"
 Format: `feat/TIMESTAMP-RANDOM`
 
 Example:
+
 - `feat/1712937600-a3f8b2`
 - `feat/1712937722-9x7k4m`
 
@@ -177,23 +185,23 @@ Timestamp is Unix epoch, random is hex (8 chars).
 
 ## Error Handling
 
-| Situation | Action |
-|-----------|--------|
-| Loop fails | Retry 3x, then notify human |
+| Situation             | Action                              |
+| --------------------- | ----------------------------------- |
+| Loop fails            | Retry 3x, then notify human         |
 | AI chooses wrong loop | Human can abort, manually intervene |
-| /clear fails | Log error, continue (non-blocking) |
-| PR creation fails | Retry once, log, continue |
+| /clear fails          | Log error, continue (non-blocking)  |
+| PR creation fails     | Retry once, log, continue           |
 
 ---
 
 ## Files Created
 
-| File | Purpose |
-|------|---------|
-| `.claude/commands/auto-spec.md` | Command wrapper |
-| `scripts/spec-automator.sh` | Main orchestrator |
-| `scripts/context-monitor.sh` | Background context watcher |
-| `scripts/completion-handler.sh` | End-of-feature automation |
+| File                            | Purpose                    |
+| ------------------------------- | -------------------------- |
+| `.claude/commands/auto-spec.md` | Command wrapper            |
+| `scripts/spec-automator.sh`     | Main orchestrator          |
+| `scripts/context-monitor.sh`    | Background context watcher |
+| `scripts/completion-handler.sh` | End-of-feature automation  |
 
 ---
 
@@ -211,9 +219,10 @@ Timestamp is Unix epoch, random is hex (8 chars).
 
 > **MASTER AUTHORIZATION:**
 > I authorize the spec-automator system to:
+>
 > 1. Automatically select loop complexity based on SPEC analysis
 > 2. Execute full pipeline without pauses (except real failures)
 > 3. Run `/clear` when context > 90% to maintain CLI performance
 > 4. Create random branch names after each feature completion
 >
-> This authorization is granted by will-zappro on 2026-04-12.
+> This authorization is granted by owner on 2026-04-12.

@@ -2,7 +2,7 @@
 
 > **Status:** IN_PROGRESS — Alert pipeline FIXED ✅ (alert-sender deployed 2026-04-14), Loki deploying
 > **Priority:** 🟡 MEDIUM — rate limiting + Loki remaining
-> **Author:** will-zappro
+> **Author:** Principal Engineer
 > **Date:** 2026-04-14
 > **Branch:** feature/quantum-helix-done
 
@@ -11,34 +11,39 @@
 ## Implementation Status (2026-04-14)
 
 ### ✅ Working
-| Component | Status | Notes |
-|-----------|--------|-------|
-| Prometheus | Running | localhost:9090, all targets UP |
-| AlertManager | Running | localhost:9093, webhook receiver configured |
-| Grafana | Running | localhost:3100, dashboards available |
-| Gotify | Running | localhost:8050, P3 alerts OK |
-| Docker-autoheal | Running | Container restart on failure |
-| cadvisor/node-exporter/nvidia-gpu-exporter | Running | Metrics collection OK |
-| GPU alerts (Prometheus rules) | Configured | GPUCryptojacking, GPUMemory, GPUTemp |
+
+| Component                                  | Status     | Notes                                       |
+| ------------------------------------------ | ---------- | ------------------------------------------- |
+| Prometheus                                 | Running    | localhost:9090, all targets UP              |
+| AlertManager                               | Running    | localhost:9093, webhook receiver configured |
+| Grafana                                    | Running    | localhost:3100, dashboards available        |
+| Gotify                                     | Running    | localhost:8050, P3 alerts OK                |
+| Docker-autoheal                            | Running    | Container restart on failure                |
+| cadvisor/node-exporter/nvidia-gpu-exporter | Running    | Metrics collection OK                       |
+| GPU alerts (Prometheus rules)              | Configured | GPUCryptojacking, GPUMemory, GPUTemp        |
 
 ### ❌ Broken / Missing
-| Component | Issue | Fix Required |
-|-----------|-------|--------------|
-| **alert-sender** | ✅ DEPLOYED 2026-04-14 | Container healthy, Telegram 200 OK |
-| **Loki** | Container deploying | Loki 3.2.1 pulled, starting |
-| **Promtail** | Not in docker-compose | Loki/Promtail nice-to-have (deprioritized) |
-| **Alert path** | ✅ Prometheus → AlertManager → alert-sender:8080/webhook → Telegram | Working 2026-04-14 |
+
+| Component        | Issue                                                               | Fix Required                               |
+| ---------------- | ------------------------------------------------------------------- | ------------------------------------------ |
+| **alert-sender** | ✅ DEPLOYED 2026-04-14                                              | Container healthy, Telegram 200 OK         |
+| **Loki**         | Container deploying                                                 | Loki 3.2.1 pulled, starting                |
+| **Promtail**     | Not in docker-compose                                               | Loki/Promtail nice-to-have (deprioritized) |
+| **Alert path**   | ✅ Prometheus → AlertManager → alert-sender:8080/webhook → Telegram | Working 2026-04-14                         |
 
 ### ✅ Alert Pipeline (Fixed 2026-04-14)
+
 ```
 Prometheus → AlertManager → alert-sender:8080/webhook → ✅ Telegram (working)
                                               ↓
                                     Telegram (所有人) ✅ RECEIVES
 ```
+
 **Implementation:** alert-sender/app.py (Python 3.12-slim, port 8051, healthy)
 **Verification:** 2 test alerts sent to Telegram (HTTP 200) at 11:04
 
 ### 🔧 Priority Actions
+
 1. ~~Deploy simple alert-sender~~ ✅ DONE 2026-04-14
 2. Loki/Promtail: deprioritize (nice-to-have, not blocking)
 3. Loki: started, waiting for health check
@@ -48,6 +53,7 @@ Prometheus → AlertManager → alert-sender:8080/webhook → ✅ Telegram (work
 ## 1. Objective
 
 Criar um sistema unificado de:
+
 1. **Alerting** — Grafana + Prometheus alerts → Telegram/Gotify (eliminar alertas redundantes)
 2. **Rate Limiting** — Cálculo e distribuição de limites por serviço (GPU partilhada)
 3. **GPU Security** — Deteção de cryptojacking na RTX 4090
@@ -93,13 +99,13 @@ Criar um sistema unificado de:
 
 ### Baseline Atual (RTX 4090)
 
-| Métrica | Valor Normal | Threshold Alerta | Threshold Crítico |
-|---------|-------------|------------------|-------------------|
-| VRAM Usage | 20-24GB | >24GB (105%) | >24GB + unknown process |
-| GPU Util | 40-80% | >90% sustained 5min | >98% sustained 2min |
-| Temperature | 40-65°C | >80°C | >85°C |
-| Power Draw | 200-350W | >400W | >430W |
-| GPU Processes | ollama, litellm, python | unknown process | non-ollama process >2GB |
+| Métrica       | Valor Normal            | Threshold Alerta    | Threshold Crítico       |
+| ------------- | ----------------------- | ------------------- | ----------------------- |
+| VRAM Usage    | 20-24GB                 | >24GB (105%)        | >24GB + unknown process |
+| GPU Util      | 40-80%                  | >90% sustained 5min | >98% sustained 2min     |
+| Temperature   | 40-65°C                 | >80°C               | >85°C                   |
+| Power Draw    | 200-350W                | >400W               | >430W                   |
+| GPU Processes | ollama, litellm, python | unknown process     | non-ollama process >2GB |
 
 ### Regras Prometheus — GPU Alerts
 
@@ -117,7 +123,7 @@ groups:
         labels:
           severity: critical
         annotations:
-          summary: "GPU cryptojacking SUSPECTED on {{ $labels.instance }}"
+          summary: 'GPU cryptojacking SUSPECTED on {{ $labels.instance }}'
           description: |
             GPU Util: {{ $values.B0.Value }}%
             VRAM: {{ $values.B1.Value }}%
@@ -129,7 +135,7 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: "GPU memory nearly full: {{ $value | printf \"%.1f\" }}%"
+          summary: 'GPU memory nearly full: {{ $value | printf "%.1f" }}%'
 
       - alert: GPUTemperatureHigh
         expr: DCGM_FI_DEV_GPU_TEMP > 80
@@ -137,7 +143,7 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: "GPU temperature high: {{ $value }}°C"
+          summary: 'GPU temperature high: {{ $value }}°C'
 ```
 
 ### Verificação Manual (corrida during SRE Monitor)
@@ -158,29 +164,30 @@ cat /proc/<pid>/cmdline
 
 ### GPU Budget (RTX 4090 — 24GB VRAM)
 
-| Serviço | VRAM Reserved | Max Concurrent | Limite req/min |
-|---------|--------------|----------------|----------------|
-| Ollama (Qwen2.5 7B) | 14GB | 2 | 60 |
-| Ollama (Qwen2.5 72B) | 0 (não usado) | - | - |
-| LiteLLM Proxy | 4GB | 4 | 90 |
-| wav2vec2 STT | 2GB | 1 | 30 |
-| Kokoro TTS | 1GB | 1 | 30 |
-| **Buffer** | 3GB | - | - |
+| Serviço              | VRAM Reserved | Max Concurrent | Limite req/min |
+| -------------------- | ------------- | -------------- | -------------- |
+| Ollama (Qwen2.5 7B)  | 14GB          | 2              | 60             |
+| Ollama (Qwen2.5 72B) | 0 (não usado) | -              | -              |
+| LiteLLM Proxy        | 4GB           | 4              | 90             |
+| wav2vec2 STT         | 2GB           | 1              | 30             |
+| Kokoro TTS           | 1GB           | 1              | 30             |
+| **Buffer**           | 3GB           | -              | -              |
 
 ### Per-Service Rate Limits
 
-| Serviço | Algoritmo | Limite | Burst | Janela |
-|---------|-----------|--------|-------|--------|
-| Ollama `/api/generate` | Token Bucket | 60 req/min | 10 | 60s |
-| OpenWebUI | Token Bucket | 30 req/min | 5 | 60s |
-| LiteLLM | Token Bucket | 90 req/min | 15 | 60s |
-| n8n Webhooks | Leaky Bucket | 120 req/min | 20 | 60s |
-| Hermes Agent | Token Bucket | 20 req/min | 3 | 60s |
-| Grafana API | Sliding Window | 300 req/min | 50 | 60s |
+| Serviço                | Algoritmo      | Limite      | Burst | Janela |
+| ---------------------- | -------------- | ----------- | ----- | ------ |
+| Ollama `/api/generate` | Token Bucket   | 60 req/min  | 10    | 60s    |
+| OpenWebUI              | Token Bucket   | 30 req/min  | 5     | 60s    |
+| LiteLLM                | Token Bucket   | 90 req/min  | 15    | 60s    |
+| n8n Webhooks           | Leaky Bucket   | 120 req/min | 20    | 60s    |
+| Hermes Agent           | Token Bucket   | 20 req/min  | 3     | 60s    |
+| Grafana API            | Sliding Window | 300 req/min | 50    | 60s    |
 
 ### Implementation
 
 **nginx rate limiting (upstream):**
+
 ```nginx
 # /etc/nginx/conf.d/rate-limit.conf
 limit_req_zone $binary_remote_addr zone=ollama:10m rate=60r/m;
@@ -196,6 +203,7 @@ server {
 ```
 
 **LiteLLM config.yaml:**
+
 ```yaml
 litellm_settings:
   num_parallel_requests: 10
@@ -214,12 +222,12 @@ router_settings:
 
 ### Severity Levels
 
-| Level | Name | Color | Action | Channel |
-|-------|------|-------|--------|---------|
-| 🔴 P1 | Critical | Red | Immediate | Telegram (所有人) |
-| 🟠 P2 | Warning | Orange | 5min delay | Telegram (@will) |
-| 🟡 P3 | Info | Yellow | Log only | Gotify |
-| ⚪ P4 | Debug | Gray | Dashboard | Grafana |
+| Level | Name     | Color  | Action     | Channel           |
+| ----- | -------- | ------ | ---------- | ----------------- |
+| 🔴 P1 | Critical | Red    | Immediate  | Telegram (所有人) |
+| 🟠 P2 | Warning  | Orange | 5min delay | Telegram (@will)  |
+| 🟡 P3 | Info     | Yellow | Log only   | Gotify            |
+| ⚪ P4 | Debug    | Gray   | Dashboard  | Grafana           |
 
 ### Alert Routing
 
@@ -250,7 +258,7 @@ groups:
         labels:
           severity: critical
         annotations:
-          summary: "Container {{ $labels.container_name }} is DOWN"
+          summary: 'Container {{ $labels.container_name }} is DOWN'
 
       - alert: ContainerUnhealthy
         expr: docker_container_health == 1
@@ -258,7 +266,7 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: "Container {{ $labels.container_name }} unhealthy"
+          summary: 'Container {{ $labels.container_name }} unhealthy'
 
       - alert: HighCPU
         expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 90
@@ -266,7 +274,7 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: "CPU usage above 90%: {{ $value | printf \"%.1f\" }}%"
+          summary: 'CPU usage above 90%: {{ $value | printf "%.1f" }}%'
 
       - alert: HighMemory
         expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 90
@@ -274,7 +282,7 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: "Memory usage above 90%: {{ $value | printf \"%.1f\" }}%"
+          summary: 'Memory usage above 90%: {{ $value | printf "%.1f" }}%'
 
       - alert: DiskSpaceLow
         expr: (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes) * 100 < 10
@@ -282,7 +290,7 @@ groups:
         labels:
           severity: critical
         annotations:
-          summary: "Disk space below 10%"
+          summary: 'Disk space below 10%'
 
       - alert: SubdomainDown
         expr: probe_success{job="subdomains"} == 0
@@ -290,7 +298,7 @@ groups:
         labels:
           severity: critical
         annotations:
-          summary: "Subdomain {{ $labels.instance }} is DOWN"
+          summary: 'Subdomain {{ $labels.instance }} is DOWN'
 ```
 
 ---
@@ -300,6 +308,7 @@ groups:
 ### Dashboard: Homelab Overview
 
 **Panels:**
+
 1. GPU Utilization (gauge, 0-100%)
 2. GPU Memory (gauge, 0-24GB)
 3. GPU Temperature (graph, 0-100°C)
@@ -312,6 +321,7 @@ groups:
 ### Dashboard: Rate Limiting
 
 **Panels:**
+
 1. Requests per minute per service (graph, stacked)
 2. Rate limit usage % (gauge per service)
 3. Queue depth (graph)
@@ -322,26 +332,26 @@ groups:
 
 ## 7. Files to Modify/Create
 
-| File | Action | Purpose |
-|------|--------|---------|
-| `apps/monitoring/grafana/provisioning/dashboards/homelab.yml` | Create | Homelab overview dashboard |
-| `apps/monitoring/grafana/provisioning/dashboards/rate-limit.yml` | Create | Rate limiting dashboard |
-| `apps/monitoring/prometheus/alerts.yml` | Modify | Add GPU security alerts |
+| File                                                              | Action | Purpose                     |
+| ----------------------------------------------------------------- | ------ | --------------------------- |
+| `apps/monitoring/grafana/provisioning/dashboards/homelab.yml`     | Create | Homelab overview dashboard  |
+| `apps/monitoring/grafana/provisioning/dashboards/rate-limit.yml`  | Create | Rate limiting dashboard     |
+| `apps/monitoring/prometheus/alerts.yml`                           | Modify | Add GPU security alerts     |
 | `apps/monitoring/grafana/provisioning/datasources/prometheus.yml` | Modify | Ensure Prometheus DS exists |
-| `apps/monitoring/alertmanager.yml` | Modify | Add Telegram/Gotify routing |
-| `.claude/skills/coolify-sre/scripts/sre-monitor.sh` | Modify | Fix IFS bug, add GPU check |
-| `docs/SPECS/SPEC-040-homelab-alerting-rate-limit.md` | Create | This spec |
+| `apps/monitoring/alertmanager.yml`                                | Modify | Add Telegram/Gotify routing |
+| `.claude/skills/coolify-sre/scripts/sre-monitor.sh`               | Modify | Fix IFS bug, add GPU check  |
+| `docs/SPECS/SPEC-040-homelab-alerting-rate-limit.md`              | Create | This spec                   |
 
 ---
 
 ## 8. Success Criteria
 
-| # | Criterion | Verification |
-|---|-----------|-------------|
-| SC-1 | GPU cryptojacking detection works | `nvidia-smi` unknown process → alert fires |
-| SC-2 | Rate limits enforced | Load test with >100 req/min to Ollama → 429 returned |
-| SC-3 | P1 alerts reach Telegram immediately | Container DOWN → Telegram < 30s |
-| SC-4 | SRE Monitor heals healthy containers | Unhealthy container → auto-restart → healthy |
+| #    | Criterion                            | Verification                                          |
+| ---- | ------------------------------------ | ----------------------------------------------------- |
+| SC-1 | GPU cryptojacking detection works    | `nvidia-smi` unknown process → alert fires            |
+| SC-2 | Rate limits enforced                 | Load test with >100 req/min to Ollama → 429 returned  |
+| SC-3 | P1 alerts reach Telegram immediately | Container DOWN → Telegram < 30s                       |
+| SC-4 | SRE Monitor heals healthy containers | Unhealthy container → auto-restart → healthy          |
 | SC-5 | Grafana dashboard shows all services | Single view: GPU, containers, subdomains, rate limits |
 
 ---
@@ -360,16 +370,17 @@ groups:
 
 ### System Memory State
 
-| Metric | Value | Verdict |
-|--------|-------|---------|
-| RAM Total | 30 GB | — |
-| RAM Used | 14 GB (47%) | ✅ Healthy |
-| RAM Available | 16 GB | ✅ Plenty of headroom |
-| Swap Total | 8 GB | — |
-| **Swap Used** | **7.8 GB (97%)** | ⚠️ LOOKS WORSE THAN IT IS |
-| ZFS ARC | 996 MB / 8 GB max | ✅ ARC healthy, not the cause |
+| Metric        | Value             | Verdict                       |
+| ------------- | ----------------- | ----------------------------- |
+| RAM Total     | 30 GB             | —                             |
+| RAM Used      | 14 GB (47%)       | ✅ Healthy                    |
+| RAM Available | 16 GB             | ✅ Plenty of headroom         |
+| Swap Total    | 8 GB              | —                             |
+| **Swap Used** | **7.8 GB (97%)**  | ⚠️ LOOKS WORSE THAN IT IS     |
+| ZFS ARC       | 996 MB / 8 GB max | ✅ ARC healthy, not the cause |
 
 **Swap Verdict: Normal behavior, not a problem.**
+
 - `swappiness=5` is correctly tuned
 - Idle processes (Ollama 1.7GB, Python heaps) are swapped out by design
 - 16 GB RAM available = no memory pressure
@@ -377,14 +388,15 @@ groups:
 
 ### GPU State — NO CRYPTOJACKING ✅
 
-| Metric | Value |
-|--------|-------|
-| GPU | NVIDIA RTX 4090 |
-| VRAM Used | 4.5 GB / 24 GB (18.5%) |
-| Temperature | 54°C (normal) |
-| Power Draw | 247W (normal) |
+| Metric      | Value                  |
+| ----------- | ---------------------- |
+| GPU         | NVIDIA RTX 4090        |
+| VRAM Used   | 4.5 GB / 24 GB (18.5%) |
+| Temperature | 54°C (normal)          |
+| Power Draw  | 247W (normal)          |
 
 **VRAM Breakdown:**
+
 - `qwen2.5vl:7b` (Ollama): 4.5 GB VRAM — legitimate vision model
 - TTS Bridge uvicorn: 2.1 GB VRAM — legitimate
 - wav2vec2: 1.6 GB VRAM — legitimate
@@ -393,45 +405,46 @@ groups:
 
 ### Docker Container RAM (total ~1 GB active)
 
-| Container | RAM | Status | Recommendation |
-|-----------|-----|--------|---------------|
-| n8n | 193 MB | Active | ✅ Keep |
-| grafana | 139 MB | Active | ✅ Keep |
-| prometheus | 103 MB | Active | ✅ Keep |
-| loki | 50 MB | Active | ✅ Keep |
-| cadvisor | 54 MB | Active | ✅ Keep |
-| zappro-litellm | 75 MB | Active | ✅ Keep |
-| open-webui | 65 MB | Active | ✅ Keep |
-| coolify (all) | 308 MB | Active | ✅ Keep (minimal) |
-| **SearXNG** | 16 MB | **0 requests/24h** | 🔴 **REMOVE** |
-| **infisical + DB + Redis** | ~500 MB | **Fallback mode** | 🟡 Consider STOP |
-| **infisical-db** | ~50 MB | DB | 🟡 part of above |
-| **infisical-redis** | ~10 MB | Redis | 🟡 part of above |
-| supabase-health-proxy | 8 MB | Not cloud DB | 🟡 Check if needed |
-| perplexity-agent | 12 MB | Research agent | ✅ Keep |
-| gitea-runner | 16 MB | CI/CD | ✅ Keep |
-| gotify | 14 MB | Notifications | ✅ Keep |
+| Container                  | RAM     | Status             | Recommendation     |
+| -------------------------- | ------- | ------------------ | ------------------ |
+| n8n                        | 193 MB  | Active             | ✅ Keep            |
+| grafana                    | 139 MB  | Active             | ✅ Keep            |
+| prometheus                 | 103 MB  | Active             | ✅ Keep            |
+| loki                       | 50 MB   | Active             | ✅ Keep            |
+| cadvisor                   | 54 MB   | Active             | ✅ Keep            |
+| zappro-litellm             | 75 MB   | Active             | ✅ Keep            |
+| open-webui                 | 65 MB   | Active             | ✅ Keep            |
+| coolify (all)              | 308 MB  | Active             | ✅ Keep (minimal)  |
+| **SearXNG**                | 16 MB   | **0 requests/24h** | 🔴 **REMOVE**      |
+| **infisical + DB + Redis** | ~500 MB | **Fallback mode**  | 🟡 Consider STOP   |
+| **infisical-db**           | ~50 MB  | DB                 | 🟡 part of above   |
+| **infisical-redis**        | ~10 MB  | Redis              | 🟡 part of above   |
+| supabase-health-proxy      | 8 MB    | Not cloud DB       | 🟡 Check if needed |
+| perplexity-agent           | 12 MB   | Research agent     | ✅ Keep            |
+| gitea-runner               | 16 MB   | CI/CD              | ✅ Keep            |
+| gotify                     | 14 MB   | Notifications      | ✅ Keep            |
 
 ### PRUNE LIST — Services to Remove/Stop
 
-| # | Service | Reason | Command |
-|---|---------|--------|---------|
-| 1 | **SearXNG** | 0 requests/24h, no identified consumer, ~15 MB RAM | `docker stop searxng && docker rm searxng` |
-| 2 | **Infisical stack** | .env is canonical (ADR-001), all services use .env, SDK fallback only | `docker stop infisical infisical-db infisical-redis` |
-| 3 | **supabase-health-proxy** | Supabase is cloud-only (no local Supabase), proxy unnecessary | `docker stop supabase-health-proxy && docker rm supabase-health-proxy` |
-| 4 | **Orphaned openclaw volumes** | Volumes from removed container, disk waste | `docker volume rm openclaw-data qgtzrmi6771lt8l7x8rqx72f_openclaw-data` |
-| 5 | **n8n + postgresql-n8n** | 0 workflows, 0 executions, 0 webhooks — never used | `docker stop n8n-jbu1zy377ies2zhc3qmd03gz postgresql-jbu1zy377ies2zhc3qmd03gz && docker rm n8n-jbu1zy377ies2zhc3qmd03gz postgresql-jbu1zy377ies2zhc3qmd03gz` |
+| #   | Service                       | Reason                                                                | Command                                                                                                                                                      |
+| --- | ----------------------------- | --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1   | **SearXNG**                   | 0 requests/24h, no identified consumer, ~15 MB RAM                    | `docker stop searxng && docker rm searxng`                                                                                                                   |
+| 2   | **Infisical stack**           | .env is canonical (ADR-001), all services use .env, SDK fallback only | `docker stop infisical infisical-db infisical-redis`                                                                                                         |
+| 3   | **supabase-health-proxy**     | Supabase is cloud-only (no local Supabase), proxy unnecessary         | `docker stop supabase-health-proxy && docker rm supabase-health-proxy`                                                                                       |
+| 4   | **Orphaned openclaw volumes** | Volumes from removed container, disk waste                            | `docker volume rm openclaw-data qgtzrmi6771lt8l7x8rqx72f_openclaw-data`                                                                                      |
+| 5   | **n8n + postgresql-n8n**      | 0 workflows, 0 executions, 0 webhooks — never used                    | `docker stop n8n-jbu1zy377ies2zhc3qmd03gz postgresql-jbu1zy377ies2zhc3qmd03gz && docker rm n8n-jbu1zy377ies2zhc3qmd03gz postgresql-jbu1zy377ies2zhc3qmd03gz` |
 
 ### Services to Investigate (Uncertain)
 
-| Service | Question | Action |
-|---------|----------|--------|
+| Service                 | Question                                                     | Action                                     |
+| ----------------------- | ------------------------------------------------------------ | ------------------------------------------ |
 | **grafana.zappro.site** | DNS intentionally removed (duplicate of monitor.zappro.site) | No action needed — use monitor.zappro.site |
-| **task-runners** | SRE Monitor found unhealthy — what are they? | Investigate before restarting |
+| **task-runners**        | SRE Monitor found unhealthy — what are they?                 | Investigate before restarting              |
 
 ### grafana.zappro.site — NOT BROKEN, REMOVED
 
 The SRE Monitor shows "HTTP 000" for grafana.zappro.site but this is **expected**:
+
 - `grafana.zappro.site` was intentionally removed as duplicate of `monitor.zappro.site`
 - DNS CNAME was deleted
 - The correct URL is **`monitor.zappro.site`** which returns HTTP 302 (Cloudflare Access redirect → login → Grafana)
@@ -439,15 +452,16 @@ The SRE Monitor shows "HTTP 000" for grafana.zappro.site but this is **expected*
 
 ### Desktop RAM Bloat
 
-| Process | RAM | Notes |
-|---------|-----|-------|
-| Chrome (35 tabs) | 4.5 GB | Largest consumer — consider closing unused tabs |
-| GNOME Shell | 217 MB swap | Normal |
-| Claude Code (3 sessions) | 643 MB swap | Idle sessions in swap |
+| Process                  | RAM         | Notes                                           |
+| ------------------------ | ----------- | ----------------------------------------------- |
+| Chrome (35 tabs)         | 4.5 GB      | Largest consumer — consider closing unused tabs |
+| GNOME Shell              | 217 MB swap | Normal                                          |
+| Claude Code (3 sessions) | 643 MB swap | Idle sessions in swap                           |
 
 ### Swap Cleanup (Optional — No Urgency)
 
 To clear swap without rebooting:
+
 ```bash
 # Restart biggest swap consumers
 sudo systemctl restart ollama
@@ -455,6 +469,7 @@ sudo systemctl restart ollama
 ```
 
 To set swappiness to 0 (aggressive RAM retention):
+
 ```bash
 echo 1 | sudo tee /proc/sys/vm/swappiness
 # Or permanently: sudo sysctl -w vm.swappiness=1

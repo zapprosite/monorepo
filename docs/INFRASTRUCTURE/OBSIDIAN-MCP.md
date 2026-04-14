@@ -29,6 +29,7 @@ npm install -g @blacksmithers/obsidian-forge-mcp
 ```
 
 Verificacao:
+
 ```bash
 obsidian-forge --help
 # Output: [obsidian-forge] Starting...
@@ -48,7 +49,9 @@ Adicionar ao `mcpServers`:
     // ... outros servers ...
     "obsidian": {
       "command": "node",
-      "args": ["/home/will/.npm-global/lib/node_modules/@blacksmithers/obsidian-forge-mcp/dist/index.js"],
+      "args": [
+        "/home/will/.npm-global/lib/node_modules/@blacksmithers/obsidian-forge-mcp/dist/index.js"
+      ],
       "env": {
         "OBSIDIAN_VAULT_PATH": "/home/will/obsidian-vault"
       }
@@ -65,69 +68,69 @@ Adicionar ao `mcpServers`:
 
 ### Notas (6)
 
-| Tool | Funcao |
-|------|--------|
-| `read_note` | Ler conteudo + metadados. Fuzzy path resolution. |
-| `write_note` | Criar ou sobrescrever nota. |
-| `edit_note` | Find-replace in-place. Exact match. |
-| `edit_regex` | Regex find-replace. Single file ou grep-sub no vault. |
-| `append_note` | Anexar a existente, ou criar se nao existe. |
-| `delete_note` | Mover para `.trash` (seguro) ou permanente. |
+| Tool          | Funcao                                                |
+| ------------- | ----------------------------------------------------- |
+| `read_note`   | Ler conteudo + metadados. Fuzzy path resolution.      |
+| `write_note`  | Criar ou sobrescrever nota.                           |
+| `edit_note`   | Find-replace in-place. Exact match.                   |
+| `edit_regex`  | Regex find-replace. Single file ou grep-sub no vault. |
+| `append_note` | Anexar a existente, ou criar se nao existe.           |
+| `delete_note` | Mover para `.trash` (seguro) ou permanente.           |
 
 ### Busca e Descoberta (8)
 
-| Tool | Funcao |
-|------|--------|
-| `smart_search` | **BM25 rankeado.** Typo tolerance, field boosting, snippets. |
-| `search_reindex` | Forcar reindex apos operacoes em lote. |
-| `search_vault` | Busca rapida por nome/path do indice em memoria. |
-| `search_content` | Full-text grep. Para matches literais/exatos. |
-| `list_dir` | Listagem de diretorio com timestamps. Sort por nome, data ou tamanho. |
-| `recent_notes` | Arquivos modificados recentemente. Instant do indice. |
-| `daily_note` | Nota diaria (ou qualquer data). |
-| `vault_status` | Contagem de arquivos, tipos, saude do indice. |
+| Tool             | Funcao                                                                |
+| ---------------- | --------------------------------------------------------------------- |
+| `smart_search`   | **BM25 rankeado.** Typo tolerance, field boosting, snippets.          |
+| `search_reindex` | Forcar reindex apos operacoes em lote.                                |
+| `search_vault`   | Busca rapida por nome/path do indice em memoria.                      |
+| `search_content` | Full-text grep. Para matches literais/exatos.                         |
+| `list_dir`       | Listagem de diretorio com timestamps. Sort por nome, data ou tamanho. |
+| `recent_notes`   | Arquivos modificados recentemente. Instant do indice.                 |
+| `daily_note`     | Nota diaria (ou qualquer data).                                       |
+| `vault_status`   | Contagem de arquivos, tipos, saude do indice.                         |
 
 ### Arquivos (3)
 
-| Tool | Funcao |
-|------|--------|
-| `batch_rename` | Renomear/mover arquivos. Pares explicitos ou regex. Auto-updates wikilinks. Dry run default. |
-| `delete_folder` | Deletar diretorios vazios ou nao-vazios. Move para `.trash` por default. Safety guards para `.obsidian`, `.git`, `.trash`. |
-| `prune_empty_dirs` | Encontrar e remover todos diretorios vazios. Dry run default. |
+| Tool               | Funcao                                                                                                                     |
+| ------------------ | -------------------------------------------------------------------------------------------------------------------------- |
+| `batch_rename`     | Renomear/mover arquivos. Pares explicitos ou regex. Auto-updates wikilinks. Dry run default.                               |
+| `delete_folder`    | Deletar diretorios vazios ou nao-vazios. Move para `.trash` por default. Safety guards para `.obsidian`, `.git`, `.trash`. |
+| `prune_empty_dirs` | Encontrar e remover todos diretorios vazios. Dry run default.                                                              |
 
 ### Links (2)
 
-| Tool | Funcao |
-|------|--------|
-| `update_links` | Atualizar todos wikilinks no vault apos mover/renomear. Dry run default. |
-| `backlinks` | Encontrar todos arquivos que linkam para um arquivo. Line numbers, context, embed detection. |
+| Tool           | Funcao                                                                                       |
+| -------------- | -------------------------------------------------------------------------------------------- |
+| `update_links` | Atualizar todos wikilinks no vault apos mover/renomear. Dry run default.                     |
+| `backlinks`    | Encontrar todos arquivos que linkam para um arquivo. Line numbers, context, embed detection. |
 
 ### Metadata (1)
 
-| Tool | Funcao |
-|------|--------|
+| Tool          | Funcao                                                       |
+| ------------- | ------------------------------------------------------------ |
 | `frontmatter` | Ler/escrever/merge YAML frontmatter como dados estruturados. |
 
 ### Canvas (4)
 
-| Tool | Funcao |
-|------|--------|
-| `canvas_create` | Grafo semantico → `.canvas` auto-layout via dagre. |
-| `canvas_read` | Canvas → grafo semantico (labels + conexoes, nao coordenadas). |
-| `canvas_patch` | Adicionar/remover/atualizar com posicao relativa + fuzzy matching. |
-| `canvas_relayout` | Re-layout canvas existente. Preview antes de commitar. |
+| Tool              | Funcao                                                             |
+| ----------------- | ------------------------------------------------------------------ |
+| `canvas_create`   | Grafo semantico → `.canvas` auto-layout via dagre.                 |
+| `canvas_read`     | Canvas → grafo semantico (labels + conexoes, nao coordenadas).     |
+| `canvas_patch`    | Adicionar/remover/atualizar com posicao relativa + fuzzy matching. |
+| `canvas_relayout` | Re-layout canvas existente. Preview antes de commitar.             |
 
 ### Inteligencia (2)
 
-| Tool | Funcao |
-|------|--------|
-| `vault_themes` | Extracao de temas TF-IDF + clustering. Atlas do vault com warnings cross-folder. |
-| `vault_suggest` | Engine de reorganizacao: consolidar, criar MOCs, arquivar stale, triar orphans. |
+| Tool            | Funcao                                                                           |
+| --------------- | -------------------------------------------------------------------------------- |
+| `vault_themes`  | Extracao de temas TF-IDF + clustering. Atlas do vault com warnings cross-folder. |
+| `vault_suggest` | Engine de reorganizacao: consolidar, criar MOCs, arquivar stale, triar orphans.  |
 
 ### Batch (1)
 
-| Tool | Funcao |
-|------|--------|
+| Tool    | Funcao                                                                                |
+| ------- | ------------------------------------------------------------------------------------- |
 | `batch` | Executar multiplas operacoes - read, write, edit, regex, rename, frontmatter, delete. |
 
 ---
@@ -198,11 +201,11 @@ Create a canvas showing the architecture: API Gateway → Auth Service → Datab
 
 ## Alternativas Consideradas
 
-| Package | Version | Pros | Contras |
-|---------|---------|------|---------|
-| `obsidian-mcp-server` (cyanheads) | 2.0.7 | Funcionalidades basicas OK | Nao tem canvas, smart search, intelligence |
-| `@zethictech/obsidian-mcp` | 1.1.6 | CLI wrapper oficial | Funcionalidades limitadas |
-| `@blacksmithers/obsidian-forge-mcp` | 0.5.3 | **27 tools, BM25, canvas, vault intelligence** | Mais pesado (~95 packages) |
+| Package                             | Version | Pros                                           | Contras                                    |
+| ----------------------------------- | ------- | ---------------------------------------------- | ------------------------------------------ |
+| `obsidian-mcp-server` (cyanheads)   | 2.0.7   | Funcionalidades basicas OK                     | Nao tem canvas, smart search, intelligence |
+| `@zethictech/obsidian-mcp`          | 1.1.6   | CLI wrapper oficial                            | Funcionalidades limitadas                  |
+| `@blacksmithers/obsidian-forge-mcp` | 0.5.3   | **27 tools, BM25, canvas, vault intelligence** | Mais pesado (~95 packages)                 |
 
 **Escolha:** obsidian-forge-mcp - unico com smart search rankeado, canvas support, e vault intelligence.
 
@@ -227,7 +230,9 @@ Se `obsidian-forge` nao funcionar como command, usar path direto:
 ```json
 {
   "command": "node",
-  "args": ["/home/will/.npm-global/lib/node_modules/@blacksmithers/obsidian-forge-mcp/dist/index.js"]
+  "args": [
+    "/home/will/.npm-global/lib/node_modules/@blacksmithers/obsidian-forge-mcp/dist/index.js"
+  ]
 }
 ```
 
@@ -256,4 +261,4 @@ chmod +w /home/will/obsidian-vault/**/*
 
 ## Autor
 
-GPT (@will-zappro) - 2026-04-13
+GPT (@Principal Engineer) - 2026-04-13

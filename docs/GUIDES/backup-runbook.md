@@ -1,6 +1,6 @@
-# Backup Runbook — will-zappro Homelab
+# Backup Runbook — Homelab
 
-**Host:** will-zappro
+**Host:** homelab
 **Last Updated:** 2026-04-14 (revised)
 **Review Cycle:** Monthly
 
@@ -22,19 +22,19 @@ Scrub:    Sun Apr 12 20:31:48 2026 — 0 errors
 
 ### Datasets
 
-| Dataset | Mountpoint | Used | Purpose |
-|---------|------------|------|---------|
-| `tank` | /tank | 24K | Pool root |
-| `tank/backups` | /srv/backups | 268M | Backup archives |
-| `tank/coolify` | /srv/data/coolify | 194K | Coolify PaaS |
-| `tank/data` | /tank/data | 170K | Data container (see below) |
-| `tank/data/openclaw` | /srv/data/openclaw | 118K | OpenClaw Bot |
-| `tank/data/openclaw/data` | /srv/data/openclaw/data | 24K | OpenClaw data |
-| `tank/data/zappro-router` | /srv/data/zappro-router | 27K | Aurelia Router |
-| `tank/docker-data` | /srv/docker-data | 24.9G | Docker images/layers |
-| `tank/models` | /srv/models | 38.6G | AI models (Ollama) |
-| `tank/monorepo` | /srv/monorepo | 4.60G | Application code |
-| `tank/qdrant` | /srv/data/qdrant | 208M | Vector database |
+| Dataset                   | Mountpoint              | Used  | Purpose                    |
+| ------------------------- | ----------------------- | ----- | -------------------------- |
+| `tank`                    | /tank                   | 24K   | Pool root                  |
+| `tank/backups`            | /srv/backups            | 268M  | Backup archives            |
+| `tank/coolify`            | /srv/data/coolify       | 194K  | Coolify PaaS               |
+| `tank/data`               | /tank/data              | 170K  | Data container (see below) |
+| `tank/data/openclaw`      | /srv/data/openclaw      | 118K  | OpenClaw Bot               |
+| `tank/data/openclaw/data` | /srv/data/openclaw/data | 24K   | OpenClaw data              |
+| `tank/data/zappro-router` | /srv/data/zappro-router | 27K   | Aurelia Router             |
+| `tank/docker-data`        | /srv/docker-data        | 24.9G | Docker images/layers       |
+| `tank/models`             | /srv/models             | 38.6G | AI models (Ollama)         |
+| `tank/monorepo`           | /srv/monorepo           | 4.60G | Application code           |
+| `tank/qdrant`             | /srv/data/qdrant        | 208M  | Vector database            |
 
 > **Note:** The following datasets were listed in previous versions but do NOT exist: `tank/data/n8n`, `tank/data/n8n-postgres`, `tank/data/grafana`, `tank/data/prometheus`, `tank/data/infisical-db`, `tank/data/infisical-redis`. Services like n8n, Grafana, Prometheus, and Infisical are running as Docker containers but their data resides under `tank/docker-data` or container-named datasets, not under `tank/data/`.
 
@@ -44,28 +44,28 @@ Scrub:    Sun Apr 12 20:31:48 2026 — 0 errors
 
 ### Data Classification
 
-| Tier | Data | RPO | RTO | Backup Method |
-|------|------|-----|-----|---------------|
-| **1 - Critical** | postgres, qdrant, n8n, backups | 24h | 30min | Daily tar.gz + ZFS snapshots |
-| **2 - Important** | monorepo, docker-data | Pre-change | 15min | Git + ZFS snapshots |
-| **3 - Convenience** | /home, memory-keeper | Weekly | 1h | Git push / tar |
+| Tier                | Data                           | RPO        | RTO   | Backup Method                |
+| ------------------- | ------------------------------ | ---------- | ----- | ---------------------------- |
+| **1 - Critical**    | postgres, qdrant, n8n, backups | 24h        | 30min | Daily tar.gz + ZFS snapshots |
+| **2 - Important**   | monorepo, docker-data          | Pre-change | 15min | Git + ZFS snapshots          |
+| **3 - Convenience** | /home, memory-keeper           | Weekly     | 1h    | Git push / tar               |
 
 ### Retention Policy
 
-| Backup Type | Frequency | Retention | Location | Status |
-|-------------|------------|-----------|----------|--------|
-| ZFS Snapshots | Every 6h | 7 daily, 4 weekly, 6 monthly | tank | OK |
-| PostgreSQL dumps | Daily (cron missing) | 7 versions | /srv/backups/postgres | ⚠️ No cron |
-| Qdrant archives | Daily 03:00 | 7 versions | /srv/backups/qdrant | OK |
-| n8n archives | Daily (cron missing) | 7 versions | /srv/backups/n8n | ⚠️ No cron |
-| Gitea dumps | Daily 02:30 | 7 versions | /srv/backups | OK |
-| Infisical DB dumps | Daily 02:45 | 7 versions | /srv/backups | ❌ Broken (0 bytes) |
-| Cloudflared credentials | Every 6h | 30 days | /srv/backups/cloudflared | OK |
-| Terraform state | Every 6h | 30 days | /srv/backups/terraform | OK |
-| .env secrets | Every 6h | 30 days | /srv/backups/env-secrets | OK |
-| Systemd services | Every 6h | 30 days | /srv/backups/systemd | OK |
-| Obsidian vault | Every 10min | Git remote | GitHub | OK |
-| Memory-keeper DB | Daily 02:00 | 7 versions | /srv/backups/memory-keeper | OK |
+| Backup Type             | Frequency            | Retention                    | Location                   | Status              |
+| ----------------------- | -------------------- | ---------------------------- | -------------------------- | ------------------- |
+| ZFS Snapshots           | Every 6h             | 7 daily, 4 weekly, 6 monthly | tank                       | OK                  |
+| PostgreSQL dumps        | Daily (cron missing) | 7 versions                   | /srv/backups/postgres      | ⚠️ No cron          |
+| Qdrant archives         | Daily 03:00          | 7 versions                   | /srv/backups/qdrant        | OK                  |
+| n8n archives            | Daily (cron missing) | 7 versions                   | /srv/backups/n8n           | ⚠️ No cron          |
+| Gitea dumps             | Daily 02:30          | 7 versions                   | /srv/backups               | OK                  |
+| Infisical DB dumps      | Daily 02:45          | 7 versions                   | /srv/backups               | ❌ Broken (0 bytes) |
+| Cloudflared credentials | Every 6h             | 30 days                      | /srv/backups/cloudflared   | OK                  |
+| Terraform state         | Every 6h             | 30 days                      | /srv/backups/terraform     | OK                  |
+| .env secrets            | Every 6h             | 30 days                      | /srv/backups/env-secrets   | OK                  |
+| Systemd services        | Every 6h             | 30 days                      | /srv/backups/systemd       | OK                  |
+| Obsidian vault          | Every 10min          | Git remote                   | GitHub                     | OK                  |
+| Memory-keeper DB        | Daily 02:00          | 7 versions                   | /srv/backups/memory-keeper | OK                  |
 
 > **Action Required:** `backup-postgres.sh` and `backup-n8n.sh` have no cron entries. Add cron schedules. Infisical DB backup produces 0-byte files (docker exec may be failing).
 
@@ -80,6 +80,7 @@ All scripts located in `/srv/ops/scripts/`.
 **Script:** `/srv/ops/scripts/backup-zfs-snapshot.sh`
 **Frequency:** Every 6 hours via systemd timer
 **Datasets snapshotted:**
+
 - tank/coolify
 - tank/data/openclaw
 - tank/data/zappro-router
@@ -96,14 +97,14 @@ All scripts located in `/srv/ops/scripts/`.
 
 ### Service-Specific Scripts
 
-| Script | Target | Method |
-|--------|--------|--------|
-| `backup-postgres.sh` | n8n PostgreSQL | `pg_dump` + gzip |
-| `backup-qdrant.sh` | Qdrant storage | tar.gz + SHA256 checksum |
-| `backup-n8n.sh` | n8n workflows | tar.gz |
-| `backup-gitea.sh` | Gitea (DB + repos) | tar.gz |
-| `backup-memory-keeper.sh` | SQLite context DB | direct copy |
-| `backup-obsidian-vault.sh` | Obsidian vault | git push |
+| Script                     | Target             | Method                   |
+| -------------------------- | ------------------ | ------------------------ |
+| `backup-postgres.sh`       | n8n PostgreSQL     | `pg_dump` + gzip         |
+| `backup-qdrant.sh`         | Qdrant storage     | tar.gz + SHA256 checksum |
+| `backup-n8n.sh`            | n8n workflows      | tar.gz                   |
+| `backup-gitea.sh`          | Gitea (DB + repos) | tar.gz                   |
+| `backup-memory-keeper.sh`  | SQLite context DB  | direct copy              |
+| `backup-obsidian-vault.sh` | Obsidian vault     | git push                 |
 
 ---
 
@@ -300,18 +301,18 @@ curl http://localhost:5678/api/v1/health
 
 ### Data Recovery Priority
 
-| Priority | Contact | Role |
-|----------|---------|------|
-| 1 | will (Principal Engineer) | ZFS, host recovery |
-| 2 | Claude Code Agent | Automation, triage |
+| Priority | Contact                   | Role               |
+| -------- | ------------------------- | ------------------ |
+| 1        | will (Principal Engineer) | ZFS, host recovery |
+| 2        | Claude Code Agent         | Automation, triage |
 
 ### External Resources
 
-| Resource | Purpose | Access |
-|----------|---------|--------|
-| GitHub (will-zappro/monorepo-obsidian) | Obsidian vault backup | Remote git |
-| Cloudflare Dashboard | DNS, tunnels, credentials | Web UI |
-| Infisical | Secrets management | API + Web |
+| Resource                         | Purpose                   | Access     |
+| -------------------------------- | ------------------------- | ---------- |
+| GitHub (owner/monorepo-obsidian) | Obsidian vault backup     | Remote git |
+| Cloudflare Dashboard             | DNS, tunnels, credentials | Web UI     |
+| Infisical                        | Secrets management        | API + Web  |
 
 ---
 
@@ -347,12 +348,12 @@ find /srv/backups -type f -mtime +7 -ls
 
 ### Alert Thresholds
 
-| Metric | Warning | Critical |
-|--------|---------|----------|
-| ZFS pool usage | > 50% | > 80% |
-| /srv free space | < 500GB | < 200GB |
-| Backup age (postgres) | > 48h | > 72h |
-| Snapshot count | > 100 | > 200 |
+| Metric                | Warning | Critical |
+| --------------------- | ------- | -------- |
+| ZFS pool usage        | > 50%   | > 80%    |
+| /srv free space       | < 500GB | < 200GB  |
+| Backup age (postgres) | > 48h   | > 72h    |
+| Snapshot count        | > 100   | > 200    |
 
 ---
 

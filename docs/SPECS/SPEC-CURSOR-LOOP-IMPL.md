@@ -1,7 +1,7 @@
 # SPEC-CURSOR-LOOP-IMPL
 
 **Date:** 2026-04-14
-**Author:** will-zappro
+**Author:** Principal Engineer
 **Status:** IMPLEMENTATION
 **Type:** Implementation Spec
 **Parent:** SPEC-CURSOR-LOOP-EVOLUTION.md
@@ -11,6 +11,7 @@
 ## Objetivo
 
 Implementar as quick wins da Fase 1 de SPEC-CURSOR-LOOP-EVOLUTION:
+
 - **M1.1:** Dashboard de execucao em tempo real
 - **M3.1:** Ciclo verify-and-heal melhorado
 
@@ -263,6 +264,7 @@ kill $DASHBOARD_PID 2>/dev/null || true
 ### 3.1 Design
 
 Enhanced `heal_container` function with:
+
 1. Health check after restart (not just state check)
 2. 30-second verification window
 3. Retry up to 2 times on failure
@@ -272,6 +274,7 @@ Enhanced `heal_container` function with:
 ### 3.2 Current Implementation Analysis
 
 Current `heal_container` (lines 328-379 in sre-monitor.sh):
+
 - Checks state after restart (good)
 - Checks health if available (good)
 - BUT: No retry loop, no escalation, no notification on persistent failure
@@ -525,13 +528,13 @@ docker rm -f test-heal-test
 
 ## Effort Estimate
 
-| Task | Effort |
-|------|--------|
-| M1.1: Dashboard script | 2-3 hours |
-| M1.1: Integration with cursor-loop | 1 hour |
-| M3.1: Enhanced heal_container | 2 hours |
-| M3.1: Testing with test container | 1 hour |
-| **Total** | **6-7 hours** |
+| Task                               | Effort        |
+| ---------------------------------- | ------------- |
+| M1.1: Dashboard script             | 2-3 hours     |
+| M1.1: Integration with cursor-loop | 1 hour        |
+| M3.1: Enhanced heal_container      | 2 hours       |
+| M3.1: Testing with test container  | 1 hour        |
+| **Total**                          | **6-7 hours** |
 
 ---
 

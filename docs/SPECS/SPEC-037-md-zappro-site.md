@@ -3,7 +3,7 @@ name: SPEC-037-md-zappro-site
 description: Obsidian vault UI accessible via Google OAuth
 status: IMPLEMENTED
 priority: high
-author: will-zappro
+author: Principal Engineer
 date: 2026-04-13
 specRef: SPEC-025 (version lock), SPEC-026 (git mirror)
 ---
@@ -22,14 +22,14 @@ Criar a interface web md.zappro.site para visualizacao do vault Obsidian do usua
 
 ## Tech Stack
 
-| Component | Technology | Notes |
-|-----------|------------|-------|
-| Web Server | nginx:alpine | Container estatico |
-| Authentication | Google OAuth | Via Infisical SDK (mesmas credenciais do list-web) |
-| Markdown Rendering | marked.js | Client-side parsing |
-| Frontend | Vanilla JS | Sem frameworks (estatico) |
-| Styling | CSS custom | Dark theme (sintaxe Obsidian) |
-| Vault Path | /home/will/obsidian-vault/ | Mount no container |
+| Component          | Technology                 | Notes                                              |
+| ------------------ | -------------------------- | -------------------------------------------------- |
+| Web Server         | nginx:alpine               | Container estatico                                 |
+| Authentication     | Google OAuth               | Via Infisical SDK (mesmas credenciais do list-web) |
+| Markdown Rendering | marked.js                  | Client-side parsing                                |
+| Frontend           | Vanilla JS                 | Sem frameworks (estatico)                          |
+| Styling            | CSS custom                 | Dark theme (sintaxe Obsidian)                      |
+| Vault Path         | /home/will/obsidian-vault/ | Mount no container                                 |
 
 ---
 
@@ -93,13 +93,13 @@ O vault Obsidian segue a metodologia PARA:
 
 ### Infrastructure
 
-| Parameter | Value |
-|-----------|-------|
-| Port | 4081 |
-| Subdomain | md.zappro.site |
-| Cloudflare Access | zappro.ia@gmail.com (mesmo que list-web) |
-| Authentication | Google OAuth apenas (sem Cloudflare Login) |
-| Container Registry | Gitea (mesmo que list-web) |
+| Parameter          | Value                                      |
+| ------------------ | ------------------------------------------ |
+| Port               | 4081                                       |
+| Subdomain          | md.zappro.site                             |
+| Cloudflare Access  | —                                          |
+| Authentication     | Google OAuth apenas (sem Cloudflare Login) |
+| Container Registry | Gitea (mesmo que list-web)                 |
 
 ### Cloudflare Tunnel
 
@@ -121,9 +121,9 @@ O vault Obsidian segue a metodologia PARA:
 
 ### Infisical Secrets (OAuth)
 
-| Secret | Description |
-|--------|-------------|
-| `GOOGLE_OAUTH_CLIENT_ID` | Client ID Google Cloud |
+| Secret                       | Description                |
+| ---------------------------- | -------------------------- |
+| `GOOGLE_OAUTH_CLIENT_ID`     | Client ID Google Cloud     |
 | `GOOGLE_OAUTH_CLIENT_SECRET` | Client Secret Google Cloud |
 
 ---
@@ -132,12 +132,12 @@ O vault Obsidian segue a metodologia PARA:
 
 ### Endpoints (nginx)
 
-| Path | Description |
-|------|-------------|
-| `/` | File browser UI (index.html) |
-| `/auth-callback.html` | OAuth callback handler |
-| `/vault/*` | Arquivos do vault (protegidos) |
-| `/health` | Health check |
+| Path                  | Description                    |
+| --------------------- | ------------------------------ |
+| `/`                   | File browser UI (index.html)   |
+| `/auth-callback.html` | OAuth callback handler         |
+| `/vault/*`            | Arquivos do vault (protegidos) |
+| `/health`             | Health check                   |
 
 ### File Browser Features
 
@@ -162,23 +162,23 @@ O vault Obsidian segue a metodologia PARA:
 
 ## Success Criteria
 
-| # | Criterion | Verification |
-|---|-----------|--------------|
-| SC-1 | md.zappro.site acessivel em https://md.zappro.site | `curl -sf https://md.zappro.site/health` retorna 200 |
-| SC-2 | Login Google OAuth obrigatorio (mesmo que list.zappro.site) | Navegar anonimo retorna redirect para Google |
-| SC-3 | File browser exibe estrutura do vault | Navegar mostra pastas e arquivos |
-| SC-4 | Arquivos .md renderizam com estilo markdown | Abrir nota mostra markdown formatado |
-| SC-5 | Navegacao entre pastas funciona | Clicar em pasta atualiza view |
-| SC-6 | Busca encontra arquivos no vault | Buscar retorna resultados |
+| #    | Criterion                                                   | Verification                                         |
+| ---- | ----------------------------------------------------------- | ---------------------------------------------------- |
+| SC-1 | md.zappro.site acessivel em https://md.zappro.site          | `curl -sf https://md.zappro.site/health` retorna 200 |
+| SC-2 | Login Google OAuth obrigatorio (mesmo que list.zappro.site) | Navegar anonimo retorna redirect para Google         |
+| SC-3 | File browser exibe estrutura do vault                       | Navegar mostra pastas e arquivos                     |
+| SC-4 | Arquivos .md renderizam com estilo markdown                 | Abrir nota mostra markdown formatado                 |
+| SC-5 | Navegacao entre pastas funciona                             | Clicar em pasta atualiza view                        |
+| SC-6 | Busca encontra arquivos no vault                            | Buscar retorna resultados                            |
 
 ---
 
 ## Open Questions
 
-| # | Question | Impact | Priority |
-|---|----------|--------|----------|
-| OQ-1 | Wiki-links [[note]] serao resolvidos para links navegaveis? | UX | Med |
-| OQ-2 | Backlinks serao exibidos? | Funcionalidade | Low |
+| #    | Question                                                    | Impact         | Priority |
+| ---- | ----------------------------------------------------------- | -------------- | -------- |
+| OQ-1 | Wiki-links [[note]] serao resolvidos para links navegaveis? | UX             | Med      |
+| OQ-2 | Backlinks serao exibidos?                                   | Funcionalidade | Low      |
 
 ---
 
@@ -217,6 +217,7 @@ Como **usuario do vault Obsidian**, quero **acessar minhas notas via browser com
 ## Non-Goals
 
 Esta spec NAO cobre:
+
 - Editor de markdown (apenas visualizacao)
 - Sincronizacao de notas (vault local apenas)
 - Mobile app
@@ -227,36 +228,36 @@ Esta spec NAO cobre:
 
 ## Acceptance Criteria
 
-| # | Criterion | Test |
-|---|-----------|------|
-| AC-1 | aplicacao builda com `bash build.sh` sem erros | build.sh retorna exit 0 |
-| AC-2 | docker-compose up inicia aplicacao local | `curl localhost:4081` retorna index.html |
-| AC-3 | Google OAuth redirect funciona | Acessar anonimo redireciona para Google |
-| AC-4 | File browser lista pastas do vault | `/vault/` retorna lista de pastas |
-| AC-5 | Arquivos .md renderizam markdown | `/vault/00-Inbox/nota.md` retorna HTML renderizado |
-| AC-6 | Health endpoint responde 200 | `curl -sf https://md.zappro.site/health` |
-| AC-7 | Search encontra arquivos | Buscar "projeto" retorna resultados |
+| #    | Criterion                                      | Test                                               |
+| ---- | ---------------------------------------------- | -------------------------------------------------- |
+| AC-1 | aplicacao builda com `bash build.sh` sem erros | build.sh retorna exit 0                            |
+| AC-2 | docker-compose up inicia aplicacao local       | `curl localhost:4081` retorna index.html           |
+| AC-3 | Google OAuth redirect funciona                 | Acessar anonimo redireciona para Google            |
+| AC-4 | File browser lista pastas do vault             | `/vault/` retorna lista de pastas                  |
+| AC-5 | Arquivos .md renderizam markdown               | `/vault/00-Inbox/nota.md` retorna HTML renderizado |
+| AC-6 | Health endpoint responde 200                   | `curl -sf https://md.zappro.site/health`           |
+| AC-7 | Search encontra arquivos                       | Buscar "projeto" retorna resultados                |
 
 ---
 
 ## Dependencies
 
-| Dependency | Status | Notes |
-|------------|--------|-------|
-| OAuth: Google Cloud Console | READY | Mesmas credenciais list-web |
-| Infisical SDK | READY | Ja configurado |
-| Cloudflare Tunnel | READY | list-web tunnel existente |
-| Port 4081 | AVAILABLE | Verificar PORTS.md |
-| Subdomain md.zappro.site | PENDING | Adicionar SUBDOMAINS.md |
+| Dependency                  | Status    | Notes                       |
+| --------------------------- | --------- | --------------------------- |
+| OAuth: Google Cloud Console | READY     | Mesmas credenciais list-web |
+| Infisical SDK               | READY     | Ja configurado              |
+| Cloudflare Tunnel           | READY     | list-web tunnel existente   |
+| Port 4081                   | AVAILABLE | Verificar PORTS.md          |
+| Subdomain md.zappro.site    | PENDING   | Adicionar SUBDOMAINS.md     |
 
 ---
 
 ## Decisions Log
 
-| Date | Decision | Rationale |
-|------|----------|-----------|
+| Date       | Decision                              | Rationale                     |
+| ---------- | ------------------------------------- | ----------------------------- |
 | 2026-04-13 | nginx:alpine para servir static files | Leve e suficiente para app JS |
-| 2026-04-13 | marked.js para markdown | Leve, client-side, sem build |
+| 2026-04-13 | marked.js para markdown               | Leve, client-side, sem build  |
 
 ---
 

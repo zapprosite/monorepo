@@ -1,7 +1,7 @@
-# 🚀 Guia Operacional - will-zappro Homelab
+# 🚀 Guia Operacional - Homelab
 
 **Versão:** 2026-04-08
-**Host:** will-zappro (Ubuntu 24.04 LTS)
+**Host:** homelab (Ubuntu 24.04 LTS)
 **Governança:** `docs/GOVERNANCE/`
 **Status:** ✅ Produção estável
 
@@ -10,6 +10,7 @@
 ## 1. Visão Geral do Sistema
 
 Este é um homelab de single-user com:
+
 - **CPU/RAM:** AMD Ryzen 9 7900X 12c/24t · 32 GB DDR5
 - **GPU:** RTX 4090 — 24 GB VRAM · CUDA 13 · LLM + STT + TTS local
 - **Armazenamento:** ZFS pool "tank" (nvme0n1 Crucial Gen5 3.64 TB)
@@ -19,7 +20,7 @@ Este é um homelab de single-user com:
 - **Monorepo:** pnpm workspace em /srv/monorepo
 
 ```
-will-zappro — Ubuntu 24.04 Desktop
+homelab — Ubuntu 24.04 Desktop
 
 PLATAFORMA                     SUPABASE              CAPROVER
 ├── Qdrant     :6333/6334       ├── kong    :8000     ├── nginx  :80/:443
@@ -52,6 +53,7 @@ Monorepo      /srv/monorepo       ← Desenvolvimento de apps
 **Quando usar:** Desenvolvimento, testes, exploração de código
 
 **O que Claude sabe:**
+
 - Ler a maioria dos arquivos
 - Propor mudanças em código
 - Explicar problemas
@@ -59,6 +61,7 @@ Monorepo      /srv/monorepo       ← Desenvolvimento de apps
 - **Só isso:** não executa comandos perigosos automaticamente
 
 **Como começar:**
+
 ```bash
 # Abrir o host
 claude-code
@@ -71,12 +74,14 @@ claude-code
 ```
 
 **Importante:**
+
 - Claude vai lembrar `/etc/claude-code/CLAUDE.md`
 - Se tocar em `/srv/data`, ele pedirá confirmação
 - Se for mudança estrutural, ele vai sugerir snapshot
 - **Não confie apenas em sugestões:** use GUARDRAILS.md como referência
 
 **Limitações:**
+
 - Não carrega ~/.claude/rules automaticamente (você adiciona via /remember)
 - Não tem webhooks para bloquear ops perigosas
 - Enforcement é via contexto, não hardware
@@ -90,32 +95,38 @@ claude-code
 **Dois modos:**
 
 #### Modo Development
+
 ```bash
 codex "implement new API endpoint"
 codex "debug database issue"
 ```
+
 - Livre em /srv/monorepo
 - Pode rodar testes
 - Pode usar Docker para dev
 
 #### Modo Host Governance
+
 ```bash
 codex-host "snapshot tank pool before change"
 codex-host "check qdrant health"
 codex-host "restore from snapshot tank@pre-20260316"
 ```
+
 - Usa regras de governança obrigatoriamente
 - Bloqueia operações proibidas ANTES de executar
 - Registra todas as ações em log
 - Pede confirmação para PROMPT ops
 
 **Diferença crítica:**
+
 ```
 codex        → dev-friendly, governança soft (via contexto)
 codex-host   → infra-strict, governança hard (via rules engine)
 ```
 
 **Como usar para operações:**
+
 ```bash
 # Seguro (vai executar logo):
 codex-host "what services are running?"
@@ -137,11 +148,13 @@ codex-host "wipefs /dev/nvme0n1"
 **Skills estão em:** `~/.codex/skills/canonical` → `/srv/ops/ai-governance/skills/`
 
 **Skills Monitoring (INC-003):**
+
 - `monitoring-health-check.md` — health check da stack Grafana+Prometheus
 - `monitoring-diagnostic.md` — diagnóstico step-by-step de falhas
 - `monitoring-zfs-snapshot.md` — snapshot ZFS antes de changes
 
 **Skills AI Stack:**
+
 - `ollama-health-check.md` — Ollama + VRAM
 - `litellm-health-check.md` — LiteLLM proxy
 - `kokoro-health-check.md` — Kokoro TTS
@@ -153,6 +166,7 @@ codex-host "wipefs /dev/nvme0n1"
 **Quando usar:** Deploy de apps via Gitea Actions → Coolify API
 
 **Arquitetura:**
+
 ```
 Gitea (git push) → Gitea Action → Coolify API → Container
                                       └── Cloudflare Tunnel → web.zappro.site
@@ -160,16 +174,17 @@ Gitea (git push) → Gitea Action → Coolify API → Container
 
 **Skills disponíveis (em `/home/will/.claude/skills/`):**
 
-| Skill | Uso |
-|-------|-----|
-| `coolify-deploy-trigger/` | Trigger deploy manual |
-| `coolify-auto-healer/` | Monitora e restart se down (cron 5min) |
-| `coolify-health-check/` | Verifica health após deploy |
-| `coolify-resource-monitor/` | Alerta se CPU/mem > 80% (cron 15min) |
-| `coolify-incident-diagnostics/` | Diagnostica erros e sugere fixes |
-| `coolify-rollback/` | Rollback para versão anterior |
+| Skill                           | Uso                                    |
+| ------------------------------- | -------------------------------------- |
+| `coolify-deploy-trigger/`       | Trigger deploy manual                  |
+| `coolify-auto-healer/`          | Monitora e restart se down (cron 5min) |
+| `coolify-health-check/`         | Verifica health após deploy            |
+| `coolify-resource-monitor/`     | Alerta se CPU/mem > 80% (cron 15min)   |
+| `coolify-incident-diagnostics/` | Diagnostica erros e sugere fixes       |
+| `coolify-rollback/`             | Rollback para versão anterior          |
 
 **Uso com Claude Code CLI:**
+
 ```bash
 # Trigger deploy
 claude -p "Deploy perplexity-agent via Coolify"
@@ -184,14 +199,15 @@ claude -p "List all Coolify apps with resource usage"
 
 **Scripts de automação (em `/home/will/.claude/skills/gitea-coolify-deploy/scripts/`):**
 
-| Script | Função |
-|--------|--------|
-| `deploy.sh` | Deploy via Coolify API (SSRF protected) |
-| `smoke-test.sh` | Health check HTTP 200 pós-deploy |
-| `auto-healer.sh` | Restart containers degraded/down (cron 5min) |
-| `resource-monitor.sh` | CPU >70%, Memory >80% alerts (cron 15min) |
+| Script                | Função                                       |
+| --------------------- | -------------------------------------------- |
+| `deploy.sh`           | Deploy via Coolify API (SSRF protected)      |
+| `smoke-test.sh`       | Health check HTTP 200 pós-deploy             |
+| `auto-healer.sh`      | Restart containers degraded/down (cron 5min) |
+| `resource-monitor.sh` | CPU >70%, Memory >80% alerts (cron 15min)    |
 
 **Secrets configurados (Infisical):**
+
 - ✅ `COOLIFY_API_KEY` adicionado
 - ✅ `COOLIFY_URL` disponível
 - ✅ `OPENROUTER_API_KEY` disponível
@@ -201,11 +217,13 @@ claude -p "List all Coolify apps with resource usage"
 **Quando usar:** Coding no GitHub editor ou CLI
 
 **Como funciona:**
+
 - Lê `.github/copilot-instructions.md` automaticamente
 - Oferece completions para código
 - Não é obrigado, mas pode ajudar
 
 **No seu monorepo:**
+
 ```bash
 # Abrir no GitHub web editor
 gh repo view --web /srv/monorepo
@@ -261,6 +279,7 @@ sudo zfs snapshot -r tank@pre-$(date +%Y%m%d-%H%M%S)
 ```
 
 **Frequência recomendada:**
+
 - Backup: antes de mudanças estruturais, diariamente automático
 - Snapshot: antes de qualquer ZFS operation, antes de upgrade de software
 
@@ -319,12 +338,14 @@ codex-host "restart qdrant"
 ```
 
 Vai pedir:
+
 - [ ] Qual serviço
 - [ ] Quanto tempo vai ficar down
 - [ ] O que pode quebrar
 - [ ] Confirmação YES/NO
 
 **Procedimento manual (se Codex não estiver disponível):**
+
 ```bash
 # Preflight
 docker ps | grep qdrant        # qdrant tá rodando?
@@ -346,6 +367,7 @@ codex-host "snapshot tank before updating Docker"
 ```
 
 **Procedimento manual:**
+
 ```bash
 # Criar snapshot
 sudo zfs snapshot -r tank@pre-docker-upgrade-20260316
@@ -366,6 +388,7 @@ apt upgrade    # isso requer snapshot + aprovação
 ```
 
 **Procedimento seguro:**
+
 ```bash
 # 1. Snapshot
 sudo zfs snapshot -r tank@pre-apt-upgrade
@@ -403,6 +426,7 @@ docker-compose -f /srv/apps/platform/docker-compose.yml up -d qdrant
 ```
 
 **Se erro persiste:**
+
 - Leia docs/GOVERNANCE/RECOVERY.md (passo a passo)
 - Procure pelo serviço específico em docs/GOVERNANCE/RECOVERY.md
 - Siga a procedure de restore
@@ -599,6 +623,7 @@ docker logs n8n 2>&1 | grep -i error | tail -5
 ## 8. Contatos Rápidos (Arquivos Críticos)
 
 **Governança (leia em caso de dúvida):**
+
 - `docs/GOVERNANCE/QUICK_START.md` - 5 min overview
 - `docs/GOVERNANCE/GUARDRAILS.md` - O que é proibido
 - `docs/GOVERNANCE/CHANGE_POLICY.md` - Como fazer mudança segura
@@ -606,14 +631,16 @@ docker logs n8n 2>&1 | grep -i error | tail -5
 - `docs/GOVERNANCE/RECOVERY.md` - Recovery procedures
 
 **Operacional:**
+
 - `docs/GOVERNANCE/SERVICE_MAP.md` - O que temos rodando
 - `docs/GOVERNANCE/RUNBOOK.md` - Comandos oficiais
 - `docs/INFRASTRUCTURE/PORTS.md` - Alocações de porta
 
 **Histórico (mantenha atualizado):**
+
 - `~/Desktop/SYSTEM_ARCHITECTURE.md` - Seu journal operacional
 - `docs/GOVERNANCE/INCIDENTS.md` - Log de issues passados
-- `docs/INCIDENTS/` - Incident reports (INCIDENT-2026-04-08-*.md)
+- `docs/INCIDENTS/` - Incident reports (INCIDENT-2026-04-08-\*.md)
 
 ---
 
@@ -675,12 +702,12 @@ All skills are in: `docs/OPERATIONS/SKILLS/`
 
 ### Quick Reference
 
-| Command | Purpose |
-|---------|---------|
-| `bash docs/OPERATIONS/SKILLS/verify-network.sh` | Check container network isolation |
-| `bash docs/OPERATIONS/SKILLS/container-health-check.sh` | Detailed container status |
-| `bash docs/OPERATIONS/SKILLS/self-healing.sh` | Auto-restart failing containers |
-| `bash docs/OPERATIONS/SKILLS/deploy-validator.sh` | Full pre-deploy validation |
+| Command                                                 | Purpose                           |
+| ------------------------------------------------------- | --------------------------------- |
+| `bash docs/OPERATIONS/SKILLS/verify-network.sh`         | Check container network isolation |
+| `bash docs/OPERATIONS/SKILLS/container-health-check.sh` | Detailed container status         |
+| `bash docs/OPERATIONS/SKILLS/self-healing.sh`           | Auto-restart failing containers   |
+| `bash docs/OPERATIONS/SKILLS/deploy-validator.sh`       | Full pre-deploy validation        |
 
 ### Daily Health Check
 
@@ -699,12 +726,12 @@ See [incident-runbook.md](../OPERATIONS/SKILLS/incident-runbook.md) for systemat
 
 ### Skill Categories
 
-| Category | Skills |
-|----------|--------|
+| Category       | Skills                                                                                                                          |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------- |
 | **Diagnostic** | traefik-health-check, traefik-route-tester, verify-network, container-health-check, litellm-health-check, wav2vec2-health-check |
-| **Deploy** | deploy-validator |
-| **Monitoring** | self-healing-cron, container-health-check, liteLLM-usage |
-| **Incident** | incident-runbook |
+| **Deploy**     | deploy-validator                                                                                                                |
+| **Monitoring** | self-healing-cron, container-health-check, liteLLM-usage                                                                        |
+| **Incident**   | incident-runbook                                                                                                                |
 
 ### Cron Jobs (if installed)
 

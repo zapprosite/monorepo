@@ -2,7 +2,7 @@
 
 **Status:** aceito
 **Date:** 2026-04-13
-**Author:** will-zappro
+**Author:** Principal Engineer
 **Spec:** SPEC-029-INFISICAL-SDK-MANDATORY.md
 
 ---
@@ -12,6 +12,7 @@
 Application code in `/srv/monorepo` requires secrets (API keys, tokens, credentials) to function. These secrets are stored in Infisical as the source of truth. The question is: how should application code access these secrets?
 
 Previously, the mandate required application code to use the Infisical SDK directly to fetch secrets at runtime. This caused issues:
+
 - SDK initialization overhead in every process
 - Complex async client setup
 - Secrets unavailable during early bootstrap
@@ -24,6 +25,7 @@ Previously, the mandate required application code to use the Infisical SDK direc
 All secrets are stored in `.env` files, synced from Infisical. Application code reads secrets via `os.getenv()` (or `process.env` in Node.js), **never directly from the Infisical SDK**.
 
 The Infisical SDK is used only by:
+
 1. **Infrastructure scripts** — sync mechanisms that pull secrets from Infisical and write to `.env`
 2. **CI/CD pipelines** — that inject secrets into the environment at deploy time
 
@@ -115,6 +117,7 @@ curl -H "Authorization: Bearer $GITHUB_TOKEN" ...
 ## Alternative: Direct Infisical SDK in Application Code
 
 Rejected for the reasons stated in Context above:
+
 - SDK initialization complexity
 - Bootstrap timing issues
 - Testing difficulties
@@ -137,5 +140,5 @@ Rejected for the reasons stated in Context above:
 
 ---
 
-**Authority:** will-zappro
+**Authority:** Platform Governance
 **Last updated:** 2026-04-13

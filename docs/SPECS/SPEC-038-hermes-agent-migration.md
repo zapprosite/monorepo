@@ -3,7 +3,7 @@ name: SPEC-038-hermes-agent-migration
 description: OPERAÇÃO OVERLORD — Migração OpenClaw → Hermes-Agent no Ubuntu Desktop
 status: IMPLEMENTATION_IN_PROGRESS
 priority: critical
-author: will-zappro
+author: Principal Engineer
 date: 2026-04-14
 originBranch: feature/quantum-helix-done
 ---

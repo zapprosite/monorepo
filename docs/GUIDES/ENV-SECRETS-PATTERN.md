@@ -40,11 +40,11 @@ RULES:
 
 ## Core Principle
 
-| Component | Role | SDK/Method |
-|-----------|------|------------|
-| **Infisical** | Vault, backup, UI for secrets | Infisical SDK (infra scripts only) |
-| **.env file** | Canonical on-disk source | Read by application |
-| **Application code** | Consumer | `os.getenv()` / `process.env` |
+| Component            | Role                          | SDK/Method                         |
+| -------------------- | ----------------------------- | ---------------------------------- |
+| **Infisical**        | Vault, backup, UI for secrets | Infisical SDK (infra scripts only) |
+| **.env file**        | Canonical on-disk source      | Read by application                |
+| **Application code** | Consumer                      | `os.getenv()` / `process.env`      |
 
 **The sync is one-way:** Infisical → .env → Application
 
@@ -219,7 +219,7 @@ logger.info(f"Starting with DB host: {DATABASE_URL.split('@')[1] if '@' in DATAB
 // src/index.ts — Example Fastify API entry point
 // ============================================================
 
-import 'dotenv/config';  // CRITICAL: Load .env FIRST
+import 'dotenv/config'; // CRITICAL: Load .env FIRST
 import Fastify from 'fastify';
 import { createClient } from '@libsql/client';
 
@@ -273,8 +273,8 @@ optional_key = os.getenv("OPTIONAL_KEY")  # returns None if not found
 
 ```typescript
 // TypeScript with optional
-const logLevel = process.env.LOG_LEVEL ?? "INFO";
-const optionalKey = process.env.OPTIONAL_KEY;  // undefined if not set
+const logLevel = process.env.LOG_LEVEL ?? 'INFO';
+const optionalKey = process.env.OPTIONAL_KEY; // undefined if not set
 ```
 
 ---
@@ -316,7 +316,7 @@ services:
     secrets:
       - database_url
     environment:
-      DATABASE_URL: "${DATABASE_URL}"
+      DATABASE_URL: '${DATABASE_URL}'
 
 secrets:
   database_url:
@@ -327,27 +327,27 @@ secrets:
 
 ## Environment Variable Naming Conventions
 
-| Category | Pattern | Example |
-|----------|---------|---------|
-| **API Keys** | `*_API_KEY` | `OPENAI_API_KEY`, `TELEGRAM_API_KEY` |
-| **Tokens** | `*_TOKEN` | `GITHUB_TOKEN`, `SESSION_TOKEN` |
-| **Passwords** | `*_PASSWORD` | `DB_PASSWORD`, `REDIS_PASSWORD` |
-| **URLs** | `*_URL` | `DATABASE_URL`, `WEBAPP_URL` |
-| **Hosts** | `*_HOST` | `DB_HOST`, `REDIS_HOST` |
-| **Ports** | `*_PORT` | `DB_PORT`, `API_PORT` |
-| **Secrets** | `*_SECRET` | `SESSION_SECRET`, `INTERNAL_API_SECRET` |
-| **IDs** | `*_ID` | `CLIENT_ID`, `PROJECT_ID` |
-| **Credentials** | `*_CREDENTIALS` | `AWS_CREDENTIALS` |
-| **Keys** | `*_KEY` | `ENCRYPTION_KEY` |
+| Category        | Pattern         | Example                                 |
+| --------------- | --------------- | --------------------------------------- |
+| **API Keys**    | `*_API_KEY`     | `OPENAI_API_KEY`, `TELEGRAM_API_KEY`    |
+| **Tokens**      | `*_TOKEN`       | `GITHUB_TOKEN`, `SESSION_TOKEN`         |
+| **Passwords**   | `*_PASSWORD`    | `DB_PASSWORD`, `REDIS_PASSWORD`         |
+| **URLs**        | `*_URL`         | `DATABASE_URL`, `WEBAPP_URL`            |
+| **Hosts**       | `*_HOST`        | `DB_HOST`, `REDIS_HOST`                 |
+| **Ports**       | `*_PORT`        | `DB_PORT`, `API_PORT`                   |
+| **Secrets**     | `*_SECRET`      | `SESSION_SECRET`, `INTERNAL_API_SECRET` |
+| **IDs**         | `*_ID`          | `CLIENT_ID`, `PROJECT_ID`               |
+| **Credentials** | `*_CREDENTIALS` | `AWS_CREDENTIALS`                       |
+| **Keys**        | `*_KEY`         | `ENCRYPTION_KEY`                        |
 
 ### Prohibited Patterns
 
-| Prohibited | Reason |
-|------------|--------|
-| `secret`, `password`, `token` (standalone) | Too generic, ambiguous |
-| Lowercase `database_url` | Inconsistent with screaming snake case |
-| Prefixed with service name only (`telegram` vs `TELEGRAM_BOT_TOKEN`) | Missing context |
-| Special characters in name | May cause parsing issues |
+| Prohibited                                                           | Reason                                 |
+| -------------------------------------------------------------------- | -------------------------------------- |
+| `secret`, `password`, `token` (standalone)                           | Too generic, ambiguous                 |
+| Lowercase `database_url`                                             | Inconsistent with screaming snake case |
+| Prefixed with service name only (`telegram` vs `TELEGRAM_BOT_TOKEN`) | Missing context                        |
+| Special characters in name                                           | May cause parsing issues               |
 
 ### Environment-Specific Variables
 
@@ -480,15 +480,15 @@ Before committing or deploying:
 
 ## Related Documents
 
-| Document | Purpose |
-|----------|---------|
-| [ADR-001](../ADRs/ADR-001-denv-as-canonical-secrets-source.md) | Architecture decision record for .env pattern |
-| [SECRETS-MANDATE.md](../GOVERNANCE/SECRETS-MANDATE.md) | Enforcement rules and detection patterns |
-| [EXCEPTIONS.md](../GOVERNANCE/EXCEPTIONS.md) | Active exceptions to the mandate |
-| [SECRETS-MANDATE.md#sync-scripts](../GOVERNANCE/SECRETS-MANDATE.md#secrets-sync--infrastructure-scripts-only) | Approved sync script locations |
+| Document                                                                                                      | Purpose                                       |
+| ------------------------------------------------------------------------------------------------------------- | --------------------------------------------- |
+| [ADR-001](../ADRs/ADR-001-denv-as-canonical-secrets-source.md)                                                | Architecture decision record for .env pattern |
+| [SECRETS-MANDATE.md](../GOVERNANCE/SECRETS-MANDATE.md)                                                        | Enforcement rules and detection patterns      |
+| [EXCEPTIONS.md](../GOVERNANCE/EXCEPTIONS.md)                                                                  | Active exceptions to the mandate              |
+| [SECRETS-MANDATE.md#sync-scripts](../GOVERNANCE/SECRETS-MANDATE.md#secrets-sync--infrastructure-scripts-only) | Approved sync script locations                |
 
 ---
 
-**Authority:** will-zappro
+**Authority:** Platform Governance
 **Pattern:** SPEC-029-INFISICAL-SDK-MANDATORY
 **Last updated:** 2026-04-14

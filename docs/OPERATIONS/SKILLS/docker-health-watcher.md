@@ -2,7 +2,7 @@
 
 **Purpose:** Detect containers in restart loops, block further restart attempts after threshold, snapshot state, alert with actionable diagnostic, and optionally force-stop the looping container to prevent resource exhaustion.
 
-**Host:** will-zappro
+**Host:** homelab
 **Complexity:** Medium
 **Risk:** Medium (stops containers and creates ZFS snapshots)
 
@@ -46,6 +46,7 @@ docker inspect <container> --format '{{.RestartCount}}{{"\t"}}{{.State.StartedAt
 ```
 
 This returns three tab-separated values:
+
 - Current restart count
 - Last start timestamp (ISO 8601)
 - Last finish timestamp (ISO 8601)
@@ -54,13 +55,13 @@ This returns three tab-separated values:
 
 Calculate time between restarts using `StartedAt - FinishedAt`.
 
-| Condition | Classification |
-|-----------|---------------|
-| RestartCount > 10 since last start | LOOPING (critical) |
-| RestartCount > 3 within 10 minutes | LOOPING (critical) |
+| Condition                                  | Classification     |
+| ------------------------------------------ | ------------------ |
+| RestartCount > 10 since last start         | LOOPING (critical) |
+| RestartCount > 3 within 10 minutes         | LOOPING (critical) |
 | Average time between restarts < 30 seconds | LOOPING (critical) |
-| Average time between restarts < 5 minutes | UNSTABLE (warn) |
-| Average time between restarts > 5 minutes | NORMAL (no action) |
+| Average time between restarts < 5 minutes  | UNSTABLE (warn)    |
+| Average time between restarts > 5 minutes  | NORMAL (no action) |
 
 ### Step 4: Get Last 5 Restart Timestamps
 
@@ -107,18 +108,20 @@ Scan containers
 ### Protected Container Override
 
 If the container is **protected**, do NOT stop it. Instead:
+
 1. Alert with WARN level: "Protected container <X> is looping but will not be auto-stopped"
 2. Log the state
 3. Skip cooldown logic
 4. Exit
 
 **Protected containers (never auto-stop):**
+
 - cloudflared
 - tailscaled
 - prometheus
 - grafana
 - coolify-db
-- postgres-*
+- postgres-\*
 
 ### Step 1: Snapshot
 
@@ -298,15 +301,15 @@ docker inspect <container> --format '{{range .Mounts}}{{.Source}} -> {{.Destinat
 
 ## Skill Exit Codes
 
-| Code | Meaning |
-|------|---------|
-| 0 | Scan complete, no issues found |
-| 1 | LOOPING detected and container stopped |
-| 2 | UNSTABLE detected (warning logged) |
-| 3 | Re-loop detected after cooldown retry |
-| 10 | Docker not reachable |
-| 11 | ZFS snapshot failed |
-| 12 | Protected container in loop (alert only) |
+| Code | Meaning                                  |
+| ---- | ---------------------------------------- |
+| 0    | Scan complete, no issues found           |
+| 1    | LOOPING detected and container stopped   |
+| 2    | UNSTABLE detected (warning logged)       |
+| 3    | Re-loop detected after cooldown retry    |
+| 10   | Docker not reachable                     |
+| 11   | ZFS snapshot failed                      |
+| 12   | Protected container in loop (alert only) |
 
 ---
 
@@ -373,4 +376,4 @@ After running the skill:
 
 **Versão da Skill:** 1.0
 **Última Atualização:** 2026-04-05
-**Mantenedor:** Framework de Governança will-zappro
+**Mantenedor:** Framework de Governança homelab

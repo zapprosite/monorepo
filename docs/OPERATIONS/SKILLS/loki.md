@@ -3,7 +3,7 @@ name: loki
 description: Loki health fix — add HEALTHCHECK to fix Prometheus scrape target and restart loop protection
 status: in-progress
 priority: p0
-author: will-zappro
+author: Principal Engineer
 date: 2026-04-12
 ---
 
@@ -26,13 +26,13 @@ Loki is the log aggregation system for the monitoring stack. It is currently mis
 
 ## Architecture
 
-| Attribute | Value |
-|-----------|-------|
-| Container Name | `loki` |
-| Image | `grafana/loki:3.4.2` |
-| Port | `3100` |
-| Health Endpoint | `http://localhost:3100/ready` |
-| Log Path | `/srv/ops/ai-governance/logs/loki.log` |
+| Attribute       | Value                                  |
+| --------------- | -------------------------------------- |
+| Container Name  | `loki`                                 |
+| Image           | `grafana/loki:3.4.2`                   |
+| Port            | `3100`                                 |
+| Health Endpoint | `http://localhost:3100/ready`          |
+| Log Path        | `/srv/ops/ai-governance/logs/loki.log` |
 
 ---
 
@@ -64,7 +64,7 @@ services:
     image: grafana/loki:3.4.2
     container_name: loki
     ports:
-      - "127.0.0.1:3100:3100"
+      - '127.0.0.1:3100:3100'
     volumes:
       - /srv/ops/ai-governance/logs/loki:/loki
     command:
@@ -72,7 +72,7 @@ services:
       - '-log.level=info'
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3100/ready"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:3100/ready']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -124,6 +124,7 @@ curl -f http://localhost:3100/ready
 ## Restart Loop Protection
 
 With HEALTHCHECK in place:
+
 - docker-autoheal can detect unhealthy Loki
 - Prometheus scrape failures trigger alerting
 - Rate limit (3 restarts/hour) prevents restart loops

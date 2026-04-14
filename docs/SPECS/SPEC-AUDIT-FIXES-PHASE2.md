@@ -3,7 +3,7 @@ name: SPEC-AUDIT-FIXES-PHASE2
 description: Phase 2 audit fixes — GOVERNANCE paths, PORTS.md, SERVICE_MAP.md, memory files, OPERATIONS skills, ADRs README, VERSION-LOCK.md
 status: PROPOSED
 priority: critical
-author: will-zappro
+author: Principal Engineer
 date: 2026-04-12
 specRef: SPEC-HOMELAB-GOVERNANCE-DEFINITIVO.md, SPEC-AUDIT-FIXES-2026-04-12.md
 ---
@@ -20,33 +20,33 @@ Aplicar os fixes de auditoria identificados pelos 12 agentes (Phase 1 = SPEC con
 
 ### CRITICAL (must fix before merge to main)
 
-| # | Finding | Agent | Files |
-|---|---------|-------|-------|
-| C1 | `/srv/ops/ai-governance/*.md` referenced everywhere but don't exist — actual files in `docs/GOVERNANCE/` | GOVERNANCE audit | 18+ files in docs/GOVERNANCE/ |
-| C2 | `llava` still listed as vision model (deprecated 2026-04-09, replaced by `qwen2.5-vl`) | GOVERNANCE audit | PINNED-SERVICES.md, GUARDRAILS.md |
-| C3 | PORTS.md outdated — 6+ ports missing (8202, 3457, 8050/8051, 9080), wrong entries | INFRASTRUCTURE audit | docs/INFRASTRUCTURE/PORTS.md |
-| C4 | SERVICE_MAP.md references removed stacks (supabase, caprover, voice old stack) | INFRASTRUCTURE audit | docs/INFRASTRUCTURE/SERVICE_MAP.md |
+| #   | Finding                                                                                                  | Agent                | Files                              |
+| --- | -------------------------------------------------------------------------------------------------------- | -------------------- | ---------------------------------- |
+| C1  | `/srv/ops/ai-governance/*.md` referenced everywhere but don't exist — actual files in `docs/GOVERNANCE/` | GOVERNANCE audit     | 18+ files in docs/GOVERNANCE/      |
+| C2  | `llava` still listed as vision model (deprecated 2026-04-09, replaced by `qwen2.5-vl`)                   | GOVERNANCE audit     | PINNED-SERVICES.md, GUARDRAILS.md  |
+| C3  | PORTS.md outdated — 6+ ports missing (8202, 3457, 8050/8051, 9080), wrong entries                        | INFRASTRUCTURE audit | docs/INFRASTRUCTURE/PORTS.md       |
+| C4  | SERVICE_MAP.md references removed stacks (supabase, caprover, voice old stack)                           | INFRASTRUCTURE audit | docs/INFRASTRUCTURE/SERVICE_MAP.md |
 
 ### HIGH
 
-| # | Finding | Agent | Files |
-|---|---------|-------|-------|
-| H1 | Memory `homelab-estado.md` heavily outdated — references SPEC-023 that doesn't exist, stale model names | Memory audit | memory/homelab-estado.md |
-| H2 | Memory `ai-context.md` contains false paths (`/srv/ops/ai-governance/SYSTEM_STATE.md`, `docs/context/`) | Memory audit | memory/ai-context.md |
-| H3 | Memory `voice-pipeline-08-04-2026.md` stale (MiniMax M2.1 vs M2.7, whisper vs wav2vec2) | Memory audit | memory/voice-pipeline-08-04-2026.md |
-| H4 | HOMELAB-SURVIVAL-GUIDE.md describes old voice stack (speaches:8010, chatterbox:8011) | OPERATIONS audit | docs/OPERATIONS/HOMELAB-SURVIVAL-GUIDE.md |
-| H5 | `wav2vec2-proxy:8203` in openclaw-audio-governance.md but absent from newer docs | GOVERNANCE audit | docs/GOVERNANCE/.rules/openclaw-audio-governance.md |
-| H6 | openclaw-audio-governance.md references `docs/specflow/SPEC-009-...` (non-existent path) | rules vs docs audit | .claude/rules/openclaw-audio-governance.md |
+| #   | Finding                                                                                                 | Agent               | Files                                               |
+| --- | ------------------------------------------------------------------------------------------------------- | ------------------- | --------------------------------------------------- |
+| H1  | Memory `homelab-estado.md` heavily outdated — references SPEC-023 that doesn't exist, stale model names | Memory audit        | memory/homelab-estado.md                            |
+| H2  | Memory `ai-context.md` contains false paths (`/srv/ops/ai-governance/SYSTEM_STATE.md`, `docs/context/`) | Memory audit        | memory/ai-context.md                                |
+| H3  | Memory `voice-pipeline-08-04-2026.md` stale (MiniMax M2.1 vs M2.7, whisper vs wav2vec2)                 | Memory audit        | memory/voice-pipeline-08-04-2026.md                 |
+| H4  | HOMELAB-SURVIVAL-GUIDE.md describes old voice stack (speaches:8010, chatterbox:8011)                    | OPERATIONS audit    | docs/OPERATIONS/HOMELAB-SURVIVAL-GUIDE.md           |
+| H5  | `wav2vec2-proxy:8203` in openclaw-audio-governance.md but absent from newer docs                        | GOVERNANCE audit    | docs/GOVERNANCE/.rules/openclaw-audio-governance.md |
+| H6  | openclaw-audio-governance.md references `docs/specflow/SPEC-009-...` (non-existent path)                | rules vs docs audit | .claude/rules/openclaw-audio-governance.md          |
 
 ### MEDIUM
 
-| # | Finding | Agent | Files |
-|---|---------|-------|-------|
-| M1 | ADRs README.md claims 22 ADRs but only 3 files exist | ADRs audit | docs/ADRs/README.md |
-| M2 | VERSION-LOCK.md referenced everywhere but doesn't exist | REFERENCE audit | root: VERSION-LOCK.md |
-| M3 | OPERATIONS skills missing: docker-autoheal, node-exporter HEALTHCHECK, loki HEALTHCHECK | OPERATIONS audit | docs/OPERATIONS/SKILLS/ |
-| M4 | `llava` vision model also in ARCHITECTURE-MODELS.md (LiteLLM endpoint wrong too) | REFERENCE audit | docs/REFERENCE/ARCHITECTURE-MODELS.md |
-| M5 | Memory `openclaw-agents-kit.md` references stale gemma2 instead of llama3-portuguese-tomcat | Memory audit | memory/openclaw-agents-kit.md |
+| #   | Finding                                                                                     | Agent            | Files                                 |
+| --- | ------------------------------------------------------------------------------------------- | ---------------- | ------------------------------------- |
+| M1  | ADRs README.md claims 22 ADRs but only 3 files exist                                        | ADRs audit       | docs/ADRs/README.md                   |
+| M2  | VERSION-LOCK.md referenced everywhere but doesn't exist                                     | REFERENCE audit  | root: VERSION-LOCK.md                 |
+| M3  | OPERATIONS skills missing: docker-autoheal, node-exporter HEALTHCHECK, loki HEALTHCHECK     | OPERATIONS audit | docs/OPERATIONS/SKILLS/               |
+| M4  | `llava` vision model also in ARCHITECTURE-MODELS.md (LiteLLM endpoint wrong too)            | REFERENCE audit  | docs/REFERENCE/ARCHITECTURE-MODELS.md |
+| M5  | Memory `openclaw-agents-kit.md` references stale gemma2 instead of llama3-portuguese-tomcat | Memory audit     | memory/openclaw-agents-kit.md         |
 
 ---
 
@@ -60,6 +60,7 @@ Aplicar os fixes de auditoria identificados pelos 12 agentes (Phase 1 = SPEC con
 4. **Commit per cluster** — batch related changes, stage → commit → push
 
 ### Cluster 1: GOVERNANCE Path Fix (C1)
+
 ```
 Files: docs/GOVERNANCE/{CONTRACT,QUICK_START,PINNED-SERVICES,ANTI-FRAGILITY,GUARDRAILS,CHANGE_POLICY,INCIDENTS,APPROVAL_MATRIX,DOCUMENTATION_MAP,MASTER-PASSWORD-PROCEDURE,DATABASE_GOVERNANCE,DUPLICATE-SERVICES-RULE,RECOVERY}.md
 
@@ -70,6 +71,7 @@ Exit: grep -r "/srv/ops/ai-governance/" docs/ → 0 results
 ```
 
 ### Cluster 2: Vision Model Fix (C2, M4)
+
 ```
 Files: docs/GOVERNANCE/PINNED-SERVICES.md, docs/GOVERNANCE/GUARDRAILS.md, docs/REFERENCE/ARCHITECTURE-MODELS.md
 
@@ -80,6 +82,7 @@ Exit: grep -r "llava" docs/GOVERNANCE/ → 0 results
 ```
 
 ### Cluster 3: PORTS.md + SERVICE_MAP.md (C3, C4)
+
 ```
 Files: docs/INFRASTRUCTURE/PORTS.md, docs/INFRASTRUCTURE/SERVICE_MAP.md
 
@@ -91,6 +94,7 @@ Exit: PORTS.md lists all active ports; SERVICE_MAP.md reflects current state
 ```
 
 ### Cluster 4: Memory Files (H1, H2, H3, H5)
+
 ```
 Files: memory/homelab-estado.md, memory/ai-context.md, memory/voice-pipeline-08-04-2026.md, memory/openclaw-agents-kit.md
 
@@ -103,6 +107,7 @@ Exit: Memory files don't reference non-existent paths; no stale SPEC references
 ```
 
 ### Cluster 5: OPERATIONS Skills (H4)
+
 ```
 Files: docs/OPERATIONS/HOMELAB-SURVIVAL-GUIDE.md, docs/OPERATIONS/RUNBOOK.md
 
@@ -112,6 +117,7 @@ Exit: HOMELAB-SURVIVAL-GUIDE.md voice stack matches SPEC-009 canonical stack
 ```
 
 ### Cluster 6: ADRs README (M1)
+
 ```
 Files: docs/ADRs/README.md
 
@@ -121,6 +127,7 @@ Exit: README.md accurately describes existing files
 ```
 
 ### Cluster 7: VERSION-LOCK.md (M2)
+
 ```
 Files: VERSION-LOCK.md (create at repo root)
 
@@ -134,6 +141,7 @@ Exit: cat VERSION-LOCK.md shows pinned versions
 ```
 
 ### Cluster 8: openclaw-audio-governance.md fixes (H5, H6)
+
 ```
 Files: docs/GOVERNANCE/.rules/openclaw-audio-governance.md, .claude/rules/openclaw-audio-governance.md
 
@@ -144,6 +152,7 @@ Exit: All SPEC-009 references valid; wav2vec2-proxy documented
 ```
 
 ### Cluster 9: OPERATIONS missing skills (M3)
+
 ```
 Files: docs/OPERATIONS/SKILLS/{docker-autoheal,node-exporter,loki,voice-pipeline-watchdog}.md (create)
 
@@ -156,11 +165,12 @@ Exit: Skills exist and match SPEC-023 Part 3 specs
 ```
 
 ### Cluster 10: Verify and commit
+
 ```
 Verification checks:
 - grep -r "/srv/ops/ai-governance/" docs/ → 0
 - grep -r "llava" docs/GOVERNANCE/ → 0
-- grep -r "llava" docs/REFERENCE/ → 0  
+- grep -r "llava" docs/REFERENCE/ → 0
 - test -f VERSION-LOCK.md && cat VERSION-LOCK.md | grep -q "2.9.6"
 - grep -q "wav2vec2 :8201" docs/OPERATIONS/HOMELAB-SURVIVAL-GUIDE.md
 - grep -q "qwen2.5-vl" docs/GOVERNANCE/PINNED-SERVICES.md
@@ -202,8 +212,8 @@ Push: git push --force-with-lease origin feature/homelab-seguro-e-estavel-pt2
 
 ## Open Questions
 
-| # | Question | Resolution |
-|---|----------|------------|
-| OQ-1 | Should `/srv/ops/ai-governance/` be created as symlinks to `docs/GOVERNANCE/` or just update all references? | Update references to relative paths — simpler, no symlink breakage risk |
-| OQ-2 | wav2vec2-proxy:8203 — is this still operational? | Check if container is running. If yes, document. If no, remove reference. |
-| OQ-3 | ADRs — should we recreate the 22 missing ADRs or just fix README to reflect reality? | Fix README to reflect reality — recreating 22 ADRs is out of scope for audit fix |
+| #    | Question                                                                                                     | Resolution                                                                       |
+| ---- | ------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------- |
+| OQ-1 | Should `/srv/ops/ai-governance/` be created as symlinks to `docs/GOVERNANCE/` or just update all references? | Update references to relative paths — simpler, no symlink breakage risk          |
+| OQ-2 | wav2vec2-proxy:8203 — is this still operational?                                                             | Check if container is running. If yes, document. If no, remove reference.        |
+| OQ-3 | ADRs — should we recreate the 22 missing ADRs or just fix README to reflect reality?                         | Fix README to reflect reality — recreating 22 ADRs is out of scope for audit fix |

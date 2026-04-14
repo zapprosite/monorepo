@@ -54,7 +54,7 @@ const client = new InfisicalClient();
 
 const { secret } = await client.getSecret({
   secretName: 'MY_SERVICE_API_KEY',
-  projectId: 'your-project-id',  // optional if using default workspace
+  projectId: 'your-project-id', // optional if using default workspace
 });
 
 console.log(secret.secretValue);
@@ -78,7 +78,7 @@ source <(infisical secrets --env=production --format=env)
 ```bash
 #!/bin/bash
 # 例外: Bash scripts usam ficheiro .env temporário
-# APPROVED_BY: will-zappro 2026-04-12
+# APPROVED_BY: Principal Engineer 2026-04-12
 # EXPIRES: 2026-05-01
 eval "$(infisical secrets --format=env --env=production)"
 
@@ -90,15 +90,15 @@ curl -H "Authorization: Bearer $MY_SERVICE_API_KEY" https://api.example.com
 
 ## Environment Variables
 
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `INFISICAL_TOKEN` | Yes* | Personal token (for local dev) |
-| `INFISICAL_CLIENT_ID` | Yes* | Service account client ID |
-| `INFISICAL_CLIENT_SECRET` | Yes* | Service account secret |
-| `INFISICAL_WORKSPACE_ID` | Recommended | Target workspace |
-| `INFISICAL_ENVIRONMENT` | No | `production` / `staging` (default: `development`) |
+| Variable                  | Required    | Description                                       |
+| ------------------------- | ----------- | ------------------------------------------------- |
+| `INFISICAL_TOKEN`         | Yes\*       | Personal token (for local dev)                    |
+| `INFISICAL_CLIENT_ID`     | Yes\*       | Service account client ID                         |
+| `INFISICAL_CLIENT_SECRET` | Yes\*       | Service account secret                            |
+| `INFISICAL_WORKSPACE_ID`  | Recommended | Target workspace                                  |
+| `INFISICAL_ENVIRONMENT`   | No          | `production` / `staging` (default: `development`) |
 
-*Either `INFISICAL_TOKEN` OR (`INFISICAL_CLIENT_ID` + `INFISICAL_CLIENT_SECRET`)
+\*Either `INFISICAL_TOKEN` OR (`INFISICAL_CLIENT_ID` + `INFISICAL_CLIENT_SECRET`)
 
 ---
 
@@ -307,16 +307,16 @@ def fetch_data(api_key: str = Depends(get_api_key)):
 
 ## Quick Reference
 
-| Task | Command |
-|------|---------|
-| Login CLI | `infisical login` |
-| List secrets | `infisical secrets` |
-| Get one secret | `infisical secrets --name=KEY` |
-| Create secret | `infisical secrets create --name=KEY --value=VAL` |
-| Delete secret | `infisical secrets delete --name=KEY` |
-| Inject as env | `source <(infisical secrets --format=env)` |
+| Task           | Command                                           |
+| -------------- | ------------------------------------------------- |
+| Login CLI      | `infisical login`                                 |
+| List secrets   | `infisical secrets`                               |
+| Get one secret | `infisical secrets --name=KEY`                    |
+| Create secret  | `infisical secrets create --name=KEY --value=VAL` |
+| Delete secret  | `infisical secrets delete --name=KEY`             |
+| Inject as env  | `source <(infisical secrets --format=env)`        |
 
 ---
 
-**Authority:** will-zappro
+**Authority:** Platform Governance
 **Spec:** SPEC-029-INFISICAL-SDK-MANDATORY.md

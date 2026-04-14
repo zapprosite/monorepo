@@ -1,6 +1,6 @@
 ---
 version: 1.0
-author: will-zappro
+author: Principal Engineer
 date: 2026-04-12
 ---
 
@@ -38,12 +38,12 @@ The master password is the highest-privilege credential in the homelab infrastru
 
 The master password is required for the following operations:
 
-| Operation | Reason |
-|-----------|--------|
-| Coolify upgrade | Pinned service protection |
-| Removing any pinned service | Prevent accidental destruction |
-| Adding a new pinned service | Governance approval required |
-| Modifying docker-compose of a pinned service | Configuration change control |
+| Operation                                    | Reason                         |
+| -------------------------------------------- | ------------------------------ |
+| Coolify upgrade                              | Pinned service protection      |
+| Removing any pinned service                  | Prevent accidental destruction |
+| Adding a new pinned service                  | Governance approval required   |
+| Modifying docker-compose of a pinned service | Configuration change control   |
 
 ### 5. Rotation
 
@@ -114,13 +114,13 @@ If the USB drive containing the master password is lost, stolen, or destroyed:
 
 ## Files and Locations
 
-| File | Location | Purpose |
-|------|----------|---------|
-| Password hash | `/srv/ops/locked-config/.master.hash` | Verification |
-| Locked config | `/srv/ops/locked-config/` | Pinned service configs |
-| Unlock script | `/srv/ops/scripts/unlock-config.sh` | Decrypt and mount |
-| Lock script | `/srv/ops/scripts/lock-config.sh` | Re-encrypt and unmount |
-| Incident log | `./INCIDENTS.md` | Change documentation |
+| File          | Location                              | Purpose                |
+| ------------- | ------------------------------------- | ---------------------- |
+| Password hash | `/srv/ops/locked-config/.master.hash` | Verification           |
+| Locked config | `/srv/ops/locked-config/`             | Pinned service configs |
+| Unlock script | `/srv/ops/scripts/unlock-config.sh`   | Decrypt and mount      |
+| Lock script   | `/srv/ops/scripts/lock-config.sh`     | Re-encrypt and unmount |
+| Incident log  | `./INCIDENTS.md`                      | Change documentation   |
 
 ---
 

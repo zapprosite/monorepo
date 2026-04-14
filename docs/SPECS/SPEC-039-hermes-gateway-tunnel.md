@@ -2,7 +2,7 @@
 
 > Status: APPROVED
 > Priority: CRITICAL
-> Author: will-zappro
+> Author: Principal Engineer
 > Date: 2026-04-14
 > Branch: feature/quantum-helix-done
 

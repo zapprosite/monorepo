@@ -1,4 +1,4 @@
-# Port Allocation — will-zappro
+# Port Allocation — homelab
 
 **Authority:** [NETWORK_MAP.md](./NETWORK_MAP.md) (read this first)
 **Last verified:** 2026-04-14 — aligned with SPEC-045 Services Inventory

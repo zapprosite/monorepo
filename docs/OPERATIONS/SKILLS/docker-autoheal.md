@@ -3,7 +3,7 @@ name: docker-autoheal
 description: Docker Auto-Healer sidecar — auto-restarts containers with HEALTHCHECK failures using exponential backoff
 status: operational
 priority: critical
-author: will-zappro
+author: Principal Engineer
 date: 2026-04-12
 ---
 
@@ -15,15 +15,15 @@ docker-autoheal is a sidecar container that monitors Docker containers and autom
 
 ## Overview
 
-| Attribute | Value |
-|-----------|-------|
-| Image | `willbraz/docker-autoheal:latest` |
-| Container Name | `docker-autoheal` |
-| Network | `host` (shares host network) |
-| Log Path | `/srv/ops/ai-governance/logs/container-self-healer.log` |
-| Rate Limit | 3 restarts per hour per container |
-| Grace Period | 60s (`start_period`) |
-| Restart Policy | `restart: on-failure:3` |
+| Attribute      | Value                                                   |
+| -------------- | ------------------------------------------------------- |
+| Image          | `willbraz/docker-autoheal:latest`                       |
+| Container Name | `docker-autoheal`                                       |
+| Network        | `host` (shares host network)                            |
+| Log Path       | `/srv/ops/ai-governance/logs/container-self-healer.log` |
+| Rate Limit     | 3 restarts per hour per container                       |
+| Grace Period   | 60s (`start_period`)                                    |
+| Restart Policy | `restart: on-failure:3`                                 |
 
 ---
 
@@ -71,13 +71,13 @@ tail -50 /srv/ops/ai-governance/logs/container-self-healer.log
 
 ## Rate Limit Details
 
-| Parameter | Value |
-|-----------|-------|
-| Max restarts / container / hour | 3 |
-| Backoff base | 60s |
-| Backoff multiplier | 2x |
-| Backoff max | 300s |
-| Grace period | 60s (`start_period`) |
+| Parameter                       | Value                |
+| ------------------------------- | -------------------- |
+| Max restarts / container / hour | 3                    |
+| Backoff base                    | 60s                  |
+| Backoff multiplier              | 2x                   |
+| Backoff max                     | 300s                 |
+| Grace period                    | 60s (`start_period`) |
 
 After 3 restarts within the hourly window, docker-autoheal skips that container and logs `Stopping container X (restart loop detected)`.
 
@@ -86,6 +86,7 @@ After 3 restarts within the hourly window, docker-autoheal skips that container 
 ## Restart Loop Protection
 
 When a container has been restarted 3 times within 1 hour:
+
 - docker-autoheal **skips** further restart attempts
 - Logs: `Stopping container X (restart loop detected)`
 - Requires human intervention to break the loop

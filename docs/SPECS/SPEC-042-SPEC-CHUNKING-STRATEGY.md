@@ -4,7 +4,7 @@ description: SPEC-driven development workflow optimized for 204k token context w
 type: specification
 status: PROPOSED
 priority: critical
-author: will-zappro
+author: Principal Engineer
 date: 2026-04-14
 specRef: SPEC-024, SPEC-034, SPEC-035, SPEC-036, SPEC-SPEC-AUTOMATOR
 ---
@@ -996,5 +996,5 @@ parentSpec: null
 ---
 
 **Last updated:** 2026-04-14
-**Author:** will-zappro
+**Author:** Principal Engineer
 **Status:** PROPOSED

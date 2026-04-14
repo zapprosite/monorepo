@@ -1,4 +1,4 @@
-# MCP Blueprint — will-zappro
+# MCP Blueprint — homelab
 
 **Data:** 2026-03-16
 **Snapshot de instalação:** `tank@pre-20260316-mcp-setup`

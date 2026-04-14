@@ -17,22 +17,24 @@ O dashboard Zappro Datacenter estava sem dados apesar do Prometheus ter todas as
 ### Erro 1 — node-exporter em network_mode:host (CRÍTICO)
 
 **O que estava errado:**
+
 ```yaml
 # ❌ ANTES (ERRADO)
 node-exporter:
-  network_mode: host    # ← Container no network do HOST, não no Docker bridge
+  network_mode: host # ← Container no network do HOST, não no Docker bridge
   pid: host
 ```
 
 **Por que quebra:** O Prometheus está na rede `monitoring_monitoring` (Docker bridge `10.0.16.x`). Quando tenta resolver `host.docker.internal`, obtém `10.0.1.1` (docker0 bridge) — que não é o host real. O node-exporter estava no network do host e escutava em `192.168.15.83:9100`, completamente inalcançável.
 
 **Solução:**
+
 ```yaml
 # ✅ DEPOIS (CORRETO)
 node-exporter:
   networks:
-    - monitoring          # ← NA REDE monitoring_monitoring DO DOCKER
-  pid: host               # ← pid:host ainda é necessário para acessar /proc, /sys do host
+    - monitoring # ← NA REDE monitoring_monitoring DO DOCKER
+  pid: host # ← pid:host ainda é necessário para acessar /proc, /sys do host
 ```
 
 **Regra de ouro:** `network_mode: host` + `networks: [...]` são mutuamente exclusivos. Para que o Prometheus consiga alcançá-lo, o container precisa estar na mesma rede bridge.
@@ -42,19 +44,21 @@ node-exporter:
 ### Erro 2 — Datasource Grafana apontando para localhost (CRÍTICO)
 
 **O que estava errado:**
+
 ```yaml
 # ❌ ANTES (ERRADO) — /srv/data/monitoring/grafana/provisioning/datasources/datasources.yml
-  - name: Prometheus
-    url: http://localhost:9090   # ← localhost DENTRO do container Grafana
+- name: Prometheus
+  url: http://localhost:9090 # ← localhost DENTRO do container Grafana
 ```
 
 **Por que quebra:** Dentro do container Grafana, `localhost` é o próprio container. O Prometheus está em outro container chamado `prometheus` na rede `monitoring_monitoring`.
 
 **Solução:**
+
 ```yaml
 # ✅ DEPOIS (CORRETO)
-  - name: Prometheus
-    url: http://prometheus:9090    # ← Nome do container na rede monitoring
+- name: Prometheus
+  url: http://prometheus:9090 # ← Nome do container na rede monitoring
 ```
 
 **Regra de ouro:** URLs em datasources Grafana provisionados **DEVEM** usar o nome do serviço Docker (`prometheus`, `loki`), não `localhost`.
@@ -118,25 +122,25 @@ Cloudflare Tunnel: monitor.zappro.site → Grafana :3100
 
 ### docker-compose.yml — Regras de Rede
 
-| Serviço | Network | Reason |
-|---------|---------|--------|
-| `grafana` | `monitoring` | Precisa alcançar Prometheus via `prometheus:9090` |
-| `prometheus` | `monitoring` | Scrapper — precisa alcançar todos os exportadores |
-| `node-exporter` | `monitoring` + `pid:host` | Scrapper target — **NUNCA usar `network_mode: host`** |
-| `cadvisor` | `monitoring` | Scrapper target — não precisa pid:host |
-| `nvidia-gpu-exporter` | `monitoring` | GPU via CDI — acessível pela rede |
-| `alertmanager` | `monitoring` | Alertas via webhook |
-| `gotify` | `monitoring` | Notificações |
-| `alert-sender` | `monitoring` | Bridge Telegram |
+| Serviço               | Network                   | Reason                                                |
+| --------------------- | ------------------------- | ----------------------------------------------------- |
+| `grafana`             | `monitoring`              | Precisa alcançar Prometheus via `prometheus:9090`     |
+| `prometheus`          | `monitoring`              | Scrapper — precisa alcançar todos os exportadores     |
+| `node-exporter`       | `monitoring` + `pid:host` | Scrapper target — **NUNCA usar `network_mode: host`** |
+| `cadvisor`            | `monitoring`              | Scrapper target — não precisa pid:host                |
+| `nvidia-gpu-exporter` | `monitoring`              | GPU via CDI — acessível pela rede                     |
+| `alertmanager`        | `monitoring`              | Alertas via webhook                                   |
+| `gotify`              | `monitoring`              | Notificações                                          |
+| `alert-sender`        | `monitoring`              | Bridge Telegram                                       |
 
 ### prometheus.yml — Targets
 
 ```yaml
 scrape_configs:
-  - job_name: node           # Target: node-exporter:9100 (NÃO host.docker.internal)
-  - job_name: nvidia-gpu     # Target: nvidia-gpu-exporter:9835
-  - job_name: cadvisor       # Target: cadvisor:8080
-  - job_name: prometheus     # Target: localhost:9090 (self-scraping)
+  - job_name: node # Target: node-exporter:9100 (NÃO host.docker.internal)
+  - job_name: nvidia-gpu # Target: nvidia-gpu-exporter:9835
+  - job_name: cadvisor # Target: cadvisor:8080
+  - job_name: prometheus # Target: localhost:9090 (self-scraping)
 ```
 
 **Regra CRÍTICA:** Targets **DEVEM** usar nomes de serviço Docker (`node-exporter`, `cadvisor`, etc.) — **NUNCA** `host.docker.internal` ou IPs fixos do host.
@@ -145,9 +149,9 @@ scrape_configs:
 
 ```yaml
 - name: Prometheus
-  url: http://prometheus:9090    # Nome do serviço Docker, NÃO localhost
+  url: http://prometheus:9090 # Nome do serviço Docker, NÃO localhost
 - name: Loki
-  url: http://loki:3101         # Nome do serviço Docker, NÃO localhost
+  url: http://loki:3101 # Nome do serviço Docker, NÃO localhost
 ```
 
 ### Volume Mounts (Provisionamento)
@@ -208,7 +212,7 @@ sudo zfs rollback tank@pre-monitoring-YYYYMMDD-HHMMSS
 
 ## Links
 
-- **Grafana:** https://monitor.zappro.site (Google OAuth: zappro.ia@gmail.com)
+- **Grafana:** https://monitor.zappro.site (Google OAuth: —)
 - **Prometheus:** http://localhost:9090
 - **Docker Compose:** `/srv/apps/monitoring/docker-compose.yml`
 - **Prometheus Config:** `/srv/apps/monitoring/prometheus.yml`

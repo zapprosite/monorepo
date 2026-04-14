@@ -1,12 +1,12 @@
 ---
 version: 1.0
-author: will-zappro
+author: Principal Engineer
 date: 2026-03-16
 ---
 
 # Change Policy: Safe Modification Process
 
-**Host:** will-zappro
+**Host:** homelab
 **Effective:** 2026-03-16
 
 This document defines the mandatory process for any change to infrastructure or application state.
@@ -14,6 +14,7 @@ This document defines the mandatory process for any change to infrastructure or 
 ## 1. Change Classification
 
 ### MINOR CHANGES (Can proceed after approval)
+
 - Documentation updates
 - Non-breaking configuration changes
 - Adding new directories/files (non-destructive)
@@ -23,6 +24,7 @@ This document defines the mandatory process for any change to infrastructure or 
 **Process:** Check guardrails → Execute → Log
 
 ### STANDARD CHANGES (Snapshot + approval required)
+
 - Package updates (non-major)
 - Service configuration edits
 - Adding new environment variables
@@ -32,6 +34,7 @@ This document defines the mandatory process for any change to infrastructure or 
 **Process:** Snapshot → Preflight → Approval → Execute → Validate → Log
 
 ### STRUCTURAL CHANGES (Snapshot + approval + test required)
+
 - ZFS pool modifications
 - Docker stack changes
 - Database schema changes
@@ -41,6 +44,7 @@ This document defines the mandatory process for any change to infrastructure or 
 **Process:** Snapshot → Preflight → Approval → Test → Execute → Validate → Log → Review
 
 ### CRITICAL CHANGES (Snapshot + approval + human verification + rollback plan)
+
 - Kernel updates
 - Boot configuration changes
 - Disk operations
@@ -111,6 +115,7 @@ This document defines the mandatory process for any change to infrastructure or 
 ## 3. Preflight Checklist (Required for all changes)
 
 ### Questions to Ask
+
 - [ ] Am I solving the right problem?
 - [ ] Is there a simpler way to do this?
 - [ ] Will this change affect running services?
@@ -120,6 +125,7 @@ This document defines the mandatory process for any change to infrastructure or 
 - [ ] Will this change require human oversight after deployment?
 
 ### Technical Checks
+
 - [ ] Disk space available (df -h /srv)
 - [ ] Services are running (docker ps)
 - [ ] ZFS pool is healthy (zpool status tank)
@@ -127,6 +133,7 @@ This document defines the mandatory process for any change to infrastructure or 
 - [ ] No recent errors (journalctl -n 50 --no-pager)
 
 ### Documentation Checks
+
 - [ ] Change aligns with CONTRACT.md
 - [ ] Change not in GUARDRAILS.md "forbidden" section
 - [ ] Change in APPROVAL_MATRIX.md matches risk level
@@ -137,6 +144,7 @@ This document defines the mandatory process for any change to infrastructure or 
 ## 4. Post-Change Validation
 
 ### Immediate (Within 1 minute of change)
+
 ```bash
 # All services still running?
 docker compose -f /srv/apps/platform/docker-compose.yml ps
@@ -151,6 +159,7 @@ curl http://localhost:5678/api/v1/health  # n8n health
 ```
 
 ### Short-term (Within 30 minutes of change)
+
 ```bash
 # ZFS pool still healthy?
 zpool status tank
@@ -163,6 +172,7 @@ docker stats --no-stream
 ```
 
 ### Medium-term (Within 24 hours of change)
+
 - Monitor logs for errors
 - Check if backups run successfully
 - Verify data consistency (if applicable)
@@ -175,11 +185,13 @@ docker stats --no-stream
 ### If Validation Fails
 
 **Immediate actions:**
+
 1. **STOP.** Do not attempt further changes.
 2. **ASSESS.** What went wrong? Can you fix it quickly?
 3. **LOG.** Update ./INCIDENTS.md
 
 **If you can fix it:**
+
 ```bash
 # Make correction
 # ... fix command ...
@@ -191,6 +203,7 @@ docker stats --no-stream
 ```
 
 **If you cannot fix it immediately:**
+
 ```bash
 # Take snapshot of broken state (for investigation)
 sudo zfs snapshot -r tank@broken-YYYYMMDD-hhmmss
@@ -212,6 +225,7 @@ docker compose -f /srv/apps/platform/docker-compose.yml ps
 ### Example: Update docker-compose.yml
 
 **Step 1: Snapshot**
+
 ```bash
 $ sudo zfs snapshot -r tank@pre-20260316-140000-compose-update
 ```
@@ -220,6 +234,7 @@ $ sudo zfs snapshot -r tank@pre-20260316-140000-compose-update
 "I will update docker-compose.yml to upgrade Qdrant to v1.5.0. Snapshot taken. Proceed?"
 
 **Step 3: Execute**
+
 ```bash
 $ vim /srv/apps/platform/docker-compose.yml
 # Edit image: qdrant/qdrant:latest → qdrant/qdrant:v1.5.0
@@ -228,12 +243,14 @@ $ docker compose -f /srv/apps/platform/docker-compose.yml up -d --pull always
 ```
 
 **Step 4: Validate**
+
 ```bash
 $ docker compose -f /srv/apps/platform/docker-compose.yml ps
 $ curl http://localhost:6333/health
 ```
 
 **Step 5: If Failed**
+
 ```bash
 $ sudo zfs rollback -r tank@pre-20260316-140000-compose-update
 $ docker compose -f /srv/apps/platform/docker-compose.yml up -d
@@ -249,6 +266,7 @@ tank@pre-YYYYMMDD-HHMMSS-change-description
 ```
 
 **Examples:**
+
 ```
 tank@pre-20260316-140000-postgres-upgrade
 tank@pre-20260316-141500-zfs-compression-test
@@ -257,6 +275,7 @@ tank@pre-20260316-143000-docker-stack-changes
 ```
 
 **Why this format:**
+
 - `pre-` signals "taken before change"
 - Date/time sorts chronologically
 - Description explains purpose
@@ -267,12 +286,14 @@ tank@pre-20260316-143000-docker-stack-changes
 ## 8. Change Timing Constraints
 
 ### AVOID Changing At These Times
+
 - During backup execution (check `ps aux | grep backup`)
 - During business hours if services depend on it (none currently)
 - Late at night without monitoring setup
 - Friday evenings without coverage
 
 ### GOOD Times to Change
+
 - Early morning (test results by day's end)
 - Mid-week (time to fix if broken)
 - When alert monitoring is active
@@ -285,11 +306,13 @@ tank@pre-20260316-143000-docker-stack-changes
 ### Service Is Down & Not Recovering
 
 **Do NOT immediately:**
+
 - Delete containers
 - Force-delete volumes
 - Wipe configuration
 
 **Instead:**
+
 1. Take snapshot of current (broken) state
 2. Check logs for root cause
 3. Attempt recovery (see RECOVERY.md)
@@ -297,6 +320,7 @@ tank@pre-20260316-143000-docker-stack-changes
 5. File incident with details
 
 **Command:**
+
 ```bash
 # Take broken-state snapshot for investigation
 sudo zfs snapshot -r tank@broken-incident-YYYYMMDD-hhmmss
@@ -318,11 +342,13 @@ docker compose -f /srv/apps/platform/docker-compose.yml ps
 Every change must be logged to: `./logs/CHANGE_LOG.txt`
 
 Format:
+
 ```
 YYYY-MM-DD HH:MM:SS | AGENT_NAME | CHANGE_TYPE | DESCRIPTION | SNAPSHOT | RESULT | NOTES
 ```
 
 **Example:**
+
 ```
 2026-03-16 14:00:00 | claude-code | package-update | pip install qdrant-client==1.4.0 | tank@pre-20260316-140000-qdrant-lib | success | No errors, services stable
 2026-03-16 14:30:00 | codex | service-config | Updated cloudflare-tunnel.service | tank@pre-20260316-143000-cloudflare | failed | Will rollback, issue in systemd syntax
@@ -332,17 +358,17 @@ YYYY-MM-DD HH:MM:SS | AGENT_NAME | CHANGE_TYPE | DESCRIPTION | SNAPSHOT | RESULT
 
 ## 11. Approval Matrix Quick Ref
 
-| Category | Auto-Approve | Requires Approval | Never |
-|----------|--------------|-------------------|-------|
-| Read-only ops | ✅ Yes | - | - |
-| Backups | ✅ Yes | - | - |
-| Docs update | ✅ Yes | - | - |
-| Safe package install | ✅ Yes | - | - |
-| Service restart | - | ✅ Yes | - |
-| ZFS snapshot | - | ✅ Yes | - |
-| Delete /srv | - | ✅ Yes | - |
-| Destroy pool | - | - | ❌ Forbidden |
-| Wipe disk | - | - | ❌ Forbidden |
+| Category             | Auto-Approve | Requires Approval | Never        |
+| -------------------- | ------------ | ----------------- | ------------ |
+| Read-only ops        | ✅ Yes       | -                 | -            |
+| Backups              | ✅ Yes       | -                 | -            |
+| Docs update          | ✅ Yes       | -                 | -            |
+| Safe package install | ✅ Yes       | -                 | -            |
+| Service restart      | -            | ✅ Yes            | -            |
+| ZFS snapshot         | -            | ✅ Yes            | -            |
+| Delete /srv          | -            | ✅ Yes            | -            |
+| Destroy pool         | -            | -                 | ❌ Forbidden |
+| Wipe disk            | -            | -                 | ❌ Forbidden |
 
 (See APPROVAL_MATRIX.md for full table)
 

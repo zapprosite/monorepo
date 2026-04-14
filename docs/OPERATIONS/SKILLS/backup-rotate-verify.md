@@ -2,7 +2,7 @@
 
 **Purpose:** Verify that all backups (ZFS snapshots, Coolify backups, database dumps) are present and uncorrupt, rotate old backups when storage is low, test restore procedure, and alert if backup is missing or corrupt.
 
-**Host:** will-zappro
+**Host:** homelab
 **Risk:** Medium (backup deletion and rotation — destructive but recoverable via ZFS snapshot)
 **Approval:** Read-only verification is SAFE; rotation/deletion requires approval if pool > 85%
 
@@ -10,13 +10,13 @@
 
 ## Backup Inventory
 
-| Type | Location | Retention |
-|------|----------|-----------|
-| ZFS snapshots | `tank@backup-*`, `tank@pre-*` | 7 daily, 4 weekly, 12 monthly |
-| Coolify backups | `/srv/data/coolify/backups/*.tar.gz` | Last 5 |
-| Gitea data | `/srv/data/gitea/` (git repos, SQLite DB) | Daily via Gitea internal |
-| PostgreSQL dumps | `/srv/backups/*.sql.gz` | Last 7 daily |
-| Configuration | `/srv/ops/` tar.gz | Weekly |
+| Type             | Location                                  | Retention                     |
+| ---------------- | ----------------------------------------- | ----------------------------- |
+| ZFS snapshots    | `tank@backup-*`, `tank@pre-*`             | 7 daily, 4 weekly, 12 monthly |
+| Coolify backups  | `/srv/data/coolify/backups/*.tar.gz`      | Last 5                        |
+| Gitea data       | `/srv/data/gitea/` (git repos, SQLite DB) | Daily via Gitea internal      |
+| PostgreSQL dumps | `/srv/backups/*.sql.gz`                   | Last 7 daily                  |
+| Configuration    | `/srv/ops/` tar.gz                        | Weekly                        |
 
 ---
 
@@ -29,11 +29,11 @@ zfs get -Hp -o value used tank
 df -h /srv
 ```
 
-| Threshold | Action |
-|-----------|--------|
-| > 75% | WARN — begin rotation planning |
-| > 85% | CRITICAL — force rotation without confirmation |
-| > 90% | CRITICAL — alert immediately via Telegram |
+| Threshold | Action                                         |
+| --------- | ---------------------------------------------- |
+| > 75%     | WARN — begin rotation planning                 |
+| > 85%     | CRITICAL — force rotation without confirmation |
+| > 90%     | CRITICAL — alert immediately via Telegram      |
 
 Alert channel: `@HOMELAB_LOGS_bot`
 
@@ -53,6 +53,7 @@ Categorize each snapshot:
 - `tank@pre-YYYYMMDD-*` — pre-change snapshots
 
 Retention policy:
+
 - Keep last **7 daily** backups
 - Keep last **4 weekly** backups
 - Keep last **12 monthly** backups
@@ -63,14 +64,14 @@ Retention policy:
 
 For each backup type:
 
-| Backup | Check | Threshold |
-|--------|-------|-----------|
-| ZFS daily | `tank@backup-YYYYMMDD-*` exists for today | Missing today → WARN |
-| ZFS daily | Same for yesterday | Missing yesterday → CRITICAL |
-| ZFS age | Most recent `tank@backup-*` timestamp | > 25 hours → WARN |
-| Coolify | `ls -la /srv/data/coolify/backups/*.tar.gz` | Most recent > 24h → WARN |
-| PostgreSQL dump | `ls -la /srv/backups/*.sql.gz` | Most recent > 25h → WARN |
-| Config tar.gz | `ls -la /srv/backups/ops-config-*.tar.gz` | Weekly present? |
+| Backup          | Check                                       | Threshold                    |
+| --------------- | ------------------------------------------- | ---------------------------- |
+| ZFS daily       | `tank@backup-YYYYMMDD-*` exists for today   | Missing today → WARN         |
+| ZFS daily       | Same for yesterday                          | Missing yesterday → CRITICAL |
+| ZFS age         | Most recent `tank@backup-*` timestamp       | > 25 hours → WARN            |
+| Coolify         | `ls -la /srv/data/coolify/backups/*.tar.gz` | Most recent > 24h → WARN     |
+| PostgreSQL dump | `ls -la /srv/backups/*.sql.gz`              | Most recent > 25h → WARN     |
+| Config tar.gz   | `ls -la /srv/backups/ops-config-*.tar.gz`   | Weekly present?              |
 
 ---
 
@@ -101,6 +102,7 @@ If gzip fails or no tables found → dump is corrupt → CRITICAL
 ### Step 5 — Rotation Execution
 
 **Pre-deletion checklist:**
+
 - [ ] Verify a newer snapshot exists before deleting any
 - [ ] If pool is > 85%, deletion is authorized without further confirmation
 - [ ] Log every deletion with timestamp, snapshot name, and reason
@@ -128,12 +130,12 @@ zfs get -Hp -o value used tank
 
 ## Alert Levels
 
-| Level | Trigger | Action |
-|-------|---------|--------|
-| **INFO** | All backups verified OK, rotation completed | Log to backup-rotate-verify.log |
-| **WARN** | Backup missing (yesterday OK, day before missing), pool > 75% | Log + Telegram WARN |
-| **ERROR** | Backup corrupt or pool > 80% | Log + Telegram ERROR |
-| **CRITICAL** | No recent backup at all, pool > 90%, recv test failed | Log + Telegram CRITICAL + pager |
+| Level        | Trigger                                                       | Action                          |
+| ------------ | ------------------------------------------------------------- | ------------------------------- |
+| **INFO**     | All backups verified OK, rotation completed                   | Log to backup-rotate-verify.log |
+| **WARN**     | Backup missing (yesterday OK, day before missing), pool > 75% | Log + Telegram WARN             |
+| **ERROR**    | Backup corrupt or pool > 80%                                  | Log + Telegram ERROR            |
+| **CRITICAL** | No recent backup at all, pool > 90%, recv test failed         | Log + Telegram CRITICAL + pager |
 
 ---
 

@@ -3,7 +3,7 @@ name: SPEC-036-infinite-memory-architecture
 description: Arquitetura de memoria infinita de 4 camadas para Claude Code
 status: PROPOSED
 priority: high
-author: will-zappro
+author: Principal Engineer
 date: 2026-04-13
 specRef: SPEC-023, SPEC-026
 ---
@@ -22,14 +22,14 @@ Projetar e documentar a arquitetura de memoria infinita de 4 camadas para o Clau
 
 ## Tech Stack
 
-| Component | Technology | Notes |
-|-----------|------------|-------|
-| Memoria de curto prazo | Context window | Inerente ao Claude Code |
-| Memoria semantica de longo prazo | Qdrant | Colecoes hvacr_knowledge + openclaw-memory |
-| Memoria episodica | memory-keeper SQLite | ~450KB, backup diario 3AM |
-| Memoria procedural | CLAUDE.md + AGENTS.md | Skill anchors |
-| Obsidian Vault | obsidian-git | Sync para monorepo-obsidian GitHub |
-| Cron system | crontab | Backup 24/7 |
+| Component                        | Technology            | Notes                                      |
+| -------------------------------- | --------------------- | ------------------------------------------ |
+| Memoria de curto prazo           | Context window        | Inerente ao Claude Code                    |
+| Memoria semantica de longo prazo | Qdrant                | Colecoes hvacr_knowledge + openclaw-memory |
+| Memoria episodica                | memory-keeper SQLite  | ~450KB, backup diario 3AM                  |
+| Memoria procedural               | CLAUDE.md + AGENTS.md | Skill anchors                              |
+| Obsidian Vault                   | obsidian-git          | Sync para monorepo-obsidian GitHub         |
+| Cron system                      | crontab               | Backup 24/7                                |
 
 ---
 
@@ -40,6 +40,7 @@ Projetar e documentar a arquitetura de memoria infinita de 4 camadas para o Clau
 **Descricao:** Janela de contexto inerente ao Claude Code.
 
 **Caracteristicas:**
+
 - Capacidade inerente de contexto
 - Disponivel imediatamente em cada sessao
 - Limitado ao token window do modelo
@@ -54,12 +55,13 @@ Projetar e documentar a arquitetura de memoria infinita de 4 camadas para o Clau
 
 **Colecoes:**
 
-| Collection | Chunk Size | Dimensoes | Uso |
-|------------|------------|-----------|-----|
-| hvacr_knowledge | 768 | 1536 | Conhecimento tecnico HVAC/R |
-| openclaw-memory | 768 | 1536 | Memoria do OpenClaw Bot |
+| Collection      | Chunk Size | Dimensoes | Uso                         |
+| --------------- | ---------- | --------- | --------------------------- |
+| hvacr_knowledge | 768        | 1536      | Conhecimento tecnico HVAC/R |
+| openclaw-memory | 768        | 1536      | Memoria do OpenClaw Bot     |
 
 **Caracteristicas:**
+
 - Busca semantica por similaridade
 - Persistencia em disco via Qdrant
 - Ingestao via pipeline de chunking
@@ -73,12 +75,14 @@ Projetar e documentar a arquitetura de memoria infinita de 4 camadas para o Clau
 **Descricao:** Banco SQLite para memoria episodica via memory-keeper.
 
 **Caracteristicas:**
+
 - Tamanho aproximado: 450KB
 - Backup diario automatico as 3AM
 - Local: `/srv/backups/memory-keeper/`
 - Script de backup ja operacional
 
 **Estrutura:**
+
 ```
 /srv/backups/memory-keeper/
 └── memory-keeper-YYYYMMDD.db
@@ -93,11 +97,13 @@ Projetar e documentar a arquitetura de memoria infinita de 4 camadas para o Clau
 **Descricao:** Arquivos de configuracao e skill anchors.
 
 **Arquivos:**
+
 - `/srv/monorepo/CLAUDE.md` — Regras do projeto
 - `/srv/monorepo/.claude/CLAUDE.md` — Regras do monorepo
 - `/srv/monorepo/.claude/rules/*.md` — Skills e regras
 
 **Caracteristicas:**
+
 - Versionado em Git
 - Sincronizado via mirror (SPEC-026)
 - Inclui ganchos de comandos customizados
@@ -152,11 +158,13 @@ Projetar e documentar a arquitetura de memoria infinita de 4 camadas para o Clau
 ### Obsidian Vault
 
 **Fluxo:**
+
 1. obsidian-git plugin faz sync in-app
 2. System cron garante backup 24/7
 3. GitHub repo: `monorepo-obsidian`
 
 **Caminho:**
+
 ```
 ~/obsidian-vault/ -> monorepo-obsidian GitHub repo
 ```
@@ -164,6 +172,7 @@ Projetar e documentar a arquitetura de memoria infinita de 4 camadas para o Clau
 ### memory-keeper Backup
 
 **Fluxo:**
+
 1. Script operacional em `/srv/ops/scripts/`
 2. Cron: `0 3 * * *` diario
 3. Destino: `/srv/backups/memory-keeper/`
@@ -174,19 +183,19 @@ Projetar e documentar a arquitetura de memoria infinita de 4 camadas para o Clau
 
 ### hvacr_knowledge
 
-| Param | Valor |
-|-------|-------|
-| chunk_size | 768 |
-| embedding_dim | 1536 |
-| uso | Conhecimento tecnico HVAC/R |
+| Param         | Valor                       |
+| ------------- | --------------------------- |
+| chunk_size    | 768                         |
+| embedding_dim | 1536                        |
+| uso           | Conhecimento tecnico HVAC/R |
 
 ### openclaw-memory
 
-| Param | Valor |
-|-------|-------|
-| chunk_size | 768 |
-| embedding_dim | 1536 |
-| uso | Memoria do OpenClaw Bot |
+| Param         | Valor                   |
+| ------------- | ----------------------- |
+| chunk_size    | 768                     |
+| embedding_dim | 1536                    |
+| uso           | Memoria do OpenClaw Bot |
 
 ---
 
@@ -194,11 +203,11 @@ Projetar e documentar a arquitetura de memoria infinita de 4 camadas para o Clau
 
 ### Naming Conventions
 
-| Element | Convention | Example |
-|---------|------------|---------|
-| Files | `kebab-case.md` | `infinite-memory-architecture.md` |
-| Collections | `snake_case` | `hvacr_knowledge`, `openclaw_memory` |
-| Commands | `slash-case` | `/img`, `/ship`, `/turbo` |
+| Element     | Convention      | Example                              |
+| ----------- | --------------- | ------------------------------------ |
+| Files       | `kebab-case.md` | `infinite-memory-architecture.md`    |
+| Collections | `snake_case`    | `hvacr_knowledge`, `openclaw_memory` |
+| Commands    | `slash-case`    | `/img`, `/ship`, `/turbo`            |
 
 ### Padroes de Arquitetura
 
@@ -211,11 +220,11 @@ Projetar e documentar a arquitetura de memoria infinita de 4 camadas para o Clau
 
 ## Testing Strategy
 
-| Level | Scope | Framework | Location |
-|-------|-------|-----------|----------|
-| Smoke | Health check das layers | `curl` | Manual |
-| Integration | Qdrant queries | `qdrant-client` | `/srv/monorepo/apps/api` |
-| Backup | Validacao backup SQLite | `sqlite3` | Cron job |
+| Level       | Scope                   | Framework       | Location                 |
+| ----------- | ----------------------- | --------------- | ------------------------ |
+| Smoke       | Health check das layers | `curl`          | Manual                   |
+| Integration | Qdrant queries          | `qdrant-client` | `/srv/monorepo/apps/api` |
+| Backup      | Validacao backup SQLite | `sqlite3`       | Cron job                 |
 
 ### Running Tests
 
@@ -234,22 +243,22 @@ cd ~/obsidian-vault && git status
 
 ## Success Criteria
 
-| # | Criterion | Verification |
-|---|-----------|--------------|
-| SC-1 | Todas as 4 camadas operacionais | Qdrant + memory-keeper + obsidian + context window |
-| SC-2 | Obsidian vault sincroniza para GitHub | `git log` mostra commits recentes |
-| SC-3 | memory-keeper backup diario executa | Log em `/srv/backups/memory-keeper/` |
-| SC-4 | Qdrant consultavel para busca semantica | Query retorna resultados |
-| SC-5 | Zero perda de dados ao reiniciar sessao | Verificar persistencia entre sessoes |
+| #    | Criterion                               | Verification                                       |
+| ---- | --------------------------------------- | -------------------------------------------------- |
+| SC-1 | Todas as 4 camadas operacionais         | Qdrant + memory-keeper + obsidian + context window |
+| SC-2 | Obsidian vault sincroniza para GitHub   | `git log` mostra commits recentes                  |
+| SC-3 | memory-keeper backup diario executa     | Log em `/srv/backups/memory-keeper/`               |
+| SC-4 | Qdrant consultavel para busca semantica | Query retorna resultados                           |
+| SC-5 | Zero perda de dados ao reiniciar sessao | Verificar persistencia entre sessoes               |
 
 ---
 
 ## Open Questions
 
-| # | Question | Impact | Priority |
-|---|----------|--------|----------|
-| OQ-1 | Qual estrategia para cleanup automatico do SQLite? | Med | Med |
-| OQ-2 | Frequencia de reindexacao do Qdrant? | Med | Med |
+| #    | Question                                           | Impact | Priority |
+| ---- | -------------------------------------------------- | ------ | -------- |
+| OQ-1 | Qual estrategia para cleanup automatico do SQLite? | Med    | Med      |
+| OQ-2 | Frequencia de reindexacao do Qdrant?               | Med    | Med      |
 
 ---
 
@@ -284,6 +293,7 @@ Como **agente Claude Code**, quero **manter memoria de longo prazo entre sessoes
 ## Non-Goals
 
 Esta especificacao NAO cobre:
+
 - Implementacao de novos agentes de IA
 - Modificacao do audio stack (SPEC-009)
 - Infraestrutura host-level (ZFS, Docker)
@@ -293,34 +303,34 @@ Esta especificacao NAO cobre:
 
 ## Acceptance Criteria
 
-| # | Criterion | Test |
-|---|-----------|------|
-| AC-1 | Qdrant responde queries semanticas | `curl` para /collections/hvacr_knowledge/points |
-| AC-2 | Backup SQLite existe em /srv/backups/memory-keeper/ | `ls -la` mostra arquivo com data atual |
-| AC-3 | Obsidian sync commit existe no GitHub | `git log` no repo monorepo-obsidian |
-| AC-4 | CLAUDE.md e AGENTS.md versionados | `git status` mostra arquivos |
+| #    | Criterion                                           | Test                                            |
+| ---- | --------------------------------------------------- | ----------------------------------------------- |
+| AC-1 | Qdrant responde queries semanticas                  | `curl` para /collections/hvacr_knowledge/points |
+| AC-2 | Backup SQLite existe em /srv/backups/memory-keeper/ | `ls -la` mostra arquivo com data atual          |
+| AC-3 | Obsidian sync commit existe no GitHub               | `git log` no repo monorepo-obsidian             |
+| AC-4 | CLAUDE.md e AGENTS.md versionados                   | `git status` mostra arquivos                    |
 
 ---
 
 ## Dependencies
 
-| Dependency | Status | Notes |
-|------------|--------|-------|
-| Qdrant | READY | ja configurado no homelab |
-| memory-keeper | READY | Script operacional |
-| obsidian-git | READY | Plugin configurado |
-| SPEC-023 | APPROVED | Unified monitoring |
-| SPEC-026 | APPROVED | Git mirror |
+| Dependency    | Status   | Notes                     |
+| ------------- | -------- | ------------------------- |
+| Qdrant        | READY    | ja configurado no homelab |
+| memory-keeper | READY    | Script operacional        |
+| obsidian-git  | READY    | Plugin configurado        |
+| SPEC-023      | APPROVED | Unified monitoring        |
+| SPEC-026      | APPROVED | Git mirror                |
 
 ---
 
 ## Decisions Log
 
-| Date | Decision | Rationale |
-|------|----------|-----------|
-| 2026-04-13 | 4 camadas de memoria | Separação por tipo de acesso e persistencia |
-| 2026-04-13 | Qdrant para semantico | Busca vetorial ja configurada |
-| 2026-04-13 | SQLite para episodico | memory-keeper ja operacional |
+| Date       | Decision              | Rationale                                   |
+| ---------- | --------------------- | ------------------------------------------- |
+| 2026-04-13 | 4 camadas de memoria  | Separação por tipo de acesso e persistencia |
+| 2026-04-13 | Qdrant para semantico | Busca vetorial ja configurada               |
+| 2026-04-13 | SQLite para episodico | memory-keeper ja operacional                |
 
 ---
 

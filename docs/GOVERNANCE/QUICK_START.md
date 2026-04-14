@@ -1,6 +1,6 @@
 ---
 version: 1.0
-author: will-zappro
+author: Principal Engineer
 date: 2026-03-16
 ---
 
@@ -23,16 +23,19 @@ date: 2026-03-16
 ## 📖 Leia Primeiro (Ordem de Prioridade)
 
 ### Para usuários do Claude Code
+
 1. `./CONTRACT.md` (5 min) — Princípios não-negociáveis
 2. `./GUARDRAILS.md` (10 min) — O que é proibido
 3. `./CHANGE_POLICY.md` (10 min) — Como mudar com segurança
 
 ### Para usuários do Codex
+
 1. `~/.codex/rules/default.rules` (10 min) — Regras de decisão
 2. `codex-host` (1 min) — Testar o wrapper
 3. `./RUNBOOK.md` (5 min) — Comandos oficiais
 
 ### Para operações manuais
+
 1. `./APPROVAL_MATRIX.md` (10 min) — Tabela Sim/Não/Perguntar
 2. `./RUNBOOK.md` (10 min) — Comandos seguros
 3. `./RECOVERY.md` (quando necessário) — Procedimentos de emergência
@@ -118,6 +121,7 @@ Veja APPROVAL_MATRIX.md para tabela de decisão.
 ## 📋 Arquivos para Ter Abertos
 
 Mantenha estes nos favoritos:
+
 - **Referência rápida:** APPROVAL_MATRIX.md (sim/não/perguntar)
 - **Leia primeiro:** GUARDRAILS.md (operações proibidas)
 - **Quando travado:** RUNBOOK.md (comandos oficiais)
@@ -128,6 +132,7 @@ Mantenha estes nos favoritos:
 ## 🎯 Tarefas Comuns
 
 ### Antes de Mudança de Infraestrutura
+
 ```
 1. Leia: CONTRACT.md (2 min)
 2. Verifique: GUARDRAILS.md para sua operação
@@ -138,6 +143,7 @@ Mantenha estes nos favoritos:
 ```
 
 ### Antes de Deletar Qualquer Coisa
+
 ```
 1. Pergunte: "Está em /srv/data ou /srv/backups?"
 2. Se sim: Leia GUARDRAILS.md (provavelmente proibido)
@@ -147,6 +153,7 @@ Mantenha estes nos favoritos:
 ```
 
 ### Quando Serviço Está Fora
+
 ```
 1. Verifique: docker ps (rodando?)
 2. Verifique: docker logs [serviço] (erros?)
@@ -159,15 +166,15 @@ Mantenha estes nos favoritos:
 
 ## 📞 Precisa de Ajuda?
 
-| Pergunta | Resposta | Arquivo |
-|----------|---------|---------|
-| Posso fazer X? | Verifique esta tabela | APPROVAL_MATRIX.md |
-| X é proibido? | Lista de proibidos | GUARDRAILS.md |
-| Como mudar X? | Processo | CHANGE_POLICY.md |
-| Quais são os comandos? | Lista oficial | RUNBOOK.md |
-| Como recupero de X? | Procedimentos | RECOVERY.md |
-| Qual é a arquitetura? | Detalhes completos | PARTITIONS.md |
-| Quais serviços estão rodando? | Status + deps | SERVICE_MAP.md |
+| Pergunta                      | Resposta              | Arquivo            |
+| ----------------------------- | --------------------- | ------------------ |
+| Posso fazer X?                | Verifique esta tabela | APPROVAL_MATRIX.md |
+| X é proibido?                 | Lista de proibidos    | GUARDRAILS.md      |
+| Como mudar X?                 | Processo              | CHANGE_POLICY.md   |
+| Quais são os comandos?        | Lista oficial         | RUNBOOK.md         |
+| Como recupero de X?           | Procedimentos         | RECOVERY.md        |
+| Qual é a arquitetura?         | Detalhes completos    | PARTITIONS.md      |
+| Quais serviços estão rodando? | Status + deps         | SERVICE_MAP.md     |
 
 ---
 
@@ -184,6 +191,7 @@ Mantenha estes nos favoritos:
 ## 🖥️ Estado Atual (2026-03-17)
 
 **22 containers ativos** em 4 stacks:
+
 - **Plataforma:** Qdrant :6333, n8n :5678, n8n-postgres
 - **Supabase:** 13 containers — kong :8000, studio :54323, pooler :5433/:6543
 - **CapRover:** nginx :80/:443, captain :3000

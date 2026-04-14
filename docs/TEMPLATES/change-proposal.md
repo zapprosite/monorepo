@@ -3,7 +3,7 @@ name: change-proposal
 description: Template for infrastructure/configuration change proposals with rollback plan
 status: PROPOSED
 priority: high
-author: will-zappro
+author: Principal Engineer
 date: YYYY-MM-DD
 specRef: GOVERNANCE/CHANGE_POLICY.md
 ---
@@ -14,12 +14,15 @@ specRef: GOVERNANCE/CHANGE_POLICY.md
 **Status:** Proposed / Approved / In Progress / Completed
 
 ## What
+
 [Describe the change clearly]
 
 ## Why
+
 [Justify the change - problem being solved]
 
 ## Impact
+
 - **Services Affected:** Qdrant / n8n / PostgreSQL / Other
 - **Downtime Expected:** [Yes/No - HH:MM duration]
 - **Data Risk:** None / Low / Medium / High [explain]
@@ -28,6 +31,7 @@ specRef: GOVERNANCE/CHANGE_POLICY.md
 ## Plan
 
 ### Preflight (Before Change)
+
 ```bash
 # Snapshot
 sudo zfs snapshot -r tank@pre-YYYYMMDD-hhmmss-change-name
@@ -38,11 +42,13 @@ df -h /srv
 ```
 
 ### Change Procedure
+
 ```bash
 [Exact commands to execute]
 ```
 
 ### Postflight (After Change)
+
 ```bash
 # Validation
 docker ps
@@ -50,6 +56,7 @@ curl http://localhost:6333/health
 ```
 
 ## Rollback Plan
+
 [Describe how to undo this change if it fails]
 
 ```bash
@@ -59,18 +66,21 @@ docker compose -f /srv/apps/platform/docker-compose.yml up -d
 ```
 
 ## Approval Required
+
 - [ ] Snapshots taken
 - [ ] Procedure tested (in dry-run or staging)
 - [ ] Rollback verified
 - [ ] Stakeholders notified
 
 ## Execution
+
 - **Proposed by:** [Name]
 - **Approved by:** [Name]
 - **Executed by:** [Name]
 - **Date/Time:** YYYY-MM-DD HH:MM UTC
 
 ## Post-Execution
+
 - [ ] Change succeeded
 - [ ] Validation passed
 - [ ] Snapshot kept for reference

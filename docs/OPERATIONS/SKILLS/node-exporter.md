@@ -3,7 +3,7 @@ name: node-exporter
 description: node-exporter health fix — add HEALTHCHECK to fix Prometheus DOWN scrape target
 status: in-progress
 priority: p0
-author: will-zappro
+author: Principal Engineer
 date: 2026-04-12
 ---
 
@@ -16,6 +16,7 @@ node-exporter exposes hardware and OS metrics to Prometheus. It is currently **D
 ## Problem
 
 Prometheus scrape target `node-exporter:9100` shows **DOWN** because:
+
 1. The `node-exporter` container has no `HEALTHCHECK` instruction
 2. Prometheus cannot determine if the target is healthy
 3. Restart loop protection and alerting are unreliable without health status
@@ -26,12 +27,12 @@ Prometheus scrape target `node-exporter:9100` shows **DOWN** because:
 
 ## Architecture
 
-| Attribute | Value |
-|-----------|-------|
-| Container Name | `node-exporter` |
-| Image | `prom/node-exporter:latest` |
-| Port | `9100` |
-| Health Endpoint | `http://localhost:9100/health` |
+| Attribute        | Value                           |
+| ---------------- | ------------------------------- |
+| Container Name   | `node-exporter`                 |
+| Image            | `prom/node-exporter:latest`     |
+| Port             | `9100`                          |
+| Health Endpoint  | `http://localhost:9100/health`  |
 | Metrics Endpoint | `http://localhost:9100/metrics` |
 
 ---
@@ -64,7 +65,7 @@ services:
     image: prom/node-exporter:latest
     container_name: node-exporter
     ports:
-      - "127.0.0.1:9100:9100"
+      - '127.0.0.1:9100:9100'
     command:
       - '--path.procfs=/host/proc'
       - '--path.sysfs=/host/sys'
@@ -72,7 +73,7 @@ services:
       - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9100/health"]
+      test: ['CMD', 'curl', '-f', 'http://localhost:9100/health']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -120,6 +121,7 @@ curl -sf http://localhost:9090/api/v1/targets | jq '.data.activeTargets[] | sele
 ## Restart Loop Protection
 
 With HEALTHCHECK in place:
+
 - docker-autoheal can detect unhealthy state before restart loop
 - Prometheus scrape failures trigger alerting
 - Recovery is automated via docker-autoheal rate limiting

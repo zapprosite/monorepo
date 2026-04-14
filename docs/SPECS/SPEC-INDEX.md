@@ -94,7 +94,7 @@ MiniMax agent skills         → SPEC-034
 
 ## Protected Specs
 
-These specs are **PROTEGIDO** — changes require explicit approval from will-zappro:
+These specs are **PROTEGIDO** — changes require explicit approval from owner:
 
 - SPEC-009 — Audio stack immutable (STT, TTS, TTS Bridge, voices)
 - SPEC-027 — Voice pipeline canonical

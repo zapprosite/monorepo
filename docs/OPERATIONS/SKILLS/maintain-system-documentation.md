@@ -20,6 +20,7 @@
 ## Lista de Verificação Prévia
 
 Antes de executar:
+
 - [ ] Você tem acesso de escrita em ~/Desktop
 - [ ] Diretório /srv/ops/ai-governance/ existe e é legível
 - [ ] Docker está rodando (`docker ps` funciona)
@@ -33,6 +34,7 @@ Antes de executar:
 ### Passo 1: Coletar Estado Atual
 
 A skill irá:
+
 1. Ler todos os documentos em `/srv/ops/ai-governance/`
 2. Consultar status dos serviços Docker
 3. Verificar saúde do pool ZFS
@@ -45,51 +47,60 @@ A skill irá:
 Gera ~/Desktop/SYSTEM_ARCHITECTURE.md com seções:
 
 ```markdown
-# System Architecture - will-zappro
+# System Architecture - homelab
 
 ## Current Status
+
 - Timestamp
 - All services status (✅ running / ⚠️ warning / ❌ down)
 - Disk usage
 - ZFS pool health
 
 ## System Structure
+
 - Tree of /srv with descriptions
 - Tree of /srv/data with dataset info
 - Tree of /srv/monorepo with workspace layout
 
 ## Services & Dependencies
+
 - Qdrant status, port, storage
 - n8n status, port, storage
 - PostgreSQL status, port, storage
 - Monorepo dev stack
 
 ## Governance References
+
 - Links to all /srv/ops/ai-governance/ files
 - Quick commands from RUNBOOK.md
 - Common operations from guide.md
 - Approval matrix from APPROVAL_MATRIX.md
 
 ## Recent Changes (Last 30 Days)
+
 - Git commits to monorepo
 - Service restarts
 - Snapshot/backup operations
 - Configuration changes
 
 ## Complete History (Since Ubuntu Install)
+
 ### Phase 1: Infrastructure (2026-03-??)
+
 - OS installation
 - ZFS pool creation
 - Docker setup
 - Service deployments
 
 ### Phase 2: Governance (2026-03-16)
+
 - Governance framework deployment
 - Claude Code integration
 - Codex CLI integration
 - Documentation creation
 
 ## Key Files (Quick Reference)
+
 - QUICK_START.md - 5min overview
 - GUARDRAILS.md - What's forbidden
 - CHANGE_POLICY.md - Safe modification
@@ -98,12 +109,14 @@ Gera ~/Desktop/SYSTEM_ARCHITECTURE.md com seções:
 - RUNBOOK.md - Official commands
 
 ## Service Commands
+
 - Health checks
 - Restart procedures
 - Backup commands
 - Snapshot commands
 
 ## Troubleshooting Checklist
+
 - Service won't start
 - Disk is full
 - ZFS pool degraded
@@ -114,6 +127,7 @@ Gera ~/Desktop/SYSTEM_ARCHITECTURE.md com seções:
 ### Passo 3: Registrar no Log de Histórico
 
 Adiciona entrada em /srv/ops/ai-governance/logs/documentation-updates.log:
+
 ```
 [TIMESTAMP] Documentação atualizada
   Gatilho: manual via codex-host
@@ -125,6 +139,7 @@ Adiciona entrada em /srv/ops/ai-governance/logs/documentation-updates.log:
 ### Passo 4: Validar
 
 A skill irá verificar:
+
 - [ ] ~/Desktop/SYSTEM_ARCHITECTURE.md existe e é legível
 - [ ] Todos os arquivos de governança referenciados têm caminhos válidos
 - [ ] Seção de histórico recente tem entradas
@@ -153,18 +168,19 @@ codex-host "manter documentação"
 
 ## Riscos & Mitigações
 
-| Risco | Mitigação |
-|------|-----------|
-| Arquivo do desktop fica desatualizado | Execute a skill regularmente (semanal) |
-| Seção de histórico fica muito longa | Mantenha janela de 30 dias, arquive antigos |
-| Symlinks quebrados no doc | Valide caminhos antes de publicar |
-| Problema de permissões | Skill roda como usuário atual, verifica acesso de escrita em ~/Desktop |
+| Risco                                 | Mitigação                                                              |
+| ------------------------------------- | ---------------------------------------------------------------------- |
+| Arquivo do desktop fica desatualizado | Execute a skill regularmente (semanal)                                 |
+| Seção de histórico fica muito longa   | Mantenha janela de 30 dias, arquive antigos                            |
+| Symlinks quebrados no doc             | Valide caminhos antes de publicar                                      |
+| Problema de permissões                | Skill roda como usuário atual, verifica acesso de escrita em ~/Desktop |
 
 ---
 
 ## Exemplos
 
 ### Execução Normal
+
 ```bash
 codex-host "manter documentação"
 # Saída esperada:
@@ -178,6 +194,7 @@ codex-host "manter documentação"
 ```
 
 ### Com Problemas
+
 ```bash
 codex-host "manter documentação"
 # Aviso: Qdrant relata alto uso de CPU
@@ -190,6 +207,7 @@ codex-host "manter documentação"
 ## Notas de Implementação
 
 A skill:
+
 1. É idempotente (segura executar múltiplas vezes)
 2. Apenas lê estado do sistema (sem modificações exceto ~/Desktop/)
 3. Preserva versão anterior como .backup
@@ -201,6 +219,7 @@ A skill:
 ## Manutenção
 
 Atualize esta skill quando:
+
 - Novos serviços são adicionados (adicionar à seção de status)
 - Novos documentos de governança criados (adicionar às referências)
 - Procedimentos de recovery mudam (atualizar histórico)

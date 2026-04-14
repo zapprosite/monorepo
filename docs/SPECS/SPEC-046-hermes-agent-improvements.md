@@ -80,7 +80,7 @@ systemctl --user restart hermes-agent
 
 ```bash
 curl -sf http://localhost:8642/platforms
-# Should show: telegram: [id: 7220607041, name: "William Rodrigues"]
+# Should show: telegram: [id: <user_id>, name: "<user_name>"]
 systemctl --user status hermes-agent | grep -E "Active:|Main PID:"
 ```
 
@@ -135,11 +135,11 @@ crontab -l | grep -E "^\*/[0-9]" | sort -u
 **Conteúdo a adicionar:**
 
 ```markdown
-# Hermes Agent Persona — will-zappro Homelab
+# Hermes Agent Persona — Homelab
 
 ## Identity
 
-You are Hermes, the self-improving agent brain of the will-zappro homelab.
+You are Hermes, the self-improving agent brain of the homelab.
 You run on bare metal Ubuntu Desktop with RTX 4090 GPU.
 You connect to: Ollama (local LLM), Qdrant (vector DB), LiteLLM (multi-provider proxy).
 

@@ -2,28 +2,28 @@
 
 **Data:** 2026-04-14
 **Status:** Análise Completa / Runbook Preparado
-**Túnel:** `will-zappro-homelab` (ID: `aee7a93d-c2e2-4c77-a395-71edc1821402`)
+**Túnel:** `homelab-tunnel` (ID: `aee7a93d-c2e2-4c77-a395-71edc1821402`)
 
 ---
 
 ## 1. Estado Atual
 
-| Componente | Estado |
-|---|---|
-| systemd service (`cloudflared.service`) | **inactive (dead)** desde 07:42:34 |
-| Processo manual (PID 3275599) | **ATIVO** há ~2h (tunnel `will-zappro-homelab`) |
-| Origem hermes.zappro.site (:8642) | **connection refused** no momento da morte do daemon |
-| Origem bot.zappro.site (:8642) | **connection refused** no momento da morte do daemon |
+| Componente                              | Estado                                               |
+| --------------------------------------- | ---------------------------------------------------- |
+| systemd service (`cloudflared.service`) | **inactive (dead)** desde 07:42:34                   |
+| Processo manual (PID 3275599)           | **ATIVO** há ~2h (tunnel `homelab-tunnel`)           |
+| Origem hermes.zappro.site (:8642)       | **connection refused** no momento da morte do daemon |
+| Origem bot.zappro.site (:8642)          | **connection refused** no momento da morte do daemon |
 
 ### Evidência do Journal
 
 ```
-Apr 14 07:42:34 will-zappro cloudflared[2046130]: INF Initiating graceful shutdown due to signal terminated ...
-Apr 14 07:42:34 will-zappro cloudflared[2046130]: ERR failed to serve tunnel connection error="accept stream listener..."
-Apr 14 07:42:34 will-zappro cloudflared[2046130]: INF no more connections active and exiting
-Apr 14 07:42:34 will-zappro cloudflared[2046130]: INF Tunnel server stopped
-Apr 14 07:42:34 will-zappro systemd[1]: cloudflared.service: Deactivated successfully.
-Apr 14 07:42:34 will-zappro systemd[1]: cloudflared.service: Consumed 51.437s CPU time
+Apr 14 07:42:34 homelab cloudflared[2046130]: INF Initiating graceful shutdown due to signal terminated ...
+Apr 14 07:42:34 homelab cloudflared[2046130]: ERR failed to serve tunnel connection error="accept stream listener..."
+Apr 14 07:42:34 homelab cloudflared[2046130]: INF no more connections active and exiting
+Apr 14 07:42:34 homelab cloudflared[2046130]: INF Tunnel server stopped
+Apr 14 07:42:34 homelab systemd[1]: cloudflared.service: Deactivated successfully.
+Apr 14 07:42:34 homelab systemd[1]: cloudflared.service: Consumed 51.437s CPU time
 ```
 
 ---
@@ -33,6 +33,7 @@ Apr 14 07:42:34 will-zappro systemd[1]: cloudflared.service: Consumed 51.437s CP
 **O daemon NÃO crashou.** Ele recebeu `SIGTERM` (sinal 15 — terminação graciosa) e saiu com `status=0/SUCCESS`.
 
 Possíveis origens do SIGTERM:
+
 - **Intervenção manual** — alguém executou `systemctl stop cloudflared` ou `kill <pid>`
 - **OOM Killer** — improvável, pois o journal não mostra `OOMKilled` e o exit code é 0
 - **RestartPolicy mal configurado** — `Restart=on-failure` não reinicia em exit code 0
@@ -89,7 +90,7 @@ O processo manual está rodando há 2h. Para assumir o túnel via systemd:
 ```bash
 # PASSO 1 — Identificar o PID do processo manual
 pgrep -a cloudflared
-# Saída esperada: 3275599 cloudflared --config /home/will/.cloudflared/config.yml tunnel run will-zappro-homelab
+# Saída esperada: 3275599 cloudflared --config /home/will/.cloudflared/config.yml tunnel run homelab-tunnel
 
 # PASSO 2 — Parar o processo manual graciosamente
 sudo kill -15 3275599   # SIGTERM
@@ -170,7 +171,7 @@ O metrics endpoint padrão do cloudflared está em `localhost:35767` (ou `localh
 # /srv/ops/scripts/cloudflared-healthcheck.sh
 
 METRICS_URL="http://localhost:35767/metrics"
-TUNNEL_NAME="will-zappro-homelab"
+TUNNEL_NAME="homelab-tunnel"
 
 # Check 1: Daemon vivo
 if ! pgrep -f "cloudflared.*tunnel run.*$TUNNEL_NAME" > /dev/null; then
@@ -195,6 +196,7 @@ exit 0
 ```
 
 Tornar executável:
+
 ```bash
 chmod +x /srv/ops/scripts/cloudflared-healthcheck.sh
 ```
@@ -216,7 +218,7 @@ RestartSec=5          # OK, mas sem watchdog mechanism
 
 ```ini
 [Unit]
-Description=Cloudflare Tunnel (will-zappro-homelab)
+Description=Cloudflare Tunnel (homelab-tunnel)
 After=network.target
 Wants=network.target
 
@@ -224,7 +226,7 @@ Wants=network.target
 Type=simple
 User=will
 WorkingDirectory=/home/will/.cloudflared
-ExecStart=/usr/local/bin/cloudflared tunnel run --credentials-file /home/will/.cloudflared/aee7a93d-c2e2-4c77-a395-71edc1821402.json will-zappro-homelab
+ExecStart=/usr/local/bin/cloudflared tunnel run --credentials-file /home/will/.cloudflared/aee7a93d-c2e2-4c77-a395-71edc1821402.json homelab-tunnel
 
 # Restart policy — reinicia em qualquer saída não-zero OU SIGTERM
 Restart=always
@@ -251,7 +253,7 @@ WantedBy=multi-user.target
 sudo cp /etc/systemd/system/cloudflared.service /etc/systemd/system/cloudflared.service.bak.$(date +%Y%m%d%H%M%S)
 sudo bash -c 'cat > /etc/systemd/system/cloudflared.service << '\''EOF'\''
 [Unit]
-Description=Cloudflare Tunnel (will-zappro-homelab)
+Description=Cloudflare Tunnel (homelab-tunnel)
 After=network.target
 Wants=network.target
 
@@ -259,7 +261,7 @@ Wants=network.target
 Type=simple
 User=will
 WorkingDirectory=/home/will/.cloudflared
-ExecStart=/usr/local/bin/cloudflared tunnel run --credentials-file /home/will/.cloudflared/aee7a93d-c2e2-4c77-a395-71edc1821402.json will-zappro-homelab
+ExecStart=/usr/local/bin/cloudflared tunnel run --credentials-file /home/will/.cloudflared/aee7a93d-c2e2-4c77-a395-71edc1821402.json homelab-tunnel
 Restart=always
 RestartSec=5
 WatchdogSec=30
@@ -287,7 +289,7 @@ sudo systemctl restart cloudflared
 #!/bin/bash
 set -euo pipefail
 
-TUNNEL_NAME="will-zappro-homelab"
+TUNNEL_NAME="homelab-tunnel"
 CRED_FILE="/home/will/.cloudflared/aee7a93d-c2e2-4c77-a395-71edc1821402.json"
 MANUAL_PID=$(pgrep -f "cloudflared.*$TUNNEL_NAME" | head -1 || true)
 

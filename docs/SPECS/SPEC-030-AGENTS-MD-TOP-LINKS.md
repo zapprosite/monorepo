@@ -3,7 +3,7 @@ name: SPEC-030-AGENTS-MD-TOP-LINKS
 description: Auditoria lenta de todos os docs/*.md — identificar docs críticos para linkar no topo do AGENTS.md
 status: COMPLETED
 priority: critical
-author: will-zappro
+author: Principal Engineer
 date: 2026-04-12
 specRef: SPEC-029-INFISICAL-SDK-MANDATORY.md
 ---
@@ -19,6 +19,7 @@ Auditar todos os ficheiros `.md` no repositório para identificar documentos cr�
 ## Contexto
 
 Já foi adicionado ao topo do `AGENTS.md`:
+
 - `SECRETS-MANDATE.md` 🔴 CRÍTICO
 - `GUARDRAILS.md` 🔴 CRÍTICO
 - `CONTRACT.md` 🟡 ALTA
@@ -34,24 +35,25 @@ Precisa-se de uma auditoria completa para garantir que **nenhum documento críti
 
 Categorizar todos os `.md` por relevância para LLM e linkar no topo:
 
-| Cluster | Files | Agent |
-|---------|-------|-------|
-| **GOVERNANCE** (security/policies) | CONTRACT, GUARDRAILS, SECRETS-MANDATE, APPROVAL_MATRIX, CHANGE_POLICY | Agent-1 |
-| **GOVERNANCE** (infrastructure) | IMMUTABLE-SERVICES, PINNED-SERVICES, LOCKED-CONFIG, DUPLICATE-SERVICES-RULE | Agent-2 |
-| **GOVERNANCE** (operations) | INCIDENTS, RECOVERY, DATABASE_GOVERNANCE, ANTI-FRAGILITY | Agent-3 |
-| **GOVERNANCE** (credentials) | MASTER-PASSWORD-PROCEDURE, SECRETS_POLICY, EXCEPTIONS | Agent-4 |
-| **GOVERNANCE** (quick-ref) | QUICK_START, DOCUMENTATION_MAP | Agent-5 |
-| **SPECS** (critical stack) | SPEC-009 (audio stack), SPEC-023 (monitoring), SPEC-024 (monorepo) | Agent-6 |
-| **SPECS** (other active) | SPEC-022, SPEC-025, SPEC-026, SPEC-027, SPEC-028 | Agent-7 |
-| **GUIDES** (critical) | INFISICAL-SDK-PATTERN, CODE-REVIEW-GUIDE, discovery | Agent-8 |
-| **REFERENCE** (architecture) | ARCHITECTURE-MASTER, ARCHITECTURE-MODELS, AI-CONTEXT | Agent-9 |
-| **REFERENCE** (tools) | TOOLCHAIN, CLI-SHORTCUTS, WORKFLOW | Agent-10 |
-| **INCIDENTS** (if critical) | CONSOLIDATED-PREVENTION-PLAN, any open INCIDENT-*.md | Agent-11 |
-| **ARCHIVE** (review) | All archive/*.md — decide se algum deve ser referenced ou promoted | Agent-12 |
+| Cluster                            | Files                                                                       | Agent    |
+| ---------------------------------- | --------------------------------------------------------------------------- | -------- |
+| **GOVERNANCE** (security/policies) | CONTRACT, GUARDRAILS, SECRETS-MANDATE, APPROVAL_MATRIX, CHANGE_POLICY       | Agent-1  |
+| **GOVERNANCE** (infrastructure)    | IMMUTABLE-SERVICES, PINNED-SERVICES, LOCKED-CONFIG, DUPLICATE-SERVICES-RULE | Agent-2  |
+| **GOVERNANCE** (operations)        | INCIDENTS, RECOVERY, DATABASE_GOVERNANCE, ANTI-FRAGILITY                    | Agent-3  |
+| **GOVERNANCE** (credentials)       | MASTER-PASSWORD-PROCEDURE, SECRETS_POLICY, EXCEPTIONS                       | Agent-4  |
+| **GOVERNANCE** (quick-ref)         | QUICK_START, DOCUMENTATION_MAP                                              | Agent-5  |
+| **SPECS** (critical stack)         | SPEC-009 (audio stack), SPEC-023 (monitoring), SPEC-024 (monorepo)          | Agent-6  |
+| **SPECS** (other active)           | SPEC-022, SPEC-025, SPEC-026, SPEC-027, SPEC-028                            | Agent-7  |
+| **GUIDES** (critical)              | INFISICAL-SDK-PATTERN, CODE-REVIEW-GUIDE, discovery                         | Agent-8  |
+| **REFERENCE** (architecture)       | ARCHITECTURE-MASTER, ARCHITECTURE-MODELS, AI-CONTEXT                        | Agent-9  |
+| **REFERENCE** (tools)              | TOOLCHAIN, CLI-SHORTCUTS, WORKFLOW                                          | Agent-10 |
+| **INCIDENTS** (if critical)        | CONSOLIDATED-PREVENTION-PLAN, any open INCIDENT-\*.md                       | Agent-11 |
+| **ARCHIVE** (review)               | All archive/\*.md — decide se algum deve ser referenced ou promoted         | Agent-12 |
 
 ### Fase 2: Consolidate
 
 Cada agent retorna:
+
 1. Lista de docs críticos encontrados no cluster
 2. Prioridade (🔴 CRÍTICO / 🟡 ALTA / 🟢 MÉDIA / ⚪ BAIXA)
 3. Razão pela qual é crítico para LLM

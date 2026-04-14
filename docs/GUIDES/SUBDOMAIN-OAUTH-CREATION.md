@@ -2,13 +2,13 @@
 name: SUBDOMAIN-OAUTH-CREATION
 description: Criar subdomains zappro.site com OAuth (Direct ou Cloudflare Access) — step-by-step para agentes Claude Code em deploys automatizados.
 type: guide
-author: will
+author: Principal Engineer
 date: 2026-04-13
 prerequisites:
   - Infisical SDK configurado (credenciais via vault, nunca hardcoded)
   - Cloudflare API token disponivel no vault como CLOUDFLARE_API_TOKEN
   - Cloudflare Account ID disponivel no vault como CLOUDFLARE_ACCOUNT_ID
-  - Tunnel existente: aee7a93d-c2e2-4c77-a395-71edc1821402 (will-zappro-homelab)
+  - Tunnel existente: aee7a93d-c2e2-4c77-a395-71edc1821402 (homelab-tunnel)
   - Docker/Coolify para deploy do servico
 tags:
   - cloudflare
@@ -29,19 +29,19 @@ tags:
 
 This guide covers the complete process for adding a new subdomain to `zappro.site` with OAuth authentication. Two methods are provided:
 
-| Method | Use Case | Complexity | Speed |
-|--------|----------|------------|-------|
-| **Method 1: OAuth Direct (MVP)** | Prototyping / quick test / single dev | Low | Fast (5-15 min) |
-| **Method 2: Cloudflare Access (V2)** | Production / enterprise / team | High | Slower (30-60 min) |
+| Method                               | Use Case                              | Complexity | Speed              |
+| ------------------------------------ | ------------------------------------- | ---------- | ------------------ |
+| **Method 1: OAuth Direct (MVP)**     | Prototyping / quick test / single dev | Low        | Fast (5-15 min)    |
+| **Method 2: Cloudflare Access (V2)** | Production / enterprise / team        | High       | Slower (30-60 min) |
 
 **Quick Decision Table:**
 
-| Situation | Method |
-|-----------|--------|
-| Prototyping / MVP / quick test | Method 1 (Direct) |
-| Production / enterprise / team | Method 2 (CF Access) |
-| Need fine-grained user access control | Method 2 |
-| Single dev / personal tool | Method 1 |
+| Situation                             | Method               |
+| ------------------------------------- | -------------------- |
+| Prototyping / MVP / quick test        | Method 1 (Direct)    |
+| Production / enterprise / team        | Method 2 (CF Access) |
+| Need fine-grained user access control | Method 2             |
+| Single dev / personal tool            | Method 1             |
 
 ---
 
@@ -52,17 +52,17 @@ Before starting, ensure you have:
 - [ ] **Infisical SDK** — Service token at `/srv/ops/secrets/infisical.service-token`
 - [ ] **Cloudflare API Token** — Secret name: `CLOUDFLARE_API_TOKEN` (Infisical vault)
 - [ ] **Cloudflare Account ID** — Secret name: `CLOUDFLARE_ACCOUNT_ID` (Infisical vault)
-- [ ] **Tunnel ID:** `aee7a93d-c2e2-4c77-a395-71edc1821402` (will-zappro-homelab)
+- [ ] **Tunnel ID:** `aee7a93d-c2e2-4c77-a395-71edc1821402` (homelab-tunnel)
 - [ ] **Domain:** `zappro.site`
 - [ ] **Terraform config:** `/srv/ops/terraform/cloudflare/variables.tf`
 
 ### Required Services
 
-| Service | Port | Required |
-|---------|------|----------|
-| Infisical Vault | :8200 | Yes |
-| Cloudflare API | api.cloudflare.com | Yes |
-| Target app | (your app) | Yes |
+| Service         | Port               | Required |
+| --------------- | ------------------ | -------- |
+| Infisical Vault | :8200              | Yes      |
+| Cloudflare API  | api.cloudflare.com | Yes      |
+| Target app      | (your app)         | Yes      |
 
 ---
 
@@ -86,6 +86,7 @@ echo "========================="
 ```
 
 **Expected output:**
+
 ```
 === OAUTH REDIRECT URI ===
 Please add this Redirect URI to your Google Cloud Console OAuth app:
@@ -222,9 +223,9 @@ grant_type=authorization_code
 services:
   your-app:
     environment:
-      GOOGLE_CLIENT_ID: "${GOOGLE_CLIENT_ID}"      # Infisical: project/GOOGLE_CLIENT_ID
-      GOOGLE_CLIENT_SECRET: "${GOOGLE_CLIENT_SECRET}"  # Infisical: project/GOOGLE_CLIENT_SECRET
-      SERVICE_URL: "https://yourapp.zappro.site"
+      GOOGLE_CLIENT_ID: '${GOOGLE_CLIENT_ID}' # Infisical: project/GOOGLE_CLIENT_ID
+      GOOGLE_CLIENT_SECRET: '${GOOGLE_CLIENT_SECRET}' # Infisical: project/GOOGLE_CLIENT_SECRET
+      SERVICE_URL: 'https://yourapp.zappro.site'
 ```
 
 ### Step 5: Test
@@ -268,6 +269,7 @@ terraform plan -out=tfplan
 ```
 
 **Review the output** — verify it shows:
+
 - `cloudflare_dns_record.yourapp` creation
 - `cloudflare_tunnel_route.yourapp` creation (if using tunnel ingress)
 - No destructive changes to existing records
@@ -336,7 +338,7 @@ services:
   your-app:
     environment:
       # No GOOGLE_CLIENT_ID or GOOGLE_CLIENT_SECRET needed
-      SERVICE_URL: "https://yourapp.zappro.site"
+      SERVICE_URL: 'https://yourapp.zappro.site'
 ```
 
 The app receives authenticated requests via headers (e.g., `Cf-Access-Jwt-Assertion`).
@@ -454,10 +456,12 @@ echo "  GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}"
 ### Issue 1: "Connection refused" on subdomain
 
 **Symptoms:**
+
 - `curl -sfI https://SUBDOMAIN.zappro.site/` returns connection refused
 - DNS resolves but tunnel not routing
 
 **Diagnosis:**
+
 ```bash
 # Check if DNS proxy is on
 curl -sfI https://SUBDOMAIN.zappro.site/ --connect-timeout 5
@@ -468,6 +472,7 @@ curl -s "https://api.cloudflare.com/client/v4/tunnels/$TUNNEL_ID" \
 ```
 
 **Resolution:**
+
 - Method 1: Re-run `create-subdomain.sh` to verify DNS record
 - Method 2: Run `terraform apply` to ensure ingress rule exists
 
@@ -476,16 +481,19 @@ curl -s "https://api.cloudflare.com/client/v4/tunnels/$TUNNEL_ID" \
 ### Issue 2: "invalid_client" OAuth error
 
 **Symptoms:**
+
 - Google OAuth returns `invalid_client`
 - Token exchange fails
 
 **Diagnosis:**
+
 ```bash
 # Check if client_secret is in token exchange POST body
 # Must include client_secret in the POST body (not headers)
 ```
 
 **Resolution:**
+
 ```javascript
 // Correct token exchange
 POST https://oauth2.googleapis.com/token
@@ -503,10 +511,12 @@ grant_type=authorization_code
 ### Issue 3: Terraform state drift
 
 **Symptoms:**
+
 - `terraform plan` shows changes to existing resources
 - Subdomain exists in Cloudflare but not in terraform state
 
 **Diagnosis:**
+
 ```bash
 cd /srv/ops/terraform/cloudflare
 terraform refresh
@@ -514,6 +524,7 @@ terraform plan
 ```
 
 **Resolution:**
+
 ```bash
 # Import existing resource into state
 terraform import cloudflare_dns_record.yourapp ZONE_ID/RECORD_ID
@@ -534,6 +545,7 @@ terraform import cloudflare_dns_record.yourapp ZONE_ID/RECORD_ID
 ## Changelog
 
 ### v1.0 (2026-04-13)
+
 - Initial version with Method 1 (OAuth Direct) and Method 2 (Cloudflare Access)
 - Added `create-subdomain.sh` and `setup-oauth.sh` reference scripts
 - Quick decision table for method selection

@@ -1,11 +1,13 @@
 ---
 version: 1.4
-author: will-zappro
+author: Principal Engineer
 date: 2026-04-14
 ---
 
-# GUARDRAILS v1.4 — Infraestrutura Zappro (will-zappro)
+# GUARDRAILS v1.4 — Infraestrutura Zappro (homelab)
+
 ## Versão: 1.4 | 2026-04-14
+
 ## Base: 12 DevOps Senior SRE Agents + 3 INCIDENTs (INC-004, INC-005, INC-006)
 
 ---
@@ -13,6 +15,7 @@ date: 2026-04-14
 ## 🚫 ZONAS PROIBIDAS — LLM NÃO PODE TOCAR
 
 ### 1. Coolify (PaaS Controller)
+
 **INC-004 / INC-005 / INC-006 source:** Múltiplos LLMs quebraram coolify ao longo do tempo.
 
 - NUNCA: `curl -fsSL https://coolify.io/install.sh`
@@ -29,12 +32,14 @@ date: 2026-04-14
 - VERSÃO PINADA: 4.0.0-beta.470
 
 ### 2. Drivers e Kernel
+
 - NUNCA: `apt upgrade` / `apt dist-upgrade` / `do-release-upgrade`
 - NUNCA: reinstalar drivers NVIDIA
 - NUNCA: `nvidia-container-toolkit update`
 - NUNCA: atualizar kernel — **6.17.0-20-generic** — NÃO ATUALIZAR
 
 ### 3. ZFS Pool (tank)
+
 **INC-002 source:** OOM matou antigravity, pool era a única salvação.
 
 - NUNCA: `zpool destroy tank` (ou qualquer pool) — **irreversível, perda total de todos os dados**
@@ -49,6 +54,7 @@ date: 2026-04-14
 - **OBRIGATÓRIO antes de qualquer operação ZFS destructive:** `sudo zfs snapshot -r tank@pre-$(date +%Y%m%d%H%M%S)-llm`
 
 ### 4. Rede e DNS
+
 **INC-004 source:** Multi-daemon cloudflared quebrou túnel inteiro.
 
 - NUNCA: editar `/etc/cloudflared/*.yml` manualmente — **sempre via Terraform**
@@ -62,6 +68,7 @@ date: 2026-04-14
 - NUNCA: modificar rotas (`ip route add/del`) sem confirmar que não é a única via de acesso
 
 ### 5. Secrets
+
 **INC-004/005/006 all had secret/token exposure risks.**
 
 - NUNCA: print, log, ou expor valores de variáveis de ambiente que contenham secrets
@@ -76,6 +83,7 @@ date: 2026-04-14
 ---
 
 ## 🚫 CLOUDFLARED / TUNNEL MANAGEMENT
+
 **INC-004 source:** Multi-daemon conflict (HTTP 000 em todos os subdomínios).
 
 1. NUNCA: usar daemon manual cloudflared (`cloudflared tunnel run &`) junto com systemd — **dois daemons = HTTP 000**
@@ -88,6 +96,7 @@ date: 2026-04-14
 8. NUNCA: ignorar `http_host_header` em virtual-hosted services — **1010 Bad SSL error**
 
 **Verificação obrigatória antes de restart:**
+
 ```bash
 ps aux | grep cloudflared | grep -v grep | wc -l  # deve ser 1
 systemctl is-active cloudflared                   # deve ser "active"
@@ -96,6 +105,7 @@ systemctl is-active cloudflared                   # deve ser "active"
 ---
 
 ## 🚫 SYSTEMD / SERVICES
+
 **INC-004 source:** Restart criou segundo daemon sem matar o primeiro.
 
 1. NUNCA: usar daemon manual para serviços críticos — usar **exclusivamente `systemctl`**
@@ -108,6 +118,7 @@ systemctl is-active cloudflared                   # deve ser "active"
 8. NUNCA: `Restart=on-failure` sem `RestartSec` e `StartLimitBurst` — restart imediato sem backoff = CPU spin
 
 **Config mínima para qualquer serviço:**
+
 ```ini
 Restart=on-failure
 RestartSec=10
@@ -118,19 +129,21 @@ StartLimitIntervalSec=300
 ---
 
 ## 🚫 DOCKER CONTAINERS
+
 **INC-005 / INC-006 source:** `network_mode: host` quebrou Prometheus scrape; `localhost` IPv6 quebrou healthcheck.
 
 1. NUNCA: `network_mode: host` num serviço que precisa de rede Docker — usar `pid: host` + `networks: - monitoring`
 2. NUNCA: `localhost`, `127.0.0.1`, ou `host.docker.internal` para comunicação inter-container — usar **nome do serviço Docker**
 3. NUNCA: `host.docker.internal` como fonte de verdade — DNS frágil, usar container names
 4. NUNCA: modificar containers IMMUTABLE sem APPROVAL_MATRIX explícita + snapshot ZFS
-   - **Lista:** coolify-*, cloudflared, prometheus, grafana, loki, alertmanager, coolify-redis
+   - **Lista:** coolify-\*, cloudflared, prometheus, grafana, loki, alertmanager, coolify-redis
 5. NUNCA: `localhost:port` em `ports:` binding — outros containers não alcançam loopback
 6. NUNCA: healthcheck sem `start_period` ou com `timeout` incompatível — causa restart loops
 7. NUNCA: bind mounts sem `rslave`/`ro` corretamente configurados
 8. NUNCA: escrever configuração dinâmica (baseUrl, tokens, api_base) em ficheiros de config — **usar env vars**
 
 **Padrão correto para inter-container:**
+
 ```yaml
 # ✅ CERTO — nome do serviço Docker
 - GF_DATASOURCE_URL: "http://prometheus:9090"
@@ -141,6 +154,7 @@ command: ["--api-url=http://wav2vec2:8201"]
 ```
 
 **Regras obrigatórias de HEALTHCHECK (INC-005 / INC-006):**
+
 - NUNCA: usar `curl` em healthcheck — imagens `prom/node-exporter`, `gotify`, e similares NÃO têm curl
   - ✅ USAR: `wget -qO- http://127.0.0.1:{PORT}/health || exit 1`
   - ❌ ERRADO: `curl -f http://localhost:{PORT}/health`
@@ -159,6 +173,7 @@ command: ["--api-url=http://wav2vec2:8201"]
 ---
 
 ## 🚫 NGINX / REVERSE PROXY
+
 **INC-006 source:** `localhost` em healthcheck resolvia IPv6.
 
 1. NUNCA: `localhost` em `proxy_pass` ou `upstream` — pode resolver para `::1` (IPv6)
@@ -171,6 +186,7 @@ command: ["--api-url=http://wav2vec2:8201"]
 8. NUNCA: `nginx -s reload` sem validar config primeiro — **sempre `nginx -t` antes**
 
 **Padrão correto:**
+
 ```nginx
 # ✅
 proxy_pass http://127.0.0.1:3000;
@@ -182,6 +198,7 @@ proxy_set_header Host $host;
 ---
 
 ## 🚫 TERRAFORM / INFRASTRUCTURE AS CODE
+
 **INC-004 source:** API fast-path criou drift entre Terraform state e Cloudflare.
 
 1. NUNCA: `terraform apply` sem `terraform plan` executado e revisado primeiro
@@ -193,6 +210,7 @@ proxy_set_header Host $host;
 7. NUNCA: API fast-path (`new-subdomain` skill) sem sincronizar para Terraform em 24h
 
 **Fluxo obrigatório:**
+
 ```bash
 cd /srv/ops/terraform/cloudflare
 terraform refresh
@@ -205,6 +223,7 @@ terraform plan  # deve mostrar 0 diff
 ---
 
 ## 🚫 NETWORK / DNS / FIREWALL
+
 **INC-004 source:** cloudflared multi-daemon foi triggered por mudança de rede.
 
 1. NUNCA: `iptables -F` ou `iptables -X` — firewall completo removido = lockout
@@ -221,6 +240,7 @@ terraform plan  # deve mostrar 0 diff
 ---
 
 ## 🚫 SECRETS / CREDENTIALS
+
 **SECRETS-MANDATE.md source:** Infisical SDK hallucinations são proibidas.
 
 1. NUNCA: print, log, ou expor valores de variáveis com secrets — token em log = comprometido para sempre
@@ -235,6 +255,7 @@ terraform plan  # deve mostrar 0 diff
 ---
 
 ## 🚫 MONITORING / OBSERVABILITY
+
 **INC-005 / INC-006 source:** node-exporter healthcheck quebrou; monitoramento cego = incidentes desperdiçados.
 
 1. NUNCA: remover ou comentar targets em `prometheus.yml` sem atualizar `alerts.yml` correspondentes
@@ -251,9 +272,10 @@ terraform plan  # deve mostrar 0 diff
 ## 🚫 HEALTHCHECK PATTERNS (INC-005 / INC-006 lessons learned)
 
 ### Padrão Correto
+
 ```yaml
 healthcheck:
-  test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:9100/ || exit 1"]
+  test: ['CMD-SHELL', 'wget -qO- http://127.0.0.1:9100/ || exit 1']
   interval: 30s
   timeout: 10s
   retries: 3
@@ -262,18 +284,20 @@ healthcheck:
 
 ### Exemplos Corretos e Incorretos
 
-| Scenario | ✅ Correto | ❌ Incorreto |
-|----------|-----------|-------------|
-| Prometheus exporter | `wget -qO- http://127.0.0.1:9100/ \|\| exit 1` | `curl -f http://localhost:9100/` |
-| Nginx app | `wget -qO- http://127.0.0.1:80/health \|\| exit 1` | `wget --spider http://localhost/health` |
-| API service | `wget -qO- http://127.0.0.1:3000/health \|\| exit 1` | `curl -sf http://localhost:3000/health` |
+| Scenario            | ✅ Correto                                           | ❌ Incorreto                            |
+| ------------------- | ---------------------------------------------------- | --------------------------------------- |
+| Prometheus exporter | `wget -qO- http://127.0.0.1:9100/ \|\| exit 1`       | `curl -f http://localhost:9100/`        |
+| Nginx app           | `wget -qO- http://127.0.0.1:80/health \|\| exit 1`   | `wget --spider http://localhost/health` |
+| API service         | `wget -qO- http://127.0.0.1:3000/health \|\| exit 1` | `curl -sf http://localhost:3000/health` |
 
 ### Image-Specific Notes
+
 - **`prom/node-exporter`**: não tem `curl` — usar `wget` apenas
 - **`gotify/gotify`**: não tem `curl` — usar `wget` apenas
 - **`nginx`**: binds em `0.0.0.0` (IPv4), `localhost` resolve para `::1` (IPv6) dentro do container
 
 ### Common Mistakes
+
 1. **Missing binary**: `curl` não existe em imagens Alpine/scratch-based
 2. **IPv6 resolution**: `localhost` → `::1` quando serviço só escuta em `0.0.0.0` (IPv4)
 3. **No start_period**: container marcadas "unhealthy" durante init → restart loop
@@ -283,6 +307,7 @@ healthcheck:
 ---
 
 ## 🚫 GIT / REMOTE OPERATIONS
+
 **SPEC-026 source:** Git mirror significa que force push destrói dois remotes simultaneamente.
 
 1. NUNCA: `git push --force` em `main` ou `master` — rewrites história em ambos os mirrors (GitHub + Gitea)
@@ -297,6 +322,7 @@ healthcheck:
 ---
 
 ## 🚫 AI / AGENT ORCHESTRATION
+
 **Voice pipeline source:** Hermes Agent é o SRE core; loops autónomos sem gates = caos.
 
 1. NUNCA: modificar ou reiniciar `hermes-agent.service` sem aprovação explícita — voice pipeline depende dele
@@ -311,13 +337,15 @@ healthcheck:
 ---
 
 ## ✅ PERMITIDO SEM APROVAÇÃO
+
 - Ler logs, status, inspect
-- Restart containers de app (não coolify-*, não IMMUTABLE)
+- Restart containers de app (não coolify-\*, não IMMUTABLE)
 - Editar código em `/srv/monorepo` e `/home/will/dev`
 - Backup, snapshots ZFS (só criar, nunca destruir)
 - Atualização de documentação
 
 ## ⚠️ REQUER CONFIRMAÇÃO
+
 - Restart de qualquer container IMMUTABLE
 - `docker pull` em imagens de infra
 - Operações em `/srv/ops/terraform/`
