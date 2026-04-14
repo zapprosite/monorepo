@@ -28,19 +28,20 @@ This SPEC defines the **SPEC chunking strategy** — a systematic approach to br
 
 ### 1.1 Token Allocation Per SPEC
 
-| Component | Tokens | Lines (approx) | Purpose |
-|-----------|--------|----------------|---------|
-| SPEC metadata + structure | 2,000 | ~80 lines | Frontmatter, headers, tables |
-| Code implementation | 80,000 | ~150-200 lines | Actual code to write/modify |
-| Analysis + reasoning | 40,000 | ~120 lines | AI thinking, decisions, tradeoffs |
-| Tool calls + context | 40,000 | ~100 calls | Read, Grep, Bash operations |
-| Memory sync overhead | 10,000 | ~30 lines | ai-context-sync integration |
-| Buffer for variance | 32,000 | ~100 lines | Error margins, special cases |
-| **TOTAL** | **204,000** | **~580 lines** | **Hard cap per SPEC** |
+| Component                 | Tokens      | Lines (approx) | Purpose                           |
+| ------------------------- | ----------- | -------------- | --------------------------------- |
+| SPEC metadata + structure | 2,000       | ~80 lines      | Frontmatter, headers, tables      |
+| Code implementation       | 80,000      | ~150-200 lines | Actual code to write/modify       |
+| Analysis + reasoning      | 40,000      | ~120 lines     | AI thinking, decisions, tradeoffs |
+| Tool calls + context      | 40,000      | ~100 calls     | Read, Grep, Bash operations       |
+| Memory sync overhead      | 10,000      | ~30 lines      | ai-context-sync integration       |
+| Buffer for variance       | 32,000      | ~100 lines     | Error margins, special cases      |
+| **TOTAL**                 | **204,000** | **~580 lines** | **Hard cap per SPEC**             |
 
 ### 1.2 What Fits in 204k Tokens
 
 **Guaranteed to fit:**
+
 - 1 tRPC router (full CRUD: 150-180 lines)
 - 1 React page component (150-200 lines)
 - 1 OrchidORM table + migration (120-150 lines)
@@ -48,6 +49,7 @@ This SPEC defines the **SPEC chunking strategy** — a systematic approach to br
 - 1 API endpoint with tests (200 lines)
 
 **Never fits in single SPEC:**
+
 - Full app (400-800+ lines) → chunk into routers
 - Multiple features (500+ lines) → chunk into SPECs
 - Monorepo refactors (1000+ lines) → chunk into phases
@@ -65,16 +67,16 @@ def estimate_tokens(
 ) -> int:
     """
     Rough token estimation for SPEC chunking.
-    
+
     Args:
         code_lines: Lines of code to write (1 token ≈ 0.75 words ≈ 4 chars)
         analysis_lines: Lines of reasoning/documentation
         tool_calls: Number of Read/Grep/Bash operations
         spec_overhead: SPEC structure overhead (fixed ~2000 tokens)
-    
+
     Returns:
         Estimated token count
-    
+
     Examples:
         estimate_tokens(code_lines=150)           # ~82,000 tokens
         estimate_tokens(code_lines=200, analysis_lines=50)  # ~125,000 tokens
@@ -98,14 +100,14 @@ def estimate_tokens(
 
 ### 2.1 Feature Size Classification
 
-| Size | Lines | SPECs | Strategy |
-|------|-------|-------|----------|
-| **XS** | 0-50 | 1 | Single SPEC, direct implementation |
-| **S** | 50-150 | 1 | Single SPEC, standard template |
-| **M** | 150-300 | 1-2 | Split if >200 lines code |
-| **L** | 300-600 | 2-3 | Chunk by module/component |
-| **XL** | 600-1000 | 3-5 | Chunk by layer (API, DB, UI) |
-| **XXL** | 1000+ | 5+ | Chunk by phase + layer |
+| Size    | Lines    | SPECs | Strategy                           |
+| ------- | -------- | ----- | ---------------------------------- |
+| **XS**  | 0-50     | 1     | Single SPEC, direct implementation |
+| **S**   | 50-150   | 1     | Single SPEC, standard template     |
+| **M**   | 150-300  | 1-2   | Split if >200 lines code           |
+| **L**   | 300-600  | 2-3   | Chunk by module/component          |
+| **XL**  | 600-1000 | 3-5   | Chunk by layer (API, DB, UI)       |
+| **XXL** | 1000+    | 5+    | Chunk by phase + layer             |
 
 ### 2.2 Horizontal Chunking (By Layer)
 
@@ -176,13 +178,13 @@ Large Feature: Real-time Collaboration (1200 lines)
 
 ### 3.1 Renewal Triggers
 
-| Threshold | Context % | Action | Tokens |
-|-----------|-----------|--------|--------|
-| **Green** | 0-60% | Normal operation | < 122,880 |
-| **Yellow** | 60-70% | Prepare for sync | 122,880 - 143,360 |
-| **Orange** | 70-85% | **Sync to memory** | 143,360 - 174,080 |
-| **Red** | 85-95% | **Checkpoint + sync** | 174,080 - 194,560 |
-| **Critical** | > 95% | **Full checkpoint + /clear** | > 194,560 |
+| Threshold    | Context % | Action                       | Tokens            |
+| ------------ | --------- | ---------------------------- | ----------------- |
+| **Green**    | 0-60%     | Normal operation             | < 122,880         |
+| **Yellow**   | 60-70%    | Prepare for sync             | 122,880 - 143,360 |
+| **Orange**   | 70-85%    | **Sync to memory**           | 143,360 - 174,080 |
+| **Red**      | 85-95%    | **Checkpoint + sync**        | 174,080 - 194,560 |
+| **Critical** | > 95%     | **Full checkpoint + /clear** | > 194,560         |
 
 ### 3.2 Renewal Decision Tree
 
@@ -230,17 +232,17 @@ log() { echo "[$(date '+%H:%M:%S')] SPEC-SYNC: $1" | tee -a "$LOG_FILE"; }
 
 sync_spec_checkpoint() {
     local mode="${1:-incremental}"
-    
+
     log "Starting SPEC context sync (mode: $mode)"
-    
+
     # 1. Identify current SPEC (from git branch or CLAUDE.md context)
     local current_spec
     current_spec=$(git branch --show-current | grep -o 'SPEC-[0-9]*' | head -1 || echo "UNKNOWN")
-    
+
     # 2. Extract current state
     local checkpoint_file="$MEMORY_DIR/spec-checkpoints/${current_spec}.checkpoint.md"
     mkdir -p "$(dirname "$checkpoint_file")"
-    
+
     # 3. Write checkpoint (what was done, what's pending)
     cat > "$checkpoint_file" << EOF
 ---
@@ -264,19 +266,16 @@ $(git log -1 --format="%s" 2>/dev/null || echo "N/A")
 
 ## Pending Tasks (for next session)
 
-### TODO
-- [ ] Continue from this point
-- [ ] Review git diff for current state
 
 ## Next Steps
 1. Read this checkpoint first
 2. Run: \`bash scripts/spec-context-sync.sh --restore $current_spec\`
 3. Continue implementation
 EOF
-    
+
     # 4. Sync to memory
     bash "$HOME/.claude/mcps/ai-context-sync/sync.sh" >> "$LOG_FILE" 2>&1
-    
+
     log "Sync complete: $checkpoint_file"
     echo "$checkpoint_file"
 }
@@ -284,7 +283,7 @@ EOF
 restore_spec_checkpoint() {
     local spec_name="$1"
     local checkpoint_file="$MEMORY_DIR/spec-checkpoints/${spec_name}.checkpoint.md"
-    
+
     if [[ -f "$checkpoint_file" ]]; then
         log "Restoring from checkpoint: $checkpoint_file"
         cat "$checkpoint_file"
@@ -390,10 +389,7 @@ esac
     }
   ],
   "sync_interval": "manual",
-  "triggers": [
-    "spec-context-sync.sh",
-    "post-commit-hook"
-  ]
+  "triggers": ["spec-context-sync.sh", "post-commit-hook"]
 }
 ```
 
@@ -410,8 +406,8 @@ Each SPEC in a chain references its parent and children:
 name: SPEC-042-02-api-layer
 description: API Layer for Authentication System
 status: PROPOSED
-parentSpec: SPEC-042-01-db-layer      # <-- Parent SPEC
-childSpecs: [SPEC-042-03-ui-layer]    # <-- Child SPECs
+parentSpec: SPEC-042-01-db-layer # <-- Parent SPEC
+childSpecs: [SPEC-042-03-ui-layer] # <-- Child SPECs
 chainPosition: 2
 totalInChain: 4
 ---
@@ -419,6 +415,7 @@ totalInChain: 4
 # SPEC-042-02: Authentication API Layer
 
 > **Chain Context:** Part of SPEC-042 Authentication System
+>
 > - Previous: [SPEC-042-01](SPEC-042-01-db-layer.md) (Database)
 > - Next: [SPEC-042-03](SPEC-042-03-ui-layer.md) (UI)
 > - Read parent checkpoint first: `~/.claude/projects/-srv-monorepo/memory/SPEC-042-01.checkpoint.md`
@@ -444,20 +441,22 @@ status: ACTIVE
 
 ## Chain Order
 
-| # | SPEC | Layer | Lines | Status | Checkpoint |
-|---|------|-------|-------|--------|------------|
-| 1 | SPEC-042-01 | Database | 200 | ✅ DONE | [checkpoint](./SPEC-042-01.checkpoint.md) |
-| 2 | SPEC-042-02 | API | 250 | 🔄 IN PROGRESS | [checkpoint](./SPEC-042-02.checkpoint.md) |
-| 3 | SPEC-042-03 | UI | 250 | 📋 PENDING | N/A |
-| 4 | SPEC-042-04 | Integration | 100 | 📋 PENDING | N/A |
+| #   | SPEC        | Layer       | Lines | Status         | Checkpoint                                |
+| --- | ----------- | ----------- | ----- | -------------- | ----------------------------------------- |
+| 1   | SPEC-042-01 | Database    | 200   | ✅ DONE        | [checkpoint](./SPEC-042-01.checkpoint.md) |
+| 2   | SPEC-042-02 | API         | 250   | 🔄 IN PROGRESS | [checkpoint](./SPEC-042-02.checkpoint.md) |
+| 3   | SPEC-042-03 | UI          | 250   | 📋 PENDING     | N/A                                       |
+| 4   | SPEC-042-04 | Integration | 100   | 📋 PENDING     | N/A                                       |
 
 ## Shared Context
 
 ### Dependencies
+
 - Database schema from SPEC-042-01
 - Zod schemas in `packages/shared/src/auth.ts`
 
 ### Key Decisions (propagate through chain)
+
 1. Use bcrypt for password hashing
 2. JWT tokens with 7-day expiry
 3. Refresh token rotation enabled
@@ -465,6 +464,7 @@ status: ACTIVE
 ## Continuation Protocol
 
 When resuming from checkpoint:
+
 1. Read: `~/.claude/projects/-srv-monorepo/memory/SPEC-042-0X.checkpoint.md`
 2. Review: `git diff` for current state
 3. Update: SPEC-042-0X status + checkpoint
@@ -473,15 +473,17 @@ When resuming from checkpoint:
 
 ### 5.3 Context Transfer Between SPECs
 
-```markdown
+````markdown
 ## Context Transfer (from SPEC-042-01)
 
 ### Completed
+
 - [x] User model in OrchidORM
 - [x] Password hashing with bcrypt
 - [x] User creation migration
 
 ### Implemented Schema
+
 ```typescript
 // From SPEC-042-01 checkpoint
 export const userTable = pgTable('users', {
@@ -492,12 +494,15 @@ export const userTable = pgTable('users', {
   createdAt: timestamp('created_at').defaultNow(),
 });
 ```
+````
 
 ### For Next SPEC (SPEC-042-02)
+
 - Use `userTable` from shared package
 - Implement tRPC procedures for CRUD
 - Add auth middleware using JWT
-```
+
+````
 
 ---
 
@@ -541,9 +546,10 @@ updateStatus: protectedProcedure
   .input(z.object({ userId: z.string().uuid(), isActive: z.boolean() }))
   .mutation(/* ... */),
 \`\`\`
-```
+````
 
 ### Token Budget Check
+
 - Code: 30 lines × 550 = 16,500 tokens
 - Analysis: ~5,000 tokens
 - Overhead: 2,000 tokens
@@ -563,6 +569,7 @@ SPEC-AUTH-02: API + Frontend (200 lines)
 ```
 
 **SPEC-AUTH-01:**
+
 ```markdown
 ---
 name: SPEC-AUTH-01
@@ -577,11 +584,13 @@ totalInChain: 2
 ## Size: M (200 lines)
 
 ### Database Layer
+
 1. User table (50 lines)
 2. Session table (40 lines)
 3. Migrations (60 lines)
 
 ### Middleware Layer
+
 4. JWT validation (30 lines)
 5. Role checks (20 lines)
 
@@ -589,6 +598,7 @@ totalInChain: 2
 ```
 
 **SPEC-AUTH-02:**
+
 ```markdown
 ---
 name: SPEC-AUTH-02
@@ -605,6 +615,7 @@ totalInChain: 2
 ## Context Transfer from SPEC-AUTH-01
 
 ### Available
+
 - `userTable` in database
 - `sessionTable` in database
 - JWT middleware functions
@@ -612,11 +623,13 @@ totalInChain: 2
 ## Size: M (200 lines)
 
 ### API Layer
+
 1. Auth router (60 lines)
 2. Login/Logout procedures (50 lines)
 3. Register procedure (30 lines)
 
 ### UI Layer
+
 4. Auth pages (40 lines)
 5. Protected route wrapper (20 lines)
 
@@ -640,6 +653,7 @@ Phase 5: Polish (SPEC-DASH-05, 100 lines)
 ```
 
 **SPEC-DASH-01 (Foundation):**
+
 ```markdown
 ---
 name: SPEC-DASH-01
@@ -657,18 +671,22 @@ estimatedLines: 300
 ## Scope (300 lines)
 
 ### Infrastructure
+
 1. WebSocket server setup (Fastify + ws) - 80 lines
 2. Connection manager - 60 lines
 3. Event types definition - 40 lines
 
 ### Core Logic
+
 4. Broadcast system - 70 lines
 5. Reconnection handling - 30 lines
 
 ### Testing
+
 6. WebSocket tests - 20 lines
 
 **Token Estimate:**
+
 - Code: 300 × 550 = 165,000
 - Analysis: 50 × 350 = 17,500
 - Overhead: 2,000
@@ -681,14 +699,14 @@ estimatedLines: 300
 
 ### 7.1 Chunking Triggers
 
-| Condition | Action | Example |
-|-----------|--------|---------|
-| Feature > 300 lines code | Chunk horizontally | "Auth system" → DB + API + UI |
-| Feature > 500 lines code | Chunk by phase | "Dashboard" → Foundation → DB → API → UI |
-| Multiple independent features | Chunk vertically | "Dashboard improvements" → Widgets + Charts + Notifications |
-| Dependency chain exists | Chain SPECs | SPEC-042-01 → 02 → 03 |
-| Context > 85% mid-implementation | Checkpoint + sync | Save state, continue if possible |
-| Context > 95% mid-implementation | Commit + new SPEC | Partial commit, new SPEC for remainder |
+| Condition                        | Action             | Example                                                     |
+| -------------------------------- | ------------------ | ----------------------------------------------------------- |
+| Feature > 300 lines code         | Chunk horizontally | "Auth system" → DB + API + UI                               |
+| Feature > 500 lines code         | Chunk by phase     | "Dashboard" → Foundation → DB → API → UI                    |
+| Multiple independent features    | Chunk vertically   | "Dashboard improvements" → Widgets + Charts + Notifications |
+| Dependency chain exists          | Chain SPECs        | SPEC-042-01 → 02 → 03                                       |
+| Context > 85% mid-implementation | Checkpoint + sync  | Save state, continue if possible                            |
+| Context > 95% mid-implementation | Commit + new SPEC  | Partial commit, new SPEC for remainder                      |
 
 ### 7.2 Chunking Decision Tree
 
@@ -724,7 +742,7 @@ New Feature Request
 
 ### 8.1 Token Budget Monitor
 
-```bash
+````bash
 #!/usr/bin/env bash
 # spec-token-monitor.sh — Estimates current SPEC token usage
 # Usage: bash scripts/spec-token-monitor.sh
@@ -734,28 +752,28 @@ set -euo pipefail
 # Rough estimation (based on line counts)
 estimate_spec_tokens() {
     local spec_file="${1:-}"
-    
+
     if [[ ! -f "$spec_file" ]]; then
         echo "SPEC file not found: $spec_file"
         return 1
     fi
-    
+
     # Count markdown lines
     local total_lines
     total_lines=$(wc -l < "$spec_file")
-    
+
     # Count code blocks
     local code_lines
     code_lines=$(grep -c '```' "$spec_file" | awk '{print $1/2}')
-    
+
     # Estimate
     local spec_tokens=$((total_lines * 150))
     local code_tokens=$((code_lines * 550))
     local total=$((spec_tokens + code_tokens))
-    
+
     echo "Estimated tokens: $total"
     echo "Context used: $((total * 100 / 204800))%"
-    
+
     if [[ $total -gt 184320 ]]; then
         echo "⚠️  WARNING: > 90% context — consider checkpoint"
     elif [[ $total -gt 163840 ]]; then
@@ -766,7 +784,7 @@ estimate_spec_tokens() {
 }
 
 estimate_spec_tokens "${1:-}"
-```
+````
 
 ### 8.2 Pre-Commit Hook
 
@@ -780,7 +798,7 @@ SPECS=$(git diff --cached --name-only | grep 'SPEC.*\.md$' || true)
 
 for spec in $SPECS; do
     tokens=$(bash scripts/spec-token-monitor.sh "$spec" 2>/dev/null | grep "Estimated tokens" | grep -o '[0-9]*')
-    
+
     if [[ -n "$tokens" ]] && [[ "$tokens" -gt 180000 ]]; then
         echo "❌ SPEC $spec exceeds 180k tokens ($tokens)"
         echo "   Split into smaller SPECs or checkpoint first"
@@ -865,49 +883,49 @@ Resume from Checkpoint
 
 ## 10. Success Criteria
 
-| # | Criterion | Verification |
-|---|-----------|--------------|
-| SC-1 | SPECs never exceed 204k tokens | Token monitor script returns < 90% |
-| SC-2 | Large features split into chains | SPECs have parentSpec/childSpecs |
-| SC-3 | Chain index created for multi-SPEC features | Chain index exists in memory/ |
-| SC-4 | Checkpoints saved on renewal | Checkpoint files in memory/spec-checkpoints/ |
-| SC-5 | Context transfers between chained SPECs | SPECs have "Context Transfer" sections |
-| SC-6 | Token monitor integrated in workflow | Pre-commit hook checks token budget |
-| SC-7 | ai-context-sync configured for SPEC checkpoints | manifest.json includes SPEC sources |
+| #    | Criterion                                       | Verification                                 |
+| ---- | ----------------------------------------------- | -------------------------------------------- |
+| SC-1 | SPECs never exceed 204k tokens                  | Token monitor script returns < 90%           |
+| SC-2 | Large features split into chains                | SPECs have parentSpec/childSpecs             |
+| SC-3 | Chain index created for multi-SPEC features     | Chain index exists in memory/                |
+| SC-4 | Checkpoints saved on renewal                    | Checkpoint files in memory/spec-checkpoints/ |
+| SC-5 | Context transfers between chained SPECs         | SPECs have "Context Transfer" sections       |
+| SC-6 | Token monitor integrated in workflow            | Pre-commit hook checks token budget          |
+| SC-7 | ai-context-sync configured for SPEC checkpoints | manifest.json includes SPEC sources          |
 
 ---
 
 ## 11. Files to Create/Modify
 
-| File | Action | Purpose |
-|------|--------|---------|
-| `docs/SPECS/SPEC-042-CHUNKING-STRATEGY.md` | CREATE | This document |
-| `scripts/spec-context-sync.sh` | CREATE | SPEC checkpoint + sync |
-| `scripts/spec-token-monitor.sh` | CREATE | Token budget estimation |
-| `~/.claude/mcps/ai-context-sync/manifest.json` | UPDATE | Add SPEC checkpoint sync |
-| `docs/SPECS/SPEC-TEMPLATE.md` | UPDATE | Add chunking fields |
-| `docs/SPECS/SPEC-INDEX.md` | UPDATE | Add SPEC chain index section |
+| File                                           | Action | Purpose                      |
+| ---------------------------------------------- | ------ | ---------------------------- |
+| `docs/SPECS/SPEC-042-CHUNKING-STRATEGY.md`     | CREATE | This document                |
+| `scripts/spec-context-sync.sh`                 | CREATE | SPEC checkpoint + sync       |
+| `scripts/spec-token-monitor.sh`                | CREATE | Token budget estimation      |
+| `~/.claude/mcps/ai-context-sync/manifest.json` | UPDATE | Add SPEC checkpoint sync     |
+| `docs/SPECS/SPEC-TEMPLATE.md`                  | UPDATE | Add chunking fields          |
+| `docs/SPECS/SPEC-INDEX.md`                     | UPDATE | Add SPEC chain index section |
 
 ---
 
 ## 12. Open Questions
 
-| # | Question | Impact | Priority |
-|---|----------|--------|----------|
-| OQ-1 | Automate chunking suggestion in /spec skill? | High | Med |
-| OQ-2 | Integration with SPEC-AUTOMATOR? | Med | Low |
-| OQ-3 | Token budget enforcement in pre-commit? | High | High |
+| #    | Question                                     | Impact | Priority |
+| ---- | -------------------------------------------- | ------ | -------- |
+| OQ-1 | Automate chunking suggestion in /spec skill? | High   | Med      |
+| OQ-2 | Integration with SPEC-AUTOMATOR?             | Med    | Low      |
+| OQ-3 | Token budget enforcement in pre-commit?      | High   | High     |
 
 ---
 
 ## 13. Decisions Log
 
-| Date | Decision | Rationale |
-|------|----------|-----------|
-| 2026-04-14 | 204k token budget per SPEC | MiniMax M2.1 context window |
-| 2026-04-14 | 3 chunking strategies: horizontal, vertical, phase | Covers all feature types |
-| 2026-04-14 | 70%/90% thresholds for sync/checkpoint | Based on SPEC-AUTOMATOR research |
-| 2026-04-14 | Chain index for multi-SPEC features | Enables context transfer |
+| Date       | Decision                                           | Rationale                        |
+| ---------- | -------------------------------------------------- | -------------------------------- |
+| 2026-04-14 | 204k token budget per SPEC                         | MiniMax M2.1 context window      |
+| 2026-04-14 | 3 chunking strategies: horizontal, vertical, phase | Covers all feature types         |
+| 2026-04-14 | 70%/90% thresholds for sync/checkpoint             | Based on SPEC-AUTOMATOR research |
+| 2026-04-14 | Chain index for multi-SPEC features                | Enables context transfer         |
 
 ---
 
@@ -946,25 +964,29 @@ parentSpec: null
 # [Feature Name] — Chain Index
 
 ## Overview
+
 - **Total SPECs:** N
 - **Strategy:** [Horizontal/Vertical/Phase]
 - **Status:** [ACTIVE/COMPLETED]
 
 ## Chain
 
-| # | SPEC | Size | Lines | Status | Checkpoint |
-|---|------|-------|-------|--------|------------|
-| 1 | | | | | |
-| 2 | | | | | |
-| N | | | | | |
+| #   | SPEC | Size | Lines | Status | Checkpoint |
+| --- | ---- | ---- | ----- | ------ | ---------- |
+| 1   |      |      |       |        |            |
+| 2   |      |      |       |        |            |
+| N   |      |      |       |        |            |
 
 ## Shared Dependencies
+
 - [List shared schemas, types, functions]
 
 ## Key Decisions
+
 - [List decisions that propagate through chain]
 
 ## Continuation Protocol
+
 1. Read checkpoint from memory/
 2. Review git diff
 3. Update SPEC status
