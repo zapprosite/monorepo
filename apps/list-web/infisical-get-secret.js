@@ -6,7 +6,6 @@
 const INFISICAL_CONFIG = {
   clientId: null, // Populated from Infisical
   clientSecret: null, // Populated from Infisical
-  baseUrl: 'https://vault.zappro.site/api'
 };
 
 /**

@@ -427,7 +427,6 @@ groups:
 | Service | Question | Action |
 |---------|----------|--------|
 | **grafana.zappro.site** | DNS intentionally removed (duplicate of monitor.zappro.site) | No action needed — use monitor.zappro.site |
-| **n8n workflows** | How many active workflows? Who uses them? | Check if n8n.zappro.site is accessed |
 | **task-runners** | SRE Monitor found unhealthy — what are they? | Investigate before restarting |
 
 ### grafana.zappro.site — NOT BROKEN, REMOVED

@@ -106,7 +106,6 @@ claude mcp add --scope user postgres \
 
 **n8n** (pendente — requer API key)
 ```bash
-# 1. Acesse https://n8n.zappro.site → Settings → API → Generate API Key
 # 2. Depois:
 claude mcp add --scope user n8n \
   --env N8N_API_KEY="sua-api-key" \
@@ -148,7 +147,6 @@ claude mcp add --scope user github \
 
 | Serviço | URL Local | URL Pública | Status |
 |---------|-----------|-------------|--------|
-| n8n | localhost:5678 | https://n8n.zappro.site | ✅ Ativo |
 | Qdrant | localhost:6333 | https://qdrant.zappro.site | ✅ Ativo |
 | Supabase Kong | localhost:8000 | https://supabase.zappro.site | ✅ Ativo |
 | Supabase Studio | localhost:54323 | https://studio.zappro.site | ✅ Ativo |

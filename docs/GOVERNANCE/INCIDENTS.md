@@ -71,6 +71,103 @@ Log of incidents and how to handle them.
   - `./skills/monitoring-diagnostic.md`
   - `./skills/monitoring-zfs-snapshot.md`
 
+### INC-004 — Cloudflared Multi-Daemon Conflict (2026-04-14)
+- **Date:** 2026-04-14 10:17-10:22
+- **Severity:** Medium
+- **Duration:** ~5min (detectado durante SRE monitor)
+- **Services Affected:** Todos os subdomínios (*.zappro.site) — HTTP 000
+- **Root Cause:**
+  1. Systemd cloudflared.service foi desactivado manualemente (07:42)
+  2. Daemon manual iniciado (PID 3275599, 07:43) com config desatualizada (hermes → 10.0.5.2:8642)
+  3. `systemctl restart cloudflared` às 10:17 criou novo daemon (PID 550048) com config correta
+  4. **Dois daemons em conflito** — mesmo tunnel name `will-zappro-homelab` — cloudflared mal gerido
+- **Resolution:**
+  1. Identificados PIDs: `ps aux | grep cloudflared`
+  2. `sudo kill 3275599` — mata daemon manual
+  3. Confirmado: só PID 550048 (systemd) a correr
+  4. Verificado: todos os subdomínios OK (302/200/404)
+- **Prevention:**
+  - **Regra:** cloudflared gerido **sempre** via `systemctl` — nunca manual daemon
+  - Antes de restart: `sudo pkill cloudflared` antes de `systemctl restart`
+  - Após restart: verificar `ps aux | grep cloudflared | wc -l` = 1
+  - SRE monitor detecta múltiplos daemons
+- **Lessons Learned:**
+  - Múltiplos cloudflared com mesmo credentials = comportamento imprevisível
+  -Daemon manual vs systemd = confusion tracking
+- **Files Modified:**
+  - `sre-monitor.sh` — fix subdomain URL parsing (`https://$sub` → `https://${sub}.zappro.site`)
+
+### INC-005 — node-exporter Healthcheck False Positive (curl not found) (2026-04-14)
+- **Date:** 2026-04-14 10:46 — discovered 13:45
+- **Severity:** Medium
+- **Duration:** ~3h (false health failures triggering restart loop guard)
+- **Services Affected:** node-exporter, Prometheus scrape targets
+- **Root Cause:** Docker healthcheck em `node-exporter` usava `curl -f http://localhost:9100/`, mas a imagem `prom/node-exporter:latest` não tem `curl` instalado. Resultado: `ExitCode: 1 — /bin/sh: curl: not found`. healthcheck marcava "unhealthy", SRE monitor tentava heal, 3 restarts em 30min ativaram o restart loop guard, container ficou permanentemente bloqueado mesmo estando funcional.
+- **Evidence:**
+  ```
+  docker inspect node-exporter → Log[].Output: "/bin/sh: curl: not found"
+  RCA log: cause=Unknown (padrão "curl not found" não estava mapeado)
+  healing.log: RESTART_LOOP_BLOCKED node-exporter heals=3
+  ```
+- **Resolution:**
+  1. Identificado via `docker inspect node-exporter --format='{{json .State.Health}}'`
+  2. Verificado que `wget` existe na imagem mas `curl` não (`docker run --rm prom/node-exporter which wget curl`)
+  3. Alterado healthcheck de `curl -f http://localhost:9100/ || exit 1` para `wget -qO- http://localhost:9100/ || exit 1` em `/srv/apps/monitoring/docker-compose.yml`
+  4. `docker compose up -d node-exporter` — container recriado
+  5. Após 12s: `docker inspect node-exporter → healthy` ✅
+  6. Guard de restart loop limpo: `rm /srv/ops/logs/.heal-timestamps.node-exporter`
+  7. Tambem corrigido healthcheck de `gotify` (mesmo problema: `curl -sf` → `wget -qO-`)
+- **Prevention:**
+  - **Regra GUARDRAILS.md:** Imagens `prom/node-exporter` e `gotify` — healthcheck DEVE usar `wget`, não `curl`
+  - Adicionar padrão RCA `"curl: not found"` → cause=`Healthcheck-Image-Missing-Binary` no sre-monitor.sh
+  - Criar skill `monitoring-health-check.md` (ja existe de INC-003) para verificar healthchecks de todos os exporters
+- **Lessons Learned:**
+  - Restart loop guard salvou o container de ciclo infinito de restarts
+  - RCA sem reconhecimento de "curl not found" = causa Unknown = não da visibilidade
+  - Healthcheck de outras imagens: verificar tool disponivel ANTES de usar em production
+- **Files Modified:**
+  - `/srv/apps/monitoring/docker-compose.yml` — node-exporter healthcheck: `curl` → `wget`
+  - `/srv/apps/monitoring/docker-compose.yml` — gotify healthcheck: `curl -sf` → `wget -qO-`
+  - `/srv/ops/logs/.heal-timestamps.node-exporter` — deleted (guard cleared)
+  - `sre-monitor.sh` — adicionar RCA pattern para "curl: not found"
+  - `docs/GOVERNANCE/INCIDENTS.md` — INC-005 adicionado
+  - `docs/GOVERNANCE/GUARDRAILS.md` — adicionar regra healthcheck
+
+### INC-006 — obsidian-web Healthcheck localhost vs 127.0.0.1 IPv6/IPv4 (2026-04-14)
+- **Date:** 2026-04-14 10:27 — discovered 13:50
+- **Severity:** Medium
+- **Duration:** ~3h (mesmo periodo que INC-005)
+- **Services Affected:** obsidian-web (monitor.zappro.site)
+- **Root Cause:** Healthcheck `wget -q --spider http://localhost/health` — `localhost` dentro do container resolve para `::1` (IPv6) mas nginx só escuta em `0.0.0.0:80` (IPv4). Resultado: "Connection refused" mesmo com nginx a correr. Restart loop guard ativado (3 restarts/30min).
+- **Evidence:**
+  ```
+  docker exec obsidian-web wget --spider http://localhost/health
+  → wget: can't connect to remote host: Connection refused
+
+  docker exec obsidian-web wget --spider http://127.0.0.1:80/health
+  → exit 0 (OK)
+
+  ss -tlnp inside container → tcp 0.0.0.0:80 (IPv4 only)
+  ```
+- **Resolution:**
+  1. Identificado via `docker exec obsidian-web wget http://127.0.0.1:80/health` (funciona vs localhost fail)
+  2. Alterado healthcheck de `localhost` para `127.0.0.1` em `/srv/monorepo/apps/obsidian-web/docker-compose.yml`
+  3. Format改了: `CMD-SHELL` em vez de `CMD` para shell command; `wget -qO- http://127.0.0.1/health || exit 1`
+  4. Adicionado `start_period: 15s`
+  5. `docker compose up -d` — container recriado
+  6. Após 18s: `docker inspect obsidian-web → healthy` ✅
+  7. Guard limpo: `rm /srv/ops/logs/.heal-timestamps.obsidian-web`
+- **Prevention:**
+  - **Regra GUARDRAILS.md:** NUNCA usar `localhost` em healthchecks Docker — usar sempre `127.0.0.1`
+  - `localhost` dentro de containers pode resolver para `::1` (IPv6) quando o serviço só escuta em IPv4
+  - Padrao correto: `http://127.0.0.1:{PORT}/path`
+  - Scan periodico: `grep -rn "localhost" /srv/apps/ /srv/monorepo/apps/ --include="docker-compose*.yml" | grep healthcheck`
+- **Files Modified:**
+  - `/srv/monorepo/apps/obsidian-web/docker-compose.yml` — healthcheck: `localhost` → `127.0.0.1`, `CMD` → `CMD-SHELL`, adicionado `start_period`
+  - `/srv/ops/logs/.heal-timestamps.obsidian-web` — deleted (guard cleared)
+  - `docs/GOVERNANCE/INCIDENTS.md` — INC-006 adicionado
+  - `docs/GOVERNANCE/GUARDRAILS.md` — adicionar regra localhost vs 127.0.0.1
+
 ---
 
 ## Incident Template
@@ -344,5 +441,5 @@ Review this file:
 
 ---
 
-**Last Updated:** 2026-03-16
+**Last Updated:** 2026-04-14T13:56
 **Next Review:** Monthly (or after incident)

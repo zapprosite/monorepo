@@ -6,7 +6,6 @@
 var INFISICAL_CONFIG = {
   clientId: null,
   clientSecret: null,
-  baseUrl: 'https://vault.zappro.site/api'
 };
 
 /**

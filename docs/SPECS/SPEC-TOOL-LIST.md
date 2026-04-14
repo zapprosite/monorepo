@@ -123,7 +123,6 @@ const TOOLS = [
   },
   {
     name: 'Infisical',
-    url: 'https://vault.zappro.site',
     description: 'Secrets manager',
     icon: '🔐',
     status: 'up',
