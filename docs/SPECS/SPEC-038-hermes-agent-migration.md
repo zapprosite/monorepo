@@ -423,3 +423,72 @@ python3 ~/.hermes/skills/coolify_sre/hermes_integration.py parse
 **Resultado:** hermes.zappro.site ✅ operacional. bot.zappro.site ❌ PRUNED (sem acao possivel).
 
 **Documentacao atualizada:** SPEC-039 "Current State" atualizado com estado final.
+
+---
+
+## TASK-HERMES-014: Claude Code CLI Integration (2026-04-14)
+
+**Objetivo:** Permitir que Hermes-Agent invoque Claude Code CLI como sub-agente para tarefas de code review, refactoring, e pesquisa.
+
+**Componentes criados:**
+
+| File                                                  | Descricao                                         |
+| ----------------------------------------------------- | ------------------------------------------------- |
+| `/srv/ops/scripts/hermes-claude-invoke.sh`            | Bash wrapper — invoca `claude -p` com output JSON |
+| `~/.hermes/skills/claude_code/SKILL.md`               | Skill metadata para Hermes                        |
+| `~/.hermes/skills/claude_code/__init__.py`            | Python wrapper com parse de JSON e error handling |
+| `docs/ADRs/ADR-045-hermes-claude-code-integration.md` | ADR documentando findings e alternativas          |
+
+**Findings principais:**
+
+| Finding                 | Details                                                                         |
+| ----------------------- | ------------------------------------------------------------------------------- |
+| Claude Code `-p` mode   | `claude -p "prompt" --output-format json --bare` — funciona com OAuth existente |
+| `claude mcp serve`      | Abre porta 3100 como MCP server HTTP — requer login (redirect to `/login`)      |
+| Hermes `hermes mcp add` | Pode conectar a MCP servers HTTP externos                                       |
+| Abordagem viável        | Subprocess via Bash skill (SIMPLES) — MCP bridge (REQUER MCPO + auth)           |
+
+**Script usage:**
+
+```bash
+# Invocacao direta
+bash /srv/ops/scripts/hermes-claude-invoke.sh "Review the API router for security issues"
+
+# Com session ID para continuidade
+bash /srv/ops/scripts/hermes-claude-invoke.sh "Continue the refactoring task" "session-uuid-here"
+
+# Via Python wrapper
+python3 ~/.hermes/skills/claude_code/__init__.py "Say hello in Portuguese"
+```
+
+**Teste executado:**
+
+```bash
+$ bash /srv/ops/scripts/hermes-claude-invoke.sh "Say hello in Portuguese, just one line"
+# Result: {"result": "Olá! 👋", "session_id": "96dd16a9-884a-436f-a799-8f6169e40ce7", ...}
+# Status: ✅ WORKS
+```
+
+**Limitações:**
+
+- **No tool passthrough**: Ferramentas do Claude Code (Bash, Edit, Read) NAO estao disponiveis ao Hermes. O subprocess retorna apenas texto/JSON.
+- **Sessoes efemeras**: Cada chamada usa uma sessao nova (a menos que --session-id seja fornecido)
+- **Auth via OAuth**: Claude Code usa OAuth (nao ANTHROPIC_API_KEY) — funciona porque `claude auth status` mostra `loggedIn: true`
+
+**Arquitetura:**
+
+```
+Hermes-Agent
+  └── claude_code skill (Bash tool)
+        └── hermes-claude-invoke.sh
+              └── claude -p "..." --output-format json --bare
+                    └── OAuth authentication (keychain)
+                          └── Claude Code CLI
+                                └── /srv/monorepo (workspace)
+```
+
+**Proximos passos (se aprovado):**
+
+1. Adicionar entry `claude_code` em `~/.hermes/hermes.json`
+2. Testar invocaçao via `hermes chat -q "Use claude_code: [task]"`
+3. Implementar MCP bridge se tool passthrough for necessário (requer MCPO + auth workaround)
