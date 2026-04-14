@@ -94,7 +94,6 @@ O app serve o OAuth flow completo (login Google → callback → token exchange)
 
 ### Cloudflare Access Pattern (protegido)
 
-Serviços como `vault.zappro.site` usam Cloudflare Access + Google OAuth.
 
 ---
 
@@ -156,10 +155,8 @@ services:
 | `list.zappro.site` | localhost:4080 | - | **OAuth native** | sem Access |
 | `md.zappro.site` | localhost:4081 | - | **OAuth native** | sem Access |
 | `monitor.zappro.site` | localhost:3100 | - | LAN only | Grafana |
-| `n8n.zappro.site` | 10.0.6.2:5678 | - | Cloudflare Access | n8n |
 | `painel.zappro.site` | localhost:4003 | - | Cloudflare Access | Painel |
 | `qdrant.zappro.site` | 10.0.19.5:6333 | - | Cloudflare Access | Qdrant |
-| `vault.zappro.site` | localhost:8200 | - | Cloudflare Access | Infisical |
 
 ### `tunnel_name`
 - Default: `will-zappro-homelab`

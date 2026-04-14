@@ -239,7 +239,6 @@ md.zappro.site → OAuth Google nativo do app → sem proteção Cloudflare
 Apps que precisam de proteção extra usam Cloudflare Access + OAuth:
 
 ```
-vault.zappro.site → Cloudflare Access (@zappro.site) → OAuth Google
 ```
 
 ### Como configurar OAuth-only (MVP)

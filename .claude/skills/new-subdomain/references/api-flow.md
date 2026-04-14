@@ -88,7 +88,6 @@ curl -s -X GET "https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/cfd_
 ```json
 {
   "ingress": [
-    {"hostname": "vault.zappro.site", "service": "http://localhost:8200"},
     {"hostname": "*.zappro.site", "service": "http_status:404"}
   ]
 }

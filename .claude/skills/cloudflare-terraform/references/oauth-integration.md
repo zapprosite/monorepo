@@ -17,7 +17,6 @@ O app gerencia o OAuth flow completo:
 ### Pattern B: Cloudflare Access (Zero Trust)
 Cloudflare intercepta o trafego e apresenta um login Google antes de reencaminhar para o servicio.
 
-**Exemplos:** `chat.zappro.site`, `api.zappro.site`, `vault.zappro.site`
 
 ---
 

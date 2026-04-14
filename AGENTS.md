@@ -33,6 +33,7 @@ Antes de qualquer ação neste repositório, TODO LLM **DEVE** ler:
 | **[docs/GOVERNANCE/SECRETS_POLICY.md](../../docs/GOVERNANCE/SECRETS_POLICY.md)** | Secrets policy complementar | 🟡 ALTA |
 | **[.claude/CLAUDE.md](../../.claude/CLAUDE.md)** | Regras Claude Code, git mirror, version lock | 🟡 ALTA |
 | **[.claude/rules/openclaw-audio-governance.md](../../.claude/rules/openclaw-audio-governance.md)** | Audio stack imutável — ZERO TOLERANCE | 🔴 CRÍTICO |
+| **[.claude/rules/anti-hardcoded-secrets.md](../../.claude/rules/anti-hardcoded-secrets.md)** | Anti-hardcoded secrets pattern | 🔴 CRÍTICO |
 
 ### TL;DR (para LLMs com pressa)
 
@@ -494,7 +495,6 @@ pnpm typecheck         # turbo run typecheck
 
 ## Secrets (Infisical)
 
-**Host:** `vault.zappro.site:8200` (localhost:8200)
 **Project ID:** `e42657ef-98b2-4b9c-9a04-46c093bd6d37`
 **Service Token:** `/srv/ops/secrets/infisical.service-token`
 

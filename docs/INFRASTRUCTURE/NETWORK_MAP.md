@@ -39,9 +39,7 @@
         │  chat.zappro.site   → http://localhost:8080      │
         │  coolify.zappro.site → http://localhost:8000     │
         │  git.zappro.site    → http://localhost:3300      │
-        │  vault.zappro.site  → http://localhost:8200      │
         │  painel.zappro.site → http://localhost:4003     │
-        │  n8n.zappro.site   → http://10.0.6.3:5678       │
         │  qdrant.zappro.site → http://localhost:6333     │
         │  monitor.zappro.site → http://localhost:3100    │
         │  llm.zappro.site   → http://localhost:4000      │
@@ -94,10 +92,8 @@
 | `git.zappro.site` | `:3300` | zappro.ia@gmail.com | ✅ UP | — |
 | `llm.zappro.site` | `:4000` | zappro.ia@gmail.com | ✅ UP | — |
 | `monitor.zappro.site` | `:3100` | LAN only (192.168.0.0/16) | ✅ UP | — |
-| `n8n.zappro.site` | `:5678` (Docker net IP 10.0.6.3) | zappro.ia@gmail.com | ✅ UP | — |
 | `painel.zappro.site` | `:4003` | zappro.ia@gmail.com | ✅ UP | — |
 | `qdrant.zappro.site` | `:6333` | zappro.ia@gmail.com | ✅ UP | — |
-| `vault.zappro.site` | `:8200` | zappro.ia@gmail.com | ✅ UP | — |
 | `aurelia.zappro.site` | `:3334` | zappro.ia@gmail.com | ⚠️ DEPRECATED | — |
 
 ### Google OAuth (Zero Trust)
@@ -338,7 +334,6 @@ bot.zappro.site
 ### Drift conhecido (resolvido 2026-04-06)
 | Subdomain | Antigo (config.yml local) | Correto (Terraform/API) |
 |-----------|--------------------------|------------------------|
-| n8n | `https://n8n.zappro.site` (loop) | `http://10.0.6.3:5678` |
 | aurelia | `http://localhost:8080` | `http://localhost:3334` |
 
 ---

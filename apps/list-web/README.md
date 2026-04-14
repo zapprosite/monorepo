@@ -38,7 +38,6 @@ The app uses the Infisical SDK to fetch secrets at runtime:
 const INFISICAL_CONFIG = {
   clientId: '_CLIENT_ID_',     // Replace with actual
   clientSecret: '_CLIENT_SECRET_', // Replace with actual
-  baseUrl: 'https://vault.zappro.site/api'
 };
 ```
 
@@ -135,7 +134,6 @@ open http://localhost:4080
 
 ### "Infisical: Failed to fetch"
 - Verify Infisical vault is accessible
-- Check network connectivity to vault.zappro.site
 - Verify credentials have access to secrets
 
 ### OAuth redirect not working

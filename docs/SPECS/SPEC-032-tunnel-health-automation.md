@@ -15,7 +15,6 @@ Criar automacao que nunca mais deixa tunnel ou subdomain cair. Todo subdomain no
 ## Problem Statement
 
 O smoke test de 15 agents revelou que:
-1. n8n.zappro.site → DOWN ha semanas (IP errado 10.0.6.3 vs 10.0.6.2)
 2. qdrant.zappro.site → DOWN ha semanas (localhost:6333 mas container nao expoe)
 3. Docs desalignados (SUBDOMAINS.md + PORTS.md vs realidade)
 

@@ -138,7 +138,6 @@ Apps que precisam de protecao extra usam Cloudflare Access + OAuth Google.
 
 **Fluxo:**
 ```
-User → https://vault.zappro.site
      → Cloudflare Access intercepta
      → OAuth Google via Cloudflare
      → App recebe headers X-Forwarded-*

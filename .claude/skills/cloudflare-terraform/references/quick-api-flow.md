@@ -53,7 +53,6 @@ curl -s -X GET \
         "originRequest": { "httpHostHeader": "chat.zappro.site" }
       },
       {
-        "hostname": "vault.zappro.site",
         "service": "http://localhost:8200",
         "originRequest": {}
       },
