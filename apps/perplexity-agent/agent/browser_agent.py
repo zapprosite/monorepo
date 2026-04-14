@@ -1,4 +1,5 @@
 """Browser agent using browser-use + OpenRouter (GPT-4o-mini)."""
+import os
 import subprocess
 
 from browser_use import Agent
@@ -14,7 +15,7 @@ import os
 token = os.environ.get('INFISICAL_TOKEN') or open('{token_path}').read().strip()
 client = InfisicalSDKClient(host='http://127.0.0.1:8200', token=token)
 secrets = client.secrets.list_secrets(
-    project_id='e42657ef-98b2-4b9c-9a04-46c093bd6d37',
+    project_id=os.environ.get('INFISICAL_PROJECT_ID', 'e42657ef-98b2-4b9c-9a04-46c093bd6d37'),
     environment_slug='dev',
     secret_path='/'
 )

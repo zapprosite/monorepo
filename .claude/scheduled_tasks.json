@@ -5,7 +5,7 @@
       "cron": "*/30 * * * *",
       "prompt": "Sync docs to memory: Run /srv/monorepo/scripts/sync-memory.sh or similar to synchronize documentation changes to the memory index. Check git status for pending doc changes and update MEMORY.md index accordingly.",
       "createdAt": 1775847723434,
-      "lastFiredAt": 1776156305377,
+      "lastFiredAt": 1776159992081,
       "recurring": true
     },
     {
@@ -37,7 +37,7 @@
       "cron": "*/5 * * * *",
       "prompt": "SRE Monitor: Run /srv/monorepo/.claude/skills/coolify-sre/scripts/sre-monitor.sh to check Coolify apps, Docker containers, health endpoints, resource usage, and subdomain tunnel status. Auto-heal degraded/down containers (whitelist only). Log results. Replaces old auto-healer (8812f46c) and resource-monitor (4cb53930).",
       "createdAt": 1776124800000,
-      "lastFiredAt": 1776157613952,
+      "lastFiredAt": 1776160633298,
       "recurring": true
     },
     {
@@ -61,7 +61,7 @@
       "cron": "0 6 * * *",
       "prompt": "Secrets audit: Run /se or secrets scan on recent commits. Check for hardcoded secrets, API keys, or credentials in the codebase. Report any findings.",
       "createdAt": 1775847723449,
-      "lastFiredAt": 1776119879417,
+      "lastFiredAt": 1776159000448,
       "recurring": true
     },
     {

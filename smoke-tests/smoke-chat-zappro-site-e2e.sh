@@ -8,13 +8,13 @@
 # 3. Verify authenticated response + app functionality
 #
 # Secrets from: Infisical (vault.zappro.site:8200)
-# Project ID: e42657ef-98b2-4b9c-9a04-46c093bd6d37
+# Project ID: INFISICAL_PROJECT_ID env var (fallback: e42657ef-98b2-4b9c-9a04-46c093bd6d37)
 
 set -euo pipefail
 
 SITE="chat.zappro.site"
 INFISICAL_TOKEN_FILE="/srv/ops/secrets/infisical.service-token"
-PROJECT_ID="e42657ef-98b2-4b9c-9a04-46c093bd6d37"
+PROJECT_ID="${INFISICAL_PROJECT_ID:-e42657ef-98b2-4b9c-9a04-46c093bd6d37}"
 ENV="dev"
 DEBUG="${DEBUG:-0}"
 
