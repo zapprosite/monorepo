@@ -78,7 +78,7 @@ check_restart_loop() {
   local name="$1"
   local heals
   heals=$(count_heals_in_window "$name")
-  if [[ "$heals" -gt "$HEAL_THRESHOLD" ]]; then
+  if [[ "$heals" -ge "$HEAL_THRESHOLD" ]]; then
     echo "RESTART_LOOP_DETECTED: $name — $heals restarts in 30 min, skipping" >&2
     log_heal "RESTART_LOOP_BLOCKED $name heals=$heals"
     return 1
@@ -163,7 +163,7 @@ check_docker_containers() {
     local status_icon="✅"
     case "$state" in
       running)
-        if [[ "$health" == "healthy" ]] || [[ "$health" == "none" ]]; then
+        if [[ "$health" == "healthy" ]]; then
           status_icon="✅"
           reset_heal_record "$name"
         elif [[ "$health" == "unhealthy" ]]; then
