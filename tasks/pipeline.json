@@ -253,7 +253,7 @@
       "id": 8,
       "title": "SPEC-038 TASK-HERMES-012: Configure MCP server for Open WebUI",
       "description": "Configure MCP server for Open WebUI. DEPENDS ON SPEC-039 (hermes gateway tunnel must be working). hermes mcp serve exits after each request \u2192 SPEC-039 gateway as path forward.",
-      "status": "pending",
+      "status": "done",
       "priority": "P1",
       "dependencies": ["SPEC-039"],
       "subtasks": [
