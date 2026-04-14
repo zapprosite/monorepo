@@ -153,7 +153,7 @@
       "id": 5,
       "title": "SPEC-038 TASK-HERMES-007: coolify_sre Hermes wrapper",
       "description": "Create ~/.hermes/skills/coolify_sre/hermes_integration.py + /srv/ops/scripts/hermes-coolify-cli.sh wrapper for Hermes CLI",
-      "status": "pending",
+      "status": "done",
       "priority": "P1",
       "dependencies": [],
       "subtasks": [
@@ -185,7 +185,7 @@
       "id": 6,
       "title": "SPEC-038 TASK-HERMES-008: hermes.json crons \u2014 centralize all cron jobs",
       "description": "Install hermes.json with centralized crons. Migrate: backup-qdrant.sh, Gitea backup, cleanup-sessions.sh, /mcp-health skill, unify smoke-tunnel.sh + tunnel-health-check.sh",
-      "status": "pending",
+      "status": "done",
       "priority": "P1",
       "dependencies": [],
       "subtasks": [
