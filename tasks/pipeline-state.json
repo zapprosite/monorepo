@@ -1,5 +1,5 @@
 {
-  "currentState": "IDLE",
+  "currentState": "PIPELINE_READY",
   "retryCount": 0,
   "retryHistory": [],
   "humanGateRequired": false,
@@ -10,6 +10,9 @@
   "testsPassed": false,
   "lintPassed": false,
   "readyToShip": false,
-  "lastCheckpoint": "2026-04-10T02:15:49-03:00",
-  "lastUnblockReason": "package.json corrupt - fix needed"
+  "lastCheckpoint": "2026-04-14T14:00:00Z",
+  "lastUnblockReason": "Fresh pipeline v3.0 generated from active SPECs",
+  "activeSpecs": ["SPEC-031", "SPEC-032", "SPEC-034", "SPEC-037", "SPEC-038", "SPEC-039", "SPEC-040", "SPEC-041"],
+  "totalTasks": 27,
+  "pendingTasks": 27
 }
