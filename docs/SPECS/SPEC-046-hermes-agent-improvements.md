@@ -2,7 +2,7 @@
 
 **Date:** 2026-04-14
 **Author:** Claude Code
-**Status:** IN_PROGRESS — Steps 1-5 implemented (14/04/2026)
+**Status:** COMPLETED — All 5 steps implemented + Telegram escalation tested (14/04/2026)
 **Type:** Infrastructure / Agent Enhancement
 
 ---
@@ -261,7 +261,7 @@ systemctl --user restart "$SERVICE"
 - [x] SOUL.md preenchido com contexto do homelab (65 linhas)
 - [x] Skills migradas de openclaw-imports (6 skills: skill-creator, find-skills, incident-response, brainstorming, system-architect, mcp-builder)
 - [x] restart-on-fail.sh criado e testado (hermes-gateway :8642 — OK)
-- [ ] Hermes Gateway reinicia automaticamente em falha — script criado, needs escalation Telegram test
+- [x] Hermes Gateway reinicia automaticamente em falha — escalation Telegram testado OK (bot @CEO_REFRIMIX_bot confirma)
 
 ## 8. Verification Commands
 
