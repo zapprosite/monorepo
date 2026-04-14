@@ -20,13 +20,13 @@ RESOURCE_LOG="$LOG_DIR/resource-alerts.log"
 THRESHOLD_CPU=70
 THRESHOLD_MEMORY=80
 
-COOLIFY_APP_NAMES="openclaw:openclaw-qgtzrmi6771lt8l7x8rqx72f openwebui:open-webui-wbmqefxhd7vdn2dme3i6s9an qdrant:qdrant-c95x9bgnhpedt0zp7dfsims7 n8n:n8n-jbu1zy377ies2zhc3qmd03gz"
-IMMUTABLE_CONTAINERS="coolify-proxy cloudflared coolify-db prometheus grafana loki alertmanager"
-PINNED_CONTAINERS="openclaw zappro-kokoro zappro-wav2vec2 zappro-wav2vec2-proxy zappro-tts-bridge zappro-litellm zappro-litellm-db openwebui"
+COOLIFY_APP_NAMES="qdrant:qdrant-c95x9bgnhpedt0zp7dfsims7"
+IMMUTABLE_CONTAINERS="coolify-proxy cloudflared coolify-db prometheus grafana loki alertmanager coolify-redis"
+PINNED_CONTAINERS="zappro-kokoro zappro-wav2vec2 zappro-wav2vec2-proxy zappro-tts-bridge zappro-litellm zappro-litellm-db"
 
-HEALTH_ENDPOINTS="litellm:http://localhost:4000/health wav2vec2:http://localhost:8201/health tts-bridge:http://localhost:8013/health kokoro:http://localhost:8012/health qdrant:http://localhost:6333/healthz"
+HEALTH_ENDPOINTS="litellm:http://localhost:4000/health wav2vec2:http://localhost:8201/health tts-bridge:http://localhost:8013/health kokoro:http://localhost:8012/health qdrant:http://10.0.19.2:6333/healthz"
 
-SUBDOMAINS="api.zappro.site bot.zappro.site chat.zappro.site coolify.zappro.site git.zappro.site grafana.zappro.site list.zappro.site llm.zappro.site md.zappro.site monitor.zappro.site n8n.zappro.site painel.zappro.site prometheus.zappro.site qdrant.zappro.site supabase.zappro.site vault.zappro.site"
+SUBDOMAINS="api.zappro.site bot.zappro.site chat.zappro.site coolify.zappro.site git.zappro.site grafana.zappro.site list.zappro.site llm.zappro.site md.zappro.site monitor.zappro.site painel.zappro.site prometheus.zappro.site qdrant.zappro.site supabase.zappro.site vault.zappro.site"
 
 HEALED_COUNT=0
 FAILED_COUNT=0
@@ -135,8 +135,9 @@ check_coolify_apps() {
     elif [[ "$state" != "running" ]]; then
       heal_container "$container_name" "state=$state"
     else
-      # Container is healthy/running — clear restart loop tracking
-      reset_heal_record "$container_name"
+      if [[ "$health" == "healthy" ]]; then
+        reset_heal_record "$container_name"
+      fi
     fi
   done
 }

@@ -18,3 +18,4 @@ Backend API development guidelines.
 - Hardcoded API keys
 - Credentials in code
 - Removing error handling
+- Reading secrets directly from Infisical (use .env after sync instead)

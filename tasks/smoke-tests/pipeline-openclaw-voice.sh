@@ -2,6 +2,11 @@
 # OpenClaw Voice Pipeline Smoke Test
 # Does NOT use set -e — must complete all tests even if some fail
 
+# Source .env for environment variables
+set -a
+source /srv/monorepo/.env
+set +a
+
 # =============================================================================
 # Infisical — fetch secrets from vault (falls back to env vars)
 # =============================================================================

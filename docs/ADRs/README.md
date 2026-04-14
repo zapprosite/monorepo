@@ -1,19 +1,35 @@
 # Architecture Decision Records (ADRs)
 
 **Location:** `docs/ADRs/`
-**Status:** No ADRs created yet — only templates available
+**Status:** 1 ADR created — see below
 
 ---
 
 ## Current State
 
-This folder contains **3 files** — no ADRs have been created yet:
+This folder contains **4 files** — 1 ADR created:
 
 | File | Description |
 |------|-------------|
+| `ADR-001-denv-as-canonical-secrets-source.md` | .env as canonical secrets source (Infisical sync) |
 | `ADR-TEMPLATE.md` | Full MADR template (21 sections, comprehensive) |
 | `TEMPLATE.md` | Simple template (8 sections, lightweight) |
 | `README.md` | This file |
+
+---
+
+## ADRs
+
+### ADR-001 — .env as Canonical Secrets Source
+
+**Status:** aceito
+**Date:** 2026-04-13
+**Author:** will-zappro
+**Spec:** SPEC-029-INFISICAL-SDK-MANDATORY.md
+
+**Summary:** All secrets are stored in `.env` (synced from Infisical). Application code reads secrets via `os.getenv()`, never directly from Infisical SDK.
+
+See: `ADR-001-denv-as-canonical-secrets-source.md`
 
 ---
 

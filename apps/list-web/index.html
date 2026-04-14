@@ -433,12 +433,14 @@
   <script>
     /* ================================================================
        CONFIGURATION
-       GOOGLE_CLIENT_ID is injected at deploy time via Infisical.
-       During local dev, set window.__ENV__.GOOGLE_CLIENT_ID.
+       VITE_GOOGLE_CLIENT_ID: Google OAuth Client ID (Vite env)
+       window.__ENV__.*: Fallback for static deploy without Vite
+       Em dev: crie .env com VITE_GOOGLE_CLIENT_ID=xxx
+       Em prod: injete via --build-arg ou window.__ENV__ (Infisical)
     ================================================================ */
     const CONFIG = {
-      googleClientId: window.__ENV__?.GOOGLE_CLIENT_ID || '29245472860-6d5bvhphmk2pl3s1volthifqfhbg0iji.apps.googleusercontent.com',
-      redirectUri: 'https://list.zappro.site/auth/callback',
+      googleClientId: import.meta.env.VITE_GOOGLE_CLIENT_ID || window.__ENV__?.GOOGLE_CLIENT_ID || '',
+      redirectUri: import.meta.env.VITE_REDIRECT_URI || window.__ENV__?.REDIRECT_URI || 'https://list.zappro.site/auth/callback',
       authEndpoint: 'https://accounts.google.com/o/oauth2/v2/auth',
       scope: 'email profile',
       sessionKey: 'list_web_session',

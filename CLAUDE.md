@@ -34,8 +34,9 @@
 ```
 
 ## Secrets
-- Use process.env or Infisical
-- Never hardcode
+- **Environment variables: Use .env as canonical source** — All secrets synced from Infisical to .env
+- Never read secrets directly from Infisical in code (use process.env after sync)
+- Never hardcode secrets
 - Run secrets audit before push
 
 ## Related

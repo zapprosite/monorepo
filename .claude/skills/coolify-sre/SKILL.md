@@ -63,16 +63,14 @@ claude -p "/coolify-sre status"
 
 ## Configuração
 
-### Infisical (Obrigatório — SPEC-029)
+### .env (Obrigatório)
 
-```python
-INFISICAL_PROJECT_ID = "e42657ef-98b2-4b9c-9a04-46c093bd6d37"
-INFISICAL_ENV = "dev"
-INFISICAL_TOKEN_PATH = "/srv/ops/secrets/infisical.service-token"
+```bash
+# No diretório do projeto ou em /srv/monorepo/.env
+source .env
 
-# Secrets buscados:
-COOLIFY_API_KEY = get_secret("COOLIFY_API_KEY")
-COOLIFY_URL = get_secret("COOLIFY_URL")  # http://127.0.0.1:8000
+COOLIFY_API_KEY=your-coolify-api-key
+COOLIFY_URL=http://127.0.0.1:8000
 ```
 
 ### Thresholds Configuráveis

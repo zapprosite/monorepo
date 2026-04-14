@@ -50,6 +50,13 @@ uses:
 # PREREQUISITE CHECKS — run before starting validation
 # ============================================================
 
+# 0. Source environment variables (tokens/secrets from .env)
+cd /srv/monorepo
+if [[ -f .env ]]; then
+    # shellcheck source=/dev/null
+    source .env
+fi
+
 # 1. ZFS pool exists and is healthy
 zpool status tank
 # Expected: tank state: ONLINE
@@ -58,7 +65,7 @@ zpool status tank
 docker ps
 # Expected: list of running containers
 
-# 3. Smoke test dependencies
+# 3. Smoke test dependencies (from .env or shell environment)
 [ -n "$LITELLM_KEY" ]    || echo "WARN: LITELLM_KEY not set — some tests will be skipped"
 [ -n "$MINIMAX_API_KEY" ] || echo "WARN: MINIMAX_API_KEY not set — some tests will be skipped"
 
@@ -726,7 +733,9 @@ jobs:
 
 ```bash
 # ONE-LINER: Full validation (all phases)
-# Requires: LITELLM_KEY, MINIMAX_API_KEY
+# Requires: LITELLM_KEY, MINIMAX_API_KEY (source .env first)
+cd /srv/monorepo && source .env
+
 sudo zfs snapshot -r "tank@pre-$(date +%Y%m%d-%H%M%S)-$(whoami)-deploy" \
 && bash tasks/smoke-tests/pipeline-openclaw-voice.sh \
 && echo "✅ Deploy validated"

@@ -13,6 +13,11 @@
 
 set -euo pipefail
 
+# Source .env for environment variables
+set -a
+source /srv/monorepo/.env
+set +a
+
 TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 OVERALL_STATUS=0
 DEBUG="${DEBUG:-0}"
@@ -136,7 +141,7 @@ echo ""
 echo "[STEP 5] OpenClaw Bot External Health"
 echo "======================================"
 
-OPENCLAW_CODE=$(curl -s -o /dev/null -w "%{http_code}" "http://10.0.19.4:8080/health" --max-time 10 2>/dev/null || echo "000")
+OPENCLAW_CODE=$(curl -s -o /dev/null -w "%{http_code}" "${OPENCLAW_INTERNAL_URL:-http://10.0.19.4:8080}/health" --max-time 10 2>/dev/null || echo "000")
 if [ "$OPENCLAW_CODE" = "200" ]; then
     echo "  ✅ OpenClaw Bot: HTTP $OPENCLAW_CODE (reachable)"
 else

@@ -7,6 +7,13 @@
 
 set -euo pipefail
 
+# Source environment variables for any tokens/secrets
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [[ -f "$SCRIPT_DIR/../../../.env" ]]; then
+    # shellcheck source=/dev/null
+    source "$SCRIPT_DIR/../../../.env"
+fi
+
 # =============================================================================
 # CONFIG
 # =============================================================================
