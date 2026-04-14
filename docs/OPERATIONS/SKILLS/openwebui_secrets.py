@@ -37,7 +37,7 @@ except ImportError:
     pass
 
 # Default project ID for homelab zappro
-DEFAULT_PROJECT_ID = "e42657ef-98b2-4b9c-9a04-46c093bd6d37"
+DEFAULT_PROJECT_ID = os.environ.get("INFISICAL_PROJECT_ID")
 DEFAULT_ENV_SLUG = "dev"
 
 # Secrets required for OpenWebUI

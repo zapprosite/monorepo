@@ -8,11 +8,15 @@
       "priority": "high",
       "dependencies": [],
       "subtasks": [
-        {"id": "1.1", "title": "Add cron entry: */30 * * * *", "status": "pending"},
-        {"id": "1.2", "title": "Ensure /srv/ops/logs/ directory exists", "status": "pending"},
-        {"id": "1.3", "title": "DOWN result triggers gotify-alert.sh", "status": "pending"}
+        { "id": "1.1", "title": "Add cron entry: */30 * * * *", "status": "pending" },
+        { "id": "1.2", "title": "Ensure /srv/ops/logs/ directory exists", "status": "pending" },
+        { "id": "1.3", "title": "DOWN result triggers gotify-alert.sh", "status": "pending" }
       ],
-      "acceptanceCriteria": ["AC-1: cron entry exists", "AC-2: log file created", "AC-3: Gotify alert when DOWN"],
+      "acceptanceCriteria": [
+        "AC-1: cron entry exists",
+        "AC-2: log file created",
+        "AC-3: Gotify alert when DOWN"
+      ],
       "files": ["/srv/ops/logs/tunnel-health.log", "crontab"],
       "testRequired": true,
       "specRef": "docs/SPECS/SPEC-032-tunnel-health-automation.md"
@@ -25,12 +29,20 @@
       "priority": "high",
       "dependencies": [],
       "subtasks": [
-        {"id": "2.1", "title": "Create validate-ingress.sh", "status": "pending"},
-        {"id": "2.2", "title": "Parse variables.tf for ingress rules", "status": "pending"},
-        {"id": "2.3", "title": "Verify IP:port reachable for each service", "status": "pending"},
-        {"id": "2.4", "title": "Flag localhost URLs (should use container IPs)", "status": "pending"}
+        { "id": "2.1", "title": "Create validate-ingress.sh", "status": "pending" },
+        { "id": "2.2", "title": "Parse variables.tf for ingress rules", "status": "pending" },
+        { "id": "2.3", "title": "Verify IP:port reachable for each service", "status": "pending" },
+        {
+          "id": "2.4",
+          "title": "Flag localhost URLs (should use container IPs)",
+          "status": "pending"
+        }
       ],
-      "acceptanceCriteria": ["AC-1: script exists and executable", "AC-2: detects localhost ingress", "AC-3: reports unreachable ingress"],
+      "acceptanceCriteria": [
+        "AC-1: script exists and executable",
+        "AC-2: detects localhost ingress",
+        "AC-3: reports unreachable ingress"
+      ],
       "files": ["/srv/ops/scripts/validate-ingress.sh"],
       "testRequired": true,
       "specRef": "docs/SPECS/SPEC-032-tunnel-health-automation.md"
@@ -43,13 +55,18 @@
       "priority": "critical",
       "dependencies": [],
       "subtasks": [
-        {"id": "3.1", "title": "Create tunnel-autoheal.sh", "status": "pending"},
-        {"id": "3.2", "title": "Check cloudflared service status", "status": "pending"},
-        {"id": "3.3", "title": "ZFS snapshot before restart (rpool/srv)", "status": "pending"},
-        {"id": "3.4", "title": "systemctl restart cloudflared if down", "status": "pending"},
-        {"id": "3.5", "title": "Alert via Gotify if 0 ingress rules active", "status": "pending"}
+        { "id": "3.1", "title": "Create tunnel-autoheal.sh", "status": "pending" },
+        { "id": "3.2", "title": "Check cloudflared service status", "status": "pending" },
+        { "id": "3.3", "title": "ZFS snapshot before restart (rpool/srv)", "status": "pending" },
+        { "id": "3.4", "title": "systemctl restart cloudflared if down", "status": "pending" },
+        { "id": "3.5", "title": "Alert via Gotify if 0 ingress rules active", "status": "pending" }
       ],
-      "acceptanceCriteria": ["AC-1: script executable", "AC-2: ZFS snapshot before restart", "AC-3: cloudflared restarted within 5min", "AC-4: Gotify alert if 0 ingress"],
+      "acceptanceCriteria": [
+        "AC-1: script executable",
+        "AC-2: ZFS snapshot before restart",
+        "AC-3: cloudflared restarted within 5min",
+        "AC-4: Gotify alert if 0 ingress"
+      ],
       "files": ["/srv/ops/scripts/tunnel-autoheal.sh"],
       "testRequired": true,
       "specRef": "docs/SPECS/SPEC-032-tunnel-health-automation.md"
@@ -62,10 +79,18 @@
       "priority": "P1",
       "dependencies": ["SPEC-039"],
       "subtasks": [
-        {"id": "4.1", "title": "Extract browser-use logic from browser_agent.py", "status": "pending"},
-        {"id": "4.2", "title": "Create SKILL.md for perplexity_browser", "status": "pending"},
-        {"id": "4.3", "title": "Create agent.py with Hermes skill interface", "status": "pending"},
-        {"id": "4.4", "title": "Create config.py", "status": "pending"}
+        {
+          "id": "4.1",
+          "title": "Extract browser-use logic from browser_agent.py",
+          "status": "pending"
+        },
+        { "id": "4.2", "title": "Create SKILL.md for perplexity_browser", "status": "pending" },
+        {
+          "id": "4.3",
+          "title": "Create agent.py with Hermes skill interface",
+          "status": "pending"
+        },
+        { "id": "4.4", "title": "Create config.py", "status": "pending" }
       ],
       "acceptanceCriteria": ["SC-5: perplexity_browser skill functional"],
       "files": ["apps/perplexity-agent/agent/browser_agent.py"],
@@ -80,12 +105,15 @@
       "priority": "P1",
       "dependencies": [],
       "subtasks": [
-        {"id": "5.1", "title": "Create hermes_integration.py", "status": "pending"},
-        {"id": "5.2", "title": "Create hermes-coolify-cli.sh", "status": "pending"},
-        {"id": "5.3", "title": "Integrate with Hermes skill system", "status": "pending"}
+        { "id": "5.1", "title": "Create hermes_integration.py", "status": "pending" },
+        { "id": "5.2", "title": "Create hermes-coolify-cli.sh", "status": "pending" },
+        { "id": "5.3", "title": "Integrate with Hermes skill system", "status": "pending" }
       ],
       "acceptanceCriteria": ["SC-6: coolify_sre with Hermes wrapper"],
-      "files": ["~/.hermes/skills/coolify_sre/hermes_integration.py", "/srv/ops/scripts/hermes-coolify-cli.sh"],
+      "files": [
+        "~/.hermes/skills/coolify_sre/hermes_integration.py",
+        "/srv/ops/scripts/hermes-coolify-cli.sh"
+      ],
       "testRequired": false,
       "specRef": "docs/SPECS/SPEC-038-hermes-agent-migration.md"
     },
@@ -97,11 +125,19 @@
       "priority": "P1",
       "dependencies": [],
       "subtasks": [
-        {"id": "6.1", "title": "Install hermes.json crons", "status": "pending"},
-        {"id": "6.2", "title": "Migrate backup-qdrant.sh to hermes.json", "status": "pending"},
-        {"id": "6.3", "title": "Migrate Gitea backup crontab inline to hermes.json", "status": "pending"},
-        {"id": "6.4", "title": "Migrate cleanup-sessions.sh to hermes.json", "status": "pending"},
-        {"id": "6.5", "title": "Unify smoke-tunnel.sh + tunnel-health-check.sh overlap", "status": "pending"}
+        { "id": "6.1", "title": "Install hermes.json crons", "status": "pending" },
+        { "id": "6.2", "title": "Migrate backup-qdrant.sh to hermes.json", "status": "pending" },
+        {
+          "id": "6.3",
+          "title": "Migrate Gitea backup crontab inline to hermes.json",
+          "status": "pending"
+        },
+        { "id": "6.4", "title": "Migrate cleanup-sessions.sh to hermes.json", "status": "pending" },
+        {
+          "id": "6.5",
+          "title": "Unify smoke-tunnel.sh + tunnel-health-check.sh overlap",
+          "status": "pending"
+        }
       ],
       "acceptanceCriteria": ["SC-7: hermes.json crons centralized"],
       "files": ["hermes.json"],
@@ -116,9 +152,9 @@
       "priority": "P0",
       "dependencies": [],
       "subtasks": [
-        {"id": "7.1", "title": "Verify containers are stopped", "status": "pending"},
-        {"id": "7.2", "title": "Disable via Coolify API or dashboard", "status": "pending"},
-        {"id": "7.3", "title": "Verify Coolify shows correct status", "status": "pending"}
+        { "id": "7.1", "title": "Verify containers are stopped", "status": "pending" },
+        { "id": "7.2", "title": "Disable via Coolify API or dashboard", "status": "pending" },
+        { "id": "7.3", "title": "Verify Coolify shows correct status", "status": "pending" }
       ],
       "acceptanceCriteria": ["SC-8: OpenClaw disable enforced in Coolify"],
       "files": [],
@@ -133,9 +169,13 @@
       "priority": "P1",
       "dependencies": ["SPEC-039"],
       "subtasks": [
-        {"id": "8.1", "title": "Verify hermes gateway tunnel working (SPEC-039)", "status": "pending"},
-        {"id": "8.2", "title": "Configure MCP server for Open WebUI", "status": "pending"},
-        {"id": "8.3", "title": "Test MCP connectivity", "status": "pending"}
+        {
+          "id": "8.1",
+          "title": "Verify hermes gateway tunnel working (SPEC-039)",
+          "status": "pending"
+        },
+        { "id": "8.2", "title": "Configure MCP server for Open WebUI", "status": "pending" },
+        { "id": "8.3", "title": "Test MCP connectivity", "status": "pending" }
       ],
       "acceptanceCriteria": ["SC-9: MCP server for Open WebUI"],
       "files": [],
@@ -150,9 +190,9 @@
       "priority": "P1",
       "dependencies": ["SPEC-039"],
       "subtasks": [
-        {"id": "9.1", "title": "Update Cloudflare tunnel to 10.0.5.2:8642", "status": "pending"},
-        {"id": "9.2", "title": "Verify hermes.zappro.site resolves", "status": "pending"},
-        {"id": "9.3", "title": "Test gateway polling mode", "status": "pending"}
+        { "id": "9.1", "title": "Update Cloudflare tunnel to 10.0.5.2:8642", "status": "pending" },
+        { "id": "9.2", "title": "Verify hermes.zappro.site resolves", "status": "pending" },
+        { "id": "9.3", "title": "Test gateway polling mode", "status": "pending" }
       ],
       "acceptanceCriteria": ["hermes.zappro.site → :8642 working"],
       "files": [],
@@ -167,9 +207,17 @@
       "priority": "P0",
       "dependencies": ["SPEC-039"],
       "subtasks": [
-        {"id": "10.1", "title": "Research NousResearch hermes mcp serve persistence", "status": "pending"},
-        {"id": "10.2", "title": "Evaluate gateway workaround (TASK-HERMES-013)", "status": "pending"},
-        {"id": "10.3", "title": "File feature request if no solution found", "status": "pending"}
+        {
+          "id": "10.1",
+          "title": "Research NousResearch hermes mcp serve persistence",
+          "status": "pending"
+        },
+        {
+          "id": "10.2",
+          "title": "Evaluate gateway workaround (TASK-HERMES-013)",
+          "status": "pending"
+        },
+        { "id": "10.3", "title": "File feature request if no solution found", "status": "pending" }
       ],
       "acceptanceCriteria": ["hermes mcp serve is persistent OR gateway workaround functional"],
       "files": [],
@@ -184,12 +232,12 @@
       "priority": "P0",
       "dependencies": [4, 5, 6, 7, 8, 9, 10],
       "subtasks": [
-        {"id": "11.1", "title": "Validate LLM responses (MiniMax primary)", "status": "pending"},
-        {"id": "11.2", "title": "Validate Ollama fallback (qwen2.5vl:7b)", "status": "pending"},
-        {"id": "11.3", "title": "MCP server connectivity test", "status": "pending"},
-        {"id": "11.4", "title": "Coolify API integration test", "status": "pending"},
-        {"id": "11.5", "title": "Cron execution verification", "status": "pending"},
-        {"id": "11.6", "title": "bot.zappro.site gateway test", "status": "pending"}
+        { "id": "11.1", "title": "Validate LLM responses (MiniMax primary)", "status": "pending" },
+        { "id": "11.2", "title": "Validate Ollama fallback (qwen2.5vl:7b)", "status": "pending" },
+        { "id": "11.3", "title": "MCP server connectivity test", "status": "pending" },
+        { "id": "11.4", "title": "Coolify API integration test", "status": "pending" },
+        { "id": "11.5", "title": "Cron execution verification", "status": "pending" },
+        { "id": "11.6", "title": "bot.zappro.site gateway test", "status": "pending" }
       ],
       "acceptanceCriteria": ["All SC criteria from SPEC-038"],
       "files": [],
@@ -204,15 +252,24 @@
       "priority": "P0",
       "dependencies": [],
       "subtasks": [
-        {"id": "12.1", "title": "Decide port (4010 or move Perplexity Agent)", "status": "pending"},
-        {"id": "12.2", "title": "Deploy /tmp/rate-limit.conf to nginx", "status": "pending"},
-        {"id": "12.3", "title": "Deploy /tmp/nginx-ratelimit-litellm.conf", "status": "pending"},
-        {"id": "12.4", "title": "Deploy /tmp/nginx-ratelimit-ollama.conf", "status": "pending"},
-        {"id": "12.5", "title": "Deploy /tmp/nginx-ratelimit-hermes.conf", "status": "pending"},
-        {"id": "12.6", "title": "nginx -s reload + verify", "status": "pending"}
+        {
+          "id": "12.1",
+          "title": "Decide port (4010 or move Perplexity Agent)",
+          "status": "pending"
+        },
+        { "id": "12.2", "title": "Deploy /tmp/rate-limit.conf to nginx", "status": "pending" },
+        { "id": "12.3", "title": "Deploy /tmp/nginx-ratelimit-litellm.conf", "status": "pending" },
+        { "id": "12.4", "title": "Deploy /tmp/nginx-ratelimit-ollama.conf", "status": "pending" },
+        { "id": "12.5", "title": "Deploy /tmp/nginx-ratelimit-hermes.conf", "status": "pending" },
+        { "id": "12.6", "title": "nginx -s reload + verify", "status": "pending" }
       ],
       "acceptanceCriteria": ["SC-2: Rate limits enforced", "Load test >100 req/min → 429 returned"],
-      "files": ["/tmp/rate-limit.conf", "/tmp/nginx-ratelimit-litellm.conf", "/tmp/nginx-ratelimit-ollama.conf", "/tmp/nginx-ratelimit-hermes.conf"],
+      "files": [
+        "/tmp/rate-limit.conf",
+        "/tmp/nginx-ratelimit-litellm.conf",
+        "/tmp/nginx-ratelimit-ollama.conf",
+        "/tmp/nginx-ratelimit-hermes.conf"
+      ],
       "testRequired": true,
       "specRef": "docs/SPECS/SPEC-040-homelab-alerting-rate-limit.md"
     },
@@ -224,10 +281,10 @@
       "priority": "high",
       "dependencies": [],
       "subtasks": [
-        {"id": "13.1", "title": "Add severity routing to alertmanager.yml", "status": "pending"},
-        {"id": "13.2", "title": "Add Gotify receiver configuration", "status": "pending"},
-        {"id": "13.3", "title": "Configure Telegram P1/P2 channels", "status": "pending"},
-        {"id": "13.4", "title": "Test alert routing by severity", "status": "pending"}
+        { "id": "13.1", "title": "Add severity routing to alertmanager.yml", "status": "pending" },
+        { "id": "13.2", "title": "Add Gotify receiver configuration", "status": "pending" },
+        { "id": "13.3", "title": "Configure Telegram P1/P2 channels", "status": "pending" },
+        { "id": "13.4", "title": "Test alert routing by severity", "status": "pending" }
       ],
       "acceptanceCriteria": ["P1→Telegram immediately", "P3→Gotify", "routing by severity label"],
       "files": ["/srv/monorepo/apps/monitoring/alertmanager.yml"],
@@ -242,14 +299,29 @@
       "priority": "P2",
       "dependencies": [],
       "subtasks": [
-        {"id": "14.1", "title": "Create grafana/provisioning/dashboards/ directory", "status": "pending"},
-        {"id": "14.2", "title": "Create homelab.yml dashboard (GPU, containers, subdomains, rate limits)", "status": "pending"},
-        {"id": "14.3", "title": "Create rate-limit.yml dashboard", "status": "pending"},
-        {"id": "14.4", "title": "Create grafana/provisioning/datasources/prometheus.yml", "status": "pending"},
-        {"id": "14.5", "title": "Mount provisioning in docker-compose", "status": "pending"}
+        {
+          "id": "14.1",
+          "title": "Create grafana/provisioning/dashboards/ directory",
+          "status": "pending"
+        },
+        {
+          "id": "14.2",
+          "title": "Create homelab.yml dashboard (GPU, containers, subdomains, rate limits)",
+          "status": "pending"
+        },
+        { "id": "14.3", "title": "Create rate-limit.yml dashboard", "status": "pending" },
+        {
+          "id": "14.4",
+          "title": "Create grafana/provisioning/datasources/prometheus.yml",
+          "status": "pending"
+        },
+        { "id": "14.5", "title": "Mount provisioning in docker-compose", "status": "pending" }
       ],
       "acceptanceCriteria": ["SC-5: Grafana dashboard shows all services"],
-      "files": ["apps/monitoring/grafana/provisioning/dashboards/", "apps/monitoring/grafana/provisioning/datasources/"],
+      "files": [
+        "apps/monitoring/grafana/provisioning/dashboards/",
+        "apps/monitoring/grafana/provisioning/datasources/"
+      ],
       "testRequired": false,
       "specRef": "docs/SPECS/SPEC-040-homelab-alerting-rate-limit.md"
     },
@@ -261,10 +333,10 @@
       "priority": "P1",
       "dependencies": [],
       "subtasks": [
-        {"id": "15.1", "title": "Add ContainerUnhealthy alert", "status": "pending"},
-        {"id": "15.2", "title": "Add HighCPU alert (90% for 5min)", "status": "pending"},
-        {"id": "15.3", "title": "Add SubdomainDown alert (probe_success=0)", "status": "pending"},
-        {"id": "15.4", "title": "Verify AlertManager receives alerts", "status": "pending"}
+        { "id": "15.1", "title": "Add ContainerUnhealthy alert", "status": "pending" },
+        { "id": "15.2", "title": "Add HighCPU alert (90% for 5min)", "status": "pending" },
+        { "id": "15.3", "title": "Add SubdomainDown alert (probe_success=0)", "status": "pending" },
+        { "id": "15.4", "title": "Verify AlertManager receives alerts", "status": "pending" }
       ],
       "acceptanceCriteria": ["Alerts fire for respective conditions"],
       "files": ["apps/monitoring/prometheus/alerts.yml"],
@@ -279,10 +351,10 @@
       "priority": "P2",
       "dependencies": [],
       "subtasks": [
-        {"id": "16.1", "title": "Verify Loki is healthy", "status": "pending"},
-        {"id": "16.2", "title": "Add Promtail to docker-compose", "status": "pending"},
-        {"id": "16.3", "title": "Configure Promtail scrape targets", "status": "pending"},
-        {"id": "16.4", "title": "Test Loki log ingestion", "status": "pending"}
+        { "id": "16.1", "title": "Verify Loki is healthy", "status": "pending" },
+        { "id": "16.2", "title": "Add Promtail to docker-compose", "status": "pending" },
+        { "id": "16.3", "title": "Configure Promtail scrape targets", "status": "pending" },
+        { "id": "16.4", "title": "Test Loki log ingestion", "status": "pending" }
       ],
       "acceptanceCriteria": ["Logs appear in Loki/Grafana"],
       "files": ["docker-compose.yml"],
@@ -297,10 +369,10 @@
       "priority": "medium",
       "dependencies": [],
       "subtasks": [
-        {"id": "17.1", "title": "Find node-exporter container configuration", "status": "done"},
-        {"id": "17.2", "title": "Add HEALTHCHECK to node-exporter", "status": "done"},
-        {"id": "17.3", "title": "Restart node-exporter container", "status": "done"},
-        {"id": "17.4", "title": "Verify docker inspect shows Healthcheck", "status": "done"}
+        { "id": "17.1", "title": "Find node-exporter container configuration", "status": "done" },
+        { "id": "17.2", "title": "Add HEALTHCHECK to node-exporter", "status": "done" },
+        { "id": "17.3", "title": "Restart node-exporter container", "status": "done" },
+        { "id": "17.4", "title": "Verify docker inspect shows Healthcheck", "status": "done" }
       ],
       "acceptanceCriteria": ["AC-031-2"],
       "files": ["/srv/apps/monitoring/docker-compose.yml"],
@@ -315,10 +387,10 @@
       "priority": "medium",
       "dependencies": [],
       "subtasks": [
-        {"id": "18.1", "title": "Find loki container configuration", "status": "done"},
-        {"id": "18.2", "title": "Add HEALTHCHECK to loki container", "status": "done"},
-        {"id": "18.3", "title": "Restart loki container", "status": "done"},
-        {"id": "18.4", "title": "Verify curl localhost:3100/ready returns 200", "status": "done"}
+        { "id": "18.1", "title": "Find loki container configuration", "status": "done" },
+        { "id": "18.2", "title": "Add HEALTHCHECK to loki container", "status": "done" },
+        { "id": "18.3", "title": "Restart loki container", "status": "done" },
+        { "id": "18.4", "title": "Verify curl localhost:3100/ready returns 200", "status": "done" }
       ],
       "acceptanceCriteria": ["AC-031-3"],
       "files": ["/srv/apps/monitoring/docker-compose.yml"],
@@ -333,10 +405,10 @@
       "priority": "medium",
       "dependencies": [],
       "subtasks": [
-        {"id": "19.1", "title": "Create zfs-snapshot-prune.sh script", "status": "pending"},
-        {"id": "19.2", "title": "Add cron: 0 */3 * * *", "status": "pending"},
-        {"id": "19.3", "title": "Manual run creates snapshot of tank", "status": "pending"},
-        {"id": "19.4", "title": "Test prune dry-run", "status": "pending"}
+        { "id": "19.1", "title": "Create zfs-snapshot-prune.sh script", "status": "pending" },
+        { "id": "19.2", "title": "Add cron: 0 */3 * * *", "status": "pending" },
+        { "id": "19.3", "title": "Manual run creates snapshot of tank", "status": "pending" },
+        { "id": "19.4", "title": "Test prune dry-run", "status": "pending" }
       ],
       "acceptanceCriteria": ["AC-031-5"],
       "files": ["/srv/ops/scripts/zfs-snapshot-prune.sh"],
@@ -351,13 +423,16 @@
       "priority": "medium",
       "dependencies": [],
       "subtasks": [
-        {"id": "20.1", "title": "Run sync.sh without errors", "status": "pending"},
-        {"id": "20.2", "title": "Verify memory/specs/ has 10+ SPEC files", "status": "pending"},
-        {"id": "20.3", "title": "Verify memory/adrs/ has ADR files", "status": "pending"},
-        {"id": "20.4", "title": "Verify manifest last_sync = today", "status": "pending"}
+        { "id": "20.1", "title": "Run sync.sh without errors", "status": "pending" },
+        { "id": "20.2", "title": "Verify memory/specs/ has 10+ SPEC files", "status": "pending" },
+        { "id": "20.3", "title": "Verify memory/adrs/ has ADR files", "status": "pending" },
+        { "id": "20.4", "title": "Verify manifest last_sync = today", "status": "pending" }
       ],
       "acceptanceCriteria": ["AC-031-7"],
-      "files": ["/home/will/.claude/mcps/ai-context-sync/sync.sh", "/home/will/.claude/mcps/ai-context-sync/manifest.json"],
+      "files": [
+        "/home/will/.claude/mcps/ai-context-sync/sync.sh",
+        "/home/will/.claude/mcps/ai-context-sync/manifest.json"
+      ],
       "testRequired": false,
       "specRef": "docs/SPECS/SPEC-031-homelab-maintenance.md"
     },
@@ -369,13 +444,26 @@
       "priority": "high",
       "dependencies": [],
       "subtasks": [
-        {"id": "21.1", "title": "Fix config.py", "status": "pending"},
-        {"id": "21.2", "title": "Fix browser_agent.py", "status": "pending"},
-        {"id": "21.3", "title": "Fix smoke-tests/smoke-chat-zappro-site-e2e.sh", "status": "pending"},
-        {"id": "21.4", "title": "Fix scripts/cursor-loop-research-minimax.sh", "status": "pending"}
+        { "id": "21.1", "title": "Fix config.py", "status": "pending" },
+        { "id": "21.2", "title": "Fix browser_agent.py", "status": "pending" },
+        {
+          "id": "21.3",
+          "title": "Fix smoke-tests/smoke-chat-zappro-site-e2e.sh",
+          "status": "pending"
+        },
+        {
+          "id": "21.4",
+          "title": "Fix scripts/cursor-loop-research-minimax.sh",
+          "status": "pending"
+        }
       ],
       "acceptanceCriteria": ["Zero hardcoded project IDs"],
-      "files": ["apps/perplexity-agent/config.py", "apps/perplexity-agent/agent/browser_agent.py", "smoke-tests/smoke-chat-zappro-site-e2e.sh", "scripts/cursor-loop-research-minimax.sh"],
+      "files": [
+        "apps/perplexity-agent/config.py",
+        "apps/perplexity-agent/agent/browser_agent.py",
+        "smoke-tests/smoke-chat-zappro-site-e2e.sh",
+        "scripts/cursor-loop-research-minimax.sh"
+      ],
       "testRequired": false,
       "specRef": "docs/SPECS/SPEC-041-monorepo-estado-arte-polish.md"
     },
@@ -387,9 +475,9 @@
       "priority": "high",
       "dependencies": [],
       "subtasks": [
-        {"id": "22.1", "title": "Create eslint.config.js at root", "status": "pending"},
-        {"id": "22.2", "title": "Configure per-workspace overrides", "status": "pending"},
-        {"id": "22.3", "title": "Verify eslint --cache works", "status": "pending"}
+        { "id": "22.1", "title": "Create eslint.config.js at root", "status": "pending" },
+        { "id": "22.2", "title": "Configure per-workspace overrides", "status": "pending" },
+        { "id": "22.3", "title": "Verify eslint --cache works", "status": "pending" }
       ],
       "acceptanceCriteria": ["ESLint flat config working with --cache"],
       "files": ["eslint.config.js"],
@@ -404,9 +492,9 @@
       "priority": "high",
       "dependencies": [],
       "subtasks": [
-        {"id": "23.1", "title": "Create .husky/pre-commit", "status": "pending"},
-        {"id": "23.2", "title": "Create lint-staged.config.js", "status": "pending"},
-        {"id": "23.3", "title": "Verify pre-commit runs lint-staged", "status": "pending"}
+        { "id": "23.1", "title": "Create .husky/pre-commit", "status": "pending" },
+        { "id": "23.2", "title": "Create lint-staged.config.js", "status": "pending" },
+        { "id": "23.3", "title": "Verify pre-commit runs lint-staged", "status": "pending" }
       ],
       "acceptanceCriteria": ["Husky pre-commit running lint-staged on staged files"],
       "files": [".husky/pre-commit", "lint-staged.config.js"],
@@ -417,14 +505,14 @@
       "id": 24,
       "title": "SPEC-041 T-008: Enhance turbo.json — add deploy, db:generate, clean tasks",
       "description": "Add missing tasks to turbo.json: deploy, db:generate, clean. Add global env vars and cacheDir",
-      "status": "pending",
+      "status": "done",
       "priority": "medium",
       "dependencies": [],
       "subtasks": [
-        {"id": "24.1", "title": "Add deploy task to turbo.json", "status": "pending"},
-        {"id": "24.2", "title": "Add db:generate task to turbo.json", "status": "pending"},
-        {"id": "24.3", "title": "Add clean task to turbo.json", "status": "pending"},
-        {"id": "24.4", "title": "Add global env vars and cacheDir", "status": "pending"}
+        { "id": "24.1", "title": "Add deploy task to turbo.json", "status": "pending" },
+        { "id": "24.2", "title": "Add db:generate task to turbo.json", "status": "pending" },
+        { "id": "24.3", "title": "Add clean task to turbo.json", "status": "pending" },
+        { "id": "24.4", "title": "Add global env vars and cacheDir", "status": "pending" }
       ],
       "acceptanceCriteria": ["turbo.json valid with new tasks"],
       "files": ["turbo.json"],
@@ -435,13 +523,13 @@
       "id": 25,
       "title": "SPEC-041 T-010: Add tsconfig.base.json with strict mode",
       "description": "Create root tsconfig.base.json with strict mode: strict:true, noImplicitAny, strictNullChecks, noUnusedLocals, noImplicitReturns, noFallthroughCasesInSwitch, noUncheckedIndexedAccess",
-      "status": "pending",
+      "status": "done",
       "priority": "medium",
       "dependencies": [],
       "subtasks": [
-        {"id": "25.1", "title": "Create tsconfig.base.json", "status": "pending"},
-        {"id": "25.2", "title": "Add strict mode compiler options", "status": "pending"},
-        {"id": "25.3", "title": "Update apps/*/tsconfig.json to extend base", "status": "pending"}
+        { "id": "25.1", "title": "Create tsconfig.base.json", "status": "done" },
+        { "id": "25.2", "title": "Add strict mode compiler options", "status": "done" },
+        { "id": "25.3", "title": "Update apps/*/tsconfig.json to extend base", "status": "done" }
       ],
       "acceptanceCriteria": ["TypeScript strict mode enabled globally"],
       "files": ["tsconfig.base.json"],
@@ -452,21 +540,29 @@
       "id": 26,
       "title": "SPEC-034: Create 10 MiniMax skills from research",
       "description": "Create 10 skills from SPEC-034 research: minimax-code-gen (/codegen), minimax-security-audit (/msec), doc-maintenance (/dm), minimax-debugger (/bug-triage), backend-scaffold (/bcaffold), infra-from-spec (/infra-gen), review-minimax (/mxr), + 3 cron jobs",
-      "status": "pending",
+      "status": "done",
       "priority": "high",
       "dependencies": [],
       "subtasks": [
-        {"id": "26.1", "title": "Create minimax-code-gen skill", "status": "pending"},
-        {"id": "26.2", "title": "Create minimax-security-audit skill", "status": "pending"},
-        {"id": "26.3", "title": "Create doc-maintenance skill", "status": "pending"},
-        {"id": "26.4", "title": "Create minimax-debugger skill", "status": "pending"},
-        {"id": "26.5", "title": "Create backend-scaffold skill", "status": "pending"},
-        {"id": "26.6", "title": "Create infra-from-spec skill", "status": "pending"},
-        {"id": "26.7", "title": "Create review-minimax skill", "status": "pending"},
-        {"id": "26.8", "title": "Create slash command files", "status": "pending"}
+        { "id": "26.1", "title": "Create minimax-code-gen skill", "status": "done" },
+        { "id": "26.2", "title": "Create minimax-security-audit skill", "status": "done" },
+        { "id": "26.3", "title": "Create doc-maintenance skill", "status": "done" },
+        { "id": "26.4", "title": "Create minimax-debugger skill", "status": "done" },
+        { "id": "26.5", "title": "Create backend-scaffold skill", "status": "done" },
+        { "id": "26.6", "title": "Create infra-from-spec skill", "status": "done" },
+        { "id": "26.7", "title": "Create review-minimax skill", "status": "done" },
+        { "id": "26.8", "title": "Create slash command files", "status": "done" }
       ],
       "acceptanceCriteria": ["AC-1 through AC-6 from SPEC-034"],
-      "files": [".claude/skills/minimax-code-gen/", ".claude/skills/minimax-security-audit/", ".claude/skills/doc-maintenance/", ".claude/skills/minimax-debugger/", ".claude/skills/backend-scaffold/", ".claude/skills/infra-from-spec/", ".claude/skills/review-minimax/"],
+      "files": [
+        ".claude/skills/minimax-code-gen/",
+        ".claude/skills/minimax-security-audit/",
+        ".claude/skills/doc-maintenance/",
+        ".claude/skills/minimax-debugger/",
+        ".claude/skills/backend-scaffold/",
+        ".claude/skills/infra-from-spec/",
+        ".claude/skills/review-minimax/"
+      ],
       "testRequired": false,
       "specRef": "docs/SPECS/SPEC-034-minimax-agent-use-cases.md"
     },
@@ -478,12 +574,16 @@
       "priority": "high",
       "dependencies": [],
       "subtasks": [
-        {"id": "27.1", "title": "Build static app with file browser UI", "status": "pending"},
-        {"id": "27.2", "title": "Implement Google OAuth via Infisical SDK", "status": "pending"},
-        {"id": "27.3", "title": "Implement markdown rendering with marked.js", "status": "pending"},
-        {"id": "27.4", "title": "Configure nginx for SPA routing", "status": "pending"},
-        {"id": "27.5", "title": "Deploy via Coolify on port 4081", "status": "pending"},
-        {"id": "27.6", "title": "Configure Cloudflare Access", "status": "pending"}
+        { "id": "27.1", "title": "Build static app with file browser UI", "status": "pending" },
+        { "id": "27.2", "title": "Implement Google OAuth via Infisical SDK", "status": "pending" },
+        {
+          "id": "27.3",
+          "title": "Implement markdown rendering with marked.js",
+          "status": "pending"
+        },
+        { "id": "27.4", "title": "Configure nginx for SPA routing", "status": "pending" },
+        { "id": "27.5", "title": "Deploy via Coolify on port 4081", "status": "pending" },
+        { "id": "27.6", "title": "Configure Cloudflare Access", "status": "pending" }
       ],
       "acceptanceCriteria": ["SC-1 through SC-7 from SPEC-037"],
       "files": ["apps/obsidian-web/"],
@@ -493,7 +593,7 @@
   ],
   "meta": {
     "totalTasks": 27,
-    "completedTasks": 0,
+    "completedTasks": 1,
     "pendingTasks": 27,
     "generatedAt": "2026-04-14T14:00:00Z",
     "projectName": "zappro-monorepo",
