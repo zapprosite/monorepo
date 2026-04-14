@@ -723,29 +723,29 @@
       "id": 21,
       "title": "SPEC-041 T-001: Fix hardcoded INFISICAL_PROJECT_ID in perplexity-agent/config.py",
       "description": "Replace hardcoded '98b2' project ID with os.environ.get('INFISICAL_PROJECT_ID')",
-      "status": "pending",
+      "status": "done",
       "priority": "high",
       "dependencies": [],
       "subtasks": [
         {
           "id": "21.1",
           "title": "Fix config.py",
-          "status": "pending"
+          "status": "done"
         },
         {
           "id": "21.2",
           "title": "Fix browser_agent.py",
-          "status": "pending"
+          "status": "done"
         },
         {
           "id": "21.3",
           "title": "Fix smoke-tests/smoke-chat-zappro-site-e2e.sh",
-          "status": "pending"
+          "status": "done"
         },
         {
           "id": "21.4",
           "title": "Fix scripts/cursor-loop-research-minimax.sh",
-          "status": "pending"
+          "status": "done"
         }
       ],
       "acceptanceCriteria": ["Zero hardcoded project IDs"],
@@ -827,22 +827,22 @@
         {
           "id": "24.1",
           "title": "Add deploy task to turbo.json",
-          "status": "pending"
+          "status": "done"
         },
         {
           "id": "24.2",
           "title": "Add db:generate task to turbo.json",
-          "status": "pending"
+          "status": "done"
         },
         {
           "id": "24.3",
           "title": "Add clean task to turbo.json",
-          "status": "pending"
+          "status": "done"
         },
         {
           "id": "24.4",
           "title": "Add global env vars and cacheDir",
-          "status": "pending"
+          "status": "done"
         }
       ],
       "acceptanceCriteria": ["turbo.json valid with new tasks"],
