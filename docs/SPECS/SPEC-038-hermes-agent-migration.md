@@ -184,36 +184,57 @@ perplexity_browser/
 
 ## Success Criteria
 
-| #     | Criterion                                                | Status | Notes                                                                               |
-| ----- | -------------------------------------------------------- | ------ | ----------------------------------------------------------------------------------- |
-| SC-1  | Hermes-Agent instalado e configurado no Ubuntu Desktop   | ✅     | hermes v0.9.0 installed                                                             |
-| SC-2  | `hermes claw migrate` executado com sucesso              | ✅     | 21 items migrated                                                                   |
-| SC-3  | MiniMax 2.7 configurado como primary model               | ✅     | In config.yaml                                                                      |
-| SC-4  | Ollama qwen2.5vl:7b configurado como fallback (RTX 4090) | ✅     | Changed from gemma4 (gemma4 is legacy)                                              |
-| SC-5  | perplexity_browser skill criada e funcional              | ✅     |                                                                                     |
-| SC-6  | coolify_sre skill com restart loop detection             | ✅     | sre-monitor.sh active                                                               |
-| SC-7  | hermes.json com crons centralizados                      | ✅     | Crons installed and operational                                                     |
-| SC-8  | OpenClaw disable executado                               | ✅     | Containers stopped, migration complete                                              |
-| SC-9  | MCP server para Open WebUI configurado                   | ⚠️     | hermes mcp serve exits after each request (not persistent) — MCPO bridge not viable |
-| SC-10 | Zero true duplicates nos crons                           | ✅     |                                                                                     |
-| SC-11 | Hermes Gateway instalado e configurado                   | ✅     | 2026-04-14 — gateway as endpoint for bot.zappro.site                                |
-| SC-12 | Voice Pipeline integrado ao Hermes                       | ✅     | Kokoro TTS + wav2vec2 STT + TTS Bridge                                              |
+| #     | Criterion                                                | Status | Notes                                                                                            |
+| ----- | -------------------------------------------------------- | ------ | ------------------------------------------------------------------------------------------------ |
+| SC-1  | Hermes-Agent instalado e configurado no Ubuntu Desktop   | ✅     | hermes v0.9.0 installed                                                                          |
+| SC-2  | `hermes claw migrate` executado com sucesso              | ✅     | 21 items migrated                                                                                |
+| SC-3  | MiniMax 2.7 configurado como primary model               | ✅     | In config.yaml                                                                                   |
+| SC-4  | Ollama qwen2.5vl:7b configurado como fallback (RTX 4090) | ✅     | Changed from gemma4 (gemma4 is legacy)                                                           |
+| SC-5  | perplexity_browser skill criada e funcional              | ✅     |                                                                                                  |
+| SC-6  | coolify_sre skill com restart loop detection             | ✅     | sre-monitor.sh active                                                                            |
+| SC-7  | hermes.json com crons centralizados                      | ✅     | Crons installed and operational                                                                  |
+| SC-8  | OpenClaw disable executado                               | ✅     | Containers stopped, migration complete                                                           |
+| SC-9  | MCP server para Open WebUI configurado                   | ⚠️     | MCPO functional, 10 messaging tools available. Hermes skills NOT via MCP. OpenWebUI not running. |
+| SC-10 | Zero true duplicates nos crons                           | ✅     |                                                                                                  |
+| SC-11 | Hermes Gateway instalado e configurado                   | ✅     | 2026-04-14 — gateway as endpoint for bot.zappro.site                                             |
+| SC-12 | Voice Pipeline integrado ao Hermes                       | ✅     | Kokoro TTS + wav2vec2 STT + TTS Bridge                                                           |
 
 ---
 
 ## Implementation Notes
 
-### hermes mcp serve Limitation
+### hermes mcp serve Behavior
 
-O `hermes mcp serve` **não é persistente** — ele fecha após cada requisição JSON-RPC. Isso significa:
+O `hermes mcp serve` **termina após processar uma requisição** — este é o comportamento esperado, não um bug.
 
-- MCPO bridge falha porque precisa de modo long-running
-- hermes-agent não consegue servir como MCP server tradicional para Open WebUI
-- **Solução implementada:** Usar hermes gateway como endpoint para bot.zappro.site
+- `hermes mcp serve` usa transporte STDIO
+- Após processar uma requisição JSON-RPC via stdin, ele encerra
+- O **MCPO proxy (porta 8092)** gerencia o ciclo de vida — inicia hermes-mcp-serve sob demanda para cada requisição HTTP
+- **Não precisa de watchdog** — MCPO inicia hermes-mcp-serve para cada requisição
+
+### Available MCP Tools
+
+**Via hermes mcp serve (STDIO via MCPO):**
+
+- `conversations_list` — Lista conversas de Telegram, Discord, etc.
+- `messages_send` — Envia mensagem para plataforma
+- `channels_list` — Lista canais disponíveis
+- [10 ferramentas de messaging total]
+
+**NÃO disponíveis via MCP:**
+
+- `coolify_sre` — via CLI `hermes-sre-monitor.sh`
+- `perplexity_browser` — via skill Python
 
 ### Recommended Path Forward
 
-Para bot.zappro.site, o **hermes gateway** é o caminho recomendado em vez de MCPO bridge.
+Para **bot.zappro.site**, o **hermes gateway** (porta 8642, API OpenAI-compatible) é o caminho recomendado.
+
+Para **Open WebUI + MCP**, a configuração requer:
+
+1. OpenWebUI deployed (atualmente: exited)
+2. OpenWebUI como MCP client → conectar a `http://host.docker.internal:8092/hermes`
+3. Funcional: apenas ferramentas de messaging (não skills Hermes)
 
 ### OpenClaw Status
 
@@ -357,6 +378,120 @@ python3 ~/.hermes/skills/coolify_sre/hermes_integration.py parse
 - `health` — ✅ 5 endpoints + 12 subdomains verificados
 - `diagnose zappro-litellm` — ✅ RCA executado, logs extraidos, causa provavel: Connection-Refused (Redis unavailable)
 - `parse` — ✅ JSON com ultimos 20 logs do sre-monitor.log
+
+---
+
+## TASK-HERMES-012: Configure MCP Server for Open WebUI (2026-04-14)
+
+**Objetivo:** Configure Open WebUI to use Hermes as MCP server for tool calling.
+
+### Current Architecture
+
+```
+OpenWebUI (MCP Client)
+  → MCPO Proxy :8092 (HTTP→STDIO bridge)
+    → hermes mcp serve (STDIO, exits after each request)
+      → Hermes messaging platform (telegram, discord, etc.)
+```
+
+### Findings
+
+| Component              | Status                | Details                                                |
+| ---------------------- | --------------------- | ------------------------------------------------------ |
+| MCPO proxy             | ✅ RUNNING            | Port 8092, PID 1917404                                 |
+| hermes-mcp-serve       | ✅ FUNCTIONAL         | STDIO mode, exits after each request (expected)        |
+| Hermes messaging tools | ✅ 10 tools available | conversations_list, messages_send, channels_list, etc. |
+| Hermes skills MCP      | ❌ NOT AVAILABLE      | coolify_sre, perplexity_browser are CLI/SDK only       |
+| OpenWebUI              | ❌ NOT RUNNING        | Coolify service status: exited                         |
+| chat.zappro.site       | ⚠️ Cloudflare Access  | Not serving OpenWebUI (redirects to login)             |
+
+### Available MCP Tools (via MCPO)
+
+**Messaging Platform Tools** (via `http://localhost:8092/hermes/*`):
+
+| Tool                    | Description                                                 |
+| ----------------------- | ----------------------------------------------------------- |
+| `conversations_list`    | List messaging conversations across Telegram, Discord, etc. |
+| `conversation_get`      | Get conversation details by session key                     |
+| `messages_read`         | Read message history from a conversation                    |
+| `messages_send`         | Send message to a platform target                           |
+| `channels_list`         | List available messaging channels                           |
+| `events_poll`           | Poll for new conversation events                            |
+| `events_wait`           | Long-poll for next event                                    |
+| `attachments_fetch`     | List non-text attachments                                   |
+| `permissions_list_open` | List pending approval requests                              |
+| `permissions_respond`   | Respond to approval requests                                |
+
+**NOT available via MCP:**
+
+- `coolify_sre` — invoked via `hermes-sre-monitor.sh` CLI
+- `perplexity_browser` — invoked via Hermes Python skill
+
+### MCPO HTTP Endpoints
+
+```
+POST http://localhost:8092/hermes/conversations_list
+POST http://localhost:8092/hermes/conversation_get
+POST http://localhost:8092/hermes/messages_read
+POST http://localhost:8092/hermes/messages_send
+POST http://localhost:8092/hermes/channels_list
+POST http://localhost:8092/hermes/events_poll
+POST http://localhost:8092/hermes/events_wait
+POST http://localhost:8092/hermes/attachments_fetch
+POST http://localhost:8092/hermes/permissions_list_open
+POST http://localhost:8092/hermes/permissions_respond
+```
+
+### hermes mcp serve Behavior
+
+`hermes mcp serve` uses STDIO transport and exits after processing a single JSON-RPC request. This is **expected behavior**, not a bug. The MCPO proxy handles process lifecycle:
+
+1. HTTP request arrives at MCPO (:8092)
+2. MCPO starts `hermes mcp serve` as subprocess
+3. MCPO sends JSON-RPC request via stdin
+4. hermes processes request, exits
+5. MCPO returns HTTP response
+
+**No watchdog needed** — MCPO handles restart on demand.
+
+### OpenWebUI Configuration
+
+To connect OpenWebUI to Hermes MCP tools:
+
+1. **Deploy OpenWebUI** (Coolify service `open-webui-wbmqefxhd7vdn2dme3i6s9an` is currently exited)
+2. **Admin → Connections → MCP Servers → Add**
+3. **Server URL:** `http://host.docker.internal:8092/hermes`
+4. **Tools available:** Messaging platform tools only
+
+**Alternative:** Use Hermes as OpenAI API backend (no MCP):
+
+```bash
+# In OpenWebUI admin:
+# Settings → Models → Add Model
+# API Base URL: http://host.docker.internal:8642/v1
+# API Key: <HERMES_API_KEY>
+```
+
+This uses Hermes chat completions but NOT MCP tools.
+
+### Limitations
+
+1. **Hermes skills (coolify_sre, perplexity_browser) NOT exposed via MCP** — These are CLI/SDK-based, not MCP-native
+2. **OpenWebUI not running** — Coolify service is `exited`, container not created
+3. **chat.zappro.site shows Cloudflare Access** — OpenWebUI not deployed
+
+### Watchdog Script
+
+Created `/srv/ops/scripts/hermes-mcp-watchdog.sh` for manual management:
+
+```bash
+hermes-mcp-watchdog.sh start   # Start watchdog
+hermes-mcp-watchdog.sh stop    # Stop watchdog
+hermes-mcp-watchdog.sh status   # Check status
+hermes-mcp-watchdog.sh test     # Test hermes-mcp-serve directly
+```
+
+**Note:** Watchdog is not needed for MCPO (MCPO handles process lifecycle). The watchdog is for debugging.
 
 ---
 
