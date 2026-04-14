@@ -53,18 +53,18 @@ Services marked **PINNED** are stable configurations that require the MASTER_PAS
 
 These services are **never changeable** — treat as permanent infrastructure:
 
-| Service           | Type                                                              | Reason                                                        | Protected By |
-| ----------------- | ----------------------------------------------------------------- | ------------------------------------------------------------- | ------------ |
-| **coolify-proxy** | Traefik reverse proxy                                             | Port 8080 conflict resolution; cannot be remapped             | SPEC-009     |
-| **cloudflared**   | Tunnel daemon                                                     | bot.zappro.site routing; tunnel cannot be recreated           | SPEC-027     |
-| **coolify-db**    | PostgreSQL database                                               | Coolify state store; changing breaks all Coolify metadata     | SPEC-009     |
-| **prometheus**    | Metrics database                                                  | Alert history and monitoring data integrity                   | SPEC-023     |
-| **grafana**       | Dashboards                                                        | Dashboard configs and data sources                            | SPEC-023     |
-| **loki**          | Log aggregation                                                   | Log retention and query history                               | SPEC-023     |
-| **alertmanager**  | Alert routing                                                     | Notification pipeline integrity                               | SPEC-023     |
-| **n8n**           | Workflow automation                                               | Production workflows depend on it                             | SPEC-009     |
-| **Hermes Agent**  | Agent brain (bare metal Ubuntu Desktop, :8642 gateway, :8092 MCP) | Agent brain, self-improving; Telegram polling depends on this | SPEC-045     |
-| **Ollama**        | Local LLM inference (Ubuntu Desktop, :11434)                      | RTX 4090 GPU inference; model cache and validation state      | SPEC-045     |
+| Service           | Type                                                              | Reason                                                                         | Protected By |
+| ----------------- | ----------------------------------------------------------------- | ------------------------------------------------------------------------------ | ------------ |
+| **coolify-proxy** | Traefik reverse proxy                                             | Port 8080 conflict resolution; cannot be remapped                              | SPEC-009     |
+| **cloudflared**   | Tunnel daemon                                                     | hermes.zappro.site + \*.zappro.site routing active; tunnel cannot be recreated | SPEC-027     |
+| **coolify-db**    | PostgreSQL database                                               | Coolify state store; changing breaks all Coolify metadata                      | SPEC-009     |
+| **prometheus**    | Metrics database                                                  | Alert history and monitoring data integrity                                    | SPEC-023     |
+| **grafana**       | Dashboards                                                        | Dashboard configs and data sources                                             | SPEC-023     |
+| **loki**          | Log aggregation                                                   | Log retention and query history                                                | SPEC-023     |
+| **alertmanager**  | Alert routing                                                     | Notification pipeline integrity                                                | SPEC-023     |
+| **n8n**           | Workflow automation                                               | Production workflows depend on it                                              | SPEC-009     |
+| **Hermes Agent**  | Agent brain (bare metal Ubuntu Desktop, :8642 gateway, :8092 MCP) | Agent brain, self-improving; Telegram polling depends on this                  | SPEC-045     |
+| **Ollama**        | Local LLM inference (Ubuntu Desktop, :11434)                      | RTX 4090 GPU inference; model cache and validation state                       | SPEC-045     |
 
 **IMMUTABLE means:** Do not propose updates, restarts, config changes, or replacements — ever. If an IMMUTABLE service fails, escalate to human.
 

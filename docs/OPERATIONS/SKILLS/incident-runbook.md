@@ -42,8 +42,8 @@ docker ps --format "table {{.Names}}\t{{.Status}}" | grep -E "openclaw|litellm|w
 # Check Traefik (coolify-proxy)
 curl -sf -m 5 http://localhost:80/ping && echo "Traefik OK" || echo "Traefik FAIL"
 
-# Check OpenClaw route (via Cloudflare Tunnel)
-curl -sf -m 10 -o /dev/null -w "%{http_code}" https://bot.zappro.site/ && echo " OpenClaw route OK"
+# Check Hermes Gateway route (via Cloudflare Tunnel)
+curl -sf -m 10 -o /dev/null -w "%{http_code}" https://hermes.zappro.site/health && echo " Hermes Gateway route OK"
 
 # Run smoke test
 bash tasks/smoke-tests/pipeline-openclaw-voice.sh 2>&1 | tail -10
@@ -54,13 +54,13 @@ bash docs/OPERATIONS/SKILLS/verify-network.sh
 
 **Expected healthy state:**
 
-| Container | Status |
-|-----------|--------|
-| `coolify-proxy` | Up |
-| `openclaw-qgtzrmi6771lt8l7x8rqx72f` | Up |
-| `zappro-litellm` | Up |
-| `zappro-wav2vec2` | Up |
-| `zappro-litellm-db` | Up |
+| Container                           | Status |
+| ----------------------------------- | ------ |
+| `coolify-proxy`                     | Up     |
+| `openclaw-qgtzrmi6771lt8l7x8rqx72f` | Up     |
+| `zappro-litellm`                    | Up     |
+| `zappro-wav2vec2`                   | Up     |
+| `zappro-litellm-db`                 | Up     |
 
 ---
 
@@ -68,16 +68,16 @@ bash docs/OPERATIONS/SKILLS/verify-network.sh
 
 Match symptoms to the most likely cause:
 
-| Symptom | Likely Root Cause | First Action |
-|---------|-----------------|--------------|
-| Site returning **502** | Container down OR network isolation | `docker ps`, check networks |
-| Site returning **504** | Traefik cannot reach backend | Check shared network |
-| `curl localhost:80` fails | Traefik container down | `docker restart coolify-proxy` |
-| DNS fails / tunnel down | Cloudflare Tunnel dead | `ps aux \| grep cloudflared` |
-| Container "Up" but route 502 | Network isolation | Run `verify-network.sh` |
-| Container constantly restarting | OOM, crash loop | `docker logs --tail 50` |
-| LiteLLM returns **500** | Backend service down | Check wav2vec2, ollama |
-| wav2vec2 returns **500** | wav2vec2 container crashed | `docker logs zappro-wav2vec2` |
+| Symptom                         | Likely Root Cause                   | First Action                   |
+| ------------------------------- | ----------------------------------- | ------------------------------ |
+| Site returning **502**          | Container down OR network isolation | `docker ps`, check networks    |
+| Site returning **504**          | Traefik cannot reach backend        | Check shared network           |
+| `curl localhost:80` fails       | Traefik container down              | `docker restart coolify-proxy` |
+| DNS fails / tunnel down         | Cloudflare Tunnel dead              | `ps aux \| grep cloudflared`   |
+| Container "Up" but route 502    | Network isolation                   | Run `verify-network.sh`        |
+| Container constantly restarting | OOM, crash loop                     | `docker logs --tail 50`        |
+| LiteLLM returns **500**         | Backend service down                | Check wav2vec2, ollama         |
+| wav2vec2 returns **500**        | wav2vec2 container crashed          | `docker logs zappro-wav2vec2`  |
 
 ---
 
@@ -102,9 +102,9 @@ Is Traefik healthy?
           docker start <container-name>
           docker logs --tail 20 <container-name>
 
-      YES
+      NO
       └── Is route working?
-          curl -sf -m 10 https://bot.zappro.site/
+          curl -sf -m 10 https://hermes.zappro.site/health
 
           502 / 504
           └── Network isolation — run verify-network.sh
@@ -274,21 +274,21 @@ docker restart coolify-proxy
 
 ### Container Names Reference
 
-| Service | Container Name |
-|---------|---------------|
-| Traefik | `coolify-proxy` |
+| Service      | Container Name                      |
+| ------------ | ----------------------------------- |
+| Traefik      | `coolify-proxy`                     |
 | OpenClaw Bot | `openclaw-qgtzrmi6771lt8l7x8rqx72f` |
-| LiteLLM | `zappro-litellm` |
-| LiteLLM DB | `zappro-litellm-db` |
-| wav2vec2 STT | `zappro-wav2vec2` |
+| LiteLLM      | `zappro-litellm`                    |
+| LiteLLM DB   | `zappro-litellm-db`                 |
+| wav2vec2 STT | `zappro-wav2vec2`                   |
 
 ### Network Names Reference
 
-| Network | Purpose |
-|---------|---------|
+| Network                    | Purpose                    |
+| -------------------------- | -------------------------- |
 | `qgtzrmi6771lt8l7x8rqx72f` | OpenClaw container network |
-| `zappro-lite_default` | LiteLLM + wav2vec2 network |
-| `coolify` | Traefik external network |
+| `zappro-lite_default`      | LiteLLM + wav2vec2 network |
+| `coolify`                  | Traefik external network   |
 
 ---
 

@@ -277,13 +277,13 @@ main() {
         overall_status="DEGRADED"
     fi
 
-    # OpenClaw routing via Cloudflare Tunnel
-    local openclaw_code
-    openclaw_code=$(check_route "https://bot.zappro.site/")
-    if [[ "$openclaw_code" == "200" || "$openclaw_code" == "401" ]]; then
-        log "INFO" "ROUTE_OK" "openclaw-tunnel" "https://bot.zappro.site/ -> ${openclaw_code}"
+    # Hermes Gateway routing via Cloudflare Tunnel
+    local hermes_code
+    hermes_code=$(check_route "https://hermes.zappro.site/health")
+    if [[ "$hermes_code" == "200" ]]; then
+        log "INFO" "ROUTE_OK" "hermes-tunnel" "https://hermes.zappro.site/health -> ${hermes_code}"
     else
-        log "ALERT" "ROUTE_FAILED" "openclaw-tunnel" "https://bot.zappro.site/ -> ${openclaw_code} (expected 200 or 401)"
+        log "ALERT" "ROUTE_FAILED" "hermes-tunnel" "https://hermes.zappro.site/health -> ${hermes_code} (expected 200)"
         alert_count=$((alert_count + 1))
         overall_status="DEGRADED"
     fi

@@ -17,12 +17,14 @@ sudo zfs snapshot -r tank@pre-$(date +%Y%m%d-%H%M%S)-$(whoami)
 ## Regra 2: Docker Bridge ≠ Host Native Services
 
 **NUNCA:**
+
 ```bash
 # nativo do host como backend de container
 Container → TCP → host:8201 (processo Python/Node)
 ```
 
 **SEMPRE:**
+
 ```bash
 # serviço containerizado na mesma network
 Container → TCP → outro-container:8201 (mesma Docker network)
@@ -35,11 +37,13 @@ Container → TCP → outro-container:8201 (mesma Docker network)
 ## Regra 3: Testar a Rota Real, Não a Local
 
 **ERRADO:**
+
 ```bash
 curl localhost:8201  # funciona do host → "está tudo bem"
 ```
 
 **CERTO:**
+
 ```bash
 docker exec liteLLM curl http://wav2vec2:8201/health  # rota real
 ```
@@ -53,32 +57,38 @@ Cloudflare Tunnel UP
         ↓
   Container pode não existir
         ↓
-  curl https://bot.zappro.site/ → 502
+  curl https://hermes.zappro.site/ → 200 OK (Hermes Gateway)
+  curl https://bot.zappro.site/ → 530 (PRUNED — DNS removido)
 ```
 
 **Verificar SEMPRE:**
+
 ```bash
 docker ps | grep <container-name>  # existe?
-curl https://<domain>/health        # responde 200?
+curl https://hermes.zappro.site/health        # responde 200?
 ```
 
 ---
 
-## Regra 5: Gateway OpenClaw É Loopback
+## Regra 5: Hermes Gateway Via Cloudflare Tunnel
 
-`OPENCLAW_GATEWAY_BIND=loopback` → `localhost:18789` **nunca** funciona externamente.
+`hermes.zappro.site` → Hermes Gateway (port 8642) via Cloudflare Tunnel.
 
 **Smoke test CERTO:**
-```bash
-# usa Cloudflare Tunnel
-curl https://bot.zappro.site/   # 401 = routing OK, só precisa auth
 
-# ou localhost:8080 (Traefik)
-curl http://localhost:8080/health
+```bash
+# Hermes Gateway via Cloudflare Tunnel
+curl https://hermes.zappro.site/health   # 200 = Hermes Gateway OK
+curl http://localhost:8642/health        # localhost health check
+
+# LiteLLM proxy
+curl https://llm.zappro.site/health       # 200 = LiteLLM OK
 ```
 
 **Smoke test ERRADO:**
+
 ```bash
+# loopback-only endpoints don't work externally
 curl http://localhost:18789/health  # loopback-only, SEMPRE falha
 ```
 
@@ -107,6 +117,7 @@ curl https://bot.zappro.site/  # pode ser 502
 ```
 
 **Verificar rota completa:**
+
 ```bash
 # 1. DNS
 nslookup openclaw.191.17.50.123.sslip.io
@@ -147,7 +158,7 @@ docker ps | grep <name>
 docker inspect <container> --format '{{json .NetworkSettings.Networks}}'
 
 # Rota completa funciona?
-curl -sf -m 10 -o /dev/null -w "%{http_code}" "https://bot.zappro.site/"
+curl -sf -m 10 -o /dev/null -w "%{http_code}" "https://hermes.zappro.site/health"
 
 # LiteLLM → wav2vec2 funciona?
 docker exec zappro-litellm curl -sf -m 5 "http://wav2vec2:8201/health"
@@ -157,19 +168,20 @@ docker exec zappro-litellm curl -sf -m 5 "http://wav2vec2:8201/health"
 
 ## Anti-Patterns
 
-| Anti-Pattern | Porque | Alternativa |
-|---|---|---|
-| Host process como backend | Docker bridge TCP fails | Containerizar |
-| Testar do host só | loopback não é rota real | Testar do container |
-| DNS OK = service OK | Tunnel pode estar UP sem container | Verificar container |
-| `localhost:18789` | loopback-only | `https://bot.zappro.site/` |
-| Health check OK = routing OK | pode ser route isolado | Testar rota completa |
+| Anti-Pattern                 | Porque                             | Alternativa                |
+| ---------------------------- | ---------------------------------- | -------------------------- |
+| Host process como backend    | Docker bridge TCP fails            | Containerizar              |
+| Testar do host só            | loopback não é rota real           | Testar do container        |
+| DNS OK = service OK          | Tunnel pode estar UP sem container | Verificar container        |
+| `localhost:18789`            | loopback-only                      | `https://bot.zappro.site/` |
+| Health check OK = routing OK | pode ser route isolado             | Testar rota completa       |
 
 ---
 
 ## Voice Stack (PT-BR)
 
 **Canonical Stack (SPEC-009):**
+
 - STT: `wav2vec2` @ :8201 (whisper-api container, host :8202→:8201)
 - STT Proxy: `wav2vec2-deepgram-proxy` @ :8203 (Deepgram API format)
 - TTS: `Kokoro` @ :8880 via `TTS Bridge` @ :8013
@@ -179,14 +191,15 @@ docker exec zappro-litellm curl -sf -m 5 "http://wav2vec2:8201/health"
 
 **Ports:**
 
-| Service | Port | Container |
-|---------|------|-----------|
-| whisper-api (wav2vec2) | 8202→8201 | zappro-wav2vec2 |
-| wav2vec2-deepgram-proxy | 8203 | zappro-wav2vec2 |
-| TTS Bridge | 8013 | zappro-tts-bridge |
-| Kokoro | 8880 | koro-zappro |
+| Service                 | Port      | Container         |
+| ----------------------- | --------- | ----------------- |
+| whisper-api (wav2vec2)  | 8202→8201 | zappro-wav2vec2   |
+| wav2vec2-deepgram-proxy | 8203      | zappro-wav2vec2   |
+| TTS Bridge              | 8013      | zappro-tts-bridge |
+| Kokoro                  | 8880      | koro-zappro       |
 
 **PROIBIDO:**
+
 - Kokoro direto (sem TTS Bridge)
 - Deepgram cloud direto (use wav2vec2-proxy :8203)
 - Whisper como STT

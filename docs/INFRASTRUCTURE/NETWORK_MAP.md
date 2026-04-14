@@ -248,16 +248,16 @@
 
 ### DevOps & Secrets
 
-| Container             | Imagem                       | Porta       | Rede                 | Status       |
-| --------------------- | ---------------------------- | ----------- | -------------------- | ------------ |
-| painel                | nginx:alpine                 | :4003       | host                 | ✅ healthy   |
-| searxng               | searxng/searxng:latest       | :8888       | bridge               | ✅ UP        |
-| list-web              | list-web:latest              | :4080→:80   | list-web_default     | ✅ healthy   |
-| obsidian-web          | obsidian-web:latest          | :4081→:80   | obsidian-web_default | ✅ healthy   |
-| supabase-health-proxy | supabase-health-proxy:latest | :5433→:3000 | bridge               | ⚠️ unhealthy |
-| connected_repo_db     | postgres:15-alpine           | :5432       | monorepo_default     | ✅ UP        |
-| zappro-redis          | redis:7.2.4-alpine           | :6379       | bridge               | ✅ UP        |
-| redis-opencode        | redis:7.2.4-alpine           | :6381       | bridge               | ✅ UP        |
+| Container             | Imagem                       | Porta       | Rede                 | Status                                                             |
+| --------------------- | ---------------------------- | ----------- | -------------------- | ------------------------------------------------------------------ |
+| painel                | nginx:alpine                 | :4003       | host                 | ✅ healthy                                                         |
+| searxng               | searxng/searxng:latest       | :8888       | bridge               | ✅ UP                                                              |
+| list-web              | list-web:latest              | :4080→:80   | list-web_default     | ✅ healthy                                                         |
+| obsidian-web          | obsidian-web:latest          | :4081→:80   | obsidian-web_default | ✅ healthy                                                         |
+| supabase-health-proxy | supabase-health-proxy:latest | :5433→:3000 | bridge               | ⚠️ PRUNED (2026-04-14 — container unhealthy, service discontinued) |
+| connected_repo_db     | postgres:15-alpine           | :5432       | monorepo_default     | ✅ UP                                                              |
+| zappro-redis          | redis:7.2.4-alpine           | :6379       | bridge               | ✅ UP                                                              |
+| redis-opencode        | redis:7.2.4-alpine           | :6381       | bridge               | ✅ UP                                                              |
 
 ---
 

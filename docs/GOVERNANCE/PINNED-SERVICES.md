@@ -173,39 +173,41 @@ curl -sf -X POST http://localhost:8201/v1/audio/transcriptions \
 ### 3. OPENCLAW BOT
 
 ```yaml
+# OPENCLAW — DEPRECATED/PRUNED (2026-04-14)
+# Container removed, bot.zappro.site DNS removed
+# Keeping this block as historical reference only
 container_name: 'openclaw-qgtzrmi6771lt8l7x8rqx72f'
 port: 8080 (interno)
 image: 'ghcr.io/openclaw/openclaw:2026.2.6'
 network: 'openclaw-qgtzrmi6771lt8l7x8rqx72f'
 fqdn: 'openclaw-qgtzrmi6771lt8l7x8rqx72f.191.17.50.123.sslip.io'
-tunnel_fqdn: 'bot.zappro.site'
+tunnel_fqdn: 'bot.zappro.site' # PRUNED — DNS removed 2026-04-14
 owner: 'will-zappro'
 pinned_date: '2026-03-10'
-status: 'PINNED'
+status: 'DEPRECATED'
 primary_model: 'minimax/MiniMax-M2.7'
 api_format: 'anthropic-messages' # NUNCA MUDAR
 ```
 
-**⚠️ REGRAS CRÍTICAS DO OPENCLAW:**
+**⚠️ OPENCLAW É LEGACY — DEPRECATED (2026-04-14):**
 
-- `model.primary` NUNCA pode ser `liteLLM/*` (crash api:undefined)
-- `minimax.api` SEMPRE deve ser `anthropic-messages`
-- LiteLLM só para GPU/voz/visão (NÃO como provider primário)
-- NÃO usar porta 8080 para outros serviços (reservada)
+- Container `openclaw-*` removido do Coolify
+- `bot.zappro.site` retornou 530 (DNS removido)
+- Usar `hermes.zappro.site` como endpoint Hermes Gateway
+- NÃO usar este bloco para novos deployments
 
 **Verification CMD:**
 
 ```bash
-docker ps --filter "name=openclaw-qgtzrmi6771lt8l7x8rqx72f" --format "{{.Status}}"
-nslookup openclaw-qgtzrmi6771lt8l7x8rqx72f.191.17.50.123.sslip.io
-curl -sf https://bot.zappro.site/ping
+# HERMES GATEWAY (substituto do OpenClaw)
+curl -sf http://localhost:8642/health
+curl -sf https://hermes.zappro.site/health
+nslookup hermes.zappro.site
 ```
 
 **WHAT_BREAKS_IF_CHANGED:**
 
-- Bot para de responder
-- Routing via Cloudflare Tunnel quebra
-- Modelo MiniMax-M2.7 é o único validado
+- N/A — OpenClaw deprecated, Hermes is the replacement
 
 ---
 
@@ -281,23 +283,28 @@ docker ps --format "{{.Names}}\t{{.Ports}}" | grep 8080
 container_name: 'cloudflared'
 port: 8080
 tunnel_name: 'openclaw-tunnel'
-tunnel_fqdn: 'bot.zappro.site'
+tunnel_fqdn: 'hermes.zappro.site' # primary routing — *.zappro.site
 owner: 'will-zappro'
 pinned_date: '2026-02-15'
 status: 'PINNED'
-why_pinned: 'Tunnel ativo não pode ser recriado sem perder o bot.zappro.site'
+why_pinned: 'Tunnel ativo — multiplos subdomains dependem dele'
+note: 'bot.zappro.site PRUNED 2026-04-14 — DNS removido, OpenClaw deprecated'
 ```
 
 **Verification CMD:**
 
 ```bash
-curl -sf https://bot.zappro.site/ping
+curl -sf https://hermes.zappro.site/health
+curl -sf https://llm.zappro.site/health
+for sub in chat coolify git hermes list llm md monitor painel qdrant todo; do
+  curl -sf --max-time 3 "https://${sub}.zappro.site" -o /dev/null -w "${sub}: %{http_code}\n" 2>/dev/null || echo "${sub}: ERR"
+done
 ```
 
 **WHAT_BREAKS_IF_CHANGED:**
 
-- bot.zappro.site para de responder
-- OpenClaw não é mais acessível via HTTPS
+- Todos os subdomains \*.zappro.site param de responder
+- Routing via Cloudflare Tunnel quebra
 - Requer recriar tunnel e atualizar DNS
 
 ---
