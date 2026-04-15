@@ -38,13 +38,17 @@
 /spec <desc> → docs/PRDs/ → docs/specflow/SPEC-*.md → /pg → tasks/pipeline.json
 ```
 
-## Secrets
+## Secrets & Env Vars (Anti-Hardcoded)
 
-- **`.env` é a ÚNICA fonte canónica** — Infisical foi pruned (legacy). Ler via `process.env` apenas.
-- Infisical SDK PROIBIDO em qualquer código (apps, packages, scripts)
-- Secret ausente → gerar (`openssl rand -hex 32`) e adicionar a `.env` + `.env.example` (placeholder)
-- Never hardcode secrets — regra de ouro anti-hardcoded
+> **Regra de ouro:** Zero hardcode — URLs, portas, tokens, model names, API keys. Tudo via `process.env`.
+
+- **`.env` é a ÚNICA fonte canónica** — Infisical pruned. Ler via `process.env` apenas.
+- Infisical SDK PROIBIDO em qualquer código
+- Secret ausente → `openssl rand -hex 32` → `.env` + `.env.example`
+- **URLs e portas também são env vars** — nunca `http://localhost:8202` hardcoded
+- Comentar topo de cada ficheiro: `// Anti-hardcoded: all config via process.env`
 - Run `/sec` audit antes de cada push
+- Regras: `.claude/rules/anti-hardcoded-env.md`
 
 ## Related
 
