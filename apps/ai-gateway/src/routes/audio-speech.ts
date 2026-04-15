@@ -39,7 +39,7 @@ export async function audioSpeechRoute(app: FastifyInstance) {
     const cleanedInput = await applyPtbrFilter(input, undefined, 'tts');
 
     try {
-      const audio = await $fetch<Blob>(`${TTS_BRIDGE_URL}/v1/audio/speech`, {
+      const audio = await $fetch<ArrayBuffer, 'arrayBuffer'>(`${TTS_BRIDGE_URL}/v1/audio/speech`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: {
@@ -49,12 +49,12 @@ export async function audioSpeechRoute(app: FastifyInstance) {
           speed,
           response_format,
         },
-        responseType: 'blob',
+        responseType: 'arrayBuffer',
         timeout: 30000,
       });
 
       reply.header('Content-Type', `audio/${response_format}`);
-      return reply.send(Buffer.from(await audio.arrayBuffer()));
+      return reply.send(Buffer.from(audio));
     } catch (err: unknown) {
       const e = err as { data?: unknown; statusCode?: number };
       return reply
