@@ -8,7 +8,7 @@
 > - Diagnosticar falhas de conectividade
 
 **Host:** homelab | **GPU:** RTX 4090 (24 GB VRAM) | **Driver:** NVIDIA 580.126.20
-**Kernel:** 6.17.0-20-generic | **Última atualização:** 2026-04-13
+**Kernel:** 6.17.0-20-generic | **Última atualização:** 2026-04-15 (SPEC-050: UFW+Traefik added, :8202 wav2vec2 fixed)
 
 ---
 
@@ -110,42 +110,42 @@
 
 ## 3. Portas do Host — Escopo Completo
 
-| Porta | Serviço                       | Acesso                  | Notas                                                     |
-| ----- | ----------------------------- | ----------------------- | --------------------------------------------------------- |
-| 22    | SSH                           | Anywhere (UFW)          | Aceso direto                                              |
-| 80    | cloudflared/Traefik           | Anywhere (UFW)          | HTTP → redirect HTTPS                                     |
-| 443   | cloudflared/Traefik           | Anywhere (UFW)          | HTTPS terminator                                          |
-| 8080  | cloudflared/Traefik           | Anywhere (UFW)          | cloudflared proxy                                         |
-| 2222  | Gitea SSH                     | Anywhere (UFW)          | ⚠️ Exposto — risco                                        |
-| 3000  | —                             | —                       | Reservado (Open WebUI)                                    |
-| 3100  | Grafana                       | LAN only (UFW)          | ⚠️ Sem auth detectada                                     |
-| 3101  | Loki                          | LAN only                | Log aggregation (Promtail)                                |
-| 3300  | Gitea HTTP                    | LAN only (UFW)          | Autenticado via Cloudflare                                |
-| 4000  | LiteLLM                       | localhost+LAN           | ✅ Auth requerida                                         |
-| 4001  | ~~OpenClaw Bot~~ (deprecated) | localhost               | Reservado                                                 |
-| 4003  | Claude Code Panel             | localhost               | ✅ Auth requerida                                         |
-| 4004  | perplexity-agent              | localhost               | ✅ Auth requerida                                         |
-| 3456  | openwebui-bridge-agent        | localhost               | ✅ Auth requerida                                         |
-| 3457  | openclaw-mcp-wrapper          | localhost               | ✅ Auth requerida                                         |
-| 5432  | PostgreSQL                    | 127.0.0.1 (UFW)         | 2 instâncias: coolify-db, connected_repo_db |
-| 5678  | n8n                           | Via tunnel (10.0.6.3)   | Via Docker network, não localhost                         |
-| 4080  | list-web                      | LAN only                | ⚠️ Sem auth                                               |
-| 4081  | obsidian-web                  | LAN only                | ⚠️ Sem auth                                               |
-| 5433  | supabase-health-proxy         | 127.0.0.1 (UFW)         | ⚠️ Sem auth (proxy to :3000)                              |
-| 5680  | n8n task runners              | localhost               | n8n workers                                               |
-| 6333  | Qdrant                        | 127.0.0.1 (UFW)         | ⚠️ Sem auth API                                           |
-| 6379  | Redis                         | 127.0.0.1 (UFW)         | 3 instâncias                                              |
-| 6381  | Redis opencode                | 127.0.0.1 (UFW)         | —                                                         |
-| 8000  | Coolify                       | Via tunnel (Cloudflare) | Via tunnel, exposto em LAN via UFW                        |
-| 8012  | Kokoro TTS                    | 127.0.0.1 (UFW)         | GPU TTS (host bridge)                                     |
-| 8050  | gotify                        | LAN only                | ⚠️ Sem auth                                               |
-| 8051  | alert-sender                  | LAN only                | ⚠️ Sem auth                                               |
-| 8888  | SearXNG                       | 127.0.0.1 (UFW)         | —                                                         |
-| 9090  | Prometheus                    | 127.0.0.1 (UFW)         | ⚠️ Sem auth                                               |
-| 9100  | Node Exporter                 | host network            | —                                                         |
-| 9250  | Cadvisor                      | 127.0.0.1 (UFW)         | —                                                         |
-| 9835  | nvidia-gpu-exporter           | 0.0.0.0 (UFW)           | ⚠️ Exposto LAN — métricas GPU                             |
-| 11434 | Ollama                        | 127.0.0.1 (UFW)         | GPU models (gemma3, qwen2.5-vl, nomic-embed)              |
+| Porta | Serviço                       | Acesso                  | Notas                                        |
+| ----- | ----------------------------- | ----------------------- | -------------------------------------------- |
+| 22    | SSH                           | Anywhere (UFW)          | Aceso direto                                 |
+| 80    | cloudflared/Traefik           | Anywhere (UFW)          | HTTP → redirect HTTPS                        |
+| 443   | cloudflared/Traefik           | Anywhere (UFW)          | HTTPS terminator                             |
+| 8080  | cloudflared/Traefik           | Anywhere (UFW)          | cloudflared proxy                            |
+| 2222  | Gitea SSH                     | Anywhere (UFW)          | ⚠️ Exposto — risco                           |
+| 3000  | —                             | —                       | Reservado (Open WebUI)                       |
+| 3100  | Grafana                       | LAN only (UFW)          | ⚠️ Sem auth detectada                        |
+| 3101  | Loki                          | LAN only                | Log aggregation (Promtail)                   |
+| 3300  | Gitea HTTP                    | LAN only (UFW)          | Autenticado via Cloudflare                   |
+| 4000  | LiteLLM                       | localhost+LAN           | ✅ Auth requerida                            |
+| 4001  | ~~OpenClaw Bot~~ (deprecated) | localhost               | Reservado                                    |
+| 4003  | Claude Code Panel             | localhost               | ✅ Auth requerida                            |
+| 4004  | perplexity-agent              | localhost               | ✅ Auth requerida                            |
+| 3456  | openwebui-bridge-agent        | localhost               | ✅ Auth requerida                            |
+| 3457  | openclaw-mcp-wrapper          | localhost               | ✅ Auth requerida                            |
+| 5432  | PostgreSQL                    | 127.0.0.1 (UFW)         | 2 instâncias: coolify-db, connected_repo_db  |
+| 5678  | n8n                           | Via tunnel (10.0.6.3)   | Via Docker network, não localhost            |
+| 4080  | list-web                      | LAN only                | ⚠️ Sem auth                                  |
+| 4081  | obsidian-web                  | LAN only                | ⚠️ Sem auth                                  |
+| 5433  | supabase-health-proxy         | 127.0.0.1 (UFW)         | ⚠️ Sem auth (proxy to :3000)                 |
+| 5680  | n8n task runners              | localhost               | n8n workers                                  |
+| 6333  | Qdrant                        | 127.0.0.1 (UFW)         | ⚠️ Sem auth API                              |
+| 6379  | Redis                         | 127.0.0.1 (UFW)         | 3 instâncias                                 |
+| 6381  | Redis opencode                | 127.0.0.1 (UFW)         | —                                            |
+| 8000  | Coolify                       | Via tunnel (Cloudflare) | Via tunnel, exposto em LAN via UFW           |
+| 8012  | Kokoro TTS                    | 127.0.0.1 (UFW)         | GPU TTS (host bridge)                        |
+| 8050  | gotify                        | LAN only                | ⚠️ Sem auth                                  |
+| 8051  | alert-sender                  | LAN only                | ⚠️ Sem auth                                  |
+| 8888  | SearXNG                       | 127.0.0.1 (UFW)         | —                                            |
+| 9090  | Prometheus                    | 127.0.0.1 (UFW)         | ⚠️ Sem auth                                  |
+| 9100  | Node Exporter                 | host network            | —                                            |
+| 9250  | Cadvisor                      | 127.0.0.1 (UFW)         | —                                            |
+| 9835  | nvidia-gpu-exporter           | 0.0.0.0 (UFW)           | ⚠️ Exposto LAN — métricas GPU                |
+| 11434 | Ollama                        | 127.0.0.1 (UFW)         | GPU models (gemma3, qwen2.5-vl, nomic-embed) |
 
 **Docker Bridge Networks (Coolify):**
 | Rede | Subnet | Serviços |
@@ -219,6 +219,11 @@
 | zappro-wav2vec2       | whisper-api                              | :8201           | qgtzrmi...  | ✅ UP       |
 | zappro-wav2vec2-proxy | wav2vec2-deepgram-proxy                  | :8203           | qgtzrmi...  | ✅ UP       |
 
+**Host mappings (not containers):**
+| Service | Host Port | Target | Purpose |
+| ------------- | --------- | ------ | ------------------------------------ |
+| wav2vec2 STT | :8202 | →:8201 | Host mapping: whisper-api PT-BR STT |
+
 **Modelos disponíveis via LiteLLM (10.0.1.1:4000):**
 
 - `gemma4` (instruction following, via Ollama host)
@@ -277,11 +282,11 @@
 
 ## 4.2 Redis x3 — Por Quê?
 
-| Container       | Versão       | Propósito       | Porta |
-| --------------- | ------------ | --------------- | ----- |
-| coolify-redis   | 7-alpine     | Coolify cache   | 6379  |
-| zappro-redis    | 7.2.4-alpine | zappro stack    | 6379  |
-| redis-opencode  | 7.2.4-alpine | OpenCode cache  | 6381  |
+| Container      | Versão       | Propósito      | Porta |
+| -------------- | ------------ | -------------- | ----- |
+| coolify-redis  | 7-alpine     | Coolify cache  | 6379  |
+| zappro-redis   | 7.2.4-alpine | zappro stack   | 6379  |
+| redis-opencode | 7.2.4-alpine | OpenCode cache | 6381  |
 
 **Todos legítimos.** Redis é projetado para multi-tenant isolation.
 
@@ -355,7 +360,105 @@ bot.zappro.site
 
 ---
 
-## 7. Segurança — Superfície de Ataque
+## 7. UFW + Traefik — Consolidated Network Layer
+
+> **SPEC-050 (2026-04-15):** UFW + Traefik documentation consolidated here.
+> All ingress passes through Traefik before reaching UFW.
+
+### Network Stack
+
+```
+INTERNET
+    │
+    ▼
+Cloudflare Edge (Zero Trust Tunnel)
+    │
+    ▼
+cloudflared daemon (host network)
+    │
+    ▼
+┌─────────────────────────────────────────────────────┐
+│  TRAEFIK (Coolify Proxy) — ports 80/443/8080       │
+│  ┌───────────────────────────────────────────────┐  │
+│  │ Ingress rules (Cloudflare → localhost)        │  │
+│  │  coolify.zappro.site  → :8000               │  │
+│  │  hermes.zappro.site   → :8642               │  │
+│  │  chat.zappro.site    → :8080 (OpenWebUI)   │  │
+│  │  llm.zappro.site     → :4000 (LiteLLM)     │  │
+│  │  api.zappro.site     → :4000                │  │
+│  └───────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────┘
+    │
+    ▼
+UFW (host firewall)
+┌─────────────────────────────────────────────────────┐
+│  UFW active — default INPUT DROP                    │
+│  ┌───────────────────────────────────────────────┐  │
+│  │ ACCEPT 22/tcp    (SSH — Anywhere)            │  │
+│  │ ACCEPT 80/tcp    (HTTP — Anywhere)           │  │
+│  │ ACCEPT 443/tcp   (HTTPS — Anywhere)          │  │
+│  │ ACCEPT 8080/tcp  (Traefik proxy — Anywhere)  │  │
+│  │ ACCEPT 4000/tcp  (LiteLLM — localhost)        │  │
+│  │ ACCEPT 11434/tcp (Ollama — localhost)        │  │
+│  │ ACCEPT 8000/tcp  (Coolify — Cloudflare Only)  │  │
+│  │ DROP    2222/tcp (Gitea SSH — Risk)         │  │
+│  └───────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────┘
+    │
+    ▼
+SERVICES (bare metal + Docker + Coolify)
+```
+
+### UFW Rules (Host Firewall)
+
+UFW is **active** on the host with `default INPUT DROP`.
+
+| Rule          | Port  | Action | Purpose                        |
+| ------------- | ----- | ------ | ------------------------------ |
+| SSH           | 22    | ACCEPT | Remote administration          |
+| HTTP          | 80    | ACCEPT | Traefik HTTP → HTTPS redirect  |
+| HTTPS         | 443   | ACCEPT | SSL termination                |
+| Traefik proxy | 8080  | ACCEPT | Cloudflare tunnel ingress      |
+| LiteLLM       | 4000  | ACCEPT | localhost only                 |
+| Ollama        | 11434 | ACCEPT | localhost only                 |
+| Coolify       | 8000  | ACCEPT | Cloudflare tunnel only         |
+| Gitea SSH     | 2222  | DROP   | ⚠️ Security risk — do not open |
+
+### Traefik (Coolify Proxy) Rules
+
+All public ingress routes through Traefik (Coolify Proxy) on ports 80/443/8080.
+
+| Subdomain           | Target Port | Notes                         |
+| ------------------- | ----------- | ----------------------------- |
+| coolify.zappro.site | :8000       | Coolify PaaS panel            |
+| hermes.zappro.site  | :8642       | Hermes Gateway agent          |
+| chat.zappro.site    | :8080       | Open WebUI (Coolify managed)  |
+| llm.zappro.site     | :4000       | LiteLLM proxy (pending :4002) |
+| api.zappro.site     | :4000       | LiteLLM proxy                 |
+| list.zappro.site    | :4080       | LAN only                      |
+| md.zappro.site      | :4081       | LAN only                      |
+| todo.zappro.site    | :4082       | LAN only                      |
+| monitor.zappro.site | :3100       | LAN only                      |
+
+### Portas Reservadas (Nunca usar)
+
+- :3000 → Open WebUI proxy (RESERVED)
+- :4000 → LiteLLM production (RESERVED)
+- :4001 → OpenClaw Bot (RESERVED)
+- :4002 → ai-gateway (RESERVED — SPEC-047)
+- :8000 → Coolify PaaS (RESERVED)
+- :8080 → Open WebUI (Coolify managed) (RESERVED)
+- :8642 → Hermes Gateway (RESERVED)
+- :6333 → Qdrant (RESERVED)
+
+### Portas Livres para Dev
+
+- Faixa :4002–:4099 (microserviços)
+- :5173 (Vite frontend)
+
+---
+
+## 8. Segurança — Superfície de Ataque
 
 ### ⚠️ Aberturas expostas na LAN (192.168.0.0/16)
 
@@ -398,4 +501,4 @@ bot.zappro.site
 
 ---
 
-**Atualizado:** 2026-04-14 | **Próxima revisão:** mensal ou ao adicionar serviço/subdomínio
+**Atualizado:** 2026-04-15 | **Próxima revisão:** mensal ou ao adicionar serviço/subdomínio

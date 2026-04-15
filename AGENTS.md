@@ -1,8 +1,78 @@
 # AGENTS.md — Monorepo Command Center
 
-> **Data:** 2026-04-14
+> **Data:** 2026-04-15 (SPEC-050: Network & Port Governance added)
 > **Authority:** Claude Code CLI + Gitea Actions + Antigravity Kit (.agent/)
 > **Stack:** pnpm workspaces + Turbo pipeline + Biome lint + Playwright E2E
+
+---
+
+## Network & Port Governance (OBRIGATÓRIO)
+
+> **SPEC-050 (2026-04-15):** UFW + Traefik consolidated rules. Ler antes de qualquer porta ou subdomínio.
+
+### Stack de Rede Completo
+
+```
+INTERNET → Cloudflare → cloudflared → TRAEFIK (80/443/8080) → UFW → SERVICES
+```
+
+### Antes de qualquer porta ou subdomínio:
+
+1. Ler `/srv/monorepo/docs/INFRASTRUCTURE/PORTS.md`
+2. Ler `/srv/monorepo/docs/INFRASTRUCTURE/SUBDOMAINS.md`
+3. Verificar com `ss -tlnp | grep :PORTA`
+4. Atualizar ambos os docs se adicionar porta/subdomínio
+
+### UFW (Host Firewall)
+
+- UFW ativo com `default INPUT DROP`
+- Portas autorizadas: 22, 80, 443, 8080 (Cloudflare), 8000 (Coolify via Cloudflare)
+- Nunca abrir 2222 (Gitea SSH) sem approval
+
+### Traefik (Coolify Proxy)
+
+- Todas as entradas passam por Traefik (Coolify Proxy) nas portas 80/443/8080
+- Regras de ingress via Cloudflare Zero Trust Tunnel
+- Nunca fazer port forwarding direto bypassing Traefik
+
+### Portas Reservadas (Nunca usar)
+
+- :3000 → Open WebUI proxy (RESERVED)
+- :4000 → LiteLLM production (RESERVED)
+- :4001 → OpenClaw Bot (RESERVED)
+- :4002 → ai-gateway OpenAI compat (RESERVED — SPEC-047)
+- :8000 → Coolify PaaS (RESERVED)
+- :8080 → Open WebUI (Coolify managed) (RESERVED)
+- :8642 → Hermes Gateway (RESERVED)
+- :6333 → Qdrant (RESERVED)
+
+### Portas Livres para Dev
+
+- Faixa :4002–:4099 (microserviços)
+- :5173 (Vite frontend)
+
+### Adicionar Porta
+
+1. `ss -tlnp | grep :PORTA` — confirmar livre
+2. Adicionar a PORTS.md (Service, Host, Port, Purpose)
+3. Se pública: adicionar a SUBDOMAINS.md + Terraform + cloudflared restart
+4. Se firewall: `sudo ufw allow PORT/tcp`
+
+### Adicionar Subdomínio
+
+1. Verificar se porta já está em PORTS.md
+2. Adicionar entrada em SUBDOMAINS.md
+3. `cd /srv/ops/terraform/cloudflare && terraform apply`
+4. Verificar cloudflared logs após restart
+
+### O que NÃO fazer
+
+- ❌ Bypassar Traefik fazendo port forwarding direto
+- ❌ Abrir portas sem verificar PORTS.md primeiro
+- ❌ Adicionar subdomínio sem Terraform + cloudflared restart
+- ❌ Desativar UFW ou fazer `ufw disable`
+- ❌ Usar portas reservadas para dev
+- ❌ Commit changes sem atualizar PORTS.md + SUBDOMAINS.md
 
 ---
 

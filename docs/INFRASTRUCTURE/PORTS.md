@@ -1,7 +1,7 @@
 # Port Allocation — homelab
 
 **Authority:** [NETWORK_MAP.md](./NETWORK_MAP.md) (read this first)
-**Last verified:** 2026-04-14 — aligned with SPEC-045 Services Inventory
+**Last verified:** 2026-04-15 — SPEC-050: :4002 (ai-gateway) + :8202 (wav2vec2 host mapping) added
 **Source of truth:** SPEC-045 §7 Services Inventory
 
 ---
@@ -28,15 +28,16 @@
 
 These ports are permanently reserved and MUST NOT be used without updating this document + NETWORK_MAP.md + SUBDOMAINS.md.
 
-| Port | Reserved For             | Status                     |
-| ---- | ------------------------ | -------------------------- |
-| 3000 | Open WebUI proxy         | RESERVED                   |
-| 4000 | LiteLLM production       | RESERVED                   |
-| 4001 | OpenClaw Bot             | RESERVED (service removed) |
-| 8000 | Coolify PaaS             | RESERVED                   |
-| 8080 | Open WebUI (Coolify)     | RESERVED                   |
-| 8642 | Hermes Gateway           | RESERVED                   |
-| 6333 | Qdrant (Coolify managed) | RESERVED                   |
+| Port | Reserved For               | Status                     |
+| ---- | -------------------------- | -------------------------- |
+| 3000 | Open WebUI proxy           | RESERVED                   |
+| 4000 | LiteLLM production         | RESERVED                   |
+| 4001 | OpenClaw Bot               | RESERVED (service removed) |
+| 4002 | ai-gateway (OpenAI compat) | RESERVED                   |
+| 8000 | Coolify PaaS               | RESERVED                   |
+| 8080 | Open WebUI (Coolify)       | RESERVED                   |
+| 8642 | Hermes Gateway             | RESERVED                   |
+| 6333 | Qdrant (Coolify managed)   | RESERVED                   |
 
 ---
 
@@ -83,6 +84,7 @@ These ports are permanently reserved and MUST NOT be used without updating this 
 | 3101 | loki                | host                   | Log aggregation                                      | via Grafana                       |
 | 3334 | zappro-litellm      | host                   | LiteLLM UI (internal)                                | —                                 |
 | 4000 | zappro-litellm      | host                   | LiteLLM proxy                                        | api.zappro.site / llm.zappro.site |
+| 4002 | ai-gateway          | host                   | OpenAI-compatible facade (SPEC-047)                  | —                                 |
 | 4004 | nginx-ratelimit     | host                   | nginx rate-limited → :4000                           | —                                 |
 | 4005 | ai-router           | host                   | AI Router (FastAPI)                                  | —                                 |
 | 4007 | zappro-tts-bridge   | localhost              | TTS Bridge → Kokoro :8880                            | —                                 |
@@ -116,13 +118,13 @@ These ports are permanently reserved and MUST NOT be used without updating this 
 
 ### Monitoring & Alerting Stack (SPEC-023)
 
-| Port | Container             | Access    | Function                                    |
-| ---- | --------------------- | --------- | ------------------------------------------- |
-| 8050 | gotify                | localhost | Notification server (alert sink)            |
-| 8051 | alert-sender          | localhost | Alert dispatcher → Gotify                   |
-| 9080 | promtail              | host      | Log scraping → Loki (:3101)                 |
-| 8202 | zappro-wav2vec2       | host      | Faster-Whisper STT (host mapping 8202→8201) |
-| 8203 | zappro-wav2vec2-proxy | host      | Deepgram API proxy → whisper-api (:8201)    |
+| Port | Container             | Access    | Function                                   |
+| ---- | --------------------- | --------- | ------------------------------------------ |
+| 8050 | gotify                | localhost | Notification server (alert sink)           |
+| 8051 | alert-sender          | localhost | Alert dispatcher → Gotify                  |
+| 9080 | promtail              | host      | Log scraping → Loki (:3101)                |
+| 8202 | zappro-wav2vec2       | host      | host mapping 8202→8201 (whisper-api :8201) |
+| 8203 | zappro-wav2vec2-proxy | host      | Deepgram API proxy → whisper-api (:8201)   |
 
 ### Legacy / Deprecated
 
