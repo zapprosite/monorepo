@@ -24,9 +24,9 @@ specRef: SPEC-AUDIT-FIXES-2026-04-12.md, SPEC-009-openclaw-persona-audio-stack.m
 
 ### 2. Voice Pipeline Engineering Brilhante
 
-- **Deepgram proxy pattern** (SPEC-018): wav2vec2 parece Deepgram cloud — isolamento elegante
+- **Deepgram proxy pattern** (SPEC-018): whisper-medium-pt parece Deepgram cloud — isolamento elegante
 - **TTS Bridge voice filtering**: bloqueia 65/67 vozes Kokoro, só pm_santa e pf_dora
-- STT: wav2vec2-large-xlsr-53-portuguese (PT-BR native, 5.8M downloads)
+- STT: whisper-medium-pt (PT-BR native, optimized)
 - TTS: Kokoro v0.2.2 com governance correta
 - LLM enhancement layer: llama3-portuguese-tomcat-8b-instruct-q8
 
@@ -262,7 +262,7 @@ docker logs openclaw-qgtzrmi6771lt8l7x8rqx72f --tail 100
 | -------------- | ----------------------- | ------------------------- | -------------------------------- |
 | **GPU**        | RTX 4090 24GB           | RTX 5090 32GB disponível  | Still great — upgrade path clear |
 | **Inference**  | Ollama + GGUF Q4        | vLLM 2-5x faster          | Adequate — upgrade when needed   |
-| **STT**        | wav2vec2 PT-BR ✅       | No improvement needed     | Best for PT-BR                   |
+| **STT**        | whisper-medium-pt ✅    | No improvement needed     | Best for PT-BR                   |
 | **TTS**        | Kokoro ✅               | No improvement needed     | Best for PT-BR                   |
 | **Storage**    | ZFS + Gen5 ✅           | No change needed          | State of art                     |
 | **Containers** | Coolify + Docker ✅     | Podman not ready          | Keep                             |

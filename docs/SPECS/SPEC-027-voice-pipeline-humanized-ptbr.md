@@ -13,9 +13,10 @@ O voice pipeline atual tem dois problemas:
 1. **STT** → transcreve texto mas fica "robotizado" (seta direita, ícones, pontos sem contexto)
 2. **Kokoro TTS** → lê tudo mecanicamente, não como brasileiro NATURAL
 
-> ⚠️ **SPEC-009 Audio Stack Rules:** STT deve usar wav2vec2 em :8201. Whisper é PROIBIDO como STT. Este pipeline usa humanização no processamento de texto pós-STT, não troca o motor STT.
+> ⚠️ **Migration:** STT migra de wav2vec2 para whisper-medium-pt em :8202. Este pipeline usa humanização no processamento de texto pós-STT.
 
 O utilizador precisa de:
+
 - Transcrição que entende "seta direita" = apenas texto, não lê o símbolo
 - TTS que lê títulos, parágrafos, com entoação natural
 - Pipeline que soa como humano brasileiro a falar
@@ -25,7 +26,7 @@ O utilizador precisa de:
 ## Fluxo Desejado
 
 ```
-[AUDIO] → wav2vec2 :8201 → LLM Humanizado PT-BR → Kokoro TTS → headset
+[AUDIO] → whisper-medium-pt :8202 → LLM Humanizado PT-BR → Kokoro TTS → headset
                                                     ↑
                                          texto lido como brasileiro
                                          "título" → pausa antes
@@ -39,7 +40,7 @@ O utilizador precisa de:
 
 ```
 voice.sh:
-  ffmpeg → wav2vec2 :8201 → llama3-ptbr → clipboard → Ctrl+V
+ffmpeg → whisper-medium-pt :8202 → llama3-ptbr → clipboard → Ctrl+V
 
 speak.sh:
   xclip → TTS Bridge :8013 → Kokoro
@@ -54,6 +55,7 @@ speak.sh:
 **Problema:** STT genérico lê "seta direita" como "seta para direita" sem contexto
 
 **Solução:** Post-processing com LLM para:
+
 1. Detetar e remover símbolos/ícones (→, ←, ★, etc)
 2. Detetar títulos (linhas curtas, maiúsculas, padrões)
 3. Formatar parágrafos corretamente
@@ -64,6 +66,7 @@ speak.sh:
 **Problema:** Kokoro lê marcadores deSlide como "bolinha", "circulo" — não sabe que são indicadores de lista
 
 **Solução:** Pre-processamento do texto antes do TTS:
+
 1. Marcadores de lista (• ● ○ ◆ ▸ ► ▍ ▪ - —) → IGNORADOS, não lidos como símbolo
 2. Lista numerada: "1. Item" → "Primeiro: Item" / "2. Item" → "Segundo: Item"
 3. Lista com letras: "(a) Opção" → "Letra A: Opção"
@@ -84,9 +87,9 @@ speak.sh:
 
 ### Agent 2: STT Post-Processing PT-BR
 
-> ⚠️ **SPEC-009:** STT usa wav2vec2 :8201. Post-processing com LLM para humanização não substitui o motor STT.
+> ⚠️ **SPEC-009:** STT usa whisper-medium-pt :8202. Post-processing com LLM para humanização não substitui o motor STT.
 
-- Pipeline: wav2vec2 → Punctuation → Disfluency removal → Humanization
+- Pipeline: whisper-medium-pt → Punctuation → Disfluency removal → Humanization
 - Remover fillers: eh, né, sei lá, hmm
 - Expandir números e telefones por extenso
 - Usar `respunct` para pontuação em PT-BR
@@ -103,6 +106,7 @@ speak.sh:
 ### Agent 4: Voice Command Fillers PT-BR
 
 Fillers para remover:
+
 - Hesitação: äh, ehn, hn, hnn, em
 - Discurso: né, tipo, cara, mano, tá
 - Incerteza: mais ou menos, sei lá, então, viu, bah, puxa, puts
@@ -137,21 +141,21 @@ Texto: {input}
 
 ## Componentes a Modificar
 
-| Ficheiro | Modificação |
-|----------|-------------|
-| `voice.sh` | Usar wav2vec2 :8201 (SPEC-009) + LLM humanização |
-| `voice.sh` | Adicionar prompt humanizado no LLM correction |
+| Ficheiro   | Modificação                                         |
+| ---------- | --------------------------------------------------- |
+| `voice.sh` | Usar whisper-medium-pt :8202 + LLM humanização      |
+| `voice.sh` | Adicionar prompt humanizado no LLM correction       |
 | `speak.sh` | Pre-processamento texto (pausas, títulos, símbolos) |
-| `speak.sh` | Limite 3000 chars |
+| `speak.sh` | Limite 3000 chars                                   |
 
 ---
 
 ## Limites Técnicos
 
-| Serviço | Limite Atual | Limite Proposto |
-|---------|-------------|-----------------|
-| Kokoro TTS | 1500 chars | 3000 chars |
-| wav2vec2 STT | xlsr-53-pt | distil-wav2vec2-ptbr (futuro) |
+| Serviço               | Limite Atual | Limite Proposto                       |
+| --------------------- | ------------ | ------------------------------------- |
+| Kokoro TTS            | 1500 chars   | 3000 chars                            |
+| whisper-medium-pt STT | xlsr-53-pt   | jlondonobo/whisper-medium-pt (futuro) |
 
 ---
 
@@ -197,7 +201,7 @@ Texto: {input}
 
 ## Referências
 
-- `jonatasgrosman/wav2vec2-large-xlsr-53-portuguese` (STT Canonical - SPEC-009)
+- `jlondonobo/whisper-medium-pt` (STT Canonical - migration from wav2vec2)
 - `respunct` (portuguese punctuation)
 - Llama 3.1 8B-Instruct (humanização)
 - SPEC-009 (audio stack imutável)

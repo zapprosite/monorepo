@@ -11,7 +11,7 @@ specRef: SPEC-009, SPEC-027, SPEC-047
 
 # SPEC-048: OpenAI Facade Completo — Texto + Visão + Voz
 
-> ⚠️ **SPEC-009 imutável** — STT: whisper-api :8201 (canonical). TTS: TTS Bridge :8013 (pm_santa/pf_dora). NUNCA Kokoro directo.
+> ⚠️ **SPEC-009 imutável** — STT: whisper-medium-pt :8204 (canonical). TTS: TTS Bridge :8013 (pm_santa/pf_dora). NUNCA Kokoro directo.
 
 ---
 
@@ -28,7 +28,7 @@ specRef: SPEC-009, SPEC-027, SPEC-047
 | `llm.zappro.site/v1/chat/completions`          | LiteLLM directo     | ai-gateway → LiteLLM                 |
 | `llm.zappro.site/v1/chat/completions` + imagem | ❌ não funciona bem | ai-gateway → LiteLLM → llava-phi3:7B |
 | `llm.zappro.site/v1/audio/speech`              | ❌ não existe       | ai-gateway → Llama filter → Kokoro   |
-| `llm.zappro.site/v1/audio/transcriptions`      | ❌ não existe       | ai-gateway → whisper-api :8201       |
+| `llm.zappro.site/v1/audio/transcriptions`      | ❌ não existe       | ai-gateway → whisper-medium-pt :8204 |
 | `llm.zappro.site/v1/models`                    | LiteLLM models      | ai-gateway: lista unificada          |
 
 ---
@@ -59,7 +59,7 @@ ai-gateway :4002
   │
   ├─ POST /v1/audio/transcriptions
   │    model: "whisper-1"
-  │    file: audio                               ──▶ whisper-api :8201 (OpenAI-compat)
+  │    file: audio                               ──▶ whisper-medium-pt :8204 (OpenAI-compat)
   │    → {"text": "..."}
   │
   └─ GET /v1/models
@@ -76,7 +76,7 @@ ai-gateway :4002
 | `gpt-4o-vision` | `llava-phi3` (llava-phi3:latest (PRUNED: llava-phi3) via Ollama) | LiteLLM :4000      |
 | `tts-1`         | Kokoro via **TTS Bridge :8013** (voz: `pm_santa`)                | ai-gateway → :8013 |
 | `tts-1-hd`      | Kokoro via **TTS Bridge :8013** (voz: `pf_dora`)                 | ai-gateway → :8013 |
-| `whisper-1`     | whisper-api :8201 (Faster-Whisper, OpenAI-compat nativo)         | ai-gateway → :8201 |
+| `whisper-1`     | whisper-medium-pt :8204 (OpenAI-compat nativo)                   | ai-gateway → :8204 |
 
 > ⚠️ **Fix crítico:** LiteLLM config actual tem `tts-1 → Kokoro :8880 directo` (bypassa TTS Bridge, viola SPEC-009). Deve ser corrigido para `→ TTS Bridge :8013`.
 
@@ -123,15 +123,15 @@ Fazer via Cloudflare API (skill `cloudflare-terraform` ou `new-subdomain`):
 
 ## Env Vars (já existem em `.env`)
 
-| Var                     | Uso                                       |
-| ----------------------- | ----------------------------------------- |
-| `LITELLM_LOCAL_URL`     | `http://localhost:4000/v1`                |
-| `LITELLM_MASTER_KEY`    | auth para LiteLLM interno                 |
-| `TTS_BRIDGE_URL`        | `http://localhost:8013`                   |
-| `STT_PROXY_URL`         | `http://localhost:8203` → whisper-api     |
-| `OLLAMA_URL`            | `http://localhost:11434`                  |
-| `PTBR_FILTER_MODEL`     | `llama3-portuguese-tomcat-8b-instruct-q8` |
-| `AI_GATEWAY_FACADE_KEY` | chave única para clientes externos        |
+| Var                     | Uso                                         |
+| ----------------------- | ------------------------------------------- |
+| `LITELLM_LOCAL_URL`     | `http://localhost:4000/v1`                  |
+| `LITELLM_MASTER_KEY`    | auth para LiteLLM interno                   |
+| `TTS_BRIDGE_URL`        | `http://localhost:8013`                     |
+| `STT_PROXY_URL`         | `http://localhost:8204` → whisper-medium-pt |
+| `OLLAMA_URL`            | `http://localhost:11434`                    |
+| `PTBR_FILTER_MODEL`     | `llama3-portuguese-tomcat-8b-instruct-q8`   |
+| `AI_GATEWAY_FACADE_KEY` | chave única para clientes externos          |
 
 ---
 
@@ -162,7 +162,7 @@ Fazer via Cloudflare API (skill `cloudflare-terraform` ou `new-subdomain`):
 
 - ❌ LangGraph / LangChain — overhead desnecessário para um proxy
 - ❌ Novo subdomínio — usar `llm.zappro.site` existente
-- ❌ Trocar Kokoro, wav2vec2, TTS Bridge (SPEC-009 imutável)
+- ❌ Trocar Kokoro, whisper-medium-pt, TTS Bridge (SPEC-009 imutável)
 - ❌ Expor LiteLLM directamente (:4000) publicamente após rerouting
 
 ---
@@ -172,5 +172,5 @@ Fazer via Cloudflare API (skill `cloudflare-terraform` ou `new-subdomain`):
 - SPEC-009 — Audio stack imutável
 - SPEC-027 — Voice pipeline humanizado PT-BR
 - SPEC-047 — ai-gateway scaffold (base)
-- PORTS.md — :4000 LiteLLM, :4002 ai-gateway, :8013 TTS, :8201 STT
+- PORTS.md — :4000 LiteLLM, :4002 ai-gateway, :8013 TTS, :8204 STT
 - SUBDOMAINS.md — llm.zappro.site, api.zappro.site

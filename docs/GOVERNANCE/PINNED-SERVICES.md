@@ -16,16 +16,16 @@ date: 2026-04-12
 
 ### Tabela Central
 
-| Serviço               | Container                | Porta                      | Versão/Pin                                         | Owner              | Desde      |
-| --------------------- | ------------------------ | -------------------------- | -------------------------------------------------- | ------------------ | ---------- |
-| **TTS Bridge**        | `zappro-tts-bridge`      | 8013                       | `python:3.11-slim + tts-bridge.py`                 | Principal Engineer | 2026-04-08 |
-| **Kokoro TTS**        | `zappro-kokoro`          | 8012                       | `ghcr.io/remsky/kokoro-fastapi-gpu:v0.2.2`         | Principal Engineer | 2026-03-20 |
-| **wav2vec2 STT**      | `zappro-wav2vec2`        | 8201                       | `jonatasgrosman/wav2vec2-large-xlsr-53-portuguese` | Principal Engineer | 2026-03-15 |
-| **Hermes Agent**      | `hermes-agent` (systemd) | 8642 (gateway), 8092 (MCP) | `0.9.0+`                                           | Principal Engineer | 2026-04-14 |
-| **Ollama**            | `ollama` (systemd)       | 11434                      | `qwen2.5vl:7b` (RTX 4090)                          | Principal Engineer | 2026-04-14 |
-| **LiteLLM Proxy**     | `zappro-litellm`         | 4000                       | `latest` (config.yaml pinado)                      | Principal Engineer | 2026-03-01 |
-| **Coolify Traefik**   | `coolify-proxy`          | 8080                       | `4.0.0-beta.470`                                   | Principal Engineer | 2026-03-01 |
-| **Cloudflare Tunnel** | `cloudflared`            | 8080                       | N/A (ativo)                                        | Principal Engineer | 2026-02-15 |
+| Serviço               | Container                | Porta                      | Versão/Pin                                 | Owner              | Desde      |
+| --------------------- | ------------------------ | -------------------------- | ------------------------------------------ | ------------------ | ---------- |
+| **TTS Bridge**        | `zappro-tts-bridge`      | 8013                       | `python:3.11-slim + tts-bridge.py`         | Principal Engineer | 2026-04-08 |
+| **Kokoro TTS**        | `zappro-kokoro`          | 8012                       | `ghcr.io/remsky/kokoro-fastapi-gpu:v0.2.2` | Principal Engineer | 2026-03-20 |
+| **Whisper STT**       | `zappro-whisper-stt`     | 8201                       | `jlondonobo/whisper-medium-pt`             | Principal Engineer | 2026-04-15 |
+| **Hermes Agent**      | `hermes-agent` (systemd) | 8642 (gateway), 8092 (MCP) | `0.9.0+`                                   | Principal Engineer | 2026-04-14 |
+| **Ollama**            | `ollama` (systemd)       | 11434                      | `qwen2.5vl:7b` (RTX 4090)                  | Principal Engineer | 2026-04-14 |
+| **LiteLLM Proxy**     | `zappro-litellm`         | 4000                       | `latest` (config.yaml pinado)              | Principal Engineer | 2026-03-01 |
+| **Coolify Traefik**   | `coolify-proxy`          | 8080                       | `4.0.0-beta.470`                           | Principal Engineer | 2026-03-01 |
+| **Cloudflare Tunnel** | `cloudflared`            | 8080                       | N/A (ativo)                                | Principal Engineer | 2026-02-15 |
 
 ---
 
@@ -135,18 +135,18 @@ curl -sf -X POST http://localhost:8012/v1/audio/speech \
 
 ---
 
-### 2. WAV2VEC2 STT (Speech-to-Text)
+### 2. WHISPER STT (Speech-to-Text)
 
 ```yaml
-container_name: 'zappro-wav2vec2'
+container_name: 'zappro-whisper-stt'
 port: 8201
-model: 'jonatasgrosman/wav2vec2-large-xlsr-53-portuguese'
+model: 'jlondonobo/whisper-medium-pt'
 network: 'zappro-lite'
 endpoint: 'http://localhost:8201/v1/audio/transcriptions'
 owner: 'Principal Engineer'
-pinned_date: '2026-03-15'
+pinned_date: '2026-04-15'
 status: 'PINNED'
-why_pinned: 'Watchdog do OpenClaw depende da porta 8201. HF model cache é grande (5.8GB).'
+why_pinned: 'Watchdog do Hermes depende da porta 8201. HF model cache é ~1.5GB.'
 ```
 
 **Verification CMD:**
@@ -164,7 +164,7 @@ curl -sf -X POST http://localhost:8201/v1/audio/transcriptions \
 
 **WHAT_BREAKS_IF_CHANGED:**
 
-- OpenClaw watchdog não consegue fazer STT local
+- Hermes watchdog não consegue fazer STT local
 - Volta para Deepgram cloud (custo $)
 - Porta 8201 é hardcoded no watchdog
 
@@ -224,7 +224,7 @@ status: 'PINNED'
 why_pinned: 'Proxy GPU para TTS, STT, Vision. NÃO é provider primário. Config.yaml foi validado.'
 models_pinned:
   - 'kokoro/local' # → Kokoro TTS
-  - 'whisper-stt' # → wav2vec2 :8201
+  - 'whisper-stt' # → whisper :8201
   - 'gemma4' # GPU
   - 'qwen2.5-vl' # Vision
   - 'embedding-nomic' # Embeddings
@@ -242,7 +242,7 @@ curl -sf http://localhost:4000/health
 
 - TTS, STT, Vision param de funcionar
 - Todos os containers em zappro-lite perdem acesso a modelos GPU
-- Routing para Kokoro e wav2vec2 quebra
+- Routing para Kokoro e Whisper quebra
 
 ---
 
@@ -404,7 +404,7 @@ sudo zfs rollback -r tank@pre-YYYYMMDD-HHMMSS-pinned-services
 | Serviço       | Snapshot Obrigatório | Motivo                                  |
 | ------------- | -------------------- | --------------------------------------- |
 | Kokoro TTS    | SIM                  | Imagem + model cache grandes            |
-| wav2vec2 STT  | SIM                  | HF model cache 5.8GB                    |
+| Whisper STT   | SIM                  | HF model cache ~1.5GB                   |
 | Hermes Agent  | SIM                  | Agent state + skills + Telegram polling |
 | Ollama        | SIM                  | Model cache 5GB+                        |
 | LiteLLM       | SIM                  | config.yaml + modelos                   |
@@ -441,7 +441,7 @@ Este documento é parte da governança do homelab. Para mudanças formais:
 bash /srv/monorepo/tasks/smoke-tests/pipeline-openclaw-voice.sh
 
 # Verificação rápida por container
-docker ps --format "{{.Names}}\t{{.Status}}" | grep -E "kokoro|wav2vec2|openclaw|litellm|coolify-proxy"
+docker ps --format "{{.Names}}\t{{.Status}}" | grep -E "kokoro|whisper|openclaw|litellm|coolify-proxy"
 
 # Verificação de portas
 ss -tlnp | grep -E "8012|8201|4000|8080"
@@ -461,8 +461,8 @@ OpenClaw Voice Pipeline Smoke Test
 [PASS] OpenClaw via bot.zappro.site
 
 === 2. STT (Speech-to-Text) ===
-[PASS] wav2vec2 STT :8201
-[PASS] wav2vec2 transcription
+[PASS] Whisper STT :8201
+[PASS] Whisper transcription
 
 === 3. TTS (Text-to-Speech) ===
 [PASS] Kokoro TTS synthesis (pm_santa)

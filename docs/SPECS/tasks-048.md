@@ -17,7 +17,7 @@
 
 ## Phase 3 — STT directo para whisper-api
 
-- [ ] T300 — Confirmar `audio-transcriptions.ts` aponta para `:8201` (whisper-api OpenAI-compat nativo) em vez de `:8203` (wav2vec2-proxy Deepgram-format)
+- [ ] T300 — Confirmar `audio-transcriptions.ts` aponta para `:8204` (whisper-medium-pt OpenAI-compat nativo) em vez de `:8203` (wav2vec2-proxy Deepgram-format)
 - [ ] T301 — Testar: `curl /v1/audio/transcriptions -F "file=@audio.wav" -F "model=whisper-1"` retorna `{"text":"..."}`
 
 ## Phase 4 — Tunnel Rerouting (requer aprovação humana)

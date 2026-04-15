@@ -10,7 +10,7 @@ specRef: SPEC-009, SPEC-047, SPEC-048, PORTS.md, SUBDOMAINS.md
 
 # SPEC-049: AI Gateway Polish — 6 Issues + SPEC Cross-Check
 
-> ⚠️ **SPEC-009 Audio Stack imutável** — STT wav2vec2 :8202 (canonical). TTS Bridge :8013 (vozes `pm_santa`/`pf_dora`). NUNCA trocar.
+> ⚠️ **SPEC-009 Audio Stack imutável** — STT whisper-medium-pt :8204 (canonical). TTS Bridge :8013 (vozes `pm_santa`/`pf_dora`). NUNCA trocar.
 > ⚠️ **Secrets** — `.env` é fonte canónica ÚNICA. Infisical foi PRUNED. Proibido hardcode.
 
 ---
@@ -114,12 +114,12 @@ Activar: `systemctl --user daemon-reload && systemctl --user enable --now ai-gat
 
 **Problema:** PORTS.md e SUBDOMAINS.md mencionam:
 
-- `:8202` — wav2vec2-large-xlsr-53-portuguese (canonical STT)
+- `:8204` — jlondonobo/whisper-medium-pt (canonical STT)
 - `:8203` — zappro-wav2vec2-proxy (Deepgram API proxy → whisper-api :8201)
 
-Mas audio-transcriptions.ts só usa `STT_DIRECT_URL` (→ :8202). Não há referência a `STT_PROXY_URL`. Isto é correcto pois SPEC-048 diz para usar :8202 directamente.
+Mas audio-transcriptions.ts só usa `STT_DIRECT_URL` (→ :8204). Não há referência a `STT_PROXY_URL`. Isto é correcto pois SPEC-048 diz para usar :8204 directamente.
 
-**Verificar:** `.env` deve ter `STT_DIRECT_URL=http://localhost:8202` (não :8201, não :8203).
+**Verificar:** `.env` deve ter `STT_DIRECT_URL=http://localhost:8204` (não :8201, não :8202, não :8203).
 
 ---
 
@@ -130,8 +130,8 @@ Mas audio-transcriptions.ts só usa `STT_DIRECT_URL` (→ :8202). Não há refer
 | :4002  | ai-gateway (este) | sim (self)                                                  | ✅ running |
 | :4000  | LiteLLM           | chat.ts → LITELLM_URL                                       | ✅ running |
 | :8013  | TTS Bridge        | audio-speech.ts → TTS_BRIDGE_URL                            | ✅ running |
-| :8202  | wav2vec2 PT-BR    | audio-transcriptions.ts → STT_DIRECT_URL                    | ✅ running |
-| :8203  | wav2vec2-proxy    | ❌ não referenciado (correcto — SPEC-048 canonical é :8202) | N/A        |
+| :8204  | whisper-medium-pt | audio-transcriptions.ts → STT_DIRECT_URL                    | ✅ running |
+| :8203  | wav2vec2-proxy    | ❌ não referenciado (correcto — SPEC-048 canonical é :8204) | N/A        |
 | :11434 | Ollama            | ptbr-filter.ts → OLLAMA_URL                                 | ✅ running |
 
 **Conclusão:** Referências de porta consistentes com PORTS.md.
@@ -145,7 +145,7 @@ Mas audio-transcriptions.ts só usa `STT_DIRECT_URL` (→ :8202). Não há refer
 3. `smoke-tests/smoke-ai-gateway-quality.sh` — smoke test de qualidade PT-BR
 4. `~/.config/systemd/user/ai-gateway.service` — systemd unit
 5. `COOLIFY_SERVICE_UUID` documentado em `.env.example`
-6. Verificar STT_DIRECT_URL em `.env` → :8202
+6. Verificar STT_DIRECT_URL em `.env` → :8204
 
 ---
 
@@ -156,15 +156,19 @@ Mas audio-transcriptions.ts só usa `STT_DIRECT_URL` (→ :8202). Não há refer
 - [ ] smoke-ai-gateway-quality.sh corre e passa (STT bytes > 1KB, TTS bytes > 10KB, Vision PT-BR)
 - [ ] `systemctl --user status ai-gateway` mostra active
 - [ ] ai-gateway survive reboot via systemd
-- [ ] `.env` tem `STT_DIRECT_URL=http://localhost:8202`
+- [ ] `.env` tem `STT_DIRECT_URL=http://localhost:8204`
 - [ ] Coolify deploy: container healthy ou processo nativo com pm2/systemd
 
 ---
 
-## 6. O que NÃO fazer
+## 6. Nota: SPEC-050 T300 Actualizado
+
+SPEC-050 T300 (STT → whisper-medium-pt :8204) foi actualizado. Verificar SPEC-050 para detalhes.
+
+## 7. O que NÃO fazer
 
 - ❌ Mudar Kokoro para outra voz (SPEC-009 imutável)
-- ❌ Mudar wav2vec2 :8202 para outro STT (SPEC-009 imutável)
+- ❌ Mudar whisper-medium-pt :8204 para outro STT (SPEC-009 imutável)
 - ❌ Adicionar vozes OpenAI ao schema
 - ❌ Usar Infisical SDK
 - ❌ Hardcoded URLs/portas
@@ -175,5 +179,5 @@ Mas audio-transcriptions.ts só usa `STT_DIRECT_URL` (→ :8202). Não há refer
 
 - SPEC-047 (ai-gateway scaffold)
 - SPEC-048 (OpenAI facade completo)
-- PORTS.md (:4002, :8013, :8202, :8203)
+- PORTS.md (:4002, :8013, :8203, :8204)
 - SUBDOMAINS.md (llm.zappro.site → :4002 pending T400)
