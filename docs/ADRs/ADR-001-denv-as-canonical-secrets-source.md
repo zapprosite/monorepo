@@ -1,9 +1,11 @@
 # ADR-001 — .env as Canonical Secrets Source
 
-**Status:** aceito
+**Status:** aceito (ATUALIZADO 2026-04-13 — Infisical PRUNED, `.env` é fonte única)
 **Date:** 2026-04-13
 **Author:** Principal Engineer
-**Spec:** SPEC-029-INFISICAL-SDK-MANDATORY.md
+**Spec:** SPEC-029 (supersedes Infisical mandate), SPEC-047
+
+> ⚠️ **2026-04-13 UPDATE:** Infisical foi oficialmente descomissionado (pruned). `.env` é agora a ÚNICA fonte canónica de secrets. Não há mais "sync de Infisical → .env" — secrets são geridos diretamente em `.env` (com placeholders em `.env.example`). Qualquer referência neste ADR a "sync de Infisical" é histórica; ler como "manter `.env` atualizado".
 
 ---
 
