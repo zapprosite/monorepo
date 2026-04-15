@@ -1,0 +1,40 @@
+# SPEC-047 — ai-gateway Coolify-ready docker-compose
+# Secrets: all via environment variables from .env (anti-hardcoded)
+# Coolify labels: service discovery + health
+
+services:
+  ai-gateway:
+    build:
+      context: ../..
+      dockerfile: apps/ai-gateway/Dockerfile
+    image: ai-gateway:latest
+    container_name: zappro-ai-gateway
+    restart: unless-stopped
+    ports:
+      - "${AI_GATEWAY_PORT:-4002}:4002"
+    environment:
+      NODE_ENV: production
+      AI_GATEWAY_PORT: "4002"
+      AI_GATEWAY_FACADE_KEY: "${AI_GATEWAY_FACADE_KEY}"
+      LITELLM_LOCAL_URL: "${LITELLM_LOCAL_URL}"
+      LITELLM_MASTER_KEY: "${LITELLM_MASTER_KEY}"
+      TTS_BRIDGE_URL: "${TTS_BRIDGE_URL}"
+      STT_PROXY_URL: "${STT_PROXY_URL}"
+      OLLAMA_URL: "${OLLAMA_URL}"
+      PTBR_FILTER_MODEL: "${PTBR_FILTER_MODEL}"
+      LOG_LEVEL: "${LOG_LEVEL:-info}"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:4002/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+    labels:
+      - "coolify.managed=true"
+      - "coolify.service=ai-gateway"
+      - "coolify.healthcheck=/health"
