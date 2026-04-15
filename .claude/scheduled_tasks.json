@@ -5,7 +5,7 @@
       "cron": "*/30 * * * *",
       "prompt": "Sync docs to memory: Run /srv/monorepo/scripts/sync-memory.sh or similar to synchronize documentation changes to the memory index. Check git status for pending doc changes and update MEMORY.md index accordingly.",
       "createdAt": 1775847723434,
-      "lastFiredAt": 1776239267541,
+      "lastFiredAt": 1776244484051,
       "recurring": true
     },
     {
@@ -37,7 +37,7 @@
       "cron": "0 5 * * *",
       "prompt": "Test coverage check: Run test coverage analysis on the monorepo. Report any packages/apps with coverage below threshold. Update coverage metrics if possible.",
       "createdAt": 1775847723446,
-      "lastFiredAt": 1776155400943,
+      "lastFiredAt": 1776241829767,
       "recurring": true
     },
     {
@@ -45,7 +45,7 @@
       "cron": "0 6 * * *",
       "prompt": "Secrets audit: Run /se or secrets scan on recent commits. Check for hardcoded secrets, API keys, or credentials in the codebase. Report any findings.",
       "createdAt": 1775847723449,
-      "lastFiredAt": 1776159000448,
+      "lastFiredAt": 1776245449229,
       "recurring": true
     },
     {
