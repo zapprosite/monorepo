@@ -15,7 +15,7 @@ export async function modelsRoute(app: FastifyInstance) {
       { id: 'gpt-4o', object: 'model', created: CREATED, owned_by: 'zappro-homelab' },
       { id: 'gpt-4o-mini', object: 'model', created: CREATED, owned_by: 'zappro-homelab' },
       { id: 'gpt-3.5-turbo', object: 'model', created: CREATED, owned_by: 'zappro-homelab' },
-      // Visão → qwen2.5-vl:7b via Ollama
+      // Visão → llava-phi3 (3.8B, 2.5GB VRAM) via Ollama [qwen2.5-vl PRUNED 2026-04-15]
       { id: 'gpt-4o-vision', object: 'model', created: CREATED, owned_by: 'zappro-homelab' },
       { id: 'gpt-4-vision-preview', object: 'model', created: CREATED, owned_by: 'zappro-homelab' },
       // TTS → Kokoro via TTS Bridge (pm_santa=tts-1, pf_dora=tts-1-hd)
