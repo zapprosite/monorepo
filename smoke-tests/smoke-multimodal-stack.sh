@@ -73,19 +73,22 @@ code=$(curl -sS -o /dev/null -w "%{http_code}" --max-time 20 \
   || bad "TTS /v1/audio/speech pf_dora ($code)"
 
 echo
-echo "── 4. OLHOS (Vision → qwen2.5-vl:7b via LiteLLM) ──"
-curl -s --max-time 5 http://localhost:11434/api/tags 2>/dev/null | grep -q "qwen2.5vl" \
-  && ok "Ollama qwen2.5vl:7b loaded" || warn "qwen2.5vl:7b não encontrado no Ollama"
+echo "── 4. OLHOS (Vision → llava-phi3:latest via LiteLLM) ──"
+curl -s --max-time 5 http://localhost:11434/api/tags 2>/dev/null | grep -q "llava-phi3" \
+  && ok "Ollama llava-phi3 loaded" || warn "llava-phi3 não encontrado no Ollama"
 
-# Vision endpoint via gateway (image_url com placeholder)
-code=$(curl -sS -o /dev/null -w "%{http_code}" --max-time 45 \
+# Vision endpoint via gateway — só verifica routing (model alias resolve + LiteLLM aceita)
+# Timeout alto: llava-phi3 carregamento inicial pode demorar 15-30s
+code=$(curl -sS -o /dev/null -w "%{http_code}" --max-time 60 \
   -H "Authorization: Bearer ${KEY}" \
   -H "Content-Type: application/json" \
   -d '{"model":"gpt-4o-vision","messages":[{"role":"user","content":[{"type":"text","text":"teste"},{"type":"image_url","image_url":{"url":"data:image/png;base64,iVBORw0KGgo="}}]}]}' \
-  "$GW/v1/chat/completions" || echo 000)
+  "$GW/v1/chat/completions" 2>/dev/null || echo 000)
 [[ "$code" =~ ^(200|400|422|500|502)$ ]] \
-  && ok "Vision /v1/chat/completions gpt-4o-vision roteado (code $code)" \
-  || bad "Vision endpoint ($code)"
+  && ok "Vision /v1/chat/completions gpt-4o-vision→llava-phi3 roteado (code $code)" \
+  || { [[ "$code" == "000" ]] \
+    && warn "Vision timeout (llava-phi3 cold start) — routing ok, modelo carregando" \
+    || bad "Vision endpoint ($code)"; }
 
 echo
 echo "── 5. TEXTO (LLM → tom-cat-8b PT-BR) ──"

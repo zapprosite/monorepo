@@ -225,10 +225,25 @@ function transcribeWav(wavBytes: Buffer): Promise<string> {
 export async function audioTranscriptionsRoute(app: FastifyInstance) {
   app.post('/audio/transcriptions', async (request, reply) => {
     try {
-      const body = request.body as Buffer;
+      const body = request.body as Buffer | undefined;
       const contentType = request.headers['content-type'] ?? '';
 
+      if (!body || !Buffer.isBuffer(body) || body.length === 0) {
+        return reply
+          .code(400)
+          .send({ error: { message: 'No audio file provided', type: 'invalid_request_error' } });
+      }
+
       const { fileBytes, fileExt, responseFormat } = parseMultipart(body, contentType);
+
+      if (!fileBytes || fileBytes.length === 0) {
+        return reply
+          .code(400)
+          .send({
+            error: { message: 'No file field in multipart body', type: 'invalid_request_error' },
+          });
+      }
+
       const wavBytes = await toWav16k(fileBytes, fileExt);
       const rawText = await transcribeWav(wavBytes);
       const text = await llmCorrect(rawText); // voice.sh pipeline: llama PT-BR correction
