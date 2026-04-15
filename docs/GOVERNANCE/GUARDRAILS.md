@@ -1,12 +1,12 @@
 ---
-version: 1.4
+version: 1.5
 author: Principal Engineer
-date: 2026-04-14
+date: 2026-04-15
 ---
 
 # GUARDRAILS v1.4 — Infraestrutura Zappro (homelab)
 
-## Versão: 1.4 | 2026-04-14
+## Versão: 1.5 | 2026-04-15
 
 ## Base: 12 DevOps Senior SRE Agents + 3 INCIDENTs (INC-004, INC-005, INC-006)
 
@@ -230,12 +230,46 @@ terraform plan  # deve mostrar 0 diff
 2. NUNCA: `ufw disable` ou `systemctl stop ufw` em host remoto headless
 3. NUNCA: editar `/etc/hosts` sem consultar PORTS.md + SUBDOMAINS.md primeiro
 4. NUNCA: alocar porta sem consultar PORTS.md e confirmar `ss -tlnp | grep :PORTA`
-   - **Proibidas:** `:3000`, `:4000`, `:4001`, `:8000`, `:8080`
+   - **Proibidas:** `:3000`, `:4000`, `:4001`, `:4002`, `:8000`, `:8080`
    - **Faixa livre:** 4002–4099
 5. NUNCA: Cloudflare API direta sem Terraform — drift de DNS inevitável
 6. NUNCA: regras DROP sem exception SSH — lockout garantido na próxima carga
 7. NUNCA: modificar `resolv.conf` ou configurações de DNS resolver
 8. NUNCA: `ip addr flush` ou `ip link set down` em interfaces ativas
+
+### UFW (Host Firewall — ATIVO)
+
+UFW está **ativo** no host com `default INPUT DROP`. Todas as regras de ingress passam por Traefik primeiro.
+
+| Regra         | Porta | Ação   | Notas                              |
+| ------------- | ----- | ------ | ---------------------------------- |
+| SSH           | 22    | ACCEPT | Acesso admin                       |
+| HTTP          | 80    | ACCEPT | Traefik redirect HTTP→HTTPS        |
+| HTTPS         | 443   | ACCEPT | SSL via Traefik                    |
+| Traefik proxy | 8080  | ACCEPT | Ingress Cloudflare tunnel          |
+| LiteLLM       | 4000  | ACCEPT | localhost apenas                   |
+| Ollama        | 11434 | ACCEPT | localhost apenas                   |
+| Coolify       | 8000  | ACCEPT | Cloudflare tunnel apenas           |
+| Gitea SSH     | 2222  | DROP   | ⚠️ Risco — não abrir sem aprovação |
+
+### Traefik (Coolify Proxy — ATIVO)
+
+Traefik (Coolify Proxy) é o ponto único de ingress nas portas 80/443/8080.
+Todas as rotas de subdomínio passam por Traefik — nunca fazer port forwarding direto.
+
+| Subdomínio          | Porta | Caminho              |
+| ------------------- | ----- | -------------------- |
+| coolify.zappro.site | 8000  | Coolify PaaS         |
+| hermes.zappro.site  | 8642  | Hermes Gateway       |
+| chat.zappro.site    | 8080  | Open WebUI (Coolify) |
+| llm.zappro.site     | 4000  | LiteLLM (T400→:4002) |
+| api.zappro.site     | 4000  | LiteLLM              |
+
+**Regras obrigatórias:**
+
+- Nunca fazer bypass de Traefik com port forwarding direto
+- Todas as mudanças de ingress via Terraform → `terraform apply` → cloudflared restart
+- Verificar `ps aux | grep cloudflared | wc -l` = 1 antes de restart
 
 ---
 
@@ -387,6 +421,6 @@ git remote -v
 
 ---
 
-**Versão:** 1.4 | **Data:** 2026-04-14
+**Versão:** 1.5 | **Data:** 2026-04-15
 **12 DevOps Senior SRE Agents + 3 INCIDENTs (INC-004, INC-005, INC-006)**
-**Anterior:** v1.3 (2026-04-14) — INC-005/006 healthcheck hardened
+**Anterior:** v1.4 (2026-04-14) — INC-005/006 healthcheck hardened
