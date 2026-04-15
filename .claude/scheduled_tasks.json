@@ -5,7 +5,7 @@
       "cron": "*/30 * * * *",
       "prompt": "Sync docs to memory: Run /srv/monorepo/scripts/sync-memory.sh or similar to synchronize documentation changes to the memory index. Check git status for pending doc changes and update MEMORY.md index accordingly.",
       "createdAt": 1775847723434,
-      "lastFiredAt": 1776251728977,
+      "lastFiredAt": 1776253493559,
       "recurring": true
     },
     {
@@ -53,7 +53,7 @@
       "cron": "0 8 * * *",
       "prompt": "MCP health check: Verify all MCP servers are responding. Check ai-context, gitea-access, coolify-access, and other MCP tools. Report any that are down.",
       "createdAt": 1775847723453,
-      "lastFiredAt": 1776166200977,
+      "lastFiredAt": 1776252651469,
       "recurring": true
     }
   ]
