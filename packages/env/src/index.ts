@@ -1,8 +1,8 @@
 import { config } from 'dotenv';
 import { envSchema } from './schema';
 
-// Load all env — secrets are synced from Infisical to .env (canonical source)
-// Application code NEVER uses Infisical SDK directly (SECRETS-MANDATE: ADR-001)
+// Load all env from .env (canonical source — Infisical pruned 2026-04-13)
+// Application code reads via process.env only. Never use Infisical SDK. (SECRETS-MANDATE: ADR-001)
 config({ path: '.env' });
 
 export const env = envSchema.parse({

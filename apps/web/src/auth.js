@@ -4,12 +4,12 @@
  */
 
 const OAUTH_CONFIG = {
-  client_id: 'GET_FROM_INFISICAL',
+  client_id: window.__ENV__?.GOOGLE_CLIENT_ID || '',
   redirect_uri: 'https://list.zappro.site/auth/callback',
   auth_endpoint: 'https://accounts.google.com/o/oauth2/v2/auth',
   token_endpoint: 'https://oauth2.googleapis.com/token',
   userinfo_endpoint: 'https://www.googleapis.com/oauth2/v2/userinfo',
-  scopes: 'email profile openid'
+  scopes: 'email profile openid',
 };
 
 // Simple in-memory session (replace with proper session management)
@@ -17,7 +17,7 @@ let session = {
   access_token: null,
   id_token: null,
   expires_at: null,
-  user: null
+  user: null,
 };
 
 /**
@@ -37,7 +37,7 @@ function parseJWT(token) {
 function generateState() {
   const array = new Uint8Array(32);
   crypto.getRandomValues(array);
-  return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
+  return Array.from(array, (byte) => byte.toString(16).padStart(2, '0')).join('');
 }
 
 /**
@@ -73,7 +73,7 @@ function buildAuthUrl() {
     scope: OAUTH_CONFIG.scopes,
     state: state,
     access_type: 'offline',
-    prompt: 'consent'
+    prompt: 'consent',
   });
 
   return `${OAUTH_CONFIG.auth_endpoint}?${params.toString()}`;
@@ -115,14 +115,14 @@ async function handleCallback(codeArg) {
   const tokenResponse = await fetch(OAUTH_CONFIG.token_endpoint, {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/x-www-form-urlencoded'
+      'Content-Type': 'application/x-www-form-urlencoded',
     },
     body: new URLSearchParams({
       code: code,
       client_id: OAUTH_CONFIG.client_id,
       redirect_uri: OAUTH_CONFIG.redirect_uri,
-      grant_type: 'authorization_code'
-    })
+      grant_type: 'authorization_code',
+    }),
   });
 
   if (!tokenResponse.ok) {
@@ -133,7 +133,7 @@ async function handleCallback(codeArg) {
 
   session.access_token = tokens.access_token;
   session.id_token = tokens.id_token;
-  session.expires_at = Date.now() + (tokens.expires_in * 1000);
+  session.expires_at = Date.now() + tokens.expires_in * 1000;
 
   // Store tokens securely
   sessionStorage.setItem('access_token', tokens.access_token);
@@ -183,8 +183,8 @@ async function getUserInfo() {
 
   const response = await fetch(OAUTH_CONFIG.userinfo_endpoint, {
     headers: {
-      'Authorization': `Bearer ${token}`
-    }
+      Authorization: `Bearer ${token}`,
+    },
   });
 
   if (!response.ok) {
@@ -197,7 +197,7 @@ async function getUserInfo() {
     email: userInfo.email,
     name: userInfo.name,
     picture: userInfo.picture,
-    id: userInfo.id
+    id: userInfo.id,
   };
 
   return session.user;
@@ -212,7 +212,7 @@ function logout() {
     access_token: null,
     id_token: null,
     expires_at: null,
-    user: null
+    user: null,
   };
 
   sessionStorage.removeItem('access_token');
@@ -247,7 +247,7 @@ if (typeof window !== 'undefined') {
     logout,
     isAuthenticated,
     getCurrentUser,
-    parseJWT
+    parseJWT,
   };
 }
 
@@ -262,6 +262,6 @@ if (typeof module !== 'undefined' && module.exports) {
     isAuthenticated,
     getCurrentUser,
     parseJWT,
-    OAUTH_CONFIG
+    OAUTH_CONFIG,
   };
 }

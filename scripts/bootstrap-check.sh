@@ -1,14 +1,19 @@
 #!/usr/bin/env bash
-# bootstrap-check.sh — Verify required secrets and emit Bootstrap Effect JSON
+# bootstrap-check.sh — Verify required secrets from .env and emit Bootstrap Effect JSON
+# .env is the ONLY canonical source (Infisical pruned 2026-04-13)
 # Usage: bash scripts/bootstrap-check.sh [--json]
 
 set -euo pipefail
 
-STATE_FILE="tasks/pipeline-state.json"
-INFISICAL_HOST="${INFISICAL_HOST:-http://127.0.0.1:8200}"
 JSON_ONLY=false
-
 [[ "${1:-}" == "--json" ]] && JSON_ONLY=true
+
+# Load .env (canonical source)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
+ENV_FILE="${SCRIPT_DIR}/../.env"
+if [[ -f "$ENV_FILE" ]]; then
+  set -a; source "$ENV_FILE"; set +a
+fi
 
 # ── Required secrets ──────────────────────────────────────────
 REQUIRED_SECRETS=(
@@ -19,7 +24,6 @@ REQUIRED_SECRETS=(
 )
 
 # ── Optional secrets ──────────────────────────────────────────
-# TELEGRAM_CHAT_ID is only useful when TELEGRAM_BOT_TOKEN is set
 OPTIONAL_SECRETS=(
   "CONTEXT7_API_KEY"
   "TELEGRAM_BOT_TOKEN"
@@ -39,59 +43,38 @@ SECRET_PURPOSE=(
 )
 
 secret_is_set() {
-  local key=$1
-  local value="${!key:-}"
-  [[ -n "$value" && "$value" != "null" && "$value" != "" ]]
+  local value="${!1:-}"
+  [[ -n "$value" && "$value" != "null" ]]
 }
 
 secret_masked() {
-  local key=$1
-  local value="${!key:-}"
-  if [[ -z "$value" ]]; then
-    echo "NOT SET"
-  elif [[ ${#value} -le 8 ]]; then
-    echo "$value"
-  else
-    echo "${value:0:4}...${value: -4}"
+  local value="${!1:-}"
+  if [[ -z "$value" ]]; then echo "NOT SET"
+  elif [[ ${#value} -le 8 ]]; then echo "$value"
+  else echo "${value:0:4}...${value: -4}"
   fi
 }
 
-check_infisical_health() {
-  curl -s -o /dev/null -w "%{http_code}" "$INFISICAL_HOST/health" 2>/dev/null || echo "000"
-}
-
-secret_purpose() {
-  echo "${SECRET_PURPOSE[$1]:-Unknown}"
-}
+secret_purpose() { echo "${SECRET_PURPOSE[$1]:-Unknown}"; }
 
 # ── Main ──────────────────────────────────────────────────────
 main() {
-  local missing=()
-  local present=()
-  local infisical_health=$(check_infisical_health)
-
+  local missing=() present=()
   for secret in "${REQUIRED_SECRETS[@]}"; do
-    if secret_is_set "$secret"; then
-      present+=("$secret")
-    else
-      missing+=("$secret")
-    fi
+    secret_is_set "$secret" && present+=("$secret") || missing+=("$secret")
   done
 
   local missing_count=${#missing[@]}
   local present_count=${#present[@]}
-  local timestamp=$(date -Iseconds)
+  local timestamp; timestamp=$(date -Iseconds)
 
   if [[ "$JSON_ONLY" == "true" ]]; then
-    # JSON output only
-    local configs="["
-    local first=true
+    local configs="[" first=true
     for secret in "${missing[@]}"; do
       $first && first=false || configs+=","
-      configs+="{\"key\":\"$secret\",\"source\":\"Infisical vault\",\"current_value\":\"$(secret_masked $secret)\",\"required_for\":\"$(secret_purpose $secret)\"}"
+      configs+="{\"key\":\"$secret\",\"source\":\".env\",\"current_value\":\"$(secret_masked "$secret")\",\"required_for\":\"$(secret_purpose "$secret")\"}"
     done
     configs+="]"
-
     cat << EOF
 {
   "bootstrap_effect": {
@@ -100,12 +83,7 @@ main() {
     "timestamp": "$timestamp",
     "missing_secrets_count": $missing_count,
     "pending_configs": $configs,
-    "smoke_test": {
-      "description": "Infisical health",
-      "command": "curl -s $INFISICAL_HOST/health",
-      "expected_output": "healthy",
-      "current_output": "$infisical_health"
-    }
+    "hint": "Add missing secrets to .env (generate with: openssl rand -hex 32)"
   }
 }
 EOF
@@ -113,43 +91,30 @@ EOF
     return
   fi
 
-  # Human-readable output
   echo "═══════════════════════════════════════════"
   echo "  Bootstrap Check — Secrets Verification"
+  echo "  Source: .env (canonical — Infisical pruned)"
   echo "═══════════════════════════════════════════"
   echo ""
-  echo "Infisical Health: $infisical_health"
-  [[ "$infisical_health" != "200" ]] && echo "⚠️  Infisical not reachable at $INFISICAL_HOST"
-  echo ""
-
   echo "Required Secrets ($present_count ✅, $missing_count ❌):"
   for secret in "${REQUIRED_SECRETS[@]}"; do
-    if secret_is_set "$secret"; then
-      echo "  ✅ $secret: $(secret_masked $secret)"
-    else
-      echo "  ❌ $secret: NOT SET"
+    if secret_is_set "$secret"; then echo "  ✅ $secret: $(secret_masked "$secret")"
+    else echo "  ❌ $secret: NOT SET — add to .env (openssl rand -hex 32)"
     fi
   done
-
   echo ""
   echo "Optional Secrets:"
   for secret in "${OPTIONAL_SECRETS[@]}"; do
-    if secret_is_set "$secret"; then
-      echo "  ✅ $secret: $(secret_masked $secret)"
-    else
-      echo "  ⚠️  $secret: NOT SET"
+    if secret_is_set "$secret"; then echo "  ✅ $secret: $(secret_masked "$secret")"
+    else echo "  ⚠️  $secret: NOT SET"
     fi
   done
-
   echo ""
   echo "═══════════════════════════════════════════"
 
   if [[ $missing_count -gt 0 ]]; then
     echo "🔴 Bootstrap Effect: $missing_count required secrets missing"
-    echo ""
-    echo "=== Bootstrap Effect JSON ==="
     bash "$0" --json
-    echo "=== End Bootstrap Effect JSON ==="
     exit 1
   else
     echo "✅ All required secrets present"
