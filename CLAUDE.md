@@ -51,3 +51,15 @@
 - AGENTS.md: Full agent system
 - apps/\*/CLAUDE.md: App specifics
 - packages/\*/CLAUDE.md: Package specifics
+
+## AI Gateway (SPEC-047/048)
+
+`apps/ai-gateway/` — Porta `:4002`. Ponto único OpenAI-compat para toda a stack multimodal:
+
+- **Texto** → `gpt-4o` → `tom-cat-8b` (llama3-portuguese-tomcat-8b via Ollama)
+- **Visão** → `gpt-4o-vision` → `qwen2.5-vl:7b` via Ollama/LiteLLM
+- **Voz (TTS)** → `tts-1`/`tts-1-hd` → TTS Bridge `:8013` → Kokoro (`pm_santa`/`pf_dora`)
+- **STT** → `whisper-1` → wav2vec2-large-xlsr-53-portuguese `:8202` (nativo PT-BR)
+- **Hermes** usa ai-gateway para STT; TTS directo `:8013`; Vision directo Ollama
+- `AI_GATEWAY_FACADE_KEY` — chave única em `.env`
+- Smoke: `bash smoke-tests/smoke-multimodal-stack.sh` (13/13)
