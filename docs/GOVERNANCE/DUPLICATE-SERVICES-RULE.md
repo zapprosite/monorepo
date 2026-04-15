@@ -55,7 +55,6 @@ The docker-autoheal container (`willfarrell/autoheal`) monitors containers with 
 | n8n           | `n8n`           | NO           | Workflow automation, persistent volume |
 | Cloudflared   | `cloudflared`   | NO           | Tunnel, Cloudflare state               |
 | Coolify Proxy | `coolify-proxy` | NO           | Traefik proxy, routing critical        |
-| Infisical     | `infisical`     | NO           | Secrets vault, persistent volume       |
 
 **Rationale:** Infrastructure services have complex state, persistent volumes, or Cloudflare-dependent tunnels. Auto-restarting them without human review can cause data corruption or extended outages.
 
@@ -116,7 +115,6 @@ All ports in use by the homelab. Before deploying a new service, check this regi
 | 4001 | OpenClaw Bot (reserved)  |
 | 8000 | Coolify PaaS             |
 | 8080 | Traefik + Cloudflared    |
-| 8200 | Infisical vault          |
 
 ### Free Ports for Dev
 

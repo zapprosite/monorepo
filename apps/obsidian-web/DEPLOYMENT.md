@@ -38,5 +38,5 @@ curl -sfI https://md.zappro.site
 
 ## OAuth
 
-Uses same Google OAuth as list-web (GOOGLE_CLIENT_ID from Infisical).
+Uses same Google OAuth as list-web (GOOGLE_CLIENT_ID from .env).
 Session key: obsidian_vault_session

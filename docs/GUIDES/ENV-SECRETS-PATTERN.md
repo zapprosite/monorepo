@@ -1,8 +1,10 @@
 # Environment Secrets Pattern Guide
 
+> **DEPRECATED.** Este documento é mantido apenas para referência histórica. Ver SECRETS-MANDATE.md para a política atual.
+
 **Applies to:** All code in `/srv/monorepo`
-**Pattern:** .env as canonical source, Infisical as backup/UI
-**Spec:** SPEC-029, ADR-001
+**Pattern:** .env as canonical source
+**Spec:** ADR-001
 
 ---
 

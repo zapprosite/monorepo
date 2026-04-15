@@ -9,13 +9,9 @@
 
 ## Core Rule — .env as Canonical Source
 
-All secrets are stored in `.env` files (synced from Infisical). Application code reads secrets via `os.getenv()` / `process.env`, **never directly from the Infisical SDK**.
+All secrets are stored in `.env` files (canonical source). Application code reads secrets via `os.getenv()` / `process.env`.
 
 ```
-Infisical (vault)
-    │
-    │  sync mechanism (infra scripts, not app code)
-    ▼
 .env file (canonical on-disk source)
     │
     │  dotenv load at process startup
@@ -59,15 +55,9 @@ set +a
 
 ---
 
-## Infisical SDK — Infrastructure Only
+## Secret Access Pattern
 
-The Infisical SDK is used **only** by:
-
-1. **Infrastructure scripts** — sync secrets from Infisical to `.env`
-2. **CI/CD pipelines** — inject secrets at deploy time
-3. **Memory-keeper and sync scripts** — not application code
-
-Application code must **never** import or call the Infisical SDK.
+Application code reads secrets from environment variables:
 
 ```python
 # ✅ CORRETO — application code reads from environment
@@ -75,16 +65,6 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 secret = os.getenv("MY_SECRET")
-
-# ✅ CORRETO — infrastructure/sync script uses Infisical SDK
-from infisical import InfisicalClient
-client = InfisicalClient()
-secret = client.get_secret("MY_SECRET")  # writes to .env
-
-# ❌ PROIBIDO — application code using Infisical SDK
-from infisical import InfisicalClient
-client = InfisicalClient()  # NOT in application code
-secret = client.get_secret("MY_SECRET")
 
 # ❌ PROIBIDO — hardcoded secret
 MY_SECRET = "hardcoded_value_123"
@@ -129,7 +109,7 @@ ghu_[a-zA-Z0-9]{36}
 ### Allowed .env patterns
 
 ```regex
-# .env file entries (synced from Infisical)
+# .env file entries
 ^[A-Z_]+=.+
 
 # dotenv load indicators (canonical pattern)
@@ -140,15 +120,6 @@ ghu_[a-zA-Z0-9]{36}
 os\.getenv\(|process\.env\.
 ```
 
-### Infisical SDK usage — where allowed
-
-```regex
-# ONLY in infrastructure/sync scripts
-(?:infisical|InfisicalClient|get_secret)\s*\(
-
-# Blocked in application code
-```
-
 ---
 
 ## Code Review Checklist
@@ -156,8 +127,7 @@ os\.getenv\(|process\.env\.
 Quando fizeres code review, verifica:
 
 - [ ] `.env` is loaded at process startup (dotenv/config)?
-- [ ] Secrets accessed via `os.getenv()` / `process.env`, not Infisical SDK?
-- [ ] No `InfisicalClient` in application code files?
+- [ ] Secrets accessed via `os.getenv()` / `process.env`?
 - [ ] No hardcoded secrets (`ghp_`, `sk-`, strings resembling tokens)?
 - [ ] Exceptions have `APPROVED_BY: Principal Engineer` comment with expiry?
 - [ ] Shell scripts use `set -a` before `source .env`?
@@ -166,7 +136,6 @@ Quando fizeres code review, verifica:
 
 | Pattern                                            | Severity | Action          |
 | -------------------------------------------------- | -------- | --------------- |
-| `InfisicalClient` in application code              | CRITICAL | Reject + block  |
 | `ghp_[a-zA-Z0-9]{36}`                              | CRITICAL | Reject + block  |
 | `sk-[a-zA-Z0-9]{48}`                               | CRITICAL | Reject + block  |
 | Hardcoded secret string                            | CRITICAL | Reject + block  |
@@ -196,20 +165,6 @@ LEGACY_TOKEN = os.getenv("LEGACY_BRIDGE_TOKEN")  # only for migration period
 
 ---
 
-## Secrets Sync — Infrastructure Scripts Only
-
-The following are the **only** scripts that should use the Infisical SDK:
-
-| Script             | Purpose                                       | Location                      |
-| ------------------ | --------------------------------------------- | ----------------------------- |
-| memory-keeper sync | Sync secrets to .env for Claude Code sessions | `/srv/backups/memory-keeper/` |
-| bootstrap-emitter  | Initial host setup                            | `/srv/ops/scripts/`           |
-| CI/CD pipelines    | Inject secrets at deploy                      | GitHub Actions / Gitea        |
-
-Application code must not use Infisical SDK.
-
----
-
 ## Violations
 
 ### O que fazer se encontrar Hardcoded Secret
@@ -224,9 +179,8 @@ Application code must not use Infisical SDK.
 ```bash
 # 1. Identificar token comprometido
 # 2. Revogar no provider (GitHub, Telegram, etc.)
-# 3. Criar novo secret no Infisical vault
-# 4. Trigger sync to update .env
-# 5. Confirmar não há duplicates no codebase
+# 3. Criar novo secret em .env
+# 4. Confirmar não há duplicates no codebase
 ```
 
 ---
@@ -238,9 +192,6 @@ Para verificar que o enforcement funciona:
 ```bash
 # Scan for hardcoded secrets
 grep -rE "ghp_[a-zA-Z0-9]{36}|sk-[a-zA-Z0-9]{48}" --include="*.py" --include="*.ts" --include="*.js" .
-
-# Scan for InfisicalClient in application code (should only be in infra scripts)
-grep -r "InfisicalClient" --include="*.py" . | grep -v "srv/backups/memory-keeper" | grep -v "srv/ops/scripts"
 
 # Verify dotenv usage
 grep -r "load_dotenv\|dotenv/config" --include="*.py" apps/ packages/

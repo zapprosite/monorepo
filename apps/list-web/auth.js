@@ -1,10 +1,10 @@
 /**
  * Google OAuth Configuration
- * Uses Infisical SDK to fetch GOOGLE_CLIENT_ID
+ * Uses window.__ENV__ for secrets (injected at build time)
  */
 
 const GOOGLE_OAUTH = {
-  client_id: null, // Populated from Infisical
+  client_id: window.__ENV__?.GOOGLE_CLIENT_ID || '',
   redirect_uri: 'https://list.zappro.site/auth/callback',
   scope: 'email profile',
   auth_endpoint: 'https://accounts.google.com/o/oauth2/v2/auth',
@@ -16,13 +16,16 @@ const SESSION_KEY = 'list_web_session';
 const SESSION_DURATION = 24 * 60 * 60 * 1000; // 24 hours
 
 /**
- * Initialize OAuth - fetch client_id from Infisical then check session
+ * Initialize OAuth - load from window.__ENV__ then check session
  */
 async function initOAuth() {
   try {
-    // Fetch client_id from Infisical
-    const clientId = await getInfisicalSecret('GOOGLE_CLIENT_ID');
-    GOOGLE_OAUTH.client_id = clientId;
+    // Load client_id from window.__ENV__ (injected at build time)
+    GOOGLE_OAUTH.client_id = window.__ENV__?.GOOGLE_CLIENT_ID || '';
+
+    if (!GOOGLE_OAUTH.client_id) {
+      throw new Error('GOOGLE_CLIENT_ID not configured');
+    }
 
     // Check for OAuth callback
     const urlParams = new URLSearchParams(window.location.search);
@@ -72,7 +75,7 @@ async function handleOAuthCallback(code) {
       body: new URLSearchParams({
         code,
         client_id: GOOGLE_OAUTH.client_id,
-        client_secret: window.__ENV__?.GOOGLE_CLIENT_SECRET || '', // Backend handles this
+        client_secret: window.__ENV__?.GOOGLE_CLIENT_SECRET || '',
         redirect_uri: GOOGLE_OAUTH.redirect_uri,
         grant_type: 'authorization_code'
       })

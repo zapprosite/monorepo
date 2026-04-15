@@ -176,17 +176,6 @@ export const tools = [
     category: 'dev',
     icon: '🐙',
     status: 'operational'
-  },
-
-  // ========== SECURITY ==========
-  {
-    id: 'infisical',
-    name: 'Infisical',
-    description: 'Gestão de secrets e variáveis de ambiente',
-    url: 'https://infisical.zappro.site',
-    category: 'security',
-    icon: '🔐',
-    status: 'down'
   }
 ];
 

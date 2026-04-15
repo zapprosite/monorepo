@@ -436,7 +436,7 @@
        VITE_GOOGLE_CLIENT_ID: Google OAuth Client ID (Vite env)
        window.__ENV__.*: Fallback for static deploy without Vite
        Em dev: crie .env com VITE_GOOGLE_CLIENT_ID=xxx
-       Em prod: injete via --build-arg ou window.__ENV__ (Infisical)
+       Em prod: injete via --build-arg ou window.__ENV__
     ================================================================ */
     const CONFIG = {
       googleClientId: import.meta.env.VITE_GOOGLE_CLIENT_ID || window.__ENV__?.GOOGLE_CLIENT_ID || '',
@@ -515,14 +515,6 @@
         url: 'https://n8n.zappro.site',
         description: 'Workflow automation e integracoes low-code',
         icon: '\u{1F4CC}',
-        status: 'up',
-        category: 'infra'
-      },
-      {
-        name: 'Infisical',
-        url: 'https://vault.zappro.site',
-        description: 'Gerenciador de secrets e variaveis de ambiente',
-        icon: '\u{1F510}',
         status: 'up',
         category: 'infra'
       },
@@ -668,7 +660,7 @@
                </button>`
             : `<p class="error-msg">
                 GOOGLE_CLIENT_ID nao configurado.<br>
-                Deploy com Infisical para habilitar OAuth.
+                Configure GOOGLE_CLIENT_ID em .env para habilitar OAuth.
                </p>`
           }
         </section>

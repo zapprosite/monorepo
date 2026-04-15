@@ -67,9 +67,8 @@
   │ :4001  OpenClaw │                     │  qgtzrmi (10.0.19.x)│
   │ :4003  Panel    │                     │    → openclaw :8080 │
   │ :6333  Qdrant   │                     │    → browser :9222  │
-  │ :8000  Coolify  │                     │  infisical-net      │
-  │ :8080  Traefik  │                     │    → infisical :8080│
-  │ :8200  Infisical│                     │  zappro-lite        │
+  │ :8000  Coolify  │                     │  coolify            │
+  │ :8080  Traefik  │                     │    → traefik public │
   │ :3100  Grafana  │                     │    → litellm :4000  │
   │ :2222  GiteaSSH │                     │    → litellm-db:5432│
   └─────────────────┘                     └─────────────────────┘
@@ -128,7 +127,7 @@
 | 4004  | perplexity-agent              | localhost               | ✅ Auth requerida                                         |
 | 3456  | openwebui-bridge-agent        | localhost               | ✅ Auth requerida                                         |
 | 3457  | openclaw-mcp-wrapper          | localhost               | ✅ Auth requerida                                         |
-| 5432  | PostgreSQL                    | 127.0.0.1 (UFW)         | 3 instâncias: coolify-db, infisical-db, connected_repo_db |
+| 5432  | PostgreSQL                    | 127.0.0.1 (UFW)         | 2 instâncias: coolify-db, connected_repo_db |
 | 5678  | n8n                           | Via tunnel (10.0.6.3)   | Via Docker network, não localhost                         |
 | 4080  | list-web                      | LAN only                | ⚠️ Sem auth                                               |
 | 4081  | obsidian-web                  | LAN only                | ⚠️ Sem auth                                               |
@@ -141,7 +140,6 @@
 | 8012  | Kokoro TTS                    | 127.0.0.1 (UFW)         | GPU TTS (host bridge)                                     |
 | 8050  | gotify                        | LAN only                | ⚠️ Sem auth                                               |
 | 8051  | alert-sender                  | LAN only                | ⚠️ Sem auth                                               |
-| 8200  | Infisical                     | 127.0.0.1 (UFW)         | —                                                         |
 | 8888  | SearXNG                       | 127.0.0.1 (UFW)         | —                                                         |
 | 9090  | Prometheus                    | 127.0.0.1 (UFW)         | ⚠️ Sem auth                                               |
 | 9100  | Node Exporter                 | host network            | —                                                         |
@@ -268,7 +266,6 @@
 | Container            | Versão    | Propósito                | Rede             |
 | -------------------- | --------- | ------------------------ | ---------------- |
 | coolify-db           | 15-alpine | Coolify metadata         | coolify          |
-| infisical-db         | 16-alpine | Infisical secrets vault  | infisical-net    |
 | connected_repo_db    | 15-alpine | Dev local (monorepo)     | monorepo_default |
 | zappro-litellm-db    | 15-alpine | LiteLLM virtual keys     | zappro-lite      |
 | postgresql-jbu1zy... | 16-alpine | n8n (Coolify-managed)    | coolify          |
@@ -278,12 +275,11 @@
 
 ---
 
-## 4.2 Redis x4 — Por Quê?
+## 4.2 Redis x3 — Por Quê?
 
 | Container       | Versão       | Propósito       | Porta |
 | --------------- | ------------ | --------------- | ----- |
 | coolify-redis   | 7-alpine     | Coolify cache   | 6379  |
-| infisical-redis | 7-alpine     | Infisical cache | 6379  |
 | zappro-redis    | 7.2.4-alpine | zappro stack    | 6379  |
 | redis-opencode  | 7.2.4-alpine | OpenCode cache  | 6381  |
 
