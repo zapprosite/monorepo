@@ -63,6 +63,7 @@ status: ACTIVE
 | SPEC-040 | Homelab alerting & rate limiting | alert-sender deployed, Loki deploying                                                                                    |
 | SPEC-041 | Monorepo polish                  | Tech debt resolution, ESLint flat config, TypeScript upgrade                                                             |
 | SPEC-052 | Hermes MCP + Context7            | Research completo — MCP architecture, Context7 patterns, quotas esgotadas plano contingência                             |
+| SPEC-053 | Hermes 100% local voice/vision   | STT multipart fix ✅, smoke test ✅, T1-T2 pending (Ollama primary + vision)                                             |
 
 ### 🚧 IMPLEMENTING (In Active Migration)
 
@@ -93,6 +94,7 @@ Alerting & rate limiting     → SPEC-040
 Monorepo polish              → SPEC-041
 OpenClaw prune (done)        → SPEC-051
 Hermes MCP + Context7        → SPEC-052
+Hermes 100% local voice     → SPEC-053
 Todo web app (done)          → SPEC-036
 Obsidian vault UI            → SPEC-037 (proposed)
 Subdomain prune (done)       → SPEC-043
@@ -171,7 +173,7 @@ See [SPEC-029-INFISICAL-SDK-MANDATORY.md](./SPEC-029-INFISICAL-SDK-MANDATORY.md)
 | -------------- | ------------------------ | -------------------------------------- |
 | Audio Stack    | SPEC-027                 | SPEC-027 (voice pipeline)              |
 | Infrastructure | SPEC-039 (Hermes tunnel) | SPEC-032, SPEC-031, SPEC-038, SPEC-043 |
-| Agent/CLI      | SPEC-041 (polish)        | SPEC-034 (MiniMax skills)              |
+| Agent/CLI      | SPEC-041 (polish)        | SPEC-034 (MiniMax skills), SPEC-053    |
 | Voice Pipeline | SPEC-027                 | —                                      |
 | Infisical      | SPEC-029 (mandate)       | —                                      |
 | Maintenance    | SPEC-031                 | SPEC-040 (alerting)                    |
