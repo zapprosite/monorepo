@@ -3,7 +3,7 @@
  * STT pipeline (cópia exacta da lógica do voice.sh / F12):
  *   1. Receber áudio (multipart, ogg/mp3/wav)
  *   2. ffmpeg → WAV 16kHz mono
- *   3. wav2vec2 :8202 → transcrição raw PT-BR
+ *   3. wav2vec2 :8204 → transcrição raw PT-BR
  *   4. applyPtbrFilter (mode='stt') → correcção PT-BR via tom-cat-8b
  *
  * Anti-hardcoded: STT_DIRECT_URL via process.env
@@ -20,7 +20,7 @@ import { randomBytes } from 'node:crypto';
 import { applyPtbrFilter } from '../middleware/ptbr-filter.js';
 
 const execFileAsync = promisify(execFile);
-const STT_URL = process.env['STT_DIRECT_URL'] ?? 'http://localhost:8202';
+const STT_URL = process.env['STT_DIRECT_URL'] ?? 'http://localhost:8204';
 
 // ── Multipart extractor ────────────────────────────────────────────────────
 

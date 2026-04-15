@@ -1,7 +1,7 @@
 # Port Allocation — homelab
 
 **Authority:** [NETWORK_MAP.md](./NETWORK_MAP.md) (read this first)
-**Last verified:** 2026-04-15 — SPEC-050: :4002 (ai-gateway) + :8202 (wav2vec2 host mapping) added
+**Last verified:** 2026-04-15 — SPEC-050: :4002 (ai-gateway) + :8204 (whisper-medium-pt canonical STT) added
 **Source of truth:** SPEC-045 §7 Services Inventory
 
 ---
@@ -118,13 +118,14 @@ These ports are permanently reserved and MUST NOT be used without updating this 
 
 ### Monitoring & Alerting Stack (SPEC-023)
 
-| Port | Container             | Access    | Function                                   |
-| ---- | --------------------- | --------- | ------------------------------------------ |
-| 8050 | gotify                | localhost | Notification server (alert sink)           |
-| 8051 | alert-sender          | localhost | Alert dispatcher → Gotify                  |
-| 9080 | promtail              | host      | Log scraping → Loki (:3101)                |
-| 8202 | zappro-wav2vec2       | host      | host mapping 8202→8201 (whisper-api :8201) |
-| 8203 | zappro-wav2vec2-proxy | host      | Deepgram API proxy → whisper-api (:8201)   |
+| Port | Container             | Access    | Function                                     |
+| ---- | --------------------- | --------- | -------------------------------------------- | --- |
+| 8050 | gotify                | localhost | Notification server (alert sink)             |
+| 8051 | alert-sender          | localhost | Alert dispatcher → Gotify                    |
+| 9080 | promtail              | host      | Log scraping → Loki (:3101)                  |
+| 8204 | whisper-medium-pt     | host      | Canonical STT — faster-whisper OpenAI-compat | —   |
+| 8202 | zappro-wav2vec2       | host      | DEPRECATED — was wav2vec2 host mapping       | —   |
+| 8203 | zappro-wav2vec2-proxy | host      | DEPRECATED — was Deepgram API proxy          | —   |
 
 ### Legacy / Deprecated
 

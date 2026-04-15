@@ -197,7 +197,7 @@ perplexity_browser/
 | SC-9  | MCP server para Open WebUI configurado                   | ⚠️     | MCPO functional, 10 messaging tools available. Hermes skills NOT via MCP. OpenWebUI not running. |
 | SC-10 | Zero true duplicates nos crons                           | ✅     |                                                                                                  |
 | SC-11 | Hermes Gateway instalado e configurado                   | ✅     | 2026-04-14 — gateway as endpoint for bot.zappro.site                                             |
-| SC-12 | Voice Pipeline integrado ao Hermes                       | ✅     | Kokoro TTS + wav2vec2 STT + TTS Bridge                                                           |
+| SC-12 | Voice Pipeline integrado ao Hermes                       | ✅     | Kokoro TTS + whisper-medium-pt STT + TTS Bridge                                                  |
 
 ---
 
@@ -256,16 +256,16 @@ Hermes Gateway instalado e configurado como endpoint primário para bot.zappro.s
 
 O Hermes-Agent serve como core para a infraestrutura de voz do homelab:
 
-| Componente       | Endpoint       | Vozes                      | Status     |
-| ---------------- | -------------- | -------------------------- | ---------- |
-| **Kokoro TTS**   | localhost:8012 | pm_santa, pf_dora          | ✅ Running |
-| **wav2vec2 STT** | localhost:8202 | —                          | ✅ Running |
-| **TTS Bridge**   | localhost:8013 | voice-filtering governance | ✅ Running |
+| Componente                | Endpoint       | Vozes                      | Status     |
+| ------------------------- | -------------- | -------------------------- | ---------- |
+| **Kokoro TTS**            | localhost:8012 | pm_santa, pf_dora          | ✅ Running |
+| **whisper-medium-pt STT** | localhost:8204 | —                          | ✅ Running |
+| **TTS Bridge**            | localhost:8013 | voice-filtering governance | ✅ Running |
 
 **Arquitetura:**
 
 ```
-Telegram/Voice Input → wav2vec2 STT (:8202) → Hermes Agent → Kokoro TTS (:8012) → Telegram/Voice Output
+Telegram/Voice Input → whisper-medium-pt STT (:8204) → Hermes Agent → Kokoro TTS (:8012) → Telegram/Voice Output
                                                       ↓
                                               TTS Bridge (:8013)
                                               (voice-filtering governance)
@@ -274,7 +274,7 @@ Telegram/Voice Input → wav2vec2 STT (:8202) → Hermes Agent → Kokoro TTS (:
 **Integração Hermes:**
 
 - Hermes polling Telegram para mensagens de voz
-- STT via wav2vec2 local
+- STT via whisper-medium-pt local
 - TTS via Kokoro com vozes PT-BR (pf_dora, pm_santa)
 - Filtro de voz via TTS Bridge para governance
 
@@ -288,10 +288,10 @@ Telegram/Voice Input → wav2vec2 STT (:8202) → Hermes Agent → Kokoro TTS (:
 - **Vozes PT-BR:** `pf_dora` (feminina), `pm_santa` (masculina)
 - **Uso:** Transformar texto do Hermes em áudio para resposta de voz
 
-### wav2vec2 STT
+### whisper-medium-pt STT
 
-- **Endpoint:** localhost:8202
-- **Modelo:** wav2vec2 para reconhecimento de fala PT-BR
+- **Endpoint:** localhost:8204
+- **Modelo:** whisper-medium-pt para reconhecimento de fala PT-BR
 - **Uso:** Transcrever áudio do Telegram para texto
 
 ### TTS Bridge

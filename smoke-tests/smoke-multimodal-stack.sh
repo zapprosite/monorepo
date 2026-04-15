@@ -34,11 +34,11 @@ code=$(curl -sS -o /dev/null -w "%{http_code}" --max-time 5 "$GW/health" || echo
 chk "GET /v1/models" "$GW/v1/models"
 
 echo
-echo "── 2. OUVIDOS (STT → wav2vec2 :8202) ──"
-curl -s --max-time 5 http://localhost:8202/health 2>/dev/null | grep -q "ok" \
-  && ok "wav2vec2 :8202 /health" || bad "wav2vec2 :8202 offline"
+echo "── 2. OUVIDOS (STT → wav2vec2 :8204) ──"
+curl -s --max-time 5 http://localhost:8204/health 2>/dev/null | grep -q "ok" \
+  && ok "wav2vec2 :8204 /health" || bad "wav2vec2 :8204 offline"
 
-curl -s --max-time 5 http://localhost:8202/v1/models 2>/dev/null | grep -q "wav2vec2" \
+curl -s --max-time 5 http://localhost:8204/v1/models 2>/dev/null | grep -q "wav2vec2" \
   && ok "wav2vec2 model=wav2vec2-ptbr" || warn "wav2vec2 model endpoint"
 
 # Gateway STT endpoint (sem ficheiro — só verificar routing)

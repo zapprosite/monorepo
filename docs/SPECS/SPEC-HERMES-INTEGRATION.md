@@ -47,8 +47,9 @@ Hermes Agent is now running as the central AI gateway for the homelab. This docu
 │                           │                                │
 │                           ▼                                │
 │                   ┌─────────────┐                         │
-│                   │  wav2vec2   │                         │
-│                   │  STT :8202  │                         │
+│                   │  whisper-   │                         │
+│                   │  medium-pt  │                         │
+│                   │  STT :8204  │                         │
 │                   └─────────────┘                         │
 └─────────────────────────────────────────────────────────────┘
                               │
@@ -205,7 +206,7 @@ hermes mcp call <tool> <args> # Call a specific tool
 For voice-enabled interactions:
 
 ```
-User Voice → Telegram → wav2vec2 STT (:8202) → Hermes → Kokoro TTS (:8013) → User Voice
+User Voice → Telegram → whisper-medium-pt STT (:8204) → Hermes → Kokoro TTS (:8013) → User Voice
 ```
 
 ```typescript
@@ -407,7 +408,7 @@ HERMES_API_KEY=<from ~/.hermes/secrets.env>
 
 # Voice Pipeline (built-in)
 KOKORO_TTS_URL=http://localhost:8013/v1
-WAV2VEC2_STT_URL=http://localhost:8202/v1
+WHISPER_STT_URL=http://localhost:8204/v1
 
 # Fallback (when Hermes is down)
 OLLAMA_URL=http://localhost:11434

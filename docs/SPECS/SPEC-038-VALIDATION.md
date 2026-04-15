@@ -55,11 +55,11 @@ curl -X POST localhost:8642/v1/chat/completions \
 
 ### 4. Voice Pipeline
 
-| Component    | Endpoint       | Status     | Details                   |
-| ------------ | -------------- | ---------- | ------------------------- |
-| Kokoro TTS   | localhost:8012 | ✅ HEALTHY | `{"status":"healthy"}`    |
-| wav2vec2 STT | localhost:8202 | ✅ OK      | `{"status":"ok"}`         |
-| TTS Bridge   | localhost:8013 | ✅ OK      | Voices: pm_santa, pf_dora |
+| Component             | Endpoint       | Status     | Details                   |
+| --------------------- | -------------- | ---------- | ------------------------- |
+| Kokoro TTS            | localhost:8012 | ✅ HEALTHY | `{"status":"healthy"}`    |
+| whisper-medium-pt STT | localhost:8204 | ✅ OK      | `{"status":"ok"}`         |
+| TTS Bridge            | localhost:8013 | ✅ OK      | Voices: pm_santa, pf_dora |
 
 ### 5. Hermes MCP Serve
 
@@ -151,7 +151,7 @@ curl -X POST localhost:8642/v1/chat/completions \
 Core Hermes-Agent deployment is operational:
 
 - LLM inference working (MiniMax primary + Ollama fallback)
-- Voice pipeline fully operational (Kokoro TTS + wav2vec2 STT + TTS Bridge)
+- Voice pipeline fully operational (Kokoro TTS + whisper-medium-pt STT + TTS Bridge)
 - Hermes gateway responding on port 8642
 - Cron jobs centralized and running
 - OpenClaw migration complete

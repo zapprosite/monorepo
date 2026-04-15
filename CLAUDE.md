@@ -63,7 +63,7 @@
 - **Texto** → `gpt-4o` → `tom-cat-8b` (llama3-portuguese-tomcat-8b via Ollama)
 - **Visão** → `gpt-4o-vision` → `llava-phi3 (3.8B, 2.5GB VRAM)` via Ollama/LiteLLM
 - **Voz (TTS)** → `tts-1`/`tts-1-hd` → TTS Bridge `:8013` → Kokoro (`pm_santa`/`pf_dora`)
-- **STT** → `whisper-1` → wav2vec2-large-xlsr-53-portuguese `:8202` (nativo PT-BR)
+- **STT** → `whisper-1` → whisper-medium-pt (`:8204`) via faster-whisper OpenAI-compat — WER 6.6% PT-BR
 - **Hermes** usa ai-gateway para STT; TTS directo `:8013`; Vision directo Ollama
 - `AI_GATEWAY_FACADE_KEY` — chave única em `.env`
 - Smoke: `bash smoke-tests/smoke-multimodal-stack.sh` (13/13)
