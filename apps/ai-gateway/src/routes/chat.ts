@@ -42,7 +42,9 @@ export async function chatCompletionsRoute(app: FastifyInstance) {
 
     const body = parsed.data;
     const acceptLang = request.headers['accept-language'];
-    const ptbrEnabled = request.headers['x-ptbr-filter'] === 'true';
+    const ptbrEnabled =
+      request.headers['x-ptbr-filter'] === 'true' ||
+      (typeof acceptLang === 'string' && acceptLang.toLowerCase().includes('pt'));
     const upstreamModel = MODEL_ALIASES[body.model] ?? body.model;
 
     try {

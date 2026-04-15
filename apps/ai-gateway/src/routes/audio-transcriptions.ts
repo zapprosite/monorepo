@@ -4,9 +4,9 @@
  *   1. Receber áudio (multipart, ogg/mp3/wav)
  *   2. ffmpeg → WAV 16kHz mono
  *   3. wav2vec2 :8202 → transcrição raw PT-BR
- *   4. llama3-portuguese-tomcat-8b → correcção PT-BR (sistema idêntico ao voice.sh)
+ *   4. applyPtbrFilter (mode='stt') → correcção PT-BR via tom-cat-8b
  *
- * Anti-hardcoded: STT_DIRECT_URL, OLLAMA_URL, PTBR_FILTER_MODEL via process.env
+ * Anti-hardcoded: STT_DIRECT_URL via process.env
  */
 
 import type { FastifyInstance } from 'fastify';
@@ -17,92 +17,10 @@ import * as fs from 'node:fs';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { randomBytes } from 'node:crypto';
-import { $fetch } from 'ofetch';
+import { applyPtbrFilter } from '../middleware/ptbr-filter.js';
 
 const execFileAsync = promisify(execFile);
 const STT_URL = process.env['STT_DIRECT_URL'] ?? 'http://localhost:8202';
-const OLLAMA_URL = process.env['OLLAMA_URL'] ?? 'http://localhost:11434';
-const PTBR_MODEL =
-  process.env['PTBR_FILTER_MODEL'] ?? 'llama3-portuguese-tomcat-8b-instruct-q8:latest';
-
-// ── System prompt (copiado de voice.sh correct_llm) ────────────────────────
-
-const STT_SYSTEM_PROMPT =
-  'Você é um transcritor de voz brasileiro. ' +
-  'Regras FIXAS: ' +
-  '1) MANTÉM todas as palavras originais — não adiciona, não remove, não reescreve sentido. ' +
-  '2) Corrige APENAS erros óbvios de transcrição (ex: "q" → "que", "tb" → "também", "vc" → "você"). ' +
-  '3) Converta SÍMBOLOS em texto natural: ' +
-  '   "→" ou "seta direita" → "para" ou "indica" (NUNCA lê "seta para direita"). ' +
-  '   "←" → "volta" ou "retorna". ' +
-  '   "★" → "destaque" ou "importante". ' +
-  '   "✔" → "confirmado" ou "ok". ' +
-  '4) Pontuação natural: ponto = pausa longa, vírgula = pausa curta. ' +
-  '5) NUNCA lê ícones, emojis ou símbolos especiais — converta para texto legível. ' +
-  '6) Output = apenas texto corrigido, ZERO comentários.';
-
-// Fillers PT-BR comuns removidos antes do LLM (pré-processamento inline, como voice.sh)
-const FILLERS = [
-  /\bäh\b/gi,
-  /\behn\b/gi,
-  /\bhn\b/gi,
-  /\bhnn\b/gi,
-  /\bem\b/gi,
-  /\bné\b/gi,
-  /\btá\b/gi,
-  /\btipo\b/gi,
-  /\bcara\b/gi,
-  /\bmano\b/gi,
-  /\bmais ou menos\b/gi,
-  /\bentão\b/gi,
-  /\bviu\b/gi,
-  /\bbah\b/gi,
-  /\bputs\b/gi,
-];
-
-const CORRECTIONS: Array<[RegExp, string]> = [
-  [/\bvc\b/gi, 'você'],
-  [/\bpq\b/gi, 'por quê'],
-  [/\bq\b/gi, 'que'],
-  [/\btb\b/gi, 'também'],
-  [/\btbm\b/gi, 'também'],
-  [/\bmsm\b/gi, 'mesmo'],
-  [/\bhj\b/gi, 'hoje'],
-  [/\boq\b/gi, 'o quê'],
-  [/\bqnd\b/gi, 'quando'],
-  [/\bpra\b/gi, 'para'],
-  [/\bmt\b/gi, 'muito'],
-  [/\bvlw\b/gi, 'valeu'],
-];
-
-function preprocess(text: string): string {
-  let t = text;
-  for (const filler of FILLERS) t = t.replace(filler, '');
-  for (const [pattern, rep] of CORRECTIONS) t = t.replace(pattern, rep);
-  // Fix stuttering: o-o-o → o
-  t = t.replace(/\b(\w)(-\1)+\b/g, '$1');
-  return t.replace(/\s+/g, ' ').trim();
-}
-
-async function llmCorrect(rawText: string): Promise<string> {
-  const text = preprocess(rawText);
-  if (!text) return rawText;
-  try {
-    const res = await $fetch<{ response: string }>(`${OLLAMA_URL}/api/generate`, {
-      method: 'POST',
-      body: {
-        model: PTBR_MODEL,
-        system: STT_SYSTEM_PROMPT,
-        prompt: `Transcrição de voz. Corrige e humaniza:\n\n${text}`,
-        stream: false,
-      },
-      timeout: 30000,
-    });
-    return res.response?.trim() || text;
-  } catch {
-    return text; // fail open — retorna pré-processado
-  }
-}
 
 // ── Multipart extractor ────────────────────────────────────────────────────
 
@@ -118,7 +36,6 @@ function parseMultipart(body: Buffer, contentType: string): ParsedMultipart {
 
   const boundary = `--${bm[1]}`;
   const sep = '\r\n' + boundary;
-  // Convert to latin1 string for splitting (lossless for binary)
   const bodyStr = body.toString('binary');
   const parts = bodyStr.split(sep);
 
@@ -244,7 +161,7 @@ export async function audioTranscriptionsRoute(app: FastifyInstance) {
 
       const wavBytes = await toWav16k(fileBytes, fileExt);
       const rawText = await transcribeWav(wavBytes);
-      const text = await llmCorrect(rawText); // voice.sh pipeline: llama PT-BR correction
+      const text = await applyPtbrFilter(rawText, undefined, 'stt');
 
       if (responseFormat === 'text') return reply.type('text/plain').send(text);
       return reply.send({ text });
