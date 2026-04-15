@@ -29,9 +29,9 @@ export async function audioSpeechRoute(app: FastifyInstance) {
 
     const { model, input, voice, speed, response_format } = parsed.data;
 
-    // Escolher voz: se cliente pediu pm_santa/pf_dora explicitamente usa essa;
-    // senão mapa do model (tts-1 → pm_santa, tts-1-hd → pf_dora)
-    const resolvedVoice = (['pm_santa', 'pf_dora'] as string[]).includes(voice)
+    // Validar voz — Kokoro só suporta pm_santa / pf_dora (SPEC-009)
+    const allowedVoices = ['pm_santa', 'pf_dora'];
+    const resolvedVoice = allowedVoices.includes(voice)
       ? voice
       : (MODEL_VOICE_MAP[model] ?? 'pm_santa');
 

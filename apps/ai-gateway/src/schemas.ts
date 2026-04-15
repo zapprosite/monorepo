@@ -61,17 +61,9 @@ export const ChatCompletionResponseSchema = z.object({
 
 // ── Audio — TTS ───────────────────────────────────────────────────────────────
 
-// SPEC-009: only pm_santa / pf_dora allowed via TTS Bridge
-export const TTS_ALLOWED_VOICES = [
-  'pm_santa',
-  'pf_dora',
-  'alloy',
-  'echo',
-  'fable',
-  'onyx',
-  'nova',
-  'shimmer',
-] as const;
+// SPEC-009: Kokoro via TTS Bridge só suporta pm_santa / pf_dora (PT-BR voices)
+// VOICES OpenAI (alloy, echo, fable, onyx, nova, shimmer) NÃO são Kokoro — removidos
+export const TTS_ALLOWED_VOICES = ['pm_santa', 'pf_dora'] as const;
 
 export const AudioSpeechRequestSchema = z.object({
   model: z.enum(['tts-1', 'tts-1-hd']).default('tts-1'),

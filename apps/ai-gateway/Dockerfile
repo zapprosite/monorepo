@@ -13,10 +13,15 @@ RUN pnpm install --frozen-lockfile --prod
 
 FROM base AS builder
 WORKDIR /app
-COPY package.json pnpm-lock.yaml* ./
-COPY packages/ ./packages/
+# Root monorepo files needed for pnpm workspace + tsconfig
+COPY package.json pnpm-lock.yaml* pnpm-workspace.yaml ./
+COPY tsconfig.base.json ./
+# Only copy needed packages for ai-gateway
+COPY packages/zod-schemas ./packages/zod-schemas/
+COPY packages/config ./packages/config/
 COPY apps/ai-gateway/ ./apps/ai-gateway/
-RUN pnpm install --frozen-lockfile
+# Install only ai-gateway deps (skip other workspace packages with phantom deps)
+RUN pnpm install --no-frozen-lockfile --filter @repo/ai-gateway
 RUN pnpm --filter @repo/ai-gateway build
 
 FROM node:22-alpine AS runner
