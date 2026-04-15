@@ -6,7 +6,7 @@
 
 import type { FastifyInstance } from 'fastify';
 import { $fetch } from 'ofetch';
-import { ChatCompletionRequestSchema } from '@repo/zod-schemas/openai-compat.zod';
+import { ChatCompletionRequestSchema } from '../schemas.js';
 import { applyPtbrFilter } from '../middleware/ptbr-filter';
 
 const LITELLM_URL = process.env.LITELLM_LOCAL_URL ?? 'http://localhost:4000/v1';
