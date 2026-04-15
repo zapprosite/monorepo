@@ -123,7 +123,7 @@ Cliente OpenAI SDK audio
 
 ## Acceptance Criteria
 
-- [ ] `curl https://ai.zappro.site/v1/chat/completions -H "Authorization: Bearer $AI_GATEWAY_FACADE_KEY" -d '{"model":"gpt-4o","messages":[...]}'` retorna resposta PT-BR válida em <3s p95
+- [ ] `curl http://localhost:4002/v1/chat/completions -H "Authorization: Bearer $AI_GATEWAY_FACADE_KEY" -d '{"model":"gpt-4o","messages":[...]}'` retorna resposta PT-BR válida em <3s p95 (serviço interno Coolify — sem novo subdomínio, `llm.zappro.site` continua em `:4000`)
 - [ ] Audio endpoints retornam mp3 (TTS) e JSON (STT) com schema OpenAI idêntico
 - [ ] `pnpm turbo typecheck lint test` verde
 - [ ] `/sec` audit: 0 secrets hardcoded
@@ -147,12 +147,12 @@ Cliente OpenAI SDK audio
 
 ## Rollout
 
-1. PR `feature/spec-047-ai-gateway` — scaffold + schemas
-2. PR `feature/spec-047-ptbr-filter` — middleware + cache
-3. PR `feature/spec-047-coolify` — deploy manifest
-4. Smoke tests em staging (ai-staging.zappro.site)
-5. Cutover produção `ai.zappro.site` + Cloudflare tunnel
-6. Remover legacy/duplicate endpoints
+1. ✅ scaffold + schemas + middleware (feito)
+2. ✅ Coolify deploy (serviço criado UUID `jo53d99erynvllgmga2s4h7o`)
+3. ✅ ai-gateway a correr nativamente em `:4002` (smoke 5/5)
+4. systemd unit para restart automático (T552)
+5. **Sem novo subdomínio** — serviço interno gerido pelo Coolify (`coolify.zappro.site`)
+6. `llm.zappro.site` → `:4000` (LiteLLM directo) mantém-se; ai-gateway é camada interna
 
 ---
 

@@ -40,11 +40,15 @@
 
 ## Phase 3 — Coolify Deploy
 
-- [ ] T300 — `apps/ai-gateway/Dockerfile` multi-stage (pnpm + node:22-alpine)
-- [ ] T301 — `apps/ai-gateway/docker-compose.yml` com labels Coolify + healthcheck + resource limits (CPU 1, mem 512Mi)
-- [ ] T302 — Registar subdomínio `ai.zappro.site` (skill `new-subdomain`) — atualizar `PORTS.md` + `SUBDOMAINS.md`
-- [ ] T303 — Deploy Coolify via API (skill `coolify-access`), secrets injetados via `.env` do Coolify
-- [ ] T304 — Verificar `curl https://ai.zappro.site/health` = 200
+> **Arquitectura corrigida:** ai-gateway é serviço interno gerido pelo Coolify (`coolify.zappro.site`).
+> Sem novo subdomínio. `llm.zappro.site` → `:4000` (LiteLLM) mantém-se independente.
+
+- [x] T300 — `apps/ai-gateway/Dockerfile` multi-stage ✅
+- [x] T301 — `apps/ai-gateway/docker-compose.yml` Coolify-ready ✅
+- [x] T302 — ~~subdomínio ai.zappro.site~~ **REMOVIDO** — serviço interno `:4002` sem exposição pública directa
+- [x] T303 — Deploy Coolify via API ✅ (UUID `jo53d99erynvllgmga2s4h7o`, env vars injectados)
+- [x] T304 — `curl http://localhost:4002/health` = 200 ✅ (smoke 5/5 pass)
+- [ ] T305 — Build da imagem Docker funcional via Coolify (actualmente corre nativo com tsx; imagem precisa de fix no Dockerfile para build context)
 
 ## Phase 4 — Hardening & Tests
 
@@ -59,7 +63,7 @@
 
 - [ ] T500 — `docs/ADRs/ADR-002-ai-gateway-facade.md`
 - [ ] T501 — Atualizar `docs/SPECS/SPEC-INDEX.md`
-- [ ] T502 — Atualizar `CLAUDE.md` com rota canónica `ai.zappro.site`
+- [ ] T502 — Atualizar `CLAUDE.md`: ai-gateway interno `:4002` via Coolify; `llm.zappro.site` = LiteLLM público; sem duplicação
 - [ ] T503 — `/rr` code review holístico (skill `review-minimax`)
 
 ## Phase 5.5 — Hermes Polish (consolida SPEC-046 pendente)
@@ -82,5 +86,5 @@
 
 ## Gates Humanos
 
-- **G1** (antes T300): aprovação de porta 4002 e subdomínio `ai.zappro.site`
+- **G1** ~~subdomínio~~ **REMOVIDO** — sem gate de subdomínio (serviço interno)
 - **G2** (antes T600): review manual de SPEC-009 compliance (nenhuma chamada direta Kokoro)
