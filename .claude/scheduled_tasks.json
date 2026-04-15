@@ -17,14 +17,6 @@
       "recurring": true
     },
     {
-      "id": "checkpoint-90min",
-      "cron": "*/90 * * * *",
-      "prompt": "Rode: /home/will/.claude/mcps/ai-context-sync/checkpoint.sh\n\nSe houver output (changes), liste os arquivos pendentes. Se não, diga apenas 'Checkpoint: OK'.",
-      "createdAt": 1775587500000,
-      "lastFiredAt": 1776189716832,
-      "recurring": true
-    },
-    {
       "id": "sre-monitor",
       "cron": "*/5 * * * *",
       "prompt": "SRE Monitor: Run /srv/monorepo/.claude/skills/coolify-sre/scripts/sre-monitor.sh to check Coolify apps, Docker containers, health endpoints, resource usage, and subdomain tunnel status. Auto-heal degraded/down containers (whitelist only). Log results. Replaces old auto-healer (8812f46c) and resource-monitor (4cb53930).",
