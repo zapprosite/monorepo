@@ -28,47 +28,12 @@ MAX_RESTART_ATTEMPTS=3
 MAX_ALERT_ATTEMPTS=3
 
 # =============================================================================
-# Infisical — fetch secrets
-# =============================================================================
-fetch_secret() {
-    python3 -c "
-import sys
-from infisical_sdk import InfisicalSDKClient
-import os
-token = os.environ.get('INFISICAL_TOKEN', '')
-if not token and os.path.exists('/srv/ops/secrets/infisical.service-token'):
-    token = open('/srv/ops/secrets/infisical.service-token').read().strip()
-client = InfisicalSDKClient(host='http://127.0.0.1:8200', token=token)
-secrets = client.secrets.list_secrets(
-    project_id=os.environ.get("INFISICAL_PROJECT_ID"),
-    environment_slug='dev',
-    secret_path='/'
-)
-for s in secrets.secrets:
-    if s.secret_key == sys.argv[1]:
-        print(s.secret_value, end='')
-        break
-" "$1" 2>/dev/null
-}
-
-# =============================================================================
-# Load secrets (env takes precedence)
+# Secrets — .env canonical source only (INFISICAL SDK PROHIBITED per SPEC-029)
 # =============================================================================
 TELEGRAM_BOT_TOKEN="${TELEGRAM_BOT_TOKEN:-}"
 if [ -z "$TELEGRAM_BOT_TOKEN" ]; then
-    TELEGRAM_BOT_TOKEN=$(fetch_secret "TELEGRAM_BOT_TOKEN")
-fi
-if [ -z "$TELEGRAM_BOT_TOKEN" ]; then
-    echo "ERROR: TELEGRAM_BOT_TOKEN not set" >&2
+    echo "ERROR: TELEGRAM_BOT_TOKEN not set in .env" >&2
     exit 1
-fi
-
-# LITELLM_KEY — env takes precedence, else container (correct key), else Infisical
-if [ -z "${LITELLM_KEY:-}" ]; then
-    LITELLM_KEY=$(docker exec zappro-litellm env 2>/dev/null | grep 'LITELLM_MASTER_KEY=' | cut -d= -f2)
-fi
-if [ -z "${LITELLM_KEY:-}" ]; then
-    LITELLM_KEY=$(fetch_secret "LITELLM_MASTER_KEY")
 fi
 
 # =============================================================================

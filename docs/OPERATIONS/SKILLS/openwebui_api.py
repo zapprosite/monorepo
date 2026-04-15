@@ -4,18 +4,16 @@ OpenWebUI API Wrapper
 =====================
 Wraps OpenWebUI REST API for Claude Code CLI usage.
 
+SPEC-029/ADR-001: .env is the canonical source. Infisical SDK is prohibited.
+
 Usage:
     from openwebui_api import list_models, chat, get_config
 
-Environment variables:
+Environment variables (from .env):
     OPENWEBUI_URL        Base URL (default: https://chat.zappro.site)
     OPENWEBUI_EMAIL      Account email for sign-in
     OPENWEBUI_PASSWORD   Account password
-    OPENWEBUI_JWT_TOKEN  Pre-set JWT token (bypasses sign-in)
-
-Infisical (optional):
-    INFISICAL_TOKEN       Infisical access token
-    INFISICAL_PROJECT_ID  Infisical project ID
+    OPENWEBUI_JWT_TOKEN Pre-set JWT token (bypasses sign-in)
 """
 
 import os
@@ -24,47 +22,15 @@ import urllib.request
 import urllib.error
 from typing import Optional, Dict, Any, List
 
-INFISICAL_AVAILABLE = False
-try:
-    from infisical import Infisical
-    INFISICAL_AVAILABLE = True
-except ImportError:
-    pass
-
-
-def _get_infisical_secrets(token: str, project_id: str, env: str = "prod") -> Dict[str, str]:
-    """Fetch secrets from Infisical."""
-    if not INFISICAL_AVAILABLE:
-        raise ImportError("Infisical SDK not installed: pip install infisical")
-    client = Infisical(token=token)
-    secrets = client.secrets.list(project_id=project_id, environment=env)
-    return {s.secret: s.value for s in secrets}
-
 
 def get_config() -> Dict[str, str]:
-    """Load configuration from env vars, optionally from Infisical."""
-    config = {
+    """Load configuration from .env (canonical source per SPEC-029/ADR-001)."""
+    return {
         "url": os.environ.get("OPENWEBUI_URL", "https://chat.zappro.site"),
         "email": os.environ.get("OPENWEBUI_EMAIL", ""),
         "password": os.environ.get("OPENWEBUI_PASSWORD", ""),
         "jwt_token": os.environ.get("OPENWEBUI_JWT_TOKEN", ""),
-        "infisical_token": os.environ.get("INFISICAL_TOKEN", ""),
-        "infisical_project_id": os.environ.get("INFISICAL_PROJECT_ID", ""),
     }
-
-    if config["infisical_token"] and config["infisical_project_id"]:
-        try:
-            secrets = _get_infisical_secrets(
-                config["infisical_token"],
-                config["infisical_project_id"]
-            )
-            config["email"] = secrets.get("OPENWEBUI_EMAIL", config["email"])
-            config["password"] = secrets.get("OPENWEBUI_PASSWORD", config["password"])
-            config["jwt_token"] = secrets.get("OPENWEBUI_JWT_TOKEN", config["jwt_token"])
-        except Exception as e:
-            print(f"Warning: Infisical fetch failed: {e}", file=__import__('sys').stderr)
-
-    return config
 
 
 def _get_token(config: Dict[str, str]) -> str:
@@ -142,6 +108,6 @@ def chat(model: str, message: str, token: Optional[str] = None) -> str:
     return ""
 
 
-def get_config() -> Dict[str, Any]:
+def get_server_config() -> Dict[str, Any]:
     """Return OpenWebUI server configuration."""
     return _api_request("/api/v1/config")
