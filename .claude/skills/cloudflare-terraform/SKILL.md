@@ -94,7 +94,6 @@ O app serve o OAuth flow completo (login Google → callback → token exchange)
 
 ### Cloudflare Access Pattern (protegido)
 
-
 ---
 
 ## OAuth Client Configuration (CRÍTICO)
@@ -126,6 +125,7 @@ GOOGLE_CLIENT_SECRET=→ Infisical: GOOGLE_CLIENT_SECRET (project: obsidian-web)
 ```
 
 **NÃO usar credenciais legacy:**
+
 - `297107448858-324eplshrg5vv2br911l4dtm8bjh0sl1.apps.googleusercontent.com` → LEGACY, não usar
 
 ### Env vars no docker-compose.yml
@@ -134,8 +134,8 @@ GOOGLE_CLIENT_SECRET=→ Infisical: GOOGLE_CLIENT_SECRET (project: obsidian-web)
 services:
   app-name:
     environment:
-      GOOGLE_CLIENT_ID: "${GOOGLE_CLIENT_ID}"  # Infisical: obsidian-web/GOOGLE_CLIENT_ID
-      GOOGLE_CLIENT_SECRET: "${GOOGLE_CLIENT_SECRET}"  # Infisical: obsidian-web/GOOGLE_CLIENT_SECRET
+      GOOGLE_CLIENT_ID: '${GOOGLE_CLIENT_ID}' # Infisical: obsidian-web/GOOGLE_CLIENT_ID
+      GOOGLE_CLIENT_SECRET: '${GOOGLE_CLIENT_SECRET}' # Infisical: obsidian-web/GOOGLE_CLIENT_SECRET
 ```
 
 ---
@@ -144,25 +144,26 @@ services:
 
 ### `services` map — todos os subdomínios
 
-| Subdomain | URL | http_host_header | Acesso | Notas |
-|-----------|-----|------------------|--------|-------|
-| `api.zappro.site` | 10.0.1.1:4000 | - | Cloudflare Access | LiteLLM |
-| `bot.zappro.site` | localhost:4001 | openclaw-qgtzrmi... | **OAuth native** | sem Access |
-| `chat.zappro.site` | 10.0.5.2:8080 | openwebui-wbmqefx... | Cloudflare Access | OpenWebUI |
-| `coolify.zappro.site` | localhost:8000 | - | Cloudflare Access | Coolify |
-| `git.zappro.site` | localhost:3300 | - | Cloudflare Access | Gitea |
-| `llm.zappro.site` | 10.0.1.1:4000 | - | Cloudflare Access | LiteLLM |
-| `list.zappro.site` | localhost:4080 | - | **OAuth native** | sem Access |
-| `md.zappro.site` | localhost:4081 | - | **OAuth native** | sem Access |
-| `monitor.zappro.site` | localhost:3100 | - | LAN only | Grafana |
-| `painel.zappro.site` | localhost:4003 | - | Cloudflare Access | Painel |
-| `qdrant.zappro.site` | 10.0.19.5:6333 | - | Cloudflare Access | Qdrant |
+| Subdomain             | URL            | http_host_header     | Acesso            | Notas      |
+| --------------------- | -------------- | -------------------- | ----------------- | ---------- |
+| `api.zappro.site`     | 10.0.1.1:4000  | -                    | Cloudflare Access | LiteLLM    |
+| `chat.zappro.site`    | 10.0.5.2:8080  | openwebui-wbmqefx... | Cloudflare Access | OpenWebUI  |
+| `coolify.zappro.site` | localhost:8000 | -                    | Cloudflare Access | Coolify    |
+| `git.zappro.site`     | localhost:3300 | -                    | Cloudflare Access | Gitea      |
+| `llm.zappro.site`     | 10.0.1.1:4000  | -                    | Cloudflare Access | LiteLLM    |
+| `list.zappro.site`    | localhost:4080 | -                    | **OAuth native**  | sem Access |
+| `md.zappro.site`      | localhost:4081 | -                    | **OAuth native**  | sem Access |
+| `monitor.zappro.site` | localhost:3100 | -                    | LAN only          | Grafana    |
+| `painel.zappro.site`  | localhost:4003 | -                    | Cloudflare Access | Painel     |
+| `qdrant.zappro.site`  | 10.0.19.5:6333 | -                    | Cloudflare Access | Qdrant     |
 
 ### `tunnel_name`
+
 - Default: `will-zappro-homelab`
 - NÃO mudar — é o nome do tunnel existente
 
 ### `domain`
+
 - Default: `zappro.site`
 
 ---
@@ -231,6 +232,7 @@ access_services = { for k, v in var.services : k => v if k != "bot" && k != "lis
 ```
 
 **Quando adicionar novo subdomain OAuth-native:**
+
 1. Adicionar em `variables.tf` normalmente
 2. NÃO adicionar em access.tf (já exclui via filter)
 3. O app implementa OAuth flow completo
@@ -241,13 +243,13 @@ access_services = { for k, v in var.services : k => v if k != "bot" && k != "lis
 
 ### Variáveis sensíveis (NUNCA commitar)
 
-| Variável | Onde definir |
-|----------|-------------|
-| `cloudflare_api_token` | `terraform.tfvars` ou env `TF_VAR_cloudflare_api_token` |
-| `cloudflare_account_id` | `terraform.tfvars` ou env |
-| `cloudflare_zone_id` | `terraform.tfvars` ou env |
-| `google_client_id` | `terraform.tfvars` |
-| `google_client_secret` | `terraform.tfvars` |
+| Variável                | Onde definir                                            |
+| ----------------------- | ------------------------------------------------------- |
+| `cloudflare_api_token`  | `terraform.tfvars` ou env `TF_VAR_cloudflare_api_token` |
+| `cloudflare_account_id` | `terraform.tfvars` ou env                               |
+| `cloudflare_zone_id`    | `terraform.tfvars` ou env                               |
+| `google_client_id`      | `terraform.tfvars`                                      |
+| `google_client_secret`  | `terraform.tfvars`                                      |
 
 ### Obter valores do Infisical
 
@@ -266,30 +268,36 @@ print(token)
 ## Troubleshooting
 
 ### "Connection refused" no subdomain
+
 - Cloudflare Tunnel pode estar a apontar para IP errado
 - Verificar `http_host_header` em `variables.tf`
 - O `http_host_header` é necessário quando o serviço faz bind a um hostname específico
 
 ### "invalid_client" OAuth error
+
 1. Verificar que `client_secret` está no token exchange POST body
 2. Verificar que `client_id` e `client_secret` são os corretos (não legacy)
 3. Verificar redirect_uri em Google Cloud Console
 
 ### "client_secret is missing"
+
 - O token exchange POST body **não inclui** `client_secret`
 - Adicionar `client_secret` ao body → Infisical: obsidian-web/GOOGLE_CLIENT_SECRET
 
 ### Terraform state desactualizado
+
 ```bash
 terraform refresh
 terraform plan  # ver diferenças
 ```
 
 ### Tunnel não aparece no Cloudflare Dashboard
+
 - O tunnel é gerido pelo Terraform
 - NÃO editar manualmente no dashboard — Terraform vai sobrepor
 
 ### DNS records não existem
+
 ```bash
 # Ver Cloudflare API
 curl -X GET "https://api.cloudflare.com/client/v4/zones/{zone_id}/dns_records" \
@@ -301,16 +309,19 @@ curl -X GET "https://api.cloudflare.com/client/v4/zones/{zone_id}/dns_records" \
 ## Integration com Cursor-Loop
 
 O cursor-loop pode usar Cloudflare para:
+
 1. Adicionar subdomain para novo serviço
 2. Actualizar DNS
 3. Configurar Access policy
 
 **Não fazer automaticamente:**
+
 - Criar novos tunnels
 - Mudar `tunnel_name`
 - Remover serviços existentes
 
 **Permitido automaticamente:**
+
 - Adicionar novo subdomain a serviço existente
 - Actualizar `http_host_header`
 - Excluir novo subdomain da Access (se OAuth-native)
@@ -322,8 +333,6 @@ O cursor-loop pode usar Cloudflare para:
 - **State:** `terraform.tfstate` (local, gitignored)
 - **Backup:** `terraform.tfstate.backup`
 - **Tunnel credentials:** `~/.cloudflared/config.yml`
-
-
 
 ## Quick API Flow (no Terraform)
 
@@ -351,6 +360,7 @@ export CLOUDFLARE_TUNNEL_ID="aee7a93d-c2e2-4c77-a395-71edc1821402"
 ```
 
 Or source from .env:
+
 ```bash
 source /srv/monorepo/.env
 # Uses: CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID, CLOUDFLARE_ZONE_ID, CLOUDFLARE_TUNNEL_ID
@@ -490,6 +500,7 @@ echo "Done: https://${SUBDOMAIN}.zappro.site/"
 ```
 
 **Uso:**
+
 ```bash
 # grafana.zappro.site → localhost:3100
 ./cf-quick-add.sh grafana localhost 3100

@@ -23,15 +23,15 @@ Consolidar monitoramento, healing, resource tracking, diagnostics e deploy em um
 
 ## Skills Consolidadas
 
-| Skill Anterior | Funcionalidade | Agora Em |
-|---------------|---------------|----------|
-| `coolify-auto-healer` | Restart containers degraded/down | `coolify-sre heal` |
-| `coolify-resource-monitor` | CPU/memory/disk alerts | `coolify-sre resources` |
-| `coolify-incident-diagnostics` | Diagnóstico de incidentes | `coolify-sre diagnose` |
-| `coolify-deploy-trigger` | Deploy via API | `coolify-sre deploy` |
-| `coolify-health-check` | Health endpoints | `coolify-sre health` |
-| `coolify-rollback` | Rollback de deploy | `coolify-sre rollback` |
-| `coolify-access` | API integration | Config compartilhado |
+| Skill Anterior                 | Funcionalidade                   | Agora Em                |
+| ------------------------------ | -------------------------------- | ----------------------- |
+| `coolify-auto-healer`          | Restart containers degraded/down | `coolify-sre heal`      |
+| `coolify-resource-monitor`     | CPU/memory/disk alerts           | `coolify-sre resources` |
+| `coolify-incident-diagnostics` | Diagnóstico de incidentes        | `coolify-sre diagnose`  |
+| `coolify-deploy-trigger`       | Deploy via API                   | `coolify-sre deploy`    |
+| `coolify-health-check`         | Health endpoints                 | `coolify-sre health`    |
+| `coolify-rollback`             | Rollback de deploy               | `coolify-sre rollback`  |
+| `coolify-access`               | API integration                  | Config compartilhado    |
 
 ## Comandos
 
@@ -75,22 +75,20 @@ COOLIFY_URL=http://127.0.0.1:8000
 
 ### Thresholds Configuráveis
 
-| Resource | Warning | Critical | Action |
-|----------|---------|----------|--------|
-| CPU % | 70% | 90% | Log + alert |
-| Memory % | 75% | 90% | Log + alert |
-| Disk % | 80% | 95% | Log + alert |
-| Container status: degraded | - | - | Auto-restart |
-| Container status: down | - | - | Auto-restart |
-| Container status: stopped | - | - | Auto-start |
-| Health check: fail 3x | - | - | Alert Telegram |
+| Resource                   | Warning | Critical | Action         |
+| -------------------------- | ------- | -------- | -------------- |
+| CPU %                      | 70%     | 90%      | Log + alert    |
+| Memory %                   | 75%     | 90%      | Log + alert    |
+| Disk %                     | 80%     | 95%      | Log + alert    |
+| Container status: degraded | -       | -        | Auto-restart   |
+| Container status: down     | -       | -        | Auto-restart   |
+| Container status: stopped  | -       | -        | Auto-start     |
+| Health check: fail 3x      | -       | -        | Alert Telegram |
 
 ### Apps Monitoradas (Whitelist)
 
 ```python
 COOLIFY_APPS = [
-    "openclaw",       # PINNED — auto-restart only, NO config change
-    "openwebui",      # PINNED — auto-restart only
     "qdrant",         # Active
     "n8n",            # IMMUTABLE — auto-restart only
     "perplexity-agent", # Active
@@ -111,27 +109,27 @@ DOCKER_CONTAINERS = [
 
 ### Health Endpoints
 
-| App | URL | Expected |
-|-----|-----|----------|
-| LiteLLM | `http://localhost:4000/health` | 200 or 401 |
-| wav2vec2 | `http://localhost:8201/health` | 200 |
-| TTS Bridge | `http://localhost:8013/health` | 200 |
-| Kokoro | `http://localhost:8012/health` | 200 |
-| perplexity-agent | `http://localhost:4004/_stcore/health` | 200 |
-| Qdrant | `http://localhost:6333/health` | 200 |
-| Coolify | `http://localhost:8000/api/health` | 200 |
+| App              | URL                                    | Expected   |
+| ---------------- | -------------------------------------- | ---------- |
+| LiteLLM          | `http://localhost:4000/health`         | 200 or 401 |
+| wav2vec2         | `http://localhost:8201/health`         | 200        |
+| TTS Bridge       | `http://localhost:8013/health`         | 200        |
+| Kokoro           | `http://localhost:8012/health`         | 200        |
+| perplexity-agent | `http://localhost:4004/_stcore/health` | 200        |
+| Qdrant           | `http://localhost:6333/health`         | 200        |
+| Coolify          | `http://localhost:8000/api/health`     | 200        |
 
 ## Fluxo: Monitor (Cron Unificado)
 
 Substitui os seguintes crons duplicados:
 
-| Cron Anterior | Schedule | Problema |
-|--------------|----------|----------|
-| coolify-auto-healer | */5 | OK |
-| resource-monitor | */15 | Substituído |
-| homelab-health-check | */15 | Substituído |
-| tunnel-health-check | */15 | Substituído |
-| smoke-tunnel.sh | */30 | Substituído |
+| Cron Anterior        | Schedule | Problema    |
+| -------------------- | -------- | ----------- |
+| coolify-auto-healer  | \*/5     | OK          |
+| resource-monitor     | \*/15    | Substituído |
+| homelab-health-check | \*/15    | Substituído |
+| tunnel-health-check  | \*/15    | Substituído |
+| smoke-tunnel.sh      | \*/30    | Substituído |
 
 **Novo cron unificado:**
 
@@ -156,40 +154,39 @@ Substitui os seguintes crons duplicados:
 
 ### Serviços IMMUTABLE — NUNCA Reiniciar
 
-| Container | Ação Permitida | Ação Proibida |
-|-----------|---------------|---------------|
+| Container     | Ação Permitida        | Ação Proibida               |
+| ------------- | --------------------- | --------------------------- |
 | coolify-proxy | Verificar status only | Reiniciar, parar, modificar |
-| cloudflared | Verificar status only | Reiniciar, parar, modificar |
-| coolify-db | Verificar status only | Reiniciar, parar, modificar |
-| prometheus | Verificar status only | Reiniciar, parar, modificar |
-| grafana | Verificar status only | Reiniciar, parar, modificar |
-| loki | Verificar status only | Reiniciar, parar, modificar |
-| alertmanager | Verificar status only | Reiniciar, parar, modificar |
-| n8n | Auto-restart only | Modificar config, remover |
+| cloudflared   | Verificar status only | Reiniciar, parar, modificar |
+| coolify-db    | Verificar status only | Reiniciar, parar, modificar |
+| prometheus    | Verificar status only | Reiniciar, parar, modificar |
+| grafana       | Verificar status only | Reiniciar, parar, modificar |
+| loki          | Verificar status only | Reiniciar, parar, modificar |
+| alertmanager  | Verificar status only | Reiniciar, parar, modificar |
+| n8n           | Auto-restart only     | Modificar config, remover   |
 
 ### Serviços PINNED — Auto-restart Only (requer MASTER_PASSWORD para config change)
 
-| Container | Auto-restart? | Config Change? |
-|-----------|--------------|----------------|
-| openclaw | YES | NEVER (MASTER_PASSWORD + SPEC-009) |
-| zappro-kokoro | YES | NEVER (KIT PROTECTED) |
-| zappro-wav2vec2 | YES | NEVER (KIT PROTECTED) |
-| zappro-tts-bridge | YES | NEVER (KIT PROTECTED) |
-| zappro-litellm | YES | NEVER (LOCKED) |
-| openwebui | YES | MASTER_PASSWORD required |
+| Container         | Auto-restart? | Config Change?        |
+| ----------------- | ------------- | --------------------- |
+| zappro-kokoro     | YES           | NEVER (KIT PROTECTED) |
+| zappro-wav2vec2   | YES           | NEVER (KIT PROTECTED) |
+| zappro-tts-bridge | YES           | NEVER (KIT PROTECTED) |
+| zappro-litellm    | YES           | NEVER (LOCKED)        |
 
 ## Logs
 
-| Log | Local | Rotação |
-|-----|-------|---------|
-| SRE Monitor | `/srv/ops/logs/sre-monitor.log` | 7 dias |
-| Healing Actions | `/srv/ops/logs/healing.log` | 30 dias |
-| Resource Alerts | `/srv/ops/logs/resource-alerts.log` | 7 dias |
-| Incident Reports | `/srv/ops/logs/incidents/` | 90 dias |
+| Log              | Local                               | Rotação |
+| ---------------- | ----------------------------------- | ------- |
+| SRE Monitor      | `/srv/ops/logs/sre-monitor.log`     | 7 dias  |
+| Healing Actions  | `/srv/ops/logs/healing.log`         | 30 dias |
+| Resource Alerts  | `/srv/ops/logs/resource-alerts.log` | 7 dias  |
+| Incident Reports | `/srv/ops/logs/incidents/`          | 90 dias |
 
 ## Alerting
 
 Se auto-heal falhar após 2 tentativas:
+
 1. Log em `healing.log` com detalhe
 2. Telegram notification (se GOTIFY_WEBHOOK_URL configurado)
 3. Gotify push (se GOTIFY_URL configurado)
