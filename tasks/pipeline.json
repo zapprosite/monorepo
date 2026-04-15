@@ -2,1253 +2,376 @@
   "tasks": [
     {
       "id": 1,
-      "title": "SPEC-032: cron smoke-tunnel every 30min",
-      "description": "Add cron job: */30 * * * * /srv/ops/scripts/smoke-tunnel.sh \u2192 Gotify alert if DOWN \u2192 log /srv/ops/logs/tunnel-health.log",
-      "status": "done",
+      "title": "SPEC-051: SPEC-INDEX.md — Arquivar 8 SPECs OpenClaw",
+      "description": "SPEC-INDEX.md: архивировать 8 SPECs (SPEC-007, 010, 011, 012, 019, 020, 025, 026) в archive/. Обновить SPEC-INDEX.md таблицу, пометить как DEPRECATED/ARCHIVED. SPEC-009 → переименовать в archived.",
+      "status": "pending",
       "priority": "high",
       "dependencies": [],
       "subtasks": [
+        { "id": "1.1", "title": "Переместить SPEC-007 в archive/", "status": "pending" },
+        { "id": "1.2", "title": "Переместить SPEC-010 в archive/", "status": "pending" },
+        { "id": "1.3", "title": "Переместить SPEC-011 в archive/", "status": "pending" },
+        { "id": "1.4", "title": "Переместить SPEC-012 в archive/", "status": "pending" },
+        { "id": "1.5", "title": "Переместить SPEC-019 в archive/", "status": "pending" },
+        { "id": "1.6", "title": "Переместить SPEC-020 в archive/", "status": "pending" },
+        { "id": "1.7", "title": "Переместить SPEC-025 в archive/", "status": "pending" },
+        { "id": "1.8", "title": "Переместить SPEC-026 в archive/", "status": "pending" },
+        { "id": "1.9", "title": "Переименовать SPEC-009 в archived name", "status": "pending" },
         {
-          "id": "1.1",
-          "title": "Add cron entry: */30 * * * *",
-          "status": "done"
-        },
-        {
-          "id": "1.2",
-          "title": "Ensure /srv/ops/logs/ directory exists",
-          "status": "done"
-        },
-        {
-          "id": "1.3",
-          "title": "DOWN result triggers gotify-alert.sh",
-          "status": "done"
+          "id": "1.10",
+          "title": "Обновить SPEC-INDEX.md таблицу — убрать OpenClaw ссылки",
+          "status": "pending"
         }
       ],
       "acceptanceCriteria": [
-        "AC-1: cron entry exists",
-        "AC-2: log file created",
-        "AC-3: Gotify alert when DOWN"
+        "AC-051-1: 8 SPECs перемещены в archive/",
+        "AC-051-2: SPEC-INDEX.md без OpenClaw ссылок (кроме archive)"
       ],
-      "files": ["/srv/ops/logs/tunnel-health.log", "crontab"],
-      "testRequired": true,
-      "specRef": "docs/SPECS/SPEC-032-tunnel-health-automation.md"
+      "files": [
+        "docs/SPECS/SPEC-007*.md",
+        "docs/SPECS/SPEC-010*.md",
+        "docs/SPECS/SPEC-011*.md",
+        "docs/SPECS/SPEC-012*.md",
+        "docs/SPECS/SPEC-019*.md",
+        "docs/SPECS/SPEC-020*.md",
+        "docs/SPECS/SPEC-025*.md",
+        "docs/SPECS/SPEC-026*.md",
+        "docs/SPECS/SPEC-009*.md",
+        "docs/SPECS/SPEC-INDEX.md"
+      ],
+      "testRequired": false,
+      "specRef": "docs/SPECS/SPEC-051-openclaw-prune-specs-polish.md"
     },
     {
       "id": 2,
-      "title": "SPEC-032: validate-ingress.sh \u2014 tunnel ingress validation",
-      "description": "Read variables.tf service URLs, verify each IP:port is reachable (curl/nc), flag localhost URLs pointing to container-only services (10.0.x.x)",
-      "status": "done",
+      "title": "SPEC-051: .env — Prune 12 variáveis OpenClaw",
+      "description": "Remover 12 variáveis OPENCLAW_* e relacionadas do .env e .env.example. Variáveis a remover: OPENCLAW_USER, OPENCLAW_PASSWORD, OPENCLAW_DEEPGRAM_API_KEY, OPENCLAW_GATEWAY_TOKEN, OPENCLAW_GEMINI_API_KEY, OPENCLAW_CONTAINER_NAME, OPENCLAW_FQDN, OPENCLAW_INTERNAL_URL, OPENCLAW_INTERNAL_PORT, STT_PROXY_URL, PORT=4001, WAV2VEC2_URL (já comentado). Manter: STT_DIRECT_URL, WHISPER_MEDIUM_PORT.",
+      "status": "pending",
       "priority": "high",
       "dependencies": [],
       "subtasks": [
-        {
-          "id": "2.1",
-          "title": "Create validate-ingress.sh",
-          "status": "done"
-        },
-        {
-          "id": "2.2",
-          "title": "Parse variables.tf for ingress rules",
-          "status": "done"
-        },
-        {
-          "id": "2.3",
-          "title": "Verify IP:port reachable for each service",
-          "status": "done"
-        },
-        {
-          "id": "2.4",
-          "title": "Flag localhost URLs (should use container IPs)",
-          "status": "done"
-        }
+        { "id": "2.1", "title": "Remover OPENCLAW_USER do .env", "status": "pending" },
+        { "id": "2.2", "title": "Remover OPENCLAW_PASSWORD do .env", "status": "pending" },
+        { "id": "2.3", "title": "Remover OPENCLAW_DEEPGRAM_API_KEY do .env", "status": "pending" },
+        { "id": "2.4", "title": "Remover OPENCLAW_GATEWAY_TOKEN do .env", "status": "pending" },
+        { "id": "2.5", "title": "Remover OPENCLAW_GEMINI_API_KEY do .env", "status": "pending" },
+        { "id": "2.6", "title": "Remover OPENCLAW_CONTAINER_NAME do .env", "status": "pending" },
+        { "id": "2.7", "title": "Remover OPENCLAW_FQDN do .env", "status": "pending" },
+        { "id": "2.8", "title": "Remover OPENCLAW_INTERNAL_URL do .env", "status": "pending" },
+        { "id": "2.9", "title": "Remover OPENCLAW_INTERNAL_PORT do .env", "status": "pending" },
+        { "id": "2.10", "title": "Remover STT_PROXY_URL do .env", "status": "pending" },
+        { "id": "2.11", "title": "Remover PORT=4001 do .env", "status": "pending" },
+        { "id": "2.12", "title": "Actualizar .env.example em conformidade", "status": "pending" }
       ],
       "acceptanceCriteria": [
-        "AC-1: script exists and executable",
-        "AC-2: detects localhost ingress",
-        "AC-3: reports unreachable ingress"
+        "AC-051-3: .env sem OPENCLAW_USER, OPENCLAW_PASSWORD, OPENCLAW_DEEPGRAM_API_KEY, OPENCLAW_GATEWAY_TOKEN, OPENCLAW_GEMINI_API_KEY, OPENCLAW_CONTAINER_NAME, OPENCLAW_FQDN, OPENCLAW_INTERNAL_URL, OPENCLAW_INTERNAL_PORT, STT_PROXY_URL, PORT=4001",
+        "AC-051-4: .env.example actualizado com placeholders removidos",
+        "AC-051-5: STT_DIRECT_URL e WHISPER_MEDIUM_PORT mantidos"
       ],
-      "files": ["/srv/ops/scripts/validate-ingress.sh"],
-      "testRequired": true,
-      "specRef": "docs/SPECS/SPEC-032-tunnel-health-automation.md"
+      "files": [".env", ".env.example"],
+      "testRequired": false,
+      "specRef": "docs/SPECS/SPEC-051-openclaw-prune-specs-polish.md"
     },
     {
       "id": 3,
-      "title": "SPEC-032: tunnel-autoheal.sh \u2014 auto-heal cloudflared",
-      "description": "If cloudflared status != active \u2192 ZFS snapshot \u2192 systemctl restart. If 0 ingress rules \u2192 alert immediately via Gotify",
-      "status": "done",
-      "priority": "critical",
+      "title": "SPEC-051: docs/OPERATIONS/SKILLS/ — Archive 13+ ficheiros legacy",
+      "description": "Arquivar/apagar todos os ficheiros legacy de operações: wav2vec2-*, openwebui-*, openclaw-*. Mover para archive/ ou apagar. Ficheiros: wav2vec2-health-check.md, wav2vec2-proxy.md, wav2vec2-deepgram-proxy.py, wav2vec2-proxy.compose.yml, wav2vec2-deepgram-proxy.dockerfile, voice-pipeline-watchdog.md, openwebui-health-check.sh, openwebui-runbook.md, openwebui_admin.py, openwebui_secrets.py, openwebui-mcp-docker-compose.yml, openwebui-mcp.yml, openclaw-agents-kit/ (directório).",
+      "status": "pending",
+      "priority": "high",
       "dependencies": [],
       "subtasks": [
-        {
-          "id": "3.1",
-          "title": "Create tunnel-autoheal.sh",
-          "status": "done"
-        },
-        {
-          "id": "3.2",
-          "title": "Check cloudflared service status",
-          "status": "done"
-        },
-        {
-          "id": "3.3",
-          "title": "ZFS snapshot before restart (rpool/srv)",
-          "status": "done"
-        },
-        {
-          "id": "3.4",
-          "title": "systemctl restart cloudflared if down",
-          "status": "done"
-        },
+        { "id": "3.1", "title": "Arquivar wav2vec2-health-check.md", "status": "pending" },
+        { "id": "3.2", "title": "Arquivar wav2vec2-proxy.md", "status": "pending" },
+        { "id": "3.3", "title": "Arquivar wav2vec2-deepgram-proxy.py", "status": "pending" },
+        { "id": "3.4", "title": "Arquivar wav2vec2-proxy.compose.yml", "status": "pending" },
         {
           "id": "3.5",
-          "title": "Alert via Gotify if 0 ingress rules active",
-          "status": "done"
-        }
+          "title": "Arquivar wav2vec2-deepgram-proxy.dockerfile",
+          "status": "pending"
+        },
+        { "id": "3.6", "title": "Arquivar voice-pipeline-watchdog.md", "status": "pending" },
+        { "id": "3.7", "title": "Arquivar openwebui-health-check.sh", "status": "pending" },
+        { "id": "3.8", "title": "Arquivar openwebui-runbook.md", "status": "pending" },
+        { "id": "3.9", "title": "Arquivar openwebui_admin.py", "status": "pending" },
+        { "id": "3.10", "title": "Arquivar openwebui_secrets.py", "status": "pending" },
+        { "id": "3.11", "title": "Arquivar openwebui-mcp-docker-compose.yml", "status": "pending" },
+        { "id": "3.12", "title": "Arquivar openwebui-mcp.yml", "status": "pending" },
+        { "id": "3.13", "title": "Arquivar directório openclaw-agents-kit/", "status": "pending" }
       ],
       "acceptanceCriteria": [
-        "AC-1: script executable",
-        "AC-2: ZFS snapshot before restart",
-        "AC-3: cloudflared restarted within 5min",
-        "AC-4: Gotify alert if 0 ingress"
+        "AC-051-6: docs/OPERATIONS/SKILLS/ sem ficheiros wav2vec2/openwebui/openclaw",
+        "AC-051-7: Ficheiros movidos para archive/ ou apagados"
       ],
-      "files": ["/srv/ops/scripts/tunnel-autoheal.sh"],
-      "testRequired": true,
-      "specRef": "docs/SPECS/SPEC-032-tunnel-health-automation.md"
+      "files": [
+        "docs/OPERATIONS/SKILLS/wav2vec2-health-check.md",
+        "docs/OPERATIONS/SKILLS/wav2vec2-proxy.md",
+        "docs/OPERATIONS/SKILLS/wav2vec2-deepgram-proxy.py",
+        "docs/OPERATIONS/SKILLS/wav2vec2-proxy.compose.yml",
+        "docs/OPERATIONS/SKILLS/wav2vec2-deepgram-proxy.dockerfile",
+        "docs/OPERATIONS/SKILLS/voice-pipeline-watchdog.md",
+        "docs/OPERATIONS/SKILLS/openwebui-health-check.sh",
+        "docs/OPERATIONS/SKILLS/openwebui-runbook.md",
+        "docs/OPERATIONS/SKILLS/openwebui_admin.py",
+        "docs/OPERATIONS/SKILLS/openwebui_secrets.py",
+        "docs/OPERATIONS/SKILLS/openwebui-mcp-docker-compose.yml",
+        "docs/OPERATIONS/SKILLS/openwebui-mcp.yml",
+        "docs/OPERATIONS/SKILLS/openclaw-agents-kit/"
+      ],
+      "testRequired": false,
+      "specRef": "docs/SPECS/SPEC-051-openclaw-prune-specs-polish.md"
+    },
+    {
+      "id": 4,
+      "title": "SPEC-051: Smoke-tests — Delete 4+ ficheiros legacy",
+      "description": "Apagar smoke tests legados: tasks/smoke-tests/pipeline-openclaw-voice.sh, tasks/smoke-tests/voice-proxy-smoke-test.sh, tasks/smoke-tests/voice-pipeline-loop.sh, tasks/smoke-tests/openwebui-api.sh, smoke-tests/smoke-env-secrets-validate.sh. Estes validam secrets de serviços OpenClaw já removidos.",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [],
+      "subtasks": [
+        { "id": "4.1", "title": "Apagar pipeline-openclaw-voice.sh", "status": "pending" },
+        { "id": "4.2", "title": "Apagar voice-proxy-smoke-test.sh", "status": "pending" },
+        { "id": "4.3", "title": "Apagar voice-pipeline-loop.sh", "status": "pending" },
+        { "id": "4.4", "title": "Apagar openwebui-api.sh", "status": "pending" },
+        { "id": "4.5", "title": "Apagar smoke-env-secrets-validate.sh", "status": "pending" }
+      ],
+      "acceptanceCriteria": [
+        "AC-051-8: tasks/smoke-tests/ sem scripts OpenClaw/wav2vec2 legacy",
+        "AC-051-9: smoke-tests/ sem smoke-env-secrets-validate.sh"
+      ],
+      "files": [
+        "tasks/smoke-tests/pipeline-openclaw-voice.sh",
+        "tasks/smoke-tests/voice-proxy-smoke-test.sh",
+        "tasks/smoke-tests/voice-pipeline-loop.sh",
+        "tasks/smoke-tests/openwebui-api.sh",
+        "smoke-tests/smoke-env-secrets-validate.sh"
+      ],
+      "testRequired": false,
+      "specRef": "docs/SPECS/SPEC-051-openclaw-prune-specs-polish.md"
     },
     {
       "id": 5,
-      "title": "SPEC-038 TASK-HERMES-007: coolify_sre Hermes wrapper",
-      "description": "Create ~/.hermes/skills/coolify_sre/hermes_integration.py + /srv/ops/scripts/hermes-coolify-cli.sh wrapper for Hermes CLI",
-      "status": "done",
-      "priority": "P1",
+      "title": "SPEC-051: Skills — Update/Archive coolify-access, coolify-sre, cloudflare-terraform",
+      "description": "coolify-access/SKILL.md: архивировать (docker-compose OpenClaw legacy). coolify-sre/SKILL.md: удалить openclaw/openwebui из COOLIFY_APPS whitelist, manter wav2vec2. cloudflare-terraform/SKILL.md: удалить bot.zappro.site → localhost:4001. cloudflare-tunnel-enterprise/SKILL.md: удалить bot → 4001.",
+      "status": "pending",
+      "priority": "high",
       "dependencies": [],
       "subtasks": [
         {
           "id": "5.1",
-          "title": "Create hermes_integration.py",
+          "title": "Arquivar coolify-access/SKILL.md (docker-compose legacy)",
           "status": "pending"
         },
         {
           "id": "5.2",
-          "title": "Create hermes-coolify-cli.sh",
+          "title": "Actualizar coolify-sre/SKILL.md — remover openclaw/openwebui",
           "status": "pending"
         },
         {
           "id": "5.3",
-          "title": "Integrate with Hermes skill system",
+          "title": "Actualizar cloudflare-terraform/SKILL.md — remover bot.zappro.site:4001",
+          "status": "pending"
+        },
+        {
+          "id": "5.4",
+          "title": "Actualizar cloudflare-tunnel-enterprise/SKILL.md — remover bot → 4001",
           "status": "pending"
         }
       ],
-      "acceptanceCriteria": ["SC-6: coolify_sre with Hermes wrapper"],
+      "acceptanceCriteria": [
+        "AC-051-10: coolify-access архивирован",
+        "AC-051-11: coolify-sre sem openclaw/openwebui",
+        "AC-051-12: cloudflare skills sem bot.zappro.site:4001"
+      ],
       "files": [
-        "~/.hermes/skills/coolify_sre/hermes_integration.py",
-        "/srv/ops/scripts/hermes-coolify-cli.sh"
+        ".claude/skills/coolify-access/SKILL.md",
+        ".claude/skills/coolify-sre/SKILL.md",
+        ".claude/skills/cloudflare-terraform/SKILL.md",
+        ".claude/skills/cloudflare-tunnel-enterprise/SKILL.md"
       ],
       "testRequired": false,
-      "specRef": "docs/SPECS/SPEC-038-hermes-agent-migration.md"
+      "specRef": "docs/SPECS/SPEC-051-openclaw-prune-specs-polish.md"
     },
     {
       "id": 6,
-      "title": "SPEC-038 TASK-HERMES-008: hermes.json crons \u2014 centralize all cron jobs",
-      "description": "Install hermes.json with centralized crons. Migrate: backup-qdrant.sh, Gitea backup, cleanup-sessions.sh, /mcp-health skill, unify smoke-tunnel.sh + tunnel-health-check.sh",
-      "status": "done",
-      "priority": "P1",
+      "title": "SPEC-051: Tasks files — Archive 7 ficheiros legacy",
+      "description": "Arquivar tasks legados: tasks/todo-openwebui-claude-code-cli.md, tasks/plan-openwebui-claude-code-cli.md, tasks/plan-openclaw-oauth-profiles.md, tasks/plan-agency-reimagined.md, tasks/TODO-audio-stack.md, tasks/todo-agency-reimagined.md, tasks/PLAN-audio-stack-integration.md. Mover para archive/ ou apagar.",
+      "status": "pending",
+      "priority": "medium",
       "dependencies": [],
       "subtasks": [
-        {
-          "id": "6.1",
-          "title": "Install hermes.json crons",
-          "status": "pending"
-        },
-        {
-          "id": "6.2",
-          "title": "Migrate backup-qdrant.sh to hermes.json",
-          "status": "pending"
-        },
-        {
-          "id": "6.3",
-          "title": "Migrate Gitea backup crontab inline to hermes.json",
-          "status": "pending"
-        },
-        {
-          "id": "6.4",
-          "title": "Migrate cleanup-sessions.sh to hermes.json",
-          "status": "pending"
-        },
-        {
-          "id": "6.5",
-          "title": "Unify smoke-tunnel.sh + tunnel-health-check.sh overlap",
-          "status": "pending"
-        }
+        { "id": "6.1", "title": "Arquivar todo-openwebui-claude-code-cli.md", "status": "pending" },
+        { "id": "6.2", "title": "Arquivar plan-openwebui-claude-code-cli.md", "status": "pending" },
+        { "id": "6.3", "title": "Arquivar plan-openclaw-oauth-profiles.md", "status": "pending" },
+        { "id": "6.4", "title": "Arquivar plan-agency-reimagined.md", "status": "pending" },
+        { "id": "6.5", "title": "Arquivar TODO-audio-stack.md", "status": "pending" },
+        { "id": "6.6", "title": "Arquivar todo-agency-reimagined.md", "status": "pending" },
+        { "id": "6.7", "title": "Arquivar PLAN-audio-stack-integration.md", "status": "pending" }
       ],
-      "acceptanceCriteria": ["SC-7: hermes.json crons centralized"],
-      "files": ["hermes.json"],
+      "acceptanceCriteria": ["AC-051-13: tasks/ sem ficheiros OpenWebUI/OpenClaw legacy"],
+      "files": [
+        "tasks/todo-openwebui-claude-code-cli.md",
+        "tasks/plan-openwebui-claude-code-cli.md",
+        "tasks/plan-openclaw-oauth-profiles.md",
+        "tasks/plan-agency-reimagined.md",
+        "tasks/TODO-audio-stack.md",
+        "tasks/todo-agency-reimagined.md",
+        "tasks/PLAN-audio-stack-integration.md"
+      ],
       "testRequired": false,
-      "specRef": "docs/SPECS/SPEC-038-hermes-agent-migration.md"
+      "specRef": "docs/SPECS/SPEC-051-openclaw-prune-specs-polish.md"
     },
     {
       "id": 7,
-      "title": "SPEC-038 TASK-HERMES-011: Enforce OpenClaw disable in Coolify",
-      "description": "Containers stopped but Coolify still shows stale status. Manual disable via Coolify dashboard or API.",
-      "status": "done",
-      "priority": "P0",
+      "title": "SPEC-051: Docs infra — Fix drifts NETWORK_MAP, PORTS, AGENTS.md",
+      "description": "Corrigir drifts de documentação: NETWORK_MAP.md — llm.zappro.site deve ser :4002 (não :4000); PORTS.md — маркировать wava2vec2 8202/8203 como DEPRECATED (containers ainda UP mas marcação inconsistente); AGENTS.md — remover openwebui-bridge-agent (:3456) reference.",
+      "status": "pending",
+      "priority": "high",
       "dependencies": [],
       "subtasks": [
         {
           "id": "7.1",
-          "title": "Verify containers are stopped",
+          "title": "NETWORK_MAP.md: llm.zappro.site :4000 → :4002",
           "status": "pending"
         },
         {
           "id": "7.2",
-          "title": "Disable via Coolify API or dashboard",
+          "title": "PORTS.md: wava2vec2 8202/8203 DEPRECATED konsisten",
           "status": "pending"
         },
         {
           "id": "7.3",
-          "title": "Verify Coolify shows correct status",
+          "title": "AGENTS.md: remover openwebui-bridge-agent :3456",
           "status": "pending"
         }
       ],
-      "acceptanceCriteria": ["SC-8: OpenClaw disable enforced in Coolify"],
-      "files": [],
+      "acceptanceCriteria": [
+        "AC-051-14: NETWORK_MAP.md llm.zappro.site → :4002",
+        "AC-051-15: PORTS.md маркировка wava2vec2 konsisten",
+        "AC-051-16: AGENTS.md sem openwebui-bridge-agent"
+      ],
+      "files": ["docs/INFRASTRUCTURE/NETWORK_MAP.md", "docs/INFRASTRUCTURE/PORTS.md", "AGENTS.md"],
       "testRequired": false,
-      "specRef": "docs/SPECS/SPEC-038-hermes-agent-migration.md"
+      "specRef": "docs/SPECS/SPEC-051-openclaw-prune-specs-polish.md"
     },
     {
       "id": 8,
-      "title": "SPEC-038 TASK-HERMES-012: Configure MCP server for Open WebUI",
-      "description": "Configure MCP server for Open WebUI. DEPENDS ON SPEC-039 (hermes gateway tunnel must be working). hermes mcp serve exits after each request \u2192 SPEC-039 gateway as path forward.",
-      "status": "done",
-      "priority": "P1",
-      "dependencies": ["SPEC-039"],
+      "title": "SPEC-051: Scripts — Archive 5 scripts legados",
+      "description": "Arquivar scripts legados OpenClaw: /srv/ops/scripts/openclaw-to-hermes-migration.sh, /srv/ops/scripts/hermes-openwebui-setup.sh, /srv/ops/scripts/openclaw-disable.sh, /srv/ops/scripts/hermes-migrate-now.sh, /srv/monorepo/scripts/setup-whisper-medium-ptbr.sh.",
+      "status": "pending",
+      "priority": "medium",
+      "dependencies": [],
       "subtasks": [
-        {
-          "id": "8.1",
-          "title": "Verify hermes gateway tunnel working (SPEC-039)",
-          "status": "pending"
-        },
-        {
-          "id": "8.2",
-          "title": "Configure MCP server for Open WebUI",
-          "status": "pending"
-        },
-        {
-          "id": "8.3",
-          "title": "Test MCP connectivity",
-          "status": "pending"
-        }
+        { "id": "8.1", "title": "Arquivar openclaw-to-hermes-migration.sh", "status": "pending" },
+        { "id": "8.2", "title": "Arquivar hermes-openwebui-setup.sh", "status": "pending" },
+        { "id": "8.3", "title": "Arquivar openclaw-disable.sh", "status": "pending" },
+        { "id": "8.4", "title": "Arquivar hermes-migrate-now.sh", "status": "pending" },
+        { "id": "8.5", "title": "Arquivar setup-whisper-medium-ptbr.sh", "status": "pending" }
       ],
-      "acceptanceCriteria": ["SC-9: MCP server for Open WebUI"],
-      "files": [],
+      "acceptanceCriteria": ["AC-051-17: scripts legados OpenClaw arquivados"],
+      "files": [
+        "/srv/ops/scripts/openclaw-to-hermes-migration.sh",
+        "/srv/ops/scripts/hermes-openwebui-setup.sh",
+        "/srv/ops/scripts/openclaw-disable.sh",
+        "/srv/ops/scripts/hermes-migrate-now.sh",
+        "/srv/monorepo/scripts/setup-whisper-medium-ptbr.sh"
+      ],
       "testRequired": false,
-      "specRef": "docs/SPECS/SPEC-038-hermes-agent-migration.md"
+      "specRef": "docs/SPECS/SPEC-051-openclaw-prune-specs-polish.md"
     },
     {
       "id": 9,
-      "title": "SPEC-038 TASK-HERMES-013: Configure hermes gateway for bot.zappro.site",
-      "description": "SPEC-039 scope. Hermes Gateway running in polling mode. Cloudflare tunnel needs update to point to 10.0.5.2:8642. SPEC-039 recommends Option B (new subdomain hermes.zappro.site).",
-      "status": "done",
-      "priority": "P1",
-      "dependencies": ["SPEC-039"],
+      "title": "SPEC-051: Terraform — Remover serviço 'chat' e ghost DNS",
+      "description": "Remover serviço 'chat' (OpenWebUI deprecated) de /srv/ops/terraform/cloudflare/variables.tf. Remover referências supabase.zappro.site de /srv/ops/terraform/cloudflare/README.md. Confirmar que terraform state está limpo (já não tem bot/supabase/openclaw).",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [],
       "subtasks": [
-        {
-          "id": "9.1",
-          "title": "Update Cloudflare tunnel to 10.0.5.2:8642",
-          "status": "pending"
-        },
-        {
-          "id": "9.2",
-          "title": "Verify hermes.zappro.site resolves",
-          "status": "pending"
-        },
+        { "id": "9.1", "title": "Remover serviço 'chat' de variables.tf", "status": "pending" },
+        { "id": "9.2", "title": "Remover supabase.zappro.site de README.md", "status": "pending" },
         {
           "id": "9.3",
-          "title": "Test gateway polling mode",
+          "title": "Verificar terraform state — sem resíduos bot/supabase",
           "status": "pending"
         }
       ],
-      "acceptanceCriteria": ["hermes.zappro.site \u2192 :8642 working"],
-      "files": [],
+      "acceptanceCriteria": [
+        "AC-051-18: variables.tf sem 'chat' service (OpenWebUI)",
+        "AC-051-19: README.md sem supabase.zappro.site"
+      ],
+      "files": [
+        "/srv/ops/terraform/cloudflare/variables.tf",
+        "/srv/ops/terraform/cloudflare/README.md"
+      ],
       "testRequired": false,
-      "specRef": "docs/SPECS/SPEC-038-hermes-agent-migration.md"
+      "specRef": "docs/SPECS/SPEC-051-openclaw-prune-specs-polish.md"
     },
     {
       "id": 10,
-      "title": "SPEC-038 TASK-HERMES-014: hermes mcp serve persistence (GAP)",
-      "description": "hermes mcp serve exits after each JSON-RPC request (not persistent). May require feature request to NousResearch if no local solution. Workaround: hermes gateway (TASK-HERMES-013) bypasses this.",
-      "status": "done",
-      "priority": "P0",
-      "dependencies": ["SPEC-039"],
+      "title": "SPEC-051: Docker containers — Remover 6 containers legacy",
+      "description": "Remover 6 containers Docker legacy via Coolify/direct docker: zappro-wav2vec2 (:8202), zappro-wav2vec2-proxy (:8203), zappro-tts-bridge (:8013), zappro-kokoro (:8012), openwebui-bridge-agent (:3456), mcp-monorepo (:4006). ATENÇÃO: требует подтверждения перед выполнением — зависит от Coolify.",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [7],
       "subtasks": [
-        {
-          "id": "10.1",
-          "title": "Research NousResearch hermes mcp serve persistence",
-          "status": "pending"
-        },
+        { "id": "10.1", "title": "Parar/remover zappro-wav2vec2 (:8202)", "status": "pending" },
         {
           "id": "10.2",
-          "title": "Evaluate gateway workaround (TASK-HERMES-013)",
+          "title": "Parar/remover zappro-wav2vec2-proxy (:8203)",
           "status": "pending"
         },
+        { "id": "10.3", "title": "Parar/remover zappro-tts-bridge (:8013)", "status": "pending" },
+        { "id": "10.4", "title": "Parar/remover zappro-kokoro (:8012)", "status": "pending" },
         {
-          "id": "10.3",
-          "title": "File feature request if no solution found",
+          "id": "10.5",
+          "title": "Parar/remover openwebui-bridge-agent (:3456)",
           "status": "pending"
-        }
+        },
+        { "id": "10.6", "title": "Parar/remover mcp-monorepo (:4006)", "status": "pending" }
       ],
-      "acceptanceCriteria": ["hermes mcp serve is persistent OR gateway workaround functional"],
+      "acceptanceCriteria": [
+        "AC-051-20: docker ps sem zappro-wav2vec2, zappro-wav2vec2-proxy, zappro-tts-bridge, zappro-kokoro, openwebui-bridge-agent, mcp-monorepo"
+      ],
       "files": [],
-      "testRequired": false,
-      "specRef": "docs/SPECS/SPEC-038-hermes-agent-migration.md"
+      "testRequired": true,
+      "specRef": "docs/SPECS/SPEC-051-openclaw-prune-specs-polish.md",
+      "requiresApproval": true,
+      "approvalReason": "Docker container removal — impact on running services. Requires Coolify dashboard or direct docker stop. Only remove after confirming ai-gateway uses :8204 (not :8202)."
     },
     {
       "id": 11,
-      "title": "SPEC-038 TASK-HERMES-015: End-to-end validation",
-      "description": "Full smoke test after all tasks complete. Validate: LLM responses (MiniMax + Ollama fallback), MCP server connectivity, Coolify API integration, cron execution, bot.zappro.site gateway",
-      "status": "done",
-      "priority": "P0",
-      "dependencies": [4, 5, 6, 7, 8, 9, 10],
+      "title": "SPEC-051: Final smoke test — Validate OpenClaw prune",
+      "description": "Executar smoke tests para validar que o prune não quebrou nada. Verificar: ai-gateway :4002 responde, STT :8204 responde, smoke-openai-facade-advanced.sh passa. Confirmar que não há referências OpenClaw em代码.",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [1, 2, 3, 4, 5, 6, 7, 8, 9],
       "subtasks": [
-        {
-          "id": "11.1",
-          "title": "Validate LLM responses (MiniMax primary)",
-          "status": "done"
-        },
-        {
-          "id": "11.2",
-          "title": "Validate Ollama fallback (qwen2.5vl:7b)",
-          "status": "done"
-        },
-        {
-          "id": "11.3",
-          "title": "MCP server connectivity test",
-          "status": "done"
-        },
+        { "id": "11.1", "title": "Executar smoke-openai-facade-advanced.sh", "status": "pending" },
+        { "id": "11.2", "title": "Verificar ai-gateway :4002 responde", "status": "pending" },
+        { "id": "11.3", "title": "Verificar STT :8204 responde", "status": "pending" },
         {
           "id": "11.4",
-          "title": "Coolify API integration test",
-          "status": "done"
-        },
-        {
-          "id": "11.5",
-          "title": "Cron execution verification",
-          "status": "done"
-        },
-        {
-          "id": "11.6",
-          "title": "bot.zappro.site gateway test",
-          "status": "done"
+          "title": "Confirmar zero referências OpenClaw no código",
+          "status": "pending"
         }
       ],
-      "acceptanceCriteria": ["All SC criteria from SPEC-038"],
+      "acceptanceCriteria": [
+        "AC-051-21: smoke-openai-facade-advanced.sh ≥ 20 PASS",
+        "AC-051-22: ai-gateway :4002 /health → 200",
+        "AC-051-23: STT :8204 /health → 200",
+        "AC-051-24: grep -r openclaw /srv/monorepo --include='*.ts' --include='*.js' → 0 results"
+      ],
       "files": [],
       "testRequired": true,
-      "specRef": "docs/SPECS/SPEC-038-hermes-agent-migration.md"
-    },
-    {
-      "id": 12,
-      "title": "SPEC-040: Rate limiting \u2014 nginx upstream config",
-      "description": "Deploy rate limiting configs via docker containers (nginx:alpine). Perplexity Agent unchanged on :4004, rate limiters deployed on 4010 (litellm), 11435 (ollama), 8643 (hermes). Per-service limits: ollama 60r/m, litellm 90r/m, hermes 20r/m. Verified: 65 req to ollama returns 429 after burst.",
-      "status": "done",
-      "priority": "P0",
-      "dependencies": [],
-      "subtasks": [
-        {
-          "id": "12.1",
-          "title": "Decide port (4010 or move Perplexity Agent)",
-          "status": "done"
-        },
-        {
-          "id": "12.2",
-          "title": "Deploy /tmp/rate-limit.conf to nginx",
-          "status": "done"
-        },
-        {
-          "id": "12.3",
-          "title": "Deploy /tmp/nginx-ratelimit-litellm.conf",
-          "status": "done"
-        },
-        {
-          "id": "12.4",
-          "title": "Deploy /tmp/nginx-ratelimit-ollama.conf",
-          "status": "done"
-        },
-        {
-          "id": "12.5",
-          "title": "Deploy /tmp/nginx-ratelimit-hermes.conf",
-          "status": "done"
-        },
-        {
-          "id": "12.6",
-          "title": "nginx -s reload + verify",
-          "status": "done"
-        }
-      ],
-      "acceptanceCriteria": [
-        "SC-2: Rate limits enforced",
-        "Load test >100 req/min \u2192 429 returned"
-      ],
-      "files": [
-        "/tmp/rate-limit.conf",
-        "/tmp/nginx-ratelimit-litellm.conf",
-        "/tmp/nginx-ratelimit-ollama.conf",
-        "/tmp/nginx-ratelimit-hermes.conf"
-      ],
-      "testRequired": true,
-      "specRef": "docs/SPECS/SPEC-040-homelab-alerting-rate-limit.md"
-    },
-    {
-      "id": 13,
-      "title": "SPEC-040: AlertManager severity routing + Gotify receiver",
-      "description": "Fix AlertManager: currently all alerts route to single webhook. Add severity-based routing: critical\u2192Telegram P1, warning\u2192Telegram P2, info\u2192Gotify, debug\u2192Grafana only",
-      "status": "done",
-      "priority": "high",
-      "dependencies": [],
-      "subtasks": [
-        {
-          "id": "13.1",
-          "title": "Add severity routing to alertmanager.yml",
-          "status": "done"
-        },
-        {
-          "id": "13.2",
-          "title": "Add Gotify receiver configuration",
-          "status": "done"
-        },
-        {
-          "id": "13.3",
-          "title": "Configure Telegram P1/P2 channels",
-          "status": "done"
-        },
-        {
-          "id": "13.4",
-          "title": "Test alert routing by severity",
-          "status": "done"
-        }
-      ],
-      "acceptanceCriteria": [
-        "P1\u2192Telegram immediately",
-        "P3\u2192Gotify",
-        "routing by severity label"
-      ],
-      "files": ["/srv/monorepo/apps/monitoring/alertmanager.yml"],
-      "testRequired": true,
-      "specRef": "docs/SPECS/SPEC-040-homelab-alerting-rate-limit.md"
-    },
-    {
-      "id": 14,
-      "title": "SPEC-040: Grafana provisioning dashboards (IaC)",
-      "description": "Create Homelab Overview + Rate Limiting dashboards via Grafana provisioning (not manual). docker-compose.yml with dashboards + datasources provisioning",
-      "status": "done",
-      "priority": "P2",
-      "dependencies": [],
-      "subtasks": [
-        {
-          "id": "14.1",
-          "title": "Create grafana/provisioning/dashboards/ directory",
-          "status": "done"
-        },
-        {
-          "id": "14.2",
-          "title": "Create homelab.yml dashboard (GPU, containers, subdomains, rate limits)",
-          "status": "done"
-        },
-        {
-          "id": "14.3",
-          "title": "Create homelab dashboard JSON",
-          "status": "done"
-        },
-        {
-          "id": "14.4",
-          "title": "Update dashboards.yml provider config",
-          "status": "done"
-        },
-        {
-          "id": "14.5",
-          "title": "Mount provisioning in docker-compose",
-          "status": "done"
-        }
-      ],
-      "acceptanceCriteria": ["SC-5: Grafana dashboard shows all services"],
-      "files": [
-        "apps/monitoring/grafana/provisioning/dashboards/",
-        "apps/monitoring/grafana/provisioning/datasources/"
-      ],
-      "testRequired": false,
-      "specRef": "docs/SPECS/SPEC-040-homelab-alerting-rate-limit.md"
-    },
-    {
-      "id": 15,
-      "title": "SPEC-040: Prometheus alert rules \u2014 ContainerUnhealthy, HighCPU, SubdomainDown",
-      "description": "Add missing alert rules to prometheus alerts.yml: ContainerUnhealthy, HighCPU, SubdomainDown (based on SPEC-040 Section 5)",
-      "status": "done",
-      "priority": "P1",
-      "dependencies": [],
-      "subtasks": [
-        {
-          "id": "15.1",
-          "title": "Add ContainerUnhealthy alert",
-          "status": "done"
-        },
-        {
-          "id": "15.2",
-          "title": "Add HighCPU alert (90% for 5min)",
-          "status": "done"
-        },
-        {
-          "id": "15.3",
-          "title": "Add SubdomainDown alert (probe_success=0)",
-          "status": "done"
-        },
-        {
-          "id": "15.4",
-          "title": "Verify AlertManager receives alerts",
-          "status": "done"
-        }
-      ],
-      "acceptanceCriteria": ["Alerts fire for respective conditions"],
-      "files": ["apps/monitoring/prometheus/alerts.yml"],
-      "testRequired": true,
-      "specRef": "docs/SPECS/SPEC-040-homelab-alerting-rate-limit.md"
-    },
-    {
-      "id": 16,
-      "title": "SPEC-040: Loki + Promtail pipeline",
-      "description": "Loki container deployed and healthy. Promtail deployed and running. Loki receiving container logs via Promtail",
-      "status": "done",
-      "priority": "P2",
-      "dependencies": [],
-      "subtasks": [
-        {
-          "id": "16.1",
-          "title": "Verify Loki is healthy",
-          "status": "done"
-        },
-        {
-          "id": "16.2",
-          "title": "Add Promtail to docker-compose",
-          "status": "done"
-        },
-        {
-          "id": "16.3",
-          "title": "Configure Promtail scrape targets",
-          "status": "done"
-        },
-        {
-          "id": "16.4",
-          "title": "Test Loki log ingestion",
-          "status": "done"
-        }
-      ],
-      "acceptanceCriteria": ["Logs appear in Loki/Grafana"],
-      "files": ["docker-compose.yml"],
-      "testRequired": true,
-      "specRef": "docs/SPECS/SPEC-040-homelab-alerting-rate-limit.md"
-    },
-    {
-      "id": 17,
-      "title": "SPEC-031 Task 2: node-exporter HEALTHCHECK",
-      "description": "Add HEALTHCHECK to node-exporter container: --interval=30s --timeout=10s --retries=3 CMD wget -qO- http://localhost:9100/",
-      "status": "done",
-      "priority": "medium",
-      "dependencies": [],
-      "subtasks": [
-        {
-          "id": "17.1",
-          "title": "Find node-exporter container configuration",
-          "status": "done"
-        },
-        {
-          "id": "17.2",
-          "title": "Add HEALTHCHECK to node-exporter",
-          "status": "done"
-        },
-        {
-          "id": "17.3",
-          "title": "Restart node-exporter container",
-          "status": "done"
-        },
-        {
-          "id": "17.4",
-          "title": "Verify docker inspect shows Healthcheck",
-          "status": "done"
-        }
-      ],
-      "acceptanceCriteria": ["AC-031-2"],
-      "files": ["/srv/apps/monitoring/docker-compose.yml"],
-      "testRequired": false,
-      "specRef": "docs/SPECS/SPEC-031-homelab-maintenance.md"
-    },
-    {
-      "id": 18,
-      "title": "SPEC-031 Task 3: loki HEALTHCHECK",
-      "description": "Add HEALTHCHECK to loki container: --interval=30s --timeout=10s --retries=3 CMD wget -qO- http://localhost:3100/ready",
-      "status": "done",
-      "priority": "medium",
-      "dependencies": [],
-      "subtasks": [
-        {
-          "id": "18.1",
-          "title": "Find loki container configuration",
-          "status": "done"
-        },
-        {
-          "id": "18.2",
-          "title": "Add HEALTHCHECK to loki container",
-          "status": "done"
-        },
-        {
-          "id": "18.3",
-          "title": "Restart loki container",
-          "status": "done"
-        },
-        {
-          "id": "18.4",
-          "title": "Verify curl localhost:3100/ready returns 200",
-          "status": "done"
-        }
-      ],
-      "acceptanceCriteria": ["AC-031-3"],
-      "files": ["/srv/apps/monitoring/docker-compose.yml"],
-      "testRequired": false,
-      "specRef": "docs/SPECS/SPEC-031-homelab-maintenance.md"
-    },
-    {
-      "id": 19,
-      "title": "SPEC-031 Task 5: ZFS snapshot retention cron",
-      "description": "Create /srv/ops/scripts/zfs-snapshot-prune.sh. Script: zfs list -t snapshot -r tank + prune snaps older than 7 days. Add to crontab: 0 */3 * * *",
-      "status": "done",
-      "priority": "medium",
-      "dependencies": [],
-      "subtasks": [
-        {
-          "id": "19.1",
-          "title": "Create zfs-snapshot-prune.sh script",
-          "status": "done"
-        },
-        {
-          "id": "19.2",
-          "title": "Add cron: 0 */3 * * *",
-          "status": "done"
-        },
-        {
-          "id": "19.3",
-          "title": "Manual run creates snapshot of tank",
-          "status": "done"
-        },
-        {
-          "id": "19.4",
-          "title": "Test prune dry-run",
-          "status": "done"
-        }
-      ],
-      "acceptanceCriteria": ["AC-031-5"],
-      "files": ["/srv/ops/scripts/zfs-snapshot-prune.sh"],
-      "testRequired": false,
-      "specRef": "docs/SPECS/SPEC-031-homelab-maintenance.md"
-    },
-    {
-      "id": 20,
-      "title": "SPEC-031 Task 7: Sync.sh verification + MEMORY.md index",
-      "description": "Run sync.sh and verify SPECs/ADRs/GUIDEs/REFERENCE synced. Check memory dirs exist with files. Verify manifest last_sync updated",
-      "status": "done",
-      "priority": "medium",
-      "dependencies": [],
-      "subtasks": [
-        {
-          "id": "20.1",
-          "title": "Run sync.sh without errors",
-          "status": "done"
-        },
-        {
-          "id": "20.2",
-          "title": "Verify memory/specs/ has 10+ SPEC files",
-          "status": "done"
-        },
-        {
-          "id": "20.3",
-          "title": "Verify memory/adrs/ has ADR files",
-          "status": "done"
-        },
-        {
-          "id": "20.4",
-          "title": "Verify manifest last_sync = today",
-          "status": "done"
-        }
-      ],
-      "acceptanceCriteria": ["AC-031-7"],
-      "files": [
-        "/home/will/.claude/mcps/ai-context-sync/sync.sh",
-        "/home/will/.claude/mcps/ai-context-sync/manifest.json"
-      ],
-      "testRequired": false,
-      "specRef": "docs/SPECS/SPEC-031-homelab-maintenance.md"
-    },
-    {
-      "id": 26,
-      "title": "SPEC-034: Create 10 MiniMax skills from research",
-      "description": "Create 10 skills from SPEC-034 research: minimax-code-gen (/codegen), minimax-security-audit (/msec), doc-maintenance (/dm), minimax-debugger (/bug-triage), backend-scaffold (/bcaffold), infra-from-spec (/infra-gen), review-minimax (/mxr), + 3 cron jobs",
-      "status": "done",
-      "priority": "high",
-      "dependencies": [],
-      "subtasks": [
-        {
-          "id": "26.1",
-          "title": "Create minimax-code-gen skill",
-          "status": "done"
-        },
-        {
-          "id": "26.2",
-          "title": "Create minimax-security-audit skill",
-          "status": "done"
-        },
-        {
-          "id": "26.3",
-          "title": "Create doc-maintenance skill",
-          "status": "done"
-        },
-        {
-          "id": "26.4",
-          "title": "Create minimax-debugger skill",
-          "status": "done"
-        },
-        {
-          "id": "26.5",
-          "title": "Create backend-scaffold skill",
-          "status": "done"
-        },
-        {
-          "id": "26.6",
-          "title": "Create infra-from-spec skill",
-          "status": "done"
-        },
-        {
-          "id": "26.7",
-          "title": "Create review-minimax skill",
-          "status": "done"
-        },
-        {
-          "id": "26.8",
-          "title": "Create slash command files",
-          "status": "done"
-        }
-      ],
-      "acceptanceCriteria": ["AC-1 through AC-6 from SPEC-034"],
-      "files": [
-        ".claude/skills/minimax-code-gen/",
-        ".claude/skills/minimax-security-audit/",
-        ".claude/skills/doc-maintenance/",
-        ".claude/skills/minimax-debugger/",
-        ".claude/skills/backend-scaffold/",
-        ".claude/skills/infra-from-spec/",
-        ".claude/skills/review-minimax/"
-      ],
-      "testRequired": false,
-      "specRef": "docs/SPECS/SPEC-034-minimax-agent-use-cases.md"
-    },
-    {
-      "id": 27,
-      "title": "SPEC-037: md.zappro.site Obsidian vault UI (DONE)",
-      "description": "Build md.zappro.site Obsidian vault UI. Tech stack: nginx:alpine static app, Google OAuth via PKCE, custom markdown.js renderer. Deploy on port 4081. Verified: health 200 OK, OAuth flow works, container healthy (56 min uptime).",
-      "status": "done",
-      "priority": "high",
-      "dependencies": [],
-      "subtasks": [
-        {
-          "id": "27.1",
-          "title": "Build static app with file browser UI",
-          "status": "done"
-        },
-        {
-          "id": "27.2",
-          "title": "Implement Google OAuth via Infisical SDK",
-          "status": "done"
-        },
-        {
-          "id": "27.3",
-          "title": "Implement markdown rendering with marked.js",
-          "status": "done"
-        },
-        {
-          "id": "27.4",
-          "title": "Configure nginx for SPA routing",
-          "status": "done"
-        },
-        {
-          "id": "27.5",
-          "title": "Deploy via Coolify on port 4081",
-          "status": "done"
-        },
-        {
-          "id": "27.6",
-          "title": "Configure Cloudflare Access",
-          "status": "done"
-        }
-      ],
-      "acceptanceCriteria": [
-        "SC-1: health 200 OK",
-        "SC-2: OAuth redirect functional",
-        "SC-3: File browser with PARA structure",
-        "SC-4: Markdown rendering works",
-        "SC-5: Navigation functional",
-        "SC-6: Search works (mock data)"
-      ],
-      "files": ["apps/obsidian-web/"],
-      "testRequired": false,
-      "specRef": "docs/SPECS/SPEC-037-md-zappro-site.md"
-    },
-    {
-      "id": 29,
-      "title": "SPEC-046 Step 1: Activate Telegram polling",
-      "description": "Run hermes gateway install to activate Telegram polling for @CEO_REFRIMIX_bot. Verify bot responds to /start on Telegram.",
-      "status": "done",
-      "priority": "high",
-      "dependencies": [],
-      "subtasks": [
-        {
-          "id": "29.1",
-          "title": "Check channel_directory.json for Telegram config",
-          "status": "done"
-        },
-        {
-          "id": "29.2",
-          "title": "Run hermes gateway install if needed",
-          "status": "done"
-        },
-        {
-          "id": "29.3",
-          "title": "Verify Telegram bot responds to /start",
-          "status": "done"
-        },
-        {
-          "id": "29.4",
-          "title": "Verify curl localhost:8642/platforms shows telegram",
-          "status": "done"
-        }
-      ],
-      "acceptanceCriteria": [
-        "Telegram polling active",
-        "Bot responds to /start",
-        "curl localhost:8642/platforms shows telegram platform"
-      ],
-      "files": ["~/.hermes/hermes.json", "~/.hermes/.env"],
-      "testRequired": true,
-      "specRef": "docs/SPECS/SPEC-046-hermes-agent-improvements.md"
-    },
-    {
-      "id": 30,
-      "title": "SPEC-046 Step 2: Consolidate duplicate crons",
-      "description": "Remove cron overlaps: SRE monitor + voice smoke (both */5), tunnel health + tunnel smoke (both */15). Unify into clean schedule.",
-      "status": "done",
-      "priority": "high",
-      "dependencies": [],
-      "subtasks": [
-        {
-          "id": "30.1",
-          "title": "List all current cron entries",
-          "status": "done"
-        },
-        {
-          "id": "30.2",
-          "title": "Remove duplicate */5 entries (SRE + voice)",
-          "status": "done"
-        },
-        {
-          "id": "30.3",
-          "title": "Remove duplicate */15 entries (tunnel health + smoke)",
-          "status": "done"
-        },
-        {
-          "id": "30.4",
-          "title": "Verify unique intervals: */5, */15, */30, hourly, daily",
-          "status": "done"
-        }
-      ],
-      "acceptanceCriteria": [
-        "No duplicate intervals",
-        "All critical monitoring still covered",
-        "crontab -l clean"
-      ],
-      "files": ["~/.hermes/hermes.json", "crontab"],
-      "testRequired": false,
-      "specRef": "docs/SPECS/SPEC-046-hermes-agent-improvements.md"
-    },
-    {
-      "id": 31,
-      "title": "SPEC-046 Step 3: Fill SOUL.md with homelab context",
-      "description": "Populate ~/.hermes/SOUL.md with: identity (Hermes agent), stack overview (Ollama, Qdrant, LiteLLM, Coolify), personality (concise, Portuguese), known services",
-      "status": "done",
-      "priority": "medium",
-      "dependencies": [],
-      "subtasks": [
-        {
-          "id": "31.1",
-          "title": "Write Identity + Personality section",
-          "status": "done"
-        },
-        {
-          "id": "31.2",
-          "title": "Write Stack overview (LLM, local, TTS, STT, containers)",
-          "status": "done"
-        },
-        {
-          "id": "31.3",
-          "title": "Write Known Services table",
-          "status": "done"
-        },
-        {
-          "id": "31.4",
-          "title": "Verify wc -l SOUL.md > 20 lines",
-          "status": "done"
-        }
-      ],
-      "acceptanceCriteria": [
-        "SOUL.md has >20 lines",
-        "Mentions Ollama, Qdrant, LiteLLM, Coolify, hermes.zappro.site"
-      ],
-      "files": ["~/.hermes/SOUL.md"],
-      "testRequired": false,
-      "specRef": "docs/SPECS/SPEC-046-hermes-agent-improvements.md"
-    },
-    {
-      "id": 32,
-      "title": "SPEC-046 Step 4: Migrate useful skills from openclaw-imports",
-      "description": "Audit ~/.hermes/skills/openclaw-imports/ for relevant skills. Migrate any non-deprecated skills to ~/.hermes/skills/ and register in hermes.json",
-      "status": "done",
-      "priority": "low",
-      "dependencies": [],
-      "subtasks": [
-        {
-          "id": "32.1",
-          "title": "List all skills in openclaw-imports/",
-          "status": "done"
-        },
-        {
-          "id": "32.2",
-          "title": "Audit each skill for relevance",
-          "status": "done"
-        },
-        {
-          "id": "32.3",
-          "title": "Migrate relevant skills to ~/.hermes/skills/",
-          "status": "done"
-        },
-        {
-          "id": "32.4",
-          "title": "Register in hermes.json skills array",
-          "status": "done"
-        }
-      ],
-      "acceptanceCriteria": ["openclaw-imports audited", "Useful skills migrated and registered"],
-      "files": ["~/.hermes/skills/openclaw-imports/", "~/.hermes/hermes.json"],
-      "testRequired": false,
-      "specRef": "docs/SPECS/SPEC-046-hermes-agent-improvements.md"
-    },
-    {
-      "id": 33,
-      "title": "SPEC-046 Step 5: Aggressive auto-healing (restart on fail)",
-      "description": "Create ~/.hermes/scripts/restart-on-fail.sh that restarts services on failure instead of just alerting. Register as cron for hermes-gateway, hermes-mcp, ollama, litellm",
-      "status": "done",
-      "priority": "high",
-      "dependencies": [],
-      "subtasks": [
-        {
-          "id": "33.1",
-          "title": "Create restart-on-fail.sh script",
-          "status": "done"
-        },
-        {
-          "id": "33.2",
-          "title": "Add healthcheck for hermes-gateway (:8642)",
-          "status": "done"
-        },
-        {
-          "id": "33.3",
-          "title": "Add healthcheck for hermes-mcp (:8092)",
-          "status": "done"
-        },
-        {
-          "id": "33.4",
-          "title": "Add healthcheck for ollama (:11434)",
-          "status": "done"
-        },
-        {
-          "id": "33.5",
-          "title": "Test restart-on-fail for one service",
-          "status": "done"
-        }
-      ],
-      "acceptanceCriteria": [
-        "restart-on-fail.sh exists and executable",
-        "Hermes gateway restarts automatically on failure"
-      ],
-      "files": ["~/.hermes/scripts/restart-on-fail.sh"],
-      "testRequired": true,
-      "specRef": "docs/SPECS/SPEC-046-hermes-agent-improvements.md"
-    },
-    {
-      "id": 34,
-      "title": "cadvisor scrape_timeout 10s \u2192 30s",
-      "description": "Change cadvisor scrape_timeout from 10s to 30s in prometheus container config to prevent scrape timeouts. File: /etc/prometheus/prometheus.yml inside prometheus container.",
-      "status": "done",
-      "priority": "medium",
-      "dependencies": [],
-      "subtasks": [
-        {
-          "id": "34.1",
-          "title": "Update scrape_timeout in prometheus container",
-          "status": "done"
-        },
-        {
-          "id": "34.2",
-          "title": "Reload prometheus config (kill -HUP)",
-          "status": "done"
-        },
-        {
-          "id": "34.3",
-          "title": "Verify no cadvisor scrape errors",
-          "status": "done"
-        }
-      ],
-      "acceptanceCriteria": [
-        "prometheus.yml scrape_timeout: 30s for cadvisor job",
-        "Prometheus reloads without restart",
-        "curl localhost:9090/api/v1/targets shows no cadvisor lastError"
-      ],
-      "files": ["prometheus container /etc/prometheus/prometheus.yml"],
-      "testRequired": false,
-      "specRef": "docs/SPECS/SPEC-031-homelab-maintenance.md (Task 4)"
-    },
-    {
-      "id": 35,
-      "title": "SPEC-050 T1: Add ai-gateway :4002 to PORTS.md",
-      "description": "Add :4002 (ai-gateway) to PORTS.md Active Ports section. Add :8202 (wav2vec2 host mapping) as host mapping entry.",
-      "status": "done",
-      "priority": "critical",
-      "dependencies": [],
-      "subtasks": [
-        {
-          "id": "35.1",
-          "title": "Add :4002 ai-gateway to Active Ports",
-          "status": "pending"
-        },
-        {
-          "id": "35.2",
-          "title": "Add :8202 wav2vec2 host mapping entry",
-          "status": "pending"
-        },
-        {
-          "id": "35.3",
-          "title": "Add :4002 to Available Ports (dev range)",
-          "status": "pending"
-        }
-      ],
-      "acceptanceCriteria": [
-        "PORTS.md includes :4002 (ai-gateway)",
-        "PORTS.md includes :8202 (wav2vec2 host mapping)"
-      ],
-      "files": ["docs/INFRASTRUCTURE/PORTS.md"],
-      "testRequired": false,
-      "specRef": "docs/SPECS/SPEC-050-governance-alignment.md"
-    },
-    {
-      "id": 36,
-      "title": "SPEC-050 T2: Add UFW + Traefik sections to NETWORK_MAP.md",
-      "description": "Add consolidated UFW firewall rules section and Traefik (Coolify Proxy) ingress rules section to NETWORK_MAP.md",
-      "status": "done",
-      "priority": "critical",
-      "dependencies": [],
-      "subtasks": [
-        {
-          "id": "36.1",
-          "title": "Add UFW rules section (default INPUT DROP, ACCEPT rules)",
-          "status": "pending"
-        },
-        {
-          "id": "36.2",
-          "title": "Add Traefik ingress rules section (ports 80/443/8080)",
-          "status": "pending"
-        },
-        {
-          "id": "36.3",
-          "title": "Fix :8202 wav2vec2 entry (host mapping not container)",
-          "status": "pending"
-        }
-      ],
-      "acceptanceCriteria": [
-        "NETWORK_MAP.md has UFW section",
-        "NETWORK_MAP.md has Traefik rules",
-        ":8202 wav2vec2 fixed"
-      ],
-      "files": ["docs/INFRASTRUCTURE/NETWORK_MAP.md"],
-      "testRequired": false,
-      "specRef": "docs/SPECS/SPEC-050-governance-alignment.md"
-    },
-    {
-      "id": 37,
-      "title": "SPEC-050 T3: Add Network & Port Governance to AGENTS.md",
-      "description": "Add Network & Port Governance section at top of AGENTS.md (after anti-hardcoded rule)",
-      "status": "done",
-      "priority": "critical",
-      "dependencies": [],
-      "subtasks": [
-        {
-          "id": "37.1",
-          "title": "Add Network & Port Governance section",
-          "status": "pending"
-        },
-        {
-          "id": "37.2",
-          "title": "Include UFW + Traefik + port rules",
-          "status": "pending"
-        },
-        {
-          "id": "37.3",
-          "title": "Add reference to PORTS.md + SUBDOMAINS.md",
-          "status": "pending"
-        }
-      ],
-      "acceptanceCriteria": [
-        "AGENTS.md top has Network & Port Governance section",
-        "Mentions UFW + Traefik + port governance"
-      ],
-      "files": ["AGENTS.md"],
-      "testRequired": false,
-      "specRef": "docs/SPECS/SPEC-050-governance-alignment.md"
-    },
-    {
-      "id": 38,
-      "title": "SPEC-050 T4: Add Network & Port Governance to CLAUDE.md",
-      "description": "Add Network & Port Governance section at top of .claude/CLAUDE.md (before Auto-Orquestration)",
-      "status": "done",
-      "priority": "critical",
-      "dependencies": [],
-      "subtasks": [
-        {
-          "id": "38.1",
-          "title": "Add Network & Port Governance section",
-          "status": "pending"
-        },
-        {
-          "id": "38.2",
-          "title": "Include UFW + Traefik + port rules",
-          "status": "pending"
-        },
-        {
-          "id": "38.3",
-          "title": "Add reference to PORTS.md + SUBDOMAINS.md",
-          "status": "pending"
-        }
-      ],
-      "acceptanceCriteria": [
-        ".claude/CLAUDE.md top has Network & Port Governance section",
-        "Mentions UFW + Traefik + port governance"
-      ],
-      "files": [".claude/CLAUDE.md"],
-      "testRequired": false,
-      "specRef": "docs/SPECS/SPEC-050-governance-alignment.md"
-    },
-    {
-      "id": 39,
-      "title": "SPEC-050 T5: Add UFW + Traefik to GUARDRAILS.md",
-      "description": "Add UFW as mandatory layer and Traefik as mandatory proxy to GUARDRAILS.md",
-      "status": "done",
-      "priority": "high",
-      "dependencies": [],
-      "subtasks": [
-        {
-          "id": "39.1",
-          "title": "Add UFW as mandatory firewall layer",
-          "status": "pending"
-        },
-        {
-          "id": "39.2",
-          "title": "Add Traefik as mandatory reverse proxy",
-          "status": "pending"
-        }
-      ],
-      "acceptanceCriteria": ["GUARDRAILS.md mentions UFW", "GUARDRAILS.md mentions Traefik"],
-      "files": ["docs/GOVERNANCE/GUARDRAILS.md"],
-      "testRequired": false,
-      "specRef": "docs/SPECS/SPEC-050-governance-alignment.md"
-    },
-    {
-      "id": 40,
-      "title": "SPEC-050 T6: Update SUBDOMAINS.md \u2014 T400 status",
-      "description": "Update SUBDOMAINS.md with T400 status: llm.zappro.site \u2192 :4002 (ai-gateway) PENDING \u2014 requires Cloudflare approval",
-      "status": "done",
-      "priority": "critical",
-      "dependencies": [],
-      "subtasks": [
-        {
-          "id": "40.1",
-          "title": "Update llm.zappro.site entry with T400 pending status",
-          "status": "pending"
-        },
-        {
-          "id": "40.2",
-          "title": "Document current llm.zappro.site \u2192 :4000 (LiteLLM)",
-          "status": "pending"
-        }
-      ],
-      "acceptanceCriteria": [
-        "SUBDOMAINS.md has T400 status PENDING for llm.zappro.site \u2192 :4002"
-      ],
-      "files": ["docs/INFRASTRUCTURE/SUBDOMAINS.md"],
-      "testRequired": false,
-      "specRef": "docs/SPECS/SPEC-050-governance-alignment.md"
-    },
-    {
-      "id": 41,
-      "title": "SPEC-050 T7: T400 \u2014 Execute llm.zappro.site tunnel rerouting",
-      "description": "Execute T400: update Terraform variables.tf + cloudflared restart to reroute llm.zappro.site from :4000 (LiteLLM) to :4002 (ai-gateway)",
-      "status": "done",
-      "priority": "critical",
-      "dependencies": ["40"],
-      "subtasks": [
-        {
-          "id": "41.1",
-          "title": "Update variables.tf: llm.zappro.site \u2192 :4002",
-          "status": "pending"
-        },
-        {
-          "id": "41.2",
-          "title": "terraform apply",
-          "status": "pending"
-        },
-        {
-          "id": "41.3",
-          "title": "systemctl restart cloudflared",
-          "status": "pending"
-        },
-        {
-          "id": "41.4",
-          "title": "Verify llm.zappro.site \u2192 ai-gateway :4002",
-          "status": "pending"
-        }
-      ],
-      "acceptanceCriteria": [
-        "llm.zappro.site responds from ai-gateway :4002",
-        "curl llm.zappro.site/health returns ai-gateway"
-      ],
-      "files": ["/srv/ops/terraform/cloudflare/variables.tf"],
-      "testRequired": true,
-      "specRef": "docs/SPECS/SPEC-050-governance-alignment.md"
+      "specRef": "docs/SPECS/SPEC-051-openclaw-prune-specs-polish.md"
     }
   ],
   "meta": {
-    "totalTasks": 34,
-    "completedTasks": 34,
-    "pendingTasks": 0,
-    "generatedAt": "2026-04-15T14:10:00-03:00",
+    "totalTasks": 11,
+    "completedTasks": 0,
+    "pendingTasks": 11,
+    "generatedAt": "2026-04-15T19:00:00Z",
     "projectName": "zappro-monorepo",
-    "version": "3.4",
-    "completed": [
-      1, 2, 3, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 26, 27, 29, 30, 31, 32,
-      33, 34
-    ],
-    "pending": [],
-    "note": "SPEC-050 tasks added (35-41): UFW/Traefik governance, PORTS.md, NETWORK_MAP, AGENTS.md, CLAUDE.md, GUARDRAILS.md, SUBDOMAINS.md, T400"
+    "version": "4.0",
+    "specRef": "SPEC-051-openclaw-prune-specs-polish"
   }
 }

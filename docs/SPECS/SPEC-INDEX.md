@@ -22,7 +22,7 @@ status: ACTIVE
 | Domain                       | Start Here                                              | Canonical SPEC                                                                                   | Notes                               |
 | ---------------------------- | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------ | ----------------------------------- |
 | **System architecture**      | [ARCHITECTURE-OVERVIEW.md](../ARCHITECTURE-OVERVIEW.md) | —                                                                                                | Complete stack overview             |
-| **Audio/voice (TTS/STT)**    | SPEC-009                                                | [SPEC-009-openclaw-persona-audio-stack.md](./SPEC-009-openclaw-persona-audio-stack.md)           | PROTECTED — immutable               |
+| **Audio/voice (TTS/STT)**    | SPEC-027                                                | [SPEC-027-voice-pipeline-humanized-ptbr.md](./SPEC-027-voice-pipeline-humanized-ptbr.md)         | PT-BR humanized, Kokoro v0.2.4      |
 | **Voice pipeline**           | SPEC-027                                                | [SPEC-027-voice-pipeline-humanized-ptbr.md](./SPEC-027-voice-pipeline-humanized-ptbr.md)         | PT-BR humanized, Kokoro v0.2.4      |
 | **Secrets / Infisical**      | SPEC-029                                                | [SPEC-029-INFISICAL-SDK-MANDATORY.md](./SPEC-029-INFISICAL-SDK-MANDATORY.md)                     | Zero tolerance mandate              |
 | **Tunnel / subdomains**      | SPEC-032                                                | [SPEC-032-tunnel-health-automation.md](./SPEC-032-tunnel-health-automation.md)                   | smoke-tunnel.sh ✅                  |
@@ -48,7 +48,6 @@ status: ACTIVE
 | SPEC-036 | Todo web app           | todo.zappro.site (OAuth, 2026-04-13)           |
 | SPEC-043 | Subdomain prune        | bot/supabase PRUNED, hermes.zappro.site ACTIVE |
 | SPEC-048 | OpenAI Facade Completo | llm.zappro.site (:4002), smoke (6/6) ✅        |
-| SPEC-009 | Audio stack            | Kokoro + wav2vec2 + TTS Bridge (PROTECTED)     |
 | SPEC-039 | Hermes Gateway tunnel  | hermes.zappro.site → :8642                     |
 
 ### 🟡 IN_PROGRESS (Active Work)
@@ -78,7 +77,7 @@ status: ACTIVE
 ## Quick Reference
 
 ```
-Audio/STT/TTS issues         → SPEC-009 (PROTECTED)
+Audio/STT/TTS issues         → SPEC-027
 Voice pipeline                → SPEC-027
 Infisical/secrets            → SPEC-029 (mandate)
 Tunnel/subdomain health      → SPEC-032
@@ -99,7 +98,6 @@ MiniMax agent skills         → SPEC-034
 
 These specs are **PROTEGIDO** — changes require explicit approval from owner:
 
-- SPEC-009 — Audio stack immutable (STT, TTS, TTS Bridge, voices)
 - SPEC-027 — Voice pipeline canonical
 - SPEC-029 — Infisical SDK mandate (zero tolerance)
 
@@ -114,27 +112,28 @@ If your feature intersects an archived SPEC, check the replacement column:
 | SPEC-001        | Template fusionado            | SPEC-024 + CLAUDE.md                            |
 | SPEC-002a       | HomeLab Monitor Agent         | SPEC-023 (monitoring)                           |
 | SPEC-002b       | Homelab Network Refactor      | SUBDOMAINS.md + PORTS.md                        |
-| SPEC-004        | Kokoro TTS Kit                | SPEC-009 (merged as historical appendix)        |
-| SPEC-005        | wav2vec2 STT Kit              | SPEC-009 (merged as historical appendix)        |
+| SPEC-004        | Kokoro TTS Kit                | SPEC-027 (voice pipeline, merged as historical) |
+| SPEC-005        | wav2vec2 STT Kit              | SPEC-027 (voice pipeline, merged as historical) |
+| SPEC-009        | OpenClaw Persona Audio Stack  | SPEC-027 (voice pipeline, archived OpenClaw)    |
 | SPEC-006        | Playwright E2E                | SPEC-024 (test pipeline)                        |
-| SPEC-007        | OpenClaw OAuth Profiles       | SPEC-009 (OAuth implemented in bot.zappro.site) |
-| SPEC-010        | OpenClaw Agents Kit           | SPEC-009 + openclaw-audio-governance.md         |
-| SPEC-011        | OpenClaw Agency Suite         | SPEC-009 + SPEC-027                             |
+| SPEC-007        | OpenClaw OAuth Profiles       | SPEC-027 (voice pipeline, OAuth deprecated)     |
+| SPEC-010        | OpenClaw Agents Kit           | SPEC-027 (voice pipeline)                       |
+| SPEC-011        | OpenClaw Agency Suite         | SPEC-027 (voice pipeline)                       |
 | SPEC-012        | openclaw-update-discoverer    | SPEC-023 (monitoring stack)                     |
 | SPEC-014        | Cursor AI CI/CD Pattern       | SPEC-024 + cursor-loop skill                    |
 | SPEC-015        | Gitea Actions Enterprise      | SPEC-024 + git mirror scripts                   |
 | SPEC-016        | Voice Pipeline Cursor Loop    | SPEC-027 + SPEC-032                             |
 | SPEC-017        | Voice API Deploy              | SPEC-027 + SPEC-032                             |
-| SPEC-018        | wav2vec2 Deepgram Proxy       | SPEC-009 + SPEC-027                             |
+| SPEC-018        | wav2vec2 Deepgram Proxy       | SPEC-027 (voice pipeline)                       |
 | SPEC-019        | OpenWebUI Repair              | SUBDOMAINS.md (chat.zappro.site routing fixed)  |
 | SPEC-020        | OpenWebUI OpenClaw Bridge     | SPEC-027 + SPEC-032                             |
 | SPEC-021        | Claude Code Cursor Loop       | cursor-loop skill + SPEC-024                    |
 | SPEC-022        | Cursor Loop CLI Solutions     | cursor-loop skill + SPEC-024                    |
 | SPEC-023        | Claude Code CLI Integration   | SPEC-023-unified-monitoring-self-healing.md     |
 | SPEC-024        | Unified Claude Agent Monorepo | SPEC-041 + current .claude/ structure           |
-| SPEC-025        | OpenClaw CEO Mix Voice Stack  | SPEC-009 + SPEC-027                             |
+| SPEC-025        | OpenClaw CEO Mix Voice Stack  | SPEC-027 (voice pipeline)                       |
 | SPEC-025-REPORT | CEO Mix Report                | SPEC-024 + SPEC-025                             |
-| SPEC-026        | OpenClaw TTS Route Fix        | SPEC-009 + openclaw-audio-governance.md         |
+| SPEC-026        | OpenClaw TTS Route Fix        | SPEC-027 (voice pipeline)                       |
 | SPEC-028        | Perplexity GitOps             | SPEC-024 + perplexity-agent                     |
 | SPEC-030        | AGENTS.md Top Links Audit     | SPEC-041 + current AGENTS.md                    |
 | SPEC-033        | Supabase Tunnel Exposure      | SPEC-043 (supabase PRUNED)                      |
@@ -162,7 +161,7 @@ See [SPEC-029-INFISICAL-SDK-MANDATORY.md](./SPEC-029-INFISICAL-SDK-MANDATORY.md)
 
 | Domain         | Canonical                | Active Work                            |
 | -------------- | ------------------------ | -------------------------------------- |
-| Audio Stack    | SPEC-009 (PROTECTED)     | SPEC-027 (voice pipeline)              |
+| Audio Stack    | SPEC-027                 | SPEC-027 (voice pipeline)              |
 | Infrastructure | SPEC-039 (Hermes tunnel) | SPEC-032, SPEC-031, SPEC-038, SPEC-043 |
 | Agent/CLI      | SPEC-041 (polish)        | SPEC-034 (MiniMax skills)              |
 | Voice Pipeline | SPEC-027                 | —                                      |

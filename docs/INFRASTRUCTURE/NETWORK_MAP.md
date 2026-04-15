@@ -43,7 +43,7 @@
         │  painel.zappro.site → http://localhost:4003     │
         │  qdrant.zappro.site → http://localhost:6333     │
         │  monitor.zappro.site → http://localhost:3100    │
-        │  llm.zappro.site   → http://localhost:4000      │
+        │  llm.zappro.site   → http://localhost:4002      │
         │  api.zappro.site   → http://localhost:4000      │
         │  list.zappro.site  → http://localhost:4080      │
         │  md.zappro.site    → http://localhost:4081      │
@@ -92,7 +92,7 @@
 | `coolify.zappro.site` | `:8000`            | —                         | ✅ UP              | —    |
 | `git.zappro.site`     | `:3300`            | —                         | ✅ UP              | —    |
 | `hermes.zappro.site`  | `:8642`            | —                         | ✅ UP              | —    |
-| `llm.zappro.site`     | `:4000`            | —                         | ✅ UP              | —    |
+| `llm.zappro.site`     | `:4002`            | —                         | ✅ UP              | —    |
 | `list.zappro.site`    | `:4080`            | LAN only                  | ✅ UP              | —    |
 | `md.zappro.site`      | `:4081`            | LAN only                  | ✅ UP              | —    |
 | `monitor.zappro.site` | `:3100`            | LAN only (192.168.0.0/16) | ✅ UP              | —    |
@@ -384,7 +384,7 @@ cloudflared daemon (host network)
 │  │  coolify.zappro.site  → :8000               │  │
 │  │  hermes.zappro.site   → :8642               │  │
 │  │  chat.zappro.site    → :8080 (OpenWebUI)   │  │
-│  │  llm.zappro.site     → :4000 (LiteLLM)     │  │
+│  │  llm.zappro.site     → :4002 (ai-gateway)  │  │
 │  │  api.zappro.site     → :4000                │  │
 │  └───────────────────────────────────────────────┘  │
 └─────────────────────────────────────────────────────┘

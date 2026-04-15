@@ -10,6 +10,7 @@ description: Enterprise-grade Cloudflare Tunnel management for homelab — token
 This skill provides comprehensive, actionable procedures for managing Cloudflare Tunnels in the homelab environment (zappro.site). It covers the full lifecycle: token creation, Terraform-based infrastructure-as-code, drift detection, troubleshooting, and operational runbooks.
 
 **Use this skill when you need to:**
+
 - Add or remove a subdomain/service
 - Manage Cloudflare API tokens (create, rotate)
 - Detect or fix drift between Terraform state and Cloudflare
@@ -17,6 +18,7 @@ This skill provides comprehensive, actionable procedures for managing Cloudflare
 - Run operational procedures (health checks, daemon restart)
 
 **Prerequisite:** Source credentials from `.env` before any API/Terraform operation:
+
 ```bash
 source /srv/monorepo/.env
 # Loads: CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID, CLOUDFLARE_ZONE_ID, CLOUDFLARE_TUNNEL_ID
@@ -84,26 +86,26 @@ source /srv/monorepo/.env
 
 ### Key Identifiers (homelab zappro.site)
 
-| Resource         | Value                                    |
-|------------------|------------------------------------------|
-| Zone ID          | `c0cf47bc153a6662f884d0f91e8da7c2`       |
-| Account ID       | `1a41f45591a50585050f664fa015d01b`       |
-| Tunnel ID        | `aee7a93d-c2e2-4c77-a395-71edc1821402`   |
-| Tunnel Name      | `will-zappro-homelab`                    |
-| Tunnel CNAME     | `aee7a93d-c2e2-4c77-a395-71edc1821402.cfargotunnel.com` |
-| Domain           | `zappro.site`                            |
+| Resource     | Value                                                   |
+| ------------ | ------------------------------------------------------- |
+| Zone ID      | `c0cf47bc153a6662f884d0f91e8da7c2`                      |
+| Account ID   | `1a41f45591a50585050f664fa015d01b`                      |
+| Tunnel ID    | `aee7a93d-c2e2-4c77-a395-71edc1821402`                  |
+| Tunnel Name  | `will-zappro-homelab`                                   |
+| Tunnel CNAME | `aee7a93d-c2e2-4c77-a395-71edc1821402.cfargotunnel.com` |
+| Domain       | `zappro.site`                                           |
 
 ---
 
 ## Reference Files
 
-| File                              | Topic                                    |
-|-----------------------------------|------------------------------------------|
-| `references/token-management.md`  | Token creation, scoping, rotation        |
+| File                                | Topic                                   |
+| ----------------------------------- | --------------------------------------- |
+| `references/token-management.md`    | Token creation, scoping, rotation       |
 | `references/terraform-structure.md` | File layout, add/remove service, import |
-| `references/drift-detection.md`   | Detect and fix state divergence         |
-| `references/troubleshooting.md`  | 1010/502 errors, daemon issues, expiry  |
-| `references/runbooks.md`           | Step-by-step operational procedures      |
+| `references/drift-detection.md`     | Detect and fix state divergence         |
+| `references/troubleshooting.md`     | 1010/502 errors, daemon issues, expiry  |
+| `references/runbooks.md`            | Step-by-step operational procedures     |
 
 ---
 
@@ -177,22 +179,21 @@ curl -s -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
 
 ## Current Services Map
 
-| Subdomain | Target URL | http_host_header | Access | Notes |
-|-----------|-----------|-------------------|--------|-------|
-| `api` | 10.0.1.1:4000 | - | Cloudflare Access | LiteLLM |
-| `bot` | localhost:4001 | openclaw-qgtzrmi... | OAuth native | no Access |
-| `chat` | 10.0.5.2:8080 | openwebui-wbmqefx... | Cloudflare Access | OpenWebUI |
-| `coolify` | localhost:8000 | - | Cloudflare Access | Coolify |
-| `git` | localhost:3300 | - | Cloudflare Access | Gitea |
-| `hermes` | localhost:8642 | - | Cloudflare Access | Hermes agent |
-| `llm` | 10.0.1.1:4000 | - | Cloudflare Access | LiteLLM |
-| `list` | localhost:4080 | - | OAuth native | no Access |
-| `md` | localhost:4081 | - | OAuth native | no Access |
-| `monitor` | localhost:3100 | - | LAN only | Grafana |
-| `n8n` | 10.0.6.2:5678 | - | Cloudflare Access | n8n |
-| `painel` | localhost:4003 | - | Cloudflare Access | Painel |
-| `qdrant` | 10.0.19.5:6333 | - | Cloudflare Access | Qdrant |
-| `vault` | localhost:8200 | - | Cloudflare Access | Infisical |
+| Subdomain | Target URL     | http_host_header     | Access            | Notes        |
+| --------- | -------------- | -------------------- | ----------------- | ------------ |
+| `api`     | 10.0.1.1:4000  | -                    | Cloudflare Access | LiteLLM      |
+| `chat`    | 10.0.5.2:8080  | openwebui-wbmqefx... | Cloudflare Access | OpenWebUI    |
+| `coolify` | localhost:8000 | -                    | Cloudflare Access | Coolify      |
+| `git`     | localhost:3300 | -                    | Cloudflare Access | Gitea        |
+| `hermes`  | localhost:8642 | -                    | Cloudflare Access | Hermes agent |
+| `llm`     | 10.0.1.1:4000  | -                    | Cloudflare Access | LiteLLM      |
+| `list`    | localhost:4080 | -                    | OAuth native      | no Access    |
+| `md`      | localhost:4081 | -                    | OAuth native      | no Access    |
+| `monitor` | localhost:3100 | -                    | LAN only          | Grafana      |
+| `n8n`     | 10.0.6.2:5678  | -                    | Cloudflare Access | n8n          |
+| `painel`  | localhost:4003 | -                    | Cloudflare Access | Painel       |
+| `qdrant`  | 10.0.19.5:6333 | -                    | Cloudflare Access | Qdrant       |
+| `vault`   | localhost:8200 | -                    | Cloudflare Access | Infisical    |
 
 ---
 
