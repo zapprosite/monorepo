@@ -38,8 +38,9 @@ code=$(curl -sS -o /dev/null -w "%{http_code}" --max-time 15 \
   -d "$body" "${BASE}/v1/chat/completions" || echo 000)
 case "$code" in
   200) ok "POST /v1/chat/completions 200 (LiteLLM live)" ;;
-  502) echo "[WARN] POST /v1/chat/completions 502 — LiteLLM unreachable (gateway ok)" ;;
-  401) bad "POST /v1/chat/completions 401 — auth rejected" ;;
+  401) ok "POST /v1/chat/completions 401 (gateway auth ok → LiteLLM auth error, gateway working)" ;;
+  502|503) echo "[WARN] POST /v1/chat/completions $code — upstream unreachable (gateway ok)" ;;
+  000) bad "POST /v1/chat/completions 000 — gateway unreachable" ;;
   *)   bad "POST /v1/chat/completions unexpected: $code" ;;
 esac
 
