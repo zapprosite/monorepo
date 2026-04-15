@@ -3,11 +3,13 @@
 **Applies to:** All code in `/srv/monorepo`
 **Authority:** Platform Governance
 **Updated:** 2026-04-13
-**Spec:** SPEC-029-INFISICAL-SDK-MANDATORY.md, ADR-001
+**Spec:** SPEC-029 (superseded), ADR-001, SPEC-047
+
+> ⚠️ **2026-04-13 — Infisical PRUNED:** Infisical foi descomissionado. `.env` é agora a ÚNICA fonte canónica. Infisical SDK é PROIBIDO em qualquer código (apps, packages, scripts, CI). Secrets novos gerados localmente (`openssl rand -hex 32`) e adicionados a `.env` + `.env.example`.
 
 ---
 
-## Core Rule — .env as Canonical Source
+## Core Rule — .env as Canonical Source (Única)
 
 All secrets are stored in `.env` files (canonical source). Application code reads secrets via `os.getenv()` / `process.env`.
 
