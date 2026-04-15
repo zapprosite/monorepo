@@ -6,7 +6,7 @@
 
 import type { FastifyInstance } from 'fastify';
 import { $fetch } from 'ofetch';
-import { AudioSpeechRequestSchema } from '@repo/zod-schemas/openai-compat.zod';
+import { AudioSpeechRequestSchema } from '../schemas.js';
 
 const TTS_BRIDGE_URL = process.env.TTS_BRIDGE_URL ?? 'http://localhost:8013';
 
