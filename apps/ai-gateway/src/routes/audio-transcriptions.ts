@@ -1,37 +1,38 @@
 /**
- * SPEC-047 T104 — POST /v1/audio/transcriptions
- * Passthrough to wav2vec2-proxy (:8203, Deepgram-format) (SPEC-018).
- * Anti-hardcoded: STT_PROXY_URL via process.env.
+ * SPEC-048 — POST /v1/audio/transcriptions
+ * Passthrough para whisper-api :8201 (OpenAI-compat nativo, Faster-Whisper)
+ * Não usa wav2vec2-proxy :8203 (Deepgram format) — usa directamente :8201
+ * Anti-hardcoded: STT_DIRECT_URL via process.env
  */
 
 import type { FastifyInstance } from 'fastify';
 import { $fetch } from 'ofetch';
 
-const STT_PROXY_URL = process.env.STT_PROXY_URL ?? 'http://localhost:8203';
+// :8201 = whisper-api (OpenAI /v1/audio/transcriptions nativo)
+// :8203 = wav2vec2-proxy (Deepgram format — para OpenClaw)
+const STT_URL = process.env.STT_DIRECT_URL ?? process.env.STT_PROXY_URL ?? 'http://localhost:8201';
 
 export async function audioTranscriptionsRoute(app: FastifyInstance) {
-  // Register multipart support inline (file upload)
   app.post('/audio/transcriptions', async (request, reply) => {
     try {
-      // Forward multipart/form-data as-is to STT proxy (Deepgram v1/listen format)
-      const body = (await request.body) as Buffer | string;
       const contentType = request.headers['content-type'] ?? 'multipart/form-data';
+      const body = request.body as Buffer | string;
 
-      const result = await $fetch<{
-        results: { channels: Array<{ alternatives: Array<{ transcript: string }> }> };
-      }>(`${STT_PROXY_URL}/v1/listen`, {
-        method: 'POST',
-        headers: { 'Content-Type': contentType },
-        body,
-        timeout: 30000,
-      });
+      const result = await $fetch<{ text?: string; results?: unknown }>(
+        `${STT_URL}/v1/audio/transcriptions`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': contentType },
+          body,
+          timeout: 60000,
+        },
+      );
 
-      // Normalize Deepgram response → OpenAI transcription format
-      const transcript = result?.results?.channels?.[0]?.alternatives?.[0]?.transcript ?? '';
-      return reply.send({ text: transcript });
+      // whisper-api :8201 já retorna OpenAI format {"text":"..."}
+      return reply.send({ text: result?.text ?? '' });
     } catch (err: unknown) {
       const e = err as { data?: unknown; statusCode?: number };
-      reply
+      return reply
         .code(e.statusCode ?? 502)
         .send(e.data ?? { error: { message: 'STT upstream error', type: 'upstream_error' } });
     }

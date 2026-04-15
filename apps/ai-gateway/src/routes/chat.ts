@@ -1,16 +1,30 @@
 /**
- * SPEC-047 T102 — POST /v1/chat/completions
- * Passthrough to LiteLLM, applies PT-BR filter on response content.
- * Anti-hardcoded: upstream URL + key via process.env.
+ * SPEC-048 — POST /v1/chat/completions
+ * - gpt-4o / gpt-3.5-turbo → LiteLLM :4000 (tom-cat-8b: llama3-portuguese-tomcat-8b)
+ * - gpt-4o-vision → LiteLLM :4000 (qwen2.5-vl: qwen2.5vl:7b) — multimodal
+ * - PT-BR filter opcional via header x-ptbr-filter: true
+ * Anti-hardcoded: tudo via process.env
  */
 
 import type { FastifyInstance } from 'fastify';
 import { $fetch } from 'ofetch';
 import { ChatCompletionRequestSchema } from '../schemas.js';
-import { applyPtbrFilter } from '../middleware/ptbr-filter';
+import { applyPtbrFilter } from '../middleware/ptbr-filter.js';
 
 const LITELLM_URL = process.env.LITELLM_LOCAL_URL ?? 'http://localhost:4000/v1';
 const LITELLM_KEY = process.env.LITELLM_MASTER_KEY ?? '';
+
+// OpenAI alias → LiteLLM model name (espelha config.yaml real)
+const MODEL_ALIASES: Record<string, string> = {
+  'gpt-4o': 'tom-cat-8b', // llama3-portuguese-tomcat-8b via Ollama
+  'gpt-4o-mini': 'tom-cat-8b',
+  'gpt-3.5-turbo': 'tom-cat-8b',
+  'gpt-4o-vision': 'qwen2.5-vl', // qwen2.5vl:7b via Ollama — multimodal
+  'gpt-4-vision-preview': 'qwen2.5-vl',
+  // passthrough
+  'tom-cat-8b': 'tom-cat-8b',
+  'qwen2.5-vl': 'qwen2.5-vl',
+};
 
 export async function chatCompletionsRoute(app: FastifyInstance) {
   app.post('/chat/completions', async (request, reply) => {
@@ -23,17 +37,18 @@ export async function chatCompletionsRoute(app: FastifyInstance) {
 
     const body = parsed.data;
     const acceptLang = request.headers['accept-language'];
+    const ptbrEnabled = request.headers['x-ptbr-filter'] === 'true';
+    const upstreamModel = MODEL_ALIASES[body.model] ?? body.model;
 
     try {
       const upstream = await $fetch<Record<string, unknown>>(`${LITELLM_URL}/chat/completions`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${LITELLM_KEY}`, 'Content-Type': 'application/json' },
-        body,
-        timeout: 30000,
+        body: { ...body, model: upstreamModel },
+        timeout: 60000,
       });
 
-      // Apply PT-BR filter to each choice's content
-      if (Array.isArray(upstream.choices) && body['x-ptbr-filter'] !== false) {
+      if (ptbrEnabled && Array.isArray(upstream.choices)) {
         for (const choice of upstream.choices as Array<{ message?: { content?: string } }>) {
           if (typeof choice.message?.content === 'string') {
             choice.message.content = await applyPtbrFilter(choice.message.content, acceptLang);
@@ -41,15 +56,14 @@ export async function chatCompletionsRoute(app: FastifyInstance) {
         }
       }
 
-      // Strip debug header in production
-      if (process.env.NODE_ENV !== 'development') {
-        delete upstream['x-ai-gateway-upstream'];
-      }
+      // Devolver alias original ao cliente
+      if (upstream.model) upstream.model = body.model;
+      if (process.env.NODE_ENV !== 'development') delete upstream['x-ai-gateway-upstream'];
 
       return reply.send(upstream);
     } catch (err: unknown) {
       const e = err as { data?: unknown; statusCode?: number };
-      reply
+      return reply
         .code(e.statusCode ?? 502)
         .send(e.data ?? { error: { message: 'Upstream error', type: 'upstream_error' } });
     }
