@@ -19,22 +19,23 @@ status: ACTIVE
 
 **Working on a specific domain?** Use the table below to find the canonical SPEC:
 
-| Domain                       | Start Here                                              | Canonical SPEC                                                                                   | Notes                                                   |
-| ---------------------------- | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------ | ------------------------------------------------------- |
-| **System architecture**      | [ARCHITECTURE-OVERVIEW.md](../ARCHITECTURE-OVERVIEW.md) | —                                                                                                | Complete stack overview                                 |
-| **Audio/voice (TTS/STT)**    | SPEC-009                                                | [SPEC-009-openclaw-persona-audio-stack.md](./SPEC-009-openclaw-persona-audio-stack.md)           | PROTECTED — immutable                                   |
-| **Voice pipeline**           | SPEC-027                                                | [SPEC-027-voice-pipeline-humanized-ptbr.md](./SPEC-027-voice-pipeline-humanized-ptbr.md)         | PT-BR humanized, Kokoro v0.2.4                          |
-| **Secrets / Infisical**      | SPEC-029                                                | [SPEC-029-INFISICAL-SDK-MANDATORY.md](./SPEC-029-INFISICAL-SDK-MANDATORY.md)                     | Zero tolerance mandate                                  |
-| **Tunnel / subdomains**      | SPEC-032                                                | [SPEC-032-tunnel-health-automation.md](./SPEC-032-tunnel-health-automation.md)                   | smoke-tunnel.sh ✅                                      |
-| **Hermes Agent**             | SPEC-038                                                | [SPEC-038-hermes-agent-migration.md](./SPEC-038-hermes-agent-migration.md)                       | OPERAÇÃO OVERLORD                                       |
-| **Hermes Gateway**           | SPEC-039                                                | [SPEC-039-hermes-gateway-tunnel.md](./SPEC-039-hermes-gateway-tunnel.md)                         | hermes.zappro.site → :8642                              |
-| **Alerting & rate limiting** | SPEC-040                                                | [SPEC-040-homelab-alerting-rate-limit.md](./SPEC-040-homelab-alerting-rate-limit.md)             | GPU security                                            |
-| **Monorepo polish**          | SPEC-041                                                | [SPEC-041-monorepo-estado-arte-polish.md](./SPEC-041-monorepo-estado-arte-polish.md)             | Tech debt resolution                                    |
-| **AI Gateway PT-BR**         | SPEC-047                                                | [SPEC-047-enterprise-polish-ai-gateway-ptbr.md](./SPEC-047-enterprise-polish-ai-gateway-ptbr.md) | OpenAI-compat facade, Llama filter, deadline 2026-04-15 |
-| **Maintenance**              | SPEC-031                                                | [SPEC-031-homelab-maintenance.md](./SPEC-031-homelab-maintenance.md)                             | ZFS, HEALTHCHECKs                                       |
-| **MiniMax agents**           | SPEC-034                                                | [SPEC-034-minimax-agent-use-cases.md](./SPEC-034-minimax-agent-use-cases.md)                     | 6 skills created                                        |
-| **Todo web app**             | SPEC-036                                                | [SPEC-036-todo-web.md](./SPEC-036-todo-web.md)                                                   | ✅ DONE — OAuth deployed                                |
-| **Obsidian vault UI**        | SPEC-037                                                | [SPEC-037-md-zappro-site.md](./SPEC-037-md-zappro-site.md)                                       | 📋 PROPOSED — Google OAuth                              |
+| Domain                       | Start Here                                              | Canonical SPEC                                                                                   | Notes                           |
+| ---------------------------- | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------ | ------------------------------- |
+| **System architecture**      | [ARCHITECTURE-OVERVIEW.md](../ARCHITECTURE-OVERVIEW.md) | —                                                                                                | Complete stack overview         |
+| **Audio/voice (TTS/STT)**    | SPEC-009                                                | [SPEC-009-openclaw-persona-audio-stack.md](./SPEC-009-openclaw-persona-audio-stack.md)           | PROTECTED — immutable           |
+| **Voice pipeline**           | SPEC-027                                                | [SPEC-027-voice-pipeline-humanized-ptbr.md](./SPEC-027-voice-pipeline-humanized-ptbr.md)         | PT-BR humanized, Kokoro v0.2.4  |
+| **Secrets / Infisical**      | SPEC-029                                                | [SPEC-029-INFISICAL-SDK-MANDATORY.md](./SPEC-029-INFISICAL-SDK-MANDATORY.md)                     | Zero tolerance mandate          |
+| **Tunnel / subdomains**      | SPEC-032                                                | [SPEC-032-tunnel-health-automation.md](./SPEC-032-tunnel-health-automation.md)                   | smoke-tunnel.sh ✅              |
+| **Hermes Agent**             | SPEC-038                                                | [SPEC-038-hermes-agent-migration.md](./SPEC-038-hermes-agent-migration.md)                       | OPERAÇÃO OVERLORD               |
+| **Hermes Gateway**           | SPEC-039                                                | [SPEC-039-hermes-gateway-tunnel.md](./SPEC-039-hermes-gateway-tunnel.md)                         | hermes.zappro.site → :8642      |
+| **Alerting & rate limiting** | SPEC-040                                                | [SPEC-040-homelab-alerting-rate-limit.md](./SPEC-040-homelab-alerting-rate-limit.md)             | GPU security                    |
+| **Monorepo polish**          | SPEC-041                                                | [SPEC-041-monorepo-estado-arte-polish.md](./SPEC-041-monorepo-estado-arte-polish.md)             | Tech debt resolution            |
+| **AI Gateway PT-BR**         | SPEC-047                                                | [SPEC-047-enterprise-polish-ai-gateway-ptbr.md](./SPEC-047-enterprise-polish-ai-gateway-ptbr.md) | ai-gateway :4002 ✅             |
+| **OpenAI Facade Completo**   | SPEC-048                                                | [SPEC-048-openai-facade-completo.md](./SPEC-048-openai-facade-completo.md)                       | texto+visão+voz, hermes STT fix |
+| **Maintenance**              | SPEC-031                                                | [SPEC-031-homelab-maintenance.md](./SPEC-031-homelab-maintenance.md)                             | ZFS, HEALTHCHECKs               |
+| **MiniMax agents**           | SPEC-034                                                | [SPEC-034-minimax-agent-use-cases.md](./SPEC-034-minimax-agent-use-cases.md)                     | 6 skills created                |
+| **Todo web app**             | SPEC-036                                                | [SPEC-036-todo-web.md](./SPEC-036-todo-web.md)                                                   | ✅ DONE — OAuth deployed        |
+| **Obsidian vault UI**        | SPEC-037                                                | [SPEC-037-md-zappro-site.md](./SPEC-037-md-zappro-site.md)                                       | 📋 PROPOSED — Google OAuth      |
 
 ---
 
