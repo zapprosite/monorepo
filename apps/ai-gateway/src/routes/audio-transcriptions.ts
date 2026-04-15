@@ -1,7 +1,9 @@
 /**
  * SPEC-048 — POST /v1/audio/transcriptions
  * STT: wav2vec2-large-xlsr-53-portuguese :8202 (nativo PT-BR, 82%+ accuracy)
- * Converte qualquer formato → WAV 16kHz mono via ffmpeg, depois envia para wav2vec2
+ *
+ * Pipeline: multipart/form-data → extract audio → ffmpeg → WAV 16kHz → wav2vec2
+ * Suporta: ogg (Telegram), mp3, wav, m4a — qualquer formato que ffmpeg aceite
  * Anti-hardcoded: STT_DIRECT_URL via process.env
  */
 
@@ -17,8 +19,65 @@ import { randomBytes } from 'node:crypto';
 const execFileAsync = promisify(execFile);
 const STT_URL = process.env.STT_DIRECT_URL ?? 'http://localhost:8202';
 
-/** Convert any audio buffer → WAV 16kHz mono via ffmpeg */
-async function toWav16k(audioBytes: Buffer, ext = 'ogg'): Promise<Buffer> {
+// ── Multipart parser ────────────────────────────────────────────────────────
+
+interface MultipartFields {
+  fileBytes: Buffer;
+  fileExt: string;
+  responseFormat: string;
+}
+
+function parseMultipart(body: Buffer, contentType: string): MultipartFields {
+  const bm = contentType.match(/boundary=["']?([^\s"';]+)["']?/);
+  if (!bm) return { fileBytes: body, fileExt: 'ogg', responseFormat: 'json' };
+
+  const boundary = `--${bm[1]}`;
+  const parts = body.toString('binary').split(boundary);
+
+  let fileBytes: Buffer | null = null;
+  let fileExt = 'ogg';
+  let responseFormat = 'json';
+
+  for (const part of parts) {
+    if (!part.includes('Content-Disposition')) continue;
+    const sepIdx = part.indexOf('\r\n\r\n');
+    if (sepIdx === -1) continue;
+
+    const headers = part.slice(0, sepIdx);
+    const dataStr = part.slice(sepIdx + 4).replace(/\r\n$/, '');
+
+    // response_format field
+    if (headers.includes('name="response_format"')) {
+      responseFormat = dataStr.trim();
+      continue;
+    }
+
+    // file field — detect by name="file" or audio content-type
+    if (headers.includes('name="file"') || headers.match(/content-type:\s*audio\//i)) {
+      const ctMatch = headers.match(/content-type:\s*audio\/([^\r\n;]+)/i);
+      fileExt = ctMatch
+        ? ctMatch[1].trim().replace('mpeg', 'mp3').replace('ogg-opus', 'ogg')
+        : 'ogg';
+      // Re-extract as Buffer (binary-safe)
+      const partBuf = Buffer.from(part, 'binary');
+      const headersBuf = Buffer.from(headers + '\r\n\r\n', 'binary');
+      const start = partBuf.indexOf(headersBuf) + headersBuf.length;
+      let end = partBuf.length;
+      if (partBuf.slice(-2).toString() === '\r\n') end -= 2;
+      fileBytes = partBuf.slice(start, end);
+    }
+  }
+
+  return {
+    fileBytes: fileBytes ?? body,
+    fileExt,
+    responseFormat,
+  };
+}
+
+// ── ffmpeg convert to WAV 16kHz mono ───────────────────────────────────────
+
+async function toWav16k(audioBytes: Buffer, ext: string): Promise<Buffer> {
   const id = randomBytes(6).toString('hex');
   const tmpIn = path.join(os.tmpdir(), `gw-stt-${id}.${ext}`);
   const tmpOut = path.join(os.tmpdir(), `gw-stt-${id}.wav`);
@@ -42,15 +101,15 @@ async function toWav16k(audioBytes: Buffer, ext = 'ogg'): Promise<Buffer> {
   }
 }
 
-/** POST WAV to wav2vec2 as multipart/form-data → returns transcript text */
+// ── Send WAV to wav2vec2 ────────────────────────────────────────────────────
+
 function transcribeWav(wavBytes: Buffer): Promise<string> {
   const boundary = `----boundary${randomBytes(8).toString('hex')}`;
   const header = Buffer.from(
-    `--${boundary}\r\nContent-Disposition: form-data; name="file"; filename="audio.wav"\r\n` +
-      `Content-Type: audio/wav\r\n\r\n`,
+    `--${boundary}\r\nContent-Disposition: form-data; name="file"; filename="audio.wav"\r\nContent-Type: audio/wav\r\n\r\n`,
   );
   const footer = Buffer.from(`\r\n--${boundary}--\r\n`);
-  const body = Buffer.concat([header, wavBytes, footer]);
+  const reqBody = Buffer.concat([header, wavBytes, footer]);
   const url = new URL(`${STT_URL}/v1/audio/transcriptions`);
 
   return new Promise((resolve, reject) => {
@@ -62,7 +121,7 @@ function transcribeWav(wavBytes: Buffer): Promise<string> {
         method: 'POST',
         headers: {
           'Content-Type': `multipart/form-data; boundary=${boundary}`,
-          'Content-Length': body.length,
+          'Content-Length': reqBody.length,
         },
         timeout: 60000,
       },
@@ -74,7 +133,7 @@ function transcribeWav(wavBytes: Buffer): Promise<string> {
             const json = JSON.parse(Buffer.concat(chunks).toString('utf8'));
             resolve(typeof json.text === 'string' ? json.text : '');
           } catch (e) {
-            reject(new Error(`wav2vec2 parse error: ${e}`));
+            reject(new Error(`wav2vec2 parse: ${e}`));
           }
         });
       },
@@ -84,84 +143,12 @@ function transcribeWav(wavBytes: Buffer): Promise<string> {
       req.destroy();
       reject(new Error('wav2vec2 timeout'));
     });
-    req.write(body);
+    req.write(reqBody);
     req.end();
   });
 }
 
-/** Extract raw audio bytes from multipart body using boundary */
-function extractAudioFromMultipart(
-  body: Buffer,
-  contentType: string,
-): { bytes: Buffer; ext: string; responseFormat: string } {
-  const bm = contentType.match(/boundary=["']?([^"';\s]+)["']?/);
-  if (!bm) return { bytes: body, ext: 'bin' };
-
-  const sep = Buffer.from(`--${bm[1]}`);
-  let start = body.indexOf(sep);
-  while (start !== -1) {
-    const partStart = start + sep.length + 2; // skip \r\n
-    const nextSep = body.indexOf(sep, partStart);
-    const part = nextSep === -1 ? body.slice(partStart) : body.slice(partStart, nextSep - 2);
-
-    const headerEnd = indexOf(part, Buffer.from('\r\n\r\n'));
-    if (headerEnd !== -1) {
-      const headers = part.slice(0, headerEnd).toString();
-      if (
-        headers.toLowerCase().includes('content-disposition') &&
-        headers.toLowerCase().includes('name="file"')
-      ) {
-        const data = part.slice(headerEnd + 4);
-        // Detect ext from Content-Type header
-        const ctMatch = headers.match(/content-type:\s*audio\/([^\r\n;]+)/i);
-        const ext = ctMatch ? ctMatch[1].replace('mpeg', 'mp3') : 'ogg';
-        return { bytes: data, ext, responseFormat: extractField(body, sep, 'response_format') };
-      }
-    }
-    start = nextSep === -1 ? -1 : body.indexOf(sep, nextSep + sep.length);
-  }
-  // Search first 2KB (text headers before binary audio) for response_format
-  const head2k = body.slice(0, 2048).toString('utf8', 0, 2048);
-  const rfMatch = head2k.match(/name="response_format"\r\n\r\n([\w-]+)/);
-  const responseFormat = rfMatch ? rfMatch[1].trim() : 'json';
-  return { bytes: body, ext: 'ogg', responseFormat };
-}
-
-function indexOf(buf: Buffer, search: Buffer): number {
-  for (let i = 0; i <= buf.length - search.length; i++) {
-    let match = true;
-    for (let j = 0; j < search.length; j++) {
-      if (buf[i + j] !== search[j]) {
-        match = false;
-        break;
-      }
-    }
-    if (match) return i;
-  }
-  return -1;
-}
-
-/** Extract a named text field value from multipart body */
-function extractField(body: Buffer, sep: Buffer, fieldName: string): string {
-  let start = body.indexOf(sep);
-  while (start !== -1) {
-    const partStart = start + sep.length + 2;
-    const nextSep = body.indexOf(sep, partStart);
-    const part = nextSep === -1 ? body.slice(partStart) : body.slice(partStart, nextSep - 2);
-    const headerEnd = indexOf(part, Buffer.from('\r\n\r\n'));
-    if (headerEnd !== -1) {
-      const headers = part.slice(0, headerEnd).toString();
-      if (headers.includes(`name="${fieldName}"`)) {
-        return part
-          .slice(headerEnd + 4)
-          .toString('utf8')
-          .trim();
-      }
-    }
-    start = nextSep === -1 ? -1 : body.indexOf(sep, nextSep + sep.length);
-  }
-  return 'json';
-}
+// ── Route ───────────────────────────────────────────────────────────────────
 
 export async function audioTranscriptionsRoute(app: FastifyInstance) {
   app.post('/audio/transcriptions', async (request, reply) => {
@@ -169,16 +156,14 @@ export async function audioTranscriptionsRoute(app: FastifyInstance) {
       const body = request.body as Buffer;
       const contentType = request.headers['content-type'] ?? '';
 
-      const {
-        bytes: audioBytes,
-        ext,
-        responseFormat,
-      } = extractAudioFromMultipart(body, contentType);
-      const wavBytes = await toWav16k(audioBytes, ext);
+      const { fileBytes, fileExt, responseFormat } = parseMultipart(body, contentType);
+      const wavBytes = await toWav16k(fileBytes, fileExt);
       const text = await transcribeWav(wavBytes);
 
-      // OpenAI SDK sends response_format=text → expect plain string response
-      if (responseFormat === 'text') return reply.type('text/plain').send(text);
+      // OpenAI SDK sends response_format=text → expects plain text response
+      if (responseFormat === 'text') {
+        return reply.type('text/plain').send(text);
+      }
       return reply.send({ text });
     } catch (err: unknown) {
       const msg = (err as Error).message ?? 'STT error';
