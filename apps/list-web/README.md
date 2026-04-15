@@ -18,30 +18,17 @@ cd apps/list-web && python3 -m http.server 4080
 
 | Variable | Description | Source |
 |----------|-------------|--------|
-| `GOOGLE_CLIENT_ID` | Google OAuth Client ID | Infisical vault |
-| `GOOGLE_CLIENT_SECRET` | Google OAuth Client Secret | Infisical vault |
+| `GOOGLE_CLIENT_ID` | Google OAuth Client ID | `.env` (canonical source) |
+| `GOOGLE_CLIENT_SECRET` | Google OAuth Client Secret | `.env` (canonical source) |
 
 ### OAuth Setup
 
 1. Go to [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
 2. Create OAuth 2.0 Client ID (Web application)
 3. Add authorized redirect URI: `https://list.zappro.site/auth/callback`
-4. Add credentials to Infisical vault:
+4. Add credentials to `.env`:
    - `GOOGLE_CLIENT_ID`
    - `GOOGLE_CLIENT_SECRET`
-
-### Infisical Configuration
-
-The app uses the Infisical SDK to fetch secrets at runtime:
-
-```javascript
-const INFISICAL_CONFIG = {
-  clientId: '_CLIENT_ID_',     // Replace with actual
-  clientSecret: '_CLIENT_SECRET_', // Replace with actual
-};
-```
-
-Update `infisical-get-secret.js` with actual Infisical credentials or use environment-specific configuration.
 
 ## Deployment
 
@@ -107,7 +94,6 @@ apps/list-web/
 ├── auth.js                 # Google OAuth flow
 ├── auth-callback.html      # OAuth callback handler
 ├── tools.js                # Tools data + renderer
-├── infisical-get-secret.js # Infisical SDK wrapper
 ├── DEPLOYMENT.md           # Deployment checklist
 └── README.md               # This file
 ```
@@ -132,9 +118,9 @@ open http://localhost:4080
 
 ## Troubleshooting
 
-### "Infisical: Failed to fetch"
-- Verify Infisical vault is accessible
-- Verify credentials have access to secrets
+### "GOOGLE_CLIENT_ID not configured"
+- Verify `.env` file exists and contains `GOOGLE_CLIENT_ID`
+- Rebuild with `./build.sh` to inject the secret
 
 ### OAuth redirect not working
 - Verify redirect URI in Google Cloud Console

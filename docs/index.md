@@ -13,7 +13,6 @@
 | [Memória Claude](./guides/memoria-claude.md)           | Configuração e uso do Claude Code |
 | [OpenCode](./guides/opencode.md)                       | Guide OpenCode                    |
 | [Security Hardening](./guides/security-hardening.md)   | Fortalecimento de segurança       |
-| [Infisical](./guides/infisical.md)                     | Vault Infisical self-hosted       |
 | [Whisper Auto Local](./guides/whisper-auto-local.md)   | Transcrição automática local      |
 
 ## Logs
@@ -33,7 +32,7 @@
 
 | Skill                                                                   | Descrição                                                                                                                                                                       |
 | ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [OpenClaw Agents Kit](./OPERATIONS/SKILLS/openclaw-agents-kit/SKILL.md) | Kit universal: transforma OpenClaw em orquestrador de agents (leader + sub-agents). Inclui: Coolify API, Infisical SDK, identity-patch, governance template, sub-agent patterns |
+| [OpenClaw Agents Kit](./OPERATIONS/SKILLS/openclaw-agents-kit/SKILL.md) | Kit universal: transforma OpenClaw em orquestrador de agents (leader + sub-agents). Inclui: Coolify API, identity-patch, governance template, sub-agent patterns |
 | [TTS Bridge](./OPERATIONS/SKILLS/tts-bridge.md)                         | Filtro de vozes Kokoro (pm_santa/pf_dora only)                                                                                                                                  |
 | [Container Health Check](./OPERATIONS/SKILLS/container-health-check.md) | Health + recursos de containers                                                                                                                                                 |
 

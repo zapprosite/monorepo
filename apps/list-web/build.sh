@@ -1,23 +1,23 @@
 #!/bin/bash
-# build.sh — Build list-web with Infisical secrets injection
+# build.sh — Build list-web with secrets from .env
 #
 # Usage:
-#   INFISICAL_TOKEN=st.xxx ./build.sh
+#   ./build.sh
 #
 # Prerequisites:
+#   - .env file in the project root with GOOGLE_CLIENT_ID
 #   - jq installed
-#   - INFISICAL_TOKEN environment variable or .env file
 #
 # What it does:
-#   1. Fetches GOOGLE_CLIENT_ID from Infisical vault
+#   1. Loads GOOGLE_CLIENT_ID from .env
 #   2. Replaces {{GOOGLE_CLIENT_ID}} placeholder in index.html
 #   3. Outputs to dist/ directory
 
 set -euo pipefail
 
 # Configuration
-INFISICAL_BASE_URL="${INFISICAL_BASE_URL:-https://infisical.zappro.site/api/v1}"
 SOURCE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ENV_FILE="${SOURCE_DIR}/../.env"
 DIST_DIR="${SOURCE_DIR}/dist"
 SECRETS=("GOOGLE_CLIENT_ID")
 
@@ -38,51 +38,24 @@ check_prereqs() {
     exit 1
   fi
 
-  if [[ -z "${INFISICAL_TOKEN:-}" ]]; then
-    if [[ -f "${SOURCE_DIR}/.env" ]]; then
-      log_info "Loading INFISICAL_TOKEN from .env file"
-      source "${SOURCE_DIR}/.env"
-    else
-      log_error "INFISICAL_TOKEN environment variable not set and no .env file found"
-      log_error "Set it with: export INFISICAL_TOKEN=st.your-token"
-      exit 1
-    fi
-  fi
-
-  if [[ -z "${INFISICAL_TOKEN}" ]]; then
-    log_error "INFISICAL_TOKEN is empty"
+  if [[ ! -f "${ENV_FILE}" ]]; then
+    log_error ".env file not found at ${ENV_FILE}"
     exit 1
   fi
+
+  log_info "Loading secrets from .env"
 }
 
-# Fetch a single secret from Infisical
-# Usage: fetch_secret "SECRET_NAME"
-fetch_secret() {
+# Load a single secret from .env
+# Usage: load_secret "SECRET_NAME"
+load_secret() {
   local secret_name="$1"
-  local response
   local secret_value
 
-  response=$(curl -s -X GET \
-    "${INFISICAL_BASE_URL}/secrets/${secret_name}" \
-    -H "Authorization: Bearer ${INFISICAL_TOKEN}" \
-    -H "Content-Type: application/json" \
-    -w "\n%{http_code}")
-
-  local http_code
-  http_code=$(echo "$response" | tail -n1)
-  local body
-  body=$(echo "$response" | sed '$d')
-
-  if [[ "$http_code" != "200" ]]; then
-    log_error "Failed to fetch ${secret_name}: HTTP ${http_code}"
-    log_error "Response: $body"
-    return 1
-  fi
-
-  secret_value=$(echo "$body" | jq -r '.secret.secretValue // empty')
+  secret_value=$(grep "^${secret_name}=" "${ENV_FILE}" | cut -d'=' -f2- | tr -d '"')
 
   if [[ -z "$secret_value" ]]; then
-    log_error "Secret ${secret_name} not found or has no value"
+    log_error "Secret ${secret_name} not found in .env"
     return 1
   fi
 
@@ -91,17 +64,17 @@ fetch_secret() {
 
 # Build the project
 build() {
-  log_info "Building list-web with Infisical secrets..."
+  log_info "Building list-web..."
 
   # Create dist directory
   mkdir -p "${DIST_DIR}"
 
-  # Fetch secrets
+  # Load secrets
   declare -A secret_values
   for secret in "${SECRETS[@]}"; do
-    log_info "Fetching ${secret} from Infisical..."
-    secret_values[$secret]=$(fetch_secret "$secret")
-    log_info "${secret} fetched successfully"
+    log_info "Loading ${secret} from .env..."
+    secret_values[$secret]=$(load_secret "$secret")
+    log_info "${secret} loaded successfully"
   done
 
   # Copy and replace secrets in HTML

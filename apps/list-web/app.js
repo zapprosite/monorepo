@@ -131,13 +131,6 @@
       category: 'dev'
     },
     {
-      name: 'Infisical',
-      url: 'https://infisical.zappro.site',
-      description: 'Secrets manager',
-      icon: '🔐',
-      category: 'infra'
-    },
-    {
       name: 'Kokoro TTS',
       url: 'http://localhost:8013',
       description: 'Text-to-Speech',

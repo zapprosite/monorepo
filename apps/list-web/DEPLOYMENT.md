@@ -18,7 +18,6 @@
 | auth.js | `apps/list-web/auth.js` | ✅ |
 | auth-callback.html | `apps/list-web/auth-callback.html` | ✅ |
 | tools.js | `apps/list-web/tools.js` | ✅ |
-| infisical-get-secret.js | `apps/list-web/infisical-get-secret.js` | ✅ |
 
 ### Git Status
 
@@ -54,7 +53,6 @@ Expected: Untracked files (new app)
 | auth.js | No |
 | auth-callback.html | No |
 | tools.js | No |
-| infisical-get-secret.js | No |
 
 ---
 
@@ -73,8 +71,7 @@ Expected: Untracked files (new app)
 ### OAuth Configuration
 - [ ] Create Google OAuth App in console.cloud.google.com
 - [ ] Add `https://list.zappro.site/auth/callback` to redirect URIs
-- [ ] Store `GOOGLE_CLIENT_ID` in Infisical vault
-- [ ] Store `GOOGLE_CLIENT_SECRET` in Infisical vault
+- [ ] Add `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` to `.env`
 
 ### Cloudflare Access
 - [ ] Apply same Access policy as chat.zappro.site
