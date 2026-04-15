@@ -1,7 +1,7 @@
 /**
  * SPEC-048 — PT-BR filter (TTS + chat opcional)
- * Lógica replicada de ~/Desktop/voice-pipeline/scripts/speak.sh (preprocess_for_tts)
- * Original speak.sh fica intacto — esta é a versão API do mesmo pipeline.
+ * Lógica replicada de ~/Desktop/voice-pipeline/scripts/speak.sh
+ * CORRIGIDO: não adicionar marcadores de pausa como texto falado
  * Anti-hardcoded: model + URL via process.env
  */
 
@@ -40,31 +40,30 @@ function cacheSet(key: string, value: string) {
   cache.set(key, { value, expiresAt: Date.now() + CACHE_TTL_MS });
 }
 
-// Prompt espelha lógica de preprocess_for_tts em speak.sh
+// Prompt TTS: limpa símbolos, NÃO adiciona palavras de pausa
 const TTS_PROMPT = (
   text: string,
-) => `Lê este texto em voz alta, como se fosse um livro para alguém, em português brasileiro natural.
-Regras:
-- Remove símbolos (→, ←, •, ★, ►, —, /, |) ou substitui por palavras naturais
-- Listas numeradas: "1. Item" vira "Primeiro, Item"
-- Títulos (MAIÚSCULAS ou linha curta sozinha) adiciona pausa antes
-- Texto misto PT/EN: mantém PT-BR mas não traduz termos técnicos
-- NÃO reescreve o conteúdo — apenas formata para fala natural
-- Responde APENAS com o texto formatado, sem explicação
+) => `Prepara este texto para leitura em voz alta em português brasileiro.
+REGRAS ESTRITAS:
+- Remove símbolos (→, ←, •, ★, ►, —, |, /) — não os substitua por palavras
+- Listas: "1. Item" → "Primeiro, Item". "2. Item" → "Segundo, Item"
+- PROIBIDO adicionar palavras como "pausa", "fim", "(Pause)", "(pause)", "silêncio" — NUNCA
+- NÃO reescreve o conteúdo — apenas limpa para leitura natural
+- Responde APENAS com o texto limpo, sem qualquer explicação
+
 Texto:
 ${text}`;
 
-// Prompt para correcção de PT-BR em respostas de chat
-const CHAT_PROMPT = (
-  text: string,
-) => `Corrija apenas gramática, acentuação e pontuação em português brasileiro. NÃO altere o significado. Responda APENAS com o texto corrigido, sem explicação.
+// Prompt chat: correcção leve PT-BR
+const CHAT_PROMPT = (text: string) =>
+  `Corrija gramática e acentuação em português brasileiro. NÃO altere o significado. Responda APENAS com o texto corrigido.
 Texto:
 ${text}`;
 
 /**
- * @param text     texto a filtrar
- * @param mode     'tts' (para fala — limpa símbolos) | 'chat' (correcção PT-BR leve)
- * @param acceptLang  bypass se não inclui 'pt'
+ * @param text       texto a filtrar
+ * @param mode       'tts' | 'chat'
+ * @param acceptLang bypass se não inclui 'pt'
  */
 export async function applyPtbrFilter(
   text: string,
@@ -86,7 +85,17 @@ export async function applyPtbrFilter(
       body: { model: PTBR_MODEL, prompt, stream: false },
       timeout: 10000,
     });
-    const filtered = res.response?.trim() || text;
+    let filtered = res.response?.trim() || text;
+
+    // Segurança extra: remover artefactos de pausa que o LLM possa ainda produzir
+    filtered = filtered
+      .replace(/\(Pause\)/gi, '')
+      .replace(/\(pause\)/gi, '')
+      .replace(/\bpausa\b/gi, '')
+      .replace(/\bfim\b\s*$/gi, '')
+      .replace(/\s{2,}/g, ' ')
+      .trim();
+
     const ms = Date.now() - start;
     if (ms > 400) process.stderr.write(`[ptbr-filter] ${mode} latency ${ms}ms\n`);
     cacheSet(key, filtered);
