@@ -15,7 +15,7 @@
     scope: 'email profile',
     auth_endpoint: 'https://accounts.google.com/o/oauth2/v2/auth',
     token_endpoint: 'https://oauth2.googleapis.com/token',
-    userinfo_endpoint: 'https://www.googleapis.com/oauth2/v2/userinfo'
+    userinfo_endpoint: 'https://www.googleapis.com/oauth2/v2/userinfo',
   };
 
   // ─── JWT Decode (minimal, no external deps) ────────────────────────────────
@@ -30,7 +30,7 @@
           .map(function (c) {
             return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
           })
-          .join('')
+          .join(''),
       );
       return JSON.parse(json);
     } catch (e) {
@@ -42,7 +42,7 @@
 
   var STORAGE = {
     TOKEN: 'oauth_token',
-    USER: 'oauth_user'
+    USER: 'oauth_user',
   };
 
   // ─── Session Management ────────────────────────────────────────────────────
@@ -93,50 +93,43 @@
       url: 'https://chat.zappro.site',
       description: 'Chat AI interface',
       icon: '💬',
-      category: 'ai'
+      category: 'ai',
     },
     {
       name: 'Grafana',
       url: 'https://monitor.zappro.site',
       description: 'Monitoring dashboards',
       icon: '📊',
-      category: 'monitoring'
+      category: 'monitoring',
     },
     {
       name: 'Prometheus',
       url: 'http://localhost:9090',
       description: 'Metrics collection',
       icon: '🎯',
-      category: 'monitoring'
-    },
-    {
-      name: 'OpenClaw',
-      url: 'https://openclaw.zappro.site',
-      description: 'Voice AI bot',
-      icon: '🎙️',
-      category: 'ai'
+      category: 'monitoring',
     },
     {
       name: 'Coolify',
       url: 'https://coolify.zappro.site',
       description: 'PaaS dashboard',
       icon: '☁️',
-      category: 'infra'
+      category: 'infra',
     },
     {
       name: 'Gitea',
       url: 'https://git.zappro.site',
       description: 'Git repositories',
       icon: '📦',
-      category: 'dev'
+      category: 'dev',
     },
     {
       name: 'Kokoro TTS',
       url: 'http://localhost:8013',
       description: 'Text-to-Speech',
       icon: '🔊',
-      category: 'ai'
-    }
+      category: 'ai',
+    },
   ];
 
   // ─── OAuth Flow ───────────────────────────────────────────────────────────
@@ -175,7 +168,7 @@
 
   async function fetchUserInfo(token) {
     var resp = await fetch(CONFIG.userinfo_endpoint, {
-      headers: { Authorization: 'Bearer ' + token }
+      headers: { Authorization: 'Bearer ' + token },
     });
     if (!resp.ok) throw new Error('userinfo failed');
     return resp.json();
@@ -198,7 +191,7 @@
         await fetch(tool.url, {
           method: 'HEAD',
           mode: 'no-cors',
-          signal: controller.signal
+          signal: controller.signal,
         });
         clearTimeout(timer);
         _toolStatusCache[tool.url] = 'up';
@@ -213,9 +206,11 @@
   }
 
   async function checkAllToolStatuses(tools) {
-    return Promise.all(tools.map(function (tool) {
-      return checkToolStatus(tool);
-    }));
+    return Promise.all(
+      tools.map(function (tool) {
+        return checkToolStatus(tool);
+      }),
+    );
   }
 
   // ─── Utilities ───────────────────────────────────────────────────────────
@@ -238,8 +233,7 @@
 
     var brand = document.createElement('div');
     brand.className = 'header-brand';
-    brand.innerHTML =
-      '<span class="logo">🛠️</span><span class="title">list.zappro.site</span>';
+    brand.innerHTML = '<span class="logo">🛠️</span><span class="title">list.zappro.site</span>';
 
     var userArea = document.createElement('div');
     userArea.className = 'header-user';
@@ -366,8 +360,7 @@
 
     var offlineMsg = document.createElement('p');
     offlineMsg.className = 'offline-message';
-    offlineMsg.textContent =
-      'If you are offline, please check your connection and try again.';
+    offlineMsg.textContent = 'If you are offline, please check your connection and try again.';
 
     card.appendChild(icon);
     card.appendChild(title);
@@ -393,8 +386,7 @@
     title.textContent = 'You are offline';
 
     var msg = document.createElement('p');
-    msg.textContent =
-      'Cannot reach the server. Please check your internet connection.';
+    msg.textContent = 'Cannot reach the server. Please check your internet connection.';
 
     card.appendChild(icon);
     card.appendChild(title);
@@ -462,15 +454,22 @@
     root.appendChild(main);
 
     // Fetch statuses then render grid
-    checkAllToolStatuses(tools).then(function (statuses) {
-      section.innerHTML = '';
-      section.appendChild(createToolsGrid(tools, statuses));
-    }).catch(function () {
-      section.innerHTML = '';
-      section.appendChild(
-        createToolsGrid(tools, tools.map(function () { return 'unknown'; }))
-      );
-    });
+    checkAllToolStatuses(tools)
+      .then(function (statuses) {
+        section.innerHTML = '';
+        section.appendChild(createToolsGrid(tools, statuses));
+      })
+      .catch(function () {
+        section.innerHTML = '';
+        section.appendChild(
+          createToolsGrid(
+            tools,
+            tools.map(function () {
+              return 'unknown';
+            }),
+          ),
+        );
+      });
 
     // Schedule auto-logout near token expiry
     var token = getStoredToken();
