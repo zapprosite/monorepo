@@ -2,7 +2,9 @@
 """
 OpenWebUI Admin CLI
 ==================
-Gestão de OpenWebUI via REST API + Infisical para credenciais.
+Gestao de OpenWebUI via REST API (credenciais via .env).
+
+SPEC-029/ADR-001: .env e a UNICA fonte de secrets. Infisical SDK e proibido.
 
 Uso:
     python3 openwebui_admin.py list-models
@@ -11,11 +13,12 @@ Uso:
     python3 openwebui_admin.py chat --model MODEL --message "texto"
     python3 openwebui_admin.py config
 
-Variáveis de ambiente (ou Infisical):
+Variaveis de ambiente (de .env):
     OPENWEBUI_URL=http://localhost:8080
     OPENWEBUI_EMAIL=admin@openwebui.local
     OPENWEBUI_PASSWORD=AdminPass123!
-    INFISICAL_TOKEN=st.XXX (opcional, para buscar secrets do Infisical)
+    OPENWEBUI_JWT_TOKEN=...
+    OPENWEBUI_API_KEY=...
 """
 
 import os
@@ -24,69 +27,31 @@ import json
 import argparse
 import urllib.request
 import urllib.error
-from typing import Optional, Dict, Any, List
+from typing import Optional, Dict, Any
+
 
 # =============================================================================
-# Infisical SDK (para credenciais)
+# Config from .env (canonical source — SPEC-029/ADR-001)
 # =============================================================================
-INFISICAL_AVAILABLE = False
-try:
-    from infisical import Infisical
-    INFISICAL_AVAILABLE = True
-except ImportError:
-    pass
-
-
-def get_infisical_secrets(token: str, project_id: str, env: str = "prod") -> Dict[str, str]:
-    """Busca secrets do Infisical."""
-    if not INFISICAL_AVAILABLE:
-        raise ImportError("Infisical SDK não instalado: pip install infisical")
-
-    client = Infisical(token=token)
-    secrets = client.secrets.list(project_id=project_id, environment=env)
-    return {s.secret: s.value for s in secrets}
-
-
 def get_config() -> Dict[str, str]:
-    """Obtém configuração via env vars ou Infisical."""
-    config = {
+    """Obtem configuracao via .env (unica fonte canonica)."""
+    return {
         "url": os.environ.get("OPENWEBUI_URL", "http://localhost:8080"),
         "email": os.environ.get("OPENWEBUI_EMAIL", ""),
         "password": os.environ.get("OPENWEBUI_PASSWORD", ""),
         "jwt_token": os.environ.get("OPENWEBUI_JWT_TOKEN", ""),
         "api_key": os.environ.get("OPENWEBUI_API_KEY", ""),
-        "infisical_token": os.environ.get("INFISICAL_TOKEN", ""),
-        "infisical_project_id": os.environ.get("INFISICAL_PROJECT_ID", ""),
     }
-
-    # Se tem Infisical token, tentar obter credenciais de lá
-    if config["infisical_token"] and config["infisical_project_id"]:
-        try:
-            secrets = get_infisical_secrets(
-                config["infisical_token"],
-                config["infisical_project_id"]
-            )
-            config["email"] = secrets.get("OPENWEBUI_EMAIL", config["email"])
-            config["password"] = secrets.get("OPENWEBUI_PASSWORD", config["password"])
-            config["jwt_token"] = secrets.get("OPENWEBUI_JWT_TOKEN", config["jwt_token"])
-            config["api_key"] = secrets.get("OPENWEBUI_API_KEY", config["api_key"])
-        except Exception as e:
-            print(f"Aviso: Não conseguiu carregar do Infisical: {e}", file=sys.stderr)
-
-    return config
 
 
 def get_auth_token(config: Dict[str, str]) -> str:
-    """Obtém token de autenticação (JWT ou API Key)."""
-    #优先使用已有的JWT token
+    """Obtem token de autenticacao (JWT ou API Key)."""
     if config["jwt_token"]:
         return config["jwt_token"]
 
-    # 或API key
     if config["api_key"]:
         return config["api_key"]
 
-    # 否则通过登录获取JWT
     if config["email"] and config["password"]:
         req = urllib.request.Request(
             f"{config['url']}/api/v1/auths/signin",
@@ -105,7 +70,7 @@ def get_auth_token(config: Dict[str, str]) -> str:
             body = e.read().decode()
             raise Exception(f"Sign-in falhou ({e.code}): {body}")
 
-    raise Exception("É necessário OPENWEBUI_EMAIL + OPENWEBUI_PASSWORD ou OPENWEBUI_JWT_TOKEN")
+    raise Exception("E necessario OPENWEBUI_EMAIL + OPENWEBUI_PASSWORD ou OPENWEBUI_JWT_TOKEN")
 
 
 def api_request(
@@ -115,7 +80,7 @@ def api_request(
     data: Optional[Dict[str, Any]] = None,
     token: Optional[str] = None
 ) -> Dict[str, Any]:
-    """Faz request à API do OpenWebUI."""
+    """Faz request a API do OpenWebUI."""
     if token is None:
         token = get_auth_token(config)
 
@@ -146,7 +111,7 @@ def api_request(
 # =============================================================================
 
 def cmd_list_models(config: Dict[str, str]):
-    """Lista modelos disponíveis."""
+    """Lista modelos disponiveis."""
     result = api_request(config, "/api/v1/models")
     models = result.get("data", result.get("models", []))
     if not models:
@@ -203,7 +168,7 @@ def cmd_chat(config: Dict[str, str], model: str, message: str):
 
 
 def cmd_config(config: Dict[str, str]):
-    """Mostra configuração atual do OpenWebUI."""
+    """Mostra configuracao atual do OpenWebUI."""
     result = api_request(config, "/api/v1/config")
     print(json.dumps(result, indent=2))
 
@@ -212,9 +177,9 @@ def main():
     parser = argparse.ArgumentParser(description="OpenWebUI Admin CLI")
     sub = parser.add_subparsers(dest="command")
 
-    sub.add_parser("list-models", help="Lista modelos disponíveis")
+    sub.add_parser("list-models", help="Lista modelos disponiveis")
     sub.add_parser("list-users", help="Lista utilizadores")
-    sub.add_parser("config", help="Mostra configuração")
+    sub.add_parser("config", help="Mostra configuracao")
 
     key_cmd = sub.add_parser("create-api-key", help="Cria API key")
     key_cmd.add_argument("--user", help="User ID (opcional)")

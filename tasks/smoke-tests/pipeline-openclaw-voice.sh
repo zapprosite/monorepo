@@ -11,36 +11,8 @@ if [ -f /srv/monorepo/.env ]; then
 fi
 
 # =============================================================================
-# Infisical — fetch secrets from vault (falls back to env vars)
 # =============================================================================
-INFISICAL_TOKEN="${INFISICAL_TOKEN:-}"
-if [ -z "$INFISICAL_TOKEN" ] && [ -f /srv/ops/secrets/infisical.service-token ]; then
-    INFISICAL_TOKEN=$(cat /srv/ops/secrets/infisical.service-token 2>/dev/null | tr -d '\n')
-fi
-
-fetch_secret() {
-    python3 -c "
-import sys
-from infisical_sdk import InfisicalSDKClient
-import os
-token = os.environ.get('INFISICAL_TOKEN', '')
-if not token and os.path.exists('/srv/ops/secrets/infisical.service-token'):
-    token = open('/srv/ops/secrets/infisical.service-token').read().strip()
-client = InfisicalSDKClient(host='http://127.0.0.1:8200', token=token)
-secrets = client.secrets.list_secrets(
-    project_id=os.environ.get("INFISICAL_PROJECT_ID"),
-    environment_slug='dev',
-    secret_path='/'
-)
-for s in secrets.secrets:
-    if s.secret_key == '$1':
-        print(s.secret_value, end='')
-        break
-" 2>/dev/null
-}
-
-# =============================================================================
-# Config (env or Infisical)
+# Config — .env canonical source only (INFISICAL SDK PROHIBITED per SPEC-029/ADR-001)
 # =============================================================================
 TELEGRAM_BOT_TOKEN="${TELEGRAM_BOT_TOKEN:-}"
 TEST_CHAT_ID="${TEST_CHAT_ID:-}"
@@ -53,26 +25,18 @@ TTS_BRIDGE_URL="${TTS_BRIDGE_URL:-http://localhost:8013}"
 WAV2VEC2_URL="${WAV2VEC2_URL:-http://localhost:8203}"
 KOKORO_URL="${KOKORO_URL:-http://localhost:8880}"
 
-# LITELLM_KEY — env var takes precedence, else try container (correct key), else Infisical
+# LITELLM_KEY — from .env
 if [ -z "${LITELLM_KEY:-}" ]; then
-    LITELLM_KEY=$(docker exec zappro-litellm env 2>/dev/null | grep 'LITELLM_MASTER_KEY=' | cut -d= -f2)
-fi
-if [ -z "${LITELLM_KEY:-}" ]; then
-    LITELLM_KEY=$(fetch_secret "LITELLM_MASTER_KEY")
+    LITELLM_KEY="${LITELLM_MASTER_KEY:-}"
 fi
 if [ -z "$LITELLM_KEY" ]; then
-    echo "ERROR: LITELLM_KEY not set and not found in Infisical" >&2
-    echo "Set LITELLM_KEY env var or add LITELLM_MASTER_KEY to Infisical vault (project e42657ef)" >&2
+    echo "ERROR: LITELLM_KEY/LITELLM_MASTER_KEY not set in .env" >&2
     exit 1
 fi
 
-# MINIMAX_API_KEY — env var takes precedence, else try Infisical
+# MINIMAX_API_KEY — from .env
 if [ -z "${MINIMAX_API_KEY:-}" ]; then
-    MINIMAX_API_KEY=$(fetch_secret "MINIMAX_API_KEY")
-fi
-if [ -z "$MINIMAX_API_KEY" ]; then
-    echo "ERROR: MINIMAX_API_KEY not set and not found in Infisical" >&2
-    echo "Set MINIMAX_API_KEY env var or add MINIMAX_API_KEY to Infisical vault (project e42657ef)" >&2
+    echo "ERROR: MINIMAX_API_KEY not set in .env" >&2
     exit 1
 fi
 
