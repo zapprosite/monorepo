@@ -20,10 +20,10 @@ import { randomBytes } from 'node:crypto';
 import { $fetch } from 'ofetch';
 
 const execFileAsync = promisify(execFile);
-const STT_URL = process.env.STT_DIRECT_URL ?? 'http://localhost:8202';
-const OLLAMA_URL = process.env.OLLAMA_URL ?? 'http://localhost:11434';
+const STT_URL = process.env['STT_DIRECT_URL'] ?? 'http://localhost:8202';
+const OLLAMA_URL = process.env['OLLAMA_URL'] ?? 'http://localhost:11434';
 const PTBR_MODEL =
-  process.env.PTBR_FILTER_MODEL ?? 'llama3-portuguese-tomcat-8b-instruct-q8:latest';
+  process.env['PTBR_FILTER_MODEL'] ?? 'llama3-portuguese-tomcat-8b-instruct-q8:latest';
 
 // ── System prompt (copiado de voice.sh correct_llm) ────────────────────────
 
@@ -138,7 +138,7 @@ function parseMultipart(body: Buffer, contentType: string): ParsedMultipart {
     }
     if (headers.includes('name="file"') || headers.match(/content-type:\s*audio\//i)) {
       const ctMatch = headers.match(/content-type:\s*audio\/([^\r\n;]+)/i);
-      fileExt = (ctMatch ? ctMatch[1].trim().replace('mpeg', 'mp3') : 'ogg')
+      fileExt = (ctMatch ? (ctMatch[1] ?? 'ogg').trim().replace('mpeg', 'mp3') : 'ogg')
         .replace('ogg-opus', 'ogg')
         .replace('opus', 'ogg');
       fileBytes = Buffer.from(dataStr, 'binary');
@@ -152,8 +152,8 @@ function parseMultipart(body: Buffer, contentType: string): ParsedMultipart {
 
 async function toWav16k(audioBytes: Buffer, ext: string): Promise<Buffer> {
   const id = randomBytes(6).toString('hex');
-  const tmpIn = path.join(os.tmpdir(), `gw-stt-${id}.${ext}`);
-  const tmpOut = path.join(os.tmpdir(), `gw-stt-${id}.wav`);
+  const tmpIn = path.join(os.tmpdir(), `gw-stt-in-${id}.${ext}`);
+  const tmpOut = path.join(os.tmpdir(), `gw-stt-out-${id}.wav`);
   try {
     fs.writeFileSync(tmpIn, audioBytes);
     await execFileAsync('ffmpeg', ['-y', '-i', tmpIn, '-ar', '16000', '-ac', '1', tmpOut], {
@@ -237,11 +237,9 @@ export async function audioTranscriptionsRoute(app: FastifyInstance) {
       const { fileBytes, fileExt, responseFormat } = parseMultipart(body, contentType);
 
       if (!fileBytes || fileBytes.length === 0) {
-        return reply
-          .code(400)
-          .send({
-            error: { message: 'No file field in multipart body', type: 'invalid_request_error' },
-          });
+        return reply.code(400).send({
+          error: { message: 'No file field in multipart body', type: 'invalid_request_error' },
+        });
       }
 
       const wavBytes = await toWav16k(fileBytes, fileExt);

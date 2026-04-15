@@ -8,9 +8,9 @@
 import { createHash } from 'node:crypto';
 import { $fetch } from 'ofetch';
 
-const OLLAMA_URL = process.env.OLLAMA_URL ?? 'http://localhost:11434';
+const OLLAMA_URL = process.env['OLLAMA_URL'] ?? 'http://localhost:11434';
 const PTBR_MODEL =
-  process.env.PTBR_FILTER_MODEL ?? 'llama3-portuguese-tomcat-8b-instruct-q8:latest';
+  process.env['PTBR_FILTER_MODEL'] ?? 'llama3-portuguese-tomcat-8b-instruct-q8:latest';
 const CACHE_TTL_MS = 15 * 60 * 1000;
 const CACHE_MAX = 512;
 

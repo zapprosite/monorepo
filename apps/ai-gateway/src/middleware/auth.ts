@@ -1,12 +1,12 @@
 /**
  * Auth middleware — constant-time Bearer token compare (SPEC-047 T105)
- * Token read from process.env.AI_GATEWAY_FACADE_KEY (anti-hardcoded)
+ * Token read from process.env['AI_GATEWAY_FACADE_KEY'] (anti-hardcoded)
  */
 
 import { timingSafeEqual } from 'node:crypto';
 import type { FastifyRequest, FastifyReply } from 'fastify';
 
-const FACADE_KEY = process.env.AI_GATEWAY_FACADE_KEY ?? '';
+const FACADE_KEY = process.env['AI_GATEWAY_FACADE_KEY'] ?? '';
 
 if (!FACADE_KEY) {
   process.stderr.write('[ai-gateway] FATAL: AI_GATEWAY_FACADE_KEY not set in .env\n');
