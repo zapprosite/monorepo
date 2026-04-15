@@ -22,10 +22,10 @@
 
 ## Phase 4 — Tunnel Rerouting (requer aprovação humana)
 
-- [ ] T400 — **HUMAN GATE**: confirmar rerouting `llm.zappro.site` → `:4002` (ai-gateway) em vez de `:4000` (LiteLLM)
-- [ ] T401 — Após aprovação: Cloudflare tunnel ingress update via API (skill `cloudflare-terraform`)
-- [ ] T402 — Atualizar `SUBDOMAINS.md`: llm.zappro.site → :4002 (ai-gateway)
-- [ ] T403 — Atualizar `PORTS.md`: :4000 internal-only, :4002 public-via-tunnel
+- [x] T400 — ✅ DONE (2026-04-15): rerouting aprovado e executado via Terraform + cloudflared restart
+- [x] T401 — ✅ DONE: Cloudflare tunnel ingress actualizado (llm.zappro.site → :4002 via CLOUDFLARE_API_TOKEN)
+- [x] T402 — ✅ DONE: SUBDOMAINS.md actualizado (synced 2026-04-15)
+- [x] T403 — ✅ DONE: PORTS.md actualizado (SPEC-050 T35)
 
 ## Phase 5 — Smoke & Polish
 

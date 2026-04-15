@@ -1,7 +1,7 @@
 ---
 name: SPEC-048-openai-facade-completo
 description: Fazer llm.zappro.site ser um OpenAI completo — texto, visão, voz (TTS+STT) via ai-gateway. Rerouting do tunnel. Sem novo subdomínio.
-status: PROPOSED
+status: IN_PROGRESS
 priority: critical
 author: Principal Engineer
 date: 2026-04-15

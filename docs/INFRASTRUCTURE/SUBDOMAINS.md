@@ -2,36 +2,37 @@
 name: subdomains-registry
 description: >
   Registry automático de subdomínios Cloudflare.
-  Sincronizado de /srv/ops/terraform/cloudflare/ em 2026-04-14.
+  Sincronizado de /srv/ops/terraform/cloudflare/ em 2026-04-15.
 type: governance
-synced: 2026-04-14
+synced: 2026-04-15
 ---
 
 # Subdomains Registry
 
-**Última sincronização:** 2026-04-14
+**Última sincronização:** 2026-04-15
 **Total de records DNS:** 12 subdomínios ativos + 7 PRUNED
 
 ## Tabela de Subdomínios ATIVOS
 
-| Subdomínio                                         | Porta | Estado                  | Descrição                                                                                   |
-| -------------------------------------------------- | ----- | ----------------------- | ------------------------------------------------------------------------------------------- |
-| [api.zappro.site](https://api.zappro.site)         | 4000  | ✅ ATIVO                | LiteLLM proxy (Cloudflare Access) — :4000                                                   |
-| [chat.zappro.site](https://chat.zappro.site)       | 8080  | ✅ ATIVO                | Open WebUI (LLM chat UI) — :8080 (Coolify)                                                  |
-| [coolify.zappro.site](https://coolify.zappro.site) | 8000  | ✅ ATIVO                | Coolify PaaS panel — :8000                                                                  |
-| [git.zappro.site](https://git.zappro.site)         | 3300  | ✅ ATIVO                | Gitea Git Server — :3300                                                                    |
-| [hermes.zappro.site](https://hermes.zappro.site)   | 8642  | ✅ ATIVO                | Hermes Gateway (Telegram polling) — localhost:8642                                          |
-| [list.zappro.site](https://list.zappro.site)       | 4080  | ✅ ATIVO                | Tools list (OAuth native) — :4080                                                           |
-| [llm.zappro.site](https://llm.zappro.site)         | 4000  | ✅ ATIVO (T400 PENDING) | LiteLLM proxy (API key) — :4000 → reroute to :4002 (ai-gateway) pending Cloudflare approval |
-| [md.zappro.site](https://md.zappro.site)           | 4081  | ✅ ATIVO                | Obsidian vault UI (OAuth native) — :4081                                                    |
-| [monitor.zappro.site](https://monitor.zappro.site) | 3100  | ✅ ATIVO                | Grafana dashboard — :3100                                                                   |
-| [painel.zappro.site](https://painel.zappro.site)   | 4003  | ✅ ATIVO                | Claude Code Panel (nginx:alpine) — :4003                                                    |
-| [qdrant.zappro.site](https://qdrant.zappro.site)   | 6333  | ✅ ATIVO                | Qdrant vector DB — :6333                                                                    |
-| [todo.zappro.site](https://todo.zappro.site)       | 4082  | ✅ ATIVO                | Todo app (OAuth native) — :4082                                                             |
+| Subdomínio                                           | Porta | Estado                    | Descrição                                                                            |
+| ---------------------------------------------------- | ----- | ------------------------- | ------------------------------------------------------------------------------------ |
+| [api.zappro.site](https://api.zappro.site)           | 4000  | ✅ ATIVO                  | LiteLLM proxy (Cloudflare Access) — :4000                                            |
+| [chat.zappro.site](https://chat.zappro.site)         | 8080  | ✅ ATIVO                  | Open WebUI (LLM chat UI) — :8080 (Coolify)                                           |
+| [coolify.zappro.site](https://coolify.zappro.site)   | 8000  | ✅ ATIVO                  | Coolify PaaS panel — :8000                                                           |
+| [git.zappro.site](https://git.zappro.site)           | 3300  | ✅ ATIVO                  | Gitea Git Server — :3300                                                             |
+| [hermes.zappro.site](https://hermes.zappro.site)     | 4002  | ✅ ATIVO                  | ai-gateway OpenAI-compat (TTS/STT/vision) — :4002                                    |
+| [list.zappro.site](https://list.zappro.site)         | 4080  | ✅ ATIVO                  | Tools list (OAuth native) — :4080                                                    |
+| [llm.zappro.site](https://llm.zappro.site)           | 4002  | ✅ ATIVO (T400 DONE)      | ai-gateway OpenAI-compat (TTS/STT/vision) — :4002 via CLOUDFLARE_API_TOKEN Terraform |
+| [md.zappro.site](https://md.zappro.site)             | 4081  | ✅ ATIVO                  | Obsidian vault UI (OAuth native) — :4081                                             |
+| [telegram.zappro.site](https://telegram.zappro.site) | 8642  | ✅ ATIVO (DNS propagando) | Hermes Gateway (Telegram polling) — :8642                                            |
+| [monitor.zappro.site](https://monitor.zappro.site)   | 3100  | ✅ ATIVO                  | Grafana dashboard — :3100                                                            |
+| [painel.zappro.site](https://painel.zappro.site)     | 4003  | ✅ ATIVO                  | Claude Code Panel (nginx:alpine) — :4003                                             |
+| [qdrant.zappro.site](https://qdrant.zappro.site)     | 6333  | ✅ ATIVO                  | Qdrant vector DB — :6333                                                             |
+| [todo.zappro.site](https://todo.zappro.site)         | 4082  | ✅ ATIVO                  | Todo app (OAuth native) — :4082                                                      |
 
 ## Terraform Source
 
-`/srv/ops/terraform/cloudflare/main.tf` (state: serial 137+)
+`/srv/ops/terraform/cloudflare/main.tf` (state: serial 140+)
 
 ## Subdomínios PRUNED (DNS removido — não usar)
 
@@ -46,20 +47,20 @@ synced: 2026-04-14
 | `vault.zappro.site`      | Infisical Vault :8200 | DNS removido 2026-04-14 — container não existe, porta 8200 livre |
 | `web.zappro.site`        | nginx-ratelimit :4004 | DNS removido — NXDOMAIN — túnel órfão                            |
 
-## T400 — llm.zappro.site reroute to :4002 (ai-gateway) — PENDING
+## T400 — llm.zappro.site reroute to :4002 (ai-gateway) — ✅ DONE
 
-**SPEC-050 (2026-04-15):** `llm.zappro.site` currently routes to `:4000` (LiteLLM). T400 will reroute to `:4002` (ai-gateway, OpenAI-compatible facade per SPEC-047/048).
+**SPEC-050 (2026-04-15):** `llm.zappro.site` rerouted from `:4000` (LiteLLM) to `:4002` (ai-gateway, OpenAI-compatible facade per SPEC-047/048).
 
-**Status:** ⏳ PENDING — requires Cloudflare approval
+**Status:** ✅ COMPLETED — 2026-04-15 13:56 -03
 
-**Steps:**
+**Steps executed:**
 
-1. Update `/srv/ops/terraform/cloudflare/variables.tf` — change `llm.zappro.site` target from `:4000` to `:4002`
-2. `cd /srv/ops/terraform/cloudflare && terraform apply`
-3. Restart cloudflared: `sudo systemctl restart cloudflared`
-4. Verify: `curl -sfI https://llm.zappro.site/v1/models`
+1. ✅ Updated `/srv/ops/terraform/cloudflare/variables.tf` — `litellm` key renamed to `hermes`, URL changed to `:4002`; existing `hermes` key renamed to `telegram` (porta :8642)
+2. ✅ `cd /srv/ops/terraform/cloudflare && terraform apply` — Cloudflare API token from `.env`
+3. ✅ `sudo systemctl restart cloudflared` — nova config de ingress propagada
+4. ✅ Verify: `curl -sfI https://llm.zappro.site/` → `HTTP/2 401` (ai-gateway auth required)
 
-**Blocker:** Cloudflare approval for Terraform apply
+**Nota:** Variavel Terraform `hermes` (subdomain `hermes`) → `:4002` (ai-gateway); variavel `telegram` (subdomain `telegram`) → `:8642` (Hermes Telegram); variavel `llm` (subdomain `llm`) → `:4002` (ai-gateway) — ambos hermes e llm apontam para o mesmo ai-gateway (redundancia).
 
 ---
 
