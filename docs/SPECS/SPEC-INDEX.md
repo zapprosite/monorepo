@@ -31,6 +31,8 @@ status: ACTIVE
 | **Alerting & rate limiting** | SPEC-040                                                | [SPEC-040-homelab-alerting-rate-limit.md](./SPEC-040-homelab-alerting-rate-limit.md)             | GPU security                        |
 | **Monorepo polish**          | SPEC-041                                                | [SPEC-041-monorepo-estado-arte-polish.md](./SPEC-041-monorepo-estado-arte-polish.md)             | Tech debt resolution                |
 | **AI Gateway PT-BR**         | SPEC-047                                                | [SPEC-047-enterprise-polish-ai-gateway-ptbr.md](./SPEC-047-enterprise-polish-ai-gateway-ptbr.md) | ai-gateway :4002 ✅                 |
+| **OpenClaw prune**           | SPEC-051                                                | [SPEC-051-openclaw-prune-specs-polish.md](./SPEC-051-openclaw-prune-specs-polish.md)             | Prune total OpenClaw legacy ✅      |
+| **Hermes MCP + Context7**    | SPEC-052                                                | [SPEC-052-hermes-mcp-context7-integration.md](./SPEC-052-hermes-mcp-context7-integration.md)     | Context7 MCP research               |
 | **OpenAI Facade Completo**   | SPEC-048 ✅                                             | [SPEC-048-openai-facade-completo.md](./SPEC-048-openai-facade-completo.md)                       | texto+visão+voz, llm.zappro.site ✅ |
 | **Maintenance**              | SPEC-031                                                | [SPEC-031-homelab-maintenance.md](./SPEC-031-homelab-maintenance.md)                             | ZFS, HEALTHCHECKs                   |
 | **MiniMax agents**           | SPEC-034                                                | [SPEC-034-minimax-agent-use-cases.md](./SPEC-034-minimax-agent-use-cases.md)                     | 6 skills created                    |
@@ -43,12 +45,13 @@ status: ACTIVE
 
 ### ✅ DONE (Deployed/Complete)
 
-| SPEC     | Title                  | Deployed                                       |
-| -------- | ---------------------- | ---------------------------------------------- |
-| SPEC-036 | Todo web app           | todo.zappro.site (OAuth, 2026-04-13)           |
-| SPEC-043 | Subdomain prune        | bot/supabase PRUNED, hermes.zappro.site ACTIVE |
-| SPEC-048 | OpenAI Facade Completo | llm.zappro.site (:4002), smoke (6/6) ✅        |
-| SPEC-039 | Hermes Gateway tunnel  | hermes.zappro.site → :8642                     |
+| SPEC     | Title                  | Deployed                                             |
+| -------- | ---------------------- | ---------------------------------------------------- |
+| SPEC-036 | Todo web app           | todo.zappro.site (OAuth, 2026-04-13)                 |
+| SPEC-043 | Subdomain prune        | bot/supabase PRUNED, hermes.zappro.site ACTIVE       |
+| SPEC-048 | OpenAI Facade Completo | llm.zappro.site (:4002), smoke (6/6) ✅              |
+| SPEC-039 | Hermes Gateway tunnel  | hermes.zappro.site → :8642                           |
+| SPEC-051 | OpenClaw prune total   | ✅ DONE — OpenClaw legacy PRUNED, 40+ files archived |
 
 ### 🟡 IN_PROGRESS (Active Work)
 
@@ -59,12 +62,15 @@ status: ACTIVE
 | SPEC-034 | MiniMax agent use cases          | 6 skills: minimax-code-gen, minimax-debugger, minimax-refactor, minimax-research, minimax-security-audit, review-minimax |
 | SPEC-040 | Homelab alerting & rate limiting | alert-sender deployed, Loki deploying                                                                                    |
 | SPEC-041 | Monorepo polish                  | Tech debt resolution, ESLint flat config, TypeScript upgrade                                                             |
+| SPEC-052 | Hermes MCP + Context7            | Research completo — MCP architecture, Context7 patterns, quotas esgotadas plano contingência                             |
 
 ### 🚧 IMPLEMENTING (In Active Migration)
 
-| SPEC     | Title                  | Notes                                       |
-| -------- | ---------------------- | ------------------------------------------- |
-| SPEC-038 | Hermes Agent migration | OPERAÇÃO OVERLORD — OpenClaw → Hermes-Agent |
+| SPEC     | Title                  | Notes                                                 |
+| -------- | ---------------------- | ----------------------------------------------------- |
+| SPEC-038 | Hermes Agent migration | OPERAÇÃO OVERLORD — OpenClaw → Hermes-Agent           |
+| SPEC-051 | OpenClaw prune total   | Prune total OpenClaw legacy — HERMES único assistente |
+| SPEC-052 | Hermes MCP + Context7  | Context7 MCP + web search integration research        |
 
 ### 📋 SPECIFIED (Planned/Proposed)
 
@@ -85,6 +91,8 @@ Hermes Agent migration       → SPEC-038
 Hermes Gateway tunnel         → SPEC-039
 Alerting & rate limiting     → SPEC-040
 Monorepo polish              → SPEC-041
+OpenClaw prune (done)        → SPEC-051
+Hermes MCP + Context7        → SPEC-052
 Todo web app (done)          → SPEC-036
 Obsidian vault UI            → SPEC-037 (proposed)
 Subdomain prune (done)       → SPEC-043
