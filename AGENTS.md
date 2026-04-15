@@ -6,6 +6,25 @@
 
 ---
 
+## ⚠️ REGRA ANTI-HARDCODED — OBRIGATÓRIA (atualizado 2026-04-15)
+
+**Nenhuma URL, porta, token, API key ou model name pode ser hardcoded no código.**
+
+```ts
+// ✅ CORRECTO — sempre via process.env
+const STT_URL = process.env.STT_DIRECT_URL ?? 'http://localhost:8202';
+const GW_KEY = process.env.AI_GATEWAY_FACADE_KEY ?? '';
+
+// ❌ PROIBIDO — hardcoded
+const STT_URL = 'http://localhost:8202';
+const API_KEY = 'sk-abc123...';
+```
+
+**Fonte canónica:** `/srv/monorepo/.env` (Infisical está PRUNED desde 2026-04-13)
+**Regras completas:** `.claude/rules/anti-hardcoded-env.md` + `.claude/rules/anti-hardcoded-secrets.md`
+
+---
+
 ## IMPORTANT — FOR INFRASTRUCTURE ARCHITECTURE
 
 **For infrastructure architecture, see [docs/ARCHITECTURE-OVERVIEW.md](docs/ARCHITECTURE-OVERVIEW.md)**
