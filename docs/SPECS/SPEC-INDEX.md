@@ -19,27 +19,27 @@ status: ACTIVE
 
 **Working on a specific domain?** Use the table below to find the canonical SPEC:
 
-| Domain                       | Start Here                                              | Canonical SPEC                                                                                                     | Notes                                                         |
-| ---------------------------- | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------- |
-| **System architecture**      | [ARCHITECTURE-OVERVIEW.md](../ARCHITECTURE-OVERVIEW.md) | —                                                                                                                  | Complete stack overview                                       |
-| **Audio/voice (TTS/STT)**    | SPEC-027                                                | [SPEC-027-voice-pipeline-humanized-ptbr.md](./SPEC-027-voice-pipeline-humanized-ptbr.md)                           | PT-BR humanized, Kokoro v0.2.4                                |
-| **Voice pipeline**           | SPEC-027                                                | [SPEC-027-voice-pipeline-humanized-ptbr.md](./SPEC-027-voice-pipeline-humanized-ptbr.md)                           | PT-BR humanized, Kokoro v0.2.4                                |
-| **Secrets / Infisical**      | SPEC-029                                                | [SPEC-029-INFISICAL-SDK-MANDATORY.md](./SPEC-029-INFISICAL-SDK-MANDATORY.md)                                       | Zero tolerance mandate                                        |
-| **Tunnel / subdomains**      | SPEC-032                                                | [SPEC-032-tunnel-health-automation.md](./SPEC-032-tunnel-health-automation.md)                                     | smoke-tunnel.sh ✅                                            |
-| **Hermes Agent**             | SPEC-038                                                | [SPEC-038-hermes-agent-migration.md](./SPEC-038-hermes-agent-migration.md)                                         | OPERAÇÃO OVERLORD                                             |
-| **Hermes Gateway**           | SPEC-039                                                | [SPEC-039-hermes-gateway-tunnel.md](./SPEC-039-hermes-gateway-tunnel.md)                                           | hermes.zappro.site → :8642                                    |
-| **Alerting & rate limiting** | SPEC-040                                                | [SPEC-040-homelab-alerting-rate-limit.md](./SPEC-040-homelab-alerting-rate-limit.md)                               | GPU security                                                  |
-| **Monorepo polish**          | SPEC-041                                                | [SPEC-041-monorepo-estado-arte-polish.md](./SPEC-041-monorepo-estado-arte-polish.md)                               | Tech debt resolution                                          |
-| **AI Gateway PT-BR**         | SPEC-047                                                | [SPEC-047-enterprise-polish-ai-gateway-ptbr.md](./SPEC-047-enterprise-polish-ai-gateway-ptbr.md)                   | ai-gateway :4002 ✅                                           |
-| **OpenClaw prune**           | SPEC-051                                                | [SPEC-051-openclaw-prune-specs-polish.md](./SPEC-051-openclaw-prune-specs-polish.md)                               | Prune total OpenClaw legacy ✅                                |
-| **Hermes MCP + Context7**    | SPEC-052                                                | [SPEC-052-hermes-mcp-context7-integration.md](./SPEC-052-hermes-mcp-context7-integration.md)                       | Context7 MCP research                                         |
-| **OpenAI Facade Completo**   | SPEC-048 ✅                                             | [SPEC-048-openai-facade-completo.md](./SPEC-048-openai-facade-completo.md)                                         | texto+visão+voz, llm.zappro.site ✅                           |
-| **Cloud Voice APIs PT-BR**   | SPEC-055                                                | [SPEC-055-cloud-voice-apis-ptbr-2026.md](./SPEC-055-cloud-voice-apis-ptbr-2026.md)                                 | GROQ+Edge vs local, 14 agents research                        |
-| **GPU Max + Cloud Fallback** | SPEC-055-v2 ✅                                          | [SPEC-055-v2-gpu-max-latra-inteligent-cloud-fallback.md](./SPEC-055-v2-gpu-max-latra-inteligent-cloud-fallback.md) | llama4-scout-17B + whisper + Kokoro, GROQ/Deepgram free tiers |
-| **Maintenance**              | SPEC-031                                                | [SPEC-031-homelab-maintenance.md](./SPEC-031-homelab-maintenance.md)                                               | ZFS, HEALTHCHECKs                                             |
-| **MiniMax agents**           | SPEC-034                                                | [SPEC-034-minimax-agent-use-cases.md](./SPEC-034-minimax-agent-use-cases.md)                                       | 6 skills created                                              |
-| **Todo web app**             | SPEC-036                                                | [SPEC-036-todo-web.md](./SPEC-036-todo-web.md)                                                                     | ✅ DONE — OAuth deployed                                      |
-| **Obsidian vault UI**        | SPEC-037                                                | [SPEC-037-md-zappro-site.md](./SPEC-037-md-zappro-site.md)                                                         | 📋 PROPOSED — Google OAuth                                    |
+| Domain                       | Start Here                                              | Canonical SPEC                                                                                                     | Notes                                                                                    |
+| ---------------------------- | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------- |
+| **System architecture**      | [ARCHITECTURE-OVERVIEW.md](../ARCHITECTURE-OVERVIEW.md) | —                                                                                                                  | Complete stack overview                                                                  |
+| **Audio/voice (TTS/STT)**    | SPEC-027                                                | [SPEC-027-voice-pipeline-humanized-ptbr.md](./SPEC-027-voice-pipeline-humanized-ptbr.md)                           | PT-BR humanized, Kokoro v0.2.4                                                           |
+| **Voice pipeline**           | SPEC-027                                                | [SPEC-027-voice-pipeline-humanized-ptbr.md](./SPEC-027-voice-pipeline-humanized-ptbr.md)                           | PT-BR humanized, Kokoro v0.2.4                                                           |
+| **Secrets / Infisical**      | SPEC-029                                                | [SPEC-029-INFISICAL-SDK-MANDATORY.md](./SPEC-029-INFISICAL-SDK-MANDATORY.md)                                       | Zero tolerance mandate                                                                   |
+| **Tunnel / subdomains**      | SPEC-032                                                | [SPEC-032-tunnel-health-automation.md](./SPEC-032-tunnel-health-automation.md)                                     | smoke-tunnel.sh ✅                                                                       |
+| **Hermes Agent**             | SPEC-038                                                | [SPEC-038-hermes-agent-migration.md](./SPEC-038-hermes-agent-migration.md)                                         | OPERAÇÃO OVERLORD                                                                        |
+| **Hermes Gateway**           | SPEC-039                                                | [SPEC-039-hermes-gateway-tunnel.md](./SPEC-039-hermes-gateway-tunnel.md)                                           | hermes.zappro.site → :8642                                                               |
+| **Alerting & rate limiting** | SPEC-040                                                | [SPEC-040-homelab-alerting-rate-limit.md](./SPEC-040-homelab-alerting-rate-limit.md)                               | GPU security                                                                             |
+| **Monorepo polish**          | SPEC-041                                                | [SPEC-041-monorepo-estado-arte-polish.md](./SPEC-041-monorepo-estado-arte-polish.md)                               | Tech debt resolution                                                                     |
+| **AI Gateway PT-BR**         | SPEC-047                                                | [SPEC-047-enterprise-polish-ai-gateway-ptbr.md](./SPEC-047-enterprise-polish-ai-gateway-ptbr.md)                   | ai-gateway :4002 ✅                                                                      |
+| **OpenClaw prune**           | SPEC-051                                                | [SPEC-051-openclaw-prune-specs-polish.md](./SPEC-051-openclaw-prune-specs-polish.md)                               | Prune total OpenClaw legacy ✅                                                           |
+| **Hermes MCP + Context7**    | SPEC-052                                                | [SPEC-052-hermes-mcp-context7-integration.md](./SPEC-052-hermes-mcp-context7-integration.md)                       | Context7 MCP research                                                                    |
+| **OpenAI Facade Completo**   | SPEC-048 ✅                                             | [SPEC-048-openai-facade-completo.md](./SPEC-048-openai-facade-completo.md)                                         | texto+visão+voz, llm.zappro.site ✅                                                      |
+| **Cloud Voice APIs PT-BR**   | SPEC-055                                                | [SPEC-055-cloud-voice-apis-ptbr-2026.md](./SPEC-055-cloud-voice-apis-ptbr-2026.md)                                 | GROQ+Edge vs local, 14 agents research                                                   |
+| **GPU Max + Cloud Fallback** | SPEC-055-v2 ✅                                          | [SPEC-055-v2-gpu-max-latra-inteligent-cloud-fallback.md](./SPEC-055-v2-gpu-max-latra-inteligent-cloud-fallback.md) | whisper + Kokoro + Gemma4-12b-it (text) + Qwen3-VL-8B (future), GROQ/Deepgram free tiers |
+| **Maintenance**              | SPEC-031                                                | [SPEC-031-homelab-maintenance.md](./SPEC-031-homelab-maintenance.md)                                               | ZFS, HEALTHCHECKs                                                                        |
+| **MiniMax agents**           | SPEC-034                                                | [SPEC-034-minimax-agent-use-cases.md](./SPEC-034-minimax-agent-use-cases.md)                                       | 6 skills created                                                                         |
+| **Todo web app**             | SPEC-036                                                | [SPEC-036-todo-web.md](./SPEC-036-todo-web.md)                                                                     | ✅ DONE — OAuth deployed                                                                 |
+| **Obsidian vault UI**        | SPEC-037                                                | [SPEC-037-md-zappro-site.md](./SPEC-037-md-zappro-site.md)                                                         | 📋 PROPOSED — Google OAuth                                                               |
 
 ---
 
@@ -47,28 +47,28 @@ status: ACTIVE
 
 ### ✅ DONE (Deployed/Complete)
 
-| SPEC     | Title                          | Deployed                                                                                       |
-| -------- | ------------------------------ | ---------------------------------------------------------------------------------------------- |
-| SPEC-036 | Todo web app                   | todo.zappro.site (OAuth, 2026-04-13)                                                           |
-| SPEC-043 | Subdomain prune                | bot/supabase PRUNED, hermes.zappro.site ACTIVE                                                 |
-| SPEC-048 | OpenAI Facade Completo         | llm.zappro.site (:4002), smoke (6/6) ✅                                                        |
-| SPEC-039 | Hermes Gateway tunnel          | hermes.zappro.site → :8642                                                                     |
-| SPEC-051 | OpenClaw prune total           | ✅ DONE — OpenClaw legacy PRUNED, 40+ files archived                                           |
-| SPEC-053 | Hermes 100% local voice/vision | ✅ DONE — qwen2.5vl:7b texto+visão, whisper :8204, Kokoro :8013, smoke 13/13                   |
-| SPEC-054 | GPU Model Stack 2026           | ✅ DONE — VRAM math 24GB: stack actual óptima, 12.7GB pico, alternativas Llama4/Gemma4/Mistral |
+| SPEC     | Title                          | Deployed                                                                                                          |
+| -------- | ------------------------------ | ----------------------------------------------------------------------------------------------------------------- |
+| SPEC-036 | Todo web app                   | todo.zappro.site (OAuth, 2026-04-13)                                                                              |
+| SPEC-043 | Subdomain prune                | bot/supabase PRUNED, hermes.zappro.site ACTIVE                                                                    |
+| SPEC-048 | OpenAI Facade Completo         | llm.zappro.site (:4002), smoke (6/6) ✅                                                                           |
+| SPEC-039 | Hermes Gateway tunnel          | hermes.zappro.site → :8642                                                                                        |
+| SPEC-051 | OpenClaw prune total           | ✅ DONE — OpenClaw legacy PRUNED, 40+ files archived                                                              |
+| SPEC-053 | Hermes 100% local voice/vision | ✅ DONE — qwen2.5vl:7b texto+visão, whisper :8204, Kokoro :8013, smoke 13/13                                      |
+| SPEC-054 | GPU Model Stack 2026           | ✅ DONE — whisper-medium-pt + Kokoro + nomic-embed-text, 20.6 GB livre, Qwen3-VL-8B-Instruct como próximo upgrade |
 
 ### 🟡 IN_PROGRESS (Active Work)
 
-| SPEC        | Title                            | Progress                                                                                                                 |
-| ----------- | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| SPEC-031    | Homelab maintenance              | 7 tasks: node-exporter, loki, cadvisor HEALTHCHECKs, ZFS cron                                                            |
-| SPEC-032    | Tunnel health automation         | smoke-tunnel.sh ✅, pre-commit hook ✅, autoheal ✅, cron ⏳                                                             |
-| SPEC-034    | MiniMax agent use cases          | 6 skills: minimax-code-gen, minimax-debugger, minimax-refactor, minimax-research, minimax-security-audit, review-minimax |
-| SPEC-040    | Homelab alerting & rate limiting | alert-sender deployed, Loki deploying                                                                                    |
-| SPEC-041    | Monorepo polish                  | Tech debt resolution, ESLint flat config, TypeScript upgrade                                                             |
-| SPEC-052    | Hermes MCP + Context7            | Research completo — MCP architecture, Context7 patterns, quotas esgotadas plano contingência                             |
-| SPEC-055    | Cloud Voice APIs PT-BR 2026      | GROQ + Edge vs local: $0.04/hr cloud vs $0 local, 14 agents research, local wins custo/qualidade                         |
-| SPEC-055-v2 | GPU Max + Cloud Fallback         | llama4-scout-17B + whisper + Kokoro GPU, GROQ/Deepgram free tiers VRAM-aware fallback                                    |
+| SPEC        | Title                            | Progress                                                                                                                        |
+| ----------- | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| SPEC-031    | Homelab maintenance              | 7 tasks: node-exporter, loki, cadvisor HEALTHCHECKs, ZFS cron                                                                   |
+| SPEC-032    | Tunnel health automation         | smoke-tunnel.sh ✅, pre-commit hook ✅, autoheal ✅, cron ⏳                                                                    |
+| SPEC-034    | MiniMax agent use cases          | 6 skills: minimax-code-gen, minimax-debugger, minimax-refactor, minimax-research, minimax-security-audit, review-minimax        |
+| SPEC-040    | Homelab alerting & rate limiting | alert-sender deployed, Loki deploying                                                                                           |
+| SPEC-041    | Monorepo polish                  | Tech debt resolution, ESLint flat config, TypeScript upgrade                                                                    |
+| SPEC-052    | Hermes MCP + Context7            | Research completo — MCP architecture, Context7 patterns, quotas esgotadas plano contingência                                    |
+| SPEC-055    | Cloud Voice APIs PT-BR 2026      | GROQ + Edge vs local: $0.04/hr cloud vs $0 local, 14 agents research, local wins custo/qualidade                                |
+| SPEC-055-v2 | GPU Max + Cloud Fallback         | whisper-medium-pt + Kokoro + Gemma4-12b-it (text) + Qwen3-VL-8B-Instruct (future), GROQ/Deepgram free tiers VRAM-aware fallback |
 
 ### 🚧 IMPLEMENTING (In Active Migration)
 
