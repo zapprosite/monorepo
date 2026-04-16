@@ -2,6 +2,11 @@
 # smoke-hermes-local-voice.sh
 # Validates 100% local STT + TTS + Vision for Hermes via Telegram
 # Usage: bash smoke-hermes-local-voice.sh
+# Anti-hardcoded: all config via process.env — source from .env
+
+set -a
+source /srv/monorepo/.env
+set +a
 
 RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'; NC='\033[0m'
 PASS=0; FAIL=0
@@ -20,8 +25,6 @@ w.setnchannels(1); w.setsampwidth(2); w.setframerate(16000)
 w.writeframes(struct.pack('<' + 'h' * 16000, *([0] * 16000)))
 w.close()
 " 2>/dev/null
-
-GW_KEY="b361f14412042cc92710591923feffd5c3af32fc5ecc23a6402dbf953aed39ee"
 
 # ─── STT: faster-whisper :8204 ───
 echo "STT: faster-whisper :8204"
@@ -75,7 +78,7 @@ else
 fi
 
 CODE=$(curl -s -w "\n%{http_code}" -X POST http://localhost:4002/v1/audio/transcriptions \
-  -H "Authorization: Bearer ${GW_KEY}" \
+  -H "Authorization: Bearer ${AI_GATEWAY_FACADE_KEY}" \
   -F "file=@${TEST_WAV}" \
   -F "model=whisper-1" 2>/dev/null | tail -1)
 if [ "$CODE" = "200" ]; then
@@ -85,7 +88,7 @@ else
 fi
 
 CODE=$(curl -s -w "\n%{http_code}" -X POST http://localhost:4002/v1/audio/speech \
-  -H "Authorization: Bearer ${GW_KEY}" \
+  -H "Authorization: Bearer ${AI_GATEWAY_FACADE_KEY}" \
   -H "Content-Type: application/json" \
   -d '{"model":"tts-1","input":"test","voice":"pm_santa"}' \
   -o /tmp/tts_agi_test.mp3 2>/dev/null | tail -1)
@@ -119,24 +122,6 @@ d=json.load(sys.stdin)
 for m in d.get('models',[]):
     print(m['name'])
 " 2>/dev/null)
-
-if echo "$MODELS" | grep -q "llava-phi3"; then
-  report "  llava-phi3 available" GREEN PASS
-else
-  report "  llava-phi3 NOT available" YELLOW FAIL
-fi
-
-if echo "$MODELS" | grep -q "qwen2.5vl"; then
-  report "  qwen2.5vl available" GREEN PASS
-else
-  report "  qwen2.5vl NOT available" YELLOW FAIL
-fi
-
-if echo "$MODELS" | grep -q "llama3-portuguese-tomcat-8b"; then
-  report "  llama3-portuguese-tomcat-8b available" GREEN PASS
-else
-  report "  llama3-portuguese-tomcat-8b NOT available" YELLOW FAIL
-fi
 
 # ─── Summary ───
 echo ""

@@ -9,7 +9,7 @@ date: 2026-04-16
 
 # SPEC-054: GPU Model Stack — VRAM Math RTX 4090 (24GB)
 
-**TL;DR:** Stack lean em vigor — qwen2.5vl/llama3-tomcat/llava-phi3 descargados, 20.6 GB VRAM livre. Próximo passo: llama4-scout-17b quando disponível no registry.
+**TL;DR:** Stack lean em vigor — qwen2.5vl/llama3-tomcat/llava-phi3/gemma3:27b-it-qat descartados, 20.6 GB VRAM livre. Próximo passo: Qwen3-VL-8B ou Gemma4-12b-it.
 
 ---
 
@@ -46,16 +46,16 @@ STACK FUTURA (llama4-scout disponível):
 TOTAL                   │ 18.4 GB  ★  5.6 GB LIVRE
 ```
 
-| Modelo                      | VRAM   | Estado       | Notes                  |
-| --------------------------- | ------ | ------------ | ---------------------- |
-| llama4-scout-17B Q4         | 11 GB  | ⏳ PENDENTE  | registry Ollama        |
-| whisper-medium-pt           | 4.0 GB | ✅ CARREGADO | STT primary, WER 6.58% |
-| Kokoro TTS GPU              | 0.5 GB | ✅ CARREGADO | TTS primary PT-BR      |
-| nomic-embed-text            | 0.5 GB | ✅ CARREGADO | Qdrant RAG             |
-| qwen2.5vl-7B Q4             | 0 GB   | ❌ DESCARR.  | substituído por llama4 |
-| llama3-portuguese-tomcat-8b | 0 GB   | ❌ DESCARR.  | substituído por llama4 |
-| llava-phi3                  | 0 GB   | ❌ DESCARR.  | crashava SIGSEGV (bug) |
-| RustDesk (2x)               | 0.9 GB | ⚙️ FIXO      | não remover (app)      |
+| Modelo                      | VRAM   | Estado       | Notes                       |
+| --------------------------- | ------ | ------------ | --------------------------- |
+| llama4-scout-17B Q4         | 11 GB  | ⏳ PENDENTE  | registry Ollama             |
+| whisper-medium-pt           | 4.0 GB | ✅ CARREGADO | STT primary, WER 6.58%      |
+| Kokoro TTS GPU              | 0.5 GB | ✅ CARREGADO | TTS primary PT-BR           |
+| nomic-embed-text            | 0.5 GB | ✅ CARREGADO | Qdrant RAG                  |
+| qwen2.5vl-7B Q4             | 0 GB   | ❌ DESCARR.  | substituído por Qwen3-VL-8B |
+| llama3-portuguese-tomcat-8b | 0 GB   | ❌ DESCARR.  | substituído por Gemma4-12b  |
+| llava-phi3                  | 0 GB   | ❌ DESCARR.  | crashava SIGSEGV (bug)      |
+| RustDesk (2x)               | 0.9 GB | ⚙️ FIXO      | não remover (app)           |
 
 ---
 
@@ -76,13 +76,12 @@ TOTAL                   │ 18.4 GB  ★  5.6 GB LIVRE
 
 ### Vision + Text (Um modelo para ambos)
 
-| Modelo                  | VRAM    | Context | Notes                         |
-| ----------------------- | ------- | ------- | ----------------------------- |
-| **qwen2.5vl-7B Q4_K_M** | ~4.5 GB | 8k      | ✅ ACTUAL — texto + visão     |
-| llama4-scout-17B Q4     | ~11 GB  | 1M ctx  | NOVO — vision + text          |
-| llama4-maverick-17B Q4  | ~11 GB  | 1M ctx  | NOVO — vision + text          |
-| gemma4-E4B Q4/Q6        | ~3-5 GB | -       | vision, 4B params             |
-| llava-phi3 Q4           | ~2.5 GB | -       | ❌ CRASHA (Ollama 0.20.2 bug) |
+| Modelo                 | VRAM    | Context | Notes                     |
+| ---------------------- | ------- | ------- | ------------------------- |
+| **Qwen3-VL-8B IQ1_S**  | ~3.2 GB | 128k    | ✅ ACTUAL — texto + visão |
+| llama4-scout-17B Q4    | ~11 GB  | 1M ctx  | NOVO — vision + text      |
+| llama4-maverick-17B Q4 | ~11 GB  | 1M ctx  | NOVO — vision + text      |
+| gemma4-E4B Q4/Q6       | ~3-5 GB | -       | vision, 4B params         |
 
 ### STT — Whisper PT-BR
 
@@ -113,12 +112,12 @@ TOTAL                   │ 18.4 GB  ★  5.6 GB LIVRE
 
 ```
 gemma4-12b Q4 (texto)    │  7.0 GB
-qwen2.5vl-7B Q4 (visão) │  4.5 GB
+Qwen3-VL-8B (visão)     │  3.2 GB
 whisper-medium-pt        │  4.0 GB
 Kokoro TTS               │  1.5 GB
 nomic-embed-text         │  0.5 GB
 ───────────────────────────────────
-PICO                      │ 17.5 GB  ★ 6.5 GB livre
+PICO                      │ 16.2 GB  ★ 7.8 GB livre
 ```
 
 ### Alternativa B — Llama4 Scout (17B vision + text + 1M ctx)
@@ -136,12 +135,12 @@ PICO                      │ 17.0 GB  ★ 7.0 GB livre
 
 ```
 mistral-small-24B Q4     │ 13.5 GB
-qwen2.5vl-7B (visão)     │  4.5 GB
+Qwen3-VL-8B (visão)     │  3.2 GB
 whisper-medium-pt        │  4.0 GB
 Kokoro TTS                │  1.5 GB
 nomic-embed-text          │  0.5 GB
 ───────────────────────────────────
-PICO                      │ 24.0 GB  ⚠️ CHEIO! 0 GB livre
+PICO                      │ 22.7 GB  ⚠️ 1.3 GB livre
 ```
 
 ---
@@ -151,8 +150,7 @@ PICO                      │ 24.0 GB  ⚠️ CHEIO! 0 GB livre
 **Stack lean é ÓPTIMA para 24GB VRAM — e agora tem UPGRADE REAL.**
 
 - Stack lean actual: pico 7.4GB com 16.6GB livre
-- **Upgrade imediato:** Qwen3-VL-8B IQ1_S (3.2GB total) > qwen2.5vl:7b (6GB)
-  - 128K context (vs 8K), 8B params (vs 7B), mais leve
+- **Upgrade imediato:** Qwen3-VL-8B IQ1_S (3.2GB total) — 128K context, 8B params, mais leve
   - Import HuggingFace GGUF → Ollama
 
 **Upgrade path (por prioridade):**
@@ -176,22 +174,22 @@ PICO                      │ 24.0 GB  ⚠️ CHEIO! 0 GB livre
 
 ### Qwen3-VL-8B-Instruct (⭐ NOVO CAMPEÃO — 16/04/2026)
 
-| Item                      | Valor                                |
-| ------------------------- | ------------------------------------ |
-| **HuggingFace**           | `unsloth/Qwen3-VL-8B-Instruct-GGUF`  |
-| **Params**                | 8B (vs 7B qwen2.5vl)                 |
-| **Context**               | **128K tokens** (vs 8K do qwen2.5vl) |
-| **VRAM (IQ1_S + mmproj)** | **3.2 GB** (vs 6 GB qwen2.5vl)       |
-| **VRAM total c/ stack**   | **8.2 GB** — 15.8 GB livre           |
-| **Multimodal**            | ✅ SIM (visão + texto)               |
-| **Status Ollama**         | NÃO existe — import manual HF        |
+| Item                      | Valor                               |
+| ------------------------- | ----------------------------------- |
+| **HuggingFace**           | `unsloth/Qwen3-VL-8B-Instruct-GGUF` |
+| **Params**                | 8B                                  |
+| **Context**               | **128K tokens**                     |
+| **VRAM (IQ1_S + mmproj)** | **3.2 GB**                          |
+| **VRAM total c/ stack**   | **8.2 GB** — 15.8 GB livre          |
+| **Multimodal**            | ✅ SIM (visão + texto)              |
+| **Status Ollama**         | NÃO existe — import manual HF       |
 
 **Comparativo directo:**
 
-| Modelo                | VRAM       | Context  | multimodal | VRAM livre  |
-| --------------------- | ---------- | -------- | ---------- | ----------- |
-| **Qwen3-VL-8B IQ1_S** | **3.2 GB** | **128K** | ✅         | **15.8 GB** |
-| qwen2.5vl:7b (Ollama) | 6.0 GB     | 8K       | ✅         | 13.0 GB     |
+| Modelo                | VRAM       | Context  | multimodal | VRAM livre           |
+| --------------------- | ---------- | -------- | ---------- | -------------------- |
+| **Qwen3-VL-8B IQ1_S** | **3.2 GB** | **128K** | ✅         | **15.8 GB**          |
+| qwen2.5vl:7b (Ollama) | 6.0 GB     | 8K       | ✅         | 13.0 GB (descartado) |
 
 **Qwen3-VL-8B é a escolha óbvia:** mais capaz (128K ctx), mais leve (3.2GB vs 6GB), mesma qualidade de visão. Próximo passo: importar para Ollama.
 
@@ -235,11 +233,11 @@ PICO                      │ 24.0 GB  ⚠️ CHEIO! 0 GB livre
 
 | Abordagem        | Modelo                          | VRAM    | Veredicto                            |
 | ---------------- | ------------------------------- | ------- | ------------------------------------ |
-| **PRODUÇÃO**     | qwen2.5vl:7b + whisper + Kokoro | 11 GB   | ✅ Stack comprovada, 13 GB livre     |
+| **PRODUÇÃO**     | Qwen3-VL-8B + whisper + Kokoro  | 7.2 GB  | ✅ Stack lean, 16.8 GB livre         |
 | **EXPERIMENTAL** | Llama-4 Scout IQ1_S (20.7 GB)   | 22.3 GB | ⚠️ IQ1 = 20-30% perda qualidade      |
 | **EXPERIMENTAL** | Qwen3.6-35B-A3B IQ2_M (11.2 GB) | 13 GB   | ⚠️ MoE não testado em Ollama         |
 | **LEVE**         | Gemma4-E2B-Vision Q4 (3.2 GB)   | 5 GB    | ⚠️ 2B = fraco para tarefas complexas |
 
-**Consenso:** Ninguém usa Q4_K_M do Llama-4 Scout em 24GB (são 60 GB). A melhor stack para 24GB em 2026 é a stack comprovada (qwen2.5vl + whisper + Kokoro) e esperar pelo Llama-4 Scout single-file <20GB ou Qwen3.6 MoE com suporte Ollama.
+**Consenso:** Ninguém usa Q4_K_M do Llama-4 Scout em 24GB (são 60 GB). A melhor stack para 24GB em 2026 é a stack lean (Qwen3-VL-8B + whisper + Kokoro) e esperar pelo Llama-4 Scout single-file <20GB ou Qwen3.6 MoE com suporte Ollama.
 
 **Stack actual (16/04/2026) está ACIMA da média** — 16.6 GB VRAM livre é mais do que a maioria dos senior devs consegue com a mesma GPU.

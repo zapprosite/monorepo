@@ -1,377 +1,365 @@
 {
   "tasks": [
     {
-      "id": 1,
-      "title": "SPEC-051: SPEC-INDEX.md — Arquivar 8 SPECs OpenClaw",
-      "description": "SPEC-INDEX.md: архивировать 8 SPECs (SPEC-007, 010, 011, 012, 019, 020, 025, 026) в archive/. Обновить SPEC-INDEX.md таблицу, пометить как DEPRECATED/ARCHIVED. SPEC-009 → переименовать в archived.",
+      "id": "TASK-001",
+      "spec": "SPEC-029-INFISICAL-SDK-MANDATORY",
+      "title": "SPEC-029-INFISICAL-SDK-MANDATORY.md",
+      "priority": "critical",
       "status": "pending",
+      "blocked_by": []
+    },
+    {
+      "id": "TASK-002",
+      "spec": "SPEC-038-hermes-agent-migration",
+      "title": "SPEC-038-hermes-agent-migration.md",
+      "priority": "critical",
+      "status": "pending",
+      "blocked_by": []
+    },
+    {
+      "id": "TASK-003",
+      "spec": "SPEC-042-SPEC-CHUNKING-STRATEGY",
+      "title": "SPEC-042-SPEC-CHUNKING-STRATEGY.md",
+      "priority": "critical",
+      "status": "pending",
+      "blocked_by": []
+    },
+    {
+      "id": "TASK-004",
+      "spec": "SPEC-048-openai-facade-completo",
+      "title": "SPEC-048-openai-facade-completo.md",
+      "priority": "critical",
+      "status": "pending",
+      "blocked_by": []
+    },
+    {
+      "id": "TASK-005",
+      "spec": "SPEC-049-ai-gateway-polish",
+      "title": "SPEC-049-ai-gateway-polish.md",
+      "priority": "critical",
+      "status": "pending",
+      "blocked_by": []
+    },
+    {
+      "id": "TASK-006",
+      "spec": "SPEC-050-governance-alignment",
+      "title": "SPEC-050-governance-alignment.md",
+      "priority": "critical",
+      "status": "pending",
+      "blocked_by": []
+    },
+    {
+      "id": "TASK-007",
+      "spec": "SPEC-AUDIT-FIXES-PHASE2",
+      "title": "SPEC-AUDIT-FIXES-PHASE2.md",
+      "priority": "critical",
+      "status": "pending",
+      "blocked_by": []
+    },
+    {
+      "id": "TASK-008",
+      "spec": "SPEC-HOMELAB-GOVERNANCE-DEFINITIVO",
+      "title": "SPEC-HOMELAB-GOVERNANCE-DEFINITIVO.md",
+      "priority": "critical",
+      "status": "pending",
+      "blocked_by": []
+    },
+    {
+      "id": "TASK-009",
+      "spec": "SPEC-HOMELAB-SEGURO-ESTAVEL",
+      "title": "SPEC-HOMELAB-SEGURO-ESTAVEL.md",
+      "priority": "critical",
+      "status": "pending",
+      "blocked_by": []
+    },
+    {
+      "id": "TASK-010",
+      "spec": "SPEC-033-supabase-tunnel-exposure",
+      "title": "SPEC-033-supabase-tunnel-exposure.md",
       "priority": "high",
-      "dependencies": [],
-      "subtasks": [
-        { "id": "1.1", "title": "Переместить SPEC-007 в archive/", "status": "pending" },
-        { "id": "1.2", "title": "Переместить SPEC-010 в archive/", "status": "pending" },
-        { "id": "1.3", "title": "Переместить SPEC-011 в archive/", "status": "pending" },
-        { "id": "1.4", "title": "Переместить SPEC-012 в archive/", "status": "pending" },
-        { "id": "1.5", "title": "Переместить SPEC-019 в archive/", "status": "pending" },
-        { "id": "1.6", "title": "Переместить SPEC-020 в archive/", "status": "pending" },
-        { "id": "1.7", "title": "Переместить SPEC-025 в archive/", "status": "pending" },
-        { "id": "1.8", "title": "Переместить SPEC-026 в archive/", "status": "pending" },
-        { "id": "1.9", "title": "Переименовать SPEC-009 в archived name", "status": "pending" },
-        {
-          "id": "1.10",
-          "title": "Обновить SPEC-INDEX.md таблицу — убрать OpenClaw ссылки",
-          "status": "pending"
-        }
-      ],
-      "acceptanceCriteria": [
-        "AC-051-1: 8 SPECs перемещены в archive/",
-        "AC-051-2: SPEC-INDEX.md без OpenClaw ссылок (кроме archive)"
-      ],
-      "files": [
-        "docs/SPECS/SPEC-007*.md",
-        "docs/SPECS/SPEC-010*.md",
-        "docs/SPECS/SPEC-011*.md",
-        "docs/SPECS/SPEC-012*.md",
-        "docs/SPECS/SPEC-019*.md",
-        "docs/SPECS/SPEC-020*.md",
-        "docs/SPECS/SPEC-025*.md",
-        "docs/SPECS/SPEC-026*.md",
-        "docs/SPECS/SPEC-009*.md",
-        "docs/SPECS/SPEC-INDEX.md"
-      ],
-      "testRequired": false,
-      "specRef": "docs/SPECS/SPEC-051-openclaw-prune-specs-polish.md"
+      "status": "pending",
+      "blocked_by": []
     },
     {
-      "id": 2,
-      "title": "SPEC-051: .env — Prune 12 variáveis OpenClaw",
-      "description": "Remover 12 variáveis OPENCLAW_* e relacionadas do .env e .env.example. Variáveis a remover: OPENCLAW_USER, OPENCLAW_PASSWORD, OPENCLAW_DEEPGRAM_API_KEY, OPENCLAW_GATEWAY_TOKEN, OPENCLAW_GEMINI_API_KEY, OPENCLAW_CONTAINER_NAME, OPENCLAW_FQDN, OPENCLAW_INTERNAL_URL, OPENCLAW_INTERNAL_PORT, STT_PROXY_URL, PORT=4001, WAV2VEC2_URL (já comentado). Manter: STT_DIRECT_URL, WHISPER_MEDIUM_PORT.",
-      "status": "pending",
+      "id": "TASK-011",
+      "spec": "SPEC-034-minimax-agent-use-cases",
+      "title": "SPEC-034-minimax-agent-use-cases.md",
       "priority": "high",
-      "dependencies": [],
-      "subtasks": [
-        { "id": "2.1", "title": "Remover OPENCLAW_USER do .env", "status": "pending" },
-        { "id": "2.2", "title": "Remover OPENCLAW_PASSWORD do .env", "status": "pending" },
-        { "id": "2.3", "title": "Remover OPENCLAW_DEEPGRAM_API_KEY do .env", "status": "pending" },
-        { "id": "2.4", "title": "Remover OPENCLAW_GATEWAY_TOKEN do .env", "status": "pending" },
-        { "id": "2.5", "title": "Remover OPENCLAW_GEMINI_API_KEY do .env", "status": "pending" },
-        { "id": "2.6", "title": "Remover OPENCLAW_CONTAINER_NAME do .env", "status": "pending" },
-        { "id": "2.7", "title": "Remover OPENCLAW_FQDN do .env", "status": "pending" },
-        { "id": "2.8", "title": "Remover OPENCLAW_INTERNAL_URL do .env", "status": "pending" },
-        { "id": "2.9", "title": "Remover OPENCLAW_INTERNAL_PORT do .env", "status": "pending" },
-        { "id": "2.10", "title": "Remover STT_PROXY_URL do .env", "status": "pending" },
-        { "id": "2.11", "title": "Remover PORT=4001 do .env", "status": "pending" },
-        { "id": "2.12", "title": "Actualizar .env.example em conformidade", "status": "pending" }
-      ],
-      "acceptanceCriteria": [
-        "AC-051-3: .env sem OPENCLAW_USER, OPENCLAW_PASSWORD, OPENCLAW_DEEPGRAM_API_KEY, OPENCLAW_GATEWAY_TOKEN, OPENCLAW_GEMINI_API_KEY, OPENCLAW_CONTAINER_NAME, OPENCLAW_FQDN, OPENCLAW_INTERNAL_URL, OPENCLAW_INTERNAL_PORT, STT_PROXY_URL, PORT=4001",
-        "AC-051-4: .env.example actualizado com placeholders removidos",
-        "AC-051-5: STT_DIRECT_URL e WHISPER_MEDIUM_PORT mantidos"
-      ],
-      "files": [".env", ".env.example"],
-      "testRequired": false,
-      "specRef": "docs/SPECS/SPEC-051-openclaw-prune-specs-polish.md"
+      "status": "pending",
+      "blocked_by": []
     },
     {
-      "id": 3,
-      "title": "SPEC-051: docs/OPERATIONS/SKILLS/ — Archive 13+ ficheiros legacy",
-      "description": "Arquivar/apagar todos os ficheiros legacy de operações: wav2vec2-*, openwebui-*, openclaw-*. Mover para archive/ ou apagar. Ficheiros: wav2vec2-health-check.md, wav2vec2-proxy.md, wav2vec2-deepgram-proxy.py, wav2vec2-proxy.compose.yml, wav2vec2-deepgram-proxy.dockerfile, voice-pipeline-watchdog.md, openwebui-health-check.sh, openwebui-runbook.md, openwebui_admin.py, openwebui_secrets.py, openwebui-mcp-docker-compose.yml, openwebui-mcp.yml, openclaw-agents-kit/ (directório).",
-      "status": "pending",
+      "id": "TASK-012",
+      "spec": "SPEC-035-one-shot-prd-to-deploy",
+      "title": "SPEC-035-one-shot-prd-to-deploy.md",
       "priority": "high",
-      "dependencies": [],
-      "subtasks": [
-        { "id": "3.1", "title": "Arquivar wav2vec2-health-check.md", "status": "pending" },
-        { "id": "3.2", "title": "Arquivar wav2vec2-proxy.md", "status": "pending" },
-        { "id": "3.3", "title": "Arquivar wav2vec2-deepgram-proxy.py", "status": "pending" },
-        { "id": "3.4", "title": "Arquivar wav2vec2-proxy.compose.yml", "status": "pending" },
-        {
-          "id": "3.5",
-          "title": "Arquivar wav2vec2-deepgram-proxy.dockerfile",
-          "status": "pending"
-        },
-        { "id": "3.6", "title": "Arquivar voice-pipeline-watchdog.md", "status": "pending" },
-        { "id": "3.7", "title": "Arquivar openwebui-health-check.sh", "status": "pending" },
-        { "id": "3.8", "title": "Arquivar openwebui-runbook.md", "status": "pending" },
-        { "id": "3.9", "title": "Arquivar openwebui_admin.py", "status": "pending" },
-        { "id": "3.10", "title": "Arquivar openwebui_secrets.py", "status": "pending" },
-        { "id": "3.11", "title": "Arquivar openwebui-mcp-docker-compose.yml", "status": "pending" },
-        { "id": "3.12", "title": "Arquivar openwebui-mcp.yml", "status": "pending" },
-        { "id": "3.13", "title": "Arquivar directório openclaw-agents-kit/", "status": "pending" }
-      ],
-      "acceptanceCriteria": [
-        "AC-051-6: docs/OPERATIONS/SKILLS/ sem ficheiros wav2vec2/openwebui/openclaw",
-        "AC-051-7: Ficheiros movidos para archive/ ou apagados"
-      ],
-      "files": [
-        "docs/OPERATIONS/SKILLS/wav2vec2-health-check.md",
-        "docs/OPERATIONS/SKILLS/wav2vec2-proxy.md",
-        "docs/OPERATIONS/SKILLS/wav2vec2-deepgram-proxy.py",
-        "docs/OPERATIONS/SKILLS/wav2vec2-proxy.compose.yml",
-        "docs/OPERATIONS/SKILLS/wav2vec2-deepgram-proxy.dockerfile",
-        "docs/OPERATIONS/SKILLS/voice-pipeline-watchdog.md",
-        "docs/OPERATIONS/SKILLS/openwebui-health-check.sh",
-        "docs/OPERATIONS/SKILLS/openwebui-runbook.md",
-        "docs/OPERATIONS/SKILLS/openwebui_admin.py",
-        "docs/OPERATIONS/SKILLS/openwebui_secrets.py",
-        "docs/OPERATIONS/SKILLS/openwebui-mcp-docker-compose.yml",
-        "docs/OPERATIONS/SKILLS/openwebui-mcp.yml",
-        "docs/OPERATIONS/SKILLS/openclaw-agents-kit/"
-      ],
-      "testRequired": false,
-      "specRef": "docs/SPECS/SPEC-051-openclaw-prune-specs-polish.md"
+      "status": "pending",
+      "blocked_by": []
     },
     {
-      "id": 4,
-      "title": "SPEC-051: Smoke-tests — Delete 4+ ficheiros legacy",
-      "description": "Apagar smoke tests legados: tasks/smoke-tests/pipeline-openclaw-voice.sh, tasks/smoke-tests/voice-proxy-smoke-test.sh, tasks/smoke-tests/voice-pipeline-loop.sh, tasks/smoke-tests/openwebui-api.sh, smoke-tests/smoke-env-secrets-validate.sh. Estes validam secrets de serviços OpenClaw já removidos.",
-      "status": "pending",
+      "id": "TASK-013",
+      "spec": "SPEC-036-infinite-memory-architecture",
+      "title": "SPEC-036-infinite-memory-architecture.md",
       "priority": "high",
-      "dependencies": [],
-      "subtasks": [
-        { "id": "4.1", "title": "Apagar pipeline-openclaw-voice.sh", "status": "pending" },
-        { "id": "4.2", "title": "Apagar voice-proxy-smoke-test.sh", "status": "pending" },
-        { "id": "4.3", "title": "Apagar voice-pipeline-loop.sh", "status": "pending" },
-        { "id": "4.4", "title": "Apagar openwebui-api.sh", "status": "pending" },
-        { "id": "4.5", "title": "Apagar smoke-env-secrets-validate.sh", "status": "pending" }
-      ],
-      "acceptanceCriteria": [
-        "AC-051-8: tasks/smoke-tests/ sem scripts OpenClaw/wav2vec2 legacy",
-        "AC-051-9: smoke-tests/ sem smoke-env-secrets-validate.sh"
-      ],
-      "files": [
-        "tasks/smoke-tests/pipeline-openclaw-voice.sh",
-        "tasks/smoke-tests/voice-proxy-smoke-test.sh",
-        "tasks/smoke-tests/voice-pipeline-loop.sh",
-        "tasks/smoke-tests/openwebui-api.sh",
-        "smoke-tests/smoke-env-secrets-validate.sh"
-      ],
-      "testRequired": false,
-      "specRef": "docs/SPECS/SPEC-051-openclaw-prune-specs-polish.md"
+      "status": "pending",
+      "blocked_by": []
     },
     {
-      "id": 5,
-      "title": "SPEC-051: Skills — Update/Archive coolify-access, coolify-sre, cloudflare-terraform",
-      "description": "coolify-access/SKILL.md: архивировать (docker-compose OpenClaw legacy). coolify-sre/SKILL.md: удалить openclaw/openwebui из COOLIFY_APPS whitelist, manter wav2vec2. cloudflare-terraform/SKILL.md: удалить bot.zappro.site → localhost:4001. cloudflare-tunnel-enterprise/SKILL.md: удалить bot → 4001.",
-      "status": "pending",
+      "id": "TASK-014",
+      "spec": "SPEC-037-md-zappro-site",
+      "title": "SPEC-037-md-zappro-site.md",
       "priority": "high",
-      "dependencies": [],
-      "subtasks": [
-        {
-          "id": "5.1",
-          "title": "Arquivar coolify-access/SKILL.md (docker-compose legacy)",
-          "status": "pending"
-        },
-        {
-          "id": "5.2",
-          "title": "Actualizar coolify-sre/SKILL.md — remover openclaw/openwebui",
-          "status": "pending"
-        },
-        {
-          "id": "5.3",
-          "title": "Actualizar cloudflare-terraform/SKILL.md — remover bot.zappro.site:4001",
-          "status": "pending"
-        },
-        {
-          "id": "5.4",
-          "title": "Actualizar cloudflare-tunnel-enterprise/SKILL.md — remover bot → 4001",
-          "status": "pending"
-        }
-      ],
-      "acceptanceCriteria": [
-        "AC-051-10: coolify-access архивирован",
-        "AC-051-11: coolify-sre sem openclaw/openwebui",
-        "AC-051-12: cloudflare skills sem bot.zappro.site:4001"
-      ],
-      "files": [
-        ".claude/skills/coolify-access/SKILL.md",
-        ".claude/skills/coolify-sre/SKILL.md",
-        ".claude/skills/cloudflare-terraform/SKILL.md",
-        ".claude/skills/cloudflare-tunnel-enterprise/SKILL.md"
-      ],
-      "testRequired": false,
-      "specRef": "docs/SPECS/SPEC-051-openclaw-prune-specs-polish.md"
+      "status": "pending",
+      "blocked_by": []
     },
     {
-      "id": 6,
-      "title": "SPEC-051: Tasks files — Archive 7 ficheiros legacy",
-      "description": "Arquivar tasks legados: tasks/todo-openwebui-claude-code-cli.md, tasks/plan-openwebui-claude-code-cli.md, tasks/plan-openclaw-oauth-profiles.md, tasks/plan-agency-reimagined.md, tasks/TODO-audio-stack.md, tasks/todo-agency-reimagined.md, tasks/PLAN-audio-stack-integration.md. Mover para archive/ ou apagar.",
-      "status": "pending",
-      "priority": "medium",
-      "dependencies": [],
-      "subtasks": [
-        { "id": "6.1", "title": "Arquivar todo-openwebui-claude-code-cli.md", "status": "pending" },
-        { "id": "6.2", "title": "Arquivar plan-openwebui-claude-code-cli.md", "status": "pending" },
-        { "id": "6.3", "title": "Arquivar plan-openclaw-oauth-profiles.md", "status": "pending" },
-        { "id": "6.4", "title": "Arquivar plan-agency-reimagined.md", "status": "pending" },
-        { "id": "6.5", "title": "Arquivar TODO-audio-stack.md", "status": "pending" },
-        { "id": "6.6", "title": "Arquivar todo-agency-reimagined.md", "status": "pending" },
-        { "id": "6.7", "title": "Arquivar PLAN-audio-stack-integration.md", "status": "pending" }
-      ],
-      "acceptanceCriteria": ["AC-051-13: tasks/ sem ficheiros OpenWebUI/OpenClaw legacy"],
-      "files": [
-        "tasks/todo-openwebui-claude-code-cli.md",
-        "tasks/plan-openwebui-claude-code-cli.md",
-        "tasks/plan-openclaw-oauth-profiles.md",
-        "tasks/plan-agency-reimagined.md",
-        "tasks/TODO-audio-stack.md",
-        "tasks/todo-agency-reimagined.md",
-        "tasks/PLAN-audio-stack-integration.md"
-      ],
-      "testRequired": false,
-      "specRef": "docs/SPECS/SPEC-051-openclaw-prune-specs-polish.md"
-    },
-    {
-      "id": 7,
-      "title": "SPEC-051: Docs infra — Fix drifts NETWORK_MAP, PORTS, AGENTS.md",
-      "description": "Corrigir drifts de documentação: NETWORK_MAP.md — llm.zappro.site deve ser :4002 (não :4000); PORTS.md — маркировать wava2vec2 8202/8203 como DEPRECATED (containers ainda UP mas marcação inconsistente); AGENTS.md — remover openwebui-bridge-agent (:3456) reference.",
-      "status": "pending",
+      "id": "TASK-015",
+      "spec": "SPEC-047-enterprise-polish-ai-gateway-ptbr",
+      "title": "SPEC-047-enterprise-polish-ai-gateway-ptbr.md",
       "priority": "high",
-      "dependencies": [],
-      "subtasks": [
-        {
-          "id": "7.1",
-          "title": "NETWORK_MAP.md: llm.zappro.site :4000 → :4002",
-          "status": "pending"
-        },
-        {
-          "id": "7.2",
-          "title": "PORTS.md: wava2vec2 8202/8203 DEPRECATED konsisten",
-          "status": "pending"
-        },
-        {
-          "id": "7.3",
-          "title": "AGENTS.md: remover openwebui-bridge-agent :3456",
-          "status": "pending"
-        }
-      ],
-      "acceptanceCriteria": [
-        "AC-051-14: NETWORK_MAP.md llm.zappro.site → :4002",
-        "AC-051-15: PORTS.md маркировка wava2vec2 konsisten",
-        "AC-051-16: AGENTS.md sem openwebui-bridge-agent"
-      ],
-      "files": ["docs/INFRASTRUCTURE/NETWORK_MAP.md", "docs/INFRASTRUCTURE/PORTS.md", "AGENTS.md"],
-      "testRequired": false,
-      "specRef": "docs/SPECS/SPEC-051-openclaw-prune-specs-polish.md"
+      "status": "pending",
+      "blocked_by": []
     },
     {
-      "id": 8,
-      "title": "SPEC-051: Scripts — Archive 5 scripts legados",
-      "description": "Arquivar scripts legados OpenClaw: /srv/ops/scripts/openclaw-to-hermes-migration.sh, /srv/ops/scripts/hermes-openwebui-setup.sh, /srv/ops/scripts/openclaw-disable.sh, /srv/ops/scripts/hermes-migrate-now.sh, /srv/monorepo/scripts/setup-whisper-medium-ptbr.sh.",
-      "status": "pending",
-      "priority": "medium",
-      "dependencies": [],
-      "subtasks": [
-        { "id": "8.1", "title": "Arquivar openclaw-to-hermes-migration.sh", "status": "pending" },
-        { "id": "8.2", "title": "Arquivar hermes-openwebui-setup.sh", "status": "pending" },
-        { "id": "8.3", "title": "Arquivar openclaw-disable.sh", "status": "pending" },
-        { "id": "8.4", "title": "Arquivar hermes-migrate-now.sh", "status": "pending" },
-        { "id": "8.5", "title": "Arquivar setup-whisper-medium-ptbr.sh", "status": "pending" }
-      ],
-      "acceptanceCriteria": ["AC-051-17: scripts legados OpenClaw arquivados"],
-      "files": [
-        "/srv/ops/scripts/openclaw-to-hermes-migration.sh",
-        "/srv/ops/scripts/hermes-openwebui-setup.sh",
-        "/srv/ops/scripts/openclaw-disable.sh",
-        "/srv/ops/scripts/hermes-migrate-now.sh",
-        "/srv/monorepo/scripts/setup-whisper-medium-ptbr.sh"
-      ],
-      "testRequired": false,
-      "specRef": "docs/SPECS/SPEC-051-openclaw-prune-specs-polish.md"
-    },
-    {
-      "id": 9,
-      "title": "SPEC-051: Terraform — Remover serviço 'chat' e ghost DNS",
-      "description": "Remover serviço 'chat' (OpenWebUI deprecated) de /srv/ops/terraform/cloudflare/variables.tf. Remover referências supabase.zappro.site de /srv/ops/terraform/cloudflare/README.md. Confirmar que terraform state está limpo (já não tem bot/supabase/openclaw).",
-      "status": "pending",
+      "id": "TASK-016",
+      "spec": "SPEC-055-v2-gpu-max-latra-inteligent-cloud-fallback",
+      "title": "SPEC-055-v2-gpu-max-latra-inteligent-cloud-fallback.md",
       "priority": "high",
-      "dependencies": [],
-      "subtasks": [
-        { "id": "9.1", "title": "Remover serviço 'chat' de variables.tf", "status": "pending" },
-        { "id": "9.2", "title": "Remover supabase.zappro.site de README.md", "status": "pending" },
-        {
-          "id": "9.3",
-          "title": "Verificar terraform state — sem resíduos bot/supabase",
-          "status": "pending"
-        }
-      ],
-      "acceptanceCriteria": [
-        "AC-051-18: variables.tf sem 'chat' service (OpenWebUI)",
-        "AC-051-19: README.md sem supabase.zappro.site"
-      ],
-      "files": [
-        "/srv/ops/terraform/cloudflare/variables.tf",
-        "/srv/ops/terraform/cloudflare/README.md"
-      ],
-      "testRequired": false,
-      "specRef": "docs/SPECS/SPEC-051-openclaw-prune-specs-polish.md"
+      "status": "pending",
+      "blocked_by": []
     },
     {
-      "id": 10,
-      "title": "SPEC-051: Docker containers — Remover 6 containers legacy",
-      "description": "Remover 6 containers Docker legacy via Coolify/direct docker: zappro-wav2vec2 (:8202), zappro-wav2vec2-proxy (:8203), zappro-tts-bridge (:8013), zappro-kokoro (:8012), openwebui-bridge-agent (:3456), mcp-monorepo (:4006). ATENÇÃO: требует подтверждения перед выполнением — зависит от Coolify.",
-      "status": "pending",
+      "id": "TASK-017",
+      "spec": "SPEC-TERRAFORM-ENTERPRISE",
+      "title": "SPEC-TERRAFORM-ENTERPRISE.md",
       "priority": "high",
-      "dependencies": [7],
-      "subtasks": [
-        { "id": "10.1", "title": "Parar/remover zappro-wav2vec2 (:8202)", "status": "pending" },
-        {
-          "id": "10.2",
-          "title": "Parar/remover zappro-wav2vec2-proxy (:8203)",
-          "status": "pending"
-        },
-        { "id": "10.3", "title": "Parar/remover zappro-tts-bridge (:8013)", "status": "pending" },
-        { "id": "10.4", "title": "Parar/remover zappro-kokoro (:8012)", "status": "pending" },
-        {
-          "id": "10.5",
-          "title": "Parar/remover openwebui-bridge-agent (:3456)",
-          "status": "pending"
-        },
-        { "id": "10.6", "title": "Parar/remover mcp-monorepo (:4006)", "status": "pending" }
-      ],
-      "acceptanceCriteria": [
-        "AC-051-20: docker ps sem zappro-wav2vec2, zappro-wav2vec2-proxy, zappro-tts-bridge, zappro-kokoro, openwebui-bridge-agent, mcp-monorepo"
-      ],
-      "files": [],
-      "testRequired": true,
-      "specRef": "docs/SPECS/SPEC-051-openclaw-prune-specs-polish.md",
-      "requiresApproval": true,
-      "approvalReason": "Docker container removal — impact on running services. Requires Coolify dashboard or direct docker stop. Only remove after confirming ai-gateway uses :8204 (not :8202)."
+      "status": "pending",
+      "blocked_by": []
     },
     {
-      "id": 11,
-      "title": "SPEC-051: Final smoke test — Validate OpenClaw prune",
-      "description": "Executar smoke tests para validar que o prune não quebrou nada. Verificar: ai-gateway :4002 responde, STT :8204 responde, smoke-openai-facade-advanced.sh passa. Confirmar que não há referências OpenClaw em代码.",
+      "id": "TASK-018",
+      "spec": "SPEC-024-UNIFIED-CLAUDE-AGENT-MONOREPO",
+      "title": "SPEC-024-UNIFIED-CLAUDE-AGENT-MONOREPO.md",
+      "priority": "",
       "status": "pending",
-      "priority": "high",
-      "dependencies": [1, 2, 3, 4, 5, 6, 7, 8, 9],
-      "subtasks": [
-        { "id": "11.1", "title": "Executar smoke-openai-facade-advanced.sh", "status": "pending" },
-        { "id": "11.2", "title": "Verificar ai-gateway :4002 responde", "status": "pending" },
-        { "id": "11.3", "title": "Verificar STT :8204 responde", "status": "pending" },
-        {
-          "id": "11.4",
-          "title": "Confirmar zero referências OpenClaw no código",
-          "status": "pending"
-        }
-      ],
-      "acceptanceCriteria": [
-        "AC-051-21: smoke-openai-facade-advanced.sh ≥ 20 PASS",
-        "AC-051-22: ai-gateway :4002 /health → 200",
-        "AC-051-23: STT :8204 /health → 200",
-        "AC-051-24: grep -r openclaw /srv/monorepo --include='*.ts' --include='*.js' → 0 results"
-      ],
-      "files": [],
-      "testRequired": true,
-      "specRef": "docs/SPECS/SPEC-051-openclaw-prune-specs-polish.md"
+      "blocked_by": []
+    },
+    {
+      "id": "TASK-019",
+      "spec": "SPEC-027-voice-pipeline-humanized-ptbr",
+      "title": "SPEC-027-voice-pipeline-humanized-ptbr.md",
+      "priority": "",
+      "status": "pending",
+      "blocked_by": []
+    },
+    {
+      "id": "TASK-020",
+      "spec": "SPEC-031-homelab-maintenance",
+      "title": "SPEC-031-homelab-maintenance.md",
+      "priority": "",
+      "status": "pending",
+      "blocked_by": []
+    },
+    {
+      "id": "TASK-021",
+      "spec": "SPEC-032-tunnel-health-automation",
+      "title": "SPEC-032-tunnel-health-automation.md",
+      "priority": "",
+      "status": "pending",
+      "blocked_by": []
+    },
+    {
+      "id": "TASK-022",
+      "spec": "SPEC-038-VALIDATION",
+      "title": "SPEC-038-VALIDATION.md",
+      "priority": "",
+      "status": "pending",
+      "blocked_by": []
+    },
+    {
+      "id": "TASK-023",
+      "spec": "SPEC-039-hermes-gateway-tunnel",
+      "title": "Hermes Gateway \u2014 hermes.zappro.site Tunnel",
+      "priority": "",
+      "status": "pending",
+      "blocked_by": []
+    },
+    {
+      "id": "TASK-024",
+      "spec": "SPEC-039-hermes-takeover-validation",
+      "title": "SPEC-039-hermes-takeover-validation.md",
+      "priority": "",
+      "status": "pending",
+      "blocked_by": []
+    },
+    {
+      "id": "TASK-025",
+      "spec": "SPEC-040-homelab-alerting-rate-limit",
+      "title": "Homelab Unified Alerting & Rate Limiting Architecture",
+      "priority": "",
+      "status": "pending",
+      "blocked_by": []
+    },
+    {
+      "id": "TASK-026",
+      "spec": "SPEC-041-monorepo-estado-arte-polish",
+      "title": "Monorepo Estado da Arte \u2014 Polish 2026",
+      "priority": "",
+      "status": "pending",
+      "blocked_by": []
+    },
+    {
+      "id": "TASK-027",
+      "spec": "SPEC-043-subdomain-prune-hermes-migration",
+      "title": "Subdomain Prune & Hermes Migration",
+      "priority": "",
+      "status": "pending",
+      "blocked_by": []
+    },
+    {
+      "id": "TASK-028",
+      "spec": "SPEC-045-governance-reform-communication",
+      "title": "Governance Reform \u2014 Infrastructure Communication",
+      "priority": "",
+      "status": "pending",
+      "blocked_by": []
+    },
+    {
+      "id": "TASK-029",
+      "spec": "SPEC-046-hermes-agent-improvements",
+      "title": "Hermes Agent \u2014 Improvements",
+      "priority": "",
+      "status": "pending",
+      "blocked_by": []
+    },
+    {
+      "id": "TASK-030",
+      "spec": "SPEC-051-openclaw-prune-specs-polish",
+      "title": "OpenClaw Prune & Specs Polish",
+      "priority": "",
+      "status": "pending",
+      "blocked_by": []
+    },
+    {
+      "id": "TASK-031",
+      "spec": "SPEC-052-hermes-mcp-context7-integration",
+      "title": "Hermes Agent + Context7 MCP + Web Search Integration",
+      "priority": "",
+      "status": "pending",
+      "blocked_by": []
+    },
+    {
+      "id": "TASK-032",
+      "spec": "SPEC-100-PIPELINE-BOOTSTRAP",
+      "title": "Unified Claude/Agent Pipeline \u2014 Enterprise CI/CD Loop",
+      "priority": "",
+      "status": "pending",
+      "blocked_by": []
+    },
+    {
+      "id": "TASK-033",
+      "spec": "SPEC-CLOUDFLARED-RESTART",
+      "title": "SPEC-CLOUDFLARED-RESTART.md",
+      "priority": "",
+      "status": "pending",
+      "blocked_by": []
+    },
+    {
+      "id": "TASK-034",
+      "spec": "SPEC-CURSOR-LOOP-AUDIT",
+      "title": "SPEC-CURSOR-LOOP-AUDIT.md",
+      "priority": "",
+      "status": "pending",
+      "blocked_by": []
+    },
+    {
+      "id": "TASK-035",
+      "spec": "SPEC-CURSOR-LOOP-EVOLUTION",
+      "title": "SPEC-CURSOR-LOOP-EVOLUTION.md",
+      "priority": "",
+      "status": "pending",
+      "blocked_by": []
+    },
+    {
+      "id": "TASK-036",
+      "spec": "SPEC-CURSOR-LOOP-IMPL",
+      "title": "SPEC-CURSOR-LOOP-IMPL.md",
+      "priority": "",
+      "status": "pending",
+      "blocked_by": []
+    },
+    {
+      "id": "TASK-037",
+      "spec": "SPEC-CURSOR-LOOP",
+      "title": "SPEC-CURSOR-LOOP.md",
+      "priority": "",
+      "status": "pending",
+      "blocked_by": []
+    },
+    {
+      "id": "TASK-038",
+      "spec": "SPEC-HERMES-INTEGRATION",
+      "title": "SPEC-HERMES-INTEGRATION.md",
+      "priority": "",
+      "status": "pending",
+      "blocked_by": []
+    },
+    {
+      "id": "TASK-039",
+      "spec": "SPEC-PLANNING-PIPELINE",
+      "title": "SPEC-PLANNING-PIPELINE.md",
+      "priority": "",
+      "status": "pending",
+      "blocked_by": []
+    },
+    {
+      "id": "TASK-040",
+      "spec": "SPEC-README",
+      "title": "SPEC-README.md",
+      "priority": "",
+      "status": "pending",
+      "blocked_by": []
+    },
+    {
+      "id": "TASK-041",
+      "spec": "SPEC-SPEC-AUTOMATOR",
+      "title": "SPEC-SPEC-AUTOMATOR.md",
+      "priority": "",
+      "status": "pending",
+      "blocked_by": []
+    },
+    {
+      "id": "TASK-042",
+      "spec": "SPEC-TEST-001-auto",
+      "title": "SPEC-TEST-001-auto.md",
+      "priority": "",
+      "status": "pending",
+      "blocked_by": []
+    },
+    {
+      "id": "TASK-043",
+      "spec": "SPEC-TOOL-LIST",
+      "title": "SPEC-TOOL-LIST.md",
+      "priority": "",
+      "status": "pending",
+      "blocked_by": []
+    },
+    {
+      "id": "TASK-044",
+      "spec": "SPEC-TRANSFORM-MONOREPO",
+      "title": "SPEC-TRANSFORM-MONOREPO.md",
+      "priority": "",
+      "status": "pending",
+      "blocked_by": []
+    },
+    {
+      "id": "TASK-045",
+      "spec": "SPEC-TROCAR-ROUPA",
+      "title": "SPEC-TROCAR-ROUPA.md",
+      "priority": "",
+      "status": "pending",
+      "blocked_by": []
     }
   ],
-  "meta": {
-    "totalTasks": 11,
-    "completedTasks": 0,
-    "pendingTasks": 11,
-    "generatedAt": "2026-04-15T19:00:00Z",
-    "projectName": "zappro-monorepo",
-    "version": "4.0",
-    "specRef": "SPEC-051-openclaw-prune-specs-polish"
-  }
+  "generated": "2026-04-16T18:12"
 }

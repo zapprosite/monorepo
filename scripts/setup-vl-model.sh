@@ -3,10 +3,8 @@
 # setup-vl-model.sh — Pull + teste de modelos VL leves via Ollama
 #
 # Estudo 2026 (15/04/2026):
-#   qwen2.5-vl:7b (actual) = 5GB VRAM — excelente mas pesado para só visão
-#   llava-phi3 (3.8B)      = 2.5GB VRAM — bom equilíbrio qualidade/tamanho ✅ RECOMENDADO
+#   minicpm-v (8B)         = 4GB VRAM   — alta qualidade
 #   moondream2 (1.8B)      = <1GB VRAM  — muito rápido, básico em PT-BR
-#   minicpm-v (8B)         = 4GB VRAM   — muito bom mas quase igual ao qwen2.5-vl
 #
 # Anti-hardcoded: modelo via argumento ou env var
 # =============================================================================
@@ -25,10 +23,8 @@ die()  { echo "${RED}[ERR ]${NC} $*"; exit 1; }
 # ── Modelos disponíveis ────────────────────────────────────────────────────────
 
 declare -A VL_MODELS=(
-  ["llava-phi3"]="llava-phi3:latest — 3.8B, 2.5GB VRAM, bom equilíbrio (RECOMENDADO)"
   ["moondream2"]="moondream2:latest — 1.8B, <1GB VRAM, muito rápido, básico"
-  ["minicpm-v"]="minicpm-v:latest — 8B, 4GB VRAM, alta qualidade, próximo do qwen"
-  ["qwen2.5-vl:7b"]="qwen2.5-vl:7b — actual, 5GB VRAM, excelente (já instalado)"
+  ["minicpm-v"]="minicpm-v:latest — 8B, 4GB VRAM, alta qualidade"
 )
 
 # ── Ajuda ─────────────────────────────────────────────────────────────────────
@@ -42,12 +38,8 @@ usage() {
   done
   echo ""
   echo "Exemplos:"
-  echo "  $0 llava-phi3          # Pull e testa llava-phi3"
   echo "  $0 moondream2 --test   # Pull + benchmark com imagem real"
   echo "  $0 --benchmark         # Benchmark todos os modelos instalados"
-  echo ""
-  echo "Recomendação 2026 RTX 4090:"
-  echo "  llava-phi3 — poupa 2.5GB vs qwen2.5-vl, suficiente para descrição de imagens"
   exit 0
 }
 
@@ -138,7 +130,7 @@ update_env() {
 
 if [[ "$MODEL" == "--benchmark" ]]; then
   log "Benchmark dos modelos VL instalados..."
-  for m in qwen2.5-vl:7b llava-phi3 moondream2; do
+  for m in moondream2 minicpm-v; do
     if ollama list 2>/dev/null | grep -q "^${m%:*}"; then
       log "Testando $m..."
       test_model "$m"

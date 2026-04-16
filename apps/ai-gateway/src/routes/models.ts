@@ -1,6 +1,7 @@
 /**
  * SPEC-048 — GET /v1/models
  * Lista modelos reais do homelab expostos como aliases OpenAI
+ * Modelos: texto (gpt-4o*), visão (gpt-4o-vision), TTS (tts-1*), STT (whisper-1), embeddings
  */
 
 import type { FastifyInstance } from 'fastify';
@@ -11,11 +12,11 @@ export async function modelsRoute(app: FastifyInstance) {
   app.get('/models', async () => ({
     object: 'list',
     data: [
-      // Texto PT-BR → llama3-portuguese-tomcat-8b via Ollama
+      // Texto → LLM via LiteLLM (OLLAMA_TEXT_MODEL)
       { id: 'gpt-4o', object: 'model', created: CREATED, owned_by: 'zappro-homelab' },
       { id: 'gpt-4o-mini', object: 'model', created: CREATED, owned_by: 'zappro-homelab' },
       { id: 'gpt-3.5-turbo', object: 'model', created: CREATED, owned_by: 'zappro-homelab' },
-      // Visão → llava-phi3 (3.8B, 2.5GB VRAM) via Ollama [qwen2.5-vl PRUNED 2026-04-15]
+      // Visão → multimodal via Ollama (OLLAMA_VISION_MODEL)
       { id: 'gpt-4o-vision', object: 'model', created: CREATED, owned_by: 'zappro-homelab' },
       { id: 'gpt-4-vision-preview', object: 'model', created: CREATED, owned_by: 'zappro-homelab' },
       // TTS → Kokoro via TTS Bridge (pm_santa=tts-1, pf_dora=tts-1-hd)

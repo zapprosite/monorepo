@@ -7,17 +7,19 @@
 
 ## Services Inventory
 
-| Service        | Type            | Host              | Port   | Purpose               |
-| -------------- | --------------- | ----------------- | ------ | --------------------- |
-| Coolify        | PaaS            | Ubuntu Desktop    | 8000   | Container management  |
-| Coolify Proxy  | Reverse Proxy   | Ubuntu Desktop    | 80/443 | SSL termination       |
-| Qdrant         | Vector DB       | Coolify           | 6333   | RAG / embeddings      |
-| OpenWebUI      | Web UI          | Coolify           | 8080   | Chat interface        |
-| Hermes Gateway | Agent           | Ubuntu bare metal | 8642   | Agent brain           |
-| Hermes MCP     | MCP Server      | Ubuntu bare metal | 8092   | MCP proxy             |
-| Ollama         | LLM Engine      | Ubuntu Desktop    | 11434  | Local inference       |
-| LiteLLM        | LLM Proxy       | Docker Compose    | 4000   | Multi-provider proxy  |
-| Grafana        | Dashboards      | Docker Compose    | 3100   | Metrics visualization |
-| Loki           | Log aggregation | Docker Compose    | 3101   | Centralized logs      |
-| Prometheus     | Metrics         | Docker Compose    | 9090   | Metrics collection    |
-| MCPO           | MCP Proxy       | Ubuntu bare metal | 8092   | MCP protocol bridge   |
+| Service        | Type            | Host              | Port   | Purpose                                       |
+| -------------- | --------------- | ----------------- | ------ | --------------------------------------------- |
+| Coolify        | PaaS            | Ubuntu Desktop    | 8000   | Container management                          |
+| Coolify Proxy  | Reverse Proxy   | Ubuntu Desktop    | 80/443 | SSL termination                               |
+| Qdrant         | Vector DB       | Coolify           | 6333   | RAG / embeddings                              |
+| OpenWebUI      | Web UI          | Coolify           | 8080   | Chat interface                                |
+| Hermes Gateway | Agent           | Ubuntu bare metal | 8642   | Agent brain                                   |
+| Hermes MCP     | MCP Server      | Ubuntu bare metal | 8092   | MCP proxy                                     |
+| Ollama         | LLM Engine      | Ubuntu Desktop    | 11434  | Local inference (vision + text)               |
+| LiteLLM        | LLM Proxy       | Docker Compose    | 4000   | Multi-provider proxy                          |
+| Grafana        | Dashboards      | Docker Compose    | 3100   | Metrics visualization                         |
+| Loki           | Log aggregation | Docker Compose    | 3101   | Centralized logs                              |
+| Prometheus     | Metrics         | Docker Compose    | 9090   | Metrics collection                            |
+| MCPO           | MCP Proxy       | Ubuntu bare metal | 8092   | MCP protocol bridge                           |
+| Whisper STT    | STT Engine      | Docker Compose    | 8204   | faster-whisper-medium-pt (OpenAI-compat)      |
+| Kokoro TTS     | TTS Engine      | Docker Compose    | 8013   | TTS Bridge → Kokoro (pf_dora/pm_santa voices) |
