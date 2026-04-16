@@ -9,37 +9,53 @@ date: 2026-04-16
 
 # SPEC-054: GPU Model Stack — VRAM Math RTX 4090 (24GB)
 
-**TL;DR:** Stack actual é **ÓPTIMA**. Cabe tudo em 12.7GB pico. Não há melhoria significativa que justifique swap.
+**TL;DR:** Stack lean em vigor — qwen2.5vl/llama3-tomcat/llava-phi3 descargados, 20.6 GB VRAM livre. Próximo passo: llama4-scout-17b quando disponível no registry.
 
 ---
 
 ## Hardware
 
-| Componente | Especificação                             |
-| ---------- | ----------------------------------------- |
-| GPU        | NVIDIA RTX 4090 — 24 GB VRAM (24,564 MiB) |
-| VRAM Used  | ~1.0 GB (Xorg + GNOME — overhead fixo)    |
-| VRAM Free  | ~22.5 GB disponível para modelos          |
+| Componente | Especificação                                        |
+| ---------- | ---------------------------------------------------- |
+| GPU        | NVIDIA RTX 4090 — 24 GB VRAM (24,564 MiB)            |
+| VRAM Used  | ~2.9 GB (Ollama overhead + whisper + Kokoro + nomic) |
+| VRAM Free  | ~20.6 GB disponível para modelos                     |
 
 ---
 
-## VRAM Budget — Stack Actual (16/04/2026)
+## VRAM Budget — Stack Lean (16/04/2026)
 
 ```
-PICO (qwen2.5vl + whisper + Kokoro + nomic): 12.7 GB  ★ 11.3 GB livre
-PICO (só LLM + embedding):                      8.7 GB   ★ 15.3 GB livre
-Idle (sém modelos activos):                      7.7 GB   ★ 16.8 GB livre
+STACK LEAN ATUAL:
+├── whisper-medium-pt   │  4.0 GB  │ STT LOCAL PRIMARY
+├── Kokoro TTS GPU      │  1.5 GB  │ TTS LOCAL (0.5GB VRAM)
+├── nomic-embed-text    │  0.5 GB  │ Qdrant RAG (carregado)
+├── Ollama overhead     │ ~0.5 GB  │ runtime
+└── RustDesk (2x)       │ ~0.9 GB  │ FIXO (não remover)
+──────────────────────────────────────────
+TOTAL                   │  7.4 GB  ★ 16.6 GB LIVRE
+
+STACK FUTURA (llama4-scout disponível):
+├── llama4-scout-17B    │ 11.0 GB  │ LLM + visão + 1M ctx
+├── whisper-medium-pt   │  4.0 GB  │ STT LOCAL PRIMARY
+├── Kokoro TTS GPU      │  1.5 GB  │ TTS LOCAL
+├── nomic-embed-text    │  0.5 GB  │ Qdrant RAG
+├── Ollama overhead     │ ~0.5 GB  │ runtime
+└── RustDesk (2x)       │ ~0.9 GB  │ FIXO
+──────────────────────────────────────────
+TOTAL                   │ 18.4 GB  ★  5.6 GB LIVRE
 ```
 
-| Modelo            | VRAM   | Estado        | Notes              |
-| ----------------- | ------ | ------------- | ------------------ |
-| qwen2.5vl-7B Q4   | 4.5 GB | ✅ ACTUAL     | texto + visão      |
-| qwen3.5-9.65B Q4  | 6.5 GB | ✅ disponível | fallback, 262k ctx |
-| whisper-medium-pt | 4.0 GB | ✅ ACTUAL     | WER 6.58% PT-BR    |
-| Kokoro TTS GPU    | 1.5 GB | ✅ ACTUAL     | PT-BR voices       |
-| nomic-embed-text  | 0.5 GB | ✅ ACTUAL     | embedding          |
-| bge-m3            | 1.2 GB | ✅ disponível | embedding alt      |
-| Xorg + GNOME      | 1.0 GB | FIXO          | desktop overhead   |
+| Modelo                      | VRAM   | Estado       | Notes                  |
+| --------------------------- | ------ | ------------ | ---------------------- |
+| llama4-scout-17B Q4         | 11 GB  | ⏳ PENDENTE  | registry Ollama        |
+| whisper-medium-pt           | 4.0 GB | ✅ CARREGADO | STT primary, WER 6.58% |
+| Kokoro TTS GPU              | 0.5 GB | ✅ CARREGADO | TTS primary PT-BR      |
+| nomic-embed-text            | 0.5 GB | ✅ CARREGADO | Qdrant RAG             |
+| qwen2.5vl-7B Q4             | 0 GB   | ❌ DESCARR.  | substituído por llama4 |
+| llama3-portuguese-tomcat-8b | 0 GB   | ❌ DESCARR.  | substituído por llama4 |
+| llava-phi3                  | 0 GB   | ❌ DESCARR.  | crashava SIGSEGV (bug) |
+| RustDesk (2x)               | 0.9 GB | ⚙️ FIXO      | não remover (app)      |
 
 ---
 
