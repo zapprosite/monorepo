@@ -10,7 +10,7 @@ import { $fetch } from 'ofetch';
 import { AudioSpeechRequestSchema } from '../schemas.js';
 import { applyPtbrFilter } from '../middleware/ptbr-filter.js';
 
-const TTS_BRIDGE_URL = process.env['TTS_BRIDGE_URL'] ?? 'http://localhost:8013';
+const TTS_BRIDGE_URL = process.env.TTS_BRIDGE_URL ?? 'http://localhost:8013';
 
 // tts-1-hd → pf_dora (alta qualidade feminino PT-BR)
 const MODEL_VOICE_MAP: Record<string, string> = {

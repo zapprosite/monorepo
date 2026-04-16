@@ -20,7 +20,7 @@ import { randomBytes } from 'node:crypto';
 import { applyPtbrFilter } from '../middleware/ptbr-filter.js';
 
 const execFileAsync = promisify(execFile);
-const STT_URL = process.env['STT_DIRECT_URL'] ?? 'http://localhost:8204';
+const STT_URL = process.env.STT_DIRECT_URL ?? 'http://localhost:8204';
 
 // ── Multipart extractor ────────────────────────────────────────────────────
 
@@ -35,7 +35,7 @@ function parseMultipart(body: Buffer, contentType: string): ParsedMultipart {
   if (!bm) return { fileBytes: body, fileExt: 'ogg', responseFormat: 'json' };
 
   const boundary = `--${bm[1]}`;
-  const sep = '\r\n' + boundary;
+  const sep = `\r\n${boundary}`;
   const bodyStr = body.toString('binary');
   const parts = bodyStr.split(sep);
 
