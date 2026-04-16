@@ -34,7 +34,7 @@ Após o prune total do OpenClaw (SPEC-051), o foco agora é usar o Hermes Agent 
 | ai-gateway            | :4002       | ✅ ACTIVO | OpenAI facade, gpt-4o → tom-cat-8b  |
 | faster-whisper-medium | :8204       | ✅ ACTIVO | Canonical STT, WER ~7-8%            |
 | Kokoro TTS            | :8012/:8013 | ✅ ACTIVO | PT-BR voices pm_santa/pf_dora       |
-| Ollama                | :11434      | ✅ ACTIVO | Vision: llava-phi3, local fallback  |
+| Ollama                | :11434      | ✅ ACTIVO | Vision: Qwen3-VL-8B, local fallback |
 
 ---
 

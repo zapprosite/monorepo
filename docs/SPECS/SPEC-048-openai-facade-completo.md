@@ -23,13 +23,13 @@ specRef: SPEC-009, SPEC-027, SPEC-047
 
 ## Situação Actual vs Desejada
 
-| Endpoint                                       | Actual              | Desejado                             |
-| ---------------------------------------------- | ------------------- | ------------------------------------ |
-| `llm.zappro.site/v1/chat/completions`          | LiteLLM directo     | ai-gateway → LiteLLM                 |
-| `llm.zappro.site/v1/chat/completions` + imagem | ❌ não funciona bem | ai-gateway → LiteLLM → llava-phi3:7B |
-| `llm.zappro.site/v1/audio/speech`              | ❌ não existe       | ai-gateway → Llama filter → Kokoro   |
-| `llm.zappro.site/v1/audio/transcriptions`      | ❌ não existe       | ai-gateway → whisper-medium-pt :8204 |
-| `llm.zappro.site/v1/models`                    | LiteLLM models      | ai-gateway: lista unificada          |
+| Endpoint                                       | Actual          | Desejado                             |
+| ---------------------------------------------- | --------------- | ------------------------------------ |
+| `llm.zappro.site/v1/chat/completions`          | LiteLLM directo | ai-gateway → LiteLLM                 |
+| `llm.zappro.site/v1/chat/completions` + imagem | ✅ funciona     | ai-gateway → LiteLLM → Qwen3-VL-8B   |
+| `llm.zappro.site/v1/audio/speech`              | ❌ não existe   | ai-gateway → Llama filter → Kokoro   |
+| `llm.zappro.site/v1/audio/transcriptions`      | ❌ não existe   | ai-gateway → whisper-medium-pt :8204 |
+| `llm.zappro.site/v1/models`                    | LiteLLM models  | ai-gateway: lista unificada          |
 
 ---
 
@@ -46,7 +46,7 @@ ai-gateway :4002
   │
   ├─ POST /v1/chat/completions
   │    model: "gpt-4o" / "gpt-4o-mini" / etc  ──▶ LiteLLM :4000
-  │    model: "gpt-4o-vision"  ─────────────────▶ LiteLLM :4000 (llava-phi3:7B via Ollama)
+  │    model: "gpt-4o-vision"  ─────────────────▶ LiteLLM :4000 (Qwen3-VL-8B via Ollama)
   │    [resposta em PT-BR? → Llama filter opcional via header x-ptbr-filter: true]
   │
   ├─ POST /v1/audio/speech
@@ -70,13 +70,13 @@ ai-gateway :4002
 
 ## Modelos (aliases)
 
-| Alias (OpenAI)  | Real                                                             | Onde               |
-| --------------- | ---------------------------------------------------------------- | ------------------ |
-| `gpt-4o`        | `tom-cat-8b` (llama3-portuguese-tomcat-8b via Ollama)            | LiteLLM :4000      |
-| `gpt-4o-vision` | `llava-phi3` (llava-phi3:latest (PRUNED: llava-phi3) via Ollama) | LiteLLM :4000      |
-| `tts-1`         | Kokoro via **TTS Bridge :8013** (voz: `pm_santa`)                | ai-gateway → :8013 |
-| `tts-1-hd`      | Kokoro via **TTS Bridge :8013** (voz: `pf_dora`)                 | ai-gateway → :8013 |
-| `whisper-1`     | whisper-medium-pt :8204 (OpenAI-compat nativo)                   | ai-gateway → :8204 |
+| Alias (OpenAI)  | Real                                                  | Onde               |
+| --------------- | ----------------------------------------------------- | ------------------ |
+| `gpt-4o`        | `tom-cat-8b` (llama3-portuguese-tomcat-8b via Ollama) | LiteLLM :4000      |
+| `gpt-4o-vision` | `Qwen3-VL-8B` via Ollama                              | LiteLLM :4000      |
+| `tts-1`         | Kokoro via **TTS Bridge :8013** (voz: `pm_santa`)     | ai-gateway → :8013 |
+| `tts-1-hd`      | Kokoro via **TTS Bridge :8013** (voz: `pf_dora`)      | ai-gateway → :8013 |
+| `whisper-1`     | whisper-medium-pt :8204 (OpenAI-compat nativo)        | ai-gateway → :8204 |
 
 > ⚠️ **Fix crítico:** LiteLLM config actual tem `tts-1 → Kokoro :8880 directo` (bypassa TTS Bridge, viola SPEC-009). Deve ser corrigido para `→ TTS Bridge :8013`.
 

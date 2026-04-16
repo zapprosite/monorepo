@@ -54,7 +54,7 @@ status: ACTIVE
 | SPEC-048 | OpenAI Facade Completo         | llm.zappro.site (:4002), smoke (6/6) ✅                                                                           |
 | SPEC-039 | Hermes Gateway tunnel          | hermes.zappro.site → :8642                                                                                        |
 | SPEC-051 | OpenClaw prune total           | ✅ DONE — OpenClaw legacy PRUNED, 40+ files archived                                                              |
-| SPEC-053 | Hermes 100% local voice/vision | ✅ DONE — qwen2.5vl:7b texto+visão, whisper :8204, Kokoro :8013, smoke 13/13                                      |
+| SPEC-053 | Hermes 100% local voice/vision | ✅ DONE — Qwen3-VL-8B texto+visão, whisper :8204, Kokoro :8013, smoke 13/13                                       |
 | SPEC-054 | GPU Model Stack 2026           | ✅ DONE — whisper-medium-pt + Kokoro + nomic-embed-text, 20.6 GB livre, Qwen3-VL-8B-Instruct como próximo upgrade |
 
 ### 🟡 IN_PROGRESS (Active Work)

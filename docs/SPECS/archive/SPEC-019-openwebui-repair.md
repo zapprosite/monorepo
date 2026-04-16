@@ -238,9 +238,9 @@ OpenWebUI → /v1/audio/transcriptions → wav2vec2 (:8201) → whisper-api → 
 - JWT token obtained via POST /api/v1/auths/signin with email+password
 - Credentials: admin@openwebui.local / AdminPass123! (created during this session)
 
-### Models Available
+### Models Available (historical — 2026-04-09)
 - llama3-portuguese-tomcat-8b-instruct-q8:latest
-- qwen2.5vl:7b
+- Qwen3-VL-8B-Instruct (later replaced qwen2.5vl)
 - nomic-embed-text:latest
 - arena-model
 

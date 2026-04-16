@@ -9,14 +9,14 @@
 
 ## AI Stack Info
 
-| Service | Endpoint | Model | Rate Limit |
-|---------|----------|-------|------------|
-| **AI Router** | localhost:4005 | gemma3-27b (local), openrouter/free | N/A |
-| Ollama | localhost:11434 | gemma3:27b-it-qat | N/A (local) |
-| OpenRouter | openrouter.ai/api/v1 | nemotron-nano-9b-v2:free | varies |
-| nginx proxy | localhost:4004 | rate limited → :4000 | 10 req/min |
-| LiteLLM | localhost:4000 | gemma3-27b | 10 RPM |
-| Kokoro TTS | localhost:8012 | af_bella | N/A (local) |
+| Service       | Endpoint             | Model                                  | Rate Limit  |
+| ------------- | -------------------- | -------------------------------------- | ----------- |
+| **AI Router** | localhost:4005       | gemma4-12b-it (local), openrouter/free | N/A         |
+| Ollama        | localhost:11434      | gemma4-12b-it                          | N/A (local) |
+| OpenRouter    | openrouter.ai/api/v1 | nemotron-nano-9b-v2:free               | varies      |
+| nginx proxy   | localhost:4004       | rate limited → :4000                   | 10 req/min  |
+| LiteLLM       | localhost:4000       | gemma3-27b                             | 10 RPM      |
+| Kokoro TTS    | localhost:8012       | af_bella                               | N/A (local) |
 
 ---
 
@@ -24,7 +24,7 @@
 
 ```
 Query → AI Router (:4005)
-  ├── len < 30 chars → local (Ollama gemma3:27b)
+  ├── len < 30 chars → local (Ollama gemma4-12b-it)
   ├── [complex, debug, architecture] → cloud-budget (OpenRouter free)
   ├── [production, security, incident] → cloud-reasoning (OpenRouter free)
   └── else → LLM-assisted classification
@@ -88,7 +88,7 @@ echo "AI Router local: 10/10 completed"
 echo "Ollama direct stress test - 10 parallel requests..."
 time for i in $(seq 1 10); do
   curl -s http://localhost:11434/api/chat \
-    -d '{"model":"gemma3:27b-it-qat","messages":[{"role":"user","content":"Say HI"}],"stream":false}' &
+-d '{"model":"gemma4-12b-it","messages":[{"role":"user","content":"Say HI"}],"stream":false}' &
 done
 wait
 echo "Ollama direct: 10/10 completed"
@@ -175,30 +175,31 @@ curl -s -X POST http://localhost:4005/v1/chat/completions \
 
 ## Interpretação
 
-| Result | Significado |
-|--------|-------------|
+| Result             | Significado                                              |
+| ------------------ | -------------------------------------------------------- |
 | AI Router local OK | Queries simples estão sendo respondidas por Ollama local |
-| AI Router cloud OK | Queries complexas estão sendo roteadas para OpenRouter |
-| Ollama 10/10 OK | Ollama aguenta carga local sem problemas |
-| nginx 429 após ~10 | Rate limit do nginx proxy está a funcionar |
-| VRAM < 20GB | Carga normal para gemma3:27b |
+| AI Router cloud OK | Queries complexas estão sendo roteadas para OpenRouter   |
+| Ollama 10/10 OK    | Ollama aguenta carga local sem problemas                 |
+| nginx 429 após ~10 | Rate limit do nginx proxy está a funcionar               |
+| VRAM < 20GB        | Carga normal para gemma4-12b-it                          |
 
 ---
 
 ## Common Issues
 
-| Symptom | Cause | Fix |
-|---------|-------|-----|
-| AI Router 500 | Ollama timeout ou indisponível | `curl localhost:11434/api/tags` |
-| AI Router slow | Query classificada como cloud por engano | Ver logs de complexidade |
-| Ollama timeout | Modelo a carregar | `ollama pull gemma3:27b-it-qat` |
-| nginx always 429 | Rate limit muito agressivo | Ajustar `burst` em nginx config |
-| OpenRouter 401 | API key inválida | Verificar OPENROUTER_API_KEY em .env |
-| VRAM OOM | Many models loaded | `ollama ps` para ver modelos |
+| Symptom          | Cause                                    | Fix                                  |
+| ---------------- | ---------------------------------------- | ------------------------------------ |
+| AI Router 500    | Ollama timeout ou indisponível           | `curl localhost:11434/api/tags`      |
+| AI Router slow   | Query classificada como cloud por engano | Ver logs de complexidade             |
+| Ollama timeout   | Modelo a carregar                        | `ollama pull gemma4-12b-it`          |
+| nginx always 429 | Rate limit muito agressivo               | Ajustar `burst` em nginx config      |
+| OpenRouter 401   | API key inválida                         | Verificar OPENROUTER_API_KEY em .env |
+| VRAM OOM         | Many models loaded                       | `ollama ps` para ver modelos         |
 
 ---
 
 ## See Also
+
 - `ollama-health-check.md` — Ollama detalhado
 - `litellm-health-check.md` — LiteLLM detalhado
 - `kokoro-health-check.md` — Kokoro TTS detalhado

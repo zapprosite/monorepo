@@ -146,7 +146,7 @@ You connect to: Ollama (local LLM), Qdrant (vector DB), LiteLLM (multi-provider 
 ## Stack
 
 - **LLM:** minimax/MiniMax-M2.7 via MiniMax API (15k req/5h)
-- **Local LLM:** qwen2.5vl:7b via Ollama :11434 (RTX 4090)
+- **Local LLM:** Qwen3-VL-8B-Instruct via Ollama :11434 (RTX 4090)
 - **Vector DB:** Qdrant :6333 (RAG/embeddings)
 - **TTS:** Kokoro :8012 (pm_santa, pf_dora)
 - **STT:** wav2vec2 :8201 (Portuguese)

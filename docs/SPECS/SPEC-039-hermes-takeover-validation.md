@@ -16,26 +16,26 @@ originSessionId: 8f4dc974-c929-4609-80db-7acfce0252e2
 
 ## 1. BEFORE State (OpenClaw)
 
-| Item | Value |
-|------|-------|
-| bot.zappro.site | 10.0.19.7:8080 (OpenClaw) — OFFLINE |
+| Item                | Value                                                                 |
+| ------------------- | --------------------------------------------------------------------- |
+| bot.zappro.site     | 10.0.19.7:8080 (OpenClaw) — OFFLINE                                   |
 | OpenClaw containers | `openclaw-qgtzrmi6771lt8l7x8rqx72f`, `openclaw-mcp-wrapper` — REMOVED |
-| Telegram bot | @CEO_REFRIMIX_bot — not functional (OpenClaw offline) |
-| LLM stack | OpenClaw + LiteLLM proxy |
+| Telegram bot        | @CEO_REFRIMIX_bot — not functional (OpenClaw offline)                 |
+| LLM stack           | OpenClaw + LiteLLM proxy                                              |
 
 ---
 
 ## 2. AFTER State (Hermes)
 
-| Item | Value | Status |
-|------|-------|--------|
-| bot.zappro.site | 502 Bad Gateway | FAIL — tunnel routing to dead OpenClaw IP |
-| Hermes Gateway PID | 2047806 | RUNNING (process active) |
-| Hermes Gateway port 8642 | Not listening | FAIL — api_server not binding |
-| Telegram bot | Token: `${TELEGRAM_BOT_TOKEN}` | UNKNOWN — token present, connectivity untested |
-| hermes.zappro.site | Not configured | FAIL — CNAME pending |
-| LLM primary | MiniMax/MiniMax-M2.7 | CONFIGURED |
-| LLM fallback | Ollama/qwen2.5vl:7b | CONFIGURED |
+| Item                     | Value                          | Status                                         |
+| ------------------------ | ------------------------------ | ---------------------------------------------- |
+| bot.zappro.site          | 502 Bad Gateway                | FAIL — tunnel routing to dead OpenClaw IP      |
+| Hermes Gateway PID       | 2047806                        | RUNNING (process active)                       |
+| Hermes Gateway port 8642 | Not listening                  | FAIL — api_server not binding                  |
+| Telegram bot             | Token: `${TELEGRAM_BOT_TOKEN}` | UNKNOWN — token present, connectivity untested |
+| hermes.zappro.site       | Not configured                 | FAIL — CNAME pending                           |
+| LLM primary              | MiniMax/MiniMax-M2.7           | CONFIGURED                                     |
+| LLM fallback             | Ollama/Qwen3-VL-8B-Instruct    | CONFIGURED                                     |
 
 ### Process State (ps aux)
 
@@ -67,12 +67,14 @@ will  2047806  hermes gateway run      : running (Gateway, PID 2047806)
 ## 3. Migration Steps Executed (from 12 Parallel Agents)
 
 ### Phase 1-2 (Commit: `1a864d4d`)
+
 - Hermes-Agent v0.9.0 installation
 - `config.yaml` created with MiniMax primary + Ollama fallback
 - cadvisor memory increased to 1GB
 - deploy-on-green.yml fix applied
 
 ### Phase 3 (Commit: `0e8a457b` — 12 parallel agents)
+
 1. Hermes-Agent v0.9.0 installed on Ubuntu Desktop
 2. `hermes claw migrate` executed — 21 items migrated (SOUL, memories, 18 skills)
 3. `config.yaml` finalized — LLM config with environment-only secrets
@@ -90,17 +92,17 @@ will  2047806  hermes gateway run      : running (Gateway, PID 2047806)
 
 ## 4. Success Criteria Verification
 
-| Criterion | Expected | Actual | Pass/Fail |
-|-----------|----------|--------|-----------|
-| Hermes-Agent installed | v0.9.0 | v0.9.0 | PASS |
-| hermes claw migrate executed | 21 items | 21 items | PASS |
-| OpenClaw containers removed | Gone | Confirmed | PASS |
-| Hermes gateway running | PID active | PID 2047806 | PASS |
-| Telegram bot token present | In .env | Present | PASS |
-| bot.zappro.site accessible | 200 OK | 502 Bad Gateway | FAIL |
-| Hermes listening on :8642 | Port open | Not listening | FAIL |
-| hermes.zappro.site CNAME | Configured | Not configured | FAIL |
-| Telegram bot functional | @CEO_REFRIMIX_bot | UNKNOWN | INCONCLUSIVE |
+| Criterion                    | Expected          | Actual          | Pass/Fail    |
+| ---------------------------- | ----------------- | --------------- | ------------ |
+| Hermes-Agent installed       | v0.9.0            | v0.9.0          | PASS         |
+| hermes claw migrate executed | 21 items          | 21 items        | PASS         |
+| OpenClaw containers removed  | Gone              | Confirmed       | PASS         |
+| Hermes gateway running       | PID active        | PID 2047806     | PASS         |
+| Telegram bot token present   | In .env           | Present         | PASS         |
+| bot.zappro.site accessible   | 200 OK            | 502 Bad Gateway | FAIL         |
+| Hermes listening on :8642    | Port open         | Not listening   | FAIL         |
+| hermes.zappro.site CNAME     | Configured        | Not configured  | FAIL         |
+| Telegram bot functional      | @CEO_REFRIMIX_bot | UNKNOWN         | INCONCLUSIVE |
 
 ---
 
@@ -111,6 +113,7 @@ will  2047806  hermes gateway run      : running (Gateway, PID 2047806)
 **Root cause:** Cloudflare tunnel routes to `10.0.19.7:8080` (old OpenClaw IP) which is now offline. Hermes gateway is running but NOT listening on port 8642.
 
 **Fix required:**
+
 1. Start Hermes gateway with port binding — verify `hermes gateway run` actually listens on :8642
 2. Update Cloudflare tunnel to route `bot.zappro.site` → `10.0.5.2:8642`
 3. Update SUBDOMAINS.md if routing changes
@@ -122,6 +125,7 @@ The Hermes gateway process (PID 2047806) is running but `ss -tlnp | grep 8642` s
 **Diagnosis:** Gateway may be running in polling mode without API server binding.
 
 **Fix required:**
+
 1. Check `hermes gateway logs` for binding errors
 2. Verify `api_server.enabled: true` and `port: 8642` in config.yaml
 3. Restart gateway if needed
@@ -129,6 +133,7 @@ The Hermes gateway process (PID 2047806) is running but `ss -tlnp | grep 8642` s
 ### MEDIUM — hermes.zappro.site CNAME Not Configured
 
 **Fix required:**
+
 1. Create CNAME record in Cloudflare → tunnel
 2. Update SUBDOMAINS.md with new subdomain entry
 
@@ -137,6 +142,7 @@ The Hermes gateway process (PID 2047806) is running but `ss -tlnp | grep 8642` s
 The token `${TELEGRAM_BOT_TOKEN}` is present but bot functionality was not tested via `getMe` API call.
 
 **Fix required:**
+
 1. Run `curl https://api.telegram.org/bot<token>/getMe` to verify
 2. Send test message to confirm bidirectional communication
 
@@ -144,19 +150,19 @@ The token `${TELEGRAM_BOT_TOKEN}` is present but bot functionality was not teste
 
 ## 6. Migration Completeness Summary
 
-| Component | Status |
-|-----------|--------|
-| Hermes-Agent installation | COMPLETE |
-| OpenClaw shutdown | COMPLETE |
-| SOUL/memories migration | COMPLETE |
-| Skills migration (18 skills) | COMPLETE |
-| LLM configuration | CONFIGURED |
-| Telegram bot token | MIGRATED |
-| Cron jobs (15) | CONFIGURED |
-| Gateway process | RUNNING |
+| Component                        | Status                         |
+| -------------------------------- | ------------------------------ |
+| Hermes-Agent installation        | COMPLETE                       |
+| OpenClaw shutdown                | COMPLETE                       |
+| SOUL/memories migration          | COMPLETE                       |
+| Skills migration (18 skills)     | COMPLETE                       |
+| LLM configuration                | CONFIGURED                     |
+| Telegram bot token               | MIGRATED                       |
+| Cron jobs (15)                   | CONFIGURED                     |
+| Gateway process                  | RUNNING                        |
 | Tunnel routing (bot.zappro.site) | INCOMPLETE — routes to dead IP |
-| hermes.zappro.site CNAME | PENDING |
-| Telegram functional test | PENDING |
+| hermes.zappro.site CNAME         | PENDING                        |
+| Telegram functional test         | PENDING                        |
 
 **Overall Status:** Infrastructure ready — routing incomplete. Hermes gateway needs port binding fix before bot.zappro.site can serve traffic.
 
@@ -172,5 +178,5 @@ The token `${TELEGRAM_BOT_TOKEN}` is present but bot functionality was not teste
 
 ---
 
-*Generated: 2026-04-14*
-*Session: 8f4dc974-c929-4609-80db-7acfce0252e2*
+_Generated: 2026-04-14_
+_Session: 8f4dc974-c929-4609-80db-7acfce0252e2_

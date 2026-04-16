@@ -18,10 +18,10 @@ Hermes Agent is now running as the central AI gateway for the homelab. This docu
 - Health: `{"status":"ok","platform":"hermes-agent"}` (local and remote verified)
 - hermes.zappro.site: ✅ 200 OK (Cloudflare tunnel working)
 - API: OpenAI-compatible `/v1/chat/completions` + `/v1/models`
-- Primary LLM: Ollama/qwen2.5vl:7b (local, GPU)
+- Primary LLM: Ollama/Qwen3-VL-8B-Instruct (local, GPU)
 - Fallback LLM: llama3-portuguese-tomcat-8b-instruct-q8:latest (local)
 - MiniMax: DEPRECATED (available as commented fallback in .env)
-- Vision: Ollama/qwen2.5vl:7b (llava-phi3 crashes — do NOT use)
+- Vision: Ollama/Qwen3-VL-8B-Instruct (local, stable)
 - STT: faster-whisper-medium-pt :8204 ✅ FIXED (multipart OpenAI format supported)
 - TTS: Kokoro :8013 via TTS Bridge ✅ (voices pm_santa/pf_dora)
 - Telegram: ✅ Connected (polling mode)
@@ -44,7 +44,7 @@ Hermes Agent is now running as the central AI gateway for the homelab. This docu
 │         ▼                 ▼                 ▼              │
 │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐       │
 │  │   Ollama    │  │   Ollama    │  │   Kokoro    │       │
-│  │  qwen2.5vl  │  │ llama3-pt   │  │   TTS       │       │
+│  │  Qwen3-VL   │  │ llama3-pt   │  │   TTS       │       │
 │  │  (Primary)  │  │  (Fallback) │  │  :8013      │       │
 │  └─────────────┘  └─────────────┘  └─────────────┘       │
 │                           │                                │
@@ -212,7 +212,7 @@ For voice-enabled interactions:
 User Voice → Telegram → whisper-medium-pt STT (:8204) → Hermes → Kokoro TTS (:8013) → User Voice
 ```
 
-> **NOTE:** Vision model `llava-phi3` crashes when used via `/v1/chat/completions` (OpenAI format). Use `qwen2.5vl:7b` instead — it works via both OpenAI format and native `/api/chat`.
+> **NOTE:** Vision model uses `Qwen3-VL-8B-Instruct` via Ollama — it works via both OpenAI format and native `/api/chat`.
 
 ```typescript
 // Voice-enabled bot integration
@@ -267,7 +267,7 @@ Hermes has **two layers** of fallback:
 llm:
   primary:
     provider: ollama
-    model: qwen2.5vl:7b
+model: Qwen3-VL-8B-Instruct
     base_url: http://localhost:11434
   fallback:
     - provider: ollama
@@ -275,26 +275,25 @@ llm:
       base_url: http://localhost:11434
 ```
 
-> **NOTE:** MiniMax is DEPRECATED. Ollama `qwen2.5vl:7b` is now the primary (100% local, GPU). MiniMax API key remains in `.env` but is commented out for emergency fallback only.
+> **NOTE:** MiniMax is DEPRECATED. Ollama `Qwen3-VL-8B-Instruct` is now the primary (100% local, GPU). MiniMax API key remains in `.env` but is commented out for emergency fallback only.
 
 **Ollama models available** (RTX 4090):
 
-- `qwen2.5vl:7b` - Vision-language, 5.9GB (PRIMARY — use for all tasks)
+- `Qwen3-VL-8B-Instruct` - Vision-language, 3.2GB (PRIMARY — use for all tasks)
 - `llama3-portuguese-tomcat-8b-instruct-q8:latest` - Portuguese-specialized, 8.5GB (fallback)
 - `nomic-embed-text:latest` - Embeddings, 274MB
-- `llava-phi3:latest` - Vision (DO NOT USE — crashes on OpenAI format)
 
 ### 5.2 Optimized Fallback Strategy
 
 **Goal:** 100% local stack — no external API dependencies.
 
-| Task Type                     | Provider                         | Rationale                            |
-| ----------------------------- | -------------------------------- | ------------------------------------ |
-| All text tasks                | Ollama qwen2.5vl:7b (primary)    | 100% local, fast, GPU-accelerated    |
-| Portuguese specialist tasks   | Ollama llama3-portuguese-tomcat  | Fine-tuned for PT-BR, local          |
-| Vision tasks (screenshots)    | Ollama qwen2.5vl:7b              | qwen2.5vl works; llava-phi3 CRASHES  |
-| Error recovery                | Ollama (fallback model)          | Automatic on primary failure         |
-| Emergency fallback (optional) | MiniMax M2.7 (commented in .env) | Only for catastrophic Ollama failure |
+| Task Type                     | Provider                              | Rationale                            |
+| ----------------------------- | ------------------------------------- | ------------------------------------ |
+| All text tasks                | Ollama Qwen3-VL-8B-Instruct (primary) | 100% local, fast, GPU-accelerated    |
+| Portuguese specialist tasks   | Ollama llama3-portuguese-tomcat       | Fine-tuned for PT-BR, local          |
+| Vision tasks (screenshots)    | Ollama Qwen3-VL-8B-Instruct           | Qwen3-VL works stable;               |
+| Error recovery                | Ollama (fallback model)               | Automatic on primary failure         |
+| Emergency fallback (optional) | MiniMax M2.7 (commented in .env)      | Only for catastrophic Ollama failure |
 
 **Implemented optimizations:**
 
@@ -304,7 +303,7 @@ llm:
    auxiliary:
      vision:
        provider: ollama
-       model: qwen2.5vl:7b
+   model: Qwen3-VL-8B-Instruct
        base_url: http://localhost:11434
    ```
 
@@ -316,7 +315,7 @@ llm:
        schedule="every 1h",
        prompt="Check status",
        provider="ollama",
-       model="qwen2.5vl:7b"  # Preserve MiniMax quota
+   model="Qwen3-VL-8B-Instruct"  # Preserve MiniMax quota
    )
    ```
 
@@ -324,7 +323,7 @@ llm:
    ```yaml
    fallback_model:
      provider: ollama
-     model: qwen2.5vl:7b
+   model: Qwen3-VL-8B-Instruct
      base_url: http://localhost:11434
    ```
 
@@ -510,6 +509,6 @@ async function isHermesHealthy(): Promise<boolean> {
 
 1. ✅ Hermes Gateway running with 100% local Ollama stack
 2. ✅ STT multipart OpenAI format FIXED (:8204)
-3. ✅ Vision: qwen2.5vl works; llava-phi3 documented as crashing
+3. ✅ Vision: Qwen3-VL-8B-Instruct works stable
 4. ✅ Smart Fallback Strategy updated (Section 5) — Ollama primary, MiniMax optional emergency fallback
 5. Document HERMES_API_KEY retrieval in skills

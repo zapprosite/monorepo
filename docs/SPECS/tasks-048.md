@@ -5,7 +5,7 @@
 
 ## Phase 1 — Vision (gpt-4o-vision alias)
 
-- [ ] T100 — Adicionar routing em `chat.ts`: se `model === "gpt-4o-vision"` → forward para LiteLLM com model `ollama/llava-phi3` (multipart/json com imagens)
+- [ ] T100 — Adicionar routing em `chat.ts`: se `model === "gpt-4o-vision"` → forward para LiteLLM com model `ollama/Qwen3-VL-8B` (multipart/json com imagens)
 - [ ] T101 — Testar: `curl /v1/chat/completions -d '{"model":"gpt-4o-vision","messages":[...]}'` com image_url
 
 ## Phase 2 — TTS com PT-BR filter melhorado
