@@ -21,7 +21,7 @@
 ### Modelos Disponíveis (Ollama)
 
 ```
-Qwen3-VL-8B-Instruct                            ← Vision + Text (ATUAL)
+qwen2.5vl:7b                            ← Vision + Text (ATUAL)
 gemma4-12b-it:latest  ← LLM principal
 nomic-embed-text:latest                         ← Embeddings
 ```

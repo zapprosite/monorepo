@@ -145,7 +145,10 @@ run_pipeline() {
     return 1
   fi
 
-  update_state '{ "currentState": "READY_TO_SHIP", "lintPassed": "true", "typecheckPassed": "true", "testsPassed": "true", "readyToShip": "true" }'
+  # Check if there are staged changes for ship
+  local has_changes="false"
+  git diff --cached --quiet 2>/dev/null || has_changes="true"
+  update_state "{ \"currentState\": \"READY_TO_SHIP\", \"lintPassed\": \"true\", \"typecheckPassed\": \"true\", \"testsPassed\": \"true\", \"readyToShip\": \"true\", \"hasChanges\": \"$has_changes\" }"
   log "✅ Tests OK"
 
   return 0
@@ -155,6 +158,10 @@ run_pipeline() {
 run_research_loop() {
   log "🔬 Running research + refactor loop (max iterations: $MAX_ITERATIONS)..."
   local iteration=0
+
+  # Write error context to temp file for research agent
+  local error_file="/tmp/loop-error-context.txt"
+  cat /tmp/lint.out /tmp/typecheck.out /tmp/test.out 2>/dev/null | tail -100 > "$error_file" || echo "unknown error" > "$error_file"
 
   while [[ $iteration -lt $MAX_ITERATIONS ]]; do
     iteration=$((iteration + 1))
@@ -172,7 +179,7 @@ run_research_loop() {
     local research_file=".cursor-loop/logs/research-${research_ts}.md"
     local latest_file=".cursor-loop/logs/research-latest.md"
 
-    if bash "$SCRIPT_DIR/cursor-loop-research.sh" "pipeline failure" "$research_file" > /tmp/research.out 2>&1; then
+    if bash "$SCRIPT_DIR/cursor-loop-research.sh" "$error_file" "$research_file" > /tmp/research.out 2>&1; then
       log "✅ Research complete: $research_file"
 
       # Mirror to research-latest.md for refactor.sh (which defaults to that path)
@@ -225,13 +232,11 @@ run_ship() {
     log "ℹ️  No staged changes to commit"
   else
     log "📝 Committing staged changes..."
-    if command -v claude &>/dev/null; then
-      local msg
-      msg=$(claude -p "Generate a concise semantic commit message for the current staged changes. Return ONLY the commit message, no explanation." 2>/dev/null) || msg="chore: staged changes"
-      git commit -m "$msg" 2>/dev/null || log "⚠️  git commit failed"
-    else
-      git commit -m "chore: staged changes" 2>/dev/null || log "⚠️  git commit failed"
-    fi
+    # Detect change type from diff summary for better commit message
+    local changed_files
+    changed_files=$(git diff --cached --stat 2>/dev/null | tail -1)
+    local msg="chore: $(echo "$changed_files" | sed 's/[[:space:]]*[[:digit:]]*[[:space:]]*file.*//' | xargs echo || echo 'staged changes')"
+    git commit -m "$msg" 2>/dev/null || log "⚠️  git commit failed"
   fi
 
   log "✅ Ship complete"
@@ -343,7 +348,11 @@ main() {
 
   # Ready to ship
   if [[ "$(read_state '.readyToShip')" == "true" ]]; then
-    run_ship
+    if git diff --cached --quiet 2>/dev/null; then
+      log "ℹ️  No changes to commit — skipping ship"
+    else
+      run_ship
+    fi
   fi
 
   log "✅ Cursor loop complete"

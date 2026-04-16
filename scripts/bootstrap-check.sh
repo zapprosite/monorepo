@@ -20,7 +20,7 @@ REQUIRED_SECRETS=(
   "COOLIFY_URL"
   "COOLIFY_API_KEY"
   "GITEA_TOKEN"
-  "CLAUDE_API_KEY"
+  "AI_GATEWAY_FACADE_KEY"
 )
 
 # ── Optional secrets ──────────────────────────────────────────
@@ -50,7 +50,7 @@ secret_is_set() {
 secret_masked() {
   local value="${!1:-}"
   if [[ -z "$value" ]]; then echo "NOT SET"
-  elif [[ ${#value} -le 8 ]]; then echo "$value"
+  elif [[ ${#value} -le 8 ]]; then echo "****"  # mask short secrets in JSON output
   else echo "${value:0:4}...${value: -4}"
   fi
 }
@@ -72,7 +72,13 @@ main() {
     local configs="[" first=true
     for secret in "${missing[@]}"; do
       $first && first=false || configs+=","
-      configs+="{\"key\":\"$secret\",\"source\":\".env\",\"current_value\":\"$(secret_masked "$secret")\",\"required_for\":\"$(secret_purpose "$secret")\"}"
+      configs+=$(python3 -c "
+import json, sys
+key = $(printf '%s' "$secret" | python3 -c 'import sys,json; print(json.dumps(sys.stdin.read()))')
+val = $(secret_masked "$secret" | python3 -c 'import sys,json; print(json.dumps(sys.stdin.read()))')
+pur = $(secret_purpose "$secret" | python3 -c 'import sys,json; print(json.dumps(sys.stdin.read()))')
+print(json.dumps({\"key\": key, \"source\": \".env\", \"current_value\": val, \"required_for\": pur}), end='')
+")
     done
     configs+="]"
     cat << EOF

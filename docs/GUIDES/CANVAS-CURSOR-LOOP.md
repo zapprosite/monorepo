@@ -404,7 +404,7 @@ VOZ (OpenClaw)
   STT:         wav2vec2 (:8201) via Deepgram proxy
   TTS:         Kokoro (:8880) via TTS Bridge (:8013)
   LLM:         MiniMax M2.7 (direct, não LiteLLM)
-  Vision:      litellm/Qwen3-VL-8B-Instruct
+  Vision:      litellm/qwen2.5vl:7b
 ```
 
 ---

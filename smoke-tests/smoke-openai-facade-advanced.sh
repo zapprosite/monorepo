@@ -246,14 +246,14 @@ SIZE=$(wc -c < "$TMPFILE_OUT")
 rm -f "$TMPFILE_IN" "$TMPFILE_OUT"
 
 echo ""
-echo "── PHASE 7: VISION (Qwen3-VL-8B-Instruct) ───────────"
+echo "── PHASE 7: VISION (qwen2.5vl:7b) ───────────"
 
-# 7.1 Ollama Qwen3-VL-8B-Instruct available
-curl -s --max-time 5 http://localhost:11434/api/tags 2>/dev/null | grep -q "Qwen3-VL-8B-Instruct" \
-  && pass "7.1 Ollama Qwen3-VL-8B-Instruct loaded" \
-  || warn "7.1 Qwen3-VL-8B-Instruct not in Ollama tags"
+# 7.1 Ollama qwen2.5vl:7b available
+curl -s --max-time 5 http://localhost:11434/api/tags 2>/dev/null | grep -q "qwen2.5vl:7b" \
+  && pass "7.1 Ollama qwen2.5vl:7b loaded" \
+  || warn "7.1 qwen2.5vl:7b not in Ollama tags"
 
-# 7.2 Vision route (gpt-4o-vision → Qwen3-VL-8B-Instruct) — base64 required
+# 7.2 Vision route (gpt-4o-vision → qwen2.5vl:7b) — base64 required
 # LiteLLM only supports base64 for vision, not image URLs
 IMG_BASE64="iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwADhQGAWjR9awAAAABJRU5ErkJggg=="
 code=$(curl -sS -o /dev/null -w "%{http_code}" --max-time 60 \
@@ -261,8 +261,8 @@ code=$(curl -sS -o /dev/null -w "%{http_code}" --max-time 60 \
   -H "Authorization: Bearer $KEY" \
   -d "{\"model\":\"gpt-4o-vision\",\"messages\":[{\"role\":\"user\",\"content\":[{\"type\":\"text\",\"text\":\"teste\"},{\"type\":\"image_url\",\"image_url\":{\"url\":\"data:image/png;base64,$IMG_BASE64\"}}]}]}" \
   "$GW/v1/chat/completions" 2>/dev/null || echo 000)
-[[ "$code" == "200" ]] && pass "7.2 Vision gpt-4o-vision → Qwen3-VL-8B-Instruct (base64) → 200" \
-  || warn "7.2 Vision base64 → $code (expect 200, image URLs NOT supported by LiteLLM/Qwen3-VL)"
+[[ "$code" == "200" ]] && pass "7.2 Vision gpt-4o-vision → qwen2.5vl:7b (base64) → 200" \
+  || warn "7.2 Vision base64 → $code (expect 200, image URLs NOT supported by LiteLLM/qwen2.5vl:7b)"
 
 # 7.3 Vision invalid base64 → proper error
 IMG_BAD="iVBORw0KGgoAAA-INVALID-BASE64"

@@ -7,10 +7,15 @@
 
 set -euo pipefail
 
-TOPIC="${1:-}"
+TOPIC="${1:-pipeline failure}"
 OUTPUT_FILE="${2:-}"
 LOG_DIR=".cursor-loop/logs"
 RESEARCH_OUTPUT="$LOG_DIR/research-$(date +%Y%m%d-%H%M%S).md"
+
+# If topic is a file path, read it; otherwise treat as plain text
+if [[ -f "$1" ]]; then
+  TOPIC=$(cat "$1")
+fi
 
 # ── Setup ──────────────────────────────────────────────────────
 mkdir -p "$LOG_DIR"
@@ -127,7 +132,7 @@ analyze_pattern() {
 
     matched=false
     for regex in "${!PATTERNS[@]}"; do
-      if echo "$TOPIC" | grep -qi "$regex"; then
+      if echo "$TOPIC" | grep -qEi "$regex"; then
         echo -e "${PATTERNS[$regex]}\n"
         matched=true
       fi
@@ -150,8 +155,11 @@ research_minimax() {
     echo "=== MiniMax LLM Research ==="
     echo ""
     if [[ -f "$MINIMAX_SCRIPT" ]]; then
-      bash "$MINIMAX_SCRIPT" "$TOPIC" 2>&1
-      echo "✅ MiniMax research complete"
+      if bash "$MINIMAX_SCRIPT" "$TOPIC" 2>&1; then
+        echo "✅ MiniMax research complete"
+      else
+        echo "⚠️  MiniMax research failed (see above)"
+      fi
     else
       echo "⚠️  $MINIMAX_SCRIPT not found, skipping LLM research"
     fi

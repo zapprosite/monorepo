@@ -47,8 +47,8 @@
     },
     {
       "id": "PH2-02",
-      "title": "Fix vision model (llava → Qwen3-VL-8B-Instruct)",
-      "description": "PINNED-SERVICES.md and GUARDRAILS.md still list 'llava' as vision model, deprecated 2026-04-09 in favor of qwen2.5-vl. Also fix ARCHITECTURE-MODELS.md (wrong LiteLLM endpoint).",
+      "title": "Fix vision model (llava → qwen2.5vl:7b)",
+      "description": "PINNED-SERVICES.md and GUARDRAILS.md still list 'llava' as vision model, deprecated 2026-04-09 in favor of qwen2.5vl:7b. Also fix ARCHITECTURE-MODELS.md (wrong LiteLLM endpoint).",
       "status": "pending",
       "priority": "critical",
       "dependencies": ["PH2-01"],
@@ -116,7 +116,7 @@
     {
       "id": "PH2-04",
       "title": "Update SERVICE_MAP.md (remove old stacks)",
-      "description": "SERVICE_MAP.md references removed stacks (supabase, caprover, old voice). Update: n8n now in Coolify, tts-bridge UP on 8013, OpenClaw vision qwen2.5-vl, remove supabase/caprover references.",
+      "description": "SERVICE_MAP.md references removed stacks (supabase, caprover, old voice). Update: n8n now in Coolify, tts-bridge UP on 8013, OpenClaw vision qwen2.5vl:7b, remove supabase/caprover references.",
       "status": "pending",
       "priority": "critical",
       "dependencies": ["PH2-03"],
@@ -128,7 +128,7 @@
         },
         {
           "id": "PH2-04.2",
-          "title": "Update n8n (now in Coolify), tts-bridge (UP not REMOVED), vision (Qwen3-VL-8B-Instruct not llava)",
+          "title": "Update n8n (now in Coolify), tts-bridge (UP not REMOVED), vision (qwen2.5vl:7b not llava)",
           "status": "pending"
         },
         {
@@ -391,7 +391,7 @@
         },
         {
           "id": "PH2-11.6",
-          "title": "Run verification: PINNED-SERVICES.md has Qwen3-VL-8B-Instruct",
+          "title": "Run verification: PINNED-SERVICES.md has qwen2.5vl:7b",
           "status": "pending"
         },
         {

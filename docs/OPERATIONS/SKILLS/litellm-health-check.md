@@ -11,7 +11,7 @@
 - **Tipo:** Docker container (`zappro-litellm`) via docker-compose
 - **Container rede:** `zappro-lite_default` (mesma do wav2vec2, Ollama, Kokoro)
 - **Config:** `/home/will/zappro-lite/config.yaml`
-- **Models:** whisper-1 (STT/faster-whisper), tts-1 (TTS/Kokoro), Qwen3-VL-8B-Instruct (Vision), Gemma4-12b-it (LLM PT-BR), embedding-nomic
+- **Models:** whisper-1 (STT/faster-whisper), tts-1 (TTS/Kokoro), qwen2.5vl:7b (Vision), Gemma4-12b-it (LLM PT-BR), embedding-nomic
 - **Database:** PostgreSQL via `zappro-litellm-db` container (persistência de keys/costs)
 - **DB Connection:** `postgresql://litellm:litellm_pass_2026@zappro-litellm-db:5432/litellm`
 

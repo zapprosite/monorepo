@@ -2,7 +2,7 @@
   "$schema": "https://turbo.build/schema.json",
   "globalDependencies": ["turbo.json", ".env", ".env.example", "**/.env.*local"],
   "globalEnv": ["NODE_ENV"],
-  "pipeline": {
+  "tasks": {
     "build": {
       "dependsOn": ["^build"],
       "outputs": [".next/**", "dist/**"]
@@ -12,6 +12,10 @@
       "outputs": ["coverage/**"]
     },
     "lint": {
+      "outputs": []
+    },
+    "check-types": {
+      "dependsOn": ["build"],
       "outputs": []
     },
     "typecheck": {

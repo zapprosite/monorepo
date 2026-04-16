@@ -38,10 +38,10 @@
 
 ### TASK-HERMES-004
 
-**Title:** Configure Ollama Qwen3-VL-8B-Instruct as LLM (RTX 4090)
+**Title:** Configure Ollama qwen2.5vl:7b as LLM (RTX 4090)
 **Priority:** P1
 **Status:** done
-**Notes:** ✅ Changed from gemma4 to Qwen3-VL-8B-Instruct on RTX 4090 (from OPERAÇÃO OVERLORD)
+**Notes:** ✅ Changed from gemma4 to qwen2.5vl:7b on RTX 4090 (from OPERAÇÃO OVERLORD)
 
 ---
 
@@ -178,7 +178,7 @@ crontab -e
 | SC-1  | Hermes-Agent installed and configured   | ✅ DONE    | hermes v0.9.0 installed                       |
 | SC-2  | `hermes claw migrate` executed          | ✅ DONE    | 21 items migrated                             |
 | SC-3  | MiniMax 2.7 as primary model            | ✅ DONE    | Configured in config.yaml                     |
-| SC-4  | Ollama Qwen3-VL-8B-Instruct as LLM      | ✅ DONE    | Changed from gemma4 (RTX 4090)                |
+| SC-4  | Ollama qwen2.5vl:7b as LLM              | ✅ DONE    | Changed from gemma4 (RTX 4090)                |
 | SC-5  | perplexity_browser skill functional     | ✅ DONE    | Skill at ~/.hermes/skills/perplexity_browser/ |
 | SC-6  | coolify_sre with restart loop detection | ✅ DONE    | sre-monitor.sh active                         |
 | SC-7  | hermes.json crons centralized           | ⏳ PARTIAL | hermes.json created, not installed            |

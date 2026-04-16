@@ -100,22 +100,22 @@ apply_research_fixes() {
   local fixed=0
 
   # Check for pnpm version issue
-  if grep -qi "pnpm.*version\|corepack" "$RESEARCH_FILE"; then
+  if grep -Ei "pnpm.*version|corepack" "$RESEARCH_FILE" 2>/dev/null; then
     fix_pnpm_version && fixed=$((fixed + 1))
   fi
 
   # Check for peer dependency issue
-  if grep -qi "peer.*dependency\|peerDep" "$RESEARCH_FILE"; then
+  if grep -Ei "peer.*dependency|peerDep" "$RESEARCH_FILE" 2>/dev/null; then
     fix_peer_deps && fixed=$((fixed + 1))
   fi
 
   # Check for lint issues
-  if grep -qi "lint" "$RESEARCH_FILE"; then
+  if grep -Ei "lint" "$RESEARCH_FILE" 2>/dev/null; then
     fix_lint && fixed=$((fixed + 1))
   fi
 
   # Check for type issues
-  if grep -qi "typescript\|type.*error\|tsc" "$RESEARCH_FILE"; then
+  if grep -Ei "typescript|type.*error|tsc|TS[0-9]+" "$RESEARCH_FILE" 2>/dev/null; then
     fix_types && fixed=$((fixed + 1))
   fi
 
@@ -187,8 +187,10 @@ main() {
     applied=$((applied + 1))
   fi
 
-  # Always try these common fixes
-  fix_pnpm_version && applied=$((applied + 1))
+  # Try pnpm version fix only if needed (check first)
+  if grep -Ei "pnpm.*version|corepack" "$RESEARCH_FILE" 2>/dev/null; then
+    fix_pnpm_version && applied=$((applied + 1))
+  fi
 
   if [[ $applied -eq 0 ]]; then
     log "⚠️  No automatic fixes available"
@@ -199,6 +201,19 @@ main() {
   # Validate
   if validate_fixes; then
     log "✅ All fixes validated"
+
+    # Stage and commit changes
+    if git diff --quiet 2>/dev/null; then
+      log "ℹ️  No changes to commit"
+    else
+      log "📝 Staging and committing changes..."
+      git add -A
+      local changed_files; changed_files=$(git diff --cached --stat 2>/dev/null | tail -1 | sed 's/[[:space:]]*[[:digit:]]*[[:space:]]*file.*//' | xargs echo || echo 'auto fixes')
+      git commit -m "fix: apply cursor-loop auto-fixes ($(echo "$changed_files" | cut -d' ' -f1 || echo 'changes'))" 2>/dev/null \
+        && log "✅ Changes committed" \
+        || log "⚠️  git commit failed (check hook or signed commit)"
+    fi
+
     save_diff
     return 0
   else

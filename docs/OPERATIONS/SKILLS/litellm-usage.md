@@ -73,7 +73,7 @@ curl -s -X POST http://localhost:8202/v1/audio/transcriptions \
 
 ---
 
-## Vision — Qwen3-VL-8B-Instruct
+## Vision — qwen2.5vl:7b
 
 ### Pergunta simples (sem imagem)
 
@@ -81,7 +81,7 @@ curl -s -X POST http://localhost:8202/v1/audio/transcriptions \
 RESP=$(curl -s -X POST "$LITELLM_URL/v1/chat/completions" \
   -H "Authorization: Bearer $LITELLM_KEY" \
   -H "Content-Type: application/json" \
-  -d '{"model":"Qwen3-VL-8B-Instruct","messages":[{"role":"user","content":[{"type":"text","text":"Say only: OK"}]}],"max_tokens":10}')
+  -d '{"model":"qwen2.5vl:7b","messages":[{"role":"user","content":[{"type":"text","text":"Say only: OK"}]}],"max_tokens":10}')
 
 echo "$RESP" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d['choices'][0]['message']['content'])"
 ```
@@ -96,7 +96,7 @@ IMG_DATA=$(base64 -w0 /tmp/smoke_img.jpg 2>/dev/null)
 RESP=$(curl -s -X POST "$LITELLM_URL/v1/chat/completions" \
   -H "Authorization: Bearer $LITELLM_KEY" \
   -H "Content-Type: application/json" \
-  -d "{\"model\":\"Qwen3-VL-8B-Instruct\",\"messages\":[{\"role\":\"user\",\"content\":[{\"type\":\"text\",\"text\":\"Describe this image in one word.\"},{\"type\":\"image_url\",\"image_url\":{\"url\":\"data:image/jpeg;base64,$IMG_DATA\"}}]}],"max_tokens":20}")
+  -d "{\"model\":\"qwen2.5vl:7b\",\"messages\":[{\"role\":\"user\",\"content\":[{\"type\":\"text\",\"text\":\"Describe this image in one word.\"},{\"type\":\"image_url\",\"image_url\":{\"url\":\"data:image/jpeg;base64,$IMG_DATA\"}}]}],"max_tokens":20}")
 
 echo "$RESP" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d['choices'][0]['message']['content'])"
 unset IMG_DATA  # limpar da memória
@@ -129,7 +129,7 @@ curl -s -H "Authorization: Bearer $LITELLM_KEY" "$LITELLM_URL/v1/models" \
 ```
 tts-1
 whisper-1
-Qwen3-VL-8B-Instruct
+qwen2.5vl:7b
 gemma4-12b-it
 embedding-nomic
 ```
@@ -190,11 +190,11 @@ curl -s -H "Authorization: Bearer $LITELLM_KEY" http://localhost:4000/v1/models 
 
 O LiteLLM (`zappro-litellm`) está na network `zappro-lite_default` e alcança:
 
-| Serviço         | Host interno | Porta | Rota LiteLLM                            |
-| --------------- | ------------ | ----- | --------------------------------------- |
-| wav2vec2 STT    | `wav2vec2`   | 8201  | `whisper-1`                             |
-| Kokoro TTS      | `10.0.2.4`   | 8880  | `tts-1`                                 |
-| Ollama (VL/LLM) | `10.0.1.1`   | 11434 | `Qwen3-VL-8B-Instruct`, `Gemma4-12b-it` |
+| Serviço         | Host interno | Porta | Rota LiteLLM                    |
+| --------------- | ------------ | ----- | ------------------------------- |
+| wav2vec2 STT    | `wav2vec2`   | 8201  | `whisper-1`                     |
+| Kokoro TTS      | `10.0.2.4`   | 8880  | `tts-1`                         |
+| Ollama (VL/LLM) | `10.0.1.1`   | 11434 | `qwen2.5vl:7b`, `Gemma4-12b-it` |
 
 Para testar conectividade interna:
 

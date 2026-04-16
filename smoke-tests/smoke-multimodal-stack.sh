@@ -73,12 +73,12 @@ code=$(curl -sS -o /dev/null -w "%{http_code}" --max-time 20 \
   || bad "TTS /v1/audio/speech pf_dora ($code)"
 
 echo
-echo "── 4. OLHOS (Vision → Qwen3-VL-8B-Instruct via LiteLLM) ──"
-curl -s --max-time 5 http://localhost:11434/api/tags 2>/dev/null | grep -q "Qwen3-VL-8B-Instruct" \
-  && ok "Ollama Qwen3-VL-8B-Instruct loaded" || warn "Qwen3-VL-8B-Instruct não encontrado no Ollama"
+echo "── 4. OLHOS (Vision → qwen2.5vl:7b via LiteLLM) ──"
+curl -s --max-time 5 http://localhost:11434/api/tags 2>/dev/null | grep -q "qwen2.5vl:7b" \
+  && ok "Ollama qwen2.5vl:7b loaded" || warn "qwen2.5vl:7b não encontrado no Ollama"
 
 # Vision endpoint via gateway — só verifica routing (model alias resolve + LiteLLM aceita)
-# Timeout alto: Qwen3-VL carregamento inicial pode demorar 15-30s
+# Timeout alto: qwen2.5vl:7b carregamento inicial pode demorar 15-30s
 code=$(curl -sS -o /dev/null -w "%{http_code}" --max-time 60 \
   -H "Authorization: Bearer ${KEY}" \
   -H "Content-Type: application/json" \
@@ -86,9 +86,9 @@ code=$(curl -sS -o /dev/null -w "%{http_code}" --max-time 60 \
   "$GW/v1/chat/completions" 2>/dev/null; echo -n "")
 # %{http_code} = 000 on timeout; curl exit != 0 doesn't mean failure here
 code="${code:-000}"
-[[ "$code" =~ ^(200|400|422|500|502)$ ]] \
-  && ok "Vision /v1/chat/completions gpt-4o-vision→Qwen3-VL-8B-Instruct roteado (code $code)" \
-  || warn "Vision timeout/err (Qwen3-VL cold start, code=$code) — routing configurado"
+[[ "$code" =~ ^(200|400|422)$ ]] \
+  && ok "Vision /v1/chat/completions gpt-4o-vision→qwen2.5vl:7b roteado (code $code)" \
+  || warn "Vision timeout/err (qwen2.5vl:7b cold start, code=$code) — routing configurado"
 
 echo
 echo "── 5. TEXTO (LLM → Gemma4-12b-it PT-BR) ──"
@@ -97,15 +97,21 @@ result=$(curl -sS --max-time 30 \
   -H "Content-Type: application/json" \
   -d '{"model":"gpt-4o","messages":[{"role":"user","content":"Responde em 3 palavras: capital de Portugal?"}],"max_tokens":20}' \
   "$GW/v1/chat/completions" 2>/dev/null)
-echo "$result" | python3 -c "
+if echo "$result" | python3 -c "
 import json,sys
 d=json.load(sys.stdin)
 if 'choices' in d:
   print('[ OK ] LLM gpt-4o→Gemma4-12b-it: ' + d['choices'][0]['message']['content'].strip()[:60])
+  sys.exit(0)
 else:
   print('[FAIL] LLM: ' + str(d).get('error',str(d))[:80] if isinstance(d,dict) else str(d)[:80])
-" 2>/dev/null || bad "LLM /v1/chat/completions"
-PASS=$((PASS+1))
+  sys.exit(1)
+" 2>/dev/null; then
+  ok "LLM texto"
+  PASS=$((PASS+1))
+else
+  bad "LLM texto"
+fi
 
 echo
 echo "── 6. HERMES (ouvidos+boca+olhos configurados) ──"

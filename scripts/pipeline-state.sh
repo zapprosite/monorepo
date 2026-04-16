@@ -20,12 +20,17 @@ update_state() {
   local timestamp=$(date -Iseconds)
 
   local cmd=".$key = \$v | .lastCheckpoint = \$ts"
-  if [[ "$key" == "currentState" || "$key" == "blockedReason" || "$key" == "humanGateReason" || "$key" == "lastUnblockReason" ]]; then
-    cmd=".$key = \$v | .lastCheckpoint = \$ts"
-  fi
-
   jq --arg v "$value" --arg ts "$timestamp" \
     "$cmd" \
+    "$STATE_FILE" > /tmp/ps.tmp && mv /tmp/ps.tmp "$STATE_FILE"
+}
+
+# Set a field to JSON null
+update_state_null() {
+  local key=$1
+  local timestamp=$(date -Iseconds)
+  jq --arg ts "$timestamp" \
+    ".$key = null | .lastCheckpoint = \$ts" \
     "$STATE_FILE" > /tmp/ps.tmp && mv /tmp/ps.tmp "$STATE_FILE"
 }
 
@@ -70,7 +75,7 @@ cmd_set-state() {
   local state=$1; shift
   local valid_states="IDLE RUNNING BLOCKED BLOCKED_HUMAN_REQUIRED READY_TO_SHIP TEST_FAILED ABORTED"
 
-  if ! echo "$valid_states" | grep -q "$state"; then
+  if ! printf '%s\n' $valid_states | grep -qxF "$state"; then
     die "Invalid state: $state. Valid: $valid_states"
   fi
 
@@ -81,9 +86,9 @@ cmd_set-state() {
 cmd_approve() {
   update_state "humanGateRequired" "false"
   update_state "currentState" "IDLE"
-  update_state "blockedReason" "null"
-  update_state "blockedAt" "null"
-  update_state "humanGateReason" "null"
+  update_state_null "blockedReason"
+  update_state_null "blockedAt"
+  update_state_null "humanGateReason"
   update_state "lastUnblockReason" "approved-by-cli"
   echo "✅ Pipeline approved"
 }

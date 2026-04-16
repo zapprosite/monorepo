@@ -26,7 +26,7 @@ Implementar funções:
 
 - `receive_audio()` — baixa audio do Telegram (file_id → mp3/ogg)
 - `transcribe()` — LiteLLM whisper-1 → texto
-- `analyze_image()` — LiteLLM Qwen3-VL-8B-Instruct → descrição
+- `analyze_image()` — LiteLLM qwen2.5vl:7b → descrição
 - `generate_response()` — LiteLLM gemma4-12b-it → texto
 - `synthesize()` — LiteLLM tts-1 → mp3
 - `send_audio()` — envia mp3 para Telegram
@@ -48,7 +48,7 @@ Gravar JSON por teste:
   "type": "stt|vision|tts",
   "input": "...",
   "output": "...",
-  "model": "whisper-1|Qwen3-VL-8B-Instruct|tts-1",
+  "model": "whisper-1|qwen2.5vl:7b|tts-1",
   "latency_ms": 1234,
   "status": "success|fail",
   "error": null

@@ -61,7 +61,7 @@
               │                                            │
               │  ┌──────────────────────────────────────┐  │
               │  │  Ollama (RTX 4090)                  │  │
-              │  │  port: 11434 | model: Qwen3-VL-8B-Instruct │  │
+              │  │  port: 11434 | model: qwen2.5vl:7b │  │
               │  └──────────────────────────────────────┘  │
               │                                            │
               │  ┌──────────────────────────────────────┐  │
@@ -124,7 +124,7 @@
 ### Ollama (Local LLM)
 
 - **O que e:** Inference engine local (RTX 4090)
-- **Modelo:** Qwen3-VL-8B-Instruct
+- **Modelo:** qwen2.5vl:7b
 - **Como aceder:** localhost:11434
 - **Usado por:** LiteLLM, Hermes, Perplexity Agent
 

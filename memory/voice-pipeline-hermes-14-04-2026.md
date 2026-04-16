@@ -1,7 +1,7 @@
 # Voice Pipeline & Hermes Agent — Current State
 
 **Updated:** 2026-04-16
-**Status:** STT FIXED | Vision: Qwen3-VL-8B-Instruct | LLM: Gemma4-12b-it
+**Status:** STT FIXED | Vision: qwen2.5vl:7b | LLM: Gemma4-12b-it
 
 ---
 
@@ -14,9 +14,9 @@
 - **Hermes STT config:** Changed to use `:8204` directly (no auth) instead of via ai-gateway
 - **Endpoint:** `http://localhost:8204/v1/audio/transcriptions` — multipart/form-data OK
 
-### Vision — Qwen3-VL-8B-Instruct ✅
+### Vision — qwen2.5vl:7b ✅
 
-- **Qwen3-VL-8B-Instruct:** Current vision model (8B params)
+- **qwen2.5vl:7b:** Current vision model (8B params)
 
 ### TTS — Kokoro :8013 ✅
 
@@ -25,7 +25,7 @@
 
 ### LLM — Ollama local ✅
 
-- Primary: `Qwen3-VL-8B-Instruct` (text + vision)
+- Primary: `qwen2.5vl:7b` (text + vision)
 - Fallback: `Gemma4-12b-it`
 
 ---
@@ -42,7 +42,7 @@ TTS: Kokoro :8013             ✅ OK
 AI-Gateway :4002 STT+TTS      ✅ OK
 Hermes :8642                  ✅ OK
 Ollama :11434                 ✅ OK
-Qwen3-VL-8B-Instruct       ✅ OK
+qwen2.5vl:7b       ✅ OK
 Gemma4-12b-it               ✅ OK
 ```
 
@@ -59,7 +59,7 @@ Hermes Gateway :8642
   ├─ LLM: Ollama Gemma4-12b-it (local, GPU)
   │    └─ Fallback: Gemma4-12b-it (same model, stateless)
   │
-  ├─ Vision: Ollama Qwen3-VL-8B-Instruct (local, GPU)
+  ├─ Vision: Ollama qwen2.5vl:7b (local, GPU)
   │
   ├─ STT: faster-whisper-medium-pt :8204 (local, multipart fixed)
   │
