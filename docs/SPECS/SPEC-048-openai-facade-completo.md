@@ -70,13 +70,13 @@ ai-gateway :4002
 
 ## Modelos (aliases)
 
-| Alias (OpenAI)  | Real                                                  | Onde               |
-| --------------- | ----------------------------------------------------- | ------------------ |
-| `gpt-4o`        | `tom-cat-8b` (llama3-portuguese-tomcat-8b via Ollama) | LiteLLM :4000      |
-| `gpt-4o-vision` | `Qwen3-VL-8B` via Ollama                              | LiteLLM :4000      |
-| `tts-1`         | Kokoro via **TTS Bridge :8013** (voz: `pm_santa`)     | ai-gateway → :8013 |
-| `tts-1-hd`      | Kokoro via **TTS Bridge :8013** (voz: `pf_dora`)      | ai-gateway → :8013 |
-| `whisper-1`     | whisper-medium-pt :8204 (OpenAI-compat nativo)        | ai-gateway → :8204 |
+| Alias (OpenAI)  | Real                                              | Onde               |
+| --------------- | ------------------------------------------------- | ------------------ |
+| `gpt-4o`        | `gemma4-12b-it` (via Ollama)                      | LiteLLM :4000      |
+| `gpt-4o-vision` | `Qwen3-VL-8B` via Ollama                          | LiteLLM :4000      |
+| `tts-1`         | Kokoro via **TTS Bridge :8013** (voz: `pm_santa`) | ai-gateway → :8013 |
+| `tts-1-hd`      | Kokoro via **TTS Bridge :8013** (voz: `pf_dora`)  | ai-gateway → :8013 |
+| `whisper-1`     | whisper-medium-pt :8204 (OpenAI-compat nativo)    | ai-gateway → :8204 |
 
 > ⚠️ **Fix crítico:** LiteLLM config actual tem `tts-1 → Kokoro :8880 directo` (bypassa TTS Bridge, viola SPEC-009). Deve ser corrigido para `→ TTS Bridge :8013`.
 
@@ -130,7 +130,7 @@ Fazer via Cloudflare API (skill `cloudflare-terraform` ou `new-subdomain`):
 | `TTS_BRIDGE_URL`        | `http://localhost:8013`                     |
 | `STT_PROXY_URL`         | `http://localhost:8204` → whisper-medium-pt |
 | `OLLAMA_URL`            | `http://localhost:11434`                    |
-| `PTBR_FILTER_MODEL`     | `llama3-portuguese-tomcat-8b-instruct-q8`   |
+| `PTBR_FILTER_MODEL`     | `gemma4-12b-it`                             |
 | `AI_GATEWAY_FACADE_KEY` | chave única para clientes externos          |
 
 ---

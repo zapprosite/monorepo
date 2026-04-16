@@ -128,65 +128,61 @@ QUERO FAZER:
 
 ```jsonc
 {
-  "version": "2.0",              // Versão do schema
+  "version": "2.0", // Versão do schema
 
   // ── ESTADO DO LOOP ──
-  "currentState": "IDLE",         // IDLE | RUNNING | BLOCKED
-                                  // BLOCKED_HUMAN_REQUIRED | TEST_FAILED
-                                  // READY_TO_SHIP
+  "currentState": "IDLE", // IDLE | RUNNING | BLOCKED
+  // BLOCKED_HUMAN_REQUIRED | TEST_FAILED
+  // READY_TO_SHIP
 
-  "currentTask": null,             // ID da task em execução
-                                  // ex: "P001-T03"
+  "currentTask": null, // ID da task em execução
+  // ex: "P001-T03"
 
-  "lastCheckpoint": null,          // Última task validada
+  "lastCheckpoint": null, // Última task validada
 
-  "iterationCount": 0,            // Contagem de ciclos
-  "maxIterations": 10,             // Máximo antes de parar
+  "iterationCount": 0, // Contagem de ciclos
+  "maxIterations": 10, // Máximo antes de parar
 
-  "retryCount": 0,                 // Retry do loop actual
-  "maxRetries": 3,                 // Máximo de retries
+  "retryCount": 0, // Retry do loop actual
+  "maxRetries": 3, // Máximo de retries
 
   // ── RESULTADOS ──
-  "testsPassed": false,            // Testes passam?
-  "lintPassed": false,             // Lint passa?
-  "readyToShip": false,            // Pronto para merge?
+  "testsPassed": false, // Testes passam?
+  "lintPassed": false, // Lint passa?
+  "readyToShip": false, // Pronto para merge?
 
   // ── BLOqueios ──
-  "blockedReason": null,           // "SECRET_MISSING"
-                                  // "HUMAN_GATE"
-                                  // "CI_FAILED"
-  "blockedAt": null,               // Timestamp do bloqueio
+  "blockedReason": null, // "SECRET_MISSING"
+  // "HUMAN_GATE"
+  // "CI_FAILED"
+  "blockedAt": null, // Timestamp do bloqueio
 
-  "humanGateRequired": false,       // Precisa aprovação humana?
-  "humanGateReason": null,         // "deploy" | "rollback"
+  "humanGateRequired": false, // Precisa aprovação humana?
+  "humanGateReason": null, // "deploy" | "rollback"
 
   // ── TASKS ──
-  "pendingTasks": [],              // Tasks por fazer
-  "completedTasks": [],           // Tasks feitas
-  "failedTasks": [],               // Tasks que falharam
+  "pendingTasks": [], // Tasks por fazer
+  "completedTasks": [], // Tasks feitas
+  "failedTasks": [], // Tasks que falharam
 
-  "retryHistory": [],              // Histórico de retries
+  "retryHistory": [], // Histórico de retries
 
   // ── METADADOS ──
-  "generated": "2026-04-09",      // Data de geração
-  "phase": 1,                      // Fase actual (1-7)
-  "total_tasks": 73,               // Total de tasks
+  "generated": "2026-04-09", // Data de geração
+  "phase": 1, // Fase actual (1-7)
+  "total_tasks": 73, // Total de tasks
 
   // ── FASES ──
   "phases": [
-    {"name": "Phase 1 — Security Foundation",  "tasks": 11, "completed": 0},
-    {"name": "Phase 2 — OAuth + E2E",           "tasks": 13, "completed": 0},
-    {"name": "Phase 3 — Agents Kit + CLI",      "tasks": 18, "completed": 0},
-    {"name": "Phase 4 — CI/CD Enterprise",     "tasks": 12, "completed": 0},
-    {"name": "Phase 5 — Complex Systems",        "tasks": 13, "completed": 0}
+    { "name": "Phase 1 — Security Foundation", "tasks": 11, "completed": 0 },
+    { "name": "Phase 2 — OAuth + E2E", "tasks": 13, "completed": 0 },
+    { "name": "Phase 3 — Agents Kit + CLI", "tasks": 18, "completed": 0 },
+    { "name": "Phase 4 — CI/CD Enterprise", "tasks": 12, "completed": 0 },
+    { "name": "Phase 5 — Complex Systems", "tasks": 13, "completed": 0 },
   ],
 
   // ── CRITICAL PATH (para gating) ──
-  "critical_path": [
-    "P000-T01",
-    "P001-T01",
-    "P020-T01"
-  ]
+  "critical_path": ["P000-T01", "P001-T01", "P020-T01"],
 }
 ```
 
@@ -207,18 +203,18 @@ QUERO FAZER:
         {
           "id": "P000-T01",
           "title": "chmod 600 /data/coolify/source/.env",
-          "status": "DONE",        // DONE | PENDING | IN_PROGRESS
-                                    // BLOCKED | MANUAL | PARTIAL
-          "priority": "critical",   // critical | high | medium | low
+          "status": "DONE", // DONE | PENDING | IN_PROGRESS
+          // BLOCKED | MANUAL | PARTIAL
+          "priority": "critical", // critical | high | medium | low
           "verification": "stat -c %a /data/coolify/source/.env → 600",
           "acceptance_criteria": "File permissions are 600, not world-readable",
 
           // Se bloqueada
-          "blocked_by": ["P000-T03"],  // IDs de tasks que precisam estar DONE primeiro
-          "notes": "coolify-sentinel managed by Coolify API"
-        }
-      ]
-    }
+          "blocked_by": ["P000-T03"], // IDs de tasks que precisam estar DONE primeiro
+          "notes": "coolify-sentinel managed by Coolify API",
+        },
+      ],
+    },
   ],
 
   // ── RESUMO ──
@@ -227,7 +223,7 @@ QUERO FAZER:
     "P000-T01",
     "P000-T02",
     // ...
-  ]
+  ],
 }
 ```
 
@@ -408,7 +404,7 @@ VOZ (OpenClaw)
   STT:         wav2vec2 (:8201) via Deepgram proxy
   TTS:         Kokoro (:8880) via TTS Bridge (:8013)
   LLM:         MiniMax M2.7 (direct, não LiteLLM)
-  Vision:      litellm/qwen2.5-vl
+  Vision:      litellm/Qwen3-VL-8B-Instruct
 ```
 
 ---

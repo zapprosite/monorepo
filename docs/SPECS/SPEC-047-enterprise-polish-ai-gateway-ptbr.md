@@ -22,7 +22,7 @@ specRef: SPEC-009, SPEC-018, SPEC-041, SPEC-046
 Elevar o monorepo ao nível enterprise (15/04/2026) consolidando:
 
 1. **AI Gateway OpenAI-compatível** — Fachada única `/v1/chat/completions`, `/v1/audio/speech`, `/v1/audio/transcriptions` servindo clientes externos (Cursor, SDKs OpenAI) enquanto internamente roteia para LiteLLM/Ollama/TTS Bridge/wav2vec2-proxy.
-2. **Filtro PT-BR via Llama** — Pipeline obrigatório: resposta do LLM primário → `llama3-portuguese-tomcat-8b-instruct-q8` (Ollama) → normaliza/traduz/limpa → cliente. Latência alvo <400ms overhead.
+2. **Filtro PT-BR via Llama** — Pipeline obrigatório: resposta do LLM primário → `Gemma4-12b-it` (Ollama) → normaliza/traduz/limpa → cliente. Latência alvo <400ms overhead.
 3. **Disfarce OpenAI** — Headers e schemas 100% compatíveis (`model: "gpt-4o"` aceito como alias). `x-ai-gateway-upstream` apenas em debug.
 4. **Coolify polish** — Todos os serviços declarados em docker-compose com labels Coolify, secrets via `.env` sync, health checks, resource limits.
 5. **Hardcode zero** — Auditoria completa (`/sec`), nenhum secret in-code, todos via `process.env`.
@@ -59,15 +59,15 @@ Elevar o monorepo ao nível enterprise (15/04/2026) consolidando:
 
 ## Tech Stack
 
-| Componente   | Tecnologia                                       | Porta | Notas                 |
-| ------------ | ------------------------------------------------ | ----- | --------------------- |
-| AI Gateway   | Fastify + Zod + ofetch                           | 4002  | Facade OpenAI         |
-| LLM upstream | LiteLLM :4000 (minimax/ollama/qwen)              | 4000  | Existente             |
-| PT-BR filter | Ollama `llama3-portuguese-tomcat-8b-instruct-q8` | 11434 | GPU homelab           |
-| STT          | wav2vec2-proxy :8203 → whisper-api :8201         | 8203  | SPEC-018              |
-| TTS          | TTS Bridge :8013 → Kokoro :8880                  | 8013  | pm_santa/pf_dora      |
-| Deploy       | Coolify                                          | 8000  | docker-compose labels |
-| Secrets      | `.env` (canonical)                               | —     | `process.env` apenas  |
+| Componente   | Tecnologia                               | Porta | Notas                 |
+| ------------ | ---------------------------------------- | ----- | --------------------- |
+| AI Gateway   | Fastify + Zod + ofetch                   | 4002  | Facade OpenAI         |
+| LLM upstream | LiteLLM :4000 (minimax/ollama/qwen)      | 4000  | Existente             |
+| PT-BR filter | Ollama `Gemma4-12b-it`                   | 11434 | GPU homelab           |
+| STT          | wav2vec2-proxy :8203 → whisper-api :8201 | 8203  | SPEC-018              |
+| TTS          | TTS Bridge :8013 → Kokoro :8880          | 8013  | pm_santa/pf_dora      |
+| Deploy       | Coolify                                  | 8000  | docker-compose labels |
+| Secrets      | `.env` (canonical)                       | —     | `process.env` apenas  |
 
 ---
 
@@ -91,19 +91,19 @@ Cliente OpenAI SDK audio
 
 ## Env Vars (canonical `.env`)
 
-| Variável                | Tipo   | Fonte     | Status                                    |
-| ----------------------- | ------ | --------- | ----------------------------------------- |
-| `LITELLM_LOCAL_URL`     | URL    | existente | ✅                                        |
-| `LITELLM_MASTER_KEY`    | secret | `.env`    | ✅                                        |
-| `TTS_BRIDGE_URL`        | URL    | existente | ✅                                        |
-| `COOLIFY_URL`           | URL    | existente | ✅                                        |
-| `COOLIFY_API_KEY`       | secret | existente | ✅                                        |
-| `OLLAMA_MODEL`          | string | existente | ✅                                        |
-| `OLLAMA_URL`            | URL    | **criar** | `http://localhost:11434`                  |
-| `STT_PROXY_URL`         | URL    | **criar** | `http://localhost:8203`                   |
-| `PTBR_FILTER_MODEL`     | string | **criar** | `llama3-portuguese-tomcat-8b-instruct-q8` |
-| `AI_GATEWAY_PORT`       | int    | **criar** | `4002`                                    |
-| `AI_GATEWAY_FACADE_KEY` | secret | **gerar** | random 32-byte hex                        |
+| Variável                | Tipo   | Fonte     | Status                   |
+| ----------------------- | ------ | --------- | ------------------------ |
+| `LITELLM_LOCAL_URL`     | URL    | existente | ✅                       |
+| `LITELLM_MASTER_KEY`    | secret | `.env`    | ✅                       |
+| `TTS_BRIDGE_URL`        | URL    | existente | ✅                       |
+| `COOLIFY_URL`           | URL    | existente | ✅                       |
+| `COOLIFY_API_KEY`       | secret | existente | ✅                       |
+| `OLLAMA_MODEL`          | string | existente | ✅                       |
+| `OLLAMA_URL`            | URL    | **criar** | `http://localhost:11434` |
+| `STT_PROXY_URL`         | URL    | **criar** | `http://localhost:8203`  |
+| `PTBR_FILTER_MODEL`     | string | **criar** | `Gemma4-12b-it`          |
+| `AI_GATEWAY_PORT`       | int    | **criar** | `4002`                   |
+| `AI_GATEWAY_FACADE_KEY` | secret | **gerar** | random 32-byte hex       |
 
 > Secrets novos: gerar via `openssl rand -hex 32` e adicionar diretamente ao `.env` (fonte canónica única) + placeholder no `.env.example`. Nunca committar o valor real (`.env` já em `.gitignore`).
 

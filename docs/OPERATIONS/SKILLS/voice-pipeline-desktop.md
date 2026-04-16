@@ -12,10 +12,10 @@
 
 ### Modelos em Uso
 
-| Ficheiro   | Modelo                                    | Porta    | Uso                   |
-| ---------- | ----------------------------------------- | -------- | --------------------- |
-| `voice.sh` | `llama3-portuguese-tomcat-8b-instruct-q8` | `:11434` | Correção PT-BR        |
-| `speak.sh` | `llama3-portuguese-tomcat-8b-instruct-q8` | `:11434` | Humanização TTS PT-BR |
+| Ficheiro   | Modelo          | Porta    | Uso                   |
+| ---------- | --------------- | -------- | --------------------- |
+| `voice.sh` | `Gemma4-12b-it` | `:11434` | Correção PT-BR        |
+| `speak.sh` | `Gemma4-12b-it` | `:11434` | Humanização TTS PT-BR |
 
 ### Voz TTS
 
@@ -40,13 +40,13 @@ curl -s http://localhost:11434/api/tags | jq '.models[].name'
 1. Editar `/home/will/Desktop/voice-pipeline/scripts/voice.sh` — linha do payload:
 
 ```bash
-"model": "llama3-portuguese-tomcat-8b-instruct-q8",  # trocar aqui
+"model": "Gemma4-12b-it",  # trocar aqui
 ```
 
 2. Editar `/home/will/Desktop/voice-pipeline/scripts/speak.sh` — linha do payload:
 
 ```bash
-"model": "llama3-portuguese-tomcat-8b-instruct-q8",  # trocar aqui
+"model": "Gemma4-12b-it",  # trocar aqui
 ```
 
 3. Testar:

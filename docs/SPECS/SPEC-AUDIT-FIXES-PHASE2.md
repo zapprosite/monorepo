@@ -101,7 +101,7 @@ Files: memory/homelab-estado.md, memory/ai-context.md, memory/voice-pipeline-08-
 Fix homelab-estado.md: DELETE or heavily annotate as superseded by SPEC-AUDIT-HOMELAB-2026-04-12.md
 Fix ai-context.md: Update paths to reference docs/GOVERNANCE/, docs/SPECS/
 Fix voice-pipeline-08-04-2026.md: Annotate as superseded by voice-pipeline-desktop-10-04-2026.md
-Fix openclaw-agents-kit.md: Update gemma2 → llama3-portuguese-tomcat-8b-instruct-q8
+Fix openclaw-agents-kit.md: Update gemma2 → Gemma4-12b-it
 
 Exit: Memory files don't reference non-existent paths; no stale SPEC references
 ```

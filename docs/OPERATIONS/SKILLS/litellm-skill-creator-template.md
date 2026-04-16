@@ -12,21 +12,21 @@
 
 ```
 Cria um skill chamado "lite-llm-voice" com esta descrição:
-"Usa modelos LiteLLM para TTS (Kokoro), STT (wav2vec2), Vision (qwen2.5-vl) e LLM (tom-cat-8b PT-BR)"
+"Usa modelos LiteLLM para TTS (Kokoro), STT (faster-whisper), Vision (Qwen3-VL-8B-Instruct) e LLM (Gemma4-12b-it PT-BR)"
 
 O skill deve poder:
 - Sintetizar voz com Kokoro TTS (vozes pm_santa, pm_alex, pf_dora)
-- Transcrever audio com whisper-1 (wav2vec2)
-- Analisar imagens com qwen2.5-vl
-- Responder em PT-BR com tom-cat-8b
+- Transcrever audio com whisper-1 (faster-whisper)
+- Analisar imagens com Qwen3-VL-8B-Instruct
+- Responder em PT-BR com Gemma4-12b-it
 
 Usa sempre o endpoint http://localhost:4000/v1 com a API key [LITELLM_API_KEY]
 
 Os modelos disponíveis são:
 - tts-1 (Kokoro) para síntese de voz
-- whisper-1 (wav2vec2) para transcrição
-- qwen2.5-vl para visão
-- tom-cat-8b para LLM em português
+- whisper-1 (faster-whisper) para transcrição
+- Qwen3-VL-8B-Instruct para visão
+- Gemma4-12b-it para LLM em português
 ```
 
 ---

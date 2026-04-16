@@ -22,7 +22,7 @@
 
 ```
 Qwen3-VL-8B-Instruct                            ← Vision + Text (ATUAL)
-llama3-portuguese-tomcat-8b-instruct-q8:latest  ← LLM PT-BR (fallback)
+gemma4-12b-it:latest  ← LLM principal
 nomic-embed-text:latest                         ← Embeddings
 ```
 
@@ -87,17 +87,17 @@ Total GPU:                19118 / 24564 MiB
 
 ### Ficheiros que Referenciam o Modelo
 
-| Ficheiro   | Modelo Atual                              | Linha |
-| ---------- | ----------------------------------------- | ----- |
-| `voice.sh` | `llama3-portuguese-tomcat-8b-instruct-q8` | 89    |
-| `speak.sh` | (não usa LLM — Kokoro direto)             | —     |
+| Ficheiro   | Modelo Atual                  | Linha |
+| ---------- | ----------------------------- | ----- |
+| `voice.sh` | `gemma4-12b-it`               | 89    |
+| `speak.sh` | (não usa LLM — Kokoro direto) | —     |
 
 ### Para Trocar Modelo
 
 1. Editar `voice.sh` linha 89:
 
 ```bash
-"model": "llama3-portuguese-tomcat-8b-instruct-q8",  # trocar aqui
+"model": "gemma4-12b-it",  # trocar aqui
 ```
 
 2. Verificar se modelo está disponível:

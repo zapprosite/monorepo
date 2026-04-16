@@ -91,7 +91,7 @@ code="${code:-000}"
   || warn "Vision timeout/err (Qwen3-VL cold start, code=$code) — routing configurado"
 
 echo
-echo "── 5. TEXTO (LLM → tom-cat-8b PT-BR) ──"
+echo "── 5. TEXTO (LLM → Gemma4-12b-it PT-BR) ──"
 result=$(curl -sS --max-time 30 \
   -H "Authorization: Bearer ${KEY}" \
   -H "Content-Type: application/json" \
@@ -101,7 +101,7 @@ echo "$result" | python3 -c "
 import json,sys
 d=json.load(sys.stdin)
 if 'choices' in d:
-  print('[ OK ] LLM gpt-4o→tom-cat-8b: ' + d['choices'][0]['message']['content'].strip()[:60])
+  print('[ OK ] LLM gpt-4o→Gemma4-12b-it: ' + d['choices'][0]['message']['content'].strip()[:60])
 else:
   print('[FAIL] LLM: ' + str(d).get('error',str(d))[:80] if isinstance(d,dict) else str(d)[:80])
 " 2>/dev/null || bad "LLM /v1/chat/completions"

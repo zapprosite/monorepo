@@ -113,7 +113,7 @@ Fillers para remover:
 
 Stuttering: "o-o-o" → "o", "que-que" → "que"
 
-### Agent 5: llama3-portuguese-tomcat-8b-instruct-q8
+### Agent 5: Gemma4-12b-it
 
 - Uso: enhancement layer no wav2vec2-deepgram-proxy
 - Sistema: "Você é um assistente que analisa transcrições de áudio"
