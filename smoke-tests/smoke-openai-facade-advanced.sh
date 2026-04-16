@@ -54,12 +54,12 @@ res=$(curl -sS --max-time 20 -X POST "$GW/v1/chat/completions" \
 [[ "$res" == *"Lisboa"* || "$res" == *"content"* ]] && pass "2.1 Chat text → response contains Lisboa" \
   || fail "2.1 Chat text — got: $(echo $res | head -c 80)"
 
-# 2.2 gpt-4o-mini alias → tom-cat-8b
+# 2.2 gpt-4o-mini alias → Gemma4-12b-it
 res=$(curl -sS --max-time 20 -X POST "$GW/v1/chat/completions" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $KEY" \
   -d '{"model":"gpt-4o-mini","messages":[{"role":"user","content":"Pi"}],"max_tokens":5}' 2>/dev/null)
-[[ "$res" == *"content"* ]] && pass "2.2 gpt-4o-mini alias → tom-cat-8b" \
+[[ "$res" == *"content"* ]] && pass "2.2 gpt-4o-mini alias → Gemma4-12b-it" \
   || fail "2.2 gpt-4o-mini alias"
 
 # 2.3 Model returned matches request (not upstream name)

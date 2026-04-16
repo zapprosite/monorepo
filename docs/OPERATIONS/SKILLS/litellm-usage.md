@@ -33,12 +33,12 @@ file /tmp/test_tts.mp3
 
 ### Vozes disponíveis
 
-| Voice ID | Descrição | Exemplo |
-|----------|-----------|---------|
-| `pm_santa` | Male, deep | "Smoke test successful" |
-| `pm_alex` | Male, neutral | "Olá, como vai você?" |
-| `pf_dora` | Female, PT-BR | "Smoke test female voice" |
-| `pf_sarah` | Female, neutral | — |
+| Voice ID   | Descrição       | Exemplo                   |
+| ---------- | --------------- | ------------------------- |
+| `pm_santa` | Male, deep      | "Smoke test successful"   |
+| `pm_alex`  | Male, neutral   | "Olá, como vai você?"     |
+| `pf_dora`  | Female, PT-BR   | "Smoke test female voice" |
+| `pf_sarah` | Female, neutral | —                         |
 
 ### Gerar WAV em vez de MP3
 
@@ -73,7 +73,7 @@ curl -s -X POST http://localhost:8202/v1/audio/transcriptions \
 
 ---
 
-## Vision — qwen2.5-vl
+## Vision — Qwen3-VL-8B-Instruct
 
 ### Pergunta simples (sem imagem)
 
@@ -81,7 +81,7 @@ curl -s -X POST http://localhost:8202/v1/audio/transcriptions \
 RESP=$(curl -s -X POST "$LITELLM_URL/v1/chat/completions" \
   -H "Authorization: Bearer $LITELLM_KEY" \
   -H "Content-Type: application/json" \
-  -d '{"model":"qwen2.5-vl","messages":[{"role":"user","content":[{"type":"text","text":"Say only: OK"}]}],"max_tokens":10}')
+  -d '{"model":"Qwen3-VL-8B-Instruct","messages":[{"role":"user","content":[{"type":"text","text":"Say only: OK"}]}],"max_tokens":10}')
 
 echo "$RESP" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d['choices'][0]['message']['content'])"
 ```
@@ -96,7 +96,7 @@ IMG_DATA=$(base64 -w0 /tmp/smoke_img.jpg 2>/dev/null)
 RESP=$(curl -s -X POST "$LITELLM_URL/v1/chat/completions" \
   -H "Authorization: Bearer $LITELLM_KEY" \
   -H "Content-Type: application/json" \
-  -d "{\"model\":\"qwen2.5-vl\",\"messages\":[{\"role\":\"user\",\"content\":[{\"type\":\"text\",\"text\":\"Describe this image in one word.\"},{\"type\":\"image_url\",\"image_url\":{\"url\":\"data:image/jpeg;base64,$IMG_DATA\"}}]}],"max_tokens":20}")
+  -d "{\"model\":\"Qwen3-VL-8B-Instruct\",\"messages\":[{\"role\":\"user\",\"content\":[{\"type\":\"text\",\"text\":\"Describe this image in one word.\"},{\"type\":\"image_url\",\"image_url\":{\"url\":\"data:image/jpeg;base64,$IMG_DATA\"}}]}],"max_tokens":20}")
 
 echo "$RESP" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d['choices'][0]['message']['content'])"
 unset IMG_DATA  # limpar da memória
@@ -104,13 +104,13 @@ unset IMG_DATA  # limpar da memória
 
 ---
 
-## LLM — Tom Cat 8B (PT-BR)
+## LLM — Gemma4-12b-it (PT-BR)
 
 ```bash
 RESP=$(curl -s -X POST "$LITELLM_URL/v1/chat/completions" \
   -H "Authorization: Bearer $LITELLM_KEY" \
   -H "Content-Type: application/json" \
-  -d '{"model":"tom-cat-8b","messages":[{"role":"user","content":"Olá! Como você está? Responda em uma palavra."}],"max_tokens":50}')
+  -d '{"model":"gemma4-12b-it","messages":[{"role":"user","content":"Olá! Como você está? Responda em uma palavra."}],"max_tokens":50}')
 
 echo "$RESP" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d['choices'][0]['message']['content'])"
 ```
@@ -125,11 +125,12 @@ curl -s -H "Authorization: Bearer $LITELLM_KEY" "$LITELLM_URL/v1/models" \
 ```
 
 **Output atual:**
+
 ```
 tts-1
 whisper-1
-qwen2.5-vl
-tom-cat-8b
+Qwen3-VL-8B-Instruct
+gemma4-12b-it
 embedding-nomic
 ```
 
@@ -189,11 +190,11 @@ curl -s -H "Authorization: Bearer $LITELLM_KEY" http://localhost:4000/v1/models 
 
 O LiteLLM (`zappro-litellm`) está na network `zappro-lite_default` e alcança:
 
-| Serviço | Host interno | Porta | Rota LiteLLM |
-|---------|-------------|-------|-------------|
-| wav2vec2 STT | `wav2vec2` | 8201 | `whisper-1` |
-| Kokoro TTS | `10.0.2.4` | 8880 | `tts-1` |
-| Ollama (VL/LLM) | `10.0.1.1` | 11434 | `qwen2.5-vl`, `tom-cat-8b` |
+| Serviço         | Host interno | Porta | Rota LiteLLM                            |
+| --------------- | ------------ | ----- | --------------------------------------- |
+| wav2vec2 STT    | `wav2vec2`   | 8201  | `whisper-1`                             |
+| Kokoro TTS      | `10.0.2.4`   | 8880  | `tts-1`                                 |
+| Ollama (VL/LLM) | `10.0.1.1`   | 11434 | `Qwen3-VL-8B-Instruct`, `Gemma4-12b-it` |
 
 Para testar conectividade interna:
 

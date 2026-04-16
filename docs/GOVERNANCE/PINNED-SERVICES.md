@@ -469,10 +469,10 @@ OpenClaw Voice Pipeline Smoke Test
 [PASS] Kokoro TTS (pf_dora female)
 
 === 4. Vision ===
-[PASS] Vision qwen2.5-vl responding
+[PASS] Vision Qwen3-VL-8B-Instruct responding
 
 === 5. LLM ===
-[PASS] Tom Cat 8B PT-BR via LiteLLM
+[PASS] llama3-portuguese-tomcat-8b via LiteLLM
 [PASS] MiniMax M2.1 API
 
 ========================================

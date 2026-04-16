@@ -9,20 +9,35 @@
 
 const INTERNAL_URLS = {
   // AI
-  litellm:        import.meta.env.VITE_LITELLM_URL        || window.__ENV__?.LITELLM_URL        || 'http://10.0.19.7:4000',
-  hermesGateway:  import.meta.env.VITE_HERMES_GATEWAY_URL || window.__ENV__?.HERMES_GATEWAY_URL || 'http://10.0.2.4:4001',
-  kokoro:         import.meta.env.VITE_KOKORO_URL         || window.__ENV__?.KOKORO_URL         || 'http://10.0.19.7:8880',
-  ttsBridge:      import.meta.env.VITE_TTS_BRIDGE_URL     || window.__ENV__?.TTS_BRIDGE_URL     || 'http://10.0.2.4:8013',
-  ollama:         import.meta.env.VITE_OLLAMA_URL         || window.__ENV__?.OLLAMA_URL         || 'http://10.0.5.1:11434',
+  litellm:
+    import.meta.env.VITE_LITELLM_URL || window.__ENV__?.LITELLM_URL || 'http://10.0.19.7:4000',
+  hermesGateway:
+    import.meta.env.VITE_HERMES_GATEWAY_URL ||
+    window.__ENV__?.HERMES_GATEWAY_URL ||
+    'http://10.0.2.4:4001',
+  kokoro: import.meta.env.VITE_KOKORO_URL || window.__ENV__?.KOKORO_URL || 'http://10.0.19.7:8880',
+  ttsBridge:
+    import.meta.env.VITE_TTS_BRIDGE_URL || window.__ENV__?.TTS_BRIDGE_URL || 'http://10.0.2.4:8013',
+  ollama: import.meta.env.VITE_OLLAMA_URL || window.__ENV__?.OLLAMA_URL || 'http://10.0.5.1:11434',
   // Monitoring
-  prometheus:     import.meta.env.VITE_PROMETHEUS_URL     || window.__ENV__?.PROMETHEUS_URL     || 'http://10.0.19.7:9090',
-  loki:           import.meta.env.VITE_LOKI_URL            || window.__ENV__?.LOKI_URL           || 'http://10.0.19.7:3100',
-  alertmanager:   import.meta.env.VITE_ALERTMANAGER_URL   || window.__ENV__?.ALERTMANAGER_URL   || 'http://10.0.19.7:9093',
-  nodeExporter:   import.meta.env.VITE_NODE_EXPORTER_URL  || window.__ENV__?.NODE_EXPORTER_URL || 'http://10.0.19.7:9100',
-  cadvisor:       import.meta.env.VITE_CADVISOR_URL       || window.__ENV__?.CADVISOR_URL      || 'http://10.0.19.7:8080',
+  prometheus:
+    import.meta.env.VITE_PROMETHEUS_URL ||
+    window.__ENV__?.PROMETHEUS_URL ||
+    'http://10.0.19.7:9090',
+  loki: import.meta.env.VITE_LOKI_URL || window.__ENV__?.LOKI_URL || 'http://10.0.19.7:3100',
+  alertmanager:
+    import.meta.env.VITE_ALERTMANAGER_URL ||
+    window.__ENV__?.ALERTMANAGER_URL ||
+    'http://10.0.19.7:9093',
+  nodeExporter:
+    import.meta.env.VITE_NODE_EXPORTER_URL ||
+    window.__ENV__?.NODE_EXPORTER_URL ||
+    'http://10.0.19.7:9100',
+  cadvisor:
+    import.meta.env.VITE_CADVISOR_URL || window.__ENV__?.CADVISOR_URL || 'http://10.0.19.7:8080',
   // Infra
-  n8n:            import.meta.env.VITE_N8N_URL             || window.__ENV__?.N8N_URL            || 'http://10.0.19.7:5678',
-  qdrant:         import.meta.env.VITE_QDRANT_URL          || window.__ENV__?.QDRANT_URL         || 'http://10.0.19.7:6333',
+  n8n: import.meta.env.VITE_N8N_URL || window.__ENV__?.N8N_URL || 'http://10.0.19.7:5678',
+  qdrant: import.meta.env.VITE_QDRANT_URL || window.__ENV__?.QDRANT_URL || 'http://10.0.19.7:6333',
 };
 
 export const tools = [
@@ -34,7 +49,7 @@ export const tools = [
     url: 'https://chat.zappro.site',
     category: 'ai',
     icon: '🤖',
-    status: 'operational'
+    status: 'operational',
   },
   {
     id: 'litellm',
@@ -43,7 +58,7 @@ export const tools = [
     url: INTERNAL_URLS.litellm,
     category: 'ai',
     icon: '🔗',
-    status: 'operational'
+    status: 'operational',
   },
   {
     id: 'hermes',
@@ -52,7 +67,7 @@ export const tools = [
     url: INTERNAL_URLS.hermesGateway,
     category: 'ai',
     icon: '🎙️',
-    status: 'operational'
+    status: 'operational',
   },
   {
     id: 'kokoro',
@@ -61,7 +76,7 @@ export const tools = [
     url: INTERNAL_URLS.kokoro,
     category: 'ai',
     icon: '🔊',
-    status: 'operational'
+    status: 'operational',
   },
   {
     id: 'tts-bridge',
@@ -70,16 +85,16 @@ export const tools = [
     url: INTERNAL_URLS.ttsBridge,
     category: 'ai',
     icon: '🌉',
-    status: 'operational'
+    status: 'operational',
   },
   {
     id: 'ollama',
     name: 'Ollama',
-    description: 'Runtime para modelos LLM locais (qwen2.5-vl, llama3.3)',
+    description: 'Runtime para modelos LLM locais (Qwen3-VL-8B-Instruct, Gemma4-12b-it)',
     url: INTERNAL_URLS.ollama,
     category: 'ai',
     icon: '🦙',
-    status: 'operational'
+    status: 'operational',
   },
 
   // ========== MONITORING ==========
@@ -90,7 +105,7 @@ export const tools = [
     url: 'https://monitor.zappro.site',
     category: 'monitoring',
     icon: '📊',
-    status: 'operational'
+    status: 'operational',
   },
   {
     id: 'prometheus',
@@ -99,7 +114,7 @@ export const tools = [
     url: INTERNAL_URLS.prometheus,
     category: 'monitoring',
     icon: '📈',
-    status: 'operational'
+    status: 'operational',
   },
   {
     id: 'loki',
@@ -108,7 +123,7 @@ export const tools = [
     url: INTERNAL_URLS.loki,
     category: 'monitoring',
     icon: '📋',
-    status: 'operational'
+    status: 'operational',
   },
   {
     id: 'alertmanager',
@@ -117,7 +132,7 @@ export const tools = [
     url: INTERNAL_URLS.alertmanager,
     category: 'monitoring',
     icon: '🚨',
-    status: 'operational'
+    status: 'operational',
   },
   {
     id: 'node-exporter',
@@ -126,7 +141,7 @@ export const tools = [
     url: INTERNAL_URLS.nodeExporter,
     category: 'monitoring',
     icon: '🖥️',
-    status: 'operational'
+    status: 'operational',
   },
   {
     id: 'cadvisor',
@@ -135,7 +150,7 @@ export const tools = [
     url: INTERNAL_URLS.cadvisor,
     category: 'monitoring',
     icon: '📦',
-    status: 'operational'
+    status: 'operational',
   },
 
   // ========== INFRA ==========
@@ -146,7 +161,7 @@ export const tools = [
     url: 'https://coolify.zappro.site',
     category: 'infra',
     icon: '☁️',
-    status: 'operational'
+    status: 'operational',
   },
   {
     id: 'n8n',
@@ -155,7 +170,7 @@ export const tools = [
     url: INTERNAL_URLS.n8n,
     category: 'infra',
     icon: '🔄',
-    status: 'operational'
+    status: 'operational',
   },
   {
     id: 'qdrant',
@@ -164,7 +179,7 @@ export const tools = [
     url: INTERNAL_URLS.qdrant,
     category: 'infra',
     icon: '🔢',
-    status: 'operational'
+    status: 'operational',
   },
 
   // ========== DEV ==========
@@ -175,8 +190,8 @@ export const tools = [
     url: 'https://git.zappro.site',
     category: 'dev',
     icon: '🐙',
-    status: 'operational'
-  }
+    status: 'operational',
+  },
 ];
 
 export const categories = {
@@ -184,7 +199,7 @@ export const categories = {
   monitoring: { name: 'Monitoramento', icon: '📊' },
   infra: { name: 'Infraestrutura', icon: '🖧' },
   dev: { name: 'Desenvolvimento', icon: '💻' },
-  security: { name: 'Segurança', icon: '🔒' }
+  security: { name: 'Segurança', icon: '🔒' },
 };
 
 export default tools;

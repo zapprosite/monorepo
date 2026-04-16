@@ -86,7 +86,7 @@ Hermes Gateway :8642
 llm:
   primary:
     provider: ollama
-    model: llama3-portuguese-tomcat-8b-instruct-q8:latest
+    model: Gemma4-12b-it
     base_url: http://localhost:11434/v1
   fallback:
     - provider: minimax

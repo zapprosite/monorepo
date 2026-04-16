@@ -243,7 +243,7 @@ Before starting, ensure you have:
 - [ ] **Ollama** — Local LLM inference server
 - [ ] **whisper_api.py** — STT service running natively (not Docker)
 - [ ] **Kokoro TTS** — Docker container `zappro-kokoro`
-- [ ] **Models downloaded** — `Qwen3-VL-8B-Instruct`, `llama3-portuguese-tomcat-8b-instruct-q8`
+- [ ] **Models downloaded** — `Qwen3-VL-8B-Instruct`, `Gemma4-12b-it`
 
 ### Required Services
 
@@ -285,11 +285,7 @@ curl -s http://localhost:11434/api/tags | jq '.models[].name'
 **Expected output:**
 
 ```json
-[
-  "llama3-portuguese-tomcat-8b-instruct-q8:latest",
-  "Qwen3-VL-8B-Instruct",
-  "nomic-embed-text:latest"
-]
+["Gemma4-12b-it:latest", "Qwen3-VL-8B-Instruct", "nomic-embed-text:latest"]
 ```
 
 ### Step 3: Test STT Pipeline
@@ -432,7 +428,7 @@ curl -s http://localhost:11434/api/tags | jq '.models[].name'
 
 ```bash
 # Pull the required model
-ollama pull llama3-portuguese-tomcat-8b-instruct-q8:latest
+ollama pull Gemma4-12b-it:latest
 
 # Verify
 curl -s http://localhost:11434/api/tags | jq '.models[].name'

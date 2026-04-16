@@ -44,7 +44,6 @@ Hermes :8642                  ✅ OK
 Ollama :11434                 ✅ OK
 Qwen3-VL-8B-Instruct       ✅ OK
 Gemma4-12b-it               ✅ OK
-llama3-portuguese-tomcat-8b   ✅ OK
 ```
 
 ---
@@ -58,7 +57,7 @@ Telegram Voice Message
 Hermes Gateway :8642
   │
   ├─ LLM: Ollama Gemma4-12b-it (local, GPU)
-  │    └─ Fallback: llama3-portuguese-tomcat-8b
+  │    └─ Fallback: Gemma4-12b-it (same model, stateless)
   │
   ├─ Vision: Ollama Qwen3-VL-8B-Instruct (local, GPU)
   │

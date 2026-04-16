@@ -8,13 +8,37 @@
       "priority": "critical",
       "dependencies": [],
       "subtasks": [
-        {"id": "PH2-01.1", "title": "Identify all /srv/ops/ai-governance/ references in docs/GOVERNANCE/", "status": "pending"},
-        {"id": "PH2-01.2", "title": "Fix CONTRACT.md, QUICK_START.md, PINNED-SERVICES.md, ANTI-FRAGILITY.md paths", "status": "pending"},
-        {"id": "PH2-01.3", "title": "Fix GUARDRAILS.md, CHANGE_POLICY.md, INCIDENTS.md, APPROVAL_MATRIX.md paths", "status": "pending"},
-        {"id": "PH2-01.4", "title": "Fix DOCUMENTATION_MAP.md, MASTER-PASSWORD-PROCEDURE.md, DATABASE_GOVERNANCE.md paths", "status": "pending"},
-        {"id": "PH2-01.5", "title": "Fix DUPLICATE-SERVICES-RULE.md, RECOVERY.md paths", "status": "pending"},
-        {"id": "PH2-01.6", "title": "Fix .claude/CLAUDE.md references", "status": "pending"},
-        {"id": "PH2-01.7", "title": "Verify: grep -r '/srv/ops/ai-governance/' docs/ → 0 results", "status": "pending"}
+        {
+          "id": "PH2-01.1",
+          "title": "Identify all /srv/ops/ai-governance/ references in docs/GOVERNANCE/",
+          "status": "pending"
+        },
+        {
+          "id": "PH2-01.2",
+          "title": "Fix CONTRACT.md, QUICK_START.md, PINNED-SERVICES.md, ANTI-FRAGILITY.md paths",
+          "status": "pending"
+        },
+        {
+          "id": "PH2-01.3",
+          "title": "Fix GUARDRAILS.md, CHANGE_POLICY.md, INCIDENTS.md, APPROVAL_MATRIX.md paths",
+          "status": "pending"
+        },
+        {
+          "id": "PH2-01.4",
+          "title": "Fix DOCUMENTATION_MAP.md, MASTER-PASSWORD-PROCEDURE.md, DATABASE_GOVERNANCE.md paths",
+          "status": "pending"
+        },
+        {
+          "id": "PH2-01.5",
+          "title": "Fix DUPLICATE-SERVICES-RULE.md, RECOVERY.md paths",
+          "status": "pending"
+        },
+        { "id": "PH2-01.6", "title": "Fix .claude/CLAUDE.md references", "status": "pending" },
+        {
+          "id": "PH2-01.7",
+          "title": "Verify: grep -r '/srv/ops/ai-governance/' docs/ → 0 results",
+          "status": "pending"
+        }
       ],
       "acceptanceCriteria": ["grep -r '/srv/ops/ai-governance/' docs/ returns 0 results"],
       "files": ["docs/GOVERNANCE/*.md", ".claude/CLAUDE.md"],
@@ -23,19 +47,38 @@
     },
     {
       "id": "PH2-02",
-      "title": "Fix vision model (llava → qwen2.5-vl)",
+      "title": "Fix vision model (llava → Qwen3-VL-8B-Instruct)",
       "description": "PINNED-SERVICES.md and GUARDRAILS.md still list 'llava' as vision model, deprecated 2026-04-09 in favor of qwen2.5-vl. Also fix ARCHITECTURE-MODELS.md (wrong LiteLLM endpoint).",
       "status": "pending",
       "priority": "critical",
       "dependencies": ["PH2-01"],
       "subtasks": [
-        {"id": "PH2-02.1", "title": "Remove llava from PINNED-SERVICES.md vision models", "status": "pending"},
-        {"id": "PH2-02.2", "title": "Remove llava from GUARDRAILS.md", "status": "pending"},
-        {"id": "PH2-02.3", "title": "Fix ARCHITECTURE-MODELS.md llava + LiteLLM endpoint (:4000 not api.zappro.site)", "status": "pending"},
-        {"id": "PH2-02.4", "title": "Verify: grep -r 'llava' docs/GOVERNANCE/ → 0 results", "status": "pending"}
+        {
+          "id": "PH2-02.1",
+          "title": "Remove llava from PINNED-SERVICES.md vision models",
+          "status": "pending"
+        },
+        { "id": "PH2-02.2", "title": "Remove llava from GUARDRAILS.md", "status": "pending" },
+        {
+          "id": "PH2-02.3",
+          "title": "Fix ARCHITECTURE-MODELS.md llava + LiteLLM endpoint (:4000 not api.zappro.site)",
+          "status": "pending"
+        },
+        {
+          "id": "PH2-02.4",
+          "title": "Verify: grep -r 'llava' docs/GOVERNANCE/ → 0 results",
+          "status": "pending"
+        }
       ],
-      "acceptanceCriteria": ["grep -r 'llava' docs/GOVERNANCE/ returns 0 results", "grep -r 'llava' docs/REFERENCE/ returns 0 results"],
-      "files": ["docs/GOVERNANCE/PINNED-SERVICES.md", "docs/GOVERNANCE/GUARDRAILS.md", "docs/REFERENCE/ARCHITECTURE-MODELS.md"],
+      "acceptanceCriteria": [
+        "grep -r 'llava' docs/GOVERNANCE/ returns 0 results",
+        "grep -r 'llava' docs/REFERENCE/ returns 0 results"
+      ],
+      "files": [
+        "docs/GOVERNANCE/PINNED-SERVICES.md",
+        "docs/GOVERNANCE/GUARDRAILS.md",
+        "docs/REFERENCE/ARCHITECTURE-MODELS.md"
+      ],
       "testRequired": true,
       "specRef": "SPEC-AUDIT-FIXES-PHASE2.md (C2, M4)"
     },
@@ -47,11 +90,25 @@
       "priority": "critical",
       "dependencies": [],
       "subtasks": [
-        {"id": "PH2-03.1", "title": "Add missing ports: 8202, 3457, 8050, 8051, 9080", "status": "pending"},
-        {"id": "PH2-03.2", "title": "Fix 8201 (host vs container mapping), 4003 (nginx), 4007 (tts-bridge UP)", "status": "pending"},
-        {"id": "PH2-03.3", "title": "Verify PORTS.md lists all: 8201, 8202, 8203, 3457, 8013, 8050, 8051, 9080", "status": "pending"}
+        {
+          "id": "PH2-03.1",
+          "title": "Add missing ports: 8202, 3457, 8050, 8051, 9080",
+          "status": "pending"
+        },
+        {
+          "id": "PH2-03.2",
+          "title": "Fix 8201 (host vs container mapping), 4003 (nginx), 4007 (tts-bridge UP)",
+          "status": "pending"
+        },
+        {
+          "id": "PH2-03.3",
+          "title": "Verify PORTS.md lists all: 8201, 8202, 8203, 3457, 8013, 8050, 8051, 9080",
+          "status": "pending"
+        }
       ],
-      "acceptanceCriteria": ["PORTS.md contains entries for: 8201, 8202, 8203, 3457, 8013, 8050, 8051, 9080"],
+      "acceptanceCriteria": [
+        "PORTS.md contains entries for: 8201, 8202, 8203, 3457, 8013, 8050, 8051, 9080"
+      ],
       "files": ["docs/INFRASTRUCTURE/PORTS.md"],
       "testRequired": true,
       "specRef": "SPEC-AUDIT-FIXES-PHASE2.md (C3)"
@@ -64,11 +121,25 @@
       "priority": "critical",
       "dependencies": ["PH2-03"],
       "subtasks": [
-        {"id": "PH2-04.1", "title": "Remove supabase/caprover stack references", "status": "pending"},
-        {"id": "PH2-04.2", "title": "Update n8n (now in Coolify), tts-bridge (UP not REMOVED), vision (qwen2.5-vl not llava)", "status": "pending"},
-        {"id": "PH2-04.3", "title": "Verify SERVICE_MAP.md reflects current state", "status": "pending"}
+        {
+          "id": "PH2-04.1",
+          "title": "Remove supabase/caprover stack references",
+          "status": "pending"
+        },
+        {
+          "id": "PH2-04.2",
+          "title": "Update n8n (now in Coolify), tts-bridge (UP not REMOVED), vision (Qwen3-VL-8B-Instruct not llava)",
+          "status": "pending"
+        },
+        {
+          "id": "PH2-04.3",
+          "title": "Verify SERVICE_MAP.md reflects current state",
+          "status": "pending"
+        }
       ],
-      "acceptanceCriteria": ["SERVICE_MAP.md no longer references supabase, caprover, or removed stacks"],
+      "acceptanceCriteria": [
+        "SERVICE_MAP.md no longer references supabase, caprover, or removed stacks"
+      ],
       "files": ["docs/INFRASTRUCTURE/SERVICE_MAP.md"],
       "testRequired": true,
       "specRef": "SPEC-AUDIT-FIXES-PHASE2.md (C4)"
@@ -81,14 +152,43 @@
       "priority": "high",
       "dependencies": [],
       "subtasks": [
-        {"id": "PH2-05.1", "title": "Delete or heavily annotate homelab-estado.md as superseded", "status": "pending"},
-        {"id": "PH2-05.2", "title": "Update ai-context.md paths to correct locations (docs/GOVERNANCE/, docs/SPECS/)", "status": "pending"},
-        {"id": "PH2-05.3", "title": "Annotate voice-pipeline-08-04-2026.md as superseded by desktop version", "status": "pending"},
-        {"id": "PH2-05.4", "title": "Update openclaw-agents-kit.md gemma2 → llama3-portuguese-tomcat-8b-instruct-q8", "status": "pending"},
-        {"id": "PH2-05.5", "title": "Verify: no non-existent paths in memory files", "status": "pending"}
+        {
+          "id": "PH2-05.1",
+          "title": "Delete or heavily annotate homelab-estado.md as superseded",
+          "status": "pending"
+        },
+        {
+          "id": "PH2-05.2",
+          "title": "Update ai-context.md paths to correct locations (docs/GOVERNANCE/, docs/SPECS/)",
+          "status": "pending"
+        },
+        {
+          "id": "PH2-05.3",
+          "title": "Annotate voice-pipeline-08-04-2026.md as superseded by desktop version",
+          "status": "pending"
+        },
+        {
+          "id": "PH2-05.4",
+          "title": "Update openclaw-agents-kit.md gemma2 → Gemma4-12b-it",
+          "status": "pending"
+        },
+        {
+          "id": "PH2-05.5",
+          "title": "Verify: no non-existent paths in memory files",
+          "status": "pending"
+        }
       ],
-      "acceptanceCriteria": ["homelab-estado.md deleted or annotated superseded", "ai-context.md has valid paths", "voice-pipeline-08 annotated as superseded"],
-      "files": ["memory/homelab-estado.md", "memory/ai-context.md", "memory/voice-pipeline-08-04-2026.md", "memory/openclaw-agents-kit.md"],
+      "acceptanceCriteria": [
+        "homelab-estado.md deleted or annotated superseded",
+        "ai-context.md has valid paths",
+        "voice-pipeline-08 annotated as superseded"
+      ],
+      "files": [
+        "memory/homelab-estado.md",
+        "memory/ai-context.md",
+        "memory/voice-pipeline-08-04-2026.md",
+        "memory/openclaw-agents-kit.md"
+      ],
       "testRequired": true,
       "specRef": "SPEC-AUDIT-FIXES-PHASE2.md (H1, H2, H3, H5)"
     },
@@ -100,10 +200,20 @@
       "priority": "high",
       "dependencies": ["PH2-02"],
       "subtasks": [
-        {"id": "PH2-06.1", "title": "Rewrite VOICE STACK section with current canonical stack", "status": "pending"},
-        {"id": "PH2-06.2", "title": "Verify: grep -q 'wav2vec2 :8201' docs/OPERATIONS/HOMELAB-SURVIVAL-GUIDE.md", "status": "pending"}
+        {
+          "id": "PH2-06.1",
+          "title": "Rewrite VOICE STACK section with current canonical stack",
+          "status": "pending"
+        },
+        {
+          "id": "PH2-06.2",
+          "title": "Verify: grep -q 'wav2vec2 :8201' docs/OPERATIONS/HOMELAB-SURVIVAL-GUIDE.md",
+          "status": "pending"
+        }
       ],
-      "acceptanceCriteria": ["HOMELAB-SURVIVAL-GUIDE.md voice stack matches SPEC-009 canonical stack"],
+      "acceptanceCriteria": [
+        "HOMELAB-SURVIVAL-GUIDE.md voice stack matches SPEC-009 canonical stack"
+      ],
       "files": ["docs/OPERATIONS/HOMELAB-SURVIVAL-GUIDE.md"],
       "testRequired": true,
       "specRef": "SPEC-AUDIT-FIXES-PHASE2.md (H4)"
@@ -116,12 +226,30 @@
       "priority": "high",
       "dependencies": ["PH2-01"],
       "subtasks": [
-        {"id": "PH2-07.1", "title": "Fix SPEC-009 path: docs/specflow/ → docs/SPECS/", "status": "pending"},
-        {"id": "PH2-07.2", "title": "Clarify wav2vec2-proxy:8203 role (Deepgram proxy pattern per SPEC-018)", "status": "pending"},
-        {"id": "PH2-07.3", "title": "Verify: All SPEC-009 references valid; wav2vec2-proxy documented", "status": "pending"}
+        {
+          "id": "PH2-07.1",
+          "title": "Fix SPEC-009 path: docs/specflow/ → docs/SPECS/",
+          "status": "pending"
+        },
+        {
+          "id": "PH2-07.2",
+          "title": "Clarify wav2vec2-proxy:8203 role (Deepgram proxy pattern per SPEC-018)",
+          "status": "pending"
+        },
+        {
+          "id": "PH2-07.3",
+          "title": "Verify: All SPEC-009 references valid; wav2vec2-proxy documented",
+          "status": "pending"
+        }
       ],
-      "acceptanceCriteria": ["All SPEC-009 references in openclaw-audio-governance.md are valid paths", "wav2vec2-proxy:8203 is documented with correct role"],
-      "files": ["docs/GOVERNANCE/.rules/openclaw-audio-governance.md", ".claude/rules/openclaw-audio-governance.md"],
+      "acceptanceCriteria": [
+        "All SPEC-009 references in openclaw-audio-governance.md are valid paths",
+        "wav2vec2-proxy:8203 is documented with correct role"
+      ],
+      "files": [
+        "docs/GOVERNANCE/.rules/openclaw-audio-governance.md",
+        ".claude/rules/openclaw-audio-governance.md"
+      ],
       "testRequired": true,
       "specRef": "SPEC-AUDIT-FIXES-PHASE2.md (H5, H6)"
     },
@@ -133,10 +261,20 @@
       "priority": "medium",
       "dependencies": [],
       "subtasks": [
-        {"id": "PH2-08.1", "title": "Rewrite ADRs README to describe actual 3 files", "status": "pending"},
-        {"id": "PH2-08.2", "title": "Verify: README accurately describes existing ADRs", "status": "pending"}
+        {
+          "id": "PH2-08.1",
+          "title": "Rewrite ADRs README to describe actual 3 files",
+          "status": "pending"
+        },
+        {
+          "id": "PH2-08.2",
+          "title": "Verify: README accurately describes existing ADRs",
+          "status": "pending"
+        }
       ],
-      "acceptanceCriteria": ["ADRs README.md no longer claims 22 ADRs; accurately reflects 3 existing files"],
+      "acceptanceCriteria": [
+        "ADRs README.md no longer claims 22 ADRs; accurately reflects 3 existing files"
+      ],
       "files": ["docs/ADRs/README.md"],
       "testRequired": true,
       "specRef": "SPEC-AUDIT-FIXES-PHASE2.md (M1)"
@@ -149,8 +287,16 @@
       "priority": "medium",
       "dependencies": [],
       "subtasks": [
-        {"id": "PH2-09.1", "title": "Create VERSION-LOCK.md with pinned versions", "status": "pending"},
-        {"id": "PH2-09.2", "title": "Verify: cat VERSION-LOCK.md shows Turbo 2.9.6, pnpm 9.0.x", "status": "pending"}
+        {
+          "id": "PH2-09.1",
+          "title": "Create VERSION-LOCK.md with pinned versions",
+          "status": "pending"
+        },
+        {
+          "id": "PH2-09.2",
+          "title": "Verify: cat VERSION-LOCK.md shows Turbo 2.9.6, pnpm 9.0.x",
+          "status": "pending"
+        }
       ],
       "acceptanceCriteria": ["VERSION-LOCK.md exists and contains Turbo 2.9.6, pnpm 9.0.x"],
       "files": ["VERSION-LOCK.md"],
@@ -165,14 +311,37 @@
       "priority": "medium",
       "dependencies": [],
       "subtasks": [
-        {"id": "PH2-10.1", "title": "Create docker-autoheal.md skill", "status": "pending"},
-        {"id": "PH2-10.2", "title": "Create node-exporter.md skill (HEALTHCHECK P0 fix)", "status": "pending"},
-        {"id": "PH2-10.3", "title": "Create loki.md skill (HEALTHCHECK P0 fix)", "status": "pending"},
-        {"id": "PH2-10.4", "title": "Create voice-pipeline-watchdog.md skill", "status": "pending"},
-        {"id": "PH2-10.5", "title": "Verify: All 4 skills exist in docs/OPERATIONS/SKILLS/", "status": "pending"}
+        { "id": "PH2-10.1", "title": "Create docker-autoheal.md skill", "status": "pending" },
+        {
+          "id": "PH2-10.2",
+          "title": "Create node-exporter.md skill (HEALTHCHECK P0 fix)",
+          "status": "pending"
+        },
+        {
+          "id": "PH2-10.3",
+          "title": "Create loki.md skill (HEALTHCHECK P0 fix)",
+          "status": "pending"
+        },
+        {
+          "id": "PH2-10.4",
+          "title": "Create voice-pipeline-watchdog.md skill",
+          "status": "pending"
+        },
+        {
+          "id": "PH2-10.5",
+          "title": "Verify: All 4 skills exist in docs/OPERATIONS/SKILLS/",
+          "status": "pending"
+        }
       ],
-      "acceptanceCriteria": ["docs/OPERATIONS/SKILLS/ contains docker-autoheal.md, node-exporter.md, loki.md, voice-pipeline-watchdog.md"],
-      "files": ["docs/OPERATIONS/SKILLS/docker-autoheal.md", "docs/OPERATIONS/SKILLS/node-exporter.md", "docs/OPERATIONS/SKILLS/loki.md", "docs/OPERATIONS/SKILLS/voice-pipeline-watchdog.md"],
+      "acceptanceCriteria": [
+        "docs/OPERATIONS/SKILLS/ contains docker-autoheal.md, node-exporter.md, loki.md, voice-pipeline-watchdog.md"
+      ],
+      "files": [
+        "docs/OPERATIONS/SKILLS/docker-autoheal.md",
+        "docs/OPERATIONS/SKILLS/node-exporter.md",
+        "docs/OPERATIONS/SKILLS/loki.md",
+        "docs/OPERATIONS/SKILLS/voice-pipeline-watchdog.md"
+      ],
       "testRequired": true,
       "specRef": "SPEC-AUDIT-FIXES-PHASE2.md (M3)"
     },
@@ -182,17 +351,60 @@
       "description": "Run all verification checks and commit all Phase 2 changes to branch.",
       "status": "pending",
       "priority": "critical",
-      "dependencies": ["PH2-01", "PH2-02", "PH2-03", "PH2-04", "PH2-05", "PH2-06", "PH2-07", "PH2-08", "PH2-09", "PH2-10"],
-      "subtasks": [
-        {"id": "PH2-11.1", "title": "Run verification: grep '/srv/ops/ai-governance/' → 0", "status": "pending"},
-        {"id": "PH2-11.2", "title": "Run verification: grep 'llava' docs/GOVERNANCE/ → 0", "status": "pending"},
-        {"id": "PH2-11.3", "title": "Run verification: grep 'llava' docs/REFERENCE/ → 0", "status": "pending"},
-        {"id": "PH2-11.4", "title": "Run verification: VERSION-LOCK.md exists with 2.9.6", "status": "pending"},
-        {"id": "PH2-11.5", "title": "Run verification: HOMELAB-SURVIVAL-GUIDE.md has wav2vec2 :8201", "status": "pending"},
-        {"id": "PH2-11.6", "title": "Run verification: PINNED-SERVICES.md has qwen2.5-vl", "status": "pending"},
-        {"id": "PH2-11.7", "title": "git add -A (exclude logs/) + commit + push", "status": "pending"}
+      "dependencies": [
+        "PH2-01",
+        "PH2-02",
+        "PH2-03",
+        "PH2-04",
+        "PH2-05",
+        "PH2-06",
+        "PH2-07",
+        "PH2-08",
+        "PH2-09",
+        "PH2-10"
       ],
-      "acceptanceCriteria": ["All 6 verification checks PASS", "Branch pushed to origin", "Commit 0188baa9 or later on feature/homelab-seguro-e-estavel-pt2"],
+      "subtasks": [
+        {
+          "id": "PH2-11.1",
+          "title": "Run verification: grep '/srv/ops/ai-governance/' → 0",
+          "status": "pending"
+        },
+        {
+          "id": "PH2-11.2",
+          "title": "Run verification: grep 'llava' docs/GOVERNANCE/ → 0",
+          "status": "pending"
+        },
+        {
+          "id": "PH2-11.3",
+          "title": "Run verification: grep 'llava' docs/REFERENCE/ → 0",
+          "status": "pending"
+        },
+        {
+          "id": "PH2-11.4",
+          "title": "Run verification: VERSION-LOCK.md exists with 2.9.6",
+          "status": "pending"
+        },
+        {
+          "id": "PH2-11.5",
+          "title": "Run verification: HOMELAB-SURVIVAL-GUIDE.md has wav2vec2 :8201",
+          "status": "pending"
+        },
+        {
+          "id": "PH2-11.6",
+          "title": "Run verification: PINNED-SERVICES.md has Qwen3-VL-8B-Instruct",
+          "status": "pending"
+        },
+        {
+          "id": "PH2-11.7",
+          "title": "git add -A (exclude logs/) + commit + push",
+          "status": "pending"
+        }
+      ],
+      "acceptanceCriteria": [
+        "All 6 verification checks PASS",
+        "Branch pushed to origin",
+        "Commit 0188baa9 or later on feature/homelab-seguro-e-estavel-pt2"
+      ],
       "files": ["ALL Phase 2 modified files"],
       "testRequired": true,
       "specRef": "SPEC-AUDIT-FIXES-PHASE2.md (Cluster 10)"

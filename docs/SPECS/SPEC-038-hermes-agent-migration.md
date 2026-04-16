@@ -198,7 +198,7 @@ perplexity_browser/
 | SC-1  | Hermes-Agent instalado e configurado no Ubuntu Desktop                    | ✅     | hermes v0.9.0 installed                                                                          |
 | SC-2  | `hermes claw migrate` executado com sucesso                               | ✅     | 21 items migrated                                                                                |
 | SC-3  | Ollama Qwen3-VL-8B-Instruct configurado como primary model (ver SPEC-053) | ✅     | In config.yaml — MiniMax deprecated                                                              |
-| SC-4  | Ollama llama3-portuguese-tomcat-8b configurado como fallback (RTX 4090)   | ✅     | Changed from gemma4 (gemma4 is legacy)                                                           |
+| SC-4  | Ollama Gemma4-12b-it configurado como fallback (RTX 4090)                 | ✅     | Changed from gemma4 (gemma4 is legacy)                                                           |
 | SC-5  | perplexity_browser skill criada e funcional                               | ✅     |                                                                                                  |
 | SC-6  | coolify_sre skill com restart loop detection                              | ✅     | sre-monitor.sh active                                                                            |
 | SC-7  | hermes.json com crons centralizados                                       | ✅     | Crons installed and operational                                                                  |

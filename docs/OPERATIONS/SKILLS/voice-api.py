@@ -12,7 +12,7 @@ Environment:
     PORT=8202
     WHISPER_API=http://10.0.19.1:8202
     OLLAMA_HOST=http://10.0.19.1:11434
-    OLLAMA_MODEL=llama3-portuguese-tomcat-8b-instruct-q8:latest
+    OLLAMA_MODEL=Gemma4-12b-it
 """
 
 import os
@@ -29,7 +29,7 @@ import urllib.error
 PORT = int(os.environ.get("PORT", "8202"))
 WHISPER_API = os.environ.get("WHISPER_API", "http://10.0.19.1:8202")
 OLLAMA_HOST = os.environ.get("OLLAMA_HOST", "http://10.0.19.1:11434")
-OLLAMA_MODEL = os.environ.get("OLLAMA_MODEL", "llama3-portuguese-tomcat-8b-instruct-q8:latest")
+OLLAMA_MODEL = os.environ.get("OLLAMA_MODEL", "Gemma4-12b-it")
 TIMEOUT = 60
 
 

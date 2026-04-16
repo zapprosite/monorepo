@@ -28,7 +28,7 @@ specRef: SPEC-AUDIT-FIXES-2026-04-12.md, SPEC-009-openclaw-persona-audio-stack.m
 - **TTS Bridge voice filtering**: bloqueia 65/67 vozes Kokoro, só pm_santa e pf_dora
 - STT: whisper-medium-pt (PT-BR native, optimized)
 - TTS: Kokoro v0.2.2 com governance correta
-- LLM enhancement layer: llama3-portuguese-tomcat-8b-instruct-q8
+- LLM enhancement layer: Gemma4-12b-it
 
 ### 3. Governance de Audio Imutável
 

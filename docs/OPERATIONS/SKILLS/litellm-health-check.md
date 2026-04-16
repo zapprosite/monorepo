@@ -11,7 +11,7 @@
 - **Tipo:** Docker container (`zappro-litellm`) via docker-compose
 - **Container rede:** `zappro-lite_default` (mesma do wav2vec2, Ollama, Kokoro)
 - **Config:** `/home/will/zappro-lite/config.yaml`
-- **Models:** whisper-1 (STT/wav2vec2), tts-1 (TTS/Kokoro), qwen2.5-vl (Vision), tom-cat-8b (LLM PT-BR), embedding-nomic
+- **Models:** whisper-1 (STT/faster-whisper), tts-1 (TTS/Kokoro), Qwen3-VL-8B-Instruct (Vision), Gemma4-12b-it (LLM PT-BR), embedding-nomic
 - **Database:** PostgreSQL via `zappro-litellm-db` container (persistência de keys/costs)
 - **DB Connection:** `postgresql://litellm:litellm_pass_2026@zappro-litellm-db:5432/litellm`
 
@@ -40,6 +40,7 @@ curl -s -H "Authorization: Bearer sk-test" http://localhost:4000/health 2>&1
 ```
 
 **Possible responses:**
+
 - `{"status":"ok","models":[...]} ` → ✅ OK
 - `{"error":{"message":"No connected db.",...}}` → ⚠️ DB error mas funcional (sem persistence)
 - Connection refused → 🔴 LiteLLM down
@@ -133,12 +134,12 @@ echo "Rate limited (503): $limited / $count"
 
 ## Common Failures
 
-| Symptom | Cause | Fix |
-|---------|-------|-----|
-| Connection refused | Process down | `sudo systemctl start litellm` ou reiniciar venv |
-| 401 auth error | API key wrong | Verificar `sk-test` ou key real |
-| Ollama timeout | Ollama não responde | Verificar `ollama-health-check.md` |
-| all fallbacks fail | OpenRouter API key inválido | Verificar `OPENROUTER_API_KEY` no .env |
+| Symptom            | Cause                       | Fix                                              |
+| ------------------ | --------------------------- | ------------------------------------------------ |
+| Connection refused | Process down                | `sudo systemctl start litellm` ou reiniciar venv |
+| 401 auth error     | API key wrong               | Verificar `sk-test` ou key real                  |
+| Ollama timeout     | Ollama não responde         | Verificar `ollama-health-check.md`               |
+| all fallbacks fail | OpenRouter API key inválido | Verificar `OPENROUTER_API_KEY` no .env           |
 
 ## See Also
 

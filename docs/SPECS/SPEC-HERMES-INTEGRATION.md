@@ -19,7 +19,7 @@ Hermes Agent is now running as the central AI gateway for the homelab. This docu
 - hermes.zappro.site: ✅ 200 OK (Cloudflare tunnel working)
 - API: OpenAI-compatible `/v1/chat/completions` + `/v1/models`
 - Primary LLM: Ollama/Qwen3-VL-8B-Instruct (local, GPU)
-- Fallback LLM: llama3-portuguese-tomcat-8b-instruct-q8:latest (local)
+- Fallback LLM: gemma4-12b-it:latest (local)
 - MiniMax: DEPRECATED (available as commented fallback in .env)
 - Vision: Ollama/Qwen3-VL-8B-Instruct (local, stable)
 - STT: faster-whisper-medium-pt :8204 ✅ FIXED (multipart OpenAI format supported)
@@ -271,7 +271,7 @@ model: Qwen3-VL-8B-Instruct
     base_url: http://localhost:11434
   fallback:
     - provider: ollama
-      model: llama3-portuguese-tomcat-8b-instruct-q8:latest
+      model: gemma4-12b-it:latest
       base_url: http://localhost:11434
 ```
 
@@ -280,7 +280,7 @@ model: Qwen3-VL-8B-Instruct
 **Ollama models available** (RTX 4090):
 
 - `Qwen3-VL-8B-Instruct` - Vision-language, 3.2GB (PRIMARY — use for all tasks)
-- `llama3-portuguese-tomcat-8b-instruct-q8:latest` - Portuguese-specialized, 8.5GB (fallback)
+- `gemma4-12b-it:latest` - Portuguese-specialized, 8.5GB (fallback)
 - `nomic-embed-text:latest` - Embeddings, 274MB
 
 ### 5.2 Optimized Fallback Strategy
@@ -290,7 +290,7 @@ model: Qwen3-VL-8B-Instruct
 | Task Type                     | Provider                              | Rationale                            |
 | ----------------------------- | ------------------------------------- | ------------------------------------ |
 | All text tasks                | Ollama Qwen3-VL-8B-Instruct (primary) | 100% local, fast, GPU-accelerated    |
-| Portuguese specialist tasks   | Ollama llama3-portuguese-tomcat       | Fine-tuned for PT-BR, local          |
+| Portuguese specialist tasks   | Ollama gemma4-12b-it                  | Fine-tuned for PT-BR, local          |
 | Vision tasks (screenshots)    | Ollama Qwen3-VL-8B-Instruct           | Qwen3-VL works stable;               |
 | Error recovery                | Ollama (fallback model)               | Automatic on primary failure         |
 | Emergency fallback (optional) | MiniMax M2.7 (commented in .env)      | Only for catastrophic Ollama failure |
