@@ -72,9 +72,9 @@ TOTAL GPU              │ 17.5 GB  ★  6.5 GB LIVRE
 │  ┌─────────────────────────────────────────────────────┐  │
 │  │              LLM SELECTOR                             │  │
 │  │                                                      │  │
-│  │  PRIMARY: llama4-scout-17B Q4 (GPU)                  │  │
-│  │  FALLBACK: qwen2.5vl-7B Q4 (GPU)                     │  │
-│  │  FALLBACK #2: llama3-portuguese-tomcat-8b (GPU)     │  │
+│  │  PRIMARY: llama4-scout-17B Q4 (GPU) — ⏳PENDENTE     │  │
+│  │  ACTUAL:  qwen2.5vl-7B Q4 (:11434) — DESCARR.       │  │
+│  │  FALLBACK #2: gemma4-12b Q4 (:11434)                 │  │
 │  └─────────────────────────────────────────────────────┘  │
 │                         ↓                                    │
 │  ┌─────────────────────────────────────────────────────┐  │
@@ -205,14 +205,14 @@ def get_stt_provider():
 | **Endpoint** | :8013                        |
 | **Status**   | SPEC-009 canonical           |
 
-### qwen2.5vl-7B Q4 (FALLBACK LLM)
+### gemma4-12b Q4 (FALLBACK LLM — quando llama4-scout indisponível)
 
-| Item             | Valor                     |
-| ---------------- | ------------------------- |
-| **VRAM**         | ~4.5 GB                   |
-| **Context**      | 8k                        |
-| **Capabilities** | Texto + Visão             |
-| **Use**          | Se llama4-scout-17B falha |
+| Item             | Valor                            |
+| ---------------- | -------------------------------- |
+| **VRAM**         | ~7 GB Q4_K_M                     |
+| **Context**      | 32k                              |
+| **Capabilities** | Texto + Visão                    |
+| **Use**          | Se llama4-scout-17B indisponível |
 
 ---
 
