@@ -173,7 +173,7 @@ PICO                      │ 22.7 GB  ⚠️ 1.3 GB livre
 
 ---
 
-## Upgrade Path — SUPERIOR ao qwen2.5vl:7b
+## Upgrade Path — Qwen3-VL-8B-Instruct
 
 ### Qwen3-VL-8B-Instruct (⭐ NOVO CAMPEÃO — 16/04/2026)
 
@@ -192,7 +192,7 @@ PICO                      │ 22.7 GB  ⚠️ 1.3 GB livre
 | Modelo                | VRAM       | Context  | multimodal | VRAM livre           |
 | --------------------- | ---------- | -------- | ---------- | -------------------- |
 | **Qwen3-VL-8B IQ1_S** | **3.2 GB** | **128K** | ✅         | **14.4 GB**          |
-| qwen2.5vl:7b (Ollama) | 6.0 GB     | 8K       | ✅         | 13.0 GB (descartado) |
+| qwen2.5vl:7b (Ollama) | 6.0 GB     | 8K       | ❌         | 13.0 GB (descartado) |
 
 **Qwen3-VL-8B é a escolha óbvia:** mais capaz (128K ctx), mais leve (3.2GB vs 6GB), mesma qualidade de visão. Próximo passo: importar para Ollama.
 

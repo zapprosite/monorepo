@@ -397,7 +397,7 @@ groups:
 
 **VRAM Breakdown:**
 
-- `qwen2.5vl:7b` (Ollama): 4.5 GB VRAM — legitimate vision model
+- `Qwen3-VL-8B-Instruct` (Ollama): 3.2 GB VRAM — legitimate vision model
 - TTS Bridge uvicorn: 2.1 GB VRAM — legitimate
 - wav2vec2: 1.6 GB VRAM — legitimate
 

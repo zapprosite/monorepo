@@ -22,7 +22,7 @@ date: 2026-04-12
 | **Kokoro TTS**        | `zappro-kokoro`          | 8012                       | `ghcr.io/remsky/kokoro-fastapi-gpu:v0.2.2` | Principal Engineer | 2026-03-20 |
 | **Whisper STT**       | `zappro-whisper-stt`     | 8201                       | `jlondonobo/whisper-medium-pt`             | Principal Engineer | 2026-04-15 |
 | **Hermes Agent**      | `hermes-agent` (systemd) | 8642 (gateway), 8092 (MCP) | `0.9.0+`                                   | Principal Engineer | 2026-04-14 |
-| **Ollama**            | `ollama` (systemd)       | 11434                      | `qwen2.5vl:7b` (RTX 4090)                  | Principal Engineer | 2026-04-14 |
+| **Ollama**            | `ollama` (systemd)       | 11434                      | `Qwen3-VL-8B-Instruct` (RTX 4090)          | Principal Engineer | 2026-04-14 |
 | **LiteLLM Proxy**     | `zappro-litellm`         | 4000                       | `latest` (config.yaml pinado)              | Principal Engineer | 2026-03-01 |
 | **Coolify Traefik**   | `coolify-proxy`          | 8080                       | `4.0.0-beta.470`                           | Principal Engineer | 2026-03-01 |
 | **Cloudflare Tunnel** | `cloudflared`            | 8080                       | N/A (ativo)                                | Principal Engineer | 2026-02-15 |
@@ -226,7 +226,7 @@ models_pinned:
   - 'kokoro/local' # → Kokoro TTS
   - 'whisper-stt' # → whisper :8201
   - 'gemma4' # GPU
-  - 'qwen2.5-vl' # Vision
+  - 'qwen3-vl-8b' # Vision
   - 'embedding-nomic' # Embeddings
   - 'qwen3.6-plus' # LLM
   - 'minimax-m2.7' # LLM direto (não via proxy)
@@ -354,7 +354,7 @@ curl -sf http://hermes.zappro.site/health
 service: "Ollama"
 container: "ollama" (systemd, bare metal Ubuntu Desktop)
 port: 11434
-model: "qwen2.5vl:7b" (RTX 4090)
+model: "Qwen3-VL-8B-Instruct" (RTX 4090)
 owner: Principal Engineer
 pinned_date: "2026-04-14"
 status: "PINNED"
@@ -371,7 +371,7 @@ curl -sf http://localhost:11434/api/tags
 
 ```bash
 curl -sf -X POST http://localhost:11434/api/generate \
-  -d '{"model":"qwen2.5vl:7b","prompt":"test","stream":false}'
+  -d '{"model":"Qwen3-VL-8B-Instruct","prompt":"test","stream":false}'
 ```
 
 **WHAT_BREAKS_IF_CHANGED:**

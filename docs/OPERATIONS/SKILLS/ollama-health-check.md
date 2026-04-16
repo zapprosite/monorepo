@@ -10,7 +10,7 @@
 - **Endpoint:** `localhost:11434`
 - **Tipo:** Service systemd (`ollama.service`)
 - **VRAM:** GPU partilhada com outros containers
-- **Models:** gemma3:27b-it-qat, shieldgemma:9b, nomic-embed-text
+- **Models:** gemma4-12b-it, shieldgemma:9b, nomic-embed-text
 
 ## Procedure
 
@@ -46,7 +46,8 @@ nvidia-smi --query-gpu=memory.used,memory.free --format=csv,noheader
 ```
 
 **Reference:**
-- gemma3:27b-it-qat: ~18GB VRAM
+
+- gemma4-12b-it: ~7GB VRAM
 - shieldgemma:9b: ~5GB VRAM
 - nomic-embed-text: ~274MB
 
@@ -80,21 +81,21 @@ curl -s http://localhost:11434/api/generate \
 OLLAMA HEALTH CHECK — $(date -u '+%Y-%m-%d %H:%M UTC')
 =====================================================
 SERVICE:     ✅ active (running)
-MODELS:      ✅ 3 loaded (gemma3:27b, shieldgemma, nomic)
-VRAM:        19.2GB used / 24.0GB free
-IN VRAM:     gemma3:27b-it-qat
+MODELS:      ✅ 3 loaded (gemma4-12b-it, shieldgemma, nomic)
+VRAM:        12.2GB used / 24.0GB free
+IN VRAM:     gemma4-12b-it
 GENERATE:    ✅ OK
 RESULTADO:   ✅ SAUDÁVEL
 ```
 
 ## Common Failures
 
-| Symptom | Cause | Fix |
-|---------|-------|-----|
-| Connection refused | Ollama stopped | `sudo systemctl start ollama` |
-| Empty models list | Service starting | Wait 10s, retry |
-| OOM errors | VRAM full | Stop other GPU containers |
-| 404 on /api/generate | Model not in VRAM | `curl -X POST http://localhost:11434/api/pull -d '{"name":"gemma3:27b-it-qat"}'` |
+| Symptom              | Cause             | Fix                                                                          |
+| -------------------- | ----------------- | ---------------------------------------------------------------------------- |
+| Connection refused   | Ollama stopped    | `sudo systemctl start ollama`                                                |
+| Empty models list    | Service starting  | Wait 10s, retry                                                              |
+| OOM errors           | VRAM full         | Stop other GPU containers                                                    |
+| 404 on /api/generate | Model not in VRAM | `curl -X POST http://localhost:11434/api/pull -d '{"name":"gemma4-12b-it"}'` |
 
 ## See Also
 
