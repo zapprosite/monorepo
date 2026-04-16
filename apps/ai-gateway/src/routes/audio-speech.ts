@@ -1,6 +1,6 @@
 /**
  * SPEC-048 — POST /v1/audio/speech
- * Replicado de speak.sh: texto → PT-BR filter (tom-cat-8b) → TTS Bridge :8013 → Kokoro
+ * Pipeline: texto → PT-BR filter (PTBR_FILTER_MODEL) → TTS Bridge :8013 → Kokoro
  * Default voice: pm_santa (SPEC-009). tts-1-hd → pf_dora.
  * Anti-hardcoded: TTS_BRIDGE_URL via process.env
  */

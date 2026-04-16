@@ -3,8 +3,8 @@
  * STT pipeline (cópia exacta da lógica do voice.sh / F12):
  *   1. Receber áudio (multipart, ogg/mp3/wav)
  *   2. ffmpeg → WAV 16kHz mono
- *   3. wav2vec2 :8204 → transcrição raw PT-BR
- *   4. applyPtbrFilter (mode='stt') → correcção PT-BR via tom-cat-8b
+ *   3. faster-whisper :8204 → transcrição raw PT-BR (whisper-medium-pt)
+ *   4. applyPtbrFilter (mode='stt') → correcção PT-BR (PTBR_FILTER_MODEL)
  *
  * Anti-hardcoded: STT_DIRECT_URL via process.env
  */

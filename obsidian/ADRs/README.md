@@ -9,12 +9,12 @@
 
 This folder contains **4 files** — 1 ADR created:
 
-| File | Description |
-|------|-------------|
+| File                                          | Description                                       |
+| --------------------------------------------- | ------------------------------------------------- |
 | `ADR-001-denv-as-canonical-secrets-source.md` | .env as canonical secrets source (Infisical sync) |
-| `ADR-TEMPLATE.md` | Full MADR template (21 sections, comprehensive) |
-| `TEMPLATE.md` | Simple template (8 sections, lightweight) |
-| `README.md` | This file |
+| `ADR-TEMPLATE.md`                             | Full MADR template (21 sections, comprehensive)   |
+| `TEMPLATE.md`                                 | Simple template (8 sections, lightweight)         |
+| `README.md`                                   | This file                                         |
 
 ---
 
@@ -24,7 +24,7 @@ This folder contains **4 files** — 1 ADR created:
 
 **Status:** aceito
 **Date:** 2026-04-13
-**Author:** will-zappro
+**Author:** Principal Engineer
 **Spec:** SPEC-029-INFISICAL-SDK-MANDATORY.md
 
 **Summary:** All secrets are stored in `.env` (synced from Infisical). Application code reads secrets via `os.getenv()`, never directly from Infisical SDK.
@@ -38,6 +38,7 @@ See: `ADR-001-denv-as-canonical-secrets-source.md`
 ### ADR-TEMPLATE.md (Canonical — Use This One)
 
 Full [MADR](https://adr.github.io/madr/) format with 21 sections:
+
 - Title, Status, Date, Author, SPEC Ref
 - Context, Decision, Consequences
 - Pros/Cons grid, Alternatives, Trade-offs
@@ -49,6 +50,7 @@ Full [MADR](https://adr.github.io/madr/) format with 21 sections:
 ### TEMPLATE.md (Simple Format)
 
 Lightweight 8-section template:
+
 - Context, Decision, Consequences (positives/negatives)
 - Alternatives, References
 
@@ -64,6 +66,7 @@ Lightweight 8-section template:
 4. Set status: `proposto`, `aceito`, `depreciado`, `substituído`
 
 **Naming convention:**
+
 ```
 ADR-001-nome-da-decisao.md
 ADR-002-openclaw-oauth-mvp.md
@@ -84,6 +87,7 @@ SPEC-*.md (Goals section)
 ```
 
 **Workflow:**
+
 1. `/spec <descrição>` generates a SPEC with slices
 2. Each slice becomes an ADR in `docs/ADRs/`
 3. `/pg` generates `tasks/pipeline.json` from the ADRs
@@ -92,12 +96,12 @@ SPEC-*.md (Goals section)
 
 ## ADR Status Lifecycle
 
-| Status | Meaning |
-|--------|---------|
-| `proposto` | Under review, not yet accepted |
-| `aceito` | Approved and implemented |
-| `depreciado` | No longer recommended |
-| `substituído` | Replaced by another ADR |
+| Status        | Meaning                        |
+| ------------- | ------------------------------ |
+| `proposto`    | Under review, not yet accepted |
+| `aceito`      | Approved and implemented       |
+| `depreciado`  | No longer recommended          |
+| `substituído` | Replaced by another ADR        |
 
 ---
 

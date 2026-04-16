@@ -1,10 +1,10 @@
 # SPEC-HERMES-INTEGRATION: Hermes Agent Integration Patterns
 
-**Date:** 2026-04-14
+**Date:** 2026-04-15
 **Author:** Principal Engineer
-**Status:** RESEARCH_COMPLETE
+**Status:** CURRENT
 **Type:** Architecture
-**Branch:** feature/quantum-helix-done
+**Branch:** feature/swift-kernel-1776284093
 
 ---
 
@@ -12,18 +12,21 @@
 
 Hermes Agent is now running as the central AI gateway for the homelab. This document defines integration patterns for other services to consume LLM capabilities through Hermes instead of calling providers directly.
 
-**Current Status (2026-04-14 14:56 UTC) — VERIFIED:**
+**Current Status (2026-04-15 20:44 UTC) — 100% LOCAL STACK:**
 
-- Hermes Gateway: RUNNING on `localhost:8642` (PID 3265372)
+- Hermes Gateway: RUNNING on `localhost:8642`
 - Health: `{"status":"ok","platform":"hermes-agent"}` (local and remote verified)
 - hermes.zappro.site: ✅ 200 OK (Cloudflare tunnel working)
 - API: OpenAI-compatible `/v1/chat/completions` + `/v1/models`
-- Primary LLM: MiniMax/MiniMax-M2.7
-- Fallback LLM: Ollama/qwen2.5vl:7b (local RTX 4090)
+- Primary LLM: Ollama/qwen2.5vl:7b (local, GPU)
+- Fallback LLM: llama3-portuguese-tomcat-8b-instruct-q8:latest (local)
+- MiniMax: DEPRECATED (available as commented fallback in .env)
+- Vision: Ollama/qwen2.5vl:7b (llava-phi3 crashes — do NOT use)
+- STT: faster-whisper-medium-pt :8204 ✅ FIXED (multipart OpenAI format supported)
+- TTS: Kokoro :8013 via TTS Bridge ✅ (voices pm_santa/pf_dora)
 - Telegram: ✅ Connected (polling mode)
   - Bot: @CEO_REFRIMIX_bot (verified via getMe)
   - Registered DM: Telegram user (ID: <user_id>)
-  - bot.zappro.site: ❌ 530 (degraded — OpenClaw legacy)
 
 ---
 
@@ -40,8 +43,8 @@ Hermes Agent is now running as the central AI gateway for the homelab. This docu
 │         ┌─────────────────┼─────────────────┐              │
 │         ▼                 ▼                 ▼              │
 │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐       │
-│  │  MiniMax    │  │   Ollama    │  │   Kokoro    │       │
-│  │  M2.7       │  │  qwen2.5vl  │  │   TTS       │       │
+│  │   Ollama    │  │   Ollama    │  │   Kokoro    │       │
+│  │  qwen2.5vl  │  │ llama3-pt   │  │   TTS       │       │
 │  │  (Primary)  │  │  (Fallback) │  │  :8013      │       │
 │  └─────────────┘  └─────────────┘  └─────────────┘       │
 │                           │                                │
@@ -209,6 +212,8 @@ For voice-enabled interactions:
 User Voice → Telegram → whisper-medium-pt STT (:8204) → Hermes → Kokoro TTS (:8013) → User Voice
 ```
 
+> **NOTE:** Vision model `llava-phi3` crashes when used via `/v1/chat/completions` (OpenAI format). Use `qwen2.5vl:7b` instead — it works via both OpenAI format and native `/api/chat`.
+
 ```typescript
 // Voice-enabled bot integration
 const voiceResponse = await fetch(`${HERMES_URL}/v1/chat/completions`, {
@@ -251,42 +256,45 @@ The monorepo currently does NOT have services that call LLM APIs directly with A
 
 Hermes has **two layers** of fallback:
 
-| Layer           | Config                     | Trigger                                   | Behavior                                  |
-| --------------- | -------------------------- | ----------------------------------------- | ----------------------------------------- |
-| **Error-based** | `llm.fallback` list        | MiniMax fails (429, 500, 503, auth error) | Automatic failover to Ollama              |
-| **One-shot**    | `fallback_model` top-level | Primary fails once per session            | Switches provider permanently for session |
+| Layer           | Config                     | Trigger                                 | Behavior                                  |
+| --------------- | -------------------------- | --------------------------------------- | ----------------------------------------- |
+| **Error-based** | `llm.fallback` list        | Ollama fails (timeout, OOM, auth error) | Automatic failover to llama3-portuguese   |
+| **One-shot**    | `fallback_model` top-level | Primary fails once per session          | Switches provider permanently for session |
 
 **Current config** (`~/.hermes/config.yaml`):
 
 ```yaml
 llm:
   primary:
-    provider: minimax
-    model: MiniMax-M2.7
-    api_key: ${MINIMAX_API_KEY}
-    base_url: https://api.minimax.io/anthropic
+    provider: ollama
+    model: qwen2.5vl:7b
+    base_url: http://localhost:11434
   fallback:
     - provider: ollama
-      model: qwen2.5vl:7b
+      model: llama3-portuguese-tomcat-8b-instruct-q8:latest
       base_url: http://localhost:11434
 ```
 
+> **NOTE:** MiniMax is DEPRECATED. Ollama `qwen2.5vl:7b` is now the primary (100% local, GPU). MiniMax API key remains in `.env` but is commented out for emergency fallback only.
+
 **Ollama models available** (RTX 4090):
 
-- `qwen2.5vl:7b` - Vision-language, 5.9GB (fallback target)
-- `llama3-portuguese-tomcat-8b-instruct-q8:latest` - Portuguese-specialized, 8.5GB
+- `qwen2.5vl:7b` - Vision-language, 5.9GB (PRIMARY — use for all tasks)
+- `llama3-portuguese-tomcat-8b-instruct-q8:latest` - Portuguese-specialized, 8.5GB (fallback)
 - `nomic-embed-text:latest` - Embeddings, 274MB
+- `llava-phi3:latest` - Vision (DO NOT USE — crashes on OpenAI format)
 
 ### 5.2 Optimized Fallback Strategy
 
-**Goal:** Preserve MiniMax quota by routing tasks intelligently.
+**Goal:** 100% local stack — no external API dependencies.
 
-| Task Type                                 | Provider              | Rationale                                |
-| ----------------------------------------- | --------------------- | ---------------------------------------- |
-| Complex reasoning, coding, analysis       | MiniMax M2.7          | Best quality for complex tasks           |
-| Simple Q&A, classification, summarization | Ollama (qwen2.5vl:7b) | Free, local, fast                        |
-| Vision tasks (screenshots)                | Ollama (qwen2.5vl:7b) | Already configured in `auxiliary.vision` |
-| Error recovery                            | Ollama                | Automatic on primary failure             |
+| Task Type                     | Provider                         | Rationale                            |
+| ----------------------------- | -------------------------------- | ------------------------------------ |
+| All text tasks                | Ollama qwen2.5vl:7b (primary)    | 100% local, fast, GPU-accelerated    |
+| Portuguese specialist tasks   | Ollama llama3-portuguese-tomcat  | Fine-tuned for PT-BR, local          |
+| Vision tasks (screenshots)    | Ollama qwen2.5vl:7b              | qwen2.5vl works; llava-phi3 CRASHES  |
+| Error recovery                | Ollama (fallback model)          | Automatic on primary failure         |
+| Emergency fallback (optional) | MiniMax M2.7 (commented in .env) | Only for catastrophic Ollama failure |
 
 **Implemented optimizations:**
 
@@ -382,12 +390,12 @@ Qdrant was planned for response caching to reduce LLM calls for RAG, but current
 
 ### 7.1 Priority Integration Candidates
 
-| Service                          | Current LLM Method     | Recommended Hermes Integration                            |
-| -------------------------------- | ---------------------- | --------------------------------------------------------- |
-| **Claude Code agents**           | Direct API calls       | Use Hermes for non-critical tasks, preserve MiniMax quota |
-| **Voice Pipeline**               | Direct Kokoro/wav2vec2 | Already integrated via Hermes Gateway                     |
-| **n8n workflows**                | LiteLLM or direct      | Add Hermes as additional LLM provider                     |
-| **OpenWebUI (chat.zappro.site)** | LiteLLM proxy          | Keep LiteLLM, use Hermes for specific skills              |
+| Service                          | Current LLM Method     | Recommended Hermes Integration                 |
+| -------------------------------- | ---------------------- | ---------------------------------------------- |
+| **Claude Code agents**           | Direct API calls       | Use Hermes for all tasks (100% local, no cost) |
+| **Voice Pipeline**               | Direct Kokoro/wav2vec2 | Already integrated via Hermes Gateway          |
+| **n8n workflows**                | LiteLLM or direct      | Add Hermes as additional LLM provider          |
+| **OpenWebUI (chat.zappro.site)** | LiteLLM proxy          | Keep LiteLLM, use Hermes for specific skills   |
 
 ### 7.2 NOT Recommended for Hermes Integration
 
@@ -406,13 +414,14 @@ Qdrant was planned for response caching to reduce LLM calls for RAG, but current
 HERMES_GATEWAY_URL=http://localhost:8642
 HERMES_API_KEY=<from ~/.hermes/secrets.env>
 
-# Voice Pipeline (built-in)
-KOKORO_TTS_URL=http://localhost:8013/v1
-WHISPER_STT_URL=http://localhost:8204/v1
+# Voice Pipeline (100% local)
+# STT: faster-whisper-medium-pt direct — supports multipart/OpenAI format
+STT_DIRECT_URL=http://localhost:8204
+# TTS: Kokoro via TTS Bridge — voices pm_santa/pf_dora
+TTS_BRIDGE_URL=http://localhost:8013
 
-# Fallback (when Hermes is down)
+# Ollama (local LLM + vision)
 OLLAMA_URL=http://localhost:11434
-LITELLM_URL=http://10.0.19.7:4000
 ```
 
 ---
@@ -452,7 +461,7 @@ async function isHermesHealthy(): Promise<boolean> {
 | ------------------------- | --------------------------------------------- |
 | Hermes API key exposure   | Store in `~/.hermes/secrets.env`, not in code |
 | External access to Hermes | Cloudflare Access for hermes.zappro.site      |
-| Rate limiting             | Hermes handles via MiniMax quotas             |
+| Rate limiting             | Ollama local — no external quotas             |
 | Audit logging             | Check Hermes logs in `~/.hermes/logs/`        |
 
 ---
@@ -495,12 +504,12 @@ async function isHermesHealthy(): Promise<boolean> {
 
 ---
 
-**Status:** Phase 2 complete — hermes.zappro.site verified working; Smart Fallback Strategy documented (Section 5)
+**Status:** Phase 3 complete — 100% local stack achieved; Ollama primary; MiniMax deprecated
 
 **Next Actions:**
 
-1. ✅ Verify Cloudflare tunnel ingress for hermes.zappro.site → :8642
-2. ✅ Test external health: `curl https://hermes.zappro.site/health`
-3. Update SUBDOMAINS.md with hermes.zappro.site entry (Telegram bot DNS)
-4. Document HERMES_API_KEY retrieval in skills
-5. ✅ Smart Fallback Strategy documented (Section 5) - MiniMax quota optimization via Ollama for auxiliary tasks
+1. ✅ Hermes Gateway running with 100% local Ollama stack
+2. ✅ STT multipart OpenAI format FIXED (:8204)
+3. ✅ Vision: qwen2.5vl works; llava-phi3 documented as crashing
+4. ✅ Smart Fallback Strategy updated (Section 5) — Ollama primary, MiniMax optional emergency fallback
+5. Document HERMES_API_KEY retrieval in skills

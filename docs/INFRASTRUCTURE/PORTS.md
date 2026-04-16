@@ -91,7 +91,8 @@ These ports are permanently reserved and MUST NOT be used without updating this 
 | 6333 | qdrant              | Coolify net (10.0.4.x) | Qdrant REST                                          | —                                 |
 | 6334 | zappro-qdrant       | host                   | Qdrant gRPC                                          | —                                 |
 | 6379 | zappro-redis        | host                   | Redis cache/pubsub                                   | —                                 |
-| 8012 | zappro-kokoro       | localhost              | Kokoro TTS (GPU)                                     | —                                 |
+| 8013 | zappro-tts-bridge   | localhost              | Kokoro TTS Bridge (pf_dora/pm_santa voices)          | —                                 |
+| 8012 | zappro-kokoro       | localhost              | Kokoro TTS (GPU direct)                              | —                                 |
 | 8880 | zappro-kokoro       | bridge (Coolify net)   | Kokoro TTS — `10.0.19.7:8880` for Coolify containers | —                                 |
 | 8888 | searxng             | host                   | Search engine                                        | —                                 |
 | 9090 | prometheus          | localhost              | TSDB metrics (30d)                                   | —                                 |

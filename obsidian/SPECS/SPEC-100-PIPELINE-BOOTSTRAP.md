@@ -10,6 +10,7 @@
 ## Objective
 
 Unificar `.claude/commands/` (wrapper commands) com `.agent/workflows/` (Antigravity workflows) num sistema único onde:
+
 - Claude Code CLI descobre workflows de `.agent/workflows/` via wrappers em `.claude/commands/`
 - Antigravity Kit descobre skills de `.claude/skills/` via symlinks
 - Pipeline runner executa 73 tasks do `pipeline.json` com Bootstrap Effect JSON
@@ -28,20 +29,20 @@ Unificar `.claude/commands/` (wrapper commands) com `.agent/workflows/` (Antigra
 4. Skills em `.claude/skills/`fazemsymlink para`~/.claude/agent-skills/skills/`
 5. Pipeline state é file-based JSON (sem banco de dados)
 6. Max 5 sub-agents simultâneos para não sobrecarregar
-→ Correct me now or I'll proceed with these.
+   → Correct me now or I'll proceed with these.
 
 ---
 
 ## Tech Stack
 
-| Component | Technology | Location |
-|-----------|-------------|----------|
-| Slash commands | `.claude/commands/*.md` | Auto-discovered by Claude Code |
-| Workflows | `.agent/workflows/*.md` | Source of truth |
-| Pipeline state | `tasks/pipeline-state.json` | File-based |
-| Bootstrap emitter | `.claude/agents/bootstrap-effect-emitter.md` | Agent |
-| Pipeline runner | `.claude/commands/pipeline.md` | Slash command |
-| Orchestrator | `.claude/agents/orchestrator.md` | Leader agent |
+| Component         | Technology                                   | Location                       |
+| ----------------- | -------------------------------------------- | ------------------------------ |
+| Slash commands    | `.claude/commands/*.md`                      | Auto-discovered by Claude Code |
+| Workflows         | `.agent/workflows/*.md`                      | Source of truth                |
+| Pipeline state    | `tasks/pipeline-state.json`                  | File-based                     |
+| Bootstrap emitter | `.claude/agents/bootstrap-effect-emitter.md` | Agent                          |
+| Pipeline runner   | `.claude/commands/pipeline.md`               | Slash command                  |
+| Orchestrator      | `.claude/agents/orchestrator.md`             | Leader agent                   |
 
 ---
 
@@ -106,6 +107,7 @@ Unificar `.claude/commands/` (wrapper commands) com `.agent/workflows/` (Antigra
 ## Problem: Broken Wrappers
 
 **Hoje (broken):**
+
 ```
 .claude/commands/feature.md  → "Leia e execute .claude/workflows/git-feature.md"
 .claude/commands/ship.md    → "Leia e execute .claude/workflows/git-ship.md"
@@ -115,6 +117,7 @@ Unificar `.claude/commands/` (wrapper commands) com `.agent/workflows/` (Antigra
 ```
 
 **Depois (fixed):**
+
 ```
 .claude/commands/feature.md  → "Leia e execute .agent/workflows/git-feature.md"
 .claude/commands/ship.md    → "Leia e execute .agent/workflows/git-ship.md"
@@ -217,6 +220,7 @@ argument-hint: [feature-name]
 ---
 
 Use the workflow in `.agent/workflows/git-feature.md`:
+
 1. Create feature branch from main
 2. Implement feature following spec
 3. Run tests and lint
@@ -254,13 +258,13 @@ Use the workflow in `.agent/workflows/git-feature.md`:
 
 ## Testing Strategy
 
-| Level | What | How |
-|-------|------|-----|
-| Unit | Wrapper points to existing workflow | `grep "agent/workflows" .claude/commands/*.md` |
-| Unit | Bootstrap schema valid | `jq . tasks/bootstrap-effect-schema.json` |
-| Integration | `//ship` creates PR | Invoke command |
-| Integration | `//pipeline status` shows dashboard | Invoke command |
-| E2E | Full CI/CD loop: PR → AI review → human gate | Gitea Actions run |
+| Level       | What                                         | How                                            |
+| ----------- | -------------------------------------------- | ---------------------------------------------- |
+| Unit        | Wrapper points to existing workflow          | `grep "agent/workflows" .claude/commands/*.md` |
+| Unit        | Bootstrap schema valid                       | `jq . tasks/bootstrap-effect-schema.json`      |
+| Integration | `//ship` creates PR                          | Invoke command                                 |
+| Integration | `//pipeline status` shows dashboard          | Invoke command                                 |
+| E2E         | Full CI/CD loop: PR → AI review → human gate | Gitea Actions run                              |
 
 ### CI/CD PR Loop Test (SPEC-015 verification)
 
@@ -273,7 +277,7 @@ git push -u gitea test/pr-loop && \
 gh pr create --title "test: PR loop verification" --body "## Test plan - [ ] CI passing"
 
 # 2. Verify Gitea Actions triggered
-# → https://git.zappro.site/will-zappro/monorepo/actions
+# → https://git.zappro.site/owner/monorepo/actions
 
 # 3. Verify AI review comment posted
 # → gh pr view --comments
@@ -287,6 +291,7 @@ gh pr create --title "test: PR loop verification" --body "## Test plan - [ ] CI 
 ## Boundaries
 
 ### Always do
+
 - Wrapper commands leem de `.agent/workflows/` (não de `.claude/workflows/` que não existe)
 - Pipeline state persiste após cada task
 - Bootstrap effect emitido ANTES de pedir ajuda genérica
@@ -294,12 +299,14 @@ gh pr create --title "test: PR loop verification" --body "## Test plan - [ ] CI 
 - Commits incluem `Co-Authored-By`
 
 ### Ask first
+
 - Adicionar nova fase ao pipeline.json
 - Modificar Bootstrap Effect JSON Schema
 - Desabilitar checkpoints entre fases
 - Remover workflow de `.agent/workflows/`
 
 ### Never do
+
 - Commitar secrets em `pipeline-state.json`
 - Modificar `.agent/` (é external, readonly)
 - Loop infinito pedindo ajuda (sempre bootstrap effect)
@@ -310,24 +317,24 @@ gh pr create --title "test: PR loop verification" --body "## Test plan - [ ] CI 
 
 ## Success Criteria
 
-| # | Criterion | Verification |
-|---|-----------|--------------|
-| SC-1 | `/ship` funciona (wrapper encontra `.agent/workflows/git-ship.md`) | Invoke command |
-| SC-2 | `/feature` funciona | Invoke command |
-| SC-3 | `/turbo` funciona | Invoke command |
-| SC-4 | `/pipeline` command carrega | `ls .claude/commands/pipeline.md` |
-| SC-5 | Bootstrap Effect JSON válido | `jq . tasks/bootstrap-effect-schema.json` |
-| SC-6 | Phase 1 completa 11/11 | `//pipeline phase 1` |
-| SC-7 | CI/CD PR loop: PR → AI review → human gate | Gitea Actions run |
-| SC-8 | Orchestrator detecta gate ANTES de pedir ajuda | Leader emite JSON |
+| #    | Criterion                                                          | Verification                              |
+| ---- | ------------------------------------------------------------------ | ----------------------------------------- |
+| SC-1 | `/ship` funciona (wrapper encontra `.agent/workflows/git-ship.md`) | Invoke command                            |
+| SC-2 | `/feature` funciona                                                | Invoke command                            |
+| SC-3 | `/turbo` funciona                                                  | Invoke command                            |
+| SC-4 | `/pipeline` command carrega                                        | `ls .claude/commands/pipeline.md`         |
+| SC-5 | Bootstrap Effect JSON válido                                       | `jq . tasks/bootstrap-effect-schema.json` |
+| SC-6 | Phase 1 completa 11/11                                             | `//pipeline phase 1`                      |
+| SC-7 | CI/CD PR loop: PR → AI review → human gate                         | Gitea Actions run                         |
+| SC-8 | Orchestrator detecta gate ANTES de pedir ajuda                     | Leader emite JSON                         |
 
 ---
 
 ## Open Questions
 
-| # | Question | Blocks |
-|---|----------|--------|
-| OQ-1 | Max agents simultâneos = 5 ou 100? | Task 6 |
-| OQ-2 | Executar pipeline em background via cron? | Task 6 |
+| #    | Question                                        | Blocks          |
+| ---- | ----------------------------------------------- | --------------- |
+| OQ-1 | Max agents simultâneos = 5 ou 100?              | Task 6          |
+| OQ-2 | Executar pipeline em background via cron?       | Task 6          |
 | OQ-3 | Qdrant/n8n legacy parados em localhost → prune? | health-check.sh |
-| OQ-4 | Como testar bootstrap effect sem gate real? | Task 1 |
+| OQ-4 | Como testar bootstrap effect sem gate real?     | Task 1          |
