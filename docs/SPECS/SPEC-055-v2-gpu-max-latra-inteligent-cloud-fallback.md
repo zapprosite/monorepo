@@ -16,29 +16,40 @@ specRef: SPEC-053, SPEC-054, SPEC-048, SPEC-009
 
 ## Hardware
 
-| Componente  | Especificação                               |
-| ----------- | ------------------------------------------- |
-| GPU         | NVIDIA RTX 4090 — 24 GB VRAM (water cooled) |
-| Water block | Custom loop — aguenta 24/7 em high load     |
-| VRAM Used   | ~1.0 GB (Xorg + GNOME overhead fixo)        |
-| VRAM Free   | ~22.5 GB disponível para modelos            |
+| Componente  | Especificação                                          |
+| ----------- | ------------------------------------------------------ |
+| GPU         | NVIDIA RTX 4090 — 24 GB VRAM (water cooled)            |
+| Water block | Custom loop — aguenta 24/7 em high load                |
+| VRAM Used   | ~2.9 GB (Ollama + whisper + Kokoro + nomic + RustDesk) |
+| VRAM Free   | ~20.6 GB disponível para modelos                       |
 
 ---
 
-## VRAM Budget — Stack Maximizada
+## VRAM Budget — Stack Lean Actual (16/04/2026)
 
 ```
-FULL GPU STACK (pico):
-├── whisper-medium-pt   │  4.0 GB  │ STT local PRIMARY
-├── Kokoro TTS GPU    │  1.5 GB  │ TTS local PRIMARY
-├── llama4-scout-17B  │ 11.0 GB  │ LLM + visão + 1M ctx
-└── nomic-embed-text  │  0.5 GB  │ embedding
+LEAN STACK ACTUAL (qwen2.5vl/llama3-tomcat/llava-phi3 descargados):
+├── whisper-medium-pt   │  4.0 GB  │ STT local PRIMARY (:8204)
+├── Kokoro TTS GPU      │  0.5 GB  │ TTS local (:8013)
+├── nomic-embed-text    │  0.5 GB  │ Qdrant RAG (carregado)
+├── Ollama + runtime    │  1.5 GB  │ overhead
+└── RustDesk (2x)       │  0.9 GB  │ FIXO
 ───────────────────────────────────────────
-TOTAL GPU              │ 17.0 GB  ★ 7.5 GB LIVRE
+TOTAL GPU              │  7.4 GB  ★ 16.6 GB LIVRE
+
+FULL GPU STACK (llama4-scout disponível):
+├── llama4-scout-17B    │ 11.0 GB  │ LLM + visão + 1M ctx
+├── whisper-medium-pt   │  4.0 GB  │ STT local PRIMARY
+├── Kokoro TTS GPU      │  1.5 GB  │ TTS local PRIMARY
+├── nomic-embed-text    │  0.5 GB  │ embedding
+└── nomic-embed-text    │  0.5 GB  │ RustDesk + overhead
+───────────────────────────────────────────
+TOTAL GPU              │ 17.5 GB  ★  6.5 GB LIVRE
 ```
 
-**Pico real**: ~17GB VRAM com llama4-scout-17B activo
-**Idle GPU**: ~7.5GB livre quando LLM activo
+**Pico real agora**: ~7.4GB VRAM com stack lean
+**Pico futuro**: ~17.5GB VRAM com llama4-scout-17B activo
+**VRAM livre agora**: ~20.6 GB (buffer enorme para 24/7)
 
 ---
 
