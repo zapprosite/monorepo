@@ -208,8 +208,11 @@ main() {
     else
       log "📝 Staging and committing changes..."
       git add -A
-      local changed_files; changed_files=$(git diff --cached --stat 2>/dev/null | tail -1 | sed 's/[[:space:]]*[[:digit:]]*[[:space:]]*file.*//' | xargs echo || echo 'auto fixes')
-      git commit -m "fix: apply cursor-loop auto-fixes ($(echo "$changed_files" | cut -d' ' -f1 || echo 'changes'))" 2>/dev/null \
+      local changed_files
+      changed_files=$(git diff --cached --stat 2>/dev/null | tail -1 | awk '{print $1}')
+      # fallback: if empty or literally "file", use generic
+      [[ -z "$changed_files" || "$changed_files" == "file" ]] && changed_files="changes"
+      git commit -m "fix: apply cursor-loop auto-fixes ($changed_files)" 2>/dev/null \
         && log "✅ Changes committed" \
         || log "⚠️  git commit failed (check hook or signed commit)"
     fi

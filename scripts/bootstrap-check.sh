@@ -15,6 +15,10 @@ if [[ -f "$ENV_FILE" ]]; then
   set -a; source "$ENV_FILE"; set +a
 fi
 
+# ── Constants ─────────────────────────────────────────────────
+# Minimum length to consider a secret (shorter values are masked as ****)
+MIN_SECRET_LEN=8
+
 # ── Required secrets ──────────────────────────────────────────
 REQUIRED_SECRETS=(
   "COOLIFY_URL"
@@ -50,7 +54,7 @@ secret_is_set() {
 secret_masked() {
   local value="${!1:-}"
   if [[ -z "$value" ]]; then echo "NOT SET"
-  elif [[ ${#value} -le 8 ]]; then echo "****"  # mask short secrets in JSON output
+  elif [[ ${#value} -le $MIN_SECRET_LEN ]]; then echo "****"  # mask short secrets in JSON output
   else echo "${value:0:4}...${value: -4}"
   fi
 }
