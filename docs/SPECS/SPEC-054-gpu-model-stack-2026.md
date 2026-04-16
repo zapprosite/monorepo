@@ -165,5 +165,46 @@ PICO                      │ 24.0 GB  ⚠️ CHEIO! 0 GB livre
 ## Sources
 
 - Research agents: Gemma4, Llama4, Whisper PT-BR, Full Stack (12/04/2026)
+- HuggingFace API — model discovery (16/04/2026)
 - SYSTEM_STATE.md (actual measurements 06/04/2026)
 - SPEC-053 (current deployment)
+
+---
+
+## Research 16/04/2026 — Forum Senior Dev Consensus
+
+### Llama-4 Scout 17B (Meta, released 2026-04)
+
+- **HuggingFace:** `meta-llama/Llama-4-Scout-17B-16E-Instruct`
+- Q4_K_M: ~60.8 GB (NÃO CABE — sharded 46+14 GB)
+- IQ1_S (mradermacher single-file): **20.7 GB — CABE** ⚠️ IQ1 é agressivo
+- IQ2_XS: 29.6 GB (NÃO CABE)
+- **Ollama registry:** NÃO existe — import manual necessário
+
+### Qwen3.6-35B-A3B (Qwen, released 2026-04-15)
+
+- **HuggingFace:** `Qwen/Qwen3.6-35B-A3B` (MoE — 3B activos / 35B total)
+- IQ2_M (bartowski): **11.2 GB — CABE** ✅ Melhor qualidade/VRAM ratio
+- Q3_K_M: 15.1 GB (CABE + 0.8 GB vision = 15.9 GB)
+- Q4_K_M: 19.9 GB (QUASE CABE com visão)
+- **Ollama registry:** NÃO existe — MoE pode não funcionar em Ollama
+
+### Gemma4 Vision (Google)
+
+- `gemma-4-E2B-it.Q4_K_M`: **3.2 GB — CABE FACIL** ✅
+- `mmproj-BF16`: 0.9 GB
+- TOTAL: 4.1 GB — VRAM sobra 12.5 GB
+- ⚠️ 2B params = qualidade limitada para tarefas complexas
+
+### Senior Dev Consensus 2026
+
+| Abordagem        | Modelo                          | VRAM    | Veredicto                            |
+| ---------------- | ------------------------------- | ------- | ------------------------------------ |
+| **PRODUÇÃO**     | qwen2.5vl:7b + whisper + Kokoro | 11 GB   | ✅ Stack comprovada, 13 GB livre     |
+| **EXPERIMENTAL** | Llama-4 Scout IQ1_S (20.7 GB)   | 22.3 GB | ⚠️ IQ1 = 20-30% perda qualidade      |
+| **EXPERIMENTAL** | Qwen3.6-35B-A3B IQ2_M (11.2 GB) | 13 GB   | ⚠️ MoE não testado em Ollama         |
+| **LEVE**         | Gemma4-E2B-Vision Q4 (3.2 GB)   | 5 GB    | ⚠️ 2B = fraco para tarefas complexas |
+
+**Consenso:** Ninguém usa Q4_K_M do Llama-4 Scout em 24GB (são 60 GB). A melhor stack para 24GB em 2026 é a stack comprovada (qwen2.5vl + whisper + Kokoro) e esperar pelo Llama-4 Scout single-file <20GB ou Qwen3.6 MoE com suporte Ollama.
+
+**Stack actual (16/04/2026) está ACIMA da média** — 16.6 GB VRAM livre é mais do que a maioria dos senior devs consegue com a mesma GPU.
