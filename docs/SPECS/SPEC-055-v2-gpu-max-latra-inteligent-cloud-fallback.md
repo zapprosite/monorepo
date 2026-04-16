@@ -316,13 +316,38 @@ curl -X POST https://api.deepgram.com/v1/listen \
 
 ## Success Criteria
 
-- [ ] llama4-scout-17B Q4 pullado e a funcionar em :11434
-- [ ] VRAM < 12GB → GROQ activa automatico
-- [ ] VRAM < 8GB → Deepgram activa automatico
-- [ ] whisper-medium-pt :8204 activo como primary
-- [ ] Kokoro :8013 sempre local (TTS)
+- [ ] llama4-scout-17B Q4 pullado e a funcionar em :11434 ⚠️ BLOQUEADO — modelo ainda não disponível no registry Ollama
+- [x] VRAM-aware rate limiter implementado (`scripts/smart-stt-selector.py`)
+- [x] whisper-medium-pt :8204 activo como primary (local)
+- [x] Kokoro :8013 sempre local (TTS)
+- [ ] VRAM < 12GB → GROQ activa automatico (pendente validação endpoint)
+- [ ] VRAM < 8GB → Deepgram activa automatico (key needs re-validation)
 - [ ] Smoke test passa: STT local + cloud fallback
 - [ ] Custo cloud: $0 (free tiers)
+
+## Implementation (2026-04-16)
+
+### T3: VRAM-aware rate limiter ✅
+
+```bash
+# scripts/smart-stt-selector.py
+python3 scripts/smart-stt-selector.py
+# Output: STT_PROVIDER=local | STT_URL=http://localhost:8204 | VRAM_FREE_GB=20.6
+```
+
+### Shell wrapper
+
+```bash
+source scripts/stt-selector.env
+echo $STT_PROVIDER  # local | groq | deepgram
+```
+
+### Current state
+
+- VRAM livre: ~20.5 GB (GPU activa com qwen2.5vl:7b + whisper-medium-pt + Kokoro)
+- STT Provider: **local** (:8204) — 20.5 GB > 12 GB threshold
+- GROQ_API_KEY guardado em .env (pendente validação endpoint)
+- DEEPGRAM_API_KEY guardado em .env (key requer re-validação)
 
 ---
 
