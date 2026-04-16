@@ -16,31 +16,31 @@ specRef: SPEC-053, SPEC-054, SPEC-048, SPEC-009
 
 ## Hardware
 
-| Componente  | Especificação                                                        |
-| ----------- | -------------------------------------------------------------------- |
-| GPU         | NVIDIA RTX 4090 — 24 GB VRAM (water cooled)                          |
-| Water block | Custom loop — aguenta 24/7 em high load                              |
-| VRAM Used   | ~9.6 GB (Ollama + whisper + Kokoro + nomic + Qwen3-VL-8B + RustDesk) |
-| VRAM Free   | ~14.4 GB disponível para modelos                                     |
+| Componente  | Especificação                                                         |
+| ----------- | --------------------------------------------------------------------- |
+| GPU         | NVIDIA RTX 4090 — 24 GB VRAM (water cooled)                           |
+| Water block | Custom loop — aguenta 24/7 em high load                               |
+| VRAM Used   | ~9.6 GB (Ollama + whisper + Kokoro + nomic + qwen2.5vl:7b + RustDesk) |
+| VRAM Free   | ~14.4 GB disponível para modelos                                      |
 
 ---
 
 ## VRAM Budget — Stack Lean Actual (16/04/2026)
 
 ```
-STACK LEAN DEFINITIVA (Qwen3-VL-8B + whisper + Kokoro):
+STACK LEAN DEFINITIVA (qwen2.5vl:7b + whisper + Kokoro):
 ├── whisper-medium-pt   │  4.0 GB  │ STT local PRIMARY (:8204)
 ├── Kokoro TTS          │  0.5 GB  │ TTS local (:8013)
 ├── nomic-embed-text    │  0.5 GB  │ Qdrant RAG (carregado)
-├── Qwen3-VL-8B IQ1_S   │  3.2 GB  │ LLM + visão, 128K ctx
+├── qwen2.5vl:7b         │  4.5 GB  │ LLM + visão, 128K ctx
 ├── Ollama + runtime    │  0.5 GB  │ overhead
 └── RustDesk (2x)       │  0.9 GB  │ FIXO
 ───────────────────────────────────────────
 TOTAL GPU              │  9.6 GB  ★ 14.4 GB LIVRE
 
 STACK FUTURA (Gemma4-12b-it upgrade):
-├── Gemma4-12b-it Q4    │  7.0 GB  │ LLM text (32K ctx)
-├── Qwen3-VL-8B (visão) │  3.2 GB  │ visão (mantido)
+├── Gemma4-12b-it       │  7.0 GB  │ LLM text (32K ctx)
+├── qwen2.5vl:7b (visão) │  ~4.5 GB │ visão (mantido)
 ├── whisper-medium-pt   │  4.0 GB  │ STT local PRIMARY
 ├── Kokoro TTS          │  0.5 GB  │ TTS local PRIMARY
 ├── nomic-embed-text    │  0.5 GB  │ embedding
@@ -74,8 +74,8 @@ TOTAL GPU              │ 16.6 GB  ★  7.4 GB LIVRE
 │  ┌─────────────────────────────────────────────────────┐  │
 │  │              LLM SELECTOR                             │  │
 │  │                                                      │  │
-│  │  PRIMARY: Qwen3-VL-8B IQ1_S (:11434) — ✅ ACTUAL    │  │
-│  │  FALLBACK #2: Gemma4-12b-it Q4 (:11434) — ⏳FUTURO  │  │
+│  │  PRIMARY: qwen2.5vl:7b (:11434) — ✅ ACTUAL          │  │
+│  │  FALLBACK #2: Gemma4-12b-it (:11434) — ⏳FUTURO     │  │
 │  └─────────────────────────────────────────────────────┘  │
 │                         ↓                                    │
 │  ┌─────────────────────────────────────────────────────┐  │
@@ -178,11 +178,11 @@ def get_stt_provider():
 
 ## Modelos
 
-### Qwen3-VL-8B IQ1_S (PRIMARY LLM ACTUAL)
+### qwen2.5vl:7b (PRIMARY LLM ACTUAL)
 
 | Item             | Valor                            |
 | ---------------- | -------------------------------- |
-| **VRAM**         | ~3.2 GB (IQ1_S + mmproj)         |
+| **VRAM**         | ~4.5 GB (native + mmproj)        |
 | **Context**      | **128K tokens** ★★★★★            |
 | **Capabilities** | Texto + Visão                    |
 | **Quality**      | 8B params, multimodal            |
@@ -206,14 +206,14 @@ def get_stt_provider():
 | **Endpoint** | :8013                        |
 | **Status**   | SPEC-009 canonical           |
 
-### Gemma4-12b-it Q4 (FUTURE UPGRADE — texto)
+### Gemma4-12b-it (FUTURE UPGRADE — texto)
 
-| Item             | Valor                                       |
-| ---------------- | ------------------------------------------- |
-| **VRAM**         | ~7 GB Q4_K_M                                |
-| **Context**      | 32k                                         |
-| **Capabilities** | Texto (sem visão)                           |
-| **Use**          | Upgrade para texto (visão fica Qwen3-VL-8B) |
+| Item             | Valor                                        |
+| ---------------- | -------------------------------------------- |
+| **VRAM**         | ~7 GB                                        |
+| **Context**      | 32k                                          |
+| **Capabilities** | Texto (sem visão)                            |
+| **Use**          | Upgrade para texto (visão fica qwen2.5vl:7b) |
 
 ---
 
@@ -328,7 +328,7 @@ curl -X POST https://api.deepgram.com/v1/listen \
 
 ## Success Criteria
 
-- [x] Qwen3-VL-8B IQ1_S importado e a funcionar em :11434 ✅
+- [x] qwen2.5vl:7b funcionando em :11434 ✅
 - [x] VRAM-aware rate limiter implementado (`scripts/smart-stt-selector.py`)
 - [x] whisper-medium-pt :8204 activo como primary (local)
 - [x] Kokoro :8013 sempre local (TTS)
@@ -356,7 +356,7 @@ echo $STT_PROVIDER  # local | groq | deepgram
 
 ### Current state
 
-- VRAM livre: ~14.4 GB (GPU activa com Qwen3-VL-8B + whisper-medium-pt + Kokoro)
+- VRAM livre: ~14.4 GB (GPU activa com qwen2.5vl:7b + whisper-medium-pt + Kokoro)
 - STT Provider: **local** (:8204) — 14.4 GB > 12 GB threshold
 - GROQ_API_KEY guardado em .env (pendente validação endpoint)
 - DEEPGRAM_API_KEY guardado em .env (key requer re-validação)

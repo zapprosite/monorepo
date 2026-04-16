@@ -31,7 +31,7 @@ if [ -z "$MINIMAX_API_KEY" ]; then
 fi
 
 # =============================================================================
-# Build research prompt
+# Build research prompt (escape topic for safe JSON embedding)
 # =============================================================================
 RESEARCH_PROMPT="You are a research analyst. Provide a comprehensive, structured analysis of the following topic. Include key facts, recent developments, trade-offs, and actionable insights.
 
@@ -51,6 +51,8 @@ Be thorough but concise. Format with markdown headings (##)."
 PAYLOAD=$(python3 -c "
 import json, sys
 content = '''$RESEARCH_PROMPT'''
+# Escape any triple-quotes in content to prevent JSON breakage
+content = content.replace('\"\"\"', '<TRIPLE_QUOTE>')
 payload = {
     'model': 'MiniMax-M2.1',
     'messages': [{'role': 'user', 'content': content}],
@@ -60,16 +62,19 @@ payload = {
 print(json.dumps(payload))
 ")
 
-RESPONSE=$(curl -s -m 30 -X POST "https://api.minimax.io/anthropic/v1/messages" \
+HTTP_CODE=$(curl -s -m 30 -o /tmp/minimax_response.json -w "%{http_code}" -X POST "https://api.minimax.io/anthropic/v1/messages" \
     -H "Authorization: Bearer $MINIMAX_API_KEY" \
     -H "Content-Type: application/json" \
     -H "anthropic-version: 2023-06-01" \
     -d "$PAYLOAD")
 
-if [ -z "$RESPONSE" ]; then
-    echo "ERROR: Empty response from MiniMax API" >&2
+if [ "$HTTP_CODE" -ne 200 ]; then
+    echo "ERROR: MiniMax API returned HTTP $HTTP_CODE" >&2
+    cat /tmp/minimax_response.json >&2
     exit 1
 fi
+
+RESPONSE=$(cat /tmp/minimax_response.json)
 
 # Parse response — extract content from MiniMax response
 echo "$RESPONSE" | python3 -c "

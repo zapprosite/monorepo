@@ -19,7 +19,7 @@ These are the built-in slash commands available in Claude Code CLI. They invoke 
 | `/rr`   | Generate a code review report (REVIEW-\*.md)                                            | Before committing significant changes, to catch issues                            |
 | `/se`   | Scan code for exposed secrets before git push (ghp*, gho*, ghu*, ghs*, etc.)            | Before any `git push` — mandatory safety gate                                     |
 | `/hg`   | Identify tasks blocked by human-approval gates                                          | When you hit a blocker and need to know what requires human sign-off              |
-| `/img`  | Analyze an image using Qwen3-VL local via Ollama                                        | Inspecting screenshots, diagrams, or visual content in the codebase               |
+| `/img`  | Analyze an image using qwen2.5vl:7b local via Ollama                                    | Inspecting screenshots, diagrams, or visual content in the codebase               |
 
 ### Development Workflow Commands
 

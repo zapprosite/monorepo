@@ -25,7 +25,7 @@ Migrar o **OpenClaw Bot** para o **Hermes-Agent** como novo Core do homelab. O H
 ## Arquitetura-Alvo
 
 > **DEPRECATED:** MiniMax como LLM primário foi substituído. Ver **SPEC-053** para arquitetura 100% local.
-> **LLM primário actual:** Ollama `Qwen3-VL-8B-Instruct` (local, GPU). MiniMax mantido como fallback commented em `.env`.
+> **LLM primário actual:** Ollama `qwen2.5vl:7b` (local, GPU). MiniMax mantido como fallback commented em `.env`.
 
 ```
 ┌─────────────────────────────────────────────────────┐
@@ -33,7 +33,7 @@ Migrar o **OpenClaw Bot** para o **Hermes-Agent** como novo Core do homelab. O H
 │                                                     │
 │  ┌─────────────┐  ┌─────────────┐  ┌────────────┐ │
 │  │  Ollama     │  │  Ollama     │  │  DeepSeek  │ │
-│  │  Qwen3-VL   │  │  llama3-pt  │  │  (Backup)  │ │
+│  │  qwen2.5vl:7b   │  │  llama3-pt  │  │  (Backup)  │ │
 │  │  (Primary)  │  │  (Fallback) │  │            │ │
 │  │  RTX 4090   │  │  RTX 4090   │  │            │ │
 │  └─────────────┘  └─────────────┘  └────────────┘ │
@@ -141,11 +141,11 @@ perplexity_browser/
 
 ### Modificar
 
-| Path                                                              | Mudança                                                              |
-| ----------------------------------------------------------------- | -------------------------------------------------------------------- |
-| `~/.hermes/config.yaml`                                           | Ollama primary (Qwen3-VL), MiniMax commented fallback (ver SPEC-053) |
-| `~/.hermes/personalities/master_agency.md`                        | SOUL.md migrado                                                      |
-| `/srv/monorepo/.claude/skills/coolify-sre/scripts/sre-monitor.sh` | ✅ FIXO (restart loop)                                               |
+| Path                                                              | Mudança                                                                  |
+| ----------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| `~/.hermes/config.yaml`                                           | Ollama primary (qwen2.5vl:7b), MiniMax commented fallback (ver SPEC-053) |
+| `~/.hermes/personalities/master_agency.md`                        | SOUL.md migrado                                                          |
+| `/srv/monorepo/.claude/skills/coolify-sre/scripts/sre-monitor.sh` | ✅ FIXO (restart loop)                                                   |
 
 ### Executar
 
@@ -154,7 +154,7 @@ perplexity_browser/
 | Preview migração  | `hermes claw migrate --dry-run`                                                                          |
 | Executar migração | `hermes claw migrate --preset user-data`                                                                 |
 | Instalar Hermes   | `curl -fsSL https://raw.githubusercontent.com/NousResearch/hermes-agent/main/scripts/install.sh \| bash` |
-| Configurar model  | `hermes model` → Ollama Qwen3-VL-8B-Instruct (ver SPEC-053)                                              |
+| Configurar model  | `hermes model` → Ollama qwen2.5vl:7b (ver SPEC-053)                                                      |
 
 ---
 
@@ -166,12 +166,12 @@ perplexity_browser/
 
 > ⚠️ **MiniMax deprecated** — SPEC-053.define Ollama local como primário. MiniMax mantido apenas como fallback commented em `.env`.
 
-| Estratégia            | Implementação                                                   |
-| --------------------- | --------------------------------------------------------------- |
-| **Cache inteligente** | Usar Qdrant para cache de embeddings de queries frequentes      |
-| **Fallback Ollama**   | gemma4:latest na RTX 4090 para queries não-críticas             |
-| **Rate limiting**     | Implementar token bucket no Hermes config                       |
-| **Canonical LLM**     | **SPEC-053:** Ollama Qwen3-VL-8B-Instruct primário (100% local) |
+| Estratégia            | Implementação                                              |
+| --------------------- | ---------------------------------------------------------- |
+| **Cache inteligente** | Usar Qdrant para cache de embeddings de queries frequentes |
+| **Fallback Ollama**   | gemma4:latest na RTX 4090 para queries não-críticas        |
+| **Rate limiting**     | Implementar token bucket no Hermes config                  |
+| **Canonical LLM**     | **SPEC-053:** Ollama qwen2.5vl:7b primário (100% local)    |
 
 ### Hermes 0.6.0+ vs OpenClaw
 
@@ -193,20 +193,20 @@ perplexity_browser/
 
 ## Success Criteria
 
-| #     | Criterion                                                                 | Status | Notes                                                                                            |
-| ----- | ------------------------------------------------------------------------- | ------ | ------------------------------------------------------------------------------------------------ |
-| SC-1  | Hermes-Agent instalado e configurado no Ubuntu Desktop                    | ✅     | hermes v0.9.0 installed                                                                          |
-| SC-2  | `hermes claw migrate` executado com sucesso                               | ✅     | 21 items migrated                                                                                |
-| SC-3  | Ollama Qwen3-VL-8B-Instruct configurado como primary model (ver SPEC-053) | ✅     | In config.yaml — MiniMax deprecated                                                              |
-| SC-4  | Ollama Gemma4-12b-it configurado como fallback (RTX 4090)                 | ✅     | Changed from gemma4 (gemma4 is legacy)                                                           |
-| SC-5  | perplexity_browser skill criada e funcional                               | ✅     |                                                                                                  |
-| SC-6  | coolify_sre skill com restart loop detection                              | ✅     | sre-monitor.sh active                                                                            |
-| SC-7  | hermes.json com crons centralizados                                       | ✅     | Crons installed and operational                                                                  |
-| SC-8  | OpenClaw disable executado                                                | ✅     | Containers stopped, migration complete                                                           |
-| SC-9  | MCP server para Open WebUI configurado                                    | ⚠️     | MCPO functional, 10 messaging tools available. Hermes skills NOT via MCP. OpenWebUI not running. |
-| SC-10 | Zero true duplicates nos crons                                            | ✅     |                                                                                                  |
-| SC-11 | Hermes Gateway instalado e configurado                                    | ✅     | 2026-04-14 — gateway as endpoint for bot.zappro.site                                             |
-| SC-12 | Voice Pipeline integrado ao Hermes                                        | ✅     | Kokoro TTS + whisper-medium-pt STT + TTS Bridge                                                  |
+| #     | Criterion                                                         | Status | Notes                                                                                            |
+| ----- | ----------------------------------------------------------------- | ------ | ------------------------------------------------------------------------------------------------ |
+| SC-1  | Hermes-Agent instalado e configurado no Ubuntu Desktop            | ✅     | hermes v0.9.0 installed                                                                          |
+| SC-2  | `hermes claw migrate` executado com sucesso                       | ✅     | 21 items migrated                                                                                |
+| SC-3  | Ollama qwen2.5vl:7b configurado como primary model (ver SPEC-053) | ✅     | In config.yaml — MiniMax deprecated                                                              |
+| SC-4  | Ollama Gemma4-12b-it configurado como fallback (RTX 4090)         | ✅     | Changed from gemma4 (gemma4 is legacy)                                                           |
+| SC-5  | perplexity_browser skill criada e funcional                       | ✅     |                                                                                                  |
+| SC-6  | coolify_sre skill com restart loop detection                      | ✅     | sre-monitor.sh active                                                                            |
+| SC-7  | hermes.json com crons centralizados                               | ✅     | Crons installed and operational                                                                  |
+| SC-8  | OpenClaw disable executado                                        | ✅     | Containers stopped, migration complete                                                           |
+| SC-9  | MCP server para Open WebUI configurado                            | ⚠️     | MCPO functional, 10 messaging tools available. Hermes skills NOT via MCP. OpenWebUI not running. |
+| SC-10 | Zero true duplicates nos crons                                    | ✅     |                                                                                                  |
+| SC-11 | Hermes Gateway instalado e configurado                            | ✅     | 2026-04-14 — gateway as endpoint for bot.zappro.site                                             |
+| SC-12 | Voice Pipeline integrado ao Hermes                                | ✅     | Kokoro TTS + whisper-medium-pt STT + TTS Bridge                                                  |
 
 ---
 

@@ -45,13 +45,13 @@ curl -X POST localhost:8642/v1/chat/completions \
 "model":"minimax","choices":[{"message":{"content":"Hello there, friend!"}}],"usage":{...}}
 ```
 
-### 3. Ollama Qwen3-VL-8B-Instruct (Fallback Model)
+### 3. Ollama qwen2.5vl:7b (Fallback Model)
 
-| Test            | Command                         | Result                                   | Status  |
-| --------------- | ------------------------------- | ---------------------------------------- | ------- |
-| Ollama direct   | `POST localhost:11434/api/chat` | `{"content":"Hello there!"}`             | ✅ PASS |
-| Config fallback | `config.yaml`                   | `Qwen3-VL-8B-Instruct @ localhost:11434` | ✅ PASS |
-| Model available | `GET localhost:11434/api/tags`  | Qwen3-VL-8B-Instruct listed              | ✅ PASS |
+| Test            | Command                         | Result                           | Status  |
+| --------------- | ------------------------------- | -------------------------------- | ------- |
+| Ollama direct   | `POST localhost:11434/api/chat` | `{"content":"Hello there!"}`     | ✅ PASS |
+| Config fallback | `config.yaml`                   | `qwen2.5vl:7b @ localhost:11434` | ✅ PASS |
+| Model available | `GET localhost:11434/api/tags`  | qwen2.5vl:7b listed              | ✅ PASS |
 
 ### 4. Voice Pipeline
 
@@ -115,18 +115,18 @@ curl -X POST localhost:8642/v1/chat/completions \
 
 ## Success Criteria Validation
 
-| ID    | Criterion                            | Status     | Evidence                         |
-| ----- | ------------------------------------ | ---------- | -------------------------------- |
-| SC-1  | Hermes-Agent installed               | ✅ DONE    | v0.9.0 running                   |
-| SC-2  | hermes claw migrate executed         | ✅ DONE    | 21 items migrated                |
-| SC-3  | MiniMax 2.7 primary model            | ✅ DONE    | Configured + responding          |
-| SC-4  | Ollama Qwen3-VL-8B-Instruct fallback | ✅ DONE    | Configured + responding          |
-| SC-5  | perplexity_browser skill             | ⚠️ PARTIAL | Files exist, blocked by SPEC-039 |
-| SC-6  | coolify_sre restart loop detection   | ✅ DONE    | sre-monitor.sh active            |
-| SC-7  | hermes.json crons centralized        | ✅ DONE    | 10 crons installed               |
-| SC-8  | OpenClaw disable                     | ✅ DONE    | Containers stopped               |
-| SC-9  | MCP server for Open WebUI            | ⚠️ BLOCKED | Depends on SPEC-039              |
-| SC-10 | Zero true cron duplicates            | ✅ DONE    | Tunnel health unified            |
+| ID    | Criterion                          | Status     | Evidence                         |
+| ----- | ---------------------------------- | ---------- | -------------------------------- |
+| SC-1  | Hermes-Agent installed             | ✅ DONE    | v0.9.0 running                   |
+| SC-2  | hermes claw migrate executed       | ✅ DONE    | 21 items migrated                |
+| SC-3  | MiniMax 2.7 primary model          | ✅ DONE    | Configured + responding          |
+| SC-4  | Ollama qwen2.5vl:7b fallback       | ✅ DONE    | Configured + responding          |
+| SC-5  | perplexity_browser skill           | ⚠️ PARTIAL | Files exist, blocked by SPEC-039 |
+| SC-6  | coolify_sre restart loop detection | ✅ DONE    | sre-monitor.sh active            |
+| SC-7  | hermes.json crons centralized      | ✅ DONE    | 10 crons installed               |
+| SC-8  | OpenClaw disable                   | ✅ DONE    | Containers stopped               |
+| SC-9  | MCP server for Open WebUI          | ⚠️ BLOCKED | Depends on SPEC-039              |
+| SC-10 | Zero true cron duplicates          | ✅ DONE    | Tunnel health unified            |
 
 ### Known Limitations
 

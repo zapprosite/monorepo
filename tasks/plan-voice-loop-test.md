@@ -22,7 +22,7 @@ Telegram
     │         ├──► /loop — entra em modo loop de testes
     │         │         │
     │         │         ├──► Recebe audio → STT (wav2vec2)
-    │         │         ├──► Recebe imagem → Vision (Qwen3-VL-8B-Instruct)
+    │         │         ├──► Recebe imagem → Vision (qwen2.5vl:7b)
     │         │         ├──► Responde com TTS (Kokoro)
     │         │         └──► Coleta resultados → refatora testes
     │         │
@@ -34,7 +34,7 @@ Telegram
               │
               ├──► whisper-1 → wav2vec2 (STT)
               ├──► tts-1 → Kokoro (TTS)
-              ├──► Qwen3-VL-8B-Instruct (Vision)
+              ├──► qwen2.5vl:7b (Vision)
               └──► gemma4-12b-it (LLM PT-BR)
 ```
 
@@ -49,7 +49,7 @@ Skill que entra em modo loop iterativo:
 ```
 /loop — entra modo loop
   → Aguarda audio (transcreve via whisper-1)
-  → Aguarda imagem (analisa via Qwen3-VL-8B-Instruct)
+  → Aguarda imagem (analisa via qwen2.5vl:7b)
   → Responde com TTS (pm_santa)
   → Mostra resultado STT/Vision
   → Repete até usuário enviar /stop
@@ -74,7 +74,7 @@ Script bash que implementa o loop:
 voice-loop-agent.sh
   ├── Recebe audio via Telegram API
   ├── Transcreve com LiteLLM whisper-1
-  ├── Analisa imagem com Qwen3-VL-8B-Instruct
+  ├── Analisa imagem com qwen2.5vl:7b
   ├── Gera resposta com gemma4-12b-it
   ├── Sintetiza resposta com Kokoro TTS
   └── Envia audio de volta via Telegram
@@ -123,7 +123,7 @@ Resultados guardados em:
                                        │
                                        ▼
                              ┌─────────────────────┐
-                             │ Vision (Qwen3-VL-8B-Instruct) │
+                             │ Vision (qwen2.5vl:7b) │
                              │  Analisa imagem    │
                              └──────────┬──────────┘
                                         ▼
@@ -167,7 +167,7 @@ Resultados guardados em:
 
 - `receive_audio()` — baixa audio do Telegram
 - `transcribe()` — LiteLLM whisper-1 → texto
-- `analyze_image()` — LiteLLM Qwen3-VL-8B-Instruct → descrição
+- `analyze_image()` — LiteLLM qwen2.5vl:7b → descrição
 - `generate_response()` — LiteLLM gemma4-12b-it → texto
 - `synthesize()` — LiteLLM tts-1 → audio
 - `send_audio()` — envia audio para Telegram
@@ -188,7 +188,7 @@ Resultados guardados em:
   "type": "stt|vision|tts",
   "input": "...",
   "output": "...",
-  "model": "whisper-1|Qwen3-VL-8B-Instruct|tts-1",
+  "model": "whisper-1|qwen2.5vl:7b|tts-1",
   "latency_ms": 1234,
   "status": "success|fail",
   "error": null
@@ -214,7 +214,7 @@ Se TTS latency > 5s:
 
 Se Vision falha:
   → Verifica conectividade LiteLLM
-  → Testa Qwen3-VL-8B-Instruct direto
+  → Testa qwen2.5vl:7b direto
 ```
 
 **Critério de aceite:** Agente sugere refatoração baseada em métricas

@@ -54,7 +54,7 @@ specRef: SPEC-AUDIT-FIXES-2026-04-12.md, SPEC-009-openclaw-persona-audio-stack.m
 
 - RTX 4090 24GB GDDR6X — top-tier para inference
 - VRAM: 19.5GB usado, 5GB livre — cabeça saudável
-- gemma2-9b-it:q4 (Q4_K_M — balance correto)
+- gemma2-9b-it (Q4_K_M — balance correto) [HISTÓRICO 12/04 — substituído por qwen2.5vl:7b]
 - llava:latest [DEPRECATED - agora qwen2.5-vl] + nomic-embed-text carregados
 - Temp 43C (water cooled), P2 state
 

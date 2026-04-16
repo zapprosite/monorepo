@@ -35,7 +35,7 @@ originSessionId: 8f4dc974-c929-4609-80db-7acfce0252e2
 | Telegram bot             | Token: `${TELEGRAM_BOT_TOKEN}` | UNKNOWN — token present, connectivity untested |
 | hermes.zappro.site       | Not configured                 | FAIL — CNAME pending                           |
 | LLM primary              | MiniMax/MiniMax-M2.7           | CONFIGURED                                     |
-| LLM fallback             | Ollama/Qwen3-VL-8B-Instruct    | CONFIGURED                                     |
+| LLM fallback             | Ollama/qwen2.5vl:7b            | CONFIGURED                                     |
 
 ### Process State (ps aux)
 
