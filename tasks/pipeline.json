@@ -179,7 +179,7 @@
     {
       "id": "TASK-023",
       "spec": "SPEC-039-hermes-gateway-tunnel",
-      "title": "Hermes Gateway \u2014 hermes.zappro.site Tunnel",
+      "title": "Hermes Gateway — hermes.zappro.site Tunnel",
       "priority": "",
       "status": "pending",
       "blocked_by": []
@@ -203,7 +203,7 @@
     {
       "id": "TASK-026",
       "spec": "SPEC-041-monorepo-estado-arte-polish",
-      "title": "Monorepo Estado da Arte \u2014 Polish 2026",
+      "title": "Monorepo Estado da Arte — Polish 2026",
       "priority": "",
       "status": "pending",
       "blocked_by": []
@@ -219,7 +219,7 @@
     {
       "id": "TASK-028",
       "spec": "SPEC-045-governance-reform-communication",
-      "title": "Governance Reform \u2014 Infrastructure Communication",
+      "title": "Governance Reform — Infrastructure Communication",
       "priority": "",
       "status": "pending",
       "blocked_by": []
@@ -227,7 +227,7 @@
     {
       "id": "TASK-029",
       "spec": "SPEC-046-hermes-agent-improvements",
-      "title": "Hermes Agent \u2014 Improvements",
+      "title": "Hermes Agent — Improvements",
       "priority": "",
       "status": "pending",
       "blocked_by": []
@@ -251,7 +251,7 @@
     {
       "id": "TASK-032",
       "spec": "SPEC-100-PIPELINE-BOOTSTRAP",
-      "title": "Unified Claude/Agent Pipeline \u2014 Enterprise CI/CD Loop",
+      "title": "Unified Claude/Agent Pipeline — Enterprise CI/CD Loop",
       "priority": "",
       "status": "pending",
       "blocked_by": []
@@ -359,7 +359,107 @@
       "priority": "",
       "status": "pending",
       "blocked_by": []
+    },
+    {
+      "id": "TASK-046",
+      "spec": "SPEC-056-cursor-loop-enterprise-polish-2026",
+      "title": "T1: Corrigir xargs echo sem quotes (C1)",
+      "priority": "high",
+      "status": "pending",
+      "blocked_by": [],
+      "description": "scripts/cursor-loop-refactor.sh:208 — Substituir xargs echo por awk. Acceptance: xargs removido, filenames com espaços não quebram, bash -n passa",
+      "files": ["scripts/cursor-loop-refactor.sh"]
+    },
+    {
+      "id": "TASK-047",
+      "spec": "SPEC-056-cursor-loop-enterprise-polish-2026",
+      "title": "T2: Corrigir sed strip incorrecto (C2)",
+      "priority": "high",
+      "status": "pending",
+      "blocked_by": [],
+      "description": "scripts/cursor-loop-runner.sh:252 — Substituir sed que strip file por awk. Acceptance: myfile.ts não truncado, bash -n passa",
+      "files": ["scripts/cursor-loop-runner.sh"]
+    },
+    {
+      "id": "TASK-048",
+      "spec": "SPEC-056-cursor-loop-enterprise-polish-2026",
+      "title": "T3: Corrigir printf sem quotes (C3)",
+      "priority": "high",
+      "status": "pending",
+      "blocked_by": [],
+      "description": "scripts/pipeline-state.sh:76 — printf '%s\\n' $valid_states → printf '%s\\n' \"$valid_states\". Acceptance: bash -n passa",
+      "files": ["scripts/pipeline-state.sh"]
+    },
+    {
+      "id": "TASK-049",
+      "spec": "SPEC-056-cursor-loop-enterprise-polish-2026",
+      "title": "T4: Extrair MIN_SECRET_LEN para constante (S1)",
+      "priority": "medium",
+      "status": "pending",
+      "blocked_by": [],
+      "description": "scripts/bootstrap-check.sh — MIN_SECRET_LEN=8 no topo. Acceptance: constante definida, bash -n passa",
+      "files": ["scripts/bootstrap-check.sh"]
+    },
+    {
+      "id": "TASK-050",
+      "spec": "SPEC-056-cursor-loop-enterprise-polish-2026",
+      "title": "T5: qwen2.5vl:7b via env var (S2)",
+      "priority": "medium",
+      "status": "pending",
+      "blocked_by": [],
+      "description": "smoke-tests/smoke-multimodal-stack.sh:93 — OLLAMA_VISION_MODEL env var com fallback. Acceptance: env var usado, script funciona",
+      "files": ["smoke-tests/smoke-multimodal-stack.sh"]
+    },
+    {
+      "id": "TASK-051",
+      "spec": "SPEC-056-cursor-loop-enterprise-polish-2026",
+      "title": "T6: Restaurar 500/502 com comment (C6)",
+      "priority": "medium",
+      "status": "pending",
+      "blocked_by": [],
+      "description": "smoke-tests/smoke-multimodal-stack.sh — Restaurar 500/502 com comment explicativo. Acceptance: comment presente, bash -n passa",
+      "files": ["smoke-tests/smoke-multimodal-stack.sh"]
+    },
+    {
+      "id": "TASK-052",
+      "spec": "SPEC-056-cursor-loop-enterprise-polish-2026",
+      "title": "T7: Pipeline State null handling robusto (C7)",
+      "priority": "high",
+      "status": "pending",
+      "blocked_by": [],
+      "description": "scripts/pipeline-state.sh — update_state_null para todos null fields. Acceptance: sem string null, bash -n passa",
+      "files": ["scripts/pipeline-state.sh"]
+    },
+    {
+      "id": "TASK-053",
+      "spec": "SPEC-056-cursor-loop-enterprise-polish-2026",
+      "title": "T8: git add -A antes de git diff --cached (C8)",
+      "priority": "high",
+      "status": "pending",
+      "blocked_by": [],
+      "description": "scripts/cursor-loop-runner.sh — git add -A antes do check hasChanges. Acceptance: stage antes do check, bash -n passa",
+      "files": ["scripts/cursor-loop-runner.sh"]
+    },
+    {
+      "id": "TASK-054",
+      "spec": "SPEC-056-cursor-loop-enterprise-polish-2026",
+      "title": "T9: Validation smoke test final (C9)",
+      "priority": "high",
+      "status": "pending",
+      "blocked_by": [
+        "TASK-046",
+        "TASK-047",
+        "TASK-048",
+        "TASK-049",
+        "TASK-050",
+        "TASK-051",
+        "TASK-052",
+        "TASK-053"
+      ],
+      "description": "smoke-tests/smoke-multimodal-stack.sh — Smoke test 0 failures. STT :8204, TTS :8013, Hermes :8642 UP",
+      "files": ["smoke-tests/smoke-multimodal-stack.sh"]
     }
   ],
-  "generated": "2026-04-16T18:12"
+  "generated": "2026-04-16T23:00",
+  "specSource": "SPEC-056-cursor-loop-enterprise-polish-2026.md"
 }

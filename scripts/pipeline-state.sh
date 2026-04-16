@@ -75,7 +75,7 @@ cmd_set-state() {
   local state=$1; shift
   local valid_states="IDLE RUNNING BLOCKED BLOCKED_HUMAN_REQUIRED READY_TO_SHIP TEST_FAILED ABORTED"
 
-  if ! printf '%s\n' $valid_states | grep -qxF "$state"; then
+  if ! printf '%s\n' "$valid_states" | grep -qxF "$state"; then
     die "Invalid state: $state. Valid: $valid_states"
   fi
 

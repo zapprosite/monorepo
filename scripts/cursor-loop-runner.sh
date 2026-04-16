@@ -147,6 +147,7 @@ run_pipeline() {
 
   # Check if there are staged changes for ship
   local has_changes="false"
+  git add -A  # Stage all changes before checking
   git diff --cached --quiet 2>/dev/null || has_changes="true"
   update_state "{ \"currentState\": \"READY_TO_SHIP\", \"lintPassed\": \"true\", \"typecheckPassed\": \"true\", \"testsPassed\": \"true\", \"readyToShip\": \"true\", \"hasChanges\": \"$has_changes\" }"
   log "✅ Tests OK"
@@ -234,9 +235,9 @@ run_ship() {
     log "📝 Committing staged changes..."
     # Detect change type from diff summary for better commit message
     local changed_files
-    changed_files=$(git diff --cached --stat 2>/dev/null | tail -1)
-    local msg="chore: $(echo "$changed_files" | sed 's/[[:space:]]*[[:digit:]]*[[:space:]]*file.*//' | xargs echo || echo 'staged changes')"
-    git commit -m "$msg" 2>/dev/null || log "⚠️  git commit failed"
+    changed_files=$(git diff --cached --stat 2>/dev/null | tail -1 | awk '{print $1}')
+    [[ -z "$changed_files" || "$changed_files" == "file" ]] && changed_files="staged"
+    local msg="chore: $changed_files"
   fi
 
   log "✅ Ship complete"
