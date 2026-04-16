@@ -1,7 +1,7 @@
 # Voice Pipeline & Hermes Agent — Current State
 
-**Updated:** 2026-04-15
-**Status:** STT FIXED | Vision: qwen2.5vl:7b recommended | llava-phi3 crashing
+**Updated:** 2026-04-16
+**Status:** STT FIXED | Vision: Qwen3-VL-8B-Instruct | LLM: Gemma4-12b-it
 
 ---
 
@@ -14,11 +14,9 @@
 - **Hermes STT config:** Changed to use `:8204` directly (no auth) instead of via ai-gateway
 - **Endpoint:** `http://localhost:8204/v1/audio/transcriptions` — multipart/form-data OK
 
-### Vision — qwen2.5vl:7b recommended, llava-phi3 crashing ❌
+### Vision — Qwen3-VL-8B-Instruct ✅
 
-- **llava-phi3:** CRASHES when used via `/v1/chat/completions` (OpenAI format)
-- **qwen2.5vl:7b:** Works via both `/v1/chat/completions` (OpenAI) and `/api/chat` (native)
-- **Recommendation:** Use `qwen2.5vl:7b` for vision — 5.9GB VRAM
+- **Qwen3-VL-8B-Instruct:** Current vision model (8B params)
 
 ### TTS — Kokoro :8013 ✅
 
@@ -27,8 +25,8 @@
 
 ### LLM — Ollama local ✅
 
-- Primary: `qwen2.5vl:7b` (text + vision)
-- Fallback: `llama3-portuguese-tomcat-8b-instruct-q8:latest`
+- Primary: `Qwen3-VL-8B-Instruct` (text + vision)
+- Fallback: `Gemma4-12b-it`
 
 ---
 
@@ -44,8 +42,8 @@ TTS: Kokoro :8013             ✅ OK
 AI-Gateway :4002 STT+TTS      ✅ OK
 Hermes :8642                  ✅ OK
 Ollama :11434                 ✅ OK
-llava-phi3 available          ✅ OK (but crashes in production)
-qwen2.5vl available           ✅ RECOMMENDED
+Qwen3-VL-8B-Instruct       ✅ OK
+Gemma4-12b-it               ✅ OK
 llama3-portuguese-tomcat-8b   ✅ OK
 ```
 
@@ -59,10 +57,10 @@ Telegram Voice Message
   ▼
 Hermes Gateway :8642
   │
-  ├─ LLM: Ollama qwen2.5vl:7b (local, GPU)
+  ├─ LLM: Ollama Gemma4-12b-it (local, GPU)
   │    └─ Fallback: llama3-portuguese-tomcat-8b
   │
-  ├─ Vision: Ollama qwen2.5vl:7b (local, GPU)
+  ├─ Vision: Ollama Qwen3-VL-8B-Instruct (local, GPU)
   │
   ├─ STT: faster-whisper-medium-pt :8204 (local, multipart fixed)
   │
