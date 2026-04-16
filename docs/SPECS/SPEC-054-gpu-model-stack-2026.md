@@ -148,17 +148,18 @@ PICO                      │ 24.0 GB  ⚠️ CHEIO! 0 GB livre
 
 ## Conclusão
 
-**Stack actual é ÓPTIMA para 24GB VRAM.**
+**Stack lean é ÓPTIMA para 24GB VRAM — e agora tem UPGRADE REAL.**
 
-- Cabe tudo: pico 12.7GB com 11.3GB livre
-- Não há melhoria significativa que justifique swap
-- whisper-medium-pt INT8 (~1.5GB) libertaria 2.5GB extra se necessário
+- Stack lean actual: pico 7.4GB com 16.6GB livre
+- **Upgrade imediato:** Qwen3-VL-8B IQ1_S (3.2GB total) > qwen2.5vl:7b (6GB)
+  - 128K context (vs 8K), 8B params (vs 7B), mais leve
+  - Import HuggingFace GGUF → Ollama
 
-**Para upgrade futuro considerar:**
+**Upgrade path (por prioridade):**
 
-1. **llama4-scout-17B Q4** (~11GB) — substitui qwen2.5vl como primário vision+text com 1M ctx
-2. **gemma4-27b Q4** (~18GB) — melhor texto puro, mas sem visão simultânea com outros
-3. **whisper INT8** (~1.5GB) — libera 2.5GB VRAM
+1. **Qwen3-VL-8B-Instruct** (~3.2 GB) — import HF GGUF → Ollama
+2. **llama4-scout-17B** (~20.7 GB IQ1_S) — esperar registry Ollama
+3. **Qwen2.5-VL-32B Q3_K_L** (22.4 GB) — experimental, 1.6GB livre
 
 ---
 
@@ -168,6 +169,40 @@ PICO                      │ 24.0 GB  ⚠️ CHEIO! 0 GB livre
 - HuggingFace API — model discovery (16/04/2026)
 - SYSTEM_STATE.md (actual measurements 06/04/2026)
 - SPEC-053 (current deployment)
+
+---
+
+## Upgrade Path — SUPERIOR ao qwen2.5vl:7b
+
+### Qwen3-VL-8B-Instruct (⭐ NOVO CAMPEÃO — 16/04/2026)
+
+| Item                      | Valor                                |
+| ------------------------- | ------------------------------------ |
+| **HuggingFace**           | `unsloth/Qwen3-VL-8B-Instruct-GGUF`  |
+| **Params**                | 8B (vs 7B qwen2.5vl)                 |
+| **Context**               | **128K tokens** (vs 8K do qwen2.5vl) |
+| **VRAM (IQ1_S + mmproj)** | **3.2 GB** (vs 6 GB qwen2.5vl)       |
+| **VRAM total c/ stack**   | **8.2 GB** — 15.8 GB livre           |
+| **Multimodal**            | ✅ SIM (visão + texto)               |
+| **Status Ollama**         | NÃO existe — import manual HF        |
+
+**Comparativo directo:**
+
+| Modelo                | VRAM       | Context  | multimodal | VRAM livre  |
+| --------------------- | ---------- | -------- | ---------- | ----------- |
+| **Qwen3-VL-8B IQ1_S** | **3.2 GB** | **128K** | ✅         | **15.8 GB** |
+| qwen2.5vl:7b (Ollama) | 6.0 GB     | 8K       | ✅         | 13.0 GB     |
+
+**Qwen3-VL-8B é a escolha óbvia:** mais capaz (128K ctx), mais leve (3.2GB vs 6GB), mesma qualidade de visão. Próximo passo: importar para Ollama.
+
+### Qwen2.5-VL-32B-Instruct
+
+| GGUF             | VRAM (c/ mmproj) | Cabe?             |
+| ---------------- | ---------------- | ----------------- |
+| Q3_K_L (16.1 GB) | 22.4 GB          | ✅ (1.6 GB livre) |
+| Q4_K_M (18.5 GB) | 24.8 GB          | ❌ (-0.8 GB)      |
+
+**Qwen2.5-VL-32B Q3_K_L** é viável mas muito perto do limite (1.6 GB livre) para usar em produção com whisper + Kokoro simultâneos.
 
 ---
 
