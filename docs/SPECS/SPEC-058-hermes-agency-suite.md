@@ -205,13 +205,13 @@ Construir uma **marketing agency 100% operacional em português** com 11 agentes
 Request
   │
   ▼
-[1] minimax-m2.7 (PRIMARY) — premium, plano 50$, maior capacidade token ✅
-  │  FAIL → next
+[1] minimax-m2.7 (PRIMARY) — premium, plano 50$, texto APENAS ✅
+  │  FAIL → ERROR (sem fallback para texto)
   ▼
-[2] qwen2.5vl:7b (Ollama :11434) — fallback local, multimodal PT-BR ✅
-  │  FAIL → next
+[2] qwen2.5vl:7b (Ollama :11434) — Vision APENAS, não texto ✅
+  │  FAIL → ERROR
   ▼
-[3] llama3-portuguese-tomcat-8b-instruct-q8 (Ollama :11434) — fallback local, PT-BR Q8_0 ✅
+[3] whisper-1 (Ollama :11434) — STT APENAS ✅
   │
   ▼
 ERROR / DEGRADED MODE
@@ -360,7 +360,7 @@ journalctl -u hermes-agent -f
 | SPEC-053              | DONE     | Hermes 100% local voice+vision                          |
 | Qdrant container port | BLOCKING | Container not exposing 6333 to host — needs Coolify fix |
 | Hermes Gateway :8642  | READY    | Already operational                                     |
-| Ollama :11434         | READY    | Already configured                                      |
+| Ollama :11434         | READY    | Vision + STT + Embeddings ONLY (não texto)                         |
 | LiteLLM :4000         | READY    | Already configured                                      |
 | Redis                 | READY    | Already in Docker stack                                 |
 
@@ -398,7 +398,7 @@ journalctl -u hermes-agent -f
 | ---- | ------------------------------------------------------- | ------------------------------------------------------ |
 | SC-1 | 11 Hermes skills respond to `/help` command             | `curl http://localhost:8642/skills` returns all 11     |
 | SC-2 | Qdrant 9 collections queryable                          | `curl http://localhost:6333/collections` returns all 9 |
-| SC-3 | LLM chain: minimax PRIMARY → qwen2.5vl → llama3-ptbr fallback works | Smoke test hits all 3 tiers                            |
+| SC-3 | LLM chain: minimax TEXT PRIMARY, Ollama Vision/STT only | MiniMax-only para texto ✅                            |
 | SC-4 | Telegram bot responds to `/start` with onboarding       | Manual test with test client                           |
 | SC-5 | WF-1 (Content Pipeline) executes end-to-end             | Smoke test delivers test campaign                      |
 | SC-6 | Human gate triggers at confidence < 0.7                 | Test with ambiguous brief                              |
@@ -413,8 +413,8 @@ journalctl -u hermes-agent -f
 | ---- | --------------------------------------------------- | ------------------------------------ |
 | AC-1 | Each of 11 skills has at least 3 tools registered   | Hermes skill list API                |
 | AC-2 | Qdrant hybrid search returns relevant PT-BR results | `bge-m3` test query                  |
-| AC-3 | LLM fallback triggers on minimax failure         | Kill minimax, observe qwen2.5vl takeover |
-| AC-4 | Telegram bot handles 10 concurrent chats            | Load test with 10 clients            |
+| AC-3 | LLM fallback triggers on minimax failure | MiniMax é PRIMÁRIO — texto SEM fallback |
+| AC-4 | Ollama Vision/STT working | Verificar qwen2.5vl:7b + whisper-1            |
 | AC-5 | LangGraph WF-1 completes in < 60s for simple brief  | Timer in smoke test                  |
 | AC-6 | Brand Guardian score < 0.8 triggers human gate      | Send off-brand content               |
 | AC-7 | Semantic cache hit rate measurable                  | Redis metrics after 1h               |
