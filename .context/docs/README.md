@@ -1,21 +1,21 @@
 # Monorepo Documentation Hub
 
-Welcome to the comprehensive guide for this monorepo. This repository contains a high-performance ecosystem for business management, AI orchestration, and automated research, built with a modern TypeScript stack.
+Welcome to the central documentation for the enterprise management and AI orchestration ecosystem. This monorepo implements a high-performance stack for business operations, research automation, and AI-driven workflows.
 
 ## 🏗 System Architecture
 
 The project is structured as a **pnpm monorepo**, utilizing a modular architecture that separates deployable applications from shared business logic and UI components.
 
 ### Core Applications
-- **`apps/api`**: A Fastify-powered backend that serves as the central hub for data. It implements tRPC for type-safe internal communication, handles Session & Google OAuth2 authentication, and provides an API Gateway for external service integrations.
-- **`apps/web`**: A React + Vite frontend dashboard. It features a modular structure covering CRM (Leads, Clients), ERP (Service Orders, Equipment), and Operations (Kanban, Calendars, Journal Entries).
+- **`apps/api`**: A Fastify-powered backend serving as the central data hub. It uses **tRPC** for type-safe internal communication, handles Session-based & Google OAuth2 authentication, and manages a robust API Gateway for external integrations.
+- **`apps/web`**: A React + Vite dashboard. It features a modular structure covering CRM (Leads, Clients), ERP (Service Orders, Maintenance), and Operations (Kanban, Calendars).
 - **`apps/ai-gateway`**: A specialized proxy for AI services, handling OpenAI-compatible requests, audio transcriptions (Whisper), and Portuguese language filtering/preprocessing.
-- **`apps/hermes-agency`**: An AI orchestration layer using LangGraph and LiteLLM. It manages complex workflows like social media scheduling, content pipelines, and Telegram bot interactions.
+- **`apps/hermes-agency`**: An AI orchestration layer built with **LangGraph** and **LiteLLM**. It manages complex multi-agent workflows including social media scheduling and Telegram bot interactions.
 
 ### Shared Packages
-- **`packages/zod-schemas`**: The **Single Source of Truth** for data validation. These schemas are used by the API for runtime validation and by the Web app for TypeScript type inference.
-- **`packages/ui`**: A design system built on Material UI (MUI). It includes low-level atoms (buttons, spinners) and a specialized React Hook Form integration (`rhf-form`) for consistent data entry.
-- **`packages/trpc`**: Shared type definitions that ensure the Web frontend and API backend stay in sync without manual glue code.
+- **`packages/zod-schemas`**: The **Single Source of Truth** for data validation. These schemas drive runtime validation in the API and type inference in the Frontend.
+- **`packages/ui`**: A design system built on **Material UI (MUI)**. It includes a specialized React Hook Form integration (`rhf-form`) for consistent data entry.
+- **`packages/trpc`**: Shared type definitions ensuring the Web frontend and API backend remain perfectly synchronized.
 
 ---
 
@@ -29,7 +29,7 @@ The project is structured as a **pnpm monorepo**, utilizing a modular architectu
 | **Frontend** | React 18, Vite, TanStack Query, MUI |
 | **Database** | PostgreSQL, Drizzle ORM |
 | **Validation** | Zod |
-| **Orchestration** | LangGraph, LiteLLM, Redis (for locking/rate-limiting) |
+| **Orchestration** | LangGraph, LiteLLM, Redis (Locking/Rate-limiting) |
 
 ---
 
@@ -37,67 +37,68 @@ The project is structured as a **pnpm monorepo**, utilizing a modular architectu
 
 ```text
 ├── apps/
-│   ├── api/                # Core Backend & API Gateway
-│   ├── web/                # Main Dashboard UI
-│   ├── ai-gateway/         # AI Proxy (STT/TTS/Chat)
+│   ├── api/                # Backend API & Gateway (Fastify + Drizzle)
+│   ├── web/                # React Dashboard (MUI + TanStack Query)
+│   ├── ai-gateway/         # AI Proxy & Audio Processing
 │   ├── hermes-agency/      # AI Agents & Automation Logic
 │   └── perplexity-agent/   # Research Automation Agent
 ├── packages/
-│   ├── zod-schemas/        # Global validation (Source of Truth)
+│   ├── zod-schemas/        # Validation & Type Definitions (Core)
 │   ├── ui/                 # Design System & Form Components
-│   ├── trpc/               # Type-safe API contracts
-│   └── config-eslint/      # Standardized linting rules
-├── scripts/                # Python-based AI microservices (Whisper, etc.)
-└── docs/                   # Full technical documentation
+│   └── trpc/               # Type-safe API contracts
+├── scripts/                # Python-based AI microservices (Whisper v2)
+└── docs/                   # Detailed Technical Guides
 ```
 
 ---
 
 ## 🚀 Key Modules & Services
 
-### 🛡 API Gateway & Security (`apps/api/src/modules/api-gateway`)
-A robust layer managing external access:
-- **API Key Auth**: Middleware providing secure access for third-party integrations.
-- **Subscription Tracking**: Logic to monitor API usage and trigger 90% threshold webhooks.
-- **Webhook Engine**: A delivery system with retry logic and event logging located in `modules/webhooks`.
+### 1. API Gateway & Webhooks (`apps/api`)
+Managed through `apps/api/src/modules/api-gateway`, this layer handles:
+- **API Key Authentication**: Secure header-based auth for external services via `apiKeyAuthHook`.
+- **Usage Tracking**: Monitor API consumption (e.g., `subscriptionTracker`) and trigger alerts at 90% usage.
+- **Webhook Delivery**: Reliable event broadcasting with delivery logging in `WebhookDeliveriesTable`.
 
-### 🧠 AI Agency (`apps/hermes-agency`)
-A high-level orchestration layer:
-- **Content Pipeline**: Automated content creation and approval workflows found in `src/langgraph/content_pipeline.ts`.
-- **Skills System**: Encapsulated capabilities (e.g., Google Search, Image Analysis) used by agents.
-- **Distributed Locking**: Redis-backed concurrency control for Telegram bot interactions.
+### 2. AI Agency & Orchestration (`apps/hermes-agency`)
+A high-level agentic layer:
+- **Language Workflows**: Multi-step pipelines for social media and content approval in `src/langgraph/`.
+- **Telegram Integration**: A feature-rich bot (`bot.ts`) supporting STT (Whisper), Vision (Ollama/Qwen), and TTS (Kokoro).
+- **Distributed Locking**: Redis-backed concurrency control (`distributed_lock.ts`) to manage shared agent states.
 
-### 📝 Form Management (`packages/ui/src/rhf-form`)
-Standardized React forms using Zod and React Hook Form:
-- **`useRhfForm`**: Custom hook for handling submission and validation states.
-- **Input Components**: `RhfTextField`, `RhfSelect`, and `RhfSwitch` that integrate directly with the form context.
+### 3. Unified Form System (`packages/ui/src/rhf-form`)
+A tight integration between Zod and React Hook Form:
+- **`useRhfForm`**: A custom hook that streamlines form state, validation, and submission logic.
+- **Components**: `RhfTextField`, `RhfSelect`, `RhfCheckbox`, and `RhfSwitch` provide automatic error handling and styling consistent with the material theme.
 
 ---
 
 ## 📖 Development Workflow
 
-### 1. Initialization
+### Initialization
 ```bash
-# Install dependencies
+# Install dependencies across the monorepo
 pnpm install
 
-# Setup environment
+# Setup local environment
 cp .env.example .env
 
-# Initialize database
+# Push database schema to your local PostgreSQL
 pnpm --filter @repo/db db:push
 ```
 
-### 2. Routine Commands
-- **Start Dev Mode**: `pnpm dev` (Runs API, Web, and AI services concurrently)
-- **Database Migrations**: `pnpm --filter @repo/db db:generate` followed by `db:migrate`
-- **Build All**: `pnpm build`
+### Routine Commands
+- **Launch Development**: `pnpm dev` (Starts API, Web, and AI services concurrently)
+- **Database Changes**: 
+  - Generate: `pnpm --filter @repo/db db:generate`
+  - Migrate: `pnpm --filter @repo/db db:migrate`
+- **Lint & Build**: `pnpm build`
 
-### 3. Creating a New Feature
-1.  **Define Schema**: Add a new `.zod.ts` file in `packages/zod-schemas`.
-2.  **Define Table**: Implement the Drizzle table in `apps/api/src/modules/[module]/tables/`.
-3.  **Implement Router**: Create a tRPC router in `apps/api/src/routers/`.
-4.  **Build UI**: Use the `packages/ui` components in `apps/web` to consume the new endpoint.
+### Adding a New Business Module
+1. **Schema**: Create `packages/zod-schemas/src/[module].zod.ts`.
+2. **Persistence**: Define the Drizzle table in `apps/api/src/modules/[module]/tables/`.
+3. **Logics**: Register new routes in `apps/api/src/routers/trpc.router.ts`.
+4. **UI**: Create pages in `apps/web/src/modules/[module]/` using the shared UI components.
 
 ---
 
