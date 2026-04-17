@@ -38,7 +38,7 @@ const EMERGENCY_MODEL = {
   provider: 'minimax',
   costPer1K: 0.1,
   isLocal: false,
-  url: 'https://api.minimax.io/anthropic/v1/chat/completions',
+  url: 'https://api.minimax.io/anthropic/v1/messages',
 };
 
 export interface LLMResponse {
