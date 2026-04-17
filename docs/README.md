@@ -10,15 +10,12 @@
 
 ```
 docs/
-├── GOVERNANCE/         <- Regras, permissoes, politicas (imutavel)
-├── INFRASTRUCTURE/     <- Rede, portas, subdomínios, ZFS
-├── SPECS/              <- Especificacoes de features e servicos
-├── GUIDES/             <- Guias operacionais
-├── ADRs/               <- Architecture Decision Records
-├── OPERATIONS/         <- Skills e scripts operacionais
-├── MCPs/               <- MCP servers e integracoes
-├── REFERENCE/          <- Referencia tecnica
-└── TEMPLATES/          <- Templates para incidentes, mudancas, etc.
+├── ARCHITECTURE-OVERVIEW.md  <- Stack overview
+├── GOVERNANCE/               <- CONTRACT, GUARDRAILS, SECRETS-MANDATE, PINNED-SERVICES, IMMUTABLE-SERVICES, EXCEPTIONS, CHANGE_POLICY, MASTER-PASSWORD-PROCEDURE
+├── INFRASTRUCTURE/            <- PORTS, SUBDOMAINS, NETWORK_MAP, SERVICE_MAP
+├── SPECS/                    <- Especificacoes (SPEC-053, 058, 059, 060, 063, 064)
+├── GUIDES/                   <- discovery, backup-runbook, LANGUAGE-STANDARDS
+└── ADRs/                     <- ADR-001 (denv canonical)
 ```
 
 ---
@@ -27,67 +24,54 @@ docs/
 
 ### GOVERNANCE/ — Regras do Sistema
 
-| Pergunta                     | Doc                                                   |
-| ---------------------------- | ----------------------------------------------------- |
-| "Posso fazer X?"             | [APPROVAL_MATRIX.md](./GOVERNANCE/APPROVAL_MATRIX.md) |
-| "O que e proibido?"          | [GUARDRAILS.md](./GOVERNANCE/GUARDRAILS.md)           |
-| "Como fazer mudanca segura?" | [CHANGE_POLICY.md](./GOVERNANCE/CHANGE_POLICY.md)     |
-| "Secrets: onde estao?"       | [SECRETS-MANDATE.md](./GOVERNANCE/SECRETS-MANDATE.md) |
-| "Recuperacao de incidente?"  | [RECOVERY.md](./GOVERNANCE/RECOVERY.md)               |
-| "Onboarding rapido?"         | [QUICK_START.md](./GOVERNANCE/QUICK_START.md)         |
+| Pergunta                     | Doc                                                         |
+| ---------------------------- | ----------------------------------------------------------- |
+| "O que e proibido?"          | [GUARDRAILS.md](./GOVERNANCE/GUARDRAILS.md)                 |
+| "Como fazer mudanca segura?" | [CHANGE_POLICY.md](./GOVERNANCE/CHANGE_POLICY.md)           |
+| "Secrets: onde estao?"       | [SECRETS-MANDATE.md](./GOVERNANCE/SECRETS-MANDATE.md)       |
+| "Servicos imutaveis?"        | [IMMUTABLE-SERVICES.md](./GOVERNANCE/IMMUTABLE-SERVICES.md) |
+| "Servicos pinned?"           | [PINNED-SERVICES.md](./GOVERNANCE/PINNED-SERVICES.md)       |
+| "Exceptions?"                | [EXCEPTIONS.md](./GOVERNANCE/EXCEPTIONS.md)                 |
 
 ### INFRASTRUCTURE/ — Infraestrutura Tecnica
 
-| Pergunta                   | Doc                                               |
-| -------------------------- | ------------------------------------------------- |
-| "Qual porta esta livre?"   | [PORTS.md](./INFRASTRUCTURE/PORTS.md)             |
-| "Subdominio existe?"       | [SUBDOMAINS.md](./INFRASTRUCTURE/SUBDOMAINS.md)   |
-| "Topologia de rede?"       | [NETWORK_MAP.md](./INFRASTRUCTURE/NETWORK_MAP.md) |
-| "ZFS: quais pools/discos?" | [PARTITIONS.md](./INFRASTRUCTURE/PARTITIONS.md)   |
-| "Servicos: onde correm?"   | [SERVICE_MAP.md](./INFRASTRUCTURE/SERVICE_MAP.md) |
+| Pergunta                 | Doc                                               |
+| ------------------------ | ------------------------------------------------- |
+| "Qual porta esta livre?" | [PORTS.md](./INFRASTRUCTURE/PORTS.md)             |
+| "Subdominio existe?"     | [SUBDOMAINS.md](./INFRASTRUCTURE/SUBDOMAINS.md)   |
+| "Topologia de rede?"     | [NETWORK_MAP.md](./INFRASTRUCTURE/NETWORK_MAP.md) |
+| "Servicos: onde correm?" | [SERVICE_MAP.md](./INFRASTRUCTURE/SERVICE_MAP.md) |
 
-### SPECS/ — Features e Servicos
+### SPECS/ — Features e Servicos Activos
 
-| Pergunta                   | Doc                                                                                        |
-| -------------------------- | ------------------------------------------------------------------------------------------ |
-| "O que faz Hermes?"        | [SPEC-038-hermes-agent-migration.md](./SPECS/SPEC-038-hermes-agent-migration.md)           |
-| "Como funciona o tunnel?"  | [SPEC-039-hermes-gateway-tunnel.md](./SPECS/SPEC-039-hermes-gateway-tunnel.md)             |
-| "Alertas e rate limiting?" | [SPEC-040-homelab-alerting-rate-limit.md](./SPECS/SPEC-040-homelab-alerting-rate-limit.md) |
-| "Infraestrutura overview?" | [ARCHITECTURE-OVERVIEW.md](./ARCHITECTURE-OVERVIEW.md)                                     |
-
-Ver [SPEC-INDEX.md](./SPECS/SPEC-INDEX.md) para lista completa de SPECs activos.
+| SPEC | Descricao                                              | Estado      |
+| ---- | ------------------------------------------------------ | ----------- |
+| 053  | Hermes 100% Local Voice+Vision (Ollama+Whisper+Kokoro) | DONE        |
+| 058  | Hermes Agency Suite (11 skills, Telegram bot)          | IMPLEMENTED |
+| 059  | Hermes Agency Datacenter Hardening (HC-23/31/33/36)    | COMPLETED   |
+| 060  | Hermes Agency Post-Hardening Improvements              | COMPLETED   |
+| 063  | Super Review Enterprise Refactor                       | DONE        |
+| 064  | Super Polish — Prune Legacy                            | DONE        |
 
 ---
 
-## Stack de Infraestrutura (TL;DR)
+## Stack de Infraestrutura
 
-| Servico        | Tipo            | Host              | Porta | Proposito                            |
-| -------------- | --------------- | ----------------- | ----- | ------------------------------------ |
-| Coolify        | PaaS            | Ubuntu Desktop    | 8000  | Gestao de containers Docker          |
-| Qdrant         | Vector DB       | Coolify           | 6333  | RAG / embeddings                     |
-| Hermes Gateway | Agent           | Ubuntu bare metal | 8642  | Agent brain + messaging              |
-| Hermes MCP     | MCP Server      | Ubuntu bare metal | 8092  | MCP proxy                            |
-| Ollama         | LLM Engine      | Ubuntu Desktop    | 11434 | Inference local (RTX 4090)           |
-| LiteLLM        | LLM Proxy       | Docker Compose    | 4000  | Multi-provider proxy + rate limiting |
-| Grafana        | Dashboards      | Docker Compose    | 3100  | Visualizacao de metricas             |
-| Loki           | Log aggregation | Docker Compose    | 3101  | Logs centralizados                   |
-| Prometheus     | Metrics         | Docker Compose    | 9090  | Coleccao de metricas                 |
+| Servico        | Tipo          | Porta | Proposito                            |
+| -------------- | ------------- | ----- | ------------------------------------ |
+| ai-gateway     | OpenAI compat | 4002  | Gateway unificado para todos os LLMs |
+| Hermes Gateway | Agent         | 8642  | Agent brain + routing + skills       |
+| STT (whisper)  | STT           | 8204  | faster-whisper-medium-pt             |
+| TTS (Kokoro)   | TTS Bridge    | 8013  | Kokoro TTS com vozes PT-BR           |
+| Ollama         | LLM Engine    | 11434 | Inference local (qwen2.5vl:7b)       |
 
-Ver [ARCHITECTURE-OVERVIEW.md](./ARCHITECTURE-OVERVIEW.md) para diagrama completo de topologia.
+Ver [ARCHITECTURE-OVERVIEW.md](./ARCHITECTURE-OVERVIEW.md) para diagrama completo.
 
 ---
 
 ## Secrets — Regra de Ouro
 
-**Todas as secrets estao em `.env`** (fonte canonica). Nunca ler de Infisical directamente em codigo.
-
-| Variavel               | Descricao                   |
-| ---------------------- | --------------------------- |
-| `CLOUDFLARE_API_TOKEN` | Cloudflare API Token        |
-| `COOLIFY_ACCESS_TOKEN` | Coolify Bearer Token        |
-| `GITEA_ACCESS_TOKEN`   | Gitea Personal Access Token |
-| `INFISICAL_TOKEN`      | Infisical Service Token     |
-| `TELEGRAM_BOT_TOKEN`   | Hermes Gateway Telegram     |
+**Todas as secrets estao em `.env`** (fonte canonica). Nunca ler de Infisical directamente em codigo. SDK Infisical PROIBIDO.
 
 Ver [SECRETS-MANDATE.md](./GOVERNANCE/SECRETS-MANDATE.md) para politica completa.
 
@@ -100,14 +84,22 @@ Ver [SECRETS-MANDATE.md](./GOVERNANCE/SECRETS-MANDATE.md) para politica completa
 3. **Estado actual da infra:** [INFRASTRUCTURE/](./INFRASTRUCTURE/)
 4. **Secrets:** `.env` na raiz do monorepo — nunca perguntar por valores
 
+### Orchestrator (/execute)
+
+```
+/execute <desc>  → /spec → /pg → 14 agentes paralelos → SHIPPER cria PR
+```
+
 ### Skills Disponiveis
 
-| Skill                           | Uso                               |
-| ------------------------------- | --------------------------------- |
-| `cloudflare-tunnel-enterprise/` | Gerir tunnels e subdomínios       |
-| `coolify-access/`               | Deploy e gestao de containers     |
-| `new-subdomain/`                | Criar novo subdominio (fast path) |
-| `secrets-audit/`                | Scan de secrets antes de push     |
+| Skill                           | Uso                           |
+| ------------------------------- | ----------------------------- |
+| `orchestrator/`                 | 14-agent system               |
+| `cloudflare-tunnel-enterprise/` | Gerir tunnels e subdomínios   |
+| `gitea-access/`                 | Gitea API integration         |
+| `minimax-security-audit/`       | OWASP + secrets audit         |
+| `secrets-audit/`                | Scan de secrets antes de push |
+| `smoke-test-gen/`               | Gerar smoke tests             |
 
 ---
 
@@ -125,12 +117,13 @@ cat docs/INFRASTRUCTURE/SERVICE_MAP.md
 
 # Audit de branches (antes de push)
 bash /srv/ops/scripts/audit-branches.sh
+
+# Smoke tests
+bash smoke-tests/smoke-multimodal-stack.sh
 ```
 
 ---
 
 ## Atualizacao de Docs
 
-Docs sao sincronizados para memory via ai-context apos cada commit. Ver [AI-CONTEXT.md](./AI-CONTEXT.md).
-
-**Regra:** Todo doc em `docs/` e source of truth. Não fazer commit de .env ou secrets.
+Docs sao sincronizados para memory via ai-context apos cada commit.
