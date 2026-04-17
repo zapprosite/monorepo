@@ -9,7 +9,7 @@
 - **Framework:** Fastify + tRPC
 - **Agents:** 11 specialized skills (CEO, Video, Design, Social, PM, etc.)
 - **Storage:** Qdrant (vector DB) + Redis (locks, rate limiting)
-- **Integrations:** Telegram Bot, LangGraph, LiteLLM
+- **Integrations:** Telegram Bot, LangGraph, MiniMax (text only)
 
 ## Estrutura
 
@@ -26,7 +26,7 @@ apps/hermes-agency/
 │   │   └── index.ts          # 11-agent skill registry
 │   ├── agency_router.ts      # Main routing logic
 │   ├── litellm/
-│   │   └── router.ts         # LLM fallback chain
+│   │   └── router.ts         # LLM chain — MiniMax ONLY (text)
 │   └── qdrant/
 │       └── client.ts          # Vector DB client
 ├── tests/
