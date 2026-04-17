@@ -1,0 +1,11 @@
+{
+  "timestamp": "2026-04-17T18:05:39Z",
+  "status": 0,
+  "services": {
+    "whisper-api-gpu": "200",
+    "kokoro": "200",
+    "ai-gateway": "200",
+    "hermes-gateway": "200"
+  },
+  "summary": "all healthy"
+}
