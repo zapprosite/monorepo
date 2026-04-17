@@ -16,7 +16,7 @@ type: task-tracking
 
 - Este ficheiro é **gerado automaticamente** pelo `/pg`
 - **NÃO editar manualmente** — edits serão sobrescritos
-- Para adicionar tasks → criar/editar SPEC-*.md e rodar `/pg`
+- Para adicionar tasks → criar/editar SPEC-\*.md e rodar `/pg`
 
 ---
 
@@ -32,7 +32,7 @@ type: task-tracking
 
 ### Alta Prioridade
 
-- [ ] **[SPEC-016:AC-1]** Configurar cron `*/5 * * * *` para voice-pipeline-loop.sh — verificar com `crontab -l | grep voice-pipeline`
+- [ ] **[SPEC-016:AC-1]** ✅ Done (see line 43)
 - [ ] **[SPEC-016:AC-3]** Implementar auto-heal: TTS Bridge DOWN → `docker start zappro-tts-bridge`
 - [ ] **[SPEC-021:T01]** Criar gitea-mcp.py — MCP server wrapper para Gitea API
 - [ ] **[SPEC-021:T04]** ZFS snapshot antes de changes no cursor-loop
@@ -40,13 +40,12 @@ type: task-tracking
 - [ ] **[SPEC-020:AC-2]** Atualizar openwebui_mcp.py com tool `Hermes Agent_bridge_chat`
 - [ ] **[SPEC-020:AC-3]** Atualizar Hermes Agent_mcp_wrapper.py com tool `chat_with_agent`
 
-### Média Prioridade
-
-- [ ] **[SPEC-016:AC-2]** Validar smoke test 18/18 passa em steady state — run manual
+- [x] **[SPEC-016:AC-1]** ✅ Cron `*/5 * * * *` configurado para `tasks/smoke-tests/run-smoke-tests.sh` (voice-pipeline-loop.sh deprecado em 2026-04-17)
+- [ ] **[SPEC-016:AC-3]** Implementar auto-heal: TTS Bridge DOWN → `docker start zappro-tts-bridge`
+- [ ] **[SPEC-016:AC-2]** Validar smoke test passa em steady state — run manual
 - [ ] **[SPEC-016:AC-4]** Testar Telegram alert em falha persistente — simulate failure
 - [ ] **[SPEC-016:AC-5]** Verificar logs em `/srv/monorepo/logs/voice-pipeline/` — `ls -la logs/voice-pipeline/`
 - [ ] **[SPEC-016:AC-6]** Verificar que loop não interfere com serviços normais após 1h
-- [ ] **[SPEC-021:T02]** Testar cursor-loop com Coolify MCP
 - [ ] **[SPEC-021:T03]** E2E smoke test (SPEC-020 bridge stack)
 - [ ] **[SPEC-018:AC-1]** Deploy wav2vec2-deepgram-proxy em :8203
 
@@ -76,12 +75,12 @@ type: task-tracking
 
 ## Stats
 
-| Métrica | Valor |
-|---------|-------|
-| Total tasks | 18 |
-| Alta prioridade | 7 |
-| Em progresso | 2 |
-| Done | 5 |
+| Métrica         | Valor |
+| --------------- | ----- |
+| Total tasks     | 18    |
+| Alta prioridade | 7     |
+| Em progresso    | 2     |
+| Done            | 5     |
 
 ---
 
@@ -94,9 +93,9 @@ Discovery → SPEC → TASKS → IMPLEMENT → REVIEW → SHIP
 
 ## SPEC Reference
 
-| SPEC | Título | Prioridade |
-|------|--------|------------|
-| SPEC-016 | Voice Pipeline Cursor-Loop (Auto-Healer) | critical |
-| SPEC-020 | OpenWebUI ↔ Hermes Agent Bridge | high |
-| SPEC-021 | Claude Code CLI: Cursor-Loop + Skills Architecture | critical |
-| SPEC-018 | wav2vec2-deepgram-proxy | medium |
+| SPEC     | Título                                             | Prioridade |
+| -------- | -------------------------------------------------- | ---------- |
+| SPEC-016 | Voice Pipeline Cursor-Loop (Auto-Healer)           | critical   |
+| SPEC-020 | OpenWebUI ↔ Hermes Agent Bridge                    | high       |
+| SPEC-021 | Claude Code CLI: Cursor-Loop + Skills Architecture | critical   |
+| SPEC-018 | wav2vec2-deepgram-proxy                            | medium     |

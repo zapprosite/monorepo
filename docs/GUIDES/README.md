@@ -1,19 +1,19 @@
 # How-to Guides
 
-This directory contains practical, task-oriented documentation for the homelab-monorepo. Where SPECs define *what* to build and ADRs record *why* behind architectural choices, GUIDEs explain *how* to execute specific operations.
+This directory contains practical, task-oriented documentation for the homelab-monorepo. Where SPECs define _what_ to build and ADRs record _why_ behind architectural choices, GUIDEs explain _how_ to execute specific operations.
 
 ## What's in This Directory
 
-| Guide | Purpose |
-|-------|---------|
-| `discovery.md` | Service discovery procedures and network exploration |
-| `CANVAS-CURSOR-LOOP.md` | Autonomous CI/CD cursor loop workflow |
-| `CODE-REVIEW-GUIDE.md` | Standards and procedures for conducting code reviews |
-| `voice-pipeline-desktop.md` | Voice pipeline setup and smoke test for Ubuntu desktop |
-| `voice-pipeline-loop.md` | Server-side voice pipeline with Hermes Agent and LiteLLM |
-| `tasks.md` | Task extraction and prioritization from SPECs |
-| `TEMPLATE.md` | Template for creating new guides (start here) |
-| `PLAN-docs-reorganization-20260408.md` | Plan for restructuring docs/ directory |
+| Guide                                  | Purpose                                                  |
+| -------------------------------------- | -------------------------------------------------------- |
+| `discovery.md`                         | Service discovery procedures and network exploration     |
+| `CANVAS-CURSOR-LOOP.md`                | Autonomous CI/CD cursor loop workflow                    |
+| `CODE-REVIEW-GUIDE.md`                 | Standards and procedures for conducting code reviews     |
+| `voice-pipeline-desktop.md`            | Voice pipeline setup and smoke test for Ubuntu desktop   |
+| `voice-pipeline-desktop.md`            | Server-side voice pipeline with Hermes Agent and LiteLLM |
+| `tasks.md`                             | Task extraction and prioritization from SPECs            |
+| `TEMPLATE.md`                          | Template for creating new guides (start here)            |
+| `PLAN-docs-reorganization-20260408.md` | Plan for restructuring docs/ directory                   |
 
 ## When to Create a GUIDE
 
@@ -28,12 +28,12 @@ Create a GUIDE when you need to document:
 
 ## GUIDE vs SPEC vs ADR
 
-| Document | Answer | Example |
-|----------|--------|---------|
-| **SPEC** | What do we need to build? | "Hermes Agent needs a local STT proxy that fakes Deepgram API format" |
-| **ADR** | Why did we choose this approach? | "Why we use wav2vec2-proxy instead of calling whisper-api directly" |
-| **GUIDE** | How do we execute this operation? | "Run the voice pipeline smoke test to verify all services are healthy" |
-| **REFERENCE** | What is this component/capability? | Port assignments, API endpoint specs, configuration schemas |
+| Document      | Answer                             | Example                                                                |
+| ------------- | ---------------------------------- | ---------------------------------------------------------------------- |
+| **SPEC**      | What do we need to build?          | "Hermes Agent needs a local STT proxy that fakes Deepgram API format"  |
+| **ADR**       | Why did we choose this approach?   | "Why we use wav2vec2-proxy instead of calling whisper-api directly"    |
+| **GUIDE**     | How do we execute this operation?  | "Run the voice pipeline smoke test to verify all services are healthy" |
+| **REFERENCE** | What is this component/capability? | Port assignments, API endpoint specs, configuration schemas            |
 
 **Rule of thumb:** If the answer is imperative ("how to do X"), it's a GUIDE. If it's declarative ("what X is" or "why X"), it belongs elsewhere.
 
