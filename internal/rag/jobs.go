@@ -270,46 +270,43 @@ func (q *JobQueue) completeJob(ctx context.Context, jobID string) error {
 	return q.rdb.Del(ctx, jobKey(jobID)).Err()
 }
 
-// MoveDelayedJobs moves jobs whose delay has expired from delay sorted set to waiting queue
-// This should be called periodically or can be integrated into the job processor loop
+// MoveDelayedJobs atomically moves jobs whose delay has expired from delay sorted set to waiting queue.
+// Uses Lua script to avoid O(N) round-trips (was: 4 commands per job, now: 1 atomic script).
 func (q *JobQueue) MoveDelayedJobs(ctx context.Context, jobType string) (int, error) {
-	now := float64(time.Now().UnixMilli())
+	nowMs := time.Now().UnixMilli()
 
-	// Get jobs from delay sorted set with score <= now
-	jobIDs, err := q.rdb.ZRangeByScore(ctx, delayKey(jobType), &redis.ZRangeBy{
-		Min:   "-inf",
-		Max:   fmt.Sprintf("%f", now),
-	}).Result()
+	// Lua script: atomically move ready jobs from delay set to waiting queue
+	// ZRANGEBYSCORE + ZREM + HSET + RPUSH in one atomic operation
+	script := redis.NewScript(`
+		local delay_key = KEYS[1]
+		local queue_key = KEYS[2]
+		local job_prefix = KEYS[3]
+		local now_ms = tonumber(ARGV[1])
+		local limit = tonumber(ARGV[2])
+
+		local job_ids = redis.call('ZRANGEBYSCORE', delay_key, '-inf', now_ms, 'LIMIT', 0, limit)
+		if #job_ids == 0 then return 0 end
+
+		local moved = 0
+		for _, id in ipairs(job_ids) do
+			local removed = redis.call('ZREM', delay_key, id)
+			if removed == 1 then
+				redis.call('HSET', job_prefix .. id, 'state', 'waiting')
+				redis.call('RPUSH', queue_key, id)
+				moved = moved + 1
+			end
+		end
+		return moved
+	`)
+
+	n, err := script.Run(ctx, q.rdb,
+		[]string{delayKey(jobType), queueKey(jobType), JobPrefix},
+		nowMs, 100,
+	).Int()
 	if err != nil {
-		return 0, fmt.Errorf("zrangebyscore delay set: %w", err)
+		return 0, fmt.Errorf("move delayed jobs: %w", err)
 	}
-
-	if len(jobIDs) == 0 {
-		return 0, nil
-	}
-
-	// Move each job to the waiting queue
-	for _, jobID := range jobIDs {
-		// Remove from delay set
-		if _, err := q.rdb.ZRem(ctx, delayKey(jobType), jobID).Result(); err != nil {
-			continue
-		}
-
-		// Update job state to waiting
-		job, err := q.getJob(ctx, jobID)
-		if err != nil {
-			continue
-		}
-		job.State = JobStateWaiting
-		q.updateJob(ctx, job)
-
-		// Add to waiting queue
-		if err := q.rdb.RPush(ctx, queueKey(jobType), jobID).Err(); err != nil {
-			continue
-		}
-	}
-
-	return len(jobIDs), nil
+	return n, nil
 }
 
 // GetQueueLength returns the number of jobs in the waiting queue for a job type
