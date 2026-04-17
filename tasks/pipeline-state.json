@@ -1,8 +1,8 @@
 {
-  "currentState": "DEPLOY_APPROVED",
+  "currentState": "SPEC_PENDING",
   "lintPassed": false,
-  "lastCheckpoint": "2026-04-17T14:00:00-03:00",
-  "specsInPipeline": ["SPEC-057", "SPEC-031", "SPEC-056", "SPEC-058", "SPEC-059", "SPEC-060"],
-  "totalTasksInPipeline": 67,
-  "notes": "SPEC-060: 5/5 COMPLETED (HC-23 LangGraph error handling, HC-31 TTS 50MB, HC-33 Map O(1), HC-36 circuit breaker). Awaiting SPEC-060 code review."
+  "lastCheckpoint": "2026-04-17T17:00:00-03:00",
+  "specsInPipeline": ["SPEC-058", "SPEC-059", "SPEC-060", "SPEC-061", "SPEC-067", "SPEC-069"],
+  "totalTasksInPipeline": 38,
+  "notes": "SPEC-069 created: Hermes Telegram smoke test bidirecional (CLI + App). 4 tasks added. Pending: TASK-069-01 smoke_hermes_telegram.py, TASK-069-02 conftest+fixtures, TASK-069-03 audio/image fixtures, TASK-069-04 README."
 }
