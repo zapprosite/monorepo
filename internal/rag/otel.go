@@ -54,14 +54,17 @@ func (n *noOpSpan) End(err ...error) {}
 // SetAttributes implements Span.
 func (n *noOpSpan) SetAttributes(attrs ...Attribute) {}
 
+// otelTracerInterface defines the interface for OTEL tracer operations.
+// Extracted for testability and mock support.
+type otelTracerInterface interface {
+	Start(ctx context.Context, name string, opts ...any) (context.Context, any)
+	SetAttributes(ctx context.Context, attrs ...Attribute)
+}
+
 // OTELTracer is the OpenTelemetry-based tracer implementation.
 // Build tag: otel
 type OTELTracer struct {
-	// tracer wraps the OpenTelemetry tracer.
-	tracer interface {
-		Start(ctx context.Context, name string, opts ...any) (context.Context, any)
-		SetAttributes(ctx context.Context, attrs ...Attribute)
-	}
+	tracer otelTracerInterface
 }
 
 // OTELSpan wraps an OpenTelemetry span.

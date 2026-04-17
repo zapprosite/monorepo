@@ -94,14 +94,18 @@ Flags to use when applicable:
 
 // ScoreChunk evaluates a single chunk and updates its QualityScore
 func (qs *QualityScorer) ScoreChunk(ctx context.Context, chunk *ChunkResult) (*QualityScore, error) {
+	// Rate limit check BEFORE acquiring lock to avoid blocking other goroutines
 	qs.mu.Lock()
-	defer qs.mu.Unlock()
-
-	// Rate limiting
-	if time.Since(qs.lastRequest) < qs.rateLimit {
-		time.Sleep(qs.rateLimit - time.Since(qs.lastRequest))
+	sinceLast := time.Since(qs.lastRequest)
+	if sinceLast < qs.rateLimit {
+		// Calculate sleep duration, release lock, sleep, re-acquire
+		sleepDur := qs.rateLimit - sinceLast
+		qs.mu.Unlock()
+		time.Sleep(sleepDur)
+		qs.mu.Lock()
 	}
 	qs.lastRequest = time.Now()
+	qs.mu.Unlock()
 
 	// Prepare the prompt with chunk content
 	promptText := fmt.Sprintf("Evaluate this HVAC document chunk:\n\n---CHUNK START---\n%s\n---CHUNK END---\n\nContent type: %s\nSection: %s",
