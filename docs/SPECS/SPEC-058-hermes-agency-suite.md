@@ -1,6 +1,6 @@
 ---
 name: SPEC-058-hermes-agency-suite
-description: Hermes Agency Suite — 11-agent marketing agency on Hermes bare metal with Qdrant, LangGraph, Telegram, and tiered LLM fallback
+description: Hermes Agency Suite — 11-agent marketing agency on Hermes bare metal with Qdrant, LangGraph, Telegram, and MiniMax text-only (Ollama Vision/STT/Embeddings only)
 status: IMPLEMENTED
 priority: critical
 author: Principal Engineer
@@ -31,7 +31,7 @@ Construir uma **marketing agency 100% operacional em português** com 11 agentes
 | Agent Orchestrator   | Hermes Agent bare metal | systemd service :8642 gateway + :8092 MCP                                        |
 | Multi-Agent Workflow | LangGraph               | Complex workflows; simple routing via Hermes skills                              |
 | Vector Database      | Qdrant                  | Multi-tenant 9 coleções, bge-m3 embeddings                                       |
-| LLM Router           | LiteLLM + Hermes         | Hermes: minimax-m2.7 (PRIMARY, 50$ plan), Ollama fallback local |
+| LLM Router           | Hermes | Hermes: minimax-m2.7 PRIMARY (text only), Ollama Vision/STT only |
 | Embeddings           | bge-m3                  | Hybrid sparse+dense search, PT-BR optimized                                      |
 | Message Broker       | Redis                   | Semantic cache, session locks, pub/sub                                           |
 | Interface (Client)   | Telegram Bot            | Polling mode, per-chat locks, voice streaming                                    |

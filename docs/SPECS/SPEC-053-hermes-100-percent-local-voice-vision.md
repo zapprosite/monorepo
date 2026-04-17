@@ -1,6 +1,6 @@
 ---
 name: SPEC-053-hermes-100-percent-local-voice-vision
-description: "UPDATE 17/04: MiniMax-M2.7 é PRIMARY (50$ plan). Ollama qwen2.5vl:7b é fallback local. STT (whisper-medium-pt :8204), TTS (Kokoro :8013), Vision (qwen2.5vl:7b via Ollama)."
+description: "UPDATE 17/04: MiniMax-M2.7 é PRIMARY (50$ plan). Ollama qwen2.5vl:7b usado APENAS para Vision/STT/Embeddings. NUNCA para texto."
 status: DONE
 priority: critical
 author: Principal Engineer
@@ -26,10 +26,11 @@ specRef: SPEC-027, SPEC-038, SPEC-039, SPEC-047, SPEC-048, SPEC-052
 | Componente    | Estado Actual (17/04)             | Notes                           |
 | ------------- | --------------------------------- | ------------------------------- |
 | **LLM texto** | ✅ MiniMax-M2.7 (primário)        | 50$ plan — API key activa       |
-| **LLM fallback** | ✅ Ollama qwen2.5vl:7b          | Fallback local VRAM 24GB        |
+| **LLM fallback** | ❌ REMOVIDO — texto SEMPRE via MiniMax | Ollama só para Vision/STT |
 | **LLM visão** | ✅ Ollama qwen2.5vl:7b (vision)  | Multimodal via Ollama :11434   |
 | **STT**       | ✅ faster-whisper-medium-pt :8204 | Multipart fix aplicado ✅       |
 | **TTS**       | ✅ Kokoro :8013 via TTS Bridge    | Voces pm_santa/pf_dora ✅       |
+| **Embeddings**| ✅ nomic-embed-text (Ollama :11434) | Embeddings local ONLY |
 
 ---
 
@@ -43,18 +44,19 @@ Telegram Voice Message
   ▼
 Hermes Gateway :8642
   │
-  ├─ LLM Primário: MiniMax-M2.7 (externa, 50$ plan)
-  │    │
-  │    └─ Se falha → Ollama qwen2.5vl:7b (fallback local)
+  ├─ LLM Primário: MiniMax-M2.7 (externa, 50$ plan) — TEXTO APENAS
   │
-  ├─ Vision: Ollama qwen2.5vl:7b (via :11434)
+  ├─ Vision: Ollama qwen2.5vl:7b (via :11434) — VISION APENAS
   │
   ├─ STT: faster-whisper-medium-pt :8204 (já local)
   │
   └─ TTS: Kokoro :8013 via TTS Bridge (já local)
 ```
 
-### Arquitectura Anterior (Ollama Primary — 15/04)
+### Arquitectura Anterior (Ollama Primary — 15/04) — OBSOLETA
+
+> ⚠️ **ARQUITECTURA INVALIDA** — Ollama NUNCA deve ser usado para texto.
+> MiniMax-M2.7 é o ÚNICO text LLM. Ollama é reservado para Vision, STT e Embeddings.
 
 ```
 Telegram Voice Message
@@ -62,9 +64,9 @@ Telegram Voice Message
   ▼
 Hermes Gateway :8642
   │
-  ├─ LLM Primário: Ollama (qwen2.5vl:7b)
+  ├─ LLM Primário: Ollama (qwen2.5vl:7b) ← INVALIDO
   │    │
-  │    └─ Se falha → MiniMax-M2.7 (emergency)
+  │    └─ Se falha → MiniMax-M2.7 (emergency) ← INVALIDO
   │
   ├─ Vision: Ollama qwen2.5vl:7b (via :11434)
   │
@@ -88,10 +90,8 @@ llm:
     model: MiniMax-M2.7
     base_url: https://api.minimax.io/anthropic
     api_key: ${MINIMAX_API_KEY}  # 50$ plan activo
-  fallback:
-    - provider: ollama
-      model: llama3-portuguese-tomcat-8b-instruct-q8:latest  # Fallback local Q8_0
-      base_url: http://localhost:11434/v1
+  # FALLBACK OLLAMA REMOVIDO — texto vai SEMPRE via MiniMax
+  # Ollama é usado APENAS para: Vision (qwen2.5vl:7b), STT (whisper-1), Embeddings (nomic-embed-text)
 ```
 
 **Verificação (17/04):** `curl -X POST :8642/v1/chat/completions` → resposta via MiniMax ✅
@@ -145,7 +145,7 @@ auxiliary:
 **Resultado (17/04):**
 
 - `llm.primary: minimax/MiniMax-M2.7` ✅ (50$ plan)
-- `llm.fallback[0]: ollama/llama3-portuguese-tomcat-8b-instruct-q8` ✅
+- `llm.fallback[0]: ollama/llama3-portuguese-tomcat-8b-instruct-q8` ❌ REMOVIDO
 - `.env`: `MINIMAX_API_KEY` descomentada ✅
 
 **Verificação (17/04):**
@@ -212,6 +212,7 @@ Ollama models             ✅ OK
 - [x] TTS usa Kokoro :8013 ✅ (vozes pm_santa/pf_dora)
 - [x] `smoke-tests/smoke-hermes-local-voice.sh` passa ✅ 13/13
 - [x] `.env` MINIMAX_API_KEY activa ✅ (50$ plan — 17/04)
+- [x] Ollama usado APENAS para Vision + STT + Embeddings ✅
 - [ ] Latência MiniMax vs Ollama benchmark (pendente)
 - [ ] `/sec` audit: 0 findings
 
@@ -220,7 +221,7 @@ Ollama models             ✅ OK
 ## O que NÃO fazer
 
 - ❌ Remover MINIMAX_API_KEY de `.env` — é PRIMARY
-- ❌ Mudar LLM primário para Ollama — MiniMax é melhor qualidade
+- ❌ Usar Ollama para texto (fallback ou qualquer outro) — PROIBIDO
 - ❌ Mudar STT (faster-whisper-medium-pt :8204 — SPEC-009 imutável)
 - ❌ Mudar TTS (Kokoro via :8013 — SPEC-009 imutável)
 - ❌ Adicionar novo subdomínio
