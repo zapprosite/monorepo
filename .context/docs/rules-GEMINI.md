@@ -1,6 +1,6 @@
-# GEMINI.md: AI Agent & Skill Protocol (The Antigravity Kit)
+# AI Agent & Skill Protocol (The Antigravity Kit)
 
-The `GEMINI.md` protocol defines the mandatory operating procedures for AI agents interacting with this monorepo. It establishes a tiered execution model designed to prevent "hallucination-driven" coding and ensure that every change is intentional, researched, and architecture-compliant.
+The `docs/rules-GEMINI.md` protocol defines the mandatory operating procedures for AI agents interacting with this monorepo. It establishes a tiered execution model designed to prevent "hallucination-driven" coding and ensure that every change is intentional, researched, and architecture-compliant.
 
 ## 📋 Core Execution Lifecycle
 
@@ -42,7 +42,7 @@ The complexity of the task determines which "Tiers" of the AI's capabilities are
 
 ## 🤖 Step 3: Intelligent Agent Routing
 
-Based on the classification, the AI must adopt a specific persona. The AI **must** declare its persona to the user:
+Based on the classification, the AI must adopt a specific persona and declare it to the user:
 
 *   **`@[frontend-specialist]`**: Expertise in `packages/ui` (MUI/React), React Hook Form, and `apps/web`.
 *   **`@[backend-specialist]`**: Expertise in `apps/api`, Drizzle ORM, tRPC, and Fastify.
@@ -80,8 +80,16 @@ For "Complex Code" or "Design" requests, the AI must create a planning document 
 ## 📂 Skill Index Reference
 
 The AI uses the following skill categories located in the `skills/` directory:
-- `clean-code`: Standard formatting and architectural patterns.
-- `database`: Drizzle ORM usage and migration protocols.
-- `trpc`: Communication patterns between `web` and `api`.
-- `ui-components`: Theming, MUI wrappers, and `packages/ui` usage.
-- `ai-agents`: LangGraph, LiteLLM, and tool-calling structures.
+- **`clean-code`**: Standard formatting and architectural patterns.
+- **`database`**: Drizzle ORM usage (e.g., `UsersTable`, `TeamTable`) and migration protocols.
+- **`trpc`**: Communication patterns between `web` and `api` using the `AppTrpcRouter`.
+- **`ui-components`**: Theming (MUI), specialized wrappers (e.g., `RhfTextField`), and `packages/ui` usage.
+- **`ai-agents`**: LangGraph, LiteLLM, tool-calling structures, and agency routing (`routeToSkill`).
+
+## 🧱 Key System Archetypes
+
+When working within this protocol, refer to these core classes and structures:
+- **Controllers/Tables**: `UsersTable`, `SubscriptionsTable`, `ServiceOrderTable`.
+- **Zod Schemas**: `UserCreateInput`, `AddressSelectAll`, `ChatCompletionRequest`.
+- **Utility Functions**: `authLoader`, `checkRateLimit`, `applyPtbrFilter`.
+- **Error Management**: `AppError`, `CustomError`.

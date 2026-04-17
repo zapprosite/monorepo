@@ -1,9 +1,10 @@
 {
   "agent": "SPEC-ANALYZER",
-  "spec": "SUPER-REVIEW-2026-04-17",
+  "spec": "SPEC-066-claude-commands-audit",
   "status": "completed",
   "exit_code": 0,
-  "started": "2026-04-17T13:23:51-03:00",
-  "finished": "2026-04-17T13:27:47-03:00",
-  "log": ".claude/skills/orchestrator/logs/SPEC-ANALYZER.log"
+  "started": "",
+  "finished": "2026-04-17T15:00:36-03:00",
+  "command": "/researcher",
+  "log": "/srv/monorepo/.claude/skills/orchestrator/logs/SPEC-ANALYZER.log"
 }

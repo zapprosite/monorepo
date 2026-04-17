@@ -22,66 +22,68 @@ The project is structured as a **Modular Monolith** within a monorepo. This appr
 ## Technical Stack & Packages
 
 ### Shared Packages (`/packages`)
-- **`zod-schemas`**: The single source of truth for data validation. These schemas drive the database layer, API validation, and frontend forms.
-- **`ui`**: A centralized library of React components, theme configurations, and custom hook-based form builders (`rhf-form`).
+- **`zod-schemas`**: The single source of truth for validation. Drives database layers, API validation, and frontend forms.
+- **`ui`**: Centralized library of React components, MUI theme configurations, and custom hook-based form builders (`rhf-form`).
 
 ### Applications (`/apps`)
-- **`apps/api`**: The primary backend. It hosts the tRPC server for the web app and a REST API Gateway for external products.
-- **`apps/web`**: The main administrative and user dashboard.
-- **`apps/hermes-agency`**: The AI/Agentic service. It manages long-running workflows using LangGraph and provides vector search capabilities via Qdrant.
-- **`apps/ai-gateway`**: A specialized proxy for handling LLM requests (OpenAI-compatible) with built-in filtering (e.g., PT-BR filters).
+- **`apps/api`**: Primary backend hosting the tRPC server for the web app and a REST API Gateway for external products.
+- **`apps/web`**: Administrative and user dashboard.
+- **`apps/hermes-agency`**: AI/Agentic service managing long-running workflows with LangGraph and vector search via Qdrant.
+- **`apps/ai-gateway`**: Specialized proxy for LLM requests (OpenAI-compatible) with built-in Portuguese language filtering.
 
 ---
 
 ## Key Design Patterns
 
-### 1. Unified Schema validation
-The system uses Zod schemas defined in `packages/zod-schemas` to synchronize types across the entire stack.
-*   **Database**: Orchid ORM uses these schemas for type-safe queries.
-*   **API**: Fastify/tRPC uses them to validate inputs (`UserCreateInput`) and format outputs (`UserSelectAll`).
-*   **Frontend**: React Hook Form uses the same schemas for client-side validation.
+### 1. Unified Schema Validation
+The system uses Zod schemas defined in `packages/zod-schemas` to synchronize types across the stack.
+*   **Database**: Orchid ORM uses schemas (e.g., `AddressesTable`) for type-safe queries.
+*   **API**: Fastify/tRPC uses inputs like `UserCreateInput` and outputs like `UserSelectAll`.
+*   **Frontend**: React Hook Form uses these schemas via the `useRhfForm` hook for validated inputs.
 
 ### 2. Domain-Driven Modules
-The backend logic is partitioned into modules found in `apps/api/src/modules/`. Each module typically contains:
-*   `*.table.ts`: Database table definitions.
+Backend logic is partitioned into modules in `apps/api/src/modules/`. Each module typically contains:
+*   `*.table.ts`: Database table definitions (e.g., `LeadsTable`, `ContractsTable`).
 *   `*.router.ts`: tRPC or REST route definitions.
-*   `__tests__`: Unit and integration tests for that specific domain.
+*   `__tests__`: Domain-specific integration tests.
 
 ### 3. Agentic Workflow (Hermes Agency)
 The AI layer uses an **Agentic Router** pattern:
-*   **CEO/Router**: Analyzes user intent and routes to specific "Skills".
+*   **CEO/Router**: Analyzes user intent using `askCeoToRoute` and routes to specific "Skills".
 *   **Skills**: Modular executable units (e.g., `executeStatusUpdate`, `social_calendar`).
-*   **Human-in-the-loop**: Approval stages in the graph (e.g., `approveContentPipeline`) allow manual oversight of AI-generated content.
+*   **Human-in-the-loop**: Approval stages in the graph (e.g., `approveContentPipeline`) allow manual oversight.
 
 ### 4. Distributed Locking & Rate Limiting
-To handle concurrent agent operations and external API constraints, the system implements:
-*   **Redis-backed locks**: Found in `distributed_lock.ts` to prevent race conditions during agent executions.
-*   **Circuit Breakers**: Implemented in the `agency_router.ts` to fail fast when external AI services or skills are unstable.
+To handle concurrent agent operations and external API constraints:
+*   **Redis-backed locks**: Found in `distributed_lock.ts` (`acquireLock`) to prevent race conditions.
+*   **Circuit Breakers**: Implemented in `agency_router.ts` to fail fast when external AI services or skills are unstable.
+*   **Rate Limiter**: Tracks usage in `rate_limiter.ts` to respect provider limits.
 
 ---
 
 ## Data Flow
 
-1.  **Client Request**: A user interacts with a React component in `apps/web`.
-2.  **Transport**: The tRPC client sends a request. If it's an external tool, it hits the `api-gateway` REST endpoint.
-3.  **Authentication**: Middleware (`apiKeyAuthHook` or `sessionSecurity`) validates the request.
+1.  **Client Request**: User interacts with a React component in `apps/web`.
+2.  **Transport**: The tRPC client sends a request. External tools hit `api-gateway` REST endpoints.
+3.  **Authentication**: Middleware such as `apiKeyAuthHook` or `sessionSecurity` validates the session or key.
 4.  **Logic Execution**: The corresponding module (e.g., `loyalty`, `kanban`) processes the request using Orchid ORM.
 5.  **Agent Trigger**: If a workflow is required, the API communicates with `apps/hermes-agency` to trigger a LangGraph execution.
-6.  **Response**: The validated data is returned to the client, ensuring the UI matches the server state exactly.
+6.  **Response**: Validated data is returned, ensuring the UI matches the server state exactly.
 
 ---
 
-## Infrastructure & Deployment
+## Infrastructure & Observability
 
-- **Database**: PostgreSQL (Primary) + Qdrant (Vector Store).
-- **Caching/State**: Redis (used for rate limiting and distributed locks).
-- **Deployment**: Containerized environments (Docker) managed via Coolify.
-- **Observability**: Request logging middleware and custom error parsers (`AppError`) provide consistent diagnostic data.
+- **Database**: PostgreSQL (Primary) + Qdrant (Vector Store for RAG).
+- **Caching/State**: Redis (used for rate limiting, distributed locks, and session storage).
+- **Error Handling**: Custom `AppError` class and `errorParser` utility provide consistent API error responses.
+- **Logging**: `requestLogger` middleware tracks API product request logs into the `ApiProductRequestLogsTable`.
 
 ---
 
 ## Development Guidelines
 
-- **Adding a Table**: Define the schema in `packages/zod-schemas`, then create the table definition in the relevant module in `apps/api`.
-- **Cross-Module Logic**: Avoid tight coupling between modules. If `Module A` needs data from `Module B`, interact through service methods rather than reaching directly into foreign tables where possible.
-- **Time Handling**: Always use `timestampNumber` (Unix epoch milliseconds) for date-time fields to avoid timezone ambiguity during serialization.
+- **Adding a Table**: Define the Zod schema in `packages/zod-schemas`, then create the table class in the relevant module in `apps/api/src/modules/`.
+- **Cross-Module Logic**: Avoid tight coupling. Interact through service methods rather than reaching directly into foreign tables.
+- **Time Handling**: Always use `timestampNumber` (Unix epoch milliseconds) for date-time fields to avoid timezone ambiguity during JSON serialization.
+- **UI Components**: Use components from `packages/ui` (e.g., `RhfTextField`, `PrimaryButton`) to maintain visual consistency.
