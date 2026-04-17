@@ -4,6 +4,8 @@ Planos estratégicos e ideias para o homelab.
 
 ## Planos
 
-*(空)
+*(nenhum plano arquivado)*
+
+---
 
 *Este diretório é espelhado em `/obsidian/plans/`*

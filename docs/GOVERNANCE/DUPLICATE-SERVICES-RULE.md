@@ -105,13 +105,12 @@ All ports in use by the homelab. Before deploying a new service, check this regi
 
 ### Reserved Ports (Never Use)
 
-| Port | Reason                      |
-| ---- | --------------------------- |
-| 3000 | OpenWebUI (if deployed)     |
-| 4000 | LiteLLM production proxy    |
-| 4001 | Hermes Agent Bot (reserved) |
-| 8000 | Coolify PaaS                |
-| 8080 | Traefik + Cloudflared       |
+| Port | Reason                   |
+| ---- | ------------------------ |
+| 3000 | OpenWebUI (if deployed)  |
+| 4000 | LiteLLM production proxy |
+| 8000 | Coolify PaaS             |
+| 8080 | Traefik + Cloudflared    |
 
 ### Free Ports for Dev
 
