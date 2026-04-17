@@ -105,6 +105,21 @@ This is the single source of truth for "can I do this?" decisions.
 
 ---
 
+## VOICE PIPELINE SERVICES (Hermes Multimodal)
+
+| Operation                    | Allow | Approval | Forbidden | Notes                                   |
+| ---------------------------- | ----- | -------- | --------- | --------------------------------------- |
+| Hermes Gateway restart       | -     | ⚠️       | -         | Bare metal systemd — requires human     |
+| Hermes Agent config edit     | -     | ⚠️       | -         | Telegram polling state + skills persist |
+| Kokoro TTS config change     | -     | ⚠️       | -         | Voice filter — pm_santa/pf_dora pinned  |
+| TTS Bridge restart           | ✅    | -        | -         | Stateless, auto-healable                |
+| whisper STT config change    | -     | ⚠️       | -         | HF model cache ~1.5GB                   |
+| Ollama restart               | -     | ⚠️       | -         | Bare metal systemd, GPU cache 5GB+      |
+| Hermes MCP config change     | -     | ⚠️       | -         | mcpo daemon — agent tools               |
+| Voice route change (LiteLLM) | -     | ⚠️       | -         | Routing: STT→LLM→TTS chain              |
+
+---
+
 ## PACKAGE MANAGEMENT
 
 | Operation                        | Allow | Approval | Forbidden | Notes                               |
@@ -196,13 +211,13 @@ This is the single source of truth for "can I do this?" decisions.
 
 ### Voice Pipeline Services
 
-| Operation             | Service            | Can Execute          | Requires Approval  |
-| --------------------- | ------------------ | -------------------- | ------------------ |
-| TTS Bridge restart    | zappro-tts-bridge  | Autoheal (3/h limit) | Principal Engineer |
-| Voice change          | pm_santa / pf_dora | NEVER                | Principal Engineer |
-| Hermes Agent config edit  | Hermes Agent-qgtzrmi   | NEVER                | Principal Engineer |
-| Kokoro container stop | zappro-kokoro      | NEVER                | Principal Engineer |
-| wav2vec2 STT change   | zappro-wav2vec2    | NEVER                | Principal Engineer |
+| Operation                | Service              | Can Execute          | Requires Approval  |
+| ------------------------ | -------------------- | -------------------- | ------------------ |
+| TTS Bridge restart       | zappro-tts-bridge    | Autoheal (3/h limit) | Principal Engineer |
+| Voice change             | pm_santa / pf_dora   | NEVER                | Principal Engineer |
+| Hermes Agent config edit | Hermes Agent-qgtzrmi | NEVER                | Principal Engineer |
+| Kokoro container stop    | zappro-kokoro        | NEVER                | Principal Engineer |
+| wav2vec2 STT change      | zappro-wav2vec2      | NEVER                | Principal Engineer |
 
 ---
 

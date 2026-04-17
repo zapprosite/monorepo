@@ -231,8 +231,10 @@ These services are never restarted automatically:
 
 ```
 coolify-proxy cloudflared coolify-db prometheus grafana loki
-alertmanager coolify-redis
+alertmanager coolify-redis hermes-agent ollama
 ```
+
+**Rationale:** hermes-agent (bare metal systemd, agent brain + Telegram polling state) and ollama (bare metal systemd, GPU model cache 5GB+) must never be auto-healed — they require human review due to persistent state and model cache complexity.
 
 **Action:** Log `CRITICAL IMMUTABLE — NO ACTION PERMITTED` and escalate immediately.
 
