@@ -7,7 +7,12 @@ import { routeToSkill } from '../router/agency_router.ts';
 const BOT_TOKEN = process.env.HERMES_AGENCY_BOT_TOKEN ?? '';
 const WEBHOOK_URL = process.env.HERMES_AGENCY_WEBHOOK_URL ?? '';
 
-// Per-chat mutex locks (in-memory for simplicity — use Redis for production)
+// Per-chat mutex locks
+// WARNING: In-memory Map locks do NOT work across multiple bot instances.
+// For multi-instance deployment, use Redis SETNX with TTL:
+//   Redis: SETNX chat:{chatId}:lock 1 EX 30
+//          DEL chat:{chatId}:lock (on release)
+//   This ensures atomic lock acquisition across all instances.
 const chatLocks = new Map<number, boolean>();
 
 function acquireLock(chatId: number): boolean {
@@ -22,6 +27,36 @@ function releaseLock(chatId: number): void {
   chatLocks.delete(chatId);
 }
 
+// In-memory rate limiter: messages per user per time window
+// WARNING: This state is per-instance. For multi-instance deployment, use Redis:
+//   Redis: INCR user:{userId}:msg_count EXPIRE user:{userId}:msg_count {WINDOW_SECS}
+interface RateLimitEntry {
+  count: number;
+  resetAt: number; // timestamp when window resets
+}
+const RATE_LIMIT_WINDOW_MS = 10_000; // 10 seconds per window
+const RATE_LIMIT_MAX_MESSAGES = 5; // max messages per window per user
+const userMessageRates = new Map<string, RateLimitEntry>();
+
+function checkRateLimit(userId: string): { allowed: boolean; retryAfterSec: number } {
+  const now = Date.now();
+  const entry = userMessageRates.get(userId);
+
+  if (!entry || now >= entry.resetAt) {
+    // New window
+    userMessageRates.set(userId, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
+    return { allowed: true, retryAfterSec: 0 };
+  }
+
+  if (entry.count >= RATE_LIMIT_MAX_MESSAGES) {
+    const retryAfterSec = Math.ceil((entry.resetAt - now) / 1000);
+    return { allowed: false, retryAfterSec };
+  }
+
+  entry.count++;
+  return { allowed: true, retryAfterSec: 0 };
+}
+
 if (!BOT_TOKEN) {
   console.error('[HermesAgencyBot] HERMES_AGENCY_BOT_TOKEN not set in .env');
   process.exit(1);
@@ -29,7 +64,7 @@ if (!BOT_TOKEN) {
 
 const bot = new Telegraf(BOT_TOKEN);
 
-// Middleware: per-chat lock
+// Middleware: rate limit + per-chat lock
 bot.use(async (ctx, next) => {
   const chatId = ctx.chat?.id;
   if (!chatId) {
@@ -37,6 +72,17 @@ bot.use(async (ctx, next) => {
     return;
   }
 
+  // Rate limit check (per user)
+  const userId = String(ctx.from?.id ?? 'unknown');
+  const { allowed, retryAfterSec } = checkRateLimit(userId);
+  if (!allowed) {
+    await ctx.reply(`⛔ Muitas solicitacoes. Tente novamente em ${retryAfterSec}s.`, {
+      parse_mode: 'Markdown',
+    });
+    return;
+  }
+
+  // Per-chat lock (prevents concurrent processing in same chat)
   if (!acquireLock(chatId)) {
     await ctx.reply('⏳ Procesando outra mensagem neste chat. Por favor aguarde.');
     return;

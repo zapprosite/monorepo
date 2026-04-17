@@ -3,7 +3,7 @@
 // Chain: qwen2.5vl:7b (Ollama direct) → llama3-ptbr (Ollama direct) → gemini-2.0-flash (cloud) → minimax-m2.7 (emergency only)
 
 const OLLAMA_URL = process.env.OLLAMA_URL ?? 'http://localhost:11434';
-const GEMINI_URL = 'https://api.gemini.com/v1beta/chat/completions';
+const GEMINI_URL = process.env.GEMINI_URL ?? 'https://api.gemini.com/v1beta/chat/completions';
 const LLM_KEY = process.env.LITELLM_MASTER_KEY ?? '';
 const EMERGENCY_LLM_KEY = process.env.MINIMAX_API_KEY ?? '';
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY ?? '';
@@ -113,6 +113,7 @@ async function callLLM(
   const response = await fetch(llm.url, {
     method: 'POST',
     headers,
+    signal: AbortSignal.timeout(60000),
     body: JSON.stringify({
       model: llm.model,
       messages,
@@ -142,6 +143,7 @@ async function callOllama(
   const response = await fetch(`${OLLAMA_URL}/api/chat`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
+    signal: AbortSignal.timeout(60000),
     body: JSON.stringify({
       model,
       messages,
