@@ -76,41 +76,50 @@ All ports in use by the homelab. Before deploying a new service, check this regi
 
 ### Stack Zappro
 
-| Port | Container           | Access    | Function                          |
-| ---- | ------------------- | --------- | --------------------------------- |
-| 3100 | grafana             | host      | Dashboard                         |
-| 3334 | zappro-litellm      | host      | LiteLLM UI/dashboard              |
-| 4000 | zappro-litellm      | host      | LiteLLM proxy                     |
-| 4004 | nginx-ratelimit     | host      | Rate-limited proxy to :4000       |
-| 4005 | ai-router           | host      | AI Router                         |
-| 5678 | n8n                 | host      | Workflow automation               |
-| 6333 | zappro-qdrant       | host      | Qdrant REST                       |
-| 6334 | zappro-qdrant       | host      | Qdrant gRPC                       |
-| 6379 | zappro-redis        | host      | Redis cache/pubsub                |
-| 8012 | zappro-kokoro       | localhost | Kokoro TTS (GPU)                  |
-| 8880 | zappro-kokoro       | bridge    | Kokoro TTS for Coolify containers |
-| 8888 | searxng             | host      | Search engine                     |
-| 9090 | prometheus          | localhost | TSDB metrics                      |
-| 9100 | node-exporter       | host      | Host metrics                      |
-| 9250 | cadvisor            | localhost | Container metrics                 |
-| 9835 | nvidia-gpu-exporter | host      | GPU metrics                       |
+| Port | Container           | Access    | Function                                 |
+| ---- | ------------------- | --------- | ---------------------------------------- |
+| 3100 | grafana             | host      | Dashboard                                |
+| 3334 | zappro-litellm      | host      | LiteLLM UI/dashboard                     |
+| 4000 | zappro-litellm      | host      | LiteLLM proxy                            |
+| 4004 | nginx-ratelimit     | host      | Rate-limited proxy to :4000              |
+| 4005 | ai-router           | host      | AI Router                                |
+| 5678 | n8n                 | host      | Workflow automation                      |
+| 6333 | zappro-qdrant       | host      | Qdrant REST                              |
+| 6334 | zappro-qdrant       | host      | Qdrant gRPC                              |
+| 6379 | zappro-redis        | host      | Redis cache/pubsub                       |
+| 8012 | zappro-kokoro       | localhost | Kokoro TTS (GPU)                         |
+| 8013 | zappro-tts-bridge   | host      | TTS Bridge (pm_santa/pf_dora filter)     |
+| 8204 | faster-whisper      | host      | STT (medium-pt, OpenAI whisper-1 compat) |
+| 8880 | zappro-kokoro       | bridge    | Kokoro TTS for Coolify containers        |
+| 8888 | searxng             | host      | Search engine                            |
+| 9090 | prometheus          | localhost | TSDB metrics                             |
+| 9100 | node-exporter       | host      | Host metrics                             |
+| 9250 | cadvisor            | localhost | Container metrics                        |
+| 9835 | nvidia-gpu-exporter | host      | GPU metrics                              |
 
 ### Non-Docker / Host Services
 
-| Port  | Process     | Access              | Function           |
-| ----- | ----------- | ------------------- | ------------------ |
-| 22    | sshd        | host                | SSH                |
-| 11434 | ollama      | localhost + docker0 | LLM local          |
-| 8201  | whisper-api | localhost + docker0 | Faster-Whisper STT |
+| Port  | Process        | Access              | Function                          |
+| ----- | -------------- | ------------------- | --------------------------------- |
+| 22    | sshd           | host                | SSH                               |
+| 11434 | ollama         | localhost + docker0 | LLM local (qwen2.5vl:7b RTX 4090) |
+| 8642  | hermes-gateway | localhost + docker0 | Agent brain (Telegram polling)    |
+| 8092  | mcpo           | localhost           | Hermes MCP (agent tools)          |
 
 ### Reserved Ports (Never Use)
 
-| Port | Reason                   |
-| ---- | ------------------------ |
-| 3000 | OpenWebUI (if deployed)  |
-| 4000 | LiteLLM production proxy |
-| 8000 | Coolify PaaS             |
-| 8080 | Traefik + Cloudflared    |
+| Port | Reason                              |
+| ---- | ----------------------------------- |
+| 3000 | OpenWebUI proxy (if deployed)       |
+| 4000 | LiteLLM production proxy            |
+| 4001 | Hermes Agent Bot (PRUNED)           |
+| 4002 | ai-gateway OpenAI-compat (SPEC-047) |
+| 8000 | Coolify PaaS                        |
+| 8080 | Open WebUI (Coolify managed)        |
+| 8204 | faster-whisper STT (canonical)      |
+| 8642 | Hermes Gateway (agent brain)        |
+| 8092 | Hermes MCP (agent tools)            |
+| 6333 | Qdrant (Coolify managed)            |
 
 ### Free Ports for Dev
 

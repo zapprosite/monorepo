@@ -9,7 +9,7 @@ Critical tool versions pinned for homelab-monorepo.
 | Node.js         | (check .nvmrc or package.json) | local                                      |
 | Claude Code CLI | 2.1.89                         | research 2026-04-11                        |
 | TypeScript      | ^5.7.3                         | apps/\*/package.json                       |
-| Biome           | 2.4.12                         | apps/ai-gateway/package.json               |
+| Biome           | ^2.3.0                         | apps/ai-gateway/package.json               |
 | Kokoro FastAPI  | v0.2.2                         | `ghcr.io/remsky/kokoro-fastapi-gpu:v0.2.2` |
 
 ## Voice PT-BR — Kokoro TTS (IMUTÁVEL)

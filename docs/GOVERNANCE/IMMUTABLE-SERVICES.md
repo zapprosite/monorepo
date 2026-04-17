@@ -66,22 +66,20 @@ These services are **never changeable** — treat as permanent infrastructure:
 | **Hermes Agent**  | Agent brain (bare metal Ubuntu Desktop, :8642 gateway, :8092 MCP) | Agent brain, self-improving; Telegram polling depends on this                  | SPEC-045     |
 | **Ollama**        | Local LLM inference (Ubuntu Desktop, :11434)                      | RTX 4090 GPU inference; model cache and validation state                       | SPEC-045     |
 
-**IMMUTABLE means:** Do not propose updates, restarts, config changes, or replacements — ever. If an IMMUTABLE service fails, escalate to human.
-
 ---
 
 ## PINNED Services
 
 PINNED services can be changed with MASTER_PASSWORD following proper procedure:
 
-| Service           | Container                           | Why Pinned                                             |
-| ----------------- | ----------------------------------- | ------------------------------------------------------ |
-| **TTS Bridge**    | `zappro-tts-bridge`                 | Filters Kokoro voices — only pm_santa/pf_dora allowed  |
-| **Kokoro TTS**    | `zappro-kokoro`                     | Validated with Hermes Agent watchdog; model cache large    |
-| **Whisper STT**   | `zappro-whisper-stt`                | HF model cache (~1.5GB); watchdog depends on port 8201 |
-| **Hermes Agent Bot**  | `Hermes Agent-qgtzrmi6771lt8l7x8rqx72f` | Complex config + secrets; tunnel routing validated     |
-| **LiteLLM Proxy** | `zappro-litellm`                    | GPU proxy for TTS/STT/Vision; config.yaml validated    |
-| **openwebui**     | `openwebui`                         | Validated bridge target; OAuth integration stable      |
+| Service              | Container                               | Why Pinned                                              |
+| -------------------- | --------------------------------------- | ------------------------------------------------------- |
+| **TTS Bridge**       | `zappro-tts-bridge`                     | Filters Kokoro voices — only pm_santa/pf_dora allowed   |
+| **Kokoro TTS**       | `zappro-kokoro`                         | Validated with Hermes Agent watchdog; model cache large |
+| **Whisper STT**      | `zappro-whisper-stt`                    | HF model cache (~1.5GB); watchdog depends on port 8201  |
+| **Hermes Agent Bot** | `Hermes Agent-qgtzrmi6771lt8l7x8rqx72f` | Complex config + secrets; tunnel routing validated      |
+| **LiteLLM Proxy**    | `zappro-litellm`                        | GPU proxy for TTS/STT/Vision; config.yaml validated     |
+| **openwebui**        | `openwebui`                             | Validated bridge target; OAuth integration stable       |
 
 ---
 
@@ -89,18 +87,18 @@ PINNED services can be changed with MASTER_PASSWORD following proper procedure:
 
 The docker-autoheal sidecar monitors and restarts unhealthy containers. Containers in its implicit whitelist are PINNED because autoheal preserves them:
 
-| Container                  | Autoheal Behavior         |
-| -------------------------- | ------------------------- |
-| **prometheus**             | Auto-restart on unhealthy |
-| **grafana**                | Auto-restart on unhealthy |
-| **loki**                   | Auto-restart on unhealthy |
-| **alertmanager**           | Auto-restart on unhealthy |
-| **coolify-proxy**          | Auto-restart on unhealthy |
-| **cloudflared**            | Auto-restart on unhealthy |
-| **n8n**                    | Auto-restart on unhealthy |
-| **openwebui**              | Auto-restart on unhealthy |
-| **Hermes Agent-mcp-wrapper**   | Auto-restart on unhealthy |
-| **openwebui-bridge-agent** | Auto-restart on unhealthy |
+| Container                    | Autoheal Behavior         |
+| ---------------------------- | ------------------------- |
+| **prometheus**               | Auto-restart on unhealthy |
+| **grafana**                  | Auto-restart on unhealthy |
+| **loki**                     | Auto-restart on unhealthy |
+| **alertmanager**             | Auto-restart on unhealthy |
+| **coolify-proxy**            | Auto-restart on unhealthy |
+| **cloudflared**              | Auto-restart on unhealthy |
+| **n8n**                      | Auto-restart on unhealthy |
+| **openwebui**                | Auto-restart on unhealthy |
+| **Hermes Agent-mcp-wrapper** | Auto-restart on unhealthy |
+| **openwebui-bridge-agent**   | Auto-restart on unhealthy |
 
 These services benefit from auto-healing but remain PINNED — changes still require MASTER_PASSWORD.
 

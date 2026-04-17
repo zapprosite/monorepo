@@ -8,19 +8,23 @@
 
 ## Services Inventory (Canonical — SPEC-045)
 
-| Service        | Host              | Port   | Purpose                        |
-| -------------- | ----------------- | ------ | ------------------------------ |
-| Coolify        | Ubuntu Desktop    | 8000   | Container management (PaaS)    |
-| Coolify Proxy  | Ubuntu Desktop    | 80/443 | SSL termination                |
-| Qdrant         | Coolify           | 6333   | RAG / embeddings               |
-| OpenWebUI      | Coolify           | 8080   | Chat interface                 |
-| Hermes Gateway | Ubuntu bare metal | 8642   | Agent brain                    |
-| Hermes MCP     | Ubuntu bare metal | 8092   | MCP proxy (MCPO bridge)        |
-| Ollama         | Ubuntu Desktop    | 11434  | Local LLM inference (RTX 4090) |
-| LiteLLM        | Docker Compose    | 4000   | Multi-provider LLM proxy       |
-| Grafana        | Docker Compose    | 3100   | Metrics visualization          |
-| Loki           | Docker Compose    | 3101   | Log aggregation                |
-| Prometheus     | Docker Compose    | 9090   | Metrics collection             |
+| Service        | Host              | Port   | Purpose                                  |
+| -------------- | ----------------- | ------ | ---------------------------------------- |
+| Coolify        | Ubuntu Desktop    | 8000   | Container management (PaaS)              |
+| Coolify Proxy  | Ubuntu Desktop    | 80/443 | SSL termination                          |
+| Qdrant         | Coolify           | 6333   | RAG / embeddings                         |
+| OpenWebUI      | Coolify           | 8080   | Chat interface                           |
+| Hermes Gateway | Ubuntu bare metal | 8642   | Agent brain (Telegram polling)           |
+| Hermes MCP     | Ubuntu bare metal | 8092   | MCP proxy (MCPO bridge)                  |
+| ai-gateway     | Ubuntu Desktop    | 4002   | OpenAI-compat facade (TTS/STT/Vision)    |
+| Ollama         | Ubuntu Desktop    | 11434  | Local LLM inference (RTX 4090)           |
+| faster-whisper | Docker            | 8204   | STT (medium-pt, OpenAI whisper-1 compat) |
+| Kokoro TTS     | Docker            | 8880   | TTS direct (bridge:8013)                 |
+| TTS Bridge     | Docker            | 8013   | TTS voice filter (pm_santa/pf_dora)      |
+| LiteLLM        | Docker Compose    | 4000   | Multi-provider LLM proxy                 |
+| Grafana        | Docker Compose    | 3100   | Metrics visualization                    |
+| Loki           | Docker Compose    | 3101   | Log aggregation                          |
+| Prometheus     | Docker Compose    | 9090   | Metrics collection                       |
 
 ---
 
@@ -32,11 +36,13 @@ These ports are permanently reserved and MUST NOT be used without updating this 
 | ---- | -------------------------- | -------------------------- |
 | 3000 | Open WebUI proxy           | RESERVED                   |
 | 4000 | LiteLLM production         | RESERVED                   |
-| 4001 | Hermes Agent Bot               | RESERVED (service removed) |
+| 4001 | Hermes Agent Bot           | RESERVED (service removed) |
 | 4002 | ai-gateway (OpenAI compat) | RESERVED                   |
 | 8000 | Coolify PaaS               | RESERVED                   |
 | 8080 | Open WebUI (Coolify)       | RESERVED                   |
+| 8204 | faster-whisper STT         | RESERVED                   |
 | 8642 | Hermes Gateway             | RESERVED                   |
+| 8092 | Hermes MCP                 | RESERVED                   |
 | 6333 | Qdrant (Coolify managed)   | RESERVED                   |
 
 ---
