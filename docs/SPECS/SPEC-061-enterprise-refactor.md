@@ -1,12 +1,12 @@
 ---
-name: SPEC-ENTERPRISE-REFACTOR
+name: SPEC-061-enterprise-refactor
 description: Refatoração enterprise de CLAUDE.md e AGENTS.md com 14 agentes de pesquisa
-spec_id: ENTERPRISE-REFACTOR-2026-04-17
+spec_id: SPEC-061
 status: IN_PROGRESS
 created: 2026-04-17
 ---
 
-# SPEC: Enterprise Refactor — CLAUDE.md + AGENTS.md
+# SPEC-061: Enterprise Refactor — CLAUDE.md + AGENTS.md
 
 ## Objetivo
 
