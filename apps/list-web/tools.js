@@ -8,45 +8,45 @@
  */
 
 const INTERNAL_URLS = {
-  // AI
+  // AI — use public subdomains where available
   litellm:
-    import.meta.env.VITE_LITELLM_URL || window.__ENV__?.LITELLM_URL || 'http://10.0.19.7:4000',
+    import.meta.env.VITE_LITELLM_URL || window.__ENV__?.LITELLM_URL || 'https://api.zappro.site',
   hermesGateway:
     import.meta.env.VITE_HERMES_GATEWAY_URL ||
     window.__ENV__?.HERMES_GATEWAY_URL ||
-    'http://10.0.2.4:8642', // Hermes Gateway (was :4001 — fixed 2026-04-16 per SPEC-057
-  kokoro: import.meta.env.VITE_KOKORO_URL || window.__ENV__?.KOKORO_URL || 'http://10.0.19.7:8880',
+    'https://hermes.zappro.site',
+  kokoro: import.meta.env.VITE_KOKORO_URL || window.__ENV__?.KOKORO_URL || 'https://hermes.zappro.site',
   ttsBridge:
-    import.meta.env.VITE_TTS_BRIDGE_URL || window.__ENV__?.TTS_BRIDGE_URL || 'http://10.0.2.4:8013',
-  ollama: import.meta.env.VITE_OLLAMA_URL || window.__ENV__?.OLLAMA_URL || 'http://10.0.5.1:11434',
-  // Monitoring
+    import.meta.env.VITE_TTS_BRIDGE_URL || window.__ENV__?.TTS_BRIDGE_URL || 'https://hermes.zappro.site',
+  ollama: import.meta.env.VITE_OLLAMA_URL || window.__ENV__?.OLLAMA_URL || '', // No public URL
+  // Monitoring — via Grafana dashboard
   prometheus:
     import.meta.env.VITE_PROMETHEUS_URL ||
     window.__ENV__?.PROMETHEUS_URL ||
-    'http://10.0.19.7:9090',
-  loki: import.meta.env.VITE_LOKI_URL || window.__ENV__?.LOKI_URL || 'http://10.0.19.7:3100',
+    'https://monitor.zappro.site',
+  loki: import.meta.env.VITE_LOKI_URL || window.__ENV__?.LOKI_URL || 'https://monitor.zappro.site',
   alertmanager:
     import.meta.env.VITE_ALERTMANAGER_URL ||
     window.__ENV__?.ALERTMANAGER_URL ||
-    'http://10.0.19.7:9093',
+    'https://monitor.zappro.site',
   nodeExporter:
     import.meta.env.VITE_NODE_EXPORTER_URL ||
     window.__ENV__?.NODE_EXPORTER_URL ||
-    'http://10.0.19.7:9100',
+    'https://monitor.zappro.site',
   cadvisor:
-    import.meta.env.VITE_CADVISOR_URL || window.__ENV__?.CADVISOR_URL || 'http://10.0.19.7:8080',
+    import.meta.env.VITE_CADVISOR_URL || window.__ENV__?.CADVISOR_URL || 'https://monitor.zappro.site',
   // Infra
-  n8n: import.meta.env.VITE_N8N_URL || window.__ENV__?.N8N_URL || 'http://10.0.19.7:5678',
-  qdrant: import.meta.env.VITE_QDRANT_URL || window.__ENV__?.QDRANT_URL || 'http://10.0.19.7:6333',
+  n8n: import.meta.env.VITE_N8N_URL || window.__ENV__?.N8N_URL || '', // n8n removed
+  qdrant: import.meta.env.VITE_QDRANT_URL || window.__ENV__?.QDRANT_URL || 'https://qdrant.zappro.site',
 };
 
 export const tools = [
   // ========== AI ==========
   {
     id: 'chat',
-    name: 'OpenWebUI',
-    description: 'Interface web para chat com LLMs locais e remotos',
-    url: 'https://chat.zappro.site',
+    name: 'Hermes Gateway',
+    description: 'Gateway de voz e LLM — STT + TTS + Chat via Telegram',
+    url: 'https://hermes.zappro.site',
     category: 'ai',
     icon: '🤖',
     status: 'operational',
