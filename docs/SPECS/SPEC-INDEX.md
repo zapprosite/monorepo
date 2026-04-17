@@ -27,7 +27,7 @@ status: ACTIVE
 | **Secrets / Infisical**      | SPEC-029                                                | [SPEC-029-INFISICAL-SDK-MANDATORY.md](./SPEC-029-INFISICAL-SDK-MANDATORY.md)                                       | Zero tolerance mandate                                                                    |
 | **Tunnel / subdomains**      | SPEC-032                                                | [SPEC-032-tunnel-health-automation.md](./SPEC-032-tunnel-health-automation.md)                                     | smoke-tunnel.sh ✅                                                                        |
 | **Hermes Agent**             | SPEC-038                                                | [SPEC-038-hermes-agent-migration.md](./SPEC-038-hermes-agent-migration.md)                                         | OPERAÇÃO OVERLORD                                                                         |
-| **Hermes Gateway**           | SPEC-039                                                | [SPEC-039-hermes-gateway-tunnel.md](./SPEC-039-hermes-gateway-tunnel.md)                                           | hermes.zappro.site → :8642                                                                |
+| **Hermes Gateway**           | SPEC-038                                                | [SPEC-038-hermes-agent-migration.md](./SPEC-038-hermes-agent-migration.md)                                       | hermes.zappro.site → :8642 ✅                                                            |
 | **Alerting & rate limiting** | SPEC-040                                                | [SPEC-040-homelab-alerting-rate-limit.md](./SPEC-040-homelab-alerting-rate-limit.md)                               | GPU security                                                                              |
 | **Monorepo polish**          | SPEC-041                                                | [SPEC-041-monorepo-estado-arte-polish.md](./SPEC-041-monorepo-estado-arte-polish.md)                               | Tech debt resolution                                                                      |
 | **AI Gateway PT-BR**         | SPEC-047                                                | [SPEC-047-enterprise-polish-ai-gateway-ptbr.md](./SPEC-047-enterprise-polish-ai-gateway-ptbr.md)                   | ai-gateway :4002 ✅                                                                       |
@@ -52,7 +52,7 @@ status: ACTIVE
 | SPEC-036 | Todo web app                   | todo.zappro.site (OAuth, 2026-04-13)                                                                      |
 | SPEC-043 | Subdomain prune                | bot/supabase PRUNED, hermes.zappro.site ACTIVE                                                            |
 | SPEC-048 | OpenAI Facade Completo         | llm.zappro.site (:4002), smoke (6/6) ✅                                                                   |
-| SPEC-039 | Hermes Gateway tunnel          | hermes.zappro.site → :8642                                                                                |
+| SPEC-039 | ~~Hermes Gateway tunnel~~     | ✅ ARCHIVED — hermes.zappro.site → :8642, see SPEC-038                                                   |
 | SPEC-051 | Hermes Agent prune total        | ✅ DONE — Hermes Agent legacy PRUNED, 40+ files archived                                                     |
 | SPEC-053 | Hermes 100% local voice/vision | ✅ DONE — qwen2.5vl:7b texto+visão, whisper :8204, Kokoro :8013, smoke 13/13                              |
 | SPEC-054 | GPU Model Stack 2026           | ✅ DONE — whisper-medium-pt + Kokoro + nomic-embed-text, 20.6 GB livre, qwen2.5vl:7b como próximo upgrade |
@@ -74,8 +74,7 @@ status: ACTIVE
 
 | SPEC     | Title                  | Notes                                                 |
 | -------- | ---------------------- | ----------------------------------------------------- |
-| SPEC-038 | Hermes Agent migration | OPERAÇÃO OVERLORD — Hermes Agent → Hermes Agent        |
-| SPEC-051 | Hermes Agent prune total | Prune total Hermes Agent legacy — HERMES único assistente |
+| SPEC-038 | Hermes Agent migration | OPERAÇÃO OVERLORD ✅ — Hermes → Hermes, hermes.zappro.site ✅                                                |
 | SPEC-052 | Hermes MCP + Context7  | Context7 MCP + web search integration research        |
 
 ### 📋 SPECIFIED (Planned/Proposed)
@@ -83,6 +82,7 @@ status: ACTIVE
 | SPEC     | Title          | Notes                              |
 | -------- | -------------- | ---------------------------------- |
 | SPEC-037 | md.zappro.site | Obsidian vault UI via Google OAuth |
+| SPEC-056 | Cursor-Loop Enterprise Polish | 14-agent review, 9 critical fixes (C1-C9), SPEC-056 ✅ — branch feature/swift-kernel |
 
 ---
 
@@ -154,6 +154,8 @@ If your feature intersects an archived SPEC, check the replacement column:
 | SPEC-028        | Perplexity GitOps             | SPEC-024 + perplexity-agent                     |
 | SPEC-030        | AGENTS.md Top Links Audit     | SPEC-041 + current AGENTS.md                    |
 | SPEC-033        | Supabase Tunnel Exposure      | SPEC-043 (supabase PRUNED)                      |
+| SPEC-039        | Hermes Gateway tunnel         | SPEC-038 (hermes.zappro.site ✅)              |
+| SPEC-046        | Hermes Agent improvements    | SPEC-038 (superseded)                          |
 
 All archived specs are in: `docs/SPECS/archive/`
 
@@ -165,10 +167,10 @@ All secrets and environment-specific values MUST:
 
 | Standard             | Description                                                    |
 | -------------------- | -------------------------------------------------------------- |
-| **Secrets**          | Store in `.env` files, read via `process.env` or Infisical SDK |
+| **Secrets**          | Store in `.env` files, read via `process.env` (Infisical SDK PRUNED — legacy) |
 | **No hardcoding**    | Never embed tokens/keys directly in SPECs or code              |
 | **Reference format** | Use `${SECRET_NAME}` syntax (e.g., `${CLOUDFLARE_API_TOKEN}`)  |
-| **Infisical SDK**    | Use Infisical SDK for runtime secret retrieval in code         |
+| **Infisical SDK**    | PROIBIDO — usar `.env` como fonte canónica apenas                |
 
 See [SPEC-029-INFISICAL-SDK-MANDATORY.md](./SPEC-029-INFISICAL-SDK-MANDATORY.md) for enforcement details.
 

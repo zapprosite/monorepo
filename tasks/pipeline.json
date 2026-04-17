@@ -1,465 +1,209 @@
 {
   "tasks": [
     {
-      "id": "TASK-001",
-      "spec": "SPEC-029-INFISICAL-SDK-MANDATORY",
-      "title": "SPEC-029-INFISICAL-SDK-MANDATORY.md",
-      "priority": "critical",
-      "status": "pending",
-      "blocked_by": []
-    },
-    {
-      "id": "TASK-002",
-      "spec": "SPEC-038-hermes-agent-migration",
-      "title": "SPEC-038-hermes-agent-migration.md",
-      "priority": "critical",
-      "status": "pending",
-      "blocked_by": []
-    },
-    {
-      "id": "TASK-003",
-      "spec": "SPEC-042-SPEC-CHUNKING-STRATEGY",
-      "title": "SPEC-042-SPEC-CHUNKING-STRATEGY.md",
-      "priority": "critical",
-      "status": "pending",
-      "blocked_by": []
-    },
-    {
-      "id": "TASK-004",
-      "spec": "SPEC-048-openai-facade-completo",
-      "title": "SPEC-048-openai-facade-completo.md",
-      "priority": "critical",
-      "status": "pending",
-      "blocked_by": []
-    },
-    {
-      "id": "TASK-005",
-      "spec": "SPEC-049-ai-gateway-polish",
-      "title": "SPEC-049-ai-gateway-polish.md",
-      "priority": "critical",
-      "status": "pending",
-      "blocked_by": []
-    },
-    {
-      "id": "TASK-006",
-      "spec": "SPEC-050-governance-alignment",
-      "title": "SPEC-050-governance-alignment.md",
-      "priority": "critical",
-      "status": "pending",
-      "blocked_by": []
-    },
-    {
-      "id": "TASK-007",
-      "spec": "SPEC-AUDIT-FIXES-PHASE2",
-      "title": "SPEC-AUDIT-FIXES-PHASE2.md",
-      "priority": "critical",
-      "status": "pending",
-      "blocked_by": []
-    },
-    {
-      "id": "TASK-008",
-      "spec": "SPEC-HOMELAB-GOVERNANCE-DEFINITIVO",
-      "title": "SPEC-HOMELAB-GOVERNANCE-DEFINITIVO.md",
-      "priority": "critical",
-      "status": "pending",
-      "blocked_by": []
-    },
-    {
-      "id": "TASK-009",
-      "spec": "SPEC-HOMELAB-SEGURO-ESTAVEL",
-      "title": "SPEC-HOMELAB-SEGURO-ESTAVEL.md",
-      "priority": "critical",
-      "status": "pending",
-      "blocked_by": []
-    },
-    {
-      "id": "TASK-010",
-      "spec": "SPEC-033-supabase-tunnel-exposure",
-      "title": "SPEC-033-supabase-tunnel-exposure.md",
-      "priority": "high",
-      "status": "pending",
-      "blocked_by": []
-    },
-    {
-      "id": "TASK-011",
-      "spec": "SPEC-034-minimax-agent-use-cases",
-      "title": "SPEC-034-minimax-agent-use-cases.md",
-      "priority": "high",
-      "status": "pending",
-      "blocked_by": []
-    },
-    {
-      "id": "TASK-012",
-      "spec": "SPEC-035-one-shot-prd-to-deploy",
-      "title": "SPEC-035-one-shot-prd-to-deploy.md",
-      "priority": "high",
-      "status": "pending",
-      "blocked_by": []
-    },
-    {
-      "id": "TASK-013",
-      "spec": "SPEC-036-infinite-memory-architecture",
-      "title": "SPEC-036-infinite-memory-architecture.md",
-      "priority": "high",
-      "status": "pending",
-      "blocked_by": []
-    },
-    {
-      "id": "TASK-014",
-      "spec": "SPEC-037-md-zappro-site",
-      "title": "SPEC-037-md-zappro-site.md",
-      "priority": "high",
-      "status": "pending",
-      "blocked_by": []
-    },
-    {
-      "id": "TASK-015",
-      "spec": "SPEC-047-enterprise-polish-ai-gateway-ptbr",
-      "title": "SPEC-047-enterprise-polish-ai-gateway-ptbr.md",
-      "priority": "high",
-      "status": "pending",
-      "blocked_by": []
-    },
-    {
-      "id": "TASK-016",
-      "spec": "SPEC-055-v2-gpu-max-latra-inteligent-cloud-fallback",
-      "title": "SPEC-055-v2-gpu-max-latra-inteligent-cloud-fallback.md",
-      "priority": "high",
-      "status": "pending",
-      "blocked_by": []
-    },
-    {
-      "id": "TASK-017",
-      "spec": "SPEC-TERRAFORM-ENTERPRISE",
-      "title": "SPEC-TERRAFORM-ENTERPRISE.md",
-      "priority": "high",
-      "status": "pending",
-      "blocked_by": []
-    },
-    {
-      "id": "TASK-018",
-      "spec": "SPEC-024-UNIFIED-CLAUDE-AGENT-MONOREPO",
-      "title": "SPEC-024-UNIFIED-CLAUDE-AGENT-MONOREPO.md",
-      "priority": "",
-      "status": "pending",
-      "blocked_by": []
-    },
-    {
-      "id": "TASK-019",
-      "spec": "SPEC-027-voice-pipeline-humanized-ptbr",
-      "title": "SPEC-027-voice-pipeline-humanized-ptbr.md",
-      "priority": "",
-      "status": "pending",
-      "blocked_by": []
-    },
-    {
-      "id": "TASK-020",
-      "spec": "SPEC-031-homelab-maintenance",
-      "title": "SPEC-031-homelab-maintenance.md",
-      "priority": "",
-      "status": "pending",
-      "blocked_by": []
-    },
-    {
-      "id": "TASK-021",
-      "spec": "SPEC-032-tunnel-health-automation",
-      "title": "SPEC-032-tunnel-health-automation.md",
-      "priority": "",
-      "status": "pending",
-      "blocked_by": []
-    },
-    {
-      "id": "TASK-022",
-      "spec": "SPEC-038-VALIDATION",
-      "title": "SPEC-038-VALIDATION.md",
-      "priority": "",
-      "status": "pending",
-      "blocked_by": []
-    },
-    {
-      "id": "TASK-023",
-      "spec": "SPEC-039-hermes-gateway-tunnel",
-      "title": "Hermes Gateway — hermes.zappro.site Tunnel",
-      "priority": "",
-      "status": "pending",
-      "blocked_by": []
-    },
-    {
-      "id": "TASK-024",
-      "spec": "SPEC-039-hermes-takeover-validation",
-      "title": "SPEC-039-hermes-takeover-validation.md",
-      "priority": "",
-      "status": "pending",
-      "blocked_by": []
-    },
-    {
-      "id": "TASK-025",
-      "spec": "SPEC-040-homelab-alerting-rate-limit",
-      "title": "Homelab Unified Alerting & Rate Limiting Architecture",
-      "priority": "",
-      "status": "pending",
-      "blocked_by": []
-    },
-    {
-      "id": "TASK-026",
-      "spec": "SPEC-041-monorepo-estado-arte-polish",
-      "title": "Monorepo Estado da Arte — Polish 2026",
-      "priority": "",
-      "status": "pending",
-      "blocked_by": []
-    },
-    {
-      "id": "TASK-027",
-      "spec": "SPEC-043-subdomain-prune-hermes-migration",
-      "title": "Subdomain Prune & Hermes Migration",
-      "priority": "",
-      "status": "pending",
-      "blocked_by": []
-    },
-    {
-      "id": "TASK-028",
-      "spec": "SPEC-045-governance-reform-communication",
-      "title": "Governance Reform — Infrastructure Communication",
-      "priority": "",
-      "status": "pending",
-      "blocked_by": []
-    },
-    {
       "id": "TASK-029",
-      "spec": "SPEC-046-hermes-agent-improvements",
-      "title": "Hermes Agent — Improvements",
-      "priority": "",
+      "spec": "SPEC-029-INFISICAL-SDK-MANDATORY",
+      "priority": "critical",
       "status": "pending",
       "blocked_by": []
     },
     {
       "id": "TASK-030",
-      "spec": "SPEC-051-legacy-services-prune",
-      "title": "Hermes Agent Prune & Specs Polish",
-      "priority": "",
-      "status": "pending",
-      "blocked_by": []
-    },
-    {
-      "id": "TASK-031",
-      "spec": "SPEC-052-hermes-mcp-context7-integration",
-      "title": "Hermes Agent + Context7 MCP + Web Search Integration",
-      "priority": "",
-      "status": "pending",
-      "blocked_by": []
-    },
-    {
-      "id": "TASK-032",
-      "spec": "SPEC-100-PIPELINE-BOOTSTRAP",
-      "title": "Unified Claude/Agent Pipeline — Enterprise CI/CD Loop",
-      "priority": "",
-      "status": "pending",
-      "blocked_by": []
-    },
-    {
-      "id": "TASK-033",
-      "spec": "SPEC-CLOUDFLARED-RESTART",
-      "title": "SPEC-CLOUDFLARED-RESTART.md",
-      "priority": "",
-      "status": "pending",
-      "blocked_by": []
-    },
-    {
-      "id": "TASK-034",
-      "spec": "SPEC-CURSOR-LOOP-AUDIT",
-      "title": "SPEC-CURSOR-LOOP-AUDIT.md",
-      "priority": "",
-      "status": "pending",
-      "blocked_by": []
-    },
-    {
-      "id": "TASK-035",
-      "spec": "SPEC-CURSOR-LOOP-EVOLUTION",
-      "title": "SPEC-CURSOR-LOOP-EVOLUTION.md",
-      "priority": "",
-      "status": "pending",
-      "blocked_by": []
-    },
-    {
-      "id": "TASK-036",
-      "spec": "SPEC-CURSOR-LOOP-IMPL",
-      "title": "SPEC-CURSOR-LOOP-IMPL.md",
-      "priority": "",
-      "status": "pending",
-      "blocked_by": []
-    },
-    {
-      "id": "TASK-037",
-      "spec": "SPEC-CURSOR-LOOP",
-      "title": "SPEC-CURSOR-LOOP.md",
-      "priority": "",
+      "spec": "SPEC-030-AGENTS-MD-TOP-LINKS",
+      "priority": "critical",
       "status": "pending",
       "blocked_by": []
     },
     {
       "id": "TASK-038",
-      "spec": "SPEC-HERMES-INTEGRATION",
-      "title": "SPEC-HERMES-INTEGRATION.md",
-      "priority": "",
-      "status": "pending",
-      "blocked_by": []
-    },
-    {
-      "id": "TASK-039",
-      "spec": "SPEC-PLANNING-PIPELINE",
-      "title": "SPEC-PLANNING-PIPELINE.md",
-      "priority": "",
-      "status": "pending",
-      "blocked_by": []
-    },
-    {
-      "id": "TASK-040",
-      "spec": "SPEC-README",
-      "title": "SPEC-README.md",
-      "priority": "",
-      "status": "pending",
-      "blocked_by": []
-    },
-    {
-      "id": "TASK-041",
-      "spec": "SPEC-SPEC-AUTOMATOR",
-      "title": "SPEC-SPEC-AUTOMATOR.md",
-      "priority": "",
+      "spec": "SPEC-038-hermes-agent-migration",
+      "priority": "critical",
       "status": "pending",
       "blocked_by": []
     },
     {
       "id": "TASK-042",
-      "spec": "SPEC-TEST-001-auto",
-      "title": "SPEC-TEST-001-auto.md",
-      "priority": "",
+      "spec": "SPEC-042-SPEC-CHUNKING-STRATEGY",
+      "priority": "critical",
+      "status": "pending",
+      "blocked_by": []
+    },
+    {
+      "id": "TASK-048",
+      "spec": "SPEC-048-openai-facade-completo",
+      "priority": "critical",
+      "status": "pending",
+      "blocked_by": []
+    },
+    {
+      "id": "TASK-049",
+      "spec": "SPEC-049-ai-gateway-polish",
+      "priority": "critical",
+      "status": "pending",
+      "blocked_by": []
+    },
+    {
+      "id": "TASK-050",
+      "spec": "SPEC-050-governance-alignment",
+      "priority": "critical",
+      "status": "pending",
+      "blocked_by": []
+    },
+    {
+      "id": "TASK-999",
+      "spec": "SPEC-AUDIT-FIXES-2026-04-12",
+      "priority": "critical",
+      "status": "pending",
+      "blocked_by": []
+    },
+    {
+      "id": "TASK-033",
+      "spec": "SPEC-033-supabase-tunnel-exposure",
+      "priority": "high",
+      "status": "pending",
+      "blocked_by": []
+    },
+    {
+      "id": "TASK-034",
+      "spec": "SPEC-034-minimax-agent-use-cases",
+      "priority": "high",
+      "status": "pending",
+      "blocked_by": []
+    },
+    {
+      "id": "TASK-035",
+      "spec": "SPEC-035-minimax-research-replacement",
+      "priority": "high",
+      "status": "pending",
+      "blocked_by": []
+    },
+    {
+      "id": "TASK-036",
+      "spec": "SPEC-036-infinite-memory-architecture",
+      "priority": "high",
+      "status": "pending",
+      "blocked_by": []
+    },
+    {
+      "id": "TASK-037",
+      "spec": "SPEC-037-md-zappro-site",
+      "priority": "high",
+      "status": "pending",
+      "blocked_by": []
+    },
+    {
+      "id": "TASK-047",
+      "spec": "SPEC-047-enterprise-polish-ai-gateway-ptbr",
+      "priority": "high",
+      "status": "pending",
+      "blocked_by": []
+    },
+    {
+      "id": "TASK-055",
+      "spec": "SPEC-055-v2-gpu-max-latra-inteligent-cloud-fallback",
+      "priority": "high",
+      "status": "pending",
+      "blocked_by": []
+    },
+    {
+      "id": "TASK-024",
+      "spec": "SPEC-024-UNIFIED-CLAUDE-AGENT-MONOREPO",
+      "priority": "medium",
+      "status": "pending",
+      "blocked_by": []
+    },
+    {
+      "id": "TASK-027",
+      "spec": "SPEC-027-voice-pipeline-humanized-ptbr",
+      "priority": "medium",
+      "status": "pending",
+      "blocked_by": []
+    },
+    {
+      "id": "TASK-031",
+      "spec": "SPEC-031-homelab-maintenance",
+      "priority": "medium",
+      "status": "pending",
+      "blocked_by": []
+    },
+    {
+      "id": "TASK-032",
+      "spec": "SPEC-032-tunnel-health-automation",
+      "priority": "medium",
+      "status": "pending",
+      "blocked_by": []
+    },
+    {
+      "id": "TASK-039",
+      "spec": "SPEC-039-hermes-gateway-tunnel",
+      "priority": "medium",
+      "status": "pending",
+      "blocked_by": []
+    },
+    {
+      "id": "TASK-040",
+      "spec": "SPEC-040-homelab-alerting-rate-limit",
+      "priority": "medium",
+      "status": "pending",
+      "blocked_by": []
+    },
+    {
+      "id": "TASK-041",
+      "spec": "SPEC-041-monorepo-estado-arte-polish",
+      "priority": "medium",
       "status": "pending",
       "blocked_by": []
     },
     {
       "id": "TASK-043",
-      "spec": "SPEC-TOOL-LIST",
-      "title": "SPEC-TOOL-LIST.md",
-      "priority": "",
-      "status": "pending",
-      "blocked_by": []
-    },
-    {
-      "id": "TASK-044",
-      "spec": "SPEC-TRANSFORM-MONOREPO",
-      "title": "SPEC-TRANSFORM-MONOREPO.md",
-      "priority": "",
+      "spec": "SPEC-043-subdomain-prune-hermes-migration",
+      "priority": "medium",
       "status": "pending",
       "blocked_by": []
     },
     {
       "id": "TASK-045",
-      "spec": "SPEC-TROCAR-ROUPA",
-      "title": "SPEC-TROCAR-ROUPA.md",
-      "priority": "",
+      "spec": "SPEC-045-governance-reform-communication",
+      "priority": "medium",
       "status": "pending",
       "blocked_by": []
     },
     {
       "id": "TASK-046",
-      "spec": "SPEC-056-cursor-loop-enterprise-polish-2026",
-      "title": "T1: Corrigir xargs echo sem quotes (C1)",
-      "priority": "high",
-      "status": "pending",
-      "blocked_by": [],
-      "description": "scripts/cursor-loop-refactor.sh:208 — Substituir xargs echo por awk. Acceptance: xargs removido, filenames com espaços não quebram, bash -n passa",
-      "files": ["scripts/cursor-loop-refactor.sh"]
-    },
-    {
-      "id": "TASK-047",
-      "spec": "SPEC-056-cursor-loop-enterprise-polish-2026",
-      "title": "T2: Corrigir sed strip incorrecto (C2)",
-      "priority": "high",
-      "status": "pending",
-      "blocked_by": [],
-      "description": "scripts/cursor-loop-runner.sh:252 — Substituir sed que strip file por awk. Acceptance: myfile.ts não truncado, bash -n passa",
-      "files": ["scripts/cursor-loop-runner.sh"]
-    },
-    {
-      "id": "TASK-048",
-      "spec": "SPEC-056-cursor-loop-enterprise-polish-2026",
-      "title": "T3: Corrigir printf sem quotes (C3)",
-      "priority": "high",
-      "status": "pending",
-      "blocked_by": [],
-      "description": "scripts/pipeline-state.sh:76 — printf '%s\\n' $valid_states → printf '%s\\n' \"$valid_states\". Acceptance: bash -n passa",
-      "files": ["scripts/pipeline-state.sh"]
-    },
-    {
-      "id": "TASK-049",
-      "spec": "SPEC-056-cursor-loop-enterprise-polish-2026",
-      "title": "T4: Extrair MIN_SECRET_LEN para constante (S1)",
+      "spec": "SPEC-046-hermes-agent-improvements",
       "priority": "medium",
       "status": "pending",
-      "blocked_by": [],
-      "description": "scripts/bootstrap-check.sh — MIN_SECRET_LEN=8 no topo. Acceptance: constante definida, bash -n passa",
-      "files": ["scripts/bootstrap-check.sh"]
-    },
-    {
-      "id": "TASK-050",
-      "spec": "SPEC-056-cursor-loop-enterprise-polish-2026",
-      "title": "T5: qwen2.5vl:7b via env var (S2)",
-      "priority": "medium",
-      "status": "pending",
-      "blocked_by": [],
-      "description": "smoke-tests/smoke-multimodal-stack.sh:93 — OLLAMA_VISION_MODEL env var com fallback. Acceptance: env var usado, script funciona",
-      "files": ["smoke-tests/smoke-multimodal-stack.sh"]
+      "blocked_by": []
     },
     {
       "id": "TASK-051",
-      "spec": "SPEC-056-cursor-loop-enterprise-polish-2026",
-      "title": "T6: Restaurar 500/502 com comment (C6)",
+      "spec": "SPEC-051-legacy-services-prune-specs-polish",
       "priority": "medium",
       "status": "pending",
-      "blocked_by": [],
-      "description": "smoke-tests/smoke-multimodal-stack.sh — Restaurar 500/502 com comment explicativo. Acceptance: comment presente, bash -n passa",
-      "files": ["smoke-tests/smoke-multimodal-stack.sh"]
+      "blocked_by": []
     },
     {
       "id": "TASK-052",
-      "spec": "SPEC-056-cursor-loop-enterprise-polish-2026",
-      "title": "T7: Pipeline State null handling robusto (C7)",
-      "priority": "high",
+      "spec": "SPEC-052-hermes-mcp-context7-integration",
+      "priority": "medium",
       "status": "pending",
-      "blocked_by": [],
-      "description": "scripts/pipeline-state.sh — update_state_null para todos null fields. Acceptance: sem string null, bash -n passa",
-      "files": ["scripts/pipeline-state.sh"]
+      "blocked_by": []
     },
     {
-      "id": "TASK-053",
+      "id": "TASK-056",
       "spec": "SPEC-056-cursor-loop-enterprise-polish-2026",
-      "title": "T8: git add -A antes de git diff --cached (C8)",
-      "priority": "high",
+      "priority": "medium",
       "status": "pending",
-      "blocked_by": [],
-      "description": "scripts/cursor-loop-runner.sh — git add -A antes do check hasChanges. Acceptance: stage antes do check, bash -n passa",
-      "files": ["scripts/cursor-loop-runner.sh"]
+      "blocked_by": []
     },
     {
-      "id": "TASK-054",
-      "spec": "SPEC-056-cursor-loop-enterprise-polish-2026",
-      "title": "T9: Validation smoke test final (C9)",
-      "priority": "high",
+      "id": "TASK-100",
+      "spec": "SPEC-100-PIPELINE-BOOTSTRAP",
+      "priority": "medium",
       "status": "pending",
-      "blocked_by": [
-        "TASK-046",
-        "TASK-047",
-        "TASK-048",
-        "TASK-049",
-        "TASK-050",
-        "TASK-051",
-        "TASK-052",
-        "TASK-053"
-      ],
-      "description": "smoke-tests/smoke-multimodal-stack.sh — Smoke test 0 failures. STT :8204, TTS :8013, Hermes :8642 UP",
-      "files": ["smoke-tests/smoke-multimodal-stack.sh"]
+      "blocked_by": []
     }
   ],
-  "generated": "2026-04-16T23:00",
-  "specSource": "SPEC-056-cursor-loop-enterprise-polish-2026.md"
+  "generated": "2026-04-16T22:09",
+  "specSource": "SPEC-056"
 }

@@ -180,28 +180,26 @@ docker exec zappro-litellm curl -sf -m 5 "http://wav2vec2:8201/health"
 
 ## Voice Stack (PT-BR)
 
-**Canonical Stack (SPEC-009):**
+**Canonical Stack (SPEC-027, SPEC-053):**
 
-- STT: `wav2vec2` @ :8201 (whisper-api container, host :8202→:8201)
-- STT Proxy: `wav2vec2-deepgram-proxy` @ :8203 (Deepgram API format)
-- TTS: `Kokoro` @ :8880 via `TTS Bridge` @ :8013
-- Voices: `pm_santa` (male default), `pf_dora` (female fallback)
-- Vision: `litellm/qwen2.5-vl` (not llava)
-- LLM: MiniMax M2.7 direct (not via LiteLLM)
+- STT: `faster-whisper-medium-pt` @ :8204 (canonical — NOT wav2vec2)
+- TTS: `Kokoro` @ :8012 via `TTS Bridge` @ :8013 (voices: `pm_santa`, `pf_dora`)
+- LLM: `qwen2.5vl:7b` via Ollama :11434 (primary — 100% local)
+- Vision: `qwen2.5vl:7b` via Ollama :11434
+- Hermes Gateway: :8642 (Telegram bot @CEO_REFRIMIX_bot)
 
 **Ports:**
 
-| Service                 | Port      | Container         |
-| ----------------------- | --------- | ----------------- |
-| whisper-api (wav2vec2)  | 8202→8201 | zappro-wav2vec2   |
-| wav2vec2-deepgram-proxy | 8203      | zappro-wav2vec2   |
-| TTS Bridge              | 8013      | zappro-tts-bridge |
-| Kokoro                  | 8880      | koro-zappro       |
+| Service          | Port | Container                |
+| ---------------- | ---- | ------------------------ |
+| STT (faster-whisper) | 8204 | faster-whisper-medium-pt |
+| TTS Bridge      | 8013 | zappro-tts-bridge        |
+| Kokoro          | 8880 | zappro-kokoro-restarted  |
 
 **PROIBIDO:**
 
-- Kokoro direto (sem TTS Bridge)
-- Deepgram cloud direto (use wav2vec2-proxy :8203)
-- Whisper como STT
-- llava [DEPRECATED - agora qwen2.5-vl] para vision
-- speaches, chatterbox (REMOVIDOS em 2026-03)
+- Kokoro direto (sem TTS Bridge — usar sempre :8013)
+- Deepgram cloud direto (deprecated — usar faster-whisper local)
+- llava [DEPRECATED — usar qwen2.5vl:7b para vision]
+- Speaches, chatterbox (REMOVIDOS em 2026-03)
+- MiniMax M2.7 direct [DEPRECATED — 100% local via Ollama]

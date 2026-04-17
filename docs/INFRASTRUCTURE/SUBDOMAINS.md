@@ -20,7 +20,7 @@ synced: 2026-04-15
 | [chat.zappro.site](https://chat.zappro.site)         | 8080  | ✅ ATIVO                  | Open WebUI (LLM chat UI) — :8080 (Coolify)                                           |
 | [coolify.zappro.site](https://coolify.zappro.site)   | 8000  | ✅ ATIVO                  | Coolify PaaS panel — :8000                                                           |
 | [git.zappro.site](https://git.zappro.site)           | 3300  | ✅ ATIVO                  | Gitea Git Server — :3300                                                             |
-| [hermes.zappro.site](https://hermes.zappro.site)     | 4002  | ✅ ATIVO                  | ai-gateway OpenAI-compat (TTS/STT/vision) — :4002                                    |
+| [hermes.zappro.site](https://hermes.zappro.site)     | 8642  | ✅ ATIVO                  | Hermes Gateway (agent brain, Telegram) — :8642                                         |
 | [list.zappro.site](https://list.zappro.site)         | 4080  | ✅ ATIVO                  | Tools list (OAuth native) — :4080                                                    |
 | [llm.zappro.site](https://llm.zappro.site)           | 4002  | ✅ ATIVO (T400 DONE)      | ai-gateway OpenAI-compat (TTS/STT/vision) — :4002 via CLOUDFLARE_API_TOKEN Terraform |
 | [md.zappro.site](https://md.zappro.site)             | 4081  | ✅ ATIVO                  | Obsidian vault UI (OAuth native) — :4081                                             |
