@@ -15,7 +15,7 @@
     },
     {
       "id": "REVIEW-IMPORTANT-002",
-      "title": "[REVIEW-20260416] PINNED-SERVICES.md: STT port 8201\u21928204 drift",
+      "title": "[REVIEW-20260416] PINNED-SERVICES.md: STT port 8201→8204 drift",
       "description": "Whisper STT still listed at port 8201 (wav2vec2); SPEC-053 changed STT to faster-whisper on port 8204",
       "status": "pending",
       "priority": "important",
@@ -68,7 +68,7 @@
     {
       "id": "TASK-05801-T2",
       "title": "[SPEC-058-01] Setup 9 Qdrant collections",
-      "description": "Criar as 9 cole\u00e7\u00f5es multi-tenant: agency_clients, agency_campaigns, agency_conversations, agency_assets, agency_brand_guides, agency_tasks, agency_video_metadata, agency_knowledge, agency_working_memory",
+      "description": "Criar as 9 coleções multi-tenant: agency_clients, agency_campaigns, agency_conversations, agency_assets, agency_brand_guides, agency_tasks, agency_video_metadata, agency_knowledge, agency_working_memory",
       "status": "pending",
       "priority": "critical",
       "dependencies": [],
@@ -78,57 +78,21 @@
       ],
       "testRequired": true,
       "subtasks": [
-        {
-          "id": "TASK-05801-T2.1",
-          "title": "Schema agency_clients",
-          "status": "pending"
-        },
-        {
-          "id": "TASK-05801-T2.2",
-          "title": "Schema agency_campaigns",
-          "status": "pending"
-        },
-        {
-          "id": "TASK-05801-T2.3",
-          "title": "Schema agency_conversations",
-          "status": "pending"
-        },
-        {
-          "id": "TASK-05801-T2.4",
-          "title": "Schema agency_assets",
-          "status": "pending"
-        },
-        {
-          "id": "TASK-05801-T2.5",
-          "title": "Schema agency_brand_guides",
-          "status": "pending"
-        },
-        {
-          "id": "TASK-05801-T2.6",
-          "title": "Schema agency_tasks",
-          "status": "pending"
-        },
-        {
-          "id": "TASK-05801-T2.7",
-          "title": "Schema agency_video_metadata",
-          "status": "pending"
-        },
-        {
-          "id": "TASK-05801-T2.8",
-          "title": "Schema agency_knowledge",
-          "status": "pending"
-        },
-        {
-          "id": "TASK-05801-T2.9",
-          "title": "Schema agency_working_memory",
-          "status": "pending"
-        }
+        { "id": "TASK-05801-T2.1", "title": "Schema agency_clients", "status": "pending" },
+        { "id": "TASK-05801-T2.2", "title": "Schema agency_campaigns", "status": "pending" },
+        { "id": "TASK-05801-T2.3", "title": "Schema agency_conversations", "status": "pending" },
+        { "id": "TASK-05801-T2.4", "title": "Schema agency_assets", "status": "pending" },
+        { "id": "TASK-05801-T2.5", "title": "Schema agency_brand_guides", "status": "pending" },
+        { "id": "TASK-05801-T2.6", "title": "Schema agency_tasks", "status": "pending" },
+        { "id": "TASK-05801-T2.7", "title": "Schema agency_video_metadata", "status": "pending" },
+        { "id": "TASK-05801-T2.8", "title": "Schema agency_knowledge", "status": "pending" },
+        { "id": "TASK-05801-T2.9", "title": "Schema agency_working_memory", "status": "pending" }
       ]
     },
     {
       "id": "TASK-05802-T1",
       "title": "[SPEC-058-02] Criar apps/hermes-agency skeleton",
-      "description": "Criar estrutura base do apps/hermes-agency com package.json, tsconfig, e diret\u00f3rios src/skills/, src/langgraph/, src/router/, src/qdrant/, src/telegram/, src/litellm/",
+      "description": "Criar estrutura base do apps/hermes-agency com package.json, tsconfig, e diretórios src/skills/, src/langgraph/, src/router/, src/qdrant/, src/telegram/, src/litellm/",
       "status": "pending",
       "priority": "critical",
       "dependencies": [],
@@ -138,21 +102,9 @@
       ],
       "testRequired": false,
       "subtasks": [
-        {
-          "id": "TASK-05802-T1.1",
-          "title": "package.json com langgraph, qdrant-client, telegram dependencies",
-          "status": "pending"
-        },
-        {
-          "id": "TASK-05802-T1.2",
-          "title": "tsconfig.json",
-          "status": "pending"
-        },
-        {
-          "id": "TASK-05802-T1.3",
-          "title": "Diret\u00f3rios src/skills/ src/langgraph/ src/router/ src/qdrant/ src/telegram/ src/litellm/",
-          "status": "pending"
-        }
+        { "id": "TASK-05802-T1.1", "title": "package.json com langgraph, qdrant-client, telegram dependencies", "status": "pending" },
+        { "id": "TASK-05802-T1.2", "title": "tsconfig.json", "status": "pending" },
+        { "id": "TASK-05802-T1.3", "title": "Diretórios src/skills/ src/langgraph/ src/router/ src/qdrant/ src/telegram/ src/litellm/", "status": "pending" }
       ]
     },
     {
@@ -170,443 +122,242 @@
       ],
       "testRequired": true,
       "subtasks": [
-        {
-          "id": "TASK-05802-T2.1",
-          "title": "agency-ceo skill (CEO MIX router)",
-          "status": "pending"
-        },
-        {
-          "id": "TASK-05802-T2.2",
-          "title": "agency-onboarding skill",
-          "status": "pending"
-        },
-        {
-          "id": "TASK-05802-T2.3",
-          "title": "agency-video-editor skill",
-          "status": "pending"
-        },
-        {
-          "id": "TASK-05802-T2.4",
-          "title": "agency-organizer skill",
-          "status": "pending"
-        },
-        {
-          "id": "TASK-05802-T2.5",
-          "title": "agency-creative skill",
-          "status": "pending"
-        },
-        {
-          "id": "TASK-05802-T2.6",
-          "title": "agency-design skill",
-          "status": "pending"
-        },
-        {
-          "id": "TASK-05802-T2.7",
-          "title": "agency-social skill",
-          "status": "pending"
-        },
-        {
-          "id": "TASK-05802-T2.8",
-          "title": "agency-pm skill",
-          "status": "pending"
-        },
-        {
-          "id": "TASK-05802-T2.9",
-          "title": "agency-analytics skill",
-          "status": "pending"
-        },
-        {
-          "id": "TASK-05802-T2.10",
-          "title": "agency-brand-guardian skill",
-          "status": "pending"
-        },
-        {
-          "id": "TASK-05802-T2.11",
-          "title": "agency-client-success skill",
-          "status": "pending"
-        }
+        { "id": "TASK-05802-T2.1", "title": "agency-ceo skill (CEO MIX router)", "status": "pending" },
+        { "id": "TASK-05802-T2.2", "title": "agency-onboarding skill", "status": "pending" },
+        { "id": "TASK-05802-T2.3", "title": "agency-video-editor skill", "status": "pending" },
+        { "id": "TASK-05802-T2.4", "title": "agency-organizer skill", "status": "pending" },
+        { "id": "TASK-05802-T2.5", "title": "agency-creative skill", "status": "pending" },
+        { "id": "TASK-05802-T2.6", "title": "agency-design skill", "status": "pending" },
+        { "id": "TASK-05802-T2.7", "title": "agency-social skill", "status": "pending" },
+        { "id": "TASK-05802-T2.8", "title": "agency-pm skill", "status": "pending" },
+        { "id": "TASK-05802-T2.9", "title": "agency-analytics skill", "status": "pending" },
+        { "id": "TASK-05802-T2.10", "title": "agency-brand-guardian skill", "status": "pending" },
+        { "id": "TASK-05802-T2.11", "title": "agency-client-success skill", "status": "pending" }
       ]
     },
     {
       "id": "TASK-05803-T1",
       "title": "[SPEC-058-03] LangGraph content_pipeline",
-      "description": "Implementar WF-1: Content Pipeline \u2014 Client sends brief \u2192 CEO \u2192 CREATIVE \u2192 EDITOR \u2192 DESIGN \u2192 BRAND GUARDIAN \u2192 human gate \u2192 SOCIAL \u2192 ANALYTICS",
+      "description": "Implementar WF-1: Content Pipeline — Client sends brief → CEO → CREATIVE → EDITOR → DESIGN → BRAND GUARDIAN → human gate → SOCIAL → ANALYTICS",
       "status": "pending",
       "priority": "high",
-      "dependencies": [
-        "TASK-05802-T2"
-      ],
+      "dependencies": ["TASK-05802-T2"],
       "specRef": "SPEC-058-03",
-      "files": [
-        "apps/hermes-agency/src/langgraph/content_pipeline.ts"
-      ],
+      "files": ["apps/hermes-agency/src/langgraph/content_pipeline.ts"],
       "testRequired": true
     },
     {
       "id": "TASK-05803-T2",
       "title": "[SPEC-058-03] LangGraph onboarding_flow",
-      "description": "Implementar WF-2: Onboarding Automation \u2014 New client \u2192 ONBOARDING \u2192 Qdrant init \u2192 HELPER welcome \u2192 PM milestone \u2192 CS check-in",
+      "description": "Implementar WF-2: Onboarding Automation — New client → ONBOARDING → Qdrant init → HELPER welcome → PM milestone → CS check-in",
       "status": "pending",
       "priority": "high",
-      "dependencies": [
-        "TASK-05802-T2"
-      ],
+      "dependencies": ["TASK-05802-T2"],
       "specRef": "SPEC-058-03",
-      "files": [
-        "apps/hermes-agency/src/langgraph/onboarding_flow.ts"
-      ],
+      "files": ["apps/hermes-agency/src/langgraph/onboarding_flow.ts"],
       "testRequired": true
     },
     {
       "id": "TASK-05803-T3",
       "title": "[SPEC-058-03] LangGraph status_update",
-      "description": "Implementar WF-3: Status Update (recurring Monday 9am) \u2014 PM \u2192 ANALYTICS \u2192 CEO formats \u2192 Telegram broadcast",
+      "description": "Implementar WF-3: Status Update (recurring Monday 9am) — PM → ANALYTICS → CEO formats → Telegram broadcast",
       "status": "pending",
       "priority": "high",
-      "dependencies": [
-        "TASK-05802-T2"
-      ],
+      "dependencies": ["TASK-05802-T2"],
       "specRef": "SPEC-058-03",
-      "files": [
-        "apps/hermes-agency/src/langgraph/status_update.ts"
-      ],
+      "files": ["apps/hermes-agency/src/langgraph/status_update.ts"],
       "testRequired": true
     },
     {
       "id": "TASK-05803-T4",
       "title": "[SPEC-058-03] LangGraph social_calendar",
-      "description": "Implementar WF-4: Social Calendar + Analytics \u2014 SOCIAL scrapes \u2192 ANALYTICS metrics \u2192 BRAND GUARDIAN review \u2192 Telegram channel report",
+      "description": "Implementar WF-4: Social Calendar + Analytics — SOCIAL scrapes → ANALYTICS metrics → BRAND GUARDIAN review → Telegram channel report",
       "status": "pending",
       "priority": "high",
-      "dependencies": [
-        "TASK-05802-T2"
-      ],
+      "dependencies": ["TASK-05802-T2"],
       "specRef": "SPEC-058-03",
-      "files": [
-        "apps/hermes-agency/src/langgraph/social_calendar.ts"
-      ],
+      "files": ["apps/hermes-agency/src/langgraph/social_calendar.ts"],
       "testRequired": true
     },
     {
       "id": "TASK-05803-T5",
       "title": "[SPEC-058-03] LangGraph lead_qualification",
-      "description": "Implementar WF-5: Lead Qualification \u2014 New prospect \u2192 CS scores \u2192 if qualified: ONBOARDING task \u2192 else: nurture sequence",
+      "description": "Implementar WF-5: Lead Qualification — New prospect → CS scores → if qualified: ONBOARDING task → else: nurture sequence",
       "status": "pending",
       "priority": "high",
-      "dependencies": [
-        "TASK-05802-T2"
-      ],
+      "dependencies": ["TASK-05802-T2"],
       "specRef": "SPEC-058-03",
-      "files": [
-        "apps/hermes-agency/src/langgraph/lead_qualification.ts"
-      ],
+      "files": ["apps/hermes-agency/src/langgraph/lead_qualification.ts"],
       "testRequired": true
     },
     {
       "id": "TASK-05804-T1",
       "title": "[SPEC-058-04] LiteLLM fallback chain config",
-      "description": "Configurar litellm_router com fallback chain: gemma4-12b-it (Ollama) \u2192 gemini-2.0-flash (cloud) \u2192 minimax-m2.7 (emergency, commented)",
+      "description": "Configurar litellm_router com fallback chain: minimax-m2.7 (PRIMARY text) — texto SEMPRE via MiniMax. Ollama APENAS para Vision, STT, Embeddings.",
       "status": "pending",
       "priority": "high",
-      "dependencies": [
-        "TASK-05802-T1"
-      ],
+      "dependencies": ["TASK-05802-T1"],
       "specRef": "SPEC-058-04",
-      "files": [
-        "apps/hermes-agency/src/litellm/router.ts"
-      ],
+      "files": ["apps/hermes-agency/src/litellm/router.ts"],
       "testRequired": true
     },
     {
       "id": "TASK-05804-T2",
       "title": "[SPEC-058-04] Redis semantic cache",
-      "description": "Implementar semantic cache layer no ai-gateway com Redis \u2014 35-50% hit rate esperado, reduz cloud LLM cost de $8-10 para ~$4-5/mo",
+      "description": "Implementar semantic cache layer no ai-gateway com Redis — 35-50% hit rate esperado, reduz cloud LLM cost de $8-10 para ~$4-5/mo",
       "status": "pending",
       "priority": "high",
-      "dependencies": [
-        "TASK-05804-T1"
-      ],
+      "dependencies": ["TASK-05804-T1"],
       "specRef": "SPEC-058-04",
-      "files": [
-        "apps/ai-gateway/src/middleware/semantic-cache.ts"
-      ],
+      "files": ["apps/ai-gateway/src/middleware/semantic-cache.ts"],
       "testRequired": true
     },
     {
       "id": "TASK-05805-T1",
       "title": "[SPEC-058-05] Telegram bot skeleton",
-      "description": "Criar Telegram bot base em apps/hermes-agency/src/telegram/bot.ts \u2014 polling mode, per-chat locks, health check",
+      "description": "Criar Telegram bot base em apps/hermes-agency/src/telegram/bot.ts — polling mode, per-chat locks, health check",
       "status": "pending",
       "priority": "high",
-      "dependencies": [
-        "TASK-05802-T1"
-      ],
+      "dependencies": ["TASK-05802-T1"],
       "specRef": "SPEC-058-05",
-      "files": [
-        "apps/hermes-agency/src/telegram/"
-      ],
+      "files": ["apps/hermes-agency/src/telegram/"],
       "testRequired": true,
       "subtasks": [
-        {
-          "id": "TASK-05805-T1.1",
-          "title": "Bot polling setup",
-          "status": "pending"
-        },
-        {
-          "id": "TASK-05805-T1.2",
-          "title": "Per-chat mutex/lock",
-          "status": "pending"
-        },
-        {
-          "id": "TASK-05805-T1.3",
-          "title": "Health check endpoint",
-          "status": "pending"
-        }
+        { "id": "TASK-05805-T1.1", "title": "Bot polling setup", "status": "pending" },
+        { "id": "TASK-05805-T1.2", "title": "Per-chat mutex/lock", "status": "pending" },
+        { "id": "TASK-05805-T1.3", "title": "Health check endpoint", "status": "pending" }
       ]
     },
     {
       "id": "TASK-05805-T2",
-      "title": "[SPEC-058-05] Telegram handlers \u2014 11 skills",
-      "description": "Implementar handlers para as 11 skills \u2014 cada handler recebe message, routing para skill correta, retorna response formatado",
+      "title": "[SPEC-058-05] Telegram handlers — 11 skills",
+      "description": "Implementar handlers para as 11 skills — cada handler recebe message, routing para skill correta, retorna response formatado",
       "status": "pending",
       "priority": "high",
-      "dependencies": [
-        "TASK-05805-T1",
-        "TASK-05802-T2"
-      ],
+      "dependencies": ["TASK-05805-T1", "TASK-05802-T2"],
       "specRef": "SPEC-058-05",
-      "files": [
-        "apps/hermes-agency/src/telegram/handlers/"
-      ],
+      "files": ["apps/hermes-agency/src/telegram/handlers/"],
       "testRequired": true
     },
     {
       "id": "TASK-05805-T3",
       "title": "[SPEC-058-05] Human gate Telegram integration",
-      "description": "Integrar human gates no Telegram \u2014 quando confidence < 0.7, pausa e pede confirmacao humana via Telegram poll",
+      "description": "Integrar human gates no Telegram — quando confidence < 0.7, pausa e pede confirmação humana via Telegram poll",
       "status": "pending",
       "priority": "high",
-      "dependencies": [
-        "TASK-05805-T2"
-      ],
+      "dependencies": ["TASK-05805-T2"],
       "specRef": "SPEC-058-05",
-      "files": [
-        "apps/hermes-agency/src/telegram/middleware/human-gate.ts"
-      ],
+      "files": ["apps/hermes-agency/src/telegram/middleware/human-gate.ts"],
       "testRequired": true
     },
     {
       "id": "TASK-05806-T1",
       "title": "[SPEC-058-06] bge-m3 embedding integration",
-      "description": "Integrar bge-m3 embeddings para PT-BR hybrid search (sparse+dense via BM25) \u2014 1024 dimensions",
+      "description": "Integrar bge-m3 embeddings para PT-BR hybrid search (sparse+dense via BM25) — 1024 dimensions",
       "status": "pending",
       "priority": "medium",
-      "dependencies": [
-        "TASK-05801-T2"
-      ],
+      "dependencies": ["TASK-05801-T2"],
       "specRef": "SPEC-058-06",
-      "files": [
-        "apps/hermes-agency/src/qdrant/"
-      ],
+      "files": ["apps/hermes-agency/src/qdrant/"],
       "testRequired": true
     },
     {
       "id": "TASK-05806-T2",
       "title": "[SPEC-058-06] Hybrid search for all 9 collections",
-      "description": "Implementar hybrid search (BM25 + dense vector) em todas as 9 cole\u00e7\u00f5es \u2014 PT-BR content optimization",
+      "description": "Implementar hybrid search (BM25 + dense vector) em todas as 9 coleções — PT-BR content optimization",
       "status": "pending",
       "priority": "medium",
-      "dependencies": [
-        "TASK-05806-T1"
-      ],
+      "dependencies": ["TASK-05806-T1"],
       "specRef": "SPEC-058-06",
-      "files": [
-        "apps/hermes-agency/src/qdrant/"
-      ],
+      "files": ["apps/hermes-agency/src/qdrant/"],
       "testRequired": true
     },
     {
       "id": "TASK-05807-T1",
       "title": "[SPEC-058-07] RBAC para agency skills",
-      "description": "Implementar RBAC layer \u2014 cada skill tem permission scope, MCP permission gate verifica acesso",
+      "description": "Implementar RBAC layer — cada skill tem permission scope, MCP permission gate verifica acesso",
       "status": "pending",
       "priority": "medium",
-      "dependencies": [
-        "TASK-05802-T2"
-      ],
+      "dependencies": ["TASK-05802-T2"],
       "specRef": "SPEC-058-07",
-      "files": [
-        "apps/hermes-agency/src/router/rbac.ts"
-      ],
+      "files": ["apps/hermes-agency/src/router/rbac.ts"],
       "testRequired": true
     },
     {
       "id": "TASK-05807-T2",
       "title": "[SPEC-058-07] Audit logging",
-      "description": "Implementar audit log \u2014 todas as chamadas de skills gravadas em agency_conversations com metadata",
+      "description": "Implementar audit log — todas as chamadas de skills gravadas em agency_conversations com metadata",
       "status": "pending",
       "priority": "medium",
-      "dependencies": [
-        "TASK-05807-T1"
-      ],
+      "dependencies": ["TASK-05807-T1"],
       "specRef": "SPEC-058-07",
-      "files": [
-        "apps/hermes-agency/src/router/audit.ts"
-      ],
+      "files": ["apps/hermes-agency/src/router/audit.ts"],
       "testRequired": true
     },
     {
       "id": "TASK-05808-T1",
       "title": "[SPEC-058-08] smoke-agency-suite.sh 11/11",
-      "description": "Criar smoke-tests/smoke-agency-suite.sh \u2014 testa: Hermes skills (11), Qdrant collections (9), LiteLLM chain (3 tiers), Telegram bot, human gates",
+      "description": "Criar smoke-tests/smoke-agency-suite.sh — testa: Hermes skills (11), Qdrant collections (9), LiteLLM chain (3 tiers), Telegram bot, human gates",
       "status": "pending",
       "priority": "high",
-      "dependencies": [
-        "TASK-05802-T2",
-        "TASK-05804-T2",
-        "TASK-05805-T2"
-      ],
+      "dependencies": ["TASK-05802-T2", "TASK-05804-T2", "TASK-05805-T2"],
       "specRef": "SPEC-058-08",
-      "files": [
-        "smoke-tests/smoke-agency-suite.sh"
-      ],
+      "files": ["smoke-tests/smoke-agency-suite.sh"],
       "testRequired": true
     },
     {
       "id": "TASK-05808-T2",
       "title": "[SPEC-058-08] Prometheus metrics",
-      "description": "Expor m\u00e9tricas Prometheus: cache hit rate, LLM latency, task completion rate, human gate triggers",
+      "description": "Expor métricas Prometheus: cache hit rate, LLM latency, task completion rate, human gate triggers",
       "status": "pending",
       "priority": "medium",
-      "dependencies": [
-        "TASK-05804-T2"
-      ],
+      "dependencies": ["TASK-05804-T2"],
       "specRef": "SPEC-058-08",
-      "files": [
-        "apps/hermes-agency/src/metrics/"
-      ],
+      "files": ["apps/hermes-agency/src/metrics/"],
       "testRequired": true
     },
     {
       "id": "TASK-ENTERPRISE-01",
       "title": "[ENTERPRISE] Executar 14 agentes de pesquisa",
-      "description": "Executar 14 agentes em paralelo para pesquisar melhores pr\u00e1ticas (April 2026) para enterprise refactor de CLAUDE.md e AGENTS.md",
+      "description": "Executar 14 agentes em paralelo para pesquisar melhores práticas (April 2026) para enterprise refactor de CLAUDE.md e AGENTS.md",
       "status": "pending",
       "priority": "high",
       "dependencies": [],
       "specRef": "SPEC-061",
-      "files": [
-        "research/*.md"
-      ],
+      "files": ["research/*.md"],
       "testRequired": false,
       "subtasks": [
-        {
-          "id": "TASK-ENTERPRISE-01.1",
-          "title": "RESEARCH-1: CLAUDE.md patterns",
-          "status": "pending"
-        },
-        {
-          "id": "TASK-ENTERPRISE-01.2",
-          "title": "RESEARCH-2: AGENTS.md patterns",
-          "status": "pending"
-        },
-        {
-          "id": "TASK-ENTERPRISE-01.3",
-          "title": "RESEARCH-3: Cron strategy",
-          "status": "pending"
-        },
-        {
-          "id": "TASK-ENTERPRISE-01.4",
-          "title": "RESEARCH-4: Skill-that-calls-skills",
-          "status": "pending"
-        },
-        {
-          "id": "TASK-ENTERPRISE-01.5",
-          "title": "RESEARCH-5: Gitea Actions",
-          "status": "pending"
-        },
-        {
-          "id": "TASK-ENTERPRISE-01.6",
-          "title": "RESEARCH-6: Memory system",
-          "status": "pending"
-        },
-        {
-          "id": "TASK-ENTERPRISE-01.7",
-          "title": "RESEARCH-7: Spec-driven pipeline",
-          "status": "pending"
-        },
-        {
-          "id": "TASK-ENTERPRISE-01.8",
-          "title": "RESEARCH-8: Security automation",
-          "status": "pending"
-        },
-        {
-          "id": "TASK-ENTERPRISE-01.9",
-          "title": "RESEARCH-9: Self-healing patterns",
-          "status": "pending"
-        },
-        {
-          "id": "TASK-ENTERPRISE-01.10",
-          "title": "RESEARCH-10: Documentation drift",
-          "status": "pending"
-        },
-        {
-          "id": "TASK-ENTERPRISE-01.11",
-          "title": "RESEARCH-11: Git workflow",
-          "status": "pending"
-        },
-        {
-          "id": "TASK-ENTERPRISE-01.12",
-          "title": "RESEARCH-12: Code review automation",
-          "status": "pending"
-        },
-        {
-          "id": "TASK-ENTERPRISE-01.13",
-          "title": "RESEARCH-13: Skill lifecycle",
-          "status": "pending"
-        },
-        {
-          "id": "TASK-ENTERPRISE-01.14",
-          "title": "RESEARCH-14: Homelab patterns",
-          "status": "pending"
-        }
+        { "id": "TASK-ENTERPRISE-01.1", "title": "RESEARCH-1: CLAUDE.md patterns", "status": "pending" },
+        { "id": "TASK-ENTERPRISE-01.2", "title": "RESEARCH-2: AGENTS.md patterns", "status": "pending" },
+        { "id": "TASK-ENTERPRISE-01.3", "title": "RESEARCH-3: Cron strategy", "status": "pending" },
+        { "id": "TASK-ENTERPRISE-01.4", "title": "RESEARCH-4: Skill-that-calls-skills", "status": "pending" },
+        { "id": "TASK-ENTERPRISE-01.5", "title": "RESEARCH-5: Gitea Actions", "status": "pending" },
+        { "id": "TASK-ENTERPRISE-01.6", "title": "RESEARCH-6: Memory system", "status": "pending" },
+        { "id": "TASK-ENTERPRISE-01.7", "title": "RESEARCH-7: Spec-driven pipeline", "status": "pending" },
+        { "id": "TASK-ENTERPRISE-01.8", "title": "RESEARCH-8: Security automation", "status": "pending" },
+        { "id": "TASK-ENTERPRISE-01.9", "title": "RESEARCH-9: Self-healing patterns", "status": "pending" },
+        { "id": "TASK-ENTERPRISE-01.10", "title": "RESEARCH-10: Documentation drift", "status": "pending" },
+        { "id": "TASK-ENTERPRISE-01.11", "title": "RESEARCH-11: Git workflow", "status": "pending" },
+        { "id": "TASK-ENTERPRISE-01.12", "title": "RESEARCH-12: Code review automation", "status": "pending" },
+        { "id": "TASK-ENTERPRISE-01.13", "title": "RESEARCH-13: Skill lifecycle", "status": "pending" },
+        { "id": "TASK-ENTERPRISE-01.14", "title": "RESEARCH-14: Homelab patterns", "status": "pending" }
       ]
     },
     {
       "id": "TASK-ENTERPRISE-02",
       "title": "[ENTERPRISE] Refatorar CLAUDE.md enterprise",
-      "description": "Atualizar CLAUDE.md com: sec\u00e7\u00e3o /execute, cron jobs di\u00e1rios, skill delegation, memory sync, anti-alucina\u00e7\u00e3o rules",
+      "description": "Atualizar CLAUDE.md com: seção /execute, cron jobs diários, skill delegation, memory sync, anti-alucinação rules",
       "status": "pending",
       "priority": "high",
-      "dependencies": [
-        "TASK-ENTERPRISE-01"
-      ],
+      "dependencies": ["TASK-ENTERPRISE-01"],
       "specRef": "SPEC-061",
-      "files": [
-        ".claude/CLAUDE.md"
-      ],
+      "files": [".claude/CLAUDE.md"],
       "testRequired": false,
       "subtasks": [
-        {
-          "id": "TASK-ENTERPRISE-02.1",
-          "title": "Sec\u00e7\u00e3o /execute documentada",
-          "status": "pending"
-        },
-        {
-          "id": "TASK-ENTERPRISE-02.2",
-          "title": "Sec\u00e7\u00e3o Cron jobs di\u00e1rios",
-          "status": "pending"
-        },
-        {
-          "id": "TASK-ENTERPRISE-02.3",
-          "title": "Skill delegation patterns",
-          "status": "pending"
-        },
-        {
-          "id": "TASK-ENTERPRISE-02.4",
-          "title": "Memory sync p\u00f3s-commit",
-          "status": "pending"
-        }
+        { "id": "TASK-ENTERPRISE-02.1", "title": "Seção /execute documentada", "status": "pending" },
+        { "id": "TASK-ENTERPRISE-02.2", "title": "Seção Cron jobs diários", "status": "pending" },
+        { "id": "TASK-ENTERPRISE-02.3", "title": "Skill delegation patterns", "status": "pending" },
+        { "id": "TASK-ENTERPRISE-02.4", "title": "Memory sync pós-commit", "status": "pending" }
       ]
     },
     {
@@ -615,30 +366,14 @@
       "description": "Atualizar AGENTS.md com: 14-agent parallel execution, filesystem coordination, SHIPPER pattern, skill-that-calls-skills",
       "status": "pending",
       "priority": "high",
-      "dependencies": [
-        "TASK-ENTERPRISE-01"
-      ],
+      "dependencies": ["TASK-ENTERPRISE-01"],
       "specRef": "SPEC-061",
-      "files": [
-        "AGENTS.md"
-      ],
+      "files": ["AGENTS.md"],
       "testRequired": false,
       "subtasks": [
-        {
-          "id": "TASK-ENTERPRISE-03.1",
-          "title": "14-agent patterns documentados",
-          "status": "pending"
-        },
-        {
-          "id": "TASK-ENTERPRISE-03.2",
-          "title": "SHIPPER pattern",
-          "status": "pending"
-        },
-        {
-          "id": "TASK-ENTERPRISE-03.3",
-          "title": "Skill-that-calls-skills",
-          "status": "pending"
-        }
+        { "id": "TASK-ENTERPRISE-03.1", "title": "14-agent patterns documentados", "status": "pending" },
+        { "id": "TASK-ENTERPRISE-03.2", "title": "SHIPPER pattern", "status": "pending" },
+        { "id": "TASK-ENTERPRISE-03.3", "title": "Skill-that-calls-skills", "status": "pending" }
       ]
     },
     {
@@ -647,14 +382,9 @@
       "description": "Documentar skill orchestrator com: /execute workflow, 14 agentes, error handling, monitoring commands",
       "status": "pending",
       "priority": "medium",
-      "dependencies": [
-        "TASK-ENTERPRISE-02",
-        "TASK-ENTERPRISE-03"
-      ],
+      "dependencies": ["TASK-ENTERPRISE-02", "TASK-ENTERPRISE-03"],
       "specRef": "SPEC-061",
-      "files": [
-        ".claude/skills/orchestrator/SKILL.md"
-      ],
+      "files": [".claude/skills/orchestrator/SKILL.md"],
       "testRequired": false
     },
     {
@@ -663,148 +393,75 @@
       "description": "Gitea_TOKEN e GITEA_INSTANCE_URL do .env integrados no orchestrator e documentados em SKILL.md",
       "status": "pending",
       "priority": "medium",
-      "dependencies": [
-        "TASK-ENTERPRISE-04"
-      ],
+      "dependencies": ["TASK-ENTERPRISE-04"],
       "specRef": "SPEC-061",
-      "files": [
-        ".env",
-        ".claude/skills/orchestrator/SKILL.md"
-      ],
+      "files": [".env", ".claude/skills/orchestrator/SKILL.md"],
       "testRequired": false
     },
     {
       "id": "TASK-067-01",
-      "title": "[SPEC-067-T1] Corrigir config.yaml \u2014 llava-phi3\u2192qwen2.5vl + rate limits",
-      "description": "Em /home/will/zappro-lite/config.yaml: substituir llava-phi3 (CRASHES SIGSEGV) por qwen2.5vl:7b. Aumentar rpm: 10\u219230. Adicionar max_parallel_requests: 3. Corrigir whisper-1 api_base de wav2vec2:8201\u2192faster-whisper:8204.",
+      "title": "[SPEC-067-T1] Corrigir config.yaml — llava-phi3→qwen2.5vl + rate limits",
+      "description": "Em /home/will/zappro-lite/config.yaml: substituir llava-phi3 (CRASHES SIGSEGV) por qwen2.5vl:7b. Aumentar rpm: 10→30. Adicionar max_parallel_requests: 3. Corrigir whisper-1 api_base de wav2vec2:8201→faster-whisper:8204.",
       "status": "completed",
       "priority": "high",
       "dependencies": [],
       "subtasks": [
-        {
-          "id": "TASK-067-01.1",
-          "title": "llava-phi3 \u2192 qwen2.5vl:7b",
-          "status": "completed"
-        },
-        {
-          "id": "TASK-067-01.2",
-          "title": "rpm: 10\u219230",
-          "status": "completed"
-        },
-        {
-          "id": "TASK-067-01.3",
-          "title": "max_parallel_requests: 3",
-          "status": "completed"
-        },
-        {
-          "id": "TASK-067-01.4",
-          "title": "whisper-1 api_base \u2192 faster-whisper:8204",
-          "status": "completed"
-        }
+        { "id": "TASK-067-01.1", "title": "llava-phi3 → qwen2.5vl:7b", "status": "completed" },
+        { "id": "TASK-067-01.2", "title": "rpm: 10→30", "status": "completed" },
+        { "id": "TASK-067-01.3", "title": "max_parallel_requests: 3", "status": "completed" },
+        { "id": "TASK-067-01.4", "title": "whisper-1 api_base → faster-whisper:8204", "status": "completed" }
       ],
-      "acceptanceCriteria": [
-        "llava-phi3 removido",
-        "qwen2.5vl:7b com rpm:30, max_parallel:3",
-        "whisper-1 api_base correto"
-      ],
-      "files": [
-        "/home/will/zappro-lite/config.yaml"
-      ],
+      "acceptanceCriteria": ["llava-phi3 removido", "qwen2.5vl:7b com rpm:30, max_parallel:3", "whisper-1 api_base correto"],
+      "files": ["/home/will/zappro-lite/config.yaml"],
       "testRequired": true,
       "specRef": "SPEC-067"
     },
     {
       "id": "TASK-067-02",
-      "title": "[SPEC-067-T2] Docker GPU + memory limits \u2014 zappro-litellm",
+      "title": "[SPEC-067-T2] Docker GPU + memory limits — zappro-litellm",
       "description": "Em /home/will/zappro-lite/docker-compose.yml: NVIDIA_VISIBLE_DEVICES=0, memory 4GiB, shm_size 256MB, OLLAMA_NUM_PARALLEL=4.",
       "status": "completed",
       "priority": "high",
       "dependencies": [],
       "subtasks": [
-        {
-          "id": "TASK-067-02.1",
-          "title": "NVIDIA_VISIBLE_DEVICES=0",
-          "status": "completed"
-        },
-        {
-          "id": "TASK-067-02.2",
-          "title": "memory 4GiB + shm_size 256MB",
-          "status": "completed"
-        },
-        {
-          "id": "TASK-067-02.3",
-          "title": "OLLAMA_NUM_PARALLEL=4",
-          "status": "completed"
-        }
+        { "id": "TASK-067-02.1", "title": "NVIDIA_VISIBLE_DEVICES=0", "status": "completed" },
+        { "id": "TASK-067-02.2", "title": "memory 4GiB + shm_size 256MB", "status": "completed" },
+        { "id": "TASK-067-02.3", "title": "OLLAMA_NUM_PARALLEL=4", "status": "completed" }
       ],
-      "acceptanceCriteria": [
-        "GPU config NVIDIA_VISIBLE_DEVICES=0",
-        "memory 4GiB",
-        "shm_size 256MB"
-      ],
-      "files": [
-        "/home/will/zappro-lite/docker-compose.yml"
-      ],
+      "acceptanceCriteria": ["GPU config NVIDIA_VISIBLE_DEVICES=0", "memory 4GiB", "shm_size 256MB"],
+      "files": ["/home/will/zappro-lite/docker-compose.yml"],
       "testRequired": true,
       "specRef": "SPEC-067"
     },
     {
       "id": "TASK-067-03",
-      "title": "[SPEC-067-T3] Ollama systemd override \u2014 parallel 4 + loaded 2",
-      "description": "/etc/systemd/system/ollama.service.d/override.conf: OLLAMA_NUM_PARALLEL 1\u21924, OLLAMA_MAX_LOADED_MODELS 1\u21922, OLLAMA_GPU_OVERHEAD=512.",
+      "title": "[SPEC-067-T3] Ollama systemd override — parallel 4 + loaded 2",
+      "description": "/etc/systemd/system/ollama.service.d/override.conf: OLLAMA_NUM_PARALLEL 1→4, OLLAMA_MAX_LOADED_MODELS 1→2, OLLAMA_GPU_OVERHEAD=512.",
       "status": "completed",
       "priority": "high",
       "dependencies": [],
       "subtasks": [
-        {
-          "id": "TASK-067-03.1",
-          "title": "OLLAMA_NUM_PARALLEL=4",
-          "status": "completed"
-        },
-        {
-          "id": "TASK-067-03.2",
-          "title": "OLLAMA_MAX_LOADED_MODELS=2",
-          "status": "completed"
-        },
-        {
-          "id": "TASK-067-03.3",
-          "title": "OLLAMA_GPU_OVERHEAD=512",
-          "status": "completed"
-        }
+        { "id": "TASK-067-03.1", "title": "OLLAMA_NUM_PARALLEL=4", "status": "completed" },
+        { "id": "TASK-067-03.2", "title": "OLLAMA_MAX_LOADED_MODELS=2", "status": "completed" },
+        { "id": "TASK-067-03.3", "title": "OLLAMA_GPU_OVERHEAD=512", "status": "completed" }
       ],
-      "acceptanceCriteria": [
-        "OLLAMA_NUM_PARALLEL=4",
-        "OLLAMA_MAX_LOADED_MODELS=2"
-      ],
-      "files": [
-        "/etc/systemd/system/ollellm.service.d/override.conf"
-      ],
+      "acceptanceCriteria": ["OLLAMA_NUM_PARALLEL=4", "OLLAMA_MAX_LOADED_MODELS=2"],
+      "files": ["/etc/systemd/system/ollellm.service.d/override.conf"],
       "testRequired": true,
       "specRef": "SPEC-067"
     },
     {
       "id": "TASK-067-04",
-      "title": "[SPEC-067-T4] Ollama model management \u2014 rm llava-phi3 + pull q5",
+      "title": "[SPEC-067-T4] Ollama model management — rm llava-phi3 + pull q5",
       "description": "Executar 'ollama rm llava-phi3:latest' e 'ollama pull qwen2.5vl:7b-q5_k_m'.",
       "status": "completed",
       "priority": "high",
       "dependencies": [],
       "subtasks": [
-        {
-          "id": "TASK-067-04.1",
-          "title": "ollama rm llava-phi3:latest",
-          "status": "completed"
-        },
-        {
-          "id": "TASK-067-04.2",
-          "title": "ollama pull qwen2.5vl:7b-q5_k_m",
-          "status": "completed"
-        }
+        { "id": "TASK-067-04.1", "title": "ollama rm llava-phi3:latest", "status": "completed" },
+        { "id": "TASK-067-04.2", "title": "ollama pull qwen2.5vl:7b-q5_k_m", "status": "completed" }
       ],
-      "acceptanceCriteria": [
-        "llava-phi3 n\u00e3o aparece em ollama list",
-        "qwen2.5vl:7b-q5_k_m aparece"
-      ],
+      "acceptanceCriteria": ["llava-phi3 não aparece em ollama list", "qwen2.5vl:7b-q5_k_m aparece"],
       "files": [],
       "testRequired": true,
       "specRef": "SPEC-067"
@@ -815,51 +472,109 @@
       "description": "Restart zappro-litellm e ollama. Verificar health de todas as portas. Inference latency < 2s.",
       "status": "completed",
       "priority": "high",
-      "dependencies": [
-        "TASK-067-01",
-        "TASK-067-02",
-        "TASK-067-03",
-        "TASK-067-04"
-      ],
+      "dependencies": ["TASK-067-01", "TASK-067-02", "TASK-067-03", "TASK-067-04"],
       "subtasks": [
-        {
-          "id": "TASK-067-05.1",
-          "title": "docker restart zappro-litellm",
-          "status": "completed"
-        },
-        {
-          "id": "TASK-067-05.2",
-          "title": "systemctl restart ollama",
-          "status": "completed"
-        },
-        {
-          "id": "TASK-067-05.3",
-          "title": "Smoke: /health all ports",
-          "status": "completed"
-        },
-        {
-          "id": "TASK-067-05.4",
-          "title": "Smoke: inference latency < 2s",
-          "status": "completed"
-        }
+        { "id": "TASK-067-05.1", "title": "docker restart zappro-litellm", "status": "completed" },
+        { "id": "TASK-067-05.2", "title": "systemctl restart ollama", "status": "completed" },
+        { "id": "TASK-067-05.3", "title": "Smoke: /health all ports", "status": "completed" },
+        { "id": "TASK-067-05.4", "title": "Smoke: inference latency < 2s", "status": "completed" }
       ],
-      "acceptanceCriteria": [
-        "LiteLLM :4000 /health 200",
-        "Ollama :11434 /api/tags 200",
-        "ai-gateway :4002 /health 200",
-        "latency < 2s"
-      ],
+      "acceptanceCriteria": ["LiteLLM :4000 /health 200", "Ollama :11434 /api/tags 200", "ai-gateway :4002 /health 200", "latency < 2s"],
       "files": [],
       "testRequired": true,
       "specRef": "SPEC-067"
+    },
+    {
+      "id": "TASK-069-01",
+      "title": "[SPEC-069] smoke_hermes_telegram.py — suite pytest",
+      "description": "Criar smoke-tests/smoke_hermes_telegram.py com 7 testes: T1(/start PT-BR), T2(chat simples), T3(áudio STT), T4(TTS audível), T5(Vision imagem), T6(bidirecional CLI+App), T7(agency-ceo routing). Usa python-telegram-bot, 3 modos: interactive/ci/cli.",
+      "status": "pending",
+      "priority": "critical",
+      "dependencies": [],
+      "specRef": "SPEC-069",
+      "files": [
+        "smoke-tests/smoke_hermes_telegram.py"
+      ],
+      "testRequired": true,
+      "subtasks": [
+        { "id": "TASK-069-01.1", "title": "T1: test_start_onboarding_ptbr", "status": "pending" },
+        { "id": "TASK-069-01.2", "title": "T2: test_chat_simple_ptbr", "status": "pending" },
+        { "id": "TASK-069-01.3", "title": "T3: test_audio_transcription", "status": "pending" },
+        { "id": "TASK-069-01.4", "title": "T4: test_tts_response", "status": "pending" },
+        { "id": "TASK-069-01.5", "title": "T5: test_vision_image_description", "status": "pending" },
+        { "id": "TASK-069-01.6", "title": "T6: test_bidirectional_conversation", "status": "pending" },
+        { "id": "TASK-069-01.7", "title": "T7: test_agency_ceo_skill_routing", "status": "pending" }
+      ],
+      "acceptanceCriteria": [
+        "SC-1: /start responde PT-BR natural",
+        "SC-2: Chat simples PT-BR funciona",
+        "SC-3: Áudio PT-BR transcrito",
+        "SC-4: TTS audível na resposta",
+        "SC-5: Imagem descrita em PT-BR",
+        "SC-6: Bidirecional Claude↔Utilizador funciona",
+        "SC-7: Skill routing agency-ceo funciona"
+      ]
+    },
+    {
+      "id": "TASK-069-02",
+      "title": "[SPEC-069] conftest.py + fixtures",
+      "description": "Criar conftest.py com fixtures: bot_client (python-telegram-bot), test_chat_id, bot_context, audio_fixture, image_fixture. pytest.ini com markers (interactive/ci/cli). requirements.txt com dependências.",
+      "status": "pending",
+      "priority": "critical",
+      "dependencies": [],
+      "specRef": "SPEC-069",
+      "files": [
+        "smoke-tests/conftest.py",
+        "smoke-tests/pytest.ini",
+        "smoke-tests/requirements.txt"
+      ],
+      "testRequired": true,
+      "subtasks": [
+        { "id": "TASK-069-02.1", "title": "conftest.py fixtures", "status": "pending" },
+        { "id": "TASK-069-02.2", "title": "pytest.ini markers", "status": "pending" },
+        { "id": "TASK-069-02.3", "title": "requirements.txt", "status": "pending" }
+      ]
+    },
+    {
+      "id": "TASK-069-03",
+      "title": "[SPEC-069] fixtures audio + imagem",
+      "description": "Gravar/coletar fixtures de áudio PT-BR (ola-mundo.m4a, bom-dia.m4a) e imagens (cachorro.jpg, cafe.jpg) em smoke-tests/fixtures/audio/ e smoke-tests/fixtures/images/. Áudio 5-10s voz pm_santa/pf_dora.",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [],
+      "specRef": "SPEC-069",
+      "files": [
+        "smoke-tests/fixtures/audio/",
+        "smoke-tests/fixtures/images/"
+      ],
+      "testRequired": false,
+      "subtasks": [
+        { "id": "TASK-069-03.1", "title": "Áudio ola-mundo.ptb.m4a (5-10s PT-BR)", "status": "pending" },
+        { "id": "TASK-069-03.2", "title": "Áudio bom-dia.ptb.m4a (5-10s PT-BR)", "status": "pending" },
+        { "id": "TASK-069-03.3", "title": "Imagem cachorro.jpg", "status": "pending" },
+        { "id": "TASK-069-03.4", "title": "Imagem cafe.jpg", "status": "pending" }
+      ]
+    },
+    {
+      "id": "TASK-069-04",
+      "title": "[SPEC-069] README.md — instruções de execução",
+      "description": "Criar smoke-tests/README.md com: como instalar dependências (pip install -r requirements.txt), variáveis de ambiente (TELEGRAM_BOT_TOKEN, TEST_CHAT_ID), modos de execução (interactive/ci/cli), como gravar novos fixtures.",
+      "status": "pending",
+      "priority": "medium",
+      "dependencies": ["TASK-069-01", "TASK-069-02"],
+      "specRef": "SPEC-069",
+      "files": [
+        "smoke-tests/README.md"
+      ],
+      "testRequired": false
     }
   ],
   "meta": {
-    "totalTasks": 34,
+    "totalTasks": 38,
     "completedTasks": 5,
-    "pendingTasks": 29,
+    "pendingTasks": 33,
     "blockedTasks": 0,
-    "generatedAt": "2026-04-17T16:00",
+    "generatedAt": "2026-04-17T17:00",
     "projectName": "zappro-monorepo",
     "version": "2.0",
     "specs": [
@@ -867,7 +582,8 @@
       "SPEC-059",
       "SPEC-060",
       "SPEC-061",
-      "SPEC-067"
+      "SPEC-067",
+      "SPEC-069"
     ]
   }
 }
