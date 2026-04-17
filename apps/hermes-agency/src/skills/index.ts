@@ -9,7 +9,102 @@ export interface Skill {
   triggers: string[];
 }
 
-export const AGENCY_SKILLS: Skill[] = [
+// Canonical list of known tool names — used for validation at module load time.
+// When a new tool is introduced, add it here first.
+const REGISTERED_TOOLS = new Set([
+  // CEO / routing
+  'langgraph_execute',
+  'skill_route',
+  'human_gate_trigger',
+  'qdrant_query',
+  // Onboarding
+  'create_client_profile',
+  'init_qdrant_collection',
+  'send_welcome_sequence',
+  'create_first_milestone',
+  // Video
+  'transcribe_video',
+  'extract_key_moments',
+  'generate_caption',
+  'upload_to_r2',
+  // Organizer
+  'create_task',
+  'update_task_status',
+  'assign_to_agent',
+  'set_reminder',
+  'list_tasks',
+  // Creative
+  'generate_script',
+  'brainstorm_angles',
+  'write_copy',
+  'create_mood_board',
+  'qdrant_retrieve',
+  // Design
+  'generate_image_prompt',
+  'create_brand_kit',
+  'suggest_colors',
+  'mockup_layout',
+  // Social
+  'schedule_post',
+  'generate_hashtags',
+  'cross_post',
+  'analyze_engagement',
+  'post_to_social',
+  // PM
+  'create_milestone',
+  'check_deliverables',
+  'send_status_update',
+  'escalate_if_needed',
+  'get_campaign_status',
+  // Analytics
+  'fetch_metrics',
+  'generate_report',
+  'compare_campaigns',
+  'alert_anomaly',
+  'qdrant_aggregate',
+  // Brand Guardian
+  'check_brand_consistency',
+  'scan_for_violations',
+  'approve_content',
+  'flag_for_review',
+  'score_content',
+  // Client Success
+  'send_nps_survey',
+  'collect_feedback',
+  'schedule_call',
+  'renew_subscription',
+  'update_health_score',
+]) as const;
+
+function _validateSkills(skills: readonly Skill[]): void {
+  // 1. Unique IDs
+  const seenIds = new Set<string>();
+  for (const skill of skills) {
+    if (seenIds.has(skill.id)) {
+      console.error(`[skills] DUPLICATE skill id: '${skill.id}'`);
+    }
+    seenIds.add(skill.id);
+  }
+
+  // 2. Each tool must be in REGISTERED_TOOLS (warn, don't hard-fail)
+  for (const skill of skills) {
+    for (const tool of skill.tools) {
+      if (!REGISTERED_TOOLS.has(tool)) {
+        console.warn(`[skills] Skill '${skill.id}' references unknown tool: '${tool}'`);
+      }
+    }
+    // 3. No duplicate tools within a single skill
+    const seenTools = new Set<string>();
+    for (const tool of skill.tools) {
+      if (seenTools.has(tool)) {
+        console.warn(`[skills] Skill '${skill.id}' has duplicate tool: '${tool}'`);
+      }
+      seenTools.add(tool);
+    }
+  }
+}
+
+export const AGENCY_SKILLS: readonly Skill[] = [
   {
     id: 'agency-ceo',
     name: 'CEO MIX',
@@ -146,5 +241,10 @@ export function getSkillById(id: string): Skill | undefined {
 
 export function getSkillByTrigger(input: string): Skill | undefined {
   const lower = input.toLowerCase();
-  return AGENCY_SKILLS.find((skill) => skill.triggers.some((t) => lower.includes(t)));
+  return AGENCY_SKILLS.find((skill) =>
+    skill.triggers.some((t) => lower.includes(t.toLowerCase())),
+  );
 }
+
+// Run validation once at module load time
+_validateSkills(AGENCY_SKILLS);

@@ -2,7 +2,19 @@
 // Qdrant Client — Multi-tenant collections for Hermes Agency Suite
 
 const QDRANT_URL = process.env.QDRANT_URL ?? 'http://localhost:6333';
+const QDRANT_API_KEY = process.env.QDRANT_API_KEY ?? '';
+
+if (!QDRANT_API_KEY) {
+  console.error('[Qdrant] QDRANT_API_KEY not set in .env');
+  process.exit(1);
+}
+
 const COLLECTION_DIMENSION = 1024; // bge-m3 embedding dimension
+
+const QDRANT_HEADERS = {
+  'Content-Type': 'application/json',
+  Authorization: `Bearer ${QDRANT_API_KEY}`,
+};
 
 export const COLLECTIONS = {
   CLIENTS: 'agency_clients',
@@ -80,7 +92,7 @@ export const COLLECTION_SCHEMAS: CollectionSchema[] = [
 
 export async function createCollectionIfNotExists(name: CollectionName): Promise<boolean> {
   try {
-    const existsRes = await fetch(`${QDRANT_URL}/collections/${name}`);
+    const existsRes = await fetch(`${QDRANT_URL}/collections/${name}`, { headers: QDRANT_HEADERS });
     if (existsRes.ok) {
       const exists = (await existsRes.json()) as { result?: { exists?: boolean } };
       if (exists.result?.exists) {
@@ -92,7 +104,7 @@ export async function createCollectionIfNotExists(name: CollectionName): Promise
     // Create collection
     const createRes = await fetch(`${QDRANT_URL}/collections/${name}`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: QDRANT_HEADERS,
       body: JSON.stringify({
         vectors: {
           size: COLLECTION_DIMENSION,
@@ -125,5 +137,117 @@ export async function initAllCollections(): Promise<void> {
     console.log('[Qdrant] All collections ready');
   } else {
     console.warn('[Qdrant] Some collections failed — check Qdrant is accessible');
+  }
+}
+
+// ---------------------------------------------------------------------------
+// CRUD Operations
+// ---------------------------------------------------------------------------
+
+export interface PointPayload {
+  [key: string]: unknown;
+}
+
+export interface SearchFilter {
+  must?: Array<Record<string, unknown>>;
+  should?: Array<Record<string, unknown>>;
+  must_not?: Array<Record<string, unknown>>;
+}
+
+export interface UpsertParams {
+  collection: CollectionName;
+  id: string | number;
+  vector: number[];
+  payload: PointPayload;
+}
+
+export interface SearchParams {
+  collection: CollectionName;
+  vector: number[];
+  limit: number;
+  filter?: SearchFilter;
+}
+
+export interface DeleteParams {
+  collection: CollectionName;
+  id: string | number;
+}
+
+export async function upsertVector({
+  collection,
+  id,
+  vector,
+  payload,
+}: UpsertParams): Promise<boolean> {
+  try {
+    const res = await fetch(`${QDRANT_URL}/collections/${collection}/points`, {
+      method: 'PUT',
+      headers: QDRANT_HEADERS,
+      body: JSON.stringify({
+        points: [{ id, vector, payload }],
+      }),
+    });
+
+    if (!res.ok) {
+      console.error(`[Qdrant] Upsert failed for ${collection}/${id}:`, await res.text());
+      return false;
+    }
+
+    return true;
+  } catch (err) {
+    console.error(`[Qdrant] Upsert error (${collection}/${id}):`, err);
+    return false;
+  }
+}
+
+export async function search({
+  collection,
+  vector,
+  limit,
+  filter,
+}: SearchParams): Promise<Array<{ id: string | number; score: number; payload: PointPayload }>> {
+  try {
+    const res = await fetch(`${QDRANT_URL}/collections/${collection}/points/search`, {
+      method: 'POST',
+      headers: QDRANT_HEADERS,
+      body: JSON.stringify({
+        vector,
+        limit,
+        filter,
+        with_payload: true,
+      }),
+    });
+
+    if (!res.ok) {
+      console.error(`[Qdrant] Search failed for ${collection}:`, await res.text());
+      return [];
+    }
+
+    const data = (await res.json()) as {
+      result?: Array<{ id: string | number; score: number; payload: PointPayload }>;
+    };
+    return data.result ?? [];
+  } catch (err) {
+    console.error(`[Qdrant] Search error (${collection}):`, err);
+    return [];
+  }
+}
+
+export async function deleteVector({ collection, id }: DeleteParams): Promise<boolean> {
+  try {
+    const res = await fetch(`${QDRANT_URL}/collections/${collection}/points/${id}`, {
+      method: 'DELETE',
+      headers: QDRANT_HEADERS,
+    });
+
+    if (!res.ok) {
+      console.error(`[Qdrant] Delete failed for ${collection}/${id}:`, await res.text());
+      return false;
+    }
+
+    return true;
+  } catch (err) {
+    console.error(`[Qdrant] Delete error (${collection}/${id}):`, err);
+    return false;
   }
 }

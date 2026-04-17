@@ -5,10 +5,10 @@ import { AGENCY_SKILLS, getSkillById, getSkillByTrigger } from '../skills/index.
 import { llmComplete } from '../litellm/router.ts';
 
 const BRAND_GUARDIAN_THRESHOLD = 0.8;
-const HUMAN_GATE_THRESHOLD = 0.7;
+const HUMAN_GATE_THRESHOLD = parseFloat(process.env.HUMAN_GATE_THRESHOLD ?? '0.7');
+const CEO_MODEL = process.env.CEO_MODEL ?? 'gpt-4o';
 
 export interface RouterContext {
-  skillId: string;
   userId: string;
   chatId: number;
   message: string;
@@ -26,6 +26,23 @@ export async function routeToSkill(input: string, ctx: RouterContext): Promise<s
   return executeSkill(decision, input, ctx);
 }
 
+/**
+ * Sanitizes user input to prevent prompt injection.
+ * Removes control characters and escapes special characters that could
+ * manipulate LLM behavior.
+ */
+function sanitizeForPrompt(input: string): string {
+  return input
+    .replace(/\x00/g, '') // Remove null bytes
+    .replace(/[\x00-\x1F\x7F]/g, ' ') // Remove control characters
+    .replace(/\\/g, '\\\\') // Escape backslashes
+    .replace(/"/g, '\\"') // Escape double quotes
+    .replace(/\n/g, '\\n') // Escape newlines
+    .replace(/\r/g, '\\r') // Escape carriage returns
+    .replace(/\t/g, '\\t') // Escape tabs
+    .slice(0, 2000); // Limit input length
+}
+
 async function askCeoToRoute(input: string, ctx: RouterContext): Promise<string> {
   const available = AGENCY_SKILLS.map((s) => ({
     id: s.id,
@@ -33,9 +50,11 @@ async function askCeoToRoute(input: string, ctx: RouterContext): Promise<string>
     triggers: s.triggers.join(', '),
   })).join('\n');
 
+  const sanitizedInput = sanitizeForPrompt(input);
+
   const prompt = `Você é o CEO MIX de uma agência de marketing. Analise a mensagem e escolha a skill mais adequada.
 
-Mensagem: "${input}"
+Mensagem: "${sanitizedInput}"
 Usuário: ${ctx.userId}
 
 Skills disponíveis:
@@ -47,15 +66,22 @@ Responda apenas com o ID da skill (ex: agency-onboarding).`;
     messages: [{ role: 'user', content: prompt }],
     maxTokens: 50,
     temperature: 0.1,
+    model: CEO_MODEL,
   });
 
   const content = result.content;
-  const skillId = content
+  const rawSkillId = content
     .trim()
     .split('\n')[0]
     .replace(/[^a-z-]/g, '');
 
-  return getSkillById(skillId) ? skillId : 'agency-ceo';
+  // Defense-in-depth: validate against known skill IDs whitelist
+  const validSkillIds = new Set(AGENCY_SKILLS.map((s) => s.id));
+  const skillId = validSkillIds.has(rawSkillId) ? rawSkillId : 'agency-ceo';
+
+  console.log(`[agency_router] CEO routed "${input.substring(0, 60)}..." → ${skillId} (model=${CEO_MODEL}, raw="${content.trim()}")`);
+
+  return skillId;
 }
 
 async function executeSkill(skillId: string, input: string, ctx: RouterContext): Promise<string> {
