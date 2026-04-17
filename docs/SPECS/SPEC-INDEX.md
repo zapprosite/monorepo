@@ -27,11 +27,11 @@ status: ACTIVE
 | **Secrets / Infisical**      | SPEC-029                                                | [SPEC-029-INFISICAL-SDK-MANDATORY.md](./SPEC-029-INFISICAL-SDK-MANDATORY.md)                                       | Zero tolerance mandate                                                                    |
 | **Tunnel / subdomains**      | SPEC-032                                                | [SPEC-032-tunnel-health-automation.md](./SPEC-032-tunnel-health-automation.md)                                     | smoke-tunnel.sh ✅                                                                        |
 | **Hermes Agent**             | SPEC-038                                                | [SPEC-038-hermes-agent-migration.md](./SPEC-038-hermes-agent-migration.md)                                         | OPERAÇÃO OVERLORD                                                                         |
-| **Hermes Gateway**           | SPEC-038                                                | [SPEC-038-hermes-agent-migration.md](./SPEC-038-hermes-agent-migration.md)                                       | hermes.zappro.site → :8642 ✅                                                            |
+| **Hermes Gateway**           | SPEC-038                                                | [SPEC-038-hermes-agent-migration.md](./SPEC-038-hermes-agent-migration.md)                                         | hermes.zappro.site → :8642 ✅                                                             |
 | **Alerting & rate limiting** | SPEC-040                                                | [SPEC-040-homelab-alerting-rate-limit.md](./SPEC-040-homelab-alerting-rate-limit.md)                               | GPU security                                                                              |
 | **Monorepo polish**          | SPEC-041                                                | [SPEC-041-monorepo-estado-arte-polish.md](./SPEC-041-monorepo-estado-arte-polish.md)                               | Tech debt resolution                                                                      |
 | **AI Gateway PT-BR**         | SPEC-047                                                | [SPEC-047-enterprise-polish-ai-gateway-ptbr.md](./SPEC-047-enterprise-polish-ai-gateway-ptbr.md)                   | ai-gateway :4002 ✅                                                                       |
-| **Hermes Agent prune**        | SPEC-051                                                | [SPEC-051-legacy-services-prune-specs-polish.md](./SPEC-051-legacy-services-prune-specs-polish.md)                               | Prune total Hermes Agent legacy ✅                                                         |
+| **OpenClaw prune**           | SPEC-051                                                | [SPEC-051-legacy-services-prune-specs-polish.md](./SPEC-051-legacy-services-prune-specs-polish.md)                 | OpenClaw legacy PRUNED ✅                                                                 |
 | **Hermes MCP + Context7**    | SPEC-052                                                | [SPEC-052-hermes-mcp-context7-integration.md](./SPEC-052-hermes-mcp-context7-integration.md)                       | Context7 MCP research                                                                     |
 | **OpenAI Facade Completo**   | SPEC-048 ✅                                             | [SPEC-048-openai-facade-completo.md](./SPEC-048-openai-facade-completo.md)                                         | texto+visão+voz, llm.zappro.site ✅                                                       |
 | **Cloud Voice APIs PT-BR**   | SPEC-055                                                | [SPEC-055-cloud-voice-apis-ptbr-2026.md](./SPEC-055-cloud-voice-apis-ptbr-2026.md)                                 | GROQ+Edge vs local, 14 agents research                                                    |
@@ -52,10 +52,11 @@ status: ACTIVE
 | SPEC-036 | Todo web app                   | todo.zappro.site (OAuth, 2026-04-13)                                                                      |
 | SPEC-043 | Subdomain prune                | bot/supabase PRUNED, hermes.zappro.site ACTIVE                                                            |
 | SPEC-048 | OpenAI Facade Completo         | llm.zappro.site (:4002), smoke (6/6) ✅                                                                   |
-| SPEC-039 | ~~Hermes Gateway tunnel~~     | ✅ ARCHIVED — hermes.zappro.site → :8642, see SPEC-038                                                   |
-| SPEC-051 | Hermes Agent prune total        | ✅ DONE — Hermes Agent legacy PRUNED, 40+ files archived                                                     |
+| SPEC-039 | ~~Hermes Gateway tunnel~~      | ✅ ARCHIVED — hermes.zappro.site → :8642, see SPEC-038                                                    |
+| SPEC-051 | OpenClaw prune & specs polish  | ✅ DONE — OpenClaw legacy PRUNED (wav2vec2, openwebui, :4001 bot), 40+ files archived                     |
 | SPEC-053 | Hermes 100% local voice/vision | ✅ DONE — qwen2.5vl:7b texto+visão, whisper :8204, Kokoro :8013, smoke 13/13                              |
 | SPEC-054 | GPU Model Stack 2026           | ✅ DONE — whisper-medium-pt + Kokoro + nomic-embed-text, 20.6 GB livre, qwen2.5vl:7b como próximo upgrade |
+| SPEC-046 | Hermes Agent improvements      | ✅ DONE — Telegram polling, cron consolidation, SOUL.md, skills migration, auto-healing (14/04/2026)      |
 
 ### 🟡 IN_PROGRESS (Active Work)
 
@@ -72,16 +73,16 @@ status: ACTIVE
 
 ### 🚧 IMPLEMENTING (In Active Migration)
 
-| SPEC     | Title                  | Notes                                                 |
-| -------- | ---------------------- | ----------------------------------------------------- |
-| SPEC-038 | Hermes Agent migration | OPERAÇÃO OVERLORD ✅ — Hermes → Hermes, hermes.zappro.site ✅                                                |
-| SPEC-052 | Hermes MCP + Context7  | Context7 MCP + web search integration research        |
+| SPEC     | Title                  | Notes                                                         |
+| -------- | ---------------------- | ------------------------------------------------------------- |
+| SPEC-038 | Hermes Agent migration | OPERAÇÃO OVERLORD ✅ — Hermes → Hermes, hermes.zappro.site ✅ |
+| SPEC-052 | Hermes MCP + Context7  | Context7 MCP + web search integration research                |
 
 ### 📋 SPECIFIED (Planned/Proposed)
 
-| SPEC     | Title          | Notes                              |
-| -------- | -------------- | ---------------------------------- |
-| SPEC-037 | md.zappro.site | Obsidian vault UI via Google OAuth |
+| SPEC     | Title                         | Notes                                                                                |
+| -------- | ----------------------------- | ------------------------------------------------------------------------------------ |
+| SPEC-037 | md.zappro.site                | Obsidian vault UI via Google OAuth                                                   |
 | SPEC-056 | Cursor-Loop Enterprise Polish | 14-agent review, 9 critical fixes (C1-C9), SPEC-056 ✅ — branch feature/swift-kernel |
 
 ---
@@ -97,7 +98,7 @@ Hermes Agent migration       → SPEC-038
 Hermes Gateway tunnel         → SPEC-039
 Alerting & rate limiting     → SPEC-040
 Monorepo polish              → SPEC-041
-Hermes Agent prune (done)   → SPEC-051
+OpenClaw prune (done)      → SPEC-051
 Hermes MCP + Context7        → SPEC-052
 Hermes 100% local voice     → SPEC-053
 Cloud voice APIs PT-BR       → SPEC-055
@@ -124,38 +125,38 @@ These specs are **PROTEGIDO** — changes require explicit approval from owner:
 
 If your feature intersects an archived SPEC, check the replacement column:
 
-| SPEC            | Title                         | Canonical Replacement                           |
-| --------------- | ----------------------------- | ----------------------------------------------- |
-| SPEC-001        | Template fusionado            | SPEC-024 + CLAUDE.md                            |
-| SPEC-002a       | HomeLab Monitor Agent         | SPEC-023 (monitoring)                           |
-| SPEC-002b       | Homelab Network Refactor      | SUBDOMAINS.md + PORTS.md                        |
-| SPEC-004        | Kokoro TTS Kit                | SPEC-027 (voice pipeline, merged as historical) |
-| SPEC-005        | wav2vec2 STT Kit              | SPEC-027 (voice pipeline, merged as historical) |
-| SPEC-009        | Hermes Agent Persona Audio Stack | SPEC-027 (voice pipeline, archived Hermes Agent)  |
-| SPEC-006        | Playwright E2E                | SPEC-024 (test pipeline)                        |
-| SPEC-007        | Hermes Agent OAuth Profiles     | SPEC-027 (voice pipeline, OAuth deprecated)     |
-| SPEC-010        | Hermes Agent Agents Kit         | SPEC-027 (voice pipeline)                       |
-| SPEC-011        | Hermes Agent Agency Suite       | SPEC-027 (voice pipeline)                       |
-| SPEC-012        | hermes-agent-update-discoverer | SPEC-023 (monitoring stack)                     |
-| SPEC-014        | Cursor AI CI/CD Pattern       | SPEC-024 + cursor-loop skill                    |
-| SPEC-015        | Gitea Actions Enterprise      | SPEC-024 + git mirror scripts                   |
-| SPEC-016        | Voice Pipeline Cursor Loop    | SPEC-027 + SPEC-032                             |
-| SPEC-017        | Voice API Deploy              | SPEC-027 + SPEC-032                             |
-| SPEC-018        | wav2vec2 Deepgram Proxy       | SPEC-027 (voice pipeline)                       |
-| SPEC-019        | OpenWebUI Repair              | SUBDOMAINS.md (chat.zappro.site routing fixed)  |
-| SPEC-020        | OpenWebUI Hermes Agent Bridge  | SPEC-027 + SPEC-032                             |
-| SPEC-021        | Claude Code Cursor Loop       | cursor-loop skill + SPEC-024                    |
-| SPEC-022        | Cursor Loop CLI Solutions     | cursor-loop skill + SPEC-024                    |
-| SPEC-023        | Claude Code CLI Integration   | SPEC-023-unified-monitoring-self-healing.md     |
-| SPEC-024        | Unified Claude Agent Monorepo | SPEC-041 + current .claude/ structure           |
-| SPEC-025        | Hermes Agent CEO Mix Voice Stack | SPEC-027 (voice pipeline)                       |
-| SPEC-025-REPORT | CEO Mix Report                | SPEC-024 + SPEC-025                             |
-| SPEC-026        | Hermes Agent TTS Route Fix     | SPEC-027 (voice pipeline)                       |
-| SPEC-028        | Perplexity GitOps             | SPEC-024 + perplexity-agent                     |
-| SPEC-030        | AGENTS.md Top Links Audit     | SPEC-041 + current AGENTS.md                    |
-| SPEC-033        | Supabase Tunnel Exposure      | SPEC-043 (supabase PRUNED)                      |
-| SPEC-039        | Hermes Gateway tunnel         | SPEC-038 (hermes.zappro.site ✅)              |
-| SPEC-046        | Hermes Agent improvements    | SPEC-038 (superseded)                          |
+| SPEC            | Title                            | Canonical Replacement                                                           |
+| --------------- | -------------------------------- | ------------------------------------------------------------------------------- |
+| SPEC-001        | Template fusionado               | SPEC-024 + CLAUDE.md                                                            |
+| SPEC-002a       | HomeLab Monitor Agent            | SPEC-023 (monitoring)                                                           |
+| SPEC-002b       | Homelab Network Refactor         | SUBDOMAINS.md + PORTS.md                                                        |
+| SPEC-004        | Kokoro TTS Kit                   | SPEC-027 (voice pipeline, merged as historical)                                 |
+| SPEC-005        | wav2vec2 STT Kit                 | SPEC-027 (voice pipeline, merged as historical)                                 |
+| SPEC-009        | Hermes Agent Persona Audio Stack | SPEC-027 (voice pipeline, archived Hermes Agent)                                |
+| SPEC-006        | Playwright E2E                   | SPEC-024 (test pipeline)                                                        |
+| SPEC-007        | Hermes Agent OAuth Profiles      | SPEC-027 (voice pipeline, OAuth deprecated)                                     |
+| SPEC-010        | Hermes Agent Agents Kit          | SPEC-027 (voice pipeline)                                                       |
+| SPEC-011        | Hermes Agent Agency Suite        | SPEC-027 (voice pipeline)                                                       |
+| SPEC-012        | hermes-agent-update-discoverer   | SPEC-023 (monitoring stack)                                                     |
+| SPEC-014        | Cursor AI CI/CD Pattern          | SPEC-024 + cursor-loop skill                                                    |
+| SPEC-015        | Gitea Actions Enterprise         | SPEC-024 + git mirror scripts                                                   |
+| SPEC-016        | Voice Pipeline Cursor Loop       | SPEC-027 + SPEC-032                                                             |
+| SPEC-017        | Voice API Deploy                 | SPEC-027 + SPEC-032                                                             |
+| SPEC-018        | wav2vec2 Deepgram Proxy          | SPEC-027 (voice pipeline)                                                       |
+| SPEC-019        | OpenWebUI Repair                 | SUBDOMAINS.md (chat.zappro.site routing fixed)                                  |
+| SPEC-020        | OpenWebUI Hermes Agent Bridge    | SPEC-027 + SPEC-032                                                             |
+| SPEC-021        | Claude Code Cursor Loop          | cursor-loop skill + SPEC-024                                                    |
+| SPEC-022        | Cursor Loop CLI Solutions        | cursor-loop skill + SPEC-024                                                    |
+| SPEC-023        | Claude Code CLI Integration      | SPEC-023-unified-monitoring-self-healing.md                                     |
+| SPEC-024        | Unified Claude Agent Monorepo    | SPEC-041 + current .claude/ structure                                           |
+| SPEC-025        | Hermes Agent CEO Mix Voice Stack | SPEC-027 (voice pipeline)                                                       |
+| SPEC-025-REPORT | CEO Mix Report                   | SPEC-024 + SPEC-025                                                             |
+| SPEC-026        | Hermes Agent TTS Route Fix       | SPEC-027 (voice pipeline)                                                       |
+| SPEC-028        | Perplexity GitOps                | SPEC-024 + perplexity-agent                                                     |
+| SPEC-030        | AGENTS.md Top Links Audit        | SPEC-041 + current AGENTS.md                                                    |
+| SPEC-033        | Supabase Tunnel Exposure         | SPEC-043 (supabase PRUNED)                                                      |
+| SPEC-039        | Hermes Gateway tunnel            | SPEC-038 (hermes.zappro.site ✅)                                                |
+| SPEC-046        | Hermes Agent improvements        | ✅ DONE — All 5 steps implemented (Telegram, crons, SOUL.md, skills, auto-heal) |
 
 All archived specs are in: `docs/SPECS/archive/`
 
@@ -165,12 +166,12 @@ All archived specs are in: `docs/SPECS/archive/`
 
 All secrets and environment-specific values MUST:
 
-| Standard             | Description                                                    |
-| -------------------- | -------------------------------------------------------------- |
+| Standard             | Description                                                                   |
+| -------------------- | ----------------------------------------------------------------------------- |
 | **Secrets**          | Store in `.env` files, read via `process.env` (Infisical SDK PRUNED — legacy) |
-| **No hardcoding**    | Never embed tokens/keys directly in SPECs or code              |
-| **Reference format** | Use `${SECRET_NAME}` syntax (e.g., `${CLOUDFLARE_API_TOKEN}`)  |
-| **Infisical SDK**    | PROIBIDO — usar `.env` como fonte canónica apenas                |
+| **No hardcoding**    | Never embed tokens/keys directly in SPECs or code                             |
+| **Reference format** | Use `${SECRET_NAME}` syntax (e.g., `${CLOUDFLARE_API_TOKEN}`)                 |
+| **Infisical SDK**    | PROIBIDO — usar `.env` como fonte canónica apenas                             |
 
 See [SPEC-029-INFISICAL-SDK-MANDATORY.md](./SPEC-029-INFISICAL-SDK-MANDATORY.md) for enforcement details.
 
