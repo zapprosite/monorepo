@@ -461,7 +461,7 @@ docker start zappro-kokoro
 
 ## Related Documentation
 
-- [Voice Pipeline Loop](./voice-pipeline-loop.md) — Server-side voice pipeline
+- [Voice Pipeline Desktop](./voice-pipeline-desktop.md) — Server-side voice pipeline
 - [Hermes Agent Audio Governance](../specflow/SPEC-009-Hermes Agent-persona-audio-stack.md) — Audio stack rules
 - [CODE-REVIEW-GUIDE](./CODE-REVIEW-GUIDE.md) — Code review standards
 
