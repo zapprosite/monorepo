@@ -1,6 +1,6 @@
 ---
 name: SPEC-067-ollama-litellm-high-performance
-description: Ollama + LiteLLM optimization for RTX 4090 24GB VRAM + NVMe Gen5 — minimize latency, maximize throughput, configure rate limiting and Docker memory limits
+description: "UPDATE 17/04: MiniMax-M2.7 é PRIMARY LLM para Hermes (50$ plan). Ollama é fallback local. Ollama + LiteLLM optimization para RTX 4090 24GB VRAM."
 spec_id: SPEC-067
 status: DONE
 priority: high
@@ -167,10 +167,23 @@ curl -sf http://localhost:11434/api/tags | python3 -c "import sys,json; [print(m
 - [x] `llama3-portuguese-tomcat-8b` Q8_0 continua OK
 - [x] LiteLLM config.yaml com rpm:30 e max_parallel_requests:3
 - [x] Docker GPU config (NVIDIA_VISIBLE_DEVICES=0), memory 4GiB, shm_size 256MB
-- [x] Ollama env vars: NUM_PARALLEL=4, MAX_LOADED_MODELS=2, FLASH_ATTENTION=1
+- [x] Ollama env vars: NUM_PARALLEL=2, MAX_LOADED_MODELS=2, FLASH_ATTENTION=1
 - [x] LiteLLM e Ollama restartados e healthy
 - [x] Whisper api_base corrigido: 8204 (faster-whisper)
+- [x] **Hermes LLM PRIMARY: MiniMax-M2.7** (50$ plan) ✅ 17/04
+- [x] **Hermes LLM fallback: ollama/llama3-portuguese-tomcat-8b-instruct-q8** ✅ 17/04
 - [ ] Smoke test: inference latency < 2s (não testado ainda)
+
+---
+
+## LLM Chain — Hermes (17/04 UPDATE)
+
+```
+PRIMARY:   minimax/MiniMax-M2.7    (api.minimax.io, 50$ plan)
+FALLBACK:  ollama/llama3-portuguese-tomcat-8b-instruct-q8  (:11434)
+```
+
+**⚠️ IMPORTANT:** MiniMax é PRIMARY. Ollama é fallback local VRAM.
 
 ---
 
@@ -180,6 +193,8 @@ curl -sf http://localhost:11434/api/tags | python3 -c "import sys,json; [print(m
 - `/srv/monorepo/docker-compose.litellm.yml` (se existir)
 - `~/.bashrc` (Ollama env vars)
 - `/etc/systemd/system/ollama.service.d/override.conf` (se necessário)
+- `~/.hermes/config.yaml` (llm.primary atualizado para MiniMax)
+- `/srv/monorepo/.env` (MINIMAX_API_KEY activa)
 
 ## Open Questions
 
@@ -187,10 +202,11 @@ curl -sf http://localhost:11434/api/tags | python3 -c "import sys,json; [print(m
 2. ~~`nomic-embed-text` deve manter FP16 ou tentar Q4_K_M?~~ → Manter FP16 (embeddings não beneficiam de quantization) ✅
 3. ~~Quantos modelos em simultâneo na VRAM de 24GB?~~ → 2 modelos (MAX_LOADED_MODELS=2) ✅
 4. Q5_K_M para qwen2.5vl: requer conversao manual via Modelfile — não crítico (Q4_K_M é bom)
+5. ~~MiniMax como PRIMARY ou fallback?~~ → **PRIMARY** (50$ plan mais capaz) ✅
 
 ---
 
 ## Dependencies
 
-- SPEC-053 (voice/vision 100% local) — contexto do llava-phi3 crash
+- SPEC-053 (voice/vision pipeline) — contexto llava-phi3 crash e update MiniMax PRIMARY
 - SPEC-047/048 (AI Gateway) — contexto do ai-gateway bare metal
