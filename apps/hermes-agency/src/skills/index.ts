@@ -77,13 +77,27 @@ const REGISTERED_TOOLS = new Set<string>([
 ]);
 
 function _validateSkills(skills: readonly Skill[]): void {
-  // 1. Unique IDs
+  // HC-33: Validate no duplicate skill IDs — fail-hard
   const seenIds = new Set<string>();
   for (const skill of skills) {
     if (seenIds.has(skill.id)) {
-      console.error(`[skills] DUPLICATE skill id: '${skill.id}'`);
+      throw new Error(`Duplicate skill ID: ${skill.id} — fail-hard`);
     }
     seenIds.add(skill.id);
+  }
+
+  // HC-33: Validate no duplicate triggers — fail-hard (prevents silent Map overwrite)
+  const seenTriggers = new Map<string, string>(); // trigger → skillId
+  for (const skill of skills) {
+    for (const t of skill.triggers) {
+      const lower = t.toLowerCase();
+      if (seenTriggers.has(lower)) {
+        throw new Error(
+          `Duplicate trigger '${lower}' in skill '${skill.id}' — already in '${seenTriggers.get(lower)}'`,
+        );
+      }
+      seenTriggers.set(lower, skill.id);
+    }
   }
 
   // 2. Each tool must be in REGISTERED_TOOLS (warn, don't hard-fail)
@@ -235,15 +249,21 @@ export const AGENCY_SKILLS: readonly Skill[] = [
   },
 ];
 
+// HC-33: O(1) lookup maps built at module init
+const _skillById = new Map<string, Skill>();
+const _skillByTrigger = new Map<string, Skill>();
+
+for (const skill of AGENCY_SKILLS) {
+  _skillById.set(skill.id, skill);
+  for (const t of skill.triggers) _skillByTrigger.set(t.toLowerCase(), skill);
+}
+
 export function getSkillById(id: string): Skill | undefined {
-  return AGENCY_SKILLS.find((s) => s.id === id);
+  return _skillById.get(id);
 }
 
 export function getSkillByTrigger(input: string): Skill | undefined {
-  const lower = input.toLowerCase();
-  return AGENCY_SKILLS.find((skill) =>
-    skill.triggers.some((t) => lower.includes(t.toLowerCase())),
-  );
+  return _skillByTrigger.get(input.toLowerCase());
 }
 
 // Run validation once at module load time

@@ -23,22 +23,22 @@ specRef: SPEC-024, SPEC-030
 
 ### Agents Completados (7/14)
 
-| Agent | Domain | Status |
-|-------|--------|--------|
-| AGENT-1 | Code Generation & Refactoring | ✅ |
-| AGENT-2 | Automated Testing | ❌ 529 |
-| AGENT-3 | Security Auditing | ✅ |
-| AGENT-4 | Documentation Generation | ✅ |
-| AGENT-5 | Performance Optimization | ❌ 529 |
-| AGENT-6 | Bug Investigation | ✅ |
-| AGENT-7 | Architecture & System Design | ❌ 529 |
-| AGENT-8 | Frontend Development | ❌ 529 |
-| AGENT-9 | Backend/API Development | ✅ |
-| AGENT-10 | DevOps & Infrastructure | ✅ |
-| AGENT-11 | Code Review Quality | ✅ |
-| AGENT-12 | Onboarding & Knowledge | ❌ 529 |
-| AGENT-13 | Multi-Agent Orchestration | ❌ 529 |
-| AGENT-14 | Monitoring & Observability | ❌ 529 |
+| Agent    | Domain                        | Status |
+| -------- | ----------------------------- | ------ |
+| AGENT-1  | Code Generation & Refactoring | ✅     |
+| AGENT-2  | Automated Testing             | ❌ 529 |
+| AGENT-3  | Security Auditing             | ✅     |
+| AGENT-4  | Documentation Generation      | ✅     |
+| AGENT-5  | Performance Optimization      | ❌ 529 |
+| AGENT-6  | Bug Investigation             | ✅     |
+| AGENT-7  | Architecture & System Design  | ❌ 529 |
+| AGENT-8  | Frontend Development          | ❌ 529 |
+| AGENT-9  | Backend/API Development       | ✅     |
+| AGENT-10 | DevOps & Infrastructure       | ✅     |
+| AGENT-11 | Code Review Quality           | ✅     |
+| AGENT-12 | Onboarding & Knowledge        | ❌ 529 |
+| AGENT-13 | Multi-Agent Orchestration     | ❌ 529 |
+| AGENT-14 | Monitoring & Observability    | ❌ 529 |
 
 ---
 
@@ -47,6 +47,7 @@ specRef: SPEC-024, SPEC-030
 ### 1. Code Generation — `/codegen` (AGENT-1)
 
 **MiniMax Strengths:**
+
 - CRUD router generation from Zod schemas — elimina 30min boilerplate → 5min review
 - tRPC router composition (21 routers + protectedProcedure pattern)
 - OrchidORM query builder patterns (`.whereSql()`, `.order()`, `.limit()`)
@@ -55,6 +56,7 @@ specRef: SPEC-024, SPEC-030
 **Slash Command:** `/codegen <module-name>` ou `/scaffold-trpc <entity>`
 
 **Fluxo:**
+
 ```
 Dev define Zod schema → /codegen contract → MiniMax gera:
   - apps/api/src/modules/contracts/contracts.trpc.ts (CRUD completo)
@@ -70,6 +72,7 @@ Dev define Zod schema → /codegen contract → MiniMax gera:
 ### 2. Security Auditing — `/msec` (AGENT-3)
 
 **MiniMax Strengths:**
+
 - Semantic secret detection (não só regex — detecta `os.getenv("SECRET")` vs Infisical SDK)
 - OWASP Top 10 reasoning (A01 Broken Access Control em `protectedProcedure`, A03 SQLi em `webhookProcessor`, A10 SSRF)
 - Auth flow tracing (`logout` sem session verification, role-based access gaps)
@@ -78,6 +81,7 @@ Dev define Zod schema → /codegen contract → MiniMax gera:
 **Slash Command:** `/msec` (security audit pre-commit gate)
 
 **Fluxo:**
+
 ```
 git commit → /msec → MiniMax analyzes diff
   ├── Secret found → BLOCK + "Remove before push"
@@ -94,12 +98,14 @@ git commit → /msec → MiniMax analyzes diff
 ### 3. Documentation Generation — `/dm` (AGENT-4)
 
 **MiniMax Strengths:**
+
 - tRPC procedure → markdown table (21 routers → API reference em PT-BR)
 - Infrastructure drift detection (`ss -tlnp` vs PORTS.md, `curl` vs SUBDOMAINS.md)
 - SPEC auto-population (Decisions Log + Dependencies de código real)
 - TSDoc inline generation para functions sem documentação
 
 **Slash Commands:**
+
 ```
 /dm api-ref     # Parse tRPC routers → docs/REFERENCE/TRPC-API.md
 /dm ports       # ss -tlnp vs PORTS.md diff → report drift
@@ -109,6 +115,7 @@ git commit → /msec → MiniMax analyzes diff
 ```
 
 **Cron:**
+
 ```
 | doc-sync-daily | 0 7 * * * | MiniMax: ports + subdomains health → update SERVICE_STATE.md |
 ```
@@ -118,6 +125,7 @@ git commit → /msec → MiniMax analyzes diff
 ### 4. Bug Investigation — `/bug-triage` (AGENT-6)
 
 **MiniMax Strengths:**
+
 - 200k+ token context — ingere Docker crash dumps inteiros sem chunking
 - PT-BR native reasoning em logs do homelab (smoke-tunnel.sh, Gotify alerts)
 - Long-horizon multi-step debugging (cloudflared → Docker → Postgres → tRPC → React)
@@ -127,6 +135,7 @@ git commit → /msec → MiniMax analyzes diff
 **Slash Command:** `/bug-triage`
 
 **Fluxo:**
+
 ```
 docker ps mostra loki Exit(1) → /bug-triage → gathers:
   - docker logs loki --tail 1000
@@ -145,6 +154,7 @@ docker ps mostra loki Exit(1) → /bug-triage → gathers:
 ### 5. Backend/API Development — `/bcaffold` (AGENT-9)
 
 **MiniMax Strengths:**
+
 - Fastify plugin scaffold de Zod schemas (elimina ~80 linhas boilerplate por módulo)
 - tRPC router composition (22 routers + 4 middlewares pattern)
 - OrchidORM schema analysis + migration scripts (`yarn db g <name>`)
@@ -152,6 +162,7 @@ docker ps mostra loki Exit(1) → /bug-triage → gathers:
 - OpenAPI bridge via FastifyZodOpenApiTypeProvider
 
 **Slash Commands:**
+
 ```
 /bcaffold <entity-name> <zod-schema-path>  # Plugin Fastify + tRPC router
 /migrate <entity-name>                     # OrchidORM migration + rollback
@@ -159,6 +170,7 @@ docker ps mostra loki Exit(1) → /bug-triage → gathers:
 ```
 
 **Fluxo:**
+
 ```
 Dev define Zod schema → /bcaffold contract → MiniMax gera:
   - modules/contracts/tables/contract.table.ts (OrchidORM)
@@ -174,6 +186,7 @@ Dev define Zod schema → /bcaffold contract → MiniMax gera:
 ### 6. DevOps & Infrastructure — `/infra-gen` (AGENT-10)
 
 **MiniMax Strengths:**
+
 - YAML/Terraform generation (formata exatamente como monorepo usa: `map(object({...}))`)
 - Long-context infra reasoning (1M — lê PORTS.md + SUBDOMAINS.md + variables.tf antes de gerar)
 - Docker Compose + healthchecks + networks + volumes
@@ -181,6 +194,7 @@ Dev define Zod schema → /bcaffold contract → MiniMax gera:
 - Gitea Actions workflow generation
 
 **Slash Commands:**
+
 ```
 /infra-gen docker-compose [service]   # docker-compose.yml com healthchecks
 /infra-gen terraform subdomain [subdomain] [ip:port]  # Terraform blocks
@@ -189,6 +203,7 @@ Dev define Zod schema → /bcaffold contract → MiniMax gera:
 ```
 
 **Fluxo:**
+
 ```
 /infra-gen terraform subdomain chat http://10.0.5.2:8080
 → MiniMax lê variables.tf + access.tf + PORTS.md + SUBDOMAINS.md
@@ -202,6 +217,7 @@ Dev define Zod schema → /bcaffold contract → MiniMax gera:
 ### 7. Code Review Quality — `/mxr` (AGENT-11)
 
 **MiniMax Strengths:**
+
 - 1M token context — analiza PRs inteiros (30+ files) + SPECs + review history
 - TypeScript deep analysis (inverted generics, `infer` misuse, non-exhaustive discriminated unions, type drift)
 - PR description generation (conventional commits format + breaking changes + smoke tests)
@@ -211,6 +227,7 @@ Dev define Zod schema → /bcaffold contract → MiniMax gera:
 **Slash Command:** `/mxr` ou `/minimax-review [PR_NUMBER|--commit HASH]`
 
 **Fluxo:**
+
 ```
 PR open → code-review.yml triggered
   → MiniMax review-minimax (long context)
@@ -227,33 +244,34 @@ PR open → code-review.yml triggered
 
 ## New Skills — Summary
 
-| Skill | Trigger | Purpose |
-|-------|---------|---------|
-| `minimax-code-gen` | `/codegen` | tRPC router generation from Zod schemas |
-| `minimax-refactor` | `/refactor-module` | Assisted refactoring for module code smells |
-| `minimax-security-audit` | `/msec` | OWASP + secrets + Infisical SDK enforcement |
-| `doc-maintenance` | `/dm` | Documentation sync (API ref, PORTS, SUBDOMAINS, TSDoc) |
-| `minimax-debugger` | `/bug-triage` | Docker crash + tunnel + 529 triage |
-| `backend-scaffold` | `/bcaffold` | Fastify + tRPC from Zod schema |
-| `db-migration` | `/migrate` | OrchidORM migration + rollback |
-| `trpc-compose` | `/trpc` | Add new tRPC router to monorepo |
-| `infra-from-spec` | `/infra-gen` | Infrastructure from natural language |
-| `review-minimax` | `/mxr` | Holistic PR review with long context |
+| Skill                    | Trigger            | Purpose                                                |
+| ------------------------ | ------------------ | ------------------------------------------------------ |
+| `minimax-code-gen`       | `/codegen`         | tRPC router generation from Zod schemas                |
+| `minimax-refactor`       | `/refactor-module` | Assisted refactoring for module code smells            |
+| `minimax-security-audit` | `/msec`            | OWASP + secrets + Infisical SDK enforcement            |
+| `doc-maintenance`        | `/dm`              | Documentation sync (API ref, PORTS, SUBDOMAINS, TSDoc) |
+| `minimax-debugger`       | `/bug-triage`      | Docker crash + tunnel + 529 triage                     |
+| `backend-scaffold`       | `/bcaffold`        | Fastify + tRPC from Zod schema                         |
+| `db-migration`           | `/migrate`         | OrchidORM migration + rollback                         |
+| `trpc-compose`           | `/trpc`            | Add new tRPC router to monorepo                        |
+| `infra-from-spec`        | `/infra-gen`       | Infrastructure from natural language                   |
+| `review-minimax`         | `/mxr`             | Holistic PR review with long context                   |
 
 ---
 
 ## Cron Jobs Propostos
 
-| Job | Cron | Função |
-|-----|------|--------|
-| `minimax-bug-triage-daily` | `0 8 * * *` | MiniMax: health-check.log → proactive anomaly report |
-| `minimax-doc-sync-daily` | `0 7 * * *` | MiniMax: PORTS.md + SUBDOMAINS.md vs live system → SERVICE_STATE.md |
+| Job                        | Cron        | Função                                                              |
+| -------------------------- | ----------- | ------------------------------------------------------------------- |
+| `minimax-bug-triage-daily` | `0 9 * * *` | MiniMax: health-check.log → proactive anomaly report                |
+| `minimax-doc-sync-daily`   | `0 7 * * *` | MiniMax: PORTS.md + SUBDOMAINS.md vs live system → SERVICE_STATE.md |
 
 ---
 
 ## PT-BR Synthesis
 
 MiniMax M2.7 com 1M tokens é o modelo ideal para este monorepo por 3 razões:
+
 1. **Contexto longo** — elimina chunking manual em logs, PRs, e specs
 2. **Custo baixo para automação** — viabiliza cron jobs de triage e documentação (Claude seria proibitivo)
 3. **PT-BR nativo** — raciocina em português nos logs do homelab com mais precisão
@@ -272,36 +290,36 @@ As 10 skills acima cobrem os maiores pontos de atrito do desenvolvimento: boiler
 
 ## Acceptance Criteria
 
-| # | Criterion | Test |
-|---|-----------|------|
-| AC-1 | `/codegen` gera router tRPC completo de Zod schema | Criar schema dummy + invocar + verificar output |
-| AC-2 | `/msec` detecta os.getenv vs Infisical SDK | Testar com diff contendo `process.env.SECRET` |
-| AC-3 | `/dm ports` detecta drift em PORTS.md | Adicionar porta falsa + invocar + verificar report |
-| AC-4 | `/bug-triage` diagnostica loki crash | Feed docker logs + verificar root_cause JSON |
-| AC-5 | `/mxr` analiza PR de 10+ files sem chunking | Criar PR + invocar + verificar full diff coverage |
-| AC-6 | `/infra-gen terraform subdomain` gera variables.tf válido | Invocar + verificar Terraform syntax |
+| #    | Criterion                                                 | Test                                               |
+| ---- | --------------------------------------------------------- | -------------------------------------------------- |
+| AC-1 | `/codegen` gera router tRPC completo de Zod schema        | Criar schema dummy + invocar + verificar output    |
+| AC-2 | `/msec` detecta os.getenv vs Infisical SDK                | Testar com diff contendo `process.env.SECRET`      |
+| AC-3 | `/dm ports` detecta drift em PORTS.md                     | Adicionar porta falsa + invocar + verificar report |
+| AC-4 | `/bug-triage` diagnostica loki crash                      | Feed docker logs + verificar root_cause JSON       |
+| AC-5 | `/mxr` analiza PR de 10+ files sem chunking               | Criar PR + invocar + verificar full diff coverage  |
+| AC-6 | `/infra-gen terraform subdomain` gera variables.tf válido | Invocar + verificar Terraform syntax               |
 
 ---
 
 ## Files to Create/Modify
 
-| File | Action |
-|------|--------|
-| `AGENTS.md` | Adicionar 10 skills + 7 slash commands + 2 cron jobs |
-| `.claude/skills/minimax-code-gen/SKILL.md` | Criar |
-| `.claude/skills/minimax-security-audit/SKILL.md` | Criar |
-| `.claude/skills/doc-maintenance/SKILL.md` | Criar |
-| `.claude/skills/minimax-debugger/SKILL.md` | Criar |
-| `.claude/skills/backend-scaffold/SKILL.md` | Criar |
-| `.claude/skills/infra-from-spec/SKILL.md` | Criar |
-| `.claude/skills/review-minimax/SKILL.md` | Criar |
-| `.claude/commands/codegen.md` | Criar |
-| `.claude/commands/msec.md` | Criar |
-| `.claude/commands/dm.md` | Criar |
-| `.claude/commands/bug-triage.md` | Criar |
-| `.claude/commands/bcaffold.md` | Criar |
-| `.claude/commands/infra-gen.md` | Criar |
-| `.claude/commands/mxr.md` | Criar |
+| File                                             | Action                                               |
+| ------------------------------------------------ | ---------------------------------------------------- |
+| `AGENTS.md`                                      | Adicionar 10 skills + 7 slash commands + 2 cron jobs |
+| `.claude/skills/minimax-code-gen/SKILL.md`       | Criar                                                |
+| `.claude/skills/minimax-security-audit/SKILL.md` | Criar                                                |
+| `.claude/skills/doc-maintenance/SKILL.md`        | Criar                                                |
+| `.claude/skills/minimax-debugger/SKILL.md`       | Criar                                                |
+| `.claude/skills/backend-scaffold/SKILL.md`       | Criar                                                |
+| `.claude/skills/infra-from-spec/SKILL.md`        | Criar                                                |
+| `.claude/skills/review-minimax/SKILL.md`         | Criar                                                |
+| `.claude/commands/codegen.md`                    | Criar                                                |
+| `.claude/commands/msec.md`                       | Criar                                                |
+| `.claude/commands/dm.md`                         | Criar                                                |
+| `.claude/commands/bug-triage.md`                 | Criar                                                |
+| `.claude/commands/bcaffold.md`                   | Criar                                                |
+| `.claude/commands/infra-gen.md`                  | Criar                                                |
+| `.claude/commands/mxr.md`                        | Criar                                                |
 
 ---
 

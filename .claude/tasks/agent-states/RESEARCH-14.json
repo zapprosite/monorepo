@@ -1,0 +1,10 @@
+{
+  "agent": "RESEARCH-14",
+  "spec": "SPEC-ENTERPRISE-REFACTOR-2026-04-17",
+  "status": "completed",
+  "exit_code": 0,
+  "started": "",
+  "finished": "2026-04-17T13:11:33-03:00",
+  "command": "Homelab-specific patterns — ZFS snapshots, Docker/Coolify, Traefik, Cloudflare tunnels, reserved ports, network governance",
+  "log": "/srv/monorepo/.claude/.claude/skills/orchestrator/logs/RESEARCH-14.log"
+}

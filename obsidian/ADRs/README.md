@@ -69,7 +69,7 @@ Lightweight 8-section template:
 
 ```
 ADR-001-nome-da-decisao.md
-ADR-002-openclaw-oauth-mvp.md
+ADR-002-Hermes Agent-oauth-mvp.md
 ```
 
 ---

@@ -2,8 +2,8 @@
 // LangGraph Content Pipeline Workflow (WF-1)
 // Uses proper StateGraph with MemorySaver checkpointing and interrupt for human-in-the-loop
 
-import { MemorySaver } from "@langchain/langgraph";
-import { interrupt, StateGraph, START, END } from "@langchain/langgraph";
+import { MemorySaver } from '@langchain/langgraph';
+import { interrupt, StateGraph, START, END } from '@langchain/langgraph';
 import { llmComplete } from '../litellm/router.ts';
 
 // Checkpointer for durable execution with persistence
@@ -24,57 +24,81 @@ export type ContentPipelineState = {
   // Human approval state
   humanApproved?: boolean;
   humanComment?: string;
+  // Error state
+  error?: string;
 };
 
 // Node functions for each pipeline step
 async function creativeNode(state: ContentPipelineState): Promise<Partial<ContentPipelineState>> {
-  console.log(`[ContentPipeline] Executing CREATIVE node`);
-  const result = await llmComplete({
-    messages: [{
-      role: 'user',
-      content: `Com base neste briefing, crie um script de marketing e brainstorm de ângulos:
+  try {
+    console.log(`[ContentPipeline] Executing CREATIVE node`);
+    const result = await llmComplete({
+      messages: [
+        {
+          role: 'user',
+          content: `Com base neste briefing, crie um script de marketing e brainstorm de ângulos:
 
 Brief: ${state.brief}
 
 Forneça:
 1. Script principal (300-500 palavras)
 2. 3 ângulos criativos diferentes
-3. Tom e estilo recomendados`
-    }],
-    systemPrompt: `Você é um especialista em marketing de conteúdo. Siga as instruções do pipeline de forma sequencial.`,
-    maxTokens: 2048,
-    temperature: 0.7,
-  });
-  return { creativeOutput: result.content, currentStep: 'CREATIVE' };
+3. Tom e estilo recomendados`,
+        },
+      ],
+      systemPrompt: `Você é um especialista em marketing de conteúdo. Siga as instruções do pipeline de forma sequencial.`,
+      maxTokens: 2048,
+      temperature: 0.7,
+    });
+    return { creativeOutput: result.content, currentStep: 'CREATIVE' };
+  } catch (err) {
+    console.error('[LangGraph] creativeNode failed:', err);
+    return {
+      error: err instanceof Error ? err.message : String(err),
+      currentStep: 'ERROR',
+    };
+  }
 }
 
 async function videoNode(state: ContentPipelineState): Promise<Partial<ContentPipelineState>> {
-  console.log(`[ContentPipeline] Executing VIDEO node`);
-  const result = await llmComplete({
-    messages: [{
-      role: 'user',
-      content: `Usando este conteúdo criativo, sugira como seria o processamento de vídeo:
+  try {
+    console.log(`[ContentPipeline] Executing VIDEO node`);
+    const result = await llmComplete({
+      messages: [
+        {
+          role: 'user',
+          content: `Usando este conteúdo criativo, sugira como seria o processamento de vídeo:
 
 Conteúdo: ${state.creativeOutput}
 
 Forneça:
 1. Timestamps de momentos-chave
 2. Legenda sugerido
-3. Call-to-action`
-    }],
-    systemPrompt: `Você é um especialista em marketing de conteúdo.`,
-    maxTokens: 2048,
-    temperature: 0.7,
-  });
-  return { videoOutput: result.content, currentStep: 'VIDEO' };
+3. Call-to-action`,
+        },
+      ],
+      systemPrompt: `Você é um especialista em marketing de conteúdo.`,
+      maxTokens: 2048,
+      temperature: 0.7,
+    });
+    return { videoOutput: result.content, currentStep: 'VIDEO' };
+  } catch (err) {
+    console.error('[LangGraph] videoNode failed:', err);
+    return {
+      error: err instanceof Error ? err.message : String(err),
+      currentStep: 'ERROR',
+    };
+  }
 }
 
 async function designNode(state: ContentPipelineState): Promise<Partial<ContentPipelineState>> {
-  console.log(`[ContentPipeline] Executing DESIGN node`);
-  const result = await llmComplete({
-    messages: [{
-      role: 'user',
-      content: `Com base no conteúdo e vídeo, gere sugestões visuais:
+  try {
+    console.log(`[ContentPipeline] Executing DESIGN node`);
+    const result = await llmComplete({
+      messages: [
+        {
+          role: 'user',
+          content: `Com base no conteúdo e vídeo, gere sugestões visuais:
 
 Conteúdo: ${state.creativeOutput}
 Vídeo: ${state.videoOutput}
@@ -82,72 +106,102 @@ Vídeo: ${state.videoOutput}
 Forneça:
 1. Prompt para imagem
 2. Paleta de cores
-3. Layout sugerido`
-    }],
-    systemPrompt: `Você é um designer gráfico especialista.`,
-    maxTokens: 2048,
-    temperature: 0.7,
-  });
-  return { designOutput: result.content, currentStep: 'DESIGN' };
+3. Layout sugerido`,
+        },
+      ],
+      systemPrompt: `Você é um designer gráfico especialista.`,
+      maxTokens: 2048,
+      temperature: 0.7,
+    });
+    return { designOutput: result.content, currentStep: 'DESIGN' };
+  } catch (err) {
+    console.error('[LangGraph] designNode failed:', err);
+    return {
+      error: err instanceof Error ? err.message : String(err),
+      currentStep: 'ERROR',
+    };
+  }
 }
 
-async function brandGuardianNode(state: ContentPipelineState): Promise<Partial<ContentPipelineState>> {
-  console.log(`[ContentPipeline] Executing BRAND_GUARDIAN node`);
-  const contentToScore = [state.creativeOutput, state.videoOutput, state.designOutput]
-    .filter(Boolean)
-    .join('\n---\n');
+async function brandGuardianNode(
+  state: ContentPipelineState,
+): Promise<Partial<ContentPipelineState>> {
+  try {
+    console.log(`[ContentPipeline] Executing BRAND_GUARDIAN node`);
+    const contentToScore = [state.creativeOutput, state.videoOutput, state.designOutput]
+      .filter(Boolean)
+      .join('\n---\n');
 
-  const prompt = `Avalie a consistência de marca deste conteúdo. Considere: tom, estilo, valores da marca, clareza da mensagem.
+    const prompt = `Avalie a consistência de marca deste conteúdo. Considere: tom, estilo, valores da marca, clareza da mensagem.
 
 Conteúdo:
 ${contentToScore}
 
 Retorne APENAS um número entre 0.0 e 1.0.`;
 
-  const result = await llmComplete({
-    messages: [{ role: 'user', content: prompt }],
-    maxTokens: 10,
-    temperature: 0,
-  });
+    const result = await llmComplete({
+      messages: [{ role: 'user', content: prompt }],
+      maxTokens: 10,
+      temperature: 0,
+    });
 
-  const brandScore = Math.max(0, Math.min(1, parseFloat(result.content)));
-  console.log(`[ContentPipeline] Brand score: ${brandScore.toFixed(2)}`);
+    const brandScore = Math.max(0, Math.min(1, parseFloat(result.content)));
+    console.log(`[ContentPipeline] Brand score: ${brandScore.toFixed(2)}`);
 
-  return { brandScore, currentStep: 'BRAND_GUARDIAN' };
+    return { brandScore, currentStep: 'BRAND_GUARDIAN' };
+  } catch (err) {
+    console.error('[LangGraph] brandGuardianNode failed:', err);
+    return {
+      error: err instanceof Error ? err.message : String(err),
+      currentStep: 'ERROR',
+    };
+  }
 }
 
 async function humanGateNode(state: ContentPipelineState): Promise<Partial<ContentPipelineState>> {
-  console.log(`[ContentPipeline] Executing HUMAN_GATE node`);
+  try {
+    console.log(`[ContentPipeline] Executing HUMAN_GATE node`);
 
-  // Interrupt for human approval when brand score is below threshold
-  if (state.brandScore !== undefined && state.brandScore < 0.8) {
-    console.log(`[ContentPipeline] Brand score ${state.brandScore.toFixed(2)} < 0.8 - requiring human approval`);
+    // Interrupt for human approval when brand score is below threshold
+    if (state.brandScore !== undefined && state.brandScore < 0.8) {
+      console.log(
+        `[ContentPipeline] Brand score ${state.brandScore.toFixed(2)} < 0.8 - requiring human approval`,
+      );
 
-    // interrupt() pauses execution and waits for human to provide input via Command
-    // The graph state is persisted, allowing resumption after approval
-    const approved = interrupt(
-      `Human approval required: brand score ${state.brandScore.toFixed(2)} < 0.8 threshold`
-    );
+      // interrupt() pauses execution and waits for human to provide input via Command
+      // The graph state is persisted, allowing resumption after approval
+      const approved = interrupt(
+        `Human approval required: brand score ${state.brandScore.toFixed(2)} < 0.8 threshold`,
+      );
 
-    if (!approved) {
-      return {
-        blocked: true,
-        blockReason: `Human rejected content with brand score ${state.brandScore.toFixed(2)}`,
-        humanApproved: false,
-        currentStep: 'HUMAN_GATE'
-      };
+      if (!approved) {
+        return {
+          blocked: true,
+          blockReason: `Human rejected content with brand score ${state.brandScore.toFixed(2)}`,
+          humanApproved: false,
+          currentStep: 'HUMAN_GATE',
+        };
+      }
     }
-  }
 
-  return { humanApproved: true, currentStep: 'HUMAN_GATE' };
+    return { humanApproved: true, currentStep: 'HUMAN_GATE' };
+  } catch (err) {
+    console.error('[LangGraph] humanGateNode failed:', err);
+    return {
+      error: err instanceof Error ? err.message : String(err),
+      currentStep: 'ERROR',
+    };
+  }
 }
 
 async function socialNode(state: ContentPipelineState): Promise<Partial<ContentPipelineState>> {
-  console.log(`[ContentPipeline] Executing SOCIAL node`);
-  await llmComplete({
-    messages: [{
-      role: 'user',
-      content: `Prepare o conteúdo para postagem em redes sociais:
+  try {
+    console.log(`[ContentPipeline] Executing SOCIAL node`);
+    await llmComplete({
+      messages: [
+        {
+          role: 'user',
+          content: `Prepare o conteúdo para postagem em redes sociais:
 
 Conteúdo: ${state.creativeOutput}
 Design: ${state.designOutput}
@@ -155,21 +209,31 @@ Design: ${state.designOutput}
 Forneça:
 1. Caption para Instagram
 2. Hashtags (10-15)
-3. Thread para Twitter/X`
-    }],
-    systemPrompt: `Você é um especialista em social media.`,
-    maxTokens: 2048,
-    temperature: 0.7,
-  });
-  return { currentStep: 'SOCIAL' };
+3. Thread para Twitter/X`,
+        },
+      ],
+      systemPrompt: `Você é um especialista em social media.`,
+      maxTokens: 2048,
+      temperature: 0.7,
+    });
+    return { currentStep: 'SOCIAL' };
+  } catch (err) {
+    console.error('[LangGraph] socialNode failed:', err);
+    return {
+      error: err instanceof Error ? err.message : String(err),
+      currentStep: 'ERROR',
+    };
+  }
 }
 
 async function analyticsNode(state: ContentPipelineState): Promise<Partial<ContentPipelineState>> {
-  console.log(`[ContentPipeline] Executing ANALYTICS node`);
-  const result = await llmComplete({
-    messages: [{
-      role: 'user',
-      content: `Analise o desempenho previsto e gere relatório final:
+  try {
+    console.log(`[ContentPipeline] Executing ANALYTICS node`);
+    const result = await llmComplete({
+      messages: [
+        {
+          role: 'user',
+          content: `Analise o desempenho previsto e gere relatório final:
 
 Todos os outputs anteriores:
 ${state.creativeOutput}
@@ -179,13 +243,21 @@ ${state.designOutput}
 Forneça:
 1. Métricas previstas
 2. KPIs principais
-3. Próximos passos`
-    }],
-    systemPrompt: `Você é um analista de marketing.`,
-    maxTokens: 2048,
-    temperature: 0.7,
-  });
-  return { finalOutput: result.content, currentStep: 'ANALYTICS' };
+3. Próximos passos`,
+        },
+      ],
+      systemPrompt: `Você é um analista de marketing.`,
+      maxTokens: 2048,
+      temperature: 0.7,
+    });
+    return { finalOutput: result.content, currentStep: 'ANALYTICS' };
+  } catch (err) {
+    console.error('[LangGraph] analyticsNode failed:', err);
+    return {
+      error: err instanceof Error ? err.message : String(err),
+      currentStep: 'ERROR',
+    };
+  }
 }
 
 // Build the StateGraph with proper edges
@@ -204,7 +276,7 @@ const workflow = new StateGraph<ContentPipelineState>({
     blockReason: { type: 'string', nullable: true },
     humanApproved: { type: 'boolean', nullable: true },
     humanComment: { type: 'string', nullable: true },
-  }
+  },
 })
   .addNode('CREATIVE', creativeNode)
   .addNode('VIDEO', videoNode)
@@ -246,33 +318,56 @@ export async function executeContentPipeline(
     blocked: false,
   };
 
-  // Run the graph with checkpointing (thread_id enables resumption)
-  const result = await compiledGraph.invoke(initialState, {
-    configurable: { thread_id: campaignId },
-  });
+  try {
+    // Run the graph with checkpointing (thread_id enables resumption)
+    const result = await compiledGraph.invoke(initialState, {
+      configurable: { thread_id: campaignId },
+    });
 
-  console.log(`[ContentPipeline] Campaign ${campaignId} complete`);
-  return result;
+    console.log(`[ContentPipeline] Campaign ${campaignId} complete`);
+    return result;
+  } catch (err) {
+    console.error('[LangGraph] executeContentPipeline failed:', err);
+    return {
+      ...initialState,
+      error: err instanceof Error ? err.message : String(err),
+      currentStep: 'ERROR',
+    };
+  }
 }
 
 // Resume after human approval
 export async function approveContentPipeline(
   campaignId: string,
   approved: boolean,
-  comment?: string
+  comment?: string,
 ): Promise<ContentPipelineState> {
   console.log(`[ContentPipeline] Resuming campaign ${campaignId} with approved=${approved}`);
 
-  // Resume the graph by passing the approval decision
-  const result = await compiledGraph.invoke(
-    {
+  try {
+    // Resume the graph by passing the approval decision
+    const result = await compiledGraph.invoke(
+      {
+        humanApproved: approved,
+        humanComment: comment,
+      } as ContentPipelineState,
+      {
+        configurable: { thread_id: campaignId },
+      },
+    );
+
+    return result;
+  } catch (err) {
+    console.error('[LangGraph] approveContentPipeline failed:', err);
+    return {
+      campaignId,
+      clientId: '',
+      brief: '',
+      currentStep: 'ERROR',
+      blocked: false,
       humanApproved: approved,
       humanComment: comment,
-    } as ContentPipelineState,
-    {
-      configurable: { thread_id: campaignId },
-    }
-  );
-
-  return result;
+      error: err instanceof Error ? err.message : String(err),
+    };
+  }
 }

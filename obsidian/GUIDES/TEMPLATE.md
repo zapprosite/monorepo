@@ -32,7 +32,7 @@ Use this template when creating:
 
 ## Template Structure
 
-```markdown
+````markdown
 # [Title — Imperative Verb]
 
 **Data:** YYYY-MM-DD
@@ -63,9 +63,9 @@ Before starting, ensure you have:
 
 If applicable, list services that must be running:
 
-| Service | Port | Required |
-|---------|------|----------|
-| [Name] | :[port] | Yes/No |
+| Service | Port    | Required |
+| ------- | ------- | -------- |
+| [Name]  | :[port] | Yes/No   |
 
 ---
 
@@ -79,8 +79,10 @@ If applicable, list services that must be running:
 # Example command or code block
 command --flag argument
 ```
+````
 
 **Expected output:**
+
 ```
 example output showing success
 ```
@@ -143,16 +145,19 @@ bash /path/to/test-script.sh
 ### Issue 1: [Short Description]
 
 **Symptoms:**
+
 - [Symptom A]
 - [Symptom B]
 
 **Diagnosis:**
+
 ```bash
 # Diagnostic command
 command --diagnose
 ```
 
 **Resolution:**
+
 ```bash
 # Fix command
 fix-command
@@ -163,15 +168,18 @@ fix-command
 ### Issue 2: [Short Description]
 
 **Symptoms:**
+
 - [Symptom A]
 
 **Diagnosis:**
+
 ```bash
 # Diagnostic command
 curl -s http://localhost:PORT/status | jq
 ```
 
 **Resolution:**
+
 ```bash
 # Restart affected service
 sudo systemctl restart SERVICE_NAME
@@ -205,8 +213,10 @@ sudo systemctl restart SERVICE_NAME
 ## Changelog
 
 ### v1.0 (YYYY-MM-DD)
+
 - Initial version
-```
+
+````
 
 ---
 
@@ -229,11 +239,11 @@ This guide performs a smoke test on the voice pipeline desktop setup, verifying 
 
 Before starting, ensure you have:
 
-- [ ] **Docker** — Container runtime for Kokoro and OpenClaw
+- [ ] **Docker** — Container runtime for Kokoro and Hermes Agent
 - [ ] **Ollama** — Local LLM inference server
 - [ ] **whisper_api.py** — STT service running natively (not Docker)
 - [ ] **Kokoro TTS** — Docker container `zappro-kokoro`
-- [ ] **Models downloaded** — `llama3-portuguese-tomcat-8b-instruct-q8`, `qwen2.5vl:7b`
+- [ ] **Models downloaded** — `qwen2.5vl:7b`, `Gemma4-12b-it`
 
 ### Required Services
 
@@ -243,7 +253,7 @@ Before starting, ensure you have:
 | Whisper API | :8201 | Yes |
 | Ollama | :11434 | Yes |
 | wav2vec2-proxy | Docker | Yes |
-| OpenClaw | :8080 | Yes |
+| Hermes Agent | :8080 | Yes |
 
 ---
 
@@ -256,9 +266,10 @@ Check all services are listening on their respective ports:
 ```bash
 # Check all ports
 ss -tlnp | grep -E ':(8012|8201|11434|8080)'
-```
+````
 
 **Expected output:**
+
 ```
 LISTEN  0.5  127.0.0.1:8012   0.0.0.0:*  users:(("docker-proxy",pid=12345,fd=4))
 LISTEN  0.5  127.0.0.1:8201   0.0.0.0:*  users:(("python3",pid=6789,fd=4))
@@ -272,12 +283,9 @@ curl -s http://localhost:11434/api/tags | jq '.models[].name'
 ```
 
 **Expected output:**
+
 ```json
-[
-  "llama3-portuguese-tomcat-8b-instruct-q8:latest",
-  "qwen2.5vl:7b",
-  "nomic-embed-text:latest"
-]
+["Gemma4-12b-it:latest", "qwen2.5vl:7b", "nomic-embed-text:latest"]
 ```
 
 ### Step 3: Test STT Pipeline
@@ -292,6 +300,7 @@ bash /home/will/Desktop/voice-pipeline/scripts/voice.sh /tmp/test_audio.wav
 ```
 
 **Expected output:**
+
 ```
 [voice.sh output showing transcription and LLM response]
 ```
@@ -304,6 +313,7 @@ echo "Testing voice pipeline" | bash /home/will/Desktop/voice-pipeline/scripts/s
 ```
 
 **Expected output:**
+
 ```
 Audio plays through headset (pm_santa voice)
 ```
@@ -348,10 +358,12 @@ gsettings get org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/or
 ### Issue 1: F12 Hotkey Disappears After Reboot
 
 **Symptoms:**
+
 - F12 no longer triggers recording
 - `voice-toggle.sh` click works but hotkey does not
 
 **Diagnosis:**
+
 ```bash
 gsettings get org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/voice-f9/ binding
 ```
@@ -360,6 +372,7 @@ gsettings get org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/or
 **Actual (when broken):** `''` or key not found
 
 **Resolution:**
+
 ```bash
 # Restore hotkey binding
 /home/will/Desktop/voice-pipeline/scripts/hotkey-restore.sh
@@ -377,16 +390,19 @@ gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/or
 ### Issue 2: whisper_api.py Not Responding
 
 **Symptoms:**
+
 - STT fails with connection error
 - Port :8201 not listening
 
 **Diagnosis:**
+
 ```bash
 ps aux | grep whisper_api
 ss -tlnp | grep 8201
 ```
 
 **Resolution:**
+
 ```bash
 # Restart whisper_api.py
 pkill -f whisper_api.py
@@ -398,18 +414,21 @@ bash /home/will/Desktop/voice-pipeline/scripts/start-whisper-api.sh &
 ### Issue 3: LLM Model Not Available
 
 **Symptoms:**
+
 - `voice.sh` fails with model not found error
 - Ollama API returns empty model list
 
 **Diagnosis:**
+
 ```bash
 curl -s http://localhost:11434/api/tags | jq '.models[].name'
 ```
 
 **Resolution:**
+
 ```bash
 # Pull the required model
-ollama pull llama3-portuguese-tomcat-8b-instruct-q8:latest
+ollama pull Gemma4-12b-it:latest
 
 # Verify
 curl -s http://localhost:11434/api/tags | jq '.models[].name'
@@ -442,8 +461,8 @@ docker start zappro-kokoro
 
 ## Related Documentation
 
-- [Voice Pipeline Loop](./voice-pipeline-loop.md) — Server-side voice pipeline
-- [OpenClaw Audio Governance](../specflow/SPEC-009-openclaw-persona-audio-stack.md) — Audio stack rules
+- [Voice Pipeline Desktop](./voice-pipeline-desktop.md) — Server-side voice pipeline
+- [Hermes Agent Audio Governance](../specflow/SPEC-009-Hermes Agent-persona-audio-stack.md) — Audio stack rules
 - [CODE-REVIEW-GUIDE](./CODE-REVIEW-GUIDE.md) — Code review standards
 
 ---
@@ -451,7 +470,9 @@ docker start zappro-kokoro
 ## Changelog
 
 ### v1.0 (2026-04-10)
+
 - Initial template based on voice-pipeline-desktop smoke test
+
 ```
 
 ---
@@ -505,3 +526,4 @@ docker start zappro-kokoro
 - [SPEC-TEMPLATE.md](../specflow/SPEC-TEMPLATE.md) — Feature specifications
 - [ADR-TEMPLATE.md](../ADRs/ADR-TEMPLATE.md) — Architecture decisions
 - [REFERENCE-TEMPLATE.md](../REFERENCE/REFERENCE-TEMPLATE.md) — Technical references
+```

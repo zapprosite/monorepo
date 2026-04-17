@@ -27,13 +27,20 @@ export async function audioSpeechRoute(app: FastifyInstance) {
         .send({ error: { message: parsed.error.message, type: 'invalid_request_error' } });
     }
 
-    const { model, input, voice, speed, response_format } = parsed.data;
+    const { model, input, voice: inputVoice, speed, response_format } = parsed.data;
 
     // Validar voz — Kokoro só suporta pm_santa / pf_dora (SPEC-009)
     const allowedVoices = ['pm_santa', 'pf_dora'];
-    const resolvedVoice = allowedVoices.includes(voice)
-      ? voice
-      : (MODEL_VOICE_MAP[model] ?? 'pm_santa');
+    const voice = MODEL_VOICE_MAP[model] ?? inputVoice;
+    if (!allowedVoices.includes(voice)) {
+      return reply.status(400).json({
+        error: {
+          message: `Invalid voice: '${voice}'. Allowed voices: ${allowedVoices.join(', ')}`,
+          type: 'invalid_request_error',
+          code: 'voice_not_allowed',
+        },
+      });
+    }
 
     // PT-BR filter SEMPRE para TTS (replica lógica de preprocess_for_tts em speak.sh)
     const cleanedInput = await applyPtbrFilter(input, undefined, 'tts');
@@ -45,7 +52,7 @@ export async function audioSpeechRoute(app: FastifyInstance) {
         body: {
           model: 'kokoro',
           input: cleanedInput,
-          voice: resolvedVoice,
+          voice: voice,
           speed,
           response_format,
         },

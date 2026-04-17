@@ -1,8 +1,108 @@
 # AGENTS.md — Monorepo Command Center
 
-> **Data:** 2026-04-15 (SPEC-050: Network & Port Governance added)
+> **Data:** 2026-04-17 (Enterprise Refactor)
 > **Authority:** Claude Code CLI + Gitea Actions + Antigravity Kit (.agent/)
-> **Stack:** pnpm workspaces + Turbo pipeline + Biome lint + Playwright E2E
+> **Stack:** pnpm workspaces + Turbo pipeline + Biome lint
+
+---
+
+## 14-Agent Orchestrator (/execute)
+
+O `/execute` é o workflow completo que executa SPEC → pipeline → 14 agentes → PR.
+
+### Fluxo
+
+```
+/execute "descrição"
+  → /spec "descrição"           # Cria SPEC.md
+  → /pg                         # Gera pipeline.json
+  → 14 agentes em paralelo       # Executam tarefas
+  → SHIPPER cria PR            # No Gitea
+```
+
+### Os 14 Agentes
+
+| #   | Agent         | Type   | Responsabilidade                    |
+| --- | ------------- | ------ | ----------------------------------- |
+| 1   | SPEC-ANALYZER | claude | Analisa SPEC, extrai AC e ficheiros |
+| 2   | ARCHITECT     | claude | Revê arquitetura e flags issues     |
+| 3   | CODER-1       | claude | Backend (Fastify/tRPC)              |
+| 4   | CODER-2       | claude | Frontend (React/MUI)                |
+| 5   | TESTER        | claude | Escreve testes                      |
+| 6   | SMOKE         | claude | Gera smoke tests                    |
+| 7   | SECURITY      | claude | Audit OWASP + secrets               |
+| 8   | DOCS          | claude | Atualiza documentação               |
+| 9   | TYPES         | inline | TypeScript check (pnpm tsc)         |
+| 10  | LINT          | inline | Lint (pnpm lint)                    |
+| 11  | SECRETS       | claude | Scan secrets                        |
+| 12  | GIT           | claude | Commits changes                     |
+| 13  | REVIEWER      | claude | Code review final                   |
+| 14  | SHIPPER       | claude | Cria PR (espera pelos outros 13)    |
+
+### Agent State File
+
+```json
+{
+  "agent": "CODER-1",
+  "spec": "SPEC-042",
+  "status": "running|completed|failed",
+  "started": "ISO timestamp",
+  "finished": "ISO timestamp",
+  "exit_code": 0,
+  "log": ".claude/skills/orchestrator/logs/CODER-1.log"
+}
+```
+
+### Coordenação via Filesystem
+
+- **Agent states**: `tasks/agent-states/{AGENT}.json`
+- **Logs**: `.claude/skills/orchestrator/logs/{AGENT}.log`
+- **Pipeline**: `tasks/pipeline.json`
+
+### Error Handling
+
+| Agente               | Critical | On Failure     |
+| -------------------- | -------- | -------------- |
+| CODER-1, CODER-2     | YES      | Block PR       |
+| TESTER, SECURITY     | NO       | Warn + proceed |
+| TYPES, LINT, SECRETS | NO       | CI catches     |
+
+### SHIPPER Pattern
+
+1. Poll `tasks/agent-states/*.json`
+2. If critical agent failed → BLOCK PR
+3. If important agent failed → WARN + proceed
+4. If all OK → create PR via Gitea API
+
+### Scripts
+
+- `orchestrator/scripts/run-agents.sh` — Spawn 14 agentes
+- `orchestrator/scripts/agent-wrapper.sh` — Wrapper por agente
+- `orchestrator/scripts/wait-for-completion.sh` — Poll até completarem
+
+---
+
+## Skill-that-Calls-Skills (Meta-Skills)
+
+### Examples
+
+- `/execute` → invoca `/spec` → `/pg` → 14 agents
+- `/ship` → invoca sync → commit → push → PR
+
+### Skill Metadata (SKILL.md)
+
+```yaml
+---
+name: orchestrator
+type: meta-skill
+trigger: /execute
+skills_called:
+  - /spec
+  - /pg
+  - run-agents
+deprecated: false
+---
+```
 
 ---
 
@@ -512,23 +612,30 @@ Ver [docs/ARCHITECTURE-OVERVIEW.md](docs/ARCHITECTURE-OVERVIEW.md) para stack co
 
 ---
 
-## Research Agent (SPEC-035 — COMPLETED)
+## Spec-Driven Development
 
-**Tavily API replaced with MiniMax M2.1 for research (2026-04-13)**
+### Workflow
 
-The `/minimax-research` skill uses MiniMax LLM instead of Tavily web search:
+```
+SPEC → pipeline.json → 14 agentes → PR
+```
 
-| Aspect   | Tavily (DEPRECATED)   | MiniMax M2.1 (ACTIVE)    |
-| -------- | --------------------- | ------------------------ |
-| Method   | Web search API        | LLM inference            |
-| Context  | URLs + snippets       | Full error/code analysis |
-| Key      | `TAVILY_API_KEY`      | `MINIMAX_API_KEY`        |
-| Source   | Orphaned vault secret | `.env` canonical         |
-| Use case | General web research  | Deep code/error analysis |
+### Comandos
+
+| Cmd        | Purpose                          |
+| ---------- | -------------------------------- |
+| `/spec`    | Create SPEC.md                   |
+| `/pg`      | Generate pipeline.json           |
+| `/execute` | Full: spec → pg → 14 agents → PR |
+
+### Pipeline States
+
+- `pending` → `in_progress` → `completed`
+- `blocked` → waiting on dependencies
 
 ---
 
-## Spec-Driven Development (`docs/specflow/`)
+## Skills (`.claude/skills/`)
 
 ```
 SPEC-TEMPLATE.md → SPEC-*.md → tasks.md → pipeline.json

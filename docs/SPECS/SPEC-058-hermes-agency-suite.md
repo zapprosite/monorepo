@@ -1,7 +1,7 @@
 ---
 name: SPEC-058-hermes-agency-suite
 description: Hermes Agency Suite — 11-agent marketing agency on Hermes bare metal with Qdrant, LangGraph, Telegram, and tiered LLM fallback
-status: PROPOSED
+status: IMPLEMENTED
 priority: critical
 author: Principal Engineer
 date: 2026-04-17

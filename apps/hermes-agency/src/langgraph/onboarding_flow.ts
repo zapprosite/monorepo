@@ -19,6 +19,7 @@ export type OnboardingState = {
   milestoneCreated: boolean;
   checkinScheduled: boolean;
   complete: boolean;
+  error?: string;
 };
 
 export async function executeOnboardingFlow(
@@ -40,27 +41,32 @@ export async function executeOnboardingFlow(
     complete: false,
   };
 
-  // Step 1: Create client profile
-  state.profileCreated = await createClientProfile(state);
-  state.step = 'INIT_QDRANT';
+  try {
+    // Step 1: Create client profile
+    state.profileCreated = await createClientProfile(state);
+    state.step = 'INIT_QDRANT';
 
-  // Step 2: Initialize Qdrant collection for client
-  state.qdrantInitialized = await initQdrantCollection(state);
-  state.step = 'WELCOME';
+    // Step 2: Initialize Qdrant collection for client
+    state.qdrantInitialized = await initQdrantCollection(state);
+    state.step = 'WELCOME';
 
-  // Step 3: Send welcome sequence
-  state.welcomeSent = await sendWelcomeSequence(state);
-  state.step = 'MILESTONE';
+    // Step 3: Send welcome sequence
+    state.welcomeSent = await sendWelcomeSequence(state);
+    state.step = 'MILESTONE';
 
-  // Step 4: Create first milestone
-  state.milestoneCreated = await createFirstMilestone(state);
-  state.step = 'CHECKIN';
+    // Step 4: Create first milestone
+    state.milestoneCreated = await createFirstMilestone(state);
+    state.step = 'CHECKIN';
 
-  // Step 5: Schedule check-in
-  state.checkinScheduled = await scheduleCheckin(state);
-  state.complete = true;
+    // Step 5: Schedule check-in
+    state.checkinScheduled = await scheduleCheckin(state);
+    state.complete = true;
 
-  return state;
+    return state;
+  } catch (err) {
+    console.error('[LangGraph] executeOnboardingFlow failed:', err);
+    return { ...state, error: err instanceof Error ? err.message : String(err) };
+  }
 }
 
 async function createClientProfile(state: OnboardingState): Promise<boolean> {

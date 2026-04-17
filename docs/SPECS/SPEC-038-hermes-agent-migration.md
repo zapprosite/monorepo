@@ -1,7 +1,7 @@
 ---
 name: SPEC-038-hermes-agent-migration
 description: OPERAÇÃO OVERLORD — Migração Hermes Agent → Hermes-Agent no Ubuntu Desktop
-status: IMPLEMENTATION_IN_PROGRESS
+status: COMPLETED
 priority: critical
 author: Principal Engineer
 date: 2026-04-14
@@ -84,7 +84,7 @@ perplexity_browser/
 
 | Cron Atual      | Script                                       | Status     | Ação                    |
 | --------------- | -------------------------------------------- | ---------- | ----------------------- |
-| STT watchdog    | `Hermes Agent-stt-watchdog.sh`                   | 1x         | Manter (até migrar)     |
+| STT watchdog    | `Hermes Agent-stt-watchdog.sh`               | 1x         | Manter (até migrar)     |
 | Qdrant backup   | `backup-qdrant.sh`                           | 1x         | Migrar para hermes.json |
 | Gitea backup    | crontab inline                               | 1x         | Migrar para hermes.json |
 | Claude sessions | `cleanup-sessions.sh`                        | 1x         | Migrar para hermes.json |
@@ -175,7 +175,7 @@ perplexity_browser/
 
 ### Hermes 0.6.0+ vs Hermes Agent
 
-| Aspeto   | Hermes Agent         | Hermes 0.6.0+                  |
+| Aspeto   | Hermes Agent     | Hermes 0.6.0+                  |
 | -------- | ---------------- | ------------------------------ |
 | Cron     | Crontab disperso | `hermes.json` nativo           |
 | Skills   | Bash scripts     | Python skills + agentskills.io |
@@ -202,7 +202,7 @@ perplexity_browser/
 | SC-5  | perplexity_browser skill criada e funcional                       | ✅     |                                                                                                  |
 | SC-6  | coolify_sre skill com restart loop detection                      | ✅     | sre-monitor.sh active                                                                            |
 | SC-7  | hermes.json com crons centralizados                               | ✅     | Crons installed and operational                                                                  |
-| SC-8  | Hermes Agent disable executado                                        | ✅     | Containers stopped, migration complete                                                           |
+| SC-8  | Hermes Agent disable executado                                    | ✅     | Containers stopped, migration complete                                                           |
 | SC-9  | MCP server para Open WebUI configurado                            | ⚠️     | MCPO functional, 10 messaging tools available. Hermes skills NOT via MCP. OpenWebUI not running. |
 | SC-10 | Zero true duplicates nos crons                                    | ✅     |                                                                                                  |
 | SC-11 | Hermes Gateway instalado e configurado                            | ✅     | 2026-04-14 — gateway as endpoint for bot.zappro.site                                             |

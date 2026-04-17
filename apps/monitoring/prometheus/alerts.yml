@@ -1,0 +1,43 @@
+groups:
+  - name: hermes-gpu-alerts
+    interval: 30s
+    rules:
+      # GPU Memory > 90%
+      - alert: GPUHighMemory
+        expr: DCGM_FI_DEV_FB_USED / DCGM_FI_DEV_FB_FREE > 0.9
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "GPU memory above 90%"
+          description: "GPU {{ $labels.instance }} memory usage at {{ $value }}%"
+
+      # GPU Temperature > 83°C
+      - alert: GPUHighTemp
+        expr: DCGM_FI_DEV_GPU_TEMP > 83
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "GPU temperature above 83°C"
+          description: "GPU {{ $labels.instance }} temp at {{ $value }}°C"
+
+      # Container down
+      - alert: ContainerDown
+        expr: up{job="hermes-services"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Container {{ $labels.instance }} is down"
+          description: "Container has been down for more than 1 minute"
+
+      # High CPU usage
+      - alert: HighCPU
+        expr: cpu_usage_percent > 90
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage on {{ $labels.instance }}"
+          description: "CPU at {{ $value }}% for more than 5 minutes"

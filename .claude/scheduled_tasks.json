@@ -5,7 +5,7 @@
       "cron": "*/30 * * * *",
       "prompt": "Sync docs to memory: Run /srv/monorepo/scripts/sync-memory.sh or similar to synchronize documentation changes to the memory index. Check git status for pending doc changes and update MEMORY.md index accordingly.",
       "createdAt": 1775847723434,
-      "lastFiredAt": 1776395721458,
+      "lastFiredAt": 1776442469351,
       "recurring": true
     },
     {
@@ -13,7 +13,7 @@
       "cron": "0 3 * * *",
       "prompt": "Execute o slash command /rs (repo-scan) para escanear o repositório. Use o output para gerar/actualizar tasks/pipeline.json com tasks pendentes. Liste as 3 tasks mais prioritárias. Resuma em 2-3 linhas.",
       "createdAt": 1775847723439,
-      "lastFiredAt": 1776321042430,
+      "lastFiredAt": 1776407437009,
       "recurring": true
     },
     {
@@ -29,7 +29,7 @@
       "cron": "0 4 * * *",
       "prompt": "Code review daily: Run /review on recent commits and changes. Generate REVIEW-*.md reports in docs/SPECS/reviews/ and submit via gh or save findings.",
       "createdAt": 1775847723443,
-      "lastFiredAt": 1776324643816,
+      "lastFiredAt": 1776411001403,
       "recurring": true
     },
     {
@@ -37,7 +37,7 @@
       "cron": "0 5 * * *",
       "prompt": "Test coverage check: Run test coverage analysis on the monorepo. Report any packages/apps with coverage below threshold. Update coverage metrics if possible.",
       "createdAt": 1775847723446,
-      "lastFiredAt": 1776328265572,
+      "lastFiredAt": 1776414637800,
       "recurring": true
     },
     {
@@ -45,7 +45,7 @@
       "cron": "0 6 * * *",
       "prompt": "Secrets audit: Run /se or secrets scan on recent commits. Check for hardcoded secrets, API keys, or credentials in the codebase. Report any findings.",
       "createdAt": 1775847723449,
-      "lastFiredAt": 1776331844053,
+      "lastFiredAt": 1776418254182,
       "recurring": true
     },
     {
@@ -53,7 +53,7 @@
       "cron": "0 8 * * *",
       "prompt": "MCP health check: Verify all MCP servers are responding. Check ai-context, gitea-access, coolify-access, and other MCP tools. Report any that are down.",
       "createdAt": 1775847723453,
-      "lastFiredAt": 1776339003012,
+      "lastFiredAt": 1776425412048,
       "recurring": true
     }
   ]

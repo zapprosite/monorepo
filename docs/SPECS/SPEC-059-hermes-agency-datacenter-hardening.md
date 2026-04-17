@@ -1,7 +1,7 @@
 ---
 name: SPEC-059-hermes-agency-datacenter-hardening
 description: Hardening Hermes Agency Suite for long-running AI agentic datacenter production — Redis locks/rate-limits, file size/MIME validation, memory leak prevention, admin-only /health
-status: IN_PROGRESS
+status: COMPLETED
 priority: critical
 author: Principal Engineer
 date: 2026-04-17
@@ -26,15 +26,15 @@ Endurecer o Hermes Agency Suite para produção datacenter long-running AI agent
 
 ## Tech Stack
 
-| Component          | Technology              | Notes                                             |
-| ------------------ | ----------------------- | ------------------------------------------------- |
-| Rate Limiting      | Redis (ioredis)         | SLIDING_WINDOW via Redis, fallback em memória     |
-| Distributed Locks  | Redis (SETNX + TTL)     | Atomic locks across all bot instances              |
-| File Validation   | `file-type` + magic bytes | Validar MIME real após download                |
-| Memory Management  | WeakRef + Interval cleanup | Limpar Maps expirados periodicamente           |
-| Health Endpoint    | Admin whitelist (user IDs) | só admins veem portas internas                 |
-| Concurrency        | Per-user semaphore      | Limitar uploads concurrentes por utilizador       |
-| Package新增        | `ioredis` + `file-type`| Nova dependência em `apps/hermes-agency/`        |
+| Component         | Technology                 | Notes                                         |
+| ----------------- | -------------------------- | --------------------------------------------- |
+| Rate Limiting     | Redis (ioredis)            | SLIDING_WINDOW via Redis, fallback em memória |
+| Distributed Locks | Redis (SETNX + TTL)        | Atomic locks across all bot instances         |
+| File Validation   | `file-type` + magic bytes  | Validar MIME real após download               |
+| Memory Management | WeakRef + Interval cleanup | Limpar Maps expirados periodicamente          |
+| Health Endpoint   | Admin whitelist (user IDs) | só admins veem portas internas                |
+| Concurrency       | Per-user semaphore         | Limitar uploads concurrentes por utilizador   |
+| Package新增       | `ioredis` + `file-type`    | Nova dependência em `apps/hermes-agency/`     |
 
 ---
 
@@ -73,14 +73,14 @@ Telegram → bot.ts
 
 ## Decisions Log
 
-| Date       | Decision                                            | Rationale                                                                 |
-| ---------- | --------------------------------------------------- | ------------------------------------------------------------------------- |
-| 2026-04-17 | Redis como fonte de verdade para locks/rate-limits | Maps em memória não sobrevivem multi-instance nem OOM recovery           |
-| 2026-04-17 | Fallback graceful para memória quando Redis down    | Datacenter deve sobreviver a falhas parciais de Redis                     |
-| 2026-04-17 | `file-type` para MIME validation (não extensão)    | Utilizadores podem renomear `.exe` para `.jpg`                            |
-| 2026-04-17 | 20MB como MAX_FILE_SIZE                            | Telegram permite 50MB, mas 20MB é suficiente para voice/photo e seguro   |
-| 2026-04-17 | Semaphore máximo 3 uploads concurrentes por user   | Previne flood attacks sem bloquear uso legítimo                           |
-| 2026-04-17 | ADMIN_USER_IDS como env var (não em código)       | Whitelist de admins configurável sem recompilar                          |
+| Date       | Decision                                           | Rationale                                                              |
+| ---------- | -------------------------------------------------- | ---------------------------------------------------------------------- |
+| 2026-04-17 | Redis como fonte de verdade para locks/rate-limits | Maps em memória não sobrevivem multi-instance nem OOM recovery         |
+| 2026-04-17 | Fallback graceful para memória quando Redis down   | Datacenter deve sobreviver a falhas parciais de Redis                  |
+| 2026-04-17 | `file-type` para MIME validation (não extensão)    | Utilizadores podem renomear `.exe` para `.jpg`                         |
+| 2026-04-17 | 20MB como MAX_FILE_SIZE                            | Telegram permite 50MB, mas 20MB é suficiente para voice/photo e seguro |
+| 2026-04-17 | Semaphore máximo 3 uploads concurrentes por user   | Previne flood attacks sem bloquear uso legítimo                        |
+| 2026-04-17 | ADMIN_USER_IDS como env var (não em código)        | Whitelist de admins configurável sem recompilar                        |
 
 ---
 
@@ -99,7 +99,7 @@ const RATE_LIMIT_MAX_MESSAGES = parseInt(process.env['HERMES_RATE_MAX_MSGS'] ?? 
 const LOCK_TTL_SECONDS = parseInt(process.env['HERMES_LOCK_TTL_SEC'] ?? '30', 10);
 
 // ❌ ERRADO — hardcoded
-const MAX_FILE_SIZE = 20 * 1024 * 1024;  // PROIBIDO
+const MAX_FILE_SIZE = 20 * 1024 * 1024; // PROIBIDO
 ```
 
 ---
@@ -158,63 +158,63 @@ apps/hermes-agency/src/
 
 ## Acceptance Criteria
 
-| #    | Criterion                                                                        | Test                                                                          |
-| ---- | -------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
-| AC-1 | Rate limiter funciona em multi-instance (2 bots, mesma key Redis)               | Enviar 6 msgs rápidas de 2 bots diferentes — 5º msg de cada é bloqueado        |
-| AC-2 | Distributed lock previne concurrent processing no mesmo chat                     | 2 bots recebem msg do mesmo chat em <100ms — só 1 processa                  |
-| AC-3 | Ficheiro >20MB é rejeitado com mensagem clara                                  | Enviar ficheiro de 25MB → `❌ Ficheiro demasiado grande (max 20MB)`           |
-| AC-4 | Ficheiro com MIME inválido (exe renomeado a jpg) é rejeitado                   | Enviar `malware.jpg` → `❌ Tipo de ficheiro não suportado`                    |
-| AC-5 | Map de rate limiter não cresce infinitamente após 1h de operação                | Enviar 1000 msgs de users diferentes, verificar `userMessageRates.size < 100` |
-| AC-6 | Utilizador não pode fazer mais de 3 uploads concurrentes                         | Upload 4 fotos simultâneas → 4ª fica pendente até 1ª terminar              |
-| AC-7 | /health só mostra portas internas a admins (HERMES_ADMIN_USER_IDS)              | User normal → health sem URLs internas; Admin → health completo               |
-| AC-8 | Bot continua a funcionar se Redis estiver down (graceful degradation)           | Parar Redis → bot funciona com rate limiter em memória + warning log          |
-| AC-9 | Zero console.log de variáveis sensíveis (URLs internas, user IDs em plaintext) | `grep -r "console.log" bot.ts` não mostra URLs nem tokens                     |
-| AC-10 | ESLint passa com 0 errors                                                      | `pnpm eslint bot.ts --max-warnings=999` → 0 errors                          |
+| #     | Criterion                                                                      | Test                                                                          |
+| ----- | ------------------------------------------------------------------------------ | ----------------------------------------------------------------------------- |
+| AC-1  | Rate limiter funciona em multi-instance (2 bots, mesma key Redis)              | Enviar 6 msgs rápidas de 2 bots diferentes — 5º msg de cada é bloqueado       |
+| AC-2  | Distributed lock previne concurrent processing no mesmo chat                   | 2 bots recebem msg do mesmo chat em <100ms — só 1 processa                    |
+| AC-3  | Ficheiro >20MB é rejeitado com mensagem clara                                  | Enviar ficheiro de 25MB → `❌ Ficheiro demasiado grande (max 20MB)`           |
+| AC-4  | Ficheiro com MIME inválido (exe renomeado a jpg) é rejeitado                   | Enviar `malware.jpg` → `❌ Tipo de ficheiro não suportado`                    |
+| AC-5  | Map de rate limiter não cresce infinitamente após 1h de operação               | Enviar 1000 msgs de users diferentes, verificar `userMessageRates.size < 100` |
+| AC-6  | Utilizador não pode fazer mais de 3 uploads concurrentes                       | Upload 4 fotos simultâneas → 4ª fica pendente até 1ª terminar                 |
+| AC-7  | /health só mostra portas internas a admins (HERMES_ADMIN_USER_IDS)             | User normal → health sem URLs internas; Admin → health completo               |
+| AC-8  | Bot continua a funcionar se Redis estiver down (graceful degradation)          | Parar Redis → bot funciona com rate limiter em memória + warning log          |
+| AC-9  | Zero console.log de variáveis sensíveis (URLs internas, user IDs em plaintext) | `grep -r "console.log" bot.ts` não mostra URLs nem tokens                     |
+| AC-10 | ESLint passa com 0 errors                                                      | `pnpm eslint bot.ts --max-warnings=999` → 0 errors                            |
 
 ---
 
 ## Dependencies
 
-| Dependency         | Status    | Notes                                                           |
-| ----------------- | --------- | --------------------------------------------------------------- |
-| SPEC-058          | APPROVED  | Hermes Agency Suite existente                                   |
-| Redis (ioredis)   | AVAILABLE | Já em use pelo monorepo (SPEC-023)                              |
-| `file-type`       | NEW       | Validar MIME real por magic bytes                              |
-| Hermes env vars   | NEW       | `HERMES_ADMIN_USER_IDS`, `HERMES_MAX_FILE_SIZE`, etc.         |
-| `apps/hermes-agency/package.json` | MODIFY | Adicionar `ioredis`, `file-type` como dependencies    |
+| Dependency                        | Status    | Notes                                                 |
+| --------------------------------- | --------- | ----------------------------------------------------- |
+| SPEC-058                          | APPROVED  | Hermes Agency Suite existente                         |
+| Redis (ioredis)                   | AVAILABLE | Já em use pelo monorepo (SPEC-023)                    |
+| `file-type`                       | NEW       | Validar MIME real por magic bytes                     |
+| Hermes env vars                   | NEW       | `HERMES_ADMIN_USER_IDS`, `HERMES_MAX_FILE_SIZE`, etc. |
+| `apps/hermes-agency/package.json` | MODIFY    | Adicionar `ioredis`, `file-type` como dependencies    |
 
 ---
 
 ## Open Questions
 
-| #    | Question                                                                      | Impact     | Priority   |
-| ---- | ------------------------------------------------------------------------------ | ---------- | ---------- |
-| OQ-1 | Qual o `REDIS_URL`? Devemos usar o mesmo Redis do SPEC-023 (monitoring) ou um novo? | Medium | Medium |
-| OQ-2 | O `HERMES_ADMIN_USER_IDS` deve ser um env var com CSV de user IDs, ou usar Qdrant collection de admins? | Low | Low |
-| OQ-3 | Devemos guardar o estado de rate limit em Redis com TTL (mais correto) ou em memória com sync? | High | Medium |
+| #    | Question                                                                                                | Impact | Priority |
+| ---- | ------------------------------------------------------------------------------------------------------- | ------ | -------- |
+| OQ-1 | Qual o `REDIS_URL`? Devemos usar o mesmo Redis do SPEC-023 (monitoring) ou um novo?                     | Medium | Medium   |
+| OQ-2 | O `HERMES_ADMIN_USER_IDS` deve ser um env var com CSV de user IDs, ou usar Qdrant collection de admins? | Low    | Low      |
+| OQ-3 | Devemos guardar o estado de rate limit em Redis com TTL (mais correto) ou em memória com sync?          | High   | Medium   |
 
 ---
 
 ## Files to Modify
 
-| File                              | Change                                                     |
-| --------------------------------- | ---------------------------------------------------------- |
-| `apps/hermes-agency/package.json` | Adicionar `ioredis`, `file-type`                         |
-| `apps/hermes-agency/src/telegram/bot.ts` | Hardening: rate limiter, locks, validation, health admin  |
-| `apps/hermes-agency/src/telegram/redis.ts` | **NEW** — Redis client singleton + helpers              |
-| `apps/hermes-agency/src/telegram/file_validator.ts` | **NEW** — MIME + size validation              |
-| `apps/hermes-agency/src/telegram/rate_limiter.ts` | **NEW** — Redis-backed rate limiter             |
-| `apps/hermes-agency/src/telegram/distributed_lock.ts` | **NEW** — Redis SETNX lock                  |
-| `.env`                            | Adicionar novas variáveis (REDIS_URL, HERMES_ADMIN_USER_IDS, etc.) |
-| `.env.example`                    | Adicionar placeholders para novas variáveis               |
-| `docs/SPECS/SPEC-058-hermes-agency-suite.md` | Atualizar com novas env vars na tabela       |
+| File                                                  | Change                                                             |
+| ----------------------------------------------------- | ------------------------------------------------------------------ |
+| `apps/hermes-agency/package.json`                     | Adicionar `ioredis`, `file-type`                                   |
+| `apps/hermes-agency/src/telegram/bot.ts`              | Hardening: rate limiter, locks, validation, health admin           |
+| `apps/hermes-agency/src/telegram/redis.ts`            | **NEW** — Redis client singleton + helpers                         |
+| `apps/hermes-agency/src/telegram/file_validator.ts`   | **NEW** — MIME + size validation                                   |
+| `apps/hermes-agency/src/telegram/rate_limiter.ts`     | **NEW** — Redis-backed rate limiter                                |
+| `apps/hermes-agency/src/telegram/distributed_lock.ts` | **NEW** — Redis SETNX lock                                         |
+| `.env`                                                | Adicionar novas variáveis (REDIS_URL, HERMES_ADMIN_USER_IDS, etc.) |
+| `.env.example`                                        | Adicionar placeholders para novas variáveis                        |
+| `docs/SPECS/SPEC-058-hermes-agency-suite.md`          | Atualizar com novas env vars na tabela                             |
 
 ## Files NOT to Modify
 
-| File                        | Reason                                                   |
-| --------------------------- | -------------------------------------------------------- |
+| File                                             | Reason                                |
+| ------------------------------------------------ | ------------------------------------- |
 | `apps/hermes-agency/src/router/agency_router.ts` | Lógica de routing CEO MIX — não tocar |
-| `apps/hermes-agency/src/langgraph/*.ts` | LangGraph workflows — não tocar           |
-| `apps/hermes-agency/src/qdrant/client.ts` | Qdrant multi-tenant — não tocar             |
-| `apps/hermes-agency/src/skills/index.ts` | Registry de skills — não tocar              |
-| `apps/hermes-agency/src/litellm/router.ts` | LLM routing — não tocar                    |
+| `apps/hermes-agency/src/langgraph/*.ts`          | LangGraph workflows — não tocar       |
+| `apps/hermes-agency/src/qdrant/client.ts`        | Qdrant multi-tenant — não tocar       |
+| `apps/hermes-agency/src/skills/index.ts`         | Registry de skills — não tocar        |
+| `apps/hermes-agency/src/litellm/router.ts`       | LLM routing — não tocar               |

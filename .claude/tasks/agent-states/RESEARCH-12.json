@@ -1,0 +1,10 @@
+{
+  "agent": "RESEARCH-12",
+  "spec": "SPEC-ENTERPRISE-REFACTOR-2026-04-17",
+  "status": "completed",
+  "exit_code": 0,
+  "started": "",
+  "finished": "2026-04-17T13:11:36-03:00",
+  "command": "Code review automation — automated PR reviews, multi-axis review (correctness, security, performance), Gitea integration",
+  "log": "/srv/monorepo/.claude/.claude/skills/orchestrator/logs/RESEARCH-12.log"
+}

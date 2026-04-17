@@ -11,54 +11,54 @@ These are the built-in slash commands available in Claude Code CLI. They invoke 
 
 ### Core Workflow Commands
 
-| Command | What It Does | When to Use |
-|---------|--------------|-------------|
-| `/spec` | Start spec-driven development — write a structured SPEC-*.md before writing code | Beginning a new feature, project, or significant change with no specification yet |
-| `/plan` | Break work into small verifiable tasks with acceptance criteria and dependency ordering | After you have a spec and need to plan implementation steps |
-| `/pg` | Generate pipeline.json from SPECs in `docs/SPECS/SPEC-*.md` | After writing 3+ specs, extract all tasks into a unified pipeline |
-| `/rr` | Generate a code review report (REVIEW-*.md) | Before committing significant changes, to catch issues |
-| `/se` | Scan code for exposed secrets before git push (ghp_, gho_, ghu_, ghs_, etc.) | Before any `git push` — mandatory safety gate |
-| `/hg` | Identify tasks blocked by human-approval gates | When you hit a blocker and need to know what requires human sign-off |
-| `/img` | Analyze an image using LLaVA local via Ollama (or qwen2.5vl as fallback) | Inspecting screenshots, diagrams, or visual content in the codebase |
+| Command | What It Does                                                                            | When to Use                                                                       |
+| ------- | --------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| `/spec` | Start spec-driven development — write a structured SPEC-\*.md before writing code       | Beginning a new feature, project, or significant change with no specification yet |
+| `/plan` | Break work into small verifiable tasks with acceptance criteria and dependency ordering | After you have a spec and need to plan implementation steps                       |
+| `/pg`   | Generate pipeline.json from SPECs in `docs/SPECS/SPEC-*.md`                             | After writing 3+ specs, extract all tasks into a unified pipeline                 |
+| `/rr`   | Generate a code review report (REVIEW-\*.md)                                            | Before committing significant changes, to catch issues                            |
+| `/se`   | Scan code for exposed secrets before git push (ghp*, gho*, ghu*, ghs*, etc.)            | Before any `git push` — mandatory safety gate                                     |
+| `/hg`   | Identify tasks blocked by human-approval gates                                          | When you hit a blocker and need to know what requires human sign-off              |
+| `/img`  | Analyze an image using qwen2.5vl:7b local via Ollama                                    | Inspecting screenshots, diagrams, or visual content in the codebase               |
 
 ### Development Workflow Commands
 
-| Command | What It Does | When to Use |
-|---------|--------------|-------------|
-| `/build` | Implement the next task incrementally — build, test, verify, commit | Executing a planned task from the pipeline |
-| `/ship` | Run the pre-launch checklist and prepare for production deployment | When a feature is complete and ready to deploy |
-| `/test` | Run TDD workflow — write failing tests, implement, verify | When working on bugs or adding new features test-first |
-| `/review` | Conduct a 5-axis code review: correctness, readability, architecture, security, performance | Before merging or shipping any significant code |
-| `/dv` | Full pre-deploy validation: health checks, ZFS snapshot, smoke tests, dependencies | Before any deploy to production or staging |
-| `/commit` | View staged changes (`git diff --staged`) and create a semantic commit message | Ready to commit — generates a proper conventional commit |
-| `/turbo` | Commit, merge to main, tag, and create new feature branch in one safe flow | When you need to move fast but safely through the full cycle |
+| Command   | What It Does                                                                                | When to Use                                                  |
+| --------- | ------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| `/build`  | Implement the next task incrementally — build, test, verify, commit                         | Executing a planned task from the pipeline                   |
+| `/ship`   | Run the pre-launch checklist and prepare for production deployment                          | When a feature is complete and ready to deploy               |
+| `/test`   | Run TDD workflow — write failing tests, implement, verify                                   | When working on bugs or adding new features test-first       |
+| `/review` | Conduct a 5-axis code review: correctness, readability, architecture, security, performance | Before merging or shipping any significant code              |
+| `/dv`     | Full pre-deploy validation: health checks, ZFS snapshot, smoke tests, dependencies          | Before any deploy to production or staging                   |
+| `/commit` | View staged changes (`git diff --staged`) and create a semantic commit message              | Ready to commit — generates a proper conventional commit     |
+| `/turbo`  | Commit, merge to main, tag, and create new feature branch in one safe flow                  | When you need to move fast but safely through the full cycle |
 
 ### Agent & Skill Commands
 
-| Command | What It Does | When to Use |
-|---------|--------------|-------------|
-| `/bug-investigation` | Systematic bug investigation and root cause analysis | When you encounter a bug and need structured debugging |
-| `/test-generation` | Generate comprehensive test cases for code | After implementing a feature that lacks tests |
-| `/refactoring` | Safe code refactoring with step-by-step approach | Improving existing code without changing behavior |
-| `/documentation` | Generate and update technical documentation | Creating or updating docs for a feature |
-| `/feature-breakdown` | Break down features into implementable tasks | Starting a large feature that needs decomposition |
-| `/pr-review` | Review pull requests against team standards | Reviewing PRs from others or self-review before merge |
-| `/code-review` | Ask for number of commits to check, then review each | Doing a historical code review across recent commits |
-| `/sec` | Scan code for exposed secrets (secrets-audit skill) | Same as `/se` — mandatory before push |
-| `/ss` | Create ZFS snapshot before destructive operations | Before deploy, rollback, or schema changes |
-| `/rs` | Detect tasks in multiple formats (TASKMASTER JSON, PRD Markdown, ADR) | Scanning the repo for existing task definitions |
-| `/scaffold` | Read and execute the scaffold workflow | Starting a new project or package within the monorepo |
-| `/feature` | Read and execute the git-feature workflow | Creating a new feature branch with proper structure |
-| `/loop` | Run a prompt on a recurring interval | Setting up a recurring task or status poll |
+| Command              | What It Does                                                          | When to Use                                            |
+| -------------------- | --------------------------------------------------------------------- | ------------------------------------------------------ |
+| `/bug-investigation` | Systematic bug investigation and root cause analysis                  | When you encounter a bug and need structured debugging |
+| `/test-generation`   | Generate comprehensive test cases for code                            | After implementing a feature that lacks tests          |
+| `/refactoring`       | Safe code refactoring with step-by-step approach                      | Improving existing code without changing behavior      |
+| `/documentation`     | Generate and update technical documentation                           | Creating or updating docs for a feature                |
+| `/feature-breakdown` | Break down features into implementable tasks                          | Starting a large feature that needs decomposition      |
+| `/pr-review`         | Review pull requests against team standards                           | Reviewing PRs from others or self-review before merge  |
+| `/code-review`       | Ask for number of commits to check, then review each                  | Doing a historical code review across recent commits   |
+| `/sec`               | Scan code for exposed secrets (secrets-audit skill)                   | Same as `/se` — mandatory before push                  |
+| `/ss`                | Create ZFS snapshot before destructive operations                     | Before deploy, rollback, or schema changes             |
+| `/rs`                | Detect tasks in multiple formats (TASKMASTER JSON, PRD Markdown, ADR) | Scanning the repo for existing task definitions        |
+| `/scaffold`          | Read and execute the scaffold workflow                                | Starting a new project or package within the monorepo  |
+| `/feature`           | Read and execute the git-feature workflow                             | Creating a new feature branch with proper structure    |
+| `/loop`              | Run a prompt on a recurring interval                                  | Setting up a recurring task or status poll             |
 
 ### Context & Memory Commands
 
-| Command | What It Does | When to Use |
-|---------|--------------|-------------|
-| `/md` | Sleep mode: scan SPECs and generate pipeline automatically | Scheduled task (runs at 3am) to process pending specs |
-| `/next-task` | Execute tasks from the first phase in TODO.md one by one | Working through a prioritized TODO list |
-| `/update-docs` | Update instructions, architecture info, and coding guidelines | Keeping project documentation current |
-| `/context-prune` | Clean old sessions from memory-keeper | Clearing stale memory to save space |
+| Command          | What It Does                                                  | When to Use                                           |
+| ---------------- | ------------------------------------------------------------- | ----------------------------------------------------- |
+| `/md`            | Sleep mode: scan SPECs and generate pipeline automatically    | Scheduled task (runs at 3am) to process pending specs |
+| `/next-task`     | Execute tasks from the first phase in TODO.md one by one      | Working through a prioritized TODO list               |
+| `/update-docs`   | Update instructions, architecture info, and coding guidelines | Keeping project documentation current                 |
+| `/context-prune` | Clean old sessions from memory-keeper                         | Clearing stale memory to save space                   |
 
 ---
 
@@ -108,6 +108,7 @@ gh pr create --title "feat: your feature" --base main --body "## Summary"
 ```
 
 Or use the script:
+
 ```bash
 bash /srv/monorepo/scripts/mirror-push.sh
 ```
@@ -116,11 +117,11 @@ bash /srv/monorepo/scripts/mirror-push.sh
 
 ## Claude Code Context Switcher
 
-| Context | What It Sets Up |
-|---------|-----------------|
-| `/srv/monorepo` | Standard monorepo dev context (AGENTS.md rules) |
+| Context            | What It Sets Up                                         |
+| ------------------ | ------------------------------------------------------- |
+| `/srv/monorepo`    | Standard monorepo dev context (AGENTS.md rules)         |
 | `docs/GOVERNANCE/` | Host governance context — required before infra changes |
-| `~/.claude/rules/` | User-specific rules and skills |
+| `~/.claude/rules/` | User-specific rules and skills                          |
 
 ---
 
