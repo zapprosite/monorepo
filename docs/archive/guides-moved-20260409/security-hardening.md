@@ -420,7 +420,6 @@ EXPOSTAS em 0.0.0.0 (TODAS interfaces) — risco:
 LOOPBACK 127.0.0.1 (SEGURO ✅):
   :6333   Qdrant
   :4000   LiteLLM
-  :4001   OpenClaw
   :3100   Grafana
   :11434  Ollama
   :9090   Prometheus

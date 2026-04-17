@@ -1,6 +1,6 @@
 ---
 archived: true
-superseded_by: SPEC-024 (monorepo) + SPEC-025-openclaw-ceo-mix-voice-stack
+superseded_by: SPEC-024 (monorepo)
 see_also:
   - SPEC-024, SPEC-025
 ---
@@ -137,9 +137,7 @@ Update `auto-cure-scanner.sh` line 124 to properly extract container names from 
 zappro-tts-bridge         Up 39 hours
 openwebui-bridge-agent  Up 42 hours (healthy)
 autoheal                 Up 42 hours (healthy)
-openclaw-mcp-wrapper     Up 42 hours (healthy)
 open-webui               Up 42 hours (healthy)
-openclaw                 Up 15 minutes (healthy)
 browser                  Up 42 hours (healthy)
 zappro-wav2vec2-proxy    Up 39 hours
 gitea-runner             Up 42 hours

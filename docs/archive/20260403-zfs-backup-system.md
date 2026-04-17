@@ -39,7 +39,7 @@ tank/data/prometheus        → /srv/data/prometheus
 tank/data/infisical-db     → /srv/data/infisical-db
 tank/data/infisical-redis  → /srv/data/infisical-redis
 tank/data/coolify          → /srv/data/coolify
-tank/data/openclaw         → /srv/data/openclaw
+
 tank/data/aurelia-router   → /srv/data/aurelia-router
 tank/docker-data           → /srv/docker-data
 tank/monorepo             → /srv/monorepo

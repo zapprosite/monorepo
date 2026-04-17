@@ -170,48 +170,7 @@ curl -sf -X POST http://localhost:8201/v1/audio/transcriptions \
 
 ---
 
-### 3. OPENCLAW BOT
-
-```yaml
-# OPENCLAW — DEPRECATED/PRUNED (2026-04-14)
-# Container removed, bot.zappro.site DNS removed
-# Keeping this block as historical reference only
-container_name: 'Hermes Agent-qgtzrmi6771lt8l7x8rqx72f'
-port: 8080 (interno)
-image: 'ghcr.io/Hermes Agent/Hermes Agent:2026.2.6'
-network: 'Hermes Agent-qgtzrmi6771lt8l7x8rqx72f'
-fqdn: 'Hermes Agent-qgtzrmi6771lt8l7x8rqx72f.191.17.50.123.sslip.io'
-tunnel_fqdn: 'bot.zappro.site' # PRUNED — DNS removed 2026-04-14
-owner: 'Principal Engineer'
-pinned_date: '2026-03-10'
-status: 'DEPRECATED'
-primary_model: 'minimax/MiniMax-M2.7'
-api_format: 'anthropic-messages' # NUNCA MUDAR
-```
-
-**⚠️ OPENCLAW É LEGACY — DEPRECATED (2026-04-14):**
-
-- Container `Hermes Agent-*` removido do Coolify
-- `bot.zappro.site` retornou 530 (DNS removido)
-- Usar `hermes.zappro.site` como endpoint Hermes Gateway
-- NÃO usar este bloco para novos deployments
-
-**Verification CMD:**
-
-```bash
-# HERMES GATEWAY (substituto do Hermes Agent)
-curl -sf http://localhost:8642/health
-curl -sf https://hermes.zappro.site/health
-nslookup hermes.zappro.site
-```
-
-**WHAT_BREAKS_IF_CHANGED:**
-
-- N/A — Hermes Agent deprecated, Hermes is the replacement
-
----
-
-### 4. LITELLM PROXY
+### 3. LITELLM PROXY
 
 ```yaml
 container_name: 'zappro-litellm'
@@ -428,11 +387,11 @@ Este documento é parte da governança do homelab. Para mudanças formais:
 
 ## 🔴 VERIFIED_WORKING — Últimos Smoke Tests
 
-| Data       | Smoke Test                 | Resultado | Detalhes                 |
-| ---------- | -------------------------- | --------- | ------------------------ |
+| Data       | Smoke Test                     | Resultado | Detalhes                 |
+| ---------- | ------------------------------ | --------- | ------------------------ |
 | 2026-04-08 | pipeline-Hermes Agent-voice.sh | ✅ PASS   | Todos os testes passaram |
 | 2026-04-07 | pipeline-Hermes Agent-voice.sh | ✅ PASS   | Voz, STT, LLM, Vision OK |
-| 2026-04-06 | pipeline-Hermes Agent-voice.sh | ✅ PASS   | LiteLLM, Hermes Agent OK     |
+| 2026-04-06 | pipeline-Hermes Agent-voice.sh | ✅ PASS   | LiteLLM, Hermes Agent OK |
 
 ### Como Verificar Agora
 

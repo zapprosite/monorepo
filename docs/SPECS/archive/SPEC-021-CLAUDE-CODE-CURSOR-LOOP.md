@@ -198,5 +198,4 @@ docs/ (source of truth)
 
 - `SPEC-014-CURSOR-AI-CICD-PATTERN.md`
 - `SPEC-024-UNIFIED-CLAUDE-AGENT-MONOREPO.md`
-- `SPEC-020-openwebui-openclaw-bridge.md`
 - `AGENTS.md` — Arquitectura do monorepo

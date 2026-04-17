@@ -5,7 +5,6 @@ Registros de operação e eventos do homelab.
 ## Logs
 
 - [Homelab](./homelab.md)
-- [OpenClaw Bot](./openclaw.md)
 
 ---
 
