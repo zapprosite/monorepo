@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/google/uuid"
@@ -99,12 +100,18 @@ func (q *JobQueue) AddJob(ctx context.Context, jobType string, data any) (string
 		ID:        uuid.New().String(),
 		Type:      jobType,
 		State:     JobStateWaiting,
-		Data:      mustMarshal(data),
 		Attempts:  0,
 		MaxRetry:  DefaultMaxRetries,
 		Backoff:   DefaultBackoffMs,
 		CreatedAt: time.Now().UnixMilli(),
 	}
+
+	// Marshal data and handle error
+	dataStr, err := marshalData(data)
+	if err != nil {
+		return "", fmt.Errorf("marshal job data: %w", err)
+	}
+	job.Data = dataStr
 
 	// Save job as Redis Hash
 	jobMap := jobToMap(job)
@@ -355,26 +362,34 @@ func mapToJob(m map[string]string) (*Job, error) {
 	}
 
 	if v, ok := m["attempts"]; ok {
-		fmt.Sscanf(v, "%d", &job.Attempts)
+		if n, err := strconv.Atoi(v); err == nil {
+			job.Attempts = n
+		}
 	}
 	if v, ok := m["max_retry"]; ok {
-		fmt.Sscanf(v, "%d", &job.MaxRetry)
+		if n, err := strconv.Atoi(v); err == nil {
+			job.MaxRetry = n
+		}
 	}
 	if v, ok := m["backoff"]; ok {
-		fmt.Sscanf(v, "%d", &job.Backoff)
+		if n, err := strconv.Atoi(v); err == nil {
+			job.Backoff = n
+		}
 	}
 	if v, ok := m["created_at"]; ok {
-		fmt.Sscanf(v, "%d", &job.CreatedAt)
+		if n, err := strconv.ParseInt(v, 10, 64); err == nil {
+			job.CreatedAt = n
+		}
 	}
 
 	return job, nil
 }
 
-// mustMarshal marshals data to JSON, panics on error
-func mustMarshal(data any) string {
+// marshalData marshals data to JSON, returns error instead of panic
+func marshalData(data any) (string, error) {
 	b, err := json.Marshal(data)
 	if err != nil {
-		panic("json marshal: " + err.Error())
+		return "", fmt.Errorf("json marshal: %w", err)
 	}
-	return string(b)
+	return string(b), nil
 }
