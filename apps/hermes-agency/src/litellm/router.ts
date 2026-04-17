@@ -2,11 +2,11 @@
 // LiteLLM-compatible Fallback Chain Router
 // Chain: qwen2.5vl:7b (Ollama direct) → llama3-ptbr (Ollama direct) → gemini-2.0-flash (cloud) → minimax-m2.7 (emergency only)
 
-const OLLAMA_URL = process.env.OLLAMA_URL ?? 'http://localhost:11434';
-const GEMINI_URL = process.env.GEMINI_URL ?? 'https://api.gemini.com/v1beta/chat/completions';
-const LLM_KEY = process.env.LITELLM_MASTER_KEY ?? '';
-const EMERGENCY_LLM_KEY = process.env.MINIMAX_API_KEY ?? '';
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY ?? '';
+const OLLAMA_URL = process.env['OLLAMA_URL'] ?? 'http://localhost:11434';
+const GEMINI_URL = process.env['GEMINI_URL'] ?? 'https://api.gemini.com/v1beta/chat/completions';
+const LLM_KEY = process.env['LITELLM_MASTER_KEY'] ?? '';
+const EMERGENCY_LLM_KEY = process.env['MINIMAX_API_KEY'] ?? '';
+const GEMINI_API_KEY = process.env['GEMINI_API_KEY'] ?? '';
 
 // Fallback chain — qwen2.5vl local → llama3-ptbr local → gemini cloud → minimax emergency
 const FALLBACK_CHAIN = [

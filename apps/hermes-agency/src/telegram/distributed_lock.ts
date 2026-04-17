@@ -7,7 +7,8 @@ import { getRedis, isRedisAvailable } from './redis';
 const LOCK_TTL_SECONDS = parseInt(process.env['HERMES_LOCK_TTL_SEC'] ?? '30', 10);
 
 // ── In-memory fallback (degraded mode) ───────────────────────────────────────
-const memoryLocks = new Map<number, boolean>();
+// HC-46: Store expiry timestamp (not just boolean) to prevent infinite lock leaks
+const memoryLocks = new Map<number, number>(); // chatId → expiry timestamp (ms)
 
 // ── Distributed lock via Redis SETNX + TTL ───────────────────────────────────
 
@@ -35,8 +36,11 @@ export async function acquireLock(chatId: number): Promise<boolean> {
   if (!redisUp) {
     console.warn(`[HermesAgencyBot] Redis unavailable — using in-memory lock (single-instance only)`);
   }
-  if (memoryLocks.get(chatId)) return false;
-  memoryLocks.set(chatId, true);
+  const now = Date.now();
+  const expiry = memoryLocks.get(chatId);
+  // HC-46: Check expiry — stale locks (past TTL) are treated as released
+  if (expiry !== undefined && now < expiry) return false;
+  memoryLocks.set(chatId, now + LOCK_TTL_SECONDS * 1000);
   return true;
 }
 
@@ -58,7 +62,7 @@ export async function releaseLock(chatId: number): Promise<void> {
     }
   }
 
-  // Fallback: in-memory
+  // Fallback: in-memory (delete clears the expiry entry)
   memoryLocks.delete(chatId);
 }
 
@@ -79,5 +83,6 @@ export async function isLocked(chatId: number): Promise<boolean> {
     }
   }
 
-  return memoryLocks.get(chatId) ?? false;
+  const expiry = memoryLocks.get(chatId);
+  return expiry !== undefined && Date.now() < expiry;
 }

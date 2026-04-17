@@ -4,7 +4,7 @@
 import { bot } from '../telegram/bot.ts';
 import { COLLECTIONS } from '../qdrant/client.ts';
 
-const QDRANT_URL = process.env.QDRANT_URL ?? 'http://localhost:6333';
+const QDRANT_URL = process.env['QDRANT_URL'] ?? 'http://localhost:6333';
 const CHECKIN_DAYS = 7;
 
 export type OnboardingState = {
