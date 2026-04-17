@@ -1,79 +1,87 @@
-# GEMINI.md - AI Agent & Skill Protocol
+# GEMINI.md: AI Agent & Skill Protocol (The Antigravity Kit)
 
-The `docs/rules-GEMINI.md` file defines the **Antigravity Kit**, a set of mandatory protocols governing how AI agents interact with the monorepo. It establishes a tiered execution model, request classification systems, and a "Socratic Gate" to ensure high-quality, intentional code generation.
+The `GEMINI.md` protocol defines the mandatory operating procedures for AI agents interacting with this monorepo. It establishes a tiered execution model designed to prevent "hallucination-driven" coding and ensure that every change is intentional, researched, and architecture-compliant.
 
-## 📋 Core Execution Protocol
+## 📋 Core Execution Lifecycle
 
-Before performing any implementation, the AI follows a strict three-step lifecycle:
+Every AI session must follow this strict priority chain:
 
-1.  **Read Rules**: Consult `GEMINI.md` (P0 priority).
-2.  **Check Frontmatter**: Identify the specific Agent and Skills required for the task (P1 priority).
-3.  **Load Skills**: Reference the `SKILL.md` index and relevant sub-sections (P2 priority).
+1.  **Read Rules (P0):** Consult `docs/rules-GEMINI.md` before any action.
+2.  **Check Frontmatter (P1):** Identify the required Agent and Skillset based on the task.
+3.  **Load Skills (P2):** Reference the `SKILL.md` index and load only the necessary technical sections.
 
-### Selective Reading Strategy
-To optimize context and performance, the system follows a **Selective Reading** approach:
-- Read the `SKILL.md` index first.
-- Only load specific technical sections that directly match the user's request.
-- **Forbidden:** Reading all files in a skill folder simultaneously.
+> **Selective Reading Strategy:** Do not ingest entire directories. Read the skill index first, then target-load specific documentation relevant to the current file or logic.
 
 ---
 
-## 🔍 Request Classification (Step 1)
+## 🛑 Step 1: The Socratic Gate
 
-All incoming requests are classified to determine the necessary depth of intervention:
-
-| Type | Keywords | Active Tiers | Outcome |
-| :--- | :--- | :--- | :--- |
-| **QUESTION** | "what is", "how does" | Tier 0 | Text Response |
-| **SURVEY/INTEL** | "analyze", "list files" | Tier 0 + Explorer | Session Intel |
-| **SIMPLE CODE** | "fix", "add" (single file) | Tier 0 + Tier 1 (lite) | Inline Edit |
-| **COMPLEX CODE** | "build", "implement" | Tier 0 + Tier 1 + Agent | `{task-slug}.md` |
-| **DESIGN/UI** | "design", "page" | Tier 0 + Tier 1 + Agent | `{task-slug}.md` |
-
----
-
-## 🤖 Intelligent Agent Routing (Step 2)
-
-The AI automatically selects specialized personas based on the request domain. When an agent is activated, it must be declared to the user:
-
-**Example Interaction:**
-> 🤖 **Applying knowledge of `@[frontend-specialist]`...**
->
-> [Specialized implementation follows]
-
----
-
-## 🛑 Global Socratic Gate (Tier 0)
-
-**Mandatory Rule:** No tools or code implementation may begin until the request passes the Socratic Gate.
+**Mandatory Rule:** No implementation tools may be used until the request passes the Socratic Gate. The AI must clarify 100% of the intent before writing code.
 
 ### Strategy by Request Type
-- **New Features:** Must ask at least **3 strategic questions** regarding architecture and purpose.
-- **Bug Fixes:** Confirm context and ask about collateral impact.
-- **Vague Requests:** Ask for explicit scope, target users, and intended purpose.
+- **New Features:** Ask at least **3 strategic questions** regarding architecture (e.g., "Should this schema live in `zod-schemas` or is it local to the app?").
+- **Bug Fixes:** Confirm the reproduction steps and ask about potential side effects in related modules.
+- **Refactoring:** Ask why the refactor is needed and what the success criteria are.
 
 **The Golden Rule:** If even 1% of the request is ambiguous, the AI must ask for clarification instead of assuming.
 
 ---
 
-## 🛠 Global Standards
+## 🔍 Step 2: Request Classification
 
-### Language Handling
-- **Internal Processing:** Prompts are translated to English for internal comprehension.
-- **User Facade:** Responses are delivered in the user's language.
-- **Code Standards:** All variables, comments, and documentation within code must remain in **English**.
+The complexity of the task determines which "Tiers" of the AI's capabilities are activated:
 
-### Clean Code
-All generated code is bound by the rules defined in `@[skills/clean-code]`. This includes:
-- Strict adherence to TypeScript types.
-- Modular architecture consistent with the "Architecture" section of the codebase context.
-- Proper error handling using the `AppError` class or `trpcErrorParser`.
+| Class | Activity | Tiers | Outcome |
+| :--- | :--- | :--- | :--- |
+| **QUESTION** | General knowledge / Code explanation | Tier 0 | Direct Answer |
+| **SURVEY** | Analysis of existing codebase patterns | Tier 0 + Explorer | Session Intel / Summary |
+| **SIMPLE CODE** | Single file fixes or minor UI tweaks | Tier 0 + Tier 1 (Lite) | Code Block / Inline Edit |
+| **COMPLEX CODE** | Multi-file features / Database migrations | Tier 0 + Tier 1 + Agent | `{task-slug}.md` Plan |
 
 ---
 
-## 📂 Implementation Reference
+## 🤖 Step 3: Intelligent Agent Routing
 
-For complex tasks, the AI is required to generate or update a `{task-slug}.md` file. This ensures that:
-1. The plan is documented before execution.
-2. Changes across multiple packages (e.g., `packages/zod-schemas` and `apps/api`) are tracked.
-3. The relationship between UI components in `packages/ui` and business logic in `apps/web` is maintained.
+Based on the classification, the AI must adopt a specific persona. The AI **must** declare its persona to the user:
+
+*   **`@[frontend-specialist]`**: Expertise in `packages/ui` (MUI/React), React Hook Form, and `apps/web`.
+*   **`@[backend-specialist]`**: Expertise in `apps/api`, Drizzle ORM, tRPC, and Fastify.
+*   **`@[devops-specialist]`**: Expertise in monorepo structure, scripts, and deployment.
+*   **`@[ai-specialist]`**: Expertise in `apps/ai-gateway`, `apps/hermes-agency`, and LangGraph.
+
+**Example Trace:**
+> 🤖 **Applying knowledge of `@[backend-specialist]` with skill `@[skills/database]`...**
+> I have determined that we need a new migration in `apps/api/src/db/migrations`. Before I proceed, [Socratic Questions]...
+
+---
+
+## 🛠 Global Standards & Conventions
+
+### 1. Language & Coding Style
+- **Internal/Thought:** The AI thinks and plans in English.
+- **User Interface:** The AI responds to the user in their preferred language.
+- **Code:** All variables, function names, comments, and internal documentation **must be in English**.
+- **Types:** Strict TypeScript is non-negotiable. Avoid `any` at all costs.
+
+### 2. Architecture Compliance
+- **Schemas:** All shared models must be defined in `packages/zod-schemas`.
+- **UI Components:** Reusable atoms and molecules belong in `packages/ui`.
+- **Error Handling:** Use the `AppError` class (found in `apps/api/src/middlewares/errorHandler.ts`) for backend failures.
+
+### 3. Documentation (The `{task-slug}.md` Rule)
+For "Complex Code" or "Design" requests, the AI must create a planning document (`docs/tasks/{task-slug}.md`) before implementation. This document must include:
+1.  **Objective:** What are we building?
+2.  **Affected Files:** List of files to be created/modified.
+3.  **Step-by-Step Plan:** The sequence of implementation (e.g., 1. Schema, 2. Endpoint, 3. UI).
+4.  **Verification:** How will we test this?
+
+---
+
+## 📂 Skill Index Reference
+
+The AI uses the following skill categories located in the `skills/` directory:
+- `clean-code`: Standard formatting and architectural patterns.
+- `database`: Drizzle ORM usage and migration protocols.
+- `trpc`: Communication patterns between `web` and `api`.
+- `ui-components`: Theming, MUI wrappers, and `packages/ui` usage.
+- `ai-agents`: LangGraph, LiteLLM, and tool-calling structures.

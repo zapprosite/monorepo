@@ -1,87 +1,87 @@
-# Architecture Notes
+# Architecture Guide
 
-The system is designed as a **Modular Monolith** within a monorepo structure. This design choice prioritizes developer velocity and type safety by keeping the backend and frontend in a single repository while strictly enforcing domain boundaries through a directory-per-module pattern. The architecture avoids the operational complexity of microservices but maintains a "service-ready" structure where domains (e.g., Auth, Kanban, CRM) are decoupled at the logic layer.
+This document provides a comprehensive overview of the system architecture, design patterns, and technical structure of the monorepo.
 
-A centralized `packages/zod-schemas` library serves as the single source of truth for data validation, ensuring that the database (Orchid ORM), the API (tRPC/Fastify), and the Frontend (React) always share synchronized type definitions without manual code generation steps.
+## System Topology
 
-## System Architecture Overview
+The project is structured as a **Modular Monolith** within a monorepo. This approach balances developer productivity and type safety with a clear separation of concerns, allowing specific domains to be extracted into independent services if needed in the future.
 
-The system follows a top-level topology of a **Monolithic Monorepo** deployed as containerized services via Coolify. 
+### Core Architecture Layers
 
-- **Frontend Connectivity:** Requests originate from the browser using the tRPC client, providing a type-safe bridge to the backend procedures. 
-- **Backend Processing:** The backend is powered by **Fastify**, acting as both a tRPC server for the internal frontend and a standard REST API Gateway for external product integrations.
-- **Control Pivot:** Control pivots from the transport layer (Fastify/tRPC) to the domain logic layer (Modules) via identified user sessions.
-- **Data Layer:** The system uses **PostgreSQL** with **Orchid ORM**, which provides a TypeScript-native query builder that mirrors the Zod schemas used in the upper layers.
-- **Orchestration:** A dedicated `orchestrator` service handles complex workflows involving LLMs (Claude/Anthropic), MCP (Model Context Protocol) adapters, and human-in-the-loop approval gates.
+| Layer | Responsibility | Key Technologies |
+|:---|:---|:---|
+| **Frontend** | User interface and client-side state management. | React, Vite, tRPC Client, MUI |
+| **Transport** | Type-safe communication between client and server. | tRPC, Fastify |
+| **API Gateway** | RESTful entry point for external integrations and AI tools. | Fastify, Zod |
+| **Business Logic** | Domain-specific modules (Auth, CRM, Kanban). | TypeScript, Zod |
+| **Orchestrator** | Agentic workflows, LLM routing, and MCP integrations. | LangGraph, LiteLLM, Qdrant |
+| **Data Layer** | Schema definition, migrations, and query building. | PostgreSQL, Orchid ORM |
 
-## Architectural Layers
+---
 
-- **Apps**: High-level entry points and deployment units (`apps/api`, `apps/web`, `apps/orchestrator`).
-- **Modules**: Domain-specific business logic, controllers, and table definitions (`apps/api/src/modules/`).
-- **Core Orchestrator**: Workflow engines and state machines for agentic behavior (`apps/orchestrator/src/core/`).
-- **Packages**: Shared libraries for schemas, UI components, and environment configuration (`packages/`).
+## Technical Stack & Packages
 
-> See [`codebase-map.json`](./codebase-map.json) for complete symbol counts and dependency graphs.
+### Shared Packages (`/packages`)
+- **`zod-schemas`**: The single source of truth for data validation. These schemas drive the database layer, API validation, and frontend forms.
+- **`ui`**: A centralized library of React components, theme configurations, and custom hook-based form builders (`rhf-form`).
 
-## Detected Design Patterns
+### Applications (`/apps`)
+- **`apps/api`**: The primary backend. It hosts the tRPC server for the web app and a REST API Gateway for external products.
+- **`apps/web`**: The main administrative and user dashboard.
+- **`apps/hermes-agency`**: The AI/Agentic service. It manages long-running workflows using LangGraph and provides vector search capabilities via Qdrant.
+- **`apps/ai-gateway`**: A specialized proxy for handling LLM requests (OpenAI-compatible) with built-in filtering (e.g., PT-BR filters).
 
-| Pattern | Confidence | Locations | Description |
-|---------|------------|-----------|-------------|
-| **Modular Monolith** | 100% | `apps/api/src/modules/` | Domain-based directory structure with isolated logic. |
-| **State Machine** | 90% | `WorkflowStateMachine` | Manages complex LLM-driven workflow states in the orchestrator. |
-| **Adapter Pattern** | 95% | `ClaudeMcpAdapter`, `ZapierMcpAdapter` | Standardizes different MCP tool providers into a unified interface. |
-| **Middleware Chain** | 100% | `apps/api/src/modules/api-gateway/middleware/` | Sequential processing for API keys, rate limits, and logging. |
-| **Repository/Table** | 95% | `*.table.ts` | Orchid ORM table objects acting as the data access layer. |
-| **Event Bus** | 80% | `apps/orchestrator/src/core/event-bus.ts` | Decouples workflow steps from side effects like notifications. |
+---
 
-## Entry Points
+## Key Design Patterns
 
-- [Backend Server (`apps/api/src/server.ts`)](../apps/api/src/server.ts): The main Fastify server entry point.
-- [Frontend Entry (`apps/web/src/App.tsx`)](../apps/web/src/App.tsx): React application root with providers.
-- [Orchestrator (`apps/orchestrator/src/core/workflow-engine.ts`)](../apps/orchestrator/src/core/workflow-engine.ts): Entry for the agentic workflow system.
-- [API Gateway (`apps/api/src/modules/api-gateway/api-gateway.router.ts`)](../apps/api/src/modules/api-gateway/api-gateway.router.ts): REST entry for external consumers.
+### 1. Unified Schema validation
+The system uses Zod schemas defined in `packages/zod-schemas` to synchronize types across the entire stack.
+*   **Database**: Orchid ORM uses these schemas for type-safe queries.
+*   **API**: Fastify/tRPC uses them to validate inputs (`UserCreateInput`) and format outputs (`UserSelectAll`).
+*   **Frontend**: React Hook Form uses the same schemas for client-side validation.
 
-## Public API
+### 2. Domain-Driven Modules
+The backend logic is partitioned into modules found in `apps/api/src/modules/`. Each module typically contains:
+*   `*.table.ts`: Database table definitions.
+*   `*.router.ts`: tRPC or REST route definitions.
+*   `__tests__`: Unit and integration tests for that specific domain.
 
-| Symbol | Type | Location |
-|--------|------|----------|
-| `AppTrpcRouter` | Router | `apps/api/src/routers/trpc.router.ts` |
-| `OrchestratorEngine` | Class | `apps/orchestrator/src/core/workflow-engine.ts` |
-| `UserTable` | Class | `apps/api/src/modules/users/users/users.table.ts` |
-| `createTRPCClient` | Function | `packages/trpc/src/client.ts` |
-| `AgentPool` | Interface | `apps/orchestrator/src/modules/agent-pool/types.ts` |
-| `ApiKeyAuthHook` | Middleware | `apps/api/src/modules/api-gateway/middleware/apiKeyAuth.middleware.ts` |
+### 3. Agentic Workflow (Hermes Agency)
+The AI layer uses an **Agentic Router** pattern:
+*   **CEO/Router**: Analyzes user intent and routes to specific "Skills".
+*   **Skills**: Modular executable units (e.g., `executeStatusUpdate`, `social_calendar`).
+*   **Human-in-the-loop**: Approval stages in the graph (e.g., `approveContentPipeline`) allow manual oversight of AI-generated content.
 
-## Internal System Boundaries
+### 4. Distributed Locking & Rate Limiting
+To handle concurrent agent operations and external API constraints, the system implements:
+*   **Redis-backed locks**: Found in `distributed_lock.ts` to prevent race conditions during agent executions.
+*   **Circuit Breakers**: Implemented in the `agency_router.ts` to fail fast when external AI services or skills are unstable.
 
-The system enforces boundaries between **Internal Core** and **External Gateway**:
-- **Internal Boundary:** Communication between `apps/web` and `apps/api` is exclusively via tRPC. This boundary assumes a shared session and full trust in the types provided by the shared schema package.
-- **External Boundary:** The `api-gateway` module creates a "DMZ" where incoming REST requests are strictly validated, rate-limited by team/subscription quotas, and logged for auditing before hitting internal services.
-- **Domain Seams:** Each module in `apps/api/src/modules` is intended to own its tables. Cross-domain queries are minimized, usually handled at the tRPC router aggregation level.
+---
 
-## External Service Dependencies
+## Data Flow
 
-- **PostgreSQL**: Primary persistence layer.
-- **Google OAuth2**: Secondary authentication provider for SSO.
-- **Claude/Anthropic API**: Core LLM providers for the Orchestrator.
-- **Coolify/CapRover**: Deployment and container orchestration infrastructure.
-- **Cloudflare Tunnels**: Secure ingress for local and staging environments.
+1.  **Client Request**: A user interacts with a React component in `apps/web`.
+2.  **Transport**: The tRPC client sends a request. If it's an external tool, it hits the `api-gateway` REST endpoint.
+3.  **Authentication**: Middleware (`apiKeyAuthHook` or `sessionSecurity`) validates the request.
+4.  **Logic Execution**: The corresponding module (e.g., `loyalty`, `kanban`) processes the request using Orchid ORM.
+5.  **Agent Trigger**: If a workflow is required, the API communicates with `apps/hermes-agency` to trigger a LangGraph execution.
+6.  **Response**: The validated data is returned to the client, ensuring the UI matches the server state exactly.
 
-## Key Decisions & Trade-offs
+---
 
-- **tRPC vs. REST/GraphQL:** tRPC was chosen for the primary internal API to eliminate the need for OpenAPI code generation while maintaining 100% type safety. REST is maintained only for external product APIs where third-party compatibility is required.
-- **Epoch Timestamps:** The decision to use `timestampNumber` (milliseconds since epoch) across the DB and API was made to prevent time-zone-related string parsing issues common in JavaScript.
-- **Modular vs. Microservices:** A modular monolith was selected to keep deployment simple (single Docker image per app) while allowing for extraction into microservices later if load on specific domains (like the Content Engine) warrants it.
+## Infrastructure & Deployment
 
-## Top Directories Snapshot
+- **Database**: PostgreSQL (Primary) + Qdrant (Vector Store).
+- **Caching/State**: Redis (used for rate limiting and distributed locks).
+- **Deployment**: Containerized environments (Docker) managed via Coolify.
+- **Observability**: Request logging middleware and custom error parsers (`AppError`) provide consistent diagnostic data.
 
-- `apps/api/src/modules/`: ~45 directories (Feature-rich domain layer)
-- `apps/web/src/modules/`: ~20 directories (Frontend feature pages)
-- `packages/zod-schemas/src/`: ~35 files (Centralized data contracts)
-- `apps/orchestrator/src/core/`: ~10 files (Workflow engine internals)
+---
 
-## Related Resources
+## Development Guidelines
 
-- [Project Overview](./project-overview.md)
-- [Data Flow Documentation](./data-flow.md)
-- [Codebase Map](./codebase-map.json)
+- **Adding a Table**: Define the schema in `packages/zod-schemas`, then create the table definition in the relevant module in `apps/api`.
+- **Cross-Module Logic**: Avoid tight coupling between modules. If `Module A` needs data from `Module B`, interact through service methods rather than reaching directly into foreign tables where possible.
+- **Time Handling**: Always use `timestampNumber` (Unix epoch milliseconds) for date-time fields to avoid timezone ambiguity during serialization.

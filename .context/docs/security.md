@@ -1,85 +1,100 @@
-# Security & Compliance Notes
+# Security & Compliance
 
-This document outlines the security policies, authentication mechanisms, secrets management, and compliance guardrails implemented within the monorepo. It serves as a guide for developers to maintain a secure posture when contributing to the API, Orchestrator, or Web applications.
+This document outlines the security architecture, authentication mechanisms, secrets management, and compliance guardrails implemented within the monorepo. It serves as the primary technical reference for maintaining a secure environment across the API, AI Gateway, and Web applications.
 
-## Security & Compliance Notes
+## Security Philosophy
 
-The project operates under a "Secure by Design" philosophy, leveraging Zod for strict input validation, a centralized API Gateway for external traffic, and multi-layered middleware for session integrity. All data access must pass through validated procedures (tRPC) or authenticated REST endpoints.
+The project follows a **Secure by Design** approach:
+- **Strict Input Validation**: Every entry point (tRPC or REST) uses Zod schemas from `packages/zod-schemas` to parse, validate, and strip unknown fields.
+- **Zero Trust Internal Communication**: Services communicating internally require shared secret authentication via `INTERNAL_API_SECRET`.
+- **Defense in Depth**: Security is applied at the Network (CORS/IP Whitelisting), Middleware (Session/API Key), and Application (RBAC) layers.
 
-**Core Guardrails:**
-- **Zero Trust Internal Communication:** Internal routes (e.g., `/internal/*`) require shared secret authentication even within the private network.
-- **Strict Schema Validation:** Every input into the system is parsed and stripped of unknown fields using Zod schemas found in `packages/zod-schemas`.
-- **Least Privilege:** Database roles and API keys are scoped to specific teams and functional requirements.
+---
 
-## Authentication & Authorization
+## Authentication & Session Management
 
 ### Identity Providers
-The primary identity provider is **Google OAuth2**. The authentication flow follows the standard Authorization Code Flow:
-1. User authenticates via Google.
-2. The `googleOAuth2Plugin` (in `apps/api`) handles the callback and fetches user info.
-3. A session is established and linked to a user record in the `UserTable`.
+The primary identity provider is **Google OAuth2**. The flow is managed by the `googleOAuth2Plugin` in `apps/api`:
+1. User authenticates via the Google consent screen.
+2. The plugin handles the callback, exchanges the code for tokens, and fetches profile data.
+3. If valid, a user record is retrieved or created in the `UserTable`.
 
-### Session Management
-Identity is maintained using database-backed sessions via the `DatabaseSessionStore`.
-- **Persistence:** Sessions are stored in the PostgreSQL `sessions` table, not in-memory, ensuring persistence across server restarts.
-- **Expiration:** Sessions are valid for **7 days**. Systematic rotation occurs via `session.regenerate()` upon login/logout.
-- **Security Hooks:** The `sessionSecurityHook` monitors for anomalies by comparing the current request's IP address and device fingerprint against the session metadata.
+### Session Architecture
+Sessions are managed using a database-backed store to ensure consistency across horizontal scaling.
 
-### Authorization Model (RBAC)
-Authorizations are managed through specific tRPC procedure wrappers:
+- **Storage**: Sessions are persisted in the `SessionTable` using `DatabaseSessionStore`.
+- **Security Middleware**: The `sessionSecurityHook` (defined in `apps/api/src/middlewares/sessionSecurity.middleware.ts`) monitors for session hijacking by comparing:
+    - **IP Address**: Checks if the request originated from a known subnet.
+    - **Device Fingerprint**: Validates browser/client consistency.
+- **Leveling**: The system supports escalating security levels (e.g., `SessionSecurityLevel.STRICT`) for sensitive operations.
 
-| Procedure Level | Requirement | Usage |
+### API Gateway Security
+For external programmatic access (`/api/v1/*`), the gateway utilizes:
+- **API Keys**: Keys are generated using `generateApiKey` and stored as scrypt hashes (`hashApiKey`). They are verified via `apiKeyAuthHook`.
+- **IP & Domain Filtering**: The `ipWhitelistCheckHook` and `corsValidationHook` restrict traffic based on `team.allowedIps` and `team.allowedDomains`.
+- **Rate Limiting**: Implemented via Redis to prevent DoS attacks on AI inference and data endpoints.
+
+---
+
+## Authorization Model (RBAC)
+
+Access control is enforced through specific tRPC procedure wrappers and Fastify hooks.
+
+| Level | Helper / Wrapper | Context |
 | :--- | :--- | :--- |
-| `publicProcedure` | None | Landing pages, public assets. |
-| `protectedProcedure` | Valid `userId` in session | Standard authenticated user actions. |
-| `sensitiveProcedure` | Valid `userId` + `STRICT` security level | Account settings, billing, security-critical configs. |
-| `adminProcedure` | `assertAdmin` Check | System-wide configuration and user management. |
+| **Public** | `publicProcedure` | No auth required; used for health checks and landing pages. |
+| **User** | `protectedProcedure` | Requires a valid `userId` in the session. |
+| **Strict** | `sensitiveProcedure` | Requires `STRICT` security level (e.g., re-auth or high-confidence fingerprint). |
+| **Admin** | `adminProcedure` | Requires the `assertAdmin` check against the `UserRolesTable`. |
 
-### API Gateway Authorization
-For external integrations (`/api/v1/*`), the system utilizes:
-- **API Keys:** Generated via `generateApiKey` and stored as scrypt hashes (`hashApiKey`).
-- **Domain/IP Whitelisting:** The `ipWhitelistCheckHook` and `corsValidationHook` verify that requests originate from `team.allowedIps` or `team.allowedDomains`.
+---
 
-## Secrets & Sensitive Data
+## Secrets & Data Protection
 
-### Storage & Management
-Secrets are managed through environment variables validated at runtime by `packages/env`.
-- **Vaulting:** In production, secrets should be injected via a secret manager (e.g., AWS Parameter Store, HashiCorp Vault).
-- **Encryption:** Sensitive fields such as `apiSecretHash` or `subscriptionAlertWebhookBearerToken` are never returned to the frontend; they are explicitly removed using Zod's `.omit()` or `.strip()` methods in the schema layer.
+### Secrets Management
+Secrets are never hardcoded and are managed through environment variables validated at boot by `packages/env`.
 
-### Critical Secrets
-| Secret Key | Purpose | Rotation Cadence |
-| :--- | :--- | :--- |
-| `SESSION_SECRET` | Signing session cookies | 90 Days |
-| `INTERNAL_API_SECRET` | Authenticating internal service mesh calls | 180 Days |
-| `GOOGLE_CLIENT_SECRET` | OAuth2 integration with Google | Yearly |
+- **At Rest**: Sensitive database fields (like `apiSecretHash`) utilize hashing.
+- **In Transit**: All external traffic is TLS-encrypted. Internal service metadata is stripped of secrets before being logged.
+- **Exposure Prevention**: Zod schemas use `.omit()` or `.strip()` on sensitive fields (like passwords or secret hashes) before returning data to the frontend.
 
-### Data Classification
-- **Public:** UI components, public documentation, non-sensitive metadata.
-- **Internal:** System logs (filtered), internal service configurations.
-- **Confidential:** User PII (email, names), Team API keys (hashed), Database credentials.
+### Critical Secrets Reference
+| Key | Usage |
+| :--- | :--- |
+| `SESSION_SECRET` | Used by Fastify-session to sign cookies. |
+| `INTERNAL_API_SECRET` | Header-based auth for internal microservices. |
+| `ENCRYPTION_KEY` | Used for encrypting sensitive integration credentials. |
 
-## Compliance & Policies
+---
 
-The project adheres to several internal and industry-standard policies:
-- **AGPL-3.0 Compliance:** As per the license, any modifications to the core logic must be made available to the community if the software is run as a service.
-- **GDPR/LGPD Readiness:**
-  - **Data Minimization:** We only collect necessary OAuth2 data (email/name).
-  - **Right to be Forgotten:** `invalidateAllUserSessions` and soft-delete patterns are implemented.
-  - **Audit Logs:** The `logKanbanEvent` and `ApiProductRequestLogsTable` provide a clear audit trail of data modifications and API usage.
-- **Secure Handling of Webhooks:** All outbound webhooks include a retry policy with exponential backoff and support signed payloads to prevent spoofing at the destination.
+## Compliance & Privacy
+
+### GDPR / LGPD Readiness
+- **Data Minimization**: We store only the minimum OAuth2 scope required (email, name, avatar).
+- **Right to Erasure**: Implementation of `invalidateAllUserSessions(userId)` and cascaded deletes on user records.
+- **Data Portability**: Standardized JSON exports are available for user-owned entities (Kanban, Journal, Service Orders).
+
+### AI & Prompt Security
+- **Prompt Injection**: The `sanitizeForPrompt` function in the Agency Router scrubs user input before passing it to LLMs.
+- **Auditability**: All AI requests are logged in the `ApiProductRequestLogsTable`, recording the model, tokens used, and the calling team for billing and security auditing.
+
+### Webhook Security
+Outbound webhooks (managed via `WebhooksTable`) include:
+- **Signatures**: Payloads are signed with a secret to allow the receiver to verify the source.
+- **Retries**: Exponential backoff prevents accidental self-denial of service during target outages.
+
+---
 
 ## Incident Response
 
-In the event of a security breach or anomaly detection (e.g., triggered by `sessionSecurity.middleware.ts` failing with a high severity):
+If a security anomaly is detected (e.g., a `SECURITY_VIOLATION` AppError):
 
-1. **Detection:** Anomaly patterns in fingerprints or IP subnets trigger an automatic session invalidation.
-2. **Triaging:** On-call developers should review `ApiProductRequestLogsTable` for anomalous patterns.
-3. **Containment:** 
-   - Use `invalidateAllUserSessions(userId)` to force-logout specific users.
-   - Revoke `x-api-key` in the API Gateway by removing the record from the database.
-4. **Post-Incident:** All security incidents require a post-mortem stored in the `docs/OPERATIONS` directory.
+1. **Automatic Containment**: The system may automatically invalidate the session if a fingerprint mismatch is high-confidence.
+2. **Manual Revocation**: Admins can use `invalidateAllUserSessions(userId)` to immediately clear all active sessions for a compromised account.
+3. **Audit Trail**: Investigators should query `ApiProductRequestLogsTable` and system logs for the specific `traceId` associated with the violation.
 
 ---
-**Related Documents:**
-- [Architecture & System Design](./architecture.md)
+
+**Related Documentation:**
+- [Architecture Overview](./architecture.md)
+- [Database Schema Reference](../apps/api/src/db/schema.ts)
