@@ -28,7 +28,7 @@
 		"react-hook-form": "^7.66.0"
 	},
 	"devDependencies": {
-		"@repo/typescript-config": "*",
+		"@repo/typescript-config": "workspace:*",
 		"@types/react": "^19.2.2",
 		"@types/react-dom": "^19.2.2"
 	},

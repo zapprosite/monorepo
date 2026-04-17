@@ -17,8 +17,8 @@
 		"test:watch": "vitest"
 	},
 	"dependencies": {
-		"@connected-repo/ui-mui": "*",
-		"@connected-repo/zod-schemas": "*",
+		"@repo/ui-mui": "workspace:*",
+		"@repo/zod-schemas": "workspace:*",
 		"@emotion/react": "^11.14.0",
 		"@emotion/styled": "^11.14.1",
 		"@hookform/resolvers": "^5.2.2",

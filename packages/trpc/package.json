@@ -20,7 +20,7 @@
 		"zod": "^4.1.12"
 	},
 	"devDependencies": {
-		"@repo/typescript-config": "*",
+		"@repo/typescript-config": "workspace:*",
 		"@types/node": "^20.11.0"
 	},
 	"exports": {

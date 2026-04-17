@@ -18,7 +18,7 @@
 		"test:watch": "vitest"
 	},
 	"dependencies": {
-		"@connected-repo/zod-schemas": "*",
+		"@repo/zod-schemas": "workspace:*",
 		"@fastify/cookie": "^11.0.2",
 		"@fastify/cors": "^11.1.0",
 		"@fastify/helmet": "^13.0.2",
@@ -36,7 +36,7 @@
 		"ua-parser-js": "^2.0.6"
 	},
 	"devDependencies": {
-		"@connected-repo/typescript-config": "*",
+		"@repo/typescript-config": "workspace:*",
 		"@types/node": "^22.18.12",
 		"@types/pg": "^8.15.5",
 		"@vitest/coverage-v8": "^4.1.0",

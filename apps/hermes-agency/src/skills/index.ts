@@ -11,7 +11,7 @@ export interface Skill {
 
 // Canonical list of known tool names — used for validation at module load time.
 // When a new tool is introduced, add it here first.
-const REGISTERED_TOOLS = new Set([
+const REGISTERED_TOOLS = new Set<string>([
   // CEO / routing
   'langgraph_execute',
   'skill_route',
@@ -74,7 +74,7 @@ const REGISTERED_TOOLS = new Set([
   'schedule_call',
   'renew_subscription',
   'update_health_score',
-]) as const;
+]);
 
 function _validateSkills(skills: readonly Skill[]): void {
   // 1. Unique IDs

@@ -2,8 +2,9 @@
 // Hermes Agency Suite — Entry Point
 
 import http from 'node:http';
-import { bot } from './telegram/bot.ts';
-import { initAllCollections } from './qdrant/client.ts';
+import { initAllCollections } from './qdrant/client';
+
+// Bot is launched in telegram/bot.ts (side-effect import)
 
 console.log('[HermesAgency] Starting Hermes Agency Suite...');
 
@@ -17,7 +18,7 @@ for (const key of REQUIRED) {
 }
 
 // Verify Qdrant is reachable at startup
-const QDRANT_URL = process.env.QDRANT_URL!;
+const QDRANT_URL = process.env['QDRANT_URL']!;
 try {
   const response = await fetch(`${QDRANT_URL}/collections`);
   if (!response.ok) {
@@ -30,7 +31,7 @@ try {
 }
 
 // Verify Ollama is reachable at startup
-const OLLAMA_URL = process.env.OLLAMA_URL!;
+const OLLAMA_URL = process.env['OLLAMA_URL']!;
 try {
   const response = await fetch(`${OLLAMA_URL}/api/tags`);
   if (!response.ok) {
@@ -49,10 +50,9 @@ initAllCollections().catch((err) => {
 });
 
 console.log('[HermesAgency] Telegram bot starting...');
-// Bot is already launched in bot.ts constructor
 
 // Health check endpoint
-const healthPort = parseInt(process.env.HERMES_AGENCY_PORT ?? '3001', 10);
+const healthPort = parseInt(process.env['HERMES_AGENCY_PORT'] ?? '3001', 10);
 
 const healthServer = http.createServer((req, res) => {
   if (req.url === '/health') {
