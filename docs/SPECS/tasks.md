@@ -111,18 +111,18 @@ crontab -e
 
 ---
 
-## Phase 4: OpenClaw Disable
+## Phase 4: Hermes Agent Disable
 
 ### TASK-HERMES-010
 
-**Title:** Execute OpenClaw disable script
+**Title:** Execute Hermes Agent disable script
 **Priority:** P0
 **Status:** done
 **Notes:** ✅ dry-run completed + containers stopped (from OPERAÇÃO OVERLORD). Note: Coolify showing wrong status (needs manual refresh).
 
 ### TASK-HERMES-011
 
-**Title:** Enforce OpenClaw disable in Coolify
+**Title:** Enforce Hermes Agent disable in Coolify
 **Priority:** P0
 **Status:** pending
 **Notes:** Containers stopped but Coolify still shows status. Requires manual disable via Coolify dashboard or API.
@@ -182,7 +182,7 @@ crontab -e
 | SC-5  | perplexity_browser skill functional     | ✅ DONE    | Skill at ~/.hermes/skills/perplexity_browser/ |
 | SC-6  | coolify_sre with restart loop detection | ✅ DONE    | sre-monitor.sh active                         |
 | SC-7  | hermes.json crons centralized           | ⏳ PARTIAL | hermes.json created, not installed            |
-| SC-8  | OpenClaw disable executed               | ⏳ PARTIAL | Containers stopped, Coolify stale             |
+| SC-8  | Hermes Agent disable executed               | ⏳ PARTIAL | Containers stopped, Coolify stale             |
 | SC-9  | MCP server for Open WebUI               | ⏳ PENDING | DEPENDS ON SPEC-039 (hermes gateway)          |
 | SC-10 | Zero true cron duplicates               | ✅ DONE    | Only tunnel health overlap                    |
 
@@ -205,7 +205,7 @@ crontab -e
 | Blocker                   | Status    | Required Action                          |
 | ------------------------- | --------- | ---------------------------------------- |
 | BOT_DOMAIN_NOT_CONFIGURED | ⏳ ACTIVE | SPEC-039: Cloudflare tunnel + DNS config |
-| OPENCLAW_COOLIFY_ENFORCE  | ⏳ ACTIVE | Manual disable via Coolify dashboard     |
+| HERMES_AGENT_COOLIFY_ENFORCE  | ⏳ ACTIVE | Manual disable via Coolify dashboard     |
 | MCP_PERSISTENCE_GAP       | ⏳ ACTIVE | hermes gateway workaround (SPEC-039)     |
 
 **Removed blockers:**

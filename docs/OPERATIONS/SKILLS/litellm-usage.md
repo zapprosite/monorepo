@@ -213,4 +213,4 @@ docker exec zappro-litellm curl -sf http://10.0.1.1:11434/api/tags
 - `litellm-health-check.md` — Health check detalhado do LiteLLM
 - `kokoro-health-check.md` — Kokoro TTS standalone
 - `wav2vec2-health-check.md` — wav2vec2 STT standalone
-- `pipeline-openclaw-voice.sh` — Smoke test completo (referência)
+- `pipeline-hermes-voice.sh` — Smoke test completo (referência)

@@ -34,7 +34,7 @@ The docker-autoheal container (`willfarrell/autoheal`) monitors containers with 
 | Service          | Container                           | Auto-Restart | Reason                               |
 | ---------------- | ----------------------------------- | ------------ | ------------------------------------ |
 | OpenWebUI        | `openwebui`                         | YES          | User-facing, non-critical            |
-| OpenClaw Bot     | `openclaw-qgtzrmi6771lt8l7x8rqx72f` | YES          | Voice pipeline, self-healing capable |
+| Hermes Agent Bot     | `Hermes Agent-qgtzrmi6771lt8l7x8rqx72f` | YES          | Voice pipeline, self-healing capable |
 | wav2vec2 STT     | `zappro-wav2vec2`                   | YES          | Local STT, stateless                 |
 | Kokoro TTS       | `zappro-kokoro`                     | YES          | TTS, stateless                       |
 | LiteLLM Proxy    | `zappro-litellm`                    | YES          | GPU routing, stateless               |
@@ -72,7 +72,7 @@ All ports in use by the homelab. Before deploying a new service, check this regi
 | 6002 | coolify-realtime | host        | WebSocket real-time |
 | 8000 | coolify          | host        | PaaS panel          |
 | 3300 | gitea            | host        | Git server          |
-| 4001 | openclaw         | host        | OpenClaw Bot UI     |
+| 4001 | Hermes Agent         | host        | Hermes Agent Bot UI     |
 | 4003 | painel           | host        | Claude Code Panel   |
 | 4006 | mcp-monorepo     | qgtzrmi net | MCP Filesystem      |
 | 4011 | mcp-qdrant       | qgtzrmi net | MCP Qdrant          |
@@ -112,7 +112,7 @@ All ports in use by the homelab. Before deploying a new service, check this regi
 | ---- | ------------------------ |
 | 3000 | OpenWebUI (if deployed)  |
 | 4000 | LiteLLM production proxy |
-| 4001 | OpenClaw Bot (reserved)  |
+| 4001 | Hermes Agent Bot (reserved)  |
 | 8000 | Coolify PaaS             |
 | 8080 | Traefik + Cloudflared    |
 

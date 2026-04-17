@@ -36,9 +36,9 @@ Criar um governance framework que garante **zero breakage** do homelab, mesmo qu
 
 | Serviço               | Container             | Porta | Versão                                             | Motivo Imutabilidade                                 |
 | --------------------- | --------------------- | ----- | -------------------------------------------------- | ---------------------------------------------------- |
-| **Kokoro TTS**        | `zappro-kokoro`       | 8012  | `ghcr.io/remsky/kokoro-fastapi-gpu:v0.2.2`         | Validado com OpenClaw; voz pm_santa/pf_dora testadas |
-| **wav2vec2 STT**      | `zappro-wav2vec2`     | 8201  | `jonatasgrosman/wav2vec2-large-xlsr-53-portuguese` | Watchdog OpenClaw depende da API exacta              |
-| **OpenClaw Bot**      | `openclaw-qgtzrmi...` | 8080  | `2026.2.6`                                         | Mudar modelo primary quebra `api: undefined`         |
+| **Kokoro TTS**        | `zappro-kokoro`       | 8012  | `ghcr.io/remsky/kokoro-fastapi-gpu:v0.2.2`         | Validado com Hermes Agent; voz pm_santa/pf_dora testadas |
+| **wav2vec2 STT**      | `zappro-wav2vec2`     | 8201  | `jonatasgrosman/wav2vec2-large-xlsr-53-portuguese` | Watchdog Hermes Agent depende da API exacta              |
+| **Hermes Agent Bot**  | `hermes-agent-qgtzrmi...` | 8080  | `2026.2.6`                                         | Mudar modelo primary quebra `api: undefined`         |
 | **TTS Bridge**        | `zappro-tts-bridge`   | 8013  | `python:3.11-slim + tts-bridge.py`                 | Filtro de vozes — 65 vozes bloqueadas                |
 | **LiteLLM Proxy**     | `zappro-litellm`      | 4000  | `latest` (config.yaml pinado)                      | Proxy GPU para vision/embeddings                     |
 | **Coolify Traefik**   | `coolify-proxy`       | 8080  | `4.0.0-beta.470`                                   | Conflito porta 8080 documentado                      |
@@ -64,7 +64,7 @@ Criar um governance framework que garante **zero breakage** do homelab, mesmo qu
 | Rede                  | Containers                | Motivo                      |
 | --------------------- | ------------------------- | --------------------------- |
 | `zappro-lite_default` | Kokoro, wav2vec2, LiteLLM | Stack de voz validado junto |
-| `openclaw-qgtzrmi...` | OpenClaw + Traefik        | Routing depende desta rede  |
+| `hermes-agent-qgtzrmi...` | Hermes Agent + Traefik        | Routing depende desta rede  |
 
 ---
 
@@ -159,10 +159,10 @@ python -c "from transformers import AutoModel; AutoModel.from_pretrained('jonata
 
 ```bash
 # Mudar para novo endpoint API requer:
-# 1. Atualizar openclaw.json com novo base URL
+# 1. Atualizar hermes-agent.json com novo base URL
 # 2. Teste de smoke com mensagem simples
 # 3. Verificar que streaming funciona
-# 4. Rollback: reverter openclaw.json
+# 4. Rollback: reverter hermes-agent.json
 ```
 
 ### 2.6 Docker Images — Upgrade de Serviço
@@ -172,7 +172,7 @@ python -c "from transformers import AutoModel; AutoModel.from_pretrained('jonata
 ```
 1. ZFS snapshot do dataset
 2. Pull da nova imagem em staging
-3. Smoke test pass (pipeline-openclaw-voice.sh)
+3. Smoke test pass (pipeline-Hermes Agent-voice.sh)
 4. Aprovação explícita de will
 5. Update do docker-compose/Coolify
 6. Monitoring 24h após deploy
@@ -310,7 +310,7 @@ restart: on-failure:3
 ```
 Loop execution:
   1. curl TTS Bridge :8013/health
-  2. curl OpenClaw :8080/health
+  2. curl Hermes Agent :8080/health
   3. curl wav2vec2 :8201/health
   4. curl LiteLLM :4000/health
 
@@ -601,7 +601,7 @@ Policy 2: Allow
 | Situação                         | Resposta Correta                                 |
 | -------------------------------- | ------------------------------------------------ |
 | "Vamos atualizar para latest"    | ❌ REJEITAR — stack validado usa versão pinada   |
-| "Trocar Kokoro por Silero TTS"   | ❌ REJEITAR — OpenClaw routing depende de Kokoro |
+| "Trocar Kokoro por Silero TTS"   | ❌ REJEITAR — Hermes Agent routing depende de Kokoro |
 | "Usar Deepgram direto"           | ❌ REJEITAR — wav2vec2 é o STT kanônico          |
 | "TTS direto ao Kokoro"           | ❌ REJEITAR — usar TTS Bridge :8013              |
 | "LiteLLM como primario MiniMax"  | ❌ REJEITAR — causa `api: undefined` crash       |
@@ -610,7 +610,7 @@ Policy 2: Allow
 
 ### 8.2 Circuit Breaker para MiniMax API
 
-**Problema:** Se MiniMax API falha, OpenClaw fica hanging sem fallback.
+**Problema:** Se MiniMax API falha, Hermes Agent fica hanging sem fallback.
 
 **Fallback chain:**
 
@@ -725,7 +725,7 @@ Se um agente viola este governance:
 | -------------- | ------------------------------------------------------------------- | ---------- | ----------- |
 | Kokoro TTS     | v0.2.2                                                              | 2026-03-20 | 2026-06-20  |
 | wav2vec2 model | jonatasgrosman/wav2vec2-large-xlsr-53-portuguese                    | 2026-03-15 | 2026-09-15  |
-| OpenClaw       | 2026.2.6                                                            | 2026-03-10 | 2026-06-10  |
+| Hermes Agent       | 2026.2.6                                                            | 2026-03-10 | 2026-06-10  |
 | TTS Bridge     | stdlib + tts-bridge.py                                              | 2026-04-08 | 2026-07-08  |
 | Prometheus     | 3.11.1                                                              | 2026-03-01 | IMMUTABLE   |
 | Grafana        | 12.4.2                                                              | 2026-03-01 | IMMUTABLE   |

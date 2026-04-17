@@ -12,7 +12,7 @@ specRef: related SPECs (optional)
 
 > ⚠️ **SPEC-009 Audio Stack:** Se a feature envolve STT/TTS/voice, verificar SPEC-009 antes de propor mudanças. Motor STT é wav2vec2 :8201 (PROIBIDO trocar por Whisper). TTS via TTS Bridge :8013 (PROIBIDO Kokoro direto).
 
-> ⚠️ **Governance:** Antes de modificar serviços imutáveis (Kokoro, wav2vec2, OpenClaw), verificar docs/GOVERNANCE/IMMUTABLE-SERVICES.md e .claude/rules/ para regras de aprovação.
+> ⚠️ **Governance:** Antes de modificar serviços imutáveis (Kokoro, wav2vec2, Hermes Agent), verificar docs/GOVERNANCE/IMMUTABLE-SERVICES.md e .claude/rules/ para regras de aprovação.
 
 ---
 

@@ -39,7 +39,7 @@ Utilizador final (@bot)
 - Hermes Gateway: Running, Telegram connected, PID 1990953
 - Bot token: `${TELEGRAM_BOT_TOKEN}` (stored in .env)
 - Gateway API: port 8642 on Ubuntu Desktop (10.0.5.2)
-- Tunnel: bot.zappro.site → 10.0.19.7:8080 (OpenClaw — OFFLINE, será deprecado)
+- Tunnel: bot.zappro.site → 10.0.19.7:8080 (Hermes Agent — OFFLINE, será deprecado)
 
 ---
 
@@ -49,7 +49,7 @@ Utilizador final (@bot)
 | ------------------ | ------------------------------------------------- |
 | Hermes Gateway     | ✅ Running (PID 1990953)                          |
 | Telegram Bot       | ✅ Connected (polling mode)                       |
-| bot.zappro.site    | ⚠️ Aponta para OpenClaw OFFLINE (será deprecated) |
+| bot.zappro.site    | ⚠️ Aponta para Hermes Agent OFFLINE (será deprecated) |
 | hermes.zappro.site | ❌ Não existe ainda                               |
 
 ---
@@ -238,7 +238,7 @@ curl -s -X PUT \
 | SC-2 | Tunnel ingress configurado                    | `curl -sfI https://hermes.zappro.site/`                                                    | HTTP 200/301/302 (not 502)        |
 | SC-3 | Hermes Gateway recebe requests                | `curl -sf --max-time 10 https://hermes.zappro.site/ -o /dev/null -w "HTTP %{http_code}\n"` | HTTP 200                          |
 | SC-4 | Telegram polling funciona                     | `curl -s http://localhost:8642/health`                                                     | `{"status":"ok"}`                 |
-| SC-5 | bot.zappro.site continua a funcionar (legacy) | `curl -sfI https://bot.zappro.site/`                                                       | HTTP 200 (ou 502 se OpenClaw OFF) |
+| SC-5 | bot.zappro.site continua a funcionar (legacy) | `curl -sfI https://bot.zappro.site/`                                                       | HTTP 200 (ou 502 se Hermes Agent OFF) |
 
 ---
 
@@ -290,7 +290,7 @@ will 3265372 - hermes_cli.main gateway run --replace
 **bot.zappro.site is PRUNED** (DNS CNAME removed from Cloudflare). Per SUBDOMAINS.md:
 
 - bot.zappro.site DNS status: NXDOMAIN
-- OpenClaw containers: stopped
+- Hermes Agent containers: stopped
 - Decision: hermes.zappro.site is the canonical endpoint for Hermes
 
 **No action possible** - DNS record no longer exists. hermes.zappro.site is the working replacement.

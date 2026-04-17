@@ -35,8 +35,8 @@ Aplicar os fixes de auditoria identificados pelos 12 agentes (Phase 1 = SPEC con
 | H2  | Memory `ai-context.md` contains false paths (`/srv/ops/ai-governance/SYSTEM_STATE.md`, `docs/context/`) | Memory audit        | memory/ai-context.md                                |
 | H3  | Memory `voice-pipeline-08-04-2026.md` stale (MiniMax M2.1 vs M2.7, whisper vs wav2vec2)                 | Memory audit        | memory/voice-pipeline-08-04-2026.md                 |
 | H4  | HOMELAB-SURVIVAL-GUIDE.md describes old voice stack (speaches:8010, chatterbox:8011)                    | OPERATIONS audit    | docs/OPERATIONS/HOMELAB-SURVIVAL-GUIDE.md           |
-| H5  | `wav2vec2-proxy:8203` in openclaw-audio-governance.md but absent from newer docs                        | GOVERNANCE audit    | docs/GOVERNANCE/.rules/openclaw-audio-governance.md |
-| H6  | openclaw-audio-governance.md references `docs/specflow/SPEC-009-...` (non-existent path)                | rules vs docs audit | .claude/rules/openclaw-audio-governance.md          |
+| H5  | `wav2vec2-proxy:8203` in hermes-agent-audio-governance.md but absent from newer docs                        | GOVERNANCE audit    | docs/GOVERNANCE/.rules/hermes-agent-audio-governance.md |
+| H6  | hermes-agent-audio-governance.md references `docs/specflow/SPEC-009-...` (non-existent path)                | rules vs docs audit | .claude/rules/hermes-agent-audio-governance.md          |
 
 ### MEDIUM
 
@@ -46,7 +46,7 @@ Aplicar os fixes de auditoria identificados pelos 12 agentes (Phase 1 = SPEC con
 | M2  | VERSION-LOCK.md referenced everywhere but doesn't exist                                     | REFERENCE audit  | root: VERSION-LOCK.md                 |
 | M3  | OPERATIONS skills missing: docker-autoheal, node-exporter HEALTHCHECK, loki HEALTHCHECK     | OPERATIONS audit | docs/OPERATIONS/SKILLS/               |
 | M4  | `llava` vision model also in ARCHITECTURE-MODELS.md (LiteLLM endpoint wrong too)            | REFERENCE audit  | docs/REFERENCE/ARCHITECTURE-MODELS.md |
-| M5  | Memory `openclaw-agents-kit.md` references stale gemma2 instead of llama3-portuguese-tomcat | Memory audit     | memory/openclaw-agents-kit.md         |
+| M5  | Memory `hermes-agent-agents-kit.md` references stale gemma2 instead of llama3-portuguese-tomcat | Memory audit     | memory/hermes-agent-agents-kit.md         |
 
 ---
 
@@ -86,9 +86,9 @@ Exit: grep -r "llava" docs/GOVERNANCE/ → 0 results
 ```
 Files: docs/INFRASTRUCTURE/PORTS.md, docs/INFRASTRUCTURE/SERVICE_MAP.md
 
-Fix PORTS.md: Add 8202 (wav2vec2 host), 3457 (openclaw-mcp-wrapper), 8050 (gotify), 8051 (alert-sender), 9080 (promtail). Fix wrong entries (8201 host mapping, 4003 nginx, 4007 tts-bridge)
+Fix PORTS.md: Add 8202 (wav2vec2 host), 3457 (hermes-agent-mcp-wrapper), 8050 (gotify), 8051 (alert-sender), 9080 (promtail). Fix wrong entries (8201 host mapping, 4003 nginx, 4007 tts-bridge)
 
-Fix SERVICE_MAP.md: Remove supabase/caprover/old voice references. Update n8n (now in Coolify), OpenClaw vision (qwen2.5-vl), tts-bridge (UP on 8013 not REMOVED)
+Fix SERVICE_MAP.md: Remove supabase/caprover/old voice references. Update n8n (now in Coolify), Hermes Agent vision (qwen2.5-vl), tts-bridge (UP on 8013 not REMOVED)
 
 Exit: PORTS.md lists all active ports; SERVICE_MAP.md reflects current state
 ```
@@ -96,12 +96,12 @@ Exit: PORTS.md lists all active ports; SERVICE_MAP.md reflects current state
 ### Cluster 4: Memory Files (H1, H2, H3, H5)
 
 ```
-Files: memory/homelab-estado.md, memory/ai-context.md, memory/voice-pipeline-08-04-2026.md, memory/openclaw-agents-kit.md
+Files: memory/homelab-estado.md, memory/ai-context.md, memory/voice-pipeline-08-04-2026.md, memory/Hermes Agent-agents-kit.md
 
 Fix homelab-estado.md: DELETE or heavily annotate as superseded by SPEC-AUDIT-HOMELAB-2026-04-12.md
 Fix ai-context.md: Update paths to reference docs/GOVERNANCE/, docs/SPECS/
 Fix voice-pipeline-08-04-2026.md: Annotate as superseded by voice-pipeline-desktop-10-04-2026.md
-Fix openclaw-agents-kit.md: Update gemma2 → Gemma4-12b-it
+Fix hermes-agent-agents-kit.md: Update gemma2 → Gemma4-12b-it
 
 Exit: Memory files don't reference non-existent paths; no stale SPEC references
 ```
@@ -140,10 +140,10 @@ Content:
 Exit: cat VERSION-LOCK.md shows pinned versions
 ```
 
-### Cluster 8: openclaw-audio-governance.md fixes (H5, H6)
+### Cluster 8: Hermes Agent-audio-governance.md fixes (H5, H6)
 
 ```
-Files: docs/GOVERNANCE/.rules/openclaw-audio-governance.md, .claude/rules/openclaw-audio-governance.md
+Files: docs/GOVERNANCE/.rules/hermes-agent-audio-governance.md, .claude/rules/hermes-agent-audio-governance.md
 
 Fix: docs/specflow/SPEC-009 → docs/SPECS/SPEC-009
 Clarify wav2vec2-proxy:8203 role (Deepgram proxy pattern per SPEC-018)

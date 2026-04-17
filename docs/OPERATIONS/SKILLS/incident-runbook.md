@@ -37,7 +37,7 @@ Run these in parallel to establish the current state:
 
 ```bash
 # Check all critical containers
-docker ps --format "table {{.Names}}\t{{.Status}}" | grep -E "openclaw|litellm|wav2vec2|coolify"
+docker ps --format "table {{.Names}}\t{{.Status}}" | grep -E "Hermes Agent|litellm|wav2vec2|coolify"
 
 # Check Traefik (coolify-proxy)
 curl -sf -m 5 http://localhost:80/ping && echo "Traefik OK" || echo "Traefik FAIL"
@@ -46,7 +46,7 @@ curl -sf -m 5 http://localhost:80/ping && echo "Traefik OK" || echo "Traefik FAI
 curl -sf -m 10 -o /dev/null -w "%{http_code}" https://hermes.zappro.site/health && echo " Hermes Gateway route OK"
 
 # Run smoke test
-bash tasks/smoke-tests/pipeline-openclaw-voice.sh 2>&1 | tail -10
+bash tasks/smoke-tests/pipeline-Hermes Agent-voice.sh 2>&1 | tail -10
 
 # Quick network verification
 bash docs/OPERATIONS/SKILLS/verify-network.sh
@@ -57,7 +57,7 @@ bash docs/OPERATIONS/SKILLS/verify-network.sh
 | Container                           | Status |
 | ----------------------------------- | ------ |
 | `coolify-proxy`                     | Up     |
-| `openclaw-qgtzrmi6771lt8l7x8rqx72f` | Up     |
+| `hermes-agent` | Up     |
 | `zappro-litellm`                    | Up     |
 | `zappro-wav2vec2`                   | Up     |
 | `zappro-litellm-db`                 | Up     |
@@ -123,7 +123,7 @@ Is Traefik healthy?
 
 ```bash
 # Identify the container
-docker ps -a --format "table {{.Names}}\t{{.Status}}" | grep -E "openclaw|litellm|wav2vec2|coolify"
+docker ps -a --format "table {{.Names}}\t{{.Status}}" | grep -E "Hermes Agent|litellm|wav2vec2|coolify"
 
 # Start it
 docker start <container-name>
@@ -146,8 +146,8 @@ curl -sf -m 5 http://localhost:80/ping && echo "Traefik OK"
 # Find what networks a container is on
 docker inspect <container> --format '{{json .NetworkSettings.Networks}}'
 
-# Example: check OpenClaw
-docker inspect openclaw-qgtzrmi6771lt8l7x8rqx72f --format '{{json .NetworkSettings.Networks}}'
+# Example: check Hermes Agent
+docker inspect hermes-agent --format '{{json .NetworkSettings.Networks}}'
 
 # Compare with Traefik's networks
 docker inspect coolify-proxy --format '{{json .NetworkSettings.Networks}}'
@@ -169,7 +169,7 @@ docker inspect <container> --format '{{range .NetworkSettings.Networks}}{{.IPAdd
 docker exec coolify-proxy curl -sf -m 5 http://<container-ip>:8080/health
 
 # Or by container name (if on same network)
-docker exec coolify-proxy curl -sf -m 5 http://openclaw-qgtzrmi6771lt8l7x8rqx72f:8080/health
+docker exec coolify-proxy curl -sf -m 5 http://hermes-agent:8080/health
 ```
 
 ### Container crash loop (OOM or config error)
@@ -255,15 +255,15 @@ docker restart $(docker ps -q)
 
 ```bash
 # One-liner health check (paste into terminal)
-docker ps --format "table {{.Names}}\t{{.Status}}" | grep -E "openclaw|litellm|wav2vec2|coolify" && \
+docker ps --format "table {{.Names}}\t{{.Status}}" | grep -E "Hermes Agent|litellm|wav2vec2|coolify" && \
 curl -sf -m 5 http://localhost:80/ping && echo " Traefik OK" || echo " Traefik FAIL" && \
-curl -sf -m 10 -o /dev/null -w "%{http_code}" https://bot.zappro.site/ && echo " OpenClaw route OK"
+curl -sf -m 10 -o /dev/null -w "%{http_code}" https://hermes.zappro.site/ && echo " Hermes Agent route OK"
 
 # Network verify
 bash docs/OPERATIONS/SKILLS/verify-network.sh
 
 # Smoke test
-bash tasks/smoke-tests/pipeline-openclaw-voice.sh 2>&1 | tail -10
+bash tasks/smoke-tests/pipeline-Hermes Agent-voice.sh 2>&1 | tail -10
 
 # Restart a misbehaving container
 docker restart <container-name> && sleep 3 && docker logs --tail 20 <container-name>
@@ -277,7 +277,7 @@ docker restart coolify-proxy
 | Service      | Container Name                      |
 | ------------ | ----------------------------------- |
 | Traefik      | `coolify-proxy`                     |
-| OpenClaw Bot | `openclaw-qgtzrmi6771lt8l7x8rqx72f` |
+| Hermes Agent | `hermes-agent` |
 | LiteLLM      | `zappro-litellm`                    |
 | LiteLLM DB   | `zappro-litellm-db`                 |
 | wav2vec2 STT | `zappro-wav2vec2`                   |
@@ -286,7 +286,7 @@ docker restart coolify-proxy
 
 | Network                    | Purpose                    |
 | -------------------------- | -------------------------- |
-| `qgtzrmi6771lt8l7x8rqx72f` | OpenClaw container network |
+| `hermes-agent` | Hermes Agent container network |
 | `zappro-lite_default`      | LiteLLM + wav2vec2 network |
 | `coolify`                  | Traefik external network   |
 

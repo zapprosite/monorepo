@@ -85,7 +85,7 @@
     {
       "id": "PH2-03",
       "title": "Update PORTS.md (6+ missing ports, wrong entries)",
-      "description": "PORTS.md missing: 8202 (wav2vec2 host), 3457 (openclaw-mcp-wrapper), 8050 (gotify), 8051 (alert-sender), 9080 (promtail). Wrong: 8201 host mapping, 4003 nginx, 4007 tts-bridge marked PENDING.",
+      "description": "PORTS.md missing: 8202 (wav2vec2 host), 3457 (Hermes Agent-mcp-wrapper), 8050 (gotify), 8051 (alert-sender), 9080 (promtail). Wrong: 8201 host mapping, 4003 nginx, 4007 tts-bridge marked PENDING.",
       "status": "pending",
       "priority": "critical",
       "dependencies": [],
@@ -116,7 +116,7 @@
     {
       "id": "PH2-04",
       "title": "Update SERVICE_MAP.md (remove old stacks)",
-      "description": "SERVICE_MAP.md references removed stacks (supabase, caprover, old voice). Update: n8n now in Coolify, tts-bridge UP on 8013, OpenClaw vision qwen2.5vl:7b, remove supabase/caprover references.",
+      "description": "SERVICE_MAP.md references removed stacks (supabase, caprover, old voice). Update: n8n now in Coolify, tts-bridge UP on 8013, Hermes Agent vision qwen2.5vl:7b, remove supabase/caprover references.",
       "status": "pending",
       "priority": "critical",
       "dependencies": ["PH2-03"],
@@ -146,8 +146,8 @@
     },
     {
       "id": "PH2-05",
-      "title": "Fix memory files (homelab-estado, ai-context, voice-pipeline-08, openclaw-agents-kit)",
-      "description": "Memory files heavily outdated. homelab-estado.md: DELETE (references non-existent SPEC-023). ai-context.md: update false paths. voice-pipeline-08-04-2026.md: annotate superseded. openclaw-agents-kit.md: gemma2 → llama3.",
+      "title": "Fix memory files (homelab-estado, ai-context, voice-pipeline-08, Hermes Agent-agents-kit)",
+      "description": "Memory files heavily outdated. homelab-estado.md: DELETE (references non-existent SPEC-023). ai-context.md: update false paths. voice-pipeline-08-04-2026.md: annotate superseded. Hermes Agent-agents-kit.md: gemma2 → llama3.",
       "status": "pending",
       "priority": "high",
       "dependencies": [],
@@ -169,7 +169,7 @@
         },
         {
           "id": "PH2-05.4",
-          "title": "Update openclaw-agents-kit.md gemma2 → Gemma4-12b-it",
+          "title": "Update Hermes Agent-agents-kit.md gemma2 → Gemma4-12b-it",
           "status": "pending"
         },
         {
@@ -187,7 +187,7 @@
         "memory/homelab-estado.md",
         "memory/ai-context.md",
         "memory/voice-pipeline-08-04-2026.md",
-        "memory/openclaw-agents-kit.md"
+        "memory/Hermes Agent-agents-kit.md"
       ],
       "testRequired": true,
       "specRef": "SPEC-AUDIT-FIXES-PHASE2.md (H1, H2, H3, H5)"
@@ -220,8 +220,8 @@
     },
     {
       "id": "PH2-07",
-      "title": "Fix openclaw-audio-governance.md SPEC-009 path and wav2vec2-proxy",
-      "description": "openclaw-audio-governance.md has two issues: (1) docs/specflow/SPEC-009 path doesn't exist, should be docs/SPECS/SPEC-009; (2) wav2vec2-proxy:8203 reference needs clarification (Deepgram proxy per SPEC-018).",
+      "title": "Fix Hermes Agent-audio-governance.md SPEC-009 path and wav2vec2-proxy",
+      "description": "Hermes Agent-audio-governance.md has two issues: (1) docs/specflow/SPEC-009 path doesn't exist, should be docs/SPECS/SPEC-009; (2) wav2vec2-proxy:8203 reference needs clarification (Deepgram proxy per SPEC-018).",
       "status": "pending",
       "priority": "high",
       "dependencies": ["PH2-01"],
@@ -243,12 +243,12 @@
         }
       ],
       "acceptanceCriteria": [
-        "All SPEC-009 references in openclaw-audio-governance.md are valid paths",
+        "All SPEC-009 references in Hermes Agent-audio-governance.md are valid paths",
         "wav2vec2-proxy:8203 is documented with correct role"
       ],
       "files": [
-        "docs/GOVERNANCE/.rules/openclaw-audio-governance.md",
-        ".claude/rules/openclaw-audio-governance.md"
+        "docs/GOVERNANCE/.rules/Hermes Agent-audio-governance.md",
+        ".claude/rules/Hermes Agent-audio-governance.md"
       ],
       "testRequired": true,
       "specRef": "SPEC-AUDIT-FIXES-PHASE2.md (H5, H6)"

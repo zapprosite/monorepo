@@ -95,13 +95,13 @@ Append an entry to the change log.
 ```
 
 ### sync_to_monorepo()
-Sync OpenClaw workspace docs to monorepo source of truth.
+Sync Hermes Agent workspace docs to monorepo source of truth.
 
 **What syncs:**
-- /data/workspace/SOUL.md → docs/OPENCLAW/
-- /data/workspace/MEMORY.md → docs/OPENCLAW/
-- /data/workspace/architecture/SELF-KNOWLEDGE.md → docs/OPENCLAW/
-- /data/workspace/architecture/AGENCY-RULES.md → docs/OPENCLAW/
+- /data/workspace/SOUL.md → docs/HERMES-AGENT/
+- /data/workspace/MEMORY.md → docs/HERMES-AGENT/
+- /data/workspace/architecture/SELF-KNOWLEDGE.md → docs/HERMES-AGENT/
+- /data/workspace/architecture/AGENCY-RULES.md → docs/HERMES-AGENT/
 
 **Rules:**
 - Always cp (never mv) from workspace to monorepo

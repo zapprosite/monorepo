@@ -9,7 +9,7 @@
 
 ## Sumário
 
-O OpenClaw Bot tinha acesso a 67 vozes no Kokoro TTS, incluindo vozes não-PT-BR e vozes artificiais. O utilizador queria restringir a duas vozes PT-BR naturais: **pm_santa** (masculina) e **pf_dora** (feminina).
+O Hermes Agent Bot tinha acesso a 67 vozes no Kokoro TTS, incluindo vozes não-PT-BR e vozes artificiais. O utilizador queria restringir a duas vozes PT-BR naturais: **pm_santa** (masculina) e **pf_dora** (feminina).
 
 ---
 
@@ -22,7 +22,7 @@ O OpenClaw Bot tinha acesso a 67 vozes no Kokoro TTS, incluindo vozes não-PT-BR
 
 **Ficheiros modificados:**
 - `/srv/monorepo/docs/GOVERNANCE/PINNED-SERVICES.md` — TTS Bridge adicionado
-- `/srv/monorepo/docs/GOVERNANCE/OPENCLAW_DEBUG.md` — arquitectura atualizada
+- `/srv/monorepo/docs/GOVERNANCE/HERMES_AGENT_DEBUG.md` — arquitectura atualizada
 - `/srv/monorepo/docs/OPERATIONS/SKILLS/README.md` — índice atualizado
 
 ---
@@ -30,7 +30,7 @@ O OpenClaw Bot tinha acesso a 67 vozes no Kokoro TTS, incluindo vozes não-PT-BR
 ## Arquitetura
 
 ```
-OpenClaw Bot
+Hermes Agent Bot
     │
     └─► TTS Bridge (:8013) — validado 2026-04-08
             ├─ pm_santa ✓ → Kokoro :8880 → audio
@@ -67,7 +67,7 @@ curl -sf -X POST http://localhost:8013/v1/audio/speech \
 ## Lessons Learned
 
 1. **Kokoro não tem filtro nativo de vozes** — todas as 67 vozes estavam acessíveis
-2. **LiteLLM não consegue rotear para o TTS Bridge** (timeout persistente) — rota direta OpenClaw → Bridge funciona
+2. **LiteLLM não consegue rotear para o TTS Bridge** (timeout persistente) — rota direta Hermes Agent → Bridge funciona
 3. **Solução stdlib** — TTS Bridge usa apenas Python stdlib, sem deps externas
 
 ---

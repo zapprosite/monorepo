@@ -169,7 +169,7 @@ Unify all AI tooling in the monorepo into a single coherent system: `.claude/` (
 │   ├── rules/                        # Project governance
 │   │   ├── backend.md               # Backend rules
 │   │   ├── search.md                # Research priority rules
-│   │   ├── openclaw-audio-governance.md  # Audio pipeline rules
+│   │   ├── Hermes Agent-audio-governance.md  # Audio pipeline rules
 │   │   └── REVIEW-SKILLS.md        # Review skill hierarchy
 │   │
 │   ├── hooks/                        # Event-driven automation

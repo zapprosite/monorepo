@@ -399,7 +399,7 @@ INFRAESTRUTURA
   DNS:         Cloudflare + Terraform
   Vector DB:   Qdrant (10.0.19.5:6333)
 
-VOZ (OpenClaw)
+VOZ (Hermes Agent)
 ───────────────
   STT:         wav2vec2 (:8201) via Deepgram proxy
   TTS:         Kokoro (:8880) via TTS Bridge (:8013)

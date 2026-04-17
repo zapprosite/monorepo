@@ -32,7 +32,7 @@ These ports are permanently reserved and MUST NOT be used without updating this 
 | ---- | -------------------------- | -------------------------- |
 | 3000 | Open WebUI proxy           | RESERVED                   |
 | 4000 | LiteLLM production         | RESERVED                   |
-| 4001 | OpenClaw Bot               | RESERVED (service removed) |
+| 4001 | Hermes Agent Bot               | RESERVED (service removed) |
 | 4002 | ai-gateway (OpenAI compat) | RESERVED                   |
 | 8000 | Coolify PaaS               | RESERVED                   |
 | 8080 | Open WebUI (Coolify)       | RESERVED                   |

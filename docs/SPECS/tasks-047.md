@@ -17,7 +17,7 @@
 
 ## Phase 0 — Pre-flight (blocking)
 
-- [ ] T000 — Ler SPEC-009 + SPEC-018 + `.claude/rules/openclaw-audio-governance.md`
+- [ ] T000 — Ler SPEC-009 + SPEC-018 + `.claude/rules/Hermes Agent-audio-governance.md`
 - [ ] T001 — Auditar `.env` e inventariar secrets ausentes (`/sec`)
 - [ ] T002 — Gerar `AI_GATEWAY_FACADE_KEY` via `openssl rand -hex 32` e adicionar a `.env` (fonte canónica única — Infisical pruned)
 - [ ] T003 — Adicionar `OLLAMA_URL`, `STT_PROXY_URL`, `PTBR_FILTER_MODEL`, `AI_GATEWAY_PORT` em `.env` e `.env.example`

@@ -158,7 +158,7 @@ Cliente OpenAI SDK audio
 
 ## References
 
-- SPEC-009 — OpenClaw audio stack
+- SPEC-009 — Hermes Agent audio stack
 - SPEC-018 — wav2vec2-deepgram-proxy
 - SPEC-041 — Monorepo polish (base)
 - SPEC-046 — Hermes agent improvements

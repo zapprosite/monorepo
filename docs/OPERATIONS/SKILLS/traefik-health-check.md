@@ -31,7 +31,7 @@ python3      # JSON parsing (Traefik API não disponível — insecure=false)
                                         │
                          ┌──────────────┴──────────────┐
                          │  Containers Coolify-managed    │
-                         │  (OpenClaw, etc.)             │
+                         │  (Hermes Agent, etc.)             │
                          │  Rede: qgtzrmi6771lt8rqx72f   │
                          └──────────────────────────────┘
 ```
@@ -70,7 +70,7 @@ docker port coolify-proxy
 ```bash
 # Testar FQDN do serviço
 nslookup <SERVICE_FQDN>
-# Exemplo: nslookup openclaw-qgtzrmi6771lt8l7x8rqx72f.191.17.50.123.sslip.io
+# Exemplo: nslookup Hermes Agent-qgtzrmi6771lt8l7x8rqx72f.191.17.50.123.sslip.io
 ```
 
 **Critério:** DNS resolve para IP do host (`191.17.50.123`)

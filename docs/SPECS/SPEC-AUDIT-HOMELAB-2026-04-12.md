@@ -5,7 +5,7 @@ status: COMPLETED
 priority: critical
 author: Principal Engineer
 date: 2026-04-12
-specRef: SPEC-AUDIT-FIXES-2026-04-12.md, SPEC-009-openclaw-persona-audio-stack.md, SPEC-HOMELAB-GOVERNANCE-DEFINITIVO.md
+specRef: SPEC-AUDIT-FIXES-2026-04-12.md, SPEC-009-Hermes Agent-persona-audio-stack.md, SPEC-HOMELAB-GOVERNANCE-DEFINITIVO.md
 ---
 
 # Homelab Audit — 2026-04-12
@@ -74,7 +74,7 @@ specRef: SPEC-AUDIT-FIXES-2026-04-12.md, SPEC-009-openclaw-persona-audio-stack.m
 #### 1. TTS Bridge — RESTARTED (partial)
 
 **Status:** TTS Bridge reiniciado e UP há 40h. Health 200 OK. Memory limits nao aplicadas.
-**Problema:** Exit 137 (OOM). OpenClaw estava usando Kokoro direto :8880 com pm_alex — viola governance.
+**Problema:** Exit 137 (OOM). Hermes Agent estava usando Kokoro direto :8880 com pm_alex — viola governance.
 **Solução aplicada:**
 
 ```bash
@@ -178,13 +178,13 @@ docker stop nvidia-gpu-exporter
 **Problema:** Skill existe mas não está ativo. Alert fatigue constante.
 **Solução:** Deployar o skill documentado
 
-#### 10. openclaw-qgtzrmi6771lt8l7x8rqx72f reiniciou após 26 min
+#### 10. Hermes Agent-qgtzrmi6771lt8l7x8rqx72f reiniciou após 26 min
 
 **Problema:** Indica crash/OOM. Verificar logs.
 **Solução:**
 
 ```bash
-docker logs openclaw-qgtzrmi6771lt8l7x8rqx72f --tail 100
+docker logs hermes-agent-qgtzrmi6771lt8l7x8rqx72f --tail 100
 # Se OOM: adicionar memory limits
 ```
 

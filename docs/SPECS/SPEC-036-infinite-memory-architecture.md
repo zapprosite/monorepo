@@ -25,7 +25,7 @@ Projetar e documentar a arquitetura de memoria infinita de 4 camadas para o Clau
 | Component                        | Technology            | Notes                                      |
 | -------------------------------- | --------------------- | ------------------------------------------ |
 | Memoria de curto prazo           | Context window        | Inerente ao Claude Code                    |
-| Memoria semantica de longo prazo | Qdrant                | Colecoes hvacr_knowledge + openclaw-memory |
+| Memoria semantica de longo prazo | Qdrant                | Colecoes hvacr_knowledge + hermes-agent-memory |
 | Memoria episodica                | memory-keeper SQLite  | ~450KB, backup diario 3AM                  |
 | Memoria procedural               | CLAUDE.md + AGENTS.md | Skill anchors                              |
 | Obsidian Vault                   | obsidian-git          | Sync para monorepo-obsidian GitHub         |
@@ -58,7 +58,7 @@ Projetar e documentar a arquitetura de memoria infinita de 4 camadas para o Clau
 | Collection      | Chunk Size | Dimensoes | Uso                         |
 | --------------- | ---------- | --------- | --------------------------- |
 | hvacr_knowledge | 768        | 1536      | Conhecimento tecnico HVAC/R |
-| openclaw-memory | 768        | 1536      | Memoria do OpenClaw Bot     |
+| hermes-agent-memory | 768        | 1536      | Memoria do Hermes Agent     |
 
 **Caracteristicas:**
 
@@ -138,7 +138,7 @@ Projetar e documentar a arquitetura de memoria infinita de 4 camadas para o Clau
 │       ├── backend.md                    # Regras API
 │       ├── REVIEW-SKILLS.md             # Skills de code review
 │       ├── search.md                    # Regras de pesquisa
-│       └── openclaw-audio-governance.md # Audio stack (imutavel)
+│       └── hermes-agent-audio-governance.md # Audio stack (imutavel)
 │
 ├── docs/
 │   ├── SPECS/                           # Especificacoes
@@ -189,13 +189,13 @@ Projetar e documentar a arquitetura de memoria infinita de 4 camadas para o Clau
 | embedding_dim | 1536                        |
 | uso           | Conhecimento tecnico HVAC/R |
 
-### openclaw-memory
+### hermes-agent-memory
 
 | Param         | Valor                   |
 | ------------- | ----------------------- |
 | chunk_size    | 768                     |
 | embedding_dim | 1536                    |
-| uso           | Memoria do OpenClaw Bot |
+| uso           | Memoria do Hermes Agent |
 
 ---
 
@@ -206,7 +206,7 @@ Projetar e documentar a arquitetura de memoria infinita de 4 camadas para o Clau
 | Element     | Convention      | Example                              |
 | ----------- | --------------- | ------------------------------------ |
 | Files       | `kebab-case.md` | `infinite-memory-architecture.md`    |
-| Collections | `snake_case`    | `hvacr_knowledge`, `openclaw_memory` |
+| Collections | `snake_case`    | `hvacr_knowledge`, `hermes-agent_memory` |
 | Commands    | `slash-case`    | `/img`, `/ship`, `/turbo`            |
 
 ### Padroes de Arquitetura

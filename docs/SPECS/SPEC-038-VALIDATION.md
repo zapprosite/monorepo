@@ -102,7 +102,7 @@ curl -X POST localhost:8642/v1/chat/completions \
 - `0 6 * * 0` Secrets audit
 - `0 */3 * * *` ZFS snapshot prune
 
-### 9. OpenClaw Disable Status
+### 9. Hermes Agent Disable Status
 
 | Check              | Result                                                 | Status        |
 | ------------------ | ------------------------------------------------------ | ------------- |
@@ -124,7 +124,7 @@ curl -X POST localhost:8642/v1/chat/completions \
 | SC-5  | perplexity_browser skill           | ⚠️ PARTIAL | Files exist, blocked by SPEC-039 |
 | SC-6  | coolify_sre restart loop detection | ✅ DONE    | sre-monitor.sh active            |
 | SC-7  | hermes.json crons centralized      | ✅ DONE    | 10 crons installed               |
-| SC-8  | OpenClaw disable                   | ✅ DONE    | Containers stopped               |
+| SC-8  | Hermes Agent disable                   | ✅ DONE    | Containers stopped               |
 | SC-9  | MCP server for Open WebUI          | ⚠️ BLOCKED | Depends on SPEC-039              |
 | SC-10 | Zero true cron duplicates          | ✅ DONE    | Tunnel health unified            |
 
@@ -154,7 +154,7 @@ Core Hermes-Agent deployment is operational:
 - Voice pipeline fully operational (Kokoro TTS + whisper-medium-pt STT + TTS Bridge)
 - Hermes gateway responding on port 8642
 - Cron jobs centralized and running
-- OpenClaw migration complete
+- Hermes Agent migration complete
 
 **Pending (blocked by SPEC-039):**
 

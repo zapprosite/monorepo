@@ -62,7 +62,7 @@ This pipeline covers the activation of `bot.zappro.site` as endpoint for the Her
 **Notes:**
 - Only execute if Option A is explicitly approved by will
 - Risk: Telegram bot history may be affected
-- Alternative: deprecate bot.zappro.site and point to OpenClaw via separate tunnel
+- Alternative: deprecate bot.zappro.site and point to Hermes Agent via separate tunnel
 
 ---
 

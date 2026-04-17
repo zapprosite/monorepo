@@ -111,7 +111,7 @@ docker-compose up -d
 
 # Production (Coolify)
 # Build from Dockerfile in apps/perplexity-agent/
-# Exposed on web.zappro.site (same domain as OpenClaw web services)
+# Exposed on web.zappro.site (same domain as Hermes Agent web services)
 ```
 
 ---

@@ -1,7 +1,7 @@
 # TODO: Rede Perfeita — Terraform + Cloudflare Tunnel
 
 ### Tarefa 1: Corrigir Smoke Test
-**Ficheiro:** `tasks/smoke-tests/pipeline-openclaw-voice.sh`
+**Ficheiro:** `tasks/smoke-tests/pipeline-Hermes Agent-voice.sh`
 **Status:** pending
 
 Remover `localhost:18789` e usar rota via Cloudflare Tunnel ou Traefik directo.
@@ -10,11 +10,11 @@ Remover `localhost:18789` e usar rota via Cloudflare Tunnel ou Traefik directo.
 
 ---
 
-### Tarefa 2: Criar Subdomain `openclaw.zappro.site`
+### Tarefa 2: Criar Subdomain `Hermes Agent.zappro.site`
 **Ficheiro:** `/srv/ops/terraform/cloudflare/variables.tf`
-**Status:** OBSOLETO — OpenClaw já disponível em `bot.zappro.site`
+**Status:** OBSOLETO — Hermes Agent já disponível em `bot.zappro.site`
 
-O subdomain `openclaw.zappro.site` NÃO existe no DNS. OpenClaw usa `bot.zappro.site` (já configurado).
+O subdomain `Hermes Agent.zappro.site` NÃO existe no DNS. Hermes Agent usa `bot.zappro.site` (já configurado).
 Não criar — usar bot.zappro.site em vez disso.
 
 **Critério aceite:** N/A — não aplicar

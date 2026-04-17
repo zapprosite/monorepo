@@ -2,7 +2,7 @@
 
 **Data:** 2026-04-10
 **Diretório:** `/home/will/Desktop/voice-pipeline`
-**Governance ref:** `docs/OPERATIONS/SKILLS/openclaw-agents-kit/`
+**Governance ref:** `docs/OPERATIONS/SKILLS/Hermes Agent-agents-kit/`
 
 ---
 
@@ -16,7 +16,7 @@
 | Whisper API (native) | `:8201`  | ✅ UP  | Python process           |
 | Ollama               | `:11434` | ✅ UP  | Native                   |
 | wav2vec2-proxy       | —        | ✅ UP  | Docker                   |
-| OpenClaw             | `:8080`  | ✅ UP  | Docker                   |
+| Hermes Agent             | `:8080`  | ✅ UP  | Docker                   |
 
 ### Modelos Disponíveis (Ollama)
 
@@ -162,7 +162,7 @@ dconf load /org/gnome/settings-daemon/plugins/media-keys/ < hotkeys.ini
 
 ### Containers Docker — Auto-start:
 
-Os containers Kokoro e OpenClaw têm restart policy configurada no Docker Compose.
+Os containers Kokoro e Hermes Agent têm restart policy configurada no Docker Compose.
 
 ---
 

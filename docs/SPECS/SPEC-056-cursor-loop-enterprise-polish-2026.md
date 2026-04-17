@@ -379,7 +379,7 @@ O loop vai:
 
 ## References
 
-- SPEC-051: OpenClaw Prune & Specs Polish
+- SPEC-051: Hermes Agent Prune & Specs Polish
 - SPEC-041: Monorepo Estado da Arte Polish
 - Review findings: `docs/SPECS/reviews/REVIEW-20260416.md`
 - Cursor-Loop: `scripts/cursor-loop-*.sh`

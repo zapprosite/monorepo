@@ -16,7 +16,7 @@ Testa todas as rotas Traefik activas e detecta exactamente onde o routing falha.
 bash docs/OPERATIONS/SKILLS/traefik-route-tester.sh
 
 # Testar rota específica
-DOMAIN=openclaw.191.17.50.123.sslip.io bash docs/OPERATIONS/SKILLS/traefik-route-tester.sh
+DOMAIN=Hermes Agent.191.17.50.123.sslip.io bash docs/OPERATIONS/SKILLS/traefik-route-tester.sh
 ```
 
 ## Output
@@ -28,7 +28,7 @@ DOMAIN=openclaw.191.17.50.123.sslip.io bash docs/OPERATIONS/SKILLS/traefik-route
   "routes_tested": 3,
   "results": [
     {
-      "domain": "openclaw.191.17.50.123.sslip.io",
+      "domain": "Hermes Agent.191.17.50.123.sslip.io",
       "traefik_route": false,
       "backend_reachable": false,
       "http_code": 0,
@@ -175,7 +175,7 @@ main() {
 
     # 2. Listar domains a testar (variável ou default)
     local domains
-    domains="${DOMAINS:-openclaw.191.17.50.123.sslip.io open-webui.191.17.50.123.sslip.io}"
+    domains="${DOMAINS:-Hermes Agent.191.17.50.123.sslip.io open-webui.191.17.50.123.sslip.io}"
 
     local results_json="["
     local first=true
@@ -226,19 +226,19 @@ EOF
     echo ""
     echo "Saved: $OUTPUT_FILE"
 
-    # Diagnóstico de network isolation (se openclaw)
-    if docker inspect "openclaw-qgtzrmi6771lt8l7x8rqx72f" >/dev/null 2>&1; then
+    # Diagnóstico de network isolation (se Hermes Agent)
+    if docker inspect "Hermes Agent-qgtzrmi6771lt8l7x8rqx72f" >/dev/null 2>&1; then
         echo ""
         echo "=== Network Isolation Diagnostic ==="
         local iso
-        iso=$(check_network_isolation "coolify-proxy" "openclaw-qgtzrmi6771lt8l7x8rqx72f")
-        log "coolify-proxy ↔ openclaw: $iso"
+        iso=$(check_network_isolation "coolify-proxy" "Hermes Agent-qgtzrmi6771lt8l7x8rqx72f")
+        log "coolify-proxy ↔ Hermes Agent: $iso"
 
-        local traefik_nets openclaw_nets
+        local traefik_nets Hermes Agent_nets
         traefik_nets=$(container_networks "coolify-proxy")
-        openclaw_nets=$(container_networks "openclaw-qgtzrmi6771lt8l7x8rqx72f")
+        Hermes Agent_nets=$(container_networks "Hermes Agent-qgtzrmi6771lt8l7x8rqx72f")
         echo "  coolify-proxy networks: $(echo "$traefik_nets" | tr '\n' ' ')"
-        echo "  openclaw networks:      $(echo "$openclaw_nets" | tr '\n' ' ')"
+        echo "  Hermes Agent networks:      $(echo "$Hermes Agent_nets" | tr '\n' ' ')"
     fi
 }
 

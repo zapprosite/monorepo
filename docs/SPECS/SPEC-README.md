@@ -148,4 +148,4 @@ SPECs marked `PROTEGIDO` contain critical system configurations that must not be
 
 - `SPEC-004-kokoro-tts-kit.md` — TTS voice stack
 - `SPEC-005-wav2vec2-stt-kit.md` — STT voice stack
-- `SPEC-009-openclaw-persona-audio-stack.md` — OpenClaw audio configuration
+- `SPEC-009-Hermes Agent-persona-audio-stack.md` — Hermes Agent audio configuration

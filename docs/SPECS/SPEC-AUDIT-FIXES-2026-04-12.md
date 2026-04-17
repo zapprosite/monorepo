@@ -20,7 +20,7 @@ Aplicar os 5 fixes críticos identificados na auditoria homelab de 12/04/2026 pa
 
 Auditoria com 15 agents identificou gaps operacionais críticos:
 
-- TTS Bridge DOWN (OOM) — OpenClaw violando governance
+- TTS Bridge DOWN (OOM) — Hermes Agent violando governance
 - voice-pipeline-loop cron missing — sem auto-healing automático
 - ZFS ARC conflitando com containers — 7.8GB/8GB swap usado
 - chat.zappro.site sem Access policy — OpenWebUI exposto
@@ -32,7 +32,7 @@ Auditoria com 15 agents identificou gaps operacionais críticos:
 
 ### Fix 1: Restart TTS Bridge com Memory Limits
 
-**Problema:** TTS Bridge exit 137 (OOM), OpenClaw usando Kokoro direto :8880 com pm_alex
+**Problema:** TTS Bridge exit 137 (OOM), Hermes Agent usando Kokoro direto :8880 com pm_alex
 
 **Solução:**
 
@@ -54,7 +54,7 @@ curl -sf http://localhost:8013/health || docker logs zappro-tts-bridge --tail 50
 **ACCEPTANCE CRITERIA:**
 
 - [x] TTS Bridge responde 200 em localhost:8013/health
-- [x] OpenClaw config usa Bridge (não Kokoro direto)
+- [x] Hermes Agent config usa Bridge (não Kokoro direto)
 - [ ] Voice pm_santa funciona, pm_alex retorna 400 (untested)
 
 **Verification:**

@@ -242,7 +242,7 @@ Adicionar índice centralizado de governança.
 - "verificar com time" sem responsável definido
 - "em caso de dúvida consulte" sem link para documentação
 - Placeholder de seccções incompletas
-- Referências a OpenClaw que não foram actualizadas
+- Referências a Hermes Agent que não foram actualizadas
 
 ## 12. Dependencies
 

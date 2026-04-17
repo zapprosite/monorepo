@@ -16,7 +16,7 @@ Documentar e implementar a integração do Hermes Agent com Context7 MCP para pe
 
 ## Background
 
-Após o prune total do OpenClaw (SPEC-051), o foco agora é usar o Hermes Agent como assistente central com:
+Após o prune total do Hermes Agent (SPEC-051), o foco agora é usar o Hermes Agent como assistente central com:
 
 1. **Context7 MCP** — pesquisa de documentação de bibliotecas/frameworks/APIs
 2. **Web Search** — Tavily + WebSearch para pesquisa web em tempo real
@@ -295,7 +295,7 @@ async def my_tool(arg: str) -> str:
 - [MCP Documentation](https://modelcontextprotocol.io)
 - [MCP Specification](https://modelcontextprotocol.io/specification/latest)
 - [Context7 MCP Server](https://github.com/context7/mcp-server)
-- [SPEC-051 OpenClaw Prune](./SPEC-051-openclaw-prune-specs-polish.md)
+- [SPEC-051 Hermes Agent Prune](./SPEC-051-Hermes Agent-prune-specs-polish.md)
 - [SPEC-HERMES-INTEGRATION](./SPEC-HERMES-INTEGRATION.md)
 - [SPEC-047 AI Gateway](./SPEC-047-enterprise-polish-ai-gateway-ptbr.md)
 

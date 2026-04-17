@@ -25,7 +25,7 @@ RATE_LIMIT_WINDOW_SECONDS=3600  # 1 hour
 
 # Critical containers that should always be Up (healthy)
 CRITICAL_CONTAINERS=(
-    "openclaw-qgtzrmi6771lt8l7x8rqx72f"
+    "hermes-agent"
     "zappro-litellm"
     "zappro-wav2vec2"
     "coolify-proxy"
@@ -34,7 +34,7 @@ CRITICAL_CONTAINERS=(
 
 # Network pairs that should share a Docker network (for isolation check)
 NETWORK_PAIRS=(
-    "coolify-proxy:openclaw-qgtzrmi6771lt8l7x8rqx72f"
+    "coolify-proxy:hermes-agent"
     "zappro-litellm:zappro-wav2vec2"
 )
 

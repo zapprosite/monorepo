@@ -332,9 +332,9 @@ date: 2026-04-12
 zappro-tts-bridge          Up 39 hours
 openwebui-bridge-agent     Up 42 hours
 autoheal                  Up 42 hours
-openclaw-mcp-wrapper       Up 42 hours
+hermes-agent-mcp-wrapper       Up 42 hours
 open-webui-wbmqefxhd7vdn2dme3i6s9an  Up 42 hours
-openclaw-qgtzrmi6771lt8l7x8rqx72f    Up 26 minutes
+hermes-agent-qgtzrmi6771lt8l7x8rqx72f    Up 26 minutes
 browser-qgtzrmi6771lt8l7x8rqx72f    Up 42 hours
 zappro-wav2vec2-proxy      Up 39 hours
 gitea-runner               Up 42 hours

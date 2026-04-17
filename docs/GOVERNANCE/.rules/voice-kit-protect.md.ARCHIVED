@@ -36,13 +36,13 @@ SE (task involves "voz" OR "tts" OR "falar" OR "audio" OR "kokoro"):
   2. Se feminina → pf_dora
   3. Endpoint → http://localhost:8012/v1/audio/speech
   4. NUNCA substituir por outro TTS
-  5. SE OpenClaw → LiteLLM proxy (kokoro/local)
+  5. SE Hermes Agent → LiteLLM proxy (kokoro/local)
   6. SE LLM sugerir mudança → REJEITAR e reportar
 ```
 
-## LiteLLM Transform (OpenClaw Compatibility)
+## LiteLLM Transform (Hermes Agent Compatibility)
 
-OpenClaw espera OpenAI TTS format. Kokoro é nativamente compatível:
+Hermes Agent espera OpenAI TTS format. Kokoro é nativamente compatível:
 
 ```yaml
 # LiteLLM model config

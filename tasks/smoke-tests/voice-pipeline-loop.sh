@@ -78,7 +78,7 @@ run_smoke() {
         "litellm:4000:/health"
     )
 
-    # NOTE: OpenClaw was removed (port 4001 marked RESERVED in PORTS.md)
+    # NOTE: Hermes Agent was removed (port 4001 marked RESERVED in PORTS.md)
     # Removing from smoke test until it's redeployed via Coolify.
 
     for svc in "${LOCAL_SERVICES[@]}"; do
@@ -210,7 +210,7 @@ if [ "$alert_count" -ge 3 ]; then
 <code>${failed_svcs[*]}</code>
 
 🔧 <b>Recovery Plan:</b>
-1. <code>docker ps | grep openclaw|tts|wav2vec2|litellm</code>
+1. <code>docker ps | grep Hermes Agent|tts|wav2vec2|litellm</code>
 2. <code>docker logs &lt;container&gt; --tail 50</code>
 3. Check OPENAI_TTS_BASE_URL in Coolify
 

@@ -14,7 +14,7 @@
 | [GUARDRAILS.md](./GUARDRAILS.md)                 | Regras de proibido/permitido para infraestrutura. Propoe o que nao fazer.                                             | Antes de tocar em Coolify, ZFS, cloudflared, Docker, Terraform.                         |
 | [APPROVAL_MATRIX.md](./APPROVAL_MATRIX.md)       | Tabela de decisoes: SAFE/requisita aprovacao/FORBIDDEN por categoria de operacao.                                     | Quando duvidas se pode executar uma operacao. Consulta rapida.                          |
 | [IMMUTABLE-SERVICES.md](./IMMUTABLE-SERVICES.md) | Servicos que nunca podem ser alterados — nem com MASTER_PASSWORD.                                                     | Antes de propor qualquer mudanca em servicos de infraestrutura core.                    |
-| [PINNED-SERVICES.md](./PINNED-SERVICES.md)       | Servicos estaveis que requerem MASTER_PASSWORD + snapshot ZFS para alterar. Inclui registry completo com smoke tests. | Antes de modificar qualquer servico PINNED (Kokoro, wav2vec2, OpenClaw, LiteLLM, etc.). |
+| [PINNED-SERVICES.md](./PINNED-SERVICES.md)       | Servicos estaveis que requerem MASTER_PASSWORD + snapshot ZFS para alterar. Inclui registry completo com smoke tests. | Antes de modificar qualquer servico PINNED (Kokoro, wav2vec2, Hermes Agent, LiteLLM, etc.). |
 | [SECRETS-MANDATE.md](./SECRETS-MANDATE.md)       | Regra de que .env e fonte canonica de secrets. Proibe Infisical SDK em codigo de aplicacao.                           | Antes de trabalhar com secrets, .env, ou autenticacao em apps/packages.                 |
 | [EXCEPTIONS.md](./EXCEPTIONS.md)                 | Lista de excecoes documentadas a politica de secrets. Approvals e datas de expiracao.                                 | Quando ha necessidade legitima de desvio do SECRETS-MANDATE.                            |
 | [LANGUAGE-STANDARDS.md](./LANGUAGE-STANDARDS.md) | Standards de linguagem: PT-BR para documentacao, EN para codigo.                                                      | Antes de escrever docs ou commit messages.                                              |
@@ -32,7 +32,7 @@
 | **Snapshot antes de mudanca**                | CONTRACT.md           | Toda mudanca estrutural (ZFS, Docker, /etc) requer snapshot ZFS antes                                         |
 | **.env e fonte canonica**                    | SECRETS-MANDATE.md    | Todas as secrets via .env. Nunca Infisical SDK em codigo de aplicacao                                         |
 | **Servicos IMMUTABLE nunca mudam**           | IMMUTABLE-SERVICES.md | coolify-proxy, cloudflared, coolify-db, prometheus, grafana, loki, alertmanager, n8n sao permanentes          |
-| **Servicos PINNED requerem MASTER_PASSWORD** | PINNED-SERVICES.md    | Kokoro, wav2vec2, OpenClaw, LiteLLM, etc. requerem unlock + snapshot antes de modificar                       |
+| **Servicos PINNED requerem MASTER_PASSWORD** | PINNED-SERVICES.md    | Kokoro, wav2vec2, Hermes Agent, LiteLLM, etc. requerem unlock + snapshot antes de modificar                       |
 | **Coolify nunca e tocado**                   | GUARDRAILS.md         | Sem restart, upgrade, docker pull, exec em containers coolify-\*. Versao pinada em 4.0.0-beta.470             |
 | **cloudflared via Terraform**                | GUARDRAILS.md         | Nunca editar config.yml manualmente. Sempre terraform apply apos mudanca de tunnel                            |
 | **Portas proibidas**                         | GUARDRAILS.md         | :3000, :4000, :4001, :8000, :8080 reservadas. Verificar PORTS.md antes de usar                                |
@@ -118,7 +118,7 @@ sudo zfs snapshot -r tank@pre-$(date +%Y%m%d-%H%M%S)-descricao
 grep -q "coolify-proxy|cloudflared|coolify-db|prometheus|grafana|loki|alertmanager|n8n" <<< "$SERVICE" && echo "IMMUTABLE"
 
 # PINNED — requer MASTER_PASSWORD
-grep -q "kokoro|wav2vec2|openclaw|litellm" <<< "$SERVICE" && echo "PINNED"
+grep -q "kokoro|wav2vec2|Hermes Agent|litellm" <<< "$SERVICE" && echo "PINNED"
 ```
 
 ### Verificar Portas

@@ -239,7 +239,7 @@ This guide performs a smoke test on the voice pipeline desktop setup, verifying 
 
 Before starting, ensure you have:
 
-- [ ] **Docker** — Container runtime for Kokoro and OpenClaw
+- [ ] **Docker** — Container runtime for Kokoro and Hermes Agent
 - [ ] **Ollama** — Local LLM inference server
 - [ ] **whisper_api.py** — STT service running natively (not Docker)
 - [ ] **Kokoro TTS** — Docker container `zappro-kokoro`
@@ -253,7 +253,7 @@ Before starting, ensure you have:
 | Whisper API | :8201 | Yes |
 | Ollama | :11434 | Yes |
 | wav2vec2-proxy | Docker | Yes |
-| OpenClaw | :8080 | Yes |
+| Hermes Agent | :8080 | Yes |
 
 ---
 
@@ -462,7 +462,7 @@ docker start zappro-kokoro
 ## Related Documentation
 
 - [Voice Pipeline Loop](./voice-pipeline-loop.md) — Server-side voice pipeline
-- [OpenClaw Audio Governance](../specflow/SPEC-009-openclaw-persona-audio-stack.md) — Audio stack rules
+- [Hermes Agent Audio Governance](../specflow/SPEC-009-Hermes Agent-persona-audio-stack.md) — Audio stack rules
 - [CODE-REVIEW-GUIDE](./CODE-REVIEW-GUIDE.md) — Code review standards
 
 ---

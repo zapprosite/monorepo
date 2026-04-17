@@ -39,7 +39,7 @@ synced: 2026-04-15
 | Subdomínio               | Origem                | Notas                                                            |
 | ------------------------ | --------------------- | ---------------------------------------------------------------- |
 | `aurelia.zappro.site`    | aurelia-api :8080     | DNS removido — NXDOMAIN                                          |
-| `bot.zappro.site`        | OpenClaw legacy       | DNS removido — 530 error — container não existe                  |
+| `bot.zappro.site`        | Hermes Agent legacy       | DNS removido — 530 error — container não existe                  |
 | `grafana.zappro.site`    | Grafana :3100         | DNS removido — NXDOMAIN — usar monitor.zappro.site               |
 | `n8n.zappro.site`        | n8n container         | DNS removido 2026-04-14 — container não existe, porta 5678 livre |
 | `prometheus.zappro.site` | Prometheus :9090      | DNS removido — NXDOMAIN — container existe mas não exposto       |
