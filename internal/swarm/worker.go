@@ -13,12 +13,30 @@ import (
 	"github.com/google/uuid"
 )
 
+// TaskQueueBackend defines the interface for task queue operations.
+// Implemented by *RedisClient and test mocks.
+type TaskQueueBackend interface {
+	// Queue operations
+	PushTask(ctx context.Context, agentType string, task *Task) error
+	PopTaskBlocking(ctx context.Context, agentType string, timeout time.Duration) (*Task, error)
+	GetQueueLength(ctx context.Context, agentType string) (int64, error)
+	ClaimTask(ctx context.Context, agentType, workerID string, timestamp int64) (*Task, error)
+	StealTask(ctx context.Context, srcAgentType, destAgentType string) (*Task, error)
+	CompleteTask(ctx context.Context, agentType, taskID string, output json.RawMessage, moveToDeadLetter bool) error
+	// Agent registry operations
+	RegisterAgent(ctx context.Context, info *AgentInfo) error
+	UpdateAgentHeartbeat(ctx context.Context, workerID string) error
+	GetAgentStats(ctx context.Context, workerID string) (*AgentStats, error)
+	UpdateAgentStats(ctx context.Context, workerID string, completed, stolen int, avgMs float64) error
+	PublishTaskCompleted(ctx context.Context, taskID, workerID string) error
+}
+
 // SwarmWorker is a single agent worker that processes tasks from Redis queues.
 // It runs an infinite loop until the context is cancelled.
 type SwarmWorker struct {
 	ID        string
 	AgentType string
-	redis     *RedisClient
+	redis     TaskQueueBackend
 	agent     agents.AgentInterface
 	registry  *AgentRegistry
 
@@ -32,7 +50,7 @@ type SwarmWorker struct {
 }
 
 // NewSwarmWorker creates a new SwarmWorker.
-func NewSwarmWorker(agent agents.AgentInterface, redis *RedisClient, registry *AgentRegistry) *SwarmWorker {
+func NewSwarmWorker(agent agents.AgentInterface, redis TaskQueueBackend, registry *AgentRegistry) *SwarmWorker {
 	ctx, cancel := context.WithCancel(context.Background())
 	w := &SwarmWorker{
 		ID:         uuid.New().String(),
