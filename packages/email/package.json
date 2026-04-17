@@ -21,7 +21,7 @@
 		"react-email": "^3.0.7"
 	},
 	"devDependencies": {
-		"@repo/typescript-config": "*",
+		"@repo/typescript-config": "workspace:*",
 		"@types/react": "^19.2.2"
 	},
 	"dependencies": {

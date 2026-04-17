@@ -7,11 +7,11 @@
     ".": "./src/index.ts"
   },
   "dependencies": {
-    "drizzle-orm": "^3.0.0",
+    "drizzle-orm": "^0.45.0",
     "postgres": "^3.4.0",
     "dotenv": "^16.4.0"
   },
   "devDependencies": {
-    "drizzle-kit": "^0.30.0"
+    "drizzle-kit": "^0.31.0"
   }
 }
