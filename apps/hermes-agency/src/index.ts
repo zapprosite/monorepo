@@ -3,6 +3,7 @@
 
 import http from 'node:http';
 import { initAllCollections } from './qdrant/client';
+import { getAllCircuitBreakers } from './skills/circuit_breaker.ts';
 
 // Bot is launched in telegram/bot.ts (side-effect import)
 
@@ -64,6 +65,19 @@ const healthServer = http.createServer((req, res) => {
   } else if (req.url === '/ready') {
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ ready: true, timestamp: new Date().toISOString() }));
+  } else if (req.url === '/health/circuit-breakers') {
+    // HC-36: Circuit breaker status — admin only
+    const adminIds = (process.env['HERMES_ADMIN_USER_IDS'] ?? '').split(',').filter(Boolean);
+    const queryParams = new URL(req.url ?? '', 'http://localhost').searchParams;
+    const userId = queryParams.get('userId');
+    if (!userId || !adminIds.includes(userId)) {
+      res.writeHead(403, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'Forbidden — admin only' }));
+      return;
+    }
+    const breakers = getAllCircuitBreakers();
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ circuitBreakers: breakers, timestamp: new Date().toISOString() }));
   } else {
     res.writeHead(404);
     res.end();
