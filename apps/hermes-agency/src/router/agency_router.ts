@@ -2,10 +2,8 @@
 // Agency Router — Hermes → skill dispatcher
 
 import { AGENCY_SKILLS, getSkillById, getSkillByTrigger } from '../skills/index.ts';
+import { llmComplete } from '../litellm/router.ts';
 
-const HERMES_URL = process.env.HERMES_GATEWAY_URL ?? 'http://127.0.0.1:8642';
-const LLM_URL = process.env.LITELLM_LOCAL_URL ?? 'http://localhost:4000/v1';
-const LLM_KEY = process.env.LITELLM_MASTER_KEY ?? '';
 const BRAND_GUARDIAN_THRESHOLD = 0.8;
 const HUMAN_GATE_THRESHOLD = 0.7;
 
@@ -45,22 +43,13 @@ ${available}
 
 Responda apenas com o ID da skill (ex: agency-onboarding).`;
 
-  const response = await fetch(`${LLM_URL}/chat/completions`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${LLM_KEY}`,
-    },
-    body: JSON.stringify({
-      model: 'ollama/qwen2.5vl:7b',
-      messages: [{ role: 'user', content: prompt }],
-      max_tokens: 50,
-      temperature: 0.1,
-    }),
+  const result = await llmComplete({
+    messages: [{ role: 'user', content: prompt }],
+    maxTokens: 50,
+    temperature: 0.1,
   });
 
-  const data = (await response.json()) as { choices?: { message?: { content?: string } }[] };
-  const content = data.choices?.[0]?.message?.content ?? 'agency-ceo';
+  const content = result.content;
   const skillId = content
     .trim()
     .split('\n')[0]
@@ -86,7 +75,7 @@ async function executeSkill(skillId: string, input: string, ctx: RouterContext):
   // Human gate — confidence < 0.7
   const confidence = await assessConfidence(input);
   if (confidence < HUMAN_GATE_THRESHOLD) {
-    return `🤔 Confiança baixa (${confidence.toFixed(2)}) —人类的确认 required.\n\nMensagem: "${input}"\nSkill sugerida: ${skill.name}`;
+    return `🤔 Confiança baixa (${confidence.toFixed(2)}) — confirmação humana requerida.\n\nMensagem: "${input}"\nSkill sugerida: ${skill.name}`;
   }
 
   return `✅ Routed to **${skill.name}**\n📋 Tools: ${skill.tools.join(', ')}\n🎯 Executing: ${input.substring(0, 100)}...`;
@@ -100,21 +89,12 @@ Conteúdo: "${content}"
 Responda apenas com o número.`;
 
   try {
-    const response = await fetch(`${LLM_URL}/chat/completions`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${LLM_KEY}`,
-      },
-      body: JSON.stringify({
-        model: 'ollama/qwen2.5vl:7b',
-        messages: [{ role: 'user', content: prompt }],
-        max_tokens: 10,
-        temperature: 0,
-      }),
+    const result = await llmComplete({
+      messages: [{ role: 'user', content: prompt }],
+      maxTokens: 10,
+      temperature: 0,
     });
-    const data = (await response.json()) as { choices?: { message?: { content?: string } }[] };
-    const score = parseFloat(data.choices?.[0]?.message?.content ?? '0.5');
+    const score = parseFloat(result.content);
     return Math.max(0, Math.min(1, score));
   } catch {
     return 0.5;
@@ -132,21 +112,12 @@ Mensagem: "${input}"
 Responda apenas com o número.`;
 
   try {
-    const response = await fetch(`${LLM_URL}/chat/completions`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${LLM_KEY}`,
-      },
-      body: JSON.stringify({
-        model: 'ollama/qwen2.5vl:7b',
-        messages: [{ role: 'user', content: prompt }],
-        max_tokens: 10,
-        temperature: 0,
-      }),
+    const result = await llmComplete({
+      messages: [{ role: 'user', content: prompt }],
+      maxTokens: 10,
+      temperature: 0,
     });
-    const data = (await response.json()) as { choices?: { message?: { content?: string } }[] };
-    const score = parseFloat(data.choices?.[0]?.message?.content ?? '0.5');
+    const score = parseFloat(result.content);
     return Math.max(0, Math.min(1, score));
   } catch {
     return 0.5;
