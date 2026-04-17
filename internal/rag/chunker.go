@@ -17,12 +17,13 @@ type ChunkConfig struct {
 
 // ChunkResult represents a single chunk with metadata
 type ChunkResult struct {
-	ID          string            `json:"id"`
-	Text        string            `json:"text"`
-	TokenCount  int               `json:"token_count"`
-	ContentType string            `json:"content_type"`
-	Section     string            `json:"section"` // ERROR_CODES, SPECS, INSTALLATION, etc
-	Metadata    map[string]string `json:"metadata"` // brand, model, btu, error_code, page_ref
+	ID           string            `json:"id"`
+	Text         string            `json:"text"`
+	TokenCount   int               `json:"token_count"`
+	ContentType  string            `json:"content_type"`
+	Section      string            `json:"section"` // ERROR_CODES, SPECS, INSTALLATION, etc
+	Metadata     map[string]string `json:"metadata"` // brand, model, btu, error_code, page_ref
+	QualityScore float64           `json:"quality_score"` // qwen2.5-vl quality score (0-1)
 }
 
 // Chunker implements semantic chunking for HVAC manuals
