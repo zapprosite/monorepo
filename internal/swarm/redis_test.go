@@ -203,7 +203,6 @@ func TestTaskBoard_WorkStealing_SingleTaskNoSteal(t *testing.T) {
 	rc := NewRedisClientWithClient(client)
 
 	srcAgent := "ranking"
-	dstAgent := "response"
 
 	// Push only 1 task — steal condition is target_queue_len > 1
 	task := &Task{
@@ -226,10 +225,14 @@ func TestTaskBoard_WorkStealing_SingleTaskNoSteal(t *testing.T) {
 }
 
 func TestHeartbeat_Expires(t *testing.T) {
-	t.Parallel()
+	mr, err := miniredis.Run()
+	if err != nil {
+		t.Skip("miniredis not available: ", err)
+	}
+	defer mr.Close()
 
-	client, cleanup := startMiniredis(t)
-	defer cleanup()
+	client := redis.NewClient(&redis.Options{Addr: mr.Addr()})
+	defer client.Close()
 	ctx := context.Background()
 	rc := NewRedisClientWithClient(client)
 
@@ -243,7 +246,7 @@ func TestHeartbeat_Expires(t *testing.T) {
 		LastSeenAt: time.Now().Unix(),
 		Status:     "idle",
 	}
-	err := rc.RegisterAgent(ctx, info)
+	err = rc.RegisterAgent(ctx, info)
 	require.NoError(t, err)
 
 	err = rc.UpdateAgentHeartbeat(ctx, workerID)
@@ -254,8 +257,9 @@ func TestHeartbeat_Expires(t *testing.T) {
 	require.NoError(t, err)
 	require.True(t, alive)
 
-	// Wait for heartbeat TTL to expire (15s + buffer)
-	time.Sleep(HeartbeatTTL + 2*time.Second)
+	// Fast-forward miniredis clock past HeartbeatTTL
+	// (miniredis doesn't use real time for TTL)
+	mr.FastForward(HeartbeatTTL + 2*time.Second)
 
 	// Worker should now be dead
 	alive, err = rc.IsAgentAlive(ctx, workerID)
@@ -366,7 +370,6 @@ func TestPubSub_TaskCompleted(t *testing.T) {
 	ctx := context.Background()
 	rc := NewRedisClientWithClient(client)
 
-	agentType := "intake"
 	workerID := "worker-pubsub"
 	taskID := "t_pubsub_001"
 

@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strings"
+	"strconv"
 	"time"
 
 	"github.com/redis/go-redis/v9"
@@ -170,9 +172,11 @@ func (c *RedisClient) ClaimTask(ctx context.Context, agentType, workerID string,
 			local task = cjson.decode(task_json)
 			task['status'] = 'running'
 			task['worker_id'] = ARGV[1]
-			task['claimed_at'] = ARGV[2]
-			redis.call('HSET', KEYS[2], task['task_id'], cjson.encode(task))
-			return cjson.encode(task)
+			task['claimed_at'] = tonumber(ARGV[2])
+			local task_id = task['task_id']
+			redis.call('HSET', KEYS[2], task_id, cjson.encode(task))
+			-- Return task_id and fields individually to avoid cjson.encode mangling int64
+			return task_id .. '|' .. ARGV[1] .. '|' .. ARGV[2]
 		end
 		return nil
 	`)
@@ -184,15 +188,24 @@ func (c *RedisClient) ClaimTask(ctx context.Context, agentType, workerID string,
 		}
 		return nil, err
 	}
-	if result == "" {
+	if result == "" || result == "\n" {
 		return nil, nil
 	}
 
-	var task Task
-	if err := json.Unmarshal([]byte(result), &task); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal claimed task: %w", err)
+	// Parse "task_id|worker_id|timestamp" format to avoid cjson.encode mangling int64
+	parts := strings.Split(result, "|")
+	if len(parts) != 3 {
+		return nil, fmt.Errorf("unexpected claim result format: %q", result)
 	}
-	return &task, nil
+
+	ts, _ := strconv.ParseInt(strings.TrimSpace(parts[2]), 10, 64)
+	wid := parts[1]
+	return &Task{
+		TaskID:    parts[0],
+		WorkerID:  &wid,
+		ClaimedAt: &ts,
+		Status:    "running",
+	}, nil
 }
 
 // CompleteTask removes a task from processing and optionally moves to dead-letter.

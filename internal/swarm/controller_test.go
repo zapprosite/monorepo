@@ -1,7 +1,6 @@
 package swarm
 
 import (
-	"context"
 	"testing"
 	"time"
 
