@@ -1,7 +1,7 @@
 # Port Allocation — homelab
 
 **Authority:** [NETWORK_MAP.md](./NETWORK_MAP.md) (read this first)
-**Last verified:** 2026-04-15 — SPEC-050: :4002 (ai-gateway) + :8204 (whisper-medium-pt canonical STT) added
+**Last verified:** 2026-04-17 — 14-agent datacenter research: LiteLLM stable, Kokoro :8012, GPU watchdog gaps, LangGraph checkpointing
 **Source of truth:** SPEC-045 §7 Services Inventory
 
 ---
@@ -19,7 +19,7 @@
 | ai-gateway     | Ubuntu Desktop    | 4002   | OpenAI-compat facade (TTS/STT/Vision)    |
 | Ollama         | Ubuntu Desktop    | 11434  | Local LLM inference (RTX 4090)           |
 | faster-whisper | Docker            | 8204   | STT (medium-pt, OpenAI whisper-1 compat) |
-| Kokoro TTS     | Docker            | 8880   | TTS direct (bridge:8013)                 |
+| Kokoro TTS     | Docker            | 8012   | TTS engine (internal), :8880 external    |
 | TTS Bridge     | Docker            | 8013   | TTS voice filter (pm_santa/pf_dora)      |
 | LiteLLM        | Docker Compose    | 4000   | Multi-provider LLM proxy                 |
 | Grafana        | Docker Compose    | 3100   | Metrics visualization                    |
@@ -90,15 +90,15 @@ These ports are permanently reserved and MUST NOT be used without updating this 
 | 3101 | loki                | host                   | Log aggregation                                      | via Grafana                       |
 | 3334 | zappro-litellm      | host                   | LiteLLM UI (internal)                                | —                                 |
 | 4000 | zappro-litellm      | host                   | LiteLLM proxy                                        | api.zappro.site / llm.zappro.site |
-| 4002 | ai-gateway          | host                   | OpenAI-compatible facade (SPEC-047)                  | —                                 |
+| 4002 | ai-gateway          | host                   | OpenAI-compatible facade — llm/hermes.zappro.site    | —                                 |
 | 4004 | nginx-ratelimit     | host                   | nginx rate-limited → :4000                           | —                                 |
 | 4005 | ai-router           | host                   | AI Router (FastAPI)                                  | —                                 |
 | 4007 | zappro-tts-bridge   | localhost              | TTS Bridge → Kokoro :8880                            | —                                 |
 | 6333 | qdrant              | Coolify net (10.0.4.x) | Qdrant REST                                          | —                                 |
 | 6334 | zappro-qdrant       | host                   | Qdrant gRPC                                          | —                                 |
 | 6379 | zappro-redis        | host                   | Redis cache/pubsub                                   | —                                 |
-| 8013 | zappro-tts-bridge   | localhost              | Kokoro TTS Bridge (pf_dora/pm_santa voices)          | —                                 |
-| 8012 | zappro-kokoro       | localhost              | Kokoro TTS (GPU direct)                              | —                                 |
+| 8012 | zappro-kokoro       | localhost              | Kokoro TTS engine (GPU) — health on :8012            | —                                 |
+| 8013 | zappro-tts-bridge   | localhost              | Kokoro TTS Bridge (pm_santa/pf_dora voices)          | —                                 |
 | 8880 | zappro-kokoro       | bridge (Coolify net)   | Kokoro TTS — `10.0.19.7:8880` for Coolify containers | —                                 |
 | 8888 | searxng             | host                   | Search engine                                        | —                                 |
 | 9090 | prometheus          | localhost              | TSDB metrics (30d)                                   | —                                 |
