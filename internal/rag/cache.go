@@ -94,26 +94,28 @@ func (c *SemanticCache) Delete(ctx context.Context, query string) error {
 }
 
 // InvalidateAll removes all entries from the RAG cache.
+// Uses a Lua script for atomic scan+delete to prevent race conditions.
 func (c *SemanticCache) InvalidateAll(ctx context.Context) error {
 	pattern := CacheKeyPrefix + "*"
 
-	var cursor uint64
-	for {
-		keys, nextCursor, err := c.rdb.Scan(ctx, cursor, pattern, 100).Result()
-		if err != nil {
-			return fmt.Errorf("redis scan: %w", err)
-		}
+	// Lua script: scan and delete atomically in batches
+	// This prevents race condition where keys added between scan and del survive
+	script := redis.NewScript(`
+		local cursor = '0'
+		repeat
+			local result = redis.call('SCAN', cursor, 'MATCH', ARGV[1], 'COUNT', 100)
+			cursor = result[1]
+			local keys = result[2]
+			if #keys > 0 then
+				redis.call('UNLINK', unpack(keys))
+			end
+		until cursor == '0'
+		return 1
+	`)
 
-		if len(keys) > 0 {
-			if err := c.rdb.Del(ctx, keys...).Err(); err != nil {
-				return fmt.Errorf("redis del: %w", err)
-			}
-		}
-
-		cursor = nextCursor
-		if cursor == 0 {
-			break
-		}
+	_, err := script.Run(ctx, c.rdb, []string{pattern}).Result()
+	if err != nil {
+		return fmt.Errorf("redis scan+unlink: %w", err)
 	}
 
 	return nil
