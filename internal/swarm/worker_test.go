@@ -364,7 +364,7 @@ func TestHeartbeat_ExpiresAfter15s(t *testing.T) {
 
 	// Initial heartbeat
 	err := redis.UpdateAgentHeartbeat(context.Background(), worker.ID)
-	require.NoError(t, "initial heartbeat should succeed")
+	require.NoError(t, err, "initial heartbeat should succeed")
 
 	// Immediately after heartbeat, worker should be alive
 	alive, err := redis.IsAgentAlive(context.Background(), worker.ID)
