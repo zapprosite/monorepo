@@ -5,7 +5,7 @@ import { llmComplete } from '../litellm/router.ts';
 import { COLLECTIONS } from '../qdrant/client.ts';
 import { bot } from '../telegram/bot.ts';
 
-const QDRANT_URL = process.env.QDRANT_URL ?? 'http://localhost:6333';
+const QDRANT_URL = process.env['QDRANT_URL'] ?? 'http://localhost:6333';
 
 export type StatusUpdateState = {
   campaignIds: string[];

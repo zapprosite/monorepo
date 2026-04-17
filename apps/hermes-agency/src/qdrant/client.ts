@@ -1,8 +1,8 @@
 // Anti-hardcoded: all config via process.env
 // Qdrant Client — Multi-tenant collections for Hermes Agency Suite
 
-const QDRANT_URL = process.env.QDRANT_URL ?? 'http://localhost:6333';
-const QDRANT_API_KEY = process.env.QDRANT_API_KEY ?? '';
+const QDRANT_URL = process.env['QDRANT_URL'] ?? 'http://localhost:6333';
+const QDRANT_API_KEY = process.env['QDRANT_API_KEY'] ?? '';
 
 if (!QDRANT_API_KEY) {
   console.error('[Qdrant] QDRANT_API_KEY not set in .env');

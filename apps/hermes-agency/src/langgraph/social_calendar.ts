@@ -37,7 +37,7 @@ export async function executeSocialCalendar(): Promise<SocialCalendarState> {
 async function scrapeCalendar(): Promise<
   Array<{ platform: string; content: string; scheduledTime: string }>
 > {
-  const QDRANT_URL = process.env.QDRANT_URL ?? 'http://localhost:6333';
+  const QDRANT_URL = process.env['QDRANT_URL'] ?? 'http://localhost:6333';
   const posts: Array<{ platform: string; content: string; scheduledTime: string }> = [];
   let nextPageId: string | undefined;
 

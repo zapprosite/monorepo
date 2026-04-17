@@ -8,8 +8,8 @@ import { initAllCollections } from './qdrant/client';
 
 console.log('[HermesAgency] Starting Hermes Agency Suite...');
 
-// Startup validation — fail fast if required env vars are missing or unreachable
-const REQUIRED = ['HERMES_AGENCY_BOT_TOKEN', 'QDRANT_URL', 'OLLAMA_URL'];
+// HC-37: Startup validation — fail fast only for secrets (not for services)
+const REQUIRED = ['HERMES_AGENCY_BOT_TOKEN', 'AI_GATEWAY_FACADE_KEY', 'QDRANT_URL', 'OLLAMA_URL'];
 for (const key of REQUIRED) {
   if (!process.env[key]) {
     console.error(`[HermesAgency] FATAL: ${key} not set in .env`);
@@ -17,31 +17,23 @@ for (const key of REQUIRED) {
   }
 }
 
-// Verify Qdrant is reachable at startup
+// HC-39: Non-blocking connectivity checks — warn only, do not block startup
+// Services may be temporarily unavailable during rolling deployments
 const QDRANT_URL = process.env['QDRANT_URL']!;
-try {
-  const response = await fetch(`${QDRANT_URL}/collections`);
-  if (!response.ok) {
-    console.error(`[HermesAgency] FATAL: Qdrant not reachable at ${QDRANT_URL} (status ${response.status})`);
-    process.exit(1);
-  }
-} catch (err) {
-  console.error(`[HermesAgency] FATAL: Cannot connect to Qdrant at ${QDRANT_URL}:`, err);
-  process.exit(1);
-}
+fetch(`${QDRANT_URL}/collections`, { signal: AbortSignal.timeout(3000) })
+  .then((r) => {
+    if (!r.ok) console.warn(`[HermesAgency] WARN: Qdrant at ${QDRANT_URL} returned ${r.status}`);
+    else console.log('[HermesAgency] Qdrant: reachable');
+  })
+  .catch(() => console.warn(`[HermesAgency] WARN: Qdrant not reachable at ${QDRANT_URL} — degraded mode`));
 
-// Verify Ollama is reachable at startup
 const OLLAMA_URL = process.env['OLLAMA_URL']!;
-try {
-  const response = await fetch(`${OLLAMA_URL}/api/tags`);
-  if (!response.ok) {
-    console.error(`[HermesAgency] FATAL: Ollama not reachable at ${OLLAMA_URL} (status ${response.status})`);
-    process.exit(1);
-  }
-} catch (err) {
-  console.error(`[HermesAgency] FATAL: Cannot connect to Ollama at ${OLLAMA_URL}:`, err);
-  process.exit(1);
-}
+fetch(`${OLLAMA_URL}/api/tags`, { signal: AbortSignal.timeout(3000) })
+  .then((r) => {
+    if (!r.ok) console.warn(`[HermesAgency] WARN: Ollama at ${OLLAMA_URL} returned ${r.status}`);
+    else console.log('[HermesAgency] Ollama: reachable');
+  })
+  .catch(() => console.warn(`[HermesAgency] WARN: Ollama not reachable at ${OLLAMA_URL} — degraded mode`));
 
 // Initialize Qdrant collections
 initAllCollections().catch((err) => {
@@ -74,5 +66,16 @@ const healthServer = http.createServer((req, res) => {
 healthServer.listen(healthPort, () => {
   console.log(`[HermesAgency] Health endpoint: http://localhost:${healthPort}/health`);
 });
+
+// HC-38: Graceful shutdown — close HTTP server on container signals
+// Note: bot.ts handles SIGINT/SIGTERM for the Telegraf bot (polling stop)
+const shutdown = () => {
+  console.log('[HermesAgency] Shutdown signal received — closing health server');
+  healthServer.close(() => {
+    console.log('[HermesAgency] Health server closed');
+  });
+};
+process.once('SIGTERM', shutdown);
+process.once('SIGINT', shutdown);
 
 console.log('[HermesAgency] Hermes Agency Suite started');

@@ -15,6 +15,7 @@ import { validateFile } from './file_validator';
 // ── Env vars with fallbacks ─────────────────────────────────────────────────
 const BOT_TOKEN = process.env['HERMES_AGENCY_BOT_TOKEN'] ?? '';
 const WEBHOOK_URL = process.env['HERMES_AGENCY_WEBHOOK_URL'] ?? '';
+const HERMES_GATEWAY_URL = process.env['HERMES_GATEWAY_URL'] ?? 'http://localhost:8642';
 const STT_URL = process.env['STT_DIRECT_URL'] ?? 'http://localhost:8204';
 const TTS_URL = process.env['TTS_BRIDGE_URL'] ?? 'http://localhost:8013';
 const OLLAMA_URL = process.env['OLLAMA_URL'] ?? 'http://localhost:11434';
@@ -85,11 +86,19 @@ bot.use(async (ctx, next) => {
     return;
   }
 
-  const userId = String(ctx.from?.id ?? 'unknown');
+  // HC-28: Guard — ctx.from is undefined for anonymous channel posts
+  if (!ctx.from) {
+    await ctx.reply('❌ Não foi possível identificar o remetente.');
+    return;
+  }
+
+  const userId = String(ctx.from.id);
 
   // Redis-backed rate limiter (falls back to in-memory)
   const { allowed, retryAfterSec } = await checkRateLimit(userId);
   if (!allowed) {
+    // HC-50: Log security event for monitoring
+    console.warn('[HermesAgencyBot] Rate limit exceeded', { userId, retryAfterSec });
     await ctx.reply(`⛔ Muitas solicitações. Tente novamente em ${retryAfterSec}s.`);
     return;
   }
@@ -97,6 +106,8 @@ bot.use(async (ctx, next) => {
   // Redis-backed distributed lock (falls back to in-memory)
   const locked = await acquireLock(chatId);
   if (!locked) {
+    // HC-50: Log security event for monitoring
+    console.warn('[HermesAgencyBot] Lock busy — concurrent message blocked', { chatId, userId });
     await ctx.reply('⏳ Processando outra mensagem neste chat. Por favor aguarde.');
     return;
   }
@@ -114,6 +125,13 @@ bot.use(async (ctx, next) => {
 async function downloadTelegramFile(fileId: string, token: string): Promise<string> {
   const filePath = await bot.telegram.getFile(fileId);
   const url = `https://api.telegram.org/file/bot${token}/${filePath.file_path}`;
+
+  // HC-26: Validate host to prevent SSRF — only allow Telegram CDN
+  const urlObj = new URL(url);
+  if (urlObj.hostname !== 'api.telegram.org') {
+    throw new Error(`Invalid file host: ${urlObj.hostname}`);
+  }
+
   const response = await fetch(url, { signal: AbortSignal.timeout(30_000) });
   if (!response.ok) throw new Error(`Failed to download file: ${response.status}`);
   const ext = filePath.file_path?.split('.').pop() ?? 'ogg';
@@ -264,7 +282,7 @@ bot.command('health', async (ctx) => {
 
   // Admin health — full details including internal services
   const checks = await Promise.all([
-    fetchHealth('http://localhost:8642/health', 'Hermes :8642'),
+    fetchHealth(`${HERMES_GATEWAY_URL}/health`, 'Hermes Gateway'),
     fetchHealth(`${STT_URL}/health`, 'STT :8204'),
     fetchHealth(`${TTS_URL}/health`, 'TTS :8013'),
     fetchHealth(`${OLLAMA_URL}/api/tags`, 'Ollama :11434'),
@@ -276,7 +294,7 @@ bot.command('health', async (ctx) => {
 // ── Voice handler ────────────────────────────────────────────────────────────
 bot.on('voice', async (ctx) => {
   const chatId = ctx.chat?.id ?? 0;
-  const userId = String(ctx.from?.id ?? 'unknown');
+  const userId = String(ctx.from?.id ?? 0);
 
   // Concurrency semaphore — prevent flood attacks
   if (!acquireSemaphore(userId)) {
@@ -293,6 +311,8 @@ bot.on('voice', async (ctx) => {
     // File validation: size + MIME magic bytes
     const validation = validateFile(tmpPath);
     if (!validation.valid) {
+      // HC-50: Log security event for monitoring
+      console.warn('[HermesAgencyBot] Voice file rejected', { userId, reason: validation.reason });
       await ctx.reply(`❌ ${validation.reason}`);
       return;
     }
@@ -336,7 +356,7 @@ bot.on('voice', async (ctx) => {
 
 // ── Photo handler ────────────────────────────────────────────────────────────
 bot.on('photo', async (ctx) => {
-  const userId = String(ctx.from?.id ?? 'unknown');
+  const userId = String(ctx.from?.id ?? 0);
 
   // Concurrency semaphore
   if (!acquireSemaphore(userId)) {
@@ -363,6 +383,8 @@ bot.on('photo', async (ctx) => {
     // File validation: size + MIME magic bytes
     const validation = validateFile(tmpPath);
     if (!validation.valid) {
+      // HC-50: Log security event for monitoring
+      console.warn('[HermesAgencyBot] Photo file rejected', { userId, reason: validation.reason });
       await ctx.reply(`❌ ${validation.reason}`);
       return;
     }
