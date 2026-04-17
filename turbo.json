@@ -8,7 +8,6 @@
       "outputs": [".next/**", "dist/**"]
     },
     "test": {
-      "dependsOn": ["build"],
       "outputs": ["coverage/**"]
     },
     "lint": {

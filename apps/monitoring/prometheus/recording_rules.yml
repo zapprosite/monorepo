@@ -1,0 +1,69 @@
+groups:
+  # AI Gateway — pre-computed metrics for dashboards and alerting
+  - name: ai_gateway_recording_rules
+    interval: 30s
+    rules:
+      # Request rate per minute (1m window)
+      - record: job:http_requests_total:rate1m
+        expr: rate(http_requests_total{job="ai-gateway"}[1m]) * 60
+        labels:
+          service: ai-gateway
+
+      # Error rate percentage
+      - record: job:http_request_errors:rate1m
+        expr: |
+          rate(http_requests_total{job="ai-gateway", status=~"5.."}[1m])
+          /
+          rate(http_requests_total{job="ai-gateway"}[1m])
+        labels:
+          service: ai-gateway
+
+      # Latency p50 / p95 / p99
+      - record: job:http_request_duration_p50
+        expr: histogram_quantile(0.50, rate(http_request_duration_seconds_bucket{job="ai-gateway"}[5m]))
+        labels:
+          service: ai-gateway
+
+      - record: job:http_request_duration_p95
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job="ai-gateway"}[5m]))
+        labels:
+          service: ai-gateway
+
+      - record: job:http_request_duration_p99
+        expr: histogram_quantile(0.99, rate(http_request_duration_seconds_bucket{job="ai-gateway"}[5m]))
+        labels:
+          service: ai-gateway
+
+  # Hermes Agency — routing and skill execution metrics
+  - name: hermes_agency_recording_rules
+    interval: 30s
+    rules:
+      - record: job:http_requests_total:rate1m
+        expr: rate(http_requests_total{job="hermes-agency"}[1m]) * 60
+        labels:
+          service: hermes-agency
+
+      - record: job:http_request_errors:rate1m
+        expr: |
+          rate(http_requests_total{job="hermes-agency", status=~"5.."}[1m])
+          /
+          rate(http_requests_total{job="hermes-agency"}[1m])
+        labels:
+          service: hermes-agency
+
+      - record: job:http_request_duration_p95
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job="hermes-agency"}[5m]))
+        labels:
+          service: hermes-agency
+
+  # Service availability — pre-computed for dashboards
+  - name: service_availability
+    interval: 60s
+    rules:
+      # Uptime over the last 24h
+      - record: job:up:avg24h
+        expr: avg_over_time(up{job=~"ai-gateway|hermes-agency|hermes-services"}[24h])
+
+      # LLM call latency (Ollama)
+      - record: job:ollama_request_duration_p95
+        expr: histogram_quantile(0.95, rate(ollama_request_duration_seconds_bucket[5m]))
