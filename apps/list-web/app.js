@@ -97,8 +97,8 @@
     },
     {
       name: 'Prometheus',
-      url: 'http://localhost:9090',
-      description: 'Metrics collection',
+      url: 'https://monitor.zappro.site', // Metrics via Grafana (Prometheus is internal)
+      description: 'Metrics collection (via Grafana)',
       icon: '🎯',
       category: 'monitoring',
     },
@@ -118,8 +118,8 @@
     },
     {
       name: 'Kokoro TTS',
-      url: 'http://localhost:8013',
-      description: 'Text-to-Speech',
+      url: 'https://hermes.zappro.site', // TTS via Hermes Gateway
+      description: 'Text-to-Speech via Hermes',
       icon: '🔊',
       category: 'ai',
     },
