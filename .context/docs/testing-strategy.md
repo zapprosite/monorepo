@@ -1,26 +1,49 @@
 # Testing Strategy
 
-The quality of the monorepo is maintained through a multi-layered testing strategy that combines static analysis, isolated unit tests, and integrated functional tests. Our goal is to ensure that every change—from a Zod schema modification in `packages/zod-schemas` to a UI component update in `packages/ui`—is validated before reaching production.
+This document outlines the multi-layered testing strategy used to maintain quality and reliability across the monorepo. Our approach combines static analysis, isolated unit tests, and integrated functional tests to ensure that every change—from a Zod schema modification to a UI component update—is validated before reaching production.
 
-Quality is enforced through automated pipelines that run on every pull request, ensuring that regressions are caught early and that the contract between the frontend and backend (via tRPC) remains intact.
+## Overview
+
+Quality is enforced through automated pipelines that run on every Pull Request. This ensures that regressions are caught early and that the contract between the frontend and backend (via tRPC and Zod schemas) remains intact.
+
+### Core Testing Principles
+- **Type Safety**: Leverage TypeScript and Zod for compile-time and runtime validation.
+- **Isolation**: Unit tests should not depend on external services.
+- **Reproduceability**: Integration tests must use clean database states.
+- **Automation**: No code is merged without passing the CI suite.
+
+---
 
 ## Test Types
 
-### Unit Tests
-*   **Tools**: Vitest 4, `@testing-library/react`, `@testing-library/jest-dom`.
-*   **Naming Convention**: `*.test.ts` or `*.test.tsx`.
-*   **Scope**: Focuses on pure functions, utility methods in `apps/web/src/utils`, and Zod validation logic in `packages/zod-schemas`. React components are tested in isolation using JSDOM.
-*   **Key Files**: `packages/zod-schemas/src/__tests__`, `apps/api/src/modules/auth/__tests__`.
+### 1. Unit Tests
+Focus on pure functions, utility methods, and isolated logic.
+- **Tools**: Vitest, `@testing-library/react`, `@testing-library/jest-dom`.
+- **Naming**: `*.test.ts` or `*.test.tsx`.
+- **Scope**: 
+    - Validation logic in `packages/zod-schemas/src/__tests__`.
+    - Utility functions in `apps/web/src/utils` or `apps/api/src/utils`.
+    - Component rendering and user events in `packages/ui`.
+- **Example**: Testing a `UserCreateInput` schema against various edge cases.
 
-### Integration Tests
-*   **Tools**: Vitest, tRPC Callers.
-*   **Naming Convention**: `*.integration.test.ts`.
-*   **Scenario**: Validating tRPC procedures against a live test database. This ensures that the `apps/api` routers, middlewares (like `apiKeyAuthHook`), and database tables (e.g., `UsersTable`, `ContractsTable`) work together correctly.
+### 2. Integration Tests
+Validate that multiple units (routers, services, and databases) work together.
+- **Tools**: Vitest, tRPC Callers, Testcontainers (Postgres/Redis).
+- **Naming**: `*.integration.test.ts`.
+- **Scope**:
+    - tRPC procedures in `apps/api/src/routers`.
+    - Middleware execution like `apiKeyAuthHook` or `sessionSecurity`.
+    - Database interactions with tables such as `UsersTable`, `ContractsTable`, or `SubscriptionsTable`.
+- **Example**: Creating a session via `authRouter` and verifying the record exists in `SessionTable`.
 
-### End-to-End (E2E)
-*   **Tools**: Playwright.
-*   **Naming Convention**: Located in `apps/perplexity-agent/e2e` or similar `e2e/` directories.
-*   **Scenario**: Validating critical user journeys such as Google OAuth2 login flows, complex form submissions in the Kanban module, and real-time event processing in the Hermes Agency orchestrator.
+### 3. End-to-End (E2E) Tests
+Validate critical user journeys from the perspective of a real user.
+- **Tools**: Playwright.
+- **Location**: Typically found in `apps/web/e2e` or specialized agent directories.
+- **Scope**:
+    - Google OAuth2 login flows.
+    - Complex Kanban board drag-and-drop interactions.
+    - Real-time event processing in the `Hermes Agency` orchestrator.
 
 ---
 
@@ -28,30 +51,33 @@ Quality is enforced through automated pipelines that run on every pull request, 
 
 Tests can be executed globally from the root using Turbo or individually within each workspace.
 
-### Run All Tests
-To execute all tests across the monorepo:
+### Global Execution
+Run all tests across all packages:
 ```bash
 yarn test
 ```
 
 ### Workspace Specific
-To run tests for a specific package or application:
+Run tests for a specific application or package:
 ```bash
-# Example: Testing the Web application
+# Web Application
 yarn workspace @connected-repo/web test
 
-# Example: Testing the API with Watch Mode
+# API (Watch Mode)
 yarn workspace @connected-repo/api test --watch
+
+# Shared Schemas
+yarn workspace @connected-repo/zod-schemas test
 ```
 
 ### Coverage Reports
-To generate a code coverage summary:
+Generate a code coverage summary to identify untested paths:
 ```bash
-yarn workspace @connected-repo/web test --coverage
+yarn workspace @connected-repo/api test --coverage
 ```
 
 ### Targeted Testing
-Run a specific test file during development to save time:
+Run a specific file to speed up development:
 ```bash
 npx vitest apps/api/src/modules/auth/__tests__/session.test.ts
 ```
@@ -60,38 +86,36 @@ npx vitest apps/api/src/modules/auth/__tests__/session.test.ts
 
 ## Quality Gates
 
-To maintain high code standards, the following quality gates must be passed before merging any Pull Request:
+The following requirements must be met before merging any Pull Request:
 
-1.  **Coverage Requirements**:
-    *   Minimum **80%** line coverage for core business logic in `apps/api/src/modules`.
-    *   **100%** coverage for shared schemas in `packages/zod-schemas`.
-2.  **Static Analysis**:
-    *   `yarn lint`: Must pass with zero errors.
-    *   `yarn format:check`: Confirms code adheres to Prettier configurations.
-3.  **Type Safety**:
-    *   `yarn typecheck`: Must pass across the entire monorepo to ensure tRPC interfaces and Zod-inferred types are consistent.
-4.  **CI/CD Pipeline**:
-    *   All tests must pass in GitHub Actions, which utilizes service containers for Postgres 15 and Redis to support integration suites.
+| Category | Requirement | Target |
+| :--- | :--- | :--- |
+| **Logic Coverage** | Core logic in `apps/api/src/modules` | > 80% |
+| **Schema Coverage** | Shared schemas in `packages/zod-schemas` | 100% |
+| **Static Analysis** | `yarn lint` and `yarn format:check` | 0 Errors |
+| **Type Safety**| `yarn typecheck` | Success |
+| **CI Pipeline** | GitHub Actions (Postgres/Redis) | Green/Pass |
 
 ---
 
-## Troubleshooting
+## Troubleshooting & Best Practices
 
-### Flaky Database Tests
-Integration tests for the API require a clean state. If tests fail due to unique constraint violations (e.g., `UserTable` or `TeamTable` entries):
-*   Verify the test suite uses the `truncate` utility in the `beforeEach` hook.
-*   Ensure the `test-utils` in `apps/api/src/test-utils` are correctly initializing the DB connection.
+### Database State Management
+If integration tests fail due to unique constraint violations (e.g., duplicated email in `UserTable`):
+- Ensure your test suite uses the `truncate` utility in the `beforeEach` or `afterEach` hook.
+- Check `apps/api/src/test-utils` for standardized DB initialization helpers.
 
-### JSDOM Environment Issues
-When testing components in `packages/ui`, you may encounter errors related to missing browser APIs (like `IntersectionObserver`).
-*   **Solution**: Mock these APIs in `apps/web/src/test-setup.ts` or the relevant `vitest.setup.ts`.
+### Mocking Browser APIs
+When testing components in `packages/ui`, JSDOM may lack support for newer APIs like `IntersectionObserver` or `ResizeObserver`.
+- **Solution**: Use `vi.stubGlobal` or provide mocks in your `vitest.setup.ts` file.
 
-### Long-Running Suites
-The Hermes Agency's `WorkflowStateMachine` and `EventBus` tests can be resource-intensive.
-*   **Optimization**: Use the `--shard` flag in Vitest to split the load across multiple runners in CI environments.
+### Dealing with Flaky AI/Async Tests
+Tests involving LLM responses in `apps/hermes-agency` or long-running workfows can be non-deterministic.
+- **Solution**: Use `vi.useFakeTimers()` for state machines and mock LLM providers like `litellm` in unit test scenarios.
+- **Optimization**: Use the `--shard` flag in CI to split heavy suites across multiple runners.
 
 ---
 
-**See Also:**
-*   [Development Workflow](./development-workflow.md): Instructions on local environment setup.
-*   [API Documentation](../apps/api/README.md): Details on backend router structures.
+**Related Documentation:**
+- [Development Workflow](./development-workflow.md)
+- [API Architecture](../apps/api/README.md)

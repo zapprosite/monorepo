@@ -1,9 +1,10 @@
 {
   "agent": "SHIPPER",
-  "spec": "SUPER-REVIEW-2026-04-17",
+  "spec": "SPEC-065",
   "status": "completed",
   "exit_code": 0,
-  "started": "2026-04-17T13:23:51-03:00",
-  "finished": "2026-04-17T13:27:47-03:00",
-  "log": ".claude/skills/orchestrator/logs/SHIPPER.log"
+  "started": "2026-04-17T14:06:37-03:00",
+  "finished": "2026-04-17T14:11:22-03:00",
+  "command": "Aggregate all results, create PR on Gitea for SPEC-065",
+  "log": "/srv/monorepo/.claude/skills/orchestrator/logs/SHIPPER.log"
 }
