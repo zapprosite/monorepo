@@ -1,5 +1,6 @@
 // Anti-hardcoded: all config via process.env
 // Hermes Agency Telegram Bot — voice + vision + text multimodal
+// Hardened for datacenter: Redis locks/rate-limit, file validation, concurrency limit
 
 import { Telegraf, Input } from 'telegraf';
 import { routeToSkill } from '../router/agency_router';
@@ -7,8 +8,11 @@ import * as fs from 'node:fs';
 import * as os from 'node:os';
 import * as path from 'node:path';
 import { randomBytes } from 'node:crypto';
+import { acquireLock, releaseLock } from './distributed_lock';
+import { checkRateLimit, startRateLimitCleanup } from './rate_limiter';
+import { validateFile } from './file_validator';
 
-// ── Env vars with fallbacks (canonical table from AGENTS.md) ────────────────
+// ── Env vars with fallbacks ─────────────────────────────────────────────────
 const BOT_TOKEN = process.env['HERMES_AGENCY_BOT_TOKEN'] ?? '';
 const WEBHOOK_URL = process.env['HERMES_AGENCY_WEBHOOK_URL'] ?? '';
 const STT_URL = process.env['STT_DIRECT_URL'] ?? 'http://localhost:8204';
@@ -17,6 +21,11 @@ const OLLAMA_URL = process.env['OLLAMA_URL'] ?? 'http://localhost:11434';
 const GW_KEY = process.env['AI_GATEWAY_FACADE_KEY'] ?? '';
 const VISION_MODEL = process.env['HERMES_VISION_MODEL'] ?? 'qwen2.5vl:7b';
 const VOICE_DEFAULT = process.env['HERMES_VOICE'] ?? 'pm_santa';
+
+// Admin whitelist for /health (CSV user IDs)
+const ADMIN_USER_IDS = (process.env['HERMES_ADMIN_USER_IDS'] ?? '').split(',').filter(Boolean);
+const MAX_CONCURRENT_PER_USER = parseInt(process.env['HERMES_MAX_CONCURRENT'] ?? '3', 10);
+const CLEANUP_INTERVAL_MS = parseInt(process.env['HERMES_CLEANUP_INTERVAL_MS'] ?? '60000', 10);
 
 // ── Validation (fail fast) ────────────────────────────────────────────────────
 const REQUIRED = ['HERMES_AGENCY_BOT_TOKEN'];
@@ -27,48 +36,42 @@ for (const key of REQUIRED) {
   }
 }
 
-// ── Per-chat mutex locks ─────────────────────────────────────────────────────
-// WARNING: In-memory Map locks do NOT work across multiple bot instances.
-// For multi-instance deployment, use Redis SETNX with TTL:
-//   Redis: SETNX chat:{chatId}:lock 1 EX 30
-//          DEL chat:{chatId}:lock (on release)
-//   This ensures atomic lock acquisition across all instances.
-const chatLocks = new Map<number, boolean>();
+// ── Per-user concurrency semaphore ────────────────────────────────────────────
+// Prevents flood attacks: max N concurrent uploads per userId
+const userSemaphore = new Map<string, number>();
 
-function acquireLock(chatId: number): boolean {
-  if (chatLocks.get(chatId)) return false;
-  chatLocks.set(chatId, true);
+function acquireSemaphore(userId: string): boolean {
+  const current = userSemaphore.get(userId) ?? 0;
+  if (current >= MAX_CONCURRENT_PER_USER) return false;
+  userSemaphore.set(userId, current + 1);
   return true;
 }
 
-function releaseLock(chatId: number): void {
-  chatLocks.delete(chatId);
+function releaseSemaphore(userId: string): void {
+  const current = userSemaphore.get(userId) ?? 1;
+  if (current <= 1) {
+    userSemaphore.delete(userId);
+  } else {
+    userSemaphore.set(userId, current - 1);
+  }
 }
 
-// ── In-memory rate limiter ───────────────────────────────────────────────────
-// WARNING: This state is per-instance. For multi-instance, use Redis:
-//   INCR user:{userId}:msg_count EXPIRE user:{userId}:msg_count {WINDOW_SECS}
-interface RateLimitEntry {
-  count: number;
-  resetAt: number;
-}
-const RATE_LIMIT_WINDOW_MS = 10_000;
-const RATE_LIMIT_MAX_MESSAGES = 5;
-const userMessageRates = new Map<string, RateLimitEntry>();
-
-function checkRateLimit(userId: string): { allowed: boolean; retryAfterSec: number } {
-  const now = Date.now();
-  const entry = userMessageRates.get(userId);
-  if (!entry || now >= entry.resetAt) {
-    userMessageRates.set(userId, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
-    return { allowed: true, retryAfterSec: 0 };
-  }
-  if (entry.count >= RATE_LIMIT_MAX_MESSAGES) {
-    const retryAfterSec = Math.ceil((entry.resetAt - now) / 1000);
-    return { allowed: false, retryAfterSec };
-  }
-  entry.count++;
-  return { allowed: true, retryAfterSec: 0 };
+// ── Memory cleanup ────────────────────────────────────────────────────────────
+// Prevent Map memory leaks in long-running datacenter deployments
+function startMemoryCleanup(): ReturnType<typeof setInterval> {
+  return setInterval(() => {
+    // Cleanup semaphore entries that have been stuck (stale)
+    let cleaned = 0;
+    for (const [userId, count] of userSemaphore) {
+      if (count > MAX_CONCURRENT_PER_USER) {
+        userSemaphore.delete(userId);
+        cleaned++;
+      }
+    }
+    if (cleaned > 0) {
+      console.info(`[HermesAgencyBot] Semaphore cleanup: removed ${cleaned} stale entries`);
+    }
+  }, CLEANUP_INTERVAL_MS);
 }
 
 // ── Bot instance ─────────────────────────────────────────────────────────────
@@ -83,13 +86,17 @@ bot.use(async (ctx, next) => {
   }
 
   const userId = String(ctx.from?.id ?? 'unknown');
-  const { allowed, retryAfterSec } = checkRateLimit(userId);
+
+  // Redis-backed rate limiter (falls back to in-memory)
+  const { allowed, retryAfterSec } = await checkRateLimit(userId);
   if (!allowed) {
     await ctx.reply(`⛔ Muitas solicitações. Tente novamente em ${retryAfterSec}s.`);
     return;
   }
 
-  if (!acquireLock(chatId)) {
+  // Redis-backed distributed lock (falls back to in-memory)
+  const locked = await acquireLock(chatId);
+  if (!locked) {
     await ctx.reply('⏳ Processando outra mensagem neste chat. Por favor aguarde.');
     return;
   }
@@ -97,7 +104,7 @@ bot.use(async (ctx, next) => {
   try {
     await next();
   } finally {
-    releaseLock(chatId);
+    await releaseLock(chatId);
   }
 });
 
@@ -110,7 +117,7 @@ async function downloadTelegramFile(fileId: string, token: string): Promise<stri
   const response = await fetch(url, { signal: AbortSignal.timeout(30_000) });
   if (!response.ok) throw new Error(`Failed to download file: ${response.status}`);
   const ext = filePath.file_path?.split('.').pop() ?? 'ogg';
-  const tmpPath = path.join(os.tmpdir(), `hermes-voice-${randomBytes(6).toString('hex')}.${ext}`);
+  const tmpPath = path.join(os.tmpdir(), `hermes-${randomBytes(6).toString('hex')}.${ext}`);
   const buffer = Buffer.from(await response.arrayBuffer());
   fs.writeFileSync(tmpPath, buffer);
   return tmpPath;
@@ -246,6 +253,16 @@ bot.command('help', async (ctx) => {
 
 // ── Command: /health ─────────────────────────────────────────────────────────
 bot.command('health', async (ctx) => {
+  const userId = String(ctx.from?.id ?? 'unknown');
+  const isAdmin = ADMIN_USER_IDS.length === 0 || ADMIN_USER_IDS.includes(userId);
+
+  if (!isAdmin) {
+    // Public health — basic status only (no internal ports exposed)
+    await ctx.reply('✅ *Hermes Agency Suite*\n\nServiço operacional.', { parse_mode: 'Markdown' });
+    return;
+  }
+
+  // Admin health — full details including internal services
   const checks = await Promise.all([
     fetchHealth('http://localhost:8642/health', 'Hermes :8642'),
     fetchHealth(`${STT_URL}/health`, 'STT :8204'),
@@ -261,75 +278,106 @@ bot.on('voice', async (ctx) => {
   const chatId = ctx.chat?.id ?? 0;
   const userId = String(ctx.from?.id ?? 'unknown');
 
-  // Download + transcribe
-  let transcription: string;
+  // Concurrency semaphore — prevent flood attacks
+  if (!acquireSemaphore(userId)) {
+    await ctx.reply('⏳ many uploads in progress. Please wait for them to finish.');
+    return;
+  }
+
+  let tmpPath: string | null = null;
   try {
+    // Download
     const voice = ctx.message.voice;
-    const tmpPath = await downloadTelegramFile(String(voice.file_id), BOT_TOKEN);
+    tmpPath = await downloadTelegramFile(String(voice.file_id), BOT_TOKEN);
+
+    // File validation: size + MIME magic bytes
+    const validation = validateFile(tmpPath);
+    if (!validation.valid) {
+      await ctx.reply(`❌ ${validation.reason}`);
+      return;
+    }
+
+    // Transcribe
+    let transcription: string;
     try {
       transcription = await transcribeAudio(tmpPath);
     } finally {
       fs.unlinkSync(tmpPath);
+      tmpPath = null;
     }
-  } catch (err) {
-    console.error('[HermesAgencyBot] STT error:', err);
-    await ctx.reply('❌ Erro ao transcrever áudio. Tente novamente ou envie texto.');
-    return;
-  }
 
-  // Route transcription through CEO
-  const response = await routeToSkill(transcription, { userId, chatId, message: transcription });
+    // Route through CEO
+    const response = await routeToSkill(transcription, { userId, chatId, message: transcription });
 
-  // Synthesize + reply with voice
-  try {
-    const audioBuffer = await synthesizeSpeech(response);
-    const tmpOut = path.join(os.tmpdir(), `hermes-tts-${randomBytes(6).toString('hex')}.mp3`);
-    fs.writeFileSync(tmpOut, audioBuffer);
+    // Synthesize + reply with voice
     try {
-      await ctx.replyWithVoice(Input.fromLocalFile(tmpOut));
-    } finally {
-      fs.unlinkSync(tmpOut);
+      const audioBuffer = await synthesizeSpeech(response);
+      const tmpOut = path.join(os.tmpdir(), `hermes-tts-${randomBytes(6).toString('hex')}.mp3`);
+      fs.writeFileSync(tmpOut, audioBuffer);
+      try {
+        await ctx.replyWithVoice(Input.fromLocalFile(tmpOut));
+      } finally {
+        fs.unlinkSync(tmpOut);
+      }
+    } catch (err) {
+      console.warn('[HermesAgencyBot] TTS failed, falling back to text:', err);
+      await ctx.reply(response);
     }
   } catch (err) {
-    // Fallback: send as text if TTS fails
-    console.warn('[HermesAgencyBot] TTS failed, falling back to text:', err);
-    await ctx.reply(response);
+    console.error('[HermesAgencyBot] Voice error:', err);
+    await ctx.reply('❌ Erro ao processar áudio. Tente novamente ou envie texto.');
+  } finally {
+    if (tmpPath) {
+      fs.unlinkSync(tmpPath);
+    }
+    releaseSemaphore(userId);
   }
 });
 
 // ── Photo handler ────────────────────────────────────────────────────────────
 bot.on('photo', async (ctx) => {
-  const chatId = ctx.chat?.id ?? 0;
   const userId = String(ctx.from?.id ?? 'unknown');
+
+  // Concurrency semaphore
+  if (!acquireSemaphore(userId)) {
+    await ctx.reply('⏳ many uploads in progress. Please wait for them to finish.');
+    return;
+  }
+
   const userMessage = 'caption' in ctx.message && ctx.message.caption
     ? ctx.message.caption
     : 'O que vê nesta imagem?';
 
-  // Get largest photo (Telegram sends array with largest last)
   const photos = ctx.message.photo;
   if (!photos || photos.length === 0) {
+    releaseSemaphore(userId);
     await ctx.reply('📎 Não consegui processar a imagem. Tente novamente.');
     return;
   }
   const largest = photos[photos.length - 1]!;
 
-  // Download + analyze with vision
-  let analysis: string;
+  let tmpPath: string | null = null;
   try {
-    const tmpPath = await downloadTelegramFile(String(largest.file_id), BOT_TOKEN);
-    try {
-      analysis = await analyzeImage(tmpPath, userMessage);
-    } finally {
-      fs.unlinkSync(tmpPath);
+    tmpPath = await downloadTelegramFile(String(largest.file_id), BOT_TOKEN);
+
+    // File validation: size + MIME magic bytes
+    const validation = validateFile(tmpPath);
+    if (!validation.valid) {
+      await ctx.reply(`❌ ${validation.reason}`);
+      return;
     }
+
+    const analysis = await analyzeImage(tmpPath, userMessage);
+    await ctx.reply(analysis);
   } catch (err) {
     console.error('[HermesAgencyBot] Vision error:', err);
-    await ctx.reply('❌ Erro ao analisar imagem. Tente novamente.');
-    return;
+    await ctx.reply('❌ Erro ao processar imagem. Tente novamente.');
+  } finally {
+    if (tmpPath) {
+      fs.unlinkSync(tmpPath);
+    }
+    releaseSemaphore(userId);
   }
-
-  // Reply with text (CEO MIX acts on image, doesn't describe it)
-  await ctx.reply(analysis);
 });
 
 // ── Text message handler ─────────────────────────────────────────────────────
@@ -374,6 +422,10 @@ if (WEBHOOK_URL) {
   bot.launch();
   console.log('[HermesAgencyBot] Polling mode started');
 }
+
+// Start background cleanup tasks
+startRateLimitCleanup();
+startMemoryCleanup();
 
 process.once('SIGINT', () => bot.stop('SIGINT'));
 process.once('SIGTERM', () => bot.stop('SIGTERM'));
