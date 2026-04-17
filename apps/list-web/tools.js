@@ -14,7 +14,7 @@ const INTERNAL_URLS = {
   hermesGateway:
     import.meta.env.VITE_HERMES_GATEWAY_URL ||
     window.__ENV__?.HERMES_GATEWAY_URL ||
-    'http://10.0.2.4:4001',
+    'http://10.0.2.4:8642', // Hermes Gateway (was :4001 — fixed 2026-04-16 per SPEC-057
   kokoro: import.meta.env.VITE_KOKORO_URL || window.__ENV__?.KOKORO_URL || 'http://10.0.19.7:8880',
   ttsBridge:
     import.meta.env.VITE_TTS_BRIDGE_URL || window.__ENV__?.TTS_BRIDGE_URL || 'http://10.0.2.4:8013',

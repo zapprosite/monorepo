@@ -1,209 +1,256 @@
 {
   "tasks": [
     {
-      "id": "TASK-029",
-      "spec": "SPEC-029-INFISICAL-SDK-MANDATORY",
-      "priority": "critical",
+      "id": "TASK-057-T1",
+      "title": "Corrigir .env MinIMax como EMERGENCY_ONLY",
+      "description": "Comentar MINIMAX_API_KEY em .env com label EMERGENCY_ONLY, alinhando com SPEC-053",
       "status": "pending",
-      "blocked_by": []
+      "priority": "critical",
+      "dependencies": [],
+      "specRef": "SPEC-057",
+      "files": [".env"],
+      "testRequired": false
     },
     {
-      "id": "TASK-030",
-      "spec": "SPEC-030-AGENTS-MD-TOP-LINKS",
-      "priority": "critical",
+      "id": "TASK-057-T2",
+      "title": "Corrigir AGENTS.md LLM tiering",
+      "description": "Remover MinIMax como primary LLM; documentar tiering: PRIMARY=qwen2.5vl:7b, FALLBACK=llama3-ptbr, EMERGENCY=MinIMax",
       "status": "pending",
-      "blocked_by": []
+      "priority": "critical",
+      "dependencies": [],
+      "specRef": "SPEC-057",
+      "files": ["AGENTS.md"],
+      "testRequired": false
     },
     {
-      "id": "TASK-038",
-      "spec": "SPEC-038-hermes-agent-migration",
-      "priority": "critical",
+      "id": "TASK-057-T3",
+      "title": "Corrigir PINNED-SERVICES.md drift Hermes",
+      "description": "Clarificar 'Hermes Agent deprecated' → 'legacy bot.zappro.site PRUNED', manter :8642 IMMUTABLE",
       "status": "pending",
-      "blocked_by": []
+      "priority": "critical",
+      "dependencies": [],
+      "specRef": "SPEC-057",
+      "files": ["docs/GOVERNANCE/PINNED-SERVICES.md"],
+      "testRequired": false
     },
     {
-      "id": "TASK-042",
-      "spec": "SPEC-042-SPEC-CHUNKING-STRATEGY",
-      "priority": "critical",
+      "id": "TASK-057-T4",
+      "title": "Corrigir apps/list-web/tools.js porta 4001→8642",
+      "description": "Hardcoded 10.0.2.4:4001 → 10.0.2.4:8642 (Hermes Gateway)",
       "status": "pending",
-      "blocked_by": []
+      "priority": "critical",
+      "dependencies": [],
+      "specRef": "SPEC-057",
+      "files": ["apps/list-web/tools.js"],
+      "testRequired": false
     },
     {
-      "id": "TASK-048",
-      "spec": "SPEC-048-openai-facade-completo",
-      "priority": "critical",
+      "id": "TASK-057-T5",
+      "title": "Executar /pg gerar pipeline.json",
+      "description": "Executar /pg para gerar pipeline.json a partir de SPECs pendentes",
       "status": "pending",
-      "blocked_by": []
-    },
-    {
-      "id": "TASK-049",
-      "spec": "SPEC-049-ai-gateway-polish",
-      "priority": "critical",
-      "status": "pending",
-      "blocked_by": []
-    },
-    {
-      "id": "TASK-050",
-      "spec": "SPEC-050-governance-alignment",
-      "priority": "critical",
-      "status": "pending",
-      "blocked_by": []
-    },
-    {
-      "id": "TASK-999",
-      "spec": "SPEC-AUDIT-FIXES-2026-04-12",
-      "priority": "critical",
-      "status": "pending",
-      "blocked_by": []
-    },
-    {
-      "id": "TASK-033",
-      "spec": "SPEC-033-supabase-tunnel-exposure",
       "priority": "high",
-      "status": "pending",
-      "blocked_by": []
+      "dependencies": ["TASK-057-T1", "TASK-057-T2", "TASK-057-T3", "TASK-057-T4"],
+      "specRef": "SPEC-057",
+      "files": ["tasks/pipeline.json"],
+      "testRequired": false
     },
     {
-      "id": "TASK-034",
-      "spec": "SPEC-034-minimax-agent-use-cases",
+      "id": "TASK-057-T6",
+      "title": "Executar /cursor-loop workflow enterprise",
+      "description": "Executar /cursor-loop para workflow enterprise-grade com 14 agentes",
+      "status": "pending",
       "priority": "high",
-      "status": "pending",
-      "blocked_by": []
+      "dependencies": ["TASK-057-T5"],
+      "specRef": "SPEC-057",
+      "files": [],
+      "testRequired": false
     },
     {
-      "id": "TASK-035",
-      "spec": "SPEC-035-minimax-research-replacement",
+      "id": "TASK-057-T7",
+      "title": "Verificar smoke test Hermes Telegram polling",
+      "description": "Verificar que Hermes Agent Telegram polling está funcional",
+      "status": "pending",
       "priority": "high",
-      "status": "pending",
-      "blocked_by": []
+      "dependencies": [],
+      "specRef": "SPEC-057",
+      "files": [],
+      "testRequired": true
     },
     {
-      "id": "TASK-036",
-      "spec": "SPEC-036-infinite-memory-architecture",
+      "id": "TASK-057-T8",
+      "title": "Verificar Hermes MCP :8092 com Claude Code",
+      "description": "Verificar que Hermes MCP :8092 está integrado com Claude Code MCP tools",
+      "status": "pending",
+      "priority": "medium",
+      "dependencies": [],
+      "specRef": "SPEC-057",
+      "files": ["~/.claude/settings.json"],
+      "testRequired": false
+    },
+    {
+      "id": "TASK-057-T9",
+      "title": "Adicionar Telegram smoke test a pipeline",
+      "description": "Criar smoke test para Telegram bot polling Hermes Agent",
+      "status": "pending",
+      "priority": "low",
+      "dependencies": [],
+      "specRef": "SPEC-057",
+      "files": ["tasks/smoke-tests/"],
+      "testRequired": true
+    },
+    {
+      "id": "TASK-057-T10",
+      "title": "Polir observabilidade Hermes Agent",
+      "description": "Melhorar logs, métricas e monitoring do Hermes Agent",
+      "status": "pending",
+      "priority": "low",
+      "dependencies": [],
+      "specRef": "SPEC-057",
+      "files": [],
+      "testRequired": false
+    },
+    {
+      "id": "TASK-031-2",
+      "title": "node-exporter HEALTHCHECK",
+      "description": "Adicionar HEALTHCHECK a node-exporter container",
+      "status": "pending",
+      "priority": "medium",
+      "dependencies": [],
+      "specRef": "SPEC-031",
+      "files": ["docker-compose.yml"],
+      "testRequired": false
+    },
+    {
+      "id": "TASK-031-3",
+      "title": "loki HEALTHCHECK",
+      "description": "Adicionar HEALTHCHECK a loki container",
+      "status": "pending",
+      "priority": "medium",
+      "dependencies": [],
+      "specRef": "SPEC-031",
+      "files": ["docker-compose.yml"],
+      "testRequired": false
+    },
+    {
+      "id": "TASK-031-4",
+      "title": "cadvisor scrape timeout 30s",
+      "description": "Alterar scrape_timeout de 10s para 30s para cadvisor",
+      "status": "pending",
+      "priority": "low",
+      "dependencies": [],
+      "specRef": "SPEC-031",
+      "files": ["prometheus.yml"],
+      "testRequired": false
+    },
+    {
+      "id": "TASK-031-5",
+      "title": "ZFS snapshot retention cron",
+      "description": "Criar /srv/ops/scripts/zfs-snapshot-prune.sh e adicionar a crontab",
+      "status": "pending",
       "priority": "high",
-      "status": "pending",
-      "blocked_by": []
+      "dependencies": [],
+      "specRef": "SPEC-031",
+      "files": ["/srv/ops/scripts/zfs-snapshot-prune.sh"],
+      "testRequired": false
     },
     {
-      "id": "TASK-037",
-      "spec": "SPEC-037-md-zappro-site",
-      "priority": "high",
+      "id": "TASK-031-6",
+      "title": "APPROVAL_MATRIX update voice services",
+      "description": "Adicionar TTS Bridge, Hermes Agent, Kokoro à APPROVAL_MATRIX.md",
       "status": "pending",
-      "blocked_by": []
-    },
-    {
-      "id": "TASK-047",
-      "spec": "SPEC-047-enterprise-polish-ai-gateway-ptbr",
-      "priority": "high",
-      "status": "pending",
-      "blocked_by": []
-    },
-    {
-      "id": "TASK-055",
-      "spec": "SPEC-055-v2-gpu-max-latra-inteligent-cloud-fallback",
-      "priority": "high",
-      "status": "pending",
-      "blocked_by": []
-    },
-    {
-      "id": "TASK-024",
-      "spec": "SPEC-024-UNIFIED-CLAUDE-AGENT-MONOREPO",
       "priority": "medium",
-      "status": "pending",
-      "blocked_by": []
+      "dependencies": [],
+      "specRef": "SPEC-031",
+      "files": ["docs/GOVERNANCE/APPROVAL_MATRIX.md"],
+      "testRequired": false
     },
     {
-      "id": "TASK-027",
-      "spec": "SPEC-027-voice-pipeline-humanized-ptbr",
-      "priority": "medium",
+      "id": "TASK-031-7",
+      "title": "sync.sh verification MEMORY.md index",
+      "description": "Executar sync.sh e verificar que SPECs/ADRs/GUIDEs/Reference estão sincronizados",
       "status": "pending",
-      "blocked_by": []
+      "priority": "medium",
+      "dependencies": [],
+      "specRef": "SPEC-031",
+      "files": [],
+      "testRequired": false
     },
     {
-      "id": "TASK-031",
-      "spec": "SPEC-031-homelab-maintenance",
-      "priority": "medium",
-      "status": "pending",
-      "blocked_by": []
+      "id": "TASK-031-1",
+      "title": "Kokoro v0.2.2 → v0.2.4 (BLOCKED - requer approval)",
+      "description": "Upgrade Kokoro para v0.2.4 — REQUER APPROVAL do owner + Context7 research",
+      "status": "blocked",
+      "priority": "low",
+      "dependencies": [],
+      "specRef": "SPEC-031",
+      "files": ["VERSION-LOCK.md", "docker-compose.yml"],
+      "testRequired": false
     },
     {
-      "id": "TASK-032",
-      "spec": "SPEC-032-tunnel-health-automation",
-      "priority": "medium",
+      "id": "TASK-056-C1",
+      "title": "[CURSOR-LOOP] Corrigir xargs echo sem quotes",
+      "description": "cursor-loop-refactor.sh:208 — xargs echo sem quotes quebra com filenames espaços",
       "status": "pending",
-      "blocked_by": []
+      "priority": "critical",
+      "dependencies": [],
+      "specRef": "SPEC-056",
+      "files": ["scripts/cursor-loop-refactor.sh"],
+      "testRequired": false
     },
     {
-      "id": "TASK-039",
-      "spec": "SPEC-039-hermes-gateway-tunnel",
-      "priority": "medium",
+      "id": "TASK-056-C2",
+      "title": "[CURSOR-LOOP] Corrigir sed strip file incorreto",
+      "description": "cursor-loop-runner.sh:252 — sed strip 'file' incorreto myfile.ts → my",
       "status": "pending",
-      "blocked_by": []
+      "priority": "critical",
+      "dependencies": [],
+      "specRef": "SPEC-056",
+      "files": ["scripts/cursor-loop-runner.sh"],
+      "testRequired": false
     },
     {
-      "id": "TASK-040",
-      "spec": "SPEC-040-homelab-alerting-rate-limit",
-      "priority": "medium",
+      "id": "TASK-056-C3",
+      "title": "[CURSOR-LOOP] Corrigir printf sem quotes pipeline-state",
+      "description": "pipeline-state.sh:76 — printf sem quotes em valid_states causa word splitting",
       "status": "pending",
-      "blocked_by": []
+      "priority": "critical",
+      "dependencies": [],
+      "specRef": "SPEC-056",
+      "files": ["scripts/pipeline-state.sh"],
+      "testRequired": false
     },
     {
-      "id": "TASK-041",
-      "spec": "SPEC-041-monorepo-estado-arte-polish",
-      "priority": "medium",
+      "id": "TASK-056-S1",
+      "title": "[CURSOR-LOOP] Bootstrap threshold configurável",
+      "description": "bootstrap-check.sh:53 — threshold 8 hardcoded no secrets mask, deve ser configurável",
       "status": "pending",
-      "blocked_by": []
+      "priority": "low",
+      "dependencies": [],
+      "specRef": "SPEC-056",
+      "files": ["scripts/bootstrap-check.sh"],
+      "testRequired": false
     },
     {
-      "id": "TASK-043",
-      "spec": "SPEC-043-subdomain-prune-hermes-migration",
-      "priority": "medium",
+      "id": "TASK-056-S2",
+      "title": "[CURSOR-LOOP] qwen2.5vl:7b via env var",
+      "description": "smoke-multimodal-stack.sh:93 — model hardcoded, seguir anti-hardcoded env pattern",
       "status": "pending",
-      "blocked_by": []
-    },
-    {
-      "id": "TASK-045",
-      "spec": "SPEC-045-governance-reform-communication",
-      "priority": "medium",
-      "status": "pending",
-      "blocked_by": []
-    },
-    {
-      "id": "TASK-046",
-      "spec": "SPEC-046-hermes-agent-improvements",
-      "priority": "medium",
-      "status": "pending",
-      "blocked_by": []
-    },
-    {
-      "id": "TASK-051",
-      "spec": "SPEC-051-legacy-services-prune-specs-polish",
-      "priority": "medium",
-      "status": "pending",
-      "blocked_by": []
-    },
-    {
-      "id": "TASK-052",
-      "spec": "SPEC-052-hermes-mcp-context7-integration",
-      "priority": "medium",
-      "status": "pending",
-      "blocked_by": []
-    },
-    {
-      "id": "TASK-056",
-      "spec": "SPEC-056-cursor-loop-enterprise-polish-2026",
-      "priority": "medium",
-      "status": "pending",
-      "blocked_by": []
-    },
-    {
-      "id": "TASK-100",
-      "spec": "SPEC-100-PIPELINE-BOOTSTRAP",
-      "priority": "medium",
-      "status": "pending",
-      "blocked_by": []
+      "priority": "low",
+      "dependencies": [],
+      "specRef": "SPEC-056",
+      "files": ["smoke-tests/smoke-multimodal-stack.sh"],
+      "testRequired": false
     }
   ],
-  "generated": "2026-04-16T22:09",
-  "specSource": "SPEC-056"
+  "meta": {
+    "totalTasks": 22,
+    "completedTasks": 0,
+    "pendingTasks": 21,
+    "blockedTasks": 1,
+    "generatedAt": "2026-04-16T23:30",
+    "projectName": "zappro-monorepo",
+    "version": "2.0",
+    "specs": ["SPEC-057", "SPEC-031", "SPEC-056"]
+  }
 }
