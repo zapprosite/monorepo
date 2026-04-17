@@ -107,28 +107,28 @@ This document covers the complete infrastructure stack: Coolify, Ollama, Hermes 
 
 Antes de qualquer acao neste repositorio, TODO LLM **DEVE** ler:
 
-| Documento                                                                                                  | Porquê                                                                                                             | Prioridade |
-| ---------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ | ---------- |
-| **[docs/GOVERNANCE/SECRETS-MANDATE.md](../../docs/GOVERNANCE/SECRETS-MANDATE.md)**                         | **Zero tolerance** — Infisical SDK mandatory. Tokens hardcoded = rejeicao imediata. Alucinacao de tokens = banido. | CRITICO    |
-| **[docs/GOVERNANCE/GUARDRAILS.md](../../docs/GOVERNANCE/GUARDRAILS.md)**                                   | Operacoes proibidas, anti-fragilidade, voice pipeline imutavel                                                     | CRITICO    |
-| **[docs/GOVERNANCE/APPROVAL_MATRIX.md](../../docs/GOVERNANCE/APPROVAL_MATRIX.md)**                         | "Posso fazer isto?" — tabela de aprovacoes por operacao                                                            | CRITICO    |
-| **[docs/GOVERNANCE/CHANGE_POLICY.md](../../docs/GOVERNANCE/CHANGE_POLICY.md)**                             | Snapshot antes de mudancas + checklist preflight                                                                   | ALTA       |
-| **[docs/GOVERNANCE/IMMUTABLE-SERVICES.md](../../docs/GOVERNANCE/IMMUTABLE-SERVICES.md)**                   | Servicos que nunca se tocam (coolify-proxy, prometheus, cloudflared...)                                            | CRITICO    |
-| **[docs/GOVERNANCE/PINNED-SERVICES.md](../../docs/GOVERNANCE/PINNED-SERVICES.md)**                         | Voice stack: Hermes Agent (gateway:8642, mcp:8092)                                                                 | CRITICO    |
-| **[docs/GOVERNANCE/DUPLICATE-SERVICES-RULE.md](../../docs/GOVERNANCE/DUPLICATE-SERVICES-RULE.md)**         | Port registry, auto-heal whitelist — portas reservadas                                                             | ALTA       |
-| **[docs/GOVERNANCE/INCIDENTS.md](../../docs/GOVERNANCE/INCIDENTS.md)**                                     | Severity levels, incident response checklist                                                                       | CRITICO    |
-| **[docs/GOVERNANCE/RECOVERY.md](../../docs/GOVERNANCE/RECOVERY.md)**                                       | ZFS rollback/DB restore step-by-step                                                                               | CRITICO    |
-| **[docs/GOVERNANCE/ANTI-FRAGILITY.md](../../docs/GOVERNANCE/ANTI-FRAGILITY.md)**                           | O que NAO fazer — antipatterns, servicos pinned                                                                    | CRITICO    |
-| **[docs/GOVERNANCE/CONTRACT.md](../../docs/GOVERNANCE/CONTRACT.md)**                                       | Principios inegociaveis (dados sacrossantos, snapshot mandatory)                                                   | ALTA       |
-| **[docs/SPECS/SPEC-HERMES-INTEGRATION.md](../../docs/SPECS/SPEC-HERMES-INTEGRATION.md)**                   | Hermes Agent integration patterns, API usage, Telegram voice pipeline                                              | CRITICO    |
-| **[docs/GOVERNANCE/MASTER-PASSWORD-PROCEDURE.md](../../docs/GOVERNANCE/MASTER-PASSWORD-PROCEDURE.md)**     | Credential handling procedure                                                                                      | ALTA       |
-| **[docs/GOVERNANCE/DATABASE_GOVERNANCE.md](../../docs/GOVERNANCE/DATABASE_GOVERNANCE.md)**                 | Protected schemas, destructive-operation rules                                                                     | ALTA       |
-| **[docs/INCIDENTS/CONSOLIDATED-PREVENTION-PLAN.md](../../docs/INCIDENTS/CONSOLIDATED-PREVENTION-PLAN.md)** | Anti-patterns AP-1 a AP-4 (Docker TCP, host-as-backend, DNS)                                                       | CRITICO    |
-| **[docs/GUIDES/INFISICAL-SDK-PATTERN.md](../../docs/GUIDES/INFISICAL-SDK-PATTERN.md)**                     | Como usar Infisical SDK (Python/JS/Bash)                                                                           | ALTA       |
-| **[docs/GUIDES/CODE-REVIEW-GUIDE.md](../../docs/GUIDES/CODE-REVIEW-GUIDE.md)**                             | 5-axis review framework                                                                                            | ALTA       |
-| **[docs/GOVERNANCE/SECRETS_POLICY.md](../../docs/GOVERNANCE/SECRETS_POLICY.md)**                           | Secrets policy complementar                                                                                        | ALTA       |
-| **[.claude/CLAUDE.md](../../.claude/CLAUDE.md)**                                                           | Regras Claude Code, git mirror, version lock                                                                       | ALTA       |
-| **[.claude/rules/anti-hardcoded-secrets.md](../../.claude/rules/anti-hardcoded-secrets.md)**               | Anti-hardcoded secrets pattern                                                                                     | CRITICO    |
+| Documento                                                                                                  | Porquê                                                                                                 | Prioridade |
+| ---------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ | ---------- |
+| **[docs/GOVERNANCE/SECRETS-MANDATE.md](../../docs/GOVERNANCE/SECRETS-MANDATE.md)**                         | **Zero tolerance** — `.env` only. Tokens hardcoded = rejeicao imediata. Alucinacao de tokens = banido. | CRITICO    |
+| **[docs/GOVERNANCE/GUARDRAILS.md](../../docs/GOVERNANCE/GUARDRAILS.md)**                                   | Operacoes proibidas, anti-fragilidade, voice pipeline imutavel                                         | CRITICO    |
+| **[docs/GOVERNANCE/APPROVAL_MATRIX.md](../../docs/GOVERNANCE/APPROVAL_MATRIX.md)**                         | "Posso fazer isto?" — tabela de aprovacoes por operacao                                                | CRITICO    |
+| **[docs/GOVERNANCE/CHANGE_POLICY.md](../../docs/GOVERNANCE/CHANGE_POLICY.md)**                             | Snapshot antes de mudancas + checklist preflight                                                       | ALTA       |
+| **[docs/GOVERNANCE/IMMUTABLE-SERVICES.md](../../docs/GOVERNANCE/IMMUTABLE-SERVICES.md)**                   | Servicos que nunca se tocam (coolify-proxy, prometheus, cloudflared...)                                | CRITICO    |
+| **[docs/GOVERNANCE/PINNED-SERVICES.md](../../docs/GOVERNANCE/PINNED-SERVICES.md)**                         | Voice stack: Hermes Agent (gateway:8642, mcp:8092)                                                     | CRITICO    |
+| **[docs/GOVERNANCE/DUPLICATE-SERVICES-RULE.md](../../docs/GOVERNANCE/DUPLICATE-SERVICES-RULE.md)**         | Port registry, auto-heal whitelist — portas reservadas                                                 | ALTA       |
+| **[docs/GOVERNANCE/INCIDENTS.md](../../docs/GOVERNANCE/INCIDENTS.md)**                                     | Severity levels, incident response checklist                                                           | CRITICO    |
+| **[docs/GOVERNANCE/RECOVERY.md](../../docs/GOVERNANCE/RECOVERY.md)**                                       | ZFS rollback/DB restore step-by-step                                                                   | CRITICO    |
+| **[docs/GOVERNANCE/ANTI-FRAGILITY.md](../../docs/GOVERNANCE/ANTI-FRAGILITY.md)**                           | O que NAO fazer — antipatterns, servicos pinned                                                        | CRITICO    |
+| **[docs/GOVERNANCE/CONTRACT.md](../../docs/GOVERNANCE/CONTRACT.md)**                                       | Principios inegociaveis (dados sacrossantos, snapshot mandatory)                                       | ALTA       |
+| **[docs/SPECS/SPEC-HERMES-INTEGRATION.md](../../docs/SPECS/SPEC-HERMES-INTEGRATION.md)**                   | Hermes Agent integration patterns, API usage, Telegram voice pipeline                                  | CRITICO    |
+| **[docs/GOVERNANCE/MASTER-PASSWORD-PROCEDURE.md](../../docs/GOVERNANCE/MASTER-PASSWORD-PROCEDURE.md)**     | Credential handling procedure                                                                          | ALTA       |
+| **[docs/GOVERNANCE/DATABASE_GOVERNANCE.md](../../docs/GOVERNANCE/DATABASE_GOVERNANCE.md)**                 | Protected schemas, destructive-operation rules                                                         | ALTA       |
+| **[docs/INCIDENTS/CONSOLIDATED-PREVENTION-PLAN.md](../../docs/INCIDENTS/CONSOLIDATED-PREVENTION-PLAN.md)** | Anti-patterns AP-1 a AP-4 (Docker TCP, host-as-backend, DNS)                                           | CRITICO    |
+| **[docs/GUIDES/INFISICAL-SDK-PATTERN.md](../../docs/GUIDES/INFISICAL-SDK-PATTERN.md)**                     | Como usar Infisical SDK (Python/JS/Bash)                                                               | ALTA       |
+| **[docs/GUIDES/CODE-REVIEW-GUIDE.md](../../docs/GUIDES/CODE-REVIEW-GUIDE.md)**                             | 5-axis review framework                                                                                | ALTA       |
+| **[docs/GOVERNANCE/SECRETS_POLICY.md](../../docs/GOVERNANCE/SECRETS_POLICY.md)**                           | Secrets policy complementar                                                                            | ALTA       |
+| **[.claude/CLAUDE.md](../../.claude/CLAUDE.md)**                                                           | Regras Claude Code, git mirror, version lock                                                           | ALTA       |
+| **[.claude/rules/anti-hardcoded-secrets.md](../../.claude/rules/anti-hardcoded-secrets.md)**               | Anti-hardcoded secrets pattern                                                                         | CRITICO    |
 
 ### TL;DR (para LLMs com pressa)
 
@@ -151,27 +151,27 @@ ANTES DE QUALQUER ACAO: verificar .env → .claude/skills/ → AGENTS.md → .cl
 
 Before any work in this repository, EVERY LLM **MUST** read:
 
-| Document                                                                                                   | Why                                                                                                          | Priority |
-| ---------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ | -------- |
-| **[docs/GOVERNANCE/SECRETS-MANDATE.md](../../docs/GOVERNANCE/SECRETS-MANDATE.md)**                         | **Zero tolerance** — Infisical SDK only. Hardcoded tokens = instant rejection. Token hallucination = banned. | CRITICAL |
-| **[docs/GOVERNANCE/GUARDRAILS.md](../../docs/GOVERNANCE/GUARDRAILS.md)**                                   | Forbidden ops, anti-fragility, immutable voice pipeline                                                      | CRITICAL |
-| **[docs/GOVERNANCE/APPROVAL_MATRIX.md](../../docs/GOVERNANCE/APPROVAL_MATRIX.md)**                         | "Can I do this?" — approval table by operation type                                                          | CRITICAL |
-| **[docs/GOVERNANCE/IMMUTABLE-SERVICES.md](../../docs/GOVERNANCE/IMMUTABLE-SERVICES.md)**                   | Services that are never touched (coolify-proxy, prometheus, cloudflared...)                                  | CRITICAL |
-| **[docs/GOVERNANCE/PINNED-SERVICES.md](../../docs/GOVERNANCE/PINNED-SERVICES.md)**                         | Voice stack: Hermes Agent (gateway:8642, mcp:8092)                                                           | CRITICAL |
-| **[docs/GOVERNANCE/INCIDENTS.md](../../docs/GOVERNANCE/INCIDENTS.md)**                                     | Severity levels, incident response checklist                                                                 | CRITICAL |
-| **[docs/GOVERNANCE/RECOVERY.md](../../docs/GOVERNANCE/RECOVERY.md)**                                       | ZFS rollback/DB restore step-by-step                                                                         | CRITICAL |
-| **[docs/GOVERNANCE/ANTI-FRAGILITY.md](../../docs/GOVERNANCE/ANTI-FRAGILITY.md)**                           | What NOT to do — antipatterns, pinned services                                                               | CRITICAL |
-| **[docs/SPECS/SPEC-HERMES-INTEGRATION.md](../../docs/SPECS/SPEC-HERMES-INTEGRATION.md)**                   | Hermes Agent integration patterns, API usage, Telegram voice pipeline                                        | CRITICAL |
-| **[docs/INCIDENTS/CONSOLIDATED-PREVENTION-PLAN.md](../../docs/INCIDENTS/CONSOLIDATED-PREVENTION-PLAN.md)** | Anti-patterns AP-1 to AP-4 (Docker TCP, host-as-backend, DNS)                                                | CRITICAL |
-| **[docs/GOVERNANCE/CHANGE_POLICY.md](../../docs/GOVERNANCE/CHANGE_POLICY.md)**                             | Snapshot before changes + preflight checklist                                                                | HIGH     |
-| **[docs/GOVERNANCE/DUPLICATE-SERVICES-RULE.md](../../docs/GOVERNANCE/DUPLICATE-SERVICES-RULE.md)**         | Port registry, auto-heal whitelist, reserved ports                                                           | HIGH     |
-| **[docs/GOVERNANCE/MASTER-PASSWORD-PROCEDURE.md](../../docs/GOVERNANCE/MASTER-PASSWORD-PROCEDURE.md)**     | Credential handling procedure                                                                                | HIGH     |
-| **[docs/GOVERNANCE/DATABASE_GOVERNANCE.md](../../docs/GOVERNANCE/DATABASE_GOVERNANCE.md)**                 | Protected schemas, destructive-operation rules                                                               | HIGH     |
-| **[docs/REFERENCE/ARCHITECTURE-MASTER.md](../../docs/REFERENCE/ARCHITECTURE-MASTER.md)**                   | Full monorepo structure, CI/CD, directory layout                                                             | HIGH     |
-| **[docs/GUIDES/INFISICAL-SDK-PATTERN.md](../../docs/GUIDES/INFISICAL-SDK-PATTERN.md)**                     | How to use Infisical SDK (Python/JS/Bash)                                                                    | HIGH     |
-| **[docs/GUIDES/CODE-REVIEW-GUIDE.md](../../docs/GUIDES/CODE-REVIEW-GUIDE.md)**                             | 5-axis review framework                                                                                      | HIGH     |
-| **[docs/REFERENCE/TOOLCHAIN.md](../../docs/REFERENCE/TOOLCHAIN.md)**                                       | pnpm, turbo, biome, git, docker, zfs commands                                                                | HIGH     |
-| **[.claude/CLAUDE.md](../../.claude/CLAUDE.md)**                                                           | Claude Code rules, git mirror, version lock                                                                  | HIGH     |
+| Document                                                                                                   | Why                                                                                                   | Priority |
+| ---------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- | -------- |
+| **[docs/GOVERNANCE/SECRETS-MANDATE.md](../../docs/GOVERNANCE/SECRETS-MANDATE.md)**                         | **Zero tolerance** — `.env` only. Hardcoded tokens = instant rejection. Token hallucination = banned. | CRITICAL |
+| **[docs/GOVERNANCE/GUARDRAILS.md](../../docs/GOVERNANCE/GUARDRAILS.md)**                                   | Forbidden ops, anti-fragility, immutable voice pipeline                                               | CRITICAL |
+| **[docs/GOVERNANCE/APPROVAL_MATRIX.md](../../docs/GOVERNANCE/APPROVAL_MATRIX.md)**                         | "Can I do this?" — approval table by operation type                                                   | CRITICAL |
+| **[docs/GOVERNANCE/IMMUTABLE-SERVICES.md](../../docs/GOVERNANCE/IMMUTABLE-SERVICES.md)**                   | Services that are never touched (coolify-proxy, prometheus, cloudflared...)                           | CRITICAL |
+| **[docs/GOVERNANCE/PINNED-SERVICES.md](../../docs/GOVERNANCE/PINNED-SERVICES.md)**                         | Voice stack: Hermes Agent (gateway:8642, mcp:8092)                                                    | CRITICAL |
+| **[docs/GOVERNANCE/INCIDENTS.md](../../docs/GOVERNANCE/INCIDENTS.md)**                                     | Severity levels, incident response checklist                                                          | CRITICAL |
+| **[docs/GOVERNANCE/RECOVERY.md](../../docs/GOVERNANCE/RECOVERY.md)**                                       | ZFS rollback/DB restore step-by-step                                                                  | CRITICAL |
+| **[docs/GOVERNANCE/ANTI-FRAGILITY.md](../../docs/GOVERNANCE/ANTI-FRAGILITY.md)**                           | What NOT to do — antipatterns, pinned services                                                        | CRITICAL |
+| **[docs/SPECS/SPEC-HERMES-INTEGRATION.md](../../docs/SPECS/SPEC-HERMES-INTEGRATION.md)**                   | Hermes Agent integration patterns, API usage, Telegram voice pipeline                                 | CRITICAL |
+| **[docs/INCIDENTS/CONSOLIDATED-PREVENTION-PLAN.md](../../docs/INCIDENTS/CONSOLIDATED-PREVENTION-PLAN.md)** | Anti-patterns AP-1 to AP-4 (Docker TCP, host-as-backend, DNS)                                         | CRITICAL |
+| **[docs/GOVERNANCE/CHANGE_POLICY.md](../../docs/GOVERNANCE/CHANGE_POLICY.md)**                             | Snapshot before changes + preflight checklist                                                         | HIGH     |
+| **[docs/GOVERNANCE/DUPLICATE-SERVICES-RULE.md](../../docs/GOVERNANCE/DUPLICATE-SERVICES-RULE.md)**         | Port registry, auto-heal whitelist, reserved ports                                                    | HIGH     |
+| **[docs/GOVERNANCE/MASTER-PASSWORD-PROCEDURE.md](../../docs/GOVERNANCE/MASTER-PASSWORD-PROCEDURE.md)**     | Credential handling procedure                                                                         | HIGH     |
+| **[docs/GOVERNANCE/DATABASE_GOVERNANCE.md](../../docs/GOVERNANCE/DATABASE_GOVERNANCE.md)**                 | Protected schemas, destructive-operation rules                                                        | HIGH     |
+| **[docs/REFERENCE/ARCHITECTURE-MASTER.md](../../docs/REFERENCE/ARCHITECTURE-MASTER.md)**                   | Full monorepo structure, CI/CD, directory layout                                                      | HIGH     |
+| **[docs/GUIDES/INFISICAL-SDK-PATTERN.md](../../docs/GUIDES/INFISICAL-SDK-PATTERN.md)**                     | How to use Infisical SDK (Python/JS/Bash)                                                             | HIGH     |
+| **[docs/GUIDES/CODE-REVIEW-GUIDE.md](../../docs/GUIDES/CODE-REVIEW-GUIDE.md)**                             | 5-axis review framework                                                                               | HIGH     |
+| **[docs/REFERENCE/TOOLCHAIN.md](../../docs/REFERENCE/TOOLCHAIN.md)**                                       | pnpm, turbo, biome, git, docker, zfs commands                                                         | HIGH     |
+| **[.claude/CLAUDE.md](../../.claude/CLAUDE.md)**                                                           | Claude Code rules, git mirror, version lock                                                           | HIGH     |
 
 ### TL;DR (for LLMs in a hurry)
 
@@ -498,21 +498,33 @@ See: `/prd-to-deploy` skill + SPEC-035-one-shot-prd-to-deploy.md
 
 ---
 
-## MiniMax LLM Integration (SPEC-034)
+## LLM Tiering — Canonical Stack (SPEC-053/SPEC-057)
 
-**Modelo:** MiniMax M2.7 (1M token context window)
-**API:** `https://api.minimax.io/anthropic/v1`
-**Skills:** 10 novos skills para code gen, security, docs, debugging, backend scaffold, infra generation, e code review
+| Tier          | Model                         | Provider                | Use Case                                |
+| ------------- | ----------------------------- | ----------------------- | --------------------------------------- |
+| **PRIMARY**   | `qwen2.5vl:7b`                | Ollama (:11434)         | Texto + Visão + Voice (RTX 4090)        |
+| **FALLBACK**  | `llama3-portuguese-tomcat-8b` | Ollama (:11434)         | Texto fallback local                    |
+| **EMERGENCY** | `MinIMax M2.7`                | API (`MINIMAX_API_KEY`) | Apenas quando Ollama offline (SPEC-053) |
 
-Ver `docs/SPECS/SPEC-034-minimax-agent-use-cases.md` para pesquisa completa de 14 domains.
+**MinIMax skills** (`/codegen`, `/msec`, `/dm`, `/bug-triage`, `/mxr`) continuam ativos para code gen, security, docs e debugging. MinIMax NUNCA deve ser o primeiro choice — apenas quando Ollama falhar.
 
-**Quick wins com MiniMax:**
+Ver [docs/ARCHITECTURE-OVERVIEW.md](docs/ARCHITECTURE-OVERVIEW.md) para stack completo.
 
-- `/codegen contract` — gera tRPC router completo de Zod schema (~30min → 5min)
-- `/msec` — security audit semantic (OWASP + Infisical SDK pattern)
-- `/dm ports` — detecta drift entre ss -tlnp e PORTS.md automaticamente
-- `/bug-triage` — diagnostica Docker crash loops e tunnel DOWN com contexto de 1M tokens
-- `/mxr` — holistic PR review (30+ files analisados juntos)
+---
+
+## Research Agent (SPEC-035 — COMPLETED)
+
+**Tavily API replaced with MiniMax M2.1 for research (2026-04-13)**
+
+The `/minimax-research` skill uses MiniMax LLM instead of Tavily web search:
+
+| Aspect   | Tavily (DEPRECATED)   | MiniMax M2.1 (ACTIVE)    |
+| -------- | --------------------- | ------------------------ |
+| Method   | Web search API        | LLM inference            |
+| Context  | URLs + snippets       | Full error/code analysis |
+| Key      | `TAVILY_API_KEY`      | `MINIMAX_API_KEY`        |
+| Source   | Orphaned vault secret | `.env` canonical         |
+| Use case | General web research  | Deep code/error analysis |
 
 ---
 
@@ -911,13 +923,13 @@ See `docs/GOVERNANCE/TAG-POLICY.md`
 
 The `/minimax-research` skill uses MiniMax LLM instead of Tavily web search:
 
-| Aspect   | Tavily (DEPRECATED)   | MiniMax M2.1 (ACTIVE)    |
-| -------- | --------------------- | ------------------------ |
-| Method   | Web search API        | LLM inference            |
-| Context  | URLs + snippets       | Full error/code analysis |
-| Key      | `TAVILY_API_KEY`      | `MINIMAX_API_KEY`        |
-| Source   | Orphaned vault secret | Infisical SDK            |
-| Use case | General web research  | Deep code/error analysis |
+| Aspect   | Tavily (DEPRECATED)  | MiniMax M2.1 (ACTIVE)    |
+| -------- | -------------------- | ------------------------ |
+| Method   | Web search API       | LLM inference            |
+| Context  | URLs + snippets      | Full error/code analysis |
+| Key      | `TAVILY_API_KEY`     | `MINIMAX_API_KEY`        |
+| Source   | `.env` canonical     | `.env` canonical         |
+| Use case | General web research | Deep code/error analysis |
 
 ### Skill
 
@@ -934,7 +946,7 @@ For error analysis, architecture research, or code investigation. See `.claude/s
 bash scripts/cursor-loop-research-minimax.sh "<topic or error message>"
 ```
 
-- **Auth:** `MINIMAX_API_KEY` fetched via Infisical SDK (fallback to env var)
+- **Auth:** `MINIMAX_API_KEY` via `.env` (Infisical SDK PROIBIDO)
 - **Endpoint:** `https://api.minimax.io/anthropic/v1/messages` (same pattern as voice pipeline)
 - **Model:** MiniMax-M2.1 (200k+ context, fast inference)
 
