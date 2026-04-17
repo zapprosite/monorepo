@@ -9,22 +9,21 @@ synced: 2026-04-15
 
 # Subdomains Registry
 
-**Última sincronização:** 2026-04-15
-**Total de records DNS:** 12 subdomínios ativos + 7 PRUNED
+**Última sincronização:** 2026-04-17
+**Total de records DNS:** 12 subdomínios ativos
 
 ## Tabela de Subdomínios ATIVOS
 
 | Subdomínio                                           | Porta | Estado                    | Descrição                                                                            |
 | ---------------------------------------------------- | ----- | ------------------------- | ------------------------------------------------------------------------------------ |
 | [api.zappro.site](https://api.zappro.site)           | 4000  | ✅ ATIVO                  | LiteLLM proxy (Cloudflare Access) — :4000                                            |
-| [chat.zappro.site](https://chat.zappro.site)         | 8080  | ✅ ATIVO                  | Open WebUI (LLM chat UI) — :8080 (Coolify)                                           |
+| [chat.zappro.site](https://chat.zappro.site)         | 3456  | ✅ ATIVO (OpenWebUI)     | Open WebUI (LLM chat UI) — :3456 (restored 2026-04-17)                              |
 | [coolify.zappro.site](https://coolify.zappro.site)   | 8000  | ✅ ATIVO                  | Coolify PaaS panel — :8000                                                           |
 | [git.zappro.site](https://git.zappro.site)           | 3300  | ✅ ATIVO                  | Gitea Git Server — :3300                                                             |
-| [hermes.zappro.site](https://hermes.zappro.site)     | 4002  | ✅ ATIVO (T400)           | Hermes Gateway (agent brain) — :4002 (ai-gateway) via T400 Terraform                 |
+| [hermes.zappro.site](https://hermes.zappro.site)     | 8642  | ✅ ATIVO                  | Hermes Gateway (Telegram bot) — :8642 (Telegram polling)                              |
 | [list.zappro.site](https://list.zappro.site)         | 4080  | ✅ ATIVO                  | Tools list (OAuth native) — :4080                                                    |
-| [llm.zappro.site](https://llm.zappro.site)           | 4002  | ✅ ATIVO (T400 DONE)      | ai-gateway OpenAI-compat (TTS/STT/vision) — :4002 via CLOUDFLARE_API_TOKEN Terraform |
+| [llm.zappro.site](https://llm.zappro.site)           | 4002  | ✅ ATIVO                  | ai-gateway OpenAI-compat (TTS/STT/vision) — :4002                                    |
 | [md.zappro.site](https://md.zappro.site)             | 4081  | ✅ ATIVO                  | Obsidian vault UI (OAuth native) — :4081                                             |
-| [telegram.zappro.site](https://telegram.zappro.site) | 8642  | ✅ ATIVO (DNS propagando) | Hermes Gateway (Telegram polling) — :8642                                            |
 | [monitor.zappro.site](https://monitor.zappro.site)   | 3100  | ✅ ATIVO                  | Grafana dashboard — :3100                                                            |
 | [painel.zappro.site](https://painel.zappro.site)     | 4003  | ✅ ATIVO                  | Claude Code Panel (nginx:alpine) — :4003                                             |
 | [qdrant.zappro.site](https://qdrant.zappro.site)     | 6333  | ✅ ATIVO                  | Qdrant vector DB — :6333                                                             |
