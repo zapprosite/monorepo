@@ -1,70 +1,74 @@
 # Glossary & Domain Concepts
 
-The project utilizes a domain-driven approach to manage AI-assisted journal entries, multi-tenant team structures, and a robust API Gateway for external integrations. The system is built on a monorepo architecture where types are shared between the core API, the Orchestrator (workflow engine), and the web frontend.
+This document defines the core terminology, technical constants, and business logic rules used across the monorepo. It serves as a single source of truth for developers to understand the system's domain-driven design and architectural patterns.
 
-## Glossary & Domain Concepts
+## Domain Entities
 
-### Domain Entities
-- **User**: A natural person authenticated via Google OAuth2. Users can belong to multiple Teams.
-- **Team**: The primary unit of multi-tenancy. Subscriptions and API Keys are scoped to a Team.
-- **Subscription**: A contractual agreement allowing a Team to consume specific API products (SKUs) within defined quotas.
-- **Journal Entry**: The core functional unit of the application—a time-stamped record, often processed via AI prompts.
-- **Service Order**: A specialized entity for managing maintenance or technical requests, including technical reports and material items.
-- **Orchestrator**: The central engine (located in `apps/orchestrator`) that manages complex workflows, human-in-the-loop approvals, and agentic steps.
-- **MCP (Model Context Protocol)**: A standard used to connect AI models to external tools and data sources via adapters (Claude, Anthropic, Zapier).
+| Entity | Description | Reference |
+| :--- | :--- | :--- |
+| **User** | A natural person authenticated via Google OAuth2. Users can belong to multiple Teams. | `UserTable` |
+| **Team** | The primary unit of multi-tenancy. All data (Journal Entries, Leads, Contracts) is scoped to a `teamId`. | `TeamTable` |
+| **Subscription** | A contractual agreement allowing a Team to consume specific API products (SKUs) within defined quotas. | `SubscriptionsTable` |
+| **Journal Entry** | A time-stamped record, often processed via AI prompts, representing the core functional unit of the platform. | `JournalEntryTable` |
+| **Service Order** | A specialized entity for managing maintenance or technical requests, including technical reports and materials. | `ServiceOrderTable` |
+| **Unit** | A physical or logical location/subset belonging to a Client. | `UnitsTable` |
+| **Technical Report** | Detailed documentation linked to a Service Order, often containing findings and resolutions. | `TechnicalReportTable` |
 
-### Personas / Actors
-- **End User**: Interacts with the Web UI to manage personal journal entries and view team dashboards.
-- **Team Administrator**: Manages subscriptions, invites members, and monitors API usage/quotas.
-- **External Developer**: Consumes the product API via REST endpoints using API Keys.
-- **System Agent**: Autonomous and semi-autonomous processes within the Orchestrator that execute workflow steps.
+---
 
-## Type Definitions
+## Technical Concepts & Components
 
-Key types are centralized in `packages/zod-schemas` to ensure end-to-end type safety across the monorepo.
+### API & Connectivity
+- **API Gateway**: A specialized router in `apps/api` that handles external REST traffic. It enforces API Key authentication, IP whitelisting, and rate limiting.
+- **tRPC (TypeScript Remote Procedure Call)**: The protocol used for internal communication between the Web app and the API, providing end-to-end type safety without code generation.
+- **MCP (Model Context Protocol)**: A standard used to connect AI models to external tools and data sources via adapters (e.g., Claude, Anthropic, Zapier).
+- **Webhooks**: Outsource notifications sent to external systems when specific events occur (e.g., status changes or quota alerts).
 
-- **`UserSelectAll`**: Represents the complete user record including metadata and timestamps. [packages/zod-schemas/src/user.zod.ts]
-- **`AgentSession`**: State and history of an active AI agent interaction. [apps/orchestrator/src/core/types.ts]
-- **`WorkflowDefinition`**: The blueprint for a multi-phase automated process. [apps/orchestrator/src/core/types.ts]
-- **`SubscriptionCreateInput`**: Data required to initialize a new billing/quota relationship for a team. [packages/zod-schemas/src/subscription.zod.ts]
-- **`AddressType`**: Contextual categorization for physical locations (e.g., Billing, Shipping). [packages/zod-schemas/src/crm_enums.zod.ts]
-- **`SessionUser`**: The subset of user data stored within the encrypted session cookie. [apps/api/src/modules/auth/session.auth.utils.ts]
-- **`McpStep`**: A workflow step definition specifically for Model Context Protocol interactions. [apps/orchestrator/src/core/types.ts]
+### AI & Workflow
+- **Orchestrator**: The central engine that manages complex multi-step workflows, agentic iterations, and human-in-the-loop approvals.
+- **Human Gate**: A workflow checkpoint that pauses execution until a human actor provides manual approval or input.
+- **Prompt**: A managed template used to interact with LLMs, versioned and stored in the database.
+- **Skill**: A specific capability or tool (e.g., vision analysis, transcription) that the AI Agency can route tasks to.
 
-## Enumerations
+---
 
-- **`ApiProductSku`**: Definitive list of sellable API capabilities (e.g., `journal_entry_create`). [packages/zod-schemas/src/enums.zod.ts]
-- **`ApiProductStatus`**: State of an API request (Success, Failed, No active subscription, Requests exhausted). [packages/zod-schemas/src/enums.zod.ts]
-- **`ApprovalStatus`**: Status of a human-gate intervention (Pending, Approved, Rejected). [apps/orchestrator/src/core/types.ts]
-- **`SessionSecurityLevel`**: Controls the strictness of session validation (Standard, Strict). [apps/api/src/middlewares/sessionSecurity.middleware.ts]
-- **`WebhookStatus`**: Delivery state for outgoing system events (Pending, Sent, Failed). [packages/zod-schemas/src/enums.zod.ts]
-- **`CategoryTemplate`**: Categorization for CRM-related entities. [packages/zod-schemas/src/crm_enums.zod.ts]
+## Key Enumerations
 
-## Core Terms
+Defined primarily in `packages/zod-schemas/src/enums.zod.ts`.
 
-- **tRPC (TypeScript Remote Procedure Call)**: Used for internal communication between the Web app and API. It provides a shared type boundary without needing code generation.
-- **API Gateway**: A specialized router in `apps/api` that handles external REST traffic, enforcing API Key authentication, IP whitelisting, and rate limiting.
-- **Human Gate**: A workflow checkpoint in the Orchestrator that pauses execution until a human actor provides approval or input.
-- **Internal API Secret**: A pre-shared key used for secure communication between internal services (e.g., Orchestrator calling the API's webhook processor).
-- **Quota Tracking**: The logic that monitors `api_product_request_logs` against `subscriptions` to enforce usage limits.
-- **Exponential Backoff**: The algorithm used by the `webhookQueue` to retry failed deliveries with increasing delays.
+| Enum | Key Values | Purpose |
+| :--- | :--- | :--- |
+| **`ApiProductSku`** | `journal_entry_create`, `stt_transcription` | Identifies specific billable API features. |
+| **`ApiProductStatus`** | `SUCCESS`, `FAILED`, `EXHAUSTED` | Tracks the outcome of an API request relative to quotas. |
+| **`SessionSecurity`** | `Standard`, `Strict` | Controls the level of validation applied to encrypted session cookies. |
+| **`AddressType`** | `BILLING`, `SHIPPING`, `RESIDENTIAL` | Categorizes physical locations for CRM entities. |
+| **`WebhookStatus`** | `PENDING`, `SENT`, `FAILED` | Tracks the lifecycle of a webhook delivery attempt. |
+
+---
+
+## Core Domain Rules & Invariants
+
+1.  **Multi-Tenancy Isolation**: No query may return data without a `teamId` filter. Cross-team data access is strictly prohibited at the database and middleware levels.
+2.  **Quota Enforcement**:
+    *   The system monitors `api_product_request_logs` against the team's active `Subscription`.
+    *   **90% Rule**: When a team reaches 90% of its monthly quota, the `checkAndQueueWebhookAt90Percent` utility must trigger a notification.
+3.  **API Key Security**: API Keys are never stored in plain text. They are transformed using `scrypt` hashing before being persisted to the `ApiKeys` table.
+4.  **Session Lifecycle**: Sessions are valid for 7 days. Invalidation is handled via the `markedInvalidAt` timestamp rather than immediate row deletion to maintain audit trails.
+5.  **Webhook Reliability**: Failed webhook deliveries must use **Exponential Backoff** for retries, managed via the `WebhookCallQueueTable`.
+
+---
 
 ## Acronyms & Abbreviations
 
-- **MCP**: Model Context Protocol (AI-to-tool integration standard).
-- **RHF**: React Hook Form (Standardized form handling in `packages/ui`).
-- **SKU**: Stock Keeping Unit (Used here to identify specific API features for billing).
-- **ULID**: Universally Unique Lexicographically Sortable Identifier (Used for non-sequential, sortable database IDs).
-- **TRPC**: internal communication protocol ensuring type safety.
+*   **RHF**: React Hook Form (Standardized form handling in `packages/ui`).
+*   **STT**: Speech-to-Text (e.g., Whisper-based transcription).
+*   **TTS**: Text-to-Speech (e.g., Kokoro-based synthesis).
+*   **ULID**: Universally Unique Lexicographically Sortable Identifier (Used for non-sequential, sortable DB primary keys).
+*   **LLM**: Large Language Model.
+*   **CRM**: Customer Relationship Management.
 
-## Domain Rules & Invariants
-
-- **Subscription Quota**: When a team reaches 90% of its monthly quota, the system must automatically queue a notification webhook.
-- **API Key Security**: API Keys are never stored in plain text. They are hashed using `scrypt` before being persisted to the database.
-- **Session Expiry**: Sessions are valid for 7 days. Any "soft-delete" of a session is handled via the `markedInvalidAt` timestamp.
-- **Multi-Tenancy**: All data (Journal Entries, Leads, Contracts) must be scoped to a `teamId`. Direct access to data without a valid team context is prohibited by query-level filters.
-- **Workflow Persistence**: Every step of an Orchestrator workflow must be logged to the `EventBus` to allow for state recovery and auditability.
+---
 
 ## Related Resources
-- [Project Overview](./project-overview.md)
 - [Architecture Guide](./architecture.md)
+- [Project Overview](./project-overview.md)

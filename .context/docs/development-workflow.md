@@ -1,57 +1,100 @@
 # Development Workflow
 
-The engineering process in this repository is designed for high velocity with a strong emphasis on automation and type safety. We follow a standardized daily routine that leverages our internal CLI tools to minimize context switching and boilerplate. Engineers are expected to work in a "test-first" or "types-first" manner, defining Zod schemas in `packages/zod-schemas` before implementing business logic in the API or UI. All changes must originate from a dedicated feature branch and pass the automated CI pipeline before merging into the trunk.
+This guide outlines the engineering process, branching strategies, and local development setup for the monorepo. Our workflow is designed for high velocity with a strong emphasis on automation, type safety via Zod, and standardized CLI tooling.
 
-## Branching & Releases
+## Core Philosophy
 
-Our repository follows a **Trunk-Based Development** model with short-lived feature branches:
+- **Types-First Development**: Define data models in `packages/zod-schemas` before implementing business logic in the API or UI.
+- **Trunk-Based Development**: Use short-lived feature branches merged into `main`.
+- **Automated Validation**: All changes must pass CI (Lint, Type Check, Tests) before merging.
+- **Port Governance**: Adhere to assigned ports to avoid infrastructure conflicts (specifically with CapRover).
 
-- **Main Branch (`main`)**: The source of truth. It represents the production-ready state of the codebase. All code in `main` must pass all CI checks and builds.
-- **Feature Branches (`feature/*`)**: Used for all new development. Use the `/feature` command to generate a standardized branch name.
-- **Fix Branches (`fix/*`)**: Specifically for bug fixes identified in production or during QA.
-- **Chore Branches (`chore/*`)**: For dependency updates, configuration changes, or non-functional maintenance.
-- **Release Tagging**: We use Semantic Versioning (SemVer). Production releases are triggered by merging to `main`, which automatically generates a version tag (e.g., `v1.2.3`) based on the conventional commits in the cycle.
+---
 
-## Local Development
+## Branching & Release Management
 
-Follow these steps to get your environment ready and run the services safely. Note the port governance requirements to avoid conflicts with infrastructure like CapRover.
+We follow a **Trunk-Based Development** model to ensure the code in `main` is always deployable.
 
-- **Pre-requisite**: Ensure Docker is running.
-- **Install Dependencies**: `yarn install`
-- **Infrastructure**: `docker compose up -d` (Starts PostgreSQL 15 and Redis)
-- **Database Migrations**: `yarn db -- up` (Synchronizes Orchid ORM schemas)
-- **Run Application**: `yarn dev` (Starts Backend on `:4000` and Frontend on `:5173`)
-- **Build Services**: `yarn build` (Validates the entire monorepo build)
+### Branch Naming Conventions
+Use the standardized CLI commands (see [Tooling Guide](./tooling.md)) to generate branches:
+- **`feature/*`**: New functional development.
+- **`fix/*`**: Bug fixes for production or QA issues.
+- **`chore/*`**: Dependency updates, config changes, or non-functional maintenance.
+
+### Release Process
+1. **Merge to Main**: Once a PR is approved and CI passes, it is merged into `main`.
+2. **Semantic Versioning**: We use SemVer. Merges to `main` trigger automated version tagging (e.g., `v1.2.3`) based on conventional commit messages.
+3. **Deployment**: Successful builds on `main` are automatically deployed to the staging/production environments.
+
+---
+
+## Local Development Setup
+
+Follow these steps to initialize your environment and run services locally.
+
+### 1. Prerequisites
+- **Node.js**: Ensure the version matches `.nvmrc`.
+- **Yarn**: Version 1.x (Classic).
+- **Docker**: Required for database and cache services.
+
+### 2. Initialization
+```bash
+# Install dependencies across the monorepo
+yarn install
+
+# Start local infrastructure (PostgreSQL 15 and Redis)
+docker compose up -d
+
+# Run database migrations (using Orchid ORM)
+yarn db -- up
+```
+
+### 3. Running Applications
+Use the root `yarn dev` command to start the core services concurrently:
+- **Backend API**: `http://localhost:4000`
+- **Web Frontend**: `http://localhost:5173`
+- **AI Gateway**: (Check specific app config for port)
+
+> [!CAUTION]
+> **Port Safety**: NEVER use port `3000` on your local host. This port is strictly reserved for CapRover infrastructure.
+
+### 4. Validation Commands
 - **Type Check**: `yarn check-types`
+- **Full Build**: `yarn build` (Validates the entire monorepo connectivity)
+- **Database Seed**: `yarn db:seed` (Populates local DB with development data)
 
-**Port Safety Check:**
-- Backend API: `http://localhost:4000`
-- Web Frontend: `http://localhost:5173`
-- **NEVER** use port `3000` on the local host as it is reserved for CapRover infrastructure.
+---
 
 ## Code Review Expectations
 
-All Pull Requests (PRs) require at least one approval from a maintainer before they can be merged. The review focuses on:
+All Pull Requests require at least one maintainer approval. Reviews focus on:
 
-1.  **Type Integrity**: Ensuring Zod schemas correctly reflect the database and API contracts.
-2.  **Performance**: Checking for "N+1" queries in the API (`apps/api`) and unnecessary re-renders in the frontend (`apps/web`).
-3.  **Consistency**: Following the [Tooling Guide](./tooling.md) for slash commands and using established components from `packages/ui`.
-4.  **Testing**: Verify the PR includes relevant Vitest or E2E tests as defined in the [Testing Strategy](./testing-strategy.md).
+1. **Type Integrity**: Zod schemas in `packages/zod-schemas` must accurately reflect the database (via Orchid ORM) and API contracts.
+2. **Performance**: 
+   - **API**: Check for "N+1" query patterns in `apps/api`.
+   - **Web**: Audit for unnecessary re-renders in `apps/web`.
+3. **Consistency**: Use components from `packages/ui` instead of raw HTML/CSS. Utilize existing hooks like `useRhfForm`.
+4. **Testing**: Ensure appropriate Vitest or E2E tests are included. Refer to the [Testing Strategy](./testing-strategy.md).
 
-**Agent Collaboration**: When working with AI agents (e.g., Cursor, Claude), please refer to [AGENTS.md](../../AGENTS.md) for prompt instructions and workflow tips to ensure agent-generated code adheres to our monorepo patterns.
+### AI Agent Collaboration
+When using AI tools (Cursor, Claude, etc.), follow the patterns established in `AGENTS.md`. Ensure AI-generated code respects:
+- The centralized Zod schemas.
+- The repository's directory structure (Modules-based architecture).
 
-## Onboarding Tasks
+---
 
-If you are new to the repository, please start with these tasks to familiarize yourself with the stack:
+## New Developer Onboarding
 
-1.  **Environment Setup**: Run the local development commands and ensure you can log in to the dashboard using the credentials found in `seedDevTeam`.
-2.  **Explore the Schema**: Look at `packages/zod-schemas/src/user.zod.ts` to understand how our data models are defined.
-3.  **First Issue**: Look for tickets tagged with `good-first-issue` in our project management system. These usually involve adding a simple field to a CRUD module or fixing a UI glitch in `packages/ui`.
-4.  **Run a Scaffold**: Try creating a test module using `/scaffold` to see how the API, DB, and UI layers are automatically connected.
+If you are new to the codebase, complete these tasks:
+
+1. **Explore the Schema**: Open `packages/zod-schemas/src/user.zod.ts` and `apps/api/src/modules/users/users/users.table.ts`. This shows how types flow from the database to the application.
+2. **Login to Dashboard**: Use `yarn db:seed` and then log in to the Web app at `:5173` using the credentials generated in the `seedDevTeam` script.
+3. **Scaffold a Module**: Run the `/scaffold` command (see [Tooling Guide](./tooling.md)) to generate a new CRUD module. This will help you understand how the API, DB, and UI layers connect.
+4. **First Issue**: Search the backlog for `good-first-issue` tags. These usually involve small UI fixes in `packages/ui` or adding fields to existing Zod schemas.
 
 ---
 
 ### Related Resources
-- [Testing Strategy](./testing-strategy.md) - Learn about our unit and E2E testing patterns.
-- [Tooling Guide](./tooling.md) - Reference for `/feature`, `/ship`, and `/scaffold` commands.
+- [Testing Strategy](./testing-strategy.md) - Unit, Integration, and E2E patterns.
+- [Tooling Guide](./tooling.md) - Reference for CLI slash commands.
 - [Agent Guidelines](../../AGENTS.md) - Best practices for AI-assisted engineering.

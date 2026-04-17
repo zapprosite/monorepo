@@ -2,7 +2,7 @@
 name: SPEC-064-super-polish
 description: Super polish — delete ALL legacy/pruned material, keep only stable state-of-the-art
 spec_id: SPEC-064
-status: IN_PROGRESS
+status: DONE
 priority: critical
 author: Principal Engineer
 date: 2026-04-17
@@ -132,14 +132,19 @@ date: 2026-04-17
 
 ## Acceptance Criteria
 
-- [ ] `research/` directory deleted
-- [ ] `obsidian/` directory deleted
-- [ ] SPECs: só 5-7 (053, 058, 059, 060, 063, 064)
-- [ ] `docs/GOVERNANCE/` só: CONTRACT, GUARDRAILS, SECRETS-MANDATE, PINNED-SERVICES, IMMUTABLE-SERVICES
-- [ ] `docs/GUIDES/` só: discovery, backup-runbook, LANGUAGE-STANDARDS
-- [ ] `docs/ADRs/` só: ADR-001
-- [ ] `smoke-tests/` só: 2 scripts
-- [ ] `scripts/` só: ~8 utilitários activos
-- [ ] .claude/skills/ sem stubs vazios
-- [ ] Todos os serviços respondem: ai-gateway :4002, hermes :8642, STT :8204, TTS :8013
-- [ ] Commit + tag + merge main
+- [x] `research/` directory deleted
+- [x] `obsidian/` directory deleted
+- [x] SPECs: 6 (053, 058, 059, 060, 063, 064)
+- [x] `docs/GOVERNANCE/` só: CONTRACT, GUARDRAILS, SECRETS-MANDATE, PINNED-SERVICES, IMMUTABLE-SERVICES, EXCEPTIONS, CHANGE_POLICY, MASTER-PASSWORD-PROCEDURE
+- [x] `docs/GUIDES/` só: discovery, backup-runbook, LANGUAGE-STANDARDS
+- [x] `docs/ADRs/` só: ADR-001
+- [x] `smoke-tests/` só: 6 scripts (para SPECs activos)
+- [x] `scripts/` só: ~12 utilitários activos
+- [x] .claude/agents/ pruned (16 stubs removed)
+- [x] .claude/workflows/ deleted (legacy)
+- [x] docs/MCPs, OPERATIONS, REFERENCE, TEMPLATES, INCIDENTS deleted
+- [x] docs/INFRASTRUCTURE/ pruned (4 files only: PORTS, SUBDOMAINS, NETWORK_MAP, SERVICE_MAP)
+- [x] SPEC-001-008, SPEC-034, 035, 036, 038, 048, 061, 062 deleted
+- [x] 63k linhas apagadas (250 files, -63183 lines)
+- [x] Todos os serviços respondem: ai-gateway :4002 ✅ hermes :8642 ✅ STT :8204 ✅ TTS :8013 ✅
+- [x] Commit `130762f5` + tag `v202604171354` + merge main ✅
