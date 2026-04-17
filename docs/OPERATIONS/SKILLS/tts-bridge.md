@@ -15,7 +15,7 @@ O TTS Bridge é um proxy HTTP minimalista (Python stdlib) que filtra o acesso ao
 ## Arquitetura
 
 ```
-OpenClaw Bot
+Hermes Agent Bot
     │
     └─► TTS Bridge (:8013)
             │
@@ -24,7 +24,7 @@ OpenClaw Bot
             └─ Validate voice: [OTHER] ✗ → 400 Bad Request
 ```
 
-**Redes:** `qgtzrmi6771lt8l7x8rqx72f` (OpenClaw) + `zappro-lite_default` (LiteLLM)
+**Redes:** `qgtzrmi6771lt8l7x8rqx72f` (Hermes Agent) + `zappro-lite_default` (LiteLLM)
 **IP do Bridge:** `10.0.19.5` (rede qgtzrmi) / `10.0.2.6` (rede zappro-lite)
 
 ---
@@ -43,7 +43,7 @@ OpenClaw Bot
 
 | Voice ID   | Tipo            | Uso                              |
 | ---------- | --------------- | -------------------------------- |
-| `pm_santa` | Masculino PT-BR | **PADRÃO** — usado pelo OpenClaw |
+| `pm_santa` | Masculino PT-BR | **PADRÃO** — usado pelo Hermes Agent |
 | `pf_dora`  | Feminino PT-BR  | Fallback / alternativo           |
 
 ---
@@ -137,11 +137,11 @@ restart: unless-stopped
 
 ---
 
-## Integração com OpenClaw
+## Integração com Hermes Agent
 
-O OpenClaw aponta para o TTS Bridge (não Kokoro direto):
+O Hermes Agent aponta para o TTS Bridge (não Kokoro direto):
 
-**openclaw.json** (`messages.tts.openai`):
+**Hermes Agent.json** (`messages.tts.openai`):
 
 ```json
 {
@@ -157,7 +157,7 @@ O OpenClaw aponta para o TTS Bridge (não Kokoro direto):
 ## Limitações
 
 - O TTS Bridge é transparente — não retorna MP3 diretamente, faz stream do Kokoro
-- Se o Bridge cair, OpenClaw não consegue fazer TTS (Kokoro direto continua a funcionar)
+- Se o Bridge cair, Hermes Agent não consegue fazer TTS (Kokoro direto continua a funcionar)
 - O modelo no request deve ser `kokoro` (não `tts-1`) quando chamado via bridge
 
 ---

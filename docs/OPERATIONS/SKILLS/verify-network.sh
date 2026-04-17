@@ -18,7 +18,7 @@ set -euo pipefail
 
 # Container names (from homelab reality)
 readonly TRAEFIK_CONTAINER="coolify-proxy"
-readonly OPENCLAW_CONTAINER="openclaw-qgtzrmi6771lt8l7x8rqx72f"
+readonly HERMES_AGENT_CONTAINER="hermes-agent-qgtzrmi6771lt8l7x8rqx72f"
 readonly LITELLM_CONTAINER="zappro-litellm"
 readonly WAV2VEC2_CONTAINER="zappro-wav2vec2"
 
@@ -155,7 +155,7 @@ print_human_output() {
 #   detail: "shared: <network_name>" or "no shared network"
 #
 # Example:
-#   check_shared_network "coolify-proxy" "openclaw-qgtzrmi6771lt8l7x8rqx72f"
+#   check_shared_network "coolify-proxy" "hermes-agent-qgtzrmi6771lt8l7x8rqx72f"
 check_shared_network() {
     local container_a="$1"
     local container_b="$2"
@@ -340,26 +340,26 @@ verify_litellm_routes() {
 }
 
 # verify_traefik_routes()
-# Verifies Traefik (coolify-proxy) → OpenClaw routing.
+# Verifies Traefik (coolify-proxy) → Hermes Agent routing.
 # Per HOMELAB-SURVIVAL-GUIDE Rule 6: Network shared = Traefik consegue atingir.
 # Per HOMELAB-SURVIVAL-GUIDE Rule 7: Health check ≠ routing working.
 #
 # Checks:
-#   1. Shared network exists between Traefik and OpenClaw
-#   2. OpenClaw is reachable via Traefik's localhost:80 from inside the container
+#   1. Shared network exists between Traefik and Hermes Agent
+#   2. Hermes Agent is reachable via Traefik's localhost:80 from inside the container
 verify_traefik_routes() {
     echo "=== Verifying Traefik Routes ===" >&2
 
     # Step 1: Verify shared network (Rule 6)
-    check_shared_network "$TRAEFIK_CONTAINER" "$OPENCLAW_CONTAINER"
+    check_shared_network "$TRAEFIK_CONTAINER" "$HERMES_AGENT_CONTAINER"
 
-    # Step 2: Test Traefik → OpenClaw via internal network
-    # From inside coolify-proxy, OpenClaw should be reachable at its container name
-    check_tcp_connectivity "$TRAEFIK_CONTAINER" "$OPENCLAW_CONTAINER" "8080"
+    # Step 2: Test Traefik → Hermes Agent via internal network
+    # From inside coolify-proxy, Hermes Agent should be reachable at its container name
+    check_tcp_connectivity "$TRAEFIK_CONTAINER" "$HERMES_AGENT_CONTAINER" "8080"
 
-    # Step 3: Test Traefik can route to OpenClaw via its public-ish endpoint
+    # Step 3: Test Traefik can route to Hermes Agent via its public-ish endpoint
     # We test from a container on the same network as Traefik
-    check_http_from_container "$TRAEFIK_CONTAINER" "http://${OPENCLAW_CONTAINER}:8080/health" "200 401"
+    check_http_from_container "$TRAEFIK_CONTAINER" "http://${HERMES_AGENT_CONTAINER}:8080/health" "200 401"
 }
 
 # verify_wav2vec2_network()
@@ -387,7 +387,7 @@ main() {
     # -------------------------------------------------------------------------
     echo "=== Phase 1: Shared Network Checks ===" >&2
 
-    check_shared_network "$TRAEFIK_CONTAINER" "$OPENCLAW_CONTAINER"
+    check_shared_network "$TRAEFIK_CONTAINER" "$HERMES_AGENT_CONTAINER"
     check_shared_network "$TRAEFIK_CONTAINER" "$LITELLM_CONTAINER"
     check_shared_network "$LITELLM_CONTAINER" "$WAV2VEC2_CONTAINER"
 

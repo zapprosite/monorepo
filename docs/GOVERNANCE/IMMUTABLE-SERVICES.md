@@ -77,9 +77,9 @@ PINNED services can be changed with MASTER_PASSWORD following proper procedure:
 | Service           | Container                           | Why Pinned                                             |
 | ----------------- | ----------------------------------- | ------------------------------------------------------ |
 | **TTS Bridge**    | `zappro-tts-bridge`                 | Filters Kokoro voices — only pm_santa/pf_dora allowed  |
-| **Kokoro TTS**    | `zappro-kokoro`                     | Validated with OpenClaw watchdog; model cache large    |
+| **Kokoro TTS**    | `zappro-kokoro`                     | Validated with Hermes Agent watchdog; model cache large    |
 | **Whisper STT**   | `zappro-whisper-stt`                | HF model cache (~1.5GB); watchdog depends on port 8201 |
-| **OpenClaw Bot**  | `openclaw-qgtzrmi6771lt8l7x8rqx72f` | Complex config + secrets; tunnel routing validated     |
+| **Hermes Agent Bot**  | `Hermes Agent-qgtzrmi6771lt8l7x8rqx72f` | Complex config + secrets; tunnel routing validated     |
 | **LiteLLM Proxy** | `zappro-litellm`                    | GPU proxy for TTS/STT/Vision; config.yaml validated    |
 | **openwebui**     | `openwebui`                         | Validated bridge target; OAuth integration stable      |
 
@@ -99,7 +99,7 @@ The docker-autoheal sidecar monitors and restarts unhealthy containers. Containe
 | **cloudflared**            | Auto-restart on unhealthy |
 | **n8n**                    | Auto-restart on unhealthy |
 | **openwebui**              | Auto-restart on unhealthy |
-| **openclaw-mcp-wrapper**   | Auto-restart on unhealthy |
+| **Hermes Agent-mcp-wrapper**   | Auto-restart on unhealthy |
 | **openwebui-bridge-agent** | Auto-restart on unhealthy |
 
 These services benefit from auto-healing but remain PINNED — changes still require MASTER_PASSWORD.
@@ -121,7 +121,7 @@ These services benefit from auto-healing but remain PINNED — changes still req
    /srv/ops/scripts/lock-config.sh
 
 5. Verify with smoke test
-   bash /srv/monorepo/tasks/smoke-tests/pipeline-openclaw-voice.sh
+   bash /srv/monorepo/tasks/smoke-tests/pipeline-Hermes Agent-voice.sh
 
 6. Document in INCIDENTS.md
 ```

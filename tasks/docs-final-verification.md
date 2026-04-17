@@ -36,22 +36,22 @@ docs/
 │   ├── SPEC-004-kokoro-tts-kit.md
 │   ├── SPEC-005-wav2vec2-stt-kit.md
 │   ├── SPEC-006-playwright-e2e.md
-│   ├── SPEC-007-openclaw-oauth-profiles.md
-│   ├── SPEC-009-openclaw-persona-audio-stack.md
-│   ├── SPEC-010-openclaw-agents-kit.md
-│   ├── SPEC-011-openclaw-agency-reimagined.md
-│   ├── SPEC-012-openclaw-update-discoverer.md
+│   ├── SPEC-007-Hermes Agent-oauth-profiles.md
+│   ├── SPEC-009-Hermes Agent-persona-audio-stack.md
+│   ├── SPEC-010-Hermes Agent-agents-kit.md
+│   ├── SPEC-011-Hermes Agent-agency-reimagined.md
+│   ├── SPEC-012-Hermes Agent-update-discoverer.md
 │   ├── SPEC-013-CLAUDE-CODE-CLI-INTEGRATION.md
-│   ├── SPEC-013-openclaw-ceo-mix-voice-stack.md
+│   ├── SPEC-013-Hermes Agent-ceo-mix-voice-stack.md
 │   ├── SPEC-013-UNIFIED-CLAUDE-AGENT-MONOREPO.md
 │   ├── SPEC-014-CURSOR-AI-CICD-PATTERN.md
-│   ├── SPEC-014-openclaw-tts-route-fix.md
+│   ├── SPEC-014-Hermes Agent-tts-route-fix.md
 │   ├── SPEC-015-GITEA-ACTIONS-ENTERPRISE.md
 │   ├── SPEC-016-voice-pipeline-cursor-loop.md
 │   ├── SPEC-017-voice-api-deploy.md
 │   ├── SPEC-018-wav2vec2-deepgram-proxy.md
 │   ├── SPEC-019-openwebui-repair.md
-│   ├── SPEC-020-openwebui-openclaw-bridge.md
+│   ├── SPEC-020-openwebui-Hermes Agent-bridge.md
 │   ├── SPEC-020-voice-pipeline-humanized-ptbr.md
 │   ├── SPEC-021-CLAUDE-CODE-CURSOR-LOOP.md
 │   ├── SPEC-022-CURSOR-LOOP-CLI-SOLUTIONS.md
@@ -84,7 +84,7 @@ docs/
 ├── specflow/
 │   ├── ARCHITECTURE-MASTER.md
 │   ├── reviews/
-│   │   ├── REVIEW-001-openclaw-voice-pipeline.md
+│   │   ├── REVIEW-001-Hermes Agent-voice-pipeline.md
 │   │   ├── REVIEW-002.md
 │   │   ├── REVIEW-GUIDE.md
 │   │   └── REVIEW-smoke-tests-20260407.md
@@ -133,8 +133,8 @@ docs/
 | obsidian/adrs/ | claude-resolve.md, README.md |
 | obsidian/guides/ | README.md only |
 | obsidian/logs/ | gitea-coolify.md, infisical.md, manutencao-continua.md, memoria-claude.md, opencode.md, security-hardening.md, whisper-auto-local.md |
-| obsidian/plans/ | homelab.md, openclaw.md |
-| obsidian/context/ | open-claw-agency.md |
+| obsidian/plans/ | homelab.md, Hermes Agent.md |
+| obsidian/context/ | hermes-agent-agency.md |
 
 ---
 

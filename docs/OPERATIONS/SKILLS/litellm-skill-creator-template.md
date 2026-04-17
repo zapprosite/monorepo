@@ -1,6 +1,6 @@
 # Skill: LiteLLM Voice & Vision — Via Telegram
 
-**Para criar este skill no OpenClaw via Telegram:**
+**Para criar este skill no Hermes Agent via Telegram:**
 
 1. Abre o Telegram e vai ao bot `@CEO_REFRIMIX_bot`
 2. Envia: `/skill_creator`
@@ -40,7 +40,7 @@ O skill vai aparecer em `/data/workspace/skills/lite-llm-voice/SKILL.md`.
 Se preferir criar direto, edita o ficheiro:
 
 ```bash
-docker exec openclaw-qgtzrmi6771lt8l7x8rqx72f sh -c 'mkdir -p /data/workspace/skills/lite-llm-voice && cat > /data/workspace/skills/lite-llm-voice/SKILL.md << "EOF"
+docker exec Hermes Agent-qgtzrmi6771lt8l7x8rqx72f sh -c 'mkdir -p /data/workspace/skills/lite-llm-voice && cat > /data/workspace/skills/lite-llm-voice/SKILL.md << "EOF"
 # Skill: LiteLLM Voice & Vision
 
 ... conteúdo do skill ...

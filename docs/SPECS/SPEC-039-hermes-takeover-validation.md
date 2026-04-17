@@ -1,6 +1,6 @@
 ---
 name: SPEC-039-hermes-takeover-validation
-description: OPERAÇÃO OVERLORD — Migration validation from OpenClaw to Hermes-Agent
+description: OPERAÇÃO OVERLORD — Migration validation from Hermes Agent to Hermes-Agent
 type: validation
 created: 2026-04-14
 originSessionId: 8f4dc974-c929-4609-80db-7acfce0252e2
@@ -14,14 +14,14 @@ originSessionId: 8f4dc974-c929-4609-80db-7acfce0252e2
 
 ---
 
-## 1. BEFORE State (OpenClaw)
+## 1. BEFORE State (Hermes Agent)
 
 | Item                | Value                                                                 |
 | ------------------- | --------------------------------------------------------------------- |
-| bot.zappro.site     | 10.0.19.7:8080 (OpenClaw) — OFFLINE                                   |
-| OpenClaw containers | `openclaw-qgtzrmi6771lt8l7x8rqx72f`, `openclaw-mcp-wrapper` — REMOVED |
-| Telegram bot        | @CEO_REFRIMIX_bot — not functional (OpenClaw offline)                 |
-| LLM stack           | OpenClaw + LiteLLM proxy                                              |
+| bot.zappro.site     | 10.0.19.7:8080 (Hermes Agent) — OFFLINE                                   |
+| Hermes Agent containers | `Hermes Agent-qgtzrmi6771lt8l7x8rqx72f`, `Hermes Agent-mcp-wrapper` — REMOVED |
+| Telegram bot        | @CEO_REFRIMIX_bot — not functional (Hermes Agent offline)                 |
+| LLM stack           | Hermes Agent + LiteLLM proxy                                              |
 
 ---
 
@@ -29,7 +29,7 @@ originSessionId: 8f4dc974-c929-4609-80db-7acfce0252e2
 
 | Item                     | Value                          | Status                                         |
 | ------------------------ | ------------------------------ | ---------------------------------------------- |
-| bot.zappro.site          | 502 Bad Gateway                | FAIL — tunnel routing to dead OpenClaw IP      |
+| bot.zappro.site          | 502 Bad Gateway                | FAIL — tunnel routing to dead Hermes Agent IP      |
 | Hermes Gateway PID       | 2047806                        | RUNNING (process active)                       |
 | Hermes Gateway port 8642 | Not listening                  | FAIL — api_server not binding                  |
 | Telegram bot             | Token: `${TELEGRAM_BOT_TOKEN}` | UNKNOWN — token present, connectivity untested |
@@ -80,12 +80,12 @@ will  2047806  hermes gateway run      : running (Gateway, PID 2047806)
 3. `config.yaml` finalized — LLM config with environment-only secrets
 4. `coolify_sre` skill created — `sre-monitor.sh` + SKILL.md
 5. `perplexity_browser` skill created
-6. OpenClaw containers removed (`openclaw-qgtzrmi6771lt8l7x8rqx72f`, `openclaw-mcp-wrapper`)
+6. Hermes Agent containers removed (`Hermes Agent-qgtzrmi6771lt8l7x8rqx72f`, `Hermes Agent-mcp-wrapper`)
 7. Telegram bot token migrated to `~/.hermes/.env`
 8. `hermes.json` cron jobs configured — 15 jobs
 9. Gateway PID/state files created
 10. Channel directory configured
-11. Skills directory setup (`~/.hermes/skills/`, `~/.hermes/skills/openclaw-imports/`)
+11. Skills directory setup (`~/.hermes/skills/`, `~/.hermes/skills/Hermes Agent-imports/`)
 12. hermes.zappro.site CNAME not yet configured
 
 ---
@@ -96,7 +96,7 @@ will  2047806  hermes gateway run      : running (Gateway, PID 2047806)
 | ---------------------------- | ----------------- | --------------- | ------------ |
 | Hermes-Agent installed       | v0.9.0            | v0.9.0          | PASS         |
 | hermes claw migrate executed | 21 items          | 21 items        | PASS         |
-| OpenClaw containers removed  | Gone              | Confirmed       | PASS         |
+| Hermes Agent containers removed  | Gone              | Confirmed       | PASS         |
 | Hermes gateway running       | PID active        | PID 2047806     | PASS         |
 | Telegram bot token present   | In .env           | Present         | PASS         |
 | bot.zappro.site accessible   | 200 OK            | 502 Bad Gateway | FAIL         |
@@ -110,7 +110,7 @@ will  2047806  hermes gateway run      : running (Gateway, PID 2047806)
 
 ### CRITICAL — bot.zappro.site 502
 
-**Root cause:** Cloudflare tunnel routes to `10.0.19.7:8080` (old OpenClaw IP) which is now offline. Hermes gateway is running but NOT listening on port 8642.
+**Root cause:** Cloudflare tunnel routes to `10.0.19.7:8080` (old Hermes Agent IP) which is now offline. Hermes gateway is running but NOT listening on port 8642.
 
 **Fix required:**
 
@@ -153,7 +153,7 @@ The token `${TELEGRAM_BOT_TOKEN}` is present but bot functionality was not teste
 | Component                        | Status                         |
 | -------------------------------- | ------------------------------ |
 | Hermes-Agent installation        | COMPLETE                       |
-| OpenClaw shutdown                | COMPLETE                       |
+| Hermes Agent shutdown                | COMPLETE                       |
 | SOUL/memories migration          | COMPLETE                       |
 | Skills migration (18 skills)     | COMPLETE                       |
 | LLM configuration                | CONFIGURED                     |

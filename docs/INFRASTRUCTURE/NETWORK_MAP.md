@@ -64,8 +64,8 @@
   │  ─────────────  │                     │  ─────────────────  │
   │ :3300  Gitea    │                     │  coolify (10.0.6.x) │
   │ :4000  LiteLLM  │                     │    → n8n :5678     │
-  │ :4001  OpenClaw │                     │  qgtzrmi (10.0.19.x)│
-  │ :4003  Panel    │                     │    → openclaw :8080 │
+  │ :4001  Hermes Agent │                     │  qgtzrmi (10.0.19.x)│
+  │ :4003  Panel    │                     │    → hermes-agent :8080 │
   │ :6333  Qdrant   │                     │    → browser :9222  │
   │ :8000  Coolify  │                     │  coolify            │
   │ :8080  Traefik  │                     │    → traefik public │
@@ -122,11 +122,11 @@
 | 3101  | Loki                          | LAN only                | Log aggregation (Promtail)                   |
 | 3300  | Gitea HTTP                    | LAN only (UFW)          | Autenticado via Cloudflare                   |
 | 4000  | LiteLLM                       | localhost+LAN           | ✅ Auth requerida                            |
-| 4001  | ~~OpenClaw Bot~~ (deprecated) | localhost               | Reservado                                    |
+| 4001  | ~~Hermes Agent Bot~~ (deprecated) | localhost               | Reservado                                    |
 | 4003  | Claude Code Panel             | localhost               | ✅ Auth requerida                            |
 | 4004  | perplexity-agent              | localhost               | ✅ Auth requerida                            |
 | 3456  | openwebui-bridge-agent        | localhost               | ✅ Auth requerida                            |
-| 3457  | openclaw-mcp-wrapper          | localhost               | ✅ Auth requerida                            |
+| 3457  | hermes-agent-mcp-wrapper          | localhost               | ✅ Auth requerida                            |
 | 5432  | PostgreSQL                    | 127.0.0.1 (UFW)         | 2 instâncias: coolify-db, connected_repo_db  |
 | 5678  | n8n                           | Via tunnel (10.0.6.3)   | Via Docker network, não localhost            |
 | 4080  | list-web                      | LAN only                | ⚠️ Sem auth                                  |
@@ -151,13 +151,13 @@
 | Rede | Subnet | Serviços |
 |------|--------|----------|
 | `wbmqefxhd7vdn2dme3i6s9an` | 10.0.5.0/24 | OpenWebUI (:8080, IP 10.0.5.3) |
-| `qgtzrmi6771lt8l7x8rqx72f` | 10.0.19.0/24 | OpenClaw (:8080), Browser (:9222), wav2vec2 (:8201), wav2vec2-proxy (:8203), TTS Bridge (:8013) |
+| `qgtzrmi6771lt8l7x8rqx72f` | 10.0.19.0/24 | Hermes Agent (:8080), Browser (:9222), wav2vec2 (:8201), wav2vec2-proxy (:8203), TTS Bridge (:8013) |
 | `bridge` | host | Kokoro (:8880), Qdrant (:6333) |
 | `zappro-lite` | docker0 (10.0.1.x) | LiteLLM Proxy (:4000) |
 | `list-web_default` | 10.0.12.0/24 | list-web (:80→4080) |
 | `obsidian-web_default` | 10.0.14.0/24 | obsidian-web (:80→4081) |
 | `monitoring_monitoring` | 10.0.16.0/24 | Grafana, Prometheus, gotify (:80→8050), alert-sender (:8080→8051) |
-| `skills_bridge_internal` | 10.0.9.0/24 | openclaw-mcp-wrapper (:3457) |
+| `skills_bridge_internal` | 10.0.9.0/24 | hermes-agent-mcp-wrapper (:3457) |
 
 **Service IPs (Cross-network):**
 | Serviço | IP | Rede origem | Rede destino |
@@ -171,7 +171,7 @@
 | wav2vec2-proxy | 10.0.19.5:8203 | qgtzrmi... | Deepgram-to-Whisper proxy |
 | TTS Bridge | 10.0.19.11:8013 | qgtzrmi... | TTS endpoint |
 | MCP Monorepo | 10.0.19.50:4006 | qgtzrmi... | host (/srv/monorepo) |
-| MCP Qdrant | 10.0.19.51:4011 | qgtzrmi... | bridge (openclaw-memory) |
+| MCP Qdrant | 10.0.19.51:4011 | qgtzrmi... | bridge (hermes-agent-memory) |
 
 ---
 
@@ -199,13 +199,13 @@
 | zappro-qdrant          | qdrant/qdrant:v1.17.1                    | :6333       | bridge                                | ✅ UP      |
 | zappro-kokoro          | ghcr.io/remsky/kokoro-fastapi-gpu:v0.2.2 | :8012→:8880 | bridge                                | ✅ UP      |
 | open-webui-wbmqefx...  | ghcr.io/openwebui/open-webui:main        | :8080       | wbmqefxhd7vdn2dme3i6s9an + qgtzrmi... | ✅ UP      |
-| openclaw-qgtzrmi...    | coollabsio/openclaw:2026.2.6             | :4001→:8080 | qgtzrmi...                            | ✅ healthy |
-| browser-qgtzrmi...     | coollabsio/openclaw-browser:latest       | :3000-3001  | qgtzrmi...                            | ✅ healthy |
+| hermes-agent-qgtzrmi...    | coollabsio/Hermes Agent:2026.2.6             | :4001→:8080 | qgtzrmi...                            | ✅ healthy |
+| hermes-agent-browser-qgtzrmi...     | coollabsio/Hermes Agent-browser:latest       | :3000-3001  | qgtzrmi...                            | ✅ healthy |
 | mcp-monorepo           | mcp-monorepo:local                       | :4006→:4006 | qgtzrmi...                            | ✅ UP      |
 | mcp-qdrant             | python:3.11-slim                         | :4011→:4011 | qgtzrmi...                            | ✅ UP      |
 | perplexity-agent       | perplexity-agent:latest                  | :4004       | bridge                                | ✅ healthy |
 | openwebui-bridge-agent | openwebui-bridge-agent:latest            | :3456       | qgtzrmi... + wbmqefxhd7vdn2dme3i6s9an | ✅ healthy |
-| openclaw-mcp-wrapper   | openclaw-mcp-wrapper:latest              | :3457       | skills_bridge_internal                | ✅ healthy |
+| hermes-agent-mcp-wrapper   | hermes-agent-mcp-wrapper:latest              | :3457       | skills_bridge_internal                | ✅ healthy |
 | zappro-tts-bridge      | zappro-tts-bridge:latest                 | :8013→:8013 | qgtzrmi...                            | ✅ healthy |
 
 ### Voice Pipeline (AI Local — GPU)
@@ -321,7 +321,7 @@ tank (3.5T livre, poolname: tank)
 ├── tank/models/             → /srv/models                 (17GB — Ollama + Kokoro)
 └── tank/data/
     ├── qdrant/             → /srv/data/qdrant           (vector storage)
-    ├── openclaw/            → /srv/data/openclaw          (openclaw workspaces)
+    ├── hermes-agent/            → /srv/data/Hermes Agent          (hermes-agent workspaces)
     └── zappro-router/       → /srv/data/zappro-router
 ```
 
@@ -444,7 +444,7 @@ All public ingress routes through Traefik (Coolify Proxy) on ports 80/443/8080.
 
 - :3000 → Open WebUI proxy (RESERVED)
 - :4000 → LiteLLM production (RESERVED)
-- :4001 → OpenClaw Bot (RESERVED)
+- :4001 → Hermes Agent Bot (RESERVED)
 - :4002 → ai-gateway (RESERVED — SPEC-047)
 - :8000 → Coolify PaaS (RESERVED)
 - :8080 → Open WebUI (Coolify managed) (RESERVED)

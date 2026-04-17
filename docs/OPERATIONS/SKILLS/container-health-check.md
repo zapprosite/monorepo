@@ -19,11 +19,11 @@ The companion script (`container-health-check.sh`) can be run standalone or sche
 
 | Container | Purpose | Health Endpoint | Expected Response |
 |-----------|---------|----------------|-------------------|
-| `openclaw-qgtzrmi6771lt8l7x8rqx72f` | Voice AI Bot | `localhost:8080/healthz` | `200` with JSON |
+| `Hermes Agent-qgtzrmi6771lt8l7x8rqx72f` | Voice AI Bot | `localhost:8080/healthz` | `200` with JSON |
 | `zappro-litellm` | AI Proxy (LLM aggregation) | `localhost:4000/health` | `200` with JSON |
 | `zappro-wav2vec2` | STT GPU inference | `localhost:8201/health` | `200` with JSON |
 | `zappro-litellm-db` | LiteLLM PostgreSQL | Internal: `pg_isready` | N/A (DB healthcheck) |
-| `browser-qgtzrmi6771lt8l7x8rqx72f` | Headless browser for OpenClaw | `tcp:9222` | TCP open |
+| `browser-qgtzrmi6771lt8l7x8rqx72f` | Headless browser for Hermes Agent | `tcp:9222` | TCP open |
 
 ### High Priority Containers
 
@@ -118,7 +118,7 @@ docker logs <container> --tail 100 2>&1 | grep -E "(segfault|panic|fatal)"
 Returns the Docker container status as a normalized string.
 
 ```bash
-container_status "openclaw-qgtzrmi6771lt8l7x8rqx72f"
+container_status "Hermes Agent-qgtzrmi6771lt8l7x8rqx72f"
 # Output: RUNNING | RESTARTING | STOPPED | UNKNOWN | MISSING
 ```
 
@@ -127,7 +127,7 @@ container_status "openclaw-qgtzrmi6771lt8l7x8rqx72f"
 Returns the healthcheck status. Returns `NO_HEALTHCHECK` if the container has no healthcheck configured.
 
 ```bash
-container_health "openclaw-qgtzrmi6771lt8l7x8rqx72f"
+container_health "Hermes Agent-qgtzrmi6771lt8l7x8rqx72f"
 # Output: HEALTHY | UNHEALTHY | STARTING | NO_HEALTHCHECK | MISSING
 ```
 
@@ -239,7 +239,7 @@ CONTAINER HEALTH CHECK — 2026-04-08 12:00 UTC
 
 --- CRITICAL CONTAINERS ---
 
-  [openclaw-qgtzrmi6771lt8l7x8rqx72f]
+  [Hermes Agent-qgtzrmi6771lt8l7x8rqx72f]
     Status: RUNNING
     Health: OK
 
@@ -273,7 +273,7 @@ SUMMARY
   "timestamp": "2026-04-08T12:00:00Z",
   "containers": [
     {
-      "name": "openclaw-qgtzrmi6771lt8l7x8rqx72f",
+      "name": "Hermes Agent-qgtzrmi6771lt8l7x8rqx72f",
       "status": "RUNNING",
       "health": "HEALTHY",
       "restarts": 0,
@@ -339,8 +339,8 @@ The `self-healing.sh` script already monitors critical containers. Use `containe
 
 | Container | Symptom | Likely Cause | Fix |
 |-----------|---------|--------------|-----|
-| `openclaw-*` | HTTP 000 | Cloudflare Tunnel down | Check cloudflared status |
-| `openclaw-*` | unhealthy | internal server error | Check logs: `docker logs openclaw-qgtzrmi6771lt8l7x8rqx72f` |
+| `Hermes Agent-*` | HTTP 000 | Cloudflare Tunnel down | Check cloudflared status |
+| `Hermes Agent-*` | unhealthy | internal server error | Check logs: `docker logs Hermes Agent-qgtzrmi6771lt8l7x8rqx72f` |
 | `zappro-litellm` | Connection refused | Process crash | `docker restart zappro-litellm` |
 | `zappro-litellm-db` | unhealthy | PostgreSQL not ready | Wait 30s or restart |
 | `zappro-wav2vec2` | HIGH_MEMORY | GPU OOM | Reduce batch size or restart |

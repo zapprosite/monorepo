@@ -37,8 +37,8 @@ type: task-tracking
 - [ ] **[SPEC-021:T01]** Criar gitea-mcp.py — MCP server wrapper para Gitea API
 - [ ] **[SPEC-021:T04]** ZFS snapshot antes de changes no cursor-loop
 - [ ] **[SPEC-020:AC-1]** Criar openwebui_bridge_agent.py em docs/OPERATIONS/SKILLS/
-- [ ] **[SPEC-020:AC-2]** Atualizar openwebui_mcp.py com tool `openclaw_bridge_chat`
-- [ ] **[SPEC-020:AC-3]** Atualizar openclaw_mcp_wrapper.py com tool `chat_with_agent`
+- [ ] **[SPEC-020:AC-2]** Atualizar openwebui_mcp.py com tool `Hermes Agent_bridge_chat`
+- [ ] **[SPEC-020:AC-3]** Atualizar Hermes Agent_mcp_wrapper.py com tool `chat_with_agent`
 
 ### Média Prioridade
 
@@ -97,6 +97,6 @@ Discovery → SPEC → TASKS → IMPLEMENT → REVIEW → SHIP
 | SPEC | Título | Prioridade |
 |------|--------|------------|
 | SPEC-016 | Voice Pipeline Cursor-Loop (Auto-Healer) | critical |
-| SPEC-020 | OpenWebUI ↔ OpenClaw Bridge | high |
+| SPEC-020 | OpenWebUI ↔ Hermes Agent Bridge | high |
 | SPEC-021 | Claude Code CLI: Cursor-Loop + Skills Architecture | critical |
 | SPEC-018 | wav2vec2-deepgram-proxy | medium |

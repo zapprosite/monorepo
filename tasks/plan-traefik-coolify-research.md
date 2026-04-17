@@ -9,7 +9,7 @@
 ## Situação Actual
 
 ```
-Smoke Test 1.2/1.3 — OpenClaw via Traefik FQDN
+Smoke Test 1.2/1.3 — Hermes Agent via Traefik FQDN
   localhost:18789  → NÃO listening (Upstream gateway interno do container)
   localhost:8080  → listening (nginx/Coolify proxy) → curl retorna HTTP 000
   sslip.io FQDN  → connection refused/timeout
@@ -19,9 +19,9 @@ Smoke Test 1.2/1.3 — OpenClaw via Traefik FQDN
 ```
 
 **Root Cause identificados:**
-1. OpenClaw não expõe porta 18789 para o host (Coolify networking)
-2. Traefik não tem rota configurada para `openclaw.191.17.50.123.sslip.io`
-3. Porta 8080 no host é o nginx do Coolify, não o OpenClaw directamente
+1. Hermes Agent não expõe porta 18789 para o host (Coolify networking)
+2. Traefik não tem rota configurada para `Hermes Agent.191.17.50.123.sslip.io`
+3. Porta 8080 no host é o nginx do Coolify, não o Hermes Agent directamente
 4. Cloudflared Tunnel funciona mas não routing para Traefik interno
 
 ---
@@ -45,8 +45,8 @@ Smoke Test 1.2/1.3 — OpenClaw via Traefik FQDN
 - ✅ Docker embedded DNS (127.0.0.11) para resolução entre containers
 - ✅ `host-gateway` para aceder ao host gateway IP
 
-### Agente 3: OpenClaw Health Check Issue
-- ✅ Container OpenClaw healthy
+### Agente 3: Hermes Agent Health Check Issue
+- ✅ Container Hermes Agent healthy
 - ✅ Direct ports (localhost:8080) working for other containers
 - ✅ Problema é especificamente Traefik routing não configurado
 - ✅ sslip.io DNS funciona mas routing não chega ao container
@@ -69,13 +69,13 @@ Smoke Test 1.2/1.3 — OpenClaw via Traefik FQDN
 Cloudflared Tunnel (ok ✅)
     │
     ▼
-Traefik (:80/:443) ←————— PROBLEMA: não tem rota para openclaw.191.17.50.123.sslip.io
+Traefik (:80/:443) ←————— PROBLEMA: não tem rota para Hermes Agent.191.17.50.123.sslip.io
     │
     ▼ (mas deveria routear para)
-OpenClaw Container (Coolify internal network)
+Hermes Agent Container (Coolify internal network)
 ```
 
-O FQDN `openclaw-qgtzrmi6771lt8l7x8rqx72f.191.17.50.123.sslip.io` é gerado pelo Coolify/sslip.io, mas o Traefik não sabe routear este domínio para o container OpenClaw.
+O FQDN `Hermes Agent-qgtzrmi6771lt8l7x8rqx72f.191.17.50.123.sslip.io` é gerado pelo Coolify/sslip.io, mas o Traefik não sabe routear este domínio para o container Hermes Agent.
 
 O Traefik no Coolify só routeia para containers que ele gerencia (atraves do Docker provider `coolify-proxy`).
 
@@ -91,10 +91,10 @@ Diagnosticar:
 1. `traefik healthcheck` — Traefik itself healthy?
 2. Traefik API: `curl http://localhost:8090/api/http/routers` — rotas activas
 3. Traefik Docker provider: containers geridos por Traefik
-4. `curl -I https://openclaw.191.17.50.123.sslip.io/health` — o que acontece?
-5. Verificar logs: `docker logs coolify-proxy --tail 50 | grep openclaw`
+4. `curl -I https://Hermes Agent.191.17.50.123.sslip.io/health` — o que acontece?
+5. Verificar logs: `docker logs coolify-proxy --tail 50 | grep Hermes Agent`
 
-**Critério aceite:** Consegues listar todas as rotas Traefik e confirmar se openclaw está lá
+**Critério aceite:** Consegues listar todas as rotas Traefik e confirmar se Hermes Agent está lá
 
 ---
 
@@ -125,7 +125,7 @@ curl -sf -m 5 "https://$DOMAIN/health" | grep -q "ok\|OK\|healthy"
 Guardar resultado em JSON:
 ```json
 {
-  "domain": "openclaw.191.17.50.123.sslip.io",
+  "domain": "Hermes Agent.191.17.50.123.sslip.io",
   "traefik_route": true/false,
   "backend_reachable": true/false,
   "http_code": 200/502/504/000
@@ -138,11 +138,11 @@ Guardar resultado em JSON:
 
 ### Tarefa 4: Atualizar smoke test para usar Traefik API (não curl directo)
 
-**Ficheiro:** `tasks/smoke-tests/pipeline-openclaw-voice.sh`
+**Ficheiro:** `tasks/smoke-tests/pipeline-Hermes Agent-voice.sh`
 
 Mudar secção 1.2/1.3:
 - Antes: `curl localhost:18789/health` (direct port)
-- Depois: `curl http://localhost:8090/api/http/routers | grep openclaw`
+- Depois: `curl http://localhost:8090/api/http/routers | grep Hermes Agent`
 - Verificar se router existe E backend está healthy
 
 **Alternativa:** Usar `traefik healthcheck` CLI
@@ -162,16 +162,16 @@ sudo zfs snapshot -r tank@pre-traefik-fix-$(date +%Y%m%d-%H%M%S)
 
 ---
 
-### Tarefa 6: Fix — Adicionar OpenClaw FQDN ao Traefik (se possível via Coolify)
+### Tarefa 6: Fix — Adicionar Hermes Agent FQDN ao Traefik (se possível via Coolify)
 
-**Método:** Via Coolify UI — expor OpenClaw com subdomain configurado
+**Método:** Via Coolify UI — expor Hermes Agent com subdomain configurado
 
 Se Coolify gere Traefik dinamicamente:
-1. No Coolify UI → OpenClaw → Settings → Add Domain
-2. Adicionar: `openclaw.191.17.50.123.sslip.io`
+1. No Coolify UI → Hermes Agent → Settings → Add Domain
+2. Adicionar: `Hermes Agent.191.17.50.123.sslip.io`
 3. Coolify automaticamente cria router no Traefik
 
-**Critério aceite:** `curl -sf https://openclaw.191.17.50.123.sslip.io/health` retorna 200
+**Critério aceite:** `curl -sf https://Hermes Agent.191.17.50.123.sslip.io/health` retorna 200
 
 ---
 
@@ -214,17 +214,17 @@ Tarefa 7 (update plan)
 Depois de tudo:
 ```bash
 # Deve retornar 200
-curl -sf -m 10 "https://openclaw.191.17.50.123.sslip.io/health"
+curl -sf -m 10 "https://Hermes Agent.191.17.50.123.sslip.io/health"
 
 # Traefik API deve mostrar router
 curl -s http://localhost:8090/api/http/routers | python3 -c "
 import sys,json
 routers = json.load(sys.stdin)
 for r in routers:
-    if 'openclaw' in r.get('name','').lower():
+    if 'Hermes Agent' in r.get('name','').lower():
         print('Router found:', r.get('name'), '| Status:', r.get('status'))
 "
 
 # Smoke test 1.2/1.3 devem passar
-LITELLM_KEY=... MINIMAX_API_KEY=... bash tasks/smoke-tests/pipeline-openclaw-voice.sh
+LITELLM_KEY=... MINIMAX_API_KEY=... bash tasks/smoke-tests/pipeline-Hermes Agent-voice.sh
 ```

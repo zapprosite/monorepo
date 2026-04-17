@@ -99,7 +99,7 @@ curl http://localhost:18789/health  # loopback-only, SEMPRE falha
 ```bash
 # Ver se dois containers partilham rede
 docker inspect coolify-proxy --format '{{json .NetworkSettings.Networks}}' | python3 -c "import sys,json; print(list(json.load(sys.stdin).keys()))"
-docker inspect openclaw-... --format '{{json .NetworkSettings.Networks}}' | python3 -c "import sys,json; print(list(json.load(sys.stdin).keys()))"
+docker inspect hermes-agent-... --format '{{json .NetworkSettings.Networks}}' | python3 -c "import sys,json; print(list(json.load(sys.stdin).keys()))"
 ```
 
 Se não partilham nenhuma network → **Traefik não consegue routear**.
@@ -120,7 +120,7 @@ curl https://bot.zappro.site/  # pode ser 502
 
 ```bash
 # 1. DNS
-nslookup openclaw.191.17.50.123.sslip.io
+nslookup hermes-agent.191.17.50.123.sslip.io
 
 # 2. Traefik
 curl http://localhost:80/ping  # 200 = Traefik OK

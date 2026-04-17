@@ -9,7 +9,7 @@
 
 ## Sumário
 
-Ao longo de 08/04/2026 enfrentámos 3 incidentes graves no voice pipeline (OpenClaw + LiteLLM + wav2vec2 + Traefik). Este documento consolida todos os root causes, lessons learned e cria um **Plano de Prevenção** para que nunca mais aconteçam.
+Ao longo de 08/04/2026 enfrentámos 3 incidentes graves no voice pipeline (Hermes Agent + LiteLLM + wav2vec2 + Traefik). Este documento consolida todos os root causes, lessons learned e cria um **Plano de Prevenção** para que nunca mais aconteçam.
 
 ---
 
@@ -36,20 +36,20 @@ Container Docker **não consegue TCP para portas de processos nativos do host** 
 ### RC-2: Traefik Routing — Container Network Segregated
 **severity:** 🔴 HIGH
 
-Traefik (coolify-proxy) e OpenClaw estavam em **redes Docker diferentes**, impedindo routing.
+Traefik (coolify-proxy) e Hermes Agent estavam em **redes Docker diferentes**, impedindo routing.
 
 **Redes identificadas:**
 
 ```
 coolify-proxy networks: coolify + qgtzrmi6771lt8l7x8rqx72f + wbmqefxhd7vdn2dme3i6s9an + ...
-openclaw networks:     qgtzrmi6771lt8l7x8rqx72f  ✅ (partilham)
+Hermes Agent networks:     qgtzrmi6771lt8l7x8rqx72f  ✅ (partilham)
 ```
 
-Felizmente OpenClaw e Traefik **partilham** `qgtzrmi6771lt8l7x8rqx72f`. O problema real era que:
-1. `localhost:${OPENCLAW_GATEWAY_PORT:-18789}` (OpenClaw Gateway) é **loopback-only** dentro do container — nunca acessível externamente
+Felizmente Hermes Agent e Traefik **partilham** `qgtzrmi6771lt8l7x8rqx72f`. O problema real era que:
+1. `localhost:${HERMES_AGENT_GATEWAY_PORT:-18789}` (Hermes Agent Gateway) é **loopback-only** dentro do container — nunca acessível externamente
 2. Smoke test usava `localhost:18789` — rota incorrecta
 
-**Solução:** Smoke test usa rota via Cloudflare Tunnel (`${OPENCLAW_TUNNEL_URL}`).
+**Solução:** Smoke test usa rota via Cloudflare Tunnel (`${HERMES_AGENT_TUNNEL_URL}`).
 
 ---
 
@@ -62,7 +62,7 @@ O cloud provider (Hetzner?) bloqueia portas 80/443 externamente. Cloudflare Tunn
 |--------|-----------|
 | `curl http://${HOST_IP}/health` (host local) | ❌ Timeout |
 | `curl http://localhost:80/ping` (host) | ✅ OK |
-| `curl ${OPENCLAW_TUNNEL_URL}/` (externo) | ✅ OK (via Cloudflare Tunnel) |
+| `curl ${HERMES_AGENT_TUNNEL_URL}/` (externo) | ✅ OK (via Cloudflare Tunnel) |
 
 ---
 
@@ -81,10 +81,10 @@ Terraform → DNS criado → Tunnel UP
 
 ---
 
-### RC-5: OpenClaw Gateway Bind Loopback
+### RC-5: Hermes Agent Gateway Bind Loopback
 **severity:** 🟡 MEDIUM
 
-`OPENCLAW_GATEWAY_BIND=loopback` — o gateway do OpenClaw só escuta em `127.0.0.1:18789`. Inacessível de fora do container.
+`HERMES_AGENT_GATEWAY_BIND=loopback` — o gateway do Hermes Agent só escuta em `127.0.0.1:18789`. Inacessível de fora do container.
 
 **Nunca usar** `localhost:18789` em smoke tests ou configurações externas.
 
@@ -128,8 +128,8 @@ curl http://localhost:PORT/health  # verificação real end-to-end
 ### AP-4: DNS/Tunnel UP = Service UP
 **NÃO ASSUMIR:**
 ```
-nslookup ${OPENCLAW_TUNNEL_URL} → OK
-curl ${OPENCLAW_TUNNEL_URL}/ → 502 Bad Gateway
+nslookup ${HERMES_AGENT_TUNNEL_URL} → OK
+curl ${HERMES_AGENT_TUNNEL_URL}/ → 502 Bad Gateway
 ```
 **PORQUÊ:** Tunnel pode estar UP mas backend não estar a correr.
 
@@ -212,8 +212,8 @@ echo "=== Verification Complete ==="
 # Verificar LiteLLM → wav2vec2
 ./verify-network.sh zappro-litellm wav2vec2 8201
 
-# Verificar Traefik → OpenClaw
-./verify-network.sh coolify-proxy openclaw 8080
+# Verificar Traefik → Hermes Agent
+./verify-network.sh coolify-proxy Hermes Agent 8080
 ```
 
 ---
@@ -286,8 +286,8 @@ check_host_service_reachable() {
 | wav2vec2 STT | LiteLLM (container) | ✅ Sim | `zappro-wav2vec2` |
 | Kokoro TTS | LiteLLM (container) | ✅ Sim | via LiteLLM container |
 | Ollama (VL/LLM) | LiteLLM (container) | ✅ Sim | `10.0.1.1:11434` |
-| LiteLLM | OpenClaw (container) | ✅ Sim | `zappro-litellm` |
-| OpenClaw | Traefik (container) | ✅ Sim | `openclaw-qgtzrmi...` |
+| LiteLLM | Hermes Agent (container) | ✅ Sim | `zappro-litellm` |
+| Hermes Agent | Traefik (container) | ✅ Sim | `Hermes Agent-qgtzrmi...` |
 | Traefik | Cloudflare Tunnel | ✅ Sim | `coolify-proxy` |
 
 **Checklist de containerização para novo serviço:**
@@ -314,17 +314,17 @@ check_host_service_reachable() {
 **Teste de routing completo:**
 ```bash
 # 1. DNS resolve
-nslookup openclaw.${HOST_IP}.sslip.io
+nslookup Hermes Agent.${HOST_IP}.sslip.io
 
 # 2. Cloudflare Tunnel routing
-curl -sf -m 10 -o /dev/null -w "%{http_code}" "${OPENCLAW_TUNNEL_URL}/"
+curl -sf -m 10 -o /dev/null -w "%{http_code}" "${HERMES_AGENT_TUNNEL_URL}/"
 
 # 3. Traefik → Backend
 curl -sf -m 10 "http://localhost:80/ping"  # Traefik OK
 
 # 4. Container network partilhada
 docker inspect coolify-proxy --format '{{json .NetworkSettings.Networks}}' | python3 -c "import sys,json; print('Traefik networks:', list(json.load(sys.stdin).keys()))"
-docker inspect openclaw-... --format '{{json .NetworkSettings.Networks}}' | python3 -c "import sys,json; print('OpenClaw networks:', list(json.load(sys.stdin).keys()))"
+docker inspect Hermes Agent-... --format '{{json .NetworkSettings.Networks}}' | python3 -c "import sys,json; print('Hermes Agent networks:', list(json.load(sys.stdin).keys()))"
 ```
 
 ---
@@ -353,7 +353,7 @@ ANTES DE ANUNCIAR "DEPLOY PRONTO"
 | wav2vec2 network isolation | `INCIDENT-2026-04-08-wav2vec2-network-isolation.md` |
 | Perplexity GitOps gap | `INCIDENT-2026-04-08-perplexity-gitops-gap.md` |
 | Traefik routing (08/04/2026) | `tasks/plan-traefik-coolify-research.md` |
-| Voice pipeline smoke test | `tasks/smoke-tests/pipeline-openclaw-voice.sh` |
+| Voice pipeline smoke test | `tasks/smoke-tests/pipeline-Hermes Agent-voice.sh` |
 
 ---
 

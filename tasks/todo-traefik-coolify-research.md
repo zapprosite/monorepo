@@ -9,10 +9,10 @@
 Diagnosticar:
 - `traefik healthcheck` — Traefik itself healthy?
 - Traefik API: `curl http://localhost:8090/api/http/routers` — rotas activas
-- `curl -I https://openclaw.191.17.50.123.sslip.io/health` — o que acontece?
-- `docker logs coolify-proxy --tail 50 | grep openclaw`
+- `curl -I https://Hermes Agent.191.17.50.123.sslip.io/health` — o que acontece?
+- `docker logs coolify-proxy --tail 50 | grep Hermes Agent`
 
-**Critério aceite:** Lista todas as rotas Traefik e confirma se openclaw está lá
+**Critério aceite:** Lista todas as rotas Traefik e confirma se Hermes Agent está lá
 
 ---
 
@@ -45,12 +45,12 @@ Testa todas as rotas Traefik e guarda JSON:
 ---
 
 ### Tarefa 4: Atualizar smoke test para usar Traefik API
-**Ficheiro:** `tasks/smoke-tests/pipeline-openclaw-voice.sh`
+**Ficheiro:** `tasks/smoke-tests/pipeline-Hermes Agent-voice.sh`
 **Status:** pending
 
 Mudar 1.2/1.3:
 - Antes: `curl localhost:18789/health`
-- Depois: `curl http://localhost:8090/api/http/routers | grep openclaw`
+- Depois: `curl http://localhost:8090/api/http/routers | grep Hermes Agent`
 
 **Critério aceite:** Smoke test verifica routing, não só porta directa
 
@@ -68,11 +68,11 @@ sudo zfs snapshot -r tank@pre-traefik-fix-$(date +%Y%m%d-%H%M%S)
 **Status:** pending
 
 Via Coolify UI:
-1. OpenClaw → Settings → Add Domain
-2. Adicionar: `openclaw.191.17.50.123.sslip.io`
+1. Hermes Agent → Settings → Add Domain
+2. Adicionar: `Hermes Agent.191.17.50.123.sslip.io`
 3. Coolify cria router automaticamente
 
-**Critério aceite:** `curl https://openclaw.191.17.50.123.sslip.io/health` → 200
+**Critério aceite:** `curl https://Hermes Agent.191.17.50.123.sslip.io/health` → 200
 
 ---
 

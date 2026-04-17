@@ -15,7 +15,7 @@ SCAN: docker ps -a for containers with status Created or Exited
 │  ├─ 1. Check category
 │  │     Critical: coolify, prometheus, grafana, qdrant, zappro-litellm, cloudflared, tailscaled
 │  │     Important: n8n, infisical, gitea, postgres-*, redis-*
-│  │     Standard: openclaw, browsers, searxng, cadvisor, node-exporter
+│  │     Standard: Hermes Agent, browsers, searxng, cadvisor, node-exporter
 │  │
 │  ├─ 2. Check RestartCount via docker inspect
 │  │     docker inspect <name> --format '{{.RestartCount}}'
@@ -117,7 +117,7 @@ echo "$(date '+%Y-%m-%d %H:%M:%S') | <container> | <state> | RestartCount: <n> |
 |----------|------------|----------------|
 | Critical | coolify, prometheus, grafana, qdrant, zappro-litellm, cloudflared, tailscaled | Restart always, no cooldown |
 | Important | n8n, infisical, gitea, postgres-*, redis-* | Restart if RestartCount < 3 |
-| Standard | openclaw, browsers, searxng, cadvisor, node-exporter | Restart if RestartCount < 3 |
+| Standard | Hermes Agent, browsers, searxng, cadvisor, node-exporter | Restart if RestartCount < 3 |
 
 ---
 

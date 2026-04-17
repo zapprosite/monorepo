@@ -28,8 +28,8 @@ Scrub:    Sun Apr 12 20:31:48 2026 — 0 errors
 | `tank/backups`            | /srv/backups            | 268M  | Backup archives            |
 | `tank/coolify`            | /srv/data/coolify       | 194K  | Coolify PaaS               |
 | `tank/data`               | /tank/data              | 170K  | Data container (see below) |
-| `tank/data/openclaw`      | /srv/data/openclaw      | 118K  | OpenClaw Bot               |
-| `tank/data/openclaw/data` | /srv/data/openclaw/data | 24K   | OpenClaw data              |
+| `tank/data/Hermes Agent`      | /srv/data/Hermes Agent      | 118K  | Hermes Agent Bot               |
+| `tank/data/Hermes Agent/data` | /srv/data/Hermes Agent/data | 24K   | Hermes Agent data              |
 | `tank/data/zappro-router` | /srv/data/zappro-router | 27K   | Aurelia Router             |
 | `tank/docker-data`        | /srv/docker-data        | 24.9G | Docker images/layers       |
 | `tank/models`             | /srv/models             | 38.6G | AI models (Ollama)         |
@@ -82,7 +82,7 @@ All scripts located in `/srv/ops/scripts/`.
 **Datasets snapshotted:**
 
 - tank/coolify
-- tank/data/openclaw
+- tank/data/Hermes Agent
 - tank/data/zappro-router
 - tank/docker-data
 - tank/monorepo

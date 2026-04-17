@@ -234,8 +234,8 @@
     },
     {
       "id": "TASK-030",
-      "spec": "SPEC-051-openclaw-prune-specs-polish",
-      "title": "OpenClaw Prune & Specs Polish",
+      "spec": "SPEC-051-legacy-services-prune",
+      "title": "Hermes Agent Prune & Specs Polish",
       "priority": "",
       "status": "pending",
       "blocked_by": []

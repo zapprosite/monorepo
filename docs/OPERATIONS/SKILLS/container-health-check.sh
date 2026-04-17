@@ -11,7 +11,7 @@ set -euo pipefail
 # =============================================================================
 
 CRITICAL_CONTAINERS=(
-    "openclaw-qgtzrmi6771lt8l7x8rqx72f"
+    "Hermes Agent-qgtzrmi6771lt8l7x8rqx72f"
     "zappro-litellm"
     "zappro-wav2vec2"
     "zappro-litellm-db"
@@ -33,7 +33,7 @@ ALL_CONTAINERS=(
 
 # Health endpoints: container -> "host:port/path"
 declare -A HEALTH_ENDPOINTS=(
-    ["openclaw-qgtzrmi6771lt8l7x8rqx72f"]="localhost:8080/healthz"
+    ["Hermes Agent-qgtzrmi6771lt8l7x8rqx72f"]="localhost:8080/healthz"
     ["zappro-litellm"]="localhost:4000/health"
     ["zappro-wav2vec2"]="localhost:8201/health"
     ["coolify-proxy"]="localhost:80/ping"

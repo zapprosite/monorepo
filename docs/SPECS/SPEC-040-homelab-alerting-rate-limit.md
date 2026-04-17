@@ -431,7 +431,7 @@ groups:
 | 1   | **SearXNG**                   | 0 requests/24h, no identified consumer, ~15 MB RAM                    | `docker stop searxng && docker rm searxng`                                                                                                                   |
 | 2   | **Infisical stack**           | .env is canonical (ADR-001), all services use .env, SDK fallback only | `docker stop infisical infisical-db infisical-redis`                                                                                                         |
 | 3   | **supabase-health-proxy**     | Supabase is cloud-only (no local Supabase), proxy unnecessary         | `docker stop supabase-health-proxy && docker rm supabase-health-proxy`                                                                                       |
-| 4   | **Orphaned openclaw volumes** | Volumes from removed container, disk waste                            | `docker volume rm openclaw-data qgtzrmi6771lt8l7x8rqx72f_openclaw-data`                                                                                      |
+| 4   | **Orphaned Hermes Agent volumes** | Volumes from removed container, disk waste                            | `docker volume rm Hermes Agent-data qgtzrmi6771lt8l7x8rqx72f_Hermes Agent-data`                                                                                      |
 | 5   | **n8n + postgresql-n8n**      | 0 workflows, 0 executions, 0 webhooks — never used                    | `docker stop n8n-jbu1zy377ies2zhc3qmd03gz postgresql-jbu1zy377ies2zhc3qmd03gz && docker rm n8n-jbu1zy377ies2zhc3qmd03gz postgresql-jbu1zy377ies2zhc3qmd03gz` |
 
 ### Services to Investigate (Uncertain)

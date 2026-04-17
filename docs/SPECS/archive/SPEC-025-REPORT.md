@@ -50,7 +50,7 @@ see_also:
 | INCIDENTS.md | version, author |
 | LOCKED-CONFIG.md | version, author |
 | MASTER-PASSWORD-PROCEDURE.md | version, author |
-| OPENCLAW_DEBUG.md | version, author |
+| HERMES_AGENT_DEBUG.md | version, author |
 | PINNED-SERVICES.md | version, author |
 | QUICK_START.md | version, author |
 | README.md | version, author |
@@ -114,7 +114,7 @@ Documents to update:
 - /srv/monorepo/docs/GOVERNANCE/INCIDENTS.md
 - /srv/monorepo/docs/GOVERNANCE/LOCKED-CONFIG.md
 - /srv/monorepo/docs/GOVERNANCE/MASTER-PASSWORD-PROCEDURE.md
-- /srv/monorepo/docs/GOVERNANCE/OPENCLAW_DEBUG.md
+- /srv/monorepo/docs/GOVERNANCE/HERMES_AGENT_DEBUG.md
 - /srv/monorepo/docs/GOVERNANCE/PINNED-SERVICES.md
 - /srv/monorepo/docs/GOVERNANCE/QUICK_START.md
 - /srv/monorepo/docs/GOVERNANCE/README.md

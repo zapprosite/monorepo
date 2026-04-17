@@ -143,7 +143,7 @@ Default → static
 **Features:**
 - Adds `healthcheck` with `test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:PORT/health"]`
 - Non-root user in Dockerfile
-- External network reference if service needs to join existing network (e.g., `qgtzrmi6771lt8l7x8rqx72f` for OpenClaw)
+- External network reference if service needs to join existing network (e.g., `qgtzrmi6771lt8l7x8rqx72f` for Hermes Agent)
 - Port binding to `127.0.0.1:PORT:80` (not exposed to host)
 
 **Dependencies:** `port-allocator`, network knowledge from `cloudflare-terraform`

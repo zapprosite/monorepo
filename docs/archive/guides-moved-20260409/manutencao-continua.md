@@ -424,7 +424,7 @@ print(f'Secrets no vault: {len(s.secrets)}')
 - `REDIS_PASSWORD` → coolify-redis-password-2026
 - `ROOT_USER_PASSWORD` → [COOLIFY_ROOT_PASSWORD]
 - `AUTH_SECRET` / `JWT_AUTH_SECRET` → OpenClaw auth
-- `OPENCLAW_GATEWAY_TOKEN` → OpenClaw gateway
+- `HERMES_AGENT_GATEWAY_TOKEN` → OpenClaw gateway
 - `GF_SECURITY_ADMIN_PASSWORD` → Grafana admin
 
 ### Atualização de Secrets

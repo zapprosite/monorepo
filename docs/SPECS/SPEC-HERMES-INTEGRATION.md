@@ -353,7 +353,7 @@ Qdrant was planned for response caching to reduce LLM calls for RAG, but current
 
 | Subdomain            | Target                      | Status                              |
 | -------------------- | --------------------------- | ----------------------------------- |
-| `bot.zappro.site`    | `10.0.19.7:8080` (OpenClaw) | OFFLINE - 502                       |
+| `bot.zappro.site`    | `10.0.19.7:8080` (Hermes Agent) | OFFLINE - 502                       |
 | `hermes.zappro.site` | `10.0.5.2:8642` (Hermes)    | ✅ Tunnel verified working (200 OK) |
 
 ### 6.2 Should hermes.zappro.site Replace bot.zappro.site?

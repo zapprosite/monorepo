@@ -13,22 +13,22 @@
 | 5 | docs/specflow/SPEC-004-kokoro-tts-kit.md | docs/SPECS/SPEC-004-kokoro-tts-kit.md |
 | 6 | docs/specflow/SPEC-005-wav2vec2-stt-kit.md | docs/SPECS/SPEC-005-wav2vec2-stt-kit.md |
 | 7 | docs/specflow/SPEC-006-playwright-e2e.md | docs/SPECS/SPEC-006-playwright-e2e.md |
-| 8 | docs/specflow/SPEC-007-openclaw-oauth-profiles.md | docs/SPECS/SPEC-007-openclaw-oauth-profiles.md |
-| 9 | docs/specflow/SPEC-009-openclaw-persona-audio-stack.md | docs/SPECS/SPEC-009-openclaw-persona-audio-stack.md |
-| 10 | docs/specflow/SPEC-010-openclaw-agents-kit.md | docs/SPECS/SPEC-010-openclaw-agents-kit.md |
-| 11 | docs/specflow/SPEC-011-openclaw-agency-reimagined.md | docs/SPECS/SPEC-011-openclaw-agency-reimagined.md |
-| 12 | docs/specflow/SPEC-012-openclaw-update-discoverer.md | docs/SPECS/SPEC-012-openclaw-update-discoverer.md |
+| 8 | docs/specflow/SPEC-007-Hermes Agent-oauth-profiles.md | docs/SPECS/SPEC-007-Hermes Agent-oauth-profiles.md |
+| 9 | docs/specflow/SPEC-009-Hermes Agent-persona-audio-stack.md | docs/SPECS/SPEC-009-Hermes Agent-persona-audio-stack.md |
+| 10 | docs/specflow/SPEC-010-Hermes Agent-agents-kit.md | docs/SPECS/SPEC-010-Hermes Agent-agents-kit.md |
+| 11 | docs/specflow/SPEC-011-Hermes Agent-agency-reimagined.md | docs/SPECS/SPEC-011-Hermes Agent-agency-reimagined.md |
+| 12 | docs/specflow/SPEC-012-Hermes Agent-update-discoverer.md | docs/SPECS/SPEC-012-Hermes Agent-update-discoverer.md |
 | 13 | docs/specflow/SPEC-013-CLAUDE-CODE-CLI-INTEGRATION.md | docs/SPECS/SPEC-013-CLAUDE-CODE-CLI-INTEGRATION.md |
-| 14 | docs/specflow/SPEC-013-openclaw-ceo-mix-voice-stack.md | docs/SPECS/SPEC-013-openclaw-ceo-mix-voice-stack.md |
+| 14 | docs/specflow/SPEC-013-Hermes Agent-ceo-mix-voice-stack.md | docs/SPECS/SPEC-013-Hermes Agent-ceo-mix-voice-stack.md |
 | 15 | docs/specflow/SPEC-013-UNIFIED-CLAUDE-AGENT-MONOREPO.md | docs/SPECS/SPEC-013-UNIFIED-CLAUDE-AGENT-MONOREPO.md |
 | 16 | docs/specflow/SPEC-014-CURSOR-AI-CICD-PATTERN.md | docs/SPECS/SPEC-014-CURSOR-AI-CICD-PATTERN.md |
-| 17 | docs/specflow/SPEC-014-openclaw-tts-route-fix.md | docs/SPECS/SPEC-014-openclaw-tts-route-fix.md |
+| 17 | docs/specflow/SPEC-014-Hermes Agent-tts-route-fix.md | docs/SPECS/SPEC-014-Hermes Agent-tts-route-fix.md |
 | 18 | docs/specflow/SPEC-015-GITEA-ACTIONS-ENTERPRISE.md | docs/SPECS/SPEC-015-GITEA-ACTIONS-ENTERPRISE.md |
 | 19 | docs/specflow/SPEC-016-voice-pipeline-cursor-loop.md | docs/SPECS/SPEC-016-voice-pipeline-cursor-loop.md |
 | 20 | docs/specflow/SPEC-017-voice-api-deploy.md | docs/SPECS/SPEC-017-voice-api-deploy.md |
 | 21 | docs/specflow/SPEC-018-wav2vec2-deepgram-proxy.md | docs/SPECS/SPEC-018-wav2vec2-deepgram-proxy.md |
 | 22 | docs/specflow/SPEC-019-openwebui-repair.md | docs/SPECS/SPEC-019-openwebui-repair.md |
-| 23 | docs/specflow/SPEC-020-openwebui-openclaw-bridge.md | docs/SPECS/SPEC-020-openwebui-openclaw-bridge.md |
+| 23 | docs/specflow/SPEC-020-openwebui-Hermes Agent-bridge.md | docs/SPECS/SPEC-020-openwebui-Hermes Agent-bridge.md |
 | 24 | docs/specflow/SPEC-021-CLAUDE-CODE-CURSOR-LOOP.md | docs/SPECS/SPEC-021-CLAUDE-CODE-CURSOR-LOOP.md |
 | 25 | docs/specflow/SPEC-100-PIPELINE-BOOTSTRAP.md | docs/SPECS/SPEC-100-PIPELINE-BOOTSTRAP.md |
 

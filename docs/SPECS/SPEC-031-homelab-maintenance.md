@@ -174,14 +174,14 @@ zfs list -t snapshot -r tank | grep "pre-"
 | 4    | Commit + sync                        |
 
 **Add to table:**
-| Operation | TTS Bridge restart | Voice change | OpenClaw config edit |
-| Service | zappro-tts-bridge | pm_santa/pf_dora | openclaw-qgtzrmi |
+| Operation | TTS Bridge restart | Voice change | Hermes Agent config edit |
+| Service | zappro-tts-bridge | pm_santa/pf_dora | Hermes Agent-qgtzrmi |
 | Can Execute | Autoheal (3/h limit) | NEVER | NEVER |
 | Requires Approval | owner | owner | owner |
 
 **Acceptance Criteria:**
 
-- [ ] APPROVAL_MATRIX.md includes TTS Bridge, OpenClaw, Kokoro rows
+- [ ] APPROVAL_MATRIX.md includes TTS Bridge, Hermes Agent, Kokoro rows
 - [ ] Date updated to 2026-04-12
 - [ ] `git log` shows update
 
@@ -250,7 +250,7 @@ zfs list -t snapshot -r tank | grep "pre-"
 
 ```bash
 # All smoke tests
-bash /srv/monorepo/tasks/smoke-tests/pipeline-openclaw-voice.sh
+bash /srv/monorepo/tasks/smoke-tests/pipeline-Hermes Agent-voice.sh
 # Should PASS 14/14
 
 # Prometheus targets

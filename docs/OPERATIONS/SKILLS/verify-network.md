@@ -40,7 +40,7 @@ md5sum       # Hashing para nomes de checks
 | Variável | Valor |
 |----------|-------|
 | `TRAEFIK_CONTAINER` | `coolify-proxy` (Traefik) |
-| `OPENCLAW_CONTAINER` | `openclaw-qgtzrmi6771lt8l7x8rqx72f` |
+| `HERMES_AGENT_CONTAINER` | `hermes-agent-qgtzrmi6771lt8l7x8rqx72f` |
 | `LITELLM_CONTAINER` | `zappro-litellm` |
 | `WAV2VEC2_CONTAINER` | `zappro-wav2vec2` |
 
@@ -66,9 +66,9 @@ md5sum       # Hashing para nomes de checks
 ```
 NETWORK VERIFICATION — 2026-04-08 12:00 UTC
 ============================================================
-✅ shared_network_coolify-proxy_openclaw-qgtzrmi6771lt8l7x8rqx72f shared: qgtzrmi6771lt8l7x8rqx72f
+✅ shared_network_coolify-proxy_hermes-agent-qgtzrmi6771lt8l7x8rqx72f shared: qgtzrmi6771lt8l7x8rqx72f
 ✅ tcp_zappro-litellm_wav2vec2_8201 connected to wav2vec2:8201
-❌ shared_network_traefik_openclaw FAIL: no shared network
+❌ shared_network_traefik_Hermes Agent FAIL: no shared network
 ============================================================
 OVERALL: FAIL
 ```
@@ -81,7 +81,7 @@ OVERALL: FAIL
   "overall_status": "FAIL",
   "checks": [
     {
-      "name": "shared_network_coolify-proxy_openclaw-qgtzrmi6771lt8l7x8rqx72f",
+      "name": "shared_network_coolify-proxy_hermes-agent-qgtzrmi6771lt8l7x8rqx72f",
       "status": "PASS",
       "detail": "shared: qgtzrmi6771lt8l7x8rqx72f"
     },
@@ -107,7 +107,7 @@ Verifica se dois containers partilham alguma rede Docker.
 **Regra aplicada:** HOMELAB-SURVIVAL-GUIDE Regra 6
 
 ```bash
-check_shared_network "coolify-proxy" "openclaw-qgtzrmi6771lt8l7x8rqx72f"
+check_shared_network "coolify-proxy" "hermes-agent-qgtzrmi6771lt8l7x8rqx72f"
 # PASS: shared: qgtzrmi6771lt8l7x8rqx72f
 # FAIL: no shared network
 ```
@@ -171,11 +171,11 @@ Verifica todas as rotas LiteLLM → backends:
 
 ### `verify_traefik_routes()`
 
-Verifica rotas Traefik → OpenClaw:
+Verifica rotas Traefik → Hermes Agent:
 
-1. Shared network coolify-proxy ↔ openclaw
-2. TCP connectivity Traefik → OpenClaw
-3. HTTP health from Traefik to OpenClaw
+1. Shared network coolify-proxy ↔ Hermes Agent
+2. TCP connectivity Traefik → Hermes Agent
+3. HTTP health from Traefik to Hermes Agent
 
 **Regra aplicada:** HOMELAB-SURVIVAL-GUIDE Regras 6 e 7
 
@@ -207,7 +207,7 @@ Sistema saudável — todos os containers conseguem comunicar.
 1. Verificar networks dos dois containers:
    ```bash
    docker inspect coolify-proxy --format '{{json .NetworkSettings.Networks}}'
-   docker inspect openclaw-qgtzrmi6771lt8l7x8rqx72f --format '{{json .NetworkSettings.Networks}}'
+   docker inspect hermes-agent-qgtzrmi6771lt8l7x8rqx72f --format '{{json .NetworkSettings.Networks}}'
    ```
 2. Adicionar o container à network do Traefik via Coolify UI
 3. Ou adicionar Traefik à network do container

@@ -76,7 +76,7 @@ minimax-ot-01 (MiniMax via LiteLLM), ...
                     │         localhost:4000           │
                     │            (LiteLLM proxy)          │
                     │                                     │
-  OpenClaw ────────│  LITELLM_MASTER_KEY ──────────────►│
+  Hermes Agent ────────│  LITELLM_MASTER_KEY ──────────────►│
   OpenWebUI ───────│                                     │
   MCP-Qdrant ──────│                                     │
                     └─────────────────────────────────────┘
@@ -92,16 +92,16 @@ minimax-ot-01 (MiniMax via LiteLLM), ...
                          │  MINIMAX_TOKEN ──►│
                          └──────────────────┘
 
-  OpenClaw ──────────────│────────────────────────────────►
+  Hermes Agent ──────────────│────────────────────────────────►
   (chamadas diretas)     │   MINIMAX_TOKEN (não via proxy)
                          └────────────────────────────────►
 ```
 
 ---
 
-## OpenClaw Bot — Padrão
+## Hermes Agent Bot — Padrão
 
-**Referência:** `/srv/data/openclaw/AURELIA_SECRETS.env`
+**Referência:** `/srv/data/Hermes Agent/AURELIA_SECRETS.env`
 
 ```
 LITELLM_MASTER_KEY=sk-master-b83cfa00...   # LiteLLM proxy (localhost:4000)

@@ -30,7 +30,7 @@ Quando um LLM (ex: Copilot, Codex, outro Claude) propõe uma "melhoria" para uma
 **POR QUE ISSO QUEBRA PRODUÇÃO:**
 
 - Nova versão pode ter breaking changes
-- Stack de voz (Whisper → Kokoro → OpenClaw) foi validado como conjunto
+- Stack de voz (Whisper → Kokoro → Hermes Agent) foi validado como conjunto
 - Atualizar um componente invalida toda a validação
 
 ---
@@ -74,7 +74,7 @@ network: 'zappro-lite'
 status: 'PINNED'
 expires: null # Nunca expira — imutável
 verification_cmd: 'curl -sf http://localhost:8012/health'
-smoke_test: '/srv/monorepo/tasks/smoke-tests/pipeline-openclaw-voice.sh'
+smoke_test: '/srv/monorepo/tasks/smoke-tests/pipeline-Hermes Agent-voice.sh'
 ---
 ```
 
@@ -125,9 +125,9 @@ voz_fallback: 'pf_dora' # Feminino PT-BR
 
 | Serviço               | Container                           | Porta | Versão Pinada                  | Motivo                                               |
 | --------------------- | ----------------------------------- | ----- | ------------------------------ | ---------------------------------------------------- |
-| **Kokoro TTS**        | `zappro-kokoro`                     | 8012  | `v0.2.2`                       | Validado com OpenClaw; mudança quebra voice pipeline |
+| **Kokoro TTS**        | `zappro-kokoro`                     | 8012  | `v0.2.2`                       | Validado com Hermes Agent; mudança quebra voice pipeline |
 | **Whisper STT**       | `zappro-whisper-stt`                | 8201  | `jlondonobo/whisper-medium-pt` | Watchdog do Hermes depende da porta 8201             |
-| **OpenClaw Bot**      | `openclaw-qgtzrmi6771lt8l7x8rqx72f` | 8080  | `2026.2.6`                     | Mudar modelo primary quebra api:undefined            |
+| **Hermes Agent Bot**      | `Hermes Agent-qgtzrmi6771lt8l7x8rqx72f` | 8080  | `2026.2.6`                     | Mudar modelo primary quebra api:undefined            |
 | **LiteLLM Proxy**     | `zappro-litellm`                    | 4000  | `latest` (config.yaml pinado)  | Proxy GPU; NÃO é provider primário                   |
 | **Traefik/Coolify**   | `coolify-proxy`                     | 8080  | `4.0.0-beta.470`               | Conflito porta 8080; reservado                       |
 | **Cloudflare Tunnel** | `cloudflared`                       | 8080  | N/A                            | Tunnels ativos não podem ser recriados               |
@@ -144,7 +144,7 @@ voz_fallback: 'pf_dora' # Feminino PT-BR
 | Rede                                | Containers                   | Motivo                      |
 | ----------------------------------- | ---------------------------- | --------------------------- |
 | `zappro-lite`                       | Kokoro, whisper-stt, LiteLLM | Stack de voz validado junto |
-| `openclaw-qgtzrmi6771lt8l7x8rqx72f` | OpenClaw + Traefik           | Routing depende desta rede  |
+| `Hermes Agent-qgtzrmi6771lt8l7x8rqx72f` | Hermes Agent + Traefik           | Routing depende desta rede  |
 
 ---
 
@@ -167,7 +167,7 @@ RUIM: "Vamos trocar o Kokoro por Silero TTS — é mais moderno!"
 RUIM: "O whisper-medium-pt é antigo — Coqui STT é melhor!"
 ```
 
-**POR QUE QUEBRA:** OpenClaw watchdog e LiteLLM estão configurados para APIs específicas.
+**POR QUE QUEBRA:** Hermes Agent watchdog e LiteLLM estão configurados para APIs específicas.
 Mudar = quebrou o routing sem testar.
 
 ### ❌ ANTIPATTERN 3: "Vou melhorar a segurança desse .env"
@@ -197,7 +197,7 @@ docker run -p 8080:3000 meu-app
 ```bash
 # RUIM — SEM VERIFICAR PRIMEIRO
 docker restart zappro-kokoro
-docker restart openclaw-qgtzrmi6771lt8l7x8rqx72f
+docker restart Hermes Agent-qgtzrmi6771lt8l7x8rqx72f
 ```
 
 **POR QUE QUEBRA:** Restart desliga o serviço. Se não há health check, o container pode ficar down sem alerta.
@@ -250,7 +250,7 @@ verified: '2026-04-08' # Última verificação
 verify_after: '2026-07-08' # Re-verificar em 3 meses
 expires: null # Não expira — imutável
 last_smoke_test: '2026-04-08' # Último smoke test passou
-smoke_test_script: '/srv/monorepo/tasks/smoke-tests/pipeline-openclaw-voice.sh'
+smoke_test_script: '/srv/monorepo/tasks/smoke-tests/pipeline-Hermes Agent-voice.sh'
 ---
 ```
 
@@ -286,7 +286,7 @@ O arquivo contém marcadores PINNED?               → Parar e ler ANTI-FRAGILIT
 grep -r "PINNED\|IMUTÁVEL" /srv/monorepo/docs/GOVERNANCE/
 
 # Verificar container
-docker ps --format "{{.Names}}\t{{.Status}}" | grep -E "kokoro|whisper|openclaw|litellm"
+docker ps --format "{{.Names}}\t{{.Status}}" | grep -E "kokoro|whisper|Hermes Agent|litellm"
 ```
 
 ### 3. Se Serviço é Pinned
@@ -301,10 +301,10 @@ docker ps --format "{{.Names}}\t{{.Status}}" | grep -E "kokoro|whisper|openclaw|
 
 ```bash
 # Verificar se há containers dependentes
-docker ps --format "{{.Names}}" | grep -E "openclaw|kokoro|whisper|litellm"
+docker ps --format "{{.Names}}" | grep -E "Hermes Agent|kokoro|whisper|litellm"
 
 # Verificar redes
-docker network ls | grep -E "zappro|openclaw"
+docker network ls | grep -E "zappro|Hermes Agent"
 ```
 
 ### 5. Se for Necessário Modificar (com aprovação)

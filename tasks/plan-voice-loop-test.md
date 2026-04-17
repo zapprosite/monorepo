@@ -8,7 +8,7 @@
 
 ## 1. Objetivo
 
-Criar um agente de teste loop via Telegram integrado no OpenClaw. O agente recebe audio (voz) e imagens, processa-os através do voice pipeline (TTS/STT/Vision), e refatora testes dinamicamente com base nos resultados.
+Criar um agente de teste loop via Telegram integrado no Hermes Agent. O agente recebe audio (voz) e imagens, processa-os através do voice pipeline (TTS/STT/Vision), e refatora testes dinamicamente com base nos resultados.
 
 ---
 
@@ -17,7 +17,7 @@ Criar um agente de teste loop via Telegram integrado no OpenClaw. O agente receb
 ```
 Telegram
     │
-    ├──► OpenClaw Bot (@CEO_REFRIMIX_bot)
+    ├──► Hermes Agent Bot (@CEO_REFRIMIX_bot)
     │         │
     │         ├──► /loop — entra em modo loop de testes
     │         │         │
@@ -28,7 +28,7 @@ Telegram
     │         │
     │         └──► /test — executa smoke test completo
     │                   │
-    │                   └──► pipeline-openclaw-voice.sh
+    │                   └──► pipeline-hermes-agent-voice.sh
     │
     └──► LiteLLM Proxy (:4000)
               │
@@ -42,7 +42,7 @@ Telegram
 
 ## 3. Componentes a Implementar
 
-### 3.1 Skill: `/loop` (OpenClaw)
+### 3.1 Skill: `/loop` (Hermes Agent)
 
 Skill que entra em modo loop iterativo:
 
@@ -55,13 +55,13 @@ Skill que entra em modo loop iterativo:
   → Repete até usuário enviar /stop
 ```
 
-### 3.2 Skill: `/test` (OpenClaw)
+### 3.2 Skill: `/test` (Hermes Agent)
 
 Executa smoke test e retorna resultado:
 
 ```
 /test — executa teste completo
-  → Roda pipeline-openclaw-voice.sh
+  → Roda pipeline-hermes-agent-voice.sh
   → Retorna output formatado
   → Usa TTS para ler resumo
 ```
@@ -97,7 +97,7 @@ Resultados guardados em:
 ## 4. Fluxo de Teste Loop
 
 ```
-[User] ──► Audio no Telegram ──► OpenClaw /loop
+[User] ──► Audio no Telegram ──► Hermes Agent /loop
                                     │
                                     ▼
                           ┌─────────────────────┐
@@ -119,7 +119,7 @@ Resultados guardados em:
 ```
 
 ```
-[User] ──► Imagem no Telegram ──► OpenClaw /loop
+[User] ──► Imagem no Telegram ──► Hermes Agent /loop
                                        │
                                        ▼
                              ┌─────────────────────┐
@@ -144,7 +144,7 @@ Resultados guardados em:
 
 ## 5. Tarefas
 
-### Tarefa 1: Skill `/loop` no OpenClaw
+### Tarefa 1: Skill `/loop` no Hermes Agent
 
 **Ficheiro:** `/data/workspace/skills/voice-loop/SKILL.md`
 
@@ -221,13 +221,13 @@ Se Vision falha:
 
 ---
 
-### Tarefa 5: Integração OpenClaw `/test`
+### Tarefa 5: Integração Hermes Agent `/test`
 
 **Ficheiro:** `/data/workspace/skills/voice-test/SKILL.md`
 
 ```
 /test — executa smoke test completo
-  → Executa pipeline-openclaw-voice.sh
+  → Executa pipeline-hermes-agent-voice.sh
   → Filtra output relevante
   → Lê resultados de /srv/monorepo/tasks/results/
   → Responde via TTS com resumo
@@ -242,7 +242,7 @@ Se Vision falha:
 ```
 Telegram Bot Token: [TELEGRAM_BOT_TOKEN]
 LiteLLM Key: [LITELLM_API_KEY]
-OpenClaw Container: openclaw-qgtzrmi6771lt8l7x8rqx72f
+Hermes Agent Container: hermes-agent-qgtzrmi6771lt8l7x8rqx72f
 LiteLLM Container: zappro-litellm (10.0.1.1:4000)
 wav2vec2 Container: zappro-wav2vec2 (wav2vec2:8201)
 ```
@@ -253,7 +253,7 @@ wav2vec2 Container: zappro-wav2vec2 (wav2vec2:8201)
 
 | Fase | Checkpoint          | Critério                                     |
 | ---- | ------------------- | -------------------------------------------- |
-| 1    | `/loop` funciona    | OpenClaw aceita comando e entra em modo loop |
+| 1    | `/loop` funciona    | Hermes Agent aceita comando e entra em modo loop |
 | 2    | STT via Telegram    | Audio enviado → texto retornado              |
 | 3    | Vision via Telegram | Imagem enviada → descrição retornada         |
 | 4    | TTS responde        | Resposta em audio enviada ao Telegram        |
@@ -265,4 +265,4 @@ wav2vec2 Container: zappro-wav2vec2 (wav2vec2:8201)
 ## 8. NÃO ESCOPO
 
 - Alteração de modelos STT/TTS (SPEC-004, SPEC-005 são protegidos) -部署 de novos containers (infra já está operacional)
-- Modificação de OpenClaw core (apenas skills/agents)
+- Modificação de Hermes Agent core (apenas skills/agents)

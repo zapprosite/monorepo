@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Voice API — STT Bridge for OpenClaw
+Voice API — STT Bridge for Hermes Agent
 =====================================
 Proxies audio transcription requests to local whisper-api (wav2vec2).
 Supports Ollama PT-BR enhancement for better transcription quality.

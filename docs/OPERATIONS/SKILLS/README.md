@@ -24,7 +24,7 @@ Comprehensive index of all operational skills for the homelab. These skills are 
 | [liteLLM-usage.md](liteLLM-usage.md)                                                                            | LiteLLM usage analytics                             | Cost monitoring                               |
 | [tts-bridge.md](tts-bridge.md) + [tts-bridge.py](tts-bridge.py)                                                 | Kokoro voice filter (pm_santa/pf_dora only)         | Restrict TTS voices                           |
 | [voice-pipeline-desktop.md](voice-pipeline-desktop.md)                                                          | Voice pipeline desktop (F12, Ctrl+Shift+C, hotkeys) | Voice recording and TTS on Ubuntu desktop     |
-| [openclaw-agents-kit](./openclaw-agents-kit/SKILL.md)                                                           | OpenClaw multi-agent orchestration                  | Create leader + sub-agent teams for any niche |
+| [Hermes Agent-agents-kit](./Hermes Agent-agents-kit/SKILL.md)                                                           | Hermes Agent multi-agent orchestration                  | Create leader + sub-agent teams for any niche |
 
 ---
 
@@ -58,7 +58,7 @@ bash docs/OPERATIONS/SKILLS/deploy-validator.sh
 bash docs/OPERATIONS/SKILLS/incident-runbook.md
 
 # One-liner triage
-docker ps --format "table {{.Names}}\t{{.Status}}" | grep -E "openclaw|litellm|wav2vec2|coolify" && \
+docker ps --format "table {{.Names}}\t{{.Status}}" | grep -E "Hermes Agent|litellm|wav2vec2|coolify" && \
 curl -sf -m 5 http://localhost:80/ping && echo " Traefik OK" || echo " Traefik FAIL"
 ```
 
@@ -95,7 +95,7 @@ curl -sf -m 5 http://localhost:80/ping && echo " Traefik OK" || echo " Traefik F
 
 | Skill               | File                           | What It Does                                                                                                                                                                                               |
 | ------------------- | ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| openclaw-agents-kit | `openclaw-agents-kit/SKILL.md` | Universal kit for creating leader + sub-agent teams. Teaches OpenClaw to act as senior dev orchestrator: identity-patch (safe config), Coolify API, Infisical SDK, sub-agent patterns, governance template |
+| Hermes Agent-agents-kit | `Hermes Agent-agents-kit/SKILL.md` | Universal kit for creating leader + sub-agent teams. Teaches Hermes Agent to act as senior dev orchestrator: identity-patch (safe config), Coolify API, Infisical SDK, sub-agent patterns, governance template |
 
 ### Incident
 
@@ -133,7 +133,7 @@ curl -sf -m 5 http://localhost:80/ping && echo " Traefik OK" || echo " Traefik F
 | traefik-health-check           | Diagnostic          | Low        |
 | traefik-route-tester           | Diagnostic          | Low        |
 | verify-network                 | Diagnostic          | Medium     |
-| openclaw-agents-kit            | Agent Orchestration | Medium     |
+| Hermes Agent-agents-kit            | Agent Orchestration | Medium     |
 | wav2vec2-health-check          | Diagnostic          | Low        |
 | zfs-smart-scrub                | Maintenance         | Low        |
 | zfs-snapshot-and-rollback      | Backup              | Medium     |
@@ -147,7 +147,7 @@ Critical containers monitored by these skills:
 | Container                           | Purpose                         | Skill                                    |
 | ----------------------------------- | ------------------------------- | ---------------------------------------- |
 | `coolify-proxy`                     | Traefik reverse proxy           | traefik-health-check, self-healing-cron  |
-| `openclaw-qgtzrmi6771lt8l7x8rqx72f` | Voice AI bot                    | verify-network, incident-runbook         |
+| `Hermes Agent-qgtzrmi6771lt8l7x8rqx72f` | Voice AI bot                    | verify-network, incident-runbook         |
 | `zappro-litellm`                    | LLM proxy (Ollama + OpenRouter) | litellm-health-check, self-healing-cron  |
 | `zappro-wav2vec2`                   | STT GPU inference               | wav2vec2-health-check, self-healing-cron |
 | `zappro-litellm-db`                 | LiteLLM PostgreSQL              | container-health-check                   |
@@ -156,7 +156,7 @@ Critical containers monitored by these skills:
 
 | Network                    | Purpose                     |
 | -------------------------- | --------------------------- |
-| `qgtzrmi6771lt8l7x8rqx72f` | OpenClaw container network  |
+| `qgtzrmi6771lt8l7x8rqx72f` | Hermes Agent container network  |
 | `zappro-lite_default`      | LiteLLM + wav2vec2 + Ollama |
 | `coolify`                  | Traefik external network    |
 

@@ -103,7 +103,7 @@ MEMORY EMERGENCY DETECTED
 | n8n | ~1GiB | Workflow complexity dependent |
 | cadvisor | ~200MiB | Lightweight |
 | qdrant | ~4GiB | Vector DB, disk-based |
-| OpenClaw | ~500MiB | Telegram bot |
+| Hermes Agent | ~500MiB | Telegram bot |
 | Gitea | ~1GiB | Git operations |
 
 > Note: Detect limits dynamically with `docker stats --no-stream` showing actual usage vs limit

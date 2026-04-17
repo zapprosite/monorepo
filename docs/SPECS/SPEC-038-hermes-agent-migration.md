@@ -1,6 +1,6 @@
 ---
 name: SPEC-038-hermes-agent-migration
-description: OPERAÇÃO OVERLORD — Migração OpenClaw → Hermes-Agent no Ubuntu Desktop
+description: OPERAÇÃO OVERLORD — Migração Hermes Agent → Hermes-Agent no Ubuntu Desktop
 status: IMPLEMENTATION_IN_PROGRESS
 priority: critical
 author: Principal Engineer
@@ -16,7 +16,7 @@ originBranch: feature/quantum-helix-done
 
 ## Objetivo
 
-Migrar o **OpenClaw Bot** para o **Hermes-Agent** como novo Core do homelab. O Hermes-Agent é o cérebro absoluto da infraestrutura — self-improving, cria skills automaticamente, gerencia processos em background, e tem learning loop perfeito.
+Migrar o **Hermes Agent Bot** para o **Hermes-Agent** como novo Core do homelab. O Hermes-Agent é o cérebro absoluto da infraestrutura — self-improving, cria skills automaticamente, gerencia processos em background, e tem learning loop perfeito.
 
 **Branch atual:** `feature/quantum-helix-done`
 
@@ -84,7 +84,7 @@ perplexity_browser/
 
 | Cron Atual      | Script                                       | Status     | Ação                    |
 | --------------- | -------------------------------------------- | ---------- | ----------------------- |
-| STT watchdog    | `openclaw-stt-watchdog.sh`                   | 1x         | Manter (até migrar)     |
+| STT watchdog    | `Hermes Agent-stt-watchdog.sh`                   | 1x         | Manter (até migrar)     |
 | Qdrant backup   | `backup-qdrant.sh`                           | 1x         | Migrar para hermes.json |
 | Gitea backup    | crontab inline                               | 1x         | Migrar para hermes.json |
 | Claude sessions | `cleanup-sessions.sh`                        | 1x         | Migrar para hermes.json |
@@ -106,13 +106,13 @@ perplexity_browser/
 
 **Gap identificado:** restart loop detection foi FIXADO (+3 alterações no sre-monitor.sh)
 
-### DIRETIVA 4: Migração OpenClaw → Hermes (hermes claw migrate)
+### DIRETIVA 4: Migração Hermes Agent → Hermes (hermes claw migrate)
 
-**Objetivo:** Executar `hermes claw migrate` para importar identidade e memória do OpenClaw.
+**Objetivo:** Executar `hermes claw migrate` para importar identidade e memória do Hermes Agent.
 
 ```bash
 # Passos:
-1. bash /srv/ops/scripts/openclaw-disable.sh --dry-run  # Ver o que vai ser desativado
+1. bash /srv/ops/scripts/Hermes Agent-disable.sh --dry-run  # Ver o que vai ser desativado
 2. hermes claw migrate --dry-run   # Preview do que vai ser migrado
 3. hermes claw migrate --preset user-data  # Migrar sem secrets
 4. hermes setup  # Configurar Ollama como primary model (ver SPEC-053)
@@ -122,7 +122,7 @@ perplexity_browser/
 
 - `SOUL.md` → `~/.hermes/personalities/master_agency.md`
 - `USER.md` + `MEMORY.md` → `~/.hermes/memory/`
-- Skills OpenClaw → `~/.hermes/skills/openclaw-imports/`
+- Skills Hermes Agent → `~/.hermes/skills/Hermes Agent-imports/`
 - Configurações de plataforma
 
 ---
@@ -173,9 +173,9 @@ perplexity_browser/
 | **Rate limiting**     | Implementar token bucket no Hermes config                  |
 | **Canonical LLM**     | **SPEC-053:** Ollama qwen2.5vl:7b primário (100% local)    |
 
-### Hermes 0.6.0+ vs OpenClaw
+### Hermes 0.6.0+ vs Hermes Agent
 
-| Aspeto   | OpenClaw         | Hermes 0.6.0+                  |
+| Aspeto   | Hermes Agent         | Hermes 0.6.0+                  |
 | -------- | ---------------- | ------------------------------ |
 | Cron     | Crontab disperso | `hermes.json` nativo           |
 | Skills   | Bash scripts     | Python skills + agentskills.io |
@@ -202,7 +202,7 @@ perplexity_browser/
 | SC-5  | perplexity_browser skill criada e funcional                       | ✅     |                                                                                                  |
 | SC-6  | coolify_sre skill com restart loop detection                      | ✅     | sre-monitor.sh active                                                                            |
 | SC-7  | hermes.json com crons centralizados                               | ✅     | Crons installed and operational                                                                  |
-| SC-8  | OpenClaw disable executado                                        | ✅     | Containers stopped, migration complete                                                           |
+| SC-8  | Hermes Agent disable executado                                        | ✅     | Containers stopped, migration complete                                                           |
 | SC-9  | MCP server para Open WebUI configurado                            | ⚠️     | MCPO functional, 10 messaging tools available. Hermes skills NOT via MCP. OpenWebUI not running. |
 | SC-10 | Zero true duplicates nos crons                                    | ✅     |                                                                                                  |
 | SC-11 | Hermes Gateway instalado e configurado                            | ✅     | 2026-04-14 — gateway as endpoint for bot.zappro.site                                             |
@@ -245,9 +245,9 @@ Para **Open WebUI + MCP**, a configuração requer:
 2. OpenWebUI como MCP client → conectar a `http://host.docker.internal:8092/hermes`
 3. Funcional: apenas ferramentas de messaging (não skills Hermes)
 
-### OpenClaw Status
+### Hermes Agent Status
 
-**Migração completa.** Containers OpenClaw foram parados e a migração para Hermes está finalizada.
+**Migração completa.** Containers Hermes Agent foram parados e a migração para Hermes está finalizada.
 
 ---
 
@@ -313,14 +313,14 @@ Telegram/Voice Input → whisper-medium-pt STT (:8204) → Hermes Agent → Koko
 
 ## Aguarda
 
-**Migração OpenClaw → Hermes completa. Próximos passos:**
+**Migração Hermes Agent → Hermes completa. Próximos passos:**
 
 ```
 OPERAÇÃO OVERLORD - COMPLETE
 Phase 1: SPEC-038 draft ✅
 Phase 2: /pg pipeline.json ✅
 Phase 3: hermes claw migrate ✅
-Phase 4: OpenClaw disable ✅
+Phase 4: Hermes Agent disable ✅
 Phase 5: Hermes Gateway configurado ✅
 
 PRÓXIMOS:
@@ -504,9 +504,9 @@ hermes-mcp-watchdog.sh test     # Test hermes-mcp-serve directly
 
 ---
 
-## TASK-HERMES-011: OpenClaw Disable Enforcement (2026-04-14)
+## TASK-HERMES-011: Hermes Agent Disable Enforcement (2026-04-14)
 
-**Problema:** Containers OpenClaw foram stopados via Docker, mas Coolify ainda mostrava status stale (`running:healthy`) para o servico `open-webui`.
+**Problema:** Containers Hermes Agent foram stopados via Docker, mas Coolify ainda mostrava status stale (`running:healthy`) para o servico `open-webui`.
 
 **Ação executada via Coolify API:**
 

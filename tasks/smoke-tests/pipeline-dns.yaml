@@ -11,7 +11,7 @@ tests:
 
   - id: DNS-002
     name: DNS resolution qdrant
-    command: "docker exec openclaw-qgtzrmi6771lt8l7x8rqx72f getent hosts qdrant"
+    command: "docker exec hermes-agent-qgtzrmi6771lt8l7x8rqx72f getent hosts qdrant"
     expected: "10.0.1.5"
     critical: true
     # ERRO SIMULADO: IP errado, resultado seria 10.0.1.10

@@ -10,7 +10,7 @@ This directory contains practical, task-oriented documentation for the homelab-m
 | `CANVAS-CURSOR-LOOP.md` | Autonomous CI/CD cursor loop workflow |
 | `CODE-REVIEW-GUIDE.md` | Standards and procedures for conducting code reviews |
 | `voice-pipeline-desktop.md` | Voice pipeline setup and smoke test for Ubuntu desktop |
-| `voice-pipeline-loop.md` | Server-side voice pipeline with OpenClaw and LiteLLM |
+| `voice-pipeline-loop.md` | Server-side voice pipeline with Hermes Agent and LiteLLM |
 | `tasks.md` | Task extraction and prioritization from SPECs |
 | `TEMPLATE.md` | Template for creating new guides (start here) |
 | `PLAN-docs-reorganization-20260408.md` | Plan for restructuring docs/ directory |
@@ -30,7 +30,7 @@ Create a GUIDE when you need to document:
 
 | Document | Answer | Example |
 |----------|--------|---------|
-| **SPEC** | What do we need to build? | "OpenClaw needs a local STT proxy that fakes Deepgram API format" |
+| **SPEC** | What do we need to build? | "Hermes Agent needs a local STT proxy that fakes Deepgram API format" |
 | **ADR** | Why did we choose this approach? | "Why we use wav2vec2-proxy instead of calling whisper-api directly" |
 | **GUIDE** | How do we execute this operation? | "Run the voice pipeline smoke test to verify all services are healthy" |
 | **REFERENCE** | What is this component/capability? | Port assignments, API endpoint specs, configuration schemas |

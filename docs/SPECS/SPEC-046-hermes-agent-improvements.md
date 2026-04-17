@@ -14,7 +14,7 @@ O Hermes Agent está parcialmente configurado: gateway a correr em :8642, MCP em
 1. Telegram polling não está activo — o bot não responde
 2. Crons duplicados gastam CPU desnecessariamente (SRE monitor + Voice smoke a cada \*/5)
 3. SOUL.md está vazio — sem personality ou contexto do homelab
-4. Skills em `openclaw-imports/` não estão registadas no hermes.json
+4. Skills em `Hermes Agent-imports/` não estão registadas no hermes.json
 5. Auto-healing é passivo — só alerta, não restart
 
 ## 2. Objective
@@ -24,7 +24,7 @@ Melhorar o Hermes Agent em 5 etapas sequenciais:
 1. **Telegram polling** — ativar @CEO_REFRIMIX_bot via `hermes gateway install`
 2. **Cron consolidation** — remover overlaps entre SRE monitor, voice smoke, tunnel health
 3. **SOUL.md context** — preencher com contexto do monorepo, stack, e identidade
-4. **Skills migration** — migrar skills úteis de `openclaw-imports/` para hermes.json
+4. **Skills migration** — migrar skills úteis de `Hermes Agent-imports/` para hermes.json
 5. **Aggressive auto-healing** — restart em vez de só alertar
 
 ## 3. Scope
@@ -175,17 +175,17 @@ All secrets via .env canonical source. Never ask for API keys.
 
 ---
 
-### Step 4: Skills Migration (openclaw-imports)
+### Step 4: Skills Migration (Hermes Agent-imports)
 
 **Ver o que existe:**
 
 ```bash
-ls ~/.hermes/skills/openclaw-imports/
+ls ~/.hermes/skills/Hermes Agent-imports/
 ```
 
 **Skills úteis para migrar para hermes.json:**
 
-- Qualquer skill que ainda seja relevante (não OpenClaw-specific)
+- Qualquer skill que ainda seja relevante (não Hermes Agent-specific)
 - Avaliar: useful or deprecated?
 
 **Para cada skill útil:**
@@ -259,7 +259,7 @@ systemctl --user restart "$SERVICE"
 - [x] Telegram polling activo — bot @CEO_REFRIMIX_bot a pollar (Connections to Telegram IP confirmed)
 - [x] Cron sem overlaps — 0 duplicados, intervalos consolidados
 - [x] SOUL.md preenchido com contexto do homelab (65 linhas)
-- [x] Skills migradas de openclaw-imports (6 skills: skill-creator, find-skills, incident-response, brainstorming, system-architect, mcp-builder)
+- [x] Skills migradas de Hermes Agent-imports (6 skills: skill-creator, find-skills, incident-response, brainstorming, system-architect, mcp-builder)
 - [x] restart-on-fail.sh criado e testado (hermes-gateway :8642 — OK)
 - [x] Hermes Gateway reinicia automaticamente em falha — escalation Telegram testado OK (bot @CEO_REFRIMIX_bot confirma)
 
@@ -286,7 +286,7 @@ bash ~/.hermes/scripts/restart-on-fail.sh hermes-gateway 8642
 
 - [ ] O Telegram bot token está configurado em ~/.hermes/.env?
 - [ ] O utilizador quer auto-healing só para Hermes ou para todos os serviços?
-- [ ] Há skills úteis em openclaw-imports/ para migrar?
+- [ ] Há skills úteis em Hermes Agent-imports/ para migrar?
 
 ## 10. Dependencies
 

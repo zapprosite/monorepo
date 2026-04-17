@@ -181,7 +181,7 @@ Unificar `.claude/commands/` (wrapper commands) com `.agent/workflows/` (Antigra
 │   └── rules/
 │       ├── backend.md
 │       ├── search.md
-│       ├── openclaw-audio-governance.md
+│       ├── Hermes Agent-audio-governance.md
 │       └── REVIEW-SKILLS.md
 │
 ├── .agent/                     # Antigravity Kit (EXTERNAL, do not modify)

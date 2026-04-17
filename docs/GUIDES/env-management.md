@@ -177,14 +177,14 @@ Check that the service started correctly and is using the new secret.
 | `LITELLM_MASTER_KEY` | LiteLLM master key |
 | `OLLAMA_MODEL` | Default Ollama model |
 
-### Voice Pipeline (OpenClaw)
+### Voice Pipeline (Hermes Agent)
 | Variable | Description |
 |----------|-------------|
-| `OPENCLAW_USER` | OpenClaw username |
-| `OPENCLAW_PASSWORD` | OpenClaw password |
-| `OPENCLAW_DEEPGRAM_API_KEY` | Deepgram STT |
-| `OPENCLAW_GATEWAY_TOKEN` | Gateway auth token |
-| `OPENCLAW_GEMINI_API_KEY` | Gemini API |
+| `HERMES_AGENT_USER` | Hermes Agent username |
+| `HERMES_AGENT_PASSWORD` | Hermes Agent password |
+| `HERMES_AGENT_DEEPGRAM_API_KEY` | Deepgram STT |
+| `HERMES_AGENT_GATEWAY_TOKEN` | Gateway auth token |
+| `HERMES_AGENT_GEMINI_API_KEY` | Gemini API |
 | `FEAT_VOICE` | Voice feature flag |
 
 ### Infrastructure
@@ -213,7 +213,7 @@ Before adding any new port variable, check `/srv/ops/ai-governance/PORTS.md`.
 **Reserved ports (never use):**
 - `:3000` — OpenWebUI
 - `:4000` — LiteLLM production
-- `:4001` — OpenClaw Bot
+- `:4001` — Hermes Agent Bot
 - `:8000/8443` — Supabase
 - `:5173` — Vite frontend dev
 

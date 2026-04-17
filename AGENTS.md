@@ -39,7 +39,7 @@ INTERNET → Cloudflare → cloudflared → TRAEFIK (80/443/8080) → UFW → SE
 
 - :3000 → Open WebUI proxy (RESERVED)
 - :4000 → LiteLLM production (RESERVED)
-- :4001 → OpenClaw Bot (RESERVED)
+- :4001 → Hermes Agent Bot (RESERVED)
 - :4002 → ai-gateway OpenAI compat (RESERVED — SPEC-047)
 - :8000 → Coolify PaaS (RESERVED)
 - :8080 → Open WebUI (Coolify managed) (RESERVED)

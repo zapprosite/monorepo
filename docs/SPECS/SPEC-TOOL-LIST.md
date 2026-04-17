@@ -43,7 +43,7 @@ Criar `list.zappro.site` — uma web app estática (HTML/JS/CSS) que lista ferra
 Copiar config do OpenWebUI (chat.zappro.site) e Grafana (monitor.zappro.site):
 
 ```javascript
-// From: docs/OPERATIONS/SKILLS/openclaw-oauth-login.md
+// From: docs/OPERATIONS/SKILLS/Hermes Agent-oauth-login.md
 const GOOGLE_OAUTH = {
   client_id: 'FROM_INFISICAL',
   redirect_uri: 'https://list.zappro.site/auth/callback',
@@ -99,7 +99,7 @@ const TOOLS = [
     category: 'monitoring',
   },
   {
-    name: 'OpenClaw',
+    name: 'Hermes Agent',
     url: 'https://bot.zappro.site',
     description: 'Voice AI bot',
     icon: '🎙️',

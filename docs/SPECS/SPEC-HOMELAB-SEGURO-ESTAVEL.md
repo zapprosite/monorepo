@@ -27,7 +27,7 @@ Estabilizar e proteger o homelab após auditoria de 12/04/2026 com 15 agents. Im
 | ZFS ARC conflicting with containers    | Critical | ✅ Fixed             |
 | chat.zappro.site Access policy missing | Critical | ✅ Fixed (terraform) |
 | Gitea backup missing                   | High     | ✅ Fixed             |
-| OpenClaw usando Kokoro direto          | Critical | ✅ Fixed             |
+| Hermes Agent usando Kokoro direto          | Critical | ✅ Fixed             |
 | Infisical backup missing               | Medium   | ✅ Fixed             |
 | GH_TOKEN no .env                       | High     | 🔄 In Progress       |
 
@@ -37,7 +37,7 @@ Estabilizar e proteger o homelab após auditoria de 12/04/2026 com 15 agents. Im
 
 ### 1. Audio Stack Governance (SPEC-009)
 
-**Problema:** OpenClaw违规使用 Kokoro direto绕过 TTS Bridge
+**Problema:** Hermes Agent违规使用 Kokoro direto绕过 TTS Bridge
 
 **Regras Imutáveis:**
 
@@ -103,7 +103,7 @@ free -h | grep -E "Swap|Mem"
 
 **voice-pipeline-loop.sh** executa a cada 5 minutos:
 
-- Smoke test: TTS Bridge, OpenClaw, wav2vec2
+- Smoke test: TTS Bridge, Hermes Agent, wav2vec2
 - Auto-restart containers falhados
 - Log em /srv/monorepo/logs/voice-pipeline/loop.log
 
@@ -115,7 +115,7 @@ free -h | grep -E "Swap|Mem"
 **Verification:**
 
 ```bash
-docker ps | grep -E "autoheal|tts-bridge|openwebui|openclaw"
+docker ps | grep -E "autoheal|tts-bridge|openwebui|hermes-agent"
 crontab -l | grep voice-pipeline
 ```
 
@@ -186,7 +186,7 @@ crontab -l | grep voice-pipeline
 
 - SPEC-AUDIT-HOMELAB-2026-04-12.md
 - SPEC-AUDIT-FIXES-2026-04-12.md
-- SPEC-009-openclaw-persona-audio-stack.md
+- SPEC-009-Hermes Agent-persona-audio-stack.md
 - SPEC-023-unified-monitoring-self-healing.md
 
 ---

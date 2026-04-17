@@ -11,7 +11,7 @@
 
 Prune 2 deprecated subdomains e migrar routing para Hermes Gateway:
 
-1. Remover `bot.zappro.site` (legacy OpenClaw) — 502 Bad Gateway
+1. Remover `bot.zappro.site` (legacy Hermes Agent) — 502 Bad Gateway
 2. Remover `supabase.zappro.site` (ghost entry — discontinued)
 3. Criar `hermes.zappro.site` → pointing to Hermes Gateway `:8642`
 
@@ -19,7 +19,7 @@ Prune 2 deprecated subdomains e migrar routing para Hermes Gateway:
 
 Da auditoria SRE 14/04/2026:
 
-- `bot.zappro.site` → 502 Bad Gateway (OpenClaw deprecated, Hermes não está a ouvir em :8642)
+- `bot.zappro.site` → 502 Bad Gateway (Hermes Agent deprecated, Hermes não está a ouvir em :8642)
 - `supabase.zappro.site` → ghost entry (serviço removido mas subdomain ainda no Terraform)
 - `hermes.zappro.site` → definido no Terraform mas não criado nos docs
 
@@ -102,7 +102,7 @@ curl -s -o /dev/null -w "%{http_code}" http://hermes.zappro.site
 - `CLOUDFLARE_API_TOKEN` valid in `.env`
 - Hermes Gateway actually running and listening on :8642
 
-## TASK-HERMES-011: OpenClaw Disable Enforcement - Verification (2026-04-14)
+## TASK-HERMES-011: Hermes Agent Disable Enforcement - Verification (2026-04-14)
 
 **Verification executed via Coolify API.**
 
@@ -111,14 +111,14 @@ curl -s -o /dev/null -w "%{http_code}" http://hermes.zappro.site
 | Service                               | UUID                       | Status          | Action                        |
 | ------------------------------------- | -------------------------- | --------------- | ----------------------------- |
 | `open-webui-wbmqefxhd7vdn2dme3i6s9an` | `wbmqefxhd7vdn2dme3i6s9an` | **exited**      | None needed - already stopped |
-| `qdrant-c95x9bgnhpedt0zp7dfsims7`     | `c95x9bgnhpedt0zp7dfsims7` | running:healthy | OK - not OpenClaw             |
+| `qdrant-c95x9bgnhpedt0zp7dfsims7`     | `c95x9bgnhpedt0zp7dfsims7` | running:healthy | OK - not Hermes Agent             |
 
 ### open-webui Service Details
 
 - **restart policy:** `never` (set to prevent auto-restart)
 - **Docker compose:** `ghcr.io/open-webui/open-webui:main`
 - **Coolify status:** `exited`
-- **Docker containers:** No `openclaw` or `open-webui` containers found in `docker ps`
+- **Docker containers:** No `Hermes Agent` or `open-webui` containers found in `docker ps`
 
 ### Out of Scope (Standalone Docker)
 
@@ -127,7 +127,7 @@ curl -s -o /dev/null -w "%{http_code}" http://hermes.zappro.site
 
 ### Conclusion
 
-OpenClaw enforcement verified: Coolify service is `exited` with `restart: never`. No running deprecated containers.
+Hermes Agent enforcement verified: Coolify service is `exited` with `restart: never`. No running deprecated containers.
 
 ---
 

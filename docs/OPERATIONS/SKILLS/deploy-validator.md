@@ -70,7 +70,7 @@ docker ps
 [ -n "$MINIMAX_API_KEY" ] || echo "WARN: MINIMAX_API_KEY not set — some tests will be skipped"
 
 # 4. Smoke test script exists
-[ -f "tasks/smoke-tests/pipeline-openclaw-voice.sh" ] \
+[ -f "tasks/smoke-tests/pipeline-Hermes Agent-voice.sh" ] \
     || echo "ERROR: Smoke test script not found"
 ```
 
@@ -134,20 +134,20 @@ Para cada container que deve estar deployed, verificar:
 # ============================================================
 # 2.1 Container is running (not just "created")
 # ============================================================
-docker ps --filter "name=openclaw" --format "{{.Names}} {{.Status}}"
-# Expected: openclaw-qgtzrmi6771lt8l7x8rqx72f Up (healthy) X minutes
+docker ps --filter "name=Hermes Agent" --format "{{.Names}} {{.Status}}"
+# Expected: Hermes Agent-qgtzrmi6771lt8l7x8rqx72f Up (healthy) X minutes
 
 # ============================================================
 # 2.2 Container is healthy (not restarting, not exited)
 # ============================================================
-docker inspect openclaw-qgtzrmi6771lt8l7x8rqx72f \
+docker inspect Hermes Agent-qgtzrmi6771lt8l7x8rqx72f \
     --format '{{.State.Health.Status}}' 2>/dev/null || echo "no health check"
 # Expected: healthy
 
 # ============================================================
 # 2.3 Container internal health endpoint
 # ============================================================
-docker exec openclaw-qgtzrmi6771lt8l7x8rqx72f \
+docker exec Hermes Agent-qgtzrmi6771lt8l7x8rqx72f \
     curl -sf -m 5 "http://127.0.0.1:8080/healthz"
 # Expected: exit 0 (no output means healthy)
 
@@ -155,7 +155,7 @@ docker exec openclaw-qgtzrmi6771lt8l7x8rqx72f \
 # 2.4 All critical containers list
 # ============================================================
 CRITICAL_CONTAINERS="
-openclaw-qgtzrmi6771lt8l7x8rqx72f
+Hermes Agent-qgtzrmi6771lt8l7x8rqx72f
 zappro-litellm
 zappro-wav2vec2
 coolify-proxy
@@ -177,12 +177,12 @@ done
 
 **ERRADO:**
 ```bash
-docker ps | grep openclaw  # "está a correr" → "está tudo bem"
+docker ps | grep Hermes Agent  # "está a correr" → "está tudo bem"
 ```
 
 **CERTO:**
 ```bash
-docker exec openclaw-... curl -sf -m 5 "http://127.0.0.1:8080/healthz"
+docker exec Hermes Agent-... curl -sf -m 5 "http://127.0.0.1:8080/healthz"
 ```
 
 ### Acceptance Criteria
@@ -235,7 +235,7 @@ check_shared_network() {
 # 3.2 Key shared network checks
 # ============================================================
 echo "=== Shared Network Checks ==="
-check_shared_network "coolify-proxy" "openclaw-qgtzrmi6771lt8l7x8rqx72f"
+check_shared_network "coolify-proxy" "Hermes Agent-qgtzrmi6771lt8l7x8rqx72f"
 check_shared_network "zappro-litellm" "zappro-wav2vec2"
 check_shared_network "coolify-proxy" "zappro-litellm"
 
@@ -293,7 +293,7 @@ check_http_from_container "zappro-litellm" "http://wav2vec2:8201/health" "200"
 
 ### Acceptance Criteria
 
-- [ ] Traefik ↔ OpenClaw share at least one network
+- [ ] Traefik ↔ Hermes Agent share at least one network
 - [ ] LiteLLM ↔ wav2vec2 share at least one network
 - [ ] `check_tcp_from_container` LiteLLM → wav2vec2:8201 returns OK
 - [ ] LiteLLM → 10.0.1.1:11434 is flagged if reachable (AP-1 warning)
@@ -320,7 +320,7 @@ fi
 # ============================================================
 # 4.2 DNS resolution
 # ============================================================
-FQDN="openclaw-qgtzrmi6771lt8l7x8rqx72f.191.17.50.123.sslip.io"
+FQDN="Hermes Agent-qgtzrmi6771lt8l7x8rqx72f.191.17.50.123.sslip.io"
 if nslookup "$FQDN" >/dev/null 2>&1; then
     echo "✅ DNS resolves: $FQDN"
 else
@@ -332,8 +332,8 @@ fi
 # ============================================================
 HTTP_CODE=$(curl -sf -m 10 -o /dev/null -w "%{http_code}" "https://bot.zappro.site/" 2>/dev/null || echo "000")
 case "$HTTP_CODE" in
-    200|401) echo "✅ OpenClaw via bot.zappro.site: HTTP $HTTP_CODE (routing OK)" ;;
-    *)       echo "❌ OpenClaw via bot.zappro.site: HTTP $HTTP_CODE (routing FAIL)" ;;
+    200|401) echo "✅ Hermes Agent via bot.zappro.site: HTTP $HTTP_CODE (routing OK)" ;;
+    *)       echo "❌ Hermes Agent via bot.zappro.site: HTTP $HTTP_CODE (routing FAIL)" ;;
 esac
 
 # ============================================================
@@ -364,7 +364,7 @@ esac
 ### Acceptance Criteria
 
 - [ ] `curl localhost:80/ping` returns HTTP 200
-- [ ] DNS resolves for OpenClaw FQDN
+- [ ] DNS resolves for Hermes Agent FQDN
 - [ ] `curl https://bot.zappro.site/` returns 200 or 401 (not 502/504)
 - [ ] `curl https://bot.zappro.site/health` returns HTTP 200
 
@@ -379,7 +379,7 @@ esac
 # 5.1 Run pipeline smoke test
 # ============================================================
 echo "=== Running Smoke Test ==="
-echo "Script: tasks/smoke-tests/pipeline-openclaw-voice.sh"
+echo "Script: tasks/smoke-tests/pipeline-Hermes Agent-voice.sh"
 echo ""
 
 # Required env vars
@@ -387,7 +387,7 @@ echo ""
 : "${MINIMAX_API_KEY:?MINIMAX_API_KEY required}"
 
 # Run smoke test (capture exit code)
-bash tasks/smoke-tests/pipeline-openclaw-voice.sh
+bash tasks/smoke-tests/pipeline-Hermes Agent-voice.sh
 SMOKE_EXIT=$?
 
 # ============================================================
@@ -409,17 +409,17 @@ echo "SMOKE_EXIT=$SMOKE_EXIT"
 
 ```
 ========================================
-OpenClaw Voice Pipeline Smoke Test
+Hermes Agent Voice Pipeline Smoke Test
 Data: 08/04/2026
 ========================================
 
 [TEST] === 1. Infrastructure Health ===
-[PASS] OpenClaw container running
+[PASS] Hermes Agent container running
 [PASS] Traefik proxy healthy
-[PASS] OpenClaw FQDN DNS resolves
-[PASS] OpenClaw via bot.zappro.site (HTTP 200)
-[PASS] Traefik ↔ OpenClaw share network: qgtzrmi6771lt8l7x8rqx72f
-[PASS] OpenClaw /healthz inside container
+[PASS] Hermes Agent FQDN DNS resolves
+[PASS] Hermes Agent via bot.zappro.site (HTTP 200)
+[PASS] Traefik ↔ Hermes Agent share network: qgtzrmi6771lt8l7x8rqx72f
+[PASS] Hermes Agent /healthz inside container
 
 ... (all sections)
 
@@ -497,7 +497,7 @@ echo ""
 # ============================================================
 echo "Stopping affected services..."
 # Find and stop containers that might be in bad state
-for container in openclaw-qgtzrmi6771lt8l7x8rqx72f zappro-litellm zappro-wav2vec2; do
+for container in Hermes Agent-qgtzrmi6771lt8l7x8rqx72f zappro-litellm zappro-wav2vec2; do
     docker stop "$container" 2>/dev/null && echo "  Stopped: $container" || echo "  Not running: $container"
 done
 
@@ -603,11 +603,11 @@ on:
   workflow_dispatch:
     inputs:
       deploy_target:
-        description: 'Deploy target (e.g., openclaw, litellm)'
+        description: 'Deploy target (e.g., Hermes Agent, litellm)'
         required: true
         type: choice
         options:
-          - openclaw
+          - Hermes Agent
           - litellm
           - wav2vec2
           - full-pipeline
@@ -629,7 +629,7 @@ jobs:
 
       - name: PHASE 2 — Container Health
         run: |
-          for container in openclaw-qgtzrmi6771lt8l7x8rqx72f zappro-litellm zappro-wav2vec2; do
+          for container in Hermes Agent-qgtzrmi6771lt8l7x8rqx72f zappro-litellm zappro-wav2vec2; do
             STATUS=$(docker ps --filter "name=$container" --format "{{.Status}}")
             if ! echo "$STATUS" | grep -q "^Up"; then
               echo "❌ Container not running: $container"
@@ -656,7 +656,7 @@ jobs:
           LITELLM_KEY: ${{ secrets.LITELLM_KEY }}
           MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
         run: |
-          bash tasks/smoke-tests/pipeline-openclaw-voice.sh
+          bash tasks/smoke-tests/pipeline-Hermes Agent-voice.sh
           SMOKE_EXIT=$?
           if [ $SMOKE_EXIT -ne 0 ]; then
             echo "❌ Smoke test failed — triggering rollback"
@@ -683,7 +683,7 @@ jobs:
         run: |
             SNAPSHOT="${{ env.SNAPSHOT }}"
             echo "Rolling back to: $SNAPSHOT"
-            docker stop openclaw-qgtzrmi6771lt8l7x8rqx72f \
+            docker stop Hermes Agent-qgtzrmi6771lt8l7x8rqx72f \
               zappro-litellm zappro-wav2vec2 2>/dev/null || true
             sudo zfs rollback -r "$SNAPSHOT"
 ```
@@ -708,7 +708,7 @@ jobs:
 
 | File | Purpose |
 |------|---------|
-| `tasks/smoke-tests/pipeline-openclaw-voice.sh` | Smoke test script |
+| `tasks/smoke-tests/pipeline-Hermes Agent-voice.sh` | Smoke test script |
 | `docs/INCIDENTS/INCIDENT-2026-04-08-voice-pipeline-stable.md` | Incident root causes and anti-patterns |
 | `docs/OPERATIONS/SKILLS/verify-network.sh` | Network connectivity verification |
 | `docs/OPERATIONS/SKILLS/zfs-snapshot-and-rollback.md` | ZFS snapshot/rollback skill |
@@ -737,12 +737,12 @@ jobs:
 cd /srv/monorepo && source .env
 
 sudo zfs snapshot -r "tank@pre-$(date +%Y%m%d-%H%M%S)-$(whoami)-deploy" \
-&& bash tasks/smoke-tests/pipeline-openclaw-voice.sh \
+&& bash tasks/smoke-tests/pipeline-Hermes Agent-voice.sh \
 && echo "✅ Deploy validated"
 
 # QUICK ROLLBACK (if smoke test fails)
 SNAPSHOT=$(zfs list -t snapshot -S creation -r tank 2>/dev/null | grep "pre-$(date +%Y%m%d)" | head -1 | awk '{print $1}') \
-&& docker stop openclaw-qgtzrmi6771lt8l7x8rqx72f zappro-litellm zappro-wav2vec2 2>/dev/null \
+&& docker stop Hermes Agent-qgtzrmi6771lt8l7x8rqx72f zappro-litellm zappro-wav2vec2 2>/dev/null \
 && sudo zfs rollback -r "$SNAPSHOT" \
 && docker ps
 ```

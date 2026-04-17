@@ -78,13 +78,13 @@ curl -sf -X POST http://localhost:8013/v1/audio/speech \
 
 **WHAT_BREAKS_IF_CHANGED:**
 
-- OpenClaw perde acesso a TTS se container for parado
+- Hermes Agent perde acesso a TTS se container for parado
 - Qualquer tentativa de usar voz não-autorizada retorna 400
 
 **Arquitetura:**
 
 ```
-OpenClaw → http://10.0.19.5:8013/v1/audio/speech
+Hermes Agent → http://10.0.19.5:8013/v1/audio/speech
               ↓ valida voice (pm_santa ou pf_dora)
               ↓ passthrough
            Kokoro :8880
@@ -108,7 +108,7 @@ endpoint: 'http://localhost:8012/v1/audio/speech'
 owner: 'Principal Engineer'
 pinned_date: '2026-03-20'
 status: 'PINNED'
-why_pinned: 'Validado com OpenClaw watchdog e LiteLLM proxy. Mudar quebra routing de TTS.'
+why_pinned: 'Validado com Hermes Agent watchdog e LiteLLM proxy. Mudar quebra routing de TTS.'
 voz_principal: 'pm_santa' # Masculino PT-BR — NÃO REMOVER
 voz_fallback: 'pf_dora' # Feminino PT-BR — NÃO REMOVER
 ```
@@ -129,7 +129,7 @@ curl -sf -X POST http://localhost:8012/v1/audio/speech \
 
 **WHAT_BREAKS_IF_CHANGED:**
 
-- OpenClaw não consegue enviar TTS via LiteLLM
+- Hermes Agent não consegue enviar TTS via LiteLLM
 - Vozes pm_santa e pf_dora param de funcionar
 - Pipeline de voz inteiro quebra (STT → LLM → TTS)
 
@@ -176,11 +176,11 @@ curl -sf -X POST http://localhost:8201/v1/audio/transcriptions \
 # OPENCLAW — DEPRECATED/PRUNED (2026-04-14)
 # Container removed, bot.zappro.site DNS removed
 # Keeping this block as historical reference only
-container_name: 'openclaw-qgtzrmi6771lt8l7x8rqx72f'
+container_name: 'Hermes Agent-qgtzrmi6771lt8l7x8rqx72f'
 port: 8080 (interno)
-image: 'ghcr.io/openclaw/openclaw:2026.2.6'
-network: 'openclaw-qgtzrmi6771lt8l7x8rqx72f'
-fqdn: 'openclaw-qgtzrmi6771lt8l7x8rqx72f.191.17.50.123.sslip.io'
+image: 'ghcr.io/Hermes Agent/Hermes Agent:2026.2.6'
+network: 'Hermes Agent-qgtzrmi6771lt8l7x8rqx72f'
+fqdn: 'Hermes Agent-qgtzrmi6771lt8l7x8rqx72f.191.17.50.123.sslip.io'
 tunnel_fqdn: 'bot.zappro.site' # PRUNED — DNS removed 2026-04-14
 owner: 'Principal Engineer'
 pinned_date: '2026-03-10'
@@ -191,7 +191,7 @@ api_format: 'anthropic-messages' # NUNCA MUDAR
 
 **⚠️ OPENCLAW É LEGACY — DEPRECATED (2026-04-14):**
 
-- Container `openclaw-*` removido do Coolify
+- Container `Hermes Agent-*` removido do Coolify
 - `bot.zappro.site` retornou 530 (DNS removido)
 - Usar `hermes.zappro.site` como endpoint Hermes Gateway
 - NÃO usar este bloco para novos deployments
@@ -199,7 +199,7 @@ api_format: 'anthropic-messages' # NUNCA MUDAR
 **Verification CMD:**
 
 ```bash
-# HERMES GATEWAY (substituto do OpenClaw)
+# HERMES GATEWAY (substituto do Hermes Agent)
 curl -sf http://localhost:8642/health
 curl -sf https://hermes.zappro.site/health
 nslookup hermes.zappro.site
@@ -207,7 +207,7 @@ nslookup hermes.zappro.site
 
 **WHAT_BREAKS_IF_CHANGED:**
 
-- N/A — OpenClaw deprecated, Hermes is the replacement
+- N/A — Hermes Agent deprecated, Hermes is the replacement
 
 ---
 
@@ -282,13 +282,13 @@ docker ps --format "{{.Names}}\t{{.Ports}}" | grep 8080
 ```yaml
 container_name: 'cloudflared'
 port: 8080
-tunnel_name: 'openclaw-tunnel'
+tunnel_name: 'Hermes Agent-tunnel'
 tunnel_fqdn: 'hermes.zappro.site' # primary routing — *.zappro.site
 owner: 'Principal Engineer'
 pinned_date: '2026-02-15'
 status: 'PINNED'
 why_pinned: 'Tunnel ativo — multiplos subdomains dependem dele'
-note: 'bot.zappro.site PRUNED 2026-04-14 — DNS removido, OpenClaw deprecated'
+note: 'bot.zappro.site PRUNED 2026-04-14 — DNS removido, Hermes Agent deprecated'
 ```
 
 **Verification CMD:**
@@ -430,35 +430,35 @@ Este documento é parte da governança do homelab. Para mudanças formais:
 
 | Data       | Smoke Test                 | Resultado | Detalhes                 |
 | ---------- | -------------------------- | --------- | ------------------------ |
-| 2026-04-08 | pipeline-openclaw-voice.sh | ✅ PASS   | Todos os testes passaram |
-| 2026-04-07 | pipeline-openclaw-voice.sh | ✅ PASS   | Voz, STT, LLM, Vision OK |
-| 2026-04-06 | pipeline-openclaw-voice.sh | ✅ PASS   | LiteLLM, OpenClaw OK     |
+| 2026-04-08 | pipeline-Hermes Agent-voice.sh | ✅ PASS   | Todos os testes passaram |
+| 2026-04-07 | pipeline-Hermes Agent-voice.sh | ✅ PASS   | Voz, STT, LLM, Vision OK |
+| 2026-04-06 | pipeline-Hermes Agent-voice.sh | ✅ PASS   | LiteLLM, Hermes Agent OK     |
 
 ### Como Verificar Agora
 
 ```bash
 # Smoke test completo do voice pipeline
-bash /srv/monorepo/tasks/smoke-tests/pipeline-openclaw-voice.sh
+bash /srv/monorepo/tasks/smoke-tests/pipeline-Hermes Agent-voice.sh
 
 # Verificação rápida por container
-docker ps --format "{{.Names}}\t{{.Status}}" | grep -E "kokoro|whisper|openclaw|litellm|coolify-proxy"
+docker ps --format "{{.Names}}\t{{.Status}}" | grep -E "kokoro|whisper|Hermes Agent|litellm|coolify-proxy"
 
 # Verificação de portas
 ss -tlnp | grep -E "8012|8201|4000|8080"
 ```
 
-### Smoke Test Esperado (pipeline-openclaw-voice.sh)
+### Smoke Test Esperado (pipeline-Hermes Agent-voice.sh)
 
 ```
 ========================================
-OpenClaw Voice Pipeline Smoke Test
+Hermes Agent Voice Pipeline Smoke Test
 ========================================
 
 === 1. Infrastructure Health ===
-[PASS] OpenClaw container running
+[PASS] Hermes Agent container running
 [PASS] Traefik proxy healthy
-[PASS] OpenClaw FQDN DNS resolves
-[PASS] OpenClaw via bot.zappro.site
+[PASS] Hermes Agent FQDN DNS resolves
+[PASS] Hermes Agent via bot.zappro.site
 
 === 2. STT (Speech-to-Text) ===
 [PASS] Whisper STT :8201
@@ -553,4 +553,4 @@ Se usuário insiste:
 - `/srv/monorepo/docs/GOVERNANCE/ANTI-FRAGILITY.md`
 - `./GUARDRAILS.md`
 - `./CHANGE_POLICY.md`
-- `/srv/monorepo/tasks/smoke-tests/pipeline-openclaw-voice.sh`
+- `/srv/monorepo/tasks/smoke-tests/pipeline-Hermes Agent-voice.sh`

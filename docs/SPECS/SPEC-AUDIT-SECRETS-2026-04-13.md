@@ -39,14 +39,14 @@ author: will + 10 MiniMax agents (10/10 completed)
 | --------------------------------- | ------------------------------------------------- | ------------------------------------------- |
 | `TAVILY_API_KEY`                  | No                                                | UNUSED — verify if needed                   |
 | `COOLIFY_API_KEY`                 | No                                                | UNUSED — verify if needed                   |
-| `MINIMAX_API_KEY`                 | ✅ `tasks/smoke-tests/pipeline-openclaw-voice.sh` | ACTIVE                                      |
+| `MINIMAX_API_KEY`                 | ✅ `tasks/smoke-tests/pipeline-hermes-agent-voice.sh` | ACTIVE                                      |
 | `TELEGRAM_BOT_TOKEN`              | No                                                | UNUSED — verify if needed                   |
 | `GOOGLE_CLIENT_SECRET`            | No (OAuth only)                                   | ACTIVE                                      |
-| `OPENCLAW_GATEWAY_TOKEN`          | No                                                | UNUSED — verify if needed                   |
+| `HERMES_AGENT_GATEWAY_TOKEN`          | No                                                | UNUSED — verify if needed                   |
 | `GROQ_API_KEY`                    | No                                                | UNUSED — verify if needed                   |
 | `N8N_API_KEY`                     | No                                                | UNUSED — verify if needed                   |
-| `OPENCLAW_DEEPGRAM_API_KEY`       | No                                                | UNUSED — verify if needed                   |
-| `OPENCLAW_GEMINI_API_KEY`         | No                                                | UNUSED — verify if needed                   |
+| `HERMES_AGENT_DEEPGRAM_API_KEY`       | No                                                | UNUSED — verify if needed                   |
+| `HERMES_AGENT_GEMINI_API_KEY`         | No                                                | UNUSED — verify if needed                   |
 | `CEO_MIX_TOKEN`                   | No                                                | UNUSED — verify if needed                   |
 | `GITHUB_TOKEN`                    | No                                                | ❌ DELETED — expired (was ghp_V1m...)       |
 | `CONTEXT7_API_KEY`                | No                                                | UNUSED — verify if needed                   |
@@ -91,7 +91,7 @@ author: will + 10 MiniMax agents (10/10 completed)
 | `N8N_DB_PASSWORD`            | No                | ACTIVE (infra) |
 | `INFISICAL_DB_PASSWORD`      | No                | ACTIVE (infra) |
 | `INFISICAL_REDIS_PASSWORD`   | No                | ACTIVE (infra) |
-| `OPENCLAW_PASSWORD`          | No                | ACTIVE (infra) |
+| `HERMES_AGENT_PASSWORD`          | No                | ACTIVE (infra) |
 | `COOLIFY_REDIS_PASSWORD`     | No                | ACTIVE (infra) |
 | `COOLIFY_ROOT_USER_PASSWORD` | No                | ACTIVE (infra) |
 | `GF_SECURITY_ADMIN_PASSWORD` | No                | ACTIVE (infra) |
@@ -117,7 +117,7 @@ author: will + 10 MiniMax agents (10/10 completed)
 | `DISPLAY`, `REDIS_HOST`, `REDIS_PORT`                          | CONFIG                                            |
 | `HOOKS_PATH`, `HOOKS_ENABLED`                                  | CONFIG                                            |
 | `PORTEIRO_MODE`                                                | CONFIG                                            |
-| `OPENCLAW_USER`                                                | CONFIG                                            |
+| `HERMES_AGENT_USER`                                                | CONFIG                                            |
 | `GOOGLE_CLIENT_ID`                                             | ACTIVE (OAuth)                                    |
 | `TELEGRAM_CHAT_ID`                                             | CONFIG                                            |
 | `CONTEXT7_ENABLED`                                             | CONFIG                                            |
@@ -151,7 +151,7 @@ The following secrets are **not referenced anywhere in the monorepo** and may be
 | `TAVILY_API_KEY`                     | External research agents                          |
 | `GROQ_API_KEY`                       | External LLM routing                              |
 | `KIMI_BASE_URL`, `MOONSHOT_BASE_URL` | Alternative LLM providers (may not be in use)     |
-| `OPENCLAW_GATEWAY_TOKEN`             | OpenClaw external gateway (may be decommissioned) |
+| `HERMES_AGENT_GATEWAY_TOKEN`             | Hermes Agent external gateway (may be decommissioned) |
 | `CEO_MIX_TOKEN`                      | CEO Mix service (verify if active)                |
 | `OPENCODE_API_KEY`                   | Remote code execution (verify if active)          |
 | `CONTEXT7_API_KEY`                   | Context7 MCP tool (verify if active)              |
@@ -229,7 +229,7 @@ All identical-value pairs confirmed by vault inspection:
 | Key A                        | Key B                    | Shared Value              | Action Taken                        |
 | ---------------------------- | ------------------------ | ------------------------- | ----------------------------------- |
 | `MINIMAX_API_KEY`            | `MINIMAX_TOKEN`          | `sk-cp-uA1oy3...`         | ✅ Deleted `MINIMAX_TOKEN`          |
-| `OPENCLAW_DEEPGRAM_API_KEY`  | `DEEPGRAM_API_KEY`       | `0215eb87...`             | ✅ Deleted `DEEPGRAM_API_KEY`       |
+| `HERMES_AGENT_DEEPGRAM_API_KEY`  | `DEEPGRAM_API_KEY`       | `0215eb87...`             | ✅ Deleted `DEEPGRAM_API_KEY`       |
 | `TELEGRAM_BOT_TOKEN`         | `CEO_MIX_TOKEN`          | `8793928549:...`          | ✅ Deleted `CEO_MIX_TOKEN`          |
 | `REDIS_PASSWORD`             | `LITELLM_REDIS_PASSWORD` | `Fifine156458*`           | ✅ Deleted `LITELLM_REDIS_PASSWORD` |
 | `COOLIFY_ROOT_USER_PASSWORD` | `ROOT_USER_PASSWORD`     | `[COOLIFY_ROOT_PASSWORD]` | ✅ Deleted `ROOT_USER_PASSWORD`     |
@@ -264,7 +264,7 @@ Before removing, confirm these services are not in use:
 2. `GROQ_API_KEY` — no reference in monorepo
 3. `KIMI_BASE_URL` — no reference in monorepo
 4. `MOONSHOT_BASE_URL` — no reference in monorepo
-5. `OPENCLAW_GATEWAY_TOKEN` — no reference in monorepo
+5. `HERMES_AGENT_GATEWAY_TOKEN` — no reference in monorepo
 6. `CEO_MIX_TOKEN` — no reference in monorepo
 7. `OPENCODE_API_KEY` — no reference in monorepo
 8. `CONTEXT7_API_KEY` — no reference in monorepo

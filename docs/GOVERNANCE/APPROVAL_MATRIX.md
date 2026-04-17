@@ -200,7 +200,7 @@ This is the single source of truth for "can I do this?" decisions.
 | --------------------- | ------------------ | -------------------- | ------------------ |
 | TTS Bridge restart    | zappro-tts-bridge  | Autoheal (3/h limit) | Principal Engineer |
 | Voice change          | pm_santa / pf_dora | NEVER                | Principal Engineer |
-| OpenClaw config edit  | openclaw-qgtzrmi   | NEVER                | Principal Engineer |
+| Hermes Agent config edit  | Hermes Agent-qgtzrmi   | NEVER                | Principal Engineer |
 | Kokoro container stop | zappro-kokoro      | NEVER                | Principal Engineer |
 | wav2vec2 STT change   | zappro-wav2vec2    | NEVER                | Principal Engineer |
 

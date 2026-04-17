@@ -103,7 +103,7 @@
     'README.md': '# Bem-vindo ao Vault\n\nEste e o vault pessoal de notas e projetos.\n\n## Estrutura (PARA)\n\n- **00-Inbox** — Captura rapida\n- **01-Projects** — Projetos ativos\n- **02-Areas** — Areas de responsabilidade\n- **03-Resources** — Recursos e referencias\n- **04-Archive** — Arquivo\n\n## Uso\n\nNavegue pelas pastas na barra lateral ou use a busca para encontrar arquivos.\n',
     'INDEX.md': '# Indice do Vault\n\n## Tarefas Recentes\n\n- [ ] Configurar novo projeto\n- [ ] Revisar documentacao\n- [ ] Atualizar vault\n\n## Projetos Ativos\n\n1. Voice Pipeline\n2. Homelab Monitor\n3. Claude Code Integration\n',
     'ideias.md': '# Ideias\n\n## Novas Ideias\n\n- Integrar com API de lembretes\n- Adicionar sistema de tags\n- Criar visualizacao de grafos\n',
-    'homelab.md': '# Homelab\n\n## Servicos\n\n| Servico | URL | Status |\n|---------|-----|--------|\n| OpenWebUI | chat.zappro.site | UP |\n| Grafana | monitor.zappro.site | UP |\n| OpenClaw | bot.zappro.site | UP |\n\n## Configuracao\n\n- ZFS Pool: 2x NVMe Gen5\n- RAM: 128GB ECC\n- GPU: RTX 4090\n'
+    'homelab.md': '# Homelab\n\n## Servicos\n\n| Servico | URL | Status |\n|---------|-----|--------|\n| OpenWebUI | chat.zappro.site | UP |\n| Grafana | monitor.zappro.site | UP |\n| Hermes Agent | bot.zappro.site | UP |\n\n## Configuracao\n\n- ZFS Pool: 2x NVMe Gen5\n- RAM: 128GB ECC\n- GPU: RTX 4090\n'
   };
 
   // ─── State ─────────────────────────────────────────────────────────────────

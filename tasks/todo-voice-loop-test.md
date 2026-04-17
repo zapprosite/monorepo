@@ -2,7 +2,7 @@
 
 ## Tarefas Extraídas do Plano
 
-### Tarefa 1: Skill `/loop` no OpenClaw
+### Tarefa 1: Skill `/loop` no Hermes Agent
 
 **Ficheiro:** `/data/workspace/skills/voice-loop/SKILL.md`
 **Status:** pending
@@ -66,7 +66,7 @@ Gravar JSON por teste:
 
 Implementar `/test`:
 
-- Executa `pipeline-openclaw-voice.sh`
+- Executa `pipeline-hermes-agent-voice.sh`
 - Filtra output para formato Telegram
 - Lê últimos resultados de `/srv/monorepo/tasks/results/`
 - Responde via TTS com resumo

@@ -1,6 +1,6 @@
 # Skill: Self-Healing Cron
 
-**Purpose:** Automated monitoring and healing for homelab voice pipeline (OpenClaw + LiteLLM + wav2vec2 + Traefik)
+**Purpose:** Automated monitoring and healing for homelab voice pipeline (Hermes Agent + LiteLLM + wav2vec2 + Traefik)
 **Schedule:** Every 5 minutes (`*/5 * * * *`)
 **Risk:** Medium (auto-restarts containers, limited to 3 attempts per hour per container)
 **Output:** `/srv/ops/logs/self-healing.log`
@@ -15,7 +15,7 @@ All critical containers must be **Up (healthy)**:
 
 | Container | Purpose |
 |-----------|---------|
-| `openclaw-qgtzrmi6771lt8l7x8rqx72f` | OpenClaw voice gateway |
+| `hermes-agent-qgtzrmi6771lt8l7x8rqx72f` | Hermes Agent voice gateway |
 | `zappro-litellm` | LiteLLM proxy (Ollama + OpenRouter) |
 | `zappro-wav2vec2` | wav2vec2 STT service |
 | `zappro-litellm-db` | LiteLLM PostgreSQL database |
@@ -28,7 +28,7 @@ Critical routes must return expected HTTP codes:
 | Route | Expected | Purpose |
 |-------|----------|---------|
 | `http://localhost:80/ping` | 200 | Traefik alive |
-| `https://bot.zappro.site/` | 200 or 401 | OpenClaw routing via Cloudflare Tunnel |
+| `https://bot.zappro.site/` | 200 or 401 | Hermes Agent routing via Cloudflare Tunnel |
 | `http://localhost:4000/health` | 200 | LiteLLM proxy alive |
 | `http://localhost:8201/health` | 200 | wav2vec2 STT alive |
 
@@ -38,7 +38,7 @@ Container pairs that must share a Docker network:
 
 | Pair | Required for |
 |------|--------------|
-| `coolify-proxy` <-> `openclaw-*` | Traefik routing to OpenClaw |
+| `coolify-proxy` <-> `hermes-agent-*` | Traefik routing to Hermes Agent |
 | `zappro-litellm` <-> `zappro-wav2vec2` | STT requests from LiteLLM |
 
 ---
@@ -59,7 +59,7 @@ Restart attempts are tracked in `/tmp/container-restart-attempts.json`:
 
 ```json
 {
-  "openclaw-qgtzrmi6771lt8l7x8rqx72f": {"count": 2, "last_attempt": "2026-04-08T14:30:00Z"},
+  "hermes-agent-qgtzrmi6771lt8l7x8rqx72f": {"count": 2, "last_attempt": "2026-04-08T14:30:00Z"},
   "zappro-litellm": {"count": 0, "last_attempt": "1970-01-01T00:00:00Z"}
 }
 ```
@@ -79,12 +79,12 @@ TIMESTAMP LEVEL ACTION TARGET DETAIL
 Examples:
 
 ```
-2026-04-08T14:35:00Z INFO CONTAINER_OK openclaw-qgtzrmi6771lt8l7x8rqx72f Status=running, Health=healthy
+2026-04-08T14:35:00Z INFO CONTAINER_OK hermes-agent-qgtzrmi6771lt8l7x8rqx72f Status=running, Health=healthy
 2026-04-08T14:40:00Z INFO RESTARTING zappro-litellm Attempt to heal container
 2026-04-08T14:40:05Z HEALED RESTART_SUCCESS zappro-litellm Container restarted and healthy
 2026-04-08T14:45:00Z ALERT ROUTE_FAILED litellm-health http://localhost:4000/health -> 000 (expected 200)
-2026-04-08T14:50:00Z ALERT NETWORK_ISOLATED coolify-proxy<->openclaw-qgtzrmi6771lt8l7x8rqx72f No shared network - human intervention required
-2026-04-08T14:55:00Z ALERT RATE_LIMITED openclaw-qgtzrmi6771lt8l7x8rqx72f Max restart attempts (3) reached in last hour
+2026-04-08T14:50:00Z ALERT NETWORK_ISOLATED coolify-proxy<->hermes-agent-qgtzrmi6771lt8l7x8rqx72f No shared network - human intervention required
+2026-04-08T14:55:00Z ALERT RATE_LIMITED hermes-agent-qgtzrmi6771lt8l7x8rqx72f Max restart attempts (3) reached in last hour
 ```
 
 ---
@@ -174,8 +174,8 @@ Expected output: JSON status with `status: "OK"` if all checks pass.
 ### Healing Failed (rate limited)
 
 ```
-2026-04-08T14:10:00Z WARN CONTAINER_DOWN openclaw-qgtzrmi6771lt8l7x8rqx72f Status=exited
-2026-04-08T14:10:00Z ALERT RATE_LIMITED openclaw-qgtzrmi6771lt8l7x8rqx72f Max restart attempts (3) reached in last hour
+2026-04-08T14:10:00Z WARN CONTAINER_DOWN hermes-agent-qgtzrmi6771lt8l7x8rqx72f Status=exited
+2026-04-08T14:10:00Z ALERT RATE_LIMITED hermes-agent-qgtzrmi6771lt8l7x8rqx72f Max restart attempts (3) reached in last hour
 ```
 
 ### Route Failure
@@ -205,7 +205,7 @@ Network isolation means containers cannot communicate. This is the root cause id
 1. Check container networks:
    ```bash
    docker inspect coolify-proxy --format '{{json .NetworkSettings.Networks}}' | python3 -m json.tool
-   docker inspect openclaw-qgtzrmi6771lt8l7x8rqx72f --format '{{json .NetworkSettings.Networks}}' | python3 -m json.tool
+   docker inspect hermes-agent-qgtzrmi6771lt8l7x8rqx72f --format '{{json .NetworkSettings.Networks}}' | python3 -m json.tool
    ```
 
 2. Find shared network:

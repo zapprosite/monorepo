@@ -31,7 +31,7 @@ status: ACTIVE
 | **Alerting & rate limiting** | SPEC-040                                                | [SPEC-040-homelab-alerting-rate-limit.md](./SPEC-040-homelab-alerting-rate-limit.md)                               | GPU security                                                                              |
 | **Monorepo polish**          | SPEC-041                                                | [SPEC-041-monorepo-estado-arte-polish.md](./SPEC-041-monorepo-estado-arte-polish.md)                               | Tech debt resolution                                                                      |
 | **AI Gateway PT-BR**         | SPEC-047                                                | [SPEC-047-enterprise-polish-ai-gateway-ptbr.md](./SPEC-047-enterprise-polish-ai-gateway-ptbr.md)                   | ai-gateway :4002 ✅                                                                       |
-| **OpenClaw prune**           | SPEC-051                                                | [SPEC-051-openclaw-prune-specs-polish.md](./SPEC-051-openclaw-prune-specs-polish.md)                               | Prune total OpenClaw legacy ✅                                                            |
+| **Hermes Agent prune**        | SPEC-051                                                | [SPEC-051-legacy-services-prune-specs-polish.md](./SPEC-051-legacy-services-prune-specs-polish.md)                               | Prune total Hermes Agent legacy ✅                                                         |
 | **Hermes MCP + Context7**    | SPEC-052                                                | [SPEC-052-hermes-mcp-context7-integration.md](./SPEC-052-hermes-mcp-context7-integration.md)                       | Context7 MCP research                                                                     |
 | **OpenAI Facade Completo**   | SPEC-048 ✅                                             | [SPEC-048-openai-facade-completo.md](./SPEC-048-openai-facade-completo.md)                                         | texto+visão+voz, llm.zappro.site ✅                                                       |
 | **Cloud Voice APIs PT-BR**   | SPEC-055                                                | [SPEC-055-cloud-voice-apis-ptbr-2026.md](./SPEC-055-cloud-voice-apis-ptbr-2026.md)                                 | GROQ+Edge vs local, 14 agents research                                                    |
@@ -53,7 +53,7 @@ status: ACTIVE
 | SPEC-043 | Subdomain prune                | bot/supabase PRUNED, hermes.zappro.site ACTIVE                                                            |
 | SPEC-048 | OpenAI Facade Completo         | llm.zappro.site (:4002), smoke (6/6) ✅                                                                   |
 | SPEC-039 | Hermes Gateway tunnel          | hermes.zappro.site → :8642                                                                                |
-| SPEC-051 | OpenClaw prune total           | ✅ DONE — OpenClaw legacy PRUNED, 40+ files archived                                                      |
+| SPEC-051 | Hermes Agent prune total        | ✅ DONE — Hermes Agent legacy PRUNED, 40+ files archived                                                     |
 | SPEC-053 | Hermes 100% local voice/vision | ✅ DONE — qwen2.5vl:7b texto+visão, whisper :8204, Kokoro :8013, smoke 13/13                              |
 | SPEC-054 | GPU Model Stack 2026           | ✅ DONE — whisper-medium-pt + Kokoro + nomic-embed-text, 20.6 GB livre, qwen2.5vl:7b como próximo upgrade |
 
@@ -74,8 +74,8 @@ status: ACTIVE
 
 | SPEC     | Title                  | Notes                                                 |
 | -------- | ---------------------- | ----------------------------------------------------- |
-| SPEC-038 | Hermes Agent migration | OPERAÇÃO OVERLORD — OpenClaw → Hermes-Agent           |
-| SPEC-051 | OpenClaw prune total   | Prune total OpenClaw legacy — HERMES único assistente |
+| SPEC-038 | Hermes Agent migration | OPERAÇÃO OVERLORD — Hermes Agent → Hermes Agent        |
+| SPEC-051 | Hermes Agent prune total | Prune total Hermes Agent legacy — HERMES único assistente |
 | SPEC-052 | Hermes MCP + Context7  | Context7 MCP + web search integration research        |
 
 ### 📋 SPECIFIED (Planned/Proposed)
@@ -97,7 +97,7 @@ Hermes Agent migration       → SPEC-038
 Hermes Gateway tunnel         → SPEC-039
 Alerting & rate limiting     → SPEC-040
 Monorepo polish              → SPEC-041
-OpenClaw prune (done)        → SPEC-051
+Hermes Agent prune (done)   → SPEC-051
 Hermes MCP + Context7        → SPEC-052
 Hermes 100% local voice     → SPEC-053
 Cloud voice APIs PT-BR       → SPEC-055
@@ -131,26 +131,26 @@ If your feature intersects an archived SPEC, check the replacement column:
 | SPEC-002b       | Homelab Network Refactor      | SUBDOMAINS.md + PORTS.md                        |
 | SPEC-004        | Kokoro TTS Kit                | SPEC-027 (voice pipeline, merged as historical) |
 | SPEC-005        | wav2vec2 STT Kit              | SPEC-027 (voice pipeline, merged as historical) |
-| SPEC-009        | OpenClaw Persona Audio Stack  | SPEC-027 (voice pipeline, archived OpenClaw)    |
+| SPEC-009        | Hermes Agent Persona Audio Stack | SPEC-027 (voice pipeline, archived Hermes Agent)  |
 | SPEC-006        | Playwright E2E                | SPEC-024 (test pipeline)                        |
-| SPEC-007        | OpenClaw OAuth Profiles       | SPEC-027 (voice pipeline, OAuth deprecated)     |
-| SPEC-010        | OpenClaw Agents Kit           | SPEC-027 (voice pipeline)                       |
-| SPEC-011        | OpenClaw Agency Suite         | SPEC-027 (voice pipeline)                       |
-| SPEC-012        | openclaw-update-discoverer    | SPEC-023 (monitoring stack)                     |
+| SPEC-007        | Hermes Agent OAuth Profiles     | SPEC-027 (voice pipeline, OAuth deprecated)     |
+| SPEC-010        | Hermes Agent Agents Kit         | SPEC-027 (voice pipeline)                       |
+| SPEC-011        | Hermes Agent Agency Suite       | SPEC-027 (voice pipeline)                       |
+| SPEC-012        | hermes-agent-update-discoverer | SPEC-023 (monitoring stack)                     |
 | SPEC-014        | Cursor AI CI/CD Pattern       | SPEC-024 + cursor-loop skill                    |
 | SPEC-015        | Gitea Actions Enterprise      | SPEC-024 + git mirror scripts                   |
 | SPEC-016        | Voice Pipeline Cursor Loop    | SPEC-027 + SPEC-032                             |
 | SPEC-017        | Voice API Deploy              | SPEC-027 + SPEC-032                             |
 | SPEC-018        | wav2vec2 Deepgram Proxy       | SPEC-027 (voice pipeline)                       |
 | SPEC-019        | OpenWebUI Repair              | SUBDOMAINS.md (chat.zappro.site routing fixed)  |
-| SPEC-020        | OpenWebUI OpenClaw Bridge     | SPEC-027 + SPEC-032                             |
+| SPEC-020        | OpenWebUI Hermes Agent Bridge  | SPEC-027 + SPEC-032                             |
 | SPEC-021        | Claude Code Cursor Loop       | cursor-loop skill + SPEC-024                    |
 | SPEC-022        | Cursor Loop CLI Solutions     | cursor-loop skill + SPEC-024                    |
 | SPEC-023        | Claude Code CLI Integration   | SPEC-023-unified-monitoring-self-healing.md     |
 | SPEC-024        | Unified Claude Agent Monorepo | SPEC-041 + current .claude/ structure           |
-| SPEC-025        | OpenClaw CEO Mix Voice Stack  | SPEC-027 (voice pipeline)                       |
+| SPEC-025        | Hermes Agent CEO Mix Voice Stack | SPEC-027 (voice pipeline)                       |
 | SPEC-025-REPORT | CEO Mix Report                | SPEC-024 + SPEC-025                             |
-| SPEC-026        | OpenClaw TTS Route Fix        | SPEC-027 (voice pipeline)                       |
+| SPEC-026        | Hermes Agent TTS Route Fix     | SPEC-027 (voice pipeline)                       |
 | SPEC-028        | Perplexity GitOps             | SPEC-024 + perplexity-agent                     |
 | SPEC-030        | AGENTS.md Top Links Audit     | SPEC-041 + current AGENTS.md                    |
 | SPEC-033        | Supabase Tunnel Exposure      | SPEC-043 (supabase PRUNED)                      |

@@ -6,13 +6,13 @@
 
 | Doc | Razão |
 |-----|-------|
-| `SPEC-009-openclaw-persona-audio-stack.md` | Audio stack completo (STT + TTS + LLM) |
+| `SPEC-009-hermes-agent-persona-audio-stack.md` | Audio stack completo (STT + TTS + LLM) |
 | `SPEC-018-wav2vec2-deepgram-proxy.md` | wav2vec2 via proxy :8203 |
 
 ##Mudanças Principais
 - STT endpoint era `:8201` (direto), agora é `:8203` via wav2vec2-proxy
 - Modelo continua `jonatasgrosman/wav2vec2-large-xlsr-53-portuguese`
-- OpenClaw → Deepgram API format → wav2vec2-proxy → whisper-api
+- Hermes Agent → Deepgram API format → wav2vec2-proxy → whisper-api
 
 ## Data de Arquivo
 2026-04-12 — Estado-da-Arte Polish
