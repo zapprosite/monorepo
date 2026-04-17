@@ -52,9 +52,9 @@ export async function llmComplete(req: LLMRequest): Promise<LLMResponse> {
   const start = Date.now();
 
   // Try PRIMARY first — minimax premium (plano 50$)
-  if (MINIMAX_API_KEY) {
+  if (MINIMAX_API_KEY?.trim()) {
     try {
-      const response = await callLLM(PRIMARY_MODEL, req, true);
+      const response = await callLLM(PRIMARY_MODEL, req);
       return { ...response, latencyMs: Date.now() - start };
     } catch (err) {
       console.warn(`[LLM] minimax-m2.7 primary failed:`, err);
@@ -64,7 +64,7 @@ export async function llmComplete(req: LLMRequest): Promise<LLMResponse> {
   // Fallback — Ollama local models
   for (const llm of FALLBACK_CHAIN) {
     try {
-      const response = await callLLM(llm, req, false);
+      const response = await callLLM(llm, req);
       return { ...response, latencyMs: Date.now() - start };
     } catch (err) {
       console.warn(`[LLM] ${llm.model} fallback failed:`, err);
@@ -78,7 +78,6 @@ export async function llmComplete(req: LLMRequest): Promise<LLMResponse> {
 async function callLLM(
   llm: { model: string; provider: string; url: string },
   req: LLMRequest,
-  _isPrimary: boolean,
 ): Promise<Omit<LLMResponse, 'latencyMs'>> {
   const messages = [
     ...(req.systemPrompt ? [{ role: 'system' as const, content: req.systemPrompt }] : []),
