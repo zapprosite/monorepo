@@ -583,16 +583,115 @@
       "specRef": "SPEC-058-08",
       "files": ["apps/hermes-agency/src/metrics/"],
       "testRequired": true
+    },
+    {
+      "id": "TASK-05901-T1",
+      "title": "[SPEC-059-01] Redis client singleton + graceful fallback",
+      "description": "Criar apps/hermes-agency/src/telegram/redis.ts — ioredis client com connection retry, health check, e fallback para em memória quando Redis unavailable. Todas as operações devem logar warning e continuar em modo degradado.",
+      "status": "pending",
+      "priority": "critical",
+      "dependencies": [],
+      "specRef": "SPEC-059",
+      "files": ["apps/hermes-agency/src/telegram/redis.ts"],
+      "testRequired": true
+    },
+    {
+      "id": "TASK-05901-T2",
+      "title": "[SPEC-059-01] Redis-backed distributed lock (SETNX + TTL)",
+      "description": "Criar apps/hermes-agency/src/telegram/distributed_lock.ts — lock atómico por chatId usando Redis SETNX com TTL 30s (configurável via HERMES_LOCK_TTL_SEC). Fallback para Map em memória com warning quando Redis down.",
+      "status": "pending",
+      "priority": "critical",
+      "dependencies": ["TASK-05901-T1"],
+      "specRef": "SPEC-059",
+      "files": ["apps/hermes-agency/src/telegram/distributed_lock.ts"],
+      "testRequired": true
+    },
+    {
+      "id": "TASK-05901-T3",
+      "title": "[SPEC-059-01] Redis-backed rate limiter (sliding window)",
+      "description": "Criar apps/hermes-agency/src/telegram/rate_limiter.ts — rate limit 5 msgs/10s por userId usando Redis INCR + EXPIRE. Fallback para Map em memória quando Redis unavailable. Configurável via HERMES_RATE_WINDOW_MS e HERMES_RATE_MAX_MSGS.",
+      "status": "pending",
+      "priority": "critical",
+      "dependencies": ["TASK-05901-T1"],
+      "specRef": "SPEC-059",
+      "files": ["apps/hermes-agency/src/telegram/rate_limiter.ts"],
+      "testRequired": true
+    },
+    {
+      "id": "TASK-05902-T1",
+      "title": "[SPEC-059-02] File validator — size + MIME magic bytes",
+      "description": "Criar apps/hermes-agency/src/telegram/file_validator.ts — validar ficheiros com file-type (magic bytes) e rejeitar .exe renomeado a .jpg. MAX_FILE_SIZE=20MB configurável via HERMES_MAX_FILE_SIZE.",
+      "status": "pending",
+      "priority": "critical",
+      "dependencies": [],
+      "specRef": "SPEC-059",
+      "files": ["apps/hermes-agency/src/telegram/file_validator.ts"],
+      "testRequired": true
+    },
+    {
+      "id": "TASK-05903-T1",
+      "title": "[SPEC-059-03] Per-user semaphore (concurrency limit)",
+      "description": "Implementar semaphore por userId — máximo 3 uploads concurrentes por utilizador (HERMES_MAX_CONCURRENT). Previne flood attacks. Usar Map<userId, number> com decrement em finally.",
+      "status": "pending",
+      "priority": "critical",
+      "dependencies": [],
+      "specRef": "SPEC-059",
+      "files": ["apps/hermes-agency/src/telegram/bot.ts"],
+      "testRequired": true
+    },
+    {
+      "id": "TASK-05903-T2",
+      "title": "[SPEC-059-03] Periodic memory cleanup (Map leak prevention)",
+      "description": "Adicionar setInterval cleanup aos Maps de rate limiter e locks — remover entradas expiradas a cada RATE_LIMIT_WINDOW_MS*2. Evitar memory growth infinito em produção long-running.",
+      "status": "pending",
+      "priority": "critical",
+      "dependencies": ["TASK-05901-T3"],
+      "specRef": "SPEC-059",
+      "files": ["apps/hermes-agency/src/telegram/bot.ts", "apps/hermes-agency/src/telegram/rate_limiter.ts"],
+      "testRequired": true
+    },
+    {
+      "id": "TASK-05904-T1",
+      "title": "[SPEC-059-04] Admin-only /health (hide internal ports)",
+      "description": "Modificar bot.command('health') — verificar ctx.from.id contra HERMES_ADMIN_USER_IDS (CSV env var). Utilizadores normais veem só status básico (Hermes ok/not-ok). Admins veem portas internas (STT :8204, TTS :8013, Ollama :11434).",
+      "status": "pending",
+      "priority": "critical",
+      "dependencies": [],
+      "specRef": "SPEC-059",
+      "files": ["apps/hermes-agency/src/telegram/bot.ts"],
+      "testRequired": true
+    },
+    {
+      "id": "TASK-05905-T1",
+      "title": "[SPEC-059-05] New env vars — REDIS_URL, HERMES_ADMIN_USER_IDS, HERMES_MAX_FILE_SIZE, HERMES_MAX_CONCURRENT, HERMES_LOCK_TTL_SEC, HERMES_RATE_WINDOW_MS, HERMES_RATE_MAX_MSGS",
+      "description": "Adicionar novas variáveis de ambiente ao .env e .env.example: REDIS_URL, HERMES_ADMIN_USER_IDS, HERMES_MAX_FILE_SIZE (20MB), HERMES_MAX_CONCURRENT (3), HERMES_LOCK_TTL_SEC (30), HERMES_RATE_WINDOW_MS (10000), HERMES_RATE_MAX_MSGS (5).",
+      "status": "pending",
+      "priority": "critical",
+      "dependencies": ["TASK-05901-T1", "TASK-05901-T2", "TASK-05901-T3", "TASK-05902-T1", "TASK-05903-T1", "TASK-05904-T1"],
+      "specRef": "SPEC-059",
+      "files": [".env", ".env.example"],
+      "testRequired": false
+    },
+    {
+      "id": "TASK-05906-T1",
+      "title": "[SPEC-059-06] Smoke test — hardening validation",
+      "description": "Criar smoke-tests/smoke-agency-hardening.sh — validar: (1) ficheiro >20MB rejeitado, (2) ficheiro MIME inválido rejeitado, (3) 6 msgs rápidas — 5 permitidas, 1 bloqueada, (4) admin vs user health outputs different.",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": ["TASK-05905-T1"],
+      "specRef": "SPEC-059",
+      "files": ["smoke-tests/smoke-agency-hardening.sh"],
+      "testRequired": true
     }
   ],
   "meta": {
-    "totalTasks": 52,
+    "totalTasks": 62,
     "completedTasks": 0,
-    "pendingTasks": 51,
+    "pendingTasks": 61,
     "blockedTasks": 1,
-    "generatedAt": "2026-04-17T00:00",
+    "generatedAt": "2026-04-17T13:00",
     "projectName": "zappro-monorepo",
     "version": "2.0",
-    "specs": ["SPEC-057", "SPEC-031", "SPEC-056", "SPEC-058"]
+    "specs": ["SPEC-057", "SPEC-031", "SPEC-056", "SPEC-058", "SPEC-059"]
   }
 }
