@@ -247,7 +247,7 @@ owner: 'Principal Engineer'
 pinned_date: '2026-02-15'
 status: 'PINNED'
 why_pinned: 'Tunnel ativo — multiplos subdomains dependem dele'
-note: 'bot.zappro.site PRUNED 2026-04-14 — DNS removido, Hermes Agent deprecated'
+note: 'bot.zappro.site PRUNED 2026-04-14 — DNS removido. hermes.zappro.site → :4002 (ai-gateway T400)'
 ```
 
 **Verification CMD:**
