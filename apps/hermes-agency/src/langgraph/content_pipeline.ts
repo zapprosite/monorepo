@@ -2,7 +2,6 @@
 // LangGraph Content Pipeline Workflow (WF-1)
 
 import { llmComplete } from '../litellm/router.ts';
-import { routeToSkill } from '../router/agency_router.ts';
 
 export type ContentPipelineState = {
   brief: string;
@@ -111,7 +110,7 @@ async function executeStep(
     const prompt = buildStepPrompt(stepName, state);
     const result = await llmComplete({
       messages: [{ role: 'user', content: prompt }],
-      systemPrompt: `Você é um especialista em marketing de conteúdo. Siga as instruções do pipeline de forma顺序.`,
+      systemPrompt: `Você é um especialista em marketing de conteúdo. Siga as instruções do pipeline de forma sequencial.`,
       maxTokens: 2048,
       temperature: 0.7,
     });
