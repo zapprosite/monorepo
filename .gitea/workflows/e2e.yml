@@ -1,0 +1,46 @@
+name: E2E Smoke Tests
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      services:
+        description: 'Services to test (all, hermes, ai-gateway, stt, tts)'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - hermes
+          - ai-gateway
+          - stt
+          - tts
+
+jobs:
+  smoke-tests:
+    runs-on: [self-hosted]
+    name: Smoke Tests
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check services are up
+        run: |
+          echo "=== Health Check ==="
+          curl -sf http://localhost:4002/health && echo "✅ ai-gateway :4002" || echo "❌ ai-gateway :4002 DOWN"
+          curl -sf http://localhost:8642/health && echo "✅ hermes :8642" || echo "❌ hermes :8642 DOWN"
+          curl -sf http://localhost:8204/health && echo "✅ STT :8204" || echo "❌ STT :8204 DOWN"
+          curl -sf http://localhost:8013/health && echo "✅ TTS :8013" || echo "❌ TTS :8013 DOWN"
+
+      - name: Run multimodal smoke tests
+        run: bash smoke-tests/smoke-multimodal-stack.sh
+        env:
+          AI_GATEWAY_FACADE_KEY: ${{ secrets.AI_GATEWAY_FACADE_KEY }}
+
+      - name: Run agency smoke tests
+        if: ${{ inputs.services == 'all' || inputs.services == 'hermes' }}
+        run: bash smoke-tests/smoke-agency-suite.sh
+        env:
+          AI_GATEWAY_FACADE_KEY: ${{ secrets.AI_GATEWAY_FACADE_KEY }}

@@ -138,7 +138,7 @@ export const AGENCY_SKILLS: readonly Skill[] = [
       'send_welcome_sequence',
       'create_first_milestone',
     ],
-    triggers: ['/start', 'novo cliente', 'onboarding', 'bem-vindo'],
+    triggers: ['novo cliente', 'onboarding', 'bem-vindo', '/onboarding'],
   },
   {
     id: 'agency-video-editor',
@@ -175,7 +175,7 @@ export const AGENCY_SKILLS: readonly Skill[] = [
     description:
       'Visual design — generates image prompts, creates brand kits, suggests colors, mockups',
     tools: ['generate_image_prompt', 'create_brand_kit', 'suggest_colors', 'mockup_layout'],
-    triggers: ['design', 'imagem', 'visual', 'cores', 'brand'],
+    triggers: ['design', 'imagem', 'visual', 'cores'],
   },
   {
     id: 'agency-social',
