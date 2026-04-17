@@ -1,14 +1,6 @@
 {
   "tasks": [
     {
-      "id": "f72c7852",
-      "cron": "*/30 * * * *",
-      "prompt": "Sync docs to memory: Run /srv/monorepo/scripts/sync-memory.sh or similar to synchronize documentation changes to the memory index. Check git status for pending doc changes and update MEMORY.md index accordingly.",
-      "createdAt": 1775847723434,
-      "lastFiredAt": 1776451469546,
-      "recurring": true
-    },
-    {
       "id": "14d0bbe8",
       "cron": "0 3 * * *",
       "prompt": "Execute o slash command /rs (repo-scan) para escanear o repositório. Use o output para gerar/actualizar tasks/pipeline.json com tasks pendentes. Liste as 3 tasks mais prioritárias. Resuma em 2-3 linhas.",
@@ -21,7 +13,7 @@
       "cron": "*/5 * * * *",
       "prompt": "SRE Monitor: Run /srv/monorepo/.claude/skills/coolify-sre/scripts/sre-monitor.sh to check Coolify apps, Docker containers, health endpoints, resource usage, and subdomain tunnel status. Auto-heal degraded/down containers (whitelist only). Log results. Replaces old auto-healer (8812f46c) and resource-monitor (4cb53930).",
       "createdAt": 1776124800000,
-      "lastFiredAt": 1776451322421,
+      "lastFiredAt": 1776467010798,
       "recurring": true
     },
     {
