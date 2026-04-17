@@ -31,7 +31,7 @@ Construir uma **marketing agency 100% operacional em português** com 11 agentes
 | Agent Orchestrator   | Hermes Agent bare metal | systemd service :8642 gateway + :8092 MCP                                        |
 | Multi-Agent Workflow | LangGraph               | Complex workflows; simple routing via Hermes skills                              |
 | Vector Database      | Qdrant                  | Multi-tenant 9 coleções, bge-m3 embeddings                                       |
-| LLM Router           | LiteLLM                 | gemma4-12b-it (local Ollama), gemini-2.0-flash (cloud), minimax-m2.7 (emergency) |
+| LLM Router           | LiteLLM + Hermes         | Hermes: minimax-m2.7 (PRIMARY, 50$ plan), Ollama fallback local |
 | Embeddings           | bge-m3                  | Hybrid sparse+dense search, PT-BR optimized                                      |
 | Message Broker       | Redis                   | Semantic cache, session locks, pub/sub                                           |
 | Interface (Client)   | Telegram Bot            | Polling mode, per-chat locks, voice streaming                                    |
@@ -92,11 +92,10 @@ Construir uma **marketing agency 100% operacional em português** com 11 agentes
                                     └──────────────────────────────────────────┘
                                                  │
                                     ┌────────────▼─────────────────────────────┐
-                                    │         LITEllM FALLBACK CHAIN           │
-                                    │  1. gemma4-12b-it (Ollama :11434)        │
-                                    │  2. gemini-2.0-flash (cloud $0.05/1K)   │
-                                    │  3. minimax-m2.7 (emergency only)        │
-                                    │         + Redis semantic cache           │
+                                    │         HERMES LLM CHAIN (17/04)          │
+                                    │  PRIMARY: minimax/MiniMax-M2.7 (50$)     │
+                                    │  FALLBACK: ollama/llama3-portuguese      │
+                                    │  + Redis semantic cache                   │
                                     └──────────────────────────────────────────┘
 ```
 
