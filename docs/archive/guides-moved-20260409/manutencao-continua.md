@@ -274,7 +274,6 @@ journalctl -u cloudflared --no-pager -n 20 | grep -E "2222|3300|SSH"
 # 1. Verificar portas dos serviços
 # Gitea web: 3300 (não 2222!)
 # Coolify: 8000
-# OpenClaw: 4001
 
 # 2. Ver config.yml
 cat ~/.cloudflared/config.yml | grep -A2 "git.zappro"
@@ -300,7 +299,6 @@ curl -sI https://git.zappro.site
 | Gitea Web | 3300 | git.zappro.site |
 | Gitea SSH | 2222 | (não exposto via tunnel) |
 | Coolify | 8000 | coolify.zappro.site |
-| OpenClaw | 4001 | bot.zappro.site |
 
 **Nota:** O config local (`~/.cloudflared/config.yml`) é o que importa para cloudflared.
 O Terraform gerencia apenas o DNS e Cloudflare Access, não o tunnel ingress.
@@ -423,8 +421,6 @@ print(f'Secrets no vault: {len(s.secrets)}')
 - `POSTGRES_PASSWORD` → coolify-db-password-2026
 - `REDIS_PASSWORD` → coolify-redis-password-2026
 - `ROOT_USER_PASSWORD` → [COOLIFY_ROOT_PASSWORD]
-- `AUTH_SECRET` / `JWT_AUTH_SECRET` → OpenClaw auth
-- `HERMES_AGENT_GATEWAY_TOKEN` → OpenClaw gateway
 - `GF_SECURITY_ADMIN_PASSWORD` → Grafana admin
 
 ### Atualização de Secrets

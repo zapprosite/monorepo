@@ -31,17 +31,14 @@ The docker-autoheal container (`willfarrell/autoheal`) monitors containers with 
 
 ### Services That CAN Restart Automatically
 
-| Service          | Container                           | Auto-Restart | Reason                               |
-| ---------------- | ----------------------------------- | ------------ | ------------------------------------ |
-| OpenWebUI        | `openwebui`                         | DEPRECATED   | Legacy — superseded by ai-gateway :4002            |
-| Hermes Bot (OpenClaw legacy) | `hermes-agent-qgtzrmi6771lt8l7x8rqx72f` | DEPRECATED | Voice pipeline legacy — PRUNED per SPEC-051 |
-| wav2vec2 STT     | `zappro-wav2vec2`                   | DEPRECATED   | Legacy — superseded by :8204 faster-whisper |
-| Kokoro TTS       | `zappro-kokoro-restarted`            | YES          | TTS, stateless (ports 8012/8013)                       |
-| LiteLLM Proxy    | `zappro-litellm`                    | YES          | GPU routing, stateless               |
-| TTS Bridge       | `zappro-tts-bridge`                 | YES          | Voice filter, stateless              |
-| Redis            | `zappro-redis`                      | YES          | Cache, persistent volume             |
-| Gitea            | `gitea`                             | YES          | Git server, persistent volume        |
-| Perplexity Agent | `perplexity-agent`                  | YES          | Research agent, stateless            |
+| Service          | Container                 | Auto-Restart | Reason                           |
+| ---------------- | ------------------------- | ------------ | -------------------------------- |
+| Kokoro TTS       | `zappro-kokoro-restarted` | YES          | TTS, stateless (ports 8012/8013) |
+| LiteLLM Proxy    | `zappro-litellm`          | YES          | GPU routing, stateless           |
+| TTS Bridge       | `zappro-tts-bridge`       | YES          | Voice filter, stateless          |
+| Redis            | `zappro-redis`            | YES          | Cache, persistent volume         |
+| Gitea            | `gitea`                   | YES          | Git server, persistent volume    |
+| Perplexity Agent | `perplexity-agent`        | YES          | Research agent, stateless        |
 
 ### Services That CANNOT Restart (Require Human)
 
@@ -66,16 +63,16 @@ All ports in use by the homelab. Before deploying a new service, check this regi
 
 ### Production Services (Coolify-managed)
 
-| Port | Container        | Access      | Function            |
-| ---- | ---------------- | ----------- | ------------------- |
-| 6001 | coolify-realtime | host        | WebSocket real-time |
-| 6002 | coolify-realtime | host        | WebSocket real-time |
-| 8000 | coolify          | host        | PaaS panel          |
-| 3300 | gitea            | host        | Git server          |
-| 4001 | Hermes Agent (OpenClaw legacy) | DEPRECATED | PRUNED per SPEC-051 — port free |
-| 4003 | painel           | host        | Claude Code Panel   |
-| 4006 | mcp-monorepo     | qgtzrmi net | MCP Filesystem      |
-| 4011 | mcp-qdrant       | qgtzrmi net | MCP Qdrant          |
+| Port | Container        | Access      | Function                           |
+| ---- | ---------------- | ----------- | ---------------------------------- |
+| 6001 | coolify-realtime | host        | WebSocket real-time                |
+| 6002 | coolify-realtime | host        | WebSocket real-time                |
+| 8000 | coolify          | host        | PaaS panel                         |
+| 3300 | gitea            | host        | Git server                         |
+| 4001 | —                | FREE        | Port free — previously bot service |
+| 4003 | painel           | host        | Claude Code Panel                  |
+| 4006 | mcp-monorepo     | qgtzrmi net | MCP Filesystem                     |
+| 4011 | mcp-qdrant       | qgtzrmi net | MCP Qdrant                         |
 
 ### Stack Zappro
 
@@ -108,13 +105,13 @@ All ports in use by the homelab. Before deploying a new service, check this regi
 
 ### Reserved Ports (Never Use)
 
-| Port | Reason                   |
-| ---- | ------------------------ |
-| 3000 | OpenWebUI (if deployed)  |
-| 4000 | LiteLLM production proxy |
-| 4001 | Hermes Agent Bot (reserved)  |
-| 8000 | Coolify PaaS             |
-| 8080 | Traefik + Cloudflared    |
+| Port | Reason                      |
+| ---- | --------------------------- |
+| 3000 | OpenWebUI (if deployed)     |
+| 4000 | LiteLLM production proxy    |
+| 4001 | Hermes Agent Bot (reserved) |
+| 8000 | Coolify PaaS                |
+| 8080 | Traefik + Cloudflared       |
 
 ### Free Ports for Dev
 

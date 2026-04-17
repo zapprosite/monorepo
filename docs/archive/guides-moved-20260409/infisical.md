@@ -44,7 +44,6 @@ Client ID (Universal Auth): 799590ae-d36f-4e64-b940-aea0fb85cad8
 | `/srv/ops/secrets/infisical.runtime.raw` | Todas env vars do container | 600 |
 | `/srv/ops/secrets/infisical.compose.env` | Backup .env da stack | 600 |
 | `/srv/ops/secrets/infisical-audit-*.log` | Auditoria completa | 600 |
-| `/srv/ops/scripts/infisical-openclaw.sh` | Wrapper Python para Docker Compose | 700 |
 | `/srv/ops/scripts/infisical-compose-run.sh` | Wrapper genérico | 700 |
 | `/srv/ops/stacks/infisical/docker-compose.yml` | Stack Compose | — |
 | `/srv/ops/secrets/infisical-one-shot-report-*.md` | Relatório da configuração | 600 |
@@ -271,8 +270,6 @@ docker stats infisical infisical-db infisical-redis --no-stream
 | POSTGRES_PASSWORD | coolify-db-password-2026 | Coolify-DB (não "400621ead...") |
 | APP_KEY | base64:jRrMu3906d/... | Coolify |
 | ROOT_USER_PASSWORD | [COOLIFY_ROOT_PASSWORD] | Coolify root |
-| AUTH_PASSWORD | EwoP7rwDQtprWUWq49Aqr2SzpLNgBsMR | OpenClaw auth |
-| HERMES_AGENT_GATEWAY_TOKEN | ojjpAPOp8Yg3a88ApeLagIAAetXOPa1We26kg1eIW1ry6MnZPR | OpenClaw gateway |
 | GF_SECURITY_ADMIN_PASSWORD | [GRAFANA_ADMIN_PASSWORD] | Grafana admin |
 
 ---
@@ -293,8 +290,7 @@ docker stats infisical infisical-db infisical-redis --no-stream
 | `DB_PASSWORD` | coolify/db_password | `coolify-db-password-2026` | coolify-db |
 | `REDIS_PASSWORD` | coolify/redis_password | `coolify-redis-password-2026` | coolify-redis |
 | `ROOT_USER_PASSWORD` | coolify/root_password | `[COOLIFY_ROOT_PASSWORD]` | Coolify admin |
-| `JWT_AUTH_SECRET` | openclaw/jwt_auth | (Infisical) | OpenClaw |
-| `HERMES_AGENT_GATEWAY_TOKEN` | openclaw/gateway_token | (Infisical) | OpenClaw |
+
 | `GF_SECURITY_ADMIN_PASSWORD` | grafana/admin_password | (Infisical) | Grafana |
 
 ---

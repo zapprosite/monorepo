@@ -1,9 +1,0 @@
-{
-  "mcpServers": {
-    "openwebui": {
-      "type": "http",
-      "url": "http://localhost:8090/mcp",
-      "description": "OpenWebUI API - models, chat, users, audio"
-    }
-  }
-}

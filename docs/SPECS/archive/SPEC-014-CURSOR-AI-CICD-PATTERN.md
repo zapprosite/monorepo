@@ -213,7 +213,7 @@ Leader Agent (default: true)
 └── Identity patching without context loss
 ```
 
-**Config template from SPEC-010:**
+**Config template for leader + sub-agents pattern:**
 ```json5
 {
   agents: {
@@ -221,13 +221,13 @@ Leader Agent (default: true)
       {
         id: "leader",
         default: true,
-        workspace: "~/.openclaw/workspace-leader",
+        workspace: "~/.claude/workspace-leader",
         subagents: { allowAgents: ["*"] },
         tools: { profile: "coding" }
       },
       {
         id: "ops",
-        workspace: "~/.openclaw/workspace-ops",
+        workspace: "~/.claude/workspace-ops",
         subagents: { allowAgents: [] },
         tools: { deny: ["browser", "canvas"] }
       }

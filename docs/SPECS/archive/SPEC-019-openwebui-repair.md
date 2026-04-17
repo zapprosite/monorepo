@@ -17,7 +17,7 @@ see_also:
 
 ## Resumo
 
-O OpenWebUI está a funcionar internamente mas o túnel Cloudflare não respondia, e o OAuth Google não estava configurado. Adicionalmente, o utilizador queria adicionar voice STT (wav2vec2) ao OpenWebUI como alternativa ao OpenClaw para Telegram.
+O OpenWebUI está a funcionar internamente mas o túnel Cloudflare não respondia, e o OAuth Google não estava configurado. Adicionalmente, o utilizador queria adicionar voice STT (wav2vec2) ao OpenWebUI.
 
 ---
 
@@ -212,7 +212,6 @@ OpenWebUI → /v1/audio/transcriptions → wav2vec2 (:8201) → whisper-api → 
 
 ## Referências
 
-- `/srv/monorepo/docs/INCIDENTS/INCIDENT-2026-04-09-openclaw-tts-route-fix.md`
 - Container env vars detalhados no investigation output
 
 ---

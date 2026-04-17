@@ -6,11 +6,11 @@
 
 ---
 
-## 🎤 Voice Pipeline — OpenClaw + GPU Local
+## 🎤 Voice Pipeline — GPU Local
 
 **Arquitetura:**
 ```
-OpenClaw (Coolify)
+Voice Pipeline (Coolify)
     ├── Visão: LLaVA → LiteLLM (10.0.1.1:4000) → Ollama GPU
     ├── TTS: Kokoro (10.0.19.6:8880) — voz pm_santa PT-BR
     ├── STT: Deepgram cloud (fallback)
@@ -23,7 +23,7 @@ OpenClaw (Coolify)
 | LiteLLM Proxy | 10.0.1.1:4000 | ✅ gemma4, llava, qwen3.6-plus, minimax-m2.7 |
 | Ollama (GPU) | 10.0.1.1:11434 | ✅ gemma4, llava, nomic-embed |
 | Kokoro TTS | 10.0.19.6:8880 | ✅ pm_santa |
-| Qdrant (Coolify) | 10.0.19.5:6333 | ✅ openclaw-memory |
+| Qdrant (Coolify) | 10.0.19.5:6333 | ✅ memory collection |
 | Groq | API | ✅ via LiteLLM (openrouter) |
 
 **Testes:**
@@ -43,11 +43,6 @@ curl -X POST http://10.0.1.1:4000/v1/chat/completions \
   -H "Authorization: Bearer [LITELLM_API_KEY]" \
   -d '{"model":"llava","messages":[{"role":"user","content":[{"type":"text","text":"Describe"},{"type":"image_url","image_url":{"url":"data:image/png;base64,..."}}]}]}'
 ```
-
-**Config OpenClaw:**
-- Modelo: `liteLLM/minimax-m2.7`
-- TTS: Kokoro (OPENAI_TTS_BASE_URL=http://10.0.19.6:8880/v1)
-- STT: Deepgram cloud (whisper local não alcançável do Coolify)
 
 ---
 
@@ -335,7 +330,7 @@ claude --doctor
 
 /srv/monorepo/               # Código principal
 /srv/data/coolify/           # PaaS (PINADO 4.0.0-beta.470)
-/srv/data/openclaw/          # Bot (porta 4001)
+
 /srv/ops/ai-governance/      # GUARDRAILS, PORTS, NETWORK_MAP
 ```
 

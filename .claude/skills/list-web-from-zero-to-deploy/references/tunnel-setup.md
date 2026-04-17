@@ -35,11 +35,13 @@ http://10.0.X.X:PORT
 **NAO usar localhost**. O tunnel conecta ao IP do container Docker, nao ao host.
 
 Para descobrir o IP do container:
+
 ```bash
 docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' CONTAINER_NAME
 ```
 
 Exemplo para list-web (porta 4080):
+
 ```hcl
 list = {
   url              = "http://10.0.5.3:4080"   # IP do container list-web
@@ -53,6 +55,7 @@ list = {
 O `http_host_header` e necessario quando o servico faz bind a um hostname especifico.
 
 Exemplo — Hermes-Agent precisa de http_host_header quando o servico responde a um hostname diferente:
+
 ```hcl
 hermes = {
   url              = "http://10.0.X.X:8080"   # IP do container Hermes
@@ -60,8 +63,6 @@ hermes = {
   http_host_header = "bot.zappro.site"
 }
 ```
-
-**Nota:** O Hermes-Agent substituiu o OpenClaw. O `http_host_header` e necessario apenas quando o servico faz bind a um hostname especifico diferente do subdomain.
 
 Para apps nginx normais, usar `null`.
 
@@ -103,6 +104,7 @@ curl -sfI https://app-name.zappro.site
 ### 5. Documentacao
 
 Apos terraform apply, atualizar:
+
 - SUBDOMAINS.md — novo subdomain
 - PORTS.md — nova porta
 
@@ -138,24 +140,27 @@ services = {
 }
 ```
 
-| Campo | Tipo | Descricao |
-|-------|------|-----------|
-| url | string | URL do container (IP + porta) |
-| subdomain | string | Nome do subdomain (sem .zappro.site) |
-| http_host_header | string ou null | Host header se necessario |
+| Campo            | Tipo           | Descricao                            |
+| ---------------- | -------------- | ------------------------------------ |
+| url              | string         | URL do container (IP + porta)        |
+| subdomain        | string         | Nome do subdomain (sem .zappro.site) |
+| http_host_header | string ou null | Host header se necessario            |
 
 ## Troubleshooting
 
 ### "Connection refused" mesmo depois de apply
+
 - Verificar IP do container (docker inspect)
 - Verificar que container esta rodando
 - Verificar porta exposta no compose (127.0.0.1:PORT:80)
 
 ### Tunnel nao aparece no Cloudflare Dashboard
+
 - Terraform gerencia o tunnel — nao editar manualmente
 - Runs `terraform refresh` para sync state
 
 ### DNS records nao existem
+
 ```bash
 # Ver Cloudflare API diretamente
 curl -X GET "https://api.cloudflare.com/client/v4/zones/{zone_id}/dns_records" \

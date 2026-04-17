@@ -4,8 +4,6 @@ Planos estratégicos e ideias para o homelab.
 
 ## Planos
 
-- [OpenClaw Agency Hub](./open-claw-agency.md)
-
----
+*(空)
 
 *Este diretório é espelhado em `/obsidian/plans/`*

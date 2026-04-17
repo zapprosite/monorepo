@@ -25,7 +25,7 @@
   - `/srv/backups` — 195M
   - `/srv/models` — **17G** (modelos Ollama/Kokoro)
   - `/srv/data/qdrant` — 128K
-  - `/srv/data/openclaw` — 128K
+  
   - `/srv/data/zappro-router` — 128K
 
 ### NVMe Gen3 1TB — Ubuntu (nvme0n1)
@@ -56,10 +56,8 @@
 | node-exporter | prom/node-exporter:latest | ✅ Up ~1h | 9100 |
 | cadvisor | gcr.io/cadvisor/cadvisor:latest | ✅ Up ~1h (healthy) | 9250→127.0.0.1 |
 | searxng | searxng/searxng:latest | ✅ Up ~1h | 8888→127.0.0.1 |
-| openclaw-qgtzrmi... | coollabsio/openclaw:2026.2.6 | ✅ Up ~1h (healthy) | 8080/tcp |
-| browser-qgtzrmi... | coollabsio/openclaw-browser:latest | ✅ Up ~1h (healthy) | 3000-3001/tcp |
-| browser-y9yb5xw... | coollabsio/openclaw-browser:latest | ✅ Up ~1h (healthy) | 3000-3001/tcp |
-| browser-q7lyxl6... | coollabsio/openclaw-browser:latest | ✅ Up ~1h (healthy) | 3000-3001/tcp |
+
+
 | zappro-kokoro | ghcr.io/remsky/kokoro-fastapi-gpu:v0.2.2 | ✅ Up ~1h | 8012→8880 |
 | connected_repo_db | postgres:15-alpine | ✅ Up ~1h | 5432→127.0.0.1 |
 | **zappro-qdrant** | **qdrant/qdrant:v1.17.1** | **❌ EXITED (143)** | **—** |
@@ -76,11 +74,11 @@
 | coolify-redis |
 | monorepo_postgres_data |
 | q7lyxl6iuqcr5rxmbfjsmsw7_browser-data |
-| q7lyxl6iuqcr5rxmbfjsmsw7_openclaw-data |
+
 | qgtzrmi6771lt8l7x8rqx72f_browser-data |
-| qgtzrmi6771lt8l7x8rqx72f_openclaw-data |
+
 | y9yb5xw7pooqtgiaez9pooz5_browser-data |
-| y9yb5xw7pooqtgiaez9pooz5_openclaw-data |
+
 | zappro-lite_litellm-data |
 
 ## 6. Coolify
@@ -141,7 +139,7 @@
 
 ### Docker Containers Ativos (26 running, 4 stopped)
 - **Core:** coolify, coolify-proxy, coolify-db, coolify-redis, coolify-sentinel, coolify-realtime
-- **AI/ML:** zappro-kokoro, openclaw (x3 browsers), zappro-gitea, searxng, grafana, prometheus, node-exporter, cadvisor
+- **AI/ML:** zappro-kokoro, zappro-gitea, searxng, grafana, prometheus, node-exporter, cadvisor
 - **Infra:** infisical, infisical-db, infisical-redis, zappro-redis, redis-opencode, connected_repo_db
 
 ## 10. Pasta /srv — Estrutura ZFS Datasets
@@ -155,7 +153,7 @@ tank (3.5T livre, 128K usado)
 ├── models/               → /srv/models (17G) — Ollama + Kokoro
 ├── data/
 │   ├── qdrant/           → /srv/data/qdrant
-│   ├── openclaw/         → /srv/data/openclaw
+
 │   └── zappro-router/
 ```
 
@@ -249,7 +247,7 @@ tank (3.5T livre, 128K usado)
 ### ✅ Qdrant — RESTAURADO
 - Container reiniciado com sucesso
 - Exit code 143 = SIGTERM graceful (não crash)
-- API respondendo: `{"collections":[{"name":"openclaw-memory"}]}`
+- API respondendo: `{"collections":[{"name":"memory"}]}`
 - Storage íntegro em /srv/data/qdrant
 
 ### ✅ tts-bridge — DIAGNOSTICADO (sem ação)
@@ -281,59 +279,3 @@ tank (3.5T livre, 128K usado)
 
 ---
 
-## 20. Atualização 2026-04-05 09:40 UTC — Voice Pipeline + OpenClaw GPU
-
-### ✅ Arquitetura Voice Pipeline (Nova)
-
-```
-OpenClaw (Coolify 10.0.19.x)
-    │
-    ├── LLaVA (visão)  ──→ LiteLLM (10.0.1.1:4000) ──→ Ollama (GPU)
-    ├── Whisper (STT)   ──→ Deepgram cloud (fallback)
-    ├── Kokoro (TTS)    ──→ Direct (10.0.19.6:8880) ✅
-    └── Memory (Qdrant) ──→ LiteLLM ──→ Ollama nomic-embed ──→ Qdrant (10.0.19.5:6333)
-```
-
-### ✅ LiteLLM Proxy (api.zappro.site)
-- **IP:** 10.0.1.1:4000
-- **Network:** bridge (docker0) + zappro-lite_default
-- **Modelos disponíveis:**
-  - gemma3-27b (Ollama/GPU)
-  - llava (Ollama/GPU) — visão
-  - embedding-nomic (Ollama/GPU) — embeddings
-  - minimax-m2.7 (OpenRouter)
-  - qwen3.6-plus (OpenRouter)
-- **API Key:** sk-zappro-lm-2026-s8k3m9x2p7r6t5w1v4c8n0d5j7f9g3h6i2k4l6m8n0p1
-
-### ✅ Ollama (Systemd Service)
-- **Status:** Rodando via systemd (não Docker)
-- **IP:** 10.0.1.1:11434 (绑定0.0.0.0)
-- **Modelos:** gemma4:latest, llava:latest, nomic-embed-text:latest
-- **UFW:** Regra adicionada para permitir 10.0.0.0/8 → 11434
-
-### ✅ Kokoro TTS (Coolify)
-- **IP:** 10.0.19.6:8880
-- **Network:** qgtzrmi6771lt8l7x8rqx72f (mesmo do OpenClaw)
-- **Voz:** pm_santa (PT-BR)
-- **OPENAI_TTS_BASE_URL:** http://10.0.19.6:8880/v1 (configurado no .env)
-
-### ✅ Qdrant (Coolify)
-- **IP:** 10.0.19.5:6333
-- **Network:** qgtzrmi6771lt8l7x8rqx72f
-- **API Key:** vmEbyCYrU68bR7lkzCbL05Ey4BPnTZgr
-- **Collections:** openclaw-memory
-
-### ✅ OpenClaw Config
-- **Modelo primário:** liteLLM/minimax-m2.7
-- **TTS:** Kokoro (via OPENAI_TTS_BASE_URL)
-- **STT:** Deepgram cloud (whisper local não alcançável do Coolify)
-
-### ⚠️ Pendências
-1. **Redeploy OpenClaw via Coolify UI** — para persistir OPENAI_TTS_BASE_URL
-2. **Whisper STT** — precisa containerizar no network do Coolify OU manter Deepgram
-
-### 📝 Arquivos Modificados
-- `/home/will/zappro-lite/config.yaml` — IP Ollama 127.0.0.1 → 10.0.1.1
-- `/srv/data/coolify/services/qgtzrmi6771lt8l7x8rqx72f/.env` — OPENAI_TTS_BASE_URL
-- `/etc/systemd/system/ollama.service.d/override.conf` — OLLAMA_HOST=0.0.0.0
-- UFW — regra para Ollama 11434 de 10.0.0.0/8
