@@ -1,6 +1,61 @@
 {
   "tasks": [
     {
+      "id": "REVIEW-CRITICAL-001",
+      "title": "[REVIEW-20260416] Fix hardcoded GW_KEY in smoke-hermes-local-voice.sh",
+      "description": "API key b361f1... exposed in plain text at line 24. Fix: source from .env via set -a && source /srv/monorepo/.env && set +a",
+      "status": "pending",
+      "priority": "critical",
+      "dependencies": [],
+      "specRef": "REVIEW-20260416",
+      "files": ["smoke-tests/smoke-hermes-local-voice.sh:24"],
+      "testRequired": false
+    },
+    {
+      "id": "REVIEW-IMPORTANT-002",
+      "title": "[REVIEW-20260416] PINNED-SERVICES.md: STT port 8201→8204 drift",
+      "description": "Whisper STT still listed at port 8201 (wav2vec2); SPEC-053 changed STT to faster-whisper on port 8204",
+      "status": "pending",
+      "priority": "important",
+      "dependencies": [],
+      "specRef": "REVIEW-20260416",
+      "files": ["docs/GOVERNANCE/PINNED-SERVICES.md:23"],
+      "testRequired": false
+    },
+    {
+      "id": "REVIEW-IMPORTANT-003",
+      "title": "[REVIEW-20260416] IMMUTABLE-SERVICES.md: remove deleted OpenClaw refs",
+      "description": "Lines 82-84, 101-103, 124 reference Hermes Agent Bot, openwebui, Hermes Agent-mcp-wrapper, openwebui-bridge-agent (all deleted by SPEC-051)",
+      "status": "pending",
+      "priority": "important",
+      "dependencies": [],
+      "specRef": "REVIEW-20260416",
+      "files": ["docs/GOVERNANCE/IMMUTABLE-SERVICES.md"],
+      "testRequired": false
+    },
+    {
+      "id": "REVIEW-IMPORTANT-004",
+      "title": "[REVIEW-20260416] list-web/app.js: remove dead chat.zappro.site link",
+      "description": "https://chat.zappro.site is DOWN (connection refused ~9h); OpenWebUI tool still in tools grid at line 93",
+      "status": "pending",
+      "priority": "important",
+      "dependencies": [],
+      "specRef": "REVIEW-20260416",
+      "files": ["apps/list-web/app.js:93"],
+      "testRequired": false
+    },
+    {
+      "id": "REVIEW-SUGGESTION-005",
+      "title": "[REVIEW-20260416] list-web/app.js: showOfflineView() hoisting fragile",
+      "description": "showOfflineView() called at line 588 before definition at line 620. Works via hoisting but fragile",
+      "status": "pending",
+      "priority": "suggestion",
+      "dependencies": [],
+      "specRef": "REVIEW-20260416",
+      "files": ["apps/list-web/app.js:588"],
+      "testRequired": false
+    },
+    {
       "id": "TASK-057-T1",
       "title": "Corrigir .env MinIMax como EMERGENCY_ONLY",
       "description": "Comentar MINIMAX_API_KEY em .env com label EMERGENCY_ONLY, alinhando com SPEC-053",
@@ -157,7 +212,7 @@
     {
       "id": "TASK-031-6",
       "title": "APPROVAL_MATRIX update voice services",
-      "description": "Adicionar TTS Bridge, Hermes Agent, Kokoro à APPROVAL_MATRIX.md",
+      "description": "Adicionar TTS Bridge :8013, Hermes Agent :8642/:8092, Kokoro :8880 à APPROVAL_MATRIX.md — Kokoro exposto como tts-1 em LiteLLM com vozes pm_santa/pf_dora",
       "status": "pending",
       "priority": "medium",
       "dependencies": [],
@@ -178,13 +233,13 @@
     },
     {
       "id": "TASK-031-1",
-      "title": "Kokoro v0.2.2 → v0.2.4 (BLOCKED - requer approval)",
-      "description": "Upgrade Kokoro para v0.2.4 — REQUER APPROVAL do owner + Context7 research",
-      "status": "blocked",
-      "priority": "low",
+      "title": "Kokoro TTS — 2 vozes PT-BR (pm_santa, pf_dora) + LiteLLM tts-1 compat",
+      "description": "Garantir Kokoro com 2 vozes PT-BR canonical (pm_santa=masculino default, pf_dora=feminino fallback) expostas como tts-1 via TTS Bridge :8013. LiteLLM :4000 mapeia tts-1 → TTS Bridge. VOICES PROIBIDAS: af_sarah, af_nicole, am_adam — apenas pm_santa/pf_dora permitidas. Verificar SPEC-009 e openclaw-audio-governance.md antes de qualquer mudança.",
+      "status": "pending",
+      "priority": "high",
       "dependencies": [],
       "specRef": "SPEC-031",
-      "files": ["VERSION-LOCK.md", "docker-compose.yml"],
+      "files": ["docker-compose.yml", "TTS_BRIDGE_URL"],
       "testRequired": false
     },
     {
@@ -531,9 +586,9 @@
     }
   ],
   "meta": {
-    "totalTasks": 47,
+    "totalTasks": 52,
     "completedTasks": 0,
-    "pendingTasks": 46,
+    "pendingTasks": 51,
     "blockedTasks": 1,
     "generatedAt": "2026-04-17T00:00",
     "projectName": "zappro-monorepo",
