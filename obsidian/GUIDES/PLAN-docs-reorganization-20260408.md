@@ -168,7 +168,7 @@ docs/                                    # SOURCE OF TRUTH
 │   ├── infisical.md
 │   ├── manutencao-continua.md
 │   ├── memoria-claude.md
-│   ├── openclaw-*.md
+│   ├── Hermes Agent-*.md
 │   ├── opencode.md
 │   ├── security-hardening.md
 │   ├── whisper-auto-local.md
@@ -465,6 +465,6 @@ git -C /srv/monorepo reset --hard HEAD~1
 |---|----------|---------|
 | Q1 | `docs/OPERATIONS/RUNBOOK.md` fica em GOVERNANCE ou OPERATIONS? | OPERATIONS (é operacional, não governança) |
 | Q2 | `docs/INFRASTRUCTURE/SYSTEM_STATE.md` vai para `/srv/ops/ai-governance/` ou `docs/`? | `docs/INFRASTRUCTURE/` - é específico do repo |
-| Q3 | O que acontece com `docs/guides/openclaw-*.md`? | Ficam em `guides/` - são guides não governança |
+| Q3 | O que acontece com `docs/guides/Hermes Agent-*.md`? | Ficam em `guides/` - são guides não governança |
 | Q4 | `docs/logs/` fica ou vai para `/srv/ops/ai-governance/logs/`? | Fica em `docs/logs/` - logs operacionais deste repo |
 | Q5 | O que fazer com `docs/APPLICATION/`? | Manter como está - docs específicos da aplicação |

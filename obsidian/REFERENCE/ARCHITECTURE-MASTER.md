@@ -57,7 +57,7 @@
 │   ├── scheduled_tasks.json   # 9 cron jobs
 │   ├── hooks/pre-commit       # Secrets audit on commit
 │   ├── workflows/examples/
-│   └── rules/                 # backend.md, search.md, openclaw-audio-governance.md
+│   └── rules/                 # backend.md, search.md, hermes-agent-audio-governance.md
 │
 ├── docs/
 │   ├── specflow/              # SPEC-driven development
@@ -69,12 +69,12 @@
 │   │   ├── SPEC-004-kokoro-tts-kit.md
 │   │   ├── SPEC-005-wav2vec2-stt-kit.md
 │   │   ├── SPEC-006-playwright-e2e.md
-│   │   ├── SPEC-009-openclaw-persona-audio-stack.md [PROTECTED]
+│   │   ├── SPEC-009-Hermes Agent-persona-audio-stack.md [PROTECTED]
 │   │   ├── discovery.md
 │   │   ├── tasks.md
 │   │   └── reviews/
 │   │       ├── REVIEW-GUIDE.md
-│   │       ├── REVIEW-001-openclaw-voice-pipeline.md
+│   │       ├── REVIEW-001-Hermes Agent-voice-pipeline.md
 │   │       └── REVIEW-smoke-tests-20260407.md
 │   │
 │   ├── ADRs/                  # Architecture Decision Records — CONSOLIDATED
@@ -89,7 +89,7 @@
 │   ├── INFRASTRUCTURE/         # Network, ports, subdomains, partitions
 │   ├── OPERATIONS/SKILLS/     # Host-level operational skills (ZFS, Docker, etc.)
 │   ├── MCPs/                  # MCP server documentation
-│   └── guides/                # gitea-coolify, openclaw, security, etc.
+│   └── guides/                # gitea-coolify, Hermes Agent, security, etc.
 │
 └── apps/                      # Application code (backend, frontend, etc.)
 ```
@@ -104,7 +104,7 @@
 | **Commands → Workflows opaque mapping**  | MEDIUM   | `.claude/commands/ship.md` invokes `.agent/workflows/git-ship.md` but no formal registry                                     |
 | **SPEC numbering collision**             | LOW      | Two `SPEC-001-*` files exist                                                                                                 |
 | **OPERATIONS/SKILLS vs .claude/skills**  | LOW      | Host-level skills in `docs/` vs user-level skills in `.claude/` — unclear boundary                                           |
-| **Protected SPECs not machine-enforced** | MEDIUM   | `SPEC-009-openclaw-persona-audio-stack.md` marked PROTECTED but no hook prevents editing                                     |
+| **Protected SPECs not machine-enforced** | MEDIUM   | `SPEC-009-Hermes Agent-persona-audio-stack.md` marked PROTECTED but no hook prevents editing                                     |
 
 ### 1.3 Interlocking Diagram — CI/CD + Agent Workflows
 
@@ -151,7 +151,7 @@
                         Health check + Smoke test
                                    │
                                    ▼
-                        Telegram alert (OpenClaw)
+                        Telegram alert (Hermes Agent)
 ```
 
 ---
@@ -463,7 +463,7 @@ DRAFT → REVIEW → APPROVED → IMPLEMENTING → DONE / COMPLETED
 
 **SPEC README** (`docs/SPECS/SPEC-README.md`) is the index and entry point.
 
-**SPEC PROTECTED status** (like `SPEC-009-openclaw-persona-audio-stack.md`) is a flag meaning: "Changes require explicit human approval before merge." This is enforced by:
+**SPEC PROTECTED status** (like `SPEC-009-Hermes Agent-persona-audio-stack.md`) is a flag meaning: "Changes require explicit human approval before merge." This is enforced by:
 
 1. Human gates in `/hg` command
 2. PR review requirement
@@ -494,7 +494,7 @@ Consolidated from three historical locations:
 
 | Document | Purpose                                                                           | Examples                                                   |
 | -------- | --------------------------------------------------------------------------------- | ---------------------------------------------------------- |
-| **SPEC** | Feature specification: what to build, user flows, API design, acceptance criteria | Voice pipeline, homelab network refactor, OpenClaw persona |
+| **SPEC** | Feature specification: what to build, user flows, API design, acceptance criteria | Voice pipeline, homelab network refactor, Hermes Agent persona |
 | **ADR**  | Architectural decision: why chose X over Y, trade-offs, consequences              | ORM selection, auth strategy, monorepo structure           |
 
 A feature implementation MAY have both: an ADR for architectural decisions made during implementation, and a SPEC for the feature itself.

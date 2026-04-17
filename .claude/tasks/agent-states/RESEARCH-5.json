@@ -1,0 +1,10 @@
+{
+  "agent": "RESEARCH-5",
+  "spec": "SPEC-ENTERPRISE-REFACTOR-2026-04-17",
+  "status": "completed",
+  "exit_code": 0,
+  "started": "",
+  "finished": "2026-04-17T13:11:16-03:00",
+  "command": "Gitea Actions best practices for Claude Code CLI — workflow dispatch, secrets management, artifact passing, parallel jobs, self-hosted runners",
+  "log": "/srv/monorepo/.claude/.claude/skills/orchestrator/logs/RESEARCH-5.log"
+}

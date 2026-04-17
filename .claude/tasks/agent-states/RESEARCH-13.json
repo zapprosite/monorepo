@@ -1,0 +1,10 @@
+{
+  "agent": "RESEARCH-13",
+  "spec": "SPEC-ENTERPRISE-REFACTOR-2026-04-17",
+  "status": "completed",
+  "exit_code": 0,
+  "started": "",
+  "finished": "2026-04-17T13:11:16-03:00",
+  "command": "Skill lifecycle + versioning — how to create, update, deprecate skills; skill metadata, skill that generates skills",
+  "log": "/srv/monorepo/.claude/.claude/skills/orchestrator/logs/RESEARCH-13.log"
+}

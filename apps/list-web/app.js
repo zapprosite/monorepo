@@ -89,13 +89,6 @@
 
   var TOOLS = [
     {
-      name: 'OpenWebUI',
-      url: 'https://chat.zappro.site',
-      description: 'Chat AI interface',
-      icon: '💬',
-      category: 'ai',
-    },
-    {
       name: 'Grafana',
       url: 'https://monitor.zappro.site',
       description: 'Monitoring dashboards',

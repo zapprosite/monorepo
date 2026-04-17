@@ -1,7 +1,0 @@
-# Environment files (security critical)
-.env
-.env.local
-.env.production
-.env.development
-.env.test
-.env.*.local

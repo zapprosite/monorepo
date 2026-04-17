@@ -196,9 +196,9 @@ obsidian/           # Read-only mirror of docs/
 | SPEC     | Title                        |
 | -------- | ---------------------------- |
 | SPEC-002 | Homelab Network Refactor     |
-| SPEC-007 | OpenClaw OAuth Profiles      |
-| SPEC-009 | OpenClaw Persona Audio Stack |
-| SPEC-010 | OpenClaw Agents Kit          |
+| SPEC-007 | Hermes Agent OAuth Profiles      |
+| SPEC-009 | Hermes Agent Persona Audio Stack |
+| SPEC-010 | Hermes Agent Agents Kit          |
 | SPEC-013 | Claude Code CLI Integration  |
 | SPEC-014 | Cursor AI CI/CD Pattern      |
 | SPEC-016 | Voice Pipeline Cursor Loop   |

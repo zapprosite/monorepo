@@ -22,6 +22,9 @@ const OLLAMA_URL = process.env['OLLAMA_URL'] ?? 'http://localhost:11434';
 const GW_KEY = process.env['AI_GATEWAY_FACADE_KEY'] ?? '';
 const VISION_MODEL = process.env['HERMES_VISION_MODEL'] ?? 'qwen2.5vl:7b';
 const VOICE_DEFAULT = process.env['HERMES_VOICE'] ?? 'pm_santa';
+const MAX_TTS_SIZE = parseInt(process.env['HERMES_MAX_TTS_SIZE_BYTES'] ?? '52428800', 10); // 50MB
+// HC-31: Max bytes to download from Telegram (streaming limit before full load)
+const MAX_DOWNLOAD_SIZE = parseInt(process.env['HERMES_MAX_DOWNLOAD_BYTES'] ?? '20971520', 10); // 20MB
 
 // Admin whitelist for /health (CSV user IDs)
 const ADMIN_USER_IDS = (process.env['HERMES_ADMIN_USER_IDS'] ?? '').split(',').filter(Boolean);
@@ -134,10 +137,45 @@ async function downloadTelegramFile(fileId: string, token: string): Promise<stri
 
   const response = await fetch(url, { signal: AbortSignal.timeout(30_000) });
   if (!response.ok) throw new Error(`Failed to download file: ${response.status}`);
+
+  // HC-31: Stream download with size limit — prevent memory exhaustion from large files
+  const contentLength = response.headers.get('content-length');
+  if (contentLength !== null) {
+    const size = parseInt(contentLength, 10);
+    if (size > MAX_DOWNLOAD_SIZE) {
+      throw new Error(`File too large: ${size} bytes (max ${MAX_DOWNLOAD_SIZE})`);
+    }
+  }
+
   const ext = filePath.file_path?.split('.').pop() ?? 'ogg';
   const tmpPath = path.join(os.tmpdir(), `hermes-${randomBytes(6).toString('hex')}.${ext}`);
-  const buffer = Buffer.from(await response.arrayBuffer());
-  fs.writeFileSync(tmpPath, buffer);
+
+  // Stream to disk instead of buffering entire file in memory
+  const writer = fs.createWriteStream(tmpPath);
+  let bytesWritten = 0;
+
+  if (!response.body) throw new Error('Response body is null');
+
+  const reader = response.body.getReader();
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      if (bytesWritten + value.byteLength > MAX_DOWNLOAD_SIZE) {
+        writer.close();
+        fs.unlinkSync(tmpPath);
+        throw new Error(`File exceeded ${MAX_DOWNLOAD_SIZE} bytes during streaming download`);
+      }
+      writer.write(value);
+      bytesWritten += value.byteLength;
+    }
+    writer.end();
+  } catch (err) {
+    reader.cancel().catch(() => {});
+    if (fs.existsSync(tmpPath)) fs.unlinkSync(tmpPath);
+    throw err;
+  }
+
   return tmpPath;
 }
 
@@ -149,7 +187,7 @@ async function transcribeAudio(filePath: string): Promise<string> {
 
   const response = await fetch(`${STT_URL}/v1/audio/transcriptions`, {
     method: 'POST',
-    headers: { 'Authorization': `Bearer ${GW_KEY}` },
+    headers: { Authorization: `Bearer ${GW_KEY}` },
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     body: formData as any,
     signal: AbortSignal.timeout(60_000),
@@ -160,16 +198,12 @@ async function transcribeAudio(filePath: string): Promise<string> {
     throw new Error(`STT failed ${response.status}: ${err}`);
   }
 
-  const data = await response.json() as { text?: string };
+  const data = (await response.json()) as { text?: string };
   return data.text ?? '';
 }
 
 /** Vision: analyze image using qwen2.5vl via Ollama directly (multimodal content) */
-async function visionOllama(
-  model: string,
-  text: string,
-  base64Image: string,
-): Promise<string> {
+async function visionOllama(model: string, text: string, base64Image: string): Promise<string> {
   const response = await fetch(`${OLLAMA_URL}/api/chat`, {
     method: 'POST',
     signal: AbortSignal.timeout(90_000),
@@ -193,15 +227,12 @@ async function visionOllama(
     throw new Error(`Ollama vision failed ${response.status}: ${await response.text()}`);
   }
 
-  const data = await response.json() as { message?: { content?: string } };
+  const data = (await response.json()) as { message?: { content?: string } };
   return data.message?.content ?? '';
 }
 
 /** Vision: analyze image using qwen2.5vl via Ollama directly */
-async function analyzeImage(
-  filePath: string,
-  userMessage: string,
-): Promise<string> {
+async function analyzeImage(filePath: string, userMessage: string): Promise<string> {
   const buffer = fs.readFileSync(filePath);
   const base64Image = buffer.toString('base64');
 
@@ -216,7 +247,7 @@ async function synthesizeSpeech(text: string, voice?: string): Promise<Buffer> {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${GW_KEY}`,
+      Authorization: `Bearer ${GW_KEY}`,
     },
     body: JSON.stringify({
       model: 'tts-1',
@@ -231,23 +262,28 @@ async function synthesizeSpeech(text: string, voice?: string): Promise<Buffer> {
     throw new Error(`TTS failed ${response.status}: ${err}`);
   }
 
-  return Buffer.from(await response.arrayBuffer());
+  // HC-31: TTS response size limit — prevent memory exhaustion
+  const arrayBuffer = await response.arrayBuffer();
+  if (arrayBuffer.byteLength > MAX_TTS_SIZE) {
+    throw new Error(`TTS response too large: ${arrayBuffer.byteLength} bytes (max 50MB)`);
+  }
+  return Buffer.from(arrayBuffer);
 }
 
 // ── Command: /start ─────────────────────────────────────────────────────────
 bot.command('start', async (ctx) => {
   await ctx.reply(
     `🎙️ *Hermes Agency Suite*\n\n` +
-    `Olá! Sou o CEO MIX da Hermes Agency.\n\n` +
-    `Posso ajudá-lo com:\n` +
-    `• 📋 Criar campanhas de marketing\n` +
-    `• 🎬 Editar vídeos\n` +
-    `• 🎨 Design e imagens\n` +
-    `• 📊 Analytics e relatórios\n` +
-    `• 📅 Gerenciar redes sociais\n` +
-    `• ✅ Garantir consistência de marca\n\n` +
-    `Envie uma mensagem, áudio, foto ou vídeo — vou analisar e agir.\n` +
-    `Use /help para ver todos os comandos.`,
+      `Olá! Sou o CEO MIX da Hermes Agency.\n\n` +
+      `Posso ajudá-lo com:\n` +
+      `• 📋 Criar campanhas de marketing\n` +
+      `• 🎬 Editar vídeos\n` +
+      `• 🎨 Design e imagens\n` +
+      `• 📊 Analytics e relatórios\n` +
+      `• 📅 Gerenciar redes sociais\n` +
+      `• ✅ Garantir consistência de marca\n\n` +
+      `Envie uma mensagem, áudio, foto ou vídeo — vou analisar e agir.\n` +
+      `Use /help para ver todos os comandos.`,
     { parse_mode: 'Markdown' },
   );
 });
@@ -256,15 +292,15 @@ bot.command('start', async (ctx) => {
 bot.command('help', async (ctx) => {
   await ctx.reply(
     `*Comandos disponíveis:*\n\n` +
-    `/start — Iniciar conversa\n` +
-    `/help — Este menu\n` +
-    `/voice — Ativar resposta por voz\n` +
-    `/text — Desativar resposta por voz\n` +
-    `/campaign — Criar nova campanha\n` +
-    `/tasks — Ver tarefas ativas\n` +
-    `/status — Status da agência\n` +
-    `/analytics — Relatório de métricas\n\n` +
-    `Ou envie áudio, foto ou texto — entendo tudo!`,
+      `/start — Iniciar conversa\n` +
+      `/help — Este menu\n` +
+      `/voice — Ativar resposta por voz\n` +
+      `/text — Desativar resposta por voz\n` +
+      `/campaign — Criar nova campanha\n` +
+      `/tasks — Ver tarefas ativas\n` +
+      `/status — Status da agência\n` +
+      `/analytics — Relatório de métricas\n\n` +
+      `Ou envie áudio, foto ou texto — entendo tudo!`,
     { parse_mode: 'Markdown' },
   );
 });
@@ -364,9 +400,10 @@ bot.on('photo', async (ctx) => {
     return;
   }
 
-  const userMessage = 'caption' in ctx.message && ctx.message.caption
-    ? ctx.message.caption
-    : 'O que vê nesta imagem?';
+  const userMessage =
+    'caption' in ctx.message && ctx.message.caption
+      ? ctx.message.caption
+      : 'O que vê nesta imagem?';
 
   const photos = ctx.message.photo;
   if (!photos || photos.length === 0) {

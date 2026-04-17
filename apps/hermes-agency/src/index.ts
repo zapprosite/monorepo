@@ -25,7 +25,9 @@ fetch(`${QDRANT_URL}/collections`, { signal: AbortSignal.timeout(3000) })
     if (!r.ok) console.warn(`[HermesAgency] WARN: Qdrant at ${QDRANT_URL} returned ${r.status}`);
     else console.log('[HermesAgency] Qdrant: reachable');
   })
-  .catch(() => console.warn(`[HermesAgency] WARN: Qdrant not reachable at ${QDRANT_URL} — degraded mode`));
+  .catch(() =>
+    console.warn(`[HermesAgency] WARN: Qdrant not reachable at ${QDRANT_URL} — degraded mode`),
+  );
 
 const OLLAMA_URL = process.env['OLLAMA_URL']!;
 fetch(`${OLLAMA_URL}/api/tags`, { signal: AbortSignal.timeout(3000) })
@@ -33,7 +35,9 @@ fetch(`${OLLAMA_URL}/api/tags`, { signal: AbortSignal.timeout(3000) })
     if (!r.ok) console.warn(`[HermesAgency] WARN: Ollama at ${OLLAMA_URL} returned ${r.status}`);
     else console.log('[HermesAgency] Ollama: reachable');
   })
-  .catch(() => console.warn(`[HermesAgency] WARN: Ollama not reachable at ${OLLAMA_URL} — degraded mode`));
+  .catch(() =>
+    console.warn(`[HermesAgency] WARN: Ollama not reachable at ${OLLAMA_URL} — degraded mode`),
+  );
 
 // Initialize Qdrant collections
 initAllCollections().catch((err) => {
@@ -57,6 +61,9 @@ const healthServer = http.createServer((req, res) => {
         timestamp: new Date().toISOString(),
       }),
     );
+  } else if (req.url === '/ready') {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ ready: true, timestamp: new Date().toISOString() }));
   } else {
     res.writeHead(404);
     res.end();

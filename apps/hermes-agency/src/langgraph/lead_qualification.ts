@@ -10,6 +10,7 @@ export type LeadQualificationState = {
   qualified: boolean;
   action: 'onboarding' | 'nurture' | 'reject';
   taskCreated: boolean;
+  error?: string;
 };
 
 export async function executeLeadQualification(
@@ -24,25 +25,30 @@ export async function executeLeadQualification(
     taskCreated: false,
   };
 
-  // Score the prospect
-  state.score = await scoreProspect(prospectMessage);
+  try {
+    // Score the prospect
+    state.score = await scoreProspect(prospectMessage);
 
-  // Classify action based on score
-  if (state.score >= 0.8) {
-    state.action = 'onboarding';
-    state.qualified = true;
-  } else if (state.score >= 0.4) {
-    state.action = 'nurture';
-    state.qualified = false;
-  } else {
-    state.action = 'reject';
-    state.qualified = false;
+    // Classify action based on score
+    if (state.score >= 0.8) {
+      state.action = 'onboarding';
+      state.qualified = true;
+    } else if (state.score >= 0.4) {
+      state.action = 'nurture';
+      state.qualified = false;
+    } else {
+      state.action = 'reject';
+      state.qualified = false;
+    }
+
+    // Create appropriate task
+    state.taskCreated = await createTask(state);
+
+    return state;
+  } catch (err) {
+    console.error('[LangGraph] executeLeadQualification failed:', err);
+    return { ...state, error: err instanceof Error ? err.message : String(err) };
   }
-
-  // Create appropriate task
-  state.taskCreated = await createTask(state);
-
-  return state;
 }
 
 async function scoreProspect(message: string): Promise<number> {
@@ -58,30 +64,40 @@ Avalie em 0-1:
 
 Retorne apenas um número entre 0 e 1.`;
 
-  const result = await llmComplete({
-    messages: [{ role: 'user', content: prompt }],
-    systemPrompt: 'Você é um especialista em qualificação de leads.',
-    maxTokens: 10,
-    temperature: 0,
-  });
+  try {
+    const result = await llmComplete({
+      messages: [{ role: 'user', content: prompt }],
+      systemPrompt: 'Você é um especialista em qualificação de leads.',
+      maxTokens: 10,
+      temperature: 0,
+    });
 
-  const score = parseFloat(result.content);
-  return Math.max(0, Math.min(1, isNaN(score) ? 0.5 : score));
+    const score = parseFloat(result.content);
+    return Math.max(0, Math.min(1, isNaN(score) ? 0.5 : score));
+  } catch (err) {
+    console.error('[LangGraph] scoreProspect failed:', err);
+    return 0;
+  }
 }
 
 async function createTask(state: LeadQualificationState): Promise<boolean> {
-  switch (state.action) {
-    case 'onboarding':
-      console.log(`[LeadQualification] Creating onboarding task for ${state.prospectId}`);
-      // TODO: Create task in Qdrant agency_tasks for CS agent
-      break;
-    case 'nurture':
-      console.log(`[LeadQualification] Nurture sequence for ${state.prospectId}`);
-      // TODO: Add to nurture sequence
-      break;
-    case 'reject':
-      console.log(`[LeadQualification] Rejected ${state.prospectId}`);
-      break;
+  try {
+    switch (state.action) {
+      case 'onboarding':
+        console.log(`[LeadQualification] Creating onboarding task for ${state.prospectId}`);
+        // TODO: Create task in Qdrant agency_tasks for CS agent
+        break;
+      case 'nurture':
+        console.log(`[LeadQualification] Nurture sequence for ${state.prospectId}`);
+        // TODO: Add to nurture sequence
+        break;
+      case 'reject':
+        console.log(`[LeadQualification] Rejected ${state.prospectId}`);
+        break;
+    }
+    return true;
+  } catch (err) {
+    console.error('[LangGraph] createTask failed:', err);
+    return false;
   }
-  return true;
 }

@@ -1,69 +1,6 @@
 version: '3.8'
 
 services:
-  postgres:
-    image: postgres:15-alpine
-    container_name: connected_repo_db
-    restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          memory: 512MiB
-    environment:
-      POSTGRES_DB: connected_repo_db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-password}"
-    ports:
-      - "127.0.0.1:5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-
-node-exporter:
-    image: prom/node-exporter:latest
-    container_name: node-exporter
-    restart: unless-stopped
-    command:
-      --path.procfs=/host/proc
-      --path.sysfs=/host/sys
-      --path.rootfs=/host
-      --collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)
-    volumes:
-      - /proc:/host/proc:ro
-      - /sys:/host/sys:ro
-      - /:/host:ro
-    ports:
-      - "127.0.0.1:9100:9100"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9100/"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
-promtail:
-    image: grafana/promtail:latest
-    container_name: promtail
-    restart: unless-stopped
-    volumes:
-      - /srv/data/monitoring/promtail/config.yml:/etc/promtail/config.yml:ro
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - /srv/data/monitoring/promtail/positions:/tmp:rw
-    networks:
-      - monitoring
-    depends_on:
-      - loki
-
-  loki:
-    image: grafana/loki:3.2.1
-    container_name: loki
-    restart: unless-stopped
-    ports:
-      - "127.0.0.1:3101:3100"
-    volumes:
-      - /srv/data/monitoring/loki:/loki:rw
-      - /srv/docker-data/loki/local-config.yaml:/etc/loki/local-config.yaml:ro
-    networks:
-      - monitoring
-
   grafana:
     image: grafana/grafana:10.2.0
     container_name: grafana
@@ -107,6 +44,3 @@ networks:
   monitoring:
     name: monitoring_monitoring
     driver: bridge
-
-volumes:
-  postgres_data:

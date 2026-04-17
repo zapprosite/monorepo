@@ -20,7 +20,7 @@ date: 2026-04-12
 | --------------------- | ------------------------ | -------------------------- | ------------------------------------------ | ------------------ | ---------- |
 | **TTS Bridge**        | `zappro-tts-bridge`      | 8013                       | `python:3.11-slim + tts-bridge.py`         | Principal Engineer | 2026-04-08 |
 | **Kokoro TTS**        | `zappro-kokoro`          | 8012                       | `ghcr.io/remsky/kokoro-fastapi-gpu:v0.2.2` | Principal Engineer | 2026-03-20 |
-| **Whisper STT**       | `zappro-whisper-stt`     | 8201                       | `jlondonobo/whisper-medium-pt`             | Principal Engineer | 2026-04-15 |
+| **Whisper STT**       | `zappro-whisper-stt`     | 8204                       | `faster-whisper-medium-pt`                 | Principal Engineer | 2026-04-15 |
 | **Hermes Agent**      | `hermes-agent` (systemd) | 8642 (gateway), 8092 (MCP) | `0.9.0+`                                   | Principal Engineer | 2026-04-14 |
 | **Ollama**            | `ollama` (systemd)       | 11434                      | `qwen2.5vl:7b` (RTX 4090)                  | Principal Engineer | 2026-04-14 |
 | **LiteLLM Proxy**     | `zappro-litellm`         | 4000                       | `latest` (config.yaml pinado)              | Principal Engineer | 2026-03-01 |
@@ -139,26 +139,26 @@ curl -sf -X POST http://localhost:8012/v1/audio/speech \
 
 ```yaml
 container_name: 'zappro-whisper-stt'
-port: 8201
-model: 'jlondonobo/whisper-medium-pt'
+port: 8204
+model: 'faster-whisper-medium-pt'
 network: 'zappro-lite'
-endpoint: 'http://localhost:8201/v1/audio/transcriptions'
+endpoint: 'http://localhost:8204/v1/audio/transcriptions'
 owner: 'Principal Engineer'
 pinned_date: '2026-04-15'
 status: 'PINNED'
-why_pinned: 'Watchdog do Hermes depende da porta 8201. HF model cache é ~1.5GB.'
+why_pinned: 'Watchdog do Hermes depende da porta 8204. HF model cache é ~1.5GB.'
 ```
 
 **Verification CMD:**
 
 ```bash
-curl -sf http://localhost:8201/health
+curl -sf http://localhost:8204/health
 ```
 
 **Smoke Test:**
 
 ```bash
-curl -sf -X POST http://localhost:8201/v1/audio/transcriptions \
+curl -sf -X POST http://localhost:8204/v1/audio/transcriptions \
   -F "file=@/tmp/test_audio.wav"
 ```
 
@@ -166,7 +166,7 @@ curl -sf -X POST http://localhost:8201/v1/audio/transcriptions \
 
 - Hermes watchdog não consegue fazer STT local
 - Volta para Deepgram cloud (custo $)
-- Porta 8201 é hardcoded no watchdog
+- Porta 8204 é hardcoded no watchdog
 
 ---
 
@@ -183,7 +183,7 @@ status: 'PINNED'
 why_pinned: 'Proxy GPU para TTS, STT, Vision. NÃO é provider primário. Config.yaml foi validado.'
 models_pinned:
   - 'kokoro/local' # → Kokoro TTS
-  - 'whisper-stt' # → whisper :8201
+  - 'whisper-stt' # → whisper :8204
   - 'gemma4' # GPU
   - 'qwen2.5vl:7b' # Vision
   - 'embedding-nomic' # Embeddings
@@ -403,7 +403,7 @@ bash /srv/monorepo/tasks/smoke-tests/pipeline-Hermes Agent-voice.sh
 docker ps --format "{{.Names}}\t{{.Status}}" | grep -E "kokoro|whisper|Hermes Agent|litellm|coolify-proxy"
 
 # Verificação de portas
-ss -tlnp | grep -E "8012|8201|4000|8080"
+ss -tlnp | grep -E "8012|8204|4000|8080"
 ```
 
 ### Smoke Test Esperado (pipeline-Hermes Agent-voice.sh)
@@ -420,7 +420,7 @@ Hermes Agent Voice Pipeline Smoke Test
 [PASS] Hermes Agent via bot.zappro.site
 
 === 2. STT (Speech-to-Text) ===
-[PASS] Whisper STT :8201
+[PASS] Whisper STT :8204
 [PASS] Whisper transcription
 
 === 3. TTS (Text-to-Speech) ===

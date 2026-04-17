@@ -1,0 +1,10 @@
+{
+  "agent": "RESEARCH-7",
+  "spec": "SPEC-ENTERPRISE-REFACTOR-2026-04-17",
+  "status": "failed",
+  "exit_code": 1,
+  "started": "",
+  "finished": "2026-04-17T13:05:34-03:00",
+  "command": "Spec-driven development pipeline patterns — SPEC → pipeline.json → agents → PR workflow, task coordination",
+  "log": "/srv/monorepo/.claude/.claude/skills/orchestrator/logs/RESEARCH-7.log"
+}
