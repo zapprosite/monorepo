@@ -21,20 +21,30 @@ To contribute effectively, install and configure the following on your local mac
 
 ---
 
+## Required Environments & Services
+
+The monorepo relies on several interconnected services. Ensure these are running locally:
+*   **API Gateway (`apps/ai-gateway`)**: Listens on Port 4001. Handles AI model routing and PT-BR filtering.
+*   **Main API (`apps/api`)**: Listens on Port 4000. tRPC server and database entry point.
+*   **Frontend (`apps/web`)**: Listens on Port 5173. React/Vite application.
+*   **Orchid ORM**: Used for database interactions. Ensure your database connection strings in `.env` are accurate.
+
+---
+
 ## Recommended Automation
 
 We automate "plumbing" tasks so you can focus on feature logic.
 
 ### 1. Code Generation & Scaffolding
 The repository includes a scaffolding system to reduce boilerplate across the stack.
-*   **Full-Stack Scaffolding:** Use `.agent/scripts/scaffold-module.sh` (or the `/scaffold` command in Claude Code) to generate:
+*   **Full-Stack Scaffolding:** Use `.agent/scripts/scaffold-module.sh` to generate:
     *   **Backend:** Orchid ORM table → Zod Schema → tRPC Router.
     *   **Frontend:** API Client → React Page → UI Components.
 
 ### 2. Form & Validation Workflows
 We use a centralized Zod-to-UI pipeline:
 *   **Schema First:** Define all models and inputs in `packages/zod-schemas` (e.g., `UserCreateInput`).
-*   **Auto-Sync:** Use `yarn check-types`. Changes in schemas automatically flag errors in `apps/web` forms that utilize the `UseRhfForm` hook and UI components like `RhfTextField`.
+*   **Auto-Sync:** Use `yarn check-types`. Changes in schemas automatically flag errors in `apps/web` forms that utilize the `UseRhfForm` hook (found in `packages/ui/src/rhf-form/useRhfForm.tsx`) and UI components like `RhfTextField`.
 
 ### 3. Database Lifecycle
 Database management is handled via `apps/api/src/db/db_script.ts`. Use these shortcuts:
@@ -53,7 +63,7 @@ We follow **Conventional Commits**.
 ## IDE / Editor Setup
 
 ### VS Code Configuration
-The workspace settings in `.vscode/settings.json` include:
+The workspace settings include:
 *   **Format on Save:** Enabled via the **Biome** extension.
 *   **TypeScript:** Use the "Workspace Version" (TypeScript 5.x+).
 *   **Tailwind CSS:** Essential for styling components in `packages/ui`.
@@ -80,11 +90,16 @@ alias ydk="yarn db --"
 ```
 
 ### Local Development Workflow
-1.  **Parallel Execution:** `yarn dev` starts the API (Port 4000) and Web (Port 5173) simultaneously. 
+1.  **Parallel Execution:** `yarn dev` starts the API and Web simultaneously using **Turbo**.
     *   To target one: `yarn turbo run dev --filter=api`
 2.  **Environment Sync:** If you update `packages/env`, run `yarn env:sync`. This ensures all `.env.example` files across the monorepo are updated.
 3.  **Port Safety:** **Never use Port 3000** locally; it is strictly reserved for the CapRover management dashboard. Refer to `/srv/ops/ai-governance/PORTS.md` for the full registry.
 4.  **Resetting Environment:** If you encounter persistent build cache issues, run `yarn clean`. This recursively deletes `node_modules`, `dist`, and `.turbo` folders throughout the workspace.
+
+### Diagnostics
+If the AI services (Hermes/AGI) are failing:
+*   Check Redis connectivity: `yarn tsx apps/hermes-agency/src/telegram/redis.ts` (test script).
+*   Test STT/TTS Bridge: Use the scripts in `scripts/whisper-server-v2.py`.
 
 ---
 
