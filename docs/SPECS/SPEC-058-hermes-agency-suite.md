@@ -199,29 +199,23 @@ Construir uma **marketing agency 100% operacional em português** com 11 agentes
 
 ---
 
-## LiteLLM Fallback Chain
+## LLM Chain
 
 ```
 Request
   │
   ▼
-[1] gemma4-12b-it (Ollama :11434) — ~0ms, free, PT-BR capable
+[1] minimax-m2.7 (PRIMARY) — premium, plano 50$, maior capacidade token ✅
   │  FAIL → next
   ▼
-[2] gemini-2.0-flash (cloud) — ~100ms, $0.05/1K tokens
+[2] qwen2.5vl:7b (Ollama :11434) — fallback local, multimodal PT-BR ✅
   │  FAIL → next
   ▼
-[3] minimax-m2.7 (emergency) — commented in .env, activate only if both down
+[3] llama3-portuguese-tomcat-8b-instruct-q8 (Ollama :11434) — fallback local, PT-BR Q8_0 ✅
   │
   ▼
 ERROR / DEGRADED MODE
 ```
-
-**Middleware:** `litellm_router` with:
-
-- `retry_after` 3x per model
-- `fallback_params` chain as above
-- Redis cache: 35-50% hit rate expected → ~$4-5/mo cloud instead of $8-10
 
 ---
 
@@ -283,7 +277,7 @@ curl -sf http://localhost:11434/api/tags         # Ollama
 curl -X POST http://localhost:4000/v1/chat/completions \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $LITELLM_MASTER_KEY" \
-  -d '{"model": "gemma4-12b-it", "messages": [{"role": "user", "content": "test"}]}'
+  -d '{"model": "qwen2.5vl:7b", "messages": [{"role": "user", "content": "test"}]}'
 
 # Run agency smoke test
 bash smoke-tests/smoke-agency-suite.sh
@@ -404,7 +398,7 @@ journalctl -u hermes-agent -f
 | ---- | ------------------------------------------------------- | ------------------------------------------------------ |
 | SC-1 | 11 Hermes skills respond to `/help` command             | `curl http://localhost:8642/skills` returns all 11     |
 | SC-2 | Qdrant 9 collections queryable                          | `curl http://localhost:6333/collections` returns all 9 |
-| SC-3 | LiteLLM chain: gemma4 → gemini → minimax fallback works | Smoke test hits all 3 tiers                            |
+| SC-3 | LLM chain: minimax PRIMARY → qwen2.5vl → llama3-ptbr fallback works | Smoke test hits all 3 tiers                            |
 | SC-4 | Telegram bot responds to `/start` with onboarding       | Manual test with test client                           |
 | SC-5 | WF-1 (Content Pipeline) executes end-to-end             | Smoke test delivers test campaign                      |
 | SC-6 | Human gate triggers at confidence < 0.7                 | Test with ambiguous brief                              |
@@ -419,7 +413,7 @@ journalctl -u hermes-agent -f
 | ---- | --------------------------------------------------- | ------------------------------------ |
 | AC-1 | Each of 11 skills has at least 3 tools registered   | Hermes skill list API                |
 | AC-2 | Qdrant hybrid search returns relevant PT-BR results | `bge-m3` test query                  |
-| AC-3 | LiteLLM fallback triggers on gemma4 failure         | Kill gemma4, observe gemini takeover |
+| AC-3 | LLM fallback triggers on minimax failure         | Kill minimax, observe qwen2.5vl takeover |
 | AC-4 | Telegram bot handles 10 concurrent chats            | Load test with 10 clients            |
 | AC-5 | LangGraph WF-1 completes in < 60s for simple brief  | Timer in smoke test                  |
 | AC-6 | Brand Guardian score < 0.8 triggers human gate      | Send off-brand content               |

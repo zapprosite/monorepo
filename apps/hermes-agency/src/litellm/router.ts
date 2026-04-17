@@ -1,14 +1,21 @@
 // Anti-hardcoded: all config via process.env
-// LiteLLM-compatible Fallback Chain Router
-// Chain: qwen2.5vl:7b (Ollama direct) → llama3-ptbr (Ollama direct) → gemini-2.0-flash (cloud) → minimax-m2.7 (emergency only)
+// LLM Chain Router
+// PRIMARY: minimax-m2.7 (premium, plano 50$)
+// FALLBACK: qwen2.5vl (local, multimodal) → llama3-ptbr (local, PT-BR)
 
 const OLLAMA_URL = process.env['OLLAMA_URL'] ?? 'http://localhost:11434';
-const GEMINI_URL = process.env['GEMINI_URL'] ?? 'https://api.gemini.com/v1beta/chat/completions';
-const LLM_KEY = process.env['LITELLM_MASTER_KEY'] ?? '';
-const EMERGENCY_LLM_KEY = process.env['MINIMAX_API_KEY'] ?? '';
-const GEMINI_API_KEY = process.env['GEMINI_API_KEY'] ?? '';
+const MINIMAX_API_KEY = process.env['MINIMAX_API_KEY'] ?? '';
 
-// Fallback chain — qwen2.5vl local → llama3-ptbr local → gemini cloud → minimax emergency
+// Primary — minimax premium (plano 50$)
+const PRIMARY_MODEL = {
+  model: 'minimax-m2.7',
+  provider: 'minimax',
+  costPer1K: 0.1,
+  isLocal: false,
+  url: 'https://api.minimax.io/anthropic/v1/messages',
+};
+
+// Fallback chain — Ollama local models
 const FALLBACK_CHAIN = [
   {
     model: 'qwen2.5vl:7b',
@@ -24,22 +31,7 @@ const FALLBACK_CHAIN = [
     isLocal: true,
     url: `${OLLAMA_URL}/api/chat`,
   },
-  {
-    model: 'gemini-2.0-flash',
-    provider: 'gemini',
-    costPer1K: 0.05,
-    isLocal: false,
-    url: GEMINI_URL,
-  },
 ];
-
-const EMERGENCY_MODEL = {
-  model: 'minimax-m2.7',
-  provider: 'minimax',
-  costPer1K: 0.1,
-  isLocal: false,
-  url: 'https://api.minimax.io/anthropic/v1/messages',
-};
 
 export interface LLMResponse {
   content: string;
@@ -59,24 +51,24 @@ export interface LLMRequest {
 export async function llmComplete(req: LLMRequest): Promise<LLMResponse> {
   const start = Date.now();
 
+  // Try PRIMARY first — minimax premium (plano 50$)
+  if (MINIMAX_API_KEY) {
+    try {
+      const response = await callLLM(PRIMARY_MODEL, req, true);
+      return { ...response, latencyMs: Date.now() - start };
+    } catch (err) {
+      console.warn(`[LLM] minimax-m2.7 primary failed:`, err);
+    }
+  }
+
+  // Fallback — Ollama local models
   for (const llm of FALLBACK_CHAIN) {
     try {
       const response = await callLLM(llm, req, false);
       return { ...response, latencyMs: Date.now() - start };
     } catch (err) {
-      console.warn(`[Fallback] ${llm.model} failed:`, err);
+      console.warn(`[LLM] ${llm.model} fallback failed:`, err);
       continue;
-    }
-  }
-
-  // Emergency fallback — minimax (only if both local and cloud failed)
-  if (EMERGENCY_LLM_KEY) {
-    try {
-      const response = await callLLM(EMERGENCY_MODEL, req, true);
-      console.warn('[Fallback] Using emergency minimax-m2.7 — both Ollama and Gemini failed');
-      return { ...response, latencyMs: Date.now() - start };
-    } catch (err) {
-      console.error('[Fallback] Emergency model also failed:', err);
     }
   }
 
@@ -86,7 +78,7 @@ export async function llmComplete(req: LLMRequest): Promise<LLMResponse> {
 async function callLLM(
   llm: { model: string; provider: string; url: string },
   req: LLMRequest,
-  isEmergency: boolean,
+  _isPrimary: boolean,
 ): Promise<Omit<LLMResponse, 'latencyMs'>> {
   const messages = [
     ...(req.systemPrompt ? [{ role: 'system' as const, content: req.systemPrompt }] : []),
@@ -97,18 +89,11 @@ async function callLLM(
     return callOllama(llm.model, messages, req.maxTokens, req.temperature);
   }
 
-  // Cloud providers (gemini, minimax) — OpenAI-compatible
+  // Cloud provider (minimax)
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
+    'Authorization': `Bearer ${MINIMAX_API_KEY}`,
   };
-
-  if (isEmergency) {
-    headers['Authorization'] = `Bearer ${EMERGENCY_LLM_KEY}`;
-  } else if (llm.provider === 'gemini' && GEMINI_API_KEY) {
-    headers['Authorization'] = `Bearer ${GEMINI_API_KEY}`;
-  } else {
-    headers['Authorization'] = `Bearer ${LLM_KEY}`;
-  }
 
   const response = await fetch(llm.url, {
     method: 'POST',

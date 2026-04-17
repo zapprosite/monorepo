@@ -77,15 +77,6 @@ ollama pull nomic-embed-text:latest
 
 ```yaml
 model_list:
-  - model_name: gemma4
-    litellm_params:
-      model: ollama/gemma4
-      api_base: http://localhost:11434
-      rpm: 60
-      max_parallel_requests: 4
-      timeout: 300
-      stream: true
-
   - model_name: qwen2.5vl
     litellm_params:
       model: ollama/qwen2.5vl
