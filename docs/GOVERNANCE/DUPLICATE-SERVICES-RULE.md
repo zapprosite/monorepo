@@ -33,10 +33,10 @@ The docker-autoheal container (`willfarrell/autoheal`) monitors containers with 
 
 | Service          | Container                           | Auto-Restart | Reason                               |
 | ---------------- | ----------------------------------- | ------------ | ------------------------------------ |
-| OpenWebUI        | `openwebui`                         | YES          | User-facing, non-critical            |
-| Hermes Agent Bot     | `Hermes Agent-qgtzrmi6771lt8l7x8rqx72f` | YES          | Voice pipeline, self-healing capable |
-| wav2vec2 STT     | `zappro-wav2vec2`                   | YES          | Local STT, stateless                 |
-| Kokoro TTS       | `zappro-kokoro`                     | YES          | TTS, stateless                       |
+| OpenWebUI        | `openwebui`                         | DEPRECATED   | Legacy — superseded by ai-gateway :4002            |
+| Hermes Bot (OpenClaw legacy) | `hermes-agent-qgtzrmi6771lt8l7x8rqx72f` | DEPRECATED | Voice pipeline legacy — PRUNED per SPEC-051 |
+| wav2vec2 STT     | `zappro-wav2vec2`                   | DEPRECATED   | Legacy — superseded by :8204 faster-whisper |
+| Kokoro TTS       | `zappro-kokoro-restarted`            | YES          | TTS, stateless (ports 8012/8013)                       |
 | LiteLLM Proxy    | `zappro-litellm`                    | YES          | GPU routing, stateless               |
 | TTS Bridge       | `zappro-tts-bridge`                 | YES          | Voice filter, stateless              |
 | Redis            | `zappro-redis`                      | YES          | Cache, persistent volume             |
@@ -72,7 +72,7 @@ All ports in use by the homelab. Before deploying a new service, check this regi
 | 6002 | coolify-realtime | host        | WebSocket real-time |
 | 8000 | coolify          | host        | PaaS panel          |
 | 3300 | gitea            | host        | Git server          |
-| 4001 | Hermes Agent         | host        | Hermes Agent Bot UI     |
+| 4001 | Hermes Agent (OpenClaw legacy) | DEPRECATED | PRUNED per SPEC-051 — port free |
 | 4003 | painel           | host        | Claude Code Panel   |
 | 4006 | mcp-monorepo     | qgtzrmi net | MCP Filesystem      |
 | 4011 | mcp-qdrant       | qgtzrmi net | MCP Qdrant          |

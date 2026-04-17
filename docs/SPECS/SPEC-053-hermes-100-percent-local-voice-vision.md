@@ -25,8 +25,8 @@ Hermes via Telegram deve usar **100% serviços locais** — sem dependência de 
 
 | Componente    | Estado Actual (15/04 21:25)       | Notes                           |
 | ------------- | --------------------------------- | ------------------------------- |
-| **LLM texto** | ✅ Ollama (primário)              | Ver SPEC-055 para modelo actual |
-| **LLM visão** | ✅ Ollama (vision)                | Ver SPEC-055 para modelo actual |
+| **LLM texto** | ✅ Ollama (primário)              | Ver SPEC-055-v2-v2 para modelo actual |
+| **LLM visão** | ✅ Ollama (vision)                | Ver SPEC-055-v2-v2 para modelo actual |
 | **STT**       | ✅ faster-whisper-medium-pt :8204 | Multipart fix aplicado ✅       |
 | **TTS**       | ✅ Kokoro :8013 via TTS Bridge    | Pass-through simples ✅         |
 
@@ -78,7 +78,7 @@ Hermes Gateway :8642
 
 ### 1. LLM Text — ✅ PARTIAL
 
-**Solução aplicada:** Ver SPEC-055 para o modelo Ollama actual em uso.
+**Solução aplicada:** Ver SPEC-055-v2 para o modelo Ollama actual em uso.
 
 **Config actual (`~/.hermes/config.yaml`):**
 
@@ -158,7 +158,7 @@ curl -X POST :8642/v1/chat/completions
 
 ### T2: Validar Vision — ✅ DONE
 
-**Nota:** Ver SPEC-055 para modelo de visão actual.
+**Nota:** Ver SPEC-055-v2 para modelo de visão actual.
 
 ### T3: Smoke test — DONE ✅
 

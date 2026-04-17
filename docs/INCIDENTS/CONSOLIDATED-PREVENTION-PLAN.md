@@ -81,7 +81,7 @@
 
 ### INC-6: Hermes Agent TTS Route Fix
 
-**File:** `INCIDENT-2026-04-09-Hermes Agent-tts-route-fix.md`
+**File:** *(archived — file no longer exists)*
 
 | Field             | Value                                                                                    |
 | ----------------- | ---------------------------------------------------------------------------------------- |
@@ -139,7 +139,7 @@
 | **Perplexity Agent** | `${PERPLEXITY_URL}/_stcore/health`                                     | HTTP 200 + content check     | ✅          | `*/5 * * * *` |
 | **wav2vec2 STT**     | `http://${WAV2VEC2_HOST:-wav2vec2}:${WAV2VEC2_PORT:-8201}/health`      | STT via LiteLLM              | ✅          | N/A           |
 | **TTS Bridge**       | `http://localhost:${TTS_BRIDGE_PORT:-8013}/v1/audio/speech` (pm_santa) | 3 voices (2 pass, 1 blocked) | N/A         | N/A           |
-| **Hermes Agent**         | `${HERMES_AGENT_TUNNEL_URL}` via Tunnel                                    | Full pipeline test           | ✅          | N/A           |
+| **Hermes**                | `http://localhost:8642` via Tunnel                                      | Full pipeline test           | ✅          | N/A           |
 | **LiteLLM**          | `http://localhost:${LITELLM_PORT:-4000}/health`                        | All model routes             | N/A         | N/A           |
 | **Traefik/Coolify**  | `http://localhost:${TRAEFIK_PORT:-80}/ping`                            | Tunnel routing               | ✅          | N/A           |
 

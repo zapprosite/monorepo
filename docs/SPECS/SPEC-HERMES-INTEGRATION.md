@@ -19,7 +19,7 @@ Hermes Agent is now running as the central AI gateway for the homelab. This docu
 - hermes.zappro.site: ✅ 200 OK (Cloudflare tunnel working)
 - API: OpenAI-compatible `/v1/chat/completions` + `/v1/models`
 - Primary LLM: Ollama/qwen2.5vl:7b (local, GPU)
-- Fallback LLM: gemma4-12b-it:latest (local)
+- Fallback LLM: gemma4-12b-it (local)
 - MiniMax: DEPRECATED (available as commented fallback in .env)
 - Vision: Ollama/qwen2.5vl:7b (local, stable)
 - STT: faster-whisper-medium-pt :8204 ✅ FIXED (multipart OpenAI format supported)
@@ -271,7 +271,7 @@ model: qwen2.5vl:7b
     base_url: http://localhost:11434
   fallback:
     - provider: ollama
-      model: gemma4-12b-it:latest
+      model: gemma4-12b-it
       base_url: http://localhost:11434
 ```
 
@@ -280,7 +280,7 @@ model: qwen2.5vl:7b
 **Ollama models available** (RTX 4090):
 
 - `qwen2.5vl:7b` - Vision-language, ~4.5GB (PRIMARY — use for all tasks)
-- `gemma4-12b-it:latest` - Portuguese-specialized, ~7GB Q4_K_M (fallback)
+- `gemma4-12b-it` - Portuguese-specialized, ~7GB Q4_K_M (fallback)
 - `nomic-embed-text:latest` - Embeddings, 274MB
 
 ### 5.2 Optimized Fallback Strategy
