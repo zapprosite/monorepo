@@ -104,6 +104,13 @@ func (m *mockRedisForWorker) ClaimTask(_ context.Context, agentType, workerID st
 }
 
 func (m *mockRedisForWorker) StealTask(_ context.Context, srcAgentType, destAgentType string) (*Task, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if queue, ok := m.tasks[srcAgentType]; ok && len(queue) > 0 {
+		t := queue[0]
+		m.tasks[srcAgentType] = queue[1:]
+		return t, nil
+	}
 	return nil, nil
 }
 
@@ -301,7 +308,7 @@ func TestHandleFailure_RetriesThenDeadLetter(t *testing.T) {
 		deadLetter:         &deadLetterCall,
 	}
 
-	agent := &mockAgent{agentType: "test", maxRetries: 2, timeoutMs: 1000}
+	agent := &mockAgent{agentType: "test", maxRetries: 3, timeoutMs: 1000}
 	worker := NewSwarmWorker(agent, customMock, registry)
 
 	// Task that has exceeded retries
@@ -311,15 +318,15 @@ func TestHandleFailure_RetriesThenDeadLetter(t *testing.T) {
 		NodeID:    "test",
 		Type:      "test",
 		Status:    "failed",
-		Retries:   2, // Already at max
-		MaxRetries: 2,
+		Retries:   3, // Already at max
+		MaxRetries: 3,
 		TimeoutMs:  1000,
 	}
 
 	// Execute handleFailure via executeTask with an error
 	agent = &mockAgent{
 		agentType:  "test",
-		maxRetries: 2,
+		maxRetries: 3,
 		timeoutMs:  1000,
 		executeFn: func(ctx context.Context, task *agents.SwarmTask) (map[string]any, error) {
 			return nil, fmt.Errorf("intentional failure")
@@ -329,23 +336,23 @@ func TestHandleFailure_RetriesThenDeadLetter(t *testing.T) {
 
 	// Simulate failure handling directly
 	task.Retries = 0 // Reset for test
-	task.MaxRetries = 2
+	task.MaxRetries = 3
 
-	// First failure - should retry
+	// First failure - should retry (retries: 0→1, 1<3)
 	task.Retries = 0
 	customMock.reset()
 	worker.handleFailure(task, "intentional failure")
 	assert.Equal(t, 1, *customMock.pushCount, "first failure should push for retry")
 	assert.False(t, *customMock.deadLetter, "first failure should not dead-letter")
 
-	// Second failure - still within retry budget
+	// Second failure - still within retry budget (retries: 1→2, 2<3)
 	task.Retries = 1
 	customMock.reset()
 	worker.handleFailure(task, "intentional failure")
 	assert.Equal(t, 1, *customMock.pushCount, "second failure should push for retry")
 	assert.False(t, *customMock.deadLetter, "second failure should not dead-letter")
 
-	// Third failure - exceeds retry budget, should dead-letter
+	// Third failure - exceeds retry budget (retries: 2→3, 3<3=false)
 	task.Retries = 2
 	customMock.reset()
 	worker.handleFailure(task, "intentional failure")

@@ -11,6 +11,18 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+// Message represents a Redis pubsub message
+type Message struct {
+	Channel string
+	Payload string
+}
+
+// PubSubInterface for mock
+type PubSubInterface interface {
+	Channel() chan *Message
+	Close() error
+}
+
 // mockRedisForBoard implements RedisClientInterface for board testing.
 type mockRedisForBoard struct{}
 
@@ -117,7 +129,7 @@ func TestBoardHandler_RegisterRoutes(t *testing.T) {
 func TestBoardHandler_HandleSnapshot(t *testing.T) {
 	redis := &RedisClient{}
 	registry := NewAgentRegistry()
-	registry.RegisterWorker(&WorkerStatus{ID: "w1", AgentType: "intake", Status: "idle"})
+	registry.RegisterWorker(WorkerStatus{ID: "w1", AgentType: "intake", Status: "idle"})
 	handler := NewBoardHandler(redis, registry)
 
 	mux := http.NewServeMux()
@@ -129,18 +141,17 @@ func TestBoardHandler_HandleSnapshot(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, w.Code)
 
-	var snapshot map[string]interface{}
+	// Use concrete struct for proper unmarshaling (JSON doesn't preserve []WorkerStatus type)
+	var snapshot struct {
+		Workers []WorkerStatus   `json:"workers"`
+		Graphs  map[string]any    `json:"graphs"`
+		TS      int64             `json:"ts"`
+	}
 	err := json.Unmarshal(w.Body.Bytes(), &snapshot)
 	require.NoError(t, err)
 
-	assert.Contains(t, snapshot, "workers")
-	assert.Contains(t, snapshot, "graphs")
-	assert.Contains(t, snapshot, "ts")
-
-	workers, ok := snapshot["workers"].([]WorkerStatus)
-	require.True(t, ok)
-	assert.Len(t, workers, 1)
-	assert.Equal(t, "w1", workers[0].ID)
+	assert.Len(t, snapshot.Workers, 1)
+	assert.Equal(t, "w1", snapshot.Workers[0].ID)
 }
 
 func TestBoardHandler_HandleSnapshot_EmptyRegistry(t *testing.T) {
@@ -157,13 +168,15 @@ func TestBoardHandler_HandleSnapshot_EmptyRegistry(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, w.Code)
 
-	var snapshot map[string]interface{}
+	var snapshot struct {
+		Workers []WorkerStatus   `json:"workers"`
+		Graphs  map[string]any    `json:"graphs"`
+		TS      int64             `json:"ts"`
+	}
 	err := json.Unmarshal(w.Body.Bytes(), &snapshot)
 	require.NoError(t, err)
 
-	workers, ok := snapshot["workers"].([]WorkerStatus)
-	require.True(t, ok)
-	assert.Len(t, workers, 0)
+	assert.Len(t, snapshot.Workers, 0)
 }
 
 func TestBoardHandler_HandleGraphStatus(t *testing.T) {
