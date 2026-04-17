@@ -1,13 +1,14 @@
 ---
-name: SPEC-PRUNE-LEGACY-2026-04-17
+name: SPEC-062-prune-legacy
 description: Prune total de legacy — monorepo + home. CORE: Hermes/AI-Gateway/ListWeb/Monitoring + SPECs ativas + Governance. LEGACY: tudo o resto some.
+spec_id: SPEC-062
 status: IN_PROGRESS
 priority: critical
 author: Principal Engineer
 date: 2026-04-17
 ---
 
-# SPEC-PRUNE: Limpeza Total de Legacy
+# SPEC-062: Prune Total de Legacy
 
 ## Regra Única
 

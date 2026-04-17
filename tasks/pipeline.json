@@ -409,7 +409,7 @@
       "status": "pending",
       "priority": "high",
       "dependencies": [],
-      "specRef": "SPEC-ENTERPRISE-REFACTOR",
+      "specRef": "SPEC-061",
       "files": ["research/*.md"],
       "testRequired": false,
       "subtasks": [
@@ -480,7 +480,7 @@
       "status": "pending",
       "priority": "high",
       "dependencies": ["TASK-ENTERPRISE-01"],
-      "specRef": "SPEC-ENTERPRISE-REFACTOR",
+      "specRef": "SPEC-061",
       "files": [".claude/CLAUDE.md"],
       "testRequired": false,
       "subtasks": [
@@ -501,7 +501,7 @@
       "status": "pending",
       "priority": "high",
       "dependencies": ["TASK-ENTERPRISE-01"],
-      "specRef": "SPEC-ENTERPRISE-REFACTOR",
+      "specRef": "SPEC-061",
       "files": ["AGENTS.md"],
       "testRequired": false,
       "subtasks": [
@@ -521,7 +521,7 @@
       "status": "pending",
       "priority": "medium",
       "dependencies": ["TASK-ENTERPRISE-02", "TASK-ENTERPRISE-03"],
-      "specRef": "SPEC-ENTERPRISE-REFACTOR",
+      "specRef": "SPEC-061",
       "files": [".claude/skills/orchestrator/SKILL.md"],
       "testRequired": false
     },
@@ -532,7 +532,7 @@
       "status": "pending",
       "priority": "medium",
       "dependencies": ["TASK-ENTERPRISE-04"],
-      "specRef": "SPEC-ENTERPRISE-REFACTOR",
+      "specRef": "SPEC-061",
       "files": [".env", ".claude/skills/orchestrator/SKILL.md"],
       "testRequired": false
     }
@@ -545,6 +545,6 @@
     "generatedAt": "2026-04-17T16:00",
     "projectName": "zappro-monorepo",
     "version": "2.0",
-    "specs": ["SPEC-058", "SPEC-059", "SPEC-060", "SPEC-ENTERPRISE-REFACTOR"]
+    "specs": ["SPEC-058", "SPEC-059", "SPEC-060", "SPEC-061"]
   }
 }

@@ -1,12 +1,12 @@
 ---
-name: SPEC-SUPER-REVIEW
+name: SPEC-063-super-review
 description: Super review enterprise refactor — validar docs, smoke tests, pytest, e2e
-spec_id: SUPER-REVIEW-2026-04-17
+spec_id: SPEC-063
 status: DONE
 created: 2026-04-17
 ---
 
-# SPEC: Super Review — Enterprise Refactor Validation
+# SPEC-063: Super Review — Enterprise Refactor Validation
 
 ## Objetivo
 
