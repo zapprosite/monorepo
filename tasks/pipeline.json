@@ -628,8 +628,9 @@
         {"id": "35.2", "title": "Document test results", "status": "pending"},
         {"id": "35.3", "title": "Update SPEC-030 status to COMPLETED", "status": "pending"}
       ],
-      "acceptanceCriteria": ["SC-7", "SC-8", "SC-9", "SC-10"],
-      {
+      "acceptanceCriteria": ["SC-7", "SC-8", "SC-9", "SC-10"]
+    },
+    {
       "id": 36,
       "title": "[HIGH] Implement Semantic Chunking for HVAC Manuals",
       "description": "Implement chunking semântico para manuais HVAC: 512 tokens (error codes), 1024 tokens (specs), overlap 15%. Split por seção (ERROR_CODES, SPECS, INSTALLATION, TROUBLESHOOTING). Metadata: brand, model, btu, error_code, page_ref.",
@@ -817,15 +818,145 @@
       "files": ["internal/rag/evaluator.go"],
       "testRequired": true,
       "specRef": "docs/specflow/SPEC-031-rag-refinement-hvac-inverter.md"
+    },
+    {
+      "id": 60,
+      "title": "[HIGH] Implement Semantic Cache (Redis)",
+      "description": "Criar internal/rag/cache.go com cache semântico Redis. Query hash → cached response (TTL 24h). Evita re-embed + re-LLM para queries idênticas. Target: ~70% cache hit rate.",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [],
+      "subtasks": [
+        {"id": "60.1", "title": "Create SemanticCache struct com redis.Client", "status": "pending"},
+        {"id": "60.2", "title": "Implement Get() com sha256(normalized_query) key", "status": "pending"},
+        {"id": "60.3", "title": "Implement Set() com TTL configurável", "status": "pending"},
+        {"id": "60.4", "title": "Implement normalizeQuery() (lowercase, trim, remove punctuation)", "status": "pending"},
+        {"id": "60.5", "title": "Add CachedResponse struct com response, source_chunk_ids, confidence", "status": "pending"}
+      ],
+      "acceptanceCriteria": ["SPEC-060 AC-1", "SPEC-060 AC-5"],
+      "files": ["internal/rag/cache.go"],
+      "testRequired": true,
+      "specRef": "docs/specflow/SPEC-060-hvac-rag-enterprise-pipeline.md"
+    },
+    {
+      "id": 61,
+      "title": "[HIGH] Implement BullMQ Job Patterns",
+      "description": "Criar internal/rag/jobs.go com padrões BullMQ (Redis Lists + Hash). Job states: waiting, active, completed, failed, delayed. Suporta retries (3x), backoff exponential, DLQ.",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [],
+      "subtasks": [
+        {"id": "61.1", "title": "Create Job struct e JobState constants", "status": "pending"},
+        {"id": "61.2", "title": "Implement AddJob() com Redis Hash + List", "status": "pending"},
+        {"id": "61.3", "title": "Implement ProcessJobs() com BLPOP consumer", "status": "pending"},
+        {"id": "61.4", "title": "Implement retryJob() com exponential backoff", "status": "pending"},
+        {"id": "61.5", "title": "Implement moveToDLQ() para jobs com erro após retries", "status": "pending"},
+        {"id": "61.6", "title": "Create queues: rag:queue:rag_query, rag:queue:index_pdf, rag:dlq:*", "status": "pending"}
+      ],
+      "acceptanceCriteria": ["SPEC-060 AC-2", "SPEC-060 AC-6"],
+      "files": ["internal/rag/jobs.go"],
+      "testRequired": true,
+      "specRef": "docs/specflow/SPEC-060-hvac-rag-enterprise-pipeline.md"
+    },
+    {
+      "id": 62,
+      "title": "[HIGH] Implement OpenTelemetry Spans",
+      "description": "Criar internal/rag/otel.go com wrappers de spans. Trace hierarchy: rag.query → cache.lookup, embed.query, qdrant.search, llm.response. Usar OTEL SDK disponível no monorepo.",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [],
+      "subtasks": [
+        {"id": "62.1", "title": "Create tracer com otel.Tracer('hvacr-swarm/rag')", "status": "pending"},
+        {"id": "62.2", "title": "Implement TraceRAGQuery() span wrapper", "status": "pending"},
+        {"id": "62.3", "title": "Implement TraceEmbed() span wrapper", "status": "pending"},
+        {"id": "62.4", "title": "Implement TraceSearch() span wrapper", "status": "pending"},
+        {"id": "62.5", "title": "Integrate spans em rag_query_agent.go", "status": "pending"}
+      ],
+      "acceptanceCriteria": ["SPEC-060 AC-4"],
+      "files": ["internal/rag/otel.go"],
+      "testRequired": true,
+      "specRef": "docs/specflow/SPEC-060-hvac-rag-enterprise-pipeline.md"
+    },
+    {
+      "id": 63,
+      "title": "[HIGH] Implement Chunk Quality Score",
+      "description": "Criar internal/rag/quality.go com scoring via qwen2.5-vl. Score 0-1 no ChunkResult. Thresholds: ≥0.8 high, 0.5-0.8 medium, <0.5 low. Score armazenado no payload Qdrant.",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [],
+      "subtasks": [
+        {"id": "63.1", "title": "Create QualityScore struct e threshold constants", "status": "pending"},
+        {"id": "63.2", "title": "Implement ScoreChunk() via qwen2.5-vl", "status": "pending"},
+        {"id": "63.3", "title": "Add quality_score ao ChunkResult", "status": "pending"},
+        {"id": "63.4", "title": "Integrar em rag_indexer_agent.go para score após chunking", "status": "pending"},
+        {"id": "63.5", "title": "Store quality_score no Qdrant payload", "status": "pending"}
+      ],
+      "acceptanceCriteria": ["SPEC-060 AC-3"],
+      "files": ["internal/rag/quality.go", "internal/rag/chunker.go"],
+      "testRequired": true,
+      "specRef": "docs/specflow/SPEC-060-hvac-rag-enterprise-pipeline.md"
+    },
+    {
+      "id": 64,
+      "title": "[MEDIUM] Integrate Semantic Cache in rag_query_agent",
+      "description": "Modificar internal/agents/rag_query_agent.go para usar semantic cache. Cache hit → retorna cached response. Cache miss → procede normal flow.",
+      "status": "pending",
+      "priority": "medium",
+      "dependencies": [60],
+      "subtasks": [
+        {"id": "64.1", "title": "Add SemanticCache field to RAGQueryAgent", "status": "pending"},
+        {"id": "64.2", "title": "Implement cache lookup no início de Execute()", "status": "pending"},
+        {"id": "64.3", "title": "Implement cache Set() após response generation", "status": "pending"},
+        {"id": "64.4", "title": "Log cache hit/miss para métricas", "status": "pending"}
+      ],
+      "acceptanceCriteria": ["SPEC-060 AC-1", "SPEC-060 AC-5"],
+      "files": ["internal/agents/rag_query_agent.go"],
+      "testRequired": true,
+      "specRef": "docs/specflow/SPEC-060-hvac-rag-enterprise-pipeline.md"
+    },
+    {
+      "id": 65,
+      "title": "[MEDIUM] Integrate Job Queue in rag_indexer_agent",
+      "description": "Modificar internal/agents/rag_indexer_agent.go para usar job queue. Indexar PDF → AddJob('index_pdf') → ProcessJobs() com retries e DLQ.",
+      "status": "pending",
+      "priority": "medium",
+      "dependencies": [61],
+      "subtasks": [
+        {"id": "65.1", "title": "Add JobQueue field to RAGIndexerAgent", "status": "pending"},
+        {"id": "65.2", "title": "Replace direct indexChunks() com AddJob()", "status": "pending"},
+        {"id": "65.3", "title": "Implement JobHandler para index_pdf", "status": "pending"},
+        {"id": "65.4", "title": "Add DLQ handling para jobs failed", "status": "pending"}
+      ],
+      "acceptanceCriteria": ["SPEC-060 AC-2", "SPEC-060 AC-6"],
+      "files": ["internal/agents/rag_indexer_agent.go"],
+      "testRequired": true,
+      "specRef": "docs/specflow/SPEC-060-hvac-rag-enterprise-pipeline.md"
+    },
+    {
+      "id": 66,
+      "title": "[MEDIUM] Add RAGConfig to env vars",
+      "description": "Criar internal/rag/config.go com RAGConfig struct. Variables: RAG_CACHE_TTL (24h), RAG_JOB_MAX_RETRIES (3), RAG_JOB_BACKOFF_MS (1000), RAG_QUALITY_THRESHOLD (0.5), OTEL_ENABLED (true).",
+      "status": "pending",
+      "priority": "medium",
+      "dependencies": [],
+      "subtasks": [
+        {"id": "66.1", "title": "Create RAGConfig struct com env tags", "status": "pending"},
+        {"id": "66.2", "title": "Load config em rag_indexer_agent.go e rag_query_agent.go", "status": "pending"},
+        {"id": "66.3", "title": "Documentar variáveis no SPEC-060", "status": "pending"}
+      ],
+      "acceptanceCriteria": [],
+      "files": ["internal/rag/config.go"],
+      "testRequired": false,
+      "specRef": "docs/specflow/SPEC-060-hvac-rag-enterprise-pipeline.md"
     }
   ],
   "meta": {
-    "totalTasks": 45,
+    "totalTasks": 52,
     "completedTasks": 7,
-    "pendingTasks": 38,
-    "generatedAt": "2026-04-12T07:22:00Z",
+    "pendingTasks": 45,
+    "generatedAt": "2026-04-17T13:05:00Z",
     "projectName": "hvacr-swarm",
-    "version": "2.5",
-    "notes": "Added SPEC-031 RAG refinement: 10 tasks (36-45). Focus: HVAC inverter only (chunking, whitelist/blacklist, qwen2.5-vl, YouTube, WhatsApp DEV, error codes, refinement, embedding, PDF parser, evaluation)."
+    "version": "2.6",
+    "notes": "Added SPEC-060 HVAC RAG Enterprise Pipeline: 7 tasks (60-66). Semantic Cache Redis, BullMQ Jobs, OpenTelemetry Spans, Chunk Quality Score. Cleanup: archived SPEC-005/031/033, refactored SPEC-026 to 164 lines."
   }
 }
