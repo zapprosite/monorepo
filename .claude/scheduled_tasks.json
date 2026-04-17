@@ -13,7 +13,7 @@
       "cron": "*/5 * * * *",
       "prompt": "SRE Monitor: Run /srv/monorepo/.claude/skills/coolify-sre/scripts/sre-monitor.sh to check Coolify apps, Docker containers, health endpoints, resource usage, and subdomain tunnel status. Auto-heal degraded/down containers (whitelist only). Log results. Replaces old auto-healer (8812f46c) and resource-monitor (4cb53930).",
       "createdAt": 1776124800000,
-      "lastFiredAt": 1776467010798,
+      "lastFiredAt": 1776468722158,
       "recurring": true
     },
     {
