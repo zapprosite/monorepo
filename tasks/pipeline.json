@@ -1034,23 +1034,366 @@
       ],
       "testRequired": false,
       "completedAt": "2026-04-18T07:19:53.582253Z"
+    },
+    {
+      "id": "TASK-071-V1",
+      "title": "[SPEC-071-V1] VERSION LOCK ENTERPRISE — ficheiro único + drift detection",
+      "description": "Criar VERSION-LOCK.md como única fonte de verdade para todas as versões pinned. Scripts versions-check.sh e versions-update.sh. CI integration para drift detection.",
+      "status": "pending",
+      "priority": "critical",
+      "dependencies": [],
+      "specRef": "SPEC-071",
+      "files": [
+        "VERSION-LOCK.md",
+        "orchestrator/scripts/versions-check.sh",
+        "orchestrator/scripts/versions-update.sh"
+      ],
+      "testRequired": true,
+      "subtasks": [
+        {
+          "id": "TASK-071-V1.1",
+          "title": "Criar VERSION-LOCK.md com todos os pins",
+          "status": "pending"
+        },
+        {
+          "id": "TASK-071-V1.2",
+          "title": "Criar scripts/versions-check.sh",
+          "status": "pending"
+        },
+        {
+          "id": "TASK-071-V1.3",
+          "title": "Criar scripts/versions-update.sh",
+          "status": "pending"
+        },
+        {
+          "id": "TASK-071-V1.4",
+          "title": "Integrar drift check no CI (Gitea Actions)",
+          "status": "pending"
+        },
+        {
+          "id": "TASK-071-V1.5",
+          "title": "Documentar em docs/INFRASTRUCTURE/VERSION-LOCK.md",
+          "status": "pending"
+        }
+      ],
+      "acceptanceCriteria": [
+        "AC-V1-1: VERSION-LOCK.md existe com todos os pins (Core, Infra, AI/ML, Monitoring)",
+        "AC-V1-2: scripts/versions-check.sh detecta drift vs actual",
+        "AC-V1-3: CI falha se drift detectado",
+        "AC-V1-4: /versions lista pins"
+      ]
+    },
+    {
+      "id": "TASK-071-V2",
+      "title": "[SPEC-071-V2] ORCHESTRATOR v2 — Critical Path Engine + circuit breaker",
+      "description": "Adicionar circuit breaker (3 retries, exp backoff), reentrancy lock (PID lock por pipeline), dead letter queue após 3 falhas. Modificar run_agents.sh para integrar.",
+      "status": "pending",
+      "priority": "critical",
+      "dependencies": [
+        "TASK-071-V1"
+      ],
+      "specRef": "SPEC-071",
+      "files": [
+        "orchestrator/scripts/circuit_breaker.sh",
+        "orchestrator/scripts/reentrancy_lock.sh",
+        "orchestrator/scripts/dead_letter.sh",
+        "orchestrator/run_agents.sh",
+        "tasks/dead_letter/"
+      ],
+      "testRequired": true,
+      "subtasks": [
+        {
+          "id": "TASK-071-V2.1",
+          "title": "circuit_breaker.sh (max 3 retries, exp backoff 2^n)",
+          "status": "pending"
+        },
+        {
+          "id": "TASK-071-V2.2",
+          "title": "reentrancy_lock.sh (PID lock por pipeline/agent)",
+          "status": "pending"
+        },
+        {
+          "id": "TASK-071-V2.3",
+          "title": "dead_letter.sh (DLQ after 3 failures)",
+          "status": "pending"
+        },
+        {
+          "id": "TASK-071-V2.4",
+          "title": "Integrar circuit_breaker no run_agents.sh",
+          "status": "pending"
+        },
+        {
+          "id": "TASK-071-V2.5",
+          "title": "Integrar reentrancy_lock no agent-wrapper.sh",
+          "status": "pending"
+        }
+      ],
+      "acceptanceCriteria": [
+        "AC-V2-1: Circuit breaker activa retries (max 3, exp backoff)",
+        "AC-V2-2: Reentrancy lock previne duplicar agente na mesma pipeline",
+        "AC-V2-3: Dead letter queue criada após 3 falhas",
+        "AC-V2-4: run_agents.sh integra todos os components"
+      ]
+    },
+    {
+      "id": "TASK-071-V3",
+      "title": "[SPEC-071-V3] OBSERVABILITY LAYER — Prometheus metrics + Grafana",
+      "description": "Criar metrics_collector.sh para expor Prometheus metrics (pipeline_duration_seconds, agent_errors_total, llm_tokens_total). Grafana dashboard JSON. Trace ID UUID por pipeline.",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [
+        "TASK-071-V2"
+      ],
+      "specRef": "SPEC-071",
+      "files": [
+        "orchestrator/scripts/metrics_collector.sh",
+        "orchestrator/scripts/trace_id.sh",
+        "docs/OPS/GRAFANA-DASHBOARDS/orchestrator-overview.json",
+        "docs/OPS/PROMETHEUS/alerts.yml"
+      ],
+      "testRequired": false,
+      "subtasks": [
+        {
+          "id": "TASK-071-V3.1",
+          "title": "metrics_collector.sh — Prometheus exporter",
+          "status": "pending"
+        },
+        {
+          "id": "TASK-071-V3.2",
+          "title": "trace_id.sh — UUID generation por pipeline",
+          "status": "pending"
+        },
+        {
+          "id": "TASK-071-V3.3",
+          "title": "Grafana dashboard orchestrator-overview.json",
+          "status": "pending"
+        },
+        {
+          "id": "TASK-071-V3.4",
+          "title": "Prometheus alerts.yml para orchestrator",
+          "status": "pending"
+        }
+      ],
+      "acceptanceCriteria": [
+        "AC-V3-1: Prometheus metrics para pipeline duration",
+        "AC-V3-2: Prometheus metrics para agent errors",
+        "AC-V3-3: Prometheus metrics para LLM cost",
+        "AC-V3-4: Grafana dashboard importável",
+        "AC-V3-5: Trace ID UUID por pipeline"
+      ]
+    },
+    {
+      "id": "TASK-071-V4",
+      "title": "[SPEC-071-V4] ROLLBACK ENGINE — State snapshots + rollback command",
+      "description": "Criar snapshot.sh antes de cada agente. Rollback.sh para restaurar. Git revert como fallback. Runbook de rollback em docs/OPS/RUNBOOKS/PIPELINE-ROLLBACK.md.",
+      "status": "pending",
+      "priority": "critical",
+      "dependencies": [
+        "TASK-071-V2"
+      ],
+      "specRef": "SPEC-071",
+      "files": [
+        "orchestrator/scripts/snapshot.sh",
+        "orchestrator/scripts/rollback.sh",
+        "docs/OPS/RUNBOOKS/PIPELINE-ROLLBACK.md",
+        "tasks/snapshots/"
+      ],
+      "testRequired": false,
+      "subtasks": [
+        {
+          "id": "TASK-071-V4.1",
+          "title": "snapshot.sh — cp -r src + git rev-parse HEAD",
+          "status": "pending"
+        },
+        {
+          "id": "TASK-071-V4.2",
+          "title": "rollback.sh — /rollback --agent=X --to=PIPELINE",
+          "status": "pending"
+        },
+        {
+          "id": "TASK-071-V4.3",
+          "title": "Git revert como fallback",
+          "status": "pending"
+        },
+        {
+          "id": "TASK-071-V4.4",
+          "title": "docs/OPS/RUNBOOKS/PIPELINE-ROLLBACK.md",
+          "status": "pending"
+        }
+      ],
+      "acceptanceCriteria": [
+        "AC-V4-1: Snapshot criado antes de cada agente",
+        "AC-V4-2: /rollback --agent=X --to=PIPELINE restaura snapshot",
+        "AC-V4-3: Git revert como fallback se snapshot não existe",
+        "AC-V4-4: Runbook documentado"
+      ]
+    },
+    {
+      "id": "TASK-071-V5",
+      "title": "[SPEC-071-V5] CAPACITY PLANNER — Resource calculator + auto-throttle",
+      "description": "Criar capacity_calculator.sh (RAM_total / RAM_per_agent, CPU cores). auto_throttle.sh quando >80% CPU. Warning quando RAM <20% livre.",
+      "status": "pending",
+      "priority": "medium",
+      "dependencies": [
+        "TASK-071-V2"
+      ],
+      "specRef": "SPEC-071",
+      "files": [
+        "orchestrator/scripts/capacity_calculator.sh",
+        "orchestrator/scripts/auto_throttle.sh",
+        "docs/OPS/CAPACITY.md"
+      ],
+      "testRequired": false,
+      "subtasks": [
+        {
+          "id": "TASK-071-V5.1",
+          "title": "capacity_calculator.sh — RAM/CPU disponíveis",
+          "status": "pending"
+        },
+        {
+          "id": "TASK-071-V5.2",
+          "title": "auto_throttle.sh — throttle when >80% CPU",
+          "status": "pending"
+        },
+        {
+          "id": "TASK-071-V5.3",
+          "title": "docs/OPS/CAPACITY.md",
+          "status": "pending"
+        }
+      ],
+      "acceptanceCriteria": [
+        "AC-V5-1: capacity_calculator.sh mostra RAM/CPU disponíveis",
+        "AC-V5-2: Auto-throttle quando >80% CPU",
+        "AC-V5-3: Warning quando RAM <20% livre"
+      ]
+    },
+    {
+      "id": "TASK-071-V6",
+      "title": "[SPEC-071-V6] COST ENGINE — Budget + model fallback",
+      "description": "Criar .orchestrator/budget.yml (default $0.50/pipeline). track_cost.sh para tracking. model_fallback.sh (o1-preview→o1-mini→haiku). Alert quando 80% budget usado.",
+      "status": "pending",
+      "priority": "medium",
+      "dependencies": [
+        "TASK-071-V2"
+      ],
+      "specRef": "SPEC-071",
+      "files": [
+        ".orchestrator/budget.yml",
+        "orchestrator/scripts/track_cost.sh",
+        "orchestrator/scripts/model_fallback.sh",
+        "docs/OPS/COST-CONTROL.md"
+      ],
+      "testRequired": false,
+      "subtasks": [
+        {
+          "id": "TASK-071-V6.1",
+          "title": ".orchestrator/budget.yml — default $0.50",
+          "status": "pending"
+        },
+        {
+          "id": "TASK-071-V6.2",
+          "title": "track_cost.sh — cost tracking por pipeline",
+          "status": "pending"
+        },
+        {
+          "id": "TASK-071-V6.3",
+          "title": "model_fallback.sh — o1-preview→o1-mini→haiku",
+          "status": "pending"
+        },
+        {
+          "id": "TASK-071-V6.4",
+          "title": "docs/OPS/COST-CONTROL.md",
+          "status": "pending"
+        }
+      ],
+      "acceptanceCriteria": [
+        "AC-V6-1: Budget por pipeline configurável",
+        "AC-V6-2: Model fallback automático se budget exceeded",
+        "AC-V6-3: Alert quando 80% budget usado",
+        "AC-V6-4: Cost tracking por SPEC"
+      ]
+    },
+    {
+      "id": "TASK-071-V7",
+      "title": "[SPEC-071-V7] SELF-HEALING RUNBOOKS — P1-P4 + orchestrator",
+      "description": "Criar runbooks para P1-P4 (service down, degraded, non-critical, informational) + ORCHESTRATOR-FAILURE + PIPELINE-ROLLBACK. Index em docs/OPS/RUNBOOKS/README.md.",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [
+        "TASK-071-V3"
+      ],
+      "specRef": "SPEC-071",
+      "files": [
+        "docs/OPS/RUNBOOKS/P1-SERVICE-DOWN.md",
+        "docs/OPS/RUNBOOKS/P2-SERVICE-DEGRADED.md",
+        "docs/OPS/RUNBOOKS/P3-NON-CRITICAL.md",
+        "docs/OPS/RUNBOOKS/P4-INFORMATIONAL.md",
+        "docs/OPS/RUNBOOKS/ORCHESTRATOR-FAILURE.md",
+        "docs/OPS/RUNBOOKS/PIPELINE-ROLLBACK.md",
+        "docs/OPS/RUNBOOKS/README.md"
+      ],
+      "testRequired": false,
+      "subtasks": [
+        {
+          "id": "TASK-071-V7.1",
+          "title": "docs/OPS/RUNBOOKS/P1-SERVICE-DOWN.md",
+          "status": "pending"
+        },
+        {
+          "id": "TASK-071-V7.2",
+          "title": "docs/OPS/RUNBOOKS/P2-SERVICE-DEGRADED.md",
+          "status": "pending"
+        },
+        {
+          "id": "TASK-071-V7.3",
+          "title": "docs/OPS/RUNBOOKS/P3-NON-CRITICAL.md",
+          "status": "pending"
+        },
+        {
+          "id": "TASK-071-V7.4",
+          "title": "docs/OPS/RUNBOOKS/P4-INFORMATIONAL.md",
+          "status": "pending"
+        },
+        {
+          "id": "TASK-071-V7.5",
+          "title": "docs/OPS/RUNBOOKS/ORCHESTRATOR-FAILURE.md",
+          "status": "pending"
+        },
+        {
+          "id": "TASK-071-V7.6",
+          "title": "docs/OPS/RUNBOOKS/PIPELINE-ROLLBACK.md",
+          "status": "pending"
+        },
+        {
+          "id": "TASK-071-V7.7",
+          "title": "docs/OPS/RUNBOOKS/README.md — index",
+          "status": "pending"
+        }
+      ],
+      "acceptanceCriteria": [
+        "AC-V7-1: P1-P4 runbooks criados",
+        "AC-V7-2: Runbook para orchestrator failure",
+        "AC-V7-3: Runbook para pipeline rollback",
+        "AC-V7-4: Index em docs/OPS/RUNBOOKS/README.md"
+      ]
     }
   ],
   "meta": {
-    "totalTasks": 38,
+    "totalTasks": 45,
     "completedTasks": 38,
-    "pendingTasks": 0,
+    "pendingTasks": 7,
     "blockedTasks": 0,
-    "generatedAt": "2026-04-17T17:00",
+    "generatedAt": "2026-04-18T12:00",
     "projectName": "zappro-monorepo",
-    "version": "2.0",
+    "version": "2.1",
     "specs": [
       "SPEC-058",
       "SPEC-059",
       "SPEC-060",
       "SPEC-061",
       "SPEC-067",
-      "SPEC-069"
+      "SPEC-069",
+      "SPEC-071"
     ]
   }
 }

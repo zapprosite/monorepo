@@ -1,8 +1,10 @@
 {
-	"currentState": "SPEC_PENDING",
+	"currentState": "IN_PROGRESS",
 	"lintPassed": false,
-	"lastCheckpoint": "2026-04-18T01:55:00-03:00",
-	"specsInPipeline": ["SPEC-058", "SPEC-059", "SPEC-060", "SPEC-061", "SPEC-067"],
-	"totalTasksInPipeline": 38,
-	"notes": "INC-005 RESOLVED: Hermes Telegram voice STT+TTS fully operational. STT: whisper-1 @ :8204 (OGG/Opus auto-detect fixed). TTS: Kokoro pm_santa @ :8013 (config api_key fix). Pipeline dual voice response working end-to-end. SPEC-069 (smoke tests) + SPEC-053 (voice vision) both DONE. whisper-server-v2.py fix is in /tmp/ — needs to be versioned or moved to persistent location."
+	"lastCheckpoint": "2026-04-18T12:00:00-03:00",
+	"specsInPipeline": ["SPEC-058", "SPEC-059", "SPEC-060", "SPEC-061", "SPEC-067", "SPEC-071"],
+	"totalTasksInPipeline": 45,
+	"pendingTasks": 7,
+	"completedTasks": 38,
+	"notes": "SPEC-071 IN_PROGRESS: Enterprise Monorepo Datacenter Architecture. 7 domains: V1(VERSION-LOCK), V2(ORCH-v2), V3(OBSERVABILITY), V4(ROLLBACK), V5(CAPACITY), V6(COST), V7(RUNBOOKS). 7 new tasks added to pipeline.json."
 }
