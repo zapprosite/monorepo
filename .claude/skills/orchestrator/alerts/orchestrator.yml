@@ -1,0 +1,92 @@
+# Orchestrator Prometheus Alerts
+# Part of: SPEC-071-V3 (OBSERVABILITY LAYER)
+# Target: .claude/skills/orchestrator/metrics/registry.prom
+# Usage: Import into Prometheus alerting rules
+
+groups:
+  - name: orchestrator_pipeline
+    interval: 30s
+    rules:
+      - alert: OrchestratorPipelineFailure
+        expr: pipeline_runs_total{status="failed"} > 0
+        for: 1m
+        labels:
+          severity: critical
+          component: orchestrator
+        annotations:
+          summary: "Pipeline failure detected"
+          description: "Pipeline {{ $labels.pipeline }} has failed. Trace ID: {{ $labels.trace_id }}"
+
+      - alert: OrchestratorHighErrorRate
+        expr: rate(agent_errors_total[10m]) > 0.5
+        for: 5m
+        labels:
+          severity: warning
+          component: orchestrator
+        annotations:
+          summary: "High agent error rate"
+          description: "Agent {{ $labels.agent }} is erroring at {{ $labels.exit_code }}/min"
+
+      - alert: OrchestratorPipelineSlow
+        expr: pipeline_duration_seconds{status="running"} > 600
+        for: 10m
+        labels:
+          severity: warning
+          component: orchestrator
+        annotations:
+          summary: "Pipeline running >10 minutes"
+          description: "Pipeline {{ $labels.pipeline }} has been running for >10 minutes"
+
+      - alert: OrchestratorDLAvailable
+        expr: count(agent_errors_total{exits_code!="0"}) >= 3
+        for: 0m
+        labels:
+          severity: critical
+          component: orchestrator
+        annotations:
+          summary: "Dead Letter Queue entries detected"
+          description: "Agent {{ $labels.agent }} has 3+ failures — DLQ threshold reached. Manual intervention required."
+
+      - alert: OrchestratorHighTokenUsage
+        expr: rate(llm_tokens_total[1h]) > 100000
+        for: 5m
+        labels:
+          severity: warning
+          component: orchestrator
+        annotations:
+          summary: "High LLM token consumption"
+          description: "Pipeline using {{ $labels.model }} at {{ $value }} tokens/hour"
+
+      - alert: OrchestratorQueueBacklog
+        expr: pipeline_queue_depth > 10
+        for: 5m
+        labels:
+          severity: warning
+          component: orchestrator
+        annotations:
+          summary: "Pipeline queue backlog"
+          description: "Pipeline queue depth is {{ $value }} (>10)"
+
+      - alert: OrchestratorAgentTimeout
+        expr: agent_duration_seconds{status="timeout"} > 0
+        for: 0m
+        labels:
+          severity: critical
+          component: orchestrator
+        annotations:
+          summary: "Agent timeout detected"
+          description: "Agent {{ $labels.agent }} timed out after {{ $value }} seconds"
+
+  - name: orchestrator_circuit_breaker
+    interval: 30s
+    rules:
+      - alert: OrchestratorCircuitBreakerOpen
+        expr: rate(agent_errors_total[5m]) >= 2
+        for: 2m
+        labels:
+          severity: critical
+          component: orchestrator
+          sub_component: circuit_breaker
+        annotations:
+          summary: "Circuit breaker open for agent"
+          description: "Agent {{ $labels.agent }} has triggered circuit breaker (≥2 errors in 5min)"
