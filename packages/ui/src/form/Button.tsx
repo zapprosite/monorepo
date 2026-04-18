@@ -1,1 +1,1 @@
-export { type ButtonProps, default as Button } from "@mui/material/Button";
+export { type ButtonProps, default as Button } from '@mui/material/Button';
