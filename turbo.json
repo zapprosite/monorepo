@@ -31,17 +31,9 @@
     "db:seed": {
       "cache": false
     },
-    "deploy": {
-      "cache": false,
-      "dependsOn": ["build"]
-    },
     "clean": {
       "cache": false,
       "outputs": []
-    },
-    "db:generate": {
-      "cache": false,
-      "dependsOn": []
     }
   }
 }
