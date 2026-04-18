@@ -1,40 +1,53 @@
-# HVAC-R WhatsApp Swarm
+# homelab-monorepo
 
-Multi-agent swarm para atendimento técnico HVAC-R via WhatsApp.
+Agent orchestration platform — Fastify + tRPC API, React 19 frontend, PostgreSQL (OrchidORM), Qdrant vector DB, Hermes AI agent.
 
-## Status
+## Stack
 
-**Phase:** SPEC Draft (8 SPECs created)
-
-## Architecture
-
-- Go 1.23+ goroutines
-- Redis 7 (task board + state)
-- Qdrant 1.13 (vector search)
-- Gemini 2.5 Flash (LLM)
-- WhatsApp Cloud API
-
-## SPECs
-
-| # | Title | Status |
-|---|-------|--------|
-| SPEC-001 | Core Swarm Architecture | DRAFT |
-| SPEC-002 | Redis Task Board | DRAFT |
-| SPEC-003 | Memory Layers | DRAFT |
-| SPEC-004 | WhatsApp Integration | DRAFT |
-| SPEC-005 | RAG Pipeline | DRAFT |
-| SPEC-006 | Billing & Stripe | DRAFT |
-| SPEC-007 | Deployment | DRAFT |
-| SPEC-008 | All Agents | DRAFT |
+| Layer | Tech |
+|-------|------|
+| API | Fastify + tRPC + OrchidORM + PostgreSQL |
+| Frontend | React 19 + Vite + MUI + TanStack Query |
+| AI Gateway | LiteLLM proxy + Ollama + MiniMax |
+| Vector DB | Qdrant |
+| Agent | Hermes (`:8642`) |
+| TTS | Kokoro + TTS Bridge (`:8013`) |
+| STT | whisper-medium-pt (`:8204`) |
+| Database UI | pgAdmin (`pgadmin.zappro.site`) |
 
 ## Quick Start
 
 ```bash
-make dev   # Development
-make build # Build binary
-make test  # Run tests
+pnpm install
+pnpm dev          # All apps
+pnpm build        # Production build
+pnpm lint         # Lint
+pnpm tsc --noEmit # Type check
 ```
 
-## Reference
+## Apps
 
-See \`REFERENCE-blueprint.md\` for full architecture (2306 lines).
+- `apps/api` — Fastify + tRPC API server
+- `apps/web` — React 19 frontend
+- `apps/ai-gateway` — OpenAI-compatible LLM facade (`:4002`)
+- `apps/hermes-agency` — AI agent with voice + vision
+
+## Commands
+
+| Cmd | Use |
+|-----|-----|
+| `/spec <desc>` | Spec-driven workflow |
+| `/pg` | Generate pipeline from SPECs |
+| `/ship` | Commit + push + PR |
+| `/turbo` | Commit + merge + tag |
+| `/img` | Image analysis (Qwen2.5-VL) |
+
+## Docs
+
+- `docs/SPECS/` — Feature specifications
+- `docs/ARCHITECTURE-OVERVIEW.md` — Full stack overview
+- `docs/INFRASTRUCTURE/PORTS.md` — Port registry
+
+## Secrets
+
+All via `.env`. See `.env.example`. Never hardcode.

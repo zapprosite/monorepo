@@ -16,7 +16,7 @@
     },
     {
       "id": "REVIEW-IMPORTANT-002",
-      "title": "[REVIEW-20260416] PINNED-SERVICES.md: STT port 8201→8204 drift",
+      "title": "[REVIEW-20260416] PINNED-SERVICES.md: STT port 8201\u21928204 drift",
       "description": "Whisper STT still listed at port 8201 (wav2vec2); SPEC-053 changed STT to faster-whisper on port 8204",
       "status": "done",
       "priority": "important",
@@ -73,7 +73,7 @@
     {
       "id": "TASK-05801-T2",
       "title": "[SPEC-058-01] Setup 9 Qdrant collections",
-      "description": "Criar as 9 coleções multi-tenant: agency_clients, agency_campaigns, agency_conversations, agency_assets, agency_brand_guides, agency_tasks, agency_video_metadata, agency_knowledge, agency_working_memory",
+      "description": "Criar as 9 cole\u00e7\u00f5es multi-tenant: agency_clients, agency_campaigns, agency_conversations, agency_assets, agency_brand_guides, agency_tasks, agency_video_metadata, agency_knowledge, agency_working_memory",
       "status": "done",
       "priority": "critical",
       "dependencies": [],
@@ -130,12 +130,12 @@
         }
       ],
       "completedAt": "2026-04-18T07:22:28.641166Z",
-      "note": "Blocked by container networking — Qdrant port 6333 not exposed to host (SPEC-058 dependency). Requires Coolify fix."
+      "note": "Blocked by container networking \u2014 Qdrant port 6333 not exposed to host (SPEC-058 dependency). Requires Coolify fix."
     },
     {
       "id": "TASK-05802-T1",
       "title": "[SPEC-058-02] Criar apps/hermes-agency skeleton",
-      "description": "Criar estrutura base do apps/hermes-agency com package.json, tsconfig, e diretórios src/skills/, src/langgraph/, src/router/, src/qdrant/, src/telegram/, src/litellm/",
+      "description": "Criar estrutura base do apps/hermes-agency com package.json, tsconfig, e diret\u00f3rios src/skills/, src/langgraph/, src/router/, src/qdrant/, src/telegram/, src/litellm/",
       "status": "done",
       "priority": "critical",
       "dependencies": [],
@@ -157,7 +157,7 @@
         },
         {
           "id": "TASK-05802-T1.3",
-          "title": "Diretórios src/skills/ src/langgraph/ src/router/ src/qdrant/ src/telegram/ src/litellm/",
+          "title": "Diret\u00f3rios src/skills/ src/langgraph/ src/router/ src/qdrant/ src/telegram/ src/litellm/",
           "status": "done"
         }
       ],
@@ -239,7 +239,7 @@
     {
       "id": "TASK-05803-T1",
       "title": "[SPEC-058-03] LangGraph content_pipeline",
-      "description": "Implementar WF-1: Content Pipeline — Client sends brief → CEO → CREATIVE → EDITOR → DESIGN → BRAND GUARDIAN → human gate → SOCIAL → ANALYTICS",
+      "description": "Implementar WF-1: Content Pipeline \u2014 Client sends brief \u2192 CEO \u2192 CREATIVE \u2192 EDITOR \u2192 DESIGN \u2192 BRAND GUARDIAN \u2192 human gate \u2192 SOCIAL \u2192 ANALYTICS",
       "status": "done",
       "priority": "high",
       "dependencies": [
@@ -255,7 +255,7 @@
     {
       "id": "TASK-05803-T2",
       "title": "[SPEC-058-03] LangGraph onboarding_flow",
-      "description": "Implementar WF-2: Onboarding Automation — New client → ONBOARDING → Qdrant init → HELPER welcome → PM milestone → CS check-in",
+      "description": "Implementar WF-2: Onboarding Automation \u2014 New client \u2192 ONBOARDING \u2192 Qdrant init \u2192 HELPER welcome \u2192 PM milestone \u2192 CS check-in",
       "status": "done",
       "priority": "high",
       "dependencies": [
@@ -271,7 +271,7 @@
     {
       "id": "TASK-05803-T3",
       "title": "[SPEC-058-03] LangGraph status_update",
-      "description": "Implementar WF-3: Status Update (recurring Monday 9am) — PM → ANALYTICS → CEO formats → Telegram broadcast",
+      "description": "Implementar WF-3: Status Update (recurring Monday 9am) \u2014 PM \u2192 ANALYTICS \u2192 CEO formats \u2192 Telegram broadcast",
       "status": "done",
       "priority": "high",
       "dependencies": [
@@ -287,7 +287,7 @@
     {
       "id": "TASK-05803-T4",
       "title": "[SPEC-058-03] LangGraph social_calendar",
-      "description": "Implementar WF-4: Social Calendar + Analytics — SOCIAL scrapes → ANALYTICS metrics → BRAND GUARDIAN review → Telegram channel report",
+      "description": "Implementar WF-4: Social Calendar + Analytics \u2014 SOCIAL scrapes \u2192 ANALYTICS metrics \u2192 BRAND GUARDIAN review \u2192 Telegram channel report",
       "status": "done",
       "priority": "high",
       "dependencies": [
@@ -303,7 +303,7 @@
     {
       "id": "TASK-05803-T5",
       "title": "[SPEC-058-03] LangGraph lead_qualification",
-      "description": "Implementar WF-5: Lead Qualification — New prospect → CS scores → if qualified: ONBOARDING task → else: nurture sequence",
+      "description": "Implementar WF-5: Lead Qualification \u2014 New prospect \u2192 CS scores \u2192 if qualified: ONBOARDING task \u2192 else: nurture sequence",
       "status": "done",
       "priority": "high",
       "dependencies": [
@@ -319,7 +319,7 @@
     {
       "id": "TASK-05804-T1",
       "title": "[SPEC-058-04] LiteLLM fallback chain config",
-      "description": "Configurar litellm_router com fallback chain: minimax-m2.7 (PRIMARY text) — texto SEMPRE via MiniMax. Ollama APENAS para Vision, STT, Embeddings.",
+      "description": "Configurar litellm_router com fallback chain: minimax-m2.7 (PRIMARY text) \u2014 texto SEMPRE via MiniMax. Ollama APENAS para Vision, STT, Embeddings.",
       "status": "done",
       "priority": "high",
       "dependencies": [
@@ -335,7 +335,7 @@
     {
       "id": "TASK-05804-T2",
       "title": "[SPEC-058-04] Redis semantic cache",
-      "description": "Implementar semantic cache layer no ai-gateway com Redis — 35-50% hit rate esperado, reduz cloud LLM cost de $8-10 para ~$4-5/mo",
+      "description": "Implementar semantic cache layer no ai-gateway com Redis \u2014 35-50% hit rate esperado, reduz cloud LLM cost de $8-10 para ~$4-5/mo",
       "status": "done",
       "priority": "high",
       "dependencies": [
@@ -351,7 +351,7 @@
     {
       "id": "TASK-05805-T1",
       "title": "[SPEC-058-05] Telegram bot skeleton",
-      "description": "Criar Telegram bot base em apps/hermes-agency/src/telegram/bot.ts — polling mode, per-chat locks, health check",
+      "description": "Criar Telegram bot base em apps/hermes-agency/src/telegram/bot.ts \u2014 polling mode, per-chat locks, health check",
       "status": "done",
       "priority": "high",
       "dependencies": [
@@ -383,8 +383,8 @@
     },
     {
       "id": "TASK-05805-T2",
-      "title": "[SPEC-058-05] Telegram handlers — 11 skills",
-      "description": "Implementar handlers para as 11 skills — cada handler recebe message, routing para skill correta, retorna response formatado",
+      "title": "[SPEC-058-05] Telegram handlers \u2014 11 skills",
+      "description": "Implementar handlers para as 11 skills \u2014 cada handler recebe message, routing para skill correta, retorna response formatado",
       "status": "done",
       "priority": "high",
       "dependencies": [
@@ -401,7 +401,7 @@
     {
       "id": "TASK-05805-T3",
       "title": "[SPEC-058-05] Human gate Telegram integration",
-      "description": "Integrar human gates no Telegram — quando confidence < 0.7, pausa e pede confirmação humana via Telegram poll",
+      "description": "Integrar human gates no Telegram \u2014 quando confidence < 0.7, pausa e pede confirma\u00e7\u00e3o humana via Telegram poll",
       "status": "done",
       "priority": "high",
       "dependencies": [
@@ -417,7 +417,7 @@
     {
       "id": "TASK-05806-T1",
       "title": "[SPEC-058-06] bge-m3 embedding integration",
-      "description": "Integrar bge-m3 embeddings para PT-BR hybrid search (sparse+dense via BM25) — 1024 dimensions",
+      "description": "Integrar bge-m3 embeddings para PT-BR hybrid search (sparse+dense via BM25) \u2014 1024 dimensions",
       "status": "done",
       "priority": "medium",
       "dependencies": [
@@ -433,7 +433,7 @@
     {
       "id": "TASK-05806-T2",
       "title": "[SPEC-058-06] Hybrid search for all 9 collections",
-      "description": "Implementar hybrid search (BM25 + dense vector) em todas as 9 coleções — PT-BR content optimization",
+      "description": "Implementar hybrid search (BM25 + dense vector) em todas as 9 cole\u00e7\u00f5es \u2014 PT-BR content optimization",
       "status": "done",
       "priority": "medium",
       "dependencies": [
@@ -449,7 +449,7 @@
     {
       "id": "TASK-05807-T1",
       "title": "[SPEC-058-07] RBAC para agency skills",
-      "description": "Implementar RBAC layer — cada skill tem permission scope, MCP permission gate verifica acesso",
+      "description": "Implementar RBAC layer \u2014 cada skill tem permission scope, MCP permission gate verifica acesso",
       "status": "done",
       "priority": "medium",
       "dependencies": [
@@ -465,7 +465,7 @@
     {
       "id": "TASK-05807-T2",
       "title": "[SPEC-058-07] Audit logging",
-      "description": "Implementar audit log — todas as chamadas de skills gravadas em agency_conversations com metadata",
+      "description": "Implementar audit log \u2014 todas as chamadas de skills gravadas em agency_conversations com metadata",
       "status": "done",
       "priority": "medium",
       "dependencies": [
@@ -481,7 +481,7 @@
     {
       "id": "TASK-05808-T1",
       "title": "[SPEC-058-08] smoke-agency-suite.sh 11/11",
-      "description": "Criar smoke-tests/smoke-agency-suite.sh — testa: Hermes skills (11), Qdrant collections (9), LiteLLM chain (3 tiers), Telegram bot, human gates",
+      "description": "Criar smoke-tests/smoke-agency-suite.sh \u2014 testa: Hermes skills (11), Qdrant collections (9), LiteLLM chain (3 tiers), Telegram bot, human gates",
       "status": "done",
       "priority": "high",
       "dependencies": [
@@ -499,7 +499,7 @@
     {
       "id": "TASK-05808-T2",
       "title": "[SPEC-058-08] Prometheus metrics",
-      "description": "Expor métricas Prometheus: cache hit rate, LLM latency, task completion rate, human gate triggers",
+      "description": "Expor m\u00e9tricas Prometheus: cache hit rate, LLM latency, task completion rate, human gate triggers",
       "status": "done",
       "priority": "medium",
       "dependencies": [
@@ -515,7 +515,7 @@
     {
       "id": "TASK-ENTERPRISE-01",
       "title": "[ENTERPRISE] Executar 14 agentes de pesquisa",
-      "description": "Executar 14 agentes em paralelo para pesquisar melhores práticas (April 2026) para enterprise refactor de CLAUDE.md e AGENTS.md",
+      "description": "Executar 14 agentes em paralelo para pesquisar melhores pr\u00e1ticas (April 2026) para enterprise refactor de CLAUDE.md e AGENTS.md",
       "status": "done",
       "priority": "high",
       "dependencies": [],
@@ -601,7 +601,7 @@
     {
       "id": "TASK-ENTERPRISE-02",
       "title": "[ENTERPRISE] Refatorar CLAUDE.md enterprise",
-      "description": "Atualizar CLAUDE.md com: seção /execute, cron jobs diários, skill delegation, memory sync, anti-alucinação rules",
+      "description": "Atualizar CLAUDE.md com: se\u00e7\u00e3o /execute, cron jobs di\u00e1rios, skill delegation, memory sync, anti-alucina\u00e7\u00e3o rules",
       "status": "done",
       "priority": "high",
       "dependencies": [
@@ -615,12 +615,12 @@
       "subtasks": [
         {
           "id": "TASK-ENTERPRISE-02.1",
-          "title": "Seção /execute documentada",
+          "title": "Se\u00e7\u00e3o /execute documentada",
           "status": "pending"
         },
         {
           "id": "TASK-ENTERPRISE-02.2",
-          "title": "Seção Cron jobs diários",
+          "title": "Se\u00e7\u00e3o Cron jobs di\u00e1rios",
           "status": "pending"
         },
         {
@@ -630,7 +630,7 @@
         },
         {
           "id": "TASK-ENTERPRISE-02.4",
-          "title": "Memory sync pós-commit",
+          "title": "Memory sync p\u00f3s-commit",
           "status": "pending"
         }
       ],
@@ -705,20 +705,20 @@
     },
     {
       "id": "TASK-067-01",
-      "title": "[SPEC-067-T1] Corrigir config.yaml — llava-phi3→qwen2.5vl + rate limits",
-      "description": "Em /home/will/zappro-lite/config.yaml: substituir llava-phi3 (CRASHES SIGSEGV) por qwen2.5vl:7b. Aumentar rpm: 10→30. Adicionar max_parallel_requests: 3. Corrigir whisper-1 api_base de wav2vec2:8201→faster-whisper:8204.",
+      "title": "[SPEC-067-T1] Corrigir config.yaml \u2014 llava-phi3\u2192qwen2.5vl + rate limits",
+      "description": "Em /home/will/zappro-lite/config.yaml: substituir llava-phi3 (CRASHES SIGSEGV) por qwen2.5vl:7b. Aumentar rpm: 10\u219230. Adicionar max_parallel_requests: 3. Corrigir whisper-1 api_base de wav2vec2:8201\u2192faster-whisper:8204.",
       "status": "done",
       "priority": "high",
       "dependencies": [],
       "subtasks": [
         {
           "id": "TASK-067-01.1",
-          "title": "llava-phi3 → qwen2.5vl:7b",
+          "title": "llava-phi3 \u2192 qwen2.5vl:7b",
           "status": "completed"
         },
         {
           "id": "TASK-067-01.2",
-          "title": "rpm: 10→30",
+          "title": "rpm: 10\u219230",
           "status": "completed"
         },
         {
@@ -728,7 +728,7 @@
         },
         {
           "id": "TASK-067-01.4",
-          "title": "whisper-1 api_base → faster-whisper:8204",
+          "title": "whisper-1 api_base \u2192 faster-whisper:8204",
           "status": "completed"
         }
       ],
@@ -746,7 +746,7 @@
     },
     {
       "id": "TASK-067-02",
-      "title": "[SPEC-067-T2] Docker GPU + memory limits — zappro-litellm",
+      "title": "[SPEC-067-T2] Docker GPU + memory limits \u2014 zappro-litellm",
       "description": "Em /home/will/zappro-lite/docker-compose.yml: NVIDIA_VISIBLE_DEVICES=0, memory 4GiB, shm_size 256MB, OLLAMA_NUM_PARALLEL=4.",
       "status": "done",
       "priority": "high",
@@ -782,8 +782,8 @@
     },
     {
       "id": "TASK-067-03",
-      "title": "[SPEC-067-T3] Ollama systemd override — parallel 4 + loaded 2",
-      "description": "/etc/systemd/system/ollama.service.d/override.conf: OLLAMA_NUM_PARALLEL 1→4, OLLAMA_MAX_LOADED_MODELS 1→2, OLLAMA_GPU_OVERHEAD=512.",
+      "title": "[SPEC-067-T3] Ollama systemd override \u2014 parallel 4 + loaded 2",
+      "description": "/etc/systemd/system/ollama.service.d/override.conf: OLLAMA_NUM_PARALLEL 1\u21924, OLLAMA_MAX_LOADED_MODELS 1\u21922, OLLAMA_GPU_OVERHEAD=512.",
       "status": "done",
       "priority": "high",
       "dependencies": [],
@@ -817,7 +817,7 @@
     },
     {
       "id": "TASK-067-04",
-      "title": "[SPEC-067-T4] Ollama model management — rm llava-phi3 + pull q5",
+      "title": "[SPEC-067-T4] Ollama model management \u2014 rm llava-phi3 + pull q5",
       "description": "Executar 'ollama rm llava-phi3:latest' e 'ollama pull qwen2.5vl:7b-q5_k_m'.",
       "status": "done",
       "priority": "high",
@@ -835,7 +835,7 @@
         }
       ],
       "acceptanceCriteria": [
-        "llava-phi3 não aparece em ollama list",
+        "llava-phi3 n\u00e3o aparece em ollama list",
         "qwen2.5vl:7b-q5_k_m aparece"
       ],
       "files": [],
@@ -890,8 +890,8 @@
     },
     {
       "id": "TASK-069-01",
-      "title": "[SPEC-069] smoke_hermes_telegram.py — suite pytest",
-      "description": "Criar smoke-tests/smoke_hermes_telegram.py com 7 testes: T1(/start PT-BR), T2(chat simples), T3(áudio STT), T4(TTS audível), T5(Vision imagem), T6(bidirecional CLI+App), T7(agency-ceo routing). Usa python-telegram-bot, 3 modos: interactive/ci/cli.",
+      "title": "[SPEC-069] smoke_hermes_telegram.py \u2014 suite pytest",
+      "description": "Criar smoke-tests/smoke_hermes_telegram.py com 7 testes: T1(/start PT-BR), T2(chat simples), T3(\u00e1udio STT), T4(TTS aud\u00edvel), T5(Vision imagem), T6(bidirecional CLI+App), T7(agency-ceo routing). Usa python-telegram-bot, 3 modos: interactive/ci/cli.",
       "status": "done",
       "priority": "critical",
       "dependencies": [],
@@ -940,10 +940,10 @@
       "acceptanceCriteria": [
         "SC-1: /start responde PT-BR natural",
         "SC-2: Chat simples PT-BR funciona",
-        "SC-3: Áudio PT-BR transcrito",
-        "SC-4: TTS audível na resposta",
+        "SC-3: \u00c1udio PT-BR transcrito",
+        "SC-4: TTS aud\u00edvel na resposta",
         "SC-5: Imagem descrita em PT-BR",
-        "SC-6: Bidirecional Claude↔Utilizador funciona",
+        "SC-6: Bidirecional Claude\u2194Utilizador funciona",
         "SC-7: Skill routing agency-ceo funciona"
       ],
       "completedAt": "2026-04-18T07:19:48.577548Z"
@@ -951,7 +951,7 @@
     {
       "id": "TASK-069-02",
       "title": "[SPEC-069] conftest.py + fixtures",
-      "description": "Criar conftest.py com fixtures: bot_client (python-telegram-bot), test_chat_id, bot_context, audio_fixture, image_fixture. pytest.ini com markers (interactive/ci/cli). requirements.txt com dependências.",
+      "description": "Criar conftest.py com fixtures: bot_client (python-telegram-bot), test_chat_id, bot_context, audio_fixture, image_fixture. pytest.ini com markers (interactive/ci/cli). requirements.txt com depend\u00eancias.",
       "status": "done",
       "priority": "critical",
       "dependencies": [],
@@ -984,7 +984,7 @@
     {
       "id": "TASK-069-03",
       "title": "[SPEC-069] fixtures audio + imagem",
-      "description": "Gravar/coletar fixtures de áudio PT-BR (ola-mundo.m4a, bom-dia.m4a) e imagens (cachorro.jpg, cafe.jpg) em smoke-tests/fixtures/audio/ e smoke-tests/fixtures/images/. Áudio 5-10s voz pm_santa/pf_dora.",
+      "description": "Gravar/coletar fixtures de \u00e1udio PT-BR (ola-mundo.m4a, bom-dia.m4a) e imagens (cachorro.jpg, cafe.jpg) em smoke-tests/fixtures/audio/ e smoke-tests/fixtures/images/. \u00c1udio 5-10s voz pm_santa/pf_dora.",
       "status": "done",
       "priority": "high",
       "dependencies": [],
@@ -997,12 +997,12 @@
       "subtasks": [
         {
           "id": "TASK-069-03.1",
-          "title": "Áudio ola-mundo.ptb.m4a (5-10s PT-BR)",
+          "title": "\u00c1udio ola-mundo.ptb.m4a (5-10s PT-BR)",
           "status": "pending"
         },
         {
           "id": "TASK-069-03.2",
-          "title": "Áudio bom-dia.ptb.m4a (5-10s PT-BR)",
+          "title": "\u00c1udio bom-dia.ptb.m4a (5-10s PT-BR)",
           "status": "pending"
         },
         {
@@ -1020,8 +1020,8 @@
     },
     {
       "id": "TASK-069-04",
-      "title": "[SPEC-069] README.md — instruções de execução",
-      "description": "Criar smoke-tests/README.md com: como instalar dependências (pip install -r requirements.txt), variáveis de ambiente (TELEGRAM_BOT_TOKEN, TEST_CHAT_ID), modos de execução (interactive/ci/cli), como gravar novos fixtures.",
+      "title": "[SPEC-069] README.md \u2014 instru\u00e7\u00f5es de execu\u00e7\u00e3o",
+      "description": "Criar smoke-tests/README.md com: como instalar depend\u00eancias (pip install -r requirements.txt), vari\u00e1veis de ambiente (TELEGRAM_BOT_TOKEN, TEST_CHAT_ID), modos de execu\u00e7\u00e3o (interactive/ci/cli), como gravar novos fixtures.",
       "status": "done",
       "priority": "medium",
       "dependencies": [
@@ -1037,8 +1037,8 @@
     },
     {
       "id": "TASK-071-V1",
-      "title": "[SPEC-071-V1] VERSION LOCK ENTERPRISE — ficheiro único + drift detection",
-      "description": "Criar VERSION-LOCK.md como única fonte de verdade para todas as versões pinned. Scripts versions-check.sh e versions-update.sh. CI integration para drift detection.",
+      "title": "[SPEC-071-V1] VERSION LOCK ENTERPRISE \u2014 ficheiro \u00fanico + drift detection",
+      "description": "Criar VERSION-LOCK.md como \u00fanica fonte de verdade para todas as vers\u00f5es pinned. Scripts versions-check.sh e versions-update.sh. CI integration para drift detection.",
       "status": "done",
       "priority": "critical",
       "dependencies": [],
@@ -1086,8 +1086,8 @@
     },
     {
       "id": "TASK-071-V2",
-      "title": "[SPEC-071-V2] ORCHESTRATOR v2 — Critical Path Engine + circuit breaker",
-      "description": "Adicionar circuit breaker (3 retries, exp backoff), reentrancy lock (PID lock por pipeline), dead letter queue após 3 falhas. Modificar run_agents.sh para integrar.",
+      "title": "[SPEC-071-V2] ORCHESTRATOR v2 \u2014 Critical Path Engine + circuit breaker",
+      "description": "Adicionar circuit breaker (3 retries, exp backoff), reentrancy lock (PID lock por pipeline), dead letter queue ap\u00f3s 3 falhas. Modificar run_agents.sh para integrar.",
       "status": "done",
       "priority": "critical",
       "dependencies": [
@@ -1132,14 +1132,14 @@
       "acceptanceCriteria": [
         "AC-V2-1: Circuit breaker activa retries (max 3, exp backoff)",
         "AC-V2-2: Reentrancy lock previne duplicar agente na mesma pipeline",
-        "AC-V2-3: Dead letter queue criada após 3 falhas",
+        "AC-V2-3: Dead letter queue criada ap\u00f3s 3 falhas",
         "AC-V2-4: run_agents.sh integra todos os components"
       ],
       "completedAt": "2026-04-18T00:00:00.000000Z"
     },
     {
       "id": "TASK-071-V3",
-      "title": "[SPEC-071-V3] OBSERVABILITY LAYER — Prometheus metrics + Grafana",
+      "title": "[SPEC-071-V3] OBSERVABILITY LAYER \u2014 Prometheus metrics + Grafana",
       "description": "Criar metrics_collector.sh para expor Prometheus metrics (pipeline_duration_seconds, agent_errors_total, llm_tokens_total). Grafana dashboard JSON. Trace ID UUID por pipeline.",
       "status": "done",
       "priority": "high",
@@ -1157,12 +1157,12 @@
       "subtasks": [
         {
           "id": "TASK-071-V3.1",
-          "title": "metrics_collector.sh — Prometheus exporter",
+          "title": "metrics_collector.sh \u2014 Prometheus exporter",
           "status": "done"
         },
         {
           "id": "TASK-071-V3.2",
-          "title": "trace_id.sh — UUID generation por pipeline",
+          "title": "trace_id.sh \u2014 UUID generation por pipeline",
           "status": "done"
         },
         {
@@ -1180,14 +1180,14 @@
         "AC-V3-1: Prometheus metrics para pipeline duration",
         "AC-V3-2: Prometheus metrics para agent errors",
         "AC-V3-3: Prometheus metrics para LLM cost",
-        "AC-V3-4: Grafana dashboard importável",
+        "AC-V3-4: Grafana dashboard import\u00e1vel",
         "AC-V3-5: Trace ID UUID por pipeline"
       ],
       "completedAt": "2026-04-18T00:00:00.000000Z"
     },
     {
       "id": "TASK-071-V4",
-      "title": "[SPEC-071-V4] ROLLBACK ENGINE — State snapshots + rollback command",
+      "title": "[SPEC-071-V4] ROLLBACK ENGINE \u2014 State snapshots + rollback command",
       "description": "Criar snapshot.sh antes de cada agente. Rollback.sh para restaurar. Git revert como fallback. Runbook de rollback em docs/OPS/RUNBOOKS/PIPELINE-ROLLBACK.md.",
       "status": "done",
       "priority": "critical",
@@ -1205,12 +1205,12 @@
       "subtasks": [
         {
           "id": "TASK-071-V4.1",
-          "title": "snapshot.sh — cp -r src + git rev-parse HEAD",
+          "title": "snapshot.sh \u2014 cp -r src + git rev-parse HEAD",
           "status": "done"
         },
         {
           "id": "TASK-071-V4.2",
-          "title": "rollback.sh — /rollback --agent=X --to=PIPELINE",
+          "title": "rollback.sh \u2014 /rollback --agent=X --to=PIPELINE",
           "status": "done"
         },
         {
@@ -1227,14 +1227,14 @@
       "acceptanceCriteria": [
         "AC-V4-1: Snapshot criado antes de cada agente",
         "AC-V4-2: /rollback --agent=X --to=PIPELINE restaura snapshot",
-        "AC-V4-3: Git revert como fallback se snapshot não existe",
+        "AC-V4-3: Git revert como fallback se snapshot n\u00e3o existe",
         "AC-V4-4: Runbook documentado"
       ],
       "completedAt": "2026-04-18T14:00:00.000000Z"
     },
     {
       "id": "TASK-071-V5",
-      "title": "[SPEC-071-V5] CAPACITY PLANNER — Resource calculator + auto-throttle",
+      "title": "[SPEC-071-V5] CAPACITY PLANNER \u2014 Resource calculator + auto-throttle",
       "description": "Criar capacity_calculator.sh (RAM_total / RAM_per_agent, CPU cores). auto_throttle.sh quando >80% CPU. Warning quando RAM <20% livre.",
       "status": "done",
       "priority": "medium",
@@ -1251,12 +1251,12 @@
       "subtasks": [
         {
           "id": "TASK-071-V5.1",
-          "title": "capacity_calculator.sh — RAM/CPU disponíveis",
+          "title": "capacity_calculator.sh \u2014 RAM/CPU dispon\u00edveis",
           "status": "done"
         },
         {
           "id": "TASK-071-V5.2",
-          "title": "auto_throttle.sh — throttle when >80% CPU",
+          "title": "auto_throttle.sh \u2014 throttle when >80% CPU",
           "status": "done"
         },
         {
@@ -1266,7 +1266,7 @@
         }
       ],
       "acceptanceCriteria": [
-        "AC-V5-1: capacity_calculator.sh mostra RAM/CPU disponíveis",
+        "AC-V5-1: capacity_calculator.sh mostra RAM/CPU dispon\u00edveis",
         "AC-V5-2: Auto-throttle quando >80% CPU",
         "AC-V5-3: Warning quando RAM <20% livre"
       ],
@@ -1274,8 +1274,8 @@
     },
     {
       "id": "TASK-071-V6",
-      "title": "[SPEC-071-V6] COST ENGINE — Budget + model fallback",
-      "description": "Criar .orchestrator/budget.yml (default $0.50/pipeline). track_cost.sh para tracking. model_fallback.sh (o1-preview→o1-mini→haiku). Alert quando 80% budget usado.",
+      "title": "[SPEC-071-V6] COST ENGINE \u2014 Budget + model fallback",
+      "description": "Criar .orchestrator/budget.yml (default $0.50/pipeline). track_cost.sh para tracking. model_fallback.sh (o1-preview\u2192o1-mini\u2192haiku). Alert quando 80% budget usado.",
       "status": "done",
       "priority": "medium",
       "dependencies": [
@@ -1292,17 +1292,17 @@
       "subtasks": [
         {
           "id": "TASK-071-V6.1",
-          "title": ".orchestrator/budget.yml — default $0.50",
+          "title": ".orchestrator/budget.yml \u2014 default $0.50",
           "status": "done"
         },
         {
           "id": "TASK-071-V6.2",
-          "title": "track_cost.sh — cost tracking por pipeline",
+          "title": "track_cost.sh \u2014 cost tracking por pipeline",
           "status": "done"
         },
         {
           "id": "TASK-071-V6.3",
-          "title": "model_fallback.sh — o1-preview→o1-mini→haiku",
+          "title": "model_fallback.sh \u2014 o1-preview\u2192o1-mini\u2192haiku",
           "status": "done"
         },
         {
@@ -1312,8 +1312,8 @@
         }
       ],
       "acceptanceCriteria": [
-        "AC-V6-1: Budget por pipeline configurável",
-        "AC-V6-2: Model fallback automático se budget exceeded",
+        "AC-V6-1: Budget por pipeline configur\u00e1vel",
+        "AC-V6-2: Model fallback autom\u00e1tico se budget exceeded",
         "AC-V6-3: Alert quando 80% budget usado",
         "AC-V6-4: Cost tracking por SPEC"
       ],
@@ -1321,7 +1321,7 @@
     },
     {
       "id": "TASK-071-V7",
-      "title": "[SPEC-071-V7] SELF-HEALING RUNBOOKS — P1-P4 + orchestrator",
+      "title": "[SPEC-071-V7] SELF-HEALING RUNBOOKS \u2014 P1-P4 + orchestrator",
       "description": "Criar runbooks para P1-P4 (service down, degraded, non-critical, informational) + ORCHESTRATOR-FAILURE + PIPELINE-ROLLBACK. Index em docs/OPS/RUNBOOKS/README.md.",
       "status": "done",
       "priority": "high",
@@ -1372,7 +1372,7 @@
         },
         {
           "id": "TASK-071-V7.7",
-          "title": "docs/OPS/RUNBOOKS/README.md — index",
+          "title": "docs/OPS/RUNBOOKS/README.md \u2014 index",
           "status": "done"
         }
       ],
@@ -1383,16 +1383,148 @@
         "AC-V7-4: Index em docs/OPS/RUNBOOKS/README.md"
       ],
       "completedAt": "2026-04-18T00:00:00.000000Z"
+    },
+    {
+      "id": "TASK-072-01",
+      "name": "Docker container XTTS-v2 em :8020",
+      "status": "pending",
+      "priority": "critical"
+    },
+    {
+      "id": "TASK-072-02",
+      "name": "XTTS provider in audio-speech.ts",
+      "status": "pending",
+      "priority": "critical"
+    },
+    {
+      "id": "TASK-072-03",
+      "name": "Reference audio files para pm_santa e pf_dora",
+      "status": "pending",
+      "priority": "high"
+    },
+    {
+      "id": "TASK-072-04",
+      "name": "Kokoro as fallback \u2014 dual TTS provider",
+      "status": "pending",
+      "priority": "high"
+    },
+    {
+      "id": "TASK-072-05",
+      "name": "Benchmark: XTTS vs Kokoro",
+      "status": "pending",
+      "priority": "medium"
+    },
+    {
+      "id": "TASK-072-06",
+      "name": "Update SPEC-027 e documentation",
+      "status": "pending",
+      "priority": "medium"
+    },
+    {
+      "id": "TASK-072-07",
+      "name": "Smoke test \u2014 Hermes responds with XTTS voice",
+      "status": "pending",
+      "priority": "critical"
+    },
+    {
+      "id": "TASK-073-01",
+      "name": "SPEC-073 Agente Bibliotec\u00e1rio draft",
+      "status": "pending",
+      "priority": "medium"
+    },
+    {
+      "id": "TASK-074-01",
+      "name": "SPEC-074 Hermes Second Brain Mem0 draft",
+      "status": "pending",
+      "priority": "medium"
+    },
+    {
+      "id": "TASK-075-01",
+      "name": "SPEC-075 Jarvis prompt de retorno draft",
+      "status": "pending",
+      "priority": "low"
+    },
+    {
+      "id": "TASK-076-01",
+      "title": "[SPEC-076] Install F5-TTS (zero-shot voice clone)",
+      "description": "Research 18/04: F5-TTS > XTTS v2. Best zero-shot quality (8/10), active 2026, PyTorch 2.5.1. Install via: pip install f5-tts or GhostTalker clone.",
+      "status": "pending",
+      "priority": "critical",
+      "dependencies": [],
+      "specRef": "SPEC-076",
+      "files": [".xtts-venv/"],
+      "acceptanceCriteria": ["F5-TTS loads and generates voice clone"],
+      "subtasks": [
+        {"id": "TASK-076-01.1", "title": "pip install f5-tts", "status": "pending"},
+        {"id": "TASK-076-01.2", "title": "Verify: python -c 'from f5_tts import F5TTS; print(F5TTS())'", "status": "pending"}
+      ]
+    },
+    {
+      "id": "TASK-076-02",
+      "title": "[SPEC-076] Generate Kokoro reference samples",
+      "description": "Generate Kokoro baseline TTS samples (pf_dora, pm_santa) with PT-BR trava-línguas and complex phrases for A/B comparison",
+      "status": "pending",
+      "priority": "critical",
+      "dependencies": [],
+      "specRef": "SPEC-076",
+      "files": ["/srv/monorepo/kokoro_trava_lingua.wav"],
+      "acceptanceCriteria": ["Kokoro samples generated for both voices"],
+      "subtasks": [
+        {"id": "TASK-076-02.1", "title": "kokoro_trava_lingua.wav (pf_dora)", "status": "done"},
+        {"id": "TASK-076-02.2", "title": "kokoro_pm_santa_trava.wav", "status": "done"},
+        {"id": "TASK-076-02.3", "title": "kokoro_pf_dora_frase.wav", "status": "done"},
+        {"id": "TASK-076-02.4", "title": "kokoro_pm_santa_frase.wav", "status": "done"},
+        {"id": "TASK-076-02.5", "title": "kokoro_pf_dora_simple.wav", "status": "done"},
+        {"id": "TASK-076-02.6", "title": "kokoro_pm_santa_simple.wav", "status": "done"}
+      ]
+    },
+    {
+      "id": "TASK-076-03",
+      "title": "[SPEC-076] Generate F5-TTS clone samples with user voice",
+      "description": "Generate F5-TTS voice clone samples using will_voice_ZapPro.wav (28.2s) and will_voice_Jarvis_home_lab.wav (16.8s) as reference. Test:rava-línguas + complex phrase.",
+      "status": "pending",
+      "priority": "critical",
+      "dependencies": ["TASK-076-01"],
+      "specRef": "SPEC-076",
+      "files": ["/srv/monorepo/test_voice_clone.py", "/srv/monorepo/will_voice_ZapPro.wav", "/srv/monorepo/will_voice_Jarvis_home_lab.wav"],
+      "acceptanceCriteria": ["f5tts_zappro_trava.wav and f5tts_zappro_frase.wav generated"],
+      "subtasks": [
+        {"id": "TASK-076-03.1", "title": "F5-TTS — ZapPro 28s —rava-línguas", "status": "pending"},
+        {"id": "TASK-076-03.2", "title": "F5-TTS — ZapPro 28s — complex phrase", "status": "pending"},
+        {"id": "TASK-076-03.3", "title": "F5-TTS — Jarvis 16s —rava-línguas", "status": "pending"}
+      ]
+    },
+    {
+      "id": "TASK-076-04",
+      "title": "[SPEC-076] Subjective A/B evaluation — Kokoro vs F5-TTS",
+      "description": "Compare: naturalidade, timbre, prosódia, clareza, artefactos. Scale 1-5. If F5-TTS ≥ 4/5 → surgical swap Kokoro → F5-TTS",
+      "status": "pending",
+      "priority": "critical",
+      "dependencies": ["TASK-076-02", "TASK-076-03"],
+      "specRef": "SPEC-076",
+      "files": [],
+      "acceptanceCriteria": ["Evaluation documented in SPEC-076", "Decision: swap or keep Kokoro"]
+    },
+    {
+      "id": "TASK-076-05",
+      "title": "[SPEC-076] Surgical swap: Kokoro → F5-TTS (if approved)",
+      "description": "If F5-TTS clone quality ≥ 4/5: replace Kokoro TTS with F5-TTS in hermes-agency, keep Kokoro as fallback. Update SPEC-072 and PORTS.md.",
+      "status": "pending",
+      "priority": "critical",
+      "dependencies": ["TASK-076-04"],
+      "specRef": "SPEC-076",
+      "files": ["apps/hermes-agency/src/", "docs/SPECS/SPEC-072-tts-ptbr-gpu24gb-upgrade.md"],
+      "acceptanceCriteria": ["Hermes uses F5-TTS clone voice", "Kokoro fallback works if F5-TTS fails", "Docs updated"]
     }
   ],
   "meta": {
-    "totalTasks": 45,
+    "totalTasks": 57,
     "completedTasks": 41,
-    "pendingTasks": 4,
+    "pendingTasks": 16,
     "blockedTasks": 0,
-    "generatedAt": "2026-04-18T12:00",
+    "generatedAt": "2026-04-18T18:30",
     "projectName": "zappro-monorepo",
-    "version": "2.1",
+    "version": "2.3",
     "specs": [
       "SPEC-058",
       "SPEC-059",
@@ -1400,7 +1532,10 @@
       "SPEC-061",
       "SPEC-067",
       "SPEC-069",
-      "SPEC-071"
+      "SPEC-071",
+      "SPEC-072",
+      "SPEC-076"
     ]
-  }
+  },
+  "description": "Added SPEC-076 voice clone tasks (5 new tasks)"
 }

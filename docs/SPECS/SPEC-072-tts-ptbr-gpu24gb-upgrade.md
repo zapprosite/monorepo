@@ -162,15 +162,16 @@ Se tens gravações reais das vozes `pm_santa`/`pf_dora`, usar essas.
 
 **Coqui.ai shutdown announced 2025.** XTTS-v2 funciona mas Coqui não está mais ativo.
 
-### Alternatives (for future evaluation)
+### Alternatives (ranked by recommendation)
 
 | Model | Status | Quality | VRAM | License |
 |-------|--------|---------|------|---------|
-| **XTTS-v2** (Coqui) | ⚠️ Deprecated | 7.5/10 | 3-4GB | MPL-2.0 |
+| **F5-TTS** | ✅ **RECOMMENDED** | 8/10 | ~4GB | CC-BY-NC-4.0 |
 | **Fish Speech 1.4** | ✅ Active | 7.5/10 | 6-8GB | Apache 2.0 |
 | **Parler-TTS** | ✅ Active | 8/10 | 4-6GB | Apache 2.0 |
+| **XTTS-v2** (Coqui) | ⚠️ Deprecated | 7.5/10 | 3-4GB | MPL-2.0 |
 
-**Recommendation:** Test XTTS-v2 agora (funciona, só não vai ter updates). Fish Speech como backup se Coqui morrer completamente.
+**Recommendation (SPEC-076):** F5-TTS is now the primary recommendation for voice cloning. See [SPEC-076-xtts2-voice-clone.md](./SPEC-076-xtts2-voice-clone.md) for the evaluation protocol. F5-TTS outperforms XTTS-v2 in benchmarks and is actively maintained in 2026. Fish Speech as backup if F5-TTS fails.
 
 ---
 
@@ -223,7 +224,25 @@ Se VRAM livre < 4GB → não iniciar XTTS, usar Kokoro
 - SPEC-027: Voice pipeline canonical — IMUTÁVEL
 - SPEC-053: STT (Whisper) — IMUTÁVEL
 - VRAM: 24GB RTX 4090 — REQUIRED
-- Reference audio: 2 × 3-5s WAV files — **REQUIRED**
+- Reference audio: will_voice_ZapPro.wav (28.2s), will_voice_Jarvis_home_lab.wav (16.8s) — **USER'S OWN VOICE** — CLONE TEST
+
+## 9.1 USER VOICE CLONE EVALUATION (SPEC-076)
+
+**Objetivo:** Avaliar se XTTS 2 com voice clone da voz real do utilizador substitui Kokoro completamente.
+
+**User voice samples (already provided):**
+| File | Duration | Sample Rate | Status |
+|------|----------|-------------|--------|
+| `will_voice_ZapPro.wav` | 28.2s | 48kHz mono | ✅ Ideal (≥30s needed) |
+| `will_voice_Jarvis_home_lab.wav` | 16.8s | 48kHz mono | ⚠️ Below threshold |
+
+**Evaluation Protocol:**
+1. Install XTTS v2 + PyTorch 2.5.1 (fix weights_only compat)
+2. Generate Kokoro sample (pf_dora) — baseline
+3. Generate XTTS clone with will_voice_ZapPro.wav reference
+4. Subjective comparison: naturalidade, timbre, prosódia, artefactos
+5. If XTTS clone ≥ 4/5 in all attributes → surgical swap Kokoro → XTTS
+6. If failed → document findings, keep Kokoro
 
 ---
 
