@@ -23,30 +23,9 @@
       "createdAt": 1775847723443,
       "lastFiredAt": 1776411001403,
       "recurring": true
-    },
-    {
-      "id": "d38dae54",
-      "cron": "0 5 * * *",
-      "prompt": "Test coverage check: Run test coverage analysis on the monorepo. Report any packages/apps with coverage below threshold. Update coverage metrics if possible.",
-      "createdAt": 1775847723446,
-      "lastFiredAt": 1776414637800,
-      "recurring": true
-    },
-    {
-      "id": "238fccfa",
-      "cron": "0 6 * * *",
-      "prompt": "Secrets audit: Run /se or secrets scan on recent commits. Check for hardcoded secrets, API keys, or credentials in the codebase. Report any findings.",
-      "createdAt": 1775847723449,
-      "lastFiredAt": 1776418254182,
-      "recurring": true
-    },
-    {
-      "id": "165ff990",
-      "cron": "0 8 * * *",
-      "prompt": "MCP health check: Verify all MCP servers are responding. Check ai-context, gitea-access, coolify-access, and other MCP tools. Report any that are down.",
-      "createdAt": 1775847723453,
-      "lastFiredAt": 1776425412048,
-      "recurring": true
     }
+  ]
+}
+}
   ]
 }
