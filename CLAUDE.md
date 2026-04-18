@@ -31,6 +31,7 @@
 - No secrets in code
 - Test before commit
 - Keep modules independent
+- **MANDATORY:** Ao finalizar qualquer tarefa relacionada a uma SPEC, você **DEVE** obrigatoriamente atualizar o status da SPEC no arquivo `docs/SPECS/SPEC-INDEX.md`.
 
 ## Spec-Driven Flow
 
@@ -42,8 +43,7 @@
 
 > **Regra de ouro:** Zero hardcode — URLs, portas, tokens, model names, API keys. Tudo via `process.env`.
 
-- **`.env` é a ÚNICA fonte canónica** — Infisical pruned. Ler via `process.env` apenas.
-- Infisical SDK PROIBIDO em qualquer código
+- **`.env` é a ÚNICA fonte canónica**. Ler via `process.env` apenas.
 - Secret ausente → `openssl rand -hex 32` → `.env` + `.env.example`
 - **URLs e portas também são env vars** — nunca `http://localhost:8202` hardcoded
 - Comentar topo de cada ficheiro: `// Anti-hardcoded: all config via process.env`
@@ -58,12 +58,17 @@
 
 ## AI Gateway (SPEC-047/048)
 
-`apps/ai-gateway/` — Porta `:4002`. Ponto único OpenAI-compat para toda a stack multimodal:
+`apps/ai-gateway/` — Porta `:4002`. OpenAI-compatible facade:
 
-- **Texto** → `gpt-4o` → `Gemma4-12b-it` (via Ollama)
-- **Visão** → `gpt-4o-vision` → `qwen2.5vl:7b` via Ollama/LiteLLM
-- **Voz (TTS)** → `tts-1`/`tts-1-hd` → TTS Bridge `:8013` → Kokoro (`pm_santa`/`pf_dora`)
-- **STT** → `whisper-1` → whisper-medium-pt (`:8204`) via faster-whisper OpenAI-compat — WER 6.6% PT-BR
-- **Hermes** usa ai-gateway para STT; TTS directo `:8013`; Vision directo Ollama
-- `AI_GATEWAY_FACADE_KEY` — chave única em `.env`
-- Smoke: `bash smoke-tests/smoke-multimodal-stack.sh` (13/13)
+- **Texto** → `MiniMax-M2.7` (primary) / `llama3-portuguese-tomcat-8b` (fallback)
+- **Visão** → `qwen2.5vl:7b` via Ollama
+- **TTS** → `tts-1`/`tts-1-hd` → TTS Bridge `:8013` → Kokoro (`pm_santa`/`pf_dora`)
+- **STT** → `whisper-1` → whisper-medium-pt (`:8204`) — WER 6.6% PT-BR
+- Hermes usa ai-gateway para STT; TTS directo `:8013`; Vision directo Ollama
+
+## Database
+
+- **PostgreSQL**: `zappro-litellm-db` container (Docker coolify network)
+- **UI**: pgAdmin via `pgadmin.zappro.site`
+- **Connected repo DB**: `connected_repo_db` (OrchidORM migrations via Coolify deploy)
+- Env vars: `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`

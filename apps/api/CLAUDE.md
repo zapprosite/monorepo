@@ -6,6 +6,7 @@
 - Zod validation
 
 ## DB Rules
+- DB via env: `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`
 - Use DB time for dates (not JS Date)
 - No manual migrations: `yarn db g <name>`
 - snake_case columns via Orchid ORM
