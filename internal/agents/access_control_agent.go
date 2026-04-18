@@ -3,6 +3,7 @@ package agents
 import (
 	"context"
 	"fmt"
+	"log"
 	"time"
 )
 
@@ -192,7 +193,19 @@ return {0, new_remaining}
 	var remaining int
 	fmt.Sscanf(remainingStr, "%d", &remaining)
 
-	decision := AccessDecision(intResult)
+	var decision AccessDecision
+	switch intResult {
+	case 0:
+		decision = AccessAllow
+	case 1:
+		decision = AccessBlock
+	case 2:
+		decision = AccessRedirect
+	default:
+		// Reject unexpected values — log for security auditing
+		log.Printf("[access_control] unknown decision value: %d, blocking for safety", intResult)
+		decision = AccessBlock
+	}
 	return decision, remaining, nil
 }
 

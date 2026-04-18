@@ -23,6 +23,7 @@ type TaskQueueBackend interface {
 	ClaimTask(ctx context.Context, agentType, workerID string, timestamp int64) (*Task, error)
 	StealTask(ctx context.Context, srcAgentType, destAgentType string) (*Task, error)
 	CompleteTask(ctx context.Context, agentType, taskID string, output json.RawMessage, moveToDeadLetter bool) error
+	AddToProcessing(ctx context.Context, agentType, workerID string, task *Task) error
 	// Agent registry operations
 	RegisterAgent(ctx context.Context, info *AgentInfo) error
 	UpdateAgentHeartbeat(ctx context.Context, workerID string) error
@@ -194,13 +195,10 @@ func (w *SwarmWorker) claimTask() (*Task, error) {
 
 // markClaimed atomically marks a task as claimed in Redis processing hash.
 func (w *SwarmWorker) markClaimed(task *Task) *Task {
-	claimed, err := w.redis.ClaimTask(w.ctx, w.AgentType, w.ID, time.Now().Unix())
+	err := w.redis.AddToProcessing(w.ctx, w.AgentType, w.ID, task)
 	if err != nil {
-		log.Printf("[worker:%s] claim task %s error: %v", w.ID, task.TaskID, err)
+		log.Printf("[worker:%s] add to processing error for task %s: %v", w.ID, task.TaskID, err)
 		return task
-	}
-	if claimed != nil {
-		return claimed
 	}
 	return task
 }

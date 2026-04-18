@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"regexp"
@@ -40,12 +41,21 @@ type Entity struct {
 // It uses MiniMax M2 for intent classification and entity extraction.
 type ClassifierAgent struct {
 	minimaxAPIKey string
+	redisClient   RedisEnqueuer
 }
 
 // NewClassifierAgent creates a new ClassifierAgent.
 func NewClassifierAgent(minimaxAPIKey string) *ClassifierAgent {
 	return &ClassifierAgent{
 		minimaxAPIKey: minimaxAPIKey,
+	}
+}
+
+// NewClassifierAgentWithRedis creates a new ClassifierAgent with Redis client for routing.
+func NewClassifierAgentWithRedis(minimaxAPIKey string, redisClient RedisEnqueuer) *ClassifierAgent {
+	return &ClassifierAgent{
+		minimaxAPIKey: minimaxAPIKey,
+		redisClient:   redisClient,
 	}
 }
 
@@ -127,6 +137,43 @@ func (c *ClassifierAgent) Execute(ctx context.Context, task *SwarmTask) (map[str
 		"entities":         entities,
 		"rewritten_query":  rewrittenQuery,
 		"classifier.success": true,
+	}
+
+	// 6. Route to ranking queue if Redis client is configured
+	if c.redisClient != nil {
+		graphID := task.GraphID
+		if graphID == "" {
+			graphID = phone // fallback to phone as graph ID
+		}
+
+		rankingTask := map[string]any{
+			"task_id":    task.TaskID,
+			"graph_id":   graphID,
+			"node_id":    "ranking",
+			"type":       "ranking",
+			"status":     "pending",
+			"priority":   1,
+			"retries":    0,
+			"max_retries": 3,
+			"timeout_ms": 20000,
+			"input": map[string]any{
+				"query":           rewrittenQuery,
+				"intent":          string(intent),
+				"entities":        entities,
+				"normalized_text":  normalizedText,
+				"phone":           phone,
+				"classifier_output": result,
+			},
+		}
+
+		if err := c.redisClient.EnqueueTask(ctx, "ranking", rankingTask); err != nil {
+			log.Printf("[classifier] failed to enqueue ranking task: %v", err)
+			// Return error so worker can retry — routing failure should not be silent
+			return nil, fmt.Errorf("failed to route to ranking: %w", err)
+		}
+		log.Printf("[classifier] routed to ranking queue: graph_id=%s, intent=%s", graphID, intent)
+	} else {
+		log.Printf("[classifier] warning: no Redis client configured, skipping ranking routing")
 	}
 
 	return result, nil

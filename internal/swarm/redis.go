@@ -208,6 +208,25 @@ func (c *RedisClient) ClaimTask(ctx context.Context, agentType, workerID string,
 	}, nil
 }
 
+// AddToProcessing adds a task to the processing hash (used after PopTaskBlocking already consumed the task).
+func (c *RedisClient) AddToProcessing(ctx context.Context, agentType, workerID string, task *Task) error {
+	processingKey := ProcessingKey(agentType)
+	task.Status = "running"
+	task.WorkerID = &workerID
+	ts := time.Now().Unix()
+	task.ClaimedAt = &ts
+	data, err := json.Marshal(task)
+	if err != nil {
+		return fmt.Errorf("failed to marshal task: %w", err)
+	}
+	if err := c.rdb.HSet(ctx, processingKey, task.TaskID, data).Err(); err != nil {
+		return err
+	}
+	// Set TTL marker key so stale tasks can be detected and cleaned up
+	ttlKey := fmt.Sprintf("%s:ttl:%s", processingKey, task.TaskID)
+	return c.rdb.Set(ctx, ttlKey, "1", 5*time.Minute).Err()
+}
+
 // CompleteTask removes a task from processing and optionally moves to dead-letter.
 func (c *RedisClient) CompleteTask(ctx context.Context, agentType, taskID string, output json.RawMessage, moveToDeadLetter bool) error {
 	processingKey := ProcessingKey(agentType)

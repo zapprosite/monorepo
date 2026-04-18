@@ -5,12 +5,14 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"sort"
 	"strings"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/will-zappro/hvacr-swarm/internal/memory"
 )
 
@@ -20,6 +22,7 @@ type RankingAgent struct {
 	minScore     float64
 	maxTokens    int
 	minimaxAPIKey string
+	redisClient  RedisEnqueuer
 }
 
 // NewRankingAgent creates a new RankingAgent.
@@ -33,6 +36,13 @@ func NewRankingAgent(redis RedisCacheLayer, minimaxAPIKey string) *RankingAgent 
 		maxTokens:    4000,
 		minimaxAPIKey: minimaxAPIKey,
 	}
+}
+
+// NewRankingAgentWithRedis creates a RankingAgent with Redis client for routing.
+func NewRankingAgentWithRedis(redis RedisCacheLayer, minimaxAPIKey string, redisClient RedisEnqueuer) *RankingAgent {
+	agent := NewRankingAgent(redis, minimaxAPIKey)
+	agent.redisClient = redisClient
+	return agent
 }
 
 // RankingConfig holds configuration for the ranking agent.
@@ -71,7 +81,11 @@ type RankingOutput struct {
 
 // Execute implements AgentInterface.Execute.
 func (r *RankingAgent) Execute(ctx context.Context, task *SwarmTask) (map[string]any, error) {
+	// Get graph_id from task input (set by classifier), fall back to task.GraphID
 	graphID, _ := task.Input["graph_id"].(string)
+	if graphID == "" {
+		graphID = task.GraphID
+	}
 	if graphID == "" {
 		return nil, fmt.Errorf("graph_id is required")
 	}
@@ -88,6 +102,12 @@ func (r *RankingAgent) Execute(ctx context.Context, task *SwarmTask) (map[string
 
 	query, _ := task.Input["query"].(string)
 
+	// Initialize result variable for use in empty candidates case
+	var result map[string]any
+	var assembledContext string
+	var tokenCount int
+	var filteredCount int
+
 	// Step 1: Read candidates from graph state
 	candidates, err := r.readCandidates(ctx, task.Input)
 	if err != nil {
@@ -96,57 +116,95 @@ func (r *RankingAgent) Execute(ctx context.Context, task *SwarmTask) (map[string
 	}
 
 	if len(candidates) == 0 {
-		return map[string]any{
+		result = map[string]any{
 			"ranked_results":    []memory.SearchResult{},
 			"assembled_context": "",
 			"token_count":       0,
 			"filtered_count":    0,
-		}, nil
-	}
+		}
+		// Continue to routing step even with empty results
+	} else {
+		// Step 2: Re-rank using cross-encoder or MiniMax
+		ranked, err := r.rerankWithMiniMax(ctx, candidates, query, config)
+		if err != nil {
+			// Fallback to original scores if MiniMax fails
+			ranked = candidates
+		}
 
-	// Step 2: Re-rank using cross-encoder or MiniMax
-	ranked, err := r.rerankWithMiniMax(ctx, candidates, query, config)
-	if err != nil {
-		// Fallback to original scores if MiniMax fails
-		ranked = candidates
-	}
+		// Step 3: Filter by minimum score
+		filtered := make([]memory.SearchResult, 0, len(ranked))
+		for _, c := range ranked {
+			if c.Score >= config.MinScore {
+				filtered = append(filtered, c)
+			}
+		}
+		filteredCount = len(ranked) - len(filtered)
 
-	// Step 3: Filter by minimum score
-	filtered := make([]memory.SearchResult, 0, len(ranked))
-	for _, c := range ranked {
-		if c.Score >= config.MinScore {
-			filtered = append(filtered, c)
+		// Step 4: Assemble context within token limit
+		topN := config.TopN
+		if topN > len(filtered) {
+			topN = len(filtered)
+		}
+		topResults := filtered[:topN]
+
+		assembledContext, tokenCount, err = r.assembleContext(topResults, config.MaxTokens)
+		if err != nil {
+			return nil, fmt.Errorf("assemble context: %w", err)
+		}
+
+		// Step 5: Store in graph state
+		if r.redis != nil {
+			outputJSON, _ := json.Marshal(topResults)
+			r.redis.SetGraphState(ctx, graphID, map[string]interface{}{
+				"ranked_results":    string(outputJSON),
+				"assembled_context": assembledContext,
+			})
+		}
+
+		result = map[string]any{
+			"ranked_results":    topResults,
+			"assembled_context": assembledContext,
+			"token_count":       tokenCount,
+			"filtered_count":    filteredCount,
 		}
 	}
-	filteredCount := len(ranked) - len(filtered)
 
-	// Step 4: Assemble context within token limit
-	topN := config.TopN
-	if topN > len(filtered) {
-		topN = len(filtered)
+	// Step 6: Route to response queue if Redis client is configured
+	if r.redisClient != nil {
+		phone, _ := task.Input["phone"].(string)
+		normalizedText, _ := task.Input["normalized_text"].(string)
+		intent, _ := task.Input["intent"].(string)
+
+		responseTask := map[string]any{
+			"task_id":   uuid.New().String(),
+			"graph_id":  graphID,
+			"node_id":   "response",
+			"type":      "response",
+			"status":    "pending",
+			"priority":  1,
+			"retries":   0,
+			"max_retries": 3,
+			"timeout_ms": 20000,
+			"input": map[string]any{
+				"phone":            phone,
+				"normalized_text":  normalizedText,
+				"intent":           intent,
+				"assembled_context": assembledContext,
+				"ranking_output":   result,
+			},
+		}
+
+		if err := r.redisClient.EnqueueTask(ctx, "response", responseTask); err != nil {
+			log.Printf("[ranking] failed to enqueue response task: %v", err)
+			// Return error so worker can retry — routing failure should not be silent
+			return nil, fmt.Errorf("failed to route to response: %w", err)
+		}
+		log.Printf("[ranking] routed to response queue: graph_id=%s", graphID)
+	} else {
+		log.Printf("[ranking] warning: no Redis client configured, skipping response routing")
 	}
-	topResults := filtered[:topN]
 
-	assembledContext, tokenCount, err := r.assembleContext(topResults, config.MaxTokens)
-	if err != nil {
-		return nil, fmt.Errorf("assemble context: %w", err)
-	}
-
-	// Step 5: Store in graph state
-	if r.redis != nil {
-		outputJSON, _ := json.Marshal(topResults)
-		r.redis.SetGraphState(ctx, graphID, map[string]interface{}{
-			"ranked_results":    string(outputJSON),
-			"assembled_context": assembledContext,
-		})
-	}
-
-	return map[string]any{
-		"ranked_results":    topResults,
-		"assembled_context": assembledContext,
-		"token_count":       tokenCount,
-		"filtered_count":    filteredCount,
-	}, nil
+	return result, nil
 }
 
 // readCandidates reads candidates from graph state via redis.
