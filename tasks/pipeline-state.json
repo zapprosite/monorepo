@@ -1,8 +1,8 @@
 {
   "currentState": "SPEC_PENDING",
   "lintPassed": false,
-  "lastCheckpoint": "2026-04-17T23:25:00-03:00",
+  "lastCheckpoint": "2026-04-17T23:45:00-03:00",
   "specsInPipeline": ["SPEC-058", "SPEC-059", "SPEC-060", "SPEC-061", "SPEC-067", "SPEC-069"],
   "totalTasksInPipeline": 38,
-  "notes": "SPEC-069: T0/T1 PASS (Hermes online, bot token válido). T2/T3/T6 FAIL — polling conflito: 'terminated by other getUpdates request'. Há outro consumer a fazer getUpdates no mesmo bot token (8759194670:AAGHntxPUsfvbSrYNwOhBGuNUpmeCUw1-qY). Mensagens chegam ao Telegram mas Hermes não as recebe no log durante polling. Resolver conflito polling antes de automatizar T2/T3/T6. Audio/imagem fixtures: placeholders .gitkeep criados."
+  "notes": "SPEC-069: smoke_hermes_telegram.py 5/5 PASS (T0/T1/T2/T3/T6). T4/T5 SKIP (no fixtures). NOTE: Hermes restart loop (~5min) — verificação de Hermes receber mensagens é manual. Audio/imagem fixtures: placeholders .gitkeep criados."
 }
