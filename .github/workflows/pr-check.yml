@@ -34,3 +34,6 @@ jobs:
 
       - name: Test
         run: pnpm test
+
+      - name: Version drift check
+        run: bash scripts/versions-check.sh

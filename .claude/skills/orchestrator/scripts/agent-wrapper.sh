@@ -19,6 +19,13 @@ mkdir -p "$AGENT_STATE_DIR" "$LOGS_DIR"
 STATE_FILE="$AGENT_STATE_DIR/${AGENT_ID}.json"
 LOG_FILE="$LOGS_DIR/${AGENT_ID}.log"
 
+# V2: Reentrancy lock — prevent same agent from running twice in same pipeline
+PIPELINE_ID="$(basename "$SPEC_FILE" .md)"
+if ! bash "$SCRIPT_DIR/reentrancy_lock.sh" "$AGENT_ID" "$PIPELINE_ID"; then
+  echo "[$AGENT_ID] ABORTED: already running (reentrancy lock held)" >&2
+  exit 99
+fi
+
 # ─── Special handling per agent type ───────────────────────────────────────
 case "$AGENT_ID" in
   SHIPPER)
@@ -64,6 +71,8 @@ if [[ $EXIT_CODE -eq 0 ]]; then
 else
   STATUS="failed"
   echo "[$AGENT_ID] FAILED with exit code $EXIT_CODE at $(date)" >&2
+  # V2: Record in Dead Letter Queue
+  bash "$SCRIPT_DIR/dead_letter.sh" "$AGENT_ID" "$EXIT_CODE" "$LOG_FILE" || true
 fi
 
 cat > "$STATE_FILE" <<EOF

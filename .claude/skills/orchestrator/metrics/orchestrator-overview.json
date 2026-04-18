@@ -1,0 +1,196 @@
+{
+  "title": "Orchestrator Pipeline Overview",
+  "uid": "orchestrator-overview",
+  "version": 1,
+  "panels": [
+    {
+      "id": 1,
+      "title": "Pipeline Runs Total",
+      "type": "stat",
+      "gridPos": { "x": 0, "y": 0, "w": 6, "h": 4 },
+      "targets": [
+        {
+          "expr": "sum(pipeline_runs_total)",
+          "legendFormat": "Total Runs"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 2,
+      "title": "Agent Errors (Last 24h)",
+      "type": "stat",
+      "gridPos": { "x": 6, "y": 0, "w": 6, "h": 4 },
+      "targets": [
+        {
+          "expr": "sum(agent_errors_total)",
+          "legendFormat": "Total Errors"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 5 },
+              { "color": "red", "value": 10 }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 3,
+      "title": "Pipeline Duration (seconds)",
+      "type": "timeseries",
+      "gridPos": { "x": 12, "y": 0, "w": 12, "h": 4 },
+      "targets": [
+        {
+          "expr": "pipeline_duration_seconds{pipeline=~\".+\"}",
+          "legendFormat": "{{pipeline}} ({{status}})"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 20
+          }
+        }
+      }
+    },
+    {
+      "id": 4,
+      "title": "Pipeline Runs Over Time",
+      "type": "timeseries",
+      "gridPos": { "x": 0, "y": 4, "w": 12, "h": 5 },
+      "targets": [
+        {
+          "expr": "rate(pipeline_runs_total[5m])",
+          "legendFormat": "Runs/min"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 10
+          }
+        }
+      }
+    },
+    {
+      "id": 5,
+      "title": "Agent Errors by Agent",
+      "type": "bargauge",
+      "gridPos": { "x": 12, "y": 4, "w": 12, "h": 5 },
+      "targets": [
+        {
+          "expr": "sum by (agent) (agent_errors_total)",
+          "legendFormat": "{{agent}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "palette-classic"
+          }
+        }
+      }
+    },
+    {
+      "id": 6,
+      "title": "LLM Tokens Consumed",
+      "type": "timeseries",
+      "gridPos": { "x": 0, "y": 9, "w": 12, "h": 5 },
+      "targets": [
+        {
+          "expr": "rate(llm_tokens_total[5m])",
+          "legendFormat": "{{model}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 10
+          }
+        }
+      }
+    },
+    {
+      "id": 7,
+      "title": "Pipeline Queue Depth",
+      "type": "gauge",
+      "gridPos": { "x": 12, "y": 9, "w": 6, "h": 5 },
+      "targets": [
+        {
+          "expr": "pipeline_queue_depth{pipeline=~\".+\"}",
+          "legendFormat": "{{pipeline}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 5 },
+              { "color": "red", "value": 10 }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 8,
+      "title": "Agent Duration by Status",
+      "type": "timeseries",
+      "gridPos": { "x": 18, "y": 9, "w": 6, "h": 5 },
+      "targets": [
+        {
+          "expr": "agent_duration_seconds{agent=~\".+\"}",
+          "legendFormat": "{{agent}} ({{status}})"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 10
+          }
+        }
+      }
+    }
+  ],
+  "templating": {
+    "list": [
+      {
+        "name": "pipeline",
+        "type": "query",
+        "query": "label_values(pipeline_runs_total, pipeline)"
+      }
+    ]
+  },
+  "refresh": "30s",
+  "schemaVersion": 38,
+  "style": "dark"
+}
