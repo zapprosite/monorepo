@@ -107,11 +107,13 @@ EOF
 
   else
     # Claude agent (runs in background, may take minutes)
+    # V2: Circuit breaker wrapper (3 retries, exp backoff, DLQ)
     nohup bash "$SCRIPT_DIR/agent-wrapper.sh" \
       "$AGENT_ID" "$CMD" "$SPEC_FILE" \
-      > "$LOG_FILE" 2>&1 &
+      >> "$LOG_FILE" 2>&1 &
 
-    echo "  $AGENT_ID: running in background (PID: $!)"
+    BG_PID=$!
+    echo "  $AGENT_ID: running in background (PID: $BG_PID)"
   fi
 done
 
