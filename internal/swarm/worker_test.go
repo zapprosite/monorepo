@@ -118,6 +118,10 @@ func (m *mockRedisForWorker) GetProcessingTasks(_ context.Context, agentType str
 	return nil, nil
 }
 
+func (m *mockRedisForWorker) AddToProcessing(_ context.Context, agentType, workerID string, task *Task) error {
+	return nil
+}
+
 // mockAgent implements agents.AgentInterface for testing.
 type mockAgent struct {
 	agentType string
@@ -411,4 +415,8 @@ func (m *mockRedisWithTracking) reset() {
 	*m.pushCount = 0
 	*m.completeCount = 0
 	*m.deadLetter = false
+}
+
+func (m *mockRedisWithTracking) AddToProcessing(ctx context.Context, agentType, workerID string, task *Task) error {
+	return m.mockRedisForWorker.AddToProcessing(ctx, agentType, workerID, task)
 }
