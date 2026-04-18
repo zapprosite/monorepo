@@ -13,6 +13,16 @@ import pytest
 sys.path.insert(0, str(Path(__file__).parent))
 
 
+def pytest_addoption(parser):
+    """Registar opções de linha de comando."""
+    parser.addoption(
+        "--interactive",
+        action="store_true",
+        default=False,
+        help="Executar testes interactivos (que requerem utilizador humano)"
+    )
+
+
 def pytest_configure(config):
     """Registar markers."""
     config.addinivalue_line("markers", "interactive: Teste que requer utilizador humano (CLI + App)")
@@ -21,8 +31,8 @@ def pytest_configure(config):
 
 
 def pytest_collection_modifyitems(config, items):
-    """Por default, ignorar testes interactive se não há --interactive."""
-    if not config.getoption("--interactive", default=False):
+    """Por default, ignorar testes interactive se --interactive não está ativo."""
+    if not config.getoption("--interactive"):
         skip_interactive = pytest.mark.skip(reason="Modo interactive: usa --interactive para executar")
         for item in items:
             if "interactive" in item.keywords:
