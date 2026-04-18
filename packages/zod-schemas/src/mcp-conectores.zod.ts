@@ -1,9 +1,6 @@
-import z from "zod";
-import { zString, zTimestamps } from "./zod_utils.js";
-import {
-	mcpProviderZod,
-	mcpConectarStatusZod,
-} from "./crm_enums.zod.js";
+import z from 'zod';
+import { mcpConectarStatusZod, mcpProviderZod } from './crm_enums.zod.js';
+import { zString, zTimestamps } from './zod_utils.js';
 
 export const mcpConectorCreateInputZod = z.object({
 	provider: mcpProviderZod,
@@ -17,7 +14,7 @@ export const mcpConectorUpdateInputZod = mcpConectorCreateInputZod.partial();
 export const mcpConectorSelectAllZod = mcpConectorCreateInputZod
 	.extend({
 		id: z.string().uuid(),
-		status: mcpConectarStatusZod.default("pendente"),
+		status: mcpConectarStatusZod.default('pendente'),
 		usuarioCriacaoId: z.string().uuid(),
 		ultimaTentativaSync: z.date().nullable(),
 		erroUltimaTentativa: zString.nullable(),

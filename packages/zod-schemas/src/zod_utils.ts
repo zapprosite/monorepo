@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 /* Integer Types */
 export const zSmallint = (min = -32768, max = 32767) => z.int().min(min).max(max);
@@ -12,7 +12,7 @@ export const zDecimal = (precision: number, scale: number, min?: number, max?: n
 	let schema = z.coerce.number().refine(
 		(val) => {
 			const numStr = Math.abs(val).toString();
-			const [integerPart = "", decimalPart = ""] = numStr.split(".");
+			const [integerPart = '', decimalPart = ''] = numStr.split('.');
 
 			// NOTE:  Precision validation incorrect: counting digits from toString() fails for scientific notation (e.g., 1e10) and doesn't handle leading zeros properly
 			// Check precision (total significant digits including both integer and decimal parts)
@@ -71,13 +71,13 @@ export const zAmount = (min = Number.NEGATIVE_INFINITY, max = Number.POSITIVE_IN
 export const zGSTIN = zString
 	.toUpperCase()
 	.length(15)
-	.regex(/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/, "Invalid GSTIN format")
+	.regex(/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/, 'Invalid GSTIN format')
 	.refine((gstin: string) => {
-		const GSTIN_CHARS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+		const GSTIN_CHARS = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 		const chars = gstin.slice(0, 14);
 		const len = GSTIN_CHARS.length;
 
-		const total = chars.split("").reduce((acc, char, i) => {
+		const total = chars.split('').reduce((acc, char, i) => {
 			const codePoint = GSTIN_CHARS.indexOf(char);
 			const weight = i % 2 === 0 ? 1 : 2;
 			const product = codePoint * weight;
@@ -86,7 +86,7 @@ export const zGSTIN = zString
 
 		const checksumCodePoint = (len - (total % len)) % len;
 		return gstin[14] === GSTIN_CHARS[checksumCodePoint];
-	}, "Invalid GSTIN checksum");
+	}, 'Invalid GSTIN checksum');
 
 export const zPAN = zString
 	.toUpperCase()
@@ -107,9 +107,9 @@ export const zUdyamRegistrationNumber = zString
 export const zPhoneNumber = z
 	.string()
 	.trim()
-	.min(10, "Phone number must be at least 10 digits")
-	.max(15, "Phone number must be at most 15 digits")
-	.regex(/^[+]?[1-9][\d\s\-()]{8,14}$/, "Invalid phone number format");
+	.min(10, 'Phone number must be at least 10 digits')
+	.max(15, 'Phone number must be at most 15 digits')
+	.regex(/^[+]?[1-9][\d\s\-()]{8,14}$/, 'Invalid phone number format');
 
 /* Location Types */
 // https://stackoverflow.com/questions/3518504/regular-expression-for-matching-latitude-longitude-coordinates/31408260#31408260

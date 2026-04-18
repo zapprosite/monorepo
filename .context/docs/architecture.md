@@ -22,14 +22,14 @@ The project is structured as a **Modular Monolith** within a monorepo. This appr
 ## Technical Stack & Packages
 
 ### Shared Packages (`/packages`)
-- **`zod-schemas`**: The single source of truth for validation. Drives database layers, API validation, and frontend forms.
+- **`zod-schemas`**: The single source of truth for validation. It generates the types for the database layer, API validation, and frontend forms.
 - **`ui`**: Centralized library of React components, MUI theme configurations, and custom hook-based form builders (`rhf-form`).
 
 ### Applications (`/apps`)
 - **`apps/api`**: Primary backend hosting the tRPC server for the web app and a REST API Gateway for external products.
-- **`apps/web`**: Administrative and user dashboard.
+- **`apps/web`**: Administrative and user dashboard built with React.
 - **`apps/hermes-agency`**: AI/Agentic service managing long-running workflows with LangGraph and vector search via Qdrant.
-- **`apps/ai-gateway`**: Specialized proxy for LLM requests (OpenAI-compatible) with built-in Portuguese language filtering.
+- **`apps/ai-gateway`**: Specialized proxy for LLM requests (OpenAI-compatible) with built-in Portuguese language filtering and audio/vision processing.
 
 ---
 
@@ -51,39 +51,39 @@ Backend logic is partitioned into modules in `apps/api/src/modules/`. Each modul
 The AI layer uses an **Agentic Router** pattern:
 *   **CEO/Router**: Analyzes user intent using `askCeoToRoute` and routes to specific "Skills".
 *   **Skills**: Modular executable units (e.g., `executeStatusUpdate`, `social_calendar`).
-*   **Human-in-the-loop**: Approval stages in the graph (e.g., `approveContentPipeline`) allow manual oversight.
+*   **Human-in-the-loop**: Approval stages in the graph (e.g., `approveContentPipeline`) allow manual oversight via Telegram or Web UI.
 
 ### 4. Distributed Locking & Rate Limiting
 To handle concurrent agent operations and external API constraints:
-*   **Redis-backed locks**: Found in `distributed_lock.ts` (`acquireLock`) to prevent race conditions.
-*   **Circuit Breakers**: Implemented in `agency_router.ts` to fail fast when external AI services or skills are unstable.
-*   **Rate Limiter**: Tracks usage in `rate_limiter.ts` to respect provider limits.
+*   **Redis-backed locks**: Managed via `distributed_lock.ts` (`acquireLock`) to prevent race conditions during stateful operations.
+*   **Circuit Breakers**: Implemented in `agency_router.ts` to fail fast when external AI services or specific skill integrations are unstable.
+*   **Rate Limiter**: Tracks usage in `rate_limiter.ts` to respect provider limits across distributed instances.
 
 ---
 
 ## Data Flow
 
-1.  **Client Request**: User interacts with a React component in `apps/web`.
-2.  **Transport**: The tRPC client sends a request. External tools hit `api-gateway` REST endpoints.
-3.  **Authentication**: Middleware such as `apiKeyAuthHook` or `sessionSecurity` validates the session or key.
+1.  **Client Request**: A user interacts with a React component in `apps/web`.
+2.  **Transport**: The tRPC client sends a request. External tools hit `api-gateway` REST endpoints in `apps/api`.
+3.  **Authentication**: Middleware such as `apiKeyAuthHook` or `sessionSecurity` validates the session or API key.
 4.  **Logic Execution**: The corresponding module (e.g., `loyalty`, `kanban`) processes the request using Orchid ORM.
 5.  **Agent Trigger**: If a workflow is required, the API communicates with `apps/hermes-agency` to trigger a LangGraph execution.
-6.  **Response**: Validated data is returned, ensuring the UI matches the server state exactly.
+6.  **Response**: Validated data is returned via Zod-serialized objects, ensuring the UI matches the server state exactly.
 
 ---
 
 ## Infrastructure & Observability
 
-- **Database**: PostgreSQL (Primary) + Qdrant (Vector Store for RAG).
+- **Database**: PostgreSQL (Primary) + Qdrant (Vector Store for RAG/Agent Memory).
 - **Caching/State**: Redis (used for rate limiting, distributed locks, and session storage).
 - **Error Handling**: Custom `AppError` class and `errorParser` utility provide consistent API error responses.
-- **Logging**: `requestLogger` middleware tracks API product request logs into the `ApiProductRequestLogsTable`.
+- **Logging**: `requestLogger` middleware tracks API product request logs into the `ApiProductRequestLogsTable` for billing and analytics.
 
 ---
 
 ## Development Guidelines
 
-- **Adding a Table**: Define the Zod schema in `packages/zod-schemas`, then create the table class in the relevant module in `apps/api/src/modules/`.
-- **Cross-Module Logic**: Avoid tight coupling. Interact through service methods rather than reaching directly into foreign tables.
-- **Time Handling**: Always use `timestampNumber` (Unix epoch milliseconds) for date-time fields to avoid timezone ambiguity during JSON serialization.
-- **UI Components**: Use components from `packages/ui` (e.g., `RhfTextField`, `PrimaryButton`) to maintain visual consistency.
+- **Adding a Table**: Define the Zod schema in `packages/zod-schemas`, then create the table class inheriting from `BaseTable` in the relevant module in `apps/api/src/modules/`.
+- **Cross-Module Logic**: Avoid tight coupling. Interact through service methods or hooks rather than reaching directly into foreign tables where possible.
+- **Time Handling**: Always use `timestampNumber` (Unix epoch milliseconds) for date-time fields to avoid timezone ambiguity during JSON serialization and across different service runtimes (Python/Node).
+- **UI Components**: Primarily use components from `packages/ui` (e.g., `RhfTextField`, `PrimaryButton`). Avoid creating local versions of buttons or inputs to maintain design system consistency.

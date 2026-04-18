@@ -33,9 +33,9 @@ Use standardized CLI commands to generate branches:
 Follow these steps to initialize your environment and run services locally.
 
 ### 1. Prerequisites
-*   **Node.js**: Ensure the version matches `.nvmrc`.
+*   **Node.js**: Ensure the version matches `.nvmrc` (v20+ recommended).
 *   **Yarn**: Version 1.x (Classic).
-*   **Docker**: Required for database (PostgreSQL) and cache (Redis) services.
+*   **Docker**: Required for database (PostgreSQL 15) and cache (Redis) services.
 
 ### 2. Initialization
 ```bash
@@ -53,7 +53,7 @@ yarn db -- up
 Use the root `yarn dev` command to start the core services concurrently:
 *   **Backend API**: `http://localhost:4000`
 *   **Web Frontend**: `http://localhost:5173`
-*   **AI Gateway**: (Consult `apps/ai-gateway/src/config` for specific ports)
+*   **AI Gateway**: `http://localhost:3001` (Check `apps/ai-gateway/src/index.ts` for dynamic overrides)
 
 > [!CAUTION]
 > **Port Safety**: NEVER use port `3000` on your local host. This port is strictly reserved for internal CapRover infrastructure.
@@ -61,7 +61,7 @@ Use the root `yarn dev` command to start the core services concurrently:
 ### 4. Validation Commands
 *   **Type Check**: `yarn check-types`
 *   **Full Build**: `yarn build` (Validates the entire monorepo connectivity)
-*   **Database Seed**: `yarn db:seed` (Populates local DB with development data)
+*   **Database Seed**: `yarn db:seed` (Populates local DB with development data via `apps/api/src/db/seed.ts`)
 
 ---
 
@@ -69,18 +69,30 @@ Use the root `yarn dev` command to start the core services concurrently:
 
 All Pull Requests require at least one maintainer approval. Reviews focus on:
 
-1.  **Type Integrity**: Zod schemas in `packages/zod-schemas` must accurately reflect the database (via Orchid ORM) and API contracts.
-    *   *Example*: `UserSelectAll` (from `packages/zod-schemas/src/user.zod.ts`) should match the fields in `UserTable` (from `apps/api/src/modules/users/users/users.table.ts`).
-2.  **Performance**: 
-    *   **API**: Check for "N+1" query patterns in `apps/api` controllers and routers.
-    *   **Web**: Audit for unnecessary re-renders in `apps/web` components.
-3.  **Consistency**: Use shared components from `packages/ui` instead of raw HTML/CSS. Utilize existing hooks like `useRhfForm` for form state management.
-4.  **Testing**: Ensure appropriate Vitest or E2E tests are included. Refer to the [Testing Strategy](./testing-strategy.md).
+### 1. Type Integrity
+Zod schemas in `packages/zod-schemas` must accurately reflect the database (via Orchid ORM) and API contracts.
+*   **Source of Truth**: If you change a table in `apps/api/src/modules/*/tables/*.table.ts`, update the corresponding `.zod.ts` in `packages/zod-schemas/src/`.
+*   **Example**: `UserSelectAll` (from `packages/zod-schemas/src/user.zod.ts`) must match the fields in `UserTable`.
 
-### AI Agent Collaboration
-When using AI tools (Cursor, Claude, etc.), follow the patterns established in `AGENTS.md`. Ensure AI-generated code respects:
+### 2. Performance
+*   **API**: Check for "N+1" query patterns in `apps/api` controllers and routers. Use Orchid ORM's join capabilities effectively.
+*   **Web**: Audit for unnecessary re-renders in `apps/web` components.
+
+### 3. Consistency
+*   **UI**: Use shared components from `packages/ui` (e.g., `PrimaryButton`, `ContentCard`) instead of raw HTML/CSS.
+*   **Forms**: Utilize the `useRhfForm` hook and `RhfTextField` components from `packages/ui/src/rhf-form` for standardized validation feedback.
+
+### 4. Testing
+Ensure appropriate Vitest or E2E tests are included. Refer to the [Testing Strategy](./testing-strategy.md).
+
+---
+
+## AI Agent Collaboration
+
+When using AI tools (Cursor, Claude, etc.), follow the patterns established in [AGENTS.md](../../AGENTS.md). Ensure AI-generated code respects:
 *   The centralized Zod schemas for all data boundaries.
 *   The repository's **Module-based architecture** (grouping routes, tables, and services by domain).
+*   The use of the `AppError` class for consistent error handling in the API.
 
 ---
 

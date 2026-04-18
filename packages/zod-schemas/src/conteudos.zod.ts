@@ -1,9 +1,6 @@
-import z from "zod";
-import { zString, zTimestamps } from "./zod_utils.js";
-import {
-	conteudoTipoZod,
-	conteudoStatusZod,
-} from "./crm_enums.zod.js";
+import z from 'zod';
+import { conteudoStatusZod, conteudoTipoZod } from './crm_enums.zod.js';
+import { zString, zTimestamps } from './zod_utils.js';
 
 export const conteudoCreateInputZod = z.object({
 	titulo: zString,
@@ -11,7 +8,7 @@ export const conteudoCreateInputZod = z.object({
 	descricao: zString.nullable().default(null),
 	corpo: zString,
 	tipo: conteudoTipoZod,
-	status: conteudoStatusZod.default("rascunho"),
+	status: conteudoStatusZod.default('rascunho'),
 	geradoIA: z.boolean().default(false),
 	seoTitulo: zString.nullable().default(null),
 	seoDescricao: zString.nullable().default(null),
@@ -49,11 +46,10 @@ export const conteudoRevisaoCreateInputZod = z.object({
 
 export const conteudoRevisaoUpdateInputZod = conteudoRevisaoCreateInputZod.partial();
 
-export const conteudoRevisaoSelectAllZod = conteudoRevisaoCreateInputZod
-	.extend({
-		id: z.string().uuid(),
-		createdAt: z.date(),
-	});
+export const conteudoRevisaoSelectAllZod = conteudoRevisaoCreateInputZod.extend({
+	id: z.string().uuid(),
+	createdAt: z.date(),
+});
 
 export type ConteudoRevisaoCreateInput = z.infer<typeof conteudoRevisaoCreateInputZod>;
 export type ConteudoRevisaoUpdateInput = z.infer<typeof conteudoRevisaoUpdateInputZod>;

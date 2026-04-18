@@ -1,5 +1,5 @@
-import z from "zod";
-import { zText, zTimestamps, zVarchar } from "./zod_utils.js";
+import z from 'zod';
+import { zText, zTimestamps, zVarchar } from './zod_utils.js';
 
 const unitMandatoryZod = z.object({
 	clienteId: z.uuid(),

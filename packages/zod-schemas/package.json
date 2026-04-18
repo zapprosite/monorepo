@@ -1,32 +1,32 @@
 {
-  "name": "@repo/zod-schemas",
-  "version": "1.0.0",
-  "description": "Common Zod Schemas to be used everywhere",
-  "type": "module",
-  "sideEffects": false,
-  "repository": "git@github.com:teziapp/connected-repo-starter.git",
-  "author": "Balkrishna Agarwal",
-  "license": "AGPL-3.0-only",
-  "private": true,
-  "scripts": {
-    "check-types": "tsc --noEmit",
-    "build": "tsc && tsc-alias",
-    "dev": "concurrently --kill-others \"tsc -w\" \"tsc-alias -w\"",
-    "clean": "rm -rf node_modules && rm -rf dist",
-    "lint": "biome check .",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "typecheck": "tsc --noEmit"
-  },
-  "peerDependencies": {
-    "zod": "^4.1.12"
-  },
-  "devDependencies": {},
-  "exports": {
-    "./*": {
-      "types": "./src/*.ts",
-      "import": "./dist/*.js",
-      "default": "./dist/*.js"
-    }
-  }
+	"name": "@repo/zod-schemas",
+	"version": "1.0.0",
+	"description": "Common Zod Schemas to be used everywhere",
+	"type": "module",
+	"sideEffects": false,
+	"repository": "git@github.com:teziapp/connected-repo-starter.git",
+	"author": "Balkrishna Agarwal",
+	"license": "AGPL-3.0-only",
+	"private": true,
+	"scripts": {
+		"check-types": "tsc --noEmit",
+		"build": "tsc && tsc-alias",
+		"dev": "concurrently --kill-others \"tsc -w\" \"tsc-alias -w\"",
+		"clean": "rm -rf node_modules && rm -rf dist",
+		"lint": "biome check .",
+		"test": "vitest run",
+		"test:watch": "vitest",
+		"typecheck": "tsc --noEmit"
+	},
+	"peerDependencies": {
+		"zod": "^4.1.12"
+	},
+	"devDependencies": {},
+	"exports": {
+		"./*": {
+			"types": "./src/*.ts",
+			"import": "./dist/*.js",
+			"default": "./dist/*.js"
+		}
+	}
 }

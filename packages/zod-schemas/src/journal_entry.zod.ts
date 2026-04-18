@@ -1,8 +1,8 @@
-import z from "zod";
-import { zSmallint, zString, zTimestamps } from "./zod_utils.js";
+import z from 'zod';
+import { zSmallint, zString, zTimestamps } from './zod_utils.js';
 
 export const journalEntryMandatoryZod = z.object({
-	content: zString.min(1, "Content is required").max(50000),
+	content: zString.min(1, 'Content is required').max(50000),
 	authorUserId: z.uuid(),
 });
 

@@ -1,6 +1,6 @@
-import z from "zod";
-import { editorialChannelZod, editorialFormatZod, editorialStatusZod } from "./crm_enums.zod.js";
-import { zText, zTimestamps, zVarchar } from "./zod_utils.js";
+import z from 'zod';
+import { editorialChannelZod, editorialFormatZod, editorialStatusZod } from './crm_enums.zod.js';
+import { zText, zTimestamps, zVarchar } from './zod_utils.js';
 
 const editorialMandatoryZod = z.object({
 	titulo: zVarchar(1, 255),

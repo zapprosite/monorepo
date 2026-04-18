@@ -1,6 +1,6 @@
-import z from "zod";
-import { addressTypeZod } from "./crm_enums.zod.js";
-import { zTimestamps, zVarchar } from "./zod_utils.js";
+import z from 'zod';
+import { addressTypeZod } from './crm_enums.zod.js';
+import { zTimestamps, zVarchar } from './zod_utils.js';
 
 export const addressMandatoryZod = z.object({
 	clienteId: z.uuid(),

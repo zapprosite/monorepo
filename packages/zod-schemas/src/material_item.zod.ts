@@ -1,5 +1,5 @@
-import z from "zod";
-import { zTimestamps, zVarchar } from "./zod_utils.js";
+import z from 'zod';
+import { zTimestamps, zVarchar } from './zod_utils.js';
 
 const materialItemMandatoryZod = z.object({
 	serviceOrderId: z.string().uuid(),

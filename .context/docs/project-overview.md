@@ -10,18 +10,16 @@ The repository is organized using **Yarn Workspaces** and **Turborepo**, separat
 
 ### 1. Applications (`apps/`)
 
-*   **`apps/api`**: The core backend service. Built with **Fastify 5**, it hosts the **tRPC** router, REST endpoints, and background workers. It uses **Orchid ORM** for type-safe database interactions.
-    *   *Key Files*: `src/index.ts` (Entry), `src/routers/trpc.router.ts` (API Schema).
+*   **`apps/api`**: The core backend service. Built with **Fastify 5**, it hosts the **tRPC** router, REST endpoints, and background workers. It uses **Orchid ORM** for type-safe database interactions and session management.
 *   **`apps/web`**: The main frontend application. A **React 19** SPA powered by **Vite**, **TanStack Query**, and **Material-UI (MUI)**. It consumes the API via a type-safe tRPC client.
-    *   *Key Files*: `src/main.tsx` (Entry), `src/utils/trpc.ts` (Client).
-*   **`apps/ai-gateway`**: A specialized service providing an OpenAI-compatible interface, handling audio (STT/TTS), chat completions, and vision processing.
-*   **`apps/hermes-agency`**: A Python-based agentic framework utilizing **LangGraph** and **LiteLLM** for complex AI workflows, social media automation, and Telegram bot interactions.
+*   **`apps/ai-gateway`**: A specialized service providing an OpenAI-compatible interface, handling audio (STT/TTS), chat completions, and vision processing (Ollama/Kokoro/Whisper).
+*   **`apps/hermes-agency`**: A multi-agent framework utilizing **LangGraph**, **LiteLLM**, and **Qdrant** for complex AI workflows, social media automation, and Telegram bot interactions.
 
 ### 2. Shared Packages (`packages/`)
 
-*   **`packages/zod-schemas`**: The single source of truth for data validation. These schemas define the shape of data from the database layer up to the frontend forms.
-*   **`packages/ui`**: A shared component library integrating **MUI** with **React Hook Form (RHF)**, providing standardized inputs, buttons, and layout elements.
-*   **`packages/db`**: Centralized database configuration, migration management, and the Orchid ORM instance.
+*   **`packages/zod-schemas`**: The single source of truth for data validation. These schemas define the shape of data from the database layer (`apps/api`) up to the frontend forms (`apps/web`).
+*   **`packages/ui`**: A shared component library integrating **MUI v6** with **React Hook Form (RHF)**, providing standardized hooks (`useRhfForm`) and components (TextFields, Selects, Buttons).
+*   **`packages/db`**: Centralized database configuration, migration management, and the Orchid ORM instance shared by backend services.
 
 ---
 
@@ -32,24 +30,26 @@ The repository is organized using **Yarn Workspaces** and **Turborepo**, separat
 | **Language** | TypeScript (Primary), Python (AI/Agents) |
 | **Frontend Framework** | React 19 (SPA) |
 | **Backend Framework** | Fastify 5 |
-| **API Protocol** | tRPC (Internal), REST (External/Webhooks) |
+| **API Protocol** | tRPC (Internal), REST (External/Webhooks/AI) |
 | **Database** | PostgreSQL 15 |
 | **ORM** | Orchid ORM (Type-safe query builder) |
 | **Validation** | Zod |
 | **Styling/UI** | Material-UI (MUI) v6 |
 | **State Management** | TanStack Query (Server State) |
+| **AI Orchestration** | LangGraph, LiteLLM, Qdrant (Vector DB) |
 | **Build/Monorepo** | Vite, Turbo 2, Yarn Workspaces |
 
 ---
 
 ## 🚀 Key Entry Points
 
-*   **Backend API**: `apps/api/src/index.ts` (Running on Port 4000)
+*   **Backend API**: `apps/api/src/index.ts` (Port 4000)
     *   Exposes tRPC at `/trpc` and various REST webhooks.
-*   **Frontend Web**: `apps/web/src/main.tsx` (Running on Port 5173)
-*   **AI Gateway**: `apps/ai-gateway/src/index.ts` (Running on Port 3001)
+*   **Frontend Web**: `apps/web/src/main.tsx` (Port 5173)
+*   **AI Gateway**: `apps/ai-gateway/src/index.ts` (Port 3001)
     *   Routes: `/v1/chat/completions`, `/v1/audio/transcriptions`.
 *   **Hermes Agency Router**: `apps/hermes-agency/src/router/agency_router.ts`
+    *   Central hub for agency skill routing and confidence assessment.
 
 ---
 
@@ -65,7 +65,7 @@ This codebase is optimized for **Agentic Workflows**. It includes custom automat
 
 ## 📂 Logical Module Structure
 
-Functionality is grouped into modules that exist across the stack (API + Web). Most modules follow a consistent CRUD pattern:
+Functionality is grouped into modules that exist across the stack (API + Web). Most follows a consistent CRUD pattern:
 
 | Category | Modules |
 | :--- | :--- |

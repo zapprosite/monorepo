@@ -1,8 +1,8 @@
-import z from "zod";
-import { zSmallint, zString, zTimestamps } from "./zod_utils.js";
+import z from 'zod';
+import { zSmallint, zString, zTimestamps } from './zod_utils.js';
 
 export const promptMandatoryZod = z.object({
-	text: zString.min(1, "Prompt text is required").max(500),
+	text: zString.min(1, 'Prompt text is required').max(500),
 });
 
 export const promptOptionalZod = z.object({

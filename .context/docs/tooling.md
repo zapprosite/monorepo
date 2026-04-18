@@ -13,93 +13,93 @@ To contribute effectively, install and configure the following on your local mac
 | Tool | Version | Purpose |
 | :--- | :--- | :--- |
 | **Node.js** | `v22.x+` | Modern JS features & performance. |
-| **Yarn** | `v1.22.x` | Workspace and package management. |
+| **Yarn** | `v1.22.x` | Workspace and package management (v1 Classic). |
 | **Docker** | Latest | Running local PostgreSQL, Redis, and internal services. |
 | **Biome** | Latest | 10x faster linting and formatting than ESLint/Prettier. |
 | **Turbo** | Latest | Task orchestration, caching, and parallel execution. |
-| **PostgreSQL**| `15+` | Primary relational database. |
+| **PostgreSQL**| `15+` | Primary relational database managed via Orchid ORM. |
 
 ---
 
-## Required Environments & Services
+## Architecture & Service Map
 
-The monorepo relies on several interconnected services. Ensure these are running locally:
-*   **API Gateway (`apps/ai-gateway`)**: Listens on Port 4001. Handles AI model routing and PT-BR filtering.
-*   **Main API (`apps/api`)**: Listens on Port 4000. tRPC server and database entry point.
-*   **Frontend (`apps/web`)**: Listens on Port 5173. React/Vite application.
-*   **Orchid ORM**: Used for database interactions. Ensure your database connection strings in `.env` are accurate.
+The monorepo architecture segments logic across specialized applications. Ensure these core services are operational for local development:
+
+*   **API Gateway (`apps/ai-gateway`)**: Listens on **Port 4001**. Handles OpenAI-compatible routing, audio transcription (Whisper), and PT-BR content filtering.
+*   **Main API (`apps/api`)**: Listens on **Port 4000**. The primary tRPC server and interface for the PostgreSQL database.
+*   **Agency Service (`apps/hermes-agency`)**: Orchestrates AI agents using LangGraph and LiteLLM. Integrated with Telegram and Qdrant.
+*   **Frontend (`apps/web`)**: Listens on **Port 5173**. The primary React/Vite administration and CRM dashboard.
+*   **Shared UI (`packages/ui`)**: Atomic components and theme configurations used by the web application.
+*   **Shared Schemas (`packages/zod-schemas`)**: The "Single Source of Truth" for data validation across all apps.
 
 ---
 
-## Recommended Automation
+## Automation Workflows
 
-We automate "plumbing" tasks so you can focus on feature logic.
+We automate "plumbing" tasks so you can focus on business logic.
 
 ### 1. Code Generation & Scaffolding
 The repository includes a scaffolding system to reduce boilerplate across the stack.
-*   **Full-Stack Scaffolding:** Use `.agent/scripts/scaffold-module.sh` to generate:
-    *   **Backend:** Orchid ORM table → Zod Schema → tRPC Router.
+*   **Module Generation:** Run `.agent/scripts/scaffold-module.sh` to generate a synchronized vertical slice:
+    *   **Backend:** Orchid ORM table definition → Zod Schema → tRPC Router.
     *   **Frontend:** API Client → React Page → UI Components.
 
-### 2. Form & Validation Workflows
-We use a centralized Zod-to-UI pipeline:
-*   **Schema First:** Define all models and inputs in `packages/zod-schemas` (e.g., `UserCreateInput`).
-*   **Auto-Sync:** Use `yarn check-types`. Changes in schemas automatically flag errors in `apps/web` forms that utilize the `UseRhfForm` hook (found in `packages/ui/src/rhf-form/useRhfForm.tsx`) and UI components like `RhfTextField`.
+### 2. Form & Validation (Zod-to-UI)
+We use a centralized Zod pipeline to ensure frontend/backend parity:
+*   **Schema Source:** Define all models and inputs in `packages/zod-schemas` (e.g., `UserCreateInput`).
+*   **Type Safety:** `apps/web` consumes these schemas via the `useRhfForm` hook (`packages/ui/src/rhf-form/useRhfForm.tsx`) and standard components like `RhfTextField`.
+*   **Validation:** Use `yarn check-types` to find breaking changes across the monorepo when a shared schema is updated.
 
 ### 3. Database Lifecycle
-Database management is handled via `apps/api/src/db/db_script.ts`. Use these shortcuts:
-*   `yarn db -- g <name>`: Generate a new migration file.
-*   `yarn db -- up`: Migrate the local database to the latest version.
-*   `yarn db -- seed`: Populate the database with essential dev data (Users, Teams, CRM base).
-*   **Safety Note:** Always check `apps/api/src/db/migrations` before committing to ensure no unintended schema changes.
+Database management is handled via **Orchid ORM** in `apps/api/src/db`.
+*   `yarn db g <name>`: Generate a new migration file.
+*   `yarn db up`: Migrate the local database to the latest version.
+*   `yarn db seed`: Populate the database with essential dev data (Users, Teams, CRM base).
+*   **Safety:** Always audit `apps/api/src/db/migrations` before committing to prevent schema drift.
 
-### 4. Git & Commit Automation
-We follow **Conventional Commits**.
-*   `yarn commit`: Triggers a scripted flow that generates a semantic commit message based on your `git diff`.
-*   **Pre-commit Hooks:** Executed via `husky`. These run `biome check --apply` and `yarn check-types` on staged files.
+### 4. Git & Commit Quality
+*   **Conventional Commits:** Use `yarn commit` to trigger a scripted flow that generates semantic commit messages based on your `git diff`.
+*   **Pre-commit Hooks:** Managed via `husky`. These run `biome check --apply` and `yarn check-types` on staged files to prevent "lint-only" commits.
 
 ---
 
 ## IDE / Editor Setup
 
 ### VS Code Configuration
-The workspace settings include:
-*   **Format on Save:** Enabled via the **Biome** extension.
-*   **TypeScript:** Use the "Workspace Version" (TypeScript 5.x+).
-*   **Tailwind CSS:** Essential for styling components in `packages/ui`.
+The repository includes `.vscode` settings for an "out-of-the-box" experience:
+*   **Formatter:** Set to **Biome** (`biomejs.biome`).
+*   **TypeScript:** Ensure you use the "Workspace Version" (found in `node_modules`).
+*   **Tailwind CSS:** Essential for the design system in `packages/ui`. Use the `bradlc.vscode-tailwindcss` extension.
 
-### Recommended Extensions:
-*   `biomejs.biome`: Official tool for linting/formatting.
-*   `tamasfe.even-better-toml`: For configuration file management.
-*   `bradlc.vscode-tailwindcss`: For utility class autocompletion.
-
-### Snippets
-Common patterns for `trpcQuery` and `trpcMutation` are available in `.vscode/typescript.code-snippets` to accelerate backend-to-frontend integration.
+### Essential Extensions
+- **Biome:** Fast linting and formatting.
+- **Even Better TOML:** For `biome.json` and workflow configs.
+- **Tailwind CSS IntelliSense:** For utility class autocompletion.
 
 ---
 
 ## Productivity Tips
 
 ### Terminal Aliases
-Add these to your shell profile (`.zshrc` or `.bashrc`) for faster navigation:
+Add these to your shell profile (`.zshrc` or `.bashrc`) for speed:
 ```bash
 alias yb="yarn build"
 alias yd="yarn dev"
 alias yt="yarn test"
-alias ydk="yarn db --"
+alias ydb="yarn db"
 ```
 
-### Local Development Workflow
-1.  **Parallel Execution:** `yarn dev` starts the API and Web simultaneously using **Turbo**.
-    *   To target one: `yarn turbo run dev --filter=api`
-2.  **Environment Sync:** If you update `packages/env`, run `yarn env:sync`. This ensures all `.env.example` files across the monorepo are updated.
-3.  **Port Safety:** **Never use Port 3000** locally; it is strictly reserved for the CapRover management dashboard. Refer to `/srv/ops/ai-governance/PORTS.md` for the full registry.
-4.  **Resetting Environment:** If you encounter persistent build cache issues, run `yarn clean`. This recursively deletes `node_modules`, `dist`, and `.turbo` folders throughout the workspace.
+### Development Commands
+*   **Parallel Startup:** `yarn dev` uses **Turbo** to start all apps.
+*   **Targeted Start:** `yarn turbo run dev --filter=api` (Starts only the API).
+*   **Clean Cache:** `yarn clean` recursively deletes `node_modules`, `dist`, and `.turbo` if you encounter persistent build issues.
+*   **Port Safety:** **Never use Port 3000** locally. It is strictly reserved for CapRover management. Refer to `apps/api/src/configs/app.config.ts` for service port assignments.
 
-### Diagnostics
-If the AI services (Hermes/AGI) are failing:
-*   Check Redis connectivity: `yarn tsx apps/hermes-agency/src/telegram/redis.ts` (test script).
-*   Test STT/TTS Bridge: Use the scripts in `scripts/whisper-server-v2.py`.
+### Diagnostics & Testing
+If AI services or background tasks are failing, use these internal utilities:
+*   **Redis Check:** `yarn tsx apps/hermes-agency/src/telegram/redis.ts` to test connectivity.
+*   **Smoke Tests:** Run `python smoke-tests/smoke_hermes_telegram.py` to validate the Telegram bot pipeline.
+*   **API Gateway Logs:** Analyze logs for `apps/ai-gateway` to debug Whisper (STT) or Kokoro (TTS) connectivity issues.
 
 ---
 

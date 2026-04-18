@@ -1,5 +1,5 @@
-import z from "zod";
-import { zString, zTimestamps } from "./zod_utils.js";
+import z from 'zod';
+import { zString, zTimestamps } from './zod_utils.js';
 
 export const userMandatoryZod = z.object({
 	email: z.email(),
