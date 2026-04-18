@@ -1,25 +1,38 @@
 # PIPELINE-ROLLBACK — Pipeline State Rollback Runbook
 
 > **Component:** SPEC-071-V4 (Rollback Engine)
+> **Scripts:** `.claude/skills/orchestrator/scripts/snapshot.sh`, `.claude/skills/orchestrator/scripts/rollback.sh`
 > **Context:** Need to revert orchestrator pipeline to previous state
 
 ## Prerequisites
 
 ```bash
 # Verify rollback scripts exist
-ls -la scripts/snapshot.sh scripts/rollback.sh
-bash scripts/snapshot.sh --dry-run  # verify works
+ls -la .claude/skills/orchestrator/scripts/snapshot.sh
+ls -la .claude/skills/orchestrator/scripts/rollback.sh
+
+# Dry-run verify works
+bash .claude/skills/orchestrator/scripts/snapshot.sh --help
+bash .claude/skills/orchestrator/scripts/rollback.sh --help
 ```
+
+## How It Works
+
+Every agent in the orchestrator automatically creates a snapshot **before** running (integrated in `agent-wrapper.sh`). Snapshots capture:
+- `src/` workspace copy
+- `git.commit` (current commit hash)
+- `git.info` (branch, label, timestamp)
+- `manifest.json` (snapshot metadata)
+
+Snapshots are stored in: `tasks/snapshots/<pipeline_id>/<agent_id>/`
 
 ## Snapshot Before Risky Operation
 
 ```bash
-# Create snapshot before pipeline run
-bash scripts/snapshot.sh {optional-label}
-
-# Or manually
-cp -r src src.snapshot.$(date +%Y%m%d_%H%M%S)
-git rev-parse HEAD > .snapshot/$(date +%Y%m%d_%H%M%S).HEAD
+# Manual snapshot (automatically done by agent-wrapper.sh)
+bash .claude/skills/orchestrator/scripts/snapshot.sh <agent_id> <pipeline_id> [label]
+# Example:
+bash .claude/skills/orchestrator/scripts/snapshot.sh CODER-1 SPEC-071 "before-refactor"
 ```
 
 ## Rollback Options
@@ -37,31 +50,38 @@ git revert HEAD~3..HEAD --no-edit
 git push origin {branch}
 ```
 
-### Option 2: Snapshot Restore
+### Option 2: Snapshot Restore (using snapshot.sh + rollback.sh)
 
 ```bash
-# List snapshots
-ls -la .snapshot/
+# List available snapshots for a pipeline
+bash .claude/skills/orchestrator/scripts/rollback.sh --list SPEC-071
 
-# Restore from snapshot
-SNAPSHOT=.snapshot/{timestamp}
-cp -r "$SNAPSHOT/src" ./src
-git checkout $(cat "$SNAPSHOT/HEAD")
+# Restore specific agent from snapshot
+bash .claude/skills/orchestrator/scripts/rollback.sh \
+  --agent=CODER-1 \
+  --to=SPEC-071
 
-# Or use rollback.sh
-bash scripts/rollback.sh --to "$SNAPSHOT"
+# Dry-run first
+bash .claude/skills/orchestrator/scripts/rollback.sh \
+  --agent=CODER-1 \
+  --to=SPEC-071 \
+  --dry-run
 ```
 
 ### Option 3: Agent-Level Rollback
 
 ```bash
-# Restore specific agent's last good state
+# Restore specific agent from snapshot and re-run
 AGENT=SPEC-ANALYZER
-LAST_GOOD=$(cat tasks/agent-states/{AGENT}.json | jq -r '.started')
-echo "Last good run: $LAST_GOOD"
+PIPELINE=SPEC-071
+SPEC_FILE=docs/SPECS/SPEC-071.md
 
-# Re-run specific agent
-SPEC_FILE=docs/SPECS/SPEC-XXX.md
+# 1. Rollback to snapshot
+bash .claude/skills/orchestrator/scripts/rollback.sh \
+  --agent="$AGENT" \
+  --to="$PIPELINE"
+
+# 2. Re-run specific agent
 bash .claude/skills/orchestrator/scripts/agent-wrapper.sh \
   "$AGENT" "/researcher" "$SPEC_FILE"
 ```
@@ -81,7 +101,7 @@ rm -f .claude/skills/orchestrator/dlq/*.json
 git revert HEAD --no-edit
 
 # 4. Restart fresh
-bash .claude/skills/orchestrator/scripts/run-agents.sh {SPEC_FILE}
+bash .claude/skills/orchestrator/scripts/run-agents.sh docs/SPECS/SPEC-071.md
 ```
 
 ## Verify Rollback

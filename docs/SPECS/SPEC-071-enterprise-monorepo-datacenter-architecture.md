@@ -1,9 +1,9 @@
 # SPEC-071 — Enterprise Monorepo & Homelab Datacenter Architecture
 
 **Data:** 2026-04-18
-**Versão:** 1.0
-**Status:** IN_PROGRESS
-**Branch:** `feature/SPEC-071-enterprise-architecture`
+**Versão:** 2.0 (COMPLETED)
+**Status:** COMPLETED ✅ (mergeado main, tag v202604180957)
+**Branch:** `feature/iron-engine-1776514537` → `9027dd43e` → mergeado
 **Especialista:** Brainstormer (Hermes counsel)
 **SPEC Base:** SPEC-070 (ORCHESTRATOR-ENTERPRISE-18april2026.md)
 
@@ -529,46 +529,46 @@ docs/OPS/RUNBOOKS/
 ## 5. ACCEPTANCE CRITERIA
 
 ### V1 — VERSION LOCK ENTERPRISE
-- [ ] `VERSION-LOCK.md` existe com todas as versões
-- [ ] `scripts/versions-check.sh` detecta drift
-- [ ] CI verifica drift em cada PR
-- [ ] `/versions` lista pins
+- [x] `VERSION-LOCK.md` existe com todas as versões
+- [x] `scripts/versions-check.sh` detecta drift
+- [x] CI verifica drift em cada PR
+- [x] `/versions` lista pins
 
 ### V2 — ORCHESTRATOR v2
-- [ ] Circuit breaker activa retries (max 3, exp backoff)
-- [ ] Reentrancy lock previne duplicar agente
-- [ ] Dead letter queue criada após 3 falhas
-- [ ] Metrics expostas para Prometheus
+- [x] Circuit breaker activa retries (max 3, exp backoff)
+- [x] Reentrancy lock previne duplicar agente
+- [x] Dead letter queue criada após 3 falhas
+- [x] Metrics expostas para Prometheus
 
 ### V3 — OBSERVABILITY LAYER
-- [ ] Prometheus metrics para pipeline duration
-- [ ] Prometheus metrics para agent errors
-- [ ] Prometheus metrics para LLM cost
-- [ ] Grafana dashboard importável
-- [ ] Trace ID por pipeline (UUID)
+- [x] Prometheus metrics para pipeline duration
+- [x] Prometheus metrics para agent errors
+- [x] Prometheus metrics para LLM cost
+- [x] Grafana dashboard importável
+- [x] Trace ID por pipeline (UUID)
 
 ### V4 — ROLLBACK ENGINE
-- [ ] Snapshot criado antes de cada agente
-- [ ] `/rollback --agent=X --to=PIPELINE` restaura snapshot
-- [ ] Git revert como fallback
-- [ ] Runbook de rollback documentado
+- [x] Snapshot criado antes de cada agente
+- [x] `/rollback --agent=X --to=PIPELINE` restaura snapshot
+- [x] Git revert como fallback
+- [x] Runbook de rollback documentado
 
 ### V5 — CAPACITY PLANNER
-- [ ] `capacity_calculator.sh` mostra RAM/CPU disponíveis
-- [ ] Auto-throttle quando >80% CPU
-- [ ] Warning quando RAM <20% livre
+- [x] `capacity_calculator.sh` mostra RAM/CPU disponíveis
+- [x] Auto-throttle quando >80% CPU
+- [x] Warning quando RAM <20% livre
 
 ### V6 — COST ENGINE
-- [ ] Budget por pipeline configurável
-- [ ] Model fallback automático se budget exceeded
-- [ ] Alert quando 80% budget usado
-- [ ] Cost tracking por SPEC
+- [x] Budget por pipeline configurável
+- [x] Model fallback automático se budget exceeded
+- [x] Alert quando 80% budget usado
+- [x] Cost tracking por SPEC
 
 ### V7 — SELF-HEALING RUNBOOKS
-- [ ] P1-P4 runbooks criados
-- [ ] Runbook para orchestrator failure
-- [ ] Runbook para pipeline rollback
-- [ ] Index em `docs/OPS/RUNBOOKS/README.md`
+- [x] P1-P4 runbooks criados
+- [x] Runbook para orchestrator failure
+- [x] Runbook para pipeline rollback
+- [x] Index em `docs/OPS/RUNBOOKS/README.md`
 
 ---
 
