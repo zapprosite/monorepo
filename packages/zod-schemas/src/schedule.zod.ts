@@ -1,6 +1,6 @@
-import z from "zod";
-import { scheduleStatusZod, serviceTypeZod } from "./crm_enums.zod.js";
-import { zText, zTimestamps } from "./zod_utils.js";
+import z from 'zod';
+import { scheduleStatusZod, serviceTypeZod } from './crm_enums.zod.js';
+import { zText, zTimestamps } from './zod_utils.js';
 
 const scheduleMandatoryZod = z.object({
 	clienteId: z.string().uuid(),

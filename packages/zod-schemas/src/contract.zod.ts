@@ -1,6 +1,6 @@
-import z from "zod";
-import { contractFrequencyZod, contractStatusZod, contractTypeZod } from "./crm_enums.zod.js";
-import { zText, zTimestamps } from "./zod_utils.js";
+import z from 'zod';
+import { contractFrequencyZod, contractStatusZod, contractTypeZod } from './crm_enums.zod.js';
+import { zText, zTimestamps } from './zod_utils.js';
 
 const contractMandatoryZod = z.object({
 	clienteId: z.string().uuid(),

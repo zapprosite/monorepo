@@ -1,6 +1,6 @@
-import z from "zod";
-import { reminderStatusZod, reminderTypeZod } from "./crm_enums.zod.js";
-import { zText, zTimestamps, zVarchar } from "./zod_utils.js";
+import z from 'zod';
+import { reminderStatusZod, reminderTypeZod } from './crm_enums.zod.js';
+import { zText, zTimestamps, zVarchar } from './zod_utils.js';
 
 const reminderMandatoryZod = z.object({
 	clienteId: z.string().uuid(),

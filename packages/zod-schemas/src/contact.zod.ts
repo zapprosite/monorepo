@@ -1,5 +1,5 @@
-import z from "zod";
-import { zTimestamps, zVarchar } from "./zod_utils.js";
+import z from 'zod';
+import { zTimestamps, zVarchar } from './zod_utils.js';
 
 export const contactMandatoryZod = z.object({
 	clienteId: z.uuid(),

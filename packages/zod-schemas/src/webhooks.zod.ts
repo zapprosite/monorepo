@@ -1,9 +1,6 @@
-import z from "zod";
-import { zString, zTimestamps } from "./zod_utils.js";
-import {
-	webhookEventoTipoZod,
-	webhookStatusZod,
-} from "./crm_enums.zod.js";
+import z from 'zod';
+import { webhookEventoTipoZod, webhookStatusZod } from './crm_enums.zod.js';
+import { zString, zTimestamps } from './zod_utils.js';
 
 export const webhookCreateInputZod = z.object({
 	url: zString.url(),

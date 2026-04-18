@@ -1,33 +1,33 @@
-# AI Agent & Skill Protocol (The Antigravity Kit)
+# AI Agent & Skill Protocol (`docs/rules-GEMINI.md`)
 
-The `docs/rules-GEMINI.md` protocol defines the mandatory operating procedures for AI agents interacting with this monorepo. It establishes a tiered execution model designed to prevent "hallucination-driven" coding and ensure that every change is intentional, researched, and architecture-compliant.
+This document defines the mandatory operating procedures for AI agents (Gemini, Claude, GPT) interacting with this monorepo. It establishes a tiered execution model designed to prevent "hallucination-driven" coding and ensure that every change is intentional, researched, and architecture-compliant.
 
 ## 📋 Core Execution Lifecycle
 
-Every AI session must follow this strict priority chain:
+Every AI session must follow this strict priority chain before performing any write operations:
 
-1.  **Read Rules (P0):** Consult `docs/rules-GEMINI.md` before any action.
-2.  **Check Frontmatter (P1):** Identify the required Agent and Skillset based on the task.
-3.  **Load Skills (P2):** Reference the `SKILL.md` index and load only the necessary technical sections.
+1.  **Read Rules (P0):** Consult this file (`docs/rules-GEMINI.md`) before any action.
+2.  **Check Frontmatter (P1):** Identify the required Agent and Skillset based on the task (e.g., `@[frontend-specialist]`).
+3.  **Load Skills (P2):** Reference the `SKILL.md` index and load only the documentation sections relevant to the task.
 
-> **Selective Reading Strategy:** Do not ingest entire directories. Read the skill index first, then target-load specific documentation relevant to the current file or logic.
+**Selective Reading Strategy:** Do not ingest entire directories. Read the skill index first, then target-load specific documentation relevant to the current file or logic.
 
 ---
 
-## 🛑 Step 1: The Socratic Gate
+## 🛑 The Socratic Gate
 
 **Mandatory Rule:** No implementation tools may be used until the request passes the Socratic Gate. The AI must clarify 100% of the intent before writing code.
 
 ### Strategy by Request Type
-- **New Features:** Ask at least **3 strategic questions** regarding architecture (e.g., "Should this schema live in `zod-schemas` or is it local to the app?").
+- **New Features:** Ask at least **3 strategic questions** regarding architecture (e.g., "Should this schema live in `packages/zod-schemas` or is it local to the app?").
 - **Bug Fixes:** Confirm the reproduction steps and ask about potential side effects in related modules.
-- **Refactoring:** Ask why the refactor is needed and what the success criteria are.
+- **Refactoring:** Ask why the refactor is needed and what the specific success criteria are.
 
 **The Golden Rule:** If even 1% of the request is ambiguous, the AI must ask for clarification instead of assuming.
 
 ---
 
-## 🔍 Step 2: Request Classification
+## 🔍 Request Classification
 
 The complexity of the task determines which "Tiers" of the AI's capabilities are activated:
 
@@ -40,7 +40,7 @@ The complexity of the task determines which "Tiers" of the AI's capabilities are
 
 ---
 
-## 🤖 Step 3: Intelligent Agent Routing
+## 🤖 Intelligent Agent Routing
 
 Based on the classification, the AI must adopt a specific persona and declare it to the user:
 
@@ -61,35 +61,38 @@ Based on the classification, the AI must adopt a specific persona and declare it
 - **Internal/Thought:** The AI thinks and plans in English.
 - **User Interface:** The AI responds to the user in their preferred language.
 - **Code:** All variables, function names, comments, and internal documentation **must be in English**.
-- **Types:** Strict TypeScript is non-negotiable. Avoid `any` at all costs.
+- **Types:** Strict TypeScript is non-negotiable. Avoid `any` at all costs. Use Zod schemas from `packages/zod-schemas` for data validation.
 
 ### 2. Architecture Compliance
-- **Schemas:** All shared models must be defined in `packages/zod-schemas`.
-- **UI Components:** Reusable atoms and molecules belong in `packages/ui`.
+- **Schemas:** All shared models must be defined in `packages/zod-schemas` (e.g., `UserCreateInput`, `AddressSelectAll`).
+- **UI Components:** Reusable atoms and molecules belong in `packages/ui`. Use specialized wrappers like `RhfTextField`, `RhfSelect`, or `RhfCheckbox` for forms.
 - **Error Handling:** Use the `AppError` class (found in `apps/api/src/middlewares/errorHandler.ts`) for backend failures.
+- **Database:** All table definitions must use Drizzle ORM (e.g., `UsersTable`, `SubscriptionsTable`, `LeadsTable`).
 
 ### 3. Documentation (The `{task-slug}.md` Rule)
 For "Complex Code" or "Design" requests, the AI must create a planning document (`docs/tasks/{task-slug}.md`) before implementation. This document must include:
-1.  **Objective:** What are we building?
-2.  **Affected Files:** List of files to be created/modified.
-3.  **Step-by-Step Plan:** The sequence of implementation (e.g., 1. Schema, 2. Endpoint, 3. UI).
-4.  **Verification:** How will we test this?
+1.  **Objective:** High-level summary of the goal.
+2.  **Affected Files:** Specific list of files to be created or modified.
+3.  **Step-by-Step Plan:** The sequence of implementation (e.g., 1. Schema, 2. Migration, 3. tRPC Router, 4. UI Page).
+4.  **Verification:** Definition of done and testing steps.
 
 ---
 
 ## 📂 Skill Index Reference
 
-The AI uses the following skill categories located in the `skills/` directory:
+The AI leverages specialized skill modules located in the `skills/` directory:
 - **`clean-code`**: Standard formatting and architectural patterns.
-- **`database`**: Drizzle ORM usage (e.g., `UsersTable`, `TeamTable`) and migration protocols.
-- **`trpc`**: Communication patterns between `web` and `api` using the `AppTrpcRouter`.
-- **`ui-components`**: Theming (MUI), specialized wrappers (e.g., `RhfTextField`), and `packages/ui` usage.
-- **`ai-agents`**: LangGraph, LiteLLM, tool-calling structures, and agency routing (`routeToSkill`).
+- **`database`**: Drizzle ORM usage and migration protocols for tables like `ServiceOrderTable` or `JournalEntryTable`.
+- **`trpc`**: Communication patterns between `web` and `api` using `AppTrpcRouter`.
+- **`ui-components`**: MUI customization, `ThemeProvider`, and building with components in `packages/ui/src/components`.
+- **`ai-agents`**: `apps/hermes-agency` logic, LangGraph implementations, and agency skills (e.g., `routeToSkill`).
 
 ## 🧱 Key System Archetypes
 
-When working within this protocol, refer to these core classes and structures:
-- **Controllers/Tables**: `UsersTable`, `SubscriptionsTable`, `ServiceOrderTable`.
-- **Zod Schemas**: `UserCreateInput`, `AddressSelectAll`, `ChatCompletionRequest`.
-- **Utility Functions**: `authLoader`, `checkRateLimit`, `applyPtbrFilter`.
-- **Error Management**: `AppError`, `CustomError`.
+| Category | Primary Symbols |
+| :--- | :--- |
+| **Logic/Controllers** | `ServiceOrderTable`, `UsersTable`, `McpConectoresTable`, `KanbanBoardsTable` |
+| **Data Schemas** | `UserCreateInput`, `AddressSelectAll`, `ChatCompletionRequest`, `TechnicalReportCreateInput` |
+| **Utility/Auth** | `authLoader`, `checkRateLimit`, `applyPtbrFilter`, `acquireLock`, `apiKeyAuthHook` |
+| **Error Handling** | `AppError`, `CustomError`, `errorHandler` |
+| **UI Framework** | `RhfFormProvider`, `useRhfForm`, `ContentCard`, `PrimaryButton` |
