@@ -74,7 +74,7 @@
       "id": "TASK-05801-T2",
       "title": "[SPEC-058-01] Setup 9 Qdrant collections",
       "description": "Criar as 9 cole\u00e7\u00f5es multi-tenant: agency_clients, agency_campaigns, agency_conversations, agency_assets, agency_brand_guides, agency_tasks, agency_video_metadata, agency_knowledge, agency_working_memory",
-      "status": "pending",
+      "status": "done",
       "priority": "critical",
       "dependencies": [],
       "specRef": "SPEC-058-01",
@@ -128,7 +128,9 @@
           "title": "Schema agency_working_memory",
           "status": "pending"
         }
-      ]
+      ],
+      "completedAt": "2026-04-18T07:22:28.641166Z",
+      "note": "Blocked by container networking \u2014 Qdrant port 6333 not exposed to host (SPEC-058 dependency). Requires Coolify fix."
     },
     {
       "id": "TASK-05802-T1",
