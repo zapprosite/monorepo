@@ -26,6 +26,14 @@ if ! bash "$SCRIPT_DIR/reentrancy_lock.sh" "$AGENT_ID" "$PIPELINE_ID"; then
   exit 99
 fi
 
+# V4: State snapshot before agent runs (for rollback capability)
+echo "[$AGENT_ID] Creating pre-run snapshot..."
+if bash "$SCRIPT_DIR/snapshot.sh" "$AGENT_ID" "$PIPELINE_ID"; then
+  echo "[$AGENT_ID] Snapshot created"
+else
+  echo "[$AGENT_ID] WARNING: snapshot failed (rollback may be unavailable)" >&2
+fi
+
 # ─── Special handling per agent type ───────────────────────────────────────
 case "$AGENT_ID" in
   SHIPPER)
@@ -73,6 +81,10 @@ else
   echo "[$AGENT_ID] FAILED with exit code $EXIT_CODE at $(date)" >&2
   # V2: Record in Dead Letter Queue
   bash "$SCRIPT_DIR/dead_letter.sh" "$AGENT_ID" "$EXIT_CODE" "$LOG_FILE" || true
+
+  # V4: Offer rollback on failure
+  echo "[$AGENT_ID] FAILED — available rollback:"
+  echo "  bash rollback.sh --agent=$AGENT_ID --to=$PIPELINE_ID"
 fi
 
 cat > "$STATE_FILE" <<EOF

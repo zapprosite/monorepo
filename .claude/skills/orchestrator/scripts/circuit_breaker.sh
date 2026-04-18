@@ -20,11 +20,13 @@ fi
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(dirname "$(dirname "$(dirname "$SCRIPT_DIR")")")"
-LOGS_DIR="$ROOT_DIR/skills/orchestrator/logs"
+LOGS_DIR="$ROOT_DIR/.claude/skills/orchestrator/logs"
 mkdir -p "$LOGS_DIR"
 
 LOG_FILE="$LOGS_DIR/${AGENT_ID}.log"
-DLQ_FILE="$LOGS_DIR/${AGENT_ID}.dlq"
+DLQ_DIR="$ROOT_DIR/.claude/skills/orchestrator/dlq"
+mkdir -p "$DLQ_DIR"
+DLQ_FILE="$DLQ_DIR/${AGENT_ID}.dlq"
 
 ATTEMPT=0
 LAST_EXIT=0

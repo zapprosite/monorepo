@@ -1189,15 +1189,15 @@
       "id": "TASK-071-V4",
       "title": "[SPEC-071-V4] ROLLBACK ENGINE — State snapshots + rollback command",
       "description": "Criar snapshot.sh antes de cada agente. Rollback.sh para restaurar. Git revert como fallback. Runbook de rollback em docs/OPS/RUNBOOKS/PIPELINE-ROLLBACK.md.",
-      "status": "pending",
+      "status": "done",
       "priority": "critical",
       "dependencies": [
         "TASK-071-V2"
       ],
       "specRef": "SPEC-071",
       "files": [
-        "orchestrator/scripts/snapshot.sh",
-        "orchestrator/scripts/rollback.sh",
+        ".claude/skills/orchestrator/scripts/snapshot.sh",
+        ".claude/skills/orchestrator/scripts/rollback.sh",
         "docs/OPS/RUNBOOKS/PIPELINE-ROLLBACK.md",
         "tasks/snapshots/"
       ],
@@ -1206,22 +1206,22 @@
         {
           "id": "TASK-071-V4.1",
           "title": "snapshot.sh — cp -r src + git rev-parse HEAD",
-          "status": "pending"
+          "status": "done"
         },
         {
           "id": "TASK-071-V4.2",
           "title": "rollback.sh — /rollback --agent=X --to=PIPELINE",
-          "status": "pending"
+          "status": "done"
         },
         {
           "id": "TASK-071-V4.3",
           "title": "Git revert como fallback",
-          "status": "pending"
+          "status": "done"
         },
         {
           "id": "TASK-071-V4.4",
           "title": "docs/OPS/RUNBOOKS/PIPELINE-ROLLBACK.md",
-          "status": "pending"
+          "status": "done"
         }
       ],
       "acceptanceCriteria": [
@@ -1229,21 +1229,22 @@
         "AC-V4-2: /rollback --agent=X --to=PIPELINE restaura snapshot",
         "AC-V4-3: Git revert como fallback se snapshot não existe",
         "AC-V4-4: Runbook documentado"
-      ]
+      ],
+      "completedAt": "2026-04-18T14:00:00.000000Z"
     },
     {
       "id": "TASK-071-V5",
       "title": "[SPEC-071-V5] CAPACITY PLANNER — Resource calculator + auto-throttle",
       "description": "Criar capacity_calculator.sh (RAM_total / RAM_per_agent, CPU cores). auto_throttle.sh quando >80% CPU. Warning quando RAM <20% livre.",
-      "status": "pending",
+      "status": "done",
       "priority": "medium",
       "dependencies": [
         "TASK-071-V2"
       ],
       "specRef": "SPEC-071",
       "files": [
-        "orchestrator/scripts/capacity_calculator.sh",
-        "orchestrator/scripts/auto_throttle.sh",
+        ".claude/skills/orchestrator/scripts/capacity_calculator.sh",
+        ".claude/skills/orchestrator/scripts/auto_throttle.sh",
         "docs/OPS/CAPACITY.md"
       ],
       "testRequired": false,
@@ -1251,30 +1252,31 @@
         {
           "id": "TASK-071-V5.1",
           "title": "capacity_calculator.sh — RAM/CPU disponíveis",
-          "status": "pending"
+          "status": "done"
         },
         {
           "id": "TASK-071-V5.2",
           "title": "auto_throttle.sh — throttle when >80% CPU",
-          "status": "pending"
+          "status": "done"
         },
         {
           "id": "TASK-071-V5.3",
           "title": "docs/OPS/CAPACITY.md",
-          "status": "pending"
+          "status": "done"
         }
       ],
       "acceptanceCriteria": [
         "AC-V5-1: capacity_calculator.sh mostra RAM/CPU disponíveis",
         "AC-V5-2: Auto-throttle quando >80% CPU",
         "AC-V5-3: Warning quando RAM <20% livre"
-      ]
+      ],
+      "completedAt": "2026-04-18T14:00:00.000000Z"
     },
     {
       "id": "TASK-071-V6",
       "title": "[SPEC-071-V6] COST ENGINE — Budget + model fallback",
       "description": "Criar .orchestrator/budget.yml (default $0.50/pipeline). track_cost.sh para tracking. model_fallback.sh (o1-preview→o1-mini→haiku). Alert quando 80% budget usado.",
-      "status": "pending",
+      "status": "done",
       "priority": "medium",
       "dependencies": [
         "TASK-071-V2"
@@ -1282,8 +1284,8 @@
       "specRef": "SPEC-071",
       "files": [
         ".orchestrator/budget.yml",
-        "orchestrator/scripts/track_cost.sh",
-        "orchestrator/scripts/model_fallback.sh",
+        ".claude/skills/orchestrator/scripts/track_cost.sh",
+        ".claude/skills/orchestrator/scripts/model_fallback.sh",
         "docs/OPS/COST-CONTROL.md"
       ],
       "testRequired": false,
@@ -1291,22 +1293,22 @@
         {
           "id": "TASK-071-V6.1",
           "title": ".orchestrator/budget.yml — default $0.50",
-          "status": "pending"
+          "status": "done"
         },
         {
           "id": "TASK-071-V6.2",
           "title": "track_cost.sh — cost tracking por pipeline",
-          "status": "pending"
+          "status": "done"
         },
         {
           "id": "TASK-071-V6.3",
           "title": "model_fallback.sh — o1-preview→o1-mini→haiku",
-          "status": "pending"
+          "status": "done"
         },
         {
           "id": "TASK-071-V6.4",
           "title": "docs/OPS/COST-CONTROL.md",
-          "status": "pending"
+          "status": "done"
         }
       ],
       "acceptanceCriteria": [
@@ -1314,7 +1316,8 @@
         "AC-V6-2: Model fallback automático se budget exceeded",
         "AC-V6-3: Alert quando 80% budget usado",
         "AC-V6-4: Cost tracking por SPEC"
-      ]
+      ],
+      "completedAt": "2026-04-18T14:00:00.000000Z"
     },
     {
       "id": "TASK-071-V7",
@@ -1384,8 +1387,8 @@
   ],
   "meta": {
     "totalTasks": 45,
-    "completedTasks": 38,
-    "pendingTasks": 7,
+    "completedTasks": 41,
+    "pendingTasks": 4,
     "blockedTasks": 0,
     "generatedAt": "2026-04-18T12:00",
     "projectName": "zappro-monorepo",

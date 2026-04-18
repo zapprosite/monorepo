@@ -9,6 +9,8 @@
 ## 14-Agent Orchestrator (/execute)
 
 O `/execute` é o workflow completo que executa SPEC → pipeline → 14 agentes → PR.
+Adicionado **SPEC-071 Enterprise** — 7 dominios de operacao: Version Lock, Orchestrator v2,
+Observability, Rollback Engine, Capacity Planner, Cost Engine, Runbooks.
 
 ### Fluxo
 
@@ -17,7 +19,7 @@ O `/execute` é o workflow completo que executa SPEC → pipeline → 14 agentes
   → /spec "descrição"           # Cria SPEC.md
   → /pg                         # Gera pipeline.json
   → 14 agentes em paralelo       # Executam tarefas
-  → SHIPPER cria PR            # No Gitea
+  → SHIPPER cria PR             # No Gitea
 ```
 
 ### Os 14 Agentes
@@ -74,11 +76,45 @@ O `/execute` é o workflow completo que executa SPEC → pipeline → 14 agentes
 3. If important agent failed → WARN + proceed
 4. If all OK → create PR via Gitea API
 
-### Scripts
+### Scripts (SPEC-071 Enterprise)
 
+**Core orchestration:**
 - `orchestrator/scripts/run-agents.sh` — Spawn 14 agentes
 - `orchestrator/scripts/agent-wrapper.sh` — Wrapper por agente
 - `orchestrator/scripts/wait-for-completion.sh` — Poll até completarem
+
+**V1 — Version Lock:**
+- `orchestrator/scripts/versions-check.sh` — Deteta drift de versões pinned
+- `orchestrator/scripts/versions-update.sh` — Sincroniza versões
+
+**V2 — Orchestrator v2 (Critical Path Engine):**
+- `orchestrator/scripts/circuit_breaker.sh` — 3 retries, exp backoff 2^n
+- `orchestrator/scripts/reentrancy_lock.sh` — PID lock por pipeline
+- `orchestrator/scripts/dead_letter.sh` — DLQ after 3 failures
+
+**V3 — Observability:**
+- `orchestrator/scripts/trace_id.sh` — UUID por pipeline
+- `orchestrator/scripts/metrics_collector.sh` — Prometheus exporter
+
+**V4 — Rollback Engine:**
+- `orchestrator/scripts/snapshot.sh` — Snapshot state antes de cada agent
+- `orchestrator/scripts/rollback.sh` — Restore state from snapshot
+
+**V5 — Capacity Planner:**
+- `orchestrator/scripts/capacity_calculator.sh` — Calcula RAM/CPU disponíveis
+- `orchestrator/scripts/auto_throttle.sh` — Auto-throttle parallelism
+
+**V6 — Cost Engine:**
+- `orchestrator/scripts/track_cost.sh` — Regista custo LLM por pipeline
+- `orchestrator/scripts/model_fallback.sh` — Modelo fallback quando budget exceeded
+- `.orchestrator/budget.yml` — Budget config ($0.50/pipeline, alert 80%)
+
+**V7 — Runbooks:**
+- `docs/OPS/RUNBOOKS/` — P1-SERVICE-DOWN, P2-SERVICE-DEGRADED, P3-NON-CRITICAL, P4-INFORMATIONAL, ORCHESTRATOR-FAILURE, PIPELINE-ROLLBACK
+
+**Docs ops:**
+- `docs/OPS/CAPACITY.md` — Capacity planner usage
+- `docs/OPS/COST-CONTROL.md` — Cost engine usage
 
 ---
 
