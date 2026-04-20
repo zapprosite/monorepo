@@ -82,7 +82,10 @@ obsidian/
 # =============================================================================
 
 worktrees/
+.claude/worktrees/
 archive/
+.claude/tasks/agent-states/
+.claude/tasks/snapshots/
 runner/data/
 runner/.env
 .Trash-1000/
