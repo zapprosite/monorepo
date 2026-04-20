@@ -117,8 +117,8 @@ Duplicados: `plan.md` (2x), `review.md` (2x), `ship.md` (2x)
 
 - [x] `.claude/.claude/` eliminado (untracked artifact — nunca foi commitado)
 - [x] `.claude/tools/` eliminado (untracked — img-analyze.sh duplicava /img skill)
-- [x] Skills duplicados eliminados — global: gitea-coolify-deploy, pipeline-orchestrate, openclaw-oauth-profiles, voice (untracked,删除)
-- [x] Skills duplicados eliminados — monorepo: cloudflare-terraform, db-migration, researcher (untracked,删除)
+- [x] Skills duplicados eliminados — global: gitea-coolify-deploy, pipeline-orchestrate, openclaw-oauth-profiles, voice (untracked,[REMOVIDO-CJK])
+- [x] Skills duplicados eliminados — monorepo: cloudflare-terraform, db-migration, researcher (untracked,[REMOVIDO-CJK])
 - [x] Commands duplicados — verificado: sem duplicados visíveis (já resolvidos em commit anterior)
 - [x] `agents/`, `rules/` em .claude/ auditados — conteúdo único vs root-level (MANTER)
 - [x] Zero minimax/anthropic/token touched ✅

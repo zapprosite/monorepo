@@ -158,7 +158,7 @@ Exceções requerem:
 Exemplo de exceção válida:
 
 ```python
-# 例外: Temporary bridge para legacy system sem .env support
+# [REMOVIDO-CJK]: Temporary bridge para legacy system sem .env support
 # APPROVED_BY: Principal Engineer 2026-04-13
 # EXPIRES: 2026-05-13
 # ISSUE: migration-to-denv-required

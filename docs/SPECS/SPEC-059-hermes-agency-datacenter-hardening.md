@@ -34,7 +34,7 @@ Endurecer o Hermes Agency Suite para produção datacenter long-running AI agent
 | Memory Management | WeakRef + Interval cleanup | Limpar Maps expirados periodicamente          |
 | Health Endpoint   | Admin whitelist (user IDs) | só admins veem portas internas                |
 | Concurrency       | Per-user semaphore         | Limitar uploads concurrentes por utilizador   |
-| Package新增       | `ioredis` + `file-type`    | Nova dependência em `apps/hermes-agency/`     |
+| Package[REMOVIDO-CJK]       | `ioredis` + `file-type`    | Nova dependência em `apps/hermes-agency/`     |
 
 ---
 

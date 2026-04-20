@@ -1,7 +1,7 @@
 ---
 name: SPEC-089-specs-critical-audit-and-fix
-description: "CRITICAL AUDIT FIX: 6 contradictions across 10 specs resolved in one shot. SPEC-073 DISCARDED (Mem0 wins), circuit breaker unified, SPEC-058 fixed, SPEC-072 renamed, SPEC-075 encoding fixed."
-status: IN_PROGRESS
+description: "CRITICAL AUDIT FIX: 6 contradictions across 10 specs resolved in one shot. SPEC-073 DISCARDED (Mem0 wins), circuit breaker unified (SPEC-068 CANONICAL), SPEC-058 fixed (IN_PROGRESS + LLM chain corrected), SPEC-072 renamed to F5-TTS, SPEC-075 encoding clean, SPECs 034/048/061/062 deleted, agency_router.ts migrated to SPEC-068 module."
+status: DONE
 priority: critical
 author: William Rodrigues / Hermes Audit
 date: 2026-04-20
@@ -50,7 +50,7 @@ A auditoria crítica identificou 6 contradições graves que precisam de correç
 - DECISÃO: Renomear para "SPEC-072: TTS PT-BR Upgrade — F5-TTS Voice Cloning"
 
 ### 5. SPEC-075: Encoding bug com caracteres chineses
-- Caracteres "明清" aparecem no meio do documento em PT-BR
+- Caracteres "[REMOVIDO-CJK]" aparecem no meio do documento em PT-BR
 - DECISÃO: Remover caracteres corrompidos e fixar encoding do arquivo.
 
 ### 6. SPEC-064: Verificar deleção real
@@ -73,7 +73,7 @@ A auditoria crítica identificou 6 contradições graves que precisam de correç
    - Na descrição: "XTTS-v2 depreciado → F5-TTS como recomendado (SPEC-076)"
 
 3. `/srv/monorepo/docs/SPECS/SPEC-075-jarvis-prompt-retorno.md`
-   - Remover caracteres "明清" e qualquer outro character estranho
+   - Remover caracteres "[REMOVIDO-CJK]" e qualquer outro character estranho
    - Garantir que o arquivo está em UTF-8 limpo
 
 4. `/srv/monorepo/docs/SPECS/SPEC-060-hermes-agency-post-hardening-improvements.md`

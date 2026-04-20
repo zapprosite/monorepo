@@ -19,7 +19,7 @@ Arquitetura enterprise (inspirada em GAIA + Mem0), simples de manter.
 
 | Opção | Esforço | Manutenção | Decisão |
 |-------|---------|------------|---------|
-| Custom (SPEC-073) | 3-4 semanas libs/独自 | Alta — código seu | ❌ Descartado |
+| Custom (SPEC-073) | 3-4 semanas libs/[REMOVIDO-CJK] | Alta — código seu | ❌ Descartado |
 | **Mem0** | 2-3 dias integrar | Baixa — 53k⭐, ativo | ✅ Escolhido |
 
 **Mem0 faz o que precisamos:**

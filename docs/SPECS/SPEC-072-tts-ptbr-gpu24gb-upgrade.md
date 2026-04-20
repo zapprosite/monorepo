@@ -1,6 +1,6 @@
 ---
 name: SPEC-072-tts-ptbr-gpu24gb-upgrade
-description: "SRE Review (18/04/2026): Upgrade TTS PT-BR para XTTS-v2 (voice cloning) com Kokoro como fallback. VRAM guard, dual provider, Coqui deprecation warning."
+description: "SRE Review (18/04/2026): Upgrade TTS PT-BR para F5-TTS Voice Cloning (XTTS-v2 deprecated — Coqui shutdown). Kokoro as fallback. VRAM guard, dual provider. See SPEC-076 for F5-TTS evaluation."
 status: IN_PROGRESS
 priority: high
 author: William Rodrigues / SRE Review

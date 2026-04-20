@@ -73,7 +73,7 @@ async def test_start_onboarding_ptbr():
     assert len(response.text) > 20  # resposta não genérica
 ```
 
-**Critério:** Resposta > 20 chars,语气 natural PT-BR.
+**Critério:** Resposta > 20 chars,[REMOVIDO-CJK] natural PT-BR.
 
 ### T2: Texto — Chat Simples
 

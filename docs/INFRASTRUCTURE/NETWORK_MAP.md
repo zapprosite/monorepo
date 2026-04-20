@@ -480,7 +480,7 @@ All public ingress routes through Traefik (Coolify Proxy) on ports 80/443/8080.
 
 ### ✅ Proteções ativas
 
-- INPUT policy DROP (iptables) — 默认拒绝
+- INPUT policy DROP (iptables) — [REMOVIDO-CJK]
 - UFW ativo com regras específicas
 - Cloudflare Access (Zero Trust) em 7/8 subdomínios públicos
 - Docker networks isoladas por serviço

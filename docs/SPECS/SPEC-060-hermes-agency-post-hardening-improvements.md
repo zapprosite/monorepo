@@ -138,7 +138,9 @@ export function getSkillByTrigger(trigger: string): Skill | undefined {
 
 ### HC-36: Circuit Breaker por Skill
 
-**Problema atual:** Se uma skill entra em loop de falhas (excecoes repetidas), continua a ser invocada, causando degradaao progressiva sem auto-recovery.
+> **MIGRATED → SPEC-068** (SPEC-089): Esta implementação foi movida para `skills/circuit_breaker.ts` (SPEC-068) que é agora o módulo canónico. O código inline foi removido do `agency_router.ts`.
+
+**Problema original (para referência):** Se uma skill entra em loop de falhas (excecoes repetidas), continua a ser invocada, causando degradaao progressiva sem auto-recovery.
 
 **Estado desejado:**
 
@@ -238,7 +240,7 @@ export async function executeSkill(skillId: string, context: SkillContext): Prom
 | 2026-04-17 | 50MB como limite maximo para TTS response         | Telegram voice messages limite 50MB, audio maior que isso e invalido de qualquer forma |
 | 2026-04-17 | Map indexing no startup (lazy initialization)     | Indexes construidos uma vez, nao em cada chamada — O(1) garantido                      |
 | 2026-04-17 | 5 falhas como threshold do circuit breaker        | Failures >= 5 em curta janela indica bug na skill, nao sobrecarga temporaria           |
-| 2026-04-17 | Circuit breaker cooldown 30s                      | Tempo suficiente para operador investigar sem bloquear用户 completamente               |
+| 2026-04-17 | Circuit breaker cooldown 30s                      | Tempo suficiente para operador investigar sem bloquear[REMOVIDO-CJK] completamente               |
 
 ---
 
