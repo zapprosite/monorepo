@@ -1,10 +1,7 @@
 {
-  "agent": "CODER-1",
-  "spec": "SPEC-066-claude-commands-audit",
   "status": "completed",
   "exit_code": 0,
-  "started": "",
-  "finished": "2026-04-17T15:00:47-03:00",
-  "command": "/backend-scaffold",
-  "log": "/srv/monorepo/.claude/skills/orchestrator/logs/CODER-1.log"
+  "timestamp": "2026-04-20T00:00:00Z",
+  "spec": "SPEC-090",
+  "pipeline": "pipeline-20260420-000000"
 }
