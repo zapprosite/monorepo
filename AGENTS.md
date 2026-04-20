@@ -542,7 +542,7 @@ See: `/prd-to-deploy` skill + SPEC-035-one-shot-prd-to-deploy.md
 
 ## Slash Commands (`.claude/commands/`)
 
-| Comando        | Ficheiro          | 链                                                    | Uso                        |
+| Comando        | Ficheiro          | Cadeia                                               | Uso                        |
 | -------------- | ----------------- | ----------------------------------------------------- | -------------------------- |
 | `/pg`          | `pg.md`           | SPEC → pipeline.json                                  | Gerar tasks de SPECs       |
 | `/plan`        | `plan.md`         | SPEC → tasks                                          | Planear implementacao      |
