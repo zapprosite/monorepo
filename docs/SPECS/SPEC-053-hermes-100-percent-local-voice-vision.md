@@ -96,7 +96,7 @@ llm:
 
 **Verificação (17/04):** `curl -X POST :8642/v1/chat/completions` → resposta via MiniMax ✅
 
-### 2. Vision — JÁ LOCAL (确认)
+### 2. Vision — JÁ LOCAL ([REMOVIDO-CJK])
 
 **Status:** SPEC-HERMES-INTEGRATION.md confirma:
 
@@ -110,7 +110,7 @@ auxiliary:
 
 ✅ Já local — nenhuma mudança necessária.
 
-### 3. STT — FIXED (确认)
+### 3. STT — FIXED ([REMOVIDO-CJK])
 
 **Bug encontrado:** Script custom em :8204 aceitava apenas raw WAV bytes (Content-Length), mas ai-gateway envia multipart/form-data. Resultado: STT via ai-gateway dava 502.
 
@@ -127,7 +127,7 @@ auxiliary:
 
 ✅ Canonical STT (SPEC-009) — funcionando com multipart OpenAI.
 
-### 4. TTS — JÁ LOCAL (确认)
+### 4. TTS — JÁ LOCAL ([REMOVIDO-CJK])
 
 **Status:** Kokoro via TTS Bridge :8013 — voz `pm_santa`/`pf_dora`.
 ✅ Canonical TTS (SPEC-009) — funcionando.

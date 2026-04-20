@@ -222,6 +222,6 @@ def format_return(raw_data: str, task_type: str) -> str:
 
 ## 9. Out of Scope
 
--明清  CLI visual (Rich tables no terminal — fica pro v2)
+-[REMOVIDO-CJK]  CLI visual (Rich tables no terminal — fica pro v2)
 - Dashboard web
 - Notificação push (Telegram já cobre)

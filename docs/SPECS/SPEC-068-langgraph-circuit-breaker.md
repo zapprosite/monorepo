@@ -1,8 +1,8 @@
 ---
 name: SPEC-068-langgraph-circuit-breaker
-description: "Circuit breaker por skill agent — evita cascade failures quando uma skill falha repetidamente. Buddy with SPEC-060."
+description: "CANONICAL — Circuit breaker por skill agent — evita cascade failures quando uma skill falha repetidamente. Substitui HC-36 de SPEC-060 (migrado em SPEC-089). Buddy with SPEC-060."
 spec_id: SPEC-068
-status: DONE
+status: CANONICAL
 priority: high
 author: Claude Code
 date: 2026-04-18

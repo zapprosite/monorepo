@@ -1,7 +1,7 @@
 ---
 name: SPEC-058-hermes-agency-suite
 description: Hermes Agency Suite — 11-agent marketing agency on Hermes bare metal with Qdrant, LangGraph, Telegram, and MiniMax text-only (Ollama Vision/STT/Embeddings only)
-status: IMPLEMENTED
+status: IN_PROGRESS
 priority: critical
 author: Principal Engineer
 date: 2026-04-17
@@ -20,7 +20,9 @@ specRef: SPEC-011 (archived), SPEC-046, SPEC-053
 
 Construir uma **marketing agency 100% operacional em português** com 11 agentes especializados orchestrados por Hermes Agent como CEO router, usando hub-and-spoke pattern (não sub-agent spawning). Cada agente é uma skill Hermes registrada com tools específicas. LangGraph gerencia workflows complexos multi-etapa. Qdrant multi-tenant serve como RAG memory centralizado com 9 coleções. Telegram é interface primária para clientes e para gestão interna.
 
-**Problema resolvido:** SPEC-011 (OpenClaw 11-agent) era executado em infraestrutura pesada (crewAI + 11 processos). Hermes Agency Suite executa os 11 agentes como skills注册 no Hermes Agent existente (:8642) com overhead mínimo (~500MB RAM incremental vs 11GB crewAI).
+**Problema resolvido:** SPEC-011 (OpenClaw 11-agent) era executado em infraestrutura pesada (crewAI + 11 processos). Hermes Agency Suite executa os 11 agentes como skills no Hermes Agent existente (:8642) com overhead mínimo (~500MB RAM incremental vs 11GB crewAI).
+
+> **NOTE (SPEC-089):** Fallback de texto via Ollama REMOVIDO — texto vai SEMPRE via MiniMax (SPEC-053). Ollama usado apenas para Vision e STT.
 
 ---
 
@@ -94,7 +96,7 @@ Construir uma **marketing agency 100% operacional em português** com 11 agentes
                                     ┌────────────▼─────────────────────────────┐
                                     │         HERMES LLM CHAIN (17/04)          │
                                     │  PRIMARY: minimax/MiniMax-M2.7 (50$)     │
-                                    │  FALLBACK: ollama/llama3-portuguese      │
+                                    │  NOTE: Texto SEMPRE via MiniMax (SPEC-053)│
                                     │  + Redis semantic cache                   │
                                     └──────────────────────────────────────────┘
 ```
@@ -371,7 +373,7 @@ journalctl -u hermes-agent -f
 | Date       | Decision                           | Rationale                                                                                                   |
 | ---------- | ---------------------------------- | ----------------------------------------------------------------------------------------------------------- |
 | 2026-04-17 | LangGraph over crewAI              | crewAI too heavy (11GB RAM for 11 agents); LangGraph adds orchestration to existing Hermes skills at ~500MB |
-| 2026-04-17 | Hub-and-spoke over sub-agent spawn | Hermes Agent cannot spawn sub-agents; skills注册 + LangGraph workflow is the SOTA pattern                   |
+| 2026-04-17 | Hub-and-spoke over sub-agent spawn | Hermes Agent cannot spawn sub-agents; skills + LangGraph workflow is the SOTA pattern                   |
 | 2026-04-17 | bge-m3 for embeddings              | Hybrid sparse+dense search, best for PT-BR content per AI benchmarks                                        |
 | 2026-04-17 | Redis semantic cache               | 35-50% hit rate → reduces cloud LLM costs from $8-10/mo to ~$4-5/mo                                         |
 

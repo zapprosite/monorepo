@@ -2,7 +2,7 @@
 
 **Data:** 2026-04-18
 **Autor:** William Rodrigues
-**Status:** Draft
+**Status:** DISCARDED — Mem0 approach chosen (SPEC-074)
 
 ---
 

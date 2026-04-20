@@ -24,7 +24,7 @@ permanecem em scripts, skills, e docs. NADA neste monorepo deve lembrar Infisica
 - [ ] `.claude/skills/prd-to-deploy/SKILL.md:155` — "Secrets syncados do Infisical para .env" → "Secrets em .env"
 - [ ] `.claude/skills/cloudflare-tunnel-enterprise/references/runbooks.md:304-311` — Steps "Update Infisical", "Sync Infisical to .env" → Steps para atualizar .env diretamente
 - [ ] `.claude/skills/cloudflare-tunnel-enterprise/references/token-management.md` — Secções "Infisical (canonical source)", "Update Infisical", "Sync Infisical to .env" → Remover ou reescrever para .env
-- [ ] `.claude/skills/cloudflare-tunnel-enterprise/SKILL.md:150-151` — "Update Infisical", "Sync Infisical → .env" → Remover这两个 steps
+- [ ] `.claude/skills/cloudflare-tunnel-enterprise/SKILL.md:150-151` — "Update Infisical", "Sync Infisical → .env" → Remover[REMOVIDO-CJK] steps
 - [ ] `.claude/skills/cloudflare-tunnel-enterprise/SKILL.md:196` — Infisical na tabela vault → REMOVER entrada
 - [ ] `.claude/skills/cloudflare-tunnel-enterprise/SKILL.md:207` — "Never use Infisical SDK" → Remover (redundante)
 - [ ] `.claude/skills/minimax-security-audit/SKILL.md` — Referências a Infisical vault → Substituir por .env

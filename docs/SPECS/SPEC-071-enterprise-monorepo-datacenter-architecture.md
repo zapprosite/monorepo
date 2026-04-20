@@ -660,7 +660,7 @@ docs/SPECS/SPEC-INDEX.md            # Add SPEC-071
 
 ## 10. NOTES
 
-- Esta spec não requer変更 na arquitetura de aplicação (Fastify/React)
+- Esta spec não requer[REMOVIDO-CJK] na arquitetura de aplicação (Fastify/React)
 - Foca em operational excellence do orchestrator
 - Todas as thresholds (budget, CPU, RAM) são configuráveis
 - Runbooks são living documents — actualizar após cada incidente
