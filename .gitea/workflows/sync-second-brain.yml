@@ -1,6 +1,7 @@
 name: Sync Second Brain
 
-# Runs after PR merge to main — updates hermes-second-brain via Gitea API
+# Updates hermes-second-brain/monorepo-TREE.md via Gitea API
+# Runs on push to main (after PR merge)
 on:
   push:
     branches: [main]
@@ -10,6 +11,7 @@ on:
       - 'TREE.md'
       - '.gitignore'
       - 'LICENSE'
+      - 'tasks/smoke-tests/**'
 
 jobs:
   sync:
@@ -18,7 +20,7 @@ jobs:
 
     steps:
       - name: Checkout monorepo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -70,11 +72,11 @@ jobs:
             echo "*$(wc -l < /tmp/monorepo-files.txt) files tracked*"
           } > /tmp/tree-content.txt
 
-          echo "tree_content<<EOF" >> $GITEA_OUTPUT
-          cat /tmp/tree-content.txt >> $GITEA_OUTPUT
-          echo "EOF" >> $GITEA_OUTPUT
+          echo "tree_content<<EOF" >> $GITHUB_OUTPUT
+          cat /tmp/tree-content.txt >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
 
-      - name: Get current file SHA
+      - name: Get current file SHA (if exists)
         id: sha
         run: |
           RESPONSE=$(curl -s -X GET \
@@ -82,19 +84,33 @@ jobs:
             -H "Authorization: Bearer ${{ secrets.GITEA_TOKEN }}")
           
           SHA=$(echo "$RESPONSE" | python3 -c "import sys,json; print(json.load(sys.stdin).get('sha',''))" 2>/dev/null || echo "")
-          echo "sha=$SHA" >> $GITEA_OUTPUT
+          echo "sha=$SHA" >> $GITHUB_OUTPUT
 
       - name: Update monorepo-TREE.md via Gitea API
         run: |
-          # Base64 encode the content
           CONTENT=$(cat /tmp/tree-content.txt | base64 -w0)
+          SHA="${{ steps.sha.outputs.sha }}"
           
-          curl -s -X PUT \
-            "http://gitea:3000/api/v1/repos/will-zappro/hermes-second-brain/contents/monorepo-TREE.md" \
-            -H "Authorization: Bearer ${{ secrets.GITEA_TOKEN }}" \
-            -H "Content-Type: application/json" \
-            -d "{
-              \"message\": \"chore: update monorepo TREE [skip ci]\",
-              \"content\": \"$CONTENT\",
-              \"sha\": \"${{ steps.sha.outputs.sha }}\"
-            }"
+          if [ -z "$SHA" ]; then
+            # File doesn't exist — use POST (create)
+            curl -s -X POST \
+              "http://gitea:3000/api/v1/repos/will-zappro/hermes-second-brain/contents/monorepo-TREE.md" \
+              -H "Authorization: Bearer ${{ secrets.GITEA_TOKEN }}" \
+              -H "Content-Type: application/json" \
+              -d "{
+                \"message\": \"chore: update monorepo TREE [skip ci]\",
+                \"content\": \"$CONTENT\",
+                \"branch\": \"main\"
+              }"
+          else
+            # File exists — use PUT (update with SHA)
+            curl -s -X PUT \
+              "http://gitea:3000/api/v1/repos/will-zappro/hermes-second-brain/contents/monorepo-TREE.md" \
+              -H "Authorization: Bearer ${{ secrets.GITEA_TOKEN }}" \
+              -H "Content-Type: application/json" \
+              -d "{
+                \"message\": \"chore: update monorepo TREE [skip ci]\",
+                \"content\": \"$CONTENT\",
+                \"sha\": \"$SHA\"
+              }"
+          fi
