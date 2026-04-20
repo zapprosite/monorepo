@@ -1,0 +1,98 @@
+name: Sync Second Brain
+
+# Runs after PR merge to main — updates hermes-second-brain with new TREE.md
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - 'TREE.md'
+      - '.gitignore'
+      - 'LICENSE'
+
+jobs:
+  sync:
+    name: Sync to Second Brain
+    runs-on: ubuntu-latest
+    # Only run if this is a merge commit (not a [skip ci] commit from this workflow)
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
+
+    steps:
+      - name: Checkout monorepo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Clone second-brain
+        run: |
+          git clone --depth 1 ssh://git@127.0.0.1:2222/will-zappro/hermes-second-brain.git /tmp/second-brain
+
+      - name: Generate monorepo TREE.md
+        run: |
+          cd /tmp/second-brain
+
+          # Get list of tracked files in monorepo (exclude large deps)
+          cd ${{ github.workspace }}
+          find . \
+            -type f \
+            -not -path './.git/*' \
+            -not -path './node_modules/*' \
+            -not -path './.turbo/*' \
+            -not -path './dist/*' \
+            -not -path './.next/*' \
+            -not -path './.output/*' \
+            -not -path './__pycache__/*' \
+            -not -path './.venv/*' \
+            -not -path './venv/*' \
+            -not -path './.claude/cache/*' \
+            -not -path './.claude/tmp/*' \
+            -not -name '*.lock' \
+            -not -name 'pnpm-lock.yaml' \
+            -not -name 'package-lock.json' \
+            -not -name 'yarn.lock' \
+            -not -name '.env' \
+            -not -name '.env.*' \
+            -not -name 'TREE.md' \
+            | sed 's|^\./||' \
+            | sort > /tmp/monorepo-files.txt
+
+          # Generate TREE.md with hierarchy
+          {
+            echo "# Monorepo — TREE"
+            echo ""
+            echo "Generated: $(date -u '+%Y-%m-%dT%H:%M:%SZ')"
+            echo "Commit: ${{ github.sha }}"
+            echo ""
+            echo "## Structure"
+            echo ""
+            while IFS= read -r line; do
+              depth=$(echo "$line" | tr -cd '/' | wc -c)
+              printf '%*s' $((depth * 2)) ''
+              echo "- \`$line\`"
+            done < /tmp/monorepo-files.txt
+            echo ""
+            echo "---"
+            echo "*$(wc -l < /tmp/monorepo-files.txt) files tracked*"
+          } > /tmp/second-brain/monorepo-TREE.md
+
+      - name: Check for changes
+        id: changed
+        run: |
+          cd /tmp/second-brain
+          if git diff --quiet monorepo-TREE.md 2>/dev/null; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+            echo "No changes to monorepo-TREE.md"
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit and push
+        if: steps.changed.outputs.changed == 'true'
+        run: |
+          cd /tmp/second-brain
+          git config user.email "hermes@zappro.ia"
+          git config user.name "Hermes Agent"
+          git add monorepo-TREE.md
+          git commit -m "chore: update monorepo TREE [skip ci]"
+          git push origin main
