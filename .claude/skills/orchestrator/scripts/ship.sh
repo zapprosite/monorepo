@@ -14,11 +14,13 @@ if [[ -z "$GITEA_TOKEN" ]]; then
   echo "❌ GITEA_TOKEN not set in .env"
   exit 1
 fi
-REPO="${GITEA_REPO:-will/homelab-monorepo}"
+# Use direct internal API (bypasses Cloudflare Access on port 443)
+GITEA_API_BASE="${GITEA_API_BASE:-http://localhost:3300/api/v1}"
+REPO="${GITEA_REPO:-will-zappro/monorepo}"
 
 if [ "$MODE" == "--issue" ]; then
   # Cria issue em vez de PR
-  curl -s -X POST "https://git.zappro.site/api/v1/repos/$REPO/issues" \
+  curl -s -X POST "$GITEA_API_BASE/repos/$REPO/issues" \
     -H "Authorization: token $GITEA_TOKEN" \
     -H "Content-Type: application/json" \
     -d '{"title":"[AUTOMATED] Pipeline failed","body":"Ver tasks/agent-states/"}'
@@ -26,9 +28,10 @@ if [ "$MODE" == "--issue" ]; then
 else
   # Cria PR
   BRANCH=$(git branch --show-current)
-  curl -s -X POST "https://git.zappro.site/api/v1/repos/$REPO/pulls" \
+  SPEC_NAME=$(jq -r '.spec // "unknown"' tasks/pipeline.json 2>/dev/null || echo "SPEC")
+  curl -s -X POST "$GITEA_API_BASE/repos/$REPO/pulls" \
     -H "Authorization: token $GITEA_TOKEN" \
     -H "Content-Type: application/json" \
-    -d "{\"head\":\"$BRANCH\",\"base\":\"main\",\"title\":\"Pipeline: $(cat tasks/pipeline.json | jq -r .spec)\"}"
+    -d "{\"head\":\"$BRANCH\",\"base\":\"main\",\"title\":\"Pipeline: $SPEC_NAME\"}"
   echo "✅ PR criada"
 fi
