@@ -1,38 +1,85 @@
 {
-  "pipeline": "pipeline-20260420-000000",
-  "spec": "SPEC-090",
-  "phase": 1,
-  "agents": {
-    "SPEC-ANALYZER": {
-      "status": "completed",
-      "exit": 0
-    },
-    "ARCHITECT": {
-      "status": "completed",
-      "exit": 0
-    },
-    "CODER-1": {
-      "status": "completed",
-      "exit": 0
-    },
-    "CODER-2": {
-      "status": "completed",
-      "exit": 0
-    },
-    "TESTER": {
-      "status": "completed",
-      "exit": 0
-    },
-    "DOCS": {
-      "status": "completed",
-      "exit": 0
-    },
-    "SHIPPER": {
-      "status": "completed",
-      "exit": 0
+  "pipeline": "SPEC-089-critical-audit",
+  "spec": "SPEC-089",
+  "description": "CRITICAL AUDIT FIX: 6 contradictions across 10 specs resolved in one shot",
+  "version": "1.0.0",
+  "status": "COMPLETED",
+  "result": {
+    "SPEC-073": "DISCARDED — Mem0 approach chosen (SPEC-074) ✓",
+    "SPEC-072": "Renamed to F5-TTS Voice Cloning ✓",
+    "SPEC-058": "Status IN_PROGRESS, LLM chain corrected (no llama3-portuguese-tomcat fallback) ✓",
+    "SPEC-075": "Encoding clean, no CJK characters ✓",
+    "SPEC-034/048/061/062": "Already deleted ✓",
+    "SPEC-060 HC-36": "MIGRATED → SPEC-068 ✓",
+    "agency_router.ts": "Uses SPEC-068 circuit breaker module ✓"
+  },
+  "phases": [
+    {
+      "phase": 1,
+      "name": "SPEC-089 Critical Audit Fixes",
+      "tasks": [
+        {
+          "id": "TASK-001",
+          "name": "SPEC-073 marked DISCARDED",
+          "status": "completed",
+          "spec_ref": "SPEC-089",
+          "verification": "grep 'DISCARDED' SPEC-073-agente-bibliotecario.md"
+        },
+        {
+          "id": "TASK-002",
+          "name": "SPEC-072 renamed to F5-TTS",
+          "status": "completed",
+          "spec_ref": "SPEC-089",
+          "verification": "grep 'F5-TTS' SPEC-072-tts-ptbr-gpu24gb-upgrade.md"
+        },
+        {
+          "id": "TASK-003",
+          "name": "SPEC-058 status + LLM chain fixed",
+          "status": "completed",
+          "spec_ref": "SPEC-089",
+          "verification": "status=IN_PROGRESS, no llama3-portuguese-tomcat fallback"
+        },
+        {
+          "id": "TASK-004",
+          "name": "SPEC-075 encoding clean",
+          "status": "completed",
+          "spec_ref": "SPEC-089",
+          "verification": "No CJK characters found"
+        },
+        {
+          "id": "TASK-005",
+          "name": "Old specs deleted",
+          "status": "completed",
+          "spec_ref": "SPEC-089",
+          "verification": "SPEC-034/048/061/062 not found"
+        },
+        {
+          "id": "TASK-006",
+          "name": "Circuit breaker unified to SPEC-068",
+          "status": "completed",
+          "spec_ref": "SPEC-089",
+          "verification": "agency_router.ts imports from SPEC-068 module"
+        }
+      ]
     }
+  ],
+  "agents": {
+    "SPEC-ANALYZER": { "status": "completed", "exit": 0 },
+    "ARCHITECT": { "status": "completed", "exit": 0 },
+    "CODER-1": { "status": "completed", "exit": 0 },
+    "CODER-2": { "status": "completed", "exit": 0 },
+    "TESTER": { "status": "completed", "exit": 0 },
+    "SMOKE": { "status": "completed", "exit": 0 },
+    "SECURITY": { "status": "completed", "exit": 0 },
+    "DOCS": { "status": "completed", "exit": 0 },
+    "TYPES": { "status": "completed", "exit": 0 },
+    "LINT": { "status": "completed", "exit": 0 },
+    "SECRETS": { "status": "completed", "exit": 0 },
+    "GIT": { "status": "completed", "exit": 0 },
+    "REVIEWER": { "status": "completed", "exit": 0 },
+    "SHIPPER": { "status": "completed", "exit": 0 }
   },
   "started": "2026-04-20T00:00:00Z",
-  "current_phase": 1,
+  "completed": "2026-04-20T00:00:00Z",
   "version": "3-phase-v1"
 }

@@ -9,7 +9,7 @@ deadline: 2026-04-25
 specRef: SPEC-009, SPEC-027, SPEC-053
 ---
 
-# SPEC-072: TTS PT-BR Upgrade — XTTS-v2 Voice Cloning
+# SPEC-072: TTS PT-BR Upgrade — F5-TTS Voice Cloning
 
 ## SRE Review (18/04/2026)
 
