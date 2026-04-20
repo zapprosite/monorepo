@@ -59,12 +59,35 @@ curl -s -X POST "$GITEA_API/repos/will-zappro/monorepo/actions/workflows/test.ym
 git clone ssh://git@127.0.0.1:2222/will-zappro/hermes-second-brain.git /tmp/sb
 ```
 
+## Gitea API — Ficheiros (Create vs Update)
+
+**PUT requer SHA mesmo para actualizar** — diferente do GitHub onde SHA é opcional.
+
+```bash
+# 1. Obter SHA (se ficheiro existir)
+SHA=$(curl -s -X GET "$GITEA_API/repos/will-zappro/hermes-second-brain/contents/TREE.md" \
+  -H "Authorization: Bearer $GITEA_TOKEN" \
+  | python3 -c "import sys,json; print(json.load(sys.stdin).get('sha',''))")
+
+# 2a. Se SHA vazia → POST (criar novo)
+curl -X POST "$GITEA_API/repos/.../contents/TREE.md" \
+  -H "Authorization: Bearer $GITEA_TOKEN" \
+  -d '{"message":"create","content":"$BASE64","branch":"main"}'
+
+# 2b. Se SHA existe → PUT (actualizar — SHA obrigatório)
+curl -X PUT "$GITEA_API/repos/.../contents/TREE.md" \
+  -H "Authorization: Bearer $GITEA_TOKEN" \
+  -d '{"message":"update","content":"$BASE64","sha":"'$SHA'"}'
+```
+
 ## Pulo do Macaco
 
 - runner Gitea Actions **não tem rede para** `127.0.0.1:2222` — usar **API HTTP** (`http://gitea:3000`) em vez de git clone
 - `GITEA_TOKEN` no `.env` do monorepo, **não** do runner (runner usa secrets)
 - SHA do ficheiro é obrigatório em PUT (obtido via GET antes)
 - Runner container nome: `gitea-runner` — acessível via `http://gitea:3000` (Docker network)
+- **Logs de Actions não disponíveis via API** — `/actions/runs/{id}/logs` retorna 404
+- Context vars: `${{ gitea.workspace }}`, `${{ gitea.sha }}` (não `${{ github.* }}`)
 
 ---
 
