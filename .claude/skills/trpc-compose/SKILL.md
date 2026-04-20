@@ -80,7 +80,7 @@ Diff de `trpc.router.ts`:
 
 ## Dependencias
 
-- `MINIMAX_API_KEY` em Infisical vault
+- `MINIMAX_API_KEY` em .env
 - Endpoint: `https://api.minimax.io/anthropic/v1`
 - 22 routers existentes como contexto em `trpc.router.ts`
 

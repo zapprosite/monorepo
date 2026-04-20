@@ -9,9 +9,6 @@ set -euo pipefail
 
 COOLIFY_URL="${COOLIFY_URL:-http://localhost:8000}"
 COOLIFY_API_KEY=""
-INFISICAL_PROJECT_ID="${INFISICAL_PROJECT_ID:-}"
-INFISICAL_ENV="dev"
-INFISICAL_TOKEN_PATH="/srv/ops/secrets/infisical.service-token"
 
 LOG_DIR="/srv/ops/logs"
 SRE_LOG="$LOG_DIR/sre-monitor.log"

@@ -35,9 +35,9 @@ type: skill
 
 | Key | Value |
 |-----|-------|
-| Zone ID | `${CF_ZONE_ID}` (Infisical: `cloudflare/ZONE_ID`) |
-| Tunnel ID | `${CF_TUNNEL_ID}` (Infisical: `cloudflare/TUNNEL_ID`) |
-| Account ID | `${CF_ACCOUNT_ID}` (Infisical: `cloudflare/ACCOUNT_ID`) |
+| Zone ID | `${CF_ZONE_ID}` |
+| Tunnel ID | `${CF_TUNNEL_ID}` |
+| Account ID | `${CF_ACCOUNT_ID}` |
 | Tunnel CNAME | `${CF_TUNNEL_ID}.cfargotunnel.com` |
 
 ## Process (7 steps)
@@ -139,7 +139,7 @@ Creates `myapp.zappro.site` pointing to `http://10.0.5.10:8080`.
 | `dns_record exists` | Subdomain already taken | Choose different name or remove existing |
 | `tunnel not found` | Wrong tunnel ID | Verify tunnel ID in Cloudflare dashboard |
 | `origin not reachable` | Service URL wrong | Check service is running and reachable from cloudflared host |
-| `cf与服务` | Auth failure | Refresh CLOUDFLARE_API_TOKEN from Infisical |
+| `cf与服务` | Auth failure | Refresh CLOUDFLARE_API_TOKEN in .env |
 
 ## Forbidden Actions
 

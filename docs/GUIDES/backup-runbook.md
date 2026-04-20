@@ -36,7 +36,7 @@ Scrub:    Sun Apr 12 20:31:48 2026 — 0 errors
 | `tank/monorepo`           | /srv/monorepo           | 4.60G | Application code           |
 | `tank/qdrant`             | /srv/data/qdrant        | 208M  | Vector database            |
 
-> **Note:** The following datasets were listed in previous versions but do NOT exist: `tank/data/n8n`, `tank/data/n8n-postgres`, `tank/data/grafana`, `tank/data/prometheus`, `tank/data/infisical-db`, `tank/data/infisical-redis`. Services like n8n, Grafana, Prometheus, and Infisical are running as Docker containers but their data resides under `tank/docker-data` or container-named datasets, not under `tank/data/`.
+> **Note:** The following datasets were listed in previous versions but do NOT exist: `tank/data/n8n`, `tank/data/n8n-postgres`, `tank/data/grafana`, `tank/data/prometheus`. Services like n8n, Grafana, and Prometheus are running as Docker containers but their data resides under `tank/docker-data` or container-named datasets, not under `tank/data/`.
 
 ---
 
@@ -59,7 +59,7 @@ Scrub:    Sun Apr 12 20:31:48 2026 — 0 errors
 | Qdrant archives         | Daily 03:00          | 7 versions                   | /srv/backups/qdrant        | OK                  |
 | n8n archives            | Daily (cron missing) | 7 versions                   | /srv/backups/n8n           | ⚠️ No cron          |
 | Gitea dumps             | Daily 02:30          | 7 versions                   | /srv/backups               | OK                  |
-| Infisical DB dumps      | Daily 02:45          | 7 versions                   | /srv/backups               | ❌ Broken (0 bytes) |
+| Infisical DB dumps      | Daily 02:45          | N/A (pruned)                 | N/A                        | ❌ Pruned            |
 | Cloudflared credentials | Every 6h             | 30 days                      | /srv/backups/cloudflared   | OK                  |
 | Terraform state         | Every 6h             | 30 days                      | /srv/backups/terraform     | OK                  |
 | .env secrets            | Every 6h             | 30 days                      | /srv/backups/env-secrets   | OK                  |
@@ -67,7 +67,7 @@ Scrub:    Sun Apr 12 20:31:48 2026 — 0 errors
 | Obsidian vault          | Every 10min          | Git remote                   | GitHub                     | OK                  |
 | Memory-keeper DB        | Daily 02:00          | 7 versions                   | /srv/backups/memory-keeper | OK                  |
 
-> **Action Required:** `backup-postgres.sh` and `backup-n8n.sh` have no cron entries. Add cron schedules. Infisical DB backup produces 0-byte files (docker exec may be failing).
+> **Action Required:** `backup-postgres.sh` and `backup-n8n.sh` have no cron entries. Add cron schedules.
 
 ---
 
@@ -90,7 +90,7 @@ All scripts located in `/srv/ops/scripts/`.
 - tank/qdrant
 - tank/backups
 
-> **Historical Note:** The following datasets were previously snapshotted but NO LONGER EXIST: `tank/data/n8n`, `tank/data/n8n-postgres`, `tank/data/grafana`, `tank/data/prometheus`, `tank/data/infisical-db`, `tank/data/infisical-redis`.
+> **Historical Note:** The following datasets were previously snapshotted but NO LONGER EXIST: `tank/data/n8n`, `tank/data/n8n-postgres`, `tank/data/grafana`, `tank/data/prometheus`.
 
 **Snapshot naming:** `tank@backup-dataset-YYYYMMDD-HHMMSS`
 **Scrub:** Sundays at 00:00
@@ -312,7 +312,7 @@ curl http://localhost:5678/api/v1/health
 | -------------------------------- | ------------------------- | ---------- |
 | GitHub (owner/monorepo-obsidian) | Obsidian vault backup     | Remote git |
 | Cloudflare Dashboard             | DNS, tunnels, credentials | Web UI     |
-| Infisical                        | Secrets management        | API + Web  |
+| Infisical                        | N/A (pruned)             | N/A        |
 
 ---
 

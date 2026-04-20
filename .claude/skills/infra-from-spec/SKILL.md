@@ -74,7 +74,7 @@ Adicionar subdomain ou porta requer atualizacao de PORTS.md + SUBDOMAINS.md + NE
 
 ## Dependencias
 
-- `MINIMAX_API_KEY` em Infisical vault
+- `MINIMAX_API_KEY` em .env
 - Acesso de leitura a `/srv/ops/terraform/`
 - Endpoint: `https://api.minimax.io/anthropic/v1`
 

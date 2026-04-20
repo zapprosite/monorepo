@@ -104,11 +104,10 @@
 | COOLIFY_API_KEY      | .env     | Claude Code, hermes-coolify-cli |
 | CLOUDFLARE_API_TOKEN | .env     | Terraform, cloudflared          |
 | GITEA_ACCESS_TOKEN   | .env     | Git push, CI                    |
-| INFISICAL_TOKEN      | .env     | All apps (via .env sync)        |
 | MINIMAX_API_KEY      | .env     | LiteLLM, Hermes                 |
 | TELEGRAM_BOT_TOKEN   | .env     | Hermes Gateway                  |
 
-**Regra:** All secrets sourced from `.env` (canonical). Never read from Infisical directly in code.
+**Regra:** All secrets sourced from `.env` (canonical).
 
 ---
 
@@ -135,7 +134,7 @@
 | Rule                 | Where            | Description                                           |
 | -------------------- | ---------------- | ----------------------------------------------------- |
 | Coolify as PaaS      | This doc         | All containers via Coolify except Hermes (bare metal) |
-| .env canonical       | docs/GOVERNANCE/ | All secrets via .env, not Infisical SDK in code       |
+| .env canonical       | docs/GOVERNANCE/ | All secrets via .env                                 |
 | Immutable services   | docs/GOVERNANCE/ | SPEC-009, SPEC-027, SPEC-029 protected                |
 | Port governance      | PORTS.md         | Check before using new ports                          |
 | Subdomain governance | SUBDOMAINS.md    | Check before adding subdomains                        |

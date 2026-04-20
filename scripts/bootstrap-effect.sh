@@ -57,7 +57,7 @@ format_bootstrap_effect() {
 
   # Smoke test status
   if [[ "$smoke_output" != "200" ]]; then
-    echo "⚠️  SMOKE TEST: Infisical health check returned $smoke_output"
+    echo "⚠️  SMOKE TEST: Health check returned $smoke_output"
     echo "   Expected: 200 (healthy)"
     echo ""
   fi

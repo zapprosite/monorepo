@@ -13,21 +13,21 @@ description: Gitea API integration for Claude Code — list repos, trigger workf
 
 1. Abrir https://gitea.zappro.site/user/settings/applications
 2. Criar novo token com scopes: `repo`, `workflow`, `read:user`
-3. Guardar em Infisical: `gitea-access-token`
+3. Guardar em .env: `gitea-access-token`
 
 **Opção B — Usar Runner Registration Token (só para Actions):**
 
-- `GITEA_RUNNER_REGISTRATION_TOKEN` já existe em Infisical
+- `GITEA_RUNNER_REGISTRATION_TOKEN` já existe em .env
 - Não funciona para API normal — só para registo de runners
 
 ### 2. Guardar Token no .env
 
 ```bash
-# Adicionar ao .env (synced from Infisical to .env)
+# Adicionar ao .env
 GITEA_ACCESS_TOKEN=your-token-here
 ```
 
-**Nota:** O token e synced from Infisical para `.env` via external sync process.
+**Nota:** O token está em `.env`.
 
 ### 3. Configurar no Claude Code
 

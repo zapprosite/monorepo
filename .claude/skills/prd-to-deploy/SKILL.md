@@ -152,7 +152,7 @@ const clientSecret = window.__ENV__?.GOOGLE_CLIENT_SECRET;
 const clientId = process.env.GOOGLE_CLIENT_ID;
 ```
 
-**Secrets syncados do Infisical para .env. NUNCA usar Infisical SDK em app code.**
+**Secrets em .env (fonte canónica). NUNCA hardcode.**
 
 ---
 

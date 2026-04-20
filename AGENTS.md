@@ -260,7 +260,6 @@ Antes de qualquer acao neste repositorio, TODO LLM **DEVE** ler:
 | **[docs/GOVERNANCE/MASTER-PASSWORD-PROCEDURE.md](../../docs/GOVERNANCE/MASTER-PASSWORD-PROCEDURE.md)**     | Credential handling procedure                                                                          | ALTA       |
 | **[docs/GOVERNANCE/DATABASE_GOVERNANCE.md](../../docs/GOVERNANCE/DATABASE_GOVERNANCE.md)**                 | Protected schemas, destructive-operation rules                                                         | ALTA       |
 | **[docs/INCIDENTS/CONSOLIDATED-PREVENTION-PLAN.md](../../docs/INCIDENTS/CONSOLIDATED-PREVENTION-PLAN.md)** | Anti-patterns AP-1 a AP-4 (Docker TCP, host-as-backend, DNS)                                           | CRITICO    |
-| **[docs/GUIDES/INFISICAL-SDK-PATTERN.md](../../docs/GUIDES/INFISICAL-SDK-PATTERN.md)**                     | Como usar Infisical SDK (Python/JS/Bash)                                                               | ALTA       |
 | **[docs/GUIDES/CODE-REVIEW-GUIDE.md](../../docs/GUIDES/CODE-REVIEW-GUIDE.md)**                             | 5-axis review framework                                                                                | ALTA       |
 | **[docs/GOVERNANCE/SECRETS_POLICY.md](../../docs/GOVERNANCE/SECRETS_POLICY.md)**                           | Secrets policy complementar                                                                            | ALTA       |
 | **[.claude/CLAUDE.md](../../.claude/CLAUDE.md)**                                                           | Regras Claude Code, git mirror, version lock                                                           | ALTA       |
@@ -269,7 +268,7 @@ Antes de qualquer acao neste repositorio, TODO LLM **DEVE** ler:
 ### TL;DR (para LLMs com pressa)
 
 ```
-SECRETS → .env como fonte canonica — Infisical SDK so em scripts de infra
+SECRETS → .env como fonte canonica
 Immutable/Pinned Services → NUNCA tocar
 Voice Pipeline (Hermes) → gateway :8642 | mcp :8092 | Telegram polling
 Anti-patterns (AP-1/2/3) → Docker TCP bridge, host-as-backend, localhost testing
@@ -304,7 +303,6 @@ Before any work in this repository, EVERY LLM **MUST** read:
 | **[docs/GOVERNANCE/MASTER-PASSWORD-PROCEDURE.md](../../docs/GOVERNANCE/MASTER-PASSWORD-PROCEDURE.md)**     | Credential handling procedure                                                                         | HIGH     |
 | **[docs/GOVERNANCE/DATABASE_GOVERNANCE.md](../../docs/GOVERNANCE/DATABASE_GOVERNANCE.md)**                 | Protected schemas, destructive-operation rules                                                        | HIGH     |
 | **[docs/REFERENCE/ARCHITECTURE-MASTER.md](../../docs/REFERENCE/ARCHITECTURE-MASTER.md)**                   | Full monorepo structure, CI/CD, directory layout                                                      | HIGH     |
-| **[docs/GUIDES/INFISICAL-SDK-PATTERN.md](../../docs/GUIDES/INFISICAL-SDK-PATTERN.md)**                     | How to use Infisical SDK (Python/JS/Bash)                                                             | HIGH     |
 | **[docs/GUIDES/CODE-REVIEW-GUIDE.md](../../docs/GUIDES/CODE-REVIEW-GUIDE.md)**                             | 5-axis review framework                                                                               | HIGH     |
 | **[docs/REFERENCE/TOOLCHAIN.md](../../docs/REFERENCE/TOOLCHAIN.md)**                                       | pnpm, turbo, biome, git, docker, zfs commands                                                         | HIGH     |
 | **[.claude/CLAUDE.md](../../.claude/CLAUDE.md)**                                                           | Claude Code rules, git mirror, version lock                                                           | HIGH     |
@@ -312,7 +310,7 @@ Before any work in this repository, EVERY LLM **MUST** read:
 ### TL;DR (for LLMs in a hurry)
 
 ```
-Secrets → Infisical SDK ONLY — no hallucination
+Secrets → .env como fonte canonica
 Immutable/Pinned Services → NEVER touch
 Voice Pipeline (Hermes) → gateway :8642 | mcp :8092 | Telegram polling
 Anti-patterns (AP-1/2/3) → Docker TCP bridge, host-as-backend, localhost testing
@@ -407,7 +405,7 @@ Ver [docs/ARCHITECTURE-OVERVIEW.md](docs/ARCHITECTURE-OVERVIEW.md) para diagrama
 
 | Servico                     | Onde                                     | Como                             |
 | --------------------------- | ---------------------------------------- | -------------------------------- |
-| **Secrets (Infisical)**     | `.env` como fonte canonica               | Nao usar Infisical SDK em codigo |
+| **Secrets (.env)**          | `.env` como fonte canonica               | Nao usar Infisical SDK em codigo |
 | **Coolify (containers)**    | `coolify.zappro.site`                    | Ver skill `coolify-access`       |
 | **Ollama (LLM local)**      | `localhost:11434`                        | Via LiteLLM `:4000`              |
 | **Hermes Agent**            | `hermes.zappro.site` ou `localhost:8642` | Gateway API + Telegram           |
@@ -568,7 +566,7 @@ See: `/prd-to-deploy` skill + SPEC-035-one-shot-prd-to-deploy.md
 | `researcher`              | Web research (MiniMax M2.1)             | —                   |
 | `minimax-research`        | Deep code/error analysis (MiniMax M2.1) | `/minimax-research` |
 | `minimax-code-gen`        | tRPC router from Zod schema             | `/codegen`          |
-| `minimax-security-audit`  | OWASP + Infisical SDK enforcement       | `/msec`             |
+| `minimax-security-audit`  | OWASP + secrets audit                   | `/msec`             |
 | `doc-maintenance`         | Docs sync: API ref, PORTS, SUBDOMAINS   | `/dm`               |
 | `minimax-debugger`        | Docker crash + tunnel + 529 triage      | `/bug-triage`       |
 | `backend-scaffold`        | Fastify + tRPC from Zod schema          | `/bcaffold`         |
@@ -783,32 +781,6 @@ pnpm typecheck         # turbo run typecheck
 
 ---
 
-## Secrets (Infisical)
-
-**Project ID:** `e42657ef-98b2-4b9c-9a04-46c093bd6d37`
-**Service Token:** `/srv/ops/secrets/infisical.service-token`
-
-```bash
-# Fetch secret
-python3 - << 'EOF'
-from infisical_sdk import InfisicalSDKClient
-client = InfisicalSDKClient(
-    token=open('/srv/ops/secrets/infisical.service-token').read().strip(),
-    host='http://127.0.0.1:8200'
-)
-secrets = client.secrets.list_secrets(
-    project_id='e42657ef-98b2-4b9c-9a04-46c093bd6d37',
-    environment_slug='dev',
-    secret_path='/'
-)
-for s in secrets.secrets:
-    if s.secret_key == 'MY_SECRET':
-        print(s.secret_value)
-EOF
-```
-
----
-
 ## Gitea + GitHub Remotes
 
 | Remote   | URL                                                 | Uso           |
@@ -1018,7 +990,7 @@ See `docs/GOVERNANCE/TAG-POLICY.md`
 # Code generation — tRPC router from Zod schema
 /codegen contract
 
-# Semantic security audit pre-commit (OWASP + Infisical SDK)
+# Semantic security audit pre-commit (OWASP + secrets audit)
 /msec
 
 # Documentation maintenance — API ref, PORTS, SUBDOMAINS
@@ -1089,7 +1061,7 @@ For error analysis, architecture research, or code investigation. See `.claude/s
 bash scripts/cursor-loop-research-minimax.sh "<topic or error message>"
 ```
 
-- **Auth:** `MINIMAX_API_KEY` via `.env` (Infisical SDK PROIBIDO)
+- **Auth:** `MINIMAX_API_KEY` via `.env`
 - **Endpoint:** `https://api.minimax.io/anthropic/v1/messages` (same pattern as voice pipeline)
 - **Model:** MiniMax-M2.1 (200k+ context, fast inference)
 
@@ -1105,7 +1077,7 @@ bash scripts/cursor-loop-research-minimax.sh "<topic or error message>"
 | Step                              | Status       |
 | --------------------------------- | ------------ |
 | cursor-loop-research.sh updated   | ✅ COMPLETED |
-| MINIMAX_API_KEY via Infisical SDK | ✅ COMPLETED |
+| MINIMAX_API_KEY via .env | ✅ COMPLETED |
 | TAVILY_API_KEY removed from vault | ✅ COMPLETED |
 | minimax-research skill created    | ✅ COMPLETED |
 

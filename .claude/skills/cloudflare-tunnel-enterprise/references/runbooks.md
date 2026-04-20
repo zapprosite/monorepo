@@ -301,18 +301,11 @@ curl -s -X POST "https://api.cloudflare.com/client/v4/user/tokens" \
   }' | jq .
 ```
 
-### Step 2: Update Infisical
+### Step 2: Update .env
 
-Update path `cloudflare/API_TOKEN` with the new token value.
+Update `CLOUDFLARE_API_TOKEN` in `/srv/monorepo/.env` with the new token value.
 
-### Step 3: Sync Infisical to .env
-
-```bash
-# Run the Infisical sync command for your project
-# Or manually update CLOUDFLARE_API_TOKEN in .env
-```
-
-### Step 4: Verify new token works
+### Step 3: Verify new token works
 
 ```bash
 source /srv/monorepo/.env

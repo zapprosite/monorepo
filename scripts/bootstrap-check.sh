@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # bootstrap-check.sh — Verify required secrets from .env and emit Bootstrap Effect JSON
-# .env is the ONLY canonical source (Infisical pruned 2026-04-13)
+# .env is the ONLY canonical source
 # Usage: bash scripts/bootstrap-check.sh [--json]
 
 set -euo pipefail
@@ -103,7 +103,7 @@ EOF
 
   echo "═══════════════════════════════════════════"
   echo "  Bootstrap Check — Secrets Verification"
-  echo "  Source: .env (canonical — Infisical pruned)"
+  echo "  Source: .env (canonical)"
   echo "═══════════════════════════════════════════"
   echo ""
   echo "Required Secrets ($present_count ✅, $missing_count ❌):"
