@@ -27,11 +27,14 @@ if [ "$MODE" == "--issue" ]; then
   echo "✅ Issue criada"
 else
   # Cria PR
-  BRANCH=$(git branch --show-current)
-  SPEC_NAME=$(jq -r '.spec // "unknown"' tasks/pipeline.json 2>/dev/null || echo "SPEC")
+  command -v jq > /dev/null || { echo "❌ jq required"; exit 1; }
+  BRANCH=$(git branch --show-current) || { echo "❌ Not in git repo or detached HEAD"; exit 1; }
+  SPEC_NAME=$(jq -r '.spec // "SPEC"' tasks/pipeline.json 2>/dev/null || echo "SPEC")
+  # Use jq to produce valid JSON string (prevents injection)
+  JSON_TITLE=$(jq -n --arg t "Pipeline: $SPEC_NAME" '$t')
   curl -s -X POST "$GITEA_API_BASE/repos/$REPO/pulls" \
     -H "Authorization: token $GITEA_TOKEN" \
     -H "Content-Type: application/json" \
-    -d "{\"head\":\"$BRANCH\",\"base\":\"main\",\"title\":\"Pipeline: $SPEC_NAME\"}"
+    -d "{\"head\":\"$BRANCH\",\"base\":\"main\",\"title\":$JSON_TITLE}"
   echo "✅ PR criada"
 fi
