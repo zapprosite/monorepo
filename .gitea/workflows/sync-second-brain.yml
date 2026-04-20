@@ -15,12 +15,10 @@ jobs:
   sync:
     name: Sync to Second Brain
     runs-on: ubuntu-latest
-    # Only run if this is a merge commit (not a [skip ci] commit from this workflow)
-    if: "!contains(github.event.head_commit.message, '[skip ci]')"
 
     steps:
       - name: Checkout monorepo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
@@ -30,23 +28,23 @@ jobs:
 
       - name: Generate monorepo TREE.md
         run: |
+          REPO_DIR="${{ gitea.workspace }}"
           cd /tmp/second-brain
 
           # Get list of tracked files in monorepo (exclude large deps)
-          cd ${{ github.workspace }}
-          find . \
+          find "$REPO_DIR" \
             -type f \
-            -not -path './.git/*' \
-            -not -path './node_modules/*' \
-            -not -path './.turbo/*' \
-            -not -path './dist/*' \
-            -not -path './.next/*' \
-            -not -path './.output/*' \
-            -not -path './__pycache__/*' \
-            -not -path './.venv/*' \
-            -not -path './venv/*' \
-            -not -path './.claude/cache/*' \
-            -not -path './.claude/tmp/*' \
+            -not -path "$REPO_DIR/.git/*" \
+            -not -path "$REPO_DIR/node_modules/*" \
+            -not -path "$REPO_DIR/.turbo/*" \
+            -not -path "$REPO_DIR/dist/*" \
+            -not -path "$REPO_DIR/.next/*" \
+            -not -path "$REPO_DIR/.output/*" \
+            -not -path "$REPO_DIR/__pycache__/*" \
+            -not -path "$REPO_DIR/.venv/*" \
+            -not -path "$REPO_DIR/venv/*" \
+            -not -path "$REPO_DIR/.claude/cache/*" \
+            -not -path "$REPO_DIR/.claude/tmp/*" \
             -not -name '*.lock' \
             -not -name 'pnpm-lock.yaml' \
             -not -name 'package-lock.json' \
@@ -54,7 +52,7 @@ jobs:
             -not -name '.env' \
             -not -name '.env.*' \
             -not -name 'TREE.md' \
-            | sed 's|^\./||' \
+            | sed "s|$REPO_DIR/||" \
             | sort > /tmp/monorepo-files.txt
 
           # Generate TREE.md with hierarchy
@@ -62,7 +60,7 @@ jobs:
             echo "# Monorepo — TREE"
             echo ""
             echo "Generated: $(date -u '+%Y-%m-%dT%H:%M:%SZ')"
-            echo "Commit: ${{ github.sha }}"
+            echo "Commit: ${{ gitea.sha }}"
             echo ""
             echo "## Structure"
             echo ""
@@ -81,10 +79,10 @@ jobs:
         run: |
           cd /tmp/second-brain
           if git diff --quiet monorepo-TREE.md 2>/dev/null; then
-            echo "changed=false" >> $GITHUB_OUTPUT
+            echo "changed=false" >> $GITEA_OUTPUT
             echo "No changes to monorepo-TREE.md"
           else
-            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "changed=true" >> $GITEA_OUTPUT
           fi
 
       - name: Commit and push
