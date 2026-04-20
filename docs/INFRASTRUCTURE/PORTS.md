@@ -63,7 +63,7 @@ These ports are permanently reserved and MUST NOT be used without updating this 
 | 5433        | Free (Supabase removed)                    |
 | 5678        | Free (n8n removed)                         |
 | 5680        | Free (n8n task runners removed)            |
-| 8200        | Free (Infisical Vault removed)             |
+| 8200        | Free                                       |
 | 8443        | Free                                       |
 | 9000        | Free                                       |
 | 80 / 443    | Free (CapRover removed — for proxy future) |

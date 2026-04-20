@@ -147,10 +147,9 @@ source /srv/monorepo/.env
 
 ```bash
 # 1. Create new token in Cloudflare Dashboard
-# 2. Update Infisical: cloudflare/API_TOKEN
-# 3. Sync Infisical → .env
-# 4. Verify: curl -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" ...
-# 5. Delete old token from Dashboard
+# 2. Update .env directly with new values
+# 3. Verify: curl -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" ...
+# 4. Delete old token from Dashboard
 ```
 
 ### Drift Detection
@@ -193,7 +192,7 @@ curl -s -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
 | `n8n`     | 10.0.6.2:5678  | -                    | Cloudflare Access | n8n          |
 | `painel`  | localhost:4003 | -                    | Cloudflare Access | Painel       |
 | `qdrant`  | 10.0.19.5:6333 | -                    | Cloudflare Access | Qdrant       |
-| `vault`   | localhost:8200 | -                    | Cloudflare Access | Infisical    |
+| `vault`   | localhost:8200 | -                    | Cloudflare Access | Vault        |
 
 ---
 
@@ -204,4 +203,3 @@ curl -s -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
 - **Never** expose a port publicly without updating SUBDOMAINS.md + PORTS.md
 - **Never** modify tunnel ingress manually in Dashboard (Terraform will overwrite)
 - **Never** commit `.tfvars` or raw token values to git
-- **Never** use Infisical SDK directly in application code (use .env sync)

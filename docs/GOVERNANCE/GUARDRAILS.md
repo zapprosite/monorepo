@@ -275,11 +275,11 @@ Todas as rotas de subdomínio passam por Traefik — nunca fazer port forwarding
 
 ## 🚫 SECRETS / CREDENTIALS
 
-**SECRETS-MANDATE.md source:** Infisical SDK hallucinations são proibidas.
+**SECRETS-MANDATE.md source:**
 
 1. NUNCA: print, log, ou expor valores de variáveis com secrets — token em log = comprometido para sempre
 2. NUNCA: hardcodar secrets em código — `.env` é fonte canónica, nunca outra coisa
-3. NUNCA: Infisical SDK em código de aplicação (`apps/`, `packages/`) — **só `os.getenv()` / `process.env`**
+3. NUNCA: secrets via métodos não-canonicos
 4. NUNCA: commit de `.env` — `.gitignore` deve sempre excluir
 5. NUNCA: secrets em URLs ou headers que aparecem em logs de requests
 6. NUNCA: secrets em healthcheck endpoints, Prometheus metrics, ou `docker inspect`

@@ -17,9 +17,9 @@ echo "CF_ZONE_ID: $CF_ZONE_ID"
 
 | Variable | Value |
 |----------|-------|
-| ZONE_ID | `${CF_ZONE_ID}` (Infisical: `cloudflare/ZONE_ID`) |
-| TUNNEL_ID | `${CF_TUNNEL_ID}` (Infisical: `cloudflare/TUNNEL_ID`) |
-| ACCOUNT_ID | `${CF_ACCOUNT_ID}` (Infisical: `cloudflare/ACCOUNT_ID`) |
+| ZONE_ID | `${CF_ZONE_ID}` |
+| TUNNEL_ID | `${CF_TUNNEL_ID}` |
+| ACCOUNT_ID | `${CF_ACCOUNT_ID}` |
 | BASE_DOMAIN | `zappro.site` |
 | TUNNEL_CNAME | `${CF_TUNNEL_ID}.cfargotunnel.com` |
 

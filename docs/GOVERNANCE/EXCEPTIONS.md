@@ -2,7 +2,7 @@
 
 Documented exceptions to the .env canonical secrets policy.
 
-**Spec:** SPEC-029-INFISICAL-SDK-MANDATORY.md, ADR-001
+**Spec:** ADR-001
 **Last updated:** 2026-04-13
 
 ---

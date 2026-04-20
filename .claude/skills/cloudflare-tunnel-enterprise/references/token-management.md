@@ -108,18 +108,11 @@ For tunnel management, you need BOTH zone-level (DNS) and account-level (tunnel)
 
 ## Storing Tokens
 
-### Infisical (canonical source)
+### .env (canonical source)
 
 ```
-Path: cloudflare/API_TOKEN
-```
-
-### Sync to .env
-
-```bash
-# After creating/updating token in Infisical, sync to .env
-infisical sync --env=production
-# Or use project-specific sync command
+File: /srv/monorepo/.env
+Variable: CLOUDFLARE_API_TOKEN
 ```
 
 ### Verify token in .env
@@ -170,19 +163,11 @@ curl -s -X POST "https://api.cloudflare.com/client/v4/user/tokens" \
 
 The new token value (`value` field) is only shown ONCE. Save it immediately.
 
-**Step 3: Update Infisical**
+**Step 3: Update .env**
 
-```
-cloudflare/API_TOKEN → paste new token value
-```
+Update `CLOUDFLARE_API_TOKEN` in `/srv/monorepo/.env` with the new token value.
 
-**Step 4: Sync Infisical to .env**
-
-```bash
-source /srv/monorepo/.env  # or run infisical sync
-```
-
-**Step 5: Verify new token works**
+**Step 4: Verify new token works**
 
 ```bash
 curl -s -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
@@ -200,8 +185,8 @@ curl -s -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
 
 If the new token fails after revoking the old one:
 1. Recreate a new token (Step 1)
-2. Update Infisical with new value (Step 3-4)
-3. Verify (Step 5)
+2. Update .env with new value (Step 3)
+3. Verify (Step 4)
 4. Proceed with confidence
 
 ---
@@ -271,5 +256,4 @@ curl -s -X POST "https://api.cloudflare.com/client/v4/zones/c0cf47bc153a6662f884
 2. **Use scoped permissions** — Don't use "Global API Key" for Terraform
 3. **Set expiration dates** — Even for internal tokens
 4. **Rotate after suspected exposure** — Treat any leak as compromised
-5. **Use Infisical as canonical source** — Never hardcode tokens
-6. **Verify token before deleting old one** — Always test new token first
+5. **Verify token before deleting old one** — Always test new token first

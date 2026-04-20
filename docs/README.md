@@ -71,7 +71,7 @@ Ver [ARCHITECTURE-OVERVIEW.md](./ARCHITECTURE-OVERVIEW.md) para diagrama complet
 
 ## Secrets — Regra de Ouro
 
-**Todas as secrets estao em `.env`** (fonte canonica). Nunca ler de Infisical directamente em codigo. SDK Infisical PROIBIDO.
+**Todas as secrets estao em `.env`** (fonte canonica).
 
 Ver [SECRETS-MANDATE.md](./GOVERNANCE/SECRETS-MANDATE.md) para politica completa.
 

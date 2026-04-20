@@ -140,7 +140,7 @@ Substitui os seguintes crons duplicados:
 ### Fluxo do Script
 
 ```
-1. Load COOLIFY_API_KEY from Infisical
+1. Load COOLIFY_API_KEY from .env
 2. Check Coolify apps status via API
 3. Check Docker containers status
 4. Check HTTP health endpoints

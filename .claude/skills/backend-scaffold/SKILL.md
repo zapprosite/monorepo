@@ -69,7 +69,7 @@ Example:
 
 ## Dependencias
 
-- `MINIMAX_API_KEY` em Infisical vault
+- `MINIMAX_API_KEY` em .env
 - Endpoint: `https://api.minimax.io/anthropic/v1`
 - Schema Zod deve existir em `packages/zod-schemas/src/`
 

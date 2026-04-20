@@ -1,6 +1,6 @@
 ---
 name: minimax-security-audit
-description: Semantic security audit of git diff — OWASP Top 10 + Infisical SDK enforcement using MiniMax LLM
+description: Semantic security audit of git diff — OWASP Top 10 + secrets audit using MiniMax LLM
 trigger: /msec
 ---
 
@@ -35,7 +35,7 @@ git commit
   -> Send diff to MiniMax (api.minimax.io)
   -> MiniMax analisa:
       ├── Secret found -> BLOCK + "Remove before push"
-      ├── process.env violation -> BLOCK + "Use Infisical SDK"
+      ├── process.env violation -> BLOCK + "Use process.env from .env"
       ├── OWASP A01 Broken Access Control -> WARN + router line
       ├── SQLi (parameterized) -> PASS
       └── SSRF in webhook -> CRITICAL + fix suggestion
@@ -46,7 +46,7 @@ git commit
 Structured report:
 ```
 [BLOCK] apps/api/src/modules/auth/auth.service.ts:12
-  process.env.JWT_SECRET — must use Infisical SDK
+  process.env.JWT_SECRET — hardcoded secret detected
 
 [WARN]  apps/api/src/routers/contracts.trpc.ts:45
   OWASP A01: publicProcedure exposes mutation — consider protectedProcedure
@@ -56,7 +56,7 @@ Structured report:
 
 **Faz:**
 - Semantic detection (understands code intent, not just patterns)
-- Infisical SDK enforcement (`getSecret` vs `process.env`)
+- process.env vs hardcoded secret enforcement
 - OWASP A01/A03/A10 reasoning
 - PT-BR friendly output
 
@@ -71,7 +71,7 @@ Git diff e enviado para `api.minimax.io` (third-party). Nao usar com repositorio
 
 ## Dependencias
 
-- `MINIMAX_API_KEY` em Infisical vault
+- `MINIMAX_API_KEY` em `.env`
 - `/se` skill disponivel para pre-scan
 - Endpoint: `https://api.minimax.io/anthropic/v1`
 
