@@ -1206,8 +1206,27 @@ COMMIT → PUSH BOTH → MERGE MAIN → TAG → NEW BRANCH
 | `~/.claude/mcps/ai-context-sync/sync.sh` | Sincroniza docs → memory             |
 | `/srv/ops/scripts/mirror-sync.sh`        | Sincroniza git mirrors               |
 | `/srv/ops/scripts/cleanup-sessions.sh`   | Limpa sessoes Claude Code velhas     |
+| `~/.hermes/scripts/sb-boot.sh`           | Boot Second Brain → sb-context.md    |
+| `/srv/monorepo/scripts/sync-second-brain.sh` | Push TREE → hermes-second-brain  |
 | `/ship` skill                            | End-of-session sync pattern completo |
 | `/turbo` command                         | Quick feature ship com tag           |
+
+### Hermes Second Brain
+
+Repositório de conhecimento central. Mantém TREE.md de cada projeto para contexto cross-session.
+
+| Item | Detalhe |
+| ---- | ------- |
+| **Repo** | `ssh://git@127.0.0.1:2222/will-zappro/hermes-second-brain.git` |
+| **Boot** | `~/.hermes/sb-context.md` (lido ao iniciar, gerado por `sb-boot.sh`) |
+| **Sync auto** | Gitea Actions no monorepo → push to main atualiza `monorepo-TREE.md` via API |
+| **Sync manual** | `./scripts/sync-second-brain.sh` |
+| **Skills** | `.claude/skills/gitea-cli/` + `.claude/skills/hermes-second-brain/` |
+
+**Como LLM lê o Second Brain ao iniciar:**
+1. `sb-boot.sh` fetches `*/TREE.md` do second-brain via API Gitea
+2. Escreve digest em `~/.hermes/sb-context.md`
+3. Qualquer agente que leia esse ficheiro tem contexto completo de todos os projetos
 
 ### NAO FACA
 
