@@ -5,15 +5,15 @@
  * Uses Zod schemas for type-safe validation and automatic spec generation.
  *
  * Endpoints:
- * - API: http://localhost:3000/api/
- * - OpenAPI Spec: http://localhost:3000/api/documentation/json
- * - Swagger UI: http://localhost:3000/api/documentation
+ * - API: {API_BASE_URL}/api/
+ * - OpenAPI Spec: {API_BASE_URL}/api/documentation/json
+ * - Swagger UI: {API_BASE_URL}/api/documentation
  */
 
-import { apiGatewayRouter } from "@backend/modules/api-gateway/api-gateway.router";
-import swagger from "@fastify/swagger";
-import swaggerUI from "@fastify/swagger-ui";
-import type { FastifyInstance } from "fastify";
+import { apiGatewayRouter } from '@backend/modules/api-gateway/api-gateway.router';
+import swagger from '@fastify/swagger';
+import swaggerUI from '@fastify/swagger-ui';
+import type { FastifyInstance } from 'fastify';
 import {
 	type FastifyZodOpenApiSchema,
 	type FastifyZodOpenApiTypeProvider,
@@ -22,8 +22,8 @@ import {
 	fastifyZodOpenApiTransformObject,
 	serializerCompiler,
 	validatorCompiler,
-} from "fastify-zod-openapi";
-import z from "zod";
+} from 'fastify-zod-openapi';
+import z from 'zod';
 
 export const openapiPlugin = async (app: FastifyInstance) => {
 	// Set Zod validator and serializer for OpenAPI compatibility
@@ -40,27 +40,27 @@ export const openapiPlugin = async (app: FastifyInstance) => {
 	await app.register(swagger, {
 		openapi: {
 			info: {
-				title: "Connected Repo REST API",
-				description: "REST API documentation for /api routes only",
-				version: "1.0.0",
+				title: 'Connected Repo REST API',
+				description: 'REST API documentation for /api routes only',
+				version: '1.0.0',
 			},
 			servers: [
 				{
-					url: "http://localhost:3000/api",
-					description: "Development server",
+					url: process.env['API_BASE_URL'] ?? 'http://localhost:3000/api',
+					description: 'Development server',
 				},
 			],
 			components: {
 				securitySchemes: {
 					ApiKeyAuth: {
-						type: "apiKey",
-						in: "header",
-						name: "x-api-key",
+						type: 'apiKey',
+						in: 'header',
+						name: 'x-api-key',
 					},
 					TeamIdHeader: {
-						type: "apiKey",
-						in: "header",
-						name: "x-team-id",
+						type: 'apiKey',
+						in: 'header',
+						name: 'x-team-id',
 					},
 				},
 			},
@@ -73,7 +73,7 @@ export const openapiPlugin = async (app: FastifyInstance) => {
 	// Register Swagger UI for interactive documentation
 	// Access at: http://localhost:3000/api/documentation
 	await app.register(swaggerUI, {
-		routePrefix: "/api/documentation",
+		routePrefix: '/api/documentation',
 	});
 	/**
 	 * GET /api - Health check / root endpoint
@@ -82,26 +82,26 @@ export const openapiPlugin = async (app: FastifyInstance) => {
 	 * This endpoint appears in Swagger UI with full schema documentation.
 	 */
 	app.withTypeProvider<FastifyZodOpenApiTypeProvider>().route({
-		method: "GET",
-		url: "/api",
+		method: 'GET',
+		url: '/api',
 		schema: {
 			response: {
 				200: z.object({
 					message: z.string().meta({
-						description: "Response message from the API",
-						example: "Hello from API",
+						description: 'Response message from the API',
+						example: 'Hello from API',
 					}),
 				}),
 			},
 		} satisfies FastifyZodOpenApiSchema,
 		handler: async (_req, reply) => {
-			app.log.info("API root endpoint hit api.router.ts");
-			return reply.send({ message: "Hello from API" });
+			app.log.info('API root endpoint hit api.router.ts');
+			return reply.send({ message: 'Hello from API' });
 		},
 	});
 
 	// Register API Gateway router
 	app.register(apiGatewayRouter, {
-		prefix: "/api",
+		prefix: '/api',
 	});
 };
