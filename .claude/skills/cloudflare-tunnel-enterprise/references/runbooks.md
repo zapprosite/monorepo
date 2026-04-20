@@ -491,3 +491,80 @@ terraform apply tfplan
 terraform plan
 # Should show: "No changes. Your infrastructure matches the configuration."
 ```
+
+---
+
+## Runbook: Hermes Gateway Loopback Hardening
+
+**When:** Hermes Gateway "No API key configured" warning appears, or to enable loopback-only binding for defense-in-depth.
+
+**Time:** ~3 minutes
+
+### Problem
+The Hermes API server warning "No API key configured" fires because `api_server.key` is not properly nested under `platforms.api_server` in `~/.hermes/config.yaml`.
+
+### Solution
+Bind Hermes API server to loopback (127.0.0.1) only — cloudflared tunnel provides the public entry point, so public binding is unnecessary and a security risk.
+
+### Step 1: Fix config.yaml
+
+Edit `~/.hermes/config.yaml` — replace flat `api_server:` block with nested `platforms.api_server`:
+
+```yaml
+# REMOVE this flat structure:
+api_server:
+  enabled: true
+  port: 8642
+  key: YOUR_KEY_HERE
+
+# REPLACE with:
+platforms:
+  api_server:
+    extra:
+      host: "127.0.0.1"
+      port: 8642
+      key: "YOUR_KEY_HERE"
+```
+
+### Step 2: Restart Hermes Gateway
+
+```bash
+# Kill existing Hermes process
+kill $(pgrep -f "hermes gateway run") 2>/dev/null
+sleep 2
+
+# Start Hermes in background
+~/.hermes/hermes-agent/venv/bin/python3 ~/.local/bin/hermes gateway run &
+sleep 5
+
+# Verify no "No API key configured" warning
+ps aux | grep hermes | grep -v grep
+```
+
+### Step 3: Verify loopback binding
+
+```bash
+# Should show hermes listening on 127.0.0.1:8642
+ss -tlnp | grep 8642
+
+# Should return 200
+curl -sf http://127.0.0.1:8642/health
+```
+
+### Step 4: Verify tunnel routing
+
+```bash
+# hermes.zappro.site should route via cloudflared → localhost:8642
+curl -sfI --max-time 10 https://hermes.zappro.site/health
+```
+
+### Security Model
+
+| Layer | Binding | Protection |
+|-------|---------|------------|
+| cloudflared tunnel | c0cf47bc...cfargotunnel.com | Single entry point via Cloudflare |
+| localhost binding | 127.0.0.1:8642 | No direct internet exposure |
+| API key (optional) | platforms.api_server.key | Defense-in-depth |
+
+### Note
+When bound to 127.0.0.1, the API key is optional since only local processes can reach Hermes. The cloudflared tunnel provides network-level access control via Cloudflare Access policies.
