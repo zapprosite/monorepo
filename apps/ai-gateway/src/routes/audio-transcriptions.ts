@@ -20,7 +20,7 @@ import { randomBytes } from 'node:crypto';
 import { applyPtbrFilter } from '../middleware/ptbr-filter.js';
 
 const execFileAsync = promisify(execFile);
-const STT_URL = process.env.STT_DIRECT_URL ?? 'http://localhost:8204';
+const STT_URL = process.env['STT_DIRECT_URL'] ?? 'http://localhost:8204';
 
 // ── Multipart extractor ────────────────────────────────────────────────────
 

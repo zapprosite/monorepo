@@ -10,7 +10,7 @@ import { $fetch } from 'ofetch';
 import { AudioSpeechRequestSchema } from '../schemas.js';
 import { applyPtbrFilter } from '../middleware/ptbr-filter.js';
 
-const TTS_BRIDGE_URL = process.env.TTS_BRIDGE_URL ?? 'http://localhost:8013';
+const TTS_BRIDGE_URL = process.env['TTS_BRIDGE_URL'] ?? 'http://localhost:8013';
 
 // tts-1-hd → pf_dora (alta qualidade feminino PT-BR)
 const MODEL_VOICE_MAP: Record<string, string> = {
@@ -33,7 +33,7 @@ export async function audioSpeechRoute(app: FastifyInstance) {
     const allowedVoices = ['pm_santa', 'pf_dora'];
     const voice = MODEL_VOICE_MAP[model] ?? inputVoice;
     if (!allowedVoices.includes(voice)) {
-      return reply.status(400).json({
+      return reply.status(400).send({
         error: {
           message: `Invalid voice: '${voice}'. Allowed voices: ${allowedVoices.join(', ')}`,
           type: 'invalid_request_error',

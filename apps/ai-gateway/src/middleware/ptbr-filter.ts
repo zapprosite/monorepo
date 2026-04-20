@@ -7,9 +7,9 @@
 import { createHash } from 'node:crypto';
 import { $fetch } from 'ofetch';
 
-const OLLAMA_URL = process.env.OLLAMA_URL ?? 'http://localhost:11434';
+const OLLAMA_URL = process.env['OLLAMA_URL'] ?? 'http://localhost:11434';
 // PTBR filter model: MUST be set via PTBR_FILTER_MODEL env var (no hardcoded fallback)
-const PTBR_MODEL = process.env.PTBR_FILTER_MODEL ?? '';
+const PTBR_MODEL = process.env['PTBR_FILTER_MODEL'] ?? '';
 const CACHE_TTL_MS = 15 * 60 * 1000;
 const CACHE_MAX = 512;
 
