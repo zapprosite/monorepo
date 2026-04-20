@@ -52,6 +52,7 @@ docs/
 | 060  | Hermes Agency Post-Hardening Improvements              | COMPLETED   |
 | 063  | Super Review Enterprise Refactor                       | DONE        |
 | 064  | Super Polish — Prune Legacy                            | DONE        |
+| 090  | Orchestrator v3 Redesign (14→3 fases, $0.50/pipeline) | IN PROGRESS |
 
 ---
 

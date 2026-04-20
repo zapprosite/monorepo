@@ -1,10 +1,139 @@
 {
   "agent": "ARCHITECT",
-  "spec": "SPEC-066-claude-commands-audit",
   "status": "completed",
-  "exit_code": 0,
-  "started": "",
-  "finished": "2026-04-17T14:58:56-03:00",
-  "command": "/infra-from-spec",
-  "log": "/srv/monorepo/.claude/skills/orchestrator/logs/ARCHITECT.log"
+  "exit": 0,
+  "spec": "SPEC-090",
+  "findings": [
+    {
+      "severity": "critical",
+      "category": "script-missing",
+      "issue": "snapshot.sh pool name hardcoded as 'tank'",
+      "detail": "Uses 'tank@pre-...' but pool name should come from ZFS pool discovery or environment variable. Host may use different pool name.",
+      "fix": "Auto-detect pool: `zfs list -H -o name | cut -d/ f1 | sort -u` or read from ENV var ZFS_POOL"
+    },
+    {
+      "severity": "critical",
+      "category": "script-missing",
+      "issue": "sudo zfs requires passwordless sudo for zfs commands",
+      "detail": "snapshot.sh and rollback.sh use `sudo zfs` which will block without passwordless sudo configured for zfs commands.",
+      "fix": "Either configure passwordless sudo for zfs, or add `|| die 'sudo required'` check with instructions"
+    },
+    {
+      "severity": "critical",
+      "category": "anti-hardcoded-violation",
+      "issue": "ship.sh reads GITEA_TOKEN from ~/.hermes/.env",
+      "detail": "Anti-hardcoded rule: .env is canonical source. ship.sh uses `grep GITEA_TOKEN ~/.hermes/.env | cut -d= -f2` instead of loading project .env.",
+      "fix": "Source /srv/monorepo/.env before reading, or use `gh auth token` / `got` for git remote detection"
+    },
+    {
+      "severity": "critical",
+      "category": "undefined-behavior",
+      "issue": "run-pipeline.sh calls undefined `log` function",
+      "detail": "Script uses `log \"FASE 1: ...\"` but function `log()` is never defined. Will cause 'log: command not found'.",
+      "fix": "Define `log() { echo \"[$(date '+%H:%M:%S')] $*\"; }` or use `printf '%s\\n' \"...\"`"
+    },
+    {
+      "severity": "critical",
+      "category": "undefined-behavior",
+      "issue": "wait-for-phase.sh uses `jq` without checking availability",
+      "detail": "Script uses `jq` for JSON parsing but jq may not be installed. Should check `command -v jq` first.",
+      "fix": "Add `command -v jq > /dev/null || { echo 'jq required'; exit 1; }`"
+    },
+    {
+      "severity": "high",
+      "category": "inconsistency",
+      "issue": "Phase 3 description conflicts: diagram shows parallel, text says 'sequential'",
+      "detail": "Diagram shows TESTER→DOCS→SMOKE→REVIEWER with parallel arrows (↓ ↓ ↓ ↓), but Error Handling table says 'sequencial'. The run-pipeline.sh runs them sequentially.",
+      "fix": "Clarify intent: if truly sequential (safer), update diagram. The sequential approach is correct for reliability."
+    },
+    {
+      "severity": "high",
+      "category": "gap",
+      "issue": "No pre-flight validation that required scripts exist",
+      "detail": "run-pipeline.sh calls snapshot.sh, rollback.sh, wait-for-phase.sh, ship.sh without checking they exist first.",
+      "fix": "Add validation block at start: `for script in snapshot.sh rollback.sh wait-for-phase.sh ship.sh; do [ -f \"$DIR/$script\" ] || die \"Missing: $script\"; done`"
+    },
+    {
+      "severity": "high",
+      "category": "gap",
+      "issue": "CODER-1 and CODER-2 produce conflicting filedeltas with no merge strategy",
+      "detail": "Both coders run in parallel on same filedeltas. If they modify same files, git conflicts will occur. No merge resolution strategy defined.",
+      "fix": "Either: (1) have coders work on disjoint file sets, (2) use git worktrees for isolation, (3) define merge strategy for parallel edits"
+    },
+    {
+      "severity": "high",
+      "category": "gap",
+      "issue": "ARCHITECT receives 'filedeltas' but SPEC-ANALYZER output is 'AC + filedeltas + tasks'",
+      "detail": "ARCHITECT input is described as 'SPEC.md + filedeltas' but filedeltas is an output of SPEC-ANALYZER. The dependency flow is unclear.",
+      "fix": "ARCHITECT should receive SPEC.md + SPEC-ANALYZER output (AC + issues), not raw filedeltas"
+    },
+    {
+      "severity": "medium",
+      "category": "hardcoded",
+      "issue": "ship.sh hardcodes repo path 'will/homelab-monorepo'",
+      "detail": "REPO var should be derived from git remote URL, not hardcoded.",
+      "fix": "Use `git remote get-url origin` and parse to get owner/repo"
+    },
+    {
+      "severity": "medium",
+      "category": "gap",
+      "issue": "No handling for snapshot.log persistence across pipeline runs",
+      "detail": "Each pipeline run appends to tasks/snapshots.log. After rollback, subsequent runs may reference stale snapshots.",
+      "fix": "Use pipeline-specific snapshot log: tasks/snapshots-$PIPELINE.log"
+    },
+    {
+      "severity": "medium",
+      "category": "gap",
+      "issue": "wait-for-phase.sh has hardcoded 1-hour timeout per phase",
+      "detail": "3600s timeout is reasonable but should be configurable via ENV var PHASE_TIMEOUT.",
+      "fix": "Use `TIMEOUT=${PHASE_TIMEOUT:-3600}`"
+    },
+    {
+      "severity": "low",
+      "category": "gap",
+      "issue": "Phase 3 agents (TESTER, DOCS, SMOKE, REVIEWER) not listed in wait-for-phase.sh case statement",
+      "detail": "wait-for-phase.sh only handles phases 1 and 2. Phase 3 has no gate/check mechanism defined.",
+      "fix": "Add phase 3 handling or clarify that Phase 3 is fire-and-forget (sequential agents handle their own errors)"
+    },
+    {
+      "severity": "low",
+      "category": "gap",
+      "issue": "check-gate.sh listed in scripts but not implemented",
+      "detail": "SPEC says 6 scripts but check-gate.sh is never shown. Used by wait-for-phase.sh internally?",
+      "fix": "Either implement check-gate.sh or remove from spec"
+    }
+  ],
+  "blockers": [
+    {
+      "issue": "Orchestrator scripts directory is empty",
+      "detail": "No scripts exist at orchestrator/scripts/. All 6 scripts must be created before pipeline can run."
+    },
+    {
+      "issue": "sudo zfs access not validated",
+      "detail": "snapshot.sh and rollback.sh require passwordless sudo for zfs. Must verify host sudoers config."
+    },
+    {
+      "issue": "CODER-1/CODER-2 file conflict resolution undefined",
+      "detail": "Parallel coders modifying same files will cause git merge conflicts."
+    }
+  ],
+  "recommendations": [
+    {
+      "priority": 1,
+      "recommendation": "Create scripts with proper error handling and env var sourcing"
+    },
+    {
+      "priority": 2,
+      "recommendation": "Define clear file ownership per coder (CODER-1 = backend, CODER-2 = frontend) to avoid merge conflicts"
+    },
+    {
+      "priority": 3,
+      "recommendation": "Use git worktrees instead of parallel branches for CODER-1/CODER-2 to enable true parallel execution without conflicts"
+    },
+    {
+      "priority": 4,
+      "recommendation": "Add orchestrator/scripts/README.md documenting each script's purpose and dependencies"
+    }
+  ],
+  "summary": "SPEC-090 is a solid redesign eliminating fake parallelism. Critical issues: (1) all scripts missing, (2) sudo zfs access unvalidated, (3) multiple undefined functions/commands, (4) Coder parallel file conflict unresolved. High-priority fixes needed before implementation."
 }

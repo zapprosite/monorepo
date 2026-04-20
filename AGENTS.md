@@ -6,11 +6,9 @@
 
 ---
 
-## 14-Agent Orchestrator (/execute)
+## 3-Phase Orchestrator v3 (/execute) — SPEC-090
 
-O `/execute` é o workflow completo que executa SPEC → pipeline → 14 agentes → PR.
-Adicionado **SPEC-071 Enterprise** — 7 dominios de operacao: Version Lock, Orchestrator v2,
-Observability, Rollback Engine, Capacity Planner, Cost Engine, Runbooks.
+Pipeline de 3 fases com dependências reais. Sem fake parallelism.
 
 ### Fluxo
 
@@ -18,28 +16,67 @@ Observability, Rollback Engine, Capacity Planner, Cost Engine, Runbooks.
 /execute "descrição"
   → /spec "descrição"           # Cria SPEC.md
   → /pg                         # Gera pipeline.json
-  → 14 agentes em paralelo       # Executam tarefas
-  → SHIPPER cria PR             # No Gitea
+  → run-pipeline.sh             # Executa 3 fases com gates
+  → SHIPPER cria PR ou ISSUE    # No Gitea
 ```
 
-### Os 14 Agentes
+### Arquitetura de 3 Fases
 
-| #   | Agent         | Type   | Responsabilidade                    |
-| --- | ------------- | ------ | ----------------------------------- |
-| 1   | SPEC-ANALYZER | claude | Analisa SPEC, extrai AC e ficheiros |
-| 2   | ARCHITECT     | claude | Revê arquitetura e flags issues     |
-| 3   | CODER-1       | claude | Backend (Fastify/tRPC)              |
-| 4   | CODER-2       | claude | Frontend (React/MUI)                |
-| 5   | TESTER        | claude | Escreve testes                      |
-| 6   | SMOKE         | claude | Gera smoke tests                    |
-| 7   | SECURITY      | claude | Audit OWASP + secrets               |
-| 8   | DOCS          | claude | Atualiza documentação               |
-| 9   | TYPES         | inline | TypeScript check (pnpm tsc)         |
-| 10  | LINT          | inline | Lint (pnpm lint)                    |
-| 11  | SECRETS       | claude | Scan secrets                        |
-| 12  | GIT           | claude | Commits changes                     |
-| 13  | REVIEWER      | claude | Code review final                   |
-| 14  | SHIPPER       | claude | Cria PR (espera pelos outros 13)    |
+```
+FASE 1 ─────────────────────────────────────────────────────────
+  [SPEC-ANALYZER] ←→ [ARCHITECT]
+        ↓                 ↓
+     (parallel)       (parallel)
+        └──────┬──────────┘
+               ↓
+FASE 2 ─────────────────────────────────────────────────────────
+         [CODER-1]  ←→  [CODER-2]
+         (parallel)      (parallel)
+               ↓
+FASE 3 ─────────────────────────────────────────────────────────
+  [TESTER] → [DOCS] → [SMOKE] → [REVIEWER]
+       ↓        ↓         ↓          ↓
+       └────────┴─────────┴──────────┘
+                    ↓
+              [SHIPPER]
+```
+
+### As 7 Agentes
+
+| Agente         | Fase | Tipo   | Responsabilidade                    |
+| -------------- | ---- | ------ | ----------------------------------- |
+| SPEC-ANALYZER  | 1    | claude | Analisa SPEC, extrai AC e filedeltas |
+| ARCHITECT      | 1    | claude | Revê arquitetura e flags issues     |
+| CODER-1        | 2    | claude | Backend (Fastify/tRPC)              |
+| CODER-2        | 2    | claude | Frontend (React/MUI)                |
+| TESTER         | 3    | claude | Escreve testes                      |
+| DOCS           | 3    | claude | Atualiza documentação               |
+| SMOKE          | 3    | claude | Gera smoke tests                    |
+| REVIEWER       | 3    | claude | Code review final                   |
+| SHIPPER        | -    | claude | Cria PR ou ISSUE no Gitea           |
+
+**Agentes eliminados (inline now):** TYPES, LINT, SECRETS, GIT
+
+### Gate entre Fases
+
+| Fase | Gate | Ação se Falhar |
+| ---- | ---- | -------------- |
+| 1    | SPEC-ANALYZER + ARCHITECT completam | BLOCK — rollback + exit 1 |
+| 2    | CODER-1 + CODER-2 completam (exit 0) | BLOCK — rollback + issue Gitea |
+| 3    | REVIEWER completa | SHIPPER cria PR ou ISSUE |
+
+### Error Handling
+
+| Cenario                          | Ação                              |
+| -------------------------------- | --------------------------------- |
+| SPEC-ANALYZER falha              | BLOCK — rollback + exit 1        |
+| ARCHITECT falha                  | BLOCK — rollback + exit 1        |
+| CODER-1 OU CODER-2 falha         | BLOCK — rollback + issue Gitea   |
+| TESTER falha                     | WARN + proceed                   |
+| DOCS falha                       | WARN + proceed                   |
+| SMOKE falha                      | WARN + proceed                   |
+| REVIEWER falha                   | WARN + proceed                   |
+| SHIPPER falha                    | ISSUE manual                     |
 
 ### Agent State File
 
@@ -60,34 +97,25 @@ Observability, Rollback Engine, Capacity Planner, Cost Engine, Runbooks.
 - **Agent states**: `tasks/agent-states/{AGENT}.json`
 - **Logs**: `.claude/skills/orchestrator/logs/{AGENT}.log`
 - **Pipeline**: `tasks/pipeline.json`
+- **Snapshots**: `tasks/snapshots.log`
 
-### Error Handling
-
-| Agente               | Critical | On Failure     |
-| -------------------- | -------- | -------------- |
-| CODER-1, CODER-2     | YES      | Block PR       |
-| TESTER, SECURITY     | NO       | Warn + proceed |
-| TYPES, LINT, SECRETS | NO       | CI catches     |
-
-### SHIPPER Pattern
-
-1. Poll `tasks/agent-states/*.json`
-2. If critical agent failed → BLOCK PR
-3. If important agent failed → WARN + proceed
-4. If all OK → create PR via Gitea API
-
-### Scripts (SPEC-071 Enterprise)
+### Scripts (SPEC-090)
 
 **Core orchestration:**
-- `orchestrator/scripts/run-agents.sh` — Spawn 14 agentes
-- `orchestrator/scripts/agent-wrapper.sh` — Wrapper por agente
-- `orchestrator/scripts/wait-for-completion.sh` — Poll até completarem
+- `orchestrator/scripts/run-pipeline.sh` — Script principal (3 fases)
+- `orchestrator/scripts/wait-for-phase.sh` — Poll até fase completar
+- `orchestrator/scripts/check-gate.sh` — Verifica se gate foi satisfeito
+- `orchestrator/scripts/ship.sh` — Cria PR ou ISSUE no Gitea
+
+**Rollback Engine:**
+- `orchestrator/scripts/snapshot.sh` — ZFS snapshot antes de cada fase
+- `orchestrator/scripts/rollback.sh` — Restore from snapshot
 
 **V1 — Version Lock:**
 - `orchestrator/scripts/versions-check.sh` — Deteta drift de versões pinned
 - `orchestrator/scripts/versions-update.sh` — Sincroniza versões
 
-**V2 — Orchestrator v2 (Critical Path Engine):**
+**V2 — Orchestrator v2 (Legacy):**
 - `orchestrator/scripts/circuit_breaker.sh` — 3 retries, exp backoff 2^n
 - `orchestrator/scripts/reentrancy_lock.sh` — PID lock por pipeline
 - `orchestrator/scripts/dead_letter.sh` — DLQ after 3 failures
@@ -96,10 +124,6 @@ Observability, Rollback Engine, Capacity Planner, Cost Engine, Runbooks.
 - `orchestrator/scripts/trace_id.sh` — UUID por pipeline
 - `orchestrator/scripts/metrics_collector.sh` — Prometheus exporter
 
-**V4 — Rollback Engine:**
-- `orchestrator/scripts/snapshot.sh` — Snapshot state antes de cada agent
-- `orchestrator/scripts/rollback.sh` — Restore state from snapshot
-
 **V5 — Capacity Planner:**
 - `orchestrator/scripts/capacity_calculator.sh` — Calcula RAM/CPU disponíveis
 - `orchestrator/scripts/auto_throttle.sh` — Auto-throttle parallelism
@@ -107,7 +131,6 @@ Observability, Rollback Engine, Capacity Planner, Cost Engine, Runbooks.
 **V6 — Cost Engine:**
 - `orchestrator/scripts/track_cost.sh` — Regista custo LLM por pipeline
 - `orchestrator/scripts/model_fallback.sh` — Modelo fallback quando budget exceeded
-- `.orchestrator/budget.yml` — Budget config ($0.50/pipeline, alert 80%)
 
 **V7 — Runbooks:**
 - `docs/OPS/RUNBOOKS/` — P1-SERVICE-DOWN, P2-SERVICE-DEGRADED, P3-NON-CRITICAL, P4-INFORMATIONAL, ORCHESTRATOR-FAILURE, PIPELINE-ROLLBACK
@@ -116,13 +139,20 @@ Observability, Rollback Engine, Capacity Planner, Cost Engine, Runbooks.
 - `docs/OPS/CAPACITY.md` — Capacity planner usage
 - `docs/OPS/COST-CONTROL.md` — Cost engine usage
 
+### Custo por Pipeline
+
+| Versão | Agentes | Custo estimado |
+| ------ | -------- | ------------- |
+| v1 (14 agentes) | 14 simultâneos | ~$2-3 |
+| v3 (3 fases) | 2-4 simultâneos | ~$0.50 |
+
 ---
 
 ## Skill-that-Calls-Skills (Meta-Skills)
 
 ### Examples
 
-- `/execute` → invoca `/spec` → `/pg` → 14 agents
+- `/execute` → invoca `/spec` → `/pg` → 3 fases
 - `/ship` → invoca sync → commit → push → PR
 
 ### Skill Metadata (SKILL.md)

@@ -1,10 +1,51 @@
 {
-  "agent": "SPEC-ANALYZER",
-  "spec": "SPEC-066-claude-commands-audit",
   "status": "completed",
-  "exit_code": 0,
-  "started": "",
-  "finished": "2026-04-17T15:00:36-03:00",
-  "command": "/researcher",
-  "log": "/srv/monorepo/.claude/skills/orchestrator/logs/SPEC-ANALYZER.log"
+  "exit": 0,
+  "spec": "SPEC-090",
+  "analyzed_at": "2026-04-20T00:00:00Z",
+  "findings": {
+    "acceptance_criteria": [
+      "orchestrator/scripts/ com todos os 6 scripts criados (run-pipeline.sh, wait-for-phase.sh, check-gate.sh, snapshot.sh, rollback.sh, ship.sh)",
+      "Pipeline executa 3 fases reais com gates",
+      "AGENTS.md atualizado com nova lógica de 3 fases",
+      "Rollback funciona (testado com snapshot.sh + rollback.sh)",
+      "Custo por pipeline < $0.50 (vs ~$2-3 anterior com 14 agentes)"
+    ],
+    "file_deltas": [
+      {"path": "orchestrator/scripts/run-pipeline.sh", "action": "create", "description": "Script principal que orquestra as 3 fases do pipeline"},
+      {"path": "orchestrator/scripts/wait-for-phase.sh", "action": "create", "description": "Poll até fase completar com timeout de 1h"},
+      {"path": "orchestrator/scripts/check-gate.sh", "action": "create", "description": "Verifica se gate foi satisfeito (ambos agentes completed + exit 0)"},
+      {"path": "orchestrator/scripts/snapshot.sh", "action": "create", "description": "ZFS snapshot antes de cada fase"},
+      {"path": "orchestrator/scripts/rollback.sh", "action": "create", "description": "Rollback se agente crítico falha"},
+      {"path": "orchestrator/scripts/ship.sh", "action": "create", "description": "Cria PR no Gitea ou ISSUE se falha"},
+      {"path": "AGENTS.md", "action": "update", "description": "Atualizar com nova lógica de 3 fases (eliminar TYPES, LINT, SECRETS, GIT)"},
+      {"path": "tasks/agent-states/", "action": "create", "description": "Diretório para estado de cada agente"},
+      {"path": "tasks/pipeline.json", "action": "update", "description": "State file do pipeline com fases e agentes"}
+    ],
+    "tasks": [
+      {"id": 1, "agent": "CODER-1", "description": "Criar orchestrator/scripts/run-pipeline.sh", "phase": 2, "critical": true},
+      {"id": 2, "agent": "CODER-1", "description": "Criar orchestrator/scripts/wait-for-phase.sh", "phase": 2, "critical": true},
+      {"id": 3, "agent": "CODER-1", "description": "Criar orchestrator/scripts/check-gate.sh", "phase": 2, "critical": true},
+      {"id": 4, "agent": "CODER-2", "description": "Criar orchestrator/scripts/snapshot.sh", "phase": 2, "critical": true},
+      {"id": 5, "agent": "CODER-2", "description": "Criar orchestrator/scripts/rollback.sh", "phase": 2, "critical": true},
+      {"id": 6, "agent": "CODER-2", "description": "Criar orchestrator/scripts/ship.sh", "phase": 2, "critical": true},
+      {"id": 7, "agent": "DOCS", "description": "Atualizar AGENTS.md com nova arquitetura de 3 fases", "phase": 3, "critical": false},
+      {"id": 8, "agent": "TESTER", "description": "Testar snapshot.sh + rollback.sh", "phase": 3, "critical": false},
+      {"id": 9, "agent": "SMOKE", "description": "Smoke test do pipeline completo", "phase": 3, "critical": false}
+    ],
+    "phases": {
+      "phase_1": {"name": "Análise", "agents": ["SPEC-ANALYZER", "ARCHITECT"], "parallel": true, "gate": "Ambos completam com exit 0"},
+      "phase_2": {"name": "Build", "agents": ["CODER-1", "CODER-2"], "parallel": true, "gate": "Ambos completam com exit 0; falha de qualquer um = BLOCK + rollback"},
+      "phase_3": {"name": "Validação", "agents": ["TESTER", "DOCS", "SMOKE", "REVIEWER"], "parallel": false, "sequential": true, "gate": "REVIEWER completo → SHIPPER"}
+    },
+    "agents_eliminated": ["TYPES", "LINT", "SECRETS", "GIT"],
+    "agents_added": ["SHIPPER"],
+    "error_handling": {
+      "SPEC-ANALYZER_fail": "BLOCK — rollback + exit 1",
+      "ARCHITECT_fail": "BLOCK — rollback + exit 1",
+      "CODER-1_OR_CODER-2_fail": "BLOCK — rollback + issue Gitea",
+      "TESTER_DOCS_SMOKE_REVIEWER_fail": "WARN + proceed",
+      "SHIPPER_fail": "ISSUE manual"
+    }
+  }
 }
