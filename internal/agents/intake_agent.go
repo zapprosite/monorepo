@@ -236,29 +236,33 @@ func (i *IntakeAgent) Execute(ctx context.Context, task *SwarmTask) (map[string]
 
 	if mediaURL != "" {
 		result["media_url"] = mediaURL
+	}
+	if mediaID != "" {
 		result["media_id"] = mediaID
 	}
 
 	// 7. Route to classifier queue
 	if i.redisClient != nil {
 		classifierTask := map[string]any{
-			"task_id":         uuid.New().String(),
-			"graph_id":        task.GraphID,
-			"node_id":         "classifier",
-			"type":            "classifier",
-			"status":          "pending",
-			"priority":        1,
-			"phone":           phone,
-			"message_id":      messageID,
-			"timestamp":       timestamp,
-			"normalized_text": normalizedText,
-			"message_type":    messageType,
-			"media_id":        mediaID,
-			"media_url":       mediaURL,
-			"intake_output":   result,
-			"retries":         0,
-			"max_retries":     3,
-			"timeout_ms":      15000,
+			"task_id":    uuid.New().String(),
+			"graph_id":   task.GraphID,
+			"node_id":    "classifier",
+			"type":       "classifier",
+			"status":     "pending",
+			"priority":   1,
+			"retries":    0,
+			"max_retries": 3,
+			"timeout_ms": 15000,
+			"input": map[string]any{
+				"phone":           phone,
+				"message_id":      messageID,
+				"timestamp":       timestamp,
+				"normalized_text": normalizedText,
+				"message_type":    messageType,
+				"media_id":        mediaID,
+				"media_url":       mediaURL,
+				"intake_output":   result,
+			},
 		}
 
 		if err := i.redisClient.EnqueueTask(ctx, "classifier", classifierTask); err != nil {

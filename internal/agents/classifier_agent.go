@@ -139,41 +139,42 @@ func (c *ClassifierAgent) Execute(ctx context.Context, task *SwarmTask) (map[str
 		"classifier.success": true,
 	}
 
-	// 6. Route to ranking queue if Redis client is configured
+	// 6. Route to RAG queue for semantic search (now using Ollama embedder)
 	if c.redisClient != nil {
 		graphID := task.GraphID
 		if graphID == "" {
 			graphID = phone // fallback to phone as graph ID
 		}
 
-		rankingTask := map[string]any{
+		ragTask := map[string]any{
 			"task_id":    task.TaskID,
 			"graph_id":   graphID,
-			"node_id":    "ranking",
-			"type":       "ranking",
+			"node_id":    "rag",
+			"type":       "rag",
 			"status":     "pending",
 			"priority":   1,
 			"retries":    0,
 			"max_retries": 3,
-			"timeout_ms": 20000,
+			"timeout_ms": 30000,
 			"input": map[string]any{
-				"query":           rewrittenQuery,
-				"intent":          string(intent),
-				"entities":        entities,
+				"query":            rewrittenQuery,
+				"graph_id":         graphID,
+				"intent":           string(intent),
+				"entities":         entities,
 				"normalized_text":  normalizedText,
-				"phone":           phone,
+				"phone":            phone,
+				"chat_id":          task.Input["chat_id"], // Telegram chat_id for response
 				"classifier_output": result,
 			},
 		}
 
-		if err := c.redisClient.EnqueueTask(ctx, "ranking", rankingTask); err != nil {
-			log.Printf("[classifier] failed to enqueue ranking task: %v", err)
-			// Return error so worker can retry — routing failure should not be silent
-			return nil, fmt.Errorf("failed to route to ranking: %w", err)
+		if err := c.redisClient.EnqueueTask(ctx, "rag", ragTask); err != nil {
+			log.Printf("[classifier] failed to enqueue rag task: %v", err)
+			return nil, fmt.Errorf("failed to route to rag: %w", err)
 		}
-		log.Printf("[classifier] routed to ranking queue: graph_id=%s, intent=%s", graphID, intent)
+		log.Printf("[classifier] routed to rag queue: graph_id=%s, intent=%s", graphID, intent)
 	} else {
-		log.Printf("[classifier] warning: no Redis client configured, skipping ranking routing")
+		log.Printf("[classifier] warning: no Redis client configured, skipping rag routing")
 	}
 
 	return result, nil

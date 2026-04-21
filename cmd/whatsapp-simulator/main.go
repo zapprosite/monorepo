@@ -400,19 +400,58 @@ func (s *Simulator) QueueInfo(w http.ResponseWriter, r *http.Request) {
 
 // enqueueToRedis pushes a message to the Redis intake queue
 func (s *Simulator) enqueueToRedis(ctx context.Context, msg Message) {
-	// Create the payload matching the integration test structure
-	payload := map[string]interface{}{
-		"id":         msg.ID,
-		"phone":      msg.From,
-		"text":       msg.Text,
-		"timestamp":  msg.Timestamp,
-		"source":     "whatsapp-simulator",
-		"simulated":  true,
+	// Build nested input map (fields expected by intake agent via task.Input)
+	// NOTE: chat_id is set to the sender (phone) for WhatsApp, but for Telegram
+	// the actual Telegram chat_id would come from the webhook. In simulation mode,
+	// we set chat_id = msg.From since that's the identifier for routing responses.
+	inputData := map[string]any{
+		"phone":           msg.From,
+		"message_id":      msg.ID,
+		"timestamp":       msg.Timestamp,
+		"normalized_text": msg.Text,
+		"query":           msg.Text,
+		"text":            msg.Text,
+		"message_type":    "text",
+		"source":          "whatsapp-simulator",
+		"simulated":       true,
+		"chat_id":         msg.From, // chat_id used for routing responses (Telegram chat_id or phone for WhatsApp)
 	}
 
-	data, err := json.Marshal(payload)
+	// Marshal input to json.RawMessage
+	inputBytes, err := json.Marshal(inputData)
 	if err != nil {
-		log.Printf("[REDIS] Failed to marshal payload: %v", err)
+		log.Printf("[REDIS] Failed to marshal input: %v", err)
+		return
+	}
+
+	// Create Task struct matching swarm.Task with proper json.RawMessage for Input
+	task := struct {
+		TaskID     string          `json:"task_id"`
+		GraphID    string          `json:"graph_id"`
+		NodeID     string          `json:"node_id"`
+		Type       string          `json:"type"`
+		Status     string          `json:"status"`
+		Priority   int             `json:"priority"`
+		Input      json.RawMessage `json:"input"`
+		Retries    int             `json:"retries"`
+		MaxRetries int             `json:"max_retries"`
+		TimeoutMs  int             `json:"timeout_ms"`
+	}{
+		TaskID:     msg.ID,
+		GraphID:    msg.From,
+		NodeID:     "intake",
+		Type:       "intake",
+		Status:     "pending",
+		Priority:   1,
+		Input:      json.RawMessage(inputBytes),
+		Retries:    0,
+		MaxRetries: 3,
+		TimeoutMs:  30000,
+	}
+
+	data, err := json.Marshal(task)
+	if err != nil {
+		log.Printf("[REDIS] Failed to marshal task: %v", err)
 		return
 	}
 

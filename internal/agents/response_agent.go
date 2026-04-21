@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"strings"
@@ -14,14 +15,21 @@ import (
 	"github.com/will-zappro/hvacr-swarm/internal/whatsapp"
 )
 
-// ResponseAgent generates and sends responses via WhatsApp.
+// ResponseAgent generates and sends responses via WhatsApp or Telegram.
 type ResponseAgent struct {
 	minimaxAPIKey   string
 	whatsappToken   string
 	phoneNumberID   string
 	whatsappSender  whatsapp.SenderClient
+	telegramSender  whatsapp.TelegramSenderClient
 	refiner         *rag.Refiner
 }
+
+const (
+	ESCALATION_THRESHOLD    = 0.70
+	HIGH_CONFIDENCE         = 0.85
+	MINIMAX_FALLBACK_CONF   = 0.95
+)
 
 // NewResponseAgent creates a new ResponseAgent.
 func NewResponseAgent(minimaxAPIKey, whatsappToken, phoneNumberID string) *ResponseAgent {
@@ -37,6 +45,15 @@ func NewResponseAgent(minimaxAPIKey, whatsappToken, phoneNumberID string) *Respo
 		agent.whatsappSender = whatsapp.NewSimulatedGraphAPIClient()
 	} else if whatsappToken != "" && phoneNumberID != "" {
 		agent.whatsappSender = whatsapp.NewGraphAPIClient(phoneNumberID, whatsappToken)
+	}
+	return agent
+}
+
+// NewResponseAgentWithTelegram creates a ResponseAgent with Telegram support for dev mode.
+func NewResponseAgentWithTelegram(minimaxAPIKey, whatsappToken, phoneNumberID, telegramToken, defaultChatID string) *ResponseAgent {
+	agent := NewResponseAgent(minimaxAPIKey, whatsappToken, phoneNumberID)
+	if telegramToken != "" {
+		agent.telegramSender = whatsapp.NewTelegramBotClient(telegramToken, defaultChatID)
 	}
 	return agent
 }
@@ -84,6 +101,16 @@ func (r *ResponseAgent) Execute(ctx context.Context, task *SwarmTask) (map[strin
 		task.TimeoutMs = int(time.Since(startTime).Milliseconds())
 	}()
 
+	// DEBUG: Log all input keys and chat_id value
+	inputKeys := make([]string, 0, len(task.Input))
+	for k := range task.Input {
+		inputKeys = append(inputKeys, k)
+	}
+	chatIDRaw, hasChatIDRaw := task.Input["chat_id"]
+	chatIDStr, chatIDIsString := task.Input["chat_id"].(string)
+	log.Printf("[response] DEBUG input keys: %v, chat_id raw: %#v (%T), hasChatIDRaw=%v, chatIDStr=%q isString=%v",
+		inputKeys, chatIDRaw, chatIDRaw, hasChatIDRaw, chatIDStr, chatIDIsString)
+
 	// 1. Read assembled_context from state
 	assembledContext, _ := task.Input["assembled_context"].(string)
 	if assembledContext == "" {
@@ -115,8 +142,26 @@ func (r *ResponseAgent) Execute(ctx context.Context, task *SwarmTask) (map[strin
 		hallucinationDetected = true
 	}
 
-	// 4. Calculate confidence and refine response using rag.Refiner
+	// 3.5. Calculate confidence first (needed for escalation check)
 	confidence := r.calculateConfidence(responseText, assembledContext, hallucinationDetected, intent)
+
+	// 3.6. Evaluate if should escalate to MiniMax
+	escalatedResponse, shouldEscalate, err := r.evaluateAndEscalate(
+		ctx, query, intent, entities,
+		assembledContext, confidence, hallucinationDetected,
+	)
+	if err != nil {
+		log.Printf("[response] ERROR evaluating escalation: %v", err)
+	}
+	if shouldEscalate && escalatedResponse != "" {
+		log.Printf("[response] INFO: escalation triggered (context=%q, confidence=%.2f, hallucination=%v)",
+			truncate(assembledContext, 50), confidence, hallucinationDetected)
+		responseText = escalatedResponse
+		confidence = MINIMAX_FALLBACK_CONF // MiniMax response is high quality
+		hallucinationDetected = false
+	}
+
+	// 4. Refine response using rag.Refiner
 	metadata := map[string]string{
 		"intent": intent,
 	}
@@ -125,10 +170,44 @@ func (r *ResponseAgent) Execute(ctx context.Context, task *SwarmTask) (map[strin
 	// 5. Format for WhatsApp using Refiner's formatting (with confidence indicators)
 	formattedMessages := r.formatRefinedForWhatsApp(refinedResult)
 
-	// 6. Send via WhatsApp Cloud API
+	// 6. Send via WhatsApp or Telegram
 	var sentMessages []string
+
+	// Check if this is a Telegram message (has chat_id in input)
+	chatID, hasChatID := task.Input["chat_id"].(string)
+	// If hasChatID is true but chatID is empty, try to use TELEGRAM_CHAT_ID from env
+	if hasChatID && chatID == "" {
+		if envChatID := os.Getenv("TELEGRAM_CHAT_ID"); envChatID != "" {
+			chatID = envChatID
+			hasChatID = true
+			log.Printf("[response] INFO: using default TELEGRAM_CHAT_ID from env since input chat_id was empty")
+		}
+	}
+
 	for _, msg := range formattedMessages {
-		if err := r.sendWhatsAppMessage(ctx, phone, msg); err != nil {
+		var err error
+		log.Printf("[response] DEBUG send decision: hasChatID=%v, chatID=%q, telegramSender=%v, whatsappSender=%v",
+			hasChatID, chatID, r.telegramSender != nil, r.whatsappSender != nil)
+		if hasChatID && r.telegramSender != nil {
+			// Telegram mode - use chat_id as destination
+			log.Printf("[response] sending via Telegram to chat_id=%s: %s", chatID, truncate(msg, 50))
+			tgResp, err := r.telegramSender.SendText(ctx, chatID, msg)
+			if err != nil {
+				log.Printf("[response] ERROR sending Telegram: %v", err)
+			} else {
+				log.Printf("[response] Telegram response: ok=%v, message_id=%d", tgResp.OK, tgResp.Result.MessageID)
+			}
+		} else if r.whatsappSender != nil {
+			// WhatsApp mode
+			log.Printf("[response] sending via WhatsApp to phone=%s: %s", phone, truncate(msg, 50))
+			err = r.sendWhatsAppMessage(ctx, phone, msg)
+		} else {
+			// No sender configured - log warning
+			log.Printf("[response] WARNING: no sender configured (telegram=%v, whatsapp=%v), skipping message: %s",
+				r.telegramSender != nil, r.whatsappSender != nil, truncate(msg, 50))
+			err = nil
+		}
+		if err != nil {
 			// Log error but continue with other messages
 			continue
 		}
@@ -165,8 +244,11 @@ func (r *ResponseAgent) calculateConfidence(responseText, context string, halluc
 		return 0.45
 	}
 
-	// No context available = medium-low confidence
+	// No context available - but greeting can be answered without context
 	if context == "" {
+		if intent == "greeting" {
+			return 0.90 // Greetings are high confidence
+		}
 		return 0.55
 	}
 
@@ -250,29 +332,42 @@ func (r *ResponseAgent) generateResponse(ctx context.Context, query, intent stri
 	switch intent {
 	case "greeting":
 		prompt.WriteString("Responda à seguinte saudação de forma amigável e profissional:\n\n")
+		prompt.WriteString(query)
 	case "technical":
-		prompt.WriteString("Você é um técnico especialista em climatização (HVAC). Com base no contexto técnico fornecido, responda à pergunta do cliente de forma clara e helpful.\n\n")
-		prompt.WriteString("Contexto técnico:\n")
-		prompt.WriteString(context)
-		prompt.WriteString("\n\nPergunta do cliente:\n")
+		prompt.WriteString("Você é um técnico especialista em climatização (HVAC). Responda à pergunta do cliente de forma clara e útil.\n\n")
+		if context != "" {
+			prompt.WriteString("Contexto técnico:\n")
+			prompt.WriteString(context)
+			prompt.WriteString("\n\n")
+		}
+		prompt.WriteString("Pergunta do cliente:\n")
 		prompt.WriteString(query)
 	case "commercial":
-		prompt.WriteString("Você é um consultor comercial de climatização. Com base nas informações fornecidas, responda à consulta comercial do cliente.\n\n")
-		prompt.WriteString("Contexto:\n")
-		prompt.WriteString(context)
-		prompt.WriteString("\n\nConsulta:\n")
+		prompt.WriteString("Você é um consultor comercial de climatização. Responda à consulta do cliente.\n\n")
+		if context != "" {
+			prompt.WriteString("Contexto:\n")
+			prompt.WriteString(context)
+			prompt.WriteString("\n\n")
+		}
+		prompt.WriteString("Consulta:\n")
 		prompt.WriteString(query)
 	case "billing":
 		prompt.WriteString("Você é um atendente de billing. Responda à questão de faturamento do cliente com precisão.\n\n")
-		prompt.WriteString("Contexto:\n")
-		prompt.WriteString(context)
-		prompt.WriteString("\n\nQuestão:\n")
+		if context != "" {
+			prompt.WriteString("Contexto:\n")
+			prompt.WriteString(context)
+			prompt.WriteString("\n\n")
+		}
+		prompt.WriteString("Questão:\n")
 		prompt.WriteString(query)
 	default:
-		prompt.WriteString("Responda à seguinte mensagem do cliente com base no contexto fornecido:\n\n")
-		prompt.WriteString("Contexto:\n")
-		prompt.WriteString(context)
-		prompt.WriteString("\n\nMensagem:\n")
+		prompt.WriteString("Responda à mensagem do cliente:\n\n")
+		if context != "" {
+			prompt.WriteString("Contexto:\n")
+			prompt.WriteString(context)
+			prompt.WriteString("\n\n")
+		}
+		prompt.WriteString("Mensagem:\n")
 		prompt.WriteString(query)
 	}
 
@@ -376,6 +471,67 @@ func (r *ResponseAgent) checkHallucination(response, context string) error {
 	return nil
 }
 
+// evaluateAndEscalate decides whether to escalate to MiniMax based on context quality and confidence.
+func (r *ResponseAgent) evaluateAndEscalate(ctx context.Context, query, intent string, entities map[string]interface{}, assembledContext string, confidence float64, hallucinationDetected bool) (string, bool, error) {
+	// Query vazia - já tem fallback, não escala
+	if query == "" {
+		return "", false, nil
+	}
+	// Greeting não precisa de escalação - tem fallback de alta confiança
+	if intent == "greeting" && confidence >= 0.80 && !hallucinationDetected {
+		return "", false, nil
+	}
+	// Se contexto bom e confidence alto, não escala
+	if assembledContext != "" && confidence >= ESCALATION_THRESHOLD && !hallucinationDetected {
+		return "", false, nil // skip escalation, usa fluxo normal
+	}
+	// Escalona para MiniMax
+	response, err := r.escalateToMiniMax(ctx, query, intent, entities, assembledContext)
+	return response, true, err
+}
+
+// escalateToMiniMax escalates the query to MiniMax M2.7 for processing.
+func (r *ResponseAgent) escalateToMiniMax(ctx context.Context, query, intent string, entities map[string]interface{}, assembledContext string) (string, error) {
+	// Build prompt for escalation
+	var prompt strings.Builder
+	prompt.WriteString("Você é um técnico especialista em climatização (HVAC). Responda à pergunta do cliente escalado.\n\n")
+
+	if assembledContext != "" {
+		prompt.WriteString("Contexto relevante:\n")
+		prompt.WriteString(assembledContext)
+		prompt.WriteString("\n\n")
+	}
+
+	if intent != "" {
+		prompt.WriteString("Intent detectado: ")
+		prompt.WriteString(intent)
+		prompt.WriteString("\n\n")
+	}
+
+	if entities != nil && len(entities) > 0 {
+		prompt.WriteString("Entidades identificadas:\n")
+		for k, v := range entities {
+			prompt.WriteString(fmt.Sprintf("- %s: %v\n", k, v))
+		}
+		prompt.WriteString("\n")
+	}
+
+	prompt.WriteString("Pergunta do cliente:\n")
+	prompt.WriteString(query)
+
+	prompt.WriteString("\n\nResposta (responda apenas com a resposta, sem formatação extra):")
+
+	// Check for API key
+	if r.minimaxAPIKey == "" {
+		r.minimaxAPIKey = os.Getenv("MINIMAX_API_KEY")
+	}
+	if r.minimaxAPIKey == "" {
+		return "", fmt.Errorf("minimax API key not configured for escalation")
+	}
+
+	return r.callMiniMax(ctx, prompt.String())
+}
+
 // sendWhatsAppMessage sends a message via WhatsApp Cloud API.
 func (r *ResponseAgent) sendWhatsAppMessage(ctx context.Context, to, text string) error {
 	if r.whatsappSender == nil {
@@ -411,6 +567,14 @@ func (r *ResponseAgent) getFallbackResponse(intent string) string {
 
 // Ensure ResponseAgent implements AgentInterface
 var _ AgentInterface = (*ResponseAgent)(nil)
+
+// truncate truncates a string to maxLen characters, adding "..." if truncated.
+func truncate(s string, maxLen int) string {
+	if len(s) <= maxLen {
+		return s
+	}
+	return s[:maxLen] + "..."
+}
 
 // confidenceLevelToString converts a ConfidenceLevel to its string representation.
 func confidenceLevelToString(level rag.ConfidenceLevel) string {

@@ -383,8 +383,9 @@ func TestCacheHit_ReturnsImmediately(t *testing.T) {
 	require.False(t, result1["cache_hit"].(bool), "First call should be cache miss")
 
 	// Verify external services were called
+	// HybridSearch + SearchSparse = 2 calls to Qdrant mock
 	require.Equal(t, 1, embedderCalls, "Embedder should be called once on cache miss")
-	require.Equal(t, 1, qdrantCalls, "Qdrant should be called once on cache miss")
+	require.Equal(t, 2, qdrantCalls, "Qdrant should be called twice on cache miss (HybridSearch + SearchSparse)")
 
 	// Reset counters
 	embedderCalls = 0

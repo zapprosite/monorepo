@@ -182,24 +182,28 @@ func (h *WhatsAppWebhookHandler) ServeHTTP(w http.ResponseWriter, r *http.Reques
 	}
 
 	// Create task data for intake agent
+	// Fields are at top level AND nested under "input" for compatibility
 	taskData := map[string]any{
 		"task_id":         msg.ID,
 		"graph_id":        msg.From, // Use phone as graph ID
 		"node_id":         "intake",
 		"type":            "intake",
 		"status":          "pending",
-		"priority":         1,
-		"phone":           msg.From,
-		"message_id":      msg.ID,
-		"timestamp":       msg.Timestamp,
-		"normalized_text":  normalizeText(msg.Text),
-		"query":           msg.Text,
-		"text":            msg.Text,
-		"message_type":    msg.MessageType,
-		"media_id":        msg.MediaID,
+		"priority":        1,
 		"retries":         0,
 		"max_retries":     3,
 		"timeout_ms":      30000,
+		"phone":           msg.From, // Top level for agents that expect it there
+		"input": map[string]any{
+			"phone":           msg.From,
+			"message_id":      msg.ID,
+			"timestamp":       msg.Timestamp,
+			"normalized_text": normalizeText(msg.Text),
+			"query":          msg.Text,
+			"text":           msg.Text,
+			"message_type":    msg.MessageType,
+			"media_id":        msg.MediaID,
+		},
 	}
 
 	if err := h.RedisEnqueuer.EnqueueTask(ctx, "intake", taskData); err != nil {

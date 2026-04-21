@@ -1,8 +1,31 @@
-# AGENTS.md — Monorepo Command Center
+# AGENTS.md — HVAACR-SWARM (DEPRECATED)
 
-> **Data:** 2026-04-09
+> **DEPRECATED:** This file is kept for historical reference only.
+> **Canonical AGENTS.md:** `/srv/monorepo/AGENTS.md`
+> **Date:** 2026-04-09 (superseded by monorepo canonical version)
 > **Authority:** Claude Code CLI + Gitea Actions + Antigravity Kit (.agent/)
 > **Stack:** pnpm workspaces + Turbo pipeline + Biome lint + Playwright E2E
+
+---
+
+## ⚠️ DEPRECATION NOTICE
+
+**This AGENTS.md is DEPRECATED.** The canonical source of truth for agent governance
+and operational patterns is now in the monorepo:
+
+- **Canonical:** `/srv/monorepo/AGENTS.md` (57KB — current)
+- **This file:** `/srv/hvacr-swarm/AGENTS.md` (15KB — deprecated, 2026-04-09)
+- **Last updated:** 2026-04-09 — no longer maintained
+
+All new agent skills, slash commands, and orchestrator patterns should be defined
+in the monorepo AGENTS.md only. HVAACR-SWARM-specific patterns are noted below.
+
+---
+
+## HVAACR-SWARM Specific (Legacy 2026-04-09)
+
+The sections below document what was specific to HVAACR-SWARM at the time of deprecation.
+These are kept for historical reference only.
 
 ---
 

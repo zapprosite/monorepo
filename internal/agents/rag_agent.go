@@ -6,20 +6,34 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"log"
 	"sort"
+	"strings"
 	"time"
 
-	"github.com/will-zappro/hvacr-swarm/internal/gemini"
 	"github.com/will-zappro/hvacr-swarm/internal/memory"
 )
 
+// QdrantSearcher defines the Qdrant operations needed by RAGAgent.
+type QdrantSearcher interface {
+	HybridSearch(ctx context.Context, query string, filters map[string]string, limit int) ([]memory.SearchResult, error)
+	SearchSparse(ctx context.Context, query string, filters map[string]string, limit int) ([]memory.SearchResult, error)
+}
+
+// EmbedderInterface defines the interface for embedding providers (compatible with both Gemini and Ollama).
+type EmbedderInterface interface {
+	Embed(ctx context.Context, text string) ([]float32, error)
+	BatchEmbed(ctx context.Context, texts []string) ([][]float32, error)
+}
+
 // RAGAgent performs hybrid search with caching.
 type RAGAgent struct {
-	embedder gemini.EmbedderInterface
-	qdrant   *memory.QdrantLayer
-	redis    RedisCacheLayer
-	queryTTL time.Duration
-	embedTTL time.Duration
+	embedder    EmbedderInterface
+	qdrant      QdrantSearcher
+	redis       RedisCacheLayer
+	redisClient RedisEnqueuer
+	queryTTL    time.Duration
+	embedTTL    time.Duration
 }
 
 // RedisCacheLayer wraps Redis operations for caching.
@@ -30,7 +44,7 @@ type RedisCacheLayer interface {
 }
 
 // NewRAGAgent creates a new RAGAgent.
-func NewRAGAgent(embedder gemini.EmbedderInterface, qdrant *memory.QdrantLayer, redis RedisCacheLayer) *RAGAgent {
+func NewRAGAgent(embedder EmbedderInterface, qdrant QdrantSearcher, redis RedisCacheLayer) *RAGAgent {
 	return &RAGAgent{
 		embedder: embedder,
 		qdrant:   qdrant,
@@ -38,6 +52,13 @@ func NewRAGAgent(embedder gemini.EmbedderInterface, qdrant *memory.QdrantLayer, 
 		queryTTL: 1 * time.Hour,
 		embedTTL: 24 * time.Hour,
 	}
+}
+
+// NewRAGAgentWithRedis creates a RAGAgent with Redis client for routing to ranking.
+func NewRAGAgentWithRedis(embedder EmbedderInterface, qdrant QdrantSearcher, redis RedisCacheLayer, redisClient RedisEnqueuer) *RAGAgent {
+	agent := NewRAGAgent(embedder, qdrant, redis)
+	agent.redisClient = redisClient
+	return agent
 }
 
 // RAGConfig holds configuration for the RAG agent.
@@ -142,6 +163,42 @@ func (r *RAGAgent) Execute(ctx context.Context, task *SwarmTask) (map[string]any
 		}, r.queryTTL)
 	}
 
+	// Step 5: Route to ranking queue
+	if r.redisClient != nil {
+		phone, _ := task.Input["phone"].(string)
+		intent, _ := task.Input["intent"].(string)
+		normalizedText, _ := task.Input["normalized_text"].(string)
+		chatID, _ := task.Input["chat_id"]
+
+		rankingTask := map[string]any{
+			"task_id":     task.TaskID,
+			"graph_id":    graphID,
+			"node_id":     "ranking",
+			"type":        "ranking",
+			"status":      "pending",
+			"priority":    1,
+			"retries":     0,
+			"max_retries": 3,
+			"timeout_ms":  20000,
+			"input": map[string]any{
+				"query":           input,
+				"graph_id":        graphID,
+				"intent":          intent,
+				"normalized_text": normalizedText,
+				"phone":           phone,
+				"chat_id":         chatID,
+				"rag_candidates":  candidates,
+				"cache_hit":       false,
+			},
+		}
+
+		if err := r.redisClient.EnqueueTask(ctx, "ranking", rankingTask); err != nil {
+			log.Printf("[rag] failed to enqueue ranking task: %v", err)
+		} else {
+			log.Printf("[rag] routed to ranking queue: graph_id=%s, candidates=%d", graphID, len(candidates))
+		}
+	}
+
 	return map[string]any{
 		"rag_candidates": candidates,
 		"cache_hit":      false,
@@ -151,16 +208,31 @@ func (r *RAGAgent) Execute(ctx context.Context, task *SwarmTask) (map[string]any
 
 // hybridSearch performs dense + sparse search with RRF fusion.
 func (r *RAGAgent) hybridSearch(ctx context.Context, query string, embedding []float32, filters map[string]string, config RAGConfig) ([]memory.SearchResult, error) {
-	// Dense search
-	denseResults, err := r.qdrant.HybridSearch(ctx, query, filters, config.TopK)
+	var denseResults []memory.SearchResult
+	var sparseResults []memory.SearchResult
+
+	// Dense search with retry
+	denseResults, err := r.denseSearchWithRetry(ctx, query, filters, config.TopK)
 	if err != nil {
-		return nil, fmt.Errorf("dense search: %w", err)
+		// If it's a "not found" or "unavailable" error, log and continue with empty results
+		if isQdrantUnavailableError(err) {
+			log.Printf("[rag] Qdrant dense search unavailable (collection not found or service down), continuing with empty candidates: %v", err)
+			denseResults = []memory.SearchResult{}
+		} else {
+			return nil, fmt.Errorf("dense search: %w", err)
+		}
 	}
 
-	// Sparse search (BM25-like)
-	sparseResults, err := r.qdrant.SearchSparse(ctx, query, filters, config.TopK)
+	// Sparse search with retry
+	sparseResults, err = r.sparseSearchWithRetry(ctx, query, filters, config.TopK)
 	if err != nil {
-		return nil, fmt.Errorf("sparse search: %w", err)
+		// If it's a "not found" or "unavailable" error, log and continue with empty results
+		if isQdrantUnavailableError(err) {
+			log.Printf("[rag] Qdrant sparse search unavailable (collection not found or service down), continuing with empty candidates: %v", err)
+			sparseResults = []memory.SearchResult{}
+		} else {
+			return nil, fmt.Errorf("sparse search: %w", err)
+		}
 	}
 
 	// RRF fusion
@@ -172,6 +244,99 @@ func (r *RAGAgent) hybridSearch(ctx context.Context, query string, embedding []f
 	}
 
 	return fused, nil
+}
+
+// denseSearchWithRetry performs dense search with retry logic.
+// Retries up to 3 times for transient errors, returns immediately for "unavailable" errors.
+func (r *RAGAgent) denseSearchWithRetry(ctx context.Context, query string, filters map[string]string, limit int) ([]memory.SearchResult, error) {
+	var lastErr error
+	for attempt := 1; attempt <= 3; attempt++ {
+		results, err := r.qdrant.HybridSearch(ctx, query, filters, limit)
+		if err == nil {
+			return results, nil
+		}
+
+		// If it's an unavailable/not-found error, don't retry - return immediately
+		if isQdrantUnavailableError(err) {
+			return nil, err
+		}
+
+		lastErr = err
+		log.Printf("[rag] dense search attempt %d/3 failed: %v", attempt, err)
+
+		if attempt < 3 {
+			select {
+			case <-ctx.Done():
+				return nil, ctx.Err()
+			case <-time.After(time.Duration(attempt) * 500 * time.Millisecond):
+				// Exponential backoff: 500ms, 1s, 1.5s
+			}
+		}
+	}
+	return nil, lastErr
+}
+
+// sparseSearchWithRetry performs sparse search with retry logic.
+// Retries up to 3 times for transient errors, returns immediately for "unavailable" errors.
+func (r *RAGAgent) sparseSearchWithRetry(ctx context.Context, query string, filters map[string]string, limit int) ([]memory.SearchResult, error) {
+	var lastErr error
+	for attempt := 1; attempt <= 3; attempt++ {
+		results, err := r.qdrant.SearchSparse(ctx, query, filters, limit)
+		if err == nil {
+			return results, nil
+		}
+
+		// If it's an unavailable/not-found error, don't retry - return immediately
+		if isQdrantUnavailableError(err) {
+			return nil, err
+		}
+
+		lastErr = err
+		log.Printf("[rag] sparse search attempt %d/3 failed: %v", attempt, err)
+
+		if attempt < 3 {
+			select {
+			case <-ctx.Done():
+				return nil, ctx.Err()
+			case <-time.After(time.Duration(attempt) * 500 * time.Millisecond):
+				// Exponential backoff: 500ms, 1s, 1.5s
+			}
+		}
+	}
+	return nil, lastErr
+}
+
+// isQdrantUnavailableError checks if the error indicates Qdrant collection not found or service unavailable.
+// These errors should trigger graceful fallback to empty candidates rather than dead-lettering.
+func isQdrantUnavailableError(err error) bool {
+	if err == nil {
+		return false
+	}
+	errStr := err.Error()
+	// Check for common Qdrant error patterns indicating collection not found or unavailable
+	unavailablePatterns := []string{
+		"collection not found",
+		"collection doesn't exist",
+		"status: 404",
+		"status 404",
+		"not found",
+		"grpc: error code NotFound",
+		"error code: NotFound",
+		"service unavailable",
+		"unavailable",
+		"connection refused",
+		"context deadline exceeded",
+		"no such host",
+		"invalid argument",
+		"Wrong input",
+		"Conversion between sparse and regular vectors failed",
+	}
+	for _, pattern := range unavailablePatterns {
+		if strings.Contains(strings.ToLower(errStr), strings.ToLower(pattern)) {
+			return true
+		}
+	}
+	return false
 }
 
 // rrfFusion combines dense and sparse results using Reciprocal Rank Fusion.

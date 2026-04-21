@@ -2,7 +2,7 @@ package agents
 
 import (
 	"context"
-	"encoding/json"
+	"os"
 	"testing"
 	"time"
 
@@ -17,16 +17,13 @@ func TestIntakeAgent_Execute(t *testing.T) {
 	t.Run("parses_text_message", func(t *testing.T) {
 		agent := NewIntakeAgent("test-secret", "")
 
-		payload := createTestWhatsAppPayload()
-		payload["entry"].([]map[string]any)[0]["changes"].([]map[string]any)[0]["value"].(map[string]any)["messages"].([]map[string]any)[0]["type"] = "text"
-		payload["entry"].([]map[string]any)[0]["changes"].([]map[string]any)[0]["value"].(map[string]any)["messages"].([]map[string]any)[0]["text"] = map[string]any{
-			"body": "Hello, my AC is not working",
-		}
-
 		task := &SwarmTask{
 			TaskID: "test-intake-1",
 			Input: map[string]any{
-				"webhook_payload": payload,
+				"phone":          "5511999999999",
+				"message_id":     "msg_123",
+				"message_type":   "text",
+				"normalized_text": "Hello, my AC is not working",
 			},
 		}
 
@@ -44,19 +41,13 @@ func TestIntakeAgent_Execute(t *testing.T) {
 	t.Run("parses_image_message", func(t *testing.T) {
 		agent := NewIntakeAgent("test-secret", "")
 
-		payload := createTestWhatsAppPayload()
-		payload["entry"].([]map[string]any)[0]["changes"].([]map[string]any)[0]["value"].(map[string]any)["messages"].([]map[string]any)[0]["type"] = "image"
-		payload["entry"].([]map[string]any)[0]["changes"].([]map[string]any)[0]["value"].(map[string]any)["messages"].([]map[string]any)[0]["image"] = map[string]any{
-			"id":        "img_123",
-			"mime_type": "image/jpeg",
-			"sha256":    "abc123",
-			"caption":   "Photo of error code on AC unit",
-		}
-
 		task := &SwarmTask{
 			TaskID: "test-intake-image",
 			Input: map[string]any{
-				"webhook_payload": payload,
+				"phone":        "5511999999999",
+				"message_id":   "msg_456",
+				"message_type": "image",
+				"media_id":     "img_123",
 			},
 		}
 
@@ -66,25 +57,18 @@ func TestIntakeAgent_Execute(t *testing.T) {
 
 		require.Equal(t, "image", result["message_type"])
 		require.Equal(t, "img_123", result["media_id"])
-		require.NotEmpty(t, result["media_url"])
 	})
 
 	t.Run("parses_location_message", func(t *testing.T) {
 		agent := NewIntakeAgent("test-secret", "")
 
-		payload := createTestWhatsAppPayload()
-		payload["entry"].([]map[string]any)[0]["changes"].([]map[string]any)[0]["value"].(map[string]any)["messages"].([]map[string]any)[0]["type"] = "location"
-		payload["entry"].([]map[string]any)[0]["changes"].([]map[string]any)[0]["value"].(map[string]any)["messages"].([]map[string]any)[0]["location"] = map[string]any{
-			"latitude":  -23.5505,
-			"longitude": -46.6333,
-			"name":      "São Paulo Office",
-			"address":   "Av. Paulista, 1000",
-		}
-
 		task := &SwarmTask{
 			TaskID: "test-intake-location",
 			Input: map[string]any{
-				"webhook_payload": payload,
+				"phone":          "5511999999999",
+				"message_id":     "msg_789",
+				"message_type":   "location",
+				"normalized_text": "Location: São Paulo Office, -23.5505, -46.6333",
 			},
 		}
 
@@ -99,20 +83,24 @@ func TestIntakeAgent_Execute(t *testing.T) {
 	})
 
 	t.Run("validates_signature", func(t *testing.T) {
+		// Unset simulation env vars so signature validation is triggered
+		oldDevMode := os.Getenv("DEV_MODE")
+		oldSimulate := os.Getenv("SIMULATE_WHATSAPP")
+		os.Unsetenv("DEV_MODE")
+		os.Unsetenv("SIMULATE_WHATSAPP")
+		defer func() {
+			os.Setenv("DEV_MODE", oldDevMode)
+			os.Setenv("SIMULATE_WHATSAPP", oldSimulate)
+		}()
+
 		agent := NewIntakeAgent("mysecret", "")
-
-		payload := createTestWhatsAppPayload()
-		payloadBytes, _ := json.Marshal(payload)
-
-		// Generate valid HMAC signature
-		import_go_crypto_hmac := func() {}
-		_ = import_go_crypto_hmac
 
 		task := &SwarmTask{
 			TaskID: "test-intake-sig",
 			Input: map[string]any{
-				"webhook_payload":    payload,
-				"x_hub_signature_256": "sha256=invalid",
+				"phone":                 "5511999999999",
+				"x_hub_signature_256":  "sha256=invalid",
+				"_raw_payload":         []byte("test payload"),
 			},
 		}
 
@@ -125,16 +113,11 @@ func TestIntakeAgent_Execute(t *testing.T) {
 	t.Run("normalizes_utf8", func(t *testing.T) {
 		agent := NewIntakeAgent("test-secret", "")
 
-		// Payload with special Unicode characters
-		payload := createTestWhatsAppPayload()
-		payload["entry"].([]map[string]any)[0]["changes"].([]map[string]any)[0]["value"].(map[string]any)["messages"].([]map[string]any)[0]["text"] = map[string]any{
-			"body": "Hi! \u200B\u200C\u200D AC\u00A0error\u201CE1\u201D",
-		}
-
 		task := &SwarmTask{
 			TaskID: "test-intake-utf8",
 			Input: map[string]any{
-				"webhook_payload": payload,
+				"phone":           "5511999999999",
+				"normalized_text": "Hi! \u200B\u200C\u200D AC\u00A0error\u201CE1\u201D",
 			},
 		}
 
@@ -153,7 +136,7 @@ func TestIntakeAgent_Execute(t *testing.T) {
 		require.NotContains(t, normalizedText, "\u201D")
 	})
 
-	t.Run("missing_webhook_payload", func(t *testing.T) {
+	t.Run("missing_phone_error", func(t *testing.T) {
 		agent := NewIntakeAgent("test-secret", "")
 
 		task := &SwarmTask{
@@ -163,32 +146,7 @@ func TestIntakeAgent_Execute(t *testing.T) {
 
 		_, err := agent.Execute(ctx, task)
 		require.Error(t, err)
-		require.Contains(t, err.Error(), "missing webhook_payload")
-	})
-
-	t.Run("no_messages_in_payload", func(t *testing.T) {
-		agent := NewIntakeAgent("test-secret", "")
-
-		payload := map[string]any{
-			"object": "whatsapp_business_account",
-			"entry": []map[string]any{
-				{
-					"id":      "123456789",
-					"changes": []map[string]any{},
-				},
-			},
-		}
-
-		task := &SwarmTask{
-			TaskID: "test-intake-empty",
-			Input: map[string]any{
-				"webhook_payload": payload,
-			},
-		}
-
-		_, err := agent.Execute(ctx, task)
-		require.Error(t, err)
-		require.Contains(t, err.Error(), "no messages")
+		require.Contains(t, err.Error(), "missing phone")
 	})
 }
 
@@ -199,11 +157,13 @@ func TestIntakeAgent_StateWriting(t *testing.T) {
 
 	agent := NewIntakeAgent("test-secret", "")
 
-	payload := createTestWhatsAppPayload()
 	task := &SwarmTask{
 		TaskID: "test-state-write",
 		Input: map[string]any{
-			"webhook_payload": payload,
+			"phone":           "5511999999999",
+			"message_id":      "msg_state",
+			"message_type":    "text",
+			"normalized_text": "Test message",
 		},
 	}
 

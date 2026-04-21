@@ -6,7 +6,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/will-zappro/hvacr-swarm/internal/memory"
 )
@@ -35,6 +34,12 @@ func (m *MockRankingRedisLayer) GetGraphState(ctx context.Context, graphID strin
 		return state, nil
 	}
 	return nil, nil
+}
+
+// SetGraphStateWithTTL implements the Redis layer interface.
+func (m *MockRankingRedisLayer) SetGraphStateWithTTL(ctx context.Context, graphID string, state map[string]interface{}, ttl time.Duration) error {
+	m.graphState[graphID] = state
+	return nil
 }
 
 // MockRerankerClient mocks the cross-encoder/reranker client.
