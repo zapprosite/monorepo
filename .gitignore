@@ -6,12 +6,14 @@ node_modules/
 dist/
 .DS_Store
 
-# Go compiled binaries (root-level)
+# Go compiled binaries
 chat
 swarm
 telegram-dev
 telegram-simulator
 whatsapp-simulator
+bin/
+*.exe
 
 # =============================================================================
 # ENVIRONMENT FILES — Security Critical
@@ -35,6 +37,12 @@ out/
 tmp/
 temp/
 *.tmp
+.cache/
+coverage/
+htmlcov/
+__pycache__/
+*.pyc
+*.pyo
 
 # =============================================================================
 # AI TOOLS — Personal / Runtime
