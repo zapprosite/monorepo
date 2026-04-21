@@ -1,28 +1,87 @@
+# =============================================================================
+# FUNDAÇÃO — Node / Go
+# =============================================================================
+
 node_modules/
 dist/
-.env
 .DS_Store
 
-# Antigravity & AI Context
-.context/workflow/
-.agent/cache/
-.agent/scripts/__pycache__/
+# Go compiled binaries (root-level)
+chat
+swarm
+telegram-dev
+telegram-simulator
+whatsapp-simulator
 
-# Monorepo & Build
+# =============================================================================
+# ENVIRONMENT FILES — Security Critical
+# =============================================================================
+
+.env
+!.env.example
+.env.local
+.env.*
+!.env.example
+
+# =============================================================================
+# BUILD & RUNTIME
+# =============================================================================
+
 .turbo/
 .next/
 *.log
+build/
+out/
+tmp/
+temp/
+*.tmp
 
-# Ferramentas AI pessoais (não são do projeto)
+# =============================================================================
+# AI TOOLS — Personal / Runtime
+# =============================================================================
+
+.context/
+.agent/cache/
+.agent/scripts/__pycache__/
 .gemini/
 .codex/
 .claude/CLAUDE.md
 .claude/agents/
-rascunho.txt
+.claude/rules/
+.claude/scheduled_tasks.json
+.claude/scheduled_tasks.lock
+.claude/vision-local.md
 
-# Sistema
-.Trash-1000/
+# =============================================================================
+# ORCHESTRATOR RUNTIME — Ephemeral State
+# =============================================================================
+
+tasks/agent-states/
+tasks/pipeline-state.json
+tasks/pipeline.json
+tasks/snapshots/
+tasks/snapshots.log
+tasks/smoke-tests/results/
+
+# =============================================================================
+# MONOREPO SPECIFICS
+# =============================================================================
+
 worktrees/
-runner/data/.runner
 runner/data/
-whatsapp-simulator
+runner/.env
+.Trash-1000/
+obsidian/
+rascunho.txt
+archive/
+
+# =============================================================================
+# EDITOR & IDE
+# =============================================================================
+
+.vscode/
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+*.sw?
+*~
