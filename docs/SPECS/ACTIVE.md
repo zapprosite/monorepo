@@ -19,6 +19,7 @@ supersedes: SPEC-INDEX.md (legacy)
 | 068 | Circuit Breaker (MEM0 wins) | codified | SPEC-073 | Implemented in `packages/circuit-breaker/` |
 | 074 | Hermes Second Brain | active | — | Second-brain sync via `scripts/sync-second-brain.sh` |
 | 090 | Orchestrator v3 | active | SPEC-070 | 14-agent enterprise orchestrator |
+| 115 | Painel Organism (MCP) | implemented | — | 6 MCP servers (4011-4016) operational |
 
 ## Draft SPECs
 
