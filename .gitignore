@@ -109,3 +109,4 @@ apps/perplexity-agent/.venv/
 .eslintcache
 .worktrees/
 .env.bak-*
+.env.backup

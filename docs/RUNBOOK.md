@@ -1,7 +1,8 @@
 # Runbook de Recuperação de Desastres
 
 > **Data de criação:** 2026-04-22
-> **Última atualização:** 2026-04-22
+> **Última atualização:** 2026-04-23
+> **Versão:** 1.1.0
 
 Este documento contém procedimentos de recuperação para emergências e desastres nos serviços de infraestrutura.
 

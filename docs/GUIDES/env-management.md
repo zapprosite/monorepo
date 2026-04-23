@@ -81,8 +81,42 @@ Em produção, os valores são injetados pelo sistema de deploy (Coolify) a part
 - Verifique se o serviço Redis está rodando: `systemctl status redis`
 - Teste a conexão manualmente: `redis-cli -a $(cat .env | grep REDIS_PASSWORD | cut -d= -f2) ping`
 
+## Backup Strategy
+
+### Location
+- **Primary `.env`:** `/srv/monorepo/.env`
+- **Backup location:** `/srv/ops/backups/.env.backup` (chmod 600)
+- **Template:** `/srv/monorepo/.env.example` (tracked by git)
+
+### Workflow
+
+1. **Before modifying `.env`:**
+   ```bash
+   # Backup current configuration
+   cp .env /srv/ops/backups/.env.backup
+   chmod 600 /srv/ops/backups/.env.backup
+   ```
+
+2. **After modifying `.env`:**
+   ```bash
+   # Update backup
+   cp .env /srv/ops/backups/.env.backup
+   chmod 600 /srv/ops/backups/.env.backup
+   ```
+
+3. **To track changes:**
+   - Compare with diff: `diff /srv/ops/backups/.env.backup /srv/monorepo/.env`
+   - Document changes in commit messages
+
+### Security Notes
+
+- The backup directory `/srv/ops/backups/` is NOT under git control
+- Permissions 600 ensures only the owner can read/write
+- Never commit actual secrets to git
+- Use `.env.example` for sharing non-sensitive defaults
+
 ## Links
 
-- Backup: `/srv/backups/env-secrets/`
-- Runbook DR (Disaster Recovery): `docs/RUNBOOK.md`
+- Backup: `/srv/ops/backups/.env.backup`
+- Runbook DR (Disaster Recovery): `docs/GUIDES/DISASTER-RECOVERY.md`
 - Configuração do Coolify: consultar NETWORK_MAP.md na seção de infraestrutura
