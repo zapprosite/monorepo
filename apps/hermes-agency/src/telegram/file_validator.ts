@@ -88,7 +88,8 @@ export function validateFile(filePath: string): { valid: true } | { valid: false
     if (stats.size === 0) {
       return { valid: false, reason: 'Ficheiro vazio' };
     }
-  } catch (err) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  } catch (_err) {
     return { valid: false, reason: `Não foi possível ler o ficheiro` };
   }
 

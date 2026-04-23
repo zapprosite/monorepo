@@ -1,7 +1,6 @@
-import { RAG_INSTANCE_ORGANIZER } from './rag-instance-organizer.js';
-
 // Anti-hardcoded: all config via process.env
 // Hermes Agency Suite — Skill Registry
+/* eslint-disable no-console */
 
 export interface Skill {
   id: string;
@@ -126,8 +125,6 @@ function _validateSkills(skills: readonly Skill[]): void {
     }
   }
 }
-
-  RAG_INSTANCE_ORGANIZER,
 
 export const AGENCY_SKILLS: readonly Skill[] = [
   {

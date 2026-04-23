@@ -1,5 +1,6 @@
 // Anti-hardcoded: all config via process.env
 // Agency Onboarding Skill — creates client profiles, initializes Qdrant collections, sends welcome messages
+/* eslint-disable no-console */
 
 import { randomUUID } from 'node:crypto';
 import {
@@ -7,8 +8,10 @@ import {
   upsertVector,
   createCollectionIfNotExists,
   type CollectionName,
+  type PointPayload,
 } from '../qdrant/client.js';
-import { llmComplete, type LLMRequest } from '../litellm/router.js';
+// LLM import reserved for future personalized welcome messages
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 
 const HERMES_AGENCY_BOT_TOKEN = process.env['HERMES_AGENCY_BOT_TOKEN'] ?? '';
 
@@ -39,27 +42,6 @@ interface TaskRecord {
   due_date?: string;
 }
 
-/**
- * Generates a personalized welcome message using the LLM.
- */
-async function generateWelcomeMessage(clientName: string, plan: string): Promise<string> {
-  const req: LLMRequest = {
-    systemPrompt:
-      'You are Hermes, the agency coordination AI. Generate a warm, professional welcome message for a new agency client. Keep it concise (2-3 short paragraphs). Include: 1) Welcome and excitement, 2) What the agency will do for them, 3) First steps hint.',
-    messages: [
-      {
-        role: 'user',
-        content: `Generate a welcome message for a new client called "${clientName}" on the "${plan}" plan.`,
-      },
-    ],
-    maxTokens: 500,
-    temperature: 0.8,
-  };
-
-  const response = await llmComplete(req);
-  return response.content;
-}
-
 // ---------------------------------------------------------------------------
 // Skill Functions
 // ---------------------------------------------------------------------------
@@ -87,7 +69,7 @@ export async function createClientProfile(
       collection: COLLECTIONS.CLIENTS,
       id: clientId,
       vector: ZERO_VECTOR,
-      payload: profile,
+      payload: profile as unknown as PointPayload,
     });
 
     if (!saved) {
@@ -142,7 +124,7 @@ export async function initQdrantCollection(
  * Uses the HERMES_AGENCY_BOT_TOKEN to send a message to the client's chat_id.
  */
 export async function sendWelcomeSequence(
-  clientId: string,
+  _clientId: string,
   chatId?: string,
 ): Promise<{ success: boolean; error?: string }> {
   try {
@@ -217,7 +199,7 @@ export async function createFirstMilestone(
       collection: COLLECTIONS.TASKS,
       id: taskId,
       vector: ZERO_VECTOR,
-      payload: milestone,
+      payload: milestone as unknown as PointPayload,
     });
 
     if (!saved) {

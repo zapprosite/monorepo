@@ -1,5 +1,6 @@
 // Anti-hardcoded: all config via process.env
 // Hermes Agency — Redis client singleton with graceful memory fallback
+/* eslint-disable no-console */
 
 import Redis from 'ioredis';
 

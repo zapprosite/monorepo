@@ -1,6 +1,7 @@
 // Anti-hardcoded: all config via process.env
 // Hermes Agency Telegram Bot — voice + vision + text multimodal
 // Hardened for datacenter: Redis locks/rate-limit, file validation, concurrency limit
+/* eslint-disable no-console */
 
 process.on('uncaughtException', (err) => {
   console.error('Uncaught Exception:', err);

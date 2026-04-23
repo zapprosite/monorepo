@@ -788,6 +788,131 @@ agency_working_memory   → Per-session agent memory
 
 ---
 
+## Memory Architecture (5-Layer)
+
+The homelab uses a **5-layer memory architecture** for comprehensive AI context management:
+
+```
+┌────────────────────────────────────────────────────────────────────┐
+│ Layer 1: Session Memory (Mem0)        │ TTL: 7-90 days           │
+│ agency_working_memory via Qdrant       │ Ollama embeddings        │
+├────────────────────────────────────────────────────────────────────┤
+│ Layer 2: Long-Term Memory (Mem0)      │ Persistent               │
+│ agency_clients, agency_campaigns, etc.│ Semantic indexing        │
+├────────────────────────────────────────────────────────────────────┤
+│ Layer 3: Knowledge Base (Trieve)      │ RAG, hybrid search       │
+│ {app}[-{lead}]-knowledge|memory       │ Chunked docs            │
+├────────────────────────────────────────────────────────────────────┤
+│ Layer 4: Structured Memory (Postgres)  │ Relational consistency  │
+│ {app}[_{lead}] schemas                │ clients, campaigns       │
+├────────────────────────────────────────────────────────────────────┤
+│ Layer 5: Cache Layer (Redis)           │ Rate limits, locks      │
+│ ratelimit:, lock:, session:            │ Fast access             │
+└────────────────────────────────────────────────────────────────────┘
+```
+
+### Memory Files
+
+```
+src/mem0/
+├── client.ts       # Session memory with TTL support
+├── longterm.ts     # Long-term memory managers
+├── embeddings.ts   # Ollama nomic-embed-text integration
+└── index.ts       # All exports
+```
+
+### Session Memory (TTL-Based)
+
+```typescript
+import { mem0Store, mem0GetRecent, mem0Search, mem0CleanupExpired } from './mem0';
+
+const { sessionId, userId } = ctx;
+
+// Store with importance-based TTL
+await mem0Store({
+  sessionId,
+  userId,
+  role: 'user',
+  content: 'Cliente prefere campanhas vibrantes',
+  importance: 'important'  // 30 days TTL
+});
+
+// Retrieve recent context
+const recent = await mem0GetRecent(sessionId, 10);
+
+// Search session memory
+const results = await mem0Search('preferencias visuais', sessionId, { limit: 5 });
+
+// Cleanup expired (call daily via cron)
+await mem0CleanupExpired();
+```
+
+### Long-Term Memory (Per-Collection)
+
+```typescript
+import {
+  storeClientPreference,
+  storeBrandGuideline,
+  storeCampaignContext,
+  getClientMemory,
+  searchAllAgencyMemory,
+  formatLongTermContext
+} from './mem0/longterm';
+
+// Store client preference
+await storeClientPreference('refrimix', 'Prefere CTAs diretos');
+
+// Store brand guideline
+await storeBrandGuideline('refrimix', 'Cores: #FF6B35 (orange), #1A1A2E (navy)');
+
+// Get all memories for a client
+const clientMem = await getClientMemory('refrimix');
+// { preferences: [...], brandGuidelines: [...], interactions: [...] }
+
+// Search across all agency collections
+const allResults = await searchAllAgencyMemory('brand colors pantone', { limit: 5 });
+
+// Format for prompt injection
+const context = formatLongTermContext(clientMem.preferences);
+```
+
+### TTL by Importance
+
+| Importance | TTL | Use Case |
+|------------|-----|----------|
+| `normal` | 7 days | Regular conversation |
+| `important` | 30 days | Key decisions, preferences |
+| `critical` | 90 days | Brand guidelines, briefs |
+
+### Memory Flow in Request
+
+```
+Request → mem0GetRecent(sessionId) → Inject [session memory]
+       → searchAllAgencyMemory()   → Inject [client/campaign context]
+       → rag_search()              → Inject [RAG docs]
+       → pg_query()                → Inject [structured data]
+       → LLM Inference             → Response
+       → mem0Store(response)       → Persist to session memory
+```
+
+### Redis Cache Keys
+
+```typescript
+// Rate limiting
+`ratelimit:${userId}`           // Sliding window
+
+// Distributed locks
+`lock:${resource}`              // 30s TTL
+
+// Session cache
+`session:${sessionId}`          // 1h TTL
+
+// Brand guidelines cache
+`brand:${brandId}`              // 24h TTL
+```
+
+---
+
 ## Anti-Hardcoded Pattern
 
 ```typescript

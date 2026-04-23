@@ -1,9 +1,10 @@
 // Anti-hardcoded: all config via process.env
 // Hermes Agency Suite — Entry Point
+/* eslint-disable no-console */
 
 import http from 'node:http';
 import { initAllCollections } from './qdrant/client';
-import { getAllCircuitBreakers } from './skills/circuit_breaker.ts';
+import { getAllCircuitBreakers } from './skills/circuit_breaker.js';
 
 // Bot is launched in telegram/bot.ts (side-effect import)
 
@@ -51,7 +52,55 @@ console.log('[HermesAgency] Telegram bot starting...');
 // Health check endpoint
 const healthPort = parseInt(process.env['HERMES_AGENCY_PORT'] ?? '3001', 10);
 
-const healthServer = http.createServer((req, res) => {
+// Rate limit config (duplicated from rate_limiter.ts for self-contained health endpoint)
+const RATE_LIMIT_WINDOW_MS = parseInt(process.env['HERMES_RATE_WINDOW_MS'] ?? '10000', 10);
+const RATE_LIMIT_MAX_MESSAGES = parseInt(process.env['HERMES_RATE_MAX_MSGS'] ?? '5', 10);
+
+/**
+ * Extract Bearer token from Authorization header.
+ */
+function getBearerToken(req: http.IncomingMessage): string | null {
+  const auth = req.headers['authorization'];
+  if (!auth?.startsWith('Bearer ')) return null;
+  return auth.slice(7);
+}
+
+/**
+ * Validate API key — returns true if valid.
+ */
+function validateApiKey(req: http.IncomingMessage): boolean {
+  const key = process.env['HERMES_API_KEY'];
+  if (!key) return false;
+  const token = getBearerToken(req);
+  return token === key;
+}
+
+/**
+ * Get rate limit metrics for display.
+ */
+async function getRateLimitMetrics(): Promise<{
+  windowMs: number;
+  maxMessages: number;
+  redisAvailable: boolean;
+}> {
+  try {
+    const { isRedisAvailable } = await import('./telegram/redis');
+    const redisUp = await isRedisAvailable();
+    return {
+      windowMs: RATE_LIMIT_WINDOW_MS,
+      maxMessages: RATE_LIMIT_MAX_MESSAGES,
+      redisAvailable: redisUp,
+    };
+  } catch {
+    return {
+      windowMs: RATE_LIMIT_WINDOW_MS,
+      maxMessages: RATE_LIMIT_MAX_MESSAGES,
+      redisAvailable: false,
+    };
+  }
+}
+
+const healthServer = http.createServer(async (req, res) => {
   if (req.url === '/health') {
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(
@@ -65,6 +114,30 @@ const healthServer = http.createServer((req, res) => {
   } else if (req.url === '/ready') {
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ ready: true, timestamp: new Date().toISOString() }));
+  } else if (req.url === '/health/authenticated') {
+    // Authenticated health — requires Bearer token
+    if (!validateApiKey(req)) {
+      res.writeHead(401, { 'Content-Type': 'application/json', 'WWW-Authenticate': 'Bearer' });
+      res.end(JSON.stringify({ error: 'Unauthorized — valid API key required' }));
+      return;
+    }
+    const breakers = getAllCircuitBreakers();
+    const rateLimitMetrics = await getRateLimitMetrics();
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(
+      JSON.stringify({
+        status: 'ok',
+        service: 'hermes-agency-suite',
+        version: '0.1.0',
+        timestamp: new Date().toISOString(),
+        circuitBreakers: breakers,
+        rateLimits: {
+          windowMs: rateLimitMetrics.windowMs,
+          maxMessages: rateLimitMetrics.maxMessages,
+          redisAvailable: rateLimitMetrics.redisAvailable,
+        },
+      }),
+    );
   } else if (req.url === '/health/circuit-breakers') {
     // HC-36: Circuit breaker status — admin only
     const adminIds = (process.env['HERMES_ADMIN_USER_IDS'] ?? '').split(',').filter(Boolean);

@@ -1,9 +1,10 @@
 // Anti-hardcoded: all config via process.env
 // Hermes Agency Client Success Skill
 // Client success management — NPS surveys, feedback, renewals, health scoring
+/* eslint-disable no-console */
 
-import { llmComplete } from '../litellm/router.ts';
-import { COLLECTIONS, upsertVector, search, type PointPayload } from '../qdrant/client.ts';
+import { llmComplete } from '../litellm/router.js';
+import { COLLECTIONS, upsertVector, type PointPayload } from '../qdrant/client.js';
 
 // ---------------------------------------------------------------------------
 // Types

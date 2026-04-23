@@ -1,5 +1,6 @@
 // Anti-hardcoded: all config via process.env
 // Circuit Breaker per skill — prevents cascade failures when a skill degrades
+/* eslint-disable no-console */
 
 export interface CircuitBreakerState {
   skillId: string;

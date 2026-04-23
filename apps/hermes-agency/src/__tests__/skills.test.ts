@@ -1,6 +1,6 @@
 // Anti-hardcoded: all config via process.env
 import { describe, it, expect } from 'vitest';
-import { AGENCY_SKILLS, getSkillById, getSkillByTrigger } from '../skills/index.ts';
+import { AGENCY_SKILLS, getSkillById, getSkillByTrigger } from '../skills/index.js';
 
 describe('AGENCY_SKILLS registry', () => {
   it('has 11 skills defined', () => {

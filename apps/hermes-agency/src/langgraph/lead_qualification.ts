@@ -1,7 +1,8 @@
 // Anti-hardcoded: all config via process.env
 // LangGraph Lead Qualification Workflow (WF-5)
+/* eslint-disable no-console */
 
-import { llmComplete } from '../litellm/router.ts';
+import { llmComplete } from '../litellm/router.js';
 
 export type LeadQualificationState = {
   prospectId: string;

@@ -1,25 +1,22 @@
 // Anti-hardcoded: all config via process.env
 // Tool Registry — maps tool names to implementations
 // CEO_REFRIMIX_bot uses this to execute skills as the supervisor
+/* eslint-disable no-console */
 
-import type { RagSearchResult } from './rag-instance-organizer.js';
 import {
   ragRetrieve,
   ragSearch,
   createDataset,
-  buildDatasetName,
   DATASET_TEMPLATES,
   type DatasetConfig,
 } from './rag-instance-organizer.js';
-import { invokeWorkflow } from '../langgraph/supervisor.ts';
+import { invokeWorkflow } from '../langgraph/supervisor.js';
 import {
   search as qdrantSearch,
   getPoint,
   updatePoint,
   scrollCollection,
   COLLECTIONS,
-  type CollectionName,
-  type PointPayload,
 } from '../qdrant/client.js';
 import { llmComplete } from '../litellm/router.js';
 import { getRedis } from '../telegram/redis.js';
@@ -37,6 +34,7 @@ export type ToolResult =
   | { ok: true; data: unknown }
   | { ok: false; error: string };
 
+ 
 export type ToolFn = (args: Record<string, unknown>) => Promise<ToolResult>;
 
 // ---------------------------------------------------------------------------
@@ -88,7 +86,7 @@ async function brainstorm_angles(args: Record<string, unknown>): Promise<ToolRes
     const angleList = angles
       .split(/\n/)
       .filter((line) => line.trim())
-      .map((line) => line.replace(/^\d+[\.\)]\s*/, '').trim())
+      .map((line) => line.replace(/^\d+[.)]\s*/, '').trim())
       .filter(Boolean);
 
     return {
@@ -318,10 +316,10 @@ async function update_task_status(args: Record<string, unknown>): Promise<ToolRe
     };
     if (assignee) updates.assignee = assignee;
 
-    const merged = { ...(existing.payload as TaskPayload), ...updates };
+    const merged = { ...(existing.payload as unknown as TaskPayload), ...updates };
     const ok = await updatePoint(COLLECTIONS.TASKS, taskId, {
       ...merged,
-      vector: (existing.payload.vector as number[]) ?? new Array(1024).fill(0),
+      vector: (existing.payload['vector'] as number[]) ?? new Array(1024).fill(0),
     });
 
     if (!ok) return { ok: false, error: 'Failed to update task in Qdrant' };
@@ -412,7 +410,7 @@ async function list_tasks(args: Record<string, unknown>): Promise<ToolResult> {
 
   try {
     const { points } = await scrollCollection(COLLECTIONS.TASKS, limit);
-    let tasks = points.map((p) => p.payload as TaskPayload);
+    let tasks = points.map((p) => p.payload as unknown as TaskPayload);
 
     if (status) {
       tasks = tasks.filter((t) => t.status === status);
@@ -427,7 +425,7 @@ async function list_tasks(args: Record<string, unknown>): Promise<ToolResult> {
         tool: 'list_tasks',
         tasks,
         count: tasks.length,
-        filters: { status, assignee },
+        filters: { status: status ?? null, assignee: assignee ?? null },
       },
     };
   } catch (err) {
@@ -478,7 +476,7 @@ async function rag_create_dataset(args: Record<string, unknown>): Promise<ToolRe
   }
 }
 
-async function rag_list_datasets(_args: Record<string, unknown>): Promise<ToolResult> {
+async function rag_list_datasets(): Promise<ToolResult> {
   const templates = DATASET_TEMPLATES;
   return { ok: true, data: Object.keys(templates) };
 }
@@ -493,7 +491,7 @@ async function qdrant_query(args: Record<string, unknown>): Promise<ToolResult> 
   const limit = (args['limit'] as number) ?? 5;
   if (!collection || !vector) return { ok: false, error: 'collection and vector required' };
   try {
-    const results = await qdrantSearch({ collection, vector, limit });
+    const results = await qdrantSearch({ collection: collection as import('../qdrant/client.js').CollectionName, vector, limit });
     return { ok: true, data: results };
   } catch (err) {
     return { ok: false, error: String(err) };
@@ -511,7 +509,10 @@ async function langgraph_execute(args: Record<string, unknown>): Promise<ToolRes
   if (!workflow) return { ok: false, error: 'workflow is required' };
   try {
     const result = await invokeWorkflow(workflow, input, threadId);
-    return { ok: result.status === 'ok', data: result, error: result.error };
+    if (result.status === 'ok') {
+      return { ok: true, data: result };
+    }
+    return { ok: false, error: result.error ?? 'Unknown workflow error' };
   } catch (err) {
     return { ok: false, error: String(err) };
   }
@@ -551,7 +552,8 @@ export function createInitialState(): SupervisorState {
 // CEO_REFRIMIX Bot (Supervisor) Prompt
 // ---------------------------------------------------------------------------
 
-const CEO_REFRIMIX_SYSTEM = `Você é o CEO_REFRIMIX_bot — o Agente Líder supervisor do ecossistema Hermes Agency.
+/** Intentionally kept for documentation and future supervisor wiring */
+export const CEO_REFRIMIX_SYSTEM = `Você é o CEO_REFRIMIX_bot — o Agente Líder supervisor do ecossistema Hermes Agency.
 Sua função é coordenar 12 agentes especializados e orquestrar fluxos de trabalho.
 Você opera em modo supervisor: delega tarefas, recolhe resultados, e retorna ao utilizador.
 Triggers: /start, /agency, /ceo, brief, campaign, organizar instância, rag, knowledge base.
@@ -593,23 +595,23 @@ export const TOOL_REGISTRY: Record<string, ToolFn> = {
   set_reminder,
   list_tasks,
   // Circuit breaker utilities
-  resetCircuitBreaker: (args) => {
+  resetCircuitBreaker: async (args): Promise<ToolResult> => {
     const skillId = args['skillId'] as string;
     if (!skillId) return { ok: false, error: 'skillId required' };
     resetCircuitBreaker(skillId);
     return { ok: true, data: { skillId, status: 'reset' } };
   },
-  getCircuitBreakers: () => ({ ok: true, data: getAllCircuitBreakers() }),
-  isCallPermitted: (args) => {
+  getCircuitBreakers: async (): Promise<ToolResult> => ({ ok: true, data: getAllCircuitBreakers() }),
+  isCallPermitted: async (args): Promise<ToolResult> => {
     const skillId = args['skillId'] as string;
     return { ok: true, data: { permitted: isCallPermitted(skillId ?? '') } };
   },
 };
 
-export function executeTool(name: string, args: Record<string, unknown>): ToolResult {
+export async function executeTool(name: string, args: Record<string, unknown>): Promise<ToolResult> {
   const tool = TOOL_REGISTRY[name];
   if (!tool) return { ok: false, error: `Unknown tool: ${name}` };
-  return tool(args) as ToolResult;
+  return await tool(args);
 }
 
 // ---------------------------------------------------------------------------

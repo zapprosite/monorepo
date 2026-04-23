@@ -1,9 +1,9 @@
 // Anti-hardcoded: all config via process.env
 // Hermes Skill: RAG Instance Organizer
 // Teaches Hermes how to organize vector instances by app, lead, or any dimension
+/* eslint-disable no-console */
 
-import type { Skill } from '../index.js';
-import { getSkillById } from '../index.js';
+import type { Skill } from './index.js';
 
 // ---------------------------------------------------------------------------
 // Tool names — must be in REGISTERED_TOOLS before use
@@ -79,9 +79,9 @@ export function buildDatasetName(config: DatasetConfig): string {
  */
 export function parseDatasetName(name: string): DatasetConfig | null {
   const parts = name.split('-');
-  if (parts.length < 1) return null;
-
   const app = parts[0];
+  if (!app) return null;
+
   const lead = parts.includes('lead') ? parts[parts.indexOf('lead') + 1] : undefined;
 
   return {

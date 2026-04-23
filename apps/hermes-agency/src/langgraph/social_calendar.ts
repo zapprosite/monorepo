@@ -1,8 +1,9 @@
 // Anti-hardcoded: all config via process.env
 // LangGraph Social Calendar + Analytics Workflow (WF-4)
+/* eslint-disable no-console */
 
-import { llmComplete } from '../litellm/router.ts';
-import { COLLECTIONS } from '../qdrant/client.ts';
+import { llmComplete } from '../litellm/router.js';
+import { COLLECTIONS } from '../qdrant/client.js';
 
 export type SocialCalendarState = {
   scheduledPosts: Array<{ platform: string; content: string; scheduledTime: string }>;

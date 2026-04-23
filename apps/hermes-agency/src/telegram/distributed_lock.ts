@@ -1,5 +1,6 @@
 // Anti-hardcoded: all config via process.env
 // Hermes Agency — Redis-backed distributed lock with in-memory fallback
+/* eslint-disable no-console */
 
 import { getRedis, isRedisAvailable } from './redis';
 

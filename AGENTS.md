@@ -148,6 +148,97 @@ FASE 3 ────────────────────────�
 
 ---
 
+## Homelab Intelligence Architecture (SPEC-093)
+
+**Canonical SPEC:** `docs/SPECS/SPEC-093-homelab-intelligence-architecture.md`
+
+O homelab implementa uma arquitetura de IA em 4 camadas com agentes especializados orquestrados por um supervisor CEO.
+
+### 4 Intelligence Layers
+
+```
+MEMORY (Mem0 + Qdrant :6333)     → Preferências, fatos, histórico
+KNOWLEDGE (Trieve RAG :6435)     → Documentos indexados, retrieval
+REASONING (LLM via LiteLLM :4000) → Decide, gera, reasona
+ACTION (13 Skills especializadas)  → Executam tarefas concretas
+```
+
+### Data Flow
+
+```
+USER (Telegram) → Hermes Gateway :8642 → CEO (agency-ceo)
+                                              │
+                           ┌─────────────────┼─────────────────┐
+                           │                 │                 │
+                        Mem0             Trieve            Postgres
+                      (Qdrant)           (RAG)          (MCP :4017)
+                           │                 │                 │
+                           └─────────────────┼─────────────────┘
+                                              │
+                                    SKILL SPECIALIZADA
+                                              │
+                           ┌─────────────────┼─────────────────┐
+                           │                 │                 │
+                        LiteLLM            Redis            Qdrant
+                        (:4000)           (:6379)          (save)
+                           │                 │                 │
+                           └─────────────────┼─────────────────┘
+                                              │
+                                           RESPONSE
+```
+
+### 13 Skills (agency_router.ts)
+
+| Skill | Name | Triggers |
+|-------|------|----------|
+| `agency-ceo` | CEO MIX | `/start`, `/agency`, `brief`, `campaign` |
+| `agency-onboarding` | ONBOARDING | `novo cliente`, `onboarding` |
+| `agency-organizer` | ORGANIZADOR | `tarefa`, `task`, `organizar` |
+| `agency-pm` | PROJECT MANAGER | `milestone`, `status`, `projeto` |
+| `agency-client-success` | CLIENT SUCCESS | `nps`, `feedback`, `cliente` |
+| `agency-creative` | CREATIVE | `criar`, `script`, `copy` |
+| `agency-design` | DESIGN | `design`, `imagem`, `visual` |
+| `agency-video-editor` | VIDEO EDITOR | `vídeo`, `youtube`, `transcrever` |
+| `agency-social` | SOCIAL MEDIA | `postar`, `social`, `hashtag` |
+| `agency-analytics` | ANALYTICS | `métricas`, `analytics`, `relatório` |
+| `agency-brand-guardian` | BRAND GUARDIAN | `brand`, `marca`, `consistência` |
+| `rag-instance-organizer` | INSTANCE ORGANIZER | `rag`, `knowledge base` |
+
+### LangGraph Workflows
+
+| Workflow | Type | File |
+|----------|------|------|
+| `content_pipeline` | StateGraph (WF-1) | `langgraph/content_pipeline.ts` |
+| `onboarding` | Sequential async (WF-2) | `langgraph/onboarding_flow.ts` |
+| `lead_qualification` | Sequential async (WF-5) | `langgraph/lead_qualification.ts` |
+| `social_calendar` | Sequential async (WF-4) | `langgraph/social_calendar.ts` |
+| `status_update` | Sequential async (WF-3) | `langgraph/status_update.ts` |
+
+### Circuit Breaker (SPEC-068)
+
+Cada skill tem circuit breaker com:
+- **Threshold:** 3 failures consecutivas → OPEN
+- **Timeout:** 30s → HALF_OPEN
+- **Recovery:** 1 success → CLOSED
+
+```bash
+# Status
+curl http://localhost:3001/health/circuit-breakers?userId=7220607041
+```
+
+### Key Files
+
+| File | Purpose |
+|------|---------|
+| `apps/hermes-agency/src/router/agency_router.ts` | CEO routing logic |
+| `apps/hermes-agency/src/skills/index.ts` | 13 skills registry |
+| `apps/hermes-agency/src/skills/tool_registry.ts` | Tool implementations |
+| `apps/hermes-agency/src/langgraph/supervisor.ts` | Workflow orchestration |
+| `apps/hermes-agency/src/mem0/client.ts` | Mem0 memory client |
+| `apps/hermes-agency/src/skills/rag-instance-organizer.ts` | Trieve RAG integration |
+
+---
+
 ## Skill-that-Calls-Skills (Meta-Skills)
 
 ### Examples

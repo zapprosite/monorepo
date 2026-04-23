@@ -1,8 +1,9 @@
 // Anti-hardcoded: all config via process.env
 // LangGraph Onboarding Flow (WF-2)
+/* eslint-disable no-console */
 
-import { bot } from '../telegram/bot.ts';
-import { COLLECTIONS } from '../qdrant/client.ts';
+import { bot } from '../telegram/bot.js';
+import { COLLECTIONS } from '../qdrant/client.js';
 
 const QDRANT_URL = process.env['QDRANT_URL'] ?? 'http://localhost:6333';
 const CHECKIN_DAYS = 7;

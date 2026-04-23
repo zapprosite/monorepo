@@ -1,9 +1,10 @@
 // Anti-hardcoded: all config via process.env
 // LangGraph Status Update Workflow (WF-3) — Recurring Monday 9am
+/* eslint-disable no-console */
 
-import { llmComplete } from '../litellm/router.ts';
-import { COLLECTIONS } from '../qdrant/client.ts';
-import { bot } from '../telegram/bot.ts';
+import { llmComplete } from '../litellm/router.js';
+import { COLLECTIONS } from '../qdrant/client.js';
+import { bot } from '../telegram/bot.js';
 
 const QDRANT_URL = process.env['QDRANT_URL'] ?? 'http://localhost:6333';
 
@@ -58,7 +59,7 @@ async function fetchActiveCampaigns(): Promise<string[]> {
     }
 
     const data = (await response.json()) as QdrantScrollResponse;
-    const campaignIds = (data.result?.points ?? []).map((point) => point.payload?.campaign_id as string).filter(Boolean);
+    const campaignIds = (data.result?.points ?? []).map((point) => point.payload?.['campaign_id'] as string).filter(Boolean);
 
     console.log(`[StatusUpdate] Found ${campaignIds.length} active campaigns`);
     return campaignIds;
@@ -96,11 +97,11 @@ async function fetchAllMetrics(campaignIds: string[]): Promise<Record<string, un
     } else {
       const data = (await response.json()) as QdrantScrollResponse;
       const metrics = data.result?.points?.map((point) => ({
-        campaignId: point.payload?.campaign_id as string,
-        status: point.payload?.status as string,
-        type: point.payload?.type as string,
-        clientId: point.payload?.client_id as string,
-        metrics: (point.payload?.metrics as Record<string, unknown>) ?? {},
+        campaignId: point.payload?.['campaign_id'] as string,
+        status: point.payload?.['status'] as string,
+        type: point.payload?.['type'] as string,
+        clientId: point.payload?.['client_id'] as string,
+        metrics: (point.payload?.['metrics'] as Record<string, unknown>) ?? {},
       }));
 
       if (metrics && metrics.length > 0) {
@@ -157,7 +158,7 @@ async function broadcastToClients(report: string): Promise<boolean> {
     } else {
       const data = (await response.json()) as QdrantScrollResponse;
       chatIds = (data.result?.points ?? [])
-        .map((point) => point.payload?.chat_id as number | undefined)
+        .map((point) => point.payload?.['chat_id'] as number | undefined)
         .filter((id): id is number => typeof id === 'number' && id > 0);
     }
   } catch (err) {
