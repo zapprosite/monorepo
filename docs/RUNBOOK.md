@@ -517,6 +517,91 @@ done
 
 ---
 
+### Restaurar Ollama Models
+
+#### Localização dos Backups
+
+```
+/srv/backups/ollama/models-*.tar.gz
+/srv/backups/ollama/
+```
+
+#### Procedimento de Restauração
+
+```bash
+# 1. Identificar o backup mais recente
+ls -lt /srv/backups/ollama/models-*.tar.gz 2>/dev/null | head -5
+
+# Se backups não existem, verificar snapshots ZFS
+sudo zfs list -t snapshot | grep ollama
+
+# 2. Identificar container do Ollama
+OLLAMA_CONTAINER=$(docker ps --format "{{.Names}}" | grep ollama)
+echo "Container Ollama: $OLLAMA_CONTAINER"
+
+# 3. Listar modelos atualmente instalados
+docker exec $OLLAMA_CONTAINER ollama list 2>/dev/null || echo "ollama list não disponível"
+
+# 4. Identificar diretório de modelos
+MODEL_DIR=$(docker exec $OLLAMA_CONTAINER env | grep OLLAMA_MODELS | cut -d= -f2)
+echo "Diretório de modelos: $MODEL_DIR"
+
+# 5. Parar Ollama
+docker stop $OLLAMA_CONTAINER
+
+# 6. Fazer backup dos modelos atuais (precaução)
+if [ -d "/srv/docker/ollama/models" ]; then
+  sudo cp -r /srv/docker/ollama/models /srv/docker/ollama/models.bak.$(date +%Y%m%d%H%M%S)
+fi
+
+# 7. Restaurar do backup
+BACKUP_FILE=$(ls -t /srv/backups/ollama/models-*.tar.gz 2>/dev/null | head -1)
+
+if [ -n "$BACKUP_FILE" ]; then
+  echo "Restaurando: $BACKUP_FILE"
+  TMPDIR=$(mktemp -d)
+  tar -xzf "$BACKUP_FILE" -C $TMPDIR
+  
+  # Parar se o diretório de destino existir
+  if [ -d "/srv/docker/ollama/models" ]; then
+    sudo rm -rf /srv/docker/ollama/models
+  fi
+  
+  sudo mv $TMPDIR/models /srv/docker/ollama/
+  rm -rf $TMPDIR
+else
+  # Tentar restaurar via ZFS snapshot
+  echo "Nenhum backup de modelos encontrado, verificando ZFS snapshots..."
+  SNAPSHOT=$(sudo zfs list -t snapshot -o name | grep ollama | head -1)
+  if [ -n "$SNAPSHOT" ]; then
+    echo "Restaurando ZFS snapshot: $SNAPSHOT"
+    VOLUME=$(echo $SNAPSHOT | cut -d@ -f1)
+    sudo zfs rollback $SNAPSHOT
+  fi
+fi
+
+# 8. Verificar integridade
+echo "Verificando integridade dos modelos..."
+ls -la /srv/docker/ollama/models/
+
+# 9. Reiniciar Ollama
+docker start $OLLAMA_CONTAINER
+sleep 5
+
+# 10. Verificar modelos disponíveis
+docker exec $OLLAMA_CONTAINER ollama list
+```
+
+#### Checklist Pós-Restauração
+
+- [ ] Verificar se Ollama inicia corretamente
+- [ ] Listar modelos: `docker exec $OLLAMA_CONTAINER ollama list`
+- [ ] Testar modelo básico: `docker exec $OLLAMA_CONTAINER ollama run llama3.2 --help 2>/dev/null || echo "Modelo não encontrado"`
+- [ ] Verificar espaço em disco: `df -h /srv/docker/ollama`
+- [ ] Verificar conexões dos MCP servers com Ollama
+
+---
+
 ### Restaurar .env Secrets
 
 #### Localização dos Backups

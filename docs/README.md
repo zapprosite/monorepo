@@ -61,7 +61,7 @@ docs/
 | Servico        | Tipo          | Porta | Proposito                            |
 | -------------- | ------------- | ----- | ------------------------------------ |
 | ai-gateway     | OpenAI compat | 4002  | Gateway unificado para todos os LLMs |
-| Hermes Gateway | Agent         | 8642  | Agent brain + routing + skills       |
+| Hermes Gateway | Agent         | 3001  | Agent brain + routing + skills       |
 | STT (whisper)  | STT           | 8204  | faster-whisper-medium-pt             |
 | TTS (Kokoro)   | TTS Bridge    | 8013  | Kokoro TTS com vozes PT-BR           |
 | Ollama         | LLM Engine    | 11434 | Inference local (qwen2.5vl:7b)       |

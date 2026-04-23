@@ -82,7 +82,7 @@ SERVICOS PRINCIPAIS:
   ├── n8n (5678) → tank/n8n
   ├── Gitea (3000) → tank/gitea
   ├── Coolify (80/443) → tank/coolify
-  ├── Hermes Gateway (8642) → ~/.hermes
+  ├── Hermes Gateway (3001) → ~/.hermes
   └── LiteLLM (4000) → pooling para MiniMax/GPT
 ```
 
