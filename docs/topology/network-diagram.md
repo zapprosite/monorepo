@@ -26,7 +26,7 @@
               │          ┌──────▼──────┐│         ┌────▼────┐
               │          │  Hermes     ││         │ LiteLLM │
               │          │  Gateway   ││         │ Proxy   │
-              │          │   :8642    ││         │  :4000  │
+              │          │   :3001    ││         │  :4000  │
               │          └──────┬──────┘│         └────┬────┘
               │                 │       │               │
               │          ┌──────▼──────┐│         ┌────▼────┐
@@ -69,7 +69,7 @@
 │  │  ┌────────────┐  ┌────────────┐  ┌────────────┐  ┌────────────────────┐  │ │
 │  │  │  Hermes    │  │  Hermes    │  │  Ollama    │  │    opencode-go     │  │ │
 │  │  │  Gateway   │  │  MCP       │  │  (RTX4090) │  │      :9000         │  │ │
-│  │  │   :8642    │  │   :8092    │  │  :11434   │  └────────────────────┘  │ │
+│  │  │   :3001    │  │   :8092    │  │  :11434   │  └────────────────────┘  │ │
 │  │  └────────────┘  └────────────┘  └────────────┘                           │ │
 │  │  ┌────────────┐  ┌────────────┐  ┌────────────┐                           │ │
 │  │  │ zappro-web │  │   MCPO     │  │ nvidia-   │                           │ │
@@ -121,7 +121,7 @@ DOCKER NETWORK (10.0.1.x/24)                    HOST NETWORK (192.168.x.x)
 │  │ai-router│                        │           │      ┌─────────┐                   │
 │  │ :4005   │                        │           │      │ Hermes  │                   │
 │  └─────────┘                        │           │      │ Gateway │                   │
-│                                     │           │      │ :8642   │                   │
+│                                     │           │      │ :3001   │                   │
 │  COOLIFY NETWORK (10.0.19.x/24)     │           │      └─────────┘                   │
 │  ┌─────────┐                        │           │                                    │
 │  │ Qdrant  │◄───────────────────────┼───────────┼────────────────────────────────────►
@@ -158,7 +158,7 @@ USER (Internet)
 ┌─────────────────────────────────────────────────────────────────┐
 │                     Cloudflare                                │
 │  coolify.zappro.site ────► Coolify PaaS :8000                 │
-│  hermes.zappro.site ────► Hermes Gateway :8642               │
+│  hermes.zappro.site ────► Hermes Gateway :3001               │
 │  api.zappro.site    ────► LiteLLM Proxy :4000                 │
 │  llm.zappro.site   ────► LiteLLM Proxy :4000                  │
 │  monitor.zappro.site ──► Grafana :3100                        │
@@ -172,7 +172,7 @@ USER (Internet)
 │                     Traefik (Coolify Proxy)                     │
 │  ┌─────────────────────────────────────────────────────────┐   │
 │  │  Route: coolify.zappro.site ──► coolify:8000             │   │
-│  │  Route: hermes.zappro.site  ──► hermes-gateway:8642      │   │
+│  │  Route: hermes.zappro.site  ──► hermes-gateway:3001      │   │
 │  │  Route: api.zappro.site     ──► litellm:4000             │   │
 │  └─────────────────────────────────────────────────────────┘   │
 └─────────────────────────────────────────────────────────────────┘
@@ -207,7 +207,7 @@ USER (Internet)
 | :8092 | Hermes MCP | host | localhost |
 | :8125 | statsd-exporter | host | localhost |
 | :8204 | faster-whisper | host | 0.0.0.0 |
-| :8642 | Hermes Gateway | host | localhost |
+| :3001 | Hermes Gateway | host | localhost |
 | :9000 | opencode-go | host | host |
 | :9090 | Prometheus | Docker | localhost |
 | :9100 | node-exporter | host | host |
@@ -237,7 +237,7 @@ USER (Internet)
          │                         │                         │
 ┌────────▼────────┐    ┌──────────▼──────────┐    ┌─────────▼─────────┐
 │    Traefik      │    │   Hermes Gateway   │    │    LiteLLM       │
-│   (Coolify)     │    │      :8642        │    │      :4000       │
+│   (Coolify)     │    │      :3001        │    │      :4000       │
 │   :80/443       │    │   (bare metal)    │    │  (Docker Compose) │
 └────────┬────────┘    └──────────┬──────────┘    └─────────┬─────────┘
          │                         │                         │

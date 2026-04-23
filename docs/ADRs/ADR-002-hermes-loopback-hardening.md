@@ -11,11 +11,11 @@ author: William
 
 ## Problema
 
-Hermes Gateway API server was showing "No API key configured" warning and was potentially accessible on all interfaces (0.0.0.0:8642). Since Hermes is accessed via cloudflared tunnel, public binding is unnecessary and violates defense-in-depth.
+Hermes Gateway API server was showing "No API key configured" warning and was potentially accessible on all interfaces (0.0.0.0:3001). Since Hermes is accessed via cloudflared tunnel, public binding is unnecessary and violates defense-in-depth.
 
 ## Decisões
 
-1. **Loopback binding:** Hermes API server bound to `127.0.0.1:8642` only
+1. **Loopback binding:** Hermes API server bound to `127.0.0.1:3001` only
 2. **Cloudflared as entry:** All external access via `hermes.zappro.site` through cloudflared tunnel
 3. **API key optional:** When bound to loopback, API key is optional (only local processes can reach)
 4. **Config nesting:** `platforms.api_server.extra.host/port/key` structure in YAML (not flat `api_server`)
@@ -23,7 +23,7 @@ Hermes Gateway API server was showing "No API key configured" warning and was po
 ## Arquitectura Resultante
 
 ```
-Internet → Cloudflare → cloudflared tunnel → localhost:8642 → Hermes
+Internet → Cloudflare → cloudflared tunnel → localhost:3001 → Hermes
                                             ↑
                                        127.0.0.1 only
 ```

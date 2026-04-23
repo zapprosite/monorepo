@@ -16,7 +16,7 @@ PC PRINCIPAL (Gen5 4TB NVMe + RTX 4090 24GB + 64GB RAM)
 │
 ├── ┌─────────────────────────────────────────────────────────────┐
 ├── │  Bare Metal Services                                        │
-│   │  • Hermes Gateway :8642 (Telegram bot + voice agent)       │
+│   │  • Hermes Gateway :3001 (Telegram bot + voice agent)       │
 │   │  • Hermes MCP :8092 (MCPO bridge para Claude Code)         │
 │   │  • Ollama :11434 (RTX 4090 — Gemma4 local)                 │
 │   │  • zappro-api :4003 (FastAPI auth JWT)                     │
@@ -154,7 +154,7 @@ Funcao: SSH para PC principal, monitor, terminal
 | :8000 | Coolify | Ubuntu Desktop | Container management (PaaS) |
 | :8080 | OpenWebUI | Coolify | Chat interface |
 | :8092 | Hermes MCP | Ubuntu bare metal | MCPO bridge (Claude Code) |
-| :8642 | Hermes Gateway | Ubuntu bare metal | Telegram bot + voice agent |
+| :3001 | Hermes Gateway | Ubuntu bare metal | Telegram bot + voice agent |
 | :6333 | Qdrant | Coolify | Vector DB (RAG/embeddings) |
 
 ### 5.2 Ports Livres para Dev
@@ -183,7 +183,7 @@ Funcao: SSH para PC principal, monitor, terminal
      ┌──────▼──────┐   ┌──────▼──────┐   ┌──────▼──────┐
      │   Coolify   │   │  Hermes    │   │   LiteLLM   │
      │   PaaS      │   │  Gateway   │   │   Proxy     │
-     │   :8000     │   │  :8642     │   │   :4000     │
+     │   :8000     │   │  :3001     │   │   :4000     │
      └──────┬──────┘   └──────┬──────┘   └──────┬──────┘
             │                 │                 │
      ┌──────▼──────┐   ┌──────▼──────┐   ┌──────▼──────┐

@@ -312,7 +312,7 @@ MY_KEY = 'sk-123456'
 
 1. **Secrets** → `.env` como fonte canonica
 2. **Immutable/Pinned Services** → NUNCA tocar Coolify proxy, Prometheus, cloudflared
-3. **Voice Pipeline (Hermes)** → gateway `:8642` | mcp `:8092` | Telegram polling
+3. **Voice Pipeline (Hermes)** → gateway `:3001` | mcp `:8092` | Telegram polling
 4. **Anti-patterns (AP-1/2/3)** → Docker TCP bridge, host-as-backend, localhost testing
 
 ---
