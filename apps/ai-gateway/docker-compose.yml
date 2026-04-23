@@ -24,7 +24,7 @@ services:
       PTBR_FILTER_MODEL: "${PTBR_FILTER_MODEL}"
       LOG_LEVEL: "${LOG_LEVEL:-info}"
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:4002/health"]
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:4002/health"]
       interval: 30s
       timeout: 5s
       retries: 3
