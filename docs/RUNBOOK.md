@@ -218,7 +218,7 @@ docker restart litellm
 #### Health Endpoints
 
 ```
-http://localhost:4000/health
+http://localhost:4000/health          # Requer Bearer token (retorna 401 sem auth)
 http://localhost:4000/ollm/v1/model_list
 ```
 
