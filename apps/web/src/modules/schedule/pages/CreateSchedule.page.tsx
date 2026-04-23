@@ -23,7 +23,7 @@ export default function CreateSchedulePage() {
 	const {
 		control,
 		handleSubmit,
-		formState: { errors, isSubmitting },
+		formState: { errors },
 	} = useForm<ScheduleCreateInput>({
 		resolver: zodResolver(scheduleCreateInputZod),
 		defaultValues: {
@@ -56,6 +56,7 @@ export default function CreateSchedulePage() {
 	);
 
 	const onSubmit = (data: ScheduleCreateInput) => {
+		if (createSchedule.isPending) return;
 		createSchedule.mutate(data);
 	};
 

@@ -46,8 +46,8 @@ export default function JournalEntryDetailPage() {
 	};
 
 	const handleDeleteConfirm = async () => {
-		if (confirmationText.toLowerCase() !== "delete") {
-			setDeleteError('Please type "DELETE" to confirm');
+		if (confirmationText.toLowerCase() !== "excluir") {
+			setDeleteError('Digite "EXCLUIR" para confirmar');
 			return;
 		}
 
@@ -55,7 +55,7 @@ export default function JournalEntryDetailPage() {
 			await deleteMutation.mutateAsync({ journalEntryId: entryId || "" });
 			navigate("/journal-entries", { replace: true });
 		} catch (_error) {
-			setDeleteError("Failed to delete journal entry. Please try again.");
+			setDeleteError("Não foi possível excluir a entrada do diário. Tente novamente.");
 		}
 	};
 
@@ -66,7 +66,7 @@ export default function JournalEntryDetailPage() {
 	};
 
 	const formatDate = (timestamp: number) => {
-		return new Date(timestamp).toLocaleDateString("en-US", {
+		return new Date(timestamp).toLocaleDateString("pt-BR", {
 			year: "numeric",
 			month: "long",
 			day: "numeric",
@@ -75,13 +75,13 @@ export default function JournalEntryDetailPage() {
 		});
 	};
 
-	if (isLoading) return <LoadingSpinner text="Loading journal entry..." />;
+	if (isLoading) return <LoadingSpinner text="Carregando entrada do diário..." />;
 
 	if (error) {
 		const errorMessage = error.data?.userFriendlyMessage || error.message;
 		return (
 			<Container maxWidth="lg" sx={{ py: 4 }}>
-				<ErrorAlert message={`Error loading journal entry: ${errorMessage}`} />
+				<ErrorAlert message={`Erro ao carregar entrada do diário: ${errorMessage}`} />
 			</Container>
 		);
 	}
@@ -89,7 +89,7 @@ export default function JournalEntryDetailPage() {
 	if (!journalEntry) {
 		return (
 			<Container maxWidth="lg" sx={{ py: 4 }}>
-				<Alert severity="error">Journal entry not found</Alert>
+				<Alert severity="error">Entrada do diário não encontrada</Alert>
 			</Container>
 		);
 	}
@@ -109,7 +109,7 @@ export default function JournalEntryDetailPage() {
 					},
 				}}
 			>
-				Back to Journal Entries
+				Voltar para o diário
 			</Button>
 
 			{/* Main Card */}
@@ -209,7 +209,7 @@ export default function JournalEntryDetailPage() {
 								mb: 2,
 							}}
 						>
-							Your Entry
+							Sua entrada
 						</Typography>
 						<Typography
 							variant="body1"

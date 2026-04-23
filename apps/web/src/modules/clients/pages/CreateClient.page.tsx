@@ -23,6 +23,7 @@ export default function CreateClientPage() {
 	const {
 		control,
 		handleSubmit,
+		reset,
 		formState: { errors, isSubmitting },
 	} = useForm<ClientCreateInput>({
 		resolver: zodResolver(clientCreateInputZod),
@@ -36,6 +37,14 @@ export default function CreateClientPage() {
 		trpc.clients.createClient.mutationOptions({
 			onSuccess: (client) => {
 				queryClient.invalidateQueries({ queryKey: trpc.clients.listClients.queryKey() });
+				reset({
+					nome: "",
+					email: "",
+					telefone: "",
+					cpfCnpj: "",
+					tipo: "Pessoa Física",
+					ativo: true,
+				});
 				navigate(`/clients/${client.clientId}`);
 			},
 		}),

@@ -43,20 +43,28 @@ export default function ServiceOrderDetailPage() {
 	const queryClient = useQueryClient();
 	const [addMaterialOpen, setAddMaterialOpen] = useState(false);
 
+	if (!serviceOrderId) {
+		return (
+			<Container maxWidth="lg" sx={{ py: 4 }}>
+				<ErrorAlert message="ID da ordem de serviço não informado." />
+			</Container>
+		);
+	}
+
 	const {
 		data: serviceOrder,
 		isLoading,
 		error,
 	} = useQuery(
-		trpc.serviceOrders.getServiceOrderDetail.queryOptions({ serviceOrderId: serviceOrderId! }),
+		trpc.serviceOrders.getServiceOrderDetail.queryOptions({ serviceOrderId }),
 	);
 
 	const { data: report, isLoading: reportLoading } = useQuery(
-		trpc.serviceOrders.getReportByServiceOrder.queryOptions({ serviceOrderId: serviceOrderId! }),
+		trpc.serviceOrders.getReportByServiceOrder.queryOptions({ serviceOrderId: serviceOrderId }),
 	);
 
 	const { data: materials, isLoading: materialsLoading } = useQuery(
-		trpc.serviceOrders.listMaterials.queryOptions({ serviceOrderId: serviceOrderId! }),
+		trpc.serviceOrders.listMaterials.queryOptions({ serviceOrderId: serviceOrderId }),
 	);
 
 	const invalidateOrder = () => {
@@ -65,22 +73,30 @@ export default function ServiceOrderDetailPage() {
 		});
 		queryClient.invalidateQueries({
 			queryKey: trpc.serviceOrders.getServiceOrderDetail.queryKey({
-				serviceOrderId: serviceOrderId!,
+				serviceOrderId,
 			}),
+		});
+		queryClient.invalidateQueries({
+			queryKey: trpc.serviceOrders.getReportByServiceOrder.queryKey({
+				serviceOrderId,
+			}),
+		});
+		queryClient.invalidateQueries({
+			queryKey: trpc.serviceOrders.listMaterials.queryKey({ serviceOrderId }),
 		});
 	};
 
 	const invalidateReport = () => {
 		queryClient.invalidateQueries({
 			queryKey: trpc.serviceOrders.getReportByServiceOrder.queryKey({
-				serviceOrderId: serviceOrderId!,
+				serviceOrderId: serviceOrderId,
 			}),
 		});
 	};
 
 	const invalidateMaterials = () => {
 		queryClient.invalidateQueries({
-			queryKey: trpc.serviceOrders.listMaterials.queryKey({ serviceOrderId: serviceOrderId! }),
+			queryKey: trpc.serviceOrders.listMaterials.queryKey({ serviceOrderId: serviceOrderId }),
 		});
 	};
 
@@ -116,7 +132,7 @@ export default function ServiceOrderDetailPage() {
 	const reportForm = useForm<TechnicalReportCreateInput>({
 		resolver: zodResolver(technicalReportCreateInputZod),
 		defaultValues: {
-			serviceOrderId: serviceOrderId!,
+			serviceOrderId: serviceOrderId,
 			diagnostico: "",
 			servicosExecutados: "",
 			observacoes: null,
@@ -127,7 +143,7 @@ export default function ServiceOrderDetailPage() {
 	const materialForm = useForm<MaterialItemCreateInput>({
 		resolver: zodResolver(materialItemCreateInputZod),
 		defaultValues: {
-			serviceOrderId: serviceOrderId!,
+			serviceOrderId: serviceOrderId,
 			descricao: "",
 			quantidade: 1,
 			unidade: "un",

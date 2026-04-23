@@ -113,10 +113,10 @@ const RegisterPage = () => {
 							{/* Header */}
 							<Box textAlign="center">
 								<Typography variant="h4" fontWeight={600} gutterBottom>
-									Complete Your Registration
+									Complete seu cadastro
 								</Typography>
 								<Typography variant="body1" color="text.secondary">
-									Just a few more details to get started
+									Faltam só alguns detalhes para começar
 								</Typography>
 							</Box>
 

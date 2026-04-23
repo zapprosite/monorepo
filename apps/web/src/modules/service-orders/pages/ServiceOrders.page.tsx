@@ -78,7 +78,7 @@ export default function ServiceOrdersPage() {
 						Ordens de Serviço
 					</Typography>
 					<Typography variant="body2" color="text.secondary">
-						{serviceOrders?.length ?? 0} ordens
+						{serviceOrders?.length ?? 0} {(serviceOrders?.length ?? 0) === 1 ? "ordem" : "ordens"}
 					</Typography>
 				</Box>
 				<Button
@@ -111,7 +111,7 @@ export default function ServiceOrdersPage() {
 						onChange={(e) => setFilterSearch(e.target.value)}
 						size="small"
 						fullWidth
-						placeholder="Ex: OS-0001"
+						placeholder="Ex.: OS-0001"
 					/>
 
 					<TextField

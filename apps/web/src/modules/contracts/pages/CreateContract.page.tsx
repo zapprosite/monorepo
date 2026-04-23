@@ -1,3 +1,4 @@
+import { ErrorAlert } from "@connected-repo/ui-mui/components/ErrorAlert";
 import { Typography } from "@connected-repo/ui-mui/data-display/Typography";
 import { Button } from "@connected-repo/ui-mui/form/Button";
 import { TextField } from "@connected-repo/ui-mui/form/TextField";
@@ -26,7 +27,7 @@ export default function CreateContractPage() {
 	const {
 		control,
 		handleSubmit,
-		formState: { errors, isSubmitting },
+		formState: { errors },
 	} = useForm<ContractCreateInput>({
 		resolver: zodResolver(contractCreateInputZod),
 		defaultValues: {
@@ -47,11 +48,12 @@ export default function CreateContractPage() {
 		}),
 	);
 
-	const onSubmit = (data: ContractCreateInput) => {
-		createContract.mutate(data);
+	const onSubmit = async (data: ContractCreateInput) => {
+		await createContract.mutateAsync(data);
 	};
 
 	const showFrequencia = selectedTipo === "PMOC" || selectedTipo === "Residencial";
+	const isBusy = createContract.isPending;
 
 	return (
 		<Container maxWidth="md" sx={{ py: { xs: 3, md: 5 } }}>
@@ -73,6 +75,12 @@ export default function CreateContractPage() {
 				elevation={0}
 				sx={{ border: "1px solid", borderColor: "divider", borderRadius: 2, p: 4 }}
 			>
+				{createContract.error && (
+					<ErrorAlert
+						message={`Erro ao salvar contrato: ${createContract.error.message}`}
+						sx={{ mb: 3 }}
+					/>
+				)}
 				<Box
 					component="form"
 					onSubmit={handleSubmit(onSubmit)}
@@ -254,17 +262,17 @@ export default function CreateContractPage() {
 						<Button
 							variant="outlined"
 							onClick={() => navigate("/contracts")}
-							disabled={isSubmitting}
+							disabled={isBusy}
 						>
 							Cancelar
 						</Button>
 						<Button
 							type="submit"
 							variant="contained"
-							disabled={isSubmitting}
+							disabled={isBusy}
 							sx={{ minWidth: 160 }}
 						>
-							{isSubmitting ? "Salvando..." : "Salvar Contrato"}
+							{isBusy ? "Salvando..." : "Salvar Contrato"}
 						</Button>
 					</Box>
 				</Box>

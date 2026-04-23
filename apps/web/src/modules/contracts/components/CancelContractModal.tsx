@@ -66,11 +66,11 @@ export function CancelContractModal({
 				<Button
 					variant="contained"
 					color="error"
-					disabled={cancelContract.isPending}
+					disabled={cancelContract.isPending || !motivoCancelamento.trim()}
 					onClick={() =>
 						cancelContract.mutate({
 							contractId,
-							motivoCancelamento: motivoCancelamento || undefined,
+							motivoCancelamento: motivoCancelamento.trim(),
 						})
 					}
 				>

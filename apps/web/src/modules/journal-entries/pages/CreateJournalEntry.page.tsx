@@ -8,10 +8,10 @@ export default function CreateJournalEntryPage() {
 		<Container maxWidth="md" sx={{ py: 4 }}>
 			<Box sx={{ mb: 4 }}>
 				<Typography variant="h4" component="h1" gutterBottom>
-					New Journal Entry
+					Nova entrada no diário
 				</Typography>
 				<Typography variant="body1" color="text.secondary">
-					Write your thoughts and reflections
+					Escreva seus pensamentos e reflexões
 				</Typography>
 			</Box>
 			<CreateJournalEntryForm />

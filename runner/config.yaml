@@ -1,0 +1,15 @@
+# Gitea Actions Runner config
+# Runner connects via env vars GITEA_INSTANCE_URL, GITEA_RUNNER_REGISTRATION_TOKEN
+# This file exists to satisfy the bind mount requirement
+log:
+  level: info
+  trace: false
+
+runner:
+  capacity: 1
+  name: prod-runner-1
+  labels:
+    - ubuntu-latest
+
+cache:
+  enabled: false

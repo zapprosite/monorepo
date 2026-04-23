@@ -19,7 +19,7 @@ export function JournalEntryTableView({ entries, onEntryClick }: JournalEntryTab
 	};
 
 	const formatDate = (date: number | string | Date) => {
-		return new Date(date).toLocaleDateString("en-US", {
+		return new Date(date).toLocaleDateString("pt-BR", {
 			year: "numeric",
 			month: "short",
 			day: "numeric",
@@ -32,7 +32,7 @@ export function JournalEntryTableView({ entries, onEntryClick }: JournalEntryTab
 		() => [
 			{
 				accessorKey: "prompt",
-				header: "Prompt",
+				header: "Prompt" as const,
 				size: 200,
 				// Cell: ({ cell }) => (
 				// 	<Chip
@@ -45,7 +45,7 @@ export function JournalEntryTableView({ entries, onEntryClick }: JournalEntryTab
 			},
 			{
 				accessorKey: "content",
-				header: "Entry Preview",
+				header: "Prévia da entrada",
 				size: 400,
 				Cell: ({ cell }) => (
 					<Box
@@ -61,7 +61,7 @@ export function JournalEntryTableView({ entries, onEntryClick }: JournalEntryTab
 			},
 			{
 				accessorKey: "createdAt",
-				header: "Date",
+				header: "Data",
 				size: 180,
 				Cell: ({ cell }) => formatDate(cell.getValue<number>()),
 			},

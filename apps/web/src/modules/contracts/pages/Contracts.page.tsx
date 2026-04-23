@@ -75,7 +75,9 @@ export default function ContractsPage() {
 					mb: 4,
 					display: "flex",
 					justifyContent: "space-between",
-					alignItems: "center",
+					alignItems: { xs: "stretch", sm: "center" },
+					flexDirection: { xs: "column", sm: "row" },
+					gap: 2,
 				}}
 			>
 				<Box>
@@ -98,6 +100,7 @@ export default function ContractsPage() {
 					variant="contained"
 					onClick={() => navigate("/contracts/new")}
 					sx={{
+						width: { xs: "100%", sm: "auto" },
 						transition: "all 0.2s ease-in-out",
 						"&:hover": { transform: "translateY(-2px)", boxShadow: 4 },
 					}}

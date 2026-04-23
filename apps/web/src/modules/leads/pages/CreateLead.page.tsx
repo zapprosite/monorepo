@@ -1,3 +1,4 @@
+import { Alert } from "@connected-repo/ui-mui/feedback/Alert";
 import { Typography } from "@connected-repo/ui-mui/data-display/Typography";
 import { Button } from "@connected-repo/ui-mui/form/Button";
 import { TextField } from "@connected-repo/ui-mui/form/TextField";
@@ -20,6 +21,7 @@ export default function CreateLeadPage() {
 	const {
 		control,
 		handleSubmit,
+		setError,
 		formState: { errors, isSubmitting },
 	} = useForm<LeadCreateInput>({
 		resolver: zodResolver(leadCreateInputZod),
@@ -34,6 +36,12 @@ export default function CreateLeadPage() {
 			onSuccess: () => {
 				queryClient.invalidateQueries({ queryKey: trpc.leads.listLeads.queryKey() });
 				navigate("/leads");
+			},
+			onError: (error) => {
+				setError("root", {
+					type: "server",
+					message: error.message || "Não foi possível salvar o lead. Tente novamente.",
+				});
 			},
 		}),
 	);
@@ -180,10 +188,10 @@ export default function CreateLeadPage() {
 						<Button
 							type="submit"
 							variant="contained"
-							disabled={isSubmitting}
-							sx={{ minWidth: 140 }}
+							disabled={isSubmitting || createLead.isPending}
+							sx={{ minWidth: 140, minHeight: 44 }}
 						>
-							{isSubmitting ? "Salvando..." : "Salvar Lead"}
+							{isSubmitting || createLead.isPending ? "Salvando..." : "Salvar lead"}
 						</Button>
 					</Box>
 				</Box>

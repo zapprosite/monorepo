@@ -37,16 +37,31 @@ export default function ContractDetailPage() {
 	const queryClient = useQueryClient();
 	const [cancelOpen, setCancelOpen] = useState(false);
 
+	const contractDetailOptions = contractId
+		? trpc.contracts.getContractDetail.queryOptions({ contractId })
+		: trpc.contracts.getContractDetail.queryOptions({ contractId: "" });
+
 	const {
 		data: contract,
 		isLoading,
 		error,
-	} = useQuery(trpc.contracts.getContractDetail.queryOptions({ contractId: contractId! }));
+	} = useQuery({
+		...contractDetailOptions,
+		enabled: !!contractId,
+	});
+
+	if (!contractId) {
+		return (
+			<Container maxWidth="lg" sx={{ py: 4 }}>
+				<ErrorAlert message="Contrato inválido ou não encontrado." />
+			</Container>
+		);
+	}
 
 	const invalidate = () => {
 		queryClient.invalidateQueries({ queryKey: trpc.contracts.listContracts.queryKey() });
 		queryClient.invalidateQueries({
-			queryKey: trpc.contracts.getContractDetail.queryKey({ contractId: contractId! }),
+			queryKey: trpc.contracts.getContractDetail.queryKey({ contractId: contractId }),
 		});
 	};
 
@@ -318,7 +333,7 @@ export default function ContractDetailPage() {
 			<CancelContractModal
 				open={cancelOpen}
 				onClose={() => setCancelOpen(false)}
-				contractId={contractId!}
+				contractId={contractId}
 				onSuccess={() => setCancelOpen(false)}
 			/>
 		</Container>

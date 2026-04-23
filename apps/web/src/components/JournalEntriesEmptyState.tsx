@@ -35,7 +35,7 @@ export function JournalEntriesEmptyState() {
 			</Box>
 
 			<Typography variant="h4" color="text.primary" gutterBottom fontWeight={600} sx={{ mb: 2 }}>
-				No Journal Entries Yet
+				Nenhuma entrada no diário ainda
 			</Typography>
 
 			<Typography
@@ -47,14 +47,14 @@ export function JournalEntriesEmptyState() {
 					lineHeight: 1.7,
 				}}
 			>
-				Start your journaling journey today. Capture your thoughts, reflect on your experiences, and
-				track your personal growth.
+				Comece a registrar seus pensamentos hoje. Reflita sobre suas experiências e
+				acompanhe seu crescimento pessoal.
 			</Typography>
 
 			<Button
 				variant="contained"
 				size="large"
-				onClick={() => navigate("/new-journal-entry")}
+				onClick={() => navigate("/journal-entries/new")}
 				sx={{
 					px: 4,
 					py: 1.5,
@@ -69,7 +69,7 @@ export function JournalEntriesEmptyState() {
 					},
 				}}
 			>
-				Create Your First Entry
+				Criar primeira entrada
 			</Button>
 		</Box>
 	);

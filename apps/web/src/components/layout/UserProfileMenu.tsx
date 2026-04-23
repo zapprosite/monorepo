@@ -177,7 +177,7 @@ export const UserProfileMenu = ({ trigger, showUserInfo = true }: UserProfileMen
 
 				{/* Profile/Settings */}
 				<MenuItem
-					onClick={() => handleNavigation("/profile")}
+					onClick={() => handleNavigation("/settings")}
 					sx={{
 						py: 1.5,
 						gap: 1.5,
@@ -189,7 +189,7 @@ export const UserProfileMenu = ({ trigger, showUserInfo = true }: UserProfileMen
 					}}
 				>
 					<SettingsIcon fontSize="small" />
-					<Typography variant="body2">Profile & Settings</Typography>
+					<Typography variant="body2">Settings</Typography>
 				</MenuItem>
 
 				<Divider />
