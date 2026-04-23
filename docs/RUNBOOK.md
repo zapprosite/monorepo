@@ -701,6 +701,222 @@ sudo journalctl -u cloudflared -f --since 10m
 
 ---
 
+### Cloudflare Tunnel - Failover de Rede
+
+```bash
+# 1. Verificar status atual do tunnel
+sudo journalctl -u cloudflared --since 1h | grep -E 'error|disconnected|failed'
+
+# 2. Verificar configuração do tunnel
+cat /etc/cloudflared/config.yml
+
+# 3. Verificar conectividade com Cloudflare
+curl -s --connect-timeout 5 https://dash.cloudflare.com/ 2>/dev/null && echo "Cloudflare OK" || echo "Cloudflare INACCESSIBLE"
+
+# 4. Se tunnel está com problemas, reiniciar
+sudo systemctl restart cloudflared
+
+# 5. Se o problema persistir, verificar DNS
+sudo resolvectl status
+sudo resolvectl query one.one.one.one
+
+# 6. Alternativa: usar DNS alternativo
+sudo mkdir -p /etc/systemd/system/cloudflared.service.d
+sudo tee /etc/systemd/system/cloudflared.service.d/override.conf << 'EOF'
+[Service]
+Environment="TUNNEL_DNS=1.1.1.1"
+EOF
+
+sudo systemctl daemon-reload
+sudo systemctl restart cloudflared
+
+# 7. Verificar logs após reinício
+sudo journalctl -u cloudflared -f --since 5m
+```
+
+#### Checklist Pós-Failover
+
+- [ ] Verificar status do tunnel: `sudo systemctl status cloudflared`
+- [ ] Verificar logs: ausência de erros recentes
+- [ ] Testar conectividade: curl para serviços internos através do tunnel
+- [ ] Verificar status page do Cloudflare: https://www.cloudflarestatus.com/
+
+---
+
+### ZFS Snapshot - Restaurar
+
+#### Localização dos Snapshots
+
+```bash
+# Listar todos os snapshots ZFS
+sudo zfs list -t snapshot -o name,used,referenced,creation
+
+# Filtrar por dataset específico
+sudo zfs list -t snapshot -o name | grep -E 'srv|data|backups'
+```
+
+#### Procedimento de Restauração
+
+```bash
+# 1. Identificar o dataset a ser restaurado
+# Exemplos de datasets comuns:
+#   srv/data
+#   srv/docker-data
+#   srv/backups
+
+# 2. Listar snapshots disponíveis para o dataset
+DATASET="srv/docker-data"  # Substituir pelo dataset desejado
+sudo zfs list -t snapshot -o name,used,referenced,creation | grep "^$DATASET@"
+
+# 3. Identificar o snapshot desejado (por data)
+sudo zfs list -t snapshot -o name,creation | grep "^$DATASET@" | sort -k2
+
+# 4. Verificar o tamanho do snapshot
+sudo zfs get -r quota $DATASET
+
+# 5. FAZER BACKUP DO ESTADO ATUAL PRIMEIRO (CRÍTICO)
+#    Qualquer dado não presente no snapshot será PERMANENTEMENTE PERDIDO
+sudo zfs snapshot "${DATASET}@backup-pre-rollback-$(date +%Y%m%d%H%M%S)"
+
+# 6. Executar rollback
+SNAPSHOT_TO_RESTORE="${DATASET}@nome-do-snapshot"  # Substituir pelo snapshot específico
+echo "RESTAURAÇÃO: $SNAPSHOT_TO_RESTORE"
+echo "ATENÇÃO: Todos os dados após este snapshot serão perdidos!"
+read -p "Confirmar? (digite 'sim' para continuar): " confirm
+if [ "$confirm" != "sim" ]; then
+  echo "Operação cancelada"
+  exit 1
+fi
+
+# 7. Executar rollback
+sudo zfs rollback "$SNAPSHOT_TO_RESTORE"
+
+# 8. Verificar sucesso
+sudo zfs list -t snapshot -o name | grep "^${DATASET}@"
+
+# 9. Se for um dataset de containers, reiniciar Docker
+sudo systemctl restart docker
+sleep 10
+docker ps
+```
+
+#### Restauração para um ponto específico (Clone)
+
+```bash
+# Se quiser restaurar SEM perder dados atuais, usar clone:
+SNAPSHOT="${DATASET}@nome-do-snapshot"
+CLONE_NAME="restored-$(date +%Y%m%d%H%M%S)"
+
+# Criar clone do snapshot
+sudo zfs clone "$SNAPSHOT" "${DATASET}-$CLONE_NAME"
+
+# O clone estará disponível em /srv/docker-data-restored-*
+# Para aplicar: swap do dataset ou migração manual
+```
+
+#### Checklist Pós-Restauração
+
+- [ ] Verificar datasets: `sudo zfs list -o name,used,available`
+- [ ] Verificar integridade: `sudo zpool status`
+- [ ] Verificar ponto de montagem: `df -h | grep zfs`
+- [ ] Reiniciar serviços afetados
+- [ ] Verificar se todos os dados críticos estão presentes
+
+---
+
+### Procedimentos de Reinicialização de Serviços
+
+#### Ordem de Reinicialização (Importante!)
+
+```bash
+# ORDEM: Parar primeiro os serviços dependentes, depois iniciar na ordem inversa
+
+# FASE 1: Parar serviços dependentes
+echo "=== Parando serviços dependentes ==="
+docker stop hermes-agency ai-gateway mcp-server 2>/dev/null
+echo "Serviços dependentes parados"
+
+# FASE 2: Parar serviços de dados
+echo "=== Parando serviços de dados ==="
+docker stop qdrant redis litellm 2>/dev/null
+echo "Serviços de dados parados"
+
+# FASE 3: Verificar que não há processos pendentes
+docker ps
+
+# FASE 4: Reiniciar na ordem inversa
+
+# Passo 1: Reiniciar Redis (cache principal)
+echo "=== Reiniciando Redis ==="
+docker start redis
+sleep 3
+docker exec redis redis-cli PING
+
+# Passo 2: Reiniciar LiteLLM (proxy de IA)
+echo "=== Reiniciando LiteLLM ==="
+docker start litellm
+sleep 3
+curl -sf http://localhost:4000/health && echo " OK" || echo " FAIL"
+
+# Passo 3: Reiniciar Qdrant (vector DB)
+echo "=== Reiniciando Qdrant ==="
+docker start qdrant
+sleep 5
+curl -sf http://localhost:6333/health && echo " OK" || echo " FAIL"
+
+# Passo 4: Reiniciar AI Gateway
+echo "=== Reiniciando AI Gateway ==="
+docker start ai-gateway
+sleep 3
+curl -sf http://localhost:4002/health && echo " OK" || echo " FAIL"
+
+# Passo 5: Reiniciar Hermes Agency
+echo "=== Reiniciando Hermes Agency ==="
+docker start hermes-agency
+sleep 3
+curl -sf http://localhost:3001/health && echo " OK" || echo " FAIL"
+
+# Passo 6: Reiniciar MCP Servers
+echo "=== Reiniciando MCP Servers ==="
+for port in 4011 4012 4013 4014 4015 4016; do
+  container=$(docker ps --format "{{.Names}}" | grep "mcp.*$port" | head -1)
+  if [ -n "$container" ]; then
+    docker start $container
+    sleep 2
+    curl -sf http://localhost:$port/health && echo "MCP $port OK" || echo "MCP $port FAIL"
+  fi
+done
+
+# Passo 7: Verificar todos os serviços
+echo ""
+echo "=== Status Final ==="
+docker ps --format "table {{.Names}}\t{{.Status}}"
+```
+
+#### Reinicialização Individual por Serviço
+
+```bash
+# Hermes Agency
+docker restart hermes-agency && sleep 3 && curl -sf http://localhost:3001/health && echo "Hermes OK"
+
+# AI Gateway
+docker restart ai-gateway && sleep 3 && curl -sf http://localhost:4002/health && echo "AI Gateway OK"
+
+# LiteLLM
+docker restart litellm && sleep 3 && curl -sf http://localhost:4000/health && echo "LiteLLM OK"
+
+# Qdrant
+docker restart qdrant && sleep 5 && curl -sf http://localhost:6333/health && echo "Qdrant OK"
+
+# Redis
+docker restart redis && sleep 2 && docker exec redis redis-cli PING
+
+# Coolify (via systemd)
+sudo systemctl restart coolify && sleep 5 && sudo systemctl status coolify
+```
+
+---
+
 ### Docker Full - Limpeza de Espaço
 
 ```bash
