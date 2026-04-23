@@ -24,6 +24,8 @@ const ALLOWED_MIME_TYPES = new Set<string>([
   'audio/wav',
   'audio/aac',
   'audio/x-opus+ogg', // Telegram Opus
+  // Video
+  'video/mp4',
 ]);
 
 // Magic bytes → MIME type map (first few bytes of file)
