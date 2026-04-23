@@ -14,7 +14,7 @@ MODEL = 'Systran/faster-whisper-medium'
 DEVICE = 'cuda'
 COMPUTE = 'float16'
 CACHE_DIR = os.path.expanduser('~/.cache/huggingface/hub')
-LANGUAGE = 'pt'
+LANGUAGE = None  # None = auto-detect language
 SAMPLE_RATE = 16000
 
 os.environ['LD_LIBRARY_PATH'] = '/usr/local/lib/ollama/cuda_v12:' + os.environ.get('LD_LIBRARY_PATH', '')
