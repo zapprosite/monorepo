@@ -6,8 +6,8 @@ vi.mock('../litellm/router.ts', () => ({
   llmComplete: vi.fn(),
 }));
 
-import { routeToSkill } from '../router/agency_router.ts';
-import { llmComplete } from '../litellm/router.ts';
+import { routeToSkill } from '../router/agency_router.js';
+import { llmComplete } from '../litellm/router.js';
 
 const mockLlmComplete = vi.mocked(llmComplete);
 
@@ -28,7 +28,7 @@ const HIGH_CONFIDENCE = {
 
 beforeEach(() => {
   vi.clearAllMocks();
-  process.env.HUMAN_GATE_THRESHOLD = '0.7';
+  process.env['HUMAN_GATE_THRESHOLD'] = '0.7';
   // Default: always return high confidence so human gate never triggers
   mockLlmComplete.mockResolvedValue(HIGH_CONFIDENCE);
 });
@@ -93,7 +93,7 @@ describe('routeToSkill — LLM-based routing (CEO fallback)', () => {
 
 describe('human gate', () => {
   it('returns human gate message when confidence < threshold', async () => {
-    process.env.HUMAN_GATE_THRESHOLD = '0.9';
+    process.env['HUMAN_GATE_THRESHOLD'] = '0.9';
     mockLlmComplete
       .mockResolvedValueOnce({ ...HIGH_CONFIDENCE, content: 'agency-analytics' }) // askCeoToRoute
       .mockResolvedValueOnce({ ...HIGH_CONFIDENCE, content: '0.3' }); // assessConfidence — low
