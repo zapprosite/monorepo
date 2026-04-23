@@ -8,6 +8,7 @@ import os
 import json
 import uuid
 import logging
+import httpx
 from datetime import datetime
 from typing import Optional, List, Dict, Any
 
@@ -23,11 +24,35 @@ QDRANT_PORT = int(os.getenv("QDRANT_PORT", "6333"))
 QDRANT_URL = os.getenv("QDRANT_URL", f"http://{QDRANT_HOST}:{QDRANT_PORT}")
 QDRANT_API_KEY = os.getenv("QDRANT_API_KEY", "")
 COLLECTION_NAME = os.getenv("MEM0_COLLECTION", "will")
+LITELLM_URL = os.getenv("LITELLM_URL", "http://localhost:4000")
+LITELLM_API_KEY = os.getenv("LITELLM_API_KEY", "")
+EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "embedding-nomic")
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = FastAPI(title="mcp-memory")
+
+# HTTP client for LiteLLM
+litellm_client = httpx.AsyncClient(timeout=60.0)
+
+async def get_embedding(text: str) -> List[float]:
+    """Generate embedding vector via LiteLLM gateway."""
+    try:
+        headers = {"Content-Type": "application/json"}
+        if LITELLM_API_KEY:
+            headers["Authorization"] = f"Bearer {LITELLM_API_KEY}"
+        response = await litellm_client.post(
+            f"{LITELLM_URL}/v1/embeddings",
+            json={"input": text, "model": EMBEDDING_MODEL},
+            headers=headers
+        )
+        response.raise_for_status()
+        data = response.json()
+        return data["data"][0]["embedding"]
+    except Exception as e:
+        logger.error(f"Embedding failed: {e}")
+        raise HTTPException(status_code=500, detail=f"Embedding generation failed: {str(e)}")
 
 # Initialize Qdrant client
 try:
@@ -53,7 +78,7 @@ def ensure_collection():
             client.create_collection(
                 collection_name=COLLECTION_NAME,
                 vectors_config=models.VectorParams(
-                    size=1536,  # Standard embedding size
+                    size=768,  # embedding-nomic produces 768-dim vectors
                     distance=models.Distance.COSINE
                 )
             )
@@ -96,13 +121,16 @@ async def memory_add(entry: MemoryEntry):
         raise HTTPException(status_code=503, detail="Qdrant not available")
 
     try:
+        # Generate real embedding vector
+        embedding = await get_embedding(entry.text)
+
         point_id = str(uuid.uuid4())
         client.upsert(
             collection_name=COLLECTION_NAME,
             points=[
                 models.PointStruct(
                     id=point_id,
-                    vector=[0.0] * 1536,  # Placeholder - in production, use embedding model
+                    vector=embedding,
                     payload={
                         "text": entry.text,
                         "user_id": entry.user_id,
@@ -119,34 +147,37 @@ async def memory_add(entry: MemoryEntry):
 
 @app.post("/tools/memory_search")
 async def memory_search(query: SearchQuery):
-    """Search memories."""
+    """Search memories using vector similarity."""
     if client is None:
         raise HTTPException(status_code=503, detail="Qdrant not available")
 
     try:
-        # In production, compute actual embedding for query
-        # For now, return recent entries
-        results = client.scroll(
+        # Generate embedding for search query
+        query_embedding = await get_embedding(query.query)
+
+        results = client.query_points(
             collection_name=COLLECTION_NAME,
-            scroll_filter=models.Filter(
+            query=query_embedding,
+            limit=query.limit,
+            query_filter=models.Filter(
                 must=[
                     models.FieldCondition(
                         key="user_id",
                         match=models.MatchValue(value=query.user_id)
                     )
                 ]
-            ),
-            limit=query.limit
-        )
+            )
+        ).points
 
         memories = []
-        for point in results[0]:
+        for point in results:
             memories.append({
                 "id": point.id,
                 "text": point.payload.get("text"),
                 "user_id": point.payload.get("user_id"),
                 "metadata": point.payload.get("metadata", {}),
-                "created_at": point.payload.get("created_at")
+                "created_at": point.payload.get("created_at"),
+                "score": point.score
             })
 
         return {"results": memories, "count": len(memories)}
