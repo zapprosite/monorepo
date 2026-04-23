@@ -2,6 +2,13 @@
 // Hermes Agency Telegram Bot — voice + vision + text multimodal
 // Hardened for datacenter: Redis locks/rate-limit, file validation, concurrency limit
 
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught Exception:', err);
+});
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+});
+
 import { Telegraf, Input } from 'telegraf';
 import { routeToSkill } from '../router/agency_router';
 import * as fs from 'node:fs';
@@ -367,7 +374,7 @@ bot.on('voice', async (ctx) => {
 
   // Concurrency semaphore — prevent flood attacks
   if (!acquireSemaphore(userId)) {
-    await ctx.reply('⏳ many uploads in progress. Please wait for them to finish.');
+    await ctx.reply('⏳ Muitos envios em progresso. Aguarde.');
     return;
   }
 
@@ -429,7 +436,7 @@ bot.on('photo', async (ctx) => {
 
   // Concurrency semaphore
   if (!acquireSemaphore(userId)) {
-    await ctx.reply('⏳ many uploads in progress. Please wait for them to finish.');
+    await ctx.reply('⏳ Muitos envios em progresso. Aguarde.');
     return;
   }
 
@@ -493,8 +500,11 @@ bot.on('message', async (ctx) => {
 });
 
 // ── Error handler ───────────────────────────────────────────────────────────
-bot.catch((err) => {
+bot.catch((err, ctx) => {
   console.error('[HermesAgencyBot] Unhandled error:', err);
+  if (ctx) {
+    ctx.reply('❌ Erro inesperado. Tente novamente.').catch(console.error);
+  }
 });
 
 async function fetchHealth(url: string, name: string): Promise<[string, boolean]> {
