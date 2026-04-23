@@ -1,7 +1,7 @@
 # SPEC-092 — Trieve RAG Integration
 
 **Data:** 2026-04-23
-**Estado:** Draft
+**Estado:** Active
 **Autor:** Hermes Agent (William Rodrigues)
 **Review:** William
 
