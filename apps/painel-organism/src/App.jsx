@@ -483,7 +483,7 @@ function App() {
         </div>
 
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 text-gray-500 animate-bounce">
-          ↓ Scroll to explore
+          ↓ Rolar para explorar
         </div>
       </header>
 
@@ -501,7 +501,7 @@ function App() {
             <BrainIcon className="w-8 h-8" animate={false} />
             <div>
               <p className="text-white font-mono text-sm">Painel Homelab</p>
-              <p className="text-xs text-gray-500">v2.0 | Homelab Services Catalog</p>
+              <p className="text-xs text-gray-500">v2.0 | Catálogo de Serviços</p>
             </div>
           </div>
           <div className="flex items-center gap-6 text-xs text-gray-500">
