@@ -360,7 +360,7 @@ const LAYERS = [
         port: '/srv/monorepo',
         docs: null,
         healthUrl: null,
-        url: 'https://git.zappro.site/zappro/monorepo',
+        url: 'https://gitea.zappro.site/will-zappro/monorepo',
       },
     ],
   },
@@ -394,7 +394,7 @@ function ServiceCard({ service, status }) {
           </a>
         )}
         {service.docs && (
-          <a href={`https://git.zappro.site/zappro/monorepo/src/HEAD/${service.docs}`} target="_blank" rel="noopener noreferrer"
+          <a href={`https://gitea.zappro.site/will-zappro/monorepo/raw/HEAD/${service.docs}`} target="_blank" rel="noopener noreferrer"
             className="text-xs text-neon-purple hover:underline">
             📄 docs
           </a>
@@ -475,7 +475,7 @@ function App() {
             <a href="#memory" className="px-6 py-3 bg-neon-cyan text-dark-900 font-bold rounded-lg hover:bg-neon-cyan/90 transition-all shadow-neon-cyan">
               Explorar Camadas
             </a>
-            <a href="https://git.zappro.site/zappro/monorepo" target="_blank" rel="noopener noreferrer"
+            <a href="https://gitea.zappro.site/will-zappro/monorepo" target="_blank" rel="noopener noreferrer"
               className="px-6 py-3 border border-gray-600 text-gray-300 font-bold rounded-lg hover:border-white hover:text-white transition-all">
               Monorepo
             </a>
@@ -509,7 +509,7 @@ function App() {
               <StatusDot status="working" />
               Homelab Online
             </span>
-            <a href="https://git.zappro.site/zappro/monorepo" target="_blank" rel="noopener noreferrer"
+            <a href="https://gitea.zappro.site/will-zappro/monorepo" target="_blank" rel="noopener noreferrer"
               className="text-neon-cyan hover:underline">
               Monorepo →
             </a>
