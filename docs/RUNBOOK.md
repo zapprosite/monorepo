@@ -2,9 +2,44 @@
 
 > **Data de criação:** 2026-04-22
 > **Última atualização:** 2026-04-23
-> **Versão:** 1.1.0
+> **Versão:** 1.2.0
 
 Este documento contém procedimentos de recuperação para emergências e desastres nos serviços de infraestrutura.
+
+---
+
+## Testing Checklist
+
+> **Testado em:** 2026-04-23
+> **Status:** VERIFICADO - Procedimentos confirmados funcionais
+
+### Procedimentos Testados
+
+| Procedimento | Status | Última Verificação | Notas |
+|-------------|--------|-------------------|-------|
+| AI Gateway restart | VERIFICADO | 2026-04-23 | `docker restart zappro-ai-gateway` funciona corretamente |
+| LiteLLM restart | VERIFICADO | 2026-04-23 | `docker restart zappro-litellm` funciona, health retorna 401 (esperado sem auth) |
+| LiteLLM health check | VERIFICADO | 2026-04-23 | Endpoint `/health` requer Bearer token, não funciona com curl simples |
+| Redis backup exists | VERIFICADO | 2026-04-23 | 3 backups RDB encontrados em `/srv/backups/redis/` |
+| Redis backup format | VERIFICADO | 2026-04-23 | Arquivos `.rdb.gz` são válidos (formato REDIS0011) |
+| docker ps status | VERIFICADO | 2026-04-23 | Formato `table {{.Names}}\t{{.Status}}\t{{.Ports}}` funciona |
+| Health endpoints | VERIFICADO | 2026-04-23 | AI Gateway (4002) responde, LiteLLM (4000) retorna 401 |
+
+### Discrepâncias Encontradas
+
+1. **LiteLLM health endpoint:** O endpoint `/health` do LiteLLM retorna `401 Unauthorized` sem Bearer token. Documentação original não menciona autenticação.
+
+2. **Container naming:** Containers em produção usam prefixo `zappro-` (ex: `zappro-ai-gateway`, `zappro-litellm`, `zappro-redis`). Procedimentos originais usam apenas o nome base.
+
+3. **Redis containers:** Existem múltiplos Redis: `coolify-redis`, `zappro-redis`, `redis-opencode`. Restaurar Redis deve especificar qual container.
+
+### Checklist de Teste Regular
+
+- [ ] Testar restart de cada serviço principal
+- [ ] Verificar health endpoints após restart
+- [ ] Confirmar backups existem antes de precisar
+- [ ] Testar restauração em ambiente de teste
+- [ ] Atualizar datas de verificação neste documento
 
 ---
 
