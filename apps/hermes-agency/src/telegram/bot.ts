@@ -353,7 +353,7 @@ bot.command('health', async (ctx) => {
   const checks = await Promise.all([
     fetchHealth(`${HERMES_GATEWAY_URL}/health`, 'Hermes Gateway'),
     fetchHealth(`${STT_URL}/health`, 'STT :8204'),
-    fetchHealth(`${TTS_URL}/health`, 'TTS :8013'),
+    fetchHealth(`${TTS_URL}/health`, 'TTS :8012'),
     fetchHealth(`${OLLAMA_URL}/api/tags`, 'Ollama :11434'),
   ]);
   const lines = checks.map(([name, ok]) => `${ok ? '✅' : '❌'} ${name}`).join('\n');
