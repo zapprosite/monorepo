@@ -86,7 +86,7 @@
 | Coolify Proxy  | Reverse Proxy   | Ubuntu Desktop    | 80/443 | SSL termination       |
 | Qdrant         | Vector DB       | Coolify           | 6333   | RAG / embeddings      |
 | OpenWebUI      | Web UI          | Coolify           | 8080   | Chat interface        |
-| Hermes Gateway | Agent           | Ubuntu bare metal | 8642   | Agent brain           |
+| Hermes Gateway | Agent           | Ubuntu bare metal | 3001   | Agent brain           |
 | Hermes MCP     | MCP Server      | Ubuntu bare metal | 8092   | MCP proxy             |
 | Ollama         | LLM Engine      | Ubuntu Desktop    | 11434  | Local inference       |
 | LiteLLM        | LLM Proxy       | Docker Compose    | 4000   | Multi-provider proxy  |

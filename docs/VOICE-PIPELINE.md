@@ -186,7 +186,7 @@ LITELLM_URL=http://localhost:4000
 
 | Servico | Porta | Tipo |
 |---------|-------|------|
-| Hermes Gateway | 8642 | Agent brain |
+| Hermes Gateway | 3001 | Agent brain |
 | LiteLLM | 4000 | LLM proxy |
 | ai-gateway | 4002 | OpenAI facade |
 | faster-whisper (fallback) | 8204 | STT local |

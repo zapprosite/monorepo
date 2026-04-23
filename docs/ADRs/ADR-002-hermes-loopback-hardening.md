@@ -35,7 +35,7 @@ platforms:
   api_server:
     extra:
       host: "127.0.0.1"
-      port: 8642
+      port: 3001
       key: ""  # opcional quando em loopback
 ```
 
