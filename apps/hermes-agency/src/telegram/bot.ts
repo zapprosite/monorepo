@@ -40,6 +40,31 @@ for (const key of REQUIRED) {
   }
 }
 
+// ── Per-user in-memory rate limiter ──────────────────────────────────────────
+// Simple sliding window: max N messages per user per window
+const userRateLimits = new Map<number, { count: number; resetTime: number }>();
+const RATE_LIMIT_WINDOW = 60000; // 1 minute
+const RATE_LIMIT_MAX = 10; // max 10 messages per minute
+
+function checkInMemoryRateLimit(userId: number): { allowed: boolean; retryAfterSec: number } {
+  const now = Date.now();
+  const record = userRateLimits.get(userId);
+
+  if (!record || now > record.resetTime) {
+    // New window
+    userRateLimits.set(userId, { count: 1, resetTime: now + RATE_LIMIT_WINDOW });
+    return { allowed: true, retryAfterSec: 0 };
+  }
+
+  if (record.count >= RATE_LIMIT_MAX) {
+    const retryAfterSec = Math.ceil((record.resetTime - now) / 1000);
+    return { allowed: false, retryAfterSec };
+  }
+
+  record.count++;
+  return { allowed: true, retryAfterSec: 0 };
+}
+
 // ── Per-user concurrency semaphore ────────────────────────────────────────────
 // Prevents flood attacks: max N concurrent uploads per userId
 const userSemaphore = new Map<string, number>();
@@ -96,6 +121,14 @@ bot.use(async (ctx, next) => {
   }
 
   const userId = String(ctx.from.id);
+
+  // In-memory per-user rate limit check
+  const inMemoryCheck = checkInMemoryRateLimit(ctx.from.id);
+  if (!inMemoryCheck.allowed) {
+    console.warn('[HermesAgencyBot] In-memory rate limit exceeded', { userId, retryAfterSec: inMemoryCheck.retryAfterSec });
+    await ctx.reply(`⛔ Muitas solicitações. Tente novamente em ${inMemoryCheck.retryAfterSec}s.`);
+    return;
+  }
 
   // Redis-backed rate limiter (falls back to in-memory)
   const { allowed, retryAfterSec } = await checkRateLimit(userId);
