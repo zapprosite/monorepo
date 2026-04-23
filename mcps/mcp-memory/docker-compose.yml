@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  mcp-memory:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mcp-memory
+    ports:
+      - "4016:4016"
+    environment:
+      - QDRANT_URL=http://qdrant:6333
+      - OLLAMA_URL=http://host.docker.internal:11434
+      - MEM0_COLLECTION=will
+      - QDRANT_API_KEY=
+    volumes:
+      - /srv/data/mem0:/data
+    restart: unless-stopped
+    networks:
+      - mcp-network
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:4016/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+networks:
+  mcp-network:
+    external: false
