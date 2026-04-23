@@ -1,10 +1,10 @@
 {
   "agent": "GIT",
-  "spec": "SPEC-066-claude-commands-audit",
+  "spec": "SPEC-092-trieve-rag-integration",
   "status": "completed",
   "exit_code": 0,
   "started": "",
-  "finished": "2026-04-17T15:01:02-03:00",
+  "finished": "2026-04-23T02:15:33-03:00",
   "command": "/commit",
   "log": "/srv/monorepo/.claude/skills/orchestrator/logs/GIT.log"
 }

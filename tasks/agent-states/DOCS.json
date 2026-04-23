@@ -1,10 +1,10 @@
 {
   "agent": "DOCS",
-  "spec": "SPEC-090",
+  "spec": "SPEC-092-trieve-rag-integration",
   "status": "completed",
   "exit_code": 0,
-  "started": "2026-04-20T00:00:00Z",
-  "finished": "2026-04-20T00:00:00Z",
-  "command": "AGENTS.md update + docs/README.md SPEC-090",
-  "log": ".claude/skills/orchestrator/logs/DOCS.log"
+  "started": "",
+  "finished": "2026-04-23T02:15:10-03:00",
+  "command": "/doc-maintenance",
+  "log": "/srv/monorepo/.claude/skills/orchestrator/logs/DOCS.log"
 }

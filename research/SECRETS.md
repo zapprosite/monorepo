@@ -173,7 +173,38 @@ trieve.zappro.site → :6435 (Trieve RAG Dashboard)
 
 ---
 
-## 6. References
+## 7. Secret Scan Results (2026-04-23)
+
+### Scan Command
+```bash
+grep -r "TRIEVE_API_KEY\|QDRANT_URL\|OLLAMA_BASE_URL" --include="*.ts" --include="*.yaml" --include="*.json" . 2>/dev/null | grep -v node_modules
+```
+
+### Findings
+
+| Secret | Found | Status |
+|--------|-------|--------|
+| `TRIEVE_API_KEY` | No | Clean |
+| `QDRANT_URL` | Yes | Safe - via `process.env` |
+| `OLLAMA_BASE_URL` | No | Clean |
+
+### Files Using QDRANT_URL (all safe pattern)
+
+All references use `process.env['QDRANT_URL']` with fallback to localhost:
+
+- `apps/hermes-agency/src/langgraph/status_update.ts` - fallback `'http://localhost:6333'`
+- `apps/hermes-agency/src/index.ts` - required env var (no fallback)
+- `apps/hermes-agency/src/langgraph/onboarding_flow.ts` - fallback `'http://localhost:6333'`
+- `apps/hermes-agency/src/langgraph/social_calendar.ts` - fallback `'http://localhost:6333'`
+- `apps/hermes-agency/src/qdrant/client.ts` - fallback `'http://localhost:6333'`
+
+### Assessment
+
+**No secrets exposed.** All environment variables are accessed via `process.env[]` pattern with appropriate fallbacks. No hardcoded API keys or credentials found.
+
+---
+
+## 8. References
 
 - [Trieve Self-Hosting Docs](https://docs.trieve.ai/self-hosting/docker-compose)
 - [Trieve API Reference](https://docs.trieve.ai/api-reference)

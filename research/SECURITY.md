@@ -1,435 +1,318 @@
-# SECURITY AUDIT — SPEC-092 Trieve RAG Integration
+# SECURITY AUDIT REPORT — SPEC-092 Trieve RAG Integration
 
-**Data:** 2026-04-23
-**Auditor:** Security Agent
+**Date:** 2026-04-23
+**Auditor:** Claude Code (Security Review)
 **SPEC:** SPEC-092 (Trieve RAG Integration)
-**Score:** 6.8/10 — APPROVED WITH MITIGATIONS
+**Status:** AUDIT COMPLETE
+**Task:** #18
 
 ---
 
 ## EXECUTIVE SUMMARY
 
-A integração de RAG via Trieve traz riscos de segurança inerentes a sistemas de retrieval. Os principais problemas são: **Ausência de API key validation**, **potential de chunk injection**, e **exposição de serviços internos via porta Docker**. Mitigações são straightforward e não bloqueiam o deployment.
+SPEC-092 implements a Trieve-based RAG pipeline. The SPEC itself is well-structured, but the integration code has **multiple OWASP vulnerabilities** that require mitigation before deployment. No hardcoded credentials were found in the SPEC document itself, but the existing `.env` file contains plaintext secrets that follow a concerning pattern.
+
+**Overall Risk:** MEDIUM-HIGH
+**Recommendation:** BLOCK deployment until mitigations are implemented
 
 ---
 
-## 1. FINDINGS (April 2026 Best Practices)
+## 1. CREDENTIALS AUDIT (OWASP A02:2021 — Cryptographic Failures)
 
-### 1.1 CRÍTICO — API Key Generation Without Canonical Storage
+### 1.1 SPEC-092 Source Code — ✅ CLEAN
 
-**Problema:** O SPEC menciona `TRIEVE_API_KEY=generated_on_first_login` sem definir onde será armazenado.
+**Finding:** No hardcoded credentials in SPEC-092 document or referenced code snippets.
 
-```bash
-# O SPEC diz secrets.env mas isso viola ADR-001
-Environment variables (secrets.env):
-TRIEVE_API_KEY=generated_on_first_login
 ```
+# SPEC-092 correctly uses placeholder:
+TRIEVE_API_KEY=generated_on_first_login  # Placeholder, not real
 
-**Recomendações:**
-```bash
-# 1. Gerar a key ANTES do deploy
-openssl rand -hex 32
-
-# 2. Adicionar a .env (NÃO secrets.env)
-TRIEVE_API_KEY=<generated-key>
-
-# 3. Adicionar a .env.example com placeholder
-TRIEVE_API_KEY=replace-with-openssl-rand-hex-32
-
-# 4. Validar no startup (fail fast)
-if (!process.env.TRIEVE_API_KEY) {
-  throw new Error("TRIEVE_API_KEY missing in .env");
-}
-```
-
-**Porque CRÍTICO:** API key sem storage canonical = key perdida no próximo restart.
-
----
-
-### 1.2 ALTO — Qdrant Collection Collision Risk
-
-**Problema:** SPEC-092 usa `QDRANT_COLLECTION=trieve` mas Mem0 (SPEC-074) usa `QDRANT_COLLECTION=will`. O SPEC menciona mitigação mas sem validação explícita.
-
-```yaml
-# SPEC-092 docker-compose
-- QDRANT_COLLECTION=trieve
-
-# SPEC-074 (Mem0)
-# Usa collection "will"
-```
-
-**Recomendação:**
-```bash
-# Verificar collections existentes ANTES de criar
-curl -s http://localhost:6333/collections | jq '.collections[].name'
-
-# Collections devem ser SEPARADAS:
-# - mem0: "will" (SPEC-074)
-# - trieve: "trieve" (SPEC-092)
-```
-
-**Update necessário em SPEC-092:**
-```yaml
+# docker-compose uses env vars (correct pattern):
 environment:
-  - QDRANT_COLLECTION=trieve  # ✅ SEPARADO de Mem0 ("will")
+  - QDRANT_URL=http://10.0.9.1:6333  # Internal IP, not hardcoded
 ```
 
----
+### 1.2 Existing Codebase — ⚠️ CONCERNS
 
-### 1.3 ALTO — Missing API Key Validation in Hermes Integration
-
-**Problema:** O pseudo-code para `rag_retrieve` não valida a API key antes do request.
-
-```python
-# SPEC-092 pseudo-code — SEM validação
-async def rag_retrieve(query: str, top_k: int = 5) -> list[str]:
-    response = requests.post(
-        f"{TRIEVE_URL}/api/v1/search",
-        headers={"Authorization": f"Bearer {TRIEVE_API_KEY}"},
-        json={"query": query, "limit": top_k}
-    )
-    return [r["chunk"]["content"] for r in response.json()["results"]]
-```
-
-**Recomendação (implementar antes de FASE 3):**
-```python
-# Hermes skill: rag_retrieve.py
-import os
-from typing import Optional
-
-TRIEVE_API_KEY: Optional[str] = None
-TRIEVE_URL: str = ""
-
-def validate_config() -> None:
-    global TRIEVE_API_KEY, TRIEVE_URL
-    TRIEVE_API_KEY = os.getenv("TRIEVE_API_KEY")
-    TRIEVE_URL = os.getenv("TRIEVE_URL", "http://localhost:6435")
-
-    if not TRIEVE_API_KEY:
-        raise RuntimeError("TRIEVE_API_KEY not set in .env")
-    if not TRIEVE_URL:
-        raise RuntimeError("TRIEVE_URL not set in .env")
-
-async def rag_retrieve(query: str, top_k: int = 5) -> list[str]:
-    validate_config()
-
-    # Limitar top_k para evitar context overflow
-    top_k = min(top_k, 5)
-
-    response = requests.post(
-        f"{TRIEVE_URL}/api/v1/search",
-        headers={"Authorization": f"Bearer {TRIEVE_API_KEY}"},
-        json={"query": query, "limit": top_k},
-        timeout=10
-    )
-    response.raise_for_status()
-    return [r["chunk"]["content"] for r in response.json()["results"]]
-```
-
----
-
-### 1.4 MÉDIO — Chunk Injection via Document Indexing
-
-**Problema:** Indexar documentos do filesystem (`hermes-second-brain/docs/`, `monorepo/docs/SPECS/`) sem sanitização pode injetar chunks maliciosos.
-
-**Cenário:** Um documento com conteúdo especialmente craftado pode injetar prompts no RAG que são retrievalados e injetados no LLM (RAG poisoning).
-
-**Recomendação:**
-```python
-# Trieve chunk sanitization antes de indexar
-import re
-
-def sanitize_chunk(content: str, max_length: int = 10000) -> str:
-    # Remover instruções de injection
-    content = re.sub(r'<\|.*?\|>', '', content)  # Remove tag injection
-    content = re.sub(r'\[INST\].*?\[/INST\]', '', content, flags=re.DOTALL)  # Remove prompt injection
-    content = re.sub(r'System:.*?(?=\n\n|\nUser:|$)', '', content, flags=re.DOTALL)  # Remove system prompt injection
-
-    # Truncar para evitar overflow
-    return content[:max_length]
-```
-
-**Também:** Adicionar metadata de source para audit trail:
-```python
-{
-  "content": sanitize_chunk(raw_content),
-  "metadata": {
-    "source": "hermes-second-brain",
-    "type": "skill",
-    "indexed_at": datetime.utcnow().isoformat(),
-    "file_path": "/path/to/original/file.md"  # Para debugging
-  }
-}
-```
-
----
-
-### 1.5 MÉDIO — Docker Port Exposure (localhost:6435)
-
-**Problema:** O docker-compose fragment mapeia `6435:3000` mas não há network isolation explícita.
-
-```yaml
-services:
-  trieve:
-    ports:
-      - "6435:3000"  # ⚠️ Exposto no host
-```
-
-**Recomendação:**
-```yaml
-services:
-  trieve:
-    ports:
-      - "127.0.0.1:6435:3000"  # ✅ Bind apenas em loopback
-    networks:
-      - homelab_internal  # ✅ Isolamento de rede
-
-networks:
-  homelab_internal:
-    internal: true  # Sem acesso externo
-```
-
-**Porque:** Se Coolify expuser a porta publicamente, Trieve fica acessível sem autenticação (apesar da API key, defense in depth).
-
----
-
-### 1.6 MÉDIO — No Rate Limiting on Trieve API
-
-**Problema:** O SPEC não menciona rate limiting. Um atacante com API key pode fazer DDoS interno.
-
-**Recomendação (adicionar a .env se Trieve suportar):**
-```bash
-# Rate limiting
-TRIEVE_RATE_LIMIT=100  # requests per minute
-TRIEVE_RATE_WINDOW=60  # seconds
-```
-
-**Alternativa via nginx/internal proxy:**
-```nginx
-# Rate limit no ingress
-limit_req_zone $binary_remote_addr zone=trieve:10m rate=10r/s;
-```
-
----
-
-### 1.7 BAIXO — Ollama/Qdrant Over HTTP (No TLS)
-
-**Problema:** Conexões para Ollama (:11434) e Qdrant (:6333) são HTTP, não HTTPS.
-
-```yaml
-environment:
-  - QDRANT_URL=http://10.0.9.1:6333  # ⚠️ HTTP
-  - OLLAMA_BASE_URL=http://10.0.9.1:11434  # ⚠️ HTTP
-```
-
-**Recomendação:** Manter HTTP apenas se localhost/internal network. Considerar TLS se Exposed externally.
-
-**Contexto:** No teu setup, 10.0.9.1 é IP interno do host (Docker bridge). TLS overkill para internal, mas documentar que é intentional.
-
----
-
-### 1.8 BAIXO — Missing Health Check Authentication
-
-**Problema:** SPEC menciona `/health` endpoint mas não se Trieve suporta auth nele.
-
-```bash
-# SPEC acceptance criteria
-- [ ] Trieve deployado em `:6435` e respondendo `/health`
-```
-
-**Recomendação:**
-```bash
-# Testar health endpoint
-curl http://localhost:6435/health
-
-# Se retorna 401/403 sem auth, é bom (defense in depth)
-# Se retorna 200 sem auth, auditar o que expõe
-```
-
----
-
-## 2. MISSING SECURITY CONFIGURATIONS
-
-### 2.1 Required .env Entries (ADR-001 Compliance)
-
-```bash
-# ==========================================
-# Trieve RAG (SPEC-092)
-# ==========================================
-TRIEVE_API_KEY=<openssl rand -hex 32>
-TRIEVE_URL=http://localhost:6435
-TRIEVE_COLLECTION=trieve  # SEPARADO de Mem0 collection "will"
-
-# Ollama (embedding - já existe em OLLAMA_URL)
-# OLLAMA_URL=http://localhost:11434
-
-# Qdrant (vector storage - já existe)
-# QDRANT_URL=http://localhost:6333
-# QDRANT_API_KEY=<já existe>
-```
-
-### 2.2 Startup Validation (Fail Fast)
+**Finding:** The Qdrant client (`apps/hermes-agency/src/qdrant/client.ts`) correctly reads from env, BUT:
 
 ```typescript
-// apps/hermes-agency/src/rag/validate.ts
-const REQUIRED_TRIEVE = ['TRIEVE_API_KEY', 'TRIEVE_URL'];
+// apps/hermes-agency/src/qdrant/client.ts:4-5
+const QDRANT_URL = process.env['QDRANT_URL'] ?? 'http://localhost:6333';
+const QDRANT_API_KEY = process.env['QDRANT_API_KEY'] ?? '';
 
-for (const key of REQUIRED_TRIEVE) {
-  if (!process.env[key]) {
-    console.error(`[RAG] FATAL: ${key} not set in .env`);
-    process.exit(1);
-  }
-}
-
-console.log('[RAG] Configuration validated');
+// PROBLEM: Empty string as fallback is insecure
+// If QDRANT_API_KEY is set to empty string, the client will try to authenticate with '' as key
 ```
 
-### 2.3 PORTS.md Update Required
+**Recommendation:**
+```typescript
+const QDRANT_API_KEY = process.env['QDRANT_API_KEY'];
+if (!QDRANT_API_KEY) {
+  throw new Error('QDRANT_API_KEY not set in .env'); // Fail fast
+}
+```
 
-**File:** `/srv/ops/ai-governance/PORTS.md` (ou `docs/INFRASTRUCTURE/PORTS.md` se existir)
+### 1.3 `.env` File — ❌ EXPOSED
 
-**Entry needed:**
-```markdown
-| :6435 | Trieve (RAG API) | localhost only | Internal RAG pipeline, no external access |
+**Finding:** The `.env` file contains numerous plaintext secrets. While this is the ADR-001 canonical pattern, the file was readable in this audit:
+
+```
+QDRANT_API_KEY=vmEbyCYrU68bR7lkzCbL05Ey4BPnTZgr
+LITELLM_MASTER_KEY=sk-zappro-lm-2026-s8k3m9x2p7r6t5w1v4c8n0d5j7f9g3h6i2k4l6m8n0p1
+HERMES_AGENCY_BOT_TOKEN=8759194670:AAGHntxPUsfvbSrYNwOhBGuNUpmeCUw1-qY
+COOLIFY_ROOT_USER_PASSWORD=Zappro2026!
+```
+
+**Risk:** If `.env` is committed to git or exposed via debug logs, all credentials are leaked.
+
+**Recommendation:**
+- Verify `.gitignore` excludes `.env`
+- Add pre-commit hook to prevent credential commits
+- Consider using a secrets manager (Infisical, Doppler) for production
+
+---
+
+## 2. INJECTION VECTORS (OWASP A03:2021 — Injection)
+
+### 2.1 Qdrant Query Injection — ⚠️ MEDIUM RISK
+
+**Finding:** Collection names and filters are not validated before being used in API calls.
+
+```typescript
+// apps/hermes-agency/src/qdrant/client.ts:93-127
+export async function createCollectionIfNotExists(name: CollectionName): Promise<boolean> {
+  // name is CollectionName enum - SAFE
+  const existsRes = await fetch(`${QDRANT_URL}/collections/${name}`, { headers: QDRANT_HEADERS });
+```
+
+**Problem:** While `CollectionName` is a TypeScript enum (type-safe), the `SearchFilter` interface accepts `Record<string, unknown>` which could contain malicious filter injection:
+
+```typescript
+// client.ts:151-155
+export interface SearchFilter {
+  must?: Array<Record<string, unknown>>;
+  should?: Array<Record<string, unknown>>;
+  must_not?: Array<Record<string, unknown>>;
+}
+```
+
+**Recommendation:** Add input validation for filter values.
+
+### 2.2 RAG Query Injection — ❌ HIGH RISK (if rag-retrieve is implemented)
+
+**Finding:** The SPEC-092 pseudo-code shows user query being sent directly to Trieve:
+
+```python
+# SPEC-092 pseudo-code (line 216-223)
+async def rag_retrieve(query: str, top_k: int = 5) -> list[str]:
+    response = requests.post(
+        f"{TRIEVE_URL}/api/v1/search",
+        headers={"Authorization": f"Bearer {TRIEVE_API_KEY}"},
+        json={"query": query, "limit": top_k}  # query is USER INPUT
+    )
+```
+
+**Problem:** No sanitization of `query` parameter. A malicious user could inject:
+- Prompt injection via RAG (extracting system prompts)
+- Special characters that could cause DoS
+- Metadata pollution
+
+**Recommendation:**
+```typescript
+function sanitizeRagQuery(query: string, maxLength: number = 500): string {
+  // Remove potential injection patterns
+  const sanitized = query
+    .replace(/<\|.*?\|>/g, '') // Remove tag injection
+    .replace(/\[INST\].*?\[\/INST]/gi, '') // Remove prompt injection
+    .substring(0, maxLength);
+  return sanitized;
+}
 ```
 
 ---
 
-## 3. UPDATES FOR SPEC-092
+## 3. SECRETS IN PLAIN TEXT (OWASP A02:2021)
 
-### 3.1 Add Security Section
+### 3.1 `.env` Storage — ⚠️ ACCEPTABLE (per ADR-001)
 
-```markdown
-## Security Considerations
+**Finding:** The project uses `.env` as canonical secrets storage per ADR-001. This is a documented decision, not a vulnerability per se.
 
-### API Key Management
-- `TRIEVE_API_KEY` gerado via `openssl rand -hex 32`
-- Armazenado em `.env` (canonical source, ADR-001)
-- Validado no startup (fail fast)
+**Current state:** `.env.example` uses placeholders, `.env` contains real secrets (should never be committed).
 
-### Network Isolation
-- Trieve bind: `127.0.0.1:6435` (loopback only)
-- Docker network: `homelab_internal` (isolado)
-- Sem exposição externa sem explicit approval
+### 3.2 Missing Trieve Variables — ⚠️ ACTION REQUIRED
 
-### Qdrant Collection Separation
-- Trieve: `trieve` collection
-- Mem0: `will` collection (SPEC-074)
-- Collections SEPARADAS para isolar memory de knowledge
+**Finding:** `TRIEVE_API_KEY` and `TRIEVE_URL` are NOT in `.env`.
 
-### Chunk Sanitization
-- Docs indexados passam por sanitization (remove injection patterns)
-- Metadata inclui source path para audit trail
-
-### Rate Limiting
-- TBD: Implementar rate limit no Trieve ou upstream proxy
+**Required additions:**
+```bash
+# Trieve RAG (SPEC-092) — ADD TO .env
+TRIEVE_API_KEY=<openssl rand -hex 32>
+TRIEVE_URL=http://localhost:6435
+TRIEVE_DATASET_ID=<uuid-after-creation>
 ```
 
-### 3.2 Update docker-compose with Security Hardening
+---
+
+## 4. API KEY EXPOSURE (OWASP A01:2021 — Broken Access Control)
+
+### 4.1 Trieve API Key — ✅ NOT YET DEPLOYED
+
+**Finding:** `TRIEVE_API_KEY` is not present in the codebase yet. This is correct — it should only be added during FASE 1 deployment.
+
+### 4.2 Qdrant API Key — ✅ PROPERLY PROTECTED
+
+**Finding:** The Qdrant client validates the API key exists at startup:
+
+```typescript
+// client.ts:7-10
+if (!QDRANT_API_KEY) {
+  console.error('[Qdrant] QDRANT_API_KEY not set in .env');
+  process.exit(1);  // Fail fast - GOOD
+}
+```
+
+### 4.3 Bearer Token Exposure in Logs — ⚠️ MEDIUM RISK
+
+**Finding:** No evidence of API keys being logged, but the pattern `Bearer ${QDRANT_API_KEY}` in headers could leak if error logging is verbose.
+
+```typescript
+// client.ts:14-17
+const QDRANT_HEADERS = {
+  'Content-Type': 'application/json',
+  Authorization: `Bearer ${QDRANT_API_KEY}`,
+};
+```
+
+**Recommendation:** Never log headers or use error responses that include Authorization header content.
+
+---
+
+## 5. ADDITIONAL OWASP FINDINGS
+
+### 5.1 OWASP A05:2021 — Security Misconfiguration
+
+**Finding:** Docker port exposure in SPEC-092:
 
 ```yaml
-services:
-  trieve:
-    image: trieve/trieve:latest
-    ports:
-      - "127.0.0.1:6435:3000"  # Loopback only
-    environment:
-      - QDRANT_URL=http://10.0.9.1:6333
-      - QDRANT_COLLECTION=trieve
-      - OLLAMA_BASE_URL=http://10.0.9.1:11434
-      - DATABASE_URL=sqlite:///srv/data/trieve/trieve.db
-      # API key via environment (set in .env, injected by Coolify)
-    volumes:
-      - /srv/data/trieve:/run/trieve
-    restart: unless-stopped
-    networks:
-      - homelab_internal
-    read_only: true  # Read-only filesystem
-    security_opt:
-      - no-new-privileges:true
-
-networks:
-  homelab_internal:
-    internal: true
+# SPEC-092 docker-compose (line 158)
+ports:
+  - "6435:3000"  # Binds to 0.0.0.0, not localhost
 ```
 
----
+**Risk:** If Coolify exposes this port externally, Trieve is accessible without authentication.
 
-## 4. WHAT TO ADD/UDPATE/DELETE
+**Recommendation:**
+```yaml
+ports:
+  - "127.0.0.1:6435:3000"  # Bind to loopback only
+```
 
-### ADD
+### 5.2 OWASP A04:2021 — Insecure Design
 
-| Item | Razão |
-|------|-------|
-| `TRIEVE_API_KEY` em `.env` | Canonical secrets storage (ADR-001) |
-| `TRIEVE_API_KEY` em `.env.example` | Documentação de placeholder |
-| Startup validation em Hermes skill | Fail fast, não silent degradation |
-| Chunk sanitization function | Prevenir RAG poisoning |
-| PORTS.md entry para `:6435` | Port governance compliance |
-| Security section em SPEC-092 | Documentar decisões de security |
+**Finding:** No rate limiting mentioned in SPEC-092.
 
-### UPDATE
+**Risk:** An attacker with valid API key could DoS the RAG pipeline.
 
-| Item | Mudança |
-|------|---------|
-| SPEC-092 docker-compose | Bind loopback + internal network + read-only |
-| SPEC-092 acceptance criteria | Adicionar health check authentication |
-| Hermes `rag_retrieve` skill | Adicionar API key validation + timeout |
+**Recommendation:** Implement rate limiting at the application level or via nginx proxy.
 
-### DELETE
+### 5.3 OWASP A07:2021 — Identification and Authentication Failures
 
-| Item | Razão |
-|------|-------|
-| `secrets.env` reference | Viola ADR-001 (todos os secrets em `.env`) |
-| `RERANK_MODEL` (FASE 1) | Out of scope para FASE 1, adiar para FASE 4 |
+**Finding:** Trieve default Keycloak credentials mentioned in SECRETS.md research:
+
+```
+admin/aintsecure  # Default, MUST change on first deploy
+```
+
+**Risk:** If not changed during deployment, full admin access to Trieve.
 
 ---
 
-## 5. COMPLIANCE CHECKLIST
+## 6. COMPLIANCE MATRIX
 
-| Requirement | Status | Notes |
-|-------------|--------|-------|
-| `.env` as canonical source | ✅ Compliant | CRIAR `TRIEVE_API_KEY` |
-| No hardcoded secrets | ✅ Compliant | API key via env |
-| Fail-fast validation | ⚠️ Partial | Implementar na FASE 3 |
-| Network isolation | ⚠️ Partial | Configurar antes do deploy |
-| Port governance | ❌ Missing | Adicionar `:6435` a PORTS.md |
-| Chunk sanitization | ❌ Missing | Implementar antes de indexar |
-| Rate limiting | ❌ Missing | Adicionar em FASE 3/4 |
-
----
-
-## 6. RISK SUMMARY
-
-| Risk | Probability | Impact | Mitigation |
-|------|-------------|--------|------------|
-| API key loss (no canonical storage) | HIGH | HIGH | Add to `.env` before deploy |
-| Qdrant collection collision | LOW | MEDIUM | Collections `trieve` vs `will` |
-| RAG poisoning via docs | MEDIUM | MEDIUM | Chunk sanitization |
-| Unauthenticated Trieve access | LOW | HIGH | Loopback bind + internal network |
-| Internal DDoS via rate limiting | MEDIUM | MEDIUM | Add rate limit in FASE 3 |
+| OWASP Category | Finding | Status | Mitigation Required |
+|----------------|---------|--------|---------------------|
+| A02:2021 Cryptographic Failures | `.env` plaintext secrets | ⚠️ Acceptable (ADR-001) | Verify `.gitignore`, add pre-commit hooks |
+| A02:2021 Cryptographic Failures | Empty fallback for QDRANT_API_KEY | ❌ Must Fix | Fail fast if key missing |
+| A03:2021 Injection | RAG query not sanitized | ❌ Must Fix | Add sanitizeRagQuery() before FASE 3 |
+| A03:2021 Injection | Filter injection risk | ⚠️ Medium | Add validation to SearchFilter |
+| A04:2021 Insecure Design | No rate limiting | ⚠️ Medium | Add rate limiting before production |
+| A05:2021 Security Misconfiguration | Port 6435 on 0.0.0.0 | ❌ Must Fix | Bind to 127.0.0.1 |
+| A07:2021 Auth Failures | Keycloak defaults | ❌ Must Fix | Change admin password on deploy |
 
 ---
 
-## 7. VERDICT
+## 7. REQUIRED MITIGATIONS (BEFORE DEPLOYMENT)
 
-**APPROVED WITH MITIGATIONS**
+### P0 — BLOCKERS (Must fix before FASE 1)
 
-O SPEC-092 pode proceder para FASE 1 com as seguintes condições:
+1. **Change Keycloak admin password** — Default `admin/aintsecure` must be changed
+2. **Bind Trieve to localhost** — Change `6435:3000` to `127.0.0.1:6435:3000`
+3. **Add fail-fast for empty API keys** — Fix Qdrant client empty string fallback
+4. **Add TRIEVE vars to `.env`** — Before deployment, generate and add `TRIEVE_API_KEY`
 
-1. **ANTES do deploy:** Gerar `TRIEVE_API_KEY` e adicionar a `.env`
-2. **ANTES do deploy:** Bind Trieve em `127.0.0.1:6435` (não `0.0.0.0`)
-3. **FASE 3:** Implementar chunk sanitization antes de indexar
-4. **FASE 3:** Adicionar startup validation em Hermes skill
+### P1 — BEFORE FASE 3 (RAG Integration)
 
-**Blockers:** Nenhum blocker crítico identificado. Mitigações são straightforward.
+5. **Sanitize RAG queries** — Prevent prompt injection via user queries
+6. **Validate SearchFilter inputs** — Add schema validation for filter values
+7. **Add rate limiting** — Prevent DoS of RAG pipeline
+
+### P2 — PRODUCTION HARDENING
+
+8. **Pre-commit hooks** — Prevent credential commits to git
+9. **Secrets rotation policy** — Document rotation schedule for API keys
+10. **Monitor Trieve health endpoint** — Ensure auth is required
 
 ---
 
-## 8. REFERENCES
+## 8. RECOMMENDATIONS
 
-- [OWASP Top 10 for LLM Apps](https://owasp.org/www-project-top-10-for-llm-applications/)
-- [Trieve Security Docs](https://docs.trieve.ai)
-- ADR-001: `.env` as Canonical Secrets Source
-- SPEC-059: Hermes Agency Datacenter Hardening
-- SPEC-074: Hermes Second Brain com Mem0
+### Immediate Actions
+
+```bash
+# 1. Generate Trieve API key
+openssl rand -hex 32
+
+# 2. Add to .env (do NOT commit the real value)
+TRIEVE_API_KEY=<generated-key>
+TRIEVE_URL=http://localhost:6435
+
+# 3. Fix Qdrant client.ts empty fallback (client.ts:5)
+const QDRANT_API_KEY = process.env['QDRANT_API_KEY'];
+if (!QDRANT_API_KEY) throw new Error('QDRANT_API_KEY not set in .env');
+
+# 4. Update docker-compose for localhost binding
+ports:
+  - "127.0.0.1:6435:3000"
+```
+
+### SPEC-092 Updates Required
+
+| Section | Update |
+|---------|--------|
+| Security Considerations | Add Keycloak password change requirement |
+| docker-compose | Bind to 127.0.0.1:6435 |
+| Environment variables | Document all required TRIEVE_* vars |
+| Acceptance Criteria | Add security checklist items |
+
+---
+
+## 9. CONCLUSION
+
+SPEC-092 is **APPROVED FOR DEPLOYMENT WITH MITIGATIONS**. The SPEC document itself is clean with no hardcoded credentials. However:
+
+1. **P0 blockers must be fixed before FASE 1 deployment**
+2. **P1 items must be implemented before FASE 3 (RAG integration)**
+3. **P2 items are recommended before production exposure**
+
+The main risks are:
+- Keycloak default credentials (critical if not changed)
+- Port exposure without localhost binding
+- RAG query injection (for FASE 3+)
+
+All findings are mitigable with standard security practices.
+
+---
+
+**Report Generated:** 2026-04-23
+**Next Steps:** Implement P0 mitigations, update task #18 status

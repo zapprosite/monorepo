@@ -1,10 +1,10 @@
 {
   "agent": "SECURITY",
-  "spec": "SPEC-066-claude-commands-audit",
+  "spec": "SPEC-092-trieve-rag-integration",
   "status": "completed",
   "exit_code": 0,
   "started": "",
-  "finished": "2026-04-17T15:00:05-03:00",
+  "finished": "2026-04-23T02:14:15-03:00",
   "command": "/minimax-security-audit",
   "log": "/srv/monorepo/.claude/skills/orchestrator/logs/SECURITY.log"
 }

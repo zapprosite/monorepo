@@ -1,7 +1,10 @@
 {
+  "agent": "CODER-1",
+  "spec": "SPEC-092-trieve-rag-integration",
   "status": "completed",
   "exit_code": 0,
-  "timestamp": "2026-04-20T00:00:00Z",
-  "spec": "SPEC-090",
-  "pipeline": "pipeline-20260420-000000"
+  "started": "",
+  "finished": "2026-04-23T02:13:17-03:00",
+  "command": "/backend-scaffold",
+  "log": "/srv/monorepo/.claude/skills/orchestrator/logs/CODER-1.log"
 }

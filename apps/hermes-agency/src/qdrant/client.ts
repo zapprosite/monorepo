@@ -251,3 +251,105 @@ export async function deleteVector({ collection, id }: DeleteParams): Promise<bo
     return false;
   }
 }
+
+export interface GetPointParams {
+  collection: CollectionName;
+  id: string | number;
+}
+
+export interface PointResult {
+  id: string | number;
+  payload: PointPayload;
+}
+
+export async function getPoint({ collection, id }: GetPointParams): Promise<PointResult | null> {
+  try {
+    const res = await fetch(`${QDRANT_URL}/collections/${collection}/points/${id}`, {
+      method: 'GET',
+      headers: QDRANT_HEADERS,
+    });
+
+    if (!res.ok) {
+      console.error(`[Qdrant] GetPoint failed for ${collection}/${id}:`, await res.text());
+      return null;
+    }
+
+    const data = (await res.json()) as {
+      result?: { id: string | number; payload?: PointPayload };
+    };
+
+    if (!data.result) return null;
+    return { id: data.result.id, payload: data.result.payload ?? {} };
+  } catch (err) {
+    console.error(`[Qdrant] GetPoint error (${collection}/${id}):`, err);
+    return null;
+  }
+}
+
+export async function updatePoint(
+  collection: CollectionName,
+  id: string | number,
+  payload: PointPayload,
+): Promise<boolean> {
+  try {
+    // Qdrant PUT upserts full point — merge payload by fetching first
+    const existing = await getPoint({ collection, id });
+    const mergedPayload = existing ? { ...existing.payload, ...payload } : payload;
+    const vector = (existing?.payload?.vector as number[]) ?? new Array(COLLECTION_DIMENSION).fill(0);
+
+    const res = await fetch(`${QDRANT_URL}/collections/${collection}/points`, {
+      method: 'PUT',
+      headers: QDRANT_HEADERS,
+      body: JSON.stringify({
+        points: [{ id, vector, payload: mergedPayload }],
+      }),
+    });
+
+    if (!res.ok) {
+      console.error(`[Qdrant] UpdatePoint failed for ${collection}/${id}:`, await res.text());
+      return false;
+    }
+
+    return true;
+  } catch (err) {
+    console.error(`[Qdrant] UpdatePoint error (${collection}/${id}):`, err);
+    return false;
+  }
+}
+
+export async function scrollCollection(
+  collection: CollectionName,
+  limit = 100,
+  offset?: string,
+): Promise<{ points: PointResult[]; nextPageOffset?: string }> {
+  try {
+    const body: Record<string, unknown> = {
+      limit,
+      with_payload: true,
+    };
+    if (offset) body.offset = offset;
+
+    const res = await fetch(`${QDRANT_URL}/collections/${collection}/points/scroll`, {
+      method: 'POST',
+      headers: QDRANT_HEADERS,
+      body: JSON.stringify(body),
+    });
+
+    if (!res.ok) {
+      console.error(`[Qdrant] Scroll failed for ${collection}:`, await res.text());
+      return { points: [] };
+    }
+
+    const data = (await res.json()) as {
+      result?: { points?: PointResult[]; next_page_offset?: string };
+    };
+
+    return {
+      points: data.result?.points ?? [],
+      nextPageOffset: data.result?.next_page_offset as string | undefined,
+    };
+  } catch (err) {
+    console.error(`[Qdrant] Scroll error (${collection}):`, err);
+    return { points: [] };
+  }
+}

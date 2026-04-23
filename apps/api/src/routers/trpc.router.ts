@@ -19,6 +19,7 @@ import { emailRouter } from "@backend/modules/email/email.trpc";
 import { webhookRouter } from "@backend/modules/webhooks/webhooks.trpc";
 import { mcpConectorRouter } from "@backend/modules/mcp-connectors/mcp-conectores.trpc";
 import { conteudoRouter } from "@backend/modules/content-engine/conteudos.trpc";
+import { trieveRouter } from "@backend/modules/trieve/trieve.trpc";
 import { publicProcedure, trpcRouter } from "@backend/trpc";
 
 export const appTrpcRouter = trpcRouter({
@@ -48,6 +49,7 @@ export const appTrpcRouter = trpcRouter({
 	webhooks: webhookRouter,
 	mcpConectores: mcpConectorRouter,
 	conteudos: conteudoRouter,
+	trieve: trieveRouter,
 });
 
 export type AppTrpcRouter = typeof appTrpcRouter;

@@ -108,6 +108,10 @@ export const routerObjectWithNavbar: ReactRouterWithNavbar[] = [
 						Component: lazy(() => import("@frontend/modules/maintenance/maintenance.router")),
 					},
 					{
+						path: "rag/*",
+						Component: lazy(() => import("@frontend/modules/rag/rag.router")),
+					},
+					{
 						path: "settings/*",
 						Component: lazy(() => import("@frontend/modules/settings/settings.router")),
 					},
