@@ -1,7 +1,7 @@
-import { Typography } from "@connected-repo/ui-mui/data-display/Typography";
-import { Box } from "@connected-repo/ui-mui/layout/Box";
-import { Container } from "@connected-repo/ui-mui/layout/Container";
-import { Paper } from "@connected-repo/ui-mui/layout/Paper";
+import { Typography } from "@repo/ui-mui/data-display/Typography";
+import { Box } from "@repo/ui-mui/layout/Box";
+import { Container } from "@repo/ui-mui/layout/Container";
+import { Paper } from "@repo/ui-mui/layout/Paper";
 import { useNavigate } from "react-router";
 
 export default function SettingsPage() {

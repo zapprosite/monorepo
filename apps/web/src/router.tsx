@@ -1,5 +1,5 @@
-import { CircularProgress } from "@connected-repo/ui-mui/feedback/CircularProgress";
-import { Box } from "@connected-repo/ui-mui/layout/Box";
+import { CircularProgress } from "@repo/ui-mui/feedback/CircularProgress";
+import { Box } from "@repo/ui-mui/layout/Box";
 import { ErrorFallback } from "@frontend/components/error_fallback";
 import { AppLayout } from "@frontend/components/layout/AppLayout";
 import { authLoader } from "@frontend/utils/auth.loader";

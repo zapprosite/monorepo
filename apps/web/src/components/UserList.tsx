@@ -1,9 +1,9 @@
-import { ErrorAlert } from "@connected-repo/ui-mui/components/ErrorAlert";
-import { LoadingSpinner } from "@connected-repo/ui-mui/components/LoadingSpinner";
-import { List, ListItem } from "@connected-repo/ui-mui/data-display/List";
-import { Typography } from "@connected-repo/ui-mui/data-display/Typography";
-import { Box } from "@connected-repo/ui-mui/layout/Box";
-import { Card, CardContent } from "@connected-repo/ui-mui/layout/Card";
+import { ErrorAlert } from "@repo/ui-mui/components/ErrorAlert";
+import { LoadingSpinner } from "@repo/ui-mui/components/LoadingSpinner";
+import { List, ListItem } from "@repo/ui-mui/data-display/List";
+import { Typography } from "@repo/ui-mui/data-display/Typography";
+import { Box } from "@repo/ui-mui/layout/Box";
+import { Card, CardContent } from "@repo/ui-mui/layout/Card";
 import { trpc } from "@frontend/utils/trpc.client";
 import { useQuery } from "@tanstack/react-query";
 

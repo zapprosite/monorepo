@@ -1,13 +1,13 @@
-import { ErrorAlert } from "@connected-repo/ui-mui/components/ErrorAlert";
-import { LoadingSpinner } from "@connected-repo/ui-mui/components/LoadingSpinner";
-import { Chip } from "@connected-repo/ui-mui/data-display/Chip";
-import { Typography } from "@connected-repo/ui-mui/data-display/Typography";
-import { Button } from "@connected-repo/ui-mui/form/Button";
-import { TextField } from "@connected-repo/ui-mui/form/TextField";
-import { Box } from "@connected-repo/ui-mui/layout/Box";
-import { Container } from "@connected-repo/ui-mui/layout/Container";
-import { Paper } from "@connected-repo/ui-mui/layout/Paper";
-import { MenuItem } from "@connected-repo/ui-mui/navigation/MenuItem";
+import { ErrorAlert } from "@repo/ui-mui/components/ErrorAlert";
+import { LoadingSpinner } from "@repo/ui-mui/components/LoadingSpinner";
+import { Chip } from "@repo/ui-mui/data-display/Chip";
+import { Typography } from "@repo/ui-mui/data-display/Typography";
+import { Button } from "@repo/ui-mui/form/Button";
+import { TextField } from "@repo/ui-mui/form/TextField";
+import { Box } from "@repo/ui-mui/layout/Box";
+import { Container } from "@repo/ui-mui/layout/Container";
+import { Paper } from "@repo/ui-mui/layout/Paper";
+import { MenuItem } from "@repo/ui-mui/navigation/MenuItem";
 import type { ReminderStatus, ReminderType } from "@repo/zod-schemas/crm_enums.zod";
 import {
 	REMINDER_STATUS_ENUM,

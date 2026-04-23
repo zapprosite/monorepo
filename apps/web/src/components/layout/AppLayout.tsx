@@ -1,4 +1,4 @@
-import { Box } from "@connected-repo/ui-mui/layout/Box";
+import { Box } from "@repo/ui-mui/layout/Box";
 import type { SessionInfo } from "@frontend/contexts/UserContext";
 import { useMediaQuery } from "@mui/material";
 import { useTheme } from "@mui/material/styles";

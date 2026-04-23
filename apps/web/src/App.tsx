@@ -6,8 +6,8 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  */
-import { LoadingSpinner } from "@connected-repo/ui-mui/components/LoadingSpinner";
-import { ThemeContextProvider } from "@connected-repo/ui-mui/theme/ThemeContext";
+import { LoadingSpinner } from "@repo/ui-mui/components/LoadingSpinner";
+import { ThemeContextProvider } from "@repo/ui-mui/theme/ThemeContext";
 import { ErrorFallback } from "@frontend/components/error_fallback";
 import { router } from "@frontend/router";
 import { Suspense } from "react";

@@ -1,17 +1,17 @@
-import { BuildIcon } from "@connected-repo/ui-mui/icons/BuildIcon";
-import { CalendarTodayIcon } from "@connected-repo/ui-mui/icons/CalendarTodayIcon";
-import { DashboardIcon } from "@connected-repo/ui-mui/icons/DashboardIcon";
-import { DescriptionIcon } from "@connected-repo/ui-mui/icons/DescriptionIcon";
-import { EventNoteIcon } from "@connected-repo/ui-mui/icons/EventNoteIcon";
-import { GridViewIcon } from "@connected-repo/ui-mui/icons/GridViewIcon";
-import { HomeIcon } from "@connected-repo/ui-mui/icons/HomeIcon";
-import { ListIcon } from "@connected-repo/ui-mui/icons/ListIcon";
-import { NotificationsIcon } from "@connected-repo/ui-mui/icons/NotificationsIcon";
-import { PeopleIcon } from "@connected-repo/ui-mui/icons/PeopleIcon";
-import { ViewKanbanIcon } from "@connected-repo/ui-mui/icons/ViewKanbanIcon";
-import { PostAddIcon } from "@connected-repo/ui-mui/icons/PostAddIcon";
-import { SettingsIcon } from "@connected-repo/ui-mui/icons/SettingsIcon";
-import { TrendingUpIcon } from "@connected-repo/ui-mui/icons/TrendingUpIcon";
+import { BuildIcon } from "@repo/ui-mui/icons/BuildIcon";
+import { CalendarTodayIcon } from "@repo/ui-mui/icons/CalendarTodayIcon";
+import { DashboardIcon } from "@repo/ui-mui/icons/DashboardIcon";
+import { DescriptionIcon } from "@repo/ui-mui/icons/DescriptionIcon";
+import { EventNoteIcon } from "@repo/ui-mui/icons/EventNoteIcon";
+import { GridViewIcon } from "@repo/ui-mui/icons/GridViewIcon";
+import { HomeIcon } from "@repo/ui-mui/icons/HomeIcon";
+import { ListIcon } from "@repo/ui-mui/icons/ListIcon";
+import { NotificationsIcon } from "@repo/ui-mui/icons/NotificationsIcon";
+import { PeopleIcon } from "@repo/ui-mui/icons/PeopleIcon";
+import { ViewKanbanIcon } from "@repo/ui-mui/icons/ViewKanbanIcon";
+import { PostAddIcon } from "@repo/ui-mui/icons/PostAddIcon";
+import { SettingsIcon } from "@repo/ui-mui/icons/SettingsIcon";
+import { TrendingUpIcon } from "@repo/ui-mui/icons/TrendingUpIcon";
 
 export interface NavItem {
 	/** Display label for the nav item */

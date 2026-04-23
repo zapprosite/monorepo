@@ -1,10 +1,10 @@
-import { ContentCard } from "@connected-repo/ui-mui/components/ContentCard";
-import { ErrorAlert } from "@connected-repo/ui-mui/components/ErrorAlert";
-import { PrimaryButton } from "@connected-repo/ui-mui/components/PrimaryButton";
-import { SuccessAlert } from "@connected-repo/ui-mui/components/SuccessAlert";
-import { Typography } from "@connected-repo/ui-mui/data-display/Typography";
-import { TextField } from "@connected-repo/ui-mui/form/TextField";
-import { Stack } from "@connected-repo/ui-mui/layout/Stack";
+import { ContentCard } from "@repo/ui-mui/components/ContentCard";
+import { ErrorAlert } from "@repo/ui-mui/components/ErrorAlert";
+import { PrimaryButton } from "@repo/ui-mui/components/PrimaryButton";
+import { SuccessAlert } from "@repo/ui-mui/components/SuccessAlert";
+import { Typography } from "@repo/ui-mui/data-display/Typography";
+import { TextField } from "@repo/ui-mui/form/TextField";
+import { Stack } from "@repo/ui-mui/layout/Stack";
 import { queryClient } from "@frontend/utils/queryClient";
 import { trpc } from "@frontend/utils/trpc.client";
 import { useMutation } from "@tanstack/react-query";

@@ -1,7 +1,7 @@
-import { Chip } from "@connected-repo/ui-mui/data-display/Chip";
-import { Typography } from "@connected-repo/ui-mui/data-display/Typography";
-import { Box } from "@connected-repo/ui-mui/layout/Box";
-import { Card, CardContent } from "@connected-repo/ui-mui/layout/Card";
+import { Chip } from "@repo/ui-mui/data-display/Chip";
+import { Typography } from "@repo/ui-mui/data-display/Typography";
+import { Box } from "@repo/ui-mui/layout/Box";
+import { Card, CardContent } from "@repo/ui-mui/layout/Card";
 import type { journalEntrySelectAllZod } from "@repo/zod-schemas/journal_entry.zod";
 import type { z } from "zod";
 
