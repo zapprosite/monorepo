@@ -1,19 +1,20 @@
 // Anti-hardcoded: all config via process.env
 // Agency Router — Hermes → skill dispatcher (CEO_REFRIMIX_bot supervisor)
+/* eslint-disable no-console */
 
-import { AGENCY_SKILLS, getSkillById, getSkillByTrigger } from '../skills/index.ts';
-import { TOOL_REGISTRY, createInitialState, type SupervisorState } from '../skills/tool_registry.ts';
-import { llmComplete } from '../litellm/router.ts';
+import { AGENCY_SKILLS, getSkillById, getSkillByTrigger } from '../skills/index.js';
+import { TOOL_REGISTRY, createInitialState, type SupervisorState } from '../skills/tool_registry.js';
+import { llmComplete } from '../litellm/router.js';
 // SPEC-068: Canonical circuit breaker — replaces inline HC-36 from SPEC-060
-import { isCallPermitted, recordSuccess, recordFailure } from '../skills/circuit_breaker.ts';
+import { isCallPermitted, recordSuccess, recordFailure } from '../skills/circuit_breaker.js';
 // Mem0 memory client — session persistence via Qdrant
-import { mem0GetRecent, mem0Store, addToSessionHistory, formatMem0Context } from '../mem0/client.ts';
+import { mem0GetRecent, mem0Store, addToSessionHistory, formatMem0Context } from '../mem0/client.js';
 // RAG context retrieval via Trieve
-import { ragRetrieve, type RagSearchResult } from '../skills/rag-instance-organizer.ts';
+import { ragRetrieve, type RagSearchResult } from '../skills/rag-instance-organizer.js';
 
 const BRAND_GUARDIAN_THRESHOLD = 0.8;
-const HUMAN_GATE_THRESHOLD = parseFloat(process.env.HUMAN_GATE_THRESHOLD ?? '0.7');
-const CEO_MODEL = process.env.CEO_MODEL ?? 'gpt-4o';
+const HUMAN_GATE_THRESHOLD = parseFloat(process.env['HUMAN_GATE_THRESHOLD'] ?? '0.7');
+const CEO_MODEL = process.env['CEO_MODEL'] ?? 'gpt-4o';
 
 // Per-session supervisor state (in-memory — survives across messages in same session)
 const _sessionStates = new Map<string, AgencySupervisorState>();
@@ -53,9 +54,9 @@ export async function routeToSkill(input: string, ctx: RouterContext): Promise<s
 async function storeInHistory(sessionId: string, role: 'user' | 'assistant', content: string): Promise<void> {
   const timestamp = Date.now();
   // Add to in-memory history
-  addToSessionHistory(sessionId, { sessionId, role, content, timestamp });
-  // Persist to Qdrant via Mem0
-  await mem0Store({ sessionId, role, content, timestamp });
+  addToSessionHistory(sessionId, { sessionId, role, content, timestamp, importance: 'normal' });
+  // Persist to Qdrant via Mem0 (timestamp generated internally)
+  await mem0Store({ sessionId, role, content });
 }
 
 /**
@@ -137,7 +138,7 @@ ${available}
 
 Responda apenas com o ID da skill (ex: agency-onboarding).`;
 
-  let content: string;
+  let content = '';
   try {
     const result = await llmComplete({
       messages: [{ role: 'user', content: prompt }],
@@ -145,16 +146,16 @@ Responda apenas com o ID da skill (ex: agency-onboarding).`;
       temperature: 0.1,
       model: CEO_MODEL,
     });
-    content = result.content;
+    if (result?.content) {
+      content = result.content;
+    }
   } catch (err) {
     // HC-23: LLM failure — return agency-ceo as safe fallback instead of propagating
     console.error('[agency_router] askCeoToRoute LLM failed:', err);
     return 'agency-ceo';
   }
-  const rawSkillId = content
-    .trim()
-    .split('\n')[0]
-    .replace(/[^a-z-]/g, '');
+  const firstLine = ((content as string) || '').trim().split('\n')[0] ?? '';
+  const rawSkillId = firstLine.replace(/[^a-z-]/g, '');
 
   // Defense-in-depth: validate against known skill IDs whitelist
   const validSkillIds = new Set(AGENCY_SKILLS.map((s) => s.id));
@@ -170,7 +171,7 @@ Responda apenas com o ID da skill (ex: agency-onboarding).`;
 async function executeSkill(
   skillId: string,
   input: string,
-  ctx: RouterContext,
+  _ctx: RouterContext,
   sessionId: string,
 ): Promise<string> {
   // SPEC-068: Circuit breaker — reject if OPEN
@@ -211,26 +212,6 @@ async function executeSkill(
 
     // ─────────────────────────────────────────────────────────────────────
     // CEO_REFRIMIX_bot: Execute skill tools in sequence
-    // Inject memory + RAG context before calling tools
-    // ─────────────────────────────────────────────────────────────────────
-
-    // Fetch memory context for this session
-    const recentMemory = await mem0GetRecent(sessionId, 5);
-    const memoryContext = formatMem0Context(recentMemory);
-
-    // Fetch RAG context based on user query
-    let ragContext = '// No RAG context';
-    try {
-      const ragResults = await ragRetrieve(input, 3);
-      if (ragResults.length > 0) {
-        ragContext = ragResults
-          .map((r: RagSearchResult) => `— [score:${r.score.toFixed(2)}] ${r.content.slice(0, 300)}`)
-          .join('\n');
-      }
-    } catch (ragErr) {
-      console.warn('[agency_router] RAG retrieve failed:', ragErr);
-    }
-
     // Store assistant response in history after tools complete
     const toolResults: Array<{ tool: string; result: unknown }> = [];
     for (const toolName of skill.tools) {
