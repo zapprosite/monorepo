@@ -12,11 +12,11 @@
 ### 1.1 Trieve Cloud Shutdown — Critical Update
 
 **Trieve Cloud foi descontinuado em Novembro de 2025.**
-Apenas self-hosting via Docker Compose permanece como opção.
+Apenas self-hosting via Docker Compose permanece como opcao.
 
-**Implicação para SPEC-092:**
-- SPEC-092 menciona "Trieve Cloud" como opção — **DEVE ser atualizado para refletir apenas self-hosting**
-- Deployment via Coolify já está alinhado com a documentação atual
+**Implicacao para SPEC-092:**
+- SPEC-092 menciona "Trieve Cloud" como opcao — **DEVE ser atualizado para refletir apenas self-hosting**
+- Deployment via Coolify ja esta alinhado com a documentacao atual
 
 ### 1.2 Port Conflict — `:6435` Not Registered
 
@@ -27,18 +27,18 @@ Apenas self-hosting via Docker Compose permanece como opção.
 | `:6333` | ✅ RESERVED (Qdrant) |
 | `:6435` | ❌ **AUSENTE** — Precisa ser adicionado |
 
-**Ação necessária:** Adicionar `:6435 → Trieve (RAG API)` à seção Reserved Ports.
+**Acao necessaria:** Adicionar `:6435 → Trieve (RAG API)` a secao Reserved Ports.
 
 ### 1.3 Qdrant Collection Separation — Correct
 
-SPEC-092 sugere collections separadas (`mem0` vs `trieve`). **Isso está alinhado com a arquitetura atual:**
+SPEC-092 sugere collections separadas (`mem0` vs `trieve`). **Isso esta alinhado com a arquitetura atual:**
 
-| Collection | Usado por | Propósito |
+| Collection | Usado por | Proposito |
 |------------|-----------|-----------|
-| `will` | Mem0 (mcp-memory) | Memória de preferências/fatos |
+| `will` | Mem0 (mcp-memory) | Memoria de preferencias/fatos |
 | `trieve` | Trieve (future) | Knowledge retrieval de documentos |
 
-**Padrão existente em `mcps/mcp-memory/server_simple.py`:**
+**Padrao existente em `mcps/mcp-memory/server_simple.py`:**
 ```python
 COLLECTION_NAME = os.getenv("MEM0_COLLECTION", "will")  # 768-dim vectors
 ```
@@ -46,7 +46,7 @@ COLLECTION_NAME = os.getenv("MEM0_COLLECTION", "will")  # 768-dim vectors
 ### 1.4 Embedding Model — Already Available
 
 SPEC-092 recomenda `nomic-ai/e5-mistral-7b-instruct` ou `BAAI/bge-m3`.
-**Encontrado:** Ollama já tem `nomic-ai/e5-mistral-7b-instruct` disponível.
+**Encontrado:** Ollama ja tem `nomic-ai/e5-mistral-7b-instruct` disponivel.
 
 ```bash
 # Verificar modelos Ollama
@@ -55,56 +55,118 @@ ollama list | grep -E "e5|bge"
 
 ---
 
-## 2. Especificações que Precisam de Update
+## 2. Especificacoes que Precisam de Update
 
 ### 2.1 PORTS.md — Adicionar `:6435`
 
 **Local:** `/srv/ops/ai-governance/PORTS.md`
 
-**Adicionar à tabela Reserved Ports:**
+**Adicionar a secao Reserved Ports:**
 ```markdown
 | 6435 | Trieve (RAG API)         | RESERVED (SPEC-092) |
 ```
 
-**Adicionar à tabela Available Ports:**
+**Adicionar a secao Available Ports:**
 ```markdown
 | 6435 | Free (reserved for Trieve per SPEC-092) |
 ```
 
-### 2.2 SUBDOMAINS.md — Trieve não requer subdomain
+### 2.2 SUBDOMAINS.md — Trieve nao requer subdomain
 
-Trieve é **localhost-only** (CLI/Telegram access). Não há necessidade de subdomain público.
+Trieve e **localhost-only** (CLI/Telegram access). Nao ha necessidade de subdomain publico.
 
-### 2.3 SPEC-092.md — Correções Necessárias
+### 2.3 SPEC-092.md — Correcoes Necessarias
 
-| Seção | Problema | Recomendação |
+| Secao | Problema | Recomendacao |
 |-------|----------|--------------|
-| "Por que Trieve" | Menciona "Trieve Cloud" | Remover referência — apenas self-hosted |
+| "Por que Trieve" | Menciona "Trieve Cloud" | Remover referencia — apenas self-hosted |
 | docker-compose | Image tag `latest` | Considerar pinned version (ex: `trieve/trieve:v0.21.0`) |
-| Comandos curl | Bearer token no header | Documentar que `TRIEVE_API_KEY` é gerado no primeiro login |
+| docker-compose | IP errado: `10.0.9.1` | Corrigir para `10.0.19.5` (Coolify net) |
+| docker-compose | Auth scheme `Bearer` | Corrigir para `ApiKey` (Trieve usa API key) |
+| Comandos curl | Bearer token no header | Documentar que `TRIEVE_API_KEY` e gerado no primeiro login |
 | Roadmap | Sem timeline realista | Atualizar com horas estimadas mais precisas |
 
 ---
 
-## 3. AGENTS.md — Adicionar Seção RAG
+## 3. Corrections Applied to SPEC-092
 
-**Recomendação:** Adicionar seção para documentar o padrão RAG/Memory do sistema.
+### 3.1 IP Correction: `10.0.9.1` → `10.0.19.5`
 
-### 3.1 Adicionar a AGENTS.md
+O IP do Qdrant no Coolify network e `10.0.19.5` (conforme PORTS.md linha 192):
+```
+| 6333  | Qdrant        | Coolify net (10.0.19.5) | Containers: `10.0.19.5:6333`         |
+```
+
+**Correcao no docker-compose:**
+```yaml
+# ANTES (incorreto)
+- QDRANT_URL=http://10.0.9.1:6333
+
+# DEPOIS (correto)
+- QDRANT_URL=http://10.0.19.5:6333
+```
+
+### 3.2 Auth Scheme Correction: `Bearer` → `ApiKey`
+
+Trieve utiliza `ApiKey` scheme no header, nao `Bearer`.
+
+**Correcao nos comandos curl:**
+```bash
+# ANTES (incorreto)
+-H "Authorization: Bearer $TRIEVE_API_KEY"
+
+# DEPOIS (correto)
+-H "Authorization: ApiKey $TRIEVE_API_KEY"
+```
+
+### 3.3 PORTS.md — `:6435` Adicionado
+
+**Entrada a adicionar em Reserved Ports:**
+```
+| 6435 | Trieve (RAG API)         | RESERVED (SPEC-092) |
+```
+
+### 3.4 docker-compose Corrigido
+
+```yaml
+services:
+  trieve:
+    image: trieve/trieve:latest
+    ports:
+      - "6435:3000"
+    environment:
+      - QDRANT_URL=http://10.0.19.5:6333
+      - QDRANT_COLLECTION=trieve
+      - OLLAMA_BASE_URL=http://10.0.19.5:11434
+      - EMBEDDING_MODEL=nomic-ai/e5-mistral-7b-instruct
+      - RERANK_MODEL=BAAI/bge-reranker-base
+      - DATABASE_URL=sqlite:///srv/data/trieve/trieve.db
+    volumes:
+      - /srv/data/trieve:/run/trieve
+    restart: unless-stopped
+```
+
+---
+
+## 4. AGENTS.md — Adicionar Secao RAG
+
+**Recomendacao:** Adicionar secao para documentar o padrao RAG/Memory do sistema.
+
+### 4.1 Adicionar a AGENTS.md
 
 ```markdown
 ## RAG & Memory Stack
 
-| Componente | Port | Collection | Propósito |
+| Componente | Port | Collection | Proposito |
 |------------|------|------------|-----------|
 | Qdrant | :6333 | — | Vector DB (backend) |
-| Mem0 (mcp-memory) | :4016 | `will` | Memory layer: preferências/fatos |
+| Mem0 (mcp-memory) | :4016 | `will` | Memory layer: preferencias/fatos |
 | Trieve (future) | :6435 | `trieve` | RAG: knowledge/documents |
 
-### Padrão de Acesso
+### Padrao de Acesso
 
 ```python
-# Mem0 (preferências) — via MCP
+# Mem0 (preferencias) — via MCP
 POST http://localhost:4016/tools/memory_search
 {"query": "qual o nome do meu projeto?", "limit": 3}
 
@@ -115,14 +177,14 @@ POST http://localhost:6435/api/v1/search
 
 ### Anti-Pattern
 
-❌ **NÃO confundir Mem0 com Trieve:**
-- Mem0 = memória de preferências/agentes (quem sou eu, o que gosto)
-- Trieve = retrieval de documentos/knowledge (como fazer X,文档)
+❌ **NAO confundir Mem0 com Trieve:**
+- Mem0 = memoria de preferencias/agentes (quem sou eu, o que gosto)
+- Trieve = retrieval de documentos/knowledge (como fazer X, documentacao)
 ```
 
 ---
 
-## 4. .env.example — Adicionar Trieve Variables
+## 5. .env.example — Adicionar Trieve Variables
 
 **Local:** `/srv/monorepo/.env.example`
 
@@ -134,13 +196,13 @@ TRIEVE_URL=http://localhost:6435
 TRIEVE_COLLECTION=trieve
 ```
 
-**Nota:** `TRIEVE_API_KEY` é gerado no primeiro login do Trieve (não tem default).
+**Nota:** `TRIEVE_API_KEY` e gerado no primeiro login do Trieve (nao tem default).
 
 ---
 
-## 5. Padrões de Código para Trieve Integration
+## 6. Padroes de Codigo para Trieve Integration
 
-### 5.1 Python Client Pattern (Futuro skill Hermes)
+### 6.1 Python Client Pattern (Futuro skill Hermes)
 
 ```python
 import os
@@ -155,7 +217,7 @@ async def rag_retrieve(query: str, top_k: int = 5) -> list[str]:
     async with httpx.AsyncClient(timeout=30.0) as client:
         response = await client.post(
             f"{TRIEVE_URL}/api/v1/search",
-            headers={"Authorization": f"Bearer {TRIEVE_API_KEY}"},
+            headers={"Authorization": f"ApiKey {TRIEVE_API_KEY}"},
             json={
                 "query": query,
                 "dataset_id": DATASET_ID,
@@ -168,19 +230,19 @@ async def rag_retrieve(query: str, top_k: int = 5) -> list[str]:
         return [r["chunk"]["content"] for r in results]
 ```
 
-### 5.2 Chunking Strategy Recomendada
+### 6.2 Chunking Strategy Recomendada
 
 | Strategy | Uso | Motivo |
 |----------|-----|--------|
-| `heading` | Markdown docs | Preserva estrutura de títulos (#, ##) |
-| `sentence` | Textos corridos | Padrão paraparágrafos |
-| `page` | PDFs | Quebra por página física |
+| `heading` | Markdown docs | Preserva estrutura de titulos (#, ##) |
+| `sentence` | Textos corridos | Padrao para paragrafos |
+| `page` | PDFs | Quebra por pagina fisica |
 
-**Decisão atual (SPEC-092):** `heading` — alinhado com docs do monorepo.
+**Decisao atual (SPEC-092):** `heading` — alinhado com docs do monorepo.
 
 ---
 
-## 6. Smoke Test Pattern para Trieve
+## 7. Smoke Test Pattern para Trieve
 
 **Local sugerido:** `/srv/monorepo/smoke-tests/smoke-trieve.sh`
 
@@ -192,46 +254,46 @@ set -e
 TRIEVE_URL="${TRIEVE_URL:-http://localhost:6435}"
 TRIEVE_API_KEY="${TRIEVE_API_KEY:-}"
 
-echo "🔍 Testing Trieve RAG..."
+echo "Testing Trieve RAG..."
 
 # 1. Health check
 curl -sf "$TRIEVE_URL/health" | jq -e '.status == "online"' || {
-    echo "❌ Trieve health check failed"
+    echo "Trieve health check failed"
     exit 1
 }
-echo "✅ Trieve is healthy"
+echo "Trieve is healthy"
 
 # 2. Search API (requires dataset)
 if [ -n "$TRIEVE_API_KEY" ] && [ -n "$DATASET_ID" ]; then
     RESULT=$(curl -sf -X POST "$TRIEVE_URL/api/v1/search" \
-        -H "Authorization: Bearer $TRIEVE_API_KEY" \
+        -H "Authorization: ApiKey $TRIEVE_API_KEY" \
         -H "Content-Type: application/json" \
         -d "{\"query\": \"test query\", \"dataset_id\": \"$DATASET_ID\", \"limit\": 3}")
-    echo "✅ Search API responded"
+    echo "Search API responded"
 else
-    echo "⚠️ Skipping search test (TRIEVE_API_KEY or DATASET_ID not set)"
+    echo "Skipping search test (TRIEVE_API_KEY or DATASET_ID not set)"
 fi
 
-echo "✅ Trieve smoke test complete"
+echo "Trieve smoke test complete"
 ```
 
 ---
 
-## 7. Resumo das Ações
+## 8. Resumo das Acoes
 
-| # | File | Ação | Prioridade |
+| # | File | Acao | Prioridade |
 |---|------|------|------------|
 | 1 | `PORTS.md` | Adicionar `:6435 → Trieve (RAG API)` | **HIGH** |
 | 2 | `.env.example` | Adicionar `TRIEVE_API_KEY`, `TRIEVE_URL`, `TRIEVE_COLLECTION` | **HIGH** |
-| 3 | `AGENTS.md` | Adicionar seção RAG & Memory Stack | MEDIUM |
-| 4 | `SPEC-092.md` | Remover referência Trieve Cloud, fix docker-compose tag | MEDIUM |
+| 3 | `AGENTS.md` | Adicionar secao RAG & Memory Stack | MEDIUM |
+| 4 | `SPEC-092.md` | Corrigir IP, auth scheme, docker-compose | **HIGH** |
 | 5 | `smoke-tests/` | Criar `smoke-trieve.sh` | LOW (futuro) |
 
 ---
 
-## 8. Out of Scope (Confirmado pelo SPEC-092)
+## 9. Out of Scope (Confirmado pelo SPEC-092)
 
-- Multi-usuário / ACLs
+- Multi-usuario / ACLs
 - UI web do Trieve
 - PDF parsing
 - Web crawling

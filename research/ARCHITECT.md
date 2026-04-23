@@ -1,48 +1,142 @@
-# ARCHITECT Research Report: SPEC-092 Trieve RAG Integration
+# ARCHITECT Research Report: SPEC-092 Trieve RAG Integration (REVISED)
 
 **Data:** 2026-04-23
 **SPEC:** SPEC-092 — Trieve RAG Integration
 **Autor:** ARCHITECT Agent
+**Status:** CORRECTED — contains critical infrastructure errors
 
 ---
 
-## 1. Key Findings
+## 1. Resumo Executivo
 
-### ✅ Infrastructure Readiness
+SPEC-092 possui **4 issues críticos** que impedem o deploy:
+
+| # | Issue | Severidade |
+|---|-------|-----------|
+| 1 | Qdrant URL incorreta (`10.0.9.1` não existe na topologia) | CRÍTICA |
+| 2 | Auth scheme divergente (`Bearer` vs `ApiKey`) | CRÍTICA |
+| 3 | Ollama URL incorreta (`OLLAMA_BASE_URL` não é variável do Trieve) | ALTA |
+| 4 | Embedding model não existente (`e5-mistral-7b-instruct` não está no Ollama) | ALTA |
+| 5 | Internal port inconsistente (SPEC: 3000, ARCHITECT: 8090) | MÉDIA |
+
+**Veredicto:** NÃO aprovo para deploy até correção.
+
+---
+
+## 2. Key Findings
+
+### 2.1 Infrastructure Readiness
 
 | Componente | Estado | Detalhes |
 |------------|--------|----------|
-| Qdrant `:6333` | ✅ Opera- cional | Docker proxy em `127.0.0.1:6333`, não precisa de API key localmente |
+| Qdrant `:6333` | ✅ Opera- cional | Coolify net `10.0.19.5:6333` — NÃO `10.0.9.1` |
 | Ollama `:11434` | ✅ Opera- cional | Systemd service, `nomic-embed-text:latest` disponível |
-| ai-gateway `:4002` | ✅ Opera- cional | OpenAI-compatible facade, `nomic-embed-text` também disponível via `/embeddings` |
-| Port range `:4002-4099` | ✅ Livre | Porta `:6435` disponível para Trieve |
+| ai-gateway `:4002` | ✅ Opera- cional | OpenAI-compatible facade |
+| Port range `:4002-4099` | ✅ Livre | Porta `:6435` disponível |
 
-### ⚠️ Critical Issues in SPEC-092
+### 2.2 Trieve Cloud Sunset
 
-1. **Wrong Qdrant URL**: SPEC-092 usa `http://10.0.9.1:6333` — IP de Coolify network não existe na nossa topologia. Qdrant está em `127.0.0.1:6333` via docker-proxy.
+Trieve Cloud foi **deprecated em November 2025** — self-hosting é o caminho correto. Confirmado.
 
-2. **Wrong Ollama env var**: SPEC-092 usa `OLLAMA_BASE_URL` — Trieve não usa essa variável. Deve usar `EMBEDDING_SERVER_ORIGIN` para embedding.
+### 2.3 Auth Scheme — DIVERGÊNCIA CRÍTICA
 
-3. **Trieve Cloud Sunset**: Trieve Cloud foi descontinuado em Nov 2025. Self-hosting é obrigatório.
+| Documento | Scheme |
+|-----------|--------|
+| SPEC-092 | `Bearer` |
+| ARCHITECT.md | `Bearer` |
+| SPEC-ANALYZER.md | `ApiKey` (conforme docs oficiais) |
+| CODER-1.md | `Bearer` |
+| CODER-2.md | `Bearer` |
 
-4. **Wrong embedding model**: `nomic-ai/e5-mistral-7b-instruct` não está no Ollama. Temos `nomic-embed-text:latest` — usar este.
+**SPEC-ANALYZER está correto.** Trieve usa `ApiKey` scheme, não `Bearer`.
+Correção obrigatória em TODO código.
+
+### 2.4 API Endpoints — Verificar
+
+SPEC-092 menciona:
+- `POST /api/v1/datasets`
+- `POST /api/v1/chunks`
+- `POST /api/v1/search`
+
+SPEC-ANALYZER indica que documentação oficial mostra `/api/chunk` para chunks.
+**Verificar OpenAPI spec em `https://api.trieve.ai` antes do deploy.**
+
+### 2.5 Ollama Embedding Variable — ERRADO
+
+SPEC-092 usa `OLLAMA_BASE_URL` — **Trieve não usa essa variável**.
+Variáveis corretas para embedding com Ollama:
+- `EMBEDDING_SERVER_ORIGIN` (embedding primário)
+- `EMBEDDING_SERVER_ORIGIN_BGEM3` (BGE-M3 embeddings)
+
+### 2.6 Embedding Model — NÃO EXISTE
+
+SPEC-092 especifica `nomic-ai/e5-mistral-7b-instruct`.
+**Ollama do homelab tem `nomic-embed-text:latest`** — já disponível.
+
+Se quiser BGE-M3:
+```bash
+ollama pull BAAI/bge-m3
+```
 
 ---
 
-## 2. Trieve Deployment Architecture (Corrected)
+## 3. Correções Críticas (antes do deploy)
 
-### Topologia Correta
+### 3.1 Qdrant URL — CORRIGIR IP
+
+```
+ERRADO:  QDRANT_URL=http://10.0.9.1:6333    # IP não existe na topologia
+CORRETO: QDRANT_URL=http://10.0.19.5:6333   # Coolify network (conforme PORTS.md)
+```
+
+**来源:** PORTS.md linha 192:
+> "6333 | qdrant | Coolify net (10.0.19.5) | Containers: `10.0.19.5:6333`"
+
+### 3.2 Auth Scheme — CORRIGIR para ApiKey
+
+```
+ERRADO:  Authorization: Bearer ${TRIEVE_API_KEY}
+CORRETO: Authorization: ApiKey ${TRIEVE_API_KEY}
+```
+
+**Fonte:** SPEC-ANALYZER.md §2.3 — verificado contra documentação oficial Trieve.
+
+### 3.3 Ollama Variable — CORRIGIR variável
+
+```
+ERRADO:  OLLAMA_BASE_URL=http://host.docker.internal:11434
+CORRETO: EMBEDDING_SERVER_ORIGIN=http://host.docker.internal:11434
+```
+
+### 3.4 Embedding Model — Usar disponível
+
+```
+ERRADO:  EMBEDDING_MODEL=nomic-ai/e5-mistral-7b-instruct
+CORRETO: EMBEDDING_MODEL=nomic-embed-text:latest
+```
+
+Ou fazer pull do modelo desejado:
+```bash
+ollama pull nomic-ai/e5-mistral-7b-instruct
+ollama pull BAAI/bge-m3
+```
+
+---
+
+## 4. Arquitetura Correta
+
+### 4.1 Topologia
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
-│                    TRIEVE (Docker)                          │
-│                      :6435 → :3000                          │
+│                    TRIEVE (Docker)                            │
+│                      :6435 → :3000 (interno)                  │
 │                                                              │
-│  server (Rust) ────────────────────────────────────────────  │
+│  server (Rust) ──────────────────────────────────────────── │
 │  │  • API v1 (/api/v1)                                      │
-│  │  • Health check: http://localhost:8090/api/health        │
-│  │  • Qdrant connection: localhost:6333                    │
-│  │  • Embedding: EMBEDDING_SERVER_ORIGIN → Ollama :11434    │
+│  │  • Health check: http://localhost:3000/api/health        │
+│  │  • Qdrant connection: 10.0.19.5:6333                    │
+│  │  • Embedding: EMBEDDING_SERVER_ORIGIN → Ollama         │
 │  │                                                            │
 │  ├── qdrant-database (embedded)                             │
 │  ├── redis (embedded)                                        │
@@ -54,174 +148,109 @@
          │                 │                 │
          ▼                 ▼                 ▼
     ┌─────────┐      ┌───────────┐    ┌──────────┐
-    │ Qdrant │      │  Ollama   │    │  Redis   │
-    │ :6333  │      │  :11434   │    │  :6379   │
+    │ Qdrant  │      │  Ollama   │    │  Redis   │
+    │ :6333   │      │  :11434  │    │  :6379   │
+    │10.0.19.5│      │ (host)   │    │          │
     └─────────┘      └───────────┘    └──────────┘
-         ▲
-         │
-    ┌─────────────┐
-    │   Docker    │
-    │   Network   │
-    └─────────────┘
 ```
 
-### docker-compose fragment (Correto)
+### 4.2 docker-compose CORRIGIDO
 
 ```yaml
 services:
   trieve:
     image: trieve/trieve:latest
-    network_mode: host
     ports:
-      - "6435:8090"  # API external
-      - "6436:5173"  # Dashboard (optional)
-      - "6437:5174"  # Search UI (optional)
+      - "6435:3000"
     environment:
-      - QDRANT_URL=http://localhost:6333
+      - QDRANT_URL=http://10.0.19.5:6333
       - QDRANT_API_KEY=${QDRANT_API_KEY:-}
       - DATABASE_URL=postgres://postgres:password@localhost:5432/trieve
       - REDIS_URL=redis://localhost:6379
-      - EMBEDDING_SERVER_ORIGIN=http://localhost:11434
-      - EMBEDDING_SERVER_ORIGIN_BGEM3=http://localhost:11434
-      - RERANKER_SERVER_ORIGIN=http://localhost:8080
       - CREATE_QDRANT_COLLECTIONS=true
+      # CORRIGIDO: Variável correta para Ollama
+      - EMBEDDING_SERVER_ORIGIN=http://host.docker.internal:11434
+      # Para BGE-M3:
+      # - EMBEDDING_SERVER_ORIGIN_BGEM3=http://host.docker.internal:11434
+      # Embedding model — CORRIGIDO: usar disponível
+      - EMBEDDING_MODEL=nomic-embed-text:latest
     volumes:
       - /srv/data/trieve:/run/trieve
       - /srv/data/trieve-db:/var/lib/postgresql/data
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     restart: unless-stopped
+    network_mode: bridge
 ```
 
----
-
-## 3. Environment Variables (Canonical)
-
-### Trieve Secrets (.env)
-
-```bash
-# Trieve Core
-TRIEVE_API_KEY=generate_with_openssl_rand_hex_32
-TRIEVE_URL=http://localhost:6435
-QDRANT_API_KEY=${QDRANT_API_KEY:-}  # Empty = localhost auth disabled
-```
-
-### Embedding Configuration
-
-Trieve usa `EMBEDDING_SERVER_ORIGIN` (não `OLLAMA_BASE_URL`):
-
-| Variável | Valor | Descrição |
-|----------|-------|-----------|
-| `EMBEDDING_SERVER_ORIGIN` | `http://localhost:11434` | Ollama para embeddings |
-| `EMBEDDING_SERVER_ORIGIN_BGEM3` | `http://localhost:11434` | BGE-M3 embeddings |
-| `RERANKER_SERVER_ORIGIN` | (optional) | Reranking endpoint |
-
-### Ollama Model
-
-Ollama disponível: `nomic-embed-text:latest` (137M params)
-
-**Se precisar de modelo melhor para embeddings:**
-```bash
-ollama pull nomic-ai/e5-mistral-7b-instruct
-```
-
-⚠️ **Nota:** E5-mistral é ~7B params e consome mais VRAM. `nomic-embed-text` é suficiente para a maioria dos casos.
-
----
-
-## 4. Qdrant Collection Strategy
-
-### Collections Separation
-
-Para evitar conflito entre Mem0 e Trieve:
-
-| Collection | Usado por | Purpose |
-|------------|-----------|---------|
-| `mem0` | Mem0 | User preferences/facts |
-| `trieve` | Trieve | Document retrieval |
-| (default) | Direct Qdrant | ad-hoc |
-
-Trieve cria collections automaticamente com `CREATE_QDRANT_COLLECTIONS=true`.
-
-### Verificar Collections Existentes
-
-```bash
-curl -s http://localhost:6333/collections \
-  -H "Authorization: Bearer ${QDRANT_API_KEY:-}" | python3 -m json.tool
-```
-
----
-
-## 5. API Integration (Hermes → Trieve)
-
-### Endpoint
-
-```
-http://localhost:6435/api/v1
-```
-
-### Search Example
-
-```bash
-curl -X POST http://localhost:6435/api/v1/search \
-  -H "Authorization: Bearer ${TRIEVE_API_KEY}" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "query": "como fazer deploy no coolify?",
-    "dataset_id": "uuid-do-dataset",
-    "limit": 5
-  }'
-```
-
-### Hermes Skill Pattern
+### 4.3 Trieve Client — CORRETO
 
 ```typescript
-// services/rag-retrieve.ts
-const TRIEVE_URL = process.env.TRIEVE_URL ?? 'http://localhost:6435';
-const TRIEVE_API_KEY = process.env.TRIEVE_API_KEY ?? '';
+// apps/hermes-agency/src/trieve/client.ts
+// Anti-hardcoded: all config via process.env
 
-export async function ragRetrieve(query: string, topK = 5): Promise<string[]> {
+const TRIEVE_URL = process.env['TRIEVE_URL'] ?? 'http://localhost:6435';
+const TRIEVE_API_KEY = process.env['TRIEVE_API_KEY'] ?? '';
+
+export interface TrieveChunk {
+  id: string;
+  content: string;
+  score: number;
+  metadata: {
+    source: string;
+    type: string;
+  };
+}
+
+export async function trieveSearch(
+  query: string,
+  datasetId: string,
+  limit = 5
+): Promise<TrieveChunk[]> {
   const response = await fetch(`${TRIEVE_URL}/api/v1/search`, {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${TRIEVE_API_KEY}`,
+      // CORRIGIDO: ApiKey scheme (não Bearer)
+      'Authorization': `ApiKey ${TRIEVE_API_KEY}`,
       'Content-Type': 'application/json',
+      'TR-Dataset': datasetId,
     },
     body: JSON.stringify({
       query,
-      limit: topK,
-      // dataset_id set at skill initialization
+      limit,
     }),
   });
 
   if (!response.ok) {
-    throw new Error(`Trieve search failed: ${response.statusText}`);
+    throw new Error(`Trieve search failed: ${response.status}`);
   }
 
-  const data = await response.json();
-  return data.results.map((r: { chunk: { content: string } }) => r.chunk.content);
+  const data = (await response.json()) as { results: TrieveChunk[] };
+  return data.results;
 }
 ```
 
 ---
 
+## 5. Qdrant Collection Strategy
+
+### Collections Separation
+
+| Collection | Usado por | Purpose |
+|------------|-----------|---------|
+| `mem0` | Mem0 | User preferences/facts |
+| `trieve` | Trieve | Document retrieval |
+| `agency_*` | Hermes Agency | ad-hoc knowledge |
+
+**Não há conflito** — collections são namespace-separated.
+
+Trieve cria collections automaticamente com `CREATE_QDRANT_COLLECTIONS=true`.
+
+---
+
 ## 6. Updates Necessárias
 
-### AGENTS.md (Add RAG Skill)
-
-```markdown
-## Hermes Voice+Vision (SPEC-053)
-...
-### RAG Integration (SPEC-092)
-
-| Skill | Script | Descrição |
-|-------|--------|-----------|
-| `rag-retrieve` | `skills/rag-retrieve.ts` | Search Trieve RAG pipeline |
-
-**Environment:**
-- `TRIEVE_URL=http://localhost:6435`
-- `TRIEVE_API_KEY` (from .env)
-```
-
-### PORTS.md (Add Trieve)
+### PORTS.md — Adicionar Trieve
 
 Adicionar à tabela **Available Ports (Dev Use)**:
 
@@ -231,96 +260,73 @@ Adicionar à tabela **Available Ports (Dev Use)**:
 | 6435 | RESERVED | Trieve RAG API |
 ```
 
-Adicionar à tabela **Active Ports**:
+Adicionar à tabela **Active Ports — Docker Compose**:
 
 ```markdown
-| Port | Process | Access | Function |
-|------|---------|--------|----------|
+| Port | Container | Access | Function |
+| ---- | --------- | ------ | -------- |
 | 6435 | docker-proxy → trieve | localhost | Trieve RAG API |
 ```
 
-### .env / .env.example (Add Trieve vars)
+### SUBDOMAINS.md — Adicionar se exposto externamente
+
+```markdown
+| Subdomain | Target | Purpose |
+| --------- | ------ | -------- |
+| trieve.zappro.site | localhost:6435 | Trieve RAG (se exposto) |
+```
+
+### .env / .env.example — Adicionar Trieve vars
 
 ```bash
 # Trieve RAG (SPEC-092)
-TRIEVE_API_KEY=generate_with_openssl_rand_hex_32
-TRIEVE_URL=http://localhost:6435
-QDRANT_API_KEY=
-```
-
----
-
-## 7. Deployment Steps (Refined)
-
-### FASE 1 — Setup
-
-```bash
-# 1. Pull Trieve image
-docker pull trieve/trieve:latest
-
-# 2. Create data directories
-mkdir -p /srv/data/trieve /srv/data/trieve-db
-
-# 3. Create .env for Trieve
-cat >> /srv/monorepo/.env << 'EOF'
 TRIEVE_API_KEY=$(openssl rand -hex 32)
 TRIEVE_URL=http://localhost:6435
 QDRANT_API_KEY=
-EOF
-
-# 4. Start Trieve
-docker run -d \
-  --name trieve \
-  --network host \
-  -p 6435:8090 \
-  -p 6436:5173 \
-  -p 6437:5174 \
-  -e QDRANT_URL=http://localhost:6333 \
-  -e QDRANT_API_KEY \
-  -e DATABASE_URL=postgres://postgres:password@localhost:5432/trieve \
-  -e REDIS_URL=redis://localhost:6379 \
-  -e EMBEDDING_SERVER_ORIGIN=http://localhost:11434 \
-  -e EMBEDDING_SERVER_ORIGIN_BGEM3=http://localhost:11434 \
-  -e CREATE_QDRANT_COLLECTIONS=true \
-  -v /srv/data/trieve:/run/trieve \
-  -v /srv/data/trieve-db:/var/lib/postgresql/data \
-  --restart unless-stopped \
-  trieve/trieve:latest
-
-# 5. Wait and check health
-sleep 30
-curl -sf http://localhost:6435/api/health || echo "Trieve not ready yet"
 ```
-
-### FASE 2 — Indexação
-
-```bash
-# Get API key from .env
-TRIEVE_API_KEY=$(grep TRIEVE_API_KEY /srv/monorepo/.env | cut -d= -f2)
-
-# Create dataset
-curl -X POST http://localhost:6435/api/v1/datasets \
-  -H "Authorization: Bearer $TRIEVE_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{"name": "hermes-knowledge", "description": "Hermes Second Brain + SPECs"}'
-```
-
-### FASE 3 — Integração
-
-Criar skill `rag-retrieve` em `hermes-second-brain/skills/`.
 
 ---
 
-## 8. Risk Assessment (Updated)
+## 7. Riscos e Mitigações
 
 | Risco | Prob | Impacto | Mitigação |
 |-------|------|---------|-----------|
-| Qdrant collection conflict com Mem0 | **ALTA** | Alto | Collections separadas: `mem0` vs `trieve` (default) |
-| Embedding model mismatch | Média | Médio | Usar `nomic-embed-text` que já existe |
-| Trieve version incompatibility | Baixa | Alto | Testar com Qdrant 1.7+ (temos 1.12) |
+| Qdrant IP errado | **ALTA** | Alto | Usar `10.0.19.5:6333` conforme PORTS.md |
+| Auth scheme errado | **ALTA** | Alto | Usar `ApiKey` scheme conforme docs oficiais |
+| Ollama variable errada | **ALTA** | Alto | Usar `EMBEDDING_SERVER_ORIGIN` |
+| Embedding model não existe | **MÉDIA** | Alto | Usar `nomic-embed-text:latest` ou fazer pull |
+| Trieve API breaking changes | Baixa | Alto | Lock version tag (`trieve/trieve:v0.21.0`) |
 | Context window overflow | Média | Médio | Limitar `top_k=5` chunks |
 
-⚠️ **Aviso:** Mem0 e Trieve vão competir pelo mesmo Qdrant instance. Mitigação: collections separadas via `CREATE_QDRANT_COLLECTIONS=true` (Trieve cria `trieve` collection).
+---
+
+## 8. Cronologia de Implementação
+
+```
+FASE 1 — Setup (1-2h)
+  ├── Deploy Trieve via Docker Compose
+  │   └── CORREÇÕES: QDRANT_URL=10.0.19.5:6333, EMBEDDING_SERVER_ORIGIN
+  ├── Configurar Qdrant collection
+  ├── Testar search API com curl (usando ApiKey auth)
+  └── Verificar embedding via Ollama (nomic-embed-text)
+
+FASE 2 — Indexação (2-3h)
+  ├── Criar dataset "hermes-knowledge"
+  ├── Indexar hermes-second-brain (skills, TREE.md)
+  ├── Indexar SPECs ativos do monorepo
+  └── Indexar /srv/ops/ai-governance/
+
+FASE 3 — Integração Hermes (3-4h)
+  ├── Criar skill `rag-retrieve` (TypeScript)
+  ├── Integrar no fluxo de contexto
+  ├── Testar retrieval + generation
+  └── Documentar workflow
+
+FASE 4 — Expansão (opcional)
+  ├── Indexar hvacr-swarm/docs
+  ├── Indexar monorepo README.md
+  └── Adicionar reranking (BAAI/bge-reranker)
+```
 
 ---
 
@@ -341,3 +347,8 @@ Criar skill `rag-retrieve` em `hermes-second-brain/skills/`.
 - [Trieve Self-Hosting](https://docs.trieve.ai/self-hosting/docker-compose)
 - [BGE Embeddings](https://huggingface.co/BAAI/bge-m3)
 - [Qdrant](https://qdrant.tech)
+- [SPEC-ANALYZER.md](../SPEC-ANALYZER.md)
+- [CODER-1.md](../CODER-1.md)
+- [CODER-2.md](../CODER-2.md)
+- [PORTS.md](/srv/ops/ai-governance/PORTS.md)
+- [NETWORK_MAP.md](/srv/ops/ai-governance/NETWORK_MAP.md)

@@ -1,3 +1,5 @@
+import { RAG_INSTANCE_ORGANIZER } from './rag-instance-organizer.js';
+
 // Anti-hardcoded: all config via process.env
 // Hermes Agency Suite — Skill Registry
 
@@ -68,6 +70,13 @@ const REGISTERED_TOOLS = new Set<string>([
   'approve_content',
   'flag_for_review',
   'score_content',
+  // RAG / Instance Organizer
+  'rag_retrieve',
+  'rag_index_document',
+  'rag_list_datasets',
+  'rag_create_dataset',
+  'rag_search',
+  'qdrant_query',
   // Client Success
   'send_nps_survey',
   'collect_feedback',
@@ -117,6 +126,8 @@ function _validateSkills(skills: readonly Skill[]): void {
     }
   }
 }
+
+  RAG_INSTANCE_ORGANIZER,
 
 export const AGENCY_SKILLS: readonly Skill[] = [
   {
@@ -232,6 +243,14 @@ export const AGENCY_SKILLS: readonly Skill[] = [
       'score_content',
     ],
     triggers: ['brand', 'marca', 'consistência', 'approvar', 'revisar'],
+  },
+  {
+    id: 'rag-instance-organizer',
+    name: 'INSTANCE ORGANIZER',
+    description:
+      'Organiza instâncias RAG por app ou lead. Cria datasets, indexa documentos, e recupera conhecimento contextual.',
+    tools: ['rag_retrieve', 'rag_index_document', 'rag_list_datasets', 'rag_search', 'qdrant_query'],
+    triggers: ['organizar instância', 'instance organizer', 'novo dataset', 'indexar docs', 'buscar contexto', 'rag', 'knowledge base'],
   },
   {
     id: 'agency-client-success',

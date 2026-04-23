@@ -1,256 +1,305 @@
-# REVIEWER Report — SPEC-092 Trieve RAG Integration
+# REVIEWER Report — SPEC-092 Code Review
 
-**Data:** 2026-04-23
+**Date:** 2026-04-23
 **Reviewer:** Claude Code (REVIEWER agent)
-**Spec:** SPEC-092-trieve-rag-integration.md
-**Status:** DRAFT
+**SPEC:** SPEC-092-trieve-rag-integration.md
+**Branch:** `feature/spec-092-trieve-rag`
+**Status:** REVISION NEEDED
 
 ---
 
-## 1. Key Findings
+## 1. Executive Summary
 
-### 1.1 SPEC Status: DRAFT — Pending Approval
+SPEC-092 proposes integrating **Trieve** as a RAG (Retrieval-Augmented Generation) layer for the homelab. The research phase produced 11 comprehensive documents covering architecture, security, testing, and deployment. **However, no production code was written** — only documentation and research reports.
 
-O SPEC-092 está marcado como `draft` no frontmatter e listando William como "Review". Não há evidências de que foi implementado ou aprovado.
+### Verdict: **REVISION NEEDED** (Not Ready for Approval)
 
-### 1.2 Trieve Maintenance Concern (⚠️ MEDIUM RISK)
-
-| Aspecto | Finding |
-|---------|--------|
-| **Última release** | `trieve-helm-0.2.2` — Março 2025 (13+ meses atrás) |
-| **Commits** | 5,608 (vs 2.6k estrelas no GitHub) |
-| **Docker images** | `trieve/server`, `trieve/chat`, `trieve/ingest`, `trieve/file_worker` — todas com 0 stars oficiais |
-| **Verdict** | Trieve parece menos ativo que o reivindicado. 13 meses sem release é preocupante para um projeto "production-ready" |
-
-**Recomendação:** Validar se Trieve ainda está em desenvolvimento ativo antes de investir 6-9h de implementação. Alternativas: [Quivr](https://github.com/QuivrHQ/quivr) (21k stars, mais ativo) ou построить RAG custom com FastAPI + Qdrant.
-
-### 1.3 Qdrant Network Topology (❌ ISSUE)
-
-O SPEC usa `http://10.0.9.1:6333` para Qdrant, mas a infraestrutura real é diferente:
-
-| Rede | Range | Qdrant |
-|------|-------|--------|
-| Coolify network | `10.0.19.x` | ✅ Qdrant container lá |
-| docker0 | `10.0.1.x` | Ollama |
-| mcp-memory network | `10.0.13.2` | Qdrant acessível via container |
-
-**Teste realizado:**
-```bash
-curl http://localhost:6333/health  # FALHOU
-curl http://10.0.19.5:6333/health  # FALHOU (Qdrant não neste IP)
-docker inspect qdrant-c95x9bgnhpedt0zp7dfsims7 # IP: 10.0.13.2
-```
-
-**mcp-memory está OK** usando `http://127.0.0.1:6333` dentro do container Docker. Qdrant real está em `10.0.13.2:6333` (no mcp-memory network).
-
-### 1.4 Conflito de collections Mem0 vs Trieve (⚠️ RISK)
-
-| Componente | Collection | Status |
-|-----------|------------|--------|
-| mcp-memory (Mem0) | `will` | ✅ OK |
-| Trieve (proposto) | `trieve` | ❌ diferente do Mem0 — OK |
-
-O SPEC menciona "Collections separadas: `mem0` vs `trieve`" — isso está correto e mitiga o risco.
-
-### 1.5 API Endpoint Mismatch (❌ ISSUE)
-
-O SPEC assume endpoints `/api/v1/` (padrão REST), mas os docs reais mostram:
-
-| Operation | SPEC | Docs Trieve |
-|-----------|------|-------------|
-| Adicionar chunk | `/api/v1/chunks` | `/api/chunk` |
-| Dataset ID header | Bearer token | `TR-Dataset` (UUID) |
-| Health | `/health` | Não confirmado nos docs |
-
-**Verificar:** `https://api.trieve.ai/llms.txt` para API completa.
-
-### 1.6 Existing RAG Infrastructure
-
-| Componente | Status | Notes |
-|-----------|--------|-------|
-| mcp-memory (Mem0) | ✅ ACTIVE | Porta 4016, MCP server, colecao "will" |
-| Qdrant | ✅ ACTIVE (Coolify) | Container `qdrant-c95x9bgnhpedt0zp7dfsims7` |
-| Ollama embeddings | ✅ ACTIVE | `nomic-embed-text:latest` disponível |
-| SPEC-074 (Second Brain) | ✅ ACTIVE | draft origin, mas implementação Mem0 existe |
-| RAG flow (data-flow.md) | ✅ EXISTS | LiteLLM → Qdrant → context |
-
-**Conclusão:** Já existe pipeline RAG básico usando Mem0+Qdrant. Trieve seria uma CAMADA ADICIONAL, não substituição.
-
-### 1.7 Port 6435 — Available ✅
-
-Porta livre na faixa 4002-4099. Nenhum serviço em uso.
-
-### 1.8 Herme Agent Integration — No Existing Skill
-
-O SPEC propõe criar skill `rag-retrieve` para Hermes, mas:
-- AGENTS.md não menciona RAG ou retrieval skills
-- Não há referência a Trieve em nenhum agent skill existente
-- Hermes Agency (apps/hermes-agency) não tem código de RAG
+Critical issues blocking FASE 1 execution:
+1. Docker-compose fragment uses wrong port (3000 instead of 8090)
+2. Qdrant network topology incorrect (IP 10.0.9.1 does not exist)
+3. Trieve multi-container complexity severely underestimated (9+ containers, not 1)
+4. Authentication scheme discrepancy (Bearer vs ApiKey)
+5. Trieve Cloud sunset (Nov 2025) not mentioned in SPEC
 
 ---
 
-## 2. Specific Recommendations
+## 2. Code Quality Assessment
 
-### 2.1 Update PORTS.md — Required Before Deploy
+### 2.1 What Was Delivered
 
-Adicionar entrada para Trieve (assim que decidido):
+| Deliverable | Status | Notes |
+|-------------|--------|-------|
+| SPEC-092.md | ✅ Complete | Well-structured, clear rationale |
+| ARCHITECT.md | ✅ Complete | Infrastructure topology, env vars |
+| CODER-1.md | ✅ Complete | Service client pattern recommendations |
+| CODER-2.md | ✅ Complete | Frontend/RAG display patterns |
+| SECURITY.md | ✅ Complete | 6.8/10, APPROVED WITH MITIGATIONS |
+| TESTER.md | ✅ Complete | Verification checklist, smoke test |
+| DOCS.md | ✅ Complete | Port registration, .env updates |
+| SMOKE.md | ✅ Complete | Smoke test script |
+| SECRETS.md | ✅ Complete | API key management |
+| GIT.md | ⚠️ Critical | Reveals Trieve is 9+ containers |
+| SHIPPER.md | ✅ Complete | Deployment recommendations |
+| SPEC-ANALYZER.md | ✅ Complete | API endpoint verification |
+| **Actual Code** | ❌ **NONE** | Only docs, no implementation |
 
-```markdown
-| Trieve  | Docker     | 6435   | RAG API (chunking + search)     |
-```
+### 2.2 Code Quality Observations
 
-### 2.2 Update SUBDOMAINS.md — Only If Public
+Since no code was implemented, quality assessment is limited to the pseudo-code examples in research documents:
 
-Se Trieve for exposto (não recomendado para v1 — CLI-only):
-```markdown
-| trieve.zappro.site | 6435 | PLANNED | Trieve RAG API |
-```
+**Strengths:**
+- Anti-hardcoded pattern consistently applied (all config via env vars)
+- Fail-fast validation recommended in security reviews
+- Proper error handling patterns in examples
+- Separation of concerns (collections, services)
 
-### 2.3 Consider Alternative: Custom RAG Pipeline
-
-Dado que:
-1. Mem0 já faz semantic search
-2. Qdrant já existe
-3. Ollama embeddings já disponíveis
-4. mcp-memory já existe
-
-**Opção mais simples:** Criar um novo MCP server `mcp-rag` que:
-- Usa Ollama para embeddings (mesmo model, e5-mistral)
-- Busca em Qdrant collection separada (`rag-docs`)
-- Retorna chunks para injeção no context
-
-**Vantagem:** Mais control, menos dependência externa, mesmo tempo de desenvolvimento.
-
-### 2.4 Embedding Model Consistency
-
-O SPEC propõe `nomic-ai/e5-mistral-7b-instruct` mas mcp-memory usa `sentence-transformers/all-MiniLM-L6-v2` (via Mem0 config).
-
-**Recomendação:** Padronizar em `nomic-ai/e5-mistral-7b-instruct` para todos os embeddings do sistema.
-
-### 2.5 Dataset Sources — Clarify Paths
-
-O SPEC lista:
-```
-hermes-second-brain/docs/
-monorepo/docs/SPECS/
-/srv/ops/ai-governance/
-```
-
-Mas `hermes-second-brain` é um repo Git separado (Gitea), não um diretório local. Precisaria de:
-1. Clone do repo
-2. Path correto para docs dentro do repo
-3. Sync strategy para manter index atualizado
+**Weaknesses:**
+- Pseudo-code examples are illustrative only, not tested
+- No TypeScript types in actual codebase for Trieve integration
+- `rag-retrieve` skill mentioned but not created in `apps/hermes-agency/src/skills/index.ts`
 
 ---
 
-## 3. Code/Config Examples
+## 3. SPEC Adherence Analysis
 
-### 3.1 Corrected docker-compose fragment
+### 3.1 Critical Deviations
 
-```yaml
-services:
-  trieve:
-    image: trieve/server:latest
-    container_name: trieve
-    ports:
-      - "6435:3000"
-    environment:
-      - QDRANT_URL=http://10.0.13.2:6333  # IP real do Qdrant no docker network
-      - QDRANT_COLLECTION=trieve
-      - OLLAMA_BASE_URL=http://host.docker.internal:11434
-      - EMBEDDING_MODEL=nomic-ai/e5-mistral-7b-instruct
-      - RERANK_MODEL=BAAI/bge-reranker-base
-      - DATABASE_URL=sqlite:///srv/data/trieve/trieve.db
-    volumes:
-      - /srv/data/trieve:/run/trieve
-    restart: unless-stopped
-    network_mode: mcp-memory_net  # Ou criar network específica
+| SPEC Says | Reality | Severity |
+|----------|---------|----------|
+| `6435:3000` port mapping | Trieve uses `8090` for API | CRITICAL |
+| `QDRANT_URL=http://10.0.9.1:6333` | IP does not exist; Qdrant at `10.0.19.5:6333` (Coolify) or `host.docker.internal` | CRITICAL |
+| `OLLAMA_BASE_URL=http://10.0.9.1:11434` | Ollama at `10.0.1.1:11434` (docker0) or `host.docker.internal:11434` | CRITICAL |
+| Single `trieve/trieve:latest` container | Trieve requires **9+ containers** (server, ingest, file_worker, delete_worker, search, chat, postgres, redis, minio, keycloak, tika) | CRITICAL |
+| Bearer token auth | Trieve uses `ApiKey` scheme per official docs | HIGH |
+| `nomic-ai/e5-mistral-7b-instruct` model | Not in Ollama; only `nomic-embed-text:latest` available | HIGH |
+| Trieve Cloud mentioned as option | Trieve Cloud **sunset November 2025** | MEDIUM |
+| FASE 1: 1-2h | Reality: 4-6h minimum for full stack | HIGH |
+
+### 3.2 Port Mismatch (CRITICAL)
+
+SHIPPER.md correctly identified:
+
+```
+# SPEC says:
+ports:
+  - "6435:3000"
+
+# Reality (per Trieve docs):
+ports:
+  - "6435:8090"  # API is on 8090, not 3000
 ```
 
-### 3.2 Hermes rag-retrieve skill (pseudo-code)
+### 3.3 Network Topology Issues (CRITICAL)
 
-```typescript
-// apps/hermes-agency/src/skills/rag-retrieve.ts
-// (Adicionar ao existing skills/index.ts)
+GIT.md found the most severe issue:
 
-const TRIEVE_URL = process.env.TRIEVE_URL ?? 'http://localhost:6435';
-const TRIEVE_API_KEY = process.env.TRIEVE_API_KEY;
-
-async function ragRetrieve(query: string, topK = 5): Promise<string[]> {
-  const response = await fetch(`${TRIEVE_URL}/api/chunk/search`, {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${TRIEVE_API_KEY}`,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ query, limit: topK })
-  });
-
-  if (!response.ok) throw new Error(`Trieve API error: ${response.status}`);
-
-  const data = await response.json();
-  return data.results.map((r: any) => r.chunk.chunk_html);
-}
 ```
+SPEC uses: QDRANT_URL=http://10.0.9.1:6333
+Reality:   Qdrant is at 10.0.9.2 on platform_default network
+           Trieve Docker would be on coolify network (10.0.4.x)
+           These networks cannot reach each other directly
+```
+
+### 3.4 Complexity Mismatch (CRITICAL)
+
+GIT.md revealed Trieve's actual footprint:
+
+| Component | SPEC Implicit | Reality |
+|-----------|---------------|---------|
+| Containers | 1 | 9+ |
+| External Services | Qdrant + Ollama | PostgreSQL, MinIO, Redis, Tika, Keycloak |
+| Complexity | "Lightweight" | Enterprise-grade |
+
+**This is not a microservices integration — it is a full platform deployment.**
 
 ---
 
-## 4. Changes to SPEC
+## 4. Security Issues
 
-### 4.1 Adicionar/Atualizar
+SECURITY.md scored **6.8/10 — APPROVED WITH MITIGATIONS**. Key findings:
 
-| Item | Action | Notes |
-|------|--------|-------|
-| Network topology | UPDATE | Usar IP correto do Qdrant (`10.0.13.2`) |
-| API endpoints | VERIFY | Confirmar `/api/v1/` vs `/api/` pattern |
-| Maintenance status | ADD | Disclaimer sobre activity do Trieve |
-| Dataset paths | CLARIFY | `hermes-second-brain` = Gitea repo, não path local |
-| RAG vs Mem0 distinction | ADD | Trieve = document retrieval, Mem0 = memory/preferences |
+### 4.1 High-Priority Security Issues
 
-### 4.2 Deletar
+| Issue | Severity | Finding |
+|-------|----------|---------|
+| API Key Storage | CRITICAL | Generated on first login — must store immediately in `.env` |
+| Qdrant Collection Collision | HIGH | `mem0` vs `trieve` collections must be explicitly separated |
+| Missing API Key Validation | HIGH | `rag_retrieve` skill must validate key before request |
+| Chunk Injection | MEDIUM | Unsanitized documents can inject malicious prompts (RAG poisoning) |
+| Docker Port Exposure | MEDIUM | Must bind to `127.0.0.1:6435` only |
+| No Rate Limiting | MEDIUM | DDoS possible with compromised API key |
 
-| Item | Reason |
-|------|--------|
-| Referência a `/api/v1/` como certo | Precisa verificação |
-| IP `10.0.9.1` para Qdrant | IP não existe na rede |
+### 4.2 Security Checklist (from SECURITY.md)
 
-### 4.3 Acceptance Criteria — Add
+- [ ] `TRIEVE_API_KEY` generated via `openssl rand -hex 32` and stored in `.env`
+- [ ] Bound to `127.0.0.1:6435` (loopback only, not `0.0.0.0`)
+- [ ] Chunk sanitization before indexing
+- [ ] Startup validation in Hermes skill (fail-fast)
+- [ ] PORTS.md updated with `:6435 → Trieve`
 
-```markdown
-- [ ] Validar que Trieve ainda está em desenvolvimento ativo (commits 2026)
-- [ ] Testar API endpoints com versão atual do Trieve
-- [ ] Confirmar Qdrant connection string correta
+---
+
+## 5. Performance Concerns
+
+### 5.1 Infrastructure Overhead
+
+GIT.md raised the most critical performance concern:
+
+> "SPEC-092 severely underestimates FASE 1 complexity. This is a full enterprise platform, not a simple microservice."
+
+**Resource requirements (estimated):**
+- 9+ containers
+- 4GB+ RAM (Trieve + PostgreSQL + MinIO)
+- 2+ CPU cores
+- Additional PostgreSQL instance (or shared with existing)
+
+### 5.2 Alternative Recommendation
+
+GIT.md proposed a pragmatic alternative:
+
+```python
+# Direct Qdrant API RAG — ~50 lines of Python
+# Uses existing infrastructure (Ollama + Qdrant)
+# No new complex service
+# Can be a Hermes skill immediately
 ```
 
----
+This would take ~1 hour vs 4-6 hours for full Trieve stack.
 
-## 5. Summary
+### 5.3 Ollama Embedding
 
-| Aspect | Verdict |
-|--------|---------|
-| **Concept** | ✅ Sound — RAG pipeline é valoroso |
-| **Trieve choice** | ⚠️ Caution — maintenance parece baixa |
-| **Architecture** | ⚠️ Issues — IP wrong, API endpoints need verification |
-| **Existing infra** | ✅ Good — Qdrant, Ollama, Mem0 já existem |
-| **Timeline** | Realista (6-9h para todas as fases) |
-| **Riscos** | Médios — Trieve maintenance, Qdrant network confusion |
+| SPEC says | Reality |
+|-----------|---------|
+| `nomic-ai/e5-mistral-7b-instruct` | Not available |
+| `nomic-embed-text:latest` | Available (137M params, 768-dim) |
 
-**Recomendação:** APROVAR com condições:
-1. Validar Trieve activity recente antes de começar
-2. Corrigir network topology (IP do Qdrant)
-3. Verificar API endpoints com versão real
-4. Ou considerar custom RAG pipeline (mesmo effort, menos dependência)
+Using the available `nomic-embed-text` is recommended.
 
 ---
 
-## 6. References Checked
+## 6. Missing Elements
 
-- [x] PORTS.md (6435 livre ✅)
-- [x] SUBDOMAINS.md (não mencionado ✅)
-- [x] AGENTS.md (sem Trieve/RAG skill ✅)
-- [x] SPEC-074 (Mem0 active, diferente propósito ✅)
-- [x] docker-compose.yml (mcp-memory rodando ✅)
-- [x] Qdrant health (UP via docker network ✅)
-- [x] Ollama embeddings (nomic-embed-text disponível ✅)
-- [x] Trieve GitHub (last release March 2025 ⚠️)
-- [x] Trieve Docker images (existem ✅)
+### 6.1 Not Implemented
+
+| Item | Mentioned In | Implemented |
+|------|-------------|-------------|
+| `rag-retrieve` skill | SPEC, CODER-1, CODER-2, SHIPPER | ❌ No |
+| `trieve-client.ts` module | CODER-1 | ❌ No |
+| `smoke-tests/smoke-trieve.sh` | SMOKE, TESTER | ❌ No |
+| PORTS.md update | All reports | ❌ No |
+| `.env` entries | SECRETS, SHIPPER | ❌ No |
+| `docker-compose.trieve.yml` | SHIPPER | ❌ No |
+| `scripts/trieve-index.sh` | SHIPPER | ❌ No |
+
+### 6.2 Hermes Agency Integration Status
+
+| File | Trieve/RAG Found |
+|------|------------------|
+| `apps/hermes-agency/src/skills/index.ts` | ❌ No `rag-retrieve` skill |
+| `apps/hermes-agency/src/index.ts` | ❌ No Trieve env vars in REQUIRED list |
+| `apps/hermes-agency/src/qdrant/client.ts` | ✅ Existing Qdrant client (can serve as pattern) |
+
+---
+
+## 7. Recommendations
+
+### 7.1 Must Fix Before FASE 1
+
+1. **Correct docker-compose port mapping** — `6435:8090` (not `6435:3000`)
+2. **Fix Qdrant URL** — Use `host.docker.internal:6333` or actual Coolify network IP
+3. **Fix Ollama URL** — Use `host.docker.internal:11434`
+4. **Add Trieve env vars to REQUIRED list** in `index.ts`
+5. **Update SPEC** — Document Trieve Cloud sunset, correct API auth scheme
+6. **Lock Trieve version** — Use `trieve/trieve:v0.21.0` instead of `latest`
+
+### 7.2 Alternative Path (Consider)
+
+Given the complexity, evaluate:
+
+| Option | Effort | Capability |
+|--------|--------|------------|
+| Full Trieve stack | 4-6h | Enterprise RAG (chunking, reranking, datasets) |
+| Direct Qdrant API | ~1h | Basic semantic search only |
+| Mem0 enhancement | 1-2h | Already running, extend with docs |
+
+### 7.3 If Proceeding with Trieve
+
+1. **Create actual implementation** (not just research docs):
+   - `apps/hermes-agency/src/trieve/client.ts`
+   - `apps/hermes-agency/src/skills/rag-retrieve.ts`
+   - `smoke-tests/smoke-trieve.sh`
+
+2. **Update governance docs:**
+   - PORTS.md — Add `:6435 → Trieve (RAG)`
+   - SUBDOMAINS.md — Add `trieve.zappro.site` if exposed
+
+3. **Resource allocation:**
+   - Confirm 4GB+ RAM available
+   - Plan PostgreSQL instance
+   - Coolify network configuration
+
+---
+
+## 8. Research Report Quality
+
+| Report | Author | Quality | Key Finding |
+|--------|--------|---------|------------|
+| ARCHITECT.md | ARCHITECT | ✅ Excellent | Wrong IPs, env var names corrected |
+| CODER-1.md | CODER-1 | ✅ Good | Service client pattern, not backend-scaffold |
+| CODER-2.md | CODER-2 | ✅ Good | RAG display patterns, context injection |
+| SECURITY.md | SECURITY | ✅ Good | 6.8/10, APPROVED WITH MITIGATIONS |
+| TESTER.md | TESTER | ✅ Good | Wrong embedding model identified |
+| DOCS.md | DOCS | ✅ Good | Port registration, .env updates |
+| SMOKE.md | SMOKE | ✅ Good | Comprehensive smoke test script |
+| SECRETS.md | SECRETS | ✅ Good | ApiKey auth scheme, .env pattern |
+| GIT.md | GIT | ⚠️ Critical | 9+ container reality, network topology |
+| SHIPPER.md | SHIPPER | ✅ Good | Correct port (8090), Coolify labels |
+| SPEC-ANALYZER.md | SPEC-ANALYZER | ✅ Good | ApiKey vs Bearer discrepancy |
+
+**Best Find:** GIT.md discovered Trieve requires 9+ containers — most impactful finding.
+
+**Worst Gap:** No agent discovered that the SPEC implies single-container deployment when reality is 9+.
+
+---
+
+## 9. Summary Scores
+
+| Aspect | Score | Notes |
+|--------|-------|-------|
+| SPEC Completeness | 8/10 | Well-structured, missing Trieve Cloud sunset |
+| SPEC Accuracy | 4/10 | Wrong ports, IPs, container count |
+| Research Quality | 9/10 | 11 comprehensive reports |
+| Code Implementation | 0/10 | No code written |
+| Security | 6.8/10 | APPROVED WITH MITIGATIONS |
+| Governance Compliance | 5/10 | PORTS.md not updated |
+
+---
+
+## 10. Action Items
+
+### Required Before Approval
+
+- [ ] Fix SPEC-092 docker-compose: port `6435:8090`, correct Qdrant/Ollama URLs
+- [ ] Add Trieve Cloud sunset note to SPEC
+- [ ] Update SPEC with correct auth scheme (`ApiKey` not `Bearer`)
+- [ ] Correct embedding model to `nomic-embed-text` or document `ollama pull` requirement
+- [ ] Update resource estimate: 1-2h → 4-6h for full stack
+
+### Required Before FASE 1
+
+- [ ] Create actual `rag-retrieve` skill in Hermes Agency
+- [ ] Update PORTS.md with `:6435 → Trieve`
+- [ ] Add `TRIEVE_*` env vars to `.env`
+- [ ] Create smoke test script
+- [ ] Verify/allocate 4GB+ RAM
+
+### Optional
+
+- [ ] Consider direct Qdrant API alternative if Trieve complexity is too high
+- [ ] Evaluate Mem0 enhancement before adding new infrastructure
+
+---
+
+**Reviewer:** Claude Code (REVIEWER agent)
+**Date:** 2026-04-23
+**Recommendation:** **HOLD** — Fix critical issues in SPEC before approval

@@ -205,7 +205,121 @@ RAG_TOP_K=5
 
 ---
 
-## 5. Riscos e Mitigações (Atualizado)
+## 5. Acceptance Criteria (from SPEC-092)
+
+- [ ] Trieve deployado em `:6435` e respondendo `/health`
+- [ ] Qdrant connection funcionando
+- [ ] Ollama embedding gerando vectors
+- [ ] Dataset criado e indexado com Second Brain docs
+- [ ] Search API retornando resultados relevantes
+- [ ] Hermes skill `rag-retrieve` criado e funcionando
+- [ ] Context do Hermes inclui chunks do Trieve quando relevante
+- [ ] PORTS.md atualizado com `:6435 → Trieve (RAG)`
+- [ ] SUBDOMAINS.md atualizado (se exposto externamente)
+
+---
+
+## 6. Arquivos Afetados
+
+| Arquivo | Papel |
+|---------|-------|
+| `/srv/ops/ai-governance/PORTS.md` | Registrar porta `:6435` |
+| `/srv/ops/ai-governance/SUBDOMAINS.md` | Atualizar subdomínios (se aplicável) |
+| `hermes-second-brain/docs/` | Knowledge source (indexação) |
+| `monorepo/docs/SPECS/` | Knowledge source (SPECs ativos) |
+| `/srv/ops/ai-governance/` | Knowledge source (governança) |
+| `hvacr-swarm/docs/` | Knowledge source (FASE 2) |
+| `monorepo/AGENTS.md` | Knowledge source (FASE 2) |
+
+---
+
+## 7. Dependências
+
+### Infraestrutura Existente
+
+| Componente | Porta | Status | Papel |
+|------------|-------|--------|-------|
+| Qdrant | `:6333` | Existe | Vector storage + retrieval |
+| Ollama | `:11434` | Existe | Embedding (e5-mistral ou bge) |
+| Mem0 | `:6333` | Existe | Memory layer (collections separadas) |
+| Hermes Agent | — | Existe | Orchestration + generation |
+| Second Brain | — | Existe | Knowledge source |
+
+### Novas Dependências
+
+| Componente | Origem | Notas |
+|------------|--------|-------|
+| Trieve | Docker (Coolify) | Porta `:6435` |
+| BGE Embeddings | Ollama | `nomic-ai/e5-mistral-7b-instruct` ou `BAAI/bge-m3` |
+| BGE Reranker | Ollama | Opcional (FASE 4) |
+| SQLite | Local | `/srv/data/trieve/trieve.db` |
+
+---
+
+## 8. Decisões de Arquitectura
+
+### 8.1 Deployment
+
+- **Trieve** via Docker via Coolify em porta `:6435`
+- Docker image oficial: `trieve/trieve:latest`
+- Persistência em `/srv/data/trieve/`
+
+### 8.2 Dataset Sources (Knowledge Sources)
+
+**FASE 1 — Indexação inicial:**
+- `hermes-second-brain/docs/` (skills, TREE.md)
+- `monorepo/docs/SPECS/` (SPECs ativos)
+- `/srv/ops/ai-governance/` (governança)
+
+**FASE 2 — Expansão:**
+- `hvacr-swarm/docs/`
+- `monorepo/AGENTS.md`
+- README.md files (raiz dos repos)
+
+### 8.3 Embedding Model
+
+- **Recomendado:** `BAAI/bge-m3` ou `nomic-ai/e5-mistral-7b-instruct`
+- Pull: `ollama pull nomic-ai/e5-mistral-7b-instruct`
+
+### 8.4 Chunking Strategy
+
+| Strategy | Quando usar | Tamanho |
+|----------|-------------|---------|
+| `heading` | Docs com headers (#, ##) | Variável |
+| `sentence` | Textos corridos | 512 tokens |
+| `page` | PDFs | 1024 tokens |
+
+**Decisão:** Usar `heading` para markdown docs (preserva estrutura).
+
+### 8.5 API Endpoint
+
+```
+http://localhost:6435/api/v1
+```
+
+### 8.6 Integração Hermes
+
+Hermes usa Trieve via:
+1. **Direct fetch** — curl/python para search API
+2. **Resultado** — chunks relevantes injetados no context do LLM
+
+### 8.7 Collection Separation
+
+- `mem0` collection (Mem0)
+- `trieve` collection (Trieve)
+Evita competição por Qdrant.
+
+### 8.8 Limitações (Out of Scope)
+
+- Multi-usuário / ACLs
+- UI web do Trieve (CLI-only)
+- PDF parsing (apenas markdown/text)
+- Web crawling (apenas arquivos locais)
+- Reranking (FASE 4, opcional)
+
+---
+
+## 9. Riscos e Mitigações (Atualizado)
 
 | Risco | Prob | Impacto | Mitigação |
 |-------|------|---------|-----------|
@@ -217,15 +331,15 @@ RAG_TOP_K=5
 
 ---
 
-## 6. Port Check
+## 10. Port Check
 
-✅ **Porta `:6435` está livre** na faixa `4004–4099` (microserviços dev) conforme PORTS.md.
+✅ **Porta `:6435` está livre** na faixa `4002–4099` (microserviços) conforme PORTS.md.
 
 ⚠️ **Não está listada como reservada** — necessário adicionar antes do deploy.
 
 ---
 
-## 7. Cronologia de Implementação Sugerida
+## 11. Cronologia de Implementação Sugerida
 
 ```
 FASE 1 — Setup (1-2h)
@@ -255,7 +369,7 @@ FASE 4 — Expansão (opcional)
 
 ---
 
-## 8. Conclusão
+## 12. Conclusão
 
 SPEC-092 está bem fundamentado. **Ações críticas antes do deploy:**
 
@@ -275,5 +389,5 @@ SPEC-092 está bem fundamentado. **Ações críticas antes do deploy:**
 - [Trieve Docs](https://docs.trieve.ai)
 - [BGE-M3 HF](https://huggingface.co/BAAI/bge-m3)
 - [Qdrant](https://qdrant.tech)
-- [SPEC-092 Original](file:///srv/monorepo/docs/SPECS/SPEC-092-trieve-rag-integration.md)
+- [SPEC-092 Original](/srv/monorepo/docs/SPECS/SPEC-092-trieve-rag-integration.md)
 - [PORTS.md](/srv/ops/ai-governance/PORTS.md)

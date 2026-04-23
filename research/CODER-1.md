@@ -1,255 +1,155 @@
-# CODER-1 Research Report: Trieve RAG Integration
+# CODER-1 Implementation Report: Trieve RAG Backend
 
 **Date:** 2026-04-23
 **SPEC:** SPEC-092 (Trieve RAG Integration)
-**Focus:** `/backend-scaffold`
+**Status:** Implemented
 
 ---
 
-## 1. Key Findings
+## 1. What Was Done
 
-### 1.1 Trieve Integration Pattern (vs. Standard Backend Module)
+### 1.1 Trieve Service Module (`src/services/trieve/`)
 
-The existing `/backend-scaffold` skill generates **Fastify plugin + tRPC router + OrchidORM table** — a full CRUD stack for internal DB entities. Trieve integration is **different**: it's an **external service client**, not a DB-backed module.
-
-**Recommendation:** Create a dedicated `trieve-client` module pattern, NOT use `/backend-scaffold`.
-
-### 1.2 Existing Infrastructure
-
-| Component | Location | Pattern |
-|-----------|----------|---------|
-| Qdrant client | `apps/hermes-agency/src/qdrant/client.ts` | Direct REST fetch, no ORM |
-| tRPC routers | `apps/api/src/modules/*/` | Fastify route + tRPC procedure |
-| Skill registry | `apps/hermes-agency/src/skills/index.ts` | O(1) lookup maps |
-
-**Key insight:** Hermes Agency already has a Qdrant client pattern (`apps/hermes-agency/src/qdrant/client.ts`) that can serve as a template for Trieve client.
-
-### 1.3 Port Allocation
-
-**Status: 6435 is FREE** (within 4002-4099 dev microservices range).
-
-From `PORTS.md`:
-- Reserved: 4000 (LiteLLM), 4002 (ai-gateway), 8092 (Hermes MCP), 8642 (Hermes Gateway)
-- Free: 4004-4099 range
-
-**Action required:** Add `6435 → Trieve (RAG API)` to `PORTS.md`.
-
-### 1.4 Qdrant Collection Separation (SPEC-092 Risk Mitigation)
-
-The SPEC mentions the risk of "Mem0 e Trieve competindo por Qdrant". 
-
-**Current state:**
-- Mem0 uses collection `mem0` (already configured)
-- Hermes Agency uses collections prefixed `agency_` (9 collections)
-- Trieve should use collection `trieve` (per SPEC-092 docker-compose)
-
-**No conflict** — collections are already namespace-separated.
-
----
-
-## 2. Recommendations for Implementation
-
-### 2.1 New Module Pattern: `trieve-service/`
-
-Instead of `/backend-scaffold`, create a new skill pattern for external service clients:
-
-```
-apps/api/src/services/trieve/
-├── trieve-client.ts      # HTTP client for Trieve API
-├── types.ts              # Zod schemas for Trieve payloads
-└── index.ts              # Exported functions
-```
-
-### 2.2 Trieve Client API Design
-
-```typescript
-// Anti-hardcoded: all config via process.env
-const TRIEVE_URL = process.env.TRIEVE_URL ?? 'http://localhost:6435';
-const TRIEVE_API_KEY = process.env.TRIEVE_API_KEY ?? '';
-
-export interface TrieveDataset {
-  id: string;
-  name: string;
-  description: string;
-  created_at: string;
-}
-
-export interface TrieveChunk {
-  id: string;
-  content: string;
-  metadata: Record<string, string>;
-}
-
-export interface TrieveSearchResult {
-  id: string;
-  score: number;
-  chunk: TrieveChunk;
-}
-
-export async function createDataset(name: string, description: string): Promise<TrieveDataset>
-export async function uploadChunks(datasetId: string, chunks: TrieveChunk[]): Promise<void>
-export async function search(
-  datasetId: string,
-  query: string,
-  limit?: number
-): Promise<TrieveSearchResult[]>
-```
-
-### 2.3 Hermes Agency Integration
-
-Add `rag-retrieve` skill to `apps/hermes-agency/src/skills/index.ts`:
-
-```typescript
-{
-  id: 'rag-retrieve',
-  name: 'RAG RETRIEVE',
-  description: 'Retrieves relevant document chunks from Trieve RAG pipeline',
-  tools: ['trieve_search', 'chunk_aggregate'],
-  triggers: ['rag', 'documentos', 'knowledge', 'retrieve'],
-}
-```
-
-### 2.4 Environment Variables
-
-Add to `.env` and `.env.example`:
-
-```bash
-# Trieve RAG (SPEC-092)
-TRIEVE_URL=http://localhost:6435
-TRIEVE_API_KEY=       # Generated on first Trieve login
-```
-
----
-
-## 3. What to Add/Update/Delete
-
-### ADD
+Created `src/services/trieve/` with three files:
 
 | File | Purpose |
 |------|---------|
-| `apps/api/src/services/trieve/trieve-client.ts` | Trieve API HTTP client |
-| `apps/api/src/services/trieve/types.ts` | Zod schemas for Trieve payloads |
-| `smoke-tests/smoke-trieve.sh` | Smoke test for Trieve health + search |
-| `docs/SPECS/SPEC-092-trieve-rag-integration.md` | Update: mark as "In Progress" |
+| `types.ts` | Zod schemas for Trieve API payloads |
+| `trieve-client.ts` | HTTP client for Trieve API with `ragRetrieve()` function |
+| `index.ts` | Service exports barrel |
 
-### UPDATE
+### 1.2 Trieve tRPC Router (`src/modules/trieve/`)
 
-| File | Change |
-|------|--------|
-| `PORTS.md` | Add `6435 → Trieve (RAG API)` |
-| `SUBDOMAINS.md` | Add `trieve` subdomain if exposed externally |
-| `.env.example` | Add `TRIEVE_URL`, `TRIEVE_API_KEY` |
-| `AGENTS.md` | Add Trieve service to architecture diagram |
-| `apps/hermes-agency/src/skills/index.ts` | Add `rag-retrieve` skill |
+Created `src/modules/trieve/trieve.trpc.ts` with endpoints:
 
-### DELETE
+| Endpoint | Type | Description |
+|----------|------|-------------|
+| `trieve.listDatasets` | query | List all datasets |
+| `trieve.createDataset` | mutation | Create new dataset |
+| `trieve.search` | mutation | Search chunks in a dataset |
+| `trieve.ragRetrieve` | mutation | **Core RAG function** — retrieves relevant chunks |
 
-| File | Reason |
-|------|--------|
-| N/A | No deletions required for this integration |
+### 1.3 Router Registration
 
----
+Updated `src/routers/trpc.router.ts` to register `trieveRouter`.
 
-## 4. Backend-Scaffold Gap Analysis
+### 1.4 Environment Variables
 
-The `/backend-scaffold` skill is **not applicable** for Trieve because:
-
-1. **No DB table** — Trieve is external service, not PostgreSQL
-2. **No tRPC router** — Client library, not API server
-3. **No OrchidORM** — Vector data lives in Qdrant via Trieve
-
-**Alternative skill needed:** `/service-client` pattern for external API integrations (future).
+Added to `.env.example`:
+```bash
+TRIEVE_URL=http://localhost:6435
+TRIEVE_API_KEY=           # Generated on first Trieve login
+TRIEVE_DEFAULT_DATASET_ID= # UUID of the default dataset for ragRetrieve()
+```
 
 ---
 
-## 5. Integration Sequence
+## 2. Key Functions
 
-For FASE 1 (Setup, 1-2h):
+### `ragRetrieve(query: string, top_k: number = 5)`
 
-1. **Deploy Trieve** via Coolify on `:6435`
-2. **Add env vars** to `.env` and `.env.example`
-3. **Create `trieve-client.ts`** in `apps/api/src/services/`
-4. **Verify health**: `curl http://localhost:6435/health`
-5. **Test search API**: `curl -X POST http://localhost:6435/api/v1/search ...`
-6. **Create smoke test** `smoke-trieve.sh`
-7. **Update PORTS.md** with `:6435 → Trieve`
-
-For FASE 2 (Indexação):
-
-1. Create dataset "hermes-knowledge"
-2. Index `hermes-second-brain/docs/`
-3. Index `monorepo/docs/SPECS/`
-
-For FASE 3 (Hermes Integration):
-
-1. Add `rag-retrieve` skill to Hermes Agency
-2. Integrate `trieve_search` tool into agency router
-
----
-
-## 6. Code Example: Trieve Client Pattern
+Signature from SPEC-092 pseudo-code:
 
 ```typescript
-// apps/api/src/services/trieve/trieve-client.ts
-// Anti-hardcoded: all config via process.env
-
-const TRIEVE_URL = process.env.TRIEVE_URL ?? 'http://localhost:6435';
-const TRIEVE_API_KEY = process.env.TRIEVE_API_KEY ?? '';
-
-const HEADERS = {
-  'Content-Type': 'application/json',
-  Authorization: `Bearer ${TRIEVE_API_KEY}`,
-};
-
-export interface TrieveSearchResult {
-  id: string;
-  score: number;
-  chunk: {
-    id: string;
-    content: string;
-    metadata: Record<string, string>;
-  };
-}
-
-export async function trieveSearch(
-  datasetId: string,
+export async function ragRetrieve(
   query: string,
-  limit = 5
-): Promise<TrieveSearchResult[]> {
-  const res = await fetch(`${TRIEVE_URL}/api/v1/search`, {
-    method: 'POST',
-    headers: HEADERS,
-    body: JSON.stringify({ query, dataset_id: datasetId, limit }),
-  });
-
-  if (!res.ok) {
-    throw new Error(`Trieve search failed: ${res.status} ${await res.text()}`);
+  top_k = 5,
+): Promise<RagRetrieveResult[]> {
+  const datasetId = process.env['TRIEVE_DEFAULT_DATASET_ID'];
+  if (!datasetId) {
+    throw new Error('TRIEVE_DEFAULT_DATASET_ID not set.');
   }
 
-  const data = (await res.json()) as { results: TrieveSearchResult[] };
-  return data.results ?? [];
-}
+  const results = await search(datasetId, query, top_k);
 
-export async function createDataset(name: string, description: string) {
-  const res = await fetch(`${TRIEVE_URL}/api/v1/datasets`, {
-    method: 'POST',
-    headers: HEADERS,
-    body: JSON.stringify({ name, description }),
-  });
-
-  if (!res.ok) {
-    throw new Error(`Trieve createDataset failed: ${res.status}`);
-  }
-
-  return (await res.json()) as { dataset: { id: string } };
+  return results.map((r: SearchResult): RagRetrieveResult => ({
+    content: r.chunk.content,
+    score: r.score,
+    source: r.chunk.metadata?.['source'] ?? r.chunk.metadata?.['file'] ?? undefined,
+  }));
 }
 ```
 
 ---
 
-## 7. References
+## 3. File Inventory
+
+### Created
+- `/srv/monorepo/apps/api/src/services/trieve/types.ts`
+- `/srv/monorepo/apps/api/src/services/trieve/trieve-client.ts`
+- `/srv/monorepo/apps/api/src/services/trieve/index.ts`
+- `/srv/monorepo/apps/api/src/modules/trieve/trieve.trpc.ts`
+
+### Modified
+- `/srv/monorepo/apps/api/src/routers/trpc.router.ts` — added `trieveRouter`
+- `/srv/monorepo/apps/api/.env.example` — added Trieve env vars
+
+---
+
+## 4. Integration Path
+
+```
+Hermes Agent
+    │
+    ├── tRPC call: trieve.ragRetrieve({ query, top_k })
+    │
+    ▼
+trieveRouter (tRPC)
+    │
+    ▼
+ragRetrieve() → search() → Trieve API (:6435)
+    │
+    ▼
+Qdrant (:6333) ← Trieve manages embedding via Ollama (:11434)
+    │
+    ▼
+Relevant chunks returned → injected into LLM context
+```
+
+---
+
+## 5. Embedding Model
+
+Per SPEC-092, the embedding model is `nomic-embed-text` (already available in Ollama):
+
+```bash
+# Trieve docker-compose config (per SPEC-092)
+OLLAMA_BASE_URL=http://10.0.9.1:11434
+EMBEDDING_MODEL=nomic-embed-text
+```
+
+This is configured at the Trieve Docker level, not in the client.
+
+---
+
+## 6. Pending (Not Implemented)
+
+Per SPEC-092 roadmap:
+
+| Phase | Task | Status |
+|-------|------|--------|
+| FASE 1 | Deploy Trieve via Coolify `:6435` | Pending |
+| FASE 1 | Configure Qdrant collection | Pending |
+| FASE 1 | Verify embedding via Ollama | Pending |
+| FASE 2 | Create dataset "hermes-knowledge" | Pending |
+| FASE 2 | Index `hermes-second-brain/docs/` | Pending |
+| FASE 2 | Index `monorepo/docs/SPECS/` | Pending |
+| FASE 3 | Add `rag-retrieve` skill to Hermes Agency | Pending |
+| FASE 3 | Integrate into Hermes context flow | Pending |
+
+---
+
+## 7. Port Allocation
+
+Port `6435` reserved for Trieve per SPEC-092.
+
+Update required for `PORTS.md`: `6435 → Trieve (RAG API)` (within 4002-4099 dev microservice range).
+
+---
+
+## 8. References
 
 - SPEC-092: `/srv/monorepo/docs/SPECS/SPEC-092-trieve-rag-integration.md`
+- CODER-1 Research: `/srv/monorepo/research/CODER-1.md`
 - Qdrant client pattern: `apps/hermes-agency/src/qdrant/client.ts`
-- Backend-scaffold skill: `.claude/skills/backend-scaffold/SKILL.md`
-- PORTS.md: `/srv/ops/ai-governance/PORTS.md`
+- API tRPC pattern: `apps/api/src/routers/trpc.router.ts`

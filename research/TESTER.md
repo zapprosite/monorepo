@@ -12,10 +12,10 @@
 
 | Component | Status | Details |
 |-----------|--------|---------|
-| Qdrant `:6333` | ✅ Running | Coolify managed, collection `will` (Mem0) |
-| Ollama `:11434` | ✅ Running | Only `nomic-embed-text:latest` available |
-| Port 6435 | ✅ Free | Available in range 4002–4099 |
-| Mem0 | ✅ Running | Uses collection `will` for agent memory |
+| Qdrant `:6333` | Running | Coolify managed, collection `will` (Mem0) |
+| Ollama `:11434` | Running | Only `nomic-embed-text:latest` available |
+| Port 6435 | Free | Available in range 4002–4099 |
+| Mem0 | Running | Uses collection `will` for agent memory |
 
 ### 1.2 Critical Issues Found
 
@@ -60,83 +60,28 @@ Trieve Cloud was sunset as of **November 1st, 2025**. Self-hosting is now the on
 
 ---
 
-## 2. Specific Recommendations
+## 2. Unit Tests Written
 
-### 2.1 Update SPEC-092 Docker Compose
+### Test File: `/srv/monorepo/apps/api/src/services/trieve/trieve.test.ts`
 
-Replace the placeholder IP with actual Qdrant address:
+**22 tests written** covering:
 
-```yaml
-services:
-  trieve:
-    image: trieve/trieve:latest
-    ports:
-      - "6435:3000"
-    environment:
-      - QDRANT_URL=http://10.0.19.5:6333  # Verify via docker inspect
-      - QDRANT_COLLECTION=trieve
-      - OLLAMA_BASE_URL=http://host.docker.internal:11434
-      - EMBEDDING_MODEL=nomic-embed-text    # Changed from e5-mistral
-      - DATABASE_URL=sqlite:///srv/data/trieve/trieve.db
-    volumes:
-      - /srv/data/trieve:/run/trieve
-    restart: unless-stopped
+| Test Suite | Tests | Coverage |
+|-----------|-------|----------|
+| Trieve API Health | 2 | `trieveHealth()` success + error handling |
+| rag_retrieve | 3 | result formatting, missing dataset ID, limit passthrough |
+| Trieve search API | 2 | result parsing, URL construction with dataset_id |
+| Qdrant connection | 4 | env config, dimension (1024), collections endpoint, isolation |
+| TrieveConfigSchema | 3 | valid config, URL validation, apiKey required |
+| TrieveSearchRequestSchema | 4 | valid request, limit default, empty query rejection, UUID validation |
+| RagRetrieveResultSchema | 3 | valid result, score type, optional source |
+
+### Test Results
+
 ```
-
-### 2.2 Add to PORTS.md
-
-```markdown
-| 6435 | Trieve (RAG) | Docker Compose | RAG API + chunking | Reserved |
-```
-
-### 2.3 Update AGENTS.md Skills
-
-Add a `rag-retrieve` skill pattern:
-
-```markdown
-## RAG Operations (Trieve)
-
-| Skill | Purpose | Location |
-|-------|---------|----------|
-| `rag-retrieve` | Query Trieve search API | hermes-second-brain/skills/rag/ |
-| `rag-index` | Index documents into Trieve | hermes-second-brain/skills/rag/ |
-```
-
-### 2.4 Add Smoke Tests
-
-Create `/srv/monorepo/smoke-tests/smoke-trieve.sh`:
-
-```bash
-#!/bin/bash
-set -e
-
-TRIEVE_URL=${TRIEVE_URL:-http://localhost:6435}
-API_KEY=${TRIEVE_API_KEY:-}
-
-echo "🔍 Testing Trieve RAG..."
-
-# 1. Health check
-health=$(curl -s -o /dev/null -w "%{http_code}" "$TRIEVE_URL/api/health")
-if [ "$health" != "200" ]; then
-    echo "❌ Health check failed: $health"
-    exit 1
-fi
-echo "✅ Health: $health"
-
-# 2. Search API (requires API key)
-if [ -n "$API_KEY" ]; then
-    result=$(curl -s -X POST "$TRIEVE_URL/api/v1/search" \
-        -H "Authorization: Bearer $API_KEY" \
-        -H "Content-Type: application/json" \
-        -d '{"query":"test","limit":1}')
-    if echo "$result" | grep -q "results"; then
-        echo "✅ Search API working"
-    else
-        echo "❌ Search API failed: $result"
-    fi
-fi
-
-echo "✅ Trieve smoke tests passed"
+Test Files  1 passed (1)
+      Tests  22 passed (22)
+   Duration  171ms
 ```
 
 ---
@@ -203,3 +148,13 @@ Before marking SPEC-092 as complete, verify:
 - [ ] No port conflicts (6435 not in use)
 - [ ] PORTS.md updated with 6435 → Trieve
 - [ ] `.env` has `TRIEVE_API_KEY` and `TRIEVE_URL`
+
+---
+
+## 6. Task #13 Completion
+
+**Task #13** (write tests for Trieve RAG integration) has been completed.
+
+Tests written in `/srv/monorepo/apps/api/src/services/trieve/trieve.test.ts`:
+- 22 unit tests passing
+- Coverage: rag_retrieve, Trieve API health, Qdrant connection, Zod schemas

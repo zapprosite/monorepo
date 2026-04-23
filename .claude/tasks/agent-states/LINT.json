@@ -1,7 +1,7 @@
 {
   "agent": "LINT",
-  "spec": "066-claude-commands-audit",
+  "spec": "092-trieve-rag-integration",
   "status": "completed",
-  "finished": "2026-04-17T14:58:07-03:00",
+  "finished": "2026-04-23T02:11:08-03:00",
   "command": "pnpm lint"
 }

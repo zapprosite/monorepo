@@ -1,10 +1,10 @@
 {
   "agent": "REVIEWER",
-  "spec": "SPEC-066-claude-commands-audit",
+  "spec": "SPEC-092-trieve-rag-integration",
   "status": "completed",
   "exit_code": 0,
   "started": "",
-  "finished": "2026-04-17T15:00:32-03:00",
+  "finished": "2026-04-23T02:14:39-03:00",
   "command": "/review",
   "log": "/srv/monorepo/.claude/skills/orchestrator/logs/REVIEWER.log"
 }

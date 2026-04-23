@@ -1,7 +1,7 @@
 {
   "agent": "SMOKE",
-  "spec": "066-claude-commands-audit",
+  "spec": "092-trieve-rag-integration",
   "status": "running",
-  "started": "2026-04-17T14:58:06-03:00",
+  "started": "2026-04-23T02:11:07-03:00",
   "command": "/smoke-test-gen"
 }
