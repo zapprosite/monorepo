@@ -6,14 +6,22 @@ import Redis from 'ioredis';
 // ── Env vars ────────────────────────────────────────────────────────────────
 // REDIS_URL takes priority; fall back to individual components from .env
 function buildRedisUrl(): string {
-  if (process.env['REDIS_URL']) return process.env['REDIS_URL']!;
+  const url = process.env['REDIS_URL'];
+  const password = process.env['REDIS_PASSWORD'];
+
+  if (url) {
+    if (password && !url.includes('@')) {
+      // Replace redis:// with redis://:password@
+      return url.replace('redis://', `redis://:${password}@`);
+    }
+    return url;
+  }
+
+  // fallback logic for individual components
   const host = process.env['REDIS_HOST'] ?? 'localhost';
   const port = process.env['REDIS_PORT'] ?? '6379';
-  const password = process.env['REDIS_PASSWORD'];
-  if (password) {
-    return `redis://:${password}@${host}:${port}`;
-  }
-  return `redis://${host}:${port}`;
+  const authPrefix = password ? `:${password}@` : '';
+  return `redis://${authPrefix}${host}:${port}`;
 }
 const REDIS_URL = buildRedisUrl();
 const REDIS_CONNECT_TIMEOUT_MS = parseInt(process.env['REDIS_CONNECT_TIMEOUT_MS'] ?? '5000', 10);
