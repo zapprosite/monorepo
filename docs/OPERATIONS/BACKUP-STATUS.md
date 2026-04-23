@@ -1,7 +1,7 @@
 # Backup Status Report
 
-**Generated:** 2026-04-22 22:25
-**Verification Date:** 2026-04-22
+**Generated:** 2026-04-23
+**Verification Date:** 2026-04-23
 
 ## Summary
 
@@ -17,10 +17,14 @@
 
 ### Redis Backup
 - **Location:** `/srv/backups/redis/`
-- **File:** `redis-20260422_222057.rdb.gz`
-- **Size:** 27,783 bytes (27.8 KB)
-- **Status:** RECENT (Apr 22 22:20)
-- **Verdict:** OK (< 7 days, size > 1KB)
+- **Files:**
+  - `redis-20260423_000022.rdb.gz` (backup)
+  - `redis-20260423_000022.rdb.gz.sha256` (SHA256 checksum)
+  - `redis-20260423_000022.manifest` (metadata: timestamp, size, gzip_size, rdb_size, checksum)
+- **Size:** ~28 KB (gzip compressed)
+- **Verification:** `verify-redis-backup.sh <arquivo>` valida checksum SHA256 antes de restore
+- **Status:** OK (< 7 days)
+- **Verdict:** OK (includes checksum + manifest tracking)
 
 ### Models Backup
 - **Location:** `/srv/backups/models/`
@@ -59,7 +63,7 @@ All backup cron jobs are configured:
 
 | Schedule | Task | Script |
 |----------|------|--------|
-| Daily 2:00 | Memory/SQLite backup | `~/.claude/scripts/backup-memory.sh` |
+| Daily 2:00 | Memory/SQLite backup | `/srv/ops/scripts/backup-memory-keeper.sh` |
 | Daily 3:00 | Qdrant backup | `/srv/ops/scripts/backup-qdrant.sh` |
 | Daily 2:30 | Gitea backup | Inline tar command |
 | Daily 2:45 | Infisical PostgreSQL | `/srv/ops/scripts/backup-infisical.sh` |
