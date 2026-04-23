@@ -95,7 +95,7 @@ ss -tlnp | grep :6333
 ss -tlnp | grep :4000
 
 # Ver todas as portas dos serviços principais
-ss -tlnp | grep -E ":3000|:4000|:5678|:6333|:8000|:8642"
+ss -tlnp | grep -E ":3000|:4000|:5678|:6333|:8000|:3001"
 ```
 
 ---

@@ -150,7 +150,7 @@ AUDIO INPUT (microfone / voice message)
                                                    ┌─────────────┐
                                                    │  Hermes     │
                                                    │  Gateway    │
-                                                   │   :8642     │
+                                                   │   :3001     │
                                                    └──────┬──────┘
                                                           │
                                                           ▼ LLM
@@ -299,7 +299,7 @@ CLAUDE CODE
                  │ HTTP
                  ▼
         ┌─────────────────────────────────────────┐
-        │          Hermes Gateway :8642           │
+        │          Hermes Gateway :3001           │
         │  (Telegram bot + voice agent)           │
         └─────────────────────────────────────────┘
 ```

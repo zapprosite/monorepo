@@ -30,7 +30,7 @@ jobs:
         run: |
           echo "=== Health Check ==="
           curl -sf http://localhost:4002/health && echo "✅ ai-gateway :4002" || echo "❌ ai-gateway :4002 DOWN"
-          curl -sf http://localhost:8642/health && echo "✅ hermes :8642" || echo "❌ hermes :8642 DOWN"
+          curl -sf http://localhost:3001/health && echo "✅ hermes :8642" || echo "❌ hermes :8642 DOWN"
           curl -sf http://localhost:8204/health && echo "✅ STT :8204" || echo "❌ STT :8204 DOWN"
           curl -sf http://localhost:8013/health && echo "✅ TTS :8013" || echo "❌ TTS :8013 DOWN"
 

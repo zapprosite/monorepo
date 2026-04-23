@@ -39,7 +39,7 @@ Both cloudflared processes are running as user `will`:
 |-----------|---------|----------------|
 | painel.zappro.site | Claude Code Panel | localhost:4003 |
 | chat.zappro.site | OpenWebUI | 10.0.5.3:8080 |
-| hermes.zappro.site | Hermes Agent Gateway | localhost:8642 |
+| hermes.zappro.site | Hermes Agent Gateway | localhost:3001 |
 | api.zappro.site | LiteLLM API | localhost:4000 |
 | llm.zappro.site | LiteLLM Proxy | localhost:4000 |
 | pgadmin.zappro.site | pgAdmin | localhost:4050 |

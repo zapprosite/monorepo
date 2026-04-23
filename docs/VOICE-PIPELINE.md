@@ -130,7 +130,7 @@ O `tts-edge.py` possui um TextScanner single-pass que:
        ▼
 ┌─────────────────┐
 │ Hermes Gateway   │
-│    :8642        │
+│    :3001        │
 └──────┬──────────┘
        │
        ▼

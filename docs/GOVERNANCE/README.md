@@ -171,7 +171,7 @@ INTERNET → Cloudflare → cloudflared → TRAEFIK (80/443/8080) → UFW → SE
 | :4002 | ai-gateway OpenAI compat | RESERVED |
 | :8000 | Coolify PaaS | RESERVED |
 | :8080 | Open WebUI (Coolify managed) | RESERVED |
-| :8642 | Hermes Gateway | RESERVED |
+| :3001 | Hermes Gateway | RESERVED |
 | :6333 | Qdrant | RESERVED |
 
 ### Portas Livres para Dev
