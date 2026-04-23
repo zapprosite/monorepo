@@ -1,0 +1,178 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --neon-cyan: #00f5d4;
+  --neon-green: #39ff14;
+  --neon-purple: #bf40bf;
+  --neon-blue: #00a8e8;
+  --bg-dark: #0a0a0f;
+  --bg-card: #111827;
+  --border-glow: rgba(0, 245, 212, 0.3);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg-dark);
+  color: #e5e7eb;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+.font-mono {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Animated brain glow */
+@keyframes pulse-glow {
+  0%, 100% {
+    filter: drop-shadow(0 0 8px rgba(0, 245, 212, 0.6)) drop-shadow(0 0 20px rgba(0, 245, 212, 0.3));
+  }
+  50% {
+    filter: drop-shadow(0 0 15px rgba(0, 245, 212, 0.9)) drop-shadow(0 0 40px rgba(0, 245, 212, 0.5));
+  }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes neural-pulse {
+  0% { opacity: 0.3; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.05); }
+  100% { opacity: 0.3; transform: scale(1); }
+}
+
+@keyframes scan-line {
+  0% { left: -10%; }
+  100% { left: 110%; }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 3s ease-in-out infinite;
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+.animate-neural {
+  animation: neural-pulse 2s ease-in-out infinite;
+}
+
+.animate-scan {
+  animation: scan-line 3s linear infinite;
+}
+
+/* Neon text effects */
+.text-neon-cyan {
+  color: var(--neon-cyan);
+  text-shadow: 0 0 10px rgba(0, 245, 212, 0.7), 0 0 20px rgba(0, 245, 212, 0.5);
+}
+
+.text-neon-green {
+  color: var(--neon-green);
+  text-shadow: 0 0 10px rgba(57, 255, 20, 0.7);
+}
+
+.text-neon-purple {
+  color: var(--neon-purple);
+  text-shadow: 0 0 10px rgba(191, 64, 191, 0.7);
+}
+
+/* Neon border effects */
+.border-neon {
+  border: 1px solid var(--neon-cyan);
+  box-shadow: 0 0 10px rgba(0, 245, 212, 0.2), inset 0 0 10px rgba(0, 245, 212, 0.05);
+}
+
+.border-neon-green {
+  border: 1px solid var(--neon-green);
+  box-shadow: 0 0 10px rgba(57, 255, 20, 0.2);
+}
+
+/* Glassmorphism cards */
+.glass-card {
+  background: rgba(17, 24, 39, 0.8);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(0, 245, 212, 0.1);
+  border-radius: 12px;
+}
+
+/* Gradient backgrounds */
+.gradient-hero {
+  background: radial-gradient(ellipse at top, rgba(0, 168, 232, 0.15) 0%, transparent 50%),
+              radial-gradient(ellipse at bottom right, rgba(0, 245, 212, 0.1) 0%, transparent 50%),
+              var(--bg-dark);
+}
+
+.gradient-grid {
+  background-image:
+    linear-gradient(rgba(0, 245, 212, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 245, 212, 0.03) 1px, transparent 1px);
+  background-size: 50px 50px;
+}
+
+/* Status indicators */
+.status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.status-working {
+  background: var(--neon-green);
+  box-shadow: 0 0 8px var(--neon-green);
+  animation: neural-pulse 2s ease-in-out infinite;
+}
+
+.status-partial {
+  background: #f59e0b;
+  box-shadow: 0 0 8px #f59e0b;
+  animation: neural-pulse 2s ease-in-out infinite;
+}
+
+.status-offline {
+  background: #ef4444;
+  box-shadow: 0 0 8px #ef4444;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-dark);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 245, 212, 0.3);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 245, 212, 0.5);
+}
+
+/* Command button styles */
+.cmd-btn {
+  @apply px-4 py-2 rounded-lg font-mono text-sm transition-all duration-300;
+  @apply bg-gray-800 border border-gray-700 text-gray-300;
+  @apply hover:border-neon-cyan hover:text-neon-cyan hover:bg-gray-800/50;
+}
+
+.cmd-btn.active {
+  @apply border-neon-cyan text-neon-cyan bg-gray-800/70;
+  box-shadow: 0 0 15px rgba(0, 245, 212, 0.2);
+}
