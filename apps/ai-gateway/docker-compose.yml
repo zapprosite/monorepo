@@ -38,3 +38,8 @@ services:
       - "coolify.managed=true"
       - "coolify.service=ai-gateway"
       - "coolify.healthcheck=/health"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
