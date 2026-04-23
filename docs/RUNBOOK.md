@@ -434,44 +434,86 @@ sudo systemctl start coolify
 
 ```
 /srv/backups/redis/dump-*.rdb.gz
+/srv/backups/redis/
 ```
 
 #### Procedimento de Restauração
 
 ```bash
 # 1. Identificar o backup mais recente
-ls -lt /srv/backups/redis/dump-*.rdb.gz | head -5
+ls -lt /srv/backups/redis/dump-*.rdb.gz 2>/dev/null | head -5
+
+# Se backups não existem, verificar snapshots ZFS
+sudo zfs list -t snapshot | grep redis
 
 # 2. Identificar container do Redis
 REDIS_CONTAINER=$(docker ps --format "{{.Names}}" | grep redis)
+echo "Container Redis: $REDIS_CONTAINER"
 
-# 3. Parar serviços que usam Redis
-# (Verificar quais serviços dependem do Redis antes de parar)
+# 3. Listar serviços que dependem do Redis
+echo "Serviços dependentes do Redis:"
+docker ps --format "{{.Names}}" | while read c; do
+  if docker exec $c env 2>/dev/null | grep -qi redis; then
+    echo "  - $c"
+  fi
+done
 
-# 4. Parar o Redis
-docker exec $REDIS_CONTAINER redis-cli SHUTDOWN NOSAVE
+# 4. Parar serviços dependentes (para evitar conexões durante restore)
+for service in ai-gateway litellm hermes-agency; do
+  docker stop $service 2>/dev/null && echo "Parado: $service" || echo "Não encontrado: $service"
+done
 
-# 5. Fazer backup do RDB atual (precaução)
-docker exec $REDIS_CONTAINER redis-cli SAVE
-docker cp $REDIS_CONTAINER:/data/dump.rdb /srv/backups/redis/dump.rdb.bak.$(date +%Y%m%d%H%M%S)
+# 5. Parar o Redis
+docker exec $REDIS_CONTAINER redis-cli SHUTDOWN NOSAVE 2>/dev/null || docker stop $REDIS_CONTAINER
 
-# 6. Copiar backup restaurado
-BACKUP_FILE="/srv/backups/redis/dump-LATEST.rdb.gz"  # Substituir pelo arquivo específico
-gunzip -c "$BACKUP_FILE" | docker exec -i $REDIS_CONTAINER redis-cli --pipe
+# 6. Fazer backup do RDB atual (precaução)
+CURRENT_RDB=$(docker exec $REDIS_CONTAINER redis-cli CONFIG GET dir 2>/dev/null | tail -1)
+docker cp $REDIS_CONTAINER:$CURRENT_RDB/dump.rdb /srv/backups/redis/dump.rdb.bak.$(date +%Y%m%d%H%M%S) 2>/dev/null
 
-# 7. Verificar integridade
-docker exec $REDIS_CONTAINER redis-cli DEBUG RESTORE-MGR-DONE
+# 7. Restaurar do backup
+BACKUP_FILE=$(ls -t /srv/backups/redis/dump-*.rdb.gz 2>/dev/null | head -1)
 
-# 8. Reiniciar Redis
-docker restart $REDIS_CONTAINER
+if [ -n "$BACKUP_FILE" ]; then
+  echo "Restaurando: $BACKUP_FILE"
+  # Copiar e extrair para o volume do Redis
+  TMPDIR=$(mktemp -d)
+  gunzip -c "$BACKUP_FILE" > $TMPDIR/dump.rdb
+  docker cp $TMPDIR/dump.rdb $REDIS_CONTAINER:$CURRENT_RDB/dump.rdb
+  rm -rf $TMPDIR
+else
+  # Tentar restaurar via ZFS snapshot
+  echo "Nenhum backup RDB encontrado, verificando ZFS snapshots..."
+  SNAPSHOT=$(sudo zfs list -t snapshot -o name | grep redis | head -1)
+  if [ -n "$SNAPSHOT" ]; then
+    echo "Restaurando ZFS snapshot: $SNAPSHOT"
+    VOLUME=$(echo $SNAPSHOT | cut -d@ -f1)
+    sudo zfs rollback $SNAPSHOT
+  fi
+fi
+
+# 8. Verificar integridade do arquivo
+docker exec $REDIS_CONTAINER redis-cli DEBUG RESTORE-MGR-DONE 2>/dev/null || echo "Verificação não disponível"
+
+# 9. Reiniciar Redis
+docker start $REDIS_CONTAINER
+sleep 2
+
+# 10. Verificar se Redis está respondendo
+docker exec $REDIS_CONTAINER redis-cli PING
+
+# 11. Reiniciar serviços dependentes
+for service in hermes-agency ai-gateway litellm; do
+  docker start $service 2>/dev/null && echo "Iniciado: $service" || echo "Não encontrado: $service"
+done
 ```
 
 #### Checklist Pós-Restauração
 
-- [ ] Verificar se Redis inicia corretamente
-- [ ] Verificar keys existentes: `docker exec $REDIS_CONTAINER redis-cli KEYS '*'`
-- [ ] Verificar configuração de persistência
-- [ ] Reiniciar serviços dependentes
+- [ ] Verificar se Redis inicia corretamente: `docker exec $REDIS_CONTAINER redis-cli PING`
+- [ ] Verificar keys existentes: `docker exec $REDIS_CONTAINER redis-cli KEYS '*' | head -20`
+- [ ] Verificar configuração de persistência: `docker exec $REDIS_CONTAINER redis-cli CONFIG GET appendonly`
+- [ ] Verificar memória usada: `docker exec $REDIS_CONTAINER redis-cli INFO memory | grep used_memory`
+- [ ] Reiniciar serviços dependentes e verificar conexões
 
 ---
 
