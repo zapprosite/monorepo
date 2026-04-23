@@ -468,7 +468,7 @@ function App() {
           </h1>
 
           <p className="text-xl md:text-2xl text-gray-300 mb-8 max-w-2xl mx-auto">
-            Catálogo de serviços do organism — tudo que o homelab oferece, Explained.
+            Catálogo de serviços do organism — tudo que o homelab oferece, explicado.
           </p>
 
           <div className="flex gap-4 justify-center flex-wrap">
