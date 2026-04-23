@@ -8,11 +8,12 @@ import { Box } from "@repo/ui-mui/layout/Box";
 import { Container } from "@repo/ui-mui/layout/Container";
 import { Paper } from "@repo/ui-mui/layout/Paper";
 import { Stack } from "@repo/ui-mui/layout/Stack";
+import { env } from "@frontend/configs/env.config";
 import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
-const IS_DEV = import.meta.env.VITE_NODE_ENV === "development";
+const API_URL = env.VITE_API_URL;
+const IS_DEV = import.meta.env.DEV;
 
 export const LoginPage = () => {
 	const [isLoading, setIsLoading] = useState(false);
@@ -88,7 +89,7 @@ export const LoginPage = () => {
 										letterSpacing: "-1px",
 									}}
 								>
-									Welcome
+									Entrar
 								</Typography>
 								<Typography
 									variant="h6"
@@ -100,7 +101,7 @@ export const LoginPage = () => {
 										fontSize: { xs: "1.1rem", sm: "1.25rem" },
 									}}
 								>
-									Connected Repo CRM
+									Acesse o Connected Repo CRM
 								</Typography>
 							</Box>
 
@@ -115,8 +116,8 @@ export const LoginPage = () => {
 										}}
 									>
 										{error === "oauth_failed"
-											? "Authentication failed. Please try again."
-											: "An error occurred during login. Please try again."}
+											? "Falha na autenticação. Tente novamente."
+											: "Ocorreu um erro no login. Tente novamente."}
 									</Alert>
 								</Fade>
 							)}
@@ -126,7 +127,7 @@ export const LoginPage = () => {
 									<form onSubmit={handleDevLogin}>
 										<Stack spacing={2}>
 											<TextField
-												label="Email (dev)"
+												label="E-mail (dev)"
 												type="email"
 												value={devEmail}
 												onChange={(e) => setDevEmail(e.target.value)}
@@ -134,7 +135,7 @@ export const LoginPage = () => {
 												size="small"
 											/>
 											<TextField
-												label="Password (dev)"
+												label="Senha (dev)"
 												type="password"
 												value={devPassword}
 												onChange={(e) => setDevPassword(e.target.value)}
@@ -142,7 +143,7 @@ export const LoginPage = () => {
 												size="small"
 											/>
 											<Button type="submit" variant="contained" fullWidth disabled={isLoading}>
-												{isLoading ? "Entrando..." : "Dev Login"}
+												{isLoading ? "Entrando..." : "Entrar no modo dev"}
 											</Button>
 										</Stack>
 									</form>
@@ -197,7 +198,7 @@ export const LoginPage = () => {
 											}}
 										>
 											<GoogleIcon width={20} height={20} />
-											<span>{isLoading ? "Connecting..." : "Continue with Google"}</span>
+											<span>{isLoading ? "Conectando..." : "Continuar com Google"}</span>
 										</Box>
 									</Button>
 								</Box>
@@ -207,9 +208,9 @@ export const LoginPage = () => {
 								sx={{ mt: 4, pt: 4, borderTop: "1px solid", borderColor: "divider", width: "100%" }}
 							>
 								<Stack spacing={2}>
-									<FeatureItem icon="📝" text="Daily thought-provoking prompts" />
-									<FeatureItem icon="⏰" text="Scheduled notifications at your chosen time" />
-									<FeatureItem icon="🔍" text="Simple search to revisit past reflections" />
+									<FeatureItem icon="📝" text="Prompts diários para reflexão" />
+									<FeatureItem icon="⏰" text="Notificações agendadas no horário que você escolher" />
+									<FeatureItem icon="🔍" text="Busca simples para revisitar reflexões anteriores" />
 								</Stack>
 							</Box>
 
@@ -221,7 +222,7 @@ export const LoginPage = () => {
 										fontSize: { xs: "0.8rem", sm: "0.75rem" },
 									}}
 								>
-									By continuing, you agree to our Terms of Service and Privacy Policy
+									Ao continuar, você concorda com os nossos Termos de Serviço e a Política de Privacidade
 								</Typography>
 							</Box>
 						</Stack>

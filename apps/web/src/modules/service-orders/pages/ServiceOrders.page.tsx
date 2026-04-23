@@ -7,11 +7,11 @@ import { Box } from "@connected-repo/ui-mui/layout/Box";
 import { Container } from "@connected-repo/ui-mui/layout/Container";
 import { Paper } from "@connected-repo/ui-mui/layout/Paper";
 import { MenuItem } from "@connected-repo/ui-mui/navigation/MenuItem";
-import type { ServiceOrderStatus, ServiceType } from "@connected-repo/zod-schemas/crm_enums.zod";
+import type { ServiceOrderStatus, ServiceType } from "@repo/zod-schemas/crm_enums.zod";
 import {
 	SERVICE_ORDER_STATUS_ENUM,
 	SERVICE_TYPE_ENUM,
-} from "@connected-repo/zod-schemas/crm_enums.zod";
+} from "@repo/zod-schemas/crm_enums.zod";
 import { trpc } from "@frontend/utils/trpc.client";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";

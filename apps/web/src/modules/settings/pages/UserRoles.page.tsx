@@ -14,7 +14,7 @@ import { MenuItem } from "@connected-repo/ui-mui/navigation/MenuItem";
 import {
 	USER_ROLE_ENUM,
 	type UserRole,
-} from "@connected-repo/zod-schemas/crm_enums.zod";
+} from "@repo/zod-schemas/crm_enums.zod";
 import { trpc } from "@frontend/utils/trpc.client";
 import {
 	DialogActions,

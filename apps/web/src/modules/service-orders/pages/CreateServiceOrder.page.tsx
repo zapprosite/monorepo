@@ -8,11 +8,11 @@ import { MenuItem } from "@connected-repo/ui-mui/navigation/MenuItem";
 import {
 	SERVICE_ORDER_STATUS_ENUM,
 	SERVICE_TYPE_ENUM,
-} from "@connected-repo/zod-schemas/crm_enums.zod";
+} from "@repo/zod-schemas/crm_enums.zod";
 import {
 	type ServiceOrderCreateInput,
 	serviceOrderCreateInputZod,
-} from "@connected-repo/zod-schemas/service_order.zod";
+} from "@repo/zod-schemas/service_order.zod";
 import { trpc } from "@frontend/utils/trpc.client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";

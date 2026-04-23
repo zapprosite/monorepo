@@ -12,12 +12,12 @@ import type {
 	EditorialChannel,
 	EditorialFormat,
 	EditorialStatus,
-} from "@connected-repo/zod-schemas/crm_enums.zod";
+} from "@repo/zod-schemas/crm_enums.zod";
 import {
 	EDITORIAL_CHANNEL_ENUM,
 	EDITORIAL_FORMAT_ENUM,
 	EDITORIAL_STATUS_ENUM,
-} from "@connected-repo/zod-schemas/crm_enums.zod";
+} from "@repo/zod-schemas/crm_enums.zod";
 import { trpc } from "@frontend/utils/trpc.client";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";

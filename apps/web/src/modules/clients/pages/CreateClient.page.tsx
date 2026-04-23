@@ -8,8 +8,8 @@ import { MenuItem } from "@connected-repo/ui-mui/navigation/MenuItem";
 import {
 	type ClientCreateInput,
 	clientCreateInputZod,
-} from "@connected-repo/zod-schemas/client.zod";
-import { CLIENT_TYPE_ENUM } from "@connected-repo/zod-schemas/crm_enums.zod";
+} from "@repo/zod-schemas/client.zod";
+import { CLIENT_TYPE_ENUM } from "@repo/zod-schemas/crm_enums.zod";
 import { trpc } from "@frontend/utils/trpc.client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";

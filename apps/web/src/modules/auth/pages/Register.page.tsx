@@ -9,10 +9,10 @@ import { Stack } from "@connected-repo/ui-mui/layout/Stack";
 import { RhfSubmitButton } from "@connected-repo/ui-mui/rhf-form/RhfSubmitButton";
 import { RhfTextField } from "@connected-repo/ui-mui/rhf-form/RhfTextField";
 import { useRhfForm } from "@connected-repo/ui-mui/rhf-form/useRhfForm";
-import { type UserCreateInput, userCreateInputZod } from "@connected-repo/zod-schemas/user.zod";
+import { type UserCreateInput, userCreateInputZod } from "@repo/zod-schemas/user.zod";
 import { trpc, trpcFetch } from "@frontend/utils/trpc.client";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { useNavigate } from "react-router";
 
@@ -21,16 +21,17 @@ type RegisterFormData = UserCreateInput;
 const RegisterPage = () => {
 	const navigate = useNavigate();
 
-	// Fetch session info to pre-fill form
-	const { data: sessionInfo, isLoading: isLoadingSession } = useSuspenseQuery(
-		trpc.auth.getSessionInfo.queryOptions(),
-	);
+	// Guest loader already fetched this once; keep runtime resilient if cache is cold.
+	const { data: sessionInfo, isPending: isLoadingSession } = useQuery({
+		...trpc.auth.getSessionInfo.queryOptions(),
+		retry: false,
+	});
 
 	// Form setup with Zod validation and RHF
 	const { formMethods, RhfFormProvider } = useRhfForm<RegisterFormData>({
 		onSubmit: async (data) => {
 			await trpcFetch.users.create.mutate(data);
-			navigate("/dashboard");
+			navigate("/dashboard", { replace: true });
 		},
 		formConfig: {
 			resolver: zodResolver(userCreateInputZod),
@@ -46,17 +47,19 @@ const RegisterPage = () => {
 		}
 	}, [sessionInfo, formMethods]);
 
-	// Redirect if already registered
+	// Redirect if session state makes this page invalid
 	useEffect(() => {
-		if (sessionInfo?.isRegistered) {
-			navigate("/dashboard");
+		if (!sessionInfo) {
+			return;
 		}
-	}, [sessionInfo, navigate]);
 
-	// Redirect if no session
-	useEffect(() => {
-		if (sessionInfo && !sessionInfo.hasSession) {
-			navigate("/auth/login");
+		if (sessionInfo.isRegistered) {
+			navigate("/dashboard", { replace: true });
+			return;
+		}
+
+		if (!sessionInfo.hasSession) {
+			navigate("/auth/login", { replace: true });
 		}
 	}, [sessionInfo, navigate]);
 
@@ -118,6 +121,11 @@ const RegisterPage = () => {
 								<Typography variant="body1" color="text.secondary">
 									Faltam só alguns detalhes para começar
 								</Typography>
+								{sessionInfo?.user?.email && (
+									<Typography variant="body2" color="text.secondary">
+										Entrando como {sessionInfo.user.email}
+									</Typography>
+								)}
 							</Box>
 
 							{/* Form */}
@@ -129,9 +137,9 @@ const RegisterPage = () => {
 									{/* Email Field (pre-filled, readonly) */}
 									<RhfTextField
 										name="email"
-										label="Email Address"
+										label="E-mail"
 										type="email"
-										helperText="From your Google account"
+										helperText="Preenchido com a sua conta"
 										InputProps={{
 											readOnly: true,
 										}}
@@ -146,8 +154,8 @@ const RegisterPage = () => {
 									{/* Name Field (pre-filled, editable) */}
 									<RhfTextField
 										name="name"
-										label="Full Name"
-										helperText="You can edit this if needed"
+										label="Nome completo"
+										helperText="Pode editar se quiser"
 										autoFocus
 										sx={{
 											mb: 0,
@@ -164,9 +172,11 @@ const RegisterPage = () => {
 
 									{/* Submit Button */}
 									<RhfSubmitButton
-										notSubmittingText="Complete Registration"
-										isSubmittingText="Creating account..."
+										notSubmittingText="Concluir cadastro"
+										isSubmittingText="Criando conta..."
 										props={{
+											variant: "contained",
+											fullWidth: true,
 											size: "large",
 										}}
 									/>
@@ -180,7 +190,8 @@ const RegisterPage = () => {
 								textAlign="center"
 								sx={{ mt: 2 }}
 							>
-								By registering, you agree to our Terms of Service and Privacy Policy
+								Ao concluir o cadastro, você concorda com os nossos Termos de Serviço e a
+								Política de Privacidade.
 							</Typography>
 						</Stack>
 					</Card>

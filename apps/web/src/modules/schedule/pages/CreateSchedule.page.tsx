@@ -5,11 +5,11 @@ import { Box } from "@connected-repo/ui-mui/layout/Box";
 import { Container } from "@connected-repo/ui-mui/layout/Container";
 import { Paper } from "@connected-repo/ui-mui/layout/Paper";
 import { MenuItem } from "@connected-repo/ui-mui/navigation/MenuItem";
-import { SCHEDULE_STATUS_ENUM, SERVICE_TYPE_ENUM } from "@connected-repo/zod-schemas/crm_enums.zod";
+import { SCHEDULE_STATUS_ENUM, SERVICE_TYPE_ENUM } from "@repo/zod-schemas/crm_enums.zod";
 import {
 	type ScheduleCreateInput,
 	scheduleCreateInputZod,
-} from "@connected-repo/zod-schemas/schedule.zod";
+} from "@repo/zod-schemas/schedule.zod";
 import { trpc } from "@frontend/utils/trpc.client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";

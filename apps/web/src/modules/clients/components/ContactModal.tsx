@@ -9,7 +9,7 @@ import { Box } from "@connected-repo/ui-mui/layout/Box";
 import {
 	type ContactCreateInput,
 	contactCreateInputZod,
-} from "@connected-repo/zod-schemas/contact.zod";
+} from "@repo/zod-schemas/contact.zod";
 import { trpc } from "@frontend/utils/trpc.client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
