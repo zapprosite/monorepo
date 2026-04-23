@@ -1,11 +1,11 @@
 // Anti-hardcoded: all config via process.env
 // LangGraph Supervisor — routes invokeWorkflow calls to registered workflows
 
-import { contentPipelineGraph, executeContentPipeline, approveContentPipeline } from './content_pipeline.ts';
-import { executeOnboardingFlow } from './onboarding_flow.ts';
-import { executeLeadQualification } from './lead_qualification.ts';
-import { executeSocialCalendar } from './social_calendar.ts';
-import { executeStatusUpdate } from './status_update.ts';
+import { contentPipelineGraph, executeContentPipeline, approveContentPipeline } from './content_pipeline.js';
+import { executeOnboardingFlow } from './onboarding_flow.js';
+import { executeLeadQualification } from './lead_qualification.js';
+import { executeSocialCalendar } from './social_calendar.js';
+import { executeStatusUpdate } from './status_update.js';
 
 /**
  * Supported workflow names.
@@ -33,7 +33,7 @@ export type WorkflowResult = {
 
 const WORKFLOW_REGISTRY: Record<
   WorkflowName,
-  (input: string, threadId?: string) => Promise<WorkflowResult>
+  (_input: string, _threadId?: string) => Promise<WorkflowResult>
 > = {
   content_pipeline: async (input: string, threadId?: string) => {
     try {
@@ -52,7 +52,7 @@ const WORKFLOW_REGISTRY: Record<
       if (parts.length < 2) {
         return { workflow: 'onboarding', status: 'error', error: 'Invalid input format: expected "clientName|email|[telegramChatId]"' };
       }
-      const [clientName, email, telegramChatId] = parts;
+      const [clientName, email, telegramChatId] = parts as [string, string, string | undefined];
       const result = await executeOnboardingFlow(
         clientName,
         email,

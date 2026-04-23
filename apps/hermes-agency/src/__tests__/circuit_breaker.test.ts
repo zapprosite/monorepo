@@ -6,7 +6,7 @@ import {
   getCircuitBreaker,
   getAllCircuitBreakers,
   resetCircuitBreaker,
-} from '../skills/circuit_breaker.ts';
+} from '../skills/circuit_breaker.js';
 
 const TEST_SKILL = 'agency-test-skill';
 

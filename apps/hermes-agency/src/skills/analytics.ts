@@ -1,6 +1,7 @@
 // Anti-hardcoded: all config via process.env
 // Hermes Agency — Agency Analytics Skill
 // Fetches metrics from Grafana/Loki, generates LLM reports, compares campaigns, alerts anomalies
+/* eslint-disable no-console */
 
 import { llmComplete } from '../litellm/router.js';
 import { search, COLLECTIONS, type CollectionName, type PointPayload } from '../qdrant/client.js';
@@ -86,7 +87,7 @@ async function fetchFromGrafana(campaignId: string): Promise<CampaignMetrics | n
 
   try {
     // Try Prometheus-style query via Grafana API
-    const query = `sum(increase(advertising_impressions{campaign_id="${campaignId"}[24h]))`;
+    const query = `sum(increase(advertising_impressions{campaign_id="${campaignId}"}[24h]))`;
     const res = await fetch(
       `${GRAFANA_URL}/api/datasources/proxy/1/query?expr=${encodeURIComponent(query)}`,
       {
@@ -255,10 +256,10 @@ export async function compare_campaigns(campaignIds: string[]): Promise<Campaign
     campaignId: m.campaignId,
     metrics: m,
     rank: {
-      impressions: impressionsRank[m.campaignId],
-      clicks: clicksRank[m.campaignId],
-      conversions: conversionsRank[m.campaignId],
-      roas: roasRank[m.campaignId],
+      impressions: impressionsRank[m.campaignId] ?? 0,
+      clicks: clicksRank[m.campaignId] ?? 0,
+      conversions: conversionsRank[m.campaignId] ?? 0,
+      roas: roasRank[m.campaignId] ?? 0,
     },
   }));
 }

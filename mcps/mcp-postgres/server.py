@@ -13,6 +13,7 @@ import uuid
 from dataclasses import dataclass, asdict
 from typing import Optional
 from contextlib import contextmanager
+from decimal import Decimal
 
 # ---------------------------------------------------------------------------
 # Imports — pg8000 for pure Python PostgreSQL driver
@@ -30,7 +31,7 @@ except ImportError:
 # ---------------------------------------------------------------------------
 
 POSTGRES_HOST = os.environ.get("MCP_POSTGRES_HOST", "localhost")
-POSTGRES_PORT = int(os.environ.get("MCP_POSTGRES_PORT", "5432"))
+POSTGRES_PORT = int(os.environ.get("MCP_POSTGRES_DB_PORT", os.environ.get("MCP_POSTGRES_PORT", "5432")))
 POSTGRES_USER = os.environ.get("MCP_POSTGRES_USER", "postgres")
 POSTGRES_PASSWORD = os.environ.get("MCP_POSTGRES_PASSWORD", "")
 POSTGRES_DB = os.environ.get("MCP_POSTGRES_DB", "postgres")
@@ -99,7 +100,7 @@ class PostgresConnectionManager:
         """Execute a query and return results."""
         with self.connect() as conn:
             cursor = conn.cursor()
-            cursor.execute(query, params)
+            cursor.execute(query, params if params is not None else ())
             try:
                 columns = [desc[0] for desc in cursor.description]
                 rows = cursor.fetchall()
@@ -118,7 +119,7 @@ class PostgresConnectionManager:
         """Execute INSERT/UPDATE/DELETE, return rows affected."""
         with self.connect() as conn:
             cursor = conn.cursor()
-            cursor.execute(query, params)
+            cursor.execute(query, params if params is not None else ())
             return cursor.rowcount
 
 
@@ -190,7 +191,7 @@ class SchemaOrganizer:
                     s.schema_name,
                     s.schema_owner,
                     COUNT(t.table_name) AS tables,
-                    COALESCE(SUM(pg.total_relation_size(s.schema_name || '.' || t.table_name)), 0) AS size_bytes
+                    COALESCE(SUM(pg_catalog.pg_total_relation_size(s.schema_name || '.' || t.table_name)), 0) AS size_bytes
                 FROM information_schema.schemata s
                 LEFT JOIN information_schema.tables t ON t.table_schema = s.schema_name AND t.table_type = 'BASE TABLE'
                 WHERE s.schema_name LIKE %s || '%%'
@@ -204,7 +205,7 @@ class SchemaOrganizer:
                     s.schema_name,
                     s.schema_owner,
                     COUNT(t.table_name) AS tables,
-                    COALESCE(SUM(pg.total_relation_size(s.schema_name || '.' || t.table_name)), 0) AS size_bytes
+                    COALESCE(SUM(pg_catalog.pg_total_relation_size(s.schema_name || '.' || t.table_name)), 0) AS size_bytes
                 FROM information_schema.schemata s
                 LEFT JOIN information_schema.tables t ON t.table_schema = s.schema_name AND t.table_type = 'BASE TABLE'
                 WHERE s.schema_name NOT IN ('pg_catalog', 'information_schema', 'extensions')
@@ -288,7 +289,7 @@ class SchemaOrganizer:
                 t.table_name,
                 t.table_owner,
                 COALESCE(c.reltuples, 0)::bigint AS rows,
-                pg.total_relation_size(t.table_schema || '.' || t.table_name) AS size_bytes
+                pg_catalog.pg_total_relation_size(t.table_schema || '.' || t.table_name) AS size_bytes
             FROM information_schema.tables t
             LEFT JOIN pg_class c ON c.relname = t.table_name AND c.relnamespace::regnamespace::text = t.table_schema
             WHERE t.table_schema = %s AND t.table_type = 'BASE TABLE'
@@ -683,7 +684,7 @@ class MCPHandler(BaseHTTPRequestHandler):
         print(f"[mcp-postgres] {args[0]}")
 
     def send_json(self, data: dict, status: int = 200):
-        body = json.dumps(data).encode()
+        body = json.dumps(data, default=str).encode()
         self.send_response(status)
         self.send_header("Content-Type", "application/json")
         self.send_header("Content-Length", len(body))

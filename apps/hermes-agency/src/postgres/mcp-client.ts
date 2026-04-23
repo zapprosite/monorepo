@@ -1,5 +1,5 @@
-const MCP_HOST = process.env.MCP_POSTGRES_HOST ?? 'localhost';
-const MCP_PORT = process.env.MCP_POSTGRES_PORT ?? '4017';
+const MCP_HOST = process.env['MCP_POSTGRES_HOST'] ?? 'localhost';
+const MCP_PORT = process.env['MCP_POSTGRES_PORT'] ?? '4017';
 const MCP_URL = `http://${MCP_HOST}:${MCP_PORT}/tools/call`;
 
 export interface ColumnDef {
@@ -53,37 +53,37 @@ async function callMcpTool(name: string, arguments_: Record<string, unknown>): P
 
 function buildCreateSchemaArgs(app: string, lead?: string): Record<string, unknown> {
   const args: Record<string, unknown> = { app };
-  if (lead !== undefined) args.lead = lead;
+  if (lead !== undefined) args['lead'] = lead;
   return args;
 }
 
 function buildDropSchemaArgs(app: string, lead?: string): Record<string, unknown> {
   const args: Record<string, unknown> = { app };
-  if (lead !== undefined) args.lead = lead;
+  if (lead !== undefined) args['lead'] = lead;
   return args;
 }
 
 function buildListSchemasArgs(app?: string): Record<string, unknown> {
   const args: Record<string, unknown> = {};
-  if (app !== undefined) args.app = app;
+  if (app !== undefined) args['app'] = app;
   return args;
 }
 
 function buildCreateTableArgs(app: string, lead: string | undefined, table: string, columns: ColumnDef[]): Record<string, unknown> {
   const args: Record<string, unknown> = { app, table, columns };
-  if (lead !== undefined) args.lead = lead;
+  if (lead !== undefined) args['lead'] = lead;
   return args;
 }
 
 function buildListTablesArgs(app: string, lead?: string): Record<string, unknown> {
   const args: Record<string, unknown> = { app };
-  if (lead !== undefined) args.lead = lead;
+  if (lead !== undefined) args['lead'] = lead;
   return args;
 }
 
 function buildQueryArgs(sql: string, limit?: number): Record<string, unknown> {
   const args: Record<string, unknown> = { sql };
-  if (limit !== undefined) args.limit = limit;
+  if (limit !== undefined) args['limit'] = limit;
   return args;
 }
 
@@ -93,7 +93,7 @@ function buildWriteArgs(sql: string): Record<string, unknown> {
 
 function buildCreateIndexArgs(app: string, lead: string | undefined, table: string, index: string, columns: string[]): Record<string, unknown> {
   const args: Record<string, unknown> = { app, table, index, columns };
-  if (lead !== undefined) args.lead = lead;
+  if (lead !== undefined) args['lead'] = lead;
   return args;
 }
 

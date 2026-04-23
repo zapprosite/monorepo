@@ -1,8 +1,8 @@
 // Anti-hardcoded: all config via process.env
 // Brand Guardian — brand consistency enforcement for Hermes Agency Suite
 
-import { llmComplete } from '../litellm/router.ts';
-import { upsertVector, COLLECTIONS } from '../qdrant/client.ts';
+import { llmComplete } from '../litellm/router.js';
+import { upsertVector, COLLECTIONS } from '../qdrant/client.js';
 
 /**
  * Prohibited terms that indicate brand violations.

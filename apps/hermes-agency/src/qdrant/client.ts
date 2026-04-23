@@ -1,5 +1,6 @@
 // Anti-hardcoded: all config via process.env
 // Qdrant Client — Multi-tenant collections for Hermes Agency Suite
+/* eslint-disable no-console */
 
 const QDRANT_URL = process.env['QDRANT_URL'] ?? 'http://localhost:6333';
 const QDRANT_API_KEY = process.env['QDRANT_API_KEY'] ?? '';
@@ -33,7 +34,7 @@ export type CollectionName = (typeof COLLECTIONS)[keyof typeof COLLECTIONS];
 export interface CollectionSchema {
   name: CollectionName;
   description: string;
-  payloadSchema: Record<string, string>;
+  payloadSchema: string;
 }
 
 export const COLLECTION_SCHEMAS: CollectionSchema[] = [
@@ -295,7 +296,7 @@ export async function updatePoint(
     // Qdrant PUT upserts full point — merge payload by fetching first
     const existing = await getPoint({ collection, id });
     const mergedPayload = existing ? { ...existing.payload, ...payload } : payload;
-    const vector = (existing?.payload?.vector as number[]) ?? new Array(COLLECTION_DIMENSION).fill(0);
+    const vector = (existing?.payload?.['vector'] as number[]) ?? new Array(COLLECTION_DIMENSION).fill(0);
 
     const res = await fetch(`${QDRANT_URL}/collections/${collection}/points`, {
       method: 'PUT',
@@ -327,7 +328,7 @@ export async function scrollCollection(
       limit,
       with_payload: true,
     };
-    if (offset) body.offset = offset;
+    if (offset) body['offset'] = offset;
 
     const res = await fetch(`${QDRANT_URL}/collections/${collection}/points/scroll`, {
       method: 'POST',
