@@ -773,18 +773,25 @@ done
 
 ## Contatos de Emergência
 
-| Serviço | Responsável | Procedimento |
-|---------|-------------|--------------|
-| Infraestrutura | Equipe DevOps | Slack: #infra-oncall |
-| Gitea | Admin Local | Slack: #devops |
-| Coolify | Admin Local | Slack: #platform |
-| Network/Tunnel | Admin Local | Slack: #netops |
+| Função | Nome | Contato | Horário |
+|--------|------|---------|---------|
+| Engenheiro de Plataforma (Primary) | Will Zappro | @will (Slack) / will@zappro.site | 24/7 |
+| DevOps Sênior (Backup) | Equipe DevOps | Slack: #infra-oncall | 24/7 |
+| Admin Gitea | Admin Local | Slack: #devops | Horário comercial |
+| Admin Coolify | Admin Local | Slack: #platform | Horário comercial |
+| Network/Tunnel | Admin Local | Slack: #netops | Horário comercial |
 
 ### Escalação
 
-1. **Nível 1:** Equipe de plantão local
-2. **Nível 2:** Engenheiro DevOps sênior
-3. **Nível 3:** Gerenciamento de infraestrutura
+1. **Nível 1:** Equipe de plantão local (Slack: #infra-oncall)
+2. **Nível 2:** Engenheiro DevOps sênior / Platform Engineer
+3. **Nível 3:** Gerenciamento de infraestrutura (will@zappro.site)
+
+### Comunicação de Emergência
+
+- **Slack:** Canal #incidents (usar para todos os incidentes)
+- **Status Page:** https://status.zappro.site
+- **Runbook:** Este documento
 
 ---
 
