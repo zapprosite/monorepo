@@ -60,9 +60,9 @@ This document tracks environment variable completeness, docker-compose usage, an
 | `/srv/monorepo/docker-compose.openwebui.yml` | NO | No secrets — static config |
 | `/srv/monorepo/docker-compose.gitea-runner.yml` | NO | Uses `${VAR}` substitution only |
 | `/srv/monorepo/apps/obsidian-web/docker-compose.yml` | **YES** | `env_file: /srv/monorepo/.env` |
-| `/srv/monorepo/apps/ai-gateway/docker-compose.yml` | TODO | needs verification |
-| `/srv/monorepo/apps/list-web/docker-compose.yml` | TODO | needs verification |
-| `/srv/monorepo/mcps/mcp-memory/docker-compose.yml` | TODO | needs verification |
+| `/srv/monorepo/apps/ai-gateway/docker-compose.yml` | NO | Uses `${VAR}` substitution inline |
+| `/srv/monorepo/apps/list-web/docker-compose.yml` | NO | Uses `${VAR}` substitution inline |
+| `/srv/monorepo/mcps/mcp-memory/docker-compose.yml` | NO | Uses inline environment: only |
 
 **Note:** Root `docker-compose.yml` references no env_file but uses direct `${VAR}` substitution. This is acceptable for interpolation but does not load all .env defaults.
 
