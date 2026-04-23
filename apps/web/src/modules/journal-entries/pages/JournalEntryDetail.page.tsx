@@ -1,24 +1,24 @@
-import { ErrorAlert } from "@connected-repo/ui-mui/components/ErrorAlert";
-import { LoadingSpinner } from "@connected-repo/ui-mui/components/LoadingSpinner";
-import { Typography } from "@connected-repo/ui-mui/data-display/Typography";
-import { Alert } from "@connected-repo/ui-mui/feedback/Alert";
+import { ErrorAlert } from "@repo/ui-mui/components/ErrorAlert";
+import { LoadingSpinner } from "@repo/ui-mui/components/LoadingSpinner";
+import { Typography } from "@repo/ui-mui/data-display/Typography";
+import { Alert } from "@repo/ui-mui/feedback/Alert";
 import {
 	Dialog,
 	DialogActions,
 	DialogContent,
 	DialogContentText,
 	DialogTitle,
-} from "@connected-repo/ui-mui/feedback/Dialog";
-import { Button } from "@connected-repo/ui-mui/form/Button";
-import { TextField } from "@connected-repo/ui-mui/form/TextField";
-import { ArrowBackIcon } from "@connected-repo/ui-mui/icons/ArrowBackIcon";
-import { CalendarTodayIcon } from "@connected-repo/ui-mui/icons/CalendarTodayIcon";
-import { DeleteIcon } from "@connected-repo/ui-mui/icons/DeleteIcon";
-import { Box } from "@connected-repo/ui-mui/layout/Box";
-import { Card, CardContent } from "@connected-repo/ui-mui/layout/Card";
-import { Container } from "@connected-repo/ui-mui/layout/Container";
-import { Divider } from "@connected-repo/ui-mui/layout/Divider";
-import { Stack } from "@connected-repo/ui-mui/layout/Stack";
+} from "@repo/ui-mui/feedback/Dialog";
+import { Button } from "@repo/ui-mui/form/Button";
+import { TextField } from "@repo/ui-mui/form/TextField";
+import { ArrowBackIcon } from "@repo/ui-mui/icons/ArrowBackIcon";
+import { CalendarTodayIcon } from "@repo/ui-mui/icons/CalendarTodayIcon";
+import { DeleteIcon } from "@repo/ui-mui/icons/DeleteIcon";
+import { Box } from "@repo/ui-mui/layout/Box";
+import { Card, CardContent } from "@repo/ui-mui/layout/Card";
+import { Container } from "@repo/ui-mui/layout/Container";
+import { Divider } from "@repo/ui-mui/layout/Divider";
+import { Stack } from "@repo/ui-mui/layout/Stack";
 import { trpc } from "@frontend/utils/trpc.client";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useState } from "react";

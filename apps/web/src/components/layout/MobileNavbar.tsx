@@ -1,10 +1,10 @@
-import { Typography } from "@connected-repo/ui-mui/data-display/Typography";
-import { Box } from "@connected-repo/ui-mui/layout/Box";
-import { Paper } from "@connected-repo/ui-mui/layout/Paper";
-import { AppBar } from "@connected-repo/ui-mui/navigation/AppBar";
-import { BottomNavigation } from "@connected-repo/ui-mui/navigation/BottomNavigation";
-import { BottomNavigationAction } from "@connected-repo/ui-mui/navigation/BottomNavigationAction";
-import { Toolbar } from "@connected-repo/ui-mui/navigation/Toolbar";
+import { Typography } from "@repo/ui-mui/data-display/Typography";
+import { Box } from "@repo/ui-mui/layout/Box";
+import { Paper } from "@repo/ui-mui/layout/Paper";
+import { AppBar } from "@repo/ui-mui/navigation/AppBar";
+import { BottomNavigation } from "@repo/ui-mui/navigation/BottomNavigation";
+import { BottomNavigationAction } from "@repo/ui-mui/navigation/BottomNavigationAction";
+import { Toolbar } from "@repo/ui-mui/navigation/Toolbar";
 import { navItems } from "@frontend/config/nav.config";
 import { useLocation, useNavigate } from "react-router";
 import { UserProfileMenu } from "./UserProfileMenu";

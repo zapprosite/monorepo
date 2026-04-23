@@ -1,10 +1,10 @@
-import { Typography } from "@connected-repo/ui-mui/data-display/Typography";
-import { Dialog } from "@connected-repo/ui-mui/feedback/Dialog";
-import { DialogActions } from "@connected-repo/ui-mui/feedback/DialogActions";
-import { DialogContent } from "@connected-repo/ui-mui/feedback/DialogContent";
-import { DialogTitle } from "@connected-repo/ui-mui/feedback/DialogTitle";
-import { Button } from "@connected-repo/ui-mui/form/Button";
-import { TextField } from "@connected-repo/ui-mui/form/TextField";
+import { Typography } from "@repo/ui-mui/data-display/Typography";
+import { Dialog } from "@repo/ui-mui/feedback/Dialog";
+import { DialogActions } from "@repo/ui-mui/feedback/DialogActions";
+import { DialogContent } from "@repo/ui-mui/feedback/DialogContent";
+import { DialogTitle } from "@repo/ui-mui/feedback/DialogTitle";
+import { Button } from "@repo/ui-mui/form/Button";
+import { TextField } from "@repo/ui-mui/form/TextField";
 import { trpc } from "@frontend/utils/trpc.client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";

@@ -1,8 +1,8 @@
-import { Typography } from "@connected-repo/ui-mui/data-display/Typography";
-import { Button } from "@connected-repo/ui-mui/form/Button";
-import { Box } from "@connected-repo/ui-mui/layout/Box";
-import { AppBar } from "@connected-repo/ui-mui/navigation/AppBar";
-import { Toolbar } from "@connected-repo/ui-mui/navigation/Toolbar";
+import { Typography } from "@repo/ui-mui/data-display/Typography";
+import { Button } from "@repo/ui-mui/form/Button";
+import { Box } from "@repo/ui-mui/layout/Box";
+import { AppBar } from "@repo/ui-mui/navigation/AppBar";
+import { Toolbar } from "@repo/ui-mui/navigation/Toolbar";
 import { navItems } from "@frontend/config/nav.config";
 import { useLocation, useNavigate } from "react-router";
 import { UserProfileMenu } from "./UserProfileMenu";

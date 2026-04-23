@@ -1,4 +1,3 @@
-import { GoogleIcon } from "@repo/ui-mui/components/GoogleIcon";
 import { Typography } from "@repo/ui-mui/data-display/Typography";
 import { Alert } from "@repo/ui-mui/feedback/Alert";
 import { Fade } from "@repo/ui-mui/feedback/Fade";
@@ -197,7 +196,6 @@ export const LoginPage = () => {
 												gap: 1.5,
 											}}
 										>
-											<GoogleIcon width={20} height={20} />
 											<span>{isLoading ? "Conectando..." : "Continuar com Google"}</span>
 										</Box>
 									</Button>

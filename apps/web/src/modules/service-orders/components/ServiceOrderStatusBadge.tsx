@@ -1,4 +1,4 @@
-import { Chip } from "@connected-repo/ui-mui/data-display/Chip";
+import { Chip } from "@repo/ui-mui/data-display/Chip";
 import type { ServiceOrderStatus } from "@repo/zod-schemas/crm_enums.zod";
 
 const STATUS_COLOR: Record<

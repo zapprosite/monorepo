@@ -1,5 +1,5 @@
-import { Button } from "@connected-repo/ui-mui/form/Button";
-import { Box } from "@connected-repo/ui-mui/layout/Box";
+import { Button } from "@repo/ui-mui/form/Button";
+import { Box } from "@repo/ui-mui/layout/Box";
 
 export const ErrorFallback = () => {
 	const handleReload = () => {
