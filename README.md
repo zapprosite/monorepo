@@ -14,6 +14,27 @@ Agent orchestration platform — Fastify + tRPC API, React 19 frontend, PostgreS
 | TTS | Kokoro + TTS Bridge (`:8013`) |
 | STT | whisper-medium-pt (`:8204`) |
 | Database UI | pgAdmin (`pgadmin.zappro.site`) |
+| MCP Servers | mcp-memory (`:4016`), mcp-ollama (`:4013`), mcp-qdrant (`:4011`), mcp-cron (`:4015`), mcp-coolify (`:4012`), mcp-system (`:4014`) |
+
+## Services
+
+**Public Services (32 containers)**
+
+| Service | URL |
+|---------|-----|
+| Gitea | `https://gitea.zappro.site` |
+| Open WebUI | `https://openwebui.zappro.site` |
+| pgAdmin | `https://pgadmin.zappro.site` |
+| Obsidian Web | `https://obsidian.zappro.site` |
+| AI Gateway | `https://ai.zappro.site` |
+| Kokoro TTS | `https://kokoro.zappro.site` |
+| Searxng | `https://search.zappro.site` |
+| Painel Organism | `https://painel.zappro.site` |
+
+## Agents
+
+- `hermes-agency` — AI agent with voice + vision (`:3001`)
+- `mcp-memory` — Memory Agent for persistent context (`:4016`)
 
 ## Quick Start
 
@@ -51,3 +72,9 @@ pnpm tsc --noEmit # Type check
 ## Secrets
 
 All via `.env`. See `.env.example`. Never hardcode.
+
+## Homelab Status
+
+- **Uptime:** 1 day, 15 hours
+- **Containers:** 32 running
+- **Load:** 0.75 / 0.81 / 1.08
