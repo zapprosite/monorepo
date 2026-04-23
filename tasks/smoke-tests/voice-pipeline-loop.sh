@@ -17,11 +17,11 @@ ALERT=0
 
 # ── STT: Whisper GPU ──────────────────────────────────────────────────────────
 log "=== STT: Whisper GPU ==="
-STT_HEALTH=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8201/health 2>/dev/null || echo "000")
+STT_HEALTH=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8204/health 2>/dev/null || echo "000")
 if [ "$STT_HEALTH" = "200" ]; then
-    log "  PASS whisper-api-gpu :8201/health → HTTP $STT_HEALTH"
+    log "  PASS whisper-api-gpu :8204/health → HTTP $STT_HEALTH"
 else
-    log "  FAIL whisper-api-gpu :8201/health → HTTP $STT_HEALTH"
+    log "  FAIL whisper-api-gpu :8204/health → HTTP $STT_HEALTH"
     ALERT=1
 fi
 
@@ -58,9 +58,9 @@ fi
 # ── Self-Heal: Whisper GPU ────────────────────────────────────────────────────
 if [ "$STT_HEALTH" != "200" ]; then
     log "SELF-HEAL: Restarting whisper-api-gpu..."
-    docker restart whisper-api-gpu 2>/dev/null
+    systemctl restart whisper-api-gpu 2>/dev/null
     sleep 5
-    STT_RETRY=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8201/health 2>/dev/null || echo "000")
+    STT_RETRY=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8204/health 2>/dev/null || echo "000")
     if [ "$STT_RETRY" = "200" ]; then
         log "  HEALED whisper-api-gpu after restart"
     else

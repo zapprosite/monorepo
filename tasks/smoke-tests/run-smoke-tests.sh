@@ -14,7 +14,7 @@ echo ""
 
 # Services on localhost (host network)
 declare -a LOCAL_TESTS=(
-    "whisper-api:8201:/health:200:true"
+    "whisper-api:8204:/health:200:true"
     "ollama:11434:/api/tags:200:true"
     "grafana:3100:/api/health:200:true"
     "loki:3101:/ready:200:true"

@@ -9,7 +9,7 @@ import { trpc } from "@frontend/utils/trpc.client";
 import { useQuery } from "@tanstack/react-query";
 import type React from "react";
 
-export const LoyaltyDashboardPage: React.FC = () => {
+export const LoyaltyDashboardPage = () => {
 	const {
 		data: scores,
 		isLoading,
