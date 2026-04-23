@@ -9,11 +9,11 @@ import { MenuItem } from "@connected-repo/ui-mui/navigation/MenuItem";
 import {
 	type ContractCreateInput,
 	contractCreateInputZod,
-} from "@connected-repo/zod-schemas/contract.zod";
+} from "@repo/zod-schemas/contract.zod";
 import {
 	CONTRACT_FREQUENCY_ENUM,
 	CONTRACT_TYPE_ENUM,
-} from "@connected-repo/zod-schemas/crm_enums.zod";
+} from "@repo/zod-schemas/crm_enums.zod";
 import { trpc } from "@frontend/utils/trpc.client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";

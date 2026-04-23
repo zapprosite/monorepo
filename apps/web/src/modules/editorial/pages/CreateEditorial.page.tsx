@@ -9,11 +9,11 @@ import {
 	EDITORIAL_CHANNEL_ENUM,
 	EDITORIAL_FORMAT_ENUM,
 	EDITORIAL_STATUS_ENUM,
-} from "@connected-repo/zod-schemas/crm_enums.zod";
+} from "@repo/zod-schemas/crm_enums.zod";
 import {
 	type EditorialCreateInput,
 	editorialCreateInputZod,
-} from "@connected-repo/zod-schemas/editorial.zod";
+} from "@repo/zod-schemas/editorial.zod";
 import { trpc } from "@frontend/utils/trpc.client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";

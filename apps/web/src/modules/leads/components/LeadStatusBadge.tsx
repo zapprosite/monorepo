@@ -1,5 +1,5 @@
 import { Chip } from "@connected-repo/ui-mui/data-display/Chip";
-import type { LeadStatus } from "@connected-repo/zod-schemas/crm_enums.zod";
+import type { LeadStatus } from "@repo/zod-schemas/crm_enums.zod";
 
 const STATUS_COLOR: Record<
 	LeadStatus,

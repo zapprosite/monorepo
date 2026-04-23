@@ -5,7 +5,7 @@ import { Button } from "@connected-repo/ui-mui/form/Button";
 import { Box } from "@connected-repo/ui-mui/layout/Box";
 import { Container } from "@connected-repo/ui-mui/layout/Container";
 import { Paper } from "@connected-repo/ui-mui/layout/Paper";
-import type { ReminderStatus } from "@connected-repo/zod-schemas/crm_enums.zod";
+import type { ReminderStatus } from "@repo/zod-schemas/crm_enums.zod";
 import { trpc } from "@frontend/utils/trpc.client";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router";

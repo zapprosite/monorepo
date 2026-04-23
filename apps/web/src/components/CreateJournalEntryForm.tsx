@@ -15,7 +15,7 @@ import { useRhfForm } from "@connected-repo/ui-mui/rhf-form/useRhfForm";
 import {
 	type JournalEntryCreateInput,
 	journalEntryCreateInputZod,
-} from "@connected-repo/zod-schemas/journal_entry.zod";
+} from "@repo/zod-schemas/journal_entry.zod";
 import { trpc, trpcFetch } from "@frontend/utils/trpc.client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";

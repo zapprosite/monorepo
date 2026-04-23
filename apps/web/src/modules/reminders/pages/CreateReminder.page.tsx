@@ -8,11 +8,11 @@ import { MenuItem } from "@connected-repo/ui-mui/navigation/MenuItem";
 import {
 	REMINDER_STATUS_ENUM,
 	REMINDER_TYPE_ENUM,
-} from "@connected-repo/zod-schemas/crm_enums.zod";
+} from "@repo/zod-schemas/crm_enums.zod";
 import {
 	type ReminderCreateInput,
 	reminderCreateInputZod,
-} from "@connected-repo/zod-schemas/reminder.zod";
+} from "@repo/zod-schemas/reminder.zod";
 import { trpc } from "@frontend/utils/trpc.client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";

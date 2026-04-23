@@ -1,5 +1,5 @@
 import { Chip } from "@connected-repo/ui-mui/data-display/Chip";
-import type { EditorialStatus } from "@connected-repo/zod-schemas/crm_enums.zod";
+import type { EditorialStatus } from "@repo/zod-schemas/crm_enums.zod";
 
 const STATUS_COLOR: Record<
 	EditorialStatus,

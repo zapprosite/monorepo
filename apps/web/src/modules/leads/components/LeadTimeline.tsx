@@ -1,7 +1,7 @@
 import { Typography } from "@connected-repo/ui-mui/data-display/Typography";
 import { Box } from "@connected-repo/ui-mui/layout/Box";
 import { Paper } from "@connected-repo/ui-mui/layout/Paper";
-import type { LeadSelectAll } from "@connected-repo/zod-schemas/lead.zod";
+import type { LeadSelectAll } from "@repo/zod-schemas/lead.zod";
 
 interface LeadTimelineProps {
 	lead: LeadSelectAll;

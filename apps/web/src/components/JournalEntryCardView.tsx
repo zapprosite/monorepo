@@ -2,7 +2,7 @@ import { Chip } from "@connected-repo/ui-mui/data-display/Chip";
 import { Typography } from "@connected-repo/ui-mui/data-display/Typography";
 import { Box } from "@connected-repo/ui-mui/layout/Box";
 import { Card, CardContent } from "@connected-repo/ui-mui/layout/Card";
-import type { journalEntrySelectAllZod } from "@connected-repo/zod-schemas/journal_entry.zod";
+import type { journalEntrySelectAllZod } from "@repo/zod-schemas/journal_entry.zod";
 import type { z } from "zod";
 
 type JournalEntry = z.infer<typeof journalEntrySelectAllZod>;

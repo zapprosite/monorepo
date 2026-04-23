@@ -6,7 +6,7 @@ import { DialogTitle } from "@connected-repo/ui-mui/feedback/DialogTitle";
 import { Button } from "@connected-repo/ui-mui/form/Button";
 import { TextField } from "@connected-repo/ui-mui/form/TextField";
 import { Box } from "@connected-repo/ui-mui/layout/Box";
-import { type UnitCreateInput, unitCreateInputZod } from "@connected-repo/zod-schemas/unit.zod";
+import { type UnitCreateInput, unitCreateInputZod } from "@repo/zod-schemas/unit.zod";
 import { trpc } from "@frontend/utils/trpc.client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
