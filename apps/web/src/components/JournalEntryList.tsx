@@ -14,17 +14,17 @@ export function JournalEntryList() {
 		error,
 	} = useQuery(trpc.journalEntries.getAll.queryOptions());
 
-	if (isLoading) return <LoadingSpinner text="Loading journal entries..." />;
+	if (isLoading) return <LoadingSpinner text="Carregando entradas do diário..." />;
 
 	if (error) {
 		const errorMessage = error.data?.userFriendlyMessage || error.message;
-		return <ErrorAlert message={`Error loading journal entries: ${errorMessage}`} />;
+		return <ErrorAlert message={`Erro ao carregar entradas do diário: ${errorMessage}`} />;
 	}
 
 	return (
 		<Box sx={{ mt: 3 }}>
 			<Typography variant="h5" component="h2" gutterBottom>
-				Journal Entries
+				Entradas do diário
 			</Typography>
 			{journalEntries && journalEntries.length > 0 ? (
 				<List sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
@@ -40,10 +40,10 @@ export function JournalEntryList() {
 									</Typography>
 									<Box sx={{ mt: 1.5 }}>
 										<Typography variant="body2" color="text.secondary">
-											By: {entry.author?.name} ({entry.author?.email})
+											Por: {entry.author?.name} ({entry.author?.email})
 										</Typography>
 										<Typography variant="body2" color="text.secondary">
-											Created: {new Date(entry.createdAt).toLocaleDateString()}
+											Criado em: {new Date(entry.createdAt).toLocaleDateString()}
 										</Typography>
 									</Box>
 								</CardContent>
@@ -53,7 +53,7 @@ export function JournalEntryList() {
 				</List>
 			) : (
 				<Typography variant="body1" color="text.secondary">
-					No journal entries found. Start writing your first entry!
+					Nenhuma entrada do diário encontrada. Comece escrevendo sua primeira entrada!
 				</Typography>
 			)}
 		</Box>

@@ -205,15 +205,4 @@ curl -X POST http://localhost:4000/embeddings \
 | mcp-memory (4016) | ✅ Working | FastAPI with full API |
 | Coolify | ⚠️ v4.0.0 | Security hardened |
 
-| Component | Status | Notes |
-|-----------|--------|-------|
-| mcp-qdrant (4011) | ✅ Working | Vector search OK |
-| mcp-coolify (4012) | ❌ Not Found | Needs restart |
-| mcp-ollama (4013) | ❌ Not Found | Needs restart |
-| mcp-system (4014) | ❌ Not Found | Needs restart |
-| mcp-cron (4015) | ❌ Not Found | Needs restart |
-| mcp-memory (4016) | ✅ Working | Healthy |
-| Semantic search | ✅ Working | embedding-nomic OK |
-| Coolify | ⚠️ v4.0.0 | Security hardened, API changed |
-
-**Last Updated:** 2026-04-23
+**Last Updated:** 2026-04-22

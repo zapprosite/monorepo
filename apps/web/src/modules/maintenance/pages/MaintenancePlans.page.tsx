@@ -13,7 +13,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type React from "react";
 import { useState } from "react";
 
-export const MaintenancePlansPage: React.FC = () => {
+export const MaintenancePlansPage = () => {
 	const [showForm, setShowForm] = useState(false);
 	const [formData, setFormData] = useState({
 		nomeEmpresa: "",

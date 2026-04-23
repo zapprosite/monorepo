@@ -60,7 +60,7 @@ export default function JournalEntriesPage() {
 		return Math.ceil(journalEntries.length / ITEMS_PER_PAGE);
 	}, [journalEntries]);
 
-	if (isLoading) return <LoadingSpinner text="Loading journal entries..." />;
+	if (isLoading) return <LoadingSpinner text="Carregando entradas do diário..." />;
 
 	if (error) {
 		const errorMessage = error.data?.userFriendlyMessage || error.message;

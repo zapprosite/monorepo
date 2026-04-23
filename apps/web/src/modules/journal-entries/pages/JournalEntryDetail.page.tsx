@@ -59,7 +59,7 @@ export default function JournalEntryDetailPage() {
 		}
 	};
 
-	const handleDeleteCancel = () => {
+	const handleDeleteCancelar = () => {
 		setDeleteDialogOpen(false);
 		setConfirmationText("");
 		setDeleteError(null);
@@ -227,7 +227,7 @@ export default function JournalEntryDetailPage() {
 			</Card>
 
 			{/* Delete Confirmation Dialog */}
-			<Dialog open={deleteDialogOpen} onClose={handleDeleteCancel} maxWidth="sm" fullWidth>
+			<Dialog open={deleteDialogOpen} onClose={handleDeleteCancelar} maxWidth="sm" fullWidth>
 				<DialogTitle>Excluir entrada do diário?</DialogTitle>
 				<DialogContent>
 					<DialogContentText sx={{ mb: 3 }}>
@@ -255,8 +255,8 @@ export default function JournalEntryDetailPage() {
 					/>
 				</DialogContent>
 				<DialogActions sx={{ px: 3, pb: 3 }}>
-					<Button onClick={handleDeleteCancel} disabled={deleteMutation.isPending}>
-						Cancel
+					<Button onClick={handleDeleteCancelar} disabled={deleteMutation.isPending}>
+						Cancelar
 					</Button>
 					<Button
 						onClick={handleDeleteConfirm}

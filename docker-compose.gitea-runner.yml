@@ -5,7 +5,6 @@ services:
     image: docker.io/gitea/act_runner:nightly-dind
     container_name: gitea-runner
     restart: unless-stopped
-    privileged: true
     environment:
       CONFIG_FILE: /config.yaml
       GITEA_INSTANCE_URL: http://10.0.1.1:3300

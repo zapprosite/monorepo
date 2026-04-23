@@ -6,7 +6,7 @@
 
 ---
 
-## 3-Phase Orchestrator v3 (/execute) — SPEC-090
+## 3-Phase Orchestrator v3 (/execute) — SPEC-090 [DRAFT - not implemented]
 
 Pipeline de 3 fases com dependências reais. Sem fake parallelism.
 

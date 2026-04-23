@@ -49,9 +49,9 @@ export function CreateJournalEntryForm() {
 			};
 			await trpcFetch.journalEntries.create.mutate(submitData);
 			formMethods.reset();
-			setSuccess("Journal entry created successfully!");
+			setSuccess("Entrada do diário criada com sucesso!");
 			setTimeout(() => setSuccess(""), 3000);
-			// Get a new prompt after successful submission if in prompted mode
+			// Buscar novo prompt after successful submission if in prompted mode
 			if (writingMode === "prompted") {
 				refetchPrompt();
 			}
@@ -105,7 +105,7 @@ export function CreateJournalEntryForm() {
 						fontSize: { xs: "1.25rem", sm: "1.5rem" },
 					}}
 				>
-					Create New Journal Entry
+					Criar nova entrada no diário
 				</Typography>
 
 				{/* Writing Mode Toggle */}
@@ -155,7 +155,7 @@ export function CreateJournalEntryForm() {
 								mr: { xs: 0.75, sm: 0.5 },
 							}}
 						/>
-						Prompted
+						Com prompt
 					</ToggleButton>
 					<ToggleButton value="free">
 						<EditNoteIcon
@@ -164,7 +164,7 @@ export function CreateJournalEntryForm() {
 								mr: { xs: 0.75, sm: 0.5 },
 							}}
 						/>
-						Free Write
+						Escrita livre
 					</ToggleButton>
 				</ToggleButtonGroup>
 			</Box>
@@ -213,7 +213,7 @@ export function CreateJournalEntryForm() {
 											fontSize: "0.65rem",
 										}}
 									>
-										Today's Prompt
+										Prompt de hoje
 									</Typography>
 								</Box>
 								<IconButton
@@ -228,7 +228,7 @@ export function CreateJournalEntryForm() {
 										},
 										transition: "transform 0.3s ease",
 									}}
-									title="Get a new prompt"
+									title="Buscar novo prompt"
 								>
 									<RefreshIcon fontSize="small" />
 								</IconButton>
@@ -255,7 +255,7 @@ export function CreateJournalEntryForm() {
 										fontSize: "0.9rem",
 									}}
 								>
-									Unable to load prompt. Please try again.
+									Não foi possível carregar o prompt. Tente novamente.
 								</Typography>
 							) : (
 								<Box>
@@ -302,25 +302,25 @@ export function CreateJournalEntryForm() {
 
 					<RhfTextField
 						name="content"
-						label={writingMode === "prompted" ? "Your Response" : "Your Thoughts"}
+						label={writingMode === "prompted" ? "Sua resposta" : "Seus pensamentos"}
 						multiline
 						rows={8}
 						placeholder={
 							writingMode === "prompted"
-								? "Write your thoughts here..."
-								: "Write freely about anything on your mind..."
+								? "Escreva seus pensamentos aqui..."
+								: "Escreva livremente sobre qualquer coisa que esteja na sua mente..."
 						}
 						helperText={
 							writingMode === "prompted"
-								? "Share your reflections on the prompt above"
-								: "Express yourself freely without any prompts or constraints"
+								? "Compartilhe suas reflexões sobre o prompt acima"
+								: "Expresse-se livremente, sem prompts ou limitações"
 						}
 						sx={{ mb: 0 }}
 					/>
 
 					<RhfSubmitButton
-						notSubmittingText="Create Entry"
-						isSubmittingText="Creating..."
+						notSubmittingText="Criar entrada"
+						isSubmittingText="Criando..."
 						props={{
 							variant: "contained",
 							color: "success",

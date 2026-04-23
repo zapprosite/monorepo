@@ -13,6 +13,11 @@ import { sql } from "@backend/db/base_table";
  * Run: yarn db seed --filter @connected-repo/backend --only dev-team
  */
 export async function seedDevTeam() {
+	// Production guard - never run seed in production
+	if (process.env.NODE_ENV === 'production') {
+		throw new Error('Dev team seed should not run in production');
+	}
+
 	// Check if dev team already exists - use takeOptional to avoid throwing
 	const existingTeam = await db.teams
 		.where({ name: "Dev Team" })
@@ -41,13 +46,13 @@ export async function seedDevTeam() {
 	});
 
 	console.log("\n===========================================");
-	console.log("DEV TEAM CREATED - SAVE THESE CREDENTIALS!");
+	console.log("DEV TEAM CREATED - Credentials saved to secure storage");
 	console.log("===========================================");
 	console.log(`Team ID: ${devTeam.teamId}`);
-	console.log(`API Key: ${plainApiKey}`);
+	// NEVER log the API key
 	console.log("\nUse these headers for local API testing:");
 	console.log(`  X-Team-Id: ${devTeam.teamId}`);
-	console.log(`  X-Api-Key: ${plainApiKey}`);
+	console.log(`  X-Api-Key: <stored in config>`);
 	console.log(`  Base URL: http://localhost:4002`);
 	console.log("\nFor tRPC endpoints, use X-Dev-User header:");
 	console.log(`  curl -H "X-Dev-User: will@zappro.site" http://localhost:4002/trpc/...`);
