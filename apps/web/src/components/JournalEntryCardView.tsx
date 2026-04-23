@@ -19,7 +19,7 @@ export function JournalEntryCardView({ entries, onEntryClick }: JournalEntryCard
 	};
 
 	const formatDate = (date: number | string | Date) => {
-		return new Date(date).toLocaleDateString("en-US", {
+		return new Date(date).toLocaleDateString("pt-BR", {
 			year: "numeric",
 			month: "short",
 			day: "numeric",
@@ -79,7 +79,7 @@ export function JournalEntryCardView({ entries, onEntryClick }: JournalEntryCard
 							{/* Prompt Section */}
 							<Box sx={{ mb: 2 }}>
 								<Chip
-									label={entry.prompt || "Journal Entry"}
+									label={entry.prompt || "Entrada no diário"}
 									color="primary"
 									size="small"
 									sx={{
@@ -130,7 +130,7 @@ export function JournalEntryCardView({ entries, onEntryClick }: JournalEntryCard
 										letterSpacing: "0.5px",
 									}}
 								>
-									Read More →
+									Ler mais →
 								</Typography>
 							</Box>
 						</CardContent>

@@ -1,3 +1,4 @@
+import { guestLoader } from "@frontend/utils/auth.loader";
 import { LoginPage } from "@frontend/modules/auth/pages/Login.page";
 import { lazy } from "react";
 import { Navigate, Route, Routes } from "react-router";

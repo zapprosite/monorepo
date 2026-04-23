@@ -31,6 +31,14 @@ function formatDateTime(timestamp: number | string | Date): string {
 export default function ScheduleDetailPage() {
 	const { scheduleId } = useParams<{ scheduleId: string }>();
 	const navigate = useNavigate();
+
+	if (!scheduleId) {
+		return (
+			<Container maxWidth="lg" sx={{ py: 4 }}>
+				<ErrorAlert message="Agendamento inválido." />
+			</Container>
+		);
+	}
 	const queryClient = useQueryClient();
 	const [cancelOpen, setCancelOpen] = useState(false);
 	const [motivoCancelamento, setMotivoCancelamento] = useState("");
@@ -39,12 +47,12 @@ export default function ScheduleDetailPage() {
 		data: schedule,
 		isLoading,
 		error,
-	} = useQuery(trpc.schedule.getScheduleDetail.queryOptions({ scheduleId: scheduleId! }));
+	} = useQuery(trpc.schedule.getScheduleDetail.queryOptions({ scheduleId }));
 
 	const invalidate = () => {
 		queryClient.invalidateQueries({ queryKey: trpc.schedule.listSchedules.queryKey() });
 		queryClient.invalidateQueries({
-			queryKey: trpc.schedule.getScheduleDetail.queryKey({ scheduleId: scheduleId! }),
+			queryKey: trpc.schedule.getScheduleDetail.queryKey({ scheduleId }),
 		});
 	};
 

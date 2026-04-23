@@ -53,6 +53,8 @@ export default function SchedulePage() {
 	const [filterDataInicio, setFilterDataInicio] = useState("");
 	const [filterDataFim, setFilterDataFim] = useState("");
 
+	const hasActiveFilters = Boolean(filterStatus || filterTipo || filterDataInicio || filterDataFim);
+
 	const {
 		data: schedules,
 		isLoading,

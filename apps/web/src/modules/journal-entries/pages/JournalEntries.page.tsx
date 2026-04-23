@@ -104,10 +104,10 @@ export default function JournalEntriesPage() {
 							letterSpacing: "-0.01em",
 						}}
 					>
-						My Journal
+						Meu diário
 					</Typography>
 					<Typography variant="body2" color="text.secondary" sx={{ fontSize: "0.875rem" }}>
-						{journalEntries.length} {journalEntries.length === 1 ? "entry" : "entries"} in total
+						{journalEntries.length} {journalEntries.length === 1 ? "entrada no total" : "entradas no total"}
 					</Typography>
 				</Box>
 
@@ -148,13 +148,13 @@ export default function JournalEntriesPage() {
 					<ToggleButton value="card" aria-label="card view">
 						<Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
 							<GridViewIcon sx={{ fontSize: 20 }} />
-							{!isMobile && <span>Card View</span>}
+							{!isMobile && <span>Cards</span>}
 						</Box>
 					</ToggleButton>
 					<ToggleButton value="table" aria-label="table view">
 						<Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
 							<TableRowsIcon sx={{ fontSize: 20 }} />
-							{!isMobile && <span>Table View</span>}
+							{!isMobile && <span>Tabela</span>}
 						</Box>
 					</ToggleButton>
 				</ToggleButtonGroup>

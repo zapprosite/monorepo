@@ -31,7 +31,9 @@ export default function ClientsPage() {
 					mb: 4,
 					display: "flex",
 					justifyContent: "space-between",
-					alignItems: "center",
+					alignItems: { xs: "flex-start", sm: "center" },
+					flexDirection: { xs: "column", sm: "row" },
+					gap: 2,
 				}}
 			>
 				<Box>
@@ -54,6 +56,7 @@ export default function ClientsPage() {
 					variant="contained"
 					onClick={() => navigate("/clients/new")}
 					sx={{
+						alignSelf: { xs: "stretch", sm: "auto" },
 						transition: "all 0.2s ease-in-out",
 						"&:hover": { transform: "translateY(-2px)", boxShadow: 4 },
 					}}

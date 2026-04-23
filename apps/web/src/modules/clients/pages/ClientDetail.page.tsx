@@ -8,7 +8,7 @@ import { Container } from "@connected-repo/ui-mui/layout/Container";
 import { Paper } from "@connected-repo/ui-mui/layout/Paper";
 import { trpc } from "@frontend/utils/trpc.client";
 import { useQuery } from "@tanstack/react-query";
-import { lazy, useState } from "react";
+import { lazy, Suspense, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { AddressModal } from "../components/AddressModal";
 import { ContactModal } from "../components/ContactModal";
@@ -37,24 +37,44 @@ export default function ClientDetailPage() {
 	const [addressModalOpen, setAddressModalOpen] = useState(false);
 	const [unitModalOpen, setUnitModalOpen] = useState(false);
 	const [equipmentModalOpen, setEquipmentModalOpen] = useState(false);
+	const hasClientId = Boolean(clientId);
 
 	const {
 		data: client,
 		isLoading,
 		error,
-	} = useQuery(trpc.clients.getClientDetail.queryOptions({ clientId: clientId! }));
-	const { data: contacts } = useQuery(
-		trpc.clients.listContacts.queryOptions({ clienteId: clientId! }),
+	} = useQuery({
+		...trpc.clients.getClientDetail.queryOptions({ clientId: clientId ?? "" }),
+		enabled: hasClientId,
+	});
+	const { data: contacts } = useQuery({
+		...trpc.clients.listContacts.queryOptions({ clienteId: clientId ?? "" }),
+		enabled: hasClientId,
+	});
+	const { data: addresses } = useQuery({
+		...trpc.clients.listAddresses.queryOptions({ clienteId: clientId ?? "" }),
+		enabled: hasClientId,
+	});
+	const { data: units } = useQuery({
+		...trpc.equipment.listUnitsByClient.queryOptions({ clienteId: clientId ?? "" }),
+		enabled: hasClientId,
+	});
+	const { data: equipmentList } = useQuery({
+		...trpc.equipment.listEquipmentByClient.queryOptions({ clienteId: clientId ?? "" }),
+		enabled: hasClientId,
+	});
+	const unitNamesById = useMemo(
+		() => new Map<string, string>((units ?? []).map((unit) => [unit.unitId, unit.nome])),
+		[units],
 	);
-	const { data: addresses } = useQuery(
-		trpc.clients.listAddresses.queryOptions({ clienteId: clientId! }),
-	);
-	const { data: units } = useQuery(
-		trpc.equipment.listUnitsByClient.queryOptions({ clienteId: clientId! }),
-	);
-	const { data: equipmentList } = useQuery(
-		trpc.equipment.listEquipmentByClient.queryOptions({ clienteId: clientId! }),
-	);
+
+	if (!hasClientId) {
+		return (
+			<Container maxWidth="lg" sx={{ py: 4 }}>
+				<ErrorAlert message="Cliente inválido. Volte para a lista e tente novamente." />
+			</Container>
+		);
+	}
 
 	if (isLoading) return <LoadingSpinner text="Carregando cliente..." />;
 
@@ -146,22 +166,28 @@ export default function ClientDetailPage() {
 						</Typography>
 					) : (
 						<Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
-							{contacts.map((c) => (
-								<Box
-									key={c.contactId}
-									sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}
-								>
-									<Box>
-										<Typography variant="body2" fontWeight={500}>
-											{c.nome}
-										</Typography>
-										<Typography variant="caption" color="text.secondary">
-											{c.cargo} {c.email ? `· ${c.email}` : ""}
-										</Typography>
+							{contacts.map((c) => {
+								const contactMeta = [c.cargo, c.email, c.telefone].filter(Boolean).join(" · ");
+
+								return (
+									<Box
+										key={c.contactId}
+										sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 2 }}
+									>
+										<Box>
+											<Typography variant="body2" fontWeight={500}>
+												{c.nome}
+											</Typography>
+											{contactMeta && (
+												<Typography variant="caption" color="text.secondary">
+													{contactMeta}
+												</Typography>
+											)}
+										</Box>
+										{c.isPrimary && <Chip label="Principal" size="small" color="primary" />}
 									</Box>
-									{c.isPrimary && <Chip label="Principal" size="small" color="primary" />}
-								</Box>
-							))}
+								);
+							})}
 						</Box>
 					)}
 				</Paper>
@@ -336,8 +362,8 @@ export default function ClientDetailPage() {
 									</Box>
 									<Typography variant="caption" color="text.secondary">
 										{eq.tipo}
-										{eq.unitId && units?.find((u) => u.unitId === eq.unitId)
-											? ` · ${units.find((u) => u.unitId === eq.unitId)?.nome}`
+										{eq.unitId && unitNamesById.has(eq.unitId)
+											? ` · ${unitNamesById.get(eq.unitId)}`
 											: ""}
 									</Typography>
 								</Box>
@@ -348,25 +374,27 @@ export default function ClientDetailPage() {
 			</Box>
 
 			<ContactModal
-				clienteId={clientId!}
+				clienteId={clientId}
 				open={contactModalOpen}
 				onClose={() => setContactModalOpen(false)}
 			/>
 			<AddressModal
-				clienteId={clientId!}
+				clienteId={clientId}
 				open={addressModalOpen}
 				onClose={() => setAddressModalOpen(false)}
 			/>
-			<UnitModal
-				clienteId={clientId!}
-				open={unitModalOpen}
-				onClose={() => setUnitModalOpen(false)}
-			/>
-			<AddEquipmentModal
-				clienteId={clientId!}
-				open={equipmentModalOpen}
-				onClose={() => setEquipmentModalOpen(false)}
-			/>
+			<Suspense fallback={null}>
+				<UnitModal
+					clienteId={clientId}
+					open={unitModalOpen}
+					onClose={() => setUnitModalOpen(false)}
+				/>
+				<AddEquipmentModal
+					clienteId={clientId}
+					open={equipmentModalOpen}
+					onClose={() => setEquipmentModalOpen(false)}
+				/>
+			</Suspense>
 		</Container>
 	);
 }

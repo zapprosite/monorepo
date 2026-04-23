@@ -14,12 +14,24 @@ import { LeadTimeline } from "../components/LeadTimeline";
 export default function LeadDetailPage() {
 	const { leadId } = useParams<{ leadId: string }>();
 	const navigate = useNavigate();
+	const isMissingLeadId = !leadId;
 
 	const {
 		data: lead,
 		isLoading,
 		error,
-	} = useQuery(trpc.leads.getLeadDetail.queryOptions({ leadId: leadId! }));
+	} = useQuery({
+		...trpc.leads.getLeadDetail.queryOptions({ leadId: leadId ?? "" }),
+		enabled: !isMissingLeadId,
+	});
+
+	if (isMissingLeadId) {
+		return (
+			<Container maxWidth="lg" sx={{ py: 4 }}>
+				<ErrorAlert message="Lead inválido ou não informado." />
+			</Container>
+		);
+	}
 
 	if (isLoading) return <LoadingSpinner text="Carregando lead..." />;
 

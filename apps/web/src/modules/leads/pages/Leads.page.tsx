@@ -31,7 +31,9 @@ export default function LeadsPage() {
 					mb: 4,
 					display: "flex",
 					justifyContent: "space-between",
-					alignItems: "center",
+					alignItems: { xs: "flex-start", sm: "center" },
+					flexDirection: { xs: "column", sm: "row" },
+					gap: 2,
 				}}
 			>
 				<Box>
@@ -47,7 +49,7 @@ export default function LeadsPage() {
 						Leads
 					</Typography>
 					<Typography variant="body2" color="text.secondary">
-						{leads?.length ?? 0} leads no total
+						{leads?.length ?? 0} {leads?.length === 1 ? "lead no total" : "leads no total"}
 					</Typography>
 				</Box>
 				<Button

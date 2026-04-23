@@ -17,6 +17,7 @@ import { trpc } from "@frontend/utils/trpc.client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Controller, useForm, useWatch } from "react-hook-form";
+import { useEffect } from "react";
 import { useNavigate } from "react-router";
 
 function toLocalDatetimeString(date: Date): string {
@@ -31,6 +32,7 @@ export default function CreateServiceOrderPage() {
 	const {
 		control,
 		handleSubmit,
+		setValue,
 		formState: { errors, isSubmitting },
 	} = useForm<ServiceOrderCreateInput>({
 		resolver: zodResolver(serviceOrderCreateInputZod),
@@ -50,6 +52,12 @@ export default function CreateServiceOrderPage() {
 		}),
 		enabled: !!selectedClienteId,
 	});
+
+	useEffect(() => {
+		if (selectedClienteId) {
+			setValue("equipmentId", null, { shouldDirty: true, shouldValidate: true });
+		}
+	}, [selectedClienteId, setValue]);
 
 	const createServiceOrder = useMutation(
 		trpc.serviceOrders.createServiceOrder.mutationOptions({
@@ -105,6 +113,9 @@ export default function CreateServiceOrderPage() {
 								error={!!errors.clienteId}
 								helperText={errors.clienteId?.message}
 							>
+								<MenuItem value="" disabled>
+									Selecione um cliente
+								</MenuItem>
 								{(clients ?? []).map((c) => (
 									<MenuItem key={c.clientId} value={c.clientId}>
 										{c.nome}
@@ -196,7 +207,7 @@ export default function CreateServiceOrderPage() {
 									(!selectedClienteId ? "Selecione um cliente primeiro" : undefined)
 								}
 							>
-								<MenuItem value="">Nenhum</MenuItem>
+								<MenuItem value="">Sem equipamento</MenuItem>
 								{(equipment ?? []).map((eq) => (
 									<MenuItem key={eq.equipmentId} value={eq.equipmentId}>
 										{eq.nome}

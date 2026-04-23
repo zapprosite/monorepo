@@ -113,7 +113,7 @@ export const routerObjectWithNavbar: ReactRouterWithNavbar[] = [
 					},
 					{
 						path: "profile",
-						Component: lazy(() => import("@frontend/pages/Dashboard.page")), // TODO: Create Profile page
+						loader: () => redirect("/settings"),
 					},
 				],
 			},
