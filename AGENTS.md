@@ -1221,7 +1221,8 @@ Repositório de conhecimento central. Mantém TREE.md de cada projeto para conte
 | **Boot** | `~/.hermes/sb-context.md` (lido ao iniciar, gerado por `sb-boot.sh`) |
 | **Sync auto** | Gitea Actions no monorepo → push to main atualiza `monorepo-TREE.md` via API |
 | **Sync manual** | `./scripts/sync-second-brain.sh` |
-| **Skills** | `.claude/skills/gitea-cli/` + `.claude/skills/hermes-second-brain/` |
+| **Skills** | `.claude/skills/gitea-cli/` + `.claude/skills/second-brain-loader/` |
+| **Docs** | `docs/SECOND-BRAIN.md` (guia completo de integração) |
 
 **Como LLM lê o Second Brain ao iniciar:**
 1. `sb-boot.sh` fetches `*/TREE.md` do second-brain via API Gitea
