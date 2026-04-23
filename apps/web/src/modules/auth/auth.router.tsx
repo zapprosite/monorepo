@@ -8,8 +8,8 @@ const RegisterPage = lazy(() => import("@frontend/modules/auth/pages/Register.pa
 const AuthRouter = () => {
 	return (
 		<Routes>
-			<Route path="/">
-				<Route index element={<Navigate to="/auth/login" />} />
+			<Route path="/" loader={guestLoader}>
+				<Route index element={<Navigate to="/auth/login" replace />} />
 				<Route path="login" element={<LoginPage />} />
 				<Route path="register" element={<RegisterPage />} />
 			</Route>

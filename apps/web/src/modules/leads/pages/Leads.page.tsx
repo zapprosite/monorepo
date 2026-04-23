@@ -56,6 +56,8 @@ export default function LeadsPage() {
 					variant="contained"
 					onClick={() => navigate("/leads/new")}
 					sx={{
+						width: { xs: "100%", sm: "auto" },
+						minHeight: 44,
 						transition: "all 0.2s ease-in-out",
 						"&:hover": { transform: "translateY(-2px)", boxShadow: 4 },
 					}}

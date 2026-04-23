@@ -245,7 +245,15 @@ export default function SchedulePage() {
 											<Paper
 												key={s.scheduleId}
 												elevation={0}
+												role="button"
+												tabIndex={0}
 												onClick={() => navigate(`/schedule/${s.scheduleId}`)}
+												onKeyDown={(event) => {
+													if (event.key === "Enter" || event.key === " ") {
+														event.preventDefault();
+														navigate(`/schedule/${s.scheduleId}`);
+													}
+												}}
 												sx={{
 													border: "1px solid",
 													borderColor: "divider",

@@ -281,17 +281,17 @@ export default function CreateSchedulePage() {
 						<Button
 							variant="outlined"
 							onClick={() => navigate("/schedule")}
-							disabled={isSubmitting}
+							disabled={createSchedule.isPending}
 						>
 							Cancelar
 						</Button>
 						<Button
 							type="submit"
 							variant="contained"
-							disabled={isSubmitting}
+							disabled={createSchedule.isPending}
 							sx={{ minWidth: 160 }}
 						>
-							{isSubmitting ? "Salvando..." : "Salvar Agendamento"}
+							{createSchedule.isPending ? "Salvando..." : "Salvar Agendamento"}
 						</Button>
 					</Box>
 				</Box>

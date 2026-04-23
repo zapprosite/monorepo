@@ -75,6 +75,7 @@ export default function CreateLeadPage() {
 					onSubmit={handleSubmit(onSubmit)}
 					sx={{ display: "flex", flexDirection: "column", gap: 3 }}
 				>
+					{errors.root?.message && <Alert severity="error">{errors.root.message}</Alert>}
 					<Controller
 						name="nome"
 						control={control}
