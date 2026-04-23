@@ -3,8 +3,140 @@
 > **Data de criação:** 2026-04-22
 > **Última atualização:** 2026-04-23
 > **Versão:** 1.2.0
+> **Last Verified:** 2026-04-23
+> **Next Test Due:** 2026-04-30
 
-Este documento contém procedimentos de recuperação para emergências e desastres nos serviços de infraestrutura.
+---
+
+## TEST Procedures
+
+> **Purpose:** Document verification steps to prove each restore procedure works correctly. Run these after any restore operation to confirm success.
+
+### Verify Redis Restore
+
+```bash
+# 1. Check Redis is responding
+$ docker exec zappro-redis redis-cli -a "$REDIS_PASSWORD" PING
+# Expected: PONG
+
+# 2. Check key count
+$ docker exec zappro-redis redis-cli -a "$REDIS_PASSWORD" DBSIZE
+# Expected: integer > 0 (number of keys in database)
+
+# 3. Verify specific data (if available)
+$ docker exec zappro-redis redis-cli -a "$REDIS_PASSWORD" KEYS '*' | head -20
+# Expected: list of keys matching your application data
+```
+
+### Verify Gitea Restore
+
+```bash
+# 1. Check Gitea is responding
+$ curl -f http://localhost:3001/health 2>/dev/null && echo "OK" || echo "FAIL"
+# Expected: OK
+
+# 2. Check Gitea container status
+$ docker ps | grep gitea
+# Expected: container running with Up status
+
+# 3. Verify repositories exist
+$ curl -s http://localhost:3001/api/v1/repos | jq length
+# Expected: integer >= expected number of repositories
+
+# 4. Check webhooks
+$ docker logs gitea --tail 20 | grep -i webhook
+# Expected: no webhook errors in recent logs
+```
+
+### Verify Coolify DB Restore
+
+```bash
+# 1. Check Coolify is responding
+$ curl -sf http://localhost:8000/api/health 2>/dev/null && echo "OK" || echo "FAIL"
+# Expected: OK
+
+# 2. Check Coolify container status
+$ docker ps | grep coolify
+# Expected: container running with Up status
+
+# 3. Verify applications exist
+$ curl -s http://localhost:8000/api/applications | jq length
+# Expected: integer >= 0
+
+# 4. Check systemd status
+$ sudo systemctl status coolify | grep Active
+# Expected: active (running)
+```
+
+### Verify Ollama Restore
+
+```bash
+# 1. Check Ollama is responding
+$ docker exec zappro-ollama ollama list
+# Expected: table of available models
+
+# 2. Verify models are present
+$ docker exec zappro-ollama ls /root/.ollama/models/
+# Expected: directory exists with model files
+
+# 3. Test model inference (lightweight test)
+$ docker exec zappro-ollama ollama run llama3.2 --help 2>/dev/null | head -5
+# Expected: help output or model response
+```
+
+### Verify .env Secrets Restore
+
+```bash
+# 1. Check file permissions
+$ ls -la /srv/docker/<service>/.env
+# Expected: -rw------- (600 permissions)
+
+# 2. Verify required variables exist
+$ grep -E 'API_KEY|TOKEN| SECRET' /srv/docker/<service>/.env | wc -l
+# Expected: integer > 0
+
+# 3. Restart service and verify health
+$ cd /srv/docker/<service> && docker compose restart
+$ sleep 5
+$ curl -sf http://localhost:<port>/health 2>/dev/null && echo "OK" || echo "FAIL"
+# Expected: OK
+```
+
+### Verify ZFS Snapshot Restore
+
+```bash
+# 1. Check pool status
+$ sudo zpool status
+# Expected: all pools ONLINE with no errors
+
+# 2. Verify dataset exists
+$ sudo zfs list -o name,mountpoint | grep <dataset>
+# Expected: dataset with correct mountpoint
+
+# 3. Check data integrity
+$ sudo zpool status -x
+# Expected: all pools healthy
+
+# 4. Verify Docker services start
+$ docker ps --format "table {{.Names}}\t{{.Status}}" | grep -E 'hermes|ai-gateway|litellm|qdrant'
+# Expected: all services Up
+```
+
+### Verify Service Restart
+
+```bash
+# 1. Check container is running
+$ docker ps --format "table {{.Names}}\t{{.Status}}" | grep <service>
+# Expected: status contains "Up"
+
+# 2. Verify health endpoint
+$ curl -sf http://localhost:<port>/health 2>/dev/null && echo "OK" || echo "FAIL"
+# Expected: OK (or 401 for LiteLLM which is expected)
+
+# 3. Check recent logs for errors
+$ docker logs <service> --tail 50 | grep -i error
+# Expected: no ERROR level entries
+```
 
 ---
 
