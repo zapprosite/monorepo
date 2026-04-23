@@ -19,7 +19,6 @@ version: 1.0.0
 | AI Gateway | LiteLLM proxy + Ollama + MiniMax |
 | Vector DB | Qdrant |
 | Agente | Hermes (`:8642`) |
-| TTS | Kokoro + TTS Bridge (`:8013`) |
 | STT | whisper-medium-pt (`:8204`) |
 | Database UI | pgAdmin (`pgadmin.zappro.site`) |
 | MCP Servers | mcp-memory (`:4016`), mcp-ollama (`:4013`), mcp-qdrant (`:4011`), mcp-cron (`:4015`), mcp-coolify (`:4012`), mcp-system (`:4014`) |
@@ -47,7 +46,6 @@ version: 1.0.0
 | pgAdmin | `https://pgadmin.zappro.site` | 4050 |
 | Obsidian Web | `https://obsidian.zappro.site` | 8080 |
 | AI Gateway | `https://ai.zappro.site` | 4002 |
-| Kokoro TTS | `https://kokoro.zappro.site` | 8013 |
 | Searxng | `https://search.zappro.site` | 8080 |
 | Painel Organism | `https://painel.zappro.site` | 4005 |
 | LiteLLM | `https://llm.zappro.site` | 4000 |
