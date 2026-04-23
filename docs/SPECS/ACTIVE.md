@@ -9,8 +9,14 @@ supersedes: SPEC-INDEX.md (legacy)
 
 # Active Specifications
 
-**Updated:** 2026-04-20
-**Source:** `docs/SPECS/ACTIVE.md` — this file is the canonical index
+**Updated:** 2026-04-23
+
+## Draft SPECs
+
+| # | Title | Status | Notes |
+|---|-------|--------|-------|
+| 091 | Canonical Docs Template + Holistic Prune | DONE | This spec — defining template + cleanup |
+| 092 | Trieve RAG Integration | draft | Qdrant-native RAG pipeline — pending William approval |
 
 ## Active SPECs
 
@@ -19,13 +25,8 @@ supersedes: SPEC-INDEX.md (legacy)
 | 068 | Circuit Breaker (MEM0 wins) | codified | SPEC-073 | Implemented in `packages/circuit-breaker/` |
 | 074 | Hermes Second Brain | active | — | Second-brain sync via `scripts/sync-second-brain.sh` |
 | 090 | Orchestrator v3 | active | SPEC-070 | 14-agent enterprise orchestrator |
+| 092 | Trieve RAG Integration | draft | — | Pending William approval |
 | 115 | Painel Organism (MCP) | implemented | — | 6 MCP servers (4011-4016) operational |
-
-## Draft SPECs
-
-| # | Title | Status | Notes |
-|---|-------|--------|-------|
-| 091 | Canonical Docs Template + Holistic Prune | DONE | This spec — defining template + cleanup |
 
 ## Archived SPECs
 
