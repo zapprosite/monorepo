@@ -153,7 +153,7 @@ export default function JournalEntryDetailPage() {
 								},
 							}}
 						>
-							Delete Entry
+							Excluir entrada
 						</Button>
 					</Stack>
 
@@ -228,18 +228,18 @@ export default function JournalEntryDetailPage() {
 
 			{/* Delete Confirmation Dialog */}
 			<Dialog open={deleteDialogOpen} onClose={handleDeleteCancel} maxWidth="sm" fullWidth>
-				<DialogTitle>Delete Journal Entry?</DialogTitle>
+				<DialogTitle>Excluir entrada do diário?</DialogTitle>
 				<DialogContent>
 					<DialogContentText sx={{ mb: 3 }}>
-						This action cannot be undone. To confirm deletion, please type{" "}
+						Esta ação não pode ser desfeita. Para confirmar a exclusão, digite{" "}
 						<Typography component="span" fontWeight={600} color="error.main">
-							DELETE
+							EXCLUIR
 						</Typography>{" "}
-						below.
+						abaixo.
 					</DialogContentText>
 					<TextField
 						fullWidth
-						label="Type DELETE to confirm"
+						label="Digite EXCLUIR para confirmar"
 						value={confirmationText}
 						onChange={(e) => setConfirmationText(e.target.value)}
 						error={!!deleteError}
@@ -271,7 +271,7 @@ export default function JournalEntryDetailPage() {
 							},
 						}}
 					>
-						{deleteMutation.isPending ? "Deleting..." : "Delete Entry"}
+						{deleteMutation.isPending ? "Excluindo..." : "Excluir entrada"}
 					</Button>
 				</DialogActions>
 			</Dialog>
