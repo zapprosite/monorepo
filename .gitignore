@@ -110,3 +110,5 @@ apps/perplexity-agent/.venv/
 .worktrees/
 .env.bak-*
 .env.backup
+*.pyc
+__pycache__/

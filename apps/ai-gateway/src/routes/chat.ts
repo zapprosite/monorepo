@@ -11,11 +11,11 @@ import { $fetch } from 'ofetch';
 import { ChatCompletionRequestSchema } from '../schemas.js';
 import { applyPtbrFilter } from '../middleware/ptbr-filter.js';
 
-const LITELLM_URL = process.env['LITELLM_LOCAL_URL'] ?? 'http://localhost:4000/v1';
-const LITELLM_KEY = process.env['LITELLM_MASTER_KEY'] ?? '';
+const LITELLM_URL = process.env.LITELLM_LOCAL_URL ?? 'http://localhost:4000/v1';
+const LITELLM_KEY = process.env.LITELLM_MASTER_KEY ?? '';
 
 // Vision model: anti-hardcoded via env (OLLAMA_VISION_MODEL must be set)
-const VISION_MODEL = process.env['OLLAMA_VISION_MODEL'] ?? '';
+const VISION_MODEL = process.env.OLLAMA_VISION_MODEL ?? '';
 
 // OpenAI alias → LiteLLM model name (espelha config.yaml real)
 const MODEL_ALIASES: Record<string, string> = {
@@ -47,8 +47,8 @@ export async function chatCompletionsRoute(app: FastifyInstance) {
         timeout: 60000,
       });
 
-      if (ptbrEnabled && Array.isArray(upstream['choices'])) {
-        for (const choice of upstream['choices'] as Array<{ message?: { content?: string } }>) {
+      if (ptbrEnabled && Array.isArray(upstream.choices)) {
+        for (const choice of upstream.choices as Array<{ message?: { content?: string } }>) {
           if (typeof choice.message?.content === 'string') {
             choice.message.content = await applyPtbrFilter(choice.message.content, acceptLang);
           }
@@ -56,8 +56,8 @@ export async function chatCompletionsRoute(app: FastifyInstance) {
       }
 
       // Devolver alias original ao cliente
-      if (upstream['model']) upstream['model'] = body.model;
-      if (process.env['NODE_ENV'] !== 'development') delete upstream['x-ai-gateway-upstream'];
+      if (upstream.model) upstream.model = body.model;
+      if (process.env.NODE_ENV !== 'development') delete upstream['x-ai-gateway-upstream'];
 
       return reply.send(upstream);
     } catch (err: unknown) {

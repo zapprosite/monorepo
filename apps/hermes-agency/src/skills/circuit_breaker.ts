@@ -11,9 +11,13 @@ export interface CircuitBreakerState {
   tripReason: string | null;
 }
 
-// Configurable thresholds via env
-const FAILURE_THRESHOLD = parseInt(process.env['CIRCUIT_BREAKER_THRESHOLD'] ?? '3', 10);
-const RECOVERY_TIMEOUT  = parseInt(process.env['CIRCUIT_BREAKER_RECOVERY_MS'] ?? '30000', 10);
+// Configurable thresholds via env — read dynamically to support runtime changes
+function getFailureThreshold(): number {
+  return parseInt(process.env['CIRCUIT_BREAKER_THRESHOLD'] ?? '3', 10);
+}
+function getRecoveryTimeout(): number {
+  return parseInt(process.env['CIRCUIT_BREAKER_RECOVERY_MS'] ?? '30000', 10);
+}
 
 const circuitBreakers = new Map<string, CircuitBreakerState>();
 
@@ -37,11 +41,10 @@ function getOrCreate(skillId: string): CircuitBreakerState {
  * Returns false if circuit is open and recovery timeout not elapsed.
  */
 export function isCallPermitted(skillId: string): boolean {
-  const cb = circuitBreakers.get(skillId);
-  if (!cb) return true; // no CB registered — allow
+  const cb = getOrCreate(skillId); // create if not exists so getCircuitBreaker() returns it
 
   if (cb.state === 'open') {
-    if (cb.lastFailure !== null && Date.now() - cb.lastFailure < RECOVERY_TIMEOUT) {
+    if (cb.lastFailure !== null && Date.now() - cb.lastFailure < getRecoveryTimeout()) {
       console.warn(`[CircuitBreaker] ${skillId} is OPEN — rejecting call (reason: ${cb.tripReason})`);
       return false;
     }
@@ -82,7 +85,7 @@ export function recordFailure(skillId: string, reason: string): void {
     // Test call failed — go back to open
     cb.state = 'open';
     console.warn(`[CircuitBreaker] ${skillId} → OPEN (half-open test failed: ${reason})`);
-  } else if (cb.failureCount >= FAILURE_THRESHOLD) {
+  } else if (cb.failureCount >= getFailureThreshold()) {
     cb.state = 'open';
     console.error(`[CircuitBreaker] ${skillId} → OPEN (tripped after ${cb.failureCount} failures: ${reason})`);
   }
