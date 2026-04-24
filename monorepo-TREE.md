@@ -2,13 +2,13 @@
 type: tree
 name: monorepo-TREE
 description: Machine-readable monorepo structure for hermes-second-brain
-generated: 2026-04-20
+generated: 2026-04-24
 status: filled
 ---
 
 # Monorepo Tree
 
-**Generated:** 2026-04-20
+**Generated:** 2026-04-24
 **Purpose:** Second-brain TREE.md — concise overview, not full docs
 
 ## Stack
@@ -94,4 +94,4 @@ bash smoke-tests/smoke-env-secrets-validate.sh
 
 ## Last Sync
 
-TREE.md generated 2026-04-20 via SPEC-091 prune. Next auto-sync: cron `614f0574` (every 30 min).
+TREE.md generated 2026-04-24 via generate-tree.sh. Next auto-sync: cron `614f0574` (every 30 min).
