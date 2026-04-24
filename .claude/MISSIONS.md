@@ -1,7 +1,7 @@
 # Hermes Agent — 8h Autonomous Mission Schedule
 
 **Generated:** 2026-04-24 03:10 UTC
-**Mission Status:** 4 active missions, workers launching
+**Mission Status:** 3 active missions, workers launching
 
 ---
 
@@ -83,19 +83,6 @@
 | M05 | Test Mem0→Qdrant→SecondBrain flow | ⚠️ pending |
 
 ---
-
-## Mission 4: SPEC-106 Hermes Agency (1h)
-**Goal:** SPEC for multi-agent architecture (LangGraph + Qdrant + interrupts)
-**Status:** 🔴 NOT STARTED — SPEC-106 never created
-**SPEC:** `docs/SPECs/SPEC-106-hermes-agency-architecture.md`
-
-### Tasks
-| ID | Task | Est |
-|----|------|-----|
-| A01 | Audit existing agency code (hermes-agency repo) | 15min |
-| A02 | Create SPEC-106 (LangGraph StateGraph real) | 20min |
-| A03 | Create ADR-106 (architecture decision) | 10min |
-| A04 | Create implementation roadmap | 15min |
 
 ---
 

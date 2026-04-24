@@ -19,7 +19,6 @@ GRAFANA_TOKEN="${GRAFANA_TOKEN:-}"
 
 # ── Services Configuration ─────────────────────────────────────
 declare -A SERVICES=(
-    ["hermes-agency:3001"]="http://localhost:3001/health"
     ["ai-gateway:4002"]="http://localhost:4002/health"
     ["litellm:4000"]="http://localhost:4000/health"
     ["qdrant:6333"]="http://localhost:6333/health"

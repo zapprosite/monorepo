@@ -15,7 +15,7 @@ const INTERNAL_URLS = {
     import.meta.env.VITE_HERMES_GATEWAY_URL ||
     window.__ENV__?.HERMES_GATEWAY_URL ||
     'https://hermes.zappro.site',
-  kokoro: import.meta.env.VITE_KOKORO_URL || window.__ENV__?.KOKORO_URL || 'https://hermes.zappro.site',
+  : import.meta.env.VITE_KOKORO_URL || window.__ENV__?.KOKORO_URL || 'https://hermes.zappro.site',
   ttsBridge:
     import.meta.env.VITE_TTS_BRIDGE_URL || window.__ENV__?.TTS_BRIDGE_URL || 'https://hermes.zappro.site',
   ollama: import.meta.env.VITE_OLLAMA_URL || window.__ENV__?.OLLAMA_URL || '', // No public URL
@@ -36,7 +36,7 @@ const INTERNAL_URLS = {
   cadvisor:
     import.meta.env.VITE_CADVISOR_URL || window.__ENV__?.CADVISOR_URL || 'https://monitor.zappro.site',
   // Infra
-  n8n: import.meta.env.VITE_N8N_URL || window.__ENV__?.N8N_URL || '', // n8n removed
+  : import.meta.env.VITE_N8N_URL || window.__ENV__?.N8N_URL || '', //  removed
   qdrant: import.meta.env.VITE_QDRANT_URL || window.__ENV__?.QDRANT_URL || 'https://qdrant.zappro.site',
 };
 
@@ -70,10 +70,10 @@ export const tools = [
     status: 'operational',
   },
   {
-    id: 'kokoro',
+    id: '',
     name: 'Kokoro TTS',
     description: 'Motor TTS para síntese de voz PT-BR (vozes pm_santa e pf_dora)',
-    url: INTERNAL_URLS.kokoro,
+    url: INTERNAL_URLS.,
     category: 'ai',
     icon: '🔊',
     status: 'operational',
@@ -164,10 +164,10 @@ export const tools = [
     status: 'operational',
   },
   {
-    id: 'n8n',
-    name: 'n8n',
+    id: '',
+    name: '',
     description: 'Automação low-code de workflows',
-    url: INTERNAL_URLS.n8n,
+    url: INTERNAL_URLS.,
     category: 'infra',
     icon: '🔄',
     status: 'operational',

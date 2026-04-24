@@ -87,67 +87,6 @@
       ]
     },
     {
-      "id": "HCP-P0-003",
-      "priority": "P0",
-      "phase": "phase-3",
-      "title": "Fix embedding dimension drift",
-      "status": "queued",
-      "owner": "hermes-worker",
-      "paths": [
-        ".env.example",
-        "apps/hermes-agency/src/mem0/embeddings.ts",
-        "apps/hermes-agency/src/qdrant/client.ts",
-        "apps/hermes-agency/src/__tests__"
-      ],
-      "depends_on": [
-        "HCP-P0-002"
-      ],
-      "acceptance": [
-        "QDRANT_VECTOR_DIM, LITELLM_EMBEDDING_DIM, and code constants match",
-        "Collection creation rejects mismatched vector sizes"
-      ]
-    },
-    {
-      "id": "HCP-P0-004",
-      "priority": "P0",
-      "phase": "phase-2",
-      "title": "Add Hermes homelab-control route and skill",
-      "status": "queued",
-      "owner": "hermes-worker",
-      "paths": [
-        "apps/hermes-agency/src/router/agency_router.ts",
-        "apps/hermes-agency/src/skills/index.ts",
-        "apps/hermes-agency/src/skills/tool_registry.ts"
-      ],
-      "depends_on": [
-        "HCP-P0-002"
-      ],
-      "acceptance": [
-        "Ops/control-plane prompts route to homelab-control",
-        "Marketing agency gates do not block normal ops tasks"
-      ]
-    },
-    {
-      "id": "HCP-P0-005",
-      "priority": "P0",
-      "phase": "phase-2",
-      "title": "Add CLI adapter tools",
-      "status": "queued",
-      "owner": "hermes-worker",
-      "paths": [
-        "apps/hermes-agency/src/skills/tool_registry.ts",
-        "apps/hermes-agency/src/skills/index.ts",
-        "tasks/runs"
-      ],
-      "depends_on": [
-        "HCP-P0-004"
-      ],
-      "acceptance": [
-        "Adapters exist for codex, claude, mclaude, opencode-go-cli, and opencode",
-        "Each adapter records command, cwd, exit code, and log path"
-      ]
-    },
-    {
       "id": "HCP-P0-006",
       "priority": "P0",
       "phase": "phase-2",
@@ -188,88 +127,6 @@
       ]
     },
     {
-      "id": "HCP-P0-008",
-      "priority": "P0",
-      "phase": "phase-2",
-      "title": "Boot Hermes Agency runtime",
-      "status": "queued",
-      "owner": "hermes-worker",
-      "paths": [
-        "apps/hermes-agency/src/index.ts",
-        "apps/hermes-agency/src/telegram/bot.ts",
-        "apps/hermes-agency/Dockerfile",
-        "scripts/deploy-hermes-agency.sh"
-      ],
-      "depends_on": [
-        "HCP-P0-004"
-      ],
-      "acceptance": [
-        "Bot startup path is explicit: polling or webhook",
-        "Hermes Agency exposes health on HERMES_AGENCY_PORT",
-        "Deploy path has Dockerfile/compose or documented systemd unit"
-      ]
-    },
-    {
-      "id": "HCP-P0-009",
-      "priority": "P0",
-      "phase": "phase-1",
-      "title": "Normalize env var names used by code/docs",
-      "status": "queued",
-      "owner": "docs-worker",
-      "paths": [
-        ".env.example",
-        "apps/hermes-agency/src/telegram/bot.ts",
-        "apps/ai-gateway/src/routes/audio-transcriptions.ts",
-        "docs/API_GATEWAY_ARCHITECTURE.md",
-        "docs/HERMES-OPS.md"
-      ],
-      "depends_on": [
-        "HCP-P0-001"
-      ],
-      "acceptance": [
-        "Webhook env var name is consistent or backward-compatible aliases are documented",
-        "STT env var name is consistent between ai-gateway code, compose, and docs"
-      ]
-    },
-    {
-      "id": "HCP-P0-010",
-      "priority": "P0",
-      "phase": "phase-2",
-      "title": "Enforce tool registry implementation coverage",
-      "status": "queued",
-      "owner": "hermes-worker",
-      "paths": [
-        "apps/hermes-agency/src/skills/index.ts",
-        "apps/hermes-agency/src/skills/tool_registry.ts",
-        "apps/hermes-agency/src/__tests__"
-      ],
-      "depends_on": [
-        "HCP-P0-004"
-      ],
-      "acceptance": [
-        "P0 skill tools are implemented or explicitly marked unavailable",
-        "Tests fail when active skills reference missing required tools"
-      ]
-    },
-    {
-      "id": "HCP-P1-001",
-      "priority": "P1",
-      "phase": "phase-2",
-      "title": "Add Coolify adapter health/deploy/status actions",
-      "status": "queued",
-      "owner": "hermes-worker",
-      "paths": [
-        "apps/hermes-agency/src/skills/tool_registry.ts"
-      ],
-      "depends_on": [
-        "HCP-P0-005"
-      ],
-      "acceptance": [
-        "Coolify calls use COOLIFY_URL and COOLIFY_API_KEY from env",
-        "No Coolify token is logged"
-      ]
-    },
-    {
       "id": "HCP-P1-002",
       "priority": "P1",
       "phase": "phase-4",
@@ -296,8 +153,7 @@
       "status": "queued",
       "owner": "hermes-worker",
       "paths": [
-        "apps/hermes-agency/src/index.ts",
-        "apps/hermes-agency/src/skills/rag-instance-organizer.ts"
+        "apps/ai-gateway/src/index.ts"
       ],
       "depends_on": [
         "HCP-P0-003"
@@ -311,6 +167,6 @@
   "notes": [
     "Old SPEC-090 3-phase model is retained as a useful idea, not active implementation truth.",
     "Old SPEC-120/121/122 are incident notes; do not copy secrets or runtime values from them.",
-    "Hermes agents should use typed CLI/API adapters, not untracked shell prompts."
+    "Control plane agents should use typed CLI/API adapters, not untracked shell prompts."
   ]
 }

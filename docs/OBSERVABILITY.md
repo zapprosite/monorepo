@@ -1,14 +1,13 @@
-# Observabilidade e Monitoramento — Hermes Agency Suite
+# Observabilidade e Monitoramento — Homelab AI Suite
 
 ## Visão Geral
 
-Este documento define a arquitetura de observabilidade para a camada de inteligência AI do homelab, cobrindo todos os serviços integrados ao Hermes Agency.
+Este documento define a arquitetura de observabilidade para a camada de inteligência AI do homelab, cobrindo todos os serviços integrados ao sistema.
 
 ## Componentes Monitorados
 
 | Serviço | Porta | Função |
 |---------|-------|--------|
-| Hermes Agency | :3001 | Orquestrador de skills AI |
 | LiteLLM | :4000 | Proxy unificado para modelos |
 | Qdrant | :6333 | Banco vetorial para RAG |
 | Redis | :6379 | Cache e pub/sub |
@@ -20,25 +19,7 @@ Este documento define a arquitetura de observabilidade para a camada de intelig�
 
 ## 1. Métricas a Coletar
 
-### 1.1 Hermes Agency (:3001)
-
-```typescript
-// Métricas de Request
-- http_requests_total{method, route, status_code}
-- http_request_duration_seconds{method, route} (histogram: p50, p95, p99)
-- http_requests_in_flight{gateway}
-
-// Métricas de Skill
-- skill_invocations_total{skill_id, skill_name}
-- skill_execution_duration_seconds{skill_id}
-- skill_errors_total{skill_id, error_type}
-
-// Métricas de Circuit Breaker
-- circuit_breaker_state{skill_id, state}
-- circuit_breaker_transitions_total{skill_id, from_state, to_state}
-```
-
-### 1.2 LiteLLM (:4000)
+### 1.1 LiteLLM (:4000)
 
 ```typescript
 // Métricas de Modelo
@@ -133,7 +114,7 @@ Retorna 200 se o serviço está rodando.
 ```json
 {
   "status": "ok",
-  "service": "hermes-agency-suite",
+  "service": "hermes-gateway",
   "version": "0.1.0",
   "timestamp": "2026-04-23T10:00:00.000Z"
 }
@@ -198,18 +179,7 @@ Status completo com circuit breakers e memória.
 
 ## 3. Grafana Dashboard
 
-Dashboard em: `/grafana/dashboards/hermes-agency.json`
-
-### 3.1 Panel 1: Hermes Agency Overview
-
-```grafana
-- Request Rate: http_requests_total (rate 5m)
-- Latency p50/p95/p99: histogram_quantile
-- Error Rate: rate(http_errors_total[5m])
-- Requests in Flight: http_requests_in_flight
-```
-
-### 3.2 Panel 2: AI Model Usage
+### 3.1 Panel 1: AI Model Usage
 
 ```grafana
 - Tokens per Model: sum by model (litellm_tokens_total)
@@ -233,21 +203,6 @@ Dashboard em: `/grafana/dashboards/hermes-agency.json`
 - Search Result Sizes: avg by dataset (trieve_search_results_count)
 ```
 
-### 3.5 Panel 5: Circuit Breaker Status
-
-```grafana
-- State per Skill: circuit_breaker_state (0=closed, 1=half_open, 2=open)
-- Transitions: rate(circuit_breaker_transitions_total[5m])
-```
-
-### 3.6 Panel 6: Skill Execution
-
-```grafana
-- Calls per Skill: sum by skill_id (skill_invocations_total)
-- Success Rate: sum by skill_id (erros / total)
-- Duration p95: histogram_quantile(0.95, skill_execution_duration_seconds)
-```
-
 ---
 
 ## 4. Alerting Rules
@@ -255,15 +210,6 @@ Dashboard em: `/grafana/dashboards/hermes-agency.json`
 ### 4.1 Critical Alerts
 
 ```yaml
-# Circuit Breaker OPEN > 5 minutos
-- alert: CircuitBreakerOpen
-  expr: circuit_breaker_state == 2
-  for: 5m
-  labels:
-    severity: critical
-  annotations:
-    summary: "Circuit breaker {{ $labels.skill_id }} OPEN"
-
 # Error Rate > 5%
 - alert: HighErrorRate
   expr: rate(http_errors_total[5m]) / rate(http_requests_total[5m]) > 0.05
@@ -296,16 +242,6 @@ Dashboard em: `/grafana/dashboards/hermes-agency.json`
     severity: warning
 ```
 
-### 4.3 Info Alerts
-
-```yaml
-# Circuit Breaker State Change
-- alert: CircuitBreakerStateChange
-  expr: increase(circuit_breaker_transitions_total[1m]) > 0
-  labels:
-    severity: info
-```
-
 ---
 
 ## 5. Logging Strategy
@@ -316,10 +252,9 @@ Dashboard em: `/grafana/dashboards/hermes-agency.json`
 {
   "timestamp": "2026-04-23T10:00:00.000Z",
   "level": "error",
-  "service": "hermes-agency",
+  "service": "hermes-gateway",
   "correlationId": "req_abc123",
-  "skillId": "web_search",
-  "message": "Skill execution failed",
+  "message": "Gateway error",
   "error": {
     "type": "NetworkError",
     "message": "Connection timeout",
@@ -337,9 +272,9 @@ Dashboard em: `/grafana/dashboards/hermes-agency.json`
 
 | Level | Uso |
 |-------|-----|
-| `error` | Falhas de skill, erros de conexão, exceptions |
-| `warn` | Circuit breaker trips, retries, degraded mode |
-| `info` | Request received, skill executed, health checks |
+| `error` | Erros de conexão, exceptions |
+| `warn` | Retries, degraded mode |
+| `info` | Request received, health checks |
 | `debug` | Request/response bodies, embeddings, vectors |
 
 ### 5.3 Correlation IDs
@@ -367,7 +302,7 @@ const REDACT_PATTERNS = [
 
 ### 6.1 Metrics Server
 
-Adicionar endpoint `/metrics` no Hermes Agency:
+Adicionar endpoint `/metrics` no Hermes Gateway:
 
 ```typescript
 import { register, Counter, Histogram, Gauge } from 'prom-client';
@@ -379,12 +314,6 @@ export const httpRequestsTotal = new Counter({
   labelNames: ['method', 'route', 'status_code'],
 });
 
-export const skillInvocationsTotal = new Counter({
-  name: 'hermes_skill_invocations_total',
-  help: 'Total skill invocations',
-  labelNames: ['skill_id', 'skill_name', 'status'],
-});
-
 // Histograms
 export const httpRequestDuration = new Histogram({
   name: 'hermes_http_request_duration_seconds',
@@ -393,20 +322,7 @@ export const httpRequestDuration = new Histogram({
   buckets: [0.01, 0.05, 0.1, 0.5, 1, 2, 5],
 });
 
-export const skillExecutionDuration = new Histogram({
-  name: 'hermes_skill_execution_duration_seconds',
-  help: 'Skill execution duration',
-  labelNames: ['skill_id'],
-  buckets: [0.1, 0.5, 1, 2, 5, 10],
-});
-
 // Gauges
-export const circuitBreakerState = new Gauge({
-  name: 'hermes_circuit_breaker_state',
-  help: 'Circuit breaker state (0=closed, 1=half_open, 2=open)',
-  labelNames: ['skill_id'],
-});
-
 export const qdrantCollectionPoints = new Gauge({
   name: 'hermes_qdrant_collection_points',
   help: 'Qdrant collection point count',
@@ -430,29 +346,6 @@ app.addHook('onRequest', async (req) => {
   req.correlationId = crypto.randomUUID();
   httpRequestsTotal.inc({ method: req.method, route: req.route });
 });
-
-// Skill execution wrapper
-async function executeSkillWithMetrics(skillId: string, fn: () => Promise<void>) {
-  const timer = skillExecutionDuration.startTimer({ skill_id: skillId });
-  try {
-    await fn();
-    skillInvocationsTotal.inc({ skill_id: skillId, status: 'success' });
-  } catch (error) {
-    skillInvocationsTotal.inc({ skill_id: skillId, status: 'error' });
-    throw error;
-  } finally {
-    timer();
-  }
-}
-
-// Circuit breaker state sync
-function syncCircuitBreakerMetrics() {
-  const breakers = getAllCircuitBreakers();
-  for (const cb of breakers) {
-    const stateMap = { closed: 0, half_open: 1, open: 2 };
-    circuitBreakerState.set({ skill_id: cb.skillId }, stateMap[cb.state]);
-  }
-}
 ```
 
 ---
@@ -460,8 +353,6 @@ function syncCircuitBreakerMetrics() {
 ## 7. Dashboards JSON Schema
 
 O dashboard JSON segue o [formato Grafana Dashboard JSON](https://grafana.com/docs/grafana/latest/dashboards/json-model/).
-
-Dashboard disponível em: `/grafana/dashboards/hermes-agency.json`
 
 ### 7.1 Dashboard Variables
 
@@ -489,24 +380,17 @@ npm install prom-client pino pino-pretty
 
 ### 8.2 Files to Create/Modify
 
-1. `/srv/monorepo/apps/hermes-agency/src/metrics/index.ts` — Prometheus registry
-2. `/srv/monorepo/apps/hermes-agency/src/middleware/logging.ts` — Request logging
-3. `/srv/monorepo/apps/hermes-agency/src/middleware/metrics.ts` — Metrics collection
-4. `/srv/monorepo/apps/hermes-agency/src/index.ts` — Add /metrics and /health/detailed endpoints
-5. `/srv/monorepo/apps/hermes-agency/prometheus.yml` — Scrape config
-6. `/srv/monorepo/grafana/dashboards/hermes-agency.json` — Grafana dashboard
-7. `/srv/monorepo/docs/OBSERVABILITY.md` — This document
+1. `/srv/monorepo/apps/hermes-gateway/src/metrics/index.ts` — Prometheus registry
+2. `/srv/monorepo/apps/hermes-gateway/src/middleware/logging.ts` — Request logging
+3. `/srv/monorepo/apps/hermes-gateway/src/middleware/metrics.ts` — Metrics collection
+4. `/srv/monorepo/apps/hermes-gateway/src/index.ts` — Add /metrics and /health/detailed endpoints
+5. `/srv/monorepo/grafana/dashboards/hermes-gateway.json` — Grafana dashboard
+6. `/srv/monorepo/docs/OBSERVABILITY.md` — This document
 
 ### 8.3 Prometheus Scrape Config
 
 ```yaml
 scrape_configs:
-  - job_name: 'hermes-agency'
-    static_configs:
-      - targets: ['localhost:3001']
-    metrics_path: /metrics
-    scrape_interval: 15s
-
   - job_name: 'litellm'
     static_configs:
       - targets: ['localhost:4000']

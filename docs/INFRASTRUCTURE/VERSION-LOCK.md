@@ -13,7 +13,7 @@ Single source of truth for all pinned tool versions. Generated and validated by 
 | Claude Code CLI | 2.1.89 | `claude --version` |
 | TypeScript | ^5.7.3 | `cat apps/*/package.json \| grep typescript` |
 | Biome | ^2.3.0 | `cat apps/ai-gateway/package.json \| grep biome` |
-| Kokoro FastAPI | v0.2.2 | `docker images \| grep kokoro` |
+| Kokoro FastAPI | v0.2.2 | `docker images \| grep ` |
 
 ## Scripts
 

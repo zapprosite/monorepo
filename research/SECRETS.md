@@ -192,11 +192,11 @@ grep -r "TRIEVE_API_KEY\|QDRANT_URL\|OLLAMA_BASE_URL" --include="*.ts" --include
 
 All references use `process.env['QDRANT_URL']` with fallback to localhost:
 
-- `apps/hermes-agency/src/langgraph/status_update.ts` - fallback `'http://localhost:6333'`
-- `apps/hermes-agency/src/index.ts` - required env var (no fallback)
-- `apps/hermes-agency/src/langgraph/onboarding_flow.ts` - fallback `'http://localhost:6333'`
-- `apps/hermes-agency/src/langgraph/social_calendar.ts` - fallback `'http://localhost:6333'`
-- `apps/hermes-agency/src/qdrant/client.ts` - fallback `'http://localhost:6333'`
+- `apps/gateway/src/langgraph/status_update.ts` - fallback `'http://localhost:6333'`
+- `apps/gateway/src/index.ts` - required env var (no fallback)
+- `apps/gateway/src/langgraph/onboarding_flow.ts` - fallback `'http://localhost:6333'`
+- `apps/gateway/src/langgraph/social_calendar.ts` - fallback `'http://localhost:6333'`
+- `apps/gateway/src/qdrant/client.ts` - fallback `'http://localhost:6333'`
 
 ### Assessment
 

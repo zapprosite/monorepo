@@ -13,14 +13,10 @@ This document tracks environment variable completeness, docker-compose usage, an
 
 ## 1. .env vs .env.example Completeness
 
-### Keys in .env NOT in .env.example (26 keys missing documentation)
+### Keys in .env NOT in .env.example (22 keys missing documentation)
 
 | Variable | Category |
-|----------|----------|
-| `HERMES_AGENCY_PORT` | Hermes Agent |
-| `HERMES_VISION_MODEL` | Hermes Agent |
-| `HERMES_VOICE` | Hermes Agent |
-| `HERMES_WEBHOOK_URL` | Hermes Agent |
+|----------|---------|
 | `LITELLM_API_KEY` | LiteLLM |
 | `LITELLM_EMBEDDING_DIM` | LiteLLM |
 | `LITELLM_EMBEDDING_MODEL` | LiteLLM |
@@ -92,15 +88,7 @@ All OAuth and API credential access correctly uses `window.__ENV__` or `process.
 
 ### Critical — .env.example Incomplete
 
-Add these 26 missing keys to `.env.example` under the appropriate sections:
-
-**Hermes Agent section:**
-```
-HERMES_AGENCY_PORT=3001
-HERMES_VISION_MODEL=qwen2.5vl:7b
-HERMES_VOICE=pm_santa
-HERMES_WEBHOOK_URL=https://hermes-agency.zappro.site/webhook
-```
+Add these 22 missing keys to `.env.example` under the appropriate sections:
 
 **LiteLLM section:**
 ```

@@ -23,7 +23,7 @@ Total: 101 skills
 | 17 | CJK Character Scanner — Skill | `~/.hermes/skills/devops/cjk-char-scanner/SKILL.md` |
 | 18 | deploy-hermes-agency | `~/.hermes/skills/devops/deploy-hermes-agency/SKILL.md` |
 | 19 | Gitea Actions — Debug Workflow Failures | `~/.hermes/skills/devops/gitea-actions-debug/SKILL.md` |
-| 20 | Kokoro TTS Debug | `~/.hermes/skills/devops/kokoro-tts-debug/SKILL.md` |
+| 20 | Kokoro TTS Debug | `~/.hermes/skills/devops/-tts-debug/SKILL.md` |
 | 21 | LiteLLM Debug Skill | `~/.hermes/skills/devops/litellm-debug/SKILL.md` |
 | 22 | LiteLLM /health HTTP 000 — Diagnóstico e Fix | `~/.hermes/skills/devops/litellm-health-check-false-positive/SKILL.md` |
 | 23 | Skill: Litellm Ollama + MiniMax Router | `~/.hermes/skills/devops/litellm-ollama-minimax-router/SKILL.md` |

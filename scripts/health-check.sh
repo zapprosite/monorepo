@@ -30,7 +30,6 @@ fi
 log "Checking monorepo services..."
 SERVICES=(
     "6333:Qdrant:${QDRANT_URL:-http://localhost:6333}/health"
-    "5678:n8n:${N8N_URL:-http://localhost:5678}/api/v1/health"
 )
 for entry in "${SERVICES[@]}"; do
     IFS=':' read -r port name url <<< "$entry"
@@ -69,7 +68,7 @@ fi
 
 # ── Docker logs (last 5 errors) ────────────────────────────────
 log "Checking container error logs..."
-for container in qdrant n8n n8n-postgres; do
+for container in qdrant; do
     ERRORS=$(docker logs "$container" 2>&1 | grep -iE "error|fatal|panic" | tail -3 || true)
     if [ -n "$ERRORS" ]; then
         log "$container errors: $ERRORS"

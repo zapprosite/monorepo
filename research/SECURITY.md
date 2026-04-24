@@ -34,10 +34,10 @@ environment:
 
 ### 1.2 Existing Codebase — ⚠️ CONCERNS
 
-**Finding:** The Qdrant client (`apps/hermes-agency/src/qdrant/client.ts`) correctly reads from env, BUT:
+**Finding:** The Qdrant client (`apps/gateway/src/qdrant/client.ts`) correctly reads from env, BUT:
 
 ```typescript
-// apps/hermes-agency/src/qdrant/client.ts:4-5
+// apps/gateway/src/qdrant/client.ts:4-5
 const QDRANT_URL = process.env['QDRANT_URL'] ?? 'http://localhost:6333';
 const QDRANT_API_KEY = process.env['QDRANT_API_KEY'] ?? '';
 
@@ -69,7 +69,7 @@ COOLIFY_ROOT_USER_PASSWORD=Zappro2026!
 **Recommendation:**
 - Verify `.gitignore` excludes `.env`
 - Add pre-commit hook to prevent credential commits
-- Consider using a secrets manager (Infisical, Doppler) for production
+- Consider using a secrets manager (, Doppler) for production
 
 ---
 
@@ -80,7 +80,7 @@ COOLIFY_ROOT_USER_PASSWORD=Zappro2026!
 **Finding:** Collection names and filters are not validated before being used in API calls.
 
 ```typescript
-// apps/hermes-agency/src/qdrant/client.ts:93-127
+// apps/gateway/src/qdrant/client.ts:93-127
 export async function createCollectionIfNotExists(name: CollectionName): Promise<boolean> {
   // name is CollectionName enum - SAFE
   const existsRes = await fetch(`${QDRANT_URL}/collections/${name}`, { headers: QDRANT_HEADERS });

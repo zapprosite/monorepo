@@ -8,7 +8,7 @@
 
 ## 1. CONTEXT
 
-O sistema Hermes precisa de uma arquitetura de memória de 3 camadas bem definida para suportar operações autónomas de 8h+ sem degradação. Cada camada tem uma responsabilidade distinta e não devem ser misturadas.
+The system needs a well-defined 3-layer memory architecture to support autonomous operations of 8h+ without degradation. Each layer has a distinct responsibility and they should not be mixed.
 
 ---
 
@@ -16,7 +16,7 @@ O sistema Hermes precisa de uma arquitetura de memória de 3 camadas bem definid
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    HERMES EXECUTOR                           │
+│                    EXECUTOR                                   │
 │                 (Claude Code CLI / ACP)                      │
 └─────────────────────────┬───────────────────────────────────┘
                           │
@@ -79,7 +79,7 @@ O sistema Hermes precisa de uma arquitetura de memória de 3 camadas bem definid
 ### second-brain Collection Schema
 ```json
 {
-  "project": "hermes-second-brain|monorepo|hermes-agency|homelab",
+  "project": "hermes-second-brain|monorepo|homelab",
   "doc_type": "spec|adr|runbook|architecture|prompt|skill|guide",
   "service": "qdrant|litellm|ollama|n8n|postgresql|codex|mcloud",
   "source_path": "/path/to/file.md",
@@ -176,15 +176,6 @@ results = m.search("error handling preferences", user_id="will")
 | Collection | Vectors | Status |
 |------------|---------|--------|
 | `second-brain` | 0 | Ready to index |
-| `agency_campaigns` | ? | Active |
-| `agency_tasks` | ? | Active |
-| `agency_conversations` | ? | Active |
-| `agency_working_memory` | ? | Active |
-| `agency_brand_guides` | ? | Active |
-| `agency_assets` | ? | Active |
-| `agency_video_metadata` | ? | Active |
-| `agency_knowledge` | ? | Active |
-| `agency_clients` | ? | Active |
 | `will` | 0 | Mem0 ready |
 | `mem0migrations` | ? | Migration tracking |
 

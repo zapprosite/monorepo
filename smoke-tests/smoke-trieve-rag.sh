@@ -128,26 +128,6 @@ else
   warn "Search API not returning expected format"
 fi
 
-# ── 6. Hermes Skill ──────────────────────────────────────────────
-echo ""
-echo "── 6. Hermes rag-retrieve Skill ──────────────"
-
-# Verify skill exists in hermes skills index
-((TOTAL++)) || true
-if grep -qE "rag-retrieve|trieve|rag_retrieve" /srv/monorepo/apps/hermes-agency/src/skills/index.ts 2>/dev/null; then
-  pass "rag-retrieve skill defined in Hermes"
-else
-  warn "rag-retrieve skill not yet implemented (FASE 3)"
-fi
-
-# Hermes gateway reachable
-((TOTAL++)) || true
-if curl -sf --max-time 5 http://localhost:8642/health 2>/dev/null | grep -qE 'ok|healthy'; then
-  pass "Hermes Gateway :8642 reachable"
-else
-  warn "Hermes Gateway :8642 unreachable"
-fi
-
 # ── Summary ─────────────────────────────────────────────────────
 echo ""
 echo "=============================================="

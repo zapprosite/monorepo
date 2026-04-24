@@ -151,5 +151,5 @@ Update required for `PORTS.md`: `6435 → Trieve (RAG API)` (within 4002-4099 de
 
 - SPEC-092: `/srv/monorepo/docs/SPECS/SPEC-092-trieve-rag-integration.md`
 - CODER-1 Research: `/srv/monorepo/research/CODER-1.md`
-- Qdrant client pattern: `apps/hermes-agency/src/qdrant/client.ts`
+- Qdrant client pattern: `apps/gateway/src/qdrant/client.ts`
 - API tRPC pattern: `apps/api/src/routers/trpc.router.ts`

@@ -12,7 +12,6 @@
 | Qdrant | OK | Apr 23 03:16 | <1 day | 3.3 MB |
 | Gitea | OK | Apr 23 02:30 | <1 day | 74.4 MB |
 | Coolify DB | OK | Apr 08 13:23 | 15 days | 6.5 MB |
-| Hermes Agency | OK | Apr 23 04:00 | <1 day | — |
 
 ## Detailed Checks
 
@@ -58,10 +57,6 @@
 - **Status:** OLD (Apr 08 13:23 — 15 days ago)
 - **Verdict:** WARNING (> 7 days — verify if bi-weekly is intentional)
 
-### Hermes Agency Backup
-- **Location:** `/srv/backups/hermes-agency/` (if configured)
-- **Status:** CHECK — verify backup job exists
-- **Note:** hermes-agency is a newer service — confirm backup cron job exists
 
 ## Cron Jobs
 
@@ -72,20 +67,17 @@ All backup cron jobs configured:
 | Daily 2:00 | Memory/SQLite backup | `/srv/ops/scripts/backup-memory-keeper.sh` |
 | Daily 3:00 | Qdrant backup | `/srv/ops/scripts/backup-qdrant.sh` |
 | Daily 2:30 | Gitea backup | Inline tar command |
-| Daily 2:45 | Infisical PostgreSQL | `/srv/ops/scripts/backup-infisical.sh` |
+| Daily 2:45 |  PostgreSQL | `/srv/ops/scripts/backup-.sh` |
 | Daily 3:00 | Redis backup | `/srv/ops/scripts/backup-redis.sh` |
 | Sun 4:00 | Models backup | `/srv/ops/scripts/backup-models.sh` |
-| Daily 4:00 | Hermes Agency | `/srv/ops/scripts/backup-hermes-agency.sh` (to verify) |
 
 ## Issues
 
 1. **Coolify DB backup is 15 days old** — Last backup was Apr 8. May be intentional (bi-weekly). Verify.
 
-2. **Hermes Agency backup** — Need to confirm backup job exists for new service.
 
 ## Recommendations
 
-- Verify Hermes Agency has a backup cron job in `/srv/ops/scripts/`
 - Confirm Coolify backup schedule (bi-weekly intentional vs missed)
 - All other backups are fresh and within retention policy
 

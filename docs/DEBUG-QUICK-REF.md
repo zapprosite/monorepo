@@ -13,7 +13,7 @@ Quick reference for debugging the homelab environment. Based on blueprint config
 docker ps
 
 # Lista containers dos serviços principais
-docker ps | grep -E "qdrant|n8n|gitea|coolify"
+docker ps | grep -E "qdrant||gitea|coolify"
 
 # Ver logs em tempo real de um container
 docker logs -f <container>
@@ -233,7 +233,7 @@ ping 8.8.8.8
 nslookup <domain>
 
 # Verificar resolução de domínio
-nslookup n8n.local
+nslookup .local
 ```
 
 ---
@@ -287,7 +287,7 @@ tail -n 200 /srv/monorepo/orchestrator/logs/pipeline.log | grep -E "ERROR|fail"
 
 ```bash
 # Verificação rápida de todos os serviços
-docker ps | grep -E "qdrant|n8n|gitea|coolify|litellm" && \
+docker ps | grep -E "qdrant||gitea|coolify|litellm" && \
 nvidia-smi --query-gpu=memory.free --format=csv,noheader && \
 zpool status tank && \
 curl -s http://localhost:4000/health

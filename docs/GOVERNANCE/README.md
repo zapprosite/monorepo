@@ -79,7 +79,7 @@ PC SECUNDARIO (Gen3 1TB NVMe + RTX 3060 12GB + 32GB RAM)
 
 SERVICOS PRINCIPAIS:
   ├── Qdrant (6333) → tank/data/qdrant
-  ├── n8n (5678) → tank/n8n
+  ├──  (5678) → tank/
   ├── Gitea (3000) → tank/gitea
   ├── Coolify (80/443) → tank/coolify
   ├── Hermes Gateway (3001) → ~/.hermes

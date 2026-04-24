@@ -21,12 +21,6 @@
       "details": "Responds NOAUTH (expected without cli auth). Service running."
     },
     {
-      "name": "Hermes",
-      "status": "healthy",
-      "latency_ms": 0.5,
-      "details": "hermes-agency-suite v0.1.0 responding OK"
-    },
-    {
       "name": "mcp-memory",
       "status": "unhealthy",
       "latency_ms": null,

@@ -15,9 +15,9 @@ O ecossistema Hermes opera em **dois sistemas complementares** no Ubuntu Desktop
 | Sistema | Linguagem | Origem | Papel |
 |---------|-----------|--------|-------|
 | **Hermes Gateway** | Python | `/home/will/.hermes/hermes-agent/` | Agente principal, polling Telegram @CEO_REFRIMIX_bot |
-| **Hermes Agency** | TypeScript | `/srv/monorepo/apps/hermes-agency/` | Camada agency/marketing, polling Telegram @editor_social_bot |
+| **Hermes Gateway** | TypeScript | `/srv/monorepo/apps/hermes-gateway/` | Camada agency/marketing, polling Telegram @hermes-editor-social-bot |
 
-**Resolução de conflito:** Python usa `@CEO_REFRIMIX_bot` (TELEGRAM_BOT_TOKEN), TypeScript usa `@editor_social_bot` (EDITOR_SOCIAL_BOT_TOKEN). Bots separados, sem conflito.
+**Resolução de conflito:** Python usa `@CEO_REFRIMIX_bot` (TELEGRAM_BOT_TOKEN), TypeScript usa `@hermes-editor-social-bot` (EDITOR_SOCIAL_BOT_TOKEN). Bots separados, sem conflito.
 
 ---
 
@@ -49,7 +49,7 @@ O ecossistema segue o padrão definido em `/home/will/.hermes/SOUL.md`:
 | `zappro-qdrant` | RUNNING | 127.0.0.1:6333 | Qdrant — DB vetorial (1953 vetores `will`, 79 `second-brain`) |
 | `zappro-redis` | RUNNING | 127.0.0.1:6379 | Redis — cache/sessão (Fifine156458*) |
 | `zappro-edge-tts` | RUNNING | 127.0.0.1:8012 | Kokoro TTS bridge |
-| `hermes-agency` | RUNNING | 127.0.0.1:3001 | TypeScript agency |
+| `hermes-gateway` | RUNNING | 127.0.0.1:3001 | TypeScript agency |
 
 **Legado PRUNED:** `aurelia-*` containers foram removidos.
 
@@ -82,13 +82,13 @@ O ecossistema segue o padrão definido em `/home/will/.hermes/SOUL.md`:
 
 ---
 
-## 5. Hermes Agency (TypeScript)
+## 5. Hermes Gateway (TypeScript)
 
-- **Container:** `hermes-agency` (Docker Compose)
-- **Compose:** `/srv/monorepo/apps/hermes-agency/docker-compose.yml`
+- **Container:** `hermes-gateway` (Docker Compose)
+- **Compose:** `/srv/monorepo/apps/hermes-gateway/docker-compose.yml`
 - **Porta:** `:3001` (localhost only)
-- **Bot:** `@editor_social_bot` (token `8740522933:AAEkDbKfMeUyZW70SZRZGJ-B8cB6lkJFhcA`)
-- **Source:** `/srv/monorepo/apps/hermes-agency/`
+- **Bot:** `@hermes-editor-social-bot` (token `8740522933:AAEkDbKfMeUyZW70SZRZGJ-B8cB6lkJFhcA`)
+- **Source:** `/srv/monorepo/apps/hermes-gateway/`
 - **Skills:** 23 tools — RAG, LangGraph, campaign, analytics, social media
 - **Modelo:** MiniMax M2.7 via `HERMES_MINIMAX_BASE=https://api.minimax.io/anthropic/v1`
 
@@ -107,11 +107,11 @@ O ecossistema segue o padrão definido em `/home/will/.hermes/SOUL.md`:
 
 ## 7. Conflito Dual-Polling — RESOLVIDO
 
-**PROBLEMA ORIGINAL:** Python hermes-gateway E TypeScript hermes-agency usavam o mesmo `@CEO_REFRIMIX_bot` token.
+**PROBLEMA ORIGINAL:** Python hermes-gateway E TypeScript hermes-gateway usavam o mesmo `@CEO_REFRIMIX_bot` token.
 
 **RESOLUÇÃO APLICADA:**
 - Python Hermes Gateway → `@CEO_REFRIMIX_bot` (TELEGRAM_BOT_TOKEN)
-- TypeScript Hermes Agency → `@editor_social_bot` (EDITOR_SOCIAL_BOT_TOKEN)
+- TypeScript Hermes Gateway → `@hermes-editor-social-bot` (EDITOR_SOCIAL_BOT_TOKEN)
 
 **Dois bots separados**, sem conflito de polling.
 
@@ -134,9 +134,9 @@ Symlinks ativos:
 | Var | Valor | Uso |
 |-----|-------|-----|
 | `MINIMAX_API_BASE` | `https://api.minimax.io` | LiteLLM (SEM path) |
-| `HERMES_MINIMAX_BASE` | `https://api.minimax.io/anthropic/v1` | Hermes Agency router.ts (COM path) |
+| `HERMES_MINIMAX_BASE` | `https://api.minimax.io/anthropic/v1` | Hermes Gateway router.ts (COM path) |
 | `TELEGRAM_BOT_TOKEN` | `8759194670:...` | @CEO_REFRIMIX_bot (Python gateway) |
-| `EDITOR_SOCIAL_BOT_TOKEN` | `8740522933:...` | @editor_social_bot (TS agency) |
+| `EDITOR_SOCIAL_BOT_TOKEN` | `8740522933:...` | @hermes-editor-social-bot (TS agency) |
 
 ---
 
@@ -144,7 +144,7 @@ Symlinks ativos:
 
 | Porta | Serviço | Access |
 |-------|---------|--------|
-| 3001 | hermes-agency | 127.0.0.1 |
+| 3001 | hermes-gateway | 127.0.0.1 |
 | 4000 | zappro-litellm | 0.0.0.0 |
 | 6333 | zappro-qdrant | 127.0.0.1 |
 | 6334 | hermes-second-brain | 127.0.0.1 (PENDENTE) |
@@ -156,7 +156,7 @@ Symlinks ativos:
 ## 10. Mudanças em 2026-04-24
 
 1. **Redis migration fix:** Estrutura de dados corrigida (`/srv/data/redis/` consolidado)
-2. **hermes-agency token:** Adicionado `TELEGRAM_BOT_TOKEN=8740522933:...` (editor_social_bot)
+2. **hermes-gateway token:** Adicionado `TELEGRAM_BOT_TOKEN=8740522933:...` (hermes-editor-social-bot)
 3. **aurelia-guardrail** renomeado → **zappro-guardrail** (`/srv/ops/stacks/guardrail/docker-compose.yml`)
 4. **`/home/will/aurelia/`** deletado
 5. **`/srv/ops/ai-governance/env-backups/`** deletado
@@ -181,5 +181,5 @@ Symlinks ativos:
 - SOUL.md: `/home/will/.hermes/SOUL.md`
 - Canonical .env: `/srv/monorepo/.env`
 - Infra compose: `/home/will/zappro-lite/docker-compose.infra.yml`
-- Hermes Agency: `/srv/monorepo/apps/hermes-agency/docker-compose.yml`
+- Hermes Gateway: `/srv/monorepo/apps/hermes-gateway/docker-compose.yml`
 - Governance: `/srv/ops/ai-governance/`

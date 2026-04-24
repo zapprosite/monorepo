@@ -90,7 +90,7 @@ COOLIFY_URL=http://127.0.0.1:8000
 ```python
 COOLIFY_APPS = [
     "qdrant",         # Active
-    "n8n",            # IMMUTABLE — auto-restart only
+    "",            # IMMUTABLE — auto-restart only
     "perplexity-agent", # Active
 ]
 
@@ -100,7 +100,7 @@ DOCKER_CONTAINERS = [
     "zappro-wav2vec2",       # PINNED (KIT PROTECTED)
     "zappro-wav2vec2-proxy", # PINNED
     "zappro-tts-bridge",    # PINNED (KIT PROTECTED)
-    "zappro-kokoro",        # PINNED (KIT PROTECTED)
+    "zappro-",        # PINNED (KIT PROTECTED)
     "zappro-redis",          # Active
     "coolify-proxy",         # IMMUTABLE — never touch
     "cloudflared",           # IMMUTABLE — never touch
@@ -163,13 +163,13 @@ Substitui os seguintes crons duplicados:
 | grafana       | Verificar status only | Reiniciar, parar, modificar |
 | loki          | Verificar status only | Reiniciar, parar, modificar |
 | alertmanager  | Verificar status only | Reiniciar, parar, modificar |
-| n8n           | Auto-restart only     | Modificar config, remover   |
+|            | Auto-restart only     | Modificar config, remover   |
 
 ### Serviços PINNED — Auto-restart Only (requer MASTER_PASSWORD para config change)
 
 | Container         | Auto-restart? | Config Change?        |
 | ----------------- | ------------- | --------------------- |
-| zappro-kokoro     | YES           | NEVER (KIT PROTECTED) |
+| zappro-     | YES           | NEVER (KIT PROTECTED) |
 | zappro-wav2vec2   | YES           | NEVER (KIT PROTECTED) |
 | zappro-tts-bridge | YES           | NEVER (KIT PROTECTED) |
 | zappro-litellm    | YES           | NEVER (LOCKED)        |

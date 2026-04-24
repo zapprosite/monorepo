@@ -20,8 +20,8 @@ HARD RULE: O kit Kokoro TTS é INVIOŁÁVEL. LLM NUNCA pode:
 
 | Component | Protected Value | Violation |
 |-----------|-----------------|-----------|
-| Container Image | `ghcr.io/remsky/kokoro-fastapi-gpu:v0.2.2` | ANY change |
-| Container Name | `zappro-kokoro` | NEVER stop/restart |
+| Container Image | `ghcr.io/remsky/-fastapi-gpu:v0.2.2` | ANY change |
+| Container Name | `zappro-` | NEVER stop/restart |
 | Port | `127.0.0.1:8012` | NEVER expose |
 | Voice Male | `pm_santa` | NEVER modify/remove |
 | Voice Female | `pf_dora` | NEVER modify/remove |
@@ -29,12 +29,12 @@ HARD RULE: O kit Kokoro TTS é INVIOŁÁVEL. LLM NUNCA pode:
 ## When Voice Task Received
 
 ```
-SE (task involves "voz" OR "tts" OR "falar" OR "audio" OR "kokoro"):
+SE (task involves "voz" OR "tts" OR "falar" OR "audio" OR ""):
   1. Usar pm_santa como PADRÃO
   2. Se feminina → pf_dora
   3. Endpoint → http://localhost:8012/v1/audio/speech
   4. NUNCA substituir por outro TTS
-  5. SE Hermes Agent → LiteLLM proxy (kokoro/local)
+  5. SE Hermes Agent → LiteLLM proxy (/local)
   6. SE LLM sugerir mudança → REJEITAR e reportar
 ```
 
@@ -44,8 +44,8 @@ Hermes Agent espera OpenAI TTS format. Kokoro é nativamente compatível:
 
 ```yaml
 # LiteLLM model config
-kokoro-tts:
-  model: kokoro/local
+-tts:
+  model: /local
   api_base: http://localhost:8012/v1
 ```
 
@@ -71,8 +71,8 @@ kokoro-tts:
 ## Protected By
 
 - `/srv/monorepo/docs/GOVERNANCE/GUARDRAILS.md` (chattr +i)
-- `/srv/monorepo/docs/SPECS/SPEC-004-kokoro-tts-kit.md`
-- `/srv/monorepo/docs/OPERATIONS/SKILLS/kokoro-health-check.md`
+- `/srv/monorepo/docs/SPECS/SPEC-004--tts-kit.md`
+- `/srv/monorepo/docs/OPERATIONS/SKILLS/-health-check.md`
 
 ## Violation Reporting
 

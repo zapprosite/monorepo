@@ -67,7 +67,7 @@ hermesGateway: 'http://10.0.2.4:8642'
 | Gitea | git.zappro.site | ATIVO |
 | Qdrant | qdrant.zappro.site | ATIVO |
 
-**Removidos:** n8n (pruned), OpenWebUI (chat.zappro.site down)
+**Removidos:**  (pruned), OpenWebUI (chat.zappro.site down)
 
 ## Secrets
 

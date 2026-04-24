@@ -357,7 +357,7 @@ zfs list -t snapshot
 
 ```bash
 # Status servicos
-docker ps | grep -E "qdrant|n8n|gitea|coolify"
+docker ps | grep -E "qdrant||gitea|coolify"
 
 # Logs recentes
 journalctl --user -u hermes-gateway -n 30

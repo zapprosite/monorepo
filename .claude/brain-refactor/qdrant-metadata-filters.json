@@ -18,7 +18,7 @@
     "project": {
       "description": "Project this document belongs to",
       "type": "keyword",
-      "allowed_values": ["hermes-second-brain", "hermes-agency", "monorepo", "homelab"]
+      "allowed_values": ["hermes-second-brain",  "monorepo", "homelab"]
     },
     "service_name": {
       "description": "Name of the service this document relates to",
@@ -26,7 +26,7 @@
       "allowed_values": [
         "hermes-agents", "hermes-gateway", "mcloud", "codex", "qdrant",
         "mem0", "litellm", "ollama", "redis", "postgresql",
-        "coolify", "cloudflare", "n8n", "telegram-bot", "openwebui"
+        "coolify", "cloudflare", "", "telegram-bot", "openwebui"
       ]
     },
     "source_path": {

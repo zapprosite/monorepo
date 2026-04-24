@@ -176,7 +176,7 @@ Trieve **NÃO deve ser exposto publicamente** — é localhost-only por padrão.
 ### 4.1 RAG Retrieve Skill Pattern
 
 ```typescript
-// apps/hermes-agency/src/skills/rag-retrieve.ts
+// apps/gateway/src/skills/rag-retrieve.ts
 // SPEC-092 FASE 3
 
 interface RagRetrieveInput {
@@ -460,7 +460,7 @@ Trieve **NÃO deve ter subdomain público** initially:
 |------|-----------|
 | `docker-compose.trieve.yml` | Trieve standalone docker-compose |
 | `scripts/trieve-index.sh` | Batch indexing script |
-| `apps/hermes-agency/src/skills/rag-retrieve.ts` | Hermes RAG skill |
+| `apps/gateway/src/skills/rag-retrieve.ts` | Hermes RAG skill |
 
 ### Acceptance Criteria Status
 

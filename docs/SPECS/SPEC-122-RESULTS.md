@@ -89,7 +89,7 @@ mcp-memory aceita `{"text": "...", "user_id": "..."}` mas alguns clientes enviam
 
 ```
 Host: 192.168.15.83/24 (enp10s0)
-├── br-b33dfa19fcf5 (10.0.10.0/24) ← zappro-litellm, hermes-agency, mcp-memory
+├── br-b33dfa19fcf5 (10.0.10.0/24) ← zappro-litellm, hermes-gateway, mcp-memory
 ├── br-67b37163c04b (10.0.2.0/24) ← tts-edge
 ├── br-99ef76e26cc6 (10.0.19.0/24)
 └── docker0 (10.0.1.0/24)
@@ -145,13 +145,13 @@ Comprehensive smoke test suite created in `/srv/monorepo/smoke-tests/`:
 
 **Run:** `cd /srv/monorepo/smoke-tests && python3 -m pytest -v`
 
-### TypeScript Vitest (apps/hermes-agency/src/__tests__/)
+### TypeScript Vitest (apps/hermes-gateway/src/__tests__/)
 
 New tests added:
 - `litellm-proxy.test.ts` - LiteLLM proxy routing
 - `provider-switcher.test.ts` - Provider switching + HC-33 validation
 
-**Run:** `pnpm --filter hermes-agency test`
+**Run:** `pnpm --filter hermes-gateway test`
 
 ### Playwright E2E (e2e/)
 
@@ -181,7 +181,7 @@ make e2e           # Playwright E2E
 make env-validate  # HC-33 validation
 ```
 
-**Coverage threshold:** hermes-agency requires 70% line coverage
+**Coverage threshold:** hermes-gateway requires 70% line coverage
 
 ---
 _Generated: 2026-04-23_
@@ -193,7 +193,7 @@ _Agents completed: TEST-EMBEDDINGS-ENDPOINT, TEST-LITELLM-CHAT, FINAL-SUMMARY, p
 - **17 passed**, 7 failed, 9 skipped
 - New tests added: `smoke_litellm_minimax.py`, `smoke_mcp_memory.py`, `smoke_hermes_agency.py`, `smoke_qdrant_redis.py`
 
-### Vitest (hermes-agency)
+### Vitest (hermes-gateway)
 - **262 passed**, 9 failed
 - New tests: `provider-switcher.test.ts` (4 passed), `litellm-proxy.test.ts` (2 passed)
 - Known failures: sanitization test, skills count mismatch (in progress)

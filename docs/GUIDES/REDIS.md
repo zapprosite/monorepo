@@ -69,31 +69,13 @@ Two separate systems share the Qdrant instance, each with distinct collection na
 
 | Prefix/Namespace | Owner | Collections |
 |-----------------|-------|-------------|
-| `agency_*` | hermes-agency | `agency_clients`, `agency_campaigns`, `agency_conversations`, `agency_assets`, `agency_brand_guides`, `agency_tasks`, `agency_video_metadata`, `agency_knowledge`, `agency_working_memory` |
 | `will` | Mem0 (hermes-second-brain) | Single collection for semantic memory |
 | `openclaw-memory` | OpenClaw Bot | Bot memory |
-
-### hermes-agency Collections (agency_*)
-
-Defined in `/srv/monorepo/apps/hermes-agency/src/qdrant/client.ts` — 9 multi-tenant collections for agency operations.
 
 ### Mem0 Collection (will)
 
 Defined via `QDRANT_COLLECTION=will` / `MEM0_QDRANT_COLLECTION=will` in `.env` — used by hermes-second-brain for persistent agent memory.
 
-## Code Pattern (TypeScript — hermes-agency)
-
-```typescript
-import { COLLECTIONS } from './qdrant/client.ts';
-
-// All 9 agency collections use agency_* prefix
-COLLECTIONS.CLIENTS        // 'agency_clients'
-COLLECTIONS.CAMPAIGNS     // 'agency_campaigns'
-COLLECTIONS.CONVERSATIONS // 'agency_conversations'
-// ... etc
-```
-
 ## Anti-patterns to Avoid
 
-- Mixing `agency_*` and `will` collections — they serve different systems
 - Creating new collections without following the namespace convention above

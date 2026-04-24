@@ -14,7 +14,6 @@ All services run behind Cloudflare Tunnel with no direct IP exposure. External a
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                            EXTERNAL (Cloudflare Edge)                       │
 │                                                                             │
-│   https://hermes-agency.zappro.site    →    Hermes Agency Suite           │
 │   https://llm.zappro.site              →    LiteLLM Proxy                  │
 │   https://grafana.zappro.site          →    Grafana Observability          │
 │   https://pgadmin.zappro.site          →    pgAdmin Database Management     │
@@ -26,9 +25,9 @@ All services run behind Cloudflare Tunnel with no direct IP exposure. External a
 │                              INTERNAL NETWORK                                │
 │                                                                             │
 │  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌───────────┐ │
-│  │ Hermes      │    │ AI Gateway  │    │ LiteLLM     │    │ Hermes    │ │
-│  │ Agency      │    │ (Facade)    │    │ Proxy       │    │ Gateway   │ │
-│  │ :3001       │    │ :4002       │    │ :4000       │    │ :8642     │ │
+│  │ AI Gateway  │    │ LiteLLM     │    │ Hermes      │    │           │ │
+│  │ (Facade)    │    │ Proxy       │    │ Gateway     │    │           │ │
+│  │ :4002       │    │ :4000       │    │ :8642       │    │           │ │
 │  └─────────────┘    └─────────────┘    └─────────────┘    └───────────┘ │
 │         │                  │                  │                   │         │
 │         └──────────────────┴────────┬─────────┴───────────────────┘         │
@@ -44,44 +43,7 @@ All services run behind Cloudflare Tunnel with no direct IP exposure. External a
 
 ## Services
 
-### 1. Hermes Agency Suite
-
-**Internal Endpoint:** `http://localhost:3001`
-**External URL:** `https://hermes-agency.zappro.site`
-**Cloudflare Route:** Tunnel → `:3001`
-
-**Ports & Processes:**
-- `:3001` — Health server (Node.js `http.Server`)
-  - `/health` — Liveness probe
-  - `/ready` — Readiness probe
-  - `/health/circuit-breakers` — Admin-only circuit breaker status
-
-**Environment:**
-```env
-HERMES_AGENCY_PORT=3001
-HERMES_API_KEY=<redacted: source .env>
-HERMES_WEBHOOK_URL=https://hermes-agency.zappro.site/webhook
-```
-
-**Dependencies:**
-- Qdrant (vector DB): `localhost:6333`
-- Ollama (LLM): `localhost:11434`
-- Redis: `zappro-redis:6379`
-
-**Datacenter Hardening (SPEC-059):**
-```env
-HERMES_ADMIN_USER_IDS=           # CSV of Telegram user IDs (admin whitelist)
-HERMES_MAX_FILE_SIZE=20971520    # 20MB
-HERMES_MAX_CONCURRENT=3         # max concurrent uploads per user
-HERMES_RATE_WINDOW_MS=10000      # rate limit window
-HERMES_RATE_MAX_MSGS=5           # max messages per window
-HERMES_CIRCUIT_BREAKER_THRESHOLD=5
-HERMES_CIRCUIT_BREAKER_COOLDOWN_MS=30000
-```
-
----
-
-### 2. AI Gateway (Facade)
+### 1. AI Gateway (Facade)
 
 **Internal Endpoint:** `http://0.0.0.0:4002`
 **External URL:** N/A (internal only, not exposed via tunnel)
@@ -165,7 +127,7 @@ MINIMAX_API_KEY=<redacted: source .env>
 **Process:** Python (`hermes_cli.main gateway run --replace`)
 **Parent Process:** `hermes-agent/venv/bin/python`
 
-**Purpose:** Receives Telegram updates via webhook and routes to Hermes Agency
+**Purpose:** Receives Telegram updates via webhook and routes to AI Agency
 
 **Auth:** `HERMES_API_KEY` in `X-API-Key` header
 
@@ -177,20 +139,19 @@ HERMES_API_KEY=<redacted: source .env>
 
 **Telegram Bot Tokens:**
 ```env
-HERMES_AGENCY_BOT_TOKEN=<redacted: source .env>  # @CEO_REFRIMIX_bot (Agent Lider)
-EDITOR_SOCIAL_BOT_TOKEN=<redacted: source .env>  # @editor_social_bot
+AI_AGENCY_BOT_TOKEN=<redacted: source .env>  # @CEO_REFRIMIX_bot (Agent Lider)
 ATHLOS_BOT_TOKEN=<redacted: source .env>          # @Athlos_Life_bot
 HOMELAB_LOGS_BOT_TOKEN=<redacted: source .env>   # @HOMELAB_LOGS_bot
 ```
 
 **Webhook Configuration:**
 ```env
-HERMES_WEBHOOK_URL=https://hermes-agency.zappro.site/webhook
+HERMES_WEBHOOK_URL=https://hermes-gateway.zappro.site/webhook
 ```
 
 ---
 
-### 5. LiteLLM UI
+### 4. LiteLLM UI
 
 **Internal Endpoint:** `http://localhost:4000/ui`
 **Note:** Not exposed externally. Local access only via port forwarding if needed.
@@ -213,7 +174,6 @@ cloudflare_tunnel_secret=<redacted: source .env>
 **Services Exposed via Tunnel:**
 | Subdomain | Internal Target | Service |
 |-----------|-----------------|---------|
-| `hermes-agency.zappro.site` | `localhost:3001` | Hermes Agency |
 | `llm.zappro.site` | `localhost:4000` | LiteLLM Proxy |
 | `grafana.zappro.site` | `localhost:3000` | Grafana |
 | `pgadmin.zappro.site` | `localhost:4050` | pgAdmin |
@@ -221,7 +181,7 @@ cloudflare_tunnel_secret=<redacted: source .env>
 **Not Exposed (Local Only):**
 - Open WebUI (`:3000`) — Reserved for local development
 - AI Gateway (`:4002`) — Internal facade
-- Hermes Gateway (`:8642`) — Telegram webhook relay (reached via Hermes Agency)
+- Hermes Gateway (`:8642`) — Telegram webhook relay (reached via AI Agency)
 
 ---
 
@@ -238,11 +198,11 @@ cloudflare_tunnel_secret=<redacted: source .env>
 | AI Gateway (`*:4002`) | Bearer Token | `AI_GATEWAY_FACADE_KEY` |
 | LiteLLM (`*:4000`) | Bearer Token | `LITELLM_MASTER_KEY` |
 | Hermes Gateway (`*:8642`) | `X-API-Key` Header | `HERMES_API_KEY` |
-| Hermes Agency Webhook | Bot Token + HMAC | Telegram `setWebhook` |
+| AI Agency Webhook | Bot Token + HMAC | Telegram `setWebhook` |
 
 ### Telegram Security
 - Bot tokens for each service (CEO, Editor Social, Athlos, Homelab Logs)
-- Admin whitelist via `HERMES_ADMIN_USER_IDS`
+- Admin whitelist via `AI_AGENCY_ADMIN_USER_IDS`
 - Circuit breaker: 5 failures triggers 30s cooldown
 
 ### CORS Configuration
@@ -257,7 +217,7 @@ cloudflare_tunnel_secret=<redacted: source .env>
 
 | Service | Instance | Strategy |
 |---------|----------|----------|
-| Hermes Agency | 1 | Stateless — no session affinity needed |
+| AI Agency | 1 | Stateless — no session affinity needed |
 | LiteLLM Proxy | 1 | Proxies to upstream providers — stateless |
 | AI Gateway | 1 | Routes to LiteLLM/Ollama — stateless |
 | Hermes Gateway | 1 | Receives webhooks — stateless |
@@ -278,12 +238,6 @@ LITELLM_SESSION_STORE=redis
 ### External → Internal
 
 ```
-hermes-agency.zappro.site
-├── /webhook          → Hermes Agency (Telegram webhook receiver)
-├── /health           → Hermes Agency health server
-├── /trpc/*           → Hermes Agency tRPC API
-└── (all other)       → Hermes Agency Next.js app
-
 llm.zappro.site
 ├── /v1/*             → LiteLLM Proxy (OpenAI-compatible)
 ├── /router/*         → LiteLLM config endpoints
@@ -307,12 +261,6 @@ AI Gateway (:4002)
 
 Hermes Gateway (:8642)
 └── (Telegram webhook receiver)
-
-Hermes Agency (:3001)
-├── GET  /health                 → Liveness
-├── GET  /ready                  → Readiness
-├── POST /webhook                → Telegram updates
-└── GET  /health/circuit-breakers → Admin only
 ```
 
 ---
@@ -334,7 +282,6 @@ Hermes Agency (:3001)
 |------|---------|------|---------|---------|
 | `3000` | Open WebUI | `127.0.0.1` | No | Local dev only |
 | `3000` | Grafana | `0.0.0.0` | Yes | Observability |
-| `3001` | Hermes Agency | `127.0.0.1` | Via tunnel | Agency suite |
 | `4000` | LiteLLM Proxy | `127.0.0.1` | Via tunnel | LLM gateway |
 | `4002` | AI Gateway | `0.0.0.0` | No | OpenAI facade |
 | `4050` | pgAdmin | `0.0.0.0` | Via tunnel | DB management |
@@ -356,7 +303,7 @@ GRAFANA_SERVICE_ACCOUNT_TOKEN=<redacted: source .env>
 
 **Metrics (Future):**
 - LiteLLM built-in metrics at `/metrics`
-- Hermes Agency custom metrics via Prometheus client
+- AI Agency custom metrics via Prometheus client
 - AI Gateway: Fastify logger → structured JSON
 
 ---
@@ -387,10 +334,8 @@ GRAFANA_SERVICE_ACCOUNT_TOKEN=<redacted: source .env>
 AI_GATEWAY_PORT=4002
 AI_GATEWAY_FACADE_KEY=<redacted: source .env>
 
-# Hermes Agency
-HERMES_AGENCY_PORT=3001
-HERMES_API_KEY=<redacted: source .env>
-HERMES_WEBHOOK_URL=https://hermes-agency.zappro.site/webhook
+# Hermes Gateway
+HERMES_WEBHOOK_URL=https://hermes-gateway.zappro.site/webhook
 
 # LiteLLM
 LITELLM_PORT=4000

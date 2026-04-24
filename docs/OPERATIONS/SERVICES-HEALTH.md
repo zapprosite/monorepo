@@ -19,7 +19,6 @@
 
 | Container | Status | Uptime | Health |
 |-----------|--------|--------|--------|
-| hermes-agency | UP | 11h | (healthy) |
 | zappro-ai-gateway | UP | 10h | (healthy) — **previously UNHEALTHY, now resolved** |
 | zappro-litellm | UP | 9h | — |
 | zappro-litellm-db | UP | 9h | (healthy) |
@@ -48,7 +47,7 @@
 | perplexity-agent | UP | — | (healthy) |
 | edge-tts-server | UP | — | — |
 | qwen2-vl7b | UP | — | — |
-| zappro-kokoro | UP | — | — |
+| zappro- | UP | — | — |
 | painel-organism | UP | — | — |
 
 ### Historical Issues (Resolved)
@@ -61,8 +60,6 @@
 
 | Service | Port | Health Endpoint | Status |
 |---------|------|-----------------|--------|
-| Hermes Agency | 3001 | `http://localhost:3001/health` | OK |
-| Hermes Agency | 3001 | `http://localhost:3001/health/authenticated` | Needs Bearer token |
 | ai-gateway | 4002 | `http://localhost:4002/health` | OK |
 | LiteLLM | 4000 | `http://localhost:4000/health` | 401 (auth expected) |
 | Qdrant | 6333 | `http://localhost:6333/readyz` | all shards ready |
@@ -108,11 +105,6 @@
 
 ## Open Issues
 
-### Low — Qdrant Auth Warning from Hermes
-- **Issue:** Hermes Agency logs show `401` errors when connecting to Qdrant
-- **Impact:** Non-blocking — collections already exist, service continues normally
-- **Action:** Investigate Qdrant authentication configuration for hermes-agency
-- **Tracking:** [SRE-STATUS.md](./SRE-STATUS.md) action items
 
 ### Low — LiteLLM Auth Errors (Informational)
 - **Issue:** LiteLLM logs show `No api key passed in` errors
@@ -145,7 +137,7 @@ redis-cli PING
 ## Monitoring
 
 - **Grafana:** https://grafana.zappro.site (via Cloudflare tunnel)
-- **Dashboards:** Homelab AI Overview, Hermes Agency, LiteLLM Metrics, Qdrant Collections
+- **Dashboards:** Homelab AI Overview, LiteLLM Metrics, Qdrant Collections
 - **Alerts:** Configured via Grafana alerting (circuit breaker, error rate, latency, disk)
 
 ---

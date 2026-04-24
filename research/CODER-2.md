@@ -134,4 +134,4 @@ These should follow the patterns established in CODER-1.md:
 
 - SPEC-092: `/srv/monorepo/docs/SPECS/SPEC-092-trieve-rag-integration.md`
 - CODER-1.md: `/srv/monorepo/research/CODER-1.md`
-- Existing RAG patterns: `apps/hermes-agency/src/qdrant/client.ts`
+- Existing RAG patterns: `apps/gateway/src/qdrant/client.ts`

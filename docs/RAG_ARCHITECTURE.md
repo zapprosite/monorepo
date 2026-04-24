@@ -267,7 +267,4 @@ npx tsx scripts/rag-ingest.ts --app monorepo --dry-run
 
 ## Related Documentation
 
-- [Hermes Agency RAG Instance Organizer](../apps/hermes-agency/src/skills/rag-instance-organizer.ts)
-- [Mem0 Client](../apps/hermes-agency/src/mem0/client.ts)
-- [Qdrant Client](../apps/hermes-agency/src/qdrant/client.ts)
 - [AI Governance](../GOVERNANCE/)

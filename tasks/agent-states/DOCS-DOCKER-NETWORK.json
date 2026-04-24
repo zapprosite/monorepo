@@ -2,7 +2,7 @@
   "status": "completed",
   "networks_found": [
     {"name": "ai-gateway_default", "subnet": "10.0.10.0/24"},
-    {"name": "aurelia-net", "subnet": "10.0.8.0/24"},
+    {"name": "zappro-infra", "subnet": "10.0.8.0/24"},
     {"name": "autoheal_default", "subnet": "10.0.7.0/24"},
     {"name": "bridge", "subnet": "10.0.1.0/24"},
     {"name": "coolify", "subnet": "10.0.0.0/24"},

@@ -8,7 +8,7 @@ author: Claude Code
 date: 2026-04-18
 ---
 
-# SPEC-068: Circuit Breaker por Skill — Hermes Agency Suite
+# SPEC-068: Circuit Breaker por Skill — Hermes Gateway Suite
 
 ## Problema
 
@@ -21,7 +21,7 @@ Quando uma skill (ex: `agency-analytics`, `agency-creative`) falha repetidamente
 | LangGraph error handling | ✅ Existe | try/catch + error state em cada node |
 | TTS response size limit | ✅ Existe | `bot.ts:267` — 50MB MAX_TTS_SIZE |
 | Skills registry O(1) | ✅ Existe | `skills/index.ts:253-254` — Map lookup |
-| **Circuit breaker per skill** | ✅ IMPLEMENTADO | `agency_router.ts:11-71` + `skills/circuit_breaker.ts` |
+| **Circuit breaker per skill** | ✅ IMPLEMENTADO | `router.ts:11-71` + `skills/circuit_breaker.ts` |
 
 ## Goals
 
@@ -63,7 +63,7 @@ HALF_OPEN (testando)
 
 ### T-1: Módulo circuit_breaker.ts ✅
 
-`apps/hermes-agency/src/skills/circuit_breaker.ts`:
+`apps/hermes-gateway/src/skills/circuit_breaker.ts`:
 - `CircuitBreakerState` interface
 - `isCallPermitted(skillId)` — check se chamada permitida
 - `recordSuccess(skillId)` — reset failure count
@@ -71,7 +71,7 @@ HALF_OPEN (testando)
 - `getAllCircuitBreakers()` — para /health endpoint
 - `resetCircuitBreaker(skillId)` — para tests/admin
 
-### T-2: Integração agency_router.ts ✅
+### T-2: Integração router.ts ✅
 
 - `shouldAllowSkill()` verificado antes de cada skill (lines 162-165)
 - `recordSkillSuccess()` após sucesso (lines 177, 185, 189)
@@ -89,8 +89,8 @@ HALF_OPEN (testando)
 
 ## Acceptance Criteria
 
-- [x] `apps/hermes-agency/src/skills/circuit_breaker.ts` criado com interface + funções
-- [x] `agency_router.ts` invoca CB antes de cada skill (local CB, lines 162-165)
+- [x] `apps/hermes-gateway/src/skills/circuit_breaker.ts` criado com interface + funções
+- [x] `router.ts` invoca CB antes de cada skill (local CB, lines 162-165)
 - [x] `recordSuccess()` chamada após skill completar com sucesso
 - [x] `recordFailure()` chamada quando skill lança exceção
 - [x] `GET /health/circuit-breakers` retorna estado de todos os circuit breakers
@@ -104,10 +104,10 @@ HALF_OPEN (testando)
 
 ## Files Affected
 
-- `apps/hermes-agency/src/skills/circuit_breaker.ts` — **NOVO**
-- `apps/hermes-agency/src/router/agency_router.ts` — CB local (já existia)
-- `apps/hermes-agency/src/index.ts` — endpoint `/health/circuit-breakers`
-- `apps/hermes-agency/src/__tests__/circuit_breaker.test.ts` — **NOVO**
+- `apps/hermes-gateway/src/skills/circuit_breaker.ts` — **NOVO**
+- `apps/hermes-gateway/src/router/router.ts` — CB local (já existia)
+- `apps/hermes-gateway/src/index.ts` — endpoint `/health/circuit-breakers`
+- `apps/hermes-gateway/src/__tests__/circuit_breaker.test.ts` — **NOVO**
 - `SPEC-068` (este ficheiro)
 
 ---
@@ -115,4 +115,4 @@ HALF_OPEN (testando)
 ## Dependencies
 
 - SPEC-060 (post-hardening improvements — error handling, TTS limit, skills O(1))
-- SPEC-058 (Hermes Agency Suite — 11 skills)
+- SPEC-058 (Hermes Gateway Suite — 11 skills)

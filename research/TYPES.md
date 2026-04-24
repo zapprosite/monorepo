@@ -19,9 +19,9 @@ The `tsc` npm package (v2.0.4 by basarat) is a deprecated TypeScript compiler wr
 
 ---
 
-## Package: @hermes-agency/core
+## Package: @gateway/core
 
-**Path:** `apps/hermes-agency/`
+**Path:** `apps/gateway/`
 
 ### Errors (39)
 
@@ -103,7 +103,7 @@ The `tsc` npm package (v2.0.4 by basarat) is a deprecated TypeScript compiler wr
    ```
    Or add ` resolutions: { "tsc": "typescript" }` to package.json
 
-2. **For @hermes-agency/core:**
+2. **For @gateway/core:**
    - Add `"types": ["node"]` to tsconfig.compilerOptions
    - Add `"vitest/globals"` or `types: ["vitest"]` to tsconfig
 
@@ -121,7 +121,7 @@ The `tsc` npm package (v2.0.4 by basarat) is a deprecated TypeScript compiler wr
 ```bash
 # After fixing tsc collision:
 cd /srv/monorepo
-node node_modules/typescript/bin/tsc --noEmit --project apps/hermes-agency
+node node_modules/typescript/bin/tsc --noEmit --project apps/gateway
 node node_modules/typescript/bin/tsc --noEmit --project packages/zod-schemas
 node node_modules/typescript/bin/tsc --noEmit --project packages/ui
 ```
