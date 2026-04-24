@@ -27,6 +27,11 @@ if [ -f "$LOCK" ]; then
 fi
 echo $$ > "$LOCK"
 
+# ── Log retention (run once per invocation) ───────────────────────
+if [ -x "$WORKDIR/cleanup-vibe.sh" ]; then
+    bash "$WORKDIR/cleanup-vibe.sh" >> "$LOGDIR/vibe-kit-cleanup.log" 2>&1 || true
+fi
+
 snapshot_zfs() {
     local label=$1
     if command -v zfs &>/dev/null; then

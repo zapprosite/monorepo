@@ -32,7 +32,7 @@ pr-check.yml  ──────►  orchestrator.yml  ──────►  de
 | Type check | `pnpm tsc --noEmit` | Validacao TypeScript |
 | Lint | `pnpm lint` | Biome lint |
 | Test | `pnpm test` | Testes unitarios |
-| Version drift | `bash scripts/versions-check.sh` | Verifica consistencia de versoes |
+| Version drift | `pnpm outdated` | Verifica dependencias desatualizadas |
 
 ### Debugar falhas
 

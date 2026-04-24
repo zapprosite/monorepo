@@ -15,34 +15,24 @@ Single source of truth for all pinned tool versions. Generated and validated by 
 | Biome | ^2.3.0 | `cat apps/ai-gateway/package.json \| grep biome` |
 | Kokoro FastAPI | v0.2.2 | `docker images \| grep ` |
 
-## Scripts
+## Commands
 
 ```bash
 # Detect drift vs VERSION-LOCK.md
-bash scripts/versions-check.sh
+pnpm outdated
 
 # Update VERSION-LOCK.md to match actual versions
-bash scripts/versions-update.sh [--dry-run]
+pnpm dedupe --fix
+# Then manually update VERSION-LOCK.md
 
-# CI: fail if drift detected
-bash scripts/versions-check.sh || exit 1
+# CI: check via pnpm
+pnpm --version && pnpm list --depth=0
 ```
-
-## CI Integration
-
-The drift check runs in `pr-check.yml` on every pull request:
-
-```yaml
-- name: Version drift check
-  run: bash scripts/versions-check.sh
-```
-
-If drift is detected, the PR check fails and requires `scripts/versions-update.sh` to be run before merging.
 
 ## Update Policy
 
 1. Make the actual version change (e.g., `pnpm add -D typescript@5.8.0`)
-2. Run `bash scripts/versions-update.sh` to sync VERSION-LOCK.md
+2. Update VERSION-LOCK.md manually or via `pnpm dedupe`
 3. Commit both changes together
 
 ## Drift Severity

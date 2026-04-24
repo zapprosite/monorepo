@@ -145,7 +145,7 @@ async function main() {
   const exists = await collectionExists(collectionName);
   if (!exists) {
     console.error(`[SETUP] Collection '${collectionName}' does not exist`);
-    console.error('[SETUP] Run scripts/init-qdrant-collections.ts first');
+    console.error('[SETUP] Run Qdrant dashboard or create collection via API first');
     process.exit(1);
   }
 

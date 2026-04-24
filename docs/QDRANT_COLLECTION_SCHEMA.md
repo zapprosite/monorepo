@@ -270,10 +270,10 @@ Mem0 uses a separate collection for vector memory:
 
 ## Initialization
 
-Run the initialization script to create all collections:
-
+Run the initialization via Qdrant dashboard or API:
 ```bash
-npx tsx scripts/init-qdrant-collections.ts --reset false
+# Create collections via Qdrant dashboard at http://localhost:6334
+# Or use the Qdrant Python client
 ```
 
 Use `--reset true` to delete and recreate all collections (WARNING: destroys all data).
