@@ -9,7 +9,7 @@ vi.mock('../litellm/router.ts', () => ({
 import { routeToSkill } from '../router/agency_router.js';
 import { llmComplete } from '../litellm/router.js';
 
-const mockLlmComplete = vi.mocked(llmComplete);
+const mockLlmComplete = llmComplete as ReturnType<typeof vi.fn>;
 
 const testCtx = {
   userId: 'test-user',

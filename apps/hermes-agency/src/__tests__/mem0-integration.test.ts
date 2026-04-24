@@ -52,10 +52,10 @@ import {
 
 import { upsertVector, scrollCollection, deleteVector, search } from '../qdrant/client.js';
 
-const mockUpsertVector = vi.mocked(upsertVector);
-const mockScrollCollection = vi.mocked(scrollCollection);
-const mockDeleteVector = vi.mocked(deleteVector);
-const mockSearch = vi.mocked(search);
+const mockUpsertVector = upsertVector as ReturnType<typeof vi.fn>;
+const mockScrollCollection = scrollCollection as ReturnType<typeof vi.fn>;
+const mockDeleteVector = deleteVector as ReturnType<typeof vi.fn>;
+const mockSearch = search as ReturnType<typeof vi.fn>;
 
 // ---------------------------------------------------------------------------
 // mem0Store

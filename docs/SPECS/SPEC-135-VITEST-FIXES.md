@@ -1,27 +1,37 @@
 # SPEC-135: Corrigir Testes Vitest — Plano de Ação
 
-> **Status:** PENDENTE — Refatoração necessária para passar nos testes
+> **Status:** PARCIALMENTE CORRIGIDO — Issues P0 corrigidos, isolation requer refatoração
 >
-> O teste original foi restaurado e está a falhar conforme esperado. A correção real ainda não foi aplicada.
+> Fixes P0 aplicados (vi.mocked → type assertions). Isolation issue persiste porque módulos usam `fetch` global.
 
 ## Problema
 
 Durante a sessão de debug, vários testes Vitest foram "mascarados" em vez de corrigidos corretamente:
 
-1. **`router-integration.test.ts`** — `vi.mocked()` returns `undefined`
-2. **`litellm-proxy.test.ts`** — `vi.stubGlobal()` não existe no Vitest
-3. **`trieve-integration.test.ts`** — Isolation failure quando executado com outros testes
+1. **`router-integration.test.ts`** — `vi.mocked()` returns `undefined` ✅ CORRIGIDO
+2. **`litellm-proxy.test.ts`** — `vi.stubGlobal()` não existe no Vitest ✅ CORRIGIDO
+3. **`trieve-integration.test.ts`** — Isolation failure ⚠️ REQUER REFATORAÇÃO
 
 ## Estado Actual dos Testes
 
-### Testes que Falham (PENDENTE CORREÇÃO):
+### Testes Corrigidos (P0 - DONE):
 
-1. **`router-integration.test.ts`** — `vi.mocked is not a function` na linha 213
-2. **`trieve-integration.test.ts`** — 83 failures quando executado com todos os testes
+1. ✅ **`agency_router.test.ts`** — `vi.mocked(llmComplete)` → type assertion
+2. ✅ **`mem0-integration.test.ts`** — todos `vi.mocked()` → type assertions
+3. ✅ **`tool_registry.test.ts`** — removido mock poluente de rag-instance-organizer
+4. ✅ **`router-integration.test.ts`** — removido mock poluente de rag-instance-organizer
 
-### Testes que Foram Mascados (PRECISAM SER CORRIGIDOS):
+### Isolation Issue Persiste (REQUER REFATORAÇÃO)
 
-1. **`litellm-proxy.test.ts`** — foi deletado porque mascarava em vez de testar
+**Problema:** Quando executado com todos os testes (257 tests), 67 falham. Quando executado sozinho, cada ficheiro passa.
+
+**Causa Raiz:**
+- Os módulos fonte usam `fetch` global (não de `node:fetch`)
+- `vi.spyOn(globalThis, 'fetch')` não consegue interceptar corretamente quando módulos já fizeram bind
+- As caches em memória (e.g., session history em mem0) não são resetadas entre testes
+
+**Solução Requer Refatoração:**
+Os fontes precisam de usar `import { fetch } from 'node:fetch'` para que `vi.mock('node:fetch')` possa interceptar corretamente. Esta é uma mudança de arquitetura.
 
 ## Root Causes
 

@@ -27,14 +27,6 @@ vi.mock('../mem0/client.ts', () => ({
   getSessionHistory: vi.fn().mockReturnValue([]),
 }));
 
-vi.mock('../skills/rag-instance-organizer.ts', () => ({
-  ragRetrieve: vi.fn().mockResolvedValue([]),
-  ragSearch: vi.fn().mockResolvedValue([]),
-  createDataset: vi.fn().mockResolvedValue({ id: 'ds_123', name: 'test' }),
-  buildDatasetName: vi.fn().mockReturnValue('test-name'),
-  listDatasets: vi.fn().mockResolvedValue([]),
-  indexDocument: vi.fn().mockResolvedValue(true),
-}));
 
 vi.mock('../skills/tool_registry.ts', () => ({
   TOOL_REGISTRY: {
