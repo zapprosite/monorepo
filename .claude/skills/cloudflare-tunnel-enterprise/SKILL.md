@@ -189,7 +189,7 @@ curl -s -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
 | `list`    | localhost:4080 | -                    | OAuth native      | no Access    |
 | `md`      | localhost:4081 | -                    | OAuth native      | no Access    |
 | `monitor` | localhost:3100 | -                    | LAN only          | Grafana      |
-| `n8n`     | 10.0.6.2:5678  | -                    | Cloudflare Access | n8n          |
+| ``     | 10.0.6.2:5678  | -                    | Cloudflare Access |           |
 | `painel`  | localhost:4003 | -                    | Cloudflare Access | Painel       |
 | `qdrant`  | 10.0.19.5:6333 | -                    | Cloudflare Access | Qdrant       |
 | `vault`   | localhost:8200 | -                    | Cloudflare Access | Vault        |

@@ -49,13 +49,12 @@ version: 1.0.0
 | Searxng | `https://search.zappro.site` | 8080 |
 | Painel Organism | `https://painel.zappro.site` | 4005 |
 | LiteLLM | `https://llm.zappro.site` | 4000 |
-| Hermes Agency | `https://hermes-agency.zappro.site` | 8642 |
+| Hermes Gateway | `https://hermes.zappro.site` | 8642 |
 
 ## Agentes
 
 | Agente | Descrição | Porta |
 |--------|-----------|-------|
-| `hermes-agency` | AI agent com voice + vision | `:3001` |
 | `mcp-memory` | Memory Agent para contexto persistente | `:4016` |
 | `mcp-ollama` | Ferramentas Ollama para Claude Code | `:4013` |
 | `mcp-qdrant` | Vector DB tools para RAG | `:4011` |
@@ -123,7 +122,6 @@ QDRANT_URL=http://localhost:6333
 monorepo/
 ├── apps/
 │   ├── painel-organism/    # Dashboard homelab (React)
-│   ├── hermes-agency/      # Agente AI principal
 │   └── web/                # Frontend principal
 ├── packages/
 │   ├── api/                # Fastify + tRPC

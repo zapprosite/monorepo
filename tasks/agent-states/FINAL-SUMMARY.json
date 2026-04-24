@@ -11,18 +11,9 @@
     "api_key_correct": true,
     "collections_accessible": 12,
     "collections": [
-      "agency_video_metadata",
-      "agency_campaigns",
-      "agency_working_memory",
       "openclaw-memory",
-      "agency_assets",
       "will",
-      "agency_clients",
-      "agency_brand_guides",
-      "agency_tasks",
-      "mem0migrations",
-      "agency_conversations",
-      "agency_knowledge"
+      "mem0migrations"
     ]
   },
   "mcp_memory_status": {
@@ -52,8 +43,6 @@
     "corrections_applied": 0,
     "mismatches": [
       {"var": "OLLAMA_URL", "container": "mcp-memory"},
-      {"var": "COOLIFY_API_KEY", "container": "hermes-agency"},
-      {"var": "QDRANT_URL", "container": "hermes-agency"},
       {"var": "QDRANT_URL", "container": "zappro-litellm"},
       {"var": "QDRANT_URL", "container": "mcp-qdrant"}
     ]

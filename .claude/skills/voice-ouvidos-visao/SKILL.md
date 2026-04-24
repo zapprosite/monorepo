@@ -7,7 +7,7 @@ author: Hermes Agent
 license: MIT
 metadata:
   hermes:
-    tags: [voice, stt, tts, vision, kokoro, faster-whisper, qwen, pt-br]
+    tags: [voice, stt, tts, vision, , faster-whisper, qwen, pt-br]
     related_skills: []
     status: production
 ---
@@ -55,7 +55,7 @@ Hermes Gateway :8642
 |---------|-----|-------|---------|
 | **Hermes Gateway** | `http://localhost:8642` | MiniMax-M2.7 | LLM primário |
 | **STT** | `http://localhost:8204/v1/audio/transcriptions` | faster-whisper-medium-pt | Voice input (PT-BR) |
-| **TTS** | `http://localhost:8013/v1/audio/speech` | kokoro | Voice output (PT-BR) |
+| **TTS** | `http://localhost:8013/v1/audio/speech` |  | Voice output (PT-BR) |
 | **Vision** | `http://localhost:11434/api/chat` | qwen2.5vl:7b | Image analysis |
 
 ### Modelos Ollama Disponíveis (verificação: `ollama list`)
@@ -101,7 +101,7 @@ curl -sf http://localhost:8013/health
 curl -sf http://localhost:8013/v1/audio/speech \
   -X POST \
   -H "Content-Type: application/json" \
-  -d '{"model":"kokoro","input":"Olá, como posso ajudar?","voice":"pm_santa","response_format":"mp3"}' \
+  -d '{"model":"","input":"Olá, como posso ajudar?","voice":"pm_santa","response_format":"mp3"}' \
   -o resposta.ogg
 ```
 
@@ -216,11 +216,11 @@ curl -sf http://localhost:8013/health
 # Testar síntese simples
 curl -sf http://localhost:8013/v1/audio/speech \
   -X POST -H "Content-Type: application/json" \
-  -d '{"model":"kokoro","input":"Teste","voice":"pm_santa"}' \
+  -d '{"model":"","input":"Teste","voice":"pm_santa"}' \
   -o /tmp/test_tts.ogg
 
 # Se 500: Kokoro container pode ter crashado — verificar docker
-docker ps | grep kokoro
+docker ps | grep 
 ```
 
 ### Vision qwen2.5vl Falhando

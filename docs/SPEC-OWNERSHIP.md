@@ -19,7 +19,7 @@ CAPTACAO → ATENDIMENTO → CONTRATACAO → ENTREGA → POS-VENDA → REMARKETI
 ```
 
 Tecnologia: TypeScript/Node.js + React + PostgreSQL + Qdrant + Mem0 + LangGraph
-Stack: pnpm workspaces (api, web, hermes-agency)
+Stack: pnpm workspaces (api, web)
 
 ---
 
@@ -30,7 +30,6 @@ Stack: pnpm workspaces (api, web, hermes-agency)
 **Apps (3):**
 - `api` — Fastify + tRPC + 12 migrations + 56 modulos de negocio
 - `web` — React/MUI + 17 modulos (clients, leads, contracts, service-orders, editorial, kanban, etc.)
-- `hermes-agency` — Multi-agent com 13 skills + 5 workflows LangGraph
 
 **Modulos de negocio:**
 | Modulo | Entities | Status |
@@ -221,10 +220,6 @@ await agencyStoreSession(sessionId, updated);
 
 | ID | Tarefa | Arquivo |
 |----|--------|---------|
-| F1-1 | Migrar 4 workflows fake → StateGraph real | hermes-agency/src/langgraph/*.ts |
-| F1-2 | Conditional edges no content_pipeline | hermes-agency/src/langgraph/content_pipeline.ts |
-| F1-3 | Implementar interrupt pattern (human gate) | hermes-agency/src/langgraph/content_pipeline.ts |
-| F1-4 | Session state → Qdrant persistence | hermes-agency/src/router/agency_router.ts |
 | F1-5 | Corrigir ARCHITECTURE.md (remover flag ERRADO) | docs/ARCHITECTURE.md |
 | F1-6 | Corrigir subscribedAt90PercentUse null check | api/src/modules/api-gateway/utils/subscriptionTracker.utils.ts |
 | F1-7 | Adicionar transacao em incrementSubscriptionUsage | api/src/modules/api-gateway/utils/subscriptionTracker.utils.ts |

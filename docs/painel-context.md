@@ -144,7 +144,6 @@ O painel organiza os servicos em **7 camadas**, cada uma com um icon, cor neon, 
 
 | Key | Servico | Porta | Health URL | URL | Docs |
 |-----|---------|-------|------------|-----|------|
-| `hermes-agency` | Hermes Agency | `:3001` | `http://localhost:3001/health` | `https://hermes-agency.zappro.site` | `docs/HERMES-OPS.md` |
 | `claude-code` | Claude Code | CLI | — | — | — |
 | `mclaude` | mclaude | CLI | — | — | — |
 | `opencode` | OpenCode | `:4013` | — | — | — |
@@ -252,7 +251,6 @@ Estes servicam exibem label `CLI/Host` em vez do status dot.
 | Monorepo (button principal) | `https://git.zappro.site/will-zappro/monorepo` | Sim (302 redirect) |
 | Docs raw (HEAD) | `https://git.zappro.site/will-zappro/monorepo/raw/HEAD/{path}` | Sim |
 | Docs src (HEAD) | `https://git.zappro.site/will-zappro/monorepo/src/HEAD/{path}` | Sim |
-| Hermes Agency | `https://hermes-agency.zappro.site` | Sim |
 | LiteLLM / ai-gateway | `https://llm.zappro.site` | Sim |
 | OpenWebUI (chat) | `https://chat.zappro.site` | Sim |
 | Grafana | `https://grafana.zappro.site` | Sim |

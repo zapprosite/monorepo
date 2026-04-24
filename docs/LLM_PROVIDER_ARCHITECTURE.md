@@ -2,7 +2,7 @@
 
 ## Overview
 
-Hermes Agency uses a tiered LLM provider strategy with MiniMax M2.7 as the primary provider, Ollama for local/vision tasks, Groq and OpenAI via LiteLLM proxy, and OpenRouter for aggregated provider access.
+The LLM provider architecture uses a tiered strategy with MiniMax M2.7 as the primary provider, Ollama for local/vision tasks, Groq and OpenAI via LiteLLM proxy, and OpenRouter for aggregated provider access.
 
 ## Provider Priority Chain
 
@@ -169,14 +169,3 @@ interface ProviderHealth {
 - **bot.ts** — Vision/STT use Ollama directly
 - **rag-instance-organizer.ts** — Uses Trieve for vector search (not embedding providers directly)
 
-## File Structure
-
-```
-hermes-agency/src/
-├── litellm/
-│   └── router.ts       # LLM chain router
-├── skills/
-│   └── rag-instance-organizer.ts  # RAG operations via Trieve
-└── services/
-    └── embedding.ts    # (future) Embedding provider routing
-```

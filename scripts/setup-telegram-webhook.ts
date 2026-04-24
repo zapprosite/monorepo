@@ -2,12 +2,11 @@
 /**
  * setup-telegram-webhook.ts
  *
- * Configura webhooks para os bots Telegram da Hermes Agency.
+ * Configura webhooks para os bots Telegram do homelab.
  * Suporta configuração individual ou de todos os bots.
  *
  * Uso:
  *   npx tsx scripts/setup-telegram-webhook.ts --bot CEO_REFRIMIX
- *   npx tsx scripts/setup-telegram-webhook.ts --bot EDITOR_SOCIAL
  *   npx tsx scripts/setup-telegram-webhook.ts --bot ATHLOS
  *   npx tsx scripts/setup-telegram-webhook.ts --bot HOMELAB
  *   npx tsx scripts/setup-telegram-webhook.ts --all
@@ -46,13 +45,6 @@ const BOT_CONFIGS: Record<string, BotConfig> = {
     webhookPath: '/webhook/ceo_refrimix',
     description: 'CEO Refrimix Bot - Agent lider, roteamento de campanhas',
   },
-  EDITOR_SOCIAL: {
-    name: 'EDITOR_SOCIAL',
-    envToken: 'EDITOR_SOCIAL_BOT_TOKEN',
-    envWebhookUrl: 'EDITOR_SOCIAL_WEBHOOK_URL',
-    webhookPath: '/webhook/editor_social',
-    description: 'Editor Social Bot - Video editing, social media',
-  },
   ATHLOS: {
     name: 'ATHLOS',
     envToken: 'ATHLOS_BOT_TOKEN',
@@ -72,7 +64,7 @@ const BOT_CONFIGS: Record<string, BotConfig> = {
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function getBaseUrl(): string {
-  return process.env['TELEGRAM_WEBHOOK_BASE_URL'] ?? 'https://hermes-agency.zappro.site';
+  return process.env['TELEGRAM_WEBHOOK_BASE_URL'] ?? 'https://hermes.zappro.site';
 }
 
 function getToken(config: BotConfig): string {
@@ -293,7 +285,7 @@ function parseArgs(): { action: string; bot?: string } {
 
 function showHelp(): void {
   console.log(`
-🤖 Hermes Agency — Telegram Bot Webhook Setup
+🤖 Homelab — Telegram Bot Webhook Setup
 
 USO
   npx tsx scripts/setup-telegram-webhook.ts [OPÇÕES]
@@ -307,7 +299,6 @@ OPÇÕES
 
 BOTS DISPONÍVEIS
   CEO_REFRIMIX     @CEO_REFRIMIX_bot — Agent lider
-  EDITOR_SOCIAL    @editor_social_bot — Video/content
   ATHLOS           @Athlos_Life_bot — Athlos brand
   HOMELAB          @HOMELAB_LOGS_bot — Homelab alerts
 
@@ -328,15 +319,13 @@ EXEMPLOS
   npx tsx scripts/setup-telegram-webhook.ts --delete --bot CEO_REFRIMIX
 
 VARIÁVEIS DE AMBIENTE
-  TELEGRAM_WEBHOOK_BASE_URL      Base URL para webhooks (default: https://hermes-agency.zappro.site)
+  TELEGRAM_WEBHOOK_BASE_URL      Base URL para webhooks (default: https://hermes.zappro.site)
   HERMES_AGENCY_BOT_TOKEN        Token do CEO bot
-  EDITOR_SOCIAL_BOT_TOKEN        Token do Editor bot
   ATHLOS_BOT_TOKEN               Token do Athlos bot
   HOMELAB_LOGS_BOT_TOKEN         Token do Homelab bot
 
   # Override de URLs específicas
   HERMES_AGENCY_WEBHOOK_URL
-  EDITOR_SOCIAL_WEBHOOK_URL
   ATHLOS_WEBHOOK_URL
   HOMELAB_LOGS_WEBHOOK_URL
 `);

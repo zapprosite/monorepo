@@ -1,6 +1,6 @@
 # Security Architecture
 
-**Scope:** homelab.zappro.site — Hermes Agency Suite
+**Scope:** homelab.zappro.site — AI Agency Suite
 **Classification:** Internal — Principal Engineer only
 **Last Updated:** 2026-04-23
 
@@ -13,7 +13,7 @@
 | Service | Env Var | Purpose |
 |---------|---------|---------|
 | AI Gateway Facade | `AI_GATEWAY_FACADE_KEY` | Master key for AI Gateway proxy |
-| Hermes Agency | `HERMES_API_KEY` | Agency Suite API authentication |
+| AI Agency | `HERMES_API_KEY` | Agency Suite API authentication |
 | LiteLLM Proxy | `LITELLM_MASTER_KEY` | LiteLLM orchestration |
 
 **Token Requirements:**
@@ -26,9 +26,9 @@
 
 | Component | Auth Method |
 |-----------|-------------|
-| Bot Token | `HERMES_AGENCY_BOT_TOKEN` (BotFather) |
-| Admin Users | `HERMES_ADMIN_USER_IDS` (comma-separated Telegram User IDs) |
-| Chat Whitelist | `HERMES_ALLOWED_CHAT_IDS` (optional, for group bots) |
+| Bot Token | `AI_AGENCY_BOT_TOKEN` (BotFather) |
+| Admin Users | `AI_AGENCY_ADMIN_USER_IDS` (comma-separated Telegram User IDs) |
+| Chat Whitelist | `AI_AGENCY_ALLOWED_CHAT_IDS` (optional, for group bots) |
 
 ### 1.3 Grafana
 
@@ -56,7 +56,7 @@ Admin-only endpoints (checked via `HERMES_ADMIN_USER_IDS`):
 - Any admin command (reload, config changes)
 
 ```typescript
-const adminIds = (process.env['HERMES_ADMIN_USER_IDS'] ?? '').split(',').filter(Boolean);
+const adminIds = (process.env['AI_AGENCY_ADMIN_USER_IDS'] ?? '').split(',').filter(Boolean);
 if (!adminIds.includes(userId)) {
   res.writeHead(403);
   return { error: 'Forbidden — admin only' };
@@ -75,11 +75,11 @@ if (!adminIds.includes(userId)) {
 # AI Gateway
 AI_GATEWAY_FACADE_KEY=changeme_placeholder
 
-# Hermes Agency
-HERMES_AGENCY_BOT_TOKEN=changeme_placeholder
+# AI Agency
+AI_AGENCY_BOT_TOKEN=changeme_placeholder
 HERMES_API_KEY=changeme_placeholder
-HERMES_ADMIN_USER_IDS=changeme_placeholder
-HERMES_ALLOWED_CHAT_IDS=changeme_placeholder
+AI_AGENCY_ADMIN_USER_IDS=changeme_placeholder
+AI_AGENCY_ALLOWED_CHAT_IDS=changeme_placeholder
 
 # LiteLLM
 LITELLM_MASTER_KEY=changeme_placeholder
@@ -90,7 +90,7 @@ GRAFANA_TOKEN=changeme_placeholder
 
 ### 3.2 Real `.env` File
 
-- Location: `~/.hermes-agency/.env` (or service-specific)
+- Location: `~/.hermes-gateway/.env` (or service-specific)
 - Permissions: `600` (owner read/write only)
 - **Never committed to git**
 - `.gitignore` entries: `.env`, `*.env.local`
@@ -99,7 +99,7 @@ GRAFANA_TOKEN=changeme_placeholder
 
 | Secret Type | Rotation Frequency |
 |-------------|-------------------|
-| API Keys (HERMES_API_KEY, etc.) | Quarterly |
+| API Keys (HERMES_API_KEY, AI_AGENCY_API_KEY) | Quarterly |
 | Telegram Bot Tokens | Annual |
 | Database passwords | Quarterly |
 | Grafana tokens | Semi-annual |
@@ -120,11 +120,11 @@ All external traffic routes through Cloudflare Tunnel:
 | Port | Service | Access |
 |------|---------|--------|
 | 3000 | Open WebUI | Tunnel-only |
-| 3001 | Hermes Agency Health | localhost + tunnel |
+| 3001 | AI Agency Health | localhost + tunnel |
 | 4000 | LiteLLM Proxy | localhost |
 | 5173 | Vite Dev | Internal only |
 | 8000 | Coolify PaaS | Direct (internal) |
-| 8080 | aurelia-api | localhost |
+| 8080 | -api | localhost |
 | 9090 | Prometheus | tunnel + auth |
 
 ### 4.3 Service Connectivity
@@ -165,13 +165,7 @@ All external traffic routes through Cloudflare Tunnel:
 
 ### 5.2 PostgreSQL Schema Isolation
 
-```
-app schema    — Application data (users, sessions)
-lead schema   — Lead management (PII-gated)
-analytics schema — Aggregated metrics only
-```
-
-### 5.3 GDPR Compliance
+### 5.2 GDPR Compliance
 
 | Requirement | Implementation |
 |-------------|----------------|
@@ -180,7 +174,7 @@ analytics schema — Aggregated metrics only
 | Consent tracking | `user_consent` table with timestamp |
 | Data minimization | No PII in logs (correlation IDs only) |
 
-### 5.4 Log Sanitization
+### 5.3 Log Sanitization
 
 All logs use correlation IDs, never:
 - Email addresses
@@ -198,6 +192,7 @@ All logs use correlation IDs, never:
 |------------|--------|-----------|
 | API calls | timestamp, caller, action, result, duration | 90 days |
 | Circuit breaker | timestamp, service, state, reason | 90 days |
+| Auth failures | timestamp, caller, reason, source IP | 90 days |
 | Admin actions | timestamp, adminId, action, target, result | 90 days |
 | Auth failures | timestamp, caller, reason, source IP | 90 days |
 | Rate limit hits | timestamp, userId, limit, window | 90 days |

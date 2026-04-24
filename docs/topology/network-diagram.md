@@ -187,7 +187,7 @@ USER (Internet)
 | :22 | SSH | host | PC secundario → PC principal |
 | :2222 | Gitea SSH | host | Git push/pull |
 | :3000 | zappro-web | host | 0.0.0.0 |
-| :3001 | hermes-agency | Docker | localhost |
+| :3001 | Hermes Gateway | Docker | localhost |
 | :3300 | Gitea Web | Docker | localhost |
 | :3456 | OpenWebUI | Docker | localhost |
 | :4002 | ai-gateway | host | 0.0.0.0 |

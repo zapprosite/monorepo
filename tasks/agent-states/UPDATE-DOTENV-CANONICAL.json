@@ -1,20 +1,7 @@
 {
   "status": "completed",
   "dotenv_verified": true,
-  "corrections_needed": [
-    {
-      "var": "HERMES_AGENCY_BOT_TOKEN",
-      "expected": "$HERMES_AGENCY_BOT_TOKEN",
-      "actual_in_container": "$EDITOR_SOCIAL_BOT_TOKEN",
-      "note": "Container has EDITOR_SOCIAL_BOT_TOKEN value. Tokens appear swapped."
-    },
-    {
-      "var": "HERMES_API_KEY",
-      "expected": "$HERMES_API_KEY",
-      "actual_in_container": "<redacted: source .env>",
-      "note": "Container value is truncated/masked. Unable to verify correctness."
-    }
-  ],
+  "corrections_needed": [],
   "corrections_applied": [
     {
       "var": "MINIMAX_API_KEY",
@@ -39,7 +26,6 @@
     {"var": "LITELLM_MASTER_KEY", "container": "$LITELLM_MASTER_KEY", "env": "$LITELLM_MASTER_KEY"},
     {"var": "QDRANT_API_KEY", "container": "$QDRANT_API_KEY", "env": "$QDRANT_API_KEY"},
     {"var": "REDIS_URL", "container": "$REDIS_URL", "env": "$REDIS_URL"},
-    {"var": "HERMES_ADMIN_USER_IDS", "container": "$HERMES_ADMIN_USER_IDS", "env": "$HERMES_ADMIN_USER_IDS"},
     {"var": "COOLIFY_API_KEY", "container": "$COOLIFY_API_KEY", "env": "$COOLIFY_API_KEY"}
   ],
   "stale_values_identified": [

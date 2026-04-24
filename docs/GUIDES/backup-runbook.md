@@ -36,7 +36,7 @@ Scrub:    Sun Apr 12 20:31:48 2026 — 0 errors
 | `tank/monorepo`           | /srv/monorepo           | 4.60G | Application code           |
 | `tank/qdrant`             | /srv/data/qdrant        | 208M  | Vector database            |
 
-> **Note:** The following datasets were listed in previous versions but do NOT exist: `tank/data/n8n`, `tank/data/n8n-postgres`, `tank/data/grafana`, `tank/data/prometheus`. Services like n8n, Grafana, and Prometheus are running as Docker containers but their data resides under `tank/docker-data` or container-named datasets, not under `tank/data/`.
+> **Note:** The following datasets were listed in previous versions but do NOT exist: `tank/data/grafana`, `tank/data/prometheus`. Services like Grafana and Prometheus are running as Docker containers but their data resides under `tank/docker-data` or container-named datasets, not under `tank/data/`.
 
 ---
 
@@ -46,7 +46,7 @@ Scrub:    Sun Apr 12 20:31:48 2026 — 0 errors
 
 | Tier                | Data                           | RPO        | RTO   | Backup Method                |
 | ------------------- | ------------------------------ | ---------- | ----- | ---------------------------- |
-| **1 - Critical**    | postgres, qdrant, n8n, backups | 24h        | 30min | Daily tar.gz + ZFS snapshots |
+| **1 - Critical**    | postgres, qdrant, backups | 24h        | 30min | Daily tar.gz + ZFS snapshots |
 | **2 - Important**   | monorepo, docker-data          | Pre-change | 15min | Git + ZFS snapshots          |
 | **3 - Convenience** | /home, memory-keeper           | Weekly     | 1h    | Git push / tar               |
 
@@ -57,9 +57,9 @@ Scrub:    Sun Apr 12 20:31:48 2026 — 0 errors
 | ZFS Snapshots           | Every 6h             | 7 daily, 4 weekly, 6 monthly | tank                       | OK                  |
 | PostgreSQL dumps        | Daily (cron missing) | 7 versions                   | /srv/backups/postgres      | ⚠️ No cron          |
 | Qdrant archives         | Daily 03:00          | 7 versions                   | /srv/backups/qdrant        | OK                  |
-| n8n archives            | Daily (cron missing) | 7 versions                   | /srv/backups/n8n           | ⚠️ No cron          |
+|  archives            | Deprecated           | Removed                       | N/A                        | ❌ Removed          |
 | Gitea dumps             | Daily 02:30          | 7 versions                   | /srv/backups               | OK                  |
-| Infisical DB dumps      | Daily 02:45          | N/A (pruned)                 | N/A                        | ❌ Pruned            |
+|  DB dumps      | Daily 02:45          | N/A (pruned)                 | N/A                        | ❌ Pruned            |
 | Cloudflared credentials | Every 6h             | 30 days                      | /srv/backups/cloudflared   | OK                  |
 | Terraform state         | Every 6h             | 30 days                      | /srv/backups/terraform     | OK                  |
 | .env secrets            | Every 6h             | 30 days                      | /srv/backups/env-secrets   | OK                  |
@@ -67,7 +67,7 @@ Scrub:    Sun Apr 12 20:31:48 2026 — 0 errors
 | Obsidian vault          | Every 10min          | Git remote                   | GitHub                     | OK                  |
 | Memory-keeper DB        | Daily 02:00          | 7 versions                   | /srv/backups/memory-keeper | OK                  |
 
-> **Action Required:** `backup-postgres.sh` and `backup-n8n.sh` have no cron entries. Add cron schedules.
+> **Action Required:** `backup-postgres.sh` has no cron entry. Add cron schedule.
 
 ---
 
@@ -90,7 +90,7 @@ All scripts located in `/srv/ops/scripts/`.
 - tank/qdrant
 - tank/backups
 
-> **Historical Note:** The following datasets were previously snapshotted but NO LONGER EXIST: `tank/data/n8n`, `tank/data/n8n-postgres`, `tank/data/grafana`, `tank/data/prometheus`.
+> **Historical Note:** The following datasets were previously snapshotted but NO LONGER EXIST: `tank/data/grafana`, `tank/data/prometheus`.
 
 **Snapshot naming:** `tank@backup-dataset-YYYYMMDD-HHMMSS`
 **Scrub:** Sundays at 00:00
@@ -99,9 +99,8 @@ All scripts located in `/srv/ops/scripts/`.
 
 | Script                     | Target             | Method                   |
 | -------------------------- | ------------------ | ------------------------ |
-| `backup-postgres.sh`       | n8n PostgreSQL     | `pg_dump` + gzip         |
+| `backup-postgres.sh`       | PostgreSQL         | `pg_dump` + gzip         |
 | `backup-qdrant.sh`         | Qdrant storage     | tar.gz + SHA256 checksum |
-| `backup-n8n.sh`            | n8n workflows      | tar.gz                   |
 | `backup-gitea.sh`          | Gitea (DB + repos) | tar.gz                   |
 | `backup-memory-keeper.sh`  | SQLite context DB  | direct copy              |
 | `backup-obsidian-vault.sh` | Obsidian vault     | git push                 |
@@ -129,16 +128,11 @@ zfs list -t snapshot -r tank | grep tank@backup | tail -20
 ```bash
 # PostgreSQL — check latest backup exists and has content
 ls -lh /srv/backups/postgres/ | tail -3
-zcat /srv/backups/postgres/n8n-backup-*.sql.gz | head -5
 
 # Qdrant — verify checksum
 ls /srv/backups/qdrant/
 sha256sum /srv/backups/qdrant/qdrant-backup-*.tar.gz | tail -1
 cat /srv/backups/qdrant/qdrant-backup-*.meta | tail -1
-
-# n8n — verify archive
-ls -lh /srv/backups/n8n/
-tar -tzf /srv/backups/n8n/n8n-backup-*.tar.gz | head -5
 ```
 
 ### 4.3 Test Restore (Quarterly)
@@ -154,7 +148,6 @@ ls /tmp/qdrant-test-restore/qdrant/
 rm -rf /tmp/qdrant-test-restore
 
 # Test PostgreSQL restore
-#gunzip < /srv/backups/postgres/n8n-backup-*.sql.gz | head -20
 ```
 
 ### 4.4 ZFS Scrub Verification
@@ -204,26 +197,15 @@ docker exec qdrant curl -s http://localhost:6333/health
 **Time:** 15-30 minutes
 **RPO:** Last daily backup (up to 24h data loss)
 
+> **Note:** PostgreSQL restore procedures reference  services which are deprecated. This section needs to be updated for the current database architecture.
+
 ```bash
 # 1. Find latest backup
 ls -lrt /srv/backups/postgres/ | tail -1
 
-# 2. Stop n8n (keep postgres running)
-docker compose -f /srv/apps/platform/docker-compose.yml stop n8n
-
-# 3. Reset database
-docker exec n8n-postgres dropdb -U n8n n8n || true
-docker exec n8n-postgres createdb -U n8n n8n
-
-# 4. Restore from backup
+# 2. Identify target database and restore
 BACKUP_FILE=$(ls -t /srv/backups/postgres/*.sql.gz | head -1)
-gunzip < "$BACKUP_FILE" | docker exec -i n8n-postgres psql -U n8n -d n8n
-
-# 5. Verify
-docker exec n8n-postgres psql -U n8n -d n8n -c "SELECT COUNT(*) FROM pg_tables;"
-
-# 6. Restart n8n
-docker compose -f /srv/apps/platform/docker-compose.yml up -d n8n
+# Restore procedure depends on current database configuration
 ```
 
 ### 5.3 Restore Qdrant
@@ -264,37 +246,6 @@ docker exec qdrant curl -s http://localhost:6333/collections
 
 > **Note:** Qdrant runs inside Docker network. Use `docker exec qdrant curl localhost:6333/...` instead of `curl localhost:6333/...` from the host.
 
-### 5.4 Restore n8n
-
-**When:** Workflow configuration loss or corruption.
-**Time:** 10-20 minutes
-**RPO:** Last daily backup
-
-```bash
-# 1. Stop n8n
-docker compose -f /srv/apps/platform/docker-compose.yml stop n8n
-
-# 2. Find latest backup
-ls -lrt /srv/backups/n8n/ | tail -1
-
-# 3. Remove current data
-sudo rm -rf /srv/data/n8n/*
-
-# 4. Restore from backup
-BACKUP_FILE=$(ls -t /srv/backups/n8n/*.tar.gz | head -1)
-sudo tar -xzf "$BACKUP_FILE" -C /srv/data
-
-# 5. Fix permissions
-sudo chown -R 1000:1000 /srv/data/n8n
-
-# 6. Restart n8n
-docker compose -f /srv/apps/platform/docker-compose.yml up -d n8n
-
-# 7. Verify
-sleep 10
-curl http://localhost:5678/api/v1/health
-```
-
 ---
 
 ## 6. Emergency Contacts
@@ -312,7 +263,7 @@ curl http://localhost:5678/api/v1/health
 | -------------------------------- | ------------------------- | ---------- |
 | GitHub (owner/monorepo-obsidian) | Obsidian vault backup     | Remote git |
 | Cloudflare Dashboard             | DNS, tunnels, credentials | Web UI     |
-| Infisical                        | N/A (pruned)             | N/A        |
+|                         | N/A (pruned)             | N/A        |
 
 ---
 

@@ -19,7 +19,7 @@ O homelab tem múltiplos problemas identificados:
 | Container | QDRANT_API_KEY | OLLAMA_URL |
 |----------|----------------|------------|
 | mcp-memory | `71cae776...` ✅ | — |
-| hermes-agency | `71cae776...` ✅ | `host.docker.internal:11434` ❌ |
+| hermes-gateway | `71cae776...` ✅ | `host.docker.internal:11434` ❌ |
 | zappro-litellm | — | — |
 
 ### Rede Docker
@@ -58,7 +58,7 @@ Testar conectividade Ollama: host (`192.168.15.83:11434`) vs Docker (`10.0.2.5`,
 Verificar API keys activas — LiteLLM master key, OpenRouter, Groq, etc.
 
 ### Agent 9: HEALTH-CHECK-CRITICAL
-Verificar health de: LiteLLM, Qdrant, Redis, Hermes Agency, mcp-memory, Ollama.
+Verificar health de: LiteLLM, Qdrant, Redis, Hermes Gateway, mcp-memory, Ollama.
 
 ### Agent 10: PROPOSE-NETWORK-FIX
 Propor solução para LiteLLM alcançar Ollama embeddings. Impact analysis.

@@ -234,7 +234,7 @@ Update documentation:
 /prd-to-deploy "A dashboard showing all homelab services with status indicators"
 
 /# With Cloudflare Access protection
-/prd-to-deploy "Admin panel for managing n8n workflows" --oauth cloudflare
+/prd-to-deploy "Admin panel for managing  workflows" --oauth cloudflare
 
 # With custom subdomain
 /prd-to-deploy "Simple link list for team bookmarks" --subdomain links

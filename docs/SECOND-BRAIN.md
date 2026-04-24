@@ -10,6 +10,16 @@
 
 O **Hermes Second Brain** é um vault de conhecimento centralizado que mantém árvores de estrutura (`TREE.md`) de todos os projetos. Permite que qualquer agente LLM tenha contexto completo da estrutura de conhecimento antes de executar tarefas.
 
+### Sistemas Suportados
+
+O Second Brain serve **ambos** os sistemas Hermes:
+
+| Sistema | Bot Telegram | Descrição |
+|---------|-------------|-------------|
+| **Hermes Gateway** | `@CEO_REFRIMIX_bot` | Sistema de polling próprio |
+
+Cada sistema é **independente** — não existe routing centralizado ou `agency_router` partilhado.
+
 ### Repositórios Conhecidos
 
 | Projeto | TREE.md | Descrição |
@@ -22,7 +32,7 @@ O **Hermes Second Brain** é um vault de conhecimento centralizado que mantém �
 
 ## Ordem de Carregamento de Contexto (Obrigatória)
 
-Conforme definido no blueprint, **antes de qualquer tarefa** leia nesta ordem:
+**Antes de qualquer tarefa** leia nesta ordem:
 
 ```bash
 # 1. Monorepo AGENTS.md (source of truth para processos)

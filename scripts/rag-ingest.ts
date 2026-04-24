@@ -34,8 +34,6 @@ interface IngestOptions {
 const KNOWLEDGE_SOURCES: Record<string, string[]> = {
   hermes: [
     'hermes-second-brain/',
-    'apps/hermes-agency/src/skills/',
-    'apps/hermes-agency/src/prompts/',
   ],
   monorepo: [
     'docs/',

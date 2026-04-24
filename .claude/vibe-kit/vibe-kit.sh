@@ -185,6 +185,9 @@ SHUTDOWN_REQUESTED=0
 
 trap 'SHUTDOWN_REQUESTED=1' TERM INT
 
+IDLE_COOLDOWN=${VIBE_IDLE_COOLDOWN:-180}
+IDLE_START=
+
 while [ $SHUTDOWN_REQUESTED -eq 0 ]; do
     ELAPSED=$(($(date +%s) - START_EPOCH))
 
@@ -211,6 +214,17 @@ print(sum(1 for t in q.get('tasks', []) if t.get('status') == 'running'))
 
     if [ "$PENDING_COUNT" -eq 0 ] && [ "$RUNNING_COUNT" -eq 0 ]; then
         echo "[$(date -u)] Queue empty, all tasks done. Continuing idle loop..." >> $LOGDIR/vibe-kit.log
+        if [ -z "$IDLE_START" ]; then
+            IDLE_START=$(date +%s)
+            echo "[$(date -u)] Idle timer started (${IDLE_COOLDOWN}s)" >> $LOGDIR/vibe-kit.log
+        fi
+        IDLE_ELAPSED=$(($(date +%s) - IDLE_START))
+        if [ $IDLE_ELAPSED -ge $IDLE_COOLDOWN ]; then
+            echo "[$(date -u)] Idle timeout reached (${IDLE_COOLDOWN}s). Exiting for cooldown." >> $LOGDIR/vibe-kit.log
+            break
+        fi
+    else
+        IDLE_START=
     fi
 
     while [ "$CURRENT_WORKERS" -lt "$MAX_WORKERS" ]; do

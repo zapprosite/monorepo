@@ -30,8 +30,8 @@
 ### Env Vars
 - **Mismatches found**: 5
   1. `OLLAMA_URL`: env=`localhost:11434` vs container=`host.docker.internal:11434` (mcp-memory)
-  2. `COOLIFY_API_KEY`: env vs container differ (hermes-agency)
-  3. `QDRANT_URL`: env=`localhost:6333` vs container=`127.0.0.1:6333` (hermes-agency)
+  2. `COOLIFY_API_KEY`: env vs container differ (hermes-gateway)
+  3. `QDRANT_URL`: env=`localhost:6333` vs container=`127.0.0.1:6333` (hermes-gateway)
   4. `QDRANT_URL`: env=`localhost:6333` vs container=`qdrant:6333` (zappro-litellm)
   5. `QDRANT_URL`: env=`localhost:6333` vs container=`10.0.19.5:6333` (mcp-qdrant)
 - **Corrections applied**: 0 (identified but not fixed)

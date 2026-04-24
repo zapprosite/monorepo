@@ -62,7 +62,6 @@ Verifique logs de ERROR nas últimas 24 horas:
 
 ```bash
 # Todos os serviços
-docker logs --since 24h hermes-agency 2>&1 | grep -iE "error|fatal|panic"
 docker logs --since 24h ai-gateway 2>&1 | grep -iE "error|fatal|panic"
 docker logs --since 24h litellm 2>&1 | grep -iE "error|fatal|panic"
 docker logs --since 24h qdrant 2>&1 | grep -iE "error|fatal|panic"
@@ -424,7 +423,7 @@ sudo journalctl -u cloudflared --since 10m | grep -iE 'error|disconnected'
 
 **Passo 2: Verificar todos os health endpoints**
 ```bash
-for service in hermes-agency ai-gateway litellm qdrant; do
+for service in ai-gateway litellm qdrant; do
   echo -n "$service: "
   curl -sf -m 5 http://localhost:${PORT}/health 2>/dev/null && echo "OK" || echo "FAIL"
 done
@@ -528,7 +527,6 @@ Configure os seguintes alertas no Grafana:
 
 | Serviço | URL Externa | Porta Local | Health Endpoint |
 |---------|-------------|-------------|-----------------|
-| Hermes Agency | https://hermes-agency.zappro.site | 3001 | http://localhost:3001/health |
 | LiteLLM | https://llm.zappro.site | 4000 | http://localhost:4000/health |
 | AI Gateway | https://ai-gateway.zappro.site | 4002 | http://localhost:4002/health |
 | Qdrant | localhost | 6333 | http://localhost:6333/health |
@@ -543,8 +541,7 @@ Configure os seguintes alertas no Grafana:
 ### Container Names (Docker)
 
 ```
-zappro-hermes-agency
-zappro-ai-gateway
+zappro-zappro-ai-gateway
 zappro-litellm
 zappro-qdrant
 zappro-redis
@@ -559,7 +556,7 @@ zappro-ollama
 ### Restart All AI Services
 
 ```bash
-docker restart zappro-hermes-agency zappro-ai-gateway zappro-litellm zappro-qdrant
+docker restart zappro-ai-gateway zappro-litellm zappro-qdrant
 ```
 
 ### Check All Health Endpoints
@@ -574,7 +571,7 @@ done
 ### View Recent Errors
 
 ```bash
-docker logs --since 1h hermes-agency ai-gateway litellm qdrant 2>&1 | grep -iE "error|fatal|panic"
+docker logs --since 1h ai-gateway litellm qdrant 2>&1 | grep -iE "error|fatal|panic"
 ```
 
 ---

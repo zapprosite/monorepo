@@ -30,7 +30,7 @@ The goal is not more LLM discussion. The goal is executable control:
 In scope:
 
 - Ubuntu Desktop homelab orchestration.
-- Hermes Gateway and Hermes Agency.
+- Hermes Gateway (TypeScript) and Hermes Gateway (Python).
 - Codex CLI, Claude Code, `mclaude`, `opencode-go-cli`, and `opencode` as CLI tools.
 - Coolify operations through API/MCP adapters.
 - Qdrant, Mem0, Trieve RAG, Ollama, LiteLLM, Redis, and PostgreSQL MCP.
@@ -49,7 +49,7 @@ Out of scope:
 | Layer | Canonical path/service | Purpose |
 |---|---|---|
 | Repo | `/srv/monorepo` | Source of truth for code, specs, tasks, pipelines |
-| Runtime | `apps/hermes-agency` + Hermes Gateway | Agent routing and execution |
+| Runtime | `apps/hermes-gateway` + Hermes Gateway (Python) | Agent routing and execution |
 | Memory | Mem0 + Qdrant | User/session preferences and working memory |
 | Knowledge | Trieve + Qdrant | Docs/specs/runbooks retrieval |
 | Reasoning | LiteLLM + Ollama | External and local model access |
@@ -70,7 +70,7 @@ Out of scope:
 | Service | Env var | Default/local port | Notes |
 |---|---|---:|---|
 | Hermes Gateway | `HERMES_GATEWAY_URL` | `8642` | External brain/gateway path |
-| Hermes Agency | `HERMES_AGENCY_PORT` | `3001` | App health/router process |
+| Hermes Gateway | `HERMES_GATEWAY_PORT` | `3001` | App health/router process |
 | Hermes MCP | `HERMES_MCP_URL` or MCP config | `8092` | MCP bridge |
 | AI Gateway | `AI_GATEWAY_PORT` | `4002` | OpenAI-compatible facade |
 | LiteLLM | `LITELLM_LOCAL_URL` | `4000` | LLM proxy |
@@ -84,10 +84,10 @@ Out of scope:
 
 This repo has useful implementation, not just placeholders:
 
-- `apps/hermes-agency/src/router/agency_router.ts` routes messages to skills.
-- `apps/hermes-agency/src/skills/index.ts` declares the active skill registry.
-- `apps/hermes-agency/src/mem0/client.ts` persists working memory into Qdrant.
-- `apps/hermes-agency/src/skills/rag-instance-organizer.ts` integrates Trieve.
+- `apps/hermes-gateway/src/router/router.ts` routes messages to skills.
+- `apps/hermes-gateway/src/skills/index.ts` declares the active skill registry.
+- `apps/hermes-gateway/src/mem0/client.ts` persists working memory into Qdrant.
+- `apps/hermes-gateway/src/skills/rag-instance-organizer.ts` integrates Trieve.
 - `apps/ai-gateway/src/index.ts` exposes the OpenAI-compatible facade.
 - `scripts/pipeline-helpers/` contains phase/gate/snapshot helper scripts.
 - `tasks/agent-states/` and `tasks/smoke-tests/` already hold operational state.
@@ -101,5 +101,5 @@ agent count, dimensions, secrets, and paths. This spec is the new top-level anch
 - Old specs are classified as historical, implementation note, or superseded.
 - `tasks/pipeline.json` contains the active queue for this control-plane cleanup.
 - No active spec contains real secret values.
-- Runtime docs distinguish Hermes Gateway `:8642` from Hermes Agency `:3001`.
+- Runtime docs distinguish Hermes Gateway Python `:8642` from Hermes Gateway TypeScript `:3001`.
 

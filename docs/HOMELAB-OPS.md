@@ -108,11 +108,10 @@ Para homelab single-admin, aplica-se processo simplificado:
 | Container | Porta | Status | Health | Rede |
 |----------|-------|--------|--------|------|
 | mcp-memory | 4016 | UP | — | mcp-memory |
-| zappro-kokoro | — | UP | — | bridge |
+| zappro- | — | UP | — | bridge |
 | coolify-sentinel | — | UP | healthy | coolify |
 | painel-organism | — | UP | — | bridge |
 | prometheus | 9090 | UP | healthy | monitoring_monitoring |
-| hermes-agency | 3001 | UP | healthy | bridge |
 | zappro-gitea | 3300 | UP | — | gitea_default |
 | pgadmin-* | 4050 | UP | healthy | bridge |
 | zappro-litellm | 4000 | UP | — | litellm_default |
@@ -145,7 +144,6 @@ Para homelab single-admin, aplica-se processo simplificado:
 |--------|-------|----------|-----------|-------|-----|---------------|
 | LiteLLM Proxy | 4000 | zappro-litellm | api.zappro.site / llm.zappro.site | Platform | 99.9% | Redis, Ollama, External APIs |
 | Qdrant | 6333 | qdrant | qdrant.zappro.site | Platform | 99.5% | Coolify net |
-| Hermes Agency | 3001 | hermes-agency | — | Platform | 99% | LiteLLM, Redis |
 | ai-gateway | 4002 | zappro-ai-gateway | llm.zappro.site | Platform | 99% | LiteLLM |
 | Gitea | 3300 | zappro-gitea | git.zappro.site | Platform | 99% | Docker volumes |
 | OpenWebUI | 3456 | openwebui | chat.zappro.site | Platform | 99% | LiteLLM |
@@ -237,7 +235,6 @@ ls -la /srv/backups/models/
 
 ```bash
 # Ver todos os serviços
-docker logs --since 24h hermes-agency 2>&1 | grep -iE "error|fatal|panic"
 docker logs --since 24h zappro-ai-gateway 2>&1 | grep -iE "error|fatal|panic"
 docker logs --since 24h zappro-litellm 2>&1 | grep -iE "error|fatal|panic"
 docker logs --since 24h qdrant 2>&1 | grep -iE "error|fatal|panic"
@@ -265,7 +262,7 @@ docker logs --since 24h qdrant 2>&1 | grep -iE "error|fatal|panic"
 - `Homelab AI Overview` — Visão geral
 - `LiteLLM Metrics` — Latência e error rate por modelo
 - `Qdrant Collections` — Tamanho e performance
-- `Hermes Agency` — Threads ativos e uso de tokens
+- `AI Agency` — Threads ativos e uso de tokens
 
 ---
 
@@ -560,7 +557,7 @@ pip list --outdated
 |----------|------|--------|-------------|
 | Daily 02:00 | Memory/SQLite | `/srv/ops/scripts/backup-memory-keeper.sh` | `/srv/backups/` |
 | Daily 02:30 | Gitea | Inline tar | `/srv/backups/` |
-| Daily 02:45 | Infisical PostgreSQL | `/srv/ops/scripts/backup-infisical.sh` | `/srv/backups/` |
+| Daily 02:45 |  PostgreSQL | `/srv/ops/scripts/backup-.sh` | `/srv/backups/` |
 | Daily 03:00 | Redis | `/srv/ops/scripts/backup-redis.sh` | `/srv/backups/redis/` |
 | Daily 03:00 | Qdrant | `/srv/ops/scripts/backup-qdrant.sh` | `/srv/backups/qdrant/` |
 | Sunday 04:00 | Models (Ollama) | `/srv/ops/scripts/backup-models.sh` | `/srv/backups/models/` |
@@ -661,7 +658,7 @@ sudo zpool list
 
 **Passo 4: Verificar Health Endpoints**
 ```bash
-for service in hermes-agency zappro-ai-gateway zappro-litellm qdrant; do
+for service in zappro-ai-gateway zappro-litellm qdrant; do
   echo -n "$service: "
   curl -sf -m 5 http://localhost:${PORT}/health 2>/dev/null && echo "OK" || echo "FAIL"
 done
@@ -841,7 +838,7 @@ curl -s http://localhost:9835/metrics | grep nvidia
 | Homelab AI Overview | Visão geral de todos os serviços | localhost:3100 |
 | LiteLLM Metrics | Latência e error rate por modelo | localhost:3100 |
 | Qdrant Collections | Tamanho e performance das collections | localhost:3100 |
-| Hermes Agency | Threads ativos e uso de tokens | localhost:3100 |
+| AI Agency | Threads ativos e uso de tokens | localhost:3100 |
 | Node Exporter | CPU, RAM, disk do host | localhost:3100 |
 | GPU Metrics | NVIDIA RTX 4090 utilization | localhost:3100 |
 
@@ -867,7 +864,7 @@ curl -s http://localhost:9835/metrics | grep nvidia
 
 | Service | Port | Endpoint | Expected Response |
 |---------|------|----------|-------------------|
-| Hermes Agency | 3001 | `/health` | `{"status": "healthy", ...}` |
+| AI Agency | 3001 | `/health` | `{"status": "healthy", ...}` |
 | LiteLLM | 4000 | `/health` | Auth required (401 OK) |
 | ai-gateway | 4002 | `/health` | Auth required (401 OK) |
 | Qdrant | 6333 | `/health` | Auth required (401 OK) |
@@ -984,10 +981,10 @@ for port in 3001 4000 4002 6333 4016 11434 6435; do
 done
 
 # Restart all AI services
-docker restart zappro-hermes-agency zappro-ai-gateway zappro-litellm zappro-qdrant
+docker restart zappro-ai-gateway zappro-litellm zappro-qdrant
 
 # Ver erros recentes
-docker logs --since 1h hermes-agency ai-gateway litellm qdrant 2>&1 | grep -iE "error|fatal|panic"
+docker logs --since 1h ai-gateway litellm qdrant 2>&1 | grep -iE "error|fatal|panic"
 
 # ZFS status
 sudo zpool status
@@ -1006,7 +1003,6 @@ nvidia-smi
 | Port | Service | Container | Access |
 |------|---------|-----------|--------|
 | 3000 | zappro-web | (bun process) | 0.0.0.0 |
-| 3001 | Hermes Agency | hermes-agency | localhost |
 | 3300 | Gitea | zappro-gitea | localhost |
 | 3456 | OpenWebUI | openwebui | localhost |
 | 4000 | LiteLLM | zappro-litellm | host |
@@ -1041,7 +1037,6 @@ nvidia-smi
 
 | Container | Restart Policy | Auto-restart | Notas |
 |-----------|---------------|--------------|-------|
-| hermes-agency | unless-stopped | Yes | |
 | zappro-litellm | unless-stopped | Yes | |
 | zappro-ai-gateway | unless-stopped | Yes | Currently UNHEALTHY |
 | qdrant | unless-stopped | Yes | |
@@ -1060,7 +1055,7 @@ nvidia-smi
 # Containers
 alias dps='docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"'
 alias dlogs='docker logs --since 1h'
-alias docker-restart-ai='docker restart zappro-hermes-agency zappro-ai-gateway zappro-litellm zappro-qdrant'
+alias docker-restart-ai='docker restart zappro-ai-gateway zappro-litellm zappro-qdrant'
 
 # Health check
 alias health-all='for port in 3001 4000 4002 6333 4016 11434 6435; do echo -n "Port $port: "; curl -sf -m 3 http://localhost:$port/health 2>/dev/null && echo "OK" || echo "FAIL"; done'

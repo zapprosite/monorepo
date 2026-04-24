@@ -32,16 +32,3 @@ Você é o especialista em ferramentas externas. Sua missão é fornecer dados e
 3. **Validar** integridade de dados
 4. **Reportar** resultados de forma estruturada
 
-## Estado
-
-```json
-{
-  "agent": "mcp-operator",
-  "status": "running",
-  "last_operation": {
-    "type": "qdrant_query",
-    "collection": "hermes-agency",
-    "results": 5
-  }
-}
-```

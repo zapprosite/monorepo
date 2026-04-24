@@ -118,7 +118,7 @@ $ sudo zpool status -x
 # Expected: all pools healthy
 
 # 4. Verify Docker services start
-$ docker ps --format "table {{.Names}}\t{{.Status}}" | grep -E 'hermes|ai-gateway|litellm|qdrant'
+$ docker ps --format "table {{.Names}}\t{{.Status}}" | grep -E 'ai-gateway|litellm|qdrant'
 # Expected: all services Up
 ```
 
@@ -179,7 +179,6 @@ $ docker logs <service> --tail 50 | grep -i error
 
 1. [Procedimentos Gerais de Emergência](#procedimentos-gerais-de-emergência)
 2. [Serviços](#serviços)
-   - [Hermes Agency (porta 3001)](#hermes-agency-porta-3001)
    - [AI Gateway (porta 4002)](#ai-gateway-porta-4002)
    - [LiteLLM (porta 4000)](#litellm-porta-4000)
    - [Qdrant (porta 6333)](#qdrant-porta-6333)
@@ -227,48 +226,6 @@ systemctl list-units --type=service --state=running | grep -E 'docker|cloudflare
 ---
 
 ## Serviços
-
----
-
-### Hermes Agency (porta 3001)
-
-#### Verificar se está rodando
-
-```bash
-# Status do container
-docker ps | grep hermes-agency
-
-# Testar health endpoint
-curl -f http://localhost:3001/health 2>/dev/null && echo "OK" || echo "FAIL"
-
-# Verificar logs recentes
-docker logs hermes-agency --tail 50
-```
-
-#### Reiniciar
-
-```bash
-# Reiniciar via docker compose
-cd /srv/docker/hermes-agency && docker compose restart
-
-# Ou via docker restart
-docker restart hermes-agency
-```
-
-#### Verificar se está fora do ar
-
-- [ ] Verificar se a porta está ouvindo: `ss -tlnp | grep 3001`
-- [ ] Verificar logs de erro: `docker logs hermes-agency --tail 100 --since 10m`
-- [ ] Verificar variável `CLAUDE_API_KEY` no ambiente
-- [ ] Verificar conexão com banco de dados (se aplicável)
-- [ ] Verificar espaço em disco
-
-#### Health Endpoints
-
-```
-http://localhost:3001/health
-http://localhost:3001/ready
-```
 
 ---
 
@@ -626,7 +583,7 @@ docker ps --format "{{.Names}}" | while read c; do
 done
 
 # 4. Parar serviços dependentes (para evitar conexões durante restore)
-for service in ai-gateway litellm hermes-agency; do
+for service in ai-gateway litellm; do
   docker stop $service 2>/dev/null && echo "Parado: $service" || echo "Não encontrado: $service"
 done
 
@@ -669,7 +626,7 @@ sleep 2
 docker exec $REDIS_CONTAINER redis-cli PING
 
 # 11. Reiniciar serviços dependentes
-for service in hermes-agency ai-gateway litellm; do
+for service in ai-gateway litellm; do
   docker start $service 2>/dev/null && echo "Iniciado: $service" || echo "Não encontrado: $service"
 done
 ```
@@ -965,7 +922,7 @@ sudo zfs clone "$SNAPSHOT" "${DATASET}-$CLONE_NAME"
 
 # FASE 1: Parar serviços dependentes
 echo "=== Parando serviços dependentes ==="
-docker stop hermes-agency ai-gateway mcp-server 2>/dev/null
+docker stop ai-gateway mcp-server 2>/dev/null
 echo "Serviços dependentes parados"
 
 # FASE 2: Parar serviços de dados
@@ -1002,13 +959,7 @@ docker start ai-gateway
 sleep 3
 curl -sf http://localhost:4002/health && echo " OK" || echo " FAIL"
 
-# Passo 5: Reiniciar Hermes Agency
-echo "=== Reiniciando Hermes Agency ==="
-docker start hermes-agency
-sleep 3
-curl -sf http://localhost:3001/health && echo " OK" || echo " FAIL"
-
-# Passo 6: Reiniciar MCP Servers
+# Passo 5: Reiniciar MCP Servers
 echo "=== Reiniciando MCP Servers ==="
 for port in 4011 4012 4013 4014 4015 4016; do
   container=$(docker ps --format "{{.Names}}" | grep "mcp.*$port" | head -1)
@@ -1028,9 +979,6 @@ docker ps --format "table {{.Names}}\t{{.Status}}"
 #### Reinicialização Individual por Serviço
 
 ```bash
-# Hermes Agency
-docker restart hermes-agency && sleep 3 && curl -sf http://localhost:3001/health && echo "Hermes OK"
-
 # AI Gateway
 docker restart ai-gateway && sleep 3 && curl -sf http://localhost:4002/health && echo "AI Gateway OK"
 
@@ -1146,7 +1094,7 @@ docker compose -f coolify/docker-compose.yml up -d
 docker ps
 
 # 8. Verificar endpoints de saúde
-for port in 3001 4000 4002 6333 8000; do
+for port in 4000 4002 6333 8000; do
   echo "Port $port:"
   curl -sf http://localhost:$port/health 2>/dev/null && echo " OK" || echo " FAIL"
 done
@@ -1183,13 +1131,13 @@ done
 ### Status de Todos os Serviços
 
 ```bash
-docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" | grep -E 'hermes|ai-gateway|litellm|qdrant|mcp|coolify|gitea|redis'
+docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" | grep -E 'ai-gateway|litellm|qdrant|mcp|coolify|gitea|redis'
 ```
 
 ### Reiniciar Todos os Serviços
 
 ```bash
-for service in hermes-agency ai-gateway litellm qdrant coolify; do
+for service in ai-gateway litellm qdrant coolify; do
   docker restart $service
 done
 ```
@@ -1197,13 +1145,13 @@ done
 ### Verificar Portas
 
 ```bash
-ss -tlnp | grep -E '3001|4000|4002|6333|8000|401[1-6]'
+ss -tlnp | grep -E '4000|4002|6333|8000|401[1-6]'
 ```
 
 ### Verificar Logs de Todos os Serviços
 
 ```bash
-for service in hermes-agency ai-gateway litellm qdrant coolify; do
+for service in ai-gateway litellm qdrant coolify; do
   echo "=== $service ==="
   docker logs $service --tail 10
 done

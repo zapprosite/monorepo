@@ -11,7 +11,6 @@ Resolver 9 problemas críticos em paralelo usando 18 agents.
 | 2 | cloudflared SPOF | Todos subdomains caem | 2 |
 | 3 | 6.5GB models sem backup | Perda total se disco encher | 2 |
 | 4 | git gc.log + loose objects | Corrupção gradual | 2 |
-| 5 | Port drift hermes-agency | Docs :8642, real :3001 | 2 |
 | 6 | Mem0 collection mismatch | Embeddings no lugar errado | 2 |
 | 7 | Logs sem rotação | Disco cheio em weeks | 2 |
 | 8 | RUNBOOK.md untested | Disaster recovery não funciona | 2 |
@@ -28,7 +27,6 @@ Resolver 9 problemas críticos em paralelo usando 18 agents.
 - [ ] cloudflared com failover configurado
 - [ ] Backup de models em /srv/backups/models/
 - [ ] git gc.log limpo, loose objects removidos
-- [ ] hermes-agency port :8642 ou :3001 documentado canonical
 - [ ] Mem0 collections consistentes
 - [ ] logrotate configurado para /srv/ops/logs
 - [ ] RUNBOOK.md procedures testadas

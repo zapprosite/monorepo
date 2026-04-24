@@ -56,7 +56,7 @@ Since no code was implemented, quality assessment is limited to the pseudo-code 
 **Weaknesses:**
 - Pseudo-code examples are illustrative only, not tested
 - No TypeScript types in actual codebase for Trieve integration
-- `rag-retrieve` skill mentioned but not created in `apps/hermes-agency/src/skills/index.ts`
+- `rag-retrieve` skill mentioned but not created in `apps/gateway/src/skills/index.ts`
 
 ---
 
@@ -195,9 +195,9 @@ Using the available `nomic-embed-text` is recommended.
 
 | File | Trieve/RAG Found |
 |------|------------------|
-| `apps/hermes-agency/src/skills/index.ts` | ❌ No `rag-retrieve` skill |
-| `apps/hermes-agency/src/index.ts` | ❌ No Trieve env vars in REQUIRED list |
-| `apps/hermes-agency/src/qdrant/client.ts` | ✅ Existing Qdrant client (can serve as pattern) |
+| `apps/gateway/src/skills/index.ts` | ❌ No `rag-retrieve` skill |
+| `apps/gateway/src/index.ts` | ❌ No Trieve env vars in REQUIRED list |
+| `apps/gateway/src/qdrant/client.ts` | ✅ Existing Qdrant client (can serve as pattern) |
 
 ---
 
@@ -225,8 +225,8 @@ Given the complexity, evaluate:
 ### 7.3 If Proceeding with Trieve
 
 1. **Create actual implementation** (not just research docs):
-   - `apps/hermes-agency/src/trieve/client.ts`
-   - `apps/hermes-agency/src/skills/rag-retrieve.ts`
+   - `apps/gateway/src/trieve/client.ts`
+   - `apps/gateway/src/skills/rag-retrieve.ts`
    - `smoke-tests/smoke-trieve.sh`
 
 2. **Update governance docs:**

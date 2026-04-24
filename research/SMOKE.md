@@ -222,7 +222,7 @@ echo "── 6. Hermes rag-retrieve Skill ────────────�
 
 # Verify skill exists in hermes skills index
 ((TOTAL++)) || true
-if grep -q "rag-retrieve\|trieve\|rag_retrieve" /srv/monorepo/apps/hermes-agency/src/skills/index.ts 2>/dev/null; then
+if grep -q "rag-retrieve\|trieve\|rag_retrieve" /srv/monorepo/apps/gateway/src/skills/index.ts 2>/dev/null; then
   pass "rag-retrieve skill defined in Hermes"
 else
   warn "rag-retrieve skill not yet implemented (FASE 3)"

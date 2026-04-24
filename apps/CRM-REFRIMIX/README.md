@@ -23,7 +23,6 @@ CAPTACAO → ATENDIMENTO → CONTRATACAO → ENTREGA → POS-VENDA → REMARKETI
 |-----|-------------|
 | `api` | Fastify + tRPC + 12 migrations + 56 módulos de negócio |
 | `web` | React/MUI + 17 módulos (clients, leads, contracts, etc.) |
-| `hermes-agency` | Multi-agent com 13 skills + 5 workflows LangGraph |
 
 ## Modules
 
@@ -53,13 +52,6 @@ pytest tests/smoke/
 # Integration tests
 pytest tests/integration/
 ```
-
-## Hermes Agency Skills
-
-- agency-ceo, agency-onboarding, agency-client-success (ciclo de vida)
-- agency-creative, agency-design, agency-video-editor, agency-social (conteúdo)
-- agency-organizer, agency-pm (gerenciamento)
-- agency-analytics, agency-brand-guardian, rag-instance-organizer (inteligência)
 
 ## Bugs
 

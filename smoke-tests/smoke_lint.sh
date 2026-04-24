@@ -16,7 +16,7 @@ pnpm typecheck 2>&1 | tail -20 || true
 
 echo ""
 echo "=== Format Check (Biome) ==="
-npx biome check --write=false ./apps/hermes-agency/src ./apps/api/src ./apps/ai-gateway/src 2>&1 | tail -30 || true
+npx biome check --write=false ./apps/api/src ./apps/ai-gateway/src 2>&1 | tail -30 || true
 
 echo ""
 echo "=== Secret Scan (detect-secrets) ==="

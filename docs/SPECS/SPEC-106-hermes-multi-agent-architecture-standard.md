@@ -22,7 +22,7 @@ version: 1.0.0
 
 ---
 name: SPEC-106-hermes-multi-agent-architecture-standard
-description: "Padrao unificado Hermes para multi-agent nativo com LangGraph. Unifica auditoria do hermes-agent (SPEC-116) e cirurgia do hermes-agency (SPEC-117, Claudio Cotseri). Define o arquitetura LangGraph padrao para todo o ecossistema Hermes."
+description: "Padrao unificado Hermes para multi-agent nativo com LangGraph. Unifica auditoria do hermes-agent (SPEC-116) e cirurgia do Hermes Gateway (SPEC-117, Claudio Cotseri). Define o arquitetura LangGraph padrao para todo o ecossistema Hermes."
 spec_id: SPEC-106
 status: ACTIVE
 priority: critical
@@ -43,7 +43,7 @@ tags: [hermes, multi-agent, langgraph, a
 O ecossistema Hermes tem 2 codigos separados com arquiteturas multi-agent distintas:
 
 1. **hermes-agent** (Python, `~/Downloads/hermes-agent-main/`) — loop sincrono com `delegate_task`
-2. **hermes-agency** (TypeScript, `/srv/monorepo/apps/hermes-agency/`) — CEO routing com LangGraph
+2. **Hermes Gateway** (TypeScript, `/srv/monorepo/apps/hermes-gateway/`) — CEO routing com LangGraph
 
 Cada um tinha sua propria spec (116 e 117). Esta spec unifica os padroes em um so documento canonical.
 
@@ -95,10 +95,10 @@ DEFAULT_TOOLSETS = ["terminal", "file", "web"]
 
 ### 1.2 Hermes Agency (TypeScript)
 
-**Local:** `/srv/monorepo/apps/hermes-agency/src/`
+**Local:** `/srv/monorepo/apps/hermes-gateway/src/`
 
 ```
-router/agency_router.ts        (329 linhas) — CEO routing
+router/router.ts              (329 linhas) — CEO routing
 skills/
   index.ts                    (287 linhas) — 13 skills registry
   tool_registry.ts           (625 linhas) — tool execution
@@ -138,7 +138,7 @@ status_update     → sequencial async ❌
 - Sistema de registry de tools (nao substituido) ✅
 - Toolset system (core + extended) ✅
 
-### Hermes Agency
+### Hermes Gateway
 - Circuit breaker com 3 estados (CLOSED/OPEN/HALF_OPEN) ✅
 - Qdrant client com 9 colecoes bem definidas ✅
 - Telegram bot hardening (Redis lock, rate limit, file validation) ✅
@@ -150,7 +150,7 @@ status_update     → sequencial async ❌
 ---
 
 
-### P0-1: LangGraph fake em 4/5 workflows (Hermes Agency)
+### P0-1: LangGraph fake em 4/5 workflows (Hermes Gateway)
 
 `langgraph/supervisor.ts:10-14` comenta:
 ```
@@ -160,7 +160,7 @@ The others are sequential async workflows (WF-2 through WF-5) — not yet migrat
 
 Os 4 workflows `onboarding`, `lead_qualification`, `social_calendar`, `status_update` usam apenas `async function` sequencial, NAO StateGraph.
 
-### P0-2: content_pipeline com edges fixos (Hermes Agency)
+### P0-2: content_pipeline com edges fixos (Hermes Gateway)
 
 ```typescript
 .addEdge(START, 'CREATIVE')
@@ -175,7 +175,7 @@ Os 4 workflows `onboarding`, `lead_qualification`, `social_calendar`, `status_up
 
 Nao ha conditional branching, parallel nodes, loops, ou skip edges.
 
-### P0-3: humanGateNode auto-aprova (Hermes Agency)
+### P0-3: humanGateNode auto-aprova (Hermes Gateway)
 
 ```typescript
 // Comment says: "interrupt not fully wired"
@@ -194,11 +194,11 @@ O graph nao para para esperar aprovacao humana. Ele auto-aprova e continua.
 - `homelab-map` e `local-fast-executor-pattern` — mencionam `gemma4` (removido)
 - `whisper-api-gpu-debug` — menciona `whisper-server-v2` (substituido por faster-whisper-server)
 
-### P1-1: approveContentPipeline nao funciona (Hermes Agency)
+### P1-1: approveContentPipeline nao funciona (Hermes Gateway)
 
 O graph ja terminou antes de receber a aprovacao. `invoke()` com novo estado reinicia do zero, nao resume de onde parou. Falta `interrupt()` + `Command resume`.
 
-### P1-2: Session state in-memory (Hermes Agency)
+### P1-2: Session state in-memory (Hermes Gateway)
 
 ```typescript
 const _sessionStates = new Map<string, AgencySupervisorState>();
@@ -206,7 +206,7 @@ const _sessionStates = new Map<string, AgencySupervisorState>();
 
 Morre com restart do servico. Deveria persistir em `agency_working_memory` no Qdrant.
 
-### P1-3: MemorySaver nao persiste (Hermes Agency)
+### P1-3: MemorySaver nao persiste (Hermes Gateway)
 
 ```typescript
 const checkpointer = new MemorySaver();
@@ -231,7 +231,7 @@ Em memoria. Falta persistencia real (QdrantSaver ou similar).
 
 | Padrao | Descricao | Onde Existe |
 |--------|-----------|-------------|
-| **Supervisor/Worker** | Um agente supervisor delega para workers especializados | Hermes Agency (agency_router.ts) |
+| **Supervisor/Worker** | Um agente supervisor delega para workers especializados | Hermes Gateway (router.ts) |
 | **Sequential Chain** | Agentes executam em sequencia | Ambos |
 | **Parallel Fan-out/Fan-in** | Supervisor envia para N workers em paralelo | Hermes Agent (delegate_task batch) |
 
@@ -336,9 +336,9 @@ Skills onde a ordem IMPORTA (sequential):
 
 | ID | Tarefa | Codigo | Status |
 |----|--------|--------|--------|
-| F1-1 | Migrar 4 workflows fake → StateGraph real | hermes-agency/langgraph/*.ts | PENDING |
-| F1-2 | Conditional edges no content_pipeline | hermes-agency/langgraph/content_pipeline.ts | PENDING |
-| F1-3 | Implementar interrupt pattern (human approval) | hermes-agency/langgraph/content_pipeline.ts | PENDING |
+| F1-1 | Migrar 4 workflows fake → StateGraph real | hermes-gateway/langgraph/*.ts | PENDING |
+| F1-2 | Conditional edges no content_pipeline | hermes-gateway/langgraph/content_pipeline.ts | PENDING |
+| F1-3 | Implementar interrupt pattern (human approval) | hermes-gateway/langgraph/content_pipeline.ts | PENDING |
 | F1-4 | Adicionar frontmatter YAML às 6 skills | ~/.hermes/skills/*/SKILL.md | PENDING |
 | F1-5 | Atualizar refs deprecated nas 3 skills | ~/.hermes/skills/*/SKILL.md | PENDING |
 
@@ -346,8 +346,8 @@ Skills onde a ordem IMPORTA (sequential):
 
 | ID | Tarefa | Codigo | Status |
 |----|--------|--------|--------|
-| F2-1 | Session state → Qdrant persistence | hermes-agency/router/agency_router.ts | PENDING |
-| F2-2 | MemorySaver → QdrantSaver | hermes-agency/langgraph/content_pipeline.ts | PENDING |
+| F2-1 | Session state → Qdrant persistence | hermes-gateway/router/router.ts | PENDING |
+| F2-2 | MemorySaver → QdrantSaver | hermes-gateway/langgraph/content_pipeline.ts | PENDING |
 | F2-3 | Adicionar category: às 20 skills | ~/.hermes/skills/*/SKILL.md | PENDING |
 | F2-4 | Avaliar RL tools (10 orfas) | hermes-agent/tools/rl_*.py | PENDING |
 
@@ -355,9 +355,9 @@ Skills onde a ordem IMPORTA (sequential):
 
 | ID | Tarefa | Codigo | Status |
 |----|--------|--------|--------|
-| F3-1 | Parallel tool execution | hermes-agency/router/agency_router.ts | PENDING |
-| F3-2 | Test coverage para workflows | hermes-agency/src/__tests__/ | PENDING |
-| F3-3 | Qdrant schema init completo | hermes-agency/src/qdrant/client.ts | PENDING |
+| F3-1 | Parallel tool execution | hermes-gateway/router/router.ts | PENDING |
+| F3-2 | Test coverage para workflows | hermes-gateway/src/__tests__/ | PENDING |
+| F3-3 | Qdrant schema init completo | hermes-gateway/src/qdrant/client.ts | PENDING |
 | F3-4 | Criar skill `delegate-pattern` | ~/.hermes/skills/delegate-pattern/SKILL.md | PENDING |
 
 ---

@@ -414,11 +414,7 @@ export async function executeTool(name: string, args: Record<string, unknown>): 
 
 ## 8. Referências
 
-- Skill Registry: `apps/hermes-agency/src/skills/index.ts`
-- Tool Registry: `apps/hermes-agency/src/skills/tool_registry.ts`
-- Circuit Breaker: `apps/hermes-agency/src/skills/circuit_breaker.ts`
-- Qdrant Client: `apps/hermes-agency/src/qdrant/client.ts`
-- LangGraph Supervisor: `apps/hermes-agency/src/langgraph/supervisor.ts`
+Skill registry, tool registry, circuit breaker, and related components were part of the Hermes Agency system.
 
 ---
 

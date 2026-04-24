@@ -186,7 +186,7 @@ services:
 ### 4.3 Trieve Client — CORRETO
 
 ```typescript
-// apps/hermes-agency/src/trieve/client.ts
+// apps/gateway/src/trieve/client.ts
 // Anti-hardcoded: all config via process.env
 
 const TRIEVE_URL = process.env['TRIEVE_URL'] ?? 'http://localhost:6435';

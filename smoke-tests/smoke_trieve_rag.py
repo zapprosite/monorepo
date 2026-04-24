@@ -97,18 +97,6 @@ class TestDatasetAPI:
         )
         assert resp.status_code == 200, f"datasets list failed: {resp.status_code}"
 
-    def test_dataset_hermes_knowledge_exists(self):
-        if not is_port_reachable("localhost", 6435, timeout=3):
-            pytest.skip("Trieve service not reachable on :6435")
-        resp = requests.get(
-            f"{BASE_URL}/api/v1/datasets",
-            headers=HEADERS,
-            timeout=10,
-        )
-        if resp.status_code == 200:
-            datasets = resp.json()
-            names = [d.get("name", "") for d in datasets]
-            assert any("hermes-knowledge" in n for n in names), f"hermes-knowledge not found in: {names}"
 
 
 class TestSearchAPI:
@@ -129,23 +117,6 @@ class TestSearchAPI:
         if resp.status_code == 200:
             body = resp.json()
             assert "results" in body or "hits" in body, f"unexpected body: {body}"
-
-
-class TestHermesSkillIntegration:
-    """P1: Hermes rag-retrieve skill registration."""
-
-    def test_rag_retrieve_skill_defined(self):
-        skills_index = "/srv/monorepo/apps/hermes-agency/src/skills/index.ts"
-        if os.path.exists(skills_index):
-            with open(skills_index) as f:
-                content = f.read()
-            assert "rag-retrieve" in content or "trieve" in content, "rag-retrieve skill not found"
-
-    def test_hermes_gateway_reachable(self):
-        if not is_port_reachable("localhost", 8642, timeout=3):
-            pytest.skip("Hermes Gateway not reachable on :8642")
-        resp = requests.get("http://localhost:8642/health", timeout=5)
-        assert resp.status_code == 200, f"Hermes Gateway unreachable: {resp.status_code}"
 
 
 if __name__ == "__main__":

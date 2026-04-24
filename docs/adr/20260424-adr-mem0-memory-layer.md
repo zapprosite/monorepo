@@ -192,6 +192,6 @@ Se retrieval keyword-heavy for necessário:
 
 - [SPEC-VIBE-BRAIN-REFACTOR.md](../../SPECS/SPEC-VIBE-BRAIN-REFACTOR.md)
 - [SPEC-074 — Hermes Second Brain com Mem0](../../SPECS/SPEC-074-hermes-second-brain-mem0.md)
-- [SPEC-059 — Hermes Agency Datacenter Hardening](../../SPECS/SPEC-059-hermes-agency-datacenter-hardening.md)
+- [SPEC-059 — Hermes Agency Datacenter Hardening (removed)](../../SPECS/)
 - [Mem0 Docs](https://docs.mem0.ai) — embedding model configuration
 - ADR-001 (.env as canonical secrets source) — padrão de gestão de config

@@ -50,7 +50,7 @@ export async function audioSpeechRoute(app: FastifyInstance) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: {
-          model: 'kokoro',
+          model: '',
           input: cleanedInput,
           voice: voice,
           speed,

@@ -1,19 +1,19 @@
 # ADR-001 — .env as Canonical Secrets Source
 
-**Status:** aceito (ATUALIZADO 2026-04-13 — Infisical PRUNED, `.env` é fonte única)
+**Status:** aceito (ATUALIZADO 2026-04-13 —  PRUNED, `.env` é fonte única)
 **Date:** 2026-04-13
 **Author:** Principal Engineer
-**Spec:** SPEC-029 (supersedes Infisical mandate), SPEC-047
+**Spec:** SPEC-029 (supersedes  mandate), SPEC-047
 
-> ⚠️ **2026-04-13 UPDATE:** Infisical foi oficialmente descomissionado (pruned). `.env` é agora a ÚNICA fonte canónica de secrets. Não há mais "sync de Infisical → .env" — secrets são geridos diretamente em `.env` (com placeholders em `.env.example`). Qualquer referência neste ADR a "sync de Infisical" é histórica; ler como "manter `.env` atualizado".
+> ⚠️ **2026-04-13 UPDATE:**  foi oficialmente descomissionado (pruned). `.env` é agora a ÚNICA fonte canónica de secrets. Não há mais "sync de  → .env" — secrets são geridos diretamente em `.env` (com placeholders em `.env.example`). Qualquer referência neste ADR a "sync de " é histórica; ler como "manter `.env` atualizado".
 
 ---
 
 ## Context
 
-Application code in `/srv/monorepo` requires secrets (API keys, tokens, credentials) to function. These secrets are stored in Infisical as the source of truth. The question is: how should application code access these secrets?
+Application code in `/srv/monorepo` requires secrets (API keys, tokens, credentials) to function. These secrets are stored in  as the source of truth. The question is: how should application code access these secrets?
 
-Previously, the mandate required application code to use the Infisical SDK directly to fetch secrets at runtime. This caused issues:
+Previously, the mandate required application code to use the  SDK directly to fetch secrets at runtime. This caused issues:
 
 - SDK initialization overhead in every process
 - Complex async client setup
@@ -24,11 +24,11 @@ Previously, the mandate required application code to use the Infisical SDK direc
 
 ## Decision
 
-All secrets are stored in `.env` files, synced from Infisical. Application code reads secrets via `os.getenv()` (or `process.env` in Node.js), **never directly from the Infisical SDK**.
+All secrets are stored in `.env` files, synced from . Application code reads secrets via `os.getenv()` (or `process.env` in Node.js), **never directly from the  SDK**.
 
-The Infisical SDK is used only by:
+The  SDK is used only by:
 
-1. **Infrastructure scripts** — sync mechanisms that pull secrets from Infisical and write to `.env`
+1. **Infrastructure scripts** — sync mechanisms that pull secrets from  and write to `.env`
 2. **CI/CD pipelines** — that inject secrets into the environment at deploy time
 
 ---
@@ -36,7 +36,7 @@ The Infisical SDK is used only by:
 ## Canonical Pattern
 
 ```
-Infisical (vault)
+ (vault)
     │
     │  sync script (runs at startup or via cron)
     ▼
@@ -103,7 +103,7 @@ curl -H "Authorization: Bearer $GITHUB_TOKEN" ...
 
 ### Negative
 
-- **Sync required** — .env must be kept in sync with Infisical
+- **Sync required** — .env must be kept in sync with 
 - **Disk presence** — .env must exist on disk (mitigated by gitignore + permissions)
 - **Process-level isolation** — secrets only available to processes that load .env
 
@@ -116,7 +116,7 @@ curl -H "Authorization: Bearer $GITHUB_TOKEN" ...
 
 ---
 
-## Alternative: Direct Infisical SDK in Application Code
+## Alternative: Direct  SDK in Application Code
 
 Rejected for the reasons stated in Context above:
 
@@ -128,7 +128,7 @@ Rejected for the reasons stated in Context above:
 
 ## Implementation
 
-1. **Sync mechanism** — Infisical SDK is used ONLY in infrastructure scripts that sync to `.env`
+1. **Sync mechanism** —  SDK is used ONLY in infrastructure scripts that sync to `.env`
 2. **Application code** — uses `os.getenv()` / `process.env` only
 3. **Docker** — containers receive secrets via `env_file` or Coolify environment injection
 4. **Permissions** — `.env` files set to `600`

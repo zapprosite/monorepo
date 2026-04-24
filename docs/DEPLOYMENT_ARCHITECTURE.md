@@ -1,4 +1,4 @@
-# Hermes Agency — Deployment Architecture
+# Hermes Gateway — Deployment Architecture
 
 **Version:** 1.0.0
 **Last Updated:** 2026-04-23
@@ -8,7 +8,7 @@
 
 ## Overview
 
-Hermes Agency is a multi-agent marketing platform deployed on bare metal via Coolify, exposed externally through Cloudflare Tunnel. The stack spans Node.js/Fastify application services, Python MCP servers, and backing stores (PostgreSQL, Qdrant, Redis, Ollama, Trieve, Mem0).
+Hermes Gateway is a messaging bridge deployed on bare metal via Coolify, exposed externally through Cloudflare Tunnel. The stack spans Python services and backing stores (PostgreSQL, Qdrant, Redis, Ollama, Trieve, Mem0).
 
 ---
 
@@ -19,14 +19,12 @@ Internet
     │
     ▼
 Cloudflare Tunnel (cloudflared)
-├── hermes-agency.zappro.site ──► hermes-agency:3001
 ├── llm.zappro.site ────────────► litellm:4000
 ├── grafana.zappro.site ────────► grafana:3000
 └── pgadmin.zappro.site ────────► pgadmin:4050
     │
     ▼
 Internal Network (bridge)
-├── hermes-agency:3001
 ├── litellm:4000
 ├── pgadmin:4050
 ├── grafana:3000
@@ -47,25 +45,8 @@ Internal Network (bridge)
 
 | App Name | Type | Port | Registry | notes |
 |----------|------|------|----------|-------|
-| `hermes-agency` | Node.js/Fastify | 3001 | `ghcr.io/zappro/hermes-agency` | Telegram bot + CEO router |
 | `litellm` | LiteLLM Proxy | 4000 | `ghcr.io/berriai/litellm:main` | Unified LLM facade |
 | `mcp-postgres` | Python/FastAPI | 4017 | `ghcr.io/zappro/mcp-postgres` | PostgreSQL MCP server |
-
-### Docker Images
-
-#### hermes-agency
-```dockerfile
-FROM node:20-alpine
-WORKDIR /app
-COPY package.json pnpm-lock.yaml* ./
-RUN corepack enable && corepack prepare pnpm@9.0.0 --activate
-RUN pnpm install --frozen-lockfile
-COPY dist ./dist
-EXPOSE 3001
-HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
-  CMD wget -qO- http://localhost:3001/health || exit 1
-CMD ["node", "dist/index.js"]
-```
 
 #### mcp-postgres
 ```dockerfile
@@ -96,7 +77,7 @@ volumes:
 
 | Service | Port | Purpose | Backup |
 |---------|------|---------|--------|
-| Qdrant | 6333 | Vector storage (agency_* collections) | ZFS snapshot |
+| Qdrant | 6333 | Vector storage (ai_* collections) | ZFS snapshot |
 | Redis | 6379 | Rate limiting, distributed locks | RDB + AOF |
 | Ollama | 11434 | Local embeddings (nomic-embed-text) | None |
 | Trieve | 6435 | Hybrid search RAG | Versioned datasets |
@@ -157,24 +138,6 @@ jobs:
 ### Coolify Environment Variables (Encrypted)
 
 ```bash
-# hermes-agency
-HERMES_AGENCY_BOT_TOKEN=<telegram-token>
-HERMES_ADMIN_USER_IDS=<csv-of-ids>
-HERMES_GATEWAY_URL=http://hermes-gateway:8642
-AI_GATEWAY_FACADE_KEY=<key>
-QDRANT_URL=http://qdrant:6333
-QDRANT_API_KEY=<key>
-OLLAMA_URL=http://ollama:11434
-TRIEVE_URL=http://trieve:6435
-TRIEVE_API_KEY=<key>
-MEM0_URL=http://mem0:5000
-REDIS_URL=rediss://redis:6379
-POSTGRES_HOST=postgres
-POSTGRES_PORT=5432
-POSTGRES_USER=hermes
-POSTGRES_PASSWORD=<password>
-POSTGRES_DATABASE=hermes_agency
-
 # litellm
 LITELLM_API_KEY=<key>
 ANTHROPIC_API_KEY=<key>
@@ -185,7 +148,7 @@ MCP_POSTGRES_HOST=postgres
 MCP_POSTGRES_PORT=5432
 MCP_POSTGRES_USER=hermes
 MCP_POSTGRES_PASSWORD=<password>
-MCP_POSTGRES_DATABASE=hermes_agency
+MCP_POSTGRES_DATABASE=ai_agency
 ```
 
 ---
@@ -269,7 +232,7 @@ Trieve datasets follow the naming convention `{app}[-{lead}]-knowledge|memory|co
 ```bash
 # Stop writes
 # Restore from pg_dump
-pg_restore -h postgres -U hermes -d hermes_agency /srv/backups/postgres/latest.dump
+pg_restore -h postgres -U hermes -d ai_agency /srv/backups/postgres/latest.dump
 # Apply WAL to point-in-time if needed
 ```
 
@@ -281,10 +244,10 @@ zfs rollback backuppool/qdrant@latest
 # Restart Qdrant
 ```
 
-#### 3. Hermes Agency (Full Stack)
+#### 3. Hermes Gateway (Full Stack)
 ```bash
 # 1. Restore backing stores (PostgreSQL, Qdrant, Redis)
-# 2. Coolify redeploy hermes-agency, litellm, mcp-postgres
+# 2. Coolify redeploy litellm, mcp-postgres
 # 3. Verify health checks
 # 4. Smoke test Telegram bot
 ```
@@ -302,9 +265,6 @@ tunnel: <uuid>
 credentials-file: /etc/cloudflared/credentials.json
 
 ingress:
-  - hostname: hermes-agency.zappro.site
-    service: http://hermes-agency:3001
-
   - hostname: llm.zappro.site
     service: http://litellm:4000
 
@@ -339,14 +299,13 @@ cloudflared tunnel ingress validate
 
 | Service | Endpoint | Expected |
 |---------|----------|----------|
-| hermes-agency | `http://localhost:3001/health` | `{"status":"ok"}` |
 | litellm | `http://localhost:4000/health` | `{"status":"healthy"}` |
 | mcp-postgres | `http://localhost:4017/health` | `{"status":"ok"}` |
 | grafana | `http://localhost:3000/api/health` | `{"status":"ok"}` |
 
 ### Grafana Dashboards
 
-- **Hermes Agency Overview**: Bot activity, response times, skill routing
+- **Hermes Gateway Overview**: Bot activity, response times, routing
 - **Infrastructure**: CPU, memory, disk I/O per container
 - **PostgreSQL**: Query latency, connection pool, replication lag
 
@@ -354,64 +313,16 @@ cloudflared tunnel ingress validate
 
 | Alert | Condition | Action |
 |-------|-----------|--------|
-| hermes-agency down | Health check fails 3x | Page on-call |
+| Hermes Gateway down | Health check fails 3x | Page on-call |
 | litellm latency > 5s | p99 > 5s over 5min | Slack #alerts |
 | PostgreSQL replication lag > 30s | Replication slot lag | Page on-call |
 | Disk usage > 85% | Per-volume threshold | Slack #ops |
 
 ---
 
-## Coolify App Configuration
-
-### hermes-agency (Coolify)
-
-```json
-{
-  "name": "hermes-agency",
-  "uuid": "<uuid>",
-  "build": {
-    "pack": "dockerfile",
-    "dockerfile": "Dockerfile",
-    "context": "/srv/monorepo/apps/hermes-agency"
-  },
-  "ports": [3001],
-  "environment": {
-    "NODE_ENV": "production",
-    "HERMES_AGENCY_PORT": "3001"
-  },
-  "domains": ["hermes-agency.zappro.site"],
-  "health_check": {
-    "path": "/health",
-    "port": 3001
-  }
-}
-```
-
-### Deployment Checklist
-
-- [ ] All environment variables set in Coolify
-- [ ] Secrets stored as encrypted env vars (not in repo)
-- [ ] Health check path returns 200
-- [ ] Cloudflare tunnel route configured
-- [ ] Domain DNS points to tunnel
-- [ ] Backup jobs scheduled in cron
-- [ ] Grafana dashboard imported
-- [ ] Alerting rules configured
-
----
-
 ## Dependencies Diagram
 
 ```
-hermes-agency:3001
-├── Telegram Bot (@REFRIMIX_Bot)
-├── litellm:4000 (LLM calls)
-├── qdrant:6333 (vector storage)
-├── redis:6379 (locks, rate limit)
-├── trove:6435 (RAG search)
-├── mem0:5000 (memory)
-└── mcp-postgres:4017 (PostgreSQL MCP)
-
 litellm:4000
 ├── OpenAI API
 ├── Anthropic API
@@ -427,7 +338,6 @@ mcp-postgres:4017
 
 | Port | Service | Exposed | TLS |
 |------|---------|---------|-----|
-| 3001 | hermes-agency | Yes (Cloudflare) | Yes |
 | 4000 | litellm | Yes (Cloudflare) | Yes |
 | 4050 | pgadmin | Yes (Cloudflare) | Yes |
 | 3000 | grafana | Yes (Cloudflare) | Yes |

@@ -82,15 +82,15 @@ fetch.mockResolvedValueOnce({...});
 
 ### Step 1: Corrigir `router-integration.test.ts`
 
-**Ficheiro:** `apps/hermes-agency/src/__tests__/router-integration.test.ts`
+**Ficheiro:** `apps/hermes-gateway/src/__tests__/router-integration.test.ts`
 
 **Mudanças:**
 - Linha 213: Mudar `vi.mocked(llmComplete)` para `llmComplete as ReturnType<typeof vi.fn>`
-- Verificar que o mock de `AGENCY_SKILLS` está a funcionar corretamente (actualmente mostra `[object Object]`)
+- Verificar que o mock de `GATEWAY_SKILLS` está a funcionar corretamente (actualmente mostra `[object Object]`)
 
 ### Step 2: Criar `litellm-proxy.test.ts` corretamente
 
-**Ficheiro:** `apps/hermes-agency/src/__tests__/litellm-proxy.test.ts`
+**Ficheiro:** `apps/hermes-gateway/src/__tests__/litellm-proxy.test.ts`
 
 **Testes a implementar:**
 ```typescript
@@ -127,7 +127,7 @@ describe('LiteLLM Proxy', () => {
 
 ### Step 3: Corrigir `trieve-integration.test.ts` isolation
 
-**Ficheiro:** `apps/hermes-agency/src/__tests__/trieve-integration.test.ts`
+**Ficheiro:** `apps/hermes-gateway/src/__tests__/trieve-integration.test.ts`
 
 **Mudanças:**
 - Remover `global.fetch = mockFetch`
@@ -139,7 +139,7 @@ describe('LiteLLM Proxy', () => {
 > **PENDENTE** —等着 Correção dos steps 1-3 antes de executar
 
 ```bash
-cd /srv/monorepo/apps/hermes-agency
+cd /srv/monorepo/apps/hermes-gateway
 HERMES_AGENCY_BOT_TOKEN=... QDRANT_API_KEY=... bun test 2>&1 | tail -20
 ```
 
