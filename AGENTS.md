@@ -1186,6 +1186,16 @@ bash scripts/cursor-loop-research-minimax.sh "<topic or error message>"
 - **Endpoint:** `https://api.minimax.io/anthropic/v1/messages` (same pattern as voice pipeline)
 - **Model:** MiniMax-M2.1 (200k+ context, fast inference)
 
+## ⚠️ Regra HC-33: API_BASE SEM path
+
+| ❌ ERRADO | ✅ CORRETO |
+|----------|-----------|
+| `https://api.minimax.io/anthropic/v1` | `https://api.minimax.io` |
+
+LiteLLM concatena: `${api_base}${path_do_model}`
+
+Se LiteLLM retornar 404, verificar se api_base NÃO tem caminho.
+
 ### Cron Jobs
 
 | Job                        | Schedule    | Function                                                     |

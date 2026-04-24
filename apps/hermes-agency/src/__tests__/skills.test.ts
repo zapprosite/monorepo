@@ -3,8 +3,8 @@ import { describe, it, expect } from 'vitest';
 import { AGENCY_SKILLS, getSkillById, getSkillByTrigger } from '../skills/index.js';
 
 describe('AGENCY_SKILLS registry', () => {
-  it('has 11 skills defined', () => {
-    expect(AGENCY_SKILLS.length).toBe(11);
+  it('has 12 skills defined', () => {
+    expect(AGENCY_SKILLS.length).toBe(12);
   });
 
   it('all skills have unique IDs', () => {

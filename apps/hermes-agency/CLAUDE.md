@@ -925,6 +925,16 @@ const API_KEY = 'secret123';
 const QDRANT_URL = 'http://prod.qdrant.com:6333';
 ```
 
+### HC-33: API_BASE SEM path
+
+LiteLLM concatena: `${api_base}${path_do_model}`
+
+| ❌ ERRADO | ✅ CORRETO |
+|----------|-----------|
+| `https://api.minimax.io/anthropic/v1` | `https://api.minimax.io` |
+
+Se LiteLLM retornar 404, verificar se api_base NÃO tem caminho.
+
 ---
 
 ## File Structure
