@@ -11,13 +11,21 @@ import { isCallPermitted, recordSuccess, recordFailure } from '../skills/circuit
 import { mem0GetRecent, mem0Store, addToSessionHistory, formatMem0Context } from '../mem0/client.js';
 // RAG context retrieval via Trieve
 import { ragRetrieve, type RagSearchResult } from '../skills/rag-instance-organizer.js';
+// Qdrant-backed session persistence (replaces in-memory Map — survives restarts)
+import {
+  agencyStoreSession,
+  agencyLoadSession,
+  agencyDeleteSession,
+  type AgencySessionState,
+} from '../qdrant/client.js';
 
 const BRAND_GUARDIAN_THRESHOLD = 0.8;
 const HUMAN_GATE_THRESHOLD = parseFloat(process.env['HUMAN_GATE_THRESHOLD'] ?? '0.7');
 const CEO_MODEL = process.env['CEO_MODEL'] ?? 'gpt-4o';
 
-// Per-session supervisor state (in-memory — survives across messages in same session)
-const _sessionStates = new Map<string, AgencySupervisorState>();
+// In-memory cache for hot sessions (reduces Qdrant round-trips within same process)
+// Note: Cold state is persisted in Qdrant and survives restarts.
+const _sessionCache = new Map<string, AgencySessionState>();
 
 export interface RouterContext {
   userId: string;
@@ -81,11 +89,9 @@ function sanitizeForPrompt(input: string): string {
 }
 
 async function askCeoToRoute(input: string, ctx: RouterContext, sessionId: string): Promise<string> {
-  const available = AGENCY_SKILLS.map((s) => ({
-    id: s.id,
-    name: s.name,
-    triggers: s.triggers.join(', '),
-  })).join('\n');
+  const available = AGENCY_SKILLS.map((s) => {
+    return `${s.id} (${s.name}) — triggers: ${s.triggers.join(', ')}`;
+  }).join('\n');
 
   const sanitizedInput = sanitizeForPrompt(input);
 
@@ -184,20 +190,41 @@ async function executeSkill(
     return `❌ Skill não encontrada: ${skillId}`;
   }
 
-  // Get or create session state
-  let state = _sessionStates.get(sessionId);
+  // Get or create session state (Qdrant-backed — survives restarts)
+  let state = _sessionCache.get(sessionId);
   if (!state) {
-    const initial = createInitialState();
-    state = { ...initial, conversationHistory: [] };
-    _sessionStates.set(sessionId, state);
+    // Try to load from Qdrant (cold storage)
+    const coldState = await agencyLoadSession(sessionId);
+    if (coldState) {
+      state = coldState;
+    } else {
+      // Fresh session
+      const initial = createInitialState();
+      state = {
+        ...initial,
+        conversationHistory: [],
+        sessionId,
+        updatedAt: Date.now(),
+      };
+    }
+    _sessionCache.set(sessionId, state);
   }
   state.currentSkill = skillId;
+
+  // Persist to Qdrant after any state change
+  const persistState = async (): Promise<void> => {
+    state!.updatedAt = Date.now();
+    _sessionCache.set(sessionId, state!);
+    await agencyStoreSession(sessionId, state!);
+  };
 
   try {
     // Brand Guardian gate — mandatory for content before publishing
     if (['agency-creative', 'agency-social', 'agency-design'].includes(skillId)) {
       const brandScore = await scoreContent(input);
       if (brandScore < BRAND_GUARDIAN_THRESHOLD) {
+        // Persist skill attempt even though blocked
+        await persistState();
         recordSuccess(skillId);
         return `⚠️ Brand Guardian score: ${brandScore.toFixed(2)} (< ${BRAND_GUARDIAN_THRESHOLD})\n🔒 Publicação bloqueada — revisão humana necessária.`;
       }
@@ -206,6 +233,8 @@ async function executeSkill(
     // Human gate — confidence < 0.7
     const confidence = await assessConfidence(input);
     if (confidence < HUMAN_GATE_THRESHOLD) {
+      // Persist skill attempt even though blocked
+      await persistState();
       recordSuccess(skillId);
       return `🤔 Confiança baixa (${confidence.toFixed(2)}) — confirmação humana requerida.\n\nMensagem: "${input}"\nSkill sugerida: ${skill.name}`;
     }
@@ -261,6 +290,9 @@ async function executeSkill(
     // Store assistant response in conversation history
     await storeInHistory(sessionId, 'assistant', responseMessage);
 
+    // Persist session state to Qdrant (survives restarts)
+    await persistState();
+
     recordSuccess(skillId);
     return responseMessage;
   } catch (err) {
@@ -313,16 +345,22 @@ Responda apenas com o número.`;
 }
 
 /**
- * Get supervisor state for a session (for debugging/admin)
+ * Get supervisor state for a session (for debugging/admin).
+ * Checks cache first, then Qdrant for cold storage.
  */
-export function getSessionState(sessionId: string): AgencySupervisorState | null {
-  return _sessionStates.get(sessionId) ?? null;
+export async function getSessionState(sessionId: string): Promise<AgencySupervisorState | null> {
+  // Check hot cache first
+  const cached = _sessionCache.get(sessionId);
+  if (cached) return cached;
+  // Fall back to Qdrant cold storage
+  return agencyLoadSession(sessionId);
 }
 
 /**
- * Clear session state (for memory management)
+ * Clear session state from both cache and Qdrant (for memory management)
  */
-export function clearSessionState(sessionId: string): void {
-  _sessionStates.delete(sessionId);
+export async function clearSessionState(sessionId: string): Promise<void> {
+  _sessionCache.delete(sessionId);
+  await agencyDeleteSession(sessionId);
 }
 

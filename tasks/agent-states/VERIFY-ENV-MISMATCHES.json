@@ -1,0 +1,57 @@
+{
+  "status": "completed",
+  "mismatches": [
+    {
+      "var": "OLLAMA_URL",
+      "env_value": "http://localhost:11434",
+      "container_value": "http://host.docker.internal:11434",
+      "container": "mcp-memory"
+    },
+    {
+      "var": "COOLIFY_API_KEY",
+      "env_value": "8|4warfVNTMARXHkPL1qTxOPcE5v6N5G4f7ZFL2JVx0cddc82d",
+      "container_value": "7|2Lqe2UXliI2jBckqIttjmPjmpf9yBVISDNNu0C4s38a54332",
+      "container": "hermes-agency"
+    },
+    {
+      "var": "QDRANT_URL",
+      "env_value": "http://localhost:6333",
+      "container_value": "http://127.0.0.1:6333",
+      "container": "hermes-agency"
+    },
+    {
+      "var": "QDRANT_URL",
+      "env_value": "http://localhost:6333",
+      "container_value": "http://qdrant:6333",
+      "container": "zappro-litellm"
+    },
+    {
+      "var": "QDRANT_URL",
+      "env_value": "http://localhost:6333",
+      "container_value": "http://10.0.19.5:6333",
+      "container": "mcp-qdrant"
+    }
+  ],
+  "correct_values": [
+    {
+      "var": "OLLAMA_URL",
+      "correct_value": "http://host.docker.internal:11434"
+    },
+    {
+      "var": "COOLIFY_API_KEY",
+      "correct_value": "7|2Lqe2UXliI2jBckqIttjmPjmpf9yBVISDNNu0C4s38a54332"
+    },
+    {
+      "var": "QDRANT_URL",
+      "correct_value": "http://127.0.0.1:6333"
+    },
+    {
+      "var": "QDRANT_URL",
+      "correct_value": "http://qdrant:6333"
+    },
+    {
+      "var": "QDRANT_URL",
+      "correct_value": "http://10.0.19.5:6333"
+    }
+  ]
+}

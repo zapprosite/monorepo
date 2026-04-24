@@ -2,15 +2,15 @@
 // LangGraph Supervisor — routes invokeWorkflow calls to registered workflows
 
 import { contentPipelineGraph, executeContentPipeline, approveContentPipeline } from './content_pipeline.js';
-import { executeOnboardingFlow } from './onboarding_flow.js';
-import { executeLeadQualification } from './lead_qualification.js';
-import { executeSocialCalendar } from './social_calendar.js';
-import { executeStatusUpdate } from './status_update.js';
+import { onboardingGraph, executeOnboardingFlow, approveOnboarding } from './onboarding_flow.js';
+import { leadQualificationGraph, executeLeadQualification, approveLead } from './lead_qualification.js';
+import { socialCalendarGraph, executeSocialCalendar, approveSocialCalendar } from './social_calendar.js';
+import { statusUpdateGraph, executeStatusUpdate, approveStatusUpdate } from './status_update.js';
 
 /**
  * Supported workflow names.
- * Only `content_pipeline` is a true LangGraph StateGraph (WF-1).
- * The others are sequential async workflows (WF-2 through WF-5) — not yet migrated to StateGraph.
+ * All 5 workflows are now true LangGraph StateGraphs with interrupt() for human approval.
+ * Migrated from sequential async as part of bug-B1 fix.
  */
 export type WorkflowName =
   | 'content_pipeline'
@@ -124,36 +124,44 @@ export async function invokeWorkflow(
 }
 
 /**
- * Re-export the compiled content_pipeline graph for direct LangGraph operations
+ * Re-export compiled graphs for direct LangGraph operations
  * (e.g., checking interrupts, resuming with Command).
  */
 export { contentPipelineGraph };
+export { onboardingGraph };
+export { leadQualificationGraph };
+export { socialCalendarGraph };
+export { statusUpdateGraph };
 
 /**
- * Convenience to resume a content_pipeline workflow after human approval.
+ * Convenience to resume workflows after human approval.
  */
 export { approveContentPipeline };
+export { approveOnboarding };
+export { approveLead };
+export { approveSocialCalendar };
+export { approveStatusUpdate };
 
 // ---------------------------------------------------------------------------
-// LangGraph stub status
+// LangGraph workflow status
 // ---------------------------------------------------------------------------
 
 /**
- * Documents which workflow files are real LangGraph StateGraphs vs stubs.
+ * Documents which workflow files are real LangGraph StateGraphs.
  *
- * TRUE StateGraph (nodes + edges + compile):
- *   - content_pipeline.ts (WF-1) — StateGraph with CREATIVE→VIDEO→DESIGN→BRAND_GUARDIAN→HUMAN_GATE→SOCIAL→ANALYTICS
+ * All 5 workflows are now TRUE StateGraph (nodes + edges + compile + checkpointer + interrupt):
+ *   - content_pipeline.ts (WF-1) — StateGraph with interrupt()
+ *   - onboarding_flow.ts (WF-2) — StateGraph with interrupt()
+ *   - lead_qualification.ts (WF-5) — StateGraph with interrupt()
+ *   - social_calendar.ts (WF-4) — StateGraph with interrupt()
+ *   - status_update.ts (WF-3) — StateGraph with interrupt()
  *
- * STUBS (sequential async functions — no StateGraph):
- *   - onboarding_flow.ts (WF-2)   — executeOnboardingFlow()
- *   - lead_qualification.ts (WF-5) — executeLeadQualification()
- *   - social_calendar.ts (WF-4)    — executeSocialCalendar()
- *   - status_update.ts (WF-3)      — executeStatusUpdate()
+ * Migration from sequential async to StateGraph completed as part of bug-B1.
  */
 export const WORKFLOW_STATUS = {
-  content_pipeline: 'StateGraph (WF-1)',
-  onboarding: 'stub — sequential async (WF-2)',
-  lead_qualification: 'stub — sequential async (WF-5)',
-  social_calendar: 'stub — sequential async (WF-4)',
-  status_update: 'stub — sequential async (WF-3)',
+  content_pipeline: 'StateGraph (WF-1) ✅',
+  onboarding: 'StateGraph (WF-2) ✅',
+  lead_qualification: 'StateGraph (WF-5) ✅',
+  social_calendar: 'StateGraph (WF-4) ✅',
+  status_update: 'StateGraph (WF-3) ✅',
 } as const;

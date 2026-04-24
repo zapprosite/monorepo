@@ -47,6 +47,7 @@ import {
   formatMem0Context,
   addToSessionHistory,
   getSessionHistory,
+  _clearSessionHistoryForTesting,
   type Mem0Entry,
 } from '../mem0/client.js';
 
@@ -552,6 +553,7 @@ describe('formatMem0Context', () => {
 describe('session history (in-memory cache)', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    _clearSessionHistoryForTesting();
   });
 
   it('addToSessionHistory stores entry in memory', () => {
@@ -596,7 +598,8 @@ describe('session history (in-memory cache)', () => {
       });
     }
 
-    const history = getSessionHistory('session-cap');
+    // getSessionHistory defaults to limit=10, so pass 60 to get all (which should be 50 due to cap)
+    const history = getSessionHistory('session-cap', 60);
     expect(history).toHaveLength(50);
   });
 

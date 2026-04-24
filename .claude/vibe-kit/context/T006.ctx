@@ -1,0 +1,11 @@
+[COMPLETE] task_id=T006 result=done
+
+**Bug Fixed:** Changed falsy check `!subscription.notifiedAt90PercentUse` to explicit null check `subscription.notifiedAt90PercentUse === null` in `apps/api/src/modules/api-gateway/utils/subscriptionTracker.utils.ts:80`.
+
+**Files Modified:**
+- `apps/api/src/modules/api-gateway/utils/subscriptionTracker.utils.ts`
+
+**Note:** Could not write context file to `/srv/monorepo/.claude/vibe-kit/context/T006.ctx` due to permissions.
+
+[mclaude] MiniMax-Token-Plan (MiniMax-M2.7) — session ended
+[?25h[0m[?1049l

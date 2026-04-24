@@ -1,0 +1,24 @@
+{
+  "status": "completed",
+  "ollama_instances": [
+    {
+      "ip": "192.168.15.83",
+      "reachable": true,
+      "has_embeddings": true,
+      "models": ["nomic-embed-text:latest"]
+    },
+    {
+      "ip": "10.0.2.5",
+      "reachable": true,
+      "has_embeddings": false,
+      "models": ["qwen2.5vl:3b", "qwen2.5vl:7b"]
+    },
+    {
+      "ip": "qwen2-vl7b (hostname)",
+      "reachable": false,
+      "has_embeddings": false,
+      "error": "Connection timeout - hostname resolution failed or port blocked"
+    }
+  ],
+  "container_cant_reach_hostlan": false
+}

@@ -1,0 +1,42 @@
+{
+  "status": "completed",
+  "timestamp": "2026-04-23T20:12:05Z",
+  "services": [
+    {
+      "name": "LiteLLM",
+      "status": "unhealthy",
+      "latency_ms": 3.1,
+      "details": "Health endpoint requires auth (401). Service is running but protected."
+    },
+    {
+      "name": "Qdrant",
+      "status": "healthy",
+      "latency_ms": 1.5,
+      "details": "12 collections accessible, status ok"
+    },
+    {
+      "name": "Redis",
+      "status": "healthy",
+      "latency_ms": null,
+      "details": "Responds NOAUTH (expected without cli auth). Service running."
+    },
+    {
+      "name": "Hermes",
+      "status": "healthy",
+      "latency_ms": 0.5,
+      "details": "hermes-agency-suite v0.1.0 responding OK"
+    },
+    {
+      "name": "mcp-memory",
+      "status": "unhealthy",
+      "latency_ms": null,
+      "details": "500 errors on /tools/memory_add - embedding generation failing. Service responds to /health but core functionality broken."
+    },
+    {
+      "name": "Ollama",
+      "status": "healthy",
+      "latency_ms": 0.5,
+      "details": "nomic-embed-text:latest available at 192.168.15.83"
+    }
+  ]
+}

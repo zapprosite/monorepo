@@ -1,0 +1,35 @@
+Task T004 (bug-B4-content-pipeline-edges) is complete.
+
+## Summary
+
+Fixed the content_pipeline edges from **fixed routing** to **dynamic conditional routing** based on `contentType`.
+
+### Changes Made
+
+**1. Modified `apps/hermes-agency/src/langgraph/content_pipeline.ts`**:
+- Added `ContentType` type: `'video' | 'blog' | 'social' | 'email'`
+- Added `contentType` field to `PipelineState` interface
+- Added `contentType` to StateGraph channels
+- Implemented `creativeRouter`, `videoRouter`, and `designRouter` functions
+- Replaced fixed `.addEdge()` calls with `.addConditionalEdges()` for CREATIVE → VIDEO/DESIGN/BRAND_GUARDIAN routing
+- Updated `executeContentPipeline()` to accept `contentType` parameter
+- Exported `PipelineState` and `ContentType` types for test compatibility
+
+**2. Updated `apps/CRM-REFRIMIX/tests/smoke/test_content_pipeline_routing.py`**:
+- Replaced placeholder test with 6 comprehensive tests verifying conditional edges
+
+### Routing Logic
+| contentType | Path |
+|-------------|------|
+| `video` | CREATIVE → VIDEO → DESIGN → BRAND_GUARDIAN |
+| `blog` | CREATIVE → DESIGN → BRAND_GUARDIAN (skip VIDEO) |
+| `social`/`email` | CREATIVE → BRAND_GUARDIAN (skip VIDEO and DESIGN) |
+
+### Verification
+- All 6 smoke tests pass
+- TypeScript typecheck passes for content_pipeline.ts
+
+[COMPLETE] task_id=T004 result=done
+
+[mclaude] MiniMax-Token-Plan (MiniMax-M2.7) — session ended
+[?25h[0m[?1049l

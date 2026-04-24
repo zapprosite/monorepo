@@ -1,0 +1,51 @@
+{
+  "status": "completed",
+  "dotenv_verified": true,
+  "corrections_needed": [
+    {
+      "var": "HERMES_AGENCY_BOT_TOKEN",
+      "expected": "8759194670:AAGHntxPUsfvbSrYNwOhBGuNUpmeCUw1-qY",
+      "actual_in_container": "8740522933:AAEkDbKfMeUyZW70SZRZGJ-B8cB6lkJFhcA",
+      "note": "Container has EDITOR_SOCIAL_BOT_TOKEN value. Tokens appear swapped."
+    },
+    {
+      "var": "HERMES_API_KEY",
+      "expected": "692be95d8a6b1a877d815415ea1f88f81cc1fc63db6410427602125155e75b5a",
+      "actual_in_container": "baa4ae...2c6e (MASKED - cannot verify)",
+      "note": "Container value is truncated/masked. Unable to verify correctness."
+    }
+  ],
+  "corrections_applied": [
+    {
+      "var": "MINIMAX_API_KEY",
+      "value": "sk-cp-uA1oy3YNYtSeBSHkwKXP2SxELFLpWmvjgBNqCLzpmsqSijGP",
+      "status": "already_correct",
+      "note": "Value in .env matches expected value"
+    },
+    {
+      "var": "QDRANT_API_KEY",
+      "value": "71cae77676e2a5fd552d172caa1c3200",
+      "status": "already_correct",
+      "note": "Value in .env matches container QDRANT__SERVICE__API_KEY"
+    },
+    {
+      "var": "COOLIFY_API_KEY",
+      "value": "8|4warfVNTMARXHkPL1qTxOPcE5v6N5G4f7ZFL2JVx0cddc82d",
+      "status": "already_correct",
+      "note": "Container (mcp-coolify-mcp-coolify-1) has same value. Team lead's '7|2Lqe...' info was stale. .env is CORRECT."
+    }
+  ],
+  "verified_matches": [
+    {"var": "LITELLM_MASTER_KEY", "container": "sk-zappro-lm-2026-s8k3m9x2p7r6t5w1v4c8n0d5j7f9g3h6i2k4l6m8n0p1", "env": "sk-zappro-lm-2026-s8k3m9x2p7r6t5w1v4c8n0d5j7f9g3h6i2k4l6m8n0p1"},
+    {"var": "QDRANT_API_KEY", "container": "71cae77676e2a5fd552d172caa1c3200", "env": "71cae77676e2a5fd552d172caa1c3200"},
+    {"var": "REDIS_URL", "container": "redis://:Fifine156458*@zappro-redis:6379", "env": "redis://:Fifine156458*@zappro-redis:6379"},
+    {"var": "HERMES_ADMIN_USER_IDS", "container": "7220607041", "env": "7220607041"},
+    {"var": "COOLIFY_API_KEY", "container": "8|4warfVNTMARXHkPL1qTxOPcE5v6N5G4f7ZFL2JVx0cddc82d", "env": "8|4warfVNTMARXHkPL1qTxOPcE5v6N5G4f7ZFL2JVx0cddc82d"}
+  ],
+  "stale_values_identified": [
+    {
+      "value": "7|2Lqe2UXliI2jBckqIttjmPjmpf9yBVISDNNu0C4s38a54332",
+      "note": "This was mentioned by team lead as 'container value' but actual container has 8|4warf... - the 7|2Lqe... value is stale/not in any active container"
+    }
+  ]
+}

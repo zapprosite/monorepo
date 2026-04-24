@@ -1,0 +1,26 @@
+[COMPLETE] task_id=T003 result=done
+
+## Summary
+
+Fixed the B3 bug in `lead_qualification.ts` where `humanGateNode` was auto-approving for `nurture` and `reject` action paths without calling `interrupt()`.
+
+### Changes Made
+
+**1. `apps/hermes-agency/src/langgraph/lead_qualification.ts`**
+
+- **`humanGateNode`**: Changed from conditionally calling `interrupt()` only for `onboarding` action to ALWAYS calling `interrupt()` for all action types (onboarding, nurture, reject). This ensures no path auto-approves without human approval.
+
+- **`approveLead`**: Changed `Command.resume` from passing a bare boolean (`resume: approved`) to passing an object (`resume: { approved, comment }`), matching the pattern used by other workflows (`content_pipeline.ts`, `status_update.ts`).
+
+**2. `apps/CRM-REFRIMIX/tests/smoke/test_human_interrupt.py`**
+
+- Updated test to document the expected behavior after the fix.
+
+### Files Modified
+- `apps/hermes-agency/src/langgraph/lead_qualification.ts`
+- `apps/CRM-REFRIMIX/tests/smoke/test_human_interrupt.py`
+
+Context saved to: `/srv/monorepo/.claude/vibe-kit/context/T003.ctx`
+
+[mclaude] MiniMax-Token-Plan (MiniMax-M2.7) — session ended
+[?25h[0m[?1049l
