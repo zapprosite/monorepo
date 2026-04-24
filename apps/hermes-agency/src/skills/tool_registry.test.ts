@@ -34,16 +34,6 @@ vi.mock('./circuit_breaker.js', () => ({
   isCallPermitted: vi.fn().mockReturnValue(true),
 }));
 
-// Mock rag-instance-organizer
-vi.mock('./rag-instance-organizer.js', () => ({
-  ragRetrieve: vi.fn().mockResolvedValue([]),
-  ragSearch: vi.fn().mockResolvedValue([]),
-  createDataset: vi.fn().mockResolvedValue({ id: 'ds_123', name: 'test' }),
-  buildDatasetName: vi.fn().mockReturnValue('test-name'),
-  DATASET_TEMPLATES: {
-    'hermes-knowledge': { app: 'hermes', description: 'Hermes knowledge' },
-  },
-}));
 
 // Mock langgraph supervisor
 vi.mock('../langgraph/supervisor.ts', () => ({

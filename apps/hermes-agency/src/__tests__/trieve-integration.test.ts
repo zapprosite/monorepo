@@ -6,14 +6,12 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 // Mock fetch for Trieve API
 // ---------------------------------------------------------------------------
 
-const mockFetch = vi.fn();
-global.fetch = mockFetch;
+let fetchSpy: ReturnType<typeof vi.spyOn>;
 
 const originalEnv = { ...process.env };
 
 beforeEach(() => {
-  mockFetch.mockReset();
-  mockFetch.mockResolvedValue({
+  fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue({
     ok: true,
     json: vi.fn().mockResolvedValue({}),
     text: vi.fn().mockResolvedValue(''),
@@ -23,6 +21,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  fetchSpy?.mockRestore();
   process.env = { ...originalEnv };
 });
 
@@ -128,7 +127,7 @@ describe('parseDatasetName', () => {
 
 describe('createDataset', () => {
   it('creates dataset with correct name via Trieve API', async () => {
-    mockFetch.mockResolvedValueOnce({
+    fetchSpy.mockResolvedValueOnce({
       ok: true,
       json: vi.fn().mockResolvedValue({ id: 'ds_123', name: 'hermes-knowledge' }),
     });
@@ -138,7 +137,7 @@ describe('createDataset', () => {
 
     expect(result).toEqual({ id: 'ds_123', name: 'hermes-knowledge' });
 
-    const [url, options] = mockFetch.mock.calls[0];
+    const [url, options] = fetchSpy.mock.calls[0];
     expect(url).toContain('/api/v1/datasets');
     const body = JSON.parse(options.body);
     expect(body.name).toBe('hermes');
@@ -146,7 +145,7 @@ describe('createDataset', () => {
   });
 
   it('returns null when API call fails', async () => {
-    mockFetch.mockResolvedValueOnce({
+    fetchSpy.mockResolvedValueOnce({
       ok: false,
       status: 500,
       text: vi.fn().mockResolvedValue('Internal Server Error'),
@@ -159,7 +158,7 @@ describe('createDataset', () => {
   });
 
   it('returns null on network error', async () => {
-    mockFetch.mockRejectedValueOnce(new Error('Network error'));
+    fetchSpy.mockRejectedValueOnce(new Error('Network error'));
 
     const config: DatasetConfig = { app: 'test', description: 'test' };
     const result = await createDataset(config);
@@ -171,17 +170,17 @@ describe('createDataset', () => {
     process.env['TRIEVE_URL'] = 'https://custom.trieve.ai';
     process.env['TRIEVE_API_KEY'] = 'secret-key';
 
-    mockFetch.mockResolvedValueOnce({
+    fetchSpy.mockResolvedValueOnce({
       ok: true,
       json: vi.fn().mockResolvedValue({ id: 'ds_456', name: 'custom' }),
     });
 
     await createDataset({ app: 'custom', description: 'custom dataset' });
 
-    const [url] = mockFetch.mock.calls[0];
+    const [url] = fetchSpy.mock.calls[0];
     expect(url).toBe('https://custom.trieve.ai/api/v1/datasets');
 
-    const [, options] = mockFetch.mock.calls[0];
+    const [, options] = fetchSpy.mock.calls[0];
     expect(options.headers).toEqual(
       expect.objectContaining({
         Authorization: 'ApiKey secret-key',
@@ -190,7 +189,7 @@ describe('createDataset', () => {
   });
 
   it('includes chunking strategy when specified', async () => {
-    mockFetch.mockResolvedValueOnce({
+    fetchSpy.mockResolvedValueOnce({
       ok: true,
       json: vi.fn().mockResolvedValue({ id: 'ds_heading', name: 'hermes' }),
     });
@@ -201,7 +200,7 @@ describe('createDataset', () => {
       chunkingStrategy: 'heading',
     });
 
-    const [, options] = mockFetch.mock.calls[0];
+    const [, options] = fetchSpy.mock.calls[0];
     const body = JSON.parse(options.body);
     expect(body.settings).toEqual({ chunking_strategy: 'heading' });
   });
@@ -213,7 +212,7 @@ describe('createDataset', () => {
 
 describe('indexDocument — batch indexing', () => {
   it('processes documents within 120 chunk limit in single batch', async () => {
-    mockFetch.mockResolvedValue({
+    fetchSpy.mockResolvedValue({
       ok: true,
       json: vi.fn().mockResolvedValue({ successful: 50 }),
     });
@@ -226,11 +225,11 @@ describe('indexDocument — batch indexing', () => {
     const result = await indexDocument('ds_123', documents);
 
     expect(result).toBe(true);
-    expect(mockFetch).toHaveBeenCalledTimes(1);
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
   });
 
   it('splits documents exceeding 120 chunks into multiple batches', async () => {
-    mockFetch.mockResolvedValue({
+    fetchSpy.mockResolvedValue({
       ok: true,
       json: vi.fn().mockResolvedValue({ successful: 120 }),
     });
@@ -244,25 +243,25 @@ describe('indexDocument — batch indexing', () => {
 
     expect(result).toBe(true);
     // 250 docs / 120 per batch = 3 batches (120 + 120 + 10)
-    expect(mockFetch).toHaveBeenCalledTimes(3);
+    expect(fetchSpy).toHaveBeenCalledTimes(3);
 
     // Verify first batch
-    const [firstUrl, firstOptions] = mockFetch.mock.calls[0];
+    const [firstUrl, firstOptions] = fetchSpy.mock.calls[0];
     expect(firstUrl).toContain('/api/v1/chunks');
     const firstBody = JSON.parse(firstOptions.body);
     expect(firstBody.chunks).toHaveLength(120);
 
     // Verify second batch
-    const secondBody = JSON.parse(mockFetch.mock.calls[1][1].body);
+    const secondBody = JSON.parse(fetchSpy.mock.calls[1][1].body);
     expect(secondBody.chunks).toHaveLength(120);
 
     // Verify third batch (remaining 10)
-    const thirdBody = JSON.parse(mockFetch.mock.calls[2][1].body);
+    const thirdBody = JSON.parse(fetchSpy.mock.calls[2][1].body);
     expect(thirdBody.chunks).toHaveLength(10);
   });
 
   it('sends correct TR-Dataset header for each batch', async () => {
-    mockFetch.mockResolvedValue({
+    fetchSpy.mockResolvedValue({
       ok: true,
       json: vi.fn().mockResolvedValue({ successful: 120 }),
     });
@@ -274,7 +273,7 @@ describe('indexDocument — batch indexing', () => {
 
     await indexDocument('ds_hermes_test', documents);
 
-    for (const [, options] of mockFetch.mock.calls) {
+    for (const [, options] of fetchSpy.mock.calls) {
       expect(options.headers).toEqual(
         expect.objectContaining({
           'TR-Dataset': 'ds_hermes_test',
@@ -285,12 +284,12 @@ describe('indexDocument — batch indexing', () => {
 
   it('returns false when any batch fails', async () => {
     // First batch succeeds
-    mockFetch.mockResolvedValueOnce({
+    fetchSpy.mockResolvedValueOnce({
       ok: true,
       json: vi.fn().mockResolvedValue({ successful: 120 }),
     });
     // Second batch fails
-    mockFetch.mockResolvedValueOnce({
+    fetchSpy.mockResolvedValueOnce({
       ok: false,
       status: 500,
       text: vi.fn().mockResolvedValue('Server error'),
@@ -307,7 +306,7 @@ describe('indexDocument — batch indexing', () => {
   });
 
   it('handles exact 120 chunk boundary', async () => {
-    mockFetch.mockResolvedValue({
+    fetchSpy.mockResolvedValue({
       ok: true,
       json: vi.fn().mockResolvedValue({ successful: 120 }),
     });
@@ -320,11 +319,11 @@ describe('indexDocument — batch indexing', () => {
     const result = await indexDocument('ds_exact', documents);
 
     expect(result).toBe(true);
-    expect(mockFetch).toHaveBeenCalledTimes(1);
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
   });
 
   it('handles 121 chunks (1 over limit = 2 batches)', async () => {
-    mockFetch.mockResolvedValue({
+    fetchSpy.mockResolvedValue({
       ok: true,
       json: vi.fn().mockResolvedValue({ successful: 1 }),
     });
@@ -337,11 +336,11 @@ describe('indexDocument — batch indexing', () => {
     const result = await indexDocument('ds_over', documents);
 
     expect(result).toBe(true);
-    expect(mockFetch).toHaveBeenCalledTimes(2);
+    expect(fetchSpy).toHaveBeenCalledTimes(2);
   });
 
   it('maps document content to chunk_html', async () => {
-    mockFetch.mockResolvedValue({
+    fetchSpy.mockResolvedValue({
       ok: true,
       json: vi.fn().mockResolvedValue({ successful: 1 }),
     });
@@ -355,14 +354,14 @@ describe('indexDocument — batch indexing', () => {
 
     await indexDocument('ds_content', documents);
 
-    const [, options] = mockFetch.mock.calls[0];
+    const [, options] = fetchSpy.mock.calls[0];
     const body = JSON.parse(options.body);
     expect(body.chunks[0].chunk_html).toBe('This is the document content');
     expect(body.chunks[0].metadata).toEqual({ type: 'manual', page: 1 });
   });
 
   it('sets tag_set from metadata type', async () => {
-    mockFetch.mockResolvedValue({
+    fetchSpy.mockResolvedValue({
       ok: true,
       json: vi.fn().mockResolvedValue({ successful: 1 }),
     });
@@ -373,7 +372,7 @@ describe('indexDocument — batch indexing', () => {
 
     await indexDocument('ds_tag', documents);
 
-    const [, options] = mockFetch.mock.calls[0];
+    const [, options] = fetchSpy.mock.calls[0];
     const body = JSON.parse(options.body);
     expect(body.chunks[0].tag_set).toBe('guide');
   });
@@ -385,7 +384,7 @@ describe('indexDocument — batch indexing', () => {
 
 describe('ragSearch', () => {
   it('returns empty array when search fails', async () => {
-    mockFetch.mockResolvedValueOnce({
+    fetchSpy.mockResolvedValueOnce({
       ok: false,
       text: vi.fn().mockResolvedValue('Search failed'),
     });
@@ -396,7 +395,7 @@ describe('ragSearch', () => {
   });
 
   it('returns mapped results on success', async () => {
-    mockFetch.mockResolvedValueOnce({
+    fetchSpy.mockResolvedValueOnce({
       ok: true,
       json: vi.fn().mockResolvedValue({
         results: [
@@ -438,7 +437,7 @@ describe('ragSearch', () => {
   });
 
   it('returns empty array on network error', async () => {
-    mockFetch.mockRejectedValueOnce(new Error('Network error'));
+    fetchSpy.mockRejectedValueOnce(new Error('Network error'));
 
     const results = await ragSearch('ds_123', 'test', 5);
 
@@ -446,14 +445,14 @@ describe('ragSearch', () => {
   });
 
   it('uses hybrid search type', async () => {
-    mockFetch.mockResolvedValueOnce({
+    fetchSpy.mockResolvedValueOnce({
       ok: true,
       json: vi.fn().mockResolvedValue({ results: [] }),
     });
 
     await ragSearch('ds_123', 'query', 3);
 
-    const [, options] = mockFetch.mock.calls[0];
+    const [, options] = fetchSpy.mock.calls[0];
     const body = JSON.parse(options.body);
     expect(body.search_type).toBe('hybrid');
     expect(body.highlight_results).toBe(true);
@@ -461,14 +460,14 @@ describe('ragSearch', () => {
   });
 
   it('sends correct TR-Dataset header', async () => {
-    mockFetch.mockResolvedValueOnce({
+    fetchSpy.mockResolvedValueOnce({
       ok: true,
       json: vi.fn().mockResolvedValue({ results: [] }),
     });
 
     await ragSearch('ds_hermes', 'test query', 5);
 
-    const [, options] = mockFetch.mock.calls[0];
+    const [, options] = fetchSpy.mock.calls[0];
     expect(options.headers).toEqual(
       expect.objectContaining({
         'TR-Dataset': 'ds_hermes',
@@ -477,7 +476,7 @@ describe('ragSearch', () => {
   });
 
   it('handles missing score in response', async () => {
-    mockFetch.mockResolvedValueOnce({
+    fetchSpy.mockResolvedValueOnce({
       ok: true,
       json: vi.fn().mockResolvedValue({
         results: [
@@ -499,7 +498,7 @@ describe('ragSearch', () => {
   });
 
   it('handles missing results field in response', async () => {
-    mockFetch.mockResolvedValueOnce({
+    fetchSpy.mockResolvedValueOnce({
       ok: true,
       json: vi.fn().mockResolvedValue({}), // no results field
     });
@@ -516,7 +515,7 @@ describe('ragSearch', () => {
 
 describe('listDatasets', () => {
   it('returns array of datasets on success', async () => {
-    mockFetch.mockResolvedValueOnce({
+    fetchSpy.mockResolvedValueOnce({
       ok: true,
       json: vi.fn().mockResolvedValue([
         { id: 'ds_1', name: 'hermes-knowledge', description: 'Hermes KB' },
@@ -531,7 +530,7 @@ describe('listDatasets', () => {
   });
 
   it('returns empty array when API fails', async () => {
-    mockFetch.mockResolvedValueOnce({
+    fetchSpy.mockResolvedValueOnce({
       ok: false,
       text: vi.fn().mockResolvedValue('Failed'),
     });
@@ -542,7 +541,7 @@ describe('listDatasets', () => {
   });
 
   it('returns empty array on network error', async () => {
-    mockFetch.mockRejectedValueOnce(new Error('Network error'));
+    fetchSpy.mockRejectedValueOnce(new Error('Network error'));
 
     const results = await listDatasets();
 
@@ -552,14 +551,14 @@ describe('listDatasets', () => {
   it('uses TRIEVE_URL from env', async () => {
     process.env['TRIEVE_URL'] = 'https://custom.trieve.ai:9999';
 
-    mockFetch.mockResolvedValueOnce({
+    fetchSpy.mockResolvedValueOnce({
       ok: true,
       json: vi.fn().mockResolvedValue([]),
     });
 
     await listDatasets();
 
-    const [url] = mockFetch.mock.calls[0];
+    const [url] = fetchSpy.mock.calls[0];
     expect(url).toBe('https://custom.trieve.ai:9999/api/v1/datasets');
   });
 });
@@ -580,14 +579,14 @@ describe('ragRetrieve', () => {
   it('calls ragSearch with default dataset id', async () => {
     process.env['TRIEVE_DEFAULT_DATASET_ID'] = 'ds_default';
 
-    mockFetch.mockResolvedValueOnce({
+    fetchSpy.mockResolvedValueOnce({
       ok: true,
       json: vi.fn().mockResolvedValue({ results: [] }),
     });
 
     await ragRetrieve('test query', 3);
 
-    const [, options] = mockFetch.mock.calls[0];
+    const [, options] = fetchSpy.mock.calls[0];
     expect(options.headers).toEqual(
       expect.objectContaining({
         'TR-Dataset': 'ds_default',
@@ -598,14 +597,14 @@ describe('ragRetrieve', () => {
   it('passes topK as limit to ragSearch', async () => {
     process.env['TRIEVE_DEFAULT_DATASET_ID'] = 'ds_limit_test';
 
-    mockFetch.mockResolvedValueOnce({
+    fetchSpy.mockResolvedValueOnce({
       ok: true,
       json: vi.fn().mockResolvedValue({ results: [] }),
     });
 
     await ragRetrieve('query', 7);
 
-    const [, options] = mockFetch.mock.calls[0];
+    const [, options] = fetchSpy.mock.calls[0];
     const body = JSON.parse(options.body);
     expect(body.limit).toBe(7);
   });
