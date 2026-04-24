@@ -112,8 +112,8 @@ FASE 3 ────────────────────────�
 - `orchestrator/scripts/rollback.sh` — Restore from snapshot
 
 **V1 — Version Lock:**
-- `orchestrator/scripts/versions-check.sh` — Deteta drift de versões pinned
-- `orchestrator/scripts/versions-update.sh` — Sincroniza versões
+- `pnpm outdated` — Deteta dependências desatualizadas
+- Manual update via `pnpm update` + commit de VERSION-LOCK.md
 
 **V2 — Orchestrator v2 (Legacy):**
 - `orchestrator/scripts/circuit_breaker.sh` — 3 retries, exp backoff 2^n
