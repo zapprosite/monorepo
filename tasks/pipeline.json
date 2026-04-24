@@ -1,33 +1,316 @@
 {
-  "pipeline": "SPEC-091-docs-prune-holistic-cleanup",
-  "spec": "SPEC-091",
-  "description": "Canonical Docs Template + Holistic Prune: 52→12 MDs, GOVERNANCE fused, skills deduplicated, second brain linked",
-  "version": "1.0.0",
-  "status": "COMPLETED",
-  "result": {
-    "monorepo_docs_pruned": "52→12 MDs (target ≤15 ✅)",
-    "hvacr_swarm_pruned": "38→10 SPECs (target ≤10 ✅)",
-    "governance_fused": "8 files archived to GOVERNANCE-migrated/, ops/ai-governance is canonical",
-    "19_specs_archived": "053,058,059,060,063,064,065,066,067,069,070,071,072,073,075,076,077,088,089",
-    "6_runbooks_archived": "P1-P4, PIPELINE-ROLLBACK, README",
-    "7_hvacr_archived": "SPEC-004,005 + OpenClaw dead SPECs",
-    "root_claude_archived": "CLAUDE.md → docs/archive/",
-    "deleted": "discovery.md, INC-005, voice-eval files, SLICE_9_SNAPSHOT",
-    "migrated_to_ops": "PORTS.md, SUBDOMAINS.md copied to /srv/ops/ai-governance/",
-    "workflow_performatico": "archived to ~/.claude/skills-archive/",
-    "escrever": "kept (has SKILL.md + executable)",
-    "tree_md_generated": "97 lines pushed to hermes-second-brain",
-    "active_md_created": "docs/SPECS/ACTIVE.md ✅",
-    "canonical_template": "defined in SPEC-091 for future docs"
+  "pipeline": "HCP-20260424-control-plane",
+  "version": "control-plane-v1",
+  "status": "running",
+  "created": "2026-04-24T00:00:00-03:00",
+  "objective": "Make /srv/monorepo the functional control plane for the Ubuntu Desktop homelab, with Hermes agents executing through typed CLI/API adapters and a small canonical spec set.",
+  "specs": [
+    "docs/SPECS/SPEC-001-homelab-control-plane.md",
+    "docs/SPECS/SPEC-002-hermes-agent-runtime.md",
+    "docs/SPECS/SPEC-003-memory-rag-llm-stack.md",
+    "docs/SPECS/SPEC-004-autonomous-execution-pipeline.md"
+  ],
+  "state_files": {
+    "human_backlog": "tasks/hermes-control-plane-tasks.md",
+    "pipeline_state": "tasks/pipeline-state.json",
+    "agent_states": "tasks/agent-states"
   },
   "phases": [
-    { "phase": 1, "name": "Audit", "status": "completed" },
-    { "phase": 2, "name": "Canonical Structure", "status": "completed" },
-    { "phase": 3, "name": "Archive/Migrate/Delete", "status": "completed" },
-    { "phase": 4, "name": "Second Brain Sync", "status": "completed" },
-    { "phase": 5, "name": "Final Verification", "status": "completed" }
+    {
+      "id": "phase-0",
+      "name": "Intake and Canonical Specs",
+      "status": "completed",
+      "gate": "SPEC-001..004 exist and ACTIVE.md points to them"
+    },
+    {
+      "id": "phase-1",
+      "name": "Security and Drift Cleanup",
+      "status": "running",
+      "gate": "No real secrets in docs/tasks and runtime drift list recorded"
+    },
+    {
+      "id": "phase-2",
+      "name": "Hermes Control Runtime",
+      "status": "queued",
+      "gate": "homelab-control skill and CLI adapters implemented"
+    },
+    {
+      "id": "phase-3",
+      "name": "Memory RAG LLM Consistency",
+      "status": "queued",
+      "gate": "embedding dimension and health checks consistent"
+    },
+    {
+      "id": "phase-4",
+      "name": "Verification and Ship",
+      "status": "queued",
+      "gate": "checks pass or Gitea issue opened with exact blockers"
+    }
   ],
-  "all_criteria_pass": true,
-  "completed": "2026-04-20T00:00:00Z",
-  "version": "3-phase-v1"
+  "queue": [
+    {
+      "id": "HCP-P0-001",
+      "priority": "P0",
+      "phase": "phase-1",
+      "title": "Redact real secrets from specs/tasks/docs",
+      "status": "done",
+      "owner": "codex",
+      "paths": [
+        "docs/SPECS",
+        "docs/API_GATEWAY_ARCHITECTURE.md",
+        "tasks/agent-states/UPDATE-DOTENV-CANONICAL.json"
+      ],
+      "depends_on": [],
+      "acceptance": [
+        "No real secret values in Markdown or task JSON",
+        "Docs reference env var names only"
+      ]
+    },
+    {
+      "id": "HCP-P0-002",
+      "priority": "P0",
+      "phase": "phase-0",
+      "title": "Canonicalize active SPECs to SPEC-001..004",
+      "status": "done",
+      "owner": "codex",
+      "paths": [
+        "docs/SPECS/ACTIVE.md",
+        "docs/SPECS/SPEC-001-homelab-control-plane.md",
+        "docs/SPECS/SPEC-002-hermes-agent-runtime.md",
+        "docs/SPECS/SPEC-003-memory-rag-llm-stack.md",
+        "docs/SPECS/SPEC-004-autonomous-execution-pipeline.md"
+      ],
+      "depends_on": [],
+      "acceptance": [
+        "Minimal active spec set exists",
+        "Legacy specs are classified as historical or implementation notes"
+      ]
+    },
+    {
+      "id": "HCP-P0-003",
+      "priority": "P0",
+      "phase": "phase-3",
+      "title": "Fix embedding dimension drift",
+      "status": "queued",
+      "owner": "hermes-worker",
+      "paths": [
+        ".env.example",
+        "apps/hermes-agency/src/mem0/embeddings.ts",
+        "apps/hermes-agency/src/qdrant/client.ts",
+        "apps/hermes-agency/src/__tests__"
+      ],
+      "depends_on": [
+        "HCP-P0-002"
+      ],
+      "acceptance": [
+        "QDRANT_VECTOR_DIM, LITELLM_EMBEDDING_DIM, and code constants match",
+        "Collection creation rejects mismatched vector sizes"
+      ]
+    },
+    {
+      "id": "HCP-P0-004",
+      "priority": "P0",
+      "phase": "phase-2",
+      "title": "Add Hermes homelab-control route and skill",
+      "status": "queued",
+      "owner": "hermes-worker",
+      "paths": [
+        "apps/hermes-agency/src/router/agency_router.ts",
+        "apps/hermes-agency/src/skills/index.ts",
+        "apps/hermes-agency/src/skills/tool_registry.ts"
+      ],
+      "depends_on": [
+        "HCP-P0-002"
+      ],
+      "acceptance": [
+        "Ops/control-plane prompts route to homelab-control",
+        "Marketing agency gates do not block normal ops tasks"
+      ]
+    },
+    {
+      "id": "HCP-P0-005",
+      "priority": "P0",
+      "phase": "phase-2",
+      "title": "Add CLI adapter tools",
+      "status": "queued",
+      "owner": "hermes-worker",
+      "paths": [
+        "apps/hermes-agency/src/skills/tool_registry.ts",
+        "apps/hermes-agency/src/skills/index.ts",
+        "tasks/runs"
+      ],
+      "depends_on": [
+        "HCP-P0-004"
+      ],
+      "acceptance": [
+        "Adapters exist for codex, claude, mclaude, opencode-go-cli, and opencode",
+        "Each adapter records command, cwd, exit code, and log path"
+      ]
+    },
+    {
+      "id": "HCP-P0-006",
+      "priority": "P0",
+      "phase": "phase-2",
+      "title": "Repair Plan Mode Phase 0",
+      "status": "queued",
+      "owner": "hermes-worker",
+      "paths": [
+        "scripts/plan-mode.sh",
+        "docs/SPECS/SPEC-004-autonomous-execution-pipeline.md"
+      ],
+      "depends_on": [
+        "HCP-P0-003"
+      ],
+      "acceptance": [
+        "No placeholder JSON vector syntax remains",
+        "Phase 0 either uses real embeddings or logs an explicit degraded skip"
+      ]
+    },
+    {
+      "id": "HCP-P0-007",
+      "priority": "P0",
+      "phase": "phase-1",
+      "title": "Normalize Hermes port docs",
+      "status": "queued",
+      "owner": "docs-worker",
+      "paths": [
+        "AGENTS.md",
+        "docs/ARCHITECTURE-OVERVIEW.md",
+        "docs/HERMES-OPS.md",
+        "docs/SPECS/SPEC-001-homelab-control-plane.md"
+      ],
+      "depends_on": [
+        "HCP-P0-002"
+      ],
+      "acceptance": [
+        "Hermes Gateway 8642 and Hermes Agency 3001 are not conflated",
+        "Reserved ports remain documented"
+      ]
+    },
+    {
+      "id": "HCP-P0-008",
+      "priority": "P0",
+      "phase": "phase-2",
+      "title": "Boot Hermes Agency runtime",
+      "status": "queued",
+      "owner": "hermes-worker",
+      "paths": [
+        "apps/hermes-agency/src/index.ts",
+        "apps/hermes-agency/src/telegram/bot.ts",
+        "apps/hermes-agency/Dockerfile",
+        "scripts/deploy-hermes-agency.sh"
+      ],
+      "depends_on": [
+        "HCP-P0-004"
+      ],
+      "acceptance": [
+        "Bot startup path is explicit: polling or webhook",
+        "Hermes Agency exposes health on HERMES_AGENCY_PORT",
+        "Deploy path has Dockerfile/compose or documented systemd unit"
+      ]
+    },
+    {
+      "id": "HCP-P0-009",
+      "priority": "P0",
+      "phase": "phase-1",
+      "title": "Normalize env var names used by code/docs",
+      "status": "queued",
+      "owner": "docs-worker",
+      "paths": [
+        ".env.example",
+        "apps/hermes-agency/src/telegram/bot.ts",
+        "apps/ai-gateway/src/routes/audio-transcriptions.ts",
+        "docs/API_GATEWAY_ARCHITECTURE.md",
+        "docs/HERMES-OPS.md"
+      ],
+      "depends_on": [
+        "HCP-P0-001"
+      ],
+      "acceptance": [
+        "Webhook env var name is consistent or backward-compatible aliases are documented",
+        "STT env var name is consistent between ai-gateway code, compose, and docs"
+      ]
+    },
+    {
+      "id": "HCP-P0-010",
+      "priority": "P0",
+      "phase": "phase-2",
+      "title": "Enforce tool registry implementation coverage",
+      "status": "queued",
+      "owner": "hermes-worker",
+      "paths": [
+        "apps/hermes-agency/src/skills/index.ts",
+        "apps/hermes-agency/src/skills/tool_registry.ts",
+        "apps/hermes-agency/src/__tests__"
+      ],
+      "depends_on": [
+        "HCP-P0-004"
+      ],
+      "acceptance": [
+        "P0 skill tools are implemented or explicitly marked unavailable",
+        "Tests fail when active skills reference missing required tools"
+      ]
+    },
+    {
+      "id": "HCP-P1-001",
+      "priority": "P1",
+      "phase": "phase-2",
+      "title": "Add Coolify adapter health/deploy/status actions",
+      "status": "queued",
+      "owner": "hermes-worker",
+      "paths": [
+        "apps/hermes-agency/src/skills/tool_registry.ts"
+      ],
+      "depends_on": [
+        "HCP-P0-005"
+      ],
+      "acceptance": [
+        "Coolify calls use COOLIFY_URL and COOLIFY_API_KEY from env",
+        "No Coolify token is logged"
+      ]
+    },
+    {
+      "id": "HCP-P1-002",
+      "priority": "P1",
+      "phase": "phase-4",
+      "title": "Add queue runner for tasks/pipeline.json",
+      "status": "queued",
+      "owner": "pipeline-worker",
+      "paths": [
+        "scripts/pipeline-helpers",
+        "tasks/pipeline.json"
+      ],
+      "depends_on": [
+        "HCP-P0-005"
+      ],
+      "acceptance": [
+        "One command claims the next queued task",
+        "Result is written back to pipeline state"
+      ]
+    },
+    {
+      "id": "HCP-P1-003",
+      "priority": "P1",
+      "phase": "phase-3",
+      "title": "Add RAG health endpoint/check",
+      "status": "queued",
+      "owner": "hermes-worker",
+      "paths": [
+        "apps/hermes-agency/src/index.ts",
+        "apps/hermes-agency/src/skills/rag-instance-organizer.ts"
+      ],
+      "depends_on": [
+        "HCP-P0-003"
+      ],
+      "acceptance": [
+        "Health output shows Qdrant, Trieve, Ollama embedding, and Mem0 degraded/ok state"
+      ]
+    }
+  ],
+  "blocked_on": [],
+  "notes": [
+    "Old SPEC-090 3-phase model is retained as a useful idea, not active implementation truth.",
+    "Old SPEC-120/121/122 are incident notes; do not copy secrets or runtime values from them.",
+    "Hermes agents should use typed CLI/API adapters, not untracked shell prompts."
+  ]
 }

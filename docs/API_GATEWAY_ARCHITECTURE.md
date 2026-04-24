@@ -59,7 +59,7 @@ All services run behind Cloudflare Tunnel with no direct IP exposure. External a
 **Environment:**
 ```env
 HERMES_AGENCY_PORT=3001
-HERMES_API_KEY=692be95d8a6b1a877d815415ea1f88f81cc1fc63db6410427602125155e75b5a
+HERMES_API_KEY=<redacted: source .env>
 HERMES_WEBHOOK_URL=https://hermes-agency.zappro.site/webhook
 ```
 
@@ -111,7 +111,7 @@ const valid = timingSafeEqual(Buffer.from(token.padEnd(key.length)), Buffer.from
 **Environment:**
 ```env
 AI_GATEWAY_PORT=4002
-AI_GATEWAY_FACADE_KEY=b361f14412042cc92710591923feffd5c3af32fc5ecc23a6402dbf953aed39ee
+AI_GATEWAY_FACADE_KEY=<redacted: source .env>
 OLLAMA_URL=http://localhost:11434
 STT_PROXY_URL=http://localhost:8204
 LITELLM_URL=http://localhost:4000/v1
@@ -133,7 +133,7 @@ LITELLM_URL=http://localhost:4000/v1
 ```env
 LITELLM_PORT=4000
 LITELLM_HOST=0.0.0.0
-LITELLM_MASTER_KEY=sk-zappro-lm-2026-s8k3m9x2p7r6t5w1v4c8n0d5j7f9g3h6i2k4l6m8n0p1
+LITELLM_MASTER_KEY=<redacted: source .env>
 LITELLM_MODEL_LIST=embedding-nomic,Gemma4-12b-it,qwen2.5vl:3b
 LITELLM_EMBEDDING_MODEL=embedding-nomic
 LITELLM_DROP_params=True
@@ -146,12 +146,12 @@ LITELLM_DROP_params=True
 
 **Provider Keys:**
 ```env
-OPEN_AI_KEY=sk-proj-...
-GROQ_API_KEY=gsk_...
-OPENROUTER_API_KEY=sk-or-v1-...
-OPENCODE_API_KEY=sk-nQ5r...
-HF_TOKEN=hf_...
-MINIMAX_API_KEY=sk-cp-...
+OPEN_AI_KEY=<redacted: source .env>
+GROQ_API_KEY=<redacted: source .env>
+OPENROUTER_API_KEY=<redacted: source .env>
+OPENCODE_API_KEY=<redacted: source .env>
+HF_TOKEN=<redacted: source .env>
+MINIMAX_API_KEY=<redacted: source .env>
 ```
 
 ---
@@ -172,15 +172,15 @@ MINIMAX_API_KEY=sk-cp-...
 **Environment:**
 ```env
 HERMES_GATEWAY_URL=http://127.0.0.1:8642
-HERMES_API_KEY=692be95d8a6b1a877d815415ea1f88f81cc1fc63db6410427602125155e75b5a
+HERMES_API_KEY=<redacted: source .env>
 ```
 
 **Telegram Bot Tokens:**
 ```env
-HERMES_AGENCY_BOT_TOKEN=8759194670:AAGH...  # @CEO_REFRIMIX_bot (Agent Lider)
-EDITOR_SOCIAL_BOT_TOKEN=8740522933:AAEk...  # @editor_social_bot
-ATHLOS_BOT_TOKEN=8723373013:AAHD...          # @Athlos_Life_bot
-HOMELAB_LOGS_BOT_TOKEN=8738372904:AAEI...   # @HOMELAB_LOGS_bot
+HERMES_AGENCY_BOT_TOKEN=<redacted: source .env>  # @CEO_REFRIMIX_bot (Agent Lider)
+EDITOR_SOCIAL_BOT_TOKEN=<redacted: source .env>  # @editor_social_bot
+ATHLOS_BOT_TOKEN=<redacted: source .env>          # @Athlos_Life_bot
+HOMELAB_LOGS_BOT_TOKEN=<redacted: source .env>   # @HOMELAB_LOGS_bot
 ```
 
 **Webhook Configuration:**
@@ -207,7 +207,7 @@ HERMES_WEBHOOK_URL=https://hermes-agency.zappro.site/webhook
 cloudflare_tunnel_name=will-zappro-homelab
 cloudflare_tunnel_id=aee7a93d-c2e2-4c77-a395-71edc1821402
 cloudflare_tunnel_cname=aee7a93d-c2e2-4c77-a395-71edc1821402.cfargotunnel.com
-cloudflare_tunnel_secret=lj9karoiz7aj4Hm8yoR8O3HXvcgi8xAr
+cloudflare_tunnel_secret=<redacted: source .env>
 ```
 
 **Services Exposed via Tunnel:**
@@ -350,8 +350,8 @@ Hermes Agency (:3001)
 **Grafana:** `https://grafana.zappro.site`
 ```env
 GRAFANA_URL=https://grafana.zappro.site
-GRAFANA_ADMIN_PASSWORD=AureliaSOTA2026!
-GRAFANA_SERVICE_ACCOUNT_TOKEN=glsa_YtplRI7ir06s4D45PCAS9Pm31AgxHwRkka8zuH1b9k
+GRAFANA_ADMIN_PASSWORD=<redacted: source .env>
+GRAFANA_SERVICE_ACCOUNT_TOKEN=<redacted: source .env>
 ```
 
 **Metrics (Future):**
@@ -385,16 +385,16 @@ GRAFANA_SERVICE_ACCOUNT_TOKEN=glsa_YtplRI7ir06s4D45PCAS9Pm31AgxHwRkka8zuH1b9k
 ```env
 # AI Gateway
 AI_GATEWAY_PORT=4002
-AI_GATEWAY_FACADE_KEY=<secret>
+AI_GATEWAY_FACADE_KEY=<redacted: source .env>
 
 # Hermes Agency
 HERMES_AGENCY_PORT=3001
-HERMES_API_KEY=<secret>
+HERMES_API_KEY=<redacted: source .env>
 HERMES_WEBHOOK_URL=https://hermes-agency.zappro.site/webhook
 
 # LiteLLM
 LITELLM_PORT=4000
-LITELLM_MASTER_KEY=<secret>
+LITELLM_MASTER_KEY=<redacted: source .env>
 LITELLM_MODEL_LIST=Gemma4-12b-it,qwen2.5vl:3b,embedding-nomic
 
 # Hermes Gateway

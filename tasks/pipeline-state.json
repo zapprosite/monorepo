@@ -1,10 +1,16 @@
 {
-	"currentState": "IN_PROGRESS",
-	"lintPassed": false,
-	"lastCheckpoint": "2026-04-18T12:00:00-03:00",
-	"specsInPipeline": ["SPEC-058", "SPEC-059", "SPEC-060", "SPEC-061", "SPEC-067", "SPEC-071"],
-	"totalTasksInPipeline": 45,
-	"pendingTasks": 7,
-	"completedTasks": 38,
-	"notes": "SPEC-071 IN_PROGRESS: Enterprise Monorepo Datacenter Architecture. 7 domains: V1(VERSION-LOCK), V2(ORCH-v2), V3(OBSERVABILITY), V4(ROLLBACK), V5(CAPACITY), V6(COST), V7(RUNBOOKS). 7 new tasks added to pipeline.json."
+  "currentState": "RUNNING",
+  "pipeline": "HCP-20260424-control-plane",
+  "lastCheckpoint": "2026-04-24T00:00:00-03:00",
+  "specsInPipeline": [
+    "SPEC-001",
+    "SPEC-002",
+    "SPEC-003",
+    "SPEC-004"
+  ],
+  "totalTasksInPipeline": 13,
+  "pendingTasks": 11,
+  "inProgressTasks": 0,
+  "completedTasks": 2,
+  "notes": "Canonical control-plane queue for Hermes-driven homelab operations. Legacy SPEC-058..135 pipeline state is superseded and should not drive active work unless re-queued."
 }

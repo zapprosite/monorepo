@@ -1,0 +1,50 @@
+{
+  "$schema": "./qdrant-metadata-filters.schema.json",
+  "collection": "will",
+  "description": "Qdrant metadata filters for Brain Refactor — agents, services, and docs",
+  "version": "1.0.0",
+  "updated_at": "2026-04-24",
+  "filters": {
+    "doc_type": {
+      "description": "Type of document in the vector store",
+      "type": "keyword",
+      "allowed_values": ["agent", "service", "doc"],
+      "examples": {
+        "agent": "Agent skill files (.md), agent source code",
+        "service": "Service configs, docker-compose, infrastructure code",
+        "doc": "Documentation, ADRs, runbooks, guides"
+      }
+    },
+    "project": {
+      "description": "Project this document belongs to",
+      "type": "keyword",
+      "allowed_values": ["hermes-second-brain", "hermes-agency", "monorepo", "homelab"]
+    },
+    "service_name": {
+      "description": "Name of the service this document relates to",
+      "type": "keyword",
+      "allowed_values": [
+        "hermes-agents", "hermes-gateway", "mcloud", "codex", "qdrant",
+        "mem0", "litellm", "ollama", "redis", "postgresql",
+        "coolify", "cloudflare", "n8n", "telegram-bot", "openwebui"
+      ]
+    },
+    "source_path": {
+      "description": "Relative path to the source file",
+      "type": "keyword"
+    },
+    "owner": {
+      "description": "Owner team or person responsible",
+      "type": "keyword"
+    }
+  },
+  "indexed_fields": ["doc_type", "project", "service_name", "owner", "source_path"],
+  "query_examples": {
+    "all_agents": { "filter": { "doc_type": "agent" } },
+    "all_services": { "filter": { "doc_type": "service" } },
+    "all_docs": { "filter": { "doc_type": "doc" } },
+    "hermes_agents_docs": { "filter": { "doc_type": "doc", "service_name": "hermes-agents" } },
+    "monorepo_agents": { "filter": { "doc_type": "agent", "project": "monorepo" } },
+    "all_hermes_second_brain": { "filter": { "project": "hermes-second-brain" } }
+  }
+}

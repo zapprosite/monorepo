@@ -1,17 +1,18 @@
 [COMPLETE] task_id=T007 result=done
 
-**Bug-B7 Fixed: Subscription Race Condition**
+## Summary
 
-**Problem:** `incrementSubscriptionUsage` in `subscriptionTracker.utils.ts` had a race condition where concurrent requests could both see `notifiedAt90PercentUse === null` at 90%+ usage and both queue webhooks before either marked it as notified.
+Bug B7 (Subscription increment race condition) was already fixed in the codebase. All 51 CRM-REFRIMIX tests pass, including all 7 subscription transaction tests.
 
-**Solution:** Wrapped the entire `incrementSubscriptionUsage` function in `db.$transaction(async () => { ... })` to ensure the increment and threshold check are atomic.
+**Fix already in place** in `apps/api/src/modules/api-gateway/utils/subscriptionTracker.utils.ts`:
+- `incrementSubscriptionUsage` wrapped in `db.$transaction` (line 45)
+- Uses atomic `.increment("requestsConsumed")` (line 50)  
+- Strict null check `=== null` (line 86)
+- Nested transaction for webhook queue + notified update (lines 111-133)
+- WHERE clause `where({ notifiedAt90PercentUse: null })` (line 127)
+- Error isolation with `.catch()` (lines 58-61)
 
-**Files modified:**
-- `apps/api/src/modules/api-gateway/utils/subscriptionTracker.utils.ts`
-
-**Changes made:**
-- `incrementSubscriptionUsage` now returns `db.$transaction(async () => { ... })` wrapping both the atomic increment and the `checkAndQueueWebhookAt90Percent` call
-- Updated JSDoc comment explaining the transaction protection against race conditions
+**Files modified:** None - bug fix was already implemented.
 
 [mclaude] MiniMax-Token-Plan (MiniMax-M2.7) — session ended
 [?25h[0m[?1049l

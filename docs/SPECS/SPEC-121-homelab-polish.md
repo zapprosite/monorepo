@@ -12,8 +12,8 @@ O homelab tem múltiplos problemas identificados:
 ## Estado Actual (antes do polish)
 
 ### .env corrigido (2026-04-23)
-- `MINIMAX_API_KEY` → `sk-cp-uA1oy3YNYtSe...` ✅
-- `QDRANT_API_KEY` → `71cae77676e2a5fd...` ✅
+- `MINIMAX_API_KEY` → presente em `.env` ✅
+- `QDRANT_API_KEY` → presente em `.env` ✅
 
 ### Container env vars (reais)
 | Container | QDRANT_API_KEY | OLLAMA_URL |
@@ -43,7 +43,7 @@ Diagnosticar e corrigir network isolation do LiteLLM. O container não consegue 
 Testar `POST /v1/embeddings` no LiteLLM. Verificar se funciona com OpenRouter fallback ou se continua hanging.
 
 ### Agent 4: VERIFY-QDRANT-CONNECTIVITY
-Confirmar que `71cae77676e2a5fd552d172caa1c3200` é a API key correcta e Qdrant responde.
+Confirmar que `QDRANT_API_KEY` da `.env` é aceite pelo Qdrant e responde.
 
 ### Agent 5: CHECK-MCP-MEMORY
 Ver logs do mcp-memory, confirmar erros de embedding, verificar conectividade a Qdrant e LiteLLM.

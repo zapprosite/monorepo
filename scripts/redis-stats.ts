@@ -9,7 +9,8 @@ import Redis from 'ioredis';
 
 const REDIS_HOST = process.env['REDIS_HOST'] ?? 'zappro-redis';
 const REDIS_PORT = parseInt(process.env['REDIS_PORT'] ?? '6379', 10);
-const REDIS_PASSWORD = process.env['REDIS_PASSWORD'] ?? 'Fifine156458*';
+const REDIS_PASSWORD=process.env['REDIS_PASSWORD'];
+if (!REDIS_PASSWORD) throw new Error("REDIS_PASSWORD not set in environment");
 
 const PATTERNS = [
   'ratelimit:*',

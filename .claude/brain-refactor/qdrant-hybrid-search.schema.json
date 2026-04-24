@@ -1,0 +1,79 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Qdrant Hybrid Search Configuration Schema",
+  "description": "Schema for Qdrant hybrid search configuration (dense vectors + BM25 sparse vectors)",
+  "required": ["collection", "strategy", "components"],
+  "properties": {
+    "collection": {
+      "type": "string",
+      "description": "Target Qdrant collection name"
+    },
+    "strategy": {
+      "type": "string",
+      "enum": ["hybrid", "semantic_only", "keyword_only"],
+      "description": "Search strategy"
+    },
+    "components": {
+      "type": "object",
+      "required": ["dense_vectors", "sparse_vectors"],
+      "properties": {
+        "dense_vectors": {
+          "type": "object",
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "config": {
+              "type": "object",
+              "properties": {
+                "vector_size": { "type": "integer" },
+                "distance": { "type": "string", "enum": ["Cosine", "Dot", "Euclid"] },
+                "hnsw_config": {
+                  "type": "object",
+                  "properties": {
+                    "m": { "type": "integer" },
+                    "ef_construct": { "type": "integer" },
+                    "full_scan_threshold": { "type": "integer" }
+                  }
+                }
+              }
+            },
+            "model": { "type": "string" }
+          }
+        },
+        "sparse_vectors": {
+          "type": "object",
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "config": {
+              "type": "object",
+              "properties": {
+                "algorithm": { "type": "string", "enum": ["BM25", "TF-IDF"] },
+                "bm25_parameters": {
+                  "type": "object",
+                  "properties": {
+                    "k1": { "type": "number" },
+                    "b": { "type": "number" },
+                    "on": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "search_modes": {
+      "type": "object",
+      "properties": {
+        "hybrid": {
+          "type": "object",
+          "properties": {
+            "fusion_algorithm": { "type": "string" },
+            "rrf_k": { "type": "integer" },
+            "alpha": { "type": "number", "minimum": 0, "maximum": 1 }
+          }
+        }
+      }
+    }
+  }
+}

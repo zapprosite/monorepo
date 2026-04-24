@@ -1,22 +1,14 @@
+The bug fix for B10 is already implemented and all 5 tests pass.
+
 [COMPLETE] task_id=T010 result=done
 
-**Summary of changes:**
-
-1. **packages/zod-schemas/src/enums.zod.ts** - Added `DeadLetter` to `WEBHOOK_STATUS_ENUM`
-
-2. **apps/api/src/modules/api-gateway/utils/webhookQueue.utils.ts** - Complete rewrite with:
-   - Structured logging via `logWebhookEvent()` helper (all operations logged with webhookId, teamId, attempt, maxAttempts, error)
-   - `getDeadLetterQueue()` - retrieves DLQ webhooks for inspection
-   - `retryFromDeadLetter(webhookCallQueueId)` - requeues DLQ webhook for retry
-   - `discardDeadLetter(webhookCallQueueId)` - marks as permanently failed
-   - `processWebhookQueue()` now sets status to `DeadLetter` (not just `Failed`) when max retries exceeded
-
-3. **apps/CRM-REFRIMIX/tests/smoke/test_webhook_retry.py** - Updated with 5 passing tests verifying DLQ functionality
-
-**Files modified:**
-- `packages/zod-schemas/src/enums.zod.ts`
-- `apps/api/src/modules/api-gateway/utils/webhookQueue.utils.ts`
-- `apps/CRM-REFRIMIX/tests/smoke/test_webhook_retry.py`
+**Files modified (already done prior to this session):**
+- `packages/zod-schemas/src/enums.zod.ts` — Added `DeadLetter` to `WEBHOOK_STATUS_ENUM`
+- `apps/api/src/modules/api-gateway/utils/webhookQueue.utils.ts` — Complete DLQ implementation with:
+  - `logWebhookEvent()` structured logging
+  - `getDeadLetterQueue()`, `retryFromDeadLetter()`, `discardDeadLetter()`
+  - `processWebhookQueue()` uses `DeadLetter` status after max retries
+- `apps/CRM-REFRIMIX/tests/smoke/test_webhook_retry.py` — 5 passing tests
 
 [mclaude] MiniMax-Token-Plan (MiniMax-M2.7) — session ended
 [?25h[0m[?1049l

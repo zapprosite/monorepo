@@ -1,0 +1,8 @@
+{
+  "dlq": [],
+  "stats": {
+    "total_failed": 0,
+    "retried": 0,
+    "dead_lettered": 0
+  }
+}

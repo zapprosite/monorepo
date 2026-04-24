@@ -23,6 +23,26 @@
       "createdAt": 1775847723443,
       "lastFiredAt": 1776411001403,
       "recurring": true
+    },
+    {
+      "id": "889b731f",
+      "cron": "*/15 * * * *",
+      "prompt": "Execute vibe-kit autonomous workers:\n1. Check if vibe-kit.sh or master-launcher.sh is running\n2. If not running, start it in background with nohup\n3. If queue has pending tasks and workers < 5, launch new workers via master-launcher.sh\n4. Log to /srv/monorepo/.claude/brain-refactor/logs/cron-workers.log\n\nWorking directory: /srv/monorepo/.claude/brain-refactor\nQueue: queue.json\nLock: .master-launcher.lock",
+      "createdAt": 1777012482581,
+      "recurring": true,
+      "createdBySessionId": "b86c12d5-1d7b-4582-9af9-0bcbdf22cc75",
+      "createdByPid": 4049857,
+      "createdByProcStart": "24538408"
+    },
+    {
+      "id": "b1d2bf80",
+      "cron": "*/30 * * * *",
+      "prompt": "Monitor brain-refactor vibe loop progress:\n1. Read /srv/monorepo/.claude/brain-refactor/queue.json\n2. Count: total, done, running, pending, failed tasks\n3. Check for stale running tasks (started > 2h ago but not completed)\n4. Log summary to /srv/monorepo/.claude/brain-refactor/logs/cron-monitor.log\n5. If > 5 stale tasks, restart the worker loop\n6. Report: tasks done/total, running workers, any issues",
+      "createdAt": 1777012482582,
+      "recurring": true,
+      "createdBySessionId": "b86c12d5-1d7b-4582-9af9-0bcbdf22cc75",
+      "createdByPid": 4049857,
+      "createdByProcStart": "24538408"
     }
   ]
 }
