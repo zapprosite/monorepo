@@ -140,7 +140,7 @@ describe('LiteLLM Proxy', () => {
 
 ```bash
 cd /srv/monorepo/apps/hermes-gateway
-HERMES_AGENCY_BOT_TOKEN=... QDRANT_API_KEY=... bun test 2>&1 | tail -20
+QDRANT_API_KEY=... bun test 2>&1 | tail -20
 ```
 
 **Meta:** 0 failures

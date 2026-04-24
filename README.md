@@ -97,8 +97,8 @@ DATABASE_URL=postgresql://user:pass@localhost:5432/monorepo
 LITELLM_API_KEY=your-key
 LITELLM_MASTER_KEY=your-master-key
 
-# Hermes Agency
-HERMES_AGENCY_URL=http://localhost:8642
+# Hermes Gateway
+HERMES_GATEWAY_URL=http://localhost:8642
 
 # Qdrant
 QDRANT_URL=http://localhost:6333
@@ -140,12 +140,6 @@ monorepo/
 └─────────────────────────────────────────────────────────┘
                             │
                             ▼
-┌─────────────────────────────────────────────────────────┐
-│                   Hermes Agency                          │
-│  ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌─────────┐      │
-│  │Creative │  │ Social  │  │Analytics│  │Onboard. │ ...  │
-│  └─────────┘  └─────────┘  └─────────┘  └─────────┘      │
-└─────────────────────────────────────────────────────────┘
                             │
             ┌───────────────┼───────────────┐
             ▼               ▼               ▼

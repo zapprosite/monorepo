@@ -52,7 +52,6 @@ All canonical in `/srv/monorepo/.env`:
 - ✅ MINIMAX_API_KEY = present in `.env`
 - ✅ QDRANT_API_KEY = present in `.env`
 - ✅ COOLIFY_API_KEY = present in `.env`
-- ✅ HERMES_AGENCY_BOT_TOKEN = present in `.env`
 
 ## Soluções Implementadas
 
