@@ -4,6 +4,8 @@
 // Ollama is NOT used for text — only for Vision (qwen2.5vl:7b) and STT (whisper-1)
 // See bot.ts for Vision/STT which use Ollama directly
 
+import { fetchClient } from '../utils/fetch-client.js';
+
 const MINIMAX_API_KEY = process.env['MINIMAX_API_KEY'] ?? '';
 const MINIMAX_API_BASE = process.env['MINIMAX_API_BASE'] ?? 'https://api.minimax.io/anthropic/v1';
 
@@ -60,7 +62,7 @@ async function callMinimax(
 		Authorization: `Bearer ${MINIMAX_API_KEY}`,
 	};
 
-	const response = await fetch(llm.url, {
+	const response = await fetchClient(llm.url, {
 		method: 'POST',
 		headers,
 		signal: AbortSignal.timeout(60000),

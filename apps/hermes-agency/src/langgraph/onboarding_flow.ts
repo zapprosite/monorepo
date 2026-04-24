@@ -4,6 +4,7 @@
 
 import { bot } from '../telegram/bot.js';
 import { COLLECTIONS } from '../qdrant/client.js';
+import { fetchClient } from '../utils/fetch-client.js';
 
 const QDRANT_URL = process.env['QDRANT_URL'] ?? 'http://localhost:6333';
 const CHECKIN_DAYS = 7;
@@ -73,7 +74,7 @@ export async function executeOnboardingFlow(
 async function createClientProfile(state: OnboardingState): Promise<boolean> {
   console.log(`[Onboarding] Creating profile for ${state.clientName}`);
   try {
-    const res = await fetch(`${QDRANT_URL}/collections/${COLLECTIONS.CLIENTS}/points`, {
+    const res = await fetchClient(`${QDRANT_URL}/collections/${COLLECTIONS.CLIENTS}/points`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -111,7 +112,7 @@ async function initQdrantCollection(state: OnboardingState): Promise<boolean> {
   try {
     // Create a client-specific sub-collection using namespace prefix
     const clientCollectionName = `agency_client_${state.clientId}`;
-    const res = await fetch(`${QDRANT_URL}/collections/${clientCollectionName}`, {
+    const res = await fetchClient(`${QDRANT_URL}/collections/${clientCollectionName}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -171,7 +172,7 @@ async function createFirstMilestone(state: OnboardingState): Promise<boolean> {
     const checkinDate = new Date();
     checkinDate.setDate(checkinDate.getDate() + CHECKIN_DAYS);
 
-    const res = await fetch(`${QDRANT_URL}/collections/${COLLECTIONS.TASKS}/points`, {
+    const res = await fetchClient(`${QDRANT_URL}/collections/${COLLECTIONS.TASKS}/points`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -214,7 +215,7 @@ async function scheduleCheckin(state: OnboardingState): Promise<boolean> {
 
     // Store checkin reminder in agency_tasks collection
     const checkinTaskId = `checkin-${Date.now()}`;
-    const res = await fetch(`${QDRANT_URL}/collections/${COLLECTIONS.TASKS}/points`, {
+    const res = await fetchClient(`${QDRANT_URL}/collections/${COLLECTIONS.TASKS}/points`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

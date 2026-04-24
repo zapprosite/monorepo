@@ -4,6 +4,7 @@
 
 import { llmComplete } from '../litellm/router.js';
 import { COLLECTIONS } from '../qdrant/client.js';
+import { fetchClient } from '../utils/fetch-client.js';
 
 export type SocialCalendarState = {
   scheduledPosts: Array<{ platform: string; content: string; scheduledTime: string }>;
@@ -57,7 +58,7 @@ async function scrapeCalendar(): Promise<
       };
       if (nextPageId) body['scroll_id'] = nextPageId;
 
-      const res = await fetch(`${QDRANT_URL}/collections/${COLLECTIONS.CAMPAIGNS}/points/scroll`, {
+      const res = await fetchClient(`${QDRANT_URL}/collections/${COLLECTIONS.CAMPAIGNS}/points/scroll`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),

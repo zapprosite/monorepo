@@ -5,6 +5,7 @@
 import { llmComplete } from '../litellm/router.js';
 import { COLLECTIONS } from '../qdrant/client.js';
 import { bot } from '../telegram/bot.js';
+import { fetchClient } from '../utils/fetch-client.js';
 
 const QDRANT_URL = process.env['QDRANT_URL'] ?? 'http://localhost:6333';
 
@@ -36,7 +37,7 @@ export async function executeStatusUpdate(): Promise<StatusUpdateState> {
 
 async function fetchActiveCampaigns(): Promise<string[]> {
   try {
-    const response = await fetch(`${QDRANT_URL}/collections/${COLLECTIONS.CAMPAIGNS}/points/scroll`, {
+    const response = await fetchClient(`${QDRANT_URL}/collections/${COLLECTIONS.CAMPAIGNS}/points/scroll`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -76,7 +77,7 @@ async function fetchAllMetrics(campaignIds: string[]): Promise<Record<string, un
 
   try {
     // Fetch all campaign records in one scroll (no filter) and extract metrics
-    const response = await fetch(`${QDRANT_URL}/collections/${COLLECTIONS.CAMPAIGNS}/points/scroll`, {
+    const response = await fetchClient(`${QDRANT_URL}/collections/${COLLECTIONS.CAMPAIGNS}/points/scroll`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -144,7 +145,7 @@ async function broadcastToClients(report: string): Promise<boolean> {
 
   // Step 1: Fetch all client chat_ids from Qdrant agency_clients
   try {
-    const response = await fetch(`${QDRANT_URL}/collections/${COLLECTIONS.CLIENTS}/points/scroll`, {
+    const response = await fetchClient(`${QDRANT_URL}/collections/${COLLECTIONS.CLIENTS}/points/scroll`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

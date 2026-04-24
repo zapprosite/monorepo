@@ -1,6 +1,8 @@
 // Anti-hardcoded: all config via process.env
 // Embeddings Client — Ollama nomic-embed-text integration
 
+import { fetchClient } from '../utils/fetch-client.js';
+
 const OLLAMA_URL = process.env['OLLAMA_URL'] ?? 'http://localhost:11434';
 const EMBED_MODEL = process.env['OLLAMA_EMBED_MODEL'] ?? 'nomic-embed-text';
 const EMBED_DIMENSION = 1024; // nomic-embed-text dimension
@@ -16,7 +18,7 @@ export interface EmbeddingResult {
  */
 export async function generateEmbedding(text: string): Promise<number[]> {
   try {
-    const response = await fetch(`${OLLAMA_URL}/api/embeddings`, {
+    const response = await fetchClient(`${OLLAMA_URL}/api/embeddings`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

@@ -2,6 +2,8 @@
 // Qdrant Client — Multi-tenant collections for Hermes Agency Suite
 /* eslint-disable no-console */
 
+import { fetchClient } from '../utils/fetch-client.js';
+
 const QDRANT_URL = process.env['QDRANT_URL'] ?? 'http://localhost:6333';
 const QDRANT_API_KEY = process.env['QDRANT_API_KEY'] ?? '';
 
@@ -93,7 +95,7 @@ export const COLLECTION_SCHEMAS: CollectionSchema[] = [
 
 export async function createCollectionIfNotExists(name: CollectionName): Promise<boolean> {
   try {
-    const existsRes = await fetch(`${QDRANT_URL}/collections/${name}`, { headers: QDRANT_HEADERS });
+    const existsRes = await fetchClient(`${QDRANT_URL}/collections/${name}`, { headers: QDRANT_HEADERS });
     if (existsRes.ok) {
       const exists = (await existsRes.json()) as { result?: { exists?: boolean } };
       if (exists.result?.exists) {
@@ -103,7 +105,7 @@ export async function createCollectionIfNotExists(name: CollectionName): Promise
     }
 
     // Create collection
-    const createRes = await fetch(`${QDRANT_URL}/collections/${name}`, {
+    const createRes = await fetchClient(`${QDRANT_URL}/collections/${name}`, {
       method: 'PUT',
       headers: QDRANT_HEADERS,
       body: JSON.stringify({
@@ -181,7 +183,7 @@ export async function upsertVector({
   payload,
 }: UpsertParams): Promise<boolean> {
   try {
-    const res = await fetch(`${QDRANT_URL}/collections/${collection}/points`, {
+    const res = await fetchClient(`${QDRANT_URL}/collections/${collection}/points`, {
       method: 'PUT',
       headers: QDRANT_HEADERS,
       body: JSON.stringify({
@@ -208,7 +210,7 @@ export async function search({
   filter,
 }: SearchParams): Promise<Array<{ id: string | number; score: number; payload: PointPayload }>> {
   try {
-    const res = await fetch(`${QDRANT_URL}/collections/${collection}/points/search`, {
+    const res = await fetchClient(`${QDRANT_URL}/collections/${collection}/points/search`, {
       method: 'POST',
       headers: QDRANT_HEADERS,
       body: JSON.stringify({
@@ -236,7 +238,7 @@ export async function search({
 
 export async function deleteVector({ collection, id }: DeleteParams): Promise<boolean> {
   try {
-    const res = await fetch(`${QDRANT_URL}/collections/${collection}/points/${id}`, {
+    const res = await fetchClient(`${QDRANT_URL}/collections/${collection}/points/${id}`, {
       method: 'DELETE',
       headers: QDRANT_HEADERS,
     });
@@ -265,7 +267,7 @@ export interface PointResult {
 
 export async function getPoint({ collection, id }: GetPointParams): Promise<PointResult | null> {
   try {
-    const res = await fetch(`${QDRANT_URL}/collections/${collection}/points/${id}`, {
+    const res = await fetchClient(`${QDRANT_URL}/collections/${collection}/points/${id}`, {
       method: 'GET',
       headers: QDRANT_HEADERS,
     });
@@ -298,7 +300,7 @@ export async function updatePoint(
     const mergedPayload = existing ? { ...existing.payload, ...payload } : payload;
     const vector = (existing?.payload?.['vector'] as number[]) ?? new Array(COLLECTION_DIMENSION).fill(0);
 
-    const res = await fetch(`${QDRANT_URL}/collections/${collection}/points`, {
+    const res = await fetchClient(`${QDRANT_URL}/collections/${collection}/points`, {
       method: 'PUT',
       headers: QDRANT_HEADERS,
       body: JSON.stringify({
@@ -330,7 +332,7 @@ export async function scrollCollection(
     };
     if (offset) body['offset'] = offset;
 
-    const res = await fetch(`${QDRANT_URL}/collections/${collection}/points/scroll`, {
+    const res = await fetchClient(`${QDRANT_URL}/collections/${collection}/points/scroll`, {
       method: 'POST',
       headers: QDRANT_HEADERS,
       body: JSON.stringify(body),

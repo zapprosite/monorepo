@@ -1,24 +1,27 @@
 // Anti-hardcoded: all config via process.env
 // PostgreSQL MCP Integration Tests — Schema/table operations via MCP server :4017
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { setFetch } from '../utils/fetch-client.js';
 
 // ---------------------------------------------------------------------------
-// Mock fetch for MCP server HTTP calls
+// Mock fetch via injectable fetchClient
 // ---------------------------------------------------------------------------
 
-let fetchSpy: ReturnType<typeof vi.spyOn>;
+const mockFetch = vi.fn();
 
 beforeEach(() => {
   vi.clearAllMocks();
-  fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue({
+  mockFetch.mockReset();
+  mockFetch.mockResolvedValue({
     ok: true,
     json: vi.fn().mockResolvedValue({}),
     text: vi.fn().mockResolvedValue(''),
   });
+  setFetch(mockFetch as typeof globalThis.fetch);
 });
 
 afterEach(() => {
-  fetchSpy?.mockRestore();
+  // No cleanup needed
 });
 
 // ---------------------------------------------------------------------------
@@ -55,14 +58,14 @@ describe('MCP server configuration', () => {
     process.env['MCP_POSTGRES_PORT'] = '9999';
 
     // Re-import to pick up new env values (module is already loaded, so we test the URL construction)
-    fetchSpy.mockResolvedValueOnce({
+    mockFetch.mockResolvedValueOnce({
       ok: true,
       json: vi.fn().mockResolvedValue([]),
     });
 
     await listSchemas();
 
-    expect(fetchSpy).toHaveBeenCalledWith(
+    expect(mockFetch).toHaveBeenCalledWith(
       'http://custom-host:9999/tools/call',
       expect.any(Object),
     );
@@ -78,14 +81,14 @@ describe('MCP server configuration', () => {
     delete process.env['MCP_POSTGRES_HOST'];
     delete process.env['MCP_POSTGRES_PORT'];
 
-    fetchSpy.mockResolvedValueOnce({
+    mockFetch.mockResolvedValueOnce({
       ok: true,
       json: vi.fn().mockResolvedValue([]),
     });
 
     await listSchemas();
 
-    expect(fetchSpy).toHaveBeenCalledWith(
+    expect(mockFetch).toHaveBeenCalledWith(
       'http://localhost:4017/tools/call',
       expect.any(Object),
     );
@@ -101,7 +104,7 @@ describe('MCP server configuration', () => {
 
 describe('createSchema', () => {
   it('calls MCP tool create_schema with app name', async () => {
-    fetchSpy.mockResolvedValueOnce({
+    mockFetch.mockResolvedValueOnce({
       ok: true,
       json: vi.fn().mockResolvedValue({ schema: 'hermes_app', created: true }),
     });
@@ -109,7 +112,7 @@ describe('createSchema', () => {
     const result = await createSchema('hermes_app');
 
     expect(result).toEqual({ schema: 'hermes_app', created: true });
-    expect(fetchSpy).toHaveBeenCalledWith(
+    expect(mockFetch).toHaveBeenCalledWith(
       'http://localhost:4017/tools/call',
       expect.objectContaining({
         method: 'POST',
@@ -123,14 +126,14 @@ describe('createSchema', () => {
   });
 
   it('includes optional lead parameter', async () => {
-    fetchSpy.mockResolvedValueOnce({
+    mockFetch.mockResolvedValueOnce({
       ok: true,
       json: vi.fn().mockResolvedValue({ schema: 'painel_alfa', created: true }),
     });
 
     await createSchema('painel', 'alfa');
 
-    expect(fetchSpy).toHaveBeenCalledWith(
+    expect(mockFetch).toHaveBeenCalledWith(
       expect.any(String),
       expect.objectContaining({
         body: JSON.stringify({
@@ -142,7 +145,7 @@ describe('createSchema', () => {
   });
 
   it('throws on MCP server error', async () => {
-    fetchSpy.mockResolvedValueOnce({
+    mockFetch.mockResolvedValueOnce({
       ok: false,
       status: 500,
       text: vi.fn().mockResolvedValue('Internal Server Error'),
@@ -152,7 +155,7 @@ describe('createSchema', () => {
   });
 
   it('throws on network error', async () => {
-    fetchSpy.mockRejectedValueOnce(new Error('Connection refused'));
+    mockFetch.mockRejectedValueOnce(new Error('Connection refused'));
 
     await expect(createSchema('test_app')).rejects.toThrow('Connection refused');
   });
@@ -164,14 +167,14 @@ describe('createSchema', () => {
 
 describe('dropSchema', () => {
   it('calls MCP tool drop_schema', async () => {
-    fetchSpy.mockResolvedValueOnce({
+    mockFetch.mockResolvedValueOnce({
       ok: true,
       json: vi.fn().mockResolvedValue({}),
     });
 
     await dropSchema('hermes_app');
 
-    expect(fetchSpy).toHaveBeenCalledWith(
+    expect(mockFetch).toHaveBeenCalledWith(
       expect.any(String),
       expect.objectContaining({
         body: JSON.stringify({
@@ -183,14 +186,14 @@ describe('dropSchema', () => {
   });
 
   it('includes lead when provided', async () => {
-    fetchSpy.mockResolvedValueOnce({
+    mockFetch.mockResolvedValueOnce({
       ok: true,
       json: vi.fn().mockResolvedValue({}),
     });
 
     await dropSchema('painel', 'alfa');
 
-    expect(fetchSpy).toHaveBeenCalledWith(
+    expect(mockFetch).toHaveBeenCalledWith(
       expect.any(String),
       expect.objectContaining({
         body: JSON.stringify({
@@ -213,7 +216,7 @@ describe('listSchemas', () => {
       { schema: 'painel' },
       { schema: 'hvacr' },
     ];
-    fetchSpy.mockResolvedValueOnce({
+    mockFetch.mockResolvedValueOnce({
       ok: true,
       json: vi.fn().mockResolvedValue(mockSchemas),
     });
@@ -225,14 +228,14 @@ describe('listSchemas', () => {
   });
 
   it('filters by app when provided', async () => {
-    fetchSpy.mockResolvedValueOnce({
+    mockFetch.mockResolvedValueOnce({
       ok: true,
       json: vi.fn().mockResolvedValue([{ schema: 'hermes' }]),
     });
 
     await listSchemas('hermes');
 
-    expect(fetchSpy).toHaveBeenCalledWith(
+    expect(mockFetch).toHaveBeenCalledWith(
       expect.any(String),
       expect.objectContaining({
         body: JSON.stringify({
@@ -244,7 +247,7 @@ describe('listSchemas', () => {
   });
 
   it('returns empty array when no schemas exist', async () => {
-    fetchSpy.mockResolvedValueOnce({
+    mockFetch.mockResolvedValueOnce({
       ok: true,
       json: vi.fn().mockResolvedValue([]),
     });
@@ -255,7 +258,7 @@ describe('listSchemas', () => {
   });
 
   it('includes lead info in schema response', async () => {
-    fetchSpy.mockResolvedValueOnce({
+    mockFetch.mockResolvedValueOnce({
       ok: true,
       json: vi.fn().mockResolvedValue([{ schema: 'painel_alfa', lead: 'alfa' }]),
     });
@@ -272,7 +275,7 @@ describe('listSchemas', () => {
 
 describe('createTable', () => {
   it('calls MCP tool create_table with columns', async () => {
-    fetchSpy.mockResolvedValueOnce({
+    mockFetch.mockResolvedValueOnce({
       ok: true,
       json: vi.fn().mockResolvedValue({}),
     });
@@ -285,7 +288,7 @@ describe('createTable', () => {
 
     await createTable('hermes', undefined, 'clients', columns);
 
-    expect(fetchSpy).toHaveBeenCalledWith(
+    expect(mockFetch).toHaveBeenCalledWith(
       expect.any(String),
       expect.objectContaining({
         body: JSON.stringify({
@@ -301,7 +304,7 @@ describe('createTable', () => {
   });
 
   it('includes lead in arguments when provided', async () => {
-    fetchSpy.mockResolvedValueOnce({
+    mockFetch.mockResolvedValueOnce({
       ok: true,
       json: vi.fn().mockResolvedValue({}),
     });
@@ -310,13 +313,13 @@ describe('createTable', () => {
 
     await createTable('painel', 'alfa', 'campaigns', columns);
 
-    const call = fetchSpy.mock.calls[0];
+    const call = mockFetch.mock.calls[0];
     const args = JSON.parse(call[1].body).arguments;
     expect(args.lead).toBe('alfa');
   });
 
   it('passes column metadata correctly', async () => {
-    fetchSpy.mockResolvedValueOnce({
+    mockFetch.mockResolvedValueOnce({
       ok: true,
       json: vi.fn().mockResolvedValue({}),
     });
@@ -328,7 +331,7 @@ describe('createTable', () => {
 
     await createTable('app', undefined, 'users', columns);
 
-    const call = fetchSpy.mock.calls[0];
+    const call = mockFetch.mock.calls[0];
     const args = JSON.parse(call[1].body).arguments;
     expect(args.columns).toEqual(columns);
   });
@@ -344,7 +347,7 @@ describe('listTables', () => {
       { table: 'clients', schema: 'hermes' },
       { table: 'campaigns', schema: 'hermes' },
     ];
-    fetchSpy.mockResolvedValueOnce({
+    mockFetch.mockResolvedValueOnce({
       ok: true,
       json: vi.fn().mockResolvedValue(mockTables),
     });
@@ -356,14 +359,14 @@ describe('listTables', () => {
   });
 
   it('filters by lead when provided', async () => {
-    fetchSpy.mockResolvedValueOnce({
+    mockFetch.mockResolvedValueOnce({
       ok: true,
       json: vi.fn().mockResolvedValue([{ table: 'campaigns', schema: 'painel_alfa' }]),
     });
 
     await listTables('painel', 'alfa');
 
-    expect(fetchSpy).toHaveBeenCalledWith(
+    expect(mockFetch).toHaveBeenCalledWith(
       expect.any(String),
       expect.objectContaining({
         body: JSON.stringify({
@@ -389,7 +392,7 @@ describe('query', () => {
       ],
       rowCount: 2,
     };
-    fetchSpy.mockResolvedValueOnce({
+    mockFetch.mockResolvedValueOnce({
       ok: true,
       json: vi.fn().mockResolvedValue(mockResult),
     });
@@ -397,7 +400,7 @@ describe('query', () => {
     const result = await query('SELECT id, name, email FROM clients LIMIT 10');
 
     expect(result).toEqual(mockResult);
-    expect(fetchSpy).toHaveBeenCalledWith(
+    expect(mockFetch).toHaveBeenCalledWith(
       expect.any(String),
       expect.objectContaining({
         body: JSON.stringify({
@@ -409,14 +412,14 @@ describe('query', () => {
   });
 
   it('applies limit parameter', async () => {
-    fetchSpy.mockResolvedValueOnce({
+    mockFetch.mockResolvedValueOnce({
       ok: true,
       json: vi.fn().mockResolvedValue({ columns: [], rows: [], rowCount: 0 }),
     });
 
     await query('SELECT * FROM clients', 50);
 
-    expect(fetchSpy).toHaveBeenCalledWith(
+    expect(mockFetch).toHaveBeenCalledWith(
       expect.any(String),
       expect.objectContaining({
         body: JSON.stringify({
@@ -428,20 +431,20 @@ describe('query', () => {
   });
 
   it('handles query with no limit specified', async () => {
-    fetchSpy.mockResolvedValueOnce({
+    mockFetch.mockResolvedValueOnce({
       ok: true,
       json: vi.fn().mockResolvedValue({ columns: [], rows: [], rowCount: 0 }),
     });
 
     await query('SELECT * FROM clients');
 
-    const call = fetchSpy.mock.calls[0];
+    const call = mockFetch.mock.calls[0];
     const args = JSON.parse(call[1].body).arguments;
     expect(args.limit).toBeUndefined();
   });
 
   it('returns proper QueryResult structure', async () => {
-    fetchSpy.mockResolvedValueOnce({
+    mockFetch.mockResolvedValueOnce({
       ok: true,
       json: vi.fn().mockResolvedValue({
         columns: ['id', 'name'],
@@ -465,7 +468,7 @@ describe('query', () => {
 describe('write', () => {
   it('calls MCP tool write for INSERT/UPDATE/DELETE', async () => {
     const mockResult: WriteResult = { affectedRows: 1 };
-    fetchSpy.mockResolvedValueOnce({
+    mockFetch.mockResolvedValueOnce({
       ok: true,
       json: vi.fn().mockResolvedValue(mockResult),
     });
@@ -473,7 +476,7 @@ describe('write', () => {
     const result = await write("INSERT INTO clients (name) VALUES ('New Client')");
 
     expect(result).toEqual(mockResult);
-    expect(fetchSpy).toHaveBeenCalledWith(
+    expect(mockFetch).toHaveBeenCalledWith(
       expect.any(String),
       expect.objectContaining({
         body: JSON.stringify({
@@ -485,7 +488,7 @@ describe('write', () => {
   });
 
   it('returns affectedRows count', async () => {
-    fetchSpy.mockResolvedValueOnce({
+    mockFetch.mockResolvedValueOnce({
       ok: true,
       json: vi.fn().mockResolvedValue({ affectedRows: 5 }),
     });
@@ -502,14 +505,14 @@ describe('write', () => {
 
 describe('createIndex', () => {
   it('calls MCP tool create_index with correct arguments', async () => {
-    fetchSpy.mockResolvedValueOnce({
+    mockFetch.mockResolvedValueOnce({
       ok: true,
       json: vi.fn().mockResolvedValue({}),
     });
 
     await createIndex('hermes', undefined, 'clients', 'idx_clients_email', ['email']);
 
-    expect(fetchSpy).toHaveBeenCalledWith(
+    expect(mockFetch).toHaveBeenCalledWith(
       expect.any(String),
       expect.objectContaining({
         body: JSON.stringify({
@@ -526,27 +529,27 @@ describe('createIndex', () => {
   });
 
   it('includes lead when provided', async () => {
-    fetchSpy.mockResolvedValueOnce({
+    mockFetch.mockResolvedValueOnce({
       ok: true,
       json: vi.fn().mockResolvedValue({}),
     });
 
     await createIndex('painel', 'alfa', 'campaigns', 'idx_alfa_name', ['name']);
 
-    const call = fetchSpy.mock.calls[0];
+    const call = mockFetch.mock.calls[0];
     const args = JSON.parse(call[1].body).arguments;
     expect(args.lead).toBe('alfa');
   });
 
   it('handles multi-column indexes', async () => {
-    fetchSpy.mockResolvedValueOnce({
+    mockFetch.mockResolvedValueOnce({
       ok: true,
       json: vi.fn().mockResolvedValue({}),
     });
 
     await createIndex('app', undefined, 'orders', 'idx_orders_composite', ['client_id', 'created_at']);
 
-    const call = fetchSpy.mock.calls[0];
+    const call = mockFetch.mock.calls[0];
     const args = JSON.parse(call[1].body).arguments;
     expect(args.columns).toEqual(['client_id', 'created_at']);
   });
@@ -558,27 +561,27 @@ describe('createIndex', () => {
 
 describe('schema naming conventions', () => {
   it('uses app name directly in create_schema', async () => {
-    fetchSpy.mockResolvedValueOnce({
+    mockFetch.mockResolvedValueOnce({
       ok: true,
       json: vi.fn().mockResolvedValue({ schema: 'hermes', created: true }),
     });
 
     await createSchema('hermes');
 
-    const call = fetchSpy.mock.calls[0];
+    const call = mockFetch.mock.calls[0];
     const args = JSON.parse(call[1].body).arguments;
     expect(args.app).toBe('hermes');
   });
 
   it('combines app and lead when lead provided', async () => {
-    fetchSpy.mockResolvedValueOnce({
+    mockFetch.mockResolvedValueOnce({
       ok: true,
       json: vi.fn().mockResolvedValue({ schema: 'painel_alfa', created: true }),
     });
 
     await createSchema('painel', 'alfa');
 
-    const call = fetchSpy.mock.calls[0];
+    const call = mockFetch.mock.calls[0];
     const args = JSON.parse(call[1].body).arguments;
     expect(args.app).toBe('painel');
     expect(args.lead).toBe('alfa');
@@ -591,13 +594,13 @@ describe('schema naming conventions', () => {
 
 describe('error handling', () => {
   it('throws on connection refused', async () => {
-    fetchSpy.mockRejectedValueOnce(new Error('Connection refused'));
+    mockFetch.mockRejectedValueOnce(new Error('Connection refused'));
 
     await expect(listSchemas()).rejects.toThrow('Connection refused');
   });
 
   it('throws on MCP server 503', async () => {
-    fetchSpy.mockResolvedValueOnce({
+    mockFetch.mockResolvedValueOnce({
       ok: false,
       status: 503,
       text: vi.fn().mockResolvedValue('Service Unavailable'),
@@ -607,7 +610,7 @@ describe('error handling', () => {
   });
 
   it('throws on MCP server 401 (unauthorized)', async () => {
-    fetchSpy.mockResolvedValueOnce({
+    mockFetch.mockResolvedValueOnce({
       ok: false,
       status: 401,
       statusText: 'Unauthorized',
@@ -618,7 +621,7 @@ describe('error handling', () => {
   });
 
   it('throws on invalid JSON response', async () => {
-    fetchSpy.mockResolvedValueOnce({
+    mockFetch.mockResolvedValueOnce({
       ok: true,
       json: vi.fn().mockRejectedValue(new Error('Invalid JSON')),
       text: vi.fn().mockResolvedValue('not valid json'),
@@ -628,7 +631,7 @@ describe('error handling', () => {
   });
 
   it('handles timeout errors', async () => {
-    fetchSpy.mockRejectedValueOnce(new Error('AbortError: The user aborted a request'));
+    mockFetch.mockRejectedValueOnce(new Error('AbortError: The user aborted a request'));
 
     await expect(listTables('app')).rejects.toThrow();
   });
