@@ -1,0 +1,14 @@
+{
+  "status": "degraded",
+  "errors_found": [
+    "ERROR:server:Embedding failed: (empty message)",
+    "ERROR:server:Error adding memory: 500: Embedding generation failed: (empty message)",
+    "422 Unprocessable Entity on /tools/memory_add (intermittent, ~4 occurrences)",
+    "500 Internal Server Error on /tools/memory_add when embedding fails"
+  ],
+  "connectivity": {
+    "qdrant": "ok",
+    "litellm": "ok"
+  },
+  "recent_logs": "Most operations succeed (200 OK) with embeddings via LiteLLM (:4000) and Qdrant (:6333). Intermittent failures: 422 Unprocessable Entity and 500 Internal Server Error on memory_add when embedding generation fails. The 500 errors show empty error messages, suggesting LiteLLM embedding calls are silently failing. Qdrant and LiteLLM connections are healthy (no connection errors), but embedding generation is unreliable."
+}

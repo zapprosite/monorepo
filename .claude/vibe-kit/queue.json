@@ -1,0 +1,119 @@
+{
+  "total": 10,
+  "pending": 0,
+  "running": 0,
+  "done": 8,
+  "failed": 2,
+  "tasks": [
+    {
+      "id": "T001",
+      "name": "bug-B1-langgraph-fake-workflows",
+      "description": "4/5 workflows LangGraph sao fake (sequencial async) — migrar para StateGraph real com interrupt()",
+      "app": "CRM-REFRIMIX",
+      "spec": "SPEC-OWNERSHIP",
+      "status": "done",
+      "attempts": 0,
+      "worker": null,
+      "completed_at": "2026-04-24T03:17:48Z"
+    },
+    {
+      "id": "T002",
+      "name": "bug-B2-session-state-in-memory",
+      "description": "Session state in-memory (_sessionStates Map) morre com restart — migrar para Qdrant persistence",
+      "app": "CRM-REFRIMIX",
+      "spec": "SPEC-OWNERSHIP",
+      "status": "done",
+      "attempts": 0,
+      "worker": "W10",
+      "completed_at": "2026-04-24T03:17:48Z"
+    },
+    {
+      "id": "T003",
+      "name": "bug-B3-humangatenode-auto-aprova",
+      "description": "humanGateNode auto-aprova sem interrupt real — corrigir para usar interrupt() real com approva manual",
+      "app": "CRM-REFRIMIX",
+      "spec": "SPEC-OWNERSHIP",
+      "status": "done",
+      "attempts": 0,
+      "worker": "W07",
+      "completed_at": "2026-04-24T03:27:02Z"
+    },
+    {
+      "id": "T004",
+      "name": "bug-B4-content-pipeline-edges",
+      "description": "content_pipeline edges fixos (sem conditional routing) — adicionar conditional edges dinamicos",
+      "app": "CRM-REFRIMIX",
+      "spec": "SPEC-OWNERSHIP",
+      "status": "done",
+      "attempts": 0,
+      "worker": "W08",
+      "completed_at": "2026-04-24T03:23:00Z"
+    },
+    {
+      "id": "T005",
+      "name": "bug-B5-architecture-errado",
+      "description": "ARCHITECTURE.md ERRADO — corrigir documento e remover FIXME IP attack em conversation_manager.py linha 14",
+      "app": "CRM-REFRIMIX",
+      "spec": "SPEC-OWNERSHIP",
+      "status": "failed",
+      "attempts": 0,
+      "worker": null,
+      "completed_at": "2026-04-24T03:14:45Z"
+    },
+    {
+      "id": "T006",
+      "name": "bug-B6-subscribedat-null-check",
+      "description": "subscribedAt90PercentUse null check bug (0 e falsy) — usar !== null em vez de falsy check",
+      "app": "CRM-REFRIMIX",
+      "spec": "SPEC-OWNERSHIP",
+      "status": "done",
+      "attempts": 0,
+      "worker": "W02",
+      "completed_at": "2026-04-24T03:16:38Z"
+    },
+    {
+      "id": "T007",
+      "name": "bug-B7-subscription-race-condition",
+      "description": "Subscription increment sem transacao (race condition) — envolver em transacao DB",
+      "app": "CRM-REFRIMIX",
+      "spec": "SPEC-OWNERSHIP",
+      "status": "done",
+      "attempts": 0,
+      "worker": "W09",
+      "completed_at": "2026-04-24T03:19:41Z"
+    },
+    {
+      "id": "T008",
+      "name": "bug-B8-readme-duplicated-sections",
+      "description": "Docs repetem secoes (README.md 4x mesmas secoes) — deduplicar secoes repetidas",
+      "app": "CRM-REFRIMIX",
+      "spec": "SPEC-OWNERSHIP",
+      "status": "failed",
+      "attempts": 0,
+      "worker": "W04",
+      "completed_at": "2026-04-24T03:17:23Z"
+    },
+    {
+      "id": "T009",
+      "name": "bug-B9-zero-integration-tests",
+      "description": "0 tests de integracao real no CRM — criar testes de integracao para workflows principais",
+      "app": "CRM-REFRIMIX",
+      "spec": "SPEC-OWNERSHIP",
+      "status": "done",
+      "attempts": 0,
+      "worker": "W02",
+      "completed_at": "2026-04-24T03:45:24Z"
+    },
+    {
+      "id": "T010",
+      "name": "bug-B10-webhook-retry-opaco",
+      "description": "Webhook retry pode falhar silenciosamente — adicionar DLQ + logging estruturado",
+      "app": "CRM-REFRIMIX",
+      "spec": "SPEC-OWNERSHIP",
+      "status": "done",
+      "attempts": 0,
+      "worker": "W06",
+      "completed_at": "2026-04-24T03:23:10Z"
+    }
+  ]
+}

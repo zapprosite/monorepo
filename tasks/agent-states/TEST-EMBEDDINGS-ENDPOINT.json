@@ -1,0 +1,7 @@
+{
+  "status": "timeout",
+  "embedding_result": null,
+  "model_configured": "openai/text-embedding-3-small via OpenRouter API",
+  "error": "Connection timeout after 85s - curl exit code 28 (operation timed out). Health endpoint returned auth error (401) which is expected without Bearer token. The /v1/embeddings endpoint hangs indefinitely (no response after 85s), indicating the request is being processed but never completing.",
+  "hangs": true
+}

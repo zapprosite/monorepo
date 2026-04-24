@@ -3,17 +3,20 @@
 // Uses proper StateGraph with MemorySaver checkpointing and interrupt for human-in-the-loop
 /* eslint-disable no-console */
 
-import { MemorySaver, StateGraph, START, END } from '@langchain/langgraph';
+import { MemorySaver, StateGraph, START, END, interrupt, Command } from '@langchain/langgraph';
 import { llmComplete } from '../litellm/router.js';
 
 // Checkpointer for durable execution with persistence
 const checkpointer = new MemorySaver();
 
 // State type for the content pipeline
+type ContentType = 'video' | 'blog' | 'social' | 'email';
+
 interface PipelineState {
   brief: string;
   clientId: string;
   campaignId: string;
+  contentType: ContentType;
   currentStep: string;
   creativeOutput?: string;
   videoOutput?: string;
@@ -163,17 +166,25 @@ async function humanGateNode(state: PipelineState): Promise<PipelineState> {
   try {
     console.log(`[ContentPipeline] Executing HUMAN_GATE node`);
 
-    // Interrupt for human approval when brand score is below threshold
-    if (state.brandScore !== undefined && state.brandScore < 0.8) {
-      console.log(
-        `[ContentPipeline] Brand score ${state.brandScore.toFixed(2)} < 0.8 - requiring human approval`,
-      );
-      // In a real implementation, this would use LangGraph's interrupt mechanism
-      // For now, auto-approve if we get here (human approval would be via Command pattern)
-      console.log(`[ContentPipeline] Auto-approving (interrupt not fully wired in this version)`);
-    }
+    // Always interrupt for human approval — brand score is advisory, human makes final decision
+    // Pass content and brand score so human can make informed choice
+    console.log(
+      `[ContentPipeline] Brand score ${state.brandScore?.toFixed(2) ?? 'N/A'} — requesting human approval`,
+    );
+    const approval = await interrupt({
+      brandScore: state.brandScore,
+      creativeOutput: state.creativeOutput,
+      videoOutput: state.videoOutput,
+      designOutput: state.designOutput,
+    });
 
-    return { ...state, humanApproved: true, currentStep: 'HUMAN_GATE' };
+    console.log(`[ContentPipeline] Human approval result:`, approval);
+    return {
+      ...state,
+      humanApproved: approval.humanApproved,
+      humanComment: approval.humanComment,
+      currentStep: 'HUMAN_GATE',
+    };
   } catch (err) {
     console.error('[LangGraph] humanGateNode failed:', err);
     return {
@@ -252,6 +263,62 @@ Forneça:
   }
 }
 
+// Conditional routing functions
+function brandGuardianRouter(state: PipelineState): string {
+  // If brand score is high enough, skip human approval
+  if (state.brandScore !== undefined && state.brandScore >= 0.8) {
+    console.log(`[ContentPipeline] brandScore ${state.brandScore.toFixed(2)} >= 0.8 → SKIP_HUMAN_GATE`);
+    return 'SOCIAL';
+  }
+  console.log(`[ContentPipeline] brandScore ${state.brandScore?.toFixed(2) ?? 'undefined'} < 0.8 → HUMAN_GATE`);
+  return 'HUMAN_GATE';
+}
+
+function humanGateRouter(state: PipelineState): string {
+  // After human approval, go to SOCIAL if approved, back to CREATIVE if rejected
+  if (state.humanApproved === true) {
+    console.log(`[ContentPipeline] humanApproved=true → SOCIAL`);
+    return 'SOCIAL';
+  }
+  if (state.humanApproved === false) {
+    console.log(`[ContentPipeline] humanApproved=false → CREATIVE (loop)`);
+    return 'CREATIVE';
+  }
+  // Should not reach here if interrupt is working correctly
+  console.log(`[ContentPipeline] humanApproved=undefined → END`);
+  return '__end__';
+}
+
+// Conditional routing based on content type
+// Routes CREATIVE → VIDEO/DESIGN/BRAND_GUARDIAN depending on content type
+function creativeRouter(state: PipelineState): string {
+  const ct = state.contentType;
+  console.log(`[ContentPipeline] creativeRouter: contentType=${ct}`);
+  if (ct === 'video') {
+    console.log(`[ContentPipeline] contentType=video → VIDEO`);
+    return 'VIDEO';
+  }
+  if (ct === 'blog') {
+    console.log(`[ContentPipeline] contentType=blog → DESIGN (skip VIDEO)`);
+    return 'DESIGN';
+  }
+  // social and email skip VIDEO and DESIGN, go directly to BRAND_GUARDIAN
+  console.log(`[ContentPipeline] contentType=${ct} → BRAND_GUARDIAN (skip VIDEO and DESIGN)`);
+  return 'BRAND_GUARDIAN';
+}
+
+// Routes VIDEO → DESIGN (always, unless we add more branching)
+function videoRouter(_state: PipelineState): string {
+  console.log(`[ContentPipeline] videoRouter → DESIGN`);
+  return 'DESIGN';
+}
+
+// Routes DESIGN → BRAND_GUARDIAN (always after design step)
+function designRouter(_state: PipelineState): string {
+  console.log(`[ContentPipeline] designRouter → BRAND_GUARDIAN`);
+  return 'BRAND_GUARDIAN';
+}
+
 // Build the StateGraph
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const workflow = new StateGraph<any>({
@@ -259,6 +326,7 @@ const workflow = new StateGraph<any>({
     brief: { type: 'string' },
     clientId: { type: 'string' },
     campaignId: { type: 'string' },
+    contentType: { type: 'string' },
     currentStep: { type: 'string' },
     creativeOutput: { type: 'string', nullable: true },
     videoOutput: { type: 'string', nullable: true },
@@ -279,12 +347,31 @@ const workflow = new StateGraph<any>({
   .addNode('HUMAN_GATE', humanGateNode)
   .addNode('SOCIAL', socialNode)
   .addNode('ANALYTICS', analyticsNode)
+  // Conditional edges: START → CREATIVE (always)
   .addEdge(START, 'CREATIVE')
-  .addEdge('CREATIVE', 'VIDEO')
-  .addEdge('VIDEO', 'DESIGN')
-  .addEdge('DESIGN', 'BRAND_GUARDIAN')
-  .addEdge('BRAND_GUARDIAN', 'HUMAN_GATE')
-  .addEdge('HUMAN_GATE', 'SOCIAL')
+  // Conditional routing: CREATIVE → VIDEO/DESIGN/BRAND_GUARDIAN based on contentType
+  .addConditionalEdges('CREATIVE', creativeRouter, {
+    VIDEO: 'VIDEO',
+    DESIGN: 'DESIGN',
+    BRAND_GUARDIAN: 'BRAND_GUARDIAN',
+  })
+  // Conditional routing: VIDEO → DESIGN (always, but uses router for consistency)
+  .addConditionalEdges('VIDEO', videoRouter, {
+    DESIGN: 'DESIGN',
+  })
+  // Conditional routing: DESIGN → BRAND_GUARDIAN (always, but uses router for consistency)
+  .addConditionalEdges('DESIGN', designRouter, {
+    BRAND_GUARDIAN: 'BRAND_GUARDIAN',
+  })
+  // Existing conditional edges
+  .addConditionalEdges('BRAND_GUARDIAN', brandGuardianRouter, {
+    HUMAN_GATE: 'HUMAN_GATE',
+    SOCIAL: 'SOCIAL',
+  })
+  .addConditionalEdges('HUMAN_GATE', humanGateRouter, {
+    SOCIAL: 'SOCIAL',
+    CREATIVE: 'CREATIVE',
+  })
   .addEdge('SOCIAL', 'ANALYTICS')
   .addEdge('ANALYTICS', END);
 
@@ -294,19 +381,22 @@ const compiledGraph = workflow.compile({
 });
 
 export { compiledGraph as contentPipelineGraph };
+export type { PipelineState, ContentType };
 
 // Convenience function to run the pipeline
 export async function executeContentPipeline(
   brief: string,
   clientId: string,
+  contentType: ContentType = 'social',
 ): Promise<PipelineState> {
   const campaignId = `campaign-${Date.now()}`;
-  console.log(`[ContentPipeline] Starting campaign ${campaignId} for client ${clientId}`);
+  console.log(`[ContentPipeline] Starting campaign ${campaignId} for client ${clientId} with contentType=${contentType}`);
 
   const initialState: PipelineState = {
     brief,
     clientId,
     campaignId,
+    contentType,
     currentStep: 'CREATIVE',
     blocked: false,
   };
@@ -338,12 +428,15 @@ export async function approveContentPipeline(
   console.log(`[ContentPipeline] Resuming campaign ${campaignId} with approved=${approved}`);
 
   try {
-    // Resume the graph by passing the approval decision
+    // Resume the graph using Command to provide the interrupt value
+    // The interrupt in humanGateNode will receive this as its return value
     const result = await compiledGraph.invoke(
-      {
-        humanApproved: approved,
-        humanComment: comment ?? undefined,
-      } as PipelineState,
+      new Command({
+        resume: {
+          humanApproved: approved,
+          humanComment: comment,
+        },
+      }),
       {
         configurable: { thread_id: campaignId },
       },
@@ -356,6 +449,7 @@ export async function approveContentPipeline(
       campaignId,
       clientId: '',
       brief: '',
+      contentType: 'social',
       currentStep: 'ERROR',
       blocked: false,
       humanApproved: approved,

@@ -14,10 +14,15 @@ beforeEach(() => {
   mockFetch.mockReset();
   mockFetch.mockResolvedValue({
     ok: true,
+    status: 200,
+    statusText: 'OK',
     json: vi.fn().mockResolvedValue({}),
     text: vi.fn().mockResolvedValue(''),
   });
   setFetch(mockFetch as typeof globalThis.fetch);
+  // Reset env vars to prevent pollution from other tests
+  delete process.env['MCP_POSTGRES_HOST'];
+  delete process.env['MCP_POSTGRES_PORT'];
 });
 
 afterEach(() => {
@@ -148,6 +153,7 @@ describe('createSchema', () => {
     mockFetch.mockResolvedValueOnce({
       ok: false,
       status: 500,
+      statusText: 'Internal Server Error',
       text: vi.fn().mockResolvedValue('Internal Server Error'),
     });
 
@@ -603,6 +609,7 @@ describe('error handling', () => {
     mockFetch.mockResolvedValueOnce({
       ok: false,
       status: 503,
+      statusText: 'Service Unavailable',
       text: vi.fn().mockResolvedValue('Service Unavailable'),
     });
 

@@ -356,3 +356,125 @@ export async function scrollCollection(
     return { points: [] };
   }
 }
+
+// ---------------------------------------------------------------------------
+// Agency Session Persistence (replaces in-memory _sessionStates Map)
+// ---------------------------------------------------------------------------
+
+export interface AgencySessionState {
+  sessionId: string;
+  messages: Array<{ role: 'user' | 'assistant' | 'system'; content: string }>;
+  currentSkill: string | null;
+  lastResult: unknown;
+  pendingApproval: boolean;
+  conversationHistory: Array<{ role: 'user' | 'assistant'; content: string; timestamp: number }>;
+  updatedAt: number;
+}
+
+const SESSION_TTL_HOURS = 24 * 7; // 7 days
+
+/**
+ * Store agency session state in Qdrant (survives restarts).
+ * Uses WORKING_MEMORY collection with sessionId as point ID.
+ */
+export async function agencyStoreSession(sessionId: string, state: AgencySessionState): Promise<boolean> {
+  try {
+    const payload: PointPayload = {
+      sessionId,
+      messages: state.messages,
+      currentSkill: state.currentSkill,
+      lastResult: state.lastResult,
+      pendingApproval: state.pendingApproval,
+      conversationHistory: state.conversationHistory,
+      updatedAt: Date.now(),
+      ttl: SESSION_TTL_HOURS * 3600,
+    };
+
+    // Use sessionId as deterministic point ID for easy retrieval
+    const res = await fetchClient(`${QDRANT_URL}/collections/${COLLECTIONS.WORKING_MEMORY}/points`, {
+      method: 'PUT',
+      headers: QDRANT_HEADERS,
+      body: JSON.stringify({
+        points: [
+          {
+            id: sessionId,
+            vector: new Array(COLLECTION_DIMENSION).fill(0), // Zero vector — session lookup by ID only
+            payload,
+          },
+        ],
+      }),
+    });
+
+    if (!res.ok) {
+      console.error(`[Qdrant] agencyStoreSession failed for ${sessionId}:`, await res.text());
+      return false;
+    }
+
+    return true;
+  } catch (err) {
+    console.error(`[Qdrant] agencyStoreSession error (${sessionId}):`, err);
+    return false;
+  }
+}
+
+/**
+ * Load agency session state from Qdrant.
+ * Returns null if session not found (caller should create fresh state).
+ */
+export async function agencyLoadSession(sessionId: string): Promise<AgencySessionState | null> {
+  try {
+    const res = await fetchClient(`${QDRANT_URL}/collections/${COLLECTIONS.WORKING_MEMORY}/points/${sessionId}`, {
+      method: 'GET',
+      headers: QDRANT_HEADERS,
+    });
+
+    if (!res.ok) {
+      // 404 is expected for new sessions
+      if (res.status === 404) {
+        return null;
+      }
+      console.error(`[Qdrant] agencyLoadSession failed for ${sessionId}:`, await res.text());
+      return null;
+    }
+
+    const data = (await res.json()) as {
+      result?: {
+        id: string | number;
+        payload?: {
+          sessionId?: string;
+          messages?: Array<{ role: 'user' | 'assistant' | 'system'; content: string }>;
+          currentSkill?: string | null;
+          lastResult?: unknown;
+          pendingApproval?: boolean;
+          conversationHistory?: Array<{ role: 'user' | 'assistant'; content: string; timestamp: number }>;
+          updatedAt?: number;
+        };
+      };
+    };
+
+    const payload = data.result?.payload;
+    if (!payload || !payload.sessionId) {
+      return null;
+    }
+
+    return {
+      sessionId: payload.sessionId,
+      messages: payload.messages ?? [],
+      currentSkill: payload.currentSkill ?? null,
+      lastResult: payload.lastResult ?? null,
+      pendingApproval: payload.pendingApproval ?? false,
+      conversationHistory: payload.conversationHistory ?? [],
+      updatedAt: payload.updatedAt ?? Date.now(),
+    };
+  } catch (err) {
+    console.error(`[Qdrant] agencyLoadSession error (${sessionId}):`, err);
+    return null;
+  }
+}
+
+/**
+ * Delete agency session from Qdrant (for logout/memory clear).
+ */
+export async function agencyDeleteSession(sessionId: string): Promise<boolean> {
+  return deleteVector({ collection: COLLECTIONS.WORKING_MEMORY, id: sessionId });
+}

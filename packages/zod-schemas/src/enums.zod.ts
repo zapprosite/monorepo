@@ -25,7 +25,7 @@ export const apiProductSkuEnum = API_PRODUCTS.map((product) => product.sku) as [
 export const apiProductSkuZod = z.enum(apiProductSkuEnum);
 export type ApiProductSku = z.infer<typeof apiProductSkuZod>;
 
-export const WEBHOOK_STATUS_ENUM = ['Pending', 'Sent', 'Failed'] as const;
+export const WEBHOOK_STATUS_ENUM = ['Pending', 'Sent', 'Failed', 'DeadLetter'] as const;
 export const webhookStatusZod = z.enum(WEBHOOK_STATUS_ENUM);
 export type WebhookStatus = z.infer<typeof webhookStatusZod>;
 

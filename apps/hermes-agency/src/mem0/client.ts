@@ -244,3 +244,11 @@ export function getSessionHistory(sessionId: string, limit = 10): Mem0Entry[] {
   const history = _sessionHistory.get(sessionId) ?? [];
   return history.slice(-limit);
 }
+
+/**
+ * Clear session history — for test isolation only.
+ * NOTE: This function is intended for testing purposes.
+ */
+export function _clearSessionHistoryForTesting(): void {
+  _sessionHistory.clear();
+}

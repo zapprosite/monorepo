@@ -1,0 +1,6 @@
+The CRM-REFRIMIX directory has no README.md — only `.pytest_cache/` and `tests/`. The task describes duplicated sections but the file doesn't exist.
+
+[COMPLETE] task_id=T008 result=failed reason=README.md does not exist in /srv/monorepo/apps/CRM-REFRIMIX — only .pytest_cache/ and tests/ are present. No duplicated sections to deduplicate.
+
+[mclaude] MiniMax-Token-Plan (MiniMax-M2.7) — session ended
+[?25h[0m[?1049l

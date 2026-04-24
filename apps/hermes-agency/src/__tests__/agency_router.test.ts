@@ -6,6 +6,36 @@ vi.mock('../litellm/router.ts', () => ({
   llmComplete: vi.fn(),
 }));
 
+// Mock tool_registry to prevent importing supervisor/onboarding_flow/bot
+vi.mock('../skills/tool_registry.ts', () => ({
+  TOOL_REGISTRY: {},
+  createInitialState: vi.fn().mockReturnValue({
+    messages: [],
+    currentSkill: null,
+    lastResult: null,
+    pendingApproval: false,
+  }),
+  executeTool: vi.fn().mockResolvedValue({ ok: true, data: {} }),
+  invokeWorkflow: vi.fn().mockResolvedValue({ ok: true, data: {} }),
+}));
+
+vi.mock('../skills/circuit_breaker.ts', () => ({
+  isCallPermitted: vi.fn().mockReturnValue(true),
+  recordSuccess: vi.fn(),
+  recordFailure: vi.fn(),
+  resetCircuitBreaker: vi.fn(),
+  getCircuitBreaker: vi.fn().mockReturnValue(null),
+  getAllCircuitBreakers: vi.fn().mockReturnValue([]),
+}));
+
+vi.mock('../mem0/client.ts', () => ({
+  mem0GetRecent: vi.fn().mockResolvedValue([]),
+  mem0Store: vi.fn().mockResolvedValue('memory-id-123'),
+  addToSessionHistory: vi.fn(),
+  formatMem0Context: vi.fn().mockReturnValue('// No memory'),
+  getSessionHistory: vi.fn().mockReturnValue([]),
+}));
+
 import { routeToSkill } from '../router/agency_router.js';
 import { llmComplete } from '../litellm/router.js';
 

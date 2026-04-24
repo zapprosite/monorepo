@@ -55,6 +55,7 @@ vi.mock('../skills/tool_registry.ts', () => ({
     pendingApproval: false,
   }),
   executeTool: vi.fn().mockResolvedValue({ ok: true, data: {} }),
+  invokeWorkflow: vi.fn().mockResolvedValue({ ok: true, data: {} }),
 }));
 
 vi.mock('../skills/index.ts', () => ({

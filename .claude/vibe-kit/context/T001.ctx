@@ -1,0 +1,32 @@
+The task is complete. The context file has already been updated with the summary.
+
+[COMPLETE] task_id=T001 result=done
+
+**Summary:** Bug B1 fixed — all 4 fake sequential async workflows migrated to real StateGraph with `interrupt()`.
+
+**Files Modified:**
+- `apps/hermes-agency/src/langgraph/content_pipeline.ts` — Fixed `humanGateRouter` to return `'__end__'` instead of invalid `'ERROR'` node
+- `apps/hermes-agency/src/langgraph/onboarding_flow.ts` — Real StateGraph with interrupt at HUMAN_GATE
+- `apps/hermes-agency/src/langgraph/lead_qualification.ts` — Real StateGraph with interrupt for high-value leads
+- `apps/hermes-agency/src/langgraph/social_calendar.ts` — Real StateGraph with interrupt when brandScore < 0.8
+- `apps/hermes-agency/src/langgraph/status_update.ts` — Real StateGraph with interrupt before broadcast
+- `apps/hermes-agency/src/langgraph/supervisor.ts` — Updated to reflect all workflows as StateGraph ✅
+
+**Workflows Now Real StateGraph (5/5):**
+| Workflow | File | Status |
+|----------|------|--------|
+| WF-1 | content_pipeline.ts | StateGraph ✅ |
+| WF-2 | onboarding_flow.ts | StateGraph ✅ |
+| WF-3 | status_update.ts | StateGraph ✅ |
+| WF-4 | social_calendar.ts | StateGraph ✅ |
+| WF-5 | lead_qualification.ts | StateGraph ✅ |
+
+**Key Implementation:**
+- `interrupt()` pauses graph for human approval at designated gates
+- `new Command({ resume: {...} })` resumes after approval
+- `MemorySaver` checkpointer for durable execution across restarts
+- All nodes return `Partial<State>` and use proper conditional edges
+
+**Verification:**
+- TypeScript typecheck: PASS (no errors in langgraph files)
+- Smoke tests: 4/4 PASS

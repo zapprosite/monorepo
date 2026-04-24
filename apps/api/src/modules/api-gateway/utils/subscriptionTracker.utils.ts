@@ -34,28 +34,34 @@ export async function findActiveSubscription(
 }
 
 /**
- * Atomically increment subscription usage and check for usage threshold
+ * Atomically increment subscription usage and check for usage threshold.
+ * Wrapped in a transaction to prevent race conditions where two concurrent
+ * requests could both see 90%+ usage and both queue webhooks before either
+ * marks notifiedAt90PercentUse.
  * @param subscriptionId - The subscription ID
  * @returns Updated subscription with new usage count
  */
 export async function incrementSubscriptionUsage(subscriptionId: string) {
-	// Atomically increment requestsConsumed
-	const updatedSubscription = await db.subscriptions
-		.selectAll()
-		.find(subscriptionId)
-		.increment("requestsConsumed");
+	return db.$transaction(async () => {
+		// Atomically increment requestsConsumed
+		const updatedSubscription = await db.subscriptions
+			.selectAll()
+			.find(subscriptionId)
+			.increment("requestsConsumed");
 
-	if (!updatedSubscription) {
-		throw new Error(`Subscription ${subscriptionId} not found`);
-	}
+		if (!updatedSubscription) {
+			throw new Error(`Subscription ${subscriptionId} not found`);
+		}
 
-	// Check if usage threshold reached and webhook not already sent
-	await checkAndQueueWebhookAt90Percent(updatedSubscription).catch((error) => {
-		// Not throwing error as it might fail due to race-conditions in marking notified.
-		logger.error("Error checking and queueing webhook at 90% usage:", error);
+		// Check if usage threshold reached and webhook not already sent
+		// This is now protected by the surrounding transaction
+		await checkAndQueueWebhookAt90Percent(updatedSubscription).catch((error) => {
+			// Not throwing error as it might fail due to race-conditions in marking notified.
+			logger.error("Error checking and queueing webhook at 90% usage:", error);
+		});
+
+		return updatedSubscription;
 	});
-
-	return updatedSubscription;
 }
 
 /**
@@ -77,7 +83,7 @@ export async function checkAndQueueWebhookAt90Percent(subscription: {
 	// 2. Notification hasn't been sent yet
 	if (
 		usagePercent >= SUBSCRIPTION_USAGE_ALERT_THRESHOLD_PERCENT &&
-		!subscription.notifiedAt90PercentUse
+		subscription.notifiedAt90PercentUse === null
 	) {
 		// Get team webhook URL
 		const team = await db.teams.findBy({
