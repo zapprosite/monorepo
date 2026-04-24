@@ -97,11 +97,7 @@ export async function createCollectionIfNotExists(name: CollectionName): Promise
   try {
     const existsRes = await fetchClient(`${QDRANT_URL}/collections/${name}`, { headers: QDRANT_HEADERS });
     if (existsRes.ok) {
-      const exists = (await existsRes.json()) as { result?: { exists?: boolean } };
-      if (exists.result?.exists) {
-        console.log(`[Qdrant] Collection ${name} already exists`);
-        return true;
-      }
+      return true;
     }
 
     // Create collection

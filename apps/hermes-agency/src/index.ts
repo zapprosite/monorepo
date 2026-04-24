@@ -6,8 +6,7 @@ import http from 'node:http';
 import { initAllCollections } from './qdrant/client';
 import { getAllCircuitBreakers } from './skills/circuit_breaker.js';
 import { fetchClient } from './utils/fetch-client.js';
-
-// Bot is launched in telegram/bot.ts (side-effect import)
+import './telegram/bot.js';
 
 console.log('[HermesAgency] Starting Hermes Agency Suite...');
 

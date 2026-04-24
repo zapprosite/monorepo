@@ -390,8 +390,7 @@ if _secrets.exists():
                 k, _, v = line.partition('=')
                 os.environ[k.strip()] = v.strip()
 MY_KEY = os.environ.get('MY_KEY', '')
-
-# ERRADO — hardcoded
+# Exemplo de anti-pattern (nao fazer):
 MY_KEY = 'sk-123456'
 ```
 
