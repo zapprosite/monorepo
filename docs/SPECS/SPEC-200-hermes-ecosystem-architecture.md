@@ -1,176 +1,185 @@
 ---
 spec: SPEC-200
-title: Hermes Ecosystem — Arquitetura Completa e Estado Atual
+title: Hermes Ecosystem — Arquitetura Enterprise Standard
 status: active
 date: 2026-04-24
-author: audit session
+author: SRE Session
 ---
 
-# SPEC-200 — Hermes Ecosystem: Arquitetura e Estado Atual
+# SPEC-200 — Hermes Ecosystem: Arquitetura Enterprise Standard
 
 ## 1. Visão Geral
 
-O ecossistema Hermes é composto por **dois sistemas distintos** que operam em paralelo no Ubuntu Desktop:
+O ecossistema Hermes opera em **dois sistemas complementares** no Ubuntu Desktop:
 
 | Sistema | Linguagem | Origem | Papel |
 |---------|-----------|--------|-------|
-| **Hermes Gateway** | Python | Clone do projeto OpenSource Hermes | Agente principal, orquestrador |
-| **Hermes Agency** | TypeScript | Monorepo interno | Complemento — camada de agência/marketing |
+| **Hermes Gateway** | Python | `/home/will/.hermes/hermes-agent/` | Agente principal, polling Telegram @CEO_REFRIMIX_bot |
+| **Hermes Agency** | TypeScript | `/srv/monorepo/apps/hermes-agency/` | Camada agency/marketing, polling Telegram @editor_social_bot |
 
-Eles NÃO são duplicatas — são camadas complementares.
+**Resolução de conflito:** Python usa `@CEO_REFRIMIX_bot` (TELEGRAM_BOT_TOKEN), TypeScript usa `@editor_social_bot` (EDITOR_SOCIAL_BOT_TOKEN). Bots separados, sem conflito.
 
 ---
 
-## 2. Componentes Ativos
+## 2. Padrão SOUL.md
 
-### 2.1 Python — Hermes Gateway (ATIVO)
+O ecossistema segue o padrão definido em `/home/will/.hermes/SOUL.md`:
+
+| Função | Provider | Endpoint |
+|--------|----------|----------|
+| **Text Primary** | MiniMax M2.7 | `api.minimax.io` (token plan) |
+| **Vision** | Qwen2.5-VL-3B | `:3999` container (RTX 4090, ~4GB VRAM) |
+| **STT** | Groq Whisper Turbo | API cloud (150min/dia gratis) |
+| **TTS** | Edge TTS | `pt-BR-AntonioNeural` via tts-edge.sh |
+
+### Voice/TTS Bridge
+- Script: `~/.hermes/scripts/tts-edge.sh`
+- Voice: `pt-BR-AntonioNeural` (neural, male, +10% speed)
+- Formato: mp3 → opus → Telegram voice
+- Fallback: `tts-hermes.sh`
+
+---
+
+## 3. Infraestrutura Compartilhada (zappro-* stack)
+
+**Rede Docker:** `zappro-infra` (bridge)
+
+| Container | Status | Porta | Papel |
+|-----------|--------|-------|-------|
+| `zappro-qdrant` | RUNNING | 127.0.0.1:6333 | Qdrant — DB vetorial (1953 vetores `will`, 79 `second-brain`) |
+| `zappro-redis` | RUNNING | 127.0.0.1:6379 | Redis — cache/sessão (Fifine156458*) |
+| `zappro-edge-tts` | RUNNING | 127.0.0.1:8012 | Kokoro TTS bridge |
+| `hermes-agency` | RUNNING | 127.0.0.1:3001 | TypeScript agency |
+
+**Legado PRUNED:** `aurelia-*` containers foram removidos.
+
+### zappro-litellm
+- **Path:** `/home/will/zappro-lite/`
+- **Porta:** `:4000` (OpenAI-compat)
+- **Modelos:** minimax-m2.7, qwen2.5vl-3b, qwen3.5-vl, seed-vl-mini
+- **Config:** `/srv/data/zappro-router/config.yaml` (model_fallbacks cascade)
+- **Cache:** Redis (zappro-redis:6379)
+- **API Base Rule:** `https://api.minimax.io` (SEM `/anthropic/v1`)
+
+---
+
+## 4. Hermes Gateway (Python)
 
 - **Serviço:** `hermes-gateway.service` (systemd system-level)
 - **Processo:** `/home/will/.hermes/hermes-agent/venv/bin/python -m hermes_cli.main gateway run --replace`
 - **Porta:** `:8642` (localhost only)
 - **Bot:** `@CEO_REFRIMIX_bot` (token `8759194670:...`)
-- **Modelo primário:** `minimax/MiniMax-M2.7`
+- **Modelo primário:** `minimax/MiniMax-M2.7` via LiteLLM
 - **Config:** `/home/will/.hermes/config.yaml`
 - **Env:** `/home/will/.hermes/.env` → symlink → `/srv/monorepo/.env`
-- **Skills ativas:** coolify_sre, perplexity_browser, claude_code
-- **Memória:** Qdrant `will` (1953 vetores), `second-brain` (79 vetores)
+- **Skills:** coolify_sre, perplexity_browser, claude_code
 
-### 2.2 TypeScript — Hermes Agency (ATIVO desde 2026-04-24)
-
-- **Container:** `hermes-agency` (Docker)
-- **Porta:** `:3001` (localhost only)
-- **Bot:** `@CEO_REFRIMIX_bot` (token `8759194670:...`) ← **MESMO TOKEN**
-- **Compose:** `/srv/monorepo/apps/hermes-agency/docker-compose.yml`
-- **Source:** `/srv/monorepo/apps/hermes-agency/`
-- **Skills:** 23 tools — RAG, LangGraph, campaign, analytics, social media
-- **Modelo:** MiniMax M2.7 via `HERMES_MINIMAX_BASE=https://api.minimax.io/anthropic/v1`
-
-### 2.3 Hermes Second Brain (INATIVO — não tem systemd unit)
-
-- **Path:** `/srv/hermes-second-brain/`
-- **Papel:** API de memória — Mem0 + Qdrant + SQLite
-- **Porta prevista:** `:6334`
-- **Start manual:** `cd /srv/hermes-second-brain && uvicorn apps.api.main:app --port 6334`
-- **Relação:** Fornece `/memory` e `/task` endpoints para o Hermes Gateway
-
----
-
-## 3. Infraestrutura Compartilhada (aurelia-*)
-
-Containers `aurelia-*` ainda são a infraestrutura ativa para ambos os sistemas Hermes.
-
-| Container | Status | Porta | Papel |
-|-----------|--------|-------|-------|
-| `aurelia-qdrant-1` | RUNNING | 127.0.0.1:6333 | Qdrant — DB vetorial compartilhado |
-| `aurelia-redis-1` | RUNNING | 127.0.0.1:6379 | Redis — cache/sessão |
-| `aurelia-kokoro` | RUNNING | 127.0.0.1:8012 | TTS (Kokoro) — voz |
-| `aurelia-smart-router` | EXITED (3 semanas) | — | LiteLLM LEGADO — substituído por zappro-litellm |
-| `aurelia-api` | EXITED (3 semanas) | — | Python Aurelia API — falha no mount de .env |
-
-**Nota:** `aurelia-smart-router` e `aurelia-api` estão mortos. A palavra "aurelia" é legado — o LiteLLM ativo é `zappro-litellm` em `/home/will/zappro-lite/`.
-
----
-
-## 4. Conflito Crítico — Dual Polling no Mesmo Token
-
-**PROBLEMA:** Python hermes-gateway E TypeScript hermes-agency usam `TELEGRAM_BOT_TOKEN=8759194670` (@CEO_REFRIMIX_bot).
-
-No Telegram, apenas UM processo pode fazer long-polling por bot token simultaneamente. O mais recente a chamar `getUpdates` "rouba" as mensagens do outro.
-
-**Estado atual (2026-04-24):**
-- Python hermes-gateway está rodando há mais tempo → provavelmente recebendo as mensagens
-- TypeScript hermes-agency iniciado hoje → pode haver conflito
-
-**Resolução pendente:**
-- Opção A: TypeScript usa `EDITOR_SOCIAL_BOT_TOKEN` (`@editor_social_bot`) — dois bots separados
-- Opção B: Python gateway delega para TypeScript via HTTP (hermes-agency como sub-agente)
-- Opção C: Migrar o @CEO_REFRIMIX_bot inteiro para o TypeScript e aposentar o Python gateway
-
----
-
-## 5. Duplicata de systemd Unit
-
-`hermes-gateway.service` existe em dois lugares:
-- `/etc/systemd/system/hermes-gateway.service` → **ATIVO/RUNNING** (system-level)
-- `/home/will/.config/systemd/user/hermes-gateway.service` → **DEAD** (user-level, falhou)
-
-Ação: desabilitar e remover o user-level.
-
-```bash
-systemctl --user disable hermes-gateway.service
-systemctl --user stop hermes-gateway.service
+### systemd Unit (ATIVO)
+```
+/etc/systemd/system/hermes-gateway.service → RUNNING
+/home/will/.config/systemd/user/hermes-gateway.service → DEAD (user-level desabilitado)
 ```
 
 ---
 
-## 6. `.env` Canônico
+## 5. Hermes Agency (TypeScript)
+
+- **Container:** `hermes-agency` (Docker Compose)
+- **Compose:** `/srv/monorepo/apps/hermes-agency/docker-compose.yml`
+- **Porta:** `:3001` (localhost only)
+- **Bot:** `@editor_social_bot` (token `8740522933:AAEkDbKfMeUyZW70SZRZGJ-B8cB6lkJFhcA`)
+- **Source:** `/srv/monorepo/apps/hermes-agency/`
+- **Skills:** 23 tools — RAG, LangGraph, campaign, analytics, social media
+- **Modelo:** MiniMax M2.7 via `HERMES_MINIMAX_BASE=https://api.minimax.io/anthropic/v1`
+
+---
+
+## 6. Hermes Second Brain
+
+- **Path:** `/srv/hermes-second-brain/`
+- **API:** Mem0 + Qdrant + SQLite
+- **Porta:** `:6334`
+- **Start:** `cd /srv/hermes-second-brain && uvicorn apps.api.main:app --port 6334`
+- **Relação:** Fornece `/memory` e `/task` endpoints para Hermes Gateway
+- **Status:**systemd unit **PENDENTE** (SPEC-202)
+
+---
+
+## 7. Conflito Dual-Polling — RESOLVIDO
+
+**PROBLEMA ORIGINAL:** Python hermes-gateway E TypeScript hermes-agency usavam o mesmo `@CEO_REFRIMIX_bot` token.
+
+**RESOLUÇÃO APLICADA:**
+- Python Hermes Gateway → `@CEO_REFRIMIX_bot` (TELEGRAM_BOT_TOKEN)
+- TypeScript Hermes Agency → `@editor_social_bot` (EDITOR_SOCIAL_BOT_TOKEN)
+
+**Dois bots separados**, sem conflito de polling.
+
+---
+
+## 8. `.env` Canônico
 
 **Fonte de verdade:** `/srv/monorepo/.env`
 
-Todos os apps agora symlinkat para o canônico:
+Symlinks ativos:
 - `/home/will/.hermes/.env` → `/srv/monorepo/.env`
 - `/home/will/zappro-lite/.env` → `/srv/monorepo/.env`
 - `/srv/monorepo/apps/api/.env` → `/srv/monorepo/.env`
 - `/home/will/ai-router/.env` → `/srv/monorepo/.env`
 - `/srv/apps/platform/.env` → `/srv/monorepo/.env`
-- `/srv/apps/monitoring/.env` → `/srv/monorepo/.env` (já era)
-- `/srv/ops/mcp-qdrant/.env` → `/srv/monorepo/.env` (já era)
+- `/srv/apps/monitoring/.env` → `/srv/monorepo/.env`
+- `/srv/ops/mcp-qdrant/.env` → `/srv/monorepo/.env`
 
-**Var conflito resolvido:**
-- `MINIMAX_API_BASE=https://api.minimax.io` — para LiteLLM (sem path, LiteLLM adiciona)
-- `HERMES_MINIMAX_BASE=https://api.minimax.io/anthropic/v1` — para hermes-agency router.ts (com path Anthropic)
-
----
-
-## 7. O Que Foi Feito em 2026-04-24
-
-### hermes-agency fixes (P0-008)
-1. `src/index.ts` — adicionado `import './telegram/bot.js'` (estava faltando — bot nunca iniciava)
-2. `src/qdrant/client.ts` — corrigido `createCollectionIfNotExists` (verificava `result.exists` que não existe na API Qdrant)
-3. `src/litellm/router.ts` — renomeado `MINIMAX_API_BASE` → `HERMES_MINIMAX_BASE` (evita conflito com LiteLLM)
-4. `Dockerfile` criado — build context = `/srv/monorepo`, copia `tsconfig.base.json` para `/tsconfig.base.json`
-5. `docker-compose.yml` criado — usa redes `aurelia_default` + `aurelia-net`, polling mode, healthcheck Node.js
-
-### canonical .env
-- `MINIMAX_API_BASE` corrigido (removia `/anthropic/v1` errado para LiteLLM)
-- `HERMES_AGENCY_WEBHOOK_URL` adicionado (drift fix)
-- `HERMES_ADMIN_USER_IDS=7220607041`
-- `TELEGRAM_BOT_TOKEN`, `TELEGRAM_ALLOWED_USERS`, `OLLAMA_BASE_URL`, `LITELLM_VIRTUAL_KEY`, `MEM0_API_KEY`, browser/terminal vars, app config vars
+### VARS CRÍTICAS
+| Var | Valor | Uso |
+|-----|-------|-----|
+| `MINIMAX_API_BASE` | `https://api.minimax.io` | LiteLLM (SEM path) |
+| `HERMES_MINIMAX_BASE` | `https://api.minimax.io/anthropic/v1` | Hermes Agency router.ts (COM path) |
+| `TELEGRAM_BOT_TOKEN` | `8759194670:...` | @CEO_REFRIMIX_bot (Python gateway) |
+| `EDITOR_SOCIAL_BOT_TOKEN` | `8740522933:...` | @editor_social_bot (TS agency) |
 
 ---
 
-## 8. Próximos Passos (P0 Backlog)
+## 9. Rede e Portas
+
+| Porta | Serviço | Access |
+|-------|---------|--------|
+| 3001 | hermes-agency | 127.0.0.1 |
+| 4000 | zappro-litellm | 0.0.0.0 |
+| 6333 | zappro-qdrant | 127.0.0.1 |
+| 6334 | hermes-second-brain | 127.0.0.1 (PENDENTE) |
+| 6379 | zappro-redis | 127.0.0.1 |
+| 8642 | hermes-gateway | 127.0.0.1 |
+
+---
+
+## 10. Mudanças em 2026-04-24
+
+1. **Redis migration fix:** Estrutura de dados corrigida (`/srv/data/redis/` consolidado)
+2. **hermes-agency token:** Adicionado `TELEGRAM_BOT_TOKEN=8740522933:...` (editor_social_bot)
+3. **aurelia-guardrail** renomeado → **zappro-guardrail** (`/srv/ops/stacks/guardrail/docker-compose.yml`)
+4. **`/home/will/aurelia/`** deletado
+5. **`/srv/ops/ai-governance/env-backups/`** deletado
+6. **zappro-redis mount:** Atualizado de `/home/will/aurelia/data/redis:/data` para `/srv/data/redis:/data`
+
+---
+
+## 11. Tarefas Pendentes
 
 | ID | Tarefa | Prioridade |
 |----|--------|-----------|
-| P0-CONFLICT | Resolver dual-polling @CEO_REFRIMIX_bot (Python vs TS) | CRÍTICO |
-| P0-AURELIA | Remover aurelia-smart-router e aurelia-api (legado) | ALTA |
 | P0-SYSTEMD | Desabilitar hermes-gateway.service user-level duplicata | ALTA |
 | P0-SECOND-BRAIN | Criar systemd unit para hermes-second-brain (:6334) | MÉDIA |
-| P0-LITELLM | Verificar se zappro-litellm está rodando (:4000 down) | ALTA |
+| P0-LITELLM | Verificar zappro-litellm status (:4000) | ALTA |
 | P0-004 | homelab-control: modo operador vs modo marketing | MÉDIA |
 | P0-005 | Typed adapters: codex, claude, opencode, gitea, coolify | MÉDIA |
-| P0-PLAN-MODE | plan-mode.sh: remover [0.0]*768, usar embedding real | BAIXA |
-| P0-RUNNER | Task runner: pipeline.json → execute → log result | BAIXA |
 
 ---
 
-## 9. Para o Hermes OpenSource Standard
+## 12. Referências
 
-O TypeScript hermes-agency deve seguir o padrão do projeto Hermes OpenSource:
-- Referência: `/home/will/.hermes/hermes-agent/` (clone local)
-- Manter compatibilidade com o formato de skills e tools do Hermes Python
-- Skills do TypeScript devem poder ser invocadas pelo Python gateway via HTTP (:3001)
-- Logging em `tasks/runs/` conforme padrão Hermes
-
----
-
-## 10. Referências
-
-- Hermes Gateway config: `/home/will/.hermes/config.yaml`
-- Hermes Agent clone: `/home/will/.hermes/hermes-agent/`
-- Hermes Second Brain: `/srv/hermes-second-brain/`
-- TypeScript Agency: `/srv/monorepo/apps/hermes-agency/`
-- Canonical ENV: `/srv/monorepo/.env`
-- PORTS.md: `/srv/ops/ai-governance/PORTS.md`
-- SERVICE_MAP: `/srv/ops/ai-governance/SERVICE_MAP.md`
+- SOUL.md: `/home/will/.hermes/SOUL.md`
+- Canonical .env: `/srv/monorepo/.env`
+- Infra compose: `/home/will/zappro-lite/docker-compose.infra.yml`
+- Hermes Agency: `/srv/monorepo/apps/hermes-agency/docker-compose.yml`
+- Governance: `/srv/ops/ai-governance/`

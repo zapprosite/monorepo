@@ -49,10 +49,10 @@ Config is CORRECT. The problem is network connectivity, not LiteLLM config.
 ## Environment Variables Status
 
 All canonical in `/srv/monorepo/.env`:
-- ✅ MINIMAX_API_KEY = `sk-cp-uA1oy3YNYtSeBSHkwKXP2SxELFLpWmvjgBNqCLzpmsqSijGP`
-- ✅ QDRANT_API_KEY = `71cae77676e2a5fd552d172caa1c3200`
-- ✅ COOLIFY_API_KEY = `8|4warfVNTMARXHkPL1qTxOPcE5v6N5G4f7ZFL2JVx0cddc82d`
-- ✅ HERMES_AGENCY_BOT_TOKEN = `8759194670:AAGHntxPUsfvbSrYNwOhBGuNUpmeCUw1-qY`
+- ✅ MINIMAX_API_KEY = present in `.env`
+- ✅ QDRANT_API_KEY = present in `.env`
+- ✅ COOLIFY_API_KEY = present in `.env`
+- ✅ HERMES_AGENCY_BOT_TOKEN = present in `.env`
 
 ## Soluções Implementadas
 
@@ -121,7 +121,7 @@ sudo iptables -t nat -L POSTROUTING -n | grep MASQUERADE
 
 ## Fixes Applied in Session
 
-1. **MINIMAX token fixed** in `/home/will/zappro-lite/.env` (old: `sk-cp-uA1oy3...`, new: `sk-cp-etXmVd5gY30jOBe2a6AvTzWT4olPvnVBld7qcdWBdJqcSFSj4BSWt5YXXwXWkzNfixm8ZVVNxfmP12yC6S8IZhFR9YOlJDggNc6Wlbt0SY4-4jqBrHWG0rc`)
+1. **MINIMAX token fixed** in `/home/will/zappro-lite/.env` (values intentionally redacted; `.env` is the only source of truth)
 2. **Qdrant connectivity fixed** - connected `zappro-litellm` to `platform_default` network
 3. **platform_default added** to `docker-compose.yml` networks section
 4. **mcp-memory schema mismatch confirmed resolved** (422 for `content`, 200 for `text`)

@@ -5,7 +5,8 @@
 import { parseArgs } from 'util';
 
 const QDRANT_URL = process.env['QDRANT_URL'] ?? 'http://localhost:6333';
-const QDRANT_API_KEY = process.env['QDRANT_API_KEY'] ?? 'vmEbyCYrU68bR7lkzCbL05Ey4BPnTZgr';
+const QDRANT_API_KEY=process.env['QDRANT_API_KEY'];
+if (!QDRANT_API_KEY) throw new Error("QDRANT_API_KEY not set in environment");
 
 const VECTOR_SIZE = 768; // nomic-embed-text
 const DISTANCE = 'Cosine';

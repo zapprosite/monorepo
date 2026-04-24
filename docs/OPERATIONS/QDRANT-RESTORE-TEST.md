@@ -108,7 +108,7 @@ curl -s -X PUT "http://127.0.0.1:6333/collections/test-restored-2026/snapshots/r
 
 **Snapshot creation:** WORKS (35ms for 5 points)
 - Snapshot file size: 780,288 bytes
-- Checksum: `4f4f405f5fd84ca9c95dfe19de62e3712f5002320a548f20e110c921f7955846`
+- Checksum: `<sha256-checksum>`
 
 **Data preservation:** VERIFIED
 - Original 5 points with payloads stored successfully

@@ -44,11 +44,11 @@
   "mismatches": [
     {
       "key": "HERMES_API_KEY",
-      "note": "Two different values in .env - legacy duplicate at bottom of file shows 'baa4ae...2c6e' (truncated). Current value '692be95d8a6b1a877d815415ea1f88f81cc1fc63db6410427602125155e75b5a' is active"
+      "note": "Two different values in .env - legacy duplicate at bottom of file shows 'baa4ae...2c6e' (truncated). Current value '<redacted: source .env>' is active"
     },
     {
       "key": "QDRANT_API_KEY",
-      "note": "Duplicate entry at bottom of .env - same value '71cae77676e2a5fd552d172caa1c3200' (legacy comment)"
+      "note": "Duplicate entry at bottom of .env - same value '<redacted: source .env>' (legacy comment)"
     },
     {
       "key": "LITELLM_API_KEY",

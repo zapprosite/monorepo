@@ -20,7 +20,7 @@ PROVIDER="${VIBE_PROVIDER:-minimax}"
 MODEL="${VIBE_MODEL:-MiniMax-M2.7}"
 QUEUE_FILE="${QUEUE_FILE:-}"
 
-log() { echo "[$(date '+%H:%M:%S')] [$(printf '%05d' $$)] [VIBE-KIT] $*"; }
+log() { echo "[$(date '+%H:%M:%S')] [$(printf '%05d' $$)] [VIBE-KIT] $*" >&2; }
 
 # ─── State Management ───────────────────────────────────────
 save_state() {
@@ -163,11 +163,27 @@ init_queue() {
     local app_name="$2"
     
     log "Initializing queue from $spec_file"
-    local tasks=$(parse_spec_to_tasks "$spec_file" "$app_name")
-    local total=$(echo "$tasks" | jq 'length')
+    local tasks
+    tasks=$(parse_spec_to_tasks "$spec_file" "$app_name") || {
+        log "ERROR: parse_spec_to_tasks failed"
+        return 1
+    }
+    if [ -z "$tasks" ] || [ "$tasks" = "null" ]; then
+        log "ERROR: parse_spec_to_tasks returned empty/null"
+        return 1
+    fi
+    local total=$(echo "$tasks" | jq 'length' 2>/dev/null || echo 0)
     
-    echo "$tasks" | jq --arg total "$total" --arg spec "$(basename "$spec_file" .md)" \
-        '{"spec": $spec, "total": ($total | tonumber), "pending": (. | map(select(.status == "pending")) | length), "running": 0, "done": 0, "failed": 0, "tasks": .}' > "$QUEUE_FILE"
+    local queue_output
+    queue_output=$(echo "$tasks" | jq --arg total "$total" --arg spec "$(basename "$spec_file" .md)" \
+        '{"spec": $spec, "total": ($total | tonumber), "pending": (. | map(select(.status == "pending")) | length), "running": 0, "done": 0, "failed": 0, "tasks": .}') || {
+        log "ERROR: queue_output jq failed"
+        return 1
+    }
+    printf '%s' "$queue_output" > "$QUEUE_FILE" || {
+        log "ERROR: failed to write queue file"
+        return 1
+    }
     
     log "Queue created: $total tasks"
 }
@@ -436,7 +452,7 @@ main() {
     log "APP: $app_name"
     
     # ── Step 2: Init queue (only if not already exists) ───
-    if [ -f "$QUEUE_FILE" ] && [ $(jq '.total' "$QUEUE_FILE" 2>/dev/null || echo "0") -gt 0 ]; then
+    if [ -f "$QUEUE_FILE" ] && [ "$(jq '.total' "$QUEUE_FILE" 2>/dev/null)" != "null" ] && [ "$(jq '.total' "$QUEUE_FILE" 2>/dev/null || echo 0)" -gt 0 ]; then
         log "Queue already exists: $QUEUE_FILE ($(jq '.pending' "$QUEUE_FILE") pending)"
     else
         init_queue "$spec_file" "$app_name"

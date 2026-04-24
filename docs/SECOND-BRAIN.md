@@ -50,7 +50,7 @@ cat ~/Desktop/SYSTEM_ARCHITECTURE.md 2>/dev/null
 git clone ssh://git@127.0.0.1:2222/will-zappro/hermes-second-brain.git /tmp/hermes-second-brain
 
 # Clone via HTTPS com token
-GITEA_TOKEN="54cd6fbba4bb96f0d14aad110809406547e9fc0b"
+GITEA_TOKEN="<redacted: source .env>"
 git clone https://will-zappro:${GITEA_TOKEN}@127.0.0.1:2222/will-zappro/hermes-second-brain.git /tmp/hermes-second-brain
 ```
 
@@ -170,4 +170,4 @@ curl -s -X GET "http://127.0.0.1:3300/api/v1/repos/will-zappro/hermes-second-bra
 - O `monorepo-TREE.md` é **muito grande** (15MB+) — contém a estrutura completa
 - Para tarefas específicas, procure directamente no `sb-context.md` em vez de ler tudo
 - O sync para o second-brain é automático via Gitea Actions após merge em main
-- O token GitHub (54cd6fbba4bb96f0d14aad110809406547e9fc0b) é apenas para clone HTTPS manual
+- O token GitHub (valor redigido; usar `GITEA_TOKEN` da `.env`) é apenas para clone HTTPS manual

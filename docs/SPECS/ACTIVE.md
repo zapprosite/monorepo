@@ -3,58 +3,52 @@ type: spec-index
 name: Active Specifications
 description: Canonical index of active SPECs in the monorepo
 status: filled
-generated: 2026-04-20
-supersedes: SPEC-INDEX.md (legacy)
+updated: 2026-04-24
 ---
 
 # Active Specifications
 
-**Updated:** 2026-04-23
+This file is the source of truth for active SPECs. Older specs stay in the repo
+as historical context, but implementation should start from `SPEC-001..004`.
 
-## Draft SPECs
+## Canonical SPECs
 
-| # | Title | Status | Notes |
-|---|-------|--------|-------|
-| 091 | Canonical Docs Template + Holistic Prune | DONE | This spec — defining template + cleanup |
-| 092 | Trieve RAG Integration | draft | Qdrant-native RAG pipeline — pending William approval |
+| # | Title | Status | Purpose |
+|---:|---|---|---|
+| 001 | Homelab Control Plane | active | Monorepo as the central Ubuntu Desktop control plane |
+| 002 | Hermes Agent Runtime | active | Hermes routing, skills, CLI/API adapters, execution boundaries |
+| 003 | Memory RAG LLM Stack | active | Qdrant, Trieve, Mem0, Ollama, LiteLLM, AI Gateway contract |
+| 004 | Autonomous Execution Pipeline | active | Specs, tasks, queue, workers, verification, ship/issue |
 
-## Active SPECs
+## Useful Historical Specs
 
-| # | Title | Status | Supersedes | Notes |
-|---|-------|--------|------------|-------|
-| 068 | Circuit Breaker (MEM0 wins) | codified | SPEC-073 | Implemented in `packages/circuit-breaker/` |
-| 074 | Hermes Second Brain | active | — | Second-brain sync via `scripts/sync-second-brain.sh` |
-| 090 | Orchestrator v3 | active | SPEC-070 | 14-agent enterprise orchestrator |
-| 092 | Trieve RAG Integration | draft | — | Pending William approval |
-| 115 | Painel Organism (MCP) | implemented | — | 6 MCP servers (4011-4016) operational |
+These contain useful implementation notes but are not canonical entry points.
 
-## Archived SPECs
+| Spec | Status | Replaced by | Keep for |
+|---|---|---|---|
+| SPEC-068 | historical | SPEC-002 | Circuit breaker behavior |
+| SPEC-074 | historical | SPEC-003 | Mem0 rationale |
+| SPEC-090 | historical | SPEC-004 | 3-phase pipeline idea |
+| SPEC-091 | historical | SPEC-004 | Docs pruning context |
+| SPEC-092 | historical | SPEC-003 | Trieve integration notes |
+| SPEC-093 | historical | SPEC-001 | Homelab architecture notes |
+| SPEC-106 | historical | SPEC-002 | Hermes multi-agent notes |
+| SPEC-120 | implementation note | SPEC-003 | LiteLLM embeddings incident |
+| SPEC-121 | implementation note | SPEC-003 | Homelab polish incident |
+| SPEC-122 | implementation note | SPEC-003 | Embeddings/network fix result |
+| SPEC-130 | implementation note | SPEC-003 | Provider API base rules |
+| SPEC-135 | implementation note | SPEC-004 | Vitest isolation backlog |
 
-Archived SPECs are in `docs/archive/SPECS-dead/`. See `docs/archive/SPECS-dead/README.md` for inventory.
+## Legacy Directory
 
-## Canonical Docs Structure
-
-```
-docs/
-├── SPECS/          # Feature specs — SPEC-NNN-title.md
-├── ADRs/           # Architecture Decision Records
-├── GUIDES/         # How-to guides
-├── REFERENCE/      # Technical references
-├── OPS/RUNBOOKS/   # Operational runbooks (ORCHESTRATOR-FAILURE.md only)
-└── archive/        # Archived docs — READ-ONLY
-```
-
-## Adding New SPECs
-
-1. Create `docs/SPECS/SPEC-NNN-title.md` with frontmatter `status: draft`
-2. Use template from SPEC-091 section "Canonical Docs Template"
-3. After implementation: update frontmatter to `status: active`
-4. After superseded: move to `docs/archive/SPECS-dead/` with `status: archived`
-5. Update this file to reflect the new state
+`docs/SPECs/` is legacy casing. Do not add new specs there. If content is still
+needed, migrate it into `docs/SPECS/` or reference it from the canonical specs.
 
 ## Rules
 
-- **Never** create docs in `docs/` root — always in a subdirectory
-- **Never** mix SPECs with GUIDEs
-- `docs/archive/` is READ-ONLY after move
-- All SPECs must have frontmatter with `status: filled|empty|draft|archived`
+- New active specs use `docs/SPECS/SPEC-NNN-title.md`.
+- Use the lowest useful number range. Do not continue old numbering by default.
+- Markdown must never contain real secret values.
+- Runtime truth beats aspirational docs.
+- Placeholders are acceptable only when explicitly marked as placeholders.
+- Finished incident/result specs remain historical and should not drive new work.

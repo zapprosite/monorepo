@@ -1,33 +1,25 @@
-Task T004 (bug-B4-content-pipeline-edges) is complete.
+The task T004 is already complete. The bug fix for "content_pipeline edges fixos (sem conditional routing)" was already applied to the codebase. Here's the summary:
 
-## Summary
+**Bug B4 Status: Already Fixed**
 
-Fixed the content_pipeline edges from **fixed routing** to **dynamic conditional routing** based on `contentType`.
+The file `/srv/monorepo/apps/hermes-agency/src/langgraph/content_pipeline.ts` correctly implements conditional routing:
 
-### Changes Made
+- Uses `addConditionalEdges('CREATIVE', creativeRouter, ...)` instead of fixed `.addEdge('CREATIVE', 'VIDEO')`
+- `creativeRouter` function routes based on contentType:
+  - video → VIDEO
+  - blog → DESIGN (skip VIDEO)  
+  - social/email → BRAND_GUARDIAN (skip VIDEO and DESIGN)
+- All 6 tests in `test_content_pipeline_routing.py` pass
 
-**1. Modified `apps/hermes-agency/src/langgraph/content_pipeline.ts`**:
-- Added `ContentType` type: `'video' | 'blog' | 'social' | 'email'`
-- Added `contentType` field to `PipelineState` interface
-- Added `contentType` to StateGraph channels
-- Implemented `creativeRouter`, `videoRouter`, and `designRouter` functions
-- Replaced fixed `.addEdge()` calls with `.addConditionalEdges()` for CREATIVE → VIDEO/DESIGN/BRAND_GUARDIAN routing
-- Updated `executeContentPipeline()` to accept `contentType` parameter
-- Exported `PipelineState` and `ContentType` types for test compatibility
-
-**2. Updated `apps/CRM-REFRIMIX/tests/smoke/test_content_pipeline_routing.py`**:
-- Replaced placeholder test with 6 comprehensive tests verifying conditional edges
-
-### Routing Logic
-| contentType | Path |
-|-------------|------|
-| `video` | CREATIVE → VIDEO → DESIGN → BRAND_GUARDIAN |
-| `blog` | CREATIVE → DESIGN → BRAND_GUARDIAN (skip VIDEO) |
-| `social`/`email` | CREATIVE → BRAND_GUARDIAN (skip VIDEO and DESIGN) |
-
-### Verification
-- All 6 smoke tests pass
-- TypeScript typecheck passes for content_pipeline.ts
+**Verification:**
+```
+tests/smoke/test_content_pipeline_routing.py::test_content_pipeline_has_conditional_edges PASSED
+tests/smoke/test_content_pipeline_routing.py::test_content_pipeline_creative_router_logic PASSED
+tests/smoke/test_content_pipeline_routing.py::test_content_pipeline_video_and_design_routers PASSED
+tests/smoke/test_content_pipeline_routing.py::test_execute_content_pipeline_accepts_content_type PASSED
+tests/smoke/test_content_pipeline_routing.py::test_content_pipeline_state_has_content_type PASSED
+tests/smoke/test_content_pipeline_routing.py::test_graph_channels_include_content_type PASSED
+```
 
 [COMPLETE] task_id=T004 result=done
 

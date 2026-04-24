@@ -1,0 +1,467 @@
+# architecture-map.yaml — C4 Model: Hermes Agent Ecosystem
+# Generated: 2026-04-24
+# SPEC: SPEC-VIBE-BRAIN-REFACTOR
+# Purpose: Memory architecture entry point for brain refactor
+
+version: "1.0.0"
+project: hermes-brain-ecosystem
+
+# =============================================================================
+# LEVEL 1 — SYSTEM CONTEXT
+# =============================================================================
+context:
+  system:
+    name: Hermes Agent Ecosystem
+    description: >
+      Multi-agent marketing platform with 3-layer memory architecture:
+      REPO (source of truth) → QDRANT (RAG) → MEM0 (preferências)
+    boundaries:
+      - "Telegram user → Hermes Agency (skills + LangGraph)"
+      - "Claude Code → Hermes Second Brain (Mem0 + Qdrant)"
+      - "External APIs → LiteLLM/Ollama (model routing)"
+
+# =============================================================================
+# LEVEL 2 — CONTAINERS (Applications/Services)
+# =============================================================================
+containers:
+
+  # Container 1: Hermes Agency (TypeScript/Node.js)
+  - id: hermes-agency
+    name: Hermes Agency
+    type: application
+    path: /srv/monorepo/apps/hermes-agency/
+    tech: TypeScript + Fastify + LangGraph
+    description: >
+      CEO_REFRIMIX_bot — supervisor that coordinates specialized marketing agents.
+      Routes user input via trigger matching or LLM, executes skills with circuit breakers.
+    entry_point: src/index.ts (health) + src/telegram/bot.ts (polling)
+    port: 3001
+    external_exposure: Telegram bot @REFRIMIX_Bot
+    responsibilities:
+      - Telegram message handling (polling, rate limiting, Redis locks)
+      - CEO routing (trigger O(1) + LLM fallback)
+      - Skill orchestration (13 skills)
+      - LangGraph workflow execution
+      - Brand Guardian quality gates
+    boundaries:
+      upstream: Telegram users
+      downstream: LiteLLM, Ollama, Qdrant, Trieve, Mem0, PostgreSQL
+
+  # Container 2: Hermes Second Brain (Python/FastAPI)
+  - id: hermes-second-brain
+    name: Hermes Second Brain
+    type: application
+    path: /srv/hermes-second-brain/
+    tech: Python + FastAPI + Mem0 + Qdrant
+    description: >
+      Persistent memory layer for Hermes via Mem0 + Qdrant + SQLite.
+      CLI commands: /memory save|query|list|get|delete, /task new|list|done|stats
+    entry_point: |
+      API: uvicorn apps.api.main:app --port 6334
+      CLI: python -m apps.cli.memory_commands
+      CLI: python -m apps.cli.task_commands
+    port: 6334
+    external_exposure: localhost only
+    responsibilities:
+      - Semantic memory storage (Mem0)
+      - Vector memory retrieval (Qdrant)
+      - Task tracking (SQLite)
+      - Memory CRUD via REST API
+    boundaries:
+      upstream: Claude Code, Hermes Agency
+      downstream: Qdrant (:6333), Ollama (:11434)
+
+  # Container 3: Hermes Gateway (Node.js)
+  - id: hermes-gateway
+    name: Hermes Gateway
+    type: api-gateway
+    description: >
+      Hermes agent endpoint. AI gateway facade for OpenAI-compatible API.
+      Endpoint: hermes.zappro.site → :8642
+    port: 8642
+    external_exposure: hermes.zappro.site
+    responsibilities:
+      - AI gateway facade (OpenAI-compatible)
+      - Model routing (MiniMax primary, Ollama fallback)
+      - Auth via AI_GATEWAY_FACADE_KEY
+
+  # Container 4: MCP Servers
+  - id: mcp-servers
+    name: MCP Servers
+    type: mcps
+    description: Model Context Protocol servers for Hermes Agency
+    servers:
+      - id: mcp-postgres
+        path: /srv/monorepo/mcps/mcp-postgres/
+        file: server.py
+        description: PostgreSQL MCP — schema per app/lead, CRUD operations
+        port: 5432 (PostgreSQL)
+      - id: mcp-memory
+        path: /srv/monorepo/mcps/mcp-memory/
+        file: server.py, server_simple.py
+        description: Memory MCP — Hermes second brain access via MCP protocol
+
+# =============================================================================
+# LEVEL 3 — COMPONENTS (Major Building Blocks)
+# =============================================================================
+components:
+
+  # Hermes Agency Components
+  - container: hermes-agency
+    id: telegram-bot
+    name: Telegram Bot
+    path: src/telegram/bot.ts
+    type: component
+    responsibility: >
+      Polling updates via node-telegram-bot-api, rate limiting (sliding window),
+      distributed locks (Redis SETNX), file validation (MIME magic bytes)
+    tools:
+      - distributed_lock.ts (Redis SETNX)
+      - rate_limiter.ts (sliding window)
+      - file_validator.ts (MIME + size)
+
+  - container: hermes-agency
+    id: agency-router
+    name: Agency Router (CEO Layer)
+    path: src/router/agency_router.ts
+    type: component
+    responsibility: >
+      getSkillByTrigger() — O(1) trigger map lookup
+      askCeoToRoute() — MiniMax LLM for ambiguous inputs
+      executeSkill() — runs skill tools sequentially
+      human_gate_trigger() — pauses for approval
+
+  - container: hermes-agency
+    id: tool-registry
+    name: Tool Registry
+    path: src/skills/tool_registry.ts
+    type: component
+    responsibility: >
+      Central registry of all tools across 13 skills.
+      Per-tool circuit breaker (3 failures → open for 30s).
+    stats:
+      tools: 50+
+      skills: 13
+      circuit_breakers: per-tool
+
+  - container: hermes-agency
+    id: langgraph-workflows
+    name: LangGraph Workflows
+    path: src/langgraph/
+    type: component
+    workflows:
+      - content_pipeline.ts  # Full content creation + Brand Guardian
+      - onboarding_flow.ts   # Client onboarding sequence
+      - lead_qualification.ts # Lead scoring and routing
+      - social_calendar.ts   # Social media scheduling
+      - status_update.ts     # Status reporting
+      - supervisor.ts        # CEO supervisor coordinator
+    checkpointer: MemorySaver
+    interruptBefore: [HUMAN_GATE]
+
+  - container: hermes-agency
+    id: skills
+    name: Skills (13 skills)
+    path: src/skills/
+    type: component
+    skills:
+      - agency-ceo           # /start, /agency, /ceo, brief, campaign
+      - agency-onboarding    # novo cliente, onboarding
+      - agency-video-editor  # vídeo, youtube, transcrever
+      - agency-organizer     # tarefa, task, organizar
+      - agency-creative      # criar, script, copy, ideia
+      - agency-design        # design, imagem, visual
+      - agency-social        # postar, social, hashtag
+      - agency-pm            # milestone, status, projeto
+      - agency-analytics     # métricas, analytics, relatório
+      - agency-brand-guardian # brand, marca, consistência
+      - agency-client-success # nps, feedback, cliente
+      - rag-instance-organizer # rag, knowledge base, indexar
+      - agency-mem0-manager  # memória, memory
+
+  - container: hermes-agency
+    id: litellm-router
+    name: LiteLLM Router
+    path: src/litellm/router.ts
+    type: component
+    responsibility: Model routing — MiniMax primary, Ollama fallback
+    models:
+      primary: minimax/MiniMax-M2.7
+      fallback: ollama/llama3-portuguese-tomcat-8b
+      embedding: nomic-ai/e5-mistral-7b-instruct
+
+  - container: hermes-agency
+    id: qdrant-client
+    name: Qdrant Client
+    path: src/qdrant/client.ts
+    type: component
+    responsibility: Vector storage and retrieval
+    collections:
+      - agency_clients
+      - agency_campaigns
+      - agency_conversations
+      - agency_assets
+      - agency_brand_guides
+      - agency_tasks
+      - agency_video_metadata
+      - agency_knowledge
+      - agency_working_memory
+
+  - container: hermes-agency
+    id: mem0-client
+    name: Mem0 Client
+    path: src/mem0/
+    type: component
+    files:
+      - client.ts       # Session memory with TTL support
+      - longterm.ts     # Long-term memory managers
+      - embeddings.ts   # Ollama nomic-embed-text
+      - index.ts        # All exports
+    memory_types:
+      - preference
+      - campaign_context
+      - brand_guideline
+      - interaction_history
+      - feedback
+
+  # Hermes Second Brain Components
+  - container: hermes-second-brain
+    id: memory-manager
+    name: Memory Manager
+    path: libs/memory/manager.py
+    type: component
+    responsibility: Wrapper around mem0ai — save, search, get, delete, list_recent
+    methods:
+      - save(text, tags, source)
+      - search(query, limit)
+      - get(memory_id)
+      - delete(memory_id)
+      - list_recent(limit)
+
+  - container: hermes-second-brain
+    id: memory-config
+    name: Memory Config
+    path: libs/memory/config.py
+    type: component
+    responsibility: Settings loader — backend, qdrant_url, ollama_url, model
+    env_prefix: MEM0_
+    defaults:
+      qdrant_url: http://localhost:6333
+      qdrant_collection: will
+      ollama_model: nomic-ai/e5-mistral-7b-instruct
+
+  - container: hermes-second-brain
+    id: api-routes
+    name: API Routes
+    path: apps/api/
+    type: component
+    routes:
+      router_memory.py:
+        - POST /memory/        — save memory
+        - POST /memory/query   — semantic search
+        - GET /memory/{id}     — retrieve
+        - DELETE /memory/{id}  — delete
+        - GET /memory/         — list recent (limit=10)
+      router_tasks.py:
+        - POST /task/          — create task
+        - GET /task/           — list (filter by status)
+        - PATCH /task/{id}     — update title
+        - POST /task/{id}/done — mark done
+        - DELETE /task/{id}   — delete
+        - GET /task/stats      — pending vs done count
+
+  - container: hermes-second-brain
+    id: cli-commands
+    name: CLI Commands
+    path: apps/cli/
+    type: component
+    commands:
+      memory_commands.py: save, search, list, get, delete
+      task_commands.py:   new, list, done, delete, stats
+
+  - container: hermes-second-brain
+    id: librarian-skill
+    name: Librarian Skill
+    path: skills/librarian/SKILL.md
+    type: component
+    responsibility: Hermes Agent skill — /memory and /task commands
+    triggers:
+      - /memory
+      - /task
+
+# =============================================================================
+# EXTERNAL INTEGRATIONS
+# =============================================================================
+external_integrations:
+
+  - id: litellm
+    name: LiteLLM Proxy
+    type: llm-router
+    url: localhost:4000
+    description: >
+      Central LLM router. PRIMARY: minimax/MiniMax-M2.7 (50$ plan).
+      FALLBACK: ollama/llama3-portuguese-tomcat-8b.
+      EMBEDDINGS: nomic-ai/e5-mistral-7b-instruct via Ollama.
+
+  - id: ollama
+    name: Ollama
+    type: llm-embedder
+    url: localhost:11434
+    description: >
+      Local LLM and embedding server.
+      Models: nomic-ai/e5-mistral-7b-instruct (embeddings),
+      llama3-portuguese-tomcat-8b (fallback LLM)
+
+  - id: qdrant
+    name: Qdrant
+    type: vector-db
+    url: localhost:6333
+    description: >
+      Vector database for RAG. Collections: agency_*, hermes_*, refrimix_*, etc.
+      Used by both Hermes Agency (direct client) and Second Brain (Mem0 backend).
+
+  - id: coolify
+    name: Coolify
+    type: paas
+    url: localhost:8000
+    description: >
+      Deployment platform for homelab services.
+      Manages container lifecycle, health checks, rollback.
+
+  - id: redis
+    name: Redis
+    type: cache-lock
+    url: localhost:6379
+    description: >
+      Sliding window rate limiting, distributed locks (SETNX),
+      session cache, brand guidelines cache.
+
+  - id: postgres
+    name: PostgreSQL
+    type: relational-db
+    url: localhost:5432
+    description: >
+      Schema per app/lead pattern. MCP server for Hermes Agency.
+      Schemas: hermes, hermes_will, refrimix, refrimix_summer2024, painel_alfa, hvacr_xyz
+
+  - id: trieve
+    name: Trieve
+    type: rag-api
+    url: localhost:6435
+    description: >
+      Primary RAG interface for Hermes Agency.
+      Hybrid search (semantic + keyword), dataset management by app/lead,
+      re-ranking with nomic-embed-text.
+    datasets:
+      - hermes-knowledge, hermes-memory
+      - monorepo-docs
+      - refrimix-brand, refrimix-campaigns-context
+      - painel-lead-alfa-knowledge
+      - hvacr-knowledge
+      - governance
+
+# =============================================================================
+# MEMORY LAYERS (Brain Refactor Target — 3-Layer Pattern)
+# =============================================================================
+memory_layers:
+  # Layer 1: Source of Truth (Versioned, Reviewed)
+  - id: repo
+    name: REPO — Source of Truth
+    type: git-versioned
+    path: /srv/hermes-second-brain/
+    description: >
+      Versioned documentation, reviewed code, source of truth.
+      Entry points: AGENTS.md, llms.txt, architecture-map.yaml
+    rules:
+      - "Repo = source of truth (versioned, reviewed)"
+      - "Never mix: documentation goes to repo/Mem0, not both"
+
+  # Layer 2: RAG Retrieval (Qdrant)
+  - id: qdrant
+    name: QDRANT — RAG Vector Store
+    type: vector-db
+    description: >
+      Semantic search with metadata filters.
+      Used by: Hermes Agency (direct), Second Brain (Mem0 backend)
+    metadata_schema:
+      project: hermes-second-brain
+      doc_type: adr|runbook|architecture|api|prompt|glossary
+      service: hermes-agents|mcloud|codex
+      source_path: path/to/file.md
+      updated_at: YYYY-MM-DD
+      owner: william
+      version: v1
+
+  # Layer 3: Dynamic Memory (Mem0)
+  - id: mem0
+    name: MEM0 — Preferences & Patterns
+    type: memory-layer
+    description: >
+      Dynamic memory: user preferences, interaction history,
+      campaign context, brand guidelines.
+      Currently broken: embedding model mismatch (OPENAI_EMBEDDINGS_MODEL=embedding-nomic fix pending)
+    memory_types:
+      - preference (user likes/dislikes)
+      - campaign_context (active campaign details)
+      - brand_guideline (brand rules)
+      - interaction_history (past interactions)
+      - feedback (client feedback)
+
+  # Layer 4: Structured Data (PostgreSQL)
+  - id: postgres
+    name: POSTGRES — Structured Memory
+    type: relational-db
+    description: >
+      Per-app/lead schemas. Tasks, clients, campaigns, metrics.
+      Accessed via MCP server (mcp-postgres).
+    schema_pattern: "{app}[_{lead}]"
+
+  # Layer 5: Cache (Redis)
+  - id: redis
+    name: REDIS — Cache Layer
+    type: cache-lock
+    description: >
+      Rate limits, distributed locks, session cache, brand guidelines cache.
+    ttl_patterns:
+      - ratelimit: sliding window
+      - lock: 30s TTL
+      - session: 1h TTL
+      - brand: 24h TTL
+
+# =============================================================================
+# DATA FLOWS
+# =============================================================================
+data_flows:
+  - name: Telegram → Hermes Agency
+    path: Telegram → bot.ts → agency_router.ts → TOOL_REGISTRY → skills/langgraph
+    description: User input routed via trigger match or LLM, executed with circuit breakers
+
+  - name: Memory Query (Claude Code)
+    path: Claude Code → Second Brain API (:6334) → MemoryManager → Qdrant/Mem0
+    description: CLI or API call for memory save/search/retrieve
+
+  - name: RAG Retrieval (Hermes Agency)
+    path: agency_router → rag_retrieve → Trieve → Qdrant + Ollama embeddings
+    description: Hybrid search across agency knowledge bases
+
+  - name: LLM Inference
+    path: Agency → LiteLLM (:4000) → MiniMax (primary) or Ollama (fallback)
+    description: Model routing with fallback chain
+
+  - name: Memory Write (Post-Request)
+    path: Response → mem0Store → Mem0 API (:5000) → Ollama embeddings → Qdrant
+    description: Persist session memory after each request
+
+# =============================================================================
+# PORTS (Active Services)
+# =============================================================================
+ports:
+  - port: 3001; service: hermes-agency (health); exposure: localhost
+  - port: 6334; service: hermes-second-brain-api; exposure: localhost
+  - port: 6333; service: qdrant; exposure: localhost
+  - port: 6379; service: redis; exposure: localhost
+  - port: 5432; service: postgresql; exposure: localhost
+  - port: 8642; service: hermes-gateway; exposure: hermes.zappro.site
+  - port: 11434; service: ollama; exposure: localhost
+  - port: 4000; service: litellm; exposure: localhost
+  - port: 6435; service: trieve; exposure: localhost

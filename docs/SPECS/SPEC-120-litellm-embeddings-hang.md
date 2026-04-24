@@ -60,14 +60,14 @@ curl --max-time 15 -s -X POST "http://192.168.15.83:11434/v1/embeddings" \
 # Funciona - chat via LiteLLM
 curl --max-time 15 -s -X POST "http://127.0.0.1:4000/v1/chat/completions" \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer sk-zappro-lm-2026-s8k3m9x2p7r6t5w1v4c8n0d5j7f9g3h6i2k4l6m8n0p1" \
+  -H "Authorization: Bearer $LITELLM_MASTER_KEY" \
   -d '{"model": "qwen2.5vl-3b", "messages": [{"role": "user", "content": "hi"}], "max_tokens": 10}'
 # Retorna resposta em ~0.5s
 
 # HANG - embeddings via LiteLLM
 curl --max-time 15 -s -X POST "http://127.0.0.1:4000/v1/embeddings" \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer sk-zappro-lm-2026-s8k3m9x2p7r6t5w1v4c8n0d5j7f9g3h6i2k4l6m8n0p1" \
+  -H "Authorization: Bearer $LITELLM_MASTER_KEY" \
   -d '{"model": "embedding-nomic", "input": "hello"}'
 # Trava infinitamente (exit 124 timeout)
 ```

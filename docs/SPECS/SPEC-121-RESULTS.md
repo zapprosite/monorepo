@@ -8,7 +8,7 @@
 - **Network**: isolated - container TCP externo BLOQUEADO, mas host LAN Ollama `192.168.15.83` reachable
 
 ### Qdrant
-- **API Key**: correct (`71cae77676e2a5fd552d172caa1c3200`)
+- **API Key**: correct (`QDRANT_API_KEY` present in `.env`; value redacted)
 - **Collections**: 12 accessible (agency_video_metadata, agency_campaigns, agency_working_memory, openclaw-memory, agency_assets, will, agency_clients, agency_brand_guides, agency_tasks, mem0migrations, agency_conversations, agency_knowledge)
 
 ### mcp-memory

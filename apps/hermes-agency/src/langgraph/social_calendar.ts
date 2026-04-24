@@ -112,14 +112,21 @@ async function humanGateNode(state: SocialCalendarState): Promise<Partial<Social
     `[SocialCalendar] Brand score ${(state.brandScore ?? 0).toFixed(2)} — requesting human approval`,
   );
 
-  const approved = await interrupt({
+  // BUG FIX: interrupt() returns the resume value passed via Command.resume.
+  // The resume value is { humanApproved: boolean, humanComment?: string }
+  // Previously was returning `approved` directly (an object), but should return .humanApproved
+  const approval = await interrupt({
     brandScore: state.brandScore,
     postCount: state.scheduledPosts.length,
     message: `Aprovar publicação de ${state.scheduledPosts.length} posts? Brand score: ${state.brandScore?.toFixed(2)}`,
   });
 
-  console.log(`[SocialCalendar] Human approval result: ${approved}`);
-  return { currentStep: 'HUMAN_GATE', humanApproved: approved };
+  console.log(`[SocialCalendar] Human approval result:`, approval);
+  return {
+    currentStep: 'HUMAN_GATE',
+    humanApproved: approval.humanApproved,
+    humanComment: approval.humanComment,
+  };
 }
 
 // Node: Generate metrics report
@@ -251,9 +258,10 @@ export async function approveSocialCalendar(
 
   try {
     // Resume using Command to provide the interrupt value
+    // BUG FIX: Pass object { humanApproved, humanComment } to match what interrupt returns
     const result = await compiledGraph.invoke(
       new Command({
-        resume: approved, // interrupt expects boolean directly
+        resume: { humanApproved: approved, humanComment: comment },
       }),
       {
         configurable: { thread_id: threadId },

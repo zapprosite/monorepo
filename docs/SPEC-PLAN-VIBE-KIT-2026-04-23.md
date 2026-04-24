@@ -54,7 +54,7 @@ SPEC-OWNERSHIP.md
 ## 4. Pré-condições (já verificadas)
 
 - [x] Mem0 conecta com config via LiteLLM (`embedding-nomic`)
-- [x] Qdrant key correta (`71cae77676e2a5fd552d172caa1c3200`)
+- [x] Qdrant key correta (`QDRANT_API_KEY` presente em `.env`; valor redigido)
 - [x] vibe-kit.sh corrigido (544L, syntax OK)
 - [x] mclaude headless funciona: `mclaude -p "prompt"`
 - [x] 10 bugs extraídas do SPEC-OWNERSHIP

@@ -5,6 +5,7 @@ set -euo pipefail
 
 VIBE_DIR="/srv/monorepo/.claude/vibe-kit"
 MONOREPO_DIR="/srv/monorepo"
+STATE_FILE="$VIBE_DIR/state.json"
 QUEUE_FILE="$VIBE_DIR/queue.json"
 LOG_FILE="$VIBE_DIR/cron-launcher.log"
 
@@ -42,8 +43,9 @@ if pgrep -f "mclaude.*MiniMax" > /dev/null 2>&1; then
 fi
 
 # Launch vibe-kit.sh in background
-# Use absolute SPEC path since SPEC env var resolves to $MONOREPO_DIR/docs/SPECS/${SPEC}.md
-SPEC="SPEC-OWNERSHIP" \
+# SPEC-OWNERSHIP.md is at /srv/monorepo/docs/SPEC-OWNERSHIP.md (not in SPECS subdir)
+# Must leave SPEC unset so vibe-kit.sh uses the absolute path argument instead of
+# always resolving to $MONOREPO_DIR/docs/SPECS/${SPEC}.md
 APP="CRM-REFRIMIX" \
 nohup bash "$MONOREPO_DIR/scripts/vibe/vibe-kit.sh" \
     "/srv/monorepo/docs/SPEC-OWNERSHIP.md" \

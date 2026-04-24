@@ -60,7 +60,7 @@ function buildRedisUrl(): string {
 ```bash
 # Qdrant API (no password by default on local dev)
 QDRANT_URL=http://localhost:6333
-QDRANT_API_KEY=71cae77676e2a5fd552d172caa1c3200  # from Docker container inspect
+QDRANT_API_KEY=<redacted: source .env>  # from Docker container inspect
 ```
 
 ## Collection Naming Convention

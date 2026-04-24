@@ -125,11 +125,16 @@ async function taskNode(state: LeadQualificationState): Promise<Partial<LeadQual
   }
 }
 
-// Conditional edge: route based on human approval
+// Conditional edge: route based on human approval for ALL action types
+// BUG FIX: Previously only checked humanApproved for 'onboarding' action,
+// causing 'nurture' and 'reject' paths to auto-approve without interrupt
 function shouldContinue(state: LeadQualificationState): 'TASK' | 'END' {
-  if (state.action === 'onboarding' && state.humanApproved !== true) {
+  // All paths (onboarding, nurture, reject) require human approval
+  if (state.humanApproved !== true) {
+    console.log(`[LeadQualification] Human rejected or pending — END`);
     return 'END';
   }
+  console.log(`[LeadQualification] Human approved — TASK`);
   return 'TASK';
 }
 

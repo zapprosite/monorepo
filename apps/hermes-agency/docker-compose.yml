@@ -11,9 +11,10 @@ services:
       - /srv/monorepo/.env
     environment:
       - NODE_ENV=production
-      - QDRANT_URL=http://aurelia-qdrant-1:6333
-      - REDIS_URL=redis://:Fifine156458*@aurelia-redis-1:6379
-      - REDIS_HOST=aurelia-redis-1
+      - TELEGRAM_BOT_TOKEN=8740522933:AAEkDbKfMeUyZW70SZRZGJ-B8cB6lkJFhcA
+      - QDRANT_URL=http://zappro-qdrant:6333
+      - REDIS_URL=redis://:Fifine156458*@zappro-redis:6379
+      - REDIS_HOST=zappro-redis
       - OLLAMA_URL=http://host.docker.internal:11434
       - STT_DIRECT_URL=http://host.docker.internal:8204
       - TTS_BRIDGE_URL=http://host.docker.internal:8012
@@ -22,8 +23,7 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     networks:
-      - aurelia_default
-      - aurelia-net
+      - zappro-infra
     healthcheck:
       test: ["CMD", "node", "-e", "require('http').get('http://localhost:3001/health',r=>{process.exit(r.statusCode===200?0:1)}).on('error',()=>process.exit(1))"]
       interval: 30s
@@ -32,7 +32,5 @@ services:
       start_period: 30s
 
 networks:
-  aurelia_default:
-    external: true
-  aurelia-net:
+  zappro-infra:
     external: true
