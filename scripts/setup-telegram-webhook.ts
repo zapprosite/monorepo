@@ -40,8 +40,8 @@ interface WebhookInfo {
 const BOT_CONFIGS: Record<string, BotConfig> = {
   CEO_REFRIMIX: {
     name: 'CEO_REFRIMIX',
-    envToken: 'HERMES_AGENCY_BOT_TOKEN',
-    envWebhookUrl: 'HERMES_AGENCY_WEBHOOK_URL',
+    envToken: 'TELEGRAM_BOT_TOKEN',
+    envWebhookUrl: 'HERMES_GATEWAY_WEBHOOK_URL',
     webhookPath: '/webhook/ceo_refrimix',
     description: 'CEO Refrimix Bot - Agent lider, roteamento de campanhas',
   },
@@ -320,12 +320,12 @@ EXEMPLOS
 
 VARIÁVEIS DE AMBIENTE
   TELEGRAM_WEBHOOK_BASE_URL      Base URL para webhooks (default: https://hermes.zappro.site)
-  HERMES_AGENCY_BOT_TOKEN        Token do CEO bot
+  TELEGRAM_BOT_TOKEN            Token do CEO bot (@CEO_REFRIMIX_bot)
   ATHLOS_BOT_TOKEN               Token do Athlos bot
   HOMELAB_LOGS_BOT_TOKEN         Token do Homelab bot
 
   # Override de URLs específicas
-  HERMES_AGENCY_WEBHOOK_URL
+  HERMES_GATEWAY_WEBHOOK_URL
   ATHLOS_WEBHOOK_URL
   HOMELAB_LOGS_WEBHOOK_URL
 `);

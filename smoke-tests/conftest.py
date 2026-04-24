@@ -20,7 +20,7 @@ os.environ.setdefault("MCP_MEMORY_URL", "http://localhost:4016")
 os.environ.setdefault("QDRANT_URL", "http://10.0.19.5:6333")
 os.environ.setdefault("QDRANT_API_KEY", "71cae77676e2a5fd552d172caa1c3200")
 os.environ.setdefault("HERMES_URL", "http://localhost:4003")
-os.environ.setdefault("HERMES_AGENCY_BOT_TOKEN", "8759194670:AAGHntxPUsfvbSrYNwOhBGuNUpmeCUw1-qY")
+os.environ.setdefault("TELEGRAM_BOT_TOKEN", "8759194670:AAGHntxPUsfvbSrYNwOhBGuNUpmeCUw1-qY")
 
 # =============================================================================
 # Fallback port/host configurations

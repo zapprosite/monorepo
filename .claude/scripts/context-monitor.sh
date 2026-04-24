@@ -5,7 +5,7 @@
 
 set -euo pipefail
 
-TELEGRAM_BOT_TOKEN="$(grep HERMES_AGENCY_BOT_TOKEN /srv/monorepo/.env | cut -d= -f2 | tr -d '"')"
+TELEGRAM_BOT_TOKEN="$(grep TELEGRAM_BOT_TOKEN /srv/monorepo/.env | cut -d= -f2 | tr -d '"')"
 CHAT_ID="7220607041"
 SESSION_TRACKER="${HOME}/.hermes/session_tracker.json"
 SESSION_SUMMARY="${HOME}/.hermes/session_summary.md"

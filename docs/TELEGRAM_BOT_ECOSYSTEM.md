@@ -52,31 +52,14 @@ Ecossistema de bots Telegram para o Hermes Gateway + homelab operations.
 
 **Tokens:**
 ```
-HERMES_AGENCY_BOT_TOKEN=8759194670:AAGHntxPUsfvbSrYNwOhBGuNUpmeCUw1-qY  # @CEO_REFRIMIX_bot
+HERMES_GATEWAY_BOT_TOKEN=8759194670:AAGHntxPUsfvbSrYNwOhBGuNUpmeCUw1-qY  # @CEO_REFRIMIX_bot
 HOMELAB_LOGS_BOT_TOKEN=8738372904:AAEIlgthxeIQotXj89uOFmeZErNRT8Ym4_k  # @HOMELAB_LOGS_bot
-```
-
-### Sistema 2: Hermes Agency (Docker Node.js)
-
-| Atributo | Valor |
-|----------|-------|
-| **Localização** | Docker (Node.js) |
-| **Porta** | 3001 |
-| **URL Base** | N/A (Gateway only) |
-| **Bots** | N/A (Gateway only) |
-| **Modo** | Webhook |
-
-**Tokens:**
-```
-ATHLOS_BOT_TOKEN=8723373013:AAHDqjayJcSdLKYyqzqaguMo21tDb-GKZVI         # @Athlos_Life_bot
 ```
 
 ### Regras de Ouro (para LLMs futuros)
 
-1. **NÃO EXISTE router central** — `agency_router.ts` é apenas para o Hermes Agency
-2. **NÃO HÁ comunicação** entre Hermes Gateway e Hermes Agency
-3. **Polling vs Webhook** — Gateway usa polling, Agency usa webhook
-4. **CEO_REFRIMIX_bot** está no Gateway, **NÃO** passa pelo Agency
+1. **Polling vs Webhook** — Gateway usa polling
+2. **CEO_REFRIMIX_bot** está no Gateway
 
 ## Tabela de Tokens Reais
 
@@ -96,7 +79,7 @@ homelab_logs:     https://hermes-gateway.zappro.site/webhook/homelab_logs
 
 ### 1. CEO_REFRIMIX_bot (Sistema: Hermes Gateway)
 
-**Token:** `HERMES_AGENCY_BOT_TOKEN=8759194670:AAGHntxPUsfvbSrYNwOhBGuNUpmeCUw1-qY`
+**Token:** `HERMES_GATEWAY_BOT_TOKEN=8759194670:AAGHntxPUsfvbSrYNwOhBGuNUpmeCUw1-qY`
 
 **Comandos:**
 ```
@@ -141,34 +124,13 @@ homelab_logs:     https://hermes-gateway.zappro.site/webhook/homelab_logs
 - Error reports (logs agregados)
 - Alert acknowledgment workflow
 
-### 3. Athlos_Life_bot
-
-**Token:** `ATHLOS_BOT_TOKEN=8723373013:AAHDqjayJcSdLKYyqzqaguMo21tDb-GKZVI`
-
-**Comandos:**
-```
-/start        — Boas-vindas Athlos
-/brand        — Guidelines de marca
-/content      — Gerar conteúdo Athlos
-/campaign     — Campanhas Athlos
-/analytics    — Métricas da marca
-/settings     — Configurações
-/help         — Ajuda
-```
-
-**Capacidades:**
-- Brand consistency enforcement
-- Content generation específico para Athlos
-- Campaign management separado
-- Analytics segregados por marca
-
 ## Variáveis de Ambiente Reais
 
 ### Hermes Gateway (Sistema 1)
 
 ```bash
 HERMES_GATEWAY_URL=http://127.0.0.1:8642
-HERMES_AGENCY_BOT_TOKEN=8759194670:AAGHntxPUsfvbSrYNwOhBGuNUpmeCUw1-qY
+HERMES_GATEWAY_BOT_TOKEN=8759194670:AAGHntxPUsfvbSrYNwOhBGuNUpmeCUw1-qY
 HOMELAB_LOGS_BOT_TOKEN=8738372904:AAEIlgthxeIQotXj89uOFmeZErNRT8Ym4_k
 HERMES_ADMIN_USER_IDS=7220607041
 HERMES_MAX_FILE_SIZE=20971520  # 20MB

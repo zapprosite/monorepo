@@ -21,7 +21,6 @@ Total: 101 skills
 | 15 | Popular Web Designs | `~/.hermes/skills/creative/popular-web-designs/SKILL.md` |
 | 16 | Songwriting & AI Music Generation | `~/.hermes/skills/creative/songwriting-and-ai-music/SKILL.md` |
 | 17 | CJK Character Scanner — Skill | `~/.hermes/skills/devops/cjk-char-scanner/SKILL.md` |
-| 18 | deploy-hermes-agency | `~/.hermes/skills/devops/deploy-hermes-agency/SKILL.md` |
 | 19 | Gitea Actions — Debug Workflow Failures | `~/.hermes/skills/devops/gitea-actions-debug/SKILL.md` |
 | 20 | Kokoro TTS Debug | `~/.hermes/skills/devops/-tts-debug/SKILL.md` |
 | 21 | LiteLLM Debug Skill | `~/.hermes/skills/devops/litellm-debug/SKILL.md` |

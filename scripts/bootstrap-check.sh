@@ -30,7 +30,7 @@ REQUIRED_SECRETS=(
 # ── Optional secrets ──────────────────────────────────────────
 OPTIONAL_SECRETS=(
   "CONTEXT7_API_KEY"
-  "HERMES_AGENCY_BOT_TOKEN"
+  "TELEGRAM_BOT_TOKEN"
   "TELEGRAM_CHAT_ID"
 )
 
@@ -42,7 +42,7 @@ SECRET_PURPOSE=(
   ["GITEA_TOKEN"]="Gitea Actions authentication"
   ["CLAUDE_API_KEY"]="Claude API for AI operations"
   ["CONTEXT7_API_KEY"]="Documentation lookup API"
-  ["HERMES_AGENCY_BOT_TOKEN"]="Telegram notifications"
+  ["TELEGRAM_BOT_TOKEN"]="Telegram notifications"
   ["TELEGRAM_CHAT_ID"]="Telegram chat for notifications"
 )
 
