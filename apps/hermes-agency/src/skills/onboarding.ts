@@ -10,6 +10,7 @@ import {
   type CollectionName,
   type PointPayload,
 } from '../qdrant/client.js';
+import { fetchClient } from '../utils/fetch-client.js';
 // LLM import reserved for future personalized welcome messages
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 
@@ -148,7 +149,7 @@ Best,
 Hermes Agency AI`;
 
     const url = `https://api.telegram.org/bot${HERMES_AGENCY_BOT_TOKEN}/sendMessage`;
-    const response = await fetch(url, {
+    const response = await fetchClient(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

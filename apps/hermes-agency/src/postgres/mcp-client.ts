@@ -1,3 +1,5 @@
+import { fetchClient } from '../utils/fetch-client.js';
+
 const MCP_HOST = process.env['MCP_POSTGRES_HOST'] ?? 'localhost';
 const MCP_PORT = process.env['MCP_POSTGRES_PORT'] ?? '4017';
 const MCP_URL = `http://${MCP_HOST}:${MCP_PORT}/tools/call`;
@@ -37,7 +39,7 @@ export interface WriteResult {
 }
 
 async function callMcpTool(name: string, arguments_: Record<string, unknown>): Promise<unknown> {
-  const response = await fetch(MCP_URL, {
+  const response = await fetchClient(MCP_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ name, arguments: arguments_ }),

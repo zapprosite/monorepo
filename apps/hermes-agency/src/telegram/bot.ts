@@ -19,6 +19,7 @@ import { randomBytes } from 'node:crypto';
 import { acquireLock, releaseLock } from './distributed_lock';
 import { checkRateLimit, startRateLimitCleanup } from './rate_limiter';
 import { validateFile } from './file_validator';
+import { fetchClient } from '../utils/fetch-client.js';
 
 // ── Env vars with fallbacks ─────────────────────────────────────────────────
 const BOT_TOKEN = process.env['HERMES_AGENCY_BOT_TOKEN'] ?? '';
@@ -176,7 +177,7 @@ async function downloadTelegramFile(fileId: string, token: string): Promise<stri
     throw new Error(`Invalid file host: ${urlObj.hostname}`);
   }
 
-  const response = await fetch(url, { signal: AbortSignal.timeout(30_000) });
+  const response = await fetchClient(url, { signal: AbortSignal.timeout(30_000) });
   if (!response.ok) throw new Error(`Failed to download file: ${response.status}`);
 
   // HC-31: Stream download with size limit — prevent memory exhaustion from large files
@@ -226,7 +227,7 @@ async function transcribeAudio(filePath: string): Promise<string> {
   formData.append('file', fs.createReadStream(filePath) as unknown as File);
   formData.append('model', 'whisper-1');
 
-  const response = await fetch(`${STT_URL}/v1/audio/transcriptions`, {
+  const response = await fetchClient(`${STT_URL}/v1/audio/transcriptions`, {
     method: 'POST',
     headers: { Authorization: `Bearer ${GW_KEY}` },
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -245,7 +246,7 @@ async function transcribeAudio(filePath: string): Promise<string> {
 
 /** Vision: analyze image using qwen2.5vl via Ollama directly (multimodal content) */
 async function visionOllama(model: string, text: string, base64Image: string): Promise<string> {
-  const response = await fetch(`${OLLAMA_URL}/api/chat`, {
+  const response = await fetchClient(`${OLLAMA_URL}/api/chat`, {
     method: 'POST',
     signal: AbortSignal.timeout(90_000),
     headers: { 'Content-Type': 'application/json' },
@@ -284,7 +285,7 @@ async function analyzeImage(filePath: string, userMessage: string): Promise<stri
 
 /** TTS: synthesize speech using Kokoro via TTS Bridge */
 async function synthesizeSpeech(text: string, voice?: string): Promise<Buffer> {
-  const response = await fetch(`${TTS_URL}/v1/audio/speech`, {
+  const response = await fetchClient(`${TTS_URL}/v1/audio/speech`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -510,7 +511,7 @@ bot.catch((err, ctx) => {
 
 async function fetchHealth(url: string, name: string): Promise<[string, boolean]> {
   try {
-    const res = await fetch(url, { signal: AbortSignal.timeout(2000) });
+    const res = await fetchClient(url, { signal: AbortSignal.timeout(2000) });
     return [name, res.ok];
   } catch {
     return [name, false];

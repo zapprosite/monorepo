@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { setFetch } from '../utils/fetch-client.js';
 import {
   buildDatasetName,
   parseDatasetName,
@@ -9,21 +10,23 @@ import {
 } from './rag-instance-organizer.js';
 
 // ---------------------------------------------------------------------------
-// Helper: mock global fetch with vi.spyOn for proper isolation
+// Helper: mock fetch via injectable fetchClient
 // ---------------------------------------------------------------------------
 
-let fetchSpy: ReturnType<typeof vi.spyOn>;
+const mockFetch = vi.fn();
 
 beforeEach(() => {
-  fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue({
+  mockFetch.mockReset();
+  mockFetch.mockResolvedValue({
     ok: true,
     json: vi.fn().mockResolvedValue({}),
     text: vi.fn().mockResolvedValue(''),
   });
+  setFetch(mockFetch as typeof globalThis.fetch);
 });
 
 afterEach(() => {
-  fetchSpy?.mockRestore();
+  // No cleanup needed
 });
 
 // ---------------------------------------------------------------------------
@@ -109,7 +112,7 @@ describe('parseDatasetName', () => {
 
 describe('createDataset', () => {
   it('returns null when Trieve API call fails', async () => {
-    fetchSpy.mockResolvedValueOnce({
+    mockFetch.mockResolvedValueOnce({
       ok: false,
       status: 500,
       text: vi.fn().mockResolvedValue('Internal Server Error'),
@@ -121,7 +124,7 @@ describe('createDataset', () => {
   });
 
   it('returns dataset data on success', async () => {
-    fetchSpy.mockResolvedValueOnce({
+    mockFetch.mockResolvedValueOnce({
       ok: true,
       json: vi.fn().mockResolvedValue({ id: 'ds_123', name: 'test' }),
     });
@@ -137,7 +140,7 @@ describe('createDataset', () => {
     process.env['TRIEVE_URL'] = 'https://trieve.example.com';
     process.env['TRIEVE_API_KEY'] = 'test-key';
 
-    fetchSpy.mockResolvedValueOnce({
+    mockFetch.mockResolvedValueOnce({
       ok: true,
       json: vi.fn().mockResolvedValue({ id: 'ds_456', name: 'env-test' }),
     });
@@ -145,7 +148,7 @@ describe('createDataset', () => {
     const config: DatasetConfig = { app: 'envtest', description: 'env test' };
     await createDataset(config);
 
-    expect(fetchSpy).toHaveBeenCalledWith(
+    expect(mockFetch).toHaveBeenCalledWith(
       'https://trieve.example.com/api/v1/datasets',
       expect.objectContaining({
         method: 'POST',
@@ -160,7 +163,7 @@ describe('createDataset', () => {
   });
 
   it('returns null on network error', async () => {
-    fetchSpy.mockRejectedValueOnce(new Error('Network error'));
+    mockFetch.mockRejectedValueOnce(new Error('Network error'));
 
     const config: DatasetConfig = { app: 'test', description: 'test' };
     const result = await createDataset(config);
@@ -174,7 +177,7 @@ describe('createDataset', () => {
 
 describe('ragSearch', () => {
   it('returns empty array when search fails', async () => {
-    fetchSpy.mockResolvedValueOnce({
+    mockFetch.mockResolvedValueOnce({
       ok: false,
       text: vi.fn().mockResolvedValue('Search failed'),
     });
@@ -184,7 +187,7 @@ describe('ragSearch', () => {
   });
 
   it('returns mapped results on success', async () => {
-    fetchSpy.mockResolvedValueOnce({
+    mockFetch.mockResolvedValueOnce({
       ok: true,
       json: vi.fn().mockResolvedValue({
         results: [
@@ -219,20 +222,20 @@ describe('ragSearch', () => {
   });
 
   it('returns empty array on network error', async () => {
-    fetchSpy.mockRejectedValueOnce(new Error('Network error'));
+    mockFetch.mockRejectedValueOnce(new Error('Network error'));
     const results = await ragSearch('ds_123', 'test', 5);
     expect(results).toEqual([]);
   });
 
   it('uses hybrid search type', async () => {
-    fetchSpy.mockResolvedValueOnce({
+    mockFetch.mockResolvedValueOnce({
       ok: true,
       json: vi.fn().mockResolvedValue({ results: [] }),
     });
 
     await ragSearch('ds_123', 'query', 3);
 
-    expect(fetchSpy).toHaveBeenCalledWith(
+    expect(mockFetch).toHaveBeenCalledWith(
       expect.any(String),
       expect.objectContaining({
         body: JSON.stringify({
@@ -265,14 +268,14 @@ describe('ragRetrieve', () => {
     const original = process.env['TRIEVE_DEFAULT_DATASET_ID'];
     process.env['TRIEVE_DEFAULT_DATASET_ID'] = 'ds_default';
 
-    fetchSpy.mockResolvedValueOnce({
+    mockFetch.mockResolvedValueOnce({
       ok: true,
       json: vi.fn().mockResolvedValue({ results: [] }),
     });
 
     await ragRetrieve('test query', 3);
 
-    expect(fetchSpy).toHaveBeenCalledWith(
+    expect(mockFetch).toHaveBeenCalledWith(
       expect.any(String),
       expect.objectContaining({
         headers: expect.objectContaining({

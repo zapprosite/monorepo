@@ -5,6 +5,7 @@
 
 import { llmComplete } from '../litellm/router.js';
 import { COLLECTIONS, upsertVector, type PointPayload } from '../qdrant/client.js';
+import { fetchClient } from '../utils/fetch-client.js';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -49,7 +50,7 @@ async function sendTelegramMessage(chatId: string, text: string): Promise<{ ok: 
 
   try {
     const url = `${TELEGRAM_API}/bot${BOT_TOKEN}/sendMessage`;
-    const res = await fetch(url, {
+    const res = await fetchClient(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -84,7 +85,7 @@ async function getClientRecord(clientId: string): Promise<ClientRecord | null> {
 
   try {
     // Scroll all points and filter by client_id
-    const res = await fetch(`${QDRANT_URL}/collections/${COLLECTIONS.CLIENTS}/points/scroll`, {
+    const res = await fetchClient(`${QDRANT_URL}/collections/${COLLECTIONS.CLIENTS}/points/scroll`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

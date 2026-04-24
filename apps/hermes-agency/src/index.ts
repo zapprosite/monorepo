@@ -5,6 +5,7 @@
 import http from 'node:http';
 import { initAllCollections } from './qdrant/client';
 import { getAllCircuitBreakers } from './skills/circuit_breaker.js';
+import { fetchClient } from './utils/fetch-client.js';
 
 // Bot is launched in telegram/bot.ts (side-effect import)
 
@@ -22,7 +23,7 @@ for (const key of REQUIRED) {
 // HC-39: Non-blocking connectivity checks — warn only, do not block startup
 // Services may be temporarily unavailable during rolling deployments
 const QDRANT_URL = process.env['QDRANT_URL']!;
-fetch(`${QDRANT_URL}/collections`, { signal: AbortSignal.timeout(3000) })
+fetchClient(`${QDRANT_URL}/collections`, { signal: AbortSignal.timeout(3000) })
   .then((r) => {
     if (!r.ok) console.warn(`[HermesAgency] WARN: Qdrant at ${QDRANT_URL} returned ${r.status}`);
     else console.log('[HermesAgency] Qdrant: reachable');
@@ -32,7 +33,7 @@ fetch(`${QDRANT_URL}/collections`, { signal: AbortSignal.timeout(3000) })
   );
 
 const OLLAMA_URL = process.env['OLLAMA_URL']!;
-fetch(`${OLLAMA_URL}/api/tags`, { signal: AbortSignal.timeout(3000) })
+fetchClient(`${OLLAMA_URL}/api/tags`, { signal: AbortSignal.timeout(3000) })
   .then((r) => {
     if (!r.ok) console.warn(`[HermesAgency] WARN: Ollama at ${OLLAMA_URL} returned ${r.status}`);
     else console.log('[HermesAgency] Ollama: reachable');

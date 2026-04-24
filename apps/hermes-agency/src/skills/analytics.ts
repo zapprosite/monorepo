@@ -5,6 +5,7 @@
 
 import { llmComplete } from '../litellm/router.js';
 import { search, COLLECTIONS, type CollectionName, type PointPayload } from '../qdrant/client.js';
+import { fetchClient } from '../utils/fetch-client.js';
 
 // ---------------------------------------------------------------------------
 // Config
@@ -88,7 +89,7 @@ async function fetchFromGrafana(campaignId: string): Promise<CampaignMetrics | n
   try {
     // Try Prometheus-style query via Grafana API
     const query = `sum(increase(advertising_impressions{campaign_id="${campaignId}"}[24h]))`;
-    const res = await fetch(
+    const res = await fetchClient(
       `${GRAFANA_URL}/api/datasources/proxy/1/query?expr=${encodeURIComponent(query)}`,
       {
         headers: {
@@ -127,7 +128,7 @@ async function fetchFromLoki(campaignId: string): Promise<CampaignMetrics | null
 
   try {
     const query = `{campaign_id="${campaignId}"} | json`;
-    const res = await fetch(
+    const res = await fetchClient(
       `${LOKI_URL}/loki/api/v1/query_range?query=${encodeURIComponent(query)}&limit=100`,
       {
         headers: { 'Content-Type': 'application/json' },

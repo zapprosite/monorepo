@@ -3,6 +3,7 @@
 // Teaches Hermes how to organize vector instances by app, lead, or any dimension
 /* eslint-disable no-console */
 
+import { fetchClient } from '../utils/fetch-client.js';
 import type { Skill } from './index.js';
 
 // ---------------------------------------------------------------------------
@@ -117,7 +118,7 @@ export async function createDataset(config: DatasetConfig): Promise<{ id: string
   const apiKey = process.env['TRIEVE_API_KEY'];
 
   try {
-    const res = await fetch(url, {
+    const res = await fetchClient(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -170,7 +171,7 @@ export async function indexDocument(
     // Process in batches of BULK_LIMIT
     for (let i = 0; i < chunks.length; i += BULK_LIMIT) {
       const batch = chunks.slice(i, i + BULK_LIMIT);
-      const res = await fetch(url, {
+      const res = await fetchClient(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -207,7 +208,7 @@ export async function ragSearch(
   const apiKey = process.env['TRIEVE_API_KEY'];
 
   try {
-    const res = await fetch(url, {
+    const res = await fetchClient(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -255,7 +256,7 @@ export async function listDatasets(): Promise<Array<{ id: string; name: string; 
   const apiKey = process.env['TRIEVE_API_KEY'];
 
   try {
-    const res = await fetch(url, {
+    const res = await fetchClient(url, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
