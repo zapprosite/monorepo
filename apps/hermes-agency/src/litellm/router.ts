@@ -7,7 +7,7 @@
 import { fetchClient } from '../utils/fetch-client.js';
 
 const MINIMAX_API_KEY = process.env['MINIMAX_API_KEY'] ?? '';
-const MINIMAX_API_BASE = process.env['MINIMAX_API_BASE'] ?? 'https://api.minimax.io/anthropic/v1';
+const MINIMAX_API_BASE = process.env['HERMES_MINIMAX_BASE'] ?? 'https://api.minimax.io/anthropic/v1';
 
 const PRIMARY_MODEL = {
 	model: 'minimax-m2.7',
