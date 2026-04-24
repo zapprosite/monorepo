@@ -1,8 +1,8 @@
 # SPEC-135: Corrigir Testes Vitest — Plano de Ação
 
-> **Status:** PARCIALMENTE CORRIGIDO — Issues P0 corrigidos, isolation requer refatoração
+> **Status:** PARCIALMENTE CORRIGIDO — Isolation requer arquitetura different
 >
-> Fixes P0 aplicados (vi.mocked → type assertions). Isolation issue persiste porque módulos usam `fetch` global.
+> P0 fixes aplicados (vi.mocked → type assertions). Isolation issue requires either: (A) Bun-compatible `node:fetch` import OR (B) acceptance that tests must run individually for isolation.
 
 ## Problema
 
