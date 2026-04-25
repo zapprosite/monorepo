@@ -1295,6 +1295,46 @@ Repositório de conhecimento central. Mantém TREE.md de cada projeto para conte
 
 O hook `.git/hooks/pre-push` agora permite `main`/`master` sem bloquear. Mantem o formato `feature/xxx-yyy` para todas as outras branches.
 
+---
+
+## Nexus — 7×7 Agent Harness (SPEC-204)
+
+Framework de agentes especializados com PREVC workflow.
+
+**Docs:** `docs/NEXUS_GUIDE.md`
+
+### Quick Start
+```bash
+nexus.sh --mode list                              # Ver todos os modos
+nexus.sh --mode debug                            # Listar agentes debug
+nexus.sh --mode test --agent unit-tester        # Ver prompt de unit-tester
+
+# Workflow completo
+nexus.sh --spec SPEC-204 --phase plan
+nexus.sh --spec SPEC-204 --phase review
+nexus.sh --spec SPEC-204 --phase execute --parallel 15
+nexus.sh --spec SPEC-204 --phase verify
+nexus.sh --spec SPEC-204 --phase complete
+```
+
+### 7 Modos × 7 Agentes = 49 Especializações
+
+| Modo | Agentes |
+|------|---------|
+| debug | log-diagnostic, stack-trace, perf-profiler, network-tracer, security-scanner, sre-monitor, incident-response |
+| test | unit-tester, integration-tester, e2e-tester, coverage-analyzer, boundary-tester, flaky-detector, property-tester |
+| backend | api-developer, service-architect, db-migrator, cache-specialist, auth-engineer, event-developer, file-pipeline |
+| frontend | component-dev, responsive-dev, state-manager, animation-dev, a11y-auditor, perf-optimizer, design-system |
+| review | correctness-reviewer, readability-reviewer, architecture-reviewer, security-reviewer, perf-reviewer, dependency-auditor, quality-scorer |
+| docs | api-doc-writer, readme-writer, changelog-writer, inline-doc-writer, diagram-generator, adr-writer, doc-coverage-auditor |
+| deploy | docker-builder, compose-orchestrator, coolify-deployer, secret-rotator, rollback-executor, zfs-snapshotter, health-checker |
+
+### Localização
+- Entry point: `.claude/vibe-kit/nexus.sh`
+- Agentes: `.claude/vibe-kit/agents/{mode}/{agent}/system-prompt.md`
+- Queue: `.claude/vibe-kit/queue.json`
+- State: `.claude/vibe-kit/state.json`
+
 ### Autoridade
 
 QUANDO TERMINAR O WORK — este pattern é **SEMPRE** executado. Nao e opcional.
