@@ -1,8 +1,0 @@
-{
-  "status": "completed",
-  "chat_works": true,
-  "model_used": "qwen2.5vl-3b",
-  "response_preview": "Hello! How can I assist you today?",
-  "minimax_m2.7_issue": "Connection establishes but upstream API call hangs (30s timeout). Works with qwen2.5vl-3b.",
-  "error": null
-}
