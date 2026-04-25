@@ -34,15 +34,25 @@ success() { echo -e "${GREEN}[OK]${NC} $*"; }
 
 usage() {
     cat <<EOF
-Nexus — Unified Agent Harness Framework
+Nexus — Unified Agent Harness Framework (7 modes × 7 agents = 49 agents)
 
 Usage:
   nexus.sh --spec <SPEC-NNN> --phase <phase> [options]
+  nexus.sh --mode <mode> [--agent <name>]
   nexus.sh --resume
   nexus.sh --snapshot
   nexus.sh --status
 
-Phases:
+Modes (select operational focus):
+  debug      — Diagnostic and troubleshooting (7 agents)
+  test       — Unit, integration, E2E testing (7 agents)
+  backend    — API, services, database (7 agents)
+  frontend   — UI, components, styling (7 agents)
+  review     — Code review, quality gates (7 agents)
+  docs       — Documentation generation (7 agents)
+  deploy     — Docker, Coolify, rollback (7 agents)
+
+Phase Workflow:
   plan     — Parse SPEC, create queue.json, await approval
   review   — Run review agents, assess risks
   execute  — Launch vibe-kit workers, process queue
@@ -52,17 +62,20 @@ Phases:
 Options:
   --spec <SPEC>        SPEC number (e.g., SPEC-204)
   --phase <phase>      PREVC phase to execute
+  --mode <mode>        Switch to mode (debug|test|backend|frontend|review|docs|deploy)
+  --agent <name>       Specific agent within mode (e.g., unit-tester)
   --parallel <N>        Number of parallel workers (default: 15)
   --force              Skip human gates (CI mode)
   --resume             Resume interrupted run
   --snapshot           Take ZFS snapshot of current state
-  --agent <role>       Run single agent role (debug, test, backend, etc.)
   --task <id>          Run specific task ID
   --status             Show current workflow status
 
 Examples:
   nexus.sh --spec SPEC-204 --phase plan
   nexus.sh --spec SPEC-204 --phase execute --parallel 15
+  nexus.sh --mode debug                    # List debug agents
+  nexus.sh --mode docs --agent adr-writer  # Show ADR writer agent
   nexus.sh --resume
   nexus.sh --status
 EOF
@@ -554,6 +567,130 @@ do_snapshot() {
     take_snapshot "$STATE_SPEC" "$STATE_PHASE" "$(date +%Y%m%dT%H%M%S)"
 }
 
+# Mode selector — list agents for a mode
+do_mode() {
+    local mode="$1"
+
+    case "$mode" in
+        debug)
+            echo ""
+            info "DEBUG mode agents:"
+            echo "  log-diagnostic      — Log analysis and pattern detection"
+            echo "  stack-trace        — Stack trace parsing and root cause"
+            echo "  perf-profiler       — CPU, memory, I/O profiling"
+            echo "  network-tracer      — HTTP/DNS/TLS tracing"
+            echo "  security-scanner    — Vulnerability detection"
+            echo "  sre-monitor        — SLO/SLA monitoring"
+            echo "  incident-response   — Incident handling"
+            ;;
+        test)
+            echo ""
+            info "TEST mode agents:"
+            echo "  unit-tester         — Unit test generation"
+            echo "  integration-tester   — Service boundary testing"
+            echo "  e2e-tester          — End-to-end user flows"
+            echo "  coverage-analyzer    — Coverage metrics"
+            echo "  boundary-tester      — Edge case testing"
+            echo "  flaky-detector      — Test reliability"
+            echo "  property-tester     — Property-based testing"
+            ;;
+        backend)
+            echo ""
+            info "BACKEND mode agents:"
+            echo "  api-developer       — REST/GraphQL APIs"
+            echo "  service-architect   — Dependency injection"
+            echo "  db-migrator         — Schema migrations"
+            echo "  cache-specialist     — Redis caching"
+            echo "  auth-engineer       — Authentication/authorization"
+            echo "  event-developer      — Event-driven architecture"
+            echo "  file-pipeline       — File processing"
+            ;;
+        frontend)
+            echo ""
+            info "FRONTEND mode agents:"
+            echo "  component-dev       — React/Vue components"
+            echo "  responsive-dev      — Mobile-first CSS"
+            echo "  state-manager       — Zustand/Redux/Query"
+            echo "  animation-dev       — Framer Motion/CSS"
+            echo "  a11y-auditor       — WCAG 2.1 AA"
+            echo "  perf-optimizer      — Core Web Vitals"
+            echo "  design-system       — Design tokens"
+            ;;
+        review)
+            echo ""
+            info "REVIEW mode agents:"
+            echo "  correctness-reviewer — Logic errors, edge cases"
+            echo "  readability-reviewer  — Naming, complexity"
+            echo "  architecture-reviewer — Dependencies, layers"
+            echo "  security-reviewer    — OWASP, secrets"
+            echo "  perf-reviewer        — N+1, pagination"
+            echo "  dependency-auditor   — Outdated packages"
+            echo "  quality-scorer       — Aggregate scoring"
+            ;;
+        docs)
+            echo ""
+            info "DOCS mode agents:"
+            echo "  api-doc-writer       — OpenAPI specs"
+            echo "  readme-writer        — README, guides"
+            echo "  changelog-writer     — Release notes"
+            echo "  inline-doc-writer    — JSDoc, comments"
+            echo "  diagram-generator     — Mermaid diagrams"
+            echo "  adr-writer           — Architecture decisions"
+            echo "  doc-coverage-auditor — Docs completeness"
+            ;;
+        deploy)
+            echo ""
+            info "DEPLOY mode agents:"
+            echo "  docker-builder       — Multi-stage Dockerfile"
+            echo "  compose-orchestrator — Docker Compose"
+            echo "  coolify-deployer     — Coolify API"
+            echo "  secret-rotator       — Vault, env rotation"
+            echo "  rollback-executor    — Rollback procedures"
+            echo "  zfs-snapshotter      — ZFS snapshots"
+            echo "  health-checker      — Health endpoints"
+            ;;
+        list)
+            echo ""
+            info "Available modes (7 modes × 7 agents = 49 agents):"
+            echo ""
+            echo "  debug      — Diagnostic and troubleshooting"
+            echo "  test       — Unit, integration, E2E testing"
+            echo "  backend    — API, services, database"
+            echo "  frontend   — UI, components, styling"
+            echo "  review     — Code review, quality gates"
+            echo "  docs       — Documentation generation"
+            echo "  deploy     — Docker, Coolify, rollback"
+            echo ""
+            echo "Usage: nexus.sh --mode <mode> [--agent <name>]"
+            echo ""
+            ;;
+        *)
+            error "Unknown mode: $mode"
+            echo "Valid modes: debug, test, backend, frontend, review, docs, deploy"
+            echo "Use --mode list to see all agents"
+            return 1
+            ;;
+    esac
+
+    if [[ -n "${agent_role:-}" ]]; then
+        local agent_path="${WORKDIR}/agents/${mode}/${agent_role}/system-prompt.md"
+        if [[ -f "$agent_path" ]]; then
+            echo ""
+            info "Agent: ${mode}/${agent_role}"
+            info "Path: ${agent_path}"
+            echo ""
+            head -30 "$agent_path"
+        else
+            error "Agent not found: ${mode}/${agent_role}"
+            echo "Available agents in ${mode}:"
+            ls "${WORKDIR}/agents/${mode}/" 2>/dev/null || echo "  (none)"
+            return 1
+        fi
+    fi
+
+    return 0
+}
+
 # Main
 main() {
     local spec=""
@@ -565,6 +702,7 @@ main() {
     local status_mode="false"
     local agent_role=""
     local task_id=""
+    local mode=""
 
     # Parse args
     while [[ $# -gt 0 ]]; do
@@ -605,6 +743,10 @@ main() {
                 task_id="$2"
                 shift 2
                 ;;
+            --mode)
+                mode="$2"
+                shift 2
+                ;;
             --help|-h)
                 usage
                 exit 0
@@ -616,6 +758,12 @@ main() {
                 ;;
         esac
     done
+
+    # Mode selector
+    if [[ -n "$mode" ]]; then
+        do_mode "$mode"
+        exit $?
+    fi
 
     # Status mode
     if [[ "$status_mode" == "true" ]]; then

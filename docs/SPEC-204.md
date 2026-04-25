@@ -87,169 +87,94 @@ author: Agent Architecture Team
 
 ---
 
-## 3. Agent Role Specifications
+## 3. Agent Mode Matrix (7×7 = 49 Agents)
 
-### 3.1 debug-agent
+Nexus provides **7 operational modes**, each with **7 specialized agents** = **49 total agents**.
+Select a mode based on focus area, then choose the specific agent for the task.
 
-**Responsibility:** Diagnostic and troubleshooting
+### Mode: debug
 
-**Capabilities:**
-- Log analysis and pattern detection
-- Stack trace parsing and root cause identification
-- Performance profiling (CPU, memory, I/O)
-- Network request tracing
-- Error classification (transient vs permanent)
+| Agent | Specialization | Use When |
+|-------|---------------|----------|
+| `log-diagnostic` | Log analysis and pattern detection | Error bursts, log correlation |
+| `stack-trace` | Stack trace parsing and root cause | Exceptions, crashes |
+| `perf-profiler` | CPU, memory, I/O profiling | Slow performance, memory leaks |
+| `network-tracer` | HTTP/DNS/TLS tracing | Network issues, timeouts |
+| `security-scanner` | Vulnerability detection | Suspicious activity, CVEs |
+| `sre-monitor` | SLO/SLA monitoring | Alert triage, capacity planning |
+| `incident-response` | Incident handling | Service outages, P1 events |
 
-**Trigger Conditions:**
-- Task failure in any agent
-- Quality gate failure
-- Performance regression detected
+### Mode: test
 
-**Output:**
-- Diagnostic report with root cause
-- Suggested fixes as actionable tasks
-- Correlation IDs for related failures
+| Agent | Specialization | Use When |
+|-------|---------------|----------|
+| `unit-tester` | Unit test generation | Functions, pure logic |
+| `integration-tester` | Service boundary testing | API endpoints, DB queries |
+| `e2e-tester` | End-to-end user flows | Playwright, Cypress scenarios |
+| `coverage-analyzer` | Coverage metrics | Coverage gaps, thresholds |
+| `boundary-tester` | Edge case testing | Min/max/empty/null values |
+| `flaky-detector` | Test reliability | Intermittent failures |
+| `property-tester` | Property-based testing | fast-check, invariants |
 
----
+### Mode: backend
 
-### 3.2 test-agent
+| Agent | Specialization | Use When |
+|-------|---------------|----------|
+| `api-developer` | REST/GraphQL APIs | New endpoints, OpenAPI |
+| `service-architect` | Dependency injection | Service composition |
+| `db-migrator` | Schema migrations | Postgres, migrations |
+| `cache-specialist` | Redis caching | Cache-aside, TTL, invalidation |
+| `auth-engineer` | Authentication/authorization | JWT, sessions, OAuth |
+| `event-developer` | Event-driven architecture | RabbitMQ, Kafka, queues |
+| `file-pipeline` | File processing | Uploads, transformations |
 
-**Responsibility:** Unit, integration, and end-to-end testing
+### Mode: frontend
 
-**Capabilities:**
-- Unit test generation (Jest, Vitest, Pytest)
-- Integration test orchestration
-- E2E scenario writing (Playwright, Cypress)
-- Test coverage analysis
-- Boundary condition testing
-- Property-based testing (fast-check)
+| Agent | Specialization | Use When |
+|-------|---------------|----------|
+| `component-dev` | React/Vue components | New UI components |
+| `responsive-dev` | Mobile-first CSS | Breakpoints, fluid layouts |
+| `state-manager` | Zustand/Redux/Query | Global state, server state |
+| `animation-dev` | Framer Motion/CSS | Transitions, page flows |
+| `a11y-auditor` | WCAG 2.1 AA | Accessibility, ARIA |
+| `perf-optimizer` | Core Web Vitals | LCP, INP, CLS optimization |
+| `design-system` | Design tokens | Theme, tokens, multi-brand |
 
-**Quality Gates:**
-- Coverage must meet threshold (default: 80%)
-- All previous tests must pass
-- No flaky tests (retry threshold: 2)
+### Mode: review
 
-**Output:**
-- Test suite with assertions
-- Coverage report
-- Flaky test detection
+| Agent | Specialization | Use When |
+|-------|---------------|----------|
+| `correctness-reviewer` | Logic errors, edge cases | Spec adherence |
+| `readability-reviewer` | Naming, complexity | Code clarity |
+| `architecture-reviewer` | Dependencies, layers | Module boundaries |
+| `security-reviewer` | OWASP, secrets | Security audit |
+| `perf-reviewer` | N+1, pagination | Performance anti-patterns |
+| `dependency-auditor` | Outdated packages | Dependency health |
+| `quality-scorer` | Aggregate scoring | Final approval gate |
 
----
+### Mode: docs
 
-### 3.3 backend-agent
+| Agent | Specialization | Use When |
+|-------|---------------|----------|
+| `api-doc-writer` | OpenAPI specs | Swagger, API reference |
+| `readme-writer` | README, guides | Getting started docs |
+| `changelog-writer` | Keepachangelog | Release notes |
+| `inline-doc-writer` | JSDoc, comments | Code documentation |
+| `diagram-generator` | Mermaid diagrams | Architecture, flows |
+| `adr-writer` | ADR templates | Architecture decisions |
+| `doc-coverage-auditor` | Docs completeness | Gap analysis |
 
-**Responsibility:** API, services, and database
+### Mode: deploy
 
-**Capabilities:**
-- REST/GraphQL API development
-- Service orchestration (dependency injection)
-- Database schema migrations
-- Query optimization
-- Caching strategies (Redis)
-- Authentication/authorization
-
-**Specializations:**
-- Microservices communication
-- Event-driven architecture (message queues)
-- File processing pipelines
-
-**Output:**
-- Working API endpoints
-- Database migrations
-- Service contracts (OpenAPI/AsyncAPI)
-
----
-
-### 3.4 frontend-agent
-
-**Responsibility:** UI, components, and styling
-
-**Capabilities:**
-- Component library development
-- Responsive design implementation
-- State management (Zustand, Redux, Context)
-- Animation and transitions
-- Accessibility compliance (WCAG 2.1 AA)
-- Performance optimization (lazy loading, code splitting)
-
-**Specializations:**
-- React/Vue/Svelte component authoring
-- CSS-in-JS and design systems
-- Form validation and handling
-
-**Output:**
-- Functional UI components
-- Design system tokens
-- Responsive layouts
-
----
-
-### 3.5 review-agent
-
-**Responsibility:** Code review and quality gates
-
-**Capabilities:**
-- Static analysis (ESLint, TypeScript)
-- Security vulnerability scanning
-- Code complexity analysis
-- Dependency audit
-- Performance anti-pattern detection
-- Architectural consistency check
-
-**Quality Gates (configurable):**
-- No critical security findings
-- Complexity score below threshold
-- No deprecated API usage
-- Dependencies are stable versions
-
-**Output:**
-- Review report with findings
-- Quality score (0-100)
-- Approve/reject with rationale
-
----
-
-### 3.6 docs-agent
-
-**Responsibility:** Documentation generation
-
-**Capabilities:**
-- API documentation (OpenAPI → MD/SwaggerUI)
-- README and guide generation
-- Changelog management
-- Inline code documentation
-- Architecture diagram generation (Mermaid)
-- Decision log (ADR format)
-
-**Output:**
-- Structured documentation files
-- API reference
-- Usage examples
-- Architecture decision records
-
----
-
-### 3.7 deploy-agent
-
-**Responsibility:** Docker, Coolify, and rollback
-
-**Capabilities:**
-- Docker image building and pushing
-- Docker Compose orchestration
-- Coolify deployment integration
-- Environment configuration management
-- Secret rotation handling
-- Rollback execution
-
-**Specializations:**
-- ZFS snapshot coordination (pre-deploy)
-- Health check monitoring
-- Traffic routing (blue/green, canary)
-
-**Output:**
-- Deployed artifacts
-- Rollback procedures
-- Deployment report
+| Agent | Specialization | Use When |
+|-------|---------------|----------|
+| `docker-builder` | Multi-stage Dockerfile | Image builds |
+| `compose-orchestrator` | Docker Compose | Multi-container |
+| `coolify-deployer` | Coolify API | Deployments |
+| `secret-rotator` | Vault, env rotation | Secret management |
+| `rollback-executor` | Deploy/migration rollback | Incident response |
+| `zfs-snapshotter` | ZFS snapshots | Pre-deploy safety |
+| `health-checker` | Health endpoints | Deployment verification |
 
 ---
 
@@ -601,7 +526,7 @@ sudo zfs rollback -r tank@nexus-SPEC-204-execute-20260424T120000
 | Phase | Deliverable | Status |
 |-------|-------------|--------|
 | 1 | nexus.sh wrapper script | ✅ Done |
-| 2 | Agent role prompt templates | ✅ Done |
+| 2 | 49 specialized agent prompts (7×7) | ✅ Done |
 | 3 | MCP dotcontext integration | TODO |
 | 4 | Quality gate implementation | TODO |
 | 5 | ZFS snapshot coordination | TODO |
@@ -615,12 +540,19 @@ sudo zfs rollback -r tank@nexus-SPEC-204-execute-20260424T120000
 - `nexus.sh --phase execute` → launches vibe-kit workers
 - `nexus.sh --phase verify` → quality gate verification
 - `nexus.sh --phase complete` → finalization and ship
+- `nexus.sh --mode debug` → switch to debug mode with 7 agents
+- `nexus.sh --mode test` → switch to test mode with 7 agents
 
-**Phase 2:** `.claude/vibe-kit/agents/` — 7 agent role templates:
-- `debug-agent/system-prompt.md` — Diagnostic and troubleshooting
-- `test-agent/system-prompt.md` — Unit, integration, E2E testing
-- `backend-agent/system-prompt.md` — API, services, database
-- `frontend-agent/system-prompt.md` — UI, components, styling
-- `review-agent/system-prompt.md` — Code review, quality gates
-- `docs-agent/system-prompt.md` — Documentation generation
-- `deploy-agent/system-prompt.md` — Docker, Coolify, rollback
+**Phase 2:** `.claude/vibe-kit/agents/` — **49 specialized agents** across 7 modes:
+
+| Mode | Agents (7) |
+|------|------------|
+| debug | log-diagnostic, stack-trace, perf-profiler, network-tracer, security-scanner, sre-monitor, incident-response |
+| test | unit-tester, integration-tester, e2e-tester, coverage-analyzer, boundary-tester, flaky-detector, property-tester |
+| backend | api-developer, service-architect, db-migrator, cache-specialist, auth-engineer, event-developer, file-pipeline |
+| frontend | component-dev, responsive-dev, state-manager, animation-dev, a11y-auditor, perf-optimizer, design-system |
+| review | correctness-reviewer, readability-reviewer, architecture-reviewer, security-reviewer, perf-reviewer, dependency-auditor, quality-scorer |
+| docs | api-doc-writer, readme-writer, changelog-writer, inline-doc-writer, diagram-generator, adr-writer, doc-coverage-auditor |
+| deploy | docker-builder, compose-orchestrator, coolify-deployer, secret-rotator, rollback-executor, zfs-snapshotter, health-checker |
+
+Each agent has `system-prompt.md` with full capabilities, protocols, and handoff patterns.
