@@ -396,19 +396,31 @@ Hardcoded Values → USE ENVIRONMENT VARIABLES — never hardcode URLs, IPs, por
 
 ---
 
-## Infraestrutura Atual (14/04/2026)
+## Infraestrutura Atual (25/04/2026)
 
 | Servico        | Onde              | Porta | Proposito                   |
 | -------------- | ----------------- | ----- | --------------------------- |
 | Coolify        | Ubuntu Desktop    | 8000  | Container management (PaaS) |
+| Gitea          | Ubuntu Desktop    | 3300  | Git server + Actions       |
 | Ollama         | Ubuntu Desktop    | 11434 | LLM inference (RTX 4090)    |
 | Hermes Gateway | Ubuntu bare metal | 8642  | Agent brain + messaging     |
-| Hermes MCP     | Ubuntu bare metal | 8092  | MCP proxy                   |
+| Hermes MCP     | Ubuntu bare metal | 8092  | MCP proxy (MCPO bridge)    |
 | Qdrant         | Coolify           | 6333  | Vector database (RAG)       |
 | LiteLLM        | Docker Compose    | 4000  | LLM proxy + rate limiting   |
-| Grafana        | Docker Compose    | 3100  | Metrics dashboards          |
-| Loki           | Docker Compose    | 3101  | Log aggregation             |
-| Prometheus     | Docker Compose    | 9090  | Metrics collection          |
+| ai-gateway     | Ubuntu Desktop    | 4002  | OpenAI-compat facade       |
+| OpenWebUI      | Coolify           | 8080  | Chat interface             |
+
+### Subdomínios Ativos
+
+| Subdomínio           | Porta | Serviço                    |
+| -------------------- | ----- | -------------------------- |
+| `git.zappro.site`   | 3300  | Gitea                     |
+| `coolify.zappro.site` | 8000 | Coolify                   |
+| `chat.zappro.site`   | 3456  | OpenWebUI                  |
+| `hermes.zappro.site` | 8642  | Hermes Gateway             |
+| `llm.zappro.site`    | 4002  | ai-gateway                |
+| `api.zappro.site`    | 4000  | LiteLLM                   |
+| `qdrant.zappro.site` | 6333  | Qdrant dashboard          |
 
 Ver [docs/ARCHITECTURE-OVERVIEW.md](docs/ARCHITECTURE-OVERVIEW.md) para diagrama completo.
 
@@ -1338,3 +1350,77 @@ nexus.sh --spec SPEC-204 --phase complete
 ### Autoridade
 
 QUANDO TERMINAR O WORK — este pattern é **SEMPRE** executado. Nao e opcional.
+
+---
+
+## Nexus Auto-Deploy (MVP/SaaS)
+
+### Capacidade
+
+Nexus pode criar subdomain + deploy automático para MVPs.
+
+```bash
+# Nexus detecta projeto novo → cria subdomain → deploy
+nexus.sh --spec SPEC-FIT-MVP --phase deploy --auto
+```
+
+### Fluxo Auto-Deploy
+
+```
+SPEC → cria pasta → nexus-auto.sh → cria subdomain → deploy → ready
+```
+
+### Scripts
+
+| Script | Função |
+|--------|--------|
+| `nexus-context-wrap.sh` | Wrapper com context awareness |
+| `context-decide.sh` | Decision engine (proceed/snapshot/compress/stop) |
+| `context-meter.sh` | Mede usage do context window |
+| `context-snapshot.sh` | Snapshot para Mem0/Qdrant |
+
+### Context-Auto Thresholds
+
+| Uso | Decisão | Ação |
+|-----|---------|------|
+| 0-70% | ✅ proceed | Executa normalmente |
+| 70-85% | ⚠️ snapshot | Salva checkpoint em Mem0 |
+| 85-95% | 🛑 decide | Calcula se task cabe |
+| 95-100% | 🔴 stop | Para, agenda próximo |
+
+### Exemplo: Fit SaaS MVP
+
+- **Worktree:** `/srv/fit-tracker`
+- **Frontend:** `index.html` (dark mode, 9:16 mobile)
+- **Backend:** localStorage (zero porta)
+- **Deploy:** `nexus.sh --deploy fit-tracker --subdomain random`
+
+### Subdomain Random
+
+```bash
+# Gera: fit-abc123.zappro.site
+nexus.sh --deploy SPEC-FIT-MVP --subdomain random
+
+# Gera: saas-xyz789.zappro.site
+nexus.sh --deploy SPEC-FIT-MVP --subdomain random
+```
+
+### MCP Servers Disponíveis
+
+| MCP | Função |
+|-----|--------|
+| `mcp-gitea` | Git operations, repos, issues, PRs |
+| `mcp-coolify` | Deploy, containers, logs |
+| `mcp-qdrant` | Vector search, embeddings |
+| `mcp-memory` | Mem0 memory layer |
+| `mcp-ollama` | Local LLM inference |
+
+### Portas para Dev
+
+- **Faixa:** 4002-4099
+- **Vite:** 5173
+- **MVP localStorage:** nenhuma porta necessária
+
+### NÃO usar (reservadas)
+
+- :3000, :4000, :4001, :4002, :4003, :8000, :8080, :8642, :8092, :6333
