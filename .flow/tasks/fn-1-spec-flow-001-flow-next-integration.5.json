@@ -1,0 +1,17 @@
+{
+  "assignee": null,
+  "claim_note": "",
+  "claimed_at": null,
+  "created_at": "2026-04-25T17:17:12.574952Z",
+  "depends_on": [
+    "fn-1-spec-flow-001-flow-next-integration.3",
+    "fn-1-spec-flow-001-flow-next-integration.4"
+  ],
+  "epic": "fn-1-spec-flow-001-flow-next-integration",
+  "id": "fn-1-spec-flow-001-flow-next-integration.5",
+  "priority": null,
+  "spec_path": ".flow/tasks/fn-1-spec-flow-001-flow-next-integration.5.md",
+  "status": "todo",
+  "title": "Task 5: Document integration",
+  "updated_at": "2026-04-25T17:17:26.777308Z"
+}

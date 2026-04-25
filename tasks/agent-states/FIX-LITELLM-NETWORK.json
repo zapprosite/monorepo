@@ -1,7 +1,0 @@
-{
-  "status": "completed",
-  "root_cause": "A rede Docker 'zappro-lite_default' (10.0.2.0/24, bridge br-67b37163c04b) não tem regra de MASQUERADE no POSTROUTING. As outras redes Docker (10.0.0, 10.0.1, 10.0.3, 10.0.4) têm MASQUERADE configurado, mas 10.0.2.0/24 não. Sem NAT/masquerade, os containers nessa subnet não conseguem estabelecer conexões TCP para redes externas (internet ou LAN 192.168.15.0/24). Testes TCP confirmam: connect_ex para 8.8.8.8:443 e 192.168.15.83:11434 retornam erro 11 (timeout).",
-  "proposed_fix": "Adicionar MASQUERADE para 10.0.2.0/24: sudo iptables -t nat -A POSTROUTING -s 10.0.2.0/24 ! -o br-67b37163c04b -j MASQUERADE. Alternativamente, migrar o container para outra network que já tenha MASQUERADE (como ai-gateway_default em 10.0.10.0/24) ou reconectar o container após adicionar a regra.",
-  "fix_applied": false,
-  "test_result": "TCP connect_ex(('8.8.8.8', 443)) = 11 (timeout). TCP connect_ex(('192.168.15.83', 11434)) = 11 (timeout). Rota do container para default gateway existe mas NAT está ausente."
-}
