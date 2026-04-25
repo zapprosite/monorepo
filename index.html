@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#0a0a0a">
+  <title>Fit SaaS</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #0a0a0a;
+      --bg2: #141414;
+      --bg3: #1e1e1e;
+      --text: #f0f0f0;
+      --text2: #888;
+      --accent: #00d4aa;
+      --accent2: #00a080;
+      --danger: #ff4757;
+      --warning: #ffa502;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      min-height: 100vh;
+      min-height: 100dvh;
+    }
+
+    .app {
+      max-width: 430px;
+      margin: 0 auto;
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header */
+    header {
+      background: var(--bg);
+      padding: 16px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--bg3);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    header h1 {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--accent);
+    }
+
+    header .streak {
+      font-size: 13px;
+      color: var(--text2);
+    }
+
+    /* Main Content */
+    main {
+      flex: 1;
+      padding: 16px;
+      padding-bottom: 80px;
+    }
+
+    /* Cards */
+    .card {
+      background: var(--bg2);
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .card-title {
+      font-size: 12px;
+      text-transform: uppercase;
+      color: var(--text2);
+      letter-spacing: 1px;
+    }
+
+    .card-value {
+      font-size: 28px;
+      font-weight: 700;
+    }
+
+    .card-unit {
+      font-size: 14px;
+      color: var(--text2);
+      font-weight: 400;
+    }
+
+    /* Progress Bars */
+    .progress {
+      height: 8px;
+      background: var(--bg3);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 4px;
+      transition: width 0.3s ease;
+    }
+
+    /* Water specific */
+    .water-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .water-btn {
+      background: var(--bg3);
+      border: none;
+      border-radius: 12px;
+      padding: 12px;
+      color: var(--text);
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .water-btn:active {
+      background: var(--accent);
+      transform: scale(0.95);
+    }
+
+    /* Supplements */
+    .supp-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .supp-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 12px;
+      background: var(--bg3);
+      border-radius: 10px;
+    }
+
+    .supp-name {
+      font-weight: 500;
+    }
+
+    .supp-dose {
+      font-size: 12px;
+      color: var(--text2);
+    }
+
+    .supp-check {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 2px solid var(--bg3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .supp-check.done {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .supp-check.done::after {
+      content: "✓";
+      color: var(--bg);
+      font-size: 12px;
+    }
+
+    /* Workout */
+    .workout-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .workout-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px;
+      background: var(--bg3);
+      border-radius: 10px;
+    }
+
+    .workout-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .workout-name {
+      font-weight: 500;
+    }
+
+    .workout-details {
+      font-size: 12px;
+      color: var(--text2);
+    }
+
+    .workout-done {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      border: 2px solid var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .workout-done.done {
+      background: var(--accent);
+    }
+
+    .workout-done.done::after {
+      content: "✓";
+      color: var(--bg);
+    }
+
+    /* Add Button FAB */
+    .fab {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: none;
+      color: var(--bg);
+      font-size: 28px;
+      cursor: pointer;
+      box-shadow: 0 4px 20px rgba(0, 212, 170, 0.3);
+      transition: all 0.2s;
+    }
+
+    .fab:active {
+      transform: translateX(-50%) scale(0.9);
+    }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.8);
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      z-index: 200;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal {
+      background: var(--bg2);
+      border-radius: 24px 24px 0 0;
+      width: 100%;
+      max-width: 430px;
+      padding: 24px;
+      animation: slideUp 0.3s ease;
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+
+    .modal h2 {
+      font-size: 18px;
+      margin-bottom: 20px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 12px;
+      color: var(--text2);
+      margin-bottom: 6px;
+    }
+
+    .form-group input, .form-group select {
+      width: 100%;
+      padding: 12px;
+      background: var(--bg3);
+      border: none;
+      border-radius: 10px;
+      color: var(--text);
+      font-size: 14px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: var(--bg);
+    }
+
+    .btn-primary:active {
+      background: var(--accent2);
+    }
+
+    .btn-secondary {
+      background: var(--bg3);
+      color: var(--text);
+      margin-top: 8px;
+    }
+
+    /* Nav */
+    nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--bg);
+      border-top: 1px solid var(--bg3);
+      display: flex;
+      justify-content: space-around;
+      padding: 12px 0;
+      padding-bottom: max(12px, env(safe-area-inset-bottom));
+      max-width: 430px;
+      margin: 0 auto;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      background: none;
+      border: none;
+      color: var(--text2);
+      font-size: 10px;
+      cursor: pointer;
+      padding: 4px 12px;
+      border-radius: 8px;
+      transition: all 0.2s;
+    }
+
+    .nav-item.active {
+      color: var(--accent);
+    }
+
+    .nav-icon {
+      font-size: 20px;
+    }
+
+    /* Section visibility */
+    .section { display: none; }
+    .section.active { display: block; }
+
+    /* Macro ring */
+    .macro-ring {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: conic-gradient(var(--accent) 0deg, var(--bg3) 0deg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 12px auto;
+    }
+
+    .macro-ring-inner {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: var(--bg2);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .macro-ring-value {
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .macro-ring-label {
+      font-size: 8px;
+      color: var(--text2);
+    }
+
+    /* Animations */
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .updating {
+      animation: pulse 1s infinite;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <h1>Fit SaaS</h1>
+      <span class="streak">🔥 7 dias</span>
+    </header>
+
+    <main>
+      <!-- Dashboard -->
+      <section id="section-dashboard" class="section active">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Agua</span>
+            <span class="card-value" id="water-value">0<span class="card-unit">ml</span></span>
+          </div>
+          <div class="progress">
+            <div class="progress-fill" id="water-progress" style="width: 0%"></div>
+          </div>
+          <div class="water-grid">
+            <button class="water-btn" onclick="addWater(250)">+250ml</button>
+            <button class="water-btn" onclick="addWater(500)">+500ml</button>
+            <button class="water-btn" onclick="addWater(750)">+750ml</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Calorias</span>
+            <span class="card-value"><span id="cal-value">0</span><span class="card-unit">/2500</span></span>
+          </div>
+          <div class="progress">
+            <div class="progress-fill" id="cal-progress" style="width: 0%"></div>
+          </div>
+          <div style="display:flex; justify-content:space-around; margin-top:12px;">
+            <div style="text-align:center;">
+              <div style="font-size:18px;font-weight:600;" id="prot-value">0g</div>
+              <div style="font-size:10px;color:var(--text2);">Proteina</div>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-size:18px;font-weight:600;" id="carb-value">0g</div>
+              <div style="font-size:10px;color:var(--text2);">Carbs</div>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-size:18px;font-weight:600;" id="fat-value">0g</div>
+              <div style="font-size:10px;color:var(--text2);">Gordura</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Suplementos</span>
+          </div>
+          <div class="supp-list" id="supp-list"></div>
+        </div>
+      </section>
+
+      <!-- Treino -->
+      <section id="section-treino" class="section">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Treino de Hoje</span>
+          </div>
+          <div class="workout-list" id="workout-list"></div>
+        </div>
+      </section>
+
+      <!-- Dieta -->
+      <section id="section-dieta" class="section">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Refeicoes</span>
+          </div>
+          <div id="meal-list"></div>
+        </div>
+      </section>
+
+      <!-- Perfil -->
+      <section id="section-perfil" class="section">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Manipulados</span>
+          </div>
+          <div id="manip-list"></div>
+        </div>
+      </section>
+    </main>
+
+    <!-- FAB -->
+    <button class="fab" onclick="openModal()">+</button>
+
+    <!-- Nav -->
+    <nav>
+      <button class="nav-item active" onclick="showSection('dashboard')">
+        <span class="nav-icon">🏠</span>
+        <span>Home</span>
+      </button>
+      <button class="nav-item" onclick="showSection('treino')">
+        <span class="nav-icon">💪</span>
+        <span>Treino</span>
+      </button>
+      <button class="nav-item" onclick="showSection('dieta')">
+        <span class="nav-icon">🍽️</span>
+        <span>Dieta</span>
+      </button>
+      <button class="nav-item" onclick="showSection('perfil')">
+        <span class="nav-icon">👤</span>
+        <span>Perfil</span>
+      </button>
+    </nav>
+
+    <!-- Modal -->
+    <div class="modal-overlay" id="modal">
+      <div class="modal">
+        <h2 id="modal-title">Adicionar</h2>
+
+        <div id="modal-form"></div>
+
+        <button class="btn btn-primary" onclick="submitForm()">Salvar</button>
+        <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // State
+    let state = {
+      water: 0,
+      waterGoal: 3000,
+      calories: 0,
+      protein: 0,
+      carbs: 0,
+      fat: 0,
+      supplements: [],
+      workouts: [],
+      meals: [],
+      manipulados: []
+    };
+
+    // Load from localStorage
+    function load() {
+      const saved = localStorage.getItem('fitsaas');
+      if (saved) {
+        state = JSON.parse(saved);
+      }
+      render();
+    }
+
+    // Save to localStorage
+    function save() {
+      localStorage.setItem('fitsaas', JSON.stringify(state));
+    }
+
+    // Render
+    function render() {
+      // Water
+      document.getElementById('water-value').innerHTML = `${state.water}<span class="card-unit">ml</span>`;
+      document.getElementById('water-progress').style.width = `${Math.min(100, (state.water / state.waterGoal) * 100)}%`;
+
+      // Calories
+      document.getElementById('cal-value').textContent = state.calories;
+      document.getElementById('cal-progress').style.width = `${Math.min(100, (state.calories / 2500) * 100)}%`;
+      document.getElementById('prot-value').textContent = state.protein + 'g';
+      document.getElementById('carb-value').textContent = state.carbs + 'g';
+      document.getElementById('fat-value').textContent = state.fat + 'g';
+
+      // Supplements
+      const suppList = document.getElementById('supp-list');
+      if (state.supplements.length === 0) {
+        suppList.innerHTML = '<p style="color:var(--text2);font-size:13px;">Nenhum suplemento cadastrado</p>';
+      } else {
+        suppList.innerHTML = state.supplements.map((s, i) => `
+          <div class="supp-item">
+            <div>
+              <div class="supp-name">${s.name}</div>
+              <div class="supp-dose">${s.dose} - ${s.time}</div>
+            </div>
+            <div class="supp-check ${s.taken ? 'done' : ''}" onclick="toggleSupp(${i})"></div>
+          </div>
+        `).join('');
+      }
+
+      // Workouts
+      const workoutList = document.getElementById('workout-list');
+      if (state.workouts.length === 0) {
+        workoutList.innerHTML = '<p style="color:var(--text2);font-size:13px;">Nenhum exercicio cadastrado</p>';
+      } else {
+        workoutList.innerHTML = state.workouts.map((w, i) => `
+          <div class="workout-item">
+            <div class="workout-info">
+              <div class="workout-name">${w.name}</div>
+              <div class="workout-details">${w.sets}x${w.reps} @ ${w.weight}kg • ${w.muscle}</div>
+            </div>
+            <div class="workout-done ${w.done ? 'done' : ''}" onclick="toggleWorkout(${i})"></div>
+          </div>
+        `).join('');
+      }
+    }
+
+    // Actions
+    function addWater(ml) {
+      state.water = Math.min(state.waterGoal, state.water + ml);
+      save();
+      render();
+    }
+
+    function toggleSupp(i) {
+      state.supplements[i].taken = !state.supplements[i].taken;
+      save();
+      render();
+    }
+
+    function toggleWorkout(i) {
+      state.workouts[i].done = !state.workouts[i].done;
+      save();
+      render();
+    }
+
+    // Navigation
+    function showSection(name) {
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      document.getElementById(`section-${name}`).classList.add('active');
+      event.currentTarget.classList.add('active');
+    }
+
+    // Modal
+    let currentForm = '';
+
+    function openModal(type = 'water') {
+      const forms = {
+        water: `
+          <div class="form-group">
+            <label>Quantidade (ml)</label>
+            <input type="number" id="form-water" value="500" min="50" max="2000" step="50">
+          </div>
+        `,
+        workout: `
+          <div class="form-group">
+            <label>Exercicio</label>
+            <input type="text" id="form-name" placeholder="Supino Reto">
+          </div>
+          <div class="form-group">
+            <label>Grupo Muscular</label>
+            <select id="form-muscle">
+              <option value="peito">Peito</option>
+              <option value="costas">Costas</option>
+              <option value="pernas">Pernas</option>
+              <option value="biceps">Biceps</option>
+              <option value="triceps">Triceps</option>
+              <option value="ombro">Ombro</option>
+              <option value="core">Core</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Series</label>
+              <input type="number" id="form-sets" value="4" min="1" max="10">
+            </div>
+            <div class="form-group">
+              <label>Reps</label>
+              <input type="number" id="form-reps" value="12" min="1" max="30">
+            </div>
+            <div class="form-group">
+              <label>Peso (kg)</label>
+              <input type="number" id="form-weight" value="60" min="0" max="500">
+            </div>
+          </div>
+        `,
+        supplement: `
+          <div class="form-group">
+            <label>Nome</label>
+            <input type="text" id="form-name" placeholder="Creatina">
+          </div>
+          <div class="form-group">
+            <label>Dosagem</label>
+            <input type="text" id="form-dose" placeholder="5g">
+          </div>
+          <div class="form-group">
+            <label>Horario</label>
+            <select id="form-time">
+              <option value="manha">Manha</option>
+              <option value="pre-treino">Pre-Treino</option>
+              <option value="pos-treino">Pos-Treino</option>
+              <option value="noite">Noite</option>
+            </select>
+          </div>
+        `,
+        meal: `
+          <div class="form-group">
+            <label>Refeicao</label>
+            <select id="form-meal">
+              <option value="cafe">Cafe da Manha</option>
+              <option value="lanche1">Lanche Manha</option>
+              <option value="almoco">Almoco</option>
+              <option value="lanche2">Lanche Tarde</option>
+              <option value="janta">Janta</option>
+              <option value="pre.sleep">Pre-Sono</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Alimento</label>
+            <input type="text" id="form-food" placeholder="Frango grelhado">
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Cal</label>
+              <input type="number" id="form-cal" value="300" min="0">
+            </div>
+            <div class="form-group">
+              <label>Prot</label>
+              <input type="number" id="form-prot" value="30" min="0">
+            </div>
+            <div class="form-group">
+              <label>Carb</label>
+              <input type="number" id="form-carb" value="30" min="0">
+            </div>
+          </div>
+        `,
+        manip: `
+          <div class="form-group">
+            <label>Nome</label>
+            <input type="text" id="form-name" placeholder="Tribulus">
+          </div>
+          <div class="form-group">
+            <label>Dosagem</label>
+            <input type="text" id="form-dose" placeholder="500mg">
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Frequencia</label>
+              <select id="form-freq">
+                <option value="diaria">Diaria</option>
+                <option value="semanal">Semanal</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Estoque</label>
+              <input type="number" id="form-stock" value="30" min="1">
+            </div>
+          </div>
+        `
+      };
+
+      currentForm = type;
+      document.getElementById('modal-title').textContent = {
+        water: 'Adicionar Agua',
+        workout: 'Adicionar Exercicio',
+        supplement: 'Adicionar Suplemento',
+        meal: 'Adicionar Refeicao',
+        manip: 'Adicionar Manipulado'
+      }[type];
+      document.getElementById('modal-form').innerHTML = forms[type];
+      document.getElementById('modal').classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('modal').classList.remove('active');
+    }
+
+    function submitForm() {
+      switch (currentForm) {
+        case 'water':
+          const ml = parseInt(document.getElementById('form-water').value);
+          state.water = Math.min(state.waterGoal, state.water + ml);
+          break;
+        case 'workout':
+          state.workouts.push({
+            name: document.getElementById('form-name').value,
+            muscle: document.getElementById('form-muscle').value,
+            sets: parseInt(document.getElementById('form-sets').value),
+            reps: parseInt(document.getElementById('form-reps').value),
+            weight: parseInt(document.getElementById('form-weight').value),
+            done: false
+          });
+          break;
+        case 'supplement':
+          state.supplements.push({
+            name: document.getElementById('form-name').value,
+            dose: document.getElementById('form-dose').value,
+            time: document.getElementById('form-time').value,
+            taken: false
+          });
+          break;
+        case 'meal':
+          state.meals.push({
+            meal: document.getElementById('form-meal').value,
+            food: document.getElementById('form-food').value,
+            cal: parseInt(document.getElementById('form-cal').value),
+            prot: parseInt(document.getElementById('form-prot').value),
+            carb: parseInt(document.getElementById('form-carb').value)
+          });
+          state.calories += parseInt(document.getElementById('form-cal').value);
+          state.protein += parseInt(document.getElementById('form-prot').value);
+          state.carbs += parseInt(document.getElementById('form-carb').value);
+          break;
+        case 'manip':
+          state.manipulados.push({
+            name: document.getElementById('form-name').value,
+            dose: document.getElementById('form-dose').value,
+            freq: document.getElementById('form-freq').value,
+            stock: parseInt(document.getElementById('form-stock').value)
+          });
+          break;
+      }
+      save();
+      render();
+      closeModal();
+    }
+
+    // Init
+    load();
+  </script>
+</body>
+</html>
