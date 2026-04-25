@@ -152,6 +152,14 @@
 | `HERMES_GATEWAY_URL` | Gateway endpoint |
 | `TELEGRAM_BOT_TOKEN` | Telegram polling bot token |
 
+### Hermes Directory Symlink
+
+| Path | Target | Size | Purpose |
+|------|--------|------|---------|
+| `/srv/monorepo/hermes/` | `~/.hermes/` | ~287MB | Working directory for Hermes agent operations |
+
+**Note:** `hermes/` in the monorepo is a symlink to `~/.hermes/` on the host system. All Hermes state, configs, and scripts live in the home directory while remaining accessible from `/srv/monorepo/hermes/`.
+
 ---
 
 ## 5. Mem0 / Qdrant Collections

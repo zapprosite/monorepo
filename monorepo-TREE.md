@@ -100,6 +100,7 @@ status: filled
 │   ├── harness/
 │   ├── skills/
 │   └── workflow/
+├── hermes/              # symlink → ~/.hermes
 ├── grafana/
 │   └── dashboards/
 ├── docker/
@@ -116,6 +117,8 @@ status: filled
 | Nexus | `.claude/vibe-kit/` | 49-agent framework (7×7 modes) |
 | Hermes | `apps/ai-gateway/` | OpenAI-compatible facade |
 | Flow-Next | `.claude/flow-next/` | Plan-first workflow engine |
+
+> **Note:** `hermes/` at repo root is a symlink to `~/.hermes`
 
 ### 4. Flow-Next (Workflow Engine)
 - Location: `.claude/flow-next/`
