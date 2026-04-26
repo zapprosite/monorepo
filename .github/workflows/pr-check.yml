@@ -25,10 +25,10 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Type check
-        run: pnpm exec tsc --noEmit
+        run: pnpm check-types
 
       - name: Lint
-        run: pnpm exec eslint .
+        run: pnpm lint
 
       - name: Test
         run: pnpm test || echo "No tests configured"
