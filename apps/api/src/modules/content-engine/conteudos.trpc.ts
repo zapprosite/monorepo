@@ -16,6 +16,7 @@ export const conteudoRouter = trpcRouter({
 		.input(conteudoCreateInputZod)
 		.mutation(async ({ input, ctx }) => {
 			const conteudo = await db.conteudos.insert({
+				teamId: ctx.user.teamId,
 				titulo: input.titulo,
 				slug: input.slug,
 				descricao: input.descricao,
@@ -36,9 +37,9 @@ export const conteudoRouter = trpcRouter({
 
 	list: protectedProcedure
 		.input(z.object({ clienteId: z.string().uuid() }))
-		.query(async ({ input }) => {
+		.query(async ({ ctx, input }) => {
 			const conteudos = await db.conteudos
-				.where({ clienteId: input.clienteId })
+				.where({ teamId: ctx.user.teamId, clienteId: input.clienteId })
 				.select("*")
 				.order({ createdAt: "DESC" });
 			return conteudos;
@@ -46,9 +47,9 @@ export const conteudoRouter = trpcRouter({
 
 	getById: protectedProcedure
 		.input(z.object({ id: z.string().uuid() }))
-		.query(async ({ input }) => {
+		.query(async ({ ctx, input }) => {
 			const conteudo = await db.conteudos
-				.where({ id: input.id })
+				.where({ id: input.id, teamId: ctx.user.teamId })
 				.select("*")
 				.take();
 			if (!conteudo) throw new TRPCError({ code: "NOT_FOUND" });
@@ -57,9 +58,10 @@ export const conteudoRouter = trpcRouter({
 
 	getBySlug: protectedProcedure
 		.input(conteudoGetBySlugZod)
-		.query(async ({ input }) => {
+		.query(async ({ ctx, input }) => {
 			const conteudo = await db.conteudos
 				.where({
+					teamId: ctx.user.teamId,
 					slug: input.slug,
 					clienteId: input.clienteId,
 				})
@@ -76,9 +78,9 @@ export const conteudoRouter = trpcRouter({
 				data: conteudoUpdateInputZod,
 			})
 		)
-		.mutation(async ({ input }) => {
+		.mutation(async ({ ctx, input }) => {
 			const updated = await db.conteudos
-				.where({ id: input.id })
+				.where({ id: input.id, teamId: ctx.user.teamId })
 				.update(input.data);
 			if (!updated) throw new TRPCError({ code: "NOT_FOUND" });
 			return updated;
@@ -86,9 +88,9 @@ export const conteudoRouter = trpcRouter({
 
 	delete: protectedProcedure
 		.input(z.object({ id: z.string().uuid() }))
-		.mutation(async ({ input }) => {
+		.mutation(async ({ ctx, input }) => {
 			const deleted = await db.conteudos
-				.where({ id: input.id })
+				.where({ id: input.id, teamId: ctx.user.teamId })
 				.delete();
 			if (!deleted) throw new TRPCError({ code: "NOT_FOUND" });
 			return { success: true };
@@ -97,7 +99,14 @@ export const conteudoRouter = trpcRouter({
 	// Conteúdo Revisões
 	createRevisao: protectedProcedure
 		.input(conteudoRevisaoCreateInputZod)
-		.mutation(async ({ input }) => {
+		.mutation(async ({ ctx, input }) => {
+			// Verify conteudo belongs to team
+			const conteudo = await db.conteudos
+				.where({ id: input.conteudoId, teamId: ctx.user.teamId })
+				.select("*")
+				.take();
+			if (!conteudo) throw new TRPCError({ code: "NOT_FOUND" });
+
 			const revisao = await db.conteudoRevisoes.insert({
 				conteudoId: input.conteudoId,
 				corpo: input.corpo,
@@ -109,7 +118,14 @@ export const conteudoRouter = trpcRouter({
 
 	listRevisoes: protectedProcedure
 		.input(z.object({ conteudoId: z.string().uuid() }))
-		.query(async ({ input }) => {
+		.query(async ({ ctx, input }) => {
+			// Verify conteudo belongs to team first
+			const conteudo = await db.conteudos
+				.where({ id: input.conteudoId, teamId: ctx.user.teamId })
+				.select("*")
+				.take();
+			if (!conteudo) throw new TRPCError({ code: "NOT_FOUND" });
+
 			const revisoes = await db.conteudoRevisoes
 				.where({ conteudoId: input.conteudoId })
 				.select("*")
@@ -119,12 +135,20 @@ export const conteudoRouter = trpcRouter({
 
 	getRevisaoById: protectedProcedure
 		.input(z.object({ id: z.string().uuid() }))
-		.query(async ({ input }) => {
+		.query(async ({ ctx, input }) => {
 			const revisao = await db.conteudoRevisoes
 				.where({ id: input.id })
 				.select("*")
 				.take();
 			if (!revisao) throw new TRPCError({ code: "NOT_FOUND" });
+
+			// Verify the parent conteudo belongs to team
+			const conteudo = await db.conteudos
+				.where({ id: revisao.conteudoId, teamId: ctx.user.teamId })
+				.select("*")
+				.take();
+			if (!conteudo) throw new TRPCError({ code: "FORBIDDEN" });
+
 			return revisao;
 		}),
 
@@ -135,21 +159,45 @@ export const conteudoRouter = trpcRouter({
 				data: conteudoRevisaoUpdateInputZod,
 			})
 		)
-		.mutation(async ({ input }) => {
+		.mutation(async ({ ctx, input }) => {
+			// Verify revisao exists and belongs to team
+			const revisao = await db.conteudoRevisoes
+				.where({ id: input.id })
+				.select("*")
+				.take();
+			if (!revisao) throw new TRPCError({ code: "NOT_FOUND" });
+
+			const conteudo = await db.conteudos
+				.where({ id: revisao.conteudoId, teamId: ctx.user.teamId })
+				.select("*")
+				.take();
+			if (!conteudo) throw new TRPCError({ code: "FORBIDDEN" });
+
 			const updated = await db.conteudoRevisoes
 				.where({ id: input.id })
 				.update(input.data);
-			if (!updated) throw new TRPCError({ code: "NOT_FOUND" });
 			return updated;
 		}),
 
 	deleteRevisao: protectedProcedure
 		.input(z.object({ id: z.string().uuid() }))
-		.mutation(async ({ input }) => {
+		.mutation(async ({ ctx, input }) => {
+			// Verify revisao belongs to team via conteudo
+			const revisao = await db.conteudoRevisoes
+				.where({ id: input.id })
+				.select("*")
+				.take();
+			if (!revisao) throw new TRPCError({ code: "NOT_FOUND" });
+
+			const conteudo = await db.conteudos
+				.where({ id: revisao.conteudoId, teamId: ctx.user.teamId })
+				.select("*")
+				.take();
+			if (!conteudo) throw new TRPCError({ code: "FORBIDDEN" });
+
 			const deleted = await db.conteudoRevisoes
 				.where({ id: input.id })
 				.delete();
-			if (!deleted) throw new TRPCError({ code: "NOT_FOUND" });
 			return { success: true };
 		}),
 });

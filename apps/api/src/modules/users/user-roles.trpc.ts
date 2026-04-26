@@ -19,6 +19,20 @@ async function assertAdmin(userId: string): Promise<void> {
 	}
 }
 
+// IDOR fix: verify target user belongs to same team as requester
+async function assertSameTeam(requestingUserId: string, requestingUserTeamId: string, targetUserId: string): Promise<void> {
+	if (requestingUserId === targetUserId) return; // Same user, allowed
+
+	// Verify target user is in the same team
+	const targetUser = await db.users.findOptional(targetUserId);
+	if (!targetUser || targetUser.teamId !== requestingUserTeamId) {
+		throw new TRPCError({
+			code: "FORBIDDEN",
+			message: "Operação não permitida para usuários de outras equipes.",
+		});
+	}
+}
+
 export const userRolesRouterTrpc = trpcRouter({
 	getMyRoles: protectedProcedure.query(async ({ ctx }) => {
 		return db.userRoles
@@ -34,6 +48,8 @@ export const userRolesRouterTrpc = trpcRouter({
 			// Non-admin users can only see their own roles
 			if (requestingUserId !== ctx.user.userId) {
 				await assertAdmin(ctx.user.userId);
+				// IDOR fix: verify target user is in same team
+				await assertSameTeam(ctx.user.userId, ctx.user.teamId, requestingUserId);
 			}
 
 			let query = db.userRoles.where({ userId: requestingUserId });
@@ -49,6 +65,15 @@ export const userRolesRouterTrpc = trpcRouter({
 		.input(userRoleAssignZod)
 		.mutation(async ({ ctx, input }) => {
 			await assertAdmin(ctx.user.userId);
+
+			// IDOR fix: verify target user is in same team
+			await assertSameTeam(ctx.user.userId, ctx.user.teamId, input.userId);
+
+			// Verify target user exists
+			const targetUser = await db.users.findOptional(input.userId);
+			if (!targetUser) {
+				throw new TRPCError({ code: "NOT_FOUND", message: "Usuário alvo não encontrado" });
+			}
 
 			const existing = await db.userRoles
 				.where({ userId: input.userId, role: input.role })
@@ -69,6 +94,15 @@ export const userRolesRouterTrpc = trpcRouter({
 		.input(userRoleRevokeZod)
 		.mutation(async ({ ctx, input }) => {
 			await assertAdmin(ctx.user.userId);
+
+			// IDOR fix: verify target user is in same team
+			await assertSameTeam(ctx.user.userId, ctx.user.teamId, input.userId);
+
+			// Verify target user exists
+			const targetUser = await db.users.findOptional(input.userId);
+			if (!targetUser) {
+				throw new TRPCError({ code: "NOT_FOUND", message: "Usuário alvo não encontrado" });
+			}
 
 			await db.userRoles
 				.where({ userId: input.userId, role: input.role })

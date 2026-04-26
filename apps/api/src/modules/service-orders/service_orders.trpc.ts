@@ -30,13 +30,13 @@ export const serviceOrdersRouterTrpc = trpcRouter({
 			let query = db.serviceOrders.select("serviceOrders.*").innerJoin("clients", "serviceOrders.clienteId", "clients.clientId").where("clients.teamId", teamId);
 
 			if (input.clienteId) query = query.where({ "serviceOrders.clienteId": input.clienteId });
-			if (input.tecnicoId) query = query.where({ tecnicoId: input.tecnicoId });
-			if (input.equipmentId) query = query.where({ equipmentId: input.equipmentId });
-			if (input.status) query = query.where({ status: input.status });
-			if (input.tipo) query = query.where({ tipo: input.tipo });
+			if (input.tecnicoId) query = query.where({ "serviceOrders.tecnicoId": input.tecnicoId });
+			if (input.equipmentId) query = query.where({ "serviceOrders.equipmentId": input.equipmentId });
+			if (input.status) query = query.where({ "serviceOrders.status": input.status });
+			if (input.tipo) query = query.where({ "serviceOrders.tipo": input.tipo });
 			if (input.search) {
 				const term = `%${input.search}%`;
-				query = query.whereSql`"numero" ILIKE ${term}`;
+				query = query.whereSql`"serviceOrders"."numero" ILIKE ${term}`;
 			}
 
 			return query.order({ dataAbertura: "DESC" }).limit(SERVICE_ORDERS_MAX_LIMIT);
@@ -73,17 +73,23 @@ export const serviceOrdersRouterTrpc = trpcRouter({
 
 	updateServiceOrder: protectedProcedure
 		.input(serviceOrderUpdateInputZod)
-		.mutation(async ({ input: { serviceOrderId, ...data } }) => {
+		.mutation(async ({ ctx, input: { serviceOrderId, ...data } }) => {
+			const { teamId } = ctx.user;
 			const order = await db.serviceOrders.findOptional(serviceOrderId);
 			if (!order) throw new TRPCError({ code: "NOT_FOUND", message: "Ordem de Serviço não encontrada" });
+			const cliente = await db.clients.where({ clientId: order.clienteId, teamId }).findOptional(order.clienteId);
+			if (!cliente) throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado" });
 			return db.serviceOrders.where({ serviceOrderId }).update(data);
 		}),
 
 	iniciarAtendimento: protectedProcedure
 		.input(serviceOrderGetByIdZod)
-		.mutation(async ({ input: { serviceOrderId } }) => {
+		.mutation(async ({ ctx, input: { serviceOrderId } }) => {
+			const { teamId } = ctx.user;
 			const order = await db.serviceOrders.findOptional(serviceOrderId);
 			if (!order) throw new TRPCError({ code: "NOT_FOUND", message: "Ordem de Serviço não encontrada" });
+			const cliente = await db.clients.where({ clientId: order.clienteId, teamId }).findOptional(order.clienteId);
+			if (!cliente) throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado" });
 			if (order.status !== "Aberta") {
 				throw new TRPCError({ code: "BAD_REQUEST", message: "Só é possível iniciar atendimento com status 'Aberta'" });
 			}
@@ -92,9 +98,12 @@ export const serviceOrdersRouterTrpc = trpcRouter({
 
 	concluirOrdem: protectedProcedure
 		.input(serviceOrderGetByIdZod)
-		.mutation(async ({ input: { serviceOrderId } }) => {
+		.mutation(async ({ ctx, input: { serviceOrderId } }) => {
+			const { teamId } = ctx.user;
 			const order = await db.serviceOrders.findOptional(serviceOrderId);
 			if (!order) throw new TRPCError({ code: "NOT_FOUND", message: "Ordem de Serviço não encontrada" });
+			const cliente = await db.clients.where({ clientId: order.clienteId, teamId }).findOptional(order.clienteId);
+			if (!cliente) throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado" });
 			if (order.status !== "Em Andamento") {
 				throw new TRPCError({ code: "BAD_REQUEST", message: "Só é possível concluir ordem com status 'Em Andamento'" });
 			}
@@ -110,9 +119,12 @@ export const serviceOrdersRouterTrpc = trpcRouter({
 
 	cancelarOrdem: protectedProcedure
 		.input(serviceOrderGetByIdZod)
-		.mutation(async ({ input: { serviceOrderId } }) => {
+		.mutation(async ({ ctx, input: { serviceOrderId } }) => {
+			const { teamId } = ctx.user;
 			const order = await db.serviceOrders.findOptional(serviceOrderId);
 			if (!order) throw new TRPCError({ code: "NOT_FOUND", message: "Ordem de Serviço não encontrada" });
+			const cliente = await db.clients.where({ clientId: order.clienteId, teamId }).findOptional(order.clienteId);
+			if (!cliente) throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado" });
 			if (order.status === "Concluída" || order.status === "Cancelada") {
 				throw new TRPCError({ code: "BAD_REQUEST", message: "Não é possível cancelar ordem com status 'Concluída' ou 'Cancelada'" });
 			}
@@ -123,27 +135,47 @@ export const serviceOrdersRouterTrpc = trpcRouter({
 
 	getReportByServiceOrder: protectedProcedure
 		.input(technicalReportByServiceOrderZod)
-		.query(async ({ input: { serviceOrderId } }) => {
+		.query(async ({ ctx, input: { serviceOrderId } }) => {
+			const { teamId } = ctx.user;
+			const order = await db.serviceOrders.findOptional(serviceOrderId);
+			if (!order) throw new TRPCError({ code: "NOT_FOUND", message: "Ordem de Serviço não encontrada" });
+			const cliente = await db.clients.where({ clientId: order.clienteId, teamId }).findOptional(order.clienteId);
+			if (!cliente) throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado" });
 			return db.technicalReports.where({ serviceOrderId }).takeOptional();
 		}),
 
 	createReport: protectedProcedure
 		.input(technicalReportCreateInputZod)
-		.mutation(async ({ input }) => {
+		.mutation(async ({ ctx, input }) => {
+			const { teamId } = ctx.user;
+			const order = await db.serviceOrders.findOptional(input.serviceOrderId);
+			if (!order) throw new TRPCError({ code: "NOT_FOUND", message: "Ordem de Serviço não encontrada" });
+			const cliente = await db.clients.where({ clientId: order.clienteId, teamId }).findOptional(order.clienteId);
+			if (!cliente) throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado" });
 			return db.technicalReports.create(input);
 		}),
 
 	updateReport: protectedProcedure
 		.input(technicalReportUpdateInputZod)
-		.mutation(async ({ input: { reportId, ...data } }) => {
+		.mutation(async ({ ctx, input: { reportId, ...data } }) => {
+			const { teamId } = ctx.user;
 			const report = await db.technicalReports.findOptional(reportId);
 			if (!report) throw new TRPCError({ code: "NOT_FOUND", message: "Relatório técnico não encontrado" });
+			const order = await db.serviceOrders.findOptional(report.serviceOrderId);
+			if (!order) throw new TRPCError({ code: "NOT_FOUND", message: "Ordem de Serviço não encontrada" });
+			const cliente = await db.clients.where({ clientId: order.clienteId, teamId }).findOptional(order.clienteId);
+			if (!cliente) throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado" });
 			return db.technicalReports.where({ reportId }).update(data);
 		}),
 
 	assinarTecnico: protectedProcedure
 		.input(technicalReportByServiceOrderZod)
-		.mutation(async ({ input: { serviceOrderId } }) => {
+		.mutation(async ({ ctx, input: { serviceOrderId } }) => {
+			const { teamId } = ctx.user;
+			const order = await db.serviceOrders.findOptional(serviceOrderId);
+			if (!order) throw new TRPCError({ code: "NOT_FOUND", message: "Ordem de Serviço não encontrada" });
+			const cliente = await db.clients.where({ clientId: order.clienteId, teamId }).findOptional(order.clienteId);
+			if (!cliente) throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado" });
 			const report = await db.technicalReports.where({ serviceOrderId }).takeOptional();
 			if (!report) throw new TRPCError({ code: "NOT_FOUND", message: "Relatório técnico não encontrado" });
 			return db.technicalReports.where({ serviceOrderId }).update({ assinadoTecnico: true });
@@ -151,7 +183,12 @@ export const serviceOrdersRouterTrpc = trpcRouter({
 
 	assinarCliente: protectedProcedure
 		.input(technicalReportByServiceOrderZod)
-		.mutation(async ({ input: { serviceOrderId } }) => {
+		.mutation(async ({ ctx, input: { serviceOrderId } }) => {
+			const { teamId } = ctx.user;
+			const order = await db.serviceOrders.findOptional(serviceOrderId);
+			if (!order) throw new TRPCError({ code: "NOT_FOUND", message: "Ordem de Serviço não encontrada" });
+			const cliente = await db.clients.where({ clientId: order.clienteId, teamId }).findOptional(order.clienteId);
+			if (!cliente) throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado" });
 			const report = await db.technicalReports.where({ serviceOrderId }).takeOptional();
 			if (!report) throw new TRPCError({ code: "NOT_FOUND", message: "Relatório técnico não encontrado" });
 			return db.technicalReports.where({ serviceOrderId }).update({ assinadoCliente: true });
@@ -161,14 +198,24 @@ export const serviceOrdersRouterTrpc = trpcRouter({
 
 	listMaterials: protectedProcedure
 		.input(materialItemsByServiceOrderZod)
-		.query(async ({ input: { serviceOrderId } }) => {
+		.query(async ({ ctx, input: { serviceOrderId } }) => {
+			const { teamId } = ctx.user;
+			const order = await db.serviceOrders.findOptional(serviceOrderId);
+			if (!order) throw new TRPCError({ code: "NOT_FOUND", message: "Ordem de Serviço não encontrada" });
+			const cliente = await db.clients.where({ clientId: order.clienteId, teamId }).findOptional(order.clienteId);
+			if (!cliente) throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado" });
 			return db.materialItems
 				.where({ serviceOrderId })
 				.order({ createdAt: "ASC" })
 				.limit(RELATED_MAX_LIMIT);
 		}),
 
-	addMaterial: protectedProcedure.input(materialItemCreateInputZod).mutation(async ({ input }) => {
+	addMaterial: protectedProcedure.input(materialItemCreateInputZod).mutation(async ({ ctx, input }) => {
+		const { teamId } = ctx.user;
+		const order = await db.serviceOrders.findOptional(input.serviceOrderId);
+		if (!order) throw new TRPCError({ code: "NOT_FOUND", message: "Ordem de Serviço não encontrada" });
+		const cliente = await db.clients.where({ clientId: order.clienteId, teamId }).findOptional(order.clienteId);
+		if (!cliente) throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado" });
 		return db.materialItems.create(input);
 	}),
 });

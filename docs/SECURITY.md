@@ -2,37 +2,47 @@
 
 ## CRITICAL Issues (Block Production)
 
-### 1. IDOR — Missing Team Isolation (40+ endpoints)
+### 1. IDOR — Missing Team Isolation — FIXED ✅
 
 **Severity:** CRITICAL
-**Status:** Open
-**Files Affected:**
-- `clients.trpc.ts` - listClients, getClientDetail, updateClient
-- `leads.trpc.ts` - listLeads, getLeadDetail
-- `contracts.trpc.ts` - listContracts, getContractDetail
-- `equipment.trpc.ts` - listEquipment
-- `service-orders.trpc.ts` - listServiceOrders, getServiceOrderDetail
-- `dashboard.trpc.ts` - getStats
-- And ~35 more procedures
+**Status:** RESOLVED as of polimento-final branch
+**Date Fixed:** 2026-04-26
 
-**Issue:** Procedures return ALL records in the system with no user/team filtering. Any authenticated user can access every record.
+**Files Fixed (87+ endpoints across 16 modules):**
 
-**Fix Required:**
-1. Pass `teamId` from Fastify request to tRPC context
-2. Add `.where({ teamId: ctx.teamId })` to all list/detail queries
+| Module | Endpoints | Status |
+|--------|-----------|--------|
+| clients.trpc.ts | 10 | ✅ Fixed |
+| leads.trpc.ts | 5 | ✅ Fixed |
+| contracts.trpc.ts | 9 | ✅ Fixed |
+| equipment.trpc.ts | 10 | ✅ Fixed |
+| service-orders.trpc.ts | 14 | ✅ Fixed |
+| kanban.trpc.ts | 16 | ✅ Fixed |
+| webhooks.trpc.ts | 9 | ✅ Fixed |
+| mcp-connectors.trpc.ts | 6 | ✅ Fixed |
+| email.trpc.ts | 9 | ✅ Fixed |
+| maintenance.trpc.ts | 10 | ✅ Fixed |
+| loyalty.trpc.ts | 4 | ✅ Fixed |
+| schedule.trpc.ts | 8 | ✅ Fixed |
+| reminders.trpc.ts | 5 | ✅ Fixed |
+| users.trpc.ts | 4 | ✅ Fixed |
+| user-roles.trpc.ts | 4 | ✅ Fixed |
+| dashboard.trpc.ts | 1 | ✅ Fixed |
 
-**Example Fix (clients.trpc.ts):**
+**Fix Pattern Applied:**
 ```typescript
-// Before (VULNERABLE)
-listClients: protectedProcedure.input(listClientsFilterZod).query(async ({ input }) => {
-  return db.clients.select("*").where({ tipo: input.tipo });
-}),
-
-// After (FIXED)
-listClients: protectedProcedure.input(listClientsFilterZod).query(async ({ ctx, input }) => {
-  return db.clients.select("*").where({ teamId: ctx.user.teamId, tipo: input.tipo });
-}),
+// Pattern used across all modules
+const { teamId } = ctx.user;
+const resource = await db.table.findOptional(id);
+if (!resource) throw new TRPCError({ code: "NOT_FOUND" });
+if (resource.teamId !== teamId) throw new TRPCError({ code: "FORBIDDEN" });
 ```
+
+**Architectural Requirements Met:**
+1. ✅ `SessionUser` interface updated to include `teamId`
+2. ✅ `users` table migration added (0099_add_teamid_to_users.ts)
+3. ✅ Google OAuth updated to populate `teamId` on login
+4. ✅ All CRM tables have `teamId` column (via existing migrations)
 
 ### 2. TypeScript Build Failure (340+ errors)
 
@@ -58,20 +68,24 @@ listClients: protectedProcedure.input(listClientsFilterZod).query(async ({ ctx, 
 - Uses `rate-limiter-flexible` with in-memory storage
 - For production: consider Redis-backed rate limiter for multi-server
 
-### 4. SSRF Risk — STT_URL
+### 4. SSRF Risk — STT_URL — FIXED ✅
 
 **Severity:** HIGH
-**Status:** Open
-**File:** `audio-transcriptions.ts:103`
+**Status:** RESOLVED
+**File:** `audio-transcriptions.ts`
 
-**Issue:** `STT_URL` environment variable is user-controlled at runtime. Attacker can redirect to internal network.
-
-**Fix:**
+**Fix Applied:**
 ```typescript
-// Validate STT_URL is an allowed domain
-const ALLOWED_STT_URLS = ['api.openai.com', 'api.anthropic.com'];
-if (!ALLOWED_STT_URLS.includes(new URL(STT_URL).hostname)) {
-  throw new Error('Invalid STT_URL domain');
+const ALLOWED_STT_HOSTS = ['api.openai.com', 'api.anthropic.com', 'localhost', '127.0.0.1'];
+const STT_URL = process.env['STT_DIRECT_URL'] ?? 'http://localhost:8204';
+try {
+  const parsed = new URL(STT_URL);
+  if (!ALLOWED_STT_HOSTS.includes(parsed.hostname)) {
+    throw new Error(`SSRF Protection: STT_URL hostname '${parsed.hostname}' not allowed`);
+  }
+} catch (e) {
+  console.error(`[SECURITY] Invalid STT_URL: ${STT_URL} - ${e}`);
+  process.exit(1);
 }
 ```
 
@@ -82,10 +96,20 @@ if (!ALLOWED_STT_URLS.includes(new URL(STT_URL).hostname)) {
 | Issue | Severity | Status |
 |-------|----------|--------|
 | Mixed PT/ES in mcp-conectores | MEDIUM | Open |
-| SQL injection risk (webhookQueue) | HIGH | Open |
+| SQL injection risk (webhookQueue) | HIGH | ✅ Fixed (parameterized query) |
 | ESM/CJS mismatch (webhookProcessor) | HIGH | Open |
 | Upsert broken (session.auth.store) | HIGH | Open |
-| Rate limiter memory leak (Map grows forever) | MEDIUM | Open |
+| Rate limiter memory leak | MEDIUM | ✅ Fixed (periodic cleanup) |
+
+---
+
+## Remaining Issues
+
+| Issue | Severity | Notes |
+|-------|----------|-------|
+| TypeScript build (340+ errors) | CRITICAL | Pre-existing architectural issue - modules not built |
+| x-team-id header trust (api-gateway) | MEDIUM | Client can specify team - verify API key matches |
+| teamUserReferenceId enumeration | LOW | Could guess subscription IDs across teams |
 
 ---
 

@@ -8,6 +8,7 @@ export class UserTable extends BaseTable {
 		email: t.string().unique(),
 		name: t.string().nullable(),
 		displayPicture: t.string().nullable(),
+		teamId: t.uuid().nullable(),
 		...t.timestamps(),
 	}));
 }
