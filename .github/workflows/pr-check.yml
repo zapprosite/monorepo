@@ -12,24 +12,28 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v5
+        with:
+          version: 9
+
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
           node-version: '22'
 
-      # TEMP: pnpm 9.0.6 worker crash bug - using npm as fallback
-      # TODO: Revert to pnpm when bug is resolved
+      # TODO: Fix pnpm 9.0.6 worker crash - using pnpm 9 (non-exact)
       - name: Install dependencies
-        run: npm install
+        run: pnpm install
 
       - name: Type check
-        run: npm run check-types || npx tsc --noEmit
+        run: pnpm tsc --noEmit || npx tsc --noEmit
 
       - name: Lint
-        run: npm run lint || npx eslint .
+        run: pnpm lint || npx eslint .
 
       - name: Test
-        run: npm test || echo "No tests configured"
+        run: pnpm test || echo "No tests configured"
 
       - name: Version drift check
         run: bash scripts/versions-check.sh
