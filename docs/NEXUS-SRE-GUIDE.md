@@ -43,9 +43,9 @@ Internet → Cloudflare Edge → Cloudflare Tunnel → Home Lab Services
 
 Note: `/cfd_tunnel/` not `/tunnels/`
 
-**Authentication**: Global Key (`cfk_...`) with headers:
-- `X-Auth-Key: {global_key}`
-- `X-Auth-Email: {email}`
+**Authentication**: Global Key (`${CF_GLOBAL_KEY}`) with headers:
+- `X-Auth-Key: ${CF_GLOBAL_KEY}`
+- `X-Auth-Email: ${CF_EMAIL}`
 
 ## Nexus Scripts
 
@@ -190,11 +190,13 @@ nexus-ufw.sh ensure 4011
 ## Environment Variables
 
 ```bash
-# From /srv/monorepo/.env
-CLOUDFLARE_API_TOKEN=cfut_...    # User token (DNS only)
-CF_GLOBAL_KEY=cfk_...           # Global Key (tunnel management)
-CF_EMAIL=zappro.ia@gmail.com
+# From /srv/monorepo/.env (canonical source)
+CLOUDFLARE_API_TOKEN=${CLOUDFLARE_API_TOKEN}    # User token (DNS only)
+CF_GLOBAL_KEY=${CF_GLOBAL_KEY}                  # Global Key (tunnel management)
+CF_EMAIL=${CF_EMAIL}
 ```
+
+See `.env.example` for full variable list.
 
 ## Files
 

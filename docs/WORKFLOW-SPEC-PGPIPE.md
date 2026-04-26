@@ -303,7 +303,7 @@ if _secrets.exists():
 MY_KEY = os.environ.get('MY_KEY', '')
 
 # ❌ ERRADO — hardcoded
-MY_KEY = 'sk-123456'
+MY_KEY = ${MY_API_KEY}
 ```
 
 **Fonte canonica:** `.env` (ver `.claude/rules/anti-hardcoded-env.md`)
