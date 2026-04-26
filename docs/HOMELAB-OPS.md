@@ -32,7 +32,6 @@ tank/
 ├── tank/backups           # Backup destination (8.4G used)
 ├── tank/docker-data       # Docker volumes (13G used)
 ├── tank/coolify           # Coolify persistent data (256K used)
-├── tank/data/openclaw     # OpenClaw bot data (128K used)
 └── tank/data/zappro-router # API router data (128K used)
 ```
 

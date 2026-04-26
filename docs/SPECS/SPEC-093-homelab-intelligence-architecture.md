@@ -323,7 +323,7 @@ HALF_OPEN (testing)
 Qdrant (:6333)
 │
 ├── mem0 (Mem0 managed)
-│   ├── vectors: 1024-float (e5-mistral)
+│   ├── vectors: 1024-float (qwen2.5:3b)
 │   └── payload: text, tags, source, user_id, created_at
 │
 ├── hermes (Agency sessions)
@@ -396,7 +396,7 @@ FASE 2 — Expansão
 ### 7.3 Embedding Model
 
 **Primary:** `BAAI/bge-m3` (768-float)
-**Fallback:** `nomic-ai/e5-mistral-7b-instruct` (1024-float)
+**Fallback:** `nomic-ai/qwen2.5:3b` (1024-float)
 
 ### 7.4 Trieve API
 
@@ -534,7 +534,7 @@ export async function invokeWorkflow(
 | `QDRANT_API_KEY` | — | Qdrant API key |
 | `MEM0_API_KEY` | — | Mem0 API key |
 | `OLLAMA_URL` | `http://localhost:11434` | Ollama endpoint |
-| `OLLAMA_MODEL` | `nomic-ai/e5-mistral-7b-instruct` | Embedding model |
+| `OLLAMA_MODEL` | `nomic-ai/qwen2.5:3b` | Embedding model |
 | `TRIEVE_API_KEY` | — | Trieve API key |
 | `TRIEVE_URL` | `http://localhost:6435` | Trieve endpoint |
 

@@ -110,7 +110,7 @@ MEM0_BACKEND=qdrant
 QDRANT_URL=http://localhost:6333
 QDRANT_COLLECTION=will          # collection default
 OLLAMA_URL=http://localhost:11434
-OLLAMA_MODEL=nomic-ai/e5-mistral-7b-instruct
+OLLAMA_MODEL=nomic-ai/qwen2.5:3b
 TASKS_DB_PATH=/srv/data/librarian/tasks.db
 ```
 
@@ -123,7 +123,7 @@ class Settings(BaseSettings):
     qdrant_url: str = "http://localhost:6333"
     qdrant_collection: str = "will"
     ollama_url: str = "http://localhost:11434"
-    ollama_model: str = "nomic-ai/e5-mistral-7b-instruct"
+    ollama_model: str = "nomic-ai/qwen2.5:3b"
     tasks_db_path: str = "/srv/data/librarian/tasks.db"
 ```
 
@@ -178,7 +178,7 @@ dependencies = [
 ]
 ```
 
-**E5-mistral via Ollama:** `ollama pull nomic-ai/e5-mistral-7b-instruct`
+**E5-mistral via Ollama:** `ollama pull nomic-ai/qwen2.5:3b`
 
 ---
 
