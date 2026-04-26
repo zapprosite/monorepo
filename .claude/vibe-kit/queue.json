@@ -1,145 +1,24 @@
 {
+  "spec": "SPEC-ENTERPRISE-TEMPLATE-2026-04",
+  "phase": "plan",
+  "total": 1,
+  "pending": 1,
+  "running": 0,
+  "done": 0,
+  "failed": 0,
   "tasks": [
     {
-      "id": "T01",
-      "name": "fix-mem0-embedding",
-      "description": "Fix Mem0: set OPENAI_EMBEDDINGS_MODEL=embedding-nomic in config",
-      "status": "done",
-      "worker": "W1",
-      "completed_at": "2026-04-24T05:40:44Z"
-    },
-    {
-      "id": "T02",
-      "name": "test-mem0-query",
-      "description": "Test Mem0 with simple query after fix",
-      "status": "done",
-      "worker": "W2",
-      "completed_at": "2026-04-24T05:40:44Z"
-    },
-    {
-      "id": "T03",
-      "name": "create-llms-txt",
-      "description": "Create llms.txt index for hermes-second-brain repo",
-      "status": "done",
-      "worker": "W1",
-      "completed_at": "2026-04-24T05:54:56Z"
-    },
-    {
-      "id": "T04",
-      "name": "create-architecture-map",
-      "description": "Create C4 architecture map of Hermes ecosystem",
-      "status": "done",
-      "worker": "W2",
-      "completed_at": "2026-04-24T05:54:56Z"
-    },
-    {
-      "id": "T05",
-      "name": "create-adr-qdrant",
-      "description": "Create ADR for Qdrant vector store decision",
-      "status": "done",
-      "worker": "W3",
-      "completed_at": "2026-04-24T05:54:56Z"
-    },
-    {
-      "id": "T06",
-      "name": "create-adr-mem0",
-      "description": "Create ADR for Mem0 memory layer decision",
-      "status": "done",
-      "worker": "W4",
-      "completed_at": "2026-04-24T05:54:54Z"
-    },
-    {
-      "id": "T07",
-      "name": "create-adr-vibe-loop",
-      "description": "Create ADR for Vibe Coding Loop architecture",
-      "status": "done",
-      "worker": "W5",
-      "completed_at": "2026-04-24T05:54:55Z"
-    },
-    {
-      "id": "T08",
-      "name": "qdrant-config-metadata",
-      "description": "Configure Qdrant metadata filters for agents/services/docs",
-      "status": "done",
-      "worker": "W6",
-      "completed_at": "2026-04-24T06:04:00Z"
-    },
-    {
-      "id": "T09",
-      "name": "qdrant-index-agents",
-      "description": "Index agent source files into Qdrant with metadata",
-      "status": "done",
-      "worker": "W7",
-      "completed_at": "2026-04-24T06:04:00Z"
-    },
-    {
-      "id": "T10",
-      "name": "qdrant-index-services",
-      "description": "Index service configs into Qdrant with metadata",
-      "status": "done",
-      "worker": "W8",
-      "completed_at": "2026-04-24T06:04:00Z"
-    },
-    {
-      "id": "T11",
-      "name": "qdrant-hybrid-search",
-      "description": "Set up hybrid search (semantic + BM25) in Qdrant",
-      "status": "done",
-      "worker": "W9",
-      "completed_at": "2026-04-24T06:04:00Z"
-    },
-    {
-      "id": "T12",
-      "name": "create-evals",
-      "description": "Create eval questions for retrieval quality",
-      "status": "done",
-      "worker": "W10",
-      "completed_at": "2026-04-24T06:04:00Z"
-    },
-    {
-      "id": "T13",
-      "name": "test-retrieval",
-      "description": "Run retrieval evals and report precision/recall",
-      "status": "done",
-      "worker": "W11",
-      "started_at": "2026-04-24T06:05:00Z",
-      "completed_at": "2026-04-24T06:15:00Z"
-    },
-    {
-      "id": "T14",
-      "name": "generate-report",
-      "description": "Generate brain-refactor completion report",
-      "status": "done",
-      "worker": "W12",
-      "started_at": "2026-04-24T06:05:00Z",
-      "completed_at": "2026-04-24T06:28:00Z"
-    },
-    {
-      "id": "T15",
-      "name": "vibe-queue-infinite",
-      "description": "Wire vibe-kit to brain-refactor queue for infinite loop",
-      "status": "done",
-      "worker": "W13",
-      "started_at": "2026-04-24T06:05:00Z",
-      "completed_at": "2026-04-24T06:32:49Z"
-    },
-    {
-      "id": "T16",
-      "name": "vibe-cron-workers",
-      "description": "Set up cron workers for vibe-kit autonomous execution",
-      "status": "done",
-      "worker": "W14",
-      "started_at": "2026-04-24T06:05:00Z",
-      "completed_at": "2026-04-24T06:37:00Z"
-    },
-    {
-      "id": "T17",
-      "name": "vibe-self-healing",
-      "description": "Implement self-healing for failed vibe workers",
-      "status": "done",
-      "worker": "W15",
-      "started_at": "2026-04-24T06:05:00Z",
-      "completed_at": "2026-04-24T06:44:00Z"
+      "id": "T001",
+      "name": "implement-spec",
+      "description": "Implement requirements from SPEC",
+      "agent_role": "backend-agent",
+      "status": "pending",
+      "attempts": 0,
+      "worker": null,
+      "created_at": "2026-04-26T15:38:33Z",
+      "completed_at": null,
+      "artifacts": [],
+      "error": null
     }
   ]
 }
