@@ -20,7 +20,19 @@ import { randomBytes } from 'node:crypto';
 import { applyPtbrFilter } from '../middleware/ptbr-filter.js';
 
 const execFileAsync = promisify(execFile);
+
+// SSRF Protection: Validate STT_URL before use
+const ALLOWED_STT_HOSTS = ['api.openai.com', 'api.anthropic.com', 'localhost', '127.0.0.1'];
 const STT_URL = process.env['STT_DIRECT_URL'] ?? 'http://localhost:8204';
+try {
+  const parsed = new URL(STT_URL);
+  if (!ALLOWED_STT_HOSTS.includes(parsed.hostname)) {
+    throw new Error(`SSRF Protection: STT_URL hostname '${parsed.hostname}' not allowed`);
+  }
+} catch (e) {
+  console.error(`[SECURITY] Invalid STT_URL: ${STT_URL} - ${e}`);
+  process.exit(1);
+}
 
 // ── Multipart extractor ────────────────────────────────────────────────────
 

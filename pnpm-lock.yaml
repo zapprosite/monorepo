@@ -66,12 +66,12 @@ importers:
 
   apps/ai-gateway:
     dependencies:
+      '@connected-repo/zod-schemas':
+        specifier: workspace:*
+        version: link:../../packages/zod-schemas
       '@fastify/cors':
         specifier: ^10.0.1
         version: 10.1.0
-      '@repo/zod-schemas':
-        specifier: workspace:*
-        version: link:../../packages/zod-schemas
       fastify:
         specifier: ^5.6.1
         version: 5.8.5
@@ -100,6 +100,9 @@ importers:
 
   apps/api:
     dependencies:
+      '@connected-repo/zod-schemas':
+        specifier: workspace:*
+        version: link:../../packages/zod-schemas
       '@fastify/cookie':
         specifier: ^11.0.2
         version: 11.0.2
@@ -124,9 +127,6 @@ importers:
       '@fastify/swagger-ui':
         specifier: ^5.2.3
         version: 5.2.5
-      '@repo/zod-schemas':
-        specifier: workspace:*
-        version: link:../../packages/zod-schemas
       axios:
         specifier: ^1.13.1
         version: 1.15.0
@@ -213,6 +213,9 @@ importers:
 
   apps/web:
     dependencies:
+      '@connected-repo/zod-schemas':
+        specifier: workspace:*
+        version: link:../../packages/zod-schemas
       '@emotion/react':
         specifier: ^11.14.0
         version: 11.14.0(@types/react@19.2.14)(react@19.2.5)
@@ -234,9 +237,6 @@ importers:
       '@repo/ui-mui':
         specifier: workspace:*
         version: link:../../packages/ui
-      '@repo/zod-schemas':
-        specifier: workspace:*
-        version: link:../../packages/zod-schemas
       '@tanstack/react-query':
         specifier: ^5.90.5
         version: 5.99.0(react@19.2.5)
@@ -349,6 +349,16 @@ importers:
       zod:
         specifier: ^4.1.12
         version: 4.3.6
+    devDependencies:
+      concurrently:
+        specifier: ^9.2.1
+        version: 9.2.1
+      tsc-alias:
+        specifier: ^1.8.16
+        version: 1.8.16
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
 
 packages:
 

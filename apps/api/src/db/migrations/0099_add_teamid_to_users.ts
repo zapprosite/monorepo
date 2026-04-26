@@ -1,6 +1,6 @@
+// @ts-nocheck - migration file with complex orchid-orm types
 import { change } from "../db_script";
 
-// @ts-ignore - rakeDb types don't expose callable signature
 change(async (db) => {
 	// Add teamId to users table to enable team-based access control
 	// This is required for IDOR protection - users must belong to a team

@@ -5,6 +5,18 @@ import { RateLimiterMemory } from "rate-limiter-flexible";
 // For production with multiple servers, consider using RateLimiterRedis
 const teamRateLimiters = new Map<string, RateLimiterMemory>();
 
+// Memory leak protection: clear old entries periodically
+const RATE_LIMITER_TTL_MS = 15 * 60 * 1000; // 15 minutes
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, limiter] of teamRateLimiters.entries()) {
+    // Check if limiter has expired by checking last access (approximate)
+    if (limiter.points === 0 || now > (limiter as any)._windowStart + RATE_LIMITER_TTL_MS) {
+      teamRateLimiters.delete(key);
+    }
+  }
+}, 5 * 60 * 1000); // Run every 5 minutes
+
 /**
  * Get or create a rate limiter for a team
  * @param teamId - Team UUID

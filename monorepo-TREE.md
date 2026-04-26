@@ -15,16 +15,20 @@ status: filled
 
 ```
 /
-├── apps/
-│   ├── ai-gateway/        # OpenAI-compatible facade
-│   ├── api/               # Fastify + tRPC backend
-│   ├── CRM-REFRIMIX/      # CRM app
-│   ├── list-web/          # List web
-│   ├── monitoring/        # Monitoring app
-│   ├── obsidian-web/      # Obsidian web
-│   ├── painel-organism/   # Painel organism
-│   ├── web/               # Web app
-│   └── zappro-web/        # Zappro web
+├── apps/                          # PRODUCTION SERVICES
+│   ├── ai-gateway/                # OpenAI-compatible facade (Hermes)
+│   ├── api/                       # Fastify + tRPC backend
+│   └── monitoring/                # SRE monitoring dashboard
+├── archive/
+│   ├── clients/                   # Archived client projects
+│   │   ├── CRM-REFRIMIX/
+│   │   ├── fit-v3/
+│   │   ├── list-web/
+│   │   ├── obsidian-web/
+│   │   ├── painel-organism/
+│   │   ├── web/
+│   │   └── zappro-web/
+│   └── [legacy research, logs, tasks]
 ├── docs/
 │   ├── SPECS/             # Active specs (SPEC-001 to SPEC-204)
 │   ├── SPECS-dead/        # Dead/pruned specs

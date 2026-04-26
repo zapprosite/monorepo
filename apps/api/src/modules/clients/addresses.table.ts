@@ -6,6 +6,7 @@ export class AddressesTable extends BaseTable {
 
 	columns = this.setColumns((t) => ({
 		addressId: t.uuid().primaryKey().default(t.sql`gen_random_uuid()`),
+		teamId: t.uuid(), // IDOR fix: team isolation
 		clienteId: t.uuid().foreignKey("clients", "clientId", {
 			onUpdate: "RESTRICT",
 			onDelete: "CASCADE",

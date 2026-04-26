@@ -11,8 +11,8 @@ import {
 const EDITORIAL_MAX_LIMIT = 500;
 
 export const editorialRouterTrpc = trpcRouter({
-	listEditorialItems: protectedProcedure.input(listEditorialFilterZod).query(async ({ input }) => {
-		let query = db.editorialItems.select("*");
+	listEditorialItems: protectedProcedure.input(listEditorialFilterZod).query(async ({ ctx, input }) => {
+		let query = db.editorialItems.select("*").where({ teamId: ctx.user.teamId });
 
 		if (input.status) {
 			query = query.where({ status: input.status });
@@ -37,31 +37,34 @@ export const editorialRouterTrpc = trpcRouter({
 
 	getEditorialDetail: protectedProcedure
 		.input(editorialGetByIdZod)
-		.query(async ({ input: { editorialId } }) => {
+		.query(async ({ ctx, input: { editorialId } }) => {
 			const item = await db.editorialItems.findOptional(editorialId);
 			if (!item) throw new TRPCError({ code: "NOT_FOUND", message: "Item editorial não encontrado" });
+			if (item.teamId !== ctx.user.teamId) throw new TRPCError({ code: "NOT_FOUND", message: "Item editorial não encontrado" });
 			return item;
 		}),
 
 	createEditorialItem: protectedProcedure
 		.input(editorialCreateInputZod)
-		.mutation(async ({ input }) => {
-			return db.editorialItems.create(input);
+		.mutation(async ({ ctx, input }) => {
+			return db.editorialItems.create({ ...input, teamId: ctx.user.teamId });
 		}),
 
 	updateEditorialItem: protectedProcedure
 		.input(editorialUpdateInputZod)
-		.mutation(async ({ input: { editorialId, ...data } }) => {
+		.mutation(async ({ ctx, input: { editorialId, ...data } }) => {
 			const item = await db.editorialItems.findOptional(editorialId);
 			if (!item) throw new TRPCError({ code: "NOT_FOUND", message: "Item editorial não encontrado" });
+			if (item.teamId !== ctx.user.teamId) throw new TRPCError({ code: "NOT_FOUND", message: "Item editorial não encontrado" });
 			return db.editorialItems.where({ editorialId }).update(data);
 		}),
 
 	moveToProducao: protectedProcedure
 		.input(editorialGetByIdZod)
-		.mutation(async ({ input: { editorialId } }) => {
+		.mutation(async ({ ctx, input: { editorialId } }) => {
 			const item = await db.editorialItems.findOptional(editorialId);
 			if (!item) throw new TRPCError({ code: "NOT_FOUND", message: "Item editorial não encontrado" });
+			if (item.teamId !== ctx.user.teamId) throw new TRPCError({ code: "NOT_FOUND", message: "Item editorial não encontrado" });
 			if (item.status !== "Ideia") {
 				throw new TRPCError({ code: "BAD_REQUEST", message: "Só é possível mover para 'Em Produção' a partir de 'Ideia'" });
 			}
@@ -70,9 +73,10 @@ export const editorialRouterTrpc = trpcRouter({
 
 	moveToRevisao: protectedProcedure
 		.input(editorialGetByIdZod)
-		.mutation(async ({ input: { editorialId } }) => {
+		.mutation(async ({ ctx, input: { editorialId } }) => {
 			const item = await db.editorialItems.findOptional(editorialId);
 			if (!item) throw new TRPCError({ code: "NOT_FOUND", message: "Item editorial não encontrado" });
+			if (item.teamId !== ctx.user.teamId) throw new TRPCError({ code: "NOT_FOUND", message: "Item editorial não encontrado" });
 			if (item.status !== "Em Produção") {
 				throw new TRPCError({ code: "BAD_REQUEST", message: "Só é possível mover para 'Revisão' a partir de 'Em Produção'" });
 			}
@@ -81,9 +85,10 @@ export const editorialRouterTrpc = trpcRouter({
 
 	approveItem: protectedProcedure
 		.input(editorialGetByIdZod)
-		.mutation(async ({ input: { editorialId } }) => {
+		.mutation(async ({ ctx, input: { editorialId } }) => {
 			const item = await db.editorialItems.findOptional(editorialId);
 			if (!item) throw new TRPCError({ code: "NOT_FOUND", message: "Item editorial não encontrado" });
+			if (item.teamId !== ctx.user.teamId) throw new TRPCError({ code: "NOT_FOUND", message: "Item editorial não encontrado" });
 			if (item.status !== "Revisão") {
 				throw new TRPCError({ code: "BAD_REQUEST", message: "Só é possível aprovar a partir de 'Revisão'" });
 			}
@@ -92,9 +97,10 @@ export const editorialRouterTrpc = trpcRouter({
 
 	publishItem: protectedProcedure
 		.input(editorialGetByIdZod)
-		.mutation(async ({ input: { editorialId } }) => {
+		.mutation(async ({ ctx, input: { editorialId } }) => {
 			const item = await db.editorialItems.findOptional(editorialId);
 			if (!item) throw new TRPCError({ code: "NOT_FOUND", message: "Item editorial não encontrado" });
+			if (item.teamId !== ctx.user.teamId) throw new TRPCError({ code: "NOT_FOUND", message: "Item editorial não encontrado" });
 			if (item.status !== "Aprovado") {
 				throw new TRPCError({ code: "BAD_REQUEST", message: "Só é possível publicar a partir de 'Aprovado'" });
 			}
@@ -103,9 +109,10 @@ export const editorialRouterTrpc = trpcRouter({
 
 	cancelItem: protectedProcedure
 		.input(editorialGetByIdZod)
-		.mutation(async ({ input: { editorialId } }) => {
+		.mutation(async ({ ctx, input: { editorialId } }) => {
 			const item = await db.editorialItems.findOptional(editorialId);
 			if (!item) throw new TRPCError({ code: "NOT_FOUND", message: "Item editorial não encontrado" });
+			if (item.teamId !== ctx.user.teamId) throw new TRPCError({ code: "NOT_FOUND", message: "Item editorial não encontrado" });
 			if (item.status === "Publicado") {
 				throw new TRPCError({ code: "BAD_REQUEST", message: "Não é possível cancelar um item já publicado" });
 			}

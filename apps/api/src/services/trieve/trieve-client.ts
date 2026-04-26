@@ -13,8 +13,8 @@ import type {
 
 // ── Config ──────────────────────────────────────────────────────────────────────
 
-const TRIEVE_URL = process.env['TRIEVE_URL'] ?? 'http://localhost:6435';
-const TRIEVE_API_KEY = process.env['TRIEVE_API_KEY'] ?? '';
+const TRIEVE_URL = process.env.TRIEVE_URL ?? 'http://localhost:6435';
+const TRIEVE_API_KEY = process.env.TRIEVE_API_KEY ?? '';
 
 // ── HTTP Helper ────────────────────────────────────────────────────────────────
 
@@ -151,7 +151,7 @@ export async function ragRetrieve(
   top_k = 5,
 ): Promise<RagRetrieveResult[]> {
   // Get the configured dataset ID from env, or use a default
-  const datasetId = process.env['TRIEVE_DEFAULT_DATASET_ID'];
+  const datasetId = process.env.TRIEVE_DEFAULT_DATASET_ID;
 
   if (!datasetId) {
     throw new Error(

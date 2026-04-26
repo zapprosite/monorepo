@@ -1,3 +1,4 @@
+import { TRPCError } from "@trpc/server";
 import { db } from "@backend/db/db";
 import { protectedProcedure, trpcRouter } from "@backend/trpc";
 import {
@@ -19,30 +20,44 @@ export const equipmentRouterTrpc = trpcRouter({
 	// --- UNITS ---
 	listUnitsByClient: protectedProcedure
 		.input(unitsByClientZod)
-		.query(async ({ input: { clienteId } }) => {
-			return db.units.where({ clienteId }).order({ nome: "ASC" });
+		.query(async ({ ctx, input: { clienteId } }) => {
+			const { teamId } = ctx.user;
+			const cliente = await db.clients.where({ clientId: clienteId, teamId }).findOptional(clienteId);
+			if (!cliente) throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado" });
+			return db.units.select("units.*").innerJoin("clients", "units.clienteId", "clients.clientId").where({ "clients.teamId": teamId, "units.clienteId": clienteId }).order({ nome: "ASC" });
 		}),
 
-	getUnitDetail: protectedProcedure.input(unitGetByIdZod).query(async ({ input: { unitId } }) => {
+	getUnitDetail: protectedProcedure.input(unitGetByIdZod).query(async ({ ctx, input: { unitId } }) => {
+		const { teamId } = ctx.user;
 		const unit = await db.units.find(unitId);
 		if (!unit) throw new Error("Unidade não encontrada");
+		const cliente = await db.clients.where({ clientId: unit.clienteId, teamId }).findOptional(unit.clienteId);
+		if (!cliente) throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado" });
 		return unit;
 	}),
 
-	createUnit: protectedProcedure.input(unitCreateInputZod).mutation(async ({ input }) => {
+	createUnit: protectedProcedure.input(unitCreateInputZod).mutation(async ({ ctx, input }) => {
+		const { teamId } = ctx.user;
+		const cliente = await db.clients.where({ clientId: input.clienteId, teamId }).findOptional(input.clienteId);
+		if (!cliente) throw new TRPCError({ code: "NOT_FOUND", message: "Cliente não encontrado" });
 		return db.units.create(input);
 	}),
 
 	updateUnit: protectedProcedure
 		.input(unitUpdateInputZod)
-		.mutation(async ({ input: { unitId, ...data } }) => {
+		.mutation(async ({ ctx, input: { unitId, ...data } }) => {
+			const { teamId } = ctx.user;
+			const unit = await db.units.find(unitId);
+			const cliente = await db.clients.where({ clientId: unit.clienteId, teamId }).findOptional(unit.clienteId);
+			if (!cliente) throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado" });
 			return db.units.find(unitId).update(data);
 		}),
 
 	// --- EQUIPMENT ---
-	listEquipment: protectedProcedure.input(listEquipmentFilterZod).query(async ({ input }) => {
-		let query = db.equipment.select("*");
-		if (input.clienteId) query = query.where({ clienteId: input.clienteId });
+	listEquipment: protectedProcedure.input(listEquipmentFilterZod).query(async ({ ctx, input }) => {
+		const { teamId } = ctx.user;
+		let query = db.equipment.select("equipment.*").innerJoin("clients", "equipment.clienteId", "clients.clientId").where("clients.teamId", teamId);
+		if (input.clienteId) query = query.where({ "equipment.clienteId": input.clienteId });
 		if (input.unitId) query = query.where({ unitId: input.unitId });
 		if (input.status) query = query.where({ status: input.status });
 		if (input.ativo !== undefined) query = query.where({ ativo: input.ativo });
@@ -51,31 +66,50 @@ export const equipmentRouterTrpc = trpcRouter({
 
 	listEquipmentByClient: protectedProcedure
 		.input(equipmentsByClientZod)
-		.query(async ({ input: { clienteId } }) => {
-			return db.equipment.where({ clienteId }).order({ nome: "ASC" });
+		.query(async ({ ctx, input: { clienteId } }) => {
+			const { teamId } = ctx.user;
+			const cliente = await db.clients.where({ clientId: clienteId, teamId }).findOptional(clienteId);
+			if (!cliente) throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado" });
+			return db.equipment.select("equipment.*").innerJoin("clients", "equipment.clienteId", "clients.clientId").where({ "clients.teamId": teamId, "equipment.clienteId": clienteId }).order({ nome: "ASC" });
 		}),
 
 	listEquipmentByUnit: protectedProcedure
 		.input(equipmentsByUnitZod)
-		.query(async ({ input: { unitId } }) => {
+		.query(async ({ ctx, input: { unitId } }) => {
+			const { teamId } = ctx.user;
+			const unit = await db.units.find(unitId);
+			if (!unit) throw new Error("Unidade não encontrada");
+			const cliente = await db.clients.where({ clientId: unit.clienteId, teamId }).findOptional(unit.clienteId);
+			if (!cliente) throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado" });
 			return db.equipment.where({ unitId }).order({ nome: "ASC" });
 		}),
 
 	getEquipmentDetail: protectedProcedure
 		.input(equipmentGetByIdZod)
-		.query(async ({ input: { equipmentId } }) => {
+		.query(async ({ ctx, input: { equipmentId } }) => {
+			const { teamId } = ctx.user;
 			const eq = await db.equipment.find(equipmentId);
 			if (!eq) throw new Error("Equipamento não encontrado");
+			const cliente = await db.clients.where({ clientId: eq.clienteId, teamId }).findOptional(eq.clienteId);
+			if (!cliente) throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado" });
 			return eq;
 		}),
 
-	createEquipment: protectedProcedure.input(equipmentCreateInputZod).mutation(async ({ input }) => {
+	createEquipment: protectedProcedure.input(equipmentCreateInputZod).mutation(async ({ ctx, input }) => {
+		const { teamId } = ctx.user;
+		const cliente = await db.clients.where({ clientId: input.clienteId, teamId }).findOptional(input.clienteId);
+		if (!cliente) throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado" });
 		return db.equipment.create(input);
 	}),
 
 	updateEquipment: protectedProcedure
 		.input(equipmentUpdateInputZod)
-		.mutation(async ({ input: { equipmentId, ...data } }) => {
+		.mutation(async ({ ctx, input: { equipmentId, ...data } }) => {
+			const { teamId } = ctx.user;
+			const eq = await db.equipment.find(equipmentId);
+			if (!eq) throw new Error("Equipamento não encontrado");
+			const cliente = await db.clients.where({ clientId: eq.clienteId, teamId }).findOptional(eq.clienteId);
+			if (!cliente) throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado" });
 			return db.equipment.find(equipmentId).update(data);
 		}),
 });

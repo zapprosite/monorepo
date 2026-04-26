@@ -219,7 +219,7 @@ export async function processWebhookQueue() {
 
 				await db.webhookCallQueues.find(webhook.webhookCallQueueId).update({
 					lastAttemptAt: () => sql`NOW()`,
-					scheduledFor: () => sql`NOW() + INTERVAL '${backoffMs} milliseconds'`,
+					scheduledFor: () => sql`NOW() + ((${Number(backoffMs)})::numeric * INTERVAL '1 millisecond')`,
 					errorMessage: result.error || "Unknown error",
 				}).increment("attempts");
 

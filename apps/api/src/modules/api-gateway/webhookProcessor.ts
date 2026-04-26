@@ -10,6 +10,8 @@
  * - Processes up to 50 webhooks per run
  */
 
+import { fileURLToPath } from "url";
+import { resolve } from "path";
 import { logger } from "@backend/app";
 import { processWebhookQueue } from "./utils/webhookQueue.utils";
 
@@ -84,7 +86,9 @@ export async function runWebhookProcessor(): Promise<{
  * Standalone script execution
  * Run this file directly to process webhooks: node dist/modules/api-gateway/webhookProcessor.js
  */
-if (require.main === module) {
+const __filename = fileURLToPath(import.meta.url);
+
+if (process.argv[1] && resolve(process.argv[1]) === __filename) {
 	runWebhookProcessor()
 		.then((result) => {
 			if (result.success) {

@@ -10,8 +10,11 @@ import {
 const REMINDERS_MAX_LIMIT = 500;
 
 export const remindersRouterTrpc = trpcRouter({
-	listReminders: protectedProcedure.input(listReminderFilterZod).query(async ({ input }) => {
-		let query = db.reminders.select("*");
+	listReminders: protectedProcedure.input(listReminderFilterZod).query(async ({ ctx, input }) => {
+		const { teamId } = ctx.user;
+		let query = db.reminders
+			.join("clients", "reminders.clienteId", "clients.clientId")
+			.where({ "clients.teamId": teamId });
 
 		if (input.clienteId) {
 			query = query.where({ clienteId: input.clienteId });
@@ -50,40 +53,52 @@ export const remindersRouterTrpc = trpcRouter({
 
 	getReminderDetail: protectedProcedure
 		.input(reminderGetByIdZod)
-		.query(async ({ input: { reminderId } }) => {
+		.query(async ({ ctx, input: { reminderId } }) => {
+			const { teamId } = ctx.user;
 			const reminder = await db.reminders.findOptional(reminderId);
 			if (!reminder) throw new TRPCError({ code: "NOT_FOUND", message: "Lembrete não encontrado" });
 
-			const client = await db.clients
-				.where({ clientId: reminder.clienteId })
-				.select("clientId", "nome")
-				.findOptional(reminder.clienteId);
+			const client = await db.clients.findOptional(reminder.clienteId);
+			if (!client) throw new TRPCError({ code: "NOT_FOUND", message: "Cliente não encontrado" });
+			if (client.teamId !== teamId) throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado" });
 
 			return {
 				...reminder,
-				clienteNome: client?.nome ?? null,
+				clienteNome: client.nome,
 			};
 		}),
 
-	createReminder: protectedProcedure.input(reminderCreateInputZod).mutation(async ({ input }) => {
+	createReminder: protectedProcedure.input(reminderCreateInputZod).mutation(async ({ ctx, input }) => {
+		const { teamId } = ctx.user;
 		const client = await db.clients.findOptional(input.clienteId);
 		if (!client) throw new TRPCError({ code: "NOT_FOUND", message: "Cliente não encontrado" });
+		if (client.teamId !== teamId) throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado" });
 		return db.reminders.create(input);
 	}),
 
 	completeReminder: protectedProcedure
 		.input(reminderGetByIdZod)
-		.mutation(async ({ input: { reminderId } }) => {
+		.mutation(async ({ ctx, input: { reminderId } }) => {
+			const { teamId } = ctx.user;
 			const reminder = await db.reminders.findOptional(reminderId);
 			if (!reminder) throw new TRPCError({ code: "NOT_FOUND", message: "Lembrete não encontrado" });
+
+			const client = await db.clients.findOptional(reminder.clienteId);
+			if (!client || client.teamId !== teamId) throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado" });
+
 			return db.reminders.where({ reminderId }).update({ status: "Concluído" });
 		}),
 
 	cancelReminder: protectedProcedure
 		.input(reminderGetByIdZod)
-		.mutation(async ({ input: { reminderId } }) => {
+		.mutation(async ({ ctx, input: { reminderId } }) => {
+			const { teamId } = ctx.user;
 			const reminder = await db.reminders.findOptional(reminderId);
 			if (!reminder) throw new TRPCError({ code: "NOT_FOUND", message: "Lembrete não encontrado" });
+
+			const client = await db.clients.findOptional(reminder.clienteId);
+			if (!client || client.teamId !== teamId) throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado" });
+
 			return db.reminders.where({ reminderId }).update({ status: "Cancelado" });
 		}),
 });
