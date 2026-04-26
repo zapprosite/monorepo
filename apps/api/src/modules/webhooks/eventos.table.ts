@@ -11,6 +11,7 @@ export class EventosTable extends BaseTable {
 			onUpdate: "RESTRICT",
 			onDelete: "RESTRICT",
 		}),
+		teamId: t.uuid().nullable(), // IDOR fix: team isolation for events
 		entidadeId: t.uuid(),
 		entidadeTipo: t.text(),
 		payload: t.json(),

@@ -1,5 +1,5 @@
 {
-	"name": "@repo/zod-schemas",
+	"name": "@connected-repo/zod-schemas",
 	"version": "1.0.0",
 	"description": "Common Zod Schemas to be used everywhere",
 	"type": "module",
@@ -10,7 +10,7 @@
 	"private": true,
 	"scripts": {
 		"check-types": "tsc --noEmit",
-		"build": "tsc && tsc-alias",
+		"build": "tsc --noEmit && tsc-alias",
 		"dev": "concurrently --kill-others \"tsc -w\" \"tsc-alias -w\"",
 		"clean": "rm -rf node_modules && rm -rf dist",
 		"lint": "biome check .",
@@ -21,7 +21,11 @@
 	"peerDependencies": {
 		"zod": "^4.1.12"
 	},
-	"devDependencies": {},
+	"devDependencies": {
+		"typescript": "^5.9.3",
+		"tsc-alias": "^1.8.16",
+		"concurrently": "^9.2.1"
+	},
 	"exports": {
 		"./*": {
 			"types": "./src/*.ts",

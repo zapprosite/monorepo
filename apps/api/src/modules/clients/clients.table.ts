@@ -6,6 +6,7 @@ export class ClientsTable extends BaseTable {
 
 	columns = this.setColumns((t) => ({
 		clientId: t.uuid().primaryKey().default(t.sql`gen_random_uuid()`),
+		teamId: t.uuid(), // IDOR fix: team isolation
 		nome: t.string(255),
 		tipo: t.enum("crm_client_type_enum", CLIENT_TYPE_ENUM),
 		email: t.string().nullable(),

@@ -36,30 +36,29 @@ export class DatabaseSessionStore implements SessionStore {
 			}
 
 			// Upsert session data
-			// Try to update existing session first
-			await this.db.sessions
-				.selectAll()
-				.findBy({ sessionId })
-				.upsert({
-					data: {
-						// Update session expiry every time it's set
-						expiresAt: () => sql`NOW() + ${this.cookieMaxAgeSeconds} * INTERVAL '1 SECOND'`,
-					},
-					create: {
-						sessionId,
-						userId: session.user?.userId || null, // Database user ID (nullable for OAuth users pending registration)
-						email: session.user?.email,
-						name: session.user?.name,
-						displayPicture: session.user?.displayPicture || null,
-						ipAddress: session.metadata?.ipAddress || null,
-						userAgent: session.metadata?.userAgent || null,
-						browser: session.metadata?.browser || null,
-						os: session.metadata?.os || null,
-						device: session.metadata?.device || null,
-						deviceFingerprint: session.metadata?.deviceFingerprint || null,
-						markedInvalidAt: null,
-					},
-				});
+			// Try to update existing session first, create if not exists
+			await this.db.sessions.findBy({ sessionId }).upsert({
+				update: {
+					// Update session expiry every time it's set
+					expiresAt: () => sql`NOW() + ${this.cookieMaxAgeSeconds} * INTERVAL '1 SECOND'`,
+				},
+				create: {
+					sessionId,
+					userId: session.user?.userId || null, // Database user ID (nullable for OAuth users pending registration)
+					email: session.user?.email,
+					name: session.user?.name,
+					displayPicture: session.user?.displayPicture || null,
+					teamId: session.user?.teamId || null, // IDOR fix: persist teamId in session
+					ipAddress: session.metadata?.ipAddress || null,
+					userAgent: session.metadata?.userAgent || null,
+					browser: session.metadata?.browser || null,
+					os: session.metadata?.os || null,
+					device: session.metadata?.device || null,
+					deviceFingerprint: session.metadata?.deviceFingerprint || null,
+					markedInvalidAt: null,
+					expiresAt: () => sql`NOW() + ${this.cookieMaxAgeSeconds} * INTERVAL '1 SECOND'`,
+				},
+			});
 
 			callback();
 		} catch (error) {
@@ -94,6 +93,7 @@ export class DatabaseSessionStore implements SessionStore {
 					email: sessionData.email,
 					name: sessionData.user?.name ?? sessionData.name,
 					displayPicture: sessionData.user?.displayPicture ?? sessionData.displayPicture,
+					teamId: sessionData.teamId, // IDOR fix: reconstruct teamId from DB
 				},
 				metadata: {
 					ipAddress: sessionData.ipAddress || undefined,

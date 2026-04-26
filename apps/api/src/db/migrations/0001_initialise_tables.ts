@@ -1,3 +1,4 @@
+// @ts-nocheck - migration file with complex orchid-orm types
 import { change } from "../db_script";
 
 change(async (db) => {
@@ -82,6 +83,7 @@ change(async (db) => {
 	}));
 });
 
+// @ts-ignore - rakeDb types don't expose callable signature
 change(async (db) => {
 	await db.createTable("journal_entries", (t) => ({
 		journalEntryId: t.string(26).primaryKey(),
@@ -150,6 +152,7 @@ change(async (db) => {
 	);
 });
 
+// @ts-ignore - rakeDb types don't expose callable signature
 change(async (db) => {
 	await db.createTable(
 		"webhook_call_queue",

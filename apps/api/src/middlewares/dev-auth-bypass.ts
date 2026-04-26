@@ -23,16 +23,19 @@ export const DEV_USERS: Record<string, Omit<SessionUser, "userId">> = {
 		email: "will@zappro.site",
 		name: "Will (Dev)",
 		displayPicture: null,
+		teamId: "dev-team-will",
 	},
 	"admin@zappro.site": {
 		email: "admin@zappro.site",
 		name: "Admin (Dev)",
 		displayPicture: null,
+		teamId: "dev-team-admin",
 	},
 	"test@example.com": {
 		email: "test@example.com",
 		name: "Test User",
 		displayPicture: null,
+		teamId: "dev-team-test",
 	},
 };
 
@@ -61,6 +64,7 @@ export const extractDevUser = (req: FastifyRequest): SessionUser | null => {
 			email,
 			name: `Dev User (${email})`,
 			displayPicture: null,
+			teamId: null,
 		};
 	}
 

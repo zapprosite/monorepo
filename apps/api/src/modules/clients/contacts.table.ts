@@ -9,6 +9,7 @@ export class ContactsTable extends BaseTable {
 			onUpdate: "RESTRICT",
 			onDelete: "CASCADE",
 		}),
+		teamId: t.uuid(), // IDOR fix: team isolation
 		nome: t.string(255),
 		email: t.string().nullable(),
 		telefone: t.string(30).nullable(),
