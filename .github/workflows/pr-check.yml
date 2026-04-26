@@ -24,6 +24,8 @@ jobs:
           cache: 'pnpm'
 
       - name: Install dependencies
+        env:
+          PNPM_WORKERS: 1
         run: pnpm install --frozen-lockfile
 
       - name: Type check
