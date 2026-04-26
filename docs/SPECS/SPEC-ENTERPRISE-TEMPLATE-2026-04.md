@@ -6,13 +6,13 @@
 |-------|-------|
 | Spec ID | SPEC-ENTERPRISE-TEMPLATE-2026-04 |
 | Created | 2026-04-26 |
-| Phase | P (Plan Only) |
-| Mode | GIT_PREFLIGHT_COMPLETED |
+| Phase | COMPLETED |
+| Mode | IMPLEMENTATION_COMPLETED |
 | Leader | Hermes |
 | Orchestrator | Nexus |
 | Repo | zapprosite/monorepo |
-| Branch | feature/enterprise-template |
-| Status | DRAFT — pending T03 approval |
+| Branch | feature/enterprise-template-v2 |
+| Status | COMPLETED — merged in ee0a780 |
 
 ## Context (Do Not Re-scan)
 
@@ -180,14 +180,30 @@ Criar templates para novos projetos dentro do monorepo.
 
 ## Task Breakdown Summary
 
-| Task | Phase | Scope |
-|------|-------|-------|
-| T01 | -1 | Push feature branch |
-| T02 | 0 | Freeze context |
-| T03 | 0 | Create this SPEC |
-| T04 | 1 | Task breakdown |
-| T05 | 2 | pipeline.json |
-| T06 | 3 | Human review gate |
+| Task | Phase | Status |
+|------|-------|--------|
+| T01 | -1 | ✅ Completed |
+| T02 | 0 | ✅ Completed |
+| T03 | 0 | ✅ Completed |
+| T04 | 1 | ✅ Completed |
+| T05 | 2 | ✅ Completed |
+| T06 | 3 | ✅ Completed |
+| T07 | 4 | ✅ Completed — Identity & License |
+| T08 | 4 | ✅ Completed — Workspace & Tooling |
+| T09 | 4 | ✅ Completed — Documentation Drift |
+| T10 | 4 | ✅ Completed — CI/CD & Security Gates |
+| T11 | 4 | ✅ Completed — Dependency Alignment |
+| T12 | 4 | ✅ Completed — Template Scaffolding |
+
+## Implementation Summary
+
+All deliverables completed in commit `ee0a780`:
+- **Identity**: NOTICE, CODEOWNERS, ISSUE_TEMPLATE/
+- **Workspace**: .editorconfig, .tool-versions, .devcontainer/, .vscode/
+- **Docs**: DRIFT-REPORT.md, DEPENDENCY-ALIGNMENT.md, TEMPLATE-GUIDE.md
+- **CI/CD**: secret-scan.yml, dependency-review.yml, docs-validate.yml, dependency-alerts.yml
+- **Security**: pre-commit-config.yaml, SECURITY.md
+- **Templates**: template/app/, template/packages/
 
 ---
 

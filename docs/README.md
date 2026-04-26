@@ -1,6 +1,6 @@
 # Documentation Index
 
-**Version:** 1.0.0 | **Updated:** 2026-04-25 | **Owner:** Platform Engineering
+**Version:** 1.1.0 | **Updated:** 2026-04-26 | **Owner:** Platform Engineering
 
 ---
 
@@ -17,6 +17,9 @@
 | **Architecture** | Stable architecture | [ARCHITECTURE-STABLE.md](./ARCHITECTURE-STABLE.md) |
 | **Features** | All specifications | [SPECS/INDEX.md](./SPECS/INDEX.md) |
 | **Reference** | Scripts catalog | [SCRIPTS_CATALOG.md](./SCRIPTS_CATALOG.md) |
+| **Reference** | Enterprise template guide | [TEMPLATE-GUIDE.md](./TEMPLATE-GUIDE.md) |
+| **Reference** | Dependency alignment | [DEPENDENCY-ALIGNMENT.md](./DEPENDENCY-ALIGNMENT.md) |
+| **Reference** | Documentation drift report | [DRIFT-REPORT.md](./DRIFT-REPORT.md) |
 
 ---
 
@@ -81,6 +84,7 @@ lastUpdated: YYYY-MM-DD
 - [NEXUS-SRE-GUIDE.md](./NEXUS-SRE-GUIDE.md) — SRE automation
 - [OBSERVABILITY.md](./OBSERVABILITY.md) — Monitoring and metrics
 - [FAULT_TOLERANCE.md](./FAULT_TOLERANCE.md) — Resilience patterns
+- [LITELLM-CONFIG-TEMPLATE.md](./LITELLM-CONFIG-TEMPLATE.md) — LiteLLM config
 
 ### Development
 - [CICD.md](./CICD.md) — CI/CD pipeline

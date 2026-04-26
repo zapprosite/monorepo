@@ -3,7 +3,7 @@ type: spec-index
 name: Active Specifications
 description: Canonical index of active SPECs in the monorepo
 status: filled
-updated: 2026-04-24
+updated: 2026-04-26
 ---
 
 # Active Specifications

@@ -1,6 +1,6 @@
 # SPECs Index
 
-**Last Updated:** 2026-04-25
+**Last Updated:** 2026-04-26
 
 ---
 
@@ -24,6 +24,7 @@
 | [SPEC-200](SPEC-200-hermes-ecosystem-architecture.md) | Hermes Ecosystem Architecture | Active | AI Team | P1 |
 | [SPEC-202](SPEC-202-hermes-second-brain-systemd.md) | Hermes Second Brain systemd | Active | DevOps | P2 |
 | [SPEC-203](SPEC-203-litellm-diagnostic.md) | LiteLLM Diagnostic | Active | DevOps | P2 |
+| [SPEC-ENTERPRISE-TEMPLATE-2026-04](SPEC-ENTERPRISE-TEMPLATE-2026-04.md) | Enterprise Template v2 | Active | Platform | P2 |
 
 ---
 
@@ -87,6 +88,6 @@ created: YYYY-MM-DD
 
 ## Stats
 
-- **Active:** 21
+- **Active:** 22
 - **Completed:** 2
-- **Total:** 23
+- **Total:** 24
