@@ -1,0 +1,15 @@
+Performance review complete. Report saved to `/srv/monorepo/docs/FINAL-REVIEW-perf-2026-04-26.md`
+
+## Summary
+
+**Blocking issues:** 2 CRITICAL
+
+1. **Sync I/O in audio transcoding** (`audio-transcriptions.ts:75,79`) — `fs.writeFileSync`/`fs.readFileSync` block the event loop during ffmpeg processing
+
+2. **N+1 in webhook processor** (`webhookQueue.utils.ts:183-185`) — Team fetch inside loop = 50 DB queries per batch instead of 1 batch query
+
+**High priority:**
+- `Promise.all` with sequential DB calls in `reorderColumns` (kanban.trpc.ts:120-126)
+- Hardcoded pagination limits (200-500 rows) without cursor pagination
+
+**Bundle size:** Clean — no lodash/moment bloat detected.

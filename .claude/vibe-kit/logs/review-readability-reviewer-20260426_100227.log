@@ -1,0 +1,12 @@
+Review complete. Written to `/srv/monorepo/docs/REVIEW-readability-reviewer-2026-04-26.md`.
+
+**Summary of key findings:**
+
+- **BLOCKER:** `api-gateway.router.ts` L192-238 — paginated logs handler has ~22 cyclomatic complexity (threshold: >20)
+- **1 dead code block:** commented `// log: true,` in `db.ts`
+- **3 shell scripts** with Portuguese comments violating EN-only rule
+- **Portuguese identifiers** in table names: `conteudos`, `conteudo-revisoes`, `mcp-conectores`
+- **~40 lines duplicated** across 6 shell scripts (color/logging setup)
+- **God file:** `db.ts` with 37 imports, 35 table registrations
+
+**Score: 6.2/10** — complexity blocker + medium naming/duplication issues

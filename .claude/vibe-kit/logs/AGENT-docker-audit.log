@@ -1,0 +1,17 @@
+**Docker Audit Completo — 30 containers, todos operacionais.**
+
+**Resumo:**
+- 30 containers activos
+- 19 com healthcheck (todos healthy)
+- 11 sem healthcheck mas todos running
+- 0 unhealthy
+
+**Destaques de uso:**
+- `qwen2-vl7b`: 37.77% CPU, 1.07GiB/10GiB RAM (Ollama com Qwen2-VL)
+- `prometheus`: 1.85% CPU, 222MB rede I/O (alto tráfego)
+- `coolify`: 1.9GB/834MB rede I/O (alto tráfego)
+
+Relatório guardado em `/tmp/docker-audit.txt`.
+
+[mclaude] MiniMax-Token-Plan (MiniMax-M2.7) — session ended
+[?25h[0m[?1049l

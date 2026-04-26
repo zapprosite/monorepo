@@ -1,0 +1,574 @@
+[Fri Apr 24 06:32:22 AM UTC 2026] vibe-kit.sh started (PID=4044554, MAX_WORKERS=15)
+[Fri Apr 24 06:32:22 AM UTC 2026] workers=3 total=17 pending=0 running=5 done=12 failed=0
+[Fri Apr 24 06:32:28 AM UTC 2026] workers=3 total=17 pending=0 running=5 done=12 failed=0
+[Fri Apr 24 06:32:33 AM UTC 2026] workers=3 total=17 pending=0 running=5 done=12 failed=0
+[Fri Apr 24 06:32:38 AM UTC 2026] workers=3 total=17 pending=0 running=5 done=12 failed=0
+[Fri Apr 24 06:32:43 AM UTC 2026] workers=3 total=17 pending=0 running=5 done=12 failed=0
+[Fri Apr 24 06:32:48 AM UTC 2026] workers=3 total=17 pending=0 running=5 done=12 failed=0
+[Fri Apr 24 06:32:53 AM UTC 2026] workers=3 total=17 pending=0 running=4 done=13 failed=0
+[Fri Apr 24 06:32:58 AM UTC 2026] workers=3 total=17 pending=0 running=4 done=13 failed=0
+[Fri Apr 24 06:33:04 AM UTC 2026] workers=3 total=17 pending=0 running=4 done=13 failed=0
+[Fri Apr 24 06:33:09 AM UTC 2026] workers=3 total=17 pending=0 running=4 done=13 failed=0
+[Fri Apr 24 06:33:14 AM UTC 2026] workers=3 total=17 pending=0 running=4 done=13 failed=0
+[Fri Apr 24 06:33:19 AM UTC 2026] workers=3 total=17 pending=0 running=4 done=13 failed=0
+[Fri Apr 24 06:33:24 AM UTC 2026] workers=3 total=17 pending=0 running=4 done=13 failed=0
+[Fri Apr 24 06:33:29 AM UTC 2026] workers=3 total=17 pending=0 running=4 done=13 failed=0
+[Fri Apr 24 06:33:34 AM UTC 2026] workers=3 total=17 pending=0 running=4 done=13 failed=0
+[Fri Apr 24 06:33:40 AM UTC 2026] workers=3 total=17 pending=0 running=4 done=13 failed=0
+[Fri Apr 24 06:33:45 AM UTC 2026] workers=3 total=17 pending=0 running=4 done=13 failed=0
+[Fri Apr 24 06:33:50 AM UTC 2026] workers=3 total=17 pending=0 running=4 done=13 failed=0
+[Fri Apr 24 06:33:55 AM UTC 2026] workers=3 total=17 pending=0 running=4 done=13 failed=0
+[Fri Apr 24 06:34:00 AM UTC 2026] workers=3 total=17 pending=0 running=4 done=13 failed=0
+[Fri Apr 24 06:34:05 AM UTC 2026] workers=3 total=17 pending=0 running=4 done=13 failed=0
+[Fri Apr 24 06:34:10 AM UTC 2026] workers=3 total=17 pending=0 running=4 done=13 failed=0
+[Fri Apr 24 06:34:16 AM UTC 2026] workers=3 total=17 pending=0 running=4 done=13 failed=0
+[Fri Apr 24 06:34:21 AM UTC 2026] workers=3 total=17 pending=0 running=4 done=13 failed=0
+[Fri Apr 24 06:34:26 AM UTC 2026] workers=3 total=17 pending=0 running=4 done=13 failed=0
+[Fri Apr 24 06:34:31 AM UTC 2026] workers=3 total=17 pending=0 running=4 done=13 failed=0
+[Fri Apr 24 06:34:36 AM UTC 2026] workers=3 total=17 pending=0 running=4 done=13 failed=0
+[Fri Apr 24 06:34:41 AM UTC 2026] workers=3 total=17 pending=0 running=4 done=13 failed=0
+[Fri Apr 24 06:34:46 AM UTC 2026] workers=3 total=17 pending=0 running=4 done=13 failed=0
+[Fri Apr 24 06:34:52 AM UTC 2026] workers=3 total=17 pending=0 running=4 done=13 failed=0
+[Fri Apr 24 06:34:57 AM UTC 2026] workers=3 total=17 pending=0 running=4 done=13 failed=0
+[Fri Apr 24 06:35:02 AM UTC 2026] workers=3 total=17 pending=0 running=4 done=13 failed=0
+[Fri Apr 24 06:35:07 AM UTC 2026] workers=3 total=17 pending=0 running=4 done=13 failed=0
+[Fri Apr 24 06:35:12 AM UTC 2026] workers=3 total=17 pending=0 running=4 done=13 failed=0
+[Fri Apr 24 06:35:17 AM UTC 2026] workers=3 total=17 pending=0 running=4 done=13 failed=0
+[Fri Apr 24 06:35:22 AM UTC 2026] workers=3 total=17 pending=0 running=4 done=13 failed=0
+[Fri Apr 24 06:35:28 AM UTC 2026] workers=3 total=17 pending=0 running=4 done=13 failed=0
+[Fri Apr 24 06:35:33 AM UTC 2026] workers=3 total=17 pending=0 running=4 done=13 failed=0
+[Fri Apr 24 06:35:38 AM UTC 2026] workers=3 total=17 pending=0 running=4 done=13 failed=0
+[Fri Apr 24 06:35:43 AM UTC 2026] workers=3 total=17 pending=0 running=4 done=13 failed=0
+[Fri Apr 24 06:35:48 AM UTC 2026] workers=3 total=17 pending=0 running=4 done=13 failed=0
+[Fri Apr 24 06:35:53 AM UTC 2026] workers=3 total=17 pending=0 running=4 done=13 failed=0
+[Fri Apr 24 06:35:58 AM UTC 2026] workers=3 total=17 pending=0 running=4 done=13 failed=0
+[Fri Apr 24 06:36:04 AM UTC 2026] workers=3 total=17 pending=0 running=4 done=13 failed=0
+[Fri Apr 24 06:36:09 AM UTC 2026] workers=3 total=17 pending=0 running=4 done=13 failed=0
+[Fri Apr 24 06:36:14 AM UTC 2026] workers=3 total=17 pending=0 running=4 done=13 failed=0
+[Fri Apr 24 06:36:19 AM UTC 2026] workers=3 total=17 pending=0 running=4 done=13 failed=0
+[Fri Apr 24 06:36:24 AM UTC 2026] workers=3 total=17 pending=0 running=4 done=13 failed=0
+[Fri Apr 24 06:36:29 AM UTC 2026] workers=3 total=17 pending=0 running=4 done=13 failed=0
+[Fri Apr 24 06:36:34 AM UTC 2026] workers=3 total=17 pending=0 running=4 done=13 failed=0
+[Fri Apr 24 06:36:40 AM UTC 2026] workers=3 total=17 pending=0 running=3 done=14 failed=0
+[Fri Apr 24 06:36:45 AM UTC 2026] workers=3 total=17 pending=0 running=3 done=14 failed=0
+[Fri Apr 24 06:36:50 AM UTC 2026] workers=3 total=17 pending=0 running=3 done=14 failed=0
+[Fri Apr 24 06:36:55 AM UTC 2026] workers=3 total=17 pending=0 running=3 done=14 failed=0
+[Fri Apr 24 06:37:00 AM UTC 2026] workers=3 total=17 pending=0 running=3 done=14 failed=0
+[Fri Apr 24 06:37:05 AM UTC 2026] workers=3 total=17 pending=0 running=3 done=14 failed=0
+[Fri Apr 24 06:37:10 AM UTC 2026] workers=3 total=17 pending=0 running=3 done=14 failed=0
+[Fri Apr 24 06:37:16 AM UTC 2026] workers=3 total=17 pending=0 running=3 done=14 failed=0
+[Fri Apr 24 06:37:21 AM UTC 2026] workers=3 total=17 pending=0 running=3 done=14 failed=0
+[Fri Apr 24 06:37:26 AM UTC 2026] workers=3 total=17 pending=0 running=3 done=14 failed=0
+[Fri Apr 24 06:37:31 AM UTC 2026] workers=3 total=17 pending=0 running=3 done=14 failed=0
+[Fri Apr 24 06:37:36 AM UTC 2026] workers=3 total=17 pending=0 running=3 done=14 failed=0
+[Fri Apr 24 06:37:41 AM UTC 2026] workers=3 total=17 pending=0 running=3 done=14 failed=0
+[Fri Apr 24 06:37:46 AM UTC 2026] workers=3 total=17 pending=0 running=3 done=14 failed=0
+[Fri Apr 24 06:37:52 AM UTC 2026] workers=3 total=17 pending=0 running=3 done=14 failed=0
+[Fri Apr 24 06:37:57 AM UTC 2026] workers=3 total=17 pending=0 running=3 done=14 failed=0
+[Fri Apr 24 06:38:02 AM UTC 2026] workers=3 total=17 pending=0 running=3 done=14 failed=0
+[Fri Apr 24 06:38:07 AM UTC 2026] workers=3 total=17 pending=0 running=3 done=14 failed=0
+[Fri Apr 24 06:38:12 AM UTC 2026] workers=3 total=17 pending=0 running=3 done=14 failed=0
+[Fri Apr 24 06:38:17 AM UTC 2026] workers=3 total=17 pending=0 running=3 done=14 failed=0
+[Fri Apr 24 06:38:22 AM UTC 2026] workers=3 total=17 pending=0 running=3 done=14 failed=0
+[Fri Apr 24 06:38:28 AM UTC 2026] workers=3 total=17 pending=0 running=3 done=14 failed=0
+[Fri Apr 24 06:38:33 AM UTC 2026] workers=3 total=17 pending=0 running=3 done=14 failed=0
+[Fri Apr 24 06:38:38 AM UTC 2026] workers=3 total=17 pending=0 running=3 done=14 failed=0
+[Fri Apr 24 06:38:43 AM UTC 2026] workers=3 total=17 pending=0 running=3 done=14 failed=0
+[Fri Apr 24 06:38:48 AM UTC 2026] workers=3 total=17 pending=0 running=3 done=14 failed=0
+[Fri Apr 24 06:38:53 AM UTC 2026] workers=3 total=17 pending=0 running=3 done=14 failed=0
+[Fri Apr 24 06:38:58 AM UTC 2026] workers=3 total=17 pending=0 running=3 done=14 failed=0
+[Fri Apr 24 06:39:04 AM UTC 2026] workers=3 total=17 pending=0 running=3 done=14 failed=0
+[Fri Apr 24 06:39:09 AM UTC 2026] workers=3 total=17 pending=0 running=3 done=14 failed=0
+[Fri Apr 24 06:39:14 AM UTC 2026] workers=3 total=17 pending=0 running=3 done=14 failed=0
+[Fri Apr 24 06:39:19 AM UTC 2026] workers=3 total=17 pending=0 running=3 done=14 failed=0
+[Fri Apr 24 06:39:24 AM UTC 2026] workers=3 total=17 pending=0 running=3 done=14 failed=0
+[Fri Apr 24 06:39:29 AM UTC 2026] workers=3 total=17 pending=0 running=3 done=14 failed=0
+[Fri Apr 24 06:39:34 AM UTC 2026] workers=3 total=17 pending=0 running=3 done=14 failed=0
+[Fri Apr 24 06:39:40 AM UTC 2026] workers=3 total=17 pending=0 running=3 done=14 failed=0
+[Fri Apr 24 06:39:45 AM UTC 2026] workers=3 total=17 pending=0 running=3 done=14 failed=0
+[Fri Apr 24 06:39:50 AM UTC 2026] workers=3 total=17 pending=0 running=3 done=14 failed=0
+[Fri Apr 24 06:39:55 AM UTC 2026] workers=3 total=17 pending=0 running=3 done=14 failed=0
+[Fri Apr 24 06:40:00 AM UTC 2026] workers=3 total=17 pending=0 running=3 done=14 failed=0
+[Fri Apr 24 06:40:05 AM UTC 2026] workers=3 total=17 pending=0 running=3 done=14 failed=0
+[Fri Apr 24 06:40:10 AM UTC 2026] workers=3 total=17 pending=0 running=3 done=14 failed=0
+[Fri Apr 24 06:40:16 AM UTC 2026] workers=3 total=17 pending=0 running=3 done=14 failed=0
+[Fri Apr 24 06:40:21 AM UTC 2026] workers=3 total=17 pending=0 running=3 done=14 failed=0
+[Fri Apr 24 06:40:26 AM UTC 2026] workers=3 total=17 pending=0 running=3 done=14 failed=0
+[Fri Apr 24 06:40:31 AM UTC 2026] workers=3 total=17 pending=0 running=3 done=14 failed=0
+[Fri Apr 24 06:40:36 AM UTC 2026] workers=3 total=17 pending=0 running=3 done=14 failed=0
+[Fri Apr 24 06:40:41 AM UTC 2026] workers=3 total=17 pending=0 running=3 done=14 failed=0
+[Fri Apr 24 06:40:47 AM UTC 2026] workers=3 total=17 pending=0 running=3 done=14 failed=0
+[Fri Apr 24 06:40:52 AM UTC 2026] workers=3 total=17 pending=0 running=3 done=14 failed=0
+[Fri Apr 24 06:40:57 AM UTC 2026] workers=3 total=17 pending=0 running=3 done=14 failed=0
+[Fri Apr 24 06:41:02 AM UTC 2026] workers=3 total=17 pending=0 running=3 done=14 failed=0
+[Fri Apr 24 06:41:07 AM UTC 2026] workers=3 total=17 pending=0 running=3 done=14 failed=0
+[Fri Apr 24 06:41:12 AM UTC 2026] workers=3 total=17 pending=0 running=3 done=14 failed=0
+[Fri Apr 24 06:41:17 AM UTC 2026] workers=3 total=17 pending=0 running=3 done=14 failed=0
+[Fri Apr 24 06:41:23 AM UTC 2026] workers=3 total=17 pending=0 running=3 done=14 failed=0
+[Fri Apr 24 06:41:28 AM UTC 2026] workers=3 total=17 pending=0 running=3 done=14 failed=0
+[Fri Apr 24 06:41:33 AM UTC 2026] workers=3 total=17 pending=0 running=3 done=14 failed=0
+[Fri Apr 24 06:41:38 AM UTC 2026] workers=3 total=17 pending=0 running=3 done=14 failed=0
+[Fri Apr 24 06:41:43 AM UTC 2026] workers=3 total=17 pending=0 running=3 done=14 failed=0
+[Fri Apr 24 06:41:48 AM UTC 2026] workers=3 total=17 pending=0 running=3 done=14 failed=0
+[Fri Apr 24 06:41:53 AM UTC 2026] workers=3 total=17 pending=0 running=3 done=14 failed=0
+[Fri Apr 24 06:41:59 AM UTC 2026] workers=3 total=17 pending=0 running=3 done=14 failed=0
+[Fri Apr 24 06:42:04 AM UTC 2026] workers=3 total=17 pending=0 running=3 done=14 failed=0
+[Fri Apr 24 06:42:09 AM UTC 2026] workers=3 total=17 pending=0 running=3 done=14 failed=0
+[Fri Apr 24 06:42:14 AM UTC 2026] workers=3 total=17 pending=0 running=3 done=14 failed=0
+[Fri Apr 24 06:42:19 AM UTC 2026] workers=3 total=17 pending=0 running=3 done=14 failed=0
+[Fri Apr 24 06:42:24 AM UTC 2026] workers=3 total=17 pending=0 running=3 done=14 failed=0
+[Fri Apr 24 06:42:29 AM UTC 2026] workers=3 total=17 pending=0 running=3 done=14 failed=0
+[Fri Apr 24 06:42:35 AM UTC 2026] workers=3 total=17 pending=0 running=3 done=14 failed=0
+[Fri Apr 24 06:42:40 AM UTC 2026] workers=3 total=17 pending=0 running=3 done=14 failed=0
+[Fri Apr 24 06:42:45 AM UTC 2026] workers=3 total=17 pending=0 running=3 done=14 failed=0
+[Fri Apr 24 06:42:50 AM UTC 2026] workers=3 total=17 pending=0 running=3 done=14 failed=0
+[Fri Apr 24 06:42:55 AM UTC 2026] workers=3 total=17 pending=0 running=3 done=14 failed=0
+[Fri Apr 24 06:43:00 AM UTC 2026] workers=3 total=17 pending=0 running=3 done=14 failed=0
+[Fri Apr 24 06:43:05 AM UTC 2026] workers=3 total=17 pending=0 running=3 done=14 failed=0
+[Fri Apr 24 06:43:11 AM UTC 2026] workers=3 total=17 pending=0 running=3 done=14 failed=0
+[Fri Apr 24 06:43:16 AM UTC 2026] workers=3 total=17 pending=0 running=3 done=14 failed=0
+[Fri Apr 24 06:43:21 AM UTC 2026] workers=3 total=17 pending=0 running=3 done=14 failed=0
+[Fri Apr 24 06:43:26 AM UTC 2026] workers=3 total=17 pending=0 running=3 done=14 failed=0
+[Fri Apr 24 06:43:31 AM UTC 2026] workers=3 total=17 pending=0 running=3 done=14 failed=0
+[Fri Apr 24 06:43:36 AM UTC 2026] workers=3 total=17 pending=0 running=2 done=15 failed=0
+[Fri Apr 24 06:43:41 AM UTC 2026] workers=3 total=17 pending=0 running=2 done=15 failed=0
+[Fri Apr 24 06:43:47 AM UTC 2026] workers=3 total=17 pending=0 running=2 done=15 failed=0
+[Fri Apr 24 06:45:01 AM UTC 2026] Stale lock cleared
+[Fri Apr 24 06:45:01 AM UTC 2026] vibe-kit.sh started (PID=4108602, MAX_WORKERS=15)
+[Fri Apr 24 07:00:01 AM UTC 2026] Stale lock cleared
+[Fri Apr 24 07:00:01 AM UTC 2026] vibe-kit.sh started (PID=4185390, MAX_WORKERS=15)
+[Fri Apr 24 07:15:01 AM UTC 2026] Stale lock cleared
+[Fri Apr 24 07:15:01 AM UTC 2026] vibe-kit.sh started (PID=69242, MAX_WORKERS=15)
+[Fri Apr 24 07:30:01 AM UTC 2026] Stale lock cleared
+[Fri Apr 24 07:30:01 AM UTC 2026] vibe-kit.sh started (PID=144954, MAX_WORKERS=15)
+[Fri Apr 24 07:45:01 AM UTC 2026] Stale lock cleared
+[Fri Apr 24 07:45:01 AM UTC 2026] vibe-kit.sh started (PID=224999, MAX_WORKERS=15)
+[Fri Apr 24 08:00:01 AM UTC 2026] Stale lock cleared
+[Fri Apr 24 08:00:01 AM UTC 2026] vibe-kit.sh started (PID=302328, MAX_WORKERS=15)
+[Fri Apr 24 08:15:01 AM UTC 2026] Stale lock cleared
+[Fri Apr 24 08:15:01 AM UTC 2026] vibe-kit.sh started (PID=382538, MAX_WORKERS=15)
+[Fri Apr 24 08:30:01 AM UTC 2026] Stale lock cleared
+[Fri Apr 24 08:30:01 AM UTC 2026] vibe-kit.sh started (PID=460575, MAX_WORKERS=15)
+[Fri Apr 24 08:45:01 AM UTC 2026] Stale lock cleared
+[Fri Apr 24 08:45:01 AM UTC 2026] vibe-kit.sh started (PID=538167, MAX_WORKERS=15)
+[Fri Apr 24 09:00:01 AM UTC 2026] Stale lock cleared
+[Fri Apr 24 09:00:01 AM UTC 2026] vibe-kit.sh started (PID=682761, MAX_WORKERS=15)
+[Fri Apr 24 09:15:09 AM UTC 2026] Stale lock cleared
+[Fri Apr 24 09:15:09 AM UTC 2026] vibe-kit.sh started (PID=875737, MAX_WORKERS=15)
+[Fri Apr 24 09:30:01 AM UTC 2026] Stale lock cleared
+[Fri Apr 24 09:30:01 AM UTC 2026] vibe-kit.sh started (PID=969129, MAX_WORKERS=15)
+[Fri Apr 24 09:45:01 AM UTC 2026] Stale lock cleared
+[Fri Apr 24 09:45:01 AM UTC 2026] vibe-kit.sh started (PID=1043071, MAX_WORKERS=15)
+[Fri Apr 24 10:00:01 AM UTC 2026] Stale lock cleared
+[Fri Apr 24 10:00:01 AM UTC 2026] vibe-kit.sh started (PID=1116360, MAX_WORKERS=15)
+[Fri Apr 24 10:15:01 AM UTC 2026] Stale lock cleared
+[Fri Apr 24 10:15:01 AM UTC 2026] vibe-kit.sh started (PID=1190544, MAX_WORKERS=15)
+[Fri Apr 24 10:30:01 AM UTC 2026] Stale lock cleared
+[Fri Apr 24 10:30:01 AM UTC 2026] vibe-kit.sh started (PID=1264026, MAX_WORKERS=15)
+[Fri Apr 24 10:45:01 AM UTC 2026] Stale lock cleared
+[Fri Apr 24 10:45:01 AM UTC 2026] vibe-kit.sh started (PID=1337992, MAX_WORKERS=15)
+[Fri Apr 24 11:00:01 AM UTC 2026] Stale lock cleared
+[Fri Apr 24 11:00:01 AM UTC 2026] vibe-kit.sh started (PID=1411242, MAX_WORKERS=15)
+[Fri Apr 24 11:15:01 AM UTC 2026] Stale lock cleared
+[Fri Apr 24 11:15:01 AM UTC 2026] vibe-kit.sh started (PID=1485255, MAX_WORKERS=15)
+[Fri Apr 24 11:30:01 AM UTC 2026] Stale lock cleared
+[Fri Apr 24 11:30:01 AM UTC 2026] vibe-kit.sh started (PID=1558903, MAX_WORKERS=15)
+[Fri Apr 24 11:45:01 AM UTC 2026] Stale lock cleared
+[Fri Apr 24 11:45:01 AM UTC 2026] vibe-kit.sh started (PID=1632824, MAX_WORKERS=15)
+[Fri Apr 24 12:00:01 PM UTC 2026] Stale lock cleared
+[Fri Apr 24 12:00:01 PM UTC 2026] vibe-kit.sh started (PID=1706013, MAX_WORKERS=15)
+[Fri Apr 24 12:15:01 PM UTC 2026] Stale lock cleared
+[Fri Apr 24 12:15:01 PM UTC 2026] vibe-kit.sh started (PID=1780705, MAX_WORKERS=15)
+[Fri Apr 24 12:30:01 PM UTC 2026] Stale lock cleared
+[Fri Apr 24 12:30:01 PM UTC 2026] vibe-kit.sh started (PID=1854169, MAX_WORKERS=15)
+[Fri Apr 24 12:45:01 PM UTC 2026] Stale lock cleared
+[Fri Apr 24 12:45:01 PM UTC 2026] vibe-kit.sh started (PID=2211766, MAX_WORKERS=15)
+[Fri Apr 24 01:00:01 PM UTC 2026] Stale lock cleared
+[Fri Apr 24 01:00:01 PM UTC 2026] vibe-kit.sh started (PID=2286858, MAX_WORKERS=15)
+[Fri Apr 24 01:15:01 PM UTC 2026] Stale lock cleared
+[Fri Apr 24 01:15:01 PM UTC 2026] vibe-kit.sh started (PID=2363725, MAX_WORKERS=15)
+[Fri Apr 24 01:30:01 PM UTC 2026] Stale lock cleared
+[Fri Apr 24 01:30:01 PM UTC 2026] vibe-kit.sh started (PID=2437772, MAX_WORKERS=15)
+[Fri Apr 24 01:45:01 PM UTC 2026] Stale lock cleared
+[Fri Apr 24 01:45:01 PM UTC 2026] vibe-kit.sh started (PID=2538651, MAX_WORKERS=15)
+[Fri Apr 24 02:00:01 PM UTC 2026] Stale lock cleared
+[Fri Apr 24 02:00:01 PM UTC 2026] vibe-kit.sh started (PID=2671888, MAX_WORKERS=15)
+[Fri Apr 24 02:03:29 PM UTC 2026] Stale lock cleared
+[Fri Apr 24 02:03:29 PM UTC 2026] vibe-kit.sh started (PID=1761, MAX_WORKERS=15)
+[Fri Apr 24 02:15:01 PM UTC 2026] Stale lock cleared
+[Fri Apr 24 02:15:01 PM UTC 2026] vibe-kit.sh started (PID=265036, MAX_WORKERS=15)
+[Fri Apr 24 02:30:01 PM UTC 2026] Stale lock cleared
+[Fri Apr 24 02:30:01 PM UTC 2026] vibe-kit.sh started (PID=396974, MAX_WORKERS=15)
+[Fri Apr 24 02:45:01 PM UTC 2026] Stale lock cleared
+[Fri Apr 24 02:45:01 PM UTC 2026] vibe-kit.sh started (PID=533649, MAX_WORKERS=15)
+[Fri Apr 24 03:00:01 PM UTC 2026] Stale lock cleared
+[Fri Apr 24 03:00:01 PM UTC 2026] vibe-kit.sh started (PID=668180, MAX_WORKERS=15)
+[Fri Apr 24 03:15:01 PM UTC 2026] Stale lock cleared
+[Fri Apr 24 03:15:01 PM UTC 2026] vibe-kit.sh started (PID=800747, MAX_WORKERS=15)
+[Fri Apr 24 03:30:01 PM UTC 2026] Stale lock cleared
+[Fri Apr 24 03:30:01 PM UTC 2026] vibe-kit.sh started (PID=932606, MAX_WORKERS=15)
+[Fri Apr 24 03:45:01 PM UTC 2026] Stale lock cleared
+[Fri Apr 24 03:45:01 PM UTC 2026] vibe-kit.sh started (PID=1061559, MAX_WORKERS=15)
+[Fri Apr 24 04:00:01 PM UTC 2026] Stale lock cleared
+[Fri Apr 24 04:00:01 PM UTC 2026] vibe-kit.sh started (PID=1193264, MAX_WORKERS=15)
+[Fri Apr 24 04:15:01 PM UTC 2026] Stale lock cleared
+[Fri Apr 24 04:15:01 PM UTC 2026] vibe-kit.sh started (PID=1323727, MAX_WORKERS=15)
+[Fri Apr 24 04:30:01 PM UTC 2026] Stale lock cleared
+[Fri Apr 24 04:30:01 PM UTC 2026] vibe-kit.sh started (PID=1467502, MAX_WORKERS=15)
+[Fri Apr 24 04:45:01 PM UTC 2026] Stale lock cleared
+[Fri Apr 24 04:45:01 PM UTC 2026] vibe-kit.sh started (PID=1599393, MAX_WORKERS=15)
+[Fri Apr 24 05:00:01 PM UTC 2026] Stale lock cleared
+[Fri Apr 24 05:00:01 PM UTC 2026] vibe-kit.sh started (PID=1738163, MAX_WORKERS=15)
+[Fri Apr 24 05:15:01 PM UTC 2026] Stale lock cleared
+[Fri Apr 24 05:15:01 PM UTC 2026] vibe-kit.sh started (PID=1873075, MAX_WORKERS=15)
+[Fri Apr 24 05:30:01 PM UTC 2026] Stale lock cleared
+[Fri Apr 24 05:30:01 PM UTC 2026] vibe-kit.sh started (PID=1986954, MAX_WORKERS=15)
+[Fri Apr 24 05:45:01 PM UTC 2026] Stale lock cleared
+[Fri Apr 24 05:45:01 PM UTC 2026] vibe-kit.sh started (PID=2045544, MAX_WORKERS=15)
+[Fri Apr 24 06:00:01 PM UTC 2026] Stale lock cleared
+[Fri Apr 24 06:00:01 PM UTC 2026] vibe-kit.sh started (PID=2074569, MAX_WORKERS=15)
+[Fri Apr 24 06:15:01 PM UTC 2026] Stale lock cleared
+[Fri Apr 24 06:15:01 PM UTC 2026] vibe-kit.sh started (PID=2104443, MAX_WORKERS=15)
+[Fri Apr 24 06:30:01 PM UTC 2026] Stale lock cleared
+[Fri Apr 24 06:30:01 PM UTC 2026] vibe-kit.sh started (PID=2133072, MAX_WORKERS=15)
+[Fri Apr 24 06:45:01 PM UTC 2026] Stale lock cleared
+[Fri Apr 24 06:45:01 PM UTC 2026] vibe-kit.sh started (PID=2161851, MAX_WORKERS=15)
+[Fri Apr 24 07:00:01 PM UTC 2026] Stale lock cleared
+[Fri Apr 24 07:00:01 PM UTC 2026] vibe-kit.sh started (PID=2194327, MAX_WORKERS=15)
+[Fri Apr 24 07:15:01 PM UTC 2026] Stale lock cleared
+[Fri Apr 24 07:15:01 PM UTC 2026] vibe-kit.sh started (PID=2238748, MAX_WORKERS=15)
+[Fri Apr 24 07:30:01 PM UTC 2026] Stale lock cleared
+[Fri Apr 24 07:30:01 PM UTC 2026] vibe-kit.sh started (PID=2293716, MAX_WORKERS=15)
+[Fri Apr 24 07:45:01 PM UTC 2026] Stale lock cleared
+[Fri Apr 24 07:45:01 PM UTC 2026] vibe-kit.sh started (PID=2348028, MAX_WORKERS=15)
+[Fri Apr 24 08:00:01 PM UTC 2026] Stale lock cleared
+[Fri Apr 24 08:00:01 PM UTC 2026] vibe-kit.sh started (PID=2397985, MAX_WORKERS=15)
+[Fri Apr 24 08:15:01 PM UTC 2026] Stale lock cleared
+[Fri Apr 24 08:15:01 PM UTC 2026] vibe-kit.sh started (PID=2476573, MAX_WORKERS=15)
+[Fri Apr 24 08:30:01 PM UTC 2026] Stale lock cleared
+[Fri Apr 24 08:30:01 PM UTC 2026] vibe-kit.sh started (PID=2525785, MAX_WORKERS=15)
+[Fri Apr 24 08:45:01 PM UTC 2026] Stale lock cleared
+[Fri Apr 24 08:45:01 PM UTC 2026] vibe-kit.sh started (PID=2572207, MAX_WORKERS=15)
+[Fri Apr 24 09:00:01 PM UTC 2026] Stale lock cleared
+[Fri Apr 24 09:00:01 PM UTC 2026] vibe-kit.sh started (PID=2622526, MAX_WORKERS=15)
+[Fri Apr 24 09:15:01 PM UTC 2026] Stale lock cleared
+[Fri Apr 24 09:15:01 PM UTC 2026] vibe-kit.sh started (PID=2671072, MAX_WORKERS=15)
+[Fri Apr 24 09:30:01 PM UTC 2026] Stale lock cleared
+[Fri Apr 24 09:30:01 PM UTC 2026] vibe-kit.sh started (PID=2724214, MAX_WORKERS=15)
+[Fri Apr 24 09:45:01 PM UTC 2026] Stale lock cleared
+[Fri Apr 24 09:45:01 PM UTC 2026] vibe-kit.sh started (PID=2781091, MAX_WORKERS=15)
+[Fri Apr 24 10:00:01 PM UTC 2026] Stale lock cleared
+[Fri Apr 24 10:00:01 PM UTC 2026] vibe-kit.sh started (PID=2834029, MAX_WORKERS=15)
+[Fri Apr 24 10:15:01 PM UTC 2026] Stale lock cleared
+[Fri Apr 24 10:15:01 PM UTC 2026] vibe-kit.sh started (PID=2883400, MAX_WORKERS=15)
+[Fri Apr 24 10:30:01 PM UTC 2026] Stale lock cleared
+[Fri Apr 24 10:30:01 PM UTC 2026] vibe-kit.sh started (PID=2935771, MAX_WORKERS=15)
+[Fri Apr 24 10:45:01 PM UTC 2026] Stale lock cleared
+[Fri Apr 24 10:45:01 PM UTC 2026] vibe-kit.sh started (PID=2985180, MAX_WORKERS=15)
+[Fri Apr 24 11:00:01 PM UTC 2026] Stale lock cleared
+[Fri Apr 24 11:00:01 PM UTC 2026] vibe-kit.sh started (PID=3032754, MAX_WORKERS=15)
+[Fri Apr 24 11:15:01 PM UTC 2026] Stale lock cleared
+[Fri Apr 24 11:15:01 PM UTC 2026] vibe-kit.sh started (PID=3081333, MAX_WORKERS=15)
+[Fri Apr 24 11:30:01 PM UTC 2026] Stale lock cleared
+[Fri Apr 24 11:30:01 PM UTC 2026] vibe-kit.sh started (PID=3129794, MAX_WORKERS=15)
+[Fri Apr 24 11:45:01 PM UTC 2026] Stale lock cleared
+[Fri Apr 24 11:45:01 PM UTC 2026] vibe-kit.sh started (PID=3177649, MAX_WORKERS=15)
+[Sat Apr 25 12:00:01 AM UTC 2026] Stale lock cleared
+[Sat Apr 25 12:00:01 AM UTC 2026] vibe-kit.sh started (PID=3226175, MAX_WORKERS=15)
+[Sat Apr 25 12:15:01 AM UTC 2026] Stale lock cleared
+[Sat Apr 25 12:15:01 AM UTC 2026] vibe-kit.sh started (PID=3281105, MAX_WORKERS=15)
+[Sat Apr 25 12:30:01 AM UTC 2026] Stale lock cleared
+[Sat Apr 25 12:30:01 AM UTC 2026] vibe-kit.sh started (PID=3335503, MAX_WORKERS=15)
+[Sat Apr 25 12:45:01 AM UTC 2026] Stale lock cleared
+[Sat Apr 25 12:45:01 AM UTC 2026] vibe-kit.sh started (PID=3395575, MAX_WORKERS=15)
+[Sat Apr 25 01:00:01 AM UTC 2026] Stale lock cleared
+[Sat Apr 25 01:00:01 AM UTC 2026] vibe-kit.sh started (PID=3445649, MAX_WORKERS=15)
+[Sat Apr 25 01:15:01 AM UTC 2026] Stale lock cleared
+[Sat Apr 25 01:15:01 AM UTC 2026] vibe-kit.sh started (PID=148288, MAX_WORKERS=15)
+[Sat Apr 25 01:30:01 AM UTC 2026] Stale lock cleared
+[Sat Apr 25 01:30:01 AM UTC 2026] vibe-kit.sh started (PID=221276, MAX_WORKERS=15)
+[Sat Apr 25 01:45:01 AM UTC 2026] Stale lock cleared
+[Sat Apr 25 01:45:01 AM UTC 2026] vibe-kit.sh started (PID=279623, MAX_WORKERS=15)
+[Sat Apr 25 02:00:01 AM UTC 2026] Stale lock cleared
+[Sat Apr 25 02:00:01 AM UTC 2026] vibe-kit.sh started (PID=336629, MAX_WORKERS=15)
+[Sat Apr 25 02:15:01 AM UTC 2026] Stale lock cleared
+[Sat Apr 25 02:15:01 AM UTC 2026] vibe-kit.sh started (PID=396570, MAX_WORKERS=15)
+[Sat Apr 25 02:30:01 AM UTC 2026] Stale lock cleared
+[Sat Apr 25 02:30:01 AM UTC 2026] vibe-kit.sh started (PID=928372, MAX_WORKERS=15)
+[Sat Apr 25 02:45:01 AM UTC 2026] Stale lock cleared
+[Sat Apr 25 02:45:01 AM UTC 2026] vibe-kit.sh started (PID=1165019, MAX_WORKERS=15)
+[Sat Apr 25 03:00:02 AM UTC 2026] Stale lock cleared
+[Sat Apr 25 03:00:03 AM UTC 2026] vibe-kit.sh started (PID=1407271, MAX_WORKERS=15)
+[Sat Apr 25 03:15:01 AM UTC 2026] Stale lock cleared
+[Sat Apr 25 03:15:01 AM UTC 2026] vibe-kit.sh started (PID=1546459, MAX_WORKERS=15)
+[Sat Apr 25 03:30:02 AM UTC 2026] Stale lock cleared
+[Sat Apr 25 03:30:02 AM UTC 2026] vibe-kit.sh started (PID=1555152, MAX_WORKERS=15)
+[Sat Apr 25 03:45:01 AM UTC 2026] Stale lock cleared
+[Sat Apr 25 03:45:01 AM UTC 2026] vibe-kit.sh started (PID=3253993, MAX_WORKERS=15)
+[Sat Apr 25 04:00:01 AM UTC 2026] Stale lock cleared
+[Sat Apr 25 04:00:01 AM UTC 2026] vibe-kit.sh started (PID=3306102, MAX_WORKERS=15)
+[Sat Apr 25 04:15:01 AM UTC 2026] Stale lock cleared
+[Sat Apr 25 04:15:01 AM UTC 2026] vibe-kit.sh started (PID=3358780, MAX_WORKERS=15)
+[Sat Apr 25 04:30:01 AM UTC 2026] Stale lock cleared
+[Sat Apr 25 04:30:01 AM UTC 2026] vibe-kit.sh started (PID=3412210, MAX_WORKERS=15)
+[Sat Apr 25 04:45:01 AM UTC 2026] Stale lock cleared
+[Sat Apr 25 04:45:01 AM UTC 2026] vibe-kit.sh started (PID=3465439, MAX_WORKERS=15)
+[Sat Apr 25 05:00:01 AM UTC 2026] Stale lock cleared
+[Sat Apr 25 05:00:01 AM UTC 2026] vibe-kit.sh started (PID=3519191, MAX_WORKERS=15)
+[Sat Apr 25 05:15:01 AM UTC 2026] Stale lock cleared
+[Sat Apr 25 05:15:01 AM UTC 2026] vibe-kit.sh started (PID=3572632, MAX_WORKERS=15)
+[Sat Apr 25 05:30:01 AM UTC 2026] Stale lock cleared
+[Sat Apr 25 05:30:01 AM UTC 2026] vibe-kit.sh started (PID=3625501, MAX_WORKERS=15)
+[Sat Apr 25 05:45:01 AM UTC 2026] Stale lock cleared
+[Sat Apr 25 05:45:01 AM UTC 2026] vibe-kit.sh started (PID=3677010, MAX_WORKERS=15)
+[Sat Apr 25 06:00:01 AM UTC 2026] Stale lock cleared
+[Sat Apr 25 06:00:01 AM UTC 2026] vibe-kit.sh started (PID=3731457, MAX_WORKERS=15)
+[Sat Apr 25 06:15:01 AM UTC 2026] Stale lock cleared
+[Sat Apr 25 06:15:01 AM UTC 2026] vibe-kit.sh started (PID=3785175, MAX_WORKERS=15)
+[Sat Apr 25 06:30:01 AM UTC 2026] Stale lock cleared
+[Sat Apr 25 06:30:01 AM UTC 2026] vibe-kit.sh started (PID=3836129, MAX_WORKERS=15)
+[Sat Apr 25 06:45:01 AM UTC 2026] Stale lock cleared
+[Sat Apr 25 06:45:01 AM UTC 2026] vibe-kit.sh started (PID=3890977, MAX_WORKERS=15)
+[Sat Apr 25 07:00:01 AM UTC 2026] Stale lock cleared
+[Sat Apr 25 07:00:01 AM UTC 2026] vibe-kit.sh started (PID=3942078, MAX_WORKERS=15)
+[Sat Apr 25 07:15:01 AM UTC 2026] Stale lock cleared
+[Sat Apr 25 07:15:01 AM UTC 2026] vibe-kit.sh started (PID=3996131, MAX_WORKERS=15)
+[Sat Apr 25 07:30:01 AM UTC 2026] Stale lock cleared
+[Sat Apr 25 07:30:01 AM UTC 2026] vibe-kit.sh started (PID=4048698, MAX_WORKERS=15)
+[Sat Apr 25 07:45:01 AM UTC 2026] Stale lock cleared
+[Sat Apr 25 07:45:01 AM UTC 2026] vibe-kit.sh started (PID=4103800, MAX_WORKERS=15)
+[Sat Apr 25 08:00:01 AM UTC 2026] Stale lock cleared
+[Sat Apr 25 08:00:01 AM UTC 2026] vibe-kit.sh started (PID=4156443, MAX_WORKERS=15)
+[Sat Apr 25 08:15:01 AM UTC 2026] Stale lock cleared
+[Sat Apr 25 08:15:01 AM UTC 2026] vibe-kit.sh started (PID=18227, MAX_WORKERS=15)
+[Sat Apr 25 08:30:01 AM UTC 2026] Stale lock cleared
+[Sat Apr 25 08:30:01 AM UTC 2026] vibe-kit.sh started (PID=74365, MAX_WORKERS=15)
+[Sat Apr 25 08:45:01 AM UTC 2026] Stale lock cleared
+[Sat Apr 25 08:45:01 AM UTC 2026] vibe-kit.sh started (PID=130206, MAX_WORKERS=15)
+[Sat Apr 25 09:00:01 AM UTC 2026] Stale lock cleared
+[Sat Apr 25 09:00:02 AM UTC 2026] vibe-kit.sh started (PID=182657, MAX_WORKERS=15)
+[Sat Apr 25 09:15:01 AM UTC 2026] Stale lock cleared
+[Sat Apr 25 09:15:01 AM UTC 2026] vibe-kit.sh started (PID=236232, MAX_WORKERS=15)
+[Sat Apr 25 09:30:01 AM UTC 2026] Stale lock cleared
+[Sat Apr 25 09:30:01 AM UTC 2026] vibe-kit.sh started (PID=290083, MAX_WORKERS=15)
+[Sat Apr 25 09:45:01 AM UTC 2026] Stale lock cleared
+[Sat Apr 25 09:45:01 AM UTC 2026] vibe-kit.sh started (PID=348025, MAX_WORKERS=15)
+[Sat Apr 25 10:00:01 AM UTC 2026] Stale lock cleared
+[Sat Apr 25 10:00:01 AM UTC 2026] vibe-kit.sh started (PID=406703, MAX_WORKERS=15)
+[Sat Apr 25 10:15:01 AM UTC 2026] Stale lock cleared
+[Sat Apr 25 10:15:01 AM UTC 2026] vibe-kit.sh started (PID=464051, MAX_WORKERS=15)
+[Sat Apr 25 10:30:01 AM UTC 2026] Stale lock cleared
+[Sat Apr 25 10:30:01 AM UTC 2026] vibe-kit.sh started (PID=519999, MAX_WORKERS=15)
+[Sat Apr 25 10:45:01 AM UTC 2026] Stale lock cleared
+[Sat Apr 25 10:45:01 AM UTC 2026] vibe-kit.sh started (PID=577893, MAX_WORKERS=15)
+[Sat Apr 25 11:00:01 AM UTC 2026] Stale lock cleared
+[Sat Apr 25 11:00:01 AM UTC 2026] vibe-kit.sh started (PID=634425, MAX_WORKERS=15)
+[Sat Apr 25 11:15:01 AM UTC 2026] Stale lock cleared
+[Sat Apr 25 11:15:01 AM UTC 2026] vibe-kit.sh started (PID=692825, MAX_WORKERS=15)
+[Sat Apr 25 11:30:01 AM UTC 2026] Stale lock cleared
+[Sat Apr 25 11:30:01 AM UTC 2026] vibe-kit.sh started (PID=749323, MAX_WORKERS=15)
+[Sat Apr 25 11:45:01 AM UTC 2026] Stale lock cleared
+[Sat Apr 25 11:45:01 AM UTC 2026] vibe-kit.sh started (PID=807565, MAX_WORKERS=15)
+[Sat Apr 25 12:00:01 PM UTC 2026] Stale lock cleared
+[Sat Apr 25 12:00:01 PM UTC 2026] vibe-kit.sh started (PID=865446, MAX_WORKERS=15)
+[Sat Apr 25 12:15:01 PM UTC 2026] Stale lock cleared
+[Sat Apr 25 12:15:01 PM UTC 2026] vibe-kit.sh started (PID=923509, MAX_WORKERS=15)
+[Sat Apr 25 12:30:01 PM UTC 2026] Stale lock cleared
+[Sat Apr 25 12:30:01 PM UTC 2026] vibe-kit.sh started (PID=981650, MAX_WORKERS=15)
+[Sat Apr 25 12:45:01 PM UTC 2026] Stale lock cleared
+[Sat Apr 25 12:45:01 PM UTC 2026] vibe-kit.sh started (PID=1038155, MAX_WORKERS=15)
+[Sat Apr 25 01:00:01 PM UTC 2026] Stale lock cleared
+[Sat Apr 25 01:00:01 PM UTC 2026] vibe-kit.sh started (PID=1097180, MAX_WORKERS=15)
+[Sat Apr 25 01:15:01 PM UTC 2026] Stale lock cleared
+[Sat Apr 25 01:15:01 PM UTC 2026] vibe-kit.sh started (PID=1156591, MAX_WORKERS=15)
+[Sat Apr 25 01:30:01 PM UTC 2026] Stale lock cleared
+[Sat Apr 25 01:30:01 PM UTC 2026] vibe-kit.sh started (PID=1216242, MAX_WORKERS=15)
+[Sat Apr 25 01:45:01 PM UTC 2026] Stale lock cleared
+[Sat Apr 25 01:45:01 PM UTC 2026] vibe-kit.sh started (PID=1275702, MAX_WORKERS=15)
+[Sat Apr 25 02:00:01 PM UTC 2026] Stale lock cleared
+[Sat Apr 25 02:00:01 PM UTC 2026] vibe-kit.sh started (PID=1335235, MAX_WORKERS=15)
+[Sat Apr 25 02:15:01 PM UTC 2026] Stale lock cleared
+[Sat Apr 25 02:15:01 PM UTC 2026] vibe-kit.sh started (PID=1395420, MAX_WORKERS=15)
+[Sat Apr 25 02:30:01 PM UTC 2026] Stale lock cleared
+[Sat Apr 25 02:30:01 PM UTC 2026] vibe-kit.sh started (PID=1455819, MAX_WORKERS=15)
+[Sat Apr 25 02:45:01 PM UTC 2026] Stale lock cleared
+[Sat Apr 25 02:45:01 PM UTC 2026] vibe-kit.sh started (PID=1517827, MAX_WORKERS=15)
+[Sat Apr 25 03:00:01 PM UTC 2026] Stale lock cleared
+[Sat Apr 25 03:00:01 PM UTC 2026] vibe-kit.sh started (PID=1577949, MAX_WORKERS=15)
+[Sat Apr 25 03:15:01 PM UTC 2026] Stale lock cleared
+[Sat Apr 25 03:15:01 PM UTC 2026] vibe-kit.sh started (PID=1638113, MAX_WORKERS=15)
+[Sat Apr 25 03:30:01 PM UTC 2026] Stale lock cleared
+[Sat Apr 25 03:30:01 PM UTC 2026] vibe-kit.sh started (PID=1698946, MAX_WORKERS=15)
+[Sat Apr 25 03:45:01 PM UTC 2026] Stale lock cleared
+[Sat Apr 25 03:45:01 PM UTC 2026] vibe-kit.sh started (PID=1760238, MAX_WORKERS=15)
+[Sat Apr 25 03:56:15 PM UTC 2026] Stale lock cleared
+[Sat Apr 25 03:56:15 PM UTC 2026] vibe-kit.sh started (PID=1813491, MAX_WORKERS=15)
+[Sat Apr 25 04:00:01 PM UTC 2026] Stale lock cleared
+[Sat Apr 25 04:00:01 PM UTC 2026] vibe-kit.sh started (PID=1824397, MAX_WORKERS=15)
+[Sat Apr 25 04:15:01 PM UTC 2026] Stale lock cleared
+[Sat Apr 25 04:15:01 PM UTC 2026] vibe-kit.sh started (PID=1891452, MAX_WORKERS=15)
+[Sat Apr 25 04:30:01 PM UTC 2026] Stale lock cleared
+[Sat Apr 25 04:30:01 PM UTC 2026] vibe-kit.sh started (PID=1954431, MAX_WORKERS=15)
+[Sat Apr 25 04:45:01 PM UTC 2026] Stale lock cleared
+[Sat Apr 25 04:45:01 PM UTC 2026] vibe-kit.sh started (PID=2019613, MAX_WORKERS=15)
+[Sat Apr 25 05:00:01 PM UTC 2026] Stale lock cleared
+[Sat Apr 25 05:00:01 PM UTC 2026] vibe-kit.sh started (PID=2089853, MAX_WORKERS=15)
+[Sat Apr 25 05:15:01 PM UTC 2026] Stale lock cleared
+[Sat Apr 25 05:15:02 PM UTC 2026] vibe-kit.sh started (PID=2162096, MAX_WORKERS=15)
+[Sat Apr 25 05:30:01 PM UTC 2026] Stale lock cleared
+[Sat Apr 25 05:30:01 PM UTC 2026] vibe-kit.sh started (PID=2236206, MAX_WORKERS=15)
+[Sat Apr 25 05:45:01 PM UTC 2026] Stale lock cleared
+[Sat Apr 25 05:45:01 PM UTC 2026] vibe-kit.sh started (PID=2299936, MAX_WORKERS=15)
+[Sat Apr 25 06:00:01 PM UTC 2026] Stale lock cleared
+[Sat Apr 25 06:00:01 PM UTC 2026] vibe-kit.sh started (PID=2372047, MAX_WORKERS=15)
+[Sat Apr 25 06:15:01 PM UTC 2026] Stale lock cleared
+[Sat Apr 25 06:15:01 PM UTC 2026] vibe-kit.sh started (PID=2435726, MAX_WORKERS=15)
+[Sat Apr 25 06:30:01 PM UTC 2026] Stale lock cleared
+[Sat Apr 25 06:30:01 PM UTC 2026] vibe-kit.sh started (PID=2503117, MAX_WORKERS=15)
+[Sat Apr 25 06:45:01 PM UTC 2026] Stale lock cleared
+[Sat Apr 25 06:45:01 PM UTC 2026] vibe-kit.sh started (PID=2572198, MAX_WORKERS=15)
+[Sat Apr 25 07:00:01 PM UTC 2026] Stale lock cleared
+[Sat Apr 25 07:00:01 PM UTC 2026] vibe-kit.sh started (PID=2635699, MAX_WORKERS=15)
+[Sat Apr 25 07:15:01 PM UTC 2026] Stale lock cleared
+[Sat Apr 25 07:15:01 PM UTC 2026] vibe-kit.sh started (PID=2701349, MAX_WORKERS=15)
+[Sat Apr 25 07:17:43 PM UTC 2026] Stale lock cleared
+[Sat Apr 25 07:17:43 PM UTC 2026] vibe-kit.sh started (PID=2718136, MAX_WORKERS=15)
+[Sat Apr 25 07:30:01 PM UTC 2026] vibe-kit.sh started (PID=2819947, MAX_WORKERS=15)
+[Sat Apr 25 07:45:01 PM UTC 2026] Stale lock cleared
+[Sat Apr 25 07:45:01 PM UTC 2026] vibe-kit.sh started (PID=2887831, MAX_WORKERS=15)
+[Sat Apr 25 08:00:01 PM UTC 2026] Stale lock cleared
+[Sat Apr 25 08:00:01 PM UTC 2026] vibe-kit.sh started (PID=2955602, MAX_WORKERS=15)
+[Sat Apr 25 08:15:01 PM UTC 2026] Stale lock cleared
+[Sat Apr 25 08:15:01 PM UTC 2026] vibe-kit.sh started (PID=3020763, MAX_WORKERS=15)
+[Sat Apr 25 08:30:01 PM UTC 2026] Stale lock cleared
+[Sat Apr 25 08:30:01 PM UTC 2026] vibe-kit.sh started (PID=3087064, MAX_WORKERS=15)
+[Sat Apr 25 08:45:01 PM UTC 2026] Stale lock cleared
+[Sat Apr 25 08:45:01 PM UTC 2026] vibe-kit.sh started (PID=3154310, MAX_WORKERS=15)
+[Sat Apr 25 09:00:01 PM UTC 2026] Stale lock cleared
+[Sat Apr 25 09:00:01 PM UTC 2026] vibe-kit.sh started (PID=3225100, MAX_WORKERS=15)
+[Sat Apr 25 09:15:01 PM UTC 2026] Stale lock cleared
+[Sat Apr 25 09:15:01 PM UTC 2026] vibe-kit.sh started (PID=3298231, MAX_WORKERS=15)
+[Sat Apr 25 09:30:01 PM UTC 2026] Stale lock cleared
+[Sat Apr 25 09:30:01 PM UTC 2026] vibe-kit.sh started (PID=3373678, MAX_WORKERS=15)
+[Sat Apr 25 09:45:01 PM UTC 2026] Stale lock cleared
+[Sat Apr 25 09:45:01 PM UTC 2026] vibe-kit.sh started (PID=3445600, MAX_WORKERS=15)
+[Sat Apr 25 10:00:01 PM UTC 2026] Stale lock cleared
+[Sat Apr 25 10:00:01 PM UTC 2026] vibe-kit.sh started (PID=3518587, MAX_WORKERS=15)
+[Sat Apr 25 10:15:01 PM UTC 2026] Stale lock cleared
+[Sat Apr 25 10:15:01 PM UTC 2026] vibe-kit.sh started (PID=3592689, MAX_WORKERS=15)
+[Sat Apr 25 10:30:01 PM UTC 2026] Stale lock cleared
+[Sat Apr 25 10:30:01 PM UTC 2026] vibe-kit.sh started (PID=3672304, MAX_WORKERS=15)
+[Sat Apr 25 10:45:01 PM UTC 2026] Stale lock cleared
+[Sat Apr 25 10:45:01 PM UTC 2026] vibe-kit.sh started (PID=3838884, MAX_WORKERS=15)
+[Sat Apr 25 11:00:01 PM UTC 2026] Stale lock cleared
+[Sat Apr 25 11:00:01 PM UTC 2026] vibe-kit.sh started (PID=3939386, MAX_WORKERS=15)
+[Sat Apr 25 11:15:01 PM UTC 2026] Stale lock cleared
+[Sat Apr 25 11:15:01 PM UTC 2026] vibe-kit.sh started (PID=4126484, MAX_WORKERS=15)
+[Sat Apr 25 11:30:01 PM UTC 2026] Stale lock cleared
+[Sat Apr 25 11:30:01 PM UTC 2026] vibe-kit.sh started (PID=6519, MAX_WORKERS=15)
+[Sat Apr 25 11:45:01 PM UTC 2026] Stale lock cleared
+[Sat Apr 25 11:45:01 PM UTC 2026] vibe-kit.sh started (PID=113673, MAX_WORKERS=15)
+[Sun Apr 26 12:00:01 AM UTC 2026] Stale lock cleared
+[Sun Apr 26 12:00:01 AM UTC 2026] vibe-kit.sh started (PID=185658, MAX_WORKERS=15)
+[Sun Apr 26 12:15:01 AM UTC 2026] Stale lock cleared
+[Sun Apr 26 12:15:01 AM UTC 2026] vibe-kit.sh started (PID=353041, MAX_WORKERS=15)
+[Sun Apr 26 12:30:01 AM UTC 2026] Stale lock cleared
+[Sun Apr 26 12:30:01 AM UTC 2026] vibe-kit.sh started (PID=489258, MAX_WORKERS=15)
+[Sun Apr 26 12:45:01 AM UTC 2026] Stale lock cleared
+[Sun Apr 26 12:45:01 AM UTC 2026] vibe-kit.sh started (PID=568501, MAX_WORKERS=15)
+[Sun Apr 26 01:00:01 AM UTC 2026] Stale lock cleared
+[Sun Apr 26 01:00:01 AM UTC 2026] vibe-kit.sh started (PID=647778, MAX_WORKERS=15)
+[Sun Apr 26 01:15:01 AM UTC 2026] Stale lock cleared
+[Sun Apr 26 01:15:01 AM UTC 2026] vibe-kit.sh started (PID=729232, MAX_WORKERS=15)
+[Sun Apr 26 01:30:01 AM UTC 2026] Stale lock cleared
+[Sun Apr 26 01:30:01 AM UTC 2026] vibe-kit.sh started (PID=821341, MAX_WORKERS=15)
+[Sun Apr 26 01:45:01 AM UTC 2026] Stale lock cleared
+[Sun Apr 26 01:45:01 AM UTC 2026] vibe-kit.sh started (PID=1162877, MAX_WORKERS=15)
+[Sun Apr 26 02:00:01 AM UTC 2026] Stale lock cleared
+[Sun Apr 26 02:00:01 AM UTC 2026] vibe-kit.sh started (PID=1389816, MAX_WORKERS=15)
+[Sun Apr 26 02:15:01 AM UTC 2026] Stale lock cleared
+[Sun Apr 26 02:15:01 AM UTC 2026] vibe-kit.sh started (PID=1482650, MAX_WORKERS=15)
+[Sun Apr 26 02:30:01 AM UTC 2026] Stale lock cleared
+[Sun Apr 26 02:30:01 AM UTC 2026] vibe-kit.sh started (PID=1562472, MAX_WORKERS=15)
+[Sun Apr 26 02:45:01 AM UTC 2026] Stale lock cleared
+[Sun Apr 26 02:45:01 AM UTC 2026] vibe-kit.sh started (PID=1625766, MAX_WORKERS=15)
+[Sun Apr 26 03:00:01 AM UTC 2026] Stale lock cleared
+[Sun Apr 26 03:00:01 AM UTC 2026] vibe-kit.sh started (PID=1673473, MAX_WORKERS=15)
+[Sun Apr 26 03:15:01 AM UTC 2026] Stale lock cleared
+[Sun Apr 26 03:15:01 AM UTC 2026] vibe-kit.sh started (PID=1737844, MAX_WORKERS=15)
+[Sun Apr 26 03:30:01 AM UTC 2026] Stale lock cleared
+[Sun Apr 26 03:30:01 AM UTC 2026] vibe-kit.sh started (PID=1784621, MAX_WORKERS=15)
+[Sun Apr 26 03:45:01 AM UTC 2026] Stale lock cleared
+[Sun Apr 26 03:45:01 AM UTC 2026] vibe-kit.sh started (PID=1828724, MAX_WORKERS=15)
+[Sun Apr 26 04:00:01 AM UTC 2026] Stale lock cleared
+[Sun Apr 26 04:00:01 AM UTC 2026] vibe-kit.sh started (PID=1867758, MAX_WORKERS=15)
+[Sun Apr 26 04:15:01 AM UTC 2026] Stale lock cleared
+[Sun Apr 26 04:15:01 AM UTC 2026] vibe-kit.sh started (PID=1911184, MAX_WORKERS=15)
+[Sun Apr 26 04:30:01 AM UTC 2026] Stale lock cleared
+[Sun Apr 26 04:30:01 AM UTC 2026] vibe-kit.sh started (PID=1949889, MAX_WORKERS=15)
+[Sun Apr 26 04:45:01 AM UTC 2026] Stale lock cleared
+[Sun Apr 26 04:45:01 AM UTC 2026] vibe-kit.sh started (PID=1993527, MAX_WORKERS=15)
+[Sun Apr 26 05:00:01 AM UTC 2026] Stale lock cleared
+[Sun Apr 26 05:00:01 AM UTC 2026] vibe-kit.sh started (PID=2032273, MAX_WORKERS=15)
+[Sun Apr 26 05:15:01 AM UTC 2026] Stale lock cleared
+[Sun Apr 26 05:15:01 AM UTC 2026] vibe-kit.sh started (PID=2076008, MAX_WORKERS=15)
+[Sun Apr 26 05:30:01 AM UTC 2026] Stale lock cleared
+[Sun Apr 26 05:30:01 AM UTC 2026] vibe-kit.sh started (PID=2114417, MAX_WORKERS=15)
+[Sun Apr 26 05:45:01 AM UTC 2026] Stale lock cleared
+[Sun Apr 26 05:45:01 AM UTC 2026] vibe-kit.sh started (PID=2157061, MAX_WORKERS=15)
+[Sun Apr 26 06:00:01 AM UTC 2026] Stale lock cleared
+[Sun Apr 26 06:00:01 AM UTC 2026] vibe-kit.sh started (PID=2196864, MAX_WORKERS=15)
+[Sun Apr 26 06:15:01 AM UTC 2026] Stale lock cleared
+[Sun Apr 26 06:15:01 AM UTC 2026] vibe-kit.sh started (PID=2237850, MAX_WORKERS=15)
+[Sun Apr 26 06:30:01 AM UTC 2026] Stale lock cleared
+[Sun Apr 26 06:30:01 AM UTC 2026] vibe-kit.sh started (PID=2275791, MAX_WORKERS=15)
+[Sun Apr 26 06:45:01 AM UTC 2026] Stale lock cleared
+[Sun Apr 26 06:45:01 AM UTC 2026] vibe-kit.sh started (PID=2320163, MAX_WORKERS=15)
+[Sun Apr 26 07:00:01 AM UTC 2026] Stale lock cleared
+[Sun Apr 26 07:00:01 AM UTC 2026] vibe-kit.sh started (PID=2372163, MAX_WORKERS=15)
+[Sun Apr 26 07:15:01 AM UTC 2026] Stale lock cleared
+[Sun Apr 26 07:15:01 AM UTC 2026] vibe-kit.sh started (PID=2418188, MAX_WORKERS=15)
+[Sun Apr 26 07:30:01 AM UTC 2026] Stale lock cleared
+[Sun Apr 26 07:30:01 AM UTC 2026] vibe-kit.sh started (PID=2458653, MAX_WORKERS=15)
+[Sun Apr 26 07:45:01 AM UTC 2026] Stale lock cleared
+[Sun Apr 26 07:45:01 AM UTC 2026] vibe-kit.sh started (PID=2503828, MAX_WORKERS=15)
+[Sun Apr 26 08:00:01 AM UTC 2026] Stale lock cleared
+[Sun Apr 26 08:00:01 AM UTC 2026] vibe-kit.sh started (PID=2544035, MAX_WORKERS=15)
+[Sun Apr 26 08:15:01 AM UTC 2026] Stale lock cleared
+[Sun Apr 26 08:15:01 AM UTC 2026] vibe-kit.sh started (PID=2589459, MAX_WORKERS=15)
+[Sun Apr 26 08:30:01 AM UTC 2026] Stale lock cleared
+[Sun Apr 26 08:30:01 AM UTC 2026] vibe-kit.sh started (PID=2629719, MAX_WORKERS=15)
+[Sun Apr 26 08:45:01 AM UTC 2026] Stale lock cleared
+[Sun Apr 26 08:45:01 AM UTC 2026] vibe-kit.sh started (PID=2675417, MAX_WORKERS=15)
+[Sun Apr 26 09:00:01 AM UTC 2026] Stale lock cleared
+[Sun Apr 26 09:00:01 AM UTC 2026] vibe-kit.sh started (PID=2715813, MAX_WORKERS=15)
+[Sun Apr 26 09:15:01 AM UTC 2026] Stale lock cleared
+[Sun Apr 26 09:15:01 AM UTC 2026] vibe-kit.sh started (PID=2768142, MAX_WORKERS=15)
+[Sun Apr 26 09:30:01 AM UTC 2026] Stale lock cleared
+[Sun Apr 26 09:30:01 AM UTC 2026] vibe-kit.sh started (PID=2807780, MAX_WORKERS=15)
+[Sun Apr 26 09:45:01 AM UTC 2026] Stale lock cleared
+[Sun Apr 26 09:45:01 AM UTC 2026] vibe-kit.sh started (PID=2852805, MAX_WORKERS=15)
+[Sun Apr 26 10:00:01 AM UTC 2026] Stale lock cleared
+[Sun Apr 26 10:00:01 AM UTC 2026] vibe-kit.sh started (PID=2893341, MAX_WORKERS=15)
+[Sun Apr 26 10:15:01 AM UTC 2026] Stale lock cleared
+[Sun Apr 26 10:15:01 AM UTC 2026] vibe-kit.sh started (PID=2938685, MAX_WORKERS=15)
+[Sun Apr 26 10:30:01 AM UTC 2026] Stale lock cleared
+[Sun Apr 26 10:30:01 AM UTC 2026] vibe-kit.sh started (PID=2978692, MAX_WORKERS=15)
+[Sun Apr 26 10:45:01 AM UTC 2026] Stale lock cleared
+[Sun Apr 26 10:45:01 AM UTC 2026] vibe-kit.sh started (PID=3024015, MAX_WORKERS=15)
+[Sun Apr 26 11:00:01 AM UTC 2026] Stale lock cleared
+[Sun Apr 26 11:00:01 AM UTC 2026] vibe-kit.sh started (PID=3064135, MAX_WORKERS=15)
+[Sun Apr 26 11:15:01 AM UTC 2026] Stale lock cleared
+[Sun Apr 26 11:15:01 AM UTC 2026] vibe-kit.sh started (PID=3108821, MAX_WORKERS=15)
+[Sun Apr 26 11:30:01 AM UTC 2026] Stale lock cleared
+[Sun Apr 26 11:30:01 AM UTC 2026] vibe-kit.sh started (PID=3152125, MAX_WORKERS=15)
+[Sun Apr 26 11:46:37 AM UTC 2026] Stale lock cleared
+[Sun Apr 26 11:46:37 AM UTC 2026] vibe-kit.sh started (PID=3224302, MAX_WORKERS=15)
+[Sun Apr 26 12:48:17 PM UTC 2026] Stale lock cleared
+[Sun Apr 26 12:48:17 PM UTC 2026] vibe-kit.sh started (PID=3488205, MAX_WORKERS=15)
+[Sun Apr 26 12:56:48 PM UTC 2026] Stale lock cleared
+[Sun Apr 26 12:56:48 PM UTC 2026] vibe-kit.sh started (PID=3512220, MAX_WORKERS=15)
+[Sun Apr 26 03:39:04 PM UTC 2026] Stale lock cleared
+[Sun Apr 26 03:39:04 PM UTC 2026] vibe-kit.sh started (PID=4123827, MAX_WORKERS=15)
+[Sun Apr 26 04:38:14 PM UTC 2026] Stale lock cleared
+[Sun Apr 26 04:38:14 PM UTC 2026] vibe-kit.sh started (PID=116072, MAX_WORKERS=15)

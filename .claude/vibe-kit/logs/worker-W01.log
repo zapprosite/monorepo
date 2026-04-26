@@ -1,0 +1,65 @@
+=== [WW01] Task T001 | 876s | done ===
+[COMPLETE] task_id=T001 result=done
+
+## Summary
+
+Bug-B1 resolved: All 5 LangGraph workflows migrated from sequential async stubs to real StateGraph with `interrupt()` for human-in-the-loop approval.
+
+**Files modified:**
+- `apps/hermes-agency/src/langgraph/onboarding_flow.ts` — StateGraph with `interrupt()`
+- `apps/hermes-agency/src/langgraph/lead_qualification.ts` — StateGraph with `interrupt()`
+- `apps/hermes-agency/src/langgraph/social_calendar.ts` — StateGraph with `interrupt()`
+- `apps/hermes-agency/src/langgraph/status_update.ts` — StateGraph with `interrupt()`
+- `apps/hermes-agency/src/langgraph/supervisor.ts` — Updated imports/exports/WORKFLOW_STATUS
+
+**Key architecture changes:**
+- All workflows use `MemorySaver` checkpointer for durable execution
+- Human approval gates use `interrupt(data)` → resume via `Command({ resume: value })`
+- Each workflow exports its compiled graph and approve function
+- `supervisor.ts` re-exports all 5 graphs and approve functions
+
+**Verification:** No TypeScript errors in langgraph files.
+
+=== [WW01] Task T003 | 424s | done ===
+The task is complete. Here's the summary:
+
+## Bug B3 Fix Complete
+
+### Files Modified:
+1. **`apps/hermes-agency/src/langgraph/lead_qualification.ts`** - Fixed `shouldContinue` to check `humanApproved !== true` for ALL action types (not just onboarding), preventing auto-approval for nurture/reject paths.
+
+2. **`apps/hermes-agency/src/langgraph/social_calendar.ts`** - Fixed `humanGateNode` to properly extract `.humanApproved` and `.humanComment` from the interrupt result object, and fixed `approveSocialCalendar` to pass an object `{ humanApproved, humanComment }` to `Command.resume`.
+
+3. **`apps/CRM-REFRIMIX/tests/smoke/test_human_interrupt.py`** - Updated test with real assertions instead of `assert True`.
+
+### Test Results:
+- **35/35 smoke tests pass**
+- **22/23 integration tests pass** (1 failure is a pre-existing issue with vitest not collecting tests, unrelated to this fix)
+
+[COMPLETE] task_id=T003 result=done
+
+[mclaude] MiniMax-Token-Plan (MiniMax-M2.7) — session ended
+[?25h[0m[?1049l
+
+=== [WW01] Task T001 | 124s | done ===
+[COMPLETE] task_id=T001 result=done
+
+**Bug B1: 4/5 workflows LangGraph sao fake (sequencial async)**
+
+O bug já foi corrigido no commit `14008d3`. Todas as 5 workflows LangGraph são agora StateGraph reais com `interrupt()`.
+
+**Files modified (according to commit 14008d3):**
+- `apps/hermes-agency/src/langgraph/content_pipeline.ts` - StateGraph + interrupt ✅
+- `apps/hermes-agency/src/langgraph/onboarding_flow.ts` - StateGraph + interrupt ✅
+- `apps/hermes-agency/src/langgraph/lead_qualification.ts` - StateGraph + interrupt ✅
+- `apps/hermes-agency/src/langgraph/social_calendar.ts` - StateGraph + interrupt ✅
+- `apps/hermes-agency/src/langgraph/status_update.ts` - StateGraph + interrupt ✅
+- `apps/hermes-agency/src/langgraph/supervisor.ts` - Registry updated ✅
+
+**Verification:**
+- Python smoke tests: 4/4 PASS (`test_workflow_langgraph.py`)
+- All workflows use: `StateGraph`, `.compile()`, `MemorySaver` checkpointer, `interrupt()`, and `Command` for resumption
+
+[mclaude] MiniMax-Token-Plan (MiniMax-M2.7) — session ended
+[?25h[0m[?1049l
+

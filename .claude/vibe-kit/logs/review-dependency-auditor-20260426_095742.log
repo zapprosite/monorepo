@@ -1,0 +1,15 @@
+## Findings
+
+- **[CRITICAL] Deprecated `tsc` package (2.0.4):** This is NOT the TypeScript compiler — it's a deprecated package. The actual `tsc` binary comes from the `typescript` package.
+
+- **[CRITICAL] Lockfile conflict:** Both `bun.lock` and `pnpm-lock.yaml` exist. `package.json` declares `packageManager: pnpm@9.0.6` but `bun.lock` creates confusion.
+
+- **[CRITICAL] Application deps hoisted to root:** `@trpc/server`, `ulid`, and `zod` are in root `package.json` but consumed only by `apps/api`. They should be in `apps/api/package.json`.
+
+- **[HIGH] 5 packages outdated to major versions:** eslint (9→10), @eslint/js (9→10), typescript (5.9→6.0) — these are new major versions requiring testing.
+
+- **[MEDIUM] 6 additional outdated packages:** biome, typescript-eslint packages, globals, lint-staged.
+
+- **0 vulnerabilities** found by `pnpm audit`.
+
+Full report: `/srv/monorepo/docs/REVIEW-dependency-auditor-2026-04-26.md`

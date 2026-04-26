@@ -1,0 +1,22 @@
+[00:02:32] [2736201] [VIBE-KIT] [WW14] Started (max 28800s)
+mv: cannot stat '/srv/monorepo/.claude/vibe-kit/queue.json.tmp': No such file or directory
+[00:02:32] [2736201] [VIBE-KIT] [WW14] → Task T001: bug-B1-langgraph-fake-workflows
+[00:11:20] [2736201] [VIBE-KIT] [WW14] ← Task T001: done (528s) [total: 1]
+[00:11:20] [2736201] [VIBE-KIT] [WW14] → Task T003: bug-B3-humangatenode-auto-aprova
+[00:13:18] [2799338] [VIBE-KIT] [WW14] Started (max 28800s)
+[00:27:02] [2736201] [VIBE-KIT] [WW14] ← Task T003: done (942s) [total: 2]
+[00:45:25] [2799338] [VIBE-KIT] [WW14] Queue empty — done
+[00:45:25] [2799338] [VIBE-KIT] [WW14] Finished. Tasks done: 0
+[00:45:25] [2736201] [VIBE-KIT] [WW14] Queue empty — done
+[00:45:25] [2736201] [VIBE-KIT] [WW14] Finished. Tasks done: 2
+[05:48:32] [558496] [VIBE-KIT] [WW14] Started (max 28800s)
+[05:50:26] [558496] [VIBE-KIT] [WW14] → Task T007: bug-B7-subscription-increment-sem-transacao-rac
+[05:52:33] [558496] [VIBE-KIT] [WW14] ← Task T007: done (127s) [total: 1]
+[05:59:52] [558496] [VIBE-KIT] [WW14] Queue empty — done
+[05:59:52] [558496] [VIBE-KIT] [WW14] Finished. Tasks done: 1
+[06:01:49] [696835] [VIBE-KIT] [WW14] Started (max 28800s)
+[06:01:49] [696835] [VIBE-KIT] [WW14] → Task T004: bug-B4-content_pipeline-edges-fixos-sem-conditi
+[06:04:03] [696835] [VIBE-KIT] [WW14] ← Task T004: done (134s) [total: 1]
+/srv/monorepo/scripts/vibe/vibe-kit.sh: line 241: [: null: integer expression expected
+[06:17:35] [696835] [VIBE-KIT] [WW14] Queue empty — done
+[06:17:35] [696835] [VIBE-KIT] [WW14] Finished. Tasks done: 1

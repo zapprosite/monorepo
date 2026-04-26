@@ -1,0 +1,9 @@
+Correctness review complete.
+
+**Output:** `/srv/monorepo/docs/FINAL-REVIEW-correctness-2026-04-26.md`
+
+**Summary:**
+- **11 findings** total (1 HIGH, 5 MEDIUM, 5 LOW)
+- **Blocking issue:** Error logging bypass in tRPC error formatter (`trpc.ts:44`) — error cause/stack commented out, making production debugging difficult
+- **Key MEDIUM issues:** Inconsistent error response shapes, console.log vs structured logging, rate limiter memory leak potential, missing TRPCError codes in parser
+- **Verdict:** `APPROVE_WITH_CONDITIONS` — HIGH issue should be fixed before production

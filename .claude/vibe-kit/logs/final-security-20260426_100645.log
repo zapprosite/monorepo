@@ -1,0 +1,32 @@
+## Security Review Completo — 2026-04-26
+
+**Findings:** 13 total (2 CRITICAL, 4 HIGH, 5 MEDIUM, 2 LOW)
+
+### Principais Problemas
+
+**CRITICAL:**
+1. **Dev auth bypass** (`apps/api/src/trpc.ts:17-26`) — `X-Dev-User` header cria sessão sem validação em produção
+2. **CORS permissivo** (`apps/ai-gateway/src/index.ts:23`) — `origin: true` permite qualquer origem
+
+**HIGH:**
+- Rate limiter em memória (`Map`) não funciona em multi-server
+- Nenhum rate limiter no ai-gateway (bypass da API principal)
+- `dev-user-placeholder` userId em bypass
+- `/health` endpoint público no ai-gateway
+
+**OWASP Compliance: 70%**
+
+### Pontos Positivos
+- ✅ Queries SQL parametrizadas via ORM
+- ✅ Autenticação API key com timing-safe compare
+- ✅ Headers CORS validados contra whitelist
+- ✅ Sem code injection (`exec`, `eval`)
+- ✅ Anti-hardcoded secrets via `process.env`
+
+**Relatório completo:** `/srv/monorepo/docs/FINAL-REVIEW-security-2026-04-26.md`
+
+```
+to: orchestrator
+summary: Security review complete
+message: Critical: 2, High: 4, OWASP: 70%. Top fix: dev auth bypass + CORS
+```

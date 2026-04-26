@@ -1,0 +1,25 @@
+## Findings
+
+- **[CRITICAL] db.ts God Module Anti-pattern** — 35+ table imports in single file, 28 files depend on it directly, creates massive star-coupling and circular dependency risk
+- **[CRITICAL] No Service/Repository Layer** — All 21 tRPC routers and 7+ handlers directly invoke `db.*`, mixing data access with business logic
+- **[CRITICAL] Database as Global Singleton** — No dependency injection, `db` eagerly initialized and imported everywhere
+- **[HIGH] tRPC Router Aggregates All Modules Tightly** — 21 domain routers loaded in one file, no lazy loading
+- **[HIGH] Layer Violation** — API router imports 6 middleware modules directly
+- **[HIGH] PT-BR Filter embedded in gateway** — Business logic (language filtering) inline in infrastructure layer
+- **[MEDIUM] No Visible Transaction Management** — Multi-table operations (webhooks + journal entries) lack atomicity guarantees
+- **[MEDIUM] ai-gateway lacks retry/circuit breaker** — Single 60s timeout, no graceful degradation
+- **[MEDIUM] Auth middleware calls `process.exit(1)`** — Anti-pattern, should throw Fastify error
+- **[MEDIUM] Inconsistent module naming** — `.trpc.ts`, `.router.ts`, `.plugin.ts` used inconsistently
+
+## Recommendations
+
+1. Introduce repository pattern — extract `db.*` calls into `src/services/` per domain
+2. Refactor monolithic `db.ts` into per-domain repository files
+3. Extract PT-BR filter to a configurable service
+4. Add transaction boundaries for multi-table operations
+5. Add retry + circuit breaker for ai-gateway upstream calls
+6. Fix auth middleware to throw errors instead of `process.exit(1)`
+7. Establish and document naming conventions in CLAUDE.md
+8. Add ESLint `no-restricted-imports` to enforce layer boundaries
+
+Output written to `/srv/monorepo/docs/REVIEW-architecture-reviewer-2026-04-26.md`.

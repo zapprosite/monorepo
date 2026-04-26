@@ -1,0 +1,98 @@
+=== [WW14] Task T001 | 528s | done ===
+The task has already been completed. All 5 LangGraph workflows have been migrated from sequential async to real StateGraph with interrupt().
+
+**Files Modified:**
+- `apps/hermes-agency/src/langgraph/content_pipeline.ts` - Already StateGraph with interrupt (WF-1)
+- `apps/hermes-agency/src/langgraph/onboarding_flow.ts` - Migrated to StateGraph with interrupt (WF-2)  
+- `apps/hermes-agency/src/langgraph/lead_qualification.ts` - Migrated to StateGraph with interrupt (WF-5)
+- `apps/hermes-agency/src/langgraph/social_calendar.ts` - Migrated to StateGraph with interrupt (WF-4)
+- `apps/hermes-agency/src/langgraph/status_update.ts` - Migrated to StateGraph with interrupt (WF-3)
+- `apps/hermes-agency/src/langgraph/supervisor.ts` - Updated WORKFLOW_STATUS to reflect all ✅
+- `apps/CRM-REFRIMIX/tests/smoke/test_workflow_langgraph.py` - Updated with real tests
+
+All workflows now use:
+- Real `StateGraph` with nodes and edges
+- `MemorySaver` checkpointer for durable execution
+- `interrupt()` at human approval gates
+- Conditional edges for routing
+- `approveXxx()` functions for resumption after approval
+
+[COMPLETE] task_id=T001 result=done
+
+=== [WW14] Task T003 | 942s | done ===
+[COMPLETE] task_id=T003 result=done
+
+## Summary
+
+Fixed the B3 bug in `lead_qualification.ts` where `humanGateNode` was auto-approving for `nurture` and `reject` action paths without calling `interrupt()`.
+
+### Changes Made
+
+**1. `apps/hermes-agency/src/langgraph/lead_qualification.ts`**
+
+- **`humanGateNode`**: Changed from conditionally calling `interrupt()` only for `onboarding` action to ALWAYS calling `interrupt()` for all action types (onboarding, nurture, reject). This ensures no path auto-approves without human approval.
+
+- **`approveLead`**: Changed `Command.resume` from passing a bare boolean (`resume: approved`) to passing an object (`resume: { approved, comment }`), matching the pattern used by other workflows (`content_pipeline.ts`, `status_update.ts`).
+
+**2. `apps/CRM-REFRIMIX/tests/smoke/test_human_interrupt.py`**
+
+- Updated test to document the expected behavior after the fix.
+
+### Files Modified
+- `apps/hermes-agency/src/langgraph/lead_qualification.ts`
+- `apps/CRM-REFRIMIX/tests/smoke/test_human_interrupt.py`
+
+Context saved to: `/srv/monorepo/.claude/vibe-kit/context/T003.ctx`
+
+[mclaude] MiniMax-Token-Plan (MiniMax-M2.7) — session ended
+[?25h[0m[?1049l
+
+=== [WW14] Task T007 | 127s | done ===
+[COMPLETE] task_id=T007 result=done
+
+## Summary
+
+Bug B7 (Subscription increment race condition) was already fixed in the codebase. All 51 CRM-REFRIMIX tests pass, including all 7 subscription transaction tests.
+
+**Fix already in place** in `apps/api/src/modules/api-gateway/utils/subscriptionTracker.utils.ts`:
+- `incrementSubscriptionUsage` wrapped in `db.$transaction` (line 45)
+- Uses atomic `.increment("requestsConsumed")` (line 50)  
+- Strict null check `=== null` (line 86)
+- Nested transaction for webhook queue + notified update (lines 111-133)
+- WHERE clause `where({ notifiedAt90PercentUse: null })` (line 127)
+- Error isolation with `.catch()` (lines 58-61)
+
+**Files modified:** None - bug fix was already implemented.
+
+[mclaude] MiniMax-Token-Plan (MiniMax-M2.7) — session ended
+[?25h[0m[?1049l
+
+=== [WW14] Task T004 | 134s | done ===
+The task T004 is already complete. The bug fix for "content_pipeline edges fixos (sem conditional routing)" was already applied to the codebase. Here's the summary:
+
+**Bug B4 Status: Already Fixed**
+
+The file `/srv/monorepo/apps/hermes-agency/src/langgraph/content_pipeline.ts` correctly implements conditional routing:
+
+- Uses `addConditionalEdges('CREATIVE', creativeRouter, ...)` instead of fixed `.addEdge('CREATIVE', 'VIDEO')`
+- `creativeRouter` function routes based on contentType:
+  - video → VIDEO
+  - blog → DESIGN (skip VIDEO)  
+  - social/email → BRAND_GUARDIAN (skip VIDEO and DESIGN)
+- All 6 tests in `test_content_pipeline_routing.py` pass
+
+**Verification:**
+```
+tests/smoke/test_content_pipeline_routing.py::test_content_pipeline_has_conditional_edges PASSED
+tests/smoke/test_content_pipeline_routing.py::test_content_pipeline_creative_router_logic PASSED
+tests/smoke/test_content_pipeline_routing.py::test_content_pipeline_video_and_design_routers PASSED
+tests/smoke/test_content_pipeline_routing.py::test_execute_content_pipeline_accepts_content_type PASSED
+tests/smoke/test_content_pipeline_routing.py::test_content_pipeline_state_has_content_type PASSED
+tests/smoke/test_content_pipeline_routing.py::test_graph_channels_include_content_type PASSED
+```
+
+[COMPLETE] task_id=T004 result=done
+
+[mclaude] MiniMax-Token-Plan (MiniMax-M2.7) — session ended
+[?25h[0m[?1049l
+
