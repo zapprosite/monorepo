@@ -84,7 +84,7 @@ export async function googleOAuth2Plugin(app: FastifyInstance) {
 
 			// Check if user exists in database by email (auto-link accounts by email)
 			const existingUser = await db.users
-				.select("userId", "email", "name", "displayPicture")
+				.select("userId", "email", "name", "displayPicture", "teamId")
 				.findBy({ email: googleUserInfo.email })
 				.takeOptional();
 

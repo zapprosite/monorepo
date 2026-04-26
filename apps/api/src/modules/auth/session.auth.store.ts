@@ -51,6 +51,7 @@ export class DatabaseSessionStore implements SessionStore {
 						email: session.user?.email,
 						name: session.user?.name,
 						displayPicture: session.user?.displayPicture || null,
+						teamId: session.user?.teamId || null, // IDOR fix: persist teamId in session
 						ipAddress: session.metadata?.ipAddress || null,
 						userAgent: session.metadata?.userAgent || null,
 						browser: session.metadata?.browser || null,
@@ -94,6 +95,7 @@ export class DatabaseSessionStore implements SessionStore {
 					email: sessionData.email,
 					name: sessionData.user?.name ?? sessionData.name,
 					displayPicture: sessionData.user?.displayPicture ?? sessionData.displayPicture,
+					teamId: sessionData.teamId, // IDOR fix: reconstruct teamId from DB
 				},
 				metadata: {
 					ipAddress: sessionData.ipAddress || undefined,
