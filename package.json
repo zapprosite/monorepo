@@ -1,8 +1,8 @@
 {
-  "name": "connected-repo",
+  "name": "zappro-monorepo",
   "version": "1.0.0",
-  "description": "Starter Monorepo using Turbo of Nodejs + Fastify + OrchidORM + tRPC + Reactjs with opentelemetry setup",
-  "repository": "git@github.com:zapprosite/homelab-monorepo.git",
+  "description": "Zappro homelab monorepo — Fastify, OrchidORM, tRPC, React, OpenTelemetry",
+  "repository": "git@github.com:zapprosite/monorepo.git",
   "author": "Leonardo Gomide <will@zapprosite.com>",
   "license": "MIT",
   "private": true,
