@@ -1,0 +1,2 @@
+# YouTube Pipeline Dependencies
+yt-dlp>=2024.4.9

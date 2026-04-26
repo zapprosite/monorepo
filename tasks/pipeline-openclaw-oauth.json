@@ -1,0 +1,64 @@
+{
+  "pipeline": "openclaw-oauth-profiles",
+  "created": "2026-04-08",
+  "tasks": [
+    {
+      "id": "T1.1",
+      "name": "Criar dirs auth no host",
+      "status": "done",
+      "command": "mkdir -p /srv/data/openclaw/auth/{gemini,perplexity} && chmod -R 777 /srv/data/openclaw/auth"
+    },
+    {
+      "id": "T1.2",
+      "name": "Verificar PUID",
+      "status": "done",
+      "command": "id will | grep '1000'"
+    },
+    {
+      "id": "T2.1",
+      "name": "Criar OAuth frontend component",
+      "status": "done",
+      "files": ["apps/perplexity-agent/components/oauth_personas.py"]
+    },
+    {
+      "id": "T2.2",
+      "name": "Integrar OAuth no app.py",
+      "status": "done",
+      "files": ["apps/perplexity-agent/app.py"]
+    },
+    {
+      "id": "T2.3",
+      "name": "Criar script automation CDP",
+      "status": "in_progress",
+      "files": ["skills/openclaw-oauth-profiles/oauth-login.js"]
+    },
+    {
+      "id": "T2.4",
+      "name": "Integrar Infisical para credenciais",
+      "status": "pending",
+      "files": ["apps/perplexity-agent/config.py"]
+    },
+    {
+      "id": "T3.1",
+      "name": "Configurar OpenClaw gateway para n8n webhook",
+      "status": "pending",
+      "files": ["/srv/data/openclaw/docker-compose.yml"]
+    },
+    {
+      "id": "T3.2",
+      "name": "Criar workflow n8n para CEO MIX → perplexity-agent",
+      "status": "pending"
+    },
+    {
+      "id": "T4.1",
+      "name": "Smoke test OAuth login",
+      "status": "pending",
+      "command": "curl -s http://localhost:4004/_stcore/health"
+    },
+    {
+      "id": "T4.2",
+      "name": "Deploy e2e test",
+      "status": "pending"
+    }
+  ]
+}
