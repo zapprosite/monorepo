@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  telegram-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.telegram-dev
+    container_name: telegram-dev
+    restart: unless-stopped
+    environment:
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - REDIS_ADDR=${REDIS_HOST:-redis}:6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+    ports:
+      - "9380:9380"
+
+networks:
+  default:
+    name: telegram_dev_net
+    driver: bridge

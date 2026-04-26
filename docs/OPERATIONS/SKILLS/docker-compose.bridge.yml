@@ -1,0 +1,108 @@
+services:
+  # =============================================================================
+  # OpenClaw MCP Wrapper — exposes OpenClaw tools via MCP protocol
+  # =============================================================================
+  openclaw-mcp-wrapper:
+    build:
+      context: .
+      dockerfile: Dockerfile.openclaw-mcp-wrapper
+    container_name: openclaw-mcp-wrapper
+    networks:
+      - bridge_internal
+      - qgtzrmi6771lt8l7x8rqx72f
+    ports:
+      - "3457:3457"
+    environment:
+      PORT: 3457
+      # Infisical secrets (set via Coolify or export before docker compose)
+      INFISICAL_TOKEN: "${INFISICAL_TOKEN:-}"
+      INFISICAL_PROJECT_ID: "${INFISICAL_PROJECT_ID:-}"
+      INFISICAL_ENV: "${INFISICAL_ENV:-dev}"
+      INFISICAL_SECRET_PATH: "${INFISICAL_SECRET_PATH:-/}"
+      INFISICAL_DOMAIN: "${INFISICAL_DOMAIN:-http://127.0.0.1:8200}"
+      SECRET_KEYS: "OPENCLAW_GATEWAY_TOKEN,OPENCLAW_USER,OPENCLAW_PASSWORD"
+      # Fallback dev only
+      OPENCLAW_BASE_URL: "${OPENCLAW_BASE_URL:-http://10.0.19.4:8080}"
+      OPENCLAW_TOKEN: "${OPENCLAW_GATEWAY_TOKEN:-7NRPHyoSK2uLLKhE0T5GACeCRiBTOjCCPzHr3879Zx8f9WqiJLodZyU17D5uqlyn}"
+      OPENCLAW_USER: "${OPENCLAW_USER:-1ISYL3h3sEIvowWx}"
+      OPENCLAW_PASSWORD: "${OPENCLAW_PASSWORD:-yRMLBtfhbaWLGXi24yJuTBE3WZGf782B}"
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:3457/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # =============================================================================
+  # OpenWebUI Bridge Agent — intermediary between OpenWebUI and OpenClaw
+  # =============================================================================
+  openwebui-bridge-agent:
+    build:
+      context: .
+      dockerfile: Dockerfile.openwebui-bridge-agent
+    container_name: openwebui-bridge-agent
+    networks:
+      - bridge_internal
+      - wbmqefxhd7vdn2dme3i6s9an
+    environment:
+      PORT: 3456
+      # Infisical secrets (set via Coolify or export before docker compose)
+      INFISICAL_TOKEN: "${INFISICAL_TOKEN:-}"
+      INFISICAL_PROJECT_ID: "${INFISICAL_PROJECT_ID:-}"
+      INFISICAL_ENV: "${INFISICAL_ENV:-dev}"
+      INFISICAL_SECRET_PATH: "${INFISICAL_SECRET_PATH:-/}"
+      INFISICAL_DOMAIN: "${INFISICAL_DOMAIN:-http://127.0.0.1:8200}"
+      SECRET_KEYS: "OPENCLAW_GATEWAY_TOKEN,OPENCLAW_USER,OPENCLAW_PASSWORD"
+      # Bridge agent points to openclaw-mcp-wrapper via container name (both on host and wbmqefx networks)
+      OPENCLAW_BASE_URL: "http://openclaw-mcp-wrapper:3457"
+      # Fallback credentials (dev mode — override via Infisical in prod)
+      OPENCLAW_USER: "${OPENCLAW_USER:-1ISYL3h3sEIvowWx}"
+      OPENCLAW_PASSWORD: "${OPENCLAW_PASSWORD:-yRMLBtfhbaWLGXi24yJuTBE3WZGf782B}"
+      OPENCLAW_TOKEN: "${OPENCLAW_GATEWAY_TOKEN:-7NRPHyoSK2uLLKhE0T5GACeCRiBTOjCCPzHr3879Zx8f9WqiJLodZyU17D5uqlyn}"
+    depends_on:
+      openclaw-mcp-wrapper:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:3456/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # =============================================================================
+  # Auto-Heal — monitors and restarts unhealthy containers
+  # =============================================================================
+  autoheal:
+    image: willfarrell/autoheal
+    container_name: autoheal
+    environment:
+      AUTOHEAL_CONTAINER_LABEL: all
+      AUTOHEAL_INTERVAL: 60
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "5m"
+        max-file: "2"
+
+networks:
+  bridge_internal:
+    driver: bridge
+  qgtzrmi6771lt8l7x8rqx72f:
+    external: true
+  wbmqefxhd7vdn2dme3i6s9an:
+    external: true

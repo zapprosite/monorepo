@@ -1,0 +1,15 @@
+{
+  "currentState": "IDLE",
+  "retryCount": 0,
+  "retryHistory": [],
+  "humanGateRequired": false,
+  "blockedReason": null,
+  "blockedAt": null,
+  "humanGateReason": null,
+  "notificationSent": false,
+  "testsPassed": false,
+  "lintPassed": false,
+  "readyToShip": false,
+  "lastCheckpoint": "2026-04-10T02:15:49-03:00",
+  "lastUnblockReason": "package.json corrupt - fix needed"
+}

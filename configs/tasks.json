@@ -1,0 +1,116 @@
+{
+  "task_schema": {
+    "version": "1.0.0",
+    "fields": {
+      "task_id": {
+        "type": "string",
+        "format": "t_{ulid}",
+        "required": true
+      },
+      "graph_id": {
+        "type": "string",
+        "format": "g_{ulid}",
+        "required": true
+      },
+      "node_id": {
+        "type": "string",
+        "required": true
+      },
+      "type": {
+        "type": "string",
+        "enum": ["intake", "classifier", "access_control", "rag", "ranking", "response", "billing", "memory"],
+        "required": true
+      },
+      "status": {
+        "type": "string",
+        "enum": ["pending", "running", "completed", "failed", "dead", "skipped"],
+        "default": "pending"
+      },
+      "priority": {
+        "type": "integer",
+        "min": 0,
+        "max": 100,
+        "default": 50
+      },
+      "agent_responsible": {
+        "type": "string",
+        "nullable": true
+      },
+      "worker_id": {
+        "type": "string",
+        "nullable": true
+      },
+      "input": {
+        "type": "object",
+        "required": true
+      },
+      "output": {
+        "type": "object",
+        "nullable": true
+      },
+      "created_at": {
+        "type": "string",
+        "format": "ISO 8601",
+        "required": true
+      },
+      "claimed_at": {
+        "type": "string",
+        "format": "ISO 8601",
+        "nullable": true
+      },
+      "completed_at": {
+        "type": "string",
+        "format": "ISO 8601",
+        "nullable": true
+      },
+      "retries": {
+        "type": "integer",
+        "default": 0
+      },
+      "max_retries": {
+        "type": "integer",
+        "default": 3
+      },
+      "timeout_ms": {
+        "type": "integer",
+        "default": 10000
+      },
+      "stolen_from": {
+        "type": "string",
+        "nullable": true
+      },
+      "error": {
+        "type": "string",
+        "nullable": true
+      }
+    },
+    "priority_rules": {
+      "critical_agents": {
+        "types": ["intake", "access_control", "response"],
+        "base_priority": 90
+      },
+      "high_agents": {
+        "types": ["classifier", "rag", "ranking"],
+        "base_priority": 70
+      },
+      "low_agents": {
+        "types": ["billing", "memory"],
+        "base_priority": 30
+      },
+      "boost_rules": [
+        {
+          "condition": "user.plan == 'pro'",
+          "boost": 10
+        },
+        {
+          "condition": "retries > 0",
+          "boost": -5
+        },
+        {
+          "condition": "age_ms > 5000",
+          "boost": 15
+        }
+      ]
+    }
+  }
+}
