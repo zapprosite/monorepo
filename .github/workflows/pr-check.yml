@@ -24,7 +24,7 @@ jobs:
           cache: 'pnpm'
 
       - name: Install dependencies
-        run: pnpm install --no-parallel
+        run: pnpm install --force
 
       - name: Type check
         run: pnpm tsc --noEmit
