@@ -1,0 +1,427 @@
+=== 2026-04-24 00:16:02 ===
+{
+  "done": 1,
+  "failed": 1,
+  "pending": 5,
+  "running": 4
+}
+Active mclaude: 9
+=== 2026-04-24 00:22:11 ===
+{
+  "done": 6,
+  "failed": 2,
+  "pending": 0,
+  "running": 2
+}
+Active mclaude: 6
+=== 2026-04-24 00:26:24 ===
+{
+  "done": 7,
+  "failed": 2,
+  "pending": 0,
+  "running": 1
+}
+Active mclaude: 4
+=== 2026-04-24 00:32:44 ===
+{
+  "done": 7,
+  "failed": 2,
+  "pending": 0,
+  "running": 1
+}
+Active mclaude: 3
+=== 2026-04-24 00:43:01 ===
+{
+  "done": 7,
+  "failed": 2,
+  "pending": 0,
+  "running": 1
+}
+Active mclaude: 3
+=== Fri Apr 24 12:46:40 AM -03 2026 ===
+{
+  "done": 8,
+  "failed": 2,
+  "pending": 0,
+  "running": 0
+}
+=== 2026-04-24 00:56:57 ===
+{
+  "done": 9,
+  "failed": 1,
+  "pending": 0,
+  "running": 0
+}
+Active mclaude: 2
+=== 2026-04-24 01:01:56 ===
+{
+  "done": 9,
+  "failed": 1,
+  "pending": 0,
+  "running": 0
+}
+Active mclaude: 1
+
+[2026-04-24T01:02:00Z] CRM-REFRIMIX Bugs Retry Status Check
+============================================================
+T005 (bug-B5): FAILED — No logs produced, worker=null
+T008 (bug-B8): DONE — completed_at=2026-04-24T04:52:00Z
+
+Action: T005 requires manual review — no logs found, gh/gitea CLI not configured.
+=== 2026-04-24 01:06:27 ===
+{
+  "done": 9,
+  "failed": 1,
+  "pending": 0,
+  "running": 0
+}
+Active mclaude: 1
+=== 2026-04-24 01:12:27 ===
+{
+  "done": 9,
+  "failed": 1,
+  "pending": 0,
+  "running": 0
+}
+Active mclaude: 1
+=== 2026-04-24 01:22:36 ===
+{
+  "done": 9,
+  "failed": 1,
+  "pending": 0,
+  "running": 0
+}
+Active mclaude: 1
+=== 2026-04-24 01:26:41 ===
+{
+  "done": 9,
+  "failed": 1,
+  "pending": 0,
+  "running": 0
+}
+Active mclaude: 1
+=== 2026-04-24 01:31:44 ===
+{
+  "done": 9,
+  "failed": 1,
+  "pending": 0,
+  "running": 0
+}
+Active mclaude: 1
+[2026-04-24T05:00:00Z] CRM-REFRIMIX vibe-kit status check
+- T005 (bug-B5): STALE FAILED → corrected to DONE (W11 completed fix, ARCHITECTURE.md corrected, IP attack fix already in SPEC-068)
+- T008 (bug-B8): already DONE (W04, completed 04:52:00Z)
+- Queue: 10/10 done, 0 failed, 0 pending, 0 running
+- Action: queue.json counters corrected (done:9→10, failed:1→0), T005 status patched to done with worker W11
+=== Fri Apr 24 01:41:39 AM -03 2026 ===
+{
+  "done": 10,
+  "failed": 0,
+  "pending": 0,
+  "running": 0
+}
+=== 2026-04-24 01:46:13 ===
+{
+  "done": 10,
+  "failed": 0,
+  "pending": 0,
+  "running": 0
+}
+Active mclaude: 8
+=== 2026-04-24 01:51:54 ===
+=== 2026-04-24 01:52:00 ===
+{
+  "done": 10,
+  "failed": 0,
+  "pending": 0,
+  "running": 0
+}
+Active mclaude: 1
+=== 2026-04-24 01:55:53 ===
+{
+  "done": 10,
+  "failed": 0,
+  "pending": 0,
+  "running": 0
+}
+Active mclaude: 1
+
+=== CRM-REFRIMIX Bug Retry Status Check ===
+Timestamp: 2026-04-24T02:03:00Z
+
+T005 (bug-B5-architecture-errado): DONE (completed_at: 2026-04-24T04:55:00Z)
+  - Worker: W11
+  - Status: done ✓
+
+T008 (bug-B8-readme-duplicated-sections): DONE (completed_at: 2026-04-24T04:52:00Z)
+  - Worker: W04
+  - Status: done ✓
+
+No running tasks detected. Both T005 and T008 already completed successfully.
+No Gitea issues needed.
+=== 2026-04-24 02:11:32 ===
+{
+  "done": 10,
+  "failed": 0,
+  "pending": 0,
+  "running": 0
+}
+Active mclaude: 1
+=== 2026-04-24 02:11:46 ===
+{"done": 10, "failed": 0, "pending": 0, "running": 0}
+Active mclaude: 1
+=== 2026-04-24 02:16:56 ===
+{
+  "done": 10,
+  "failed": 0,
+  "pending": 0,
+  "running": 0
+}
+Active mclaude: 1
+=== 2026-04-24 02:22:25 ===
+{
+  "done": 10,
+  "failed": 0,
+  "pending": 0,
+  "running": 0
+}
+Active mclaude: 1
+=== 2026-04-24 02:26:28 ===
+{
+  "done": 10,
+  "failed": 0,
+  "pending": 0,
+  "running": 0
+}
+Active mclaude: 1
+=== Fri Apr 24 02:36:46 AM -03 2026 ===
+{
+  "done": 10,
+  "failed": 0,
+  "pending": 0,
+  "running": 0
+}
+
+[2026-04-24T02:38:00Z] CRM-REFRIMIX bugs retry status check
+  T005 (bug-B5): done (completed_at: 2026-04-24T04:55:00Z)
+  T008 (bug-B8): done (completed_at: 2026-04-24T04:52:00Z)
+  All 10 tasks done. No running tasks found.
+=== 2026-04-24 02:52:34 ===
+{
+  "done": 10,
+  "failed": 0,
+  "pending": 0,
+  "running": 0
+}
+Active mclaude: 11
+=== 2026-04-24 03:57:01 ===
+{
+  "done": null,
+  "failed": null,
+  "pending": null,
+  "running": null
+}
+Active mclaude: 1
+=== 2026-04-24 03:57:20 ===
+Queue status: 
+Active mclaude: 1
+---
+=== 2026-04-24 03:57:25 ===
+[
+  {
+    "id": "T01",
+    "status": "done"
+  },
+  {
+    "id": "T02",
+    "status": "done"
+  },
+  {
+    "id": "T03",
+    "status": "done"
+  },
+  {
+    "id": "T04",
+    "status": "done"
+  },
+  {
+    "id": "T05",
+    "status": "done"
+  },
+  {
+    "id": "T06",
+    "status": "done"
+  },
+  {
+    "id": "T07",
+    "status": "done"
+  },
+  {
+    "id": "T08",
+    "status": "done"
+  },
+  {
+    "id": "T09",
+    "status": "done"
+  },
+  {
+    "id": "T10",
+    "status": "done"
+  },
+  {
+    "id": "T11",
+    "status": "done"
+  },
+  {
+    "id": "T12",
+    "status": "done"
+  },
+  {
+    "id": "T13",
+    "status": "done"
+  },
+  {
+    "id": "T14",
+    "status": "done"
+  },
+  {
+    "id": "T15",
+    "status": "done"
+  },
+  {
+    "id": "T16",
+    "status": "done"
+  },
+  {
+    "id": "T17",
+    "status": "done"
+  }
+]
+Active mclaude: 1
+---
+=== 2026-04-24 04:09:05 ===
+{
+  "done": null,
+  "failed": null,
+  "pending": null,
+  "running": null
+}
+Active mclaude: 1
+=== 2026-04-24 04:08:02 ===
+Queue: 17 done, 0 failed, 0 pending, 0 running | Active mclaude: 1
+
+=== 2026-04-24T04:10:00Z === CRM-REFRIMIX Bugs Retry Status Check ===
+  T005 (bug-B5): DONE — completed_at: 2026-04-24T04:55:00Z, worker: W11
+  T008 (bug-B8): DONE — completed_at: 2026-04-24T04:52:00Z, worker: W12
+  Queue: 17/17 done, 0 failed, 0 pending, 0 running
+  No running tasks detected. No Gitea issues needed.
+
+=== CRM-REFRIMIX Bugs Retry Status Check ===
+Timestamp: 2026-04-24T07:33:44Z
+
+T005 (bug-B5): DONE — completed_at: 2026-04-24T04:55:00Z, worker: W11
+T008 (bug-B8): DONE — completed_at: 2026-04-24T04:52:00Z, worker: W12
+Queue: 17/17 done, 0 failed, 0 pending, 0 running
+No running tasks detected. No Gitea issues needed.
+
+=== Fri Apr 24 04:51:30 AM -03 2026 ===
+{
+  "done": null,
+  "failed": null,
+  "pending": null,
+  "running": null
+}
+=== 2026-04-24 04:52:25 ===
+{
+  "done": null,
+  "failed": null,
+  "pending": null,
+  "running": null
+}
+Active mclaude: 1
+=== 2026-04-24 04:56:11 ===
+{
+  "done": null,
+  "failed": null,
+  "pending": null,
+  "running": null
+}
+Active mclaude: 1
+=== Fri Apr 24 05:01:59 AM -03 2026 ===
+HEALTH CHECK DISCREPANCY: Script reports services DOWN but Docker shows all containers UP
+Root cause: health-check.sh uses wrong hostnames (e.g. litellm:4000 instead of zappro-litellm)
+Containers healthy: 24
+=== Fri Apr 24 05:02:19 AM -03 2026 ===
+ISSUE: daily-health-check.sh uses container names as hostnames (e.g. 'litellm:4000') instead of 'localhost'
+Docker containers all UP, disk 81%, no PostgreSQL/Redis backups found
+=== 2026-04-24 05:03:02 ===
+{
+  "done": null,
+  "failed": null,
+  "pending": null,
+  "running": null
+}
+Active mclaude: 1
+
+=== CRM-REFRIMIX Bug Retry Status Check ===
+Timestamp: 2026-04-24T08:03:00Z
+
+T005 (bug-B5-architecture-errado): DONE — completed_at: 2026-04-24T04:55:00Z, worker: W11
+T008 (bug-B8-readme-duplicated-sections): DONE — completed_at: 2026-04-24T04:52:00Z, worker: W12
+Queue: 17/17 done, 0 failed, 0 pending, 0 running
+No running tasks detected. No Gitea issues needed.
+=== Fri Apr 24 05:08:13 AM -03 2026 ===
+{
+  "done": null,
+  "failed": null,
+  "pending": null,
+  "running": null
+}
+=== 2026-04-24 05:08:34 ===
+{
+  "done": null,
+  "failed": null,
+  "pending": null,
+  "running": null
+}
+Active mclaude: 1
+=== Fri Apr 24 05:11:42 AM -03 2026 ===
+{
+  "done": null,
+  "failed": null,
+  "pending": null,
+  "running": null
+}
+=== 2026-04-24 05:12:27 ===
+{
+  "done": null,
+  "failed": null,
+  "pending": null,
+  "running": null
+}
+Active mclaude: 1
+=== 2026-04-24 05:51:47 ===
+{
+  "done": 0,
+  "failed": 0,
+  "pending": 0,
+  "running": 10
+}
+Active mclaude: 11
+=== 2026-04-24 05:55:54 ===
+{
+  "done": 8,
+  "failed": 0,
+  "pending": 0,
+  "running": 2
+}
+Active mclaude: 3
+=== 2026-04-24 06:02:45 ===
+{
+  "done": 0,
+  "failed": 0,
+  "pending": 0,
+  "running": 10
+}
+Active mclaude: 11
+2026-04-24T09:03:50Z | T005 (bug-B5) | running | worker=W07 | age=~2min | T008 (bug-B8) | done | completed_at=09:03:04Z

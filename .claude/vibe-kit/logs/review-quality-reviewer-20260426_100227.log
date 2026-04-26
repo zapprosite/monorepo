@@ -1,0 +1,11 @@
+Review concluída e gravada em `/srv/monorepo/docs/REVIEW-quality-reviewer-2026-04-26.md`.
+
+**Resumo das principais questões:**
+
+| Severity | Count | Exemplos |
+|----------|-------|---------|
+| **HIGH** | 4 | vibe-kit state inconsistency (queue vazio mas status=running), `ioredis` sem package.json, repository URLs do starter template, `apps/api` sem script de lint |
+| **MEDIUM** | 6 | `console.log` em `kanban.logging.ts`, FIXME não corrigido em trpc.ts, paths relativos em `rag-ingest.ts`, `cleanup-vibe.sh` com `$HOME` hardcoded |
+| **LOW** | 4 | 10 ocorrências de `any`, packages/ não documentado em CLAUDE.md, GNU `date` não-portável, `pnpm tsc --noEmit` não existe no root |
+
+**Veredicto:** Qualidade razoável — a regra anti-hardcoded e a estrutura TypeScript são bem aplicadas. As prioridades são: reset do estado do vibe-kit, adicionar `ioredis` como dependência, e corrigir as URLs de repositório nos `package.json`.

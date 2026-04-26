@@ -1,0 +1,22 @@
+## Relatório de Self-Healing
+
+**Resumo:**
+- **31 containers** rodando ✅
+- **0 containers** com problemas ✅
+- **1 issue acionável** encontrado ⚠️
+
+### Problema Encontrado
+
+**`TTS_BRIDGE_URL` mal configurado:**
+- hermes-agency usa `localhost:8013` mas o Kokoro está na porta **8012**
+- Impacto: TTS via bot Telegram não funciona
+- Necessário: Aprovar modificação do `.env`
+
+O relatório completo está em `/tmp/self-healing-report.txt`.
+
+**Ação necessária (requer aprovação):** Corrigir `TTS_BRIDGE_URL=http://localhost:8012` no `.env` e reiniciar o container hermes-agency.
+
+Deseja que eu proceda com a correção?
+
+[mclaude] MiniMax-Token-Plan (MiniMax-M2.7) — session ended
+[?25h[0m[?1049l

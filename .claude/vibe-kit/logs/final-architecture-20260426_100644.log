@@ -1,0 +1,28 @@
+## Resumo da Revisão Arquitetural
+
+**Arquivo gerado:** `/srv/monorepo/docs/FINAL-REVIEW-architecture-2026-04-26.md`
+
+### Principais Problemas
+
+| Severidade | Problema | Local |
+|------------|----------|-------|
+| CRITICAL | Lógica de estado (state machine) inline nos handlers | `service_orders.trpc.ts:76-114` |
+| HIGH | Acesso direto ao DB sem service layer | Todos os routers tRPC |
+| HIGH | Hardcoded fallbacks `?? ''` para secrets obrigatórios | `ai-gateway/src/routes/chat.ts:14-18` |
+| MEDIUM | Domain models anêmicos (só dados, sem comportamento) | Todos os `*.table.ts` |
+| MEDIUM | Routers oversized (God classes) | `api-gateway.router.ts` (282 linhas) |
+| MEDIUM | Sem DI container | Projeto inteiro |
+| LOW | Dead code stubs | `email.trpc.ts` |
+
+### Pontos Positivos
+- ✅ Sem dependências circulares (`madge --circular` limpo)
+- ✅ Estrutura de layers definida (UI → Application → Domain → Infrastructure)
+- ✅ Padrão Repository parcialmente em uso
+
+### Violações SOLID
+- **SRP** ❌ — handlers fazem routing + lógica + DB
+- **DIP** ❌ — high-level depende de low-level diretamente
+
+**to:** quality-scorer  
+**summary:** Architecture review complete  
+**message:** Circular deps: 0. Layer violations: 3 (direct DB access in handlers). Key issue: missing service layer between tRPC routers and database.

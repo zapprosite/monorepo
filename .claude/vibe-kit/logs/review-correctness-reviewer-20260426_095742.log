@@ -1,0 +1,10 @@
+Correctness review complete. Output written to `/srv/monorepo/docs/REVIEW-correctness-reviewer-2026-04-26.md`.
+
+**Summary of findings:**
+
+- **3 CRITICAL** — ESM/CommonJS confusion in webhookProcessor.ts, broken upsert in session.auth.store.ts, SQL injection risk in webhookQueue.utils.ts
+- **3 HIGH** — vibe-kit.sh `START_EPOCH` timing bug, vibe-kit-launcher.sh inverted condition, unhandled Zod exception in subscriptionCheck middleware, unauthenticated model passthrough in ai-gateway
+- **5 MEDIUM** — Worker race condition in vibe-kit.sh, bug dedup false negatives, IPv6 zone ID handling, redundant select columns, gateway state type issue
+- **3 LOW** — Increment after update, in-memory rate limiter, multipart size limit
+
+**Verdict: APPROVED WITH FINDINGS** — 3 blocking issues need fixing before production deploy.

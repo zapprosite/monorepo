@@ -1,0 +1,21 @@
+jq: invalid JSON text passed to --argjson
+Use jq --help for help with command-line options,
+or see the jq manpage, or online docs  at https://jqlang.github.io/jq
+jq: invalid JSON text passed to --argjson
+Use jq --help for help with command-line options,
+or see the jq manpage, or online docs  at https://jqlang.github.io/jq
+flow_subscription.py::test_increment_uses_atomic_update PASSED
+tests/smoke/test_workflow_subscription.py::test_webhook_queue_has_nested_transaction PASSED
+tests/smoke/test_workflow_subscription.py::test_subscribedat_null_check_uses_strict_equality PASSED
+tests/smoke/test_workflow_subscription.py::test_subscribedat_update_uses_where_clause PASSED
+tests/smoke/test_workflow_subscription.py::test_usage_percent_calculation_handles_zero_max_requests PASSED
+tests/smoke/test_workflow_subscription.py::test_transaction_error_isolation PASSED
+```
+
+O teste valida que `subscriptionTracker.utils.ts` tem:
+- `incrementSubscriptionUsage` com `db.$transaction` e `.increment()` atómico
+- `checkAndQueueWebhookAt90Percent` com null check estricto (`=== null`) e WHERE clause
+- Handling de erros no webhook queue com `.catch()`
+
+[mclaude] MiniMax-Token-Plan (MiniMax-M2.7) — session ended
+[?25h[0m[?1049l[Fri Apr 24 01:03:13 AM -03 2026] [TEST-W3] Finished TEST=TEST03

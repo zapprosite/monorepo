@@ -1,0 +1,8 @@
+Readability review complete. Findings written to `/srv/monorepo/docs/REVIEW-readability-reviewer-2026-04-26.md`.
+
+**Summary:**
+- 3 naming issues (inconsistent terminology in mcp-conectores module)
+- 3 dead code blocks (commented-out code in trpc.ts, sessionSecurity.middleware.ts)
+- 3 FIXME/TODO comments needing attention
+- 1 large file (webhookQueue.utils.ts at 368 lines) requiring refactoring
+- 1 console.log in production error handler needing replacement with logger

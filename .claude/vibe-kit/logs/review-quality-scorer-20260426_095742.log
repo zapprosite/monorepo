@@ -1,0 +1,23 @@
+Quality review completo. Output salvo em `/srv/monorepo/docs/REVIEW-quality-scorer-2026-04-26.md`.
+
+**Score: 0/100 — REJECT**
+
+Resumo dos bloqueios críticos:
+
+| # | Issue | Severidade |
+|---|-------|------------|
+| 1 | **340 TypeScript errors** (329 API + 11 ai-gateway) — compilação bloqueada | CRITICAL |
+| 2 | `webhookProcessor.ts` chama `process.exit()` em módulo que pode ser importado | CRITICAL |
+| 3 | `server.ts` chama `process.exit(1)` sem graceful shutdown | CRITICAL |
+| 4 | Rate limiter em memória não escala para múltiplas instâncias | HIGH |
+| 5 | `eval()` em `test-worktree.sh` com input não sanitizado | HIGH |
+| 6 | Lock files com permissões muito abertas (`0o644` vs `0o600`) | HIGH |
+| 7 | PID lock check não é atômico — risco de race condition | HIGH |
+| 8 | CORS `origin: true` no ai-gateway sem rate limiting | HIGH |
+
+**Gate status:**
+- ❌ Critical issues: 3 (required: 0)
+- ❌ Quality score ≥70: 0 (required: ≥70)
+- ⚠️ Tests passing: unknown (type errors bloqueiam)
+- ❌ Type errors: 340 (required: 0)
+- ✅ OWASP compliance: pass (sem vulnerabilidades)

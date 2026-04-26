@@ -1,0 +1,15 @@
+Revisão de performance concluída. Salvei o relatório em `/srv/monorepo/docs/REVIEW-perf-reviewer-2026-04-26.md`.
+
+**Resumo dos achados:**
+
+| Severity | Count | Top Issues |
+|----------|-------|------------|
+| CRITICAL | 2 | Journal entries sem paginação (unbounded), Webhook processor N+1 (51 queries/batch) |
+| HIGH | 3 | Equipment, Prompts, Subscriptions — todos sem paginação |
+| MEDIUM | 4 | Sync fs.readdir em rag-ingest, cache LRU com TTL broken, sequential embedding, flawed random prompt selection |
+| LOW | 2 | Sequential validation em service orders, sequential PT-BR filter |
+
+**Top 3 ações recomendadas:**
+1. Adicionar `limit`+`offset` em todos os endpoints de listagem sem paginação
+2. Corrigir o N+1 no webhook processor — batch fetch teams + `Promise.all` para envio
+3. Substituir `fs.readdirSync` por `fs.promises.readdir` no rag-ingest

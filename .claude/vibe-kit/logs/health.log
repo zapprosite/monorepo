@@ -1,0 +1,1125 @@
+[2026-04-24 00:01:29] Checking service health endpoints...
+[2026-04-24 00:01:29] ❌ grafana:3000 is NOT responding
+[2026-04-24 00:01:29] ❌ litellm:4000 is NOT responding
+[2026-04-24 00:01:29] ❌ ollama:11434 is NOT responding
+[2026-04-24 00:01:29] ❌ ai-gateway:4002 is NOT responding
+[2026-04-24 00:01:29] ❌ trieve:6435 is NOT responding
+[2026-04-24 00:01:29] ❌ coolify:8000 is NOT responding
+[2026-04-24 00:01:29] ❌ qdrant:6333 is NOT responding
+[2026-04-24 00:01:29] ❌ qdrant-dashboard:6334 is NOT responding
+[2026-04-24 00:01:29] Checking Docker containers...
+[2026-04-24 00:01:29] ✅ All Docker containers are running
+[2026-04-24 00:01:29] Checking Grafana metrics...
+[2026-04-24 00:01:29] Grafana credentials not configured, skipping error rate check
+[2026-04-24 00:01:29] Checking backup status...
+[2026-04-24 00:01:29] ⚠️  No PostgreSQL backup in last 24h
+[2026-04-24 00:01:29] ✅ Qdrant backup found: backup.log
+[2026-04-24 00:01:29] ✅ Redis backup found: dump-2026-04-23.rdb.gz
+[2026-04-24 00:01:29] Checking disk space...
+[2026-04-24 00:01:29] ⚠️  Disk usage at 80% (threshold: 80%)
+[2026-04-24 00:01:29] Checking memory...
+[2026-04-24 00:01:29] ✅ Memory usage at 43% (OK)
+[2026-04-24 00:01:29] Checking ZFS pool status...
+[2026-04-24 00:01:29] ✅ ZFS pool tank is healthy
+[2026-04-24 00:01:29] Health check completed with ISSUES - sending alert
+[2026-04-24 00:01:29] TELEGRAM_CHAT_ID not set, skipping Telegram notification
+[2026-04-24 00:10:45] Checking service health endpoints...
+[2026-04-24 00:10:45] ❌ grafana:3000 is NOT responding
+[2026-04-24 00:10:45] ❌ litellm:4000 is NOT responding
+[2026-04-24 00:10:45] ❌ ollama:11434 is NOT responding
+[2026-04-24 00:10:45] ❌ ai-gateway:4002 is NOT responding
+[2026-04-24 00:10:45] ❌ trieve:6435 is NOT responding
+[2026-04-24 00:10:45] ❌ coolify:8000 is NOT responding
+[2026-04-24 00:10:45] ❌ qdrant:6333 is NOT responding
+[2026-04-24 00:10:45] ❌ qdrant-dashboard:6334 is NOT responding
+[2026-04-24 00:10:45] Checking Docker containers...
+[2026-04-24 00:10:45] ✅ All Docker containers are running
+[2026-04-24 00:10:45] Checking Grafana metrics...
+[2026-04-24 00:10:45] Grafana credentials not configured, skipping error rate check
+[2026-04-24 00:10:45] Checking backup status...
+[2026-04-24 00:10:45] ⚠️  No PostgreSQL backup in last 24h
+[2026-04-24 00:10:45] ✅ Qdrant backup found: backup.log
+[2026-04-24 00:10:45] ✅ Redis backup found: dump-2026-04-23.rdb.gz
+[2026-04-24 00:10:45] Checking disk space...
+[2026-04-24 00:10:45] ⚠️  Disk usage at 80% (threshold: 80%)
+[2026-04-24 00:10:45] Checking memory...
+[2026-04-24 00:10:45] ✅ Memory usage at 57% (OK)
+[2026-04-24 00:10:45] Checking ZFS pool status...
+[2026-04-24 00:10:45] ✅ ZFS pool tank is healthy
+[2026-04-24 00:10:45] Health check completed with ISSUES - sending alert
+[2026-04-24 00:10:45] TELEGRAM_CHAT_ID not set, skipping Telegram notification
+[2026-04-24 00:15:31] Checking service health endpoints...
+[2026-04-24 00:15:31] ❌ grafana:3000 is NOT responding
+[2026-04-24 00:15:31] ❌ litellm:4000 is NOT responding
+[2026-04-24 00:15:31] ❌ ollama:11434 is NOT responding
+[2026-04-24 00:15:31] ❌ ai-gateway:4002 is NOT responding
+[2026-04-24 00:15:31] ❌ trieve:6435 is NOT responding
+[2026-04-24 00:15:31] ❌ coolify:8000 is NOT responding
+[2026-04-24 00:15:31] ❌ qdrant:6333 is NOT responding
+[2026-04-24 00:15:31] ❌ qdrant-dashboard:6334 is NOT responding
+[2026-04-24 00:15:31] Checking Docker containers...
+[2026-04-24 00:15:31] ✅ All Docker containers are running
+[2026-04-24 00:15:31] Checking Grafana metrics...
+[2026-04-24 00:15:31] Grafana credentials not configured, skipping error rate check
+[2026-04-24 00:15:31] Checking backup status...
+[2026-04-24 00:15:31] ⚠️  No PostgreSQL backup in last 24h
+[2026-04-24 00:15:31] ✅ Qdrant backup found: backup.log
+[2026-04-24 00:15:31] ✅ Redis backup found: dump-20260423_003750.rdb.gz
+[2026-04-24 00:15:31] Checking disk space...
+[2026-04-24 00:15:31] ⚠️  Disk usage at 80% (threshold: 80%)
+[2026-04-24 00:15:31] Checking memory...
+[2026-04-24 00:15:31] ✅ Memory usage at 57% (OK)
+[2026-04-24 00:15:31] Checking ZFS pool status...
+[2026-04-24 00:15:31] ✅ ZFS pool tank is healthy
+[2026-04-24 00:15:31] Health check completed with ISSUES - sending alert
+[2026-04-24 00:15:31] TELEGRAM_CHAT_ID not set, skipping Telegram notification
+[2026-04-24 00:20:42] Checking service health endpoints...
+[2026-04-24 00:20:42] ❌ grafana:3000 is NOT responding
+[2026-04-24 00:20:42] ❌ litellm:4000 is NOT responding
+[2026-04-24 00:20:42] ❌ ollama:11434 is NOT responding
+[2026-04-24 00:20:42] ❌ ai-gateway:4002 is NOT responding
+[2026-04-24 00:20:42] ❌ trieve:6435 is NOT responding
+[2026-04-24 00:20:42] ❌ coolify:8000 is NOT responding
+[2026-04-24 00:20:42] ❌ qdrant:6333 is NOT responding
+[2026-04-24 00:20:42] ❌ qdrant-dashboard:6334 is NOT responding
+[2026-04-24 00:20:42] Checking Docker containers...
+[2026-04-24 00:20:42] ✅ All Docker containers are running
+[2026-04-24 00:20:42] Checking Grafana metrics...
+[2026-04-24 00:20:42] Grafana credentials not configured, skipping error rate check
+[2026-04-24 00:20:42] Checking backup status...
+[2026-04-24 00:20:42] ⚠️  No PostgreSQL backup in last 24h
+[2026-04-24 00:20:42] ✅ Qdrant backup found: backup.log
+[2026-04-24 00:20:42] ✅ Redis backup found: dump-20260423_003750.rdb.gz
+[2026-04-24 00:20:42] Checking disk space...
+[2026-04-24 00:20:42] ⚠️  Disk usage at 80% (threshold: 80%)
+[2026-04-24 00:20:42] Checking memory...
+[2026-04-24 00:20:42] ✅ Memory usage at 43% (OK)
+[2026-04-24 00:20:42] Checking ZFS pool status...
+[2026-04-24 00:20:42] ✅ ZFS pool tank is healthy
+[2026-04-24 00:20:42] Health check completed with ISSUES - sending alert
+[2026-04-24 00:20:42] TELEGRAM_CHAT_ID not set, skipping Telegram notification
+[2026-04-24 00:25:53] Checking service health endpoints...
+[2026-04-24 00:25:53] ❌ grafana:3000 is NOT responding
+[2026-04-24 00:25:53] ❌ litellm:4000 is NOT responding
+[2026-04-24 00:25:53] ❌ ollama:11434 is NOT responding
+[2026-04-24 00:25:53] ❌ ai-gateway:4002 is NOT responding
+[2026-04-24 00:25:53] ❌ trieve:6435 is NOT responding
+[2026-04-24 00:25:53] ❌ coolify:8000 is NOT responding
+[2026-04-24 00:25:53] ❌ qdrant:6333 is NOT responding
+[2026-04-24 00:25:53] ❌ qdrant-dashboard:6334 is NOT responding
+[2026-04-24 00:25:53] Checking Docker containers...
+[2026-04-24 00:25:53] ✅ All Docker containers are running
+[2026-04-24 00:25:53] Checking Grafana metrics...
+[2026-04-24 00:25:53] Grafana credentials not configured, skipping error rate check
+[2026-04-24 00:25:53] Checking backup status...
+[2026-04-24 00:25:53] ⚠️  No PostgreSQL backup in last 24h
+[2026-04-24 00:25:53] ✅ Qdrant backup found: backup.log
+[2026-04-24 00:25:53] ✅ Redis backup found: dump-20260423_003750.rdb.gz
+[2026-04-24 00:25:53] Checking disk space...
+[2026-04-24 00:25:53] ⚠️  Disk usage at 80% (threshold: 80%)
+[2026-04-24 00:25:53] Checking memory...
+[2026-04-24 00:25:53] ✅ Memory usage at 39% (OK)
+[2026-04-24 00:25:53] Checking ZFS pool status...
+[2026-04-24 00:25:53] ✅ ZFS pool tank is healthy
+[2026-04-24 00:25:53] Health check completed with ISSUES - sending alert
+[2026-04-24 00:25:53] TELEGRAM_CHAT_ID not set, skipping Telegram notification
+[2026-04-24 00:31:17] Checking service health endpoints...
+[2026-04-24 00:31:17] ❌ grafana:3000 is NOT responding
+[2026-04-24 00:31:17] ❌ litellm:4000 is NOT responding
+[2026-04-24 00:31:17] ❌ ollama:11434 is NOT responding
+[2026-04-24 00:31:17] ❌ ai-gateway:4002 is NOT responding
+[2026-04-24 00:31:17] ❌ trieve:6435 is NOT responding
+[2026-04-24 00:31:17] ❌ coolify:8000 is NOT responding
+[2026-04-24 00:31:17] ❌ qdrant:6333 is NOT responding
+[2026-04-24 00:31:17] ❌ qdrant-dashboard:6334 is NOT responding
+[2026-04-24 00:31:17] Checking Docker containers...
+[2026-04-24 00:31:17] ✅ All Docker containers are running
+[2026-04-24 00:31:17] Checking Grafana metrics...
+[2026-04-24 00:31:17] Grafana credentials not configured, skipping error rate check
+[2026-04-24 00:31:17] Checking backup status...
+[2026-04-24 00:31:17] ⚠️  No PostgreSQL backup in last 24h
+[2026-04-24 00:31:17] ✅ Qdrant backup found: backup.log
+[2026-04-24 00:31:17] ✅ Redis backup found: dump-20260423_003750.rdb.gz
+[2026-04-24 00:31:17] Checking disk space...
+[2026-04-24 00:31:17] ⚠️  Disk usage at 80% (threshold: 80%)
+[2026-04-24 00:31:17] Checking memory...
+[2026-04-24 00:31:17] ✅ Memory usage at 38% (OK)
+[2026-04-24 00:31:17] Checking ZFS pool status...
+[2026-04-24 00:31:17] ✅ ZFS pool tank is healthy
+[2026-04-24 00:31:17] Health check completed with ISSUES - sending alert
+[2026-04-24 00:31:17] TELEGRAM_CHAT_ID not set, skipping Telegram notification
+[2026-04-24 00:36:36] Checking service health endpoints...
+[2026-04-24 00:36:36] ❌ grafana:3000 is NOT responding
+[2026-04-24 00:36:36] ❌ litellm:4000 is NOT responding
+[2026-04-24 00:36:36] ❌ ollama:11434 is NOT responding
+[2026-04-24 00:36:36] ❌ ai-gateway:4002 is NOT responding
+[2026-04-24 00:36:36] ❌ trieve:6435 is NOT responding
+[2026-04-24 00:36:36] ❌ coolify:8000 is NOT responding
+[2026-04-24 00:36:36] ❌ qdrant:6333 is NOT responding
+[2026-04-24 00:36:36] ❌ qdrant-dashboard:6334 is NOT responding
+[2026-04-24 00:36:36] Checking Docker containers...
+[2026-04-24 00:36:36] ✅ All Docker containers are running
+[2026-04-24 00:36:36] Checking Grafana metrics...
+[2026-04-24 00:36:36] Grafana credentials not configured, skipping error rate check
+[2026-04-24 00:36:36] Checking backup status...
+[2026-04-24 00:36:36] ⚠️  No PostgreSQL backup in last 24h
+[2026-04-24 00:36:36] ✅ Qdrant backup found: backup.log
+[2026-04-24 00:36:36] ✅ Redis backup found: dump-20260423_003750.rdb.gz
+[2026-04-24 00:36:36] Checking disk space...
+[2026-04-24 00:36:36] ⚠️  Disk usage at 80% (threshold: 80%)
+[2026-04-24 00:36:36] Checking memory...
+[2026-04-24 00:36:36] ✅ Memory usage at 38% (OK)
+[2026-04-24 00:36:36] Checking ZFS pool status...
+[2026-04-24 00:36:36] ✅ ZFS pool tank is healthy
+[2026-04-24 00:36:36] Health check completed with ISSUES - sending alert
+[2026-04-24 00:36:36] TELEGRAM_CHAT_ID not set, skipping Telegram notification
+[2026-04-24 00:41:30] Checking service health endpoints...
+[2026-04-24 00:41:30] ❌ grafana:3000 is NOT responding
+[2026-04-24 00:41:30] ❌ litellm:4000 is NOT responding
+[2026-04-24 00:41:30] ❌ ollama:11434 is NOT responding
+[2026-04-24 00:41:30] ❌ ai-gateway:4002 is NOT responding
+[2026-04-24 00:41:30] ❌ trieve:6435 is NOT responding
+[2026-04-24 00:41:30] ❌ coolify:8000 is NOT responding
+[2026-04-24 00:41:30] ❌ qdrant:6333 is NOT responding
+[2026-04-24 00:41:30] ❌ qdrant-dashboard:6334 is NOT responding
+[2026-04-24 00:41:30] Checking Docker containers...
+[2026-04-24 00:41:30] ✅ All Docker containers are running
+[2026-04-24 00:41:30] Checking Grafana metrics...
+[2026-04-24 00:41:30] Grafana credentials not configured, skipping error rate check
+[2026-04-24 00:41:30] Checking backup status...
+[2026-04-24 00:41:30] ⚠️  No PostgreSQL backup in last 24h
+[2026-04-24 00:41:30] ✅ Qdrant backup found: backup.log
+[2026-04-24 00:41:30] ✅ Redis backup found: dump-20260423_020526.rdb.gz
+[2026-04-24 00:41:30] Checking disk space...
+[2026-04-24 00:41:30] ⚠️  Disk usage at 80% (threshold: 80%)
+[2026-04-24 00:41:30] Checking memory...
+[2026-04-24 00:41:30] ✅ Memory usage at 38% (OK)
+[2026-04-24 00:41:30] Checking ZFS pool status...
+[2026-04-24 00:41:30] ✅ ZFS pool tank is healthy
+[2026-04-24 00:41:30] Health check completed with ISSUES - sending alert
+[2026-04-24 00:41:30] TELEGRAM_CHAT_ID not set, skipping Telegram notification
+[2026-04-24 00:46:16] Checking service health endpoints...
+[2026-04-24 00:46:16] ❌ grafana:3000 is NOT responding
+[2026-04-24 00:46:16] ❌ litellm:4000 is NOT responding
+[2026-04-24 00:46:16] ❌ ollama:11434 is NOT responding
+[2026-04-24 00:46:16] ❌ ai-gateway:4002 is NOT responding
+[2026-04-24 00:46:16] ❌ trieve:6435 is NOT responding
+[2026-04-24 00:46:16] ❌ coolify:8000 is NOT responding
+[2026-04-24 00:46:16] ❌ qdrant:6333 is NOT responding
+[2026-04-24 00:46:16] ❌ qdrant-dashboard:6334 is NOT responding
+[2026-04-24 00:46:16] Checking Docker containers...
+[2026-04-24 00:46:16] ✅ All Docker containers are running
+[2026-04-24 00:46:16] Checking Grafana metrics...
+[2026-04-24 00:46:16] Grafana credentials not configured, skipping error rate check
+[2026-04-24 00:46:16] Checking backup status...
+[2026-04-24 00:46:16] ⚠️  No PostgreSQL backup in last 24h
+[2026-04-24 00:46:16] ✅ Qdrant backup found: backup.log
+[2026-04-24 00:46:16] ✅ Redis backup found: dump-20260423_020526.rdb.gz
+[2026-04-24 00:46:16] Checking disk space...
+[2026-04-24 00:46:16] ⚠️  Disk usage at 80% (threshold: 80%)
+[2026-04-24 00:46:16] Checking memory...
+[2026-04-24 00:46:16] ✅ Memory usage at 36% (OK)
+[2026-04-24 00:46:16] Checking ZFS pool status...
+[2026-04-24 00:46:16] ✅ ZFS pool tank is healthy
+[2026-04-24 00:46:16] Health check completed with ISSUES - sending alert
+[2026-04-24 00:46:16] TELEGRAM_CHAT_ID not set, skipping Telegram notification
+[2026-04-24 00:50:26] Checking service health endpoints...
+[2026-04-24 00:50:26] ❌ grafana:3000 is NOT responding
+[2026-04-24 00:50:26] ❌ litellm:4000 is NOT responding
+[2026-04-24 00:50:26] ❌ ollama:11434 is NOT responding
+[2026-04-24 00:50:26] ❌ ai-gateway:4002 is NOT responding
+[2026-04-24 00:50:26] ❌ trieve:6435 is NOT responding
+[2026-04-24 00:50:26] ❌ coolify:8000 is NOT responding
+[2026-04-24 00:50:26] ❌ qdrant:6333 is NOT responding
+[2026-04-24 00:50:26] ❌ qdrant-dashboard:6334 is NOT responding
+[2026-04-24 00:50:26] Checking Docker containers...
+[2026-04-24 00:50:26] ✅ All Docker containers are running
+[2026-04-24 00:50:26] Checking Grafana metrics...
+[2026-04-24 00:50:26] Grafana credentials not configured, skipping error rate check
+[2026-04-24 00:50:26] Checking backup status...
+[2026-04-24 00:50:26] ⚠️  No PostgreSQL backup in last 24h
+[2026-04-24 00:50:26] ✅ Qdrant backup found: backup.log
+[2026-04-24 00:50:26] ✅ Redis backup found: dump-20260423_020526.rdb.gz
+[2026-04-24 00:50:26] Checking disk space...
+[2026-04-24 00:50:26] ⚠️  Disk usage at 80% (threshold: 80%)
+[2026-04-24 00:50:26] Checking memory...
+[2026-04-24 00:50:26] ✅ Memory usage at 39% (OK)
+[2026-04-24 00:50:26] Checking ZFS pool status...
+[2026-04-24 00:50:26] ✅ ZFS pool tank is healthy
+[2026-04-24 00:50:26] Health check completed with ISSUES - sending alert
+[2026-04-24 00:50:26] TELEGRAM_CHAT_ID not set, skipping Telegram notification
+[2026-04-24 00:56:17] Checking service health endpoints...
+[2026-04-24 00:56:17] ❌ grafana:3000 is NOT responding
+[2026-04-24 00:56:17] ❌ litellm:4000 is NOT responding
+[2026-04-24 00:56:17] ❌ ollama:11434 is NOT responding
+[2026-04-24 00:56:17] ❌ ai-gateway:4002 is NOT responding
+[2026-04-24 00:56:17] ❌ trieve:6435 is NOT responding
+[2026-04-24 00:56:17] ❌ coolify:8000 is NOT responding
+[2026-04-24 00:56:17] ❌ qdrant:6333 is NOT responding
+[2026-04-24 00:56:17] ❌ qdrant-dashboard:6334 is NOT responding
+[2026-04-24 00:56:17] Checking Docker containers...
+[2026-04-24 00:56:17] ✅ All Docker containers are running
+[2026-04-24 00:56:17] Checking Grafana metrics...
+[2026-04-24 00:56:17] Grafana credentials not configured, skipping error rate check
+[2026-04-24 00:56:17] Checking backup status...
+[2026-04-24 00:56:17] ⚠️  No PostgreSQL backup in last 24h
+[2026-04-24 00:56:17] ✅ Qdrant backup found: backup.log
+[2026-04-24 00:56:17] ✅ Redis backup found: dump-20260423_020526.rdb.gz
+[2026-04-24 00:56:17] Checking disk space...
+[2026-04-24 00:56:17] ⚠️  Disk usage at 80% (threshold: 80%)
+[2026-04-24 00:56:17] Checking memory...
+[2026-04-24 00:56:17] ✅ Memory usage at 39% (OK)
+[2026-04-24 00:56:17] Checking ZFS pool status...
+[2026-04-24 00:56:17] ✅ ZFS pool tank is healthy
+[2026-04-24 00:56:17] Health check completed with ISSUES - sending alert
+[2026-04-24 00:56:17] TELEGRAM_CHAT_ID not set, skipping Telegram notification
+[2026-04-24 01:00:58] Checking service health endpoints...
+[2026-04-24 01:00:58] ❌ grafana:3000 is NOT responding
+[2026-04-24 01:00:58] ❌ litellm:4000 is NOT responding
+[2026-04-24 01:00:58] ❌ ollama:11434 is NOT responding
+[2026-04-24 01:00:58] ❌ ai-gateway:4002 is NOT responding
+[2026-04-24 01:00:58] ❌ trieve:6435 is NOT responding
+[2026-04-24 01:00:58] ❌ coolify:8000 is NOT responding
+[2026-04-24 01:00:58] ❌ qdrant:6333 is NOT responding
+[2026-04-24 01:00:58] ❌ qdrant-dashboard:6334 is NOT responding
+[2026-04-24 01:00:58] Checking Docker containers...
+[2026-04-24 01:00:58] ✅ All Docker containers are running
+[2026-04-24 01:00:58] Checking Grafana metrics...
+[2026-04-24 01:00:58] Grafana credentials not configured, skipping error rate check
+[2026-04-24 01:00:58] Checking backup status...
+[2026-04-24 01:00:58] ⚠️  No PostgreSQL backup in last 24h
+[2026-04-24 01:00:58] ✅ Qdrant backup found: backup.log
+[2026-04-24 01:00:58] ✅ Redis backup found: dump-20260423_020526.rdb.gz
+[2026-04-24 01:00:58] Checking disk space...
+[2026-04-24 01:00:58] ⚠️  Disk usage at 80% (threshold: 80%)
+[2026-04-24 01:00:58] Checking memory...
+[2026-04-24 01:00:58] ✅ Memory usage at 36% (OK)
+[2026-04-24 01:00:58] Checking ZFS pool status...
+[2026-04-24 01:00:58] ✅ ZFS pool tank is healthy
+[2026-04-24 01:00:58] Health check completed with ISSUES - sending alert
+[2026-04-24 01:00:58] TELEGRAM_CHAT_ID not set, skipping Telegram notification
+[2026-04-24 01:06:01] Checking service health endpoints...
+[2026-04-24 01:06:01] ❌ grafana:3000 is NOT responding
+[2026-04-24 01:06:01] ❌ litellm:4000 is NOT responding
+[2026-04-24 01:06:01] ❌ ollama:11434 is NOT responding
+[2026-04-24 01:06:01] ❌ ai-gateway:4002 is NOT responding
+[2026-04-24 01:06:01] ❌ trieve:6435 is NOT responding
+[2026-04-24 01:06:01] ❌ coolify:8000 is NOT responding
+[2026-04-24 01:06:01] ❌ qdrant:6333 is NOT responding
+[2026-04-24 01:06:01] ❌ qdrant-dashboard:6334 is NOT responding
+[2026-04-24 01:06:01] Checking Docker containers...
+[2026-04-24 01:06:01] ✅ All Docker containers are running
+[2026-04-24 01:06:01] Checking Grafana metrics...
+[2026-04-24 01:06:01] Grafana credentials not configured, skipping error rate check
+[2026-04-24 01:06:01] Checking backup status...
+[2026-04-24 01:06:01] ⚠️  No PostgreSQL backup in last 24h
+[2026-04-24 01:06:01] ✅ Qdrant backup found: backup.log
+[2026-04-24 01:06:01] ✅ Redis backup found: dump-20260423_020526.rdb.gz
+[2026-04-24 01:06:01] Checking disk space...
+[2026-04-24 01:06:01] ⚠️  Disk usage at 80% (threshold: 80%)
+[2026-04-24 01:06:01] Checking memory...
+[2026-04-24 01:06:01] ✅ Memory usage at 37% (OK)
+[2026-04-24 01:06:01] Checking ZFS pool status...
+[2026-04-24 01:06:01] ✅ ZFS pool tank is healthy
+[2026-04-24 01:06:01] Health check completed with ISSUES - sending alert
+[2026-04-24 01:06:01] TELEGRAM_CHAT_ID not set, skipping Telegram notification
+[2026-04-24 01:11:21] Checking service health endpoints...
+[2026-04-24 01:11:21] ❌ grafana:3000 is NOT responding
+[2026-04-24 01:11:21] ❌ litellm:4000 is NOT responding
+[2026-04-24 01:11:21] ❌ ollama:11434 is NOT responding
+[2026-04-24 01:11:21] ❌ ai-gateway:4002 is NOT responding
+[2026-04-24 01:11:21] ❌ trieve:6435 is NOT responding
+[2026-04-24 01:11:21] ❌ coolify:8000 is NOT responding
+[2026-04-24 01:11:21] ❌ qdrant:6333 is NOT responding
+[2026-04-24 01:11:21] ❌ qdrant-dashboard:6334 is NOT responding
+[2026-04-24 01:11:21] Checking Docker containers...
+[2026-04-24 01:11:21] ✅ All Docker containers are running
+[2026-04-24 01:11:21] Checking Grafana metrics...
+[2026-04-24 01:11:21] Grafana credentials not configured, skipping error rate check
+[2026-04-24 01:11:21] Checking backup status...
+[2026-04-24 01:11:21] ⚠️  No PostgreSQL backup in last 24h
+[2026-04-24 01:11:21] ✅ Qdrant backup found: backup.log
+[2026-04-24 01:11:21] ✅ Redis backup found: dump-20260423_020526.rdb.gz
+[2026-04-24 01:11:21] Checking disk space...
+[2026-04-24 01:11:21] ⚠️  Disk usage at 80% (threshold: 80%)
+[2026-04-24 01:11:21] Checking memory...
+[2026-04-24 01:11:21] ✅ Memory usage at 36% (OK)
+[2026-04-24 01:11:21] Checking ZFS pool status...
+[2026-04-24 01:11:21] ✅ ZFS pool tank is healthy
+[2026-04-24 01:11:21] Health check completed with ISSUES - sending alert
+[2026-04-24 01:11:21] TELEGRAM_CHAT_ID not set, skipping Telegram notification
+[2026-04-24 01:15:55] Checking service health endpoints...
+[2026-04-24 01:15:55] ❌ grafana:3000 is NOT responding
+[2026-04-24 01:15:55] ❌ litellm:4000 is NOT responding
+[2026-04-24 01:15:55] ❌ ollama:11434 is NOT responding
+[2026-04-24 01:15:55] ❌ ai-gateway:4002 is NOT responding
+[2026-04-24 01:15:55] ❌ trieve:6435 is NOT responding
+[2026-04-24 01:15:55] ❌ coolify:8000 is NOT responding
+[2026-04-24 01:15:55] ❌ qdrant:6333 is NOT responding
+[2026-04-24 01:15:55] ❌ qdrant-dashboard:6334 is NOT responding
+[2026-04-24 01:15:55] Checking Docker containers...
+[2026-04-24 01:15:55] ✅ All Docker containers are running
+[2026-04-24 01:15:55] Checking Grafana metrics...
+[2026-04-24 01:15:55] Grafana credentials not configured, skipping error rate check
+[2026-04-24 01:15:55] Checking backup status...
+[2026-04-24 01:15:55] ⚠️  No PostgreSQL backup in last 24h
+[2026-04-24 01:15:55] ✅ Qdrant backup found: backup.log
+[2026-04-24 01:15:55] ✅ Redis backup found: dump-20260423_020526.rdb.gz
+[2026-04-24 01:15:55] Checking disk space...
+[2026-04-24 01:15:55] ⚠️  Disk usage at 80% (threshold: 80%)
+[2026-04-24 01:15:55] Checking memory...
+[2026-04-24 01:15:55] ✅ Memory usage at 36% (OK)
+[2026-04-24 01:15:55] Checking ZFS pool status...
+[2026-04-24 01:15:55] ✅ ZFS pool tank is healthy
+[2026-04-24 01:15:55] Health check completed with ISSUES - sending alert
+[2026-04-24 01:15:55] TELEGRAM_CHAT_ID not set, skipping Telegram notification
+[2026-04-24 01:21:17] Checking service health endpoints...
+[2026-04-24 01:21:17] ❌ grafana:3000 is NOT responding
+[2026-04-24 01:21:17] ❌ litellm:4000 is NOT responding
+[2026-04-24 01:21:17] ❌ ollama:11434 is NOT responding
+[2026-04-24 01:21:17] ❌ ai-gateway:4002 is NOT responding
+[2026-04-24 01:21:17] ❌ trieve:6435 is NOT responding
+[2026-04-24 01:21:17] ❌ coolify:8000 is NOT responding
+[2026-04-24 01:21:17] ❌ qdrant:6333 is NOT responding
+[2026-04-24 01:21:17] ❌ qdrant-dashboard:6334 is NOT responding
+[2026-04-24 01:21:17] Checking Docker containers...
+[2026-04-24 01:21:17] ✅ All Docker containers are running
+[2026-04-24 01:21:17] Checking Grafana metrics...
+[2026-04-24 01:21:17] Grafana credentials not configured, skipping error rate check
+[2026-04-24 01:21:17] Checking backup status...
+[2026-04-24 01:21:17] ⚠️  No PostgreSQL backup in last 24h
+[2026-04-24 01:21:17] ✅ Qdrant backup found: backup.log
+[2026-04-24 01:21:17] ✅ Redis backup found: dump-20260423_020526.rdb.gz
+[2026-04-24 01:21:17] Checking disk space...
+[2026-04-24 01:21:17] ⚠️  Disk usage at 80% (threshold: 80%)
+[2026-04-24 01:21:17] Checking memory...
+[2026-04-24 01:21:17] ✅ Memory usage at 39% (OK)
+[2026-04-24 01:21:17] Checking ZFS pool status...
+[2026-04-24 01:21:17] ✅ ZFS pool tank is healthy
+[2026-04-24 01:21:17] Health check completed with ISSUES - sending alert
+[2026-04-24 01:21:17] TELEGRAM_CHAT_ID not set, skipping Telegram notification
+[2026-04-24 01:26:12] Checking service health endpoints...
+[2026-04-24 01:26:12] ❌ grafana:3000 is NOT responding
+[2026-04-24 01:26:12] ❌ litellm:4000 is NOT responding
+[2026-04-24 01:26:12] ❌ ollama:11434 is NOT responding
+[2026-04-24 01:26:12] ❌ ai-gateway:4002 is NOT responding
+[2026-04-24 01:26:12] ❌ trieve:6435 is NOT responding
+[2026-04-24 01:26:12] ❌ coolify:8000 is NOT responding
+[2026-04-24 01:26:12] ❌ qdrant:6333 is NOT responding
+[2026-04-24 01:26:12] ❌ qdrant-dashboard:6334 is NOT responding
+[2026-04-24 01:26:12] Checking Docker containers...
+[2026-04-24 01:26:12] ✅ All Docker containers are running
+[2026-04-24 01:26:12] Checking Grafana metrics...
+[2026-04-24 01:26:12] Grafana credentials not configured, skipping error rate check
+[2026-04-24 01:26:12] Checking backup status...
+[2026-04-24 01:26:12] ⚠️  No PostgreSQL backup in last 24h
+[2026-04-24 01:26:12] ✅ Qdrant backup found: backup.log
+[2026-04-24 01:26:12] ✅ Redis backup found: dump-20260423_020526.rdb.gz
+[2026-04-24 01:26:12] Checking disk space...
+[2026-04-24 01:26:12] ⚠️  Disk usage at 80% (threshold: 80%)
+[2026-04-24 01:26:12] Checking memory...
+[2026-04-24 01:26:12] ✅ Memory usage at 40% (OK)
+[2026-04-24 01:26:12] Checking ZFS pool status...
+[2026-04-24 01:26:12] ✅ ZFS pool tank is healthy
+[2026-04-24 01:26:12] Health check completed with ISSUES - sending alert
+[2026-04-24 01:26:12] TELEGRAM_CHAT_ID not set, skipping Telegram notification
+[2026-04-24 01:30:49] Checking service health endpoints...
+[2026-04-24 01:30:49] ❌ grafana:3000 is NOT responding
+[2026-04-24 01:30:49] ❌ litellm:4000 is NOT responding
+[2026-04-24 01:30:49] ❌ ollama:11434 is NOT responding
+[2026-04-24 01:30:49] ❌ ai-gateway:4002 is NOT responding
+[2026-04-24 01:30:49] ❌ trieve:6435 is NOT responding
+[2026-04-24 01:30:49] ❌ coolify:8000 is NOT responding
+[2026-04-24 01:30:49] ❌ qdrant:6333 is NOT responding
+[2026-04-24 01:30:49] ❌ qdrant-dashboard:6334 is NOT responding
+[2026-04-24 01:30:49] Checking Docker containers...
+[2026-04-24 01:30:49] ✅ All Docker containers are running
+[2026-04-24 01:30:49] Checking Grafana metrics...
+[2026-04-24 01:30:49] Grafana credentials not configured, skipping error rate check
+[2026-04-24 01:30:49] Checking backup status...
+[2026-04-24 01:30:49] ⚠️  No PostgreSQL backup in last 24h
+[2026-04-24 01:30:49] ✅ Qdrant backup found: backup.log
+[2026-04-24 01:30:49] ✅ Redis backup found: dump-20260423_020526.rdb.gz
+[2026-04-24 01:30:49] Checking disk space...
+[2026-04-24 01:30:49] ⚠️  Disk usage at 80% (threshold: 80%)
+[2026-04-24 01:30:49] Checking memory...
+[2026-04-24 01:30:49] ✅ Memory usage at 40% (OK)
+[2026-04-24 01:30:49] Checking ZFS pool status...
+[2026-04-24 01:30:49] ✅ ZFS pool tank is healthy
+[2026-04-24 01:30:49] Health check completed with ISSUES - sending alert
+[2026-04-24 01:30:49] TELEGRAM_CHAT_ID not set, skipping Telegram notification
+[2026-04-24 01:36:18] Checking service health endpoints...
+[2026-04-24 01:36:18] ❌ grafana:3000 is NOT responding
+[2026-04-24 01:36:18] ❌ litellm:4000 is NOT responding
+[2026-04-24 01:36:18] ❌ ollama:11434 is NOT responding
+[2026-04-24 01:36:18] ❌ ai-gateway:4002 is NOT responding
+[2026-04-24 01:36:18] ❌ trieve:6435 is NOT responding
+[2026-04-24 01:36:18] ❌ coolify:8000 is NOT responding
+[2026-04-24 01:36:18] ❌ qdrant:6333 is NOT responding
+[2026-04-24 01:36:18] ❌ qdrant-dashboard:6334 is NOT responding
+[2026-04-24 01:36:18] Checking Docker containers...
+[2026-04-24 01:36:18] ✅ All Docker containers are running
+[2026-04-24 01:36:18] Checking Grafana metrics...
+[2026-04-24 01:36:18] Grafana credentials not configured, skipping error rate check
+[2026-04-24 01:36:18] Checking backup status...
+[2026-04-24 01:36:18] ⚠️  No PostgreSQL backup in last 24h
+[2026-04-24 01:36:18] ✅ Qdrant backup found: backup.log
+[2026-04-24 01:36:18] ✅ Redis backup found: dump-20260423_020526.rdb.gz
+[2026-04-24 01:36:18] Checking disk space...
+[2026-04-24 01:36:18] ⚠️  Disk usage at 80% (threshold: 80%)
+[2026-04-24 01:36:18] Checking memory...
+[2026-04-24 01:36:18] ✅ Memory usage at 40% (OK)
+[2026-04-24 01:36:18] Checking ZFS pool status...
+[2026-04-24 01:36:18] ✅ ZFS pool tank is healthy
+[2026-04-24 01:36:18] Health check completed with ISSUES - sending alert
+[2026-04-24 01:36:18] TELEGRAM_CHAT_ID not set, skipping Telegram notification
+[2026-04-24 01:41:20] Checking service health endpoints...
+[2026-04-24 01:41:20] ❌ grafana:3000 is NOT responding
+[2026-04-24 01:41:20] ❌ litellm:4000 is NOT responding
+[2026-04-24 01:41:20] ❌ ollama:11434 is NOT responding
+[2026-04-24 01:41:20] ❌ ai-gateway:4002 is NOT responding
+[2026-04-24 01:41:20] ❌ trieve:6435 is NOT responding
+[2026-04-24 01:41:20] ❌ coolify:8000 is NOT responding
+[2026-04-24 01:41:20] ❌ qdrant:6333 is NOT responding
+[2026-04-24 01:41:20] ❌ qdrant-dashboard:6334 is NOT responding
+[2026-04-24 01:41:20] Checking Docker containers...
+[2026-04-24 01:41:20] ✅ All Docker containers are running
+[2026-04-24 01:41:20] Checking Grafana metrics...
+[2026-04-24 01:41:20] Grafana credentials not configured, skipping error rate check
+[2026-04-24 01:41:20] Checking backup status...
+[2026-04-24 01:41:20] ⚠️  No PostgreSQL backup in last 24h
+[2026-04-24 01:41:20] ✅ Qdrant backup found: backup.log
+[2026-04-24 01:41:20] ✅ Redis backup found: dump-20260423_020526.rdb.gz
+[2026-04-24 01:41:20] Checking disk space...
+[2026-04-24 01:41:20] ⚠️  Disk usage at 80% (threshold: 80%)
+[2026-04-24 01:41:20] Checking memory...
+[2026-04-24 01:41:20] ✅ Memory usage at 40% (OK)
+[2026-04-24 01:41:20] Checking ZFS pool status...
+[2026-04-24 01:41:20] ✅ ZFS pool tank is healthy
+[2026-04-24 01:41:20] Health check completed with ISSUES - sending alert
+[2026-04-24 01:41:20] TELEGRAM_CHAT_ID not set, skipping Telegram notification
+[2026-04-24 01:45:49] Checking service health endpoints...
+[2026-04-24 01:45:49] ❌ grafana:3000 is NOT responding
+[2026-04-24 01:45:49] ❌ litellm:4000 is NOT responding
+[2026-04-24 01:45:49] ❌ ollama:11434 is NOT responding
+[2026-04-24 01:45:49] ❌ ai-gateway:4002 is NOT responding
+[2026-04-24 01:45:49] ❌ trieve:6435 is NOT responding
+[2026-04-24 01:45:49] ❌ coolify:8000 is NOT responding
+[2026-04-24 01:45:49] ❌ qdrant:6333 is NOT responding
+[2026-04-24 01:45:49] ❌ qdrant-dashboard:6334 is NOT responding
+[2026-04-24 01:45:49] Checking Docker containers...
+[2026-04-24 01:45:49] ✅ All Docker containers are running
+[2026-04-24 01:45:49] Checking Grafana metrics...
+[2026-04-24 01:45:49] Grafana credentials not configured, skipping error rate check
+[2026-04-24 01:45:49] Checking backup status...
+[2026-04-24 01:45:49] ⚠️  No PostgreSQL backup in last 24h
+[2026-04-24 01:45:49] ✅ Qdrant backup found: backup.log
+[2026-04-24 01:45:49] ✅ Redis backup found: dump-20260423_020526.rdb.gz
+[2026-04-24 01:45:49] Checking disk space...
+[2026-04-24 01:45:49] ⚠️  Disk usage at 80% (threshold: 80%)
+[2026-04-24 01:45:49] Checking memory...
+[2026-04-24 01:45:49] ✅ Memory usage at 40% (OK)
+[2026-04-24 01:45:49] Checking ZFS pool status...
+[2026-04-24 01:45:49] ✅ ZFS pool tank is healthy
+[2026-04-24 01:45:49] Health check completed with ISSUES - sending alert
+[2026-04-24 01:45:49] TELEGRAM_CHAT_ID not set, skipping Telegram notification
+[2026-04-24 01:51:08] Checking service health endpoints...
+[2026-04-24 01:51:08] ❌ grafana:3000 is NOT responding
+[2026-04-24 01:51:08] ❌ litellm:4000 is NOT responding
+[2026-04-24 01:51:08] ❌ ollama:11434 is NOT responding
+[2026-04-24 01:51:08] ❌ ai-gateway:4002 is NOT responding
+[2026-04-24 01:51:08] ❌ trieve:6435 is NOT responding
+[2026-04-24 01:51:08] ❌ coolify:8000 is NOT responding
+[2026-04-24 01:51:08] ❌ qdrant:6333 is NOT responding
+[2026-04-24 01:51:08] ❌ qdrant-dashboard:6334 is NOT responding
+[2026-04-24 01:51:08] Checking Docker containers...
+[2026-04-24 01:51:08] ✅ All Docker containers are running
+[2026-04-24 01:51:08] Checking Grafana metrics...
+[2026-04-24 01:51:08] Grafana credentials not configured, skipping error rate check
+[2026-04-24 01:51:08] Checking backup status...
+[2026-04-24 01:51:08] ⚠️  No PostgreSQL backup in last 24h
+[2026-04-24 01:51:08] ✅ Qdrant backup found: backup.log
+[2026-04-24 01:51:08] ✅ Redis backup found: dump-20260423_020526.rdb.gz
+[2026-04-24 01:51:08] Checking disk space...
+[2026-04-24 01:51:08] ⚠️  Disk usage at 80% (threshold: 80%)
+[2026-04-24 01:51:08] Checking memory...
+[2026-04-24 01:51:08] ✅ Memory usage at 41% (OK)
+[2026-04-24 01:51:08] Checking ZFS pool status...
+[2026-04-24 01:51:08] ✅ ZFS pool tank is healthy
+[2026-04-24 01:51:08] Health check completed with ISSUES - sending alert
+[2026-04-24 01:51:08] TELEGRAM_CHAT_ID not set, skipping Telegram notification
+[2026-04-24 02:02:11] Checking service health endpoints...
+[2026-04-24 02:02:11] ❌ grafana:3000 is NOT responding
+[2026-04-24 02:02:11] ❌ litellm:4000 is NOT responding
+[2026-04-24 02:02:11] ❌ ollama:11434 is NOT responding
+[2026-04-24 02:02:11] ❌ ai-gateway:4002 is NOT responding
+[2026-04-24 02:02:11] ❌ trieve:6435 is NOT responding
+[2026-04-24 02:02:11] ❌ coolify:8000 is NOT responding
+[2026-04-24 02:02:11] ❌ qdrant:6333 is NOT responding
+[2026-04-24 02:02:11] ❌ qdrant-dashboard:6334 is NOT responding
+[2026-04-24 02:02:11] Checking Docker containers...
+[2026-04-24 02:02:11] ✅ All Docker containers are running
+[2026-04-24 02:02:11] Checking Grafana metrics...
+[2026-04-24 02:02:11] Grafana credentials not configured, skipping error rate check
+[2026-04-24 02:02:11] Checking backup status...
+[2026-04-24 02:02:11] ⚠️  No PostgreSQL backup in last 24h
+[2026-04-24 02:02:11] ✅ Qdrant backup found: backup.log
+[2026-04-24 02:02:11] ✅ Redis backup found: dump-20260423_020526.rdb.gz
+[2026-04-24 02:02:11] Checking disk space...
+[2026-04-24 02:02:11] ⚠️  Disk usage at 81% (threshold: 80%)
+[2026-04-24 02:02:11] Checking memory...
+[2026-04-24 02:02:11] ✅ Memory usage at 45% (OK)
+[2026-04-24 02:02:11] Checking ZFS pool status...
+[2026-04-24 02:02:11] ✅ ZFS pool tank is healthy
+[2026-04-24 02:02:11] Health check completed with ISSUES - sending alert
+[2026-04-24 02:02:11] TELEGRAM_CHAT_ID not set, skipping Telegram notification
+[2026-04-24 02:06:10] Checking service health endpoints...
+[2026-04-24 02:06:10] ❌ grafana:3000 is NOT responding
+[2026-04-24 02:06:10] ❌ litellm:4000 is NOT responding
+[2026-04-24 02:06:10] ❌ ollama:11434 is NOT responding
+[2026-04-24 02:06:10] ❌ ai-gateway:4002 is NOT responding
+[2026-04-24 02:06:10] ❌ trieve:6435 is NOT responding
+[2026-04-24 02:06:10] ❌ coolify:8000 is NOT responding
+[2026-04-24 02:06:10] ❌ qdrant:6333 is NOT responding
+[2026-04-24 02:06:10] ❌ qdrant-dashboard:6334 is NOT responding
+[2026-04-24 02:06:10] Checking Docker containers...
+[2026-04-24 02:06:10] ✅ All Docker containers are running
+[2026-04-24 02:06:10] Checking Grafana metrics...
+[2026-04-24 02:06:10] Grafana credentials not configured, skipping error rate check
+[2026-04-24 02:06:10] Checking backup status...
+[2026-04-24 02:06:10] ⚠️  No PostgreSQL backup in last 24h
+[2026-04-24 02:06:10] ✅ Qdrant backup found: backup.log
+[2026-04-24 02:06:10] ⚠️  No Redis backup in last 24h
+[2026-04-24 02:06:10] Checking disk space...
+[2026-04-24 02:06:10] ⚠️  Disk usage at 81% (threshold: 80%)
+[2026-04-24 02:06:10] Checking memory...
+[2026-04-24 02:06:10] ✅ Memory usage at 46% (OK)
+[2026-04-24 02:06:10] Checking ZFS pool status...
+[2026-04-24 02:06:10] ✅ ZFS pool tank is healthy
+[2026-04-24 02:06:10] Health check completed with ISSUES - sending alert
+[2026-04-24 02:06:10] TELEGRAM_CHAT_ID not set, skipping Telegram notification
+[2026-04-24 02:10:41] Checking service health endpoints...
+[2026-04-24 02:10:41] ❌ grafana:3000 is NOT responding
+[2026-04-24 02:10:41] ❌ litellm:4000 is NOT responding
+[2026-04-24 02:10:41] ❌ ollama:11434 is NOT responding
+[2026-04-24 02:10:41] ❌ ai-gateway:4002 is NOT responding
+[2026-04-24 02:10:41] ❌ trieve:6435 is NOT responding
+[2026-04-24 02:10:41] ❌ coolify:8000 is NOT responding
+[2026-04-24 02:10:41] ❌ qdrant:6333 is NOT responding
+[2026-04-24 02:10:41] ❌ qdrant-dashboard:6334 is NOT responding
+[2026-04-24 02:10:41] Checking Docker containers...
+[2026-04-24 02:10:41] ✅ All Docker containers are running
+[2026-04-24 02:10:41] Checking Grafana metrics...
+[2026-04-24 02:10:41] Grafana credentials not configured, skipping error rate check
+[2026-04-24 02:10:41] Checking backup status...
+[2026-04-24 02:10:41] ⚠️  No PostgreSQL backup in last 24h
+[2026-04-24 02:10:41] ✅ Qdrant backup found: backup.log
+[2026-04-24 02:10:41] ⚠️  No Redis backup in last 24h
+[2026-04-24 02:10:41] Checking disk space...
+[2026-04-24 02:10:41] ⚠️  Disk usage at 81% (threshold: 80%)
+[2026-04-24 02:10:41] Checking memory...
+[2026-04-24 02:10:41] ✅ Memory usage at 45% (OK)
+[2026-04-24 02:10:41] Checking ZFS pool status...
+[2026-04-24 02:10:41] ✅ ZFS pool tank is healthy
+[2026-04-24 02:10:41] Health check completed with ISSUES - sending alert
+[2026-04-24 02:10:41] TELEGRAM_CHAT_ID not set, skipping Telegram notification
+[2026-04-24 02:16:24] Checking service health endpoints...
+[2026-04-24 02:16:24] ❌ grafana:3000 is NOT responding
+[2026-04-24 02:16:24] ❌ litellm:4000 is NOT responding
+[2026-04-24 02:16:24] ❌ ollama:11434 is NOT responding
+[2026-04-24 02:16:24] ❌ ai-gateway:4002 is NOT responding
+[2026-04-24 02:16:24] ❌ trieve:6435 is NOT responding
+[2026-04-24 02:16:24] ❌ coolify:8000 is NOT responding
+[2026-04-24 02:16:24] ❌ qdrant:6333 is NOT responding
+[2026-04-24 02:16:24] ❌ qdrant-dashboard:6334 is NOT responding
+[2026-04-24 02:16:24] Checking Docker containers...
+[2026-04-24 02:16:24] ✅ All Docker containers are running
+[2026-04-24 02:16:24] Checking Grafana metrics...
+[2026-04-24 02:16:24] Grafana credentials not configured, skipping error rate check
+[2026-04-24 02:16:24] Checking backup status...
+[2026-04-24 02:16:24] ⚠️  No PostgreSQL backup in last 24h
+[2026-04-24 02:16:24] ✅ Qdrant backup found: backup.log
+[2026-04-24 02:16:24] ⚠️  No Redis backup in last 24h
+[2026-04-24 02:16:24] Checking disk space...
+[2026-04-24 02:16:24] ⚠️  Disk usage at 81% (threshold: 80%)
+[2026-04-24 02:16:24] Checking memory...
+[2026-04-24 02:16:24] ✅ Memory usage at 46% (OK)
+[2026-04-24 02:16:24] Checking ZFS pool status...
+[2026-04-24 02:16:24] ✅ ZFS pool tank is healthy
+[2026-04-24 02:16:24] Health check completed with ISSUES - sending alert
+[2026-04-24 02:16:24] TELEGRAM_CHAT_ID not set, skipping Telegram notification
+[2026-04-24 02:21:08] Checking service health endpoints...
+[2026-04-24 02:21:08] ❌ grafana:3000 is NOT responding
+[2026-04-24 02:21:08] ❌ litellm:4000 is NOT responding
+[2026-04-24 02:21:08] ❌ ollama:11434 is NOT responding
+[2026-04-24 02:21:08] ❌ ai-gateway:4002 is NOT responding
+[2026-04-24 02:21:08] ❌ trieve:6435 is NOT responding
+[2026-04-24 02:21:08] ❌ coolify:8000 is NOT responding
+[2026-04-24 02:21:08] ❌ qdrant:6333 is NOT responding
+[2026-04-24 02:21:08] ❌ qdrant-dashboard:6334 is NOT responding
+[2026-04-24 02:21:08] Checking Docker containers...
+[2026-04-24 02:21:08] ✅ All Docker containers are running
+[2026-04-24 02:21:08] Checking Grafana metrics...
+[2026-04-24 02:21:08] Grafana credentials not configured, skipping error rate check
+[2026-04-24 02:21:08] Checking backup status...
+[2026-04-24 02:21:08] ⚠️  No PostgreSQL backup in last 24h
+[2026-04-24 02:21:08] ✅ Qdrant backup found: backup.log
+[2026-04-24 02:21:08] ⚠️  No Redis backup in last 24h
+[2026-04-24 02:21:08] Checking disk space...
+[2026-04-24 02:21:08] ⚠️  Disk usage at 81% (threshold: 80%)
+[2026-04-24 02:21:08] Checking memory...
+[2026-04-24 02:21:08] ✅ Memory usage at 41% (OK)
+[2026-04-24 02:21:08] Checking ZFS pool status...
+[2026-04-24 02:21:08] ✅ ZFS pool tank is healthy
+[2026-04-24 02:21:08] Health check completed with ISSUES - sending alert
+[2026-04-24 02:21:08] TELEGRAM_CHAT_ID not set, skipping Telegram notification
+[2026-04-24 02:25:53] Checking service health endpoints...
+[2026-04-24 02:25:53] ❌ grafana:3000 is NOT responding
+[2026-04-24 02:25:53] ❌ litellm:4000 is NOT responding
+[2026-04-24 02:25:53] ❌ ollama:11434 is NOT responding
+[2026-04-24 02:25:53] ❌ ai-gateway:4002 is NOT responding
+[2026-04-24 02:25:53] ❌ trieve:6435 is NOT responding
+[2026-04-24 02:25:53] ❌ coolify:8000 is NOT responding
+[2026-04-24 02:25:53] ❌ qdrant:6333 is NOT responding
+[2026-04-24 02:25:53] ❌ qdrant-dashboard:6334 is NOT responding
+[2026-04-24 02:25:53] Checking Docker containers...
+[2026-04-24 02:25:53] ✅ All Docker containers are running
+[2026-04-24 02:25:53] Checking Grafana metrics...
+[2026-04-24 02:25:53] Grafana credentials not configured, skipping error rate check
+[2026-04-24 02:25:53] Checking backup status...
+[2026-04-24 02:25:53] ⚠️  No PostgreSQL backup in last 24h
+[2026-04-24 02:25:53] ✅ Qdrant backup found: backup.log
+[2026-04-24 02:25:53] ⚠️  No Redis backup in last 24h
+[2026-04-24 02:25:53] Checking disk space...
+[2026-04-24 02:25:53] ⚠️  Disk usage at 81% (threshold: 80%)
+[2026-04-24 02:25:53] Checking memory...
+[2026-04-24 02:25:53] ✅ Memory usage at 40% (OK)
+[2026-04-24 02:25:53] Checking ZFS pool status...
+[2026-04-24 02:25:53] ✅ ZFS pool tank is healthy
+[2026-04-24 02:25:53] Health check completed with ISSUES - sending alert
+[2026-04-24 02:25:53] TELEGRAM_CHAT_ID not set, skipping Telegram notification
+[2026-04-24 02:36:26] Checking service health endpoints...
+[2026-04-24 02:36:26] ❌ grafana:3000 is NOT responding
+[2026-04-24 02:36:26] ❌ litellm:4000 is NOT responding
+[2026-04-24 02:36:26] ❌ ollama:11434 is NOT responding
+[2026-04-24 02:36:26] ❌ ai-gateway:4002 is NOT responding
+[2026-04-24 02:36:26] ❌ trieve:6435 is NOT responding
+[2026-04-24 02:36:26] ❌ coolify:8000 is NOT responding
+[2026-04-24 02:36:26] ❌ qdrant:6333 is NOT responding
+[2026-04-24 02:36:26] ❌ qdrant-dashboard:6334 is NOT responding
+[2026-04-24 02:36:26] Checking Docker containers...
+[2026-04-24 02:36:26] ✅ All Docker containers are running
+[2026-04-24 02:36:26] Checking Grafana metrics...
+[2026-04-24 02:36:26] Grafana credentials not configured, skipping error rate check
+[2026-04-24 02:36:26] Checking backup status...
+[2026-04-24 02:36:26] ⚠️  No PostgreSQL backup in last 24h
+[2026-04-24 02:36:26] ✅ Qdrant backup found: backup.log
+[2026-04-24 02:36:26] ⚠️  No Redis backup in last 24h
+[2026-04-24 02:36:26] Checking disk space...
+[2026-04-24 02:36:26] ⚠️  Disk usage at 81% (threshold: 80%)
+[2026-04-24 02:36:26] Checking memory...
+[2026-04-24 02:36:26] ✅ Memory usage at 57% (OK)
+[2026-04-24 02:36:26] Checking ZFS pool status...
+[2026-04-24 02:36:26] ✅ ZFS pool tank is healthy
+[2026-04-24 02:36:26] Health check completed with ISSUES - sending alert
+[2026-04-24 02:36:26] TELEGRAM_CHAT_ID not set, skipping Telegram notification
+[2026-04-24 02:46:11] Checking service health endpoints...
+[2026-04-24 02:46:11] ❌ grafana:3000 is NOT responding
+[2026-04-24 02:46:11] ❌ litellm:4000 is NOT responding
+[2026-04-24 02:46:11] ❌ ollama:11434 is NOT responding
+[2026-04-24 02:46:11] ❌ ai-gateway:4002 is NOT responding
+[2026-04-24 02:46:11] ❌ trieve:6435 is NOT responding
+[2026-04-24 02:46:11] ❌ coolify:8000 is NOT responding
+[2026-04-24 02:46:11] ❌ qdrant:6333 is NOT responding
+[2026-04-24 02:46:11] ❌ qdrant-dashboard:6334 is NOT responding
+[2026-04-24 02:46:11] Checking Docker containers...
+[2026-04-24 02:46:11] ✅ All Docker containers are running
+[2026-04-24 02:46:11] Checking Grafana metrics...
+[2026-04-24 02:46:11] Grafana credentials not configured, skipping error rate check
+[2026-04-24 02:46:11] Checking backup status...
+[2026-04-24 02:46:11] ⚠️  No PostgreSQL backup in last 24h
+[2026-04-24 02:46:11] ✅ Qdrant backup found: backup.log
+[2026-04-24 02:46:11] ⚠️  No Redis backup in last 24h
+[2026-04-24 02:46:11] Checking disk space...
+[2026-04-24 02:46:11] ⚠️  Disk usage at 81% (threshold: 80%)
+[2026-04-24 02:46:11] Checking memory...
+[2026-04-24 02:46:11] ✅ Memory usage at 58% (OK)
+[2026-04-24 02:46:11] Checking ZFS pool status...
+[2026-04-24 02:46:11] ✅ ZFS pool tank is healthy
+[2026-04-24 02:46:11] Health check completed with ISSUES - sending alert
+[2026-04-24 02:46:11] TELEGRAM_CHAT_ID not set, skipping Telegram notification
+[2026-04-24 02:51:24] Checking service health endpoints...
+[2026-04-24 02:51:24] ❌ grafana:3000 is NOT responding
+[2026-04-24 02:51:24] ❌ litellm:4000 is NOT responding
+[2026-04-24 02:51:24] ❌ ollama:11434 is NOT responding
+[2026-04-24 02:51:24] ❌ ai-gateway:4002 is NOT responding
+[2026-04-24 02:51:24] ❌ trieve:6435 is NOT responding
+[2026-04-24 02:51:24] ❌ coolify:8000 is NOT responding
+[2026-04-24 02:51:24] ❌ qdrant:6333 is NOT responding
+[2026-04-24 02:51:24] ❌ qdrant-dashboard:6334 is NOT responding
+[2026-04-24 02:51:24] Checking Docker containers...
+[2026-04-24 02:51:24] ✅ All Docker containers are running
+[2026-04-24 02:51:24] Checking Grafana metrics...
+[2026-04-24 02:51:24] Grafana credentials not configured, skipping error rate check
+[2026-04-24 02:51:24] Checking backup status...
+[2026-04-24 02:51:24] ⚠️  No PostgreSQL backup in last 24h
+[2026-04-24 02:51:24] ✅ Qdrant backup found: backup.log
+[2026-04-24 02:51:24] ⚠️  No Redis backup in last 24h
+[2026-04-24 02:51:24] Checking disk space...
+[2026-04-24 02:51:24] ⚠️  Disk usage at 81% (threshold: 80%)
+[2026-04-24 02:51:24] Checking memory...
+[2026-04-24 02:51:24] ✅ Memory usage at 65% (OK)
+[2026-04-24 02:51:24] Checking ZFS pool status...
+[2026-04-24 02:51:24] ✅ ZFS pool tank is healthy
+[2026-04-24 02:51:24] Health check completed with ISSUES - sending alert
+[2026-04-24 02:51:24] TELEGRAM_CHAT_ID not set, skipping Telegram notification
+[2026-04-24 03:52:55] Checking service health endpoints...
+[2026-04-24 03:52:55] ❌ grafana:3000 is NOT responding
+[2026-04-24 03:52:55] ❌ litellm:4000 is NOT responding
+[2026-04-24 03:52:55] ❌ ollama:11434 is NOT responding
+[2026-04-24 03:52:55] ❌ ai-gateway:4002 is NOT responding
+[2026-04-24 03:52:55] ❌ trieve:6435 is NOT responding
+[2026-04-24 03:52:55] ❌ coolify:8000 is NOT responding
+[2026-04-24 03:52:55] ❌ qdrant:6333 is NOT responding
+[2026-04-24 03:52:55] ❌ qdrant-dashboard:6334 is NOT responding
+[2026-04-24 03:52:55] Checking Docker containers...
+[2026-04-24 03:52:55] ✅ All Docker containers are running
+[2026-04-24 03:52:55] Checking Grafana metrics...
+[2026-04-24 03:52:55] Grafana credentials not configured, skipping error rate check
+[2026-04-24 03:52:55] Checking backup status...
+[2026-04-24 03:52:55] ⚠️  No PostgreSQL backup in last 24h
+[2026-04-24 03:52:55] ✅ Qdrant backup found: qdrant-backup-20260424-032821.tar.gz.sha256
+[2026-04-24 03:52:55] ⚠️  No Redis backup in last 24h
+[2026-04-24 03:52:55] Checking disk space...
+[2026-04-24 03:52:55] ⚠️  Disk usage at 81% (threshold: 80%)
+[2026-04-24 03:52:55] Checking memory...
+[2026-04-24 03:52:55] ✅ Memory usage at 59% (OK)
+[2026-04-24 03:52:55] Checking ZFS pool status...
+[2026-04-24 03:52:55] ✅ ZFS pool tank is healthy
+[2026-04-24 03:52:55] Health check completed with ISSUES - sending alert
+[2026-04-24 03:52:55] TELEGRAM_CHAT_ID not set, skipping Telegram notification
+[2026-04-24 03:53:03] Checking service health endpoints...
+[2026-04-24 03:53:03] ❌ grafana:3000 is NOT responding
+[2026-04-24 03:53:03] ❌ litellm:4000 is NOT responding
+[2026-04-24 03:53:03] ❌ ollama:11434 is NOT responding
+[2026-04-24 03:53:03] ❌ ai-gateway:4002 is NOT responding
+[2026-04-24 03:53:03] ❌ trieve:6435 is NOT responding
+[2026-04-24 03:53:03] ❌ coolify:8000 is NOT responding
+[2026-04-24 03:53:03] ❌ qdrant:6333 is NOT responding
+[2026-04-24 03:53:03] ❌ qdrant-dashboard:6334 is NOT responding
+[2026-04-24 03:53:03] Checking Docker containers...
+[2026-04-24 03:53:03] ✅ All Docker containers are running
+[2026-04-24 03:53:03] Checking Grafana metrics...
+[2026-04-24 03:53:03] Grafana credentials not configured, skipping error rate check
+[2026-04-24 03:53:03] Checking backup status...
+[2026-04-24 03:53:03] ⚠️  No PostgreSQL backup in last 24h
+[2026-04-24 03:53:03] ✅ Qdrant backup found: qdrant-backup-20260424-032821.tar.gz.sha256
+[2026-04-24 03:53:03] ⚠️  No Redis backup in last 24h
+[2026-04-24 03:53:03] Checking disk space...
+[2026-04-24 03:53:03] ⚠️  Disk usage at 81% (threshold: 80%)
+[2026-04-24 03:53:03] Checking memory...
+[2026-04-24 03:53:03] ✅ Memory usage at 59% (OK)
+[2026-04-24 03:53:03] Checking ZFS pool status...
+[2026-04-24 03:53:03] ✅ ZFS pool tank is healthy
+[2026-04-24 03:53:03] Health check completed with ISSUES - sending alert
+[2026-04-24 03:53:03] TELEGRAM_CHAT_ID not set, skipping Telegram notification
+[2026-04-24 04:07:44] Checking service health endpoints...
+[2026-04-24 04:07:44] ❌ grafana:3000 is NOT responding
+[2026-04-24 04:07:44] ❌ litellm:4000 is NOT responding
+[2026-04-24 04:07:44] ❌ ollama:11434 is NOT responding
+[2026-04-24 04:07:44] ❌ ai-gateway:4002 is NOT responding
+[2026-04-24 04:07:44] ❌ trieve:6435 is NOT responding
+[2026-04-24 04:07:44] ❌ coolify:8000 is NOT responding
+[2026-04-24 04:07:44] ❌ qdrant:6333 is NOT responding
+[2026-04-24 04:07:44] ❌ qdrant-dashboard:6334 is NOT responding
+[2026-04-24 04:07:44] Checking Docker containers...
+[2026-04-24 04:07:44] ✅ All Docker containers are running
+[2026-04-24 04:07:44] Checking Grafana metrics...
+[2026-04-24 04:07:44] Grafana credentials not configured, skipping error rate check
+[2026-04-24 04:07:44] Checking backup status...
+[2026-04-24 04:07:44] ⚠️  No PostgreSQL backup in last 24h
+[2026-04-24 04:07:44] ✅ Qdrant backup found: qdrant-backup-20260424-032821.tar.gz.sha256
+[2026-04-24 04:07:44] ⚠️  No Redis backup in last 24h
+[2026-04-24 04:07:44] Checking disk space...
+[2026-04-24 04:07:44] ⚠️  Disk usage at 81% (threshold: 80%)
+[2026-04-24 04:07:44] Checking memory...
+[2026-04-24 04:07:44] ✅ Memory usage at 59% (OK)
+[2026-04-24 04:07:44] Checking ZFS pool status...
+[2026-04-24 04:07:44] ✅ ZFS pool tank is healthy
+[2026-04-24 04:07:44] Health check completed with ISSUES - sending alert
+[2026-04-24 04:07:44] TELEGRAM_CHAT_ID not set, skipping Telegram notification
+[2026-04-24 04:27:11] Checking service health endpoints...
+[2026-04-24 04:27:11] ❌ grafana:3000 is NOT responding
+[2026-04-24 04:27:11] ❌ litellm:4000 is NOT responding
+[2026-04-24 04:27:11] ❌ ollama:11434 is NOT responding
+[2026-04-24 04:27:11] ❌ ai-gateway:4002 is NOT responding
+[2026-04-24 04:27:11] ❌ trieve:6435 is NOT responding
+[2026-04-24 04:27:11] ❌ coolify:8000 is NOT responding
+[2026-04-24 04:27:11] ❌ qdrant:6333 is NOT responding
+[2026-04-24 04:27:11] ❌ qdrant-dashboard:6334 is NOT responding
+[2026-04-24 04:27:11] Checking Docker containers...
+[2026-04-24 04:27:11] ✅ All Docker containers are running
+[2026-04-24 04:27:11] Checking Grafana metrics...
+[2026-04-24 04:27:11] Grafana credentials not configured, skipping error rate check
+[2026-04-24 04:27:11] Checking backup status...
+[2026-04-24 04:27:11] ⚠️  No PostgreSQL backup in last 24h
+[2026-04-24 04:27:11] ✅ Qdrant backup found: qdrant-backup-20260424-032821.tar.gz.sha256
+[2026-04-24 04:27:11] ⚠️  No Redis backup in last 24h
+[2026-04-24 04:27:11] Checking disk space...
+[2026-04-24 04:27:11] ⚠️  Disk usage at 81% (threshold: 80%)
+[2026-04-24 04:27:11] Checking memory...
+[2026-04-24 04:27:11] ✅ Memory usage at 60% (OK)
+[2026-04-24 04:27:11] Checking ZFS pool status...
+[2026-04-24 04:27:11] ✅ ZFS pool tank is healthy
+[2026-04-24 04:27:11] Health check completed with ISSUES - sending alert
+[2026-04-24 04:27:11] TELEGRAM_CHAT_ID not set, skipping Telegram notification
+[2026-04-24 04:30:47] Checking service health endpoints...
+[2026-04-24 04:30:47] ❌ grafana:3000 is NOT responding
+[2026-04-24 04:30:47] ❌ litellm:4000 is NOT responding
+[2026-04-24 04:30:47] ❌ ollama:11434 is NOT responding
+[2026-04-24 04:30:47] ❌ ai-gateway:4002 is NOT responding
+[2026-04-24 04:30:47] ❌ trieve:6435 is NOT responding
+[2026-04-24 04:30:47] ❌ coolify:8000 is NOT responding
+[2026-04-24 04:30:47] ❌ qdrant:6333 is NOT responding
+[2026-04-24 04:30:47] ❌ qdrant-dashboard:6334 is NOT responding
+[2026-04-24 04:30:47] Checking Docker containers...
+[2026-04-24 04:30:47] ✅ All Docker containers are running
+[2026-04-24 04:30:47] Checking Grafana metrics...
+[2026-04-24 04:30:47] Grafana credentials not configured, skipping error rate check
+[2026-04-24 04:30:47] Checking backup status...
+[2026-04-24 04:30:47] ⚠️  No PostgreSQL backup in last 24h
+[2026-04-24 04:30:47] ✅ Qdrant backup found: qdrant-backup-20260424-032821.tar.gz.sha256
+[2026-04-24 04:30:47] ⚠️  No Redis backup in last 24h
+[2026-04-24 04:30:47] Checking disk space...
+[2026-04-24 04:30:47] ⚠️  Disk usage at 81% (threshold: 80%)
+[2026-04-24 04:30:47] Checking memory...
+[2026-04-24 04:30:47] ✅ Memory usage at 60% (OK)
+[2026-04-24 04:30:47] Checking ZFS pool status...
+[2026-04-24 04:30:47] ✅ ZFS pool tank is healthy
+[2026-04-24 04:30:47] Health check completed with ISSUES - sending alert
+[2026-04-24 04:30:47] TELEGRAM_CHAT_ID not set, skipping Telegram notification
+[2026-04-24 04:37:05] Checking service health endpoints...
+[2026-04-24 04:37:05] ❌ grafana:3000 is NOT responding
+[2026-04-24 04:37:05] ❌ litellm:4000 is NOT responding
+[2026-04-24 04:37:05] ❌ ollama:11434 is NOT responding
+[2026-04-24 04:37:05] ❌ ai-gateway:4002 is NOT responding
+[2026-04-24 04:37:05] ❌ trieve:6435 is NOT responding
+[2026-04-24 04:37:05] ❌ coolify:8000 is NOT responding
+[2026-04-24 04:37:05] ❌ qdrant:6333 is NOT responding
+[2026-04-24 04:37:05] ❌ qdrant-dashboard:6334 is NOT responding
+[2026-04-24 04:37:05] Checking Docker containers...
+[2026-04-24 04:37:05] ✅ All Docker containers are running
+[2026-04-24 04:37:05] Checking Grafana metrics...
+[2026-04-24 04:37:05] Grafana credentials not configured, skipping error rate check
+[2026-04-24 04:37:05] Checking backup status...
+[2026-04-24 04:37:05] ⚠️  No PostgreSQL backup in last 24h
+[2026-04-24 04:37:05] ✅ Qdrant backup found: qdrant-backup-20260424-032821.tar.gz.sha256
+[2026-04-24 04:37:05] ⚠️  No Redis backup in last 24h
+[2026-04-24 04:37:05] Checking disk space...
+[2026-04-24 04:37:05] ⚠️  Disk usage at 81% (threshold: 80%)
+[2026-04-24 04:37:05] Checking memory...
+[2026-04-24 04:37:05] ✅ Memory usage at 60% (OK)
+[2026-04-24 04:37:05] Checking ZFS pool status...
+[2026-04-24 04:37:05] ✅ ZFS pool tank is healthy
+[2026-04-24 04:37:05] Health check completed with ISSUES - sending alert
+[2026-04-24 04:37:05] TELEGRAM_CHAT_ID not set, skipping Telegram notification
+[2026-04-24 04:41:20] Checking service health endpoints...
+[2026-04-24 04:41:20] ❌ grafana:3000 is NOT responding
+[2026-04-24 04:41:20] ❌ litellm:4000 is NOT responding
+[2026-04-24 04:41:20] ❌ ollama:11434 is NOT responding
+[2026-04-24 04:41:20] ❌ ai-gateway:4002 is NOT responding
+[2026-04-24 04:41:20] ❌ trieve:6435 is NOT responding
+[2026-04-24 04:41:20] ❌ coolify:8000 is NOT responding
+[2026-04-24 04:41:20] ❌ qdrant:6333 is NOT responding
+[2026-04-24 04:41:20] ❌ qdrant-dashboard:6334 is NOT responding
+[2026-04-24 04:41:20] Checking Docker containers...
+[2026-04-24 04:41:20] ✅ All Docker containers are running
+[2026-04-24 04:41:20] Checking Grafana metrics...
+[2026-04-24 04:41:20] Grafana credentials not configured, skipping error rate check
+[2026-04-24 04:41:20] Checking backup status...
+[2026-04-24 04:41:20] ⚠️  No PostgreSQL backup in last 24h
+[2026-04-24 04:41:20] ✅ Qdrant backup found: qdrant-backup-20260424-032821.tar.gz.sha256
+[2026-04-24 04:41:20] ⚠️  No Redis backup in last 24h
+[2026-04-24 04:41:20] Checking disk space...
+[2026-04-24 04:41:20] ⚠️  Disk usage at 81% (threshold: 80%)
+[2026-04-24 04:41:20] Checking memory...
+[2026-04-24 04:41:20] ✅ Memory usage at 60% (OK)
+[2026-04-24 04:41:20] Checking ZFS pool status...
+[2026-04-24 04:41:20] ✅ ZFS pool tank is healthy
+[2026-04-24 04:41:20] Health check completed with ISSUES - sending alert
+[2026-04-24 04:41:20] TELEGRAM_CHAT_ID not set, skipping Telegram notification
+[2026-04-24 04:55:51] Checking service health endpoints...
+[2026-04-24 04:55:51] ❌ grafana:3000 is NOT responding
+[2026-04-24 04:55:51] ❌ litellm:4000 is NOT responding
+[2026-04-24 04:55:51] ❌ ollama:11434 is NOT responding
+[2026-04-24 04:55:51] ❌ ai-gateway:4002 is NOT responding
+[2026-04-24 04:55:51] ❌ trieve:6435 is NOT responding
+[2026-04-24 04:55:51] ❌ coolify:8000 is NOT responding
+[2026-04-24 04:55:51] ❌ qdrant:6333 is NOT responding
+[2026-04-24 04:55:51] ❌ qdrant-dashboard:6334 is NOT responding
+[2026-04-24 04:55:51] Checking Docker containers...
+[2026-04-24 04:55:51] ✅ All Docker containers are running
+[2026-04-24 04:55:51] Checking Grafana metrics...
+[2026-04-24 04:55:51] Grafana credentials not configured, skipping error rate check
+[2026-04-24 04:55:51] Checking backup status...
+[2026-04-24 04:55:51] ⚠️  No PostgreSQL backup in last 24h
+[2026-04-24 04:55:51] ✅ Qdrant backup found: qdrant-backup-20260424-032821.tar.gz.sha256
+[2026-04-24 04:55:51] ⚠️  No Redis backup in last 24h
+[2026-04-24 04:55:51] Checking disk space...
+[2026-04-24 04:55:51] ⚠️  Disk usage at 81% (threshold: 80%)
+[2026-04-24 04:55:51] Checking memory...
+[2026-04-24 04:55:51] ✅ Memory usage at 60% (OK)
+[2026-04-24 04:55:51] Checking ZFS pool status...
+[2026-04-24 04:55:51] ✅ ZFS pool tank is healthy
+[2026-04-24 04:55:51] Health check completed with ISSUES - sending alert
+[2026-04-24 04:55:51] TELEGRAM_CHAT_ID not set, skipping Telegram notification
+[2026-04-24 05:07:58] Checking service health endpoints...
+[2026-04-24 05:07:58] ❌ grafana:3000 is NOT responding
+[2026-04-24 05:07:58] ❌ litellm:4000 is NOT responding
+[2026-04-24 05:07:58] ❌ ollama:11434 is NOT responding
+[2026-04-24 05:07:58] ❌ ai-gateway:4002 is NOT responding
+[2026-04-24 05:07:58] ❌ trieve:6435 is NOT responding
+[2026-04-24 05:07:58] ❌ coolify:8000 is NOT responding
+[2026-04-24 05:07:58] ❌ qdrant:6333 is NOT responding
+[2026-04-24 05:07:58] ❌ qdrant-dashboard:6334 is NOT responding
+[2026-04-24 05:07:58] Checking Docker containers...
+[2026-04-24 05:07:58] ✅ All Docker containers are running
+[2026-04-24 05:07:58] Checking Grafana metrics...
+[2026-04-24 05:07:58] Grafana credentials not configured, skipping error rate check
+[2026-04-24 05:07:58] Checking backup status...
+[2026-04-24 05:07:58] ⚠️  No PostgreSQL backup in last 24h
+[2026-04-24 05:07:58] ✅ Qdrant backup found: qdrant-backup-20260424-032821.tar.gz.sha256
+[2026-04-24 05:07:58] ⚠️  No Redis backup in last 24h
+[2026-04-24 05:07:58] Checking disk space...
+[2026-04-24 05:07:58] ⚠️  Disk usage at 81% (threshold: 80%)
+[2026-04-24 05:07:58] Checking memory...
+[2026-04-24 05:07:58] ✅ Memory usage at 60% (OK)
+[2026-04-24 05:07:58] Checking ZFS pool status...
+[2026-04-24 05:07:58] ✅ ZFS pool tank is healthy
+[2026-04-24 05:07:58] Health check completed with ISSUES - sending alert
+[2026-04-24 05:07:58] TELEGRAM_CHAT_ID not set, skipping Telegram notification
+[2026-04-24 05:11:22] Checking service health endpoints...
+[2026-04-24 05:11:22] ❌ grafana:3000 is NOT responding
+[2026-04-24 05:11:22] ❌ litellm:4000 is NOT responding
+[2026-04-24 05:11:22] ❌ ollama:11434 is NOT responding
+[2026-04-24 05:11:22] ❌ ai-gateway:4002 is NOT responding
+[2026-04-24 05:11:22] ❌ trieve:6435 is NOT responding
+[2026-04-24 05:11:22] ❌ coolify:8000 is NOT responding
+[2026-04-24 05:11:22] ❌ qdrant:6333 is NOT responding
+[2026-04-24 05:11:22] ❌ qdrant-dashboard:6334 is NOT responding
+[2026-04-24 05:11:22] Checking Docker containers...
+[2026-04-24 05:11:22] ✅ All Docker containers are running
+[2026-04-24 05:11:22] Checking Grafana metrics...
+[2026-04-24 05:11:22] Grafana credentials not configured, skipping error rate check
+[2026-04-24 05:11:22] Checking backup status...
+[2026-04-24 05:11:22] ⚠️  No PostgreSQL backup in last 24h
+[2026-04-24 05:11:22] ✅ Qdrant backup found: qdrant-backup-20260424-032821.tar.gz.sha256
+[2026-04-24 05:11:22] ⚠️  No Redis backup in last 24h
+[2026-04-24 05:11:22] Checking disk space...
+[2026-04-24 05:11:22] ⚠️  Disk usage at 81% (threshold: 80%)
+[2026-04-24 05:11:22] Checking memory...
+[2026-04-24 05:11:22] ✅ Memory usage at 60% (OK)
+[2026-04-24 05:11:22] Checking ZFS pool status...
+[2026-04-24 05:11:22] ✅ ZFS pool tank is healthy
+[2026-04-24 05:11:22] Health check completed with ISSUES - sending alert
+[2026-04-24 05:11:22] TELEGRAM_CHAT_ID not set, skipping Telegram notification
+[2026-04-24 05:16:02] Checking service health endpoints...
+[2026-04-24 05:16:02] ❌ grafana:3000 is NOT responding
+[2026-04-24 05:16:02] ❌ litellm:4000 is NOT responding
+[2026-04-24 05:16:02] ❌ ollama:11434 is NOT responding
+[2026-04-24 05:16:02] ❌ ai-gateway:4002 is NOT responding
+[2026-04-24 05:16:02] ❌ trieve:6435 is NOT responding
+[2026-04-24 05:16:02] ❌ coolify:8000 is NOT responding
+[2026-04-24 05:16:02] ❌ qdrant:6333 is NOT responding
+[2026-04-24 05:16:02] ❌ qdrant-dashboard:6334 is NOT responding
+[2026-04-24 05:16:02] Checking Docker containers...
+[2026-04-24 05:16:02] ✅ All Docker containers are running
+[2026-04-24 05:16:02] Checking Grafana metrics...
+[2026-04-24 05:16:02] Grafana credentials not configured, skipping error rate check
+[2026-04-24 05:16:02] Checking backup status...
+[2026-04-24 05:16:02] ⚠️  No PostgreSQL backup in last 24h
+[2026-04-24 05:16:02] ✅ Qdrant backup found: qdrant-backup-20260424-032821.tar.gz.sha256
+[2026-04-24 05:16:02] ⚠️  No Redis backup in last 24h
+[2026-04-24 05:16:02] Checking disk space...
+[2026-04-24 05:16:02] ⚠️  Disk usage at 81% (threshold: 80%)
+[2026-04-24 05:16:02] Checking memory...
+[2026-04-24 05:16:02] ✅ Memory usage at 60% (OK)
+[2026-04-24 05:16:02] Checking ZFS pool status...
+[2026-04-24 05:16:02] ✅ ZFS pool tank is healthy
+[2026-04-24 05:16:02] Health check completed with ISSUES - sending alert
+[2026-04-24 05:16:02] TELEGRAM_CHAT_ID not set, skipping Telegram notification
+[2026-04-24 05:21:04] Checking service health endpoints...
+[2026-04-24 05:21:04] ❌ grafana:3000 is NOT responding
+[2026-04-24 05:21:04] ❌ litellm:4000 is NOT responding
+[2026-04-24 05:21:04] ❌ ollama:11434 is NOT responding
+[2026-04-24 05:21:04] ❌ ai-gateway:4002 is NOT responding
+[2026-04-24 05:21:04] ❌ trieve:6435 is NOT responding
+[2026-04-24 05:21:04] ❌ coolify:8000 is NOT responding
+[2026-04-24 05:21:04] ❌ qdrant:6333 is NOT responding
+[2026-04-24 05:21:04] ❌ qdrant-dashboard:6334 is NOT responding
+[2026-04-24 05:21:04] Checking Docker containers...
+[2026-04-24 05:21:04] ✅ All Docker containers are running
+[2026-04-24 05:21:04] Checking Grafana metrics...
+[2026-04-24 05:21:04] Grafana credentials not configured, skipping error rate check
+[2026-04-24 05:21:04] Checking backup status...
+[2026-04-24 05:21:04] ⚠️  No PostgreSQL backup in last 24h
+[2026-04-24 05:21:04] ✅ Qdrant backup found: qdrant-backup-20260424-032821.tar.gz.sha256
+[2026-04-24 05:21:04] ⚠️  No Redis backup in last 24h
+[2026-04-24 05:21:04] Checking disk space...
+[2026-04-24 05:21:04] ⚠️  Disk usage at 81% (threshold: 80%)
+[2026-04-24 05:21:04] Checking memory...
+[2026-04-24 05:21:04] ✅ Memory usage at 60% (OK)
+[2026-04-24 05:21:04] Checking ZFS pool status...
+[2026-04-24 05:21:04] ✅ ZFS pool tank is healthy
+[2026-04-24 05:21:04] Health check completed with ISSUES - sending alert
+[2026-04-24 05:21:04] TELEGRAM_CHAT_ID not set, skipping Telegram notification
+[2026-04-24 05:55:30] Checking service health endpoints...
+[2026-04-24 05:55:30] ❌ grafana:3000 is NOT responding
+[2026-04-24 05:55:30] ❌ litellm:4000 is NOT responding
+[2026-04-24 05:55:30] ❌ ollama:11434 is NOT responding
+[2026-04-24 05:55:30] ❌ ai-gateway:4002 is NOT responding
+[2026-04-24 05:55:30] ❌ trieve:6435 is NOT responding
+[2026-04-24 05:55:30] ❌ coolify:8000 is NOT responding
+[2026-04-24 05:55:30] ❌ qdrant:6333 is NOT responding
+[2026-04-24 05:55:30] ❌ qdrant-dashboard:6334 is NOT responding
+[2026-04-24 05:55:30] Checking Docker containers...
+[2026-04-24 05:55:30] ✅ All Docker containers are running
+[2026-04-24 05:55:30] Checking Grafana metrics...
+[2026-04-24 05:55:30] Grafana credentials not configured, skipping error rate check
+[2026-04-24 05:55:30] Checking backup status...
+[2026-04-24 05:55:30] ⚠️  No PostgreSQL backup in last 24h
+[2026-04-24 05:55:30] ✅ Qdrant backup found: qdrant-backup-20260424-032821.tar.gz.sha256
+[2026-04-24 05:55:30] ⚠️  No Redis backup in last 24h
+[2026-04-24 05:55:30] Checking disk space...
+[2026-04-24 05:55:30] ⚠️  Disk usage at 81% (threshold: 80%)
+[2026-04-24 05:55:30] Checking memory...
+[2026-04-24 05:55:30] ✅ Memory usage at 53% (OK)
+[2026-04-24 05:55:30] Checking ZFS pool status...
+[2026-04-24 05:55:30] ✅ ZFS pool tank is healthy
+[2026-04-24 05:55:30] Health check completed with ISSUES - sending alert
+[2026-04-24 05:55:30] TELEGRAM_CHAT_ID not set, skipping Telegram notification
+[2026-04-24 06:01:11] Checking service health endpoints...
+[2026-04-24 06:01:11] ❌ grafana:3000 is NOT responding
+[2026-04-24 06:01:11] ❌ litellm:4000 is NOT responding
+[2026-04-24 06:01:11] ❌ ollama:11434 is NOT responding
+[2026-04-24 06:01:11] ❌ ai-gateway:4002 is NOT responding
+[2026-04-24 06:01:11] ❌ trieve:6435 is NOT responding
+[2026-04-24 06:01:11] ❌ coolify:8000 is NOT responding
+[2026-04-24 06:01:11] ❌ qdrant:6333 is NOT responding
+[2026-04-24 06:01:11] ❌ qdrant-dashboard:6334 is NOT responding
+[2026-04-24 06:01:11] Checking Docker containers...
+[2026-04-24 06:01:11] ✅ All Docker containers are running
+[2026-04-24 06:01:11] Checking Grafana metrics...
+[2026-04-24 06:01:11] Grafana credentials not configured, skipping error rate check
+[2026-04-24 06:01:11] Checking backup status...
+[2026-04-24 06:01:11] ⚠️  No PostgreSQL backup in last 24h
+[2026-04-24 06:01:11] ✅ Qdrant backup found: qdrant-backup-20260424-032821.tar.gz.sha256
+[2026-04-24 06:01:11] ⚠️  No Redis backup in last 24h
+[2026-04-24 06:01:11] Checking disk space...
+[2026-04-24 06:01:11] ⚠️  Disk usage at 81% (threshold: 80%)
+[2026-04-24 06:01:11] Checking memory...
+[2026-04-24 06:01:11] ✅ Memory usage at 50% (OK)
+[2026-04-24 06:01:11] Checking ZFS pool status...
+[2026-04-24 06:01:11] ✅ ZFS pool tank is healthy
+[2026-04-24 06:01:11] Health check completed with ISSUES - sending alert
+[2026-04-24 06:01:11] TELEGRAM_CHAT_ID not set, skipping Telegram notification

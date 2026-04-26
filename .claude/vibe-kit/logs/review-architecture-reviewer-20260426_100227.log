@@ -1,0 +1,11 @@
+Revisão de arquitetura completa. Findings gravados em `/srv/monorepo/docs/REVIEW-architecture-reviewer-2026-04-26.md`.
+
+**Resumo executivo:**
+- **3 críticas:** db.ts como God Module (35 tabelas importadas diretamente), ausência de repository/service layer, db como singleton global
+- **3 altas:** tRPC router agrega tudo tightly-coupled, middleware importado por router, PT-BR filter inline no route handler
+- **0 circular deps entre apps** ✅
+- **Apps isolados** — ai-gateway e api não se importam entre si ✅
+- **Anti-hardcoded env vars** em ambos apps ✅
+- **vibe-kit** de 49 agentes bem organizado, mas workers coordenam via filesystem partilhado sem heartbeat watchdog
+
+Próximo passo: quality-scorer para risk scoring.

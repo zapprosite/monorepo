@@ -1,0 +1,928 @@
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ⭐ VIBE-KIT — 15× Micro-Task Parallel
+  Provider: minimax | Model: MiniMax-M2.7 | Parallel: 15
+  Max duration: 8h
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[00:13:18] [2799338] [VIBE-KIT] SPEC: /srv/monorepo/docs/SPEC-OWNERSHIP.md
+[00:13:18] [2799338] [VIBE-KIT] APP: docs
+[00:13:18] [2799338] [VIBE-KIT] Queue already exists: /srv/monorepo/.claude/vibe-kit/queue.json (10 pending)
+[00:13:18] [2799338] [VIBE-KIT] ZFS SNAPSHOT: tank@vibe-20260424-001318-pre-vibe-kit
+[00:13:18] [2799338] [VIBE-KIT] Launching 15 workers...
+[00:13:18] [2799338] [VIBE-KIT] All 15 workers launched (PIDs: 2799388 2799389 2799390 2799393 2799395 2799396 2799399 2799403 2799406 2799409 2799412 2799417 2799420 2799425 2799430)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  VIBE-KIT PROGRESS — 00:13:23
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Elapsed: 5s | Remaining: ~8h
+  Queue:   10 total
+  Status:  0 done | 0 failed | 0 running | 10 pending
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  RUNNING:
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  VIBE-KIT PROGRESS — 00:14:23
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Elapsed: 65s | Remaining: ~8h
+  Queue:   10 total
+  Status:  1 done | 0 failed | 2 running | 8 pending
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  RUNNING:
+  - T002 on W10: bug-B2-session-state-in-memory
+  - T003 on W07: bug-B3-humangatenode-auto-aprova
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  VIBE-KIT PROGRESS — 00:15:23
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Elapsed: 125s | Remaining: ~8h
+  Queue:   10 total
+  Status:  1 done | 1 failed | 4 running | 5 pending
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  FAILED:
+  - T005: bug-B5-architecture-errado (2026-04-24T03:14:45Z)
+  RUNNING:
+  - T002 on W10: bug-B2-session-state-in-memory
+  - T003 on W07: bug-B3-humangatenode-auto-aprova
+  - T004 on W08: bug-B4-content-pipeline-edges
+  - T006 on W02: bug-B6-subscribedat-null-check
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  VIBE-KIT PROGRESS — 00:16:23
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Elapsed: 185s | Remaining: ~8h
+  Queue:   10 total
+  Status:  1 done | 1 failed | 5 running | 4 pending
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  FAILED:
+  - T005: bug-B5-architecture-errado (2026-04-24T03:14:45Z)
+  RUNNING:
+  - T002 on W10: bug-B2-session-state-in-memory
+  - T003 on W07: bug-B3-humangatenode-auto-aprova
+  - T004 on W08: bug-B4-content-pipeline-edges
+  - T006 on W02: bug-B6-subscribedat-null-check
+  - T007 on W09: bug-B7-subscription-race-condition
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  VIBE-KIT PROGRESS — 00:17:23
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Elapsed: 245s | Remaining: ~8h
+  Queue:   10 total
+  Status:  2 done | 1 failed | 7 running | 0 pending
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  FAILED:
+  - T005: bug-B5-architecture-errado (2026-04-24T03:14:45Z)
+  RUNNING:
+  - T002 on W10: bug-B2-session-state-in-memory
+  - T003 on W07: bug-B3-humangatenode-auto-aprova
+  - T004 on W08: bug-B4-content-pipeline-edges
+  - T007 on W09: bug-B7-subscription-race-condition
+  - T008 on W04: bug-B8-readme-duplicated-sections
+  - T009 on W02: bug-B9-zero-integration-tests
+  - T010 on W06: bug-B10-webhook-retry-opaco
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  VIBE-KIT PROGRESS — 00:18:23
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Elapsed: 305s | Remaining: ~8h
+  Queue:   10 total
+  Status:  3 done | 2 failed | 5 running | 0 pending
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  FAILED:
+  - T005: bug-B5-architecture-errado (2026-04-24T03:14:45Z)
+  - T008: bug-B8-readme-duplicated-sections (2026-04-24T03:17:23Z)
+  RUNNING:
+  - T003 on W07: bug-B3-humangatenode-auto-aprova
+  - T004 on W08: bug-B4-content-pipeline-edges
+  - T007 on W09: bug-B7-subscription-race-condition
+  - T009 on W02: bug-B9-zero-integration-tests
+  - T010 on W06: bug-B10-webhook-retry-opaco
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  VIBE-KIT PROGRESS — 00:19:23
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Elapsed: 365s | Remaining: ~8h
+  Queue:   10 total
+  Status:  4 done | 2 failed | 4 running | 0 pending
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  FAILED:
+  - T005: bug-B5-architecture-errado (2026-04-24T03:14:45Z)
+  - T008: bug-B8-readme-duplicated-sections (2026-04-24T03:17:23Z)
+  RUNNING:
+  - T004 on W08: bug-B4-content-pipeline-edges
+  - T007 on W09: bug-B7-subscription-race-condition
+  - T009 on W02: bug-B9-zero-integration-tests
+  - T010 on W06: bug-B10-webhook-retry-opaco
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  VIBE-KIT PROGRESS — 00:20:23
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Elapsed: 425s | Remaining: ~8h
+  Queue:   10 total
+  Status:  6 done | 2 failed | 2 running | 0 pending
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  FAILED:
+  - T005: bug-B5-architecture-errado (2026-04-24T03:14:45Z)
+  - T008: bug-B8-readme-duplicated-sections (2026-04-24T03:17:23Z)
+  RUNNING:
+  - T009 on W02: bug-B9-zero-integration-tests
+  - T010 on W06: bug-B10-webhook-retry-opaco
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  VIBE-KIT PROGRESS — 00:21:23
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Elapsed: 485s | Remaining: ~8h
+  Queue:   10 total
+  Status:  6 done | 2 failed | 2 running | 0 pending
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  FAILED:
+  - T005: bug-B5-architecture-errado (2026-04-24T03:14:45Z)
+  - T008: bug-B8-readme-duplicated-sections (2026-04-24T03:17:23Z)
+  RUNNING:
+  - T009 on W02: bug-B9-zero-integration-tests
+  - T010 on W06: bug-B10-webhook-retry-opaco
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  VIBE-KIT PROGRESS — 00:22:23
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Elapsed: 545s | Remaining: ~8h
+  Queue:   10 total
+  Status:  6 done | 2 failed | 2 running | 0 pending
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  FAILED:
+  - T005: bug-B5-architecture-errado (2026-04-24T03:14:45Z)
+  - T008: bug-B8-readme-duplicated-sections (2026-04-24T03:17:23Z)
+  RUNNING:
+  - T009 on W02: bug-B9-zero-integration-tests
+  - T010 on W06: bug-B10-webhook-retry-opaco
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  VIBE-KIT PROGRESS — 00:23:23
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Elapsed: 605s | Remaining: ~8h
+  Queue:   10 total
+  Status:  7 done | 2 failed | 1 running | 0 pending
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  FAILED:
+  - T005: bug-B5-architecture-errado (2026-04-24T03:14:45Z)
+  - T008: bug-B8-readme-duplicated-sections (2026-04-24T03:17:23Z)
+  RUNNING:
+  - T009 on W02: bug-B9-zero-integration-tests
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  VIBE-KIT PROGRESS — 00:24:23
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Elapsed: 665s | Remaining: ~8h
+  Queue:   10 total
+  Status:  7 done | 2 failed | 1 running | 0 pending
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  FAILED:
+  - T005: bug-B5-architecture-errado (2026-04-24T03:14:45Z)
+  - T008: bug-B8-readme-duplicated-sections (2026-04-24T03:17:23Z)
+  RUNNING:
+  - T009 on W02: bug-B9-zero-integration-tests
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  VIBE-KIT PROGRESS — 00:25:23
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Elapsed: 725s | Remaining: ~8h
+  Queue:   10 total
+  Status:  7 done | 2 failed | 1 running | 0 pending
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  FAILED:
+  - T005: bug-B5-architecture-errado (2026-04-24T03:14:45Z)
+  - T008: bug-B8-readme-duplicated-sections (2026-04-24T03:17:23Z)
+  RUNNING:
+  - T009 on W02: bug-B9-zero-integration-tests
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  VIBE-KIT PROGRESS — 00:26:23
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Elapsed: 785s | Remaining: ~8h
+  Queue:   10 total
+  Status:  7 done | 2 failed | 1 running | 0 pending
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  FAILED:
+  - T005: bug-B5-architecture-errado (2026-04-24T03:14:45Z)
+  - T008: bug-B8-readme-duplicated-sections (2026-04-24T03:17:23Z)
+  RUNNING:
+  - T009 on W02: bug-B9-zero-integration-tests
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  VIBE-KIT PROGRESS — 00:27:23
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Elapsed: 845s | Remaining: ~8h
+  Queue:   10 total
+  Status:  7 done | 2 failed | 1 running | 0 pending
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  FAILED:
+  - T005: bug-B5-architecture-errado (2026-04-24T03:14:45Z)
+  - T008: bug-B8-readme-duplicated-sections (2026-04-24T03:17:23Z)
+  RUNNING:
+  - T009 on W02: bug-B9-zero-integration-tests
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  VIBE-KIT PROGRESS — 00:28:23
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Elapsed: 905s | Remaining: ~8h
+  Queue:   10 total
+  Status:  7 done | 2 failed | 1 running | 0 pending
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  FAILED:
+  - T005: bug-B5-architecture-errado (2026-04-24T03:14:45Z)
+  - T008: bug-B8-readme-duplicated-sections (2026-04-24T03:17:23Z)
+  RUNNING:
+  - T009 on W02: bug-B9-zero-integration-tests
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  VIBE-KIT PROGRESS — 00:29:23
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Elapsed: 965s | Remaining: ~8h
+  Queue:   10 total
+  Status:  7 done | 2 failed | 1 running | 0 pending
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  FAILED:
+  - T005: bug-B5-architecture-errado (2026-04-24T03:14:45Z)
+  - T008: bug-B8-readme-duplicated-sections (2026-04-24T03:17:23Z)
+  RUNNING:
+  - T009 on W02: bug-B9-zero-integration-tests
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  VIBE-KIT PROGRESS — 00:30:23
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Elapsed: 1025s | Remaining: ~8h
+  Queue:   10 total
+  Status:  7 done | 2 failed | 1 running | 0 pending
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  FAILED:
+  - T005: bug-B5-architecture-errado (2026-04-24T03:14:45Z)
+  - T008: bug-B8-readme-duplicated-sections (2026-04-24T03:17:23Z)
+  RUNNING:
+  - T009 on W02: bug-B9-zero-integration-tests
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  VIBE-KIT PROGRESS — 00:31:23
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Elapsed: 1085s | Remaining: ~8h
+  Queue:   10 total
+  Status:  7 done | 2 failed | 1 running | 0 pending
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  FAILED:
+  - T005: bug-B5-architecture-errado (2026-04-24T03:14:45Z)
+  - T008: bug-B8-readme-duplicated-sections (2026-04-24T03:17:23Z)
+  RUNNING:
+  - T009 on W02: bug-B9-zero-integration-tests
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  VIBE-KIT PROGRESS — 00:32:23
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Elapsed: 1145s | Remaining: ~8h
+  Queue:   10 total
+  Status:  7 done | 2 failed | 1 running | 0 pending
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  FAILED:
+  - T005: bug-B5-architecture-errado (2026-04-24T03:14:45Z)
+  - T008: bug-B8-readme-duplicated-sections (2026-04-24T03:17:23Z)
+  RUNNING:
+  - T009 on W02: bug-B9-zero-integration-tests
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  VIBE-KIT PROGRESS — 00:33:23
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Elapsed: 1205s | Remaining: ~8h
+  Queue:   10 total
+  Status:  7 done | 2 failed | 1 running | 0 pending
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  FAILED:
+  - T005: bug-B5-architecture-errado (2026-04-24T03:14:45Z)
+  - T008: bug-B8-readme-duplicated-sections (2026-04-24T03:17:23Z)
+  RUNNING:
+  - T009 on W02: bug-B9-zero-integration-tests
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  VIBE-KIT PROGRESS — 00:34:24
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Elapsed: 1266s | Remaining: ~8h
+  Queue:   10 total
+  Status:  7 done | 2 failed | 1 running | 0 pending
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  FAILED:
+  - T005: bug-B5-architecture-errado (2026-04-24T03:14:45Z)
+  - T008: bug-B8-readme-duplicated-sections (2026-04-24T03:17:23Z)
+  RUNNING:
+  - T009 on W02: bug-B9-zero-integration-tests
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  VIBE-KIT PROGRESS — 00:35:24
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Elapsed: 1326s | Remaining: ~8h
+  Queue:   10 total
+  Status:  7 done | 2 failed | 1 running | 0 pending
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  FAILED:
+  - T005: bug-B5-architecture-errado (2026-04-24T03:14:45Z)
+  - T008: bug-B8-readme-duplicated-sections (2026-04-24T03:17:23Z)
+  RUNNING:
+  - T009 on W02: bug-B9-zero-integration-tests
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  VIBE-KIT PROGRESS — 00:36:24
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Elapsed: 1386s | Remaining: ~8h
+  Queue:   10 total
+  Status:  7 done | 2 failed | 1 running | 0 pending
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  FAILED:
+  - T005: bug-B5-architecture-errado (2026-04-24T03:14:45Z)
+  - T008: bug-B8-readme-duplicated-sections (2026-04-24T03:17:23Z)
+  RUNNING:
+  - T009 on W02: bug-B9-zero-integration-tests
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  VIBE-KIT PROGRESS — 00:37:24
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Elapsed: 1446s | Remaining: ~8h
+  Queue:   10 total
+  Status:  7 done | 2 failed | 1 running | 0 pending
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  FAILED:
+  - T005: bug-B5-architecture-errado (2026-04-24T03:14:45Z)
+  - T008: bug-B8-readme-duplicated-sections (2026-04-24T03:17:23Z)
+  RUNNING:
+  - T009 on W02: bug-B9-zero-integration-tests
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  VIBE-KIT PROGRESS — 00:38:24
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Elapsed: 1506s | Remaining: ~8h
+  Queue:   10 total
+  Status:  7 done | 2 failed | 1 running | 0 pending
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  FAILED:
+  - T005: bug-B5-architecture-errado (2026-04-24T03:14:45Z)
+  - T008: bug-B8-readme-duplicated-sections (2026-04-24T03:17:23Z)
+  RUNNING:
+  - T009 on W02: bug-B9-zero-integration-tests
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  VIBE-KIT PROGRESS — 00:39:24
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Elapsed: 1566s | Remaining: ~8h
+  Queue:   10 total
+  Status:  7 done | 2 failed | 1 running | 0 pending
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  FAILED:
+  - T005: bug-B5-architecture-errado (2026-04-24T03:14:45Z)
+  - T008: bug-B8-readme-duplicated-sections (2026-04-24T03:17:23Z)
+  RUNNING:
+  - T009 on W02: bug-B9-zero-integration-tests
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  VIBE-KIT PROGRESS — 00:40:24
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Elapsed: 1626s | Remaining: ~8h
+  Queue:   10 total
+  Status:  7 done | 2 failed | 1 running | 0 pending
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  FAILED:
+  - T005: bug-B5-architecture-errado (2026-04-24T03:14:45Z)
+  - T008: bug-B8-readme-duplicated-sections (2026-04-24T03:17:23Z)
+  RUNNING:
+  - T009 on W02: bug-B9-zero-integration-tests
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  VIBE-KIT PROGRESS — 00:41:24
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Elapsed: 1686s | Remaining: ~8h
+  Queue:   10 total
+  Status:  7 done | 2 failed | 1 running | 0 pending
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  FAILED:
+  - T005: bug-B5-architecture-errado (2026-04-24T03:14:45Z)
+  - T008: bug-B8-readme-duplicated-sections (2026-04-24T03:17:23Z)
+  RUNNING:
+  - T009 on W02: bug-B9-zero-integration-tests
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  VIBE-KIT PROGRESS — 00:42:24
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Elapsed: 1746s | Remaining: ~8h
+  Queue:   10 total
+  Status:  7 done | 2 failed | 1 running | 0 pending
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  FAILED:
+  - T005: bug-B5-architecture-errado (2026-04-24T03:14:45Z)
+  - T008: bug-B8-readme-duplicated-sections (2026-04-24T03:17:23Z)
+  RUNNING:
+  - T009 on W02: bug-B9-zero-integration-tests
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  VIBE-KIT PROGRESS — 00:43:24
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Elapsed: 1806s | Remaining: ~8h
+  Queue:   10 total
+  Status:  7 done | 2 failed | 1 running | 0 pending
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  FAILED:
+  - T005: bug-B5-architecture-errado (2026-04-24T03:14:45Z)
+  - T008: bug-B8-readme-duplicated-sections (2026-04-24T03:17:23Z)
+  RUNNING:
+  - T009 on W02: bug-B9-zero-integration-tests
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  VIBE-KIT PROGRESS — 00:44:24
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Elapsed: 1866s | Remaining: ~8h
+  Queue:   10 total
+  Status:  7 done | 2 failed | 1 running | 0 pending
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  FAILED:
+  - T005: bug-B5-architecture-errado (2026-04-24T03:14:45Z)
+  - T008: bug-B8-readme-duplicated-sections (2026-04-24T03:17:23Z)
+  RUNNING:
+  - T009 on W02: bug-B9-zero-integration-tests
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  VIBE-KIT PROGRESS — 00:45:24
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Elapsed: 1926s | Remaining: ~8h
+  Queue:   10 total
+  Status:  7 done | 2 failed | 1 running | 0 pending
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  FAILED:
+  - T005: bug-B5-architecture-errado (2026-04-24T03:14:45Z)
+  - T008: bug-B8-readme-duplicated-sections (2026-04-24T03:17:23Z)
+  RUNNING:
+  - T009 on W02: bug-B9-zero-integration-tests
+
+[00:45:29] [2799338] [VIBE-KIT] All workers finished
+[00:45:29] [2799338] [VIBE-KIT] ZFS SNAPSHOT: tank@vibe-20260424-004529-post-vibe-kit
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  VIBE-KIT PROGRESS — 00:45:29
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Elapsed: 1931s | Remaining: ~8h
+  Queue:   10 total
+  Status:  8 done | 2 failed | 0 running | 0 pending
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  FAILED:
+  - T005: bug-B5-architecture-errado (2026-04-24T03:14:45Z)
+  - T008: bug-B8-readme-duplicated-sections (2026-04-24T03:17:23Z)
+  RUNNING:
+
+[00:45:29] [2799338] [VIBE-KIT] Final: 8 done, 2 failed
+[00:45:29] [2799338] [VIBE-KIT] Shipping to Gitea...
+On branch vibe-20260424-004529
+nothing to commit, working tree clean
+branch 'vibe-20260424-004529' set up to track 'gitea/vibe-20260424-004529'.
+[00:45:30] [2799338] [VIBE-KIT] Shipped: vibe-20260424-004529
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  VIBE-KIT COMPLETE
+  Done: 8 | Failed: 2
+  Logs: /srv/monorepo/.claude/vibe-kit/logs/
+  Queue: /srv/monorepo/.claude/vibe-kit/queue.json
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ⭐ VIBE-KIT — 15× Micro-Task Parallel
+  Provider: minimax | Model: MiniMax-M2.7 | Parallel: 15
+  Max duration: 8h
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[03:56:29] [4170781] [VIBE-KIT] SPEC not found: /srv/monorepo/docs/SPECS/SPEC-OWNERSHIP.md
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ⭐ VIBE-KIT — 15× Micro-Task Parallel
+  Provider: minimax | Model: MiniMax-M2.7 | Parallel: 15
+  Max duration: 8h
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[03:56:42] [4171430] [VIBE-KIT] SPEC not found: /srv/monorepo/docs/SPECS/SPEC-OWNERSHIP.md
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ⭐ VIBE-KIT — 15× Micro-Task Parallel
+  Provider: minimax | Model: MiniMax-M2.7 | Parallel: 15
+  Max duration: 8h
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[04:08:29] [37951] [VIBE-KIT] SPEC not found: /srv/monorepo/docs/SPECS/SPEC-OWNERSHIP.md
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ⭐ VIBE-KIT — 15× Micro-Task Parallel
+  Provider: minimax | Model: MiniMax-M2.7 | Parallel: 15
+  Max duration: 8h
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[04:08:50] [39004] [VIBE-KIT] SPEC not found: /srv/monorepo/docs/SPECS/SPEC-OWNERSHIP.md
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ⭐ VIBE-KIT — 15× Micro-Task Parallel
+  Provider: minimax | Model: MiniMax-M2.7 | Parallel: 15
+  Max duration: 8h
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[04:31:29] [157387] [VIBE-KIT] SPEC not found: /srv/monorepo/docs/SPECS/SPEC-OWNERSHIP.md
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ⭐ VIBE-KIT — 15× Micro-Task Parallel
+  Provider: minimax | Model: MiniMax-M2.7 | Parallel: 15
+  Max duration: 8h
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[04:31:47] [158255] [VIBE-KIT] SPEC not found: /srv/monorepo/docs/SPECS/SPEC-OWNERSHIP.md
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ⭐ VIBE-KIT — 15× Micro-Task Parallel
+  Provider: minimax | Model: MiniMax-M2.7 | Parallel: 15
+  Max duration: 8h
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[04:42:13] [213759] [VIBE-KIT] SPEC not found: /srv/monorepo/docs/SPECS/SPEC-OWNERSHIP.md
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ⭐ VIBE-KIT — 15× Micro-Task Parallel
+  Provider: minimax | Model: MiniMax-M2.7 | Parallel: 15
+  Max duration: 8h
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[04:43:01] [216391] [VIBE-KIT] SPEC not found: /srv/monorepo/docs/SPECS/SPEC-OWNERSHIP.md
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ⭐ VIBE-KIT — 15× Micro-Task Parallel
+  Provider: minimax | Model: MiniMax-M2.7 | Parallel: 15
+  Max duration: 8h
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[04:51:48] [262576] [VIBE-KIT] SPEC not found: /srv/monorepo/docs/SPECS/SPEC-OWNERSHIP.md
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ⭐ VIBE-KIT — 15× Micro-Task Parallel
+  Provider: minimax | Model: MiniMax-M2.7 | Parallel: 15
+  Max duration: 8h
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[04:52:13] [265492] [VIBE-KIT] SPEC not found: /srv/monorepo/docs/SPECS/SPEC-OWNERSHIP.md
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ⭐ VIBE-KIT — 15× Micro-Task Parallel
+  Provider: minimax | Model: MiniMax-M2.7 | Parallel: 15
+  Max duration: 8h
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[05:02:35] [319504] [VIBE-KIT] SPEC not found: /srv/monorepo/docs/SPECS/SPEC-OWNERSHIP.md
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ⭐ VIBE-KIT — 15× Micro-Task Parallel
+  Provider: minimax | Model: MiniMax-M2.7 | Parallel: 15
+  Max duration: 8h
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[05:02:50] [320404] [VIBE-KIT] SPEC not found: /srv/monorepo/docs/SPECS/SPEC-OWNERSHIP.md
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ⭐ VIBE-KIT — 15× Micro-Task Parallel
+  Provider: minimax | Model: MiniMax-M2.7 | Parallel: 15
+  Max duration: 8h
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[05:11:57] [368556] [VIBE-KIT] SPEC not found: /srv/monorepo/docs/SPECS/SPEC-OWNERSHIP.md
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ⭐ VIBE-KIT — 15× Micro-Task Parallel
+  Provider: minimax | Model: MiniMax-M2.7 | Parallel: 15
+  Max duration: 8h
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[05:12:12] [371171] [VIBE-KIT] SPEC not found: /srv/monorepo/docs/SPECS/SPEC-OWNERSHIP.md
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ⭐ VIBE-KIT — 15× Micro-Task Parallel
+  Provider: minimax | Model: MiniMax-M2.7 | Parallel: 15
+  Max duration: 8h
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[05:21:24] [420458] [VIBE-KIT] SPEC not found: /srv/monorepo/docs/SPECS/SPEC-OWNERSHIP.md
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ⭐ VIBE-KIT — 15× Micro-Task Parallel
+  Provider: minimax | Model: MiniMax-M2.7 | Parallel: 15
+  Max duration: 8h
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[05:23:15] [428390] [VIBE-KIT] SPEC not found: /srv/monorepo/docs/SPECS/SPEC-OWNERSHIP.md
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ⭐ VIBE-KIT — 15× Micro-Task Parallel
+  Provider: minimax | Model: MiniMax-M2.7 | Parallel: 15
+  Max duration: 8h
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[05:25:32] [441020] [VIBE-KIT] SPEC: /srv/monorepo/docs/SPEC-OWNERSHIP.md
+[05:25:32] [441020] [VIBE-KIT] APP: CRM-REFRIMIX
+/srv/monorepo/scripts/vibe/vibe-kit.sh: line 439: [: null: integer expression expected
+[05:25:32] [441020] [VIBE-KIT] Initializing queue from /srv/monorepo/docs/SPEC-OWNERSHIP.md
+jq: parse error: ':' not as part of an object at line 1, column 4
+jq: parse error: ':' not as part of an object at line 1, column 4
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ⭐ VIBE-KIT — 15× Micro-Task Parallel
+  Provider: minimax | Model: MiniMax-M2.7 | Parallel: 15
+  Max duration: 8h
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[05:40:16] [517067] [VIBE-KIT] SPEC: /srv/monorepo/docs/SPEC-OWNERSHIP.md
+[05:40:16] [517067] [VIBE-KIT] APP: CRM-REFRIMIX
+[05:40:16] [517067] [VIBE-KIT] Initializing queue from /srv/monorepo/docs/SPEC-OWNERSHIP.md
+jq: parse error: ':' not as part of an object at line 1, column 4
+jq: parse error: ':' not as part of an object at line 1, column 4
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ⭐ VIBE-KIT — 15× Micro-Task Parallel
+  Provider: minimax | Model: MiniMax-M2.7 | Parallel: 15
+  Max duration: 8h
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[06:01:49] [696835] [VIBE-KIT] SPEC: /srv/monorepo/docs/SPEC-OWNERSHIP.md
+[06:01:49] [696835] [VIBE-KIT] APP: CRM-REFRIMIX
+[06:01:49] [696835] [VIBE-KIT] Initializing queue from /srv/monorepo/docs/SPEC-OWNERSHIP.md
+[06:01:49] [696835] [VIBE-KIT] Parsing SPEC: /srv/monorepo/docs/SPEC-OWNERSHIP.md
+[06:01:49] [696835] [VIBE-KIT] No explicit tasks — generating from ACs
+[06:01:49] [696835] [VIBE-KIT] No ACs — generating from bugs table (B1-B10 pattern)
+[06:01:49] [696835] [VIBE-KIT] Queue created: 10 tasks
+[06:01:49] [696835] [VIBE-KIT] ZFS SNAPSHOT: tank@vibe-20260424-060149-pre-vibe-kit
+[06:01:49] [696835] [VIBE-KIT] Launching 15 workers...
+[06:01:49] [696835] [VIBE-KIT] All 15 workers launched (PIDs: 697213 697214 697215 697218 697220 697221 697224 697227 697230 697233 697238 697241 697246 697250 697254)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  VIBE-KIT PROGRESS — 06:01:54
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Elapsed: 5s | Remaining: ~8h
+  Queue:   10 total
+  Status:  0 done | 0 failed | 10 running | 0 pending
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  RUNNING:
+  - T001 on W01: bug-B1-45-workflows-langgraph-sao-fake-sequenci
+  - T002 on W10: bug-B2-session-state-in-memory-_sessionstates-m
+  - T003 on W08: bug-B3-humangatenode-auto-aprova-sem-interrupt-
+  - T004 on W14: bug-B4-content_pipeline-edges-fixos-sem-conditi
+  - T005 on W07: bug-B5-architecturemd-linha-9-diz-errado--hardc
+  - T006 on W12: bug-B6-subscribedat90percentuse-null-check-bug-
+  - T007 on W15: bug-B7-subscription-increment-sem-transacao-rac
+  - T008 on W06: bug-B8-docs-repetem-secoes-readmemd-4x-mesmas-s
+  - T009 on W02: bug-B9-0-tests-de-integracao-real-no-crm
+  - T010 on W04: bug-B10-webhook-retry-pode-falhar-silenciosament
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  VIBE-KIT PROGRESS — 06:02:54
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Elapsed: 65s | Remaining: ~8h
+  Queue:   10 total
+  Status:  0 done | 0 failed | 10 running | 0 pending
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  RUNNING:
+  - T001 on W01: bug-B1-45-workflows-langgraph-sao-fake-sequenci
+  - T002 on W10: bug-B2-session-state-in-memory-_sessionstates-m
+  - T003 on W08: bug-B3-humangatenode-auto-aprova-sem-interrupt-
+  - T004 on W14: bug-B4-content_pipeline-edges-fixos-sem-conditi
+  - T005 on W07: bug-B5-architecturemd-linha-9-diz-errado--hardc
+  - T006 on W12: bug-B6-subscribedat90percentuse-null-check-bug-
+  - T007 on W15: bug-B7-subscription-increment-sem-transacao-rac
+  - T008 on W06: bug-B8-docs-repetem-secoes-readmemd-4x-mesmas-s
+  - T009 on W02: bug-B9-0-tests-de-integracao-real-no-crm
+  - T010 on W04: bug-B10-webhook-retry-pode-falhar-silenciosament
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  VIBE-KIT PROGRESS — 06:03:54
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Elapsed: 125s | Remaining: ~8h
+  Queue:   10 total
+  Status:  3 done | 0 failed | 7 running | 0 pending
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  RUNNING:
+  - T003 on W08: bug-B3-humangatenode-auto-aprova-sem-interrupt-
+  - T004 on W14: bug-B4-content_pipeline-edges-fixos-sem-conditi
+  - T005 on W07: bug-B5-architecturemd-linha-9-diz-errado--hardc
+  - T006 on W12: bug-B6-subscribedat90percentuse-null-check-bug-
+  - T007 on W15: bug-B7-subscription-increment-sem-transacao-rac
+  - T009 on W02: bug-B9-0-tests-de-integracao-real-no-crm
+  - T010 on W04: bug-B10-webhook-retry-pode-falhar-silenciosament
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  VIBE-KIT PROGRESS — 06:04:54
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Elapsed: 185s | Remaining: ~8h
+  Queue:   10 total
+  Status:  4 done | 0 failed | 6 running | 0 pending
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  RUNNING:
+  - T003 on W08: bug-B3-humangatenode-auto-aprova-sem-interrupt-
+  - T005 on W07: bug-B5-architecturemd-linha-9-diz-errado--hardc
+  - T006 on W12: bug-B6-subscribedat90percentuse-null-check-bug-
+  - T007 on W15: bug-B7-subscription-increment-sem-transacao-rac
+  - T009 on W02: bug-B9-0-tests-de-integracao-real-no-crm
+  - T010 on W04: bug-B10-webhook-retry-pode-falhar-silenciosament
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  VIBE-KIT PROGRESS — 06:06:37
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Elapsed: 286s | Remaining: ~8h
+  Queue:   10 total
+  Status:  5 done | 0 failed | 5 running | 0 pending
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  RUNNING:
+  - T003 on W08: bug-B3-humangatenode-auto-aprova-sem-interrupt-
+  - T005 on W07: bug-B5-architecturemd-linha-9-diz-errado--hardc
+  - T007 on W15: bug-B7-subscription-increment-sem-transacao-rac
+  - T009 on W02: bug-B9-0-tests-de-integracao-real-no-crm
+  - T010 on W04: bug-B10-webhook-retry-pode-falhar-silenciosament
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  VIBE-KIT PROGRESS — 06:07:29
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Elapsed: 339s | Remaining: ~8h
+  Queue:   10 total
+  Status:  5 done | 0 failed | 5 running | 0 pending
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  RUNNING:
+  - T003 on W08: bug-B3-humangatenode-auto-aprova-sem-interrupt-
+  - T005 on W07: bug-B5-architecturemd-linha-9-diz-errado--hardc
+  - T007 on W15: bug-B7-subscription-increment-sem-transacao-rac
+  - T009 on W02: bug-B9-0-tests-de-integracao-real-no-crm
+  - T010 on W04: bug-B10-webhook-retry-pode-falhar-silenciosament
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  VIBE-KIT PROGRESS — 06:09:35
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Elapsed: 466s | Remaining: ~8h
+  Queue:   10 total
+  Status:  5 done | 0 failed | 5 running | 0 pending
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  RUNNING:
+  - T003 on W08: bug-B3-humangatenode-auto-aprova-sem-interrupt-
+  - T005 on W07: bug-B5-architecturemd-linha-9-diz-errado--hardc
+  - T007 on W15: bug-B7-subscription-increment-sem-transacao-rac
+  - T009 on W02: bug-B9-0-tests-de-integracao-real-no-crm
+  - T010 on W04: bug-B10-webhook-retry-pode-falhar-silenciosament
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  VIBE-KIT PROGRESS — 06:09:40
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Elapsed: 471s | Remaining: ~8h
+  Queue:   10 total
+  Status:  6 done | 0 failed | 4 running | 0 pending
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  RUNNING:
+  - T005 on W07: bug-B5-architecturemd-linha-9-diz-errado--hardc
+  - T007 on W15: bug-B7-subscription-increment-sem-transacao-rac
+  - T009 on W02: bug-B9-0-tests-de-integracao-real-no-crm
+  - T010 on W04: bug-B10-webhook-retry-pode-falhar-silenciosament
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  VIBE-KIT PROGRESS — 06:10:56
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Elapsed: 547s | Remaining: ~8h
+  Queue:   10 total
+  Status:  6 done | 0 failed | 4 running | 0 pending
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  RUNNING:
+  - T005 on W07: bug-B5-architecturemd-linha-9-diz-errado--hardc
+  - T007 on W15: bug-B7-subscription-increment-sem-transacao-rac
+  - T009 on W02: bug-B9-0-tests-de-integracao-real-no-crm
+  - T010 on W04: bug-B10-webhook-retry-pode-falhar-silenciosament
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  VIBE-KIT PROGRESS — 06:11:55
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Elapsed: 606s | Remaining: ~8h
+  Queue:   10 total
+  Status:  6 done | 0 failed | 4 running | 0 pending
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  RUNNING:
+  - T005 on W07: bug-B5-architecturemd-linha-9-diz-errado--hardc
+  - T007 on W15: bug-B7-subscription-increment-sem-transacao-rac
+  - T009 on W02: bug-B9-0-tests-de-integracao-real-no-crm
+  - T010 on W04: bug-B10-webhook-retry-pode-falhar-silenciosament
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  VIBE-KIT PROGRESS — 06:13:02
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Elapsed: 672s | Remaining: ~8h
+  Queue:   10 total
+  Status:  6 done | 0 failed | 4 running | 0 pending
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  RUNNING:
+  - T005 on W07: bug-B5-architecturemd-linha-9-diz-errado--hardc
+  - T007 on W15: bug-B7-subscription-increment-sem-transacao-rac
+  - T009 on W02: bug-B9-0-tests-de-integracao-real-no-crm
+  - T010 on W04: bug-B10-webhook-retry-pode-falhar-silenciosament
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  VIBE-KIT PROGRESS — 06:14:06
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Elapsed: 737s | Remaining: ~8h
+  Queue:   10 total
+  Status:  6 done | 0 failed | 4 running | 0 pending
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  RUNNING:
+  - T005 on W07: bug-B5-architecturemd-linha-9-diz-errado--hardc
+  - T007 on W15: bug-B7-subscription-increment-sem-transacao-rac
+  - T009 on W02: bug-B9-0-tests-de-integracao-real-no-crm
+  - T010 on W04: bug-B10-webhook-retry-pode-falhar-silenciosament
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  VIBE-KIT PROGRESS — 06:15:11
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Elapsed: 801s | Remaining: ~8h
+  Queue:   10 total
+  Status:  6 done | 0 failed | 4 running | 0 pending
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  RUNNING:
+  - T005 on W07: bug-B5-architecturemd-linha-9-diz-errado--hardc
+  - T007 on W15: bug-B7-subscription-increment-sem-transacao-rac
+  - T009 on W02: bug-B9-0-tests-de-integracao-real-no-crm
+  - T010 on W04: bug-B10-webhook-retry-pode-falhar-silenciosament
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  VIBE-KIT PROGRESS — 06:16:36
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Elapsed: 887s | Remaining: ~8h
+  Queue:   10 total
+  Status:  6 done | 0 failed | 4 running | 0 pending
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  RUNNING:
+  - T005 on W07: bug-B5-architecturemd-linha-9-diz-errado--hardc
+  - T007 on W15: bug-B7-subscription-increment-sem-transacao-rac
+  - T009 on W02: bug-B9-0-tests-de-integracao-real-no-crm
+  - T010 on W04: bug-B10-webhook-retry-pode-falhar-silenciosament
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  VIBE-KIT PROGRESS — 06:17:33
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Elapsed: 944s | Remaining: ~8h
+  Queue:   10 total
+  Status:  6 done | 0 failed | 4 running | 0 pending
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  RUNNING:
+  - T005 on W07: bug-B5-architecturemd-linha-9-diz-errado--hardc
+  - T007 on W15: bug-B7-subscription-increment-sem-transacao-rac
+  - T009 on W02: bug-B9-0-tests-de-integracao-real-no-crm
+  - T010 on W04: bug-B10-webhook-retry-pode-falhar-silenciosament
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  VIBE-KIT PROGRESS — 06:18:15
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Elapsed: 986s | Remaining: ~8h
+  Queue:   0 total
+  Status:  17 done | 0 failed | 0 running | 0 pending
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  RUNNING:
+

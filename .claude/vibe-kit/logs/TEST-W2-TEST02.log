@@ -1,0 +1,31 @@
+jq: invalid JSON text passed to --argjson
+Use jq --help for help with command-line options,
+or see the jq manpage, or online docs  at https://jqlang.github.io/jq
+jq: invalid JSON text passed to --argjson
+Use jq --help for help with command-line options,
+or see the jq manpage, or online docs  at https://jqlang.github.io/jq
+rkflowStructure::test_workflow_uses_real_stategraph PASSED
+tests/integration/test_onboarding_pipeline.py::TestOnboardingWorkflowStructure::test_workflow_has_required_nodes PASSED
+tests/integration/test_onboarding_pipeline.py::TestOnboardingWorkflowStructure::test_workflow_has_human_gate_interrupt PASSED
+tests/integration/test_onboarding_pipeline.py::TestOnboardingWorkflowStructure::test_workflow_has_approve_onboarding_function PASSED
+tests/integration/test_onboarding_pipeline.py::TestOnboardingWorkflowStructure::test_workflow_has_execute_onboarding_flow_function PASSED
+tests/integration/test_onboarding_pipeline.py::TestOnboardingWorkflowStructure::test_workflow_has_onboarding_graph_compiled PASSED
+tests/integration/test_onboarding_pipeline.py::TestOnboardingWorkflowStructure::test_workflow_has_onboarding_state_type PASSED
+tests/integration/test_onboarding_pipeline.py::TestOnboardingWorkflowStructure::test_workflow_uses_fetch_client_for_qdrant PASSED
+tests/integration/test_onboarding_pipeline.py::TestOnboardingWorkflowStructure::test_workflow_has_telegram_integration PASSED
+tests/integration/test_onboarding_pipeline.py::TestOnboardingWorkflowStructure::test_workflow_has_conditional_edges_for_approval PASSED
+tests/integration/test_onboarding_pipeline.py::TestOnboardingWorkflowEdges::test_workflow_edge_sequence PASSED
+tests/integration/test_onboarding_pipeline.py::TestOnboardingWorkflowEdges::test_workflow_ends_after_checkin PASSED
+tests/integration/test_onboarding_pipeline.py::test_onboarding_pipeline_end_to_end PASSED
+
+============================== 13 passed in 0.01s ==============================
+```
+
+O teste valida que o `onboarding_flow.ts` do hermes-agency implementa corretamente:
+- StateGraph com interrupt() para aprovação humana
+- Nós: CREATE_PROFILE → INIT_QDRANT → HUMAN_GATE → WELCOME → MILESTONE → CHECKIN
+- Funções exportadas: `approveOnboarding`, `executeOnboardingFlow`
+- Integração com Telegram e Qdrant via fetchClient
+
+[mclaude] MiniMax-Token-Plan (MiniMax-M2.7) — session ended
+[?25h[0m[?1049l[Fri Apr 24 01:03:06 AM -03 2026] [TEST-W2] Finished TEST=TEST02

@@ -1,0 +1,17 @@
+[00:02:32] [2736201] [VIBE-KIT] [WW15] Started (max 28800s)
+jq: parse error: Invalid numeric literal at line 22, column 674
+mv: cannot stat '/srv/monorepo/.claude/vibe-kit/queue.json.tmp': No such file or directory
+[00:02:32] [2736201] [VIBE-KIT] [WW15] → Task T001: bug-B1-langgraph-fake-workflows
+[00:13:18] [2799338] [VIBE-KIT] [WW15] Started (max 28800s)
+[00:17:39] [2736201] [VIBE-KIT] [WW15] ← Task T001: done (907s) [total: 1]
+[00:45:25] [2736201] [VIBE-KIT] [WW15] Queue empty — done
+[00:45:25] [2736201] [VIBE-KIT] [WW15] Finished. Tasks done: 1
+[00:45:25] [2799338] [VIBE-KIT] [WW15] Queue empty — done
+[00:45:25] [2799338] [VIBE-KIT] [WW15] Finished. Tasks done: 0
+[05:48:32] [558496] [VIBE-KIT] [WW15] Started (max 28800s)
+[05:50:26] [558496] [VIBE-KIT] [WW15] → Task T001: bug-B1-45-workflows-langgraph-sao-fake-sequenci
+[05:54:06] [558496] [VIBE-KIT] [WW15] ← Task T001: done (220s) [total: 1]
+[05:59:54] [558496] [VIBE-KIT] [WW15] Queue empty — done
+[05:59:54] [558496] [VIBE-KIT] [WW15] Finished. Tasks done: 1
+[06:01:49] [696835] [VIBE-KIT] [WW15] Started (max 28800s)
+[06:01:49] [696835] [VIBE-KIT] [WW15] → Task T007: bug-B7-subscription-increment-sem-transacao-rac

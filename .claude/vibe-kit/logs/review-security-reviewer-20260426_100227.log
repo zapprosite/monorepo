@@ -1,0 +1,10 @@
+Revisão de segurança concluída. Relatório salvo em `/srv/monorepo/docs/REVIEW-security-reviewer-2026-04-26.md`.
+
+**Resumo:**
+- **1 HIGH** — Command injection em `nexus-sre.sh` via `export "$(grep ... | xargs)"`
+- **2 MEDIUM** — SSRF em STT_DIRECT_URL, Dev auth bypass
+- **3 LOW** — Multipart parsing manual, rate limiting in-memory, CORS `*`+credentials
+- **OWASP Compliance: 85%**
+- **Dependencies: ✅ PASS** (pnpm audit clean)
+
+**Principais recomendações (P0):** Corrigir o pattern `export "$(grep ... | xargs)"` nos scripts shell — é vulnerável a command injection se valores no `.env` contiverem metacaracteres shell.

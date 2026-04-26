@@ -1,0 +1,3 @@
+[validate-env] INFO: Iniciando validate-env.sh
+[validate-env] INFO: Verificando dependencias...
+[validate-env] ERROR: Schema nao encontrado: /srv/monorepo/scripts/../packages/env/schema.ts
