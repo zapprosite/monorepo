@@ -14,9 +14,9 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./ 2>/dev/null || true
 # Copy entire monorepo for pruning
 COPY . .
 
-# Prune the workspace to create isolated subset for @zappro/api
+# Prune the workspace to create isolated subset for @connected-repo/backend
 # This creates out/json/ (package.json files) and out/full/ (source code)
-RUN turbo prune @zappro/api --docker
+RUN turbo prune @connected-repo/backend --docker
 
 # Move pruned files to workspace root and clean up
 RUN cp -r out/json/. . && \
@@ -30,7 +30,7 @@ RUN pnpm --version
 RUN pnpm install --frozen-lockfile
 
 # Build the backend using Turbo (automatically builds dependencies like zod-schemas first)
-RUN turbo run build --filter=@zappro/api
+RUN turbo run build --filter=@connected-repo/backend
 
 # Create non-root user for security
 RUN addgroup -g 1001 -S backend && \
