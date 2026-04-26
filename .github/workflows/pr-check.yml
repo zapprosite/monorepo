@@ -13,8 +13,13 @@ jobs:
           fetch-depth: 0
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v5
-        # version auto-detected from packageManager field
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+
+      - name: Enable pnpm via corepack
+        run: corepack enable && corepack prepare pnpm@9.0.6 --activate
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
@@ -23,10 +28,6 @@ jobs:
 
       # TODO: Fix pnpm 9.0.6 worker crash - using pnpm 9 (non-exact)
       - name: Install dependencies
-        env:
-          PNPM_HOME: /home/runner/.pnpm
-          PNPM_CONFIG_STORE_DIR: /home/runner/.pnpm/store
-          PNPM_CONFIG_VIRTUAL_STORE_DIR: /home/runner/.pnpm/virtual
         run: pnpm install
 
       - name: Type check
