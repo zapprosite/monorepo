@@ -31,6 +31,7 @@ import { WebhooksTable } from "@backend/modules/webhooks/webhooks.table";
 import { WebhookDeliveriesTable } from "@backend/modules/webhooks/webhook-deliveries.table";
 import { EventosTable } from "@backend/modules/webhooks/eventos.table";
 import { McpConectoresTable } from "@backend/modules/mcp-connectors/mcp-conectores.table";
+import { TrieveDatasetsTable } from "@backend/modules/trieve/trieve-datasets.table";
 import { ConteudosTable } from "@backend/modules/content-engine/conteudos.table";
 import { ConteudoRevsoesTable } from "@backend/modules/content-engine/conteudo-revisoes.table";
 import { UserRolesTable } from "@backend/modules/users/user-roles.table";
@@ -79,6 +80,7 @@ export const db = orchidORM(
 		webhookDeliveries: WebhookDeliveriesTable,
 		eventos: EventosTable,
 		mcpConectores: McpConectoresTable,
+		trieveDatasets: TrieveDatasetsTable,
 		conteudos: ConteudosTable,
 		conteudoRevisoes: ConteudoRevsoesTable,
 	},

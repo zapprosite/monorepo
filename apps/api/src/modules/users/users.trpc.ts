@@ -5,27 +5,38 @@ import { userCreateInputZod, userGetByIdInputZod } from "@connected-repo/zod-sch
 import { TRPCError } from "@trpc/server";
 
 export const usersRouterTrpc = trpcRouter({
-	// Get all users
-
-	getAll: protectedProcedure.query(async () => {
-		// Added code to simulate a error for testing
-		// throw new Error("User not found");
-		const users = await db.users.select("userId", "email", "name", "createdAt", "updatedAt");
+	// Get all users for the current team
+	getAll: protectedProcedure.query(async ({ ctx }) => {
+		// IDOR fix: only return users belonging to the same team
+		const teamId = ctx.user.teamId;
+		const users = await db.users
+			.where({ teamId })
+			.select("userId", "email", "name", "createdAt", "updatedAt");
 		return users;
 	}),
 
 	// Get user by ID
-	getById: protectedProcedure.input(userGetByIdInputZod).query(async ({ input: { userId } }) => {
-		const user = await db.users
-			.select("userId", "email", "name", "createdAt", "updatedAt")
+	getById: protectedProcedure.input(userGetByIdInputZod).query(async ({ ctx, input: { userId } }) => {
+		// IDOR fix: verify target user belongs to the same team
+		const teamId = ctx.user.teamId;
+		const targetUser = await db.users
+			.select("userId", "email", "name", "teamId", "createdAt", "updatedAt")
 			.where({ userId })
 			.take();
 
-		if (!user) {
-			throw new Error("User not found");
+		if (!targetUser) {
+			throw new TRPCError({ code: "NOT_FOUND", message: "Usuário não encontrado" });
 		}
 
-		return user;
+		// Users can only access users in their own team
+		if (targetUser.teamId !== teamId) {
+			throw new TRPCError({
+				code: "FORBIDDEN",
+				message: "Você só pode acessar usuários da sua equipe.",
+			});
+		}
+
+		return targetUser;
 	}),
 
 	// Register user from OAuth flow

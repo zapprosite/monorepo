@@ -5,13 +5,13 @@ import type { FastifyReply, FastifyRequest } from "fastify";
 
 /**
  * API Key Authentication Middleware
- * Extracts x-api-key and x-team-id headers, verifies API key against team's hash
- * and attaches team data to request object if valid
+ * Extracts x-api-key and x-team-id headers, verifies API key to identify the team,
+ * then ensures the x-team-id header matches the verified team (prevents IDOR attack).
  */
 export async function apiKeyAuthHook(request: FastifyRequest, reply: FastifyReply) {
 	// Extract headers
 	const apiKey = request.headers["x-api-key"];
-	const teamId = request.headers["x-team-id"];
+	const teamIdFromHeader = request.headers["x-team-id"];
 
 	if (!apiKey || typeof apiKey !== "string") {
 		return reply.code(401).send({
@@ -21,7 +21,7 @@ export async function apiKeyAuthHook(request: FastifyRequest, reply: FastifyRepl
 		});
 	}
 
-	if (!teamId || typeof teamId !== "string") {
+	if (!teamIdFromHeader || typeof teamIdFromHeader !== "string") {
 		return reply.code(401).send({
 			statusCode: 401,
 			error: "Unauthorized",
@@ -29,21 +29,21 @@ export async function apiKeyAuthHook(request: FastifyRequest, reply: FastifyRepl
 		});
 	}
 
-	// Get team by ID with all columns including hidden ones
-	const team = await db.teams.select("*", "apiSecretHash").findBy({ teamId });
+	// Find the team that owns this API key by iterating through teams and verifying
+	// Note: This is O(n) - for production, consider adding an indexed apiKeyHash column
+	// for O(1) lookup. See migration 0013_add_api_key_hash_index.ts as a potential future optimization.
+	const teams = await db.teams.select("*", "apiSecretHash");
+	let matchedTeam = null;
 
-	if (!team) {
-		return reply.code(401).send({
-			statusCode: 401,
-			error: "Unauthorized",
-			message: "Invalid team ID",
-		});
+	for (const team of teams) {
+		const isValid = await verifyApiKey(apiKey, team.apiSecretHash);
+		if (isValid) {
+			matchedTeam = team;
+			break;
+		}
 	}
 
-	// Verify API key against team's hash
-	const isValid = await verifyApiKey(apiKey, team.apiSecretHash);
-
-	if (!isValid) {
+	if (!matchedTeam) {
 		return reply.code(401).send({
 			statusCode: 401,
 			error: "Unauthorized",
@@ -51,6 +51,17 @@ export async function apiKeyAuthHook(request: FastifyRequest, reply: FastifyRepl
 		});
 	}
 
+	// CRITICAL: Verify the x-team-id header matches the team that owns the API key
+	// This prevents IDOR attacks where a client with a valid API key for Team A
+	// tries to access resources as Team B by setting x-team-id: Team B
+	if (matchedTeam.teamId !== teamIdFromHeader) {
+		return reply.code(403).send({
+			statusCode: 403,
+			error: "Forbidden",
+			message: "x-team-id header does not match the team associated with this API key",
+		});
+	}
+
 	// Attach team to request object
-	request.team = omitKeys(team, ["apiSecretHash"]);
+	request.team = omitKeys(matchedTeam, ["apiSecretHash"]);
 }

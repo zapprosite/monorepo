@@ -1,3 +1,4 @@
+import { db } from "@backend/db/db";
 import { findActiveSubscription } from "@backend/modules/api-gateway/utils/subscriptionTracker.utils";
 import type { ApiProductSku } from "@connected-repo/zod-schemas/enums.zod";
 import { zString } from "@connected-repo/zod-schemas/zod_utils";
@@ -23,6 +24,16 @@ export function subscriptionCheckHook(apiProductSku: ApiProductSku) {
 
 		const { teamId } = request.team;
 		const { teamUserReferenceId } = z.object({ teamUserReferenceId: zString }).parse(request.query);
+
+		// Validate teamUserReferenceId belongs to the authenticated team
+		const user = await db.users.findOptional(teamUserReferenceId);
+		if (!user || user.teamId !== teamId) {
+			return reply.code(403).send({
+				statusCode: 403,
+				error: "Forbidden",
+				message: "teamUserReferenceId does not belong to the authenticated team",
+			});
+		}
 
 		// Find active subscription for this team and product
 		const subscription = await findActiveSubscription(teamId, teamUserReferenceId, apiProductSku);

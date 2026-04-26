@@ -10,6 +10,7 @@ export class EditorialTable extends BaseTable {
 
 	columns = this.setColumns((t) => ({
 		editorialId: t.uuid().primaryKey().default(t.sql`gen_random_uuid()`),
+		teamId: t.uuid(),
 		titulo: t.varchar(255),
 		canal: t.enum("crm_editorial_channel_enum", EDITORIAL_CHANNEL_ENUM),
 		formato: t.enum("crm_editorial_format_enum", EDITORIAL_FORMAT_ENUM),

@@ -1,4 +1,5 @@
 import { protectedProcedure, trpcRouter } from "@backend/trpc";
+import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
 const LoyaltyScoreOutput = z.object({
@@ -12,7 +13,13 @@ const LoyaltyScoreOutput = z.object({
 export const loyaltyRouter = trpcRouter({
 	calculateScore: protectedProcedure
 		.input(z.object({ clienteId: z.string().uuid() }))
-		.mutation(async ({ input }) => {
+		.mutation(async ({ ctx, input }) => {
+			const cliente = await ctx.db.loyalty.findUnique({
+				where: { id: input.clienteId, teamId: ctx.user.teamId },
+			});
+			if (!cliente) {
+				throw new TRPCError({ code: "FORBIDDEN", message: "Cliente não pertence a esta equipe" });
+			}
 			return { pontos: 150, nivel: "prata" };
 		}),
 
@@ -25,15 +32,26 @@ export const loyaltyRouter = trpcRouter({
 				offset: z.number().int().min(0).default(0),
 			}),
 		)
-		.query(async ({ input }) => {
-			return { data: [] as z.infer<typeof LoyaltyScoreOutput>[] };
+		.query(async ({ ctx, input }) => {
+			const rows = await ctx.db.loyalty.findMany({
+				where: { teamId: ctx.user.teamId },
+				skip: input.offset,
+				take: input.limit,
+			});
+			return { data: rows };
 		}),
 
 	getDashboard: protectedProcedure
 		.input(z.object({ clienteId: z.string().uuid() }))
-		.query(async ({ input }) => {
+		.query(async ({ ctx, input }) => {
+			const cliente = await ctx.db.clientes.findUnique({
+				where: { id: input.clienteId, teamId: ctx.user.teamId },
+			});
+			if (!cliente) {
+				throw new TRPCError({ code: "FORBIDDEN", message: "Cliente não pertence a esta equipe" });
+			}
 			return {
-				cliente: null,
+				cliente,
 				score: null,
 				recomendacoes: [],
 			};
@@ -41,7 +59,13 @@ export const loyaltyRouter = trpcRouter({
 
 	triggerReactivation: protectedProcedure
 		.input(z.object({ clienteId: z.string().uuid() }))
-		.mutation(async ({ input }) => {
+		.mutation(async ({ ctx, input }) => {
+			const cliente = await ctx.db.clientes.findUnique({
+				where: { id: input.clienteId, teamId: ctx.user.teamId },
+			});
+			if (!cliente) {
+				throw new TRPCError({ code: "FORBIDDEN", message: "Cliente não pertence a esta equipe" });
+			}
 			return { success: true };
 		}),
 });

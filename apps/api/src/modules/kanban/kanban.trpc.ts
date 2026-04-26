@@ -15,13 +15,39 @@ import {
 } from "@connected-repo/zod-schemas/kanban.zod";
 import z from "zod";
 
+// Helper function to verify board belongs to team
+async function assertBoardTeamAccess(boardId: string, teamId: string): Promise<void> {
+	const board = await db.kanbanBoards.findOptional(boardId);
+	if (!board) throw new TRPCError({ code: "NOT_FOUND", message: "Board não encontrado" });
+	if ("teamId" in board && board.teamId !== teamId) {
+		throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado" });
+	}
+}
+
+// Helper function to verify column belongs to team via its board
+async function assertColumnTeamAccess(columnId: string, teamId: string): Promise<void> {
+	const column = await db.kanbanColumns.findOptional(columnId);
+	if (!column) throw new TRPCError({ code: "NOT_FOUND", message: "Coluna não encontrada" });
+	await assertBoardTeamAccess(column.boardId, teamId);
+}
+
+// Helper function to verify card belongs to team via its column -> board
+async function assertCardTeamAccess(cardId: string, teamId: string): Promise<void> {
+	const card = await db.kanbanCards.findOptional(cardId);
+	if (!card) throw new TRPCError({ code: "NOT_FOUND", message: "Card não encontrado" });
+	const column = await db.kanbanColumns.findOptional(card.columnId);
+	if (!column) throw new TRPCError({ code: "NOT_FOUND", message: "Coluna não encontrada" });
+	await assertBoardTeamAccess(column.boardId, teamId);
+}
+
 export const kanbanRouterTrpc = trpcRouter({
 	// -------------------------------------------------------------------------
 	// Boards
 	// -------------------------------------------------------------------------
 
-	listBoards: protectedProcedure.input(listBoardFilterZod).query(async ({ input }) => {
-		let query = db.kanbanBoards.select("*");
+	listBoards: protectedProcedure.input(listBoardFilterZod).query(async ({ ctx, input }) => {
+		const { teamId } = ctx.user;
+		let query = db.kanbanBoards.select("*").where({ teamId });
 
 		if (input.setor) {
 			const setor = input.setor;
@@ -33,9 +59,13 @@ export const kanbanRouterTrpc = trpcRouter({
 
 	getBoardDetail: protectedProcedure
 		.input(boardGetByIdZod)
-		.query(async ({ input: { boardId } }) => {
+		.query(async ({ ctx, input: { boardId } }) => {
+			const { teamId } = ctx.user;
 			const board = await db.kanbanBoards.findOptional(boardId);
 			if (!board) throw new TRPCError({ code: "NOT_FOUND", message: "Board não encontrado" });
+			if ("teamId" in board && board.teamId !== teamId) {
+				throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado" });
+			}
 
 			const columns = await db.kanbanColumns
 				.where({ boardId })
@@ -63,23 +93,24 @@ export const kanbanRouterTrpc = trpcRouter({
 
 	createBoard: protectedProcedure
 		.input(boardCreateInputZod)
-		.mutation(async ({ input }) => {
-			return db.kanbanBoards.create(input);
+		.mutation(async ({ ctx, input }) => {
+			const { teamId } = ctx.user;
+			return db.kanbanBoards.create({ ...input, teamId });
 		}),
 
 	updateBoard: protectedProcedure
 		.input(boardUpdateInputZod)
-		.mutation(async ({ input: { boardId, ...data } }) => {
-			const board = await db.kanbanBoards.findOptional(boardId);
-			if (!board) throw new TRPCError({ code: "NOT_FOUND", message: "Board não encontrado" });
+		.mutation(async ({ ctx, input: { boardId, ...data } }) => {
+			const { teamId } = ctx.user;
+			await assertBoardTeamAccess(boardId, teamId);
 			return db.kanbanBoards.where({ boardId }).update(data);
 		}),
 
 	deleteBoard: protectedProcedure
 		.input(boardGetByIdZod)
-		.mutation(async ({ input: { boardId } }) => {
-			const board = await db.kanbanBoards.findOptional(boardId);
-			if (!board) throw new TRPCError({ code: "NOT_FOUND", message: "Board não encontrado" });
+		.mutation(async ({ ctx, input: { boardId } }) => {
+			const { teamId } = ctx.user;
+			await assertBoardTeamAccess(boardId, teamId);
 			return db.kanbanBoards.where({ boardId }).delete();
 		}),
 
@@ -89,23 +120,25 @@ export const kanbanRouterTrpc = trpcRouter({
 
 	createColumn: protectedProcedure
 		.input(columnCreateInputZod)
-		.mutation(async ({ input }) => {
+		.mutation(async ({ ctx, input }) => {
+			const { teamId } = ctx.user;
+			await assertBoardTeamAccess(input.boardId, teamId);
 			return db.kanbanColumns.create(input);
 		}),
 
 	updateColumn: protectedProcedure
 		.input(columnUpdateInputZod)
-		.mutation(async ({ input: { columnId, ...data } }) => {
-			const column = await db.kanbanColumns.findOptional(columnId);
-			if (!column) throw new TRPCError({ code: "NOT_FOUND", message: "Coluna não encontrada" });
+		.mutation(async ({ ctx, input: { columnId, ...data } }) => {
+			const { teamId } = ctx.user;
+			await assertColumnTeamAccess(columnId, teamId);
 			return db.kanbanColumns.where({ columnId }).update(data);
 		}),
 
 	deleteColumn: protectedProcedure
 		.input(z.object({ columnId: z.string().uuid() }))
-		.mutation(async ({ input: { columnId } }) => {
-			const column = await db.kanbanColumns.findOptional(columnId);
-			if (!column) throw new TRPCError({ code: "NOT_FOUND", message: "Coluna não encontrada" });
+		.mutation(async ({ ctx, input: { columnId } }) => {
+			const { teamId } = ctx.user;
+			await assertColumnTeamAccess(columnId, teamId);
 			return db.kanbanColumns.where({ columnId }).delete();
 		}),
 
@@ -116,11 +149,16 @@ export const kanbanRouterTrpc = trpcRouter({
 				columnIds: z.array(z.string().uuid()),
 			}),
 		)
-		.mutation(async ({ input: { columnIds } }) => {
+		.mutation(async ({ ctx, input: { boardId, columnIds } }) => {
+			const { teamId } = ctx.user;
+			await assertBoardTeamAccess(boardId, teamId);
 			await Promise.all(
 				columnIds.map(async (columnId, index) => {
 					const column = await db.kanbanColumns.findOptional(columnId);
 					if (!column) throw new TRPCError({ code: "NOT_FOUND", message: "Coluna não encontrada" });
+					if (column.boardId !== boardId) {
+						throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado" });
+					}
 					return db.kanbanColumns.where({ columnId }).update({ ordem: index });
 				}),
 			);
@@ -131,10 +169,12 @@ export const kanbanRouterTrpc = trpcRouter({
 	// Cards
 	// -------------------------------------------------------------------------
 
-	listCards: protectedProcedure.input(listCardFilterZod).query(async ({ input }) => {
+	listCards: protectedProcedure.input(listCardFilterZod).query(async ({ ctx, input }) => {
+		const { teamId } = ctx.user;
 		let query = db.kanbanCards.select("*");
 
 		if (input.columnId) {
+			await assertColumnTeamAccess(input.columnId, teamId);
 			query = query.where({ columnId: input.columnId });
 		}
 		if (input.status) {
@@ -144,6 +184,7 @@ export const kanbanRouterTrpc = trpcRouter({
 			query = query.where({ responsavelId: input.responsavelId });
 		}
 		if (input.boardId) {
+			await assertBoardTeamAccess(input.boardId, teamId);
 			const boardId = input.boardId;
 			const columns = await db.kanbanColumns
 				.where({ boardId })
@@ -158,7 +199,9 @@ export const kanbanRouterTrpc = trpcRouter({
 
 	getCardDetail: protectedProcedure
 		.input(cardGetByIdZod)
-		.query(async ({ input: { cardId } }) => {
+		.query(async ({ ctx, input: { cardId } }) => {
+			const { teamId } = ctx.user;
+			await assertCardTeamAccess(cardId, teamId);
 			const card = await db.kanbanCards.findOptional(cardId);
 			if (!card) throw new TRPCError({ code: "NOT_FOUND", message: "Card não encontrado" });
 			return card;
@@ -166,7 +209,9 @@ export const kanbanRouterTrpc = trpcRouter({
 
 	createCard: protectedProcedure
 		.input(cardCreateInputZod)
-		.mutation(async ({ input }) => {
+		.mutation(async ({ ctx, input }) => {
+			const { teamId } = ctx.user;
+			await assertColumnTeamAccess(input.columnId, teamId);
 			const { ordem, prioridade, status, ...rest } = input;
 			return db.kanbanCards.create({
 				...rest,
@@ -178,9 +223,9 @@ export const kanbanRouterTrpc = trpcRouter({
 
 	updateCard: protectedProcedure
 		.input(cardUpdateInputZod)
-		.mutation(async ({ input: { cardId, prioridade, status, ordem, ...rest } }) => {
-			const card = await db.kanbanCards.findOptional(cardId);
-			if (!card) throw new TRPCError({ code: "NOT_FOUND", message: "Card não encontrado" });
+		.mutation(async ({ ctx, input: { cardId, prioridade, status, ordem, ...rest } }) => {
+			const { teamId } = ctx.user;
+			await assertCardTeamAccess(cardId, teamId);
 			return db.kanbanCards.where({ cardId }).update({
 				...rest,
 				...(prioridade !== undefined ? { prioridade: prioridade ?? undefined } : {}),
@@ -197,17 +242,18 @@ export const kanbanRouterTrpc = trpcRouter({
 				ordem: z.number().int().min(0),
 			}),
 		)
-		.mutation(async ({ input: { cardId, columnId, ordem } }) => {
-			const card = await db.kanbanCards.findOptional(cardId);
-			if (!card) throw new TRPCError({ code: "NOT_FOUND", message: "Card não encontrado" });
+		.mutation(async ({ ctx, input: { cardId, columnId, ordem } }) => {
+			const { teamId } = ctx.user;
+			await assertCardTeamAccess(cardId, teamId);
+			await assertColumnTeamAccess(columnId, teamId);
 			return db.kanbanCards.where({ cardId }).update({ columnId, ordem });
 		}),
 
 	deleteCard: protectedProcedure
 		.input(cardGetByIdZod)
-		.mutation(async ({ input: { cardId } }) => {
-			const card = await db.kanbanCards.findOptional(cardId);
-			if (!card) throw new TRPCError({ code: "NOT_FOUND", message: "Card não encontrado" });
+		.mutation(async ({ ctx, input: { cardId } }) => {
+			const { teamId } = ctx.user;
+			await assertCardTeamAccess(cardId, teamId);
 			return db.kanbanCards.where({ cardId }).delete();
 		}),
 });

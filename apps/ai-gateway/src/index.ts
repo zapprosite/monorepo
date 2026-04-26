@@ -11,12 +11,12 @@ import { audioTranscriptionsRoute } from './routes/audio-transcriptions.js';
 import { modelsRoute } from './routes/models.js';
 import { authMiddleware } from './middleware/auth.js';
 
-const PORT = parseInt(process.env.AI_GATEWAY_PORT ?? '4002', 10);
-const HOST = process.env.AI_GATEWAY_HOST ?? '0.0.0.0';
+const PORT = parseInt(process.env['AI_GATEWAY_PORT'] ?? '4002', 10);
+const HOST = process.env['AI_GATEWAY_HOST'] ?? '0.0.0.0';
 
 async function start() {
   const app = Fastify({
-    logger: { level: process.env.LOG_LEVEL ?? 'info' },
+    logger: { level: process.env['LOG_LEVEL'] ?? 'info' },
     bodyLimit: 50 * 1024 * 1024, // 50MB for audio files
   });
 

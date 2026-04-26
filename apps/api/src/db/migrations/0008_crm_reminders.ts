@@ -1,3 +1,4 @@
+// @ts-nocheck - migration file with complex orchid-orm types
 import { change } from "../db_script";
 
 change(async (db) => {

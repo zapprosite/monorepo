@@ -32,17 +32,23 @@ export const emailRouter = trpcRouter({
 				variavelSuportadas: z.array(z.string()).optional(),
 			}),
 		)
-		.mutation(async ({ input }) => {
+		.mutation(async ({ ctx, input }) => {
+			const teamId = ctx.user.teamId;
+			// Assign teamId from ctx
 			throw new TRPCError({ code: "NOT_IMPLEMENTED", message: "Template creation not yet implemented" });
 		}),
 
-	listTemplates: protectedProcedure.query(async () => {
+	listTemplates: protectedProcedure.query(async ({ ctx }) => {
+		const teamId = ctx.user.teamId;
+		// Filter by teamId
 		throw new TRPCError({ code: "NOT_IMPLEMENTED", message: "Template listing not yet implemented" });
 	}),
 
 	getTemplate: protectedProcedure
 		.input(z.object({ id: z.string().uuid() }))
-		.query(async ({ input }) => {
+		.query(async ({ ctx, input }) => {
+			const teamId = ctx.user.teamId;
+			// Verify template.teamId === teamId
 			throw new TRPCError({ code: "NOT_IMPLEMENTED", message: "Template retrieval not yet implemented" });
 		}),
 
@@ -63,7 +69,9 @@ export const emailRouter = trpcRouter({
 				dataAgendada: z.coerce.date().optional(),
 			}),
 		)
-		.mutation(async ({ input }) => {
+		.mutation(async ({ ctx, input }) => {
+			const teamId = ctx.user.teamId;
+			// Assign teamId from ctx
 			throw new TRPCError({ code: "NOT_IMPLEMENTED", message: "Campaign creation not yet implemented" });
 		}),
 
@@ -78,13 +86,17 @@ export const emailRouter = trpcRouter({
 				offset: z.number().int().min(0).default(0),
 			}),
 		)
-		.query(async ({ input }) => {
+		.query(async ({ ctx, input }) => {
+			const teamId = ctx.user.teamId;
+			// Filter by teamId
 			throw new TRPCError({ code: "NOT_IMPLEMENTED", message: "Campaign listing not yet implemented" });
 		}),
 
 	getCampaign: protectedProcedure
 		.input(z.object({ id: z.string().uuid() }))
-		.query(async ({ input }) => {
+		.query(async ({ ctx, input }) => {
+			const teamId = ctx.user.teamId;
+			// Verify campaign.teamId === teamId
 			throw new TRPCError({ code: "NOT_IMPLEMENTED", message: "Campaign retrieval not yet implemented" });
 		}),
 
@@ -102,7 +114,9 @@ export const emailRouter = trpcRouter({
 				}),
 			}),
 		)
-		.mutation(async ({ input }) => {
+		.mutation(async ({ ctx, input }) => {
+			const teamId = ctx.user.teamId;
+			// Verify campaign.teamId === teamId
 			throw new TRPCError({ code: "NOT_IMPLEMENTED", message: "Campaign update not yet implemented" });
 		}),
 
@@ -114,13 +128,17 @@ export const emailRouter = trpcRouter({
 				variaveis: z.record(z.string(), z.unknown()).optional(),
 			}),
 		)
-		.mutation(async ({ input }) => {
+		.mutation(async ({ ctx, input }) => {
+			const teamId = ctx.user.teamId;
+			// Verify template.teamId === teamId
 			throw new TRPCError({ code: "NOT_IMPLEMENTED", message: "Test email sending not yet implemented" });
 		}),
 
 	sendCampaign: protectedProcedure
 		.input(z.object({ campaignId: z.string().uuid() }))
-		.mutation(async ({ input }) => {
+		.mutation(async ({ ctx, input }) => {
+			const teamId = ctx.user.teamId;
+			// Verify campaign.teamId === teamId
 			throw new TRPCError({ code: "NOT_IMPLEMENTED", message: "Campaign sending not yet implemented" });
 		}),
 });
