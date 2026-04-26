@@ -25,10 +25,11 @@ export const serviceOrdersRouterTrpc = trpcRouter({
 
 	listServiceOrders: protectedProcedure
 		.input(listServiceOrdersFilterZod)
-		.query(async ({ input }) => {
-			let query = db.serviceOrders.select("*");
+		.query(async ({ ctx, input }) => {
+			const { teamId } = ctx.user;
+			let query = db.serviceOrders.select("serviceOrders.*").innerJoin("clients", "serviceOrders.clienteId", "clients.clientId").where("clients.teamId", teamId);
 
-			if (input.clienteId) query = query.where({ clienteId: input.clienteId });
+			if (input.clienteId) query = query.where({ "serviceOrders.clienteId": input.clienteId });
 			if (input.tecnicoId) query = query.where({ tecnicoId: input.tecnicoId });
 			if (input.equipmentId) query = query.where({ equipmentId: input.equipmentId });
 			if (input.status) query = query.where({ status: input.status });
@@ -43,16 +44,21 @@ export const serviceOrdersRouterTrpc = trpcRouter({
 
 	getServiceOrderDetail: protectedProcedure
 		.input(serviceOrderGetByIdZod)
-		.query(async ({ input: { serviceOrderId } }) => {
+		.query(async ({ ctx, input: { serviceOrderId } }) => {
+			const { teamId } = ctx.user;
 			const order = await db.serviceOrders.findOptional(serviceOrderId);
 			if (!order) throw new TRPCError({ code: "NOT_FOUND", message: "Ordem de Serviço não encontrada" });
+			// Verify ownership via client
+			const cliente = await db.clients.where({ clientId: order.clienteId, teamId }).findOptional(order.clienteId);
+			if (!cliente) throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado" });
 			return order;
 		}),
 
 	createServiceOrder: protectedProcedure
 		.input(serviceOrderCreateInputZod)
-		.mutation(async ({ input }) => {
-			const cliente = await db.clients.findOptional(input.clienteId);
+		.mutation(async ({ ctx, input }) => {
+			const { teamId } = ctx.user;
+			const cliente = await db.clients.where({ clientId: input.clienteId, teamId }).findOptional(input.clienteId);
 			if (!cliente) throw new TRPCError({ code: "NOT_FOUND", message: "Cliente não encontrado" });
 			if (input.tecnicoId) {
 				const tecnico = await db.users.findOptional(input.tecnicoId);

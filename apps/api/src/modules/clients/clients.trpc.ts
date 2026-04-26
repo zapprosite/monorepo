@@ -21,8 +21,9 @@ const CLIENTS_MAX_LIMIT = 200;
 const RELATED_MAX_LIMIT = 100;
 
 export const clientsRouterTrpc = trpcRouter({
-	listClients: protectedProcedure.input(listClientsFilterZod).query(async ({ input }) => {
-		let query = db.clients.select("*");
+	listClients: protectedProcedure.input(listClientsFilterZod).query(async ({ ctx, input }) => {
+		const { teamId } = ctx.user;
+		let query = db.clients.select("*").where({ teamId });
 
 		if (input.tipo) {
 			query = query.where({ tipo: input.tipo });
@@ -43,21 +44,26 @@ export const clientsRouterTrpc = trpcRouter({
 
 	getClientDetail: protectedProcedure
 		.input(clientGetByIdZod)
-		.query(async ({ input: { clientId } }) => {
+		.query(async ({ ctx, input: { clientId } }) => {
+			const { teamId } = ctx.user;
 			const client = await db.clients.findOptional(clientId);
 			if (!client) throw new TRPCError({ code: "NOT_FOUND", message: "Cliente não encontrado" });
+			if (client.teamId !== teamId) throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado" });
 			return client;
 		}),
 
-	createClient: protectedProcedure.input(clientCreateInputZod).mutation(async ({ input }) => {
-		return db.clients.create(input);
+	createClient: protectedProcedure.input(clientCreateInputZod).mutation(async ({ ctx, input }) => {
+		const { teamId } = ctx.user;
+		return db.clients.create({ ...input, teamId });
 	}),
 
 	updateClient: protectedProcedure
 		.input(clientUpdateInputZod)
-		.mutation(async ({ input: { clientId, ...data } }) => {
+		.mutation(async ({ ctx, input: { clientId, ...data } }) => {
+			const { teamId } = ctx.user;
 			const client = await db.clients.findOptional(clientId);
 			if (!client) throw new TRPCError({ code: "NOT_FOUND", message: "Cliente não encontrado" });
+			if (client.teamId !== teamId) throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado" });
 			return db.clients.where({ clientId }).update(data);
 		}),
 
