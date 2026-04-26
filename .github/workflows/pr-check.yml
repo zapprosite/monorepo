@@ -25,8 +25,9 @@ jobs:
       - name: Install dependencies
         env:
           PNPM_HOME: /home/runner/.pnpm
-          PNPM_CONFIG_IGNORE_SCRIPTS: 'true'
-        run: pnpm install --ignore-scripts
+          PNPM_CONFIG_STORE_DIR: /home/runner/.pnpm/store
+          PNPM_CONFIG_VIRTUAL_STORE_DIR: /home/runner/.pnpm/virtual
+        run: pnpm install
 
       - name: Type check
         run: pnpm tsc --noEmit || npx tsc --noEmit
