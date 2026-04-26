@@ -36,7 +36,7 @@ Sistema de painel de controlo para o homelab multi-claude — expõe MCP servers
 |------------|----------|-------|--------|
 | Vector Search | Qdrant | — | ✅ Active |
 | Coolify Management | Coolify API | — | ⚠️ Needs Restart |
-| Ollama Models | Ollama | nomic-ai/e5-mistral-7b-instruct | ⚠️ Needs Restart |
+| Ollama Models | Ollama | nomic-ai/qwen2.5:3b | ⚠️ Needs Restart |
 | System Metrics | ZFS/Docker | — | ⚠️ Needs Restart |
 | Cron Jobs | System | — | ⚠️ Needs Restart |
 | Semantic Memory | Qdrant + LiteLLM | embedding-nomic (via LiteLLM) | ✅ Active |
@@ -48,7 +48,7 @@ Sistema de painel de controlo para o homelab multi-claude — expõe MCP servers
 ```
 LiteLLM Proxy :4000
       │
-      ├── embedding-nomic (nomic-ai/e5-mistral-7b-instruct)
+      ├── embedding-nomic (nomic-ai/qwen2.5:3b)
       │    └── Used by: mcp-memory (4016) for semantic search
       │
       └── Qdrant :6333
@@ -60,7 +60,7 @@ LiteLLM Proxy :4000
 model_list:
   - model_name: embedding-nomic
     litellm_params:
-      model: nomic-ai/e5-mistral-7b-instruct
+      model: nomic-ai/qwen2.5:3b
       api_base: http://localhost:11434
 ```
 

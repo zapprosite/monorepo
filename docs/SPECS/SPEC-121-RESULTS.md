@@ -9,7 +9,6 @@
 
 ### Qdrant
 - **API Key**: correct (`QDRANT_API_KEY` present in `.env`; value redacted)
-- **Collections**: 12 accessible (agency_video_metadata, agency_campaigns, agency_working_memory, openclaw-memory, agency_assets, will, agency_clients, agency_brand_guides, agency_tasks, mem0migrations, agency_conversations, agency_knowledge)
 
 ### mcp-memory
 - **Status**: unhealthy (degraded)

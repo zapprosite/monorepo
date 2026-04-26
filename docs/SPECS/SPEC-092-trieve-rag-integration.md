@@ -84,7 +84,7 @@ Falta: documentos → chunking → embedding → index → retrieve → generate
 | Componente | Já existe? | Papel no RAG |
 |------------|------------|--------------|
 | Qdrant `:6333` | ✅ Sim | Vector storage + retrieval |
-| Ollama `:11434` | ✅ Sim | Embedding (e5-mistral ou bge) |
+| Ollama `:11434` | ✅ Sim | Embedding (qwen2.5:3b ou bge) |
 | Mem0 | ✅ Sim | Memory layer (separado do RAG) |
 | Hermes Agent | ✅ Sim | Orchestration + generation |
 | Second Brain | ✅ Sim | Knowledge source (documents) |
@@ -115,11 +115,11 @@ FASE 2 — Expansão
 
 ### 3. Embedding Model
 
-**Recomendado:** `BAAI/bge-m3` ou `nomic-ai/e5-mistral-7b-instruct` (já no Ollama)
+**Recomendado:** `BAAI/bge-m3` ou `nomic-ai/qwen2.5:3b` (já no Ollama)
 
 ```bash
 # Pull model se necessário
-ollama pull nomic-ai/e5-mistral-7b-instruct
+ollama pull nomic-ai/qwen2.5:3b
 ```
 
 ### 4. Chunking Strategy
@@ -160,7 +160,7 @@ services:
       - QDRANT_URL=http://10.0.9.1:6333
       - QDRANT_COLLECTION=trieve
       - OLLAMA_BASE_URL=http://10.0.9.1:11434
-      - EMBEDDING_MODEL=nomic-ai/e5-mistral-7b-instruct
+      - EMBEDDING_MODEL=nomic-ai/qwen2.5:3b
       - RERANK_MODEL=BAAI/bge-reranker-base
       - DATABASE_URL=sqlite:///srv/data/trieve/trieve.db
     volumes:
@@ -283,7 +283,7 @@ FASE 4 — Expansão (opcional)
 | Risco | Prob | Impacto | Mitigação |
 |-------|------|---------|-----------|
 | Trieve API incompatibility com Qdrant version | Baixa | Alto | Testar com Qdrant 1.7+ |
-| Embedding quality ruim | Média | Médio | Testar e5-mistral vs bge-m3 |
+| Embedding quality ruim | Média | Médio | Testar qwen2.5:3b vs bge-m3 |
 | Mem0 e Trieve competindo por Qdrant | Baixa | Médio | Collections separadas: `mem0` vs `trieve` |
 | Context window overflow | Média | Médio | Limitar top_k=5 chunks |
 

@@ -70,7 +70,6 @@ Two separate systems share the Qdrant instance, each with distinct collection na
 | Prefix/Namespace | Owner | Collections |
 |-----------------|-------|-------------|
 | `will` | Mem0 (hermes-second-brain) | Single collection for semantic memory |
-| `openclaw-memory` | OpenClaw Bot | Bot memory |
 
 ### Mem0 Collection (will)
 

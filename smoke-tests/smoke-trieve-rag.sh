@@ -14,7 +14,7 @@ TRIEVE_URL="${TRIEVE_URL:-http://localhost:6435}"
 TRIEVE_KEY="${TRIEVE_API_KEY:-}"
 QDRANT_URL="${QDRANT_URL:-http://localhost:6333}"
 OLLAMA_URL="${OLLAMA_BASE_URL:-http://localhost:11434}"
-EMBED_MODEL="${EMBEDDING_MODEL:-nomic-ai/e5-mistral-7b-instruct}"
+EMBED_MODEL="${EMBEDDING_MODEL:-nomic-ai/qwen2.5:3b}"
 
 # ── Colors ───────────────────────────────────────────────────────
 RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'; NC='\033[0m'

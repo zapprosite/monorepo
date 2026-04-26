@@ -74,7 +74,6 @@ The system needs a well-defined 3-layer memory architecture to support autonomou
 | `agency_*` (9 collections) | 768 | Agency campaigns, tasks, brand guides, etc. |
 | `will` | 768 | Mem0 personal memory |
 | `mem0migrations` | 768 | Mem0 migration data |
-| `openclaw-memory` | 768 | OpenClaw integration |
 
 ### second-brain Collection Schema
 ```json
