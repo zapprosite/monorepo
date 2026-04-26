@@ -1,11 +1,20 @@
 # =============================================================================
-# FUNDACAO — Node / Package Managers
+# HOMELAB MONOREPO — .gitignore
+# Standard enterprise gitignore for Node.js, Python, Docker, Go, Terraform
+# =============================================================================
+
+# =============================================================================
+# NODE.JS / PACKAGE MANAGERS
 # =============================================================================
 
 node_modules/
 .pnp
 .pnp.js
 .pnpm-store/
+.yarn/
+package-lock.json
+yarn.lock
+bun.lockb
 
 # =============================================================================
 # BUILD OUTPUTS — Turbo / Framework Builds
@@ -21,52 +30,86 @@ packages/*/dist/
 *.local
 
 # =============================================================================
-# ENVIRONMENT FILES — Security Critical
+# ENVIRONMENT FILES — Security Critical (NEVER COMMIT SECRETS)
 # =============================================================================
 
 .env
-!.env.example
 .env.local
 .env.development
 .env.production
 .env.test
 .env.*.local
+!.env.example
+.env.bak
+.env.backup
+.env.*.bak
+
+# =============================================================================
+# SECRETS & CREDENTIALS
+# =============================================================================
+
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+*.jks
+*.keystore
+*.truststore
+credentials.json
+secrets.json
+service-account.json
+*.secret
+.access_token
+.refresh_token
 
 # =============================================================================
 # LOGS & TEST OUTPUTS
 # =============================================================================
 
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 test-results/
 coverage/
-logs/
 .turbo/debug-logs/
-*.log
 build.log
 
 # =============================================================================
-# EDITOR & IDE
+# EDITOR & IDE — VS Code, JetBrains, Vim, Sublime, etc.
 # =============================================================================
 
 .vscode/
 !.vscode/extensions.json
 !.vscode/settings.json
+!.vscode/launch.json
+!.vscode/tasks.json
+!.vscode/launch.targets
 .idea/
+*.iml
 .vs/
 *.sw?
 *.swo
 *~
 .DS_Store
 .DS_Store?
+Thumbs.db
+Desktop.ini
 
 # =============================================================================
-# AI TOOLS
+# AI TOOLS — Claude, Codex, Cursor, etc.
 # =============================================================================
 
-.claude/CLAUDE.md
-.claude/agents/
-.claude/rules/
-.agent/cache/
-.agent/scripts/__pycache__/
+.claude/
+!.claude/projects/
+!.claude/settings.json
+.claude/projects/*/
+!.claude/projects/-tmp/
+.agent/
 .context/
 .gemini/
 .codex/
@@ -75,7 +118,98 @@ build.log
 .cursorrules
 .windsurf/
 .zed/
-obsidian/
+.lmstudio/
+
+# =============================================================================
+# PYTHON
+# =============================================================================
+
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+.eggs/
+*.egg
+dist/
+build/
+venv/
+ENV/
+env/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+.pytest_cache/
+.coverage
+htmlcov/
+*.manifest
+*.spec
+
+# =============================================================================
+# GO
+# =============================================================================
+
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+vendor/
+bin/
+
+# =============================================================================
+# DOCKER
+# =============================================================================
+
+.docker/
+docker-compose.override.yml
+.dockerignore
+
+# =============================================================================
+# TERRAFORM
+# =============================================================================
+
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+.terraform.lock.hcl
+crash.log
+crash.*.log
+*.tfvars
+!example.tfvars
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraformrc
+tfenv/
+
+# =============================================================================
+# CLOUDFORMATION (AWS)
+# =============================================================================
+
+*.template.yaml
+*.template.yml
+awsl/
+
+# =============================================================================
+# HELM
+# =============================================================================
+
+*.tgz
+charts/.helmignore
+
+# =============================================================================
+# KUBERNETES
+# =============================================================================
+
+kubeconfig
+*.kubeconfig
+kubeconfig.local
 
 # =============================================================================
 # MONOREPO SPECIFICS
@@ -84,11 +218,11 @@ obsidian/
 worktrees/
 .claude/worktrees/
 archive/
-.claude/tasks/agent-states/
-.claude/tasks/snapshots/
 runner/data/
 runner/.env
 .Trash-1000/
+.nexus-counters/
+.nexus-tutor/
 
 # =============================================================================
 # TEMPORARY / DEVELOPMENT
@@ -99,16 +233,76 @@ temp/
 .temp/
 *.tmp
 .cache/
+.parcel-cache/
+.sass-cache/
+.npm/
+.yarn-cache/
+__pycache__/
 
 # =============================================================================
-# LANGUAGE / FRAMEWORK
+# LANGUAGE / FRAMEWORK SPECIFIC
 # =============================================================================
 
 *.tsbuildinfo
-apps/perplexity-agent/.venv/
 .eslintcache
-.worktrees/
-.env.bak-*
-.env.backup
-*.pyc
-__pycache__/
+.prettiercache
+.w好不好
+
+# =============================================================================
+# ZFS SNAPSHOTS (local only)
+# =============================================================================
+
+.zfs/
+*.zfs/
+zfzf/
+
+# =============================================================================
+# SECRETS SCANNING — Files that should NEVER contain secrets
+# =============================================================================
+
+# Cloudflare tokens (block during push protection)
+cf_*.sh
+deploy-*.sh
+*tunnel*.sh
+
+# API Keys pattern (for scanning tools)
+# These patterns trigger secret scanning, not real secrets
+sk-REAL-SECRETS-
+cfk_REAL_SECRETS-
+cfut_REAL_SECRETS-
+
+# =============================================================================
+# OS SPECIFIC
+# =============================================================================
+
+# macOS
+.AppleDouble
+.LSOverride
+._*
+
+# Linux
+*~
+
+# =============================================================================
+# BACKUPS & ARCHIVES
+# =============================================================================
+
+*.bak
+*.backup
+*.tar
+*.tar.gz
+*.tgz
+*.zip
+*.rar
+*.7z
+*~
+
+# =============================================================================
+# CREDENTIALS & TOKENS
+# =============================================================================
+
+.github/workflows/secrets.yml
+scripts/*secret*.sh
+*_key.txt
+api_key.txt
+token.txt
