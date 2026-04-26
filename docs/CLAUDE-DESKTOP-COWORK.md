@@ -1,147 +1,106 @@
-# Claude Code Desktop — Linux Cowork + MCP Integration
-
-**Source:** https://code.claude.com/docs/en/desktop
-**Retrieved:** 2026-04-26
-**Purpose:** Enterprise integration reference for Nexus + LiteLLM stack
+# Claude Code Desktop — Linux Cowork + MiniMax Integration
+**Updated:** 2026-04-26
 
 ---
 
-## Overview
+## Status
 
-> Get more out of Claude Code Desktop: parallel sessions with Git isolation, drag-and-drop pane layout, integrated terminal and file editor, side chats, computer use, Dispatch sessions from your phone, visual diff review, app previews, PR monitoring, connectors, and enterprise configuration.
-
-Claude Desktop has three tabs:
-- **Chat** — conversations
-- **Cowork** — Dispatch and longer agentic work
-- **Code** — software development
-
-## Linux Status
-
-**For Windows ARM64:** download the ARM64 installer.
-**For Linux:** "Linux is not supported."
-
-However, an unofficial Linux build exists via community packages. See audit in `/srv/monorepo/docs/` for security details.
+| Component | Status | Endpoint/Model |
+|-----------|--------|----------------|
+| Claude Code CLI | ✅ Working | MiniMax-M2.7 |
+| MiniMax API | ✅ Working | `https://api.minimax.io/anthropic` |
+| llm.zappro.site | ✅ Available | LiteLLM (OpenAI-compat) |
 
 ---
 
-## Environment Configuration
+## Quick Connect (Claude Code CLI)
 
-Before sending first message, configure four things in the prompt area:
+```bash
+export ANTHROPIC_BASE_URL=https://api.minimax.io/anthropic
+export ANTHROPIC_API_KEY=sk-cp-etXmVd5gY30jOBe2a6AvTzWT4olPvnVBld7qcdWBdJqcSFSj4BSWt5YXXwXWkzNfixm8ZVVNxfmP12yC6S8IZhFR9YOlJDggNc6Wlbt0SY4-4jqBrHWG0rc
+export ANTHROPIC_MODEL=MiniMax-M2.7
 
-1. **Environment**: Local machine, Remote (Anthropic-hosted cloud sessions), or SSH connection
-2. **Project folder**: folder or repository Claude works in
-3. **Model**: pick from dropdown
-4. **Permission mode**: how much autonomy Claude has
-
----
-
-## Permission Modes
-
-| Mode | Settings key | Behavior |
-|------|--------------|----------|
-| **Ask permissions** | `default` | Claude asks before editing files or running commands |
-| **Auto accept edits** | `acceptEdits` | Auto-accepts file edits and common filesystem commands |
-| **Plan mode** | `plan` | Reads files, runs commands to explore, proposes plan without editing |
-| **Auto** | `auto` | Executes all actions with background safety checks |
-| **Bypass permissions** | `bypassPermissions` | No permission prompts — use only in sandboxed containers/VMs |
-
----
-
-## Model Configuration
-
-Models are selected from dropdown in the session. For CLI, models are configured via environment variables.
-
-### Connecting to LiteLLM
-
-Claude Code Desktop can connect to custom LLM backends via MCP (Model Context Protocol) or direct API configuration.
-
-Key environment variables for custom backends:
-- `ANTHROPIC_BASE_URL` — proxy endpoint (e.g., `http://localhost:4000` for LiteLLM)
-- `ANTHROPIC_AUTH_TOKEN` — API key for auth
-
----
-
-## MCP (Model Context Protocol)
-
-MCP enables connecting external tools and services. Claude Code Desktop supports MCP servers for:
-- Database connections
-- Filesystem operations
-- Custom tool integrations
-- Vector stores (Qdrant, Mem0)
-- Memory systems
-
-### MCP Configuration Location
-
-Desktop config: `~/.config/Claude/claude_desktop_config.json`
-
-```json
-{
-  "mcpServers": {
-    "memory": {
-      "command": "python",
-      "args": ["/srv/monorepo/mcps/mcp-memory/server.py"],
-      "env": {
-        "QDRANT_HOST": "10.0.19.5:6333",
-        "QDRANT_API_KEY": "your-key"
-      }
-    }
-  }
-}
+claude --print "ping"
 ```
 
 ---
 
-## Enterprise Configuration
+## Claude Code Desktop (GUI) Configuration
 
-Enterprise admins can:
-- Restrict which permission modes are available
-- Disable bypass permissions option
-- Configure team-wide default settings
-
-### Security Notes
-
-- `bypassPermissionsModeEnabled: true` in config requires extreme caution — only use in sandboxed environments
-- API keys should never be hardcoded — use environment variables
-- For LiteLLM integration, use `LITELLM_MASTER_KEY` environment variable
+1. **Download:** https://claude.com/download
+2. **Model:** Select `MiniMax-M2.7` from model dropdown
+3. **API Configuration:**
+   - Base URL: `https://api.minimax.io/anthropic`
+   - API Key: `sk-cp-etXmVd5gY30jOBe2a6AvTzWT4olPvnVBld7qcdWBdJqcSFSj4BSWt5YXXwXWkzNfixm8ZVVNxfmP12yC6S8IZhFR9YOlJDggNc6Wlbt0SY4-4jqBrHWG0rc`
 
 ---
 
-## Key Features
+## MiniMax Token Plan
 
-### Parallel Sessions
-Each session has its own chat history, project folder, and code changes. Run several in parallel.
-
-### Git Integration
-- Review and comment on diffs
-- Monitor PR status via GitHub CLI (`gh`)
-- Auto-fix and auto-merge capabilities
-
-### Preview Pane
-Claude can:
-- Start dev servers automatically
-- Take screenshots to verify changes
-- Test API endpoints
-
-### Terminal
-Integrated terminal shares the same environment as Claude. Available in local sessions only.
+- **Token Plan:** 15K requests / 5h, 500 rpm
+- **API Base:** `https://api.minimax.io` (NOT `api.minimaxi.com`)
+- **Endpoint:** `/anthropic/v1/messages` (Anthropic-compatible)
 
 ---
 
-## SSH Sessions
+## LiteLLM (OpenAI-Compatible)
 
-Claude can connect to remote machines via SSH. Configure in environment dropdown.
+LiteLLM disponível em `https://llm.zappro.site/v1` para serviços que precisam de OpenAI API.
 
----
-
-## Related Documents
-
-- [LiteLLM Configuration](../docs/LITELLM_CONFIG.md) — current LiteLLM setup
-- [MCP Servers](../docs/MCP_SERVERS.md) — MCP integration docs
-- [Enterprise Feature Branch Template](../docs/ENTERPRISE-FEATURE-BRANCH.md)
-- [SRE Dashboard](../SRE-DASHBOARD.md)
+```bash
+# Test LiteLLM
+curl -s -H "Authorization: Bearer sk-zappro-lm-2026-s8k3m9x2p7r6t5w1v4c8n0d5j7f9g3h6i2k4l6m8n0p1" \
+  https://llm.zappro.site/v1/models | jq '.data[].id'
+```
 
 ---
 
-## CLI Comparison (Coming from CLI)
+## Linux Community Build — Configuração
 
-The CLI and Desktop share similar features but some things carry over differently. See CLI docs for environment variable configuration.
+O Claude Desktop Linux (community build) **não tem GUI para configuração de API**. Use uma das opções abaixo:
+
+### Opção 1: .desktop personalizado (RECOMENDADO)
+Lance via `~/.local/share/applications/claude-desktop-minimax.desktop`:
+```bash
+# O .desktop já está configurado neste diretório
+xdg-desktop-menu install --manual ~/.local/share/applications/claude-desktop-minimax.desktop
+```
+
+### Opção 2: Alias no shell
+```bash
+alias claude-minimax='env ANTHROPIC_BASE_URL="https://api.minimax.io/anthropic" \
+  ANTHROPIC_API_KEY="sk-cp-etXmVd5gY30jOBe2a6AvTzWT4olPvnVBld7qcdWBdJqcSFSj4BSWt5YXXwXWkzNfixm8ZVVNxfmP12yC6S8IZhFR9YOlJDggNc6Wlbt0SY4-4jqBrHWG0rc" \
+  ANTHROPIC_MODEL="MiniMax-M2.7" \
+  /usr/bin/claude-desktop'
+```
+
+### Opção 3: Environment vars persistentes (sistema)
+```bash
+# Já configurado em /etc/profile.d/zappro-claude.sh
+# Recarregar: source /etc/profile.d/zappro-claude.sh
+```
+
+### Opção 4: Wrapper script
+```bash
+# ~/.local/bin/claude-desktop já existe com as vars configuradas
+# Adicione ao PATH: export PATH="$HOME/.local/bin:$PATH"
+```
+
+---
+
+## Smoke Test
+
+```bash
+# Test Claude Code CLI
+ANTHROPIC_BASE_URL=https://api.minimax.io/anthropic \
+ANTHROPIC_API_KEY=sk-cp-etXmVd5gY30jOBe2a6AvTzWT4olPvnVBld7qcdWBdJqcSFSj4BSWt5YXXwXWkzNfixm8ZVVNxfmP12yC6S8IZhFR9YOlJDggNc6Wlbt0SY4-4jqBrHWG0rc \
+ANTHROPIC_MODEL=MiniMax-M2.7 \
+claude --print "ping"
+# Expected: pong ✅
+
+# Test LiteLLM
+curl -s -H "Authorization: Bearer sk-zappro-lm-2026-s8k3m9x2p7r6t5w1v4c8n0d5j7f9g3h6i2k4l6m8n0p1" \
+  https://llm.zappro.site/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{"model":"minimax-m2.7","messages":[{"role":"user","content":"ping"}],"max_tokens":5}'
+```
