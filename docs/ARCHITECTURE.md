@@ -391,7 +391,7 @@ if _secrets.exists():
                 os.environ[k.strip()] = v.strip()
 MY_KEY = os.environ.get('MY_KEY', '')
 # Exemplo de anti-pattern (nao fazer):
-MY_KEY = 'sk-123456'
+MY_KEY = ${MY_API_KEY}
 ```
 
 ---

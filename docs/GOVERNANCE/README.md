@@ -106,9 +106,9 @@ SERVICOS PRINCIPAIS:
 
 ```
 # ❌ PROIBIDO — hardcoded
-MY_KEY = 'sk-123456'
+MY_KEY = ${MY_API_KEY}
 STT_URL = 'http://localhost:8202'
-API_KEY = 'sk-abc123...'
+API_KEY = ${API_KEY}
 
 # ✅ CORRETO — sempre via process.env
 const STT_URL = process.env.STT_DIRECT_URL ?? 'http://localhost:8202';
