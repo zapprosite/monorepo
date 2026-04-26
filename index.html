@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fit SaaS V2 - Fitness Tracker</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #0a0a0f;
+      color: #e0e0e0;
+      min-height: 100vh;
+    }
+    .container { max-width: 480px; margin: 0 auto; padding: 20px; }
+    
+    /* Header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 0;
+      border-bottom: 1px solid #1a1a2e;
+    }
+    .logo { font-size: 1.5rem; font-weight: 700; color: #00ff88; }
+    .badge {
+      background: #1a1a2e;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      color: #00ff88;
+    }
+    
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin: 24px 0;
+    }
+    .stat-card {
+      background: #12121a;
+      border: 1px solid #1a1a2e;
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+    }
+    .stat-value { font-size: 1.8rem; font-weight: 700; color: #00ff88; }
+    .stat-label { font-size: 0.75rem; color: #888; margin-top: 4px; }
+    
+    /* Progress Bar */
+    .progress-section { margin: 24px 0; }
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 0.9rem;
+    }
+    .progress-bar {
+      height: 8px;
+      background: #1a1a2e;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #00ff88, #00cc6a);
+      width: 65%;
+      border-radius: 4px;
+      transition: width 0.3s ease;
+    }
+    
+    /* Actions */
+    .actions { display: flex; gap: 12px; margin: 24px 0; }
+    .btn {
+      flex: 1;
+      padding: 14px;
+      border: none;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .btn-primary { background: #00ff88; color: #0a0a0f; }
+    .btn-secondary { background: #1a1a2e; color: #e0e0e0; }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,255,136,0.2); }
+    
+    /* Activity List */
+    .activity-list { margin: 24px 0; }
+    .section-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 16px; color: #fff; }
+    .activity-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      background: #12121a;
+      border-radius: 10px;
+      margin-bottom: 8px;
+    }
+    .activity-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+    }
+    .icon-run { background: #00ff8833; }
+    .icon-gym { background: #ff6b6b33; }
+    .icon-yoga { background: #4ecdc433; }
+    .activity-info { flex: 1; }
+    .activity-name { font-weight: 600; font-size: 0.95rem; }
+    .activity-meta { font-size: 0.8rem; color: #888; }
+    .activity-cal { font-weight: 700; color: #00ff88; }
+    
+    /* Footer Nav */
+    .footer-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #12121a;
+      border-top: 1px solid #1a1a2e;
+      padding: 12px;
+      display: flex;
+      justify-content: space-around;
+    }
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.7rem;
+      color: #666;
+      cursor: pointer;
+    }
+    .nav-item.active { color: #00ff88; }
+    .nav-icon { font-size: 1.4rem; }
+    
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-100px);
+      background: #00ff88;
+      color: #0a0a0f;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-weight: 600;
+      z-index: 1000;
+      transition: transform 0.3s ease;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <div class="logo">⚡ FitV2</div>
+      <span class="badge">V2.0</span>
+    </header>
+    
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-value" id="calories">1,847</div>
+        <div class="stat-label">Calorias</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="steps">8,432</div>
+        <div class="stat-label">Passos</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="minutes">127</div>
+        <div class="stat-label">Minutos</div>
+      </div>
+    </div>
+    
+    <div class="progress-section">
+      <div class="progress-header">
+        <span>Meta Diária</span>
+        <span id="progress-text">65%</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progress-fill" style="width: 65%"></div>
+      </div>
+    </div>
+    
+    <div class="actions">
+      <button class="btn btn-primary" onclick="logActivity()">+ Log Atividade</button>
+      <button class="btn btn-secondary" onclick="syncData()">↻ Sincronizar</button>
+    </div>
+    
+    <div class="activity-list">
+      <h3 class="section-title">Atividades Recentes</h3>
+      <div id="activities">
+        <div class="activity-item">
+          <div class="activity-icon icon-run">🏃</div>
+          <div class="activity-info">
+            <div class="activity-name">Corrida Matinal</div>
+            <div class="activity-meta">Hoje, 06:30 • 45 min</div>
+          </div>
+          <div class="activity-cal">-320 kcal</div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-icon icon-gym">🏋️</div>
+          <div class="activity-info">
+            <div class="activity-name">Treino HIIT</div>
+            <div class="activity-meta">Hoje, 18:00 • 30 min</div>
+          </div>
+          <div class="activity-cal">-280 kcal</div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-icon icon-yoga">🧘</div>
+          <div class="activity-info">
+            <div class="activity-name">Yoga Relax</div>
+            <div class="activity-meta">Ontem, 20:00 • 52 min</div>
+          </div>
+          <div class="activity-cal">-150 kcal</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="footer-nav">
+    <div class="nav-item active">
+      <span class="nav-icon">🏠</span>
+      <span>Início</span>
+    </div>
+    <div class="nav-item">
+      <span class="nav-icon">📊</span>
+      <span>Stats</span>
+    </div>
+    <div class="nav-item">
+      <span class="nav-icon">📅</span>
+      <span>Histórico</span>
+    </div>
+    <div class="nav-item">
+      <span class="nav-icon">⚙️</span>
+      <span>Config</span>
+    </div>
+  </div>
+  
+  <div class="toast" id="toast">Atividade registrada!</div>
+  
+  <script>
+    // LocalStorage persistence
+    const STORAGE_KEY = 'fit-v2-data';
+    
+    function loadData() {
+      const data = localStorage.getItem(STORAGE_KEY);
+      return data ? JSON.parse(data) : { calories: 1847, steps: 8432, minutes: 127, activities: [] };
+    }
+    
+    function saveData(data) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    }
+    
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2500);
+    }
+    
+    function updateStats(data) {
+      document.getElementById('calories').textContent = data.calories.toLocaleString();
+      document.getElementById('steps').textContent = data.steps.toLocaleString();
+      document.getElementById('minutes').textContent = data.minutes;
+      
+      const progress = Math.min(100, Math.round(data.minutes / 2));
+      document.getElementById('progress-text').textContent = progress + '%';
+      document.getElementById('progress-fill').style.width = progress + '%';
+    }
+    
+    function logActivity() {
+      const activities = ['Corrida', 'Caminhada', 'HIIT', 'Yoga', 'Natação', 'Ciclismo'];
+      const activity = activities[Math.floor(Math.random() * activities.length)];
+      const minutes = Math.floor(Math.random() * 30) + 15;
+      const calories = Math.floor(minutes * 7);
+      
+      const data = loadData();
+      data.calories += calories;
+      data.steps += Math.floor(minutes * 100);
+      data.minutes += minutes;
+      
+      saveData(data);
+      updateStats(data);
+      showToast(`${activity} +${minutes}min, -${calories}kcal`);
+    }
+    
+    function syncData() {
+      showToast('Sincronizado com cloud...');
+    }
+    
+    // Init
+    const data = loadData();
+    updateStats(data);
+  </script>
+</body>
+</html>
