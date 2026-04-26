@@ -13,13 +13,7 @@ jobs:
           fetch-depth: 0
 
       - name: Setup pnpm
-        uses: actions/setup-node@v6
-        with:
-          node-version: '22'
-          cache: 'pnpm'
-
-      - name: Enable pnpm via corepack
-        run: corepack enable && corepack prepare pnpm@9.0.6 --activate
+        run: npm install -g pnpm@9.0.6
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
