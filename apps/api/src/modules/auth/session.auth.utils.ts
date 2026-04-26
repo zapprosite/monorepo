@@ -17,6 +17,7 @@ export interface SessionUser {
 	email: string;
 	name: string | null;
 	displayPicture: string | null;
+	teamId?: string | null;
 }
 
 /**

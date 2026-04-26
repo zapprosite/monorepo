@@ -11,6 +11,7 @@ export class SessionTable extends BaseTable {
 			email: t.string(),
 			name: t.string().nullable(),
 			displayPicture: t.string().nullable(),
+			teamId: t.uuid().nullable(), // IDOR fix: team isolation in session
 			ipAddress: t.string().nullable(),
 			userAgent: t.text().nullable(),
 			browser: t.string().nullable(),
