@@ -23,7 +23,10 @@ jobs:
 
       # TODO: Fix pnpm 9.0.6 worker crash - using pnpm 9 (non-exact)
       - name: Install dependencies
-        run: pnpm install
+        env:
+          PNPM_HOME: /home/runner/.pnpm
+          PNPM_CONFIG_IGNORE_SCRIPTS: 'true'
+        run: pnpm install --ignore-scripts
 
       - name: Type check
         run: pnpm tsc --noEmit || npx tsc --noEmit
