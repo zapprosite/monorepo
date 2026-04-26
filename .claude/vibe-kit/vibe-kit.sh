@@ -182,9 +182,8 @@ print(f'total={total} pending={pending} running={running} done={done} failed={fa
 }
 
 echo "[$(date -u)] vibe-kit.sh started (PID=$$, MAX_WORKERS=$MAX_WORKERS)" >> $LOGDIR/vibe-kit.log
-update_state "looping" "idle" 0
-
 START_EPOCH=$(date +%s)
+update_state "looping" "idle" 0
 TASKS_SINCE_SNAPSHOT=0
 SHUTDOWN_REQUESTED=0
 
