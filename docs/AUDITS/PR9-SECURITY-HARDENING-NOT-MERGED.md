@@ -1,9 +1,10 @@
 # PR #9 — Security Hardening — NOT MERGED
 
 **Status:** Closed without merge
-**Date closed:** ~April 2026 (before PR #10)
+**Date closed:** 2026-04-26
 **Author:** (review required)
-**PR link:** (to be filled — `gh pr view 9` for details)
+**PR link:** https://github.com/zapprosite/monorepo/pull/9
+**PR title:** "feat: enterprise security hardening + IDOR protection"
 
 ---
 

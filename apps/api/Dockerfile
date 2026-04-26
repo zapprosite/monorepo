@@ -9,7 +9,7 @@ RUN apk add --no-cache python3 make g++
 WORKDIR /app
 
 # Copy package files first for better layer caching
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./ 2>/dev/null || true
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 
 # Copy entire monorepo for pruning
 COPY . .
