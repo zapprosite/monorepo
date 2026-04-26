@@ -1,130 +1,114 @@
-# Homelab Monorepo — Documentacao
+# Documentation Index
 
-**O que e:** Monorepo do homelab zappro.site — infraestrutura auto-hospedada com GPU, agentes AI, e pipelines de deploy via Cloudflare Tunnel.
-
-**Doc de arquitetura:** [ARCHITECTURE-OVERVIEW.md](./ARCHITECTURE-OVERVIEW.md) — stack completo com topologia de rede, servicos, e conexoes.
+**Version:** 1.0.0 | **Updated:** 2026-04-25 | **Owner:** Platform Engineering
 
 ---
 
-## Estrutura de Docs
+## Quick Navigation
+
+| Category | What You Need | Doc |
+|---------|---------------|-----|
+| **Start Here** | Overview of the monorepo | [README.md](../README.md) |
+| **Start Here** | Agent instructions | [CLAUDE.md](../CLAUDE.md) |
+| **Start Here** | Full infrastructure map | [AGENTS.md](../AGENTS.md) |
+| **Operations** | SRE automation | [NEXUS-SRE-GUIDE.md](./NEXUS-SRE-GUIDE.md) |
+| **Operations** | Runbooks | [runbooks/README.md](./runbooks/README.md) |
+| **Architecture** | System overview | [ARCHITECTURE-OVERVIEW.md](./ARCHITECTURE-OVERVIEW.md) |
+| **Architecture** | Stable architecture | [ARCHITECTURE-STABLE.md](./ARCHITECTURE-STABLE.md) |
+| **Features** | All specifications | [SPECS/INDEX.md](./SPECS/INDEX.md) |
+| **Reference** | Scripts catalog | [SCRIPTS_CATALOG.md](./SCRIPTS_CATALOG.md) |
+
+---
+
+## Documentation Structure
 
 ```
 docs/
-├── ARCHITECTURE-OVERVIEW.md  <- Stack overview
-├── GOVERNANCE/               <- CONTRACT, GUARDRAILS, SECRETS-MANDATE, PINNED-SERVICES, IMMUTABLE-SERVICES, EXCEPTIONS, CHANGE_POLICY, MASTER-PASSWORD-PROCEDURE
-├── INFRASTRUCTURE/            <- PORTS, SUBDOMAINS, NETWORK_MAP, SERVICE_MAP
-├── SPECS/                    <- Especificacoes (SPEC-053, 058, 059, 060, 063, 064)
-├── GUIDES/                   <- discovery, backup-runbook, LANGUAGE-STANDARDS
-└── ADRs/                     <- ADR-001 (denv canonical)
+├── README.md                    ← THIS FILE
+├── ARCHITECTURE-OVERVIEW.md    ← System overview
+├── ARCHITECTURE-STABLE.md      ← Stable architecture reference
+├── NEXUS-SRE-GUIDE.md         ← SRE automation guide
+├── runbooks/                   ← Operational runbooks
+│   ├── README.md
+│   ├── HEALTH_CHECK.md
+│   ├── INCIDENT_RESPONSE.md
+│   ├── BACKUP_RESTORE.md
+│   └── DEPLOYMENT.md
+├── SPECS/                     ← Feature specifications
+│   ├── INDEX.md               ← SPEC index
+│   └── SPEC-*.md             ← Individual specs
+├── ADRs/                      ← Architecture Decision Records
+├── GOVERNANCE/                ← Security and operational governance
+├── GUIDES/                    ← How-to guides
+└── ops/                       ← Infrastructure operations
 ```
 
 ---
 
-## Onde Ir
+## Enterprise Standards
 
-### GOVERNANCE/ — Regras do Sistema
-
-| Pergunta                     | Doc                                                         |
-| ---------------------------- | ----------------------------------------------------------- |
-| "O que e proibido?"          | [GUARDRAILS.md](./GOVERNANCE/GUARDRAILS.md)                 |
-| "Como fazer mudanca segura?" | [CHANGE_POLICY.md](./GOVERNANCE/CHANGE_POLICY.md)           |
-| "Secrets: onde estao?"       | [SECRETS-MANDATE.md](./GOVERNANCE/SECRETS-MANDATE.md)       |
-| "Servicos imutaveis?"        | [IMMUTABLE-SERVICES.md](./GOVERNANCE/IMMUTABLE-SERVICES.md) |
-| "Servicos pinned?"           | [PINNED-SERVICES.md](./GOVERNANCE/PINNED-SERVICES.md)       |
-| "Exceptions?"                | [EXCEPTIONS.md](./GOVERNANCE/EXCEPTIONS.md)                 |
-
-### INFRASTRUCTURE/ — Infraestrutura Tecnica
-
-| Pergunta                 | Doc                                               |
-| ------------------------ | ------------------------------------------------- |
-| "Qual porta esta livre?" | [PORTS.md](./INFRASTRUCTURE/PORTS.md)             |
-| "Subdominio existe?"     | [SUBDOMAINS.md](./INFRASTRUCTURE/SUBDOMAINS.md)   |
-| "Topologia de rede?"     | [NETWORK_MAP.md](./INFRASTRUCTURE/NETWORK_MAP.md) |
-| "Servicos: onde correm?" | [SERVICE_MAP.md](./INFRASTRUCTURE/SERVICE_MAP.md) |
-
-### SPECS/ — Features e Servicos Activos
-
-| SPEC | Descricao                                              | Estado      |
-| ---- | ------------------------------------------------------ | ----------- |
-| 053  | Hermes 100% Local Voice+Vision (Ollama+Whisper+Kokoro) | DONE        |
-| 058  | Hermes Agency Suite (11 skills, Telegram bot)          | IMPLEMENTED |
-| 059  | Hermes Agency Datacenter Hardening (HC-23/31/33/36)    | COMPLETED   |
-| 060  | Hermes Agency Post-Hardening Improvements              | COMPLETED   |
-| 063  | Super Review Enterprise Refactor                       | DONE        |
-| 064  | Super Polish — Prune Legacy                            | DONE        |
-| 090  | Orchestrator v3 Redesign (14→3 fases, $0.50/pipeline) | IN PROGRESS |
-
+### Header Format
+```markdown
 ---
-
-## Stack de Infraestrutura
-
-| Servico        | Tipo          | Porta | Proposito                            |
-| -------------- | ------------- | ----- | ------------------------------------ |
-| ai-gateway     | OpenAI compat | 4002  | Gateway unificado para todos os LLMs |
-| Hermes Gateway | Agent         | 3001  | Agent brain + routing + skills       |
-| STT (whisper)  | STT           | 8204  | faster-whisper-medium-pt             |
-| TTS (Kokoro)   | TTS Bridge    | 8013  | Kokoro TTS com vozes PT-BR           |
-| Ollama         | LLM Engine    | 11434 | Inference local (qwen2.5vl:7b)       |
-
-Ver [ARCHITECTURE-OVERVIEW.md](./ARCHITECTURE-OVERVIEW.md) para diagrama completo.
-
+title: <Document Title>
+description: <Short description>
+version: 1.0.0
+status: production|draft|review
+owner: <team>
+lastUpdated: YYYY-MM-DD
 ---
-
-## Secrets — Regra de Ouro
-
-**Todas as secrets estao em `.env`** (fonte canonica).
-
-Ver [SECRETS-MANDATE.md](./GOVERNANCE/SECRETS-MANDATE.md) para politica completa.
-
----
-
-## Para Agentes Claude Code
-
-1. **Ler antes de trabalhar:** [ARCHITECTURE-OVERVIEW.md](./ARCHITECTURE-OVERVIEW.md)
-2. **Regras de governanca:** [GOVERNANCE/](./GOVERNANCE/)
-3. **Estado actual da infra:** [INFRASTRUCTURE/](./INFRASTRUCTURE/)
-4. **Secrets:** `.env` na raiz do monorepo — nunca perguntar por valores
-
-### Orchestrator (/execute)
-
-```
-/execute <desc>  → /spec → /pg → 14 agentes paralelos → SHIPPER cria PR
 ```
 
-### Skills Disponiveis
+### Document Types
 
-| Skill                           | Uso                           |
-| ------------------------------- | ----------------------------- |
-| `orchestrator/`                 | 14-agent system               |
-| `cloudflare-tunnel-enterprise/` | Gerir tunnels e subdomínios   |
-| `gitea-access/`                 | Gitea API integration         |
-| `minimax-security-audit/`       | OWASP + secrets audit         |
-| `secrets-audit/`                | Scan de secrets antes de push |
-| `smoke-test-gen/`               | Gerar smoke tests             |
-
----
-
-## Comandos Uteis
-
-```bash
-# Ver ports em uso
-ss -tlnp | grep -E ':[0-9]+'
-
-# Ver subdomínios activos
-cat docs/INFRASTRUCTURE/SUBDOMAINS.md
-
-# Ver servicos e estado
-cat docs/INFRASTRUCTURE/SERVICE_MAP.md
-
-# Audit de branches (antes de push)
-bash /srv/ops/scripts/audit-branches.sh
-
-# Smoke tests
-bash smoke-tests/smoke-multimodal-stack.sh
-```
+| Type | Purpose | Template |
+|------|---------|----------|
+| **Architecture** | System design | [ARCHITECTURE-STABLE.md](./ARCHITECTURE-STABLE.md) |
+| **Runbook** | Operational procedure | [runbooks/README.md](./runbooks/README.md) |
+| **SPEC** | Feature specification | [SPECS/INDEX.md](./SPECS/INDEX.md) |
+| **ADR** | Decision record | [ADRs/](./ADRs/) |
+| **Guide** | How-to | [GUIDES/](./GUIDES/) |
 
 ---
 
-## Atualizacao de Docs
+## Key References
 
-Docs sao sincronizados para memory via ai-context apos cada commit.
+### Security
+- [SECRETS-CLEANUP.md](./SECRETS-CLEANUP.md) — Secrets cleanup runbook
+- [SECURITY_ARCHITECTURE.md](./SECURITY_ARCHITECTURE.md) — Security overview
+
+### Infrastructure
+- [NEXUS-SRE-GUIDE.md](./NEXUS-SRE-GUIDE.md) — SRE automation
+- [OBSERVABILITY.md](./OBSERVABILITY.md) — Monitoring and metrics
+- [FAULT_TOLERANCE.md](./FAULT_TOLERANCE.md) — Resilience patterns
+
+### Development
+- [CICD.md](./CICD.md) — CI/CD pipeline
+- [SKILL_TAXONOMY.md](./SKILL_TAXONOMY.md) — Agent skills taxonomy
+
+---
+
+## Maintenance
+
+### Updating Docs
+1. Follow header format above
+2. Update `lastUpdated` date
+3. Update version if breaking change
+4. Commit with appropriate type (`docs:`, `feat:`, `fix:`)
+
+### Doc Review Checklist
+- [ ] All links valid
+- [ ] Header complete (version, status, owner, date)
+- [ ] No hardcoded secrets
+- [ ] Commands tested
+- [ ] Examples verified
+
+---
+
+## Contact
+
+| Role | Contact |
+|------|---------|
+| Platform Lead | @will |
+| SRE On-Call | NEXUS auto-escalate |
+| Documentation | Docs Team |

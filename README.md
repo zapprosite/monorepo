@@ -1,204 +1,169 @@
 ---
-created: 2026-04-23
-updated: 2026-04-23
-owner: equipe-ops@zappro.site
-status: ativo
-version: 1.0.0
+title: Homelab Monorepo
+description: Enterprise-grade AI orchestration platform with multi-agent architecture
+version: 2.0.0
+status: production
+owner: Platform Engineering
+lastUpdated: 2026-04-25
 ---
 
-# Homelab Monorepo
+# 🏠 Homelab Monorepo — Enterprise Platform
 
-> Plataforma de orquestração de agentes AI — Fastify + tRPC API, React 19 frontend, PostgreSQL (OrchidORM), Qdrant vector DB, Hermes AI agent.
+[![Health](https://img.shields.io/badge/Status-Healthy-brightgreen)](https://gym.zappro.site)
+[![Platform](https://img.shields.io/badge/Platform-x86_64-linux-orange)]()
+[![License](https://img.shields.io/badge/License-MIT-blue)]()
 
-## Stack Tecnológico
+> **AI-powered homelab orchestration platform** — Multi-agent orchestration, RAG infrastructure, and SRE automation for self-hosted AI services.
 
-| Camada | Tecnologia |
-|--------|------------|
-| API | Fastify + tRPC + OrchidORM + PostgreSQL |
-| Frontend | React 19 + Vite + MUI + TanStack Query |
-| AI Gateway | LiteLLM proxy + Ollama + MiniMax |
-| Vector DB | Qdrant |
-| Agente | Hermes (`:8642`) |
-| STT | whisper-medium-pt (`:8204`) |
-| Database UI | pgAdmin (`pgadmin.zappro.site`) |
-| MCP Servers | mcp-memory (`:4016`), mcp-ollama (`:4013`), mcp-qdrant (`:4011`), mcp-cron (`:4015`), mcp-coolify (`:4012`), mcp-system (`:4014`) |
+## 🎯 Overview
 
-## Índice
+This monorepo powers [zappro.site](https://zappro.site), a self-hosted AI platform featuring:
 
-- [Stack Tecnológico](#stack-tecnológico)
-- [Serviços](#serviços)
-- [Agentes](#agentes)
-- [Quick Start](#quick-start)
-- [Configuração](#configuração)
-- [Estrutura do Projeto](#estrutura-do-projeto)
-- [Arquitetura](#arquitetura)
-- [Contribuir](#contribuir)
-- [Licença](#licença)
+- **AI Agent Gateway** — Hermes multi-agent orchestration with Mem0 memory
+- **Vector RAG** — Qdrant-powered retrieval augmented generation
+- **LLM Proxy** — LiteLLM multi-provider gateway (Ollama, MiniMax, Groq)
+- **SRE Automation** — Nexus framework for observability and incident response
+- **Git Hosting** — Gitea with multi-agent CI/CD
 
-## Serviços
+## 🏗️ Architecture
 
-**32 containers em produção**
+```mermaid
+graph TB
+    Internet["🌐 Internet"]
+    CF["☁️ Cloudflare Edge"]
+    Tunnel["🔒 Cloudflare Tunnel<br/>(aee7a93d...)"]
+    Gym["🏋️ Gym MVP<br/>gym.zappro.site<br/>:4010"]
+    Hermes["🤖 Hermes Agent<br/>hermes.zappro.site<br/>:8642"]
+    API["⚡ API Gateway<br/>api.zappro.site<br/>:4000"]
+    Chat["💬 Chat Service<br/>chat.zappro.site<br/>:3456"]
+    LLM["🧠 LLM Gateway<br/>llm.zappro.site<br/>:4002"]
+    Qdrant["📊 Qdrant<br/>qdrant.zappro.site<br/>:6333"]
+    Coolify["🚀 Coolify<br/>coolify.zappro.site<br/>:8000"]
+    Gitea["📝 Gitea<br/>git.zappro.site<br/>:3300"]
 
-| Serviço | URL | Porta |
-|---------|-----|-------|
-| Gitea | `https://git.zappro.site` | 3300 |
-| Open WebUI | `https://openwebui.zappro.site` | 8080 |
-| pgAdmin | `https://pgadmin.zappro.site` | 4050 |
-| Obsidian Web | `https://obsidian.zappro.site` | 8080 |
-| AI Gateway | `https://ai.zappro.site` | 4002 |
-| Searxng | `https://search.zappro.site` | 8080 |
-| Painel Organism | `https://painel.zappro.site` | 4005 |
-| LiteLLM | `https://llm.zappro.site` | 4000 |
-| Hermes Gateway | `https://hermes.zappro.site` | 8642 |
+    Internet --> CF
+    CF --> Tunnel
+    Tunnel --> Gym
+    Tunnel --> Hermes
+    Tunnel --> API
+    Tunnel --> Chat
+    Tunnel --> LLM
+    Tunnel --> Qdrant
+    Tunnel --> Coolify
+    Tunnel --> Gitea
 
-## Agentes
+    Gym --> Hermes
+    Hermes --> Qdrant
+    Hermes --> LLM
+    API --> Hermes
+    API --> Qdrant
+    API --> LLM
+```
 
-| Agente | Descrição | Porta |
-|--------|-----------|-------|
-| `mcp-memory` | Memory Agent para contexto persistente | `:4016` |
-| `mcp-ollama` | Ferramentas Ollama para Claude Code | `:4013` |
-| `mcp-qdrant` | Vector DB tools para RAG | `:4011` |
-| `mcp-cron` | Agendamento de tarefas | `:4015` |
-| `mcp-coolify` | Orquestração de containers | `:4012` |
-| `mcp-system` | Info do sistema + ZFS | `:4014` |
+## 📊 Service Health
 
-## Quick Start
+| Service | Status | URL | Port |
+|---------|--------|-----|------|
+| Gym MVP | ✅ Healthy | `https://gym.zappro.site` | 4010 |
+| Hermes Agent | ✅ Healthy | `https://hermes.zappro.site` | 8642 |
+| API Gateway | ✅ Healthy | `https://api.zappro.site` | 4000 |
+| Chat Service | ✅ Healthy | `https://chat.zappro.site` | 3456 |
+| LLM Gateway | ✅ Healthy | `https://llm.zappro.site` | 4002 |
+| Qdrant DB | ✅ Healthy | `https://qdrant.zappro.site` | 6333 |
+| Coolify PaaS | ✅ Healthy | `https://coolify.zappro.site` | 8000 |
+| Gitea Git | ✅ Healthy | `https://git.zappro.site` | 3300 |
+| PGAdmin | ✅ Healthy | `https://pgadmin.zappro.site` | 4050 |
+
+**Verify:** `nexus-investigate.sh all 3`
+
+## 📁 Directory Structure
+
+### `/srv/` — Core Services
+
+| Directory | Purpose | Status |
+|-----------|---------|--------|
+| `monorepo/` | **THIS REPO** — Nexus + Hermes + Mem0 | ✅ ACTIVE |
+| `ops/` | Infrastructure as Code (Terraform) | ✅ ACTIVE |
+| `hermes-second-brain/` | Mem0-backed knowledge graph | ✅ ACTIVE |
+| `fit-tracker-v2/` | Fitness tracking app | ✅ ACTIVE |
+| `hvacr-swarm/` | HVAC automation | ✅ ACTIVE |
+| `edge-tts/` | Edge TTS service | ✅ ACTIVE |
+| `data/` | ZFS persistent volumes | ✅ ACTIVE |
+| `backups/` | Backup storage | ✅ ACTIVE |
+| `docker-data/` | Docker volumes | ✅ ACTIVE |
+| `models/` | Ollama LLM models | ✅ ACTIVE |
+| `archive/` | Archived projects | ✅ ORGANIZED |
+
+### `/home/will/` — Ubuntu Desktop LTS
+
+| Directory | Purpose | Status |
+|-----------|---------|--------|
+| `pc-cel/` | RustDesk remote control | ✅ ACTIVE |
+| `go/` | Go modules (gentle-ai, gopls) | ✅ ACTIVE |
+| `dev/skills/` | Homelab skills | ✅ ACTIVE |
+| `mcp-data/memory-keeper/` | Context database | ✅ ACTIVE |
+| `obsidian-vault/` | Personal notes | ✅ ACTIVE |
+| `.local/bin/codex` | Codex CLI 0.124.0 | ✅ ACTIVE |
+
+## 🤖 Nexus SRE Framework
+
+**7 Modes × 7 Agents = 49 Specializations**
+
+| Mode | Agents |
+|------|--------|
+| debug | log-diagnostic, stack-trace, perf-profiler, network-tracer, security-scanner, sre-monitor, incident-response |
+| test | unit-tester, integration-tester, e2e-tester, coverage-analyzer, boundary-tester, flaky-detector, property-tester |
+| backend | api-developer, service-architect, db-migrator, cache-specialist, auth-engineer, event-developer, file-pipeline |
+| frontend | component-dev, responsive-dev, state-manager, animation-dev, a11y-auditor, perf-optimizer, design-system |
+| review | correctness-reviewer, readability-reviewer, architecture-reviewer, security-reviewer, perf-reviewer, dependency-auditor, quality-scorer |
+| docs | api-doc-writer, readme-writer, changelog-writer, inline-doc-writer, diagram-generator, adr-writer, doc-coverage-auditor |
+| deploy | docker-builder, compose-orchestrator, coolify-deployer, secret-rotator, rollback-executor, zfs-snapshotter, health-checker |
+
+## 🚀 Quick Start
 
 ```bash
-# Clonar o repositório
+# Clone
 git clone https://git.zappro.site/will-zappro/monorepo.git
 cd monorepo
 
-# Instalar dependências
+# Install dependencies
 pnpm install
 
-# Desenvolvimento (todos os apps)
+# Development
 pnpm dev
 
-# Build de produção
+# Production build
 pnpm build
-
-# Lint
-pnpm lint
 
 # Type check
 pnpm tsc --noEmit
 ```
 
-## Configuração
+## 🔐 Security Governance
 
-### Variáveis de Ambiente
+- All secrets via `.env` — never hardcoded
+- See `.env.example` for template
+- Cloudflare tunnel authentication via Global Key
+- ZFS snapshots before risky operations
 
-```bash
-# Database
-DATABASE_URL=postgresql://user:pass@localhost:5432/monorepo
+## 📖 Documentation
 
-# LiteLLM
-LITELLM_API_KEY=your-key
-LITELLM_MASTER_KEY=your-master-key
+| Document | Description |
+|---------|-------------|
+| [AGENTS.md](AGENTS.md) | Multi-agent orchestration + full infrastructure map |
+| [CLAUDE.md](CLAUDE.md) | Agent instructions + security rules |
+| [NEXUS-SRE-GUIDE.md](docs/NEXUS-SRE-GUIDE.md) | SRE automation, health checks, cron jobs |
+| [SPECs/](docs/SPECS/) | Feature specifications |
+| [docs/README.md](docs/README.md) | Documentation index |
+| [/srv/hermes-second-brain/CLAUDE.md](/srv/hermes-second-brain/CLAUDE.md) | Knowledge graph docs |
 
-# Hermes Gateway
-HERMES_GATEWAY_URL=http://localhost:8642
+## 📊 Status
 
-# Qdrant
-QDRANT_URL=http://localhost:6333
-```
+- **Services:** 9/9 Healthy ✅
+- **Architecture Violations:** 0
+- **Empty Files:** 0
+- **Pending Alerts:** 0
 
-### Portas dos Serviços
+---
 
-| Serviço | Porta | Descrição |
-|---------|-------|----------|
-| API Fastify | 3000 | Backend principal |
-| PostgreSQL | 5432 | Banco relacional |
-| Qdrant | 6333 | Vector DB |
-| Redis | 6379 | Cache + sessions |
-| Ollama | 11434 | LLM local |
-| LiteLLM | 4000 | Proxy multi-provider |
-| Hermes | 8642 | Agent gateway |
-
-## Estrutura do Projeto
-
-```
-monorepo/
-├── apps/
-│   ├── painel-organism/    # Dashboard homelab (React)
-│   └── web/                # Frontend principal
-├── packages/
-│   ├── api/                # Fastify + tRPC
-│   ├── db/                 # OrchidORM schemas
-│   └── config/             # Shared configs
-├── docs/                   # Documentação enterprise
-├── scripts/                # Scripts ops
-└── agents/                 # Agentes especializados
-```
-
-## Arquitetura
-
-```
-┌─────────────────────────────────────────────────────────┐
-│                    Claude Code CLI                      │
-└─────────────────────────────────────────────────────────┘
-                            │
-                            ▼
-                            │
-            ┌───────────────┼───────────────┐
-            ▼               ▼               ▼
-      ┌──────────┐    ┌──────────┐    ┌──────────┐
-      │ Mem0    │    │ Qdrant  │    │ Trieve   │
-      │ Memory  │    │ RAG     │    │ Search   │
-      └──────────┘    └──────────┘    └──────────┘
-            │               │               │
-            └───────────────┼───────────────┘
-                            ▼
-                      ┌──────────┐
-                      │ LiteLLM  │
-                      │ Proxy   │
-                      └──────────┘
-                            │
-         ┌──────────────────┼──────────────────┐
-         ▼                  ▼                  ▼
-   ┌──────────┐       ┌──────────┐       ┌──────────┐
-   │ Ollama  │       │ MiniMax │       │  Groq   │
-   │ (RTX)   │       │ Cloud   │       │  Cloud  │
-   └──────────┘       └──────────┘       └──────────┘
-```
-
-## Comandos
-
-| Cmd | Uso |
-|-----|-----|
-| `/spec <desc>` | Spec-driven workflow |
-| `/pg` | Gerar pipeline a partir de SPECs |
-| `/ship` | Commit + push + PR |
-| `/turbo` | Commit + merge + tag |
-| `/img` | Análise de imagem (Qwen2.5-VL) |
-
-## Documentação
-
-- `docs/SPECS/` — Especificações de features
-- `docs/ARCHITECTURE-OVERVIEW.md` — Overview da stack completa
-- `docs/HOMELAB-OPS.md` — Manual de operações do homelab
-- `docs/HERMES-OPS.md` — Manual do Hermes Agency
-- `docs/INFRASTRUCTURE/PORTS.md` — Registo de portas
-
-## Secrets
-
-Todas via `.env`. Ver `.env.example`. Nunca hardcodar.
-
-## Status do Homelab
-
-- **Uptime:** 1 dia, 15 horas
-- **Containers:** 32 em execução
-- **Load:** 0.75 / 0.81 / 1.08
-
-## Contribuir
-
-1. Fork o repositório
-2. Cria um branch: `git checkout -b feature/nome`
-3. Commit: `git commit -m 'feat: adiciona feature'`
-4. Push: `git push origin feature/nome`
-5. Abre um Pull Request
-
-## Licença
-
-MIT License — Copyright © 2026 [zappro.site](https://zappro.site)
+**MIT License** — Copyright © 2026 [zappro.site](https://zappro.site)
