@@ -1,0 +1,19 @@
+services:
+  perplexity-agent:
+    build: .
+    image: perplexity-agent:latest
+    container_name: perplexity-agent
+    ports:
+      - "4004:4004"
+    volumes:
+      - /srv/data/perplexity-agent/chrome-profile:/srv/data/perplexity-agent/chrome-profile
+    environment:
+      - STREAMLIT_PORT=4004
+      - CHROME_PROFILE_PATH=/srv/data/perplexity-agent/chrome-profile
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:4004/_stcore/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s

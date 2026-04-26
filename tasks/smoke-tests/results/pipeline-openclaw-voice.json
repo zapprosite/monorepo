@@ -1,0 +1,158 @@
+{
+  "pipeline": "pipeline-openclaw-voice",
+  "description": "OpenClaw Voice Pipeline — TTS, STT, Vision, LLM via LiteLLM + Kokoro + wav2vec2",
+  "script": "tasks/smoke-tests/pipeline-openclaw-voice.sh",
+  "status": "PASS",
+  "timestamp": "2026-04-08T14:45:00Z",
+  "specs": [
+    "docs/specflow/SPEC-004-kokoro-tts-kit.md",
+    "docs/specflow/SPEC-005-wav2vec2-stt-kit.md"
+  ],
+  "results": [
+    {
+      "id": "INF-001",
+      "section": "Infrastructure",
+      "name": "OpenClaw container running",
+      "status": "PASS",
+      "model": null,
+      "latency_ms": null,
+      "output": "container Up"
+    },
+    {
+      "id": "INF-002",
+      "section": "Infrastructure",
+      "name": "OpenClaw Gateway health",
+      "status": "PASS",
+      "model": null,
+      "latency_ms": null,
+      "output": "reachable via localhost:8080"
+    },
+    {
+      "id": "INF-003",
+      "section": "Infrastructure",
+      "name": "OpenClaw API health",
+      "status": "PASS",
+      "model": null,
+      "latency_ms": null,
+      "output": "reachable"
+    },
+    {
+      "id": "STT-001",
+      "section": "STT",
+      "name": "wav2vec2 STT health",
+      "status": "PASS",
+      "model": "wav2vec2-large-xlsr-53-portuguese",
+      "latency_ms": null,
+      "output": "HTTP 200 /health"
+    },
+    {
+      "id": "STT-002",
+      "section": "STT",
+      "name": "wav2vec2 transcription",
+      "status": "PASS",
+      "model": "wav2vec2-large-xlsr-53-portuguese",
+      "latency_ms": null,
+      "output": "'Olá, como vai você?'"
+    },
+    {
+      "id": "STT-003",
+      "section": "STT",
+      "name": "STT via LiteLLM (whisper-1)",
+      "status": "PASS",
+      "model": "whisper-1 → wav2vec2",
+      "latency_ms": null,
+      "output": "transcribed"
+    },
+    {
+      "id": "TTS-001",
+      "section": "TTS",
+      "name": "Kokoro TTS (pm_santa)",
+      "status": "PASS",
+      "model": "tts-1 (Kokoro)",
+      "latency_ms": null,
+      "output": "mp3 generated, 200"
+    },
+    {
+      "id": "TTS-002",
+      "section": "TTS",
+      "name": "Kokoro TTS (pf_dora female)",
+      "status": "PASS",
+      "model": "tts-1 (Kokoro)",
+      "latency_ms": null,
+      "output": "mp3 generated, 200"
+    },
+    {
+      "id": "VIS-001",
+      "section": "Vision",
+      "name": "Vision qwen2.5-vl text probe",
+      "status": "PASS",
+      "model": "qwen2.5-vl",
+      "latency_ms": null,
+      "output": "OK"
+    },
+    {
+      "id": "VIS-002",
+      "section": "Vision",
+      "name": "Vision with image (base64)",
+      "status": "FAIL",
+      "model": "qwen2.5-vl",
+      "latency_ms": null,
+      "output": "skipped — no /tmp/smoke_img.jpg"
+    },
+    {
+      "id": "LLM-001",
+      "section": "LLM",
+      "name": "Tom Cat 8B PT-BR",
+      "status": "PASS",
+      "model": "tom-cat-8b",
+      "latency_ms": null,
+      "output": "Bem!"
+    },
+    {
+      "id": "LLM-002",
+      "section": "LLM",
+      "name": "MiniMax M2.1 API",
+      "status": "PASS",
+      "model": "MiniMax-M2.1",
+      "latency_ms": null,
+      "output": "HTTP 200"
+    }
+  ],
+  "summary": {
+    "total": 12,
+    "passed": 11,
+    "failed": 1,
+    "skipped": 1,
+    "by_section": {
+      "Infrastructure": {"passed": 3, "failed": 0},
+      "STT": {"passed": 3, "failed": 0},
+      "TTS": {"passed": 2, "failed": 0},
+      "Vision": {"passed": 1, "failed": 1},
+      "LLM": {"passed": 2, "failed": 0}
+    }
+  },
+  "issues": [
+    {
+      "severity": "LOW",
+      "id": "VIS-002",
+      "type": "SKIPPED",
+      "description": "Vision with image test skipped — no test image at /tmp/smoke_img.jpg",
+      "impact": "Cannot verify base64 image encoding E2E without test fixture",
+      "fix": "Add test image: wget -O /tmp/smoke_img.jpg https://picsum.photos/800/600"
+    }
+  ],
+  "infra_stack": {
+    "openclaw": "openclaw-qgtzrmi6771lt8l7x8rqx72f (Traefik SSL)",
+    "litellm": "zappro-litellm :4000 (Docker, zappro-lite_default)",
+    "wav2vec2": "zappro-wav2vec2 :8201 → host:8202 (GPU, CUDA)",
+    "kokoro_tts": "tts-1 via LiteLLM → Kokoro container",
+    "vision": "qwen2.5-vl via LiteLLM → Ollama 10.0.1.1:11434",
+    "llm_ptbr": "tom-cat-8b via LiteLLM → Ollama 10.0.1.1:11434",
+    "minimax": "MiniMax-M2.1 direct API (primary)"
+  },
+  "net": {
+    "network": "zappro-lite_default (bridge)",
+    "litellm_ip": "10.0.2.3",
+    "wav2vec2_reachable_from_litellm": "http://wav2vec2:8201"
+  }
+}

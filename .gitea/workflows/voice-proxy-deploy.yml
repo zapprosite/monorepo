@@ -1,0 +1,92 @@
+name: Deploy Voice Proxy to Coolify
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'docs/OPERATIONS/SKILLS/wav2vec2-deepgram-proxy.py'
+      - 'docs/OPERATIONS/SKILLS/wav2vec2-deepgram-proxy.dockerfile'
+  workflow_dispatch:
+
+env:
+  IMAGE_NAME: voice-proxy
+  REGISTRY: registry.zappro.site
+  HEALTH_URL: https://web.zappro.site/_stcore/health
+  HEALTH_TIMEOUT: 120
+  HEALTH_INTERVAL: 5
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Extract metadata
+        id: meta
+        run: |
+          GIT_SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
+          IMAGE_TAG="${REGISTRY}/${IMAGE_NAME}:${GIT_SHORT_SHA}"
+          echo "::set-env name=IMAGE_TAG::$IMAGE_TAG"
+          echo "Image tag: ${IMAGE_TAG}"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ secrets.COOLIFY_REGISTRY_USER }}
+          password: ${{ secrets.COOLIFY_SERVICE_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: docs/OPERATIONS/SKILLS/wav2vec2-deepgram-proxy.dockerfile
+          push: true
+          tags: ${{ env.IMAGE_TAG }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Deploy
+        run: |
+          RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
+            "http://localhost:8000/api/v1/deployments" \
+            -H "Authorization: Bearer ${{ secrets.COOLIFY_SERVICE_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "image": "${{ env.IMAGE_TAG }}",
+              "env": {
+                "PORT": "8203",
+                "WHISPER_API": "http://10.0.19.8:8201",
+                "OLLAMA_HOST": "http://10.0.19.1:11434",
+                "OLLAMA_MODEL": "llama3-portuguese-tomcat-8b-instruct-q8:latest"
+              }
+            }')
+
+          HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
+          BODY=$(echo "$RESPONSE" | head -n-1)
+          echo "HTTP Response: $HTTP_CODE"
+          echo "Body: $BODY"
+          [[ "$HTTP_CODE" != "200" && "$HTTP_CODE" != "201" ]] && { echo "Deploy failed (HTTP $HTTP_CODE)"; exit 1; }
+          echo "Deploy triggered successfully"
+
+      - name: Wait for Deploy
+        run: |
+          ELAPSED=0
+          while [[ $ELAPSED -lt $HEALTH_TIMEOUT ]]; do
+            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 "$HEALTH_URL" 2>/dev/null || echo "000")
+            [[ "$HTTP_CODE" == "200" ]] && { echo "Smoke Test PASSED (HTTP 200, ${ELAPSED}s)"; exit 0; }
+            echo "[$ELAPSED s] Health check: HTTP $HTTP_CODE"
+            sleep $HEALTH_INTERVAL
+            ELAPSED=$((ELAPSED + HEALTH_INTERVAL))
+          done
+          echo "Smoke Test FAILED"
+          exit 1

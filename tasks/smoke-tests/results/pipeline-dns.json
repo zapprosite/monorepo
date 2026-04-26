@@ -1,0 +1,22 @@
+{
+  "pipeline": "pipeline-dns",
+  "status": "FAIL",
+  "timestamp": "2026-04-07T18:32:00Z",
+  "results": [
+    {"id": "DNS-001", "status": "PASS", "output": "Up"},
+    {"id": "DNS-002", "status": "FAIL", "output": "10.0.1.10", "expected": "10.0.1.5", "actual": "10.0.1.10"},
+    {"id": "DNS-003", "status": "PASS", "output": "3"},
+    {"id": "DNS-004", "status": "PASS", "output": "open"}
+  ],
+  "summary": {"passed": 3, "failed": 1, "warnings": 0},
+  "issues": [
+    {
+      "severity": "CRITICAL",
+      "id": "DNS-002",
+      "type": "ERROR",
+      "description": "DNS resolution returns wrong IP for qdrant",
+      "impact": "Services cannot reach qdrant — vector search broken",
+      "fix": "Update Corefile forward rule: forward . 10.0.1.5"
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+services:
+  openwebui-mcp:
+    image: python:3.11-slim
+    container_name: openwebui-mcp
+    ports:
+      - "127.0.0.1:3333:3333"
+    networks:
+      - wbmqefxhd7vdn2dme3i6s9an
+      - qgtzrmi6771lt8l7x8rqx72f
+    restart: unless-stopped
+    command: python3 /app/openwebui_mcp.py
+    volumes:
+      - /srv/monorepo/docs/OPERATIONS/SKILLS/openwebui_mcp.py:/app/openwebui_mcp.py:ro
+    environment:
+      WEBUI_BASE_URL: http://open-webui-wbmqefxhd7vdn2dme3i6s9an:8080
+      WEBUI_EMAIL: admin@openwebui.local
+      WEBUI_PASSWORD: AdminPass123!
+      PORT: "3333"
+
+networks:
+  wbmqefxhd7vdn2dme3i6s9an:
+    external: true
+  qgtzrmi6771lt8l7x8rqx72f:
+    external: true

@@ -1,0 +1,35 @@
+name: pipeline-alerting
+description: "Alerting pipeline — FICTÍCIA com conflito"
+version: "1.0.0"
+phase: monitoring
+tests:
+  - id: AL-001
+    name: AlertManager container
+    command: "docker ps --filter name=alertmanager --format '{{.Status}}'"
+    expected: "Up"
+    critical: true
+
+  - id: AL-002
+    name: Gotify endpoint
+    command: "curl -s -o /dev/null -w '%{http_code}' http://localhost:8081"
+    expected: "200"
+    critical: true
+
+  - id: AL-003
+    name: Cron health-check active
+    command: "crontab -l 2>/dev/null | grep 'health-check'"
+    expected: "true"
+    critical: false
+
+  - id: AL-004
+    name: Telegram bot token valid
+    command: "curl -s 'https://api.telegram.org/bot$(cat /srv/ops/config/telegram-bot-token 2>/dev/null)/getMe' | grep 'ok'"
+    expected: "true"
+    critical: true
+
+  - id: AL-005
+    name: AlertManager config reload
+    command: "docker exec alertmanager wget -qO- -T 2 'http://localhost:9093/-/reload' 2>&1"
+    expected: "200"
+    critical: false
+    # CONFLITO SIMULADO: este teste vai falhar por timeout
