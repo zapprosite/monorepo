@@ -1,0 +1,44 @@
+name: Dependency Alerts
+
+on:
+  schedule:
+    - cron: '0 9 * * 1'  # Weekly on Monday at 9am
+  workflow_dispatch:
+
+jobs:
+  dependency-alerts:
+    name: Check for Dependency Updates
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Check for outdated packages
+        run: |
+          echo "=== Dependency Audit ==="
+          pnpm outdated || true
+
+      - name: Check for security patches
+        run: |
+          echo "=== Security Audit ==="
+          pnpm audit --audit-level=high || true
+
+      - name: Report
+        if: always()
+        run: |
+          echo "=== Summary ==="
+          echo "This is a monitoring workflow only"
+          echo "No auto-updates will be performed"
+          echo "Review results and create PR manually if updates needed"

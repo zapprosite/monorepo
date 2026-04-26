@@ -135,6 +135,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: [human-gate]
     environment: ${{ inputs.environment || 'production' }}
+    permissions:
+      contents: read
 
     steps:
       - name: Checkout

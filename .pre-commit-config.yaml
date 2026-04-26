@@ -1,0 +1,35 @@
+# Pre-commit hooks — Enterprise Template
+# Install: pip install pre-commit && pre-commit install
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-merge-conflict
+      - id: check-yaml
+      - id: check-json
+      - id: check-toml
+      - id: check-added-large-files
+        args: ['--maxkb=5000']
+
+  - repo: https://github.com/IBM/detect-secrets
+    rev: 1.5.0
+    hooks:
+      - id: detect-secrets
+        args: ['--baseline', '.secrets.baseline']
+        exclude: '^node_modules/'
+
+  - repo: https://github.com/pre-commit/mirrors-biome
+    rev: v2.3.0
+    hooks:
+      - id: biome-check
+        args: ['--write']
+
+  - repo: https://github.com/compilerla/conventional-pre-commit
+    rev: v3.0.1
+    hooks:
+      - id: conventional-pre-commit
+        stages: [commit-msg]
+        args: [] # configure conventionalcommits.org in your repo

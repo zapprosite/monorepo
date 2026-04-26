@@ -1,0 +1,57 @@
+# CODEOWNERS — Enterprise Template
+
+## Review Requirements
+
+This file defines who should review changes to specific parts of the monorepo.
+All PRs require at least one approval from the relevant CODEOWNER before merge.
+
+---
+
+## Default (All Unmatched Files)
+
+* @zappro/engineering
+
+---
+
+## Documentation
+
+/docs/**                        @zappro/engineering @zappro/docs
+*.md                           @zappro/engineering
+LICENSE                        @zappro/legal
+NOTICE                         @zappro/legal
+CONTRIBUTING.md                @zappro/engineering
+
+---
+
+## CI/CD & Security
+
+/.github/workflows/**          @zappro/devops @zappro/security
+/.pre-commit-config.yaml       @zappro/devops
+/.devcontainer/**              @zappro/devops
+
+---
+
+## Enterprise Templates
+
+/template/**                   @zappro/engineering
+ENTERPRISE-FEATURE-BRANCH.md   @zappro/engineering
+
+---
+
+## Infrastructure & Governance
+
+/srv/ops/                      @zappro/devops
+/srv/ops/ai-governance/**      @zappro/principal-engineer
+
+---
+
+## Apps & Packages (Reference Only)
+
+# These paths are managed separately per app/package
+# /apps/**                      @zappro/<app-team>
+# /packages/**                  @zappro/<pkg-team>
+
+---
+
+**Last Updated:** 2026-04-26
+**Template:** enterprise-template-v2
