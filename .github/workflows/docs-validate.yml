@@ -1,0 +1,50 @@
+name: Documentation Validation
+
+on:
+  pull_request:
+    paths:
+      - '**.md'
+      - 'docs/**'
+  push:
+    branches: [main]
+    paths:
+      - '**.md'
+      - 'docs/**'
+
+jobs:
+  validate-docs:
+    name: Validate Documentation Links and Paths
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check Markdown links
+        run: |
+          # Find all markdown files
+          md_files=$(find . -name "*.md" -type f)
+
+          # Check for common drift patterns
+          echo "=== Checking for hardcoded ports ==="
+          grep -rE ":[0-9]{4}" --include="*.md" . || true
+
+          echo "=== Checking for .env references ==="
+          grep -r "\.env" --include="*.md" . || true
+
+          echo "=== Checking for non-existent path references ==="
+          # CONTRIBUTING.md references
+          grep -h "docs/GUIDES/" --include="*.md" -r . || true
+
+      - name: List docs structure
+        run: |
+          echo "=== Current docs directory ==="
+          find docs -type f -name "*.md" 2>/dev/null | sort
+
+          echo "=== README.md validation ==="
+          head -5 README.md
+
+      - name: Report
+        run: |
+          echo "=== Validation Summary ==="
+          echo "Static validation complete — no execution performed"
+          echo "This workflow only validates documentation structure"

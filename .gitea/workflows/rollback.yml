@@ -44,6 +44,8 @@ jobs:
     name: Rollback ${{ inputs.app_name }} → ${{ inputs.environment }}
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
+    permissions:
+      contents: read
 
     steps:
       - name: Checkout

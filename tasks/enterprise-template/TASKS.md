@@ -14,7 +14,7 @@ Não implementar nada agora — apenas SPEC + pipeline + task breakdown.
 | ID | Title | Agent | Nexus Mode | Status | Risk | Depends |
 |----|-------|-------|------------|--------|------|---------|
 | T00 | Git preflight verification | Hermes | preflight | completed | none | — |
-| T01 | Push feature branch to remote | Hermes | sync | pending | low | T00 |
+| T01 | Push feature branch to remote | Hermes | sync | completed | low | T00 |
 
 **Rationale:** 1 commit ahead of origin/main must be pushed before any plan work.
 
@@ -24,8 +24,8 @@ Não implementar nada agora — apenas SPEC + pipeline + task breakdown.
 
 | ID | Title | Agent | Nexus Mode | Status | Risk | Depends |
 |----|-------|-------|------------|--------|------|---------|
-| T02 | Freeze current plan context | Nexus | plan_only | pending | none | T01 |
-| T03 | Create SPEC-ENTERPRISE-TEMPLATE-2026-04 | Nexus | plan_only | pending | none | T02 |
+| T02 | Freeze current plan context | Nexus | plan_only | completed | none | T01 |
+| T03 | Create SPEC-ENTERPRISE-TEMPLATE-2026-04 | Nexus | plan_only | completed | none | T02 |
 
 **T02 — Freeze Current Plan Context**
 - Reaproveitar análise existente
@@ -48,7 +48,7 @@ Não implementar nada agora — apenas SPEC + pipeline + task breakdown.
 
 | ID | Title | Agent | Nexus Mode | Status | Risk | Depends |
 |----|-------|-------|------------|--------|------|---------|
-| T04 | Create task breakdown | Nexus | plan_only | pending | none | T03 |
+| T04 | Create task breakdown | Nexus | plan_only | completed | none | T03 |
 
 **T04 — Cada task deve ser:**
 - Pequena (< 4h de trabalho)
@@ -63,7 +63,7 @@ Não implementar nada agora — apenas SPEC + pipeline + task breakdown.
 
 | ID | Title | Agent | Nexus Mode | Status | Risk | Depends |
 |----|-------|-------|------------|--------|------|---------|
-| T05 | Create pipeline.json | Nexus | plan_only | pending | none | T04 |
+| T05 | Create pipeline.json | Nexus | plan_only | completed | none | T04 |
 
 **T05 — Entregável:**
 - depends_on explícito em cada task
@@ -76,7 +76,7 @@ Não implementar nada agora — apenas SPEC + pipeline + task breakdown.
 
 | ID | Title | Agent | Nexus Mode | Status | Risk | Depends |
 |----|-------|-------|------------|--------|------|---------|
-| T06 | Human review gate | Hermes | review | pending | none | T05 |
+| T06 | Human review gate | Hermes | review | completed | none | T05 |
 
 ---
 
@@ -96,9 +96,30 @@ Não implementar nada agora — apenas SPEC + pipeline + task breakdown.
 
 ---
 
+---
+
+### PHASE 4: Implementation
+
+| ID | Title | Agent | Nexus Mode | Status | Risk | Depends |
+|----|-------|-------|------------|--------|------|---------|
+| T07 | Identity & License | Nexus | plan_only | completed | low | T06 |
+| T08 | Workspace & Tooling | Nexus | plan_only | completed | low | T07 |
+| T09 | Documentation Drift | Nexus | plan_only | completed | low | T08 |
+| T10 | CI/CD & Security Gates | Nexus | plan_only | completed | low | T09 |
+| T11 | Dependency Alignment | Nexus | plan_only | completed | low | T10 |
+| T12 | Enterprise Template Scaffolding | Nexus | plan_only | completed | low | T11 |
+
+**Constraints for all implementation tasks:**
+- Modo PLAN_ONLY até human gate
+- Não modificar código existente
+- Não adicionar dependências
+- Templates apenas — sem automação de runtime
+
+---
+
 ## Next Step
 
-Executar após merge/human approval:
+Executar implementação após approval:
 
 ```bash
 nexus.sh --spec SPEC-ENTERPRISE-TEMPLATE-2026-04 --phase review
