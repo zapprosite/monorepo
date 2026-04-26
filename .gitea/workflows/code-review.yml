@@ -115,7 +115,9 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Run Trivy vulnerability scanner
+      # NOTE: Trivy runs with exit-code 0 (report-only mode).
+      # After baseline is established, change to --exit-code 1 to block on HIGH/CRITICAL vulnerabilities.
+      - name: Run Trivy vulnerability scanner (report-only)
         run: |
           docker run --rm -v $(pwd):/workspace aquasec/trivy:latest fs \
             --security-checks vuln,config \
@@ -123,7 +125,7 @@ jobs:
             --severity HIGH,CRITICAL \
             /workspace
 
-      - name: Run Trivy config audit
+      - name: Run Trivy config audit (report-only)
         run: |
           docker run --rm -v $(pwd):/workspace aquasec/trivy:latest config \
             --exit-code 0 \

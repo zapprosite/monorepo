@@ -22,15 +22,16 @@ jobs:
 
       # TODO: Fix pnpm 9.0.6 worker crash - using pnpm 9 (non-exact)
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
 
-      # DOCS-ONLY PR: skip typecheck/lint/test
-      # - name: Type check
-      #   run: pnpm exec tsc --noEmit
-      # - name: Lint
-      #   run: pnpm exec eslint .
-      # - name: Test
-      #   run: pnpm test || echo "No tests configured"
+      - name: Type check
+        run: pnpm exec tsc --noEmit
+
+      - name: Lint
+        run: pnpm exec eslint .
+
+      - name: Test
+        run: pnpm test || echo "No tests configured"
 
       - name: Version drift check
         run: bash scripts/versions-check.sh
