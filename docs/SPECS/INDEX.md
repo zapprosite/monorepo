@@ -70,6 +70,7 @@ Current domains:
 
 | Domain | Spec | Title | Status |
 |--------|------|-------|--------|
+| Memory | [SPEC-MEM-001](SPEC-MEM-001-nexus-shared-memory-contract.md) | Nexus Shared Memory Contract | draft |
 | HVAC | [SPEC-HVAC-001](products/HVAC/SPEC-HVAC-001-rag-ingestion.md) | HVAC RAG Ingestion | draft |
 | HVAC | [SPEC-HVAC-002](products/HVAC/SPEC-HVAC-002-openwebui-faq.md) | HVAC FAQ Open WebUI | draft |
 | HVAC | [SPEC-HVAC-003](products/HVAC/SPEC-HVAC-003-evaluation-suite.md) | HVAC Evaluation Suite | draft |
@@ -132,6 +133,6 @@ Nexus/vibe-kit framework specs live at `docs/SPEC-204.md` (root, no `-descriptio
 - **Historical:** 7 (SPEC-074 file missing, removed)
 - **Implementation Notes:** 5
 - **Completed:** 2
-- **Domain/Product:** 3 (HVAC, draft)
+- **Domain/Product:** 4 (Memory + HVAC, draft)
 - **Framework:** 1 (SPEC-204 only; 4 listed specs missing, removed)
-- **Total:** 22
+- **Total:** 23
