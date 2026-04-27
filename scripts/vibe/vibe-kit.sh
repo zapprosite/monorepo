@@ -14,7 +14,7 @@ SNAPSHOT_LOG="$VIBE_DIR/snapshots.log"
 mkdir -p "$VIBE_DIR" "$LOG_DIR" "$CONTEXT_DIR"
 
 # ─── Config ─────────────────────────────────────────────────
-PARALLEL="${VIBE_PARALLEL:-15}"
+PARALLEL="${VIBE_PARALLEL:-20}"
 MAX_HOURS="${VIBE_HOURS:-8}"
 PROVIDER="${VIBE_PROVIDER:-minimax}"
 MODEL="${VIBE_MODEL:-MiniMax-M2.7}"
@@ -190,15 +190,15 @@ init_queue() {
 
 get_pending_task() {
     local worker_id="$1"
-    
-    # Use Python for truly atomic claim (handles locking properly)
+
+    # Use queue-manager.py for atomic claim with fcntl.flock
     local task_json
-    task_json=$(QUEUE_FILE="$QUEUE_FILE" python3 "$VIBE_DIR/claim-task.py" "$worker_id" 2>/dev/null) || return 1
-    
+    task_json=$(QUEUE_FILE="$QUEUE_FILE" python3 "$VIBE_DIR/queue-manager.py" claim "$worker_id" 2>/dev/null) || return 1
+
     if [ -z "$task_json" ] || echo "$task_json" | jq -e '.error' > /dev/null 2>&1; then
         return 1
     fi
-    
+
     echo "$task_json"
 }
 
@@ -206,15 +206,9 @@ mark_task_done() {
     local task_id="$1"
     local worker_id="$2"
     local result="$3"  # "done" | "failed"
-    
-    local updated=$(jq --arg tid "$task_id" --arg res "$result" --arg wid "$worker_id" \
-        '.tasks |= map(if .id == $tid then .status = $res | .completed_at = (now | todate) else . end) | 
-         .done = (.tasks | map(select(.status == "done")) | length) |
-         .failed = (.tasks | map(select(.status == "failed")) | length) |
-         .running = (.tasks | map(select(.status == "running")) | length) |
-         .pending = (.tasks | map(select(.status == "pending")) | length)' \
-        "$QUEUE_FILE")
-    echo "$updated" > "$QUEUE_FILE.tmp" && mv "$QUEUE_FILE.tmp" "$QUEUE_FILE"
+
+    # Use queue-manager.py for atomic complete with fcntl.flock
+    QUEUE_FILE="$QUEUE_FILE" python3 "$VIBE_DIR/queue-manager.py" complete "$task_id" "$worker_id" "$result" 2>/dev/null || true
 }
 
 # ─── Worker ────────────────────────────────────────────────
