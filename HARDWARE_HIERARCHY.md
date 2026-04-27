@@ -99,7 +99,7 @@ Unknowns must be verified in `/srv/ops/hardware/` before being treated as canoni
 
 | Service | Target Runtime | Target Exposure | Canonical Notes |
 |---------|----------------|-----------------|-----------------|
-| Hermes Gateway | Bare metal/systemd | PRIVATE | Agent brain. Must stay outside Coolify. |
+| Hermes Gateway | Bare metal/systemd | INTERNAL | Agent brain. Public hostname is allowed only through Cloudflare Access; runtime stays outside Coolify. |
 | Hermes MCP | Bare metal/systemd | PRIVATE | MCP bridge for Hermes/local agents. |
 | Ollama GPU | Bare metal/systemd | PRIVATE | Local model runtime with RTX 4090 access. |
 | Nexus scripts | Bare metal filesystem | PRIVATE | Orchestration/control-plane scripts under the monorepo. |
@@ -150,7 +150,7 @@ This summary is not a replacement for [ops/ai-governance/PORTS.md](ops/ai-govern
 | Postgres | UNKNOWN | PRIVATE, CORE_INFRA | TODO: verify canonical core Postgres binding. |
 | Redis | 6379, 6381 | PRIVATE, CORE_INFRA | No public domain. |
 | Gitea | 3300, 2222 | INTERNAL, CORE_INFRA | `git.zappro.site` documented. |
-| Hermes Gateway | 8642 | PRIVATE, BARE_METAL | `hermes.zappro.site` documented active via loopback tunnel; TODO protect or remove to match private target. |
+| Hermes Gateway | 8642 | INTERNAL, BARE_METAL | `hermes.zappro.site` remains active via loopback tunnel and must be protected by Cloudflare Access. |
 | Hermes MCP | 8092 | PRIVATE, BARE_METAL | No public domain. |
 | Ollama | 11434 | PRIVATE, BARE_METAL | No public domain. |
 | Grafana/dashboard | 3100 | INTERNAL | `monitor.zappro.site` documented. |
@@ -193,6 +193,6 @@ All changes must follow:
 |------|--------|
 | Canonical core Postgres port/domain | UNKNOWN |
 | Exact active Coolify panel binding | UNKNOWN; existing docs mention both 8000 and 8080 states |
-| Final Cloudflare Access policy per subdomain | TODO: reconcile with active Cloudflare config |
+| Final Cloudflare Access policy per subdomain | Hermes decision recorded: keep `hermes.zappro.site` and require Cloudflare Access |
 | Public Qdrant exposure | TODO: target is PRIVATE; any existing public route must be removed or Access-protected |
 | Dashboard exposure policy | TODO: classify each dashboard as PUBLIC, INTERNAL, or PRIVATE |
