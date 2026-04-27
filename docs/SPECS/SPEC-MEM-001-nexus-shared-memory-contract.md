@@ -4,6 +4,10 @@ description: Nexus Shared Memory Contract — Hermes/Mem0/Qdrant/second-brain/Cl
 status: draft
 owner: AI Team
 created: 2026-04-27
+applies_to:
+  - SPEC-HVAC-001
+  - SPEC-HVAC-002
+  - SPEC-HVAC-003
 ---
 
 # SPEC-MEM-001 — Nexus Shared Memory Contract

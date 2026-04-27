@@ -181,3 +181,15 @@ schemas/
 - [SPEC-003](../SPEC-003-memory-rag-llm-stack.md) — Memory RAG LLM Stack (Qdrant, LiteLLM, embedding contract)
 - [SPEC-HVAC-002](SPEC-HVAC-002-openwebui-faq.md) — HVAC FAQ Open WebUI (Knowledge base usage)
 - [SPEC-HVAC-003](SPEC-HVAC-003-evaluation-suite.md) — HVAC Evaluation Suite (retrieval quality)
+
+---
+
+## 8. Memory and Context Contract
+
+This pipeline writes to shared Nexus memory. All RAG chunks are stored in Qdrant `hvac_chunks` collection and are accessible to all Nexus agents (Hermes, Claude, Codex) via the shared memory contract defined in [SPEC-MEM-001](../SPEC-MEM-001-nexus-shared-memory-contract.md).
+
+**Contract rules:**
+- Chunks are indexed with `source: hvac-manuals`, `doc_type: hvac_chunk`
+- Embeddings use `nomic-embed-text` via LiteLLM (same model as all other Nexus collections)
+- Retrieval priority: equipment_type > manufacturer > model
+- No agent writes to second-brain directly from this pipeline

@@ -42,8 +42,12 @@ From `hvac-faq.json` (SPEC-HVAC-002), extract:
 | `precision@3` | Relevant chunks in top-3 / 3 | ≥ 0.8 |
 | `recall@5` | Relevant chunks in top-5 / total relevant | ≥ 0.85 |
 | `mrr` | Mean Reciprocal Rank of first relevant chunk | ≥ 0.75 |
-| `answer_faithfulness` | % of answer claims verifiable in retrieved chunks | ≥ 0.9 |
+| `retrieval` | @see [SPEC-MEM-001](../SPEC-MEM-001-nexus-shared-memory-contract.md) — chunks must be retrievable by equipment_type, manufacturer, model | ≥ 0.85 |
+| `citation_faithfulness` | % of answer claims verifiable in retrieved chunks | ≥ 0.9 |
 | `citation_accuracy` | % of citations that support the claim | ≥ 0.95 |
+| `source_coverage` | % of relevant source pages represented in retrieved chunks (no single-source bias) | ≥ 0.8 |
+
+**Evaluation scope:** All metrics measure the full pipeline: chunk indexing → Qdrant retrieval → Open WebUI Knowledge → LLM answer → citation. Source coverage ensures no single manual dominates results.
 
 ---
 

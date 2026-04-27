@@ -75,6 +75,8 @@ Current domains:
 | HVAC | [SPEC-HVAC-002](products/HVAC/SPEC-HVAC-002-openwebui-faq.md) | HVAC FAQ Open WebUI | draft |
 | HVAC | [SPEC-HVAC-003](products/HVAC/SPEC-HVAC-003-evaluation-suite.md) | HVAC Evaluation Suite | draft |
 
+> **Note:** SPEC-MEM-001 is the contract that underlies SPEC-HVAC-001..003. All HVAC RAG chunks are stored in Qdrant and are retrievable by any Nexus agent (Hermes, Claude, Codex) per the shared memory contract.
+
 ---
 
 ## Framework SPECs
