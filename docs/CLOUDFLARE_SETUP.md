@@ -99,32 +99,91 @@ bash /srv/ops/terraform/cloudflare/plan.sh
 
 ## Regras de Segurança
 
-### Proibido
+### Para TODOS os agentes e CLIs (Claude Code, Codex, Docker, Bash, etc.)
 
-- ❌ Imprimir, citar ou mostrar valores de `cfk_`, `cfut_`, `sk-`, `ghp_`, `gh_`
-- ❌ `cat /srv/ops/secrets/*.env`
-- ❌ `grep TOKEN /srv/monorepo/.env`
-- ❌ Commit de secrets em git
+**Regra de ouro:** Nunca imprimir, echoar, ou mostrar valores de variáveis que contenham secrets.
 
-### Padrão seguro
+### Verificar se token existe — SEM EXPOR
 
 ```bash
-# Verificar se variável existe — SEM EXPOR O VALOR
-[[ -n "${TF_VAR_cloudflare_api_token:-}" ]] && echo "definida" || echo "não definida"
+# ✅ CERTO — verifica sem expor
+test -n "${TF_VAR_cloudflare_api_token:-}" && echo "Token carregado"
 
-# Testar autenticação — usa a variável sem expor
+# ❌ ERRADO — expõe o valor
+echo $TF_VAR_cloudflare_api_token
+echo "Token: $TF_VAR_cloudflare_api_token"
+```
+
+### Testar autenticação — SEM EXPOR
+
+```bash
+# ✅ CERTO — usa em comando, não em output
 curl -s -o /dev/null -w "%{http_code}" \
-  -H "Authorization: Bearer $TF_VAR_cloudflare_api_token" \
-  "https://api.cloudflare.com/client/v4/user/tokens" && echo " AUTH_OK"
+  -H "Authorization: Bearer ${TF_VAR_cloudflare_api_token}" \
+  "https://api.cloudflare.com/client/v4/user/tokens"
+
+# ❌ ERRADO — loga o token
+curl -H "Authorization: Bearer $TF_VAR_cloudflare_api_token" ...
+```
+
+### Padrões proibidos
+
+```bash
+# ❌ NUNCA faça isto
+cat /srv/ops/secrets/cloudflare-api-token.env
+grep TOKEN /srv/monorepo/.env
+echo $CF_GLOBAL_KEY
+printenv | grep TOKEN
+docker logs <container> 2>&1 | grep TOKEN
+```
+
+### Para Docker / Containers
+
+```dockerfile
+# ✅ CERTO — passa token via build arg ou env, nunca no output
+ARG TF_VAR_CLOUDFLARE_API_TOKEN
+ENV TF_VAR_CLOUDFLARE_API_TOKEN=$TF_VAR_CLOUDFLARE_API_TOKEN
+
+# ❌ ERRADO — EXPÕE o token no build output
+RUN echo $TF_VAR_CLOUDFLARE_API_TOKEN
+```
+
+```bash
+# ✅ Verificar que container não loga secrets
+docker logs <container> 2>&1 | grep -E "cfk_|cfut_|sk-" && echo "LEAK DETECTED"
+```
+
+### Para Claude Code / Codex CLI
+
+```bash
+# ✅ Verificar vars sem expor
+[[ -n "${CF_GLOBAL_KEY:-}" ]] && echo "CF_GLOBAL_KEY: definida"
+
+# ❌ NUNCA em prompts ou output
+# Prompt: "mostra o valor de $TF_VAR_cloudflare_api_token" ❌
+```
+
+### Teste rápido — o único padrão seguro
+
+```bash
+# Unico comando seguro para verificar token
+test -n "${TF_VAR_cloudflare_api_token:-}" && echo "Token carregado"
 ```
 
 ### Ficheiros com segredos
 
-| Ficheiro | Proibido ler | Excepção |
+| Ficheiro | Ler conteúdo | Exceção |
 |---|---|---|
-| `/srv/monorepo/.env` | ✅ | Para sourcing em scripts |
-| `/srv/ops/secrets/*.env` | ✅ | Source via env-sync.sh |
-| `terraform.tfvars` | ✅ | Token não está aqui |
+| `/srv/monorepo/.env` | ❌ Proibido | `source` em scripts |
+| `/srv/ops/secrets/*.env` | ❌ Proibido | `source` via env-sync.sh |
+| `terraform.tfvars` | ❌ Proibido | Não tem token |
+
+### Padrão de validação pre-commit
+
+```bash
+# Bloquear se detectar secrets no diff
+git diff | grep -iE "cfk_|cfut_|sk-[a-z0-9]{20,}" && exit 1
+```
 
 ---
 
