@@ -1,149 +1,98 @@
-# AGENTS.md — Nexus Command Center
+# AGENTS.md - Codex CLI Context
 
-> **⚠️ READ FIRST:** See `HARDWARE_HIERARCHY.md` for complete infrastructure map
->
-> **Classification:** INTERNAL | **Owner:** Platform Engineering
-> **Version:** 2.1.0 | **Updated:** 2026-04-26
+Classification: INTERNAL
+Owner: Platform Engineering
+Version: 2.2.0
+Updated: 2026-04-26
 
----
+This file is the automatic Codex CLI bootstrap for `/srv/monorepo`. Keep it concise. Put detailed architecture in the referenced docs.
 
-## 🔄 AI Context Sync (PRIMEIRO!)
+## Mission
 
-**⚡ KEEP LLM CONTEXT FRESH — Run on every `/ship`**
+`/srv/monorepo` is the homelab control plane and source of truth. Treat symlinked service directories as live service entry points, not disposable copies:
 
+```text
+ops/                 -> /srv/ops
+hermes-second-brain/ -> /srv/hermes-second-brain
+hermes/              -> ~/.hermes
+fit-tracker/         -> /srv/fit-tracker-v2
+hvacr-swarm/         -> /srv/hvacr-swarm
+edge-tts/            -> /srv/edge-tts
 ```
-scripts/ai-context-sync/
-├── ai-context-sync.sh       # Delta sync to Qdrant + Mem0
-├── ship_skill.md            # /ship integration
-└── ship_with_sync.md        # Workflow documentation
-```
+
+## Read Before Infra Changes
+
+Before changing infrastructure, deployment, ports, domains, service boundaries, or production runtime behavior, read the relevant canonical file:
+
+- `HARDWARE_HIERARCHY.md`
+- `ops/HOMELAB.md`
+- `ops/ai-governance/PORTS.md`
+- `ops/ai-governance/SUBDOMAINS.md`
+- `docs/REFERENCE/DEPLOYMENT-BOUNDARIES.md`
+
+If chat context conflicts with repo docs, repo docs win until verified otherwise.
+
+## Non-Negotiables
+
+- Stateful and critical services stay private in core infra.
+- Coolify publishes apps; it does not govern the homelab.
+- Hermes, Ollama, and Nexus run bare metal.
+- LiteLLM is the single model gateway.
+- Qdrant, Postgres, Redis, Gitea, Coolify, and LiteLLM are private/internal unless an approved protected exposure is documented.
+- Verify ports, subdomains, tunnel routes, and public endpoints before changing them.
+- Preserve user worktree changes; do not revert unrelated edits.
+
+## Nexus
+
+Nexus is the local 7-mode x 7-agent orchestrator.
 
 ```bash
-# Check status
-ai-context-sync.sh --status
-
-# Dry-run (see what would sync)
-ai-context-sync.sh --dry-run
-
-# Full reindex
-ai-context-sync.sh --full
-
-# Integrated with /ship (runs automatically)
-# See: scripts/ai-context-sync/ship_with_sync.md
+.claude/vibe-kit/nexus.sh --status
+.claude/vibe-kit/nexus.sh --mode list
+.claude/vibe-kit/nexus.sh --mode debug|test|backend|frontend|review|docs|deploy
+.claude/vibe-kit/nexus.sh --spec SPEC-NNN --phase plan|review|execute|verify|complete
 ```
 
-**What it does:**
-- Delta sync only (changed files since last sync)
-- Updates Qdrant collection `monorepo-context`
-- Updates Mem0 freshness metadata
-- Atomic alias swap (zero-downtime)
+Modes: `debug`, `test`, `backend`, `frontend`, `review`, `docs`, `deploy`.
 
----
+Workflow phases: `plan`, `review`, `execute`, `verify`, `complete`.
 
-## 🏠 Complete Homelab Structure
+Always check current Nexus status before assuming whether a workflow is active.
 
-This monorepo is the **SINGLE SOURCE OF TRUTH** for the entire homelab:
+## AI Context Sync
 
-```
-/srv/monorepo/                    ← YOU ARE HERE
-│
-├── [SYMLINKS - Full Access to All Services]
-│   ├── ops/                    → /srv/ops              # IaC + Governance
-│   ├── hermes-second-brain/    → /srv/hermes-second-brain  # Mem0 Memory
-│   ├── hermes/                 → ~/.hermes            # Hermes Agency
-│   ├── fit-tracker/            → /srv/fit-tracker-v2  # Fitness App
-│   ├── hvacr-swarm/            → /srv/hvacr-swarm     # HVAC Automation
-│   └── edge-tts/               → /srv/edge-tts        # TTS Service
-│
-├── apps/                        # PRODUCTION SERVICES
-│   ├── ai-gateway/             # OpenAI-compatible facade
-│   ├── api/                    # Fastify + tRPC backend
-│   └── monitoring/             # SRE dashboard
-│
-├── docs/                        # Enterprise Documentation
-│   ├── NEXUS-SRE-GUIDE.md     # SRE Automation Guide
-│   ├── VOICE-STT-STACK.md     # Voice Pipeline (STT/TTS)
-│   └── [full docs in /srv/ops/HOMELAB.md]
-│
-└── .claude/vibe-kit/           # NEXUS FRAMEWORK
-    └── nexus.sh                 # 49-Agent Orchestrator
-```
-
----
-
-## 🤖 Nexus Framework (7×7 = 49 Agents)
-
-**Entry:** `.claude/vibe-kit/nexus.sh`
+On every `/ship`, verify or run AI Context Sync before closing the session:
 
 ```bash
-# Check status
-nexus.sh --status
-
-# Modes
-nexus.sh --mode debug|test|backend|frontend|review|docs|deploy
-
-# Execute workflow
-nexus.sh --spec SPEC-NNN --phase plan|review|execute|verify|complete
+scripts/ai-context-sync/ai-context-sync.sh --status
+scripts/ai-context-sync/ai-context-sync.sh --dry-run
 ```
 
-### Mode Matrix
-
-| Mode | Agents | Purpose |
-|------|--------|---------|
-| **debug** | log-diagnostic, stack-trace, perf-profiler, network-tracer, security-scanner, sre-monitor, incident-response | Diagnostic & troubleshooting |
-| **test** | unit-tester, integration-tester, e2e-tester, coverage-analyzer, boundary-tester, flaky-detector, property-tester | Testing |
-| **backend** | api-developer, service-architect, db-migrator, cache-specialist, auth-engineer, event-developer, file-pipeline | Backend development |
-| **frontend** | component-dev, responsive-dev, state-manager, animation-dev, a11y-auditor, perf-optimizer, design-system | Frontend development |
-| **review** | correctness-reviewer, readability-reviewer, architecture-reviewer, security-reviewer, perf-reviewer, dependency-auditor, quality-scorer | Code review |
-| **docs** | api-doc-writer, readme-writer, changelog-writer, inline-doc-writer, diagram-generator, adr-writer, doc-coverage-auditor | Documentation |
-| **deploy** | docker-builder, compose-orchestrator, coolify-deployer, secret-rotator, rollback-executor, zfs-snapshotter, health-checker | Deployment |
-
----
-
-## 🔗 Service Access
-
-| Service | Location | Description |
-|---------|----------|-------------|
-| **Hermes Agency** | `hermes/` | Multi-agent orchestration with Mem0 |
-| **Mem0 Memory** | `hermes-second-brain/libs/mem0_client.py` | Qdrant-backed memory |
-| **LiteLLM** | `ops/docker/` | Multi-provider LLM proxy |
-| **Qdrant** | `ops/docker/` | Vector database |
-| **Edge TTS** | `edge-tts/` | Microsoft TTS bridge |
-| **Coolify** | `ops/` | Container management |
-
----
-
-## 📋 Quick Reference
+Use full reindex only when intentionally required:
 
 ```bash
-# Full homelab map
-cat HARDWARE_HIERARCHY.md
-
-# Ops governance
-cat ops/ai-governance/CONTRACT.md
-cat ops/ai-governance/PORTS.md
-
-# Health check
-nexus.sh --status
-nexus-investigate.sh all 3
-
-# Architecture
-cat ops/HOMELAB.md
+scripts/ai-context-sync/ai-context-sync.sh --full
 ```
 
----
+Sync target: Qdrant collection `monorepo-context` plus Mem0 freshness metadata. Details live in `scripts/ai-context-sync/ship_with_sync.md`.
 
-## 📜 Agent Commands Reference
+## Command Intent
 
-| Command | Purpose |
-|---------|---------|
-| `/spec` | Create formal specification |
-| `/plan` | Plan implementation |
-| `/test` | Run test suite |
-| `/review` | Code review |
-| `/ship` | End-of-session deploy |
+- `/spec`: create or update a formal specification.
+- `/plan`: plan implementation.
+- `/test`: run focused or full test suite.
+- `/review`: review code, prioritizing defects and risk.
+- `/ship`: verify, sync AI context, and prepare deploy handoff.
 
----
+## Verification
 
-**Nexus:** 49 specialized agents for enterprise-grade SRE automation
-**Stack:** Claude Code + Gitea + Mem0 + Qdrant + LiteLLM + Hermes
+Use focused checks for small changes. Broaden tests when touching shared contracts, infra, auth, deployment, public endpoints, or production workflows.
+
+Useful quick checks:
+
+```bash
+sed -n '1,220p' HARDWARE_HIERARCHY.md
+sed -n '1,220p' ops/ai-governance/PORTS.md
+sed -n '1,220p' ops/ai-governance/SUBDOMAINS.md
+.claude/vibe-kit/nexus.sh --status
+```
