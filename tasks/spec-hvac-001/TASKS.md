@@ -19,7 +19,8 @@ Source: [SPEC-HVAC-001](../../docs/SPECS/products/HVAC/SPEC-HVAC-001-rag-ingesti
 - [ ] T007: Write `scripts/hvac-rag/hvac-dedupe.py` — exact + converted duplicate detection
 - [ ] T008: Run quality gates on pilot PDFs → generate `manifests/documents.jsonl`
 - [x] T008: Run `hvac-normalize.py` on pilot PDFs → generate `manifests/normalized-documents.jsonl`
-- [ ] T009: Validate manifests (JSONL schema, scores, duplicate status)
+- [x] T009: Validate manifests (JSONL schema, scores, duplicate status)
+- [x] T010: `hvac-chunk.py` — 442 chunks, avg=936 tokens, max=1200, 298 error_code chunks
 
 ### Phase 2 — Core Scripts
 
