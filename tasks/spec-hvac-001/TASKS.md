@@ -12,6 +12,15 @@ Source: [SPEC-HVAC-001](../../docs/SPECS/products/HVAC/SPEC-HVAC-001-rag-ingesti
 - [ ] T04: Install docling (`pip install docling`) and verify
 - [ ] T05: Add `data/hvac/` to `.gitignore` (raw PDFs and normalized data)
 
+### Phase 1b — Quality Gates (before chunking)
+
+- [ ] T005: Write `scripts/hvac-rag/hvac-fingerprint.py` — raw_sha256 + normalized_sha256 + shingles
+- [ ] T006: Write `scripts/hvac-rag/hvac-classify-domain.py` — domain_score heuristics → accepted/needs_review/rejected
+- [ ] T007: Write `scripts/hvac-rag/hvac-dedupe.py` — exact + converted duplicate detection
+- [ ] T008: Run quality gates on pilot PDFs → generate `manifests/documents.jsonl`
+- [x] T008: Run `hvac-normalize.py` on pilot PDFs → generate `manifests/normalized-documents.jsonl`
+- [ ] T009: Validate manifests (JSONL schema, scores, duplicate status)
+
 ### Phase 2 — Core Scripts
 
 - [ ] T10: Write `scripts/hvac-normalize.py` — Docling JSON → HVAC normalized JSON
