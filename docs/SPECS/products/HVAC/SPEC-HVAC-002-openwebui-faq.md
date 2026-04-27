@@ -18,6 +18,19 @@ Surface HVAC equipment information through Open WebUI's Knowledge base as an FAQ
 
 ---
 
+## 1.1 What Open WebUI IS NOT in this context
+
+This SPEC defines Open WebUI as a **RAG/FAQ UI only**. It explicitly does NOT provide:
+
+- **Shell access** — Open WebUI is not a CLI or terminal interface
+- **Commander pattern** — No agentic command routing or skill invocation
+- **Public Qdrant proxy** — The Qdrant collection `hvac_chunks` is accessed only through Open WebUI's Knowledge retrieval, not as a public vector API
+- **Agent runtime** — No Hermes, Claude, or Codex agents are invoked through this interface
+
+**Boundary:** All RAG retrieval flows through Open WebUI's built-in Knowledge → LLM pipeline. External agents (Hermes, Claude, Codex) read from Qdrant directly per [SPEC-MEM-001](../SPEC-MEM-001-nexus-shared-memory-contract.md), not through Open WebUI.
+
+---
+
 ## 2. FAQ Generation
 
 Before surfacing in Open WebUI, generate structured FAQ from the normalized HVAC data:
