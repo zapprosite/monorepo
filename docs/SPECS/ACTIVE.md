@@ -3,7 +3,7 @@ type: spec-index
 name: Active Specifications
 description: Canonical index of active SPECs in the monorepo
 status: filled
-updated: 2026-04-26
+updated: 2026-04-27
 ---
 
 # Active Specifications
@@ -34,8 +34,8 @@ These contain useful implementation notes but are not canonical entry points.
 | SPEC-093 | historical | SPEC-001 | Homelab architecture notes |
 | SPEC-106 | historical | SPEC-002 | Hermes multi-agent notes |
 | SPEC-120 | implementation note | SPEC-003 | LiteLLM embeddings incident |
-| SPEC-121 | implementation note | SPEC-003 | Homelab polish incident |
-| SPEC-122 | implementation note | SPEC-003 | Embeddings/network fix result |
+| SPEC-121 | implementation note | SPEC-001 | Homelab polish incident |
+| SPEC-122 | implementation note | SPEC-001 | Homelab polish v2 incident |
 | SPEC-130 | implementation note | SPEC-003 | Provider API base rules |
 | SPEC-135 | implementation note | SPEC-004 | Vitest isolation backlog |
 
