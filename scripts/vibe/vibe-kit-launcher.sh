@@ -30,17 +30,14 @@ if [ "$pending" = "0" ] && [ "$done" -ge 5 ]; then
     exit 0
 fi
 
-# Check if vibe-kit is already running
-if pgrep -f "vibe-kit.sh.*MiniMax" > /dev/null 2>&1; then
-    echo "[$(date)] vibe-kit.sh already running — skipping launch" >> "$LOG_FILE"
+# Check if vibe-kit is already running (flock-based lock)
+LOCK_FILE="$VIBE_DIR/.launcher.lock"
+exec 200>"$LOCK_FILE"
+if ! flock -n 200; then
+    echo "[$(date)] vibe-kit already locked — skipping launch" >> "$LOG_FILE"
     exit 0
 fi
-
-# Check if mclaude workers are active
-if pgrep -f "mclaude.*MiniMax" > /dev/null 2>&1; then
-    echo "[$(date)] mclaude workers active — skipping launch" >> "$LOG_FILE"
-    exit 0
-fi
+flock 200 -c "true"  # Keep lock for duration of this script
 
 # Launch vibe-kit.sh in background
 # SPEC-OWNERSHIP.md is at /srv/monorepo/docs/SPEC-OWNERSHIP.md (not in SPECS subdir)
@@ -50,7 +47,7 @@ APP="CRM-REFRIMIX" \
 nohup bash "$MONOREPO_DIR/scripts/vibe/vibe-kit.sh" \
     "/srv/monorepo/docs/SPEC-OWNERSHIP.md" \
     --hours 8 \
-    --parallel 15 \
+    --parallel 20 \
     >> "$VIBE_DIR/vibe-kit-stdout.log" 2>&1 &
 
 echo "[$(date)] vibe-kit.sh launched with PID $!" >> "$LOG_FILE"
