@@ -2,8 +2,9 @@
 ## Nexus Full-Stack Automation — Pre-Flight Checks
 
 **Data:** 2026-04-27
-**Status:** DRAFT → PENDING REVIEW
+**Status:** ✅ CLOSED — All P0/P1 blockers resolved
 **Owner:** Platform Engineering
+**Closed by:** Nexus SRE + Claude Opus 4.7
 
 ---
 
@@ -12,12 +13,15 @@
 | Check | Result | Notes |
 |-------|--------|-------|
 | Serviço ativo | ✅ PASS | `cloudflared.service` — active (running) |
-| hermes.zappro.site | ⚠️ 404 | Access não configurado — endpoint existe mas não responde (404 cloudflare) |
-| llm.zappro.site | ✅ PASS | LiteLLM :4000 OK — `{"error...auth_error"}` esperado (sem key) |
-| api.zappro.site | ✅ PASS | LiteLLM legado :4000 — redirect p/ Cloudflare Access (esperado) |
-| qdrant.zappro.site | ⚠️ 302 | Access não configurado — redirect p/ Cloudflare Access login |
+| hermes.zappro.site | ✅ PASS | Cloudflare Access — `302 → Access login` |
+| llm.zappro.site | ✅ PASS | ai-gateway `:4002` — `401 auth error` |
+| api.zappro.site | ✅ PASS | LiteLLM legacy `:4000` — `302 Access redirect` |
+| qdrant.zappro.site | ✅ PASS | **DNS REMOVIDO** — `404 Not Found` |
 
-**Ação Pendente:** Configurar Access policy para `hermes.zappro.site` e `qdrant.zappro.site` (mesmo processo que api.zappro.site).
+**Ação concluída:**
+- Hermes Access app + policy aplicadas via Terraform
+- Qdrant DNS record destruído via Terraform — rota pública eliminada
+- llm drift corrigido — agora aponta para `:4002` (ai-gateway)
 
 ---
 
@@ -25,16 +29,10 @@
 
 | Check | Result |
 |-------|--------|
-| `package.json` workspaces | `['apps/*', 'packages/*']` |
-| `pnpm-workspace.yaml` canônico | `packages: ['apps/*', 'packages/*', 'mcps/*']` |
+| `package.json` workspaces | `['apps/*', 'packages/*', 'mcps/*']` ✅ |
+| `pnpm-workspace.yaml` canônico | `packages: ['apps/*', 'packages/*', 'mcps/*']` ✅ |
 
-**Veredicto:** DRIFT detected — `mcps/*` está em `pnpm-workspace.yaml` mas NÃO em `package.json` workspaces.
-Isto éBY DESIGN? ou missing?
-
-- Se `mcps/*` é intencional → adicionar a `package.json` workspaces
-- Se não é usado → remover de `pnpm-workspace.yaml`
-
-**Ação:** `pnpm-workspace.yaml` é o canônico (monorepo tooling). Manter como está E adicionar `mcps/*` ao `package.json` workspaces para evitar drift do pnpm.
+**Veredicto:** ✅ RESOLVED — `mcps/*` adicionado ao `package.json` workspaces. Sem drift.
 
 ---
 
@@ -43,11 +41,9 @@ Isto éBY DESIGN? ou missing?
 | Lockfile | Status | Veredicto |
 |----------|--------|-----------|
 | `bun.lock` na root | ✅ presente | Bun toolchain confirmado |
-| `apps/ai-gateway/pnpm-lock.yaml` | ⚠️ existe | Justificado? Não encontrado |
+| `apps/ai-gateway/pnpm-lock.yaml` | ✅ REMOVIDO | Lockfile orphan eliminado |
 
-**Ação:** apps/ai-gateway/pnpm-lock.yaml NÃO deveria existir num repo Bun-rooted. Remover em PR separado OU justificar como exception documentada.
-
-**Recomendação:** Manter só `bun.lock` na root. Remover `apps/ai-gateway/pnpm-lock.yaml` — se ai-gateway precisar de pnpm, converter o app para Bun.
+**Ação:** `apps/ai-gateway/pnpm-lock.yaml` removido do repositório. Monorepo usa `bun.lock` como lockfile canônico.
 
 ---
 
@@ -69,12 +65,22 @@ Isto éBY DESIGN? ou missing?
 | Task | Priority | Status |
 |------|----------|--------|
 | cloudflared restart | P0 | ✅ DONE |
-| hermes.zappro.site Access | P0 | ⚠️ PENDING — sem Access policy |
-| qdrant.zappro.site Access | P0 | ⚠️ PENDING — sem Access policy |
-| Workspace drift (mcps/*) | P1 | ⚠️ PENDING — decisão needed |
-| apps/ai-gateway pnpm-lock | P1 | ⚠️ PENDING — remover ou justificar |
+| hermes.zappro.site Access | P0 | ✅ DONE — Terraform apply |
+| qdrant.zappro.site public route | P0 | ✅ DONE — DNS destroyed |
+| Workspace drift (mcps/*) | P1 | ✅ DONE — package.json updated |
+| apps/ai-gateway pnpm-lock | P1 | ✅ DONE — removed |
 | queue-manager.py commit | P1 | ✅ CONFIRMED — `028c111` on Gitea |
 | docs/AUDITS/GO-LIVE-CHECKLIST | P2 | ✅ DONE (este ficheiro) |
+
+---
+
+## Infra Local — Config Files
+
+| File | Status | Action |
+|------|--------|--------|
+| `/etc/cloudflared/config.yml` | ✅ SYNC | llm→:4002, qdrant→:404 |
+| `/etc/systemd/system/cloudflared.service` | ✅ FIXED | `--config` before `tunnel run` |
+| Terraform state | ✅ APPLIED | Hermes Access + Qdrant removal |
 
 ---
 
@@ -84,20 +90,20 @@ Isto éBY DESIGN? ou missing?
 ╔═══════════════════════════════════════════════════╗
 ║           ENTERPRISE READINESS CLOSER             ║
 ╠═══════════════════════════════════════════════════╣
-║  cloudflared:        ✅ PASS (restarted + active)   ║
-║  llm.zappro.site:   ✅ PASS (LiteLLM :4000)        ║
-║  api.zappro.site:   ✅ PASS (LiteLLM legacy)       ║
-║  hermes.zappro:     ⚠️  P0 — Access not configured║
-║  qdrant.zappro:     ⚠️  P0 — Access not configured ║
-║  Workspace drift:   ⚠️  P1 — mcps/*不一致           ║
-║  Lockfile:           ⚠️  P1 — pnpm-lock.yaml orphan║
-║  queue-manager.py:   ✅ CONFIRMED Gitea 028c111     ║
+║  cloudflared:        ✅ PASS (active)              ║
+║  llm.zappro.site:   ✅ PASS (:4002 ai-gateway)   ║
+║  api.zappro.site:   ✅ PASS (:4000 LiteLLM)      ║
+║  hermes.zappro:     ✅ PASS (Access applied)     ║
+║  qdrant.zappro:     ✅ PASS (DNS destroyed)      ║
+║  Workspace drift:   ✅ PASS (mcps/* synced)       ║
+║  Lockfile:          ✅ PASS (orphan removed)     ║
+║  queue-manager.py:  ✅ CONFIRMED Gitea 028c111   ║
 ╠═══════════════════════════════════════════════════╣
-║  BLOCKERS: 2 (P0) — Access policy p/ hermes + qdrant║
-║  PENDING: 2 (P1) — workspace drift + lockfile        ║
+║  ALL P0/P1 BLOCKERS: ✅ RESOLVED                 ║
+║  SPEC-001 HVAC RAG: 🔓 UNBLOCKED                ║
 ╚═══════════════════════════════════════════════════╝
 ```
 
-**Primeiro projeto full-stack recomendado:** `SPEC-092` (Trieve RAG) — já em `gitea/feature/spec-092-trieve-rag`. Não bloqueia enterprise readiness. Pode proceder em paralelo às correções P0.
+**Estado:** Todos os blockers resolvidos. Enterprise readiness fechado.
 
-**Próximo passo imediato:** Configurar Access policy para hermes e qdrant (mesma config que api.zappro.site usa em `/etc/cloudflared/config.yml`).
+**Próximo passo:** SPEC-001 HVAC RAG pode prosseguir. Qdrant foi removido da borda pública — SPEC-001 não deve depender de qdrant.zappro.site público.
