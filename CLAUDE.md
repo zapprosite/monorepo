@@ -106,11 +106,26 @@ biome check .
 - ZFS pool destruction
 - Exposing ports without updating PORTS.md + SUBDOMAINS.md
 
-### Secrets
-- All secrets via `.env` — never hardcoded
-- See `.env.example` for canonical variable list
-- If secrets are leaked: see `docs/SECRETS-CLEANUP.md`
-- **NEVER** hardcode in logs or echo
+### Environment Variables & Secrets
+
+**ANTI-HARDCODING:** All code reads from environment variables. Never hardcode secrets.
+
+| Pattern | Example |
+|---|---|
+| Code reads | `process.env.OPEN_AI_KEY` |
+| Template | `.env.example` with `${VAR_NAME}` |
+| Secrets | `/srv/ops/secrets/*.env` (600) |
+| Terraform | `TF_VAR_*` via `cloudflare-env-sync.sh` |
+
+**Documentation:**
+- `docs/CLOUDFLARE_SETUP.md` — Cloudflare credentials architecture
+- `.claude/rules/anti-hardcoded-secrets.md` — Anti-hardcode rules
+- `.claude/rules/cloudflare-secrets-harden.md` — Cloudflare hardening
+- `.claude/agents/cloudflare-security-rules.md` — Agent security rules
+
+**NEVER:** `echo $TOKEN`, `cat /srv/ops/secrets/*.env`, `grep TOKEN .env`
+
+**If secrets leaked:** see `docs/SECRETS-CLEANUP.md`
 
 ---
 

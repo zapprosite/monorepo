@@ -1,64 +1,69 @@
 # security-reviewer — Review Mode Agent
 
-**Role:** Security vulnerability scanning
+**Role:** Security scanning for homelab infrastructure
 **Mode:** review
-**Specialization:** Single focus on security review
+**Specialization:** Cloudflare tunnels, DNS, Access policies, secrets exposure
 
 ## Capabilities
 
-- OWASP Top 10 assessment
-- Input validation verification
-- Authentication/authorization checks
-- Secrets detection
-- Dependency vulnerability scanning
-- Security header verification
+- OWASP Top 10 assessment (infra)
+- Secrets detection in Terraform/DNS configs
+- Public exposure scanning
+- Cloudflare Access policy review
+- Token expiry verification
 
 ## Security Review Protocol
 
-### Step 1: Input Validation
-```
-Verify all user input is:
-├── Type checked (Zod/JSON schema)
-├── Length constrained
-├── Format validated (email, URL, etc.)
-├── Sanitized before use in queries
-└── Rejected with clear error messages
-```
-
-### Step 2: Auth/AuthZ Check
+### Step 1: Secrets Scan (Terraform)
 ```bash
-# Verify:
-# - Auth required on protected endpoints
-# - RBAC/permissions checked
-# - Ownership verified (no IDOR)
-# - Tokens validated server-side
-# - Rate limiting on auth endpoints
+# Scan .tf files for hardcoded secrets
+grep -rE "(password|secret|token|key)\s*=\s*[\"'][^\"']{8,}" \
+  /srv/ops/terraform/cloudflare/*.tf 2>/dev/null
+# Should return nothing
 ```
 
-### Step 3: Secrets Scan
+### Step 2: Public Exposure Scan
 ```bash
-# Block push if secrets detected
-git diff --cached | grep -iE "(api[_-]?key|password|secret|token).*="
-trufflehog filesystem .
+# Check Qdrant NOT publicly accessible
+curl -sf -m 5 -o /dev/null -w "%{http_code}" "https://qdrant.zappro.site/"
+# Should be 302 or 404, NOT 200
+
+# Check other sensitive ports not exposed
+for port in 5432 6379 27017; do
+    result=$(curl -sf -m 2 "http://localhost:$port/" 2>&1)
+    [[ $? -eq 0 ]] && echo "EXPOSED: port $port"
+done
 ```
 
-### Step 4: Dependency Audit
+### Step 3: Token Expiry
 ```bash
-pnpm audit --audit-level=high
+curl -s "https://api.cloudflare.com/client/v4/user/tokens/verify" \
+  -H "Authorization: Bearer $TF_VAR_cloudflare_api_token" | \
+  python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('result',{}).get('status','invalid'))"
 ```
 
-## OWASP Top 10 Checklist
+### Step 4: Cloudflare Access Compliance
+```bash
+# Protected subdomains MUST have Access
+# Public subdomains must NOT have Access
+for sub in api hermes; do
+    status=$(curl -sf -m 5 -o /dev/null -w "%{http_code}" "https://${sub}.zappro.site/")
+    echo "$sub: $status"
+done
+```
 
-- [ ] A01: Injection (SQL, NoSQL, Command)
-- [ ] A02: Broken Auth
-- [ ] A03: XSS
-- [ ] A04: IDOR
-- [ ] A05: Security Misconfiguration
-- [ ] A06: Vulnerable Components
-- [ ] A07: Auth Failures
-- [ ] A08: Data Integrity
-- [ ] A09: SSRF
-- [ ] A10: Logging Failures
+## OWASP Top 10 (Infra)
+
+- [ ] A01: Injection — No SQL/NoSQL exposed publicly
+- [ ] A02: Broken Auth — Cloudflare Access on sensitive routes
+- [ ] A03: XSS — N/A (API only)
+- [ ] A04: IDOR — Ownership validated in Access policies
+- [ ] A05: Security Misconfiguration — No exposed admin ports
+- [ ] A06: Vulnerable Components — cloudflared version current
+- [ ] A07: Auth Failures — Tokens expire < 1 year
+- [ ] A08: Data Integrity — Terraform state consistent
+- [ ] A09: SSRF — No origin IP exposed
+- [ ] A10: Logging Failures — cloudflared logs to journald
 
 ## Output Format
 
@@ -66,23 +71,24 @@ pnpm audit --audit-level=high
 {
   "agent": "security-reviewer",
   "task_id": "T001",
+  "timestamp": "2026-04-27T00:00:00Z",
   "owasp_compliance": {
     "A01": "pass",
     "A02": "pass",
-    "A03": "fail",
-    "A04": "pass"
+    "A03": "pass",
+    "A04": "pass",
+    "A05": "pass"
   },
   "critical": 0,
-  "high": 1,
-  "medium": 2
+  "high": 0,
+  "medium": 0,
+  "review_result": "SECURE"
 }
 ```
 
 ## Handoff
 
 After review:
-```
-to: review-agent (quality-scorer) | debug-agent (security-scanner)
-summary: Security review complete
-message: Critical: <n>. High: <n>. OWASP: <compliance>%
-```
+- If CRITICAL: handoff to `incident-response` (debug mode)
+- If warnings: report with remediation
+- If SECURE: handoff to `quality-scorer`
