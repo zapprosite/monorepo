@@ -1,7 +1,8 @@
 #!/bin/bash
 # vibe-kit.sh — Infinite loop runner for brain-refactor queue
 # Polls /srv/monorepo/.claude/brain-refactor/queue.json continuously
-# Runs up to 15 parallel mclaude workers
+# Runs up to 15 parallel mclaude workers (or VIBE_PARALLEL override)
+# All queue ops go through queue-manager.py (fcntl.flock + os.replace)
 set -euo pipefail
 
 WORKDIR=/srv/monorepo/.claude/vibe-kit
@@ -10,7 +11,8 @@ VIBE_QUEUE=$WORKDIR/queue.json
 STATE=$WORKDIR/state.json
 LOGDIR=$WORKDIR/logs
 LOCK=$WORKDIR/.vibe-kit.lock
-MAX_WORKERS=${VIBE_PARALLEL:-20}
+QUEUE_MANAGER=$WORKDIR/queue-manager.py
+MAX_WORKERS=${VIBE_PARALLEL:-15}
 POLL_INTERVAL=${VIBE_POLL_INTERVAL:-5}
 SNAPSHOT_EVERY=${VIBE_SNAPSHOT_EVERY:-3}
 
@@ -51,29 +53,24 @@ sync_queue() {
     fi
 }
 
+# claim_task — atomic claim via queue-manager.py (fcntl.flock + os.replace)
 claim_task() {
     local worker_id=$1
-    python3 -c "
-import json, sys, time
-queue_path = '$BRAIN_QUEUE'
-worker_id = '$worker_id'
-try:
-    with open(queue_path, 'r') as f:
-        q = json.load(f)
-    for t in q.get('tasks', []):
-        if t.get('status') == 'pending':
-            t['status'] = 'running'
-            t['worker'] = worker_id
-            t['started_at'] = time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())
-            with open(queue_path, 'w') as f:
-                json.dump(q, f, indent=2)
-            print(f\"{t['id']}|{t.get('name','')}|{t.get('description','')}\")
-            sys.exit(0)
-    sys.exit(1)
-except Exception as e:
-    sys.stderr.write(f'claim_task error: {e}\n')
-    sys.exit(1)
-" 2>&1
+    local result
+    result=$(QUEUE_FILE="$BRAIN_QUEUE" python3 "$QUEUE_MANAGER" claim "$worker_id" 2>&1) || {
+        echo "[claim_task] claim failed: $result" >> "$LOGDIR/vibe-kit.log"
+        return 1
+    }
+    # queue-manager.py returns JSON or {"error": "no_pending_tasks"}
+    if echo "$result" | python3 -c "import sys,json; d=json.load(sys.stdin); sys.exit(0 if d.get('error') else 1)" 2>/dev/null; then
+        return 1  # no pending tasks
+    fi
+    # Print id|name|description for spawn_worker consumption
+    echo "$result" | python3 -c "
+import sys, json
+d = json.load(sys.stdin)
+print(f\"{d.get('id','')}|{d.get('name','')}|{d.get('description','')}\")
+" 2>/dev/null
 }
 
 spawn_worker() {
@@ -127,58 +124,45 @@ with open('$STATE', 'w') as f:
 " 2>/dev/null || true
 }
 
+# mark_done — atomic completion via queue-manager.py (validates worker ownership)
 mark_done() {
     local task_id=$1
-    python3 -c "
-import json, time
-with open('$BRAIN_QUEUE', 'r') as f:
-    q = json.load(f)
-for t in q.get('tasks', []):
-    if t['id'] == '$task_id':
-        t['status'] = 'done'
-        t['completed_at'] = time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())
-        break
-with open('$BRAIN_QUEUE', 'w') as f:
-    json.dump(q, f, indent=2)
-" 2>/dev/null || true
+    local worker_id=$2
+    local result=${3:-done}
+    QUEUE_FILE="$BRAIN_QUEUE" python3 "$QUEUE_MANAGER" complete "$task_id" "$worker_id" "$result" >> "$LOGDIR/vibe-kit.log" 2>&1 || true
 }
 
+# heal_stale_workers — read-only detection of stale running tasks
+# (auto-healing removed: queue writes must go through queue-manager.py)
 heal_stale_workers() {
-    python3 -c "
-import json, time
-with open('$BRAIN_QUEUE', 'r') as f:
-    q = json.load(f)
-for t in q.get('tasks', []):
-    if t.get('status') == 'running' and t.get('worker'):
-        wid = t['worker']
-        log_file = f'$LOGDIR/{wid}-{t[\"id\"]}.log'
-        try:
-            with open(log_file, 'r') as lf:
-                lines = lf.read().strip().split('\n')
-                if lines and ('DONE' in lines[-1] or 'FAIL' in lines[-1]):
-                    t['status'] = 'done' if 'DONE' in lines[-1] else 'failed'
-                    t['completed_at'] = time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())
-                    print(f'Healed {t[\"id\"]} -> {t[\"status\"]}', file=__import__(\"sys\").stderr)
-        except:
-            pass
-with open('$BRAIN_QUEUE', 'w') as f:
-    json.dump(q, f, indent=2)
+    QUEUE_FILE="$BRAIN_QUEUE" python3 -c "
+import json, sys
+try:
+    with open('$BRAIN_QUEUE') as f:
+        q = json.load(f)
+    for t in q.get('tasks', []):
+        if t.get('status') == 'running' and t.get('worker'):
+            wid = t['worker']
+            log_file = f'$LOGDIR/{wid}-{t[\"id\"]}.log'
+            try:
+                with open(log_file, 'r') as lf:
+                    lines = lf.read().strip().split('\n')
+                    if lines and ('DONE' in lines[-1] or 'FAIL' in lines[-1]):
+                        sys.stderr.write(f'STALE: {t[\"id\"]} on {wid} (DONE={chr(68) in lines[-1]}, FAIL={chr(70) in lines[-1]})\n')
+            except FileNotFoundError:
+                sys.stderr.write(f'STALE_ORPHANED: {t[\"id\"]} on {wid} (log missing)\n')
+except Exception as e:
+    sys.stderr.write(f'heal_stale_workers error: {e}\n')
 " 2>&1 || true
 }
 
+# queue_stats — atomic stats via queue-manager.py (LOCK_SH)
 queue_stats() {
-    python3 -c "
-import json
-with open('$BRAIN_QUEUE', 'r') as f:
-    q = json.load(f)
-tasks = q.get('tasks', [])
-total = len(tasks)
-pending = sum(1 for t in tasks if t.get('status') == 'pending')
-running = sum(1 for t in tasks if t.get('status') == 'running')
-done = sum(1 for t in tasks if t.get('status') == 'done')
-failed = sum(1 for t in tasks if t.get('status') == 'failed')
-print(f'total={total} pending={pending} running={running} done={done} failed={failed}')
-" 2>/dev/null
+    QUEUE_FILE="$BRAIN_QUEUE" python3 "$QUEUE_MANAGER" stats 2>/dev/null | python3 -c "
+import sys, json
+d = json.load(sys.stdin)
+print(f\"total={d.get('total',0)} pending={d.get('pending',0)} running={d.get('running',0)} done={d.get('done',0)} failed={d.get('failed',0)}\")
+" 2>/dev/null || echo "total=0 pending=0 running=0 done=0 failed=0"
 }
 
 echo "[$(date -u)] vibe-kit.sh started (PID=$$, MAX_WORKERS=$MAX_WORKERS)" >> $LOGDIR/vibe-kit.log
@@ -202,19 +186,17 @@ while [ $SHUTDOWN_REQUESTED -eq 0 ]; do
     STATS=$(queue_stats)
     echo "[$(date -u)] workers=$CURRENT_WORKERS $STATS" >> $LOGDIR/vibe-kit.log
 
-    PENDING_COUNT=$(python3 -c "
-import json
-with open('$BRAIN_QUEUE', 'r') as f:
-    q = json.load(f)
-print(sum(1 for t in q.get('tasks', []) if t.get('status') == 'pending'))
-" 2>/dev/null || echo "999")
+    # Extract pending/running from stats (avoid redundant queue reads)
+    PENDING_COUNT=$(echo "$STATS" | python3 -c "import sys; s=sys.stdin.read(); print(s.split('pending=')[1].split()[0] if 'pending=' in s else '999')" 2>/dev/null || echo "999")
+    RUNNING_COUNT=$(echo "$STATS" | python3 -c "import sys; s=sys.stdin.read(); print(s.split('running=')[1].split()[0] if 'running=' in s else '0')" 2>/dev/null || echo "0")
 
-    RUNNING_COUNT=$(python3 -c "
-import json
-with open('$BRAIN_QUEUE', 'r') as f:
-    q = json.load(f)
-print(sum(1 for t in q.get('tasks', []) if t.get('status') == 'running'))
-" 2>/dev/null || echo "0")
+    # Respect parallel_limit from queue (stress-test guard)
+    if [ -f "$BRAIN_QUEUE" ]; then
+        QUEUE_LIMIT=$(python3 -c "import json; q=json.load(open('$BRAIN_QUEUE')); print(q.get('parallel_limit', $MAX_WORKERS))" 2>/dev/null || echo "$MAX_WORKERS")
+        effective_max=$((QUEUE_LIMIT < MAX_WORKERS ? QUEUE_LIMIT : MAX_WORKERS))
+    else
+        effective_max=$MAX_WORKERS
+    fi
 
     if [ "$PENDING_COUNT" -eq 0 ] && [ "$RUNNING_COUNT" -eq 0 ]; then
         echo "[$(date -u)] Queue empty, all tasks done. Continuing idle loop..." >> $LOGDIR/vibe-kit.log
@@ -231,7 +213,7 @@ print(sum(1 for t in q.get('tasks', []) if t.get('status') == 'running'))
         IDLE_START=
     fi
 
-    while [ "$CURRENT_WORKERS" -lt "$MAX_WORKERS" ]; do
+    while [ "$CURRENT_WORKERS" -lt "$effective_max" ]; do
         WORKER_ID="W$(date +%H%M%S%3N | tail -c 4)"
         CLAIM=$(claim_task "$WORKER_ID" 2>&1) || break
 

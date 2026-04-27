@@ -1,98 +1,91 @@
 # coolify-deployer — Deploy Mode Agent
 
-**Role:** Coolify deployment
+**Role:** Coolify deployment via webhook API
 **Mode:** deploy
-**Specialization:** Single focus on Coolify deployment
+**Specialization:** Trigger Coolify deploys and poll status to completion
 
 ## Capabilities
 
-- Coolify API integration
-- Application deployment
-- Environment configuration
-- Deployment triggering
-- Status monitoring
-- Rollback via Coolify
+- Coolify API integration (webhook trigger + status poll)
+- Deployment triggering via `POST /api/deploy/{APP_ID}`
+- Status polling with timeout
+- Exit codes: 0 success, 1 failure
+
+## Script
+
+Use `/srv/ops/scripts/coolify-deploy.sh` — handles all of the below automatically.
 
 ## Coolify Deploy Protocol
 
-### Step 1: Configure Application
+### Step 1: Read API key
 ```bash
-# Create application (via Coolify UI or API)
-# Get application UUID from Coolify dashboard
-APP_UUID="<uuid>"
+source /srv/ops/secrets/coolify-api-key.env
 ```
 
-### Step 2: Deploy via API
+### Step 2: Trigger deploy
 ```bash
-# Trigger deployment
-curl -X POST "$COOLIFY_URL/api/v1/applications/$APP_UUID/deploy" \
+RESPONSE=$(curl -s -X POST \
+  "$COOLIFY_URL/api/deploy/$APP_ID" \
   -H "Authorization: Bearer $COOLIFY_API_KEY" \
   -H "Content-Type: application/json" \
-  -d "{
-    \"commit\": \"$COMMIT_SHA\",
-    \"environment_name\": \"production\",
-    \"force_rebuild\": false
-  }"
+  -d "{\"branch\": \"$BRANCH\", \"commit\": \"$COMMIT_SHA\", \"force_rebuild\": false}")
+DEPLOY_ID=$(echo "$RESPONSE" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('id',''))")
 ```
 
-### Step 3: Monitor Deployment
+### Step 3: Poll status (5s interval, 600s timeout)
 ```bash
-# Poll deployment status
-for i in {1..30}; do
-  STATUS=$(curl -s "$COOLIFY_URL/api/v1/applications/$APP_UUID/deployments" \
+for i in $(seq 1 120); do
+  STATUS=$(curl -s "$COOLIFY_URL/api/deployments/$DEPLOY_ID" \
     -H "Authorization: Bearer $COOLIFY_API_KEY" | \
-    jq -r '.[0].status')
-  
-  if [ "$STATUS" = "succeeded" ]; then
-    echo "Deployment succeeded"
-    break
-  elif [ "$STATUS" = "failed" ]; then
-    echo "Deployment failed"
-    exit 1
-  fi
-  
-  echo "Waiting... ($i/30) Status: $STATUS"
-  sleep 10
+    python3 -c "import sys,json; print(json.load(sys.stdin).get('status','unknown'))")
+  echo "Status: $STATUS"
+  case "$STATUS" in
+    completed|success|deployed) echo "SUCCESS"; exit 0 ;;
+    failed|error|cancelled) echo "FAILED"; exit 1 ;;
+    *) sleep 5 ;;
+  esac
 done
+echo "TIMEOUT"; exit 1
 ```
 
-### Step 4: Health Check
-```bash
-# Verify deployed app
-HEALTH=$(curl -sf -m 5 "https://web.zappro.site/_stcore/health" && echo "healthy" || echo "unhealthy")
-if [ "$HEALTH" != "healthy" ]; then
-  echo "Health check failed"
-  exit 1
-fi
-```
+## Input Variables
 
-## Coolify Environment Variables
-
-| Variable | Description |
-|----------|-------------|
-| COOLIFY_URL | Coolify instance URL |
-| COOLIFY_API_KEY | API key from Coolify settings |
-| APP_UUID | Application UUID from Coolify |
+- `APP_ID` — Coolify application UUID
+- `COMMIT_SHA` — git commit to deploy
+- `BRANCH` — branch (default: `main`)
 
 ## Output Format
 
 ```json
 {
   "agent": "coolify-deployer",
-  "task_id": "T001",
-  "deployment_id": "dep-123",
-  "status": "succeeded",
-  "commit": "abc123",
-  "health_check": "passed",
-  "rollback_available": true
+  "app_id": "a1b2c3d4",
+  "commit": "6a3eea0",
+  "branch": "main",
+  "status": "completed",
+  "duration_seconds": 47
 }
 ```
 
+## Rate Limit
+
+Poll interval: 5s between status calls (Coolify API friendly, well under 500 RPM).
+
 ## Handoff
 
-After deploy:
+After deploy success:
 ```
-to: deploy-agent (health-checker)
-summary: Coolify deployment complete
-message: Status: <status>. Health: <health>
+to: health-checker
+message: Deploy completed for APP_ID=<id> COMMIT=<sha>. Run smoke test.
 ```
+
+After deploy failure:
+```
+to: incident-response
+message: Coolify deploy failed for APP_ID=<id>. Status: <status>
+```
+
+## Files
+
+- Script: `/srv/ops/scripts/coolify-deploy.sh`
+- Secrets: `/srv/ops/secrets/coolify-api-key.env`

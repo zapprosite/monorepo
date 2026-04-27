@@ -30,6 +30,23 @@ Before changing infrastructure, deployment, ports, domains, service boundaries, 
 - `ops/ai-governance/SUBDOMAINS.md`
 - `docs/REFERENCE/DEPLOYMENT-BOUNDARIES.md`
 
+## Security & Environment Variables
+
+**BEFORE ANY CODE CHANGE involving tokens, keys, secrets, or credentials:**
+
+- `.env` is the canonical source for all environment variables — never hardcode secrets
+- `.env.example` uses `${VAR_NAME}` pattern — code reads via `process.env.VAR_NAME`
+- Secrets go in `/srv/ops/secrets/*.env` (600, gitignored)
+- Terraform uses `TF_VAR_` prefix via `cloudflare-env-sync.sh`
+
+**Key docs:**
+- `docs/CLOUDFLARE_SETUP.md` — Cloudflare credentials architecture
+- `.claude/rules/anti-hardcoded-secrets.md` — Anti-hardcode rules
+- `.claude/rules/cloudflare-secrets-harden.md` — Cloudflare hardening
+- `.claude/agents/cloudflare-security-rules.md` — Agent security rules
+
+**NEVER:** print, echo, or log secret values. Never `cat /srv/ops/secrets/*.env`.
+
 If chat context conflicts with repo docs, repo docs win until verified otherwise.
 
 ## Non-Negotiables
