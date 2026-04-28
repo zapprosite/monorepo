@@ -14,6 +14,7 @@ services:
     networks:
       - swarm_net
     restart: "on-failure:3"
+    env_file: /srv/monorepo/.env
 
   qdrant:
     image: qdrant/qdrant:v1.7.4
@@ -31,6 +32,7 @@ services:
     networks:
       - swarm_net
     restart: "on-failure:3"
+    env_file: /srv/monorepo/.env
 
   swarm:
     build: ../Dockerfile
@@ -41,6 +43,7 @@ services:
         condition: service_healthy
       qdrant:
         condition: service_healthy
+    env_file: /srv/monorepo/.env
     environment:
       - REDIS_ADDR=redis:6379
       - QDRANT_ADDR=qdrant:6334

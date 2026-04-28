@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   telegram-dev:
     build:
@@ -7,6 +5,7 @@ services:
       dockerfile: Dockerfile.telegram-dev
     container_name: telegram-dev
     restart: unless-stopped
+    env_file: /srv/monorepo/.env
     environment:
       - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
       - REDIS_ADDR=${REDIS_HOST:-redis}:6379
