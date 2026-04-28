@@ -260,7 +260,7 @@ OPENROUTER_API_KEY
 
 ```python
 # ❌ BAD — hardcoded
-API_KEY = "ghp_EXAMPLE_TOKEN_REPLACE_WITH_REAL_VALUE"
+API_KEY = "${GITHUB_TOKEN}"
 
 # ❌ BAD — env var sem guarantee vault-backed
 API_KEY = os.getenv("GITHUB_TOKEN")

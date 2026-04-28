@@ -11,8 +11,8 @@ description: Canonical Redis connection pattern for all services
 # In .env (canonical)
 REDIS_HOST=zappro-redis
 REDIS_PORT=6379
-REDIS_PASSWORD=Fifine156458*
-REDIS_URL=redis://:Fifine156458*@zappro-redis:6379
+REDIS_PASSWORD=${REDIS_PASSWORD}
+REDIS_URL=redis://:${REDIS_PASSWORD}@zappro-redis:6379
 ```
 
 ## Docker Compose Usage
@@ -49,7 +49,7 @@ function buildRedisUrl(): string {
 
 - `REDIS_URL=redis://host:6379` (no password)
 - `REDIS_URL=redis://:@host:6379` (empty password)
-- Hardcoding `Fifine156458*` directly in code
+- Hardcoding `${REDIS_PASSWORD}` directly in code
 
 ---
 

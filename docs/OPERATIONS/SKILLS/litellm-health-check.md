@@ -120,7 +120,7 @@ for i in $(seq 1 10); do
   code=$(curl -s -o /dev/null -w "%{http_code}" \
     -X POST http://localhost:4004/v1/chat/completions \
     -H "Content-Type: application/json" \
-    -H "Authorization: Bearer sk-zappro-lm-2026-s8k3m9x2p7r6t5w1v4c8n0d5j7f9g3h6i2k4l6m8n0p1" \
+    -H "Authorization: Bearer ${LITELLM_KEY}" \
     -d '{"model":"gemma3-27b","messages":[{"role":"user","content":"hi"}],"max_tokens":5}')
   count=$((count+1))
   if [ "$code" = "503" ]; then limited=$((limited+1)); fi
