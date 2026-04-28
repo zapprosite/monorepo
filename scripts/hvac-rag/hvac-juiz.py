@@ -703,7 +703,7 @@ def run_validation():
         # Needs clarification
         ("erro U4 comunicação", JuizResult.ASK_CLARIFICATION, "error code without model"),
         ("código E3", JuizResult.ASK_CLARIFICATION, "generic error code"),
-        ("manual de ar-condicionado", JuizResult.ASK_CLARIFICATION, "generic HVAC without model"),
+        ("manual de ar-condicionado", JuizResult.ASK_CLARIFICATION, "generic manual without family/brand"),
 
         # Edge cases
         ("como funciona um split inverter", JuizResult.APPROVED, "generic inverter question"),

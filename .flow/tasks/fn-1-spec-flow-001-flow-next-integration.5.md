@@ -7,9 +7,8 @@ TBD
 - [ ] TBD
 
 ## Done summary
-TBD
-
+Documented Flow-Next integration: created FLOW-NEXT_GUIDE.md and added Flow-Next section to NEXUS-SRE-GUIDE.md.
 ## Evidence
-- Commits:
+- Commits: 7c27c36
 - Tests:
 - PRs:
