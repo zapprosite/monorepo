@@ -60,7 +60,7 @@ import httpx
 POSITIVE_QUERIES = [
     "RYYQ48BRA error code E6 compressor inverter",
     "FXAQ50FUV maintenance procedure capacitor",
-    "BRC1E53A error F3 sensor problem",
+    "RKXY15ABV error F3 sensor problem",
     "RXYQ20CXY error E9 inverter IPM",
     "Daikin Inverter RYYQ48BRA error code E5",
 ]

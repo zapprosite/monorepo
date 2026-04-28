@@ -23,7 +23,7 @@ export interface ApprovalGateService {
 
 export interface NotificationChannel {
 	type: "email" | "webhook" | "push";
-	配置: Record<string, unknown>;
+	config: Record<string, unknown>;
 }
 
 export interface NotificationService {

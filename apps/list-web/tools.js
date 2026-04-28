@@ -81,7 +81,7 @@ export const tools = [
   {
     id: 'tts-bridge',
     name: 'TTS Bridge',
-    description: 'Proxy滤 voz do Kokoro - única porta de acesso ao TTS',
+    description: 'Proxy filtro voz do Kokoro - única porta de acesso ao TTS',
     url: INTERNAL_URLS.ttsBridge,
     category: 'ai',
     icon: '🌉',
