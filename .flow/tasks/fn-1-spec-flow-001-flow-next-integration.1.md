@@ -7,9 +7,8 @@ TBD
 - [ ] TBD
 
 ## Done summary
-TBD
-
+Setup Flow-Next plugin in monorepo: initialized .flow/, installed flowctl CLI to .flow/bin/, and added usage.md documentation.
 ## Evidence
-- Commits:
-- Tests:
+- Commits: 8fdef04
+- Tests: .flow/bin/flowctl list, .flow/bin/flowctl status
 - PRs:
