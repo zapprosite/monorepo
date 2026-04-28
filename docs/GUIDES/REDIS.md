@@ -8,11 +8,14 @@ description: Canonical Redis connection pattern for all services
 ## Environment Variables
 
 ```bash
-# In .env (canonical)
-REDIS_HOST=zappro-redis
+# In .env.example (template — tracked, safe to read)
+REDIS_HOST=localhost
 REDIS_PORT=6379
 REDIS_PASSWORD=${REDIS_PASSWORD}
-REDIS_URL=redis://:${REDIS_PASSWORD}@zappro-redis:6379
+REDIS_URL=${REDIS_URL}
+REDIS_CONNECT_TIMEOUT_MS=5000
+REDIS_RETRY_DELAY_MS=2000
+REDIS_MAX_RETRIES=3
 ```
 
 ## Docker Compose Usage
@@ -58,9 +61,9 @@ function buildRedisUrl(): string {
 ## Qdrant Endpoint
 
 ```bash
-# Qdrant API (no password by default on local dev)
+# Qdrant API (via .env — QDRANT_API_KEY is a secret)
 QDRANT_URL=http://localhost:6333
-QDRANT_API_KEY=<redacted: source .env>  # from Docker container inspect
+QDRANT_API_KEY=${QDRANT_API_KEY}  # from .env (never hardcode)
 ```
 
 ## Collection Naming Convention
