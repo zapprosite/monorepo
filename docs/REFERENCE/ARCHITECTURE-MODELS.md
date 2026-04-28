@@ -105,7 +105,7 @@ minimax-ot-01 (MiniMax via LiteLLM), ...
 
 ```
 LITELLM_MASTER_KEY=sk-master-b83cfa00...   # LiteLLM proxy (api.zappro.site)
-MINIMAX_TOKEN=sk-cp-uA1oy3...              # MiniMax direto
+MINIMAX_TOKEN=${MINIMAX_TOKEN}              # MiniMax direto
 ```
 
 - LiteLLM para models via proxy

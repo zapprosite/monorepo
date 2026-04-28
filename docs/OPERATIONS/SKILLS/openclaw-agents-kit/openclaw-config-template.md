@@ -190,7 +190,7 @@
   channels: {
     telegram: {
       enabled: true,
-      botToken: "8759194670:AAGHntxPUsfvbSrYNwOhBGuNUpmeCUw1-qY",
+      botToken: "${TELEGRAM_BOT_TOKEN}",
       dmPolicy: "pairing"
     }
   }

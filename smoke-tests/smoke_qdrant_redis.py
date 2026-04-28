@@ -1,10 +1,11 @@
 """Pytest smoke tests for Qdrant vector DB and Redis cache."""
 import pytest
+import os
 import urllib.request
 import json
 
 QDRANT_URL = "http://10.0.9.2:6333"
-QDRANT_KEY = "71cae77676e2a5fd552d172caa1c3200"
+QDRANT_KEY = os.getenv("QDRANT_API_KEY", "")
 REDIS_HOST = "localhost"
 REDIS_PORT = 6379
 

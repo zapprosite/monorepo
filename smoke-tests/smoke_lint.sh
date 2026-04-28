@@ -21,8 +21,8 @@ npx biome check --write=false ./apps/api/src ./apps/ai-gateway/src 2>&1 | tail -
 echo ""
 echo "=== Secret Scan (detect-secrets) ==="
 # Check for common hardcoded secrets in config files
-if grep -r "sk-cp-uA1oy3" --include="*.yaml" --include="*.yml" --include="*.env" . 2>/dev/null; then
-    echo "⚠️ OLD MINIMAX TOKEN FOUND - update to sk-cp-etXmVd"
+if grep -rE "sk-cp-[a-zA-Z0-9]{20,}" --include="*.yaml" --include="*.yml" --include="*.env" . 2>/dev/null; then
+    echo "⚠️ OLD MINIMAX TOKEN FOUND - update to \${MINIMAX_API_KEY}"
     exit 1
 fi
 if grep -r "sk-proj-" --include="*.ts" --include="*.tsx" . 2>/dev/null | grep -v ".test." | grep -v ".spec."; then

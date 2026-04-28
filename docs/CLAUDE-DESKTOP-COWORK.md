@@ -17,7 +17,7 @@
 
 ```bash
 export ANTHROPIC_BASE_URL=https://api.minimax.io/anthropic
-export ANTHROPIC_API_KEY=sk-cp-etXmVd5gY30jOBe2a6AvTzWT4olPvnVBld7qcdWBdJqcSFSj4BSWt5YXXwXWkzNfixm8ZVVNxfmP12yC6S8IZhFR9YOlJDggNc6Wlbt0SY4-4jqBrHWG0rc
+export ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
 export ANTHROPIC_MODEL=MiniMax-M2.7
 
 claude --print "ping"
@@ -31,7 +31,7 @@ claude --print "ping"
 2. **Model:** Select `MiniMax-M2.7` from model dropdown
 3. **API Configuration:**
    - Base URL: `https://api.minimax.io/anthropic`
-   - API Key: `sk-cp-etXmVd5gY30jOBe2a6AvTzWT4olPvnVBld7qcdWBdJqcSFSj4BSWt5YXXwXWkzNfixm8ZVVNxfmP12yC6S8IZhFR9YOlJDggNc6Wlbt0SY4-4jqBrHWG0rc`
+   - API Key: `${ANTHROPIC_API_KEY}`
 
 ---
 
@@ -49,7 +49,7 @@ LiteLLM disponível em `https://llm.zappro.site/v1` para serviços que precisam 
 
 ```bash
 # Test LiteLLM
-curl -s -H "Authorization: Bearer sk-zappro-lm-2026-s8k3m9x2p7r6t5w1v4c8n0d5j7f9g3h6i2k4l6m8n0p1" \
+curl -s -H "Authorization: Bearer ${LITELLM_KEY}" \
   https://llm.zappro.site/v1/models | jq '.data[].id'
 ```
 
@@ -69,7 +69,7 @@ xdg-desktop-menu install --manual ~/.local/share/applications/claude-desktop-min
 ### Opção 2: Alias no shell
 ```bash
 alias claude-minimax='env ANTHROPIC_BASE_URL="https://api.minimax.io/anthropic" \
-  ANTHROPIC_API_KEY="sk-cp-etXmVd5gY30jOBe2a6AvTzWT4olPvnVBld7qcdWBdJqcSFSj4BSWt5YXXwXWkzNfixm8ZVVNxfmP12yC6S8IZhFR9YOlJDggNc6Wlbt0SY4-4jqBrHWG0rc" \
+  ANTHROPIC_API_KEY="${ANTHROPIC_API_KEY}" \
   ANTHROPIC_MODEL="MiniMax-M2.7" \
   /usr/bin/claude-desktop'
 ```
@@ -93,13 +93,13 @@ alias claude-minimax='env ANTHROPIC_BASE_URL="https://api.minimax.io/anthropic" 
 ```bash
 # Test Claude Code CLI
 ANTHROPIC_BASE_URL=https://api.minimax.io/anthropic \
-ANTHROPIC_API_KEY=sk-cp-etXmVd5gY30jOBe2a6AvTzWT4olPvnVBld7qcdWBdJqcSFSj4BSWt5YXXwXWkzNfixm8ZVVNxfmP12yC6S8IZhFR9YOlJDggNc6Wlbt0SY4-4jqBrHWG0rc \
+ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY} \
 ANTHROPIC_MODEL=MiniMax-M2.7 \
 claude --print "ping"
 # Expected: pong ✅
 
 # Test LiteLLM
-curl -s -H "Authorization: Bearer sk-zappro-lm-2026-s8k3m9x2p7r6t5w1v4c8n0d5j7f9g3h6i2k4l6m8n0p1" \
+curl -s -H "Authorization: Bearer ${LITELLM_KEY}" \
   https://llm.zappro.site/v1/chat/completions \
   -H "Content-Type: application/json" \
   -d '{"model":"minimax-m2.7","messages":[{"role":"user","content":"ping"}],"max_tokens":5}'

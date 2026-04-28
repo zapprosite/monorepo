@@ -91,7 +91,7 @@ python3 -m venv ~/.local/venv-qdrant-mcp
 # Registrar:
 claude mcp add --scope user qdrant \
   --env QDRANT_URL=http://localhost:6333 \
-  --env QDRANT_API_KEY=71cae77676e2a5fd552d172caa1c3200 \
+  --env QDRANT_API_KEY=${QDRANT_API_KEY} \
   --env COLLECTION_NAME=main \
   -- /home/will/.local/venv-qdrant-mcp/bin/mcp-server-qdrant
 ```

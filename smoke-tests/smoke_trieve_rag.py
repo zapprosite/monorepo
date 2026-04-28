@@ -50,7 +50,7 @@ class TestQdrantConnectivity:
     def test_qdrant_collections_accessible(self, qdrant_url):
         if not qdrant_url:
             pytest.skip("Qdrant service not reachable")
-        qdrant_key = os.getenv("QDRANT_API_KEY", "71cae77676e2a5fd552d172caa1c3200")
+        qdrant_key = os.getenv("QDRANT_API_KEY", "")
         resp = requests.get(
             f"{qdrant_url}/collections",
             headers={"api-key": qdrant_key},
@@ -61,7 +61,7 @@ class TestQdrantConnectivity:
     def test_qdrant_trieve_collection_exists(self, qdrant_url):
         if not qdrant_url:
             pytest.skip("Qdrant service not reachable")
-        qdrant_key = os.getenv("QDRANT_API_KEY", "71cae77676e2a5fd552d172caa1c3200")
+        qdrant_key = os.getenv("QDRANT_API_KEY", "")
         resp = requests.get(
             f"{qdrant_url}/collections/trieve",
             headers={"api-key": qdrant_key},
