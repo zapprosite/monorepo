@@ -32,7 +32,7 @@ echo "[env-sync] Syncing $SOURCE_ENV → $TARGET_ENVEXAMPLE"
 is_secret_var() {
     local var_name="$1"
     case "$var_name" in
-        *KEY*|*TOKEN*|*SECRET*|*PASSWORD*|*BOT_TOKEN*|*AUTH*|*CREDS*|*PRIVATE*)
+        *KEY*|*TOKEN*|*SECRET*|*PASSWORD*|*BOT_TOKEN*|*AUTH*|*CREDS*|*PRIVATE*|REDIS_URL)
             return 0
             ;;
         *)
