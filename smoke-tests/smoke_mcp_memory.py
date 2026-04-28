@@ -8,7 +8,7 @@ import uuid
 
 MCP_MEMORY_URL = os.getenv("MCP_MEMORY_URL", "http://localhost:4016")
 QDRANT_URL = os.getenv("QDRANT_URL", "http://localhost:6333")
-QDRANT_KEY = os.getenv("QDRANT_API_KEY", "71cae77676e2a5fd552d172caa1c3200")
+QDRANT_KEY = os.getenv("QDRANT_API_KEY", "")
 
 
 def test_mcp_memory_health():

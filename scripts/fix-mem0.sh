@@ -26,7 +26,7 @@ config = MemoryConfig(
         config={
             "collection_name": "will",
             "url": "http://localhost:6333",
-            "api_key": "71cae77676e2a5fd552d172caa1c3200",
+            "api_key": os.environ.get("QDRANT_API_KEY", ""),
         }
     ),
     llm=LlmConfig(

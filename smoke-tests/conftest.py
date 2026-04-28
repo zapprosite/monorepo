@@ -18,9 +18,9 @@ os.environ.setdefault("LITELLM_URL", "http://localhost:4000")
 os.environ.setdefault("LITELLM_KEY", "sk-zappro-lm-2026-s8k3m9x2p7r6t5w1v4c8n0d5j7f9g3h6i2k4l6m8n0p1")
 os.environ.setdefault("MCP_MEMORY_URL", "http://localhost:4016")
 os.environ.setdefault("QDRANT_URL", "http://10.0.19.5:6333")
-os.environ.setdefault("QDRANT_API_KEY", "71cae77676e2a5fd552d172caa1c3200")
+os.environ.setdefault("QDRANT_API_KEY", "")
 os.environ.setdefault("HERMES_URL", "http://localhost:4003")
-os.environ.setdefault("TELEGRAM_BOT_TOKEN", "8759194670:AAGHntxPUsfvbSrYNwOhBGuNUpmeCUw1-qY")
+os.environ.setdefault("TELEGRAM_BOT_TOKEN", "")
 
 # =============================================================================
 # Fallback port/host configurations
@@ -219,7 +219,7 @@ def qdrant_url():
 
 @pytest.fixture(scope="session")
 def qdrant_key():
-    return os.environ.get("QDRANT_API_KEY", "71cae77676e2a5fd552d172caa1c3200")
+    return os.environ.get("QDRANT_API_KEY", "")
 
 
 @pytest.fixture(scope="session")

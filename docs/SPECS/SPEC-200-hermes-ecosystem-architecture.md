@@ -68,7 +68,7 @@ O ecossistema segue o padrão definido em `/home/will/.hermes/SOUL.md`:
 - **Serviço:** `hermes-gateway.service` (systemd system-level)
 - **Processo:** `/home/will/.hermes/hermes-agent/venv/bin/python -m hermes_cli.main gateway run --replace`
 - **Porta:** `:8642` (localhost only)
-- **Bot:** `@CEO_REFRIMIX_bot` (token `8759194670:...`)
+- **Bot:** `@CEO_REFRIMIX_bot` (token `${TELEGRAM_BOT_TOKEN}`)
 - **Modelo primário:** `minimax/MiniMax-M2.7` via LiteLLM
 - **Config:** `/home/will/.hermes/config.yaml`
 - **Env:** `/home/will/.hermes/.env` → symlink → `/srv/monorepo/.env`
@@ -135,8 +135,8 @@ Symlinks ativos:
 |-----|-------|-----|
 | `MINIMAX_API_BASE` | `https://api.minimax.io` | LiteLLM (SEM path) |
 | `HERMES_MINIMAX_BASE` | `https://api.minimax.io/anthropic/v1` | Hermes Gateway router.ts (COM path) |
-| `TELEGRAM_BOT_TOKEN` | `8759194670:...` | @CEO_REFRIMIX_bot (Python gateway) |
-| `EDITOR_SOCIAL_BOT_TOKEN` | `8740522933:...` | @hermes-editor-social-bot (TS agency) |
+| `TELEGRAM_BOT_TOKEN` | `${TELEGRAM_BOT_TOKEN}` | @CEO_REFRIMIX_bot (Python gateway) |
+| `EDITOR_SOCIAL_BOT_TOKEN` | `${EDITOR_SOCIAL_BOT_TOKEN}` | @hermes-editor-social-bot (TS agency) |
 
 ---
 

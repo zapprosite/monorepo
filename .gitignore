@@ -78,6 +78,9 @@ test-results/
 coverage/
 .turbo/debug-logs/
 build.log
+smoke-tests/
+smoke-tests/__pycache__/
+smoke-tests/.pytest_cache/
 
 # =============================================================================
 # EDITOR & IDE — VS Code, JetBrains, Vim, Sublime, etc.

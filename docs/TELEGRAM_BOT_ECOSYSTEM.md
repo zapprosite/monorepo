@@ -52,8 +52,8 @@ Ecossistema de bots Telegram para o Hermes Gateway + homelab operations.
 
 **Tokens:**
 ```
-HERMES_GATEWAY_BOT_TOKEN=8759194670:AAGHntxPUsfvbSrYNwOhBGuNUpmeCUw1-qY  # @CEO_REFRIMIX_bot
-HOMELAB_LOGS_BOT_TOKEN=8738372904:AAEIlgthxeIQotXj89uOFmeZErNRT8Ym4_k  # @HOMELAB_LOGS_bot
+HERMES_GATEWAY_BOT_TOKEN=${HERMES_GATEWAY_BOT_TOKEN}  # @CEO_REFRIMIX_bot
+HOMELAB_LOGS_BOT_TOKEN=${HOMELAB_LOGS_BOT_TOKEN}  # @HOMELAB_LOGS_bot
 ```
 
 ### Regras de Ouro (para LLMs futuros)
@@ -65,8 +65,8 @@ HOMELAB_LOGS_BOT_TOKEN=8738372904:AAEIlgthxeIQotXj89uOFmeZErNRT8Ym4_k  # @HOMELA
 
 | Bot | Token (parcial) | Sistema | Porta | Modo |
 |-----|-----------------|---------|-------|------|
-| @CEO_REFRIMIX_bot | `8759194670:AAGH...` | Hermes Gateway | 8642 | Polling |
-| @HOMELAB_LOGS_bot | `8738372904:AAE...` | Hermes Gateway | 8642 | Polling |
+| @CEO_REFRIMIX_bot | `${HERMES_GATEWAY_BOT_TOKEN}` | Hermes Gateway | 8642 | Polling |
+| @HOMELAB_LOGS_bot | `${HOMELAB_LOGS_BOT_TOKEN}` | Hermes Gateway | 8642 | Polling |
 
 ## URLs de Webhook
 
@@ -79,7 +79,7 @@ homelab_logs:     https://hermes-gateway.zappro.site/webhook/homelab_logs
 
 ### 1. CEO_REFRIMIX_bot (Sistema: Hermes Gateway)
 
-**Token:** `HERMES_GATEWAY_BOT_TOKEN=8759194670:AAGHntxPUsfvbSrYNwOhBGuNUpmeCUw1-qY`
+**Token:** `HERMES_GATEWAY_BOT_TOKEN=${HERMES_GATEWAY_BOT_TOKEN}`
 
 **Comandos:**
 ```
@@ -103,7 +103,7 @@ homelab_logs:     https://hermes-gateway.zappro.site/webhook/homelab_logs
 
 ### 2. HOMELAB_LOGS_bot (Sistema: Hermes Gateway)
 
-**Token:** `HOMELAB_LOGS_BOT_TOKEN=8738372904:AAEIlgthxeIQotXj89uOFmeZErNRT8Ym4_k`
+**Token:** `HOMELAB_LOGS_BOT_TOKEN=${HOMELAB_LOGS_BOT_TOKEN}`
 
 **Comandos:**
 ```
@@ -130,8 +130,8 @@ homelab_logs:     https://hermes-gateway.zappro.site/webhook/homelab_logs
 
 ```bash
 HERMES_GATEWAY_URL=http://127.0.0.1:8642
-HERMES_GATEWAY_BOT_TOKEN=8759194670:AAGHntxPUsfvbSrYNwOhBGuNUpmeCUw1-qY
-HOMELAB_LOGS_BOT_TOKEN=8738372904:AAEIlgthxeIQotXj89uOFmeZErNRT8Ym4_k
+HERMES_GATEWAY_BOT_TOKEN=${HERMES_GATEWAY_BOT_TOKEN}
+HOMELAB_LOGS_BOT_TOKEN=${HOMELAB_LOGS_BOT_TOKEN}
 HERMES_ADMIN_USER_IDS=7220607041
 HERMES_MAX_FILE_SIZE=20971520  # 20MB
 HERMES_MAX_CONCURRENT=3

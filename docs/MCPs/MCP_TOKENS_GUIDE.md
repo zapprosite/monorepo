@@ -81,7 +81,7 @@ claude mcp list | grep github
 - **Localização:** rascunho-s.txt → API Token Cloudflare
 
 ### Qdrant API Key ✅
-- **Key:** `71cae77676e2a5fd552d172caa1c3200`
+- **Key:** `${QDRANT_API_KEY}`
 - **Status:** Configurado no MCP qdrant (env QDRANT_API_KEY)
 - **Fonte:** Docker container env (QDRANT__SERVICE__API_KEY)
 

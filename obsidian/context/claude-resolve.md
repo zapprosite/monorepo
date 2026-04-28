@@ -81,7 +81,7 @@
   "providers": {
     "minimax": {
       "baseUrl": "https://api.minimax.io/anthropic",
-      "apiKey": "sk-cp-uA1oy3YNYtSeBSs4-o3kFktKLXMIyX3n27bosa2o4iNsYHoZLt-DqyTqXL3Ytezkol3ALOXVgaO3EeNUpOSIgPASNmQqr8fipYEa2RGQHDZCuhKhfmxwd8Q",
+      "apiKey": "${MINIMAX_API_KEY}",
       "models": [{ "id": "MiniMax-M2.1" }]  // ⚠️ SÓ TEM M2.1!
     },
     "liteLLM": {
@@ -140,7 +140,7 @@ model_list:
 3. ✅ Restart gateway → Não resolveu
 4. ✅ Pairing list → Sem pending requests
 5. ✅ Telegram mode: polling → OK
-6. ✅ Auth Token Telegram → OK (8759194670:...)
+6. ✅ Auth Token Telegram → OK (${TELEGRAM_BOT_TOKEN})
 7. ❌ Config reset via Coolify → .env sobrescrito
 
 ---
@@ -186,7 +186,7 @@ curl -H "Authorization: Bearer sk-zappro-lm-2026-s8k3m9x2p7r6t5w1v4c8n0d5j7f9g3h
 
 # Testar MiniMax direto
 curl -X POST "https://api.minimax.io/anthropic/v1/messages" \
-  -H "Authorization: Bearer sk-cp-uA1oy3YNYtSeBSs4-o3kFktKLXMIyX3n27bosa2o4iNsYHoZLt-DqyTqXL3Ytezkol3ALOXVgaO3EeNUpOSIgPASNmQqr8fipYEa2RGQHDZCuhKhfmxwd8Q" \
+  -H "Authorization: Bearer ${MINIMAX_API_KEY}" \
   -d '{"model":"MiniMax-M2.7","max_tokens":10,"messages":[{"role":"user","content":"hi"}]}'
 ```
 
