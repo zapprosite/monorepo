@@ -12,13 +12,18 @@ This file is the automatic Codex CLI bootstrap for `/srv/monorepo`. Keep it conc
 `/srv/monorepo` is the homelab control plane and source of truth. Treat symlinked service directories as live service entry points, not disposable copies:
 
 ```text
-ops/                 -> /srv/ops
-hermes-second-brain/ -> /srv/hermes-second-brain
-hermes/              -> ~/.hermes
-fit-tracker/         -> /srv/fit-tracker-v2
-hvacr-swarm/         -> /srv/hvacr-swarm
-edge-tts/            -> /srv/edge-tts
+ops/                     -> /srv/ops
+hermes-second-brain/     -> /srv/hermes-second-brain (symlink, separate repo)
+hermes/                  -> ~/.hermes
+fit-tracker/             -> /srv/fit-tracker-v2
+hvacr-swarm/             -> /srv/hvacr-swarm
+edge-tts/                -> /srv/edge-tts
 ```
+
+**hermes-second-brain** is a separate git repository with private GitHub mirror.
+Agents may read code, docs, skills, and libs. Must not access:
+- `.env`, `secrets/`, `data/`, `logs/`, `qdrant_storage/`, `*.db`, `*.sqlite`
+See `docs/REFERENCE/NEXUS-SECOND-BRAIN-FLOW.md` for memory integration.
 
 ## Read Before Infra Changes
 
