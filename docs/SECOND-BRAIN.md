@@ -2,7 +2,7 @@
 
 > **Data:** 2026-04-22
 > **Repo:** `ssh://git@127.0.0.1:2222/will-zappro/hermes-second-brain.git`
-> **Token:** (via `.env` — `GITEA_TOKEN`)
+> **Token:** `${GITEA_TOKEN}` (via `.env`)
 
 ---
 
@@ -56,11 +56,11 @@ cat ~/Desktop/SYSTEM_ARCHITECTURE.md 2>/dev/null
 ### Clone Manual do Second Brain
 
 ```bash
-# Clone via SSH (recomendado)
+# Clone via SSH (recomendado — sem passwords em URLs)
 git clone ssh://git@127.0.0.1:2222/will-zappro/hermes-second-brain.git /tmp/hermes-second-brain
 
-# Clone via HTTPS com token
-GITEA_TOKEN="<redacted: source .env>"
+# Clone via HTTPS com token (via .env)
+source /srv/monorepo/.env
 git clone https://will-zappro:${GITEA_TOKEN}@127.0.0.1:2222/will-zappro/hermes-second-brain.git /tmp/hermes-second-brain
 ```
 
