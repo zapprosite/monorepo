@@ -2,10 +2,34 @@
 
 Classification: INTERNAL
 Owner: Platform Engineering
-Version: 2.2.0
-Updated: 2026-04-26
+Version: 2.3.0
+Updated: 2026-04-28
 
-This file is the automatic Codex CLI bootstrap for `/srv/monorepo`. Keep it concise. Put detailed architecture in the referenced docs.
+---
+
+## Anti-Hardcoded Secrets — OBRIGATÓRIO LER PRIMEIRO
+
+**Regra:** `docs/OPERATIONS/SECRETS-PATTERNS.md`
+
+**NUNCA exppor valores de variáveis de ambiente com segredos.**
+
+Padrão seguro para verificar se existe:
+```bash
+test -n "${VARIAVEL:-}" && echo "definida"
+```
+
+**O que nunca fazer:**
+```bash
+echo $API_KEY
+printenv | grep SECRET
+grep "API_KEY" .env
+git diff | grep sk-cp-
+```
+
+**Template de vars:** ler `.env.example` (tracked, não tem valores reais).
+**Vars reais:** apenas em `/srv/monorepo/.env` (gitignored).
+
+---
 
 ## Mission
 
@@ -23,6 +47,8 @@ edge-tts/                -> /srv/edge-tts
 **hermes-second-brain** is a separate git repository with private GitHub mirror.
 Agents may read code, docs, skills, and libs. Must not access:
 - `.env`, `secrets/`, `data/`, `logs/`, `qdrant_storage/`, `*.db`, `*.sqlite`
+
+**Environment variables:** Read `.env.example` to know what variables exist. Real values only in `/srv/monorepo/.env` (gitignored).
 See `docs/REFERENCE/NEXUS-SECOND-BRAIN-FLOW.md` for memory integration.
 
 ## Read Before Infra Changes

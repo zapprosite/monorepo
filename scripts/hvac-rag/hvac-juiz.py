@@ -11,6 +11,7 @@ Output:
 Latency target: <50ms (pure regex, no LLM calls)
 """
 
+import hashlib
 import re
 import sys
 import json
@@ -22,7 +23,8 @@ from typing import Optional
 # =============================================================================
 
 HVAC_COMPONENTS = {
-    "inversor", "inverter", "ipm", "pcb", "placa", "compressor", "ventilador",
+    "inversor", "inverter", "ipm", "pcb", "placa", "placa inverter", "inverter board",
+    "compressor", "ventilador", "motor", "turbina",
     "capacitor", "capacitor de partida", "sensor", "termistor", "válvula",
     "serpentina", "evaporador", "condensador", "filtro", "desidratador",
     "tubulação", "carga de gás", "refrigerante", "bitzer", "copeland",
@@ -30,6 +32,7 @@ HVAC_COMPONENTS = {
     "chiller", "vrv", "cassete", "piso", "teto", "hi-wall", "ar-condicionado",
     "split", "window", "portátil", "deumidificador", "umidificador",
     "bomba", "aquecimento", "refrigereração", "gás", "gás refrigerante",
+    "ponte de diodos", "diodo", "diodos", "dc bus", "barramento dc", "link dc", "barramento",
 }
 
 HVAC_ERROR_CODES = re.compile(
@@ -41,6 +44,12 @@ HVAC_ERROR_CODES = re.compile(
 HVAC_MODEL_PATTERNS = re.compile(
     r'\b(RXYQ|RYYQ|FXMQ|FXAQ|FXCQ|FXEQ|FXKQ|FXFQ|FXFRQ|FXFSQ|FXFTQ|FXDQ|FXPQ|FXVQ|'
     r'BRC1|BRC2|BRC3|BRC4|RKXY|RCXY|RAXY|RGXY|AHZ|ANH|AG|HXY|CXY)\b',
+    re.IGNORECASE
+)
+
+# More permissive pattern for model detection in queries
+HVAC_MODEL_IN_QUERY = re.compile(
+    r'\b[A-Z]{2,10}[0-9]{1,6}[A-Z0-9]*\b',
     re.IGNORECASE
 )
 
@@ -62,9 +71,11 @@ SAFETY_KEYWORDS = {
     "compressor", "energizado", "lockout", "tagout",
 }
 
-# Minimum model pattern for "complete" model (has series + number)
+# Minimum model pattern for "complete" model (has series + 2+ digit number)
+# RXYQ20BRA = 4 letters + 2+ digits + optional suffix
+# RYYQ8 is partial (only 1 digit), needs full like RYYQ48BRA
 COMPLETE_MODEL_PATTERN = re.compile(
-    r'\b[A-Z]{2,10}[0-9]{1,6}[A-Z0-9]*\b'
+    r'\b[A-Z]{2,10}[0-9]{2,6}[A-Z0-9]*\b'
 )
 
 
@@ -94,7 +105,7 @@ def has_error_codes(text: str) -> bool:
 
 def has_model_patterns(text: str) -> bool:
     """Check if text contains HVAC model patterns."""
-    return bool(HVAC_MODEL_PATTERNS.search(text))
+    return bool(HVAC_MODEL_IN_QUERY.search(text))
 
 
 def has_complete_model(text: str) -> bool:
@@ -122,22 +133,22 @@ def has_safety_keywords(text: str) -> bool:
     return False
 
 
-def needs_clarification(text: str) -> bool:
+def needs_clarification(text: str) -> tuple[bool, bool]:
     """
     Check if query needs model clarification.
 
-    Returns True if:
-    - Has HVAC context (component, error code, OR partial model) but no complete model
-    - AND is NOT a safety-critical query (safety queries don't need model)
-
-    Safety queries (IPM, alta tensão, ponte de diodos, etc.) are always
-    approved because they need safety warnings regardless of model.
+    Returns (needs_clarification, safety_only_without_model):
+    - needs_clarification: True if query needs model to proceed
+    - safety_only_without_model: True if safety query but no complete model
+      (needs general safety info + request for model)
     """
     text_lower = text.lower()
 
-    # Safety queries don't need model clarification - they need safety warnings
+    # Safety queries without complete model need clarification with safety flag
     if has_safety_keywords(text):
-        return False
+        if has_complete_model(text):
+            return False, False
+        return True, True
 
     # Has error code or component or partial model pattern
     has_hvac_context = (
@@ -147,18 +158,18 @@ def needs_clarification(text: str) -> bool:
     )
 
     if not has_hvac_context:
-        return False
+        return False, False
 
     # Has complete model - no clarification needed
     if has_complete_model(text):
-        return False
+        return False, False
 
     # Has partial model pattern (like RXYQ without numbers) - needs clarification
     if has_model_patterns(text):
-        return True
+        return True, False
 
     # Has component or error code but no model at all - needs clarification
-    return True
+    return True, False
 
 
 def judge(query: str) -> tuple[JuizResult, dict]:
@@ -169,7 +180,8 @@ def judge(query: str) -> tuple[JuizResult, dict]:
         (JuizResult, metadata_dict)
     """
     result = {
-        "query": query,
+        "q_hash": hashlib.sha256(query.encode()).hexdigest()[:8],
+        "q_len": len(query),
         "has_hvac_components": False,
         "has_error_codes": False,
         "has_model_patterns": False,
@@ -177,6 +189,7 @@ def judge(query: str) -> tuple[JuizResult, dict]:
         "has_safety_keywords": False,
         "is_out_of_domain": False,
         "needs_clarification": False,
+        "safety_only_without_model": False,
         "result": None,
         "reason": None,
     }
@@ -196,10 +209,16 @@ def judge(query: str) -> tuple[JuizResult, dict]:
     result["has_safety_keywords"] = has_safety_keywords(query)
 
     # Check if needs clarification
-    if needs_clarification(query):
+    needs_clar, safety_only = needs_clarification(query)
+    if needs_clar:
         result["needs_clarification"] = True
-        result["result"] = JuizResult.ASK_CLARIFICATION.value
-        result["reason"] = "incomplete_model"
+        result["safety_only_without_model"] = safety_only
+        if safety_only:
+            result["result"] = JuizResult.ASK_CLARIFICATION.value
+            result["reason"] = "safety_query_needs_model"
+        else:
+            result["result"] = JuizResult.ASK_CLARIFICATION.value
+            result["reason"] = "incomplete_model"
         return JuizResult.ASK_CLARIFICATION, result
 
     # Check if has any HVAC context
@@ -275,10 +294,13 @@ def run_validation():
     test_cases = [
         # (query, expected_result, description)
         ("RXYQ20BR erro U4 comunicação", JuizResult.APPROVED, "valid HVAC with error code"),
-        ("VRV RXYQ código E3 alta pressão", JuizResult.APPROVED, "valid HVAC VRV error"),
-        ("como testar IPM no inverter", JuizResult.APPROVED, "IPM safety query - approved"),
-        ("ponte de diodos compressor", JuizResult.APPROVED, "diode bridge query"),
-        ("procedimento de segurança alta tensão placa inverter", JuizResult.APPROVED, "safety procedure"),
+        ("VRV RXYQ10BRA código E3 alta pressão", JuizResult.APPROVED, "VRV with full model - approved"),
+        ("RXYQ código E3 alta pressão", JuizResult.ASK_CLARIFICATION, "VRV with partial model + safety keyword - ASK_CLARIFICATION + safety flag"),
+        ("como testar IPM no inverter", JuizResult.ASK_CLARIFICATION, "IPM safety query without model - ASK_CLARIFICATION + safety flag"),
+        ("ponte de diodos compressor", JuizResult.ASK_CLARIFICATION, "diode bridge without model - ASK_CLARIFICATION + safety flag"),
+        ("procedimento de segurança alta tensão placa inverter", JuizResult.ASK_CLARIFICATION, "safety procedure without model - ASK_CLARIFICATION + safety flag"),
+        ("RXYQ20BRA IPM alta tensão", JuizResult.APPROVED, "IPM safety query WITH model - APPROVED"),
+        ("RXYQ20BRA ponte de diodos", JuizResult.APPROVED, "diode bridge WITH model - APPROVED"),
         ("modelo RYYQ8 instalação unidade externa", JuizResult.ASK_CLARIFICATION, "partial model - needs full model"),
 
         # Out of domain - should be BLOCKED
@@ -307,12 +329,17 @@ def run_validation():
         status = "✅" if result == expected else "❌"
         if result == expected:
             passed += 1
-            print(f"{status} {description}: {result.value}")
+            extra = ""
+            if metadata.get("safety_only_without_model"):
+                extra = " [safety_only_without_model=true]"
+            print(f"{status} {description}: {result.value}{extra}")
         else:
             failed += 1
             print(f"{status} {description}: expected {expected.value}, got {result.value}")
-            print(f"   Query: {query}")
+            print(f"   Query hash: {metadata.get('q_hash', '?')}")
             print(f"   Reason: {metadata['reason']}")
+            if metadata.get("safety_only_without_model"):
+                print(f"   safety_only_without_model: {metadata['safety_only_without_model']}")
 
     print(f"\n{passed}/{passed+failed} passed")
     if failed > 0:

@@ -12,6 +12,7 @@ Also provides pipeline filter endpoints for OpenWebUI native filter integration.
 """
 
 import asyncio
+import hashlib
 import os
 import re
 import json
@@ -59,7 +60,7 @@ LITELLM_API_KEY = os.environ.get("LITELLM_API_KEY", "sk-dummy")
 COLLECTION_NAME = "hvac_manuals_v1"
 MODEL_NAME = "hvac-manual-strict"
 PIPELINE_PORT = int(os.environ.get("PIPELINE_PORT", "4017"))
-PIPELINE_HOST = os.environ.get("PIPELINE_HOST", "0.0.0.0")
+PIPELINE_HOST = os.environ.get("PIPELINE_HOST", "127.0.0.1")
 
 # Limits
 DEFAULT_TOP_K = 6
@@ -136,6 +137,20 @@ def litellm_headers() -> dict:
 def _safe_log(msg: str) -> None:
     """Log without exposing secrets or raw query content."""
     log.info(msg)
+
+
+def _log_query_meta(query: str, extra: dict = None) -> str:
+    """
+    Log query metadata without exposing raw query text.
+    Returns a safe log string with hash, length, and category.
+    """
+    q_hash = hashlib.sha256(query.encode()).hexdigest()[:8]
+    q_len = len(query)
+    q_category = "safety" if any(k in query.lower() for k in ["ipm", "alta tensão", "inverter", "capacitor"]) else "standard"
+    base = f"q_hash={q_hash} q_len={q_len} q_cat={q_category}"
+    if extra:
+        base += " " + " ".join(f"{k}={v}" for k, v in extra.items())
+    return base
 
 
 async def get_embedding(text: str) -> Optional[list]:
@@ -383,7 +398,7 @@ async def chat_completions(request: ChatCompletionRequest):
 
     # Juiz pre-flight check
     juez_result, juez_meta = juiz(user_query)
-    _safe_log(f"Juiz: {juez_result.value} reason={juez_meta.get('reason')} query={user_query[:40]}…")
+    _safe_log(f"Juiz: {juez_result.value} reason={juez_meta.get('reason')} {_log_query_meta(user_query)}")
 
     if juez_result == JuizResult.BLOCKED:
         return {
@@ -410,6 +425,26 @@ async def chat_completions(request: ChatCompletionRequest):
         }
 
     if juez_result == JuizResult.ASK_CLARIFICATION:
+        # Check if this is a safety query without model
+        if juez_meta.get("safety_only_without_model"):
+            safety_msg = (
+                "⚠️ Para procedimentos de segurança em alta tensão (IPM, placa inverter, "
+                "ponte de diodos, capacitor, compressor), é obrigatório:\n\n"
+                "1. DESLIGAR a unidade da rede elétrica\n"
+                "2. AGUARDAR o tempo especificado no manual/fabricante/etiqueta\n"
+                "3. CONFIRMAR ausência de tensão com multímetro antes de tocar componentes\n"
+                "4. Usar EPIs adequados (luvas classe III, óculos, calçado isolante)\n"
+                "5. NUNCA medir energizado sem respaldo explícito do manual\n\n"
+                "─────────────────────────\n\n"
+                "Para diagnóstico específico, forneça o MODELO COMPLETO da unidade. "
+                "Exemplo: RXYQ20BRA + FXYC20BRA (unidade externa + interna)."
+            )
+        else:
+            safety_msg = (
+                "Para ajudar melhor, preciso do modelo completo da unidade. "
+                "Exemplo: RXYQ20BRA + FXYC20BRA (unidade externa + interna). "
+                "Com o modelo completo posso buscar o procedimento específico no manual."
+            )
         return {
             "id": "hvac-chat-completion",
             "object": "chat.completion",
@@ -420,11 +455,7 @@ async def chat_completions(request: ChatCompletionRequest):
                     "index": 0,
                     "message": {
                         "role": "assistant",
-                        "content": (
-                            "Para ajudar melhor, preciso do modelo completo da unidade. "
-                            "Exemplo: RXYQ20BRA + FXYC20BRA (unidade externa + interna). "
-                            "Com o modelo completo posso buscar o procedimento específico no manual."
-                        ),
+                        "content": safety_msg,
                     },
                     "finish_reason": "stop",
                 }
@@ -449,10 +480,7 @@ async def chat_completions(request: ChatCompletionRequest):
         if msg.role != "system":
             messages_for_llm.append({"role": msg.role, "content": msg.content})
 
-    _safe_log(
-        f"query={user_query[:40]}… hits={len(hits)} "
-        f"context_chars={len(context)} model={request.model}"
-    )
+    _safe_log(f"Qdrant: hits={len(hits)} context_chars={len(context)} model={request.model} {_log_query_meta(user_query)}")
 
     # Forward to LiteLLM
     async with httpx.AsyncClient(timeout=CHAT_TIMEOUT) as client:
@@ -546,6 +574,22 @@ async def chat_completions_field_tutor(request: ChatCompletionRequest):
         }
 
     if juez_result == JuizResult.ASK_CLARIFICATION:
+        if juez_meta.get("safety_only_without_model"):
+            safety_msg = (
+                "⚠️ PROCEDIMENTO GERAL DE SEGURANÇA:\n"
+                "1. DESLIGAR a unidade da rede elétrica\n"
+                "2. AGUARDAR o tempo especificado no manual/fabricante/etiqueta\n"
+                "3. CONFIRMAR ausência de tensão com multímetro\n"
+                "4. Usar EPIs adequados\n"
+                "5. NUNCA medir energizado sem respaldo do manual\n\n"
+                "─────────────────────────\n\n"
+                "Para procedimento específico, forneça o MODELO COMPLETO. Ex: RXYQ20BRA + FXYC20BRA"
+            )
+        else:
+            safety_msg = (
+                "Para ajudar melhor, preciso do modelo completo da unidade. "
+                "Exemplo: RXYQ20BRA + FXYC20BRA."
+            )
         return {
             "id": "hvac-chat-completion",
             "object": "chat.completion",
@@ -556,10 +600,7 @@ async def chat_completions_field_tutor(request: ChatCompletionRequest):
                     "index": 0,
                     "message": {
                         "role": "assistant",
-                        "content": (
-                            "Para ajudar melhor, preciso do modelo completo da unidade. "
-                            "Exemplo: RXYQ20BRA + FXYC20BRA."
-                        ),
+                        "content": safety_msg,
                     },
                     "finish_reason": "stop",
                 }
@@ -596,7 +637,7 @@ Responda com base no contexto acima."""
         if msg.role != "system":
             messages_for_llm.append({"role": msg.role, "content": msg.content})
 
-    _safe_log(f"[field-tutor] query={user_query[:40]}… context_chars={len(field_context)}")
+    _safe_log(f"[field-tutor] context_chars={len(field_context)} {_log_query_meta(user_query)}")
 
     # Forward to LiteLLM
     async with httpx.AsyncClient(timeout=CHAT_TIMEOUT) as client:
@@ -689,6 +730,14 @@ async def chat_completions_printable(request: ChatCompletionRequest):
         }
 
     if juez_result == JuizResult.ASK_CLARIFICATION:
+        if juez_meta.get("safety_only_without_model"):
+            safety_msg = (
+                "⚠️ SEGURANÇA: DESLIGAR, AGUARDAR tempo do manual, "
+                "CONFIRMAR ausência de tensão, usar EPIs, NUNCA medir energizado.\n\n"
+                "Para procedimento específico: forneça modelo completo. Ex: RXYQ20BRA + FXYC20BRA"
+            )
+        else:
+            safety_msg = "Forneça o modelo completo para busca no manual. Ex: RXYQ20BRA + FXYC20BRA"
         return {
             "id": "hvac-chat-completion",
             "object": "chat.completion",
@@ -699,7 +748,7 @@ async def chat_completions_printable(request: ChatCompletionRequest):
                     "index": 0,
                     "message": {
                         "role": "assistant",
-                        "content": "Forneça o modelo completo para busca no manual. Ex: RXYQ20BRA + FXYC20BRA",
+                        "content": safety_msg,
                     },
                     "finish_reason": "stop",
                 }
@@ -720,7 +769,7 @@ async def chat_completions_printable(request: ChatCompletionRequest):
         _safe_log(f"[printable] Formatter error: {type(e).__name__}")
         printable_text = field_context  # Fallback to raw context
 
-    _safe_log(f"[printable] query={user_query[:40]}… output_chars={len(printable_text)}")
+    _safe_log(f"[printable] output_chars={len(printable_text)} {_log_query_meta(user_query)}")
 
     # Return plain text response (not JSON LLM response)
     return {
@@ -764,7 +813,7 @@ async def filter_inlet(request: Request):
         return body
 
     if is_out_of_domain(user_query):
-        _safe_log(f"[filter] Out-of-domain blocked: {user_query[:40]}…")
+        _safe_log(f"[filter] Out-of-domain blocked {_log_query_meta(user_query)}")
         # Return empty context so model knows to refuse
         enriched = format_system_prompt("")
     else:
@@ -784,7 +833,7 @@ async def filter_inlet(request: Request):
         messages.insert(0, {"role": "system", "content": enriched})
 
     body["messages"] = messages
-    _safe_log(f"[filter] query={user_query[:40]}… hits={len(hits) if not is_out_of_domain(user_query) else 0}")
+    _safe_log(f"[filter] hits={len(hits) if not is_out_of_domain(user_query) else 0} {_log_query_meta(user_query)}")
     return body
 
 
