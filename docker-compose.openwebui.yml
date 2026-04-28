@@ -3,33 +3,14 @@ services:
     image: openwebui/open-webui:latest
     container_name: openwebui
     restart: unless-stopped
-    ports:
-      - "127.0.0.1:3456:8080"
     env_file: /srv/monorepo/.env
     environment:
-      - OWEBUI_PORT=8080
-      - OWEBUI_HOST=0.0.0.0
-      # Optional: Ollama integration (use local Ollama at 10.0.1.1:11434)
-      - OLLAMA_BASE_URL=http://10.0.1.1:11434
-      # WebUI Authentication (optional - set to false to disable auth)
-      - WEBUI_AUTH=false
-    networks:
-      - openwebui_net
+      - HOST=0.0.0.0
+      - PORT=3456
+      # WebUI Authentication — via .env (WEBUI_AUTH=true enables Google OAuth)
+    network_mode: host
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/"]
+      test: ["CMD", "curl", "-f", "http://localhost:3456/"]
       interval: 30s
       timeout: 10s
       retries: 3
-    deploy:
-      resources:
-        limits:
-          cpus: "2.0"
-          memory: 2G
-        reservations:
-          cpus: "0.5"
-          memory: 512M
-
-networks:
-  openwebui_net:
-    name: openwebui_net
-    driver: bridge
