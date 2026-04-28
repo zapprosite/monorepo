@@ -276,7 +276,7 @@ docker stats infisical infisical-db infisical-redis --no-stream
 
 | Secret | Valor Real (container) | Observação |
 |--------|------------------------|------------|
-| REDIS_PASSWORD | coolify-redis-password-2026 | Coolify/Redis (não "Fifine156458*") |
+| REDIS_PASSWORD | coolify-redis-password-2026 | Coolify/Redis (não "${REDIS_PASSWORD}") |
 | POSTGRES_PASSWORD | coolify-db-password-2026 | Coolify-DB (não "400621ead...") |
 | APP_KEY | base64:jRrMu3906d/... | Coolify |
 | ROOT_USER_PASSWORD | Zappro2026! | Coolify root |

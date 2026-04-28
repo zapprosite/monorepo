@@ -13,7 +13,7 @@ O bot OpenClaw Telegram funciona com MiniMax M2.7 direto. O host tem 37 containe
 ### 1.1 Testar embeddings via LiteLLM
 ```bash
 curl -s http://10.0.1.1:4000/v1/embeddings \
-  -H "Authorization: Bearer sk-zappro-lm-2026-s8k3m9x2p7r6t5w1v4c8n0d5j7f9g3h6i2k4l6m8n0p1" \
+  -H "Authorization: Bearer ${LITELLM_KEY}" \
   -d '{"model":"embedding-nomic","input":"teste de embedding"}'
 ```
 
