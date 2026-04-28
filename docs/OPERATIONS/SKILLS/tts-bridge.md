@@ -138,7 +138,7 @@ O OpenClaw aponta para o TTS Bridge (não Kokoro direto):
 **openclaw.json** (`messages.tts.openai`):
 ```json
 {
-  "apiKey": "sk-zappro-lm-2026-s8k3m9x2p7r6t5w1v4c8n0d5j7f9g3h6i2k4l6m8n0p1",
+  "apiKey": "${LITELLM_KEY}",
   "baseUrl": "http://10.0.19.5:8013/v1",
   "model": "tts-1",
   "voice": "pm_santa"

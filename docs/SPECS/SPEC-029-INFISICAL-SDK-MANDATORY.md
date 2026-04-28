@@ -61,7 +61,7 @@ value = secret.secret_value
 API_KEY = os.getenv("INFISICAL_SERVICE_API_KEY")  # value = ref to vault
 
 # ❌ PROIBIDO — hardcoded secret
-API_KEY = "ghp_EXAMPLE_TOKEN_REPLACE_WITH_REAL_VALUE"
+API_KEY = "${GITHUB_TOKEN}"
 
 # ❌ PROIBIDO — os.getenv sem vault reference
 API_KEY = os.getenv("GITHUB_TOKEN")  # sem guarantee que vem do vault
