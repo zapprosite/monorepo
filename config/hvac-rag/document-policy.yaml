@@ -1,0 +1,74 @@
+scope:
+  market: BR
+  technology:
+    - inverter
+    - vrf
+    - vrv
+    - velocidade_variavel
+  equipment_types:
+    - split
+    - multi-split
+    - cassette
+    - piso_teto
+    - central
+    - vrf
+    - vrv
+
+whitelist_doc_types:
+  - service_manual
+  - manual_de_servico
+  - manual_tecnico
+  - troubleshooting
+  - error_code
+  - codigo_de_erro
+  - wiring_diagram
+  - diagrama_eletrico
+  - installation_manual_technical
+  - VRV
+  - VRF
+  - inverter_split
+  - ACJ_inverter
+
+blacklist_doc_types:
+  - catalogo_comercial
+  - folder
+  - brochure
+  - manual_de_usuario_simples
+  - controle_remoto_apenas
+  - garantia
+  - nota_fiscal
+  - convencional_fixo
+  - non_hvac
+
+blacklist_keywords:
+  - contrato
+  - nota fiscal
+  - marketing
+  - folder
+  - brochure
+  - garantía
+  - nota fiscal
+
+hvac_signals:
+  positive:
+    - inverter
+    - vrv
+    - vrf
+    - compressor
+    - refrigerante
+    - erro
+    - serviço
+    - servico
+    - split
+    - capacidade
+    - btuh
+    - pressão
+  negative:
+    - tv
+    - geladeira
+    - lavadora
+    - contrato
+    - nota fiscal
+
+inverter_required: true
+min_document_quality_score: 0.5
