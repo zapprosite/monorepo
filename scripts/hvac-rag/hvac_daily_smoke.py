@@ -49,8 +49,8 @@ def import_local_module(name: str, filename: str):
     spec.loader.exec_module(mod)
     return mod
 
-_juez_mod = import_local_module("hvac_juiz", "hvac-juiz.py")
-juiz = _juez_mod.juiz
+_juez_mod = import_local_module("hvac_juiz", "hvac_juiz.py")
+judge = _juez_mod.judge
 
 import httpx
 
@@ -144,7 +144,7 @@ async def judge_query(query: str) -> dict:
     """Run Juiz on query (pure regex, no network)."""
     q_hash = safe_query_hash(query)
     try:
-        result, meta = juiz(query)
+        result, meta = judge(query)
         return {
             "query_hash": q_hash,
             "judge_result": result.value,

@@ -2,7 +2,11 @@
 """
 Fetch Inmetro/PBE air conditioner catalog XLSX and convert to JSON.
 
-URL: https://www.gov.br/inmetro/pt-br/areas-de-atuacao/eficiencia-energetica/etiquetagem-veicular-e-de-equipamentos/arquivos-e-recursos/arquivos/condicionadores-de-ar/planilha-de-condicionadores-de-ar.xlsx
+URLs (tried in order — first accessible wins):
+  1. gov.br/assuntos/.../condicionadores-de-ar/planilha-de-condicionadores-de-ar.xlsx
+  2. gov.br/inmetro/pt-br/areas-de-atuacao/.../condicionadores-de-ar.xlsx (legacy)
+
+If the site changed, use: --url YOUR_DISCOVERED_URL
 
 Outputs:
   /srv/data/hvac-rag/catalog/inmetro_raw_{date}.json   — all rows + inverter flag
@@ -12,6 +16,7 @@ Flags:
   --dry-run        show row counts without downloading
   --offline        read from most recent /tmp/inmetro_ac_*.xlsx cache
   --force-refresh  re-download even if cache exists
+  --url URL        override download URL
 """
 
 import sys
@@ -31,11 +36,14 @@ try:
 except ImportError:
     openpyxl = None
 
-INMETRO_URL = (
+# Try in order of preference — first accessible URL wins
+INMETRO_URLS = [
+    "https://www.gov.br/inmetro/pt-br/assuntos/regulamentacao/avaliacao-da-conformidade/programa-brasileiro-de-etiquetagem/tabelas-de-eficiencia-energetica/condicionadores-de-ar/planilha-de-condicionadores-de-ar.xlsx",
     "https://www.gov.br/inmetro/pt-br/areas-de-atuacao/eficiencia-energetica/"
     "etiquetagem-veicular-e-de-equipamentos/arquivos-e-recursos/arquivos/"
-    "condicionadores-de-ar/planilha-de-condicionadores-de-ar.xlsx"
-)
+    "condicionadores-de-ar/planilha-de-condicionadores-de-ar.xlsx",
+]
+INMETRO_URL = None  # resolved at runtime
 
 UA_HEADER = {"User-Agent": "Mozilla/5.0 (compatible; HVAC-RAG-bot/1.0)"}
 TIMEOUT = 60
@@ -177,20 +185,39 @@ def _parse_xlsx(path: Path) -> tuple[list[dict], list[str]]:
     return _sheet_to_records(wb)
 
 
-def _download_xlsx() -> Path:
+def _download_xlsx(override_url: str | None = None) -> Path:
     if requests is None:
         print("ERROR: requests not installed — run: pip install requests", file=sys.stderr)
         sys.exit(1)
+
+    urls_to_try = [override_url] if override_url else INMETRO_URLS
+    last_err = None
     today = date.today().isoformat()
     dest = XLSX_CACHE_DIR / f"inmetro_ac_{today}.xlsx"
-    print(f"Downloading {INMETRO_URL}", file=sys.stderr)
-    resp = requests.get(INMETRO_URL, headers=UA_HEADER, timeout=TIMEOUT, stream=True)
-    resp.raise_for_status()
-    with dest.open("wb") as fh:
-        for chunk in resp.iter_content(chunk_size=8192):
-            fh.write(chunk)
-    print(f"Saved to {dest}", file=sys.stderr)
-    return dest
+
+    for url in urls_to_try:
+        print(f"Trying {url}", file=sys.stderr)
+        try:
+            resp = requests.get(url, headers=UA_HEADER, timeout=TIMEOUT, stream=True)
+            resp.raise_for_status()
+            with dest.open("wb") as fh:
+                for chunk in resp.iter_content(chunk_size=8192):
+                    fh.write(chunk)
+            print(f"Saved to {dest}", file=sys.stderr)
+            return dest
+        except Exception as exc:
+            last_err = exc
+            print(f"  ✗ {exc}", file=sys.stderr)
+            continue
+
+    print(
+        f"ERROR: All Inmetro URLs failed. Last error: {last_err}\n"
+        "  → Visit https://www.gov.br/inmetro/pt-br/assuntos/regulamentacao/avaliacao-da-conformidade/programa-brasileiro-de-etiquetagem/tabelas-de-eficiencia-energetica/condicionadores-de-ar\n"
+        "  → Or access PBE directly: https://pbe.inmetro.gov.br/\n"
+        "  → Then use: --url YOUR_DISCOVERED_URL",
+        file=sys.stderr,
+    )
+    sys.exit(1)
 
 
 def _find_cached_xlsx() -> Path | None:
@@ -204,6 +231,7 @@ def main() -> None:
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--offline", action="store_true")
     parser.add_argument("--force-refresh", action="store_true")
+    parser.add_argument("--url", dest="url", metavar="URL", help="Override Inmetro XLSX URL")
     args = parser.parse_args()
 
     # Validate dependencies
@@ -223,7 +251,9 @@ def main() -> None:
                 print("ERROR: --dry-run --offline: no cached XLSX found", file=sys.stderr)
                 sys.exit(1)
         else:
-            print(f"[dry-run] Would download: {INMETRO_URL}", file=sys.stderr)
+            print(f"[dry-run] Would download from first accessible URL in INMETRO_URLS list", file=sys.stderr)
+            if args.url:
+                print(f"[dry-run] Override URL: {args.url}", file=sys.stderr)
             print(f"[dry-run] Would save to: {XLSX_CACHE_DIR}/inmetro_ac_<today>.xlsx", file=sys.stderr)
             # Try to parse from cache if available
             cached = _find_cached_xlsx()
@@ -241,14 +271,14 @@ def main() -> None:
         path = cached
         print(f"Using cached: {path}", file=sys.stderr)
     elif args.force_refresh:
-        path = _download_xlsx()
+        path = _download_xlsx(args.url)
     else:
         cached = _find_cached_xlsx()
         if cached:
             print(f"Using cache: {cached}  (use --force-refresh to re-download)", file=sys.stderr)
             path = cached
         else:
-            path = _download_xlsx()
+            path = _download_xlsx(args.url)
 
     records, col_errors = _parse_xlsx(path)
     if col_errors:

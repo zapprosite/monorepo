@@ -42,8 +42,8 @@ def import_local_module(name: str, filename: str):
     spec.loader.exec_module(mod)
     return mod
 
-_juez_mod = import_local_module("hvac_juiz", "hvac-juiz.py")
-juiz = _juez_mod.juiz
+_juez_mod = import_local_module("hvac_juiz", "hvac_juiz.py")
+judge = _juez_mod.judge
 
 # =============================================================================
 # HTTP Client
@@ -105,7 +105,7 @@ async def check_juiz_validation() -> dict:
     test_query = "RYYQ48BRA error code E6 compressor"
     q_hash = safe_query_hash(test_query)
     try:
-        result, meta = juiz(test_query)
+        result, meta = judge(test_query)
         return {
             "status": "pass" if result.value in ("APPROVED", "BLOCKED") else "fail",
             "test_query_hash": q_hash,
