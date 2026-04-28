@@ -87,7 +87,7 @@ O ecossistema segue o padrão definido em `/home/will/.hermes/SOUL.md`:
 - **Container:** `hermes-gateway` (Docker Compose)
 - **Compose:** `/srv/monorepo/apps/hermes-gateway/docker-compose.yml`
 - **Porta:** `:3001` (localhost only)
-- **Bot:** `@hermes-editor-social-bot` (token `8740522933:AAEkDbKfMeUyZW70SZRZGJ-B8cB6lkJFhcA`)
+- **Bot:** `@hermes-editor-social-bot` (token `${EDITOR_SOCIAL_BOT_TOKEN}`)
 - **Source:** `/srv/monorepo/apps/hermes-gateway/`
 - **Skills:** 23 tools — RAG, LangGraph, campaign, analytics, social media
 - **Modelo:** MiniMax M2.7 via `HERMES_MINIMAX_BASE=https://api.minimax.io/anthropic/v1`
@@ -156,7 +156,7 @@ Symlinks ativos:
 ## 10. Mudanças em 2026-04-24
 
 1. **Redis migration fix:** Estrutura de dados corrigida (`/srv/data/redis/` consolidado)
-2. **hermes-gateway token:** Adicionado `TELEGRAM_BOT_TOKEN=8740522933:...` (hermes-editor-social-bot)
+2. **hermes-gateway token:** Adicionado `TELEGRAM_BOT_TOKEN=${EDITOR_SOCIAL_BOT_TOKEN}` (hermes-editor-social-bot)
 3. **aurelia-guardrail** renomeado → **zappro-guardrail** (`/srv/ops/stacks/guardrail/docker-compose.yml`)
 4. **`/home/will/aurelia/`** deletado
 5. **`/srv/ops/ai-governance/env-backups/`** deletado
