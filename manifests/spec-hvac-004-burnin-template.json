@@ -1,0 +1,107 @@
+{
+  "spec": "SPEC-HVAC-004",
+  "phase": "burnin",
+  "started_at": null,
+  "duration_days": 7,
+  "status": "in_progress",
+  "owner": null,
+
+  "target": {
+    "internal_users": true,
+    "supervised_technical_pilot": true,
+    "end_customer_automated": false
+  },
+
+  "smoke_test_schedule": {
+    "healthcheck_interval_minutes": 15,
+    "daily_smoke_time": "07:00",
+    "report_retention_days": 30
+  },
+
+  "acceptance_criteria": {
+    "healthcheck_pass_rate": {
+      "threshold": "100%",
+      "description": "All healthcheck probes must pass"
+    },
+    "fallback_rate": {
+      "threshold": "< 5%",
+      "description": "LiteLLM fallback should be rare"
+    },
+    "out_of_domain_block_rate": {
+      "threshold": "> 95%",
+      "description": "Out-of-domain queries should be blocked"
+    },
+    "ask_clarification_rate": {
+      "threshold": "< 20%",
+      "description": "Incomplete model queries should ask clarification"
+    },
+    "human_correction_rate": {
+      "threshold": "< 10%",
+      "description": "Responses requiring human correction"
+    },
+    "user_satisfaction": {
+      "threshold": "> 80%",
+      "description": "Technical staff satisfaction with responses"
+    }
+  },
+
+  "query_log_schema": {
+    "query_hash": "sha256_prefix_8",
+    "endpoint_used": "string",
+    "juiz_result": "APPROVED | BLOCKED | ASK_CLARIFICATION",
+    "chunks_retrieved": "integer",
+    "fallback_used": "boolean",
+    "response_chars": "integer",
+    "latency_ms": "integer",
+    "human_correction": "boolean",
+    "user_rating": "1-5 | null",
+    "timestamp": "iso8601"
+  },
+
+  "daily_metrics": {
+    "date": null,
+    "total_queries": 0,
+    "blocked_count": 0,
+    "ask_clarification_count": 0,
+    "approved_count": 0,
+    "fallback_used_count": 0,
+    "human_correction_count": 0,
+    "healthcheck_failures": 0,
+    "printable_success_count": 0,
+    "printable_total_count": 0
+  },
+
+  "weekly_summary": {
+    "week_number": null,
+    "total_queries": 0,
+    "unique_user_hashes": 0,
+    "fallback_rate_pct": 0,
+    "block_rate_pct": 0,
+    "ask_clarification_rate_pct": 0,
+    "human_correction_rate_pct": 0,
+    "healthcheck_uptime_pct": 0,
+    "incidents": []
+  },
+
+  "gate_checkpoints": {
+    "day_3": {
+      "status": "pending",
+      "checks": ["healthcheck_pass_rate", "fallback_rate"],
+      "notes": null
+    },
+    "day_7": {
+      "status": "pending",
+      "checks": ["all_acceptance_criteria"],
+      "notes": null
+    }
+  },
+
+  "incidents": [],
+
+  "notes": [
+    "This burn-in template should be copied to spec-hvac-004-burnin-YYYYMMDD.json",
+    "Each day, update daily_metrics with actual counts",
+    "After 7 days, compile weekly_summary and evaluate gate_checkpoints.day_7",
+    "Do NOT expose to end customers until day_7 gate passes"
+  ]
+}
