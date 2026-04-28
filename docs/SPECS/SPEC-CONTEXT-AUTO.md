@@ -75,7 +75,7 @@ context-auto.sh
 
 ### F6: Nexus Integration
 ```bash
-# Wrapper que诗意 envolvolve nexus.sh com context awareness
+# Wrapper que envolvolve nexus.sh com context awareness
 ./nexus-context-wrap.sh --spec SPEC-XXX --phase execute
 ```
 

@@ -9,8 +9,13 @@ services:
       - PORT=3456
       # WebUI Authentication — via .env (WEBUI_AUTH=true enables Google OAuth)
     network_mode: host
+    volumes:
+      - openwebui-data:/app/backend/data
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3456/"]
       interval: 30s
       timeout: 10s
       retries: 3
+
+volumes:
+  openwebui-data:

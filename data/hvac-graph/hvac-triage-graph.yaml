@@ -1,0 +1,398 @@
+# HVAC Triage Decision Graph
+# Structure: error_families[brand][main_code][subcode_pattern] = triage_data
+# This graph provides first-line triage for HVAC error codes before manual lookup
+
+error_families:
+
+  # ============================================================================
+  # DAIKIN VRV/VRF SYSTEMS
+  # ============================================================================
+  daikin:
+    vrv:
+      # E4 Error Family - Compressor or Discharge Pipe Issues
+      e4:
+        patterns:
+          "E4-01":
+            likely_family: "Compressor overload or discharge temperature anomaly"
+            next_question: "Is the outdoor unit running but tripping on high pressure or thermal overload?"
+            safety_tags:
+              - "HIGH_VOLTAGE"
+              - "HOT_SURFACES"
+              - "REFRIGERANT_BURNS"
+            evidence_level: "graph_knowledge"
+            common_causes:
+              - "Compressor thermal overload (overheated compressor)"
+              - "Discharge temperature sensor malfunction"
+              - "Refrigerant charge abnormalities (overcharge or undercharge)"
+              - "Outdoor fan motor failure or obstruction"
+              - "Condenser coil dirty or blocked"
+            guidance: "Before checking the manual: (1) Verify unit is powered off, (2) Check for obstructions around outdoor unit, (3) Inspect condenser coil for debris, (4) Verify all fans are spinning freely"
+
+          "E4-001":
+            likely_family: "Compressor-related protection (same family as E4-01)"
+            next_question: "Has the unit been running in high ambient temperatures or with restricted airflow?"
+            safety_tags:
+              - "HIGH_VOLTAGE"
+              - "HOT_SURFACES"
+              - "HEAT_EXHAUSTION_RISK"
+            evidence_level: "graph_knowledge"
+            common_causes:
+              - "Compressor overheating due to extended operation"
+              - "Loss of refrigerant causing higher discharge temps"
+              - "Failed discharge temperature sensor"
+              - "Outdoor fan not operating correctly"
+              - "Dirty condenser restricting heat rejection"
+            guidance: "Before checking the manual: (1) Power off and allow compressor to cool, (2) Clean condenser fins with soft brush, (3) Verify outdoor fan operation, (4) Check ambient temp is within unit's operating range"
+
+          "E4-02":
+            likely_family: "Compressor Overcurrent or Motor Fault"
+            next_question: "Did the error occur during startup or after running for some time?"
+            safety_tags:
+              - "HIGH_VOLTAGE"
+              - "COMPRESSOR_BOTTOM_KICK_RISK"
+              - "PINCH_RISK"
+            evidence_level: "graph_knowledge"
+            common_causes:
+              - "Compressor windings shorted or open"
+              - "Inverter board failure in VRF system"
+              - "Loose electrical connections at compressor"
+              - "Refrigerant flood-back on startup"
+              - "Mechanical compressor seizure"
+            guidance: "Before checking the manual: (1) Isolate power to outdoor unit, (2) Check all compressor electrical connections for tightness, (3) Verify no signs of compressor physical damage, (4) Document exact error timing (startup vs runtime)"
+
+          "E4-002":
+            likely_family: "Compressor Overcurrent (variant of E4-02)"
+            next_question: "Is there a hard start kit installed, and are capacitors okay?"
+            safety_tags:
+              - "HIGH_VOLTAGE"
+              - "CAPACITOR_DANGER"
+              - "ARC_FLASH_RISK"
+            evidence_level: "graph_knowledge"
+            common_causes:
+              - "Failed run capacitor for compressor"
+              - "Inverter module failure (inverter compressors)"
+              - "Voltage imbalance across phases (3-phase systems)"
+              - "Worn compressor with high amp draw"
+              - "Failed start relay or overload device"
+            guidance: "Before checking the manual: (1) Measure supply voltage to outdoor unit, (2) Check for voltage imbalance if 3-phase, (3) Inspect capacitors for bulging or leaks, (4) Note any burning smell from unit"
+
+          "E4-03":
+            likely_family: "Compressor Thermal Protection Trip"
+            next_question: "How long does the unit run before tripping? Was it recently serviced?"
+            safety_tags:
+              - "HIGH_VOLTAGE"
+              - "HOT_SURFACES"
+              - "REFRIGERANT_BURNS"
+            evidence_level: "graph_knowledge"
+            common_causes:
+              - "Thermally deteriorated compressor insulation"
+              - "Exceeded duty cycle (too many starts/stops)"
+              - "Low refrigerant charge causing excessive compressor heat"
+              - "Failed thermistor or temperature sensor"
+              - "Control board sending incorrect signals"
+            guidance: "Before checking the manual: (1) Record number of starts/stops in recent hours, (2) Check refrigerant lines for frost or sweating (could indicate low charge), (3) Verify thermostat wiring is correct, (4) Allow unit to cool before restart"
+
+          "E4-003":
+            likely_family: "Compressor Protection Circuit Fault (same family as E4-03)"
+            next_question: "Is this a new installation or recently modified system?"
+            safety_tags:
+              - "HIGH_VOLTAGE"
+              - "WARRANTY_VOID_RISK"
+            evidence_level: "graph_knowledge"
+            common_causes:
+              - "Faulty thermal protector switch in compressor"
+              - "Open circuit in compressor harness"
+              - "Defective PCB in outdoor unit"
+              - "Incorrect wiring between units in network"
+              - "Software/firmware issue in VRF controller"
+            guidance: "Before checking the manual: (1) Verify all network wiring between indoor/outdoor units, (2) Check for recent firmware updates to VRF system, (3) Confirm model compatibility if mixing indoor/outdoor units, (4) Reset system power (off/on) to clear temporary faults"
+
+        vrv_note: "VRV/VRF systems have error codes that differ significantly from residential splits. Always confirm system type before proceeding. VRF = Variable Refrigerant Flow, VRV = Variable Refrigerant Volume (Daikin brand name)."
+
+      # U4 Error Family - Communication Errors
+      u4:
+        patterns:
+          "U4-01":
+            likely_family: "Communication Error Between Indoor and Outdoor Units"
+            next_question: "Can you access the remote controller? Are any indoor units showing display issues?"
+            safety_tags:
+              - "VERIFY_POWER_ISOLATION"
+              - "STATIC_DISCHARGE_RISK"
+            evidence_level: "graph_knowledge"
+            common_causes:
+              - "Failed transmission between indoor and outdoor PCB"
+              - "Broken or crushed communication wiring (F1/F2 bus)"
+              - "Indoor or outdoor PCB power supply failure"
+              - "Ground fault causing communication interference"
+              - "Address duplication on multi-indoor-unit systems"
+            guidance: "Before checking the manual: (1) Check all communication wire connections at both ends, (2) Verify F1/F2 polarity is correct (not reversed), (3) Check for damaged or pinched cables between units, (4) Try powering down entire system for 5 minutes to reset"
+
+          "U4-001":
+            likely_family: "Communication Error - Transmission Failure (variant of U4-01)"
+            next_question: "Is this happening on a multi-zone system with many indoor units?"
+            safety_tags:
+              - "VERIFY_POWER_ISOLATION"
+              - "STATIC_DISCHARGE_RISK"
+            evidence_level: "graph_knowledge"
+            common_causes:
+              - "Total communication bus overload (too many units on one cable run)"
+              - "Defective outdoor unit main PCB"
+              - "Power supply fluctuation to communication circuit"
+              - "Missing or failed termination resistor"
+              - "Long cable run exceeding manufacturer limits"
+            guidance: "Before checking the manual: (1) Count total number of connected indoor units, (2) Measure cable run distance from outdoor to farthest unit, (3) Check if termination dip switches are correctly set, (4) Verify no other high-frequency devices are near communication wiring"
+
+          "U4-02":
+            likely_family: "Communication Error - No Response from Outdoor Unit"
+            next_question: "Is the outdoor unit powered on and showing any indicator lights?"
+            safety_tags:
+              - "HIGH_VOLTAGE"
+              - "VERIFY_POWER_ISOLATION"
+            evidence_level: "graph_knowledge"
+            common_causes:
+              - "Outdoor unit not receiving power"
+              - "Failed outdoor unit main PCB"
+              - "Communication circuit open somewhere in system"
+              - "Severed communication cable"
+              - "Indoor unit PCB sending signal but outdoor not receiving"
+            guidance: "Before checking the manual: (1) Confirm outdoor unit has power at the disconnect, (2) Check circuit breaker serving outdoor unit, (3) Look for indicator lights on outdoor PCB, (4) Verify disconnect is not tripped and wires are intact"
+
+          "U4-002":
+            likely_family: "Communication Error - Centralized Control Issue (variant of U4-02)"
+            next_question: "Are you using a central controller or BMS system?"
+            safety_tags:
+              - "VERIFY_POWER_ISOLATION"
+              - "BMS_NETWORK_RISK"
+            evidence_level: "graph_knowledge"
+            common_causes:
+              - "Central controller communication failure"
+              - "BMS gateway malfunction"
+              - "Duplicate address assignment in networked system"
+              - "Failed central control PCB in outdoor unit"
+              - "Incorrect central control wiring configuration"
+            guidance: "Before checking the manual: (1) Disconnect central controller temporarily to test, (2) Check all central control wiring to outdoor unit, (3) Verify address switches on indoor units are unique, (4) Check BMS gateway status lights if applicable"
+
+        vrv_note: "U4 errors in VRV systems typically involve the F1/F2 transmission bus. Never apply mains voltage to communication terminals."
+
+      # E3 Error Family - High Pressure Issues
+      e3:
+        patterns:
+          "E3":
+            likely_family: "High Pressure Switch Trip or Discharge Pressure Anomaly"
+            next_question: "Is the outdoor unit fan running? Is the condenser coil hot to touch?"
+            safety_tags:
+              - "HIGH_VOLTAGE"
+              - "HOT_SURFACES"
+              - "REFRIGERANT_BURNS"
+              - "PRESSURE_VESSEL_RISK"
+            evidence_level: "graph_knowledge"
+            common_causes:
+              - "Outdoor condenser coil dirty or obstructed"
+              - "Outdoor fan motor failure or speed reduction"
+              - "Refrigerant overcharge"
+              - "Failed high pressure switch or sensor"
+              - "Blocked airflow across condenser (external obstruction)"
+            guidance: "Before checking the manual: (1) Turn off unit and wait 5 minutes for pressures to equalize, (2) Visually inspect condenser coil for debris, leaves, or damage, (3) Verify outdoor fan spins freely, (4) Check that nothing is blocking airflow around outdoor unit"
+
+          "E3-01":
+            likely_family: "High Pressure Switch Trip (Specific Detection)"
+            next_question: "Does the unit trip immediately or after running a while?"
+            safety_tags:
+              - "HIGH_VOLTAGE"
+              - "HOT_SURFACES"
+              - "PRESSURE_VESSEL_RISK"
+            evidence_level: "graph_knowledge"
+            common_causes:
+              - "High pressure switch open due to excessive head pressure"
+              - "Failed or stuck reversing valve (heat pump systems)"
+              - "Restricted liquid line (blocked filter drier)"
+              - "Non-condensables in refrigerant (air in system)"
+              - "Failed high pressure transducer/sensor"
+            guidance: "Before checking the manual: (1) Check liquid line filter drier for temperature differential (hot before, cold after = blocked), (2) Verify reversing valve is functioning (listen for clicks during mode change), (3) Measure head pressure with gauges if available, (4) Inspect service valves are fully open"
+
+        vrv_note: "VRF systems may have multiple high-pressure sensing points. Always identify which unit is reporting the fault in multi-connection systems."
+
+      # E5 Error Family - Compressor Lock or Drive Fault
+      e5:
+        patterns:
+          "E5":
+            likely_family: "Compressor Inverter or Drive Module Fault"
+            next_question: "Is the error code shown on the outdoor unit or indoor remote?"
+            safety_tags:
+              - "HIGH_VOLTAGE"
+              - "INVERTER_BURN_RISK"
+              - "ARC_FLASH_RISK"
+            evidence_level: "graph_knowledge"
+            common_causes:
+              - "Failed inverter PCB in outdoor unit"
+              - "Compressor inverter drive failure"
+              - "Overcurrent protection triggered in inverter"
+              - "Cooling fan failure on inverter board"
+              - "Dust or debris on inverter heatsink causing thermal shutdown"
+            guidance: "Before checking the manual: (1) Inspect inverter board for burnt components or bulging capacitors, (2) Check heatsink is clean and cooling fan is running, (3) Verify ambient temperature is within spec, (4) Check for error history in VRF system memory (may show cause)"
+
+          "E5-01":
+            likely_family: "Inverter Compressor Startup Failure"
+            next_question: "Did the power go out or fluctuate recently?"
+            safety_tags:
+              - "HIGH_VOLTAGE"
+              - "POWER_SURGE_RISK"
+            evidence_level: "graph_knowledge"
+            common_causes:
+              - "Inverter compressor failed to start due to DC bus issue"
+              - "UVW output fault from inverter to compressor"
+              - "Failed IGBT module on inverter PCB"
+              - "Stuck compressor due to mechanical issue"
+              - "Severe voltage sag during startup"
+            guidance: "Before checking the manual: (1) Measure supply voltage at outdoor unit during startup, (2) Check for voltage dip or brownout conditions, (3) Inspect compressor windings if accessible, (4) Verify all three UVW leads are connected and not reversed"
+
+        vrv_note: "E5 errors almost always involve the inverter/drive circuit. Never power on a VRF system with known inverter faults - can cause cascading failures."
+
+  # ============================================================================
+  # CARRIER VRV/VRF SYSTEMS
+  # ============================================================================
+  carrier:
+    vrv:
+      # E4 Error Family
+      e4:
+        patterns:
+          "E4":
+            likely_family: "Compressor Discharge Temperature High / Thermal Overload"
+            next_question: "Is the unit tripping after running for a period or immediately?"
+            safety_tags:
+              - "HIGH_VOLTAGE"
+              - "HOT_SURFACES"
+              - "REFRIGERANT_BURNS"
+            evidence_level: "graph_knowledge"
+            common_causes:
+              - "Compressor overheating due to cooling mode issues"
+              - "Loss of charge leading to high discharge temperatures"
+              - "Failed discharge temperature thermistor"
+              - "Outdoor fan motor failure"
+              - "Condenser coil restricted airflow"
+            guidance: "Before checking the manual: (1) Turn off and cool down unit, (2) Check outdoor fan operation, (3) Inspect condenser for blockage, (4) Note any hissing sounds indicating refrigerant loss"
+
+          "E4-01":
+            likely_family: "Compressor Discharge Temperature Sensor Fault"
+            next_question: "Is the discharge temp sensor reading plausible values?"
+            safety_tags:
+              - "HIGH_VOLTAGE"
+              - "SENSOR_DAMAGE_RISK"
+            evidence_level: "graph_knowledge"
+            common_causes:
+              - "Failed discharge temperature sensor (open or shorted)"
+              - "Wiring harness damage to sensor"
+              - "Sensor connector corrosion or looseness"
+              - "PCB input circuit failure"
+              - "Incorrect sensor replacement (wrong part)"
+            guidance: "Before checking the manual: (1) Inspect sensor connector at compressor, (2) Check for visible wire damage, (3) Compare sensor resistance to spec if you have multimeter, (4) Check for water intrusion in connector"
+
+        vrv_note: "Carrier VRF systems use similar error structures but may have different subcodes than Daikin. Always note the exact code format shown."
+
+  # ============================================================================
+  # MIDEA VRV/VRF SYSTEMS
+  # ============================================================================
+  midea:
+    vrv:
+      # E4 Error Family
+      e4:
+        patterns:
+          "E4":
+            likely_family: "Compressor Discharge Temperature High"
+            next_question: "Is the system running in heating or cooling mode when this occurs?"
+            safety_tags:
+              - "HIGH_VOLTAGE"
+              - "HOT_SURFACES"
+              - "REFRIGERANT_BURNS"
+            evidence_level: "graph_knowledge"
+            common_causes:
+              - "Compressor overheating in cooling mode"
+              - "Dirty condenser coil on outdoor unit"
+              - "Refrigerant charge imbalance"
+              - "Outdoor fan not functioning properly"
+              - "Failed discharge temperature sensor"
+            guidance: "Before checking the manual: (1) Clean condenser fins with appropriate brush, (2) Verify outdoor fan spins without vibration, (3) Check airflow around outdoor unit is not restricted, (4) Measure discharge line temperature if equipped"
+
+          "E4-01":
+            likely_family: "Compressor Overload Protection (Midea variant)"
+            next_question: "Does resetting the unit allow it to run briefly before tripping?"
+            safety_tags:
+              - "HIGH_VOLTAGE"
+              - "REPEATED_CYCLE_RISK"
+            evidence_level: "graph_knowledge"
+            common_causes:
+              - "Compressor thermal overload protector tripped"
+              - "Loss of refrigerant causing high temps"
+              - "Indoor coil frozen restricting refrigerant flow"
+              - "Failed run capacitor on compressor"
+              - "Mechanical issue in compressor"
+            guidance: "Before checking the manual: (1) Check indoor coil for ice buildup (defrost if needed), (2) Verify refrigerant lines are not kinked, (3) Inspect compressor for unusual noises, (4) Document ambient conditions"
+
+        vrv_note: "Midea VRF systems often share platform technology with other manufacturers. Subcodes may differ - always verify against Midea-specific documentation."
+
+  # ============================================================================
+  # LG VRV/VRF SYSTEMS
+  # ============================================================================
+  lg:
+    vrv:
+      # E4 Error Family
+      e4:
+        patterns:
+          "E4":
+            likely_family: "Compressor Discharge Temperature High / Thermal Protector"
+            next_question: "Is the outdoor unit's digital display showing the error or is it on the indoor unit?"
+            safety_tags:
+              - "HIGH_VOLTAGE"
+              - "HOT_SURFACES"
+              - "REFRIGERANT_BURNS"
+            evidence_level: "graph_knowledge"
+            common_causes:
+              - "Compressor overheating from extended operation"
+              - "Failed discharge temperature sensor"
+              - "Condenser coil dirty or airflow restricted"
+              - "Outdoor fan motor malfunction"
+              - "Refrigerant system charge issues"
+            guidance: "Before checking the manual: (1) Inspect condenser coil condition, (2) Test outdoor fan motor operation, (3) Check for error history in remote control memory, (4) Verify unit is within age/usage expectations"
+
+          "E4-01":
+            likely_family: "Compressor Thermal Protector Tripped (LG-specific)"
+            next_question: "How long has the unit been installed and in service?"
+            safety_tags:
+              - "HIGH_VOLTAGE"
+              - "AGING_EQUIPMENT_RISK"
+            evidence_level: "graph_knowledge"
+            common_causes:
+              - "Compressor winding degradation over time"
+              - "Buildup of contaminants in refrigerant system"
+              - "Failed start capacitor (if equipped)"
+              - "Incorrect refrigerant charge from last service"
+              - "Wear on compressor valves or bearings"
+            guidance: "Before checking the manual: (1) Check maintenance history of unit, (2) Review recent service work performed, (3) Check compressor amp draw vs nameplate specs, (4) Evaluate if unit is near end of expected lifespan"
+
+        vrv_note: "LG VRF systems may display errors on either indoor or outdoor units. Always check displays on both locations."
+
+# ==============================================================================
+# SPLIT SYSTEM DIFFERENTIATION
+# ==============================================================================
+split_systems:
+  note: "ERROR_CODES_VARY_BETWEEN_SPLIT_AND_VRF"
+  key_differences:
+    - "Split/hi-wall systems typically use simpler error codes without subcodes like '-01' or '-001'"
+    - "VRF systems have network communication that split systems lack - expect more U4-type communication errors"
+    - "Compressor inverter faults (E5 family) are much more common in VRF than residential splits"
+    - "Split systems often show E1 for indoor unit issues vs E3/E4 for outdoor in VRF"
+    - "Multi-zone VRF has address assignment issues (U4) that single-split systems cannot have"
+  safety_addition: "Split systems use lower refrigerant charges but R-410A and R-32 are still under pressure and can cause frostbite."
+
+# ==============================================================================
+# GENERAL TRIAGE PROTOCOL
+# ==============================================================================
+general_triage:
+  step_1: "Verify power is isolated before any physical inspection of electrical components"
+  step_2: "Document exact error code as displayed (including any letters, numbers, and dashes)"
+  step_3: "Check if error is reproducible or intermittent (intermittent faults are harder to diagnose)"
+  step_4: "Note ambient conditions: temperature, humidity, recent weather"
+  step_5: "Check maintenance history for recent repairs or modifications"
+  step_6: "Identify system type: residential split, mini-split, or commercial VRF/VRV"
+  step_7: "Only after completing steps above, consult equipment-specific manual"
+  safety_reminder: "Always wear appropriate PPE: electrical safety gloves, safety glasses, and closed-toe shoes when servicing HVAC equipment"

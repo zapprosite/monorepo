@@ -109,7 +109,7 @@ Decidimos migrar o backend HTTP de Express.js para Fastify pelos seguintes motiv
 4. Plugin System: Encapsulated plugins com DI pattern nativo substituem
    middleware composition pattern do Express.
 
-Migration strategy: incremental via reverse-proxy (新旧并行),
+Migration strategy: incremental via reverse-proxy (),
 maximizando rollback capability.
 ```
 
@@ -174,7 +174,7 @@ Example:
 **Cons:**
 - Overhead de framework e abstraction layers
 - Boot time mais lento (2-3s vs 200ms Fastify)
-- Opinionated:强行 opinionated sobre project structure
+- Opinionated: opinionated sobre project structure
 - Bundle size maior (~1.2MB)
 
 **Verdict:** DESCARTADO — overhead nao justifica benefits para nosso team size (<10 devs)

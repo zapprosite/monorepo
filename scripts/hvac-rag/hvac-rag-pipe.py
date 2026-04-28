@@ -41,9 +41,17 @@ _ft_mod = import_local_module("hvac_field_tutor", "hvac-field-tutor.py")
 # Import Formatter module
 _fmt_mod = import_local_module("hvac_formatter", "hvac-formatter.py")
 
+# Import Copilot Router module
+_copilot_mod = import_local_module("hvac_copilot_router", "hvac-copilot-router.py")
+CopilotRouter = _copilot_mod.CopilotRouter
+
+# Import Conversation State module
+_conv_mod = import_local_module("hvac_conversation_state", "hvac-conversation-state.py")
+StateManager = _conv_mod.StateManager
+
 import httpx
 import uvicorn
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request, Header
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
@@ -61,6 +69,9 @@ COLLECTION_NAME = "hvac_manuals_v1"
 MODEL_NAME = "hvac-manual-strict"
 PIPELINE_PORT = int(os.environ.get("PIPELINE_PORT", "4017"))
 PIPELINE_HOST = os.environ.get("PIPELINE_HOST", "127.0.0.1")
+
+# Copilot Model ID
+COPILOT_MODEL_ID = "hvac-copilot"
 
 # Limits
 DEFAULT_TOP_K = 6
@@ -110,6 +121,16 @@ logging.basicConfig(
     level=logging.INFO,
     format="[HVAC-RAG] %(levelname)s %(message)s",
 )
+
+# =============================================================================
+# Module-level instances
+# =============================================================================
+
+# StateManager for conversation state (copilot flow)
+state_manager = StateManager()
+
+# CopilotRouter instance
+copilot_router = CopilotRouter()
 
 # =============================================================================
 # FastAPI App
@@ -274,6 +295,103 @@ def _log_query_meta(query: str, extra: dict = None) -> str:
     if extra:
         base += " " + " ".join(f"{k}={v}" for k, v in extra.items())
     return base
+
+
+def extract_conversation_id(
+    request: Request,
+    user_query: str
+) -> str:
+    """
+    Extract conversation_id from request headers or generate from user query hash.
+    Looks for x-conversation-id header, falls back to hash-based generation.
+    """
+    # Try to get from header
+    conversation_id = request.headers.get("x-conversation-id", "").strip()
+    if conversation_id:
+        return conversation_id
+
+    # Generate from query hash as fallback
+    q_hash = hashlib.sha256(user_query.encode()).hexdigest()[:16]
+    return f"conv-{q_hash}"
+
+
+def expand_query_with_state(conversation_id: str, query: str) -> str:
+    """
+    Expand short queries using conversation state.
+    Before Juiz check: if query is short (< 15 chars) and we have state, expand it.
+    """
+    if len(query.strip()) >= 15:
+        return query
+
+    # Get conversation state
+    state = state_manager.get_state(conversation_id)
+    if not state:
+        return query
+
+    # Build expanded context from state
+    expanded_parts = [query]
+
+    if state.get("extracted_model"):
+        expanded_parts.append(f"modelo: {state['extracted_model']}")
+    if state.get("extracted_error_code"):
+        expanded_parts.append(f"erro: {state['extracted_error_code']}")
+    if state.get("extracted_family"):
+        expanded_parts.append(f"família: {state['extracted_family']}")
+
+    if len(expanded_parts) > 1:
+        return " | ".join(expanded_parts)
+    return query
+
+
+def update_conversation_state(conversation_id: str, user_query: str, hits: list, juez_meta: dict) -> None:
+    """
+    Update conversation state after Juiz check with extracted data.
+    """
+    extracted_model = ""
+    extracted_error_code = ""
+    extracted_family = ""
+
+    # Extract from query
+    errors_in_query = HVAC_ERROR_CODES.findall(user_query)
+    models_in_query = HVAC_MODEL_PATTERNS.findall(user_query)
+
+    if errors_in_query:
+        extracted_error_code = errors_in_query[0].upper()
+    if models_in_query:
+        extracted_model = models_in_query[0].upper()
+
+    # Extract family from model or hits
+    if extracted_model and "-" in extracted_model:
+        extracted_family = extracted_model.split("-")[0]
+    elif extracted_model:
+        # Take first 4 chars as family hint
+        extracted_family = extracted_model[:4]
+
+    # Check hits for additional context
+    if hits and not extracted_model:
+        for hit in hits[:3]:
+            payload = hit.get("payload", {})
+            hit_models = payload.get("model_candidates", [])
+            if hit_models and not extracted_model:
+                # Find first model that matches our patterns
+                for hm in hit_models:
+                    if HVAC_MODEL_PATTERNS.search(hm):
+                        extracted_model = hm.upper()
+                        if "-" in hm:
+                            extracted_family = hm.split("-")[0].upper()
+                        break
+
+    # Update state
+    updates = {}
+    if extracted_error_code:
+        updates["extracted_error_code"] = extracted_error_code
+    if extracted_model:
+        updates["extracted_model"] = extracted_model
+    if extracted_family:
+        updates["extracted_family"] = extracted_family
+
+    if updates:
+        state_manager.update_state(conversation_id, updates)
 
 
 async def get_embedding(text: str) -> Optional[list]:
@@ -449,7 +567,7 @@ REGRAS DE UX PARA USUÁRIOS LEIGOS:
 9. Se o usuário for leigo (técnico ou cliente sem experiência em HVAC), AJUDE A IDENTIFICAR o próximo dado simples antes de pedir tudo.
 10. Para erro principal sem subcódigo (ex: E4, E3, U4):
     - Explique a *família provável* do erro (ex: E4 = baixa pressão em VRV Daikin)
-    - Peça APENAS o subcódigo (ex: E4-01, E4-001)
+    - Peça APENAS o subcódigo (ex: E4-01)
     - NÃO peça modelo completo primeiro quando já tem pista suficiente
 11. Faça UMA PERGUNTA POR VEZ. Não peça todos os dados de uma vez:
     - Errado: "Forneça modelo externo, interno, subcódigo, serial, foto"
@@ -514,19 +632,48 @@ class ChatCompletionRequest(BaseModel):
 
 @app.get("/v1/models")
 async def list_models():
-    """OpenAI-compatible /v1/models endpoint."""
+    """OpenAI-compatible /v1/models endpoint. Returns 4 available models."""
     return {
         "object": "list",
         "data": [
             {
-                "id": MODEL_NAME,
+                "id": "hvac-copilot",
                 "object": "model",
                 "created": 1700000000,
                 "owned_by": "hvac-rag-pipe",
                 "permission": [],
-                "root": MODEL_NAME,
+                "root": "hvac-copilot",
                 "parent": None,
-            }
+                "default": True,
+                "preferred": True,
+            },
+            {
+                "id": "hvac-manual-strict",
+                "object": "model",
+                "created": 1700000000,
+                "owned_by": "hvac-rag-pipe",
+                "permission": [],
+                "root": "hvac-manual-strict",
+                "parent": None,
+            },
+            {
+                "id": "hvac-field-tutor",
+                "object": "model",
+                "created": 1700000000,
+                "owned_by": "hvac-rag-pipe",
+                "permission": [],
+                "root": "hvac-field-tutor",
+                "parent": None,
+            },
+            {
+                "id": "hvac-printable",
+                "object": "model",
+                "created": 1700000000,
+                "owned_by": "hvac-rag-pipe",
+                "permission": [],
+                "root": "hvac-printable",
+                "parent": None,
+            },
         ]
     }
 
@@ -535,8 +682,29 @@ async def list_models():
 async def chat_completions(request: ChatCompletionRequest):
     """
     OpenAI-compatible /v1/chat/completions endpoint.
+    Routes to copilot flow if model is hvac-copilot, otherwise uses existing strict flow.
+    """
+    # Route to copilot flow if hvac-copilot model
+    if request.model == "hvac-copilot":
+        return await chat_completions_copilot(request)
+
+    # Route to field-tutor if hvac-field-tutor model
+    if request.model == "hvac-field-tutor":
+        return await chat_completions_field_tutor(request)
+
+    # Route to printable if hvac-printable model
+    if request.model == "hvac-printable":
+        return await chat_completions_printable(request)
+
+    # Default: existing hvac-manual-strict flow
+    return await _chat_completions_strict(request)
+
+
+async def _chat_completions_strict(request: ChatCompletionRequest):
+    """
+    Internal strict mode implementation.
     1. Extract user query
-    2. Check domain
+    2. Check domain via Juiz
     3. Search Qdrant
     4. Inject context
     5. Forward to LiteLLM
@@ -725,6 +893,238 @@ async def chat_completions(request: ChatCompletionRequest):
                 status_code=502,
                 content={"error": {"message": f"Upstream error: {err_name}", "type": "upstream_error"}}
             )
+
+
+@app.post("/v1/chat/completions/copilot")
+async def chat_completions_copilot(request: ChatCompletionRequest):
+    """
+    Copilot flow endpoint using CopilotRouter + ConversationState.
+
+    Features:
+    - Conversation state expansion for short queries
+    - Evidence labels in responses
+    - Image input support via multimodal
+
+    Extracts conversation_id from x-conversation-id header or generates from query hash.
+    Before Juiz: expand short queries using conversation state.
+    After Juiz: update conversation state with extracted data.
+    """
+    # Extract user message (handle both text and multimodal content)
+    user_query = ""
+    system_content = ""
+    has_image = False
+
+    for msg in request.messages:
+        if msg.role == "user":
+            content = msg.content
+            # Handle multimodal content (string or list)
+            if isinstance(content, str):
+                user_query = content
+            elif isinstance(content, list):
+                # Multimodal message with text and/or image
+                for item in content:
+                    if isinstance(item, dict):
+                        if item.get("type") == "text":
+                            user_query = item.get("text", "")
+                        elif item.get("type") == "image_url":
+                            has_image = True
+            elif hasattr(content, "text"):
+                user_query = content.text
+        elif msg.role == "system":
+            system_content = msg.content
+
+    if not user_query:
+        return JSONResponse(
+            status_code=400,
+            content={"error": {"message": "No user message found", "type": "invalid_request"}}
+        )
+
+    # Extract conversation_id from headers
+    conversation_id = extract_conversation_id(request, user_query)
+
+    # Before Juiz check: expand short queries using conversation state
+    expanded_query = expand_query_with_state(conversation_id, user_query)
+
+    # Juiz pre-flight check
+    juez_result, juez_meta = juiz(expanded_query)
+    _safe_log(f"[copilot] Juiz: {juez_result.value} reason={juez_meta.get('reason')} conv={conversation_id[:12]}...")
+
+    if juez_result == JuizResult.BLOCKED:
+        return {
+            "id": "hvac-chat-completion",
+            "object": "chat.completion",
+            "created": 0,
+            "model": COPILOT_MODEL_ID,
+            "choices": [
+                {
+                    "index": 0,
+                    "message": {
+                        "role": "assistant",
+                        "content": (
+                            "Esta base de conhecimento é especializada em ar-condicionado, "
+                            "climatização e refrigeração VRV/VRF. "
+                            "Não encontrei informações relevantes para sua pergunta. "
+                            "Tente perguntar sobre um modelo de ar-condicionado, código de erro, "
+                            "ou procedimento de manutenção HVAC."
+                        ),
+                    },
+                    "finish_reason": "stop",
+                }
+            ],
+            "evidence_labels": [],
+        }
+
+    if juez_result == JuizResult.ASK_CLARIFICATION:
+        if juez_meta.get("safety_only_without_model"):
+            safety_msg = (
+                "⚠️ Para procedimentos de segurança em alta tensão (IPM, placa inverter, "
+                "ponte de diodos, capacitor, compressor), é obrigatório:\n\n"
+                "1. DESLIGAR a unidade da rede elétrica\n"
+                "2. AGUARDAR o tempo especificado no manual/fabricante/etiqueta\n"
+                "3. CONFIRMAR ausência de tensão com multímetro antes de tocar componentes\n"
+                "4. Usar EPIs adequados (luvas classe III, óculos, calçado isolante)\n"
+                "5. NUNCA medir energizado sem respaldo explícito do manual\n\n"
+                "─────────────────────────\n\n"
+                "Para diagnóstico específico, forneça o MODELO COMPLETO da unidade. "
+                "Exemplo: RXYQ20BRA + FXYC20BRA (unidade externa + interna)."
+            )
+        else:
+            safety_msg = (
+                "Para ajudar melhor, preciso do modelo completo da unidade. "
+                "Exemplo: RXYQ20BRA + FXYC20BRA (unidade externa + interna). "
+                "Com o modelo completo posso buscar o procedimento específico no manual."
+            )
+        return {
+            "id": "hvac-chat-completion",
+            "object": "chat.completion",
+            "created": 0,
+            "model": COPILOT_MODEL_ID,
+            "choices": [
+                {
+                    "index": 0,
+                    "message": {
+                        "role": "assistant",
+                        "content": safety_msg,
+                    },
+                    "finish_reason": "stop",
+                }
+            ],
+            "evidence_labels": [],
+        }
+
+    if juez_result == JuizResult.GUIDED_TRIAGE:
+        guided_msg = (
+            "Você está com problema de código de erro no sistema VRV/VRF.\n\n"
+            "Vou ajudar a identificar. Primeiro, qual é o subcódigo que aparece? "
+            "(ex: E4-01, E4-001, E3-02)\n\n"
+            "Dica: O subcódigo aparece após o código principal no display da unidade."
+        )
+        return {
+            "id": "hvac-chat-completion",
+            "object": "chat.completion",
+            "created": 0,
+            "model": COPILOT_MODEL_ID,
+            "choices": [
+                {
+                    "index": 0,
+                    "message": {
+                        "role": "assistant",
+                        "content": guided_msg,
+                    },
+                    "finish_reason": "stop",
+                }
+            ],
+            "guided_triage": True,
+            "evidence_labels": [],
+        }
+
+    # Juiz APPROVED - search Qdrant
+    hits = await search_qdrant(expanded_query, top_k=DEFAULT_TOP_K)
+    context = build_rag_context(hits)
+
+    # After Juiz check: update conversation state with extracted data
+    update_conversation_state(conversation_id, expanded_query, hits, juez_meta)
+
+    # Build evidence labels from hits
+    evidence_labels = []
+    for i, hit in enumerate(hits):
+        payload = hit.get("payload", {})
+        evidence_labels.append({
+            "chunk_id": i + 1,
+            "doc_id": payload.get("doc_id", ""),
+            "heading": payload.get("heading", ""),
+            "doc_type": payload.get("doc_type", ""),
+            "model_candidates": payload.get("model_candidates", [])[:3],
+            "score": hit.get("score", 0),
+        })
+
+    # Check for partial match (family+error but no specific model)
+    is_partial_triage, error_code, family = has_partial_match(hits, expanded_query)
+    if is_partial_triage:
+        partial_context = build_probable_triage_context(expanded_query, error_code, family)
+    else:
+        partial_context = ""
+
+    # Use CopilotRouter for response generation
+    try:
+        copilot_result = await copilot_router.route(
+            query=expanded_query,
+            context=context or partial_context,
+            hits=hits,
+            conversation_id=conversation_id,
+            has_image=has_image,
+        )
+
+        if copilot_result.get("fallback"):
+            return {
+                "id": "hvac-chat-completion",
+                "object": "chat.completion",
+                "created": 0,
+                "model": COPILOT_MODEL_ID,
+                "choices": [
+                    {
+                        "index": 0,
+                        "message": {
+                            "role": "assistant",
+                            "content": copilot_result.get("content", ""),
+                        },
+                        "finish_reason": "stop",
+                    }
+                ],
+                "evidence_labels": evidence_labels,
+                "fallback": True,
+            }
+
+        # Return copilot result
+        return {
+            "id": "hvac-chat-completion",
+            "object": "chat.completion",
+            "created": 0,
+            "model": COPILOT_MODEL_ID,
+            "choices": [
+                {
+                    "index": 0,
+                    "message": {
+                        "role": "assistant",
+                        "content": copilot_result.get("content", ""),
+                    },
+                    "finish_reason": "stop",
+                }
+            ],
+            "evidence_labels": evidence_labels,
+        }
+
+    except Exception as e:
+        _safe_log(f"[copilot] Router error: {type(e).__name__}")
+        # Fallback to strict flow on error
+        if context or partial_context:
+            req_id = hashlib.sha256(user_query.encode()).hexdigest()[:12]
+            fallback_ctx = partial_context if is_partial_triage else context
+            return _build_safe_fallback_response(fallback_ctx, user_query, req_id, guided_triage=is_partial_triage)
+        return JSONResponse(
+            status_code=502,
+            content={"error": {"message": f"Copilot error: {type(e).__name__}", "type": "upstream_error"}}
+        )
 
 
 # =============================================================================
@@ -1115,7 +1515,7 @@ async def root():
         "version": "1.0.0",
         "strategy": "openai_compatible_rag_pipe",
         "model": MODEL_NAME,
-        "endpoints": ["/v1/models", "/v1/chat/completions", "/health", "/hvac-rag/filter/inlet"],
+        "endpoints": ["/v1/models", "/v1/chat/completions", "/v1/chat/completions/copilot", "/health", "/hvac-rag/filter/inlet"],
     }
 
 

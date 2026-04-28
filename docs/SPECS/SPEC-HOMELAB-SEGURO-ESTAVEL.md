@@ -37,7 +37,7 @@ Estabilizar e proteger o homelab após auditoria de 12/04/2026 com 15 agents. Im
 
 ### 1. Audio Stack Governance (SPEC-009)
 
-**Problema:** OpenClaw违规使用 Kokoro direto绕过 TTS Bridge
+**Problema:** OpenClaw Kokoro direto TTS Bridge
 
 **Regras Imutáveis:**
 - STT: wav2vec2 :8201 (nunca Deepgram direto)
@@ -138,7 +138,7 @@ crontab -l | grep voice-pipeline
 **chat.zappro.site:**
 - App ID: 99c85419
 - Policy ID: 4a668d84
--验证: `curl -sf -o /dev/null -w "%{http_code}" https://chat.zappro.site/` deve retornar auth challenge
+-: `curl -sf -o /dev/null -w "%{http_code}" https://chat.zappro.site/` deve retornar auth challenge
 
 ---
 

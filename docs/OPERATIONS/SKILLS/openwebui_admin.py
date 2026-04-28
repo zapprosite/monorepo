@@ -78,15 +78,15 @@ def get_config() -> Dict[str, str]:
 
 def get_auth_token(config: Dict[str, str]) -> str:
     """Obtém token de autenticação (JWT ou API Key)."""
-    #优先使用已有的JWT token
+    #JWT token
     if config["jwt_token"]:
         return config["jwt_token"]
 
-    # 或API key
+    # API key
     if config["api_key"]:
         return config["api_key"]
 
-    # 否则通过登录获取JWT
+    # JWT
     if config["email"] and config["password"]:
         req = urllib.request.Request(
             f"{config['url']}/api/v1/auths/signin",

@@ -104,7 +104,7 @@ Exceções requerem:
 Exemplo de exceção válida:
 
 ```python
-# 例外: Temporary bridge para legacy system sem Infisical support
+# : Temporary bridge para legacy system sem Infisical support
 # APPROVED_BY: will-zappro 2026-04-12
 # EXPIRES: 2026-05-01
 # ISSUE: migration-to-infisical-required

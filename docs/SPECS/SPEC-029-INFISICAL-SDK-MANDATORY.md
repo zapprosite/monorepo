@@ -102,7 +102,7 @@ API_KEY = os.getenv("GITHUB_TOKEN")  # sem guarantee que vem do vault
 Exceções requerem APPROVAL explícita e documented justification:
 
 ```
-# 例外: Legacy system sem suporte Infisical
+# : Legacy system sem suporte Infisical
 # Autorização: will-zappro 2026-04-12
 # Tipo: temporary bridge (deve ser migrated)
 # Expira: 2026-05-01

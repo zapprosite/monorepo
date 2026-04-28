@@ -412,3 +412,29 @@ nexus-alert.sh escalate ALT-20260425-XXXX
 **Status**: ✅ ALL SYSTEMS OPERATIONAL
 **Services**: 9/9 Healthy
 **Alerts**: 0 Active
+
+
+## Flow-Next Integration
+
+Flow-Next is integrated as the workflow engine for Claude Code task management.
+
+### Quick Commands
+```bash
+cd /srv/monorepo
+./.flow/bin/flowctl list          # Show all tasks
+./.flow/bin/flowctl ready         # Show ready tasks
+./.flow/bin/flowctl status        # Show status
+```
+
+### Flow-Next Skills
+| Skill | Purpose |
+|-------|---------|
+| `/flow-next:plan` | Create epic + tasks from SPEC |
+| `/flow-next:work` | Start working on epic |
+| `/flow-next:monorepo-audit` | Audit monorepo state |
+| `/flow-next:spec-from-chat` | Generate SPEC from chat |
+| `/flow-next:deploy-check` | Validate deployment |
+
+### Documentation
+- [Flow-Next Guide](../docs/FLOW-NEXT_GUIDE.md)
+- [Nexus to Flow-Next Mapping](../docs/NEXUS_FLOWNEXT_MAPPING.md)

@@ -67,7 +67,7 @@
 
 > ⚠️ **Stack desativado.** speaches e chatterbox foram removidos.Voice pipeline agora usa Kokoro TTS e Whisper API como serviços independentes.
 
-| Componente | Status |替代 |
+| Componente | Status | |
 |-----------|--------|-----|
 | voice-proxy (nginx) | REMOVED | — |
 | speaches (STT) | REMOVED | Whisper API em :8201 |

@@ -37,7 +37,7 @@ type: guide
 ### Para Review de Agentes (Background)
 
 1. **Verificar implementação real**, não apenas.pipeline.json
-2. **确认 (确认)** — confirmar duas vezes antes de reportar status
+2. ** ()** — confirmar duas vezes antes de reportar status
 3. **Report completo** — listar O QUE foi encontrado, não apenas "OK" ou "MISSING"
 
 ---

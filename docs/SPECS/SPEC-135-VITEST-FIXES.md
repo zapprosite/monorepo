@@ -136,7 +136,7 @@ describe('LiteLLM Proxy', () => {
 
 ### Step 4: Verificar que todos os testes passam
 
-> **PENDENTE** —等着 Correção dos steps 1-3 antes de executar
+> **PENDENTE** — Correção dos steps 1-3 antes de executar
 
 ```bash
 cd /srv/monorepo/apps/hermes-gateway

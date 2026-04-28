@@ -150,7 +150,7 @@ curl -sf http://localhost:6333/health && echo "OK" || echo "FAIL"
 docker restart qdrant
 sleep 5
 
-# Verificar se恢复了
+# Verificar se
 curl -sf http://localhost:6333/health && echo "OK" || echo "FAIL"
 
 # Se o problema persistir, verificar espaço em disco
@@ -372,7 +372,7 @@ curl -s http://localhost:6333/collections/<collection-name> | jq '.result'
 # Ver uso via LiteLLM
 curl -s http://localhost:4000/ollm/v1/model_list | jq
 
-# Ver logs para估算 usage
+# Ver logs para usage
 docker logs litellm --since 24h | grep -oE "model=[^&]+|tokens=[0-9]+" | head -100
 ```
 

@@ -7,9 +7,8 @@ TBD
 - [ ] TBD
 
 ## Done summary
-TBD
-
+Tested Flow-Next workflow: verified 3+ flowctl commands working (list, status, show), epic at 3/5 done.
 ## Evidence
 - Commits:
-- Tests:
+- Tests: .flow/bin/flowctl list, .flow/bin/flowctl status, .flow/bin/flowctl show fn-1
 - PRs:

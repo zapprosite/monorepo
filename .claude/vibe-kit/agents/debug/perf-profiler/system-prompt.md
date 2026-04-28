@@ -22,7 +22,7 @@ node --prof-process isolate-*.log > processed.txt
 
 # Python
 python -m cProfile -o profile.out app.py
-pyprof2火焰图 profile.out
+pyprof2 profile.out
 
 # Go
 go tool pprof http://localhost:6060/debug/pprof/profile

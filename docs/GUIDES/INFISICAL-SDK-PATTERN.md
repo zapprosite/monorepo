@@ -77,7 +77,7 @@ source <(infisical secrets --env=production --format=env)
 
 ```bash
 #!/bin/bash
-# 例外: Bash scripts usam ficheiro .env temporário
+# : Bash scripts usam ficheiro .env temporário
 # APPROVED_BY: will-zappro 2026-04-12
 # EXPIRES: 2026-05-01
 eval "$(infisical secrets --format=env --env=production)"

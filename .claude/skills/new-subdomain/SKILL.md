@@ -139,7 +139,7 @@ Creates `myapp.zappro.site` pointing to `http://10.0.5.10:8080`.
 | `dns_record exists` | Subdomain already taken | Choose different name or remove existing |
 | `tunnel not found` | Wrong tunnel ID | Verify tunnel ID in Cloudflare dashboard |
 | `origin not reachable` | Service URL wrong | Check service is running and reachable from cloudflared host |
-| `cf与服务` | Auth failure | Refresh CLOUDFLARE_API_TOKEN in .env |
+| `cf` | Auth failure | Refresh CLOUDFLARE_API_TOKEN in .env |
 
 ## Forbidden Actions
 

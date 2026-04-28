@@ -39,7 +39,7 @@
 
 1. **LiteLLM embeddings hanging**: Embedding generation fails silently with empty error messages - LiteLLM container TCP externo bloqueado
 2. **mcp-memory degraded**: 500 errors on `/tools/memory_add` when embedding generation fails
-3. **Env var mismatches**: 5 containers com valores diferentes do `.env` - 需要 correção
+3. **Env var mismatches**: 5 containers com valores diferentes do `.env` -  correção
 4. **Ollama VL-only instance**: `10.0.2.5` e `qwen2-vl7b` não têm modelos de embedding
 5. **QDRANT_URL localhost**: Containers usando `localhost` em vez de IPs reais ou hostnames Docker
 
@@ -48,7 +48,7 @@
 1. **Corrigir env vars**: Atualizar `.env` com valores correctos (especialmente `OLLAMA_URL` para `host.docker.internal`)
 2. **LiteLLM network**: Considerar `network_mode: host` ou criar bridge para host LAN
 3. **Fallback embeddings**: Configurar Ollama host `192.168.15.83` como fallback primário para embeddings
-4. **Monitor mcp-memory**:_embedding errors são intermitentes (~4 occurrences) -，可能是 LiteLLM timeout vs. network isolation
+4. **Monitor mcp-memory**:_embedding errors são intermitentes (~4 occurrences) -， LiteLLM timeout vs. network isolation
 
 ## Acceptance Criteria Status
 

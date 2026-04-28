@@ -59,4 +59,4 @@
 
 ---
 
-*Use os comandos em inglês, a解释ação está em português*
+*Use os comandos em inglês, aação está em português*

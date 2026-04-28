@@ -11,7 +11,7 @@ O comando `/universal-debug` segue 4 fases sistemáticas: Reproduce → Isolate 
 ## As 4 fases
 
 ### 1. Reproduce (Reproduzir)
-- Encontrar comando/maneira de触发 o bug
+- Encontrar comando/maneira de o bug
 - Confirmar que o problema existe
 - Documentar passos exatos
 

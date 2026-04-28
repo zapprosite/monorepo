@@ -1,36 +1,59 @@
-## Flow-Next Guide
+# Flow-Next Integration Guide
 
-### What is Flow-Next?
-Plan-first AI workflow plugin for Claude Code with 16 agent-native skills.
+Flow-Next is integrated into the monorepo at `.claude/flow-next/` as a plugin for Claude Code.
 
-### Installation
+## Quick Start
+
+### 1. Verify Setup
+```bash
+cd /srv/monorepo
+./.flow/bin/flowctl list
 ```
-/plugin marketplace add https://github.com/gmickel/flow-next
-/plugin install flow-next
-/flow-next:setup
+
+### 2. Create a New Epic
+```bash
+./.flow/bin/flowctl epic create --title "My Feature"
 ```
 
-### Commands
+### 3. Start Working
+```bash
+./.flow/bin/flowctl start <task-id>
+```
 
-| Command | Purpose |
-|---------|---------|
-| /flow-next:prospect | Ranked candidate ideas |
-| /flow-next:capture | Synthesize conversation into epic |
-| /flow-next:interview | Deep spec refinement |
-| /flow-next:plan | Epic + dependency-ordered tasks |
-| /flow-next:work | Execute with re-anchoring |
-| /flow-next:impl-review | Cross-model review |
-| /flow-next:audit | Memory decay review |
-| /flow-next:ralph-init | Autonomous overnight loop |
+### 4. Complete a Task
+```bash
+./.flow/bin/flowctl done <task-id> --summary-file summary.md --evidence-json evidence.json
+```
 
-### How It Differs from Nexus
-- Flow-Next: plugin, plan-first, re-anchoring, zero deps
-- Nexus: bash script, execute-first, parallel workers, ZFS snapshots
+## Available Commands
 
-### Best Used For
-- Complex features needing planning
-- Cross-model review (Claude + GPT)
-- Overnight autonomous improvement
+| Command | Description |
+|---------|-------------|
+| `.flow/bin/flowctl list` | Show all epics and tasks |
+| `.flow/bin/flowctl show <epic>` | Show epic details |
+| `.flow/bin/flowctl ready` | List tasks ready to work on |
+| `.flow/bin/flowctl start <task>` | Claim a task |
+| `.flow/bin/flowctl done <task>` | Complete a task |
+| `.flow/bin/flowctl validate` | Validate .flow/ structure |
 
-### Nexus Compatibility
-Nexus still works. Use Flow-Next for planning, Nexus for parallel execution.
+## Flow-Next Skills
+
+Flow-Next provides these Claude Code skills:
+
+- `/flow-next:plan` - Create epic + tasks from SPEC
+- `/flow-next:prospect` - Prospect a feature idea
+- `/flow-next:work` - Start working on an epic
+- `/flow-next:setup` - Setup flow-next in a new project
+- `/flow-next:monorepo-audit` - Audit monorepo state
+- `/flow-next:spec-from-chat` - Generate SPEC from conversation
+- `/flow-next:deploy-check` - Validate deployment readiness
+- `/flow-next:nexus` - Nexus command mapping
+
+## Documentation
+
+- [Nexus to Flow-Next Mapping](../docs/NEXUS_FLOWNEXT_MAPPING.md)
+- [Flow-Next Usage](../.flow/usage.md)
+
+## Nexus Compatibility
+
+Nexus and Flow-Next can run alongside each other. See [Nexus to Flow-Next Mapping](../docs/NEXUS_FLOWNEXT_MAPPING.md) for details.

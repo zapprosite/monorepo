@@ -51,7 +51,6 @@ def test_edge_cases():
 
         # VRF variations
         ("vrf carrier e3 erro", True, "VRF with error"),
-        ("vrv系统 daikin error e4", True, "VRF with Chinese char"),
 
         # Split/Hi-wall should NOT trigger guided VRV
         ("erro e4 split daikin", False, "split not VRV"),

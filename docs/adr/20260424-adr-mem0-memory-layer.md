@@ -13,11 +13,11 @@ O ecossistema Hermes opera com 3 camadas de memória com responsabilidades disti
 
 | Camada | Responsabilidade | Tecnologia |
 |--------|-----------------|------------|
-| **REPO** | Fonte de verdade — documentação versionada | Git +文件系统 |
+| **REPO** | Fonte de verdade — documentação versionada | Git + |
 | **Qdrant** | RAG retrieval com metadata filters | Qdrant (:6333) |
 | **Mem0** | Memória dinâmica — preferências, padrões, contexto acumulado | Mem0 + Qdrant backend |
 
-Historicamente, Qdrant era usado como store genérico para ambas as funções. Essa sobreposição criou ambiguidade sobre onde cada tipo de dado deveria residir. Além disso, a configuração do Mem0 estava quebrada — embedding model mismatch impedia检索.
+Historicamente, Qdrant era usado como store genérico para ambas as funções. Essa sobreposição criou ambiguidade sobre onde cada tipo de dado deveria residir. Além disso, a configuração do Mem0 estava quebrada — embedding model mismatch impedia.
 
 ---
 

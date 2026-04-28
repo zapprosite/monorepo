@@ -2,7 +2,7 @@
 
 **Purpose:** Run ZFS scrub with intelligent error analysis, detect ECC/correctable errors, predict disk failure before it happens, alert on degradation, and automatically create snapshot before any repair operation.
 **Complexity:** High
-**Risk:** Medium (scrub is read-only, but发现的错误可能需要修复操作)
+**Risk:** Medium (scrub is read-only, but)
 **When to Use:** Agendado (semanal), após erro no pool, quando disk SMART indicar problema
 
 ## When to Use

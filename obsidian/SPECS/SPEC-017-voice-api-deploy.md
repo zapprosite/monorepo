@@ -141,7 +141,7 @@ on:
 
 jobs:
   deploy:
-    runs-on:一团
+    runs-on:
     steps:
       - uses: actions/checkout@v4
 

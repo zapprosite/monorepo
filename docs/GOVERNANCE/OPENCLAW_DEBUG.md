@@ -223,7 +223,7 @@ curl -s http://10.0.1.1:4000/health
    mantem o openclaw.json entre restarts.
 
 6. **LLaVA image model crash (2026-04-07 FIXADO):** O modelo `litellm/llava`
-  必须有 provider correto em `imageModel.providers`. O fix:
+   provider correto em `imageModel.providers`. O fix:
    ```json
    "imageModel": {
      "primary": "litellm/llava",

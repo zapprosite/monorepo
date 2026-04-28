@@ -76,6 +76,6 @@ kokoro-tts:
 
 Se LLM ignorar esta regra:
 1. Parar task imediatamente
-2. Reportar: "KOKORO VIOLATION: [sugestão原文]"
+2. Reportar: "KOKORO VIOLATION: [sugestão]"
 3. Não implementar nada
 4. Aguardar confirmação will-zappro

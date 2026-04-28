@@ -7,9 +7,8 @@ TBD
 - [ ] TBD
 
 ## Done summary
-TBD
-
+Created monorepo-specific Flow-Next skills: monorepo-audit, spec-from-chat, and deploy-check.
 ## Evidence
-- Commits:
+- Commits: 39a67b0
 - Tests:
 - PRs:

@@ -1,6 +1,6 @@
 ---
 name: SPEC-032 HVAC Manual Scraper + Qdrant Indexing Pipeline
-description: CLI tool para baixar, processar e indexar manuais de serviço HVAC no Qdrant via scraper com browser automation (Rod + Playwright),绕过 CAPTCHA/robots.txt restrições, usando fontes legais (fabricantes + GitHub)
+description: CLI tool para baixar, processar e indexar manuais de serviço HVAC no Qdrant via scraper com browser automation (Rod + Playwright), CAPTCHA/robots.txt restrições, usando fontes legais (fabricantes + GitHub)
 type: specification
 ---
 
@@ -34,7 +34,7 @@ Criar pipeline CLI que:
 ┌─────────────────────────────────────────────────────────────────┐
 │                    SCRAPER LAYER (Go + Playwright)              │
 │  sources.yaml → CLI scrape → Rod browser → PDF download       │
-│  └──跳过: ManualsLib (bloqueado)                               │
+│  └──: ManualsLib (bloqueado)                               │
 └─────────────────────────────────────────────────────────────────┘
                                ↓
 ┌─────────────────────────────────────────────────────────────────┐

@@ -84,7 +84,7 @@ curl --max-time 15 -s -X POST "http://127.0.0.1:4000/v1/embeddings" \
 
 ## Tarefas do Pipeline
 
-1. **NET-DEBUG**: Diagnosticar连通性 entre LiteLLM e Ollama
+1. **NET-DEBUG**: Diagnosticar entre LiteLLM e Ollama
 2. **CONFIG-FIX**: Testar diferentes configurações de api_base e model name
 3. **LITELLM-LOGS**: Analisar logs do LiteLLM para embeddings
 4. **OLLAMA-TEST**: Testar mais endpoints do Ollama para isolar o problema

@@ -262,5 +262,5 @@ wav2vec2 Container: zappro-wav2vec2 (wav2vec2:8201)
 ## 8. NÃO ESCOPO
 
 - Alteração de modelos STT/TTS (SPEC-004, SPEC-005 são protegidos)
--部署 de novos containers (infra já está operacional)
+- de novos containers (infra já está operacional)
 - Modificação de OpenClaw core (apenas skills/agents)

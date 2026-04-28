@@ -264,7 +264,7 @@ TASK_TEMPLATES = {
 | Springer | Xtreme Save, Xtreme Connect | Xtreme Save Inverter | Side panel |
 | Midea | Midea 9.000, Midea 12.000 | Midea 9K Inverter | Tag on unit |
 
-### 6.2 模型号码格式 (Formatos Típicos)
+### 6.2  (Formatos Típicos)
 
 ```
 LG Brasil:

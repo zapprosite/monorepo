@@ -62,7 +62,7 @@ curl -X POST http://localhost:9378/api/simulate/incoming \
 1. Digite mensagem no REPL
 2. Veja resposta no stdout do worker
 3. Ajuste prompts/parametros
-4. Teste novamente até满意
+4. Teste novamente até
 5. Migrar para WhatsApp oficial
 
 ## Quando Migrar

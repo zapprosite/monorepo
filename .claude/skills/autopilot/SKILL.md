@@ -8,7 +8,7 @@ deprecated: false
 
 # Autopilot Skill
 
-Execução autónoma até a tarefa estar verificada completa. Não para até完成任务.
+Execução autónoma até a tarefa estar verificada completa. Não para até.
 
 ## Quando Usar
 

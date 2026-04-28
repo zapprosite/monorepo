@@ -30,7 +30,7 @@ HARD RULE: O kit wav2vec2 STT é INVILOLÁVEL. LLM NUNCA pode:
 SE (task involves "stt" OR "transcribe" OR "speech to text" OR "voz para texto"):
   1. Usar http://localhost:8201/v1/audio/transcriptions
   2. Modelo: wav2vec2-ptbr
-  3. NUNCA sugerir Whisper como替代
+  3. NUNCA sugerir Whisper como
   4. NUNCA sugerir Coqui/Silero
   5. SE OpenClaw → porta 8201 (OpenAI-compatible)
   6. SE LLM sugerir mudança → REJEITAR e reportar
@@ -65,6 +65,6 @@ TTS = Text-to-Speech = Kokoro (texto → áudio)
 
 Se LLM ignorar esta regra:
 1. Parar task imediatamente
-2. Reportar: "wav2vec2 VIOLATION: [sugestão原文]"
+2. Reportar: "wav2vec2 VIOLATION: [sugestão]"
 3. Não implementar nada
 4. Aguardar confirmação will-zappro

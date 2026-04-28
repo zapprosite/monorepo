@@ -20,7 +20,7 @@
 | ~04/2026 | Terraform configurou subdomain `web.zappro.site` |
 | ~04/2026 | Coolify App criada com UUID |
 | ~04/2026 | Gitea Action criada para deploy automático |
-| 08:00 | Container被发现 não existia — site down |
+| 08:00 | Container não existia — site down |
 | 08:XX | Deploy manual feito via `docker run` |
 | 08:XX | Container "Up (healthy)" confirmado |
 | 08:XX | web.zappro.site retorna HTTP 200 |

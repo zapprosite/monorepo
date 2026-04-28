@@ -88,7 +88,7 @@ Pipeline Completo:
 Quando receber task de VOZ/STT:
 1. Usar wav2vec2-ptbr na porta 8201
 2. API: POST /v1/audio/transcriptions
-3. NUNCA sugerir Whisper como替代
+3. NUNCA sugerir Whisper como
 ```
 
 ---

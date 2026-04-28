@@ -1,1 +1,286 @@
-{"spec": "SPEC-ENTERPRISE-BASELINE-FIXES-2026-04", "phase": "execute", "total": 5, "pending": 1, "running": 4, "done": 1, "failed": 0, "tasks": [{"id": "T08", "name": "verify-docker-build", "description": "Verify docker build succeeds with updated Dockerfile", "agent_role": "deploy-agent", "status": "running", "attempts": 0, "worker": "W13", "allowed_paths": ["apps/api/Dockerfile"], "forbidden_paths": [], "safe_commands": ["docker build apps/api"], "depends_on": ["T05"], "acceptance": "docker build exits 0", "rollback": "git revert T05", "human_gate": true, "created_at": "2026-04-27T00:00:00Z", "completed_at": null, "artifacts": [], "error": null, "_idx": 0}, {"id": "T09", "name": "run-full-ci", "description": "Run pnpm install --frozen-lockfile && pnpm check-types && pnpm test", "agent_role": "backend-agent", "status": "running", "attempts": 0, "worker": "W15", "allowed_paths": [".github/workflows/pr-check.yml", "apps/api/src"], "forbidden_paths": [], "safe_commands": ["pnpm install --frozen-lockfile", "pnpm check-types", "pnpm test"], "depends_on": ["T06"], "acceptance": "all checks pass", "rollback": "git revert T06", "human_gate": false, "created_at": "2026-04-27T00:00:00Z", "completed_at": null, "artifacts": [], "error": null, "_idx": 1}, {"id": "T10", "name": "close-pr9", "description": "Close PR #9 - content already merged", "agent_role": "docs-agent", "status": "running", "attempts": 0, "worker": "W07", "allowed_paths": [], "forbidden_paths": [], "safe_commands": [], "depends_on": [], "acceptance": "PR #9 closed", "rollback": "reopen PR", "human_gate": true, "created_at": "2026-04-27T00:00:00Z", "completed_at": null, "artifacts": [], "error": null, "_idx": 2}, {"id": "T11", "name": "merge-enterprise-baseline", "description": "Merge merge/enterprise-baseline-fixes into main", "agent_role": "backend-agent", "status": "running", "attempts": 0, "worker": "W10", "allowed_paths": [], "forbidden_paths": [], "safe_commands": [], "depends_on": ["T08", "T09", "T10"], "acceptance": "PR merged into main", "rollback": "git revert merge commit", "human_gate": true, "created_at": "2026-04-27T00:00:00Z", "completed_at": null, "artifacts": [], "error": null, "_idx": 3}, {"id": "T12", "name": "cleanup-stale-branches", "description": "Delete merged/superseded branches", "agent_role": "backend-agent", "status": "pending", "attempts": 0, "worker": null, "allowed_paths": [], "forbidden_paths": [], "safe_commands": ["git branch -d", "git push origin --delete"], "depends_on": ["T11"], "acceptance": "stale branches deleted", "rollback": "restore from reflog", "human_gate": true, "created_at": "2026-04-27T00:00:00Z", "completed_at": null, "artifacts": [], "error": null}], "completed_tasks": [{"id": "T01-T07", "name": "completed-baseline-fixes", "status": "completed", "note": "T01-T07 completed: identity, workspace, docker, ci, namespace plan"}], "parallel_limit": 3, "human_gates": ["T08", "T10", "T11", "T12"], "forbidden_operations": ["No deploys", "No ZFS operations", "No port/subdomain changes", "No .env modifications"]}
+{
+  "spec": "SPEC-CHINESE-SCAN",
+  "phase": "execute",
+  "total": 14,
+  "pending": 13,
+  "running": 0,
+  "done": 0,
+  "failed": 0,
+  "tasks": [
+    {
+      "id": "T51",
+      "name": "scan-docs-guides",
+      "description": "Scan docs/GUIDES/ for Chinese chars. Files: INFISICAL-SDK-PATTERN.md. Remove all Chinese chars. Verify clean.",
+      "agent_role": "backend/api-developer",
+      "status": "test-claim",
+      "attempts": 0,
+      "worker": "TEST_W1",
+      "allowed_paths": [
+        "docs/GUIDES/"
+      ],
+      "forbidden_paths": [],
+      "safe_commands": [],
+      "depends_on": [],
+      "acceptance": "No Chinese chars in docs/GUIDES/",
+      "rollback": "git checkout docs/GUIDES/",
+      "human_gate": false,
+      "completed_at": "2026-04-28T20:07:51Z"
+    },
+    {
+      "id": "T52",
+      "name": "scan-docs-governance",
+      "description": "Scan docs/GOVERNANCE/ for Chinese chars. Files: .rules/voice-kit-protect.md, .rules/wav2vec2-stt-protect.md, SECRETS-MANDATE.md, OPENCLAW_DEBUG.md. Remove Chinese chars.",
+      "agent_role": "backend/api-developer",
+      "status": "pending",
+      "attempts": 0,
+      "worker": null,
+      "allowed_paths": [
+        "docs/GOVERNANCE/"
+      ],
+      "forbidden_paths": [],
+      "safe_commands": [],
+      "depends_on": [],
+      "acceptance": "No Chinese chars in docs/GOVERNANCE/",
+      "rollback": "git checkout docs/GOVERNANCE/",
+      "human_gate": false
+    },
+    {
+      "id": "T53",
+      "name": "scan-docs-specs",
+      "description": "Scan docs/SPECS/ for Chinese chars. Check subdirs: reviews/, products/, SPEC-*.md files. Remove Chinese chars.",
+      "agent_role": "backend/api-developer",
+      "status": "pending",
+      "attempts": 0,
+      "worker": null,
+      "allowed_paths": [
+        "docs/SPECS/"
+      ],
+      "forbidden_paths": [],
+      "safe_commands": [],
+      "depends_on": [],
+      "acceptance": "No Chinese chars in docs/SPECS/",
+      "rollback": "git checkout docs/SPECS/",
+      "human_gate": false
+    },
+    {
+      "id": "T54",
+      "name": "scan-docs-adrs",
+      "description": "Scan docs/ADRs/ for Chinese chars. Remove Chinese chars.",
+      "agent_role": "backend/api-developer",
+      "status": "pending",
+      "attempts": 0,
+      "worker": null,
+      "allowed_paths": [
+        "docs/ADRs/"
+      ],
+      "forbidden_paths": [],
+      "safe_commands": [],
+      "depends_on": [],
+      "acceptance": "No Chinese chars in docs/ADRs/",
+      "rollback": "git checkout docs/ADRs/",
+      "human_gate": false
+    },
+    {
+      "id": "T55",
+      "name": "scan-docs-incidents",
+      "description": "Scan docs/INCIDENTS/ for Chinese chars. Remove Chinese chars.",
+      "agent_role": "backend/api-developer",
+      "status": "pending",
+      "attempts": 0,
+      "worker": null,
+      "allowed_paths": [
+        "docs/INCIDENTS/"
+      ],
+      "forbidden_paths": [],
+      "safe_commands": [],
+      "depends_on": [],
+      "acceptance": "No Chinese chars in docs/INCIDENTS/",
+      "rollback": "git checkout docs/INCIDENTS/",
+      "human_gate": false
+    },
+    {
+      "id": "T56",
+      "name": "scan-docs-specflow",
+      "description": "Scan docs/specflow/ for Chinese chars. Check: SPEC-033-hvac-manual-browser-use-agent.md, SPEC-032-hvac-manual-scraper-pipeline.md, SPEC-029-library-audit.md. Remove Chinese chars.",
+      "agent_role": "backend/api-developer",
+      "status": "pending",
+      "attempts": 0,
+      "worker": null,
+      "allowed_paths": [
+        "docs/specflow/"
+      ],
+      "forbidden_paths": [],
+      "safe_commands": [],
+      "depends_on": [],
+      "acceptance": "No Chinese chars in docs/specflow/",
+      "rollback": "git checkout docs/specflow/",
+      "human_gate": false
+    },
+    {
+      "id": "T57",
+      "name": "scan-docs-reference",
+      "description": "Scan docs/REFERENCE/ for Chinese chars. Remove Chinese chars.",
+      "agent_role": "backend/api-developer",
+      "status": "pending",
+      "attempts": 0,
+      "worker": null,
+      "allowed_paths": [
+        "docs/REFERENCE/"
+      ],
+      "forbidden_paths": [],
+      "safe_commands": [],
+      "depends_on": [],
+      "acceptance": "No Chinese chars in docs/REFERENCE/",
+      "rollback": "git checkout docs/REFERENCE/",
+      "human_gate": false
+    },
+    {
+      "id": "T58",
+      "name": "scan-docs-infra",
+      "description": "Scan docs/INFRASTRUCTURE/ for Chinese chars. Check: SERVICE_MAP.md, NETWORK_MAP.md. Remove Chinese chars.",
+      "agent_role": "backend/api-developer",
+      "status": "pending",
+      "attempts": 0,
+      "worker": null,
+      "allowed_paths": [
+        "docs/INFRASTRUCTURE/"
+      ],
+      "forbidden_paths": [],
+      "safe_commands": [],
+      "depends_on": [],
+      "acceptance": "No Chinese chars in docs/INFRASTRUCTURE/",
+      "rollback": "git checkout docs/INFRASTRUCTURE/",
+      "human_gate": false
+    },
+    {
+      "id": "T59",
+      "name": "scan-docs-archive",
+      "description": "Scan docs/archive/ for Chinese chars. Remove Chinese chars.",
+      "agent_role": "backend/api-developer",
+      "status": "pending",
+      "attempts": 0,
+      "worker": null,
+      "allowed_paths": [
+        "docs/archive/"
+      ],
+      "forbidden_paths": [],
+      "safe_commands": [],
+      "depends_on": [],
+      "acceptance": "No Chinese chars in docs/archive/",
+      "rollback": "git checkout docs/archive/",
+      "human_gate": false
+    },
+    {
+      "id": "T60",
+      "name": "scan-claude-skills",
+      "description": "Scan .claude/skills/ for Chinese chars. Exclude hvac-guided-triage/. Check: dev-chat/SKILL.md, autopilot/SKILL.md, new-subdomain/SKILL.md. Remove Chinese chars.",
+      "agent_role": "backend/api-developer",
+      "status": "pending",
+      "attempts": 0,
+      "worker": null,
+      "allowed_paths": [
+        ".claude/skills/"
+      ],
+      "forbidden_paths": [
+        ".claude/skills/hvac-guided-triage/"
+      ],
+      "safe_commands": [],
+      "depends_on": [],
+      "acceptance": "No Chinese chars in .claude/skills/",
+      "rollback": "git checkout .claude/skills/",
+      "human_gate": false
+    },
+    {
+      "id": "T61",
+      "name": "scan-ops-skills",
+      "description": "Scan docs/OPERATIONS/SKILLS/ for Chinese chars. Check: openwebui_admin.py, zfs-smart-scrub.md, openclaw-agents-kit/AUDIT.md. Remove Chinese chars.",
+      "agent_role": "backend/api-developer",
+      "status": "pending",
+      "attempts": 0,
+      "worker": null,
+      "allowed_paths": [
+        "docs/OPERATIONS/SKILLS/"
+      ],
+      "forbidden_paths": [],
+      "safe_commands": [],
+      "depends_on": [],
+      "acceptance": "No Chinese chars in docs/OPERATIONS/SKILLS/",
+      "rollback": "git checkout docs/OPERATIONS/SKILLS/",
+      "human_gate": false
+    },
+    {
+      "id": "T62",
+      "name": "scan-docs-reviews",
+      "description": "Scan docs/SPECS/reviews/ for Chinese chars. Remove Chinese chars.",
+      "agent_role": "backend/api-developer",
+      "status": "pending",
+      "attempts": 0,
+      "worker": null,
+      "allowed_paths": [
+        "docs/SPECS/reviews/"
+      ],
+      "forbidden_paths": [],
+      "safe_commands": [],
+      "depends_on": [],
+      "acceptance": "No Chinese chars in docs/SPECS/reviews/",
+      "rollback": "git checkout docs/SPECS/reviews/",
+      "human_gate": false
+    },
+    {
+      "id": "T63",
+      "name": "scan-docs-products",
+      "description": "Scan docs/SPECS/products/ for Chinese chars. Remove Chinese chars.",
+      "agent_role": "backend/api-developer",
+      "status": "pending",
+      "attempts": 0,
+      "worker": null,
+      "allowed_paths": [
+        "docs/SPECS/products/"
+      ],
+      "forbidden_paths": [],
+      "safe_commands": [],
+      "depends_on": [],
+      "acceptance": "No Chinese chars in docs/SPECS/products/",
+      "rollback": "git checkout docs/SPECS/products/",
+      "human_gate": false
+    },
+    {
+      "id": "T64",
+      "name": "scan-root-docs",
+      "description": "Scan root-level docs for Chinese chars. Check: ARCHITECTURE.md, FAULT_TOLERANCE.md, NEXUS_GUIDE.md, DEBUG-QUICK-REF.md, VOICE-STT-STACK.md, REVIEW-*.md files, FINAL-REVIEW-*.md files. Also: docs/adr/20260424-adr-mem0-memory-layer.md. Remove Chinese chars.",
+      "agent_role": "backend/api-developer",
+      "status": "pending",
+      "attempts": 0,
+      "worker": null,
+      "allowed_paths": [
+        "docs/"
+      ],
+      "forbidden_paths": [
+        "docs/SPECS/",
+        "docs/ADRs/",
+        "docs/GOVERNANCE/",
+        "docs/INCIDENTS/",
+        "docs/specflow/",
+        "docs/REFERENCE/",
+        "docs/INFRASTRUCTURE/",
+        "docs/archive/",
+        "docs/GUIDES/",
+        "docs/SPECS/reviews/",
+        "docs/SPECS/products/"
+      ],
+      "safe_commands": [],
+      "depends_on": [],
+      "acceptance": "No Chinese chars in root-level docs",
+      "rollback": "git checkout docs/",
+      "human_gate": false
+    }
+  ],
+  "parallel_limit": 20,
+  "human_gates": [],
+  "forbidden_operations": [
+    "No Terraform",
+    "No Cloudflare",
+    "No ZFS",
+    "No port changes"
+  ]
+}

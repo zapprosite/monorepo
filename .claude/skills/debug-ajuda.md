@@ -61,4 +61,4 @@ Próximo passo:
 1. **Erro inesperado?** → `/universal-debug`
 2. **Código está lento?** → `/code-review`
 3. **Suspeita de segurança?** → `/security-review`
-4. **Não sabe o病因?** → `/bug-investigation`
+4. **Não sabe a causa?** → `/bug-investigation`

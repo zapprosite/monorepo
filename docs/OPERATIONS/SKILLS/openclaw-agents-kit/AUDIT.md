@@ -70,7 +70,7 @@ tts: {
 
 **Nota:** `baseUrl` dentro de `tts.openai` é stripped pelo OpenClaw na inicialização (schema validation). A única forma de configurar é via env var `OPENAI_TTS_BASE_URL`.
 
-### Problema C: placeholder `{{TTS_BRIDGE_URL}}` sem説明
+### Problema C: placeholder `{{TTS_BRIDGE_URL}}` sem
 
 O template usa `{{TTS_BRIDGE_URL}}` mas não documenta que este valor DEVE ser `http://10.0.19.5:8013/v1` (TTS Bridge) e NÃO pode ser Kokoro direto (`:8880`).
 

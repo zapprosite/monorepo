@@ -31,7 +31,7 @@ Smoke test do voice pipeline (`pipeline-openclaw-voice.sh`) morria com **exit 13
 | 10:06 | Container `zappro-wav2vec2` iniciado na network `zappro-lite_default` |
 | 10:07 | Container wav2vec2 com modelo carregado no GPU — LiteLLM alcança via `http://wav2vec2:8201` |
 | 10:10 | STT via LiteLLM funciona — HTTP 200, transcrição `"olá como vai você"` |
-| 10:12 | Smoke test completo — 9/11 passed, 2 failures (OpenClaw Gateway已知 issue) |
+| 10:12 | Smoke test completo — 9/11 passed, 2 failures (OpenClaw Gateway issue) |
 | 10:15 | Fix `:ro` no volume do transformers cache removido (caching quebrado) |
 | 10:18 | `wav2vec2-health-check.md` atualizado para refletir arquitetura containerizada |
 

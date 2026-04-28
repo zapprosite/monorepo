@@ -28,7 +28,7 @@
 **Fluxo:**
 1. Automation script (Playwright/Node) conecta via CDP ao browser
 2. Cria contexto, faz login OAuth, salva `storageState`
-3. OpenClaw usa `storageState` para 操作 já autenticado
+3. OpenClaw usa `storageState` para  já autenticado
 4. Volumes montados do host → persistem entre restarts
 
 ---

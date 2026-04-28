@@ -8,7 +8,7 @@ T015 completion gate: `manual_strict_ready=true` with caveats (non-deterministic
 
 O modo `manual_strict` está funcional mas ainda não é Suitable for end-customer:
 - LLM com temperature>0 produz variação não-determinística nos avisos de segurança
-- Necessário: Juiz (verifica se resposta遵守 regras antes de retornar)
+- Necessário: Juiz (verifica se resposta regras antes de retornar)
 - Necessário: Field Tutor (contexto expandido com procedimentos passo-a-passo)
 - Necessário: Resposta Imprimível (formato limpio para técnicos de campo)
 

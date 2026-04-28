@@ -559,7 +559,7 @@ hermes_circuit_breaker_failures_total{service, error_type}
 hermes_circuit_breaker_recovery_duration_seconds{service}
 
 # Fallback Metrics
-hermes_fallback激活次数{service, fallback_target}
+hermes_fallback{service, fallback_target}
 hermes_provider_failures_total{provider, error_code}
 
 # Rate Limiting Metrics
