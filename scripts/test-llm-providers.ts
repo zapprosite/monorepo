@@ -45,7 +45,7 @@ const PROVIDERS: TestConfig[] = [
     url: 'http://localhost:4000/v1/messages',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: 'Bearer dummy-key',
+      Authorization: 'Bearer ${QDRANT_API_KEY}-key',
     },
     body: {
       model: 'minimax-m2.7',
@@ -107,7 +107,7 @@ const PROVIDERS: TestConfig[] = [
     url: 'http://localhost:4000/v1/messages',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: 'Bearer dummy-key',
+      Authorization: 'Bearer ${QDRANT_API_KEY}-key',
     },
     body: {
       model: 'groq/llama-3.3-70b-versatile',
@@ -125,7 +125,7 @@ const PROVIDERS: TestConfig[] = [
     url: 'http://localhost:4000/v1/messages',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: 'Bearer dummy-key',
+      Authorization: 'Bearer ${QDRANT_API_KEY}-key',
     },
     body: {
       model: 'gpt-4o',
