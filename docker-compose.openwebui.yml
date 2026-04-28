@@ -7,6 +7,11 @@ services:
     environment:
       - HOST=0.0.0.0
       - PORT=3456
+      - OPENAI_API_BASE_URL=http://localhost:4017/v1
+      - DEFAULT_MODELS=hvac-copilot
+      - DEFAULT_PINNED_MODELS=hvac-copilot
+      - TASK_MODEL_EXTERNAL=hvac-copilot
+      - ENABLE_OLLAMA_API=false
       # WebUI Authentication — via .env (WEBUI_AUTH=true enables Google OAuth)
     network_mode: host
     healthcheck:

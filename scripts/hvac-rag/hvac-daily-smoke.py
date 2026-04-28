@@ -19,6 +19,7 @@ Criteria:
 
 Usage:
   python hvac-daily-smoke.py
+  python hvac-daily-smoke.py --once
   python hvac-daily-smoke.py --report /tmp/smoke-$(date +%Y%m%d).json
 """
 
@@ -96,7 +97,10 @@ def safe_query_hash(query: str) -> str:
 
 
 def qdrant_headers() -> dict:
-    return {"Authorization": f"Bearer {QDRANT_API_KEY}", "Content-Type": "application/json"}
+    headers = {"Content-Type": "application/json"}
+    if QDRANT_API_KEY:
+        headers["Authorization"] = f"Bearer {QDRANT_API_KEY}"
+    return headers
 
 
 async def call_chat_endpoint(endpoint: str, query: str, timeout: float = 60) -> dict:
@@ -290,6 +294,7 @@ async def main(report_path: str):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="HVAC RAG Daily Smoke Test")
     parser.add_argument("--report", default=DEFAULT_REPORT, help="Output report path")
+    parser.add_argument("--once", action="store_true", help="Run one smoke-test pass and exit")
     args = parser.parse_args()
 
     report = asyncio.run(main(args.report))
