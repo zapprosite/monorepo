@@ -12,7 +12,7 @@ ENV_FILE="${MONOREPO}/.env"
 BACKUP_FILE="${ENV_FILE}.backup-$(date +%Y%m%d%H%M%S)"
 OPENWEBUI_CONTAINER="openwebui"
 HVAC_PIPE_URL="${HVAC_PIPE_URL:-http://localhost:4017}"
-HVAC_MODEL="${HVAC_MODEL:-hvac-manual-strict}"
+HVAC_MODEL="${HVAC_MODEL:-hvac-copilot}"
 ADMIN_EMAIL="${OPENWEBUI_ADMIN_EMAIL:-admin@zappro.local}"
 ADMIN_PASSWORD="${OPENWEBUI_ADMIN_PASSWORD:-}"
 DRY_RUN="${1:-}"
@@ -78,7 +78,7 @@ for env_line in "${NEW_ENVS[@]}"; do
         if [[ -n "${DRY_RUN:-}" ]]; then
             info "  ${var_name}=${var_value} — would add (dry-run)"
         else
-            echo "${var_line}" >> "$ENV_FILE"
+            echo "${env_line}" >> "$ENV_FILE"
             info "  ${var_name}=${var_value} — added"
         fi
     fi

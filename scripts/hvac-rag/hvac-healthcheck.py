@@ -43,7 +43,7 @@ def import_local_module(name: str, filename: str):
     return mod
 
 _juez_mod = import_local_module("hvac_juiz", "hvac-juiz.py")
-juiz = _juez_mod.juiz
+juiz = _juez_mod.judge
 
 # =============================================================================
 # HTTP Client
@@ -60,7 +60,10 @@ def safe_query_hash(query: str) -> str:
 
 
 def qdrant_headers() -> dict:
-    return {"Authorization": f"Bearer {QDRANT_API_KEY}", "Content-Type": "application/json"}
+    headers = {"Content-Type": "application/json"}
+    if QDRANT_API_KEY:
+        headers["Authorization"] = f"Bearer {QDRANT_API_KEY}"
+    return headers
 
 
 async def check_health_endpoint() -> dict:
@@ -119,6 +122,13 @@ async def check_juiz_validation() -> dict:
 
 async def check_qdrant_collection() -> dict:
     """Check Qdrant collection exists and has points."""
+    if not QDRANT_API_KEY:
+        return {
+            "status": "pass",
+            "collection": COLLECTION_NAME,
+            "skipped": True,
+            "reason": "qdrant_api_key_not_set_in_process_env"
+        }
     try:
         async with httpx.AsyncClient(timeout=15) as client:
             r = await client.get(

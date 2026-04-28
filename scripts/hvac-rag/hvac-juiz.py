@@ -65,6 +65,8 @@ HVAC_MODEL_IN_QUERY = re.compile(
 OUT_OF_DOMAIN_REJECT = {
     "geladeira", "refrigerador", "freezer", "frost free",
     "televisão", "tv", "smart tv", "monitor", "notebook", "celular",
+    "refrigerator", "washing machine", "television", "soccer",
+    "recipe", "cake",
     "telefone", "computador", "desktop", "máquina de lavar", "lavadora",
     "secadora", "fogão", "cooktop", "forno", "micro-ondas",
     "automóvel", "carro", "moto", "caminhão",

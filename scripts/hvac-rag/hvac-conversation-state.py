@@ -25,6 +25,7 @@ class ConversationState:
     indoor_model: Optional[str] = None
     last_mode: Optional[str] = None
     evidence_seen: list[str] = field(default_factory=list)
+    previous_answers: list[str] = field(default_factory=list)
 
 
 class StateManager:
@@ -110,7 +111,8 @@ class StateManager:
         Args:
             conversation_id: Unique identifier for the conversation
             **kwargs: Fields to update (brand, family, alarm_code, subcode,
-                     outdoor_model, indoor_model, last_mode, evidence_seen)
+                     outdoor_model, indoor_model, last_mode, evidence_seen,
+                     previous_answers)
 
         Returns:
             Updated ConversationState
@@ -121,11 +123,14 @@ class StateManager:
 
         for key, value in kwargs.items():
             if hasattr(state, key):
-                if key == "evidence_seen" and isinstance(value, list):
-                    # Extend evidence list, avoid duplicates
+                if key in {"evidence_seen", "previous_answers"} and isinstance(value, list):
+                    # Extend short history lists, avoid duplicates
+                    target = getattr(state, key)
                     for item in value:
-                        if item not in state.evidence_seen:
-                            state.evidence_seen.append(item)
+                        if item and item not in target:
+                            target.append(item)
+                    if key == "previous_answers" and len(target) > 6:
+                        setattr(state, key, target[-6:])
                 else:
                     setattr(state, key, value)
 
@@ -184,7 +189,8 @@ class StateManager:
 
         # Extract indoor model (typically starts with F)
         indoor_matches = re.findall(self.INDOOR_MODEL_PATTERN, query, re.IGNORECASE)
-        for match in indoor_matches:
+        preferred_indoor_matches = [m for m in indoor_matches if m.upper().startswith("F")]
+        for match in preferred_indoor_matches or indoor_matches:
             if not re.match(r"^(the|and|for|are|but|not|you|all|can|her|was|one|our|out|fix|box|tax|run|fan|air|heat|cool|mode)$", match, re.IGNORECASE):
                 result["indoor_model"] = match.upper()
                 break

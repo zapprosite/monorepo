@@ -1,0 +1,145 @@
+{
+  "generated_at": "2026-04-28T18:45:44-03:00",
+  "objective": "Adaptar o comportamento fluido/tutor do Hermes para o OpenWebUI HVAC, mantendo evidência rotulada e gates de segurança.",
+  "mode": "SMALL CONFIG + PROMPT + ROUTER PATCH",
+  "nexus": {
+    "status_checked": true,
+    "workflow_active": false,
+    "modes_used": [
+      "backend/api-developer",
+      "deploy/health-checker",
+      "review/security-reviewer"
+    ]
+  },
+  "configs_found": [
+    {
+      "path": "/srv/monorepo/hermes-second-brain/SOUL.md",
+      "used_for": [
+        "MiniMax M2.7 as preferred reasoning model",
+        "Mem0/Qdrant memory posture",
+        "secret handling and internal-only service posture"
+      ],
+      "secret_values_copied": false
+    },
+    {
+      "path": "/srv/monorepo/docs/HERMES_CONSOLIDATION.md",
+      "used_for": [
+        "Hermes runtime layout",
+        "separation between code, sessions, memory, logs, and volatile data"
+      ],
+      "secret_values_copied": false
+    },
+    {
+      "path": "/srv/monorepo/.claude/skills/tutor.md",
+      "used_for": [
+        "context-aware tutor tone",
+        "next-step guidance instead of form-like questioning"
+      ],
+      "secret_values_copied": false
+    },
+    {
+      "path": "/srv/monorepo/docs/RUNBOOKS/HVAC-COPILOT-ROUTER.md",
+      "used_for": [
+        "model surface",
+        "conversation-state fields",
+        "evidence labels",
+        "router and fallback design"
+      ],
+      "secret_values_copied": false
+    },
+    {
+      "path": "/srv/monorepo/docs/RUNBOOKS/OPENWEBUI-HVAC-HEADLESS-CONFIG.md",
+      "used_for": [
+        "OpenWebUI headless provider configuration",
+        "local pipe URL",
+        "default model variables"
+      ],
+      "secret_values_copied": false
+    },
+    {
+      "path": "/srv/monorepo/.claude/skills/hvac-guided-triage",
+      "used_for": [
+        "guided triage policy",
+        "Daikin VRV E4 low-pressure behavior",
+        "anti-patterns for asking too many fields"
+      ],
+      "secret_values_copied": false
+    }
+  ],
+  "secrets_not_printed": true,
+  "profile": {
+    "path": "config/hvac-copilot/hermes-style.yaml",
+    "model": "minimax-m2.7",
+    "temperature": 0.45,
+    "top_p": 0.9,
+    "max_tokens": 1400,
+    "stream": true,
+    "tone": "conversational_tutor_ptbr",
+    "one_question_at_a_time": true
+  },
+  "openwebui": {
+    "url": "http://localhost:3456",
+    "pipe_url": "http://localhost:4017/v1",
+    "default_model": "hvac-copilot",
+    "container_env_default_checked": true
+  },
+  "pipe": {
+    "url": "http://127.0.0.1:4017",
+    "requested_lan_url": "http://10.0.0.1:4017",
+    "qdrant_collection": "hvac_manuals_v1",
+    "hvac_copilot_exposed": true,
+    "models_exposed": [
+      "hvac-copilot",
+      "hvac-manual-strict",
+      "hvac-field-tutor",
+      "hvac-printable"
+    ],
+    "default_model": "hvac-copilot"
+  },
+  "router_changes": [
+    "hvac-copilot now reads the multi-turn message history instead of judging only the latest user message.",
+    "conversation_state extracts and reuses brand, family, alarm_code, subcode, outdoor_model, indoor_model, and previous_answers.",
+    "follow-up questions build an effective query from current turn, recent turns, and stored state.",
+    "deterministic guided responses cover Daikin VRV E4 and common U4 follow-ups to avoid unnecessary model requests.",
+    "safety gates block energized IPM/electrical testing without explicit manual context.",
+    "out-of-domain consumer appliances such as frost-free refrigerators are blocked."
+  ],
+  "evidence_ladder": [
+    "Manual exato",
+    "Manual da família",
+    "Graph interno",
+    "Fonte externa oficial",
+    "Busca web fallback"
+  ],
+  "fallback_policy": {
+    "manual_exact": "Qdrant exact-model retrieval when available.",
+    "manual_family": "Family/model-series retrieval when exact model is not found.",
+    "graph_internal": "Guided triage and internal router knowledge for common HVAC fault families.",
+    "external_official": "MiniMax official web_search is tried first when a compatible endpoint and API key are configured in the runtime environment.",
+    "web_fallback": "DuckDuckGo HTML fallback is tried when official search is unavailable or returns no usable results."
+  },
+  "tests": {
+    "multi_turn_u4": true,
+    "e4_guided_triage": true,
+    "ipm_safety_gate": true,
+    "out_of_domain_frost_free": true,
+    "external_search_label": true,
+    "pytest_focused": "6 passed"
+  },
+  "validations": {
+    "python3 -m py_compile scripts/hvac-rag/*.py": "pass",
+    "curl http://10.0.0.1:4017/v1/models": "fail: no 10.0.0.1 interface/reachability on this host",
+    "curl http://10.0.0.1:4017/health": "fail: no 10.0.0.1 interface/reachability on this host",
+    "curl http://127.0.0.1:4017/v1/models": "pass",
+    "curl http://127.0.0.1:4017/health": "pass",
+    "python3 scripts/hvac-rag/hvac-daily-smoke.py --once": "pass",
+    "python3 scripts/hvac-rag/hvac-healthcheck.py": "pass",
+    "git diff --check": "pass"
+  },
+  "tests_passed": true,
+  "hvac_copilot_ready": true,
+  "remaining_issues": [
+    "The requested validation address 10.0.0.1:4017 is not reachable from this host because no 10.0.0.1 interface is present. The service is healthy on 127.0.0.1:4017 and OpenWebUI uses localhost.",
+    "MiniMax official web_search requires runtime environment configuration for a compatible endpoint and API key. No new credentials were committed."
+  ]
+}

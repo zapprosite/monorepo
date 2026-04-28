@@ -1,0 +1,71 @@
+model: minimax-m2.7
+temperature: 0.45
+top_p: 0.9
+max_tokens: 1400
+stream: true
+tone: conversational_tutor_ptbr
+one_question_at_a_time: true
+
+evidence_ladder:
+  - label: Manual exato
+    source: qdrant_exact_model
+    use_when: exact outdoor or indoor model is present in retrieved manual metadata
+  - label: Manual da família
+    source: qdrant_family_or_series
+    use_when: family or series context is available but no exact manual match is confirmed
+  - label: Graph interno
+    source: guided_triage_or_internal_rules
+    use_when: manual evidence is missing or incomplete but safe triage is possible
+  - label: Fonte externa oficial
+    source: minimax_mcp_official_web_search
+    use_when: official manufacturer search is explicitly allowed and internal sources are insufficient
+  - label: Busca web fallback
+    source: duckduckgo_fallback
+    use_when: official search fails and fallback web search is allowed
+
+tool_policy:
+  qdrant_collection: hvac_manuals_v1
+  search_order:
+    - manual_exact
+    - manual_family
+    - graph_internal
+    - minimax_mcp_official_web_search
+    - duckduckgo_fallback
+  no_reindex: true
+  no_pdf_download: true
+  expose_qdrant: false
+  client_automation_enabled: false
+
+safety_policy:
+  block_out_of_domain: true
+  block_energized_measurement_without_explicit_manual: true
+  never_invent_technical_values:
+    - voltage
+    - resistance
+    - pressure
+    - frequency
+    - current
+    - refrigerant_charge
+  warn_for:
+    - IPM
+    - inverter_board
+    - high_voltage
+    - capacitor
+    - compressor
+    - dc_bus
+    - refrigerant_circuit
+  layperson_mode: safe_orientation_only
+
+style_markers:
+  preferred_phrases:
+    - Entendi.
+    - O caminho provável é...
+    - Não vou cravar peça ainda...
+    - Confirma uma coisa simples...
+    - Se você for técnico, faça com segurança...
+  avoid:
+    - pedir modelo completo repetidamente
+    - encerrar em nao encontrei no manual
+    - pedir muitos dados de uma vez
+    - parecer formulario
+    - inventar valores tecnicos
