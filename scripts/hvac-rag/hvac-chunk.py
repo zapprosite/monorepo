@@ -10,26 +10,25 @@ OVERLAP_TOKENS = 120
 TOKEN_ESTIMATE_CHARS = 4
 
 COMPONENT_TAGS = [
-    'ipm', 'power module', 'module de puissance',
-    'bridge rectifier', 'ponte retificadora', 'puente rectificador', 'rectifier bridge',
+    'ipm', 'power module', 'module de puissance', 'modulo ipm', 'modulo de potencia',
+    'bridge rectifier', 'ponte retificadora', 'puente rectificador', 'rectifier bridge', 'ponte de diodos', 'ponte diodos',
     'compressor', 'compresseur', 'compresor',
-    'pcb', 'placa', 'placa de circuito', 'circuit board',
+    'pcb', 'placa', 'placa de circuito', 'circuit board', 'placa inverter', 'placa de potencia',
     'thermistor', 'termistor',
     'fan motor', 'motor ventilador', 'motor del ventilador', 'ventilador',
-    'dc bus', 'barramento dc', 'bus dc', 'barramento CC',
+    'dc bus', 'barramento dc', 'bus dc', 'barramento CC', 'dc-link', 'dc link', 'link dc', 'bus CC', 'circuito intermedio', 'circuito intermediario',
     'capacitor', 'condensador',
-    'inverter', 'inversor',
-    'igbt', 'insulated gate bipolar transistor',
+    'inverter', 'inversor', 'inversor de frecuencia', 'inversor de frecuencia',
+    'igbt', 'insulated gate bipolar transistor', 'transistor igbt',
     ' refrigerant', 'refrigerante', 'refrigerant',
     'outdoor unit', 'indoor unit', 'unidade exterior', 'unidad exterior',
     'heat pump', 'bomba de calor', 'bomba de calor',
 ]
 SAFETY_TAGS = [
-    'high voltage', 'alta tensão', 'alta tensión', 'voltage peligroso',
-    'high voltage possible', 'atenção tensão', 'precaución tensión',
-    'shock risk', 'risco choque', 'riesgo choque', 'risk of electric shock',
-    'atenção', 'advertencia', 'warning', 'danger', 'perigo', 'peligro',
-    'electric shock', 'choque eléctrico', 'shock électrique',
+    'high voltage', 'alta tensão', 'alta tensión', 'voltage peligroso', 'tensão perigosa', 'voltaje peligroso', 'high voltage possible',
+    'atenção tensão', 'precaución tensión', 'atenção', 'advertencia', 'warning', 'danger', 'perigo', 'peligro',
+    'shock risk', 'risco choque', 'riesgo choque', 'risk of electric shock', 'electric shock', 'choque eléctrico', 'shock électrique',
+    'perigo', 'danger', 'atenção', 'cuidado',
 ]
 
 def estimate_tokens(text: str) -> int:
