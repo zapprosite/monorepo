@@ -50,7 +50,7 @@ def import_local_module(name: str, filename: str):
     return mod
 
 _juez_mod = import_local_module("hvac_juiz", "hvac-juiz.py")
-juiz = _juez_mod.juiz
+juiz = _juez_mod.judge
 
 import httpx
 
@@ -83,6 +83,12 @@ ASK_CLARIFICATION_QUERIES = [
 PRINTABLE_QUERIES = [
     "RYYQ48BRA error E6 procedure",
     "FXAQ50FUV maintenance checklist",
+]
+
+GUIDED_TRIAGE_QUERIES = [
+    "erro e4 vrv daikin",
+    "e4-01 vrv carrier",
+    "vrf midea código e3",
 ]
 
 
@@ -215,6 +221,28 @@ async def run_printable_assertions() -> dict:
     return results
 
 
+async def test_guided_triage():
+    """Test guided_triage mode queries."""
+    results = []
+    for query in GUIDED_TRIAGE_QUERIES:
+        judge_result = await judge_query(query)
+        call_result = await call_chat_endpoint("/v1/chat/completions", query)
+
+        # Guided triage should result in GUIDED_TRIAGE or APPROVED with guided_triage metadata
+        is_guided = (
+            judge_result.get("judge_result") == "GUIDED_TRIAGE" or
+            judge_result.get("judge_result") == "APPROVED"
+        )
+
+        results.append({
+            "query_hash": judge_result["query_hash"],
+            "guided_triage_detected": is_guided,
+            "judge_result": judge_result.get("judge_result"),
+            "endpoint_status": call_result["status"],
+        })
+    return results
+
+
 async def main(report_path: str):
     """Run full daily smoke test suite."""
     print(f"[HVAC Smoke] Starting daily smoke test at {datetime.now(timezone.utc).isoformat()}")
@@ -240,6 +268,11 @@ async def main(report_path: str):
     print(f"[HVAC Smoke] Running printable format assertions...")
     printable_results = await run_printable_assertions()
 
+    # Guided triage queries
+    print(f"[HVAC Smoke] Testing {len(GUIDED_TRIAGE_QUERIES)} guided_triage queries...")
+    triage_results = await test_guided_triage()
+    all_results.extend(triage_results)
+
     # Summary
     total = len(all_results)
     blocked = sum(1 for r in all_results if r.get("judge_result") == "BLOCKED")
@@ -247,6 +280,7 @@ async def main(report_path: str):
     approved = sum(1 for r in all_results if r.get("judge_result") == "APPROVED")
     fallback_used = sum(1 for r in all_results if r.get("fallback_used") is True)
     printable_passed = sum(1 for r in printable_results if r.get("passed") is True)
+    guided_triage_detected = sum(1 for r in triage_results if r.get("guided_triage_detected"))
 
     summary = {
         "timestamp": datetime.now(timezone.utc).isoformat(),
@@ -257,13 +291,16 @@ async def main(report_path: str):
         "fallback_used_count": fallback_used,
         "printable_assertions_passed": printable_passed,
         "printable_assertions_total": len(printable_results),
+        "guided_triage_detected": guided_triage_detected,
+        "guided_triage_total": len(triage_results),
         "overall_status": "pass" if (blocked == len(OUT_OF_DOMAIN_QUERIES) and printable_passed == len(PRINTABLE_QUERIES)) else "fail"
     }
 
     report = {
         "summary": summary,
         "query_results": all_results,
-        "printable_results": printable_results
+        "printable_results": printable_results,
+        "triage_results": triage_results
     }
 
     # Write report
@@ -282,6 +319,7 @@ async def main(report_path: str):
     print(f"  APPROVED: {approved}")
     print(f"  Fallback used: {fallback_used}")
     print(f"  Printable assertions: {printable_passed}/{len(printable_results)}")
+    print(f"  Guided triage detected: {guided_triage_detected}/{len(triage_results)}")
     print(f"  Overall: {summary['overall_status'].upper()}")
 
     return report

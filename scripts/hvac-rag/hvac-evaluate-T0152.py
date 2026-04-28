@@ -71,6 +71,14 @@ PRINTABLE_TEST_QUERIES = [
     "inversor IPM bloqueio",
 ]
 
+GUIDED_TRIAGE_QUERIES = [
+    ("erro e4 vrv daikin", "guided_triage", "brand+family+error no model - should get guided_triage"),
+    ("e4-01 daikin vrv", "guided_triage", "error with subcode but no full model"),
+    ("e4-001 vrv 4 daikin", "guided_triage", "E4-001 equivalent practical"),
+    ("erro e4 split daikin", "guided_triage", "Split/Hi-Wall vs VRV warning expected"),
+    ("e4 high wall daikin", "guided_triage", "High-wall should not use VRV table"),
+]
+
 
 def log_result(test_name: str, passed: bool, details: str = ""):
     status = "PASS" if passed else "FAIL"
@@ -348,6 +356,75 @@ def test_invented_values():
     return no_invented, "no_invented" if no_invented else "has_invented"
 
 
+def test_guided_triage_mode():
+    """Test: Guided triage mode returns correct metadata."""
+    print("\n=== Test: Guided Triage Mode ===")
+
+    # Test cases for guided_triage detection
+    guided_cases = [
+        ("erro e4 vrv daikin", True, "brand+family+error"),
+        ("e4-01 daikin vrv", True, "error with subcode"),
+        ("vrf carrier código e3", True, "vrf family"),
+        ("RXYQ20BRA erro E6", False, "has complete model - should NOT be guided"),
+        ("split inverter 12000", False, "no error code - should NOT be guided"),
+    ]
+
+    all_pass = True
+    for query, expect_guided, desc in guided_cases:
+        result, meta = judge(query)
+        is_guided = (result == JuizResult.GUIDED_TRIAGE)
+        passed = (is_guided == expect_guided)
+        if passed:
+            log_result(f"guided_triage '{query[:25]}...'", True, desc)
+        else:
+            log_result(f"guided_triage '{query[:25]}...'", False, f"expected guided={expect_guided}, got {result.value}")
+            all_pass = False
+
+    return all_pass, "guided_triage_ok" if all_pass else "guided_triage_failed"
+
+
+def test_guided_triage_response_content():
+    """Test: Guided triage response contains expected content for E4 Daikin VRV."""
+    print("\n=== Test: Guided Triage Response Content ===")
+
+    # These queries should get guided responses with low pressure mention
+    queries_to_check = [
+        ("erro e4 vrv daikin", ["baixa pressão", "subcódigo", "E4-01", "E4-001"], "should mention low pressure family"),
+        ("e4-01 daikin vrv", ["master", "baixa pressão"], "should mention master unit"),
+    ]
+
+    all_pass = True
+    for query, expected_phrases, desc in queries_to_check:
+        try:
+            resp = httpx.post(
+                f"{BASE_URL}/v1/chat/completions",
+                json={
+                    "model": "hvac-manual-strict",
+                    "messages": [{"role": "user", "content": query}],
+                    "max_tokens": 300,
+                },
+                timeout=30,
+            )
+            if resp.status_code == 200:
+                data = resp.json()
+                content = data.get("choices", [{}])[0].get("message", {}).get("content", "").lower()
+
+                # Check for anti-patterns (should NOT appear)
+                anti_patterns = ["compressor protection trip", "150 psi", "220v", "inventado"]
+                has_anti = any(phrase.lower() in content for phrase in anti_patterns)
+
+                if has_anti:
+                    log_result(f"content '{query[:20]}...'", False, "found anti-pattern in response")
+                    all_pass = False
+                else:
+                    log_result(f"content '{query[:20]}...'", True, desc)
+        except Exception as e:
+            log_result(f"content '{query[:20]}...'", False, str(e))
+            all_pass = False
+
+    return all_pass, "content_ok" if all_pass else "content_has_issues"
+
+
 def generate_report(results: dict):
     """Generate JSON report."""
     summary = {
@@ -369,6 +446,8 @@ def generate_report(results: dict):
             "invented_values": results["details"].get("invented", {}).get("passed", False),
             "field_tutor": results["details"].get("field_tutor", {}).get("passed", False),
             "printable_endpoint": results["details"].get("printable", {}).get("passed", False),
+            "guided_triage_mode": results["details"].get("guided_triage", {}).get("passed", False),
+            "guided_triage_content": results["details"].get("guided_triage_content", {}).get("passed", False),
         },
         "details": results.get("details", {}),
         "blocking_issues": [],
@@ -433,6 +512,8 @@ def main():
         ("juiz", test_juiz_validation),
         ("energized", test_energized_measurement),
         ("invented", test_invented_values),
+        ("guided_triage", test_guided_triage_mode),
+        ("guided_triage_content", test_guided_triage_response_content),
     ]
 
     for name, test_fn in tests:

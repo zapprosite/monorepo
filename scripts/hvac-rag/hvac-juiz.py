@@ -82,11 +82,15 @@ COMPLETE_MODEL_PATTERN = re.compile(
     r'\b[A-Z]{2,10}[0-9]{2,6}[A-Z0-9]*\b'
 )
 
+# VRV/VRF family identifiers
+VRV_VRF_FAMILIES = {"vrv", "vrf", "vrv系統", "vrf系統"}
+
 
 class JuizResult(Enum):
     APPROVED = "APPROVED"
     BLOCKED = "BLOCKED"
     ASK_CLARIFICATION = "ASK_CLARIFICATION"
+    GUIDED_TRIAGE = "GUIDED_TRIAGE"
 
 
 def extract_terms(text: str) -> set:
@@ -122,8 +126,10 @@ def has_complete_model(text: str) -> bool:
 def is_out_of_domain(text: str) -> bool:
     """Check if query is clearly out of HVAC domain."""
     text_lower = text.lower()
+    # Use word boundary matching to avoid substring false positives (e.g., "testar" vs "test")
     for term in OUT_OF_DOMAIN_REJECT:
-        if term in text_lower:
+        # Match whole word only: \b for word boundary
+        if re.search(r'\b' + re.escape(term) + r'\b', text_lower):
             return True
     return False
 
@@ -137,22 +143,58 @@ def has_safety_keywords(text: str) -> bool:
     return False
 
 
-def needs_clarification(text: str) -> tuple[bool, bool]:
+def is_guided_triage_candidate(text: str) -> bool:
+    """
+    Detecta se query é candidata a guided_triage:
+    - Contém marca/fabricante HVAC (daikin, carrier, midea, etc.)
+    - Contém família VRV/VRF
+    - Contém código de erro principal (E4, E3, U4, E5, etc.)
+    - NÃO contém modelo completo
+    """
+    text_lower = text.lower()
+
+    # Extrair componentes
+    terms = extract_terms(text)
+
+    # Verificar família VRV/VRF
+    has_vrv_family = bool(VRV_VRF_FAMILIES & terms)
+
+    # Verificar marca HVAC
+    hvac_brands = {"daikin", "carrier", "midea", "lg", "samsung", "gree", "danfoss", "hitachi", "panasonic"}
+    has_brand = bool(hvac_brands & terms)
+
+    # Verificar código de erro (sem subcódigo)
+    error_codes = HVAC_ERROR_CODES.findall(text)
+    has_error = len(error_codes) > 0
+
+    # Verificar se tem modelo completo
+    has_complete = has_complete_model(text)
+
+    # Candidata se: tem marca + família VRV + erro + sem modelo completo
+    return has_brand and has_vrv_family and has_error and not has_complete
+
+
+def needs_clarification(text: str) -> tuple[bool, bool, bool]:
     """
     Check if query needs model clarification.
 
-    Returns (needs_clarification, safety_only_without_model):
+    Returns (needs_clarification, safety_only_without_model, guided_triage):
     - needs_clarification: True if query needs model to proceed
     - safety_only_without_model: True if safety query but no complete model
       (needs general safety info + request for model)
+    - guided_triage: True if candidate for guided triage flow
     """
     text_lower = text.lower()
+
+    # Primeiro verificar se é candidato a guided_triage
+    if is_guided_triage_candidate(text):
+        return False, False, True
 
     # Safety queries without complete model need clarification with safety flag
     if has_safety_keywords(text):
         if has_complete_model(text):
-            return False, False
-        return True, True
+            return False, False, False
+        return True, True, False
 
     # Has error code or component or partial model pattern
     has_hvac_context = (
@@ -162,18 +204,18 @@ def needs_clarification(text: str) -> tuple[bool, bool]:
     )
 
     if not has_hvac_context:
-        return False, False
+        return False, False, False
 
     # Has complete model - no clarification needed
     if has_complete_model(text):
-        return False, False
+        return False, False, False
 
     # Has partial model pattern (like RXYQ without numbers) - needs clarification
     if has_model_patterns(text):
-        return True, False
+        return True, False, False
 
     # Has component or error code but no model at all - needs clarification
-    return True, False
+    return True, False, False
 
 
 def judge(query: str) -> tuple[JuizResult, dict]:
@@ -194,6 +236,7 @@ def judge(query: str) -> tuple[JuizResult, dict]:
         "is_out_of_domain": False,
         "needs_clarification": False,
         "safety_only_without_model": False,
+        "guided_triage": False,
         "result": None,
         "reason": None,
     }
@@ -213,10 +256,11 @@ def judge(query: str) -> tuple[JuizResult, dict]:
     result["has_safety_keywords"] = has_safety_keywords(query)
 
     # Check if needs clarification
-    needs_clar, safety_only = needs_clarification(query)
+    needs_clar, safety_only, guided = needs_clarification(query)
     if needs_clar:
         result["needs_clarification"] = True
         result["safety_only_without_model"] = safety_only
+        result["guided_triage"] = False
         if safety_only:
             result["result"] = JuizResult.ASK_CLARIFICATION.value
             result["reason"] = "safety_query_needs_model"
@@ -224,6 +268,13 @@ def judge(query: str) -> tuple[JuizResult, dict]:
             result["result"] = JuizResult.ASK_CLARIFICATION.value
             result["reason"] = "incomplete_model"
         return JuizResult.ASK_CLARIFICATION, result
+
+    if guided:
+        result["needs_clarification"] = False
+        result["guided_triage"] = True
+        result["result"] = JuizResult.GUIDED_TRIAGE.value
+        result["reason"] = "guided_triage_candidate"
+        return JuizResult.GUIDED_TRIAGE, result
 
     # Check if has any HVAC context
     if not (result["has_hvac_components"] or result["has_error_codes"] or result["has_model_patterns"]):
@@ -283,12 +334,16 @@ def main():
             print("MESSAGE: Por favor, forneça o modelo completo (ex.: RXYQ20BRA + FXYC20BRA)")
         elif result == JuizResult.BLOCKED:
             print("MESSAGE: Esta base é especializada em ar-condicionado, climatização e refrigeração.")
+        elif result == JuizResult.GUIDED_TRIAGE:
+            print("MESSAGE: Vou ajudar a identificar o problema. Primeiro, qual é o subcódigo do erro? (ex: E4-01, E4-001)")
 
     # Exit codes
     if result == JuizResult.APPROVED:
         return 0
     elif result == JuizResult.BLOCKED:
         return 1
+    elif result == JuizResult.GUIDED_TRIAGE:
+        return 3
     else:  # ASK_CLARIFICATION
         return 2
 
@@ -322,6 +377,11 @@ def run_validation():
         # Edge cases
         ("RXYQ", JuizResult.ASK_CLARIFICATION, "partial model pattern"),
         ("split inverter 12000 BTU", JuizResult.ASK_CLARIFICATION, "generic split without full model"),
+
+        # Guided triage cases
+        ("erro e4 vrv daikin", JuizResult.GUIDED_TRIAGE, "guided_triage: brand+family+error no model"),
+        ("e4-01 vrv daikin", JuizResult.GUIDED_TRIAGE, "guided_triage: error with subcode but no full model"),
+        ("vrf carrier código e3", JuizResult.GUIDED_TRIAGE, "guided_triage: vrf family"),
     ]
 
     passed = 0
@@ -336,6 +396,8 @@ def run_validation():
             extra = ""
             if metadata.get("safety_only_without_model"):
                 extra = " [safety_only_without_model=true]"
+            if metadata.get("guided_triage"):
+                extra = " [guided_triage=true]"
             print(f"{status} {description}: {result.value}{extra}")
         else:
             failed += 1

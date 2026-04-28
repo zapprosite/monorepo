@@ -273,7 +273,70 @@ def build_installation_checklist(hits: list) -> str:
     return checklist
 
 
-def build_field_tutor_context(query: str, hits: list) -> str:
+def build_guided_triage_context(query: str, hits: list) -> str:
+    """
+    Gera contexto de triagem guiada para queries como 'erro e4 vrv daikin'.
+
+    Para Daikin VRV, E4 é família de baixa pressão:
+    - E4-01/E4-001 = provável baixa pressão na Master
+    - E4-02/E4-002 = variação por unidade Slave
+    - E4-03/E4-003 = variação por unidade Slave
+
+    NÃO usar 'compressor protection trip'.
+    NÃO dar valores elétricos/pressão exatos sem manual.
+    """
+    sections = []
+
+    # Detectar família e marca
+    q_lower = query.lower()
+    is_vrv = any(f in q_lower for f in ["vrv", "vrf"])
+    is_daikin = "daikin" in q_lower
+
+    # Extrair código de erro
+    error_codes = ERROR_CODE_PATTERNS.findall(query)
+    main_error = error_codes[0] if error_codes else "?"
+
+    # Extrair subcódigo se presente
+    subcode_match = re.search(r'E4[-_]?(\d+)', query, re.IGNORECASE)
+    subcode = subcode_match.group(1) if subcode_match else None
+
+    if is_vrv and is_daikin:
+        if main_error.upper() == "E4":
+            sections.append("""⚠️ TRIAGEM GUIADA — Daikin VRV/VRF
+
+Você encontrou o código E4 no sistema VRV da Daikin.
+
+**O que significa E4 em Daikin VRV:**
+E4 é uma *família* de erros que, no sistema VRV/VRF da Daikin, geralmente aponta para **baixa pressão** no circuito de refrigerante.
+
+**Importante:** O significado exato depende do subcódigo. Os mais comuns são:
+- **E4-01 / E4-001** → Provável baixa pressão na unidade Master (principal)
+- **E4-02 / E4-002** → Variação por unidade interna/slave
+- **E4-03 / E4-003** → Outra variação slave
+
+**Próximo passo:**
+Confirme o subcódigo completo no display da unidade externa ou no manual.
+O subcódigo aparece como E4-XX (ex: E4-01, E4-001).
+""")
+
+    # Se não encontrou hits, adicionar aviso de triagem provável
+    if not hits:
+        sections.append("""[Base de dados não encontrou manual específico para esta combinação]
+
+Esta é uma *pista inicial* com base no código E4 e família VRV.
+Confirme sempre com o manual específico do modelo.
+Não faça medições invasivas sem respaldo do manual.
+""")
+
+    # Construir contexto padrão dos hits se existirem
+    if hits:
+        base_context = build_standard_context(hits, max_chars=3000)
+        sections.append(base_context)
+
+    return "\n\n---\n\n".join(sections)
+
+
+def build_field_tutor_context(query: str, hits: list, guided_triage: bool = False) -> str:
     """
     Build enhanced context for field tutor mode.
 
@@ -282,7 +345,11 @@ def build_field_tutor_context(query: str, hits: list) -> str:
     - Error code flowchart when query has error codes
     - Installation checklist when query is about installation
     - Standard context from all hits
+    - Guided triage for specific error code families (when guided_triage=True)
     """
+    if guided_triage:
+        return build_guided_triage_context(query, hits)
+
     if not hits:
         return "[Nenhum trecho encontrado na base HVAC - forneça modelo completo para busca]"
 

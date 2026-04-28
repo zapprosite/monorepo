@@ -143,13 +143,25 @@ def _safe_log(msg: str) -> None:
     log.info(msg)
 
 
-def _build_safe_fallback_response(context: str, user_query: str, request_id: str = "") -> dict:
+def _build_safe_fallback_response(context: str, user_query: str, request_id: str = "", guided_triage: bool = False) -> dict:
     """
     Build a safe fallback response when LiteLLM is unavailable.
     Returns structured response with context, not a raw 502.
     """
-    if context:
-        # Has context — return structured response with recovered context
+    if guided_triage:
+        # Guided triage fallback - give helpful triage info even without LLM
+        fallback_text = (
+            "Entendi que você está com problema de código de erro no sistema VRV/VRF.\n\n"
+            "Como o modelo de linguagem não está disponível no momento, aqui está o que sei:\n\n"
+            "=== INFORMAÇÕES DE TRIAGEM ===\n\n"
+            f"{context[:4000]}\n\n"
+            "=========================================\n\n"
+            "Nota: Confirme sempre com o manual específico do modelo.\n"
+            "Tente novamente em alguns momentos para uma análise mais completa.\n"
+            f"ID: {request_id or 'n/a'}"
+        )
+    elif context:
+        # Has context — return structured response with recovered context (existing logic)
         fallback_text = (
             "Contexto recuperado da base HVAC, mas o modelo de linguagem não está disponível no momento.\n\n"
             "=== INFORMAÇÕES TÉCNICAS RECUPERADAS ===\n\n"
@@ -183,7 +195,71 @@ def _build_safe_fallback_response(context: str, user_query: str, request_id: str
         ],
         "fallback": True,
         "request_id": request_id,
+        "guided_triage": guided_triage,
     }
+
+
+def build_probable_triage_context(query: str, error_code: str, family: str) -> str:
+    """Build 'probable triage' context when exact model not found but family+error match."""
+    return f"""[TRIAGEM PROVÁVEL - CONFIRMAR COM MANUAL]
+
+Você mencionou: código {error_code}, família {family}.
+
+Esta é uma *pista inicial* baseada no código de erro e família do equipamento.
+
+**Para confirmar o diagnóstico:**
+1. Verifique o subcódigo completo no display da unidade (ex: E4-01)
+2. Confirme se é unidade Master ou Slave
+3. Consulte o manual específico do modelo
+
+**Aviso:** Não faça medições invasivas sem respaldo do manual.
+"""
+
+
+def has_partial_match(hits: list, query: str) -> tuple[bool, str, str]:
+    """
+    Check if hits represent a partial match (family+error but no specific model).
+
+    Returns (is_partial, error_code, family):
+    - is_partial: True if we have error_code or family match but no specific model match
+    - error_code: extracted error code from query (e.g., "E4")
+    - family: extracted model family from query (e.g., "RXYQ")
+    """
+    errors_in_query = HVAC_ERROR_CODES.findall(query)
+    models_in_query = HVAC_MODEL_PATTERNS.findall(query)
+
+    if not errors_in_query and not models_in_query:
+        return False, "", ""
+
+    error_code = errors_in_query[0].upper() if errors_in_query else ""
+    family = models_in_query[0].upper() if models_in_query else ""
+
+    # Check if any hit has specific model match
+    has_model_match = False
+    has_error_match = False
+    has_family_match = False
+
+    for hit in hits:
+        payload = hit.get("payload", {})
+        hit_models = [m.upper() for m in payload.get("model_candidates", [])]
+        hit_errors = [e.upper() for e in payload.get("error_code_candidates", [])]
+
+        if hit_models:
+            has_model_match = True
+        if error_code and error_code in hit_errors:
+            has_error_match = True
+        # Check family match (prefix of model)
+        if family:
+            for hm in hit_models:
+                if hm.startswith(family) or family.startswith(hm):
+                    has_family_match = True
+                    break
+
+    # Partial = has error/family match but no specific model match
+    if (has_error_match or has_family_match) and not has_model_match:
+        return True, error_code, family
+
+    return False, "", ""
 
 
 def _log_query_meta(query: str, extra: dict = None) -> str:
@@ -369,6 +445,19 @@ REGRAS OBRIGATÓRIAS:
 7. Se faltarem informações do modelo (unidade interna E externa), peça o modelo completo ANTES de responder.
 8. Separe sua resposta em: Confirmação → Procedimento → Limitações.
 
+REGRAS DE UX PARA USUÁRIOS LEIGOS:
+9. Se o usuário for leigo (técnico ou cliente sem experiência em HVAC), AJUDE A IDENTIFICAR o próximo dado simples antes de pedir tudo.
+10. Para erro principal sem subcódigo (ex: E4, E3, U4):
+    - Explique a *família provável* do erro (ex: E4 = baixa pressão em VRV Daikin)
+    - Peça APENAS o subcódigo (ex: E4-01, E4-001)
+    - NÃO peça modelo completo primeiro quando já tem pista suficiente
+11. Faça UMA PERGUNTA POR VEZ. Não peça todos os dados de uma vez:
+    - Errado: "Forneça modelo externo, interno, subcódigo, serial, foto"
+    - Certo: "Primeiro, qual é o subcódigo que aparece no display? (ex: E4-01)"
+12. Diferencie VRV/VRF de High-Wall/Split:
+    - Se o usuário mencionar "split" ou "hi-wall", AVISE que a tabela de códigos pode ser diferente do VRV
+    - Nunca use tabela VRV sem confirmar a família do equipamento
+
 CONTEXTO HVAC RECUPERADO:
 {context}
 
@@ -380,6 +469,30 @@ def format_system_prompt(context: str) -> str:
     if context:
         return SYSTEM_PROMPT_TEMPLATE.format(context=context)
     return SYSTEM_PROMPT_TEMPLATE.format(context="[Nenhum trecho encontrado na base HVAC]")
+
+
+FIELD_TUTOR_SYSTEM_PROMPT = """Você é um assistente técnico de manutenção de ar-condicionado inverter.
+
+MODO: field_tutor (contexto expandido com procedimentos de segurança).
+
+REGRAS OBRIGATÓRIAS:
+1. Responda EM PORTUGUÊS DO BRASIL.
+2. Use SOMENTE os trechos retrieved da base HVAC abaixo.
+3. Cite sempre: [Trecho N]
+4. NUNCA invente valores de tensão, resistência, pressão ou carga de gás.
+5. Para IPM, alta tensão, ponte de diodos: inclua AVISO DE SEGURANÇA e recomende técnico qualificado.
+
+REGRAS DE UX:
+6. Se o usuário for leigo, ajude a identificar o próximo dado simples.
+7. Para erro principal sem subcódigo, explique a família provável e peça subcódigo.
+8. Faça uma pergunta por vez.
+9. Diferencie VRV/VRF de High-Wall/Split - avise se necessário.
+
+CONTEXTO HVAC EXPANDIDO:
+{context}
+
+---
+Responda com base no contexto acima."""
 
 
 # =============================================================================
@@ -509,10 +622,42 @@ async def chat_completions(request: ChatCompletionRequest):
             ],
         }
 
+    if juez_result == JuizResult.GUIDED_TRIAGE:
+        guided_msg = (
+            "Você está com problema de código de erro no sistema VRV/VRF.\n\n"
+            "Vou ajudar a identificar. Primeiro, qual é o subcódigo que aparece? "
+            "(ex: E4-01, E4-001, E3-02)\n\n"
+            "Dica: O subcódigo aparece após o código principal no display da unidade."
+        )
+        return {
+            "id": "hvac-chat-completion",
+            "object": "chat.completion",
+            "created": 0,
+            "model": MODEL_NAME,
+            "choices": [
+                {
+                    "index": 0,
+                    "message": {
+                        "role": "assistant",
+                        "content": guided_msg,
+                    },
+                    "finish_reason": "stop",
+                }
+            ],
+            "guided_triage": True,
+        }
+
     # Juiz APPROVED - proceed with Qdrant search
     # Search Qdrant
     hits = await search_qdrant(user_query, top_k=DEFAULT_TOP_K)
     context = build_rag_context(hits)
+
+    # Check for partial match (family+error but no specific model)
+    is_partial_triage, error_code, family = has_partial_match(hits, user_query)
+    if is_partial_triage:
+        partial_context = build_probable_triage_context(user_query, error_code, family)
+    else:
+        partial_context = ""
 
     # Build messages for LiteLLM
     enriched_system = format_system_prompt(context)
@@ -552,17 +697,19 @@ async def chat_completions(request: ChatCompletionRequest):
                 err_type = r.json().get("error", {}).get("type", "upstream_error") if r.text else "upstream_error"
                 _safe_log(f"LiteLLM error: status={r.status_code} type={err_type}")
                 # If we have context, return fallback response instead of 502
-                if context:
+                if context or partial_context:
                     req_id = hashlib.sha256(user_query.encode()).hexdigest()[:12]
-                    return _build_safe_fallback_response(context, user_query, req_id)
+                    fallback_ctx = partial_context if is_partial_triage else context
+                    return _build_safe_fallback_response(fallback_ctx, user_query, req_id, guided_triage=is_partial_triage)
                 return JSONResponse(
                     status_code=502,
                     content={"error": {"message": "Upstream LLM error", "type": err_type}}
                 )
         except httpx.TimeoutException:
-            if context:
+            if context or partial_context:
                 req_id = hashlib.sha256(user_query.encode()).hexdigest()[:12]
-                return _build_safe_fallback_response(context, user_query, req_id)
+                fallback_ctx = partial_context if is_partial_triage else context
+                return _build_safe_fallback_response(fallback_ctx, user_query, req_id, guided_triage=is_partial_triage)
             return JSONResponse(
                 status_code=504,
                 content={"error": {"message": "LLM timeout", "type": "upstream_timeout"}}
@@ -570,9 +717,10 @@ async def chat_completions(request: ChatCompletionRequest):
         except Exception as e:
             err_name = type(e).__name__
             _safe_log(f"LiteLLM error: {err_name}")
-            if context:
+            if context or partial_context:
                 req_id = hashlib.sha256(user_query.encode()).hexdigest()[:12]
-                return _build_safe_fallback_response(context, user_query, req_id)
+                fallback_ctx = partial_context if is_partial_triage else context
+                return _build_safe_fallback_response(fallback_ctx, user_query, req_id, guided_triage=is_partial_triage)
             return JSONResponse(
                 status_code=502,
                 content={"error": {"message": f"Upstream error: {err_name}", "type": "upstream_error"}}
@@ -666,6 +814,31 @@ async def chat_completions_field_tutor(request: ChatCompletionRequest):
             ],
         }
 
+    if juez_result == JuizResult.GUIDED_TRIAGE:
+        guided_msg = (
+            "Você está com problema de código de erro no sistema VRV/VRF.\n\n"
+            "Vou ajudar a identificar. Primeiro, qual é o subcódigo que aparece? "
+            "(ex: E4-01, E4-001, E3-02)\n\n"
+            "Dica: O subcódigo aparece após o código principal no display da unidade."
+        )
+        return {
+            "id": "hvac-chat-completion",
+            "object": "chat.completion",
+            "created": 0,
+            "model": MODEL_NAME,
+            "choices": [
+                {
+                    "index": 0,
+                    "message": {
+                        "role": "assistant",
+                        "content": guided_msg,
+                    },
+                    "finish_reason": "stop",
+                }
+            ],
+            "guided_triage": True,
+        }
+
     # Get Field Tutor enhanced context
     try:
         field_context = await _ft_mod.field_tutor_query(user_query)
@@ -674,22 +847,7 @@ async def chat_completions_field_tutor(request: ChatCompletionRequest):
         field_context = "[Erro ao buscar contexto expandido]"
 
     # Build simplified prompt for LLM (already has context from Field Tutor)
-    ft_system = f"""Você é um assistente técnico de manutenção de ar-condicionado inverter.
-
-MODO: field_tutor (contexto expandido com procedimentos de segurança).
-
-REGRAS OBRIGATÓRIAS:
-1. Responda EM PORTUGUÊS DO BRASIL.
-2. Use SOMENTE os trechos retrieved da base HVAC abaixo.
-3. Cite sempre: [Trecho N]
-4. NUNCA invente valores de tensão, resistência, pressão ou carga de gás.
-5. Para IPM, alta tensão, ponte de diodos: inclua AVISO DE SEGURANÇA e recomende técnico qualificado.
-
-CONTEXTO HVAC EXPANDIDO:
-{field_context}
-
----
-Responda com base no contexto acima."""
+    ft_system = FIELD_TUTOR_SYSTEM_PROMPT.format(context=field_context)
 
     messages_for_llm = [{"role": "system", "content": ft_system}]
     for msg in request.messages:
@@ -722,7 +880,7 @@ Responda com base no contexto acima."""
                 _safe_log(f"[field-tutor] LiteLLM error: status={r.status_code} type={err_type}")
                 if field_context and "[Erro ao buscar" not in field_context:
                     req_id = hashlib.sha256(user_query.encode()).hexdigest()[:12]
-                    return _build_safe_fallback_response(field_context, user_query, req_id)
+                    return _build_safe_fallback_response(field_context, user_query, req_id, guided_triage=False)
                 return JSONResponse(
                     status_code=502,
                     content={"error": {"message": "Upstream LLM error", "type": err_type}}
@@ -824,6 +982,30 @@ async def chat_completions_printable(request: ChatCompletionRequest):
                     "finish_reason": "stop",
                 }
             ],
+        }
+
+    if juez_result == JuizResult.GUIDED_TRIAGE:
+        guided_msg = (
+            "VRV/VRF - Problema de código de erro.\n\n"
+            "Primeiro, qual o subcódigo que aparece? (ex: E4-01, E4-001, E3-02)\n\n"
+            "Dica: O subcódigo aparece após o código principal no display."
+        )
+        return {
+            "id": "hvac-chat-completion",
+            "object": "chat.completion",
+            "created": 0,
+            "model": MODEL_NAME,
+            "choices": [
+                {
+                    "index": 0,
+                    "message": {
+                        "role": "assistant",
+                        "content": guided_msg,
+                    },
+                    "finish_reason": "stop",
+                }
+            ],
+            "guided_triage": True,
         }
 
     # Get Field Tutor enhanced context

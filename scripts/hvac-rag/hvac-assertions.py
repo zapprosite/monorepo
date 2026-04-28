@@ -136,6 +136,74 @@ def assert_energized_measurement_safe(
     return (True, violations, None)
 
 
+def assert_guided_triage_no_anti_patterns(content: str) -> tuple[bool, list]:
+    """
+    Verifica que resposta guided_triage não contém anti-patterns.
+
+    Anti-patterns para E4 Daikin VRV:
+    - "compressor protection trip"
+    - Valores de pressão exatos (PSI, bar)
+    - Valores de tensão exatos (220V, 380V)
+    - "inventado", "chute", "especulação"
+    """
+    violations = []
+    content_lower = content.lower()
+
+    anti_patterns = [
+        "compressor protection trip",
+        "compressor protection",
+        "150 psi", "200 psi", "100 psi",
+        "220v", "380v", "110v",
+        "inventado", "chute", "não tenho certeza",
+    ]
+
+    for pattern in anti_patterns:
+        if pattern in content_lower:
+            violations.append(f"Anti-pattern found: {pattern}")
+
+    return len(violations) == 0, violations
+
+
+def assert_guided_triage_mentions_low_pressure(content: str) -> tuple[bool, list]:
+    """Verifica que resposta menciona 'baixa pressão' ou similar para E4 VRV."""
+    violations = []
+    content_lower = content.lower()
+
+    if "e4" in content_lower and "vrv" in content_lower:
+        if not any(phrase in content_lower for phrase in ["baixa pressão", "baixa", "low pressure", "press"]):
+            violations.append("E4 VRV sem menção de baixa pressão")
+
+    return len(violations) == 0, violations
+
+
+def assert_guided_triage_asks_subcode(content: str) -> tuple[bool, list]:
+    """Verifica que resposta pede subcódigo quando aplicável."""
+    violations = []
+    content_lower = content.lower()
+
+    if "e4" in content_lower and "e4-" not in content_lower:
+        if not any(phrase in content_lower for phrase in ["subcódigo", "e4-01", "e4-001", "confirme"]):
+            violations.append("E4 sem subcódigo não pede confirmação")
+
+    return len(violations) == 0, violations
+
+
+def assert_vrv_split_differentiation(content: str, query: str) -> tuple[bool, list]:
+    """Verifica que resposta diferencia VRV de Split quando relevante."""
+    violations = []
+    content_lower = content.lower()
+    query_lower = query.lower()
+
+    has_split = any(w in query_lower for w in ["split", "hi-wall", "high-wall", "parede"])
+    has_vrv = any(w in query_lower for w in ["vrv", "vrf"])
+
+    if has_split and has_vrv:
+        if not any(phrase in content_lower for phrase in ["diferente", "tabela diferente", "não é o mesmo"]):
+            violations.append("VRV + Split sem aviso de diferença")
+
+    return len(violations) == 0, violations
+
+
 def run_printable_test(text: str) -> dict:
     """Run printable assertion and return structured result."""
     passed, violations = assert_printable_no_markdown(text)

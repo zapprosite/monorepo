@@ -177,6 +177,42 @@ When LiteLLM is unavailable, the pipe returns a **safe fallback response**:
 
 ---
 
+## Guided Triage Mode
+
+O modo **guided_triage** é ativado automaticamente quando:
+- A query contém marca HVAC (daikin, carrier, midea, etc.)
+- A query contém família VRV/VRF
+- A query contém código de erro principal (E4, E3, U4, E5, etc.)
+- NÃO contém modelo completo
+
+### Exemplo de Query Ativadora
+- "erro e4 vrv daikin" → guided_triage
+- "e4-01 vrv carrier" → guided_triage
+
+### Comportamento
+1. Retorna APPROVED com metadata `guided_triage: true`
+2. O sistema fornece triagem guiada em vez de pedir modelo completo
+3. Explica a família provável do erro (ex: E4 = baixa pressão em VRV)
+4. Pede subcódigo (ex: E4-01, E4-001)
+5. Diferencia VRV/VRF de High-Wall/Split
+
+### Regras UX
+- **Uma pergunta por vez** - não assusta o usuário pedindo tudo
+- **Pista segura primeiro** - dá informação útil antes de pedir dados
+- **Confirmação de família** - diferencia VRV de Split/Hi-Wall
+- **Safety first** - mantém avisos de segurança
+
+### Critérios de Aceite
+| Query | Comportamento Esperado |
+|-------|----------------------|
+| "erro e4 vrv daikin" | Não pede modelo completo primeiro |
+| "e4-01 daikin vrv" | Baixa pressão Master, sem "compressor protection trip" |
+| "e4-001 vrv 4 daikin" | Equivalente prático de E4-01 |
+| "erro e4 split daikin" | Aviso: Split pode ter tabela diferente de VRV |
+| "e4 high wall daikin" | Não usa tabela VRV sem confirmar família |
+
+---
+
 ## Burn-in Procedure
 
 Before moving to production:
