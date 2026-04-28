@@ -22,7 +22,7 @@ from typing import Optional
 # =============================================================================
 QDRANT_URL = os.environ.get("QDRANT_URL", "http://127.0.0.1:6333")
 QDRANT_API_KEY = os.environ.get("QDRANT_API_KEY", "")
-OLLAMA_URL = os.environ.get("OLLELLM_URL", "http://127.0.0.1:11434")
+OLLAMA_URL = os.environ.get("OLLAMA_URL", "http://127.0.0.1:11434")
 EMBEDDING_MODEL = os.environ.get("HVAC_EMBEDDING_MODEL", "nomic-embed-text:latest")
 COLLECTION_NAME = "hvac_manuals_v1"
 
@@ -207,17 +207,16 @@ def build_safety_procedure(enriched_hits: list) -> str:
     """Build enhanced safety procedure section from hits."""
     sections = []
 
-    # Safety lockout/tagout procedure
-    sections.append("""📋 PROCEDIMENTO DE BLOQUEIO/TAGOUT (LOCKOUT/TAGOUT)
+    # Safety lockout/tagout procedure — PROCEDIMENTO GERAL DE SEGURANÇA
+    sections.append("""⚠️ PROCEDIMENTO GERAL DE SEGURANÇA — ALTA TENSÃO
 
 Antes de qualquer intervenção em componentes de alta tensão:
 
 1. DESLIGAR a unidade da rede elétrica (tomada ou disjuntor dedicado)
-2. AGUARDAR o tempo de descarga do barramento DC (mínimo 5 minutos, verificar manual)
-3. CONFIRMAR ausência de tensão com multímetro adequado antes de tocar qualquer componente
-4. Aplicar cadeado e etiqueta de bloqueio no disjuntor
-5. Usar EPIs adequados: luvas isolantes classe III ou superior, óculos de proteção, calçado isolante
-6. NUNCA realizar medições energizadas sem respaldo explícito do manual do fabricante""")
+2. AGUARDAR o tempo de descarga especificado no manual do fabricante, na etiqueta da unidade ou na placa de identificação — e confirmar ausência de tensão com multímetro adequado antes de tocar qualquer componente
+3. Aplicar cadeado e etiqueta de bloqueio no disjuntor
+4. Usar EPIs adequados: luvas isolantes classe III ou superior, óculos de proteção, calçado isolante
+5. NUNCA realizar medições energizadas sem respaldo explícito do manual do fabricante""")
 
     # Find safety-specific hits and add them
     safety_content = []
