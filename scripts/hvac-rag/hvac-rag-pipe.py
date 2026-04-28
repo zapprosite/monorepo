@@ -56,7 +56,7 @@ QDRANT_API_KEY = os.environ.get("QDRANT_API_KEY", "")
 OLLAMA_URL = os.environ.get("OLLAMA_URL", "http://127.0.0.1:11434")
 EMBEDDING_MODEL = os.environ.get("HVAC_EMBEDDING_MODEL", "nomic-embed-text:latest")
 LITELLM_URL = os.environ.get("LITELLM_URL", "http://127.0.0.1:4000/v1")
-LITELLM_API_KEY = os.environ.get("LITELLM_API_KEY", "sk-dummy")
+LITELLM_API_KEY = os.environ.get("LITELLM_API_KEY", "sk-${QDRANT_API_KEY}")
 COLLECTION_NAME = "hvac_manuals_v1"
 MODEL_NAME = "hvac-manual-strict"
 PIPELINE_PORT = int(os.environ.get("PIPELINE_PORT", "4017"))
@@ -96,6 +96,10 @@ OUT_OF_DOMAIN_REJECT = [
     "secadora", "fogão", "cooktop", "forno", "micro-ondas",
     "automóvel", "carro", "moto", "caminhão",
     "shampoo", "medicamento", "receita", "remédio",
+    "bolo", "chocolate", "comida", "alimento", "bebida",
+    "futebol", "esporte", "cinema", "filme", "série",
+    "notícia", "jornal", "política", "religião",
+    "bla", "test", "testing", "asdf", "qwerty",
 ]
 
 # =============================================================================
@@ -137,6 +141,49 @@ def litellm_headers() -> dict:
 def _safe_log(msg: str) -> None:
     """Log without exposing secrets or raw query content."""
     log.info(msg)
+
+
+def _build_safe_fallback_response(context: str, user_query: str, request_id: str = "") -> dict:
+    """
+    Build a safe fallback response when LiteLLM is unavailable.
+    Returns structured response with context, not a raw 502.
+    """
+    if context:
+        # Has context — return structured response with recovered context
+        fallback_text = (
+            "Contexto recuperado da base HVAC, mas o modelo de linguagem não está disponível no momento.\n\n"
+            "=== INFORMAÇÕES TÉCNICAS RECUPERADAS ===\n\n"
+            f"{context[:3000]}\n\n"
+            "=========================================\n\n"
+            "Nota: Para assistência com interpretação destas informações, "
+            "tente novamente em alguns momentos quando o sistema estiver disponível.\n"
+            f"ID: {request_id or 'n/a'}"
+        )
+    else:
+        fallback_text = (
+            "Contexto recuperado, mas modelo de linguagem indisponível.\n"
+            "Tente novamente em alguns momentos.\n"
+            f"ID: {request_id or 'n/a'}"
+        )
+
+    return {
+        "id": "hvac-chat-completion",
+        "object": "chat.completion",
+        "created": 0,
+        "model": MODEL_NAME,
+        "choices": [
+            {
+                "index": 0,
+                "message": {
+                    "role": "assistant",
+                    "content": fallback_text,
+                },
+                "finish_reason": "stop",
+            }
+        ],
+        "fallback": True,
+        "request_id": request_id,
+    }
 
 
 def _log_query_meta(query: str, extra: dict = None) -> str:
@@ -502,21 +549,33 @@ async def chat_completions(request: ChatCompletionRequest):
                 result["model"] = MODEL_NAME
                 return result
             else:
-                _safe_log(f"LiteLLM error: {r.status_code} {r.text[:100]}")
+                err_type = r.json().get("error", {}).get("type", "upstream_error") if r.text else "upstream_error"
+                _safe_log(f"LiteLLM error: status={r.status_code} type={err_type}")
+                # If we have context, return fallback response instead of 502
+                if context:
+                    req_id = hashlib.sha256(user_query.encode()).hexdigest()[:12]
+                    return _build_safe_fallback_response(context, user_query, req_id)
                 return JSONResponse(
                     status_code=502,
-                    content={"error": {"message": "Upstream LLM error", "type": "upstream_error"}}
+                    content={"error": {"message": "Upstream LLM error", "type": err_type}}
                 )
         except httpx.TimeoutException:
+            if context:
+                req_id = hashlib.sha256(user_query.encode()).hexdigest()[:12]
+                return _build_safe_fallback_response(context, user_query, req_id)
             return JSONResponse(
                 status_code=504,
                 content={"error": {"message": "LLM timeout", "type": "upstream_timeout"}}
             )
         except Exception as e:
-            _safe_log(f"LiteLLM error: {type(e).__name__}")
+            err_name = type(e).__name__
+            _safe_log(f"LiteLLM error: {err_name}")
+            if context:
+                req_id = hashlib.sha256(user_query.encode()).hexdigest()[:12]
+                return _build_safe_fallback_response(context, user_query, req_id)
             return JSONResponse(
                 status_code=502,
-                content={"error": {"message": f"Upstream error: {type(e).__name__}", "type": "upstream_error"}}
+                content={"error": {"message": f"Upstream error: {err_name}", "type": "upstream_error"}}
             )
 
 
@@ -659,20 +718,32 @@ Responda com base no contexto acima."""
                 result["model"] = MODEL_NAME
                 return result
             else:
+                err_type = r.json().get("error", {}).get("type", "upstream_error") if r.text else "upstream_error"
+                _safe_log(f"[field-tutor] LiteLLM error: status={r.status_code} type={err_type}")
+                if field_context and "[Erro ao buscar" not in field_context:
+                    req_id = hashlib.sha256(user_query.encode()).hexdigest()[:12]
+                    return _build_safe_fallback_response(field_context, user_query, req_id)
                 return JSONResponse(
                     status_code=502,
-                    content={"error": {"message": "Upstream LLM error", "type": "upstream_error"}}
+                    content={"error": {"message": "Upstream LLM error", "type": err_type}}
                 )
         except httpx.TimeoutException:
+            if field_context and "[Erro ao buscar" not in field_context:
+                req_id = hashlib.sha256(user_query.encode()).hexdigest()[:12]
+                return _build_safe_fallback_response(field_context, user_query, req_id)
             return JSONResponse(
                 status_code=504,
                 content={"error": {"message": "LLM timeout", "type": "upstream_timeout"}}
             )
         except Exception as e:
-            _safe_log(f"[field-tutor] LiteLLM error: {type(e).__name__}")
+            err_name = type(e).__name__
+            _safe_log(f"[field-tutor] LiteLLM error: {err_name}")
+            if field_context and "[Erro ao buscar" not in field_context:
+                req_id = hashlib.sha256(user_query.encode()).hexdigest()[:12]
+                return _build_safe_fallback_response(field_context, user_query, req_id)
             return JSONResponse(
                 status_code=502,
-                content={"error": {"message": f"Upstream error: {type(e).__name__}", "type": "upstream_error"}}
+                content={"error": {"message": f"Upstream error: {err_name}", "type": "upstream_error"}}
             )
 
 

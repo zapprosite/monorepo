@@ -5,7 +5,7 @@ import json
 import os
 
 LITELLM_URL = os.getenv("LITELLM_URL", "http://localhost:4000")
-LITELLM_KEY = os.getenv("LITELLM_KEY", "sk-zappro-lm-2026-s8k3m9x2p7r6t5w1v4c8n0d5j7f9g3h6i2k4l6m8n0p1")
+LITELLM_KEY = os.getenv("LITELLM_KEY", "${LITELLM_KEY}")
 
 def test_litellm_health():
     """Test LiteLLM health endpoint."""

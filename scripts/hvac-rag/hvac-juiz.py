@@ -61,6 +61,10 @@ OUT_OF_DOMAIN_REJECT = {
     "secadora", "fogão", "cooktop", "forno", "micro-ondas",
     "automóvel", "carro", "moto", "caminhão",
     "shampoo", "medicamento", "receita", "remédio",
+    "bolo", "chocolate", "comida", "alimento", "bebida",
+    "futebol", "esporte", "cinema", "filme", "série",
+    "notícia", "jornal", "política", "religião",
+    "bla", "test", "testing", "asdf", "qwerty",
 }
 
 # Safety keywords that require mandatory warnings

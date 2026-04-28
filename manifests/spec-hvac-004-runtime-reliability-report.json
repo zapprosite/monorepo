@@ -1,0 +1,65 @@
+{
+  "spec": "SPEC-HVAC-004",
+  "test_suite": "T015.2-runtime-reliability",
+  "timestamp": "2026-04-28T13:26:00.893133Z",
+  "total_tests": 10,
+  "passed": 10,
+  "failed": 0,
+  "pass_rate": "100.0%",
+  "criteria": {
+    "liteLLM_or_fallback": true,
+    "printable_no_markdown": true,
+    "out_of_domain_blocking": true,
+    "health_endpoint": true,
+    "models_endpoint": true,
+    "juiz_validation": true,
+    "energized_measurement": true,
+    "invented_values": true,
+    "field_tutor": true,
+    "printable_endpoint": true
+  },
+  "details": {
+    "health": {
+      "passed": true,
+      "detail": "ok"
+    },
+    "models": {
+      "passed": true,
+      "detail": "1_models"
+    },
+    "liteLLM": {
+      "passed": true,
+      "detail": "litellm_working"
+    },
+    "field_tutor": {
+      "passed": true,
+      "detail": "field_tutor_working"
+    },
+    "printable": {
+      "passed": true,
+      "detail": "printable_working"
+    },
+    "printable_markdown": {
+      "passed": true,
+      "detail": "printable_all_passed"
+    },
+    "out_of_domain": {
+      "passed": true,
+      "detail": "5/5"
+    },
+    "juiz": {
+      "passed": true,
+      "detail": "juiz_ok"
+    },
+    "energized": {
+      "passed": true,
+      "detail": "safe"
+    },
+    "invented": {
+      "passed": true,
+      "detail": "no_invented"
+    }
+  },
+  "blocking_issues": [],
+  "status": "READY"
+}
