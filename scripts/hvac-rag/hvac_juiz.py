@@ -28,7 +28,7 @@ HVAC_COMPONENTS = {
     "capacitor", "capacitor de partida", "sensor", "termistor", "válvula",
     "serpentina", "evaporador", "condensador", "filtro", "desidratador",
     "tubulação", "carga de gás", "refrigerante", "bitzer", "copeland",
-    "danfoss", "carrier", "midea", "lg", "samsung", "daikin", "gree",
+    "danfoss", "carrier", "midea", "lg", "samsung", "daikin", "gree", "springer", "komeco", "agratto", "comfee", "mondial",
     "chiller", "vrv", "cassete", "piso", "teto", "hi-wall", "ar-condicionado",
     "split", "window", "portátil", "deumidificador", "umidificador",
     "bomba", "aquecimento", "refrigereração", "gás", "gás refrigerante",

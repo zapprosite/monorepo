@@ -90,6 +90,7 @@ DEFAULT_TOP_K = 6
 MAX_CONTEXT_CHARS = 7000
 EMBED_TIMEOUT = 60
 SEARCH_TIMEOUT = 20
+WEB_SEARCH_TIMEOUT = 15
 CHAT_TIMEOUT = 120
 
 # MiniMax primary model for final answer formatting
@@ -327,6 +328,45 @@ async def search_qdrant(query: str, top_k: int = DEFAULT_TOP_K) -> list:
     return []
 
 
+async def search_web_ddg(query: str) -> list:
+    """
+    Fallback web search using DuckDuckGo Lite HTML.
+    Returns list of dicts with {title, url, snippet}.
+    """
+    import re as _re
+    try:
+        import urllib.parse
+        encoded_q = urllib.parse.quote(query)
+        ddg_url = f"https://lite.duckduckgo.com/lite/?q={encoded_q}&kl=br-pt"
+        async with httpx.AsyncClient(timeout=WEB_SEARCH_TIMEOUT, follow_redirects=True) as client:
+            r = await client.get(ddg_url, headers={
+                "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36"
+            })
+            if r.status_code != 200:
+                _safe_log(f"[web-search] DDG HTTP {r.status_code}")
+                return []
+            text = r.text
+        results = []
+        # DuckDuckGo Lite: results are in <a class="result-link" href="...">title</a>
+        # followed by <td class="result-snippet">snippet</td>
+        for match in _re.finditer(r'<a class="result-link" href="([^"]+)"[^>]*>([^<]+)</a>', text):
+            url = match.group(1)
+            title = _re.sub(r'<[^>]+>', '', match.group(2)).strip()
+            # Find the snippet in the next td
+            snippet_pos = match.end()
+            snippet_match = _re.search(r'<td class="result-snippet">([^<]+)</td>', text[snippet_pos:snippet_pos+500])
+            snippet = _re.sub(r'<[^>]+>', '', (snippet_match.group(1) if snippet_match else ''))[:300].strip()
+            if title and url:
+                results.append({"title": title, "url": url, "snippet": snippet})
+            if len(results) >= 5:
+                break
+        _safe_log(f"[web-search] DDG returned {len(results)} results for query: {query[:60]}")
+        return results
+    except Exception as e:
+        _safe_log(f"[web-search] DDG error: {type(e).__name__}: {e}")
+        return []
+
+
 def build_rag_context(hits: list, max_chars: int = MAX_CONTEXT_CHARS) -> str:
     """Build truncated context string from Qdrant hits."""
     if not hits:
@@ -428,6 +468,8 @@ PARA ALTA TENSÃO, IPM, PLACA INVERTER, COMPRESSOR, CAPACITOR, BARRAMENTO DC:
 - Indique seguir o manual do modelo específico
 - Recomende técnico qualificado
 
+IDIOMA: Responda SOMENTE em português do Brasil. Não use caracteres CJK, Cirílicos ou alfabetos não-latinos.
+
 CONTEXTO HVAC EXPANDIDO:
 {context}
 
@@ -453,6 +495,7 @@ def build_retrieval_package(user_query: str, hits: list, juiz_meta: dict,
         "user_query": user_query,
         "conversation_state": {},
         "manual_context": [],
+        "web_context": [],
         "evidence_level": "nenhum",
         "safety_flags": [],
         "missing_info": [],
@@ -598,8 +641,19 @@ def build_minimax_system_prompt(pkg: dict) -> str:
         "manual_familia": "Existe manual da família, mas não o exato.",
         "triagem_tecnica": "Sem manual exato — use triagem técnica.",
         "sem_contexto": "Sem contexto na base — triagem geral.",
+        "web_fallback": "Modelo não encontrado na base local — busca web realizada.",
     }
     lines.append(f"Evidência: {level_labels.get(level, level)}")
+
+    # Add web search context if available
+    web_ctx = pkg.get("web_context", [])
+    if web_ctx:
+        lines.append("")
+        lines.append("CONTEXTO DA BUSCA WEB:")
+        for i, r in enumerate(web_ctx[:4], 1):
+            lines.append(f"[{i}] {r.get('title', '')[:80]}")
+            lines.append(f"    {r.get('snippet', '')[:200]}")
+        lines.append("")
 
     # Add manual context if available
     ctx_list = pkg.get("manual_context", [])
@@ -632,6 +686,8 @@ def build_minimax_system_prompt(pkg: dict) -> str:
         "- Se faltam modelo/código: peça de forma amigável, uma coisa por vez",
         "- MAX 600 caracteres para respostas normais, 900 para procedimentos técnicos",
         "- MAX uma pergunta no final",
+        "- Se evidência é web_fallback: cite a fonte da busca web de forma natural na resposta",
+        "- RESPONDA SOMENTE EM PORTUGUÊS DO BRASIL — sem caracteres CJK, Cirílicos ou outros alfabetos não-latinos",
     ])
 
     return "\n".join(lines)
@@ -760,11 +816,13 @@ async def chat_completions(request: ChatCompletionRequest, http_request: Request
     q_lower = user_query.lower().strip()
 
     # ── Route: printable ───────────────────────────────────────────────────────
+    # Use word-boundary matching to avoid false positives (e.g. "Sprint" matching "print")
     printable_triggers = (
-        "imprimir", "print", "resumo para", "formato de impressão",
-        "passo a passo", "lista de", "checklist", "para anota",
+        r"\bimprimir\b", r"\bprint\b", r"\bresumo para\b", r"\bformato de impressão\b",
+        r"\bpasso a passo\b", r"\blista de\b", r"\bchecklist\b", r"\bpara anota\b",
     )
-    if any(t in q_lower for t in printable_triggers):
+    import re as _re
+    if any(_re.search(t, q_lower) for t in printable_triggers):
         return await chat_completions_printable(request)
 
     # ── Juiz pre-flight check ────────────────────────────────────────────────
@@ -844,6 +902,17 @@ async def chat_completions(request: ChatCompletionRequest, http_request: Request
                                   memory_context=fetch_result,
                                   memory_context_str=memory_context_str,
                                   merged_state=merged_state)
+
+    # ── Web search fallback: Qdrant miss or no evidence ───────────────────────
+    # If Qdrant returned 0 hits OR evidence is "sem_contexto", try web search
+    needs_web_search = (len(hits) == 0 or pkg.get("evidence_level") in ("sem_contexto", "nenhum"))
+    if needs_web_search:
+        web_results = await search_web_ddg(f"{user_query} ar condicionado inverter diagnóstico técnica")
+        if web_results:
+            pkg["web_context"] = web_results
+            pkg["evidence_level"] = "web_fallback"
+            _safe_log(f"[web-search] Added {len(web_results)} web results for query: {user_query[:60]}")
+
 
     # Build MiniMax system prompt (primary reasoning engine)
     minimax_system = build_minimax_system_prompt(pkg)

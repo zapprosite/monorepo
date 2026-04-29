@@ -657,6 +657,13 @@ BRAND_ALIASES = {
     "elgin": ["elgin"],
     "consul": ["consul"],
     "electrolux": ["electrolux"],
+    "springer": ["springer", "springer carrier"],
+    "komeco": ["komeco"],
+    "agratto": ["agratto"],
+    "comfee": ["comfee"],
+    "whirlpool": ["whirlpool"],
+    "mondial": ["mondial"],
+    "phco": ["phco"],
 }
 
 # HVAC family keywords
@@ -777,6 +784,9 @@ def extract_state_from_messages(messages: list[dict]) -> dict:
     all_text_parts = []
 
     for msg in messages:
+        # Support both dict and Pydantic model
+        if hasattr(msg, "model_dump"):
+            msg = msg.model_dump()
         role = msg.get("role", "")
         if role != "user":
             continue
