@@ -3,15 +3,21 @@
 HVAC RAG Healthcheck — Periodic pipe health verification
 
 Checks:
-  - /health endpoint
-  - /v1/models endpoint
-  - Juiz validation (synthetic query)
+  - OpenWebUI (chat.zappro.site/:3456)
+  - zappro-clima-tutor (:4017) /health + /v1/models
+  - LiteLLM (:4000 / api.zappro.site) — MiniMax model alias
+  - Groq STT (api.groq.com /v1/audio/transcriptions)
+  - Edge TTS (:8012 / TTS_BRIDGE_URL)
+  - Ollama qwen2.5vl (:11434) — list models
   - Qdrant collection count
+  - Juiz validation (synthetic query)
   - Sample query: field-tutor
   - Sample query: printable
+  - Memory context (Mem0, Postgres, Qdrant)
 
 Output: JSON report to stdout, errors to stderr
 No raw query logs. Uses hashes for query identification.
+Secrets are never printed — use test -n pattern for verification.
 """
 
 import asyncio
@@ -45,6 +51,11 @@ if os.path.exists(_env_path):
 PIPELINE_URL = os.environ.get("HVAC_PIPELINE_URL", "http://127.0.0.1:4017")
 QDRANT_URL = os.environ.get("QDRANT_URL", "http://127.0.0.1:6333")
 QDRANT_API_KEY = os.environ.get("QDRANT_API_KEY", "")
+OLLAMA_URL = os.environ.get("OLLAMA_URL", "http://127.0.0.1:11434")
+LITELLM_URL = os.environ.get("LITELLM_URL", "http://127.0.0.1:4000")
+OPENWEBUI_URL = os.environ.get("OPENWEBUI_URL", "http://127.0.0.1:3456")
+TTS_BRIDGE_URL = os.environ.get("TTS_BRIDGE_URL", "http://127.0.0.1:8012")
+GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "")
 COLLECTION_NAME = "hvac_manuals_v1"
 REPORT_PATH = os.environ.get("HVAC_HEALTHCHECK_REPORT", "/tmp/hvac-healthcheck.json")
 
@@ -267,6 +278,154 @@ async def check_memory_context() -> dict:
         return {"status": "fail", "endpoint": "/memory/health", "error": str(e)}
 
 
+async def check_openwebui() -> dict:
+    """Check OpenWebUI availability."""
+    try:
+        async with httpx.AsyncClient(timeout=10) as client:
+            r = await client.get(f"{OPENWEBUI_URL}/health")
+            if r.status_code == 200:
+                return {
+                    "status": "pass",
+                    "service": "openwebui",
+                    "url": OPENWEBUI_URL,
+                    "latency_ms": r.elapsed.total_seconds() * 1000
+                }
+            return {
+                "status": "fail",
+                "service": "openwebui",
+                "url": OPENWEBUI_URL,
+                "error": f"HTTP {r.status_code}"
+            }
+    except httpx.ConnectError:
+        return {"status": "fail", "service": "openwebui", "url": OPENWEBUI_URL, "error": "connection refused"}
+    except Exception as e:
+        return {"status": "fail", "service": "openwebui", "url": OPENWEBUI_URL, "error": str(e)}
+
+
+async def check_litellm_models() -> dict:
+    """Check LiteLLM /v1/models for MiniMax availability."""
+    litellm_key = os.environ.get("LITELLM_MASTER_KEY", "")
+    headers = {"Authorization": f"Bearer {litellm_key}"} if litellm_key else {}
+    try:
+        async with httpx.AsyncClient(timeout=15) as client:
+            r = await client.get(f"{LITELLM_URL}/v1/models", headers=headers)
+            if r.status_code == 200:
+                data = r.json()
+                models = data.get("data", [])
+                model_ids = [m.get("id", "") for m in models]
+                # Check for MiniMax model
+                minimax_found = any("minimax" in mid.lower() or "mm" in mid.lower() for mid in model_ids)
+                return {
+                    "status": "pass",
+                    "service": "litellm",
+                    "url": LITELLM_URL,
+                    "models_available": len(models),
+                    "minimax_available": minimax_found,
+                    "latency_ms": r.elapsed.total_seconds() * 1000
+                }
+            return {
+                "status": "fail",
+                "service": "litellm",
+                "url": LITELLM_URL,
+                "error": f"HTTP {r.status_code}"
+            }
+    except httpx.ConnectError:
+        return {"status": "fail", "service": "litellm", "url": LITELLM_URL, "error": "connection refused"}
+    except Exception as e:
+        return {"status": "fail", "service": "litellm", "url": LITELLM_URL, "error": str(e)}
+
+
+async def check_groq_stt() -> dict:
+    """Check Groq STT endpoint (api.groq.com openai-compatible)."""
+    # Verify Groq API key exists without exposing it
+    groq_configured = bool(GROQ_API_KEY)
+    try:
+        async with httpx.AsyncClient(timeout=15) as client:
+            # Groq /v1/models endpoint for STT models
+            r = await client.get(
+                "https://api.groq.com/openai/v1/models",
+                headers={"Authorization": f"Bearer {GROQ_API_KEY}"}
+            )
+            if r.status_code == 200:
+                data = r.json()
+                models = data.get("data", [])
+                stt_models = [m.get("id", "") for m in models if "whisper" in m.get("id", "").lower()]
+                return {
+                    "status": "pass",
+                    "service": "groq_stt",
+                    "url": "api.groq.com",
+                    "groq_configured": groq_configured,
+                    "stt_models": stt_models,
+                    "latency_ms": r.elapsed.total_seconds() * 1000
+                }
+            return {
+                "status": "fail",
+                "service": "groq_stt",
+                "url": "api.groq.com",
+                "groq_configured": groq_configured,
+                "error": f"HTTP {r.status_code}"
+            }
+    except httpx.ConnectError:
+        return {"status": "fail", "service": "groq_stt", "url": "api.groq.com", "error": "connection refused"}
+    except Exception as e:
+        return {"status": "fail", "service": "groq_stt", "url": "api.groq.com", "error": str(e)}
+
+
+async def check_edge_tts() -> dict:
+    """Check Edge TTS bridge."""
+    try:
+        async with httpx.AsyncClient(timeout=10) as client:
+            r = await client.get(f"{TTS_BRIDGE_URL}/health")
+            if r.status_code == 200:
+                return {
+                    "status": "pass",
+                    "service": "edge_tts",
+                    "url": TTS_BRIDGE_URL,
+                    "latency_ms": r.elapsed.total_seconds() * 1000
+                }
+            return {
+                "status": "fail",
+                "service": "edge_tts",
+                "url": TTS_BRIDGE_URL,
+                "error": f"HTTP {r.status_code}"
+            }
+    except httpx.ConnectError:
+        return {"status": "fail", "service": "edge_tts", "url": TTS_BRIDGE_URL, "error": "connection refused"}
+    except Exception as e:
+        return {"status": "fail", "service": "edge_tts", "url": TTS_BRIDGE_URL, "error": str(e)}
+
+
+async def check_ollama_models() -> dict:
+    """Check Ollama for qwen2.5vl model availability."""
+    try:
+        async with httpx.AsyncClient(timeout=10) as client:
+            r = await client.get(f"{OLLAMA_URL}/api/tags")
+            if r.status_code == 200:
+                data = r.json()
+                models = data.get("models", [])
+                model_names = [m.get("name", "") for m in models]
+                qwen_found = any("qwen2.5vl" in name for name in model_names)
+                return {
+                    "status": "pass",
+                    "service": "ollama",
+                    "url": OLLAMA_URL,
+                    "models_count": len(models),
+                    "qwen2.5vl_available": qwen_found,
+                    "model_names": model_names[:5],  # First 5 only
+                    "latency_ms": r.elapsed.total_seconds() * 1000
+                }
+            return {
+                "status": "fail",
+                "service": "ollama",
+                "url": OLLAMA_URL,
+                "error": f"HTTP {r.status_code}"
+            }
+    except httpx.ConnectError:
+        return {"status": "fail", "service": "ollama", "url": OLLAMA_URL, "error": "connection refused"}
+    except Exception as e:
+        return {"status": "fail", "service": "ollama", "url": OLLAMA_URL, "error": str(e)}
+
+
 # =============================================================================
 # Main
 # =============================================================================
@@ -281,6 +440,11 @@ async def run_healthcheck() -> dict:
         check_field_tutor_endpoint(),
         check_printable_endpoint(),
         check_memory_context(),
+        check_openwebui(),
+        check_litellm_models(),
+        check_groq_stt(),
+        check_edge_tts(),
+        check_ollama_models(),
         return_exceptions=True
     )
 

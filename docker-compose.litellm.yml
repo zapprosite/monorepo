@@ -1,0 +1,19 @@
+services:
+  litellm:
+    image: ghcr.io/berriai/litellm:main-latest
+    container_name: litellm-proxy
+    restart: unless-stopped
+    env_file:
+      - /srv/monorepo/.env
+    environment:
+      - LITELLM_CONFIG_FILE=/app/config/config.yaml
+    volumes:
+      - /srv/monorepo/config/litellm/config.yaml:/app/config/config.yaml:ro
+    ports:
+      - "4017:4000"
+    command: --config /app/config/config.yaml --port 4000 --num_workers 2
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
