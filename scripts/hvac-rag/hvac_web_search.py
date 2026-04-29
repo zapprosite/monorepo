@@ -31,7 +31,8 @@ def _env_int(name: str, default: int) -> int:
 
 
 WEB_SEARCH_TIMEOUT = int(os.environ.get("WEB_SEARCH_TIMEOUT", "15"))
-WEB_SEARCH_PROVIDER = os.environ.get("WEB_SEARCH_PROVIDER", "minimax_mcp").strip().lower()
+# Default changed to tavily; minimax_mcp is a stub placeholder (not implemented in runtime).
+WEB_SEARCH_PROVIDER = os.environ.get("WEB_SEARCH_PROVIDER", "tavily").strip().lower()
 WEB_SEARCH_FALLBACKS = [
     p.strip().lower()
     for p in os.environ.get("WEB_SEARCH_FALLBACKS", "tavily,ddg,google_news").split(",")
@@ -353,7 +354,9 @@ async def search_web(query: str) -> list[dict]:
     """Provider router. Primary provider first, configured fallbacks after."""
     providers = [WEB_SEARCH_PROVIDER] + [p for p in WEB_SEARCH_FALLBACKS if p != WEB_SEARCH_PROVIDER]
     for provider in providers:
-        if provider in ("minimax", "minimax_mcp", "minimax_mcp_web_search"):
+        if provider in ("minimax", "minimax_mcp", "minimax_mcp_web_search", "minimax_token_plan_mcp"):
+            if provider == "minimax_token_plan_mcp":
+                _safe_log("minimax_token_plan_mcp is not implemented in the runtime; skipping")
             results = await search_web_minimax_mcp(query)
         elif provider in ("tavily", "tavily_api"):
             results = await search_web_tavily_api(query)

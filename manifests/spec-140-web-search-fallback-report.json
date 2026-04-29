@@ -3,7 +3,6 @@
   "branch": "feature/test-openwebui-web-search",
   "merged_at": "2026-04-29",
   "web_search_order": [
-    "minimax_mcp",
     "tavily",
     "duckduckgo_lite",
     "google_news_rss"
