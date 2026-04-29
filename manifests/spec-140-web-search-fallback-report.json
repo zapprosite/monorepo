@@ -1,0 +1,29 @@
+{
+  "spec": "SPEC-140",
+  "branch": "feature/test-openwebui-web-search",
+  "merged_at": "2026-04-29",
+  "web_search_order": [
+    "minimax_mcp",
+    "tavily",
+    "duckduckgo_lite",
+    "google_news_rss"
+  ],
+  "tavily_defaults": {
+    "search_depth": "basic",
+    "max_results": 5,
+    "include_usage": true
+  },
+  "provider_hidden_from_user": true,
+  "external_results_label": "checagem externa",
+  "no_numeric_values_without_manual_exact": true,
+  "pt_br_sanitizer": true,
+  "tests": {
+    "test_hvac_web_search": "11 passed",
+    "tests_all": "39 passed",
+    "daily_smoke": "5 PASS | 1 SKIP | 0 FAIL"
+  },
+  "operational_pending": [
+    "Validate Tavily with TAVILY_API_KEY loaded",
+    "Validate OpenWebUI /api/chat/completions with OPENWEBUI_API_KEY Bearer token"
+  ]
+}
