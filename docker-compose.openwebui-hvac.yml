@@ -16,15 +16,14 @@ services:
       - TASK_MODEL_EXTERNAL=zappro-clima-tutor
       # Disable Ollama to prevent other models from being exposed
       - ENABLE_OLLAMA_API=false
-      # TTS Configuration — Edge TTS (openai-edge-tts at port 5050)
+      # TTS Configuration — use existing zappro-edge-tts at 8012
       - AUDIO_TTS_ENGINE=openai
-      - AUDIO_TTS_OPENAI_API_BASE_URL=http://openai-edge-tts:5050/v1
+      - AUDIO_TTS_OPENAI_API_BASE_URL=http://localhost:8012/v1
       - AUDIO_TTS_OPENAI_API_KEY=not-needed
       - AUDIO_TTS_MODEL=tts-1
       - AUDIO_TTS_VOICE=pt-BR-FranciscaNeural
       - AUDIO_TTS_SPLIT_ON=punctuation
-    networks:
-      - zappro-tts
+    network_mode: host
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3456/"]
       interval: 30s

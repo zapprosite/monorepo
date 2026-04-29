@@ -1,6 +1,6 @@
 services:
   openai-edge-tts:
-    image: sedett/openai-edge-tts:latest
+    image: travisvn/openai-edge-tts:latest
     container_name: openai-edge-tts
     restart: unless-stopped
     ports:
