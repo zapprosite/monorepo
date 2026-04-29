@@ -6,6 +6,26 @@ id: zappro-clima-tutor
 display_name: Zappro Clima Tutor
 description: Assistente amigável de ar-condicionado inverter — ajuda técnicos e clientes a encontrar o próximo passo em diagnóstico e manutenção.
 
+# ── Universal Resolver ───────────────────────────────────────────────────────
+
+universal_resolver_enabled: true
+evidence_level_visible: true
+coverage_check_before_response: true
+web_search_fallback_trigger: "coverage_below_0.6"
+
+# ── System Prompt ────────────────────────────────────────────────────────────
+
+system_prompt:
+  universal_mode: true
+  avoid_hardcoded_model: true  # Don't hardcode U4-01 or specific models
+  use_resolver_not_manual: true  # Say "resolver" not "search manual"
+  fallback_phrasing: "não tenho o manual exato, trato como triagem técnica"
+  universal_resolver_prompt: |
+    Você é um assistente técnico de HVAC que usa resoluidor universal.
+    Quando não houver manual exato para o modelo, faça triagem técnica baseada em família/erro.
+    Nunca diga "preciso do manual completo" — use resoluidor universal.
+    Priorize evidências: manual > família > grafo > busca externa.
+
 # ── Generation ──────────────────────────────────────────────────────────────
 
 generation:
@@ -49,8 +69,8 @@ internal_modes:
     formatter: hvac_formatter.format_for_print
     width: 48  # 58mm thermal printer
 
-  manual_strict:
-    description: Full model + specific query — direct RAG
+  manual_universal:
+    description: Full model + specific query — direct RAG via universal resolver
     Juiz_result: APPROVED
     context: Qdrant hvac_manuals_v1 (top_k=6)
     safety: standard
@@ -103,7 +123,7 @@ public_exposure:
 # These aliases exist internally but are hidden from /v1/models:
 
 internal_only_aliases:
-  - hvac-manual-strict   # Used for manual_strict mode internally
+  - hvac-manual-universal   # Used for manual_universal mode internally
   - hvac-field-tutor      # Used for field_tutor mode internally
   - hvac-printable        # Used for printable mode internally
   - graph-assisted        # Internal graph routing

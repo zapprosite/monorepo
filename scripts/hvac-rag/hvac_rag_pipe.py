@@ -51,6 +51,12 @@ rewrite_ask = _fr_mod.rewrite_ask_clarification_response
 _web_mod = import_local_module("hvac_web_search", "hvac_web_search.py")
 search_web = _web_mod.search_web
 
+# Import Universal Resolver modules
+_hvac_intake = import_local_module("hvac_intake", "hvac_intake.py")
+_hvac_coverage = import_local_module("hvac_coverage", "hvac_coverage.py")
+_hvac_resolver = import_local_module("hvac_resolver", "hvac_resolver.py")
+_hvac_evidence = import_local_module("hvac_evidence", "hvac_evidence.py")
+
 # Memory context — context_fetch + memory_writeback + state extraction
 _mem_ctx_mod = import_local_module("hvac_memory_context", "hvac_memory_context.py")
 context_fetch = _mem_ctx_mod.context_fetch
@@ -480,7 +486,8 @@ Responda em português do Brasil."""
 def build_retrieval_package(user_query: str, hits: list, juiz_meta: dict,
                              memory_context: Optional[dict] = None,
                              memory_context_str: str = "",
-                             merged_state: Optional[dict] = None) -> dict:
+                             merged_state: Optional[dict] = None,
+                             resolver_evidence_level: Optional[str] = None) -> dict:
     """
     Build a structured retrieval package for MiniMax to format the final answer.
 
@@ -553,8 +560,10 @@ def build_retrieval_package(user_query: str, hits: list, juiz_meta: dict,
             "text": payload.get("text", "")[:600],
         })
 
-    # Determine evidence level
-    if pkg["manual_context"]:
+    # Determine evidence level — use resolver's evidence level when available
+    if resolver_evidence_level:
+        pkg["evidence_level"] = resolver_evidence_level
+    elif pkg["manual_context"]:
         doc_types = {c["doc_type"] for c in pkg["manual_context"] if c["doc_type"]}
         if "service_manual" in doc_types:
             pkg["evidence_level"] = "manual_exato"
@@ -571,12 +580,12 @@ def build_retrieval_package(user_query: str, hits: list, juiz_meta: dict,
         if juiz_meta.get("has_error_codes"):
             pkg["next_best_question"] = (
                 "o código que aparece no display? "
-                "Pode ser algo como U4-01, E4-01 ou A3."
+                "Pode ser algo como E1, F2 ou A3."
             )
         else:
             pkg["next_best_question"] = (
                 "o que aparece no display ou na etiqueta da unidade externa? "
-                "Exemplo: um código como U4-01 ou um modelo como RXYQ20BRA."
+                "Exemplo: um código como E1 ou um modelo como RXYQ20BRA."
             )
 
     return pkg
@@ -821,6 +830,10 @@ async def chat_completions(request: ChatCompletionRequest, http_request: Request
             content={"error": {"message": "No user message found", "type": "invalid_request"}}
         )
 
+    # Universal Resolver — intake: parse query to structured intent
+    intake_result = _hvac_intake.parse_universal(user_query)
+    _safe_log(f"Intake: intent={intake_result.get('intent')} entities={len(intake_result.get('entities', []))} {_log_query_meta(user_query)}")
+
     # Extract user_id and conversation_id from HTTP headers (OpenAI-compatible)
     user_id = "anonymous"
     conversation_id = "default"
@@ -925,16 +938,26 @@ async def chat_completions(request: ChatCompletionRequest, http_request: Request
             }
 
     # ── APPROVED — build retrieval package + call MiniMax ─────────────────────
+    # Universal Resolver — coverage check before Qdrant search
+    coverage_map = _hvac_coverage.check_coverage(intake_result)
+
     hits = await search_qdrant(user_query, top_k=DEFAULT_TOP_K)
     context = build_rag_context(hits)
+
+    # Universal Resolver — resolve: determine evidence level and web search strategy
+    resolve_result = _hvac_resolver.resolve(intake_result, coverage_map, hits)
+    resolver_evidence_level = resolve_result.get("evidence_level", "triagem_tecnica")
+    web_allowed = resolve_result.get("web_allowed", False)
+
     pkg = build_retrieval_package(user_query, hits, juez_meta,
                                   memory_context=fetch_result,
                                   memory_context_str=memory_context_str,
-                                  merged_state=merged_state)
+                                  merged_state=merged_state,
+                                  resolver_evidence_level=resolver_evidence_level)
 
-    # ── Web search fallback: Qdrant miss or no evidence ───────────────────────
-    # If Qdrant returned 0 hits OR evidence is "sem_contexto", try web search
-    needs_web_search = (len(hits) == 0 or pkg.get("evidence_level") in ("sem_contexto", "nenhum"))
+    # ── Web search fallback: triggered by resolver when web_allowed=True and coverage is low ──
+    # Only call web search when resolver determines it is needed
+    needs_web_search = web_allowed and (len(hits) == 0 or resolver_evidence_level in ("sem_contexto", "nenhum"))
     if needs_web_search:
         web_results = await search_web(f"{user_query} ar condicionado inverter diagnóstico técnica")
         if web_results:
