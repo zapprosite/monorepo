@@ -69,13 +69,12 @@ OpenWebUI anexo → zappro-clima-tutor → Qwen2.5VL:3B (Ollama :11434) → extr
 - AUDIO_STT_SUPPORTED_CONTENT_TYPES=audio/wav,audio/mpeg,audio/webm,audio/mp4
 
 ### T-OW03: Config TTS — Edge TTS
-**Arquivo:** `docker-compose.openwebui-hvac.yml` + `docker-compose.edge-tts.yml`
-- openai-edge-tts container em :5050
+**Runtime verificado em 2026-04-29:** container `zappro-edge-tts`, imagem `edge-tts-edge-tts`, healthy, `127.0.0.1:8012 -> 8015/tcp`.
 - AUDIO_TTS_ENGINE=openai
-- AUDIO_TTS_OPENAI_API_BASE_URL=http://openai-edge-tts:5050/v1
+- AUDIO_TTS_OPENAI_API_BASE_URL=http://127.0.0.1:8012/v1
 - AUDIO_TTS_OPENAI_API_KEY=not-needed
 - AUDIO_TTS_MODEL=tts-1
-- AUDIO_TTS_VOICE=pt-BR-FranciscaNeural
+- AUDIO_TTS_VOICE=pt-BR-AntonioNeural
 - AUDIO_TTS_SPLIT_ON=punctuation
 
 ### T-OW04: Config LiteLLM — MiniMax Primary
@@ -159,7 +158,7 @@ OpenWebUI anexo → zappro-clima-tutor → Qwen2.5VL:3B (Ollama :11434) → extr
 | zappro-clima-tutor | llm.zappro.site :4017 | Cérebro |
 | LiteLLM | api.zappro.site :4000 | Gateway modelos |
 | Groq STT | api.groq.com | Voz→texto |
-| Edge TTS | :5050 | Texto→voz |
+| Edge TTS | :8012 | Texto→voz |
 | Qwen2.5VL | Ollama :11434 | Visão |
 | Qdrant | hermes-second-brain-qdrant | RAG |
 | Mem0 | localhost | Memória quente |
@@ -183,7 +182,7 @@ Sistema agora reconhece todas as marcas principais de AC no Brasil:
 ```
 Qdrant miss (modelo não indexado)
   → Triagem técnica via MiniMax M2.7 (sempre responde)
-  → Fallback web search (DuckDuckGo Lite → Google News RSS)
+  → Checagem externa (MiniMax MCP → Tavily HTTP API → DuckDuckGo Lite → Google News RSS)
   → LLM formata resposta em PT-BR
 ```
 
@@ -191,3 +190,4 @@ Qdrant miss (modelo não indexado)
 - "Sprint" não dispara mais rota "printable" (word-boundary regex)
 - Respostasforçam PT-BR — sem CJK/Cirílico
 - Pydantic v2 compatibility em extract_state_from_messages
+- Chave Tavily exposta em chat deve ser rotacionada após validação; não registrar valor em git/logs

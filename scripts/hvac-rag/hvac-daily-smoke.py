@@ -51,7 +51,11 @@ if os.path.exists(_env_path):
 PIPELINE_URL = os.environ.get("HVAC_PIPELINE_URL", "http://127.0.0.1:4017")
 OPENWEBUI_URL = os.environ.get("OPENWEBUI_URL", "http://127.0.0.1:3456")
 OLLAMA_URL = os.environ.get("OLLAMA_URL", "http://localhost:11434")
-EDGE_TTS_URL = os.environ.get("EDGE_TTS_URL", "http://localhost:5050")
+EDGE_TTS_URL = (
+    os.environ.get("EDGE_TTS_URL")
+    or os.environ.get("TTS_BRIDGE_URL")
+    or "http://127.0.0.1:8012"
+)
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "")
 LITELLM_URL = os.environ.get("LITELLM_URL", "http://localhost:4000")
 DEFAULT_REPORT = f"/tmp/hvac-daily-smoke-{datetime.now().strftime('%Y%m%d-%H%M%S')}.json"
@@ -267,18 +271,18 @@ async def test_stt_groq() -> bool | None:
 
 
 # =============================================================================
-# Test 4 — TTS via Edge TTS (if EDGE_TTS_URL available)
+# Test 4 — TTS via local OpenAI-compatible Edge TTS bridge
 # =============================================================================
 
 async def test_tts_edge() -> bool | None:
-    """POST /v1/audio/speech via Edge TTS bridge (if EDGE_TTS_URL set)."""
+    """POST /v1/audio/speech via local Edge TTS bridge (if EDGE_TTS_URL/TTS_BRIDGE_URL set)."""
     if not EDGE_TTS_URL:
-        return result("test_tts_edge", None, "(EDGE_TTS_URL not set)")
+        return result("test_tts_edge", None, "(TTS URL not set)")
 
     payload = {
         "model": "tts-1",
         "input": "Ola, este e um teste de voz.",
-        "voice": "pt-BR-FranciscaNeural",
+        "voice": os.environ.get("EDGE_TTS_VOICE") or os.environ.get("TTS_VOICE") or "pt-BR-AntonioNeural",
     }
     try:
         async with httpx.AsyncClient(timeout=30) as client:
@@ -297,7 +301,7 @@ async def test_tts_edge() -> bool | None:
         return result("test_tts_edge", False, f"HTTP {r.status_code}")
 
     except httpx.ConnectError:
-        return result("test_tts_edge", None, "(Edge TTS bridge not reachable)")
+        return result("test_tts_edge", None, f"(TTS bridge not reachable: {EDGE_TTS_URL})")
     except Exception as exc:
         return result("test_tts_edge", None, f"({exc})")
 
@@ -425,7 +429,7 @@ async def main(report_path: str | None, once: bool):
     print(f"Started at {datetime.now(timezone.utc).isoformat()}")
     print(f"PIPELINE_URL={PIPELINE_URL}")
     print(f"OLLAMA_URL={OLLAMA_URL}")
-    print(f"EDGE_TTS_URL={EDGE_TTS_URL or '(not set)'}")
+    print(f"TTS_URL={EDGE_TTS_URL or '(not set)'}")
     print(f"GROQ_API_KEY={'set' if GROQ_API_KEY else '(not set)'}")
     print()
 

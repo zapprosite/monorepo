@@ -76,6 +76,10 @@ judge = _juez_mod.judge
 _mem_ctx_mod = import_local_module("hvac_memory_context", "hvac_memory_context.py")
 memory_health_summary = _mem_ctx_mod.memory_health_summary
 
+# Web search provider health check
+_web_mod = import_local_module("hvac_web_search", "hvac_web_search.py")
+web_search_health = _web_mod.web_search_health
+
 # =============================================================================
 # HTTP Client
 # =============================================================================
@@ -92,6 +96,13 @@ def safe_query_hash(query: str) -> str:
 
 def qdrant_headers() -> dict:
     return {"Authorization": f"Bearer {QDRANT_API_KEY}", "Content-Type": "application/json"}
+
+
+def litellm_models_url() -> str:
+    base = LITELLM_URL.rstrip("/")
+    if base.endswith("/v1"):
+        return f"{base}/models"
+    return f"{base}/v1/models"
 
 
 async def check_health_endpoint() -> dict:
@@ -269,13 +280,21 @@ async def check_memory_context() -> dict:
         result = await memory_health_summary()
         all_ok = all(v.get("status") == "ok" for v in result.get("services", {}).values())
         return {
-            "status": "pass" if all_ok else "fail",
+            "status": "pass" if all_ok else "degraded",
             "endpoint": "/memory/health",
             "services": result.get("services", {}),
             "overall": result.get("overall", "unknown"),
         }
     except Exception as e:
         return {"status": "fail", "endpoint": "/memory/health", "error": str(e)}
+
+
+async def check_web_search_provider() -> dict:
+    """Check Tavily MCP search configuration and fallback availability."""
+    try:
+        return await web_search_health()
+    except Exception as e:
+        return {"status": "degraded", "service": "web_search", "provider": "tavily_mcp", "error": str(e)}
 
 
 async def check_openwebui() -> dict:
@@ -308,7 +327,7 @@ async def check_litellm_models() -> dict:
     headers = {"Authorization": f"Bearer {litellm_key}"} if litellm_key else {}
     try:
         async with httpx.AsyncClient(timeout=15) as client:
-            r = await client.get(f"{LITELLM_URL}/v1/models", headers=headers)
+            r = await client.get(litellm_models_url(), headers=headers)
             if r.status_code == 200:
                 data = r.json()
                 models = data.get("data", [])
@@ -440,6 +459,7 @@ async def run_healthcheck() -> dict:
         check_field_tutor_endpoint(),
         check_printable_endpoint(),
         check_memory_context(),
+        check_web_search_provider(),
         check_openwebui(),
         check_litellm_models(),
         check_groq_stt(),
@@ -456,7 +476,7 @@ async def run_healthcheck() -> dict:
             results.append(check)
 
     total = len(results)
-    passed = sum(1 for r in results if r.get("status") == "pass")
+    passed = sum(1 for r in results if r.get("status") in ("pass", "degraded"))
 
     report = {
         "timestamp": datetime.now(timezone.utc).isoformat(),

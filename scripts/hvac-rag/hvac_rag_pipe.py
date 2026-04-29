@@ -47,6 +47,10 @@ rewrite_response = _fr_mod.rewrite_response
 rewrite_blocked = _fr_mod.rewrite_blocked_response
 rewrite_ask = _fr_mod.rewrite_ask_clarification_response
 
+# Import web search provider router
+_web_mod = import_local_module("hvac_web_search", "hvac_web_search.py")
+search_web = _web_mod.search_web
+
 # Memory context — context_fetch + memory_writeback + state extraction
 _mem_ctx_mod = import_local_module("hvac_memory_context", "hvac_memory_context.py")
 context_fetch = _mem_ctx_mod.context_fetch
@@ -90,7 +94,6 @@ DEFAULT_TOP_K = 6
 MAX_CONTEXT_CHARS = 7000
 EMBED_TIMEOUT = 60
 SEARCH_TIMEOUT = 20
-WEB_SEARCH_TIMEOUT = 15
 CHAT_TIMEOUT = 120
 
 # MiniMax primary model for final answer formatting
@@ -328,45 +331,6 @@ async def search_qdrant(query: str, top_k: int = DEFAULT_TOP_K) -> list:
     return []
 
 
-async def search_web_ddg(query: str) -> list:
-    """
-    Fallback web search using DuckDuckGo Lite HTML.
-    Returns list of dicts with {title, url, snippet}.
-    """
-    import re as _re
-    try:
-        import urllib.parse
-        encoded_q = urllib.parse.quote(query)
-        ddg_url = f"https://lite.duckduckgo.com/lite/?q={encoded_q}&kl=br-pt"
-        async with httpx.AsyncClient(timeout=WEB_SEARCH_TIMEOUT, follow_redirects=True) as client:
-            r = await client.get(ddg_url, headers={
-                "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36"
-            })
-            if r.status_code != 200:
-                _safe_log(f"[web-search] DDG HTTP {r.status_code}")
-                return []
-            text = r.text
-        results = []
-        # DuckDuckGo Lite: results are in <a class="result-link" href="...">title</a>
-        # followed by <td class="result-snippet">snippet</td>
-        for match in _re.finditer(r'<a class="result-link" href="([^"]+)"[^>]*>([^<]+)</a>', text):
-            url = match.group(1)
-            title = _re.sub(r'<[^>]+>', '', match.group(2)).strip()
-            # Find the snippet in the next td
-            snippet_pos = match.end()
-            snippet_match = _re.search(r'<td class="result-snippet">([^<]+)</td>', text[snippet_pos:snippet_pos+500])
-            snippet = _re.sub(r'<[^>]+>', '', (snippet_match.group(1) if snippet_match else ''))[:300].strip()
-            if title and url:
-                results.append({"title": title, "url": url, "snippet": snippet})
-            if len(results) >= 5:
-                break
-        _safe_log(f"[web-search] DDG returned {len(results)} results for query: {query[:60]}")
-        return results
-    except Exception as e:
-        _safe_log(f"[web-search] DDG error: {type(e).__name__}: {e}")
-        return []
-
-
 def build_rag_context(hits: list, max_chars: int = MAX_CONTEXT_CHARS) -> str:
     """Build truncated context string from Qdrant hits."""
     if not hits:
@@ -496,6 +460,8 @@ def build_retrieval_package(user_query: str, hits: list, juiz_meta: dict,
         "conversation_state": {},
         "manual_context": [],
         "web_context": [],
+        "web_provider": None,
+        "web_confidence": 0.0,
         "evidence_level": "nenhum",
         "safety_flags": [],
         "missing_info": [],
@@ -584,6 +550,25 @@ def build_retrieval_package(user_query: str, hits: list, juiz_meta: dict,
     return pkg
 
 
+def apply_web_results_to_package(pkg: dict, web_results: list[dict]) -> dict:
+    """Attach normalized web results and evidence metadata to a retrieval package."""
+    if not web_results:
+        pkg["evidence_level"] = "triagem_tecnica"
+        pkg["web_context"] = []
+        pkg["web_provider"] = None
+        pkg["web_confidence"] = 0.0
+        return pkg
+
+    pkg["web_context"] = web_results
+    pkg["web_provider"] = web_results[0].get("provider", "web")
+    pkg["web_confidence"] = max(float(r.get("confidence", 0.0) or 0.0) for r in web_results)
+    if pkg["web_provider"] in ("minimax_mcp_web_search", "minimax_mcp", "tavily_api", "tavily_mcp"):
+        pkg["evidence_level"] = "official_web"
+    else:
+        pkg["evidence_level"] = "web_fallback"
+    return pkg
+
+
 def build_minimax_system_prompt(pkg: dict) -> str:
     """
     Build the system prompt sent to MiniMax for final answer formatting.
@@ -641,7 +626,8 @@ def build_minimax_system_prompt(pkg: dict) -> str:
         "manual_familia": "Existe manual da família, mas não o exato.",
         "triagem_tecnica": "Sem manual exato — use triagem técnica.",
         "sem_contexto": "Sem contexto na base — triagem geral.",
-        "web_fallback": "Modelo não encontrado na base local — busca web realizada.",
+        "official_web": "Sem manual local — busca web oficial realizada como checagem externa.",
+        "web_fallback": "Sem manual local — fallback externo realizado como checagem externa.",
     }
     lines.append(f"Evidência: {level_labels.get(level, level)}")
 
@@ -649,7 +635,14 @@ def build_minimax_system_prompt(pkg: dict) -> str:
     web_ctx = pkg.get("web_context", [])
     if web_ctx:
         lines.append("")
-        lines.append("CONTEXTO DA BUSCA WEB:")
+        provider = pkg.get("web_provider") or web_ctx[0].get("provider", "web")
+        confidence = pkg.get("web_confidence", 0)
+        if level == "official_web":
+            lines.append(f"CONTEXTO WEB OFICIAL ({provider}, confiança {confidence:.2f}):")
+            lines.append("Use como checagem externa, nunca como manual de serviço.")
+        else:
+            lines.append(f"CHECAGEM EXTERNA FALLBACK ({provider}, confiança {confidence:.2f}):")
+            lines.append("Rotule como checagem externa; não trate como manual.")
         for i, r in enumerate(web_ctx[:4], 1):
             lines.append(f"[{i}] {r.get('title', '')[:80]}")
             lines.append(f"    {r.get('snippet', '')[:200]}")
@@ -686,7 +679,8 @@ def build_minimax_system_prompt(pkg: dict) -> str:
         "- Se faltam modelo/código: peça de forma amigável, uma coisa por vez",
         "- MAX 600 caracteres para respostas normais, 900 para procedimentos técnicos",
         "- MAX uma pergunta no final",
-        "- Se evidência é web_fallback: cite a fonte da busca web de forma natural na resposta",
+        "- Se evidência é official_web: cite como checagem externa, não como manual",
+        "- Se evidência é web_fallback: cite como checagem externa, não como manual",
         "- RESPONDA SOMENTE EM PORTUGUÊS DO BRASIL — sem caracteres CJK, Cirílicos ou outros alfabetos não-latinos",
     ])
 
@@ -700,6 +694,17 @@ SAFETY_KEYWORDS = {
     "capacitor", "barramento link", "link dc", "dc bus",
     "compressor", "energizado", "lockout", "tagout",
 }
+
+
+def is_printable_query(query: str) -> bool:
+    """Return True when the user explicitly asks for printable/checklist output."""
+    q_lower = query.lower().strip()
+    printable_triggers = (
+        r"\bimprimir\b", r"\bprint\b", r"\bresumo para\b", r"\bformato de impressão\b",
+        r"\bpasso a passo\b", r"\blista de\b", r"\bchecklist\b", r"\bpara anota\b",
+    )
+    import re as _re
+    return any(_re.search(t, q_lower) for t in printable_triggers)
 
 
 def format_system_prompt(context: str) -> str:
@@ -813,16 +818,9 @@ async def chat_completions(request: ChatCompletionRequest, http_request: Request
     current_messages_state = extract_state_from_messages(request.messages)
     merged_state = merge_state(current_messages_state, fetch_result)
 
-    q_lower = user_query.lower().strip()
-
     # ── Route: printable ───────────────────────────────────────────────────────
     # Use word-boundary matching to avoid false positives (e.g. "Sprint" matching "print")
-    printable_triggers = (
-        r"\bimprimir\b", r"\bprint\b", r"\bresumo para\b", r"\bformato de impressão\b",
-        r"\bpasso a passo\b", r"\blista de\b", r"\bchecklist\b", r"\bpara anota\b",
-    )
-    import re as _re
-    if any(_re.search(t, q_lower) for t in printable_triggers):
+    if is_printable_query(user_query):
         return await chat_completions_printable(request)
 
     # ── Juiz pre-flight check ────────────────────────────────────────────────
@@ -907,11 +905,13 @@ async def chat_completions(request: ChatCompletionRequest, http_request: Request
     # If Qdrant returned 0 hits OR evidence is "sem_contexto", try web search
     needs_web_search = (len(hits) == 0 or pkg.get("evidence_level") in ("sem_contexto", "nenhum"))
     if needs_web_search:
-        web_results = await search_web_ddg(f"{user_query} ar condicionado inverter diagnóstico técnica")
+        web_results = await search_web(f"{user_query} ar condicionado inverter diagnóstico técnica")
         if web_results:
-            pkg["web_context"] = web_results
-            pkg["evidence_level"] = "web_fallback"
-            _safe_log(f"[web-search] Added {len(web_results)} web results for query: {user_query[:60]}")
+            apply_web_results_to_package(pkg, web_results)
+            _safe_log(f"[web-search] Added {len(web_results)} results provider={pkg['web_provider']} {_log_query_meta(user_query)}")
+        else:
+            apply_web_results_to_package(pkg, [])
+            _safe_log(f"[web-search] No external results; using triagem_tecnica {_log_query_meta(user_query)}")
 
 
     # Build MiniMax system prompt (primary reasoning engine)
