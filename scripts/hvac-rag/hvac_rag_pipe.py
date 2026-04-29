@@ -47,12 +47,16 @@ rewrite_response = _fr_mod.rewrite_response
 rewrite_blocked = _fr_mod.rewrite_blocked_response
 rewrite_ask = _fr_mod.rewrite_ask_clarification_response
 
-# Memory context — context_fetch + memory_writeback
+# Memory context — context_fetch + memory_writeback + state extraction
 _mem_ctx_mod = import_local_module("hvac_memory_context", "hvac_memory_context.py")
 context_fetch = _mem_ctx_mod.context_fetch
 memory_writeback = _mem_ctx_mod.memory_writeback
 build_context_pack = _mem_ctx_mod.build_context_pack
 memory_health_summary = _mem_ctx_mod.memory_health_summary
+extract_state_from_messages = _mem_ctx_mod.extract_state_from_messages
+merge_state = _mem_ctx_mod.merge_state
+state_sufficient_for_diagnosis = _mem_ctx_mod.state_sufficient_for_diagnosis
+state_sufficient_for_triage = _mem_ctx_mod.state_sufficient_for_triage
 
 import httpx
 import uvicorn
@@ -437,7 +441,8 @@ Responda em português do Brasil."""
 
 def build_retrieval_package(user_query: str, hits: list, juiz_meta: dict,
                              memory_context: Optional[dict] = None,
-                             memory_context_str: str = "") -> dict:
+                             memory_context_str: str = "",
+                             merged_state: Optional[dict] = None) -> dict:
     """
     Build a structured retrieval package for MiniMax to format the final answer.
 
@@ -456,15 +461,42 @@ def build_retrieval_package(user_query: str, hits: list, juiz_meta: dict,
         "memory_context_str": memory_context_str,
     }
 
-    # Extract conversation state from juí z metadata
+    # Extract conversation state from merged_state (priority: current messages > long-term memory)
+    if merged_state:
+        ms = merged_state
+        if ms.get("brand"):
+            pkg["conversation_state"]["brand"] = ms["brand"]
+        if ms.get("family"):
+            pkg["conversation_state"]["family"] = ms["family"]
+        if ms.get("alarm_code"):
+            pkg["conversation_state"]["alarm_code"] = ms["alarm_code"]
+        if ms.get("subcode"):
+            pkg["conversation_state"]["subcode"] = ms["subcode"]
+        if ms.get("outdoor_model"):
+            pkg["conversation_state"]["outdoor_model"] = ms["outdoor_model"]
+        if ms.get("indoor_model"):
+            pkg["conversation_state"]["indoor_model"] = ms["indoor_model"]
+        if ms.get("display_type"):
+            pkg["conversation_state"]["display_type"] = ms["display_type"]
+        if ms.get("all_codes"):
+            pkg["conversation_state"]["all_codes"] = ms["all_codes"]
+        if ms.get("all_models"):
+            pkg["conversation_state"]["all_models"] = ms["all_models"]
+        if ms.get("safety_flags"):
+            pkg["safety_flags"] = list(set(pkg["safety_flags"]) | set(ms["safety_flags"]))
+        if ms.get("outdoor_model") or ms.get("indoor_model"):
+            pkg["conversation_state"]["has_model"] = True
+
+    # Also extract from juí z metadata (fallback for current query only)
     if juiz_meta.get("has_complete_model"):
         pkg["conversation_state"]["has_model"] = True
     if juiz_meta.get("has_error_codes"):
         errors = HVAC_ERROR_CODES.findall(user_query)
-        pkg["conversation_state"]["error_codes"] = errors[:3]
+        if errors and not pkg["conversation_state"].get("all_codes"):
+            pkg["conversation_state"]["error_codes"] = errors[:3]
     if juiz_meta.get("has_hvac_components"):
         pkg["safety_flags"] = list(
-            set(k for k in SAFETY_KEYWORDS if k in user_query.lower())
+            set(pkg["safety_flags"]) | set(k for k in SAFETY_KEYWORDS if k in user_query.lower())
         )
 
     # Build manual context from Qdrant hits
@@ -528,9 +560,27 @@ def build_minimax_system_prompt(pkg: dict) -> str:
         "",
     ]
 
-    # Add conversation state
+    # Add conversation state (reconhecer o que o usuário já informou na conversa)
     state = pkg.get("conversation_state", {})
-    if state.get("error_codes"):
+    state_parts = []
+    if state.get("brand"):
+        state_parts.append(f"marca: {state['brand']}")
+    if state.get("family"):
+        state_parts.append(f"família: {state['family']}")
+    if state.get("subcode"):
+        state_parts.append(f"código: {state['subcode']}")
+    elif state.get("alarm_code"):
+        state_parts.append(f"código: {state['alarm_code']}")
+    if state.get("outdoor_model"):
+        state_parts.append(f"modelo externo: {state['outdoor_model']}")
+    if state.get("indoor_model"):
+        state_parts.append(f"modelo interno: {state['indoor_model']}")
+    if state.get("display_type"):
+        state_parts.append(f"display: {state['display_type']}")
+    if state_parts:
+        lines.append(f"ESTADO DA CONVERSA: {' | '.join(state_parts)}")
+        lines.append("")
+    elif state.get("error_codes"):
         codes = ", ".join(state["error_codes"])
         lines.append(f"Erros mencionados: {codes}")
 
@@ -702,6 +752,11 @@ async def chat_completions(request: ChatCompletionRequest, http_request: Request
     except Exception as e:
         _safe_log(f"context_fetch failed: {e}")
 
+    # Extrair state do histórico de mensagens — corrige amnésia de conversa imediata
+    # Priority: current_messages > mem0 > qdrant > graph
+    current_messages_state = extract_state_from_messages(request.messages)
+    merged_state = merge_state(current_messages_state, fetch_result)
+
     q_lower = user_query.lower().strip()
 
     # ── Route: printable ───────────────────────────────────────────────────────
@@ -727,29 +782,68 @@ async def chat_completions(request: ChatCompletionRequest, http_request: Request
             "choices": [{"index": 0, "message": {"role": "assistant", "content": friendly_blocked}, "finish_reason": "stop"}],
         }
 
-    # ── ASK_CLARIFICATION ─────────────────────────────────────────────────────
+    # ── ASK_CLARIFICATION — mas verifica se state já tem info suficiente ────────
+    # Se state tem brand + family + subcode, NÃO pedir display de novo
+    # Se state tem brand + family + subcode + outdoor_model, NÃO pedir modelo de novo
     if juez_result == JuizResult.ASK_CLARIFICATION:
-        has_safety = bool(juez_meta.get("safety_only_without_model"))
-        partial_info = ""
-        if juez_meta.get("has_error_codes"):
-            errors = HVAC_ERROR_CODES.findall(user_query)
-            if errors:
-                partial_info = f"sei que você tem um código {errors[0]}"
-        friendly_ask = rewrite_ask(has_safety=has_safety, partial_info=partial_info)
-        return {
-            "id": "hvac-chat-completion",
-            "object": "chat.completion",
-            "created": 0,
-            "model": MODEL_NAME,
-            "choices": [{"index": 0, "message": {"role": "assistant", "content": friendly_ask}, "finish_reason": "stop"}],
-        }
+        if state_sufficient_for_diagnosis(merged_state):
+            # State suficiente — força APPROVED em vez de pedir info de novo
+            _safe_log(f"Router: overriding ASK_CLARIFICATION — state sufficient: brand={merged_state.get('brand')} family={merged_state.get('family')} subcode={merged_state.get('subcode')}")
+            juez_result = JuizResult.APPROVED
+            juez_meta["override_reason"] = "conversation_state_sufficient"
+            juez_meta["merged_state"] = {
+                "brand": merged_state.get("brand", ""),
+                "family": merged_state.get("family", ""),
+                "alarm_code": merged_state.get("alarm_code", ""),
+                "subcode": merged_state.get("subcode", ""),
+                "outdoor_model": merged_state.get("outdoor_model", ""),
+                "indoor_model": merged_state.get("indoor_model", ""),
+                "display_type": merged_state.get("display_type", ""),
+                "all_codes": merged_state.get("all_codes", []),
+                "all_models": merged_state.get("all_models", []),
+            }
+        elif state_sufficient_for_triage(merged_state):
+            # State completo para triagem — próxima pergunta deve ser diagnóstica
+            _safe_log(f"Router: overriding ASK_CLARIFICATION — state sufficient for triage: model={merged_state.get('outdoor_model')}")
+            juez_result = JuizResult.APPROVED
+            juez_meta["override_reason"] = "conversation_state_triage_ready"
+            juez_meta["merged_state"] = {
+                "brand": merged_state.get("brand", ""),
+                "family": merged_state.get("family", ""),
+                "alarm_code": merged_state.get("alarm_code", ""),
+                "subcode": merged_state.get("subcode", ""),
+                "outdoor_model": merged_state.get("outdoor_model", ""),
+                "indoor_model": merged_state.get("indoor_model", ""),
+                "display_type": merged_state.get("display_type", ""),
+                "all_codes": merged_state.get("all_codes", []),
+                "all_models": merged_state.get("all_models", []),
+            }
+        else:
+            # State insuficiente — manter ASK normal mas com partial_info do state
+            has_safety = bool(juez_meta.get("safety_only_without_model"))
+            partial_info = ""
+            if merged_state.get("brand"):
+                partial_info = f"sei que é {merged_state['brand']}"
+            if merged_state.get("subcode"):
+                partial_info = f"{partial_info}, código {merged_state['subcode']}" if partial_info else f"sei que você tem {merged_state['subcode']}"
+            elif merged_state.get("alarm_code"):
+                partial_info = f"{partial_info}, código {merged_state['alarm_code']}" if partial_info else f"sei que você tem {merged_state['alarm_code']}"
+            friendly_ask = rewrite_ask(has_safety=has_safety, partial_info=partial_info)
+            return {
+                "id": "hvac-chat-completion",
+                "object": "chat.completion",
+                "created": 0,
+                "model": MODEL_NAME,
+                "choices": [{"index": 0, "message": {"role": "assistant", "content": friendly_ask}, "finish_reason": "stop"}],
+            }
 
     # ── APPROVED — build retrieval package + call MiniMax ─────────────────────
     hits = await search_qdrant(user_query, top_k=DEFAULT_TOP_K)
     context = build_rag_context(hits)
     pkg = build_retrieval_package(user_query, hits, juez_meta,
                                   memory_context=fetch_result,
-                                  memory_context_str=memory_context_str)
+                                  memory_context_str=memory_context_str,
+                                  merged_state=merged_state)
 
     # Build MiniMax system prompt (primary reasoning engine)
     minimax_system = build_minimax_system_prompt(pkg)

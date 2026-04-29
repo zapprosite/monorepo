@@ -633,3 +633,360 @@ async def memory_health_summary() -> dict:
             "qdrant": qdrant,
         },
     }
+
+
+# =============================================================================
+# Extract State from Messages Array — fixes immediate conversation amnesia
+# =============================================================================
+# Priority: current_messages_state > explicit_correction > session_state > mem0 > qdrant > graph
+# Long-term memory only fills blanks; never overwrites info just provided by user.
+# =============================================================================
+
+import re as _re
+
+# HVAC brand aliases
+BRAND_ALIASES = {
+    "daikin": ["daikin", "daiquim", "daykin"],
+    "carrier": ["carrier", "carrie"],
+    "midea": ["midea"],
+    "lg": ["lg"],
+    "samsung": ["samsung"],
+    "gree": ["gree"],
+    "hitachi": ["hitachi"],
+    "johnson": ["johnson"],
+    "elgin": ["elgin"],
+    "consul": ["consul"],
+    "electrolux": ["electrolux"],
+}
+
+# HVAC family keywords
+FAMILY_KEYWORDS = {
+    "vrv": ["vrv", "vrf", "vrf"],
+    "split": ["split", "hi-wall", "hiwall", "cassete", "piso", "teto", "consola"],
+    "chiller": ["chiller"],
+    "window": ["window", "janela"],
+    "portatil": ["portátil", "portatil", "portable"],
+    "multi-split": ["multi-split", "multisplit", "multi split"],
+}
+
+# Display types
+DISPLAY_TYPES = {
+    "sete_segmentos": ["sete segmento", "7 segmento", "7segmento", "seven segment", "7-seg"],
+    "digital": ["digital", "display digital", "tela digital"],
+    "led": ["led", "display led"],
+    "sem_display": ["sem display", "sem display", "sem tela", "sem indicador"],
+    "lcd": ["lcd", "display lcd"],
+}
+
+# Safety components that set safety_flags in state
+SAFETY_COMPONENTS = {
+    "ipm", "placa", "placa inverter", "inverter board", "pcb",
+    "compressor", "alta tensão", "alta pressão", "high voltage",
+    "capacitor", "barramento dc", "dc bus", "link dc",
+}
+
+
+def _normalize_brand(text: str) -> str:
+    """Detect brand from text, return canonical name or ''."""
+    t = text.lower()
+    for brand, aliases in BRAND_ALIASES.items():
+        if brand in t or any(a in t for a in aliases):
+            return brand
+    return ""
+
+
+def _normalize_family(text: str) -> str:
+    """Detect equipment family from text."""
+    t = text.lower()
+    for family, keywords in FAMILY_KEYWORDS.items():
+        if any(k in t for k in keywords):
+            return family
+    return ""
+
+
+def _normalize_display(text: str) -> str:
+    """Detect display type from text."""
+    t = text.lower()
+    for dtype, keywords in DISPLAY_TYPES.items():
+        if any(k in t for k in keywords):
+            return dtype
+    return ""
+
+
+def _extract_error_codes(text: str) -> list[str]:
+    """Extract error codes like U4-01, E4, A3 from text."""
+    # Match U4-01, U4, E4-01, A3, etc.
+    pattern = r'\b([A-Za-z]\d{1,4}(?:[/-]\d{1,4})?)\b'
+    return _re.findall(pattern, text)
+
+
+def _extract_models(text: str) -> list[str]:
+    """Extract HVAC model patterns like RXQ20AYM, RXYQ20BRA."""
+    # Pattern: 2-10 uppercase letters followed by numbers and optional suffix
+    pattern = r'\b([A-Z]{2,10}\d{2,6}[A-Z0-9]*)\b'
+    return _re.findall(pattern, text.upper())
+
+
+def _extract_components(text: str) -> list[str]:
+    """Extract HVAC component keywords."""
+    t = text.lower()
+    found = []
+    for comp in SAFETY_COMPONENTS:
+        if comp in t:
+            found.append(comp)
+    return found
+
+
+def extract_state_from_messages(messages: list[dict]) -> dict:
+    """
+    Extract HVAC conversation state from the full messages array.
+
+    Parses ALL user messages (not just the current one) to build state.
+    This fixes the "amnesia" bug where the tutor forgets what the user
+    said in previous turns.
+
+    Returns:
+        {
+            "brand": str,
+            "family": str,
+            "alarm_code": str,       # e.g. "U4"
+            "subcode": str,         # e.g. "U4-01"
+            "outdoor_model": str,
+            "indoor_model": str,
+            "display_type": str,
+            "safety_flags": list[str],
+            "all_codes": list[str], # all codes found across conversation
+            "all_models": list[str],# all models found across conversation
+            "latest_user_message": str,
+        }
+    """
+    state = {
+        "brand": "",
+        "family": "",
+        "alarm_code": "",
+        "subcode": "",
+        "outdoor_model": "",
+        "indoor_model": "",
+        "display_type": "",
+        "safety_flags": [],
+        "all_codes": [],
+        "all_models": [],
+        "latest_user_message": "",
+    }
+
+    all_text_parts = []
+
+    for msg in messages:
+        role = msg.get("role", "")
+        if role != "user":
+            continue
+
+        content = msg.get("content", "")
+        if not content:
+            continue
+
+        all_text_parts.append(content)
+        state["latest_user_message"] = content  # keep updating = last user msg wins
+
+        # Extract brand
+        if not state["brand"]:
+            brand = _normalize_brand(content)
+            if brand:
+                state["brand"] = brand
+
+        # Extract family
+        if not state["family"]:
+            family = _normalize_family(content)
+            if family:
+                state["family"] = family
+
+        # Extract display type
+        if not state["display_type"]:
+            dtype = _normalize_display(content)
+            if dtype:
+                state["display_type"] = dtype
+
+        # Extract error codes
+        codes = _extract_error_codes(content)
+        for code in codes:
+            if code not in state["all_codes"]:
+                state["all_codes"].append(code)
+            # Determine subcode (with dash) vs alarm_code (without)
+            if "-" in code:
+                if not state["subcode"]:
+                    state["subcode"] = code
+                # Also set alarm_code to base (e.g. "U4" from "U4-01")
+                base = code.split("-")[0]
+                if not state["alarm_code"]:
+                    state["alarm_code"] = base
+            else:
+                # Plain code like "U4" or "E4"
+                if not state["alarm_code"]:
+                    state["alarm_code"] = code
+
+        # Extract models
+        models = _extract_models(content)
+        for model in models:
+            if model not in state["all_models"]:
+                state["all_models"].append(model)
+            # Determine outdoor vs indoor by prefix heuristics
+            # Outdoor: RXQ, RXYQ, RYYQ, FXMQ, FXAQ, etc.
+            # Indoor: usually FXC, FXD, BRC, RKXY, RCXY, etc.
+            outdoor_prefixes = ("RXQ", "RXY", "RYY", "FXM", "FXA", "FXC", "FXE", "FXK", "FXF", "FXS", "FXT", "FXD", "FXP", "FXV")
+            if model.startswith(outdoor_prefixes):
+                if not state["outdoor_model"]:
+                    state["outdoor_model"] = model
+            else:
+                if not state["indoor_model"]:
+                    state["indoor_model"] = model
+
+        # Extract safety components
+        components = _extract_components(content)
+        for comp in components:
+            if comp not in state["safety_flags"]:
+                state["safety_flags"].append(comp)
+
+    return state
+
+
+def merge_state(current_messages_state: dict, long_term_memory: dict) -> dict:
+    """
+    Merge current conversation state with long-term memory.
+
+    Priority (first non-empty wins):
+    1. current_messages_state — what user just said in this conversation
+    2. explicit_correction — user corrected something (not applicable yet)
+    3. session_state — from long-term memory with session tag
+    4. mem0 — preferences, decisions from Mem0
+    5. qdrant — domain knowledge from Qdrant
+    6. graph — last resort fallback
+
+    Long-term memory ONLY fills blank fields.
+    Never overwrites information provided in current conversation.
+    """
+    merged = {
+        "brand": "",
+        "family": "",
+        "alarm_code": "",
+        "subcode": "",
+        "outdoor_model": "",
+        "indoor_model": "",
+        "display_type": "",
+        "safety_flags": [],
+        "all_codes": [],
+        "all_models": [],
+        "source": {},  # tracks where each field came from
+    }
+
+    # Priority order for each field
+    # (field_name, sources_in_priority_order)
+    FIELD_SOURCES = [
+        ("brand", ["current_messages", "mem0", "qdrant"]),
+        ("family", ["current_messages", "mem0", "qdrant"]),
+        ("alarm_code", ["current_messages", "mem0"]),
+        ("subcode", ["current_messages", "mem0"]),
+        ("outdoor_model", ["current_messages", "mem0"]),
+        ("indoor_model", ["current_messages", "mem0"]),
+        ("display_type", ["current_messages"]),
+    ]
+
+    # Start with current messages state (highest priority)
+    for field, _ in FIELD_SOURCES:
+        if current_messages_state.get(field):
+            merged[field] = current_messages_state[field]
+            merged["source"][field] = "current_messages"
+
+    # Fill blanks from long-term memory
+    mem0_memories = long_term_memory.get("recent_relevant_memories", [])
+    mem0_prefs = long_term_memory.get("user_preferences", [])
+    mem0_decisions = long_term_memory.get("product_decisions", [])
+    mem0_rules = long_term_memory.get("domain_rules", [])
+
+    # Parse mem0 content for state fields
+    for mem in mem0_memories + mem0_prefs + mem0_decisions:
+        content = mem.get("content", "") if isinstance(mem, dict) else str(mem)
+
+        if not merged["brand"]:
+            b = _normalize_brand(content)
+            if b:
+                merged["brand"] = b
+                merged["source"]["brand"] = "mem0"
+
+        if not merged["family"]:
+            f = _normalize_family(content)
+            if f:
+                merged["family"] = f
+                merged["source"]["family"] = "mem0"
+
+        if not merged["alarm_code"] or not merged["subcode"]:
+            codes = _extract_error_codes(content)
+            for code in codes:
+                if "-" in code and not merged["subcode"]:
+                    merged["subcode"] = code
+                    merged["source"]["subcode"] = "mem0"
+                    base = code.split("-")[0]
+                    if not merged["alarm_code"]:
+                        merged["alarm_code"] = base
+                        merged["source"]["alarm_code"] = "mem0"
+                elif not merged["alarm_code"]:
+                    merged["alarm_code"] = code
+                    merged["source"]["alarm_code"] = "mem0"
+
+        if not merged["outdoor_model"]:
+            models = _extract_models(content)
+            for model in models:
+                if model.startswith(("RXQ", "RXY", "RYY", "FXM", "FXA")):
+                    merged["outdoor_model"] = model
+                    merged["source"]["outdoor_model"] = "mem0"
+                    break
+
+    # Merge safety flags (union, not overwrite)
+    current_safety = set(current_messages_state.get("safety_flags", []))
+    # Also extract from mem0 rules
+    for rule in mem0_rules:
+        content = rule.get("content", "") if isinstance(rule, dict) else str(rule)
+        for comp in _extract_components(content):
+            current_safety.add(comp)
+    merged["safety_flags"] = list(current_safety)
+
+    # Merge all_codes and all_models (union - keep all unique values)
+    merged["all_codes"] = list(dict.fromkeys(  # preserve order, dedupe
+        current_messages_state.get("all_codes", []) +
+        [c for c in (long_term_memory.get("conversation_state", {}) or {}) if c not in merged["all_codes"]]
+    ))
+    merged["all_models"] = list(dict.fromkeys(
+        current_messages_state.get("all_models", []) +
+        [m for m in (long_term_memory.get("conversation_state", {}).get("all_models", []) or [])
+         if m not in merged["all_models"]]
+    ))
+
+    return merged
+
+
+def state_sufficient_for_diagnosis(state: dict) -> bool:
+    """
+    Check if conversation state has enough info to skip ASK_CLARIFICATION.
+
+    Returns True if we have brand + family + subcode.
+    In this case, we should NOT ask for display/model again.
+    """
+    return bool(
+        state.get("brand") and
+        state.get("family") and
+        (state.get("subcode") or state.get("alarm_code"))
+    )
+
+
+def state_sufficient_for_triage(state: dict) -> bool:
+    """
+    Check if state has enough for triage WITHOUT asking more questions.
+
+    Returns True if we have brand + family + subcode + outdoor_model.
+    Next step should be diagnostic question, not model/request clarification.
+    """
+    return bool(
+        state.get("brand") and
+        state.get("family") and
+        (state.get("subcode") or state.get("alarm_code")) and
+        state.get("outdoor_model")
+    )

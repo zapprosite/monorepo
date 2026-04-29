@@ -233,3 +233,158 @@ class TestGracefulFailure:
 
         pack = build_context_pack(available)
         assert pack["total_items"] == 2
+
+
+# ---------------------------------------------------------------------------
+# Test extract_state_from_messages — fixes immediate conversation amnesia
+# ---------------------------------------------------------------------------
+
+import sys
+sys.path.insert(0, "scripts/hvac-rag")
+from hvac_memory_context import extract_state_from_messages, merge_state
+from hvac_memory_context import state_sufficient_for_diagnosis, state_sufficient_for_triage
+
+
+class TestExtractStateFromMessages:
+    """Test conversation state extraction from messages array."""
+
+    def test_u4_01_daikin_vrv_3turn(self):
+        """
+        Bug report scenario: 3 turns where user already provided all info.
+        Turn 1: 'od a ajudar me um alarme u4-01 daikin vrv'
+        Turn 2: 'no display de 7 segmento aparece u4-01 o modelo: RXQ20AYM'
+        Turn 3: 'apenas U4-01 no display de sete segmentos'
+
+        Expected: brand=daikin, family=vrv, subcode=U4-01, outdoor_model=RXQ20AYM
+        State should be sufficient for diagnosis.
+        """
+        messages = [
+            {"role": "user", "content": "od a ajudar me um alarme u4-01 daikin vrv"},
+            {"role": "assistant", "content": "Posso ajudar. Qual modelo?"},
+            {"role": "user", "content": "no display de 7 segmento aparece u4-01 o modelo: RXQ20AYM"},
+            {"role": "assistant", "content": "Ok, modelo RXQ20AYM VRV Daikin."},
+            {"role": "user", "content": "apenas U4-01 no display de sete segmentos"},
+        ]
+        state = extract_state_from_messages(messages)
+        assert state["brand"] == "daikin", f"brand should be daikin, got {state['brand']}"
+        assert state["family"] == "vrv", f"family should be vrv, got {state['family']}"
+        assert state["subcode"] == "u4-01", f"subcode should be u4-01, got {state['subcode']}"
+        assert state["alarm_code"] == "u4", f"alarm_code should be u4, got {state['alarm_code']}"
+        assert state["outdoor_model"] == "RXQ20AYM", f"outdoor_model should be RXQ20AYM, got {state['outdoor_model']}"
+        assert state["display_type"] == "sete_segmentos", f"display_type should be sete_segmentos, got {state['display_type']}"
+        assert state_sufficient_for_diagnosis(state) is True
+        assert state_sufficient_for_triage(state) is True
+
+    def test_single_turn_partial_info(self):
+        """Single turn with partial info — should not be sufficient for triage."""
+        messages = [
+            {"role": "user", "content": "tenho um erro u4-01"},
+        ]
+        state = extract_state_from_messages(messages)
+        assert state["alarm_code"] == "u4"
+        assert state["subcode"] == "u4-01"
+        assert state["brand"] == ""
+        assert state["family"] == ""
+        assert state_sufficient_for_diagnosis(state) is False
+        assert state_sufficient_for_triage(state) is False
+
+    def test_brand_and_family_extraction(self):
+        """Brand and family should be extracted from content."""
+        messages = [
+            {"role": "user", "content": "carrier vrv com erro e4"},
+        ]
+        state = extract_state_from_messages(messages)
+        assert state["brand"] == "carrier"
+        assert state["family"] == "vrv"
+        assert state["alarm_code"] == "e4"
+
+    def test_display_type_extraction(self):
+        """Display type should be extracted."""
+        messages = [
+            {"role": "user", "content": "display digital mostra u4-01"},
+        ]
+        state = extract_state_from_messages(messages)
+        assert state["display_type"] == "digital"
+
+    def test_empty_messages(self):
+        """Empty messages list should return empty state."""
+        state = extract_state_from_messages([])
+        assert state["brand"] == ""
+        assert state["family"] == ""
+        assert state["alarm_code"] == ""
+        assert state["subcode"] == ""
+        assert state["outdoor_model"] == ""
+
+    def test_latest_user_message_tracks_last(self):
+        """latest_user_message should be the last user message."""
+        messages = [
+            {"role": "user", "content": "primeira mensagem"},
+            {"role": "assistant", "content": "resposta"},
+            {"role": "user", "content": "ultima mensagem"},
+        ]
+        state = extract_state_from_messages(messages)
+        assert state["latest_user_message"] == "ultima mensagem"
+
+
+class TestMergeState:
+    """Test merge between current conversation and long-term memory."""
+
+    def test_current_messages_wins_over_mem0(self):
+        """
+        Priority: current_messages > mem0.
+        If current_messages has brand=daikin and mem0 has brand=carrier,
+        current_messages should win.
+        """
+        current = {"brand": "daikin", "family": "vrv", "alarm_code": "u4",
+                   "subcode": "u4-01", "outdoor_model": "", "indoor_model": "",
+                   "display_type": "", "safety_flags": [], "all_codes": ["u4-01"], "all_models": []}
+        long_term = {
+            "recent_relevant_memories": [{"content": "usuário tem carrier vrv"}],
+            "user_preferences": [], "product_decisions": [], "domain_rules": [],
+            "conversation_state": {}
+        }
+        merged = merge_state(current, long_term)
+        assert merged["brand"] == "daikin", "current_messages brand should win"
+
+    def test_long_term_fills_blanks(self):
+        """Long-term memory should fill blank fields from current_messages."""
+        current = {"brand": "", "family": "", "alarm_code": "u4",
+                   "subcode": "u4-01", "outdoor_model": "", "indoor_model": "",
+                   "display_type": "", "safety_flags": [], "all_codes": ["u4-01"], "all_models": []}
+        long_term = {
+            "recent_relevant_memories": [{"content": "daikin vrv modelo RXQ20AYM"}],
+            "user_preferences": [], "product_decisions": [], "domain_rules": [],
+            "conversation_state": {}
+        }
+        merged = merge_state(current, long_term)
+        assert merged["brand"] == "daikin"
+        assert merged["family"] == "vrv"
+        assert merged["alarm_code"] == "u4", "current_messages alarm_code should not be overwritten"
+
+
+class TestStateSufficiency:
+    """Test state sufficiency checks."""
+
+    def test_sufficient_when_brand_family_subcode(self):
+        """Sufficient for diagnosis when brand + family + subcode."""
+        state = {"brand": "daikin", "family": "vrv", "alarm_code": "u4",
+                 "subcode": "u4-01", "outdoor_model": "", "indoor_model": "",
+                 "display_type": "", "safety_flags": [], "all_codes": [], "all_models": []}
+        assert state_sufficient_for_diagnosis(state) is True
+        assert state_sufficient_for_triage(state) is False
+
+    def test_sufficient_for_triage_when_has_model(self):
+        """Sufficient for triage when brand + family + subcode + outdoor_model."""
+        state = {"brand": "daikin", "family": "vrv", "alarm_code": "u4",
+                 "subcode": "u4-01", "outdoor_model": "RXQ20AYM", "indoor_model": "",
+                 "display_type": "", "safety_flags": [], "all_codes": [], "all_models": []}
+        assert state_sufficient_for_diagnosis(state) is True
+        assert state_sufficient_for_triage(state) is True
+
+    def test_not_sufficient_without_brand(self):
+        """Not sufficient when missing brand."""
+        state = {"brand": "", "family": "vrv", "alarm_code": "u4",
+                 "subcode": "u4-01", "outdoor_model": "", "indoor_model": "",
+                 "display_type": "", "safety_flags": [], "all_codes": [], "all_models": []}
+        assert state_sufficient_for_diagnosis(state) is False
+        assert state_sufficient_for_triage(state) is False
