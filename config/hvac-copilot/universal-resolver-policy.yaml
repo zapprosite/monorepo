@@ -1,0 +1,115 @@
+universal_resolver:
+  enabled: true
+  version: "1.0.0"
+  description: "Universal HVAC resolver — resolver-first, not RAG-first"
+
+evidence_ladder:
+  order:
+    - manual_exact
+    - manual_family
+    - technical_memory
+    - graph_internal
+    - official_web
+    - web_fallback
+    - llm_triage
+    - insufficient_context
+  termination_rules:
+    manual_exact: "respond_with_manual"
+    manual_family: "respond_with_family_note"
+    technical_memory: "respond_with_memory_cite"
+    graph_internal: "respond_with_graph_hint"
+    official_web: "trigger_web_search"
+    web_fallback: "trigger_web_search"
+    llm_triage: "safe_triage_mode"
+    insufficient_context: "ask_more_info"
+
+web_search:
+  enabled: true
+  providers:
+    - tavily
+    - ddg
+  official_domains:
+    - daikin.com.br
+    - carrier.com.br
+    - midea.com.br
+    - springer.com.br
+    - komeco.com.br
+    - elgin.com.br
+    - gree.com.br
+    - samsung.com.br
+    - lg.com
+    - fujitsu.com.br
+    - trane.com
+    - hitachi.com.br
+  fallback_trigger: "coverage_below_0.6"
+  max_results: 4
+  search_depth: "medium"
+
+safety:
+  blocked_values:
+    - "Never cite specific V/A/Ohm/bar/psi/BTU without manual_exact evidence"
+    - "Never suggest energized measurement without manual_exact and explicit safety note"
+    - "Never invent compressor specificatons, load, or pressure values"
+  safety_keywords:
+    - ipm
+    - placa inverter
+    - alta tensão
+    - compressor
+    - barramento dc
+    - capacitor
+    - energizado
+  always_ask_before Measure_energized: true
+
+model_selection:
+  primary: "minimax-m2.7"
+  triage_fallback: "minimax-m2.7"
+  evidence_threshold_for_direct_response: 0.75
+
+answer_constraints:
+  max_chars_normal: 600
+  max_chars_procedure: 900
+  max_questions_per_response: 1
+  required_labeling: "always_show_evidence_level"
+  suppress_internal_labels: true
+
+coverage_thresholds:
+  manual_exact_min: 0.9
+  manual_family_min: 0.7
+  web_search_trigger: 0.5
+  insufficient_context_trigger: 0.15
+
+brand_coverage:
+  # ALL brands sold in Brazil must be handled
+  full_coverage:
+    - Daikin
+    - Springer
+    - Midea
+    - Carrier
+    - Komeco
+    - Elgin
+    - Gree
+    - Agratto
+    - Comfee
+    - LG
+    - Samsung
+    - Fujitsu
+    - Trane
+    - Hitachi
+  partial_coverage_warning: "sem manual indexado — usando triagem técnica"
+
+internal_replacements:
+  internal_labels:
+    suppress:
+      - "Graph interno"
+      - "Evidência:"
+      - "Tavily"
+      - "DDG"
+      - "Qdrant"
+      - "Mem0"
+      - "MCP"
+    replace_with:
+      "Graph interno": "pela triagem técnica"
+      "Evidência:": "Pela base técnica"
+      "Tavily/DDG": "consulta externa"
+      "Qdrant": "base de manuais"
+      "Mem0/MCP": "memória técnica"
