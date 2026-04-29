@@ -148,6 +148,89 @@ def test_default_provider_order_places_tavily_before_ddg():
     assert order.index("tavily") < order.index("ddg")
 
 
+def test_web_search_provider_default_is_tavily_not_minimax_mcp(monkeypatch):
+    """Verify WEB_SEARCH_PROVIDER defaults to 'tavily', not 'minimax_mcp'."""
+    monkeypatch.delenv("WEB_SEARCH_PROVIDER", raising=False)
+    web = load_module("hvac_web_search_default_provider_test", "hvac_web_search.py")
+
+    assert web.WEB_SEARCH_PROVIDER == "tavily"
+
+
+def test_minimax_mcp_stub_not_called_when_tavily_is_default(monkeypatch):
+    """minimax_mcp stub returns empty list and is skipped when tavily is default."""
+    monkeypatch.delenv("WEB_SEARCH_PROVIDER", raising=False)
+    monkeypatch.setenv("TAVILY_API_KEY", "test-key")
+    web = load_module("hvac_web_search_minimax_stub_test", "hvac_web_search.py")
+
+    # The minimax_mcp stub should return empty list
+    import asyncio
+    result = asyncio.get_event_loop().run_until_complete(web.search_web_minimax_mcp("test query"))
+    assert result == []
+
+    # And WEB_SEARCH_PROVIDER should still be tavily, not minimax_mcp
+    assert web.WEB_SEARCH_PROVIDER == "tavily"
+
+
+def test_missing_tavily_api_key_causes_skip_not_crash(monkeypatch):
+    """When TAVILY_API_KEY is missing, tavily is skipped but fallback chain still returns results."""
+    monkeypatch.delenv("TAVILY_API_KEY", raising=False)
+    monkeypatch.delenv("WEB_SEARCH_PROVIDER", raising=False)
+    web = load_module("hvac_web_search_no_key_test", "hvac_web_search.py")
+
+    import asyncio
+    result = asyncio.get_event_loop().run_until_complete(web.search_web("OpenAI lawsuit"))
+
+    # Should return list (fallback worked), not crash
+    assert isinstance(result, list)
+    # google_news_rss returned results since it doesn't need API key
+    assert len(result) > 0
+    # Provider should be google_news_rss (last fallback that returned results)
+    assert result[0]["provider"] == "google_news_rss"
+
+
+def test_fallback_chain_tavily_then_ddg_then_google_news(monkeypatch):
+    """Verify fallback order is tavily -> ddg -> google_news."""
+    monkeypatch.setenv("WEB_SEARCH_PROVIDER", "tavily")
+    monkeypatch.setenv("WEB_SEARCH_FALLBACKS", "ddg,google_news")
+    web = load_module("hvac_web_search_fallback_chain_test", "hvac_web_search.py")
+
+    providers = [web.WEB_SEARCH_PROVIDER] + [
+        p for p in web.WEB_SEARCH_FALLBACKS if p != web.WEB_SEARCH_PROVIDER
+    ]
+
+    assert providers == ["tavily", "ddg", "google_news"]
+
+
+def test_provider_name_not_in_response_text():
+    """Provider name (tavily/ddg/google_news) must not leak into final response."""
+    pipe = load_module("hvac_rag_pipe_for_provider_leak_test", "hvac_rag_pipe.py")
+    pkg = {
+        "conversation_state": {"brand": "Springer", "family": "Sprint", "alarm_code": "E1"},
+        "memory_context_str": "",
+        "evidence_level": "official_web",
+        "web_context": [{
+            "provider": "ddg",
+            "confidence": 0.75,
+            "title": "Test Result",
+            "snippet": "Resultado externo sobre ar-condicionado Springer.",
+        }],
+        "web_provider": "ddg",
+        "web_confidence": 0.75,
+        "manual_context": [],
+        "safety_flags": [],
+        "missing_info": [],
+    }
+
+    prompt = pipe.build_minimax_system_prompt(pkg)
+
+    # Provider names must not appear in the prompt
+    assert "ddg" not in prompt.lower()
+    assert "tavily" not in prompt.lower()
+    assert "google_news" not in prompt.lower()
+    assert "google news" not in prompt.lower()
+    assert "duckduckgo" not in prompt.lower()
+
+
 def test_tavily_runtime_options_are_env_configurable(monkeypatch):
     monkeypatch.setenv("TAVILY_SEARCH_DEPTH", "advanced")
     monkeypatch.setenv("TAVILY_MAX_RESULTS", "7")
