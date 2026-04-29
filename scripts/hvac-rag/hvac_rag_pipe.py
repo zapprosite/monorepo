@@ -667,13 +667,12 @@ def build_minimax_system_prompt(pkg: dict) -> str:
     web_ctx = pkg.get("web_context", [])
     if web_ctx:
         lines.append("")
-        provider = pkg.get("web_provider") or web_ctx[0].get("provider", "web")
         confidence = pkg.get("web_confidence", 0)
         if level == "official_web":
-            lines.append(f"CONTEXTO WEB OFICIAL ({provider}, confiança {confidence:.2f}):")
+            lines.append(f"CHECAGEM EXTERNA ({confidence:.2f}):")
             lines.append("Use como checagem externa, nunca como manual de serviço.")
         else:
-            lines.append(f"CHECAGEM EXTERNA FALLBACK ({provider}, confiança {confidence:.2f}):")
+            lines.append(f"CHECAGEM EXTERNA ({confidence:.2f}):")
             lines.append("Rotule como checagem externa; não trate como manual.")
         for i, r in enumerate(web_ctx[:4], 1):
             lines.append(f"[{i}] {r.get('title', '')[:80]}")

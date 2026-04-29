@@ -85,6 +85,7 @@ def test_prompt_pt_br_has_no_cjk_or_cyrillic():
     assert not re.search(r"[\u0400-\u04FF\u4E00-\u9FFF]", prompt)
     assert "checagem externa" in prompt
     assert "não como manual" in prompt
+    assert "tavily" not in prompt.lower()
 
 
 def test_final_response_charset_filter_removes_cjk_and_cyrillic():
@@ -145,3 +146,23 @@ def test_default_provider_order_places_tavily_before_ddg():
     ]
 
     assert order.index("tavily") < order.index("ddg")
+
+
+def test_tavily_runtime_options_are_env_configurable(monkeypatch):
+    monkeypatch.setenv("TAVILY_SEARCH_DEPTH", "advanced")
+    monkeypatch.setenv("TAVILY_MAX_RESULTS", "7")
+
+    web = load_module("hvac_web_search_env_options_test", "hvac_web_search.py")
+
+    assert web._tavily_search_depth() == "advanced"
+    assert web._tavily_max_results() == 7
+
+
+def test_tavily_runtime_options_default_to_safe_values(monkeypatch):
+    monkeypatch.setenv("TAVILY_SEARCH_DEPTH", "unsupported")
+    monkeypatch.setenv("TAVILY_MAX_RESULTS", "99")
+
+    web = load_module("hvac_web_search_env_defaults_test", "hvac_web_search.py")
+
+    assert web._tavily_search_depth() == "basic"
+    assert web._tavily_max_results() == 10
