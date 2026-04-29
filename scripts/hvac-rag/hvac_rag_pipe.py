@@ -230,6 +230,38 @@ def _log_query_meta(query: str, extra: dict = None) -> str:
     return base
 
 
+NON_PTBR_SCRIPT_RE = re.compile(
+    r"[\u0400-\u04FF\u0500-\u052F\u2DE0-\u2DFF\uA640-\uA69F"
+    r"\u3040-\u30FF\u3400-\u4DBF\u4E00-\u9FFF\uAC00-\uD7AF]"
+)
+
+
+def enforce_ptbr_charset(text: str) -> str:
+    """Remove CJK/Cyrillic script leakage from final user-visible text."""
+    if not text:
+        return text
+    cleaned = NON_PTBR_SCRIPT_RE.sub("", text)
+    cleaned = re.sub(r"[ \t]{2,}", " ", cleaned)
+    cleaned = re.sub(r" *\n *", "\n", cleaned)
+    return cleaned.strip()
+
+
+TECHNICAL_VALUE_RE = re.compile(
+    r"\b\d+(?:[,.]\d+)?\s?(?:V|VAC|VDC|A|mA|Ω|ohm|ohms|bar|psi|Pa|kPa|Hz|W|kW|BTU/?h?|RPM)\b",
+    re.IGNORECASE,
+)
+
+
+def suppress_unsupported_technical_values(text: str, evidence_level: str) -> str:
+    """Avoid numeric technical values when the answer is not backed by an exact manual."""
+    if evidence_level == "manual_exato" or not text:
+        return text
+    cleaned = TECHNICAL_VALUE_RE.sub("valor conforme etiqueta/manual", text)
+    cleaned = re.sub(r"(valor conforme etiqueta/manual)(?:\s*(?:entre|de|a|até)\s*)+", r"\1 ", cleaned)
+    cleaned = re.sub(r"[ \t]{2,}", " ", cleaned)
+    return cleaned.strip()
+
+
 async def get_embedding(text: str) -> Optional[list]:
     """Get embedding via Ollama with timeout and retry."""
     txt = text[:2500]
@@ -635,13 +667,12 @@ def build_minimax_system_prompt(pkg: dict) -> str:
     web_ctx = pkg.get("web_context", [])
     if web_ctx:
         lines.append("")
-        provider = pkg.get("web_provider") or web_ctx[0].get("provider", "web")
         confidence = pkg.get("web_confidence", 0)
         if level == "official_web":
-            lines.append(f"CONTEXTO WEB OFICIAL ({provider}, confiança {confidence:.2f}):")
+            lines.append(f"CHECAGEM EXTERNA ({confidence:.2f}):")
             lines.append("Use como checagem externa, nunca como manual de serviço.")
         else:
-            lines.append(f"CHECAGEM EXTERNA FALLBACK ({provider}, confiança {confidence:.2f}):")
+            lines.append(f"CHECAGEM EXTERNA ({confidence:.2f}):")
             lines.append("Rotule como checagem externa; não trate como manual.")
         for i, r in enumerate(web_ctx[:4], 1):
             lines.append(f"[{i}] {r.get('title', '')[:80]}")
@@ -951,7 +982,11 @@ async def chat_completions(request: ChatCompletionRequest, http_request: Request
                 # MiniMax M2.7 puts extended thinking in reasoning_content
                 raw_content = message.get("content") or message.get("reasoning_content") or ""
                 # Apply friendly rewriter as safety net
-                friendly_content = rewrite_response(raw_content, user_query=user_query)
+                friendly_content = enforce_ptbr_charset(rewrite_response(raw_content, user_query=user_query))
+                friendly_content = suppress_unsupported_technical_values(
+                    friendly_content,
+                    pkg.get("evidence_level", "nenhum"),
+                )
                 result["choices"][0]["message"]["content"] = friendly_content
                 result["model"] = MODEL_NAME
 
@@ -1093,7 +1128,7 @@ async def chat_completions_field_tutor(request: ChatCompletionRequest):
                 result = r.json()
                 message = result.get("choices", [{}])[0].get("message", {})
                 raw_content = message.get("content") or message.get("reasoning_content") or ""
-                friendly_content = rewrite_response(raw_content, user_query=user_query)
+                friendly_content = enforce_ptbr_charset(rewrite_response(raw_content, user_query=user_query))
                 result["choices"][0]["message"]["content"] = friendly_content
                 result["model"] = MODEL_NAME
                 return result

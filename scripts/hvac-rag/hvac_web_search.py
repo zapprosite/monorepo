@@ -23,6 +23,13 @@ from typing import Any
 import httpx
 
 
+def _env_int(name: str, default: int) -> int:
+    try:
+        return int(os.environ.get(name, str(default)))
+    except ValueError:
+        return default
+
+
 WEB_SEARCH_TIMEOUT = int(os.environ.get("WEB_SEARCH_TIMEOUT", "15"))
 WEB_SEARCH_PROVIDER = os.environ.get("WEB_SEARCH_PROVIDER", "minimax_mcp").strip().lower()
 WEB_SEARCH_FALLBACKS = [
@@ -34,6 +41,8 @@ TAVILY_MCP_URL = os.environ.get("TAVILY_MCP_URL", "https://mcp.tavily.com/mcp/")
 TAVILY_API_URL = os.environ.get("TAVILY_API_URL", "https://api.tavily.com/search").strip()
 TAVILY_USAGE_URL = os.environ.get("TAVILY_USAGE_URL", "https://api.tavily.com/usage").strip()
 TAVILY_API_KEY = os.environ.get("TAVILY_API_KEY", "").strip()
+TAVILY_SEARCH_DEPTH = os.environ.get("TAVILY_SEARCH_DEPTH", "basic").strip().lower() or "basic"
+TAVILY_MAX_RESULTS = _env_int("TAVILY_MAX_RESULTS", 5)
 GOOGLE_NEWS_RSS_URL = os.environ.get(
     "GOOGLE_NEWS_RSS_URL",
     "https://news.google.com/rss/search",
@@ -42,6 +51,14 @@ GOOGLE_NEWS_RSS_URL = os.environ.get(
 
 def _safe_log(msg: str) -> None:
     print(f"[hvac-web-search] {msg}")
+
+
+def _tavily_max_results() -> int:
+    return max(1, min(10, TAVILY_MAX_RESULTS))
+
+
+def _tavily_search_depth() -> str:
+    return TAVILY_SEARCH_DEPTH if TAVILY_SEARCH_DEPTH in ("basic", "advanced") else "basic"
 
 
 def _provider_result(provider: str, title: str, url: str, snippet: str, confidence: float) -> dict:
@@ -189,11 +206,12 @@ async def search_web_tavily_mcp(query: str) -> list[dict]:
                     "name": "tavily_search",
                     "arguments": {
                         "query": query,
-                        "search_depth": "basic",
-                        "max_results": 5,
+                        "search_depth": _tavily_search_depth(),
+                        "max_results": _tavily_max_results(),
                         "include_answer": False,
                         "include_raw_content": False,
                         "include_images": False,
+                        "include_usage": True,
                     },
                 },
             }
@@ -220,11 +238,12 @@ async def search_web_tavily_api(query: str) -> list[dict]:
 
     payload = {
         "query": query,
-        "search_depth": "basic",
-        "max_results": 5,
+        "search_depth": _tavily_search_depth(),
+        "max_results": _tavily_max_results(),
         "include_answer": False,
         "include_raw_content": False,
         "include_images": False,
+        "include_usage": True,
     }
     try:
         async with httpx.AsyncClient(timeout=WEB_SEARCH_TIMEOUT, follow_redirects=True) as client:
@@ -241,7 +260,7 @@ async def search_web_tavily_api(query: str) -> list[dict]:
             return []
         data = response.json()
         results = []
-        for item in data.get("results", [])[:5]:
+        for item in data.get("results", [])[:_tavily_max_results()]:
             title = item.get("title") or ""
             url = item.get("url") or ""
             snippet = item.get("content") or item.get("snippet") or ""
