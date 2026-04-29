@@ -1,0 +1,113 @@
+# HVAC Memory Policy — Zappro Clima Tutor
+# Regra: antes de responder, context_fetch. Depois, memory_writeback.
+
+memory_categories:
+  user_preferences:
+    description: "Estilo de resposta, idioma, preferências de formatação"
+    save_trigger: "usuário indica preferência explícita"
+    examples:
+      - "prefere respostas curtas"
+      - "quer explicação técnica detalhada"
+      - "gosta de passo a passo"
+    ttl_days: 365
+
+  product_decisions:
+    description: "Decisões de produto, escopo, modelos suportados"
+    save_trigger: "decisão de produto ou escopo técnico"
+    examples:
+      - "zappro-clima-tutor é o modelo público"
+      - "escopo é ar-condicionado inverter Brasil"
+      - "não expor hvac-manual-strict no seletor"
+      - "MiniMax M2.7 é primary answer model"
+    ttl_days: 999
+
+  hvac_domain_rules:
+    description: "Regras do domínio HVAC Brasil"
+    save_trigger: "regra aprendida sobre HVAC"
+    examples:
+      - "manual de serviço tem prioridade sobre catálogo comercial"
+      - "inmetro PBE é obrigatório para produtos comercializados no Brasil"
+    ttl_days: 999
+
+  active_constraints:
+    description: "Restrições ativas da conversa/projeto"
+    save_trigger: "constraint mencionado pelo usuário"
+    ttl_days: 30
+
+  conversation_state:
+    description: "Estado atual da conversa: marca, modelo, código de erro"
+    save_trigger: "informação extraída da conversa"
+    examples:
+      - "brand: Daikin"
+      - "outdoor_model: RXQ20AYM"
+      - "alarm_code: U4-01"
+    ttl_days: 7
+
+  tool_results:
+    description: "Resultados de ferramentas externos (Qdrant, Mem0)"
+    save_trigger: "resultado de busca importante"
+    ttl_days: 1
+
+  rejected_noise:
+    description: "Conteúdo rejeitado por não ser HVAC/Brasil"
+    save_trigger: "manual rejeitado por escopo"
+    ttl_days: 90
+
+save_rules:
+  WHEN_TO_SAVE:
+    preference: true   # preferências claras do usuário
+    decision: true     # decisões de produto/escopo
+    fact: true         # fatos reutilizáveis
+    checkpoint: true   # checkpoints canônicos
+    error_repeat: true # erros/falhas recorrentes
+
+  WHEN_NOT_TO_SAVE:
+    secret: true       # NUNCA tokens/passwords/keys
+    raw_response: false # respostas completas sem resumo
+    temp_prompt: true  # prompts temporários
+    large_log: true   # logs grandes
+    personal_data: true # dados pessoais desnecessários
+
+limits:
+  max_memories_per_context: 12
+  max_tokens_in_context: 2500
+  max_memories_per_writeback: 5
+  summary_max_chars: 300
+
+deduplication:
+  enabled: true
+  hash_algorithm: "md5"
+  ignore_whitespace: true
+
+prioritization:
+  priority_order:
+    - active
+    - high_confidence
+    - recent
+  fallback: "most_recent"
+
+domain_filters:
+  hvac:
+    mem0_search_filter:
+      domain: "hvac"
+      status: "active"
+    postgres_event_types:
+      - interaction
+      - decision
+      - preference
+    qdrant_filters:
+      status: "active"
+      domain: "hvac"
+
+security:
+  BLOCKED_PATTERNS:
+    - "api_key"
+    - "password"
+    - "token"
+    - "sk-"
+    - "secret"
+    - "cfk_"
+    - "cfut_"
+    - "ghp_"
+  audit_log: true
+  writeback_audit_table: "hvac_memory.agent_memory_events"

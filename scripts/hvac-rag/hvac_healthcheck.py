@@ -61,6 +61,10 @@ def import_local_module(name: str, filename: str):
 _juez_mod = import_local_module("hvac_juiz", "hvac_juiz.py")
 judge = _juez_mod.judge
 
+# Memory context health check
+_mem_ctx_mod = import_local_module("hvac_memory_context", "hvac_memory_context.py")
+memory_health_summary = _mem_ctx_mod.memory_health_summary
+
 # =============================================================================
 # HTTP Client
 # =============================================================================
@@ -248,6 +252,21 @@ async def check_printable_endpoint() -> dict:
         return {"status": "fail", "endpoint": "/v1/chat/completions/printable", "query_hash": q_hash, "error": str(e)}
 
 
+async def check_memory_context() -> dict:
+    """Check memory context services (Mem0, Postgres, Qdrant memory layer)."""
+    try:
+        result = await memory_health_summary()
+        all_ok = all(v.get("status") == "ok" for v in result.get("services", {}).values())
+        return {
+            "status": "pass" if all_ok else "fail",
+            "endpoint": "/memory/health",
+            "services": result.get("services", {}),
+            "overall": result.get("overall", "unknown"),
+        }
+    except Exception as e:
+        return {"status": "fail", "endpoint": "/memory/health", "error": str(e)}
+
+
 # =============================================================================
 # Main
 # =============================================================================
@@ -261,6 +280,7 @@ async def run_healthcheck() -> dict:
         check_qdrant_collection(),
         check_field_tutor_endpoint(),
         check_printable_endpoint(),
+        check_memory_context(),
         return_exceptions=True
     )
 

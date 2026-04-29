@@ -47,6 +47,13 @@ rewrite_response = _fr_mod.rewrite_response
 rewrite_blocked = _fr_mod.rewrite_blocked_response
 rewrite_ask = _fr_mod.rewrite_ask_clarification_response
 
+# Memory context — context_fetch + memory_writeback
+_mem_ctx_mod = import_local_module("hvac_memory_context", "hvac_memory_context.py")
+context_fetch = _mem_ctx_mod.context_fetch
+memory_writeback = _mem_ctx_mod.memory_writeback
+build_context_pack = _mem_ctx_mod.build_context_pack
+memory_health_summary = _mem_ctx_mod.memory_health_summary
+
 import httpx
 import uvicorn
 from fastapi import FastAPI, HTTPException, Request
@@ -428,7 +435,9 @@ Responda em português do Brasil."""
 # Retrieval Package Builder
 # =============================================================================
 
-def build_retrieval_package(user_query: str, hits: list, juiz_meta: dict) -> dict:
+def build_retrieval_package(user_query: str, hits: list, juiz_meta: dict,
+                             memory_context: Optional[dict] = None,
+                             memory_context_str: str = "") -> dict:
     """
     Build a structured retrieval package for MiniMax to format the final answer.
 
@@ -443,6 +452,8 @@ def build_retrieval_package(user_query: str, hits: list, juiz_meta: dict) -> dic
         "safety_flags": [],
         "missing_info": [],
         "next_best_question": None,
+        "memory_context": memory_context or {},
+        "memory_context_str": memory_context_str,
     }
 
     # Extract conversation state from juí z metadata
@@ -522,6 +533,13 @@ def build_minimax_system_prompt(pkg: dict) -> str:
     if state.get("error_codes"):
         codes = ", ".join(state["error_codes"])
         lines.append(f"Erros mencionados: {codes}")
+
+    # Add memory context if available
+    memory_context_str = pkg.get("memory_context_str", "")
+    if memory_context_str:
+        lines.append("")
+        lines.append(memory_context_str)
+        lines.append("")
 
     # Add evidence level
     level = pkg.get("evidence_level", "nenhum")
@@ -634,7 +652,7 @@ async def list_models():
 
 
 @app.post("/v1/chat/completions")
-async def chat_completions(request: ChatCompletionRequest):
+async def chat_completions(request: ChatCompletionRequest, http_request: Request):
     """
     OpenAI-compatible /v1/chat/completions endpoint.
 
@@ -660,6 +678,29 @@ async def chat_completions(request: ChatCompletionRequest):
             status_code=400,
             content={"error": {"message": "No user message found", "type": "invalid_request"}}
         )
+
+    # Extract user_id and conversation_id from HTTP headers (OpenAI-compatible)
+    user_id = "anonymous"
+    conversation_id = "default"
+    raw_headers = dict(http_request.headers)
+    user_id = raw_headers.get("user_id", user_id)
+    conversation_id = raw_headers.get("conversation_id", conversation_id)
+
+    # Buscar memória relevante antes de responder (timeout 1s para não bloquear)
+    fetch_result = {"user_preferences": [], "product_decisions": [], "domain_rules": [],
+                    "conversation_state": {}, "recent_relevant_memories": [], "source_summary": {}}
+    memory_context_str = ""
+    try:
+        fetch_result = await asyncio.wait_for(
+            context_fetch(user_id=user_id, conversation_id=conversation_id,
+                          query=user_query, domain="hvac"),
+            timeout=1.0,
+        )
+        memory_context_str = build_context_pack(fetch_result)
+    except asyncio.TimeoutError:
+        _safe_log(f"context_fetch timeout for user={user_id} conv={conversation_id}")
+    except Exception as e:
+        _safe_log(f"context_fetch failed: {e}")
 
     q_lower = user_query.lower().strip()
 
@@ -706,7 +747,9 @@ async def chat_completions(request: ChatCompletionRequest):
     # ── APPROVED — build retrieval package + call MiniMax ─────────────────────
     hits = await search_qdrant(user_query, top_k=DEFAULT_TOP_K)
     context = build_rag_context(hits)
-    pkg = build_retrieval_package(user_query, hits, juez_meta)
+    pkg = build_retrieval_package(user_query, hits, juez_meta,
+                                  memory_context=fetch_result,
+                                  memory_context_str=memory_context_str)
 
     # Build MiniMax system prompt (primary reasoning engine)
     minimax_system = build_minimax_system_prompt(pkg)
@@ -748,6 +791,25 @@ async def chat_completions(request: ChatCompletionRequest):
                 friendly_content = rewrite_response(raw_content, user_query=user_query)
                 result["choices"][0]["message"]["content"] = friendly_content
                 result["model"] = MODEL_NAME
+
+                # Salvar interação na memória após resposta
+                try:
+                    memory_writeback(
+                        user_id=user_id,
+                        conversation_id=conversation_id,
+                        query=user_query,
+                        answer=friendly_content,
+                        metadata={
+                            "domain": "hvac",
+                            "model": "zappro-clima-tutor",
+                            "mode": "guided_triage",
+                            "evidence": pkg.get("evidence_level", "unknown"),
+                            "conversation_state": pkg.get("conversation_state", {}),
+                        },
+                    )
+                except Exception as e:
+                    _safe_log(f"memory_writeback failed: {e}")
+
                 return result
             else:
                 err_type = r.json().get("error", {}).get("type", "upstream_error") if r.text else "upstream_error"
@@ -1059,6 +1121,12 @@ async def health():
         "public_model": MODEL_NAME,
         "internal_models": INTERNAL_MODELS,
     }
+
+
+@app.get("/memory/health")
+async def memory_health():
+    result = await memory_health_summary()
+    return JSONResponse(content=result)
 
 
 @app.get("/")
