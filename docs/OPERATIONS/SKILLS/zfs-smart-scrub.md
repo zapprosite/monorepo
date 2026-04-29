@@ -2,7 +2,7 @@
 
 **Purpose:** Run ZFS scrub with intelligent error analysis, detect ECC/correctable errors, predict disk failure before it happens, alert on degradation, and automatically create snapshot before any repair operation.
 **Complexity:** High
-**Risk:** Medium (scrub is read-only, but发现的错误可能需要修复操作)
+**Risk:** Medium (scrub is read-only, but any errors found may require repair operations)
 **When to Use:** Agendado (semanal), após erro no pool, quando disk SMART indicar problema
 
 ## When to Use
@@ -286,7 +286,7 @@ sudo zfs destroy tank@pre-scrub-20260301-120000
 
 - `zfs-snapshot-and-rollback.md` — skill base para snapshots
 - `linux-host-diagnostic.md` — diagnóstico geral do host
-- `monitoring-health-check.md` — verificar serviços após операции
+- `monitoring-health-check.md` — verificar serviços após operations
 - `/srv/ops/agents/scripts/zfs-scrub.sh` — script agent para execução automática
 
 ## Integration Points

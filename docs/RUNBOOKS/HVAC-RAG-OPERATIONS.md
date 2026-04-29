@@ -1,7 +1,8 @@
 # HVAC RAG Operations Runbook
 
-**Service:** HVAC RAG Pipe
-**Version:** 1.0.0
+**Service:** HVAC RAG Pipe — Zappro Clima Tutor
+**Version:** 2.0.0
+**Public Model:** zappro-clima-tutor
 **Status:** Pilot Ready (Internal / Supervised Technical Use Only)
 **Last Updated:** 2026-04-28
 
@@ -9,14 +10,23 @@
 
 ## Overview
 
-The HVAC RAG system provides technical assistance for field technicians working on HVAC inverter equipment. It combines a Qdrant vector database with LiteLLM for natural language queries, protected by a Juiz pre-flight validator.
+The HVAC RAG system provides a friendly tutor-style assistant for field technicians working on HVAC inverter equipment. It combines a Qdrant vector database (context/evidence), an internal diagnostic graph, and MiniMax M2.7 as the **primary writing engine**. A Juiz pre-flight validator protects the system.
+
+**Architecture principle:** RAG provides evidence. MiniMax writes the answer. The friendly response rewriter is the final safety net.
 
 ```
-User Query → Juiz (validate) → Qdrant (search) → Field Tutor / Printable → LiteLLM → Response
-                    ↓
-              Block if out-of-domain
-              Ask if model incomplete
+User Query → Juiz (validate)
+              ↓
+         Router (what mode?)
+              ↓
+         guided_triage  →  Qdrant (top_k=6)  →  MiniMax M2.7  →  Friendly Rewriter  →  Response
+         field_tutor    →  Qdrant (top_k=10) →  MiniMax M2.7  →  Friendly Rewriter  →  Response
+         printable      →  Qdrant + Formatter →  Plain text
+              ↓
+         No manual?  →  Graph internal / Web search (controlled fallback)
 ```
+
+**Public model exposed:** `zappro-clima-tutor` (only model in `/v1/models`)
 
 **IMPORTANT:** This system is for **internal technical use only**. Do not expose to end customers without a burn-in period.
 
@@ -25,23 +35,40 @@ User Query → Juiz (validate) → Qdrant (search) → Field Tutor / Printable �
 ## Architecture
 
 ```
-OpenWebUI
-    └── hvac-rag-pipe.py (port 4017)
-            ├── Juiz (regex pre-flight validation)
-            ├── Qdrant hvac_manuals_v1 (442 points)
+OpenWebUI (default model: zappro-clima-tutor)
+    └── hvac-rag-pipe.py (port 4017, v2.0.0)
+            ├── Juiz (regex pre-flight, <50ms)
+            ├── Router (printable / guided_triage / field_tutor)
+            ├── Qdrant hvac_manuals_v1 (context/evidence)
             ├── Ollama (nomic-embed-text embeddings)
-            └── LiteLLM (model inference)
+            ├── MiniMax M2.7 (primary writing engine — NOT raw RAG output)
+            └── Friendly Response Rewriter (tone safety net)
 ```
+
+### Public vs Internal
+
+| Exposto em `/v1/models` | Interno (urls, não exposto) |
+|---|---|
+| `zappro-clima-tutor` | `hvac-manual-strict`, `hvac-field-tutor`, `hvac-printable` |
 
 ### Endpoints
 
 | Endpoint | Purpose | Auth |
 |---|---|---|
-| `GET /health` | Health check | None |
-| `GET /v1/models` | List available models | None |
-| `POST /v1/chat/completions` | Standard RAG query | Via OpenWebUI |
-| `POST /v1/chat/completions/field-tutor` | Expanded context with procedures | Via OpenWebUI |
-| `POST /v1/chat/completions/printable` | Plain text for thermal printer | Via OpenWebUI |
+| `GET /health` | Health check (v2.0.0, shows public_model) | None |
+| `GET /v1/models` | Lista só `zappro-clima-tutor` | None |
+| `POST /v1/chat/completions` | Tutor friendly (default router) | Via OpenWebUI |
+| `POST /v1/chat/completions/field-tutor` | Técnico de campo, contexto expandido | Via OpenWebUI |
+| `POST /v1/chat/completions/printable` | Texto plano para impressora térmica | Via OpenWebUI |
+
+### Unified Status
+
+```bash
+# Single command for full pipeline status
+python3 scripts/hvac-rag/hvac-status.py
+python3 scripts/hvac-rag/hvac-status.py --compact
+python3 scripts/hvac-rag/hvac-status.py --json
+```
 
 ---
 
@@ -110,6 +137,36 @@ cat /tmp/hvac-daily-smoke-$(date +%Y%m%d).json
 
 - `0`: All assertions pass
 - `1`: Any assertion fails
+
+### Friendly Tutor UX Tests
+
+```bash
+# UX validation (requires pipe running)
+python /srv/monorepo/smoke-tests/smoke_hvac_friendly_tutor_ux.py
+
+# Tests:
+# - Only zappro-clima-tutor in /v1/models
+# - No "Graph interno" in responses
+# - Max one question at the end
+# - U4-01 friendly response
+# - IPM/alalta tensão safety maintained
+# - Out-of-domain blocked
+```
+
+### Friendly Response Rewriter
+
+The `hvac-friendly-response.py` module is the tone safety net — applied after every MiniMax response:
+
+```bash
+# Test rewrite rules
+python3 scripts/hvac-rag/hvac-friendly-response.py --test
+```
+
+Rules (4/4 must PASS):
+1. `"Graph interno"` / `"Evidência:"` → removed or replaced with `"Pela triagem técnica"`
+2. Dry procedural opener → friendly version
+3. `"Confirma uma coisa simples: forneça o MODELO COMPLETO"` → friendly ask
+4. Dead end `"não encontrei no manual"` → triagem técnica fallback
 
 ---
 
@@ -269,7 +326,13 @@ python3 scripts/hvac-rag/hvac-rag-pipe.py &
 ## References
 
 - SPEC-HVAC-004: `docs/SPECS/products/HVAC/SPEC-HVAC-004-juiz-field-tutor.md`
+- Canonical answer template: `config/hvac-copilot/answer-template-ptbr.md`
+- Public model profile: `config/hvac-copilot/zappro-clima-tutor.yaml`
+- Friendly response rewriter: `scripts/hvac-rag/hvac-friendly-response.py`
+- Unified status: `scripts/hvac-rag/hvac-status.py`
+- Simplification audit: `docs/AUDITS/HVAC-RAG-SIMPLIFICATION-AUDIT-2026-04.md`
 - Evaluation Report: `manifests/spec-hvac-004-runtime-reliability-report.json`
 - Qdrant Collection: `hvac_manuals_v1` (442 points)
 - LiteLLM: `http://127.0.0.1:4000`
 - Ollama: `http://127.0.0.1:11434`
+- MiniMax M2.7: primary answer model (via LiteLLM)

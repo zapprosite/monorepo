@@ -127,7 +127,7 @@ source /srv/monorepo/.env
 echo $GROQ_API_KEY  # Never echo in logs
 
 # Never do this:
-# GROQ_API_KEY=sk-xxx 直接写入
+# GROQ_API_KEY=sk-xxx written directly
 # Bearer sk-xxx hardcoded
 ```
 

@@ -5,7 +5,7 @@
 O OpenClaw Bot tem configuracoes espalhadas e a persona nao esta documentada. O bot esta mencionando servicos antigos (Deepgram) que ja nao sao usados. E preciso:
 
 1. Documentar a stack de audio (VL + TTS + STT)
-2. Criar persona alinhada (nome, comportamento,记住了)
+2. Criar persona alinhada (nome, comportamento,remembered)
 3. Bloquear vozes nao-PT-BR (TTS Bridge ja feito)
 4. Criar docs de governance para prevnir LLM "esquecer" configuracoes
 

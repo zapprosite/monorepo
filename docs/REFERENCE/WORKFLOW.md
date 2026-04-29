@@ -200,7 +200,7 @@ c /feature criar-campanha-acme
 → /ship
 ```
 
-Se é纯粹 briefing/copy:
+If it's purely briefing/copy:
 - OpenClaw faz sozinho com Qdrant context
 
 ### 4. AI-CONTEXT — Sincronizar

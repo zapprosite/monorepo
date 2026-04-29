@@ -51,7 +51,7 @@ curl https://openwebui-wbmqefxhd7vdn2dme3i6s9an.191.17.50.123.sslip.io/  # → 0
 ## Problema 2: OAuth Google Não Configurado
 
 O OAuth Google está nas variáveis mas pode não estar a funcionar porque:
-1. O `SERVICE_URL_OPENWEBUI` está指向 `sslip.io` que pode não ser o URL real do Google OAuth
+1. O `SERVICE_URL_OPENWEBUI` pointed to `sslip.io` que pode não ser o URL real do Google OAuth
 2. O Google OAuth callback precisa de verificar o domínio
 
 ---

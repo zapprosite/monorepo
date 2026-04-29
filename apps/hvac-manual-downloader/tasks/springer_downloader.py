@@ -1,5 +1,5 @@
 """Springer/Midea task downloader."""
-SUPPORT_URL = "https://www.springer却没有.com.br"  # Placeholder - to be verified
+SUPPORT_URL = "https://www.springer-placeholder.com.br"  # Placeholder - to be verified
 
 
 # Model patterns for Springer/Midea

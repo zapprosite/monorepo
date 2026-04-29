@@ -162,9 +162,9 @@ No Infisical project `zappro-p-tc-k`:
 - Logs de cada sessão de navegação
 
 ### ❌ Nunca fazer
--露天 Expor porta sem Cloudflare Access
--露天 Commitar Chrome profile ou secrets
--露天 Exceder budget de 15k req/dia sem aviso
+- [ ] Expor porta sem Cloudflare Access
+- [ ] Commitar Chrome profile ou secrets
+- [ ] Exceder budget de 15k req/dia sem aviso
 
 ---
 

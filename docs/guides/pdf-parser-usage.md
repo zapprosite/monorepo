@@ -251,7 +251,7 @@ func safeOpenPDF(filePath string) (*parser.PDFParser, error) {
 | Operacao | Tempo | Memoria |
 |---------|-------|---------|
 | Abrir PDF | 50-200ms | ~1MB por documento |
-| Extrair pagina | 5-20ms | зависит от размера |
+| Extrair pagina | 5-20ms | depends  size |
 | Extrair todas | 100-500ms por pagina | ~10MB para 100 paginas |
 | Detectar secoes | 20-50ms | O(n) no texto |
 

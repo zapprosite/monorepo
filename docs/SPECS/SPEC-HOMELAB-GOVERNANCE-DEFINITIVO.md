@@ -12,7 +12,7 @@ specRef: SPEC-AUDIT-HOMELAB-2026-04-12.md, SPEC-AUDIT-FIXES-2026-04-12.md
 
 ## Objetivo
 
-Criar um governance framework que garante **zero breakage** do homelab, mesmo quando LLMas propõem "melhorias", quando modelos são atualizados, ou quando基础设施 muda. Documenta o estado desejado, os caminhos de upgrade seguros, e as regras que TODOS os agentes (Claude, Codex, Copilot, Gemini, etc.) DEVEM ler antes de propor qualquer mudança.
+Criar um governance framework que garante **zero breakage** do homelab, mesmo quando LLMas propõem "melhorias", quando modelos são atualizados, ou quando a infraestrutura muda. Documenta o estado desejado, os caminhos de upgrade seguros, e as regras que TODOS os agentes (Claude, Codex, Copilot, Gemini, etc.) DEVEM ler antes de propor qualquer mudança.
 
 ---
 
@@ -110,7 +110,7 @@ ollama cp gemma2-9b-it-v1 gemma2-9b-it
 
 ### 2.3 Kokoro TTS — Safe Upgrade Pattern
 
-**Arquitetura:** Container版本 + voice models (HuggingFace). Actualização do container requer smoke test completo.
+**Arquitetura:** Container version + voice models (HuggingFace). Actualização do container requer smoke test completo.
 
 ```bash
 # 1. ZFS snapshot PRIMEIRO
@@ -191,7 +191,7 @@ python -c "from transformers import AutoModel; AutoModel.from_pretrained('jonata
 
 **Alertas de VRAM:**
 ```
-> 20GB (83%): WARNING — model loading ризиroso
+> 20GB (83%): WARNING — model loading risky
 > 22GB (92%): CRITICAL — OOM eminente
 > 23GB (96%): GPU OOM kill
 ```

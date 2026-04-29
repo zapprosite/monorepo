@@ -33,6 +33,22 @@ from datetime import datetime, timezone
 from typing import Optional
 
 # =============================================================================
+# Environment — load from .env if not already set
+# =============================================================================
+_env_path = os.environ.get("HVAC_DOTENV", "/srv/monorepo/.env")
+if os.path.exists(_env_path):
+    with open(_env_path) as _f:
+        for _line in _f:
+            _line = _line.strip()
+            if not _line or _line.startswith("#"):
+                continue
+            if "=" in _line:
+                _k, _v = _line.split("=", 1)
+                _k = _k.strip()
+                if _k not in os.environ:
+                    os.environ[_k] = _v
+
+# =============================================================================
 # Configuration
 # =============================================================================
 PIPELINE_URL = os.environ.get("HVAC_PIPELINE_URL", "http://127.0.0.1:4017")
@@ -59,18 +75,18 @@ import httpx
 # =============================================================================
 POSITIVE_QUERIES = [
     "RYYQ48BRA error code E6 compressor inverter",
-    "FXAQ50FUV maintenance procedure capacitor",
-    "BRC1E53A error F3 sensor problem",
+    "FXAQ50PAVE maintenance procedure capacitor",
     "RXYQ20CXY error E9 inverter IPM",
-    "Daikin Inverter RYYQ48BRA error code E5",
+    "Daikin VRV RYYQ48BRA error code E5 compressor",
+    "RZQ100C8T1 error L3 sensor problem outdoor unit",
 ]
 
 OUT_OF_DOMAIN_QUERIES = [
-    "how to fix my refrigerator",
-    "washing machine error",
-    "television not turning on",
-    "recipe for chocolate cake",
-    "best soccer team in the world",
+    "TV quebrou tela preta",
+    "geladeira não gela mais",
+    "reparar motor de carro",
+    "receita de bolo de chocolate",
+    "qual melhor time de futebol",
 ]
 
 ASK_CLARIFICATION_QUERIES = [
@@ -103,10 +119,10 @@ async def call_chat_endpoint(endpoint: str, query: str, timeout: float = 60) -> 
     """Call a chat completions endpoint and return result metadata."""
     q_hash = safe_query_hash(query)
     payload = {
-        "model": "hvac-manual-strict",
+        "model": "zappro-clima-tutor",
         "messages": [{"role": "user", "content": query}],
-        "temperature": 0.3,
-        "max_tokens": 512
+        "temperature": 0.55,
+        "max_tokens": 1024
     }
     url = f"{PIPELINE_URL}{endpoint}"
     try:

@@ -66,7 +66,7 @@ voice-pipeline-loop.sh
 
 **Não tentar heal:**
 - Config schema stripping (requer env var, não container restart)
-- Auth/token expiry (requer手动 intervention)
+- Auth/token expiry (requires manual intervention)
 - GitOps gap (DNS UP mas container não deployado)
 
 ### 2. voice-pipeline-e2e-telegram.sh (lightweight E2E)

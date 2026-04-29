@@ -272,7 +272,7 @@ curl -X POST https://api.groq.com/openai/v1/audio/transcriptions \
 ```
 RTX 4090 24GB VRAM:
 ├── 22GB → Gemma4:26b-q4 (sob demanda)
-└── 1-2GB → Reservado (驱动 + fallback)
+└── 1-2GB → Reserved (drivers + fallback)
 ```
 
 - **Gemma4** carregado sob demanda (22GB)
