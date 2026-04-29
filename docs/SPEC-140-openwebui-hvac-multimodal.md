@@ -171,4 +171,23 @@ OpenWebUI anexo → zappro-clima-tutor → Qwen2.5VL:3B (Ollama :11434) → extr
 - NÃO colocar api.zappro.site sem Cloudflare Access
 - NÃO expor modelos internos (hvac-manual-strict, etc)
 - NÃO imprimir secrets em logs
-- NÃO usar DuckDuckGo antes de manual/graph/busca oficial
+
+## Notas de Implementação (2026-04-29)
+
+### Marcas Brasileiras Suportadas
+Sistema agora reconhece todas as marcas principais de AC no Brasil:
+- Springer, Komeco, Agratto, Comfee, Mondial, PHCO (adicionadas)
+- Daikin, Carrier, Midea, LG, Samsung, Gree, Hitachi, Johnson, Elgin, Consul, Electrolux (existentes)
+
+### Fluxo de Fallback Universal
+```
+Qdrant miss (modelo não indexado)
+  → Triagem técnica via MiniMax M2.7 (sempre responde)
+  → Fallback web search (DuckDuckGo Lite → Google News RSS)
+  → LLM formata resposta em PT-BR
+```
+
+### Correções Aplicadas
+- "Sprint" não dispara mais rota "printable" (word-boundary regex)
+- Respostasforçam PT-BR — sem CJK/Cirílico
+- Pydantic v2 compatibility em extract_state_from_messages
