@@ -7,6 +7,8 @@ services:
     environment:
       - HOST=0.0.0.0
       - PORT=3456
+      # CRITICAL: Use 4 slashes for absolute path in SQLite URL
+      - DATABASE_URL=sqlite:////app/backend/data/webui.db
       # HVAC Pipe — OpenAI-compatible backend at port 4017
       - OPENAI_API_BASE_URL=http://localhost:4017/v1
       - OPENAI_API_KEY=sk-local-zappro-clima
@@ -23,10 +25,16 @@ services:
       - AUDIO_TTS_MODEL=tts-1
       - AUDIO_TTS_VOICE=pt-BR-FranciscaNeural
       - AUDIO_TTS_SPLIT_ON=punctuation
-    networks:
-      - zappro-tts
+    network_mode: host
+    volumes:
+      - monorepo_openwebui-data:/app/backend/data
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3456/"]
       interval: 30s
       timeout: 10s
       retries: 3
+
+volumes:
+  monorepo_openwebui-data:
+    external: true
+    name: monorepo_openwebui-data
