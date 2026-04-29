@@ -1,0 +1,64 @@
+field_expertise:
+  collection: hvac_field_experience_v1
+
+  source_types:
+    - field_experience      # Real field cases from technicians
+    - youtube_summary       # YouTube video summaries
+    - service_note          # Service bulletins, technical notes
+    - manual_excerpt        # Excerpts from official manuals (cite source)
+
+  confidence_levels:
+    high:
+      sources: [manual_excerpt, service_note]
+      requires_manual_confirmation: false
+    medium:
+      sources: [field_experience]
+      requires_manual_confirmation: true
+    low:
+      sources: [youtube_summary]
+      requires_manual_confirmation: true
+
+  retrieval_rules:
+    min_score_threshold: 0.65
+    max_cases_per_query: 3
+    required_status: approved
+
+    filter_priority:  # Applied in order, first match wins
+      - brand + family + alarm_code + component + symptom
+      - brand + family + alarm_code + component
+      - brand + family + alarm_code
+      - brand + family + component
+      - family + alarm_code + component
+      - family + component + symptom
+      - (no filter, semantic only)
+
+  safety_alerts:
+    components_requiring_alert:
+      - VEE
+      - IPM
+      - compressor
+      - alta_tensao
+      - fluido_refrigerante
+      - placa_energizada
+
+    alert_template: >
+      [AVISO DE SEGURANCA] Esta tecnica envolve {component}.
+      Confirme com manual oficial antes de aplicar.
+      Nao fazer medicoes com equipamento energizado sem procedimento oficial.
+
+    never_do:
+      - Medir placa energizada sem multimetro isolado
+      - Cravar troca de placa sem isolar comunicacao, VEE e comportamento frigorifico
+      - Forcar operacao sem confirmar pressao de trabalho
+      - Inventar valores de medicao
+
+  output_format:
+    include_author: true
+    include_confidence: true
+    include_evidence_level: true
+    prepend_label: "[COMPLEMENTO DE CAMPO]"
+
+  integration:
+    resolver_rung: 7  # After manual_exact, manual_family, technical_memory, graph_internal, web_fallback, llm_triage
+    prepend_to_response: true
+    label: "Complemento de campo disponivel"

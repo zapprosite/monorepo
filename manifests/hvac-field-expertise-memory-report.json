@@ -1,0 +1,64 @@
+{
+  "spec": "SPEC-206",
+  "title": "HVAC Field Expertise Memory",
+  "date": "2026-04-29",
+  "status": "ready",
+  "spec206_ready": true,
+  "field_expertise_memory_ready": true,
+  "commit": "c1e20d8",
+  "files_created": [
+    "scripts/hvac-rag/hvac_field_memory.py",
+    "scripts/hvac-rag/hvac_field_case_schema.sql",
+    "scripts/hvac-rag/hvac_field_case_ingest.py",
+    "scripts/hvac-rag/hvac_youtube_experience_ingest.py",
+    "config/hvac-copilot/field-expertise-policy.yaml",
+    "docs/RUNBOOKS/HVAC-FIELD-EXPERTISE-MEMORY.md",
+    "tests/test_hvac_field_expertise_memory.py"
+  ],
+  "validations": {
+    "py_compile": {
+      "hvac_field_memory.py": "pass",
+      "hvac_field_case_ingest.py": "pass",
+      "hvac_youtube_experience_ingest.py": "pass"
+    },
+    "smoke_tests": {
+      "result": "pass",
+      "pass": 5,
+      "skip": 1,
+      "fail": 0
+    },
+    "healthcheck": {
+      "result": "pass"
+    },
+    "pytest": {
+      "result": "pass",
+      "passed": 43,
+      "warnings": 23
+    }
+  },
+  "qdrant_collection": "hvac_field_experience_v1",
+  "postgres_table": "hvac_field_cases",
+  "pipeline_ensinar": {
+    "input": "text_free",
+    "extract": "keyword_regex",
+    "postgres_status": "draft",
+    "qdrant_status": "approved"
+  },
+  "integration_rung": 7,
+  "test_coverage": {
+    "TestCaseCardExtraction": "13 testes",
+    "TestCrossBrandIsolation": "2 testes",
+    "TestStatusFiltering": "2 testes",
+    "TestSafetyAlerts": "4 testes",
+    "TestYouTubeIngest": "4 testes",
+    "TestPayloadFiltering": "3 testes",
+    "TestPTBRClean": "2 testes",
+    "TestFieldExperienceLookup": "3 testes",
+    "TestIndexFieldCaseApproved": "2 testes",
+    "TestKeywordSets": "4 testes",
+    "TestSplitParagraphs": "4 testes"
+  },
+  "minor_issues": [
+    "datetime.utcnow() deprecation warning (production code, not tests)"
+  ]
+}
