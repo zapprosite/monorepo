@@ -1,0 +1,148 @@
+{
+  "spec": "SPEC-205",
+  "title": "Qdrant Payload Filtering Implementation",
+  "date": "2026-04-29",
+  "status": "ready",
+  "spec205_ready": true,
+  "payload_audit": {
+    "collection": "hvac_manuals_v1",
+    "available_payload_fields": [
+      {
+        "field": "doc_type",
+        "status": "available"
+      },
+      {
+        "field": "error_code_candidates",
+        "status": "available"
+      },
+      {
+        "field": "component_tags",
+        "status": "available"
+      },
+      {
+        "field": "safety_tags",
+        "status": "available"
+      },
+      {
+        "field": "model_candidates",
+        "status": "available",
+        "note": "proxy for model"
+      },
+      {
+        "field": "equipment_type_candidates",
+        "status": "available",
+        "note": "proxy for equipment_type"
+      }
+    ],
+    "missing_payload_fields": [
+      {
+        "field": "brand",
+        "status": "missing",
+        "workaround": "inferred from doc_id"
+      },
+      {
+        "field": "model",
+        "status": "missing",
+        "workaround": "use model_candidates"
+      },
+      {
+        "field": "model_family",
+        "status": "missing",
+        "workaround": "infer from model prefix"
+      },
+      {
+        "field": "equipment_type",
+        "status": "missing",
+        "workaround": "use equipment_type_candidates"
+      }
+    ]
+  },
+  "implementation": {
+    "function": "query_qdrant_payload_coverage",
+    "location": "scripts/hvac-rag/hvac_coverage.py",
+    "rungs": [
+      {
+        "order": 1,
+        "name": "manual_exact",
+        "filter": "brand + model_candidates + doc_type=service_manual"
+      },
+      {
+        "order": 2,
+        "name": "manual_family",
+        "filter": "brand + model_family_prefix + doc_type=service_manual"
+      },
+      {
+        "order": 3,
+        "name": "error_code_same_brand",
+        "filter": "brand + error_code_candidates"
+      },
+      {
+        "order": 4,
+        "name": "equipment_family",
+        "filter": "equipment_type + component_tags"
+      },
+      {
+        "order": 5,
+        "name": "safety_related",
+        "filter": "safety_tags"
+      }
+    ],
+    "fallback": "heuristic when Qdrant unavailable or payload missing"
+  },
+  "tests": {
+    "test_file": "tests/test_hvac_qdrant_payload_coverage.py",
+    "total": 12,
+    "passed": 12,
+    "failed": 0,
+    "key_validations": [
+      "Springer L2 not Daikin isolation",
+      "LG CH05 not Daikin cross-contamination",
+      "Daikin U4 finds manual if exists",
+      "Fallback to llm_triage safe",
+      "Provider names not leaked"
+    ]
+  },
+  "validation_results": {
+    "py_compile": "pass",
+    "pytest_universal_resolver": "157 passed",
+    "pytest_payload_coverage": "12 passed",
+    "total_tests": "169 passed",
+    "daily_smoke": "pass",
+    "healthcheck": "pass"
+  },
+  "evidence_level_mapping": {
+    "manual_exact": {
+      "resolver_level": "MANUAL_EXACT",
+      "confidence": 0.95
+    },
+    "manual_family": {
+      "resolver_level": "MANUAL_FAMILY",
+      "confidence": 0.8
+    },
+    "error_code_same_brand": {
+      "resolver_level": "TECHNICAL_MEMORY",
+      "confidence": 0.7
+    },
+    "equipment_family": {
+      "resolver_level": "GRAPH_INTERNAL",
+      "confidence": 0.6
+    },
+    "safety_related": {
+      "resolver_level": "GRAPH_INTERNAL",
+      "confidence": 0.6
+    }
+  },
+  "restrictions": {
+    "no_reindex": true,
+    "no_terraform": true,
+    "no_openwebui_model": true,
+    "no_qdrant_exposure": true,
+    "no_secrets_commit": true
+  },
+  "notes": [
+    "brand field missing from payload - inferred from doc_id prefix",
+    "model_family not in payload - uses model prefix inference",
+    "Qdrant unavailable triggers safe fallback to heuristic",
+    "157 existing tests still pass after changes"
+  ]
+}

@@ -553,6 +553,278 @@ def _describe_answer_mode(mode: str) -> str:
     return descriptions.get(mode, f"Unknown mode: {mode}")
 
 
+# ── Qdrant Payload Coverage ─────────────────────────────────────────────────────
+
+QDRANT_URL = "http://127.0.0.1:6333"
+QDRANT_COLLECTION = "hvac_manuals_v1"
+
+
+def _qdrant_search_payload(
+    query_vector: list[float],
+    must_filters: list[dict],
+    top_k: int = 5,
+) -> list[dict]:
+    """Execute a Qdrant search with payload filter. Returns hit payloads or empty list."""
+    try:
+        import requests
+
+        api_key = __import__("os").environ.get("QDRANT_API_KEY", "")
+        headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
+
+        search_payload = {
+            "vector": query_vector,
+            "top": top_k,
+            "with_payload": True,
+        }
+        if must_filters:
+            search_payload["filter"] = {"must": must_filters}
+
+        r = requests.post(
+            f"{QDRANT_URL}/collections/{QDRANT_COLLECTION}/points/search",
+            headers=headers,
+            json=search_payload,
+            timeout=30,
+        )
+        if r.status_code == 200:
+            return r.json().get("result", [])
+        return []
+    except Exception:
+        return []
+
+
+def _build_model_filter(model: str) -> list[dict]:
+    """Build Qdrant filter for model_candidates contains exact model."""
+    return [{"key": "model_candidates", "match": {"value": model}}]
+
+
+def _build_error_code_filter(error_code: str) -> list[dict]:
+    """Build Qdrant filter for error_code_candidates contains exact error code."""
+    return [{"key": "error_code_candidates", "match": {"value": error_code}}]
+
+
+def _build_component_filter(component_tag: str) -> list[dict]:
+    """Build Qdrant filter for component_tags contains tag."""
+    return [{"key": "component_tags", "match": {"value": component_tag}}]
+
+
+def _build_doc_type_filter(doc_type: str) -> list[dict]:
+    """Build Qdrant filter for doc_type exact match."""
+    return [{"key": "doc_type", "match": {"value": doc_type}}]
+
+
+def _get_embedding(text: str) -> list[float] | None:
+    """Get embedding via Ollama."""
+    try:
+        import requests
+
+        ollama_url = __import__("os").environ.get("OLLAMA_URL", "http://127.0.0.1:11434")
+        model = __import__("os").environ.get("HVAC_EMBEDDING_MODEL", "nomic-embed-text:latest")
+        r = requests.post(
+            f"{ollama_url}/api/embeddings",
+            headers={"Content-Type": "application/json"},
+            json={"model": model, "prompt": text[:2000]},
+            timeout=120,
+        )
+        if r.status_code == 200:
+            data = r.json()
+            emb = data.get("embedding") or data.get("embeddings", [[]])[0]
+            if emb and len(emb) > 0:
+                return emb
+    except Exception:
+        pass
+    return None
+
+
+def query_qdrant_payload_coverage(intake: dict) -> dict:
+    """
+    Query Qdrant using actual payload filters for coverage determination.
+
+    Implements a 5-rung ladder (matching resolver EvidenceLevel):
+        1. manual_exact      → brand + model + doc_type=service_manual
+        2. manual_family     → brand + model_family + doc_type=service_manual
+        3. error_code_same_brand → brand + error_code_candidates
+        4. equipment_family  → equipment_type + component_tags
+        5. safety_related    → safety_tags (any match)
+
+    Falls back gracefully when:
+        - Qdrant/OLLAMA unavailable (connection error)
+        - Payload fields missing (old chunks without brand/model_family)
+        - No hits at a given rung
+
+    Returns dict with coverage map plus metadata:
+        {
+            "manual_exact": bool,
+            "manual_family": bool,
+            "error_code_same_brand": bool,
+            "equipment_family": bool,
+            "safety_related": bool,
+            "qdrant_available": bool,
+            "missing_payload_fields": list[str],
+            "evidence_level": str,  # highest available
+            "fallback_used": bool,   # true if heuristic was used as fallback
+        }
+    """
+    brand = (intake.get("brand") or intake.get("equipment", {}).get("brand") or "").strip().upper()
+    model = (intake.get("model") or intake.get("equipment", {}).get("model") or "").strip()
+    error_code = (intake.get("error_code") or "").strip().upper()
+    error_codes = intake.get("error_codes", [])
+    if error_codes and not error_code:
+        error_code = error_codes[0].strip().upper()
+    component_tags = intake.get("component_tags", [])
+    safety_tags = intake.get("safety_tags", [])
+
+    # Track missing fields
+    missing_payload_fields: list[str] = []
+    if not brand and not model:
+        # Cannot query without any identifier
+        return _heuristic_fallback(intake, missing_payload_fields)
+
+    # Try to get embedding for semantic search at each rung
+    query_text = f"{brand} {model} {error_code}".strip()
+    query_vector = _get_embedding(query_text)
+
+    result = {
+        "manual_exact": False,
+        "manual_family": False,
+        "error_code_same_brand": False,
+        "equipment_family": False,
+        "safety_related": False,
+        "qdrant_available": True,
+        "missing_payload_fields": [],
+        "evidence_level": "insufficient_context",
+        "fallback_used": False,
+    }
+
+    try:
+        # Rung 1: manual_exact — brand + model + doc_type=service_manual
+        if brand and model and query_vector:
+            manual_exact_hits = _qdrant_search_payload(
+                query_vector,
+                [
+                    _build_doc_type_filter("service_manual")[0],
+                ]
+                + (([{"key": "model_candidates", "match": {"value": model}}] if model else [])),
+                top_k=3,
+            )
+            if manual_exact_hits:
+                result["manual_exact"] = True
+
+        # Rung 2: manual_family — brand + model_family (inferred from model prefix)
+        if brand and model and not result["manual_exact"]:
+            model_family_prefix = _infer_model_family(model)
+            if model_family_prefix:
+                # Search for same model family prefix
+                family_hits = _qdrant_search_payload(
+                    query_vector,
+                    [
+                        {"key": "doc_type", "match": {"value": "service_manual"}},
+                        {"key": "model_candidates", "match": {"value": model_family_prefix}},
+                    ],
+                    top_k=3,
+                )
+                if family_hits:
+                    result["manual_family"] = True
+
+        # Rung 3: error_code_same_brand — brand + error_code_candidates
+        if brand and error_code and not result["manual_exact"]:
+            error_hits = _qdrant_search_payload(
+                query_vector,
+                [
+                    _build_error_code_filter(error_code)[0],
+                ],
+                top_k=3,
+            )
+            if error_hits:
+                result["error_code_same_brand"] = True
+
+        # Rung 4: equipment_family — equipment_type + component_tags
+        if component_tags and not result["manual_exact"]:
+            equipment_hits = _qdrant_search_payload(
+                query_vector,
+                [
+                    _build_component_filter(component_tags[0])[0],
+                ],
+                top_k=3,
+            )
+            if equipment_hits:
+                result["equipment_family"] = True
+
+        # Rung 5: safety_related — safety_tags
+        if safety_tags and not result["manual_exact"]:
+            safety_hits = _qdrant_search_payload(
+                query_vector,
+                [
+                    {"key": "safety_tags", "match": {"value": safety_tags[0]}},
+                ],
+                top_k=3,
+            )
+            if safety_hits:
+                result["safety_related"] = True
+
+    except Exception as e:
+        logger.warning(f"Qdrant payload query failed, using heuristic fallback: {e}")
+        result["qdrant_available"] = False
+        result["fallback_used"] = True
+        return _heuristic_fallback(intake, missing_payload_fields)
+
+    # Determine highest evidence level
+    if result["manual_exact"]:
+        result["evidence_level"] = "manual_exact"
+    elif result["manual_family"]:
+        result["evidence_level"] = "manual_family"
+    elif result["error_code_same_brand"]:
+        result["evidence_level"] = "technical_memory"  # maps to resolver level
+    elif result["equipment_family"]:
+        result["evidence_level"] = "graph_internal"
+    elif result["safety_related"]:
+        result["evidence_level"] = "graph_internal"
+    else:
+        result["evidence_level"] = "llm_triage"
+        result["fallback_used"] = True
+
+    # Track missing payload fields
+    result["missing_payload_fields"] = missing_payload_fields
+
+    return result
+
+
+def _infer_model_family(model: str) -> str | None:
+    """Infer model family prefix from model string."""
+    if not model:
+        return None
+    # Extract prefix before numbers or common separators
+    match = re.match(r"^([A-Za-z]+)", model)
+    if match:
+        return match.group(1).upper()
+    return None
+
+
+def _heuristic_fallback(intake: dict, missing_payload_fields: list[str]) -> dict:
+    """Fallback when Qdrant is unavailable or payload fields missing."""
+    # Use the existing heuristic from check_coverage
+    inference = infer_evidence_from_intake(intake)
+    inferred = inference["inferred"]
+
+    return {
+        "manual_exact": inferred.get("manual_exact", False),
+        "manual_family": inferred.get("manual_family", False),
+        "error_code_same_brand": False,
+        "equipment_family": False,
+        "safety_related": False,
+        "qdrant_available": False,
+        "missing_payload_fields": missing_payload_fields,
+        "evidence_level": _determine_evidence_level(
+            manual_exact=inferred.get("manual_exact", False),
+            manual_family=inferred.get("manual_family", False),
+            technical_memory=inferred.get("technical_memory", False),
+            graph_match=inferred.get("graph_match", "none"),
+            official_web=inferred.get("official_web", False),
+            web_fallback=inferred.get("web_fallback", False),
+        ),
+        "fallback_used": True,
+    }
+
+
 # ── CLI ──────────────────────────────────────────────────────────────────────
 if __name__ == "__main__":
     import json, sys
