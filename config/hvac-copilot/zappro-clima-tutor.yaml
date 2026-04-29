@@ -60,13 +60,17 @@ internal_modes:
     fallback: true
 
   official_search:
-    description: Graph miss — use MiniMax MCP search as controlled fallback
+    description: Graph miss — use MiniMax MCP search as controlled external check
+    fallback: true
+
+  tavily_search:
+    description: MiniMax MCP miss — use Tavily HTTP API as controlled runtime fallback
     fallback: true
 
   web_fallback:
-    description: Last resort — DuckDuckGo search
+    description: Last resort — DuckDuckGo Lite, then Google News RSS external check
     fallback: true
-    safety_warning: "Informação de busca web — confirmar com manual"
+    safety_warning: "Checagem externa — confirmar com manual"
 
 # ── Evidence priority ───────────────────────────────────────────────────────
 
@@ -75,7 +79,8 @@ evidence_order:
   - manual_family       # Qdrant hit for model family
   - graph_internal      # Internal diagnostic graph (U4/E4 etc.)
   - official_search     # MiniMax MCP / web search
-  - web_fallback        # DuckDuckGo (last resort)
+  - tavily_search       # Tavily HTTP API runtime fallback
+  - web_fallback        # DuckDuckGo Lite, then Google News RSS
 
 # ── Safety ──────────────────────────────────────────────────────────────────
 
