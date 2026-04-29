@@ -1,0 +1,65 @@
+{
+  "branch": "feature/testantdo-chat-zappro",
+  "pipe_health": "ok",
+  "public_models": [
+    "zappro-clima-tutor"
+  ],
+  "openwebui_api_test": {
+    "status": "SKIP",
+    "reason": "OPENWEBUI_API_KEY not set"
+  },
+  "tavily_real_test": {
+    "status": "SKIP",
+    "reason": "TAVILY_API_KEY not set"
+  },
+  "queries_tested": [
+    {
+      "query": "preciso de ajuda com um alarme u4-01 daikin vrv",
+      "chars": 899,
+      "cjk": false,
+      "cyrillic": false,
+      "provider_leak": false
+    },
+    {
+      "query": "no display de 7 segmentos aparece u4-01, modelo RXQ20AYM",
+      "chars": 675,
+      "cjk": false,
+      "cyrillic": false,
+      "provider_leak": false
+    },
+    {
+      "query": "Springer Sprint Air 24BTU split inverter erro L2 manual servico diagnostico compressor",
+      "chars": 889,
+      "cjk": false,
+      "cyrillic": false,
+      "provider_leak": false
+    },
+    {
+      "query": "como testar IPM do inverter?",
+      "chars": 216,
+      "cjk": false,
+      "cyrillic": false,
+      "provider_leak": false
+    },
+    {
+      "query": "geladeira frost free erro f1",
+      "chars": 216,
+      "cjk": false,
+      "cyrillic": false,
+      "provider_leak": false
+    }
+  ],
+  "failures": [],
+  "skips": [
+    "openwebui_api_test (key absent)",
+    "tavily_real_test (key absent)"
+  ],
+  "chat_zappro_ready": true,
+  "gates": {
+    "py_compile": "passed",
+    "pytest": "39 passed",
+    "smoke": "5 PASS | 1 SKIP | 0 FAIL",
+    "healthcheck": "passed",
+    "git_diff_check": "clean"
+  }
+}
