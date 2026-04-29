@@ -35,6 +35,7 @@ class EvidenceLevel(Enum):
 
     MANUAL_EXACT = auto()
     MANUAL_FAMILY = auto()
+    FIELD_EXPERIENCE = auto()  # rung 3: field expertise before technical_memory
     TECHNICAL_MEMORY = auto()
     GRAPH_INTERNAL = auto()
     OFFICIAL_WEB = auto()
@@ -106,6 +107,7 @@ class CoverageMap:
 
     manual_exact: bool = False
     manual_family: bool = False
+    field_experience: bool = False
     technical_memory: bool = False
     graph_internal: bool = False
     official_web: bool = False
@@ -118,6 +120,8 @@ class CoverageMap:
             return EvidenceLevel.MANUAL_EXACT
         if self.manual_family:
             return EvidenceLevel.MANUAL_FAMILY
+        if self.field_experience:
+            return EvidenceLevel.FIELD_EXPERIENCE
         if self.technical_memory:
             return EvidenceLevel.TECHNICAL_MEMORY
         if self.graph_internal:
@@ -134,6 +138,7 @@ class CoverageMap:
         return {
             "manual_exact": self.manual_exact,
             "manual_family": self.manual_family,
+            "field_experience": self.field_experience,
             "technical_memory": self.technical_memory,
             "graph_internal": self.graph_internal,
             "official_web": self.official_web,
@@ -198,12 +203,13 @@ def resolve(intake_result: dict[str, Any], coverage_map: dict[str, bool], option
     Evidence Ladder (priority order):
         1. manual_exact       → respond with manual
         2. manual_family      → respond as family, note difference
-        3. technical_memory   → use tech memory, cite source
-        4. graph_internal     → use as diagnostic hint
-        5. official_web       → Tavily search, cite source
-        6. web_fallback       → general search, note confidence
-        7. llm_triage         → MiniMax safe triage, no invented values
-        8. insufficient_context → ask for more info, safety only
+        3. field_experience   → use field expertise, cite author
+        4. technical_memory   → use tech memory, cite source
+        5. graph_internal     → use as diagnostic hint
+        6. official_web       → Tavily search, cite source
+        7. web_fallback       → general search, note confidence
+        8. llm_triage         → MiniMax safe triage, no invented values
+        9. insufficient_context → ask for more info, safety only
     """
     opts = ResolverOptions(**(options or {}))
     cov = _build_coverage(coverage_map)

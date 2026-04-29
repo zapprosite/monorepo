@@ -59,6 +59,6 @@ field_expertise:
     prepend_label: "[COMPLEMENTO DE CAMPO]"
 
   integration:
-    resolver_rung: 7  # After manual_exact, manual_family, technical_memory, graph_internal, web_fallback, llm_triage
+    resolver_rung: 3  # After manual_exact, manual_family, before technical_memory
     prepend_to_response: true
     label: "Complemento de campo disponivel"

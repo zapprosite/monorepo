@@ -34,12 +34,18 @@ OpenWebUI/Zappro Tutor
 ```
 1. manual_exact
 2. manual_family
-3. technical_memory
-4. graph_internal
-5. web_fallback
-6. llm_triage
-7. field_experience  ← NOVO (só quando caso bate)
+3. field_experience  ← antes de technical_memory (só quando caso bate)
+4. technical_memory
+5. graph_internal
+6. web_fallback
+7. llm_triage
 ```
+
+**Rationale:** Experiência de campo aprovada entra antes da triagem livre do LLM. A lógica é:
+- Manual oficial primeiro.
+- Experiência de campo aprovada em seguida.
+- Depois graph/web.
+- LLM puro só no fim.
 
 ## Estrutura de Dados
 
