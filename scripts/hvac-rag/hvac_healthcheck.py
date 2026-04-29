@@ -24,6 +24,22 @@ from datetime import datetime, timezone
 from typing import Optional
 
 # =============================================================================
+# Environment — load from .env if not already set
+# =============================================================================
+_env_path = os.environ.get("HVAC_DOTENV", "/srv/monorepo/.env")
+if os.path.exists(_env_path):
+    with open(_env_path) as _f:
+        for _line in _f:
+            _line = _line.strip()
+            if not _line or _line.startswith("#"):
+                continue
+            if "=" in _line:
+                _k, _v = _line.split("=", 1)
+                _k = _k.strip()
+                if _k not in os.environ:
+                    os.environ[_k] = _v
+
+# =============================================================================
 # Configuration
 # =============================================================================
 PIPELINE_URL = os.environ.get("HVAC_PIPELINE_URL", "http://127.0.0.1:4017")
@@ -147,7 +163,7 @@ async def check_field_tutor_endpoint() -> dict:
     test_query = "RYYQ48BRA error E6 inverter"
     q_hash = safe_query_hash(test_query)
     payload = {
-        "model": "hvac-manual-strict",
+        "model": "zappro-clima-tutor",
         "messages": [{"role": "user", "content": test_query}],
         "temperature": 0.3,
         "max_tokens": 256
@@ -192,7 +208,7 @@ async def check_printable_endpoint() -> dict:
     test_query = "RXYQ20BRA maintenance procedure"
     q_hash = safe_query_hash(test_query)
     payload = {
-        "model": "hvac-manual-strict",
+        "model": "zappro-clima-tutor",
         "messages": [{"role": "user", "content": test_query}],
         "temperature": 0.3,
         "max_tokens": 256

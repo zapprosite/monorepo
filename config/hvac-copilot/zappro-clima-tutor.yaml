@@ -1,0 +1,120 @@
+# Zappro Clima Tutor — Profile Configuration
+# Canonical profile for the public-facing HVAC assistant.
+# Used by: hvac_rag_pipe.py (v2.0.0)
+
+id: zappro-clima-tutor
+display_name: Zappro Clima Tutor
+description: Assistente amigável de ar-condicionado inverter — ajuda técnicos e clientes a encontrar o próximo passo em diagnóstico e manutenção.
+
+# ── Generation ──────────────────────────────────────────────────────────────
+
+generation:
+  base_model: minimax-m2.7        # Primary LLM — MiniMax M2.7 does the thinking
+  temperature: 0.55               # Friendly + coherent (not too random)
+  top_p: 0.9
+  max_tokens: 2000
+  stream: true
+
+# ── Tone & Style ─────────────────────────────────────────────────────────────
+
+style:
+  language: pt-BR
+  tone: friendly_technical_tutor
+  one_question_at_a_time: true
+  avoid_internal_labels: true
+  max_response_chars: 900
+  default_response_chars: 600
+  answer_template: config/hvac-copilot/answer-template-ptbr.md
+
+# ── Internal routing modes ──────────────────────────────────────────────────
+# These are NOT exposed publicly. The router decides internally.
+
+internal_modes:
+  guided_triage:
+    description: Partial info (brand + family + error code, no full model)
+    Juiz_result: ASK_CLARIFICATION
+    context: Qdrant hvac_manuals_v1 (top_k=6)
+    safety_flags: inject from SAFETY_KEYWORDS
+    ask_template: friendly_ask
+
+  field_tutor:
+    description: Field technician queries requiring expanded procedural context
+    Juiz_result: APPROVED
+    context: Qdrant hvac_manuals_v1 (top_k=10) + safety procedures
+    safety_lockout: true
+
+  printable:
+    description: User asked for print/summary/checklist
+    triggers: ["imprimir", "print", "resumo para", "formato de impressão", "passo a passo"]
+    formatter: hvac_formatter.format_for_print
+    width: 48  # 58mm thermal printer
+
+  manual_strict:
+    description: Full model + specific query — direct RAG
+    Juiz_result: APPROVED
+    context: Qdrant hvac_manuals_v1 (top_k=6)
+    safety: standard
+
+  graph_internal:
+    description: Qdrant miss + HVAC context — use internal graph
+    fallback: true
+
+  official_search:
+    description: Graph miss — use MiniMax MCP search as controlled fallback
+    fallback: true
+
+  web_fallback:
+    description: Last resort — DuckDuckGo search
+    fallback: true
+    safety_warning: "Informação de busca web — confirmar com manual"
+
+# ── Evidence priority ───────────────────────────────────────────────────────
+
+evidence_order:
+  - manual_exact        # Qdrant hit with service_manual for exact model
+  - manual_family       # Qdrant hit for model family
+  - graph_internal      # Internal diagnostic graph (U4/E4 etc.)
+  - official_search     # MiniMax MCP / web search
+  - web_fallback        # DuckDuckGo (last resort)
+
+# ── Safety ──────────────────────────────────────────────────────────────────
+
+safety:
+  always_block_energized_measurement: true
+  never_invent_technical_values: true
+  never_stop_at_manual_not_found: true
+  ipm_warning: "⚠️ Placa inverter — risco elétrico. Desligar, esperar, medir sem tensão."
+  compressor_warning: "⚠️ Compressor — risco elétrico e mecânico. Técnico qualificado."
+  capacitor_warning: "⚠️ Capacitor — descarga elétrica. Desligar e descargar antes de tocar."
+
+# ── Public exposure ─────────────────────────────────────────────────────────
+
+public_exposure:
+  openwebui_model_name: zappro-clima-tutor
+  show_in_selector: true
+  is_default: true
+
+# ── NOT exposed publicly ────────────────────────────────────────────────────
+# These aliases exist internally but are hidden from /v1/models:
+
+internal_only_aliases:
+  - hvac-manual-strict   # Used for manual_strict mode internally
+  - hvac-field-tutor      # Used for field_tutor mode internally
+  - hvac-printable        # Used for printable mode internally
+  - graph-assisted        # Internal graph routing
+  - web-assisted          # Internal web search routing
+
+# ── Forbidden patterns (LLM must not emit) ───────────────────────────────────
+
+forbidden_patterns:
+  - "Graph interno"
+  - "Evidência:"
+  - "[Trecho"
+  - "forneça o MODELO COMPLETO"
+  - "Confirma uma coisa simples:"
+  - "para procedimento exato eu preciso casar"
+  - "não encontrei isso nos manuais indexados"  # Must add friendly fallback
+
+rewrite_rules:
+  source: scripts/hvac-rag/hvac-friendly-response.py
+  function: rewrite_response()

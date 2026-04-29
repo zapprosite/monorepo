@@ -31,15 +31,21 @@ def import_local_module(name: str, filename: str):
     return mod
 
 # Import Juiz module
-_juez_mod = import_local_module("hvac_juiz", "hvac-juiz.py")
+_juez_mod = import_local_module("hvac_juiz", "hvac_juiz.py")
 JuizResult = _juez_mod.JuizResult
 juiz = _juez_mod.judge
 
 # Import Field Tutor module
-_ft_mod = import_local_module("hvac_field_tutor", "hvac-field-tutor.py")
+_ft_mod = import_local_module("hvac_field_tutor", "hvac_field_tutor.py")
 
 # Import Formatter module
-_fmt_mod = import_local_module("hvac_formatter", "hvac-formatter.py")
+_fmt_mod = import_local_module("hvac_formatter", "hvac_formatter.py")
+
+# Import Friendly Response Rewriter
+_fr_mod = import_local_module("hvac_friendly_response", "hvac-friendly-response.py")
+rewrite_response = _fr_mod.rewrite_response
+rewrite_blocked = _fr_mod.rewrite_blocked_response
+rewrite_ask = _fr_mod.rewrite_ask_clarification_response
 
 import httpx
 import uvicorn
@@ -58,7 +64,13 @@ EMBEDDING_MODEL = os.environ.get("HVAC_EMBEDDING_MODEL", "nomic-embed-text:lates
 LITELLM_URL = os.environ.get("LITELLM_URL", "http://127.0.0.1:4000/v1")
 LITELLM_API_KEY = os.environ.get("LITELLM_API_KEY", "sk-dummy")
 COLLECTION_NAME = "hvac_manuals_v1"
-MODEL_NAME = "hvac-manual-strict"
+
+# Public model name exposed to OpenWebUI
+MODEL_NAME = "zappro-clima-tutor"
+
+# Internal model aliases (not exposed publicly — used by router internally)
+INTERNAL_MODELS = ["hvac-manual-strict", "hvac-field-tutor", "hvac-printable"]
+
 PIPELINE_PORT = int(os.environ.get("PIPELINE_PORT", "4017"))
 PIPELINE_HOST = os.environ.get("PIPELINE_HOST", "127.0.0.1")
 
@@ -68,6 +80,9 @@ MAX_CONTEXT_CHARS = 7000
 EMBED_TIMEOUT = 60
 SEARCH_TIMEOUT = 20
 CHAT_TIMEOUT = 120
+
+# MiniMax primary model for final answer formatting
+PRIMARY_LLM_MODEL = "minimax-m2.7"
 
 # HVAC domain keywords — out-of-domain queries are blocked
 HVAC_COMPONENTS = {
@@ -348,38 +363,233 @@ def build_rag_context(hits: list, max_chars: int = MAX_CONTEXT_CHARS) -> str:
 
 
 # =============================================================================
-# System Prompt Template
+# System Prompt Template — Zappro Clima Tutor
 # =============================================================================
 
-SYSTEM_PROMPT_TEMPLATE = """Você é um assistente técnico de manutenção de ar-condicionado inverter.
+SYSTEM_PROMPT_TEMPLATE = """Você é o Zappro Clima Tutor, um assistente amigável de climatização inverter.
 
-MODO: manual_strict (apenas manuais indexados).
+TOM:
+- Estilo ChatGPT, não laudo técnico
+- Paciente, claro, direto
+- Uma pergunta simples por vez
+- Não pareça formulário
+- Não exponha rótulos internos
 
-REGRAS OBRIGATÓRIAS:
-1. Responda EM PORTUGUÊS DO BRASIL.
-2. Use SOMENTE os trechos recuperados da base HVAC abaixo como fonte primária.
-3. Cite sempre que puder: manual, seção, modelo ou chunk no formato [Trecho N].
-4. Se a base não tiver a informação, diga: "não encontrei isso nos manuais indexados para este modelo".
-5. NUNCA invente valores de: tensão, resistência, pressão, frequência, corrente ou carga de fluido refrigerante.
-6. Para placa inverter, IPM, ponte de diodos, compressor, alta tensão, capacitor ou link/DC bus:
-   - AVISO DE SEGURANÇA: o procedimento envolve risco elétrico
-   - RECOMENDE técnico qualificado
-   - INDIQUE seguir o manual do modelo específico
-   - NÃO descreva medição energizada sem respaldo explícito do manual
-7. Se faltarem informações do modelo (unidade interna E externa), peça o modelo completo ANTES de responder.
-8. Separe sua resposta em: Confirmação → Procedimento → Limitações.
+ESTRUTURA DE RESPOSTA:
+1. Entendi o cenário — reconheça o que o usuário já informou
+2. Pista principal — explique o caminho provável
+3. Como pensar — dê ordem lógica sem cravar peça cedo
+4. Segurança — alerte se envolver placa/IPM/compressor/alta tensão/capacitor/barramento DC
+5. Próximo passo — uma única pergunta no final
+
+NUNCA:
+- Não diga apenas "não encontrei no manual" e pare — diga "não tenho o manual exato, então trato como triagem técnica"
+- Não mostre rótulos internos como "Graph interno", "Evidência:"
+- Troque por: "Pela triagem técnica...", "Pela base técnica...", "Pelo manual..."
+- Não invente valores de tensão, resistência, pressão, corrente ou carga de gás
+- Não oriente medição energizada sem respaldo explícito do manual
+- Não peça "modelo completo" repetidamente se o usuário já deu marca/família/código
+- Não termine com checklist de segurança como última frase — integre na resposta
 
 CONTEXTO HVAC RECUPERADO:
 {context}
 
 ---
-Responda com base exclusivamente no contexto acima. Se não há contexto relevante, diga que não encontrou."""
+Responda em português do Brasil. Se não há contexto relevante, diga que não encontrou de forma amigável."""
+
+
+FIELD_TUTOR_SYSTEM_PROMPT = """Você é o Zappro Clima Tutor, modo técnico de campo.
+
+TOM:
+- Estilo ChatGPT, mas com profundidade técnica
+- Paciente, claro, direto
+- Uma pergunta por vez
+- Estrutura: Entendi / Caminho provável / Diagnóstico passo a passo / Segurança / Pergunta simples
+
+NUNCA:
+- Não mostre "Graph interno", "Evidência:" — use "Pela triagem técnica"
+- Não invente valores de tensão, resistência, pressão, corrente ou carga de gás
+- Não oriente medição energizada sem respaldo explícito do manual
+- Não crave peça antes de esgotar diagnóstico
+
+PARA ALTA TENSÃO, IPM, PLACA INVERTER, COMPRESSOR, CAPACITOR, BARRAMENTO DC:
+- AVISO DE SEGURANÇA curto e integrado na resposta
+- Indique seguir o manual do modelo específico
+- Recomende técnico qualificado
+
+CONTEXTO HVAC EXPANDIDO:
+{context}
+
+---
+Responda em português do Brasil."""
+
+
+# =============================================================================
+# Retrieval Package Builder
+# =============================================================================
+
+def build_retrieval_package(user_query: str, hits: list, juiz_meta: dict) -> dict:
+    """
+    Build a structured retrieval package for MiniMax to format the final answer.
+
+    The package contains all context MiniMax needs to write a good response,
+    replacing the old pattern of returning raw RAG chunks + fixed prompt.
+    """
+    pkg = {
+        "user_query": user_query,
+        "conversation_state": {},
+        "manual_context": [],
+        "evidence_level": "nenhum",
+        "safety_flags": [],
+        "missing_info": [],
+        "next_best_question": None,
+    }
+
+    # Extract conversation state from juí z metadata
+    if juiz_meta.get("has_complete_model"):
+        pkg["conversation_state"]["has_model"] = True
+    if juiz_meta.get("has_error_codes"):
+        errors = HVAC_ERROR_CODES.findall(user_query)
+        pkg["conversation_state"]["error_codes"] = errors[:3]
+    if juiz_meta.get("has_hvac_components"):
+        pkg["safety_flags"] = list(
+            set(k for k in SAFETY_KEYWORDS if k in user_query.lower())
+        )
+
+    # Build manual context from Qdrant hits
+    for hit in hits[:6]:
+        payload = hit.get("payload", {})
+        pkg["manual_context"].append({
+            "doc_id": payload.get("doc_id", ""),
+            "heading": payload.get("heading", ""),
+            "doc_type": payload.get("doc_type", ""),
+            "models": payload.get("model_candidates", [])[:3],
+            "error_codes": payload.get("error_code_candidates", [])[:5],
+            "safety_tags": payload.get("safety_tags", []),
+            "text": payload.get("text", "")[:600],
+        })
+
+    # Determine evidence level
+    if pkg["manual_context"]:
+        doc_types = {c["doc_type"] for c in pkg["manual_context"] if c["doc_type"]}
+        if "service_manual" in doc_types:
+            pkg["evidence_level"] = "manual_exato"
+        else:
+            pkg["evidence_level"] = "manual_familia"
+    elif juiz_meta.get("has_error_codes") or juiz_meta.get("has_hvac_components"):
+        pkg["evidence_level"] = "triagem_tecnica"
+    else:
+        pkg["evidence_level"] = "sem_contexto"
+
+    # Determine missing info and next best question
+    if not pkg["conversation_state"].get("has_model") and not juiz_meta.get("has_complete_model"):
+        pkg["missing_info"].append("modelo_ou_codigo")
+        if juiz_meta.get("has_error_codes"):
+            pkg["next_best_question"] = (
+                "o código que aparece no display? "
+                "Pode ser algo como U4-01, E4-01 ou A3."
+            )
+        else:
+            pkg["next_best_question"] = (
+                "o que aparece no display ou na etiqueta da unidade externa? "
+                "Exemplo: um código como U4-01 ou um modelo como RXYQ20BRA."
+            )
+
+    return pkg
+
+
+def build_minimax_system_prompt(pkg: dict) -> str:
+    """
+    Build the system prompt sent to MiniMax for final answer formatting.
+    MiniMax receives structured context and formats it as a friendly tutor response.
+    """
+    lines = [
+        "Você é o Zappro Clima Tutor — assistente amigável de climatização inverter.",
+        "",
+        "TOM: estilo ChatGPT, paciente, claro, direto, uma pergunta por vez, não formulário.",
+        "",
+        "ESTRUTURA:",
+        "1. Entendi o cenário — reconheça o que o usuário já informou",
+        "2. Pista principal — caminho provável",
+        "3. Como pensar — ordem lógica sem cravar peça cedo",
+        "4. Segurança — alerta integrado se envolver alta tensão, placa, IPM, compressor, capacitor, barramento DC",
+        "5. Próximo passo — UMA única pergunta no final",
+        "",
+    ]
+
+    # Add conversation state
+    state = pkg.get("conversation_state", {})
+    if state.get("error_codes"):
+        codes = ", ".join(state["error_codes"])
+        lines.append(f"Erros mencionados: {codes}")
+
+    # Add evidence level
+    level = pkg.get("evidence_level", "nenhum")
+    level_labels = {
+        "manual_exato": "Existe manual de serviço indexado para este modelo.",
+        "manual_familia": "Existe manual da família, mas não o exato.",
+        "triagem_tecnica": "Sem manual exato — use triagem técnica.",
+        "sem_contexto": "Sem contexto na base — triagem geral.",
+    }
+    lines.append(f"Evidência: {level_labels.get(level, level)}")
+
+    # Add manual context if available
+    ctx_list = pkg.get("manual_context", [])
+    if ctx_list:
+        lines.append("")
+        lines.append("CONTEXTO DO MANUAL:")
+        for i, ctx in enumerate(ctx_list[:4], 1):
+            if ctx.get("text"):
+                lines.append(f"[{i}] {ctx['text'][:400]}")
+                if ctx.get("safety_tags"):
+                    lines.append(f"   ⚠️ {', '.join(ctx['safety_tags'][:2])}")
+        lines.append("")
+
+    # Add safety flags
+    safety = pkg.get("safety_flags", [])
+    if safety:
+        lines.append(f"ALERTAS DE SEGURANÇA ativos: {', '.join(safety)}")
+
+    # Add missing info
+    if pkg.get("missing_info"):
+        lines.append(f"INFORMAÇÕES FALTANDO: {', '.join(pkg['missing_info'])}")
+
+    lines.extend([
+        "",
+        "REGRAS CRÍTICAS:",
+        "- NUNCA mostre 'Graph interno', 'Evidência:' como rótulos — use 'Pela triagem técnica'",
+        "- NUNCA invente valores de tensão, resistência, pressão, corrente ou carga de gás",
+        "- NUNCA oriente medição energizada sem respaldo explícito do manual",
+        "- Se não há manual exato: diga 'não tenho o manual exato aqui, então trato como triagem técnica'",
+        "- Se faltam modelo/código: peça de forma amigável, uma coisa por vez",
+        "- MAX 600 caracteres para respostas normais, 900 para procedimentos técnicos",
+        "- MAX uma pergunta no final",
+    ])
+
+    return "\n".join(lines)
+
+
+# Safety keywords used in retrieval package builder
+SAFETY_KEYWORDS = {
+    "ipm", "placa inverter", "inverter board", "ponte de diodos",
+    "alta tensão", "alta pressão", "high voltage", "high pressure",
+    "capacitor", "barramento link", "link dc", "dc bus",
+    "compressor", "energizado", "lockout", "tagout",
+}
 
 
 def format_system_prompt(context: str) -> str:
+    """Format system prompt for guided_triage mode (default router path)."""
     if context:
         return SYSTEM_PROMPT_TEMPLATE.format(context=context)
-    return SYSTEM_PROMPT_TEMPLATE.format(context="[Nenhum trecho encontrado na base HVAC]")
+    return SYSTEM_PROMPT_TEMPLATE.format(context="[Nenhum trecho encontrado na base HVAC — use triagem técnica]")
+
+
+def format_field_tutor_prompt(context: str) -> str:
+    """Format system prompt for field_tutor mode."""
+    if context:
+        return FIELD_TUTOR_SYSTEM_PROMPT.format(context=context)
+    return FIELD_TUTOR_SYSTEM_PROMPT.format(context="[Nenhum trecho encontrado na base HVAC — use triagem técnica]")
 
 
 # =============================================================================
@@ -401,7 +611,12 @@ class ChatCompletionRequest(BaseModel):
 
 @app.get("/v1/models")
 async def list_models():
-    """OpenAI-compatible /v1/models endpoint."""
+    """
+    OpenAI-compatible /v1/models endpoint.
+    Exposes only zappro-clima-tutor publicly.
+    Internal aliases (hvac-manual-strict, hvac-field-tutor, hvac-printable)
+    are NOT exposed — they are handled internally by the router.
+    """
     return {
         "object": "list",
         "data": [
@@ -422,13 +637,16 @@ async def list_models():
 async def chat_completions(request: ChatCompletionRequest):
     """
     OpenAI-compatible /v1/chat/completions endpoint.
-    1. Extract user query
-    2. Check domain
-    3. Search Qdrant
-    4. Inject context
-    5. Forward to LiteLLM
+
+    Router logic:
+      printable query  → /v1/chat/completions/printable (internal redirect)
+      else             → guided_triage via MiniMax M2.7 + friendly rewriter
+
+    MiniMax M2.7 is the primary reasoning/writing engine.
+    Qdrant provides context; MiniMax formats the final answer.
+    The friendly rewriter is a safety net for tone/polish.
     """
-    # Extract user message
+    # Extract user message and system content
     user_query = ""
     system_content = ""
     for msg in request.messages:
@@ -443,100 +661,77 @@ async def chat_completions(request: ChatCompletionRequest):
             content={"error": {"message": "No user message found", "type": "invalid_request"}}
         )
 
-    # Juiz pre-flight check
+    q_lower = user_query.lower().strip()
+
+    # ── Route: printable ───────────────────────────────────────────────────────
+    printable_triggers = (
+        "imprimir", "print", "resumo para", "formato de impressão",
+        "passo a passo", "lista de", "checklist", "para anota",
+    )
+    if any(t in q_lower for t in printable_triggers):
+        return await chat_completions_printable(request)
+
+    # ── Juiz pre-flight check ────────────────────────────────────────────────
     juez_result, juez_meta = juiz(user_query)
-    _safe_log(f"Juiz: {juez_result.value} reason={juez_meta.get('reason')} {_log_query_meta(user_query)}")
+    _safe_log(f"Router: {juez_result.value} reason={juez_meta.get('reason')} {_log_query_meta(user_query)}")
 
+    # ── BLOCKED ─────────────────────────────────────────────────────────────
     if juez_result == JuizResult.BLOCKED:
+        friendly_blocked = rewrite_blocked()
         return {
             "id": "hvac-chat-completion",
             "object": "chat.completion",
             "created": 0,
             "model": MODEL_NAME,
-            "choices": [
-                {
-                    "index": 0,
-                    "message": {
-                        "role": "assistant",
-                        "content": (
-                            "Esta base de conhecimento é especializada em ar-condicionado, "
-                            "climatização e refrigeração VRV/VRF. "
-                            "Não encontrei informações relevantes para sua pergunta. "
-                            "Tente perguntar sobre um modelo de ar-condicionado, código de erro, "
-                            "ou procedimento de manutenção HVAC."
-                        ),
-                    },
-                    "finish_reason": "stop",
-                }
-            ],
+            "choices": [{"index": 0, "message": {"role": "assistant", "content": friendly_blocked}, "finish_reason": "stop"}],
         }
 
+    # ── ASK_CLARIFICATION ─────────────────────────────────────────────────────
     if juez_result == JuizResult.ASK_CLARIFICATION:
-        # Check if this is a safety query without model
-        if juez_meta.get("safety_only_without_model"):
-            safety_msg = (
-                "⚠️ Para procedimentos de segurança em alta tensão (IPM, placa inverter, "
-                "ponte de diodos, capacitor, compressor), é obrigatório:\n\n"
-                "1. DESLIGAR a unidade da rede elétrica\n"
-                "2. AGUARDAR o tempo especificado no manual/fabricante/etiqueta\n"
-                "3. CONFIRMAR ausência de tensão com multímetro antes de tocar componentes\n"
-                "4. Usar EPIs adequados (luvas classe III, óculos, calçado isolante)\n"
-                "5. NUNCA medir energizado sem respaldo explícito do manual\n\n"
-                "─────────────────────────\n\n"
-                "Para diagnóstico específico, forneça o MODELO COMPLETO da unidade. "
-                "Exemplo: RXYQ20BRA + FXYC20BRA (unidade externa + interna)."
-            )
-        else:
-            safety_msg = (
-                "Para ajudar melhor, preciso do modelo completo da unidade. "
-                "Exemplo: RXYQ20BRA + FXYC20BRA (unidade externa + interna). "
-                "Com o modelo completo posso buscar o procedimento específico no manual."
-            )
+        has_safety = bool(juez_meta.get("safety_only_without_model"))
+        partial_info = ""
+        if juez_meta.get("has_error_codes"):
+            errors = HVAC_ERROR_CODES.findall(user_query)
+            if errors:
+                partial_info = f"sei que você tem um código {errors[0]}"
+        friendly_ask = rewrite_ask(has_safety=has_safety, partial_info=partial_info)
         return {
             "id": "hvac-chat-completion",
             "object": "chat.completion",
             "created": 0,
             "model": MODEL_NAME,
-            "choices": [
-                {
-                    "index": 0,
-                    "message": {
-                        "role": "assistant",
-                        "content": safety_msg,
-                    },
-                    "finish_reason": "stop",
-                }
-            ],
+            "choices": [{"index": 0, "message": {"role": "assistant", "content": friendly_ask}, "finish_reason": "stop"}],
         }
 
-    # Juiz APPROVED - proceed with Qdrant search
-    # Search Qdrant
+    # ── APPROVED — build retrieval package + call MiniMax ─────────────────────
     hits = await search_qdrant(user_query, top_k=DEFAULT_TOP_K)
     context = build_rag_context(hits)
+    pkg = build_retrieval_package(user_query, hits, juez_meta)
 
-    # Build messages for LiteLLM
-    enriched_system = format_system_prompt(context)
+    # Build MiniMax system prompt (primary reasoning engine)
+    minimax_system = build_minimax_system_prompt(pkg)
+
     # Prepend HVAC system prompt, preserving any existing system content
     if system_content:
-        final_system = f"{enriched_system}\n\n[System original do usuário]\n{system_content}"
+        final_system = f"{minimax_system}\n\n[System original do usuário]\n{system_content}"
     else:
-        final_system = enriched_system
+        final_system = minimax_system
 
     messages_for_llm = [{"role": "system", "content": final_system}]
     for msg in request.messages:
         if msg.role != "system":
             messages_for_llm.append({"role": msg.role, "content": msg.content})
 
-    _safe_log(f"Qdrant: hits={len(hits)} context_chars={len(context)} model={request.model} {_log_query_meta(user_query)}")
+    _safe_log(f"Tutor: hits={len(hits)} ctx={len(context)} mode=guided_tutor {_log_query_meta(user_query)}")
 
-    # Forward to LiteLLM
+    # ── Call MiniMax M2.7 as primary LLM ─────────────────────────────────────
     async with httpx.AsyncClient(timeout=CHAT_TIMEOUT) as client:
         try:
             litellm_payload = {
-                "model": "minimax-m2.7",
+                "model": PRIMARY_LLM_MODEL,
                 "messages": messages_for_llm,
-                "temperature": request.temperature,
-                "max_tokens": request.max_tokens,
+                "temperature": max(request.temperature, 0.45),  # min 0.45 for friendly tone
+                "max_tokens": min(request.max_tokens or 1024, 1400),
                 "stream": False,
             }
             r = await client.post(
@@ -546,12 +741,17 @@ async def chat_completions(request: ChatCompletionRequest):
             )
             if r.status_code == 200:
                 result = r.json()
+                message = result.get("choices", [{}])[0].get("message", {})
+                # MiniMax M2.7 puts extended thinking in reasoning_content
+                raw_content = message.get("content") or message.get("reasoning_content") or ""
+                # Apply friendly rewriter as safety net
+                friendly_content = rewrite_response(raw_content, user_query=user_query)
+                result["choices"][0]["message"]["content"] = friendly_content
                 result["model"] = MODEL_NAME
                 return result
             else:
                 err_type = r.json().get("error", {}).get("type", "upstream_error") if r.text else "upstream_error"
                 _safe_log(f"LiteLLM error: status={r.status_code} type={err_type}")
-                # If we have context, return fallback response instead of 502
                 if context:
                     req_id = hashlib.sha256(user_query.encode()).hexdigest()[:12]
                     return _build_safe_fallback_response(context, user_query, req_id)
@@ -612,58 +812,24 @@ async def chat_completions_field_tutor(request: ChatCompletionRequest):
     _safe_log(f"[field-tutor] Juiz: {juez_result.value} reason={juez_meta.get('reason')}")
 
     if juez_result == JuizResult.BLOCKED:
+        friendly_blocked = rewrite_blocked()
         return {
             "id": "hvac-chat-completion",
             "object": "chat.completion",
             "created": 0,
             "model": MODEL_NAME,
-            "choices": [
-                {
-                    "index": 0,
-                    "message": {
-                        "role": "assistant",
-                        "content": (
-                            "Esta base de conhecimento é especializada em ar-condicionado, "
-                            "climatização e refrigeração VRV/VRF."
-                        ),
-                    },
-                    "finish_reason": "stop",
-                }
-            ],
+            "choices": [{"index": 0, "message": {"role": "assistant", "content": friendly_blocked}, "finish_reason": "stop"}],
         }
 
     if juez_result == JuizResult.ASK_CLARIFICATION:
-        if juez_meta.get("safety_only_without_model"):
-            safety_msg = (
-                "⚠️ PROCEDIMENTO GERAL DE SEGURANÇA:\n"
-                "1. DESLIGAR a unidade da rede elétrica\n"
-                "2. AGUARDAR o tempo especificado no manual/fabricante/etiqueta\n"
-                "3. CONFIRMAR ausência de tensão com multímetro\n"
-                "4. Usar EPIs adequados\n"
-                "5. NUNCA medir energizado sem respaldo do manual\n\n"
-                "─────────────────────────\n\n"
-                "Para procedimento específico, forneça o MODELO COMPLETO. Ex: RXYQ20BRA + FXYC20BRA"
-            )
-        else:
-            safety_msg = (
-                "Para ajudar melhor, preciso do modelo completo da unidade. "
-                "Exemplo: RXYQ20BRA + FXYC20BRA."
-            )
+        has_safety = bool(juez_meta.get("safety_only_without_model"))
+        friendly_ask = rewrite_ask(has_safety=has_safety)
         return {
             "id": "hvac-chat-completion",
             "object": "chat.completion",
             "created": 0,
             "model": MODEL_NAME,
-            "choices": [
-                {
-                    "index": 0,
-                    "message": {
-                        "role": "assistant",
-                        "content": safety_msg,
-                    },
-                    "finish_reason": "stop",
-                }
-            ],
+            "choices": [{"index": 0, "message": {"role": "assistant", "content": friendly_ask}, "finish_reason": "stop"}],
         }
 
     # Get Field Tutor enhanced context
@@ -673,23 +839,8 @@ async def chat_completions_field_tutor(request: ChatCompletionRequest):
         _safe_log(f"[field-tutor] Error: {type(e).__name__}")
         field_context = "[Erro ao buscar contexto expandido]"
 
-    # Build simplified prompt for LLM (already has context from Field Tutor)
-    ft_system = f"""Você é um assistente técnico de manutenção de ar-condicionado inverter.
-
-MODO: field_tutor (contexto expandido com procedimentos de segurança).
-
-REGRAS OBRIGATÓRIAS:
-1. Responda EM PORTUGUÊS DO BRASIL.
-2. Use SOMENTE os trechos retrieved da base HVAC abaixo.
-3. Cite sempre: [Trecho N]
-4. NUNCA invente valores de tensão, resistência, pressão ou carga de gás.
-5. Para IPM, alta tensão, ponte de diodos: inclua AVISO DE SEGURANÇA e recomende técnico qualificado.
-
-CONTEXTO HVAC EXPANDIDO:
-{field_context}
-
----
-Responda com base no contexto acima."""
+    # Build field tutor prompt with friendly tone
+    ft_system = format_field_tutor_prompt(field_context)
 
     messages_for_llm = [{"role": "system", "content": ft_system}]
     for msg in request.messages:
@@ -702,10 +853,10 @@ Responda com base no contexto acima."""
     async with httpx.AsyncClient(timeout=CHAT_TIMEOUT) as client:
         try:
             litellm_payload = {
-                "model": "minimax-m2.7",
+                "model": PRIMARY_LLM_MODEL,
                 "messages": messages_for_llm,
-                "temperature": request.temperature,
-                "max_tokens": request.max_tokens,
+                "temperature": max(request.temperature, 0.45),
+                "max_tokens": min(request.max_tokens or 1024, 1600),
                 "stream": False,
             }
             r = await client.post(
@@ -715,6 +866,10 @@ Responda com base no contexto acima."""
             )
             if r.status_code == 200:
                 result = r.json()
+                message = result.get("choices", [{}])[0].get("message", {})
+                raw_content = message.get("content") or message.get("reasoning_content") or ""
+                friendly_content = rewrite_response(raw_content, user_query=user_query)
+                result["choices"][0]["message"]["content"] = friendly_content
                 result["model"] = MODEL_NAME
                 return result
             else:
@@ -780,50 +935,24 @@ async def chat_completions_printable(request: ChatCompletionRequest):
     _safe_log(f"[printable] Juiz: {juez_result.value} reason={juez_meta.get('reason')}")
 
     if juez_result == JuizResult.BLOCKED:
+        friendly_blocked = rewrite_blocked()
         return {
             "id": "hvac-chat-completion",
             "object": "chat.completion",
             "created": 0,
             "model": MODEL_NAME,
-            "choices": [
-                {
-                    "index": 0,
-                    "message": {
-                        "role": "assistant",
-                        "content": (
-                            "Esta base é especializada em ar-condicionado HVAC. "
-                            "Pergunte sobre modelos, códigos de erro ou procedimentos de manutenção."
-                        ),
-                    },
-                    "finish_reason": "stop",
-                }
-            ],
+            "choices": [{"index": 0, "message": {"role": "assistant", "content": friendly_blocked}, "finish_reason": "stop"}],
         }
 
     if juez_result == JuizResult.ASK_CLARIFICATION:
-        if juez_meta.get("safety_only_without_model"):
-            safety_msg = (
-                "⚠️ SEGURANÇA: DESLIGAR, AGUARDAR tempo do manual, "
-                "CONFIRMAR ausência de tensão, usar EPIs, NUNCA medir energizado.\n\n"
-                "Para procedimento específico: forneça modelo completo. Ex: RXYQ20BRA + FXYC20BRA"
-            )
-        else:
-            safety_msg = "Forneça o modelo completo para busca no manual. Ex: RXYQ20BRA + FXYC20BRA"
+        has_safety = bool(juez_meta.get("safety_only_without_model"))
+        friendly_ask = rewrite_ask(has_safety=has_safety)
         return {
             "id": "hvac-chat-completion",
             "object": "chat.completion",
             "created": 0,
             "model": MODEL_NAME,
-            "choices": [
-                {
-                    "index": 0,
-                    "message": {
-                        "role": "assistant",
-                        "content": safety_msg,
-                    },
-                    "finish_reason": "stop",
-                }
-            ],
+            "choices": [{"index": 0, "message": {"role": "assistant", "content": friendly_ask}, "finish_reason": "stop"}],
         }
 
     # Get Field Tutor enhanced context
@@ -923,17 +1052,31 @@ async def filter_outlet(request: Request):
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "service": "hvac-rag-pipe", "version": "1.0.0"}
+    return {
+        "status": "ok",
+        "service": "hvac-rag-pipe",
+        "version": "2.0.0",
+        "public_model": MODEL_NAME,
+        "internal_models": INTERNAL_MODELS,
+    }
 
 
 @app.get("/")
 async def root():
     return {
-        "service": "HVAC RAG Pipe",
-        "version": "1.0.0",
-        "strategy": "openai_compatible_rag_pipe",
-        "model": MODEL_NAME,
-        "endpoints": ["/v1/models", "/v1/chat/completions", "/health", "/hvac-rag/filter/inlet"],
+        "service": "HVAC RAG Pipe — Zappro Clima Tutor",
+        "version": "2.0.0",
+        "strategy": "minimax_primary_rag_context_tutor",
+        "public_model": MODEL_NAME,
+        "internal_models": INTERNAL_MODELS,
+        "endpoints": [
+            "/v1/models",
+            "/v1/chat/completions",
+            "/v1/chat/completions/field-tutor",
+            "/v1/chat/completions/printable",
+            "/health",
+            "/hvac-rag/filter/inlet",
+        ],
     }
 
 
