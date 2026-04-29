@@ -87,6 +87,34 @@ def test_prompt_pt_br_has_no_cjk_or_cyrillic():
     assert "não como manual" in prompt
 
 
+def test_final_response_charset_filter_removes_cjk_and_cyrillic():
+    pipe = load_module("hvac_rag_pipe_for_charset_test", "hvac_rag_pipe.py")
+
+    text = "Falha na placa 驱动板 e модуль inverter."
+    cleaned = pipe.enforce_ptbr_charset(text)
+
+    assert cleaned == "Falha na placa e inverter."
+
+
+def test_unsupported_technical_values_are_suppressed_without_exact_manual():
+    pipe = load_module("hvac_rag_pipe_for_values_test", "hvac_rag_pipe.py")
+
+    text = "Meça 220 V e corrente de 12 A antes de trocar a placa."
+    cleaned = pipe.suppress_unsupported_technical_values(text, "triagem_tecnica")
+
+    assert "220 V" not in cleaned
+    assert "12 A" not in cleaned
+    assert "valor conforme etiqueta/manual" in cleaned
+
+
+def test_exact_manual_keeps_technical_values():
+    pipe = load_module("hvac_rag_pipe_for_manual_values_test", "hvac_rag_pipe.py")
+
+    text = "Meça 220 V conforme tabela do manual."
+
+    assert pipe.suppress_unsupported_technical_values(text, "manual_exato") == text
+
+
 def test_tavily_mcp_payload_normalization():
     web = load_module("hvac_web_search_for_test", "hvac_web_search.py")
     payload = {
