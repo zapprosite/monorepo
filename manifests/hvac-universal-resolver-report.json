@@ -1,0 +1,101 @@
+{
+  "universal_resolver_ready": true,
+  "u4_hardcoding_removed": true,
+  "qdrant_not_required_for_answer": true,
+  "evidence_ladder": [
+    "manual_exact",
+    "manual_family",
+    "technical_memory",
+    "graph_internal",
+    "official_web",
+    "web_fallback",
+    "llm_triage"
+  ],
+  "brands_tested": [
+    "Daikin",
+    "Springer",
+    "LG",
+    "Samsung",
+    "Komeco",
+    "Agratto",
+    "Elgin",
+    "Gree",
+    "Fujitsu",
+    "Midea",
+    "Carrier",
+    "Trane",
+    "Hitachi",
+    "Comfee"
+  ],
+  "tests_passed": 157,
+  "smoke_passed": true,
+  "compile_check": true,
+  "cjk_removed": true,
+  "provider_leak_blocked": true,
+  "openwebui_endpoint_exposed": "zappro-clima-tutor",
+  "remaining_risks": [
+    {
+      "risk": "real OpenWebUI conversational QA",
+      "severity": "high",
+      "description": "Unit tests pass but real conversational flow with multiple brands has not been validated end-to-end in OpenWebUI"
+    },
+    {
+      "risk": "Qdrant payload filtering not implemented",
+      "severity": "high",
+      "description": "hvac_coverage.py uses heuristic inference, not Qdrant payload lookup. Springer may be undercounted because brand is not in HVAC_BRAND_FAMILIES dict. See SPEC-205."
+    },
+    {
+      "risk": "Tavily search_depth is auto",
+      "severity": "medium",
+      "description": "Tavily config should be search_depth=basic to avoid burning credits on advanced queries"
+    },
+    {
+      "risk": "catalog/manual coverage growth",
+      "severity": "medium",
+      "description": "Universal resolver correctly handles absence of manual, but quality of triage improves with more indexed manuals"
+    }
+  ],
+  "next_actions": [
+    {
+      "action": "merge branch feature/turbo-202604291339",
+      "priority": 1,
+      "blocker": false
+    },
+    {
+      "action": "implement Qdrant payload-filtered coverage check (SPEC-205)",
+      "priority": 1,
+      "blocker": "pending merge"
+    },
+    {
+      "action": "set Tavily search_depth=basic in config",
+      "priority": 2,
+      "blocker": false
+    },
+    {
+      "action": "run end-to-end conversational QA in OpenWebUI with all brands",
+      "priority": 1,
+      "blocker": "pending merge"
+    }
+  ],
+  "validation_commands": [
+    "pytest tests/test_hvac_universal_resolver.py -q",
+    "pytest tests/ -q",
+    "python3 -m py_compile scripts/hvac-rag/*.py",
+    "python3 scripts/hvac-rag/hvac-daily-smoke.py --once",
+    "python3 scripts/hvac-rag/hvac-healthcheck.py",
+    "git diff --check"
+  ],
+  "files_created": [
+    "scripts/hvac-rag/hvac_intake.py",
+    "scripts/hvac-rag/hvac_coverage.py",
+    "scripts/hvac-rag/hvac_evidence.py",
+    "scripts/hvac-rag/hvac_resolver.py",
+    "config/hvac-copilot/universal-resolver-policy.yaml",
+    "tests/test_hvac_universal_resolver.py",
+    "docs/SPEC-205.md"
+  ],
+  "files_modified": [
+    "scripts/hvac-rag/hvac_rag_pipe.py",
+    "config/hvac-copilot/zappro-clima-tutor.yaml"
+  ]
+}
