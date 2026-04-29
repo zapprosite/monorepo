@@ -103,7 +103,7 @@ Ou, se Zod v3 for intencionalmente necessário no ai-gateway por alguma razão l
 pnpm remove tsc
 ```
 
-Verificar antes se algum script usa `tsc` diretamente como binário — grep结果显示 apenas `typescript` e `tsx` são usados nos scripts de build.
+Verificar antes se algum script usa `tsc` diretamente como binário — grep results show that only `typescript` and `tsx` are used in build scripts.
 
 ### 3. Atualizar Dev Dependencies (MÉDIO)
 

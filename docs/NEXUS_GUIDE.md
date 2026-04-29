@@ -295,7 +295,7 @@ nexus.sh --spec SPEC-205 --phase review
 ```bash
 nexus.sh --spec SPEC-205 --phase execute --parallel 15
 # 15 workers processam queue.json em paralelo
-# ZFS snapshot自动 cada 3 tasks
+# ZFS snapshot automatically every 3 tasks
 # Em caso de falha: debug-agent diagnostics
 ```
 

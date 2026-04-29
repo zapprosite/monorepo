@@ -34,7 +34,7 @@
    - **Fix:** Adicionar `rate-limiter-flexible` com Redis backend
 
 5. **[H-03] `dev-user-placeholder` userId em bypass** — `apps/api/src/middlewares/dev-auth-bypass.ts:60,68`
-   - `userId: "dev-user-placeholder"` — qualquer bypass получит userId fictício
+   - `userId: "dev-user-placeholder"` — qualquer bypass will get fictitious userId
    - **Risk:** IDOR se código confiar neste userId para authorization
    - **Fix:** Em dev, usar userId de um dev user real da DB ou invalidar completamente
 

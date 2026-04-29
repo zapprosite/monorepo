@@ -74,7 +74,7 @@ Seeds com `console.log` poluem stdout e podem expôr dados em contextos de build
 // TODO: Optional enhancement - Send email to user about suspicious activity
 ```
 
-Deveria ser追踪ado como issue, não comentado no código.
+Should be tracked as an issue, not commented in code.
 
 ---
 

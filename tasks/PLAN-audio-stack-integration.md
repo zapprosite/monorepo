@@ -76,7 +76,7 @@ Tarefas:
 - [ ] Corrigir network mode do LiteLLM (host network?)
 - [ ] Usar prefixo openai/ para todos os modelos locais
 - [ ] Declarar model_info.mode para audio
-- [ ] Testar /v1/models retornando modelos正确
+- [ ] Testar /v1/models retornando modelos correctly
 - [ ] Testar transcrição via LiteLLM
 ```
 

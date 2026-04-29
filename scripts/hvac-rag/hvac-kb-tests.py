@@ -242,7 +242,7 @@ def test_same_title_different_content_not_wrong_duplicate() -> bool:
                 "doc_id": "Modelo_ABC_Manual",
                 "pdf_path": "/tmp/t2.pdf",
                 "md_path": "/tmp/t2.md",
-                "_content": "完全不同This is a service manual for error codes on the XYZ series roof-top units. completely different content here",
+                "_content": "This is a service manual for error codes on the XYZ series roof-top units. completely different content here",
             },
         ]
 

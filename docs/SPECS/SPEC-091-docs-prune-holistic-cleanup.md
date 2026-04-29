@@ -122,7 +122,7 @@ supersedes: SPEC-XXX  # se aplicável
 
 ### 3. Governança Canonical — /srv/ops/ai-governance/
 
-**Decisão:** /srv/ops/ai-governance/ é a fonte da verdade para governança do host Ubuntu. docs/GOVERNANCE/ do monorepo é redundante e vai ser архивиado.
+**Decisão:** /srv/ops/ai-governance/ é a fonte da verdade para governança do host Ubuntu. docs/GOVERNANCE/ do monorepo é redundante e vai ser archived.
 
 Fusão proposta:
 
@@ -146,7 +146,7 @@ Fusão proposta:
 
 O `.context/` é uma convenção boa para organizar contexto de agentes. CLI dotcontext (`@dotcontext/cli`) **não instalar** — agrega complexidade sem valor ao sistema actual de skills.
 
-O `.context/` existente em `/home/will/.context`, `/srv/monorepo/.context`, `/srv/hvacr-swarm/.context` permanece como vestígio histórico. Não mexer — слишком много work para pouco retorno.
+O `.context/` existente em `/home/will/.context`, `/srv/monorepo/.context`, `/srv/hvacr-swarm/.context` permanece como vestígio histórico. Não mexer — too much a lot work para pouco retorno.
 
 ### 5. Two-Tier Second Brain (inalterado do SPEC-074)
 

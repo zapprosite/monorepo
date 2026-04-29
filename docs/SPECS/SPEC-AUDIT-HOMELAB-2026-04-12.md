@@ -272,4 +272,4 @@ docker logs openclaw-qgtzrmi6771lt8l7x8rqx72f --tail 100
 
 ---
 
-**Conclusão:** O homelab está bem архитектурно para April 2026. As fraquezas principais são operacionais (TTS Bridge DOWN, cron missing, backup gap) não arquiteturais. Stack de voice pipeline é excellent — melhor que a maioria dos homelabs. Governança de audio está correta. Prioridade: estabilizar o que existe antes de adicionar features novas.
+**Conclusão:** O homelab está bem architecturally para April 2026. As fraquezas principais são operacionais (TTS Bridge DOWN, cron missing, backup gap) não arquiteturais. Stack de voice pipeline é excellent — melhor que a maioria dos homelabs. Governança de audio está correta. Prioridade: estabilizar o que existe antes de adicionar features novas.

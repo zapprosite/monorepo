@@ -297,7 +297,7 @@ curl -s http://localhost:4000/health
 
 ## Troubleshooting Flow
 
-1. **GPU Issues:** `nvidia-smi` → verificar VRAM → processo占用
+1. **GPU Issues:** `nvidia-smi` → check VRAM → process usage
 2. **Service Down:** `docker ps` → `docker logs` → `journalctl`
 3. **Rede:** `ping` → `curl` → `ss -tlnp`
 4. **ZFS:** `zpool status` → `zfs list -t snapshot` → rollback se necessário

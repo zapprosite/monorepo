@@ -420,7 +420,7 @@ class SchemaOrganizer:
             JOIN pg_namespace ns ON ns.oid = tab.relnamespace
             JOIN pg_class idx ON idx.oid = idx.indexrelid
             JOIN pg_am am ON am.oid = idx.relam
-            JOIN pg_indexчение attr ON attr.indexrelid = idx.oid
+            JOIN pg_index attr ON attr.indexrelid = idx.oid
             WHERE ns.nspname = %s
             ORDER BY idx.relname, attr.attnum
         """

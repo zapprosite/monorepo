@@ -140,7 +140,7 @@ O MiniMax **escreve** a resposta final. O RAG **não é** a resposta final.
 
 Fonte única: `config/hvac-copilot/answer-template-ptbr.md`
 
-Nenhum outro prompt HVAC deve ser редактирован sem atualizar este arquivo.
+Nenhum outro prompt HVAC deve ser edited sem atualizar este arquivo.
 
 ### 2.4 Scripts candidatos a archive (não deletar ainda)
 

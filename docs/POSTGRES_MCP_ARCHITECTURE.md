@@ -129,7 +129,7 @@ All schemas share the same table structure:
 
 ## PostgreSQL → Qdrant Synchronization
 
-When records are created in PostgreSQL, they are同步到 Qdrant for vector similarity search:
+When records are created in PostgreSQL, they are synchronized to Qdrant for vector similarity search:
 
 ### Qdrant Collections
 

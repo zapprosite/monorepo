@@ -340,7 +340,7 @@ bot.zappro.site
 | `/srv/ops/terraform/cloudflare/access.tf` | Google OAuth credentials (commented, mas visíveis) |
 
 ### ✅ Proteções ativas
-- INPUT policy DROP (iptables) — 默认拒绝
+- INPUT policy DROP (iptables) — default deny
 - UFW ativo com regras específicas
 - Cloudflare Access (Zero Trust) em 7/8 subdomínios públicos
 - Docker networks isoladas por serviço

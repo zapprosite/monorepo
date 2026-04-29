@@ -18,7 +18,7 @@ type: specification
 
 Auditar versões de bibliotecas Go do hvacr-swarm, identificar gaps, atualizar para versões stable, e pesquisar MiniMax API latest (2026-04).
 
-**Problema:** libs podem estar desatualizadas,可能有 breaking changes não noticed.
+**Problema:** libs may be outdated, there may be unnoticed breaking changes.
 
 ---
 

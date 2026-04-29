@@ -102,10 +102,10 @@ API_KEY = os.getenv("GITHUB_TOKEN")  # sem guarantee que vem do vault
 Exceções requerem APPROVAL explícita e documented justification:
 
 ```
-# 例外: Legacy system sem suporte Infisical
-# Autorização: will-zappro 2026-04-12
-# Tipo: temporary bridge (deve ser migrated)
-# Expira: 2026-05-01
+# Exception: Legacy system sem suporte Infisical
+# Authorization: will-zappro 2026-04-12
+# Type: temporary bridge (deve ser migrated)
+# Expires: 2026-05-01
 LEGACY_SYSTEM_TOKEN=bridge_to_infisical
 ```
 
@@ -149,7 +149,7 @@ Regras para universal-code-review skill:
 
 **`docs/ADRs/ADR-029-INFISICAL-MANDATORY.md`** (novo)
 ```
-ADR documentando a decisão архитектурная:
+ADR documentando a decisão arquitetural:
 - Contexto: why Infisical
 - Decisão: SDK mandatory
 - Alternativas considered

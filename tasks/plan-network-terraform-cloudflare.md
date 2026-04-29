@@ -47,7 +47,7 @@
 | Problema | Causa |
 |----------|-------|
 | `localhost:18789` (smoke test) | Gateway OpenClaw bind=loopback apenas — inacessível externamente |
-| Porta 80/443 externa | Cloud provider security group bloqueia — não透过Cloudflare Tunnel |
+| Porta 80/443 externa | Cloud provider security group bloqueia — not through Cloudflare Tunnel |
 | `localhost:8080` sem rota | Traefik não tem rota para `localhost:8080` via `Host: bot.zappro.site` |
 | Smoke test 1.2/1.3 fail | Usa `localhost:18789` que é loopback-only dentro do container |
 
@@ -59,9 +59,9 @@
 
 **Aplica-se a homelab?** ❌ **NÃO RECOMENDADO**
 
-| Cenário |适用? | Razão |
-|---------|-------|-------|
-| AWS/GCP/VPS | ✅ Sim | VPC é o modelo nativo在这些 provedores |
+| Cenário |Applies? | Razão |
+|---------|--------|-------|
+| AWS/GCP/VPS | ✅ Sim | VPC é o modelo nativo on those providers |
 | Homelab local (baremetal) | ❌ Não | Já tens rede local física/VLAN |
 | Homelab + VMs (Proxmox) | ⚠️ Parcial | VLANs fazem o papel do VPC |
 | Coolify + Docker | ❌ Não | Docker networks substituam VPC |

@@ -109,7 +109,7 @@ Commands validados:
 | `Tavily` | ❌ NÃO INSTALADO | — | Web research |
 
 **Regra MCP vs Script:**
-- **MCP:** quando a tarefa precisa de **ferramentas呼叫** (tools call) — coolify_deploy, gitea_create_pr, etc.
+- **MCP:** quando a tarefa precisa de **ferramentas (tools call)** — coolify_deploy, gitea_create_pr, etc.
 - **Script:** quando é **read-only** ou simples — `curl`, `git`, `python3`
 
 ---

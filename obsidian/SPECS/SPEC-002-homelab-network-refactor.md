@@ -298,7 +298,7 @@ for site in chat bot api llm painel vault n8n coolify git qdrant monitor; do
 done
 ```
 
-Testes должны пройти 11/11 subdomínios.
+Testes must pass 11/11 subdomínios.
 
 ---
 

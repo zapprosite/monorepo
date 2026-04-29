@@ -424,7 +424,7 @@ docs/
 ├── INFRASTRUCTURE/   ✅ CANONICAL — rede, ports
 ├── MCPs/             ✅ MCP documentation
 ├── OPERATIONS/       ✅ OPERATIONAL — SKILLS, docker
-├── ADRs/             ✅ CANONICAL — decisões архитектурные
+├── ADRs/             ✅ CANONICAL — decisões architectural
 ├── TEMPLATES/        ✅ TEMPLATES — PRD, SPEC
 │
 ├── archive/          ⚠️ ARCHIVED — antigos, não referenciados
