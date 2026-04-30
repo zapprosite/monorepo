@@ -134,7 +134,7 @@ stt_url = cfg['stt']['openai']['base_url']
 tts_url = cfg['tts']['openai']['base_url']
 vis_url = cfg.get('auxiliary',{}).get('vision',{}).get('base_url','')
 print('STT:', stt_url, '→', ':8204 ok' if ':8204' in stt_url else ':8204 WRONG')
-print('TTS:', tts_url, '→', ':8013 ok' if ':8013' in tts_url else ':8013 WRONG')
+print('TTS:', tts_url, '→', ':8012 ok' if ':8012' in tts_url else ':8012 WRONG')
 print('VIS:', vis_url, '→', ':11434 ok' if ':11434' in vis_url else ':11434 WRONG')
 " 2>/dev/null || warn "hermes config check failed"
 

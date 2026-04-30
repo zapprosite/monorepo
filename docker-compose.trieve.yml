@@ -13,19 +13,19 @@ services:
     image: trieve/server
     container_name: trieve
     restart: unless-stopped
-    env_file:
-      - /srv/monorepo/.env
     environment:
-      - DATABASE_URL=${TRIEVE_DATABASE_URL:-postgres://postgres:${TRIEVE_PG_PASSWORD}@10.0.0.3:5432/trieve}
+      - DATABASE_URL=postgres://postgres:${TRIEVE_PG_PASSWORD}@10.0.0.3:5432/trieve
       - QDRANT_URL=${QDRANT_URL:-http://127.0.0.1:6333}
       - OLLAMA_BASE_URL=${OLLAMA_BASE_URL:-http://127.0.0.1:11434}
       - REDIS_URL=redis://:Fifine156458*@zappro-redis:6379
-      - TRIEVE_API_KEY=${TRIEVE_API_KEY}
+      - TRIEVE_API_KEY=${TRIEVE_API_KEY:-dev-trieve-key-2026}
       - OIDC_ISSUER_URL=http://localhost:7331
       - OIDC_CLIENT_ID=trieve
       - OIDC_CLIENT_SECRET=trieve-secret-dev-2026
       - OIDC_REDIRECT_URL=http://localhost:6435/oauth/callback
+      - AUTH_REDIRECT_URL=http://localhost:6435/oauth/callback
       - SECRET_KEY=dev-secret-key-change-in-production
+      - DOCKER_INDICES=false
     ports:
       - "127.0.0.1:6435:3000"
     healthcheck:
@@ -49,15 +49,13 @@ services:
     container_name: trieve-postgres
     restart: unless-stopped
     environment:
-      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=${TRIEVE_PG_PASSWORD:-trieve_dev_pass_2026}
-      - POSTGRES_DB=${POSTGRES_DB:-trieve}
-    ports:
-      - "127.0.0.1:5433:5432"
+      - POSTGRES_DB=trieve
     volumes:
       - trieve-postgres-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-trieve}"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d trieve"]
       interval: 10s
       timeout: 5s
       retries: 5

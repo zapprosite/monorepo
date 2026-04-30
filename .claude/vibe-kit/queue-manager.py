@@ -366,6 +366,7 @@ def freeze(task_id: str) -> bool:
     except Exception:
         pass  # Will retry with lock
 
+    @_with_lock
     def _freeze(lock_fd: int) -> bool:
         queue = _read_queue_raw()
         updated = False
@@ -387,11 +388,7 @@ def freeze(task_id: str) -> bool:
             _write_queue_atomic(queue)
         return updated
 
-    # Pre-check outside lock for idempotency (avoids blocking on double-freeze)
-    with _acquire_lock(LOCK_FILE, LOCK_TIMEOUT, lock_nb=True) as lock_fd:
-        if lock_fd < 0:
-            raise LockAcquisitionError(f"Could not acquire lock for freeze within {LOCK_TIMEOUT}s")
-        return _freeze(lock_fd)
+    return _freeze()
 
 
 def set_limit(limit: int) -> bool:

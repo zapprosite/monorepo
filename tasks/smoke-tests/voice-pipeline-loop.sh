@@ -298,16 +298,16 @@ if echo "$SMOKE_STDOUT" | grep -q "OpenClaw container.*FAIL"; then
     fi
 fi
 
-# wav2vec2 container DOWN
-if echo "$SMOKE_STDOUT" | grep -q "wav2vec2.*:8201.*FAIL\|2\.1.*wav2vec2.*FAIL"; then
-    if ! container_health "$WAV2VEC2_CONTAINER_NAME"; then
-        log "wav2vec2 container DOWN — attempting restart"
-        if restart_container "$WAV2VEC2_CONTAINER_NAME"; then
-            warn "wav2vec2 restarted"
+# OpenWebUI container DOWN (replaces legacy wav2vec2)
+if echo "$SMOKE_STDOUT" | grep -q "openwebui.*FAIL\|OpenWebUI.*FAIL"; then
+    if ! container_health "$OPENWEBUI_CONTAINER_NAME"; then
+        log "OpenWebUI container DOWN — attempting restart"
+        if restart_container "$OPENWEBUI_CONTAINER_NAME"; then
+            warn "OpenWebUI restarted"
             HEALED_SOMETHING=true
-            increment_counter "wav2vec2" "restart_attempts"
+            increment_counter "openwebui" "restart_attempts"
         else
-            log "wav2vec2 restart failed"
+            log "OpenWebUI restart failed"
             ALERT_NOW=true
         fi
     fi
@@ -393,7 +393,9 @@ fi
 # =============================================================================
 log "Sending Telegram alert (alert_count=$ALERT_COUNT)..."
 
-ALERT_MSG=$(python3 << 'PYEOF'
+ALERT_MSG=$(python3 - "$FAILED" "$PASSED" "$TOTAL" "${FAILED_ENDPOINTS:-Unknown}" \
+    "${TTS_BRIDGE_CONTAINER_NAME}" "${OPENCLAW_CONTAINER_NAME}" \
+    "${LOG_DIR}" "$(date '+%Y%m%d')" 2>/dev/null <<'PYEOF'
 import sys
 failed = sys.argv[1]
 passed = sys.argv[2]
@@ -415,7 +417,7 @@ msg = """🔴 Voice Pipeline ALERT
 ```
 
 🔧 Recovery Plan:
-1. docker ps | grep -E 'openclaw|tts|wav2vec2|litellm'
+1. docker ps | grep -E 'openclaw|tts|openwebui|litellm'
 2. docker logs <container-name> --tail 50
 3. docker start %s
 4. docker restart %s
@@ -436,9 +438,7 @@ for ch in '_*[]()~`>#+=|{}.!':
     msg = msg.replace(ch, '\\' + ch)
 print(msg)
 PYEOF
-" "$FAILED" "$PASSED" "$TOTAL" "${FAILED_ENDPOINTS:-Unknown}" \
-     "${TTS_BRIDGE_CONTAINER_NAME}" "${OPENCLAW_CONTAINER_NAME}" \
-     "${LOG_DIR}" "$(date '+%Y%m%d')" 2>/dev/null)
+)
 
 tg_send "$ALERT_MSG" 2>/dev/null || warn "Telegram send failed"
 

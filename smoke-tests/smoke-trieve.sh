@@ -82,16 +82,49 @@ _curl_json() {
     timeout "$timeout" curl "${curl_args[@]}" "$url" 2>/dev/null && return 0 || return 1
 }
 
-# ── JSON Parsing (no jq — grep/sed/awk) ──────────────────────────────
-# Extract value by key from JSON response using grep + sed
+# Dataset-scoped variant — injects TR-Dataset header required for chunk ops
+_curl_json_ds() {
+    local ds_id="$1"
+    local method="$2"
+    local url="$3"
+    local data="$4"
+    local timeout="${5:-$TIMEOUT}"
+
+    if ! command -v curl >/dev/null 2>&1; then
+        log_error "curl not found"
+        return 1
+    fi
+
+    local auth_hdr="Authorization: ApiKey ${TRIEVE_API_KEY}"
+    local ct_hdr="Content-Type: application/json"
+    local ds_hdr="TR-Dataset: ${ds_id}"
+    local curl_args=(-s -X "$method" -H "$ct_hdr" -H "$ds_hdr")
+
+    [[ -n "$TRIEVE_API_KEY" ]] && curl_args+=(-H "$auth_hdr")
+    [[ -n "$data" ]] && curl_args+=(-d "$data")
+
+    timeout "$timeout" curl "${curl_args[@]}" "$url" 2>/dev/null && return 0 || return 1
+}
+
+# ── JSON Parsing (python3 — robust, no jq dep) ───────────────────────
 _json_get() {
     local json="$1"
     local key="$2"
-    # Handles: "key": "value" or "key":123 or "key":true/false
-    echo "$json" | grep -o "\"${key}\"[[:space:]]*:[[:space:]]*[^,}]*" \
-        | sed 's/.*:[[:space:]]*//' \
-        | tr -d '"' \
-        | tr -d ' '
+    python3 -c "
+import sys, json
+try:
+    data = json.loads(sys.argv[1])
+    val = data
+    for k in sys.argv[2].split('.'):
+        if isinstance(val, dict):
+            val = val.get(k)
+        else:
+            val = None
+            break
+    print(val if val is not None else '', end='')
+except Exception:
+    print('', end='')
+" "$json" "$key"
 }
 
 _json_array_length() {
@@ -150,7 +183,7 @@ EOF
         return 1
     }
 
-    if [[ -z "$ds_id" || "$ds_id" == "null" || "$ds_id" == "null" ]]; then
+    if [[ -z "$ds_id" || "$ds_id" == "null" ]]; then
         log_error "Invalid dataset ID: '${ds_id}'"
         log_error "Response: ${resp}"
         return 1
@@ -189,7 +222,7 @@ EOF
 )"
 
     local resp
-    resp=$(_curl_json POST "${TRIEVE_URL}/api/v1/chunks" "$payload") || {
+    resp=$(_curl_json_ds "$ds_id" POST "${TRIEVE_URL}/api/v1/chunks" "$payload") || {
         log_error "Failed to index chunks"
         return 1
     }
@@ -227,7 +260,7 @@ EOF
 )"
 
     local resp
-    resp=$(_curl_json POST "${TRIEVE_URL}/api/v1/chunk/search" "$payload") || {
+    resp=$(_curl_json_ds "$ds_id" POST "${TRIEVE_URL}/api/v1/chunk/search" "$payload") || {
         log_error "Search request failed"
         return 1
     }
@@ -259,7 +292,7 @@ EOF
 )"
 
     local resp
-    resp=$(_curl_json POST "${TRIEVE_URL}/api/v1/chunk/search" "$payload") || {
+    resp=$(_curl_json_ds "$ds_id" POST "${TRIEVE_URL}/api/v1/chunk/search" "$payload") || {
         log_error "Fallback search failed"
         return 1
     }
