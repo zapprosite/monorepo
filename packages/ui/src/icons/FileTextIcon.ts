@@ -1,1 +1,1 @@
-export { default as FileTextIcon } from "@mui/icons-material/FileText";
+export { default as FileTextIcon } from "@mui/icons-material/Description";

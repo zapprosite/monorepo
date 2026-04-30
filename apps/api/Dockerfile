@@ -1,64 +1,56 @@
-FROM node:22-alpine
+# syntax=docker/dockerfile:1
+# -----------------------------------------------------------------------------
+# SPEC-010 | T-010-001 | apps/api/Dockerfile
+# Production image for Fastify + tRPC backend
+# Uses pnpm with node-linker=hoisted for flat, portable node_modules
+# -----------------------------------------------------------------------------
 
-# Install turbo and pnpm globally
-RUN npm install -g turbo@^2 pnpm@^9
-
-# Install build dependencies for native modules (required by pg)
-RUN apk add --no-cache python3 make g++
-
+FROM node:22-alpine AS builder
 WORKDIR /app
 
-# Copy package files first for better layer caching
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+# Enable pnpm
+RUN corepack enable && corepack prepare pnpm@9.0.6 --activate
 
-# Copy entire monorepo for pruning
+# Copy full source code
 COPY . .
 
-# Prune the workspace to create isolated subset for @connected-repo/backend
-# This creates out/json/ (package.json files) and out/full/ (source code)
-RUN turbo prune @connected-repo/backend --docker
+# Remove host artifacts that would break container install:
+# - .npmrc (has host virtual-store-dir pointing to /tmp/pnpm-virtual)
+# - pnpm-lock.yaml (host-generated)
+# - ALL node_modules (host symlinks break in container)
+RUN rm -f .npmrc pnpm-lock.yaml && \
+    find . -type d -name node_modules -prune -exec rm -rf {} + 2>/dev/null || true
 
-# Move pruned files to workspace root and clean up
-RUN cp -r out/json/. . && \
-    cp -r out/full/. . && \
-    rm -rf out
+# Create container-local .npmrc with flat, symlink-free node_modules
+RUN printf 'node-linker=hoisted\nvirtual-store-dir=/app/.pnpm-store\nlink-workspace-packages=true\n' > /app/.npmrc
 
-# Verify pnpm installation
-RUN pnpm --version
+# Install dependencies — creates flat node_modules with real files, no symlinks
+RUN pnpm install
 
-# Install dependencies using pruned lockfile
-RUN pnpm install --frozen-lockfile
+# Verify hoisted layout (should exist in root node_modules, not symlinks)
+RUN ls -la /app/node_modules/dotenv && ls -la /app/node_modules/zod
 
-# Build the backend using Turbo (automatically builds dependencies like zod-schemas first)
-RUN turbo run build --filter=@connected-repo/backend
+# ---------------------------------------------------------------------------
+# Production stage
+# ---------------------------------------------------------------------------
+FROM node:22-alpine AS production
+WORKDIR /app
 
-# Create non-root user for security
-RUN addgroup -g 1001 -S backend && \
-    adduser -S backend -u 1001
-
-# Set ownership to non-root user
-RUN chown -R backend:backend /app
-
-# Switch to non-root user
-USER backend
-
-# Expose the backend port
-EXPOSE 3000
-
-# Set environment to production
 ENV NODE_ENV=production
 
-# Health check using the /health endpoint
-HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:3000/health', (r) => { \
-    let data = ''; \
-    r.on('data', (chunk) => data += chunk); \
-    r.on('end', () => { \
-      const res = JSON.parse(data); \
-      if (res.status === 'ok') process.exit(0); \
-      process.exit(1); \
-    }); \
-  }).on('error', () => process.exit(1));"
+# Copy built artifacts and node_modules from builder
+# NOTE: node-linker=hoisted hoists third-party deps to root, but workspace
+# packages (@connected-repo/*) stay in apps/api/node_modules as symlinks
+COPY --from=builder /app/apps/api/dist ./apps/api/dist
+COPY --from=builder /app/apps/api/package.json ./apps/api/
+COPY --from=builder /app/apps/api/node_modules ./apps/api/node_modules
+COPY --from=builder /app/packages/zod-schemas/dist ./packages/zod-schemas/dist
+COPY --from=builder /app/packages/zod-schemas/package.json ./packages/zod-schemas/
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package.json ./
 
-# Run migrations then start server
-CMD ["sh", "-c", "cd apps/api && node dist/server.js"]
+WORKDIR /app/apps/api
+
+EXPOSE 4001
+
+CMD ["/app/node_modules/.bin/tsx", "dist/server.js"]

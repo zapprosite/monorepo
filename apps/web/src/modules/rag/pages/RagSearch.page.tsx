@@ -4,8 +4,8 @@ import { Typography } from "@repo/ui-mui/data-display/Typography";
 import { Container } from "@repo/ui-mui/layout/Container";
 import { LoadingSpinner } from "@repo/ui-mui/components/LoadingSpinner";
 import { ErrorAlert } from "@repo/ui-mui/components/ErrorAlert";
-import { RagSearchBox } from "../../components/rag/RagSearchBox";
-import { RagChunksViewer } from "../../components/rag/RagChunksViewer";
+import { RagSearchBox } from "../components/rag/RagSearchBox";
+import { RagChunksViewer } from "../components/rag/RagChunksViewer";
 import { trpc } from "@frontend/utils/trpc.client";
 import { useQuery } from "@tanstack/react-query";
 

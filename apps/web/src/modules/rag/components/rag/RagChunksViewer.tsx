@@ -1,7 +1,7 @@
 import { Box } from "@repo/ui-mui/layout/Box";
 import { Typography } from "@repo/ui-mui/data-display/Typography";
-import { Chip } from "@repo/ui-mui/form/Chip";
-import { Divider } from "@repo/ui-mui/components/Divider";
+import { Chip } from "@repo/ui-mui/data-display/Chip";
+import { Divider } from "@repo/ui-mui/layout/Divider";
 import { FileTextIcon } from "@repo/ui-mui/icons/FileTextIcon";
 import { StarIcon } from "@repo/ui-mui/icons/StarIcon";
 

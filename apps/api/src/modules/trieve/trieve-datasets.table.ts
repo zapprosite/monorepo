@@ -3,15 +3,18 @@
  * Maps teamId to Trieve dataset IDs for multi-tenant isolation
  */
 
-import { t } from '@backend/db/db';
+import { BaseTable } from "@backend/db/base_table";
 
-export const TrieveDatasetsTable = t.table('trieve_datasets', (t) => ({
-  id: t.uuid().primaryKey().default(t.sql`gen_random_uuid()`),
-  teamId: t.uuid().notNull(),
-  trieveDatasetId: t.string().notNull(),
-  name: t.string().notNull(),
-  description: t.string().default(''),
-  isDefault: t.boolean().default(false),
-  createdAt: t.timestamps().createdAt,
-  updatedAt: t.timestamps().updatedAt,
-}));
+export class TrieveDatasetsTable extends BaseTable {
+	readonly table = "trieve_datasets";
+
+	columns = this.setColumns((t) => ({
+		id: t.uuid().primaryKey().default(t.sql`gen_random_uuid()`),
+		teamId: t.uuid(),
+		trieveDatasetId: t.string(),
+		name: t.string(),
+		description: t.string().default(''),
+		isDefault: t.boolean().default(false),
+		...t.timestamps(),
+	}));
+}
