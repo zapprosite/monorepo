@@ -12,48 +12,133 @@
 6. ✅ **Docs atualizados:** SUBDOMAINS.md + PORTS.md
 7. ✅ **Segurança:** Porta Postgres 5432 removida da host
 
-### Passos manuais no Coolify
+---
+
+## Lições Aprendidas para Futuras LLMs (READ THIS FIRST)
+
+> ⚠️ **Se você é uma LLM tentando fazer deploy no Coolify, leia esta seção ANTES de tentar qualquer coisa.**
+
+### A Coolify API está bloqueada por IP AllowList
+
+A instância Coolify local (`coolify.zappro.site`) roda atrás de um nginx que intercepta todas as requisições à API. **NENHUM token (Bearer, API Key, x-api-key, query param) funciona se o IP de origem não estiver na Coolify AllowList.**
+
+**Prova:**
+```bash
+source /srv/monorepo/.env
+curl -s http://localhost:8000/api/v1/services \
+  -H "Authorization: Bearer $COOLIFY_API_KEY" \
+  -H "Content-Type: application/json"
+# → {"message":"Unauthenticated."}
+```
+
+Isso acontece INDEPENDENTE do token usado:
+- `COOLIFY_API_KEY`
+- `COOLIFY_ACCESS_TOKEN`
+- `COOLIFY_APP_KEY`
+
+### O que funciona
+
+1. **Dashboard web** (https://coolify.zappro.site) — requer login manual
+2. **CLI local do Coolify** (se disponível)
+3. **Adicionar IP na AllowList** (via dashboard) → depois a API funciona
+
+### O que NÃO funciona (não perca tempo)
+
+- ❌ Tentar tokens diferentes (`Bearer`, `x-api-key`, query param)
+- ❌ Tentar endpoints diferentes (`/api/v1/services`, `/api/v1/health`, etc.)
+- ❌ Tentar `localhost:8000` vs `https://coolify.zappro.site`
+
+### Script auto-deploy.sh existe mas falha na API
+
+O script `/srv/monorepo/scripts/auto-deploy.sh` já tem toda a lógica correta:
+- Cria subdomain via Cloudflare API ✅
+- Trigger deploy via Coolify API ✅ (falha no auth)
+- Health check ✅
+
+**Mas ele falha no step 2** porque a Coolify API retorna `Unauthenticated`.
+
+### Como corrigir (para humanos ou LLMs com acesso ao dashboard)
+
+**Opção A: Adicionar IP na AllowList (rápido, 2 min)**
+```bash
+# 1. Obter IP público
+curl -s https://api.ipify.org
+# 2. Acesse https://coolify.zappro.site/settings/allowlist
+# 3. Adicione o IP
+# 4. A API passa a funcionar imediatamente
+```
+
+**Opção B: Usar o dashboard manualmente (confiável)**
+Siga os passos em "Passos manuais no Coolify" abaixo.
+
+---
+
+## Passos manuais no Coolify (Opção recomendada)
 
 1. Acesse: https://coolify.zappro.site
-2. Crie um novo **Service** → **Docker Compose**
-3. Configure:
+2. Faça login com as credenciais armazenadas em Infisical (`coolify-root-user-password`)
+3. Crie um novo **Project** (ou use um existente)
+4. Dentro do project, clique **Add New** → **Docker Compose**
+5. Configure:
    - **Name:** `crm-mvp`
-   - **Repository:** `git@github.com:zapprosite/monorepo.git` (ou Gitea)
-   - **Branch:** `master` (ou a branch do CRM MVP)
-   - **Docker Compose:** `./crm-mvp/docker-compose.coolify.yml`
+   - **Repository:** `git@github.com:zapprosite/monorepo.git`
+   - **Branch:** `master`
    - **Base Directory:** `./crm-mvp`
-4. Configure **Environment Variables** no Coolify:
-   - `DB_PASSWORD` → gerar senha forte
-   - `JWT_SECRET` → gerar secret forte
-5. Habilite **Auto-deploy** (webhook no Gitea)
-6. Deploy
+   - **Docker Compose:** `docker-compose.coolify.yml`
+6. Configure **Environment Variables** no painel do Coolify:
+   - `DB_PASSWORD` → gere uma senha forte (ex: `openssl rand -hex 32`)
+   - `JWT_SECRET` → gere um secret (ex: `openssl rand -hex 64`)
+7. Clique **Deploy**
 
-### Webhook Gitea (para auto-deploy)
+### Após o deploy
 
-No repositório Gitea, vá em:
-- Settings → Webhooks → Add Webhook → Gitea
-- Target URL: `{coolify_webhook_url}` (fornecido pelo Coolify após criar o service)
-- Secret: (deixe em branco ou use o secret do Coolify)
-- Trigger: Push events
+O Coolify gera automaticamente:
+- **Webhook URL** para auto-deploy (ex: `https://coolify.zappro.site/api/v1/deploy?uuid=...`)
+- **URL pública** (mapeie para `crm.zappro.site` no Cloudflare Tunnel)
 
-### Verificação pós-deploy
+Para auto-deploy, configure o webhook no Gitea:
+- Vá em: `https://git.zappro.site/will-zappro/monorepo/settings/hooks`
+- Adicione um webhook tipo **Gitea**
+- Target URL: `https://coolify.zappro.site/api/v1/deploy?uuid=<SERVICE_UUID>&force=false`
+- Secret: (deixe em branco)
+- Trigger: **Push events**
+
+---
+
+## Verificação pós-deploy
 
 ```bash
 curl -sfI https://crm.zappro.site/
 # Esperado: HTTP/2 200 ou redirect para /auth/login
 ```
 
-### Segurança
+---
+
+## Segurança
 
 - **Classificação:** INTERNAL — requer Cloudflare Access
 - **Postgres:** NÃO exposto na host (rede interna Docker apenas)
 - **Redis:** NÃO exposto na host
 - **API:** Exposto apenas via nginx proxy (/trpc) na porta 3080
+- **Coolify AllowList:** Adicione apenas IPs confiáveis
 
-### Rollback
+---
+
+## Rollback
 
 ```bash
 cd /srv/monorepo/crm-mvp
 docker compose -f docker-compose.coolify.yml down
 # Ou pelo dashboard Coolify: Stop → Delete
 ```
+
+---
+
+## Referências
+
+- Skill: `cloudflare-tunnel-enterprise` (subdomain + tunnel)
+- Skill: `coolify-access` (API — mas lembre-se da AllowList!)
+- Skill: `gitea-cli` (webhooks via API)
+- Script: `/srv/monorepo/scripts/auto-deploy.sh` (orchestra subdomain + deploy)
+- Docs: `/srv/monorepo/ops/ai-governance/SUBDOMAINS.md`
+- Docs: `/srv/monorepo/ops/ai-governance/PORTS.md`

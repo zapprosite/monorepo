@@ -223,3 +223,29 @@ sed -n '1,220p' ops/ai-governance/PORTS.md
 sed -n '1,220p' ops/ai-governance/SUBDOMAINS.md
 .claude/vibe-kit/nexus.sh --status
 ```
+
+---
+
+## Lessons Learned — Coolify Deploy
+
+> **For future LLMs:** The Coolify instance at `coolify.zappro.site` has an nginx layer that intercepts all API requests. **No token works (Bearer, API Key, x-api-key, query param) unless the source IP is in the Coolify AllowList.**
+>
+> **What fails:**
+> ```bash
+> source /srv/monorepo/.env
+> curl -s http://localhost:8000/api/v1/services \
+>   -H "Authorization: Bearer $COOLIFY_API_KEY"
+> # → {"message":"Unauthenticated."}
+> ```
+>
+> **What works:**
+> 1. Add IP to AllowList (https://coolify.zappro.site/settings/allowlist)
+> 2. Use the web dashboard manually
+> 3. Use local Coolify CLI (if available)
+>
+> **Existing script:** `/srv/monorepo/scripts/auto-deploy.sh` has the correct orchestration logic (subdomain + Coolify deploy + health check) but fails at the Coolify API auth step.
+>
+> **Reference docs:**
+> - `crm-mvp/COOLIFY-DEPLOY.md` — full deploy guide with lessons learned
+> - `.claude/skills/coolify-access/SKILL.md` — Coolify API docs
+> - `.claude/skills/prd-to-deploy/SKILL.md` — one-shot deploy pipeline
