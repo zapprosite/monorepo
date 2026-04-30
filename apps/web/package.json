@@ -9,15 +9,15 @@
 	"scripts": {
 		"check-types": "tsc --noEmit",
 		"clean": "rm -rf node_modules && rm -rf dist",
-		"build": "tsc -b && vite build",
+		"build": "npx -p typescript tsc -b && vite build",
 		"build:debug": "tsc -b && vite build --debug",
 		"dev": "vite",
 		"preview": "vite preview",
 		"test": "vitest run --passWithNoTests",
-		"test:watch": "vitest"
+		"test:watch": "vitest",
+		"test:e2e": "playwright test"
 	},
 	"dependencies": {
-		"@repo/ui-mui": "workspace:*",
 		"@connected-repo/zod-schemas": "workspace:*",
 		"@emotion/react": "^11.14.0",
 		"@emotion/styled": "^11.14.1",
@@ -25,6 +25,7 @@
 		"@mui/icons-material": "^7.3.4",
 		"@mui/material": "^7.3.4",
 		"@mui/x-date-pickers": "^8.17.0",
+		"@repo/ui-mui": "workspace:*",
 		"@tanstack/react-query": "^5.90.5",
 		"@trpc/client": "^11.7.0",
 		"@trpc/tanstack-react-query": "^11.7.0",
@@ -36,6 +37,7 @@
 		"react-router": "^7.9.4"
 	},
 	"devDependencies": {
+		"@playwright/test": "^1.59.1",
 		"@testing-library/jest-dom": "^6.9.1",
 		"@testing-library/react": "^16.3.2",
 		"@testing-library/user-event": "^14.6.1",
