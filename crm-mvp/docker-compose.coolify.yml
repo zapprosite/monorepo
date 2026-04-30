@@ -1,4 +1,5 @@
-version: '3.8'
+# Docker Compose for Coolify deployment
+# This compose is optimized for Coolify PaaS with auto-deploy
 
 services:
   postgres:
@@ -7,32 +8,36 @@ services:
     environment:
       POSTGRES_DB: crm_mvp
       POSTGRES_USER: crm
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-crm}
-    # SECURITY: Postgres is NOT exposed on host. API connects via Docker network.
-    # If you need external access, use: docker exec -it crm-postgres psql -U crm -d crm_mvp
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    # SECURITY: Not exposed on host. Services connect via Docker network.
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U crm -d crm_mvp"]
-      interval: 5s
+      interval: 10s
       timeout: 5s
       retries: 5
+    restart: unless-stopped
+    networks:
+      - crm-network
 
   redis:
     image: redis:7-alpine
     container_name: crm-redis
-    # Port not exposed on host — using existing Redis or internal network only
     volumes:
       - redisdata:/data
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
+      interval: 10s
       timeout: 3s
       retries: 5
+    restart: unless-stopped
+    networks:
+      - crm-network
 
   api:
     build:
-      context: .
+      context: ..
       dockerfile: apps/api/Dockerfile
     container_name: crm-api
     environment:
@@ -41,32 +46,47 @@ services:
       DB_HOST: postgres
       DB_PORT: 5432
       DB_USER: crm
-      DB_PASSWORD: ${DB_PASSWORD:-crm}
+      DB_PASSWORD: ${DB_PASSWORD}
       DB_NAME: crm_mvp
       REDIS_URL: redis://redis:6379
-      WEB_URL: http://localhost:3000
-    ports:
-      - "4088:4088"
+      WEB_URL: https://crm.zappro.site
+      JWT_SECRET: ${JWT_SECRET}
+    expose:
+      - "4088"
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
     restart: unless-stopped
+    networks:
+      - crm-network
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:4088/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
 
   web:
     build:
-      context: .
+      context: ..
       dockerfile: apps/web/Dockerfile
     container_name: crm-web
     environment:
-      VITE_API_URL: http://localhost:4000
-    ports:
-      - "3080:3080"
+      # Build-time env — API URL for frontend tRPC client
+      VITE_API_URL: https://crm.zappro.site
+    expose:
+      - "3080"
     depends_on:
       - api
     restart: unless-stopped
+    networks:
+      - crm-network
 
 volumes:
   pgdata:
   redisdata:
+
+networks:
+  crm-network:
+    driver: bridge
