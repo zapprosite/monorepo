@@ -73,34 +73,37 @@ sudo zpool create tank /dev/disk/by-id/secondary           # Substitui tank
 - [ ] Monitoramento de espaço em ambos pools
 - [ ] Documentação atualizada em ARCHITECTURE.md
 
-## Fluxo PREVC
-
 ### P — Plan
-- [ ] Analisar estrutura atual de datasets
-- [ ] Definir capacidade do disco secundário
+
+- [ ] Analisar estrutura atual de datasets em tank
+- [ ] Identificar capacidade e modelo do disco secundário
 - [ ] Identificar datasets não-críticos para migrar
 
 ### R — Review
+
 - [ ] Validar que pool name `tank` permanece inalterado
 - [ ] Confirmar que workers acessam via local filesystem
 - [ ] Aprovar timeline de migração
 
 ### E — Execute
-- [ ] `sudo zpool create tank2 <disco>`
+
+- [ ] `sudo zpool create tank2 <disco>` no disco secundário
 - [ ] `sudo zfs create -o mountpoint=/srv/backups tank2/backups`
-- [ ] Migrar dados existentes
-- [ ] Configurar cron de snapshot replication
+- [ ] Migrar dados existentes de /srv/backups
+- [ ] Configurar cron de snapshot replication tank → tank2
 
 ### V — Verify
-- [ ] `zfs list -o name,mountpoint,used` confirma datasets
-- [ ] Workers conseguem acessar `/srv/monorepo`
+
+- [ ] `zfs list -o name,mountpoint,used` confirma datasets em ambos pools
+- [ ] Workers conseguem acessar `/srv/monorepo` (latência <1ms)
 - [ ] Hermes continua respondendo em :8642
-- [ ] Ollama continua servindo modelos
+- [ ] Ollama continua servindo modelos em :11434
 
 ### C — Complete
-- [ ] ARCHITECTURE.md atualizado com novo layout
-- [ ] ZFS-POLICY.md atualizado com pool `tank2`
-- [ ] BACKUP-STATUS.md atualizado
+
+- [ ] ARCHITECTURE.md atualizado com novo layout dual-pool
+- [ ] ZFS-POLICY.md atualizado com pool `tank2` no dataset map
+- [ ] BACKUP-STATUS.md atualizado com novo target de backup
 
 ## Acceptance Criteria
 

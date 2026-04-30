@@ -1,0 +1,153 @@
+name: Agent Loop
+
+on:
+  push:
+    branches:
+      - 'feature/agent-*'
+      - 'refactor/agent-*'
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  # ── Stage 1: Lint + Typecheck (fast fail) ──────────────────────────────
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Bun
+        run: npm install -g bun
+
+      - name: Lint
+        run: bun run lint 2>&1 | tail -20
+        continue-on-error: false
+
+      - name: Typecheck
+        run: bunx tsc --noEmit 2>&1 | tail -20
+        continue-on-error: false
+
+  # ── Stage 2: Test suite ─────────────────────────────────────────────────
+  test:
+    runs-on: ubuntu-latest
+    needs: [lint]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Bun
+        run: npm install -g bun
+
+      - name: Install deps
+        run: bun install --frozen-lockfile
+
+      - name: Unit tests
+        run: bun test 2>&1 | tail -30
+        continue-on-error: false
+
+  # ── Stage 3: Build ──────────────────────────────────────────────────────
+  build:
+    runs-on: ubuntu-latest
+    needs: [test]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Bun
+        run: npm install -g bun
+
+      - name: Install deps
+        run: bun install --frozen-lockfile
+
+      - name: Build
+        run: bun run build 2>&1 | tail -20
+
+  # ── Stage 4: Smoke test ────────────────────────────────────────────────
+  smoke:
+    runs-on: ubuntu-latest
+    needs: [build]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Prepare environment
+        run: |
+          cp .env.example .env 2>/dev/null || true
+          docker compose -f deployments/docker-compose.test.yml up -d 2>&1 | tail -5
+          sleep 5
+
+      - name: Smoke tests
+        run: |
+          set +e
+          FAILED=0
+
+          # Health check
+          for i in $(seq 1 10); do
+            curl -sf http://localhost:3000/health && break
+            sleep 2
+          done
+
+          # Run smoke tests
+          for test in smoke-tests/smoke_*.sh; do
+            if [ -f "$test" ]; then
+              bash "$test" 2>&1 | tail -5
+              [[ ${PIPESTATUS[0]} -ne 0 ]] && FAILED=$((FAILED+1))
+            fi
+          done
+
+          # Docker compose down
+          docker compose -f deployments/docker-compose.test.yml down 2>&1 | tail -3
+
+          if [[ $FAILED -gt 0 ]]; then
+            echo "SMOKE FAILED: $FAILED tests failed"
+            exit 1
+          fi
+          echo "SMOKE PASSED: all tests OK"
+
+      - name: Cleanup
+        if: always()
+        run: docker compose -f deployments/docker-compose.test.yml down 2>&1 | tail -3
+
+  # ── Stage 5: Agent retry notification ────────────────────────────────────
+  notify-agent:
+    runs-on: ubuntu-latest
+    needs: [smoke]
+    if: failure()
+    steps:
+      - name: Notify retry needed
+        run: |
+          echo "CI_FAILED=true" >> $GITHUB_ENV
+          echo "::set-output name=retry::true"
+        shell: bash
+
+  # ── Stage 6: Mark queue task complete ──────────────────────────────────
+  queue-complete:
+    runs-on: ubuntu-latest
+    needs: [smoke]
+    if: success()
+    steps:
+      - name: Update task status
+        run: |
+          TASK_ID=${GITHUB_REF_NAME##*/}
+          echo "TASK $TASK_ID PASSED CI" >> $GITHUB_STEP_SUMMARY
+          # Notify state manager
+          curl -s -X POST http://localhost:9000/tasks/complete \
+            -H "Content-Type: application/json" \
+            -d "{\"task_id\":\"$TASK_ID\",\"status\":\"passed\",\"pr_url\":\"$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/pull/$PR_NUMBER\"}" \
+            || echo "Queue manager not reachable"
+
+  # ── Stage 7: Human notification on all-pass ────────────────────────────
+  human-notify:
+    runs-on: ubuntu-latest
+    needs: [queue-complete]
+    if: success()
+    steps:
+      - name: Send completion email
+        run: |
+          curl -s -X POST https://api.resend.com/emails \
+            -H "Authorization: Bearer $RESEND_API_KEY" \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"from\": \"nexus@zappro.site\",
+              \"to\": [\"zappro.ia@gmail.com\"],
+              \"subject\": \"[COMPLETE] Pipeline passed all tests\",
+              \"html\": \"<h1>Pipeline Complete</h1><p>All tasks passed CI. <a href=\\\"$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions\\\">View runs</a></p>\"
+            }" || echo "Email notification failed (check RESEND_API_KEY)"
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}

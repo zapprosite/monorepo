@@ -12,6 +12,11 @@ PROVIDER="${VIBE_PROVIDER:-minimax}"
 MODEL="${VIBE_MODEL:-MiniMax-M2.7}"
 POLL_INTERVAL=5
 SNAPSHOT_EVERY=3
+SMOKE_MAX_RETRIES=3
+
+SCRIPT_CONTEXT_RESET="/srv/monorepo/scripts/context-reset.sh"
+SCRIPT_SMOKE_RUNNER="/srv/monorepo/scripts/smoke-runner.sh"
+SCRIPT_NOTIFY_COMPLETE="/srv/monorepo/scripts/notify-complete.sh"
 
 # ─── Ensure directories exist ───────────────────────────────
 mkdir -p "$WORKDIR/logs" "$WORKDIR/context"
@@ -115,6 +120,8 @@ do_loop() {
     local start_epoch
     start_epoch=$(date +%s)
     local tasks_since_snapshot=0
+    local total_done=0
+    local total_failed=0
 
     while true; do
         local elapsed=$(($(date +%s) - start_epoch))
@@ -151,7 +158,12 @@ do_loop() {
             description=$(echo "$task_json" | jq -r ".description")
             app=$(echo "$task_json" | jq -r ".app")
 
+            # Before task: call context-reset.sh
+            echo "Resetting context for $task_id..."
+            bash "$SCRIPT_CONTEXT_RESET" "$task_id" 2>/dev/null || true
+
             (
+                local worker_result="done"
                 mclaude --provider "$PROVIDER" --model "$MODEL" -p "You are worker-$$.
 APP: $app
 TASK: $task_name
@@ -166,11 +178,29 @@ Save your work context to: $WORKDIR/context/${task_id}.ctx" \
                 >> "$LOG_DIR/worker-$$.log" 2>&1
 
                 if grep -q "result=failed" "$LOG_DIR/worker-$$.log" 2>/dev/null; then
-                    result="failed"
-                else
-                    result="done"
+                    worker_result="failed"
                 fi
-                QUEUE_FILE="$QUEUE_FILE" python3 "$WORKDIR/queue-manager.py" complete "$task_id" "W$$" "$result" 2>/dev/null || true
+
+                # After worker completes: run smoke-runner.sh with retry
+                local smoke_exit=0
+                local smoke_attempts=0
+                local smoke_output
+                while [ $smoke_attempts -lt $SMOKE_MAX_RETRIES ]; do
+                    smoke_output=$(bash "$SCRIPT_SMOKE_RUNNER" 2>&1) || smoke_exit=$?
+                    if [ $smoke_exit -eq 0 ]; then
+                        break
+                    fi
+                    smoke_attempts=$((smoke_attempts + 1))
+                    echo "Smoke attempt $smoke_attempts/$SMOKE_MAX_RETRIES failed for $task_id, retrying..." >&2
+                    sleep 2
+                done
+
+                if [ $smoke_exit -ne 0 ]; then
+                    echo "Smoke FAILED after $SMOKE_MAX_RETRIES retries for $task_id" >&2
+                    worker_result="failed"
+                fi
+
+                QUEUE_FILE="$QUEUE_FILE" python3 "$WORKDIR/queue-manager.py" complete "$task_id" "W$$" "$worker_result" 2>/dev/null || true
             ) &
 
             # Track running worker
@@ -227,6 +257,7 @@ main() {
     local spec="${1:-}"
     local app="${2:-}"
     local phase="${VIBE_PHASE:-}"
+    local overall_exit=0
 
     if [ -z "$spec" ]; then
         echo "Usage: run-vibe.sh <SPEC> [app] [--plan|--do|--verify]"
@@ -246,28 +277,36 @@ main() {
             ;;
         do)
             do_loop
+            overall_exit=$?
             ;;
         verify)
             do_verify
+            overall_exit=$?
             ;;
         *)
             # Default: run full pipeline
-            lead_think "$spec_file" "$app"
-            do_loop
-            do_verify
+            lead_think "$spec_file" "$app" || overall_exit=1
+            do_loop || overall_exit=1
+            do_verify || overall_exit=1
             ;;
     esac
 
-    # Ship on completion
-    local done failed
-    done=$(jq ".done" "$QUEUE_FILE" 2>/dev/null || echo 0)
-    failed=$(jq ".failed" "$QUEUE_FILE" 2>/dev/null || echo 0)
+    # Collect stats for notify-complete.sh
+    local done_count failed_count
+    done_count=$(jq ".done" "$QUEUE_FILE" 2>/dev/null || echo 0)
+    failed_count=$(jq ".failed" "$QUEUE_FILE" 2>/dev/null || echo 0)
 
-    if [ "$done" -gt 0 ] && [ "$failed" -le 5 ]; then
+    # Ship on completion
+    if [ "$done_count" -gt 0 ] && [ "$failed_count" -le 5 ]; then
         git checkout -b "vibe-$(date +%Y%m%d-%H%M%S)" 2>/dev/null || true
         git add -A 2>/dev/null || true
-        git commit -m "vibe: $spec completed ($done done, $failed failed)" 2>/dev/null || true
+        git commit -m "vibe: $spec completed ($done_count done, $failed_count failed)" 2>/dev/null || true
     fi
+
+    # Final notification with exit code and stats
+    bash "$SCRIPT_NOTIFY_COMPLETE" "$overall_exit" "$done_count" "$failed_count" 2>/dev/null || true
+
+    exit $overall_exit
 }
 
 main "$@"

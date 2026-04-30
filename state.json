@@ -1,0 +1,1460 @@
+{
+  "version": 1,
+  "agents": {},
+  "events": {
+    "OPENCODE_BOOT": [
+      {
+        "timestamp": "2026-04-30T01:38:43Z",
+        "data": {
+          "cli": "opencode-original"
+        },
+        "seq": "d8167710"
+      },
+      {
+        "timestamp": "2026-04-30T01:38:43Z",
+        "data": {
+          "cli": "opencode-minimax"
+        },
+        "seq": "4c3a1940"
+      },
+      {
+        "timestamp": "2026-04-30T01:38:43Z",
+        "data": {
+          "cli": "opencode-gpt"
+        },
+        "seq": "08e00558"
+      },
+      {
+        "timestamp": "2026-04-30T01:40:52Z",
+        "data": {
+          "cli": "opencode-original"
+        },
+        "seq": "7b82788e"
+      },
+      {
+        "timestamp": "2026-04-30T01:40:53Z",
+        "data": {
+          "cli": "opencode-minimax"
+        },
+        "seq": "93e5c820"
+      },
+      {
+        "timestamp": "2026-04-30T01:40:53Z",
+        "data": {
+          "cli": "opencode-gpt"
+        },
+        "seq": "679fc136"
+      },
+      {
+        "timestamp": "2026-04-30T01:42:38Z",
+        "data": {
+          "cli": "opencode-original"
+        },
+        "seq": "e1ccc393"
+      },
+      {
+        "timestamp": "2026-04-30T01:42:38Z",
+        "data": {
+          "cli": "opencode-minimax"
+        },
+        "seq": "dfdc6a00"
+      },
+      {
+        "timestamp": "2026-04-30T01:42:39Z",
+        "data": {
+          "cli": "opencode-gpt"
+        },
+        "seq": "f84b551b"
+      },
+      {
+        "timestamp": "2026-04-30T02:54:34Z",
+        "data": {
+          "cli": "opencode-original"
+        },
+        "seq": "713341b5"
+      },
+      {
+        "timestamp": "2026-04-30T02:54:34Z",
+        "data": {
+          "cli": "opencode-minimax"
+        },
+        "seq": "1361e823"
+      },
+      {
+        "timestamp": "2026-04-30T02:54:35Z",
+        "data": {
+          "cli": "opencode-gpt"
+        },
+        "seq": "69fa7bf4"
+      },
+      {
+        "timestamp": "2026-04-30T03:08:31Z",
+        "data": {
+          "cli": "opencode-original"
+        },
+        "seq": "21a7972f"
+      },
+      {
+        "timestamp": "2026-04-30T03:08:31Z",
+        "data": {
+          "cli": "opencode-minimax"
+        },
+        "seq": "c947f274"
+      },
+      {
+        "timestamp": "2026-04-30T03:08:32Z",
+        "data": {
+          "cli": "opencode-gpt"
+        },
+        "seq": "e5d4f374"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:07Z",
+        "data": {
+          "cli": "opencode-gpt"
+        },
+        "seq": "4d19da87"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:07Z",
+        "data": {
+          "cli": "opencode-minimax"
+        },
+        "seq": "422d0d8c"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:07Z",
+        "data": {
+          "cli": "opencode-original"
+        },
+        "seq": "b1226697"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:07Z",
+        "data": {
+          "cli": "opencode-gpt"
+        },
+        "seq": "9c4c4fdc"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:07Z",
+        "data": {
+          "cli": "opencode-minimax"
+        },
+        "seq": "36bec2c2"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:07Z",
+        "data": {
+          "cli": "opencode-gpt"
+        },
+        "seq": "ff7c2ecd"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:07Z",
+        "data": {
+          "cli": "opencode-minimax"
+        },
+        "seq": "2aaa7a4b"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:07Z",
+        "data": {
+          "cli": "opencode-gpt"
+        },
+        "seq": "0e24b69d"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:07Z",
+        "data": {
+          "cli": "opencode-minimax"
+        },
+        "seq": "2372fd3b"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:08Z",
+        "data": {
+          "cli": "opencode-gpt"
+        },
+        "seq": "7bcc9131"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:08Z",
+        "data": {
+          "cli": "opencode-minimax"
+        },
+        "seq": "7f2644ad"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:08Z",
+        "data": {
+          "cli": "opencode-minimax"
+        },
+        "seq": "4dc99489"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:08Z",
+        "data": {
+          "cli": "opencode-gpt"
+        },
+        "seq": "c0038546"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:08Z",
+        "data": {
+          "cli": "opencode-minimax"
+        },
+        "seq": "c988bd25"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:08Z",
+        "data": {
+          "cli": "opencode-gpt"
+        },
+        "seq": "b0ba8805"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:08Z",
+        "data": {
+          "cli": "opencode-gpt"
+        },
+        "seq": "c90ef9df"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:08Z",
+        "data": {
+          "cli": "opencode-minimax"
+        },
+        "seq": "461c2682"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:08Z",
+        "data": {
+          "cli": "opencode-minimax"
+        },
+        "seq": "1b2fa9a6"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:08Z",
+        "data": {
+          "cli": "opencode-gpt"
+        },
+        "seq": "04f3855c"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:08Z",
+        "data": {
+          "cli": "opencode-minimax"
+        },
+        "seq": "0e4b9309"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:08Z",
+        "data": {
+          "cli": "opencode-gpt"
+        },
+        "seq": "fe1cbaf0"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:08Z",
+        "data": {
+          "cli": "opencode-minimax"
+        },
+        "seq": "e8c21de5"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:08Z",
+        "data": {
+          "cli": "opencode-gpt"
+        },
+        "seq": "25ef8f80"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:08Z",
+        "data": {
+          "cli": "opencode-minimax"
+        },
+        "seq": "94319113"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:08Z",
+        "data": {
+          "cli": "opencode-gpt"
+        },
+        "seq": "6470f1bd"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:08Z",
+        "data": {
+          "cli": "opencode-gpt"
+        },
+        "seq": "7adca2fc"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:08Z",
+        "data": {
+          "cli": "opencode-minimax"
+        },
+        "seq": "d2eb65ae"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:08Z",
+        "data": {
+          "cli": "opencode-gpt"
+        },
+        "seq": "93fbbced"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:08Z",
+        "data": {
+          "cli": "opencode-minimax"
+        },
+        "seq": "55ec0571"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:08Z",
+        "data": {
+          "cli": "opencode-original"
+        },
+        "seq": "39ec9ca8"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:08Z",
+        "data": {
+          "cli": "opencode-minimax"
+        },
+        "seq": "0a1c6180"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:08Z",
+        "data": {
+          "cli": "opencode-gpt"
+        },
+        "seq": "8b9980f3"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:08Z",
+        "data": {
+          "cli": "opencode-gpt"
+        },
+        "seq": "873d1176"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:08Z",
+        "data": {
+          "cli": "opencode-minimax"
+        },
+        "seq": "3135380b"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:08Z",
+        "data": {
+          "cli": "opencode-gpt"
+        },
+        "seq": "cb1b2dad"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:08Z",
+        "data": {
+          "cli": "opencode-minimax"
+        },
+        "seq": "e13c847c"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:08Z",
+        "data": {
+          "cli": "opencode-gpt"
+        },
+        "seq": "429fe8f8"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:08Z",
+        "data": {
+          "cli": "opencode-minimax"
+        },
+        "seq": "571ac86b"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:08Z",
+        "data": {
+          "cli": "opencode-minimax"
+        },
+        "seq": "26908a83"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:08Z",
+        "data": {
+          "cli": "opencode-gpt"
+        },
+        "seq": "082c528b"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:08Z",
+        "data": {
+          "cli": "opencode-gpt"
+        },
+        "seq": "e76d8405"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:08Z",
+        "data": {
+          "cli": "opencode-minimax"
+        },
+        "seq": "fd9eab4d"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:08Z",
+        "data": {
+          "cli": "opencode-gpt"
+        },
+        "seq": "010d2ce9"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:08Z",
+        "data": {
+          "cli": "opencode-minimax"
+        },
+        "seq": "842152c3"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:08Z",
+        "data": {
+          "cli": "opencode-gpt"
+        },
+        "seq": "9fa1c0a9"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:08Z",
+        "data": {
+          "cli": "opencode-minimax"
+        },
+        "seq": "26d74c2c"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:08Z",
+        "data": {
+          "cli": "opencode-minimax"
+        },
+        "seq": "ef3743c5"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:08Z",
+        "data": {
+          "cli": "opencode-gpt"
+        },
+        "seq": "8bb0c84d"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:08Z",
+        "data": {
+          "cli": "opencode-gpt"
+        },
+        "seq": "dc080280"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:08Z",
+        "data": {
+          "cli": "opencode-minimax"
+        },
+        "seq": "98414f8b"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:09Z",
+        "data": {
+          "cli": "opencode-gpt"
+        },
+        "seq": "c24b86eb"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:09Z",
+        "data": {
+          "cli": "opencode-minimax"
+        },
+        "seq": "b2b96900"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:09Z",
+        "data": {
+          "cli": "opencode-original"
+        },
+        "seq": "f45891aa"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:09Z",
+        "data": {
+          "cli": "opencode-gpt"
+        },
+        "seq": "a88ff5cf"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:09Z",
+        "data": {
+          "cli": "opencode-minimax"
+        },
+        "seq": "f8d4b2de"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:09Z",
+        "data": {
+          "cli": "opencode-minimax"
+        },
+        "seq": "9f679b47"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:09Z",
+        "data": {
+          "cli": "opencode-gpt"
+        },
+        "seq": "200cb317"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:09Z",
+        "data": {
+          "cli": "opencode-gpt"
+        },
+        "seq": "0b9c8998"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:09Z",
+        "data": {
+          "cli": "opencode-minimax"
+        },
+        "seq": "7014907d"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:09Z",
+        "data": {
+          "cli": "opencode-gpt"
+        },
+        "seq": "b19ad443"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:09Z",
+        "data": {
+          "cli": "opencode-minimax"
+        },
+        "seq": "fabfd00a"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:09Z",
+        "data": {
+          "cli": "opencode-gpt"
+        },
+        "seq": "97374ca1"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:09Z",
+        "data": {
+          "cli": "opencode-minimax"
+        },
+        "seq": "a37d520e"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:09Z",
+        "data": {
+          "cli": "opencode-gpt"
+        },
+        "seq": "c1c48279"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:09Z",
+        "data": {
+          "cli": "opencode-minimax"
+        },
+        "seq": "e50a4443"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:09Z",
+        "data": {
+          "cli": "opencode-minimax"
+        },
+        "seq": "8ebf81d2"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:09Z",
+        "data": {
+          "cli": "opencode-gpt"
+        },
+        "seq": "98f2446e"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:09Z",
+        "data": {
+          "cli": "opencode-minimax"
+        },
+        "seq": "64267965"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:09Z",
+        "data": {
+          "cli": "opencode-gpt"
+        },
+        "seq": "28779711"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:09Z",
+        "data": {
+          "cli": "opencode-minimax"
+        },
+        "seq": "7a059ae3"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:09Z",
+        "data": {
+          "cli": "opencode-gpt"
+        },
+        "seq": "bb2886e6"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:09Z",
+        "data": {
+          "cli": "opencode-minimax"
+        },
+        "seq": "3f2d7353"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:09Z",
+        "data": {
+          "cli": "opencode-gpt"
+        },
+        "seq": "6f26a894"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:09Z",
+        "data": {
+          "cli": "opencode-original"
+        },
+        "seq": "e5080bb5"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:09Z",
+        "data": {
+          "cli": "opencode-gpt"
+        },
+        "seq": "a39a6813"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:09Z",
+        "data": {
+          "cli": "opencode-minimax"
+        },
+        "seq": "d3eee3db"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:09Z",
+        "data": {
+          "cli": "opencode-gpt"
+        },
+        "seq": "0fa5e16f"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:09Z",
+        "data": {
+          "cli": "opencode-minimax"
+        },
+        "seq": "3bb23994"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:09Z",
+        "data": {
+          "cli": "opencode-gpt"
+        },
+        "seq": "ecc2f577"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:09Z",
+        "data": {
+          "cli": "opencode-minimax"
+        },
+        "seq": "9be4b10f"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:09Z",
+        "data": {
+          "cli": "opencode-gpt"
+        },
+        "seq": "625fb033"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:09Z",
+        "data": {
+          "cli": "opencode-minimax"
+        },
+        "seq": "686739c2"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:09Z",
+        "data": {
+          "cli": "opencode-gpt"
+        },
+        "seq": "f6cd7b0b"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:09Z",
+        "data": {
+          "cli": "opencode-minimax"
+        },
+        "seq": "83196dae"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:09Z",
+        "data": {
+          "cli": "opencode-minimax"
+        },
+        "seq": "9095e318"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:09Z",
+        "data": {
+          "cli": "opencode-gpt"
+        },
+        "seq": "8376c48c"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:09Z",
+        "data": {
+          "cli": "opencode-gpt"
+        },
+        "seq": "b561c39c"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:09Z",
+        "data": {
+          "cli": "opencode-minimax"
+        },
+        "seq": "d341daaa"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:09Z",
+        "data": {
+          "cli": "opencode-minimax"
+        },
+        "seq": "444cca55"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:09Z",
+        "data": {
+          "cli": "opencode-gpt"
+        },
+        "seq": "d6691e52"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:10Z",
+        "data": {
+          "cli": "opencode-gpt"
+        },
+        "seq": "b81bf135"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:10Z",
+        "data": {
+          "cli": "opencode-minimax"
+        },
+        "seq": "875a0601"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:10Z",
+        "data": {
+          "cli": "opencode-minimax"
+        },
+        "seq": "7e76d384"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:10Z",
+        "data": {
+          "cli": "opencode-gpt"
+        },
+        "seq": "311d93d1"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:10Z",
+        "data": {
+          "cli": "opencode-minimax"
+        },
+        "seq": "4c6c3fa2"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:10Z",
+        "data": {
+          "cli": "opencode-gpt"
+        },
+        "seq": "efa1259f"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:10Z",
+        "data": {
+          "cli": "opencode-original"
+        },
+        "seq": "25c03bde"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:10Z",
+        "data": {
+          "cli": "opencode-gpt"
+        },
+        "seq": "8cd0c7d9"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:10Z",
+        "data": {
+          "cli": "opencode-minimax"
+        },
+        "seq": "edb8de69"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:10Z",
+        "data": {
+          "cli": "opencode-gpt"
+        },
+        "seq": "d0e2b2ba"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:10Z",
+        "data": {
+          "cli": "opencode-minimax"
+        },
+        "seq": "a1814d0b"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:10Z",
+        "data": {
+          "cli": "opencode-gpt"
+        },
+        "seq": "4d4d7c4c"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:10Z",
+        "data": {
+          "cli": "opencode-minimax"
+        },
+        "seq": "4500c6d5"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:10Z",
+        "data": {
+          "cli": "opencode-gpt"
+        },
+        "seq": "28dac80c"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:10Z",
+        "data": {
+          "cli": "opencode-minimax"
+        },
+        "seq": "6d94bdf5"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:10Z",
+        "data": {
+          "cli": "opencode-original"
+        },
+        "seq": "2ea0e602"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:11Z",
+        "data": {
+          "cli": "opencode-original"
+        },
+        "seq": "6b5c779b"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:11Z",
+        "data": {
+          "cli": "opencode-original"
+        },
+        "seq": "11ead3cb"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:12Z",
+        "data": {
+          "cli": "opencode-original"
+        },
+        "seq": "2dc52d69"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:12Z",
+        "data": {
+          "cli": "opencode-original"
+        },
+        "seq": "c99138ef"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:13Z",
+        "data": {
+          "cli": "opencode-original"
+        },
+        "seq": "16354b4e"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:13Z",
+        "data": {
+          "cli": "opencode-original"
+        },
+        "seq": "860c8725"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:14Z",
+        "data": {
+          "cli": "opencode-original"
+        },
+        "seq": "a8be9746"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:14Z",
+        "data": {
+          "cli": "opencode-original"
+        },
+        "seq": "da74aecf"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:15Z",
+        "data": {
+          "cli": "opencode-original"
+        },
+        "seq": "da578328"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:15Z",
+        "data": {
+          "cli": "opencode-original"
+        },
+        "seq": "2195efe5"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:16Z",
+        "data": {
+          "cli": "opencode-original"
+        },
+        "seq": "afe91b33"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:16Z",
+        "data": {
+          "cli": "opencode-original"
+        },
+        "seq": "ed6eacd4"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:17Z",
+        "data": {
+          "cli": "opencode-original"
+        },
+        "seq": "b3781e05"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:17Z",
+        "data": {
+          "cli": "opencode-original"
+        },
+        "seq": "0e8356b5"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:18Z",
+        "data": {
+          "cli": "opencode-original"
+        },
+        "seq": "70ccb0d3"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:19Z",
+        "data": {
+          "cli": "opencode-original"
+        },
+        "seq": "c3af464b"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:19Z",
+        "data": {
+          "cli": "opencode-original"
+        },
+        "seq": "3fa6b646"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:20Z",
+        "data": {
+          "cli": "opencode-original"
+        },
+        "seq": "49c8bcea"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:20Z",
+        "data": {
+          "cli": "opencode-original"
+        },
+        "seq": "d6fd08f2"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:21Z",
+        "data": {
+          "cli": "opencode-original"
+        },
+        "seq": "b6c3b26d"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:21Z",
+        "data": {
+          "cli": "opencode-original"
+        },
+        "seq": "d893ebdf"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:22Z",
+        "data": {
+          "cli": "opencode-original"
+        },
+        "seq": "3741b211"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:22Z",
+        "data": {
+          "cli": "opencode-original"
+        },
+        "seq": "ea5eb076"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:23Z",
+        "data": {
+          "cli": "opencode-original"
+        },
+        "seq": "e4f06881"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:23Z",
+        "data": {
+          "cli": "opencode-original"
+        },
+        "seq": "6e4479e5"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:24Z",
+        "data": {
+          "cli": "opencode-original"
+        },
+        "seq": "ca16b8b3"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:24Z",
+        "data": {
+          "cli": "opencode-original"
+        },
+        "seq": "5f744075"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:25Z",
+        "data": {
+          "cli": "opencode-original"
+        },
+        "seq": "98dacd75"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:25Z",
+        "data": {
+          "cli": "opencode-original"
+        },
+        "seq": "c653058c"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:26Z",
+        "data": {
+          "cli": "opencode-original"
+        },
+        "seq": "42bd17c3"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:26Z",
+        "data": {
+          "cli": "opencode-original"
+        },
+        "seq": "ae701c00"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:27Z",
+        "data": {
+          "cli": "opencode-original"
+        },
+        "seq": "93c268b8"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:27Z",
+        "data": {
+          "cli": "opencode-original"
+        },
+        "seq": "21f37342"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:28Z",
+        "data": {
+          "cli": "opencode-original"
+        },
+        "seq": "45f2bd2e"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:28Z",
+        "data": {
+          "cli": "opencode-original"
+        },
+        "seq": "58588251"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:29Z",
+        "data": {
+          "cli": "opencode-original"
+        },
+        "seq": "a0aa44e7"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:29Z",
+        "data": {
+          "cli": "opencode-original"
+        },
+        "seq": "390de58c"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:30Z",
+        "data": {
+          "cli": "opencode-original"
+        },
+        "seq": "024c676d"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:30Z",
+        "data": {
+          "cli": "opencode-original"
+        },
+        "seq": "56c8e4ef"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:31Z",
+        "data": {
+          "cli": "opencode-original"
+        },
+        "seq": "d22a997e"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:31Z",
+        "data": {
+          "cli": "opencode-original"
+        },
+        "seq": "ec4ef215"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:32Z",
+        "data": {
+          "cli": "opencode-original"
+        },
+        "seq": "89b64222"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:32Z",
+        "data": {
+          "cli": "opencode-original"
+        },
+        "seq": "5991b6ce"
+      },
+      {
+        "timestamp": "2026-04-30T03:09:33Z",
+        "data": {
+          "cli": "opencode-original"
+        },
+        "seq": "b1c16b8d"
+      },
+      {
+        "timestamp": "2026-04-30T03:13:39Z",
+        "data": {
+          "cli": "opencode-original"
+        },
+        "seq": "4f9cc45e"
+      },
+      {
+        "timestamp": "2026-04-30T03:13:40Z",
+        "data": {
+          "cli": "opencode-minimax"
+        },
+        "seq": "d08de028"
+      },
+      {
+        "timestamp": "2026-04-30T03:13:40Z",
+        "data": {
+          "cli": "opencode-gpt"
+        },
+        "seq": "add5dfcb"
+      },
+      {
+        "timestamp": "2026-04-30T03:17:41Z",
+        "data": {
+          "cli": "opencode-original"
+        },
+        "seq": "90458eb5"
+      },
+      {
+        "timestamp": "2026-04-30T03:17:41Z",
+        "data": {
+          "cli": "opencode-minimax"
+        },
+        "seq": "8b5e0f2f"
+      },
+      {
+        "timestamp": "2026-04-30T03:17:42Z",
+        "data": {
+          "cli": "opencode-gpt"
+        },
+        "seq": "6190e0b7"
+      },
+      {
+        "timestamp": "2026-04-30T03:18:53Z",
+        "data": {
+          "cli": "opencode-original"
+        },
+        "seq": "903f6750"
+      },
+      {
+        "timestamp": "2026-04-30T03:18:53Z",
+        "data": {
+          "cli": "opencode-minimax"
+        },
+        "seq": "5ffd946e"
+      },
+      {
+        "timestamp": "2026-04-30T03:18:54Z",
+        "data": {
+          "cli": "opencode-gpt"
+        },
+        "seq": "595b3163"
+      },
+      {
+        "timestamp": "2026-04-30T03:52:11Z",
+        "data": {
+          "cli": "test"
+        },
+        "seq": "870580eb"
+      }
+    ],
+    "SMOKE_TEST": [
+      {
+        "timestamp": "2026-04-30T02:54:32Z",
+        "data": {
+          "test": "single"
+        },
+        "seq": "c78489ee"
+      },
+      {
+        "timestamp": "2026-04-30T02:54:33Z",
+        "data": {
+          "concurrent": "14"
+        },
+        "seq": "f4694ec2"
+      },
+      {
+        "timestamp": "2026-04-30T02:54:33Z",
+        "data": {
+          "concurrent": "2"
+        },
+        "seq": "1f308c20"
+      },
+      {
+        "timestamp": "2026-04-30T02:54:33Z",
+        "data": {
+          "concurrent": "3"
+        },
+        "seq": "766330e4"
+      },
+      {
+        "timestamp": "2026-04-30T02:54:33Z",
+        "data": {
+          "concurrent": "20"
+        },
+        "seq": "0b97e326"
+      },
+      {
+        "timestamp": "2026-04-30T02:54:33Z",
+        "data": {
+          "concurrent": "21"
+        },
+        "seq": "42854a19"
+      },
+      {
+        "timestamp": "2026-04-30T02:54:33Z",
+        "data": {
+          "concurrent": "4"
+        },
+        "seq": "e0d9f179"
+      },
+      {
+        "timestamp": "2026-04-30T02:54:33Z",
+        "data": {
+          "concurrent": "17"
+        },
+        "seq": "b4ebbad1"
+      },
+      {
+        "timestamp": "2026-04-30T02:54:33Z",
+        "data": {
+          "concurrent": "23"
+        },
+        "seq": "353feb31"
+      },
+      {
+        "timestamp": "2026-04-30T02:54:33Z",
+        "data": {
+          "concurrent": "6"
+        },
+        "seq": "81c5a66e"
+      },
+      {
+        "timestamp": "2026-04-30T02:54:33Z",
+        "data": {
+          "concurrent": "9"
+        },
+        "seq": "7dca692a"
+      },
+      {
+        "timestamp": "2026-04-30T02:54:33Z",
+        "data": {
+          "concurrent": "19"
+        },
+        "seq": "ba7dc1bc"
+      },
+      {
+        "timestamp": "2026-04-30T02:54:33Z",
+        "data": {
+          "concurrent": "10"
+        },
+        "seq": "4dc8fc78"
+      },
+      {
+        "timestamp": "2026-04-30T02:54:33Z",
+        "data": {
+          "concurrent": "25"
+        },
+        "seq": "3a261ac7"
+      },
+      {
+        "timestamp": "2026-04-30T02:54:33Z",
+        "data": {
+          "concurrent": "13"
+        },
+        "seq": "cd4ea4c4"
+      },
+      {
+        "timestamp": "2026-04-30T02:54:33Z",
+        "data": {
+          "concurrent": "12"
+        },
+        "seq": "b3d8cb19"
+      },
+      {
+        "timestamp": "2026-04-30T02:54:33Z",
+        "data": {
+          "concurrent": "18"
+        },
+        "seq": "1e8ed12a"
+      },
+      {
+        "timestamp": "2026-04-30T02:54:33Z",
+        "data": {
+          "concurrent": "16"
+        },
+        "seq": "92cde47f"
+      },
+      {
+        "timestamp": "2026-04-30T02:54:33Z",
+        "data": {
+          "concurrent": "1"
+        },
+        "seq": "9744b32b"
+      },
+      {
+        "timestamp": "2026-04-30T02:54:33Z",
+        "data": {
+          "concurrent": "7"
+        },
+        "seq": "0cbeca07"
+      },
+      {
+        "timestamp": "2026-04-30T02:54:33Z",
+        "data": {
+          "concurrent": "11"
+        },
+        "seq": "eb654aad"
+      },
+      {
+        "timestamp": "2026-04-30T02:54:33Z",
+        "data": {
+          "concurrent": "8"
+        },
+        "seq": "a231dfa5"
+      },
+      {
+        "timestamp": "2026-04-30T02:54:33Z",
+        "data": {
+          "concurrent": "29"
+        },
+        "seq": "a2820a53"
+      },
+      {
+        "timestamp": "2026-04-30T02:54:33Z",
+        "data": {
+          "concurrent": "24"
+        },
+        "seq": "b47e2737"
+      },
+      {
+        "timestamp": "2026-04-30T02:54:33Z",
+        "data": {
+          "concurrent": "5"
+        },
+        "seq": "2056644b"
+      },
+      {
+        "timestamp": "2026-04-30T02:54:33Z",
+        "data": {
+          "concurrent": "22"
+        },
+        "seq": "2fb5d430"
+      },
+      {
+        "timestamp": "2026-04-30T02:54:33Z",
+        "data": {
+          "concurrent": "28"
+        },
+        "seq": "c82cabe9"
+      },
+      {
+        "timestamp": "2026-04-30T02:54:33Z",
+        "data": {
+          "concurrent": "15"
+        },
+        "seq": "68cac689"
+      },
+      {
+        "timestamp": "2026-04-30T02:54:33Z",
+        "data": {
+          "concurrent": "30"
+        },
+        "seq": "b3f5fa0d"
+      },
+      {
+        "timestamp": "2026-04-30T02:54:33Z",
+        "data": {
+          "concurrent": "26"
+        },
+        "seq": "ba42df89"
+      },
+      {
+        "timestamp": "2026-04-30T02:54:33Z",
+        "data": {
+          "concurrent": "27"
+        },
+        "seq": "626d6d73"
+      },
+      {
+        "timestamp": "2026-04-30T02:54:33Z",
+        "data": {
+          "emit_test": "direct"
+        },
+        "seq": "ff8452ff"
+      }
+    ]
+  },
+  "queue": {}
+}

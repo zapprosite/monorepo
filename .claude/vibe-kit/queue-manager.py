@@ -149,6 +149,40 @@ def set_limit(limit: int) -> bool:
         os.close(lock_fd)
 
 
+def reset_context(task_id: str) -> int:
+    """Create context directory for task with prompt.md, log.md, commit.md and .active_task."""
+    import time
+    ctx_dir = Path("/srv/monorepo/.claude/vibe-kit/context") / task_id
+    lock_fd = os.open(str(LOCK_FILE), os.O_RDWR | os.O_CREAT, 0o644)
+    try:
+        fcntl.flock(lock_fd, fcntl.LOCK_EX)
+        ctx_dir.mkdir(parents=True, exist_ok=True)
+        (ctx_dir / "prompt.md").write_text("")
+        (ctx_dir / "log.md").write_text("")
+        (ctx_dir / "commit.md").write_text("")
+        (ctx_dir / ".active_task").write_text(task_id)
+        return 0
+    finally:
+        os.close(lock_fd)
+
+
+def commit(task_id: str, message: str) -> int:
+    """Write message with timestamp to commit.md and append entry to log.md."""
+    import time
+    ctx_dir = Path("/srv/monorepo/.claude/vibe-kit/context") / task_id
+    lock_fd = os.open(str(LOCK_FILE), os.O_RDWR | os.O_CREAT, 0o644)
+    try:
+        fcntl.flock(lock_fd, fcntl.LOCK_EX)
+        timestamp = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+        commit_file = ctx_dir / "commit.md"
+        commit_file.write_text(f"[{timestamp}] {message}\n")
+        log_file = ctx_dir / "log.md"
+        log_file.write_text(log_file.read_text() + f"[{timestamp}] commit: {message}\n")
+        return 0
+    finally:
+        os.close(lock_fd)
+
+
 def stats() -> dict:
     """Retorna estatísticas da fila. Lec sempre."""
     lock_fd = os.open(str(LOCK_FILE), os.O_RDWR | os.O_CREAT, 0o644)
@@ -224,6 +258,20 @@ if __name__ == "__main__":
             sys.exit(1)
         ok = set_limit(limit)
         sys.exit(0 if ok else 1)
+
+    elif cmd == "reset-context":
+        if len(sys.argv) < 3:
+            print("Usage: queue-manager.py reset-context <task_id>")
+            sys.exit(1)
+        ret = reset_context(sys.argv[2])
+        sys.exit(ret)
+
+    elif cmd == "commit":
+        if len(sys.argv) < 4:
+            print("Usage: queue-manager.py commit <task_id> <message>")
+            sys.exit(1)
+        ret = commit(sys.argv[2], sys.argv[3])
+        sys.exit(ret)
 
     else:
         print(f"Unknown command: {cmd}")

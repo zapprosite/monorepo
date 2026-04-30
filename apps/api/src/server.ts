@@ -62,6 +62,10 @@ export const build = async () => {
 
 	// Helmet for security headers
 	server.register(helmet, {
+		// In dev, frontend and API run on different ports (cross-origin).
+		// Allow cross-origin resource policy so the browser doesn't block
+		// tRPC responses after CORS preflight succeeds.
+		crossOriginResourcePolicy: isDev ? { policy: "cross-origin" } : { policy: "same-origin" },
 		contentSecurityPolicy: {
 			directives: {
 				defaultSrc: ["'self'"],

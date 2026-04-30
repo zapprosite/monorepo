@@ -46,6 +46,7 @@
 		"@vitejs/plugin-react-swc": "^4.2.0",
 		"@vitest/coverage-v8": "^4.1.0",
 		"jsdom": "^29.0.0",
+		"msw": "^2.14.2",
 		"vite": "^7.1.12",
 		"vite-bundle-analyzer": "^1.2.3",
 		"vite-tsconfig-paths": "^6.1.1",

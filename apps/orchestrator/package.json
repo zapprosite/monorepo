@@ -6,7 +6,7 @@
 	"type": "module",
 	"scripts": {
 		"check-types": "tsc --noEmit",
-		"build": "tsc && tsc-alias",
+		"build": "npx -p typescript tsc && npx -p typescript tsc-alias",
 		"dev": "tsx watch src/index.ts",
 		"start": "node dist/index.js"
 	},

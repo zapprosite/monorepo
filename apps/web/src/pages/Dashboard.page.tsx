@@ -221,7 +221,14 @@ export default function DashboardPage() {
 
 	// ── Error ────────────────────────────────────────────────────────────────
 
-	if (error) {
+	// AbortError = request cancelled by React Query on unmount/remount (StrictMode).
+	// Treat as loading instead of error to avoid flash of error UI.
+	const isAbortError =
+		error != null &&
+		(error.message?.toLowerCase().includes("aborted") ||
+			(error as any).name === "AbortError");
+
+	if (error && !isAbortError) {
 		return (
 			<Container maxWidth="xl" sx={{ py: 4 }}>
 				<ErrorAlert message={`Erro ao carregar dashboard: ${error.message}`} />
