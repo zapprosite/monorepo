@@ -1,35 +1,30 @@
 # Trieve RAG Server
 # Author: leogomide
 
-networks:
-  default:
-    external: true
-    name: crm-mvp_default
-  zappro-infra:
-    external: true
-
 services:
   trieve:
     image: trieve/server
     container_name: trieve
     restart: unless-stopped
     environment:
-      - DATABASE_URL=postgres://postgres:${TRIEVE_PG_PASSWORD}@10.0.0.3:5432/trieve
-      - QDRANT_URL=${QDRANT_URL:-http://127.0.0.1:6333}
+      - DATABASE_URL=postgres://postgres:${TRIEVE_PG_PASSWORD}@postgres:5432/trieve
+      - QDRANT_URL=http://qdrant:6333
+      - QDRANT_API_KEY=${QDRANT_API_KEY}
       - OLLAMA_BASE_URL=${OLLAMA_BASE_URL:-http://127.0.0.1:11434}
-      - REDIS_URL=redis://:Fifine156458*@zappro-redis:6379
+      - REDIS_URL=redis://:Fifine156458*@redis:6379
       - TRIEVE_API_KEY=${TRIEVE_API_KEY:-dev-trieve-key-2026}
-      - OIDC_ISSUER_URL=http://localhost:7331
+      - OIDC_ISSUER_URL=http://keycloak:8080/realms/trieve
       - OIDC_CLIENT_ID=trieve
       - OIDC_CLIENT_SECRET=trieve-secret-dev-2026
       - OIDC_REDIRECT_URL=http://localhost:6435/oauth/callback
-      - AUTH_REDIRECT_URL=http://localhost:6435/oauth/callback
-      - SECRET_KEY=dev-secret-key-change-in-production
+      - OIDC_AUTH_REDIRECT_URL=http://localhost:6435/oauth/callback
+      - SECRET_KEY=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+      - BASE_SERVER_URL=http://localhost:6435
       - DOCKER_INDICES=false
     ports:
       - "127.0.0.1:6435:3000"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/api/v1/health"]
+      test: ["CMD-SHELL", "curl -sf http://localhost:3000/api/v1/health || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -40,9 +35,10 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      keycloak:
+        condition: service_started
     networks:
-      default:
-      zappro-infra:
+      - trieve-net
 
   postgres:
     image: postgres:15-alpine
@@ -59,11 +55,66 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - trieve-net
+
+  keycloak:
+    image: keycloak/keycloak:26.0
+    container_name: keycloak
+    restart: unless-stopped
+    command: start-dev --import-realm
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-admin}
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/trieve
+      KC_DB_USERNAME: postgres
+      KC_DB_PASSWORD: ${TRIEVE_PG_PASSWORD:-trieve_dev_pass_2026}
+      KC_HTTP_ENABLED: "true"
+      KC_HOSTNAME_STRICT: "false"
+      KC_HOSTNAME_STRICT_HTTPS: "false"
+      KC_PROXY_HEADERS: "xforwarded"
+      KC_OIDC_ISSUER_URL: http://keycloak:8080/realms/trieve
+    volumes:
+      - ./keycloak:/opt/keycloak/data/import:ro
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8080/health/ready || wget --spider -q http://localhost:8080/health/ready || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 120s
     labels:
       - "monitor=prometheus"
-      - "service=trieve"
+      - "service=keycloak"
     networks:
-      - default
+      - trieve-net
 
 volumes:
   trieve-postgres-data:
+  trieve-qdrant-data:
+
+networks:
+  trieve-net:
+    driver: bridge
+
+  qdrant:
+    image: qdrant/qdrant:v1.17.1
+    container_name: trieve-qdrant
+    restart: unless-stopped
+    environment:
+      - QDRANT__SERVICE__API_KEY=${QDRANT_API_KEY}
+    volumes:
+      - trieve-qdrant-data:/qdrant/storage
+    ports:
+      - "127.0.0.1:6333:6333"
+      - "127.0.0.1:6334:6334"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6333/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    labels:
+      - "monitor=prometheus"
+      - "service=qdrant"
+    networks:
+      - trieve-net
