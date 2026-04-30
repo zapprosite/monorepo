@@ -1,12 +1,12 @@
-# SPEC Index — HVAACR-SWARM
+# SPEC Index — Zappro Monorepo
 
-**Updated:** 2026-04-21
-**Per:** SPEC-091 prune (executed 2026-04-20) + SPEC-092 T-5 (this update)
+**Updated:** 2026-04-29
+**Per:** SPEC-009 stuck recovery + SPEC-010 creation (post-audit)
 **Canonical source:** `/srv/monorepo/AGENTS.md`
 
 ---
 
-## Active SPECs (9)
+## Active SPECs (11)
 
 | # | Title | Status | Notes |
 |---|-------|--------|-------|
@@ -15,6 +15,8 @@
 | SPEC-002-homelab-monitor-agent.md | Homelab Monitor Agent | DRAFT | |
 | SPEC-002-homelab-network-refactor.md | Homelab Infrastructure Refactoring | DRAFT | |
 | SPEC-006-playwright-e2e.md | Playwright E2E + Chrome Extension Testing | DRAFT | |
+| SPEC-009-SHADOW-CONTEXT-BLUEPRINT.md | Shadow Context Blueprint | STUCK | Phase execute stuck 2026-04-29; queue.json frozen |
+| SPEC-010-monorepo-hardening-fixpack.md | Monorepo Hardening Fix Pack | PROPOSED | **CRITICAL** — post-audit fixes, hard stop before new features |
 | SPEC-013-CLAUDE-CODE-CLI-INTEGRATION.md | Claude Code CLI Integration | REVIEW | |
 | SPEC-014-CURSOR-AI-CICD-PATTERN.md | Cursor AI CI/CD Pattern | DRAFT | |
 | SPEC-015-GITEA-ACTIONS-ENTERPRISE.md | Gitea Actions Enterprise | DRAFT | |
@@ -22,6 +24,7 @@
 
 > **Note:** `IMPLEMENTING` and `REVIEW` are legacy statuses from before the canonical status system.
 > See `/srv/monorepo/docs/SPECS/ACTIVE.md` for the canonical status definitions.
+> **Hard Stop Rule:** SPEC-010 must reach DONE before SPEC-009 resumes or any new SPEC starts.
 
 ---
 

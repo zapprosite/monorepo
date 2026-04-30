@@ -6,15 +6,18 @@
 set -euo pipefail
 
 WORKDIR=/srv/monorepo/.claude/vibe-kit
-BRAIN_QUEUE=/srv/monorepo/.claude/brain-refactor/queue.json
+CLAUDE_DIR=/srv/monorepo/.claude
+BRAIN_QUEUE=$CLAUDE_DIR/brain-refactor/queue.json
 VIBE_QUEUE=$WORKDIR/queue.json
-STATE=$WORKDIR/state.json
+STATE=$CLAUDE_DIR/state.json
 LOGDIR=$WORKDIR/logs
 LOCK=$WORKDIR/.vibe-kit.lock
 QUEUE_MANAGER=$WORKDIR/queue-manager.py
 MAX_WORKERS=${VIBE_PARALLEL:-15}
 POLL_INTERVAL=${VIBE_POLL_INTERVAL:-5}
 SNAPSHOT_EVERY=${VIBE_SNAPSHOT_EVERY:-3}
+MAX_TASK_TIME=${VIBE_MAX_TASK_TIME:-600}
+WATCH_MODE=${VIBE_WATCH_MODE:-false}
 
 mkdir -p $LOGDIR
 
@@ -82,7 +85,8 @@ spawn_worker() {
 
     echo "[$(date -u)] [$worker_id] START $task_id: $task_name" > "$log"
 
-    mclaude --provider minimax --model MiniMax-M2.7 -p "You are working on the Brain Refactor project.
+    (
+        mclaude --provider minimax --model MiniMax-M2.7 -p "You are working on the Brain Refactor project.
 
 Your task: $task_name
 Description: $description
@@ -98,10 +102,55 @@ Steps:
 3. If it involves creating files, create them in the correct location in /srv/monorepo/.claude/brain-refactor/
 4. Report what you completed
 
-Output: Describe what you completed." 2>&1 >> "$log" &
+Output: Describe what you completed." >> "$log" 2>&1
+    ) &
+    local worker_pid=$!
+    echo "$worker_pid" >> $WORKDIR/.worker-pids
+    echo "[$(date -u)] [$worker_id] SPAWNED $task_id PID=$worker_pid" >> $LOGDIR/vibe-kit.log
+    wait_task "$worker_id" "$worker_pid" "$MAX_TASK_TIME" &
+    CURRENT_WORKERS=$((CURRENT_WORKERS + 1))
+}
 
-    echo $! >> $WORKDIR/.worker-pids
-    echo "[$(date -u)] [$worker_id] SPAWNED $task_id PID=$!" >> $LOGDIR/vibe-kit.log
+# wait_task — waits for a specific worker PID with timeout (SIGKILL after MAX_TASK_TIME)
+# Returns: 0=success, 1=timeout, 2=error
+wait_task() {
+    local worker_id=$1
+    local worker_pid=$2
+    local timeout_secs=${3:-$MAX_TASK_TIME}
+    local elapsed=0
+    local interval=5
+
+    echo "[$(date -u)] [$worker_id] WAIT PID=$worker_pid (timeout=${timeout_secs}s)" >> "$LOGDIR/vibe-kit.log"
+
+    while kill -0 "$worker_pid" 2>/dev/null; do
+        if [ $elapsed -ge $timeout_secs ]; then
+            echo "[$(date -u)] [$worker_id] TIMEOUT PID=$worker_pid (${timeout_secs}s) — sending SIGKILL" >> "$LOGDIR/vibe-kit.log"
+            kill -KILL "$worker_pid" 2>/dev/null || true
+            return 1
+        fi
+        sleep $interval
+        elapsed=$((elapsed + interval))
+    done
+
+    wait "$worker_pid" 2>/dev/null
+    local exit_code=$?
+    echo "[$(date -u)] [$worker_id] DONE PID=$worker_pid exit=$exit_code" >> "$LOGDIR/vibe-kit.log"
+    return 0
+}
+
+# wait_any_worker — non-blocking wait for any finished background worker
+# Decrements CURRENT_WORKERS and cleans up .worker-pids for each completed worker
+wait_any_worker() {
+    while true; do
+        local finished_pid
+        # wait -n returns immediately when any bg job completes (bash 4.x+)
+        finished_pid=$(wait -n 2>&1 || echo "")
+        [ -z "$finished_pid" ] && break
+        # Remove finished PID from tracking file
+        grep -v "^${finished_pid}$" "$WORKDIR/.worker-pids" > "$WORKDIR/.worker-pids.tmp" 2>/dev/null || true
+        mv "$WORKDIR/.worker-pids.tmp" "$WORKDIR/.worker-pids"
+        echo "[$(date -u)] Worker PID=$finished_pid finished" >> "$LOGDIR/vibe-kit.log"
+    done
 }
 
 update_state() {
@@ -214,6 +263,11 @@ while [ $SHUTDOWN_REQUESTED -eq 0 ]; do
     fi
 
     while [ "$CURRENT_WORKERS" -lt "$effective_max" ]; do
+        wait_any_worker
+        CURRENT_WORKERS=$(count_workers)
+        if [ "$CURRENT_WORKERS" -ge "$effective_max" ]; then
+            break
+        fi
         WORKER_ID="W$(date +%H%M%S%3N | tail -c 4)"
         CLAIM=$(claim_task "$WORKER_ID" 2>&1) || break
 
@@ -229,7 +283,6 @@ while [ $SHUTDOWN_REQUESTED -eq 0 ]; do
         spawn_worker "$WORKER_ID" "$TASK_ID" "$TASK_NAME" "$DESCRIPTION"
 
         TASKS_SINCE_SNAPSHOT=$((TASKS_SINCE_SNAPSHOT + 1))
-        CURRENT_WORKERS=$((CURRENT_WORKERS + 1))
 
         if [ $TASKS_SINCE_SNAPSHOT -ge $SNAPSHOT_EVERY ]; then
             snapshot_zfs "auto"
@@ -239,9 +292,28 @@ while [ $SHUTDOWN_REQUESTED -eq 0 ]; do
         sleep 1
     done
 
+    wait_any_worker
+    CURRENT_WORKERS=$(count_workers)
     update_state "running" "multi" $ELAPSED
-    sleep $POLL_INTERVAL
+
+    # React immediately to state changes (inotify) instead of fixed poll interval
+    if [ "$WATCH_MODE" = "true" ] && command -v inotifywait &>/dev/null; then
+        inotifywait -t 0 -e modify "$STATE" 2>/dev/null || sleep "$POLL_INTERVAL"
+    else
+        sleep $POLL_INTERVAL
+    fi
 done
+
+# Wait for all remaining workers before shutdown
+if [ -f "$WORKDIR/.worker-pids" ]; then
+    while read -r pid; do
+        if kill -0 "$pid" 2>/dev/null; then
+            echo "[$(date -u)] Waiting for remaining PID=$pid" >> "$LOGDIR/vibe-kit.log"
+            wait "$pid" 2>/dev/null || true
+        fi
+    done < "$WORKDIR/.worker-pids"
+    rm -f "$WORKDIR/.worker-pids"
+fi
 
 echo "[$(date -u)] vibe-kit.sh stopped (elapsed=${ELAPSED}s)" >> $LOGDIR/vibe-kit.log
 rm -f "$LOCK"
