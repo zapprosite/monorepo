@@ -1,6 +1,0 @@
-**Relatório:** `/tmp/mem0-fix-report.txt`
-
-**Resumo:** Mem0 funcional — add e search OK. Problema: `Gemma4-12b-it` não é model ID válido para o LLM (erro 400), o que quebra extração LLM. spaCy também não instalado (aviso não-crítico).
-
-[mclaude] MiniMax-Token-Plan (MiniMax-M2.7) — session ended
-[?25h[0m[?1049l

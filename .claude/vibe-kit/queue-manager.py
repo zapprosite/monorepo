@@ -35,12 +35,13 @@ def _write_queue(queue):
 
 
 def _recalc_counts(queue):
-    """Recalcula pending/running/done/failed dentro do lock."""
+    """Recalcula pending/running/done/failed/frozen dentro do lock."""
     tasks = queue.get("tasks", [])
     queue["pending"] = sum(1 for t in tasks if t.get("status") == "pending")
     queue["running"] = sum(1 for t in tasks if t.get("status") == "running")
     queue["done"] = sum(1 for t in tasks if t.get("status") == "done")
     queue["failed"] = sum(1 for t in tasks if t.get("status") == "failed")
+    queue["frozen"] = sum(1 for t in tasks if t.get("status") == "frozen")
     return queue
 
 
@@ -90,6 +91,64 @@ def complete(task_id: str, worker_id: str, result: str) -> bool:
         os.close(lock_fd)
 
 
+def retry(task_id: str, worker_id: str) -> bool:
+    """Reset a failed task back to pending, clear worker assignment."""
+    lock_fd = os.open(str(LOCK_FILE), os.O_RDWR | os.O_CREAT, 0o644)
+    try:
+        fcntl.flock(lock_fd, fcntl.LOCK_EX)
+        queue = _read_queue()
+        updated = False
+        for task in queue.get("tasks", []):
+            if task.get("id") == task_id and task.get("status") == "failed":
+                task["status"] = "pending"
+                task["worker"] = None
+                task["attempts"] = task.get("attempts", 0) + 1
+                task["completed_at"] = None
+                task["error"] = None
+                updated = True
+                break
+        if updated:
+            queue = _recalc_counts(queue)
+            _write_queue(queue)
+        return updated
+    finally:
+        os.close(lock_fd)
+
+
+def freeze(task_id: str) -> bool:
+    """Mark a task as frozen to prevent re-claim."""
+    lock_fd = os.open(str(LOCK_FILE), os.O_RDWR | os.O_CREAT, 0o644)
+    try:
+        fcntl.flock(lock_fd, fcntl.LOCK_EX)
+        queue = _read_queue()
+        updated = False
+        for task in queue.get("tasks", []):
+            if task.get("id") == task_id:
+                task["status"] = "frozen"
+                task["worker"] = None
+                updated = True
+                break
+        if updated:
+            queue = _recalc_counts(queue)
+            _write_queue(queue)
+        return updated
+    finally:
+        os.close(lock_fd)
+
+
+def set_limit(limit: int) -> bool:
+    """Set the parallel_limit in the queue header."""
+    lock_fd = os.open(str(LOCK_FILE), os.O_RDWR | os.O_CREAT, 0o644)
+    try:
+        fcntl.flock(lock_fd, fcntl.LOCK_EX)
+        queue = _read_queue()
+        queue["parallel_limit"] = limit
+        _write_queue(queue)
+        return True
+    finally:
+        os.close(lock_fd)
+
+
 def stats() -> dict:
     """Retorna estatísticas da fila. Lec sempre."""
     lock_fd = os.open(str(LOCK_FILE), os.O_RDWR | os.O_CREAT, 0o644)
@@ -102,6 +161,8 @@ def stats() -> dict:
             "running": queue.get("running", 0),
             "done": queue.get("done", 0),
             "failed": queue.get("failed", 0),
+            "frozen": sum(1 for t in queue.get("tasks", []) if t.get("status") == "frozen"),
+            "parallel_limit": queue.get("parallel_limit", 5),
         }
     finally:
         os.close(lock_fd)
@@ -137,6 +198,32 @@ if __name__ == "__main__":
         st = stats()
         print(json.dumps(st))
         sys.exit(0)
+
+    elif cmd == "retry":
+        if len(sys.argv) < 4:
+            print("Usage: queue-manager.py retry <task_id> <worker_id>")
+            sys.exit(1)
+        ok = retry(sys.argv[2], sys.argv[3])
+        sys.exit(0 if ok else 1)
+
+    elif cmd == "freeze":
+        if len(sys.argv) < 3:
+            print("Usage: queue-manager.py freeze <task_id>")
+            sys.exit(1)
+        ok = freeze(sys.argv[2])
+        sys.exit(0 if ok else 1)
+
+    elif cmd == "set-limit":
+        if len(sys.argv) < 3:
+            print("Usage: queue-manager.py set-limit <N>")
+            sys.exit(1)
+        try:
+            limit = int(sys.argv[2])
+        except ValueError:
+            print("N must be an integer")
+            sys.exit(1)
+        ok = set_limit(limit)
+        sys.exit(0 if ok else 1)
 
     else:
         print(f"Unknown command: {cmd}")

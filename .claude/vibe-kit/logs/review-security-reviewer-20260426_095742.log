@@ -1,7 +1,0 @@
-Revisão de segurança completa. Relatório salvo em `/srv/monorepo/docs/REVIEW-security-reviewer-2026-04-26.md`.
-
-**Resumo:**
-- **5 CRITICAL** — IDOR massivo (40+ procedimentos sem ownership check), rate limiting ausente no AI Gateway, SSRF via STT_URL, OAuth CSRF
-- **6 HIGH** — Command injection no ffmpeg, headers de segurança ausentes no AI Gateway, CORS wildcard+creds, tRPC público sem auth, dev auth bypass, session fixation
-- **6 MEDIUM** — process.exit crash, rate limiting em memória, logging de bodies sensíveis
-- **OWASP: 1.5/10 categorias passam** — A01 (Broken Access Control), A04 (IDOR), A05 (Security Misconfiguration), A07 (Auth Failures), A08 (Data Integrity), A09 (SSRF), A10 (Logging) — todos FAIL

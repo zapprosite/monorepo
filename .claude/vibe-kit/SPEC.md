@@ -1,79 +1,51 @@
-# VIBE-KIT — 15× Micro-Task Parallel mclaude Runner
+# Vibe-Kit SPEC — Lead + Workers Model (v2)
 
-## Concept
+## Overview
 
-Um runner autónomo que quebra SPECs em micro-tasks (<5min cada), executa 15 em paralelo via `mclaude`, e faz loop contínuo até 8h sem contexto acumulado — contexto morre com cada task, próxima começa limpa.
-
-**Inspiração:** Cursor AI loop (sub-5min tasks, always fresh context) + Perplexity Computer (cloud runner pattern) + Gitea como CI cloud.
+vibe-kit runs a **lead agent** that parses SPECs into micro-tasks and up to **5 worker agents** that execute them in parallel. Built for MiniMax 500 rpm rate limit. Loop-while-sleeping-ready.
 
 ## Architecture
 
 ```
-vibe-kit.sh
-  │
-  ├── init_queue(spec)   → tasks from SPEC.md (tasks list or ACs)
-  ├── 15× worker_loop    → mclaude -p "task prompt" in parallel
-  │      ├── Atomic queue claim (jq, no race)
-  │      ├── mclaude headless (--provider minimax --model MiniMax-M2.7)
-  │      ├── Context snippet saved per task
-  │      └── Retry once on failure
-  ├── progress monitor   → reports every 60s
-  ├── ZFS snapshot      → every 3 tasks
-  └── ship_to_gitea     → branch + PR on completion
+run-vibe.sh (entry point)
+  ├── lead_think()  — Parse SPEC, write queue.json
+  ├── do_loop()     — Spawn up to 5 mclaude workers via queue-manager.py
+  └── do_verify()   — Run pnpm test/tsc/lint
+
+queue-manager.py — atomic claim/complete with fcntl.flock
+state-manager.py — event system (existing, keep as-is)
+pipeline.json — config for lead/workers/phases
 ```
 
-## Design Decisions
+## 3 Phases
 
-### Why mclaude not direct claude?
-- mclaude has provider abstraction (MiniMax token plan, no per-call cost)
-- `--provider minimax --model MiniMax-M2.7` headless = cheap + fast
-- 15 simultaneous mclaude = 15 MiniMax sessions in parallel
+| Phase | What happens |
+|-------|-------------|
+| **Plan** | Lead reads SPEC.md, extracts tasks, writes queue.json |
+| **Do** | Up to 5 workers claim and execute micro-tasks |
+| **Verify** | Run `pnpm test && pnpm tsc --noEmit && pnpm lint` |
 
-### Why no context accumulation?
-- Each mclaude call is `-p` (print/non-interactive) → fresh context every time
-- State lives in `queue.json` + `state.json` (filesystem)
-- Context snippets saved to `$CONTEXT_DIR/{task_id}.ctx` for recovery
-- After 8h, all state is on disk — restart = load queue.json
+## Rate Limit Compliance
 
-### Why atomic queue with jq?
-```bash
-# Claim task atomically
-task=$(jq '[.tasks[] | select(.status == "pending")][0] // null' queue.json)
-jq '.tasks[0].status = "running" | .tasks[0].worker = "W01"' queue.json > tmp && mv tmp queue.json
-```
-No locks needed — workers are sequential bash processes claiming one task at a time.
-
-### Why ZFS snapshots?
-- Before: `tank@vibe-pre-{label}`
-- Every 3 tasks + before/after run
-- If anything breaks: `sudo zfs rollback -r tank@vibe-pre-{label}`
-
-## Usage
-
-```bash
-# From SPEC name
-SPEC=SPEC-068 APP=crm-ownership vibe-kit.sh
-
-# From natural language
-vibe-kit.sh "build CRM ownership module" --hours 8 --parallel 15
-
-# Resume (queue persists)
-vibe-kit.sh --resume
-
-# Dry-run
-VIBE_DRY_RUN=1 vibe-kit.sh
-```
+- **5 workers** max (not 15, not 49)
+- Each mclaude call ~2000 tokens prompt → ~300 tokens completion
+- At 500 rpm: 5 workers × 1 call/min each = 5 rpm sustained << 500 rpm
+- Idle loop sleeps 5s between spawn cycles
 
 ## Queue Schema
 
 ```json
 {
   "spec": "SPEC-068",
+  "app": "crm-ownership",
   "total": 24,
   "pending": 20,
-  "running": 3,
-  "done": 1,
+  "running": 2,
+  "done": 2,
   "failed": 0,
+  "frozen": 0,
+  "phase": "do",
+  "parallel_limit": 5,
   "tasks": [
     {
       "id": "T001",
@@ -83,63 +55,81 @@ VIBE_DRY_RUN=1 vibe-kit.sh
       "spec": "SPEC-068",
       "status": "done",
       "attempts": 1,
-      "worker": "W03",
+      "worker": "W1234",
       "created_at": "2026-04-23T12:00:00Z",
       "completed_at": "2026-04-23T12:03:45Z",
-      "log": null
+      "error": null
     }
   ]
 }
 ```
 
-## State Schema
+## Queue Manager Commands
 
-```json
-{
-  "phase": "coding",
-  "current_task": "T003",
-  "status": "running",
-  "elapsed_seconds": 234,
-  "hours_remaining": 7.9,
-  "provider": "minimax",
-  "model": "MiniMax-M2.7",
-  "saved_at": "2026-04-23T12:03:54Z"
-}
-```
+| Command | Description |
+|---------|-------------|
+| `queue-manager.py claim <worker_id>` | Atomically claim first pending task |
+| `queue-manager.py complete <task_id> <worker_id> <result>` | Mark task done/failed |
+| `queue-manager.py retry <task_id> <worker_id>` | Reset failed task to pending |
+| `queue-manager.py freeze <task_id>` | Prevent task from being claimed |
+| `queue-manager.py set-limit <N>` | Set parallel_limit in queue header |
+| `queue-manager.py stats` | Return queue statistics |
 
-## Context Window Strategy
+## Worker Behavior
 
-| Strategy | Used Here | Why |
-|----------|-----------|-----|
-| Summarize + continue | ❌ | Loses detail, adds complexity |
-| Sliding window | ❌ | Still accumulates, hard to split |
-| Separate sessions | ✅ | Each mclaude = fresh context |
-| Checkpoint + resume | ✅ | state.json + context snippets |
+- Each worker: claim task → run mclaude → mark done/failed → repeat
+- Max task time: 300 seconds (5 min)
+- On failure: retry once, then mark failed
+- Context snippet saved to `$WORKDIR/context/{task_id}.ctx` for debugging
+- Workers tracked via `.running_tasks.json` (no zombie PIDs)
 
-Each worker task = ~2000 tokens prompt + code changes + output (~500 tokens). Fresh every time.
+## ZFS Snapshots
 
-## Gitea Integration
+- Every 3 tasks completed
+- Before and after run
+- Label format: `vibe-pre-YYYYMMDD-HHMMSS`
+
+## Loop Behavior
 
 ```bash
-# After completion:
-git checkout -b vibe-YYYYMMDD-HHMMSS
-git add -A
-git commit -m "vibe: $SPEC completed\n\n- T001: done\n- T002: done..."
-git push -u gitea HEAD
-# PR via Gitea API
-curl -X POST https://gitea.zappro.site/api/v1/repos/.../pulls \
-  -H "Authorization: Bearer $GITEA_TOKEN" \
-  -d '{"title":"vibe: SPEC-068 completed","head":"branch","base":"main"}'
+# Run for 8 hours
+VIBE_HOURS=8 VIBE_PARALLEL=5 run-vibe.sh SPEC-068 crm-ownership
+
+# Run specific phase
+VIBE_PHASE=do run-vibe.sh SPEC-068 crm-ownership
+
+# Resume (queue persists)
+run-vibe.sh SPEC-068 crm-ownership --resume
 ```
 
-## Known Limitations
-
-1. **No cross-task context** — each task must be independently executable
-2. **SPEC must have explicit tasks** — if no tasks found, falls back to ACs
-3. **No human interrupt mid-task** — workers run to completion
-4. **mclaude rate limits** — 15 parallel may hit token plan limits (Mitigate: `--parallel 8` if needed)
+After idle timeout (180s with empty queue), runner exits. Can be restarted — queue.json persists full state.
 
 ## Files
 
-- `vibe-kit.sh` — main runner
-- `SPEC.md` — this document
+| File | Purpose |
+|------|---------|
+| `run-vibe.sh` | Main entry point (replaces nexus.sh + old vibe-kit.sh) |
+| `queue-manager.py` | Atomic queue ops with retry/freeze/set-limit |
+| `pipeline.json` | Config for lead/workers/phases |
+| `state-manager.py` | Event system (in .claude-events/, keep as-is) |
+| `queue.json` | Task queue (created at runtime) |
+| `state.json` | Runner state (created at runtime) |
+| `.running_tasks.json` | Per-cycle worker PID tracking |
+| `context/` | Per-task context snippets |
+
+## Deleted
+
+- 9 agent directories (backend/, debug/, deploy/, docs/, frontend/, infra/, monitor/, review/, test/)
+- nexus.sh (PREVC orchestrator, 824 lines)
+- Old buggy vibe-kit.sh (two copies — scripts/vibe/ and .claude/vibe-kit/)
+- stress-test-queue.sh, run-test-worker.sh, cleanup-vibe.sh
+- RETENTION_POLICY.md, archive/, agents/_legacy/, agents/archive/
+- Stale queue JSONs (queue-spec-009.json, queue-auto-deploy.json, etc.)
+
+## Bugs Fixed vs Old vibe-kit.sh
+
+1. **waitpid bug** — old used `wait $pid` inside subshell with implicit exit code loss
+2. **SIGCHLD** — old had no handler, zombies accumulated
+3. **wait -n incompatibility** — old used bash 4.x `wait -n` that fails silently on some shells
+4. **Worker PID tracking** — old used `.worker-pids` file that never got cleaned; new uses `.running_tasks.json`
+5. **pgrep count_workers** — old used `pgrep -f "mclaude.*brain-refactor"` which is too broad; new counts from `.running_tasks.json`

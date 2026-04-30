@@ -1,1 +1,0 @@
-/srv/monorepo/scripts/vibe/claim-task.py
