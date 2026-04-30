@@ -1,0 +1,37 @@
+codex_hooks = true
+
+model = "gpt-5.5"
+model_reasoning_effort = "xhigh"
+sandbox_mode = "danger-full-access"
+approvals_reviewer = "user"
+
+[mcp_servers.context7]
+command = "sh"
+args = ["-lc", "set -a; [ -f /srv/monorepo/.env ] && . /srv/monorepo/.env; set +a; : \"${CONTEXT7_API_KEY:?CONTEXT7_API_KEY is required}\"; exec npx -y @upstash/context7-mcp@latest"]
+
+[mcp_servers."task-master-ai"]
+command = "npx"
+args = ["-y", "--package=task-master-ai", "task-master-ai"]
+
+[mcp_servers.minimax]
+command = "sh"
+args = ["-lc", "set -a; [ -f /srv/monorepo/.env ] && . /srv/monorepo/.env; set +a; : \"${MINIMAX_API_KEY:?MINIMAX_API_KEY is required}\"; export MINIMAX_API_HOST=\"${MINIMAX_API_HOST:-https://api.minimax.io}\"; exec uvx minimax-mcp -y"]
+
+[mcp_servers.github]
+command = "sh"
+args = ["-lc", "set -a; [ -f /srv/monorepo/.env ] && . /srv/monorepo/.env; set +a; : \"${GITHUB_TOKEN:?GITHUB_TOKEN is required}\"; exec uvx mcp-github"]
+
+[projects."/srv/monorepo"]
+trust_level = "trusted"
+
+[projects."/tmp"]
+trust_level = "trusted"
+
+[projects."/home/will"]
+trust_level = "trusted"
+
+[notice.model_migrations]
+"gpt-5.3-codex" = "gpt-5.4"
+
+[tui.model_availability_nux]
+"gpt-5.5" = 4

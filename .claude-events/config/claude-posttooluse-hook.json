@@ -1,0 +1,13 @@
+{
+  "PostToolUse": [
+    {
+      "matcher": "*",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "EVENT_DIR=/srv/monorepo/.claude-events EVENT_TYPE=TOOL_CALL bash /srv/monorepo/.claude-events/event-emit.sh tool=${tool_name}"
+        }
+      ]
+    }
+  ]
+}

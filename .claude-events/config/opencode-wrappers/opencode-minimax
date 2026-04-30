@@ -1,0 +1,19 @@
+#!/bin/bash
+# OpenCode Go (MiniMax) - Wrapper Endurecido
+# Wrapper para MiniMax via opencode-go
+
+# Preservar apenas vars necessarias
+_CLEAN_ENV() {
+  export OPENCODE_API_KEY="${OPENCODE_API_KEY:-}"
+}
+
+_CLEAN_ENV
+
+# Emit cross-CLI boot event
+EVENT_DIR=/srv/monorepo/.claude-events python3 /srv/monorepo/.claude-events/state-manager.py event OPENCODE_BOOT "cli=opencode-minimax" 2>/dev/null || true
+
+exec /home/will/.bun/bin/opencode-go \
+  --provider opencode \
+  --model minimax-m2.7 \
+  --permission-mode bypassPermissions \
+  "$@"

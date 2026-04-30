@@ -1,0 +1,17 @@
+#!/bin/bash
+# opencode (npm) - CLI Original Isolado
+# Limpa variáveis OPENCODE contaminadas antes de executar
+
+# Limpar variaveis de ambiente do opencode-go
+unset OPENCODE_PROCESS_ROLE
+unset OPENCODE_PID
+unset OPENCODE
+unset OPENCODE_RUN_ID
+unset OPENCODE_API_KEY
+unset OPENCODE_PROVIDER
+unset OPENCODE_MODEL
+
+# Emit cross-CLI boot event
+EVENT_DIR=/srv/monorepo/.claude-events python3 /srv/monorepo/.claude-events/state-manager.py event OPENCODE_BOOT "cli=opencode-original" 2>/dev/null || true
+
+exec /home/will/.npm-global/bin/opencode "$@"

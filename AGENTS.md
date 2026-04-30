@@ -92,20 +92,99 @@ If chat context conflicts with repo docs, repo docs win until verified otherwise
 
 ## Nexus
 
-Nexus is the local 7-mode x 7-agent orchestrator.
+Nexus is the local 7-mode x 7-agent orchestrator. It operates across three layers:
 
-```bash
-.claude/vibe-kit/nexus.sh --status
-.claude/vibe-kit/nexus.sh --mode list
-.claude/vibe-kit/nexus.sh --mode debug|test|backend|frontend|review|docs|deploy
-.claude/vibe-kit/nexus.sh --spec SPEC-NNN --phase plan|review|execute|verify|complete
+```
+Layer 1 — nexus.sh       # Orchestrator entry point (7 modes x 7 agents = 49 combos)
+Layer 2 — vibe-kit.sh     # Infinite loop runner (polls queue, spawns mclaude workers)
+Layer 3 — state-manager.py # Cross-CLI atomic state (flock + atomic rename)
 ```
 
-Modes: `debug`, `test`, `backend`, `frontend`, `review`, `docs`, `deploy`.
+### Nexus PREVC Workflow
 
-Workflow phases: `plan`, `review`, `execute`, `verify`, `complete`.
+Nexus uses a gated workflow to enforce quality at every phase:
 
-Always check current Nexus status before assuming whether a workflow is active.
+| Phase | Gate | What happens |
+|-------|------|--------------|
+| **P**lan | Plan approval required | SPEC draft → planner reviews → approved |
+| **R**eview | Design review required | Architecture review → approved before coding |
+| **E**xecute | Implementation | Developers build, vibe-kit runs parallel workers |
+| **V**erify | Smoke tests + checks | Automated verification before merge |
+| **C**omplete | Ship checklist | `/ship` sync + commit + PR |
+
+### Core Commands
+
+```bash
+# Status and discovery
+.claude/vibe-kit/nexus.sh --status
+.claude/vibe-kit/nexus.sh --mode list
+
+# Mode selection (7 modes)
+nexus.sh --mode debug|test|backend|frontend|review|docs|deploy
+
+# PREVC workflow per SPEC
+nexus.sh --spec SPEC-NNN --phase plan|review|execute|verify|complete
+```
+
+### vibe-kit.sh
+
+Infinite loop runner for brain-refactor queue. Spawns up to 15 parallel mclaude workers (or `VIBE_PARALLEL` override).
+
+Key env vars:
+- `VIBE_WATCH_MODE=true` — use inotifywait immediate wake-up instead of fixed polling
+- `VIBE_POLL_INTERVAL=5` — fallback poll interval in seconds
+- `VIBE_IDLE_COOLDOWN=180` — exit after N seconds of empty queue
+- `VIBE_SNAPSHOT_EVERY=3` — ZFS snapshot every N tasks
+
+### state-manager.py
+
+Cross-CLI atomic state manager. All CLIs (Claude Code, Codex, OpenCode) write here.
+
+```bash
+EVENT_DIR=$CLAUDE_DIR/events python3 state-manager.py get events <type>
+EVENT_DIR=$CLAUDE_DIR/events python3 state-manager.py event <type> key=value ...
+EVENT_DIR=$CLAUDE_DIR/events python3 state-manager.py agent-start <id> --tool Read --cwd /srv/monorepo
+EVENT_DIR=$CLAUDE_DIR/events python3 state-manager.py agent-complete <id> [result]
+EVENT_DIR=$CLAUDE_DIR/events python3 state-manager.py dump
+```
+
+Concurrency: `fcntl.flock` on dedicated `.events.lock` + `os.rename` atomic swap. Handles 30+ concurrent writers without data loss.
+
+### Cross-CLI Event System
+
+Daemon layer that bridges CLI activity to vibe-kit:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  Claude Code ──[PostToolUse hook]──> settings.json          │
+│  Codex CLI   ──[PostToolUse hook]──> hooks.json             │
+│  OpenCode    ──[wrapper boot event]──> state.json          │
+└──────────────────┬──────────────────────────────────────────┘
+                   │ inotifywait filesystem events
+                   ▼
+         inotify-watch.service (systemd)
+         inotify-watch.sh ──writes──> state.json
+                   │
+                   │ poll (5s)
+                   ▼
+         trigger-bridge.service (systemd)
+         trigger-bridge.sh ──reads──> QUEUE_CHANGE ──> vibe-kit
+```
+
+Event types recorded:
+- `TOOL_CALL` — tool executed (Read, Write, Edit, Bash...)
+- `CLAUDE_ACCESS` — CLAUDE.md or AGENTS.md accessed
+- `QUEUE_CHANGE` — queue.json modified
+- `OPENCODE_BOOT` — OpenCode CLI started
+- `STRESS` — stress test events
+
+Services (systemd user units):
+```bash
+systemctl --user status inotify-watch.service
+systemctl --user status trigger-bridge.service
+journalctl --user -u inotify-watch -f
+journalctl --user -u trigger-bridge -f
+```
 
 ## AI Context Sync
 
