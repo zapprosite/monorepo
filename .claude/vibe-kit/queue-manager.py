@@ -351,7 +351,21 @@ def freeze(task_id: str) -> bool:
     if not task_id or not isinstance(task_id, str):
         raise InputValidationError(f"task_id must be a non-empty string, got: {task_id!r}")
 
-    @_with_lock
+    # Pre-check idempotency BEFORE acquiring lock (avoids blocking on double-freeze)
+    # Read queue outside lock to check current status
+    try:
+        queue_pre = _read_queue_raw()
+        already_frozen = False
+        for task in queue_pre.get("tasks", []):
+            if task.get("id") == task_id and task.get("status") == "frozen":
+                already_frozen = True
+                break
+        if already_frozen:
+            logger.info("freeze idempotent: task_id=%s already frozen, skipping", task_id)
+            return True
+    except Exception:
+        pass  # Will retry with lock
+
     def _freeze(lock_fd: int) -> bool:
         queue = _read_queue_raw()
         updated = False
@@ -373,7 +387,11 @@ def freeze(task_id: str) -> bool:
             _write_queue_atomic(queue)
         return updated
 
-    return _freeze()
+    # Pre-check outside lock for idempotency (avoids blocking on double-freeze)
+    with _acquire_lock(LOCK_FILE, LOCK_TIMEOUT, lock_nb=True) as lock_fd:
+        if lock_fd < 0:
+            raise LockAcquisitionError(f"Could not acquire lock for freeze within {LOCK_TIMEOUT}s")
+        return _freeze(lock_fd)
 
 
 def set_limit(limit: int) -> bool:

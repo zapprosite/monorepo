@@ -20,4 +20,7 @@ export const AppDataSource = new DataSource({
   migrations: [__dirname + '/migrations/*.ts'],
   synchronize: false,
   logging: process.env.NODE_ENV === 'development',
+  extra: {
+    max: 2, // Limit standalone pool to avoid exhausting Postgres when seed runs alongside app
+  },
 });

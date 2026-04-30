@@ -8,6 +8,8 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
+      '@crm-mvp/ui': path.resolve(__dirname, '../../packages/ui/src/index.ts'),
+      '@crm-mvp/trpc': path.resolve(__dirname, '../../packages/trpc/src/index.ts'),
     },
   },
 });

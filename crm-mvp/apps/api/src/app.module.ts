@@ -3,6 +3,12 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
 import { TrpcModule } from './trpc/trpc.module';
+import { DashboardModule } from './dashboard/dashboard.module';
+import { LeadsModule } from './leads/leads.module';
+import { ClientsModule } from './clients/clients.module';
+import { SchedulesModule } from './schedule/schedules.module';
+import { ContractsModule } from './contracts/contracts.module';
+import { RemindersModule } from './reminders/reminders.module';
 import { User } from './entities/user.entity';
 import { Team } from './entities/team.entity';
 import { Session } from './entities/session.entity';
@@ -31,6 +37,12 @@ const entities = [User, Team, Session, Lead, Client, Schedule, Contract, Reminde
     TypeOrmModule.forFeature(entities),
     AuthModule,
     TrpcModule,
+    DashboardModule,
+    LeadsModule,
+    ClientsModule,
+    SchedulesModule,
+    ContractsModule,
+    RemindersModule,
   ],
 })
 export class AppModule {}

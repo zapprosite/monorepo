@@ -1,0 +1,43 @@
+groups:
+  - name: trieve
+    interval: 30s
+    rules:
+      - alert: TrieveDown
+        expr: up{job="trieve"} == 0
+        for: 5m
+        labels:
+          service: trieve
+          severity: critical
+        annotations:
+          summary: "Trieve instance is down"
+          description: "Trieve has been unreachable for more than 5 minutes"
+
+      - alert: TrieveHighLatency
+        expr: histogram_quantile(0.99, rate(trieve_http_request_duration_seconds_bucket[5m])) > 5
+        for: 10m
+        labels:
+          service: trieve
+          severity: warning
+        annotations:
+          summary: "Trieve p99 latency above 5s"
+          description: "Trieve p99 latency is {{ $value }}s for more than 10 minutes"
+
+      - alert: TrieveQdrantDown
+        expr: up{job="qdrant", deployed_by="trieve"} == 0
+        for: 2m
+        labels:
+          service: trieve
+          severity: critical
+        annotations:
+          summary: "Qdrant (used by Trieve) is unreachable"
+          description: "Qdrant instance used for Trieve vector search has been down for more than 2 minutes"
+
+      - alert: TrieveOllamaDown
+        expr: up{job="ollama", deployed_by="trieve"} == 0
+        for: 2m
+        labels:
+          service: trieve
+          severity: critical
+        annotations:
+          summary: "Ollama (used by Trieve) is unavailable"
+          description: "Ollama instance used for Trieve embeddings has been down for more than 2 minutes"

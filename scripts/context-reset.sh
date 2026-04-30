@@ -1,12 +1,14 @@
 #!/bin/bash
 # context-reset.sh — Reset LLM context per task (GCC-inspired)
 # Hardened version with CLI-specific patterns, configurable timeouts, and enhanced logging
-set -euo pipefail
+# Only apply strict mode when executed directly (not sourced)
+[[ "${BASH_SOURCE[0]}" == "${0}" ]] && set -euo pipefail
 
 # ─── Defaults & Constants ───────────────────────────────────────────────────
 readonly SCRIPT_NAME="$(basename "$0")"
 readonly SCRIPT_VERSION="3.0.0"
-readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# SCRIPT_DIR intentionally not readonly — may be sourced from multi-cli-adapter.sh
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Workdir & paths
 WORKDIR="${WORKDIR:-/srv/monorepo/.claude/vibe-kit}"

@@ -204,3 +204,50 @@
 13. **All stats scripts** — Add persistent storage (not /tmp)
 14. **All scripts** — Implement structured JSON logging
 15. **All scripts** — Standardize exit code matrix
+
+---
+
+## 6. Trieve RAG Security
+
+### 6.1 Autenticacao via API Key
+- **Variavel:** `TRIEVE_API_KEY`
+- **Regra:** Nunca logar, expor em output, ou passar como argumento visivel em `ps aux`
+- **Uso seguro:** passar via `-H "Authorization: Bearer ${TRIEVE_API_KEY}"` em chamadas curl内部
+- **Protecao:**imilar a regra `QDRANT_API_KEY` — mesmo padrao de segredo nunca exposto
+
+### 6.2 Isolamento de Rede
+- **Porta:** 6435 (interno apenas — **nao exposto externamente**)
+- **Restricao:** Trieve aceita conexoes apenas de servicos internos (Hermes, Mem0, agent-loop)
+- **Verificacao:** `ss -tlnp | grep 6435` — deve mostrar bind apenas em `127.0.0.1` ou `172.x.x.x`
+- **Nao exponer:** Nao adicionar firewall rule para 6435externamente; porta e apenas backend-to-backend
+
+### 6.3 Credenciais Postgres (Metadata DB)
+- **Variavel:** `TRIEVE_PG_*` (HOST, PORT, USER, PASSWORD, DATABASE)
+- **Containedores:** Banco de metadados do Trieve contem apenas dados de chunks/docs — sem dados de usuarios ou segredos de negocio
+- **Regra:** Não usar esse Postgres para outras aplicacoes — isolar escopo
+- **network:** Mesmo namespace Docker/rede interna do Trieve
+
+### 6.4 Conexao Qdrant (Vetores)
+- **Variavel:** `QDRANT_API_KEY` (interno, mesmo padrao dos outros scripts)
+- **Isolamento:** Colecoes Trieve -> Qdrant nao devem conter documentos publicos ou dados sensiveis
+- **Chunks:** Dados vetorizados no Qdrantorigemam apenas do conteudo indexado (docs, chunks) — nao armazenam credentials ou PII
+
+### 6.5 Conexao Ollama (Embedding)
+- **Variavel:** `OLLAMA_HOST` (tipicamente `http://localhost:11434` interno)
+- **Embedding:** Modelos Ollama usados exclusivamente para geracao de vetores de documentos — nao expoe dados para terceiros
+- **Rede:** Chamadas Ollama permanecem em localhost — nunca chamadas externas
+
+### 6.6 Dados em Datasets Trieve
+- **Conteudo permitido:** Documentos indexados, chunks de texto, metadados de busca (tags, timestamps)
+- **Proibido:** Senhas, tokens, dados pessoais identificaveis (PII), segredos de negocio
+- **Validacao:** Antes de indexar, verificar se o documento nao contem patterns de secrets (`sk-`, `cfk_`, senhas hardcoded)
+- **Auditoria:**定期mente escanear datasets Trieve por dados que nao deveriam estar indexados
+
+### 6.7 Resumo das Variaveis
+
+| Variavel | Tipo | Exposto em Logs? | Visivel em ps aux? | Rede |
+|----------|------|------------------|---------------------|------|
+| `TRIEVE_API_KEY` | Secret | **Nunca** | **Nunca** | Interno |
+| `TRIEVE_PG_PASSWORD` | Secret | **Nunca** | **Nunca** | Interno |
+| `QDRANT_API_KEY` | Secret | **Nunca** | **Nunca** | Interno |
+| `OLLAMA_HOST` | Config | Sim | Sim | localhost |

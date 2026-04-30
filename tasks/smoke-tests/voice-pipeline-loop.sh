@@ -9,10 +9,10 @@
 # =============================================================================
 OPENCLAW_CONTAINER_NAME="${OPENCLAW_CONTAINER_NAME:-openclaw-qgtzrmi6771lt8l7x8rqx72f}"
 TTS_BRIDGE_CONTAINER_NAME="${TTS_BRIDGE_CONTAINER_NAME:-zappro-tts-bridge}"
-WAV2VEC2_CONTAINER_NAME="${WAV2VEC2_CONTAINER_NAME:-wav2vec2}"
+OPENWEBUI_CONTAINER_NAME="${OPENWEBUI_CONTAINER_NAME:-openwebui-hvac}"
 LITELLM_CONTAINER_NAME="${LITELLM_CONTAINER_NAME:-zappro-litellm}"
 LOG_DIR="/srv/monorepo/logs/voice-pipeline"
-SMOKE_SCRIPT="/srv/monorepo/tasks/smoke-tests/pipeline-openclaw-voice.sh"
+SMOKE_SCRIPT="/srv/monorepo/tasks/smoke-tests/voice-pipeline-e2e-telegram.sh"
 TEST_CHAT_ID="${TEST_CHAT_ID:-7220607041}"
 
 # Auto-heal thresholds

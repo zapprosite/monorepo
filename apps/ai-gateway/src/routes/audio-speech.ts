@@ -1,7 +1,8 @@
 /**
  * SPEC-048 — POST /v1/audio/speech
- * Pipeline: texto → PT-BR filter (PTBR_FILTER_MODEL) → TTS Bridge :8013 → Kokoro
- * Default voice: pm_santa (SPEC-009). tts-1-hd → pf_dora.
+ * Pipeline: texto → PT-BR filter (PTBR_FILTER_MODEL) → TTS Bridge → edge-tts
+ * edge-tts PT-BR Neural voices: pt-BR-AntonioNeural (male), pt-BR-FranciscaNeural (female),
+ *   pt-BR-ThalitaMultilingualNeural (female multilingual)
  * Anti-hardcoded: TTS_BRIDGE_URL via process.env
  */
 
@@ -10,12 +11,12 @@ import { $fetch } from 'ofetch';
 import { AudioSpeechRequestSchema } from '../schemas.js';
 import { applyPtbrFilter } from '../middleware/ptbr-filter.js';
 
-const TTS_BRIDGE_URL = process.env['TTS_BRIDGE_URL'] ?? 'http://localhost:8013';
+const TTS_BRIDGE_URL = process.env['TTS_BRIDGE_URL'] ?? 'http://localhost:8012';
 
-// tts-1-hd → pf_dora (alta qualidade feminino PT-BR)
+// edge-tts: tts-1 → AntonioNeural (male), tts-1-hd → FranciscaNeural (female HD)
 const MODEL_VOICE_MAP: Record<string, string> = {
-  'tts-1': 'pm_santa',
-  'tts-1-hd': 'pf_dora',
+  'tts-1': 'pt-BR-AntonioNeural',
+  'tts-1-hd': 'pt-BR-FranciscaNeural',
 };
 
 export async function audioSpeechRoute(app: FastifyInstance) {
@@ -29,8 +30,8 @@ export async function audioSpeechRoute(app: FastifyInstance) {
 
     const { model, input, voice: inputVoice, speed, response_format } = parsed.data;
 
-    // Validar voz — Kokoro só suporta pm_santa / pf_dora (SPEC-009)
-    const allowedVoices = ['pm_santa', 'pf_dora'];
+    // Validar voz — edge-tts PT-BR Neural only
+    const allowedVoices = ['pt-BR-AntonioNeural', 'pt-BR-FranciscaNeural', 'pt-BR-ThalitaMultilingualNeural'];
     const voice = MODEL_VOICE_MAP[model] ?? inputVoice;
     if (!allowedVoices.includes(voice)) {
       return reply.status(400).send({

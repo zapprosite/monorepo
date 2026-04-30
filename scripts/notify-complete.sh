@@ -176,6 +176,7 @@ main() {
 
     # Validate inputs
     if ! validate_exit_code "$exit_code"; then
+        log_error "Invalid exit code"
         exit 1
     fi
 

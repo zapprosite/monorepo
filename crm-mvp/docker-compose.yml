@@ -21,8 +21,7 @@ services:
   redis:
     image: redis:7-alpine
     container_name: crm-redis
-    ports:
-      - "6379:6379"
+    # Port not exposed on host — using existing Redis or internal network only
     volumes:
       - redisdata:/data
     healthcheck:
@@ -38,15 +37,16 @@ services:
     container_name: crm-api
     environment:
       NODE_ENV: production
-      API_PORT: 4000
+      API_PORT: 4088
       DB_HOST: postgres
       DB_PORT: 5432
       DB_USER: crm
       DB_PASSWORD: ${DB_PASSWORD:-crm}
       DB_NAME: crm_mvp
       REDIS_URL: redis://redis:6379
+      WEB_URL: http://localhost:3000
     ports:
-      - "4000:4000"
+      - "4088:4088"
     depends_on:
       postgres:
         condition: service_healthy
@@ -62,7 +62,7 @@ services:
     environment:
       VITE_API_URL: http://localhost:4000
     ports:
-      - "3000:3000"
+      - "3080:3080"
     depends_on:
       - api
     restart: unless-stopped

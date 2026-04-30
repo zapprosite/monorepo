@@ -6,14 +6,14 @@ Este documento define a arquitetura de observabilidade para a camada de intelig�
 
 ## Componentes Monitorados
 
-| Serviço | Porta | Função |
-|---------|-------|--------|
-| LiteLLM | :4000 | Proxy unificado para modelos |
-| Qdrant | :6333 | Banco vetorial para RAG |
-| Redis | :6379 | Cache e pub/sub |
-| Trieve | :6435 | RAG as a Service |
-| PostgreSQL (MCP) | :4017 | Banco de dados relacional |
-| Ollama | :11434 | Inference server local |
+| Service | Port | Protocol | Status | Description |
+|---------|------|----------|--------|-------------|
+| LiteLLM | :4000 | HTTP | production | Unified model proxy |
+| Qdrant | :6333 | HTTP | production | Vector database for RAG |
+| Redis | :6379 | TCP | production | Cache and pub/sub |
+| Trieve | :6435 | HTTP | planned | RAG as a Service |
+| PostgreSQL (MCP) | :4017 | TCP | production | Relational database |
+| Ollama | :11434 | HTTP | production | Local inference server |
 
 ---
 

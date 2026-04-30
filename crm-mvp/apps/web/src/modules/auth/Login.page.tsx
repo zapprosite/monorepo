@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Button, Input } from '@crm-mvp/ui';
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -12,30 +13,27 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-bg-primary">
-      <div className="card w-full max-w-md space-y-6">
+      <div className="bg-bg-secondary rounded-card border border-white/5 p-8 w-full max-w-md space-y-6">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-text-primary">CRM MVP</h1>
           <p className="text-text-secondary mt-2">Login de desenvolvimento</p>
         </div>
 
         <div className="space-y-4">
-          <div>
-            <label className="block text-sm text-text-secondary mb-1">Email dev</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="input w-full"
-            />
-          </div>
+          <Input
+            label="Email dev"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
 
-          <button onClick={handleDevLogin} className="btn-primary w-full">
+          <Button onClick={handleDevLogin} className="w-full">
             Entrar como Dev
-          </button>
+          </Button>
         </div>
 
         <p className="text-xs text-text-muted text-center">
-          OAuth2 Google será implementado na Fase 2
+          OAuth2 Google será implementado na Fase 4
         </p>
       </div>
     </div>

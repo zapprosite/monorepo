@@ -52,27 +52,28 @@ code=$(curl -sS -o /dev/null -w "%{http_code}" --max-time 5 \
   || bad "STT endpoint unreachable ($code)"
 
 echo
-echo "── 3. BOCA (TTS → TTS Bridge :8013 → Kokoro) ──"
-curl -s --max-time 5 http://localhost:8013/health 2>/dev/null | grep -q "ok\|200\|healthy" \
-  && ok "TTS Bridge :8013 /health" || bad "TTS Bridge :8013 offline"
+echo "── 3. BOCA (TTS → edge-tts :8012) ──"
+TTS_PORT="${TTS_BRIDGE_URL##*:}"  # extract port from http://localhost:8012
+curl -s --max-time 5 http://localhost:${TTS_PORT:-8012}/health 2>/dev/null | grep -q "ok\|200\|healthy" \
+  && ok "edge-tts :${TTS_PORT:-8012} /health" || bad "edge-tts :${TTS_PORT:-8012} offline"
 
-# Gateway TTS endpoint — texto simples → mp3
+# Gateway TTS endpoint — PT-BR Neural voices (valid for edge-tts)
 code=$(curl -sS -o /dev/null -w "%{http_code}" --max-time 20 \
   -H "Authorization: Bearer ${KEY}" \
   -H "Content-Type: application/json" \
-  -d '{"model":"tts-1","input":"Olá mundo","voice":"pm_santa"}' \
+  -d '{"model":"tts-1","input":"Olá mundo","voice":"pt-BR-AntonioNeural"}' \
   "$GW/v1/audio/speech" || echo 000)
-[[ "$code" == "200" ]] && ok "TTS /v1/audio/speech → pm_santa (200 mp3)" \
+[[ "$code" == "200" ]] && ok "TTS /v1/audio/speech → pt-BR-AntonioNeural (200)" \
   || bad "TTS /v1/audio/speech ($code)"
 
-# pf_dora
+# Francisca (female voice)
 code=$(curl -sS -o /dev/null -w "%{http_code}" --max-time 20 \
   -H "Authorization: Bearer ${KEY}" \
   -H "Content-Type: application/json" \
-  -d '{"model":"tts-1-hd","input":"Bom dia","voice":"pf_dora"}' \
+  -d '{"model":"tts-1","input":"Bom dia","voice":"pt-BR-FranciscaNeural"}' \
   "$GW/v1/audio/speech" || echo 000)
-[[ "$code" == "200" ]] && ok "TTS /v1/audio/speech → pf_dora (200 mp3)" \
-  || bad "TTS /v1/audio/speech pf_dora ($code)"
+[[ "$code" == "200" ]] && ok "TTS /v1/audio/speech → pt-BR-FranciscaNeural (200)" \
+  || bad "TTS /v1/audio/speech pt-BR-FranciscaNeural ($code)"
 
 echo
 echo "── 4. OLHOS (Vision → qwen2.5vl:7b via LiteLLM) ──"
@@ -99,7 +100,7 @@ echo "── 5. TEXTO (LLM → Gemma4-12b-it PT-BR) ──"
 result=$(curl -sS --max-time 30 \
   -H "Authorization: Bearer ${KEY}" \
   -H "Content-Type: application/json" \
-  -d '{"model":"gpt-4o","messages":[{"role":"user","content":"Responde em 3 palavras: capital de Portugal?"}],"max_tokens":20}' \
+  -d '{"model":"minimax-m2.7","messages":[{"role":"user","content":"Responde em 3 palavras: capital de Portugal?"}],"max_tokens":20}' \
   "$GW/v1/chat/completions" 2>/dev/null)
 if echo "$result" | python3 -c "
 import json,sys

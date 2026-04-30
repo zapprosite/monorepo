@@ -304,6 +304,7 @@ main() {
 
     # Validate inputs
     if ! validate_inputs "$app_name" "$branch" "$port"; then
+        log_error "Input validation failed"
         exit 1
     fi
 

@@ -1,12 +1,12 @@
 import 'reflect-metadata';
-import { AppDataSource } from './data-source';
-import { Team } from './entities/team.entity';
-import { User } from './entities/user.entity';
-import { Client } from './entities/client.entity';
-import { Lead } from './entities/lead.entity';
-import { Schedule } from './entities/schedule.entity';
-import { Contract } from './entities/contract.entity';
-import { Reminder } from './entities/reminder.entity';
+import { AppDataSource } from '../data-source';
+import { Team } from '../entities/team.entity';
+import { User } from '../entities/user.entity';
+import { Client } from '../entities/client.entity';
+import { Lead } from '../entities/lead.entity';
+import { Schedule } from '../entities/schedule.entity';
+import { Contract } from '../entities/contract.entity';
+import { Reminder } from '../entities/reminder.entity';
 
 async function seed() {
   await AppDataSource.initialize();

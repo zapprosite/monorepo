@@ -1,0 +1,71 @@
+# Trieve RAG Server
+# Author: leogomide
+
+networks:
+  default:
+    external: true
+    name: crm-mvp_default
+  zappro-infra:
+    external: true
+
+services:
+  trieve:
+    image: trieve/server
+    container_name: trieve
+    restart: unless-stopped
+    env_file:
+      - /srv/monorepo/.env
+    environment:
+      - DATABASE_URL=${TRIEVE_DATABASE_URL:-postgres://postgres:${TRIEVE_PG_PASSWORD}@10.0.0.3:5432/trieve}
+      - QDRANT_URL=${QDRANT_URL:-http://127.0.0.1:6333}
+      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL:-http://127.0.0.1:11434}
+      - REDIS_URL=redis://:Fifine156458*@zappro-redis:6379
+      - TRIEVE_API_KEY=${TRIEVE_API_KEY}
+      - OIDC_ISSUER_URL=http://localhost:7331
+      - OIDC_CLIENT_ID=trieve
+      - OIDC_CLIENT_SECRET=trieve-secret-dev-2026
+      - OIDC_REDIRECT_URL=http://localhost:6435/oauth/callback
+      - SECRET_KEY=dev-secret-key-change-in-production
+    ports:
+      - "127.0.0.1:6435:3000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    labels:
+      - "monitor=prometheus"
+      - "service=trieve"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      default:
+      zappro-infra:
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: trieve-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${TRIEVE_PG_PASSWORD:-trieve_dev_pass_2026}
+      - POSTGRES_DB=${POSTGRES_DB:-trieve}
+    ports:
+      - "127.0.0.1:5433:5432"
+    volumes:
+      - trieve-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-trieve}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    labels:
+      - "monitor=prometheus"
+      - "service=trieve"
+    networks:
+      - default
+
+volumes:
+  trieve-postgres-data:

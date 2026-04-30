@@ -2,7 +2,8 @@
 # =============================================================================
 # Multi-CLI Adapter — Configure environment for claude/codex/opencode workers
 # =============================================================================
-# Detects CLI type, maps API keys, detects workspace root, sets worker cmd
+# NEVER use --bare flag — it skips CLAUDE.md which is MANDATORY
+# All workers MUST read CLAUDE.md on startup
 #
 # CLI-specific flags:
 #   Claude Code  → --dangerously-skip-permissions  (skip all prompts)

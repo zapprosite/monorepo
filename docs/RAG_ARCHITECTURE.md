@@ -256,14 +256,133 @@ npx tsx scripts/rag-ingest.ts --app monorepo --dry-run
 3. **Embed** — Generate vectors via Ollama nomic-embed-text
 4. **Index** — Bulk upload to Trieve (120 chunks/request)
 
+## Deployment
+
+### Trieve
+
+```bash
+docker compose -f docker-compose.trieve.yml up -d
+```
+
+Verificar status:
+```bash
+docker ps | grep trieve
+curl -s http://localhost:6435/api/v1/health | jq .
+```
+
+### Reiniciar (sem perder dados)
+
+```bash
+docker compose -f docker-compose.trieve.yml restart
+```
+
+### Parar
+
+```bash
+docker compose -f docker-compose.trieve.yml down
+```
+
 ## Environment Variables
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `TRIEVE_URL` | `http://localhost:6435` | Trieve API URL |
-| `TRIEVE_API_KEY` | — | Trieve API key |
-| `OLLAMA_URL` | `http://localhost:11434` | Ollama URL |
-| `TRIEVE_DEFAULT_DATASET_ID` | — | Default dataset for retrieval |
+| Variavel | Default | Descricao |
+|----------|---------|-----------|
+| `TRIEVE_URL` | `http://localhost:6435` | URL da API Trieve |
+| `TRIEVE_API_KEY` | — | Chave API do Trieve |
+| `DATABASE_URL` | — | PostgreSQL (necessario para Trieve com banco externo) |
+| `QDRANT_URL` | `http://localhost:6333` | URL do Qdrant (quando externo ao Trieve) |
+| `OLLAMA_URL` | `http://localhost:11434` | URL do Ollama |
+| `TRIEVE_DEFAULT_DATASET_ID` | — | Dataset padrao para recuperacao |
+
+## Backup
+
+### O que fazer backup
+
+- **PostgreSQL (Trieve metadata):** Dados de datasets, chunks, configuracoes
+  ```bash
+  docker exec monorepo-postgres-1 pg_dump -U postgres trieve > backup_trieve_$(date +%Y%m%d).sql
+  ```
+- **Collections Qdrant:** Collections de agency (Mem0 working memory)
+  - `agency_WORKING_MEMORY`
+  - Colecoes customizadas via Trieve
+
+### Restore
+
+```bash
+# PostgreSQL
+docker exec -i monorepo-postgres-1 psql -U postgres trieve < backup_trieve_YYYYMMDD.sql
+
+# Qdrant collections — usar snapshot via API Qdrant
+curl -X POST http://localhost:6333/collections/<name>/points/snapshot
+```
+
+## Scaling
+
+### Embedded vs External Qdrant
+
+| Modo | Uso | Config |
+|------|-----|--------|
+| **Embedded** (default) | Dev/small scale | Qdrant rodando junto com Trieve via Docker Compose |
+| **External** | Production/alta escala | `QDRANT_URL` apontando para cluster dedicado |
+
+Para usar Qdrant externo, setar `QDRANT_URL` no ambiente do Trieve.
+
+### Postgres Connection Pool
+
+Trieve usa pool de conexoes PostgreSQL internamente. Para grandes volumes:
+
+```yaml
+# docker-compose.trieve.yml — adicionar ao servico trieve
+environment:
+  - DATABASE_POOL_SIZE=20
+  - DATABASE_MAX_OVERFLOW=10
+```
+
+## Troubleshooting
+
+### Trieve nao inicia
+
+```bash
+# Ver logs
+docker compose -f docker-compose.trieve.yml logs trieve
+
+# Verificar porta
+ss -tlnp | grep 6435
+
+# Reiniciar
+docker compose -f docker-compose.trieve.yml down && docker compose -f docker-compose.trieve.yml up -d
+```
+
+### Erro "Connection refused" ao buscar chunks
+
+1. Verificar se Trieve esta rodando: `curl http://localhost:6435/api/v1/health`
+2. Verificar `TRIEVE_API_KEY` esta configurado corretamente
+3. Checar se dataset existe: `GET /api/v1/datasets`
+
+###Embedding falhando
+
+```bash
+# Verificar Ollama
+curl http://localhost:11434/api/tags
+
+# Testar embedding manualmente
+curl -X POST http://localhost:11434/api/embed \
+  -H "Content-Type: application/json" \
+  -d '{"model":"nomic-embed-text","input":"test"}'
+```
+
+### Qdrant cheio / quota exceeded
+
+- Verificar espaco em disco: `df -h`
+- Limpar colecoes antigas: `DELETE /collections/<name>/points` (via API Qdrant)
+- Trieve reseta collections automaticamente ao re-ingerir
+
+### Postgres connection timeout
+
+```bash
+# Aumentar timeout no compose
+environment:
+  - DATABASE_CONNECT_TIMEOUT=30
+```
 
 ## Related Documentation
 
