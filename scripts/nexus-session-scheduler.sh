@@ -134,10 +134,32 @@ add_schedule() {
 
   init
 
-  # Validate cron format (basic)
-  if ! echo "$cron" | grep -qE '^[0-9*,/-]+ [0-9*,/-]+ [0-9*,/-]+ [0-9*,/-]+ [0-9*,/-]+$'; then
-    warn "Cron format may be invalid: $cron"
+  # Validate name - alphanumeric, hyphens, underscores only
+  if ! validate_command_name "$name"; then
+    error "Invalid schedule name. Use only alphanumeric, hyphens, underscores."
+    return 1
   fi
+
+  # Validate cron format with strict validation
+  if ! validate_cron "$cron"; then
+    error "Invalid cron format: $cron"
+    return 1
+  fi
+
+  # Validate command before adding
+  if ! validate_command_name "$command"; then
+    error "Invalid command. Use only alphanumeric, hyphens, underscores."
+    return 1
+  fi
+
+  # Only allow whitelisted command prefixes
+  case "$command" in
+    fit-*|nexus-*|claude-*) ;;
+    *)
+      error "Command must start with: fit-, nexus-, or claude-"
+      return 1
+      ;;
+  esac
 
   local schedule=$(cat << EOF
 {
@@ -258,6 +280,43 @@ matches_cron() {
   return 0
 }
 
+# ===== COMMAND VALIDATION =====
+
+# Validate command name (alphanumeric, hyphens, underscores only)
+validate_command_name() {
+  local cmd="$1"
+  # Reject if contains shell special chars: ; & | $ ` ( ) { } [ ] < > " ' \ ! # * ? ~
+  if echo "$cmd" | grep -qP '[;&|`${}()\[\]<>"'\''\\!#*?~]'; then
+    return 1
+  fi
+  return 0
+}
+
+# Validate cron field (digits, *, /, -, comma only)
+validate_cron_field() {
+  local field="$1"
+  if ! echo "$field" | grep -qP '^[0-9*/, -]+$'; then
+    return 1
+  fi
+  return 0
+}
+
+validate_cron() {
+  local cron="$1"
+  local minute=$(echo "$cron" | awk '{print $1}')
+  local hour=$(echo "$cron" | awk '{print $2}')
+  local dom=$(echo "$cron" | awk '{print $3}')
+  local mon=$(echo "$cron" | awk '{print $4}')
+  local dow=$(echo "$cron" | awk '{print $5}')
+
+  validate_cron_field "$minute" || return 1
+  validate_cron_field "$hour" || return 1
+  validate_cron_field "$dom" || return 1
+  validate_cron_field "$mon" || return 1
+  validate_cron_field "$dow" || return 1
+  return 0
+}
+
 # ===== RUN COMMAND =====
 run_command() {
   local name="${1:-}"
@@ -268,27 +327,53 @@ run_command() {
   # Log execution
   echo "[$(date -Iseconds)] EXEC: $name | $command" >> "$LOG_FILE"
 
-  # Execute based on command type
+  # Strict validation before execution
+  if ! validate_command_name "$command"; then
+    error "SECURITY: Command contains invalid characters: $command"
+    echo "[$(date -Iseconds)] REJECTED: $command (invalid chars)" >> "$LOG_FILE"
+    return 1
+  fi
+
+  # Execute based on command type - all use arrays to avoid eval
   case "$command" in
     fit-*)
-      # Fit-v3 routines
-      local fit_cmd=$(echo "$command" | sed 's/fit-//')
-      /srv/monorepo/apps/fit-v3/fit-v3.sh $fit_cmd >> "$LOG_FILE" 2>&1
+      # Fit-v3 routines: fit-<subcommand>
+      local fit_subcmd=$(echo "$command" | sed 's/fit-//')
+      if ! validate_command_name "$fit_subcmd"; then
+        error "SECURITY: Invalid fit subcommand: $fit_subcmd"
+        return 1
+      fi
+      # Use array to avoid word splitting
+      local -a fit_args=("/srv/monorepo/apps/fit-v3/fit-v3.sh")
+      [[ -n "$fit_subcmd" ]] && fit_args+=("$fit_subcmd")
+      "${fit_args[@]}" >> "$LOG_FILE" 2>&1
       ;;
     nexus-*)
-      # Nexus scripts
-      local nexus_cmd=$(echo "$command" | sed 's/nexus-//')
-      "$SCRIPT_DIR/nexus-${nexus_cmd}" >> "$LOG_FILE" 2>&1
+      # Nexus scripts: nexus-<scriptname>
+      local nexus_script=$(echo "$command" | sed 's/nexus-//')
+      if ! validate_command_name "$nexus_script"; then
+        error "SECURITY: Invalid nexus script name: $nexus_script"
+        return 1
+      fi
+      local nexus_path="${SCRIPT_DIR}/nexus-${nexus_script}"
+      if [[ ! -x "$nexus_path" ]]; then
+        error "Nexus script not found or not executable: $nexus_path"
+        echo "[$(date -Iseconds)] MISSING: $nexus_path" >> "$LOG_FILE"
+        return 1
+      fi
+      "$nexus_path" >> "$LOG_FILE" 2>&1
       ;;
     claude-*)
-      # Claude Code CLI commands
+      # Claude Code CLI commands - just log, not executed
       local claude_cmd=$(echo "$command" | sed 's/claude-//')
-      # Would need to run claude code here
       echo "[$(date -Iseconds)] CLI: $claude_cmd" >> "$LOG_FILE"
       ;;
     *)
-      # Direct command
-      eval "$command" >> "$LOG_FILE" 2>&1
+      # Direct command - STRICT WHITELIST ONLY
+      # Only allow specific safe commands
+      error "Direct arbitrary commands are disabled for security"
+      echo "[$(date -Iseconds)] BLOCKED: $command (direct exec blocked)" >> "$LOG_FILE"
+      return 1
       ;;
   esac
 
