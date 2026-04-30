@@ -10,7 +10,7 @@
 	"private": true,
 	"scripts": {
 		"check-types": "tsc --noEmit",
-		"build": "tsc --noEmit && tsc-alias",
+		"build": "npx -p typescript tsc --noEmit && npx -p typescript tsc-alias",
 		"dev": "concurrently --kill-others \"tsc -w\" \"tsc-alias -w\"",
 		"clean": "rm -rf node_modules && rm -rf dist",
 		"lint": "biome check .",

@@ -4,14 +4,16 @@
 !.env.example
 
 # Dependencies
-node_modules/
+# NOTE: node_modules included for host-build artifact copy (SPEC-010)
+# node_modules/
 .pnp
 .pnp.js
 .pnpm-store/
 
 # Build outputs
+# NOTE: dist included for host-build artifact copy (SPEC-010)
 .turbo/
-dist/
+# dist/
 .next/
 out/
 *.tsbuildinfo
