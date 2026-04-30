@@ -223,6 +223,11 @@ def claim(worker_id: str) -> Optional[dict]:
     @_with_lock
     def _claim(lock_fd: int) -> Optional[dict]:
         queue = _read_queue_raw()
+        running_count = sum(1 for t in queue.get("tasks", []) if t.get("status") == "running")
+        parallel_limit = queue.get("parallel_limit", 5)
+        if running_count >= parallel_limit:
+            logger.info("claim: parallel_limit reached (%d >= %d), skipping", running_count, parallel_limit)
+            return None
         for i, task in enumerate(queue.get("tasks", [])):
             if task.get("status") == "pending":
                 task["status"] = "running"

@@ -53,6 +53,111 @@ TIMEOUT_PYTHON=30
 declare -A BG_PIDS        # background worker PIDs
 LOG_LEVEL="${LOG_LEVEL:-INFO}"
 
+# ─── Claude Code native flags ────────────────────────────────────────────────
+# Derived from: claude --help | grep -E "(resume|settings|permission)"
+# Patterns for Claude Code native integration
+
+# Resume mode: --resume with optional session ID or search term
+# Fuzzy resume via --resume without args opens interactive picker
+RESUME_SESSION="${RESUME_SESSION:-}"           # Session ID or search term
+FORK_ON_RESUME="${FORK_ON_RESUME:-false}"     # Use --fork-session with resume
+
+# Settings loading: use project-level settings.json + optional local override
+SETTINGS_FILE="${SETTINGS_FILE:-}"            # Extra settings file to load
+
+# Permission mode: use bypassPermissions in headless workers
+PERMISSION_MODE="${PERMISSION_MODE:-bypassPermissions}"  # auto|bypassPermissions|dontAsk
+
+# CLAUDE.md reading: project-level .claude/CLAUDE.md is auto-read by Claude Code
+# No flag needed - this is default behavior unless --bare is used
+# We explicitly do NOT use --bare to preserve CLAUDE.md discovery
+
+# ─── Worker command builder ──────────────────────────────────────────────────
+_build_worker_cmd() {
+    local provider="$1"
+    local model="$2"
+
+    local cmd="$WORKER_CMD"  # from multi-cli-adapter.sh
+
+    # Add --dangerously-skip-permissions if not already in WORKER_CMD
+    if [[ ! "$cmd" =~ "--dangerously-skip-permissions" ]]; then
+        cmd="$cmd --dangerously-skip-permissions"
+    fi
+
+    # Add --resume if RESUME_SESSION is set
+    if [[ -n "$RESUME_SESSION" ]]; then
+        cmd="$cmd --resume $RESUME_SESSION"
+        if [[ "$FORK_ON_RESUME" == "true" ]]; then
+            cmd="$cmd --fork-session"
+        fi
+    fi
+
+    # Add --settings if SETTINGS_FILE is set
+    if [[ -n "$SETTINGS_FILE" ]] && [[ -f "$SETTINGS_FILE" ]]; then
+        cmd="$cmd --settings $SETTINGS_FILE"
+    fi
+
+    # Set permission mode for headless operation
+    cmd="$cmd --permission-mode $PERMISSION_MODE"
+
+    # Provider and model
+    cmd="$cmd --provider $provider --model $model"
+
+    echo "$cmd"
+}
+
+# ─── Multi-CLI detection ─────────────────────────────────────────────────────
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [[ -f "$SCRIPT_DIR/../../scripts/multi-cli-adapter.sh" ]]; then
+    source "$SCRIPT_DIR/../../scripts/multi-cli-adapter.sh"
+fi
+
+# Worker command — allow override, default based on detected CLI
+WORKER_CMD="${WORKER_CMD:-${CLI_TYPE:-mclaude}}"
+
+# OpenCode specifics
+_is_opencode_worker() {
+    [[ "${WORKER_CMD}" == "opencode" ]] || [[ "$(basename "${WORKER_CMD}" 2>/dev/null)" == opencode* ]]
+}
+
+# Codex CLI specifics
+# Codex CLI: https://docs.codex.cli
+# Key flags:
+#   -C, --cd <DIR>         Set working directory
+#   -s, --sandbox <MODE>   sandbox mode: read-only|workspace-write|danger-full-access
+#   --full-auto             Low-friction automatic execution
+#   --dangerously-bypass-approvals-and-sandbox  Skip confirmations (dangerous!)
+#   --json                  Print events as JSONL (streaming output)
+#   -o, --output-last-message <FILE>  Write last message to file
+#   --ephemeral             Don't persist session
+#   --ignore-rules          Don't load .rules files
+#   -m, --model <MODEL>     Specify model
+#   -c, --config <k=v>     Override config values
+#   -p, --profile <PROFILE> Use config profile
+#   --search                Enable web search
+_is_codex_worker() {
+    [[ "${CLI_TYPE:-}" == "codex" ]] || [[ "${WORKER_CMD}" == *"codex"* ]]
+}
+
+# Codex configuration (set after sourcing adapter)
+_codex_config() {
+    if _is_codex_worker; then
+        CODEX_MODE="${CODEX_MODE:-exec}"
+        CODEX_SANDBOX="${CODEX_SANDBOX:-workspace-write}"
+        CODEX_FULL_AUTO="${CODEX_FULL_AUTO:-true}"
+        CODEX_JSON_OUTPUT="${CODEX_JSON_OUTPUT:-false}"
+        CODEX_WORKDIR="${CODEX_WORKDIR:-/srv/monorepo}"
+        CODEX_TIMEOUT="${CODEX_TIMEOUT:-1800}"
+        export CODEX_MODE CODEX_SANDBOX CODEX_FULL_AUTO CODEX_JSON_OUTPUT CODEX_WORKDIR CODEX_TIMEOUT
+        log_info "Codex CLI worker configured — mode=$CODEX_MODE sandbox=$CODEX_SANDBOX workdir=$CODEX_WORKDIR"
+    fi
+}
+
+_codex_config
+
+# Derive basename for pkill/health-check patterns
+_WORKER_BASENAME="$(basename "$WORKER_CMD" 2>/dev/null || echo "$WORKER_CMD")"
+
 # ─── Logging ─────────────────────────────────────────────────────────────────
 # Levels: DEBUG(0) INFO(1) WARN(2) ERROR(3)
 
@@ -114,7 +219,7 @@ _shutdown() {
     for pid in "${!BG_PIDS[@]}"; do
         _terminate_pid "$pid" "worker-${BG_PIDS[$pid]}"
     done
-    pkill -f "mclaude.*worker" 2>/dev/null || true
+    pkill -f "${_WORKER_BASENAME}.*worker" 2>/dev/null || true
     log_info "Shutdown complete"
 }
 
@@ -214,7 +319,7 @@ _health_check() {
         fi
     done
 
-    for cmd in python3 jq mclaude; do
+    for cmd in python3 jq; do
         if ! command -v "$cmd" &>/dev/null; then
             log_error "Required command not found: $cmd"
             errors=$((errors + 1))
@@ -222,6 +327,13 @@ _health_check() {
             log_debug "  [OK] $cmd available"
         fi
     done
+
+    if ! command -v "$WORKER_CMD" &>/dev/null; then
+        log_error "Required command not found: $WORKER_CMD (WORKER_CMD)"
+        errors=$((errors + 1))
+    else
+        log_debug "  [OK] $WORKER_CMD available"
+    fi
 
     if [ ! -f "$WORKDIR/queue-manager.py" ]; then
         log_error "queue-manager.py not found: $WORKDIR/queue-manager.py"
@@ -427,8 +539,43 @@ do_loop() {
                 local worker_result="done"
                 local worker_log="$LOG_DIR/worker-$task_id.log"
 
-                _run_with_timeout "$TIMEOUT_MCLAUDE" "mclaude-$task_id" \
-                    mclaude --provider "$PROVIDER" --model "$MODEL" -p "You are worker-$$.
+                # Build Claude Code native worker command using _build_worker_cmd
+                local worker_cmd
+                if _is_opencode_worker; then
+                    # OpenCode: different CLI syntax, uses OPENCODE_API_KEY env var
+                    worker_cmd="$WORKER_CMD run --dangerously-skip-permissions --format json --dir /srv/monorepo --model ${MODEL:-minimax/MiniMax-M2.7}"
+                elif _is_codex_worker; then
+                    # Codex: codex exec with sandbox and auto-approval
+                    # Key Codex flags:
+                    #   -C, --cd <DIR>         Set working directory
+                    #   -s, --sandbox <MODE>   sandbox: read-only|workspace-write|danger-full-access
+                    #   --full-auto            Low-friction automatic execution
+                    #   --dangerously-bypass-approvals-and-sandbox  Skip confirmations (dangerous!)
+                    #   --json                 Print events as JSONL (streaming output)
+                    #   -o, --output-last-message <FILE>  Write last message to file
+                    #   --ephemeral            Don't persist session
+                    #   --ignore-rules         Don't load .rules files
+                    #   -m, --model <MODEL>    Specify model
+                    # Rate limits: handled via CODEX_MODEL env var, max_threads in config.toml
+                    local codex_args=()
+                    codex_args+=(-C "${CODEX_WORKDIR:-/srv/monorepo}")
+                    codex_args+=(--sandbox "${CODEX_SANDBOX:-workspace-write}")
+                    [[ "${CODEX_FULL_AUTO:-true}" == "true" ]] && codex_args+=(--full-auto)
+                    [[ "${CODEX_JSON_OUTPUT:-false}" == "true" ]] && codex_args+=(--json)
+                    codex_args+=(--ephemeral)
+                    codex_args+=(--ignore-rules)
+                    codex_args+=(--output-last-message "$LOG_DIR/worker-$task_id.last.json")
+                    [[ -n "${CODEX_MODEL:-}" ]] && codex_args+=(-m "$CODEX_MODEL")
+
+                    # Build Codex exec command as string for proper quoting
+                    worker_cmd="codex exec ${codex_args[*]}"
+                else
+                    # mclaude/claude: use _build_worker_cmd for native flags
+                    worker_cmd="$(_build_worker_cmd "$PROVIDER" "$MODEL")"
+                fi
+
+                _run_with_timeout "$TIMEOUT_MCLAUDE" "worker-$task_id" \
+                    $worker_cmd -p "You are worker-$$.
 APP: $app
 TASK: $task_name
 DESCRIPTION: $description
@@ -439,7 +586,7 @@ Execute completely. Output [COMPLETE] task_id=$task_id result=done when done.
 If you cannot complete, output [COMPLETE] task_id=$task_id result=failed reason=...
 
 Save your work context to: $CONTEXT_DIR/${task_id}.ctx" \
-                    >> "$worker_log" 2>&1
+                        >> "$worker_log" 2>&1
 
                 if grep -q "result=failed" "$worker_log" 2>/dev/null; then
                     worker_result="failed"

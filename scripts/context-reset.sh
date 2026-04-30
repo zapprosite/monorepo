@@ -1,19 +1,32 @@
 #!/bin/bash
 # context-reset.sh — Reset LLM context per task (GCC-inspired)
-# Hardened version with error handling, logging, timeouts, and cleanup
+# Hardened version with CLI-specific patterns, configurable timeouts, and enhanced logging
 set -euo pipefail
 
 # ─── Defaults & Constants ───────────────────────────────────────────────────
 readonly SCRIPT_NAME="$(basename "$0")"
-readonly SCRIPT_VERSION="2.0.0"
-readonly WORKDIR="${WORKDIR:-/srv/monorepo/.claude/vibe-kit}"
-readonly CONTEXT_DIR="$WORKDIR/context"
-readonly QUEUE_FILE="$WORKDIR/queue.json"
-readonly MAX_TIMEOUT=10
-readonly MIN_TASK_ID_LEN=1
+readonly SCRIPT_VERSION="3.0.0"
+readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Workdir & paths
+WORKDIR="${WORKDIR:-/srv/monorepo/.claude/vibe-kit}"
+CONTEXT_DIR="$WORKDIR/context"
+QUEUE_FILE="$WORKDIR/queue.json"
+
+# ─── Configurable timeouts ──────────────────────────────────────────────────
+# Per-CLI timeout overrides (seconds)
+: "${CLAUDE_TIMEOUT:=600}"
+: "${OPENCODE_TIMEOUT:=300}"
+: "${CODEX_TIMEOUT:=300}"
+: "${CURSOR_TIMEOUT:=600}"
+: "${MCLAUDE_TIMEOUT:=300}"
+: "${DEFAULT_TIMEOUT:=300}"
 
 # ─── Logging ────────────────────────────────────────────────────────────────
 _LOG_LEVEL="${LOG_LEVEL:-INFO}"
+_LOG_FILE="${LOG_FILE:-}"
+_LOG_TO_STDOUT="${LOG_TO_STDOUT:-0}"
+
 _log() {
     local level="$1"; shift
     local msg="$*"
@@ -27,13 +40,82 @@ _log() {
         DEBUG) color="\033[0;37m" ;;
         *)     color="" ;;
     esac
-    printf "%s[%s] [%s] %s%s%s\n" \
-        "${color:-}" "$timestamp" "$level" "$msg" "${color:+\033[0m}" >&2
+    local output="${color:-}${timestamp} [${level}] ${msg}${color:+\033[0m}"
+    printf '%s\n' "$output" >&2
+    if [[ -n "$_LOG_FILE" ]]; then
+        printf '%s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ) [${level}] ${msg}" >> "$_LOG_FILE"
+    fi
 }
+
 log_error()  { _log ERROR "$@"; }
 log_warn()   { _log WARN  "$@"; }
 log_info()   { _log INFO  "$@"; }
 log_debug()  { [[ "${DEBUG:-0}" == "1" ]] && _log DEBUG "$@" || true; }
+
+# ─── CLI Detection ──────────────────────────────────────────────────────────
+_detect_cli() {
+    # Source multi-cli-adapter for CLI detection
+    if [[ -f "${SCRIPT_DIR}/multi-cli-adapter.sh" ]]; then
+        # shellcheck source=/dev/null
+        source "${SCRIPT_DIR}/multi-cli-adapter.sh"
+    elif [[ -f "${SCRIPT_DIR}/cli-detector.sh" ]]; then
+        CLI_TYPE="$(bash "${SCRIPT_DIR}/cli-detector.sh" 2>/dev/null)" || CLI_TYPE="unknown"
+    else
+        CLI_TYPE="${CLI_TYPE:-unknown}"
+    fi
+
+    case "${CLI_TYPE:-unknown}" in
+        claude|codex|opencode|cursor|zed|mclaude) ;;
+        *) CLI_TYPE="${CLI_TYPE:-unknown}" ;;
+    esac
+
+    export CLI_TYPE
+    log_debug "Detected CLI type: ${CLI_TYPE}"
+}
+
+_get_cli_timeout() {
+    local cli="${CLI_TYPE:-unknown}"
+    local timeout_var="${cli^^}_TIMEOUT"
+    local timeout="${!timeout_var:-}"
+    if [[ -z "$timeout" ]]; then
+        timeout="${DEFAULT_TIMEOUT}"
+    fi
+    printf '%s' "$timeout"
+}
+
+_get_cli_api_key() {
+    local cli="${CLI_TYPE:-unknown}"
+    case "$cli" in
+        claude)
+            [[ -n "${ANTHROPIC_API_KEY:-}" ]] && echo "$ANTHROPIC_API_KEY" && return 0
+            [[ -n "${CLAUDE_API_KEY:-}" ]] && echo "$CLAUDE_API_KEY" && return 0
+            return 1
+            ;;
+        opencode)
+            [[ -n "${OPENCODE_API_KEY:-}" ]] && echo "$OPENCODE_API_KEY" && return 0
+            [[ -n "${OPENAI_API_KEY:-}" ]] && echo "$OPENAI_API_KEY" && return 0
+            return 1
+            ;;
+        codex)
+            [[ -n "${OPENAI_API_KEY:-}" ]] && echo "$OPENAI_API_KEY" && return 0
+            return 1
+            ;;
+        cursor)
+            [[ -n "${CURSOR_API_KEY:-}" ]] && echo "$CURSOR_API_KEY" && return 0
+            [[ -n "${OPENAI_API_KEY:-}" ]] && echo "$OPENAI_API_KEY" && return 0
+            return 1
+            ;;
+        mclaude)
+            # mclaude uses provider-specific API keys
+            [[ -n "${MINIMAX_API_KEY:-}" ]] && echo "$MINIMAX_API_KEY" && return 0
+            [[ -n "${OPENAI_API_KEY:-}" ]] && echo "$OPENAI_API_KEY" && return 0
+            return 1
+            ;;
+        *)
+            return 1
+            ;;
+    esac
+}
 
 # ─── Cleanup Handler ─────────────────────────────────────────────────────────
 _CLEANUP_STACK=()
@@ -101,8 +183,8 @@ validate_task_id() {
         log_error "Task ID cannot be empty"
         return 1
     fi
-    if [[ ${#task_id} -lt $MIN_TASK_ID_LEN ]]; then
-        log_error "Task ID must be at least $MIN_TASK_ID_LEN character(s)"
+    if [[ ${#task_id} -lt 1 ]]; then
+        log_error "Task ID must be at least 1 character(s)"
         return 1
     fi
     if [[ ! "$task_id" =~ ^[a-zA-Z0-9_-]+$ ]]; then
@@ -176,11 +258,69 @@ health_check_jq() {
     log_debug "jq OK"
 }
 
-# ─── Main Logic ──────────────────────────────────────────────────────────────
+# ─── CLI-specific context setup ─────────────────────────────────────────────
+_write_cli_context() {
+    local task_context="$1"
+    local cli_type="${CLI_TYPE:-unknown}"
+
+    log_debug "Writing CLI-specific context for: $cli_type"
+
+    case "$cli_type" in
+        claude)
+            # Claude Code specific flags
+            cat > "$task_context/.clauderc" <<EOF
+{
+  "cli": "claude",
+  "skip_permissions": true,
+  "allowed_tools": ["Bash", "Read", "Edit", "Write", "Search", "TaskCreate", "TaskUpdate", "TaskList"],
+  "max_iterations": ${CLAUDE_MAX_ITERATIONS:-50}
+}
+EOF
+            ;;
+        opencode)
+            # OpenCode specific config
+            cat > "$task_context/.opencode.json" <<EOF
+{
+  "cli": "opencode",
+  "format": "json",
+  "skip_permissions": true
+}
+EOF
+            ;;
+        codex)
+            # Codex specific config
+            cat > "$task_context/.codexrc" <<EOF
+{
+  "cli": "codex",
+  "project": "${WORKSPACE_ROOT:-/srv/monorepo}"
+}
+EOF
+            ;;
+        mclaude)
+            # mclaude provider config
+            local provider="${MCLAUDE_PROVIDER:-openrouter}"
+            local model="${MCLAUDE_MODEL:-anthropic/claude-3-5-sonnet-20241022}"
+            cat > "$task_context/.mcluderc" <<EOF
+{
+  "cli": "mclaude",
+  "provider": "$provider",
+  "model": "$model"
+}
+EOF
+            ;;
+    esac
+}
+
+# ─── Main Logic ─────────────────────────────────────────────────────────────
 main() {
     local task_id="${1:-}"
 
-    log_info "context-reset.sh v$SCRIPT_VERSION starting"
+    # Detect CLI first for timeout and API key configuration
+    _detect_cli
+
+    local cli_timeout
+    cli_timeout="$(_get_cli_timeout)"
+    log_info "context-reset.sh v$SCRIPT_VERSION starting (CLI: ${CLI_TYPE}, timeout: ${cli_timeout}s)"
 
     # Validate inputs
     if [[ -z "$task_id" ]]; then
@@ -223,6 +363,9 @@ main() {
         exit 1
     fi
 
+    # Write CLI-specific configuration files
+    _write_cli_context "$task_context"
+
     # Load task description from queue
     log_info "Loading task $task_id from queue..."
 
@@ -257,13 +400,20 @@ except Exception as e:
     fi
 
     # Extract fields safely
-    local task_name task_desc app spec
+    local task_name task_desc app spec cli_api_key
     task_name=$(echo "$task_json" | jq -r '.name // "unnamed"' 2>/dev/null || echo "unnamed")
     task_desc=$(echo "$task_json" | jq -r '.description // ""' 2>/dev/null || echo "")
     app=$(echo "$task_json" | jq -r '.app // ""' 2>/dev/null || echo "")
     spec=$(echo "$task_json" | jq -r '.spec // ""' 2>/dev/null || echo "")
 
-    log_info "Task loaded: $task_name (app=$app)"
+    # Get CLI-specific API key for this context
+    if cli_api_key="$(_get_cli_api_key 2>/dev/null)"; then
+        log_info "Task loaded: $task_name (app=$app, cli=$CLI_TYPE)"
+        log_debug "API key configured for CLI type: $CLI_TYPE"
+    else
+        log_warn "No API key configured for CLI type: $CLI_TYPE"
+        cli_api_key=""
+    fi
 
     # Write task prompt with timeout protection
     log_info "Writing prompt.md..."
@@ -274,6 +424,8 @@ except Exception as e:
 **APP:** $app
 **SPEC:** $spec
 **DESCRIPTION:** $task_desc
+**CLI_TYPE:** ${CLI_TYPE}
+**TIMEOUT:** ${cli_timeout}s
 
 Working directory: /srv/monorepo
 
@@ -293,6 +445,8 @@ TEMPLATE
     log_content=$(cat <<TEMPLATE
 # Trace — $task_id
 Started: $(date -u +%Y-%m-%dT%H:%M:%SZ)
+CLI: ${CLI_TYPE}
+Timeout: ${cli_timeout}s
 TEMPLATE
 )
 
@@ -314,6 +468,18 @@ TEMPLATE
     if ! printf '%s\n' "$task_id" > "$WORKDIR/.active_task" 2>/dev/null; then
         log_warn "Failed to write active task marker"
     fi
+
+    # Write metadata file with CLI context
+    log_debug "Writing .context-meta.json..."
+    cat > "$task_context/.context-meta.json" <<EOF
+{
+  "task_id": "$task_id",
+  "cli_type": "${CLI_TYPE}",
+  "timeout": ${cli_timeout},
+  "created_at": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+  "api_key_configured": $([ -n "$cli_api_key" ] && echo "true" || echo "false")
+}
+EOF
 
     log_info "Context reset complete: $task_id → $task_context"
     echo "SUCCESS: $task_id → $task_context"

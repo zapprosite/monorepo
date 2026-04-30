@@ -1,0 +1,28 @@
+{
+  "name": "crm-mvp",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "nx run-many -t dev -p api web",
+    "build": "nx run-many -t build -p api web",
+    "test": "nx run-many -t test -p api web",
+    "lint": "nx run-many -t lint -p api web",
+    "db:migrate": "cd apps/api && npx typeorm migration:run -d src/data-source.ts",
+    "db:seed": "cd apps/api && npx ts-node src/db/seed.ts"
+  },
+  "devDependencies": {
+    "@nx/nest": "^20.0.0",
+    "@nx/react": "^20.0.0",
+    "@nx/vite": "^20.0.0",
+    "@nx/js": "^20.0.0",
+    "nx": "^20.0.0",
+    "typescript": "^5.6.0",
+    "typeorm": "^0.3.20",
+    "ts-node": "^10.9.0",
+    "pg": "^8.12.0"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ]
+}

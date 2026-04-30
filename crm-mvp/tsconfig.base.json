@@ -1,0 +1,24 @@
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "rootDir": ".",
+    "sourceMap": true,
+    "declaration": false,
+    "moduleResolution": "bundler",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "importHelpers": true,
+    "target": "ES2022",
+    "module": "ESNext",
+    "lib": ["ES2022", "DOM"],
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "@crm-mvp/ui": ["packages/ui/src/index.ts"],
+      "@crm-mvp/trpc": ["packages/trpc/src/index.ts"],
+      "@crm-mvp/schemas": ["packages/zod-schemas/src/index.ts"]
+    }
+  },
+  "exclude": ["node_modules", "tmp"]
+}

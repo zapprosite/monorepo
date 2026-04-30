@@ -1,0 +1,23 @@
+{
+  "name": "web",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/web/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nx/vite:build",
+      "options": {
+        "outputPath": "dist/apps/web"
+      }
+    },
+    "dev": {
+      "executor": "@nx/vite:dev-server",
+      "options": {
+        "port": 3000
+      }
+    },
+    "test": {
+      "executor": "@nx/vite:test"
+    }
+  }
+}

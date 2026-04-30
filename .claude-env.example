@@ -1,0 +1,28 @@
+# Source this file before using nexus/vibe-kit scripts
+# Usage: source /srv/monorepo/.claude-env.example
+# Then source .env for secrets: source /srv/monorepo/.env
+
+# CLI detection (auto-set by multi-cli-adapter.sh)
+CLI_TYPE=claude|codex|opencode
+CLI_VERSION=
+
+# API Keys (the adapter detects which to use)
+ANTHROPIC_API_KEY=sk-ant-...
+OPENAI_API_KEY=sk-...
+
+# Worker configuration
+WORKER_CMD=claude  # or codex, opencode
+WORKER_MODEL=MiniMax-M2.7  # or gpt-4o, etc
+
+# Nexus/Vibe-kit paths
+VIBE_WORKDIR=/srv/monorepo/.claude/vibe-kit
+NEXUS_CONTEXT_DIR=/srv/monorepo/.claude/vibe-kit/context
+
+# Rate limits
+MAX_WORKERS=5
+RATE_LIMIT_RPM=500
+BUDGET_REQS_PER_5H=15000
+
+# Hermes (1 agent only)
+HERMES_ENABLED=true
+HERMES_AGENTS=1
