@@ -7,8 +7,25 @@ MAX_RPM=500
 REFILL_RATE=500
 BURST_WINDOW=60  # seconds
 
-# State file
+# State file and lock file (separate to avoid lock conflicts)
 STATE="/tmp/nexus-rate-state.json"
+LOCK_FILE="/tmp/nexus-rate-state.lock"
+
+# Lock acquisition with timeout (5s max)
+acquire_lock() {
+  exec 200>"$LOCK_FILE"
+  flock -w 5 200 || { echo "Failed to acquire lock"; exit 1; }
+}
+
+release_lock() {
+  flock -u 200
+}
+
+with_lock() {
+  acquire_lock
+  trap release_lock EXIT
+  "$@"
+}
 
 init_bucket() {
   if [ ! -f "$STATE" ]; then
@@ -35,6 +52,10 @@ refill() {
 }
 
 acquire() {
+  with_lock _acquire
+}
+
+_acquire() {
   init_bucket
   refill
 

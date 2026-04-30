@@ -40,18 +40,45 @@ gen_random_name() {
 }
 
 load_env() {
-  if [ -f "/srv/monorepo/.env" ]; then
-    export "$(grep -v '^#' /srv/monorepo/.env | xargs)"
-  fi
+  # Non-secret vars — set defaults (no sourcing of .env)
+  GITEA_URL="${GITEA_URL:-https://git.zappro.site}"
+  COOLIFY_URL="${COOLIFY_URL:-https://coolify.zappro.site}"
 
-  # Load from terraform.tfvars
-  if [ -f "/srv/ops/terraform/cloudflare/terraform.tfvars" ]; then
+  # Secrets — source individual files from /srv/ops/secrets/ if they exist
+  # This avoids exposing secrets via 'ps aux' or /proc/PID/environ
+
+  if [[ -f /srv/ops/secrets/gitea-token.env ]]; then
+    source /srv/ops/secrets/gitea-token.env
+  fi
+  GITEA_TOKEN="${GITEA_TOKEN:-}"
+
+  if [[ -f /srv/ops/secrets/cloudflare-api-token.env ]]; then
+    source /srv/ops/secrets/cloudflare-api-token.env
+  fi
+  CLOUDFLARE_API_TOKEN="${CLOUDFLARE_API_TOKEN:-}"
+
+  if [[ -f /srv/ops/secrets/cloudflare-account-id.env ]]; then
+    source /srv/ops/secrets/cloudflare-account-id.env
+  fi
+  CLOUDFLARE_ACCOUNT_ID="${CLOUDFLARE_ACCOUNT_ID:-}"
+
+  if [[ -f /srv/ops/secrets/cloudflare-zone-id.env ]]; then
+    source /srv/ops/secrets/cloudflare-zone-id.env
+  fi
+  CLOUDFLARE_ZONE_ID="${CLOUDFLARE_ZONE_ID:-}"
+
+  if [[ -f /srv/ops/secrets/coolify-api-key.env ]]; then
+    source /srv/ops/secrets/coolify-api-key.env
+  fi
+  COOLIFY_API_KEY="${COOLIFY_API_KEY:-}"
+
+  # Load from terraform.tfvars (non-secret, public values)
+  if [[ -f /srv/ops/terraform/cloudflare/terraform.tfvars ]]; then
     while IFS='=' read -r key value; do
       value=$(echo "$value" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//;s/^"//;s/"$//')
       case "$key" in
-        cloudflare_api_token) CLOUDFLARE_API_TOKEN="$value" ;;
-        cloudflare_account_id) CLOUDFLARE_ACCOUNT_ID="$value" ;;
-        cloudflare_zone_id) CLOUDFLARE_ZONE_ID="$value" ;;
+        cloudflare_account_id) CLOUDFLARE_ACCOUNT_ID="${CLOUDFLARE_ACCOUNT_ID:-$value}" ;;
+        cloudflare_zone_id) CLOUDFLARE_ZONE_ID="${CLOUDFLARE_ZONE_ID:-$value}" ;;
       esac
     done < <(grep -v '^#' /srv/ops/terraform/cloudflare/terraform.tfvars)
   fi

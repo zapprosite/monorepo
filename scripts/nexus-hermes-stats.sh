@@ -4,8 +4,15 @@
 
 set -euo pipefail
 
+# Defaults — non-secret vars
 HERMES_URL="${HERMES_GATEWAY_URL:-http://localhost:8642}"
+
+# Secrets — source from env or secrets dir
+if [[ -f /srv/ops/secrets/qdrant-api-key.env ]]; then
+    source /srv/ops/secrets/qdrant-api-key.env
+fi
 QDRANT_KEY="${QDRANT_API_KEY:-}"
+
 LOG="/srv/logs/hermes-metrics.log"
 
 timestamp() { date '+%Y-%m-%d %H:%M:%S'; }

@@ -4,9 +4,18 @@
 
 set -euo pipefail
 
+# Defaults — non-secret vars
 REDIS_HOST="${REDIS_HOST:-localhost}"
 REDIS_PORT="${REDIS_PORT:-6379}"
+
+# Secrets — source from env or secrets dir
+if [[ -f /srv/ops/secrets/redis-password.env ]]; then
+    source /srv/ops/secrets/redis-password.env
+elif [[ -f /srv/ops/secrets/redis-url.env ]]; then
+    source /srv/ops/secrets/redis-url.env
+fi
 REDIS_PASS="${REDIS_PASSWORD:-}"
+
 LOG="/srv/logs/redis-metrics.log"
 
 timestamp() { date '+%Y-%m-%d %H:%M:%S'; }

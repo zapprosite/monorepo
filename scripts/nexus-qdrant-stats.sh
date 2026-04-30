@@ -4,8 +4,13 @@
 
 set -euo pipefail
 
-source /srv/monorepo/.env
+# Defaults — non-secret vars
 QDRANT_URL="${QDRANT_URL:-http://localhost:6333}"
+
+# Secrets — source only what's needed, from secrets dir or env
+if [[ -f /srv/ops/secrets/qdrant-api-key.env ]]; then
+    source /srv/ops/secrets/qdrant-api-key.env
+fi
 QDRANT_KEY="${QDRANT_API_KEY:-}"
 LOG="/srv/logs/qdrant-metrics.log"
 

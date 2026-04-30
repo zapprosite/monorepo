@@ -1,0 +1,306 @@
+{
+  "pipeline_id": "PIPE-001",
+  "name": "Bootstrap MVP CRM Serviços",
+  "version": "1.0.0",
+  "spec_ref": "SPEC-001",
+  "plan_ref": "PLAN-001",
+  "created": "2026-04-30",
+  "status": "ready",
+  "phases": [
+    {
+      "phase_id": "P1",
+      "name": "Bootstrap Infra",
+      "order": 1,
+      "status": "pending",
+      "tasks": [
+        {
+          "task_id": "P1-T1",
+          "name": "Criar estrutura Nx monorepo",
+          "description": "Setup nx.json, package.json, tsconfig base",
+          "type": "scaffold",
+          "commands": [
+            "npx create-nx-workspace@latest crm-mvp --preset=ts --pm=pnpm",
+            "cd crm-mvp && nx g @nx/nest:app api",
+            "cd crm-mvp && nx g @nx/react:app web --bundler=vite"
+          ],
+          "outputs": ["crm-mvp/apps/api", "crm-mvp/apps/web"]
+        },
+        {
+          "task_id": "P1-T2",
+          "name": "Configurar Docker Compose",
+          "description": "PostgreSQL + Redis + API + Web containers",
+          "type": "config",
+          "files": ["docker-compose.yml", "apps/api/Dockerfile", "apps/web/Dockerfile"],
+          "vars": {
+            "POSTGRES_DB": "crm_mvp",
+            "POSTGRES_USER": "crm",
+            "POSTGRES_PASSWORD": "${DB_PASSWORD}",
+            "REDIS_URL": "redis://redis:6379",
+            "API_PORT": "4000",
+            "WEB_PORT": "3000"
+          }
+        },
+        {
+          "task_id": "P1-T3",
+          "name": "Setup Tailwind CSS Dark Mode + Verde Ácido",
+          "description": "Configurar tailwind.config.js com tema dark e tokens de cor",
+          "type": "config",
+          "files": ["apps/web/tailwind.config.js", "apps/web/src/styles/globals.css"],
+          "design_tokens": {
+            "bg-primary": "#0A0A0F",
+            "bg-secondary": "#12121A",
+            "bg-tertiary": "#1A1A25",
+            "accent": "#39FF14",
+            "accent-dim": "#2ECC71",
+            "text-primary": "#FFFFFF",
+            "text-secondary": "#A0A0B0",
+            "text-muted": "#6B6B7B",
+            "danger": "#FF4757",
+            "warning": "#FFA502",
+            "info": "#1E90FF"
+          }
+        },
+        {
+          "task_id": "P1-T4",
+          "name": "Configurar tRPC",
+          "description": "Setup tRPC server (NestJS) e client (React)",
+          "type": "code",
+          "files": [
+            "apps/api/src/trpc/trpc.module.ts",
+            "apps/api/src/trpc/trpc.router.ts",
+            "apps/web/src/utils/trpc.ts"
+          ]
+        },
+        {
+          "task_id": "P1-T5",
+          "name": "Setup Auth OAuth2 + Dev Bypass",
+          "description": "Implementar auth com Google OAuth e bypass dev via X-Dev-User",
+          "type": "code",
+          "files": [
+            "apps/api/src/auth/auth.module.ts",
+            "apps/api/src/auth/auth.service.ts",
+            "apps/api/src/auth/dev-auth.middleware.ts",
+            "apps/web/src/modules/auth/Login.page.tsx"
+          ]
+        }
+      ]
+    },
+    {
+      "phase_id": "P2",
+      "name": "Banco de Dados",
+      "order": 2,
+      "status": "pending",
+      "depends_on": ["P1"],
+      "tasks": [
+        {
+          "task_id": "P2-T1",
+          "name": "Criar entidades TypeORM",
+          "description": "8 entidades conforme schema SPEC-001",
+          "type": "code",
+          "entities": [
+            "User",
+            "Team",
+            "Session",
+            "Lead",
+            "Client",
+            "Schedule",
+            "Contract",
+            "Reminder"
+          ],
+          "files": ["apps/api/src/entities/*.entity.ts"]
+        },
+        {
+          "task_id": "P2-T2",
+          "name": "Criar migrations iniciais",
+          "description": "Migration TypeORM com schema base",
+          "type": "db",
+          "command": "cd apps/api && npx typeorm migration:generate -n InitialSchema"
+        },
+        {
+          "task_id": "P2-T3",
+          "name": "Seed dados de desenvolvimento",
+          "description": "Criar dev team, usuários, clientes e leads de exemplo",
+          "type": "db",
+          "file": "apps/api/src/db/seed.ts"
+        }
+      ]
+    },
+    {
+      "phase_id": "P3",
+      "name": "UI Components",
+      "order": 3,
+      "status": "pending",
+      "depends_on": ["P1"],
+      "tasks": [
+        {
+          "task_id": "P3-T1",
+          "name": "Criar componentes base UI",
+          "description": "Button, Card, Input, Badge, Table, Modal, Toast",
+          "type": "ui",
+          "components": [
+            "Button",
+            "Card",
+            "Input",
+            "Textarea",
+            "Select",
+            "Badge",
+            "DataTable",
+            "Modal",
+            "Toast",
+            "Sidebar",
+            "Header"
+          ],
+          "path": "packages/ui/src/components"
+        }
+      ]
+    },
+    {
+      "phase_id": "P4",
+      "name": "Módulos Core",
+      "order": 4,
+      "status": "pending",
+      "depends_on": ["P2", "P3"],
+      "tasks": [
+        {
+          "task_id": "P4-T1",
+          "name": "Módulo Dashboard",
+          "description": "KPIs, listas rápidas, layout principal",
+          "type": "feature",
+          "files": [
+            "apps/web/src/pages/Dashboard.page.tsx",
+            "apps/api/src/dashboard/dashboard.controller.ts",
+            "apps/api/src/dashboard/dashboard.service.ts"
+          ]
+        },
+        {
+          "task_id": "P4-T2",
+          "name": "Módulo Leads",
+          "description": "CRUD + Pipeline + Conversão",
+          "type": "feature",
+          "files": [
+            "apps/web/src/modules/leads/Leads.page.tsx",
+            "apps/web/src/modules/leads/LeadForm.tsx",
+            "apps/web/src/modules/leads/LeadPipeline.tsx",
+            "apps/api/src/leads/leads.controller.ts",
+            "apps/api/src/leads/leads.service.ts"
+          ]
+        },
+        {
+          "task_id": "P4-T3",
+          "name": "Módulo Clientes",
+          "description": "CRUD + Tags + Histórico",
+          "type": "feature",
+          "files": [
+            "apps/web/src/modules/clients/Clients.page.tsx",
+            "apps/web/src/modules/clients/ClientForm.tsx",
+            "apps/web/src/modules/clients/ClientDetail.tsx",
+            "apps/api/src/clients/clients.controller.ts",
+            "apps/api/src/clients/clients.service.ts"
+          ]
+        },
+        {
+          "task_id": "P4-T4",
+          "name": "Módulo Agenda",
+          "description": "CRUD + Workflow de status",
+          "type": "feature",
+          "files": [
+            "apps/web/src/modules/schedule/Schedule.page.tsx",
+            "apps/web/src/modules/schedule/ScheduleForm.tsx",
+            "apps/api/src/schedule/schedule.controller.ts",
+            "apps/api/src/schedule/schedule.service.ts"
+          ]
+        },
+        {
+          "task_id": "P4-T5",
+          "name": "Módulo Contratos",
+          "description": "CRUD + Workflow + Alerta vencimento",
+          "type": "feature",
+          "files": [
+            "apps/web/src/modules/contracts/Contracts.page.tsx",
+            "apps/web/src/modules/contracts/ContractForm.tsx",
+            "apps/api/src/contracts/contracts.controller.ts",
+            "apps/api/src/contracts/contracts.service.ts"
+          ]
+        },
+        {
+          "task_id": "P4-T6",
+          "name": "Módulo Lembretes",
+          "description": "CRUD + Marcar como concluído",
+          "type": "feature",
+          "files": [
+            "apps/web/src/modules/reminders/Reminders.page.tsx",
+            "apps/web/src/modules/reminders/ReminderForm.tsx",
+            "apps/api/src/reminders/reminders.controller.ts",
+            "apps/api/src/reminders/reminders.service.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "phase_id": "P5",
+      "name": "Testes + Deploy",
+      "order": 5,
+      "status": "pending",
+      "depends_on": ["P4"],
+      "tasks": [
+        {
+          "task_id": "P5-T1",
+          "name": "Teste E2E Smoke",
+          "description": "Login dev → Dashboard → verificar KPIs",
+          "type": "test",
+          "file": "apps/web/e2e/smoke.spec.ts"
+        },
+        {
+          "task_id": "P5-T2",
+          "name": "Build Docker otimizado",
+          "description": "Multi-stage builds para API e Web",
+          "type": "deploy",
+          "files": ["apps/api/Dockerfile", "apps/web/Dockerfile"]
+        },
+        {
+          "task_id": "P5-T3",
+          "name": "Configurar Cloudflare Tunnel",
+          "description": "Adicionar ingress rule para novo subdomínio",
+          "type": "infra",
+          "vars": {
+            "subdomain": "crm-mvp",
+            "url": "http://localhost:3000"
+          }
+        },
+        {
+          "task_id": "P5-T4",
+          "name": "Deploy e Smoke Test",
+          "description": "Subir containers e validar produção",
+          "type": "deploy",
+          "commands": [
+            "docker compose up -d",
+            "sleep 10",
+            "curl -sfI https://crm-mvp.zappro.site"
+          ]
+        }
+      ]
+    }
+  ],
+  "vars": {
+    "project_name": "crm-mvp",
+    "subdomain": "crm-mvp",
+    "domain": "zappro.site",
+    "api_port": 4000,
+    "web_port": 3000,
+    "db_name": "crm_mvp",
+    "theme": "dark",
+    "accent_color": "#39FF14",
+    "stack_frontend": "React 19 + Vite + Tailwind",
+    "stack_backend": "NestJS + tRPC + PostgreSQL + Redis",
+    "auth": "OAuth2 Google + Dev Bypass"
+  },
+  "commands": {
+    "bootstrap": "cd /srv/monorepo && ./scripts/bootstrap-crm-mvp.sh",
+    "dev": "docker compose -f docker-compose.dev.yml up",
+    "build": "docker compose build",
+    "deploy": "docker compose up -d",
+    "test": "npx playwright test",
+    "db_migrate": "cd apps/api && npx typeorm migration:run",
+    "db_seed": "cd apps/api && npx ts-node src/db/seed.ts"
+  }
+}

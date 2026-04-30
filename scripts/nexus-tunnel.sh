@@ -5,6 +5,16 @@
 # PURPOSE: Add ingress rules to Cloudflare Tunnel programmatically
 # METHOD: Cloudflare API v4 - PUT /accounts/{id}/cfd_tunnel/{id}/configurations
 #
+# REQUIRED ENVIRONMENT VARIABLES:
+#   CF_GLOBAL_KEY     - Cloudflare Global Key (cfk_...)
+#   TUNNEL_ID         - Cloudflare Tunnel ID
+#   TUNNEL_CNAME      - Tunnel CNAME (format: <id>.cfargotunnel.com)
+#   CF_ACCOUNT_ID     - Cloudflare Account ID
+#   CF_EMAIL          - Cloudflare account email
+#
+# OPTIONAL:
+#   CLOUDFLARE_API_TOKEN - Alternative to CF_GLOBAL_KEY (Bearer token auth)
+#
 # RESEARCH FINDINGS (from 20 agents):
 #   - Tunnel Config API: PUT /accounts/{account_id}/cfd_tunnel/{tunnel_id}/configurations
 #   - Uses Global Key (cfk_...) with X-Auth-Key and X-Auth-Email headers
@@ -35,8 +45,8 @@ set -uo pipefail
 # ===== CONFIGURATION =====
 MONOREPO="${MONOREPO:-/srv/monorepo}"
 LOG_FILE="${MONOREPO}/logs/nexus-tunnel.log"
-TUNNEL_ID="aee7a93d-c2e2-4c77-a395-71edc1821402"
-TUNNEL_CNAME="aee7a93d-c2e2-4c77-a395-71edc1821402.cfargotunnel.com"
+TUNNEL_ID="${TUNNEL_ID:?TUNNEL_ID environment variable required}"
+TUNNEL_CNAME="${TUNNEL_CNAME:?TUNNEL_CNAME environment variable required}"
 DOMAIN="zappro.site"
 
 # API Endpoints
@@ -76,10 +86,10 @@ load_env() {
   fi
 
   # Fallbacks
-  : "${CF_ACCOUNT_ID:=1a41f45591a50585050f664fa015d01b}"
+  : "${CF_ACCOUNT_ID:?CF_ACCOUNT_ID environment variable required}"
   : "${CLOUDFLARE_API_TOKEN:=${CF_TOKEN:-}}"
   : "${CF_GLOBAL_KEY:=${CF_GLOBAL_KEY:-}}"
-  : "${CF_EMAIL:=zappro.ia@gmail.com}"
+  : "${CF_EMAIL:?CF_EMAIL environment variable required}"
 }
 
 # ===== GET AUTH HEADERS =====

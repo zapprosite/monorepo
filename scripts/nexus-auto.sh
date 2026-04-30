@@ -6,6 +6,8 @@ set -euo pipefail
 MONOREPO="/srv/monorepo"
 QUEUE="$MONOREPO/.claude/vibe-kit/queue.json"
 STATE="$MONOREPO/.claude/vibe-kit/state.json"
+STATE_LOCK="$MONOREPO/.claude/vibe-kit/state.lock"
+QUEUE_LOCK="$MONOREPO/.claude/vibe-kit/queue.lock"
 RATE_LIMITER="$MONOREPO/scripts/nexus-rate-limiter.sh"
 LOG="$MONOREPO/logs/nexus-auto.log"
 MAX_WORKERS=8
@@ -15,31 +17,60 @@ log() {
   echo "[$(date '+%Y-%m-%d %H:%M:%S')] [$WORKER_ID] $*" | tee -a "$LOG"
 }
 
-# Claim next pending task
+# Locked read of queue.json
+queue_read() {
+  local fd=$1
+  local var=$2
+  local query=$3
+  eval "$var=$(jq -r '$query' "$QUEUE" 2>/dev/null)"
+}
+
+# Execute jq on queue while holding exclusive lock (avoids escaping hell of flock -c)
+with_queue_lock() {
+  local tmpfile
+  tmpfile=$(mktemp)
+  if ! flock "$QUEUE_LOCK" jq "$@" "$QUEUE" > "$tmpfile"; then
+    rm -f "$tmpfile"
+    return 1
+  fi
+  mv "$tmpfile" "$QUEUE"
+}
+
+# Claim next pending task (locked)
 claim_task() {
+  if ! command -v flock &>/dev/null; then
+    log "ERROR: flock not found, install util-linux package"
+    return 1
+  fi
+
   local task
-  task=$(jq -r '.tasks[] | select(.status == "pending") | .id // empty' "$QUEUE" 2>/dev/null | head -1)
+  # Use flock to atomically find and claim a pending task
+  task=$(flock "$QUEUE_LOCK" jq -r '.tasks[] | select(.status == "pending") | .id // empty' "$QUEUE" 2>/dev/null | head -1)
   if [ -z "$task" ]; then
     return 1
   fi
 
-  # Atomic claim
-  local task_idx
-  task_idx=$(jq -r '.tasks | to_entries | .[] | select(.value.id == "'$task'") | .key' "$QUEUE")
-
-  jq '.tasks['$task_idx'].status = "running" | .tasks['$task_idx'].worker = "'$WORKER_ID'"' "$QUEUE" > /tmp/queue.tmp && mv /tmp/queue.tmp "$QUEUE"
+  # Atomic claim: find task index and update status while holding lock
+  (
+    flock "$QUEUE_LOCK"
+    task_idx=$(jq -r '.tasks | to_entries | .[] | select(.value.id == "'"$task"'") | .key' "$QUEUE")
+    jq '.tasks['"$task_idx"'].status = "running" | .tasks['"$task_idx"'].worker = "'"$WORKER_ID"'"' "$QUEUE" > /tmp/queue.tmp && mv /tmp/queue.tmp "$QUEUE"
+  ) 200>"$QUEUE_LOCK"
 
   echo "$task"
   return 0
 }
 
-# Execute task
+# Execute task (locked queue access)
 execute_task() {
   local task_id="$1"
   local task_name
-  task_name=$(jq -r '.tasks[] | select(.id == "'$task_id'") | .name' "$QUEUE")
+  task_name=$(jq -r '.tasks[] | select(.id == "'"$task_id"'") | .name' "$QUEUE" 2>/dev/null)
 
   log "Executing $task_id: $task_name"
+
+  local completed_at
+  completed_at=$(date -Iseconds)
 
   case "$task_name" in
     analyze-os-limits)
@@ -48,10 +79,12 @@ execute_task() {
       local gap=$((pid_limit - proc_count))
       log "OS Limits: PID=$pid_limit, Current=$proc_count, Gap=$gap"
 
-      # Update task as done
-      local task_idx
-      task_idx=$(jq -r '.tasks | to_entries | .[] | select(.value.id == "'$task_id'") | .key' "$QUEUE")
-      jq '.tasks['$task_idx'].status = "done" | .tasks['$task_idx'].completed_at = "'$(date -Iseconds)'" | .tasks['$task_idx'].artifacts = ["PID limit: '"$pid_limit"'", "Gap: '"$gap"'"]' "$QUEUE" > /tmp/queue.tmp && mv /tmp/queue.tmp "$QUEUE"
+      # Update task as done (locked)
+      (
+        flock "$QUEUE_LOCK"
+        task_idx=$(jq -r '.tasks | to_entries | .[] | select(.value.id == "'"$task_id"'") | .key' "$QUEUE")
+        jq '.tasks['"$task_idx"'].status = "done" | .tasks['"$task_idx"'].completed_at = "'"$completed_at"'"' "$QUEUE" > /tmp/queue.tmp && mv /tmp/queue.tmp "$QUEUE"
+      ) 200>"$QUEUE_LOCK"
       ;;
 
     create-rate-limiter)
@@ -61,17 +94,21 @@ execute_task() {
         log "ERROR: Rate limiter not found at $RATE_LIMITER"
       fi
 
-      local task_idx
-      task_idx=$(jq -r '.tasks | to_entries | .[] | select(.value.id == "'$task_id'") | .key' "$QUEUE")
-      jq '.tasks['$task_idx'].status = "done" | .tasks['$task_idx'].completed_at = "'$(date -Iseconds)'"' "$QUEUE" > /tmp/queue.tmp && mv /tmp/queue.tmp "$QUEUE"
+      (
+        flock "$QUEUE_LOCK"
+        task_idx=$(jq -r '.tasks | to_entries | .[] | select(.value.id == "'"$task_id"'") | .key' "$QUEUE")
+        jq '.tasks['"$task_idx"'].status = "done" | .tasks['"$task_idx"'].completed_at = "'"$completed_at"'"' "$QUEUE" > /tmp/queue.tmp && mv /tmp/queue.tmp "$QUEUE"
+      ) 200>"$QUEUE_LOCK"
       ;;
 
     create-nexus-auto)
       log "Nexus-auto script created"
 
-      local task_idx
-      task_idx=$(jq -r '.tasks | to_entries | .[] | select(.value.id == "'$task_id'") | .key' "$QUEUE")
-      jq '.tasks['$task_idx'].status = "done" | .tasks['$task_idx'].completed_at = "'$(date -Iseconds)'" | .tasks['$task_idx'].artifacts = ["'"$MONOREPO/scripts/nexus-auto.sh"'"]' "$QUEUE" > /tmp/queue.tmp && mv /tmp/queue.tmp "$QUEUE"
+      (
+        flock "$QUEUE_LOCK"
+        task_idx=$(jq -r '.tasks | to_entries | .[] | select(.value.id == "'"$task_id"'") | .key' "$QUEUE")
+        jq '.tasks['"$task_idx"'].status = "done" | .tasks['"$task_idx"'].completed_at = "'"$completed_at"'"' "$QUEUE" > /tmp/queue.tmp && mv /tmp/queue.tmp "$QUEUE"
+      ) 200>"$QUEUE_LOCK"
       ;;
 
     stress-test-sustained)
@@ -97,9 +134,11 @@ execute_task() {
 
       log "Stress test complete: $total_req requests sent"
 
-      local task_idx
-      task_idx=$(jq -r '.tasks | to_entries | .[] | select(.value.id == "'$task_id'") | .key' "$QUEUE")
-      jq '.tasks['$task_idx'].status = "done" | .tasks['$task_idx'].completed_at = "'$(date -Iseconds)'" | .tasks['$task_idx'].artifacts = ["'"$total_req"' requests sent"]' "$QUEUE" > /tmp/queue.tmp && mv /tmp/queue.tmp "$QUEUE"
+      (
+        flock "$QUEUE_LOCK"
+        task_idx=$(jq -r '.tasks | to_entries | .[] | select(.value.id == "'"$task_id"'") | .key' "$QUEUE")
+        jq '.tasks['"$task_idx"'].status = "done" | .tasks['"$task_idx"'].completed_at = "'"$completed_at"'"' "$QUEUE" > /tmp/queue.tmp && mv /tmp/queue.tmp "$QUEUE"
+      ) 200>"$QUEUE_LOCK"
       ;;
 
     burst-test-500-rpm)
@@ -118,9 +157,11 @@ execute_task() {
 
       log "Burst test complete: $burst_count requests in 60 seconds"
 
-      local task_idx
-      task_idx=$(jq -r '.tasks | to_entries | .[] | select(.value.id == "'$task_id'") | .key' "$QUEUE")
-      jq '.tasks['$task_idx'].status = "done" | .tasks['$task_idx'].completed_at = "'$(date -Iseconds)'" | .tasks['$task_idx'].artifacts = ["'"$burst_count"' requests in 60s"]' "$QUEUE" > /tmp/queue.tmp && mv /tmp/queue.tmp "$QUEUE"
+      (
+        flock "$QUEUE_LOCK"
+        task_idx=$(jq -r '.tasks | to_entries | .[] | select(.value.id == "'"$task_id"'") | .key' "$QUEUE")
+        jq '.tasks['"$task_idx"'].status = "done" | .tasks['"$task_idx"'].completed_at = "'"$completed_at"'"' "$QUEUE" > /tmp/queue.tmp && mv /tmp/queue.tmp "$QUEUE"
+      ) 200>"$QUEUE_LOCK"
       ;;
 
     *)
@@ -143,8 +184,8 @@ run_loop() {
       sleep 5
     fi
 
-    # Check if all done
-    pending=$(jq -r '.pending // 0' "$QUEUE" 2>/dev/null || echo 0)
+    # Check if all done (locked read)
+    pending=$(flock --shared "$QUEUE_LOCK" jq -r '.pending // 0' "$QUEUE" 2>/dev/null || echo 0)
     if [ "$pending" -eq 0 ]; then
       log "All tasks completed"
       break
@@ -167,7 +208,7 @@ case "${1:-loop}" in
   single) run_single ;;
   status)
     echo "Queue status:"
-    jq -r '"\(.pending) pending, \(.running) running, \(.done) done, \(.failed) failed"' "$QUEUE"
+    flock --shared "$QUEUE_LOCK" jq -r '"\(.pending) pending, \(.running) running, \(.done) done, \(.failed) failed"' "$QUEUE"
     ;;
   *) echo "Usage: $0 {loop|single|status}" ;;
 esac
