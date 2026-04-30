@@ -1,0 +1,44 @@
+# Authelia v5 configuration
+# OIDC provider for Trieve RAG
+
+server:
+  address: "0.0.0.0:9090"
+
+log:
+  level: "info"
+  format: "text"
+
+default_redirect_url: "http://localhost:9090/"
+
+storage:
+  postgres:
+    host: "10.0.0.2"
+    port: 5432
+    database: "trieve"
+    username: "postgres"
+    password: "${AUTHELIA_POSTGRES_PASSWORD}"
+    ssl: false
+
+# OIDC issuer
+identity_providers:
+  oidc:
+    issuer: "http://localhost:9090"
+    enable_pkce: true
+    access_token_lifespan: "1h"
+    authorize_code_lifespan: "1m"
+    refresh_token_lifespan: "1h"
+    # Clients are registered via environment variables or configuration
+    clients:
+      - id: "trieve"
+        description: "Trieve RAG Server"
+        secret: "${OIDC_CLIENT_SECRET}"
+        redirect_uris:
+          - "http://localhost:6435/oauth/callback"
+        grant_types:
+          - "authorization_code"
+        response_types:
+          - "code"
+        scopes:
+          - "openid"
+          - "profile"
+          - "email"

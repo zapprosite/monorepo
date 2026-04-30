@@ -1,0 +1,39 @@
+host: 0.0.0.0
+port: 9090
+
+logs:
+  level: info
+
+server:
+  address: "tcp://0.0.0.0:9090"
+
+defaults:
+  networks:
+    - crm-mvp_default
+    - zappro-infra
+
+storage:
+  postgres:
+    host: "10.0.0.3"
+    port: 5432
+    database: "trieve"
+    username: "postgres"
+    password: "${AUTHELIA_POSTGRES_PASSWORD}"
+
+session:
+  cookies:
+    - domain: localhost
+      auth_index_url: "http://authelia:9090"
+      default_redirection_url: "http://localhost:6435"
+
+oidc:
+  issuer: "http://localhost:9090"
+
+identity_providers:
+  oidc:
+    issuer: "http://localhost:9090"
+
+ntp:
+  server: "time.cloudflare.com"
+  version: 4
+  maxpoll: 10
