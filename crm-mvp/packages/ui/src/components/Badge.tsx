@@ -70,9 +70,8 @@ export const StatusBadge: React.FC<{
     ativo: 'success',
     suspenso: 'warning',
     encerrado: 'ghost',
-    // Reminders
+    // Reminders (concluido already defined above)
     pendente: 'warning',
-    concluido: 'success',
   };
 
   const variant = mapping?.[status] || defaultMapping[status] || 'default';

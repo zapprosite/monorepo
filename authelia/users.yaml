@@ -1,6 +1,0 @@
-users:
-  - email: "admin@zappro.site"
-    hash: "$2b$12$EUs5L3LdvVYH6iGMEi154e4Mj1xtI9/Y02lx1eISWotYewX5qb1Ca"
-    name: "Admin"
-    groups:
-      - "admins"

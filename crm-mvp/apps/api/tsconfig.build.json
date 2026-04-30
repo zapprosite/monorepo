@@ -2,6 +2,7 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "../../dist/apps/api",
+    "rootDir": "src",
     "types": ["node"],
     "module": "commonjs",
     "moduleResolution": "node",
@@ -12,7 +13,8 @@
     "strict": false,
     "skipLibCheck": true,
     "declaration": false,
-    "sourceMap": true
+    "sourceMap": true,
+    "noEmitOnError": false
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "test"]

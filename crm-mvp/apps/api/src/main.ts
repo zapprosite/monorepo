@@ -13,29 +13,25 @@ async function bootstrap() {
 
   instance.use('/trpc', (req: any, res: any, next: any) => {
     if (req.method === 'GET' || req.method === 'POST') {
-      const path = req.query.path || req.url.split('?')[0].replace('/trpc/', '').replace('/trpc', '');
+      const path = req.query.path || req.url.split('?')[0].replace(/^\/trpc\/?/, '').replace(/^\//, '');
 
       if (!path || path === '') {
         return res.json({ ok: true, routes: Object.keys(trpcRouter.appRouter._def.procedures || {}) });
-      }
-
-      const parts = path.split('.');
-      let procedure: any = trpcRouter.appRouter._def.procedures;
-      for (const part of parts) {
-        procedure = procedure?.[part];
-        if (!procedure) break;
-      }
-
-      if (!procedure || typeof procedure !== 'function') {
-        return res.status(404).json({ error: { message: `Procedure ${path} not found`, code: 'NOT_FOUND' } });
       }
 
       const input = req.body || req.query.input;
       const caller = trpcRouter.appRouter.createCaller({});
       const callParts = path.split('.');
       let target: any = caller;
-      for (const part of callParts.slice(0, -1)) target = target[part];
+      for (const part of callParts.slice(0, -1)) {
+        target = target?.[part];
+        if (!target) break;
+      }
       const method = callParts[callParts.length - 1];
+
+      if (!target || typeof target[method] !== 'function') {
+        return res.status(404).json({ error: { message: `Procedure ${path} not found`, code: 'NOT_FOUND' } });
+      }
 
       Promise.resolve(target[method](input))
         .then((result: any) => res.json({ result: { data: result } }))
