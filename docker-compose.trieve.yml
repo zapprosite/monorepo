@@ -37,8 +37,11 @@ services:
         condition: service_healthy
       keycloak:
         condition: service_started
+      qdrant:
+        condition: service_healthy
     networks:
       - trieve-net
+      - zappro-infra
 
   postgres:
     image: postgres:15-alpine
@@ -89,14 +92,6 @@ services:
     networks:
       - trieve-net
 
-volumes:
-  trieve-postgres-data:
-  trieve-qdrant-data:
-
-networks:
-  trieve-net:
-    driver: bridge
-
   qdrant:
     image: qdrant/qdrant:v1.17.1
     container_name: trieve-qdrant
@@ -118,3 +113,13 @@ networks:
       - "service=qdrant"
     networks:
       - trieve-net
+
+volumes:
+  trieve-postgres-data:
+  trieve-qdrant-data:
+
+networks:
+  trieve-net:
+    driver: bridge
+  zappro-infra:
+    external: true
