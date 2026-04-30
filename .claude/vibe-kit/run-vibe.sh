@@ -706,6 +706,12 @@ main() {
         exit 1
     }
 
+    # CLAUDE.md is mandatory
+    if [[ ! -f "$WORKDIR/CLAUDE.md" ]]; then
+        log_error "CLAUDE.md not found at $WORKDIR/CLAUDE.md — required for vibe-kit execution"
+        exit 1
+    fi
+
     if [ -z "$spec" ]; then
         echo "Usage: run-vibe.sh <SPEC> [app] [--plan|--do|--verify]"
         echo "  Or set SPEC=... APP=... VIBE_PHASE=..."

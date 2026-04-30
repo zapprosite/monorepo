@@ -149,6 +149,15 @@ run_health_check() {
     log_warn "Git has uncommitted changes"
   fi
 
+  # CLAUDE.md
+  log "Checking CLAUDE.md..."
+  if [ -f "$MONOREPO/.claude/vibe-kit/CLAUDE.md" ]; then
+    log "CLAUDE.md is present"
+  else
+    log_error "CLAUDE.md not found at $MONOREPO/.claude/vibe-kit/CLAUDE.md"
+    exit_code=1
+  fi
+
   if [ $exit_code -eq 0 ]; then
     log "Health check complete — all systems OK"
   else

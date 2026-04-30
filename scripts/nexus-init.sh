@@ -189,6 +189,32 @@ EOF
     echo "[NEXUS-INIT] Created queue.json: $NEXUS_QUEUE"
 }
 
+# ── CLAUDE.md Initialization ──────────────────────────────────────────────────
+
+_init_claude_md() {
+    if [[ -f "$NEXUS_BASE/CLAUDE.md" ]]; then
+        echo "[NEXUS-INIT] CLAUDE.md exists: $NEXUS_BASE/CLAUDE.md"
+        return 0
+    fi
+
+    cat > "$NEXUS_BASE/CLAUDE.md" << 'CLAUDE_EOF'
+# Vibe-Kit Agent
+
+This workspace uses the vibe-kit autonomous execution pipeline.
+
+## Quick Start
+source /srv/monorepo/scripts/multi-cli-adapter.sh
+nexus-ctl.sh start
+
+## Architecture
+- Lead: run-vibe.sh
+- Queue: queue.json via queue-manager.py
+- Workers: mclaude/codex/opencode
+CLAUDE_EOF
+
+    echo "[NEXUS-INIT] Created CLAUDE.md: $NEXUS_BASE/CLAUDE.md"
+}
+
 # ── Nexus Version / Info ──────────────────────────────────────────────────────
 
 _print_info() {
@@ -234,7 +260,10 @@ main() {
     # 5. Initialize queue.json
     _init_queue
 
-    # 6. Print info
+    # 6. Initialize CLAUDE.md
+    _init_claude_md
+
+    # 7. Print info
     _print_info
 
     echo "[NEXUS-INIT] Done. Export NEXUS_CLI=$NEXUS_CLI"
