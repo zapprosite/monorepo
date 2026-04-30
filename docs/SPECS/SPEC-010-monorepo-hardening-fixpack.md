@@ -1,7 +1,7 @@
 ---
 name: SPEC-010
 description: Monorepo Hardening Fix Pack — correção crítica de deploy, segurança, performance e qualidade de código pós-auditoria
-status: IN_PROGRESS
+status: DONE
 priority: critical
 author: will-zappro
 date: 2026-04-29

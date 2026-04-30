@@ -32,7 +32,7 @@
         {
           "id": "T-010-003",
           "name": "cors-cookie-security-harden",
-          "status": "in_progress",
+          "status": "completed",
           "spec_ref": "SPEC-010",
           "acceptance_criteria": [
             "Requisição com Origin não-allowed retorna 403 em /trpc",
@@ -43,7 +43,7 @@
         {
           "id": "T-010-004",
           "name": "api-key-o1-lookup-index",
-          "status": "pending",
+          "status": "completed",
           "spec_ref": "SPEC-010",
           "acceptance_criteria": [
             "Migration adiciona índice em apiSecretHash (ou nova coluna apiKeyHashIndex)",
@@ -54,7 +54,7 @@
         {
           "id": "T-010-005",
           "name": "remove-production-stubs",
-          "status": "pending",
+          "status": "completed",
           "spec_ref": "SPEC-010",
           "acceptance_criteria": [
             "grep -rn 'FIXME|TODO|NOT_IMPLEMENTED' apps/api/src retorna vazio",
@@ -65,7 +65,7 @@
         {
           "id": "T-010-006",
           "name": "backend-test-coverage-baseline",
-          "status": "pending",
+          "status": "completed",
           "spec_ref": "SPEC-010",
           "acceptance_criteria": [
             "Testes de apiKeyAuthHook cobrem sucesso, falha, IDOR mismatch",
@@ -121,7 +121,7 @@
         {
           "id": "T-010-010",
           "name": "playwright-e2e-smoke-test",
-          "status": "pending",
+          "status": "completed",
           "spec_ref": "SPEC-010",
           "acceptance_criteria": [
             "Teste E2E faz login via OAuth mock e navega para dashboard",
@@ -132,7 +132,7 @@
         {
           "id": "T-010-011",
           "name": "biome-no-console-log-prod",
-          "status": "pending",
+          "status": "completed",
           "spec_ref": "SPEC-010",
           "acceptance_criteria": [
             "biome.json inclui rule noConsoleLog para builds de produção",
