@@ -9,6 +9,7 @@ export class TeamTable extends BaseTable {
 		allowedDomains: t.array(t.string()),
 		allowedIPs: t.array(t.string()),
 		apiSecretHash: t.string().select(false),
+		apiKeyLookupHash: t.string().nullable().index(),
 		name: t.string(),
 		rateLimitPerMinute: t.integer(),
 		subscriptionAlertWebhookUrl: t.string(),

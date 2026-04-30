@@ -25,8 +25,6 @@ services:
       options:
         max-size: "50m"
         max-file: "5"
-    env_file:
-      - /srv/monorepo/.env
 
   qdrant:
     image: qdrant/qdrant:v1.7.4
@@ -55,33 +53,37 @@ services:
       options:
         max-size: "100m"
         max-file: "10"
-    env_file:
-      - /srv/monorepo/.env
 
-  swarm:
-    build: ../Dockerfile
+  api:
+    image: zappro/api:latest
     ports:
-      - "8080:8080"
+      - "4000:4000"
     depends_on:
       redis:
         condition: service_healthy
       qdrant:
         condition: service_healthy
-    env_file:
-      - /srv/monorepo/.env
     environment:
-      - REDIS_ADDR=redis:6379
-      - QDRANT_ADDR=qdrant:6334
-      - SWARM_HTTP_PORT=:8080
-      - SWARM_AGENTS_PATH=/app/config/agents.json
-      - GEMINI_API_KEY=${GEMINI_API_KEY}
-      - WHATSAPP_TOKEN=${WHATSAPP_TOKEN}
-      - WHATSAPP_PHONE_ID=${WHATSAPP_PHONE_ID}
-      - WHATSAPP_SECRET=${WHATSAPP_SECRET}
-      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET}
-      - TAILSCALE_AUTHKEY=${TAILSCALE_AUTHKEY}
+      - NODE_ENV=production
+      - PORT=4000
+      - DB_HOST=${DB_HOST:-zappro-litellm-db}
+      - DB_PORT=${DB_PORT:-5432}
+      - DB_USER=${DB_USER:-litellm}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME:-connected_repo_db}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - SESSION_SECRET=${SESSION_SECRET}
+      - WEBAPP_URL=${WEBAPP_URL}
+      - VITE_API_URL=${VITE_API_URL}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS}
+      - INTERNAL_API_SECRET=${INTERNAL_API_SECRET}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - QDRANT_URL=http://qdrant:6333
+      - QDRANT_GRPC_URL=qdrant:6334
     healthcheck:
-      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8080/health"]
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:4000/health"]
       interval: 10s
       timeout: 5s
       retries: 3
@@ -102,8 +104,30 @@ services:
       options:
         max-size: "100m"
         max-file: "20"
-    volumes:
-      - ./config:/app/config:ro
+
+  web:
+    image: zappro/web:latest
+    ports:
+      - "80:80"
+    depends_on:
+      api:
+        condition: service_healthy
+    networks:
+      - swarm_net
+    restart: "on-failure:3"
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: "0.5"
+        reservations:
+          memory: 256M
+          cpus: "0.25"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "5"
 
 networks:
   swarm_net:

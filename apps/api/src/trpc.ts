@@ -41,9 +41,7 @@ const t = initTRPC.context<TrpcContext>().create({
 		// Parse and transform the error
 		const customError = trpcErrorParser(error);
 
-		// FIXME: The present implementation send the correct error to frontend but the error logging at apps/backend/src/app.ts is not working as expected.
-		// console.log(error.cause);
-		// console.log(error.stack);
+		// Error logging is handled by the onError callback in fastifyTRPCPlugin registration (app.router.ts)
 
 		return {
 			...shape,

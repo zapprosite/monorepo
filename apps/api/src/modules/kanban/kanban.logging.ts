@@ -102,7 +102,4 @@ export function logKanbanEvent(event: KanbanLogEvent): void {
   };
 
   console.log("[KANBAN]", JSON.stringify(logEntry));
-
-  // TODO: Send to observability platform (DataDog, New Relic, etc)
-  // observability.send(event);
 }

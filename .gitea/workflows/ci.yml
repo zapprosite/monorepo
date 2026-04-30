@@ -30,6 +30,9 @@ jobs:
 
       - run: pnpm turbo test
 
+      - name: Security audit
+        run: pnpm audit --audit-level high
+
       - name: Update pipeline state
         if: success()
         run: echo "CI_PASSED=true" >> $GITHUB_STEP_SUMMARY

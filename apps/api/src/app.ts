@@ -59,7 +59,8 @@ app.register(session, {
 		path: "/", // Cookie available for all paths
 		// IMPORTANT: For cross-port localhost communication (dev: :3000 ↔ :5173)
 		// we need domain=localhost and sameSite=lax
-		domain: isDev ? "localhost" : undefined, // Allow cross-port in dev
+		// In production, COOKIE_DOMAIN enables cross-subdomain sessions (e.g. .zappro.site)
+		domain: isDev ? "localhost" : (env.COOKIE_DOMAIN || undefined),
 	},
 });
 

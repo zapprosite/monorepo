@@ -10,12 +10,13 @@ import time
 import argparse
 from pathlib import Path
 
-# STATE_DIR is the .claude directory (parent of events/)
+# STATE_DIR — the .claude-events directory (canonical event store)
 _STATE_ENV = os.environ.get("EVENT_DIR", "")
 if _STATE_ENV:
-    _CLAUDE_DIR = Path(_STATE_ENV).parent.resolve()
+    _CLAUDE_DIR = Path(_STATE_ENV).resolve()
 else:
-    _CLAUDE_DIR = Path.home() / ".claude"
+    # Default: use script's parent directory (monorepo .claude-events/)
+    _CLAUDE_DIR = Path(__file__).resolve().parent
 STATE_DIR = _CLAUDE_DIR
 STATE_FILE = STATE_DIR / "state.json"
 LOCK_FILE = STATE_DIR / ".state.lock"

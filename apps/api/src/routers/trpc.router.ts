@@ -15,7 +15,6 @@ import { userRolesRouterTrpc } from "@backend/modules/users/user-roles.trpc";
 import { usersRouterTrpc } from "@backend/modules/users/users.trpc";
 import { maintenanceRouter } from "@backend/modules/maintenance/maintenance.trpc";
 import { loyaltyRouter } from "@backend/modules/loyalty/loyalty.trpc";
-import { emailRouter } from "@backend/modules/email/email.trpc";
 import { webhookRouter } from "@backend/modules/webhooks/webhooks.trpc";
 import { mcpConectorRouter } from "@backend/modules/mcp-connectors/mcp-conectores.trpc";
 import { conteudoRouter } from "@backend/modules/content-engine/conteudos.trpc";
@@ -45,7 +44,6 @@ export const appTrpcRouter = trpcRouter({
 	kanban: kanbanRouterTrpc,
 	maintenance: maintenanceRouter,
 	loyalty: loyaltyRouter,
-	email: emailRouter,
 	webhooks: webhookRouter,
 	mcpConectores: mcpConectorRouter,
 	conteudos: conteudoRouter,

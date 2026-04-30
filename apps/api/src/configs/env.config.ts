@@ -20,6 +20,7 @@ const envSchema = z.object({
 	INTERNAL_API_SECRET: zString
 		.min(32, "Internal API secret must be at least 32 characters")
 		.optional(),
+	COOKIE_DOMAIN: zString.optional(),
 });
 
 // ----------------------------------------

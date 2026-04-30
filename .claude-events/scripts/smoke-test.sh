@@ -7,7 +7,7 @@ CLAUDE_DIR="${HOME}/.claude"
 CODEX_DIR="${HOME}/.codex"
 LOCAL_BIN="${HOME}/.local/bin"
 MONOREPO_EVENTS="/srv/monorepo/.claude-events"
-STATE_MANAGER="/srv/monorepo/.claude/events/state-manager.py"
+STATE_MANAGER="/srv/monorepo/.claude-events/state-manager.py"
 EVENT_EMIT="${MONOREPO_EVENTS}/event-emit.sh"
 STATE_FILE="${CLAUDE_DIR}/state.json"
 

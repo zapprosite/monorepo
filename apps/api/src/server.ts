@@ -32,7 +32,7 @@ export const build = async () => {
 	// team-specific validation. This prevents the global CORS from rejecting requests
 	// before they reach the team-specific validation.
 	await server.register(cors, {
-		origin: true, // Accept all origins - route-specific middleware will validate
+		origin: isDev ? true : allowedOrigins, // Dev: permissive; Prod: strict
 		methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
 		credentials: true,
 	});

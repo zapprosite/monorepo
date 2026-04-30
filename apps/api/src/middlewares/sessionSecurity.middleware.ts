@@ -178,9 +178,6 @@ export function sessionSecurityHook(
 			throw new Error("Session security validation failed. Please log in again.");
 		}
 
-		// For moderate level, attach warning to request for sensitive operations to check
-		// if (result.action === "warn") {
-		// 	// TODO: Optional enhancement - Send email to user about suspicious activity
-		// }
+		// For moderate level, warnings are logged but the request is allowed to proceed
 	};
 }

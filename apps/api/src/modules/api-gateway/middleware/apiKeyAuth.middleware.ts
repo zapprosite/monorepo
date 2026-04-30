@@ -1,5 +1,8 @@
 import { db } from "@backend/db/db";
-import { verifyApiKey } from "@backend/modules/api-gateway/utils/apiKeyGenerator.utils";
+import {
+	generateApiKeyLookupHash,
+	verifyApiKey,
+} from "@backend/modules/api-gateway/utils/apiKeyGenerator.utils";
 import { omitKeys } from "@backend/utils/omit.utils";
 import type { FastifyReply, FastifyRequest } from "fastify";
 
@@ -29,18 +32,16 @@ export async function apiKeyAuthHook(request: FastifyRequest, reply: FastifyRepl
 		});
 	}
 
-	// Find the team that owns this API key by iterating through teams and verifying
-	// Note: This is O(n) - for production, consider adding an indexed apiKeyHash column
-	// for O(1) lookup. See migration 0013_add_api_key_hash_index.ts as a potential future optimization.
-	const teams = await db.teams.select("*", "apiSecretHash");
-	let matchedTeam = null;
+	// O(1) lookup using indexed apiKeyLookupHash, then verify with slow scrypt hash
+	const lookupHash = generateApiKeyLookupHash(apiKey);
+	const candidateTeam = await db.teams
+		.select("*", "apiSecretHash")
+		.where({ apiKeyLookupHash: lookupHash })
+		.take();
 
-	for (const team of teams) {
-		const isValid = await verifyApiKey(apiKey, team.apiSecretHash);
-		if (isValid) {
-			matchedTeam = team;
-			break;
-		}
+	let matchedTeam = null;
+	if (candidateTeam && (await verifyApiKey(apiKey, candidateTeam.apiSecretHash))) {
+		matchedTeam = candidateTeam;
 	}
 
 	if (!matchedTeam) {

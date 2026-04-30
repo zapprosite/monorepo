@@ -25,6 +25,15 @@ export async function hashApiKey(plainKey: string): Promise<string> {
 }
 
 /**
+ * Generate a deterministic lookup hash for O(1) API key retrieval.
+ * This is NOT the secure hash — it's a fast SHA-256 used only for indexed lookup.
+ * The actual verification still uses the slow scrypt hash.
+ */
+export function generateApiKeyLookupHash(plainKey: string): string {
+	return crypto.createHash("sha256").update(plainKey).digest("hex");
+}
+
+/**
  * Verify a plain API key against a scrypt hash
  * @param plainKey - The plain text API key to verify
  * @param hash - The hash in format: salt:hash (both hex encoded)
