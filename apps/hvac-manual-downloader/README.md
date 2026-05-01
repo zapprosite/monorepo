@@ -7,7 +7,7 @@ Browser-use agent for downloading HVAC service manuals from manufacturer support
 Specialized browser-use agent that downloads PDF service manuals from LG, Samsung, Daikin, and Springer Brazil support pages using:
 - Chrome profile persistence (cookies saved between sessions)
 - browser-use (GPT-4o-mini via OpenRouter)
-- Credentials from Infisical vault
+- Credentials from 
 - Downloads to `/srv/data/hvac-manuals/{brand}/`
 
 ## Quick Start
@@ -36,7 +36,7 @@ hvac-manual-downloader/
 ├── agent/
 │   ├── browser_agent.py      # browser-use Agent with OpenRouter
 │   ├── chrome_profile.py     # Chrome profile management per brand
-│   └── credentials.py        # Infisical credential management
+│   └── credentials.py        # 
 ├── tasks/
 │   ├── lg_downloader.py      # LG Brazil task builder
 │   ├── samsung_downloader.py # Samsung Brazil task builder
@@ -59,7 +59,7 @@ hvac-manual-downloader/
 /srv/data/hvac-manuals/{brand}/  # Final manual PDFs
 ```
 
-## Brand Credentials (Infisical)
+## Brand Credentials ()
 
 | Brand | Email Key | Password Key |
 |-------|-----------|--------------|
@@ -81,6 +81,6 @@ hvac-manual-downloader/
 
 - Python 3.10+
 - Chrome/Chromium
-- Infisical SDK (`infisical-sdk`)
+- (``)
 - browser-use
 - langchain-openai

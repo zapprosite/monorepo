@@ -178,7 +178,7 @@ Unificar `.claude/commands/` (wrapper commands) com `.agent/workflows/` (Antigra
 │   └── rules/
 │       ├── backend.md
 │       ├── search.md
-│       ├── openclaw-audio-governance.md
+│       ├── .md
 │       └── REVIEW-SKILLS.md
 │
 ├── .agent/                     # Antigravity Kit (EXTERNAL, do not modify)
@@ -239,7 +239,7 @@ Use the workflow in `.agent/workflows/git-feature.md`:
     "pending_configs": [
       {
         "key": "COOLIFY_URL",
-        "source": "gh secret or Infisical",
+        "source": "gh secret or ",
         "current_value": "⚠️ NOT SET",
         "required_for": "Coolify API"
       }

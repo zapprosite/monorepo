@@ -14,9 +14,9 @@
 |------------|-------------------|----------|
 | **Docker bridge TCP isolation** (container cannot TCP to host native processes) | #4 (voice pipeline), #5 (wav2vec2) | 🔴 HIGH |
 | **GitOps gap** (DNS/Tunnel UP but container not deployed) | #3 (perplexity site down ~4h), #4 (voice pipeline) | 🔴 HIGH |
-| **Config schema stripping** (fields removed on write) | #6 (OpenClaw baseUrl) | 🟡 MEDIUM |
+| **Config schema stripping** (fields removed on write) | #6 () | 🟡 MEDIUM |
 | **Token/auth expiry** (temp token expired) | #1 (Gitea runner registration) | 🟡 MEDIUM |
-| **No env var loading** (entrypoint doesn't load .env) | #6 (OpenClaw TTS route) | 🟡 MEDIUM |
+| **No env var loading** (entrypoint doesn't load .env) | #6 () | 🟡 MEDIUM |
 | **Workflow not tested** (commit ≠ real push trigger) | #1 (Gitea workflows), #3 (perplexity deploy) | 🔴 HIGH |
 | **Health check gaps** (check without route verification) | #1, #3, #4, #5 | 🔴 HIGH |
 | **No auto-healer cron** (scripts exist but not scheduled) | #3 (perplexity) | 🟡 MEDIUM |
@@ -35,12 +35,12 @@
 | **Prevention** | Generate token before deploy; verify runner online; test with real push; configure repo secrets |
 | **Anti-patterns** | Assuming runner auto-registers; assuming host.docker.internal works inside container; using GitHub syntax in Gitea |
 
-### INC-2: Kokoro Voice Access Control
-**File:** `INCIDENT-2026-04-08-kokoro-voice-access.md`
+### INC-2: 
+**File:** `INCIDENT-2026-04-08-.md`
 
 | Field | Value |
 |-------|-------|
-| **Root cause** | Kokoro exposes all 67 voices — no native voice filter |
+| **Root cause** | 67 voices — no native voice filter |
 | **Fix** | TTS Bridge created as Python stdlib proxy, filters to pm_santa/pf_dora only |
 | **Prevention** | TTS Bridge registered as PINNED service |
 | **Anti-patterns** | Assuming TTS provider has built-in access control |
@@ -56,11 +56,11 @@
 | **What could have prevented** | Test deploy with real push; smoke test after deploy; ZFS snapshot before changes |
 
 ### INC-4: Voice Pipeline Stability
-**File:** `INCIDENT-2026-04-08-voice-pipeline-stable.md`
+**File:** `INCIDENT-2026-04-08-.md`
 
 | Field | Value |
 |-------|-------|
-| **Root cause** | Docker bridge TCP isolation; Traefik/OpenClaw network segregation; loopback bind; cloud firewall |
+| **Root cause** | Docker bridge TCP isolation; Traefik/; loopback bind; cloud firewall |
 | **Prevention** | All services containerized; verify network shared; smoke test via Tunnel |
 | **Anti-patterns** | Host process as container backend; testing from host only; DNS/Tunnel UP = service UP |
 
@@ -74,12 +74,12 @@
 | **Prevention** | Docker network connectivity test in smoke test; all internal services containerized |
 | **Anti-patterns** | Testing from host (loopback); ICMP ping working ≠ TCP working; assuming "port open" = "reachable" |
 
-### INC-6: OpenClaw TTS Route Fix
-**File:** `INCIDENT-2026-04-09-openclaw-tts-route-fix.md`
+### INC-6: 
+**File:** `INCIDENT-2026-04-09-.md`
 
 | Field | Value |
 |-------|-------|
-| **Root cause** | OpenClaw schema strips `baseUrl` from `messages.tts.openai` on write; only env var works |
+| **Root cause** | `baseUrl` from `messages.tts.openai` on write; only env var works |
 | **Fix** | `OPENAI_TTS_BASE_URL` env var via Coolify UI |
 | **Prevention** | Document schema limitations; always use env vars for custom TTS endpoints |
 | **Anti-patterns** | Writing config fields not in schema; assuming file config = runtime config |
@@ -133,7 +133,7 @@
 | **Perplexity Agent** | `https://web.zappro.site/_stcore/health` | HTTP 200 + content check | ✅ | `*/5 * * * *` |
 | **wav2vec2 STT** | `http://wav2vec2:8201/health` | STT via LiteLLM | ✅ | N/A |
 | **TTS Bridge** | `http://localhost:8013/v1/audio/speech` (pm_santa) | 3 voices (2 pass, 1 blocked) | N/A | N/A |
-| **OpenClaw** | `https://bot.zappro.site/` via Tunnel | Full pipeline test | ✅ | N/A |
+| **** | `https://bot.zappro.site/` via Tunnel | Full pipeline test | ✅ | N/A |
 | **LiteLLM** | `http://localhost:4000/health` | All model routes | N/A | N/A |
 | **Traefik/Coolify** | `http://localhost:80/ping` | Tunnel routing | ✅ | N/A |
 
@@ -143,7 +143,7 @@
 # Container → Internal Service (e.g. LiteLLM → wav2vec2)
 docker exec zappro-litellm curl -sf -m 5 http://wav2vec2:8201/health
 
-# Shared network check (Traefik → OpenClaw)
+# Shared network check (Traefik → )
 check_shared_network() { ... }
 
 # Host service NOT reachable from container (expected for native host services)
@@ -182,7 +182,7 @@ Every smoke test MUST include:
 - Any container deploy or update
 - Docker compose / network changes
 - Traefik/Coolify config changes
-- Schema changes (OpenClaw config)
+- Schema changes ()
 
 ```bash
 sudo zfs snapshot -r tank@pre-$(date +%Y%m%d-%H%M%S)-$(whoami)
@@ -195,11 +195,11 @@ sudo zfs snapshot -r tank@pre-$(date +%Y%m%d-%H%M%S)-$(whoami)
 | File | Purpose |
 |------|---------|
 | `INCIDENT-2026-04-08-gitea-actions-runner.md` | Gitea runner deploy incident |
-| `INCIDENT-2026-04-08-kokoro-voice-access.md` | Kokoro voice access control |
+| `INCIDENT-2026-04-08-.md` | |
 | `INCIDENT-2026-04-08-perplexity-gitops-gap.md` | Perplexity deploy gap |
-| `INCIDENT-2026-04-08-voice-pipeline-stable.md` | Voice pipeline master incident |
+| `INCIDENT-2026-04-08-.md` | Voice pipeline master incident |
 | `INCIDENT-2026-04-08-wav2vec2-network-isolation.md` | wav2vec2 containerization |
-| `INCIDENT-2026-04-09-openclaw-tts-route-fix.md` | OpenClaw TTS config fix |
+| `INCIDENT-2026-04-09-.md` | |
 | `docs/OPERATIONS/SKILLS/tts-bridge.md` | TTS Bridge documentation |
 | `docs/OPERATIONS/SKILLS/tts-bridge.py` | TTS Bridge proxy |
 | `docs/OPERATIONS/SKILLS/tts-bridge-docker-compose.yml` | TTS Bridge deploy |

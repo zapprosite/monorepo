@@ -1,14 +1,14 @@
-# OpenWebUI + OpenClaw Bridge — Arquitetura Técnica
+# OpenWebUI + — Arquitetura Técnica
 
 **Versão:** 1.0.0
 **Data:** 2026-04-09
-**Stack:** OpenWebUI (frontend) + OpenClaw Bot (backend agent) + Bridge Stack (MCP)
+**Stack:** OpenWebUI (frontend) + (backend agent) + Bridge Stack (MCP)
 
 ---
 
 ## 1. Visão Geral da Arquitetura
 
-Este documento descreve a arquitetura de integracao onde **OpenWebUI** atua como interface de chat (frontend) e **OpenClaw Bot** fornece capacidades agenticas (controle de browser, operacoes de arquivo, etc.) acessiveis via protocolo MCP.
+Este documento descreve a arquitetura de integracao onde **OpenWebUI** atua como interface de chat (frontend) e **** fornece capacidades agenticas (controle de browser, operacoes de arquivo, etc.) acessiveis via protocolo MCP.
 
 ### Fluxo de Dados
 
@@ -41,10 +41,10 @@ Utilizador (Browser)
         │
         ▼ (MCP Tool Call)
 ┌─────────────────────────────────────────────────────────────────────┐
-│  openclaw_mcp_wrapper (:3457)                                      │
-│  Container: openclaw-mcp-wrapper                                    │
+│  _mcp_wrapper (:3457)                                      │
+│  Container: │
 │  Rede: qgtzrmi6771lt8l7x8rqx72f                                     │
-│  Base URL: http://10.0.19.4:8080 (OpenClaw Bot)                     │
+│  Base URL: http://10.0.19.4:8080 ()                     │
 │  Auth: Bearer token (OPENCLAW_GATEWAY_TOKEN)                       │
 │  Ferramentas: get_status, invoke_tool, restart_browser,             │
 │               list_sessions, send_message, get_browser_status       │
@@ -52,8 +52,8 @@ Utilizador (Browser)
         │
         ▼ (HTTP POST /tools/invoke)
 ┌─────────────────────────────────────────────────────────────────────┐
-│  OpenClaw Bot (:8080)                                               │
-│  Container: openclaw-qgtzrmi6771lt8l7x8rqx72f                      │
+│  (:8080)                                               │
+│  Container: 6771lt8l7x8rqx72f                      │
 │  Rede: qgtzrmi6771lt8l7x8rqx72f                                     │
 │  IP: 10.0.19.4                                                      │
 │  Agentes + Tools: browser, arquivos, sessoes                       │
@@ -86,13 +86,13 @@ Utilizador (Browser)
                     └──────────┬──────────┘
                                │ MCP /tools/call
                     ┌──────────▼──────────┐
-                    │  openclaw_mcp_       │
+                    │  _mcp_       │
                     │    wrapper :3457     │
                     │   (qgtzrmi rede)     │
                     └──────────┬──────────┘
                                │ HTTP POST /tools/invoke
                     ┌──────────▼──────────┐
-                    │    OpenClaw Bot     │
+                    │    │
                     │      :8080          │
                     │   IP: 10.0.19.4     │
                     │   (qgtzrmi rede)    │
@@ -133,14 +133,14 @@ Utilizador (Browser)
 
 ---
 
-### 2.2 OpenClaw Bot (Existente)
+### 2.2 (Existente)
 
 | Atributo | Valor |
 |----------|-------|
-| **Nome** | OpenClaw Bot |
+| **Nome** | |
 | **Proposito** | Agente backend com tools de browser, arquivos e sessoes |
 | **Porta** | 8080 |
-| **Container** | openclaw-qgtzrmi6771lt8l7x8rqx72f |
+| **Container** | 6771lt8l7x8rqx72f |
 | **Rede Docker** | qgtzrmi6771lt8l7x8rqx72f |
 | **IP** | 10.0.19.4 |
 | **Autenticacao** | Bearer token (OPENCLAW_GATEWAY_TOKEN) |
@@ -162,18 +162,18 @@ Utilizador (Browser)
 
 ---
 
-### 2.3 openclaw_mcp_wrapper (Este Projeto)
+### 2.3 _mcp_wrapper (Este Projeto)
 
 | Atributo | Valor |
 |----------|-------|
-| **Nome** | OpenClaw MCP Wrapper |
-| **Proposito** | Expor ferramentas do OpenClaw via protocolo MCP |
+| **Nome** | |
+| **Proposito** | Expor ferramentas do |
 | **Porta** | 3457 |
-| **Container** | openclaw-mcp-wrapper |
+| **Container** | |
 | **Rede Docker** | qgtzrmi6771lt8l7x8rqx72f |
 | **Base URL** | http://10.0.19.4:8080 |
-| **Autenticacao** | Bearer token (OPENCLAW_GATEWAY_TOKEN de Infisical) |
-| **Dockerfile** | Dockerfile.openclaw-mcp-wrapper |
+| **Autenticacao** | Bearer token (OPENCLAW_GATEWAY_TOKEN de ) |
+| **Dockerfile** | Dockerfile.|
 | **Entry Point** | /app/entrypoint.sh |
 
 **Variaveis de Ambiente:**
@@ -181,10 +181,10 @@ Utilizador (Browser)
 | Variavel | Origem | Descricao |
 |----------|--------|-----------|
 | PORT | Default: 3457 | Porta do servidor MCP |
-| OPENCLAW_BASE_URL | Infisical ou fallback | URL base do OpenClaw |
-| OPENCLAW_GATEWAY_TOKEN | Infisical | Token Bearer para autenticacao |
-| INFISICAL_TOKEN | Coolify | Token de servico do Infisical |
-| INFISICAL_PROJECT_ID | Coolify | ID do projeto no Infisical |
+| OPENCLAW_BASE_URL | | URL base do |
+| OPENCLAW_GATEWAY_TOKEN | | Token Bearer para autenticacao |
+| INFISICAL_TOKEN | Coolify | Token de servico do |
+| INFISICAL_PROJECT_ID | Coolify | ID do projeto no |
 | INFISICAL_ENV | Coolify | Environment slug (dev/prod) |
 | INFISICAL_SECRET_PATH | Coolify | Path dos secrets (/ ) |
 | SECRET_KEYS | Default | OPENCLAW_GATEWAY_TOKEN,OPENCLAW_BASE_URL |
@@ -195,8 +195,8 @@ python3 -c "import urllib.request; urllib.request.urlopen('http://localhost:3457
 ```
 
 **Dependencias:**
-- OpenClaw Bot (:8080)
-- Infisical SDK (para fetching de secrets)
+- (:8080)
+- (para fetching de secrets)
 
 ---
 
@@ -205,12 +205,12 @@ python3 -c "import urllib.request; urllib.request.urlopen('http://localhost:3457
 | Atributo | Valor |
 |----------|-------|
 | **Nome** | OpenWebUI Bridge Agent |
-| **Proposito** | Intermediar entre OpenWebUI e OpenClaw; formatar respostas em CEO MIX |
+| **Proposito** | Intermediar entre OpenWebUI e ; formatar respostas em CEO MIX |
 | **Porta** | 3456 |
 | **Container** | openwebui-bridge-agent |
 | **Redes Docker** | qgtzrmi6771lt8l7x8rqx72f, wbmqefxhd7vdn2dme3i6s9an |
-| **Base URL (MCP Wrapper)** | http://openclaw-mcp-wrapper:3457 |
-| **Auth** | Bearer token (OPENCLAW_GATEWAY_TOKEN de Infisical) |
+| **Base URL (MCP Wrapper)** | http://:3457 |
+| **Auth** | Bearer token (OPENCLAW_GATEWAY_TOKEN de ) |
 | **Dockerfile** | Dockerfile.openwebui-bridge-agent |
 | **Entry Point** | /app/entrypoint.sh |
 
@@ -220,9 +220,9 @@ python3 -c "import urllib.request; urllib.request.urlopen('http://localhost:3457
 |----------|--------|-----------|
 | PORT | Default: 3456 | Porta do servidor MCP |
 | OPENCLAW_BASE_URL | Default | URL do MCP wrapper local |
-| OPENCLAW_GATEWAY_TOKEN | Infisical | Token Bearer para autenticacao |
-| INFISICAL_TOKEN | Coolify | Token de servico do Infisical |
-| INFISICAL_PROJECT_ID | Coolify | ID do projeto no Infisical |
+| OPENCLAW_GATEWAY_TOKEN | | Token Bearer para autenticacao |
+| INFISICAL_TOKEN | Coolify | Token de servico do |
+| INFISICAL_PROJECT_ID | Coolify | ID do projeto no |
 | INFISICAL_ENV | Coolify | Environment slug (dev/prod) |
 | INFISICAL_SECRET_PATH | Coolify | Path dos secrets (/ ) |
 | SECRET_KEYS | Default | OPENCLAW_GATEWAY_TOKEN |
@@ -233,20 +233,20 @@ python3 -c "import urllib.request; urllib.request.urlopen('http://localhost:3456
 ```
 
 **Dependencias:**
-- openclaw_mcp_wrapper (via depends_on com condition: service_healthy)
-- Infisical SDK (para fetching de secrets)
+- _mcp_wrapper (via depends_on com condition: service_healthy)
+- (para fetching de secrets)
 
 ---
 
 ## 3. Especificacao dos Tools MCP
 
-### 3.1 Ferramentas do openclaw_mcp_wrapper
+### 3.1 Ferramentas do _mcp_wrapper
 
 #### get_status
 
 **Nome:** `get_status`
 
-**Descricao:** Verifica o status/saude do OpenClaw Bot.
+**Descricao:** Verifica o status/saude do .
 
 **Input Schema:**
 ```json
@@ -262,7 +262,7 @@ python3 -c "import urllib.request; urllib.request.urlopen('http://localhost:3456
   "type": "object",
   "properties": {
     "status": { "type": "string" },
-    "openclaw": { "type": "object" }
+    "": { "type": "object" }
   }
 }
 ```
@@ -285,7 +285,7 @@ python3 -c "import urllib.request; urllib.request.urlopen('http://localhost:3456
   "jsonrpc": "2.0",
   "result": {
     "status": "ok",
-    "openclaw": {
+    "": {
       "version": "1.0.0",
       "browser_running": true
     }
@@ -300,7 +300,7 @@ python3 -c "import urllib.request; urllib.request.urlopen('http://localhost:3456
 
 **Nome:** `invoke_tool`
 
-**Descricao:** Invoca uma ferramenta especifica no OpenClaw.
+**Descricao:** Invoca uma ferramenta especifica no .
 
 **Input Schema:**
 ```json
@@ -357,7 +357,7 @@ python3 -c "import urllib.request; urllib.request.urlopen('http://localhost:3456
 
 **Nome:** `restart_browser`
 
-**Descricao:** Reinicia o browser do OpenClaw (stop + start sequencial).
+**Descricao:** Reinicia o browser do (stop + start sequencial).
 
 **Input Schema:**
 ```json
@@ -395,7 +395,7 @@ python3 -c "import urllib.request; urllib.request.urlopen('http://localhost:3456
 
 **Nome:** `list_sessions`
 
-**Descricao:** Lista todas as sessoes ativas do OpenClaw.
+**Descricao:** Lista todas as sessoes ativas do .
 
 **Input Schema:**
 ```json
@@ -421,7 +421,7 @@ python3 -c "import urllib.request; urllib.request.urlopen('http://localhost:3456
 
 **Nome:** `send_message`
 
-**Descricao:** Envia uma mensagem para uma sessao do OpenClaw.
+**Descricao:** Envia uma mensagem para uma sessao do .
 
 **Input Schema:**
 ```json
@@ -458,7 +458,7 @@ python3 -c "import urllib.request; urllib.request.urlopen('http://localhost:3456
 
 **Nome:** `get_browser_status`
 
-**Descricao:** Verifica se o browser do OpenClaw esta em execucao.
+**Descricao:** Verifica se o browser do .
 
 **Input Schema:**
 ```json
@@ -488,7 +488,7 @@ python3 -c "import urllib.request; urllib.request.urlopen('http://localhost:3456
 
 **Nome:** `bridge_chat`
 
-**Descricao:** Envia mensagem ao OpenClaw via MCP wrapper e retorna resposta formatada em CEO MIX.
+**Descricao:** Envia mensagem ao .
 
 **Input Schema:**
 ```json
@@ -497,7 +497,7 @@ python3 -c "import urllib.request; urllib.request.urlopen('http://localhost:3456
   "properties": {
     "message": {
       "type": "string",
-      "description": "Mensagem para enviar ao OpenClaw"
+      "description": "Mensagem para enviar ao "
     },
     "session_id": {
       "type": "string",
@@ -544,7 +544,7 @@ python3 -c "import urllib.request; urllib.request.urlopen('http://localhost:3456
     "response": "Screenshot capturado com sucesso. URL: https://www.google.com",
     "style": "ceo_mix",
     "tool_used": "send_message",
-    "action_taken": "Enviada mensagem para OpenClaw: Navega para google.com..."
+    "action_taken": "Enviada mensagem para : Navega para google.com..."
   },
   "id": 10
 }
@@ -561,7 +561,7 @@ python3 -c "import urllib.request; urllib.request.urlopen('http://localhost:3456
 
 **Nome:** `bridge_status`
 
-**Descricao:** Verifica se o OpenClaw esta acessivel via bridge.
+**Descricao:** Verifica se o .
 
 **Input Schema:**
 ```json
@@ -577,8 +577,8 @@ python3 -c "import urllib.request; urllib.request.urlopen('http://localhost:3456
   "type": "object",
   "properties": {
     "status": { "type": "string" },
-    "openclaw_reachable": { "type": "boolean" },
-    "openclaw_response": { "type": "object" },
+    "_reachable": { "type": "boolean" },
+    "_response": { "type": "object" },
     "error": { "type": "string" }
   }
 }
@@ -590,7 +590,7 @@ python3 -c "import urllib.request; urllib.request.urlopen('http://localhost:3456
 
 **Nome:** `bridge_list_tools`
 
-**Descricao:** Lista ferramentas disponiveis no OpenClaw.
+**Descricao:** Lista ferramentas disponiveis no .
 
 **Input Schema:**
 ```json
@@ -629,18 +629,18 @@ python3 -c "import urllib.request; urllib.request.urlopen('http://localhost:3456
 
 ```
 Rede: qgtzrmi6771lt8l7x8rqx72f
-  Proposito: Rede do OpenClaw e seus componentes
+  Proposito: Rede do 
   Containers:
-    - openclaw-qgtzrmi6771lt8l7x8rqx72f (OpenClaw Bot)     IP: 10.0.19.4
-    - openclaw-mcp-wrapper                                  IP: (DHCP)
-    - openclaw (servico interno se existir)
+    - 6771lt8l7x8rqx72f ()     IP: 10.0.19.4
+    - : (DHCP)
+    - (servico interno se existir)
 
 Rede: wbmqefxhd7vdn2dme3i6s9an
   Proposito: Rede do OpenWebUI e bridge agent
   Containers:
     - open-webui-wbmqefxhd7vdn2dme3i6s9an (OpenWebUI)
     - openwebui-bridge-agent (bridge stack)
-    - openclaw-mcp-wrapper (tambem nesta rede para comunicacao bridge->wrapper)
+    - (tambem nesta rede para comunicacao bridge->wrapper)
 ```
 
 ### Diagrama de Rede
@@ -657,10 +657,10 @@ Rede: wbmqefxhd7vdn2dme3i6s9an
 └─────────────────────────────────────┼─────────────────────────────┘
                                       │ MCP
 ┌─────────────────────────────────────┼─────────────────────────────┐
-│  Rede: qgtzrmi6771lt8l7x8rqx72f     │ (OpenClaw)                  │
+│  Rede: qgtzrmi6771lt8l7x8rqx72f     │ ()                  │
 │                                     ▼                              │
 │  ┌─────────────────┐         ┌─────────────────┐                  │
-│  │ openclaw_mcp_   │────────►│  OpenClaw Bot   │                  │
+│  │ _mcp_   │────────►│  │                  │
 │  │ wrapper :3457   │  HTTP   │  :8080           │                  │
 │  └─────────────────┘         │  IP: 10.0.19.4   │                  │
 │                              └─────────────────┘                  │
@@ -673,17 +673,17 @@ Rede: wbmqefxhd7vdn2dme3i6s9an
 |--------|---------|-----------|-------|--------------|
 | OpenWebUI | bridge_agent | HTTP/MCP | 3456 | Via OpenWebUI internals |
 | bridge_agent | mcp_wrapper | HTTP/MCP | 3457 | Bearer token |
-| mcp_wrapper | OpenClaw Bot | HTTP | 8080 | Bearer token |
+| mcp_wrapper | | HTTP | 8080 | Bearer token |
 
 ---
 
 ## 5. Modelo de Seguranca
 
-### 5.1 Infisical SDK para Secrets em Runtime
+### 5.1 
 
 Todos os containers do bridge stack usam `entrypoint.sh` que:
 
-1. Faz fetch dos secrets do Infisical na inicializacao
+1. Faz fetch dos secrets do 
 2. Exporta como variaveis de ambiente
 3. Executa a aplicacao Python
 
@@ -691,8 +691,8 @@ Todos os containers do bridge stack usam `entrypoint.sh` que:
 
 | Secret | Descricao |
 |--------|-----------|
-| OPENCLAW_GATEWAY_TOKEN | Token Bearer para OpenClaw |
-| OPENCLAW_BASE_URL | URL base do OpenClaw (opcional) |
+| OPENCLAW_GATEWAY_TOKEN | Token Bearer para |
+| OPENCLAW_BASE_URL | URL base do (opcional) |
 
 **Fluxo:**
 ```
@@ -701,7 +701,7 @@ Container Start
     ▼
 entrypoint.sh
     │
-    ├─► Infisical SDK Client
+    ├─► 
     │       │
     │       ▼
     │    GET /secrets (project_id, env, path)
@@ -718,7 +718,7 @@ Python App (le de os.environ)
 ```
 OpenWebUI
     │
-    ├─► MCP call ──► bridge_agent ──► mcp_wrapper ──► OpenClaw
+    ├─► MCP call ──► bridge_agent ──► mcp_wrapper ──► 
     │                    │                  │              │
     │                    │                  │         Bearer Token
     │                    │                  │         (OPENCLAW_GATEWAY_TOKEN)
@@ -731,7 +731,7 @@ OpenWebUI
 
 ### 5.3 Isolamento de Rede Docker
 
-- `qgtzrmi6771lt8l7x8rqx72f`: Apenas OpenClaw + mcp_wrapper
+- `qgtzrmi6771lt8l7x8rqx72f`: Apenas + mcp_wrapper
 - `wbmqefxhd7vdn2dme3i6s9an`: OpenWebUI + bridge_agent + mcp_wrapper
 - Containers em redes diferentes so se comunicam via portas expostas
 
@@ -756,7 +756,7 @@ FROM python:3.11-slim
 
 | Pacote | Versao | Uso |
 |--------|--------|-----|
-| infisical-python | >= 0.22.0 | Fetch de secrets do Infisical |
+| | >= 0.22.0 | Fetch de secrets do |
 
 ### Codigo da Aplicacao (Stdlib Only)
 
@@ -764,7 +764,7 @@ FROM python:3.11-slim
 |--------|-----------|
 | http.server | Servidor HTTP para MCP |
 | json | Serializacao/deserializacao JSON |
-| urllib.request | Requisicoes HTTP para OpenClaw API |
+| urllib.request | Requisicoes HTTP para |
 | base64 | Codificacao Basic Auth (dev fallback) |
 | threading | Concurrencia (se necessario) |
 | socket | SO_REUSEADDR para servidor HTTP |
@@ -775,7 +775,7 @@ FROM python:3.11-slim
 ┌─────────────────────────────────────────────────────────┐
 │  python:3.11-slim                                       │
 ├─────────────────────────────────────────────────────────┤
-│  infisical-python >= 0.22.0                            │
+│  >= 0.22.0                            │
 │      │                                                  │
 │      ├── requests (transitive)                         │
 │      └── urllib3 (transitive)                         │
@@ -796,10 +796,10 @@ FROM python:3.11-slim
 
 ### 7.1 Health Checks
 
-**openclaw_mcp_wrapper:**
+**_mcp_wrapper:**
 ```bash
 curl -s http://localhost:3457/health
-# Resposta: {"status": "ok", "service": "openclaw-mcp-wrapper"}
+# Resposta: {"status": "ok", "service": ""}
 ```
 
 **openwebui_bridge_agent:**
@@ -835,7 +835,7 @@ curl -s -X POST http://localhost:3456/mcp \
   -H "Content-Type: application/json" \
   -d '{"method": "tools/list", "params": {}, "id": 1}'
 
-# 3. Verificar status do OpenClaw via bridge
+# 3. Verificar status do 
 curl -s -X POST http://localhost:3456/mcp \
   -H "Content-Type: application/json" \
   -d '{"method": "tools/call", "params": {"name": "bridge_status", "arguments": {}}, "id": 2}'
@@ -878,7 +878,7 @@ def test_mcp(url: str, method: str, params: dict, name: str) -> bool:
 
 if __name__ == "__main__":
     results = []
-    results.append(test_health("http://localhost:3457", "openclaw-mcp-wrapper health"))
+    results.append(test_health("http://localhost:3457", ""))
     results.append(test_health("http://localhost:3456", "openwebui-bridge-agent health"))
     results.append(test_mcp("http://localhost:3456/mcp", "tools/list", {}, "bridge_list_tools"))
     results.append(test_mcp("http://localhost:3456/mcp", "tools/call", {"name": "bridge_status", "arguments": {}}, "bridge_status"))
@@ -895,11 +895,11 @@ if __name__ == "__main__":
 
 ```
 docs/OPERATIONS/SKILLS/
-├── Dockerfile.openclaw-mcp-wrapper    # Build para MCP wrapper
+├── Dockerfile.# Build para MCP wrapper
 ├── Dockerfile.openwebui-bridge-agent  # Build para bridge agent
 ├── docker-compose.bridge.yml          # Orquestacao
 ├── entrypoint.sh                      # Fetch de secrets (compartilhado)
-├── openclaw_mcp_wrapper.py           # Codigo MCP wrapper
+├── _mcp_wrapper.py           # Codigo MCP wrapper
 └── openwebui_bridge_agent.py         # Codigo bridge agent
 ```
 
@@ -909,11 +909,11 @@ docs/OPERATIONS/SKILLS/
 version: "3.9"
 
 services:
-  openclaw-mcp-wrapper:
+  :
     build:
       context: .
-      dockerfile: Dockerfile.openclaw-mcp-wrapper
-    container_name: openclaw-mcp-wrapper
+      dockerfile: Dockerfile.
+    container_name: 
     ports:
       - "3457:3457"
     environment:
@@ -949,13 +949,13 @@ services:
       INFISICAL_ENV: "${INFISICAL_ENV:-dev}"
       INFISICAL_SECRET_PATH: "${INFISICAL_SECRET_PATH:-/}"
       SECRET_KEYS: "OPENCLAW_GATEWAY_TOKEN"
-      OPENCLAW_BASE_URL: "http://openclaw-mcp-wrapper:3457"
+      OPENCLAW_BASE_URL: "http://:3457"
       OPENCLAW_TOKEN: "${OPENCLAW_GATEWAY_TOKEN:-}"
     networks:
       - qgtzrmi6771lt8l7x8rqx72f
       - wbmqefxhd7vdn2dme3i6s9an
     depends_on:
-      openclaw-mcp-wrapper:
+      :
         condition: service_healthy
     healthcheck:
       test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:3456/health')"]
@@ -976,15 +976,15 @@ networks:
 
 | Variavel | Valor | Descricao |
 |----------|-------|-----------|
-| INFISICAL_TOKEN | (do Coolify) | Token de servico do Infisical |
-| INFISICAL_PROJECT_ID | (do Coolify) | ID do projeto Infisical |
+| INFISICAL_TOKEN | (do Coolify) | Token de servico do |
+| INFISICAL_PROJECT_ID | (do Coolify) | ID do projeto |
 | INFISICAL_ENV | dev | Environment slug |
 | INFISICAL_SECRET_PATH | / | Path dos secrets |
-| OPENCLAW_BASE_URL | http://10.0.19.4:8080 | URL do OpenClaw Bot |
+| OPENCLAW_BASE_URL | http://10.0.19.4:8080 | URL do |
 
 ### 8.4 Orden de Startup
 
-1. **openclaw-mcp-wrapper** inicia primeiro
+1. **** inicia primeiro
 2. Healthcheck espera que :3457 esteja pronto
 3. **openwebui-bridge-agent** inicia depois (via depends_on)
 4. Healthcheck espera que :3456 esteja pronto
@@ -998,7 +998,7 @@ openwebui-bridge-agent
     depends_on (condition: service_healthy)
         │
         ▼
-openclaw-mcp-wrapper
+
     │
     healthcheck (interval: 30s, timeout: 5s, retries: 3)
         │
@@ -1045,7 +1045,7 @@ O bridge agent formata todas as respostas no estilo **CEO MIX**:
 **Erro:**
 ```json
 {
-  "response": "Erro ao comunicar com OpenClaw: timeout apos 30s",
+  "response": "Erro ao comunicar com : timeout apos 30s",
   "style": "ceo_mix",
   "tool_used": "send_message",
   "action_taken": "Falha no envio de mensagem"
@@ -1059,19 +1059,19 @@ O bridge agent formata todas as respostas no estilo **CEO MIX**:
 ### Limites de Rate
 
 - **Bridge Agent:** 10 req/min por canal
-- **OpenClaw Bot:** Limite propio (depende da tool)
+- **:** Limite propio (depende da tool)
 
 ### Timeouts
 
 | Operacao | Timeout |
 |----------|---------|
-| Requisicao API OpenClaw | 30s |
+| Requisicao API | 30s |
 | Healthcheck | 5s |
 | MCP call | Variavel (ate 30s) |
 
 ### Restricoes
 
-1. OpenClaw Bot **nao** e um LLM server — e um bot com tools
+1. **nao** e um LLM server — e um bot com tools
 2. Respostas de tools podem ser verbose (limitar a 500 chars se necessario)
 3. Browser automation requer que o browser esteja em execucao
 
@@ -1084,15 +1084,15 @@ O bridge agent formata todas as respostas no estilo **CEO MIX**:
 | Sintoma | Causa Possivel | Solucao |
 |---------|----------------|---------|
 | `connection refused` no bridge | mcp_wrapper nao esta pronto | Verificar healthcheck do mcp_wrapper |
-| `401 Unauthorized` | Token invalido ou nao configurado | Verificar OPENCLAW_GATEWAY_TOKEN no Infisical |
-| `tool not available` | Browser do OpenClaw nao esta rodando | Invocar `restart_browser` |
+| `401 Unauthorized` | Token invalido ou nao configurado | Verificar OPENCLAW_GATEWAY_TOKEN no |
+| `tool not available` | Browser do | Invocar `restart_browser` |
 | Resposta vazia | Sessao nao existe ou expirou | Invocar `list_sessions` para verificar |
 
 ### Comandos de Debug
 
 ```bash
 # Ver logs do container
-docker logs openclaw-mcp-wrapper
+docker logs 
 docker logs openwebui-bridge-agent
 
 # Ver health manualmente
@@ -1100,9 +1100,9 @@ curl http://localhost:3457/health
 curl http://localhost:3456/health
 
 # Ver secrets exportados (dentro do container)
-docker exec openclaw-mcp-wrapper env | grep OPENCLAW
+docker exec | grep OPENCLAW
 
-# Testar comunicacao OpenClaw diretamente
+# Testar comunicacao 
 curl -s http://10.0.19.4:8080/ -H "Authorization: Bearer $OPENCLAW_GATEWAY_TOKEN"
 ```
 
@@ -1114,12 +1114,12 @@ curl -s http://10.0.19.4:8080/ -H "Authorization: Bearer $OPENCLAW_GATEWAY_TOKEN
 |-------|-----------|
 | **MCP** | Model Context Protocol — protocolo para tools/agents |
 | **CEO MIX** | Estilo de resposta curta, direta, em PT-BR |
-| **Bridge Stack** | openwebui_bridge_agent + openclaw_mcp_wrapper |
-| **Infisical** | Plataforma de gerenciamento de secrets |
+| **Bridge Stack** | openwebui_bridge_agent + _mcp_wrapper |
+| **** | Plataforma de gerenciamento de secrets |
 | **Coolify** | Plataforma de deploy auto-hospedada |
 | **wav2vec2** | Modelo de STT (Speech-to-Text) local |
 
 ---
 
 *Documento gerado em 2026-04-09*
-*Stack: OpenWebUI + OpenClaw Bridge*
+*Stack: OpenWebUI + *

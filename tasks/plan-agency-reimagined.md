@@ -1,4 +1,4 @@
-# Plan: OpenClaw Agency — Voice-First
+# Plan: — Voice-First
 
 **Spec:** SPEC-011
 **Created:** 2026-04-08
@@ -8,7 +8,7 @@
 
 ## Overview
 
-Reimaginar o OpenClaw como uma agencia de design/marketing voice-first. O diferenciador e que clientes fazem briefing por audio e recebem relatorios por audio — ninguem no mercado faz isso.
+Reimaginar o /marketing voice-first. O diferenciador e que clientes fazem briefing por audio e recebem relatorios por audio — ninguem no mercado faz isso.
 
 ---
 
@@ -33,7 +33,7 @@ SUB-AGENTS (Fase 2)
 VOICE REPORTS (Fase 3)
     │
     ├── TTS Bridge :8013 — ja existe
-    ├── Kokoro — ja existe
+    ├── — ja existe
     └── template relatorio — CRIAR
             │
             ▼
@@ -153,7 +153,7 @@ After each phase:
 ## Resources
 
 - 1x developer (will)
-- OpenClaw bot (existing)
+- (existing)
 - Qdrant (existing)
 - LiteLLM + Ollama (existing)
 - n8n (existing)

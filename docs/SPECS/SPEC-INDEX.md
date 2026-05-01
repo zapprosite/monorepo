@@ -37,7 +37,7 @@ Archived to `docs/archive/SPECS-dead/`. See `docs/archive/SPECS-dead/README.md` 
 ## Notes
 
 - All voice pipeline SPECs (004, 005, 009, 013, 014, 018, 020) archived per SPEC-091
-- hvacr-swarm contains legacy SPECs from OpenClaw era (2026-04-08 to 2026-04-17)
+- hvacr-swarm contains legacy SPECs from (2026-04-08 to 2026-04-17)
 - After pruning: 9 SPECs in SPECS/, 29 in SPECS-dead/
 - Old status system (PROTECTED/IMPLEMENTING/APPROVED) no longer in use — canonical system: DONE/DRAFT/CANONICAL/REVIEW
 - SPEC-INDEX.md last updated 2026-04-10 — this update (2026-04-21) reflects SPEC-091 prune

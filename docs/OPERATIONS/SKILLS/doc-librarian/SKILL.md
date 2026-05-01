@@ -95,7 +95,7 @@ Append an entry to the change log.
 ```
 
 ### sync_to_monorepo()
-Sync OpenClaw workspace docs to monorepo source of truth.
+Sync .
 
 **What syncs:**
 - /data/workspace/SOUL.md → docs/OPENCLAW/

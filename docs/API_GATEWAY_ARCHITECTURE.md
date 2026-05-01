@@ -58,7 +58,7 @@ All services run behind Cloudflare Tunnel with no direct IP exposure. External a
 | Method | Path | Upstream | Auth |
 |--------|------|----------|------|
 | `POST` | `/v1/chat/completions` | LiteLLM / Ollama | Bearer `AI_GATEWAY_FACADE_KEY` |
-| `POST` | `/v1/audio/speech` | Ollama / Kokoro TTS | Bearer `AI_GATEWAY_FACADE_KEY` |
+| `POST` | `/v1/audio/speech` | Ollama / | Bearer `AI_GATEWAY_FACADE_KEY` |
 | `POST` | `/v1/audio/transcriptions` | Whisper (STT) | Bearer `AI_GATEWAY_FACADE_KEY` |
 | `GET` | `/v1/models` | LiteLLM | Bearer `AI_GATEWAY_FACADE_KEY` |
 | `GET` | `/health` | — | None |
@@ -255,7 +255,7 @@ pgadmin.zappro.site
 ```
 AI Gateway (:4002)
 ├── POST /v1/chat/completions    → LiteLLM or Ollama
-├── POST /v1/audio/speech        → Kokoro TTS Bridge
+├── POST /v1/audio/speech        → 
 ├── POST /v1/audio/transcriptions → Whisper STT
 └── GET  /v1/models              → LiteLLM model list
 

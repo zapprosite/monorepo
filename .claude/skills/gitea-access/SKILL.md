@@ -12,7 +12,7 @@ description: Gitea API integration for Claude Code — list repos, trigger workf
 **Opção A — Personal Access Token (recomendado para MCP):**
 1. Abrir https://gitea.zappro.site/user/settings/applications
 2. Criar novo token com scopes: `repo`, `workflow`, `read:user`
-3. Guardar em Infisical: `gitea-access-token`
+3. Guardar em : `gitea-access-token`
 
 ### Token configured
 
@@ -22,14 +22,14 @@ description: Gitea API integration for Claude Code — list repos, trigger workf
 - Local (docker): `http://localhost:3300` (porta 3300→3000)
 - Remoto: `https://gitea.zappro.site`
 
-### 2. Guardar Token em Infisical
+### 2. Guardar Token em 
 
 ```bash
 # No teu terminal local, com acesso ao vault:
-infisical secrets set gitea-access-token --value="your-token-here"
+="your-token-here"
 ```
 
-**Project ID Infisical:** `e42657ef-98b2-4b9c-9a04-46c093bd6d37`
+**Project ID :** `e42657ef-98b2-4b9c-9a04-46c093bd6d37`
 **Environment:** `dev`
 **Secret path:** `/`
 
@@ -49,17 +49,17 @@ infisical secrets set gitea-access-token --value="your-token-here"
 ### 4. Configurar no Claude Code
 
 Adicionar ao `settings.json`:
-- `GITEA_RUNNER_REGISTRATION_TOKEN` já existe em Infisical
+- `GITEA_RUNNER_REGISTRATION_TOKEN` já existe em 
 - Não funciona para API normal — só para registo de runners
 
-### 2. Guardar Token em Infisical
+### 2. Guardar Token em 
 
 ```bash
 # No teu terminal local, com acesso ao vault:
-infisical secrets set gitea-access-token --value="your-token-here"
+="your-token-here"
 ```
 
-**Project ID Infisical:** `e42657ef-98b2-4b9c-9a04-46c093bd6d37`
+**Project ID :** `e42657ef-98b2-4b9c-9a04-46c093bd6d37`
 **Environment:** `dev`
 **Secret path:** `/`
 

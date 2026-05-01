@@ -9,9 +9,9 @@
 
 - **Endpoint:** `localhost:4000` (direct)
 - **Tipo:** Docker container (`zappro-litellm`) via docker-compose
-- **Container rede:** `zappro-lite_default` (mesma do wav2vec2, Ollama, Kokoro)
+- **Container rede:** `zappro-lite_default` (mesma do wav2vec2, Ollama, )
 - **Config:** `/home/will/zappro-lite/config.yaml`
-- **Models:** whisper-1 (STT/wav2vec2), tts-1 (TTS/Kokoro), qwen2.5-vl (Vision), tom-cat-8b (LLM PT-BR), embedding-nomic
+- **Models:** whisper-1 (STT/wav2vec2), tts-1 (TTS/), qwen2.5-vl (Vision), tom-cat-8b (LLM PT-BR), embedding-nomic
 - **Database:** PostgreSQL via `zappro-litellm-db` container (persistência de keys/costs)
 - **DB Connection:** `postgresql://litellm:litellm_pass_2026@zappro-litellm-db:5432/litellm`
 
@@ -143,4 +143,4 @@ echo "Rate limited (503): $limited / $count"
 ## See Also
 
 - `ollama-health-check.md` — Ollama (upstream de LiteLLM)
-- `kokoro-health-check.md` — Kokoro TTS
+- `.md` — 

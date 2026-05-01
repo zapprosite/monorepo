@@ -229,21 +229,21 @@ This guide performs a smoke test on the voice pipeline desktop setup, verifying 
 
 Before starting, ensure you have:
 
-- [ ] **Docker** — Container runtime for Kokoro and OpenClaw
+- [ ] **Docker** — Container runtime for 
 - [ ] **Ollama** — Local LLM inference server
 - [ ] **whisper_api.py** — STT service running natively (not Docker)
-- [ ] **Kokoro TTS** — Docker container `zappro-kokoro`
+- [ ] **** — Docker container `zappro-`
 - [ ] **Models downloaded** — `llama3-portuguese-tomcat-8b-instruct-q8`, `qwen2.5vl:7b`
 
 ### Required Services
 
 | Service | Port | Required |
 |---------|------|----------|
-| Kokoro TTS | :8012 | Yes |
+| | :8012 | Yes |
 | Whisper API | :8201 | Yes |
 | Ollama | :11434 | Yes |
 | wav2vec2-proxy | Docker | Yes |
-| OpenClaw | :8080 | Yes |
+| | :8080 | Yes |
 
 ---
 
@@ -284,11 +284,11 @@ curl -s http://localhost:11434/api/tags | jq '.models[].name'
 
 ```bash
 # Record a test audio clip
-bash /home/will/Desktop/voice-pipeline/scripts/record.sh
+bash /home/will/Desktop//scripts/record.sh
 # Speak into microphone, press ENTER to stop
 
 # Process with voice.sh
-bash /home/will/Desktop/voice-pipeline/scripts/voice.sh /tmp/test_audio.wav
+bash /home/will/Desktop//scripts/voice.sh /tmp/test_audio.wav
 ```
 
 **Expected output:**
@@ -299,8 +299,8 @@ bash /home/will/Desktop/voice-pipeline/scripts/voice.sh /tmp/test_audio.wav
 ### Step 4: Test TTS Pipeline
 
 ```bash
-# Test Kokoro directly
-echo "Testing voice pipeline" | bash /home/will/Desktop/voice-pipeline/scripts/speak.sh
+# Test 
+echo "Testing voice pipeline" | bash /home/will/Desktop//scripts/speak.sh
 ```
 
 **Expected output:**
@@ -362,11 +362,11 @@ gsettings get org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/or
 **Resolution:**
 ```bash
 # Restore hotkey binding
-/home/will/Desktop/voice-pipeline/scripts/hotkey-restore.sh
+/home/will/Desktop//scripts/hotkey-restore.sh
 
 # Or manually:
 gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/voice-f9/ binding "'F12'"
-gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/voice-f9/ command "'/home/will/Desktop/voice-pipeline/scripts/record.sh'"
+gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/voice-f9/ command "'/home/will/Desktop//scripts/record.sh'"
 gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/voice-f9/ name "'Voice Record (F12)'"
 ```
 
@@ -390,7 +390,7 @@ ss -tlnp | grep 8201
 ```bash
 # Restart whisper_api.py
 pkill -f whisper_api.py
-bash /home/will/Desktop/voice-pipeline/scripts/start-whisper-api.sh &
+bash /home/will/Desktop//scripts/start-whisper-api.sh &
 ```
 
 ---
@@ -423,27 +423,27 @@ If the smoke test reveals critical failures:
 
 ```bash
 # Stop all voice pipeline services
-docker stop $(docker ps -q --filter "name=zappro-kokoro")
+docker stop $(docker ps -q --filter "name=zappro-")
 pkill -f whisper_api.py
 pkill -f ollama
 
 # Restore previous state via git
-cd /home/will/Desktop/voice-pipeline
+cd /home/will/Desktop/
 git stash
 git stash pop
 
 # Restart services
 systemctl --user restart ollama
 bash start-whisper-api.sh &
-docker start zappro-kokoro
+docker start zappro-
 ```
 
 ---
 
 ## Related Documentation
 
-- [Voice Pipeline Loop](./voice-pipeline-loop.md) — Server-side voice pipeline
-- [OpenClaw Audio Governance](../specflow/SPEC-009-openclaw-persona-audio-stack.md) — Audio stack rules
+- [Voice Pipeline Loop](./.md) — Server-side voice pipeline
+- [](../specflow/SPEC-009-.md) — Audio stack rules
 - [CODE-REVIEW-GUIDE](./CODE-REVIEW-GUIDE.md) — Code review standards
 
 ---
@@ -451,7 +451,7 @@ docker start zappro-kokoro
 ## Changelog
 
 ### v1.0 (2026-04-10)
-- Initial template based on voice-pipeline-desktop smoke test
+- Initial template based on 
 ```
 
 ---
@@ -494,7 +494,7 @@ docker start zappro-kokoro
 
 ## Naming Convention
 
-- File names: `kebab-case.md` (e.g., `voice-pipeline-desktop.md`)
+- File names: `kebab-case.md` (e.g., `.md`)
 - Section headers: Sentence case (e.g., `## Overview`)
 - Steps: Imperative verb (e.g., `### Step 1: Verify Services`)
 

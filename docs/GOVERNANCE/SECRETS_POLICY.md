@@ -8,9 +8,9 @@ Definitive rules for where secrets can and CANNOT live.
 
 ---
 
-## 0. Source of Truth: Infisical Vault
+## 0. Source of Truth: 
 
-**Vault:** `vault.zappro.site` (Infisical self-hosted)
+**Vault:** `vault.zappro.site` (
 **Project:** `zappro-p-tc-k` / `e42657ef-98b2-4b9c-9a04-46c093bd6d37`
 **Env:** `dev`
 
@@ -24,10 +24,10 @@ Scripts de injection: `~/.claude/scripts/env-wrapper.sh`
 
 ### ✅ INFISICAL VAULT (PRIMARY)
 
-**Location:** Infisical (`vault.zappro.site`)
+**Location:** 
 **Purpose:** API keys, tokens, passwords de serviços cloud/externos
 **Access:** `~/.claude/scripts/env-wrapper.sh` injeta via env vars
-**Rotation:** Manual via `infisical-cli` ou SDK
+**Rotation:** Manual via `
 
 **Referência:** `DATABASE_GOVERNANCE.md` para inventário completo de Postgres
 

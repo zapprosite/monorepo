@@ -1,10 +1,10 @@
-# Plano: OpenClaw Agency Hub — Design & Marketing
+# Plano: — Design & Marketing
 
 **Data:** 2026-04-05 | **Host:** will-zappro | **Bot:** @CEO_REFRIMIX_bot
 
 ## Contexto
 
-O bot OpenClaw Telegram funciona com MiniMax M2.7 direto. O host tem 37 containers rodando (Qdrant, Supabase, LiteLLM, Open WebUI, Firefox, N8N, Kokoro TTS, Ollama GPU, etc). O objetivo e transformar o bot em hub de agencia de design/marketing com: embeddings locais via Nomic → Qdrant, time de agents especializados, vault Obsidian, e dashboard de monitoramento.
+O bot 2.7 direto. O host tem 37 containers rodando (Qdrant, Supabase, LiteLLM, Open WebUI, Firefox, N8N, , Ollama GPU, etc). O objetivo e transformar o bot em hub de agencia de design/marketing com: embeddings locais via Nomic → Qdrant, time de agents especializados, vault Obsidian, e dashboard de monitoramento.
 
 ---
 
@@ -25,7 +25,7 @@ curl -s http://10.0.1.1:4000/v1/embeddings \
 
 ```bash
 # De dentro do container (mesma rede Docker)
-docker exec openclaw-qgtzrmi6771lt8l7x8rqx72f curl -s -X PUT \
+docker exec 6771lt8l7x8rqx72f curl -s -X PUT \
   http://qdrant-c95x9bgnhpedt0zp7dfsims7:6333/collections/knowledge \
   -H "api-key: vmEbyCYrU68bR7lkzCbL05Ey4BPnTZgr" \
   -H "Content-Type: application/json" \
@@ -73,12 +73,12 @@ Funcionalidade:
 |---|---|
 | Qdrant | `qdrant-c95x9bgnhpedt0zp7dfsims7:6333` |
 | LiteLLM | `10.0.1.1:4000` |
-| Kokoro TTS | `10.0.19.6:8880` |
+| | `10.0.19.6:8880` |
 | SearXNG | `10.0.1.1:8888` |
 
 ### Servicos em rede separada (precisam bridge):
 ```bash
-# Conectar Supabase Postgres a rede do OpenClaw
+# Conectar Supabase Postgres a rede do 
 docker network connect qgtzrmi6771lt8l7x8rqx72f ll01e4eis7wog1fnbzomc6jv
 ```
 
@@ -139,7 +139,7 @@ CEO MIX (main) orquestra e delega para 4 subagents:
 
 ### 5.1 Criar agentes
 ```bash
-docker exec openclaw-qgtzrmi6771lt8l7x8rqx72f openclaw agents add creative \
+docker exec 6771lt8l7x8rqx72f \
   --workspace /data/workspace/agents/creative --model "minimax/MiniMax-M2.7"
 # Repetir para design, social, project
 ```
@@ -156,18 +156,18 @@ CEO MIX permanece como unico ponto de contato no Telegram. Ele delega via subage
 
 ---
 
-## FASE 6: Dashboard OpenClaw-bot-review
+## FASE 6: Dashboard 
 
 ### 6.1 Clonar repo
 ```bash
-cd /home/will && git clone https://github.com/xmanrui/OpenClaw-bot-review.git
+cd /home/will && git clone https://github.com/xmanrui/.git
 ```
 
 ### 6.2 Deploy via Coolify
 - Recurso: Public Repository
-- URL: `https://github.com/xmanrui/OpenClaw-bot-review`
+- URL: `https://github.com/xmanrui/`
 - Build: Nixpacks (Next.js auto)
-- Env: Gateway URL + token do OpenClaw
+- Env: Gateway URL + token do 
 - **Porta:** Verificar PORTS.md (sugestao: 4010+)
 - **Subdominio:** Verificar SUBDOMAINS.md (sugestao: `agents.zappro.site`)
 
@@ -210,23 +210,23 @@ Dia 8-10: FASE 7 — Skills extras + documentacao
 | Supabase em rede separada | `docker network connect` |
 | Tokens MiniMax caros para subagents | Considerar gemma4 local para subagents |
 | Container sem obsidian-cli | Nao instalar — usar tools nativos |
-| Dashboard incompativel com OpenClaw 2026.2.6 | Testar local antes de Coolify |
+| Dashboard incompativel com 2026.2.6 | Testar local antes de Coolify |
 
 ## Verificacao
 
 Apos cada fase:
 1. Snapshot ZFS
 2. Testar funcionalidade end-to-end via Telegram
-3. Verificar logs: `docker logs openclaw-qgtzrmi6771lt8l7x8rqx72f --tail 20`
+3. Verificar logs: `docker logs 6771lt8l7x8rqx72f --tail 20`
 4. Confirmar que modelo primario continua `minimax/MiniMax-M2.7`
 
 ---
 
 **Arquivos criticos:**
-- Container: `/data/.openclaw/openclaw.json` — config principal
+- Container: `/data/./.json` — config principal
 - Host: `/home/will/zappro-lite/config.yaml` — LiteLLM config
 - Host: `/srv/ops/ai-governance/OPENCLAW_DEBUG.md` — guia de debug
-- Rule: `~/.claude/rules/openclaw-litellm-governance.md` — guardrails
+- Rule: `~/.claude/rules/.md` — guardrails
 
 ---
 
@@ -234,6 +234,6 @@ Apos cada fase:
 
 ```
 MODELO PRIMARIO = minimax/MiniMax-M2.7 DIRETO (api.minimax.io)
-LITELLM = SOMENTE proxy GPU (llava, gemma4, nomic, kokoro-tts)
+LITELLM = SOMENTE proxy GPU (llava, gemma4, nomic, )
 NUNCA rotear o modelo primario pelo LiteLLM
 ```

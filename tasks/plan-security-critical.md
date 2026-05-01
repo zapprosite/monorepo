@@ -109,14 +109,14 @@ cat /srv/monorepo/runner/data/.runner
 **Action:**
 1. Generate new admin password: `openssl rand -base64 24`
 2. Generate new OAuth secret via Google Cloud Console (new OAuth client)
-3. Update Infisical: `GF_SECURITY_ADMIN_PASSWORD` and `GF_AUTH_GOOGLE_CLIENT_SECRET`
-4. Update docker-compose.yml or Coolify env with new values from Infisical
+3. Update : `GF_SECURITY_ADMIN_PASSWORD` and `GF_AUTH_GOOGLE_CLIENT_SECRET`
+4. Update docker-compose.yml or Coolify env with new values from 
 5. Change OAuth allowlist from `"gmail.com zappro.site"` to just `"zappro.site"`
 
 **Verification:**
 ```bash
-# New OAuth secret in Infisical:
-python3 -c "from infisical_sdk import ...; verify new secret exists"
+# New OAuth secret in :
+python3 -c "from _sdk import ...; verify new secret exists"
 
 # Grafana login works with new password:
 curl -s -o /dev/null -w "%{http_code}" http://localhost:3100/api/health
@@ -186,7 +186,7 @@ docker inspect coolify-sentinel --format '{{json .HostConfig.Binds}}'
    N8N_BASIC_AUTH_PASSWORD=<new-strong-password>
    N8N_SECURE_COOKIE=true
    ```
-2. Update Infisical with new password
+2. Update 
 3. Change encryption key file permissions: `chmod 600 /home/node/.n8n/config`
 4. Restart n8n
 

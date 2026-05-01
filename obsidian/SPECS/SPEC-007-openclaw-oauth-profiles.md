@@ -1,4 +1,4 @@
-# SPEC-007: OpenClaw OAuth Persistent Login (Multi-Service CLI-First)
+# SPEC-007: (Multi-Service CLI-First)
 
 **Status:** PROPOSED
 **Created:** 2026-04-08
@@ -9,7 +9,7 @@
 
 ## Overview
 
-Configurar login OAuth persistente para OpenClaw (CEO MIX agent) comandar Perplexity Agent em `web.zappro.site`. Solução **CLI-first** — nenhum n8n ou webhook intermediary.
+Configurar login OAuth persistente para (CEO MIX agent) comandar Perplexity Agent em `web.zappro.site`. Solução **CLI-first** — nenhum n8n ou webhook intermediary.
 
 ---
 
@@ -17,7 +17,7 @@ Configurar login OAuth persistente para OpenClaw (CEO MIX agent) comandar Perple
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                   CEO MIX (OpenClaw Bot)                    │
+│                   CEO MIX ()                    │
 │  Browser automation via CDP                                  │
 │  Navigate: https://web.zappro.site (OAuth session)          │
 │  Executes commands on Perplexity UI                         │
@@ -36,7 +36,7 @@ Configurar login OAuth persistente para OpenClaw (CEO MIX agent) comandar Perple
 
 ```bash
 # scripts/perplexity-query.sh
-PERPLEXITY_API_KEY="$(infisical get PERPLEXITY_API_KEY)" \
+PERPLEXITY_API_KEY="$(_API_KEY)" \
 curl -s -X POST "https://api.perplexity.ai/chat/completions" \
   -H "Authorization: Bearer $PERPLEXITY_API_KEY" \
   -H "Content-Type: application/json" \
@@ -48,10 +48,10 @@ curl -s -X POST "https://api.perplexity.ai/chat/completions" \
 ## Goals
 
 ### Must Have
-- [ ] Chrome profile persistente via host path mount (`/srv/data/openclaw-chrome-profiles/`)
+- [ ] Chrome profile persistente via host path mount (`/srv/data//`)
 - [ ] Login OAuth funciona em `web.zappro.site` (Gemini + Perplexity personas)
 - [ ] Sessões persistem após restart do container `browser-*`
-- [ ] CEO MIX (OpenClaw) consegue navegar logado via CDP
+- [ ] CEO MIX () consegue navegar logado via CDP
 
 ### Should Have
 - [ ] CLI script `perplexity-query.sh` para query direta API
@@ -72,8 +72,8 @@ curl -s -X POST "https://api.perplexity.ai/chat/completions" \
 ### Step 1: Criar diretórios de perfil no host
 
 ```bash
-mkdir -p /srv/data/openclaw-chrome-profiles/{gemini-profile,perplexity-profile}/Default
-chmod -R 777 /srv/data/openclaw-chrome-profiles/
+mkdir -p /srv/data//{gemini-profile,perplexity-profile}/Default
+chmod -R 777 /srv/data//
 ```
 
 ### Step 2: Identificar volume mount do browser container
@@ -89,8 +89,8 @@ Chromium guarda perfil em `/config/.config/chromium/Default/`
 ```yaml
 # docker-compose override
 volumes:
-  - /srv/data/openclaw-chrome-profiles/gemini-profile:/config/.config/chromium/gemini
-  - /srv/data/openclaw-chrome-profiles/perplexity-profile:/config/.config/chromium/perplexity
+  - /srv/data//gemini-profile:/config/.config/chromium/gemini
+  - /srv/data//perplexity-profile:/config/.config/chromium/perplexity
 ```
 
 **Opção B:** Symlink dentro do container:
@@ -104,14 +104,14 @@ ln -sf /host/path/gemini-profile /config/.config/chromium/Default
 1. Abrir browser com perfil gemini → navegar para `web.zappro.site`
 2. Fazer login OAuth com conta Gemini
 3. Repetir para perfil perplexity
-4. Perfis guardados em `/srv/data/openclaw-chrome-profiles/`
+4. Perfis guardados em `/srv/data//`
 
 ### Step 5: CLI Query Script
 
 ```bash
 #!/bin/bash
 # scripts/perplexity-query.sh
-API_KEY="${PERPLEXITY_API_KEY:-$(infisical get PERPLEXITY_API_KEY)}"
+API_KEY="${PERPLEXITY_API_KEY:-$(_API_KEY)}"
 curl -s -X POST "https://api.perplexity.ai/chat/completions" \
   -H "Authorization: Bearer $API_KEY" \
   -H "Content-Type: application/json" \
@@ -128,9 +128,9 @@ scripts/
 └── oauth-chrome-profiles.sh                 # setup dirs + validation
 
 docs/specflow/
-└── SPEC-007-openclaw-oauth-profiles.md     # esta spec
+└── SPEC-007-.md     # esta spec
 
-apps/openclaw/
+apps//
 └── n8n-workflows/                          # DELETED - sem n8n
 ```
 
@@ -143,15 +143,15 @@ apps/openclaw/
 | AC-1 | Chrome profile persiste | Restart container → cookies intactos |
 | AC-2 | Gemini OAuth funciona | Login persiste após restart |
 | AC-3 | Perplexity OAuth funciona | Login persiste após restart |
-| AC-4 | CEO MIX navega logado | OpenClaw CDP → web.zappro.site como usuário |
+| AC-4 | CEO MIX navega logado | → web.zappro.site como usuário |
 | AC-5 | CLI query funciona | `./perplexity-query.sh "test"` → JSON response |
 
 ---
 
 ## Dependencies
 
-- OpenClaw deployment via Coolify
-- Infisical secrets (PERPLEXITY_API_KEY)
+- 
+- (PERPLEXITY_API_KEY)
 - Browser container com Chromium + CDP exposure
 
 ---

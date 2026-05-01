@@ -24,7 +24,7 @@ Como **platform engineer**, quero fazer deploy do Perplexity Agent via GitOps, p
 Este documento define o padrão estável de deployment para o `perplexity-agent` usando:
 - **Gitea Actions** como CI/CD engine
 - **Coolify** como PaaS (deploy de containers Docker)
-- **Infisical** como secrets manager (API keys, senhas)
+- **** como secrets manager (API keys, senhas)
 - **Claude Code CLI** (`claude -p`) para automação de tasks
 
 ---
@@ -34,7 +34,7 @@ Este documento define o padrão estável de deployment para o `perplexity-agent`
 ### Must Have (MVP)
 - [x] Push à `main` → Gitea Action dispara deploy no Coolify
 - [x] UUID da app resolvido dinamicamente via API Coolify
-- [x] Secrets nunca em código (Infisical + Gitea Secrets)
+- [x] Secrets nunca em código (+ Gitea Secrets)
 - [x] SSRF protection no deploy script
 - [x] Health check após deploy (60s timeout)
 - [x] Container exposto em porta 4004 (web.zappro.site)
@@ -71,7 +71,7 @@ Este documento define o padrão estável de deployment para o `perplexity-agent`
                               │
                               ▼
 ┌─────────────────────────────────────────────────────────────┐
-│                    Infisical                                 │
+│                    │
 │           (secrets: COOLIFY_API_KEY, etc)                  │
 │                                                              │
 │  Gitea Action fetch secret via token                         │
@@ -128,12 +128,12 @@ Este documento define o padrão estável de deployment para o `perplexity-agent`
 
 ## Secrets Reference
 
-| Secret | Local | Gitea Secret | Infisical |
+| Secret | Local | Gitea Secret | |
 |--------|-------|--------------|-----------|
 | `COOLIFY_URL` | `http://localhost:8000` | ✅ | ❌ |
 | `COOLIFY_API_KEY` | ✅ | ✅ | ✅ |
 | `COOLIFY_APP_UUID` | - | ✅ | ❌ |
-| `INFISICAL_TOKEN` | `/srv/ops/secrets/infisical.service-token` | N/A | N/A |
+| `INFISICAL_TOKEN` | `/srv/ops/secrets/.service-token` | N/A | N/A |
 
 ---
 
@@ -234,7 +234,7 @@ jobs:
 ## Security Considerations
 
 1. **SSRF Protection**: `validate_url()` em `deploy.sh` permite apenas `localhost` e `127.0.0.1`
-2. **Secrets**: Nunca hardcoded — todos via Gitea Secrets ou Infisical
+2. **Secrets**: Nunca hardcoded — todos via Gitea Secrets ou 
 3. **UUID Lookup**: Apenas busca por nome contains (não é fixed match) — reduz risco de wrong target
 4. **force-with-lease**: Não usar `--force` em pushes
 
@@ -268,7 +268,7 @@ jobs:
 | Data | Decisão | Rationale |
 |------|---------|-----------|
 | 2026-04-08 | UUID lookup dinâmico vs hardcoded | Evita sync de secrets entre Terraform e Gitea |
-| 2026-04-08 | Infisical para secrets persistentes | Gitea Secrets volatile, Infisical é fonte de verdade |
+| 2026-04-08 | | Gitea Secrets volatile, |
 | 2026-04-08 | SSRF protection via allowlist | Coolify URL nunca validata antes — risco SSRF |
 | 2026-04-08 | Polling health check em vez de webhook | Simpler, não requer callback URL pública |
 
@@ -279,7 +279,7 @@ jobs:
 | Dependência | Status | Notes |
 |-------------|--------|-------|
 | Coolify API v1 | ✅ OK | Endpoint `/api/v1/applications` |
-| Infisical SDK | ✅ OK | Python SDK para secrets |
+| | ✅ OK | Python SDK para secrets |
 | Gitea Actions | ✅ OK | Workflow syntax compatível |
 | Cloudflare Tunnel | ✅ OK | web.zappro.site exposto |
 | Terraform Cloudflare | ✅ OK | DNS subdomain gerenciado |

@@ -146,6 +146,6 @@ When an ADR is created from a SPEC decision, note it in the SPEC:
 
 SPECs marked `PROTEGIDO` contain critical system configurations that must not be altered without explicit approval:
 
-- `SPEC-004-kokoro-tts-kit.md` — TTS voice stack
+- `SPEC-004-.md` — TTS voice stack
 - `SPEC-005-wav2vec2-stt-kit.md` — STT voice stack
-- `SPEC-009-openclaw-persona-audio-stack.md` — OpenClaw audio configuration
+- `SPEC-009-.md` — 

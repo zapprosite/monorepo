@@ -99,7 +99,7 @@ alias ydb="yarn db"
 If AI services or background tasks are failing, use these internal utilities:
 *   **Redis Check:** `yarn tsx apps/hermes-agency/src/telegram/redis.ts` to test connectivity.
 *   **Smoke Tests:** Run `python smoke-tests/smoke_hermes_telegram.py` to validate the Telegram bot pipeline.
-*   **API Gateway Logs:** Analyze logs for `apps/ai-gateway` to debug Whisper (STT) or Kokoro (TTS) connectivity issues.
+*   **API Gateway Logs:** Analyze logs for `apps/ai-gateway` to debug Whisper (STT) or (TTS) connectivity issues.
 
 ---
 

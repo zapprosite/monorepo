@@ -18,7 +18,7 @@
 [Cloudflare Tunnel - cloudflared]                         │
      │                                                    │
      ├── bot.zappro.site → http://localhost:80 ────────────┤
-     │     (OpenClaw: Traefik → OpenClaw:8080)           │
+     │     (: Traefik → :8080)           │
      │                                                    │
      ├── llm.zappro.site → http://localhost:4000 ─────────┤
      │     (LiteLLM, protegido por Cloudflare Access)     │
@@ -36,7 +36,7 @@
 
 | Subdomain | Routing | Access Control | Status |
 |-----------|---------|---------------|--------|
-| `bot.zappro.site` | Cloudflare → Traefik → OpenClaw | Nenhum (público) | ✅ Working |
+| `bot.zappro.site` | Cloudflare → Traefik → | Nenhum (público) | ✅ Working |
 | `llm.zappro.site` | Cloudflare → localhost:4000 | Cloudflare Access (Google OAuth) | ✅ Working |
 | `n8n.zappro.site` | Cloudflare → Docker IP:5678 | Cloudflare Access | ✅ Working |
 | `qdrant.zappro.site` | Cloudflare → localhost:6333 | Cloudflare Access | ✅ Working |
@@ -46,7 +46,7 @@
 
 | Problema | Causa |
 |----------|-------|
-| `localhost:18789` (smoke test) | Gateway OpenClaw bind=loopback apenas — inacessível externamente |
+| `localhost:18789` (smoke test) | Gateway =loopback apenas — inacessível externamente |
 | Porta 80/443 externa | Cloud provider security group bloqueia — not through Cloudflare Tunnel |
 | `localhost:8080` sem rota | Traefik não tem rota para `localhost:8080` via `Host: bot.zappro.site` |
 | Smoke test 1.2/1.3 fail | Usa `localhost:18789` que é loopback-only dentro do container |
@@ -100,7 +100,7 @@ Lambda é para **compute sem servidor**. Não tem utilidade directa para routing
 │  ┌─────────────────────────────────────────────────────┐ │
 │  │           Docker Network (coolify)                   │ │
 │  │  ┌──────────┐  ┌──────────┐  ┌──────────────┐     │ │
-│  │  │ Traefik  │  │ OpenClaw │  │  LiteLLM     │     │ │
+│  │  │ Traefik  │  │ │  │  LiteLLM     │     │ │
 │  │  │ :80/:443 │──│  :8080   │  │  :4000       │     │ │
 │  │  └──────────┘  └──────────┘  └──────────────┘     │ │
 │  └─────────────────────────────────────────────────────┘ │
@@ -137,15 +137,15 @@ Traefik Dynamic Config (/traefik/dynamic/)
 ### Porque NÃO precisamos de Pangolin (ainda)
 
 1. **O Terraform ACTUAL já gere DNS + Tunnel config** via `cloudflare_zero_trust_tunnel_cloudflared_config`
-2. **OpenClaw já tem labels Traefik** — Coolify cria routers automaticamente
+2. **** — Coolify cria routers automaticamente
 3. **O problema não é o Traefik** — é que:
    - cloudflared aponta para `localhost:80`
    - Traefik recebe pedido com Host Header `bot.zappro.site`
    - Traefik não tem rota para `bot.zappro.site` — usa catchall → 404
-   - MAS o `http_host_header` no terraform força o header para `openclaw-...sslip.io`
+   - MAS o `http_host_header` no terraform força o header para `...sslip.io`
    - Enão Traefik reconhece e routing Works ✅
 
-**Verificado:** `https://bot.zappro.site/` → 401 (OpenClaw auth) = **funciona!**
+**Verificado:** `https://bot.zappro.site/` → 401 () = **funciona!**
 
 ---
 
@@ -161,34 +161,34 @@ O smoke test falha porque usa `localhost:18789` que é **loopback-only dentro do
 
 ### Tarefa 1: Corrigir Smoke Test — Usar rota correcta
 
-**Ficheiro:** `tasks/smoke-tests/pipeline-openclaw-voice.sh`
+**Ficheiro:** `tasks/smoke-tests/pipeline-.sh`
 
 **Mudar 1.2/1.3:**
 - Remover `localhost:18789` (loopback, inacessível)
-- Adicionar `https://bot.zappro.site/` (Cloudflare Tunnel → OpenClaw)
-- Adicionar `http://localhost:8080/` como fallback (Traefik → OpenClaw)
+- Adicionar `https://bot.zappro.site/` (Cloudflare Tunnel → )
+- Adicionar `http://localhost:8080/` como fallback (Traefik → )
 
 **Critério aceite:** Smoke test passa (200/401 são OK para health check — 401 significa routing OK, apenas precisa auth)
 
 ---
 
-### Tarefa 2: Criar Subdomain `openclaw.zappro.site` (opcional)
+### Tarefa 2: Criar Subdomain `.zappro.site` (opcional)
 
-**Motivo:** `bot.zappro.site` não é intuitivo. Criar `openclaw.zappro.site` seria mais limpo.
+**Motivo:** `bot.zappro.site` não é intuitivo. Criar `.zappro.site` seria mais limpo.
 
 **Ficheiro:** `/srv/ops/terraform/cloudflare/variables.tf`
 
 ```hcl
-openclaw = {
+= {
   url       = "http://localhost:80"
-  subdomain = "openclaw"
-  http_host_header = "openclaw-qgtzrmi6771lt8l7x8rqx72f.191.17.50.123.sslip.io"
+  subdomain = ""
+  http_host_header = "6771lt8l7x8rqx72f.191.17.50.123.sslip.io"
 }
 ```
 
 **Também actualizar:** `~/.cloudflared/config.yml` (referência local)
 
-**Critério aceite:** `https://openclaw.zappro.site/` → 200 ou 401 (routing OK)
+**Critério aceite:** `https://.zappro.site/` → 200 ou 401 (routing OK)
 
 ---
 
@@ -244,7 +244,7 @@ Tarefa 4 (ZFS snapshot)
 Tarefa 1 (fix smoke test) ← pode fazer agora
 Tarefa 3 (documentação)   ← pode fazer agora
        ↓
-Tarefa 2 (openclaw subdomain) ← requer snapshot
+Tarefa 2 () ← requer snapshot
        ↓
 Tarefa 5 (documentar portas)
 ```

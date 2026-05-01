@@ -29,8 +29,8 @@
 | **6334** | zappro-qdrant | host | Qdrant gRPC | — |
 | **6379** | zappro-redis | host | Redis cache/pubsub | — |
 | **6381** | aurelia-redis | localhost | Redis (aurelia stack) | — |
-| **8012** | zappro-kokoro | localhost | Kokoro TTS (GPU) | — |
-| **8880** | zappro-kokoro | bridge (Coolify net) | Kokoro TTS — IP `10.0.19.7:8880` para containers Coolify | — |
+| **8012** | zappro-| localhost | (GPU) | — |
+| **8880** | zappro-| bridge (Coolify net) | — IP `10.0.19.7:8880` para containers Coolify | — |
 | **8080** | — | host | Deprecated (era aurelia-api) | aurelia.zappro.site |
 | **8888** | searxng | host | Search engine (OpenCode) | — |
 | **9090** | prometheus | localhost | TSDB métricas 30d | — |
@@ -48,15 +48,15 @@
 
 ---
 
-### Stack Gitea/OpenClaw (Coolify)
+### Stack Gitea/(Coolify)
 
 | Porta | Container | Acesso | Função | Subdomínio |
 |-------|-----------|--------|--------|------------|
 | **3300** | gitea | host | Gitea Git server | git.zappro.site |
-| **4001** | openclaw-qgtzrmi... | localhost | OpenClaw Bot UI | bot.zappro.site |
+| **4001** | ... | localhost | | bot.zappro.site |
 | **4003** | painel | host | Claude Code Panel (nginx:alpine) | painel.zappro.site |
-| **4006** | mcp-monorepo | qgtzrmi net (10.0.19.50) | MCP Filesystem /srv/monorepo → OpenClaw | — |
-| **4011** | mcp-qdrant | qgtzrmi net (10.0.19.51) | MCP Qdrant semantic search (openclaw-memory) | — |
+| **4006** | mcp-monorepo | qgtzrmi net (10.0.19.50) | MCP Filesystem /srv/monorepo → | — |
+| **4011** | mcp-qdrant | qgtzrmi net (10.0.19.51) | MCP Qdrant semantic search () | — |
 | **8201** | whisper-api | host | Faster-Whisper STT (OpenAI-compatible) | — |
 
 ### Novos Serviços (2026-04-03)
@@ -65,7 +65,7 @@
 |-------|-----------|--------|--------|------------|
 | **4002** | — | localhost | ShieldGemma 9B (PENDENTE — nunca deployado) | — |
 | **4003** | python http.server | host | Claude Code Panel HTML estático | painel.zappro.site |
-| **8200** | infisical | localhost | Infisical vault self-hosted | vault.zappro.site |
+| **8200** | | localhost | | vault.zappro.site |
 
 ## ⏳ Portas RESERVADAS — Pendente Deploy (Coolify)
 
@@ -92,7 +92,7 @@
 | Porta | Destino | Rede Destino | Acesso via |
 |-------|---------|--------------|------------|
 | **4000** | LiteLLM Proxy | docker0 (10.0.1.1) | Coolify containers via `10.0.1.1:4000` |
-| **8880** | Kokoro TTS | bridge (10.0.19.7) | Coolify containers via `10.0.19.7:8880` |
+| **8880** | | bridge (10.0.19.7) | Coolify containers via `10.0.19.7:8880` |
 | **6333** | Qdrant (Coolify) | Coolify network (10.0.19.5) | Containers via `10.0.19.5:6333` |
 
 ---
@@ -116,7 +116,7 @@
 ❌ NUNCA usar :8000 → Coolify
 ❌ NUNCA usar :4000 em dev local sem checar zappro-litellm
 ❌ NUNCA usar :3000 → reservada para Open WebUI (Coolify)
-❌ NUNCA usar :4001 → reservada para OpenClaw Bot (Coolify)
+❌ NUNCA usar :4001 → reservada para (Coolify)
 ✅ Dev local no monorepo: usar PORT=4002+ ou PORT=5173 (Vite)
 ```
 

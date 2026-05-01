@@ -3,17 +3,17 @@
 **Status:** DRAFT
 **Created:** 2026-04-09
 **Author:** will + Claude Code
-**Source:** Estudo do source code OpenClaw (`/home/will/Downloads/openclaw-main/openclaw-main`)
+**Source:** Estudo do source code (`/home/will/Downloads//`)
 
 ---
 
 ## Resumo
 
-Este documento define a configuração **definitiva e corrigida** para o CEO MIX (OpenClaw Bot voice-first). Foi derivada do estudo do source code do OpenClaw para entender como os fluxos de áudio realmente funcionam.
+Este documento define a configuração **definitiva e corrigida** para o CEO MIX (). Foi derivada do estudo do source code do .
 
 **Stack Corretada:**
 - **STT:** wav2vec2 `:8201` (não Whisper, não LiteLLM)
-- **TTS:** TTS Bridge `:8013` → Kokoro `:8880` (vozes filtradas: pm_santa, pf_dora)
+- **TTS:** TTS Bridge `:8013` → `:8880` (vozes filtradas: pm_santa, pf_dora)
 - **VL:** litellm/qwen2.5-vl via LiteLLM (input: ["text", "image"])
 
 ---
@@ -94,14 +94,14 @@ CEO MIX (Telegram)
                           │
                           ▼
                  ┌─────────────────┐
-                 │ Kokoro TTS      │
+                 │ │
                  │ (:8880)         │
                  └─────────────────┘
 ```
 
 ---
 
-## Configuração Correta (openclaw.json)
+## Configuração Correta (.json)
 
 ### O que NÃO usar (Errado)
 
@@ -195,7 +195,7 @@ CEO MIX (Telegram)
 
 ### Como funciona (do source)
 
-O OpenClaw usa `transcribeOpenAiCompatibleAudio()` para transcrição:
+O `transcribeOpenAiCompatibleAudio()` para transcrição:
 
 ```typescript
 // Extracted from openai-compatible-audio.ts
@@ -246,17 +246,17 @@ O wav2vec2 deve estar registrado como provider ou configurado via `tools.media.a
 
 1. User envia voice note no Telegram
 2. Telegram baixa o arquivo OGG (ou OPUS)
-3. OpenClaw faz `transcribeFirstAudio()` → `runAudioTranscription()`
+3. `transcribeFirstAudio()` → `runAudioTranscription()`
 4. Envia para `${baseUrl}/audio/transcriptions` com `multipart/form-data`
 5. Recebe JSON: `{ "text": "transcrição em texto" }`
 
 ---
 
-## TTS: Bridge :8013 → Kokoro :8880
+## TTS: Bridge :8013 → :8880
 
 ### Como funciona (do source)
 
-O OpenClaw usa `openaiTTS()` para síntese:
+O `openaiTTS()` para síntese:
 
 ```typescript
 // Extracted from extensions/openai/tts.ts
@@ -265,7 +265,7 @@ Authorization: Bearer <apiKey>
 Content-Type: application/json
 
 {
-  "model": "kokoro",
+  "model": "",
   "input": "Texto para falar",
   "voice": "pm_santa",
   "response_format": "mp3",
@@ -276,9 +276,9 @@ Content-Type: application/json
 ### O TTS Bridge filtra vozes
 
 O TTS Bridge em `:8013` é um proxy que:
-1. Recebe a requisição do OpenClaw
+1. Recebe a requisição do 
 2. Valida a voz (`pm_santa` ou `pf_dora`)
-3. Se válida → repassa para Kokoro `:8880`
+3. Se válida → repassa para `:8880`
 4. Se inválida → retorna `400 Bad Request`
 
 ```python
@@ -293,8 +293,8 @@ def do_POST(self):
         self.send_error(400, "Voice not allowed")
         return
     
-    # Repassa para Kokoro
-    kokoro_response = requests.post(
+    # Repassa para 
+    _response = requests.post(
         "http://10.0.19.7:8880/v1/audio/speech",
         json=body
     )
@@ -358,16 +358,16 @@ O modelo `qwen2.5-vl` é o modelo configured (llava FOI SUBSTITUIDO 2026-04-09) 
 
 ---
 
-## Governance: Regras de Audio (de `openclaw-audio-governance.md`)
+## Governance: Regras de Audio (de `.md`)
 
 ### STT
 - **ÚNICO:** wav2vec2 `:8201`
 - **PROIBIDO:** Deepgram, Whisper, Silero STT
 
 ### TTS
-- **ÚNICO:** TTS Bridge `:8013` → Kokoro `:8880`
+- **ÚNICO:** TTS Bridge `:8013` → `:8880`
 - **VOZES:** pm_santa (masculino), pf_dora (feminino)
-- **PROIBIDO:** Kokoro direto, outras vozes
+- **PROIBIDO:** , outras vozes
 
 ### LLM Primário
 - **ÚNICO:** minimax/MiniMax-M2.7 direto (não via LiteLLM)
@@ -387,8 +387,8 @@ O modelo `qwen2.5-vl` é o modelo configured (llava FOI SUBSTITUIDO 2026-04-09) 
 | `/data/workspace/IDENTITY.md` | Audio stack correto |
 | `/data/workspace/SOUL.md` | Audio stack correto + kit reference |
 | `/data/workspace/MEMORY.md` | Audio stack documentado |
-| `SPEC-009-openclaw-persona-audio-stack.md` | Atualizar com especificações do source |
-| `SPEC-012-openclaw-update-discoverer.md` | Dual-track discovery (criado) |
+| `SPEC-009-.md` | Atualizar com especificações do source |
+| `SPEC-012-.md` | Dual-track discovery (criado) |
 
 ---
 
@@ -408,13 +408,13 @@ curl -X POST http://10.0.19.6:8201/v1/audio/transcriptions \
 # Voice permitida
 curl -X POST http://localhost:8013/v1/audio/speech \
   -H "Content-Type: application/json" \
-  -d '{"model":"kokoro","input":"Teste","voice":"pm_santa"}' \
+  -d '{"model":"","input":"Teste","voice":"pm_santa"}' \
   -o /tmp/test.mp3 -w "%{http_code}"
 # Esperado: 200
 
 # Voice bloqueada
 curl -X POST http://localhost:8013/v1/audio/speech \
-  -d '{"model":"kokoro","input":"Teste","voice":"af_sarah"}'
+  -d '{"model":"","input":"Teste","voice":"af_sarah"}'
 # Esperado: 400
 ```
 
@@ -444,16 +444,16 @@ curl -X POST http://10.0.1.1:4000/v1/chat/completions \
 | AC-2 | CEO MIX entende audio PT-BR | Enviar voice note → transcrição correta |
 | AC-3 | CEO MIX entende imagens via VL | Enviar imagem → descrição correta |
 | AC-4 | TTS Bridge bloqueia vozes não-autorizadas | Tentar af_sarah → 400 |
-| AC-5 | Smoke test 15/15 passa | `pipeline-openclaw-voice.sh` |
+| AC-5 | Smoke test 15/15 passa | `pipeline-.sh` |
 
 ---
 
 ## Referências
 
-- Source: `/home/will/Downloads/openclaw-main/openclaw-main/extensions/openai/tts.ts`
-- Source: `/home/will/Downloads/openclaw-main/openclaw-main/extensions/openai/speech-provider.ts`
-- Source: `/home/will/Downloads/openclaw-main/openclaw-main/src/media-understanding/openai-compatible-audio.ts`
-- Source: `/home/will/Downloads/openclaw-main/openclaw-main/src/media-understanding/audio-preflight.ts`
-- Source: `/home/will/Downloads/openclaw-main/openclaw-main/src/media-understanding/image-runtime.ts`
+- Source: `/home/will/Downloads///extensions/openai/tts.ts`
+- Source: `/home/will/Downloads///extensions/openai/speech-provider.ts`
+- Source: `/home/will/Downloads///src/media-understanding/openai-compatible-audio.ts`
+- Source: `/home/will/Downloads///src/media-understanding/audio-preflight.ts`
+- Source: `/home/will/Downloads///src/media-understanding/image-runtime.ts`
 - Governance: `docs/GOVERNANCE/OPENCLAW_AUDIO_GOVERNANCE.md`
 - TTS Bridge: `docs/OPERATIONS/SKILLS/tts-bridge.py`

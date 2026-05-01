@@ -65,7 +65,7 @@ cat /home/will/.claude/mcps/ai-context-sync/manifest.json
        ↓
 4. Memory context fica fresco para próxima sessão
        ↓
-5. OpenClaw pode consultar via MCP monorepo (read-only)
+5. (read-only)
 ```
 
 ---
@@ -83,15 +83,15 @@ cat /home/will/.claude/mcps/ai-context-sync/manifest.json
 
 ---
 
-## Integração com OpenClaw
+## Integração com 
 
-O OpenClawconsulta o knowledge base via:
+O :
 - **MCP monorepo** (`10.0.19.50:4006`) — acesso read-only aos docs
 - **Qdrant collections** — memória vetorial (briefs, campaigns, knowledge)
 - **doc-librarian skill** — auditoria de docs stale
 
 ```
-OpenClaw → MCP monorepo (docs) + Qdrant (memória vetorial)
+→ MCP monorepo (docs) + Qdrant (memória vetorial)
                      ↓
               docs/index.md
               docs/WORKFLOW.md
@@ -116,7 +116,7 @@ OpenClaw → MCP monorepo (docs) + Qdrant (memória vetorial)
 └──────────────────────────┬───────────────────────────────────┘
                            ↓
 ┌──────────────────────────────────────────────────────────────┐
-│  OpenClaw Bot (Telegram)                                    │
+│  (Telegram)                                    │
 │  doc-librarian: verifica frescor dos docs                   │
 │  qdrant-rag: indexa nova documentação                        │
 └──────────────────────────────────────────────────────────────┘
@@ -133,7 +133,7 @@ cat /home/will/.claude/mcps/ai-context-sync/manifest.json | jq '.last_sync'
 # Verificar se memory está fresco
 ls -la ~/.claude/projects/-srv-monorepo/memory/
 
-# Testar via OpenClaw
+# Testar via 
 @CEO_REFRIMIX_bot /buscar "última sincronização ai-context"
 ```
 
@@ -144,14 +144,14 @@ ls -la ~/.claude/projects/-srv-monorepo/memory/
 Claude Resolve é o mecanismo de resolução de contexto do sistema:
 
 ```
-Claude Code → /ai-context → memória fresca → OpenClaw consulta
+Claude Code → /ai-context → memória fresca → 
                                               ↓
                                     claude-resolve.md (em docs/context/)
 ```
 
 **Fluxo de Resolução:**
 1. Claude Code sincroniza contexto após cada commit
-2. OpenClaw consulta via MCP monorepo para contexto persistente
+2. 
 3. Claude Resolve indexa e resolve queries contra docs sincronizados
 
 ---

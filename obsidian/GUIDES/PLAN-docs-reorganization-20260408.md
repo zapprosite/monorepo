@@ -108,7 +108,7 @@ docs/                                    # SOURCE OF TRUTH
 │   │   ├── monitoring-zfs-snapshot.md
 │   │   ├── ollama-health-check.md
 │   │   ├── litellm-health-check.md
-│   │   ├── kokoro-health-check.md
+│   │   ├── .md
 │   │   ├── resource-monitor.md
 │   │   ├── ai-stress-test.md
 │   │   ├── catalog-sync.md
@@ -165,10 +165,10 @@ docs/                                    # SOURCE OF TRUTH
 │
 ├── guides/                             # Guias misc (estável)
 │   ├── gitea-coolify.md
-│   ├── infisical.md
+│   ├── .md
 │   ├── manutencao-continua.md
 │   ├── memoria-claude.md
-│   ├── openclaw-*.md
+│   ├── *.md
 │   ├── opencode.md
 │   ├── security-hardening.md
 │   ├── whisper-auto-local.md
@@ -465,6 +465,6 @@ git -C /srv/monorepo reset --hard HEAD~1
 |---|----------|---------|
 | Q1 | `docs/OPERATIONS/RUNBOOK.md` fica em GOVERNANCE ou OPERATIONS? | OPERATIONS (é operacional, não governança) |
 | Q2 | `docs/INFRASTRUCTURE/SYSTEM_STATE.md` vai para `/srv/ops/ai-governance/` ou `docs/`? | `docs/INFRASTRUCTURE/` - é específico do repo |
-| Q3 | O que acontece com `docs/guides/openclaw-*.md`? | Ficam em `guides/` - são guides não governança |
+| Q3 | O que acontece com `docs/guides/*.md`? | Ficam em `guides/` - são guides não governança |
 | Q4 | `docs/logs/` fica ou vai para `/srv/ops/ai-governance/logs/`? | Fica em `docs/logs/` - logs operacionais deste repo |
 | Q5 | O que fazer com `docs/APPLICATION/`? | Manter como está - docs específicos da aplicação |

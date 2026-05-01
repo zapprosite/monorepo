@@ -2,7 +2,7 @@
 
 ## Tarefas Extraídas do Plano
 
-### Tarefa 1: Skill `/loop` no OpenClaw
+### Tarefa 1: Skill `/loop` no 
 **Ficheiro:** `/data/workspace/skills/voice-loop/SKILL.md`
 **Status:** pending
 
@@ -58,7 +58,7 @@ Gravar JSON por teste:
 **Status:** pending
 
 Implementar `/test`:
-- Executa `pipeline-openclaw-voice.sh`
+- Executa `pipeline-.sh`
 - Filtra output para formato Telegram
 - Lê últimos resultados de `/srv/monorepo/tasks/results/`
 - Responde via TTS com resumo

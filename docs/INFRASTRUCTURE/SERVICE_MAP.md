@@ -65,42 +65,42 @@
 
 ### Stack: Voz (`/srv/apps/voice/docker-compose.yml`) — **REMOVED 2026-04-06**
 
-> ⚠️ **Stack desativado.** speaches e chatterbox foram removidos.Voice pipeline agora usa Kokoro TTS e Whisper API como serviços independentes.
+> ⚠️ **Stack desativado.** speaches e chatterbox foram removidos.Voice pipeline agora usa .
 
 | Componente | Status | Substituto |
 |-----------|--------|-----|
 | voice-proxy (nginx) | REMOVED | — |
 | speaches (STT) | REMOVED | Whisper API em :8201 |
-| chatterbox-tts (TTS) | REMOVED | Kokoro TTS em :8012/:8880 |
+| chatterbox-tts (TTS) | REMOVED | :8012/:8880 |
 
 ---
 
-### Stack: Kokoro TTS (`/srv/apps/kokoro/`)
+### Stack: (`/srv/apps//`)
 
-#### Kokoro TTS (Text-to-Speech)
-- **Imagem:** ghcr.io/remsky/kokoro-onnx:latest
-- **Container:** kokoro | **Portas:** 8012 (host), 8880 (interna)
-- **Modelo:** Kokoro 82M (ONNX, PT-BR otimizado)
-- **Storage:** /srv/models/kokoro
+#### (Text-to-Speech)
+- **Imagem:** ghcr.io/remsky/:latest
+- **Container:** | **Portas:** 8012 (host), 8880 (interna)
+- **Modelo:** 82M (ONNX, PT-BR otimizado)
+- **Storage:** /srv/models/
 - **GPU:** RTX 4090 via CDI
 - **VRAM:** ~1,5 GB
 - **Latência:** ~0,3s quente / 1,2s fria
 - **API:** `POST :8012/v1/audio/speech` (OpenAI-compatible)
 - **Vozes disponíveis:** múltiplas vozes PT-BR
-- **Depende de:** nada | **Usado por:** OpenClaw, voice pipeline
+- **Depende de:** nada | **Usado por:** , voice pipeline
 
 #### Whisper API (STT — Speech-to-Text)
 - **Container:** whisper-api | **Porta:** 8201 (host)
 - **Modelo:** faster-whisper-large-v3 (CUDA)
 - **VRAM:** ~4 GB
 - **API:** `POST :8201/v1/audio/transcriptions` (OpenAI-compatible)
-- **Depende de:** nada | **Usado por:** OpenClaw, voice pipeline
+- **Depende de:** nada | **Usado por:** , voice pipeline
 
 ---
 
 ### tts-bridge — **REMOVED 2026-04-06**
 
-> Serviço de bridge Kokoro → outros formatos. Removido após consolidação do stack de voz.
+> Serviço de bridge → outros formatos. Removido após consolidação do stack de voz.
 
 ---
 
@@ -125,25 +125,25 @@
 
 ---
 
-### Stack: OpenClaw Bot (Coolify managed)
+### Stack: (Coolify managed)
 
-#### OpenClaw Gateway + Telegram Bot
-- **Imagem:** coollabsio/openclaw:2026.2.6 (PINADA)
-- **Container:** openclaw-qgtzrmi6771lt8l7x8rqx72f | **Porta:** 8080 (nginx)
+#### + Telegram Bot
+- **Imagem:** coollabsio/:2026.2.6 (PINADA)
+- **Container:** 6771lt8l7x8rqx72f | **Porta:** 8080 (nginx)
 - **Bot:** @CEO_REFRIMIX_bot (Telegram polling)
 - **Modelo primario:** minimax/MiniMax-M2.7 (DIRETO via api.minimax.io)
 - **Visao (olhos):** liteLLM/llava (via LiteLLM -> Ollama GPU)
-- **TTS (boca):** Kokoro PT-BR (10.0.19.6:8880, voice pm_santa)
+- **TTS (boca):** (10.0.19.6:8880, voice pm_santa)
 - **STT (ouvidos):** Deepgram nova-3 (cloud)
-- **Config:** Volume persistente `/data/.openclaw/openclaw.json`
-- **Health:** `docker logs openclaw-qgtzrmi6771lt8l7x8rqx72f --tail 5`
+- **Config:** Volume persistente `/data/./.json`
+- **Health:** `docker logs 6771lt8l7x8rqx72f --tail 5`
 - **Debug:** `/srv/ops/ai-governance/OPENCLAW_DEBUG.md`
-- **Depende de:** MiniMax API (cloud), LiteLLM (visao), Kokoro (TTS)
+- **Depende de:** MiniMax API (cloud), LiteLLM (visao), (TTS)
 
 #### Browser (Chrome DevTools)
-- **Imagem:** coollabsio/openclaw-browser:latest
+- **Imagem:** coollabsio/:latest
 - **Container:** browser-qgtzrmi6771lt8l7x8rqx72f | **Porta:** 9223 (interna)
-- **Depende de:** nada | **Usado por:** OpenClaw (browsing agent)
+- **Depende de:** nada | **Usado por:** (browsing agent)
 
 ---
 
@@ -163,7 +163,7 @@
 
 - **Comportamento:** descarrega modelos após ~5 min de inatividade
 - **Verificar carregados:** `curl http://localhost:11434/api/ps`
-- **Depende de:** nada | **Usado por:** n8n, monorepo worker-ai, OpenClaw (llava)
+- **Depende de:** nada | **Usado por:** n8n, monorepo worker-ai, (llava)
 
 ---
 
@@ -197,18 +197,18 @@
 ```
 RTX 4090 (GPU CDI)
     ├── Whisper API (STT, ~4GB VRAM)
-    └── Kokoro TTS (TTS, ~1,5GB VRAM)
+    └── (TTS, ~1,5GB VRAM)
 
-OpenClaw :8080 (@CEO_REFRIMIX_bot)
+:8080 (@CEO_REFRIMIX_bot)
     ├── → MiniMax API (cloud, direto, cerebro)
     ├── → LiteLLM :4000 (llava=olhos via Ollama)
-    ├── → Kokoro :8880 (TTS=boca)
+    ├── → :8880 (TTS=boca)
     └── → Deepgram (cloud, STT=ouvidos)
 
 LiteLLM :4000 (→ llm.zappro.site)
     ├── → Ollama :11434 (qwen3.5, gemma4, llava, nomic-embed-text)
     ├── → Whisper API :8201 (STT)
-    ├── → Kokoro :8012 (TTS)
+    ├── → :8012 (TTS)
     └── → litellm-db :5440 (virtual keys)
 
 Ollama :11434
@@ -218,7 +218,7 @@ Ollama :11434
     ├── bge-m3 (embeddings, ~1.2GB VRAM)
     └── nomic-embed-text (embeddings, ~0.5GB VRAM)
 
-Kokoro TTS :8012/:8880
+:8012/:8880
     └── → vozes PT-BR (Abigail, Adrian, ..., Thomas)
 
 n8n :5678
@@ -236,10 +236,10 @@ n8n :5678
 |-----------|------|--------|
 | Desktop Xorg + GNOME | ~1 GB | fixo sempre |
 | Whisper API (faster-whisper large-v3) | ~4 GB | sob demanda |
-| Kokoro TTS (ONNX) | ~1,5 GB | sob demanda |
+| (ONNX) | ~1,5 GB | sob demanda |
 | Qwen 3.5 Q4_K_M | ~6,5 GB | sob demanda (Ollama) |
 | Gemma4 Q4_K_M | ~7 GB | sob demanda (Ollama) |
-| Llava Q4_K_M | ~4,5 GB | sob demanda (OpenClaw vision) |
+| Llava Q4_K_M | ~4,5 GB | sob demanda () |
 | BGE-M3 F16 | ~1,2 GB | sob demanda (Ollama) |
 | Nomic-embed-text F16 | ~0,5 GB | sob demanda (Ollama) |
 | **Pior caso total** | **~25,7 GB** | **Excede! Gerenciar carga** |

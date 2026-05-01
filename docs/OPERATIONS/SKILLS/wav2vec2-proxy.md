@@ -10,7 +10,7 @@
 
 ## 1. Overview
 
-The `wav2vec2-deepgram-proxy` is a bridge service that makes local wav2vec2 (running on port 8201) appear as a Deepgram-compatible API. OpenClaw and other services send Deepgram-format requests to this proxy, which:
+The `wav2vec2-deepgram-proxy` is a bridge service that makes local wav2vec2 (running on port 8201) appear as a Deepgram-compatible API. , which:
 
 1. Accepts Deepgram-compatible POST requests at `/v1/listen`
 2. Converts audio to WAV 16kHz mono via ffmpeg
@@ -18,14 +18,14 @@ The `wav2vec2-deepgram-proxy` is a bridge service that makes local wav2vec2 (run
 4. Optionally enhances the transcript with an Ollama PT-BR model
 5. Returns responses in Deepgram format
 
-**Why it exists:** OpenClaw expects a Deepgram API interface. The proxy translates this interface to the local wav2vec2 stack without requiring Deepgram cloud access.
+**Why it exists:** . The proxy translates this interface to the local wav2vec2 stack without requiring Deepgram cloud access.
 
 ---
 
 ## 2. Architecture
 
 ```
-OpenClaw (client)
+(client)
       │
       ▼
 ┌─────────────────────────────────┐

@@ -562,7 +562,7 @@ curl -s http://localhost:11434/api/embed \
 **Skills de diagnóstico:**
 - `ollama-health-check.md` — verificação completa
 - `litellm-health-check.md` — LiteLLM proxy
-- `kokoro-health-check.md` — Kokoro TTS
+- `.md` — 
 
 ---
 
@@ -594,11 +594,11 @@ tail -f /tmp/litellm.log 2>/dev/null || journalctl --user -u litellm -f
 
 ## KOKORO TTS — Text-to-Speech GPU
 
-**Container:** `zappro-kokoro` | **Port:** `localhost:8012` | **Proxy nginx:** `localhost:4001`
+**Container:** `zappro-` | **Port:** `localhost:8012` | **Proxy nginx:** `localhost:4001`
 
 ```bash
 # Status container
-docker ps --filter "name=kokoro"
+docker ps --filter "name="
 
 # Health
 curl -s http://localhost:8012/health
@@ -609,7 +609,7 @@ curl -s http://localhost:8012/v1/audio/voices | python3 -c "import json,sys; d=j
 # Testar TTS
 curl -s -X POST http://localhost:8012/v1/audio/speech \
   -H "Content-Type: application/json" \
-  -d '{"model":"kokoro","input":"teste","voice":"af_bella"}' --output /tmp/test.wav
+  -d '{"model":"","input":"teste","voice":"af_bella"}' --output /tmp/test.wav
 ls -lh /tmp/test.wav
 
 # Redis cache

@@ -30,7 +30,7 @@
 │  scripts/          smoke-tests/        docs/specflow/      │
 │  → health-check    → E2E (Playwright) → 15+ SPECs        │
 │  → deploy          → smoke-chat        → tasks.md          │
-│  → backup           → smoke-openclaw    → reviews/          │
+│  → backup           → smoke-
 │  → restore          → +more                                   │
 │  → mirror-push                                       │
 └─────────────────────────────────────────────────────────────┘
@@ -146,7 +146,7 @@
 
 | Container | Risco | Fallback |
 |-----------|-------|----------|
-| openclaw-* | Crash loop em bad env vars | Skip restart, alert |
+| 
 | perplexity-agent | GitOps gap (DNS up, container down) | Verificar container existe |
 | wav2vec2 | TCP bridge isolation | Health check sem route |
 | gitea-runner | Token expiry | Regenerar token |
@@ -209,7 +209,7 @@
 | `smoke-chat-zappro-site.sh` | chat.zappro.site | curl + redirect |
 | `smoke-chat-zappro-site-e2e.sh` | chat.zappro.site | Playwright E2E OAuth |
 | `playwright-chat-e2e.mjs` | chat.zappro.site | Playwright full chain |
-| `pipeline-openclaw-voice.sh` | OpenClaw voice | curl health |
+| `pipeline-
 
 ---
 
@@ -251,8 +251,8 @@ SPEC-TEMPLATE.md → SPEC-*.md → tasks.md → pipeline.json
 
 | SPEC | Tópico |
 |------|--------|
-| SPEC-007 | OpenClaw OAuth profiles |
-| SPEC-009 | OpenClaw persona audio stack |
+| SPEC-007 | 
+| SPEC-009 | 
 | SPEC-013 | Unified Claude Agent Monorepo |
 | SPEC-014 | Cursor AI CI/CD Pattern |
 | SPEC-015 | Gitea Actions Enterprise |
@@ -349,18 +349,18 @@ yarn typecheck         # turbo run typecheck
 
 ---
 
-## Secrets (Infisical)
+## Secrets (
 
 **Host:** `vault.zappro.site:8200` (localhost:8200)
 **Project ID:** `e42657ef-98b2-4b9c-9a04-46c093bd6d37`
-**Service Token:** `/srv/ops/secrets/infisical.service-token`
+**Service Token:** `/srv/ops/secrets/
 
 ```bash
 # Fetch secret
 python3 - << 'EOF'
-from infisical_sdk import InfisicalSDKClient
-client = InfisicalSDKClient(
-    token=open('/srv/ops/secrets/infisical.service-token').read().strip(),
+from 
+client = 
+    token=open('/srv/ops/secrets/
     host='http://127.0.0.1:8200'
 )
 secrets = client.secrets.list_secrets(

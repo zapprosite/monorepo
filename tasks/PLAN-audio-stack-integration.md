@@ -1,8 +1,8 @@
-# PLAN: Audio Stack Integration — LiteLLM + OpenClaw
+# PLAN: Audio Stack Integration — LiteLLM + 
 
 **Data:** 08/04/2026
 **Status:** RESEARCHING (3 agents executing in parallel)
-**Meta:** Stack unificada TTS/STT/Vision via LiteLLM para OpenClaw Bot
+**Meta:** Stack unificada TTS/STT/Vision via LiteLLM para 
 
 ---
 
@@ -13,7 +13,7 @@
 | Serviço | Porta | Status | VRAM | Notas |
 |---------|-------|--------|------|-------|
 | **wav2vec2 STT** | :8201 | ✅ OK | ~2GB | Host Python, PT-BR native |
-| **Kokoro TTS** | :8012 | ✅ OK | ~0.5GB | Container GPU |
+| **** | :8012 | ✅ OK | ~0.5GB | Container GPU |
 | **LiteLLM Proxy** | :4000 | ⚠️ ERROR | - | Não carrega modelos do config |
 | **Ollama** | :11434 | ✅ OK | ~0GB | Nenhum modelo carregado |
 
@@ -29,11 +29,11 @@ LiteLLM não carrega modelos do config.yaml quando rodando no Docker com `--netw
 ## Arquitetura Alvo
 
 ```
-OpenClaw Bot (Telegram)
+(Telegram)
        │
        ├─► LLM: LiteLLM :4000 ──► Ollama :11434 (gemma2-9b-it, llava)
        │
-       ├─► TTS: LiteLLM :4000 ──► Kokoro :8012
+       ├─► TTS: LiteLLM :4000 ──► :8012
        │                              └── vozes: pm_santa (M), pf_dora (F)
        │
        └─► STT: LiteLLM :4000 ──► wav2vec2 :8201
@@ -50,8 +50,8 @@ OpenClaw Bot (Telegram)
    └─ llava:latest carregado
    └─ nomic-embed-text carregado
 
-2. Kokoro TTS (:8012) ← Depende de nada
-   └─ Container: zappro-kokoro
+2. (:8012) ← Depende de nada
+   └─ Container: zappro-
    └─ Rede: zappro-lite (acesso via 10.0.2.4)
 
 3. wav2vec2 STT (:8201) ← Depende de nada
@@ -60,7 +60,7 @@ OpenClaw Bot (Telegram)
 
 4. LiteLLM Proxy (:4000) ← Depende de todos
    └─ Precisa conectar em Ollama (10.0.1.1:11434)
-   └─ Precisa conectar em Kokoro (10.0.2.4:8880)
+   └─ Precisa conectar em (10.0.2.4:8880)
    └─ Precisa conectar em wav2vec2 (localhost:8201 do host)
 ```
 
@@ -90,12 +90,12 @@ Tarefas:
 - [ ] Testar inferência via LiteLLM
 ```
 
-### Fase 3: OpenClaw Integration
-**Meta:** OpenClaw Bot usando LiteLLM para TTS/STT
+### Fase 3: 
+**Meta:** /STT
 
 ```
 Tarefas:
-- [ ] Configurar OpenClaw providers para LiteLLM
+- [ ] Configurar 
 - [ ] Testar TTS pm_santa via LiteLLM
 - [ ] Testar STT wav2vec2 via LiteLLM
 - [ ] Testar E2E voice pipeline
@@ -107,7 +107,7 @@ Tarefas:
 
 1. **Network Docker→Host:** Como LiteLLM no container acessa `localhost:8201` no host?
 2. **Speaches:** vale a pena trocar wav2vec2 por speaches-ai/speaches?
-3. **OpenClaw Config:** Como exatamente configurar providers no openclaw.json?
+3. **:** Como exatamente configurar providers no .json?
 
 ---
 
@@ -116,7 +116,7 @@ Tarefas:
 | Componente | VRAM | Status |
 |-----------|------|--------|
 | Desktop (Xorg + gnome) | ~0.7GB | Fixed |
-| Kokoro TTS | ~0.5GB | ✅ |
+| | ~0.5GB | ✅ |
 | wav2vec2 STT | ~2GB | ✅ |
 | gemma2-9b-it:q4 | ~14GB | Carregar |
 | llava | ~5GB | Opcional |
@@ -128,7 +128,7 @@ Tarefas:
 
 ## Referências
 
-- SPEC-004: Kokoro TTS Kit
+- SPEC-004: 
 - SPEC-005: wav2vec2 STT Kit
 - LiteLLM Audio Transcription Docs
-- OpenClaw Providers Config
+- 

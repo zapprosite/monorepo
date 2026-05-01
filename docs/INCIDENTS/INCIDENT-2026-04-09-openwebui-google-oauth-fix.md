@@ -93,10 +93,10 @@ OAUTH_GOOGLE_CLIENT_SECRET=GOCSPX-fgKPRDB9UcWb-i8Pr6eblXI
 GOOGLE_CLIENT_SECRET=GOCSPX-fgKPRDB9UcWb-i8Pr6eblXI
 
 # DEPOIS (correcto)
-OAUTH_GOOGLE_CLIENT_ID=<REDACTED - ver Infisical>
-GOOGLE_CLIENT_ID=<REDACTED - ver Infisical>
-OAUTH_GOOGLE_CLIENT_SECRET=<REDACTED - ver Infisical>
-GOOGLE_CLIENT_SECRET=<REDACTED - ver Infisical>
+OAUTH_GOOGLE_CLIENT_ID=<REDACTED - ver >
+GOOGLE_CLIENT_ID=<REDACTED - ver >
+OAUTH_GOOGLE_CLIENT_SECRET=<REDACTED - ver >
+GOOGLE_CLIENT_SECRET=<REDACTED - ver >
 ```
 
 ---
@@ -122,8 +122,8 @@ GOOGLE_REDIRECT_URI=https://chat.zappro.site/oauth/google/callback
 | `COOLIFY_URL` | `https://chat.zappro.site` |
 | `WEBUI_SECRET_KEY` | `ab621c4f72053c5e58ed426f11de1d7d2093c479486ea663cd136d52e08c0d0e` |
 | `ENABLE_OAUTH_SIGNUP` | `true` |
-| `GOOGLE_CLIENT_ID` | `<REDACTED — ver Infisical prod>` |
-| `GOOGLE_CLIENT_SECRET` | `<REDACTED — ver Infisical prod>` |
+| `GOOGLE_CLIENT_ID` | `<REDACTED — ver >` |
+| `GOOGLE_CLIENT_SECRET` | `<REDACTED — ver >` |
 | `GOOGLE_REDIRECT_URI` | `https://chat.zappro.site/oauth/google/callback` |
 | `OPENID_PROVIDER_URL` | `https://accounts.google.com/.well-known/openid-configuration` |
 | `OLLAMA_BASE_URL` | `http://10.0.5.1:11434` |
@@ -132,14 +132,14 @@ GOOGLE_REDIRECT_URI=https://chat.zappro.site/oauth/google/callback
 
 ---
 
-## Pending: Update Infisical
+## Pending: Update 
 
-⚠️ As credenciais **NÃO foram atualizadas no Infisical** (CLI não disponível nesta sessão). É necessário:
+⚠️ As credenciais **NÃO foram atualizadas no ** (CLI não disponível nesta sessão). É necessário:
 
 ```bash
-# Opção 1: Via Infisical CLI
-infisical secrets set GOOGLE_CLIENT_ID=<NOVO_CLIENT_ID> --env=prod
-infisical secrets set GOOGLE_CLIENT_SECRET=<NOVO_CLIENT_SECRET> --env=prod
+# Opção 1: Via 
+_CLIENT_ID=<NOVO_CLIENT_ID> --env=prod
+_CLIENT_SECRET=<NOVO_CLIENT_SECRET> --env=prod
 
 # Opção 2: Via dashboard http://127.0.0.1:8200
 ```
@@ -148,7 +148,7 @@ infisical secrets set GOOGLE_CLIENT_SECRET=<NOVO_CLIENT_SECRET> --env=prod
 
 ## Action Items
 
-- [ ] Atualizar Infisical com as credenciais corretas
+- [ ] Atualizar 
 - [ ] Revogar secret antigo `GOCSPX-fgKPRDB9UcWb-i8Pr6eblXI` no Google Cloud Console (pode ter sido comprometido)
 - [ ] Verificar se o `WEBUI_SECRET_KEY` gerado (`ab621c4f...`) está persistente ou foi gerado novo a cada reinício — se sim, gerar um fixo
 

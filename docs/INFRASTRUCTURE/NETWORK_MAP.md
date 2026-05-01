@@ -63,12 +63,12 @@
   │  ─────────────  │                     │  ─────────────────  │
   │ :3300  Gitea    │                     │  coolify (10.0.6.x) │
   │ :4000  LiteLLM  │                     │    → n8n :5678     │
-  │ :4001  OpenClaw │                     │  qgtzrmi (10.0.19.x)│
-  │ :4003  Panel    │                     │    → openclaw :8080 │
+  │ :4001  │                     │  qgtzrmi (10.0.19.x)│
+  │ :4003  Panel    │                     │    → :8080 │
   │ :6333  Qdrant   │                     │    → browser :9222  │
-  │ :8000  Coolify  │                     │  infisical-net      │
-  │ :8080  Traefik  │                     │    → infisical :8080│
-  │ :8200  Infisical│                     │  zappro-lite        │
+  │ :8000  Coolify  │                     │  │
+  │ :8080  Traefik  │                     │    → :8080│
+  │ :8200  │                     │  zappro-lite        │
   │ :3100  Grafana  │                     │    → litellm :4000  │
   │ :2222  GiteaSSH │                     │    → litellm-db:5432│
   └─────────────────┘                     └─────────────────────┘
@@ -120,17 +120,17 @@
 | 3101 | Loki | LAN only | Log aggregation (Promtail) |
 | 3300 | Gitea HTTP | LAN only (UFW) | Autenticado via Cloudflare |
 | 4000 | LiteLLM | localhost+LAN | ✅ Auth requerida |
-| 4001 | OpenClaw Bot | localhost | ✅ Auth requerida (401 sem creds) |
+| 4001 | | localhost | ✅ Auth requerida (401 sem creds) |
 | 4007 | tts-bridge | host | ⚠️ NÃO DOCUMENTADO — verificar propósito antes de usar | — |
 | 4003 | Claude Code Panel | localhost | ✅ Auth requerida |
-| 5432 | PostgreSQL | 127.0.0.1 (UFW) | 3 instâncias: coolify-db, infisical-db, connected_repo_db |
+| 5432 | PostgreSQL | 127.0.0.1 (UFW) | 3 instâncias: coolify-db, , connected_repo_db |
 | 5678 | n8n | Via tunnel (10.0.6.3) | Via Docker network, não localhost |
 | 6333 | Qdrant | 127.0.0.1 (UFW) | ⚠️ Sem auth API |
 | 6379 | Redis | 127.0.0.1 (UFW) | 3 instâncias |
 | 6381 | Redis opencode | 127.0.0.1 (UFW) | — |
 | 8000 | Coolify | Via tunnel (Cloudflare) | Via tunnel, exposto em LAN via UFW |
-| 8012 | Kokoro TTS | 127.0.0.1 (UFW) | GPU TTS (host bridge) |
-| 8200 | Infisical | 127.0.0.1 (UFW) | — |
+| 8012 | | 127.0.0.1 (UFW) | GPU TTS (host bridge) |
+| 8200 | | 127.0.0.1 (UFW) | — |
 | 8888 | SearXNG | 127.0.0.1 (UFW) | — |
 | 9090 | Prometheus | 127.0.0.1 (UFW) | ⚠️ Sem auth |
 | 9100 | Node Exporter | host network | — |
@@ -142,8 +142,8 @@
 | Rede | Subnet | Serviços |
 |------|--------|----------|
 | `wbmqefxhd7vdn2dme3i6s9an` | 10.0.5.0/24 | OpenWebUI (:8080, IP 10.0.5.2) |
-| `qgtzrmi6771lt8l7x8rqx72f` | 10.0.19.0/24 | OpenClaw (:8080), Browser (:9222), wav2vec2 (:8201), wav2vec2-proxy (:8203) |
-| `bridge` | host | Kokoro (:8880), Qdrant (:6333) |
+| `qgtzrmi6771lt8l7x8rqx72f` | 10.0.19.0/24 | (:8080), Browser (:9222), wav2vec2 (:8201), wav2vec2-proxy (:8203) |
+| `bridge` | host | (:8880), Qdrant (:6333) |
 | `zappro-lite` | docker0 (10.0.1.x) | LiteLLM Proxy (:4000) |
 
 **Service IPs (Cross-network):**
@@ -152,12 +152,12 @@
 | Ollama (host) | 10.0.1.1:11434 | docker0 (10.0.1.x) | host |
 | Ollama (host) | 10.0.5.1:11434 | wbmqefxhd7vdn2dme3i6s9an | host |
 | LiteLLM Proxy | 10.0.1.1:4000 | qgtzrmi... | docker0 |
-| Kokoro TTS | 10.0.19.7:8880 | qgtzrmi... | bridge |
+| | 10.0.19.7:8880 | qgtzrmi... | bridge |
 | Qdrant (Coolify) | 10.0.19.5:6333 | qgtzrmi... | bridge |
 | wav2vec2 (whisper-api) | 10.0.19.8:8201 | qgtzrmi... | STT endpoint |
 | wav2vec2-proxy | 10.0.19.9:8203 | qgtzrmi... | Deepgram-to-Whisper proxy |
 | MCP Monorepo | 10.0.19.50:4006 | qgtzrmi... | host (/srv/monorepo) |
-| MCP Qdrant | 10.0.19.51:4011 | qgtzrmi... | bridge (openclaw-memory) |
+| MCP Qdrant | 10.0.19.51:4011 | qgtzrmi... | bridge () |
 
 ---
 
@@ -179,12 +179,12 @@
 | zappro-litellm | ghcr.io/berriai/litellm:main-stable | :4000 | zappro-lite | ✅ UP |
 | zappro-litellm-db | postgres:15-alpine | :5432 | zappro-lite | ✅ healthy |
 | zappro-qdrant | qdrant/qdrant:v1.17.1 | :6333 | bridge | ✅ UP |
-| zappro-kokoro | ghcr.io/remsky/kokoro-fastapi-gpu:v0.2.2 | :8012→:8880 | bridge | ✅ UP |
+| zappro-| ghcr.io/remsky/:v0.2.2 | :8012→:8880 | bridge | ✅ UP |
 | open-webui-wbmqefx... | ghcr.io/openwebui/open-webui:main | :8080 | wbmqefxhd7vdn2dme3i6s9an + qgtzrmi... | ✅ UP |
-| openclaw-qgtzrmi... | coollabsio/openclaw:2026.2.6 | :4001→:8080 | qgtzrmi... | ✅ healthy |
-| browser-qgtzrmi... | coollabsio/openclaw-browser:latest | :3000-3001 | qgtzrmi... | ✅ healthy |
-| browser-y9yb5xw... | coollabsio/openclaw-browser:latest | :3000-3001 | — | ✅ healthy |
-| browser-q7lyxl6... | coollabsio/openclaw-browser:latest | :3000-3001 | — | ✅ healthy |
+| ... | coollabsio/:2026.2.6 | :4001→:8080 | qgtzrmi... | ✅ healthy |
+| browser-qgtzrmi... | coollabsio/:latest | :3000-3001 | qgtzrmi... | ✅ healthy |
+| browser-y9yb5xw... | coollabsio/:latest | :3000-3001 | — | ✅ healthy |
+| browser-q7lyxl6... | coollabsio/:latest | :3000-3001 | — | ✅ healthy |
 | mcp-monorepo | mcp-monorepo:local | :4006→:4006 | qgtzrmi... | ✅ UP |
 | mcp-qdrant | python:3.11-slim | :4011→:4011 | qgtzrmi... | ✅ UP |
 
@@ -193,7 +193,7 @@
 |----------|--------|-------|------|--------|
 | Ollama (host) | ollama/ollama:latest | :11434 | host | ✅ UP (GPU) |
 | LiteLLM Proxy | ghcr.io/berriai/litellm:main-stable | :4000 (docker0) | zappro-lite | ✅ UP |
-| Kokoro TTS | ghcr.io/remsky/kokoro-fastapi-gpu:v0.2.2 | :8880 (bridge) | bridge | ✅ UP |
+| | ghcr.io/remsky/:v0.2.2 | :8880 (bridge) | bridge | ✅ UP |
 | Qdrant (Coolify) | qdrant/qdrant:v1.17.1 | :6333 | qgtzrmi... | ✅ UP |
 | zappro-wav2vec2 | whisper-api | :8201 | qgtzrmi... | ✅ UP |
 | zappro-wav2vec2-proxy | wav2vec2-deepgram-proxy | :8203 | qgtzrmi... | ✅ UP |
@@ -203,7 +203,7 @@
 - `llava` (visão, via Ollama host)
 - `embedding-nomic` (embeddings, via Ollama host)
 
-**TTS:** Kokoro local (`http://10.0.19.7:8880/v1`) com voz `pm_santa` (PT-BR)
+**TTS:** (`http://10.0.19.7:8880/v1`) com voz `pm_santa` (PT-BR)
 **STT:** whisper-api local (`10.0.19.8:8201`) — OpenAI-compatible `/v1/audio/transcriptions`
 **STT Proxy:** wav2vec2-proxy (`10.0.19.9:8203`) — Deepgram API format → whisper-api proxy (PT-BR enhancement)
 
@@ -237,7 +237,7 @@
 | Container | Versão | Propósito | Rede |
 |---------|--------|---------|------|
 | coolify-db | 15-alpine | Coolify metadata | coolify |
-| infisical-db | 16-alpine | Infisical secrets vault | infisical-net |
+| | 16-alpine | | |
 | connected_repo_db | 15-alpine | Dev local (monorepo) | monorepo_default |
 | zappro-litellm-db | 15-alpine | LiteLLM virtual keys | zappro-lite |
 | postgresql-jbu1zy... | 16-alpine | n8n (Coolify-managed) | coolify |
@@ -252,7 +252,7 @@
 | Container | Versão | Propósito | Porta |
 |---------|--------|---------|-------|
 | coolify-redis | 7-alpine | Coolify cache | 6379 |
-| infisical-redis | 7-alpine | Infisical cache | 6379 |
+| | 7-alpine | | 6379 |
 | zappro-redis | 7.2.4-alpine | zappro stack | 6379 |
 | redis-opencode | 7.2.4-alpine | OpenCode cache | 6381 |
 
@@ -267,12 +267,12 @@ Estes serviços estão **documentados mas NÃO existem no sistema:**
 | Stack | Motivo | Removido em |
 |-------|-------|-------------|
 | `speaches` (STT) | Substituído por Deepgram cloud | 2026-03 |
-| `chatterbox-tts` (TTS) | Substituído por Kokoro local | 2026-03 |
+| `chatterbox-tts` (TTS) | Substituído por | 2026-03 |
 | `voice-proxy` (nginx) | Não deployado | — |
 | `supabase-*` (13 containers) | Stack removida, dados em backup | 2026-04 |
 | `captain-*` (CapRover) | Substituído por Coolify | 2026-03 |
 | `aurelia-*` | Renomeado para `zappro-*` | 2026-04 |
-| `tts-bridge` | Duplicado do Kokoro (mesma função) | 2026-04-06 |
+| `tts-bridge` | Duplicado do (mesma função) | 2026-04-06 |
 
 **Se aparecerem como containers, são fantasmas — investigar e remover.**
 
@@ -286,10 +286,10 @@ tank (3.5T livre, poolname: tank)
 ├── tank/docker-data/        → /srv/docker-data           (volumes Docker)
 ├── tank/monorepo/           → /srv/monorepo              (código)
 ├── tank/backups/            → /srv/backups                (backups)
-├── tank/models/             → /srv/models                 (17GB — Ollama + Kokoro)
+├── tank/models/             → /srv/models                 (17GB — Ollama + )
 └── tank/data/
     ├── qdrant/             → /srv/data/qdrant           (vector storage)
-    ├── openclaw/            → /srv/data/openclaw          (openclaw workspaces)
+    ├── /            → /srv/data/()
     └── zappro-router/       → /srv/data/zappro-router
 ```
 
@@ -309,8 +309,8 @@ bot.zappro.site
     → DNS CNAME → aee7a93d-...cfargotunnel.com (Cloudflare proxied)
     → Cloudflare Edge (GRU) → cloudflared QUIC tunnel
     → cloudflared daemon (host) → ingress rule lookup
-    → http://localhost:4001 (OpenClaw port mapping 4001→8080)
-    → container openclaw-qgtzrmi...:8080 (Docker network isolado)
+    → http://localhost:4001 (4001→8080)
+    → container ...:8080 (Docker network isolado)
 ```
 
 ### Drift conhecido (resolvido 2026-04-06)

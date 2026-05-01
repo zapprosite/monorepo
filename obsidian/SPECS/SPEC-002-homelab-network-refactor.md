@@ -242,7 +242,7 @@ ingress:
   - hostname: bot.zappro.site
     service: http://localhost:80
     originRequest:
-      httpHostHeader: openclaw-qgtzrmi6771lt8l7x8rqx72f.191.17.50.123.sslip.io
+      httpHostHeader: 6771lt8l7x8rqx72f.191.17.50.123.sslip.io
   - service: http_status:404
 
 # Metrics ( Prometheus)

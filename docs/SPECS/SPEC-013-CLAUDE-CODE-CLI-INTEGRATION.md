@@ -365,7 +365,7 @@ Initiate deep code analysis of @$1 using the code-analyzer agent.
 │   ├── context7-mcp/
 │   ├── coolify-*/
 │   ├── img/
-│   ├── openclaw-oauth-profiles/
+│   ├── /
 │   ├── pipeline-orchestrate/
 │   ├── researcher/
 │   ├── universal-*/
@@ -455,7 +455,7 @@ Initiate deep code analysis of @$1 using the code-analyzer agent.
 │   └── trigger-dev/
 ├── rules/                        # Project rules
 │   ├── backend.md
-│   ├── openclaw-audio-governance.md
+│   ├── .md
 │   ├── REVIEW-SKILLS.md
 │   └── search.md
 ├── hooks/                        # Project hooks

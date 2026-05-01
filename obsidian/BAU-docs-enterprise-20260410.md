@@ -61,8 +61,8 @@ obsidian/ (espelho read-only)
 - CANVAS-CURSOR-LOOP.md
 - CODE-REVIEW-GUIDE.md
 - discovery.md
-- voice-pipeline-desktop.md
-- voice-pipeline-loop.md
+- .md
+- .md
 - tasks.md
 - PLAN-docs-reorganization-20260408.md
 

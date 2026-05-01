@@ -34,9 +34,9 @@ The docker-autoheal container (`willfarrell/autoheal`) monitors containers with 
 | Service | Container | Auto-Restart | Reason |
 |---------|-----------|--------------|--------|
 | OpenWebUI | `openwebui` | YES | User-facing, non-critical |
-| OpenClaw Bot | `openclaw-qgtzrmi6771lt8l7x8rqx72f` | YES | Voice pipeline, self-healing capable |
+| 
 | wav2vec2 STT | `zappro-wav2vec2` | YES | Local STT, stateless |
-| Kokoro TTS | `zappro-kokoro` | YES | TTS, stateless |
+| 
 | LiteLLM Proxy | `zappro-litellm` | YES | GPU routing, stateless |
 | TTS Bridge | `zappro-tts-bridge` | YES | Voice filter, stateless |
 | Redis | `zappro-redis` | YES | Cache, persistent volume |
@@ -55,7 +55,7 @@ The docker-autoheal container (`willfarrell/autoheal`) monitors containers with 
 | n8n | `n8n` | NO | Workflow automation, persistent volume |
 | Cloudflared | `cloudflared` | NO | Tunnel, Cloudflare state |
 | Coolify Proxy | `coolify-proxy` | NO | Traefik proxy, routing critical |
-| Infisical | `infisical` | NO | Secrets vault, persistent volume |
+| 
 
 **Rationale:** Infrastructure services have complex state, persistent volumes, or Cloudflare-dependent tunnels. Auto-restarting them without human review can cause data corruption or extended outages.
 
@@ -73,7 +73,7 @@ All ports in use by the homelab. Before deploying a new service, check this regi
 | 6002 | coolify-realtime | host | WebSocket real-time |
 | 8000 | coolify | host | PaaS panel |
 | 3300 | gitea | host | Git server |
-| 4001 | openclaw | host | OpenClaw Bot UI |
+| 4001 | 
 | 4003 | painel | host | Claude Code Panel |
 | 4006 | mcp-monorepo | qgtzrmi net | MCP Filesystem |
 | 4011 | mcp-qdrant | qgtzrmi net | MCP Qdrant |
@@ -91,8 +91,8 @@ All ports in use by the homelab. Before deploying a new service, check this regi
 | 6333 | zappro-qdrant | host | Qdrant REST |
 | 6334 | zappro-qdrant | host | Qdrant gRPC |
 | 6379 | zappro-redis | host | Redis cache/pubsub |
-| 8012 | zappro-kokoro | localhost | Kokoro TTS (GPU) |
-| 8880 | zappro-kokoro | bridge | Kokoro TTS for Coolify containers |
+| 8012 | zappro-
+| 8880 | zappro-
 | 8888 | searxng | host | Search engine |
 | 9090 | prometheus | localhost | TSDB metrics |
 | 9100 | node-exporter | host | Host metrics |
@@ -113,10 +113,10 @@ All ports in use by the homelab. Before deploying a new service, check this regi
 |------|--------|
 | 3000 | OpenWebUI (if deployed) |
 | 4000 | LiteLLM production proxy |
-| 4001 | OpenClaw Bot (reserved) |
+| 4001 | 
 | 8000 | Coolify PaaS |
 | 8080 | Traefik + Cloudflared |
-| 8200 | Infisical vault |
+| 8200 | 
 
 ### Free Ports for Dev
 

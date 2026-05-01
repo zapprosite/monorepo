@@ -1,8 +1,8 @@
 # Voice Pipeline Desktop — Smoke Test & Gap Analysis
 
 **Data:** 2026-04-10
-**Diretório:** `/home/will/Desktop/voice-pipeline`
-**Governance ref:** `docs/OPERATIONS/SKILLS/openclaw-agents-kit/`
+**Diretório:** `/home/will/Desktop/`
+**Governance ref:** `docs/OPERATIONS/SKILLS//`
 
 ---
 
@@ -12,11 +12,11 @@
 
 | Serviço | Porta | Status | Tipo |
 |---------|-------|--------|------|
-| Kokoro TTS | `:8012` | ✅ UP | Docker (`zappro-kokoro`) |
+| | `:8012` | ✅ UP | Docker (`zappro-`) |
 | Whisper API (native) | `:8201` | ✅ UP | Python process |
 | Ollama | `:11434` | ✅ UP | Native |
 | wav2vec2-proxy | — | ✅ UP | Docker |
-| OpenClaw | `:8080` | ✅ UP | Docker |
+| | `:8080` | ✅ UP | Docker |
 
 ### Modelos Disponíveis (Ollama)
 
@@ -30,7 +30,7 @@ nomic-embed-text:latest                          ← Embeddings
 
 | Script | Estado | Função |
 |--------|--------|--------|
-| `speak.sh` | ✅ OK | Ctrl+Shift+C → Kokoro direto |
+| `speak.sh` | ✅ OK | Ctrl+Shift+C → |
 | `voice.sh` | ✅ OK | STT → LLM PT-BR → clipboard |
 | `voice-toggle.sh` | ✅ OK | Toggle gravação (clique) |
 | `record.sh` | ✅ OK | Grava ENTER→parar→processa |
@@ -53,7 +53,7 @@ nomic-embed-text:latest                          ← Embeddings
 **Workaround:** Recriar binding sempre que necessário:
 ```bash
 gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/voice-f9/ binding "'F12'"
-gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/voice-f9/ command "'/home/will/Desktop/voice-pipeline/scripts/record.sh'"
+gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/voice-f9/ command "'/home/will/Desktop//scripts/record.sh'"
 gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/voice-f9/ name "'Voice Record (F12)'"
 ```
 
@@ -76,7 +76,7 @@ Total GPU:                19118 / 24564 MiB
 
 **Problema:** Ícone PNG novo não aparece na dock do GNOME após `Alt+F2→r`.
 
-**Solução:** Requer logout/login para ver ícone `voice-pipeline-on-128.png`.
+**Solução:** Requer logout/login para ver ícone `128.png`.
 
 ---
 
@@ -89,7 +89,7 @@ Total GPU:                19118 / 24564 MiB
 | Ficheiro | Modelo Atual | Linha |
 |----------|-------------|-------|
 | `voice.sh` | `llama3-portuguese-tomcat-8b-instruct-q8` | 89 |
-| `speak.sh` | (não usa LLM — Kokoro direto) | — |
+| `speak.sh` | (não usa LLM — ) | — |
 
 ### Para Trocar Modelo
 
@@ -105,7 +105,7 @@ curl -s http://localhost:11434/api/tags | jq '.models[].name'
 
 3. Testar:
 ```bash
-bash /home/will/Desktop/voice-pipeline/scripts/voice.sh /tmp/test_audio.wav
+bash /home/will/Desktop//scripts/voice.sh /tmp/test_audio.wav
 ```
 
 ---
@@ -114,7 +114,7 @@ bash /home/will/Desktop/voice-pipeline/scripts/voice.sh /tmp/test_audio.wav
 
 ```
 MODO 1 — Texto para Fala:
-  Selecionar texto → Ctrl+Shift+C → Kokoro pm_santa → headset
+  Selecionar texto → Ctrl+Shift+C → _santa → headset
 
 MODO 2 — Voz para Texto:
   Clique ícone → gravar → clique → para →
@@ -133,7 +133,7 @@ MODO 3 — F12:
 
 1. **Ollama** — systemd ou startup manual
 2. **whisper_api.py** — via `start-whisper-api.sh` (chamado por voice-toggle.sh)
-3. **Kokoro** — container Docker `zappro-kokoro` (chamado por voice-toggle.sh)
+3. **** — container Docker `zappro-` (chamado por voice-toggle.sh)
 4. **Hotkeys** — GNOME settings daemon (volátil — não persiste após reboot)
 
 ### Hotkey Restore — Autostart
@@ -156,12 +156,12 @@ dconf load /org/gnome/settings-daemon/plugins/media-keys/ < hotkeys.ini
 
 ### Containers Docker — Auto-start:
 
-Os containers Kokoro e OpenClaw têm restart policy configurada no Docker Compose.
+Os containers .
 
 ---
 
 ## Notas
 
 - `speak.sh` usa `xclip -selection primary` para texto selecionado (não clipboard)
-- Kokoro está em :8012 (não :8013 que é o TTS Bridge com filtro de vozes)
+- :8012 (não :8013 que é o TTS Bridge com filtro de vozes)
 - voz→texto usa `whisper_api.py` nativo (não container) por performance GPU

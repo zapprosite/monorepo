@@ -259,7 +259,7 @@ Updated: 2026-04-20
 
 #### docs/SPECS/ — 40 ficheiros
 
-Muitos são SPECs do OpenClaw que nunca foram implementados.
+Muitos são SPECs do .
 
 **Confirmar via git log antes de archivar:**
 ```bash
@@ -507,7 +507,7 @@ Apresentar:
 ## Notas
 
 - Dotcontext CLI: **não instalar**
-- OpenClaw SPECs no hvacr-swarm: confirmar via git log antes de archivar
+- : confirmar via git log antes de archivar
 - O Second Brain recebe TREE.md gerado, não MDs individuais — janela de contexto pequena
 - Todos os novos SPECs/ADRs/GUIDEs devem ter frontmatter com `status: filled`
 - O monorepo AGENTS.md é a fonte da verdade para agents — CLAUDE.md da raiz é redundante

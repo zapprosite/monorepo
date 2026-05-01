@@ -1,16 +1,16 @@
-# SPEC-020: OpenWebUI ↔ OpenClaw Bridge
+# SPEC-020: OpenWebUI ↔ 
 
 ## Context
 
-O OpenWebUI tem interface de chat com Ollama (qwen2.5vl). O OpenClaw tem agents com ferramentas (sub-agents, tools, browser control). O objetivo é fazer um **bridge bidirecional** onde o OpenWebUI pode invocar as ferramentas e agents do OpenClaw como se fossem tools nativas.
+O OpenWebUI tem interface de chat com Ollama (qwen2.5vl). O (sub-agents, tools, browser control). O objetivo é fazer um **bridge bidirecional** onde o OpenWebUI pode invocar as ferramentas e agents do .
 
 **Fluxo:**
 ```
 Utilizador (OpenWebUI)
     │
-    ├─► Mensagem → OpenClaw MCP Wrapper (:3334)
+    ├─► Mensagem → (:3334)
     │                    │
-    │                    ├─► OpenClaw invoke_tool → agent processing
+    │                    ├─► _tool → agent processing
     │                    └─► Resposta → OpenWebUI
     │
     └─► LLM Normal (Ollama qwen2.5vl)
@@ -19,15 +19,15 @@ Utilizador (OpenWebUI)
 ## Arquitectura
 
 ### Componentes
-1. **openclaw_mcp_wrapper.py** (já existe, porta 3334)
-   - `invoke_tool` → chama OpenClaw via `POST /tools/invoke`
+1. **_mcp_wrapper.py** (já existe, porta 3334)
+   - `invoke_tool` → chama `POST /tools/invoke`
    - `get_status` → health check
-   - `restart_browser` → restart browser do OpenClaw
+   - `restart_browser` → restart browser do 
 
 2. **openwebui_bridge_agent.py** (novo)
    - Agent que faz de intermediary
    - Recebe mensagem do OpenWebUI via MCP
-   - Invoca tools do OpenClaw
+   - Invoca tools do 
    - Retorna resposta formatada em CEO MIX style
 
 3. **CEO MIX Chat Style**
@@ -43,20 +43,20 @@ OpenWebUI (chat UI)
     │         └─► Ollama qwen2.5vl (sem voice)
     │
     └─► MCP bridge (openwebui_mcp.py :3333)
-              └─► openclaw_mcp_wrapper.py (:3334)
-                        └─► OpenClaw POST /tools/invoke
+              └─► _mcp_wrapper.py (:3334)
+                        └─► /tools/invoke
                                   └─► agent + tools
 ```
 
-## Tools do OpenClaw Bridge
+## Tools do 
 
 | Tool | Descrição | Prioridade |
 |------|-----------|------------|
-| `openclaw_invoke_tool` | Invoca uma tool específica do OpenClaw | Alta |
-| `openclaw_chat` | Chat com o agent principal do OpenClaw | Alta |
-| `openclaw_browser_action` | Navega, clica, faz screenshot via browser | Média |
-| `openclaw_file_search` | Procura ficheiros via agent | Média |
-| `openclaw_status` | Status dos agents e tools | Baixa |
+| `_invoke_tool` | Invoca uma tool específica do | Alta |
+| `_chat` | Chat com o agent principal do | Alta |
+| `_browser_action` | Navega, clica, faz screenshot via browser | Média |
+| `_file_search` | Procura ficheiros via agent | Média |
+| `_status` | Status dos agents e tools | Baixa |
 
 ## Ficheiros a Criar
 
@@ -65,14 +65,14 @@ OpenWebUI (chat UI)
 # Agent intermediário que:
 # - Recebe mensagem via MCP
 # - Faz parsing do intent
-# - Invoca tool correcta no OpenClaw
+# - Invoca tool correcta no 
 # - Formata resposta em CEO MIX style
 ```
 
 ### 2. Atualizar `openwebui_mcp.py`
-- Adicionar tool `openclaw_bridge_chat` que invoca o bridge agent
+- Adicionar tool `_bridge_chat` que invoca o bridge agent
 
-### 3. Atualizar `openclaw_mcp_wrapper.py`
+### 3. Atualizar `_mcp_wrapper.py`
 - Adicionar tool `chat_with_agent` que faz passthrough para o agent principal
 
 ## CEO MIX Response Format
@@ -95,7 +95,7 @@ OpenWebUI (chat UI)
 
 ## Limites
 
-- OpenClaw não é um LLM server — é um bot com tools
+- — é um bot com tools
 - Respostas de tools podem ser verbose (limitar a 500 chars)
 - Rate limit: 10 req/min por canal
 
@@ -103,8 +103,8 @@ OpenWebUI (chat UI)
 
 - [x] Research completo
 - [x] SPEC approved
-- [x] Dockerfiles criados (openclaw-mcp-wrapper, openwebui-bridge-agent)
-- [x] entrypoint.sh com Infisical SDK
+- [x] Dockerfiles criados (, openwebui-bridge-agent)
+- [x] entrypoint.sh com 
 - [x] docker-compose.bridge.yml com redes qgtzrmi + wbmqefx
 - [ ] Deploy via Coolify API (pending)
 - [ ] E2E smoke test (super E2E created: smoke-bridge-stack-e2e.sh)

@@ -38,7 +38,7 @@ Criar um agente de busca e navegação web autônomo (Perplexity-like) que:
 │   LLM (primary): ChatOpenAI(                                 │
 │          model="openai/gpt-4o-mini",                       │
 │          base_url="https://openrouter.ai/api/v1",           │
-│          api_key=OPENROUTER_API_KEY ← Infisical             │
+│          api_key=OPENROUTER_API_KEY ← │
 │        )                                                     │
 │   Browser: Playwright + Chrome Profile (sessões persistidas) │
 └──────────────────────────┬─────────────────────────────────┘
@@ -54,7 +54,7 @@ Criar um agente de busca e navegação web autônomo (Perplexity-like) que:
 │                    OpenRouter API                              │
 │   Model: openai/gpt-4o-mini                                  │
 │   Custo: $0.15/1M (prompt) + $0.60/1M (completion)          │
-│   Auth: OPENROUTER_API_KEY (Infisical)                       │
+│   Auth: OPENROUTER_API_KEY ()                       │
 └──────────────────────────────────────────────────────────────┘
 ```
 ```
@@ -69,7 +69,7 @@ Criar um agente de busca e navegação web autônomo (Perplexity-like) que:
 | Agent | browser-use | `uv add browser-use` |
 | Browser | Playwright + Chrome | `uvx browser-use install` |
 | LLM | ChatOpenAI (OpenRouter GPT-4o-mini) | `uv add langchain-openai` |
-| Secrets | Infisical | system-wide |
+| Secrets | | system-wide |
 | Runtime | Python 3.11+ | uv |
 | Container | Docker | Dockerfile |
 
@@ -111,7 +111,7 @@ docker-compose up -d
 
 # Production (Coolify)
 # Build from Dockerfile in apps/perplexity-agent/
-# Exposed on web.zappro.site (same domain as OpenClaw web services)
+# Exposed on web.zappro.site (same domain as 
 ```
 
 ---
@@ -142,14 +142,14 @@ docker-compose up -d
 ### Environment Variables
 
 ```bash
-OPENROUTER_API_KEY=sk-or-v1-...  # OpenRouter key (Infisical)
+OPENROUTER_API_KEY=sk-or-v1-...  # OpenRouter key ()
 CHROME_PROFILE_PATH=/srv/data/perplexity-agent/chrome-profile
 STREAMLIT_PORT=4004
 ```
 
-### Secrets (Infisical)
+### Secrets ()
 
-No Infisical project `zappro-p-tc-k`:
+No `zappro-p-tc-k`:
 - `OPENROUTER_API_KEY` — OpenRouter API key
 
 ---

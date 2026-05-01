@@ -16,7 +16,7 @@
 | Cérebro MD | ✅ SAUDÁVEL | 150+ docs em docs/, .context/, obsidian/ |
 | Obsidian | ✅ INTACTO | Vault funcional, configs OK |
 | CI/CD | ✅ OPERACIONAL | 8 workflows Gitea + 2 GitHub reais |
-| Apps | ⚠️ MISTURADO | 3 reais (backend, frontend, perplexity-agent), 2 stubs (openclaw, orchestrator) |
+| Apps | ⚠️ MISTURADO | 3 reais (backend, frontend, perplexity-agent), 2 stubs (, orchestrator) |
 | Scripts | ✅ REAIS | 6 scripts operacionais com lógica real |
 | .claude | ⚠️ FRAGMENTADO | 17 commands OK, 32 skills com 1 broken symlink |
 | .agent | ⚠️ DECORATIVO | 10 stub dirs vazios em workflows/ |
@@ -102,7 +102,7 @@
 | `trigger-gitea.txt` | Arquivo vazio placeholder |
 | `.npmrc` | Arquivo vazio |
 | `.Trash-1000/` | Lixeira abandonada |
-| `apps/openclaw/` | Directory vazio (stub) |
+| `apps//` | Directory vazio (stub) |
 | `build.log` | Artefacto de build antigo |
 | `development-plan.md` | Plano datado (March 2026) |
 | `data/` | Directory vazio |
@@ -274,7 +274,7 @@ docs/
 │   ├── HOMELAB-SURVIVAL-GUIDE.md
 │   ├── CI-CD-PATTERNS.md
 │   ├── SKILLS/                    # Skills operacionais
-│   │   ├── openclaw-agents-kit/
+│   │   ├── /
 │   │   ├── doc-librarian/
 │   │   ├── container-health-check.sh
 │   │   ├── self-healing.sh
@@ -283,7 +283,7 @@ docs/
 │   │   └── tts-bridge.py
 │   └── guides/                     # Guias de ferramentas
 │       ├── gitea-coolify/
-│       ├── infisical/
+│       ├── /
 │       ├── security-hardening/
 │       └── manutencao-continua/
 │
@@ -405,7 +405,7 @@ docs/
 │
 ├── rules/                         # 4 rules
 │   ├── backend.md
-│   ├── openclaw-audio-governance.md
+│   ├── .md
 │   ├── REVIEW-SKILLS.md
 │   └── search.md
 │
@@ -489,7 +489,7 @@ docs/
 | `trigger-gitea.txt` | IMMEDIATE |
 | `.npmrc` | IMMEDIATE |
 | `.Trash-1000/` | IMMEDIATE |
-| `apps/openclaw/` | IMMEDIATE |
+| `apps//` | IMMEDIATE |
 | `.claude/skills/testsprite/` | IMMEDIATE |
 | `.claude/skills/spec-driven-development/` | IMMEDIATE (broken symlink) |
 
@@ -533,7 +533,7 @@ docs/
 - Remove trigger-gitea.txt
 - Remove .npmrc
 - Remove .Trash-1000/
-- Remove apps/openclaw/
+- Remove apps//
 - Remove .claude/skills/testsprite/
 - Remove .claude/skills/spec-driven-development/
 ```
@@ -590,7 +590,7 @@ docs/
 
 ### Apps Cleanup
 ```
-- apps/openclaw/ → DELETE (vazio)
+- apps// → DELETE (vazio)
 - apps/orchestrator/ → AVALIAR (pode ser futuro, manter mas noted)
 ```
 
@@ -648,7 +648,7 @@ template/
 
 ### Batch 1: Delete Junk (1 commit)
 ```
-DELETE: trigger-gitea.txt, .npmrc, .Trash-1000/, apps/openclaw/, testsprite/, broken symlink
+DELETE: trigger-gitea.txt, .npmrc, .Trash-1000/, apps//, testsprite/, broken symlink
 ```
 
 ### Batch 2: Archive Old (1 commit)

@@ -10,9 +10,9 @@ specRef: related SPECs (optional)
 
 # SPEC-NNN: [Feature Name]
 
-> ⚠️ **SPEC-009 Audio Stack:** Se a feature envolve STT/TTS/voice, verificar SPEC-009 antes de propor mudanças. Motor STT é wav2vec2 :8201 (PROIBIDO trocar por Whisper). TTS via TTS Bridge :8013 (PROIBIDO Kokoro direto).
+> ⚠️ **SPEC-009 Audio Stack:** Se a feature envolve STT/TTS/voice, verificar SPEC-009 antes de propor mudanças. Motor STT é wav2vec2 :8201 (PROIBIDO trocar por Whisper). TTS via TTS Bridge :8013 (PROIBIDO ).
 
-> ⚠️ **Governance:** Antes de modificar serviços imutáveis (Kokoro, wav2vec2, OpenClaw), verificar docs/GOVERNANCE/IMMUTABLE-SERVICES.md e .claude/rules/ para regras de aprovação.
+> ⚠️ **Governance:** Antes de modificar serviços imutáveis (, wav2vec2, ), verificar docs/GOVERNANCE/IMMUTABLE-SERVICES.md e .claude/rules/ para regras de aprovação.
 
 ---
 
@@ -223,7 +223,7 @@ pnpm vitest run --watch
 ### Always
 
 - Create ZFS snapshot before any destructive change (`zfs snapshot tank@pre-YYYYMMDD-HHMMSS`)
-- Use Infisical for all secrets — never hardcode credentials in code
+- Use — never hardcode credentials in code
 - Run `pnpm turbo typecheck` before commit
 - Run `pnpm turbo lint` before commit
 - Follow naming conventions from biome.json
@@ -246,7 +246,7 @@ pnpm vitest run --watch
 - Delete `/srv/data`, `/srv/backups`, `/srv/docker-data`
 - Destroy ZFS pools
 - Reboot without explicit plan
-- Hardcode secrets (use Infisical SDK instead)
+- Hardcode secrets (use )
 - Bypass pre-commit hooks
 - Open ports without updating PORTS.md + SUBDOMAINS.md
 

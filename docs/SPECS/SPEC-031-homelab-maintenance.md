@@ -18,7 +18,7 @@ Apply 7 low-priority maintenance improvements identified in the 12-agent audit. 
 - Docker (container HEALTHCHECK)
 - ZFS (snapshot cron)
 - Prometheus (scrape config)
-- Kokoro FastAPI (version bump)
+- (version bump)
 - Claude Code CLI + 10 parallel agents
 
 ---
@@ -30,7 +30,7 @@ Apply 7 low-priority maintenance improvements identified in the 12-agent audit. 
 docker inspect --format='{{.Config.Healthcheck}}' node-exporter
 docker inspect --format='{{.Config.Healthcheck}}' loki
 
-# Kokoro version check
+# 
 curl -s http://localhost:8880/v1/models | jq '.'
 
 # ZFS snapshot list
@@ -44,13 +44,13 @@ cat /srv/monorepo/docker/prometheus.yml 2>/dev/null || cat /etc/prometheus/prome
 
 ## 7 Improvements — Tasks
 
-### Task 1: Kokoro v0.2.2 → v0.2.4-master
+### Task 1: 0.2.2 → v0.2.4-master
 
 **Pre-approval required:** YES (Context7 research + will-zappro approval)
 
 | Step | Action |
 |------|--------|
-| 1 | Research v0.2.4 changes via Context7 (`/remsky/kokoro-fastapi`) |
+| 1 | Research v0.2.4 changes via Context7 (`/remsky/`) |
 | 2 | Compare audio quality improvements (if any) |
 | 3 | Get will-zappro explicit approval |
 | 4 | If approved: update VERSION-LOCK.md + docker-compose |
@@ -165,13 +165,13 @@ zfs list -t snapshot -r tank | grep "pre-"
 | 4 | Commit + sync |
 
 **Add to table:**
-| Operation | TTS Bridge restart | Voice change | OpenClaw config edit |
-| Service | zappro-tts-bridge | pm_santa/pf_dora | openclaw-qgtzrmi |
+| Operation | TTS Bridge restart | Voice change | |
+| Service | zappro-tts-bridge | pm_santa/pf_dora | |
 | Can Execute | Autoheal (3/h limit) | NEVER | NEVER |
 | Requires Approval | will-zappro | will-zappro | will-zappro |
 
 **Acceptance Criteria:**
-- [ ] APPROVAL_MATRIX.md includes TTS Bridge, OpenClaw, Kokoro rows
+- [ ] APPROVAL_MATRIX.md includes TTS Bridge, , 
 - [ ] Date updated to 2026-04-12
 - [ ] `git log` shows update
 
@@ -239,7 +239,7 @@ zfs list -t snapshot -r tank | grep "pre-"
 
 ```bash
 # All smoke tests
-bash /srv/monorepo/tasks/smoke-tests/pipeline-openclaw-voice.sh
+bash /srv/monorepo/tasks/smoke-tests/pipeline-.sh
 # Should PASS 14/14
 
 # Prometheus targets
@@ -268,11 +268,11 @@ All 7 tasks complete with verification steps logged. Final state:
 
 ## Open Questions
 
-1. **Kokoro v0.2.4** — Is there audio quality improvement worth the risk? Need Context7 research first.
+1. **0.2.4** — Is there audio quality improvement worth the risk? Need Context7 research first.
 2. **cadvisor timeout** — Does 30s actually help? Current 10s may be intentional to fail-fast.
 3. **ZFS snapshot retention** — 7 days retention OK? Or need longer (30 days)?
 
-**Recommendation:** Execute Tasks 2-7 in parallel (no approval needed). Keep Task 1 (Kokoro) as separate approval track.
+**Recommendation:** Execute Tasks 2-7 in parallel (no approval needed). Keep Task 1 () as separate approval track.
 
 ---
 
@@ -282,4 +282,4 @@ All 7 tasks complete with verification steps logged. Final state:
 |----------|------|
 | MUST | Tasks 2, 3, 5, 6, 7 complete (5 tasks) |
 | SHOULD | Task 4 (cadvisor timeout) — verify if actually needed |
-| COULD | Task 1 (Kokoro v0.2.4) — only if Context7 shows clear improvement |
+| COULD | Task 1 (0.2.4) — only if Context7 shows clear improvement |

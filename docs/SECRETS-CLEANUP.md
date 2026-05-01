@@ -15,7 +15,7 @@ Push cannot contain secrets
 ### Step 1: Identify the Bad Commit
 
 ```bash
-git log --oneline | grep -E "secret|keys|openclaw|token"
+git log --oneline | grep -E "secret|keys||token"
 ```
 
 ### Step 2: Find Last Good Commit

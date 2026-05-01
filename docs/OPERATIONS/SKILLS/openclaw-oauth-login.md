@@ -1,13 +1,13 @@
-# OAuth Login Guide — OpenClaw CEO MIX
+# OAuth Login Guide — 
 
 **Data:** 2026-04-08
-**Objetivo:** Login OAuth persistente para Gemini + Perplexity no browser do OpenClaw
+**Objetivo:** Login OAuth persistente para Gemini + Perplexity no browser do 
 
 ---
 
 ## Overview
 
-O OpenClaw (CEO MIX agent) precisa de sessão OAuth ativa em `web.zappro.site` para comandar o Perplexity Agent. Este guia explica como fazer login e manter sessões persistentes.
+O (CEO MIX agent) precisa de sessão OAuth ativa em `web.zappro.site` para comandar o Perplexity Agent. Este guia explica como fazer login e manter sessões persistentes.
 
 ---
 
@@ -33,7 +33,7 @@ chmod -R 777 /srv/data/perplexity-agent/chrome-profile/
 
 ## Passo 2: Abrir Chrome com Debug
 
-Este comando abre o Chrome no desktop com o profile do OpenClaw:
+Este comando abre o Chrome no desktop com o profile do :
 
 ```bash
 /usr/bin/google-chrome --profile-directory=Default --user-data-dir=/srv/data/perplexity-agent/chrome-profile --remote-debugging-port=9222
@@ -142,4 +142,4 @@ curl -s http://localhost:9222/json | head
 
 ---
 
-**Após login, o CEO MIX (OpenClaw) consegue usar essa sessão automaticamente!**
+**Após login, o CEO MIX () consegue usar essa sessão automaticamente!**

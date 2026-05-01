@@ -127,7 +127,7 @@ If the USB drive containing the master password is lost, stolen, or destroyed:
 ## Security Notes
 
 - The master password is not in any password manager
-- The master password is not in any secrets system (Infisical, Vault, etc.)
+- The master password is not in any secrets system (
 - The USB containing the password is the only access vector
 - All unlock attempts are logged with timestamp and operator identity
 - Failed unlock attempts trigger security alerts

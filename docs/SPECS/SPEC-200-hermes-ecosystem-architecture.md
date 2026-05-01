@@ -48,7 +48,7 @@ O ecossistema segue o padrão definido em `/home/will/.hermes/SOUL.md`:
 |-----------|--------|-------|-------|
 | `zappro-qdrant` | RUNNING | 127.0.0.1:6333 | Qdrant — DB vetorial (1953 vetores `will`, 79 `second-brain`) |
 | `zappro-redis` | RUNNING | 127.0.0.1:6379 | Redis — cache/sessão (${REDIS_PASSWORD}) |
-| `zappro-edge-tts` | RUNNING | 127.0.0.1:8012 | Kokoro TTS bridge |
+| `zappro-edge-tts` | RUNNING | 127.0.0.1:8012 | |
 | `hermes-gateway` | RUNNING | 127.0.0.1:3001 | TypeScript agency |
 
 **Legado PRUNED:** `aurelia-*` containers foram removidos.

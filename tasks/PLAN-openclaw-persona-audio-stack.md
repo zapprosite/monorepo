@@ -1,8 +1,8 @@
-# Plan: OpenClaw Persona + Audio Stack Configuration
+# Plan: + Audio Stack Configuration
 
 ## Context
 
-O OpenClaw Bot tem configuracoes espalhadas e a persona nao esta documentada. O bot esta mencionando servicos antigos (Deepgram) que ja nao sao usados. E preciso:
+O . O bot esta mencionando servicos antigos (Deepgram) que ja nao sao usados. E preciso:
 
 1. Documentar a stack de audio (VL + TTS + STT)
 2. Criar persona alinhada (nome, comportamento,remembered)
@@ -12,7 +12,7 @@ O OpenClaw Bot tem configuracoes espalhadas e a persona nao esta documentada. O 
 ## Dependency Graph
 
 ```
-OpenClaw Bot (Telegram)
+(Telegram)
     │
     ├── Identity/Persona (name, theme, comportamento)
     │       └── docs/GOVERNANCE/OPENCLAW_DEBUG.md (atualizado)
@@ -23,7 +23,7 @@ OpenClaw Bot (Telegram)
     │   └── TTS: TTS Bridge :8013 (SO pm_santa + pf_dora) — JA CONFIGURADO
     │
     ├── Audio Files Reference
-    │   └── /data/.openclaw/openclaw.json (persona + config)
+    │   └── /data/./.json (persona + config)
     │
     └── Governance
         ├── GUARDRAILS.md (proteger config)
@@ -32,9 +32,9 @@ OpenClaw Bot (Telegram)
 
 ## Tasks
 
-### Task 1: Documentar Stack de Audio PT-BR (SPEC-OpenClaw-Persona)
+### Task 1: Documentar Stack de Audio PT-BR (SPEC-)
 
-**Ficheiro:** `docs/specflow/SPEC-009-openclaw-persona-audio-stack.md`
+**Ficheiro:** `docs/specflow/SPEC-009-.md`
 
 **Conteudo:**
 - Arquitetura completa (STT → LLM → TTS)
@@ -43,15 +43,15 @@ OpenClaw Bot (Telegram)
 - TTS Bridge: :8013 — APENAS pm_santa/pf_dora, todas outras retornam 400
 - LLM primário: minimax/MiniMax-M2.7 (direto, NAO via LiteLLM)
 - Vision: litellm/llava via LiteLLM
-- **PROIBIDO:** Deepgram, Whisper (local ou cloud), Kokoro direto (sem bridge)
+- **PROIBIDO:** Deepgram, Whisper (local ou cloud), (sem bridge)
 
 **Criterio de aceite:** SPEC criado com diagrama de arquitetura e checklist de voces/STT proibidos
 
 ---
 
-### Task 2: Criar/Atualizar openclaw.json com Persona
+### Task 2: Criar/Atualizar .json com Persona
 
-**Ficheiro:** `/data/.openclaw/openclaw.json` (dentro do container)
+**Ficheiro:** `/data/./.json` (dentro do container)
 
 **Alteracoes:**
 ```json
@@ -83,24 +83,24 @@ OpenClaw Bot (Telegram)
 }
 ```
 
-**Proibido no openclaw.json:**
+**Proibido no .json:**
 - Deepgram como STT
-- Qualquer outra voz Kokoro alem de pm_santa/pf_dora
-- baseUrl de TTS apontando para Kokoro direto
+- Qualquer outra voz _santa/pf_dora
+- baseUrl de TTS apontando para 
 
-**Criterio de aceite:** openclaw.json atualizado, smoke test passa 15/15
+**Criterio de aceite:** .json atualizado, smoke test passa 15/15
 
 ---
 
 ### Task 3: Criar Rules para LLM naoAlterar Audio Stack
 
-**Ficheiro:** `.claude/rules/openclaw-audio-governance.md`
+**Ficheiro:** `.claude/rules/.md`
 
 **Conteudo:**
 - REGRA: Nunca propor Mudanca de TTS para outro provider
 - REGRA: Nunca mencionar Deepgram como alternativa
 - REGRA: Never suggest changing voice to non-PT-BR
-- REGRA: TTS Bridge e o unico ponto de acesso ao Kokoro
+- REGRA: TTS Bridge e o unico ponto de acesso ao 
 - Stack atual: pm_santa + pf_dora (apenas), wav2vec2 (apenas), MiniMax M2.7 (apenas)
 
 **Criterio de aceite:** Ficheiro criado e referenciado em CLAUDE.md
@@ -119,7 +119,7 @@ OpenClaw Bot (Telegram)
 |--------|-------|----------|
 | STT | wav2vec2 :8201 | Deepgram, Whisper |
 | TTS Voice | pm_santa, pf_dora | Qualquer outra |
-| TTS Endpoint | TTS Bridge :8013 | Kokoro direto |
+| TTS Endpoint | TTS Bridge :8013 | |
 | LLM Primario | minimax/MiniMax-M2.7 | LiteLLM para primario |
 | Vision | litellm/llava | Outros VL models |
 ```
@@ -135,12 +135,12 @@ OpenClaw Bot (Telegram)
 # deve retornar 400
 curl -sf -X POST http://localhost:8013/v1/audio/speech \
   -H "Content-Type: application/json" \
-  -d '{"model":"kokoro","input":"test","voice":"af_sarah"}' -w "%{http_code}\n"
+  -d '{"model":"","input":"test","voice":"af_sarah"}' -w "%{http_code}\n"
 
 # deve retornar 200
 curl -sf -X POST http://localhost:8013/v1/audio/speech \
   -H "Content-Type: application/json" \
-  -d '{"model":"kokoro","input":"test","voice":"pm_santa"}' -w "%{http_code}\n"
+  -d '{"model":"","input":"test","voice":"pm_santa"}' -w "%{http_code}\n"
 ```
 
 **Criterio de aceite:** af_sarah → 400, pm_santa → 200
@@ -164,9 +164,9 @@ find /tmp -name "*.wav" -o -name "*.mp3" -o -name "*.ogg" 2>/dev/null | head -20
 
 ## Checkpoints
 
-1. **ANTES:** Snapshot ZFS antes de modificar openclaw.json
+1. **ANTES:** Snapshot ZFS antes de modificar .json
 2. **DEPOIS:** SPEC-009 criado com arquitetura
-3. **DEPOIS:** openclaw.json atualizado com identity
+3. **DEPOIS:** .json atualizado com identity
 4. **DEPOIS:** smoke test passa 15/15
 5. **DEPOIS:** GUARDRAILS.md atualizado
 6. **DEPOIS:** Rule criada para LLM
@@ -177,7 +177,7 @@ find /tmp -name "*.wav" -o -name "*.mp3" -o -name "*.ogg" 2>/dev/null | head -20
 # Full smoke test
 LITELLM_KEY="${LITELLM_KEY}" \
 MINIMAX_API_KEY="sk-cp-uA1oy3YNYtSeBSs4-o3kFktK" \
-bash tasks/smoke-tests/pipeline-openclaw-voice.sh
+bash tasks/smoke-tests/pipeline-.sh
 
 # Voice filter verification
 curl -sf http://localhost:8013/v1/audio/voices

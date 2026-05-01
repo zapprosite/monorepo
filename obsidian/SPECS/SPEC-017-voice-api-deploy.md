@@ -8,20 +8,20 @@
 
 ## Resumo
 
-Deploy do `voice-api.py` (STT Bridge) no Coolify via CLI — sem dashboard. secrets no Infisical, subdomain via Cloudflare Tunnel (Terraform), tudo programmatico.
+Deploy do `voice-api.py` (STT Bridge) no Coolify via CLI — sem dashboard. secrets no , subdomain via Cloudflare Tunnel (Terraform), tudo programmatico.
 
 ---
 
 ## Arquitetura Alvo
 
 ```
-OpenClaw Container
+
        │
        │ HTTP POST /v1/audio/transcriptions
        │
        ▼
 voice-api (:8202) ← Docker container em Coolify
-   rede: qgtzrmi6771lt8l7x8rqx72f (mesma do OpenClaw)
+   rede: qgtzrmi6771lt8l7x8rqx72f (mesma do )
        │
        │ proxy audio
        ▼
@@ -65,7 +65,7 @@ services:
       - qgtzrmi6771lt8l7x8rqx72f
 ```
 
-### 4. Infisical Secrets
+### 4. 
 | Secret | Valor |
 |--------|-------|
 | `VOICE_API_WHISPER_API` | `http://10.0.19.1:8202` |
@@ -165,7 +165,7 @@ jobs:
 | # | Critério | Teste |
 |---|----------|-------|
 | AC-1 | voice-api responde em `:8202` | `curl http://localhost:8202/health` → `{"status":"ok"}` |
-| AC-2 | OpenClaw consegue chamar voice-api | `docker exec openclaw curl -sf http://10.0.19.x:8202/health` |
+| AC-2 | | `docker exec ://10.0.19.x:8202/health` |
 | AC-3 | subdomain `voice-api.zappro.site`resolve | `curl -sf https://voice-api.zappro.site/health` |
 | AC-4 | Transcription funciona | `curl -X POST :8202/v1/audio/transcriptions -F "file=@audio.wav" -F "model=wav2vec2"` |
 | AC-5 | Ollama enhancement funciona | resposta inclui "ENTENDI:" |

@@ -20,14 +20,14 @@
 
 ## Resumo
 
-O OpenClaw usa Deepgram para STT mas Deepgram não tem bom suporte a PT-BR. Em vez de usar Deepgram cloud, criamos um **proxy** que faz o wav2vec2 local parecer a API do Deepgram. O OpenClaw pensa que está a chamar Deepgram, mas na realidade está a usar STT local com wav2vec2 + Ollama PT-BR enhancement.
+O . Em vez de usar Deepgram cloud, criamos um **proxy** que faz o wav2vec2 local parecer a API do Deepgram. O , mas na realidade está a usar STT local com wav2vec2 + Ollama PT-BR enhancement.
 
 ---
 
 ## Arquitetura
 
 ```
-OpenClaw Container (qgtzrmi6771lt8l7x8rqx72f)
+(qgtzrmi6771lt8l7x8rqx72f)
        │
        │ /etc/hosts: api.deepgram.com → 10.0.19.9
        ▼
@@ -105,29 +105,29 @@ networks:
 
 ---
 
-## Configuração OpenClaw
+## Configuração 
 
 ### Passo 1: Adicionar Extra Hosts no Coolify
 
 No Coolify UI, ir a:
-- OpenClaw Service → Settings → Advanced
+- → Settings → Advanced
 - Adicionar em "Extra Hosts":
 ```
 api.deepgram.com=10.0.19.9
 ```
 
-### Passo 2: Restart do OpenClaw
+### Passo 2: Restart do 
 
-Após adicionar Extra Hosts, fazer rebuild/restart do container OpenClaw.
+Após adicionar Extra Hosts, fazer rebuild/restart do container .
 
 ### Verificação
 ```bash
-# Dentro do container OpenClaw:
-docker exec openclaw-qgtzrmi6771lt8l7x8rqx72f cat /etc/hosts | grep deepgram
+# Dentro do container :
+docker exec 6771lt8l7x8rqx72f cat /etc/hosts | grep deepgram
 # Deve mostrar: 10.0.19.9 api.deepgram.com
 
 # Testar conectividad:
-docker exec openclaw-qgtzrmi6771lt8l7x8rqx72f curl -sf http://api.deepgram.com:8203/health
+docker exec 6771lt8l7x8rqx72f curl -sf http://api.deepgram.com:8203/health
 ```
 
 ---
@@ -195,7 +195,7 @@ curl -X POST "http://localhost:8203/v1/listen?model=nova-3&language=pt-BR" \
 ### Status: ✅ IMPLEMENTADO (2026-04-09)
 
 1. ✅ Health: `curl http://localhost:8203/health` → `{"status":"ok","service":"wav2vec2-deepgram-proxy"}`
-2. ✅ Proxy IP: `10.0.19.9:8203` (mesma network que OpenClaw)
+2. ✅ Proxy IP: `10.0.19.9:8203` (mesma network que )
 3. ✅ Transcription funciona e retorna formato Deepgram
 4. ✅ Enhancement PT-BR via Ollama funciona
 
@@ -209,8 +209,8 @@ curl -X POST "http://localhost:8203/v1/listen?model=nova-3&language=pt-BR" \
 
 ### Teste Final
 ```bash
-# Direct test from OpenClaw container:
-docker exec openclaw curl -X POST "http://api.deepgram.com:8203/v1/listen?model=nova-3&language=pt-BR" \
+# Direct test from :
+docker exec "http://api.deepgram.com:8203/v1/listen?model=nova-3&language=pt-BR" \
   -H "Authorization: Token test" \
   -H "Content-Type: audio/mpeg" \
   --data-binary "@/tmp/test.mp3"
@@ -226,7 +226,7 @@ docker exec openclaw curl -X POST "http://api.deepgram.com:8203/v1/listen?model=
 
 | Opção | Prós | Contras |
 |-------|------|---------|
-| Groq Whisper | Funciona bem PT-BR | Não suportado pelo OpenClaw |
+| Groq Whisper | Funciona bem PT-BR | Não suportado pelo |
 | Deepgram cloud | Funciona com `language=pt-BR` | API key exposta, custo |
 | LiteLLM proxy | Std. interface | Não suporta STT nativamente |
 | **wav2vec2-proxy** | Local, PT-BR nativo, gratuito | Requer /etc/hosts hack |

@@ -18,8 +18,8 @@ docs/
 │   ├── discovery.md
 │   ├── PLAN-docs-reorganization-20260408.md
 │   ├── README.md
-│   ├── voice-pipeline-desktop.md
-│   └── voice-pipeline-loop.md
+│   ├── .md
+│   └── .md
 ├── REFERENCE/
 │   ├── AI-CONTEXT.md
 │   ├── ARCHITECTURE-MODELS.md
@@ -33,26 +33,26 @@ docs/
 │   ├── SPEC-001-workflow-performatico.md
 │   ├── SPEC-002-homelab-monitor-agent.md
 │   ├── SPEC-002-homelab-network-refactor.md
-│   ├── SPEC-004-kokoro-tts-kit.md
+│   ├── SPEC-004-.md
 │   ├── SPEC-005-wav2vec2-stt-kit.md
 │   ├── SPEC-006-playwright-e2e.md
-│   ├── SPEC-007-openclaw-oauth-profiles.md
-│   ├── SPEC-009-openclaw-persona-audio-stack.md
-│   ├── SPEC-010-openclaw-agents-kit.md
-│   ├── SPEC-011-openclaw-agency-reimagined.md
-│   ├── SPEC-012-openclaw-update-discoverer.md
+│   ├── SPEC-007-.md
+│   ├── SPEC-009-.md
+│   ├── SPEC-010-.md
+│   ├── SPEC-011-.md
+│   ├── SPEC-012-.md
 │   ├── SPEC-013-CLAUDE-CODE-CLI-INTEGRATION.md
-│   ├── SPEC-013-openclaw-ceo-mix-voice-stack.md
+│   ├── SPEC-013-.md
 │   ├── SPEC-013-UNIFIED-CLAUDE-AGENT-MONOREPO.md
 │   ├── SPEC-014-CURSOR-AI-CICD-PATTERN.md
-│   ├── SPEC-014-openclaw-tts-route-fix.md
+│   ├── SPEC-014-.md
 │   ├── SPEC-015-GITEA-ACTIONS-ENTERPRISE.md
-│   ├── SPEC-016-voice-pipeline-cursor-loop.md
+│   ├── SPEC-016-.md
 │   ├── SPEC-017-voice-api-deploy.md
 │   ├── SPEC-018-wav2vec2-deepgram-proxy.md
 │   ├── SPEC-019-openwebui-repair.md
-│   ├── SPEC-020-openwebui-openclaw-bridge.md
-│   ├── SPEC-020-voice-pipeline-humanized-ptbr.md
+│   ├── SPEC-020-openwebui-.md
+│   ├── SPEC-020-.md
 │   ├── SPEC-021-CLAUDE-CODE-CURSOR-LOOP.md
 │   ├── SPEC-022-CURSOR-LOOP-CLI-SOLUTIONS.md
 │   ├── SPEC-100-PIPELINE-BOOTSTRAP.md
@@ -84,7 +84,7 @@ docs/
 ├── specflow/
 │   ├── ARCHITECTURE-MASTER.md
 │   ├── reviews/
-│   │   ├── REVIEW-001-openclaw-voice-pipeline.md
+│   │   ├── REVIEW-001-.md
 │   │   ├── REVIEW-002.md
 │   │   ├── REVIEW-GUIDE.md
 │   │   └── REVIEW-smoke-tests-20260407.md
@@ -123,7 +123,7 @@ docs/
 |--------|-----------------|--------|
 | docs/SPECS | obsidian/SPECS/ | **INCOMPLETE** - Missing `tasks.md` |
 | docs/GUIDES | obsidian/GUIDES/ | **EMPTY** - Only has README.md |
-| docs/ADRs | obsidian/ADRs/ | **EMPTY** - Only has PLAN-voice-pipeline-desktop-20260410.md |
+| docs/ADRs | obsidian/ADRs/ | **EMPTY** - Only has PLAN-20260410.md |
 | docs/REFERENCE | obsidian/REFERENCE/ | **EMPTY** - Only has index.md |
 
 ### Additional Obsidian Directories (not in docs/)
@@ -132,8 +132,8 @@ docs/
 |-----------|---------|
 | obsidian/adrs/ | claude-resolve.md, README.md |
 | obsidian/guides/ | README.md only |
-| obsidian/logs/ | gitea-coolify.md, infisical.md, manutencao-continua.md, memoria-claude.md, opencode.md, security-hardening.md, whisper-auto-local.md |
-| obsidian/plans/ | homelab.md, openclaw.md |
+| obsidian/logs/ | gitea-coolify.md, .md, manutencao-continua.md, memoria-claude.md, opencode.md, security-hardening.md, whisper-auto-local.md |
+| obsidian/plans/ | homelab.md, .md |
 | obsidian/context/ | open-claw-agency.md |
 
 ---
@@ -147,8 +147,8 @@ docs/
    - CODE-REVIEW-GUIDE.md
    - discovery.md
    - PLAN-docs-reorganization-20260408.md
-   - voice-pipeline-desktop.md
-   - voice-pipeline-loop.md
+   - .md
+   - .md
 
 2. **docs/SPECS/tasks.md** - not in obsidian/SPECS/
 

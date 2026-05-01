@@ -61,7 +61,7 @@
 
 - [ ] CANVAS-CURSOR-LOOP.md → docs/GUIDES/
 - [ ] CODE-REVIEW-GUIDE.md → docs/GUIDES/
-- [ ] voice-pipeline-loop.md → docs/GUIDES/
+- [ ] .md → docs/GUIDES/
 - [ ] plans/PLAN-*.md → docs/GUIDES/
 
 **Verification:** `ls docs/GUIDES/*.md | wc -l`
@@ -166,7 +166,7 @@ These specflow files are NOT specs, should go to GUIDES/:
 |------|--------|
 | CANVAS-CURSOR-LOOP.md | GUIDES/ |
 | CODE-REVIEW-GUIDE.md | GUIDES/ |
-| voice-pipeline-loop.md | GUIDES/ |
+| .md | GUIDES/ |
 | discovery.md | GUIDES/ |
 | SPEC-022-CURSOR-LOOP-CLI-SOLUTIONS.md | GUIDES/ |
 | SPEC-TEMPLATE.md | SPECS/TEMPLATE.md |

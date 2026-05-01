@@ -1,13 +1,13 @@
 ---
 name: ADR-029-INFISICAL-MANDATORY
-description: Architecture Decision Record — Infisical SDK mandatory for all secrets access
+description: Architecture Decision Record — 
 status: PROPOSED
 author: will-zappro
 date: 2026-04-12
 specRef: SPEC-029-INFISICAL-SDK-MANDATORY.md
 ---
 
-# ADR-029 — Infisical SDK Mandatory for Secrets
+# ADR-029 — 
 
 **Status:** PROPOSED
 **Date:** 2026-04-12
@@ -34,7 +34,7 @@ Esta situação cria:
 
 ## Decision
 
-**Infisical SDK é o único meio legítimo** para aceder a secrets de produção.
+**** para aceder a secrets de produção.
 
 ### Determinants
 
@@ -63,10 +63,10 @@ Esta situação cria:
 - Compliance-ready
 
 **Negative:**
-- Requires Infisical account/workspace
+- Requires /workspace
 - Learning curve for SDK usage
 - Legacy code migration effort
-- Dependency on Infisical availability
+- Dependency on 
 
 **Neutral:**
 - Must maintain INFISICAL_CLIENT_ID + INFISICAL_CLIENT_SECRET credentials
@@ -89,7 +89,7 @@ Phase 2 (This week):
 - Block hardcoded secrets in pre-commit
 
 Phase 3 (Next sprint):
-- Migrate secrets.env tokens to Infisical
+- Migrate secrets.env tokens to 
 - Remove from ~/.zappro/config/secrets.env
 - Remove from ~/.git-credentials
 
@@ -115,8 +115,8 @@ Temporary exceptions allowed with:
 - SPEC-029-INFISICAL-SDK-MANDATORY.md
 - docs/GOVERNANCE/SECRETS-MANDATE.md
 - docs/GUIDES/INFISICAL-SDK-PATTERN.md
-- [Infisical Python SDK](https://pypi.org/project/infisical-python/)
-- [Infisical Node SDK](https://www.npmjs.com/package/infisical-node)
+- [](https://pypi.org/project//)
+- [](https://www.npmjs.com/package/)
 
 ---
 

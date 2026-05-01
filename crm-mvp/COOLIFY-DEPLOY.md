@@ -76,7 +76,7 @@ Siga os passos em "Passos manuais no Coolify" abaixo.
 ## Passos manuais no Coolify (Opção recomendada)
 
 1. Acesse: https://coolify.zappro.site
-2. Faça login com as credenciais armazenadas em Infisical (`coolify-root-user-password`)
+2. Faça login com as credenciais armazenadas em (`coolify-root-user-password`)
 3. Crie um novo **Project** (ou use um existente)
 4. Dentro do project, clique **Add New** → **Docker Compose**
 5. Configure:

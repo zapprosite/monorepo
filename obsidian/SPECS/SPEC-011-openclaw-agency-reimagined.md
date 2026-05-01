@@ -1,11 +1,11 @@
-# SPEC-011 — OpenClaw Agency Suite: Reimaginado
+# SPEC-011 — : Reimaginado
 <!-- ================================================================
-     SPEC-011-openclaw-agency-reimagined-v2.md
+     SPEC-011-2.md
      Status      : DRAFT v2.0
      Data        : 2026-04-09
      Autor       : Arquiteto Sênior de Software (sessão de brainstorm)
      Revisão     : —
-     Plataforma  : OpenClaw (https://github.com/openclaw/openclaw)
+     Plataforma  : (https://github.com//)
      Contexto    : Agência de Marketing & Design — stack Docker em rede interna
 ================================================================ -->
 
@@ -14,7 +14,7 @@
 **Status:** `DRAFT v2.0`  
 **Data:** 09 de abril de 2026  
 **Autor:** Sessão de Arquitetura Sênior  
-**Plataforma-alvo:** OpenClaw (Gateway WS + multi-canal)  
+**Plataforma-alvo:** (Gateway WS + multi-canal)  
 **Ambiente:** Rede Docker interna (SPEC-011)  
 **Idioma:** Português (PT-BR)  
 
@@ -74,11 +74,11 @@ Uma agência de marketing e design moderna opera com múltiplos papéis humanos 
 
 ### 1.2 Hipótese Central
 
-> **Se um conjunto de agentes de IA especializados — cada um com personalidade, voz, memória e ferramentas próprias — operar de forma coordenada via protocolo ACP dentro da plataforma OpenClaw, então a agência pode eliminar as tarefas repetitivas de baixo valor, aumentar a qualidade e consistência das entregas, e escalar sua capacidade sem contratação proporcional.**
+> **Se um conjunto de agentes de IA especializados — cada um com personalidade, voz, memória e ferramentas próprias — operar de forma coordenada via protocolo ACP dentro da plataforma , então a agência pode eliminar as tarefas repetitivas de baixo valor, aumentar a qualidade e consistência das entregas, e escalar sua capacidade sem contratação proporcional.**
 
 ### 1.3 Escopo Deste SPEC
 
-Este documento especifica a reimaginação completa do SPEC-011, focada em **agentes que facilitam a vida de todos os membros de uma agência de marketing/design**. O sistema é construído sobre a plataforma OpenClaw com os serviços Docker já disponíveis na rede SPEC-011.
+Este documento especifica a reimaginação completa do SPEC-011, focada em **agentes que facilitam a vida de todos os membros de uma agência de marketing/design**. O sistema é construído sobre a plataforma 011.
 
 ---
 
@@ -88,7 +88,7 @@ Este documento especifica a reimaginação completa do SPEC-011, focada em **age
 
 **"Uma agência onde nenhuma tarefa repetitiva precisa ser feita duas vezes por um humano."**
 
-O OpenClaw Agency Suite transforma o OpenClaw em um sistema nervoso central da agência, onde:
+O , onde:
 
 - **Clientes** se comunicam via Telegram/WhatsApp com o CEO MIX e recebem atualizações proativas
 - **Editores de vídeo** recebem footage já organizado, decupado e com legendas geradas automaticamente
@@ -112,7 +112,7 @@ O OpenClaw Agency Suite transforma o OpenClaw em um sistema nervoso central da a
 - ❌ Estado em memória volátil (tudo no TaskFlow ou Qdrant)
 - ❌ Dependência de ferramenta externa não dockerizada (tudo na rede interna)
 - ❌ Comunicação síncrona bloqueante entre agentes (ACP assíncrono com reply-back)
-- ❌ Hardcoded credentials (tudo via Infisical vault)
+- ❌ Hardcoded credentials (tudo via )
 
 ---
 
@@ -143,7 +143,7 @@ O OpenClaw Agency Suite transforma o OpenClaw em um sistema nervoso central da a
 ║  │ LiteLLM :4000    │  │ wav2vec2 :8201  │  │ Qdrant :6333      │          ║
 ║  │ ├─ MiniMax M2.7  │  │ (STT PT-BR)     │  │ (768d vectors)    │          ║
 ║  │ ├─ llava         │  │                 │  │                   │          ║
-║  │ └─ nomic-embed   │  │ Kokoro :8880    │  │ nomic-embed-text  │          ║
+║  │ └─ nomic-embed   │  │ :8880    │  │ nomic-embed-text  │          ║
 ║  │    (embedding)   │  │ (TTS engine)    │  │ (embedding model) │          ║
 ║  └──────────────────┘  │                 │  └───────────────────┘          ║
 ║                         │ TTS Bridge :8013│                                 ║
@@ -151,7 +151,7 @@ O OpenClaw Agency Suite transforma o OpenClaw em um sistema nervoso central da a
 ║                                                                             ║
 ║  AUTOMAÇÃO & INFRA                                                          ║
 ║  ┌──────────────┐  ┌──────────────┐  ┌───────────────┐  ┌──────────────┐  ║
-║  │  n8n :5678   │  │Infisical:8200│  │Coolify :8000  │  │  ffmpeg      │  ║
+║  │  n8n :5678   │  │:8200│  │Coolify :8000  │  │  ffmpeg      │  ║
 ║  │  (workflows) │  │  (secrets)   │  │  (deploy)     │  │  (CLI local) │  ║
 ║  └──────────────┘  └──────────────┘  └───────────────┘  └──────────────┘  ║
 ║                                                                             ║
@@ -163,11 +163,11 @@ O OpenClaw Agency Suite transforma o OpenClaw em um sistema nervoso central da a
 | Serviço | Host/IP | Porta | Protocolo | Função |
 |---------|---------|-------|-----------|--------|
 | Qdrant | qdrant-c95x... | 6333 | HTTP/gRPC | Vector DB (768d) |
-| LiteLLM | 10.0.1.1 | 4000 | HTTP | Proxy LLM (llava, nomic-embed, kokoro-tts) |
+| LiteLLM | 10.0.1.1 | 4000 | HTTP | Proxy LLM (llava, nomic-embed, ) |
 | TTS Bridge | 10.0.19.5 | 8013 | HTTP | Conversão TTS → áudio canal |
 | wav2vec2 | 10.0.19.6 | 8201 | HTTP | STT PT-BR |
-| Kokoro | 10.0.19.7 | 8880 | HTTP | TTS engine (pm_santa / pf_dora) |
-| Infisical | infisical | 8200 | HTTP | Vault de secrets |
+| | 10.0.19.7 | 8880 | HTTP | TTS engine (pm_santa / pf_dora) |
+| | | 8200 | HTTP | Vault de secrets |
 | n8n | n8n | 5678 | HTTP/WS | Automação de workflows |
 | Coolify | coolify | 8000 | HTTP | Deploy/orquestração |
 
@@ -267,7 +267,7 @@ Agente A (remetente)                     Agente B (receptor)
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │  🎯  CEO MIX                                                    │
-│  Voz: pm_santa (Kokoro TTS)                                     │
+│  Voz: pm_santa ()                                     │
 │  Skill: skills/ceo-mix/SKILL.md                                 │
 │  SOUL: executivo estratégico, objetivo, empático, direto        │
 └─────────────────────────────────────────────────────────────────┘
@@ -311,7 +311,7 @@ sempre fecha o loop com o cliente com uma resposta clara e objetiva.
 #### Roteamento de Intenções
 
 ```javascript
-// openclaw.json — agent routing config
+// .json — agent routing config
 {
   "agents": {
     "ceo-mix": {
@@ -419,7 +419,7 @@ Você é o parceiro técnico do editor humano, eliminando as tarefas repetitivas
 #### Estrutura de Pastas Gerenciada
 
 ```
-~/.openclaw/workspace/clientes/{slug}/videos/
+~/./workspace/clientes/{slug}/videos/
 ├── brutos/          ← footage original intocável
 │   └── YYYY-MM-DD_slug_descricao.mp4
 ├── cortes/          ← clips editados
@@ -564,7 +564,7 @@ sem confirmar com o humano. Você é o guardião da estrutura de pastas.
 #### Estrutura Completa Gerenciada
 
 ```
-~/.openclaw/workspace/clientes/{slug}/
+~/./workspace/clientes/{slug}/
 ├── brand-guide/
 │   ├── logo/
 │   │   ├── principal/
@@ -1197,7 +1197,7 @@ Você fala a língua dos negócios com o cliente e a língua técnica com a equi
 | Capacidade | Implementação |
 |-----------|--------------|
 | Kanban Board | Canvas (HTML) — dashboard em tempo real |
-| TaskFlow projects | TaskFlow engine nativo OpenClaw |
+| TaskFlow projects | TaskFlow engine nativo |
 | Status reports (voz) | TTS Bridge :8013 |
 | SLA monitoring | Cron a cada hora |
 | Budget tracking | Qdrant (campaigns) + scripts |
@@ -1255,7 +1255,7 @@ Você fala a língua dos negócios com o cliente e a língua técnica com a equi
     <!-- Populado dinamicamente via Canvas eval() -->
   </div>
   <script>
-    // OpenClaw Canvas injeta dados via window.__CANVAS_DATA__
+    // .__CANVAS_DATA__
     function renderBoard(tasks) {
       const columns = {
         backlog: [], doing: [], review: [], done: []
@@ -1914,7 +1914,7 @@ Qdrant (768d vectors — nomic-embed-text via LiteLLM :4000)
 ## 7. Estrutura de Pastas Completa
 
 ```
-~/.openclaw/
+~/./
 ├── workspace/
 │   ├── agents/
 │   │   ├── ceo-mix/
@@ -2051,7 +2051,7 @@ Qdrant (768d vectors — nomic-embed-text via LiteLLM :4000)
 │           ├── plugin.json
 │           └── index.js
 │
-└── openclaw.json  ← configuração principal
+└── .json  ← configuração principal
 ```
 
 ---
@@ -2454,7 +2454,7 @@ CEO MIX envia para:
 | `brand_guide_sync` | `0 4 * * *` | brand-guardian-agent | Sincroniza brand guides no Qdrant | — |
 | `nps_survey` | `0 10 * * 5` | client-success-agent | Envia NPS para clientes com entrega na semana | — |
 
-### 10.2 Configuração de Cron no openclaw.json
+### 10.2 Configuração de Cron no .json
 
 ```json
 {
@@ -2579,7 +2579,7 @@ Trigger: webhook POST /webhook/schedule-post
   │
   ├─ Node: Valida dados (Schema validation)
   │
-  ├─ Node: Verificação BRAND GUARDIAN (OpenClaw API)
+  ├─ Node: Verificação BRAND GUARDIAN ()
   │    Se não aprovado: → notifica social-media-agent
   │
   ├─ Node: Switch por plataforma
@@ -2644,7 +2644,7 @@ Trigger: Cron 0 10 * * 5 (toda sexta às 10h) + evento pós-entrega
 ### 12.5 Workflow: Monitoramento de Arquivo (Watchdog)
 
 ```
-Trigger: inotifywait evento em ~/.openclaw/workspace/clientes/
+Trigger: inotifywait evento em ~/./workspace/clientes/
   payload: {event_type, file_path, client_slug}
   │
   ├─ Node: Classifica evento (novo arquivo, modificação, deleção)
@@ -2710,9 +2710,9 @@ Trigger: inotifywait evento em ~/.openclaw/workspace/clientes/
 | R04 | llava falsa negativa em brand check | Médio | Médio | 🟡 Médio | Revisão humana obrigatória para score 7-8 |
 | R05 | n8n fila saturada (muitos posts) | Baixo | Médio | 🟢 Baixo | Rate limiting por cliente; queue prioritária |
 | R06 | ACP deadlock entre agentes | Baixo | Alto | 🟡 Médio | Timeout de 30min em sessions_send; circuit breaker |
-| R07 | Infisical vault indisponível | Muito Baixo | Crítico | 🟡 Médio | Cache local de secrets (TTL 1h); failover manual |
+| R07 | | Muito Baixo | Crítico | 🟡 Médio | Cache local de secrets (TTL 1h); failover manual |
 | R08 | Perda de TaskFlow state | Muito Baixo | Alto | 🟢 Baixo | Persistência em disco + backup Qdrant |
-| R09 | Kokoro TTS lentidão em pico | Médio | Baixo | 🟢 Baixo | TTS assíncrono; queue; modo texto como fallback |
+| R09 | | Médio | Baixo | 🟢 Baixo | TTS assíncrono; queue; modo texto como fallback |
 | R10 | Exaustão de storage em /brutos/ | Médio | Médio | 🟡 Médio | Monitoramento de disco; alerta a 80% |
 
 ### 14.2 Riscos de Negócio
@@ -2745,11 +2745,11 @@ Trigger: inotifywait evento em ~/.openclaw/workspace/clientes/
 
 ```
 Semana 1-2: Setup de Infraestrutura
-├─ Configurar openclaw.json com todos os agentes (stubs)
+├─ Configurar .json com todos os agentes (stubs)
 ├─ Criar estrutura de pastas skills/ e agents/
 ├─ Criar SOUL.md para todos os agentes
 ├─ Setup das coleções Qdrant (schema completo)
-└─ Configurar secrets no Infisical
+└─ Configurar secrets no 
 
 Semana 3-4: CEO MIX + ONBOARDING
 ├─ CEO MIX: roteamento de intenções
@@ -2892,7 +2892,7 @@ Semana 23-24: Multi-cliente Escala
 
 ## 17. Apêndices
 
-### Apêndice A: openclaw.json — Configuração Completa de Agentes
+### Apêndice A: .json — Configuração Completa de Agentes
 
 ```json
 {
@@ -3048,7 +3048,7 @@ Semana 23-24: Multi-cliente Escala
 ### Apêndice B: Convenção de Nomenclatura de Arquivos
 
 ```yaml
-# ~/.openclaw/workspace/skills/organizador/references/naming_convention.yaml
+# ~/./workspace/skills/organizador/references/naming_convention.yaml
 
 padrao_geral: "AAAA-MM-DD_{slug-cliente}_{tipo}_{subtipo}_{versao}.{ext}"
 
@@ -3092,10 +3092,10 @@ Para adicionar um novo agente especializado ao Agency Suite:
 1. **Criar SOUL.md** em `agents/{nome}/SOUL.md` com personalidade, tom, regras
 2. **Criar SKILL.md** em `skills/{nome}/SKILL.md` com capabilities, tools, examples
 3. **Criar scripts/** em `skills/{nome}/scripts/` com implementações Python
-4. **Registrar no openclaw.json** com model, voice, memory, sandbox config
+4. **Registrar no .json** com model, voice, memory, sandbox config
 5. **Criar coleção Qdrant** se necessário (via `scripts/qdrant_client_setup.py`)
 6. **Registrar intents** no roteador do CEO MIX (`skills/ceo-mix/scripts/intent_router.py`)
-7. **Definir cron jobs** se o agente tem tarefas periódicas (openclaw.json cron section)
+7. **Definir cron jobs** se o agente tem tarefas periódicas (.json cron section)
 8. **Criar canvas** se o agente tem dashboard (assets/{nome_dashboard}.html)
 9. **Criar workflows n8n** se o agente precisa de integrações externas
 10. **Escrever testes** em `skills/{nome}/tests/` com casos de uso cobertos
@@ -3106,18 +3106,18 @@ Para adicionar um novo agente especializado ao Agency Suite:
 |-------|-----------|
 | ACP | Agent Communication Protocol — protocolo de comunicação entre agentes via sessions_send |
 | Brand Guide | Documento que define identidade visual e verbal de um cliente |
-| Canvas | Sistema de renderização HTML do OpenClaw para dashboards visuais |
+| Canvas | Sistema de renderização HTML do |
 | CEO MIX | Agente orquestrador central; único ponto de contato com o cliente |
 | Decupagem | Sheet de logging de footage de vídeo com timecodes e transcrição |
 | Health Score | Score 0-100 de saúde do relacionamento com o cliente |
 | NPS | Net Promoter Score — métrica de satisfação e lealdade (0-10) |
-| SOUL.md | Arquivo de personalidade e instruções de um agente OpenClaw |
+| SOUL.md | Arquivo de personalidade e instruções de um agente |
 | SKILL.md | Arquivo de capacidades, ferramentas e exemplos de um agente |
 | SLA | Service Level Agreement — prazo contratual de entrega |
-| TaskFlow | Sistema de workflows duráveis multi-etapa do OpenClaw |
+| TaskFlow | Sistema de workflows duráveis multi-etapa do |
 | slug | Identificador único de um cliente em formato kebab-case (ex: marca-x) |
 | STT | Speech-to-Text — transcrição de fala para texto (wav2vec2) |
-| TTS | Text-to-Speech — síntese de voz (Kokoro via TTS Bridge) |
+| TTS | Text-to-Speech — síntese de voz () |
 | WER | Word Error Rate — taxa de erro de transcrição (menor = melhor) |
 
 ### Apêndice E: Exemplo Completo de SKILL.md
@@ -3228,7 +3228,7 @@ O rollout deve seguir a ordem:
 ### Considerações de Segurança
 
 - Todos os agentes não-main rodam em sandbox Docker (`agents.defaults.sandbox.mode: "non-main"`)
-- Secrets exclusivamente via Infisical (nunca em SKILL.md ou SOUL.md)
+- Secrets exclusivamente via (nunca em SKILL.md ou SOUL.md)
 - Logs de todas as mutações de TaskFlow com timestamp e agente responsável
 - BRAND GUARDIAN funciona como camada de segurança de conteúdo (não contorna)
 - Clientes recebem apenas respostas via CEO MIX (agentes internos invisíveis ao cliente)

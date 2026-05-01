@@ -42,19 +42,19 @@
 
 **Arquitetura atual (2026-04-08):**
 ```
-OpenClaw → TTS Bridge (:8013) → Kokoro (:8880)
+
            └─► pm_santa, pf_dora ONLY
            └─► [OUTRAS] → 400 Bad Request
-OpenClaw → wav2vec2 (:8201) → STT PT-BR
+
 ```
 
 **TTS Bridge (porta 8013):**
 - **INTOCÁVEL** — proxy Python stdlib
 - **Vozes:** ONLY pm_santa (masculino) e pf_dora (feminino)
 - **Todas outras vozes:** HTTP 400
-- **Endpoint:** `http://10.0.19.5:8013/v1` (NAO Kokoro direto)
-- NUNCA: mudar baseUrl para Kokoro direto
-- NUNCA: propor outras vozes Kokoro
+- **Endpoint:** `http://10.0.19.5:8013/v1` (NAO 
+- NUNCA: mudar baseUrl para 
+- NUNCA: propor outras vozes 
 
 **STT (porta 8201):**
 - **Modelo:** wav2vec2 jonatasgrosman/wav2vec2-large-xlsr-53-portuguese
@@ -66,26 +66,26 @@ OpenClaw → wav2vec2 (:8201) → STT PT-BR
 **PROIBIDO — Voice/Audio:**
 | O que | Por que |
 |-------|---------|
-| Kokoro direto (`:8880`) | Sem filtro de vozes |
+| 
 | Deepgram como STT | Foi REMOVIDO em 2026-04-07 |
 | Whisper como STT | Nao e PT-BR native |
-| Outras vozes Kokoro | TTS Bridge bloqueia |
+| Outras vozes 
 | LiteLLM como primario | Causa crash `api: undefined` |
 
 **Se LLM sugerir mudança → REJEITAR e reportar violação.**
 
-### OpenClaw Bot (@CEO_REFRIMIX_bot)
+### 
 - NUNCA: mudar model.primary para liteLLM/* (crash api:undefined)
 - NUNCA: remover MiniMax-M2.7 do provider minimax
 - NUNCA: mudar minimax.api (DEVE ser anthropic-messages)
 - NUNCA: usar LiteLLM como provider primario (SO para GPU/voz/visao)
-- PINADO: OpenClaw 2026.2.6 | minimax/MiniMax-M2.7 direto
-- DEBUG: /srv/ops/ai-governance/OPENCLAW_DEBUG.md
+- PINADO: 
+- DEBUG: /srv/ops/ai-governance/
 
 ### LiteLLM Proxy (10.0.1.1:4000)
 - NUNCA: mudar papel do LiteLLM (proxy GPU, NAO provider primario)
 - CONFIG: /home/will/zappro-lite/config.yaml
-- MODELOS: gemma4, llava, embedding-nomic, qwen3.6-plus, minimax-m2.7, kokoro-tts, whisper-stt (direto :8201)
+- MODELOS: gemma4, llava, embedding-nomic, qwen3.6-plus, minimax-m2.7, 
 
 ---
 
@@ -109,7 +109,7 @@ OpenClaw → wav2vec2 (:8201) → STT PT-BR
 | Container Pattern | Status | Ação |
 |-----------------|--------|------|
 | `speaches-*` | ⚠️ REMOVIDO | Substituído por Deepgram cloud |
-| `chatterbox-tts-*` | ⚠️ REMOVIDO | Substituído por Kokoro local |
+| `chatterbox-tts-*` | ⚠️ REMOVIDO | Substituído por 
 | `voice-proxy-*` | ⚠️ NUNCA DEPLOYADO | Nginx TTS proxy — não existiu |
 | `captain-*` | ⚠️ REMOVIDO | CapRover substituído por Coolify (2026-03) |
 | `supabase-*` | ⚠️ REMOVIDO | 13 containers removidos em 2026-04 |
@@ -135,7 +135,7 @@ docker rm -f <container_name>
 - `docker volume prune -f` — ⚠️ CUIDADO — volumes orfos podem ter dados
 
 ### ⚠️ PRUNE REQUER APROVAÇÃO
-- `docker system prune -a` — Remove TODAS as imagens não usadas (inclui Ollama, Kokoro, etc)
+- `docker system prune -a` — Remove TODAS as imagens não usadas (inclui Ollama, 
 - `docker system prune --volumes` — Remove imagens + containers + **VOLUMES** (destructive)
 
 ### ❌ NUNCA EXECUTAR
@@ -194,9 +194,9 @@ Quando um serviço ou config tem marker **📌 PINNED**, significa:
 
 | Serviço | Marcador | Notas |
 |---------|----------|-------|
-| Kokoro TTS (zappro-kokoro) | ⚠️ KIT PROTECTED | Voice pipeline unit — não substituir |
+| 
 | wav2vec2 STT (zappro-wav2vec2) | ⚠️ KIT PROTECTED | STT pipeline unit — não substituir |
-| OpenClaw Bot | ⚠️ KIT PROTECTED + 🔒 LOCKED | Config validado 08/04/2026 |
+| 
 | LiteLLM Proxy (zappro-litellm) | 🔒 LOCKED | Roteamento GPU/voice dependente |
 | Traefik + Cloudflare Tunnel | 📌 PINNED | DNS routing — mudança requer Terraform |
 | Voice Pipeline (completo) | ⚠️ KIT PROTECTED | Testado como unit 15/15 |
@@ -209,7 +209,7 @@ Antes de propor qualquer mudança em serviços listados:
 grep -r "PINNED\|KIT PROTECTED\|LOCKED" /srv/monorepo/docs/GOVERNANCE/
 
 # 2. Verificar última execução do smoke test
-cat /srv/monorepo/tasks/smoke-tests/pipeline-openclaw-voice.sh | head -5
+cat /srv/monorepo/tasks/smoke-tests/pipeline-
 
 # 3. Verificar ZFS snapshots recentes
 sudo zfs list -t snapshot -r tank | tail -10

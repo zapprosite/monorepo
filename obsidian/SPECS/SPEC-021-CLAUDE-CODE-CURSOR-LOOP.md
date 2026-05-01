@@ -11,7 +11,7 @@
 
 ## Resumo
 
-Cursor-loop operacional para monorepo: Infisical → Gitea push → Gitea CI → Coolify deploy → Cloudflare DNS → Smoke test. Skillsystem sem placeholders — tudo o que existe é real e funcional.
+Cursor-loop operacional para monorepo: → Gitea push → Gitea CI → Coolify deploy → Cloudflare DNS → Smoke test. Skillsystem sem placeholders — tudo o que existe é real e funcional.
 
 ---
 
@@ -20,7 +20,7 @@ Cursor-loop operacional para monorepo: Infisical → Gitea push → Gitea CI →
 ```
 ┌─────────────────────────────────────────────────────────┐
 │              CURSOR LOOP LEADER                         │
-│  [1] Infisical Check (Python SDK direct)               │
+│  [1] (Python SDK direct)               │
 │  [2] Gitea push (git push gitea + origin)              │
 │  [3] Gitea CI (gh run watch)                           │
 │      ├── PASS ──→ [4] Coolify deploy                   │
@@ -37,7 +37,7 @@ Cursor-loop operacional para monorepo: Infisical → Gitea push → Gitea CI →
 
 | Step | Tool | Status | Problema |
 |------|------|--------|----------|
-| [1] Infisical | Python SDK | ✅ OK | — |
+| [1] | Python SDK | ✅ OK | — |
 | [2] Gitea push | `git push` + `gh` | ✅ OK | — |
 | [3] Gitea CI | `gh run watch` | ✅ OK | — |
 | [4] Coolify | Bearer token | ⚠️ PODE FALHAR | nginx exige sessão |
@@ -105,7 +105,7 @@ Commands validados:
 | `coolify` | ⚠️ Npx package | `@masonator/coolify-mcp` | Deploy (38 tools) |
 | `gitea` | ⚠️ Npx package | `@masonator/gitea-mcp` | Git operations |
 | `taskmaster-ai` | ❌ NÃO INSTALADO | — | Task management |
-| `Infisical` | ⚠️ SDK Python | Script directo | 144 secrets |
+| `` | ⚠️ SDK Python | Script directo | 144 secrets |
 | `Tavily` | ❌ NÃO INSTALADO | — | Web research |
 
 **Regra MCP vs Script:**
@@ -189,5 +189,5 @@ docs/ (source of truth)
 
 - `SPEC-014-CURSOR-AI-CICD-PATTERN.md`
 - `SPEC-013-UNIFIED-CLAUDE-AGENT-MONOREPO.md`
-- `SPEC-020-openwebui-openclaw-bridge.md`
+- `SPEC-020-openwebui-.md`
 - `AGENTS.md` — Arquitectura do monorepo

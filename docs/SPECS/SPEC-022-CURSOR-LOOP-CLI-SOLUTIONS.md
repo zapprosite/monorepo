@@ -27,7 +27,7 @@ Dos 19 agentes de pesquisa, as principais conclusões são:
 | Categoria | Status | Prioridade |
 |-----------|--------|------------|
 | Coolify CLI | ✅ SOLUÇÃO CLI EXISTE | Baixa (API curl funciona) |
-| Infisical CLI | ✅ SOLUÇÃO CLI EXISTE | Baixa (CLI + SDK Python) |
+| | ✅ SOLUÇÃO CLI EXISTE | Baixa (CLI + SDK Python) |
 | Terraform Cloudflare | ✅ SOLUÇÃO CLI EXISTE | Baixa (terraform init/plan/apply) |
 | Gitea Actions CLI | ⚠️ PARCIAL (tea CLI + API curl) | Media |
 | Claude Code Autonomy | ✅ CLI FLAG EXISTE | Crítica (--dangerouslySkipPermission) |
@@ -46,7 +46,7 @@ Dos 19 agentes de pesquisa, as principais conclusões são:
 | Component | Technology | Usage |
 |-----------|------------|-------|
 | CI/CD | Gitea Actions + tea CLI | Trigger/watch CI via CLI |
-| Secrets | Infisical CLI + Python SDK | Secrets management |
+| Secrets | + Python SDK | Secrets management |
 | Deploy | Coolify API (curl) | Application deployment |
 | DNS | Terraform + Cloudflare provider | DNS management |
 | Snapshots | ZFS CLI (zfs snapshot/rollback) | Pre-deploy backup |
@@ -80,22 +80,22 @@ coolify deploy name my-application --force
 
 ---
 
-### 1.2 Infisical Secrets (CLI/SDK)
+### 1.2 (CLI/SDK)
 
 **Solução CLI:**
 ```bash
-export INFISICAL_TOKEN=$(infisical login --method=universal-auth \
+export INFISICAL_TOKEN=$(=universal-auth \
   --client-id=$INFISICAL_CLIENT_ID \
   --client-secret=$INFISICAL_CLIENT_SECRET --silent --plain)
 
-infisical secrets get SECRET_NAME --env=dev --plain
-infisical run --env=dev --watch -- npm run dev
+_NAME --env=dev --plain
+=dev --watch -- npm run dev
 ```
 
 **Python SDK:**
 ```python
-from infisical_sdk import InfisicalSDKClient
-client = InfisicalSDKClient(host="http://127.0.0.1:8200", token=token)
+from _sdk import 
+client = (host="http://127.0.0.1:8200", token=token)
 secrets = client.secrets.list_secrets(project_id='...', environment_slug='dev')
 ```
 
@@ -257,7 +257,7 @@ curl -s -X POST "https://api.telegram.org/bot${TOKEN}/sendMessage" \
 |---------|----------------|--------------|
 | Coolify secrets | Yes | API partial |
 | Gitea runners | Yes | tea + API partial |
-| Infisical projects | Yes | CLI full |
+| | Yes | CLI full |
 
 ---
 
@@ -288,7 +288,7 @@ curl -s -X POST "https://api.telegram.org/bot${TOKEN}/sendMessage" \
 |---|-------|---------|-----|----------|
 | 1 | Human gates | unblock.sh exists | No polling | approve.sh |
 | 2 | Coolify CLI | API works | 401 IP | Allowlist |
-| 3 | Infisical CLI | Full CLI+SDK | None | Done |
+| 3 | | Full CLI+SDK | None | Done |
 | 4 | Terraform CF | Full CLI | None | Done |
 | 5 | Gitea | tea+API | gh incompatible | Use tea |
 | 6 | Claude Code | --dangerouslySkipPermission | Hooks needed | PreToolUse |

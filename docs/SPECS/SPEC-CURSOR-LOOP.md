@@ -10,7 +10,7 @@
 ## Objective
 
 Implementar um loop autônomo "Cursor AI-like" onde:
-1. Agente líder revisa variáveis de ambiente + Infisical secrets
+1. Agente líder revisa variáveis de ambiente + 
 2. Gitea Actions executa testes
 3. Se falhar → research MCP + 5 agents refactoring
 4. SPEC atualizada + /debug command
@@ -27,7 +27,7 @@ Implementar um loop autônomo "Cursor AI-like" onde:
 | Component | Technology |
 |-----------|------------|
 | CI/CD Sandbox | Gitea Actions (git.zappro.site) |
-| Secrets | Infisical SDK (144 secrets) |
+| Secrets | (144 secrets) |
 | Env vars | Gitea Secrets + Variables |
 | Research | MCP Tavily + Context7 |
 | Code review | MCP GitHub/Gitea |
@@ -44,7 +44,7 @@ Implementar um loop autônomo "Cursor AI-like" onde:
 ├───────────────────────────────────────────────────────────────────────┤
 │                                                                        │
 │  [1] LEADER AGENT                                                       │
-│      ├── Check Infisical secrets (sdk)                                │
+│      ├── Check (sdk)                                │
 │      ├── Validate env vars vs required secrets                         │
 │      └── Detecta gaps → Bootstrap Effect JSON                         │
 │                                                                        │
@@ -130,7 +130,7 @@ Implementar um loop autônomo "Cursor AI-like" onde:
 
 ---
 
-## Bootstrap Effect JSON Schema (Infisical Check)
+## Bootstrap Effect JSON Schema ()
 
 ```json
 {
@@ -138,7 +138,7 @@ Implementar um loop autônomo "Cursor AI-like" onde:
     "task_id": "CURSOR-LEADER-01",
     "gate_type": "SECRET_MISSING | ENV_MISMATCH",
     "smoke_test": {
-      "description": "Verify Infisical connectivity",
+      "description": "Verify ",
       "command": "curl -s http://127.0.0.1:8200/health",
       "expected_output": "healthy",
       "current_output": "connection refused"
@@ -146,13 +146,13 @@ Implementar um loop autônomo "Cursor AI-like" onde:
     "pending_configs": [
       {
         "key": "COOLIFY_URL",
-        "source": "Infisical vault: coolify/url",
+        "source": ": coolify/url",
         "current_value": "⚠️ NOT SET",
         "required_for": "Coolify API in Gitea Actions"
       },
       {
         "key": "COOLIFY_API_KEY",
-        "source": "Infisical vault: coolify/api_key",
+        "source": ": coolify/api_key",
         "current_value": "⚠️ NOT SET",
         "required_for": "Coolify API auth"
       }
@@ -169,9 +169,9 @@ Implementar um loop autônomo "Cursor AI-like" onde:
 
 ### Agent 1: cursor-loop-leader
 **Role:** Leader orchestrator
-**Inputs:** tasks/pipeline.json, Infisical SDK
+**Inputs:** tasks/pipeline.json, 
 **Responsibilities:**
-- Check all required secrets in Infisical
+- Check all required secrets in 
 - Validate env vars consistency
 - Emit Bootstrap Effect if gaps found
 - Coordinate all other agents
@@ -365,7 +365,7 @@ bash scripts/pipeline-state.sh reset
 
 | # | Criterion | Verification |
 |---|-----------|--------------|
-| SC-1 | Leader agent checks Infisical before anything | Bootstrap effect if secrets missing |
+| SC-1 | Leader agent checks | Bootstrap effect if secrets missing |
 | SC-2 | Gitea Actions CI runs on push | https://git.zappro.site/actions |
 | SC-3 | Test FAIL → 5 agents research + refactor loop | Iterative improvement |
 | SC-4 | Test PASS → git ship → PR | PR created |
@@ -378,7 +378,7 @@ bash scripts/pipeline-state.sh reset
 ## Boundaries
 
 ### Always do
-- Check Infisical secrets before CI run (bootstrap-check.sh)
+- Check (bootstrap-check.sh)
 - Emit Bootstrap Effect on secret gap
 - Use `--force-with-lease` for git push
 - Include Co-Authored-By in commits
@@ -396,14 +396,14 @@ bash scripts/pipeline-state.sh reset
 - Skip tests before ship
 - Ignore Bootstrap Effect
 - Merge without AI review approval
-- Hardcode API keys (use env vars + Infisical)
+- Hardcode API keys (use env vars + )
 
 ### MCP Status (2026-04-10)
 
 | MCP | Status | Notes |
 |-----|--------|-------|
 | Context7 | ✅ Configurado | Usar para documentation lookup |
-| Tavily | ⚠️ Configurado (API key missing) | Adicionar TAVILY_API_KEY ao Infisical |
+| Tavily | ⚠️ Configurado (API key missing) | Adicionar TAVILY_API_KEY ao |
 | taskmaster-ai | ❌ Não instalado | Não usar como dependência |
 | GitHub | ⚠️ Via `gh` CLI | Usar tea CLI para Gitea |
-| Infisical | ⚠️ Python SDK | Não é MCP, usar diretamente |
+| | ⚠️ Python SDK | Não é MCP, usar diretamente |

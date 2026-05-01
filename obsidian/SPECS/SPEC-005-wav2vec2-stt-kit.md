@@ -11,7 +11,7 @@ Kit de transcrição de voz brasileira para o homelab. **Este kit é intocável*
 ## Arquitetura
 
 ```
-OpenClaw Bot / Voice Pipeline
+/ Voice Pipeline
     │
     └─► wav2vec2 STT (port 8201)
             │
@@ -46,11 +46,11 @@ OpenClaw Bot / Voice Pipeline
 ## Diferença STT vs TTS
 
 ```
-TTS = Text-to-Speech = Kokoro (texto → áudio)
+TTS = Text-to-Speech = (texto → áudio)
 STT = Speech-to-Text = wav2vec2 (áudio → texto)
 
 Pipeline Completo:
-  Microfone → STT (wav2vec2) → Texto → LLM (gemma2-9b-it) → Texto Corrigido → TTS (Kokoro pm_santa) → Áudio
+  Microfone → STT (wav2vec2) → Texto → LLM (gemma2-9b-it) → Texto Corrigido → TTS (_santa) → Áudio
 ```
 
 ---
@@ -64,7 +64,7 @@ Pipeline Completo:
    - NUNCA desativar ou parar o serviço
 
 2. **API Endpoint** — `http://localhost:8201/v1/audio/transcriptions` é OFICIAL
-   - OpenClaw usa esta porta
+   - 
    - NUNCA mudar porta sem aprovação
 
 3. **Substituição PROIBIDA** — wav2vec2 NÃO pode ser trocado por:
@@ -109,7 +109,7 @@ curl -s -X POST http://localhost:8201/v1/audio/transcriptions \
 ## VRAM
 
 - wav2vec2 GPU: ~2GB
-- Kokoro GPU: ~0.5GB
+- : ~0.5GB
 - Total com whisper-api + gemma2-9b-it: ~20GB / 24GB
 
 ---
@@ -117,7 +117,7 @@ curl -s -X POST http://localhost:8201/v1/audio/transcriptions \
 ## Referências
 
 - Skill: `/srv/monorepo/docs/OPERATIONS/SKILLS/wav2vec2-health-check.md` (a criar)
-- SPEC: `/srv/monorepo/docs/specflow/SPEC-004-kokoro-tts-kit.md`
+- SPEC: `/srv/monorepo/docs/specflow/SPEC-004-.md`
 - GUARDRAILS: `/srv/monorepo/docs/GOVERNANCE/GUARDRAILS.md`
 
 ---

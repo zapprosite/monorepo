@@ -1,4 +1,4 @@
-# Tasks: OpenClaw Agency — Voice-First Marketing
+# Tasks: — Voice-First Marketing
 
 **Spec:** SPEC-011
 **Status:** PENDING
@@ -35,7 +35,7 @@
 | # | Task | Criteria | Verification |
 |---|------|----------|--------------|
 | 3.1 | Criar template de relatorio | Estrutura: campanhas, metricas, proximos passos | Template existe em Qdrant |
-| 3.2 | Gerar relatorio via TTS | CEO MIX → relatorio → TTS Bridge → Kokoro | Audio recebido no Telegram |
+| 3.2 | Gerar relatorio via TTS | CEO MIX → relatorio → TTS Bridge → | Audio recebido no Telegram |
 | 3.3 | Agendar relatorios automaticos | Cron ou n8n envia mensal | Cliente recebe sem pedir |
 
 ---

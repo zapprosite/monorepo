@@ -1,4 +1,4 @@
-# SPEC-010: OpenClaw Agents Kit — Universal Sub-Agent Governance
+# SPEC-010: — Universal Sub-Agent Governance
 
 **Status:** DRAFT
 **Data:** 2026-04-09
@@ -8,23 +8,23 @@
 
 ## Objetivo
 
-Criar um kit de skills para Claude Code que permite gerenciar bots OpenClaw de forma universal, com:
+Criar um kit de skills para Claude Code que permite gerenciar bots , com:
 1. Configuração de identidade e persona (sem perder contexto existente)
 2. Sub-agents hierárquicos com leader pattern
-3. Acesso programático via Coolify API + Infisical SDK
-4. Governance template universal que serve para qualquer OpenClaw bot
+3. Acesso programático via Coolify API + 
+4. Governance template universal que serve para qualquer 
 
 ---
 
 ## Research — Cross-Source Synthesis
 
-### OpenClaw Agent Patterns (Context7)
+### (Context7)
 
 **Leader Agent Pattern:**
 ```json5
 agents: {
   list: [
-    { id: "main", default: true, workspace: "~/.openclaw/workspace" }
+    { id: "main", default: true, workspace: "~/./workspace" }
   ]
 }
 ```
@@ -64,19 +64,19 @@ bindings: [
 
 ---
 
-### Infisical SDK (Python)
+### (Python)
 
 **Client with caching:**
 ```python
-client = InfisicalSDKClient(host="http://127.0.0.1:8200", cache_ttl=60)
+client = (host="http://127.0.0.1:8200", cache_ttl=60)
 ```
 
 **Error handling:**
 ```python
-from infisical_sdk import InfisicalSDKClient, InfisicalError
+from _sdk import , 
 try:
     secret = client.secrets.get_secret_by_name(...)
-except InfisicalError as e:
+except :
     raise
 ```
 
@@ -85,12 +85,12 @@ except InfisicalError as e:
 ## Arquitetura do Kit
 
 ```
-docs/OPERATIONS/SKILLS/openclaw-agents-kit/
+docs/OPERATIONS/SKILLS//
 ├── SKILL.md                    # Main skill — quando usar e como
-├── openclaw-config-template.md  # Template universal JSON5
+├── .md  # Template universal JSON5
 ├── subagent-pattern.md          # Leader + sub-agents pattern
 ├── coolify-access.md            # Coolify API + MCP tools
-├── infisical-sdk.md            # Infisical secrets patterns
+├── .md            # 
 ├── identity-patch.md            # Patch identity sem perder contexto
 └── GOVERNANCE-TEMPLATE.md     # Universal governance template
 ```
@@ -99,13 +99,13 @@ docs/OPERATIONS/SKILLS/openclaw-agents-kit/
 
 ## Ficheiros a Criar
 
-### 1. `docs/OPERATIONS/SKILLS/openclaw-agents-kit/SKILL.md`
+### 1. `docs/OPERATIONS/SKILLS//SKILL.md`
 
-**Skill principal** — carregado quando user pede para configurar/gerenciar OpenClaw.
+**Skill principal** — carregado quando user pede para configurar/gerenciar .
 
-### 2. `docs/OPERATIONS/SKILLS/openclaw-agents-kit/openclaw-config-template.md`
+### 2. `docs/OPERATIONS/SKILLS//.md`
 
-**Template universal** para config OpenClaw:
+**Template universal** para config :
 
 ```json5
 {
@@ -153,7 +153,7 @@ docs/OPERATIONS/SKILLS/openclaw-agents-kit/
 }
 ```
 
-### 3. `docs/OPERATIONS/SKILLS/openclaw-agents-kit/subagent-pattern.md`
+### 3. `docs/OPERATIONS/SKILLS//subagent-pattern.md`
 
 **Leader + Sub-agents pattern:**
 
@@ -164,7 +164,7 @@ docs/OPERATIONS/SKILLS/openclaw-agents-kit/
       {
         id: "leader",
         default: true,
-        workspace: "~/.openclaw/workspace-leader",
+        workspace: "~/./workspace-leader",
         identity: { name: "{{LEADER_NAME}}", theme: "{{LEADER_THEME}}", emoji: "{{LEADER_EMOJI}}" },
         model: { primary: "{{PRIMARY_LLM}}" },
         subagents: { allowAgents: ["*"] },
@@ -172,7 +172,7 @@ docs/OPERATIONS/SKILLS/openclaw-agents-kit/
       },
       {
         id: "ops",
-        workspace: "~/.openclaw/workspace-ops",
+        workspace: "~/./workspace-ops",
         model: { primary: "{{OPS_LLM}}" },
         subagents: { allowAgents: [] },
         tools: { deny: ["browser", "canvas"] }
@@ -186,7 +186,7 @@ docs/OPERATIONS/SKILLS/openclaw-agents-kit/
 }
 ```
 
-### 4. `docs/OPERATIONS/SKILLS/openclaw-agents-kit/coolify-access.md`
+### 4. `docs/OPERATIONS/SKILLS//coolify-access.md`
 
 **Coolify API patterns:**
 
@@ -216,19 +216,19 @@ def update_service(uuid, docker_compose_raw):
     return resp.json()
 ```
 
-### 5. `docs/OPERATIONS/SKILLS/openclaw-agents-kit/infisical-sdk.md`
+### 5. `docs/OPERATIONS/SKILLS//.md`
 
-**Infisical SDK patterns:**
+**:**
 
 ```python
-from infisical_sdk import InfisicalSDKClient, InfisicalError
+from _sdk import , 
 
 def fetch_secret(secret_name, project_id="e42657ef-98b2-4b9c-9a04-46c093bd6d37"):
     token = os.environ.get("INFISICAL_TOKEN", "")
-    if not token and os.path.exists("/srv/ops/secrets/infisical.service-token"):
-        token = open("/srv/ops/secrets/infisical.service-token").read().strip()
+    if not token and os.path.exists("/srv/ops/secrets/.service-token"):
+        token = open("/srv/ops/secrets/.service-token").read().strip()
 
-    client = InfisicalSDKClient(host="http://127.0.0.1:8200", token=token)
+    client = (host="http://127.0.0.1:8200", token=token)
     try:
         secret = client.secrets.get_secret_by_name(
             secret_name=secret_name,
@@ -237,15 +237,15 @@ def fetch_secret(secret_name, project_id="e42657ef-98b2-4b9c-9a04-46c093bd6d37")
             secret_path="/"
         )
         return secret.secret_value
-    except InfisicalError:
+    except :
         return None
 
 def fetch_all_secrets(project_id="e42657ef-98b2-4b9c-9a04-46c093bd6d37"):
     token = os.environ.get("INFISICAL_TOKEN", "")
-    if not token and os.path.exists("/srv/ops/secrets/infisical.service-token"):
-        token = open("/srv/ops/secrets/infisical.service-token").read().strip()
+    if not token and os.path.exists("/srv/ops/secrets/.service-token"):
+        token = open("/srv/ops/secrets/.service-token").read().strip()
 
-    client = InfisicalSDKClient(host="http://127.0.0.1:8200", token=token)
+    client = (host="http://127.0.0.1:8200", token=token)
     secrets = client.secrets.list_secrets(
         project_id=project_id,
         environment_slug="dev",
@@ -254,19 +254,19 @@ def fetch_all_secrets(project_id="e42657ef-98b2-4b9c-9a04-46c093bd6d37"):
     return {s.secret_key: s.secret_value for s in secrets.secrets}
 ```
 
-### 6. `docs/OPERATIONS/SKILLS/openclaw-agents-kit/identity-patch.md`
+### 6. `docs/OPERATIONS/SKILLS//identity-patch.md`
 
 **Patch identity sem perder contexto:**
 
 ```python
 import json
 
-def patch_identity(openclaw_json_path, identity_updates):
+def patch_identity(_json_path, identity_updates):
     """
-    Patch identity in openclaw.json WITHOUT losing existing context.
+    Patch identity in .json WITHOUT losing existing context.
     Reads existing config, merges identity, writes back.
     """
-    with open(openclaw_json_path, 'r') as f:
+    with open(_json_path, 'r') as f:
         config = json.load(f)
 
     # Ensure identity block exists
@@ -276,28 +276,28 @@ def patch_identity(openclaw_json_path, identity_updates):
     # Merge identity updates (preserve existing keys)
     config['identity'].update(identity_updates)
 
-    with open(openclaw_json_path, 'w') as f:
+    with open(_json_path, 'w') as f:
         json.dump(config, f, indent=2)
 
     return config['identity']
 
 # Usage
-patch_identity("/data/.openclaw/openclaw.json", {
+patch_identity("/data/./.json", {
     "name": "Zappro",
     "theme": "assistente de voz PT-BR",
     "emoji": "🎙️"
 })
 ```
 
-### 7. `docs/OPERATIONS/SKILLS/openclaw-agents-kit/GOVERNANCE-TEMPLATE.md`
+### 7. `docs/OPERATIONS/SKILLS//GOVERNANCE-TEMPLATE.md`
 
 **Universal governance template:**
 
 ```markdown
-# OpenClaw Bot Governance — UNIVERSAL TEMPLATE
+# — UNIVERSAL TEMPLATE
 
 ## Applicable To
-Any OpenClaw bot instance.
+Any .
 
 ## Identity (PATCH-ABLE — não perder contexto)
 
@@ -312,7 +312,7 @@ Any OpenClaw bot instance.
 | Component | Config | Proibido |
 |-----------|--------|----------|
 | STT | wav2vec2 :8201 | Deepgram, Whisper |
-| TTS Bridge | :8013 | Kokoro direto |
+| TTS Bridge | :8013 | |
 | TTS Voices | pm_santa, pf_dora | Outras vozes |
 | LLM Primary | minimax/MiniMax-M2.7 | LiteLLM como primario |
 | Vision | litellm/llava | Outros VL |
@@ -365,24 +365,24 @@ Any OpenClaw bot instance.
 
 ## Success Criteria
 
-1. Kit criado em `docs/OPERATIONS/SKILLS/openclaw-agents-kit/`
+1. Kit criado em `docs/OPERATIONS/SKILLS//`
 2. SPEC-010 documenta o kit
-3. Skill carregável via /openclaw-agents-kit
-4. Template universal serve para qualquer OpenClaw bot
+3. Skill carregável via /
+4. Template universal serve para qualquer 
 5. identity-patch mantém contexto existente
 6. Coolify access via MCP ou API direto
-7. Infisical SDK pattern documentado
+7. 
 
 ---
 
 ## Dependencies
 
 - Coolify API access (MCP server or direct API)
-- Infisical vault with secrets
-- OpenClaw bot config at known path
+- 
+- 
 
 ---
 
 **Last updated:** 2026-04-09
-**Sources:** Context7 /openclaw/openclaw, Coolify MCP docs, Infisical SDK docs
+**Sources:** Context7 //, Coolify MCP docs, 
 **Research:** 4 parallel agents synthesized

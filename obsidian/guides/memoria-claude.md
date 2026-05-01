@@ -6,13 +6,13 @@
 
 ---
 
-## 🎤 Voice Pipeline — OpenClaw + GPU Local
+## 🎤 Voice Pipeline — + GPU Local
 
 **Arquitetura:**
 ```
-OpenClaw (Coolify)
+(Coolify)
     ├── Visão: LLaVA → LiteLLM (10.0.1.1:4000) → Ollama GPU
-    ├── TTS: Kokoro (10.0.19.6:8880) — voz pm_santa PT-BR
+    ├── TTS: (10.0.19.6:8880) — voz pm_santa PT-BR
     ├── STT: Deepgram cloud (fallback)
     └── Memória: Qdrant (10.0.19.5:6333) via LiteLLM embeddings
 ```
@@ -22,8 +22,8 @@ OpenClaw (Coolify)
 |--------|---------|--------|
 | LiteLLM Proxy | 10.0.1.1:4000 | ✅ gemma4, llava, qwen3.6-plus, minimax-m2.7 |
 | Ollama (GPU) | 10.0.1.1:11434 | ✅ gemma4, llava, nomic-embed |
-| Kokoro TTS | 10.0.19.6:8880 | ✅ pm_santa |
-| Qdrant (Coolify) | 10.0.19.5:6333 | ✅ openclaw-memory |
+| | 10.0.19.6:8880 | ✅ pm_santa |
+| Qdrant (Coolify) | 10.0.19.5:6333 | ✅ |
 | Groq | API | ✅ via LiteLLM (openrouter) |
 
 **Testes:**
@@ -31,7 +31,7 @@ OpenClaw (Coolify)
 # TTS
 curl -X POST http://10.0.19.6:8880/v1/audio/speech \
   -H "Content-Type: application/json" \
-  -d '{"model":"kokoro","input":"Teste","voice":"pm_santa"}' -o /tmp/test.wav
+  -d '{"model":"","input":"Teste","voice":"pm_santa"}' -o /tmp/test.wav
 
 # Embedding
 curl -X POST http://10.0.1.1:4000/v1/embeddings \
@@ -44,9 +44,9 @@ curl -X POST http://10.0.1.1:4000/v1/chat/completions \
   -d '{"model":"llava","messages":[{"role":"user","content":[{"type":"text","text":"Describe"},{"type":"image_url","image_url":{"url":"data:image/png;base64,..."}}]}]}'
 ```
 
-**Config OpenClaw:**
+**Config :**
 - Modelo: `liteLLM/minimax-m2.7`
-- TTS: Kokoro (OPENAI_TTS_BASE_URL=http://10.0.19.6:8880/v1)
+- TTS: (OPENAI_TTS_BASE_URL=http://10.0.19.6:8880/v1)
 - STT: Deepgram cloud (whisper local não alcançável do Coolify)
 
 ---
@@ -161,7 +161,7 @@ journalctl -u cloudflared --tail 20 --no-pager
 └── memory.jsonl                  # Legacy (vazio)
 
 ~/.claude/scripts/
-├── env-wrapper.sh               # Infisical → Claude Code
+├── env-wrapper.sh               # → Claude Code
 └── backup-memory.sh             # Backup do banco
 ```
 
@@ -198,7 +198,7 @@ journalctl -u cloudflared --tail 20 --no-pager
 
 ---
 
-## 📦 Infisical Vault (env-wrapper.sh)
+## 📦 (env-wrapper.sh)
 
 O wrapper injeta secrets do vault `vault.zappro.site` no Claude Code.
 
@@ -273,7 +273,7 @@ cp ~/.mcp-data/memory-keeper/backups/SEU_BACKUP.db \
 | CVE | Mitigação |
 |-----|-----------|
 | CVE-2025-59536 | deny rules + hookify rules |
-| CVE-2026-21852 | secrets via Infisical, não em texto |
+| CVE-2026-21852 | secrets via , não em texto |
 
 ---
 
@@ -326,7 +326,7 @@ claude --doctor
 │   ├── audit-log.md
 │   └── memory.jsonl
 ├── scripts/
-│   ├── env-wrapper.sh        # Infisical wrapper
+│   ├── env-wrapper.sh        # 
 │   └── backup-memory.sh      # Backup
 └── rules/                   # Hookify security rules
 
@@ -336,7 +336,7 @@ claude --doctor
 
 /srv/monorepo/               # Código principal
 /srv/data/coolify/           # PaaS (PINADO 4.0.0-beta.470)
-/srv/data/openclaw/          # Bot (porta 4001)
+/srv/data//          # Bot (porta 4001)
 /srv/ops/ai-governance/      # GUARDRAILS, PORTS, NETWORK_MAP
 ```
 

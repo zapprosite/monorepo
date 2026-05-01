@@ -8,7 +8,7 @@
 
 ## Overview
 
-Playwright E2E tests for `perplexity-agent` (Streamlit + browser-use) and Chrome extension testing workflow via OpenClaw MCP protocol.
+Playwright E2E tests for `perplexity-agent` (Streamlit + browser-use) and Chrome extension testing workflow via .
 
 ---
 
@@ -17,7 +17,7 @@ Playwright E2E tests for `perplexity-agent` (Streamlit + browser-use) and Chrome
 ### Must Have
 - [ ] Playwright smoke test for perplexity-agent (HTTP 200, Streamlit UI)
 - [ ] Playwright E2E test for search interaction
-- [ ] Chrome extension testing via OpenClaw MCP protocol
+- [ ] Chrome extension testing via 
 - [ ] CI/CD integrateable (exit 0/1)
 
 ### Should Have
@@ -38,7 +38,7 @@ Playwright E2E tests for `perplexity-agent` (Streamlit + browser-use) and Chrome
 ## Tech Stack
 
 - **Playwright** (`npx playwright`) — E2E testing
-- **OpenClaw MCP** — Chrome extension testing protocol
+- **** — Chrome extension testing protocol
 - **Browser-use** — browser automation under test
 
 ---
@@ -75,12 +75,12 @@ def test_chat_input_works():
     assert len(page.locator(".stChatMessage")) > 0
 ```
 
-### TC-04: Chrome Extension (OpenClaw MCP)
+### TC-04: Chrome Extension ()
 
 ```python
-def test_openclaw_mcp_protocol():
+def test__mcp_protocol():
     # Test via WebSocket MCP protocol
-    # OpenClaw exposes MCP on port 4001
+    # 4001
     # Verify: connect, list tools, call tool
     pass
 ```

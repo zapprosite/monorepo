@@ -1,8 +1,8 @@
-# Manual de Manutenção — Infisical Self-Hosted
+# Manual de Manutenção — 
 
 **Host:** will-zappro | **Data:** 2026-04-04
 **Vault:** https://vault.zappro.site | **Porta local:** 127.0.0.1:8200
-**Versão:** v0.146.2 (infisical/infisical:latest-postgres)
+**Versão:** v0.146.2 (/:latest-postgres)
 **Projeto:** zappro-p-tc-k | **Environment:** dev (production com problema de folder root)
 
 ---
@@ -22,8 +22,8 @@ INFISICAL_ENV_SLUG=dev
 ENCRYPTION_KEY=c15b893801bdea7803d16b782da6629c
 AUTH_SECRET=HDY/uoI9iBEDxN2lvyApu7eNY3jrye2DQo+v0ZJ/EKw=
 JWT_AUTH_SECRET=ivqWfplD62/+FuaPUJ71Jvdujp/v+Hf2zRHQaNfsNvPUO/w9pCvQpKrKGJgGbqMz459VvghkVVoYLzL6z8yP5w==
-DB_CONNECTION_URI=postgresql://infisical:d30038411740b8d08b49ae932a99a4df@infisical-db:5432/infisical
-REDIS_URL=redis://:infisical-redis-2026-secure@infisical-redis:6379
+DB_CONNECTION_URI=postgresql://:d30038411740b8d08b49ae932a99a4df@:5432/
+REDIS_URL=redis://:2026-secure@:6379
 SITE_URL=https://vault.zappro.site
 ```
 
@@ -40,16 +40,16 @@ Client ID (Universal Auth): 799590ae-d36f-4e64-b940-aea0fb85cad8
 
 | Arquivo | Conteúdo | Permissão |
 |---|---|---|
-| `/srv/ops/secrets/infisical.service-token` | Service Token (st.799590ae...) | 600 |
-| `/srv/ops/secrets/infisical-vault.env` | Variáveis de ambiente do vault | 600 |
-| `/srv/ops/secrets/infisical.runtime.env` | 7 chaves da instância | 600 |
-| `/srv/ops/secrets/infisical.runtime.raw` | Todas env vars do container | 600 |
-| `/srv/ops/secrets/infisical.compose.env` | Backup .env da stack | 600 |
-| `/srv/ops/secrets/infisical-audit-*.log` | Auditoria completa | 600 |
-| `/srv/ops/scripts/infisical-openclaw.sh` | Wrapper Python para Docker Compose | 700 |
-| `/srv/ops/scripts/infisical-compose-run.sh` | Wrapper genérico | 700 |
-| `/srv/ops/stacks/infisical/docker-compose.yml` | Stack Compose | — |
-| `/srv/ops/secrets/infisical-one-shot-report-*.md` | Relatório da configuração | 600 |
+| `/srv/ops/secrets/.service-token` | Service Token (st.799590ae...) | 600 |
+| `/srv/ops/secrets/.env` | Variáveis de ambiente do vault | 600 |
+| `/srv/ops/secrets/.runtime.env` | 7 chaves da instância | 600 |
+| `/srv/ops/secrets/.runtime.raw` | Todas env vars do container | 600 |
+| `/srv/ops/secrets/.compose.env` | Backup .env da stack | 600 |
+| `/srv/ops/secrets/*.log` | Auditoria completa | 600 |
+| `/srv/ops/scripts/.sh` | Wrapper Python para Docker Compose | 700 |
+| `/srv/ops/scripts/.sh` | Wrapper genérico | 700 |
+| `/srv/ops/stacks//docker-compose.yml` | Stack Compose | — |
+| `/srv/ops/secrets/*.md` | Relatório da configuração | 600 |
 
 ---
 
@@ -57,12 +57,12 @@ Client ID (Universal Auth): 799590ae-d36f-4e64-b940-aea0fb85cad8
 
 ```bash
 # Status
-docker ps --filter "name=infisical"
+docker ps --filter "name="
 
 # Containers
-infisical         infisical/infisical:latest-postgres  (porta 8200->8080)
-infisical-db      postgres:16-alpine                   (porta 5432)
-infisical-redis   redis:7-alpine                      (porta 6379)
+/:latest-postgres  (porta 8200->8080)
+:16-alpine                   (porta 5432)
+:7-alpine                      (porta 6379)
 
 # Health check
 curl -s http://127.0.0.1:8200/api/status | python3 -m json.tool
@@ -71,20 +71,20 @@ curl -s http://127.0.0.1:8200/api/status | python3 -m json.tool
 
 ---
 
-## 🔧 SDK Python (infisicalsdk)
+## 🔧 SDK Python ()
 
 ### Instalação / Atualização
 ```bash
-pip install --break-system-packages "infisicalsdk>=0.1.3,<1.0.17"
+pip install --break-system-packages ">=0.1.3,<1.0.17"
 # Versão testada: 0.1.3 (funciona com v0.146)
 # ⚠️ 1.0.16+ usa endpoints /api/v2 que não existem nesta versão
 ```
 
 ### Uso Básico
 ```python
-from infisical_sdk import InfisicalSDKClient
+from _sdk import 
 
-client = InfisicalSDKClient(
+client = (
     host="http://127.0.0.1:8200",
     token="st.799590ae-d36f-4e64-b940-aea0fb85cad8.6e0c269870bb4b5e004e3ed6ab3a1fe1.c9872f2b30bc650e7b27c851df04b0ad"
 )
@@ -141,7 +141,7 @@ curl -s http://100.124.78.36:8200/api/status
 
 ```bash
 # 1. Container no ar?
-docker ps --filter "name=infisical"
+docker ps --filter "name="
 
 # 2. API respondendo?
 curl -s http://127.0.0.1:8200/api/status | python3 -m json.tool
@@ -151,8 +151,8 @@ curl -s https://vault.zappro.site/api/status
 
 # 4. Token ainda válido?
 python3 -c "
-from infisical_sdk import InfisicalSDKClient
-c = InfisicalSDKClient(host='http://127.0.0.1:8200', token='st.799590ae-d36f-4e64-b940-aea0fb85cad8.6e0c269870bb4b5e004e3ed6ab3a1fe1.c9872f2b30bc650e7b27c851df04b0ad')
+from _sdk import 
+c = (host='http://127.0.0.1:8200', token='st.799590ae-d36f-4e64-b940-aea0fb85cad8.6e0c269870bb4b5e004e3ed6ab3a1fe1.c9872f2b30bc650e7b27c851df04b0ad')
 s = c.secrets.list_secrets(project_id='e42657ef-98b2-4b9c-9a04-46c093bd6d37', environment_slug='dev', secret_path='/')
 print(f'Secrets no vault: {len(s.secrets)}')
 "
@@ -186,16 +186,16 @@ curl -s https://vault.zappro.site/api/status
 
 ### Container parado
 ```bash
-cd /srv/ops/stacks/infisical
+cd /srv/ops/stacks/
 docker compose up -d
-docker ps --filter "name=infisical"
+docker ps --filter "name="
 ```
 
 ### Service Token expirado/revogado
 Recriar identity:
 1. https://vault.zappro.site → Organization Settings → Access Control → Identities
 2. Criar nova identity → Universal Auth → Create Client Secret
-3. Gerar service token e atualizar `/srv/ops/secrets/infisical.service-token`
+3. Gerar service token e atualizar `/srv/ops/secrets/.service-token`
 
 ---
 
@@ -234,13 +234,13 @@ Recriar identity:
 
 ```bash
 # Snapshot antes de qualquer mudança na stack
-sudo zfs snapshot -r "tank@pre-infisical-$(date +%Y%m%d-%H%M%S)"
+sudo zfs snapshot -r "tank@pre-$(date +%Y%m%d-%H%M%S)"
 
 # Listar
-zfs list -t snapshot | grep infisical
+zfs list -t snapshot | grep 
 
 # Rollback (se algo quebrar)
-sudo zfs rollback -r tank@pre-infisical-DATA
+sudo zfs rollback -r tank@pre-
 ```
 
 ---
@@ -249,16 +249,16 @@ sudo zfs rollback -r tank@pre-infisical-DATA
 
 ```bash
 # Ver stack
-cat /srv/ops/stacks/infisical/docker-compose.yml
+cat /srv/ops/stacks//docker-compose.yml
 
 # Ver logs
-docker logs infisical --tail 50
+docker logs 50
 
 # Reiniciar stack
-cd /srv/ops/stacks/infisical && docker compose restart
+cd /srv/ops/stacks/&& docker compose restart
 
 # Ver uso de recursos
-docker stats infisical infisical-db infisical-redis --no-stream
+docker stats 
 ```
 
 ---
@@ -266,7 +266,7 @@ docker stats infisical infisical-db infisical-redis --no-stream
 ## 📌 Notas
 
 - **Versão:** v0.146.2 (subir para latest? testar antes com snapshot)
-- **Storage:**Dados em `/srv/data/infisical-db` (ZFS)
+- **Storage:**Dados em `/srv/data/` (ZFS)
 - **Backup:** snapshots ZFS em `tank`
 - **Access:** cloudflared tunnel → vault.zappro.site (Cloudflare Access)
 - **Token TTL:** Service Token não expira (criado sem TTL)
@@ -280,8 +280,8 @@ docker stats infisical infisical-db infisical-redis --no-stream
 | POSTGRES_PASSWORD | coolify-db-password-2026 | Coolify-DB (não "400621ead...") |
 | APP_KEY | base64:jRrMu3906d/... | Coolify |
 | ROOT_USER_PASSWORD | Zappro2026! | Coolify root |
-| AUTH_PASSWORD | EwoP7rwDQtprWUWq49Aqr2SzpLNgBsMR | OpenClaw auth |
-| OPENCLAW_GATEWAY_TOKEN | ojjpAPOp8Yg3a88ApeLagIAAetXOPa1We26kg1eIW1ry6MnZPR | OpenClaw gateway |
+| AUTH_PASSWORD | EwoP7rwDQtprWUWq49Aqr2SzpLNgBsMR | |
+| OPENCLAW_GATEWAY_TOKEN | ojjpAPOp8Yg3a88ApeLagIAAetXOPa1We26kg1eIW1ry6MnZPR | |
 | GF_SECURITY_ADMIN_PASSWORD | 2LCwzksQxxF7PhFnbgB5dF1G | Grafana admin |
 
 ---
@@ -296,15 +296,15 @@ docker stats infisical infisical-db infisical-redis --no-stream
 
 **Secrets relacionadas ao Coolify (consulte esta tabela para debugging):**
 
-| Secret | Infisical Path | Valor Real | Container/Service |
+| Secret | | Valor Real | Container/Service |
 |--------|---------------|------------|------------------|
 | `APP_KEY` | coolify/app_key | `base64:jRrMu3906d/...` | coolify |
 | `DB_PASSWORD` | coolify/db_password | `coolify-db-password-2026` | coolify-db |
 | `REDIS_PASSWORD` | coolify/redis_password | `coolify-redis-password-2026` | coolify-redis |
 | `ROOT_USER_PASSWORD` | coolify/root_password | `Zappro2026!` | Coolify admin |
-| `JWT_AUTH_SECRET` | openclaw/jwt_auth | (Infisical) | OpenClaw |
-| `OPENCLAW_GATEWAY_TOKEN` | openclaw/gateway_token | (Infisical) | OpenClaw |
-| `GF_SECURITY_ADMIN_PASSWORD` | grafana/admin_password | (Infisical) | Grafana |
+| `JWT_AUTH_SECRET` | /jwt_auth | () | |
+| `OPENCLAW_GATEWAY_TOKEN` | /gateway_token | () | |
+| `GF_SECURITY_ADMIN_PASSWORD` | grafana/admin_password | () | Grafana |
 
 ---
 

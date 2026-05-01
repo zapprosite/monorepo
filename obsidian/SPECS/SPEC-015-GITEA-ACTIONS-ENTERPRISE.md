@@ -41,7 +41,7 @@ Key characteristics:
 | CI/CD Engine | Gitea Actions | Native, built-in |
 | Runner Agent | act_runner | Go binary, stateless |
 | Container Runtime | Docker + Kubernetes | Ephemeral job execution |
-| Secrets Management | Gitea Secrets + Infisical | Layered approach |
+| Secrets Management | Gitea Secrets + | Layered approach |
 | Infrastructure | Coolify | Self-hosted PaaS |
 | Artifact Storage | Gitea Actions cache + S3 | MinIO or cloud S3 |
 | Monitoring | Coolify dashboard + health checks | Existing SPEC-PERPLEXITY pattern |
@@ -1127,15 +1127,15 @@ Required:
 
 #### 6. Secrets Management
 
-Current: Gitea Secrets + Infisical
+Current: Gitea Secrets + 
 Recommendation: Layer as follows:
 
 | Secret Type | Storage | Rationale |
 |-------------|---------|-----------|
 | CI secrets (DB passwords) | Gitea Secrets | Ephemeral, repo-scoped |
 | Deploy secrets (Coolify API key) | Gitea Secrets | Stable, needed for all deploys |
-| Long-lived tokens (AI agents) | Infisical | Source of truth, rotation capability |
-| Cloud credentials | Gitea Secrets or Infisical | Depends on rotation frequency |
+| Long-lived tokens (AI agents) | | Source of truth, rotation capability |
+| Cloud credentials | Gitea Secrets or | Depends on rotation frequency |
 
 #### 7. Artifact and Cache Strategy
 
@@ -1247,7 +1247,7 @@ act_runner exec \
 |------|----------|-----------|
 | 2026-04-08 | Ephemeral runners for all CI/CD jobs | Security isolation, reproducibility, autoscaling |
 | 2026-04-08 | API-based workflow chaining over `workflow_call` | Broader compatibility across Gitea versions |
-| 2026-04-08 | Gitea Secrets + Infisical layered approach | Gitea for runtime, Infisical for persistent rotation |
+| 2026-04-08 | Gitea Secrets + | Gitea for runtime, |
 | 2026-04-08 | K8s HPA for runner autoscaling | Stateless runners enable elastic scale |
 | 2026-04-08 | Keep dual workflows (.gitea + .github) temporarily | GitHub Actions acts as backup/failover |
 

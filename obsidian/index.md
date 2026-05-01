@@ -13,7 +13,7 @@
 | [Memória Claude](./guides/memoria-claude.md) | Configuração e uso do Claude Code |
 | [OpenCode](./guides/opencode.md) | Guide OpenCode |
 | [Security Hardening](./guides/security-hardening.md) | Fortalecimento de segurança |
-| [Infisical](./guides/infisical.md) | Vault Infisical self-hosted |
+| [](./guides/.md) | Vault |
 | [Whisper Auto Local](./guides/whisper-auto-local.md) | Transcrição automática local |
 
 ## Logs
@@ -21,13 +21,13 @@
 | Log | Descrição |
 |-----|-----------|
 | [Homelab](./logs/homelab.md) | Registro de operações do homelab |
-| [OpenClaw](./logs/openclaw.md) | Log do bot OpenClaw |
+| [](./logs/.md) | Log do bot |
 
 ## Planos
 
 | Plano | Descrição |
 |-------|-----------|
-| [OpenClaw Agency Hub](./plans/open-claw-agency.md) | Plano de transformação em hub de agência |
+| [](./plans/open-claw-agency.md) | Plano de transformação em hub de agência |
 
 ## ADRs
 
@@ -56,7 +56,7 @@ obsidian/        # Espelho Obsidian (mesma estrutura)
 
 ## Para Agentes
 
-Este knowledge base é lido pelo **OpenClaw Bot** via MCP server em `10.0.19.50:4006`.
+Este knowledge base é lido pelo **** via MCP server em `10.0.19.50:4006`.
 Todas as ferramentas do MCP estão disponíveis em `/mcp-monorepo/server.py`.
 
 ---

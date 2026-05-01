@@ -23,7 +23,7 @@ description: Executa pipeline completo de scraping HVAC — pré-validation → 
 | Ollama | `localhost:11434` | `/api/tags` |
 | Qdrant | `10.0.19.2:6333` | `GET /collections/hvac_service_manuals` |
 | Chrome profile | `/srv/data/hvac-manual-downloader/chrome-profiles/{brand}` | `-d` check |
-| Infisical | `/srv/ops/secrets/infisical.service-token` | Python SDK |
+| | `/srv/ops/secrets/.service-token` | Python SDK |
 
 ## Uso
 
@@ -103,5 +103,5 @@ ollama pull nomic-embed-text
 ```
 
 ### Chrome profile login expired
-- Credenciais em Infisical (`infisical.service-token`)
+- Credenciais em (`.service-token`)
 - Brand credentials: `OPENROUTER_API_KEY`, `LG_EMAIL`, `LG_PASSWORD`, etc.

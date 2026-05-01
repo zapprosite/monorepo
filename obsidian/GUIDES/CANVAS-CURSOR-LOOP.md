@@ -328,7 +328,7 @@ QUERO FAZER:
 
   ⚠️ coolify     → @masonator/coolify-mcp (npx)
   ⚠️ gitea       → @masonator/gitea-mcp (npx)
-  ⚠️ Infisical   → Python SDK (não é MCP)
+  ⚠️ → Python SDK (não é MCP)
 
   ❌ taskmaster-ai → NÃO INSTALADO
   ❌ Tavily       → NÃO INSTALADO
@@ -400,14 +400,14 @@ INFRAESTRUTURA
 ───────────────
   Deploy:      Coolify (localhost:8000)
   CI/CD:       Gitea Actions + GitHub Actions
-  Secrets:     Infisical (vault.zappro.site:8200)
+  Secrets:     (vault.zappro.site:8200)
   DNS:         Cloudflare + Terraform
   Vector DB:   Qdrant (10.0.19.5:6333)
 
-VOZ (OpenClaw)
+VOZ ()
 ───────────────
   STT:         wav2vec2 (:8201) via Deepgram proxy
-  TTS:         Kokoro (:8880) via TTS Bridge (:8013)
+  TTS:         (:8880) via TTS Bridge (:8013)
   LLM:         MiniMax M2.7 (direct, não LiteLLM)
   Vision:      litellm/qwen2.5-vl
 ```

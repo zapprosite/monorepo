@@ -141,7 +141,7 @@ LiteLLM serve como proxy LLM multi-provedor para Groq, OpenAI, MiniMax, Ollama l
                                               ↓
                                     Redis (:6379) — cache de sessão
                                               ↓
-                                    Edge TTS (8012) — resposta de voz (Kokoro)
+                                    Edge TTS (8012) — resposta de voz ()
 ```
 
 ### 5.2 RAG Query

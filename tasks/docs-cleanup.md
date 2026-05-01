@@ -10,7 +10,7 @@
 - Files include: SPEC-001 through SPEC-022, SPEC-100, and meta files (SPEC-INDEX.md, SPEC-README.md, SPEC-TEMPLATE.md, etc.)
 
 ### 2. Moved PLAN to docs/GUIDES/
-- `docs/plans/PLAN-voice-pipeline-desktop-20260410.md` → `docs/GUIDES/voice-pipeline-desktop.md`
+- `docs/plans/PLAN-20260410.md` → `docs/GUIDES/.md`
 - Renamed to follow kebab-case naming convention
 
 ### 3. Removed empty directories

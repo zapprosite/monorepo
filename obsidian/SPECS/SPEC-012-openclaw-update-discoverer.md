@@ -1,22 +1,22 @@
-# SPEC-012: openclaw-update-discoverer — Corrigir Local Scan
+# SPEC-012: — Corrigir Local Scan
 
 **Status:** DRAFT
 **Created:** 2026-04-09
 **Problem:** Skill apenas descobre updates externos, ignora skills instalados localmente
-**Related:** openclaw-agents-kit (SPEC-010)
+**Related:** (SPEC-010)
 
 ---
 
 ## Problema
 
-O `openclaw-update-discoverer` scaneia apenas:
-- GitHub releases (openclaw/openclaw)
-- Docker Hub (coollabsio/openclaw)
+O `` scaneia apenas:
+- GitHub releases (/)
+- Docker Hub (coollabsio/)
 - ClawHub (marketplace)
 
 **Ignora completamente:**
 - Skills instalados em `/data/workspace/skills/`
-- O `openclaw-agents-kit` que acabamos de instalar
+- O `` que acabamos de instalar
 - Outros skills locais (qdrant-rag, infra-guide, etc)
 
 O resultado: quando o utilizador pergunta "o que mudou no meu bot?", o skill nao sabe responder sobre o que foi instalado localmente.
@@ -25,7 +25,7 @@ O resultado: quando o utilizador pergunta "o que mudou no meu bot?", o skill nao
 
 ## User Story
 
-**Como** operador do OpenClaw, **quero** que o bot descubra updates tanto externos quanto locais, **para** saber o que foi instalado, o que mudou, e quando foi atualizado.
+**Como** operador do , **quero** que o bot descubra updates tanto externos quanto locais, **para** saber o que foi instalado, o que mudou, e quando foi atualizado.
 
 ---
 
@@ -38,15 +38,15 @@ O resultado: quando o utilizador pergunta "o que mudou no meu bot?", o skill nao
 ├── doc-librarian/          # Skill de auditoria de docs
 ├── infra-guide/            # Skill de infraestrutura
 ├── monorepo-explorer/      # Skill de busca no monorepo
-├── openclaw-agents-kit/    # Kit de orquestracao (09/04/2026)
-├── openclaw-repo-hunter/   # Skill de busca GitHub
+├── /    # Kit de orquestracao (09/04/2026)
+├── /   # Skill de busca GitHub
 └── qdrant-rag/            # Skill de memoria vetorial
 ```
 
 ### Fontes Externas (JA scaneadas)
 
-- `https://api.github.com/repos/openclaw/openclaw/releases/latest`
-- `https://hub.docker.com/v2/repositories/coollabsio/openclaw/tags`
+- `https://api.github.com/repos///releases/latest`
+- `https://hub.docker.com/v2/repositories/coollabsio//tags`
 - ClawHub API
 
 ---
@@ -76,7 +76,7 @@ Cada skill local deve ter um `METADATA.json` opcional:
 
 ```json
 {
-  "name": "openclaw-agents-kit",
+  "name": "",
   "version": "1.0.0",
   "installed_at": "2026-04-09",
   "source": "local",  // ou "clawhub", "github"
@@ -90,8 +90,8 @@ Cada skill local deve ter um `METADATA.json` opcional:
     "subagent-pattern.md",
     "identity-patch.py",
     "coolify-access.md",
-    "infisical-sdk.md",
-    "openclaw-config-template.md"
+    ".md",
+    ".md"
   ]
 }
 ```
@@ -136,14 +136,14 @@ def scan_local_skills():
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🌐 EXTERNAL UPDATES
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🔴 OpenClaw: 2026.2.6 → 2026.x.x (disponivel)
+🔴 : 2026.2.6 → 2026.x.x (disponivel)
    └─ Docker tags: 2026.2.6, 2026.2.5, latest
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 💾 LOCAL SKILLS (INSTALADOS)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-⚠️  openclaw-agents-kit    │ installed: 2026-04-09 │ 8 files │ NEW!
-    └─ Kit de orquestracao: leader + sub-agents, Coolify, Infisical
+⚠️  │ installed: 2026-04-09 │ 8 files │ NEW!
+    └─ Kit de orquestracao: leader + sub-agents, Coolify, 
 
 ✅  qdrant-rag              │ installed: ~2026-04-06 │ 1 file
     └─ Semantic search: Qdrant + LiteLLM embeddings
@@ -153,12 +153,12 @@ def scan_local_skills():
 
 ✅  infra-guide             │ installed: ~2026-04-07 │ 1 file
 ✅  monorepo-explorer       │ installed: ~2026-04-07 │ 1 file
-✅  openclaw-repo-hunter    │ installed: ~2026-04-04 │ 1 file
+✅  │ installed: ~2026-04-04 │ 1 file
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🔔 ACTION ITEMS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-• openclaw-agents-kit — NOVO! Leia SKILL.md para usar
+• — NOVO! Leia SKILL.md para usar
 ```
 
 ---
@@ -166,7 +166,7 @@ def scan_local_skills():
 ## Arquitetura do Skill Corrigido
 
 ```
-/data/workspace/skills/openclaw-update-discoverer/
+/data/workspace/skills//
 ├── SKILL.md              # Skill principal (atualizar)
 ├── METADATA.json         # Auto-gerado na instalacao
 ├── check_updates.py      # Script principal (ATUALIZAR)
@@ -218,8 +218,8 @@ Adicionar secao "Local Skills" e "Como funciona":
 ## Fontes de Update
 
 ### External (automatico)
-- GitHub releases → coollabsio/openclaw
-- Docker Hub → coollabsio/openclaw tags
+- GitHub releases → coollabsio/
+- Docker Hub → coollabsio/
 - ClawHub → marketplace (quando disponivel)
 
 ### Local (scaneado)
@@ -231,11 +231,11 @@ Adicionar secao "Local Skills" e "Como funciona":
 
 Adicionar `scan_local_skills()` e `format_skill_list()`.
 
-### 3. Criar METADATA.json para openclaw-agents-kit
+### 3. Criar METADATA.json para 
 
 ```json
 {
-  "name": "openclaw-agents-kit",
+  "name": "",
   "version": "1.0.0",
   "installed_at": "2026-04-09",
   "source": "local",
@@ -249,8 +249,8 @@ Adicionar `scan_local_skills()` e `format_skill_list()`.
     "subagent-pattern.md",
     "identity-patch.py",
     "coolify-access.md",
-    "infisical-sdk.md",
-    "openclaw-config-template.md"
+    ".md",
+    ".md"
   ]
 }
 ```
@@ -267,7 +267,7 @@ Executar script que varre todos os skills e gera METADATA.json automaticamente b
 |---|----------|------|
 | AC-1 | `check_updates.py` retorna lista de skills locais | Executar e verificar output |
 | AC-2 | Skills sem METADATA.json tem dados inferidos | Verificar qdrant-rag, infra-guide |
-| AC-3 | openclaw-agents-kit aparece como NEW (09/04/2026) | Verificar no output |
+| AC-3 | (09/04/2026) | Verificar no output |
 | AC-4 | Output inclui nome, data install, files count | Verificar formato |
 | AC-5 | Git log scaneado para mudancas recentes | `git log --since="7 days"` retorna mudancas |
 
@@ -311,4 +311,4 @@ check_updates.py (ATUALIZAR)
 |------|---------|
 | `check_updates.py` | Adicionar `scan_local_skills()`, `format_skill_list()` |
 | `SKILL.md` | Atualizar com secao Local Skills |
-| `METADATA.json` (novo) | openclaw-agents-kit metadata |
+| `METADATA.json` (novo) | |

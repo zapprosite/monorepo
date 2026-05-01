@@ -314,7 +314,7 @@ curl -s http://localhost:6333/collections | jq '.result.collections[].name'
 |------|---------|--------|
 | :3000 | Open WebUI | Reserved |
 | :4000 | LiteLLM | Reserved |
-| :4001 | OpenClaw Bot | Reserved |
+| :4001 | | Reserved |
 | :8000 | Coolify PaaS | Reserved |
 | :8080 | Open WebUI (Coolify) | Reserved |
 | :8642 | Hermes | Reserved |

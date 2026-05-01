@@ -16,7 +16,7 @@
 | OpenRouter | openrouter.ai/api/v1 | nemotron-nano-9b-v2:free | varies |
 | nginx proxy | localhost:4004 | rate limited → :4000 | 10 req/min |
 | LiteLLM | localhost:4000 | gemma3-27b | 10 RPM |
-| Kokoro TTS | localhost:8012 | af_bella | N/A (local) |
+| | localhost:8012 | af_bella | N/A (local) |
 
 ---
 
@@ -201,5 +201,5 @@ curl -s -X POST http://localhost:4005/v1/chat/completions \
 ## See Also
 - `ollama-health-check.md` — Ollama detalhado
 - `litellm-health-check.md` — LiteLLM detalhado
-- `kokoro-health-check.md` — Kokoro TTS detalhado
+- `.md` — 
 - AI Router: `/home/will/ai-router/router.py`

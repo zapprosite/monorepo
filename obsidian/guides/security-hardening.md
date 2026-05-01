@@ -420,11 +420,11 @@ EXPOSTAS em 0.0.0.0 (TODAS interfaces) — risco:
 LOOPBACK 127.0.0.1 (SEGURO ✅):
   :6333   Qdrant
   :4000   LiteLLM
-  :4001   OpenClaw
+  :4001   
   :3100   Grafana
   :11434  Ollama
   :9090   Prometheus
-  :8200   Infisical
+  :8200   
   :8888   SearXNG
   :6381   Redis (aurelia)
   :6380   Redis (aurelia)
@@ -550,7 +550,7 @@ apt list --upgradable 2>/dev/null
 |---------|-----|
 | CIS Ubuntu 24.04 Benchmark | `cisofy.com/lynis` |
 | Ubuntu Security | `ubuntu.com/security` |
-| manter_infisical.md | Secrets e vault |
+| manter_.md | Secrets e vault |
 | UFW Docs | `man.ubuntu.com/man/ufw` |
 | Unattended-Upgrades | `github.com/mvo5/unattended-upgrades` |
 

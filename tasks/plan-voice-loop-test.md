@@ -8,7 +8,7 @@
 
 ## 1. Objetivo
 
-Criar um agente de teste loop via Telegram integrado no OpenClaw. O agente recebe audio (voz) e imagens, processa-os através do voice pipeline (TTS/STT/Vision), e refatora testes dinamicamente com base nos resultados.
+Criar um agente de teste loop via Telegram integrado no . O agente recebe audio (voz) e imagens, processa-os através do voice pipeline (TTS/STT/Vision), e refatora testes dinamicamente com base nos resultados.
 
 ---
 
@@ -17,23 +17,23 @@ Criar um agente de teste loop via Telegram integrado no OpenClaw. O agente receb
 ```
 Telegram
     │
-    ├──► OpenClaw Bot (@CEO_REFRIMIX_bot)
+    ├──► (@CEO_REFRIMIX_bot)
     │         │
     │         ├──► /loop — entra em modo loop de testes
     │         │         │
     │         │         ├──► Recebe audio → STT (wav2vec2)
     │         │         ├──► Recebe imagem → Vision (qwen2.5-vl)
-    │         │         ├──► Responde com TTS (Kokoro)
+    │         │         ├──► Responde com TTS ()
     │         │         └──► Coleta resultados → refatora testes
     │         │
     │         └──► /test — executa smoke test completo
     │                   │
-    │                   └──► pipeline-openclaw-voice.sh
+    │                   └──► pipeline-.sh
     │
     └──► LiteLLM Proxy (:4000)
               │
               ├──► whisper-1 → wav2vec2 (STT)
-              ├──► tts-1 → Kokoro (TTS)
+              ├──► tts-1 → (TTS)
               ├──► qwen2.5-vl (Vision)
               └──► tom-cat-8b (LLM PT-BR)
 ```
@@ -42,7 +42,7 @@ Telegram
 
 ## 3. Componentes a Implementar
 
-### 3.1 Skill: `/loop` (OpenClaw)
+### 3.1 Skill: `/loop` ()
 
 Skill que entra em modo loop iterativo:
 
@@ -55,13 +55,13 @@ Skill que entra em modo loop iterativo:
   → Repete até usuário enviar /stop
 ```
 
-### 3.2 Skill: `/test` (OpenClaw)
+### 3.2 Skill: `/test` ()
 
 Executa smoke test e retorna resultado:
 
 ```
 /test — executa teste completo
-  → Roda pipeline-openclaw-voice.sh
+  → Roda pipeline-.sh
   → Retorna output formatado
   → Usa TTS para ler resumo
 ```
@@ -76,7 +76,7 @@ voice-loop-agent.sh
   ├── Transcreve com LiteLLM whisper-1
   ├── Analisa imagem com qwen2.5-vl
   ├── Gera resposta com tom-cat-8b
-  ├── Sintetiza resposta com Kokoro TTS
+  ├── Sintetiza resposta com 
   └── Envia audio de volta via Telegram
 ```
 
@@ -97,7 +97,7 @@ Resultados guardados em:
 ## 4. Fluxo de Teste Loop
 
 ```
-[User] ──► Audio no Telegram ──► OpenClaw /loop
+[User] ──► Audio no Telegram ──► /loop
                                     │
                                     ▼
                           ┌─────────────────────┐
@@ -111,7 +111,7 @@ Resultados guardados em:
                           └──────────┬──────────┘
                                      ▼
                           ┌─────────────────────┐
-                          │ 3. TTS (Kokoro)    │
+                          │ 3. TTS ()    │
                           │   Responde em voz  │
                           └──────────┬──────────┘
                                      ▼
@@ -119,7 +119,7 @@ Resultados guardados em:
 ```
 
 ```
-[User] ──► Imagem no Telegram ──► OpenClaw /loop
+[User] ──► Imagem no Telegram ──► /loop
                                        │
                                        ▼
                              ┌─────────────────────┐
@@ -133,7 +133,7 @@ Resultados guardados em:
                              └──────────┬──────────┘
                                         ▼
                              ┌─────────────────────┐
-                             │ TTS (Kokoro)       │
+                             │ TTS ()       │
                              │  Responde em voz   │
                              └──────────┬──────────┘
                                         ▼
@@ -144,7 +144,7 @@ Resultados guardados em:
 
 ## 5. Tarefas
 
-### Tarefa 1: Skill `/loop` no OpenClaw
+### Tarefa 1: Skill `/loop` no 
 
 **Ficheiro:** `/data/workspace/skills/voice-loop/SKILL.md`
 
@@ -218,13 +218,13 @@ Se Vision falha:
 
 ---
 
-### Tarefa 5: Integração OpenClaw `/test`
+### Tarefa 5: Integração `/test`
 
 **Ficheiro:** `/data/workspace/skills/voice-test/SKILL.md`
 
 ```
 /test — executa smoke test completo
-  → Executa pipeline-openclaw-voice.sh
+  → Executa pipeline-.sh
   → Filtra output relevante
   → Lê resultados de /srv/monorepo/tasks/results/
   → Responde via TTS com resumo
@@ -239,7 +239,7 @@ Se Vision falha:
 ```
 Telegram Bot Token: ${TELEGRAM_BOT_TOKEN}
 LiteLLM Key: ${LITELLM_KEY}
-OpenClaw Container: openclaw-qgtzrmi6771lt8l7x8rqx72f
+: 6771lt8l7x8rqx72f
 LiteLLM Container: zappro-litellm (10.0.1.1:4000)
 wav2vec2 Container: zappro-wav2vec2 (wav2vec2:8201)
 ```
@@ -250,7 +250,7 @@ wav2vec2 Container: zappro-wav2vec2 (wav2vec2:8201)
 
 | Fase | Checkpoint | Critério |
 |------|-----------|----------|
-| 1 | `/loop` funciona | OpenClaw aceita comando e entra em modo loop |
+| 1 | `/loop` funciona | |
 | 2 | STT via Telegram | Audio enviado → texto retornado |
 | 3 | Vision via Telegram | Imagem enviada → descrição retornada |
 | 4 | TTS responde | Resposta em audio enviada ao Telegram |
@@ -263,4 +263,4 @@ wav2vec2 Container: zappro-wav2vec2 (wav2vec2:8201)
 
 - Alteração de modelos STT/TTS (SPEC-004, SPEC-005 são protegidos)
 - Deployment de novos containers (infra já está operacional)
-- Modificação de OpenClaw core (apenas skills/agents)
+- Modificação de (apenas skills/agents)

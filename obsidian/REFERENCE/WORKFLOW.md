@@ -1,7 +1,7 @@
 # AI Tools Workflow — will-zappro
 
 **Data:** 2026-04-08
-**Stack:** Claude Code CLI + OpenCode CLI + OpenClaw Bot + ai-context MCP
+**Stack:** Claude Code CLI + OpenCode CLI + + ai-context MCP
 
 ---
 
@@ -11,7 +11,7 @@
 |------|-------------|--------|
 | **Claude Code CLI** | Dev, código, debug, refactor | Host terminal (`c` alias) |
 | **OpenCode CLI** | Quick tasks, modelos diferentes, desktop | Desktop (`opencode`) |
-| **OpenClaw Bot** | CEO MIX — assistente e dev senior que orquestra time de agents | Telegram (@CEO_REFRIMIX_bot) |
+| **** | CEO MIX — assistente e dev senior que orquestra time de agents | Telegram (@CEO_REFRIMIX_bot) |
 | **ai-context MCP** | Sincronizar docs → memory após feature | Auto ou manual |
 
 ---
@@ -50,7 +50,7 @@
                            │
                            ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│  4. OpenClaw Bot (se feature é para cliente)                       │
+│  4. (se feature é para cliente)                       │
 │     Se cliente Y:                                                   │
 │     • qdrant-rag: indexa documentação do cliente no Qdrant        │
 │     • multi-client isolation: dados não vazam entre clientes        │
@@ -107,20 +107,20 @@ opencode --model minimax/MiniMax-M2.7 "task"
 
 ---
 
-### OpenClaw Bot (@CEO_REFRIMIX_bot)
+### (@CEO_REFRIMIX_bot)
 
 **Use para:**
 - **CEO MIX — assistente e dev senior que orquestra time de agents** para qualquer nicho (design, marketing, dev, etc)
-- Criar e coordenar sub-agents especializados via [OpenClaw Agents Kit](../OPERATIONS/SKILLS/openclaw-agents-kit/SKILL.md)
+- Criar e coordenar sub-agents especializados via [](../OPERATIONS/SKILLS//SKILL.md)
 - Multi-client work (cada cliente isolado)
-- TTS voice responses (Kokoro — pm_santa ou pf_dora)
+- TTS voice responses (— pm_santa ou pf_dora)
 - Escalation: infra → Claude Code CLI
 
 **Ele sabe (via kit):**
-- Skills: `qdrant-rag`, `monorepo-explorer`, `openclaw-repo-hunter`
+- Skills: `qdrant-rag`, `monorepo-explorer`, ``
 - MCP: `mcp-monorepo` (read-only /srv/monorepo)
 - Qdrant collections: clients-briefs, clients-brand-guides, clients-campaigns, clients-knowledge
-- Coolify API + Infisical SDK (acesso seguro a config e secrets)
+- Coolify API + (acesso seguro a config e secrets)
 - Sub-agent patterns: leader designation, bindings, heartbeat, SOUL.md por agente
 
 **Ele NÃO sabe:**
@@ -183,9 +183,9 @@ cat ~/.claude/mcps/ai-context-sync/manifest.json
 "Preciso criar uma campanha para o cliente ACME"
 ```
 
-### 2. OpenClaw — Briefing
+### 2. — Briefing
 
-OpenClaw recebe o pedido. Ele:
+. Ele:
 - Consulta Qdrant: `clients-campaigns` filtrado por `client_id=acme`
 - Verifica se BRIEF.md existe em `clients/acme/`
 - Se não existe: "Não tenho dados do ACME. Quer que eu crie?"
@@ -201,7 +201,7 @@ c /feature criar-campanha-acme
 ```
 
 Se é puramente briefing/copy:
-- OpenClaw faz sozinho com Qdrant context
+- 
 
 ### 4. AI-CONTEXT — Sincronizar
 
@@ -212,7 +212,7 @@ Após qualquer mudança em `docs/`:
 ~/.claude/mcps/ai-context-sync/sync.sh
 ```
 
-### 5. OpenClaw — Indexar Resultado
+### 5. — Indexar Resultado
 
 Se a feature produziu documentação relevante para o cliente:
 ```
@@ -240,7 +240,7 @@ opencode "task"               # Quick task
 opencode --model X "task"     # Modelo específico
 ```
 
-### OpenClaw Bot (Telegram)
+### (Telegram)
 ```
 @CEO_REFRIMIX_bot
 
@@ -261,7 +261,7 @@ opencode --model X "task"     # Modelo específico
 
 | Errado | Correto |
 |--------|---------|
-| OpenClaw edita código | Claude Code CLI edita código |
+| | Claude Code CLI edita código |
 | Claude Code acessa secrets | vault.zappro.site |
 | OpenCode para dev pesado | Claude Code CLI para dev |
 | Fazer deploy sem ai-context | Sempre sincronizar docs após mudança |
@@ -275,7 +275,7 @@ opencode --model X "task"     # Modelo específico
 |------|-------|
 | `docs/GOVERNANCE/CONTRACT.md` | Princípios non-negotiable |
 | `docs/GOVERNANCE/GUARDRAILS.md` | O que pode e não pode |
-| `docs/OPERATIONS/SKILLS/openclaw-agents-kit/SKILL.md` | Kit universal — transformar OpenClaw em orquestrador de agents |
-| `docs/guides/openclaw-*.md` | OpenClaw completo |
+| `docs/OPERATIONS/SKILLS//SKILL.md` | Kit universal — transformar |
+| `docs/guides/*.md` | |
 | `docs/MCPs/AI_CONTEXT_MCP.md` | ai-context setup |
 | `docs/MCPs/MCP_BLUEPRINT.md` | Criar MCP servers |

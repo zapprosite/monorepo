@@ -15,7 +15,7 @@
 | 2026-04-08 | INCIDENT-2026-04-08 | Perplexity Agent GitOps Gap | 🔴 HIGH | ✅ RESOLVIDO |
 | 2026-04-08 | INCIDENT-2026-04-08-wav2vec2 | LiteLLM STT Network Isolation | 🔴 HIGH | ✅ RESOLVIDO |
 | 2026-04-08 | INCIDENT-2026-04-08-voice | Voice Pipeline Stability Master Plan | 🔴 HIGH | ✅ RESOLVIDO |
-| 2026-04-08 | INCIDENT-2026-04-08-kokoro | Kokoro Voice Access Control | 🟡 MEDIUM | ✅ RESOLVIDO |
+| 2026-04-08 | INCIDENT-2026-04-08-| | 🟡 MEDIUM | ✅ RESOLVIDO |
 | 2026-04-08 | INCIDENT-2026-04-08-gitea | Gitea Actions Runner — Workflows Não Executavam | 🟡 MEDIUM | ✅ RESOLVIDO |
 
 ---

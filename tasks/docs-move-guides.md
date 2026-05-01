@@ -11,7 +11,7 @@
 |------|--------|
 | `CANVAS-CURSOR-LOOP.md` | Moved (untracked) |
 | `CODE-REVIEW-GUIDE.md` | Moved (git rename) |
-| `voice-pipeline-loop.md` | Moved (git rename) |
+| `.md` | Moved (git rename) |
 | `discovery.md` | Moved (git rename) |
 | `PLAN-docs-reorganization-20260408.md` | Moved (git rename) |
 
@@ -23,7 +23,7 @@ GUIDES/
 ├── CODE-REVIEW-GUIDE.md
 ├── discovery.md
 ├── PLAN-docs-reorganization-20260408.md
-└── voice-pipeline-loop.md
+└── .md
 ```
 
 ## Remaining in docs/ root
@@ -38,7 +38,7 @@ GUIDES/
 R  docs/specflow/CODE-REVIEW-GUIDE.md -> docs/GUIDES/CODE-REVIEW-GUIDE.md
 R  docs/specflow/PLAN-docs-reorganization-20260408.md -> docs/GUIDES/PLAN-docs-reorganization-20260408.md
 R  docs/specflow/discovery.md -> docs/GUIDES/discovery.md
-R  docs/specflow/voice-pipeline-loop.md -> docs/GUIDES/voice-pipeline-loop.md
+R  docs/specflow/.md -> docs/GUIDES/.md
 ```
 
 ## Notes

@@ -111,7 +111,7 @@ gsettings get org.gnome.settings-daemon.plugins.media-keys custom-keybindings
 
 ### Verificar hotkeys
 ```bash
-bash ~/Desktop/voice-pipeline/scripts/verify-hotkey.sh
+bash ~/Desktop//scripts/verify-hotkey.sh
 ```
 
 ### Recovery
@@ -124,8 +124,8 @@ systemctl --user restart voice-hotkey
 
 ## Referências
 
-- **Scripts:** `~/Desktop/voice-pipeline/scripts/`
-- **Logs:** `~/Desktop/voice-pipeline/logs/`
+- **Scripts:** `~/Desktop//scripts/`
+- **Logs:** `~/Desktop//logs/`
 - **Governança:** `/srv/ops/ai-governance/GUARDRAILS.md`
 
 **Mantenedor:** will-zappro

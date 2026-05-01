@@ -109,7 +109,7 @@ docs/
 **Critério:**
 - [ ] CANVAS-CURSOR-LOOP.md → docs/GUIDES/
 - [ ] CODE-REVIEW-GUIDE.md → docs/GUIDES/
-- [ ] voice-pipeline-loop.md → docs/GUIDES/
+- [ ] .md → docs/GUIDES/
 - [ ] plans/PLAN-*.md → docs/GUIDES/
 
 ### T06 — Mover REFERENCE para docs/REFERENCE
@@ -228,7 +228,7 @@ obsidian/ (read-only mirror)
 SPECs existentes em `specflow/` que são research (não specs):
 - `SPEC-022-CURSOR-LOOP-CLI-SOLUTIONS.md` → `GUIDES/cursor-loop-cli-solutions.md`
 - `CANVAS-CURSOR-LOOP.md` → `GUIDES/cursor-loop-architecture.md`
-- `voice-pipeline-loop.md` → `GUIDES/voice-pipeline-loop.md`
+- `.md` → `GUIDES/.md`
 
 ### 5. Files to DELETE (Legacy/Placeholder)
 

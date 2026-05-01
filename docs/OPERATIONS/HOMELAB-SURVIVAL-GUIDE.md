@@ -64,7 +64,7 @@ curl https://<domain>/health        # responde 200?
 
 ---
 
-## Regra 5: Gateway OpenClaw É Loopback
+## Regra 5: Gateway 
 
 `OPENCLAW_GATEWAY_BIND=loopback` → `localhost:18789` **nunca** funciona externamente.
 
@@ -89,7 +89,7 @@ curl http://localhost:18789/health  # loopback-only, SEMPRE falha
 ```bash
 # Ver se dois containers partilham rede
 docker inspect coolify-proxy --format '{{json .NetworkSettings.Networks}}' | python3 -c "import sys,json; print(list(json.load(sys.stdin).keys()))"
-docker inspect openclaw-... --format '{{json .NetworkSettings.Networks}}' | python3 -c "import sys,json; print(list(json.load(sys.stdin).keys()))"
+docker inspect ... --format '{{json .NetworkSettings.Networks}}' | python3 -c "import sys,json; print(list(json.load(sys.stdin).keys()))"
 ```
 
 Se não partilham nenhuma network → **Traefik não consegue routear**.
@@ -109,7 +109,7 @@ curl https://bot.zappro.site/  # pode ser 502
 **Verificar rota completa:**
 ```bash
 # 1. DNS
-nslookup openclaw.191.17.50.123.sslip.io
+nslookup .191.17.50.123.sslip.io
 
 # 2. Traefik
 curl http://localhost:80/ping  # 200 = Traefik OK

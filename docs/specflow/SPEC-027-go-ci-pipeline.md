@@ -147,7 +147,7 @@ pkg/
 | # | Question | Impact | Priority |
 |---|----------|--------|----------|
 | OQ-1 | Devo integrar com GitHub Actions ou manter standalone? | High | Med |
-| OQ-2 | Como lidar com secrets (Infisical)? | High | Med |
+| OQ-2 | Como lidar com secrets ()? | High | Med |
 | OQ-3 | Suporte Windows? | Low | Low |
 
 ---

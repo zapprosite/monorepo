@@ -66,7 +66,7 @@ Defined primarily in `packages/zod-schemas/src/enums.zod.ts` and `crm_enums.zod.
 
 *   **RHF**: React Hook Form (Standardized form handling in `packages/ui/src/rhf-form`).
 *   **STT**: Speech-to-Text (e.g., Whisper-based transcription via `transcribeAudio`).
-*   **TTS**: Text-to-Speech (e.g., Kokoro-based synthesis via `synthesizeSpeech`).
+*   **TTS**: Text-to-Speech (e.g., `synthesizeSpeech`).
 *   **ULID**: Universally Unique Lexicographically Sortable Identifier (Used for non-sequential, sortable DB primary keys).
 *   **LLM**: Large Language Model (e.g., GPT-4, Claude, or local Ollama instances).
 *   **CRM**: Customer Relationship Management (entities like `Clients`, `Contacts`, and `Addresses`).

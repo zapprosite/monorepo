@@ -2,7 +2,7 @@
 
 **Host:** Ubuntu Desktop (will-zappro)
 **Date:** 2026-04-10
-**Ref:** `/home/will/Desktop/voice-pipeline`
+**Ref:** `/home/will/Desktop/`
 
 ---
 
@@ -19,7 +19,7 @@
 
 ### Voz TTS
 
-- **Voz:** `pf_dora` (feminina PT-BR) — Kokoro na porta `:8012`
+- **Voz:** `pf_dora` (feminina PT-BR) — `:8012`
 - **Anterior:** `pm_santa` (masculina)
 
 ### Sintomas de Modelo Desatualizado
@@ -37,19 +37,19 @@ curl -s http://localhost:11434/api/tags | jq '.models[].name'
 
 ### Para Trocar Modelo
 
-1. Editar `/home/will/Desktop/voice-pipeline/scripts/voice.sh` — linha do payload:
+1. Editar `/home/will/Desktop//scripts/voice.sh` — linha do payload:
 ```bash
 "model": "llama3-portuguese-tomcat-8b-instruct-q8",  # trocar aqui
 ```
 
-2. Editar `/home/will/Desktop/voice-pipeline/scripts/speak.sh` — linha do payload:
+2. Editar `/home/will/Desktop//scripts/speak.sh` — linha do payload:
 ```bash
 "model": "llama3-portuguese-tomcat-8b-instruct-q8",  # trocar aqui
 ```
 
 3. Testar:
 ```bash
-bash /home/will/Desktop/voice-pipeline/scripts/voice.sh /tmp/test_audio.wav
+bash /home/will/Desktop//scripts/voice.sh /tmp/test_audio.wav
 ```
 
 ---
@@ -59,24 +59,24 @@ bash /home/will/Desktop/voice-pipeline/scripts/voice.sh /tmp/test_audio.wav
 | Tecla | Script | Função |
 |-------|--------|--------|
 | **F12** | `record.sh` | Gravar voz → transcreve → Ctrl+Shift+V cola |
-| **Ctrl+Shift+C** | `speak.sh` | Texto selecionado → LLM humaniza → Kokoro `pf_dora` → headset |
+| **Ctrl+Shift+C** | `speak.sh` | Texto selecionado → LLM humaniza → `pf_dora` → headset |
 | **Ícone** | `voice-toggle.sh` | Clique toggle gravação |
 
 ### Hotkey Restore
 
 Os hotkeys são restaurados via autostart:
 - Ficheiro: `~/.config/autostart/voice-hotkeys-restore.desktop`
-- Script: `/home/will/Desktop/voice-pipeline/scripts/hotkey-restore.sh`
+- Script: `/home/will/Desktop//scripts/hotkey-restore.sh`
 
 Se hotkeys desaparecerem após reboot, executar:
 ```bash
-bash /home/will/Desktop/voice-pipeline/scripts/hotkey-restore.sh
+bash /home/will/Desktop//scripts/hotkey-restore.sh
 ```
 
 ### Ubuntu Dock — Pinned
 
 O Voice Pipeline está pinned no Ubuntu Dock (GNOME) via:
-- Ficheiro: `~/.local/share/applications/voice-pipeline.desktop`
+- Ficheiro: `~/.local/share/applications/.desktop`
 - Entrada GNOME: `org.gnome.shell favorite-apps`
 
 ---
@@ -85,7 +85,7 @@ O Voice Pipeline está pinned no Ubuntu Dock (GNOME) via:
 
 | Serviço | Porta | Tipo | Container |
 |--------|-------|------|-----------|
-| Kokoro TTS | `:8012` | HTTP | `zappro-kokoro` |
+| | `:8012` | HTTP | `zappro-` |
 | Whisper API | `:8201` | HTTP | Native (`whisper_api.py`) |
 | Ollama | `:11434` | HTTP | Native |
 
@@ -94,17 +94,17 @@ O Voice Pipeline está pinned no Ubuntu Dock (GNOME) via:
 ## Smoke Test
 
 ```bash
-cd /home/will/Desktop/voice-pipeline
-bash tasks/smoke-tests/voice-pipeline-e2e-telegram.sh
+cd /home/will/Desktop/
+bash tasks/smoke-tests/2e-telegram.sh
 ```
 
 ---
 
 ## Logs
 
-- Speak: `~/Desktop/voice-pipeline/logs/speak-YYYYMMDD.log`
-- Voice: `~/Desktop/voice-pipeline/logs/voice-YYYYMMDD.log`
-- Toggle: `~/Desktop/voice-pipeline/logs/toggle-YYYYMMDD.log`
+- Speak: `~/Desktop//logs/speak-YYYYMMDD.log`
+- Voice: `~/Desktop//logs/voice-YYYYMMDD.log`
+- Toggle: `~/Desktop//logs/toggle-YYYYMMDD.log`
 
 ---
 
@@ -112,18 +112,18 @@ bash tasks/smoke-tests/voice-pipeline-e2e-telegram.sh
 
 ### F12 não funciona
 ```bash
-bash /home/will/Desktop/voice-pipeline/scripts/hotkey-restore.sh
+bash /home/will/Desktop//scripts/hotkey-restore.sh
 ```
 
-### Kokoro não responde
+### 
 ```bash
 curl -s http://localhost:8012/health
-docker restart zappro-kokoro
+docker restart zappro-
 ```
 
 ### Whisper API não responde
 ```bash
 curl -s http://localhost:8201/health
 pkill -f whisper_api.py
-nohup python3 ~/Desktop/voice-pipeline/whisper_api.py &
+nohup python3 ~/Desktop//whisper_api.py &
 ```

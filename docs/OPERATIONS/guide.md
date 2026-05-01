@@ -144,7 +144,7 @@ codex-host "wipefs /dev/nvme0n1"
 **Skills AI Stack:**
 - `ollama-health-check.md` — Ollama + VRAM
 - `litellm-health-check.md` — LiteLLM proxy
-- `kokoro-health-check.md` — Kokoro TTS
+- `.md` — 
 
 ---
 
@@ -191,7 +191,7 @@ claude -p "List all Coolify apps with resource usage"
 | `auto-healer.sh` | Restart containers degraded/down (cron 5min) |
 | `resource-monitor.sh` | CPU >70%, Memory >80% alerts (cron 15min) |
 
-**Secrets configurados (Infisical):**
+**Secrets configurados ():**
 - ✅ `COOLIFY_API_KEY` adicionado
 - ✅ `COOLIFY_URL` disponível
 - ✅ `OPENROUTER_API_KEY` disponível

@@ -18,7 +18,7 @@ obsidian/REFERENCE/ (was empty, now populated)
 | Source | Destination | Files synced |
 |--------|-------------|--------------|
 | `docs/specflow/` | `obsidian/SPECS/` | 42 files (SPECs, ARCHITECTURE, reviews) |
-| `docs/plans/` | `obsidian/ADRs/` | 1 file (PLAN-voice-pipeline-desktop-20260410.md) |
+| `docs/plans/` | `obsidian/ADRs/` | 1 file (PLAN-20260410.md) |
 | `docs/context/` | `obsidian/GUIDES/` | 1 file (README.md) |
 | `docs/index.md` | `obsidian/REFERENCE/` | index.md |
 | `docs/README.md` | `obsidian/REFERENCE/` | README.md |
@@ -29,12 +29,12 @@ Explains this is a read-only mirror with sync instructions.
 ### 4. Verification
 
 **obsidian/SPECS/** — 42 files mirrored from docs/specflow/:
-- SPEC-001 through SPEC-022 (SPEC-020-voice-pipeline-humanized-ptbr.md, SPEC-022-CURSOR-LOOP-CLI-SOLUTIONS.md latest)
+- SPEC-001 through SPEC-022 (SPEC-020-.md, SPEC-022-CURSOR-LOOP-CLI-SOLUTIONS.md latest)
 - ARCHITECTURE-MASTER.md, SPEC-CURSOR-LOOP.md
 - reviews/ subdirectory with 4 review files
 
 **obsidian/ADRs/** — 1 file mirrored from docs/plans/:
-- PLAN-voice-pipeline-desktop-20260410.md
+- PLAN-20260410.md
 
 **obsidian/GUIDES/** — 1 file mirrored from docs/context/:
 - README.md

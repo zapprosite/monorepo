@@ -10,7 +10,7 @@
 ## 1. Visão Geral
 
 Este documento define políticas de organização, nomenclatura e ciclo de vida para:
-- **PostgreSQL** (Supabase, N8N containers, Coolify, Infisical)
+- **PostgreSQL** (Supabase, N8N containers, Coolify, 
 - **Qdrant** (collections de vetores)
 - **Catálogo Central** (schema `catalog` no Supabase)
 
@@ -26,7 +26,7 @@ Este documento define políticas de organização, nomenclatura e ciclo de vida 
 | 2 | **N8N Postgres-1** | localhost (Coolify) | 5432 | n8n | `SERVICE_PASSWORD_POSTGRES` (Coolify .env) | ⚙️ Coolify-managed |
 | 3 | **N8N Postgres-2** | localhost (Coolify) | 5432 | n8n | `SERVICE_PASSWORD_POSTGRES` (Coolify .env) | ⚙️ Coolify-managed |
 | 4 | **Coolify Postgres** | localhost | 5432 | coolify | `COOLIFY_DB_PASSWORD` | 🔑 vault |
-| 5 | **Infisical Postgres** | localhost | 5432 | infisical | `INFISICAL_DB_PASSWORD` | 🔑 vault |
+| 5 | **
 
 ### 2.2 Regras de Conexão
 

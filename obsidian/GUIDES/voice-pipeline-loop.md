@@ -7,7 +7,7 @@
 
 ## Overview
 
-Autonomous self-healing loop for the OpenClaw voice pipeline. Runs every 5 minutes, executes smoke test, heals recoverable failures, alerts via Telegram on persistent issues.
+Autonomous self-healing loop for the . Runs every 5 minutes, executes smoke test, heals recoverable failures, alerts via Telegram on persistent issues.
 
 ## Architecture
 
@@ -15,8 +15,8 @@ Autonomous self-healing loop for the OpenClaw voice pipeline. Runs every 5 minut
 */5 * * * *  cron
     │
     ▼
-voice-pipeline-loop.sh
-    ├─► bash pipeline-openclaw-voice.sh
+.sh
+    ├─► bash pipeline-.sh
     │         │
     │         ▼
     │     parse PASS/FAIL per endpoint
@@ -36,7 +36,7 @@ voice-pipeline-loop.sh
     │         ▼                         ▼
     │     exit 1                    smoke test again
     │                                    │
-    └─► log to /srv/monorepo/logs/voice-pipeline/
+    └─► log to /srv/monorepo/logs//
 ```
 
 ## Failure Matrix
@@ -44,7 +44,7 @@ voice-pipeline-loop.sh
 | Failure | Heal Action | Auto-heal? |
 |---------|------------|------------|
 | TTS Bridge container DOWN | `docker start zappro-tts-bridge` | ✅ |
-| OpenClaw container DOWN | `docker restart openclaw-qgtzrmi6771lt8l7x8rqx72f` | ✅ |
+| | `docker restart 6771lt8l7x8rqx72f` | ✅ |
 | wav2vec2 container DOWN | `docker restart wav2vec2` | ✅ |
 | LiteLLM container DOWN | `docker restart zappro-litellm` | ✅ |
 | TTS Bridge UP but pm_santa FAIL | Config issue — alert only | ❌ |
@@ -66,13 +66,13 @@ Alert only sent after 3 consecutive failures (alert_count >= 3). Counter resets 
 [list]
 
 🔧 Recovery Plan:
-1. docker ps | grep openclaw|tts|wav2vec2|litellm
+1. docker ps | grep |tts|wav2vec2|litellm
 2. docker logs <container> --tail 50
 3. If TTS DOWN: docker start zappro-tts-bridge
-4. If OpenClaw DOWN: docker restart openclaw-qgtzrmi6771lt8l7x8rqx72f
+4. If : docker restart 6771lt8l7x8rqx72f
 5. Check OPENAI_TTS_BASE_URL in Coolify
 
-📂 Logs: tail -100 /srv/monorepo/logs/voice-pipeline/smoke.log.YYYYMMDD
+📂 Logs: tail -100 /srv/monorepo/logs//smoke.log.YYYYMMDD
 ⏱️ Auto-healer will retry in 5 min
 ```
 
@@ -80,16 +80,16 @@ Alert only sent after 3 consecutive failures (alert_count >= 3). Counter resets 
 
 | File | Purpose |
 |------|---------|
-| `tasks/smoke-tests/voice-pipeline-loop.sh` | Orchestrator + auto-healer |
-| `tasks/smoke-tests/voice-pipeline-e2e-telegram.sh` | Lightweight Telegram E2E (~15s) |
-| `docs/specflow/SPEC-016-voice-pipeline-cursor-loop.md` | SPEC |
-| `logs/voice-pipeline/smoke.log.YYYYMMDD` | Daily smoke test log |
-| `logs/voice-pipeline/.heal_counters.json` | Persistent counters |
+| `tasks/smoke-tests/.sh` | Orchestrator + auto-healer |
+| `tasks/smoke-tests/2e-telegram.sh` | Lightweight Telegram E2E (~15s) |
+| `docs/specflow/SPEC-016-.md` | SPEC |
+| `logs//smoke.log.YYYYMMDD` | Daily smoke test log |
+| `logs//.heal_counters.json` | Persistent counters |
 
 ## Cron
 
 ```cron
-*/5 * * * * /srv/monorepo/tasks/smoke-tests/voice-pipeline-loop.sh >> /srv/monorepo/logs/voice-pipeline/loop.log 2>&1
+*/5 * * * * /srv/monorepo/tasks/smoke-tests/.sh >> /srv/monorepo/logs//loop.log 2>&1
 ```
 
 Added to crontab via: `crontab -e`

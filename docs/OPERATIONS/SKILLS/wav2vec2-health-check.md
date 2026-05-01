@@ -87,5 +87,5 @@ RESULTADO:  ✅ SAUDÁVEL
 
 ## See Also
 
-- `kokoro-health-check.md` — Kokoro TTS (port 8012 via LiteLLM)
+- `.md` — (port 8012 via LiteLLM)
 - `/home/will/zappro-lite/docker-compose.yml` — deploy config

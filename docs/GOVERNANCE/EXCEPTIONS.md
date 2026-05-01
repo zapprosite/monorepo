@@ -1,8 +1,8 @@
 # exceptions
 
-Documented exceptions to the Infisical SDK mandatory policy.
+Documented exceptions to the 
 
-**Spec:** SPEC-029-INFISICAL-SDK-MANDATORY.md
+**Spec:** 
 **Last updated:** 2026-04-12
 
 ---
@@ -34,7 +34,7 @@ Documented exceptions to the Infisical SDK mandatory policy.
 Example:
 
 ```markdown
-| `COOLIFY_API_KEY` | Bootstrap script runs before Infisical init | will-zappro | 2026-05-12 | Migrate bootstrap-emitter.sh to use InfisicalClient |
+| `COOLIFY_API_KEY` | Bootstrap script runs before 
 ```
 
 ---

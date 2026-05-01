@@ -63,7 +63,7 @@ Located in `apps/api/src/modules/api-gateway`, this layer manages:
 ### 2. AI Agency & Orchestration (`apps/hermes-agency`)
 A high-level agentic layer providing:
 - **Language Workflows**: Multi-step pipelines for social media and content approval in `src/langgraph/`.
-- **Telegram Bot**: Supports Speech-to-Text (Whisper), Vision (Ollama/Qwen), and Text-to-Speech (Kokoro).
+- **Telegram Bot**: Supports Speech-to-Text (Whisper), Vision (Ollama/Qwen), and Text-to-Speech ().
 - **Control Plane**: Redis-backed distributed locking (`distributed_lock.ts`) and rate limiting to manage shared agent states.
 
 ### 3. Unified Form System (`packages/ui/src/rhf-form`)

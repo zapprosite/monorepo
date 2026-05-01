@@ -49,8 +49,8 @@ SPEC-*.md (Goals section)
 **ADR Naming:**
 ```
 ADR-001-<spec-id>-<slice-name>.md
-ADR-002-openclaw-oauth-mvp.md
-ADR-002-openclaw-oauth-should.md
+ADR-002-.md
+ADR-002-.md
 ```
 
 **Exemplo de ADR slice:**
@@ -60,7 +60,7 @@ ADR-002-openclaw-oauth-should.md
 
 **Data:** 2026-04-09
 **Status:** proposto
-**SPEC ref:** SPEC-007-openclaw-oauth-profiles.md
+**SPEC ref:** SPEC-007-.md
 
 ## Contexto
 Slice MVP do SPEC-007: OAuth profiles persistentes.

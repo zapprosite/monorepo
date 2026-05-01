@@ -71,10 +71,10 @@ PINNED services can be changed with MASTER_PASSWORD following proper procedure:
 
 | Service | Container | Why Pinned |
 |---------|-----------|------------|
-| **TTS Bridge** | `zappro-tts-bridge` | Filters Kokoro voices — only pm_santa/pf_dora allowed |
-| **Kokoro TTS** | `zappro-kokoro` | Validated with OpenClaw watchdog; model cache large |
+| **TTS Bridge** | `zappro-tts-bridge` | Filters 
+| **
 | **wav2vec2 STT** | `zappro-wav2vec2` | HF model cache 5.8GB; watchdog depends on port 8201 |
-| **OpenClaw Bot** | `openclaw-qgtzrmi6771lt8l7x8rqx72f` | Complex config + secrets; tunnel routing validated |
+| **
 | **LiteLLM Proxy** | `zappro-litellm` | GPU proxy for TTS/STT/Vision; config.yaml validated |
 | **openwebui** | `openwebui` | Validated bridge target; OAuth integration stable |
 
@@ -94,7 +94,7 @@ The docker-autoheal sidecar monitors and restarts unhealthy containers. Containe
 | **cloudflared** | Auto-restart on unhealthy |
 | **n8n** | Auto-restart on unhealthy |
 | **openwebui** | Auto-restart on unhealthy |
-| **openclaw-mcp-wrapper** | Auto-restart on unhealthy |
+| **
 | **openwebui-bridge-agent** | Auto-restart on unhealthy |
 
 These services benefit from auto-healing but remain PINNED — changes still require MASTER_PASSWORD.
@@ -116,7 +116,7 @@ These services benefit from auto-healing but remain PINNED — changes still req
    /srv/ops/scripts/lock-config.sh
 
 5. Verify with smoke test
-   bash /srv/monorepo/tasks/smoke-tests/pipeline-openclaw-voice.sh
+   bash /srv/monorepo/tasks/smoke-tests/pipeline-
 
 6. Document in INCIDENTS.md
 ```

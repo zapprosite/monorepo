@@ -221,7 +221,7 @@ pnpm vitest run --watch
 ### Always
 
 - Create ZFS snapshot before any destructive change (`zfs snapshot tank@pre-YYYYMMDD-HHMMSS`)
-- Use Infisical for all secrets — never hardcode credentials in code
+- Use — never hardcode credentials in code
 - Run `pnpm turbo typecheck` before commit
 - Run `pnpm turbo lint` before commit
 - Follow naming conventions from biome.json
@@ -244,7 +244,7 @@ pnpm vitest run --watch
 - Delete `/srv/data`, `/srv/backups`, `/srv/docker-data`
 - Destroy ZFS pools
 - Reboot without explicit plan
-- Hardcode secrets (use Infisical SDK instead)
+- Hardcode secrets (use )
 - Bypass pre-commit hooks
 - Open ports without updating PORTS.md + SUBDOMAINS.md
 

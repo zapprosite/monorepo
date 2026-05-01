@@ -18,7 +18,7 @@ REFERENCE/ contains stable, factual documentation: schemas, taxonomies, diagrams
 
 | Doc Type | Purpose | Example |
 |----------|---------|---------|
-| **SPEC** | Describe a feature before building it | `SPEC-042-voice-pipeline.md` |
+| **SPEC** | Describe a feature before building it | `SPEC-042-.md` |
 | **GUIDE** | Teach how to accomplish a task | `GUIDES/docker-debug.md` |
 | **REFERENCE** | Document what exists (schema, list, diagram) | `REFERENCE/TOOLCHAIN.md` |
 | **ADR** | Record a decision and its rationale | `ADRs/001-turborepo-cache.md` |

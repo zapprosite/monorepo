@@ -145,7 +145,7 @@ REDIS_MAX_RETRIES=3
 |------|---------|--------|
 | 3000 | Open WebUI | **RESERVED** |
 | 4000 | LiteLLM production | **RESERVED** |
-| 4001 | OpenClaw Bot | **RESERVED** |
+| 4001 | | **RESERVED** |
 | 8000 | Coolify PaaS | **RESERVED** |
 | 8080 | aurelia-api | **RESERVED** |
 | 4002-4099 | Microservices | Available |

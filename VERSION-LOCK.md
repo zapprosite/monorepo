@@ -10,11 +10,11 @@ Critical tool versions pinned for homelab-monorepo.
 | Claude Code CLI | 2.1.89                         | research 2026-04-11                        |
 | TypeScript      | ^5.7.3                         | apps/\*/package.json                       |
 | Biome           | ^2.3.0                         | apps/ai-gateway/package.json               |
-| Kokoro FastAPI  | v0.2.2                         | `ghcr.io/remsky/-fastapi-gpu:v0.2.2` |
+| | v0.2.2                         | `ghcr.io/remsky/-fastapi-gpu:v0.2.2` |
 
-## Voice PT-BR — Kokoro TTS (IMUTÁVEL)
+## Voice PT-BR — (IMUTÁVEL)
 
-**⚠️ ATENÇÃO LLM:** As vozes Kokoro são governadas por rules. NUNCA altere sem aprovação.
+**⚠️ ATENÇÃO LLM:** As vozes . NUNCA altere sem aprovação.
 
 | Voice ID        | Tipo            | Uso                                    | Status | Notes                       |
 | --------------- | --------------- | -------------------------------------- | ------ | --------------------------- |
@@ -23,8 +23,8 @@ Critical tool versions pinned for homelab-monorepo.
 | Todas as outras | —               | BLOQUEADAS                             | ❌     | TTS Bridge retorna HTTP 400 |
 
 **Container:** `zappro-`
-**TTS Bridge:** `zappro-tts-bridge` (:8013) — filtro de vozes Kokoro
-**Kokoro direto:** `:8880` — **NUNCA usar diretamente** (sem filtro)
+**TTS Bridge:** `zappro-tts-bridge` (:8013) — filtro de vozes 
+**:** `:8880` — **NUNCA usar diretamente** (sem filtro)
 **Voices permitidas via TTS Bridge:** APENAS `pm_santa` e `pf_dora`
 
 ## Voice Pipeline Desktop — Ctrl+Shift+C
@@ -32,10 +32,10 @@ Critical tool versions pinned for homelab-monorepo.
 | Component          | Value                                                                       |
 | ------------------ | --------------------------------------------------------------------------- |
 | **Shortcut**       | `Ctrl+Shift+C` (GNOME custom keybinding)                                    |
-| **Script**         | `/home/will/Desktop/voice-pipeline/scripts/speak.sh`                        |
+| **Script**         | `/home/will/Desktop//scripts/speak.sh`                        |
 | **Voice**          | `pf_dora` (feminino PT-BR)                                                  |
 | **Endpoint**       | TTS Bridge `:8013`                                                          |
-| **Flow**           | xclip (primary selection) → LLM humanização → TTS Bridge → Kokoro → pw-play |
+| **Flow**           | xclip (primary selection) → LLM humanização → TTS Bridge → → pw-play |
 | **Debounce**       | 3 segundos entre ativações                                                  |
 | **Hotkey install** | `hotkey-speak.sh`                                                           |
 | **Hotkey remove**  | `hotkey-unspeak.sh`                                                         |

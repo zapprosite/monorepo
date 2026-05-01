@@ -114,7 +114,7 @@ DOCKER_CONTAINERS = [
 | LiteLLM          | `http://localhost:4000/health`         | 200 or 401 |
 | wav2vec2         | `http://localhost:8201/health`         | 200        |
 | TTS Bridge       | `http://localhost:8013/health`         | 200        |
-| Kokoro           | `http://localhost:8012/health`         | 200        |
+| | `http://localhost:8012/health`         | 200        |
 | perplexity-agent | `http://localhost:4004/_stcore/health` | 200        |
 | Qdrant           | `http://localhost:6333/health`         | 200        |
 | Coolify          | `http://localhost:8000/api/health`     | 200        |

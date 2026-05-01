@@ -1,6 +1,6 @@
 ---
 name: SPEC-033 HVAC Manual Browser-Use Download Agent
-description: Pipeline de download de manuais HVAC via browser-use agent com Chrome profile persistente + login automático via Infisical. Baseado no perplexity-agent existente.
+description: Pipeline de download de manuais HVAC via browser-use agent com Chrome profile persistente + login automático via . Baseado no perplexity-agent existente.
 type: specification
 ---
 
@@ -19,7 +19,7 @@ type: specification
 Criar um **browser-use agent** especializado em baixar manuais PDF de sites de fabricantes HVAC (LG, Samsung, Daikin, Springer) usando:
 - Chrome profile persistente (cookies de login)
 - browser-use (GPT-4o-mini via OpenRouter)
-- Credenciais em Infisical
+- Credenciais em 
 - Download para `/srv/data/hvac-manuals/`
 
 **Fluxo:**
@@ -47,7 +47,7 @@ hvac-manual-downloader/
 │   ├── __init__.py
 │   ├── browser_agent.py      # browser-use agent (baseado em perplexity-agent)
 │   ├── chrome_profile.py      # Chrome profile management
-│   └── credentials.py        # Infisical credential management
+│   └── credentials.py        # 
 ├── tasks/
 │   ├── __init__.py
 │   ├── lg_downloader.py      # LG Brazil specific logic
@@ -63,8 +63,8 @@ hvac-manual-downloader/
 ### 2.2 Fluxo de Execução
 
 ```python
-# 1. Carrega credenciais do Infisical
-credentials = load_credentials_from_infisical()
+# 1. Carrega credenciais do 
+credentials = load_credentials_from_()
 # → LG_BRAZIL_EMAIL, LG_BRAZIL_PASSWORD
 # → SAMSUNG_BRAZIL_EMAIL, SAMSUNG_BRAZIL_PASSWORD
 # → DAIKIN_BRAZIL_EMAIL, DAIKIN_BRAZIL_PASSWORD
@@ -139,12 +139,12 @@ def download_manual(brand: str, model_url: str, output_path: str):
 
 ---
 
-## 4. Credential Management (Infisical)
+## 4. Credential Management ()
 
 ### 4.1 Secrets a Registrar
 
 ```python
-# Infisical project: hvacr-swarm (mesmo do perplexity-agent)
+# : hvacr-swarm (mesmo do perplexity-agent)
 # Environment: dev
 
 SECRETS = {
@@ -166,17 +166,17 @@ SECRETS = {
 }
 ```
 
-### 4.2 Infisical SDK Pattern (igual perplexity-agent)
+### 4.2 (igual perplexity-agent)
 
 ```python
-from infisical_sdk import InfisicalSDKClient
+from _sdk import 
 import os
 
-TOKEN_PATH = "/srv/ops/secrets/infisical.service-token"
+TOKEN_PATH = "/srv/ops/secrets/.service-token"
 
 def get_secret(secret_key: str) -> str:
     token = open(TOKEN_PATH).read().strip()
-    client = InfisicalSDKClient(host='http://127.0.0.1:8200', token=token)
+    client = (host='http://127.0.0.1:8200', token=token)
     secrets = client.secrets.list_secrets(
         project_id='e42657ef-98b2-4b9c-9a04-46c093bd6d37',
         environment_slug='dev',
@@ -200,7 +200,7 @@ from browser_use import Agent
 from langchain_openai import ChatOpenAI
 
 def get_llm():
-    api_key = get_secret("OPENROUTER_API_KEY")  # Já existe no Infisical
+    api_key = get_secret("OPENROUTER_API_KEY")  # Já existe no 
     return ChatOpenAI(
         model="openai/gpt-4o-mini",
         api_key=api_key,
@@ -364,7 +364,7 @@ python -m hvac_manual_downloader process --input /srv/data/hvac-manuals/ --outpu
 | AC-3 | Download manual LG via browser-use agent | PDF salvo em `/srv/data/hvac-manuals/lg/` |
 | AC-4 | Batch download 5 modelos sem erro | Verificar 5 PDFs baixados |
 | AC-5 | Session state tracking funciona | `status` mostra sessões válidas/inválidas |
-| AC-6 | Credenciais nunca em código (só Infisical) | Code review: sem strings de credenciais |
+| AC-6 | Credenciais nunca em código (só ) | Code review: sem strings de credenciais |
 | AC-7 | Integração com SPEC-032 (docling) | PDF processado → markdown |
 
 ---
@@ -385,7 +385,7 @@ python -m hvac_manual_downloader process --input /srv/data/hvac-manuals/ --outpu
 |------------|--------|-------|
 | browser-use | NEW | Python package for browser automation |
 | langchain-openai | EXISTING | Já usado no perplexity-agent |
-| Infisical SDK | EXISTING | Mesmo padrão perplexity-agent |
+| | EXISTING | Mesmo padrão perplexity-agent |
 | Chrome/Chromium | NEW | Precisa instalar no container |
 | SPEC-032 | DRAFT | Docling pipeline |
 

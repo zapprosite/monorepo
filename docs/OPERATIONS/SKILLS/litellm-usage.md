@@ -3,7 +3,7 @@
 **Purpose:** Usar os modelos LiteLLM via CLI (TTS, STT, Vision, LLM)
 **Complexity:** Low
 **Risk:** Read-only (testes) / Modifies only temp files
-**When to Use:** Testar vozes Kokoro, transcrição, visão, ou LLMs sem Telegram
+**When to Use:** Testar vozes , transcrição, visão, ou LLMs sem Telegram
 
 ## Pré-requisitos
 
@@ -15,7 +15,7 @@ export LITELLM_URL="${LITELLM_URL:-http://localhost:4000}"
 
 ---
 
-## TTS — Text-to-Speech (Kokoro)
+## TTS — Text-to-Speech ()
 
 ### Síntese básica
 
@@ -42,7 +42,7 @@ file /tmp/test_tts.mp3
 
 ### Gerar WAV em vez de MP3
 
-Kokoro output é sempre MP3. Para WAV, usar ffmpeg:
+3. Para WAV, usar ffmpeg:
 
 ```bash
 ffmpeg -i /tmp/test_tts.mp3 -acodec pcm_s16le /tmp/test_tts.wav 2>/dev/null
@@ -192,7 +192,7 @@ O LiteLLM (`zappro-litellm`) está na network `zappro-lite_default` e alcança:
 | Serviço | Host interno | Porta | Rota LiteLLM |
 |---------|-------------|-------|-------------|
 | wav2vec2 STT | `wav2vec2` | 8201 | `whisper-1` |
-| Kokoro TTS | `10.0.2.4` | 8880 | `tts-1` |
+| | `10.0.2.4` | 8880 | `tts-1` |
 | Ollama (VL/LLM) | `10.0.1.1` | 11434 | `qwen2.5-vl`, `tom-cat-8b` |
 
 Para testar conectividade interna:
@@ -210,6 +210,6 @@ docker exec zappro-litellm curl -sf http://10.0.1.1:11434/api/tags
 ## See Also
 
 - `litellm-health-check.md` — Health check detalhado do LiteLLM
-- `kokoro-health-check.md` — Kokoro TTS standalone
+- `.md` — 
 - `wav2vec2-health-check.md` — wav2vec2 STT standalone
-- `pipeline-openclaw-voice.sh` — Smoke test completo (referência)
+- `pipeline-.sh` — Smoke test completo (referência)

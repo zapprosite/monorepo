@@ -17,7 +17,7 @@ synced: 2026-04-07
 | Subdomínio | Porta | Estado | Descrição |
 |------------|-------|--------|-----------|
 | [api.zappro.site](https://api.zappro.site) | 4000 | ✅ ATIVO | LiteLLM proxy (Cloudflare Access) — :4000 |
-| [bot.zappro.site](https://bot.zappro.site) | 80 | ✅ ATIVO | OpenClaw Bot (publico, sem Access) — cloudflared → :80 → Traefik → OpenClaw |
+| [bot.zappro.site](https://bot.zappro.site) | 80 | ✅ ATIVO | (publico, sem Access) — cloudflared → :80 → Traefik → |
 | [coolify.zappro.site](https://coolify.zappro.site) | 8000 | ✅ ATIVO | Coolify PaaS panel — :8000 |
 | [git.zappro.site](https://git.zappro.site) | 3300 | ✅ ATIVO | Gitea Git Server — :3300 |
 | [llm.zappro.site](https://llm.zappro.site) | 4000 | ✅ ATIVO | LiteLLM proxy (Cloudflare Access) — :4000 |
@@ -25,7 +25,7 @@ synced: 2026-04-07
 | [n8n.zappro.site](https://n8n.zappro.site) | 5678 | ✅ ATIVO | n8n workflow automation — :5678 (Docker net) |
 | [painel.zappro.site](https://painel.zappro.site) | 4003 | ✅ ATIVO | Claude Code Panel (nginx:alpine) — :4003 |
 | [qdrant.zappro.site](https://qdrant.zappro.site) | 6333 | ✅ ATIVO | Qdrant vector DB — :6333 |
-| [vault.zappro.site](https://vault.zappro.site) | 8200 | ✅ ATIVO | Infisical Secret Manager — :8200 |
+| [vault.zappro.site](https://vault.zappro.site) | 8200 | ✅ ATIVO | — :8200 |
 | [chat.zappro.site](https://chat.zappro.site) | 8080 | ✅ ATIVO | Open WebUI (LLM chat UI) — :8080 (Coolify) |
 
 ## Terraform Source

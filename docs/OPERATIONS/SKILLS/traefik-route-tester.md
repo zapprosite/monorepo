@@ -16,7 +16,7 @@ Testa todas as rotas Traefik activas e detecta exactamente onde o routing falha.
 bash docs/OPERATIONS/SKILLS/traefik-route-tester.sh
 
 # Testar rota específica
-DOMAIN=openclaw.191.17.50.123.sslip.io bash docs/OPERATIONS/SKILLS/traefik-route-tester.sh
+DOMAIN=.191.17.50.123.sslip.io bash docs/OPERATIONS/SKILLS/traefik-route-tester.sh
 ```
 
 ## Output
@@ -28,7 +28,7 @@ DOMAIN=openclaw.191.17.50.123.sslip.io bash docs/OPERATIONS/SKILLS/traefik-route
   "routes_tested": 3,
   "results": [
     {
-      "domain": "openclaw.191.17.50.123.sslip.io",
+      "domain": ".191.17.50.123.sslip.io",
       "traefik_route": false,
       "backend_reachable": false,
       "http_code": 0,
@@ -175,7 +175,7 @@ main() {
 
     # 2. Listar domains a testar (variável ou default)
     local domains
-    domains="${DOMAINS:-openclaw.191.17.50.123.sslip.io open-webui.191.17.50.123.sslip.io}"
+    domains="${DOMAINS:-.191.17.50.123.sslip.io open-webui.191.17.50.123.sslip.io}"
 
     local results_json="["
     local first=true
@@ -226,19 +226,19 @@ EOF
     echo ""
     echo "Saved: $OUTPUT_FILE"
 
-    # Diagnóstico de network isolation (se openclaw)
-    if docker inspect "openclaw-qgtzrmi6771lt8l7x8rqx72f" >/dev/null 2>&1; then
+    # Diagnóstico de network isolation (se )
+    if docker inspect "6771lt8l7x8rqx72f" >/dev/null 2>&1; then
         echo ""
         echo "=== Network Isolation Diagnostic ==="
         local iso
-        iso=$(check_network_isolation "coolify-proxy" "openclaw-qgtzrmi6771lt8l7x8rqx72f")
-        log "coolify-proxy ↔ openclaw: $iso"
+        iso=$(check_network_isolation "coolify-proxy" "6771lt8l7x8rqx72f")
+        log "coolify-proxy ↔ : $iso"
 
-        local traefik_nets openclaw_nets
+        local traefik_nets _nets
         traefik_nets=$(container_networks "coolify-proxy")
-        openclaw_nets=$(container_networks "openclaw-qgtzrmi6771lt8l7x8rqx72f")
+        _nets=$(container_networks "6771lt8l7x8rqx72f")
         echo "  coolify-proxy networks: $(echo "$traefik_nets" | tr '\n' ' ')"
-        echo "  openclaw networks:      $(echo "$openclaw_nets" | tr '\n' ' ')"
+        echo "  :      $(echo "$_nets" | tr '\n' ' ')"
     fi
 }
 

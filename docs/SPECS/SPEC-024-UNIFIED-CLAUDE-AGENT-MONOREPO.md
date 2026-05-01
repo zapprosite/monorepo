@@ -28,7 +28,7 @@ Unify all AI tooling in the monorepo into a single coherent system: `.claude/` (
 | Skills Framework | addyosmani/agent-skills | 36 skills via Antigravity Kit |
 | CI/CD Engine | Gitea Actions | Self-hosted at git.zappro.site |
 | Deploy Target | Coolify | Docker compose + API |
-| Secrets | Infisical + Gitea Secrets | Layered approach |
+| Secrets | + Gitea Secrets | Layered approach |
 | Git Server | Gitea 1.21+ | git.zappro.site |
 | Workflows | `.agent/workflows/` + `.claude/commands/` | Wrapped via project commands |
 | Monorepo Runner | act_runner | Ephemeral, Kubernetes |
@@ -169,7 +169,7 @@ Unify all AI tooling in the monorepo into a single coherent system: `.claude/` (
 │   ├── rules/                        # Project governance
 │   │   ├── backend.md               # Backend rules
 │   │   ├── search.md                # Research priority rules
-│   │   ├── openclaw-audio-governance.md  # Audio pipeline rules
+│   │   ├── .md  # Audio pipeline rules
 │   │   └── REVIEW-SKILLS.md        # Review skill hierarchy
 │   │
 │   ├── hooks/                        # Event-driven automation
@@ -530,7 +530,7 @@ claude -p "Run context-prune to clean old sessions"
 | Deploy to production | 2+ approvals |
 | Delete branch | Manual only |
 | Modify CI/CD workflow | Explicit approval |
-| Change secrets | Via Infisical (audit logged) |
+| Change secrets | Via (audit logged) |
 | ZFS operations | Snapshot first |
 | Network/port changes | Network governance |
 

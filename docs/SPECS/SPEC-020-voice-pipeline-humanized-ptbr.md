@@ -11,7 +11,7 @@
 O voice pipeline atual tem dois problemas:
 
 1. **Whisper STT** → transcreve texto mas fica "robotizado" (seta direita, ícones, pontos sem contexto)
-2. **Kokoro TTS** → lê tudo mecanicamente, não como brasileiro NATURAL
+2. **** → lê tudo mecanicamente, não como brasileiro NATURAL
 
 O utilizador precisa de:
 - Transcrição que entende "seta direita" = apenas texto, não lê o símbolo
@@ -23,7 +23,7 @@ O utilizador precisa de:
 ## Fluxo Desejado
 
 ```
-[AUDIO] → Whisper → LLM Humanizado PT-BR → Kokoro TTS → headset
+[AUDIO] → Whisper → LLM Humanizado PT-BR → → headset
                                                     ↑
                                          texto lido como brasileiro
                                          "título" → pausa antes
@@ -40,7 +40,7 @@ voice.sh:
   ffmpeg → whisper → llama3-ptbr → clipboard → Ctrl+V
 
 speak.sh:
-  xclip → Kokoro direto → headset
+  xclip → → headset
 ```
 
 ## Arquitetura Proposta
@@ -57,7 +57,7 @@ speak.sh:
 
 ### TTS Enhancement (speak.sh)
 
-**Problema:** Kokoro lê marcadores deSlide como "bolinha", "circulo" — não sabe que são indicadores de lista
+**Problema:** "bolinha", "circulo" — não sabe que são indicadores de lista
 
 **Solução:** Pre-processamento do texto antes do TTS:
 1. Marcadores de lista (• ● ○ ◆ ▸ ► ▍ ▪ - —) → IGNORADOS, não lidos como símbolo
@@ -86,7 +86,7 @@ speak.sh:
 - Expandir números e telefones por extenso
 - Usar `respunct` para pontuação em PT-BR
 
-### Agent 3: TTS Natural PT-BR (Kokoro)
+### Agent 3: TTS Natural PT-BR ()
 
 - Curvas de pontuação: ponto = pausa longa, vírgula = pausa curta
 - SSML break time="500ms" para pausas deliberadas
@@ -145,7 +145,7 @@ Texto: {input}
 
 | Serviço | Limite Atual | Limite Proposto |
 |---------|-------------|-----------------|
-| Kokoro TTS | 1500 chars | 3000 chars |
+| | 1500 chars | 3000 chars |
 | Whisper | medium | distil-whisper-large-v3-ptbr |
 
 ---
@@ -186,7 +186,7 @@ Texto: {input}
 1. [x] Implementar prompt humanizado em `voice.sh`
 2. [x] Implementar pre-processamento TTS em `speak.sh` (símbolos, títulos, pausas)
 3. [ ] Testar com utilizador real
-4. [ ] Ajustar limite Kokoro para 3000 chars (implementado no pre-processamento)
+4. [ ] Ajustar limite 3000 chars (implementado no pre-processamento)
 
 ---
 

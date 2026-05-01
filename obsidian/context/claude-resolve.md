@@ -1,4 +1,4 @@
-# Super Prompt Técnico — OpenClaw + Voice Pipeline
+# Super Prompt Técnico — + Voice Pipeline
 
 **Data:** 05/04/2026 | **Host:** will-zappro | **Objetivo:** Bot Telegram responder + Voice Pipeline (olhos+boca+ouvidos) via GPU local
 
@@ -10,14 +10,14 @@
 ┌─────────────────────────────────────────────────────────────────┐
 │                     COOLIFY (10.0.19.x)                        │
 │  ┌─────────────────┐    ┌──────────────────────────────────┐  │
-│  │  OpenClaw Bot   │    │  Browser (Chrome DevTools)        │  │
+│  │  │    │  Browser (Chrome DevTools)        │  │
 │  │  Port 8080       │───│  Port 9222                       │  │
 │  │  @CEO_REFRIMIX   │    │                                  │  │
 │  └─────────────────┘    └──────────────────────────────────┘  │
 │         │                                                      │
 │         │ liteLLM/minimax-m2.7  ──►  LiteLLM (10.0.1.1:4000) │
 │         │                                                       │
-│         │ OPENAI_TTS_BASE_URL ──► Kokoro (10.0.19.6:8880)    │
+│         │ OPENAI_TTS_BASE_URL ──► (10.0.19.6:8880)    │
 │         │                                                       │
 │         │ STT ──► Deepgram Cloud (fallback)                   │
 │         │                                                       │
@@ -41,7 +41,7 @@
           │ GPU (RTX 4090)
           ▼
    ┌──────────────┐
-   │ Kokoro TTS   │  10.0.19.6:8880
+   │ │  10.0.19.6:8880
    │ pm_santa PT-BR│
    └──────────────┘
 ```
@@ -55,21 +55,21 @@
 | MiniMax API (direto) | api.minimax.io | ✅ OK | `curl` testado |
 | LiteLLM Proxy | 10.0.1.1:4000 | ✅ OK | Auth error (precisa key) |
 | Ollama (GPU) | 10.0.1.1:11434 | ✅ OK | `gemma4`, `llava`, `nomic-embed-text` |
-| Kokoro TTS | 10.0.19.6:8880 | ✅ OK | Responde na porta |
+| | 10.0.19.6:8880 | ✅ OK | Responde na porta |
 | Qdrant (Coolify) | 10.0.19.5:6333 | ✅ OK | Collections vazias |
-| OpenClaw Telegram | @CEO_REFRIMIX_bot | ⚠️ conecta mas não responde | - |
+| | @CEO_REFRIMIX_bot | ⚠️ conecta mas não responde | - |
 
 ---
 
 ## O QUE NÃO FUNCIONA ❌
 
-1. **OpenClaw Telegram** — conecta (`clients=0` no log), não responde mensagens
+1. **** — conecta (`clients=0` no log), não responde mensagens
 2. **OPENCLAW_PRIMARY_MODEL** — o `.env` do Coolify reseta após deploy
-3. **LiteLLM via OpenClaw** — Auth error quando testado direto, mas bot conecta
+3. **LiteLLM via ** — Auth error quando testado direto, mas bot conecta
 
 ---
 
-## CONFIG ATUAL DO OPENCLAW (via `openclaw config get`)
+## CONFIG ATUAL DO OPENCLAW (via ``)
 
 ```json
 {
@@ -148,7 +148,7 @@ model_list:
 ## HIPÓTESES
 
 1. **Provider minimax** só tem `MiniMax-M2.1` mas configuramos `M2.7` — API aceita?
-2. **LiteLLM auth** — OpenClaw passa key errada ou formato errado?
+2. **LiteLLM auth** — ?
 3. **Coolify .env** — `OPENCLAW_PRIMARY_MODEL` reseta após deploy
 4. **nginx basic auth** — Interfere com Telegram webhook?
 5. **Gateway restart** — `SIGUSR1` não reload modelo corretamente
@@ -159,9 +159,9 @@ model_list:
 
 1. **Estabilizar** `OPENCLAW_PRIMARY_MODEL` persistente (não resetar)
 2. **Confirmar** se `liteLLM/minimax-m2.7` realmente funciona ou é rota morta
-3. **Testar** MiniMax direto no OpenClaw (sem LiteLLM) — corrigir provider M2.7
+3. **Testar** MiniMax direto no (sem LiteLLM) — corrigir provider M2.7
 4. **Verificar** se Telegram recebe messages mas gateway ignora
-5. **Pinning** versão OpenClaw se atualização quebrou
+5. **Pinning** versão 
 
 ---
 
@@ -169,16 +169,16 @@ model_list:
 
 ```bash
 # Ver modelo ativo no gateway
-docker logs openclaw-qgtzrmi6771lt8l7x8rqx72f --tail 5 | grep "agent model"
+docker logs 6771lt8l7x8rqx72f --tail 5 | grep "agent model"
 
 # Ver config completa
-docker exec openclaw-qgtzrmi6771lt8l7x8rqx72f openclaw config get
+docker exec 6771lt8l7x8rqx72f 
 
 # Ver channels status
-docker exec openclaw-qgtzrmi6771lt8l7x8rqx72f openclaw channels status
+docker exec 6771lt8l7x8rqx72f 
 
 # Ver se há pairing pendente
-docker exec openclaw-qgtzrmi6771lt8l7x8rqx72f openclaw pairing list telegram
+docker exec 6771lt8l7x8rqx72f 
 
 # Testar LiteLLM direto
 curl -H "Authorization: Bearer ${LITELLM_KEY}" \
@@ -194,13 +194,13 @@ curl -X POST "https://api.minimax.io/anthropic/v1/messages" \
 
 ## PONTOS DE AUDITORIA
 
-1. **OpenClaw Telegram flow** — onde a msg é perdida?
+1. **** — onde a msg é perdida?
 2. **LiteLLM `/v1/chat/completions`** — está sendo chamado? Com que params?
 3. **Provider resolution** — como `liteLLM/minimax-m2.7` é resolvido?
 4. **Auth flow** — Telegram → Gateway → Agent → Provider → Model
 
 **Arquivos pra auditar:**
-- OpenClaw source: `/opt/openclaw/app/dist/` (no container)
+- : `/opt//app/dist/` (no container)
 - Gateway WS handler
 - Telegram provider handler
 - Model routing logic
@@ -209,7 +209,7 @@ curl -X POST "https://api.minimax.io/anthropic/v1/messages" \
 
 ## PROVIDERS.MINIMAX — SÓ TEM M2.1
 
-O provider `minimax` no OpenClaw só conhece `MiniMax-M2.1`:
+O provider `minimax` no `MiniMax-M2.1`:
 
 ```json
 "minimax": {
@@ -225,17 +225,17 @@ O provider `minimax` no OpenClaw só conhece `MiniMax-M2.1`:
 
 **Testar adicionar M2.7 ao provider:**
 ```bash
-docker exec openclaw-qgtzrmi6771lt8l7x8rqx72f openclaw config set providers.minimax.models '[{"id":"MiniMax-M2.7","contextWindow":200000}]'
+docker exec 6771lt8l7x8rqx72f .minimax.models '[{"id":"MiniMax-M2.7","contextWindow":200000}]'
 ```
 
 ---
 
 ## VERSION PENDING — 2026-04-05
 
-O .env do Coolify foi sobrescrito varias vezes. Versão do OpenClaw:
+O .env do Coolify foi sobrescrito varias vezes. Versão do :
 
 ```
-OpenClaw 2026.2.6
+2026.2.6
 ```
 
 **Issue conocido:** Versão `2026.4.x` mudou como `allowedOrigins` funciona.

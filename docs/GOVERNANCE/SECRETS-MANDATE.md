@@ -3,18 +3,18 @@
 **Applies to:** All code in `/srv/monorepo`
 **Authority:** will-zappro
 **Updated:** 2026-04-12
-**Spec:** SPEC-029-INFISICAL-SDK-MANDATORY.md
+**Spec:** 
 
 ---
 
-## Core Rule — Infisical SDK Mandatory
+## Core Rule — 
 
-Todo secret deve ser obtido via **Infisical SDK**. NUNCA hardcoded.
+Todo secret deve ser obtido via **
 
 ```python
 # ✅ CORRETO
-from infisical import InfisicalClient
-client = InfisicalClient()
+from 
+client = 
 secret = client.get_secret("MY_SECRET")
 
 # ❌ PROIBIDO
@@ -53,8 +53,8 @@ ghu_[a-zA-Z0-9]{36}
 ### Allowed env var patterns
 
 ```regex
-# Env var que referencia vault (formato Infisical)
-INFISICAL_[A-Z_]+=[^\s"']+
+# Env var que referencia vault (formato 
+
 INFINISICAL_CLIENT_ID=.+
 INFINISICAL_CLIENT_SECRET=.+
 
@@ -74,7 +74,7 @@ LOG_LEVEL=debug|info|warn|error
 
 Quando fizeres code review, verifica:
 
-- [ ] Changed files usam `InfisicalClient` para secrets?
+- [ ] Changed files usam `
 - [ ] Não há `os.getenv("TOKEN_SECRET_APIKEY")` patterns?
 - [ ] Não há strings com formato de token (`ghp_`, `sk-`, `ghu_`) hardcoded?
 - [ ] Exceptions têm `APPROVED_BY: will-zappro` comment?
@@ -88,7 +88,7 @@ Quando fizeres code review, verifica:
 | `sk-[a-zA-Z0-9]{48}` | CRITICAL | Reject + block |
 | `os.getenv("...")` para secrets | HIGH | Request changes |
 | `secrets.env` path em código | HIGH | Request changes |
-| Sem `InfisicalClient` em files que precisam de secrets | MEDIUM | Suggest fix |
+| Sem `
 
 ---
 
@@ -96,7 +96,7 @@ Quando fizeres code review, verifica:
 
 Exceções requerem:
 
-1. **Written justification** — por que não pode usar Infisical SDK
+1. **Written justification** — por que não pode usar 
 2. **will-zappro approval** — comment com `@will-zappro approved 2026-04-12`
 3. **Expiry date** — nenhuma exceção permanente
 4. **Tracking** — listadas em `docs/GOVERNANCE/EXCEPTIONS.md`
@@ -104,10 +104,10 @@ Exceções requerem:
 Exemplo de exceção válida:
 
 ```python
-# Exception: Temporary bridge for legacy system without Infisical support
+# Exception: Temporary bridge for legacy system without 
 # APPROVED_BY: will-zappro 2026-04-12
 # EXPIRES: 2026-05-01
-# ISSUE: migration-to-infisical-required
+# ISSUE: migration-to-
 LEGACY_TOKEN = os.getenv("LEGACY_BRIDGE_TOKEN")  # only for migration period
 ```
 
@@ -117,11 +117,11 @@ LEGACY_TOKEN = os.getenv("LEGACY_BRIDGE_TOKEN")  # only for migration period
 
 | Secret | Current Location | Target | Status |
 |--------|-----------------|--------|--------|
-| `GITHUB_TOKEN` | `~/.git-credentials` | Infisical workspace | PENDING |
-| `TELEGRAM_BOT_TOKEN` | `~/.zappro/config/secrets.env` | Infisical workspace | PENDING |
-| `OPENROUTER_API_KEY` | `~/.zappro/config/secrets.env` | Infisical workspace | PENDING |
-| `QDRANT_API_KEY` | `~/.zappro/config/secrets.env` | Infisical workspace | PENDING |
-| `COOLIFY_API_KEY` | bootstrap-emitter.sh | Infisical workspace | PENDING |
+| `GITHUB_TOKEN` | `~/.git-credentials` | 
+| `TELEGRAM_BOT_TOKEN` | `~/.zappro/config/secrets.env` | 
+| `OPENROUTER_API_KEY` | `~/.zappro/config/secrets.env` | 
+| `QDRANT_API_KEY` | `~/.zappro/config/secrets.env` | 
+| `COOLIFY_API_KEY` | bootstrap-emitter.sh | 
 
 ---
 
@@ -139,7 +139,7 @@ LEGACY_TOKEN = os.getenv("LEGACY_BRIDGE_TOKEN")  # only for migration period
 ```bash
 # 1. Identificar token comprometido
 # 2. Revogar no provider (GitHub, Telegram, etc.)
-# 3. Criar novo secret no Infisical vault
+# 3. Criar novo secret no 
 # 4. Update all references
 # 5. Confirmar não há duplicates no codebase
 ```
@@ -154,8 +154,8 @@ Para verificar que o enforcement funciona:
 # Scan for hardcoded secrets
 grep -rE "ghp_[a-zA-Z0-9]{36}|sk-[a-zA-Z0-9]{48}" --include="*.py" --include="*.ts" --include="*.js" .
 
-# Verificar que InfisicalClient está a ser usado
-grep -r "InfisicalClient" --include="*.py" .
+# Verificar que 
+grep -r "
 
 # Verificar exceptions
 cat docs/GOVERNANCE/EXCEPTIONS.md
@@ -164,5 +164,5 @@ cat docs/GOVERNANCE/EXCEPTIONS.md
 ---
 
 **Authority:** will-zappro
-**Spec:** SPEC-029-INFISICAL-SDK-MANDATORY.md
+**Spec:** 
 **Last updated:** 2026-04-12

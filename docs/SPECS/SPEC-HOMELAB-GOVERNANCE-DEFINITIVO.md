@@ -36,9 +36,9 @@ Criar um governance framework que garante **zero breakage** do homelab, mesmo qu
 
 | Serviço | Container | Porta | Versão | Motivo Imutabilidade |
 |---------|-----------|-------|--------|----------------------|
-| **Kokoro TTS** | `zappro-kokoro` | 8012 | `ghcr.io/remsky/kokoro-fastapi-gpu:v0.2.2` | Validado com OpenClaw; voz pm_santa/pf_dora testadas |
-| **wav2vec2 STT** | `zappro-wav2vec2` | 8201 | `jonatasgrosman/wav2vec2-large-xlsr-53-portuguese` | Watchdog OpenClaw depende da API exacta |
-| **OpenClaw Bot** | `openclaw-qgtzrmi...` | 8080 | `2026.2.6` | Mudar modelo primary quebra `api: undefined` |
+| **** | `zappro-` | 8012 | `ghcr.io/remsky/:v0.2.2` | Validado com ; voz pm_santa/pf_dora testadas |
+| **wav2vec2 STT** | `zappro-wav2vec2` | 8201 | `jonatasgrosman/wav2vec2-large-xlsr-53-portuguese` | Watchdog |
+| **** | `...` | 8080 | `2026.2.6` | Mudar modelo primary quebra `api: undefined` |
 | **TTS Bridge** | `zappro-tts-bridge` | 8013 | `python:3.11-slim + tts-bridge.py` | Filtro de vozes — 65 vozes bloqueadas |
 | **LiteLLM Proxy** | `zappro-litellm` | 4000 | `latest` (config.yaml pinado) | Proxy GPU para vision/embeddings |
 | **Coolify Traefik** | `coolify-proxy` | 8080 | `4.0.0-beta.470` | Conflito porta 8080 documentado |
@@ -48,7 +48,7 @@ Criar um governance framework que garante **zero breakage** do homelab, mesmo qu
 | **Loki** | `loki` | 3100 | `3.4.2` | IMMUTABLE — logs |
 | **AlertManager** | `alertmanager` | 9093 | `0.31.1` | IMMUTABLE — alertas |
 | **Qdrant** | `qdrant` | 6333 | latest | Vector DB |
-| **Infisical** | `infisical-db` | 5432 | latest | Secrets vault |
+| **** | `` | 5432 | latest | Secrets vault |
 
 ### 1.2 Vozes PT-BR Protegidas
 
@@ -63,8 +63,8 @@ Criar um governance framework que garante **zero breakage** do homelab, mesmo qu
 
 | Rede | Containers | Motivo |
 |------|-----------|--------|
-| `zappro-lite_default` | Kokoro, wav2vec2, LiteLLM | Stack de voz validado junto |
-| `openclaw-qgtzrmi...` | OpenClaw + Traefik | Routing depende desta rede |
+| `zappro-lite_default` | , wav2vec2, LiteLLM | Stack de voz validado junto |
+| `...` | + Traefik | Routing depende desta rede |
 
 ---
 
@@ -108,27 +108,27 @@ ollama cp gemma2-9b-it-v1 gemma2-9b-it
 - security patch no Ollama runtime
 - Nunca: "latest is better" sem critério
 
-### 2.3 Kokoro TTS — Safe Upgrade Pattern
+### 2.3 — Safe Upgrade Pattern
 
 **Arquitetura:** Container version + voice models (HuggingFace). Actualização do container requer smoke test completo.
 
 ```bash
 # 1. ZFS snapshot PRIMEIRO
-sudo zfs snapshot -r tank@pre-kokoro-upgrade-$(date +%Y%m%d-%H%M%S)
+sudo zfs snapshot -r tank@pre-$(date +%Y%m%d-%H%M%S)
 
 # 2. Pull nova versão em staging
-docker pull ghcr.io/remsky/kokoro-fastapi-gpu:v0.3.x
+docker pull ghcr.io/remsky/:v0.3.x
 
 # 3. Testar vozes pm_santa e pf_dora
 curl -X POST http://localhost:8012/v1/audio/speech \
-  -d '{"model":"kokoro","input":"Teste","voice":"pm_santa"}' | head -c 100
+  -d '{"model":"","input":"Teste","voice":"pm_santa"}' | head -c 100
 
 # 4. Se OK: update tag em docker-compose/Coolify
 # 5. Se falhou: rollback
-docker tag ghcr.io/remsky/kokoro-fastapi-gpu:v0.2.2 ghcr.io/remsky/kokoro-fastapi-gpu:latest
+docker tag ghcr.io/remsky/:v0.2.2 ghcr.io/remsky/:latest
 ```
 
-**Version atual Kokoro:** v0.2.2 (pinada em 2026-03-20)
+**Version atual :** v0.2.2 (pinada em 2026-03-20)
 **Próxima versão a avaliar:** v0.3.x — requer validação completa.
 
 ### 2.4 wav2vec2 STT — Safe Upgrade Pattern
@@ -158,10 +158,10 @@ python -c "from transformers import AutoModel; AutoModel.from_pretrained('jonata
 
 ```bash
 # Mudar para novo endpoint API requer:
-# 1. Atualizar openclaw.json com novo base URL
+# 1. Atualizar .json com novo base URL
 # 2. Teste de smoke com mensagem simples
 # 3. Verificar que streaming funciona
-# 4. Rollback: reverter openclaw.json
+# 4. Rollback: reverter .json
 ```
 
 ### 2.6 Docker Images — Upgrade de Serviço
@@ -171,7 +171,7 @@ python -c "from transformers import AutoModel; AutoModel.from_pretrained('jonata
 ```
 1. ZFS snapshot do dataset
 2. Pull da nova imagem em staging
-3. Smoke test pass (pipeline-openclaw-voice.sh)
+3. Smoke test pass (pipeline-.sh)
 4. Aprovação explícita de will
 5. Update do docker-compose/Coolify
 6. Monitoring 24h após deploy
@@ -281,8 +281,8 @@ healthcheck:
 **Configuração para containers memória-pesada:**
 
 ```yaml
-# TTS Bridge / Kokoro
-mem_limit: 1g           # Kokoro heap ~384MB + native ~400MB + headroom
+# TTS Bridge / 
+mem_limit: 1g           # ~384MB + native ~400MB + headroom
 memswap_limit: 1g       # NO swap — real-time audio
 memory-swappiness: 0    # Disable swap para latency-sensitive
 oom_score_adj: -100     # Prioridade acima de containers normais
@@ -300,13 +300,13 @@ restart: on-failure:3
 
 ### 3.5 Voice Pipeline Watchdog
 
-**Script:** `tasks/smoke-tests/voice-pipeline-loop.sh`
+**Script:** `tasks/smoke-tests/.sh`
 **Cron:** `*/5 * * * *` (a cada 5 minutos)
 
 ```
 Loop execution:
   1. curl TTS Bridge :8013/health
-  2. curl OpenClaw :8080/health
+  2. curl :8080/health
   3. curl wav2vec2 :8201/health
   4. curl LiteLLM :4000/health
 
@@ -387,7 +387,7 @@ groups:
 | Service | Schedule | Retention | Location |
 |---------|----------|-----------|----------|
 | Gitea dump | 02:30 daily | 7 dias | /srv/backups/gitea-dump-YYYYMMDD.tar.gz |
-| Infisical DB | 02:45 daily | 7 dias | /srv/backups/infisical-db-YYYYMMDD.sql |
+| | 02:45 daily | 7 dias | /srv/backups/.sql |
 | Qdrant | 03:00 daily | 7 dias | /srv/backups/qdrant-YYYYMMDD.tar.gz |
 | ZFS snapshots | 6h interval | 7 daily / 4 weekly / 6 monthly | tank (local) |
 
@@ -433,9 +433,9 @@ echo "$NEW_SNAP" > /srv/ops/backup-lastsnap.txt
 tar -tzf /srv/backups/gitea-dump-$(date +%Y%m%d).tar.gz | head -5
 
 # 2. PostgreSQL dump integrity
-docker exec infisical-db psql -U infisical \
+docker exec \
   -c "SELECT 1 FROM information_schema.tables LIMIT 1" \
-  < /srv/backups/infisical-db-$(date +%Y%m%d).sql | head -3
+  < /srv/backups/$(date +%Y%m%d).sql | head -3
 
 # 3. Qdrant checksum
 sha256sum /srv/backups/qdrant-*.tar.gz && cat /srv/backups/qdrant-*.sha256
@@ -533,10 +533,10 @@ jobs:
 ### 6.5 Secrets em Gitea Actions
 
 ```yaml
-- name: Fetch secrets from Infisical
+- name: Fetch secrets from 
   run: |
-    npm install -g @infisical/infisical-cli
-    infisical secrets pull --format=env --env=production > .env
+    npm install -g @/
+    =env --env=production > .env
   env:
     INFISICAL_TOKEN: ${{ secrets.INFISICAL_TOKEN }}
 ```
@@ -594,16 +594,16 @@ Policy 2: Allow
 | Situação | Resposta Correta |
 |----------|-----------------|
 | "Vamos atualizar para latest" | ❌ REJEITAR — stack validado usa versão pinada |
-| "Trocar Kokoro por Silero TTS" | ❌ REJEITAR — OpenClaw routing depende de Kokoro |
+| "Trocar " | ❌ REJEITAR — |
 | "Usar Deepgram direto" | ❌ REJEITAR — wav2vec2 é o STT kanônico |
-| "TTS direto ao Kokoro" | ❌ REJEITAR — usar TTS Bridge :8013 |
+| "TTS direto ao " | ❌ REJEITAR — usar TTS Bridge :8013 |
 | "LiteLLM como primario MiniMax" | ❌ REJEITAR — causa `api: undefined` crash |
 | "Vamos limpar containers órfãos" | ❌ REJEITAR — pode remover modelos Ollama |
 | "Usar porta 8080" | ❌ REJEITAR — coolify-proxy + cloudflared usam |
 
 ### 8.2 Circuit Breaker para MiniMax API
 
-**Problema:** Se MiniMax API falha, OpenClaw fica hanging sem fallback.
+**Problema:** Se MiniMax API falha, .
 
 **Fallback chain:**
 ```
@@ -625,7 +625,7 @@ wav2vec2 :8201 → UP → transcribe
 ### 8.4 TTS Cached Audio Fallback
 
 ```
-Kokoro :8880 → UP → synthesize
+:8880 → UP → synthesize
          └→ FAIL 503 → Redis cache hit
                       └→ MISS → return cached greeting or text-only
 ```
@@ -705,7 +705,7 @@ Se um agente viola este governance:
 |------|--------|
 | TTS cached audio fallback | 🔄 Design documented |
 | GPU memory threshold alert | 🔄 Design documented |
-| Secret scanning pre-commit hook | 🔄 Infisical supports |
+| Secret scanning pre-commit hook | 🔄 |
 | Ollama model upgrade rollback test | 🔄 Procedure documented |
 | Voice pipeline chaos testing | 🔄 Design documented |
 
@@ -715,9 +715,9 @@ Se um agente viola este governance:
 
 | Component | Version | Pin Date | Next Review |
 |-----------|---------|-----------|-------------|
-| Kokoro TTS | v0.2.2 | 2026-03-20 | 2026-06-20 |
+| | v0.2.2 | 2026-03-20 | 2026-06-20 |
 | wav2vec2 model | jonatasgrosman/wav2vec2-large-xlsr-53-portuguese | 2026-03-15 | 2026-09-15 |
-| OpenClaw | 2026.2.6 | 2026-03-10 | 2026-06-10 |
+| | 2026.2.6 | 2026-03-10 | 2026-06-10 |
 | TTS Bridge | stdlib + tts-bridge.py | 2026-04-08 | 2026-07-08 |
 | Prometheus | 3.11.1 | 2026-03-01 | IMMUTABLE |
 | Grafana | 12.4.2 | 2026-03-01 | IMMUTABLE |
@@ -740,7 +740,7 @@ cat /sys/module/zfs/parameters/zfs_arc_max
 docker inspect <container> --format '{{.RestartCount}}'
 
 # Voice pipeline smoke test
-bash tasks/smoke-tests/voice-pipeline-loop.sh
+bash tasks/smoke-tests/.sh
 
 # Prometheus targets
 curl -s http://localhost:9090/api/v1/targets | jq '.data.activeTargets[] | .labels.job, .health'

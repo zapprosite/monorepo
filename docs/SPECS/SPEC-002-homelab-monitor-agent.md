@@ -17,7 +17,7 @@ Agente de monitorização para o homelab will-zappro — agrega estado de Docker
 - **Coolify:** API em `http://localhost:3000` (ou cooler DNS)
 - **Qdrant:** `http://localhost:6333` — estado indexado
 - **Telegram:** Bot alerts via `TELEGRAM_BOT_TOKEN` (vault)
-- **Vault:** Infisical — todas as credenciais
+- **Vault:** — todas as credenciais
 
 ---
 
@@ -91,7 +91,7 @@ python3 agent.py --health
 │   ├── __init__.py
 │   └── telegram.py       # Telegram bot alerts
 ├── qdrant.py             # Index state snapshots to Qdrant
-├── config.py             # Load from vault (Infisical SDK)
+├── config.py             # Load from vault ()
 ├── requirements.txt
 └── tests/
     ├── test_docker.py
@@ -126,7 +126,7 @@ Mock Ollama/Docker responses para unit tests. Integration tests correm nohost.
 ## Boundaries
 
 **Always:**
-- Ler credenciais só do vault (Infisical SDK)
+- Ler credenciais só do vault ()
 - Output JSON estruturado para logs
 - Healthcheck antes de cada scan — skip se serviço down
 - Graceful degradation — se um scanner falha, os outros continuam

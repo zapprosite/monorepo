@@ -351,7 +351,7 @@ Developer faz push  ──▶  Recebe webhook    ──▶  Parse payload
 # NOME=SECRET_VALUE
 
 # ⚠️ IMPORTANTE: Secrets do Coolify são gerenciadas via INFISICAL
-# Ver: manter_infisical.md e guide-manutencao-continua.md
+# Ver: manter_.md e guide-manutencao-continua.md
 # Secrets críticas: APP_KEY, DB_PASSWORD, REDIS_PASSWORD, etc.
 
 # Variáveis públicas no .env (sem valores sensíveis)
@@ -674,7 +674,7 @@ Adiciona nova funcionalidade X:
 | Gitea Webhooks | Repo → Settings → Webhooks |
 | Coolify API | `https://coolify.zappro.site/api/v1` |
 | Guardrails | `/srv/ops/ai-governance/GUARDRAILS.md` |
-| manter_infisical.md | Secrets e vault |
+| manter_.md | Secrets e vault |
 | Coolify Git | `github.com/coollabsio/coolify` |
 | Claude Code Plugins | `~/.claude/plugins/` |
 | Gitea Webhooks | Repo → Settings → Webhooks |

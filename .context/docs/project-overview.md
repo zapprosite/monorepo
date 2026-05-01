@@ -12,7 +12,7 @@ The repository is organized using **Yarn Workspaces** and **Turborepo**, separat
 
 *   **`apps/api`**: The core backend service. Built with **Fastify 5**, it hosts the **tRPC** router, REST endpoints, and background workers. It uses **Orchid ORM** for type-safe database interactions and session management.
 *   **`apps/web`**: The main frontend application. A **React 19** SPA powered by **Vite**, **TanStack Query**, and **Material-UI (MUI)**. It consumes the API via a type-safe tRPC client.
-*   **`apps/ai-gateway`**: A specialized service providing an OpenAI-compatible interface, handling audio (STT/TTS), chat completions, and vision processing (Ollama/Kokoro/Whisper).
+*   **`apps/ai-gateway`**: A specialized service providing an OpenAI-compatible interface, handling audio (STT/TTS), chat completions, and vision processing (Ollama//Whisper).
 *   **`apps/hermes-agency`**: A multi-agent framework utilizing **LangGraph**, **LiteLLM**, and **Qdrant** for complex AI workflows, social media automation, and Telegram bot interactions.
 
 ### 2. Shared Packages (`packages/`)

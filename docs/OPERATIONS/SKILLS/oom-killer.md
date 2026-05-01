@@ -103,7 +103,7 @@ MEMORY EMERGENCY DETECTED
 | n8n | ~1GiB | Workflow complexity dependent |
 | cadvisor | ~200MiB | Lightweight |
 | qdrant | ~4GiB | Vector DB, disk-based |
-| OpenClaw | ~500MiB | Telegram bot |
+| | ~500MiB | Telegram bot |
 | Gitea | ~1GiB | Git operations |
 
 > Note: Detect limits dynamically with `docker stats --no-stream` showing actual usage vs limit
@@ -183,7 +183,7 @@ docker stats --no-stream --no-trunc --format "{{.Name}}\t{{.MemUsage}}\t{{.MemPe
 nvidia-smi --query-gpu=memory.used,memory.free,memory.total --format=csv
 
 # 2. Find container using GPU
-docker ps | grep -E "ollama|kokoro"  # common GPU containers
+docker ps | grep -E "ollama|"  # common GPU containers
 
 # 3. Check if any container shows GPU OOM
 docker ps -a | grep OOMKilled

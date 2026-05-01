@@ -1,4 +1,4 @@
-# SPEC-009: OpenClaw Persona + Audio Stack — PT-BR
+# SPEC-009: + Audio Stack — PT-BR
 
 ## Status: PROTEGIDO — NÃO ALTERAR
 
@@ -9,7 +9,7 @@
 
 ## Visão Geral
 
-Este documento define a configuracao canonical do OpenClaw Bot para voz PT-BR. Qualquer LLM ou agente que proponha mudancas deve consultar este documento primeiro.
+Este documento define a configuracao canonical do . Qualquer LLM ou agente que proponha mudancas deve consultar este documento primeiro.
 
 ---
 
@@ -36,7 +36,7 @@ qwen2.5-vl:8201      :8013
                       │ [OUTRAS] → 400 Bad Request
                       ▼
                ┌──────────────┐
-               │ Kokoro :8880 │
+               │ :8880 │
                │ (67 vozes)   │
                └──────────────┘
 ```
@@ -51,9 +51,9 @@ qwen2.5-vl:8201      :8013
 **Linguagem:** PT-BR Native (5.8M+ downloads)
 **VRAM:** ~2GB
 
-### Configuracao OpenClaw
+### Configuracao 
 
-O OpenClaw usa STT via `OLLAMA_BASE_URL`:
+O `OLLAMA_BASE_URL`:
 ```
 OLLAMA_BASE_URL=http://wav2vec2:8201
 ```
@@ -72,7 +72,7 @@ OLLAMA_BASE_URL=http://wav2vec2:8201
 
 ## TTS — Text-to-Speech
 
-**Servico:** Kokoro TTS via TTS Bridge (proxy)
+**Servico:** (proxy)
 **Porta Bridge:** `8013` (bind local: 127.0.0.1:8013)
 **Rede:** `qgtzrmi6771lt8l7x8rqx72f` + `zappro-lite_default`
 **Bridge IP:** `10.0.19.5` (qgtzrmi) / `10.0.2.6` (zappro-lite)
@@ -86,7 +86,7 @@ OLLAMA_BASE_URL=http://wav2vec2:8201
 
 ### Vozes Bloqueadas — HTTP 400
 
-Todas as outras 65 vozes Kokoro retornam `400 Bad Request`:
+Todas as outras 65 vozes `400 Bad Request`:
 - `af_*` (American Female) — 18 vozes
 - `am_*` (American Male) — 12 vozes
 - `bf_*`, `bm_*` (British) — 11 vozes
@@ -97,12 +97,12 @@ Todas as outras 65 vozes Kokoro retornam `400 Bad Request`:
 
 | Provider/Config | Razão |
 |-----------------|-------|
-| Kokoro direto `:8880` | Sem filtro de vozes — usar TTS Bridge |
-| Qualquer outra voz Kokoro | Only pm_santa + pf_dora permitidas |
+| `:8880` | Sem filtro de vozes — usar TTS Bridge |
+| Qualquer outra voz | Only pm_santa + pf_dora permitidas |
 | ElevenLabs | Nao e PT-BR native |
-| OpenAI TTS | Nao e Kokoro |
+| OpenAI TTS | Nao e |
 
-### Configuracao OpenClaw (openclaw.json)
+### Configuracao (.json)
 
 ```json
 {
@@ -119,7 +119,7 @@ Todas as outras 65 vozes Kokoro retornam `400 Bad Request`:
 }
 ```
 
-**IMPORTANTE:** `baseUrl` deve ser o TTS Bridge, NAO Kokoro direto.
+**IMPORTANTE:** `baseUrl` deve ser o TTS Bridge, NAO .
 
 ---
 
@@ -146,7 +146,7 @@ Todas as outras 65 vozes Kokoro retornam `400 Bad Request`:
 **Provider:** `liteLLM`
 **GPU:** Ollama local
 
-### Configuracao OpenClaw (openclaw.json)
+### Configuracao (.json)
 
 ```json
 {
@@ -197,7 +197,7 @@ Todas as outras 65 vozes Kokoro retornam `400 Bad Request`:
 |----------|-----------------|
 | LLM sugere "vamos usar Deepgram" | REJEITAR — wav2vec2 e o STT padrao |
 | LLM sugere "mudar voz para af_sarah" | REJEITAR — apenas pm_santa/pf_dora |
-| LLM propõe "TTS direto ao Kokoro" | REJEITAR — usar TTS Bridge |
+| LLM propõe "TTS direto ao " | REJEITAR — usar TTS Bridge |
 | LLM sugere "colocar MiniMax no LiteLLM" | REJEITAR — primarios chamam direto |
 | LLM propõe "usar Whisper" | REJEITAR — wav2vec2 e PT-BR native |
 
@@ -208,7 +208,7 @@ Todas as outras 65 vozes Kokoro retornam `400 Bad Request`:
 ```
 ANTES DE PROPOR QUALQUER MUDANCA:
 □ STT: e wav2vec2 :8201? (NAO Deepgram, NAO Whisper)
-□ TTS: esta usando TTS Bridge :8013? (NAO Kokoro direto)
+□ TTS: esta usando TTS Bridge :8013? (NAO )
 □ TTS Voice: e pm_santa ou pf_dora? (NAO outra)
 □ LLM Primo: e minimax/MiniMax-M2.7? (NAO via LiteLLM)
 □ Vision: e litellm/qwen2.5-vl? (NAO GPT-4V, llava foi substituido)
@@ -227,7 +227,7 @@ ANTES DE PROPOR QUALQUER MUDANCA:
 | `docs/GOVERNANCE/PINNED-SERVICES.md` | Servicos immutaveis |
 | `docs/GOVERNANCE/GUARDRAILS.md` | Proibidos e requer aprovacao |
 | `docs/GOVERNANCE/ANTI-FRAGILITY.md` | Stability markers |
-| `.claude/rules/openclaw-audio-governance.md` | Rules para LLM |
+| `.claude/rules/.md` | Rules para LLM |
 
 ---
 

@@ -1,4 +1,4 @@
-# SPEC-004: Kokoro TTS Kit — PT-BR Voice Synthesis
+# SPEC-004: — PT-BR Voice Synthesis
 
 ## Status: PROTEGIDO — NÃO ALTERAR
 
@@ -11,26 +11,26 @@ Kit de síntese de voz brasileira para o homelab. **Este kit é intocável** —
 ## Arquitetura
 
 ```
-OpenClaw Bot
+
     │
-    ├─► Kokoro TTS (port 8012)
+    ├─► (port 8012)
     │       │
     │       └─► pm_santa  (PT-BR Masculino) ← USAR SEMPRE
     │       └─► pf_dora   (PT-BR Feminino) ← fallback
     │
     └─► LiteLLM Proxy (port 4000)
             │
-            └─► Transforma Kokoro em OpenAI TTS compatible
+            └─► Transforma 
 ```
 
 ---
 
-## Kokoro TTS — Especificações
+## — Especificações
 
 | Atributo | Valor |
 |----------|-------|
-| **Container** | `zappro-kokoro` |
-| **Image** | `ghcr.io/remsky/kokoro-fastapi-gpu:v0.2.2` |
+| **Container** | `zappro-` |
+| **Image** | `ghcr.io/remsky/:v0.2.2` |
 | **Port** | `127.0.0.1:8012` |
 | **Rede** | `zappro-lite` |
 | **API** | OpenAI-compatible `/v1/audio/speech` |
@@ -45,29 +45,29 @@ OpenClaw Bot
 
 ---
 
-## LiteLLM Integration (OpenClaw Compatibility)
+## LiteLLM Integration ()
 
 ### Problema
-OpenClaw espera API OpenAI TTS (`/v1/audio/speech`). Kokoro implementa o mesmo endpoint — **é compatível nativamente**.
+(`/v1/audio/speech`). — **é compatível nativamente**.
 
 ### Configuração LiteLLM
 
 ```yaml
 # /srv/ops/litellm/config.yaml
 model_list:
-  - model_name: kokoro-tts
+  - model_name: 
     litellm_params:
-      model: kokoro/local
+      model: /local
       api_base: http://localhost:8012/v1
       rpm: 10
       tts_response_format: wav
 ```
 
-### Transformação OpenAI → Kokoro
+### Transformação OpenAI → 
 
-| OpenClaw Request | LiteLLM Route | Kokoro Endpoint |
+| | LiteLLM Route | |
 |-----------------|---------------|-----------------|
-| `model: kokoro` | `kokoro-tts` | `http://localhost:8012/v1/audio/speech` |
+| `model: ` | `` | `http://localhost:8012/v1/audio/speech` |
 | `voice: pm_santa` | Pass-through | `pm_santa` |
 
 ---
@@ -76,7 +76,7 @@ model_list:
 
 ### ⚠️ PROIBIDO — LLM NUNCA PODE IGNORAR
 
-1. **Imagem do container** — `ghcr.io/remsky/kokoro-fastapi-gpu:v0.2.2` é IMUTÁVEL
+1. **Imagem do container** — `ghcr.io/remsky/:v0.2.2` é IMUTÁVEL
    - `chattr +i` no docker-compose.yml
    - Qualquer upgrade deve ser aprovado por will-zappro
 
@@ -85,11 +85,11 @@ model_list:
    - NUNCA remover ou modificar vozes
    - LLM que sugerir "vamos trocar" = VIOLAÇÃO
 
-3. **Porta** — `127.0.0.1:8012` é a porta oficial do Kokoro
+3. **Porta** — `127.0.0.1:8012` é a porta oficial do 
 
 4. **Redis cache** — `zappro-redis` deve estar sempre online
 
-5. **Substituição PROIBIDA** — Kokoro NÃO pode ser trocado por:
+5. **Substituição PROIBIDA** — :
    - Coqui TTS
    - Silero TTS
    - StyleTTS
@@ -98,7 +98,7 @@ model_list:
 
 ### ⚠️ REQUER APROVAÇÃO
 
-- Upgrade de versão do Kokoro
+- Upgrade de versão do 
 - Adição de novas vozes PT-BR
 - Mudança de porta ou endpoint
 - Modificação de parâmetros de qualidade
@@ -110,7 +110,7 @@ model_list:
 
 ```
 Quando receber task de VOZ/TTS:
-1. Usar Kokoro (pm_santa) — PADRÃO
+1. Usar (pm_santa) — PADRÃO
 2. Se feminina necessária → pf_dora
 3. Se não funcionar → verificar liteLLM config
 4. NUNCA substituir por outro TTS sem aprovação
@@ -127,13 +127,13 @@ curl -s http://localhost:8012/health
 # Teste pm_santa
 curl -s -X POST http://localhost:8012/v1/audio/speech \
   -H "Content-Type: application/json" \
-  -d '{"model":"kokoro","input":"Teste","voice":"pm_santa"}' \
+  -d '{"model":"","input":"Teste","voice":"pm_santa"}' \
   -o /tmp/test.wav && echo "OK"
 
 # Teste pf_dora
 curl -s -X POST http://localhost:8012/v1/audio/speech \
   -H "Content-Type: application/json" \
-  -d '{"model":"kokoro","input":"Teste","voice":"pf_dora"}' \
+  -d '{"model":"","input":"Teste","voice":"pf_dora"}' \
   -o /tmp/test2.wav && echo "OK"
 ```
 
@@ -141,14 +141,14 @@ curl -s -X POST http://localhost:8012/v1/audio/speech \
 
 ## VRAM
 
-- Kokoro GPU: ~300-500MB ( ONNX, leve)
+- : ~300-500MB ( ONNX, leve)
 - Total com whisper + gemma2-9b-it: ~20GB / 24GB
 
 ---
 
 ## Referências
 
-- Skill: `/srv/monorepo/docs/OPERATIONS/SKILLS/kokoro-health-check.md`
+- Skill: `/srv/monorepo/docs/OPERATIONS/SKILLS/.md`
 - ADR: `/srv/monorepo/docs/ADRs/20260404-voice-dev-pipeline.md`
 - LiteLLM: `/srv/ops/litellm/config.yaml`
 

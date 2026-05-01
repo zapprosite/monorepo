@@ -5,7 +5,7 @@ status: COMPLETED
 priority: critical
 author: will-zappro
 date: 2026-04-12
-specRef: SPEC-AUDIT-FIXES-2026-04-12.md, SPEC-009-openclaw-persona-audio-stack.md, SPEC-HOMELAB-GOVERNANCE-DEFINITIVO.md
+specRef: SPEC-AUDIT-FIXES-2026-04-12.md, SPEC-009-.md, SPEC-HOMELAB-GOVERNANCE-DEFINITIVO.md
 ---
 
 # Homelab Audit — 2026-04-12
@@ -23,9 +23,9 @@ specRef: SPEC-AUDIT-FIXES-2026-04-12.md, SPEC-009-openclaw-persona-audio-stack.m
 
 ### 2. Voice Pipeline Engineering Brilhante
 - **Deepgram proxy pattern** (SPEC-018): wav2vec2 parece Deepgram cloud — isolamento elegante
-- **TTS Bridge voice filtering**: bloqueia 65/67 vozes Kokoro, só pm_santa e pf_dora
+- **TTS Bridge voice filtering**: bloqueia 65/67 vozes , só pm_santa e pf_dora
 - STT: wav2vec2-large-xlsr-53-portuguese (PT-BR native, 5.8M downloads)
-- TTS: Kokoro v0.2.2 com governance correta
+- TTS: 0.2.2 com governance correta
 - LLM enhancement layer: llama3-portuguese-tomcat-8b-instruct-q8
 
 ### 3. Governance de Audio Imutável
@@ -54,7 +54,7 @@ specRef: SPEC-AUDIT-FIXES-2026-04-12.md, SPEC-009-openclaw-persona-audio-stack.m
 
 ### 7. Security Hardening
 - MASTER_PASSWORD USB + SHA256 hash
-- Infisical self-hosted (vault.zappro.site)
+- (vault.zappro.site)
 - Cloudflare Access + Zero Trust
 - 8 serviços IMMUTABLE, 6 PINNED
 - ZFS encryption em uso
@@ -67,7 +67,7 @@ specRef: SPEC-AUDIT-FIXES-2026-04-12.md, SPEC-009-openclaw-persona-audio-stack.m
 
 #### 1. TTS Bridge — RESTARTED (partial)
 **Status:** TTS Bridge reiniciado e UP há 40h. Health 200 OK. Memory limits nao aplicadas.
-**Problema:** Exit 137 (OOM). OpenClaw estava usando Kokoro direto :8880 com pm_alex — viola governance.
+**Problema:** Exit 137 (OOM). :8880 com pm_alex — viola governance.
 **Solução aplicada:**
 ```bash
 docker stop zappro-tts-bridge && docker rm zappro-tts-bridge
@@ -88,15 +88,15 @@ echo 8589934592 > /sys/module/zfs/parameters/zfs_arc_max
 **Pendente:** swap < 50% após 1h de observacao; container stability sem OOM
 **Dependência:** nenhuma (aplicado sem reboot)
 
-#### 3. voice-pipeline-loop.sh — ATIVADO
+#### 3. .sh — ATIVADO
 **Status:** CRON ATIVO. Loop executando a cada 5 min com log.
 **Problema:** Script existe em `tasks/smoke-tests/` mas cron não estava ativo.
 **Solução aplicada:**
 ```bash
-(crontab -l 2>/dev/null | grep -v voice-pipeline-loop; \
-echo "*/5 * * * * /srv/monorepo/tasks/smoke-tests/voice-pipeline-loop.sh >> /srv/monorepo/logs/voice-pipeline/loop.log 2>&1") | crontab -
+(crontab -l 2>/dev/null | grep -v ; \
+echo "*/5 * * * * /srv/monorepo/tasks/smoke-tests/.sh >> /srv/monorepo/logs//loop.log 2>&1") | crontab -
 ```
-**Verificacao 2026-04-12:** `crontab -l` → `*/5 * * * * /srv/monorepo/tasks/smoke-tests/voice-pipeline-loop.sh`; loop.log existente em `/srv/monorepo/logs/voice-pipeline/`
+**Verificacao 2026-04-12:** `crontab -l` → `*/5 * * * * /srv/monorepo/tasks/smoke-tests/.sh`; loop.log existente em `/srv/monorepo/logs//`
 
 #### 4. SPEC Conflicts — PENDENTE
 **Status:** Nao resolvido. Documentado em SPEC-AUDIT-FIXES-2026-04-12.
@@ -140,24 +140,24 @@ docker stop nvidia-gpu-exporter
 **Problema:** Brute-force target.
 **Solução:** Restringir a Tailscale-only ou usar jump-host pattern
 
-#### 8. Gitea e Infisical DB sem backup no cron
-**Problema:** Só Qdrant tem backup diário. Gitea e Infisical DB não têm.
+#### 8. Gitea e 
+**Problema:** Só Qdrant tem backup diário. Gitea e .
 **Solução:**
 ```bash
 # Adicionar ao crontab
 0 2 * * * docker exec gitea gitea dump --database --target /srv/backups/gitea-dump-$(date +\%Y\%m%d).zip
-0 2 * * * docker exec infisical-db pg_dump -U infisical > /srv/backups/infisical-db-$(date +\%Y\%m%d).sql
+0 2 * * * docker exec _dump -U > /srv/backups/$(date +\%Y\%m%d).sql
 ```
 
 #### 9. alert-deduplicator.md NÃO deployado
 **Problema:** Skill existe mas não está ativo. Alert fatigue constante.
 **Solução:** Deployar o skill documentado
 
-#### 10. openclaw-qgtzrmi6771lt8l7x8rqx72f reiniciou após 26 min
+#### 10. 6771lt8l7x8rqx72f reiniciou após 26 min
 **Problema:** Indica crash/OOM. Verificar logs.
 **Solução:**
 ```bash
-docker logs openclaw-qgtzrmi6771lt8l7x8rqx72f --tail 100
+docker logs 6771lt8l7x8rqx72f --tail 100
 # Se OOM: adicionar memory limits
 ```
 
@@ -169,7 +169,7 @@ docker logs openclaw-qgtzrmi6771lt8l7x8rqx72f --tail 100
 **Problema:** n8n e apps criam muitas conexões diretas.
 **Solução:** Adicionar PgBouncer em transaction mode na frente do PostgreSQL
 
-#### 12. Dragonfly > Redis para infisical-redis
+#### 12. Dragonfly > Redis para 
 **Problema:** Redis single-threaded. Dragonfly é 3-5x mais rápido, multi-threaded, 50% menos memória.
 **Solução:** Benchmark com `dragondragon/dragonfly` como drop-in replacement
 
@@ -227,7 +227,7 @@ docker logs openclaw-qgtzrmi6771lt8l7x8rqx72f --tail 100
 | **GPU** | RTX 4090 24GB | RTX 5090 32GB disponível | Still great — upgrade path clear |
 | **Inference** | Ollama + GGUF Q4 | vLLM 2-5x faster | Adequate — upgrade when needed |
 | **STT** | wav2vec2 PT-BR ✅ | No improvement needed | Best for PT-BR |
-| **TTS** | Kokoro ✅ | No improvement needed | Best for PT-BR |
+| **TTS** | ✅ | No improvement needed | Best for PT-BR |
 | **Storage** | ZFS + Gen5 ✅ | No change needed | State of art |
 | **Containers** | Coolify + Docker ✅ | Podman not ready | Keep |
 | **CI/CD** | Gitea Actions ✅ | ArgoCD overkill | Keep |
@@ -238,7 +238,7 @@ docker logs openclaw-qgtzrmi6771lt8l7x8rqx72f --tail 100
 ## AÇÃO IMEDIATA (Top 5)
 
 1. **FIX TTS Bridge** — `docker restart zappro-tts-bridge` com memory limits
-2. **ADD voice-pipeline-loop cron** — ativar script existente
+2. **ADD ** — ativar script existente
 3. **FIX ZFS ARC** — limitar a 8GB
 4. **VERIFY chat.zappro.site Access** — adicionar policy
 5. **ADD Gitea backup** — ao cron

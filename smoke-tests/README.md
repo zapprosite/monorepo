@@ -95,7 +95,7 @@ pytest smoke-tests/smoke-tests/smoke_hermes_telegram.py -m cli -v
 ### Gravar novos fixtures
 
 ```bash
-# Áudio — usar TTS Bridge Kokoro
+# Áudio — usar TTS Bridge 
 curl -X POST http://localhost:8013/tts \
   -H "Content-Type: application/json" \
   -d '{"text": "Olá mundo", "voice": "pm_santa"}' \

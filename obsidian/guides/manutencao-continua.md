@@ -142,7 +142,7 @@ docker compose pull && docker compose up -d
 # Verificar
 nvidia-smi | grep "Driver Version"
 
-# ⚠️ Atualizar driver NVIDIA pode quebrar Ollama, Kokoro, Coolify GPU features
+# ⚠️ Atualizar driver NVIDIA pode quebrar Ollama, , Coolify GPU features
 # Só atualizar se GPU Para de funcionar completamente
 ```
 
@@ -274,7 +274,7 @@ journalctl -u cloudflared --no-pager -n 20 | grep -E "2222|3300|SSH"
 # 1. Verificar portas dos serviços
 # Gitea web: 3300 (não 2222!)
 # Coolify: 8000
-# OpenClaw: 4001
+# : 4001
 
 # 2. Ver config.yml
 cat ~/.cloudflared/config.yml | grep -A2 "git.zappro"
@@ -300,7 +300,7 @@ curl -sI https://git.zappro.site
 | Gitea Web | 3300 | git.zappro.site |
 | Gitea SSH | 2222 | (não exposto via tunnel) |
 | Coolify | 8000 | coolify.zappro.site |
-| OpenClaw | 4001 | bot.zappro.site |
+| | 4001 | bot.zappro.site |
 | Vault | 8200 | vault.zappro.site |
 
 **Nota:** O config local (`~/.cloudflared/config.yml`) é o que importa para cloudflared.
@@ -394,7 +394,7 @@ ausearch -k user_mod --i | tail -10
 
 ---
 
-## 12. Secrets — Infisical Vault
+## 12. Secrets — 
 
 ### Configuração
 | Item | Valor |
@@ -412,32 +412,32 @@ curl -s http://127.0.0.1:8200/api/status | python3 -m json.tool
 
 # 2. Token válido?
 python3 -c "
-from infisical_sdk import InfisicalSDKClient
-c = InfisicalSDKClient(host='http://127.0.0.1:8200', token='st.799590ae-d36f-4e64-b940-aea0fb85cad8.6e0c269870bb4b5e004e3ed6ab3a1fe1.c9872f2b30bc650e7b27c851df04b0ad')
+from _sdk import 
+c = (host='http://127.0.0.1:8200', token='st.799590ae-d36f-4e64-b940-aea0fb85cad8.6e0c269870bb4b5e004e3ed6ab3a1fe1.c9872f2b30bc650e7b27c851df04b0ad')
 s = c.secrets.list_secrets(project_id='e42657ef-98b2-4b9c-9a04-46c093bd6d37', environment_slug='dev', secret_path='/')
 print(f'Secrets no vault: {len(s.secrets)}')
 "
 ```
 
 ### Secrets Críticas (Sincronizar com manuais)
-**⚠️ NÃO COMMITAR** — estas estão no Infisical:
+**⚠️ NÃO COMMITAR** — estas estão no :
 - `APP_KEY` → Coolify root
 - `POSTGRES_PASSWORD` → coolify-db-password-2026
 - `REDIS_PASSWORD` → coolify-redis-password-2026
 - `ROOT_USER_PASSWORD` → Zappro2026!
-- `AUTH_SECRET` / `JWT_AUTH_SECRET` → OpenClaw auth
-- `OPENCLAW_GATEWAY_TOKEN` → OpenClaw gateway
+- `AUTH_SECRET` / `JWT_AUTH_SECRET` → 
+- `OPENCLAW_GATEWAY_TOKEN` → 
 - `GF_SECURITY_ADMIN_PASSWORD` → Grafana admin
 
 ### Atualização de Secrets
 ```bash
 # NÃO editar secrets diretamente nos containers
-# Usar Infisical SDK ou dashboard
+# Usar 
 
 # Via SDK Python:
 python3 << 'EOF'
-from infisical_sdk import InfisicalSDKClient
-client = InfisicalSDKClient(
+from _sdk import 
+client = (
     host="http://127.0.0.1:8200",
     token="st.799590ae-..."
 )
@@ -453,7 +453,7 @@ EOF
 
 ### Cruzamento de Secrets — Tabela de Referência
 
-| Secret | Infisical Path | Valor Real | Onde Usado |
+| Secret | | Valor Real | Onde Usado |
 |--------|---------------|------------|------------|
 | `APP_KEY` | coolify/app_key | `base64:jRrMu3906d/...` | Coolify |
 | `DB_PASSWORD` | coolify/db_password | `coolify-db-password-2026` | coolify-db |
@@ -462,7 +462,7 @@ EOF
 | `SENTINEL_TOKEN` | coolify/sentinel_token | JWT em server_settings | Sentinel auth |
 
 ### Referência Completa
-Ver `manter_infisical.md` para procedimentos detalhados.
+Ver `manter_.md` para procedimentos detalhados.
 
 ---
 
@@ -472,7 +472,7 @@ Ver `manter_infisical.md` para procedimentos detalhados.
 |------|------------|
 | `guide-security-hardening.md` | Auditoria e hardening inicial |
 | `guide-cli-gitea-coolify.md` | GitOps e deployment |
-| `manter_infisical.md` | Secrets e vault |
+| `manter_.md` | Secrets e vault |
 | `CLAUDE-CODE-REFERENCE.md` | CLI e ferramentas |
 | `/srv/ops/ai-governance/` | Governança completa |
 

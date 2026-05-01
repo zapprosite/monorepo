@@ -76,7 +76,7 @@ minimax-ot-01 (MiniMax via LiteLLM), ...
                     │           api.zappro.site           │
                     │            (LiteLLM proxy)          │
                     │                                     │
-  OpenClaw ────────│  LITELLM_MASTER_KEY ──────────────►│
+  
   OpenWebUI ───────│                                     │
   MCP-Qdrant ──────│                                     │
                     └─────────────────────────────────────┘
@@ -92,16 +92,16 @@ minimax-ot-01 (MiniMax via LiteLLM), ...
                          │  MINIMAX_TOKEN ──►│
                          └──────────────────┘
 
-  OpenClaw ──────────────│────────────────────────────────►
+  
   (chamadas diretas)     │   MINIMAX_TOKEN (não via proxy)
                          └────────────────────────────────►
 ```
 
 ---
 
-## OpenClaw Bot — Padrão
+## 
 
-**Referência:** `/srv/data/openclaw/AURELIA_SECRETS.env`
+**Referência:** `/srv/data/
 
 ```
 LITELLM_MASTER_KEY=sk-master-b83cfa00...   # LiteLLM proxy (api.zappro.site)

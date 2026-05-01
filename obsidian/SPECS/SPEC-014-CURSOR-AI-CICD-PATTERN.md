@@ -4,13 +4,13 @@
 **Created:** 2026-04-08
 **Updated:** 2026-04-08
 **Author:** will
-**Related:** SPEC-PERPLEXITY-GITOPS, SPEC-010 (OpenClaw Agents Kit), SPEC-011 (Agency Suite)
+**Related:** SPEC-PERPLEXITY-GITOPS, SPEC-010 (), SPEC-011 (Agency Suite)
 
 ---
 
 ## Objective
 
-Synthesize state-of-the-art CI/CD loop patterns from Cursor AI, Lovable, Bolt, and TaskMaster into actionable patterns for the monorepo. Define how AI agents integrate with GitOps pipelines, handle continuous review, and operate autonomously within the existing Gitea + Coolify + Infisical infrastructure.
+Synthesize state-of-the-art CI/CD loop patterns from Cursor AI, Lovable, Bolt, and TaskMaster into actionable patterns for the monorepo. Define how AI agents integrate with GitOps pipelines, handle continuous review, and operate autonomously within the existing Gitea + Coolify + .
 
 ---
 
@@ -212,13 +212,13 @@ Leader Agent (default: true)
       {
         id: "leader",
         default: true,
-        workspace: "~/.openclaw/workspace-leader",
+        workspace: "~/./workspace-leader",
         subagents: { allowAgents: ["*"] },
         tools: { profile: "coding" }
       },
       {
         id: "ops",
-        workspace: "~/.openclaw/workspace-ops",
+        workspace: "~/./workspace-ops",
         subagents: { allowAgents: [] },
         tools: { deny: ["browser", "canvas"] }
       }
@@ -238,7 +238,7 @@ Every AI agent session in the monorepo should follow this startup sequence:
 4. TaskBoard  → current work items
 ```
 
-This pattern appears across OpenClaw agents (SPEC-011), TaskMaster, and Cursor sessions.
+This pattern appears across (SPEC-011), TaskMaster, and Cursor sessions.
 
 ### 3.3 Monorepo CI/CD Structure
 
@@ -322,7 +322,7 @@ eas build --platform android
 | Auto-commit | Yes (full autonomy) | Every edit | Yes | Yes (autopilot) |
 | CI/CD trigger | GitHub Actions | GitHub export | Expo/E2E | MCP tools |
 | Human gate | PR review | Pinning | Deploy button | COMMIT phase |
-| Secrets | Via env vars | External | External | Infisical |
+| Secrets | Via env vars | External | External | |
 
 ---
 
@@ -360,7 +360,7 @@ tm autopilot start → RED phase (write failing test)
 |-------|------------|-------|
 | AI Code Generation | Claude 4, GPT-4o, MiniMax M2.7 | Multimodal, long context |
 | CI/CD Engine | Gitea Actions, GitHub Actions | GitOps-native |
-| Secret Management | Infisical | Vault with SDK |
+| Secret Management | | Vault with SDK |
 | Service Orchestration | Coolify | Docker compose + API |
 | Task Management | TaskMaster, Linear | AI-native task ops |
 | Agent Protocol | ACP (Agent Client Protocol) | Multi-agent communication |
@@ -524,7 +524,7 @@ jobs:
 | Task management | TaskMaster | TDD workflow, MCP integration |
 | CI/CD trigger | Gitea Actions | Already in infrastructure |
 | Deploy | Coolify | Already deployed, API-first |
-| Secrets | Infisical | Vault + SDK, multi-environment |
+| Secrets | | Vault + SDK, multi-environment |
 | Review | Cursor agent -p | Native GitHub Actions support |
 | Monitoring | n8n + Grafana | Already in stack |
 
@@ -580,7 +580,7 @@ jobs:
 | Cursor API key | Pending | Need `CURSOR_API_KEY` in Gitea Secrets |
 | Gitea Actions | ✅ OK | Workflow syntax compatible |
 | Coolify API | ✅ OK | For deployment jobs |
-| Infisical | ✅ OK | For secrets management |
+| | ✅ OK | For secrets management |
 
 ---
 

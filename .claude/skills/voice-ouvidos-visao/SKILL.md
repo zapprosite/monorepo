@@ -1,6 +1,6 @@
 ---
 name: voice-ouvidos-visao
-description: Unified PT-BR voice + vision pipeline. Listens via faster-whisper (:8204), thinks via MiniMax-M2.7 (primary LLM), speaks via Kokoro TTS Bridge (:8013, pm_santa), and sees via qwen2.5vl:7b (:11434). Activates with /ouvir (voice in), /ver (vision), /falar (voice out), /visao (vision+voice).
+description: Unified PT-BR voice + vision pipeline. Listens via faster-whisper (:8204), thinks via MiniMax-M2.7 (primary LLM), speaks via (:8013, pm_santa), and sees via qwen2.5vl:7b (:11434). Activates with /ouvir (voice in), /ver (vision), /falar (voice out), /visao (vision+voice).
 version: 2.0.0
 date: 2026-04-20
 author: Hermes Agent
@@ -14,7 +14,7 @@ metadata:
 
 # voice-ouvidos-visao v2.0
 
-Unified PT-BR pipeline — **Ouvir** (STT) → **Pensar** (MiniMax-M2.7) → **Falar** (Kokoro TTS) → **Enxergar** (qwen2.5vl)
+Unified PT-BR pipeline — **Ouvir** (STT) → **Pensar** (MiniMax-M2.7) → **Falar** () → **Enxergar** (qwen2.5vl)
 
 ## Arquitetura Atual (SPEC-053 — 17/04/2026)
 
@@ -30,7 +30,7 @@ Hermes Gateway :8642
   │
   ├── STT: faster-whisper-medium-pt (:8204)
   │
-  └── TTS: Kokoro Bridge (:8013) — vozes pm_santa / pf_dora
+  └── TTS: (:8013) — vozes pm_santa / pf_dora
 ```
 
 ### Regras de Divisão de Trabalho
@@ -40,7 +40,7 @@ Hermes Gateway :8642
 | **LLM texto** | MiniMax-M2.7 | Texto, raciocínio, decisões |
 | **Vision** | Ollama qwen2.5vl:7b | Análise de imagem |
 | **STT** | faster-whisper-medium-pt | Transcrição de áudio |
-| **TTS** | Kokoro :8013 | Síntese de voz PT-BR |
+| **TTS** | :8013 | Síntese de voz PT-BR |
 
 > ⚠️ **REGRAS CRÍTICAS (SPEC-053):**
 > - Ollama **NUNCA** para texto — apenas Vision + Embeddings
@@ -90,7 +90,7 @@ curl -sf http://localhost:8204/v1/audio/transcriptions \
 
 ## TTS — Text-to-Speech
 
-**Porta:** `:8013` (Kokoro TTS Bridge — **NÃO** usar Kokoro direto)
+**Porta:** `:8013` (— **NÃO** usar )
 
 ```bash
 # Teste direto
@@ -219,7 +219,7 @@ curl -sf http://localhost:8013/v1/audio/speech \
   -d '{"model":"","input":"Teste","voice":"pm_santa"}' \
   -o /tmp/test_tts.ogg
 
-# Se 500: Kokoro container pode ter crashado — verificar docker
+# Se 500: — verificar docker
 docker ps | grep 
 ```
 
@@ -272,9 +272,9 @@ F5-TTS permitiria clonar a voz real do utilizador (William) em vez de usar vozes
 |--------|---------|------|-------|--------|
 | F5-TTS | 8/10 | ~4GB | Zero-shot | ✅ Active 2026 |
 | XTTS-v2 | 7.5/10 | ~4GB | ✅ | ⚠️ Coqui deprecated |
-| Kokoro | 6/10 | ~1GB | Pre-made | ✅ Production |
+| | 6/10 | ~1GB | Pre-made | ✅ Production |
 
-**Se F5-TTS passar nos testes:** swap cirúrgico Kokoro → F5-TTS com fallback Kokoro.
+**Se F5-TTS passar nos testes:** swap cirúrgico → F5-TTS com fallback .
 
 ### XTTS-v2 (SPEC-072)
 

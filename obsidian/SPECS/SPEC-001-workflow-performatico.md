@@ -8,7 +8,7 @@
 
 ## Objective
 
-Criar o **workflow performatico de AI tools** para o host `will-zappro`: um sistema de orchestração que conecta Claude Code CLI, OpenCode CLI e OpenClaw Bot com hardening de segurança, audit trail, auto-detection de secrets expostos, e alertas Telegram.
+Criar o **workflow performatico de AI tools** para o host `will-zappro`: um sistema de orchestração que conecta Claude Code CLI, OpenCode CLI e , audit trail, auto-detection de secrets expostos, e alertas Telegram.
 
 **User:** Principal Engineer (will) — opera num homelab com 26+ serviços
 
@@ -25,13 +25,13 @@ Criar o **workflow performatico de AI tools** para o host `will-zappro`: um sist
 
 | Componente | Tecnologia |
 |------------|------------|
-| Vault | Infisical v0.146.2 (`vault.zappro.site`) |
-| SDK | Python `infisicalsdk>=0.1.3,<1.0.17` |
+| Vault | 0.146.2 (`vault.zappro.site`) |
+| SDK | Python `>=0.1.3,<1.0.17` |
 | Audit | JSONL append-only em `~/.claude/audit/` |
 | Logs centralizados | Loki/Promtail (já existe no host) |
 | Skills | Ficheiros `.md` em `.claude/skills/` |
 | Cron jobs | `.claude/scheduled_tasks.json` |
-| Alertas | Telegram (OpenClaw bot) |
+| Alertas | Telegram () |
 | Workflow | `pipeline.json` em `.claude/` |
 
 ---
@@ -82,7 +82,7 @@ cat .claude/pipeline.json | jq '.workflow'
 ### Audit Log Entry
 ```jsonl
 {"timestamp":"2026-04-08T10:30:00Z","tool":"claude-code-cli","action":"feature-commit","result":"success","commit":"abc123","branch":"feature/foo"}
-{"timestamp":"2026-04-08T10:35:00Z","tool":"openclaw-bot","action":"alert-sent","result":"success","alert_type":"deploy-success","chat_id":"@CEO_REFRIMIX"}
+{"timestamp":"2026-04-08T10:35:00Z","tool":"","action":"alert-sent","result":"success","alert_type":"deploy-success","chat_id":"@CEO_REFRIMIX"}
 ```
 
 ### Health Check Script
@@ -104,10 +104,10 @@ else
   echo "[DOWN] OpenCode CLI"
 fi
 
-# Verificar OpenClaw bot (Telegram API health)
+# Verificar (Telegram API health)
 curl -sf http://localhost:8080/health &>/dev/null \
-  && echo "[OK] OpenClaw" \
-  || echo "[DOWN] OpenClaw"
+  && echo "[OK] " \
+  || echo "[DOWN] "
 ```
 
 ### Pipeline JSON
@@ -116,11 +116,11 @@ curl -sf http://localhost:8080/health &>/dev/null \
   "workflow": {
     "name": "ai-tools-performatico",
     "version": "1.0.0",
-    "tools": ["claude-code-cli", "opencode-cli", "openclaw-bot"],
+    "tools": ["claude-code-cli", "opencode-cli", ""],
     "escalation": {
       "claude-code-cli": "terminal",
       "opencode-cli": "desktop",
-      "openclaw-bot": "telegram"
+      "": "telegram"
     },
     "audit": {
       "format": "jsonl",
@@ -157,7 +157,7 @@ curl -sf http://localhost:8080/health &>/dev/null \
 
 ### Always
 - Criar ZFS snapshot antes de qualquer mudança em `.claude/skills/` ou `pipeline.json`
-- Usar Infisical vault para todos os secrets — NUNCA env vars plain text
+- Usar — NUNCA env vars plain text
 - Adicionar entries ao audit log após cada ação cross-tool
 - Seguir naming convention: `tank@pre-YYYYMMDD-HHMMSS-workflow-performatico`
 - Atualizar `scheduled_tasks.json` lastFiredAt após cada cron execution
@@ -170,7 +170,7 @@ curl -sf http://localhost:8080/health &>/dev/null \
 
 ### Never
 - Commitar `.env` ou secrets em plaintext
-- Usar `env_file:` em Docker compose para secrets (usar Infisical init container)
+- Usar `env_file:` em Docker compose para secrets (usar )
 - Remover ou desabilitar healthchecks dos cron jobs
 - Fazer merge sem review do SPEC-001
 - Expor portas fora de `PORTS.md` + `SUBDOMAINS.md`
@@ -183,10 +183,10 @@ curl -sf http://localhost:8080/health &>/dev/null \
 
 | Task | Acceptance | Verify | Files |
 |------|------------|--------|-------|
-| 1.1 | Migrar secrets do OpenClaw `.env` para Infisical | `vault.zappro.site` mostra secrets sem env vars | `/srv/data/coolify/services/qgtzrmi.../` |
+| 1.1 | Migrar secrets do `.env` para | `vault.zappro.site` mostra secrets sem env vars | `/srv/data/coolify/services/qgtzrmi.../` |
 | 1.2 | Criar skill `audit-workflow` em `.claude/skills/` | Skill responde a `/audit-workflow` e lista log | `.claude/skills/workflow-performatico/SKILL.md` |
 | 1.3 | Adicionar healthchecks ao `scheduled_tasks.json` | Cron job verifica health antes de executar task | `.claude/scheduled_tasks.json` |
-| 1.4 | Verificar `BROWSER_EVALUATE_ENABLED=false` no OpenClaw | `docker inspect` mostra `false` | docker-compose.yml |
+| 1.4 | Verificar `BROWSER_EVALUATE_ENABLED=false` no | `docker inspect` mostra `false` | docker-compose.yml |
 
 ### FASE 2 — Consolidação
 
@@ -202,7 +202,7 @@ curl -sf http://localhost:8080/health &>/dev/null \
 | Task | Acceptance | Verify | Files |
 |------|------------|--------|-------|
 | 3.1 | Cron job auto-detectar secrets plaintext | Cron detecta e envia alerta Telegram | `.claude/scheduled_tasks.json` |
-| 3.2 | Cron job auto-rotar tokens expirados | Aspiracional — requer workflow de renewal via API (não existe ainda) | Infisical SDK script |
+| 3.2 | Cron job auto-rotar tokens expirados | Aspiracional — requer workflow de renewal via API (não existe ainda) | |
 | 3.3 | Alerta Telegram quando tool não reporta (>1h) | `health-check.sh` detecta DOWN → Telegram | `monitoring-health-check.md` skill |
 
 ### FASE 4 — Multi-Host (futuro)
@@ -211,7 +211,7 @@ curl -sf http://localhost:8080/health &>/dev/null \
 |------|------------|--------|-------|
 | 4.1 | Spec separado para multi-host | Spec-002 | `docs/specflow/SPEC-002-multi-host.md` |
 | 4.2 | Shared memory entre instâncias | Qdrant collection `shared-memory` | Infra |
-| 4.3 | OpenClaw como orchestration layer | OpenClaw sabe estado de todos os hosts | OpenClaw skills |
+| 4.3 | | | |
 
 ---
 
@@ -232,7 +232,7 @@ curl -sf http://localhost:8080/health &>/dev/null \
 - [ ] SPEC-001 criado em `docs/specflow/`
 - [ ] Pipeline.json válido (`jq .workflow .claude/pipeline.json`)
 - [ ] Audit log funciona (`~/.claude/audit/workflow-*.jsonl`)
-- [ ] Health check cobre Claude Code CLI, OpenCode CLI, OpenClaw
-- [ ] Secrets migrados para Infisical (verificar `.env` vazio)
+- [ ] Health check cobre Claude Code CLI, OpenCode CLI, 
+- [ ] Secrets migrados para (verificar `.env` vazio)
 - [ ] Cron job de secrets audit activo
 - [ ] Alertas Telegram funcionando
