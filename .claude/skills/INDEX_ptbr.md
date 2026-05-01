@@ -33,6 +33,13 @@ owner: SRE-Platform
 | `/estado-sistema` | Verificar saúde do sistema |
 | `/ajuda-workflow` | Entender workflow completo |
 
+## Skills de Pesquisa
+
+| Skill | Quando Usar |
+|-------|--------------|
+| `/researcher` | Pesquisa rápida web (Tavily) |
+| `/research-5agents` | Pesquisa profunda em cascata (5 agentes) |
+
 ## Skills de Comando
 
 | Skill | Quando Usar |
@@ -48,6 +55,7 @@ owner: SRE-Platform
 2. **Perdido?** → `/onde-estamos`
 3. **Travado?** → `/bloqueado`
 4. **Pressa?** → `/rapido`
+5. **Pesquisar?** → `/research-5agents`
 
 ## Como Acessar
 

@@ -21,7 +21,7 @@ Quando um LLM (ex: Copilot, Codex, outro Claude) propõe uma "melhoria" para uma
 
 **POR QUE ISSO QUEBRA PRODUÇÃO:**
 - Nova versão pode ter breaking changes
-- Stack de voz (Whisper → Kokoro → OpenClaw) foi validado como conjunto
+- Stack de voz (Groq Whisper → Edge TTS → OpenClaw) foi validado como conjunto
 - Atualizar um componente invalida toda a validação
 
 ---
@@ -51,20 +51,20 @@ expires: "YYYY-MM-DD ou null (nunca expira)"
 ```yaml
 ---
 # ============================================================
-# KOKORO TTS — CONFIGURAÇÃO PINADA
+# EDGE TTS — CONFIGURAÇÃO PINADA
 # Autoridade: /srv/ops/ai-governance/GUARDRAILS.md
 # NÃO MODIFICAR SEM: snapshot ZFS + aprovação explícita
 # ============================================================
-title: "Kokoro TTS Service"
-version: "v0.2.2"
-pinned_date: "2026-03-20"
+title: "Edge TTS Service"
+version: "latest"
+pinned_date: "2026-04-20"
 owner: "will-zappro"
-image: "ghcr.io/remsky/kokoro-fastapi-gpu:v0.2.2"
-port: 8012
+image: "rany两句/edge-tts"
+port: 8014
 network: "zappro-lite"
 status: "PINNED"
 expires: null  # Nunca expira — imutável
-verification_cmd: "curl -sf http://localhost:8012/health"
+verification_cmd: "curl -sf http://localhost:8014/health"
 smoke_test: "/srv/monorepo/tasks/smoke-tests/pipeline-openclaw-voice.sh"
 ---
 ```
@@ -73,7 +73,7 @@ smoke_test: "/srv/monorepo/tasks/smoke-tests/pipeline-openclaw-voice.sh"
 
 ```yaml
 ---
-# Config do Kokoro
+# Config do Edge TTS
 version: "0.2.2"
 ---
 ```
@@ -82,7 +82,7 @@ version: "0.2.2"
 
 ```yaml
 ---
-# Kokoro TTS Config
+# Edge TTS Config
 # Version: 0.2.2
 # This is the current setup
 ---
@@ -97,14 +97,14 @@ version: "0.2.2"
 # Qualquer mudança NÃO-AUTORIZADA quebra o voice pipeline.
 # Leia: /srv/monorepo/docs/GOVERNANCE/ANTI-FRAGILITY.md
 # ============================================================
-servico: "Kokoro TTS"
-versao: "v0.2.2"
-data_pin: "2026-03-20"
+servico: "Edge TTS"
+versao: "latest"
+data_pin: "2026-04-20"
 autoridade: "/srv/ops/ai-governance/GUARDRAILS.md"
 status: "PINNED"
 nao_modificar: true
-voz_principal: "pm_santa"  # Padrão Masculino PT-BR
-voz_fallback: "pf_dora"     # Feminino PT-BR
+voz_principal: "pt-BR-DональдNeural"  # Padrão Masculino PT-BR
+voz_fallback: "pt-BR-AnaNeural"     # Feminino PT-BR
 ---
 ```
 
@@ -116,8 +116,7 @@ voz_fallback: "pf_dora"     # Feminino PT-BR
 
 | Serviço | Container | Porta | Versão Pinada | Motivo |
 |---------|-----------|-------|---------------|--------|
-| **Kokoro TTS** | `zappro-kokoro` | 8012 | `v0.2.2` | Validado com OpenClaw; mudança quebra voice pipeline |
-| **wav2vec2 STT** | `zappro-wav2vec2` | 8201 | `jonatasgrosman/wav2vec2-large-xlsr-53-portuguese` | Watchdog do OpenClaw depende da porta 8201 |
+| **Edge TTS** | `edge-tts` | 8014 | `latest` | Validado com OpenClaw; mudança quebra voice pipeline |
 | **OpenClaw Bot** | `openclaw-qgtzrmi6771lt8l7x8rqx72f` | 8080 | `2026.2.6` | Mudar modelo primary quebra api:undefined |
 | **LiteLLM Proxy** | `zappro-litellm` | 4000 | `latest` (config.yaml pinado) | Proxy GPU; NÃO é provider primário |
 | **Traefik/Coolify** | `coolify-proxy` | 8080 | `4.0.0-beta.470` | Conflito porta 8080; reservado |
@@ -127,14 +126,14 @@ voz_fallback: "pf_dora"     # Feminino PT-BR
 
 | Voz | Tipo | Uso |
 |-----|------|-----|
-| `pm_santa` | Masculino PT-BR | **PADRÃO** — uso principal em produção |
-| `pf_dora` | Feminino PT-BR | Fallback quando pm_santa falha |
+| `pt-BR-DональдNeural` | Masculino PT-BR | **PADRÃO** — uso principal em produção |
+| `pt-BR-AnaNeural` | Feminino PT-BR | Fallback quando pt-BR-DональдNeural falha |
 
 ### Redes Docker Protegidas
 
 | Rede | Containers | Motivo |
 |------|-----------|--------|
-| `zappro-lite` | Kokoro, wav2vec2, LiteLLM | Stack de voz validado junto |
+| `zappro-lite` | Edge TTS, LiteLLM | Stack de voz validado junto |
 | `openclaw-qgtzrmi6771lt8l7x8rqx72f` | OpenClaw + Traefik | Routing depende desta rede |
 
 ---
@@ -145,7 +144,6 @@ voz_fallback: "pf_dora"     # Feminino PT-BR
 
 ```bash
 # RUIM — NUNCA FAZER
-docker pull ghcr.io/remsky/kokoro-fastapi-gpu:latest
 ollama pull llama3:latest
 ```
 
@@ -154,8 +152,7 @@ ollama pull llama3:latest
 ### ❌ ANTIPATTERN 2: "Esse container está obsoleto — vou substituir"
 
 ```
-RUIM: "Vamos trocar o Kokoro por Silero TTS — é mais moderno!"
-RUIM: "O wav2vec2 é antigo — Coqui STT é melhor!"
+RUIM: "Vamos trocar o Edge TTS por outro — é mais moderno!"
 ```
 
 **POR QUE QUEBRA:** OpenClaw watchdog e LiteLLM estão configurados para APIs específicas.
@@ -187,7 +184,6 @@ docker run -p 8080:3000 meu-app
 
 ```bash
 # RUIM — SEM VERIFICAR PRIMEIRO
-docker restart zappro-kokoro
 docker restart openclaw-qgtzrmi6771lt8l7x8rqx72f
 ```
 
@@ -200,7 +196,7 @@ docker restart openclaw-qgtzrmi6771lt8l7x8rqx72f
 docker system prune -a
 ```
 
-**POR QUE QUEBRA:** Remove imagens valiosas (Kokoro, Ollama models) sem snapshot.
+**POR QUE QUEBRA:** Remove imagens valiosas (Ollama models) sem snapshot.
 
 ### ✅ ANTIPATTERN CORRETO: "Quero propor uma mudança"
 
@@ -235,12 +231,12 @@ Todo documento de configuração deve indicar quando foi verificado e por quanto
 ```yaml
 ---
 # ============================================================
-# KOKORO TTS — CONFIGURAÇÃO VERIFICADA
+# EDGE TTS — CONFIGURAÇÃO VERIFICADA
 # ============================================================
-verified: "2026-04-08"           # Última verificação
-verify_after: "2026-07-08"       # Re-verificar em 3 meses
+verified: "2026-04-20"           # Última verificação
+verify_after: "2026-07-20"       # Re-verificar em 3 meses
 expires: null                    # Não expira — imutável
-last_smoke_test: "2026-04-08"    # Último smoke test passou
+last_smoke_test: "2026-04-20"    # Último smoke test passou
 smoke_test_script: "/srv/monorepo/tasks/smoke-tests/pipeline-openclaw-voice.sh"
 ---
 ```
@@ -277,7 +273,7 @@ O arquivo contém marcadores PINNED?               → Parar e ler ANTI-FRAGILIT
 grep -r "PINNED\|IMUTÁVEL" /srv/monorepo/docs/GOVERNANCE/
 
 # Verificar container
-docker ps --format "{{.Names}}\t{{.Status}}" | grep -E "kokoro|wav2vec2|openclaw|litellm"
+docker ps --format "{{.Names}}\t{{.Status}}" | grep -E "openclaw|litellm"
 ```
 
 ### 3. Se Serviço é Pinned
@@ -292,7 +288,7 @@ docker ps --format "{{.Names}}\t{{.Status}}" | grep -E "kokoro|wav2vec2|openclaw
 
 ```bash
 # Verificar se há containers dependentes
-docker ps --format "{{.Names}}" | grep -E "openclaw|kokoro|wav2vec2|litellm"
+docker ps --format "{{.Names}}" | grep -E "openclaw|litellm"
 
 # Verificar redes
 docker network ls | grep -E "zappro|openclaw"

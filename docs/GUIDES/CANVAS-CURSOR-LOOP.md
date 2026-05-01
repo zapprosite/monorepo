@@ -404,13 +404,6 @@ INFRAESTRUTURA
   DNS:         Cloudflare + Terraform
   Vector DB:   Qdrant (10.0.19.5:6333)
 
-VOZ (OpenClaw)
-───────────────
-  STT:         wav2vec2 (:8201) via Deepgram proxy
-  TTS:         Kokoro (:8880) via TTS Bridge (:8013)
-  LLM:         MiniMax M2.7 (direct, não LiteLLM)
-  Vision:      litellm/qwen2.5-vl
-```
 
 ---
 

@@ -1,0 +1,22 @@
+services:
+  gitea-runner:
+    image: docker.io/gitea/act_runner:nightly
+    container_name: gitea-runner
+    restart: unless-stopped
+    privileged: true
+    cap_add:
+      - SYS_ADMIN
+    env_file: /srv/monorepo/.env
+    environment:
+      - COMPOSE_PROJECT_NAME=gitea
+      - CONFIG_FILE=/config.yaml
+      - GITEA_INSTANCE_URL=http://10.0.1.1:3300
+      - GITEA_RUNNER_REGISTRATION_TOKEN=${GITEA_RUNNER_REGISTRATION_TOKEN}
+      - GITEA_RUNNER_NAME=prod-runner-1
+      - GITEA_RUNNER_LABELS=ubuntu-latest
+      - GITEA_RUNNER_EPHEMERAL=1
+    volumes:
+      - ./runner/config.yaml:/config.yaml
+      - ./runner/data:/data
+      - /var/run/docker.sock:/var/run/docker.sock
+    network_mode: host

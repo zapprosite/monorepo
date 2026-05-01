@@ -14,14 +14,13 @@
 | [OpenCode](./guides/opencode.md) | Guide OpenCode |
 | [Security Hardening](./guides/security-hardening.md) | Fortalecimento de segurança |
 | [Infisical](./guides/infisical.md) | Vault Infisical self-hosted |
-| [Whisper Auto Local](./guides/whisper-auto-local.md) | Transcrição automática local |
 
 ## Logs
 
 | Log | Descrição |
 |-----|-----------|
 | [Homelab](./logs/homelab.md) | Registro de operações do homelab |
-| [OpenClaw](./logs/openclaw.md) | Log do bot OpenClaw |
+| [OpenClaw](./logs/openclaw.md) | Legacy bot log |
 
 ## Planos
 
@@ -34,7 +33,7 @@
 | Skill | Descrição |
 |-------|-----------|
 | [OpenClaw Agents Kit](./OPERATIONS/SKILLS/openclaw-agents-kit/SKILL.md) | Kit universal: transforma OpenClaw em orquestrador de agents (leader + sub-agents). Inclui: Coolify API, Infisical SDK, identity-patch, governance template, sub-agent patterns |
-| [TTS Bridge](./OPERATIONS/SKILLS/tts-bridge.md) | Filtro de vozes Kokoro (pm_santa/pf_dora only) |
+| [TTS Bridge](./OPERATIONS/SKILLS/tts-bridge.md) | TTS Bridge filter (pm_santa/pf_dora only) |
 | [Container Health Check](./OPERATIONS/SKILLS/container-health-check.md) | Health + recursos de containers |
 
 ## ADRs

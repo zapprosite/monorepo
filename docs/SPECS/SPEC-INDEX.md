@@ -20,6 +20,8 @@
 | SPEC-013-CLAUDE-CODE-CLI-INTEGRATION.md | Claude Code CLI Integration | REVIEW | |
 | SPEC-014-CURSOR-AI-CICD-PATTERN.md | Cursor AI CI/CD Pattern | DRAFT | |
 | SPEC-015-GITEA-ACTIONS-ENTERPRISE.md | Gitea Actions Enterprise | DRAFT | |
+| SPEC-008-zfs-analysis-20260501.md | ZFS Pool Analysis (tank + nvme1n1) | DONE | tank 3.62TB, tank2 pending |
+| SPEC-202-hermes-second-brain-systemd.md | Hermes Second Brain Mem0 Production Deploy | DONE | Mem0 API on :6337 |
 | SPEC-100-PIPELINE-BOOTSTRAP.md | Unified Pipeline Bootstrap | IMPLEMENTING | |
 
 > **Note:** `IMPLEMENTING` and `REVIEW` are legacy statuses from before the canonical status system.

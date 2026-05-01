@@ -68,6 +68,27 @@ TIMEOUT_ZFS=60
 TIMEOUT_GIT=60
 TIMEOUT_PYTHON=30
 
+# ─── LLM / Lead constants ───────────────────────────────────────────────────────
+LLM_MODEL="${VIBE_LLM_MODEL:-minimax/MiniMax-M2.7}"
+LLM_MAX_TOKENS="${VIBE_LLM_MAX_TOKENS:-2000}"
+LLM_TEMPERATURE="${VIBE_LLM_TEMPERATURE:-0.3}"
+LLM_BASE_URL="${VIBE_LLM_BASE_URL:-http://localhost:4000/v1}"
+LLM_API_KEY="${LITELLM_MASTER_KEY:-}"
+
+# ─── Hermes memory constants ───────────────────────────────────────────────────
+HERMES_URL="${HERMES_URL:-http://127.0.0.1:8642}"
+HERMES_API_KEY="${HERMES_API_KEY:-}"
+HERMES_BRAIN_DIR="${HERMES_BRAIN_DIR:-/srv/hermes-second-brain}"
+HERMES_VIBE_DOMAIN="vibe-kit"
+HERMES_MEM0_URL="${HERMES_MEM0_URL:-http://127.0.0.1:6337}"
+
+# ─── Gitea / Ship constants ───────────────────────────────────────────────────
+GITEA_HOST="${GITEA_HOST:-http://10.0.1.1:3300}"
+GITEA_API="${GITEA_API:-$GITEA_HOST/api/v1}"
+GITEA_REPO="${GITEA_REPO:-will-zappro/monorepo}"
+CI_POLL_INTERVAL=30
+CI_MAX_WAIT_MINUTES=30
+
 # ─── Global state ───────────────────────────────────────────────────────────
 declare -A BG_PIDS        # background worker PIDs
 LOG_LEVEL="${LOG_LEVEL:-INFO}"
@@ -277,8 +298,12 @@ _scan_guardrails() {
         violations=$((violations + 1))
     fi
 
-    # Find files and check them
+    # Find files and check them (skip .git, node_modules, .gitignore, .lock)
     while IFS= read -r -d '' file; do
+        # Skip system files that aren't code
+        if [[ "$file" == *".git/"* ]] || [[ "$file" == *"/.git"* ]] || [[ "$file" == *"node_modules"* ]]; then
+            continue
+        fi
         if ! _path_is_allowed "$file"; then
             violations=$((violations + 1))
             continue
@@ -290,7 +315,7 @@ _scan_guardrails() {
         if ! _file_size_is_allowed "$file"; then
             violations=$((violations + 1))
         fi
-    done < <(find "$dir" -type f -print0 2>/dev/null || true)
+    done < <(find "$dir" -type f -not -path "*/.git/*" -not -path "*/node_modules/*" -print0 2>/dev/null || true)
 
     return $violations
 }
@@ -429,9 +454,11 @@ _cleanup_file() {
 
 _cleanup_context() {
     local task_id="$1"
-    log_debug "Cleaning context for task: $task_id"
-    _cleanup_file "$CONTEXT_DIR/${task_id}.ctx"
-    _cleanup_file "$CONTEXT_DIR/${task_id}.env"
+    local ctx_dir="$CONTEXT_DIR/${task_id}"
+    if [ -d "$ctx_dir" ]; then
+        rm -rf "$ctx_dir"
+        log_debug "Cleaned up context dir: $ctx_dir"
+    fi
 }
 
 _terminate_pid() {
@@ -618,6 +645,84 @@ _isolate_context() {
     return 0
 }
 
+# ─── SPEC slicing ─────────────────────────────────────────────────────────────
+# Extracts relevant SPEC lines for a task and writes to spec-slice.md
+_slice_spec() {
+    local spec_id="$1"
+    local task_id="$2"
+    local task_name="$3"
+    local spec_file="/srv/monorepo/docs/SPECS/${spec_id}.md"
+    local slice_file="$CONTEXT_DIR/${task_id}/spec-slice.md"
+
+    if [ ! -f "$spec_file" ]; then
+        log_debug "SPEC file not found: $spec_file"
+        return 1
+    fi
+
+    mkdir -p "$CONTEXT_DIR/${task_id}"
+
+    # Extract SPEC header (first 50 lines) + task-relevant section
+    local task_kw
+    task_kw=$(echo "$task_name" | tr '-' ' ' | awk '{print tolower($0)}')
+
+    # Write header + relevant content
+    {
+        echo "# SPEC Slice — Task $task_id: $task_name"
+        echo ""
+        echo "Source: $spec_file"
+        echo ""
+        head -n 50 "$spec_file"
+        echo ""
+        echo "## Task-Relevant Sections"
+        echo ""
+        # Grep for task keywords in SPEC (case-insensitive)
+        grep -i -n -E "($task_kw|task|ac-\d+|todo|implement|add|create|fix|update)" "$spec_file" 2>/dev/null | head -n 30 || true
+    } > "$slice_file"
+
+    log_debug "Wrote SPEC slice: $slice_file"
+    return 0
+}
+
+# ─── Parseability gate ─────────────────────────────────────────────────────────
+# Validates modified code files after worker completes
+_run_parseability_gate() {
+    local task_id="$1"
+    local workdir="$2"
+    local modified=0
+    local errors=0
+
+    # Find modified files via git
+    local git_root="/srv/monorepo"
+    if [ -d "$git_root/.git" ]; then
+        local changed_files
+        changed_files=$(cd "$git_root" && git diff --name-only HEAD 2>/dev/null || true)
+
+        for f in $changed_files; do
+            # Skip non-code files
+            case "$f" in
+                *.py)   cmd="python3 -m py_compile" ;;
+                *.ts|*.tsx) cmd="node --check" ;;
+                *.json) cmd="python3 -c \"import json; json.load(open('$git_root/$f')))\"" ;;
+                *) continue ;;
+            esac
+
+            if [ -f "$git_root/$f" ]; then
+                log_debug "Parseability check: $f"
+                if ! eval "$cmd '$git_root/$f'" 2>/dev/null; then
+                    log_error "Parseability FAILED: $f"
+                    errors=$((errors + 1))
+                fi
+                modified=$((modified + 1))
+            fi
+        done
+    fi
+
+    if [ $modified -gt 0 ]; then
+        log_debug "Parseability gate: checked $modified file(s), $errors error(s)"
+    fi
+    return $errors
+}
+
 # ─── Video recording on failure ──────────────────────────────────────────────
 # Uses script(1) to record terminal sessions and ffmpeg to encode MP4.
 # The recording is only produced when a task fails.
@@ -757,6 +862,274 @@ _requeue_stale_running_tasks() {
         | .failed = ([.tasks[] | select(.status == "failed")] | length)
         | .frozen = ([.tasks[] | select(.status == "frozen")] | length)
     ' "$QUEUE_FILE" > "${QUEUE_FILE}.tmp" && mv "${QUEUE_FILE}.tmp" "$QUEUE_FILE"
+}
+
+# ─── Hermes memory helpers ─────────────────────────────────────────────────────
+
+_hermes_write_memory() {
+    local content="$1"
+    local tags="${2:-$HERMES_VIBE_DOMAIN}"
+    # Mem0 API at :6337 — non-fatal if fails
+    curl -s -X POST "${HERMES_MEM0_URL}/memory/" \
+        -H "Content-Type: application/json" \
+        -d "{\"text\":\"$content\",\"source\":\"vibe-kit\",\"tags\":[\"$tags\"]}" \
+        --max-time 10 > /dev/null 2>&1 || true
+}
+
+_hermes_fetch_memory() {
+    local query="${1:-vibe-kit memory}"
+    local limit="${2:-10}"
+    # Mem0 API at :6337 — non-fatal if fails
+    curl -s -X POST "${HERMES_MEM0_URL}/memory/query" \
+        -H "Content-Type: application/json" \
+        -d "{\"query\":\"$query\",\"limit\":${limit}}" \
+        --max-time 10 2>/dev/null || echo "{\"results\":[]}"
+}
+
+_write_vibe_learning() {
+    local spec_id="$1"
+    local result="$2"
+    local dir="${HERMES_BRAIN_DIR}/vibe-learnings"
+    mkdir -p "$dir"
+    cat > "${dir}/SPEC-${spec_id}.md" << EOF
+# Vibe Learning: SPEC-${spec_id}
+
+## Result: $result
+## Date: $(date -u +%Y-%m-%dT%H:%M:%SZ)
+
+$(cat "$QUEUE_FILE" 2>/dev/null | jq -r '.tasks[] | "- [\(.status)] \(.id): \(.name // .description)"' 2>/dev/null || true)
+
+EOF
+}
+
+_hermes_sync_brain() {
+    local spec_id="$1"
+    [ ! -d "$HERMES_BRAIN_DIR" ] && return 0
+    mkdir -p "${HERMES_BRAIN_DIR}/vibe-learnings"
+    git -C "$HERMES_BRAIN_DIR" add vibe-learnings/ 2>/dev/null || true
+    git -C "$HERMES_BRAIN_DIR" commit -m "vibe: learning from SPEC-${spec_id}" --allow-empty 2>/dev/null || true
+    git -C "$HERMES_BRAIN_DIR" push origin main 2>/dev/null || true
+}
+
+# ─── Gitea API helpers ───────────────────────────────────────────────────────
+
+_gitea_api() {
+    local method="${1:-GET}"
+    local endpoint="$2"
+    local data="$3"
+    GITEA_TOKEN="${GITEA_TOKEN:-}" \
+    curl -s -X "$method" "${GITEA_API}${endpoint}" \
+        -H "Authorization: Bearer ${GITEA_TOKEN}" \
+        -H "Content-Type: application/json" \
+        ${data:+-d "$data"} \
+        --max-time 30 2>/dev/null
+}
+
+_gitea_find_existing_pr() {
+    local branch="$1"
+    _gitea_api GET "/repos/${GITEA_REPO}/pulls?state=open&head=${branch}" \
+        | jq -r '.[0].number // empty' 2>/dev/null
+}
+
+_gitea_create_pr() {
+    local branch="$1"; local title="$2"; local body="$3"
+    _gitea_api POST "/repos/${GITEA_REPO}/pulls" \
+        "$(jq -n --arg title "$title" --arg body "$body" --arg head "$branch" --arg base "main" \
+            '{title: $title, body: $body, head: $head, base: $base}')" \
+        | jq -r '.number // empty' 2>/dev/null
+}
+
+_gitea_assign_reviewer() {
+    local pr="$1"; local reviewer="$2"
+    _gitea_api POST "/repos/${GITEA_REPO}/pulls/${pr}/requested_reviewers" \
+        "$(jq -n --argjson reviewers "[$reviewer]" '{reviewers: $reviewers}')" \
+        | jq -r '.number // empty' 2>/dev/null
+}
+
+_gitea_merge_pr() {
+    local pr="$1"
+    _gitea_api POST "/repos/${GITEA_REPO}/pulls/${pr}/merge" \
+        '{"do": "squash", "delete_branch_after_merge": true}' \
+        | jq -r '.merged // false' 2>/dev/null
+}
+
+_poll_ci_status() {
+    local pr="$1"
+    local max_attempts=$((CI_MAX_WAIT_MINUTES * 60 / CI_POLL_INTERVAL))
+    local attempt=0
+
+    while [ $attempt -lt $max_attempts ]; do
+        attempt=$((attempt + 1))
+        log_debug "CI poll $attempt/$max_attempts for PR #$pr"
+
+        local status
+        status=$(curl -s -X GET "${GITEA_API}/repos/${GITEA_REPO}/pulls/${pr}/checks" \
+            -H "Authorization: Bearer ${GITEA_TOKEN}" --max-time 20 2>/dev/null \
+            | jq -r '[.check_runs[]?.conclusion] |
+                if length == 0 then "pending"
+                elif map(select(. == null)) | length > 0 then "pending"
+                elif map(select(. == "failure")) | length > 0 then "failure"
+                elif map(select(. == "success")) | length == length then "success"
+                else "pending" end' 2>/dev/null || echo "pending")
+
+        case "$status" in
+            success) echo "success"; return 0 ;;
+            failure) echo "failure"; return 0 ;;
+        esac
+        sleep "$CI_POLL_INTERVAL"
+    done
+    echo "timeout"
+    return 1
+}
+
+_get_reviewer_from_codeowners() {
+    local co="/srv/monorepo/.github/CODEOWNERS"
+    if [ -f "$co" ]; then
+        head -1 "$co" 2>/dev/null | grep -E '@[a-zA-Z0-9_-]+' | head -1 | sed 's/@//'
+    else
+        echo "will"
+    fi
+}
+
+_create_failure_issue() {
+    local spec_id="$1"; local title="$2"; local body="$3"
+    _gitea_api POST "/repos/${GITEA_REPO}/issues" \
+        "$(jq -n --arg title "[vibe-ship FAILED] $spec_id: $title" \
+            --arg body "$body\n\n🤖 Generated by vibe-kit do_ship" \
+            '{title: $title, body: $body}')" \
+        | jq -r '.number // empty' 2>/dev/null
+}
+
+_freeze_spec() {
+    local spec_id="$1"
+    local spec_file="/srv/monorepo/docs/SPECS/${spec_id}.md"
+    if [ -f "$spec_file" ]; then
+        sed -i 's/status: active/status: frozen/' "$spec_file" 2>/dev/null || true
+        log_info "SPEC $spec_id frozen"
+    fi
+}
+
+# ─── LLM-powered lead ─────────────────────────────────────────────────────────
+
+lead_analyze() {
+    local spec_file="$1"
+    local app_name="$2"
+
+    log_info "Lead analyzing spec=$spec_file with LLM"
+
+    # Load env for token
+    set -a; source /srv/monorepo/.env 2>/dev/null || true; set +a
+
+    local memory_context
+    memory_context=$(_hermes_fetch_memory "$HERMES_VIBE_DOMAIN" 10)
+    local memory_snippet
+    memory_snippet=$(echo "$memory_context" | jq -r '.[].content // ""' 2>/dev/null | head -c 500 || true)
+
+    local prompt="Analyze this SPEC and split into micro-tasks (5 min each).
+
+Output ONLY valid JSON: array of {\"id\":\"T001\",\"name\":\"task-name\",\"description\":\"what to do\",\"prompt\":\"worker prompt\",\"priority\":1,\"estimate_minutes\":5}
+
+Previous learnings:
+${memory_snippet:-None}
+
+SPEC content:
+$(cat "$spec_file")"
+
+    local response
+    local attempt=0
+    local max_attempts=3
+    local delay=5
+
+    while [ $attempt -lt $max_attempts ]; do
+        response=$(curl -s -X POST "${LLM_BASE_URL}/chat/completions" \
+            -H "Authorization: Bearer ${LLM_API_KEY}" \
+            -H "Content-Type: application/json" \
+            -d "$(jq -n \
+                --arg model "$LLM_MODEL" \
+                --arg prompt "$prompt" \
+                --argjson max_tokens "$LLM_MAX_TOKENS" \
+                --argjson temp "$LLM_TEMPERATURE" \
+                '{model: $model, messages: [{role: "user", content: $prompt}], max_tokens: $max_tokens, temperature: $temp}')" \
+            --max-time 60 2>/dev/null)
+
+        local http_code
+        http_code=$(echo "$response" | jq -r '.error.code // "200"' 2>/dev/null)
+
+        if [ "$http_code" = "429" ]; then
+            log_warn "LLM rate limited — retry $((attempt+1))/$max_attempts in ${delay}s"
+            sleep $delay
+            delay=$((delay * 2))
+            attempt=$((attempt + 1))
+            continue
+        fi
+
+        if [ "$http_code" != "200" ]; then
+            log_warn "LLM error $http_code — retry $((attempt+1))/$max_attempts"
+            attempt=$((attempt + 1))
+            sleep $delay
+            delay=$((delay * 2))
+            continue
+        fi
+
+        break
+    done
+
+    local tasks_json
+    tasks_json=$(echo "$response" | jq -r '.choices[0].message.content // empty' 2>/dev/null)
+
+    if [ -z "$tasks_json" ]; then
+        log_warn "LLM returned empty — falling back to regex parser"
+        lead_think "$spec_file" "$app_name"
+        return $?
+    fi
+
+    # Strip markdown code blocks if present
+    tasks_json=$(echo "$tasks_json" | sed 's/```json//g; s/```//g' | tr -d '\n')
+
+    # Validate JSON
+    if ! echo "$tasks_json" | jq '.' > /dev/null 2>&1; then
+        log_warn "LLM returned invalid JSON — falling back to regex"
+        lead_think "$spec_file" "$app_name"
+        return $?
+    fi
+
+    local total
+    total=$(echo "$tasks_json" | jq 'length' 2>/dev/null || echo 0)
+    log_info "LLM parsed $total tasks"
+
+    if [ "$total" -eq 0 ]; then
+        log_warn "No tasks from LLM — falling back to regex"
+        lead_think "$spec_file" "$app_name"
+        return $?
+    fi
+
+    # Write queue.json atomically
+    echo "$tasks_json" | jq --arg spec "$(basename "$spec_file" .md)" --arg app "$app_name" --argjson total "$total" "
+        {
+            spec: \$spec,
+            app: \$app,
+            total: \$total,
+            pending: \$total,
+            running: 0,
+            done: 0,
+            failed: 0,
+            frozen: 0,
+            phase: \"do\",
+            parallel_limit: $MAX_WORKERS,
+            tasks: [.[] | . + {
+                app: \$app,
+                spec: \$spec,
+                status: \"pending\",
+                attempts: 0,
+                worker: null,
+                created_at: now | todate,
+                completed_at: null,
+                error: null
+            }]
+        }
+    " > "${QUEUE_FILE}.tmp.$$" && mv "${QUEUE_FILE}.tmp.$$" "$QUEUE_FILE"
+
+    return 0
 }
 
 # ─── Lead: think + delegate ──────────────────────────────────────────────────
@@ -917,6 +1290,13 @@ do_loop() {
 
             _isolate_context "$task_id"
 
+            # ─── SPEC slicing: extract relevant SPEC lines for this task ────────
+            local spec_id
+            spec_id=$(jq -r '.spec // empty' "$QUEUE_FILE" 2>/dev/null || echo "")
+            if [ -n "$spec_id" ]; then
+                _slice_spec "$spec_id" "$task_id" "$task_name"
+            fi
+
             log_debug "Resetting context for $task_id..."
             _retry 3 2 "context-reset-$task_id" bash "$SCRIPT_CONTEXT_RESET" "$task_id" 2>/dev/null || {
                 log_warn "context-reset failed for $task_id (non-fatal)"
@@ -985,7 +1365,8 @@ Working directory: /srv/monorepo
 Execute completely. Output [COMPLETE] task_id=$task_id result=done when done.
 If you cannot complete, output [COMPLETE] task_id=$task_id result=failed reason=...
 
-Save your work context to: $CONTEXT_DIR/${task_id}.ctx" \
+Save your work context to: $CONTEXT_DIR/${task_id}.ctx
+SPEC context (reference): $CONTEXT_DIR/${task_id}/spec-slice.md" \
                         >> "$worker_log" 2>&1 || worker_exit=$?
                 else
                     # No recording — run directly
@@ -1000,7 +1381,8 @@ Working directory: /srv/monorepo
 Execute completely. Output [COMPLETE] task_id=$task_id result=done when done.
 If you cannot complete, output [COMPLETE] task_id=$task_id result=failed reason=...
 
-Save your work context to: $CONTEXT_DIR/${task_id}.ctx" \
+Save your work context to: $CONTEXT_DIR/${task_id}.ctx
+SPEC context (reference): $CONTEXT_DIR/${task_id}/spec-slice.md" \
                         >> "$worker_log" 2>&1; then
                         worker_exit=$?
                     fi
@@ -1057,6 +1439,14 @@ Save your work context to: $CONTEXT_DIR/${task_id}.ctx" \
                     log_info "Smoke succeeded on attempt $smoke_attempt for $task_id"
                 fi
 
+                # ─── Parseability gate: validate modified code files ──────────────
+                if [ $smoke_exit -eq 0 ]; then
+                    if ! _run_parseability_gate "$task_id" "$smoke_workdir"; then
+                        log_error "Parseability gate FAILED for $task_id — marking as failed"
+                        worker_result="failed"
+                    fi
+                fi
+
                 if [ $smoke_exit -ne 0 ]; then
                     log_error "Smoke FAILED after $SMOKE_MAX_RETRIES retries for $task_id"
                     worker_result="failed"
@@ -1065,6 +1455,11 @@ Save your work context to: $CONTEXT_DIR/${task_id}.ctx" \
                 QUEUE_FILE="$QUEUE_FILE" python3 "$WORKDIR/queue-manager.py" complete "$task_id" "W$$" "$worker_result" 2>/dev/null || {
                     log_error "Failed to mark task $task_id complete in queue"
                 }
+
+                # Write memory to Hermes (non-fatal)
+                local spec_id
+                spec_id=$(jq -r '.spec // empty' "$QUEUE_FILE" 2>/dev/null || echo "")
+                _hermes_write_memory "Task ${task_id} ${worker_result} for SPEC ${spec_id}" "$HERMES_VIBE_DOMAIN"
 
                 _remove_running_entry "$task_id"
                 _cleanup_context "$task_id"
@@ -1123,6 +1518,106 @@ do_verify() {
         return 1
     fi
     log_info "VERIFY PASSED"
+    return 0
+}
+
+# ─── Ship: git push + PR + CI polling + auto-merge ──────────────────────────
+do_ship() {
+    log_info "Starting ship phase"
+
+    local spec_id
+    spec_id=$(jq -r '.spec // empty' "$QUEUE_FILE" 2>/dev/null || echo "")
+    [ -z "$spec_id" ] && spec_id="${1:-}"
+
+    # Load env for GITEA_TOKEN
+    set -a; source /srv/monorepo/.env 2>/dev/null || true; set +a
+
+    local vibe_branch
+    vibe_branch=$(git branch --show-current 2>/dev/null || echo "")
+    if [ -z "$vibe_branch" ] || [ "$vibe_branch" = "main" ]; then
+        vibe_branch="vibe-${spec_id}-$(date +%Y%m%d-%H%M%S)"
+        git checkout -b "$vibe_branch" 2>/dev/null || true
+    fi
+
+    local changed_files
+    changed_files=$(git diff --name-only HEAD~1 HEAD 2>/dev/null | wc -l || echo "0")
+    local completed_tasks
+    completed_tasks=$(jq '.done' "$QUEUE_FILE" 2>/dev/null || echo "0")
+
+    # Push branch
+    log_info "Pushing branch: $vibe_branch"
+    if ! _run_with_timeout "$TIMEOUT_GIT" "git-push" git push origin "$vibe_branch" -u 2>&1; then
+        log_warn "Push failed — checking if branch exists"
+        git push origin "$vibe_branch" -u 2>/dev/null || true
+    fi
+
+    # Check for existing PR (idempotent)
+    local pr_number
+    pr_number=$(_gitea_find_existing_pr "$vibe_branch")
+    if [ -n "$pr_number" ] && [ "$pr_number" != "null" ] && [ "$pr_number" != "empty" ]; then
+        log_info "PR already exists: #$pr_number"
+    else
+        local spec_md="/srv/monorepo/docs/SPECS/${spec_id}.md"
+        local pr_title="[vibe] ${spec_id}: $(head -1 "$spec_md" 2>/dev/null | cut -c1-50 || echo 'auto-generated')"
+        local pr_body
+        pr_body=$(cat <<EOF
+## Summary
+- ${changed_files} files changed
+- ${completed_tasks} tasks completed
+- [ ] needs review
+
+## Test Plan
+- [ ] pnpm test
+- [ ] pnpm tsc --noEmit
+- [ ] smoke-runner.sh passes
+
+🤖 Generated by vibe-kit do_ship
+EOF
+)
+        pr_number=$(_gitea_create_pr "$vibe_branch" "$pr_title" "$pr_body")
+        if [ -z "$pr_number" ] || [ "$pr_number" = "null" ] || [ "$pr_number" = "empty" ]; then
+            log_error "PR creation failed"
+            _create_failure_issue "$spec_id" "PR creation failed" "Gitea API error for branch $vibe_branch"
+            return 1
+        fi
+        log_info "PR created: #$pr_number"
+    fi
+
+    # Assign reviewer
+    local reviewer
+    reviewer=$(_get_reviewer_from_codeowners)
+    if [ -n "$reviewer" ] && [ "$reviewer" != "empty" ]; then
+        _gitea_assign_reviewer "$pr_number" "$reviewer"
+        log_info "Assigned reviewer: $reviewer"
+    fi
+
+    # Poll CI
+    log_info "Polling CI for PR #$pr_number (max ${CI_MAX_WAIT_MINUTES}min)..."
+    local ci_status
+    ci_status=$(_poll_ci_status "$pr_number")
+
+    if [ "$ci_status" = "success" ]; then
+        log_info "CI passed — merging PR #$pr_number"
+        if _gitea_merge_pr "$pr_number"; then
+            log_info "PR #$pr_number merged (squash) and branch deleted"
+            _write_vibe_learning "$spec_id" "SUCCESS"
+            _hermes_sync_brain "$spec_id"
+        else
+            log_warn "Merge may have failed — check PR manually"
+        fi
+    elif [ "$ci_status" = "failure" ]; then
+        log_error "CI failed for PR #$pr_number"
+        _create_failure_issue "$spec_id" "CI failed" "PR #$pr_number failed CI checks"
+        _freeze_spec "$spec_id"
+        _write_vibe_learning "$spec_id" "CI_FAILURE"
+        return 1
+    else
+        log_error "CI poll timed out"
+        _create_failure_issue "$spec_id" "CI timeout" "PR #$pr_number CI check timed out after ${CI_MAX_WAIT_MINUTES}min"
+        _write_vibe_learning "$spec_id" "TIMEOUT"
+        return 1
+    fi
+
     return 0
 }
 
@@ -1190,7 +1685,7 @@ main() {
 
     case "$phase" in
         plan)
-            lead_think "$spec_file" "$app" || overall_exit=1
+            lead_analyze "$spec_file" "$app" || overall_exit=1
             ;;
         do)
             do_loop || overall_exit=1
@@ -1198,10 +1693,15 @@ main() {
         verify)
             do_verify || overall_exit=1
             ;;
+        ship)
+            do_ship "$spec" || overall_exit=1
+            ;;
         *)
-            lead_think "$spec_file" "$app" || overall_exit=1
+            lead_analyze "$spec_file" "$app" || overall_exit=1
             do_loop || overall_exit=1
-            do_verify || overall_exit=1
+            if do_verify; then
+                do_ship "$spec" || overall_exit=1
+            fi
             ;;
     esac
 
@@ -1212,15 +1712,6 @@ main() {
     log_info "Pipeline done — done=$done_count failed=$failed_count exit=$overall_exit"
 
     _terminate_pid $watchdog_pid "watchdog" 2>/dev/null || true
-
-    if [ "${VIBE_SKIP_GIT_COMMIT:-false}" = "true" ]; then
-        log_info "Skipping automatic git commit because VIBE_SKIP_GIT_COMMIT=true"
-    elif [ "$done_count" -gt 0 ] && [ "$failed_count" -le 5 ]; then
-        log_info "Creating vibe branch and committing"
-        _run_with_timeout "$TIMEOUT_GIT" "git-checkout" git checkout -b "vibe-$(date +%Y%m%d-%H%M%S)" 2>/dev/null || true
-        _run_with_timeout "$TIMEOUT_GIT" "git-add" git add -A 2>/dev/null || true
-        _run_with_timeout "$TIMEOUT_GIT" "git-commit" git commit -m "vibe: $spec completed ($done_count done, $failed_count failed)" 2>/dev/null || true
-    fi
 
     log_info "Sending completion notification"
     _retry 3 5 "notify-complete" bash "$SCRIPT_NOTIFY_COMPLETE" "$overall_exit" "$done_count" "$failed_count" 2>/dev/null || {

@@ -96,7 +96,7 @@ When a SPEC references an architecture decision, include the ADR link:
 When an ADR is created from a SPEC decision, note it in the SPEC:
 
 ```markdown
-**Related ADR:** [20260404-voice-dev-pipeline](../ADRs/20260404-voice-dev-pipeline.md)
+**Related ADR:** [ADR-001](./ADR-001-denv-as-canonical-secrets-source.md)
 ```
 
 ## Regras
@@ -144,8 +144,4 @@ When an ADR is created from a SPEC decision, note it in the SPEC:
 
 ## Protected SPECs
 
-SPECs marked `PROTEGIDO` contain critical system configurations that must not be altered without explicit approval:
-
-- `SPEC-004-kokoro-tts-kit.md` — TTS voice stack
-- `SPEC-005-wav2vec2-stt-kit.md` — STT voice stack
-- `SPEC-009-openclaw-persona-audio-stack.md` — OpenClaw audio configuration
+SPECs marked `PROTEGIDO` contain critical system configurations that must not be altered without explicit approval. See `docs/GOVERNANCE/IMMUTABLE-SERVICES.md` for the current list of protected services.

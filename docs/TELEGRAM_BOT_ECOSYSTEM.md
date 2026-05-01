@@ -96,7 +96,7 @@ homelab_logs:     https://hermes-gateway.zappro.site/webhook/homelab_logs
 ```
 
 **Capacidades:**
-- Voz → STT (Whisper medium) → Route → TTS (Kokoro)
+- Voz → STT → Route → TTS
 - Imagem → Vision (qwen2.5vl:7b via Ollama)
 - Texto → Processamento CEO
 - Multimedia → Download, validação, processamento

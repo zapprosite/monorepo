@@ -13,8 +13,7 @@
 | Serviço | Container | Porta | Versão/Pin | Owner | Desde |
 |---------|-----------|-------|------------|-------|-------|
 | **TTS Bridge** | `zappro-tts-bridge` | 8013 | `python:3.11-slim + tts-bridge.py` | will-zappro | 2026-04-08 |
-| **Kokoro TTS** | `zappro-kokoro` | 8012 | `ghcr.io/remsky/kokoro-fastapi-gpu:v0.2.2` | will-zappro | 2026-03-20 |
-| **wav2vec2 STT** | `zappro-wav2vec2` | 8201 | `jonatasgrosman/wav2vec2-large-xlsr-53-portuguese` | will-zappro | 2026-03-15 |
+| **Edge TTS** | `edge-tts` | 8014 | `rany两句/edge-tts` | will-zappro | 2026-04-20 |
 | **OpenClaw Bot** | `openclaw-qgtzrmi6771lt8l7x8rqx72f` | 8080 | `2026.2.6` | will-zappro | 2026-03-10 |
 | **LiteLLM Proxy** | `zappro-litellm` | 4000 | `latest` (config.yaml pinado) | will-zappro | 2026-03-01 |
 | **Coolify Traefik** | `coolify-proxy` | 8080 | `4.0.0-beta.470` | will-zappro | 2026-03-01 |
@@ -35,48 +34,26 @@ endpoint: "http://localhost:8013/v1/audio/speech"
 owner: "will-zappro"
 pinned_date: "2026-04-08"
 status: "PINNED"
-why_pinned: "Filtra vozes Kokoro — apenas pm_santa e pf_dora permitidas. Bloqueia 65 vozes não-autorizadas."
+why_pinned: "Proxy TTS via Edge TTS — apenas vozes PT-BR validadas."
 vozes_permitidas:
-  - "pm_santa"  # Masculino PT-BR — PADRÃO
-  - "pf_dora"    # Feminino PT-BR — fallback
-vozes_bloqueadas: "todas as outras (af_*, am_*, bf_*, bm_*, etc.) — 65 vozes bloqueadas"
+  - "pt-BR-DональдNeural"  # Masculino PT-BR — PADRÃO
+  - "pt-BR-AnaNeural"       # Feminino PT-BR — fallback
 ```
 
 **Verification CMD:**
 ```bash
 curl -sf http://localhost:8013/health
-curl -sf http://localhost:8013/v1/audio/voices
 curl -sf -X POST http://localhost:8013/v1/audio/speech \
   -H "Content-Type: application/json" \
-  -d '{"model":"kokoro","input":"test","voice":"pm_santa"}' -o /tmp/test.mp3
-```
-
-**Smoke Test:**
-```bash
-# pm_santa permitido → 200
-curl -sf -X POST http://localhost:8013/v1/audio/speech \
-  -H "Content-Type: application/json" \
-  -d '{"model":"kokoro","input":"teste","voice":"pm_santa"}' -w "pm_santa: %{http_code}\n"
-
-# pf_dora permitido → 200
-curl -sf -X POST http://localhost:8013/v1/audio/speech \
-  -d '{"model":"kokoro","input":"teste","voice":"pf_dora"}' -w "pf_dora: %{http_code}\n"
-
-# af_sarah BLOQUEADO → 400
-curl -sf -X POST http://localhost:8013/v1/audio/speech \
-  -d '{"model":"kokoro","input":"teste","voice":"af_sarah"}' -w "af_sarah: %{http_code}\n"
+  -d '{"model":"edge","input":"test","voice":"pt-BR-DональдNeural"}' -o /tmp/test.mp3
 ```
 
 **WHAT_BREAKS_IF_CHANGED:**
 - OpenClaw perde acesso a TTS se container for parado
-- Qualquer tentativa de usar voz não-autorizada retorna 400
 
 **Arquitetura:**
 ```
-OpenClaw → http://10.0.19.5:8013/v1/audio/speech
-              ↓ valida voice (pm_santa ou pf_dora)
-              ↓ passthrough
-           Kokoro :8880
+OpenClaw → TTS Bridge :8013 → Edge TTS :8014
 ```
 
 **Ficheiros:**
@@ -85,74 +62,7 @@ OpenClaw → http://10.0.19.5:8013/v1/audio/speech
 
 ---
 
-### 1. KOKORO TTS (Text-to-Speech)
-
-```yaml
-container_name: "zappro-kokoro"
-port: 8012
-image: "ghcr.io/remsky/kokoro-fastapi-gpu:v0.2.2"
-network: "zappro-lite"
-endpoint: "http://localhost:8012/v1/audio/speech"
-owner: "will-zappro"
-pinned_date: "2026-03-20"
-status: "PINNED"
-why_pinned: "Validado com OpenClaw watchdog e LiteLLM proxy. Mudar quebra routing de TTS."
-voz_principal: "pm_santa"   # Masculino PT-BR — NÃO REMOVER
-voz_fallback: "pf_dora"      # Feminino PT-BR — NÃO REMOVER
-```
-
-**Verification CMD:**
-```bash
-curl -sf http://localhost:8012/health
-```
-
-**Smoke Test:**
-```bash
-curl -sf -X POST http://localhost:8012/v1/audio/speech \
-  -H "Content-Type: application/json" \
-  -d '{"input":"Teste","voice":"pm_santa"}' -o /tmp/test.mp3
-```
-
-**WHAT_BREAKS_IF_CHANGED:**
-- OpenClaw não consegue enviar TTS via LiteLLM
-- Vozes pm_santa e pf_dora param de funcionar
-- Pipeline de voz inteiro quebra (STT → LLM → TTS)
-
----
-
-### 2. WAV2VEC2 STT (Speech-to-Text)
-
-```yaml
-container_name: "zappro-wav2vec2"
-port: 8201
-model: "jonatasgrosman/wav2vec2-large-xlsr-53-portuguese"
-network: "zappro-lite"
-endpoint: "http://localhost:8201/v1/audio/transcriptions"
-owner: "will-zappro"
-pinned_date: "2026-03-15"
-status: "PINNED"
-why_pinned: "Watchdog do OpenClaw depende da porta 8201. HF model cache é grande (5.8GB)."
-```
-
-**Verification CMD:**
-```bash
-curl -sf http://localhost:8201/health
-```
-
-**Smoke Test:**
-```bash
-curl -sf -X POST http://localhost:8201/v1/audio/transcriptions \
-  -F "file=@/tmp/test_audio.wav"
-```
-
-**WHAT_BREAKS_IF_CHANGED:**
-- OpenClaw watchdog não consegue fazer STT local
-- Volta para Deepgram cloud (custo $)
-- Porta 8201 é hardcoded no watchdog
-
----
-
-### 3. OPENCLAW BOT
+### 1. OPENCLAW BOT
 
 ```yaml
 container_name: "openclaw-qgtzrmi6771lt8l7x8rqx72f"
@@ -171,7 +81,7 @@ api_format: "anthropic-messages"  # NUNCA MUDAR
 **⚠️ REGRAS CRÍTICAS DO OPENCLAW:**
 - `model.primary` NUNCA pode ser `liteLLM/*` (crash api:undefined)
 - `minimax.api` SEMPRE deve ser `anthropic-messages`
-- LiteLLM só para GPU/voz/visão (NÃO como provider primário)
+- LiteLLM só para GPU/visão (NÃO como provider primário)
 - NÃO usar porta 8080 para outros serviços (reservada)
 
 **Verification CMD:**
@@ -188,7 +98,7 @@ curl -sf https://bot.zappro.site/ping
 
 ---
 
-### 4. LITELLM PROXY
+### 2. LITELLM PROXY
 
 ```yaml
 container_name: "zappro-litellm"
@@ -198,10 +108,8 @@ config_file: "/home/will/zappro-lite/config.yaml"
 owner: "will-zappro"
 pinned_date: "2026-03-01"
 status: "PINNED"
-why_pinned: "Proxy GPU para TTS, STT, Vision. NÃO é provider primário. Config.yaml foi validado."
+why_pinned: "Proxy GPU para Vision. NÃO é provider primário. Config.yaml foi validado."
 models_pinned:
-  - "kokoro/local"        # → Kokoro TTS
-  - "whisper-stt"         # → wav2vec2 :8201
   - "gemma4"              # GPU
   - "llava"               # Vision
   - "embedding-nomic"     # Embeddings
@@ -215,13 +123,12 @@ curl -sf http://localhost:4000/health
 ```
 
 **WHAT_BREAKS_IF_CHANGED:**
-- TTS, STT, Vision param de funcionar
+- Vision param de funcionar
 - Todos os containers em zappro-lite perdem acesso a modelos GPU
-- Routing para Kokoro e wav2vec2 quebra
 
 ---
 
-### 5. TRAEFIK / COOLIFY PROXY
+### 3. TRAEFIK / COOLIFY PROXY
 
 ```yaml
 container_name: "coolify-proxy"
@@ -251,7 +158,7 @@ docker ps --format "{{.Names}}\t{{.Ports}}" | grep 8080
 
 ---
 
-### 6. CLOUDFLARE TUNNEL
+### 4. CLOUDFLARE TUNNEL
 
 ```yaml
 container_name: "cloudflared"
@@ -295,8 +202,6 @@ sudo zfs rollback -r tank@pre-YYYYMMDD-HHMMSS-pinned-services
 
 | Serviço | Snapshot Obrigatório | Motivo |
 |---------|---------------------|--------|
-| Kokoro TTS | SIM | Imagem + model cache grandes |
-| wav2vec2 STT | SIM | HF model cache 5.8GB |
 | OpenClaw | SIM | Config complexo + secrets |
 | LiteLLM | SIM | config.yaml + modelos |
 | Coolify Proxy | SIM | Conflito de porta |
@@ -332,10 +237,10 @@ Este documento é parte da governança do homelab. Para mudanças formais:
 bash /srv/monorepo/tasks/smoke-tests/pipeline-openclaw-voice.sh
 
 # Verificação rápida por container
-docker ps --format "{{.Names}}\t{{.Status}}" | grep -E "kokoro|wav2vec2|openclaw|litellm|coolify-proxy"
+docker ps --format "{{.Names}}\t{{.Status}}" | grep -E "openclaw|litellm|coolify-proxy"
 
 # Verificação de portas
-ss -tlnp | grep -E "8012|8201|4000|8080"
+ss -tlnp | grep -E "4000|8080"
 ```
 
 ### Smoke Test Esperado (pipeline-openclaw-voice.sh)
@@ -352,12 +257,10 @@ OpenClaw Voice Pipeline Smoke Test
 [PASS] OpenClaw via bot.zappro.site
 
 === 2. STT (Speech-to-Text) ===
-[PASS] wav2vec2 STT :8201
-[PASS] wav2vec2 transcription
+[PASS] Groq Whisper STT
 
 === 3. TTS (Text-to-Speech) ===
-[PASS] Kokoro TTS synthesis (pm_santa)
-[PASS] Kokoro TTS (pf_dora female)
+[PASS] Edge TTS synthesis
 
 === 4. Vision ===
 [PASS] Vision qwen2.5-vl responding

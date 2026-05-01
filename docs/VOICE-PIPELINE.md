@@ -1,8 +1,7 @@
 # Voice/STT Pipeline — Documentacao Tecnica
 
-**Data:** 2026-04-22
-**Blueprint:** CLAUDE_CODE_BLUEPRINT.md
-**Stack:** MiniMax-M2.7 (primary) + GPT-4o-mini (fallback) + Gemma4:26b-q4 (local)
+**Data:** 2026-05-01
+**Stack:** MiniMax-M2.7 (primary) + Groq Whisper (STT free) + Edge TTS (TTS free)
 
 ---
 
@@ -14,7 +13,7 @@ Pipeline de voz bidirecional: entrada de audio (STT) → processamento LLM → s
 Microfone (Telegram Voice)
     │
     ▼
-Groq Whisper Turbo (STT cloud, 150min/dia gratis)
+Groq Whisper Turbo (STT cloud, 150min/dia gratis) ── fallback ──▶ faster-whisper (:8204)
     │
     ▼
 MiniMax-M2.7 (LLM primário, via LiteLLM :4000)
@@ -27,12 +26,11 @@ Edge TTS (pt-BR-AntonioNeural) ──→ Telegram Voice
 
 ## STT — Speech-to-Text
 
-### Provider Principal: Groq Whisper Turbo
+### Provider Principal: Groq Whisper Turbo (GRÁTIS — 150min/dia)
 
 **API:** `https://api.groq.com/openai/v1/audio/transcriptions`
 **Modelo:** `whisper-large-v3-turbo`
 **Limite:** 150 minutos/dia gratis
-**Vantagens:** Rapido, precisao excelente em PT-BR, baixa latencia
 
 ```bash
 # Transcricao direta com Groq
@@ -66,22 +64,19 @@ curl -sf http://localhost:8204/v1/audio/transcriptions \
 
 ## TTS — Text-to-Speech
 
-### Provider Canonical: Edge TTS
+### Provider Canonical: Edge TTS (Microsoft — GRÁTIS)
 
 **Voz:** `pt-BR-AntonioNeural`
-**Script:** `~/.hermes/scripts/tts-edge.sh` ou `~/.hermes/scripts/tts-edge.py`
+**Script:** `~/.hermes/scripts/tts-edge.py`
 
 ```bash
 # Uso direto
-bash ~/.hermes/scripts/tts-edge.sh "Texto para falar" [chat_id]
-
-# Exemplo com Python
-python3 ~/.hermes/scripts/tts-edge.py "Olá, como posso ajudar?" 7220607041
+python3 ~/.hermes/scripts/tts-edge.py "Texto para falar" [chat_id]
 ```
 
 ### Pre-processamento de Texto
 
-O `tts-edge.py` possui um TextScanner single-pass que:
+O `tts-edge.py` possui TextScanner single-pass:
 - Converte bullet points em narracao ordinal (primeiro, segundo...)
 - Resume blocos de codigo (nao le linha a linha)
 - Converte simbolos matematicos e operadores
@@ -97,13 +92,9 @@ O `tts-edge.py` possui um TextScanner single-pass que:
 **Endpoint:** LiteLLM em `localhost:4000`
 **Routing:** Automatico via LiteLLM
 
-### Fallback: GPT-4o-mini
+### Fallback: qwen2.5-coder via Ollama
 
-**Estratégia:** LiteLLM faz failover automatico entre MiniMax e GPT quando necessario.
-
-### Local: Gemma4:26b-q4
-
-**VRAM:** ~22GB (carregado sob demanda)
+**VRAM:** ~8GB
 **Uso:** Codigo local via Ollama `:11434`
 
 ---
@@ -112,9 +103,10 @@ O `tts-edge.py` possui um TextScanner single-pass que:
 
 ```
 1. Usuario grava audio no Telegram
-2. Hermes Gateway recebe voz
+2. Hermes Gateway recebe voz (:8642)
 3. STT: Groq Whisper Turbo transcreve → texto
-4. LLM: MiniMax-M2.7 processa entrada
+   (fallback: faster-whisper :8204 se Groq indisponivel)
+4. LLM: MiniMax-M2.7 processa entrada (:4000)
 5. TTS: Edge TTS (pt-BR-AntonioNeural) gera audio
 6. Hermes Gateway envia audio de volta ao Telegram
 ```
@@ -130,29 +122,30 @@ O `tts-edge.py` possui um TextScanner single-pass que:
        ▼
 ┌─────────────────┐
 │ Hermes Gateway   │
-│    :3001        │
+│    :8642        │
 └──────┬──────────┘
        │
        ▼
 ┌─────────────────┐     ┌──────────────────┐
 │  Groq Whisper    │     │ faster-whisper   │
 │  (cloud)         │────▶│   :8204          │
-│  whisper-large   │     │   (fallback)     │
+│  whisper-large    │     │   (fallback)     │
 │  -v3-turbo       │     └──────────────────┘
+│  (150min FREE)   │
 └──────┬──────────┘
        │ texto
        ▼
-┌─────────────────┐     ┌──────────────────┐
-│    LiteLLM      │     │  GPT-4o-mini     │
-│    :4000        │────▶│  (fallback)     │
-│  MiniMax-M2.7   │     └──────────────────┘
+┌─────────────────┐
+│    LiteLLM       │
+│    :4000        │
+│  MiniMax-M2.7   │
 └──────┬──────────┘
        │ texto
        ▼
 ┌─────────────────┐
 │   Edge TTS       │
 │ pt-BR-Antonio   │
-│  Neural         │
+│  Neural (FREE)  │
 └──────┬──────────┘
        │ audio.opus
        ▼
@@ -167,15 +160,15 @@ O `tts-edge.py` possui um TextScanner single-pass que:
 ## Environment Variables
 
 ```bash
-# STT
-GROQ_API_KEY=***                    # Groq cloud (STT primary)
+# STT Primary (Groq cloud — FREE 150min/dia)
+GROQ_API_KEY=${GROQ_API_KEY}
 
-# TTS
-STT_DIRECT_URL=http://localhost:8204   # fallback faster-whisper
+# STT Fallback (faster-whisper local)
+STT_DIRECT_URL=http://localhost:8204
 
 # LLM
-MINIMAX_API_KEY=***                    # MiniMax M2.7 primary
-MINIMAX_GROUP_ID=2034696179689731017
+MINIMAX_API_KEY=${MINIMAX_API_KEY}
+MINIMAX_GROUP_ID=${MINIMAX_GROUP_ID}
 OLLAMA_URL=http://localhost:11434
 LITELLM_URL=http://localhost:4000
 ```
@@ -186,19 +179,30 @@ LITELLM_URL=http://localhost:4000
 
 | Servico | Porta | Tipo |
 |---------|-------|------|
-| Hermes Gateway | 3001 | Agent brain |
+| Hermes Gateway | 8642 | Agent brain |
 | LiteLLM | 4000 | LLM proxy |
 | ai-gateway | 4002 | OpenAI facade |
-| faster-whisper (fallback) | 8204 | STT local |
+| faster-whisper (fallback STT) | 8204 | STT local |
+| Edge TTS Bridge | 8012 | TTS cloud |
 | Ollama | 11434 | Local LLM |
-| Edge TTS | — | Cloud TTS |
+| Qdrant | 6333 | Vector DB |
+
+---
+
+## Custos
+
+| Provider | Model | Custo |
+|----------|-------|-------|
+| Groq | whisper-large-v3-turbo | **$0** (150min/dia free) |
+| Edge TTS | pt-BR-AntonioNeural | **$0** |
+| MiniMax | minimax-m2.7 | $0.10/1M |
+| Ollama | qwen2.5:3b | $0 |
 
 ---
 
 ## Referencias
 
-- Blueprint: `/home/will/Desktop/CLAUDE_CODE_BLUEPRINT.md`
-- Voice skill: `.claude/skills/voice-ouvidos-visao/SKILL.md`
+- Voice/STT Stack: `VOICE-STT-STACK.md`
 - TTS script: `~/.hermes/scripts/tts-edge.py`
 - Smoke test: `smoke-tests/smoke-hermes-local-voice.sh`
 - PORTS.md: `/srv/ops/ai-governance/PORTS.md`

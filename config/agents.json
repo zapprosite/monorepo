@@ -1,0 +1,12 @@
+{
+  "agents": {
+    "intake": {"workers": 2, "timeout_ms": 10000},
+    "classifier": {"workers": 2, "timeout_ms": 8000},
+    "access_control": {"workers": 1, "timeout_ms": 3000},
+    "rag": {"workers": 3, "timeout_ms": 30000},
+    "ranking": {"workers": 2, "timeout_ms": 15000},
+    "response": {"workers": 2, "timeout_ms": 20000},
+    "billing": {"workers": 1, "timeout_ms": 10000},
+    "memory": {"workers": 1, "timeout_ms": 5000}
+  }
+}

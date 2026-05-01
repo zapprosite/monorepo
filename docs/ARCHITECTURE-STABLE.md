@@ -97,7 +97,7 @@ LiteLLM serve como proxy LLM multi-provedor para Groq, OpenAI, MiniMax, Ollama l
 | `hermes-gateway.service` | 8642 | 127.0.0.1 | Polling Telegram (brain) |
 | `hermes-mcp.service` | 8092 | 127.0.0.1 | Bridge MCPO → Claude Code |
 | `ollama.service` | 11434 | 0.0.0.0 | Local LLM inference (RTX 4090) |
-| `faster-whisper` | 8204 | 0.0.0.0 | STT Whisper local |
+
 | `cloudflared` | 20241/20242 | 127.0.0.1 | Tunnel + métricas |
 | `sshd` | 22 | 0.0.0.0 | SSH |
 | `postfix` | 25 | 0.0.0.0 | Relay SMTP |
@@ -125,7 +125,7 @@ LiteLLM serve como proxy LLM multi-provedor para Groq, OpenAI, MiniMax, Ollama l
 | 3100 | grafana | * | `curl localhost:3100/api/health` |
 | 8642 | hermes-gateway | 127.0.0.1 | `curl localhost:8642/health` |
 | 9100 | node-exporter | * | `curl localhost:9100/metrics` |
-| 8204 | faster-whisper | 0.0.0.0 | — |
+
 | 8092 | hermes-mcp | 127.0.0.1 | — |
 
 ---
@@ -141,7 +141,7 @@ LiteLLM serve como proxy LLM multi-provedor para Groq, OpenAI, MiniMax, Ollama l
                                               ↓
                                     Redis (:6379) — cache de sessão
                                               ↓
-                                    Edge TTS (8012) — resposta de voz (Kokoro)
+                                    Edge TTS (8012) — resposta de voz
 ```
 
 ### 5.2 RAG Query
@@ -170,7 +170,7 @@ User → SearXNG (:8080) — motor de busca local, ad-free
 | **Vector DB** | Qdrant (RAG/embeddings) |
 | **Cache** | Redis (sessão, pub/sub) |
 | **DB** | PostgreSQL (metadados LiteLLM) |
-| **STT** | Groq Whisper Turbo (cloud) + faster-whisper (local :8204) |
+| **STT** | Groq Whisper Turbo (cloud) |
 | **TTS** | Edge TTS (Microsoft neural) |
 | **Agent** | Hermes Gateway (Python, Telegram bot) |
 | **Tunnel** | Cloudflared (3 subdomínios) |
@@ -187,7 +187,7 @@ User → SearXNG (:8080) — motor de busca local, ad-free
 | Cloudflare Tunnel | Apenas 3 subdomínios expostos |
 | ZFS immutable | Snapshot antes de mudanças estruturais |
 | Secrets | `.env` local, nunca em git |
-| Port 8204 | `0.0.0.0` (faster-whisper STT, única porta pública além do tunnel) |
+
 | Bot Telegram | `@CEO_REFRIMIX_bot` |
 
 ---

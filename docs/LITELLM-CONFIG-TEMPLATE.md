@@ -63,17 +63,7 @@ model_list:
       supports_vision: false
 
   # ── STT FALLBACK (Local) ───────────────────
-  # faster-whisper via local container
-  - model_name: whisper-local
-    litellm_params:
-      model: openai/whisper-1
-      api_base: http://host.docker.internal:8204
-      api_key: fake-key
-      timeout: 300
-      rpm: 30
-    model_info:
-      mode: audio_transcription
-      supports_vision: false
+  # faster-whisper REMOVED - usar Groq Cloud (150min/day free)
 
   # ── TEXT (Chat Completion) ─────────────────
   # MiniMax-M2.7 — Primary LLM

@@ -71,9 +71,7 @@ PINNED services can be changed with MASTER_PASSWORD following proper procedure:
 
 | Service | Container | Why Pinned |
 |---------|-----------|------------|
-| **TTS Bridge** | `zappro-tts-bridge` | Filters Kokoro voices — only pm_santa/pf_dora allowed |
-| **Kokoro TTS** | `zappro-kokoro` | Validated with OpenClaw watchdog; model cache large |
-| **wav2vec2 STT** | `zappro-wav2vec2` | HF model cache 5.8GB; watchdog depends on port 8201 |
+| **TTS Bridge** | `zappro-tts-bridge` | Proxy TTS via Edge TTS — only PT-BR voices allowed |
 | **OpenClaw Bot** | `openclaw-qgtzrmi6771lt8l7x8rqx72f` | Complex config + secrets; tunnel routing validated |
 | **LiteLLM Proxy** | `zappro-litellm` | GPU proxy for TTS/STT/Vision; config.yaml validated |
 | **openwebui** | `openwebui` | Validated bridge target; OAuth integration stable |

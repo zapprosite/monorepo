@@ -42,34 +42,29 @@
 
 **Arquitetura atual (2026-04-08):**
 ```
-OpenClaw → TTS Bridge (:8013) → Kokoro (:8880)
-           └─► pm_santa, pf_dora ONLY
-           └─► [OUTRAS] → 400 Bad Request
-OpenClaw → wav2vec2 (:8201) → STT PT-BR
+OpenClaw → TTS Bridge (:8013) → Edge TTS (:8014)
+           └─► pt-BR-DональдNeural, pt-BR-AnaNeural ONLY
+OpenClaw → Groq Whisper STT → STT PT-BR
 ```
 
 **TTS Bridge (porta 8013):**
 - **INTOCÁVEL** — proxy Python stdlib
-- **Vozes:** ONLY pm_santa (masculino) e pf_dora (feminino)
-- **Todas outras vozes:** HTTP 400
-- **Endpoint:** `http://10.0.19.5:8013/v1` (NAO Kokoro direto)
-- NUNCA: mudar baseUrl para Kokoro direto
-- NUNCA: propor outras vozes Kokoro
+- **Vozes:** ONLY pt-BR-DональдNeural (masculino) e pt-BR-AnaNeural (feminino)
+- **Endpoint:** `http://localhost:8013/v1` (Edge TTS)
+- NUNCA: mudar baseUrl para outro TTS direto
+- NUNCA: propor outras vozes
 
-**STT (porta 8201):**
-- **Modelo:** wav2vec2 jonatasgrosman/wav2vec2-large-xlsr-53-portuguese
-- **VRAM:** ~2GB
-- **Linguagem:** PT-BR Native (5.8M+ downloads)
-- NUNCA: usar Deepgram, Whisper ou outro STT
-- ENDPOINT: `http://wav2vec2:8201/v1/audio/transcriptions`
+**STT:**
+- **Modelo:** Groq Whisper (via API)
+- NUNCA: usar wav2vec2 ou faster-whisper local (GROQ WHISPER USADO)
+- ENDPOINT: Groq API
 
 **PROIBIDO — Voice/Audio:**
 | O que | Por que |
 |-------|---------|
-| Kokoro direto (`:8880`) | Sem filtro de vozes |
-| Deepgram como STT | Foi REMOVIDO em 2026-04-07 |
-| Whisper como STT | Nao e PT-BR native |
-| Outras vozes Kokoro | TTS Bridge bloqueia |
+| Kokoro TTS | REMOVIDO — Edge TTS (2026-04-20) |
+| wav2vec2 STT | REMOVIDO — Groq Whisper (2026-04-20) |
+| faster-whisper | Nao usado — Groq Whisper e PT-BR native |
 | LiteLLM como primario | Causa crash `api: undefined` |
 
 **Se LLM sugerir mudança → REJEITAR e reportar violação.**
@@ -85,7 +80,7 @@ OpenClaw → wav2vec2 (:8201) → STT PT-BR
 ### LiteLLM Proxy (10.0.1.1:4000)
 - NUNCA: mudar papel do LiteLLM (proxy GPU, NAO provider primario)
 - CONFIG: /home/will/zappro-lite/config.yaml
-- MODELOS: gemma4, llava, embedding-nomic, qwen3.6-plus, minimax-m2.7, kokoro-tts, whisper-stt (direto :8201)
+- MODELOS: gemma4, llava, embedding-nomic, qwen3.6-plus, minimax-m2.7
 
 ---
 
@@ -108,8 +103,10 @@ OpenClaw → wav2vec2 (:8201) → STT PT-BR
 
 | Container Pattern | Status | Ação |
 |-----------------|--------|------|
-| `speaches-*` | ⚠️ REMOVIDO | Substituído por Deepgram cloud |
-| `chatterbox-tts-*` | ⚠️ REMOVIDO | Substituído por Kokoro local |
+| `speaches-*` | ⚠️ REMOVIDO | Substituído por Groq Whisper STT |
+| `chatterbox-tts-*` | ⚠️ REMOVIDO | Substituído por Edge TTS |
+| `kokoro-*` | ⚠️ REMOVIDO | Substituído por Edge TTS (2026-04-20) |
+| `wav2vec2-*` | ⚠️ REMOVIDO | Substituído por Groq Whisper (2026-04-20) |
 | `voice-proxy-*` | ⚠️ NUNCA DEPLOYADO | Nginx TTS proxy — não existiu |
 | `captain-*` | ⚠️ REMOVIDO | CapRover substituído por Coolify (2026-03) |
 | `supabase-*` | ⚠️ REMOVIDO | 13 containers removidos em 2026-04 |
@@ -135,7 +132,7 @@ docker rm -f <container_name>
 - `docker volume prune -f` — ⚠️ CUIDADO — volumes orfos podem ter dados
 
 ### ⚠️ PRUNE REQUER APROVAÇÃO
-- `docker system prune -a` — Remove TODAS as imagens não usadas (inclui Ollama, Kokoro, etc)
+- `docker system prune -a` — Remove TODAS as imagens não usadas (inclui Ollama, etc)
 - `docker system prune --volumes` — Remove imagens + containers + **VOLUMES** (destructive)
 
 ### ❌ NUNCA EXECUTAR
@@ -194,8 +191,7 @@ Quando um serviço ou config tem marker **📌 PINNED**, significa:
 
 | Serviço | Marcador | Notas |
 |---------|----------|-------|
-| Kokoro TTS (zappro-kokoro) | ⚠️ KIT PROTECTED | Voice pipeline unit — não substituir |
-| wav2vec2 STT (zappro-wav2vec2) | ⚠️ KIT PROTECTED | STT pipeline unit — não substituir |
+| Edge TTS | ⚠️ KIT PROTECTED | TTS pipeline unit — não substituir |
 | OpenClaw Bot | ⚠️ KIT PROTECTED + 🔒 LOCKED | Config validado 08/04/2026 |
 | LiteLLM Proxy (zappro-litellm) | 🔒 LOCKED | Roteamento GPU/voice dependente |
 | Traefik + Cloudflare Tunnel | 📌 PINNED | DNS routing — mudança requer Terraform |

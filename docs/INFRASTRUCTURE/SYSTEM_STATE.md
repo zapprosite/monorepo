@@ -22,15 +22,14 @@
 
 ```
 Total:   24.564 MiB
-Usado:   ~8.000 MiB  (desktop + kokoro/whisper sob demanda)
+Usado:   ~8.000 MiB  (desktop)
 Livre:   ~16.000 MiB
 ```
 
 | Processo | VRAM |
 |---------|------|
 | Xorg + GNOME (fixo) | ~1 GB |
-| Whisper API (sob demanda) | ~4 GB |
-| Kokoro TTS (sob demanda) | ~1,5 GB |
+
 | Qwen 3.5 (sob demanda, Ollama) | ~6,5 GB |
 | BGE-M3 F16 (sob demanda, Ollama) | ~1,2 GB |
 | **Pior caso com tudo carregado** | **~14,2 GB** |
@@ -91,11 +90,7 @@ Livre:   ~16.000 MiB
 | captain-captain | 3000 | ✅ running |
 | captain-certbot | interna | ✅ running |
 
-### Stack Voice — Kokoro + Whisper API
-| Container | Porta host | Status |
-|-----------|------------|--------|
-| kokoro (TTS) | 8012 | ✅ healthy |
-| whisper-api (STT) | 8201 | ✅ healthy |
+
 
 ### Stack LiteLLM — /srv/apps/litellm/
 | Container | Porta | Status |
@@ -183,9 +178,8 @@ curl -s http://localhost:11434/api/ps | python3 -m json.tool
 # ZFS
 zpool status tank && zfs list
 
-# Voice stack — Kokoro + Whisper
-curl -s http://localhost:8012/health   # Kokoro TTS
-curl -s http://localhost:8201/health   # Whisper API
+# Edge TTS
+curl -s http://localhost:8012/health   # Edge TTS
 
 # LiteLLM
 curl -s http://localhost:4000/health

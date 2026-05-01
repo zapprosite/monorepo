@@ -107,9 +107,6 @@ docs/                                    # SOURCE OF TRUTH
 │   │   ├── monitoring-diagnostic.md
 │   │   ├── monitoring-zfs-snapshot.md
 │   │   ├── ollama-health-check.md
-│   │   ├── litellm-health-check.md
-│   │   ├── kokoro-health-check.md
-│   │   ├── resource-monitor.md
 │   │   ├── ai-stress-test.md
 │   │   ├── catalog-sync.md
 │   │   ├── alert-deduplicator.md
@@ -171,7 +168,6 @@ docs/                                    # SOURCE OF TRUTH
 │   ├── openclaw-*.md
 │   ├── opencode.md
 │   ├── security-hardening.md
-│   ├── whisper-auto-local.md
 │   └── README.md
 │
 ├── logs/                               # Logs operacionais

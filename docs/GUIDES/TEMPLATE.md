@@ -210,40 +210,37 @@ sudo systemctl restart SERVICE_NAME
 
 ---
 
-## Example: Based on Voice Pipeline Desktop Guide
+## Example: Based on Service Health Check Guide
 
 ```markdown
-# Voice Pipeline Desktop — Smoke Test & Gap Analysis
+# Service Health Check — Smoke Test
 
 **Data:** 2026-04-10
-**Prerequisites:** Docker, Ollama, whisper_api.py
+**Prerequisites:** Docker, curl, jq
 **Est. Time:** 5 minutes
 
 ---
 
 ## Overview
 
-This guide performs a smoke test on the voice pipeline desktop setup, verifying all services, models, and scripts are operational. Run this before extended use or after system restart.
+This guide performs a smoke test on critical services, verifying all endpoints and containers are operational. Run this before extended use or after system restart.
 
 ## Prerequisites
 
 Before starting, ensure you have:
 
-- [ ] **Docker** — Container runtime for Kokoro and OpenClaw
-- [ ] **Ollama** — Local LLM inference server
-- [ ] **whisper_api.py** — STT service running natively (not Docker)
-- [ ] **Kokoro TTS** — Docker container `zappro-kokoro`
-- [ ] **Models downloaded** — `llama3-portuguese-tomcat-8b-instruct-q8`, `qwen2.5vl:7b`
+- [ ] **Docker** — Container runtime
+- [ ] **curl** — HTTP client for health checks
+- [ ] **jq** — JSON processor
+- [ ] **Services running** — LiteLLM, Ollama, Qdrant
 
 ### Required Services
 
 | Service | Port | Required |
 |---------|------|----------|
-| Kokoro TTS | :8012 | Yes |
-| Whisper API | :8201 | Yes |
+| LiteLLM | :4000 | Yes |
 | Ollama | :11434 | Yes |
-| wav2vec2-proxy | Docker | Yes |
-| OpenClaw | :8080 | Yes |
+| Qdrant | :6333 | Yes |
 
 ---
 
@@ -255,17 +252,28 @@ Check all services are listening on their respective ports:
 
 ```bash
 # Check all ports
-ss -tlnp | grep -E ':(8012|8201|11434|8080)'
+ss -tlnp | grep -E ':(4000|11434|6333)'
 ```
 
 **Expected output:**
 ```
-LISTEN  0.5  127.0.0.1:8012   0.0.0.0:*  users:(("docker-proxy",pid=12345,fd=4))
-LISTEN  0.5  127.0.0.1:8201   0.0.0.0:*  users:(("python3",pid=6789,fd=4))
+LISTEN  0.5  127.0.0.1:4000    0.0.0.0:*  users:(("docker-proxy",pid=12345,fd=4))
 LISTEN  0.5  127.0.0.1:11434  0.0.0.0:*  users:(("ollama",pid=1122,fd=3))
+LISTEN  0.5  127.0.0.1:6333   0.0.0.0:*  users:(("qdrant",pid=6789,fd=4))
 ```
 
-### Step 2: Verify Ollama Models
+### Step 2: Health Check All Services
+
+```bash
+# Comprehensive health check
+for port in 4000 11434 6333; do
+  curl -sf http://localhost:$port/health 2>/dev/null && echo ":$port OK" || echo ":$port FAIL"
+done
+```
+
+**Expected:** All ports report OK
+
+### Step 3: Verify Ollama Models
 
 ```bash
 curl -s http://localhost:11434/api/tags | jq '.models[].name'
@@ -274,54 +282,15 @@ curl -s http://localhost:11434/api/tags | jq '.models[].name'
 **Expected output:**
 ```json
 [
-  "llama3-portuguese-tomcat-8b-instruct-q8:latest",
+  "llama3:latest",
   "qwen2.5vl:7b",
   "nomic-embed-text:latest"
 ]
 ```
 
-### Step 3: Test STT Pipeline
-
-```bash
-# Record a test audio clip
-bash /home/will/Desktop/voice-pipeline/scripts/record.sh
-# Speak into microphone, press ENTER to stop
-
-# Process with voice.sh
-bash /home/will/Desktop/voice-pipeline/scripts/voice.sh /tmp/test_audio.wav
-```
-
-**Expected output:**
-```
-[voice.sh output showing transcription and LLM response]
-```
-
-### Step 4: Test TTS Pipeline
-
-```bash
-# Test Kokoro directly
-echo "Testing voice pipeline" | bash /home/will/Desktop/voice-pipeline/scripts/speak.sh
-```
-
-**Expected output:**
-```
-Audio plays through headset (pm_santa voice)
-```
-
 ---
 
 ## Verification Steps
-
-### Health Check All Services
-
-```bash
-# Comprehensive health check
-for port in 8012 8201 11434 8080; do
-  curl -sf http://localhost:$port/health 2>/dev/null && echo ":$port OK" || echo ":$port FAIL"
-done
-```
-
-**Expected:** All ports report OK
 
 ### GPU Memory Check
 
@@ -330,75 +299,36 @@ done
 nvidia-smi --query-gpu=memory.used,memory.total --format=csv
 ```
 
-**Expected:** Memory usage within normal bounds (typically < 20GiB for this setup)
-
-### Hotkey Verification
-
-```bash
-# Verify F12 binding exists
-gsettings get org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/voice-f9/ binding
-```
-
-**Expected:** `'F12'`
+**Expected:** Memory usage within normal bounds
 
 ---
 
 ## Common Issues
 
-### Issue 1: F12 Hotkey Disappears After Reboot
+### Issue 1: Service Not Responding
 
 **Symptoms:**
-- F12 no longer triggers recording
-- `voice-toggle.sh` click works but hotkey does not
+- Health check fails with connection error
+- Port not listening
 
 **Diagnosis:**
 ```bash
-gsettings get org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/voice-f9/ binding
-```
-
-**Expected:** `'F12'`
-**Actual (when broken):** `''` or key not found
-
-**Resolution:**
-```bash
-# Restore hotkey binding
-/home/will/Desktop/voice-pipeline/scripts/hotkey-restore.sh
-
-# Or manually:
-gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/voice-f9/ binding "'F12'"
-gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/voice-f9/ command "'/home/will/Desktop/voice-pipeline/scripts/record.sh'"
-gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/voice-f9/ name "'Voice Record (F12)'"
-```
-
-**Prevention:** Ensure `hotkey-restore.sh` is in `~/.config/autostart/`
-
----
-
-### Issue 2: whisper_api.py Not Responding
-
-**Symptoms:**
-- STT fails with connection error
-- Port :8201 not listening
-
-**Diagnosis:**
-```bash
-ps aux | grep whisper_api
-ss -tlnp | grep 8201
+ps aux | grep service_name
+ss -tlnp | grep PORT
 ```
 
 **Resolution:**
 ```bash
-# Restart whisper_api.py
-pkill -f whisper_api.py
-bash /home/will/Desktop/voice-pipeline/scripts/start-whisper-api.sh &
+# Restart the service
+docker restart container_name
 ```
 
 ---
 
-### Issue 3: LLM Model Not Available
+### Issue 2: LLM Model Not Available
 
 **Symptoms:**
-- `voice.sh` fails with model not found error
+- Model not found error
 - Ollama API returns empty model list
 
 **Diagnosis:**
@@ -409,10 +339,7 @@ curl -s http://localhost:11434/api/tags | jq '.models[].name'
 **Resolution:**
 ```bash
 # Pull the required model
-ollama pull llama3-portuguese-tomcat-8b-instruct-q8:latest
-
-# Verify
-curl -s http://localhost:11434/api/tags | jq '.models[].name'
+ollama pull model-name:latest
 ```
 
 ---
@@ -422,36 +349,31 @@ curl -s http://localhost:11434/api/tags | jq '.models[].name'
 If the smoke test reveals critical failures:
 
 ```bash
-# Stop all voice pipeline services
-docker stop $(docker ps -q --filter "name=zappro-kokoro")
-pkill -f whisper_api.py
-pkill -f ollama
+# Stop all services
+docker stop $(docker ps -q)
 
 # Restore previous state via git
-cd /home/will/Desktop/voice-pipeline
+cd /srv/monorepo
 git stash
 git stash pop
 
 # Restart services
-systemctl --user restart ollama
-bash start-whisper-api.sh &
-docker start zappro-kokoro
+docker compose up -d
 ```
 
 ---
 
 ## Related Documentation
 
-- [Voice Pipeline Loop](./voice-pipeline-loop.md) — Server-side voice pipeline
-- [OpenClaw Audio Governance](../specflow/SPEC-009-openclaw-persona-audio-stack.md) — Audio stack rules
 - [CODE-REVIEW-GUIDE](./CODE-REVIEW-GUIDE.md) — Code review standards
+- [Container Health Check](../OPERATIONS/SKILLS/container-health-check.md) — Health checks
 
 ---
 
 ## Changelog
 
 ### v1.0 (2026-04-10)
-- Initial template based on voice-pipeline-desktop smoke test
+- Initial template based on service health check
 ```
 
 ---

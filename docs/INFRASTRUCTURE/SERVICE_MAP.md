@@ -75,32 +75,14 @@
 
 ---
 
-### Stack: Kokoro TTS (`/srv/apps/kokoro/`)
+### tts-bridge — Edge TTS (Microsoft Cloud)
 
-#### Kokoro TTS (Text-to-Speech)
-- **Imagem:** ghcr.io/remsky/kokoro-onnx:latest
-- **Container:** kokoro | **Portas:** 8012 (host), 8880 (interna)
-- **Modelo:** Kokoro 82M (ONNX, PT-BR otimizado)
-- **Storage:** /srv/models/kokoro
-- **GPU:** RTX 4090 via CDI
-- **VRAM:** ~1,5 GB
-- **Latência:** ~0,3s quente / 1,2s fria
-- **API:** `POST :8012/v1/audio/speech` (OpenAI-compatible)
-- **Vozes disponíveis:** múltiplas vozes PT-BR
-- **Depende de:** nada | **Usado por:** OpenClaw, voice pipeline
+> Edge TTS é cloud, não usa GPU local. Container `zappro-edge-tts` em :8012.
+> Mais barato: $0.004/1K caracteres vs Kokoro ~$0.02/1K.
 
-#### Whisper API (STT — Speech-to-Text)
-- **Container:** whisper-api | **Porta:** 8201 (host)
-- **Modelo:** faster-whisper-large-v3 (CUDA)
-- **VRAM:** ~4 GB
-- **API:** `POST :8201/v1/audio/transcriptions` (OpenAI-compatible)
-- **Depende de:** nada | **Usado por:** OpenClaw, voice pipeline
-
----
-
-### tts-bridge — **REMOVED 2026-04-06**
-
-> Serviço de bridge Kokoro → outros formatos. Removido após consolidação do stack de voz.
+- **Container:** zappro-edge-tts | **Porta:** 8012 (host)
+- **Voz padrão:** pt-BR-AntonioNeural
+- **Custo:** $0 (free tier) | **Usado por:** Hermes, voice pipeline
 
 ---
 
@@ -235,7 +217,7 @@ n8n :5678
 | Componente | VRAM | Estado |
 |-----------|------|--------|
 | Desktop Xorg + GNOME | ~1 GB | fixo sempre |
-| Whisper API (faster-whisper large-v3) | ~4 GB | sob demanda |
+| Whisper API | — | STT via Groq Cloud (150min/day free) |
 | Kokoro TTS (ONNX) | ~1,5 GB | sob demanda |
 | Qwen 3.5 Q4_K_M | ~6,5 GB | sob demanda (Ollama) |
 | Gemma4 Q4_K_M | ~7 GB | sob demanda (Ollama) |
@@ -256,7 +238,7 @@ n8n :5678
 2. docker-compose -f /srv/apps/platform/docker-compose.yml up -d
 3. docker-compose -f /srv/apps/supabase/docker/docker-compose.yml up -d
 4. docker-compose -f /srv/apps/caprover/docker-compose.yml up -d
-5. docker-compose -f /srv/apps/voice/docker-compose.yml up -d
+5. docker-compose -f /srv/apps/voice/docker-compose.yml up -d   # REMOVED - Groq/Edge Cloud
 6. docker-compose -f /srv/apps/monitoring/docker-compose.yml up -d
 7. docker-compose -f /srv/apps/litellm/docker-compose.yml up -d
 8. systemctl start ollama                         (Ollama — se não autostart)

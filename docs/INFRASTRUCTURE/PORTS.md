@@ -29,8 +29,7 @@
 | **6334** | zappro-qdrant | host | Qdrant gRPC | — |
 | **6379** | zappro-redis | host | Redis cache/pubsub | — |
 | **6381** | aurelia-redis | localhost | Redis (aurelia stack) | — |
-| **8012** | zappro-kokoro | localhost | Kokoro TTS (GPU) | — |
-| **8880** | zappro-kokoro | bridge (Coolify net) | Kokoro TTS — IP `10.0.19.7:8880` para containers Coolify | — |
+| **8012** | zappro-edge-tts | localhost | Edge TTS (Microsoft, cloud) | — |
 | **8080** | — | host | Deprecated (era aurelia-api) | aurelia.zappro.site |
 | **8888** | searxng | host | Search engine (OpenCode) | — |
 | **9090** | prometheus | localhost | TSDB métricas 30d | — |
@@ -44,7 +43,7 @@
 |-------|----------|--------|--------|
 | **22** | sshd | host | SSH |
 | **11434** | ollama (systemd) | localhost + docker0 bridge | LLM local (gemma4, llava, nomic-embed-text) — GPU via `10.0.1.1:11434` |
-| **8201** | whisper-api (host) | localhost + docker0 bridge | Faster-Whisper small STT (OpenAI-compatible `/v1/audio/transcriptions`) |
+| **8201** | — | — | Reservada (era faster-whisper STT) | — |
 
 ---
 
@@ -57,7 +56,7 @@
 | **4003** | painel | host | Claude Code Panel (nginx:alpine) | painel.zappro.site |
 | **4006** | mcp-monorepo | qgtzrmi net (10.0.19.50) | MCP Filesystem /srv/monorepo → OpenClaw | — |
 | **4011** | mcp-qdrant | qgtzrmi net (10.0.19.51) | MCP Qdrant semantic search (openclaw-memory) | — |
-| **8201** | whisper-api | host | Faster-Whisper STT (OpenAI-compatible) | — |
+| **8201** | — | — | Reservada | — |
 
 ### Novos Serviços (2026-04-03)
 
@@ -92,7 +91,7 @@
 | Porta | Destino | Rede Destino | Acesso via |
 |-------|---------|--------------|------------|
 | **4000** | LiteLLM Proxy | docker0 (10.0.1.1) | Coolify containers via `10.0.1.1:4000` |
-| **8880** | Kokoro TTS | bridge (10.0.19.7) | Coolify containers via `10.0.19.7:8880` |
+| **8880** | Reservada | — | — |
 | **6333** | Qdrant (Coolify) | Coolify network (10.0.19.5) | Containers via `10.0.19.5:6333` |
 
 ---

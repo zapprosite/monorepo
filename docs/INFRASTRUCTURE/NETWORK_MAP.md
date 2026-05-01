@@ -129,7 +129,7 @@
 | 6379 | Redis | 127.0.0.1 (UFW) | 3 instâncias |
 | 6381 | Redis opencode | 127.0.0.1 (UFW) | — |
 | 8000 | Coolify | Via tunnel (Cloudflare) | Via tunnel, exposto em LAN via UFW |
-| 8012 | Kokoro TTS | 127.0.0.1 (UFW) | GPU TTS (host bridge) |
+| 8012 | Edge TTS | 127.0.0.1 (UFW) | TTS (host bridge) |
 | 8200 | Infisical | 127.0.0.1 (UFW) | — |
 | 8888 | SearXNG | 127.0.0.1 (UFW) | — |
 | 9090 | Prometheus | 127.0.0.1 (UFW) | ⚠️ Sem auth |
@@ -142,8 +142,8 @@
 | Rede | Subnet | Serviços |
 |------|--------|----------|
 | `wbmqefxhd7vdn2dme3i6s9an` | 10.0.5.0/24 | OpenWebUI (:8080, IP 10.0.5.2) |
-| `qgtzrmi6771lt8l7x8rqx72f` | 10.0.19.0/24 | OpenClaw (:8080), Browser (:9222), wav2vec2 (:8201), wav2vec2-proxy (:8203) |
-| `bridge` | host | Kokoro (:8880), Qdrant (:6333) |
+| `qgtzrmi6771lt8l7x8rqx72f` | 10.0.19.0/24 | OpenClaw (:8080), Browser (:9222) |
+| `bridge` | host | Qdrant (:6333) |
 | `zappro-lite` | docker0 (10.0.1.x) | LiteLLM Proxy (:4000) |
 
 **Service IPs (Cross-network):**
@@ -152,10 +152,7 @@
 | Ollama (host) | 10.0.1.1:11434 | docker0 (10.0.1.x) | host |
 | Ollama (host) | 10.0.5.1:11434 | wbmqefxhd7vdn2dme3i6s9an | host |
 | LiteLLM Proxy | 10.0.1.1:4000 | qgtzrmi... | docker0 |
-| Kokoro TTS | 10.0.19.7:8880 | qgtzrmi... | bridge |
 | Qdrant (Coolify) | 10.0.19.5:6333 | qgtzrmi... | bridge |
-| wav2vec2 (whisper-api) | 10.0.19.8:8201 | qgtzrmi... | STT endpoint |
-| wav2vec2-proxy | 10.0.19.9:8203 | qgtzrmi... | Deepgram-to-Whisper proxy |
 | MCP Monorepo | 10.0.19.50:4006 | qgtzrmi... | host (/srv/monorepo) |
 | MCP Qdrant | 10.0.19.51:4011 | qgtzrmi... | bridge (openclaw-memory) |
 
@@ -179,7 +176,7 @@
 | zappro-litellm | ghcr.io/berriai/litellm:main-stable | :4000 | zappro-lite | ✅ UP |
 | zappro-litellm-db | postgres:15-alpine | :5432 | zappro-lite | ✅ healthy |
 | zappro-qdrant | qdrant/qdrant:v1.17.1 | :6333 | bridge | ✅ UP |
-| zappro-kokoro | ghcr.io/remsky/kokoro-fastapi-gpu:v0.2.2 | :8012→:8880 | bridge | ✅ UP |
+
 | open-webui-wbmqefx... | ghcr.io/openwebui/open-webui:main | :8080 | wbmqefxhd7vdn2dme3i6s9an + qgtzrmi... | ✅ UP |
 | openclaw-qgtzrmi... | coollabsio/openclaw:2026.2.6 | :4001→:8080 | qgtzrmi... | ✅ healthy |
 | browser-qgtzrmi... | coollabsio/openclaw-browser:latest | :3000-3001 | qgtzrmi... | ✅ healthy |
@@ -193,19 +190,15 @@
 |----------|--------|-------|------|--------|
 | Ollama (host) | ollama/ollama:latest | :11434 | host | ✅ UP (GPU) |
 | LiteLLM Proxy | ghcr.io/berriai/litellm:main-stable | :4000 (docker0) | zappro-lite | ✅ UP |
-| Kokoro TTS | ghcr.io/remsky/kokoro-fastapi-gpu:v0.2.2 | :8880 (bridge) | bridge | ✅ UP |
 | Qdrant (Coolify) | qdrant/qdrant:v1.17.1 | :6333 | qgtzrmi... | ✅ UP |
-| zappro-wav2vec2 | whisper-api | :8201 | qgtzrmi... | ✅ UP |
-| zappro-wav2vec2-proxy | wav2vec2-deepgram-proxy | :8203 | qgtzrmi... | ✅ UP |
 
 **Modelos disponíveis via LiteLLM (10.0.1.1:4000):**
 - `gemma4` (instruction following, via Ollama host)
 - `llava` (visão, via Ollama host)
 - `embedding-nomic` (embeddings, via Ollama host)
 
-**TTS:** Kokoro local (`http://10.0.19.7:8880/v1`) com voz `pm_santa` (PT-BR)
-**STT:** whisper-api local (`10.0.19.8:8201`) — OpenAI-compatible `/v1/audio/transcriptions`
-**STT Proxy:** wav2vec2-proxy (`10.0.19.9:8203`) — Deepgram API format → whisper-api proxy (PT-BR enhancement)
+**TTS:** Edge TTS (`http://localhost:8012`) com voz `pm_santa` (PT-BR)
+**STT:** Groq Whisper Turbo (cloud)
 
 ### Observability
 | Container | Imagem | Porta | Rede | Status |
@@ -267,12 +260,12 @@ Estes serviços estão **documentados mas NÃO existem no sistema:**
 | Stack | Motivo | Removido em |
 |-------|-------|-------------|
 | `speaches` (STT) | Substituído por Deepgram cloud | 2026-03 |
-| `chatterbox-tts` (TTS) | Substituído por Kokoro local | 2026-03 |
+| `chatterbox-tts` (TTS) | Substituído por Edge TTS | 2026-03 |
 | `voice-proxy` (nginx) | Não deployado | — |
 | `supabase-*` (13 containers) | Stack removida, dados em backup | 2026-04 |
 | `captain-*` (CapRover) | Substituído por Coolify | 2026-03 |
 | `aurelia-*` | Renomeado para `zappro-*` | 2026-04 |
-| `tts-bridge` | Duplicado do Kokoro (mesma função) | 2026-04-06 |
+| `tts-bridge` | Substituído por Edge TTS | 2026-04-06 |
 
 **Se aparecerem como containers, são fantasmas — investigar e remover.**
 
@@ -286,7 +279,7 @@ tank (3.5T livre, poolname: tank)
 ├── tank/docker-data/        → /srv/docker-data           (volumes Docker)
 ├── tank/monorepo/           → /srv/monorepo              (código)
 ├── tank/backups/            → /srv/backups                (backups)
-├── tank/models/             → /srv/models                 (17GB — Ollama + Kokoro)
+├── tank/models/             → /srv/models                 (17GB — Ollama models)
 └── tank/data/
     ├── qdrant/             → /srv/data/qdrant           (vector storage)
     ├── openclaw/            → /srv/data/openclaw          (openclaw workspaces)

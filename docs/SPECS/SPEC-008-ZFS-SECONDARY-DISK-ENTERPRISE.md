@@ -75,8 +75,8 @@ sudo zpool create tank /dev/disk/by-id/secondary           # Substitui tank
 
 ### P — Plan
 
-- [ ] Analisar estrutura atual de datasets em tank
-- [ ] Identificar capacidade e modelo do disco secundário
+- [x] ~~Analisar estrutura atual de datasets em tank~~ ✅ (sub-agent 2026-05-01: tank=3.62TB, 12 datasets, 233G docker-data)
+- [x] ~~Identificar capacidade e modelo do disco secundário~~ ✅ (KINGSTON SNV3S1000G 931.5GB nvme1n1 — sem pool)
 - [ ] Identificar datasets não-críticos para migrar
 
 ### R — Review

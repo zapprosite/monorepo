@@ -35,8 +35,7 @@ The docker-autoheal container (`willfarrell/autoheal`) monitors containers with 
 |---------|-----------|--------------|--------|
 | OpenWebUI | `openwebui` | YES | User-facing, non-critical |
 | OpenClaw Bot | `openclaw-qgtzrmi6771lt8l7x8rqx72f` | YES | Voice pipeline, self-healing capable |
-| wav2vec2 STT | `zappro-wav2vec2` | YES | Local STT, stateless |
-| Kokoro TTS | `zappro-kokoro` | YES | TTS, stateless |
+| Edge TTS | `edge-tts` | YES | TTS, stateless |
 | LiteLLM Proxy | `zappro-litellm` | YES | GPU routing, stateless |
 | TTS Bridge | `zappro-tts-bridge` | YES | Voice filter, stateless |
 | Redis | `zappro-redis` | YES | Cache, persistent volume |
@@ -91,8 +90,8 @@ All ports in use by the homelab. Before deploying a new service, check this regi
 | 6333 | zappro-qdrant | host | Qdrant REST |
 | 6334 | zappro-qdrant | host | Qdrant gRPC |
 | 6379 | zappro-redis | host | Redis cache/pubsub |
-| 8012 | zappro-kokoro | localhost | Kokoro TTS (GPU) |
-| 8880 | zappro-kokoro | bridge | Kokoro TTS for Coolify containers |
+| 8013 | zappro-tts-bridge | host | Edge TTS proxy |
+| 8014 | edge-tts | host | Edge TTS |
 | 8888 | searxng | host | Search engine |
 | 9090 | prometheus | localhost | TSDB metrics |
 | 9100 | node-exporter | host | Host metrics |
@@ -105,7 +104,6 @@ All ports in use by the homelab. Before deploying a new service, check this regi
 |------|---------|--------|----------|
 | 22 | sshd | host | SSH |
 | 11434 | ollama | localhost + docker0 | LLM local |
-| 8201 | whisper-api | localhost + docker0 | Faster-Whisper STT |
 
 ### Reserved Ports (Never Use)
 

@@ -1,7 +1,7 @@
 # Voice/STT Stack — Enterprise Specification
 
 **Classification:** INTERNAL | **Owner:** Platform Engineering
-**Version:** 1.0.0 | **Updated:** 2026-04-26
+**Version:** 1.1.0 | **Updated:** 2026-05-01
 
 ---
 
@@ -13,7 +13,7 @@ Voice pipeline bidirecional: entrada de áudio (STT) → processamento LLM → s
 Microfone (Telegram Voice)
     │
     ▼
-Groq Whisper Turbo (STT cloud) ── fallback ──▶ faster-whisper (:8204)
+Groq Whisper Turbo (STT cloud, 150min/dia gratis) ── fallback ──▶ faster-whisper (:8204)
     │
     ▼
 MiniMax-M2.7 (LLM primário, :4000)
@@ -22,11 +22,13 @@ MiniMax-M2.7 (LLM primário, :4000)
 Edge TTS (pt-BR-AntonioNeural) ──▶ Telegram Voice
 ```
 
+**Princípio:** Cloud gratuito = primary. Local = fallback quando cloud indisponível.
+
 ---
 
 ## STT — Speech-to-Text
 
-### Primary: Groq Whisper Turbo
+### Primary: Groq Whisper Turbo (GRÁTIS — 150min/dia)
 
 **API:** `https://api.groq.com/openai/v1/audio/transcriptions`
 **Modelo:** `whisper-large-v3-turbo`
@@ -34,7 +36,7 @@ Edge TTS (pt-BR-AntonioNeural) ──▶ Telegram Voice
 **Vantagens:** Rápido, precisão excelente em PT-BR, baixa latência
 
 ```bash
-# Transcrição via Groq (usar env var canônica)
+# Transcrição via Groq
 curl -X POST https://api.groq.com/openai/v1/audio/transcriptions \
   -H "Authorization: Bearer $GROQ_API_KEY" \
   -F "file=@audio.ogg" \
@@ -45,7 +47,7 @@ curl -X POST https://api.groq.com/openai/v1/audio/transcriptions \
 
 **Porta:** `:8204` (OpenAI-compatible `/v1/audio/transcriptions`)
 **Modelo:** `faster-whisper-medium-pt`
-**Script:** `~/.hermes/scripts/stt-fallback.sh`
+**Ativado quando:** Groq rate limited (>150min) ou indisponível
 
 ```bash
 # Health check
@@ -73,7 +75,7 @@ else:
 
 ## TTS — Text-to-Speech
 
-### Provider: Edge TTS (Microsoft)
+### Provider: Edge TTS (Microsoft — GRÁTIS)
 
 **Voz canonical:** `pt-BR-AntonioNeural`
 **Script:** `~/.hermes/scripts/tts-edge.py`
@@ -95,27 +97,27 @@ O `tts-edge.py` possui TextScanner single-pass:
 
 | Voice ID | Tipo | Uso | Status |
 |----------|------|-----|--------|
-| `pm_santa` | Masculino PT-BR | **PADRÃO** — produção | ✅ |
-| `pf_dora` | Feminino PT-BR | Fallback | ✅ |
-| Todas outras | — | BLOQUEADAS (TTS Bridge retorna HTTP 400) | ❌ |
+| `pt-BR-AntonioNeural` | Masculino PT-BR | **PADRÃO** — produção | ✅ |
+| `pt-BR-Female` | Feminino PT-BR | Fallback | ✅ |
+| Todas outras | — | BLOQUEADAS | ❌ |
 
 ---
 
 ## Environment Variables (Canonical)
 
 ```bash
-# STT Primary (Groq cloud)
+# STT Primary (Groq cloud — FREE 150min/dia)
 source /srv/monorepo/.env
 GROQ_API_KEY=${GROQ_API_KEY}
 
 # STT Fallback (faster-whisper local)
 STT_DIRECT_URL=http://localhost:8204
 
-# TTS (Edge/Microsoft)
+# TTS (Edge/Microsoft — FREE)
 TTS_BRIDGE_URL=http://localhost:8012
 
 # Voice Config
-HERMES_VOICE=pm_santa
+HERMES_VOICE=pt-BR-AntonioNeural
 HERMES_MAX_TTS_SIZE_BYTES=52428800  # 50MB max
 ```
 
@@ -124,7 +126,6 @@ HERMES_MAX_TTS_SIZE_BYTES=52428800  # 50MB max
 ```bash
 # Retrieve from .env (canonical source)
 source /srv/monorepo/.env
-echo $GROQ_API_KEY  # Never echo in logs
 
 # Never do this:
 # GROQ_API_KEY=sk-xxx written directly
@@ -159,13 +160,6 @@ curl -sf http://localhost:8012/health  # Edge TTS Bridge
 
 # Groq (external)
 curl -sf https://api.groq.com/openai/v1/models 2>/dev/null && echo "Groq OK"
-```
-
-### Metrics (every 8 hours via cron)
-
-```bash
-# nexus-hermes-stats.sh logs to /srv/logs/hermes-metrics.log
-# Check STT latency and availability
 ```
 
 ---
@@ -212,6 +206,7 @@ curl -sf https://api.groq.com/openai/v1/models 2>/dev/null && echo "Groq OK"
 │  (cloud)          │────▶│   :8204          │
 │  whisper-large    │     │   (fallback)    │
 │  -v3-turbo        │     └──────────────────┘
+│  (150min FREE)    │
 └──────┬──────────┘
        │ texto
        ▼
@@ -225,7 +220,7 @@ curl -sf https://api.groq.com/openai/v1/models 2>/dev/null && echo "Groq OK"
 ┌─────────────────┐
 │   Edge TTS       │
 │ pt-BR-Antonio   │
-│  Neural         │
+│  (FREE)         │
 └──────┬──────────┘
        │ audio.opus
        ▼
@@ -241,10 +236,10 @@ curl -sf https://api.groq.com/openai/v1/models 2>/dev/null && echo "Groq OK"
 
 | Provider | Model | Input Cost | Output Cost |
 |----------|-------|------------|-------------|
-| Groq | whisper-large-v3-turbo | $0.00 (150min/day free) | — |
+| Groq | whisper-large-v3-turbo | $0 (150min/day free) | — |
 | MiniMax | minimax-m2.7 | $0.10/1M | $0.10/1M |
-| Ollama | qwen2.5:3b | $0 | $0 |
 | Edge TTS | pt-BR-AntonioNeural | $0 | $0 |
+| Ollama | qwen2.5:3b | $0 | $0 |
 
 ---
 

@@ -74,6 +74,13 @@ MEMORY_DIR="${HOME}/.claude/projects/-tmp/memory"
 CONTEXT_STATE="${MEMORY_DIR}/context-state.json"
 CONTEXT_ALERTS="${MEMORY_DIR}/context-alerts.json"
 
+# Watch daemon config
+WATCH_PID_FILE="${MONOREPO}/.claude/nexus-watch.pid"
+WATCH_LOG="${LOG_DIR}/nexus-watch.log"
+PROCESSED_SPECS_FILE="${MONOREPO}/.claude/vibe-kit/.processed_specs.json"
+WATCH_POLL_INTERVAL="${WATCH_POLL_INTERVAL:-60}"
+SPEC_DIR="${SPEC_DIR:-/srv/monorepo/docs/SPECS}"
+
 # Colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -590,6 +597,244 @@ do_run_spec() {
   fi
 }
 
+# ===== WATCH DAEMON =====
+do_watch() {
+  # Idempotency: prevent double launch
+  if [ -f "$WATCH_PID_FILE" ]; then
+    local existing_pid
+    existing_pid=$(cat "$WATCH_PID_FILE" 2>/dev/null)
+    if [ -n "$existing_pid" ] && kill -0 "$existing_pid" 2>/dev/null; then
+      error "Watch daemon already running with PID $existing_pid"
+      exit 1
+    fi
+    rm -f "$WATCH_PID_FILE"
+  fi
+
+  # Daemonize
+  log "Starting watch daemon (pid=$$)..."
+  nohup bash "$0" _watch_loop >> "$WATCH_LOG" 2>&1 &
+  local new_pid=$!
+  echo "$new_pid" > "$WATCH_PID_FILE"
+  sleep 0.5
+
+  if kill -0 "$new_pid" 2>/dev/null; then
+    log "Watch daemon started with PID $new_pid"
+    echo "Watch daemon running on PID $new_pid (log: $WATCH_LOG)"
+  else
+    error "Failed to start watch daemon"
+    rm -f "$WATCH_PID_FILE"
+    exit 1
+  fi
+}
+
+_watch_stop() {
+  [ ! -f "$WATCH_PID_FILE" ] && { error "Watch PID file not found"; exit 1; }
+  local pid=$(cat "$WATCH_PID_FILE")
+  [ -z "$pid" ] && { rm -f "$WATCH_PID_FILE"; exit 0; }
+
+  if ! kill -0 "$pid" 2>/dev/null; then
+    warn "Watch process $pid not running"
+    rm -f "$WATCH_PID_FILE"
+    return 0
+  fi
+
+  log "Stopping watch daemon (PID $pid)..."
+  kill "$pid" 2>/dev/null || true
+  local count=0
+  while kill -0 "$pid" 2>/dev/null && [ $count -lt 10 ]; do
+    sleep 0.5
+    count=$((count + 1))
+  done
+  kill -9 "$pid" 2>/dev/null || true
+  rm -f "$WATCH_PID_FILE"
+  log "Watch daemon stopped"
+}
+
+_watch_status() {
+  local running="no"
+  local pid=""
+  if [ -f "$WATCH_PID_FILE" ]; then
+    pid=$(cat "$WATCH_PID_FILE" 2>/dev/null)
+    [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null && running="yes"
+  fi
+
+  echo ""
+  echo -e "${CYAN}==== NEXUS WATCH STATUS ====${NC}"
+  echo -e "  Running: $([ "$running" = "yes" ] && echo -e "${GREEN}yes${NC}" || echo -e "${RED}no${NC}")"
+  echo -e "  PID: ${pid:-none}"
+  echo -e "  Poll interval: ${WATCH_POLL_INTERVAL}s"
+  echo -e "  SPEC dir: $SPEC_DIR"
+  echo -e "  Processed specs: $PROCESSED_SPECS_FILE"
+
+  if [ -f "$PROCESSED_SPECS_FILE" ]; then
+    local count
+    count=$(jq 'length' "$PROCESSED_SPECS_FILE" 2>/dev/null || echo 0)
+    echo -e "  Total processed: $count"
+  fi
+}
+
+_trigger_next_pending() {
+  # Check if anything is running or pending
+  local pending running
+  pending=$(jq -r '.pending // 0' "$QUEUE_FILE" 2>/dev/null || echo 0)
+  running=$(jq -r '.running // 0' "$QUEUE_FILE" 2>/dev/null || echo 0)
+
+  if [ "$pending" -gt 0 ] && [ "$running" -eq 0 ]; then
+    log "Chain: triggering next pending SPEC..."
+    # Find first pending task's spec
+    local next_spec
+    next_spec=$(jq -r '.tasks[] | select(.status == "pending") | .spec' "$QUEUE_FILE" 2>/dev/null | head -1)
+    if [ -n "$next_spec" ] && [ "$next_spec" != "null" ]; then
+      local next_app
+      next_app=$(jq -r '.tasks[] | select(.status == "pending") | .app' "$QUEUE_FILE" 2>/dev/null | head -1)
+      log "Chain: auto-starting spec=$next_spec app=${next_app:-monorepo}"
+      bash "$VIBE_SCRIPT" --spec "$next_spec" --app "${next_app:-}" --do &
+    fi
+  else
+    log "Chain: no pending tasks (pending=$pending running=$running)"
+  fi
+}
+
+_watch_chain_loop() {
+  log "Starting chain loop..."
+
+  while true; do
+    local pending running
+    pending=$(jq -r '.pending // 0' "$QUEUE_FILE" 2>/dev/null || echo 0)
+    running=$(jq -r '.running // 0' "$QUEUE_FILE" 2>/dev/null || echo 0)
+
+    if [ "$pending" -gt 0 ] && [ "$running" -eq 0 ]; then
+      local next_spec next_app
+      next_spec=$(jq -r '.tasks[] | select(.status == "pending") | .spec' "$QUEUE_FILE" 2>/dev/null | head -1)
+      next_app=$(jq -r '.tasks[] | select(.status == "pending") | .app' "$QUEUE_FILE" 2>/dev/null | head -1)
+
+      if [ -n "$next_spec" ] && [ "$next_spec" != "null" ]; then
+        log "Chain: running spec=$next_spec app=${next_app:-monorepo}"
+        VIBE_SKIP_GIT_COMMIT=true VIBE_PHASE=do bash "$VIBE_SCRIPT" "$next_spec" "${next_app:-}"
+        sleep 5
+        continue
+      fi
+    fi
+
+    sleep "$WATCH_POLL_INTERVAL"
+  done
+}
+
+# Continuous loop command
+do_loop_cmd() {
+  local spec="${1:-}"
+  local app="${2:-}"
+
+  log "Starting loop mode (spec=$spec app=$app)"
+
+  # If spec provided, run it first then chain
+  if [ -n "$spec" ]; then
+    VIBE_SKIP_GIT_COMMIT=true bash "$VIBE_SCRIPT" --spec "$spec" --app "$app" --do &
+    local vibe_pid=$!
+    log "Initial vibe PID: $vibe_pid"
+    wait $vibe_pid 2>/dev/null || true
+    sleep 3
+  fi
+
+  # Start chain loop (continuous execution of pending tasks)
+  _watch_chain_loop
+}
+
+# Internal: the actual watch daemon loop
+_execute_watch_loop() {
+  echo $$ > "$WATCH_PID_FILE"
+
+  local use_inotify=0
+  if command -v inotifywait &>/dev/null; then
+    use_inotify=1
+    log "Watch: using inotifywait (event-driven)"
+  else
+    log "Watch: using stat polling (${WATCH_POLL_INTERVAL}s interval)"
+  fi
+
+  # Load processed specs
+  local processed_specs="[]"
+  if [ -f "$PROCESSED_SPECS_FILE" ]; then
+    processed_specs=$(cat "$PROCESSED_SPECS_FILE" 2>/dev/null || echo "[]")
+  fi
+
+  # Graceful shutdown trap
+  trap 'log "Watch: SIGTERM received — exiting cleanly"; rm -f "$WATCH_PID_FILE"; exit 0' SIGTERM
+
+  if [ $use_inotify -eq 1 ]; then
+    # Event-driven via inotifywait
+    inotifywait -m -e create -e moved_to --format '%f' "$SPEC_DIR" 2>/dev/null | \
+    while read -r filename; do
+      if [[ "$filename" == *.md ]] && [[ "$filename" != README* ]] && [[ "$filename" != INDEX* ]]; then
+        _watch_handle_new_spec "$filename" "$processed_specs"
+      fi
+    done
+  else
+    # Polling fallback
+    while true; do
+      sleep "$WATCH_POLL_INTERVAL"
+      _watch_scan_new_specs "$processed_specs"
+    done
+  fi
+}
+
+_watch_handle_new_spec() {
+  local spec_name="$1"
+  local processed_specs="$2"
+
+  # Extract spec ID from filename (e.g., "SPEC-001-crm-mvp.md" -> "SPEC-001")
+  local spec_id
+  spec_id=$(echo "$spec_name" | sed 's/\.md$//')
+
+  # Check if already processed
+  if echo "$processed_specs" | jq -e -r '.[]' 2>/dev/null | grep -qx "$spec_id"; then
+    return 0
+  fi
+
+  # Check if vibe-kit is already running
+  local running
+  running=$(jq -r '.running // 0' "$QUEUE_FILE" 2>/dev/null || echo 0)
+  if [ "$running" -gt 0 ]; then
+    log "Watch: vibe-kit already running (running=$running), skipping $spec_id"
+    return 0
+  fi
+
+  # Mark as processed
+  processed_specs=$(echo "$processed_specs" | jq ". + [\"$spec_id\"]")
+  echo "$processed_specs" > "$PROCESSED_SPECS_FILE"
+
+  log "Watch: new SPEC detected -> $spec_id"
+
+  # Trigger run-vibe.sh in background
+  bash "$VIBE_SCRIPT" --spec "$spec_id" --do &
+  log "Watch: triggered run-vibe.sh for $spec_id (pid=$!)"
+}
+
+_watch_scan_new_specs() {
+  local processed_specs="$1"
+
+  for spec_file in "$SPEC_DIR"/*.md; do
+    [ -f "$spec_file" ] || continue
+    local basename
+    basename=$(basename "$spec_file")
+
+    # Skip non-spec files
+    [[ "$basename" == README* ]] && continue
+    [[ "$basename" == INDEX* ]] && continue
+    [[ "$basename" == _legacy* ]] && continue
+
+    local spec_id
+    spec_id=$(echo "$basename" | sed 's/\.md$//')
+
+    # Skip already processed
+    if echo "$processed_specs" | jq -e -r '.[]' 2>/dev/null | grep -qx "$spec_id"; then
+      continue
+    fi
+
+    _watch_handle_new_spec "$basename" "$processed_specs"
+  done
+}
+
 # ===== MAIN CLI =====
 show_help() {
   cat << 'EOF'
@@ -634,6 +879,14 @@ Run individual stats:
   nexus.sh qdrant      Qdrant metrics
   nexus.sh redis       Redis metrics
 
+WATCH COMMANDS:
+  watch              Start watch daemon (polls for new SPECs in docs/SPECS/)
+  watch-stop         Stop watch daemon
+  watch-status       Show watch daemon status
+
+LOOP COMMANDS:
+  loop [spec] [app]  Run spec (optional) then chain continuously (Replit AI Agent mode)
+
 EXAMPLES:
   nexus.sh start
   nexus.sh alert warn "High memory usage" "80% full"
@@ -641,6 +894,8 @@ EXAMPLES:
   nexus.sh monitor
   nexus.sh investigate hermes 3
   nexus.sh all
+  nexus.sh watch
+  nexus.sh loop SPEC-001 crm-mvp
 EOF
 }
 
@@ -685,6 +940,15 @@ main() {
     ollama) bash "$OLLAMA_STATS" 2>/dev/null || echo "Ollama stats not available" ;;
     qdrant) bash "$QDRANT_STATS" 2>/dev/null || echo "Qdrant stats not available" ;;
     redis) bash "$REDIS_STATS" 2>/dev/null || echo "Redis stats not available" ;;
+
+    # Watch daemon
+    watch) do_watch ;;
+    watch-stop) _watch_stop ;;
+    watch-status) _watch_status ;;
+    _watch_loop) _execute_watch_loop ;;
+
+    # Continuous loop
+    loop) do_loop_cmd "$@" ;;
 
     help|--help|-h)
       show_help
