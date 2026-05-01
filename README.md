@@ -1,5 +1,6 @@
 ---
 title: Homelab Monorepo
+# Test: CI pipeline validation - ignore
 description: Enterprise-grade AI orchestration platform with multi-agent architecture
 version: 2.0.0
 status: production
