@@ -13,4 +13,4 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Run governance quality gates
-        run: bash scripts/quality-gates.sh
+        run: PLACEHOLDER_DEBT_ENFORCE=1 bash scripts/quality-gates.sh

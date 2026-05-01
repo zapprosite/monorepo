@@ -1,0 +1,16 @@
+# CODEOWNERS
+# Classification: INTERNAL
+# Owner: Platform Engineering
+# Updated: 2026-05-01
+
+* @will
+
+/docs/GOVERNANCE/ @will
+/docs/SPECS/ @will
+/scripts/ @will
+/.gitea/ @will
+/.github/ @will
+/apps/ @will
+/packages/ @will
+/services/ @will
+/ops/ @will
