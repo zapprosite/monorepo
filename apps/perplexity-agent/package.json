@@ -1,9 +1,0 @@
-{
-  "name": "perplexity-agent",
-  "version": "1.0.0",
-  "private": true,
-  "devDependencies": {
-    "@playwright/test": "^1.40.0",
-    "ws": "^8.20.0"
-  }
-}
