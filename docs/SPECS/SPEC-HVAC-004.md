@@ -1,1 +1,0 @@
-/srv/monorepo/docs/SPECS/products/HVAC/SPEC-HVAC-004-juiz-field-tutor.md
