@@ -1,0 +1,31 @@
+{
+  "name": "github",
+  "alias": "/github",
+  "description": "Sync com GitHub repos HVAC",
+  "script": "cmd/manual-scraper/sources/github.go",
+  "triggers": ["manual", "cron:daily:3am"],
+  "output": "json",
+  "commands": ["sync", "list"],
+  "flags": [
+    {"name": "source", "type": "string", "required": true, "values": ["coolfix", "hvac_troubleshoot_pro"]}
+  ],
+  "examples": [
+    "/github sync coolfix",
+    "/github sync hvac_troubleshoot_pro",
+    "/github list"
+  ],
+  "depends_on": [],
+  "orchestrates": ["scraper"],
+  "repos": {
+    "coolfix": {
+      "repo": "hysenmuhamad/coolfix",
+      "content": "errorCodes.json",
+      "path": ""
+    },
+    "hvac_troubleshoot_pro": {
+      "repo": "Huskyauto/hvac-troubleshoot-pro",
+      "content": "database",
+      "path": "database"
+    }
+  }
+}

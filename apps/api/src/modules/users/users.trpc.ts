@@ -24,9 +24,6 @@ export const usersRouterTrpc = trpcRouter({
 			.where({ userId })
 			.take();
 
-		if (!targetUser) {
-			throw new TRPCError({ code: "NOT_FOUND", message: "Usuário não encontrado" });
-		}
 
 		// Users can only access users in their own team
 		if (targetUser.teamId !== teamId) {

@@ -174,7 +174,6 @@ func (r *RankingAgent) Execute(ctx context.Context, task *SwarmTask) (map[string
 		phone, _ := task.Input["phone"].(string)
 		normalizedText, _ := task.Input["normalized_text"].(string)
 		intent, _ := task.Input["intent"].(string)
-		chatID, _ := task.Input["chat_id"].(string)
 
 		responseTask := map[string]any{
 			"task_id":   uuid.New().String(),
@@ -190,7 +189,6 @@ func (r *RankingAgent) Execute(ctx context.Context, task *SwarmTask) (map[string
 				"phone":            phone,
 				"normalized_text":  normalizedText,
 				"intent":           intent,
-				"chat_id":          chatID,
 				"assembled_context": assembledContext,
 				"ranking_output":   result,
 			},

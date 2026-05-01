@@ -3,7 +3,6 @@ package memory
 import (
 	"context"
 	"fmt"
-	"log/slog"
 	"regexp"
 	"sort"
 	"strings"
@@ -33,8 +32,8 @@ const ExpectedVectorDim = 768
 func NewQdrantLayer(client *qdrant.Client) *QdrantLayer {
 	return &QdrantLayer{
 		client:     client,
-		collection: "hvac_service_manuals",
-		cb:         circuitbreaker.NewWithLogger(5, 30*time.Second, slog.Default()),
+		collection: "hvacr_knowledge",
+		cb:         circuitbreaker.New(5, 30*time.Second),
 	}
 }
 
@@ -42,9 +41,9 @@ func NewQdrantLayer(client *qdrant.Client) *QdrantLayer {
 func NewQdrantLayerWithEmbedder(client *qdrant.Client, embedder *ollama.Embedder) *QdrantLayer {
 	return &QdrantLayer{
 		client:     client,
-		collection: "hvac_service_manuals",
+		collection: "hvacr_knowledge",
 		embedder:   embedder,
-		cb:         circuitbreaker.NewWithLogger(5, 30*time.Second, slog.Default()),
+		cb:         circuitbreaker.New(5, 30*time.Second),
 	}
 }
 
@@ -84,12 +83,6 @@ func (q *QdrantLayer) HybridSearch(ctx context.Context, query string, filters ma
 
 // searchDense performs dense vector search using Ollama nomic-embed-text (768D).
 func (q *QdrantLayer) searchDense(ctx context.Context, query string, flt *qdrant.Filter, limit int) ([]SearchResult, error) {
-	// Graceful fallback: if circuit is open, return empty results
-	if q.cb.GetState() == circuitbreaker.StateOpen {
-		slog.Warn("circuit breaker open, returning empty dense results")
-		return []SearchResult{}, nil
-	}
-
 	var embedding []float32
 
 	// Generate embedding using Ollama nomic-embed-text if embedder is available
@@ -133,12 +126,6 @@ func (q *QdrantLayer) searchDense(ctx context.Context, query string, flt *qdrant
 // searchSparseBM25 performs sparse vector search (BM25-like).
 // It tokenizes the query and creates a sparse vector based on term frequencies.
 func (q *QdrantLayer) searchSparseBM25(ctx context.Context, query string, flt *qdrant.Filter, limit int) ([]SearchResult, error) {
-	// Graceful fallback: if circuit is open, return empty results
-	if q.cb.GetState() == circuitbreaker.StateOpen {
-		slog.Warn("circuit breaker open, returning empty sparse results")
-		return []SearchResult{}, nil
-	}
-
 	// Tokenize and compute term frequencies for sparse vector
 	indices, weights := computeBM25Weights(query)
 

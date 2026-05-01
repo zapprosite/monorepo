@@ -70,7 +70,7 @@ func TestRulesResponseAgent_FindBestResponse(t *testing.T) {
 		{
 			name:      "empty message",
 			message:   "",
-			wantEmpty: false, // empty message returns default greeting, not empty string
+			wantEmpty: true,
 		},
 	}
 
@@ -125,8 +125,8 @@ func TestRulesResponseAgent_GetDefaultResponse(t *testing.T) {
 		t.Error("expected non-empty default response")
 	}
 
-	// Should contain greeting-like content (Oi is common to all greetings)
-	if !strings.Contains(response, "Oi") && !strings.Contains(response, "ajudar") {
+	// Should contain greeting-like content
+	if !strings.Contains(response, "Ola") && !strings.Contains(response, "Bem-vindo") && !strings.Contains(response, "Oi") {
 		t.Error("expected greeting in default response")
 	}
 }

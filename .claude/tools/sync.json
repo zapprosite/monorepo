@@ -1,0 +1,15 @@
+{
+  "name": "sync",
+  "alias": "/sync",
+  "description": "Sincroniza .context/ directory com memory index",
+  "script": "/home/will/.claude/mcps/ai-context-sync/sync.sh",
+  "triggers": ["manual", "pre-commit", "post-merge", "cron:30min"],
+  "output": "json",
+  "log": "/srv/ops/logs/sync.log",
+  "flags": [],
+  "examples": [
+    "/sync"
+  ],
+  "depends_on": [],
+  "orchestrates": []
+}

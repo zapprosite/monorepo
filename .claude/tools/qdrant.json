@@ -1,0 +1,29 @@
+{
+  "name": "qdrant",
+  "alias": "/qdrant",
+  "description": "Vector storage and search in Qdrant",
+  "script": "internal/rag/qdrant/client.go",
+  "triggers": ["manual"],
+  "output": "json",
+  "commands": ["upsert", "search"],
+  "flags": {
+    "upsert": [
+      {"name": "--id", "type": "string", "required": true},
+      {"name": "--vector", "type": "[]float32", "required": true},
+      {"name": "--payload", "type": "json", "required": true}
+    ],
+    "search": [
+      {"name": "--vector", "type": "[]float32", "required": true},
+      {"name": "--limit", "type": "int", "default": 10},
+      {"name": "--filter", "type": "string"}
+    ]
+  },
+  "examples": [
+    "/qdrant upsert --id lg_ar09ns1_e8 --vector '[0.123]' --payload '{\"brand\":\"lg\",\"error_code\":\"E8\"}'",
+    "/qdrant search --vector '[0.123]' --limit 5 --filter brand=lg"
+  ],
+  "depends_on": ["embed"],
+  "orchestrates": [],
+  "collection": "hvac_service_manuals",
+  "dimension": 768
+}

@@ -2,7 +2,6 @@ package circuitbreaker
 
 import (
 	"errors"
-	"log/slog"
 	"sync"
 	"time"
 )
@@ -29,8 +28,7 @@ type CircuitBreaker struct {
 	failures  int
 	threshold int
 	timeout   time.Duration
-	lastTry   time.Time
-	logger    *slog.Logger
+	lastTry  time.Time
 }
 
 // New creates a new CircuitBreaker with the given threshold and timeout.
@@ -42,20 +40,7 @@ func New(threshold int, timeout time.Duration) *CircuitBreaker {
 		failures:  0,
 		threshold: threshold,
 		timeout:   timeout,
-		lastTry:   time.Now(),
-		logger:    slog.Default(),
-	}
-}
-
-// NewWithLogger creates a new CircuitBreaker with a custom logger.
-func NewWithLogger(threshold int, timeout time.Duration, logger *slog.Logger) *CircuitBreaker {
-	return &CircuitBreaker{
-		state:     StateClosed,
-		failures:  0,
-		threshold: threshold,
-		timeout:   timeout,
-		lastTry:   time.Now(),
-		logger:    logger,
+		lastTry:  time.Now(),
 	}
 }
 
@@ -71,7 +56,6 @@ func (b *CircuitBreaker) Call(fn func() error) error {
 	if b.state == StateOpen {
 		if time.Since(b.lastTry) >= b.timeout {
 			b.state = StateHalfOpen
-			b.logger.Info("circuit breaker state change", "from", "open", "to", "half-open")
 		} else {
 			return ErrCircuitOpen
 		}
@@ -87,12 +71,10 @@ func (b *CircuitBreaker) Call(fn func() error) error {
 			// Half-open -> open on failure
 			b.state = StateOpen
 			b.lastTry = time.Now()
-			b.logger.Warn("circuit breaker state change", "from", "half-open", "to", "open", "reason", "half-open request failed")
 		} else if b.failures >= b.threshold {
 			// Closed -> open on threshold
 			b.state = StateOpen
 			b.lastTry = time.Now()
-			b.logger.Warn("circuit breaker state change", "from", "closed", "to", "open", "reason", "threshold exceeded", "failures", b.failures)
 		}
 		return err
 	}
@@ -102,7 +84,6 @@ func (b *CircuitBreaker) Call(fn func() error) error {
 		// Half-open -> closed on success
 		b.state = StateClosed
 		b.failures = 0
-		b.logger.Info("circuit breaker state change", "from", "half-open", "to", "closed")
 	} else if b.failures > 0 {
 		// Reset failures on success in closed state
 		b.failures = 0
