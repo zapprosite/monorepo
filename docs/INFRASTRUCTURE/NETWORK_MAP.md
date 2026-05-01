@@ -35,18 +35,18 @@
         ┌────────────────────────┴────────────────────────┐
         │              Ingress Rules (cloudflared)           │
         ├──────────────────────────────────────────────────┤
-        │  bot.zappro.site    → http://localhost:4001      │
+        │  api.zappro.site    → http://localhost:4000      │
         │  chat.zappro.site   → http://localhost:8080      │
         │  coolify.zappro.site → http://localhost:8000     │
+        │  crm.zappro.site   → http://localhost:3080      │
         │  git.zappro.site    → http://localhost:3300      │
-        │  vault.zappro.site  → http://localhost:8200      │
-        │  painel.zappro.site → http://localhost:4003     │
-        │  n8n.zappro.site   → http://10.0.6.3:5678       │
-        │  qdrant.zappro.site → http://localhost:6333     │
+        │  hermes.zappro.site → http://localhost:8642     │
+        │  llm.zappro.site   → http://localhost:4002      │
+        │  list.zappro.site   → http://localhost:4080     │
+        │  md.zappro.site    → http://localhost:4081      │
         │  monitor.zappro.site → http://localhost:3100    │
-        │  llm.zappro.site   → http://localhost:4000      │
-        │  api.zappro.site   → http://localhost:4000      │
-        │  aurelia.zappro.site → http://localhost:3334     │
+        │  pgadmin.zappro.site → http://localhost:4050    │
+        │  trieve.zappro.site → http://localhost:6435     │
         └──────────────────────────────────────────────────┘
                                  │
                                  ▼
