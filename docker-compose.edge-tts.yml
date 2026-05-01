@@ -3,6 +3,8 @@ services:
     image: sedett/openai-edge-tts:latest
     container_name: openai-edge-tts
     restart: unless-stopped
+    environment:
+      - COMPOSE_PROJECT_NAME=hermes
     ports:
       - "127.0.0.1:5050:5050"
     healthcheck:

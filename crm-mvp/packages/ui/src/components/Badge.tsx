@@ -46,7 +46,8 @@ Badge.displayName = 'Badge';
 export const StatusBadge: React.FC<{
   status: string;
   mapping?: Record<string, BadgeVariant>;
-}> = ({ status, mapping }) => {
+  label?: string;
+}> = ({ status, mapping, label }) => {
   const defaultMapping: Record<string, BadgeVariant> = {
     // Leads
     novo: 'default',
@@ -71,10 +72,15 @@ export const StatusBadge: React.FC<{
     encerrado: 'ghost',
     // Reminders (concluido already defined above)
     pendente: 'warning',
+    // Service Orders
+    orcamento: 'info',
+    aprovada: 'accent',
+    // Equipamentos
+    em_manutencao: 'warning',
   };
 
   const variant = mapping?.[status] || defaultMapping[status] || 'default';
-  const label = status.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase());
+  const displayLabel = label ?? status.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase());
 
-  return <Badge variant={variant}>{label}</Badge>;
+  return <Badge variant={variant}>{displayLabel}</Badge>;
 };

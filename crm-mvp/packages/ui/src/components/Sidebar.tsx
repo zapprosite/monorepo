@@ -11,6 +11,10 @@ import {
   Menu,
   X,
   Shield,
+  Wrench,
+  ClipboardList,
+  Settings,
+  Palette,
 } from 'lucide-react';
 
 export interface NavItem {
@@ -32,10 +36,13 @@ const navItems: NavItem[] = [
   { label: 'Dashboard', path: '/dashboard', icon: <LayoutDashboard size={20} /> },
   { label: 'Leads', path: '/leads', icon: <Users size={20} /> },
   { label: 'Clientes', path: '/clients', icon: <UserCircle size={20} /> },
+  { label: 'Equipamentos', path: '/equipamentos', icon: <Wrench size={20} /> },
+  { label: 'Ordens de Serviço', path: '/service-orders', icon: <ClipboardList size={20} /> },
   { label: 'Agenda', path: '/schedule', icon: <CalendarDays size={20} /> },
   { label: 'Contratos', path: '/contracts', icon: <FileText size={20} /> },
   { label: 'Lembretes', path: '/reminders', icon: <Bell size={20} /> },
   { label: 'Equipe', path: '/team', icon: <Shield size={20} /> },
+  { label: 'Identidade Visual', path: '/settings/visual-identity', icon: <Palette size={20} /> },
 ];
 
 export const Sidebar: React.FC<SidebarProps> = ({

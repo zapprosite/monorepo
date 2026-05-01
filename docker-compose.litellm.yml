@@ -1,4 +1,5 @@
 services:
+
   litellm:
     image: ghcr.io/berriai/litellm:main-latest
     container_name: litellm-proxy
@@ -6,6 +7,7 @@ services:
     env_file:
       - /srv/monorepo/.env
     environment:
+      - COMPOSE_PROJECT_NAME=infra
       - LITELLM_CONFIG_FILE=/app/config/config.yaml
     volumes:
       - /srv/monorepo/config/litellm/config.yaml:/app/config/config.yaml:ro

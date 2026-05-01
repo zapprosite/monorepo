@@ -5,6 +5,7 @@ services:
     restart: unless-stopped
     env_file: /srv/monorepo/.env
     environment:
+      - COMPOSE_PROJECT_NAME=openwebui
       - HOST=0.0.0.0
       - PORT=3456
       # CRITICAL: Use 4 slashes for absolute path in SQLite URL

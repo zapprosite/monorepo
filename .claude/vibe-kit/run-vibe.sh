@@ -28,7 +28,7 @@ MAX_HOURS="${VIBE_HOURS:-8}"
 PROVIDER="${VIBE_PROVIDER:-minimax}"
 MODEL="${VIBE_MODEL:-MiniMax-M2.7}"
 POLL_INTERVAL=5
-SNAPSHOT_EVERY=3
+SNAPSHOT_EVERY="${VIBE_SNAPSHOT_EVERY:-3}"
 SMOKE_MAX_RETRIES=3
 MAX_RUNTIME_SECS=$((MAX_HOURS * 3600))
 
@@ -36,6 +36,7 @@ MAX_RUNTIME_SECS=$((MAX_HOURS * 3600))
 SCRIPT_CONTEXT_RESET="/srv/monorepo/scripts/context-reset.sh"
 SCRIPT_SMOKE_RUNNER="/srv/monorepo/scripts/smoke-runner.sh"
 SCRIPT_NOTIFY_COMPLETE="/srv/monorepo/scripts/notify-complete.sh"
+SCRIPT_TYPESCRIPT_TO_VIDEO="/srv/monorepo/scripts/typescript-to-video.py"
 
 # Retry defaults
 RETRY_BASE_DELAY=2
@@ -78,6 +79,9 @@ _build_worker_cmd() {
     local model="$2"
 
     local cmd="$WORKER_CMD"  # from multi-cli-adapter.sh
+    local cmd_bin="${cmd%% *}"
+    local cmd_name
+    cmd_name="$(basename "$cmd_bin" 2>/dev/null || echo "$cmd_bin")"
 
     # Add --dangerously-skip-permissions if not already in WORKER_CMD
     if [[ ! "$cmd" =~ "--dangerously-skip-permissions" ]]; then
@@ -100,8 +104,12 @@ _build_worker_cmd() {
     # Set permission mode for headless operation
     cmd="$cmd --permission-mode $PERMISSION_MODE"
 
-    # Provider and model
-    cmd="$cmd --provider $provider --model $model"
+    # Provider and model. Claude Code does not accept --provider; mclaude does.
+    if [[ "$cmd_name" == "claude" ]] || [[ "$cmd_name" == "claude-code" ]]; then
+        [[ -n "$model" ]] && cmd="$cmd --model $model"
+    else
+        cmd="$cmd --provider $provider --model $model"
+    fi
 
     echo "$cmd"
 }
@@ -328,11 +336,12 @@ _health_check() {
         fi
     done
 
-    if ! command -v "$WORKER_CMD" &>/dev/null; then
+    local worker_bin="${WORKER_CMD%% *}"
+    if ! command -v "$worker_bin" &>/dev/null; then
         log_error "Required command not found: $WORKER_CMD (WORKER_CMD)"
         errors=$((errors + 1))
     else
-        log_debug "  [OK] $WORKER_CMD available"
+        log_debug "  [OK] $worker_bin available"
     fi
 
     if [ ! -f "$WORKDIR/queue-manager.py" ]; then
@@ -378,6 +387,66 @@ _isolate_context() {
     return 0
 }
 
+# ─── Video recording on failure ──────────────────────────────────────────────
+# Uses script(1) to record terminal sessions and ffmpeg to encode MP4.
+# The recording is only produced when a task fails.
+
+_record_session() {
+    local task_id="$1"
+    local recording_dir="$2"
+    local typescript_file="${recording_dir}/session-${task_id}.typescript"
+    local timing_file="${recording_dir}/session-${task_id}.timing"
+
+    # Start script recording in background — captures full terminal session
+    # -q: quiet (no startup/shutdown messages)
+    # -a: append to file (overwrites if exists)
+    # -t: output timing to stderr (we capture via fd 3)
+    # The worker command is passed via -c
+    mkdir -p "$recording_dir"
+    echo "RECORDING_TYPESCRIPT=${typescript_file}"
+    echo "RECORDING_TIMING=${timing_file}"
+}
+
+# Convert a completed typescript + timing recording to MP4 on failure.
+# Produces both .cast (asciicast for asciinema replay) and .mp4.
+_convert_recording_on_failure() {
+    local task_id="$1"
+    local typescript_file="$2"
+    local timing_file="$3"
+    local output_dir
+    output_dir=$(dirname "$typescript_file")
+
+    if [ ! -f "$timing_file" ] || [ ! -f "$typescript_file" ]; then
+        log_warn "Recording files missing for $task_id — skipping video"
+        return 1
+    fi
+
+    local timing_size script_size
+    timing_size=$(stat -c%s "$timing_file" 2>/dev/null || echo 0)
+    script_size=$(stat -c%s "$typescript_file" 2>/dev/null || echo 0)
+
+    if [ "$timing_size" -lt 4 ] || [ "$script_size" -lt 4 ]; then
+        log_warn "Recording files too small for $task_id — skipping video"
+        return 1
+    fi
+
+    local mp4_file="${output_dir}/recording-${task_id}.mp4"
+    local cast_file="${output_dir}/recording-${task_id}.cast"
+
+    log_info "Converting recording for $task_id to video (typescript=${script_size}B)..."
+
+    if [ -x "$SCRIPT_TYPESCRIPT_TO_VIDEO" ]; then
+        python3 "$SCRIPT_TYPESCRIPT_TO_VIDEO" "$timing_file" "$typescript_file" "$mp4_file" >> "$LOG_DIR/recording-${task_id}.log" 2>&1 && {
+            log_info "Video saved: $mp4_file"
+        } || {
+            log_warn "Video conversion failed for $task_id — check $LOG_DIR/recording-${task_id}.log"
+        }
+    else
+        log_warn "typescript-to-video.py not found — recording available as typescript: $typescript_file"
+    fi
+    return 0
+}
+
 # ─── SIGCHLD handler ─────────────────────────────────────────────────────────
 handle_sigchld() {
     local pid
@@ -396,7 +465,68 @@ handle_sigchld() {
     done < <(jobs -p 2>/dev/null || true)
 }
 
-trap handle_sigchld CHLD
+# do_loop prunes worker state explicitly. Avoid a SIGCHLD wait loop here because
+# it can deadlock the scheduler while workers are still writing logs.
+trap - CHLD
+
+_prune_running_file() {
+    if [ ! -f "$RUNNING_FILE" ]; then
+        return 0
+    fi
+
+    local tmp="${RUNNING_FILE}.tmp"
+    : > "$tmp"
+
+    local active_pids
+    active_pids=" $(jobs -r -p 2>/dev/null | tr '\n' ' ') "
+
+    while IFS= read -r entry; do
+        local pid
+        pid=$(echo "$entry" | jq -r ".pid // empty" 2>/dev/null || true)
+        if [ -n "$pid" ] && [[ "$active_pids" == *" $pid "* ]]; then
+            echo "$entry" >> "$tmp"
+        fi
+    done < <(jq -c ".[]?" "$RUNNING_FILE" 2>/dev/null || true)
+
+    jq -s "." "$tmp" > "${tmp}.json" 2>/dev/null && mv "${tmp}.json" "$RUNNING_FILE"
+    rm -f "$tmp" "${tmp}.json"
+}
+
+_remove_running_entry() {
+    local task_id="$1"
+    if [ ! -f "$RUNNING_FILE" ]; then
+        return 0
+    fi
+
+    jq --arg task_id "$task_id" 'map(select(.task_id != $task_id))' "$RUNNING_FILE" > "${RUNNING_FILE}.tmp" 2>/dev/null && \
+        mv "${RUNNING_FILE}.tmp" "$RUNNING_FILE" || rm -f "${RUNNING_FILE}.tmp"
+}
+
+_requeue_stale_running_tasks() {
+    if [ ! -f "$QUEUE_FILE" ]; then
+        return 0
+    fi
+
+    local active_ids_json="[]"
+    if [ -f "$RUNNING_FILE" ]; then
+        _prune_running_file
+        active_ids_json=$(jq -c '[.[]?.task_id]' "$RUNNING_FILE" 2>/dev/null || echo "[]")
+    fi
+
+    jq --argjson active "$active_ids_json" '
+        (.tasks |= map(
+            if .status == "running" and ((.id as $id | $active | index($id)) | not)
+            then .status = "pending" | .worker = null | .claimed_at = null
+            else .
+            end
+        ))
+        | .pending = ([.tasks[] | select(.status == "pending")] | length)
+        | .running = ([.tasks[] | select(.status == "running")] | length)
+        | .done = ([.tasks[] | select(.status == "done")] | length)
+        | .failed = ([.tasks[] | select(.status == "failed")] | length)
+        | .frozen = ([.tasks[] | select(.status == "frozen")] | length)
+    ' "$QUEUE_FILE" > "${QUEUE_FILE}.tmp" && mv "${QUEUE_FILE}.tmp" "$QUEUE_FILE"
+}
 
 # ─── Lead: think + delegate ──────────────────────────────────────────────────
 lead_think() {
@@ -426,6 +556,14 @@ if not tasks:
         if m:
             desc = m.group(1).strip()
             name = 'ac-' + re.sub(r'[^a-z0-9]+', '-', desc.lower())[:30]
+            tasks.append({'id': 'T{:03d}'.format(len(tasks)+1), 'name': name, 'description': desc})
+
+if not tasks:
+    for line in content.split('\n'):
+        m = re.match(r'^\- \[ \] (.+)', line)
+        if m:
+            desc = m.group(1).strip()
+            name = re.sub(r'[^a-z0-9]+', '-', desc.lower())[:40]
             tasks.append({'id': 'T{:03d}'.format(len(tasks)+1), 'name': name, 'description': desc})
 
 if not tasks:
@@ -484,6 +622,7 @@ do_loop() {
     local tasks_since_snapshot=0
 
     log_info "Starting do_loop — max_workers=$MAX_WORKERS max_runtime=${MAX_HOURS}h"
+    _requeue_stale_running_tasks
 
     while true; do
         local now_secs
@@ -495,10 +634,9 @@ do_loop() {
             break
         fi
 
+        _prune_running_file
         local running_count=0
-        if [ -f "$RUNNING_FILE" ]; then
-            running_count=$(jq "length" "$RUNNING_FILE" 2>/dev/null || echo 0)
-        fi
+        running_count=$(jobs -r -p 2>/dev/null | wc -l | tr -d ' ')
 
         local pending queue_total
         pending=$(jq ".pending" "$QUEUE_FILE" 2>/dev/null || echo 0)
@@ -538,6 +676,8 @@ do_loop() {
             (
                 local worker_result="done"
                 local worker_log="$LOG_DIR/worker-$task_id.log"
+                local typescript_file="$LOG_DIR/session-${task_id}.typescript"
+                local timing_file="$LOG_DIR/session-${task_id}.timing"
 
                 # Build Claude Code native worker command using _build_worker_cmd
                 local worker_cmd
@@ -574,8 +714,39 @@ do_loop() {
                     worker_cmd="$(_build_worker_cmd "$PROVIDER" "$MODEL")"
                 fi
 
-                _run_with_timeout "$TIMEOUT_MCLAUDE" "worker-$task_id" \
-                    $worker_cmd -p "You are worker-$$.
+                # ─── Terminal recording with script(1) ─────────────────────────────────
+                # Always record when VIBE_RECORD is not "false"
+                # Video (MP4) is produced only on failure via _convert_recording_on_failure
+                local use_recording="${VIBE_RECORD:-true}"
+                local worker_exit=0
+
+                if [[ "$use_recording" != "false" ]] && command -v script &>/dev/null; then
+                    # Remove stale recording files
+                    rm -f "$typescript_file" "$timing_file"
+
+                    # script -c runs the command inside a pseudo-terminal recording session
+                    # -q: quiet (no "Script started/finished" messages)
+                    # -a: append to typescript file
+                    # -t: emit timing records to fd 3 (captured to timing_file)
+                    # We redirect worker output to both the typescript (via script) and worker_log
+                    script -q -a "$typescript_file" -t "$timing_file" \
+                        bash -c "$worker_cmd -p 'You are worker-$$.
+APP: $app
+TASK: $task_name
+DESCRIPTION: $description
+
+Working directory: /srv/monorepo
+
+Execute completely. Output [COMPLETE] task_id=$task_id result=done when done.
+If you cannot complete, output [COMPLETE] task_id=$task_id result=failed reason=...
+
+Save your work context to: $CONTEXT_DIR/${task_id}.ctx' \
+                        >> '$worker_log' 2>&1" \
+                        >> "$worker_log" 2>&1 || worker_exit=$?
+                else
+                    # No recording — run directly
+                    if ! _run_with_timeout "$TIMEOUT_MCLAUDE" "worker-$task_id" \
+                        $worker_cmd -p "You are worker-$$.
 APP: $app
 TASK: $task_name
 DESCRIPTION: $description
@@ -586,17 +757,35 @@ Execute completely. Output [COMPLETE] task_id=$task_id result=done when done.
 If you cannot complete, output [COMPLETE] task_id=$task_id result=failed reason=...
 
 Save your work context to: $CONTEXT_DIR/${task_id}.ctx" \
-                        >> "$worker_log" 2>&1
+                        >> "$worker_log" 2>&1; then
+                        worker_exit=$?
+                    fi
+                fi
+
+                if [ $worker_exit -ne 0 ]; then
+                    worker_result="failed"
+                    log_warn "Task $task_id worker command failed with exit=$worker_exit"
+                fi
 
                 if grep -q "result=failed" "$worker_log" 2>/dev/null; then
                     worker_result="failed"
                     log_warn "Task $task_id worker reported failure"
                 fi
 
+                # ─── Produce video on failure ─────────────────────────────────────────
+                if [[ "$worker_result" == "failed" ]] && [[ "$use_recording" != "false" ]]; then
+                    log_info "Task $task_id failed — producing video recording..."
+                    _convert_recording_on_failure "$task_id" "$typescript_file" "$timing_file" || true
+                fi
+
                 local smoke_exit=0
                 local smoke_attempts=0
+                local smoke_workdir="/srv/monorepo"
+                if [ -n "$app" ] && [ -d "/srv/monorepo/$app" ]; then
+                    smoke_workdir="/srv/monorepo/$app"
+                fi
                 while [ $smoke_attempts -lt $SMOKE_MAX_RETRIES ]; do
-                    if _run_with_timeout 300 "smoke-$task_id" bash "$SCRIPT_SMOKE_RUNNER" 2>&1; then
+                    if _run_with_timeout 300 "smoke-$task_id" env WORKDIR="$smoke_workdir" bash "$SCRIPT_SMOKE_RUNNER" 2>&1; then
                         break
                     else
                         smoke_exit=$?
@@ -615,6 +804,7 @@ Save your work context to: $CONTEXT_DIR/${task_id}.ctx" \
                     log_error "Failed to mark task $task_id complete in queue"
                 }
 
+                _remove_running_entry "$task_id"
                 _cleanup_context "$task_id"
 
             ) &
@@ -636,7 +826,7 @@ Save your work context to: $CONTEXT_DIR/${task_id}.ctx" \
         done
 
         tasks_since_snapshot=$((tasks_since_snapshot + 1))
-        if [ $tasks_since_snapshot -ge $SNAPSHOT_EVERY ]; then
+        if [ "$SNAPSHOT_EVERY" -gt 0 ] && [ $tasks_since_snapshot -ge $SNAPSHOT_EVERY ]; then
             _do_snapshot
             tasks_since_snapshot=0
         fi
@@ -756,7 +946,9 @@ main() {
 
     _terminate_pid $watchdog_pid "watchdog" 2>/dev/null || true
 
-    if [ "$done_count" -gt 0 ] && [ "$failed_count" -le 5 ]; then
+    if [ "${VIBE_SKIP_GIT_COMMIT:-false}" = "true" ]; then
+        log_info "Skipping automatic git commit because VIBE_SKIP_GIT_COMMIT=true"
+    elif [ "$done_count" -gt 0 ] && [ "$failed_count" -le 5 ]; then
         log_info "Creating vibe branch and committing"
         _run_with_timeout "$TIMEOUT_GIT" "git-checkout" git checkout -b "vibe-$(date +%Y%m%d-%H%M%S)" 2>/dev/null || true
         _run_with_timeout "$TIMEOUT_GIT" "git-add" git add -A 2>/dev/null || true

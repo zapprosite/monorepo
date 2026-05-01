@@ -1,3 +1,6 @@
+x-common-env: &common-env
+  COMPOSE_PROJECT_NAME: openwebui
+
 services:
   openwebui:
     image: openwebui/open-webui:latest

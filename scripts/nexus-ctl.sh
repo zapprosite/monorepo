@@ -16,6 +16,7 @@ PID_FILE="${MONOREPO}/.claude/nexus.pid"
 STATE_FILE="${MONOREPO}/.claude/vibe-kit/state.json"
 QUEUE_FILE="${MONOREPO}/.claude/vibe-kit/queue.json"
 AUTO_SCRIPT="${MONOREPO}/scripts/nexus-auto.sh"
+VIBE_SCRIPT="${MONOREPO}/scripts/vibe.sh"
 
 # Colors
 RED='\033[0;31m'
@@ -65,6 +66,8 @@ ${YELLOW}COMMANDS:${NC}
   ${GREEN}status${NC}  Show current system status
   ${GREEN}restart${NC} Restart the Nexus loop (stop + start)
   ${GREEN}reset${NC}   Reset Nexus state and clear queue
+  ${GREEN}run${NC}     Run a SPEC through vibe-kit: nexus-ctl.sh run SPEC-ID [app]
+  ${GREEN}queue${NC}   Show detailed vibe-kit queue
   ${GREEN}help${NC}    Show this help message
 
 ${YELLOW}EXIT CODES:${NC}
@@ -97,10 +100,14 @@ get_status() {
   local pending=0
   local running_cnt=0
   local done=0
+  local failed=0
+  local frozen=0
   if [ -f "$QUEUE_FILE" ]; then
     pending=$(jq -r '.tasks | map(select(.status == "pending")) | length' "$QUEUE_FILE" 2>/dev/null || echo 0)
     running_cnt=$(jq -r '.tasks | map(select(.status == "running")) | length' "$QUEUE_FILE" 2>/dev/null || echo 0)
     done=$(jq -r '.tasks | map(select(.status == "done")) | length' "$QUEUE_FILE" 2>/dev/null || echo 0)
+    failed=$(jq -r '.tasks | map(select(.status == "failed")) | length' "$QUEUE_FILE" 2>/dev/null || echo 0)
+    frozen=$(jq -r '.tasks | map(select(.status == "frozen")) | length' "$QUEUE_FILE" 2>/dev/null || echo 0)
   fi
 
   echo ""
@@ -113,7 +120,17 @@ get_status() {
   echo -e "    Pending: ${YELLOW}${pending}${NC}"
   echo -e "    Running: ${CYAN}${running_cnt}${NC}"
   echo -e "    Done:    ${GREEN}${done}${NC}"
+  echo -e "    Failed:  ${RED}${failed}${NC}"
+  echo -e "    Frozen:  ${BLUE}${frozen}${NC}"
   echo ""
+}
+
+show_queue() {
+  if [ ! -f "$QUEUE_FILE" ]; then
+    log_warn "Queue not found: $QUEUE_FILE"
+    return 0
+  fi
+  jq -r '.tasks[]? | [.id, .status, (.worker // "-"), .name] | @tsv' "$QUEUE_FILE"
 }
 
 # ===== START =====
@@ -202,6 +219,25 @@ do_restart() {
   "$0" start
 }
 
+do_run_spec() {
+  local spec="${1:-}"
+  local app="${2:-}"
+  if [ -z "$spec" ]; then
+    log_error "Usage: nexus-ctl.sh run SPEC-ID [app]"
+    exit 2
+  fi
+  if [ ! -f "$VIBE_SCRIPT" ]; then
+    log_error "vibe.sh not found at $VIBE_SCRIPT"
+    exit 1
+  fi
+  log "Running SPEC through vibe-kit: spec=$spec app=${app:-monorepo}"
+  if [ -n "$app" ]; then
+    bash "$VIBE_SCRIPT" --spec "$spec" --app "$app" --run
+  else
+    bash "$VIBE_SCRIPT" --spec "$spec" --run
+  fi
+}
+
 # ===== RESET =====
 do_reset() {
   log "Resetting Nexus state..."
@@ -235,11 +271,14 @@ main() {
   init
 
   local command="${1:-}"
+  shift || true
 
   case "$command" in
     start)   do_start ;;
     stop)    do_stop ;;
     status)  get_status; exit 0 ;;
+    queue)   show_queue; exit 0 ;;
+    run)     do_run_spec "$@" ;;
     restart) do_restart ;;
     reset)   do_reset ;;
     help|--help|-h)

@@ -5,12 +5,13 @@ services:
     restart: unless-stopped
     env_file: /srv/monorepo/.env
     environment:
-      CONFIG_FILE: /config.yaml
-      GITEA_INSTANCE_URL: http://10.0.1.1:3300
-      GITEA_RUNNER_REGISTRATION_TOKEN: ${GITEA_RUNNER_REGISTRATION_TOKEN}
-      GITEA_RUNNER_NAME: prod-runner-1
-      GITEA_RUNNER_LABELS: ubuntu-latest
-      GITEA_RUNNER_EPHEMERAL: "1"
+      - COMPOSE_PROJECT_NAME=gitea
+      - CONFIG_FILE=/config.yaml
+      - GITEA_INSTANCE_URL=http://10.0.1.1:3300
+      - GITEA_RUNNER_REGISTRATION_TOKEN=${GITEA_RUNNER_REGISTRATION_TOKEN}
+      - GITEA_RUNNER_NAME=prod-runner-1
+      - GITEA_RUNNER_LABELS=ubuntu-latest
+      - GITEA_RUNNER_EPHEMERAL=1
     volumes:
       - ./runner/config.yaml:/config.yaml
       - ./runner/data:/data

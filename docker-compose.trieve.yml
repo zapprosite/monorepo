@@ -1,6 +1,9 @@
 # Trieve RAG Server
 # Author: leogomide
 
+x-common-env: &common-env
+  COMPOSE_PROJECT_NAME: trieve
+
 services:
   trieve:
     image: trieve/server

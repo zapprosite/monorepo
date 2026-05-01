@@ -138,7 +138,7 @@ _assign_worker_cmd() {
     esac
 }
 
-WORKER_CMD="$(_assign_worker_cmd)"
+WORKER_CMD="${WORKER_CMD:-$(_assign_worker_cmd)}"
 export WORKER_CMD
 
 # ── Worker parallelism ─────────────────────────────────────────────────────────

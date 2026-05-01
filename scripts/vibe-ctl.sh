@@ -67,6 +67,8 @@ ${YELLOW}COMMANDS:${NC}
   ${GREEN}status${NC}  Show current vibe-kit status
   ${GREEN}restart${NC} Restart the vibe-kit loop (stop + start)
   ${GREEN}reset${NC}   Reset vibe-kit state and queue
+  ${GREEN}run${NC}     Run a SPEC: vibe-ctl.sh run SPEC-ID [app]
+  ${GREEN}queue${NC}   Show detailed queue
   ${GREEN}help${NC}    Show this help message
 
 ${YELLOW}EXIT CODES:${NC}
@@ -81,6 +83,14 @@ ${YELLOW}VIBE_PARALLEL ENV:${NC}
   Controls max parallel workers (default: 5)
   Example: VIBE_PARALLEL=10 vibe-ctl.sh start
 EOF
+}
+
+show_queue() {
+  if [ ! -f "$QUEUE_FILE" ]; then
+    log_warn "Queue not found: $QUEUE_FILE"
+    return 0
+  fi
+  jq -r '.tasks[]? | [.id, .status, (.worker // "-"), .name] | @tsv' "$QUEUE_FILE"
 }
 
 # ===== STATUS =====
@@ -228,6 +238,35 @@ do_restart() {
   "$0" start
 }
 
+do_run_spec() {
+  local spec="${1:-}"
+  local app="${2:-}"
+  if [ -z "$spec" ]; then
+    log_error "Usage: vibe-ctl.sh run SPEC-ID [app]"
+    exit 2
+  fi
+  if [ ! -f "$RUN_SCRIPT" ]; then
+    log_error "run-vibe.sh not found at $RUN_SCRIPT"
+    exit 1
+  fi
+
+  log "Planning SPEC: $spec app=${app:-monorepo}"
+  env VIBE_SKIP_GIT_COMMIT="${VIBE_SKIP_GIT_COMMIT:-true}" \
+      VIBE_SNAPSHOT_EVERY="${VIBE_SNAPSHOT_EVERY:-0}" \
+      WORKER_CMD="${WORKER_CMD:-claude}" \
+      VIBE_MODEL="${VIBE_MODEL:-sonnet}" \
+      VIBE_PHASE=plan \
+      bash "$RUN_SCRIPT" "$spec" "$app"
+
+  log "Executing SPEC: $spec app=${app:-monorepo}"
+  env VIBE_SKIP_GIT_COMMIT="${VIBE_SKIP_GIT_COMMIT:-true}" \
+      VIBE_SNAPSHOT_EVERY="${VIBE_SNAPSHOT_EVERY:-0}" \
+      WORKER_CMD="${WORKER_CMD:-claude}" \
+      VIBE_MODEL="${VIBE_MODEL:-sonnet}" \
+      VIBE_PHASE=do \
+      bash "$RUN_SCRIPT" "$spec" "$app"
+}
+
 # ===== RESET =====
 do_reset() {
   log "Resetting vibe-kit state..."
@@ -258,11 +297,14 @@ main() {
   init
 
   local command="${1:-}"
+  shift || true
 
   case "$command" in
     start)   do_start ;;
     stop)    do_stop ;;
     status)  get_status; exit 0 ;;
+    queue)   show_queue; exit 0 ;;
+    run)     do_run_spec "$@" ;;
     restart) do_restart ;;
     reset)   do_reset ;;
     help|--help|-h)

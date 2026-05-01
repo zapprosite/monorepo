@@ -7,9 +7,13 @@ import { SchedulesModule } from '../schedule/schedules.module';
 import { ContractsModule } from '../contracts/contracts.module';
 import { RemindersModule } from '../reminders/reminders.module';
 import { UsersModule } from '../users/users.module';
+import { TeamsModule } from '../teams/teams.module';
+import { EquipamentosModule } from '../equipamentos/equipamentos.module';
+import { ServiceOrdersModule } from '../service-orders/service-orders.module';
+import { CompaniesModule } from '../companies/companies.module';
 
 @Module({
-  imports: [DashboardModule, LeadsModule, ClientsModule, SchedulesModule, ContractsModule, RemindersModule, UsersModule],
+  imports: [DashboardModule, LeadsModule, ClientsModule, SchedulesModule, ContractsModule, RemindersModule, UsersModule, TeamsModule, EquipamentosModule, ServiceOrdersModule, CompaniesModule],
   providers: [TrpcRouter],
   exports: [TrpcRouter],
 })

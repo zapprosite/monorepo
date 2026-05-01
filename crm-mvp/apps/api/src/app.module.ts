@@ -10,6 +10,8 @@ import { SchedulesModule } from './schedule/schedules.module';
 import { ContractsModule } from './contracts/contracts.module';
 import { RemindersModule } from './reminders/reminders.module';
 import { UsersModule } from './users/users.module';
+import { EquipamentosModule } from './equipamentos/equipamentos.module';
+import { ServiceOrdersModule } from './service-orders/service-orders.module';
 import { User } from './entities/user.entity';
 import { Team } from './entities/team.entity';
 import { Session } from './entities/session.entity';
@@ -18,8 +20,14 @@ import { Client } from './entities/client.entity';
 import { Schedule } from './entities/schedule.entity';
 import { Contract } from './entities/contract.entity';
 import { Reminder } from './entities/reminder.entity';
+import { Equipamento } from './entities/equipamento.entity';
+import { ServiceOrder } from './entities/serviceOrder.entity';
+import { Company } from './entities/company.entity';
+import { PdfModule } from './pdf/pdf.module';
+import { CompaniesModule } from './companies/companies.module';
+import { TeamsModule } from './teams/teams.module';
 
-const entities = [User, Team, Session, Lead, Client, Schedule, Contract, Reminder];
+const entities = [User, Team, Session, Lead, Client, Schedule, Contract, Reminder, Equipamento, ServiceOrder, Company];
 
 @Module({
   imports: [
@@ -45,6 +53,11 @@ const entities = [User, Team, Session, Lead, Client, Schedule, Contract, Reminde
     ContractsModule,
     RemindersModule,
     UsersModule,
+    EquipamentosModule,
+    ServiceOrdersModule,
+    PdfModule,
+    CompaniesModule,
+    TeamsModule,
   ],
 })
 export class AppModule {}

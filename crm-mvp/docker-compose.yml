@@ -48,6 +48,8 @@ services:
       ADMIN_EMAIL: ${ADMIN_EMAIL:-zappro.ia@gmail.com}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:-Fifine156458*}
       JWT_SECRET: ${JWT_SECRET}
+    volumes:
+      - crm-data:/data
     ports:
       - "4088:4088"
     depends_on:
@@ -75,3 +77,4 @@ services:
 volumes:
   pgdata:
   redisdata:
+  crm-data:

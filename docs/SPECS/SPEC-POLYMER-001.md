@@ -112,6 +112,16 @@ FSTAB: /swap.img none swap sw 0 0
 | 2026-04-30 | Snapshot ZFS pre-polymer | ✅ tank@pre-polymer-20260430-172434 |
 | 2026-04-30 | Delete brain-refactor/ | ✅ |
 | 2026-04-30 | Delete whisper-server-v2.py | ✅ |
+| 2026-04-30 | Archive fit-tracker → /srv/archive/fit-tracker-20260430 | ✅ |
+| 2026-04-30 | Archive hvacr-swarm → /srv/archive/hvacr-swarm-20260430 | ✅ |
+| 2026-04-30 | Docker reorg: orphans removidos, redes consolidadas | ✅ |
+| 2026-04-30 | COMPOSE_PROJECT_NAME aplicado em todos 8 compose files | ✅ |
+| 2026-04-30 | Qdrant consolidado: hermes-qdrant como fonte única | ✅ |
+| 2026-04-30 | Prometheus Docker target corrigido (metrics-addr 0.0.0.0:9323) | ✅ |
+| 2026-04-30 | SPEC-POLYMER-003 criado: Enterprise Orchestration | ✅ |
+| 2026-04-30 | Orchestrator PoC: 5 tools via JSON-RPC :8095 | ✅ |
+| 2026-04-30 | nexus-deploy.sh migrado para nexus_orchestrated.py | ✅ |
+| 2026-04-30 | Skills audit: 5 skills corrigidas (vl-toggle, infra-audit) | ✅ |
 
 ---
 

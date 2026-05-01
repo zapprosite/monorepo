@@ -7,6 +7,7 @@ services:
     restart: unless-stopped
     env_file: /srv/monorepo/.env
     environment:
+      - COMPOSE_PROJECT_NAME=telegram-dev
       - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
       - REDIS_ADDR=${REDIS_HOST:-redis}:6379
       - REDIS_PASSWORD=${REDIS_PASSWORD}

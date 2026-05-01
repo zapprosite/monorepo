@@ -65,4 +65,6 @@ _detect_by_path() {
 
 # ── Main ─────────────────────────────────────────────────────────────────────
 
-_detect_by_env || _detect_by_process || _detect_by_path || echo "unknown"
+if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
+    _detect_by_env || _detect_by_process || _detect_by_path || echo "unknown"
+fi

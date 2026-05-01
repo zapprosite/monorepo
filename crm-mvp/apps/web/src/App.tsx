@@ -9,6 +9,10 @@ import SchedulePage from './modules/schedule/Schedule.page';
 import ContractsPage from './modules/contracts/Contracts.page';
 import RemindersPage from './modules/reminders/Reminders.page';
 import TeamPage from './modules/team/Team.page';
+import EquipamentosPage from './modules/equipamentos/Equipamentos.page';
+import ServiceOrdersPage from './modules/service-orders/ServiceOrders.page';
+import ExecuteServiceOrderPage from './modules/service-orders/ExecuteServiceOrder.page';
+import VisualIdentityPage from './modules/settings/VisualIdentity.page';
 
 function App() {
   return (
@@ -64,10 +68,42 @@ function App() {
           }
         />
         <Route
+          path="/equipamentos"
+          element={
+            <AuthGuard>
+              <EquipamentosPage />
+            </AuthGuard>
+          }
+        />
+        <Route
+          path="/service-orders/execute/:id"
+          element={
+            <AuthGuard>
+              <ExecuteServiceOrderPage />
+            </AuthGuard>
+          }
+        />
+        <Route
+          path="/service-orders"
+          element={
+            <AuthGuard>
+              <ServiceOrdersPage />
+            </AuthGuard>
+          }
+        />
+        <Route
           path="/team"
           element={
             <AuthGuard>
               <TeamPage />
+            </AuthGuard>
+          }
+        />
+        <Route
+          path="/settings/visual-identity"
+          element={
+            <AuthGuard>
+              <VisualIdentityPage />
             </AuthGuard>
           }
         />

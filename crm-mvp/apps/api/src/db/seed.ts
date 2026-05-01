@@ -7,6 +7,7 @@ import { Lead } from '../entities/lead.entity';
 import { Schedule } from '../entities/schedule.entity';
 import { Contract } from '../entities/contract.entity';
 import { Reminder } from '../entities/reminder.entity';
+import { Company } from '../entities/company.entity';
 
 async function seed() {
   await AppDataSource.initialize();
@@ -19,6 +20,24 @@ async function seed() {
   const scheduleRepo = AppDataSource.getRepository(Schedule);
   const contractRepo = AppDataSource.getRepository(Contract);
   const reminderRepo = AppDataSource.getRepository(Reminder);
+  const companyRepo = AppDataSource.getRepository(Company);
+
+  // Company (identity visual for PDF generation)
+  const existingCompany = await companyRepo.findOne({ where: {} });
+  if (!existingCompany) {
+    const company = companyRepo.create({
+      name: 'Assistência Técnica HVAC-R',
+      cnpj: '00.000.000/0001-00',
+      phone: '(11) 99999-9999',
+      address: 'Rua Example, 123 — São Paulo, SP',
+      primaryColor: '#39FF14',
+      secondaryColor: '#0A0A0F',
+    });
+    await companyRepo.save(company);
+    console.log('✅ Company created');
+  } else {
+    console.log('✅ Company already exists, skipping');
+  }
 
   // Team
   const team = teamRepo.create({ name: 'Equipe Dev', slug: 'equipe-dev' });

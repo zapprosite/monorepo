@@ -15,6 +15,9 @@ export default defineConfig({
     ['list'],
     ['html', { open: 'never' }],
   ],
+  forbidOnly: !!process.env.CI,
+  retries: process.env.CI ? 2 : 0,
+  workers: process.env.CI ? 1 : undefined,
   use: {
     baseURL: process.env.BASE_URL || 'http://localhost:4004',
     trace: 'on-first-retry',

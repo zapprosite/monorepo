@@ -8,6 +8,10 @@ import { SchedulesService } from '../schedule/schedules.service';
 import { ContractsService } from '../contracts/contracts.service';
 import { RemindersService } from '../reminders/reminders.service';
 import { UsersService } from '../users/users.service';
+import { EquipamentosService } from '../equipamentos/equipamentos.service';
+import { ServiceOrdersService } from '../service-orders/service-orders.service';
+import { CompaniesService } from '../companies/companies.service';
+import { TeamsService } from '../teams/teams.service';
 
 const t = initTRPC.create();
 
@@ -21,6 +25,10 @@ export class TrpcRouter {
     private contractsService: ContractsService,
     private remindersService: RemindersService,
     private usersService: UsersService,
+    private equipamentosService: EquipamentosService,
+    private serviceOrdersService: ServiceOrdersService,
+    private companiesService: CompaniesService,
+    private teamsService: TeamsService,
   ) {}
 
   get appRouter() {
@@ -127,9 +135,10 @@ export class TrpcRouter {
             notes: z.string().optional(),
           }))
           .mutation(({ input }) => {
-            const data = { ...input };
-            if (data.dateTime) data.dateTime = new Date(data.dateTime) as any;
-            return this.schedulesService.update(input.id, data);
+            const { id, dateTime, ...rest } = input;
+            const data: any = { ...rest };
+            if (dateTime) data.dateTime = new Date(dateTime);
+            return this.schedulesService.update(id, data);
           }),
         delete: t.procedure.input(z.object({ id: z.string().uuid() })).mutation(({ input }) => this.schedulesService.remove(input.id)),
       }),
@@ -189,12 +198,165 @@ export class TrpcRouter {
             status: z.enum(['pendente', 'concluido', 'cancelado']).optional(),
           }))
           .mutation(({ input }) => {
-            const data = { ...input };
-            if (data.dueDate) data.dueDate = new Date(data.dueDate) as any;
-            return this.remindersService.update(input.id, data);
+            const { id, dueDate, ...rest } = input;
+            const data: any = { ...rest };
+            if (dueDate) data.dueDate = new Date(dueDate);
+            return this.remindersService.update(id, data);
           }),
         delete: t.procedure.input(z.object({ id: z.string().uuid() })).mutation(({ input }) => this.remindersService.remove(input.id)),
         complete: t.procedure.input(z.object({ id: z.string().uuid() })).mutation(({ input }) => this.remindersService.complete(input.id)),
+      }),
+
+      equipamentos: t.router({
+        list: t.procedure
+          .input(z.object({ status: z.string().optional(), type: z.string().optional(), clientId: z.string().uuid().optional(), search: z.string().optional() }).optional())
+          .query(({ input }) => this.equipamentosService.findAll(input)),
+        getById: t.procedure.input(z.object({ id: z.string().uuid() })).query(({ input }) => this.equipamentosService.findOne(input.id)),
+        create: t.procedure
+          .input(z.object({
+            name: z.string().min(1),
+            serialNumber: z.string().optional(),
+            type: z.enum(['ar_condicionado', 'refrigerador', 'freezer', 'split', 'janela', 'de_chao', 'portatil', 'outro']).default('ar_condicionado'),
+            brand: z.string().optional(),
+            model: z.string().optional(),
+            clientId: z.string().uuid().optional(),
+            subdomain: z.string().optional(),
+            status: z.enum(['ativo', 'em_manutencao', 'inativo']).default('ativo'),
+            installationDate: z.string().optional(),
+            notes: z.string().optional(),
+            teamId: z.string().uuid().optional(),
+          }))
+          .mutation(({ input }) => this.equipamentosService.create(input)),
+        update: t.procedure
+          .input(z.object({
+            id: z.string().uuid(),
+            name: z.string().min(1).optional(),
+            serialNumber: z.string().optional(),
+            type: z.enum(['ar_condicionado', 'refrigerador', 'freezer', 'split', 'janela', 'de_chao', 'portatil', 'outro']).optional(),
+            brand: z.string().optional(),
+            model: z.string().optional(),
+            clientId: z.string().uuid().optional(),
+            subdomain: z.string().optional(),
+            status: z.enum(['ativo', 'em_manutencao', 'inativo']).optional(),
+            installationDate: z.string().optional(),
+            notes: z.string().optional(),
+          }))
+          .mutation(({ input }) => this.equipamentosService.update(input.id, input)),
+        delete: t.procedure.input(z.object({ id: z.string().uuid() })).mutation(({ input }) => this.equipamentosService.remove(input.id)),
+      }),
+
+      serviceOrders: t.router({
+        list: t.procedure
+          .input(z.object({
+            status: z.string().optional(),
+            type: z.string().optional(),
+            priority: z.string().optional(),
+            clientId: z.string().uuid().optional(),
+            equipamentoId: z.string().uuid().optional(),
+            technicianId: z.string().uuid().optional(),
+            search: z.string().optional(),
+          }).optional())
+          .query(({ input }) => this.serviceOrdersService.findAll(input)),
+        getById: t.procedure.input(z.object({ id: z.string().uuid() })).query(({ input }) => this.serviceOrdersService.findOne(input.id)),
+        create: t.procedure
+          .input(z.object({
+            title: z.string().min(1),
+            description: z.string().optional(),
+            clientId: z.string().uuid().optional(),
+            equipamentoId: z.string().uuid().optional(),
+            technicianId: z.string().uuid().optional(),
+            type: z.enum(['instalacao', 'manutencao', 'reparo', 'visita_tecnica', 'emergencia']).default('manutencao'),
+            priority: z.enum(['baixa', 'media', 'alta', 'urgente']).default('media'),
+            status: z.enum(['orcamento', 'aprovada', 'em_andamento', 'concluida', 'cancelada']).default('orcamento'),
+            scheduledDate: z.string().datetime().optional(),
+            cost: z.number().optional(),
+            notes: z.string().optional(),
+            teamId: z.string().uuid().optional(),
+          }))
+          .mutation(({ input }) => {
+            const { scheduledDate, ...rest } = input;
+            const data: any = { ...rest };
+            if (scheduledDate) data.scheduledDate = new Date(scheduledDate);
+            return this.serviceOrdersService.create(data);
+          }),
+        update: t.procedure
+          .input(z.object({
+            id: z.string().uuid(),
+            title: z.string().min(1).optional(),
+            description: z.string().optional(),
+            clientId: z.string().uuid().optional(),
+            equipamentoId: z.string().uuid().optional(),
+            technicianId: z.string().uuid().optional(),
+            type: z.enum(['instalacao', 'manutencao', 'reparo', 'visita_tecnica', 'emergencia']).optional(),
+            priority: z.enum(['baixa', 'media', 'alta', 'urgente']).optional(),
+            status: z.enum(['orcamento', 'aprovada', 'em_andamento', 'concluida', 'cancelada']).optional(),
+            scheduledDate: z.string().datetime().optional(),
+            cost: z.number().optional(),
+            notes: z.string().optional(),
+          }))
+          .mutation(({ input }) => {
+            const { id, scheduledDate, ...rest } = input;
+            const data: any = { ...rest };
+            if (scheduledDate) data.scheduledDate = new Date(scheduledDate);
+            return this.serviceOrdersService.update(id, data);
+          }),
+        delete: t.procedure.input(z.object({ id: z.string().uuid() })).mutation(({ input }) => this.serviceOrdersService.remove(input.id)),
+        complete: t.procedure
+          .input(z.object({
+            id: z.string().uuid(),
+            cost: z.number().optional(),
+            notes: z.string().optional(),
+          }))
+          .mutation(({ input }) => this.serviceOrdersService.complete(input.id, input.cost, input.notes)),
+        startExecution: t.procedure
+          .input(z.object({ id: z.string().uuid() }))
+          .mutation(({ input }) => this.serviceOrdersService.startExecution(input.id)),
+        updateExecution: t.procedure
+          .input(z.object({
+            id: z.string().uuid(),
+            checklist: z.array(z.object({
+              id: z.string(),
+              label: z.string(),
+              checked: z.boolean(),
+            })).optional(),
+            photos: z.array(z.object({
+              id: z.string(),
+              data: z.string(),
+              caption: z.string(),
+              takenAt: z.string(),
+            })).optional(),
+            signature: z.string().optional(),
+          }))
+          .mutation(({ input }) => {
+            const { id, ...data } = input;
+            return this.serviceOrdersService.updateExecution(id, data as any);
+          }),
+        submitExecution: t.procedure
+          .input(z.object({
+            id: z.string().uuid(),
+            cost: z.number().optional(),
+            notes: z.string().optional(),
+          }))
+          .mutation(({ input }) => {
+            const { id, ...data } = input;
+            return this.serviceOrdersService.submitExecution(id, data);
+          }),
+      }),
+
+      companies: t.router({
+        get: t.procedure.query(() => this.companiesService.find()),
+        upsert: t.procedure
+          .input(z.object({
+            name: z.string().min(1).optional(),
+            cnpj: z.string().optional(),
+            phone: z.string().optional(),
+            address: z.string().optional(),
+            logoUrl: z.string().optional(),
+            primaryColor: z.string().optional(),
+            secondaryColor: z.string().optional(),
+            responsibleSignature: z.string().optional(),
+          }))
+          .mutation(({ input }) => this.companiesService.upsert(input)),
       }),
 
       users: t.router({
@@ -208,7 +370,13 @@ export class TrpcRouter {
             role: z.enum(['admin', 'manager', 'technician', 'user']).default('user'),
             teamId: z.string().uuid().optional(),
           }))
-          .mutation(({ input }) => this.usersService.create(input)),
+          .mutation(({ input }) => this.usersService.create({
+            name: input.name,
+            email: input.email,
+            password: input.password,
+            role: input.role,
+            teamId: input.teamId,
+          })),
         update: t.procedure
           .input(z.object({
             id: z.string().uuid(),
@@ -219,6 +387,33 @@ export class TrpcRouter {
           }))
           .mutation(({ input }) => this.usersService.update(input.id, input)),
         delete: t.procedure.input(z.object({ id: z.string().uuid() })).mutation(({ input }) => this.usersService.remove(input.id)),
+      }),
+
+      teams: t.router({
+        list: t.procedure.query(() => this.teamsService.findAll()),
+        getById: t.procedure.input(z.object({ id: z.string().uuid() })).query(({ input }) => this.teamsService.findOne(input.id)),
+        create: t.procedure
+          .input(z.object({
+            name: z.string().min(1),
+            description: z.string().optional(),
+          }))
+          .mutation(({ input }) => this.teamsService.create({
+            name: input.name,
+            description: input.description,
+          })),
+        update: t.procedure
+          .input(z.object({
+            id: z.string().uuid(),
+            name: z.string().min(1).optional(),
+            description: z.string().optional(),
+          }))
+          .mutation(({ input }) => {
+            const data: { name?: string; description?: string } = {};
+            if (input.name !== undefined) data.name = input.name;
+            if (input.description !== undefined) data.description = input.description;
+            return this.teamsService.update(input.id, data);
+          }),
+        delete: t.procedure.input(z.object({ id: z.string().uuid() })).mutation(({ input }) => this.teamsService.remove(input.id)),
       }),
     });
   }

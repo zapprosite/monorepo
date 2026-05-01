@@ -125,6 +125,8 @@ def health_check() -> dict:
     for field in required_fields:
         if field not in data:
             raise QueueHealthError(f"queue.json missing required field: '{field}'")
+    _tasks(data)
+    _parallel_limit(data)
 
     logger.info("health_check passed: queue.json OK")
     return {"status": "ok", "file": str(QUEUE_FILE)}
@@ -142,6 +144,27 @@ def _read_queue_raw() -> dict:
             return json.load(f)
     except json.JSONDecodeError as e:
         raise QueueHealthError(f"queue.json is not valid JSON: {e}") from e
+
+
+def _tasks(queue: dict) -> list:
+    """Return queue tasks as a list, or raise a controlled health error."""
+    tasks = queue.get("tasks", [])
+    if tasks is None:
+        return []
+    if not isinstance(tasks, list):
+        raise QueueHealthError("queue.json field 'tasks' must be an array")
+    return tasks
+
+
+def _parallel_limit(queue: dict) -> int:
+    """Return a sane parallel limit even if the queue header is malformed."""
+    limit = queue.get("parallel_limit", 5)
+    try:
+        limit = int(limit)
+    except (TypeError, ValueError):
+        logger.warning("Invalid parallel_limit=%r; using default=5", limit)
+        return 5
+    return max(limit, 1)
 
 
 def _write_queue_atomic(queue: dict) -> None:
@@ -166,7 +189,7 @@ def _write_queue_atomic(queue: dict) -> None:
 
 def _recalc_counts(queue: dict) -> dict:
     """Recalcula pending/running/done/failed/frozen dentro do lock."""
-    tasks = queue.get("tasks", [])
+    tasks = _tasks(queue)
     queue["pending"] = sum(1 for t in tasks if t.get("status") == "pending")
     queue["running"] = sum(1 for t in tasks if t.get("status") == "running")
     queue["done"] = sum(1 for t in tasks if t.get("status") == "done")
@@ -223,12 +246,13 @@ def claim(worker_id: str) -> Optional[dict]:
     @_with_lock
     def _claim(lock_fd: int) -> Optional[dict]:
         queue = _read_queue_raw()
-        running_count = sum(1 for t in queue.get("tasks", []) if t.get("status") == "running")
-        parallel_limit = queue.get("parallel_limit", 5)
+        tasks = _tasks(queue)
+        running_count = sum(1 for t in tasks if t.get("status") == "running")
+        parallel_limit = _parallel_limit(queue)
         if running_count >= parallel_limit:
             logger.info("claim: parallel_limit reached (%d >= %d), skipping", running_count, parallel_limit)
             return None
-        for i, task in enumerate(queue.get("tasks", [])):
+        for i, task in enumerate(tasks):
             if task.get("status") == "pending":
                 task["status"] = "running"
                 task["worker"] = worker_id
@@ -265,7 +289,7 @@ def complete(task_id: str, worker_id: str, result: str) -> bool:
     def _complete(lock_fd: int) -> bool:
         queue = _read_queue_raw()
         updated = False
-        for task in queue.get("tasks", []):
+        for task in _tasks(queue):
             if task.get("id") == task_id:
                 current_status = task.get("status")
                 current_worker = task.get("worker")
@@ -316,7 +340,7 @@ def retry(task_id: str, worker_id: str) -> bool:
     def _retry(lock_fd: int) -> bool:
         queue = _read_queue_raw()
         updated = False
-        for task in queue.get("tasks", []):
+        for task in _tasks(queue):
             if task.get("id") == task_id:
                 current_status = task.get("status")
                 if current_status != "failed":
@@ -356,7 +380,7 @@ def freeze(task_id: str) -> bool:
     try:
         queue_pre = _read_queue_raw()
         already_frozen = False
-        for task in queue_pre.get("tasks", []):
+        for task in _tasks(queue_pre):
             if task.get("id") == task_id and task.get("status") == "frozen":
                 already_frozen = True
                 break
@@ -370,7 +394,7 @@ def freeze(task_id: str) -> bool:
     def _freeze(lock_fd: int) -> bool:
         queue = _read_queue_raw()
         updated = False
-        for task in queue.get("tasks", []):
+        for task in _tasks(queue):
             if task.get("id") == task_id:
                 current_status = task.get("status")
                 if current_status == "frozen":
@@ -467,14 +491,15 @@ def stats() -> dict:
     @_with_lock
     def _stats(lock_fd: int) -> dict:
         queue = _read_queue_raw()
+        tasks = _tasks(queue)
         return {
             "total": queue.get("total", 0),
             "pending": queue.get("pending", 0),
             "running": queue.get("running", 0),
             "done": queue.get("done", 0),
             "failed": queue.get("failed", 0),
-            "frozen": sum(1 for t in queue.get("tasks", []) if t.get("status") == "frozen"),
-            "parallel_limit": queue.get("parallel_limit", 5),
+            "frozen": sum(1 for t in tasks if t.get("status") == "frozen"),
+            "parallel_limit": _parallel_limit(queue),
         }
 
     return _stats()
