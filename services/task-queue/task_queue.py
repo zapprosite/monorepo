@@ -15,7 +15,10 @@ import heapq
 from dataclasses import dataclass, field
 from enum import IntEnum
 from typing import Optional, Any
-import redis
+
+# Lazy redis import — only needed when Redis is actually used
+_redis = None
+_redis_module = None
 
 
 class Priority(IntEnum):
@@ -124,6 +127,7 @@ class TaskQueue:
         queue_key: str = "hermes:tasks",
         results_key: str = "hermes:task_results",
         default_timeout: int = 3600,
+        skip_redis: bool = False,
     ):
         self.redis_host = redis_host
         self.redis_port = redis_port
@@ -132,15 +136,23 @@ class TaskQueue:
         self.queue_key = queue_key
         self.results_key = results_key
         self.default_timeout = default_timeout
-        self._redis: Optional[redis.Redis] = None
+        self.skip_redis = skip_redis
+        self._redis = None
         self._sequence = 0
         self._seq_lock = __import__('threading').Lock()
+        self._local_queue: list = []  # In-memory fallback
 
     @property
-    def redis(self) -> redis.Redis:
+    def redis(self):
         """Lazy Redis connection."""
+        if self.skip_redis:
+            raise RuntimeError("Redis disabled (skip_redis=True)")
+        global _redis_module
+        if _redis_module is None:
+            import redis as _redis_mod
+            _redis_module = _redis_mod
         if self._redis is None:
-            self._redis = redis.Redis(
+            self._redis = _redis_module.Redis(
                 host=self.redis_host,
                 port=self.redis_port,
                 db=self.redis_db,
@@ -164,18 +176,7 @@ class TaskQueue:
         task_id: str = None,
     ) -> str:
         """
-        Add task to queue.
-        
-        Args:
-            description: Human-readable task description
-            priority: Priority level (0=EMERGENCY, 3=DEV)
-            agent: Target agent name, or None for auto-route
-            mode: Operation mode (DEV/JUNIOR/SÊNIOR/EMERGENCY)
-            payload: Additional task data
-            task_id: Optional explicit task ID
-        
-        Returns:
-            Task ID string
+        Add task to queue (Redis or in-memory fallback).
         """
         task_id = task_id or str(uuid.uuid4())[:8]
         
@@ -190,16 +191,20 @@ class TaskQueue:
             status="queued",
         )
         
-        # Store task details in Redis hash
-        self.redis.hset(
-            f"{self.results_key}:{task_id}",
-            mapping={k: json.dumps(v) for k, v in task.to_dict().items()}
-        )
-        self.redis.expire(f"{self.results_key}:{task_id}", self.default_timeout)
-        
-        # Add to priority queue
-        queued = QueuedTask(task=task, sequence=self._get_next_sequence())
-        heapq.heappush(self._get_queue(), (queued.task.priority, queued.sequence, task_id))
+        # Try Redis first, fallback to in-memory
+        try:
+            self.redis.hset(
+                f"{self.results_key}:{task_id}",
+                mapping={k: json.dumps(v) for k, v in task.to_dict().items()}
+            )
+            self.redis.expire(f"{self.results_key}:{task_id}", self.default_timeout)
+            
+            queued = QueuedTask(task=task, sequence=self._get_next_sequence())
+            heapq.heappush(self._get_queue(), (queued.task.priority, queued.sequence, task_id))
+        except (RuntimeError, Exception):
+            # In-memory fallback
+            self._local_queue.append((task.priority, self._get_next_sequence(), task_id))
+            heapq.heapify(self._local_queue)
         
         return task_id
 
