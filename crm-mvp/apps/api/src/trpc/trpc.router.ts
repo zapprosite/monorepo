@@ -7,6 +7,7 @@ import { ClientsService } from '../clients/clients.service';
 import { SchedulesService } from '../schedule/schedules.service';
 import { ContractsService } from '../contracts/contracts.service';
 import { RemindersService } from '../reminders/reminders.service';
+import { UsersService } from '../users/users.service';
 
 const t = initTRPC.create();
 
@@ -19,6 +20,7 @@ export class TrpcRouter {
     private schedulesService: SchedulesService,
     private contractsService: ContractsService,
     private remindersService: RemindersService,
+    private usersService: UsersService,
   ) {}
 
   get appRouter() {
@@ -193,6 +195,30 @@ export class TrpcRouter {
           }),
         delete: t.procedure.input(z.object({ id: z.string().uuid() })).mutation(({ input }) => this.remindersService.remove(input.id)),
         complete: t.procedure.input(z.object({ id: z.string().uuid() })).mutation(({ input }) => this.remindersService.complete(input.id)),
+      }),
+
+      users: t.router({
+        list: t.procedure.query(() => this.usersService.findAll()),
+        getById: t.procedure.input(z.object({ id: z.string().uuid() })).query(({ input }) => this.usersService.findOne(input.id)),
+        create: t.procedure
+          .input(z.object({
+            name: z.string().min(1),
+            email: z.string().min(1),
+            password: z.string().optional(),
+            role: z.enum(['admin', 'manager', 'technician', 'user']).default('user'),
+            teamId: z.string().uuid().optional(),
+          }))
+          .mutation(({ input }) => this.usersService.create(input)),
+        update: t.procedure
+          .input(z.object({
+            id: z.string().uuid(),
+            name: z.string().min(1).optional(),
+            email: z.string().min(1).optional(),
+            role: z.enum(['admin', 'manager', 'technician', 'user']).optional(),
+            teamId: z.string().uuid().optional(),
+          }))
+          .mutation(({ input }) => this.usersService.update(input.id, input)),
+        delete: t.procedure.input(z.object({ id: z.string().uuid() })).mutation(({ input }) => this.usersService.remove(input.id)),
       }),
     });
   }

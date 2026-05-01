@@ -2,14 +2,14 @@ import { test, expect } from '../fixtures/auth';
 import { RemindersPage } from '../pages/RemindersPage';
 
 test.describe('Lembretes - Página', () => {
-  test('deve carregar página de lembretes com elementos principais', async ({ page }) => {
+  test('deve carregar página de lembretes com elementos principais', async ({ page, authenticatedPage }) => {
     const remindersPage = new RemindersPage(page);
     await page.goto('/reminders');
     await remindersPage.expectLoaded();
     await expect(remindersPage.addButton).toBeVisible();
   });
 
-  test('deve abrir modal de adicionar lembrete', async ({ page }) => {
+  test('deve abrir modal de adicionar lembrete', async ({ page, authenticatedPage }) => {
     const remindersPage = new RemindersPage(page);
     await page.goto('/reminders');
     await remindersPage.expectLoaded();

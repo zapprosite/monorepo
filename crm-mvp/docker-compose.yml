@@ -43,6 +43,11 @@ services:
       DB_NAME: crm_mvp
       REDIS_URL: redis://redis:6379
       WEB_URL: http://localhost:3080
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-zappro.ia@gmail.com}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-Fifine156458*}
+      JWT_SECRET: ${JWT_SECRET}
     ports:
       - "4088:4088"
     depends_on:

@@ -2,14 +2,14 @@ import { test, expect } from '../fixtures/auth';
 import { SchedulePage } from '../pages/SchedulePage';
 
 test.describe('Agenda - Página', () => {
-  test('deve carregar página de agenda com elementos principais', async ({ page }) => {
+  test('deve carregar página de agenda com elementos principais', async ({ page, authenticatedPage }) => {
     const schedulePage = new SchedulePage(page);
     await page.goto('/schedule');
     await schedulePage.expectLoaded();
     await expect(schedulePage.addButton).toBeVisible();
   });
 
-  test('deve abrir modal de adicionar agendamento', async ({ page }) => {
+  test('deve abrir modal de adicionar agendamento', async ({ page, authenticatedPage }) => {
     const schedulePage = new SchedulePage(page);
     await page.goto('/schedule');
     await schedulePage.expectLoaded();

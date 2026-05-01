@@ -2,7 +2,7 @@ import { test, expect } from '../fixtures/auth';
 import { LeadsPage } from '../pages/LeadsPage';
 
 test.describe('Leads - Página', () => {
-  test('deve carregar página de leads com elementos principais', async ({ page }) => {
+  test('deve carregar página de leads com elementos principais', async ({ page, authenticatedPage }) => {
     const leadsPage = new LeadsPage(page);
     await page.goto('/leads');
     await leadsPage.expectLoaded();
@@ -10,7 +10,7 @@ test.describe('Leads - Página', () => {
     await expect(leadsPage.searchInput).toBeVisible();
   });
 
-  test('deve abrir modal de adicionar lead', async ({ page }) => {
+  test('deve abrir modal de adicionar lead', async ({ page, authenticatedPage }) => {
     const leadsPage = new LeadsPage(page);
     await page.goto('/leads');
     await leadsPage.expectLoaded();

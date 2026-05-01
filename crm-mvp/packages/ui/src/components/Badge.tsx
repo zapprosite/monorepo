@@ -67,7 +67,6 @@ export const StatusBadge: React.FC<{
     cancelado: 'danger',
     // Contracts
     rascunho: 'default',
-    ativo: 'success',
     suspenso: 'warning',
     encerrado: 'ghost',
     // Reminders (concluido already defined above)

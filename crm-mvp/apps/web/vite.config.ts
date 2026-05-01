@@ -4,7 +4,21 @@ import path from 'path';
 
 export default defineConfig({
   plugins: [react()],
-  server: { port: 3000, host: true },
+  server: {
+    port: 3000,
+    host: true,
+    allowedHosts: true,
+    proxy: {
+      '/api': {
+        target: 'http://api:4088',
+        changeOrigin: true,
+      },
+      '/trpc': {
+        target: 'http://api:4088',
+        changeOrigin: true,
+      },
+    },
+  },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),

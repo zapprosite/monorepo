@@ -2,24 +2,63 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { TrpcRouter } from './trpc/trpc.router';
 
+// Simple cookie parser without extra dependency
+function parseCookies(header: string | undefined): Record<string, string> {
+  const cookies: Record<string, string> = {};
+  if (!header) return cookies;
+  header.split(';').forEach((cookie) => {
+    const [name, ...rest] = cookie.split('=');
+    if (name && rest.length > 0) cookies[name.trim()] = decodeURIComponent(rest.join('=').trim());
+  });
+  return cookies;
+}
+
+// Minimal JSON body parser for raw Express middleware
+function jsonBodyParser(req: any, res: any, next: any) {
+  if (req.method !== 'POST' || req.headers['content-type']?.indexOf('application/json') === -1) {
+    return next();
+  }
+  let data = '';
+  req.setEncoding('utf8');
+  req.on('data', (chunk: string) => { data += chunk; });
+  req.on('end', () => {
+    try {
+      req.body = data ? JSON.parse(data) : {};
+    } catch {
+      req.body = {};
+    }
+    next();
+  });
+}
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.enableCors({ origin: process.env.WEB_URL || 'http://localhost:3000' });
+  app.enableCors({
+    origin: process.env.WEB_URL || 'http://localhost:3080',
+    credentials: true,
+  });
+
+  // Cookie parser middleware
+  app.use((req: any, _res: any, next: any) => {
+    req.cookies = parseCookies(req.headers?.cookie);
+    next();
+  });
 
   // Apply tRPC middleware
   const trpcRouter = app.get(TrpcRouter);
   const httpAdapter = app.getHttpAdapter();
   const instance = httpAdapter.getInstance();
 
-  instance.use('/trpc', (req: any, res: any, next: any) => {
+  instance.use('/trpc', jsonBodyParser, (req: any, res: any, next: any) => {
     if (req.method === 'GET' || req.method === 'POST') {
-      const path = req.query.path || req.url.split('?')[0].replace(/^\/trpc\/?/, '').replace(/^\//, '');
+      // Support both GET ?path=...&input=... and POST { path, input }
+      const path = req.body?.path || req.query.path || req.url.split('?')[0].replace(/^\/trpc\/?/, '').replace(/^\//, '');
 
       if (!path || path === '') {
         return res.json({ ok: true, routes: Object.keys(trpcRouter.appRouter._def.procedures || {}) });
       }
 
-      const input = req.body || req.query.input;
+      const input = req.body?.input ?? req.body ?? req.query.input;
       const caller = trpcRouter.appRouter.createCaller({});
       const callParts = path.split('.');
       let target: any = caller;

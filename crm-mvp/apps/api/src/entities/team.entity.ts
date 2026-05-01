@@ -23,6 +23,9 @@ export class Team {
   @Column({ type: 'varchar', length: 100, unique: true })
   slug: string;
 
+  @Column({ type: 'varchar', length: 500, nullable: true })
+  description: string | null;
+
   @OneToMany(() => User, (user) => user.team)
   users: User[];
 

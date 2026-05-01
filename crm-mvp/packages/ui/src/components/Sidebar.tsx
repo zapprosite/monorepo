@@ -10,6 +10,7 @@ import {
   LogOut,
   Menu,
   X,
+  Shield,
 } from 'lucide-react';
 
 export interface NavItem {
@@ -34,6 +35,7 @@ const navItems: NavItem[] = [
   { label: 'Agenda', path: '/schedule', icon: <CalendarDays size={20} /> },
   { label: 'Contratos', path: '/contracts', icon: <FileText size={20} /> },
   { label: 'Lembretes', path: '/reminders', icon: <Bell size={20} /> },
+  { label: 'Equipe', path: '/team', icon: <Shield size={20} /> },
 ];
 
 export const Sidebar: React.FC<SidebarProps> = ({

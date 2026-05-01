@@ -9,7 +9,7 @@ export const test = base.extend<AuthFixture>({
   authenticatedPage: async ({ page }, use) => {
     const loginPage = new LoginPage(page);
     await loginPage.goto();
-    await loginPage.loginAsDev();
+    await loginPage.loginAsAdmin();
     await use(loginPage);
   },
 });

@@ -1,18 +1,21 @@
 import { test, expect } from '@playwright/test';
+import { LoginPage } from '../pages/LoginPage';
 
 test.describe('Autenticação - Validações', () => {
   test('deve permitir acesso ao login sem autenticação', async ({ page }) => {
-    await page.goto('/auth/login');
-    await expect(page.getByText('Login de desenvolvimento')).toBeVisible();
+    const loginPage = new LoginPage(page);
+    await loginPage.goto();
+    await expect(page.getByText('Acesso ao Sistema')).toBeVisible();
   });
 
   test('deve redirecionar após logout', async ({ page }) => {
-    await page.goto('/auth/login');
-    await page.getByText('Entrar como Dev').click();
+    const loginPage = new LoginPage(page);
+    await loginPage.goto();
+    await loginPage.loginAsAdmin();
     await page.waitForURL('**/dashboard');
     
     await page.getByText('Sair').click();
     await page.waitForURL('**/auth/login');
-    await expect(page.getByText('Login de desenvolvimento')).toBeVisible();
+    await expect(page.getByText('Acesso ao Sistema')).toBeVisible();
   });
 });

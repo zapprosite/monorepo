@@ -6,9 +6,10 @@ import { ClientsModule } from '../clients/clients.module';
 import { SchedulesModule } from '../schedule/schedules.module';
 import { ContractsModule } from '../contracts/contracts.module';
 import { RemindersModule } from '../reminders/reminders.module';
+import { UsersModule } from '../users/users.module';
 
 @Module({
-  imports: [DashboardModule, LeadsModule, ClientsModule, SchedulesModule, ContractsModule, RemindersModule],
+  imports: [DashboardModule, LeadsModule, ClientsModule, SchedulesModule, ContractsModule, RemindersModule, UsersModule],
   providers: [TrpcRouter],
   exports: [TrpcRouter],
 })

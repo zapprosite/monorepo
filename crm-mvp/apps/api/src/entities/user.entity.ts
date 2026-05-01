@@ -28,6 +28,12 @@ export class User {
   @Column({ type: 'varchar', length: 500, nullable: true })
   avatar: string | null;
 
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  password: string | null;
+
+  @Column({ type: 'varchar', length: 20, default: 'user' })
+  role: 'admin' | 'manager' | 'technician' | 'user';
+
   @Column({ type: 'uuid', nullable: true })
   teamId: string | null;
 

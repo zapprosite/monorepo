@@ -2,14 +2,14 @@ import { test, expect } from '../fixtures/auth';
 import { ContractsPage } from '../pages/ContractsPage';
 
 test.describe('Contratos - Página', () => {
-  test('deve carregar página de contratos com elementos principais', async ({ page }) => {
+  test('deve carregar página de contratos com elementos principais', async ({ page, authenticatedPage }) => {
     const contractsPage = new ContractsPage(page);
     await page.goto('/contracts');
     await contractsPage.expectLoaded();
     await expect(contractsPage.addButton).toBeVisible();
   });
 
-  test('deve abrir modal de adicionar contrato', async ({ page }) => {
+  test('deve abrir modal de adicionar contrato', async ({ page, authenticatedPage }) => {
     const contractsPage = new ContractsPage(page);
     await page.goto('/contracts');
     await contractsPage.expectLoaded();
