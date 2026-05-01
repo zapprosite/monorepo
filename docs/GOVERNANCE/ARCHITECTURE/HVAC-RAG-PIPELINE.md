@@ -1,87 +1,129 @@
-# HVAC RAG Architecture
+# HVAC RAG Pipeline - Complete Architecture
 
-## Overview
-
-OpenWebUI chat.zappro.site → HVAC RAG Pipeline (4017) → LiteLLM (4000) → MiniMax API
+## Service Topology
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                        HVAC RAG Architecture                               │
-├─────────────────────────────────────────────────────────────────────────────┤
+│                            HOST (srv/monorepo)                             │
 │                                                                             │
-│  ┌──────────────┐     ┌─────────────────┐     ┌──────────────────┐      │
-│  │  OpenWebUI   │     │  HVAC RAG Pipe   │     │     LiteLLM       │      │
-│  │ chat.zappro  │────▶│   :4017 (filter) │────▶│    :4000          │      │
-│  │  :3456       │     │                  │     │                  │      │
-│  └──────────────┘     └─────────────────┘     └──────────────────┘      │
-│         │                      │                        │                   │
-│         │                      │                        │                   │
-│         │                      │                        ▼                   │
-│         │                      │                ┌──────────────┐          │
-│         │                      │                │  Qdrant      │          │
-│         │                      │                │  :6333       │          │
-│         │                      │                │  (hvac_manu  │          │
-│         │                      │                │   als_v1)    │          │
-│         │                      │                └──────────────┘          │
-│         │                      │                        ▲                   │
-│         │                      │                        │                   │
-│         │                      │          ┌─────────────┴──────┐         │
-│         │                      │          │                    │         │
-│         │              ┌───────┴──────────┴──┐               │         │
-│         │              │   HVAC RAG Pipe       │               │         │
-│         │              │  /filter/inlet        │               │         │
-│         │              │  - Query Qdrant        │               │         │
-│         │              │  - Build context       │               │         │
-│         │              │  - Inject system prompt│               │         │
-│         │              └────────────────────────┘               │         │
-│         │                                                              │         │
-│         │              ┌───────────────────────────────────────┐   │         │
-│         │              │  zappro-redis :6379                    │   │         │
-│         │              │  (OpenWebUI session/cache)            │   │         │
-│         │              └───────────────────────────────────────┘   │         │
-│         │                                                              │         │
-└─────────┴──────────────────────────────────────────────────────────────┘
+│  ┌──────────────┐     ┌─────────────────┐                                  │
+│  │  hvac-rag    │     │   Qdrant        │                                  │
+│  │  -pipe.py    │────▶│   :6333         │                                  │
+│  │  :4017       │     │   hvac_manuals  │                                  │
+│  └──────────────┘     └─────────────────┘                                  │
+│         │                                                                  │
+└─────────┼──────────────────────────────────────────────────────────────────┘
+          │
+          │ http://host.docker.internal:4017/v1
+          │
+┌─────────▼───────────────────────────────────────────────────────────────────┐
+│                         DOCKER (zappro-lite_default)                       │
+│                                                                             │
+│  ┌──────────────┐     ┌─────────────────┐     ┌──────────────────┐       │
+│  │  OpenWebUI   │────▶│  trieve-redis   │     │  LiteLLM          │       │
+│  │  :3456       │     │  :6379           │     │  :4000            │       │
+│  └──────────────┘     └─────────────────┘     └──────────────────┘       │
+│         │                                                  │              │
+│         │              ┌─────────────────────────────────┘              │
+│         │              │                                                    │
+│         │     ┌─────────┴──────────┐                                       │
+│         │     │ zappro-lite_default │                                       │
+│         │     │ 10.0.3.0/24        │                                       │
+│         │     └────────────────────┘                                       │
+│         │                                                                  │
+│         │              ┌─────────────────────────────────┐               │
+│         │              │ zappro-litellm-db :5432          │               │
+│         │              │ PostgreSQL (LiteLLM data)        │               │
+│         │              └─────────────────────────────────┘               │
+│         │                                                                  │
+└─────────┴──────────────────────────────────────────────────────────────────┘
 ```
 
-## Service Dependencies
+## Port Mapping
 
-| Service        | Network          | Purpose                      | Env Vars                     |
-|----------------|------------------|------------------------------|------------------------------|
-| openwebui-hvac | zappro-lite\_default | Chat UI + OAuth | OPENAI\_API\_BASE\_URL=http://host.docker.internal:4017/v1 |
-| hvac-rag-pipe  | host (port 4017) | RAG filter pipeline | QDRANT\_URL=http://127.0.0.1:6333 |
-| zappro-litellm | zappro-lite\_default | LLM gateway | DATABASE\_URL=postgres://... |
-| zappro-redis   | zappro-lite\_default | Session/cache | REDIS\_HOST=zappro-redis |
-| zappro-litellm-db | zappro-lite\_default | LiteLLM database | - |
+| Service         | Container Port | Host Port | Protocol | Notes                    |
+|-----------------|-----------------|-----------|----------|--------------------------|
+| OpenWebUI       | 3456            | 3456      | HTTP     | Chat interface           |
+| HVAC RAG Pipe   | 4017            | 4017      | HTTP     | RAG filter (host mode)  |
+| LiteLLM         | 4000            | 4000      | HTTP     | LLM gateway              |
+| Qdrant          | 6333            | -         | HTTP     | Vector database          |
+| trieve-redis    | 6379            | -         | TCP      | Session cache (open)     |
+| zappro-redis    | 6379            | 127.0.0.1  | TCP      | Has auth (unused)        |
+| zappro-litellm-db| 5432           | -         | TCP      | PostgreSQL               |
 
-## Data Flow
+## Network Configuration
 
-1. User sends message via OpenWebUI (chat.zappro.site:3456)
-2. OpenWebUI forwards to HVAC RAG Pipeline at `:4017`
-3. Pipeline queries Qdrant `hvac_manuals_v1` collection for relevant context
-4. Pipeline injects context into system prompt
-5. Pipeline returns enriched request to OpenWebUI
-6. OpenWebUI calls LiteLLM at `:4000` with enriched prompt
-7. LiteLLM proxies to MiniMax API
+### zappro-lite_default (bridge)
+- Subnet: 10.0.3.0/24
+- Gateway: 10.0.3.1
+- Containers:
+  - openwebui-hvac (10.0.3.5)
+  - zappro-litellm (10.0.3.3)
+  - zappro-litellm-db (10.0.3.4)
+  - zappro-redis (10.0.3.2)
+  - trieve-redis (10.0.8.5 - connected via network)
 
-## Ports
+### Host Network
+- hvac-rag-pipe.py runs on host network (port 4017)
+- Accessed via host.docker.internal (172.17.0.1)
 
-| Service         | Port  | Protocol | Network    |
-|-----------------|-------|----------|------------|
-| openwebui-hvac  | 3456  | HTTP     | zappro-lite\_default |
-| hvac-rag-pipe   | 4017  | HTTP     | host       |
-| zappro-litellm  | 4000  | HTTP     | zappro-lite\_default |
-| zappro-redis    | 6379  | TCP      | zappro-lite\_default |
+## Communication Flow
 
-## Volume Mounts
+### Chat Flow
+1. User → OpenWebUI (:3456) [Google OAuth]
+2. OpenWebUI → HVAC RAG Pipeline (host.docker.internal:4017/v1)
+3. HVAC RAG → Qdrant (:6333) [vector search]
+4. HVAC RAG → OpenWebUI [enriched prompt]
+5. OpenWebUI → LiteLLM (:4000) [LLM request]
+6. LiteLLM → MiniMax API [external]
 
-| Container       | Host Path                | Mount Point           |
-|-----------------|--------------------------|-----------------------|
-| openwebui-hvac  | /srv/data/openwebui      | /app/backend/data     |
-| zappro-litellm  | /srv/monorepo/config/litellm/config.yaml | /app/config/config.yaml |
+### Redis Flow
+- OpenWebUI → trieve-redis (:6379) [session/cache]
+- No authentication required for trieve-redis
+
+## Service Definitions
+
+### OpenWebUI (openwebui-hvac)
+```yaml
+image: openwebui/open-webui:latest
+networks: [zappro-lite_default]
+ports: [3456:3456]
+env:
+  OPENAI_API_BASE_URL: http://host.docker.internal:4017/v1
+  REDIS_HOST: trieve-redis
+  DEFAULT_MODEL: zappro-clima-tutor
+```
+
+### HVAC RAG Pipeline (hvac-rag-pipe)
+```yaml
+# Runs on host network mode
+python hvac-rag-pipe.py --port 4017
+endpoints:
+  POST /hvac-rag/filter/inlet
+  POST /hvac-rag/filter/outlet
+  GET /health
+```
+
+### LiteLLM (zappro-litellm)
+```yaml
+image: ghcr.io/berriai/litellm:main-latest
+networks: [zappro-lite_default]
+ports: [4000:4000]
+depends_on: [zappro-litellm-db]
+```
 
 ## Critical Rules
 
-1. **HVAC RAG must use host network mode** - Pipeline at port 4017 must be on host network
-2. **OpenWebUI must use zappro-lite_default network** - Must communicate with zappro-redis
-3. **OpenWebUI OPENAI_API_BASE_URL must point to HVAC pipeline** - `http://host.docker.internal:4017/v1`
-4. **Redis must be zappro-redis** - Not localhost, not other redis containers
+### DO
+1. ✅ Use container names for inter-container communication
+2. ✅ Use host.docker.internal for host-to-container communication
+3. ✅ Specify explicit networks in compose files
+4. ✅ Use version-locked configurations
+5. ✅ Run verification script after changes
+
+### DON'T
+1. ❌ Use localhost in containers
+2. ❌ Mix host network_mode with bridge networks
+3. ❌ Leave Redis without authentication (except trieve-redis)
+4. ❌ Modify locked configs without version bump
+5. ❌ Commit secrets to git
