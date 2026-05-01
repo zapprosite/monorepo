@@ -1,49 +1,175 @@
-# PRD — [Nome da Feature]
+# PRD Template — Autonomous Feature Development
 
-**Data:** YYYY-MM-DD
-**Autor:** @will
-**Status:** DRAFT | REVIEW | APPROVED
-**Versão:** 1.0
-**App afetado:** api | web | workers | perplexity-agent
+> Use this template when starting a new feature. Complete all sections before any code is written.
 
 ---
 
 ## 1. Problema
-> O que está quebrado ou faltando? Para quem? Qual o impacto?
 
-## 2. Objetivo
-> O que queremos alcançar? Métrica de sucesso?
+**O que está quebrado / incompleto?**
+Describe o problema em 1-3 frases. Sem solução ainda.
 
-## 3. Usuários Afetados
-> Quem usa? Fluxo atual vs desejado?
+---
 
-## 4. Requisitos Funcionais
-- [ ] RF-001:
-- [ ] RF-002:
+## 2. Solução Proposta
 
-## 5. Requisitos Não-Funcionais
-- [ ] RNF-001: Performance — p95 < 200ms
-- [ ] RNF-002: Segurança — zero secrets em código
-- [ ] RNF-003: Observabilidade — logs estruturados
+**O que você quer que aconteça?**
+Descreva a solução sem tecnologia ainda — só o resultado desejado.
 
-## 6. Fora de Escopo
+---
 
-## 7. Arquitetura Proposta
+## 3.-brainstorm
 
-## 8. Dependências
+```
+Anotações livres — sem filtro, quantity over quality.
 
-## 9. Riscos
-| Risco | Probabilidade | Impacto | Mitigação |
-|-------|--------------|---------|-----------|
+Ideia 1:
+Ideia 2:
+Ideia 3:
+...
+```
 
-## 10. Critérios de Aceitação
-- [ ] AC-001: Dado X, quando Y, então Z
-- [ ] AC-002:
+---
 
-## 11. Slices de Entrega
-### Slice 1 — MVP (must have)
-### Slice 2 — Core (should have)
-### Slice 3 — Enhanced (could have)
+## 4. Decision Tree
 
-## 12. Tasks
-> Gerado automaticamente por /pg
+| Opção | Prós | Contras | Decision |
+|-------|------|---------|----------|
+| A | | | ❌/✅ |
+| B | | | ❌/✅ |
+
+**Selected approach:** [Why this one]
+
+---
+
+## 5. Scope
+
+**In Scope:**
+- [ ]
+
+**Out of Scope:**
+- [ ]
+
+---
+
+## 6. Acceptance Criteria
+
+1. Quando [condição], então [resultado]
+2. ...
+3. ...
+
+---
+
+## 7. Stack
+
+| Layer | Choice | Why |
+|-------|--------|-----|
+| Frontend | | |
+| Backend | | |
+| Database | | |
+| Infra | | |
+
+---
+
+## 8. Human Gates
+
+| Task ID | Gate | Reason |
+|---------|------|--------|
+| T00 | REQUIRES_HUMAN | PRD approval — humana decide se vale |
+| Tnn | REQUIRES_HUMAN | [reason] |
+| Tnn | AUTO | [reason] |
+| Final | REQUIRES_HUMAN | Review final antes de merge |
+
+**Rule:** Se não está marcado REQUIRES_HUMAN, é AUTO — agente faz sem perguntar.
+
+---
+
+## 9. Execution Block
+
+```yaml
+execution:
+  # Workers e Rate Limit
+  max_workers: 5                    # max workers paralelo
+  rate_limit_rpm: 500               # MiniMax 500 rpm ou definir outro
+  context_window: 240000             # tokens (MiniMax 240k)
+
+  # Comportamento
+  context_reset_per_task: true       # cada task começa fresh
+  ci_retry_loop: true               # loop até CI passar
+  smoke_threshold: PASS             # smoke passing = ok sem humano
+
+  # Fases
+  phases: [plan, do, verify]        # reduzido de PREVC 5 fases
+
+  # Snapshot
+  snapshot_interval: 3              # snapshot a cada N tasks
+
+  # Notificações
+  notify_on: [COMPLETE, FAIL]       # email em COMPLETE ou FAIL
+  notify_email: zappro.ia@gmail.com
+
+  # Subdomain (se aplicável)
+  deploy_subdomain: false
+  # deploy_subdomain: "my-app"      # descomente se precisa deploy
+  # deploy_url: "http://localhost:3001"
+```
+
+---
+
+## 10. Task Breakdown
+
+| Task ID | Description | Complexity | Gate |
+|---------|-------------|------------|------|
+| T00 | PRD approval | - | REQUIRES_HUMAN |
+| T01 | | LOW/MED/HIGH | |
+| T02 | | LOW/MED/HIGH | |
+| T03 | | LOW/MED/HIGH | |
+| Final | Human review | HIGH | REQUIRES_HUMAN |
+
+**Complexity guide:**
+- LOW: lint fix, typo, comment, rename → never call human
+- MED: new function, small refactor, test write → 3 retries then call human
+- HIGH: API endpoint, security change, multi-file → human gate at start
+
+---
+
+## 11. Smoke Tests
+
+```bash
+# List smoke tests to run after build
+# Each must exit 0 for task to be considered PASSED
+
+echo "TASK_NAME=my-task"
+echo "smoke_001: curl -sf http://localhost:3000/health | grep OK"
+echo "smoke_002: ./scripts/smoke_lint.sh"
+```
+
+---
+
+## 12. Anti-Patterns (não fazer)
+
+- Não usar contexto de tasks anteriores para tasks novas
+- Não fazer "assumção" — se não sabe, pergunta
+- Não agregar humanos no meio do loop (só T00 e Final)
+- Não deixar context window crescer — resetar sempre
+
+---
+
+## Metadata
+
+| Field | Value |
+|-------|-------|
+| Name | PRD-NNN |
+| Owner | will@zappro.site |
+| Created | YYYY-MM-DD |
+| Status | draft → approved → executing → complete |
+
+---
+
+## Checkout
+
+- [ ] PRD completo com todas seções
+- [ ] Human gates marcados explicitamente
+- [ ] Smoke tests definidos
+- [ ] Execution block preenchido
+- [ ] Owner aprovou T00 (PRD approval)

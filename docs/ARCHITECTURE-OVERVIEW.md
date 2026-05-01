@@ -1485,3 +1485,1034 @@ export class ChaosInjectedError extends Error {
   }
 }
 ```
+# Homelab Target Architecture - 2026-04
+
+**Purpose:** Document the approved target architecture for the homelab.
+**Location:** `/srv/monorepo/docs/ARCHITECTURE/HOMELAB-TARGET-ARCHITECTURE-2026-04.md`
+**Audience:** Platform engineering, SRE agents, deployment agents, and reviewers.
+**Status:** Approved target architecture as of 2026-04-26.
+
+---
+
+## Overview
+
+The homelab is split into five operational layers:
+
+1. Edge: Cloudflare DNS, Cloudflare Tunnel, and Cloudflare Access.
+2. Ingress: Traefik/Coolify ingress.
+3. Public Apps: web apps, dashboards, stateless APIs, and internal tools with auth.
+4. Bare Metal: Hermes Gateway, Ollama GPU, Nexus scripts, backups/ZFS, and observability agent.
+5. Core Infra: LiteLLM, Qdrant, Postgres, Redis, Gitea, and Coolify.
+
+The primary rule is simple: stateful and critical services stay private in Core Infra; only stateless apps cross the public ingress boundary; internal tools require Cloudflare Access or strong application auth.
+
+---
+
+## Target Rules
+
+| Rule | Meaning |
+|------|---------|
+| Stateful and critical stays private | Databases, vector stores, Git, Coolify internals, and model gateways are not public app workloads. |
+| Stateless apps may cross ingress | Public routing is for web apps, dashboards, APIs, and tools that can be safely authenticated and redeployed. |
+| Internal tools require protection | Use Cloudflare Access or strong application auth before exposure. |
+| Hermes stays bare-metal | Hermes is not a Coolify workload. It runs via host/systemd control. |
+| Ollama stays bare-metal | GPU model runtime remains on the host to use the RTX 4090 directly. |
+| LiteLLM is the model gateway | Hermes and apps should use LiteLLM instead of calling providers directly unless explicitly documented. |
+| Coolify publishes apps | Coolify is a deployment/publishing tool, not the homelab control plane. |
+| Monorepo is control plane | The monorepo contains governance, docs, specs, and source boundaries, not every possible app. |
+
+---
+
+## Mermaid Diagram
+
+```mermaid
+flowchart TD
+    internet[Internet]
+    cf_dns[Cloudflare DNS]
+    cf_tunnel[Cloudflare Tunnel]
+    cf_access[Cloudflare Access]
+    ingress[Traefik / Coolify ingress]
+
+    subgraph public_apps[Public Apps]
+        web[Web apps]
+        dashboards[Dashboards]
+        stateless_api[Stateless APIs]
+        internal_tools[Internal tools with auth]
+    end
+
+    subgraph bare_metal[Bare-metal host]
+        hermes[Hermes Gateway]
+        hermes_mcp[Hermes MCP]
+        ollama[Ollama GPU]
+        nexus[Nexus scripts]
+        zfs[Backups / ZFS]
+        obs_agent[Observability agent]
+    end
+
+    subgraph core[Private Core Infra]
+        litellm[LiteLLM]
+        qdrant[Qdrant]
+        mem0[Mem0 / Hermes second brain]
+        postgres[Postgres]
+        redis[Redis]
+        gitea[Gitea]
+        coolify[Coolify]
+    end
+
+    providers[External model providers]
+
+    internet --> cf_dns --> cf_tunnel
+    cf_tunnel --> cf_access --> ingress
+    ingress --> web
+    ingress --> dashboards
+    ingress --> stateless_api
+    ingress --> internal_tools
+
+    hermes --> litellm
+    litellm --> ollama
+    litellm --> providers
+    hermes --> mem0
+    mem0 --> qdrant
+
+    web --> postgres
+    stateless_api --> postgres
+    stateless_api --> redis
+    internal_tools --> postgres
+    dashboards --> postgres
+
+    coolify --> ingress
+```
+
+---
+
+## ASCII Diagram
+
+```
+Internet
+  |
+  v
+Cloudflare DNS
+  |
+  v
+Cloudflare Tunnel + Cloudflare Access
+  |
+  v
+Traefik/Coolify ingress
+  |
+  +--> Public web apps
+  +--> Dashboards
+  +--> Stateless APIs
+  +--> Internal tools with Cloudflare Access or app auth
+
+Bare-metal host
+  +--> Hermes Gateway
+  |      +--> LiteLLM
+  |      |      +--> Ollama GPU
+  |      |      +--> External model providers
+  |      +--> Mem0 / Hermes second brain
+  |             +--> Qdrant
+  |
+  +--> Ollama GPU
+  +--> Nexus scripts
+  +--> Backups / ZFS
+  +--> Observability agent
+
+Private Core Infra
+  +--> LiteLLM
+  +--> Qdrant
+  +--> Postgres
+  +--> Redis
+  +--> Gitea
+  +--> Coolify
+```
+
+---
+
+## Edge
+
+Edge is Cloudflare DNS, Tunnel, and Access.
+
+| Component | Responsibility | Target Exposure |
+|-----------|----------------|-----------------|
+| Cloudflare DNS | Public DNS records and names | PUBLIC names, policy-controlled |
+| Cloudflare Tunnel | Private connector from Cloudflare to the host | No direct inbound port requirement |
+| Cloudflare Access | Identity and access gate for internal tools | Required for internal admin/tool routes |
+
+Edge does not own application state. It owns names, routing entry, and identity gates.
+
+---
+
+## Ingress
+
+Ingress is Traefik/Coolify.
+
+| Component | Responsibility | Target Exposure |
+|-----------|----------------|-----------------|
+| Traefik/Coolify ingress | Route HTTP(S) traffic from Cloudflare to app workloads | PUBLIC or INTERNAL depending on route |
+| Coolify app publication | Publish containerized apps and tools | Not a governance layer |
+
+Ingress should route app traffic only. It should not expose Qdrant, Postgres, Redis, Ollama, Hermes, or raw admin interfaces unless a specific exception is documented and protected.
+
+---
+
+## Public Apps
+
+Public Apps are containerized workloads behind ingress.
+
+| App Type | Public Allowed? | Required Protection |
+|----------|-----------------|---------------------|
+| Web apps | Yes | App auth when user data exists |
+| Dashboards | Conditional | Cloudflare Access or app auth |
+| Stateless APIs | Yes | Auth, rate limiting, and no direct state ownership |
+| Internal tools | Conditional | Cloudflare Access or strong app auth |
+
+Apps may use Postgres or Redis when applicable, but the database/cache remains private Core Infra. Apps must not publish database ports or embed secrets in route configuration.
+
+---
+
+## Bare Metal
+
+Bare-metal services are host-level services that must not be converted into Coolify workloads without a new decision.
+
+| Service | Reason |
+|---------|--------|
+| Hermes Gateway | Agent orchestration and local host integration. |
+| Hermes MCP | Local MCP bridge for agents and tools. |
+| Ollama GPU | Requires direct GPU/VRAM management on the RTX 4090. |
+| Nexus scripts | Control-plane orchestration from the monorepo. |
+| Backups/ZFS | Host-level data protection and rollback foundation. |
+| Observability agent | Host telemetry and local health collection. |
+
+---
+
+## Core Infra
+
+Core Infra is private by default.
+
+| Service | Role | Exposure |
+|---------|------|----------|
+| LiteLLM | Single model gateway for apps and Hermes | INTERNAL, Access-protected if routed |
+| Qdrant | Vector DB for RAG/Mem0 | PRIVATE |
+| Postgres | Relational state | PRIVATE |
+| Redis | Cache/pubsub/session support | PRIVATE |
+| Gitea | Git service and internal development state | INTERNAL |
+| Coolify | App publication/admin surface | INTERNAL |
+
+Core Infra is where backups, restore tests, access reviews, and secret governance matter most.
+
+---
+
+## Approved Flows
+
+### Internet to Apps
+
+```
+Internet -> Cloudflare DNS -> Cloudflare Tunnel/Access -> Traefik/Coolify -> Apps
+```
+
+This path is for web apps, dashboards, stateless APIs, and internal tools with auth. It is not for raw databases, model runtimes, or agent control ports.
+
+### Hermes to Models
+
+```
+Hermes -> LiteLLM -> Ollama/providers
+```
+
+Hermes uses LiteLLM as the model gateway. Ollama is private, bare-metal, and GPU-backed. External providers are reached through LiteLLM unless a documented exception exists.
+
+### Hermes to Memory
+
+```
+Hermes -> Qdrant/Mem0
+```
+
+Hermes memory flows through Mem0/Hermes second brain and Qdrant. Qdrant is private Core Infra and must not be exposed as a public database route in the target state.
+
+### Apps to State
+
+```
+Apps -> Postgres/Redis when applicable
+```
+
+Apps may consume private state services over internal networks. Postgres and Redis are never public app endpoints.
+
+---
+
+## Exposure Classes
+
+| Class | Definition |
+|-------|------------|
+| PUBLIC | Routable from the public Internet through Cloudflare and ingress. |
+| INTERNAL | Routable through Cloudflare Access, VPN, LAN, or authenticated admin surfaces. |
+| PRIVATE | Not routable from public Internet; only local host/container networks. |
+| BARE_METAL | Runs on the host/systemd/filesystem outside Coolify. |
+| COOLIFY | Published or managed through Coolify. |
+| CORE_INFRA | Stateful or critical infrastructure requiring stricter backup/access rules. |
+
+---
+
+## TODO / UNKNOWN
+
+| Item | Required Follow-up |
+|------|--------------------|
+| Core Postgres canonical port | Verify active target instance and document exact port/domain. |
+| Coolify active admin binding | Reconcile existing references to 8000 and 8080. |
+| Qdrant public route | Target says PRIVATE; verify and remove or Access-protect any public route. |
+| Dashboard route policy | Classify each dashboard as PUBLIC, INTERNAL, or PRIVATE. |
+| Cloudflare Access inventory | Reconcile desired policy with live Cloudflare config before changing routes. |
+
+---
+
+## Related Documents
+
+- [Hardware Hierarchy](../../HARDWARE_HIERARCHY.md)
+- [Deployment Boundaries](../REFERENCE/DEPLOYMENT-BOUNDARIES.md)
+- [Security Checklist](../REFERENCE/HOMELAB-SECURITY-CHECKLIST.md)
+- [Ports Registry](../../ops/ai-governance/PORTS.md)
+# Data Flow — Homelab Multi-Claude
+
+**Data:** 2026-04-22
+**Fonte:** SERVICE_MAP.md, PORTS.md, ARCHITECTURE.md
+**Versao:** 1.0
+
+---
+
+## 1. Fluxo de Requisicoes de Chat
+
+### 1.1 Chat via LiteLLM Proxy (Padrao)
+
+```
+USER INPUT (texto)
+     │
+     ▼
+┌──────────────────────────────────────────────────────────────────────────┐
+│                         LiteLLM Proxy :4000                            │
+│  ┌──────────────────────────────────────────────────────────────────┐  │
+│  │  OpenAI-compatible API (POST /chat/completions)                   │  │
+│  │                                                                   │  │
+│  │  Request:                                                         │  │
+│  │  {                                                               │  │
+│  │    "model": "minimax/minimax-01",                               │  │
+│  │    "messages": [{"role": "user", "content": "..."}]              │  │
+│  │  }                                                               │  │
+│  └──────────────────────────────────────────────────────────────────┘  │
+│     │                                                                  │
+│     ▼ (model selection via config)                                     │
+│  ┌─────────────┐     ┌─────────────┐     ┌─────────────┐              │
+│  │  MiniMax    │     │  GPT-4o     │     │   Ollama    │              │
+│  │   M2.7      │     │   mini     │     │ (RTX 4090)  │              │
+│  │ (primary)   │     │ (fallback) │     │  (Gemma4)   │              │
+│  └─────────────┘     └─────────────┘     └─────────────┘              │
+│     │                                                                  │
+│     ◄────────────────── pooling ───────────────────►                  │
+│                                                                          │
+└──────────────────────────────────────────────────────────────────────────┘
+     │
+     ▼
+RESPONSE (OpenAI format)
+```
+
+### 1.2 Fallback Automatico
+
+```
+LiteLLM Proxy detecta erro/fallback
+     │
+     ▼
+┌─────────────────┐
+│  Try MiniMax   │──► ERRO ──┐
+│    M2.7        │          │
+└─────────────────┘          │
+                             ▼
+                    ┌─────────────────┐
+                    │  Try GPT-4o     │──► ERRO ──┐
+                    │    mini         │          │
+                    └─────────────────┘          │
+                                               ▼
+                                      ┌─────────────────┐
+                                      │  Try Ollama     │
+                                      │  Gemma4:26b    │
+                                      │  (RTX 4090)    │
+                                      └─────────────────┘
+```
+
+---
+
+## 2. Pipeline de Voice
+
+### 2.1 TTS (Text-to-Speech) — Edge TTS
+
+```
+TEXT INPUT
+     │
+     ▼
+┌─────────────────────────────────────────┐
+│           ai-gateway :4002              │
+│  POST /audio/speech                     │
+│  {                                      │
+│    "input": "texto para falar",         │
+│    "voice": "pt-BR-AntonioNeural"      │
+│  }                                      │
+└────────────────┬────────────────────────┘
+                 │
+                 ▼ HTTP
+        ┌────────────────┐
+        │  Edge TTS API  │ (Microsoft neural)
+        │  (cloud)       │
+        └────────┬───────┘
+                 │
+                 ▼ AUDIO (MP3/OGG)
+        ┌────────────────┐
+        │  ai-gateway    │
+        │  response      │
+        └────────┬───────┘
+                 │
+                 ▼
+        ┌────────────────┐
+        │  Telegram Bot  │ (envia audio para usuario)
+        │  / Audio File  │
+        └────────────────┘
+```
+
+### 2.2 STT (Speech-to-Text) — Groq Whisper Turbo
+
+```
+AUDIO INPUT (microfone / voice message)
+     │
+     ▼
+┌─────────────────────────────────────────┐
+│           ai-gateway :4002              │
+│  POST /audio/transcriptions             │
+│  (form-data with file)                 │
+└────────────────┬────────────────────────┘
+                 │
+                 ▼ HTTP
+        ┌────────────────────────┐
+        │  Groq API              │
+        │  whisper-large-v3-turbo│
+        │  (150min/dia gratis)   │
+        └────────┬───────────────┘
+                 │
+                 ▼ JSON
+        ┌─────────────────────────────────────────┐
+        │  Response:                               │
+        │  { "text": "transcricao do audio" }     │
+        └─────────────────────────────────────────┘
+                 │
+                 ▼
+        ┌─────────────────────────────────────────┐
+        │  Claude Code / Hermes Gateway           │
+        │  (processa texto)                       │
+        └─────────────────────────────────────────┘
+```
+
+### 2.3 Voice Pipeline Completo
+
+```
+                                    VOICE PIPELINE COMPLETO
+    ┌─────────────────────────────────────────────────────────────────────────┐
+
+    ┌─────────────┐      ┌─────────────────┐      ┌─────────────┐
+    │   USER      │      │  ai-gateway     │      │   Groq      │
+    │  (audio)    │─────►│   :4002         │─────►│  Whisper    │
+    │  (input)    │ ogg  │                 │      │   Turbo     │
+    └─────────────┘      └─────────────────┘      └──────┬──────┘
+                                                          │
+                                                          ▼ TEXT
+                                                   ┌─────────────┐
+                                                   │  Hermes     │
+                                                   │  Gateway    │
+                                                   │   :3001     │
+                                                   └──────┬──────┘
+                                                          │
+                                                          ▼ LLM
+                                                   ┌─────────────┐
+                                                   │  LiteLLM    │
+                                                   │   :4000     │
+                                                   │ (MiniMax)   │
+                                                   └──────┬──────┘
+                                                          │
+                                                          ▼ TEXT RESPONSE
+                                                   ┌─────────────┐
+                                                   │  Hermes     │
+                                                   │  Gateway    │
+                                                   └──────┬──────┘
+                                                          │
+                               ┌───────────────────────────┼───────────────────────────┐
+                               │                           │                           │
+                               ▼                           ▼                           ▼
+                        ┌─────────────┐           ┌─────────────┐           ┌─────────────┐
+                        │   Telegram  │           │  ai-gateway │           │  Hermes MCP │
+                        │    Bot      │           │   :4002     │           │   :8092     │
+                        │  (envia)    │           │  (Edge TTS) │           │  (Claude)   │
+                        └─────────────┘           └──────┬──────┘           └─────────────┘
+                                                          │
+                                                          ▼ AUDIO
+                                                   ┌─────────────┐
+                                                   │   USER      │
+                                                   │  (audio)    │
+                                                   └─────────────┘
+    ┌─────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 3. Fluxo de Autenticacao
+
+### 3.1 Auth JWT com zappro-api
+
+```
+CLIENT REQUEST
+     │
+     ▼
+┌─────────────────────────────────────────┐
+│          zappro-api :4003               │
+│  POST /auth/login                        │
+│  { "username": "...", "password": "..." }│
+└────────────────┬────────────────────────┘
+                 │
+                 ▼ Verify Credentials
+        ┌────────────────┐
+        │  PostgreSQL   │ (user store)
+        │  (future)     │
+        └────────┬──────┘
+                 │
+                 ▼ Generate JWT
+        ┌────────────────┐
+        │  JWT Token     │
+        │  (expires: 24h)│
+        └────────┬──────┘
+                 │
+                 ▼
+        ┌─────────────────────────────────────────┐
+        │  Response:                              │
+        │  { "access_token": "eyJ...", "token_type": "Bearer" }
+        └─────────────────────────────────────────┘
+                 │
+                 ▼
+        ┌─────────────────────────────────────────┐
+        │  Subsequent Requests                    │
+        │  Authorization: Bearer eyJ...           │
+        └─────────────────────────────────────────┘
+                 │
+                 ▼
+        ┌─────────────────────────────────────────┐
+        │          LiteLLM Proxy :4000           │
+        │  (proxies with API key)                │
+        └─────────────────────────────────────────┘
+```
+
+---
+
+## 4. Fluxo RAG (Retrieval-Augmented Generation)
+
+```
+USER QUERY
+     │
+     ▼
+┌─────────────────────────────────────────┐
+│         zappro-api :4003               │
+│  POST /rag/query                        │
+│  { "query": "pergunta do usuario" }    │
+└────────────────┬────────────────────────┘
+                 │
+                 ▼ Embed Query
+        ┌────────────────┐
+        │  Ollama        │
+        │  (nomic-embed-text)│
+        │  :11434        │
+        └────────┬──────┘
+                 │
+                 ▼ Embedding Vector
+        ┌─────────────────────────────────────────┐
+        │          Qdrant :6333                   │
+        │  (vector search)                         │
+        │  collection: "knowledge_base"          │
+        └────────────────┬────────────────────────┘
+                 │
+                 ▼ Retrieved Context
+        ┌─────────────────────────────────────────┐
+        │  Context + Query + LLM                  │
+        │                                           │
+        │  LiteLLM (MiniMax M2.7)                  │
+        │  with retrieved context                 │
+        └────────────────┬────────────────────────┘
+                 │
+                 ▼
+RESPONSE (augmented with context)
+```
+
+---
+
+## 5. Fluxo MCP (Model Context Protocol)
+
+### 5.1 Claude Code → Hermes MCP
+
+```
+CLAUDE CODE
+     │
+     │ MCP Request (JSON-RPC)
+     ▼
+┌─────────────────────────────────────────┐
+│          Hermes MCP :8092              │
+│  (MCPO bridge)                          │
+│                                           │
+│  ┌───────────────────────────────────┐   │
+│  │  Resources:                       │   │
+│  │  - hermes://secrets               │   │
+│  │  - hermes://config                │   │
+│  │                                   │   │
+│  │  Tools:                           │   │
+│  │  - hermes_message_send            │   │
+│  │  - hermes_voice_tts               │   │
+│  └───────────────────────────────────┘   │
+└────────────────┬────────────────────────┘
+                 │
+                 │ HTTP
+                 ▼
+        ┌─────────────────────────────────────────┐
+        │          Hermes Gateway :3001           │
+        │  (Telegram bot + voice agent)           │
+        └─────────────────────────────────────────┘
+```
+
+### 5.2 MCP Servers (Docker)
+
+```
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                         MCP SERVERS (Docker Network)                          │
+│                                                                               │
+│  ┌───────────────┐  ┌───────────────┐  ┌───────────────┐  ┌───────────────┐ │
+│  │ mcp-coolify   │  │  mcp-ollama   │  │  mcp-system   │  │  mcp-cron     │ │
+│  │    :4012      │  │    :4013      │  │    :4014      │  │    :4015      │ │
+│  └───────┬───────┘  └───────┬───────┘  └───────┬───────┘  └───────┬───────┘ │
+│          │                  │                  │                  │          │
+│          └──────────────────┼──────────────────┼──────────────────┘          │
+│                             │                  │                             │
+│                      ┌──────▼──────────────────▼──────┐                      │
+│                      │         Claude Code            │                      │
+│                      │      (MCP Client :4011-4015)   │                      │
+│                      └─────────────────────────────────┘                      │
+└─────────────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 6. Fluxo Docker Network → Host
+
+### 6.1 Cross-Network Access
+
+```
+DOCKER CONTAINER                                    HOST
+     │                                                │
+     │  ┌─────────────────────────────────────────┐   │
+     │  │  LiteLLM Proxy :4000                   │   │
+     │  │  Docker Network (10.0.1.x)             │   │
+     │  └─────────────────────────────────────────┘   │
+     │              │                                  │
+     │              │  10.0.1.1:4000                  │
+     │              ▼                                  │
+     │  ┌─────────────────────────────────────────┐   │
+     │  │  Ollama :11434 (docker0)                │   │
+     │  │  Accessible as: 10.0.1.1:11434         │   │
+     │  └─────────────────────────────────────────┘   │
+     │                                                │
+     │  ┌─────────────────────────────────────────┐   │
+     │  │  Qdrant :6333 (Coolify net)            │   │
+     │  │  Accessible as: 10.0.19.5:6333         │   │
+     │  └─────────────────────────────────────────┘   │
+     │                                                │
+     │  COOLIFY MANAGED                               │
+     │  ┌─────────────────────────────────────────┐   │
+     │  │  Qdrant :6333                           │   │
+     │  │  (Coolify network 10.0.19.x)           │   │
+     │  └─────────────────────────────────────────┘   │
+     │                                                │
+     ▼                                                ▼
+  CONNECTED                                       ACCESSIBLE
+  Via docker network                               Via host routes
+```
+
+---
+
+## 7. Fluxo de Dados — Segundo Brain
+
+```
+DESKTOP (Obsidian Vault)                      SERVER (Monorepo)
+     │                                              │
+     │  ┌────────────────────────────────┐        │
+     │  │  ~/Desktop/hermes-second-brain │        │
+     │  │  TREE.md                       │        │
+     │  │  notes/*.md                    │        │
+     │  └────────────────────────────────┘        │
+     │              │                               │
+     │              │  Git push                    │
+     │              ▼                               │
+     │  ┌────────────────────────────────┐        │
+     │  │  Gitea :3300                   │        │
+     │  │  hermes-second-brain repo      │        │
+     │  └────────────────────────────────┘        │
+     │              │                               │
+     │              │  Clone/pull                   │
+     │              ▼                               │
+     │  ┌────────────────────────────────┐        │
+     │  │  ~/Desktop/hermes-second-brain │        │
+     │  │  ( synced )                    │        │
+     │  └────────────────────────────────┘        │
+     │                                              │
+     │  ┌────────────────────────────────┐        │
+     │  │  Claude Code (dev)             │        │
+     │  │  reads TREE.md + notes         │        │
+     │  └────────────────────────────────┘        │
+     │              │                               │
+     │              │  context loading              │
+     │              ▼                               │
+     │  ┌────────────────────────────────┐        │
+     │  │  AGENTS.md + knowledge base    │        │
+     │  └────────────────────────────────┘        │
+     │                                              │
+     ▼                                              ▼
+  SYNCED                                          READY FOR USE
+```
+
+---
+
+## 8. Fluxo de Deployment (Monorepo)
+
+```
+┌────────────────────────────────────────────────────────────────────────────────┐
+│                         MONOREPO DEPLOYMENT FLOW                               │
+│                                                                                │
+│  ┌─────────────┐      ┌─────────────┐      ┌─────────────┐      ┌─────────┐ │
+│  │   SPEC      │─────►│    PG       │─────►│ run-pipeline│─────►│  SHIPPER│ │
+│  │   (spec)    │      │  (plan)     │      │   (.sh)     │      │  (PR)   │ │
+│  └─────────────┘      └─────────────┘      └──────┬──────┘      └────┬────┘ │
+│                                                      │                   │      │
+│                                                      ▼                   │      │
+│                                               ┌─────────────┐            │      │
+│                                               │  Pipeline   │            │      │
+│                                               │  3 phases:  │            │      │
+│                                               │  P → R → E  │            │      │
+│                                               └──────┬──────┘            │      │
+│                                                      │                   │      │
+│                                                      ▼                   │      │
+│                                               ┌─────────────┐            │      │
+│                                               │   Docker    │◄───────────┘      │
+│                                               │  Build      │                   │
+│                                               └──────┬──────┘                   │
+│                                                      │                           │
+│                                                      ▼                           │
+│                                               ┌─────────────┐                   │
+│                                               │   Coolify   │                   │
+│                                               │   PaaS      │                   │
+│                                               │   :8000     │                   │
+│                                               └─────────────┘                   │
+└────────────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 9. Fluxo de Backup
+
+```
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                           BACKUP FLOW                                        │
+│                                                                               │
+│  ┌────────────────┐       ┌────────────────┐       ┌────────────────┐      │
+│  │  ZFS Pool      │       │  Snapshots     │       │  Backup Script │      │
+│  │  tank (4TB)    │──────►│  (pre-change)  │──────►│  (srv/ops/)   │      │
+│  └────────────────┘       └────────────────┘       └───────┬────────┘      │
+│                                                              │               │
+│       ┌─────────────────────────────────────────────────────┼───────────┐   │
+│       │                                                     │           │   │
+│       ▼                                                     ▼           │   │
+│  ┌─────────────┐                                    ┌─────────────┐   │   │
+│  │ tank@pre-   │                                    │  /srv/backups│   │   │
+│  │ 20260422-   │                                    │  (ZFS snap)  │   │   │
+│  │ 143000-feat │                                    └──────┬──────┘   │   │
+│  └─────────────┘                                           │           │   │
+│                                                            ▼           │   │
+│                                                       ┌─────────────┐  │   │
+│                                                       │  Off-site   │  │   │
+│                                                       │  (future)   │  │   │
+│                                                       └─────────────┘  │   │
+│                                                                              │
+│  ┌────────────────────────────────────────────────────────────────────────┐  │
+│  │  Comandos de Backup (seguros):                                          │  │
+│  │                                                                             │  │
+│  │  # Snapshot antes de mudanca                                              │  │
+│  │  sudo zfs snapshot -r tank@pre-$(date +%Y%m%d-%H%M%S)-<descricao>        │  │
+│  │                                                                             │  │
+│  │  # Rollback se algo quebrar                                               │  │
+│  │  sudo zfs rollback -r tank@<snapshot-name>                               │  │
+│  │                                                                             │  │
+│  │  # Scripts de backup                                                      │  │
+│  │  /srv/ops/scripts/backup-postgres.sh                                     │  │
+│  │  /srv/ops/scripts/backup-qdrant.sh                                       │  │
+│  └────────────────────────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+**Atualizado:** 2026-04-22
+**Versao:** 1.0
+# Diagrama de Rede — Homelab Multi-Claude
+
+**Data:** 2026-04-22
+**Fonte:** SERVICE_MAP.md, PORTS.md
+**Versao:** 1.0
+
+---
+
+## 1. Visao Geral da Topologia
+
+```
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                           INTERNET (Cloudflare)                                 │
+└───────────────────────────────────────┬─────────────────────────────────────────┘
+                                        │
+                        ┌───────────────▼───────────────┐
+                        │      Cloudflare Tunnel         │
+                        │  cloudflared — SSL termination │
+                        └───────┬───────┬───────┬───────┘
+                                │       │       │
+              ┌─────────────────┼───────┼───────┼───────────────┐
+              │                 │       │       │               │
+     coolify.zappro.    hermes.zappro.  api.zappro.    llm.zappro.
+          site               site          site            site
+              │                 │       │               │
+              │          ┌──────▼──────┐│         ┌────▼────┐
+              │          │  Hermes     ││         │ LiteLLM │
+              │          │  Gateway   ││         │ Proxy   │
+              │          │   :3001    ││         │  :4000  │
+              │          └──────┬──────┘│         └────┬────┘
+              │                 │       │               │
+              │          ┌──────▼──────┐│         ┌────▼────┐
+              │          │  Hermes     ││         │ Ollama  │
+              │          │  MCP :8092 ││         │(RTX4090)│
+              │          └─────────────┘│         │ :11434  │
+              │                         │         └─────────┘
+              │                         │
+    ┌─────────▼─────────┐               │
+    │   Coolify PaaS    │               │
+    │     :8000         │               │
+    └─────────┬─────────┘               │
+              │                         │
+    ┌─────────┼─────────┐               │
+    │         │         │               │
+ ┌──▼──┐  ┌──▼──┐  ┌───▼───┐          │
+ │Qdrant│ │Open │  │Coolify│          │
+ │:6333 │ │WebUI│  │Redis │          │
+ └──────┘ │:8080│  │ :6381 │          │
+          └─────┘  └───────┘          │
+                                        │
+┌───────────────────────────────────────┼───────────────────────────────────────┐
+│                          UBUNTU DESKTOP (bare metal)                          │
+│                                                                              │
+│  ┌──────────────────────────────────────────────────────────────────────────┐ │
+│  │                       DOCKER COMPOSE STACK                              │ │
+│  │  ┌────────────┐  ┌───────────┐  ┌────────┐  ┌──────────┐  ┌─────────┐ │ │
+│  │  │  Grafana   │  │   Loki    │  │Prometheus│  │ ai-router │  │nginx-rl│ │ │
+│  │  │   :3100    │  │   :3101   │  │  :9090  │  │   :4005  │  │  :4004  │ │ │
+│  │  └────────────┘  └───────────┘  └─────────┘  └──────────┘  └────┬────┘ │ │
+│  │                                                            │       │ │ │
+│  │  ┌───────────┐  ┌───────────┐  ┌───────────┐  ┌──────────┐  │       │ │ │
+│  │  │  LiteLLM  │  │ai-gateway│  │zappro-api │  │opencode  │  │       │ │ │
+│  │  │   :4000   │  │   :4002   │  │   :4003   │  │  :9000   │◄─┘       │ │ │
+│  │  └───────────┘  └───────────┘  └───────────┘  └──────────┘          │ │ │
+│  └───────────────────────────────────────────────────────────────────────────┘ │
+│                                                                              │
+│  ┌──────────────────────────────────────────────────────────────────────────┐ │
+│  │                       BARE METAL SERVICES                                │ │
+│  │  ┌────────────┐  ┌────────────┐  ┌────────────┐  ┌────────────────────┐  │ │
+│  │  │  Hermes    │  │  Hermes    │  │  Ollama    │  │    opencode-go     │  │ │
+│  │  │  Gateway   │  │  MCP       │  │  (RTX4090) │  │      :9000         │  │ │
+│  │  │   :3001    │  │   :8092    │  │  :11434   │  └────────────────────┘  │ │
+│  │  └────────────┘  └────────────┘  └────────────┘                           │ │
+│  │  ┌────────────┐  ┌────────────┐  ┌────────────┐                           │ │
+│  │  │ zappro-web │  │   MCPO     │  │ nvidia-   │                           │ │
+│  │  │   :3000    │  │   :8092    │  │ exporter  │                           │ │
+│  │  └────────────┘  └────────────┘  └────────────┘                           │ │
+│  └───────────────────────────────────────────────────────────────────────────┘ │
+│                                                                              │
+│  ┌──────────────────────────────────────────────────────────────────────────┐ │
+│  │                       MCP SERVERS (Docker)                               │ │
+│  │  ┌────────────┐  ┌────────────┐  ┌────────────┐  ┌────────────┐          │ │
+│  │  │mcp-coolify│  │ mcp-ollama │  │ mcp-system │  │  mcp-cron  │          │ │
+│  │  │   :4012   │  │   :4013    │  │   :4014    │  │   :4015    │          │ │
+│  │  └────────────┘  └────────────┘  └────────────┘  └────────────┘          │ │
+│  │  ┌────────────┐  ┌────────────┐                                          │ │
+│  │  │ mcp-qdrant│  │mcp-monorepo│                                         │ │
+│  │  │   :4011   │  │   :4006    │                                          │ │
+│  │  └────────────┘  └────────────┘                                          │ │
+│  └───────────────────────────────────────────────────────────────────────────┘ │
+│                                                                              │
+│  ZFS POOL: tank (4TB RAID-Z)                                                 │
+│  NVIDIA RTX 4090 24GB (VRAM)                                                 │
+└───────────────────────────────────────────────────────────────────────────────┘
+
+PC SECUNDARIO (Dashboard)
+┌─────────────────────────┐
+│  Gen3 1TB NVMe          │
+│  RTX 3060 12GB          │
+│  32GB RAM               │
+│                         │
+│  SSH ──────────────────►┼──────── Ubuntu Desktop (PC Principal)
+│  (terminal/dashboard)   │
+└─────────────────────────┘
+```
+
+---
+
+## 2. Conectividade Entre Redes
+
+```
+DOCKER NETWORK (10.0.1.x/24)                    HOST NETWORK (192.168.x.x)
+┌─────────────────────────────────────┐         ┌─────────────────────────────────────┐
+│                                     │         │                                     │
+│  ┌─────────┐      ┌─────────┐      │ 10.0.1.1  │      ┌─────────┐      ┌─────────┐ │
+│  │ LiteLLM │◄────►│  Ollama │      ├───────────┤      │ Hermes  │      │  MCPO   │ │
+│  │  :4000  │      │ :11434 │      │           │      │  MCP    │      │  :8092  │ │
+│  └────┬────┘      └─────────┘      │           │      │ :8092   │      └─────────┘ │
+│       │                             │           │      └─────────┘                  │
+│  ┌────▼────┐                        │           │                                    │
+│  │ai-router│                        │           │      ┌─────────┐                   │
+│  │ :4005   │                        │           │      │ Hermes  │                   │
+│  └─────────┘                        │           │      │ Gateway │                   │
+│                                     │           │      │ :3001   │                   │
+│  COOLIFY NETWORK (10.0.19.x/24)     │           │      └─────────┘                   │
+│  ┌─────────┐                        │           │                                    │
+│  │ Qdrant  │◄───────────────────────┼───────────┼────────────────────────────────────►
+│  │ :6333   │                        │           │    localhost only
+│  └─────────┘                        │           │
+│                                     │           │      ┌─────────┐
+│  ┌─────────┐                        │           │      │zappro-api│
+│  │OpenWebUI│                        │           │      │  :4003   │
+│  │ :8080   │                        │           │      └─────────┘
+│  └─────────┘                        │           │
+│                                     │           │      ┌─────────┐
+│  ┌─────────┐                        │           │      │ai-gateway│
+│  │Coolify  │                        └───────────┘      │  :4002   │
+│  │Redis    │                                 127.0.0.1      └─────────┘
+│  │ :6381   │                                            │
+│  └─────────┘                                            │ via LiteLLM
+│                                                          │
+│                                                    ┌─────▼─────┐
+│                                                    │  MiniMax  │
+│                                                    │  GPT-4o  │
+│                                                    │   (API)  │
+│                                                    └──────────┘
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 3. Fluxo de Acesso Externo
+
+```
+USER (Internet)
+     │
+     ▼ HTTPS
+┌─────────────────────────────────────────────────────────────────┐
+│                     Cloudflare                                │
+│  coolify.zappro.site ────► Coolify PaaS :8000                 │
+│  hermes.zappro.site ────► Hermes Gateway :3001               │
+│  api.zappro.site    ────► LiteLLM Proxy :4000                 │
+│  llm.zappro.site   ────► LiteLLM Proxy :4000                  │
+│  monitor.zappro.site ──► Grafana :3100                        │
+└─────────────────────────────────────────────────────────────────┘
+     │
+     ▼ (se nao autenticado)
+     Cloudflared Tunnel (cloudflared)
+     │
+     ▼ SSL Termination
+┌─────────────────────────────────────────────────────────────────┐
+│                     Traefik (Coolify Proxy)                     │
+│  ┌─────────────────────────────────────────────────────────┐   │
+│  │  Route: coolify.zappro.site ──► coolify:8000             │   │
+│  │  Route: hermes.zappro.site  ──► hermes-gateway:3001      │   │
+│  │  Route: api.zappro.site     ──► litellm:4000             │   │
+│  └─────────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 4. Portas e Servicos Resumidos
+
+| Porta | Servico | Rede | Accesso |
+|-------|---------|------|---------|
+| :22 | SSH | host | PC secundario → PC principal |
+| :2222 | Gitea SSH | host | Git push/pull |
+| :3000 | zappro-web | host | 0.0.0.0 |
+| :3001 | Hermes Gateway | Docker | localhost |
+| :3300 | Gitea Web | Docker | localhost |
+| :3456 | OpenWebUI | Docker | localhost |
+| :4002 | ai-gateway | host | 0.0.0.0 |
+| :4003 | zappro-api | host | 0.0.0.0 |
+| :4004 | nginx-ratelimit | Docker | host |
+| :4005 | ai-router | Docker | host |
+| :4006 | mcp-monorepo | Docker | RESERVED |
+| :4011 | mcp-qdrant | Docker | RESERVED |
+| :4012 | mcp-coolify | Docker | RESERVED |
+| :4013 | mcp-ollama | Docker | RESERVED |
+| :4014 | mcp-system | Docker | RESERVED |
+| :4015 | mcp-cron | Docker | RESERVED |
+| :5173 | Vite dev | host | localhost |
+| :6333 | Qdrant | Coolify net | 10.0.19.5:6333 |
+| :6381 | Coolify Redis | Docker | localhost |
+| :8000 | Coolify | host | NOT LISTENING |
+| :8092 | Hermes MCP | host | localhost |
+| :8125 | statsd-exporter | host | localhost |
+| :8204 | faster-whisper | host | 0.0.0.0 |
+| :3001 | Hermes Gateway | host | localhost |
+| :9000 | opencode-go | host | host |
+| :9090 | Prometheus | Docker | localhost |
+| :9100 | node-exporter | host | host |
+| :9835 | nvidia-gpu | Docker | host |
+| :11434 | Ollama | host+docker0 | localhost+10.0.1.1 |
+| :11436 | Qwen2-VL | Docker | localhost |
+
+---
+
+## 5. Diagrama de Rede Semiatual
+
+```
+                    ┌─────────────────────────────────────┐
+                    │         Internet (HTTPS)             │
+                    │  coolify.zappro.site                 │
+                    │  hermes.zappro.site                  │
+                    │  api.zappro.site                     │
+                    │  llm.zappro.site                     │
+                    └──────────────┬──────────────────────┘
+                                   │
+                    ┌──────────────▼──────────────────────┐
+                    │      Cloudflare Tunnel               │
+                    │        (cloudflared)                │
+                    └──────────────┬──────────────────────┘
+                                   │
+         ┌─────────────────────────┼─────────────────────────┐
+         │                         │                         │
+┌────────▼────────┐    ┌──────────▼──────────┐    ┌─────────▼─────────┐
+│    Traefik      │    │   Hermes Gateway   │    │    LiteLLM       │
+│   (Coolify)     │    │      :3001        │    │      :4000       │
+│   :80/443       │    │   (bare metal)    │    │  (Docker Compose) │
+└────────┬────────┘    └──────────┬──────────┘    └─────────┬─────────┘
+         │                         │                         │
+    ┌────▼────┐              ┌─────▼─────┐            ┌──────▼──────┐
+    │ Coolify │              │ Hermes    │            │   Ollama    │
+    │  :8000  │              │ MCP :8092 │            │  :11434     │
+    │(bare mtal)             │(bare metal)│            │  (RTX 4090) │
+    └────┬────┘              └───────────┘            └─────────────┘
+         │
+    ┌────▼────┐
+    │ Qdrant  │
+    │  :6333  │
+    │(Coolify)│
+    └─────────┘
+```
+
+---
+
+**Atualizado:** 2026-04-22
+**Versao:** 1.0
