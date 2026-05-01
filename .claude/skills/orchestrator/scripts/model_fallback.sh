@@ -23,7 +23,7 @@ FALLBACK_CHAIN=(
   "gpt-4o:3"
   "gpt-4o-mini:4"
   "claude-3-haiku:5"
-  "gemma4-12b-it:100"
+  "qwen2.5:3b:100"
   "llama3-portuguese-tomcat-8b:101"
   "minimax-m2.7:102"
 )
@@ -126,7 +126,7 @@ get_model_info() {
     ["gpt-4o"]="2.50,10.00"
     ["gpt-4o-mini"]="0.15,0.60"
     ["claude-3-haiku"]="0.25,1.25"
-    ["gemma4-12b-it"]="0.00,0.00"
+    ["qwen2.5:3b"]="0.00,0.00"
     ["llama3-portuguese-tomcat-8b"]="0.00,0.00"
     ["minimax-m2.7"]="0.00,0.00"
   )

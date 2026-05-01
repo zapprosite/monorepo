@@ -167,7 +167,7 @@ const LAYERS = [
       {
         key: 'ollama',
         name: 'Ollama',
-        description: 'Local LLM inference on RTX 4090. Models: gemma4, qwen2.5vl, nomic-embed-text. Zero external API cost.',
+        description: 'Local LLM inference on RTX 4090. Models: gemma4-free, qwen2.5vl, nomic-embed-text. Zero external API cost.',
         port: ':11434',
         docs: null,
         healthUrl: 'http://localhost:11434/api/tags',

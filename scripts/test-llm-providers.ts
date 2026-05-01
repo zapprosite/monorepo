@@ -63,7 +63,7 @@ const PROVIDERS: TestConfig[] = [
     url: 'http://localhost:11434/api/chat',
     headers: { 'Content-Type': 'application/json' },
     body: {
-      model: 'gemma4-12b-it',
+      model: 'qwen2.5:3b',
       messages: [{ role: 'user', content: TEST_PROMPT }],
       stream: false,
     },

@@ -22,7 +22,7 @@ declare -A MODEL_COSTS=(
   ["gpt-4o"]="2.50,10.00"
   ["gpt-4o-mini"]="0.15,0.60"
   ["gpt-4-turbo"]="10.00,30.00"
-  ["gemma4-12b-it"]="0.00,0.00"
+  ["qwen2.5:3b"]="0.00,0.00"
   ["llama3-portuguese-tomcat-8b"]="0.00,0.00"
   ["minimax-m2.7"]="0.00,0.00"
 )
