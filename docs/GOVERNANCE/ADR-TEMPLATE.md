@@ -295,3 +295,4 @@ When creating a new ADR, ensure all sections are complete:
 - [ ] Alternatives Considered: At least 2 alternatives with pros/cons
 - [ ] Notes: Implementation details, open questions, references
 - [ ] Metadata: Tracking info for implemented decisions
+Updated: 2026-05-01

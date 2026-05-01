@@ -119,3 +119,5 @@ With the Token Plan MCP tools enabled.
 | Web search fallback | ddg / google_news_rss |
 | Web search via MiniMax | MiniMax Token Plan MCP (via Hermes/Nexus or direct) |
 | Image understanding via MiniMax | MiniMax Token Plan MCP (via Hermes/Nexus or direct) |
+Classification: HISTORICAL
+Redirect: See docs/GOVERNANCE/INDEX.md

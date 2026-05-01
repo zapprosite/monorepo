@@ -3,12 +3,15 @@ services:
     image: ghcr.io/berriai/litellm:main-latest
     container_name: zappro-litellm
     restart: unless-stopped
-    env_file:
-      - /srv/monorepo/.env
     environment:
       - COMPOSE_PROJECT_NAME=infra
       - LITELLM_CONFIG_FILE=/app/config/config.yaml
-      - DATABASE_URL=postgresql://litellm:litellm_pass_2026@10.0.3.4:5432/litellm
+      - DATABASE_URL=postgres://litellm:litellm_pass_2026@zappro-litellm-db:5432/litellm
+      - LITELLM_MASTER_KEY=sk-zappro-lm-2026-s8k3m9x2p7r6t5w1v4c8n0d5j7f9g3h6i2k4l6m8n0p1
+      - MINIMAX_API_KEY=sk-cp-etXmVd5gY30jOBe2a6AvTzWT4olPvnVBld7qcdWBdJqcSFSj4BSWt5YXXwXWkzNfixm8ZVVNxfmP12yC6S8IZhFR9YOlJDggNc6Wlbt0SY4-4jqBrHWG0rc
+      - MINIMAX_API_BASE=https://api.minimax.io
+      - PRISMA_ENGINE_TYPE=binary
+      - PRISMA_BINARY_TARGETS=debian-openssl-3.0.x
     volumes:
       - /srv/monorepo/config/litellm/config.yaml:/app/config/config.yaml:ro
     ports:
@@ -20,10 +23,7 @@ services:
       timeout: 10s
       retries: 3
     networks:
-      zappro-lite_default:
-        aliases:
-          - litellm
-          - zappro-litellm
+      - zappro-lite_default
 
 networks:
   zappro-lite_default:

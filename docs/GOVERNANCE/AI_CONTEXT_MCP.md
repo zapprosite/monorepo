@@ -112,3 +112,4 @@ Log:     /srv/ops/ai-governance/logs/ai-context-sync.log
 **Deployed by:** Claude Code
 **Snapshot:** tank@pre-20260316-ai-context-mcp
 **Rollback:** `sudo zfs rollback -r tank@pre-20260316-ai-context-mcp` (if needed)
+Updated: 2026-05-01

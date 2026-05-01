@@ -522,3 +522,5 @@ refactor(agent): clarified skill vs workflow distinction in .agent/workflows/
 ---
 
 **Next review:** 2026-05-08 or when next SPEC lands, whichever comes first.
+Classification: HISTORICAL
+Redirect: See docs/GOVERNANCE/INDEX.md

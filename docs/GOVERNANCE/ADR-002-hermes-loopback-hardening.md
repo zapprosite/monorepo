@@ -47,3 +47,4 @@ platforms:
 | Defense-in-depth (tunnel + loopback) | -- |
 | API key opcional reduz complexidade | -- |
 | cloudflared gere auth via Cloudflare Access | -- |
+Updated: 2026-05-01

@@ -372,4 +372,4 @@ grep -i error /srv/ops/logs/backup-*.log
 
 # Disk space check before backup
 df -h /srv/backups/
-```
+```Last restore test: 2026-05-01
