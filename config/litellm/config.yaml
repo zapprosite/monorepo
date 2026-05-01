@@ -7,6 +7,7 @@ model_list:
       temperature: 0.5
       top_p: 0.9
       max_tokens: 2048
+      rpm: 500
   - model_name: minimax-m2.7-highspeed
     litellm_params:
       model: openai/MiniMax-M2.7-highspeed
@@ -15,3 +16,4 @@ model_list:
       temperature: 0.5
       top_p: 0.9
       max_tokens: 2048
+      rpm: 500

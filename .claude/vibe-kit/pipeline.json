@@ -1,0 +1,70 @@
+{
+  "version": 2,
+  "model": "lead-worker",
+  "rate_limit_rpm": 500,
+  "max_workers": 5,
+  "phases": ["plan", "do", "verify"],
+
+  "lead": {
+    "provider": "minimax",
+    "model": "MiniMax-M2.7",
+    "prompt_file": null,
+    "think_steps": [
+      "Parse SPEC.md → extract tasks",
+      "Filter tasks by priority (FIXME > Partial > Impl)",
+      "Split into ~5min micro-tasks (max 2000 tokens prompt each)",
+      "Write tasks to queue.json atomically",
+      "Decide which tasks to delegate vs handle directly"
+    ],
+    "delegate_threshold": "any task requiring file creation or CLI invocation"
+  },
+
+  "workers": {
+    "count": 5,
+    "provider": "minimax",
+    "model": "MiniMax-M2.7",
+    "prompt_template": "You are worker-{worker_id}. Execute this task completely.\n\nAPP: {app}\nSPEC: {spec}\nTASK ID: {task_id}\nTASK: {task_name}\nDESCRIPTION: {description}\n\nWorking directory: /srv/monorepo\n\nRules:\n- Read SPEC before starting\n- Create files in correct locations\n- Output [COMPLETE] task_id={task_id} result=done when done\n- If you cannot complete, output [COMPLETE] task_id={task_id} result=failed reason=...\n- Save context to /srv/monorepo/.claude/vibe-kit/context/{task_id}.ctx",
+    "max_task_time_seconds": 300,
+    "retry_on_fail": true,
+    "max_retries": 1
+  },
+
+  "queue": {
+    "file": "/srv/monorepo/.claude/vibe-kit/queue.json",
+    "lock_file": "/srv/monorepo/.claude/vibe-kit/.queue.lock",
+    "context_dir": "/srv/monorepo/.claude/vibe-kit/context",
+    "parallel_limit_env": "VIBE_PARALLEL"
+  },
+
+  "state": {
+    "file": "/srv/monorepo/.claude/vibe-kit/state.json",
+    "phase_env": "VIBE_PHASE"
+  },
+
+  "loop": {
+    "poll_interval_seconds": 5,
+    "idle_cooldown_seconds": 180,
+    "snapshot_every_tasks": 3,
+    "snapshot_pool": "tank",
+    "snapshot_prefix": "vibe-pre",
+    "zfs_enabled": true
+  },
+
+  "ship": {
+    "enabled": true,
+    "git_remote": "gitea",
+    "branch_prefix": "vibe",
+    "commit_message_template": "vibe: {spec} completed\n\n{task_list}",
+    "pr_create": true,
+    "pr_target": "main"
+  },
+
+  "verify": {
+    "commands": [
+      "pnpm test",
+      "pnpm tsc --noEmit",
+      "pnpm lint"
+    ],
+    "block_on_fail": true
+  }
+}

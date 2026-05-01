@@ -154,7 +154,7 @@ This summary is not a replacement for [ops/ai-governance/PORTS.md](ops/ai-govern
 | Hermes MCP | 8092 | PRIVATE, BARE_METAL | No public domain. |
 | Ollama | 11434 | PRIVATE, BARE_METAL | No public domain. |
 | Grafana/dashboard | 3100 | INTERNAL | `monitor.zappro.site` documented. |
-| Public web apps | 4080, 4081, 4082 | PUBLIC, COOLIFY | `list.zappro.site`, `md.zappro.site`, `todo.zappro.site` documented. |
+| Public web apps | 4080, 4081 | PUBLIC, COOLIFY | `list.zappro.site`, `md.zappro.site` documented. |
 
 ---
 
