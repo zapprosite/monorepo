@@ -1,126 +1,135 @@
-# Vibe-Kit Runtime SPEC
+# Vibe-Kit SPEC — Lead + Workers Model (v2)
 
-Status: `ACTIVE`
-Version: 3.0
-Updated: 2026-05-01
+## Overview
 
-## Purpose
+vibe-kit runs a **lead agent** that parses SPECs into micro-tasks and up to **5 worker agents** that execute them in parallel. Built for MiniMax 500 rpm rate limit. Loop-while-sleeping-ready.
 
-Vibe-kit provides a bounded, monorepo-local automation loop:
+## Architecture
 
-```text
-SPEC -> plan queue -> claim task -> run CLI worker -> smoke verify -> complete/fail/freeze
+```
+run-vibe.sh (entry point)
+  ├── lead_think()  — Parse SPEC, write queue.json
+  ├── do_loop()     — Spawn up to 5 mclaude workers via queue-manager.py
+  └── do_verify()   — Run pnpm test/tsc/lint
+
+queue-manager.py — atomic claim/complete with fcntl.flock
+state-manager.py — event system (existing, keep as-is)
+pipeline.json — config for lead/workers/phases
 ```
 
-The system is optimized for controlled homelab execution, not blind production deployment.
+## 3 Phases
 
-## Entrypoints
+| Phase | What happens |
+|-------|-------------|
+| **Plan** | Lead reads SPEC.md, extracts tasks, writes queue.json |
+| **Do** | Up to 5 workers claim and execute micro-tasks |
+| **Verify** | Run `pnpm test && pnpm tsc --noEmit && pnpm lint` |
 
-| Entrypoint | Status | Use |
-|------------|--------|-----|
-| `scripts/vibe.sh` | `ACTIVE` | Preferred user command |
-| `scripts/vibe-ctl.sh` | `ACTIVE` | Runtime status/control |
-| `scripts/nexus-ctl.sh` | `ACTIVE` | Nexus-facing wrapper |
-| `.claude/vibe-kit/run-vibe.sh` | `ACTIVE` | Low-level runner |
-| `.claude/vibe-kit/nexus.sh` | `DEPRECATED` | Do not document as required unless recreated |
+## Rate Limit Compliance
 
-## Phases
-
-| Phase | Command | Effect |
-|-------|---------|--------|
-| Plan | `VIBE_PHASE=plan run-vibe.sh SPEC app` | Parse SPEC into queue |
-| Do | `VIBE_PHASE=do run-vibe.sh SPEC app` | Execute pending queue tasks |
-| Verify | `VIBE_PHASE=verify run-vibe.sh SPEC app` | Run generic verification |
-| Full | `run-vibe.sh SPEC app` | Plan, do, verify |
-
-`scripts/vibe.sh --spec SPEC --app app --run` runs plan then do with safe defaults.
+- **5 workers** max (not 15, not 49)
+- Each mclaude call ~2000 tokens prompt → ~300 tokens completion
+- At 500 rpm: 5 workers × 1 call/min each = 5 rpm sustained << 500 rpm
+- Idle loop sleeps 5s between spawn cycles
 
 ## Queue Schema
 
-Required top-level fields:
-
 ```json
 {
-  "spec": "SPEC-ID",
-  "app": "app-name",
-  "total": 0,
-  "pending": 0,
-  "running": 0,
-  "done": 0,
+  "spec": "SPEC-068",
+  "app": "crm-ownership",
+  "total": 24,
+  "pending": 20,
+  "running": 2,
+  "done": 2,
   "failed": 0,
   "frozen": 0,
   "phase": "do",
   "parallel_limit": 5,
-  "tasks": []
+  "tasks": [
+    {
+      "id": "T001",
+      "name": "fix-conversation-manager-trust-ip",
+      "description": "Remove FIXME attack IP as trusted in conversation_manager.py",
+      "app": "crm-ownership",
+      "spec": "SPEC-068",
+      "status": "done",
+      "attempts": 1,
+      "worker": "W1234",
+      "created_at": "2026-04-23T12:00:00Z",
+      "completed_at": "2026-04-23T12:03:45Z",
+      "error": null
+    }
+  ]
 }
 ```
 
-Task fields:
+## Queue Manager Commands
 
-```json
-{
-  "id": "T001",
-  "name": "short-slug",
-  "description": "human task text",
-  "app": "crm-mvp",
-  "spec": "SPEC-ID",
-  "status": "pending",
-  "attempts": 0,
-  "worker": null,
-  "created_at": "ISO-8601",
-  "completed_at": null,
-  "error": null
-}
+| Command | Description |
+|---------|-------------|
+| `queue-manager.py claim <worker_id>` | Atomically claim first pending task |
+| `queue-manager.py complete <task_id> <worker_id> <result>` | Mark task done/failed |
+| `queue-manager.py retry <task_id> <worker_id>` | Reset failed task to pending |
+| `queue-manager.py freeze <task_id>` | Prevent task from being claimed |
+| `queue-manager.py set-limit <N>` | Set parallel_limit in queue header |
+| `queue-manager.py stats` | Return queue statistics |
+
+## Worker Behavior
+
+- Each worker: claim task → run mclaude → mark done/failed → repeat
+- Max task time: 300 seconds (5 min)
+- On failure: retry once, then mark failed
+- Context snippet saved to `$WORKDIR/context/{task_id}.ctx` for debugging
+- Workers tracked via `.running_tasks.json` (no zombie PIDs)
+
+## ZFS Snapshots
+
+- Every 3 tasks completed
+- Before and after run
+- Label format: `vibe-pre-YYYYMMDD-HHMMSS`
+
+## Loop Behavior
+
+```bash
+# Run for 8 hours
+VIBE_HOURS=8 VIBE_PARALLEL=5 run-vibe.sh SPEC-068 crm-ownership
+
+# Run specific phase
+VIBE_PHASE=do run-vibe.sh SPEC-068 crm-ownership
+
+# Resume (queue persists)
+run-vibe.sh SPEC-068 crm-ownership --resume
 ```
 
-`queue-manager.py` validates malformed JSON and wrong `tasks` type as controlled health errors.
+After idle timeout (180s with empty queue), runner exits. Can be restarted — queue.json persists full state.
 
-## Safety Invariants
+## Files
 
-- Queue writes are atomic and locked.
-- Stress tests must default to temporary queues.
-- Automatic commits are disabled by default.
-- ZFS snapshots are disabled by default in safe wrapper mode.
-- Secrets are never printed.
-- Protected infra/deploy tasks are frozen, not guessed.
+| File | Purpose |
+|------|---------|
+| `run-vibe.sh` | Main entry point (replaces nexus.sh + old vibe-kit.sh) |
+| `queue-manager.py` | Atomic queue ops with retry/freeze/set-limit |
+| `pipeline.json` | Config for lead/workers/phases |
+| `state-manager.py` | Event system (in .claude-events/, keep as-is) |
+| `queue.json` | Task queue (created at runtime) |
+| `state.json` | Runner state (created at runtime) |
+| `.running_tasks.json` | Per-cycle worker PID tracking |
+| `context/` | Per-task context snippets |
 
-## Current Verification Baseline
+## Deleted
 
-Validated on 2026-05-01:
+- 9 agent directories (backend/, debug/, deploy/, docs/, frontend/, infra/, monitor/, review/, test/)
+- nexus.sh (PREVC orchestrator, 824 lines)
+- Old buggy vibe-kit.sh (two copies — scripts/vibe/ and .claude/vibe-kit/)
+- stress-test-queue.sh, run-test-worker.sh, cleanup-vibe.sh
+- RETENTION_POLICY.md, archive/, agents/_legacy/, agents/archive/
+- Stale queue JSONs (queue-spec-009.json, queue-auto-deploy.json, etc.)
 
-```text
-smoke-queue-atomic                 PASS
-smoke-context-isolation            PASS
-smoke-multi-cli-detector           PASS
-smoke-multi-cli                    PASS
-smoke-bare-forbidden               PASS
-stress-concurrent                  PASS
-stress-lock-contention             PASS
-stress-corrupt-queue               PASS
-stress-rapid-fire                  PASS
-stress-context-overflow            PASS
-```
+## Bugs Fixed vs Old vibe-kit.sh
 
-Queue real-state hash was unchanged during isolated stress execution.
-
-## Video Recording on Failure
-
-When a worker task fails, the system automatically produces a terminal video recording for post-mortem analysis.
-
-**How it works:**
-- `script(1)` records the full terminal session (typescript + timing file) whenever `VIBE_RECORD` is not `"false"` (default: `true`)
-- On failure detection (`result=failed`), `scripts/typescript-to-video.py` converts the recording to:
-  - `.cast` — asciicast v2 format, replayable with `asciinema play <file>.cast`
-  - `.mp4` — H.264 video, viewable in any video player
-- Output files: `$LOG_DIR/recording-<task_id>.cast` and `$LOG_DIR/recording-<task_id>.mp4`
-- Video production is skipped if `VIBE_RECORD=false` is set
-
-**Converter dependency:** `python3` + `ffmpeg` (with `libx264` encoder). Gracefully degrades if unavailable — typescript is preserved for `scriptreplay`.
-
-## Non-Goals
-
-- Replacing Gitea/Coolify deployment governance.
-- Auto-mutating Cloudflare DNS.
-- Reading real secret files.
-- Running global cron jobs outside this repository.
-- Maintaining a 7 x 7 agent taxonomy as runtime requirement.
+1. **waitpid bug** — old used `wait $pid` inside subshell with implicit exit code loss
+2. **SIGCHLD** — old had no handler, zombies accumulated
+3. **wait -n incompatibility** — old used bash 4.x `wait -n` that fails silently on some shells
+4. **Worker PID tracking** — old used `.worker-pids` file that never got cleaned; new uses `.running_tasks.json`
+5. **pgrep count_workers** — old used `pgrep -f "mclaude.*brain-refactor"` which is too broad; new counts from `.running_tasks.json`

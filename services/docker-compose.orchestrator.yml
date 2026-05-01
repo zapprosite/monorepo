@@ -1,0 +1,28 @@
+# docker-compose.orchestrator.yml
+# SPEC-204 — LangGraph orchestrator with PostgreSQL checkpointing
+version: "3.9"
+
+x-common-env: &common-env
+  COMPOSE_PROJECT_NAME: hermes-orchestrator
+
+services:
+  orchestrator:
+    image: python:3.11-slim
+    container_name: hermes-orchestrator
+    restart: unless-stopped
+    command: >
+      bash -c "pip install --no-cache-dir -r requirements.txt && python main.py"
+    working_dir: /app
+    volumes:
+      - /srv/monorepo/services/orchestrator:/app:rw
+    ports:
+      - "127.0.0.1:8095:8095"
+    environment:
+      - ORCHESTRATOR_PORT=8095
+      - ORCHESTRATOR_DB=${ORCHESTRATOR_DB:-postgresql://crm:crm@10.0.0.4:5432/crm_mvp}
+    networks:
+      - crm-mvp_default
+
+networks:
+  crm-mvp_default:
+    external: true

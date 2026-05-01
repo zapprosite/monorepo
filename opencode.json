@@ -1,0 +1,54 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "filesystem": {
+      "type": "local",
+      "command": ["npx", "-y", "@modelcontextprotocol/server-filesystem", "/home/will"],
+      "enabled": true
+    },
+    "github": {
+      "type": "local",
+      "command": ["npx", "-y", "@modelcontextprotocol/server-github"],
+      "enabled": true
+    },
+    "context7": {
+      "type": "remote",
+      "url": "https://mcp.context7.com/mcp",
+      "enabled": true
+    },
+    "postgres": {
+      "type": "local",
+      "command": ["npx", "-y", "@modelcontextprotocol/server-postgres", "postgresql://postgres:${POSTGRES_PASSWORD}@localhost:5432/postgres"],
+      "enabled": true
+    },
+    "git": {
+      "type": "local",
+      "command": ["uvx", "mcp-server-git"],
+      "enabled": true
+    },
+    "memory-keeper": {
+      "type": "local",
+      "command": ["npx", "-y", "mcp-memory-keeper"],
+      "env": {
+        "DATA_DIR": "/home/will/.mcp-data/memory-keeper",
+        "TOOL_PROFILE": "standard"
+      },
+      "enabled": true
+    },
+    "dotcontext": {
+      "type": "local",
+      "command": ["npx", "-y", "@dotcontext/mcp@latest"],
+      "enabled": true
+    },
+    "qdrant": {
+      "type": "local",
+      "command": ["/home/will/.local/venv-qdrant-mcp/bin/mcp-server-qdrant"],
+      "env": {
+        "QDRANT_URL": "http://localhost:6333",
+        "QDRANT_API_KEY": "${QDRANT_API_KEY}",
+        "COLLECTION_NAME": "hermes_memory"
+      },
+      "enabled": true
+    }
+  }
+}

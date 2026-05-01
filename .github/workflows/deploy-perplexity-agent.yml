@@ -1,0 +1,118 @@
+name: Deploy Perplexity Agent to Coolify (via GitHub Push)
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'apps/perplexity-agent/**'
+  workflow_dispatch:
+
+env:
+  APP_NAME: perplexity-agent
+  HEALTH_URL: https://web.zappro.site/_stcore/health
+  HEALTH_TIMEOUT: 90
+  HEALTH_INTERVAL: 10
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Get APP UUID from Coolify
+        run: |
+          echo "Fetching applications from Coolify..."
+          RESPONSE=$(curl -s "${{ secrets.COOLIFY_URL }}/api/v1/applications" \
+            -H "Authorization: Bearer ${{ secrets.COOLIFY_API_KEY }}")
+
+          echo "Response: $RESPONSE"
+
+          APP_UUID=$(echo "$RESPONSE" | python3 -c "
+import sys,json
+try:
+    data = json.load(sys.stdin)
+    apps = data.get('data', [])
+    for a in apps:
+        name = a.get('name', '').lower()
+        if 'perplexity' in name:
+            print(a.get('uuid', ''))
+            break
+except Exception as e:
+    print(f'Error: {e}', file=sys.stderr)
+    sys.exit(1)
+" 2>&1) || echo "FAILED"
+
+          if [[ "$APP_UUID" == "FAILED" || -z "$APP_UUID" ]]; then
+            echo "Trying alternative search..."
+            APP_UUID=$(echo "$RESPONSE" | python3 -c "
+import sys,json
+try:
+    data = json.load(sys.stdin)
+    apps = data.get('data', [])
+    for a in apps:
+        print(f\"Found: {a.get('name', 'unnamed')} - UUID: {a.get('uuid', 'none')}\", file=sys.stderr)
+    if apps:
+        print(apps[0].get('uuid', ''))
+except Exception as e:
+    print(f'Error: {e}', file=sys.stderr)
+" 2>&1)
+          fi
+
+          [[ -z "$APP_UUID" ]] && { echo "❌ Could not find perplexity-agent UUID"; exit 1; }
+          echo "App UUID: $APP_UUID"
+          echo "app_uuid=$APP_UUID" >> $GITHUB_ENV
+
+      - name: Trigger Deploy
+        run: |
+          echo "Triggering deploy for UUID: ${{ env.app_uuid }}"
+          RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
+            "${{ secrets.COOLIFY_URL }}/api/v1/applications/${{ env.app_uuid }}/deploy" \
+            -H "Authorization: Bearer ${{ secrets.COOLIFY_API_KEY }}" \
+            -H "Content-Type: application/json" \
+            -d '{"pull_request_id": "main"}')
+
+          HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
+          BODY=$(echo "$RESPONSE" | head -n-1)
+          echo "HTTP Code: $HTTP_CODE"
+          echo "Response: $BODY"
+
+          [[ "$HTTP_CODE" != "200" && "$HTTP_CODE" != "201" ]] && { echo "❌ Deploy failed (HTTP $HTTP_CODE)"; exit 1; }
+          echo "✅ Deploy triggered"
+
+      - name: Wait for Deploy
+        run: |
+          ELAPSED=0
+          echo "Waiting for app to be healthy..."
+          while [[ $ELAPSED -lt $HEALTH_TIMEOUT ]]; do
+            STATUS=$(curl -s "${{ secrets.COOLIFY_URL }}/api/v1/applications/${{ env.app_uuid }}" \
+              -H "Authorization: Bearer ${{ secrets.COOLIFY_API_KEY }}" | \
+              python3 -c "import sys,json; print(json.load(sys.stdin).get('status',''))" 2>/dev/null || echo "unknown")
+
+            echo "[$ELAPSED s] Status: $STATUS"
+            case "$STATUS" in
+              running|idle) echo "✅ Deploy successful!"; exit 0 ;;
+              degraded|down|stopped) echo "⚠️ App is $STATUS"; sleep 10 ;;
+              unknown|"") echo "Waiting for status..." ;;
+            esac
+
+            sleep $HEALTH_INTERVAL
+            ELAPSED=$((ELAPSED + HEALTH_INTERVAL))
+          done
+          echo "❌ Deploy timeout (${HEALTH_TIMEOUT}s)"
+          exit 1
+
+      - name: Smoke Test
+        run: |
+          echo "Running smoke test against $HEALTH_URL"
+          ELAPSED=0
+          while [[ $ELAPSED -lt $HEALTH_TIMEOUT ]]; do
+            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 15 "$HEALTH_URL" 2>/dev/null || echo "000")
+            [[ "$HTTP_CODE" == "200" ]] && { echo "✅ Smoke Test PASSED (HTTP $HTTP_CODE, ${ELAPSED}s)"; exit 0; }
+            echo "[$ELAPSED s] Health check: HTTP $HTTP_CODE"
+            sleep $HEALTH_INTERVAL
+            ELAPSED=$((ELAPSED + HEALTH_INTERVAL))
+          done
+          echo "❌ Smoke Test FAILED"
+          exit 1

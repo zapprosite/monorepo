@@ -1,0 +1,3 @@
+infisical-sdk
+langchain-openai
+browser-use

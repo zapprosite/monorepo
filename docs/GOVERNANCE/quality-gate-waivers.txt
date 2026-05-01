@@ -1,8 +1,0 @@
-# Temporary waivers for scripts/quality-gates.sh.
-# Format:
-#   compose-healthcheck <path> <service> <reason>
-#
-# Waivers must link to SPEC-205 until each service gets a real healthcheck
-# or is reclassified as a non-service job/container.
-
-compose-healthcheck services/docker-compose.gitea-runner.yml gitea-runner SPEC-205: runner job container, endpoint TBD

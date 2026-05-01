@@ -1,0 +1,28 @@
+# Logs
+logs/
+*.log
+
+# State files (generated at runtime)
+state.json
+events.jsonl
+
+# Temp files
+*.tmp
+*.swp
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+*.so
+
+# Virtual environments
+.env
+.venv
+venv/

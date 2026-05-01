@@ -1,35 +1,22 @@
-## Summary
+## Description
+Provide a brief summary of the changes and the rationale behind them.
 
-What changed and why?
+## Type of Change
+- [ ] Bug fix (non-breaking change which fixes an issue)
+- [ ] New feature (non-breaking change which adds functionality)
+- [ ] Breaking change (fix or feature that would cause existing functionality to not work as expected)
+- [ ] Chore (refactoring, dependencies, etc)
 
-## Change Class
+## How Has This Been Tested?
+Please describe the tests that you ran to verify your changes.
 
-- [ ] Docs/governance
-- [ ] Application/package
-- [ ] Dependency
-- [ ] Infra config
-- [ ] Runtime behavior
-- [ ] Security/secrets
+- [ ] Automated Tests (list them)
+- [ ] Manual Verification (screenshots/recordings attached)
 
-## SRE Review
-
-- Blast radius:
-- Rollback plan:
-- Services touched:
-- State touched:
-- Public exposure touched:
-
-## Required Checks
-
-- [ ] `bash scripts/quality-gates.sh`
-- [ ] `PLACEHOLDER_DEBT_ENFORCE=1 bash scripts/quality-gates.sh`
-- [ ] Focused typecheck/build for affected workspace
-- [ ] `scripts/sre-markdown-report.sh --dry-run` when SRE docs/reporting changed
-
-## Safety Checklist
-
-- [ ] No `.env`, secrets, data, logs, Qdrant storage, or database files included.
-- [ ] No hardcoded secrets or secret values in logs/docs.
-- [ ] Ports/domains/tunnels/runtime changes are either not touched or explicitly approved.
-- [ ] Service catalog and risk register are updated when operational ownership or risk changes.
-- [ ] Rollback is documented for non-doc changes.
+## Checklist:
+- [ ] My code follows the style guidelines of this project
+- [ ] I have performed a self-review of my own code
+- [ ] I have commented my code, particularly in hard-to-understand areas
+- [ ] My changes generate no new warnings
+- [ ] I have added tests that prove my fix is effective or that my feature works
+- [ ] New and existing unit tests pass locally with my changes

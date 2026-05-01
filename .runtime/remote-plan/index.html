@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Plano Proposto - Acesso Remoto Seguro</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0e1116;
+      --panel: #171c24;
+      --panel-2: #202734;
+      --line: #344052;
+      --text: #eef3f8;
+      --muted: #a9b6c7;
+      --accent: #4fd1c5;
+      --warn: #f6ad55;
+      --ok: #68d391;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font: 16px/1.55 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    main {
+      width: min(1040px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 40px 0 56px;
+    }
+
+    header {
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 24px;
+      margin-bottom: 28px;
+    }
+
+    .eyebrow {
+      color: var(--accent);
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 8px 0 10px;
+      font-size: clamp(2rem, 5vw, 3.7rem);
+      line-height: 1.02;
+      letter-spacing: 0;
+    }
+
+    h2 {
+      margin: 0 0 14px;
+      font-size: 1.18rem;
+      letter-spacing: 0;
+    }
+
+    p {
+      margin: 0;
+      color: var(--muted);
+      max-width: 780px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 16px;
+    }
+
+    section {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 20px;
+    }
+
+    .span-7 { grid-column: span 7; }
+    .span-5 { grid-column: span 5; }
+    .span-6 { grid-column: span 6; }
+    .span-12 { grid-column: span 12; }
+
+    ul {
+      margin: 0;
+      padding-left: 1.1rem;
+      color: var(--muted);
+    }
+
+    li + li {
+      margin-top: 8px;
+    }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+
+    pre {
+      margin: 0;
+      padding: 16px;
+      overflow-x: auto;
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      color: var(--text);
+    }
+
+    .pillrow {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .pill {
+      border: 1px solid var(--line);
+      background: var(--panel-2);
+      border-radius: 999px;
+      color: var(--muted);
+      padding: 6px 10px;
+      font-size: 0.88rem;
+    }
+
+    .ok { color: var(--ok); }
+    .warn { color: var(--warn); }
+
+    @media (max-width: 760px) {
+      main {
+        width: min(100vw - 24px, 1040px);
+        padding-top: 24px;
+      }
+
+      .span-7,
+      .span-5,
+      .span-6,
+      .span-12 {
+        grid-column: span 12;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div class="eyebrow">Homelab will-zappro</div>
+      <h1>Plano proposto para acesso remoto seguro</h1>
+      <p>
+        Objetivo: acessar a tela do Ubuntu Desktop remotamente sem expor desktop,
+        VNC, RDP, noVNC ou portas sensíveis em subdomínio público aberto.
+      </p>
+      <div class="pillrow" aria-label="Decisões principais">
+        <span class="pill ok">Tailscale privado</span>
+        <span class="pill ok">RustDesk</span>
+        <span class="pill">Sem DNS novo</span>
+        <span class="pill warn">Link público só para este plano</span>
+      </div>
+    </header>
+
+    <div class="grid">
+      <section class="span-7">
+        <h2>Arquitetura recomendada</h2>
+        <pre>Cliente remoto
+  |
+  v
+Tailscale VPN
+  |
+  v
+Host Ubuntu Desktop
+  |
+  v
+RustDesk com Direct IP</pre>
+      </section>
+
+      <section class="span-5">
+        <h2>Regra de segurança</h2>
+        <ul>
+          <li>Nao publicar espelhamento de tela direto no Cloudflare.</li>
+          <li>Nao abrir VNC, RDP, noVNC ou Chrome debugging na Internet.</li>
+          <li>Manter acesso real restrito a Tailscale.</li>
+          <li>Usar Cloudflare apenas para apps/documentacao protegida.</li>
+        </ul>
+      </section>
+
+      <section class="span-6">
+        <h2>Implementação</h2>
+        <ul>
+          <li>Usar o projeto existente <code>pc-cel/rustdesk-ubuntu-247</code>.</li>
+          <li>Validar Tailscale autenticado e host online.</li>
+          <li>Garantir RustDesk instalado, rodando e com autostart.</li>
+          <li>Ativar Direct IP no RustDesk.</li>
+          <li>Liberar a porta do RustDesk apenas na interface Tailscale.</li>
+        </ul>
+      </section>
+
+      <section class="span-6">
+        <h2>Critérios de sucesso</h2>
+        <ul>
+          <li>Cliente remoto vê o host na tailnet.</li>
+          <li>RustDesk aceita conexão via rede privada.</li>
+          <li>Senha permanente configurada fora desta página.</li>
+          <li>Nenhum subdomínio novo criado para tela.</li>
+          <li>Nenhuma porta de desktop aberta publicamente.</li>
+        </ul>
+      </section>
+
+      <section class="span-12">
+        <h2>Comandos de validação no host</h2>
+        <pre>tailscale status
+tailscale ip -4
+rustdesk --get-id
+pgrep -a rustdesk
+ss -tulnp | grep 21118
+sudo ufw status verbose</pre>
+      </section>
+    </div>
+  </main>
+</body>
+</html>

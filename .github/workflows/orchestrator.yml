@@ -1,0 +1,103 @@
+name: Orchestrator
+
+on:
+  workflow_dispatch:
+    inputs:
+      spec_file:
+        description: 'SPEC file path (e.g., SPEC-042)'
+        required: true
+        type: string
+      spec_description:
+        description: 'Feature description'
+        required: true
+        type: string
+
+jobs:
+  spec:
+    name: Create SPEC
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create SPEC
+        run: |
+          claude --print "$(cat <<'EOF'
+          Create a SPEC file for: ${{ inputs.spec_description }}
+
+          Create the file at: docs/SPECS/SPEC-${{ inputs.spec_file }}.md
+
+          Use the SPEC-TEMPLATE.md format. Focus on:
+          1. Clear objective and tech stack
+          2. Acceptance criteria
+          3. Files to modify
+          4. Non-goals and boundaries
+          EOF
+          )"
+
+      - name: Upload SPEC artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: spec-file
+          path: docs/SPECS/SPEC-${{ inputs.spec_file }}.md
+
+  agents:
+    name: Run 14 Agents
+    runs-on: ubuntu-latest
+    needs: spec
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download SPEC
+        uses: actions/download-artifact@v4
+        with:
+          name: spec-file
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate pipeline
+        run: claude --print "/pg"
+
+      - name: Run 14 agents
+        run: |
+          bash .claude/skills/orchestrator/scripts/run-agents.sh \
+            "docs/SPECS/SPEC-${{ inputs.spec_file }}.md"
+
+      - name: Wait for completion
+        run: |
+          bash .claude/skills/orchestrator/scripts/wait-for-completion.sh
+
+      - name: Upload agent logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent-logs
+          path: .claude/skills/orchestrator/logs/
+
+  pr:
+    name: Create PR
+    runs-on: ubuntu-latest
+    needs: agents
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create PR
+        env:
+          GITEA_TOKEN: ${{ secrets.GITEA_TOKEN }}
+        run: |
+          claude --agent "/turbo"
+
+      - name: Verify PR
+        run: |
+          echo "PR created. Check Gitea at https://git.zappro.site/"

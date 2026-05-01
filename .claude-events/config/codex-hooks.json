@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "EVENT_DIR=/home/will/.claude/events EVENT_TYPE=TOOL_CALL bash /home/will/.claude/events/event-emit.sh tool=${tool_name}"
+          }
+        ]
+      }
+    ]
+  }
+}

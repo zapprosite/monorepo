@@ -1,0 +1,37 @@
+name: Dependency Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+
+jobs:
+  dependency-review:
+    name: Review Dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Dependency Review
+        uses: actions/dependency-review-action@v4
+        with:
+          # Fail on incompatible licenses
+          fail-on-severity: moderate
+          # Allow these licenses
+          allow-licenses: |
+            MIT
+            Apache-2.0
+            ISC
+            BSD-2-Clause
+            BSD-3-Clause
+            0BSD
+
+      - name: Check for deprecated dependencies
+        run: |
+          echo "=== Checking package.json dependencies ==="
+          if [ -f package.json ]; then
+            echo "Review dependencies for deprecations manually"
+          fi

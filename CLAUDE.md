@@ -58,7 +58,7 @@ This monorepo powers **zappro.site** — a self-hosted AI platform with:
 | `cat HARDWARE_HIERARCHY.md` | **START HERE** — Full infrastructure map |
 | `cat ops/HOMELAB.md` | Source of truth for homelab |
 | `cat ops/ai-governance/PORTS.md` | Port governance |
-| `cat docs/GOVERNANCE/CONTRACT.md` | Security rules |
+| `cat ops/ai-governance/CONTRACT.md` | Security rules |
 | `nexus.sh --status` | Nexus framework status |
 | `nexus.sh --mode debug` | List debug agents |
 
@@ -85,7 +85,7 @@ biome check .
 
 ## 🔐 Security Rules
 
-**⚠️ Authoritative security rules:** `/srv/monorepo/docs/GOVERNANCE/CONTRACT.md` and `/srv/monorepo/docs/GOVERNANCE/GUARDRAILS.md`
+**⚠️ Authoritative security rules:** `/srv/ops/ai-governance/CONTRACT.md` and `GUARDRAILS.md`
 
 ### ✅ Safe (No Approval Needed)
 - Read-only operations (logs, status, inspection)

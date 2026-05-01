@@ -1,0 +1,14 @@
+{
+  "assignee": null,
+  "claim_note": "",
+  "claimed_at": null,
+  "created_at": "2026-04-25T17:17:06.416151Z",
+  "depends_on": [],
+  "epic": "fn-1-spec-flow-001-flow-next-integration",
+  "id": "fn-1-spec-flow-001-flow-next-integration.1",
+  "priority": null,
+  "spec_path": ".flow/tasks/fn-1-spec-flow-001-flow-next-integration.1.md",
+  "status": "todo",
+  "title": "Task 1: Setup Flow-Next Plugin",
+  "updated_at": "2026-04-25T17:17:06.416157Z"
+}

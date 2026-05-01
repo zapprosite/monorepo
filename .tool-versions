@@ -1,0 +1,7 @@
+# tool-versions — Enterprise Template
+# Managed by mise (https://mise.jdx.dev)
+# Do not edit manually — use `mise install` to update
+
+node 22.22.2
+pnpm 9.0.6
+bun 1.x

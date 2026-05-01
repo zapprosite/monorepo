@@ -1,0 +1,261 @@
+name: Rollback
+
+# Manual rollback workflow — triggered by an operator via workflow_dispatch.
+# Use this when a deployment is broken and needs to be reverted to a
+# previous known-good state.
+on:
+  workflow_dispatch:
+    inputs:
+      app_name:
+        description: 'Application name to rollback'
+        required: true
+        type: choice
+        options:
+          - monorepo-web
+          - perplexity-agent
+          - backend
+          - frontend
+      deployment_id:
+        description: 'Specific deployment ID to restore (optional — defaults to previous deployment)'
+        required: false
+        type: string
+      reason:
+        description: 'Reason for rollback (required — document for audit trail)'
+        required: true
+        type: string
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - production
+          - staging
+          - preview
+
+env:
+  COOLIFY_URL: ${{ secrets.COOLIFY_URL }}
+  COOLIFY_API_KEY: ${{ secrets.COOLIFY_API_KEY }}
+  HEALTH_TIMEOUT: 90
+  HEALTH_INTERVAL: 10
+
+jobs:
+  rollback:
+    name: Rollback ${{ inputs.app_name }} → ${{ inputs.environment }}
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate inputs
+        run: |
+          echo "=== Rollback Request ==="
+          echo "App:         ${{ inputs.app_name }}"
+          echo "Environment: ${{ inputs.environment }}"
+          echo "Reason:      ${{ inputs.reason }}"
+          echo "Deploy ID:   ${{ inputs.deployment_id || 'auto (previous)' }}"
+          echo ""
+          if [[ -z "${{ inputs.reason }}" ]]; then
+            echo "ERROR: reason is required"
+            exit 1
+          fi
+
+      - name: Map app name to Coolify application UUID
+        env:
+          COOLIFY_URL: ${{ secrets.COOLIFY_URL }}
+          COOLIFY_API_KEY: ${{ secrets.COOLIFY_API_KEY }}
+        id: app-uuid
+        run: |
+          APP_NAME_LOWER="${{ inputs.app_name }}"
+
+          # Build a mapping of app names to UUIDs from Coolify
+          echo "Fetching applications from Coolify..."
+          APP_LIST=$(curl -s "$COOLIFY_URL/api/v1/applications" \
+            -H "Authorization: Bearer $COOLIFY_API_KEY")
+
+          echo "Available applications:"
+          echo "$APP_LIST" | python3 -c "
+import sys,json
+data=json.load(sys.stdin)
+for a in data.get('data',[]):
+    name = a.get('name','')
+    uuid = a.get('uuid','')
+    print(f'  - {name} ({uuid})')
+" 2>/dev/null
+
+          # Match by app_name input
+          APP_UUID=$(echo "$APP_LIST" | python3 -c "
+import sys,json
+data=json.load(sys.stdin)
+name = '$APP_NAME_LOWER'.lower()
+for a in data.get('data',[]):
+    if name in a.get('name','').lower():
+        print(a.get('uuid',''))
+        break
+" 2>/dev/null || echo "")
+
+          if [[ -z "$APP_UUID" ]]; then
+            echo "ERROR: Could not find application '$APP_NAME_LOWER' in Coolify"
+            exit 1
+          fi
+
+          echo "Found application UUID: $APP_UUID"
+          echo "app_uuid=$APP_UUID" >> $GITEA_OUTPUT
+
+      - name: Get deployment history
+        env:
+          COOLIFY_URL: ${{ secrets.COOLIFY_URL }}
+          COOLIFY_API_KEY: ${{ secrets.COOLIFY_API_KEY }}
+        run: |
+          echo "Fetching recent deployments..."
+          DEPLOYMENTS=$(curl -s \
+            "$COOLIFY_URL/api/v1/applications/${{ env.app_uuid }}/deployments" \
+            -H "Authorization: Bearer $COOLIFY_API_KEY")
+
+          echo "Recent deployments:"
+          echo "$DEPLOYMENTS" | python3 -c "
+import sys,json
+data=json.load(sys.stdin)
+for i, d in enumerate(data.get('data',[])[:10]):
+    commit = d.get('commit','')[:8]
+    status = d.get('status','')
+    created = d.get('created_at','')[:19]
+    dep_id = d.get('id','')
+    print(f'  {i}: id={dep_id} commit={commit} status={status} created={created}')
+" 2>/dev/null
+
+      - name: Determine rollback target
+        env:
+          COOLIFY_URL: ${{ secrets.COOLIFY_URL }}
+          COOLIFY_API_KEY: ${{ secrets.COOLIFY_API_KEY }}
+        id: rollback-target
+        run: |
+          if [[ -n "${{ inputs.deployment_id }}" ]]; then
+            TARGET_DEPLOYMENT_ID="${{ inputs.deployment_id }}"
+            echo "Using explicitly specified deployment ID: $TARGET_DEPLOYMENT_ID"
+          else
+            # Default: roll back to the previous (second-most-recent) deployment
+            DEPLOYMENTS=$(curl -s \
+              "$COOLIFY_URL/api/v1/applications/${{ env.app_uuid }}/deployments" \
+              -H "Authorization: Bearer $COOLIFY_API_KEY")
+
+            TARGET_DEPLOYMENT_ID=$(echo "$DEPLOYMENTS" | python3 -c "
+import sys,json
+data=json.load(sys.stdin)
+deploys=data.get('data',[])
+if len(deploys) > 1:
+    print(deploys[1].get('id',''))
+" 2>/dev/null || echo "")
+
+            PREV_COMMIT=$(echo "$DEPLOYMENTS" | python3 -c "
+import sys,json
+data=json.load(sys.stdin)
+deploys=data.get('data',[])
+if len(deploys) > 1:
+    print(deploys[1].get('commit','')[:8])
+" 2>/dev/null || echo "")
+
+            echo "Auto-selected previous deployment ID: $TARGET_DEPLOYMENT_ID (commit $PREV_COMMIT)"
+          fi
+
+          if [[ -z "$TARGET_DEPLOYMENT_ID" ]]; then
+            echo "ERROR: Could not determine rollback target"
+            exit 1
+          fi
+
+          echo "rollback_deployment_id=$TARGET_DEPLOYMENT_ID" >> $GITEA_OUTPUT
+
+      - name: Execute rollback
+        env:
+          COOLIFY_URL: ${{ secrets.COOLIFY_URL }}
+          COOLIFY_API_KEY: ${{ secrets.COOLIFY_API_KEY }}
+        run: |
+          echo "Initiating rollback of deployment ${{ env.rollback_deployment_id }}..."
+          RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
+            "$COOLIFY_URL/api/v1/applications/${{ env.app_uuid }}/deploy" \
+            -H "Authorization: Bearer $COOLIFY_API_KEY" \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"deployment_id\": \"${{ env.rollback_deployment_id }}\",
+              \"environment_name\": \"${{ inputs.environment }}\",
+              \"commit_message\": \"Rollback: ${{ inputs.reason }}\"
+            }")
+
+          HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
+          BODY=$(echo "$RESPONSE" | head -n-1)
+
+          if [[ "$HTTP_CODE" != "200" && "$HTTP_CODE" != "201" ]]; then
+            echo "ERROR: Rollback request failed (HTTP $HTTP_CODE)"
+            echo "Response: $BODY"
+            exit 1
+          fi
+
+          echo "Rollback triggered successfully (HTTP $HTTP_CODE)"
+
+      - name: Wait for rollback to complete
+        env:
+          COOLIFY_URL: ${{ secrets.COOLIFY_URL }}
+          COOLIFY_API_KEY: ${{ secrets.COOLIFY_API_KEY }}
+        run: |
+          ELAPSED=0
+          echo "Waiting for application to become healthy after rollback..."
+          while [[ $ELAPSED -lt $HEALTH_TIMEOUT ]]; do
+            STATUS=$(curl -s "$COOLIFY_URL/api/v1/applications/${{ env.app_uuid }}" \
+              -H "Authorization: Bearer $COOLIFY_API_KEY" | \
+              python3 -c "import sys,json; print(json.load(sys.stdin).get('status',''))" 2>/dev/null || echo "unknown")
+
+            echo "[${ELAPSED}s] Status: $STATUS"
+
+            case "$STATUS" in
+              running|idle)
+                echo "Rollback verified — application is healthy!"
+                exit 0
+                ;;
+              degraded|stopped)
+                echo "WARNING: Application is $STATUS after rollback"
+                ;;
+              *)
+                echo "Status: $STATUS — waiting..."
+                ;;
+            esac
+
+            sleep $HEALTH_INTERVAL
+            ELAPSED=$((ELAPSED + HEALTH_INTERVAL))
+          done
+
+          echo "ERROR: Rollback verification timeout after ${HEALTH_TIMEOUT}s"
+          exit 1
+
+      - name: Smoke test after rollback
+        run: |
+          ELAPSED=0
+          HEALTH_URL="https://web.zappro.site/_stcore/health"
+          echo "Running smoke test against $HEALTH_URL..."
+          while [[ $ELAPSED -lt 60 ]]; do
+            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 "$HEALTH_URL" 2>/dev/null || echo "000")
+            if [[ "$HTTP_CODE" == "200" ]]; then
+              echo "Smoke Test PASSED (HTTP 200 after ${ELAPSED}s)"
+              exit 0
+            fi
+            echo "[${ELAPSED}s] Health check: HTTP $HTTP_CODE"
+            sleep 5
+            ELAPSED=$((ELAPSED + 5))
+          done
+          echo "Smoke Test FAILED"
+          exit 1
+
+      - name: Rollback summary
+        if: always()
+        run: |
+          echo "=== Rollback Summary ==="
+          echo "App:         ${{ inputs.app_name }}"
+          echo "Environment: ${{ inputs.environment }}"
+          echo "Reason:      ${{ inputs.reason }}"
+          echo "Deploy ID:   ${{ env.rollback_deployment_id }}"
+          echo "Result:      ${{ job.status }}"
+          echo ""
+          echo "Audit log:"
+          echo "  - Rollback initiated by: ${{ gitea.actor }}"
+          echo "  - Workflow run: https://git.zappro.site/${{ gitea.repository }}/actions/runs/${{ gitea.run_id }}"

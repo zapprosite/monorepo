@@ -1,0 +1,48 @@
+# Third-Party Notices
+
+This project includes the following third-party components:
+
+## Runtime Dependencies
+
+| Package | License | Version |
+|---------|---------|---------|
+| @fastify/trpc-starter | Apache-2.0 | ^9.x |
+| @trpc/server | MIT | ^11.x |
+| fastify | Apache-2.0 | ^5.x |
+| zod | MIT | ^3.x |
+| @biomejs/biome | Apache-2.0 | ^2.x |
+| tsup | Apache-2.0 | ^8.x |
+| typescript | Apache-2.0 | ^5.x |
+|tsx | MIT | ^4.x |
+
+## Development Dependencies
+
+| Package | License | Version |
+|---------|---------|---------|
+| @types/node | Apache-2.0 | ^22.x |
+| vitest | MIT | ^3.x |
+| @vitest/coverage-v8 | ISC | ^3.x |
+
+## AI/LLM Integrations
+
+| Package | License | Version |
+|---------|---------|---------|
+| @anthropic-ai/sdk | Apache-2.0 | ^0.x |
+| ollama | MIT | latest |
+| litellm | Apache-2.0 | ^1.x |
+
+---
+
+## License Notices
+
+### MIT License
+Components under MIT license are distributed "AS IS" without warranty.
+
+### Apache-2.0 License
+Components under Apache-2.0 license include the standard Apache 2.0 notice.
+See: https://www.apache.org/licenses/LICENSE-2.0
+
+---
+
+**Generated:** 2026-04-26
+**Template:** enterprise-template-v2

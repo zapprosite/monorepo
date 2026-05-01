@@ -11,8 +11,8 @@
 This file describes the approved target split for the homelab. Operational detail lives in:
 
 - [Target Architecture](docs/ARCHITECTURE/HOMELAB-TARGET-ARCHITECTURE-2026-04.md)
-- [Deployment Boundaries](docs/GOVERNANCE/DEPLOYMENT-BOUNDARIES.md)
-- [Security Checklist](docs/GOVERNANCE/HOMELAB-SECURITY-CHECKLIST.md)
+- [Deployment Boundaries](docs/REFERENCE/DEPLOYMENT-BOUNDARIES.md)
+- [Security Checklist](docs/REFERENCE/HOMELAB-SECURITY-CHECKLIST.md)
 - [Ports Registry](ops/ai-governance/PORTS.md)
 
 ---
@@ -146,15 +146,15 @@ This summary is not a replacement for [ops/ai-governance/PORTS.md](ops/ai-govern
 | Coolify panel/proxy | 8000, 8080, 6001, 6002 | INTERNAL, CORE_INFRA, COOLIFY | `coolify.zappro.site` documented. |
 | LiteLLM | 4000, 3334 | INTERNAL, CORE_INFRA | `api.zappro.site` documented; `llm.zappro.site` belongs to `ai-gateway` until PORTS/SUBDOMAINS are reconciled. |
 | ai-gateway | 4002 | PUBLIC, INTERNAL | `llm.zappro.site` documented as OpenAI-compatible facade; auth required. |
-| Qdrant | 6333, 6334 | PRIVATE, CORE_INFRA | Any public domain requires removal or Cloudflare Access protection through an approved change. |
-| Postgres | UNKNOWN | PRIVATE, CORE_INFRA | Verify canonical core Postgres binding before documenting a port or domain. |
+| Qdrant | 6333, 6334 | PRIVATE, CORE_INFRA | Any public domain is a TODO to remove or Access-protect. |
+| Postgres | UNKNOWN | PRIVATE, CORE_INFRA | TODO: verify canonical core Postgres binding. |
 | Redis | 6379, 6381 | PRIVATE, CORE_INFRA | No public domain. |
 | Gitea | 3300, 2222 | INTERNAL, CORE_INFRA | `git.zappro.site` documented. |
 | Hermes Gateway | 8642 | INTERNAL, BARE_METAL | `hermes.zappro.site` remains active via loopback tunnel and must be protected by Cloudflare Access. |
 | Hermes MCP | 8092 | PRIVATE, BARE_METAL | No public domain. |
 | Ollama | 11434 | PRIVATE, BARE_METAL | No public domain. |
 | Grafana/dashboard | 3100 | INTERNAL | `monitor.zappro.site` documented. |
-| Public web apps | 4080, 4081 | PUBLIC, COOLIFY | `list.zappro.site`, `md.zappro.site` documented. |
+| Public web apps | 4080, 4081, 4082 | PUBLIC, COOLIFY | `list.zappro.site`, `md.zappro.site`, `todo.zappro.site` documented. |
 
 ---
 
@@ -183,16 +183,16 @@ All changes must follow:
 2. Check `/srv/ops/ai-governance/PORTS.md` before assigning ports.
 3. Check `/srv/ops/ai-governance/SUBDOMAINS.md` before adding public names.
 4. Snapshot stateful data before risky operations.
-5. Keep apps, infra, and runtime boundaries aligned with [Deployment Boundaries](docs/GOVERNANCE/DEPLOYMENT-BOUNDARIES.md).
+5. Keep apps, infra, and runtime boundaries aligned with [Deployment Boundaries](docs/REFERENCE/DEPLOYMENT-BOUNDARIES.md).
 
 ---
 
-## Open Items / UNKNOWN
+## TODO / UNKNOWN
 
 | Item | Status |
 |------|--------|
 | Canonical core Postgres port/domain | UNKNOWN |
 | Exact active Coolify panel binding | UNKNOWN; existing docs mention both 8000 and 8080 states |
 | Final Cloudflare Access policy per subdomain | Hermes decision recorded: keep `hermes.zappro.site` and require Cloudflare Access |
-| Public Qdrant exposure | Target is PRIVATE; any existing public route requires approved removal or Access protection |
-| Dashboard exposure policy | Classify each dashboard as PUBLIC, INTERNAL, or PRIVATE before route changes |
+| Public Qdrant exposure | TODO: target is PRIVATE; any existing public route must be removed or Access-protected |
+| Dashboard exposure policy | TODO: classify each dashboard as PUBLIC, INTERNAL, or PRIVATE |
