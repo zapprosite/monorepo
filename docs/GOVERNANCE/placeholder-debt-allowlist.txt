@@ -1,0 +1,71 @@
+# Allowlist for scripts/quality-gates.sh placeholder debt scan.
+# Format: one Bash regex per line, matched against "path:line:text".
+# Keep this limited to false positives and controlled status vocabulary.
+
+# SPEC-206 is the classification source for this debt cleanup pass.
+^\./docs/SPECS/SPEC-206-placeholder-debt-cleanup\.md:
+^\./docs/SPECS/SPEC-024-UNIFIED-CLAUDE-AGENT-MONOREPO\.md:
+^\./docs/SPECS/SPEC-028-swarm-mvp-wiring-fixes\.md:
+^\./docs/SPECS/SPEC-029-library-audit\.md:
+^\./docs/SPECS/SPEC-202-hermes-second-brain-systemd\.md:
+^\./docs/SPECS/SPEC-204\.md:
+^\./docs/SPECS/SPEC-205-homelab-awakening-gap-audit\.md:
+^\./docs/GOVERNANCE/placeholder-debt-allowlist\.txt:
+^\./docs/GOVERNANCE/INDEX\.md:
+^\./docs/GOVERNANCE/COMMIT-READINESS\.md:
+^\./docs/GOVERNANCE/LEGACY-PRUNE-MANIFEST\.md:
+
+# Service mode vocabulary.
+^\./services/task-queue/task_queue\.py:.*\bJUNIOR\b
+^\./services/api/supervisor_api\.py:.*\bJUNIOR\b
+^\./services/subagents/hermes-supervisor\.sh:.*\bJUNIOR\b
+
+# UI placeholder prop and examples.
+^\./packages/ui/src/rhf-form/RhfSelect\.tsx:.*\bplaceholder\b
+^\./packages/ui/CLAUDE\.md:.*\bplaceholder\b
+
+# Detector and quality-gate vocabulary.
+^\./scripts/nexus-legacy-detector\.sh:
+^\./scripts/nexus-code-scanner\.sh:
+^\./scripts/nexus-cron-legacy\.sh:
+^\./scripts/quality-gates\.sh:
+^\./scripts/docs-stale-check\.sh:
+^\./scripts/cursor-loop-refactor\.sh:
+^\./scripts/bootstrap-crm-mvp\.sh:.*placeholder:text-text-muted
+
+# Governance lifecycle/status vocabulary.
+^\./docs/GOVERNANCE/DATABASE_GOVERNANCE\.md:
+^\./docs/GOVERNANCE/DB_HISTORY\.md:
+^\./docs/GOVERNANCE/NEXUS-STANDARDS\.md:
+^\./docs/GOVERNANCE/NEXUS-AUDIT\.md:
+^\./docs/GOVERNANCE/NEXUS-MONITORING\.md:
+^\./docs/GOVERNANCE/NEXUS-VIBEKIT-ARCHITECTURE\.md:
+^\./docs/GOVERNANCE/VIBEKIT-AUDIT\.md:
+^\./docs/GOVERNANCE/DEPLOYMENT-BOUNDARIES\.md:
+^\./docs/GOVERNANCE/ADR-TEMPLATE\.md:
+^\./docs/GOVERNANCE/ANTI-FRAGILITY\.md:
+^\./docs/GOVERNANCE/CODEX-RESEARCH\.md:
+^\./docs/SPECS/INDEX\.md:
+
+# Security and template docs that discuss safe placeholder/mock patterns.
+^\./docs/GOVERNANCE/SECRETS_POLICY\.md:
+^\./docs/GOVERNANCE/env-management\.md:
+^\./docs/GOVERNANCE/INFISICAL-SDK-PATTERN\.md:
+^\./docs/GOVERNANCE/TEMPLATE\.md:
+^\./docs/GOVERNANCE/SKILLS/litellm-health-check\.md:
+^\./docs/GOVERNANCE/SKILLS/openclaw-agents-kit/GOVERNANCE-TEMPLATE\.md:
+^\./docs/GOVERNANCE/SKILLS/openclaw-agents-kit/openclaw-config-template\.md:
+^\./docs/SPECS/SPEC-030-stripe-v80-v84-migration\.md:
+^\./docs/VOICE-PIPELINE\.md:
+
+# Portuguese "todo" meaning every/all, not TODO debt.
+^\./docs/GOVERNANCE/WORKFLOW\.md:
+^\./docs/GOVERNANCE/SECRETS-MANDATE\.md:
+^\./docs/GOVERNANCE/INCIDENTS\.md:
+^\./docs/GOVERNANCE/TRIEVE-DR\.md:
+^\./docs/GOVERNANCE/guide\.md:
+
+# Completed acceptance criteria and command vocabulary.
+^\./docs/GOVERNANCE/tasks\.md:
+^\./docs/GOVERNANCE/CANVAS-CURSOR-LOOP\.md:
+^\./docs/GOVERNANCE/CLI-SHORTCUTS\.md:
