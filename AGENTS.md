@@ -49,7 +49,7 @@ Agents may read code, docs, skills, and libs. Must not access:
 - `.env`, `secrets/`, `data/`, `logs/`, `qdrant_storage/`, `*.db`, `*.sqlite`
 
 **Environment variables:** Read `.env.example` to know what variables exist. Real values only in `/srv/monorepo/.env` (gitignored).
-See `docs/REFERENCE/NEXUS-SECOND-BRAIN-FLOW.md` for memory integration.
+See `docs/GOVERNANCE/NEXUS-SECOND-BRAIN-FLOW.md` for memory integration.
 
 ## Read Before Infra Changes
 
@@ -59,7 +59,7 @@ Before changing infrastructure, deployment, ports, domains, service boundaries, 
 - `ops/HOMELAB.md`
 - `ops/ai-governance/PORTS.md`
 - `ops/ai-governance/SUBDOMAINS.md`
-- `docs/REFERENCE/DEPLOYMENT-BOUNDARIES.md`
+- `docs/GOVERNANCE/DEPLOYMENT-BOUNDARIES.md`
 
 ## Security & Environment Variables
 

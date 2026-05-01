@@ -23,9 +23,9 @@ services:
       SECRET_KEYS: "OPENCLAW_GATEWAY_TOKEN,OPENCLAW_USER,OPENCLAW_PASSWORD"
       # Fallback dev only
       OPENCLAW_BASE_URL: "${OPENCLAW_BASE_URL:-http://10.0.19.4:8080}"
-      OPENCLAW_TOKEN: "${OPENCLAW_GATEWAY_TOKEN:-7NRPHyoSK2uLLKhE0T5GACeCRiBTOjCCPzHr3879Zx8f9WqiJLodZyU17D5uqlyn}"
-      OPENCLAW_USER: "${OPENCLAW_USER:-1ISYL3h3sEIvowWx}"
-      OPENCLAW_PASSWORD: "${OPENCLAW_PASSWORD:-yRMLBtfhbaWLGXi24yJuTBE3WZGf782B}"
+      OPENCLAW_TOKEN: "${OPENCLAW_GATEWAY_TOKEN:-}"
+      OPENCLAW_USER: "${OPENCLAW_USER:-}"
+      OPENCLAW_PASSWORD: "${OPENCLAW_PASSWORD:-}"
     healthcheck:
       test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:3457/health')"]
       interval: 30s
@@ -62,9 +62,9 @@ services:
       # Bridge agent points to openclaw-mcp-wrapper via container name (both on host and wbmqefx networks)
       OPENCLAW_BASE_URL: "http://openclaw-mcp-wrapper:3457"
       # Fallback credentials (dev mode — override via Infisical in prod)
-      OPENCLAW_USER: "${OPENCLAW_USER:-1ISYL3h3sEIvowWx}"
-      OPENCLAW_PASSWORD: "${OPENCLAW_PASSWORD:-yRMLBtfhbaWLGXi24yJuTBE3WZGf782B}"
-      OPENCLAW_TOKEN: "${OPENCLAW_GATEWAY_TOKEN:-7NRPHyoSK2uLLKhE0T5GACeCRiBTOjCCPzHr3879Zx8f9WqiJLodZyU17D5uqlyn}"
+      OPENCLAW_USER: "${OPENCLAW_USER:-}"
+      OPENCLAW_PASSWORD: "${OPENCLAW_PASSWORD:-}"
+      OPENCLAW_TOKEN: "${OPENCLAW_GATEWAY_TOKEN:-}"
     depends_on:
       openclaw-mcp-wrapper:
         condition: service_healthy

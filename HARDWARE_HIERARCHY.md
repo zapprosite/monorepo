@@ -11,8 +11,8 @@
 This file describes the approved target split for the homelab. Operational detail lives in:
 
 - [Target Architecture](docs/ARCHITECTURE/HOMELAB-TARGET-ARCHITECTURE-2026-04.md)
-- [Deployment Boundaries](docs/REFERENCE/DEPLOYMENT-BOUNDARIES.md)
-- [Security Checklist](docs/REFERENCE/HOMELAB-SECURITY-CHECKLIST.md)
+- [Deployment Boundaries](docs/GOVERNANCE/DEPLOYMENT-BOUNDARIES.md)
+- [Security Checklist](docs/GOVERNANCE/HOMELAB-SECURITY-CHECKLIST.md)
 - [Ports Registry](ops/ai-governance/PORTS.md)
 
 ---
@@ -183,7 +183,7 @@ All changes must follow:
 2. Check `/srv/ops/ai-governance/PORTS.md` before assigning ports.
 3. Check `/srv/ops/ai-governance/SUBDOMAINS.md` before adding public names.
 4. Snapshot stateful data before risky operations.
-5. Keep apps, infra, and runtime boundaries aligned with [Deployment Boundaries](docs/REFERENCE/DEPLOYMENT-BOUNDARIES.md).
+5. Keep apps, infra, and runtime boundaries aligned with [Deployment Boundaries](docs/GOVERNANCE/DEPLOYMENT-BOUNDARIES.md).
 
 ---
 

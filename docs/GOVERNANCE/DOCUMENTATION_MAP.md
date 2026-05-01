@@ -112,9 +112,9 @@
 
 ```
 ┌─ Você quer saber...              → Vá para
-├─ "É permitido fazer X?"          → /srv/ops/ai-governance/GUARDRAILS.md
+├─ "É permitido fazer X?"          → /srv/monorepo/docs/GOVERNANCE/GUARDRAILS.md
 ├─ "Como mudo algo?"               → /srv/ops/ai-governance/CHANGE_POLICY.md
-├─ "Qual é a política?"            → /srv/ops/ai-governance/CONTRACT.md
+├─ "Qual é a política?"            → /srv/monorepo/docs/GOVERNANCE/CONTRACT.md
 ├─ "Status do sistema agora?"      → /home/will/Desktop/SYSTEM_ARCHITECTURE.md
 ├─ "Qual MCP é melhor?"            → /home/will/TOP-10-MCP-2026.md
 ├─ "O que existe no banco/Qdrant?"  → /srv/ops/ai-governance/DOC_CATALOG.md

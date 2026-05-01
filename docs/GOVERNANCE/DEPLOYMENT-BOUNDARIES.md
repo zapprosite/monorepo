@@ -1,7 +1,7 @@
 # Deployment Boundaries
 
 **Purpose:** Define where approved homelab services run, how they are deployed, and what exposure/auth/backup rules apply.
-**Location:** `/srv/monorepo/docs/REFERENCE/DEPLOYMENT-BOUNDARIES.md`
+**Location:** `/srv/monorepo/docs/GOVERNANCE/DEPLOYMENT-BOUNDARIES.md`
 **Audience:** Platform engineering, SRE agents, deployment agents, and reviewers.
 
 ---

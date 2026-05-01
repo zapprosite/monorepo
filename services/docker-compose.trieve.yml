@@ -10,18 +10,18 @@ services:
     container_name: trieve
     restart: unless-stopped
     environment:
-      - DATABASE_URL=postgres://postgres:hnG7gwgQCP3r8GM8c8MxzRIO@postgres:5432/trieve
+      - DATABASE_URL=${TRIEVE_DATABASE_URL}
       - QDRANT_URL=http://qdrant:6333
       - QDRANT_API_KEY=${QDRANT_API_KEY}
       - OLLAMA_BASE_URL=${OLLAMA_BASE_URL:-http://127.0.0.1:11434}
-      - REDIS_URL=redis://:Fifine156458*@redis:6379
+      - REDIS_URL=${TRIEVE_REDIS_URL}
       - TRIEVE_API_KEY=${TRIEVE_API_KEY}
       - OIDC_ISSUER_URL=http://keycloak:8080/realms/trieve
       - OIDC_CLIENT_ID=trieve
-      - OIDC_CLIENT_SECRET=trieve-secret-dev-2026
+      - OIDC_CLIENT_SECRET=${TRIEVE_OIDC_CLIENT_SECRET}
       - OIDC_REDIRECT_URL=http://localhost:6435/oauth/callback
       - OIDC_AUTH_REDIRECT_URL=http://localhost:6435/oauth/callback
-      - SECRET_KEY=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+      - SECRET_KEY=${TRIEVE_SECRET_KEY}
       - BASE_SERVER_URL=http://localhost:6435
       - DOCKER_INDICES=false
     expose:
@@ -71,7 +71,7 @@ services:
     restart: unless-stopped
     environment:
       - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=hnG7gwgQCP3r8GM8c8MxzRIO
+      - POSTGRES_PASSWORD=${TRIEVE_POSTGRES_PASSWORD}
       - POSTGRES_DB=trieve
     volumes:
       - trieve-postgres-data:/var/lib/postgresql/data
@@ -90,11 +90,11 @@ services:
     command: start-dev --import-realm
     environment:
       KEYCLOAK_ADMIN: admin
-      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-admin}
+      KEYCLOAK_ADMIN_PASSWORD: ${TRIEVE_KEYCLOAK_ADMIN_PASSWORD}
       KC_DB: postgres
       KC_DB_URL: jdbc:postgresql://postgres:5432/trieve
       KC_DB_USERNAME: postgres
-      KC_DB_PASSWORD: hnG7gwgQCP3r8GM8c8MxzRIO
+      KC_DB_PASSWORD: ${TRIEVE_POSTGRES_PASSWORD}
       KC_HTTP_ENABLED: "true"
       KC_HOSTNAME_STRICT: "false"
       KC_HOSTNAME_STRICT_HTTPS: "false"
