@@ -1,0 +1,19 @@
+model_list:
+  - model_name: minimax-m2.7
+    litellm_params:
+      model: minimax/MiniMax-M2.7
+      api_key: os.environ/MINIMAX_API_KEY
+      api_base: os.environ/MINIMAX_API_BASE
+      rpm: 500
+      max_parallel_requests: 5
+    model_info:
+      supports_vision: false
+      mode: chat_complete
+
+litellm_settings:
+  drop_params: true
+  set_verbose: false
+
+general_settings:
+  master_key: os.environ/LITELLM_MASTER_KEY
+  database_url: "sqlite:///litellm.db"

@@ -8,7 +8,7 @@ services:
     environment:
       - COMPOSE_PROJECT_NAME=infra
       - LITELLM_CONFIG_FILE=/app/config/config.yaml
-      - DATABASE_URL=postgresql://litellm:litellm_pass_2026@zappro-litellm-db:5432/litellm
+      - DATABASE_URL=postgresql://litellm:litellm_pass_2026@10.0.3.4:5432/litellm
     volumes:
       - /srv/monorepo/config/litellm/config.yaml:/app/config/config.yaml:ro
     ports:
@@ -20,12 +20,11 @@ services:
       timeout: 10s
       retries: 3
     networks:
-      - services_default
-      - zappro-lite_default
+      zappro-lite_default:
+        aliases:
+          - litellm
+          - zappro-litellm
 
 networks:
-  services_default:
-    name: services_default
-    external: true
   zappro-lite_default:
     external: true
