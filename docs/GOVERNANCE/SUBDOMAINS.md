@@ -57,7 +57,7 @@ curl -sfI https://bot.zappro.site
 
 ## Mudanças 2026-04-05 (Segundo Cycle)
 
-- **aurelia.zappro.site**: REMOVIDO do Terraform e cloudflared config (deprecated)
+- **aurelia.zappro.site**: REMOVIDO do Terraform e cloudflared config (historical)
 - **chat.zappro.site**: REMOVIDO do cloudflared config (nunca deployado, sem Terraform)
 - **painel.zappro.site**: ATIVADO ✅ — nginx:alpine em :4003, servindo `/srv/painel/index.html`
   - Container: `painel` em `/srv/data/painel/docker-compose.yml`

@@ -20,7 +20,7 @@ Raiz do monorepo `/srv/monorepo/` tem **74 files + 53 dirs** — organização c
 ├── docker-compose.*.yml (6 arquivos)      # Scattered no root
 ├── pipeline.json, state.json               # State files no root
 ├── swarm/ (22MB binário)                   # Executável no root
-├── .claude-events/ (81KB)                  # Events no root
+├── .claude-events/ (81KB)                  # Estado local/runtime no root (gitignored)
 ├── logs/                                   # Diretório de logs no root
 ├── configs/, config/ (2 dirs)             # Duplicação de config
 ├── .vscode/, .windsurf/, .zed/, .trae/    # 4 IDE configs no root
@@ -64,8 +64,8 @@ Raiz do monorepo `/srv/monorepo/` tem **74 files + 53 dirs** — organização c
 - Deletar backups (.bak, *.backup-*)
 - Deletar state files (pipeline.json, state.json, pipeline-organization.json)
 - Mover docker-compose.*.yml para `services/`
-- Mover swarm/ para archive/ ou deletar (22MB binário legado)
-- Mover .claude-events/ para dentro de .claude/
+- Deletar swarm/ se confirmado sem uso (22MB binário legado)
+- Manter .claude-events/ fora do commit; fonte operacional versionada fica em .claude/events/
 - Mover logs/ para ops/logs/
 - Consolidar configs/ + config/ → ops/configs/
 - IDE configs → .vscode/ (escolher melhor, deletar outros)
@@ -84,8 +84,8 @@ Raiz do monorepo `/srv/monorepo/` tem **74 files + 53 dirs** — organização c
 - [ ] 2. Mover SPECs órfãos (SPEC-001~008, SPEC-BATCH-*, SPEC.md) → docs/SPECS/
 - [ ] 3. Deletar: pnpm-lock.yaml.backup-*, *.bak, state.json, pipeline*.json
 - [ ] 4. Mover docker-compose.*.yml → services/
-- [ ] 5. Mover swarm/ → archive/ ou deletar
-- [ ] 6. Mover .claude-events/ → .claude/
+- [ ] 5. Deletar swarm/ se confirmado sem uso
+- [x] 6. Marcar .claude-events/ como estado local/runtime gitignored
 - [ ] 7. Mover logs/ → ops/logs/
 - [ ] 8. Consolidar configs/ + config/ → ops/configs/
 - [ ] 9. IDE configs — manter .vscode/, deletar .windsurf/, .zed/, .trae/

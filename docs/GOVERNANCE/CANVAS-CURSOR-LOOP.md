@@ -420,11 +420,5 @@ docs/
 ├── ADRs/             ✅ CANONICAL — decisões architectural
 ├── TEMPLATES/        ✅ TEMPLATES — PRD, SPEC
 │
-├── archive/          ⚠️ ARCHIVED — antigos, não referenciados
-│   ├── guides-moved-YYYYMMDD/
-│   ├── logs-moved-YYYYMMDD/
-│   ├── plans-moved-YYYYMMDD/
-│   └── APPLICATION-moved-YYYYMMDD/
-│
 └── obsidian/         📎 ESPELHO PASSIVO — rsync manual
 ```

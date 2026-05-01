@@ -71,9 +71,9 @@ tavily → ddg → google_news_rss
 ```
 
 **MiniMax MCP in WEB_SEARCH_PROVIDER:**
-- There is a stub entry for `minimax_mcp` in `WEB_SEARCH_PROVIDER`
-- It currently returns `[]` (empty results) — **placeholder, not functional**
-- If MiniMax Token Plan MCP web search is desired, the stub must be replaced with a real implementation
+- `minimax_mcp` is not an active runtime provider.
+- The supported fallback chain is Tavily, DuckDuckGo, then Google News RSS.
+- Add MiniMax only through a dedicated SPEC with a working implementation and smoke check.
 
 ---
 

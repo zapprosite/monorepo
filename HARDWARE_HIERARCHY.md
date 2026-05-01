@@ -146,8 +146,8 @@ This summary is not a replacement for [ops/ai-governance/PORTS.md](ops/ai-govern
 | Coolify panel/proxy | 8000, 8080, 6001, 6002 | INTERNAL, CORE_INFRA, COOLIFY | `coolify.zappro.site` documented. |
 | LiteLLM | 4000, 3334 | INTERNAL, CORE_INFRA | `api.zappro.site` documented; `llm.zappro.site` belongs to `ai-gateway` until PORTS/SUBDOMAINS are reconciled. |
 | ai-gateway | 4002 | PUBLIC, INTERNAL | `llm.zappro.site` documented as OpenAI-compatible facade; auth required. |
-| Qdrant | 6333, 6334 | PRIVATE, CORE_INFRA | Any public domain is a TODO to remove or Access-protect. |
-| Postgres | UNKNOWN | PRIVATE, CORE_INFRA | TODO: verify canonical core Postgres binding. |
+| Qdrant | 6333, 6334 | PRIVATE, CORE_INFRA | Any public domain requires removal or Cloudflare Access protection through an approved change. |
+| Postgres | UNKNOWN | PRIVATE, CORE_INFRA | Verify canonical core Postgres binding before documenting a port or domain. |
 | Redis | 6379, 6381 | PRIVATE, CORE_INFRA | No public domain. |
 | Gitea | 3300, 2222 | INTERNAL, CORE_INFRA | `git.zappro.site` documented. |
 | Hermes Gateway | 8642 | INTERNAL, BARE_METAL | `hermes.zappro.site` remains active via loopback tunnel and must be protected by Cloudflare Access. |
@@ -187,12 +187,12 @@ All changes must follow:
 
 ---
 
-## TODO / UNKNOWN
+## Open Items / UNKNOWN
 
 | Item | Status |
 |------|--------|
 | Canonical core Postgres port/domain | UNKNOWN |
 | Exact active Coolify panel binding | UNKNOWN; existing docs mention both 8000 and 8080 states |
 | Final Cloudflare Access policy per subdomain | Hermes decision recorded: keep `hermes.zappro.site` and require Cloudflare Access |
-| Public Qdrant exposure | TODO: target is PRIVATE; any existing public route must be removed or Access-protected |
-| Dashboard exposure policy | TODO: classify each dashboard as PUBLIC, INTERNAL, or PRIVATE |
+| Public Qdrant exposure | Target is PRIVATE; any existing public route requires approved removal or Access protection |
+| Dashboard exposure policy | Classify each dashboard as PUBLIC, INTERNAL, or PRIVATE before route changes |

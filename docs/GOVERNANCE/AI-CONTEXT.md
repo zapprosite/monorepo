@@ -93,8 +93,8 @@ O OpenClawconsulta o knowledge base via:
 ```
 OpenClaw → MCP monorepo (docs) + Qdrant (memória vetorial)
                      ↓
-              docs/index.md
-              docs/WORKFLOW.md
+              docs/GOVERNANCE/INDEX.md
+              docs/GOVERNANCE/WORKFLOW.md
               docs/AI-CONTEXT.md
 ```
 

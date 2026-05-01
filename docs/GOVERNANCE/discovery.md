@@ -187,7 +187,7 @@ docs/
 │   └── README.md
 ├── index.md        # Docs entry point
 ├── CLAUDE.md       # Enterprise docs rules
-└── archive/        # Archived docs (read-only)
+└── historical docs # Only retained when linked from the governance index
 obsidian/           # Read-only mirror of docs/
 ```
 

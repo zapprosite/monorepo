@@ -93,7 +93,6 @@ graph TB
 | `backups/` | Backup storage | ✅ ACTIVE |
 | `docker-data/` | Docker volumes | ✅ ACTIVE |
 | `models/` | Ollama LLM models | ✅ ACTIVE |
-| `archive/` | Archived projects | ✅ ORGANIZED |
 
 ### `/home/will/` — Ubuntu Desktop LTS
 

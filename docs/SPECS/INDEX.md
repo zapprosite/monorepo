@@ -93,7 +93,8 @@ Nexus and vibe-kit framework specifications.
 
 ## Legacy Directory
 
-`docs/SPECS/archive/` contains deprecated specs not migrated to the current structure.
+No `docs/SPECS/archive/` directory is maintained. Superseded specs remain in
+this index only when they are still useful as historical governance context.
 See [_legacy/README.md](_legacy/README.md) for the full migration record.
 
 ---

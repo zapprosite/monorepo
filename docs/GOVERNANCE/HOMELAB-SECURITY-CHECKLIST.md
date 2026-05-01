@@ -26,7 +26,7 @@ Use this checklist before publishing apps, changing ingress, touching stateful s
 
 - [ ] Every public hostname has an owner, purpose, target service, and exposure class.
 - [ ] DNS records for Core Infra services are INTERNAL or PRIVATE by target policy.
-- [ ] Stale DNS records are marked TODO for removal or protection.
+- [ ] Stale DNS records are marked for removal or protection through an approved change.
 - [ ] New subdomains update the canonical subdomain registry before deployment.
 - [ ] No wildcard route is used to bypass per-app review.
 

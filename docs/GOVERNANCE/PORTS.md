@@ -30,7 +30,7 @@
 | **6379** | zappro-redis | host | Redis cache/pubsub | — |
 | **6381** | aurelia-redis | localhost | Redis (aurelia stack) | — |
 | **8012** | zappro-edge-tts | localhost | Edge TTS (Microsoft, cloud) | — |
-| **8080** | — | host | Deprecated (era aurelia-api) | aurelia.zappro.site |
+| **8080** | — | host | Historical aurelia-api binding | aurelia.zappro.site |
 | **8888** | searxng | host | Search engine (OpenCode) | — |
 | **9090** | prometheus | localhost | TSDB métricas 30d | — |
 | **9100** | node-exporter | host | Métricas host | — |
@@ -70,7 +70,7 @@
 
 | Porta | Serviço Planejado | Subdomínio | Status |
 |-------|------------------|------------|--------|
-| **3000** | Reservada | — | ⚠️ DEPRECATED — OpenWebUI foi removido do :8080 |
+| **3000** | Reservada | — | ⚠️ Historical OpenWebUI reservation; removed from :8080 |
 | **3010** | Open WebUI (se precisar) | chat.zappro.site | ⏳ Deploy via Coolify pendente |
 
 ---

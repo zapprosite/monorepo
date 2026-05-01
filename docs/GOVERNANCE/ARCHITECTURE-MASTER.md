@@ -252,8 +252,8 @@ invokes: .agent/workflows/git-ship.md
 └── deploy-perplexity-agent.yml
 ```
 
-**Deprecated (remove after migration):**
-- `.gitea/workflows/deploy-perplexity-agent.yml` — replaced by GitHub version
+**Historical migration note:**
+- GitHub Actions is not the canonical CI path. Use `.gitea/workflows/`.
 
 ---
 

@@ -233,7 +233,7 @@ Ingress:    llm(:4000), api(:4000), hermes(:8642), qdrant(:6333)
 | cloudflared service stopped | 🔴 CRITICAL | Parado desde 2026-04-26 |
 | Ingress drift (llm porta) | 🔴 HIGH | Terraform usa :4002, local usa :4000 |
 | SUBDOMAINS.md desactualizado | ⚠️ MEDIUM | Falta md, list, pgadmin |
-| qdrant.zappro.site deprecated mas live | ⚠️ MEDIUM | SUBDOMAINS.md marca DEPRECATED |
+| qdrant.zappro.site historical mas live | ⚠️ MEDIUM | SUBDOMAINS.md marca rota não canônica |
 | Terraform não gere cloudflared config local | ⚠️ MEDIUM | Só gere Cloudflare, não o /etc/cloudflared/config.yml |
 
 ---
@@ -269,7 +269,7 @@ Ingress:    llm(:4000), api(:4000), hermes(:8642), qdrant(:6333)
 1. **Restart cloudflared:** `sudo systemctl restart cloudflared`
 2. **Terraform apply:** Corrigir ingress drift e actualizar Access policies
 3. **Atualizar SUBDOMAINS.md:** Adicionar md, list, pgadmin
-4. **Limpar qdrant:** Remover DNS e ingress se realmente deprecated
+4. **Limpar qdrant:** Remover DNS e ingress se aprovado como rota não canônica
 5. **Testar hermes.zappro.site:** smoke test após restart
 
 ---

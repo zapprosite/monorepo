@@ -57,7 +57,7 @@ Scrub:    Sun Apr 12 20:31:48 2026 — 0 errors
 | ZFS Snapshots           | Every 6h             | 7 daily, 4 weekly, 6 monthly | tank                       | OK                  |
 | PostgreSQL dumps        | Daily (cron missing) | 7 versions                   | /srv/backups/postgres      | ⚠️ No cron          |
 | Qdrant archives         | Daily 03:00          | 7 versions                   | /srv/backups/qdrant        | OK                  |
-|  archives            | Deprecated           | Removed                       | N/A                        | ❌ Removed          |
+| Legacy archives      | Historical           | Removed                       | N/A                        | ❌ Removed          |
 | Gitea dumps             | Daily 02:30          | 7 versions                   | /srv/backups               | OK                  |
 |  DB dumps      | Daily 02:45          | N/A (pruned)                 | N/A                        | ❌ Pruned            |
 | Cloudflared credentials | Every 6h             | 30 days                      | /srv/backups/cloudflared   | OK                  |
@@ -197,7 +197,7 @@ docker exec qdrant curl -s http://localhost:6333/health
 **Time:** 15-30 minutes
 **RPO:** Last daily backup (up to 24h data loss)
 
-> **Note:** PostgreSQL restore procedures reference  services which are deprecated. This section needs to be updated for the current database architecture.
+> **Current authority:** Verify the active PostgreSQL target in `docs/GOVERNANCE/DATABASE_GOVERNANCE.md` before running a restore. This section is retained as a high-level recovery outline only.
 
 ```bash
 # 1. Find latest backup

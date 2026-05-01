@@ -1,7 +1,7 @@
 # CLAUDE-EVENTS — Sistema de Eventos Cross-CLI
 
 **Status:** Ativo
-**Updated:** 2026-04-29
+**Updated:** 2026-05-01
 
 ## 1. Purpose
 
@@ -95,18 +95,13 @@ Sistema de eventos que permite comunicação entre múltiplas CLIs de IA (Claude
 │   └── trigger-bridge.service
 └── logs/                          # Logs de execução
 
-.claude-events/                    # Source no monorepo (git tracked)
-├── README.md
-├── state-manager.py → symlink para .claude/events/
-├── event-emit.sh
-├── inotify-watch.sh
-├── trigger-bridge.sh
-├── scripts/
-│   ├── install-links.sh
-│   └── uninstall-links.sh
-├── config/
-└── systemd/
+.claude-events/                    # Estado local/runtime (gitignored)
+└── ...                            # Não é fonte versionada
 ```
+
+`.claude-events/` no root do monorepo é estado local/runtime e não deve entrar
+em commits. A fonte operacional versionada deve viver em `.claude/events/` ou
+em scripts/docs canônicos explicitamente rastreados.
 
 ---
 
@@ -116,7 +111,7 @@ Sistema de eventos que permite comunicação entre múltiplas CLIs de IA (Claude
 
 ```bash
 cd /srv/monorepo
-bash .claude-events/scripts/install-links.sh
+bash .claude/events/scripts/install-links.sh
 ```
 
 O script:
@@ -128,7 +123,7 @@ O script:
 
 ```bash
 cd /srv/monorepo
-bash .claude-events/scripts/uninstall-links.sh
+bash .claude/events/scripts/uninstall-links.sh
 ```
 
 Isso:
@@ -342,7 +337,8 @@ OPENCODE_BOOT=1 bash ~/.claude/events/opencode-wrapper --version
 
 ### StateManager falha com "too many symbolic links"
 
-Há um loop de symlinks entre `.claude-events/state-manager.py` e `.claude/events/state-manager.py`. Use o path direto:
+Se existir um diretório local `.claude-events/`, trate-o como estado runtime
+gitignored. Use o path operacional direto:
 
 ```bash
 # Usar path real (não o symlink)
@@ -407,5 +403,5 @@ O sistema de eventos é o **bridge de comunicação** entre o ambiente host e o 
 |-----|-------|
 | `docs/REFERENCE/NEXUS-SECOND-BRAIN-FLOW.md` | Integração Nexus ↔ Hermes Second Brain |
 | `docs/REFERENCE/WORKFLOW.md` | Workflows disponíveis (ship, turbo, spec) |
-| `.claude-events/README.md` | Documentação técnica completa do sistema |
+| `.claude/events/README.md` | Documentação técnica operacional, quando presente |
 | `hermes-second-brain/SOUL.md` | Princípios de segurança do Second Brain |

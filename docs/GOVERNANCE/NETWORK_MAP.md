@@ -98,7 +98,7 @@
 | `painel.zappro.site` | `:4003` | zappro.ia@gmail.com | ✅ UP | — |
 | `qdrant.zappro.site` | `:6333` | zappro.ia@gmail.com | ✅ UP | — |
 | `vault.zappro.site` | `:8200` | zappro.ia@gmail.com | ✅ UP | — |
-| `aurelia.zappro.site` | `:3334` | zappro.ia@gmail.com | ⚠️ DEPRECATED | — |
+| `aurelia.zappro.site` | `:3334` | zappro.ia@gmail.com | ⚠️ HISTORICAL | — |
 
 ### Google OAuth (Zero Trust)
 - **Status:** Configurado manualmente via Cloudflare Dashboard (API token não tem permissão `Access: Identity Providers`)
