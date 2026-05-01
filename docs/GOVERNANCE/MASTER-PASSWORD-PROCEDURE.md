@@ -131,3 +131,4 @@ If the USB drive containing the master password is lost, stolen, or destroyed:
 - The USB containing the password is the only access vector
 - All unlock attempts are logged with timestamp and operator identity
 - Failed unlock attempts trigger security alerts
+Updated: 2026-05-01

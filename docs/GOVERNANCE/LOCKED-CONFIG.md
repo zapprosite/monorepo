@@ -81,4 +81,4 @@ All unlock events are logged to `/srv/ops/logs/unlock.log`:
 - Hash stored, NOT password
 - Password only needed to unlock
 - Auto-lock prevents permanent unlocked state
-- All events logged for audit
+- All events logged for auditUpdated: 2026-05-01

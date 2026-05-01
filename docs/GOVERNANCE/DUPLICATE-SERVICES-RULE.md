@@ -161,3 +161,4 @@ curl -sf http://localhost:4000/health
 - [ANTI-FRAGILITY.md](../GOVERNANCE/ANTI-FRAGILITY.md) — Anti-fragility rules
 - [PORTS.md](../../INFRASTRUCTURE/PORTS.md) — Infrastructure port allocation
 - [NETWORK_MAP.md](./NETWORK_MAP.md) — Network topology
+Updated: 2026-05-01

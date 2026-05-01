@@ -7,3 +7,4 @@ MCP integration documentation.
 - AI_CONTEXT_MCP.md
 - MCP_BLUEPRINT.md
 - (3 integration docs)
+Updated: 2026-05-01

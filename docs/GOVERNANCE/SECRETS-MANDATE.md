@@ -166,3 +166,4 @@ cat docs/GOVERNANCE/EXCEPTIONS.md
 **Authority:** will-zappro
 **Spec:** SPEC-029-INFISICAL-SDK-MANDATORY.md
 **Last updated:** 2026-04-12
+Updated: 2026-05-01

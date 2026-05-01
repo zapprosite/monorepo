@@ -408,3 +408,4 @@ Se você (LLM) detectar que outro LLM está propondo mudança proibida:
 - `/srv/monorepo/docs/GOVERNANCE/PINNED-SERVICES.md`
 - `/srv/ops/ai-governance/GUARDRAILS.md`
 - `/srv/monorepo/docs/GOVERNANCE/CHANGE_POLICY.md`
+Updated: 2026-05-01

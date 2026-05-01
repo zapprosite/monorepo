@@ -204,3 +204,4 @@ tailscale status
 **Pronto.** Para mais detalhes, veja a governança completa em /srv/ops/ai-governance/
 
 Gerado: 2026-03-16 | Atualizado: 2026-03-17
+Updated: 2026-05-01

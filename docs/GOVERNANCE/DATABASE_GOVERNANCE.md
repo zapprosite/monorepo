@@ -397,3 +397,4 @@ AND (table_schema, table_name) NOT IN (
 
 **Atualizado:** 2026-03-18
 **Revisão:** Mensal ou ao adicionar novos schemas/collections
+Updated: 2026-05-01
