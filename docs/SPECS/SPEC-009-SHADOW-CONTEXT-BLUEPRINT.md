@@ -1,12 +1,17 @@
 ---
 name: SPEC-009
 description: Blueprint shadow-context — arquitetura para memória infinita via mclaude -p workers + Qdrant + mem0 + Hermes
-status: draft
+status: IN_PROGRESS
 owner: will-zappro
 created: 2026-04-29
+updated: 2026-04-30
+priority: critical
 ---
 
-# SPEC-009 — Shadow Context Blueprint
+# SPEC-009 — Shadow Context Blueprint (Enterprise)
+
+> **Refatorado:** 2026-04-30 com padrões enterprise de 20 agentes de pesquisa.
+> **Stack:** TypeScript, Go, Redis, Qdrant, BullMQ patterns, OpenTelemetry
 
 ## Problema
 
@@ -16,182 +21,434 @@ O homelab tem peças desconectadas que desperdiçam potencial:
 |------------|--------|---------|
 | **Qdrant** (:6333) | 401 — sem auth configurada | RAG/imemory não funciona |
 | **mem0** (mcp-memory) | Desconectado do Qdrant | Second brain não persiste |
-| **Hermes Second Brain** | 68KB em ~/.hermes, não ~Desktop | Não está acessível como tutor |
-| **Context window** | Tudo carrega na tua conversa (~2000 tokens) | Lento, perde contexto com histórico longo |
+| **Hermes Second Brain** | 68KB em ~/.hermes, não ~/Desktop | Não está acessível como tutor |
+| **Context window** | Tudo carrega na conversa (~2000 tokens) | Lento, perde contexto |
 | **Workers mclaude -p** | Não consomem teu contexto | Oportunidade desperdiçada |
 
-**Resultado:** Tu carregas contexto pesado, workers têm contexto zero, brain não existe.
+---
 
-## Solução: Shadow Context Architecture
+## Solução: Shadow Context Architecture (Enterprise)
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                    TWOO CLENT INTERFACES                        │
+│                    TWO CLIENT INTERFACES                          │
 │                                                                 │
 │  ┌─────────────────────────────────────────────────────────┐   │
-│  │  JANELA (contexto vivo, limitado a ~4000 tokens)       │   │
-│  │  ├─ CLAUDE.md (regras globais)                          │   │
-│  │  ├─ Histórico da conversa (cada msg pesa)                │   │
-│  │  └─ Tool calls (Read/Edit/Bash)                         │   │
+│  │  JANELA (contexto vivo, ~4000 tokens)                  │   │
+│  │  ├─ CLAUDE.md (regras globais)                         │   │
+│  │  ├─ Histórico da conversa (cada msg pesa)                 │   │
+│  │  └─ Tool calls (Read/Edit/Bash)                        │   │
 │  └─────────────────────────────────────────────────────────┘   │
-│                          ↓ não carrega histórico                │
+│                          ↓ não carrega histórico                 │
 │  ┌─────────────────────────────────────────────────────────┐   │
 │  │  SHADOW CONTEXT (não pesa na janela)                    │   │
-│  │  ├─ Files (AGENTS.md, SPECs, docs) → Read via tools      │   │
-│  │  ├─ Qdrant (embeddings) → busca semântica              │   │
+│  │  ├─ Files (AGENTS.md, SPECs, docs) → Read via tools   │   │
+│  │  ├─ Qdrant (embeddings) → busca semântica             │   │
 │  │  ├─ mem0 (via Hermes MCP) → preferences + learnings     │   │
 │  │  └─ Hermes Second Brain → contexto estruturado          │   │
 │  └─────────────────────────────────────────────────────────┘   │
 │                                                                 │
 │  ┌─────────────────────────────────────────────────────────┐   │
-│  │  WORKERS (mclaude -p, contexto zero por task)          │   │
-│  │  ├─ 15x parallel via VIBE_PARALLEL=15                  │   │
+│  │  WORKERS (mclaude -p, contexto zero por task)         │   │
+│  │  ├─ 15x parallel via VIBE_PARALLEL=15                 │   │
 │  │  ├─ Estado em queue.json (não em memória)              │   │
-│  │  └─ Resultados → Qdrant learnings collection           │   │
+│  │  └─ Resultados → Qdrant learnings collection            │   │
 │  └─────────────────────────────────────────────────────────┘   │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-## Funcionalidade
+---
 
-### P — Audit Phase (Tarefas Analíticas)
+## Tech Stack Enterprise
 
-- [ ] **T-AUDIT-001:** Qdrant health — testar auth, listar collections, verificar vector counts
-- [ ] **T-AUDIT-002:** mem0 connection — testar se conecta ao Qdrant, verificar collections
-- [ ] **T-AUDIT-003:** Hermes Second Brain — verificar TREE.md, criar em ~/Desktop se não existir
-- [ ] **T-AUDIT-004:** Hermes MCP bridge — testar :8092, verificar tool registration
-- [ ] **T-AUDIT-005:** LiteLLM health — testar auth required vs open, listar modelos
-- [ ] **T-AUDIT-006:** Context window audit — medir tamanho de CLAUDE.md + rules + histórico
+| Component | Technology | Notes |
+|-----------|------------|-------|
+| **Workers** | mclaude -p (MiniMax-M2.7) | Contexto zero por task |
+| **Vector DB** | Qdrant (:6333) | Auth configurada, HNSW otimizado |
+| **Memory** | mem0 via mcp-memory | Qdrant backend |
+| **Tutor** | Hermes Gateway (:8642) + MCP (:8092) | Gateway API |
+| **Second Brain** | ~/Desktop/hermes-second-brain/ | File-based + Qdrant search |
+| **Queue** | queue.json atômico | fcntl.flock + os.replace |
+| **Runner** | vibe-kit.sh | VIBE_PARALLEL=15, snapshot ZFS |
+| **Cache** | Redis (:6379) | Semantic cache, BullMQ patterns |
+| **Observability** | OpenTelemetry | W3C TraceContext, Golden Signals |
 
-### P — Design Phase (Decisões Arquiteturais)
+---
 
-- [ ] **T-DESIGN-001:** Definir Qdrant auth strategy (api-key? token?)
-- [ ] **T-DESIGN-002:** Definir mem0 collections schema (learnings, skills, homelab-state)
-- [ ] **T-DESIGN-003:** Definir Hermes Second Brain TREE.md structure
-- [ ] **T-DESIGN-004:** Mapear quais files carregam via Read vs contexto
-- [ ] **T-DESIGN-005:** Definir pipeline.json schema para tasks atomicas
+## Architecture Patterns (Enterprise)
 
-### E — Fix Phase (Implementação)
+### 1. Semantic Cache (Redis) — BullMQ Patterns
 
-- [ ] **T-FIX-001:** Configurar Qdrant auth — criar api-key, atualizar .env
-- [ ] **T-FIX-002:** Criar Qdrant collections: `learnings`, `skills`, `homelab-state`
-- [ ] **T-FIX-003:** Conectar mem0 ao Qdrant — configurar MCP server
-- [ ] **T-FIX-004:** Criar Second Brain em ~/Desktop/hermes-second-brain/ com TREE.md
-- [ ] **T-FIX-005:** Criar PRD template em ~/Desktop/hermes-second-brain/prds/
-- [ ] **T-FIX-006:** Criar skills registry em ~/Desktop/hermes-second-brain/skills/
-- [ ] **T-FIX-007:** Criar learnings collection schema (what worked, what failed)
+```go
+// internal/rag/cache.go
 
-### E — Pipeline Phase (Automation)
+type SemanticCache struct {
+    redis *redis.Client
+    ttl   time.Duration
+}
 
-- [ ] **T-PIPE-001:** Criar pipeline.json genérico para brainstorms → PRD
-- [ ] **T-PIPE-002:** Criar SPEC template (SPEC-XXX.md) com PREVC
-- [ ] **T-PIPE-003:** Criar queue.json generator (tasks atomicas de 5-10 min)
-- [ ] **T-PIPE-004:** Criar vibe-kit template para brain workers
-- [ ] **T-PIPE-005:** Configurar cron de sync: brain ↔ Qdrant
+type CacheConfig struct {
+    TTL           time.Duration `env:"CACHE_TTL" envDefault:"24h"`
+    MaxRetries    int          `env:"CACHE_MAX_RETRIES" envDefault:"3"`
+    BackoffBase   int          `env:"CACHE_BACKOFF_MS" envDefault:"1000"` // ms
+}
 
-### V — Verify Phase (Testes)
+// Cache key: rag:cache:<sha256(normalized_query)>
+func (c *SemanticCache) Get(ctx context.Context, query string) (*CachedResponse, bool, error) {
+    hash := sha256(normalizeQuery(query))
+    key := fmt.Sprintf("rag:cache:%s", hash)
 
-- [ ] **T-VERIFY-001:** Testar Qdrant search — buscar "gestão de tarefas"
-- [ ] **T-VERIFY-002:** Testar mem0 recall — pedir "último learning"
-- [ ] **T-VERIFY-003:** Testar Hermes /brain — enviar mensagem no Telegram
-- [ ] **T-VERIFY-004:** Testar pipeline.json — gerar SPEC dummy via nexus
-- [ ] **T-VERIFY-005:** Testar worker spawn — vibe-kit com 3 workers
+    val, err := c.redis.Get(ctx, key).Result()
+    if err == redis.Nil {
+        return nil, false, nil
+    }
+    // Unmarshal and return
+}
 
-### C — Document Phase (Entrega)
-
-- [ ] **T-DOCS-001:** Escrever SHADOW-CONTEXT.md em docs/
-- [ ] **T-DOCS-002:** Atualizar NEXUS_GUIDE.md com shadow context pattern
-- [ ] **T-DOCS-003:** Criar BRAINSTORM-TO-DEPLOY.md guide
-- [ ] **T-DOCS-004:** Atualizar ARCHITECTURE.md com nova stack
-
-## Acceptance Criteria
-
-1. Quando `/brain tenho ideia de app X` é enviado no Telegram, então Hermes busca Qdrant e retorna SPEC 类似 + learnings
-2. Quando novo PRD é criado em `prds/`, então embeddings são gerados e armazenados em Qdrant `prds` collection
-3. Quando `nexus.sh --spec SPEC-NNN --phase execute` roda, então workers (mclaude -p) executam com contexto zero — não consomem histórico da conversa
-4. Quando `queue.json` é atualizado por workers, então o estado persiste — se worker morrer, outro continua
-5. Quando tu perguntas "o que já fizemos sobre SPEC-009?", então sistema busca Qdrant e retorna contexto sem carregar histórico
-6. Quando brainstorm acontece, então Hermes cria PRD draft → SPEC → queue.json → workers → deploy em < 1 hora
-
-## Fluxo: Brainstorm → Deploy
-
-```
-1. Brainstorm (Tu / Hermes)
-   └── Tu: "/brain quero um app de tarefas com IA"
-   └── Hermes: busca Qdrant learnings + SPECs 类似
-   └── Hermes: retorna "padrão Y funcionou, padrão Z falhou"
-
-2. PRD Draft (Hermes Second Brain)
-   └── Hermes: cria ~/Desktop/hermes-second-brain/prds/APP-X-PRD.md
-   └── Embeddings → Qdrant `prds` collection
-
-3. SPEC + Pipeline (Nexus)
-   └── nexus.sh --spec APP-X --phase plan
-   └── SPEC.md gerado de template
-   └── queue.json com tasks atomicas (5-10 min cada)
-
-4. Execute (mclaude -p workers)
-   └── vibe-kit.sh com VIBE_PARALLEL=15
-   └── Workers: contexto zero, leem files + Qdrant
-   └── Resultados → Qdrant `learnings`
-
-5. Verify + Deploy (Coolify)
-   └── nexus.sh --phase verify
-   └── deploy-agent worker: Coolify API → deploy
-   └── Hermes notifica via Telegram
+type CachedResponse struct {
+    Response       string    `json:"response"`
+    SourceChunkIDs []string `json:"source_chunk_ids"`
+    Confidence    float64   `json:"confidence"`
+    CachedAt      time.Time `json:"cached_at"`
+}
 ```
 
-## Tech Stack
+**TTL Strategy (Tiered):**
+| Data Type | TTL | Rationale |
+|-----------|-----|-----------|
+| Hot (frequente) | 5 min | Queries similares |
+| Warm (moderate) | 1h | Resultados de embedding |
+| Cold (infrequente) | 24h | Learnings estruturados |
 
-- **Workers:** mclaude -p (MiniMax-M2.7, contexto zero)
-- **Vector DB:** Qdrant (:6333) — corrigir auth
-- **Memory:** mem0 via mcp-memory → Qdrant backend
-- **Tutor:** Hermes Gateway (:8642) + Hermes MCP (:8092)
-- **Second Brain:** ~/Desktop/hermes-second-brain/ (file-based + Qdrant search)
-- **Queue:** queue.json (atomic, crash-safe via fcntl.flock + os.replace)
-- **Runner:** vibe-kit.sh (VIBE_PARALLEL=15, snapshot ZFS automático)
+### 2. Job Queue (Redis) — BullMQ Patterns
 
-## Pipeline JSON Schema
+```go
+// internal/rag/jobs.go
+
+const (
+    JobStateDelayed   = "delayed"
+    JobStateWaiting  = "waiting"
+    JobStateActive   = "active"
+    JobStateCompleted = "completed"
+    JobStateFailed   = "failed"
+)
+
+type Job struct {
+    ID        string    `json:"id"`
+    Type      string    `json:"type"`       // "rag_query" | "index_pdf"
+    State     string    `json:"state"`
+    Data      string    `json:"data"`       // JSON payload
+    Attempts  int       `json:"attempts"`
+    MaxRetry  int       `json:"max_retry"`  // 3
+    Backoff   int       `json:"backoff"`    // exponential: 1s, 2s, 4s
+    Error     string    `json:"error,omitempty"`
+    CreatedAt int64     `json:"created_at"`
+}
+
+// Redis keys
+const (
+    QueuePrefix     = "rag:queue:"
+    QueueDelayPrefix = "rag:delay:"
+    QueueDLQPrefix  = "rag:dlq:"
+    JobPrefix       = "rag:job:"
+)
+
+// AddJob with retry
+func (q *JobQueue) AddJob(ctx context.Context, jobType string, data any) (string, error) {
+    job := Job{
+        ID:        ulid.Make().String(),
+        Type:      jobType,
+        State:     JobStateWaiting,
+        Data:      mustMarshal(data),
+        Attempts:  0,
+        MaxRetry:  3,
+        Backoff:   1000,
+        CreatedAt: time.Now().UnixMilli(),
+    }
+    q.redis.HSet(ctx, JobPrefix+job.ID, jobToMap(job))
+    q.redis.RPush(ctx, QueuePrefix+jobType, job.ID)
+    return job.ID, nil
+}
+
+// ProcessJobs com exponential backoff
+func (q *JobQueue) ProcessJobs(ctx context.Context, handler JobHandler) {
+    for {
+        jobID, err := q.redis.BLPop(ctx, 5*time.Second, QueuePrefix+handler.Type()).Result()
+        if err == redis.Nil {
+            continue
+        }
+
+        job := q.getJob(ctx, jobID[1])
+        result := handler.Process(ctx, job)
+
+        if result.Err != nil && job.Attempts < job.MaxRetry {
+            q.retryJob(ctx, job, result.Err)
+        } else if result.Err != nil {
+            q.moveToDLQ(ctx, job, result.Err)
+        } else {
+            q.completeJob(ctx, job.ID)
+        }
+    }
+}
+```
+
+### 3. OpenTelemetry Tracing
+
+```go
+// internal/rag/otel.go
+
+var tracer = otel.Tracer("hvacr-swarm/rag")
+
+func TraceRAGQuery(ctx context.Context, query string) (context.Context, *Span) {
+    ctx, span := tracer.Start(ctx, "rag.query",
+        trace.WithAttributes(
+            attribute.String("rag.query", query),
+        ),
+    )
+    return ctx, span
+}
+
+func TraceSearch(ctx context.Context, collection string, limit int) (context.Context, *Span) {
+    ctx, span := tracer.Start(ctx, "rag.search",
+        trace.WithAttributes(
+            attribute.String("rag.collection", collection),
+            attribute.Int("rag.limit", limit),
+        ),
+    )
+    return ctx, span
+}
+```
+
+**Trace hierarchy:**
+```
+rag.query
+  ├── cache.lookup
+  ├── embed.query
+  ├── qdrant.search (dense)
+  ├── qdrant.search (sparse)
+  ├── qdrant.fusion (RRF)
+  └── llm.response
+```
+
+---
+
+## Error Handling (Enterprise)
+
+### Claude API Error Handling
+
+```go
+// Erro tipado com sentinel errors
+var (
+    ErrNotFound      = errors.New("not found")
+    ErrRateLimit     = errors.New("rate limit exceeded")
+    ErrTimeout       = errors.New("operation timeout")
+    ErrUnauthorized  = errors.New("unauthorized")
+)
+
+// Retry com exponential backoff + jitter
+func callWithRetry(ctx context.Context, req Request, maxRetries int) (*Response, error) {
+    var lastErr error
+    baseDelay := 1000 * time.Millisecond
+    maxDelay := 60 * time.Second
+
+    for attempt := 0; attempt < maxRetries; attempt++ {
+        resp, err := api.Call(ctx, req)
+
+        if err == nil {
+            return resp, nil
+        }
+
+        // Classificar erro
+        var rateLimitErr *RateLimitError
+        if errors.As(err, &rateLimitErr) {
+            delay := time.Duration(baseDelay * (1 << attempt))
+            delay += time.Duration(rand.Int63n(int64(delay / 2))) // jitter
+            if delay > maxDelay {
+                delay = maxDelay
+            }
+            select {
+            case <-ctx.Done():
+                return nil, ctx.Err()
+            case <-time.After(delay):
+                lastErr = err
+                continue
+            }
+        }
+
+        // Erro não retryable
+        return nil, err
+    }
+    return nil, fmt.Errorf("retry exhausted: %w", lastErr)
+}
+```
+
+### Circuit Breaker Pattern
+
+```go
+type CircuitBreaker struct {
+    failures    int
+    threshold  int
+    state      CircuitState
+    recovery   time.Duration
+}
+
+const (
+    CircuitClosed   CircuitState = "closed"
+    CircuitOpen     CircuitState = "open"
+    CircuitHalfOpen CircuitState = "half_open"
+)
+```
+
+---
+
+## Observability (Golden Signals)
+
+### Metrics
+
+```go
+var (
+    cacheHitsTotal = promauto.NewCounterVec(
+        prometheus.CounterOpts{
+            Name: "rag_cache_hits_total",
+            Help: "Total cache hits",
+        },
+        []string{"collection"},
+    )
+
+    queryDuration = promauto.NewHistogramVec(
+        prometheus.HistogramOpts{
+            Name:    "rag_query_duration_seconds",
+            Buckets: []float64{.01, .05, .1, .5, 1, 5},
+        },
+        []string{"collection", "cache_status"},
+    )
+
+    jobState = promauto.NewGaugeVec(
+        prometheus.GaugeOpts{
+            Name: "rag_jobs_state",
+            Help: "Jobs in each state",
+        },
+        []string{"queue", "state"},
+    )
+)
+```
+
+### SLO/SLI/SLA
+
+| Metric | SLO | SLI |
+|--------|-----|-----|
+| Query latency (cached) | < 50ms p95 | Histogram |
+| Query latency (uncached) | < 2s p95 | Histogram |
+| Cache hit rate | ≥ 60% | Counter ratio |
+| Job success rate | ≥ 95% | Counter ratio |
+| DLQ depth | < 10 | Gauge |
+
+---
+
+## Acceptance Criteria (Enterprise)
+
+| # | Criterion | Test | SLO |
+|---|-----------|------|-----|
+| AC-1 | Same query returns cached response | Cache hit logged | < 50ms |
+| AC-2 | Job retries 3x on failure | Simulate error, check DLQ | DLQ < 10 |
+| AC-3 | Chunk quality score in payload | Check Qdrant point | qdrant payload |
+| AC-4 | Spans visible in OTEL | Trace ID in logs | W3C format |
+| AC-5 | Cache miss → normal flow | Log cache miss + proceed | uncached < 2s |
+| AC-6 | DLQ receives failed jobs after 3 retries | Check rag:dlq:* | DLQ < 10 |
+| AC-7 | Circuit breaker opens on sustained failures | Inject errors | circuit open |
+| AC-8 | Correlation ID propagates | Check traceparent header | W3C format |
+
+---
+
+## Files Structure
+
+```
+internal/rag/
+├── cache.go           # Redis semantic cache (BullMQ patterns)
+├── jobs.go           # Job queue (BullMQ patterns)
+├── otel.go           # OpenTelemetry spans
+├── quality.go        # Chunk quality scoring (qwen2.5-vl)
+├── config.go         # RAGConfig with env vars
+├── errors.go         # Sentinel errors + error types
+└── metrics.go        # Prometheus metrics
+
+internal/workers/
+├── worker.go         # mclaude -p worker
+├── queue.go         # queue.json atômico
+└── context.go       # Shadow context propagation
+```
+
+---
+
+## Pipeline JSON Schema (Updated)
 
 ```json
 {
-  "spec": "SPEC-XXX",
+  "spec": "SPEC-009",
   "phase": "execute",
   "parallel_limit": 15,
   "tasks": [
     {
       "id": "T001",
-      "name": "task-name-slug",
-      "description": "Descrição da tarefa (5-10 min)",
-      "agent_role": "backend-agent|deploy-agent|docs-agent|debug-agent",
-      "file_context": [
-        "/srv/monorepo/AGENTS.md",
-        "/srv/monorepo/docs/SPECS/SPEC-XXX.md"
-      ],
-      "expected_output": "Descrição do output esperado",
+      "name": "qdrant-auth-config",
+      "description": "Configurar Qdrant com API key auth",
+      "agent_role": "deploy-agent",
       "acceptance_criteria": [
-        "Critério 1",
-        "Critério 2"
+        "Qdrant responde 200 em /collections com auth",
+        "Benchmark: 1000 vectors, p99 < 50ms"
+      ]
+    },
+    {
+      "id": "T002",
+      "name": "redis-semantic-cache",
+      "description": "Implementar cache semântico com BullMQ patterns",
+      "agent_role": "backend-agent",
+      "acceptance_criteria": [
+        "Cache hit < 50ms",
+        "TTL adaptativo funcionando"
+      ]
+    },
+    {
+      "id": "T003",
+      "name": "otel-tracing",
+      "description": "Instrumentar com OpenTelemetry W3C TraceContext",
+      "agent_role": "backend-agent",
+      "acceptance_criteria": [
+        "Spans visíveis no collector",
+        "Correlation ID propagates"
       ]
     }
   ]
 }
 ```
 
-## Riscos
+---
 
-| Risco | Probabilidade | Impacto | Mitigação |
-|-------|--------------|---------|-----------|
-| Qdrant auth quebrado | Alta | RAG não funciona | Fix T-FIX-001 primeiro |
-| mem0 não conecta a Qdrant | Alta | Second brain não persiste | Fix T-FIX-002 + T-FIX-003 |
-| Workers consomem contexto histórico | Baixa | Janela fica lenta | Workers usam mclaude -p (contexto zero) |
-| queue.json corrompe | Baixa | Estado perdido | fcntl.flock + os.replace (atômico) |
-| Hermes MCP offline | Média | Tutor não responde | Monitor :8092 health |
+## Risks (Com mitigação)
+
+| Risco | Prob | Impacto | Mitigação |
+|-------|------|---------|-----------|
+| Qdrant auth quebrado | Alta | RAG não funciona | T-001 primeiro |
+| Cache stampede | Média | Latência spikes | Lock pattern |
+| Circuit breaker mal config | Média | False positives | Testar com chaos |
+| DLQ growth unchecked | Alta | Lost jobs | Monitoring + alerting |
+
+---
 
 ## Referências
 
-- `/srv/monorepo/docs/AUDITS/SPEC-008-COMPLETION-REPORT.md` — SPEC-008 results
-- `/srv/ops/ai-governance/NETWORK_MAP.md` — Network topology
-- `/srv/monorepo/.claude/vibe-kit/vibe-kit.sh` — Worker runner
-- `/srv/monorepo/.claude/vibe-kit/nexus.sh` — PREVC orchestrator
-- `~/.claude/rules/agent-skills.rules` — Shadow context skill
+- SPEC-060 (HVAC RAG Enterprise Pipeline) — patterns de cache/queue
+- SPEC-010 (Monorepo Hardening) — observability patterns
+- `/srv/monorepo/internal/swarm/worker.go` — retry/DLQ implementation
+- `/srv/monorepo/docs/SPECS/SPEC-002-redis-queues.md` — Redis queue spec
+
+---
+
+## Status: IN_PROGRESS
+
+**Bloqueado por:** SPEC-010 (DONE ✅)
+
+**Próximos passos:**
+1. Qdrant auth config (T-001)
+2. Redis semantic cache (T-002)
+3. OpenTelemetry tracing (T-003)
