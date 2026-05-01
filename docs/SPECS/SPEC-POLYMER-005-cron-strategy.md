@@ -33,7 +33,7 @@ PostgreSQL       crm-postgres (Docker)   5432/tcp   password      n8n + others
 
 Second Brain     ~/Desktop/hermes-second-brain/  GIT  none         TREE.md, SOUL.md, CLAUDE.md
 
-Ollama           native                  11434      none          qwen2.5vl:3b, qwen2.5:3b, nomic-embed-text
+Ollama           native                  11434      none          qwen2.5vl:3b (3.2GB), qwen2.5:3b (1.9GB), nomic-embed-text (274MB)
 
 Hermes Agent     hermes-orchestrator     8092       none          skills, memory, agents
 

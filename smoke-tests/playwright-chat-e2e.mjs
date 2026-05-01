@@ -6,7 +6,9 @@ import { chromium } from 'playwright';
 
 const site = process.argv[2] || 'chat.zappro.site';
 const screenshotDir = process.env.SCREENSHOT_DIR || '/srv/monorepo/smoke-tests/screenshots';
+const videoDir = process.env.VIDEO_DIR || '/srv/monorepo/smoke-tests/videos';
 const screenshotPath = `${screenshotDir}/e2e-${site.replace('.', '-')}-${Date.now()}.png`;
+const videoPath = `${videoDir}/e2e-${site.replace('.', '-')}-${Date.now()}.webm`;
 const DEBUG = process.env.DEBUG === '1';
 
 const CF_AUTH_COOKIE = 'CF_Authorization';
@@ -35,7 +37,8 @@ try {
 
 const context = await browser.newContext({
     ignoreHTTPSErrors: true,
-    viewport: { width: 1920, height: 1080 }
+    viewport: { width: 1920, height: 1080 },
+    recordVideo: { dir: videoDir, size: { width: 1920, height: 1080 } },
 });
 
 const page = await context.newPage();
@@ -119,14 +122,25 @@ try {
     }
 
     if (exitCode !== 0 || DEBUG) {
-        // Ensure screenshot directory exists
+        // Ensure screenshot and video directories exist
         const fs = await import('fs');
         fs.mkdirSync(screenshotDir, { recursive: true });
+        fs.mkdirSync(videoDir, { recursive: true });
 
         // Capture screenshot
         await page.screenshot({ path: screenshotPath, fullPage: true }).catch(() => {});
 
         console.log(`\nScreenshot on failure: ${screenshotPath}`);
+
+        // Save video on failure
+        try {
+            const video = page.video();
+            if (video) {
+                await video.saveAs(videoPath);
+                console.log(`Video on failure: ${videoPath}`);
+            }
+        } catch (_) {}
+
         if (consoleErrors.length > 0) {
             console.log('Console errors:', consoleErrors.slice(0, 5).join('; '));
         }
@@ -134,12 +148,22 @@ try {
 
 } catch (err) {
     console.error('\n❌ Playwright error:', err.message);
-    // Try to capture screenshot even on unexpected error
+    // Try to capture screenshot and video even on unexpected error
     try {
         const fs = await import('fs');
         fs.mkdirSync(screenshotDir, { recursive: true });
+        fs.mkdirSync(videoDir, { recursive: true });
         await page.screenshot({ path: screenshotPath, fullPage: true }).catch(() => {});
         console.log(`\nScreenshot on error: ${screenshotPath}`);
+
+        // Save video on error
+        try {
+            const video = page.video();
+            if (video) {
+                await video.saveAs(videoPath);
+                console.log(`Video on error: ${videoPath}`);
+            }
+        } catch (_) {}
     } catch (_) {}
     exitCode = 1;
 } finally {
