@@ -1,0 +1,22 @@
+OPENWEBUI-HVAC VERSION 1.0.0
+=============================
+
+Locked Configuration: services/docker-compose.openwebui.yml
+
+CHANGELOG
+---------
+2026-05-01 v1.0.0
+- Initial locked configuration
+- Uses zappro-redis for sessions (not localhost)
+- Points OPENAI_API_BASE_URL to host.docker.internal:4017 (HVAC pipeline)
+- Joins zappro-lite_default network for Redis access
+- Google OAuth enabled for authentication
+
+APPROVAL
+--------
+Platform Engineering - 2026-05-01
+
+ROLLBACK
+--------
+git checkout HEAD~1 -- services/docker-compose.openwebui.yml
+docker compose -f services/docker-compose.openwebui.yml up -d
