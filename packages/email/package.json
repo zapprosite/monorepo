@@ -8,7 +8,7 @@
 	"private": true,
 	"scripts": {
 		"check-types": "tsc --noEmit",
-		"build": "npx -p typescript tsc && npx -p typescript tsc-alias",
+		"build": "tsc && tsc-alias",
 		"dev": "concurrently --kill-others \"tsc -w\" \"tsc-alias -w\"",
 		"clean": "rm -rf node_modules && rm -rf dist",
 		"lint": "biome check .",
@@ -17,12 +17,14 @@
 	},
 	"peerDependencies": {
 		"react": "^19.2.0",
-		"@react-email/components": "^0.0.19",
-		"react-email": "^3.0.7"
+		"@react-email/render": "^2.0.8",
+		"react-email": "^6.0.5"
 	},
 	"devDependencies": {
-		"@repo/typescript-config": "*",
-		"@types/react": "^19.2.2"
+		"@repo/typescript-config": "workspace:*",
+		"@types/react": "^19.2.2",
+		"tsc-alias": "^1.8.16",
+		"typescript": "5.9.3"
 	},
 	"dependencies": {
 		"resend": "^4.1.2"

@@ -60,7 +60,6 @@ Only files changed since last sync (delta):
 **Excluded:**
 - `node_modules/`
 - `.git/`
-- `archive/`
 - Binary files
 
 ## State

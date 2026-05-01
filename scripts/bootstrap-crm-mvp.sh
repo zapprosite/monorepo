@@ -2,12 +2,17 @@
 # =============================================================================
 # Bootstrap MVP CRM Serviços — Fase 1: Infraestrutura
 # SPEC-001 / PLAN-001 / pipeline.json
+# Status: historical. Do not run for new work; use current app SPECs instead.
 # =============================================================================
 set -euo pipefail
 
 PROJECT_ROOT="/srv/monorepo"
 CRM_DIR="$PROJECT_ROOT/crm-mvp"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+echo "ERRO: scripts/bootstrap-crm-mvp.sh is historical and disabled."
+echo "Use current SPEC-driven app scaffolding instead."
+exit 1
 
 echo "═══════════════════════════════════════════════════════════════"
 echo "  Bootstrap MVP CRM Serviços — Fase 1: Infraestrutura"
@@ -532,7 +537,7 @@ export const publicProcedure = t.procedure;
 // Tipos compartilhados
 export type AppRouter = typeof appRouter;
 
-// Placeholder — será expandido pelos routers de cada módulo
+// Router base — expandido pelos routers de cada módulo
 const appRouter = router({
   health: publicProcedure.query(() => ({ status: 'ok', time: new Date().toISOString() })),
 });
@@ -715,7 +720,7 @@ export default function LoginPage() {
 }
 EOF
 
-# Dashboard placeholder
+# Dashboard scaffold
 cat > apps/web/src/pages/Dashboard.page.tsx <<'EOF'
 export default function DashboardPage() {
   return (

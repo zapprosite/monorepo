@@ -134,7 +134,7 @@ get_changed_files() {
         # Timestamp-based delta (fallback)
         while IFS= read -r file; do
             [[ -f "$file" ]] && [[ "$file" -nt "$since" ]] && changed+=("$file")
-        done < <(find "$MONOREPO_ROOT" -type f \( -name "*.py" -o -name "*.ts" -o -name "*.js" -o -name "*.md" -o -name "*.sh" -o -name "*.yaml" -o -name "*.yml" -o -name "*.json" \) ! -path "*/node_modules/*" ! -path "*/.git/*" ! -path "*/archive/*" 2>/dev/null || true)
+        done < <(find "$MONOREPO_ROOT" -type f \( -name "*.py" -o -name "*.ts" -o -name "*.js" -o -name "*.md" -o -name "*.sh" -o -name "*.yaml" -o -name "*.yml" -o -name "*.json" \) ! -path "*/node_modules/*" ! -path "*/.git/*" 2>/dev/null || true)
     else
         # No baseline - return empty (first run)
         :
@@ -308,7 +308,7 @@ sync_delta() {
     else
         # First sync - full index of key files only
         warn "First sync - indexing key files only (delta not available)"
-        changed_files=$(find "$MONOREPO_ROOT" -type f \( -name "*.py" -o -name "*.ts" -o -name "*.js" -o -name "*.sh" \) ! -path "*/node_modules/*" ! -path "*/.git/*" ! -path "*/archive/*" 2>/dev/null | head -100 || true)
+        changed_files=$(find "$MONOREPO_ROOT" -type f \( -name "*.py" -o -name "*.ts" -o -name "*.js" -o -name "*.sh" \) ! -path "*/node_modules/*" ! -path "*/.git/*" 2>/dev/null | head -100 || true)
     fi
 
     local file_count
@@ -388,7 +388,7 @@ sync_full() {
 
     # Find all indexable files
     local files
-    files=$(find "$MONOREPO_ROOT" -type f \( -name "*.py" -o -name "*.ts" -o -name "*.js" -o -name "*.sh" -o -name "*.md" \) ! -path "*/node_modules/*" ! -path "*/.git/*" ! -path "*/archive/*" 2>/dev/null | head -500 || true)
+    files=$(find "$MONOREPO_ROOT" -type f \( -name "*.py" -o -name "*.ts" -o -name "*.js" -o -name "*.sh" -o -name "*.md" \) ! -path "*/node_modules/*" ! -path "*/.git/*" 2>/dev/null | head -500 || true)
 
     local file_count
     file_count=$(echo "$files" | grep -c '.' || echo 0)

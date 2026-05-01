@@ -5,7 +5,7 @@ React Email templates for transactional emails using Resend.
 ## Usage
 
 ```typescript
-import { render } from '@react-email/components';
+import { render } from '@react-email/render';
 import { MyTemplate } from '@connected-repo/email/templates/MyTemplate';
 
 // Render email template

@@ -1,21 +1,31 @@
 services:
-
   litellm:
     image: ghcr.io/berriai/litellm:main-latest
-    container_name: litellm-proxy
+    container_name: zappro-litellm
     restart: unless-stopped
     env_file:
       - /srv/monorepo/.env
     environment:
       - COMPOSE_PROJECT_NAME=infra
       - LITELLM_CONFIG_FILE=/app/config/config.yaml
+      - DATABASE_URL=postgresql://litellm:litellm_pass_2026@zappro-litellm-db:5432/litellm
     volumes:
       - /srv/monorepo/config/litellm/config.yaml:/app/config/config.yaml:ro
     ports:
-      - "4017:4000"
+      - "4000:4000"
     command: --config /app/config/config.yaml --port 4000 --num_workers 2
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:4000/health"]
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:4000/health')"]
       interval: 30s
       timeout: 10s
       retries: 3
+    networks:
+      - services_default
+      - zappro-lite_default
+
+networks:
+  services_default:
+    name: services_default
+    external: true
+  zappro-lite_default:
+    external: true

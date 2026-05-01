@@ -117,6 +117,9 @@ Desktop.ini
 .gemini/
 .codex/
 .cursor-loop/
+.claude-events/
+opencode.json
+services/docker-compose.orchestrator.yml
 .continue/
 .cursorrules
 .windsurf/
