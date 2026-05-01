@@ -3,6 +3,13 @@
 # Hardened version with error handling, logging, timeouts, and cleanup
 set -euo pipefail
 
+# ─── Load env (for auth credentials) ──────────────────────────────────────────
+if [[ -f "/srv/monorepo/.env" ]]; then
+    set -a
+    source "/srv/monorepo/.env"
+    set +a
+fi
+
 # ─── Defaults & Constants ───────────────────────────────────────────────────
 readonly SCRIPT_NAME="$(basename "$0")"
 readonly SCRIPT_VERSION="2.0.0"

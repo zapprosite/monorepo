@@ -5,7 +5,8 @@
 import { chromium } from 'playwright';
 
 const site = process.argv[2] || 'chat.zappro.site';
-const screenshotPath = `/tmp/e2e-${site.replace('.', '-')}-${Date.now()}.png`;
+const screenshotDir = process.env.SCREENSHOT_DIR || '/srv/monorepo/smoke-tests/screenshots';
+const screenshotPath = `${screenshotDir}/e2e-${site.replace('.', '-')}-${Date.now()}.png`;
 const DEBUG = process.env.DEBUG === '1';
 
 const CF_AUTH_COOKIE = 'CF_Authorization';
@@ -54,6 +55,12 @@ page.on('response', res => {
 });
 
 let exitCode = 0;
+const consoleErrors = [];
+
+// Capture console errors from the start
+page.on('console', msg => {
+    if (msg.type() === 'error') consoleErrors.push(msg.text());
+});
 
 try {
     console.log('\n[2] Navigating to site...');
@@ -112,12 +119,28 @@ try {
     }
 
     if (exitCode !== 0 || DEBUG) {
-        await page.screenshot({ path: screenshotPath, fullPage: true });
-        console.log(`\nScreenshot: ${screenshotPath}`);
+        // Ensure screenshot directory exists
+        const fs = await import('fs');
+        fs.mkdirSync(screenshotDir, { recursive: true });
+
+        // Capture screenshot
+        await page.screenshot({ path: screenshotPath, fullPage: true }).catch(() => {});
+
+        console.log(`\nScreenshot on failure: ${screenshotPath}`);
+        if (consoleErrors.length > 0) {
+            console.log('Console errors:', consoleErrors.slice(0, 5).join('; '));
+        }
     }
 
 } catch (err) {
     console.error('\n❌ Playwright error:', err.message);
+    // Try to capture screenshot even on unexpected error
+    try {
+        const fs = await import('fs');
+        fs.mkdirSync(screenshotDir, { recursive: true });
+        await page.screenshot({ path: screenshotPath, fullPage: true }).catch(() => {});
+        console.log(`\nScreenshot on error: ${screenshotPath}`);
+    } catch (_) {}
     exitCode = 1;
 } finally {
     await browser.close();

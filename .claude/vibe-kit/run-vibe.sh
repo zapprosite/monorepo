@@ -724,13 +724,13 @@ do_loop() {
                     # Remove stale recording files
                     rm -f "$typescript_file" "$timing_file"
 
-                    # script -c runs the command inside a pseudo-terminal recording session
                     # -q: quiet (no "Script started/finished" messages)
                     # -a: append to typescript file
-                    # -t: emit timing records to fd 3 (captured to timing_file)
-                    # We redirect worker output to both the typescript (via script) and worker_log
-                    script -q -a "$typescript_file" -t "$timing_file" \
-                        bash -c "$worker_cmd -p 'You are worker-$$.
+                    # -c: command to run
+                    # --log-timing: output timing to file
+                    # Worker output goes to worker_log via bash redirect
+                    script -q -a "$typescript_file" --log-timing "$timing_file" -c \
+                        "$worker_cmd -p 'You are worker-$$.
 APP: $app
 TASK: $task_name
 DESCRIPTION: $description
@@ -740,8 +740,7 @@ Working directory: /srv/monorepo
 Execute completely. Output [COMPLETE] task_id=$task_id result=done when done.
 If you cannot complete, output [COMPLETE] task_id=$task_id result=failed reason=...
 
-Save your work context to: $CONTEXT_DIR/${task_id}.ctx' \
-                        >> '$worker_log' 2>&1" \
+Save your work context to: $CONTEXT_DIR/${task_id}.ctx'" \
                         >> "$worker_log" 2>&1 || worker_exit=$?
                 else
                     # No recording — run directly

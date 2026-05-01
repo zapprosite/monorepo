@@ -6,7 +6,7 @@ import { defineConfig, devices } from '@playwright/test';
  */
 export default defineConfig({
   testDir: './e2e',
-  fullyParallel: false,
+  fullyParallel: true,
   timeout: 30_000,
   expect: {
     timeout: 10_000,
@@ -17,7 +17,7 @@ export default defineConfig({
   ],
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  workers: process.env.CI ? undefined : undefined,
   use: {
     baseURL: process.env.BASE_URL || 'http://localhost:4004',
     trace: 'on-first-retry',
