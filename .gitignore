@@ -309,3 +309,4 @@ scripts/*secret*.sh
 *_key.txt
 api_key.txt
 token.txt
+services/
