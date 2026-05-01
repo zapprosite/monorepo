@@ -1,1 +1,0 @@
-/srv/monorepo/.claude-events/scripts/install-links.sh

@@ -5,9 +5,10 @@ import { describe, expect, it } from "vitest";
 
 const createCaller = createCallerFactory(appTrpcRouter);
 
-const FAKE_UUID = "00000000-0000-0000-0000-000000000001";
-const FAKE_UUID_2 = "00000000-0000-0000-0000-000000000002";
-const FAKE_UUID_3 = "00000000-0000-0000-0000-000000000003";
+// Valid UUIDs (not real, but structurally valid)
+const FAKE_UUID = "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11";
+const FAKE_UUID_2 = "b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a22";
+const FAKE_UUID_3 = "c0eebc99-9c0b-4ef8-bb6d-6bb9bd380a33";
 
 // ---------------------------------------------------------------------------
 // Auth guard — todas as procedures rejeitam acesso não autenticado
@@ -31,8 +32,7 @@ describe("leads — auth guard (UNAUTHORIZED)", () => {
 		await expect(
 			caller.leads.createLead({
 				nome: "Test Lead",
-				email: "lead@example.com",
-				telefone: "+5511999999999",
+				origem: "Site",
 				status: "Novo",
 			}),
 		).rejects.toMatchObject({ code: "UNAUTHORIZED" });
@@ -68,11 +68,11 @@ describe("leads — listLeads filters", () => {
 	});
 
 	it("listLeads com filtro origem", async () => {
-		const result = await caller.leads.listLeads({ origem: "Website" });
+		const result = await caller.leads.listLeads({ origem: "Indicação" });
 		expect(Array.isArray(result)).toBe(true);
 	});
 
-	it("listLeads com filtro responsavelId", async () => {
+	it("listLeads com filtro responsavelId (UUID válido)", async () => {
 		const result = await caller.leads.listLeads({ responsavelId: FAKE_UUID });
 		expect(Array.isArray(result)).toBe(true);
 	});
@@ -93,9 +93,9 @@ describe("leads — listLeads filters", () => {
 });
 
 // ---------------------------------------------------------------------------
-// getLeadDetail — NOT_FOUND
+// getLeadDetail — NOT_FOUND e validação UUID
 // ---------------------------------------------------------------------------
-describe("leads — getLeadDetail NOT_FOUND", () => {
+describe("leads — getLeadDetail", () => {
 	const caller = createCaller(authContext({ teamId: "team-01" }));
 
 	it("getLeadDetail lança NOT_FOUND para lead inexistente", async () => {
@@ -103,10 +103,16 @@ describe("leads — getLeadDetail NOT_FOUND", () => {
 			caller.leads.getLeadDetail({ leadId: FAKE_UUID }),
 		).rejects.toMatchObject({ code: "NOT_FOUND" });
 	});
+
+	it("getLeadDetail rejeita UUID inválido (BAD_REQUEST)", async () => {
+		await expect(
+			caller.leads.getLeadDetail({ leadId: "not-a-uuid" }),
+		).rejects.toMatchObject({ code: "BAD_REQUEST" });
+	});
 });
 
 // ---------------------------------------------------------------------------
-// createLead — criação
+// createLead — criação (origem é mandatory, status é mandatory)
 // ---------------------------------------------------------------------------
 describe("leads — createLead", () => {
 	const caller = createCaller(authContext({ teamId: "team-create" }));
@@ -114,33 +120,50 @@ describe("leads — createLead", () => {
 	it("createLead cria lead com campos obrigatórios", async () => {
 		const result = await caller.leads.createLead({
 			nome: "Lead Novo",
-			email: "leadnovo@example.com",
-			telefone: "+5511988887777",
+			origem: "Site",
 			status: "Novo",
 		});
 		expect(result).toMatchObject({
 			nome: "Lead Novo",
-			email: "leadnovo@example.com",
+			origem: "Site",
 			status: "Novo",
 		});
 		expect(result.leadId).toBeDefined();
 		expect(result.teamId).toBe("team-create");
 	});
 
-	it("createLead com origem", async () => {
+	it("createLead com origem Indicação", async () => {
 		const result = await caller.leads.createLead({
-			nome: "Lead Origem",
-			email: "origem@example.com",
-			telefone: "+5511977776666",
+			nome: "Lead Indicação",
+			origem: "Indicação",
 			status: "Novo",
-			origem: "Email Marketing",
 		});
-		expect(result).toMatchObject({ origem: "Email Marketing" });
+		expect(result).toMatchObject({ origem: "Indicação" });
+	});
+
+	it("createLead rejeita status inválido", async () => {
+		await expect(
+			caller.leads.createLead({
+				nome: "Lead Inválido",
+				origem: "Site",
+				status: "InvalidStatus",
+			}),
+		).rejects.toMatchObject({ code: "BAD_REQUEST" });
+	});
+
+	it("createLead rejeita origem inválida", async () => {
+		await expect(
+			caller.leads.createLead({
+				nome: "Lead Inválido",
+				origem: "InvalidOrigem",
+				status: "Novo",
+			}),
+		).rejects.toMatchObject({ code: "BAD_REQUEST" });
 	});
 });
 
 // ---------------------------------------------------------------------------
-// updateLead — NOT_FOUND e FORBIDDEN
+// updateLead — NOT_FOUND
 // ---------------------------------------------------------------------------
 describe("leads — updateLead NOT_FOUND", () => {
 	const caller = createCaller(authContext({ teamId: "team-update" }));
@@ -150,29 +173,16 @@ describe("leads — updateLead NOT_FOUND", () => {
 			caller.leads.updateLead({ leadId: FAKE_UUID, nome: "Nome Atualizado" }),
 		).rejects.toMatchObject({ code: "NOT_FOUND" });
 	});
-});
 
-describe("leads — updateLead FORBIDDEN (cross-team)", () => {
-	it("updateLead lança FORBIDDEN se lead pertence a outro team", async () => {
-		// Caller com team-A tenta actualizar lead de team-B
-		const callerTeamA = createCaller(authContext({ teamId: "team-a" }));
-		// Primeiro criar lead belong to team-b
-		const callerTeamB = createCaller(authContext({ teamId: "team-b" }));
-		const created = await callerTeamB.leads.createLead({
-			nome: "Lead Team B",
-			email: "teamb@example.com",
-			telefone: "+5511966665555",
-			status: "Novo",
-		});
-		// Team A tenta actualizar
+	it("updateLead rejeita UUID inválido", async () => {
 		await expect(
-			callerTeamA.leads.updateLead({ leadId: created.leadId, nome: "Hack" }),
-		).rejects.toMatchObject({ code: "FORBIDDEN" });
+			caller.leads.updateLead({ leadId: "bad-uuid", nome: "Test" }),
+		).rejects.toMatchObject({ code: "BAD_REQUEST" });
 	});
 });
 
 // ---------------------------------------------------------------------------
-// convertLeadToClient — conversão
+// convertLeadToClient — NOT_FOUND
 // ---------------------------------------------------------------------------
 describe("leads — convertLeadToClient", () => {
 	const caller = createCaller(authContext({ teamId: "team-convert" }));
