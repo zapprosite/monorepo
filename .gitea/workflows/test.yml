@@ -15,10 +15,10 @@ jobs:
     name: Unit Tests
 
     steps:
-      - name: Checkout monorepo
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
+      - name: Checkout monorepo (git clone)
+        run: |
+          git clone --depth=1 http://localhost:3300/will-zappro/monorepo.git .
+          git fetch --depth=1 origin main
 
       - name: Configure Git
         run: |
