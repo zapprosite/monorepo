@@ -35,4 +35,4 @@ jobs:
 
       - name: Run unit tests
         working-directory: /home/node/monorepo
-        run: pnpm turbo test --filter='!connected-repo'
+        run: pnpm turbo test
