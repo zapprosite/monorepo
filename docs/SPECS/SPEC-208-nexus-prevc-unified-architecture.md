@@ -5,7 +5,7 @@ spec: SPEC-208-nexus-prevc-unified-architecture
 title: Nexus + PREVC — Unified Agent Harness Architecture
 status: active
 date: 2026-05-02
-author:** Agent Architecture Team
+author: Agent Architecture Team
 ---
 
 # SPEC-208 — Nexus + PREVC Unified Architecture
@@ -18,8 +18,9 @@ author:** Agent Architecture Team
 
 **O que NÃO é mais:** PREVC como motor standalone com queue.json e state.json próprios. LangGraph como orquestrador.
 
-**Stack de execução:** Claude Code CLI Agent Teams (supervisor nativo)
-**Stack operacional:** Nexus scripts (legacy, alerting, cron)
+**Stack de execução:** `queue-control.sh` + `pipeline-plan.py` + `pipeline-executor.py` (chunk-based sequencial)
+**Stack de paralelismo:** Claude Code CLI Agent Teams (supervisor nativo) — executa dento de cada chunk
+**Stack operacional:** Nexus scripts (legacy, alerting, cron, SRE)
 **Governança:** Claude Code Hooks (PreToolUse/PostToolUse)
 
 ---
@@ -57,7 +58,76 @@ HERMES (agente pai —会话)
         → Definido aqui como especificação
         → Executado pelo supervisor (Claude Code Agent Teams)
         → NÃO existe motor PREVC separado
+
+---
+
+## 2b. Motor de Execução — queue-control.sh
+
+O motor de execução é o `queue-control.sh` (`~/.hermes/scripts/`). Implementa chunk-based pipeline sequencial com checkpoint:
+
 ```
+plan (pipeline.json)
+    ↓
+pipeline-plan.py  →  divide em chunks (CHUNK_SIZE=5 tarefas)
+    ↓
+checkpoint.json  ←  estado centralizado
+    ↓
+chunk-001.json  →  pipeline-executor.py  →  results
+chunk-002.json  →  pipeline-executor.py  →  results
+...
+    ↓
+queue-control.sh review  →  validação final
+    ↓
+queue-control.sh destroy  →  shred + cleanup
+```
+
+**Comandos:**
+
+| Comando | Função |
+|---------|--------|
+| `queue-control.sh plan <json>` | Analisa pipeline e gera chunks em `/tmp/sub-pipeline-*.json` |
+| `queue-control.sh next` | Executa próximo chunk do checkpoint |
+| `queue-control.sh run <chunk>` | Executa chunk específico |
+| `queue-control.sh status` | Mostra estado atual (chunk_index, tasks_done, status) |
+| `queue-control.sh review` | Validação final + prompt destroy |
+| `queue-control.sh destroy` | Shred seguro + cleanup emergência |
+
+**Checkpoint (`~/.hermes/pipeline-checkpoint.json`):**
+```json
+{
+  "spec": "SPEC-208",
+  "status": "running",
+  "chunk_index": 2,
+  "total_chunks": 4,
+  "tasks_done": ["task-1", "task-2"],
+  "tasks_remaining": ["task-3", ...],
+  "last_updated": "2026-05-02T..."
+}
+```
+
+**Fluxo de contexto entre chunks:**
+1. Chunk completa → `cmd_next` mostra hint de renovação
+2. Agente faz `session_search()` para saber o que foi feito
+3. Agente carrega próximo chunk file e continua
+4. `pipeline-executor.py` loga tudo em `~/.hermes/pipeline-logs/`
+
+**Shred seguro:** `queue-control.sh destroy` faz 3-pass DD overwrite antes de apagar — garante que segredos nos logs não são recuperáveis.
+
+**Gates de aprovação por fase PREVC mapeiam para transições de status no checkpoint:**
+- P→R: `plan` rodou, status "planned", humano approves
+- R→E: status "reviewed", Chunk 1 inicia
+- E→V: todos os chunks executados, status "verify"
+- V→C: `review` passou, status "review", humano approves
+- C→done: `destroy` executado
+
+**Arquivos do motor:**
+
+|| Ficheiro | Função |
+|--|---------|--------|
+| `queue-control.sh` | CLI do orchestrator |
+| `pipeline-plan.py` | Parser + chunk generator |
+| `pipeline-executor.py` | Executor de um chunk |
+| `pipeline-checkpoint.json` | Estado centralizado |
 
 ---
 
@@ -220,11 +290,15 @@ Scripts mantidos (funcionais):
 | Componente | Onde | Status |
 |------------|------|--------|
 | Nexus scripts | `/srv/monorepo/scripts/nexus-*.sh` | ✅ Funcional |
-| SPEC-015 | `/srv/monorepo/docs/SPECS/SPEC-015-...md` | ⚠️ Legacy (a archivar) |
-| prevc.json workflow state | `.context/harness/workflows/prevc.json` | ✅ Formato válido |
+| **queue-control.sh motor** | `~/.hermes/scripts/queue-control.sh` | ✅ Funcional — **motor real do pipeline** |
+| **pipeline-plan.py** | `~/.hermes/scripts/pipeline-plan.py` | ✅ Funcional |
+| **pipeline-executor.py** | `~/.hermes/scripts/pipeline-executor.py` | ✅ Funcional |
+| **checkpoint** | `~/.hermes/pipeline-checkpoint.json` | ✅ Funcional |
+| SPEC-015 | `/srv/monorepo/docs/SPECS/SPECS-dead/SPEC-015-...md` | ✅ Arquivado |
+| prevc.json workflow state | `.context/harness/workflows/prevc.json` | ✅ Formato válido (spec only) |
 | pipeline.json (health) | `.claude/vibe-kit/pipeline.json` | ✅ Health check output |
 | Claude Code hooks | `~/.claude/hooks/` | ✅ Funcionando |
-| Agent Teams flag | `~/.claude/settings.json` | ❌ Não habilitado |
+| Agent Teams flag | `~/.claude/settings.json` | ✅ Habilitado |
 
 ### Spec only (não existe motor)
 
@@ -235,9 +309,13 @@ Scripts mantidos (funcionais):
 | MCP dotcontext | Durable session state | Context lives in filesystem (SPEC-107) |
 | 49 agentes especializados | 7 roles × 7 modes | Reduzido para 6 teammate types |
 
-### Agora é SPEC only
+### Agora é SPEC only (PREVC phases)
 
 O `.context/harness/workflows/prevc.json` passa a ser o **formato canônico de estado de workflow**, não um motor. O supervisor (Claude Code main session) que lê e executa as transições.
+
+**Motor real:** `queue-control.sh` — chunk-based sequencial com checkpoint.
+
+**O PREVC como spec-only** significa: as 5 fases (Plan→Review→Execute→Verify→Complete) são o contrato de governança, mas a execução é controlada pelo queue-control.sh com chunks, não por Agent Teams autônomo.
 
 ---
 
@@ -258,6 +336,7 @@ O `.context/harness/workflows/prevc.json` passa a ser o **formato canônico de e
 ### Phase E — Execute
 - Supervisor distribui tasks para teammates via Agent Teams
 - Workers executam em contexto isolado
+- **Chunks executados via `queue-control.sh`** — cada chunk é um grupo de tasks (CHUNK_SIZE=5)
 - ZFS snapshot a cada 3 tasks completadas
 - **Gate:** 100% tasks OU ACs satisfeitos
 
