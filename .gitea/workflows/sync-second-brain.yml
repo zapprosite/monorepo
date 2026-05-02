@@ -17,6 +17,9 @@ jobs:
   sync:
     name: Sync to Second Brain
     runs-on: ubuntu-latest
+    container:
+      image: node:22
+      options: --network host
 
     steps:
       - name: Checkout monorepo
@@ -80,7 +83,7 @@ jobs:
         id: sha
         run: |
           RESPONSE=$(curl -s -X GET \
-            "http://gitea:3000/api/v1/repos/will-zappro/hermes-second-brain/contents/monorepo-TREE.md" \
+            "http://localhost:3300/api/v1/repos/will-zappro/hermes-second-brain/contents/monorepo-TREE.md" \
             -H "Authorization: Bearer ${{ secrets.GITEA_TOKEN }}")
           
           SHA=$(echo "$RESPONSE" | python3 -c "import sys,json; print(json.load(sys.stdin).get('sha',''))" 2>/dev/null || echo "")
@@ -94,7 +97,7 @@ jobs:
           if [ -z "$SHA" ]; then
             # File doesn't exist — use POST (create)
             curl -s -X POST \
-              "http://gitea:3000/api/v1/repos/will-zappro/hermes-second-brain/contents/monorepo-TREE.md" \
+              "http://localhost:3300/api/v1/repos/will-zappro/hermes-second-brain/contents/monorepo-TREE.md" \
               -H "Authorization: Bearer ${{ secrets.GITEA_TOKEN }}" \
               -H "Content-Type: application/json" \
               -d "{
@@ -105,7 +108,7 @@ jobs:
           else
             # File exists — use PUT (update with SHA)
             curl -s -X PUT \
-              "http://gitea:3000/api/v1/repos/will-zappro/hermes-second-brain/contents/monorepo-TREE.md" \
+              "http://localhost:3300/api/v1/repos/will-zappro/hermes-second-brain/contents/monorepo-TREE.md" \
               -H "Authorization: Bearer ${{ secrets.GITEA_TOKEN }}" \
               -H "Content-Type: application/json" \
               -d "{
