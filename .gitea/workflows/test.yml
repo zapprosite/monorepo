@@ -17,17 +17,12 @@ jobs:
       options: --network host
     name: Unit Tests
 
-    env:
-      GITHUB_SERVER_URL: http://127.0.0.1:3300
-      GITHUB_API_URL: http://127.0.0.1:3300/api/v1
-
     steps:
-      - name: Checkout monorepo (git clone directly)
+      - name: Checkout monorepo
         run: |
-          git clone --bare http://127.0.0.1:3300/will-zappro/monorepo.git /workspace
+          git clone --depth=1 http://127.0.0.1:3300/will-zappro/monorepo.git /workspace
           cd /workspace
-          git config --local --add safe.directory /workspace
-          git checkout main
+          git fetch --depth=1 origin main
 
       - name: Configure Git
         run: |
@@ -37,5 +32,5 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Run unit tests (local packages only)
+      - name: Run unit tests
         run: pnpm turbo test --filter='!connected-repo'
