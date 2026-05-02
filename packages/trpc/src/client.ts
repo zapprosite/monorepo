@@ -1,4 +1,4 @@
-import { createTRPCClient, TRPCClientConfig } from '@trpc/client';
+import { createTRPCProxyClient, httpBatchLink } from '@trpc/client';
 import type { AppRouter } from './server.js';
 
 /**
@@ -8,17 +8,18 @@ import type { AppRouter } from './server.js';
  * ```typescript
  * import { createTRPCClient } from '@connected-repo/trpc/client';
  *
- * const client = createTRPCClient({
- *   prefix: 'api',
+ * const client = createTRPCProxyClient<AppRouter>({
+ *   links: [httpBatchLink({ url: '/api' })],
  * });
- *
- * const result = await client.greeting.query({ name: 'World' });
  * ```
  */
-export function createTRPCClient(config?: Partial<TRPCClientConfig>) {
-  return createTRPCClient<AppRouter>({
-    prefix: 'api',
-    ...config,
+export function createTRPCClient() {
+  return createTRPCProxyClient<AppRouter>({
+    links: [
+      httpBatchLink({
+        url: process.env.API_URL || 'http://localhost:3000/api',
+      }),
+    ],
   });
 }
 

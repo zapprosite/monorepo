@@ -30,7 +30,7 @@ export type TrieveDataset = z.infer<typeof TrieveDatasetSchema>;
 export const TrieveChunkSchema = z.object({
   id: z.string(),
   content: z.string(),
-  metadata: z.record(z.string()).default({}),
+  metadata: z.record(z.string(), z.string()).default({}),
 });
 
 export type TrieveChunk = z.infer<typeof TrieveChunkSchema>;
@@ -75,7 +75,7 @@ export type CreateDatasetRequest = z.infer<typeof CreateDatasetRequestSchema>;
 export const UploadChunkRequestSchema = z.object({
   dataset_id: z.string().uuid(),
   content: z.string().min(1),
-  metadata: z.record(z.string()).default({}),
+  metadata: z.record(z.string(), z.string()).default({}),
 });
 
 export type UploadChunkRequest = z.infer<typeof UploadChunkRequestSchema>;

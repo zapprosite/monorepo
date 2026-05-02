@@ -6,7 +6,7 @@
  * 3. Qdrant connection
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
 // ── Mock env before importing module ──────────────────────────────────────────
 beforeEach(() => {
@@ -147,7 +147,10 @@ describe('rag_retrieve', () => {
     await ragRetrieve('test', 3);
 
     const fetchCall = (global.fetch as ReturnType<typeof vi.fn>).mock.calls[0];
-    const body = JSON.parse(fetchCall[1].body as string);
+    if (!fetchCall) {
+      throw new Error('No fetch call recorded');
+    }
+    const body = JSON.parse(fetchCall[1]?.body as string || '{}');
     expect(body.limit).toBe(3);
   });
 });
@@ -165,7 +168,7 @@ describe('Trieve search API', () => {
     const results = await search('550e8400-e29b-41d4-a716-446655440000', 'deploy', 5);
 
     expect(results).toHaveLength(3);
-    expect(results[0].chunk.content).toContain('SKILL.md');
+    expect(results?.[0]?.chunk.content).toContain('SKILL.md');
   });
 
   it('search constructs correct URL with dataset_id', async () => {
