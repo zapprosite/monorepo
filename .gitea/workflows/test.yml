@@ -20,7 +20,7 @@ jobs:
     steps:
       - name: Checkout monorepo
         run: |
-          git clone --depth=1 http://host.docker.internal:3300/will-zappro/monorepo.git .
+          git clone --depth=1 http://host.docker.internal:4003/will-zappro/monorepo.git .
           git fetch --depth=1 origin main
 
       - name: Configure Git

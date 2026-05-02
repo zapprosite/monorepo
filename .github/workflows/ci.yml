@@ -6,9 +6,18 @@ on:
   pull_request:
     branches: [main]
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
+  # ─────────────────────────────────────────────────────────────────────────
+  # Stage 1: Build & Test — runs on every push/PR
+  # ─────────────────────────────────────────────────────────────────────────
   pipeline:
+    name: Build · Test
     runs-on: ubuntu-latest
+    timeout-minutes: 20
 
     services:
       postgres:
@@ -26,42 +35,68 @@ jobs:
           --health-retries 5
 
     env:
+      NODE_ENV: test
       DB_HOST: localhost
       DB_PORT: "5432"
       DB_USER: postgres
       DB_PASSWORD: postgres
       DB_NAME: connected_repo_test
-      NODE_ENV: test
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - uses: pnpm/action-setup@v4
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
         with:
           version: 9
 
-      - uses: actions/setup-node@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: 'pnpm'
+          node-version: "22"
+          cache: "pnpm"
 
-      - run: pnpm install --frozen-lockfile
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
-      - name: Preparar .env para CI
+      - name: Prepare .env for CI
         run: |
-          cp .env.example .env
-          sed -i 's|SESSION_SECRET=.*|SESSION_SECRET=ci-session-secret-minimum-32-characters-ok!!|' .env
-          sed -i 's|INTERNAL_API_SECRET=.*|INTERNAL_API_SECRET=ci-internal-api-secret-minimum-32-chars!!|' .env
-          sed -i 's|DB_NAME=connected_repo$|DB_NAME=connected_repo_test|' .env
-          cp apps/api/.env.example apps/api/.env 2>/dev/null || true
-          cp apps/web/.env.example apps/web/.env 2>/dev/null || true
+          cp .env.example .env 2>/dev/null || true
+          sed -i 's|SESSION_SECRET=.*|SESSION_SECRET=ci-placeholder|g' .env 2>/dev/null || true
+          sed -i 's|INTERNAL_API_SECRET=.*|INTERNAL_API_SECRET=ci-placeholder|g' .env 2>/dev/null || true
+          sed -i 's|DB_NAME=connected_repo$|DB_NAME=connected_repo_test|g' .env 2>/dev/null || true
+          for app in apps/api apps/web apps/backend apps/frontend 2>/dev/null; do
+            cp "$app/.env.example" "$app/.env" 2>/dev/null || true
+          done
 
-      - run: pnpm turbo build
+      - name: Type check
+        run: pnpm check-types
 
-      - run: pnpm turbo lint
+      - name: Lint (Biome)
+        run: pnpm lint
 
-      - run: pnpm turbo test
+      - name: Build
+        run: pnpm turbo build
+        env:
+          TURBO_CACHE_DIR: .turbo
 
-      - name: Update pipeline state
+      - name: Test
+        run: pnpm turbo test
+        env:
+          TURBO_CACHE_DIR: .turbo
+
+      - name: Summary
         if: success()
-        run: echo "CI_PASSED=true" >> $GITHUB_STEP_SUMMARY
+        run: |
+          echo "## CI Status: PASSED" >> $GITHUB_STEP_SUMMARY
+          echo "- Commit: \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- Branch: \`${{ github.ref_name }}\`" >> $GITHUB_STEP_SUMMARY
+
+      - name: Summary (failure)
+        if: failure()
+        run: |
+          echo "## CI Status: FAILED" >> $GITHUB_STEP_SUMMARY
+          echo "- Commit: \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- Branch: \`${{ github.ref_name }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- Logs: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" >> $GITHUB_STEP_SUMMARY
