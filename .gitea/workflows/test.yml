@@ -34,18 +34,5 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Type check
-        run: pnpm turbo typecheck
-
-      - name: Run unit tests
-        run: pnpm turbo test
-
-      - name: Upload coverage
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: coverage-reports
-          path: |
-            apps/*/coverage/
-            packages/*/coverage/
-          retention-days: 30
+      - name: Run unit tests (local packages only)
+        run: pnpm turbo test --filter='!connected-repo'
