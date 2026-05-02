@@ -12,23 +12,22 @@ on:
 jobs:
   unit-tests:
     runs-on: ubuntu-latest
+    container: node:22
     name: Unit Tests
 
     steps:
       - name: Checkout monorepo
         run: |
-          /usr/bin/git clone --depth=1 http://localhost:3300/will-zappro/monorepo.git .
-          /usr/bin/git fetch --depth=1 origin main
+          git clone --depth=1 http://host.docker.internal:3300/will-zappro/monorepo.git .
+          git fetch --depth=1 origin main
 
       - name: Configure Git
         run: |
-          /usr/bin/git config --global user.email "hermes@zappro.site"
-          /usr/bin/git config --global user.name "Hermes Agent"
+          git config --global user.email "hermes@zappro.site"
+          git config --global user.name "Hermes Agent"
 
-      - name: Install dependencies (including dev)
-        run: |
-          /usr/lib/node_modules/corepack/cli.js corepack enable
-          /usr/bin/pnpm install
+      - name: Install dependencies
+        run: npm install -g pnpm && pnpm install
 
       - name: Run unit tests
-        run: /usr/bin/pnpm turbo test
+        run: pnpm turbo test
