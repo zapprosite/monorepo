@@ -25,6 +25,9 @@ jobs:
           /usr/bin/git config --global user.email "hermes@zappro.site"
           /usr/bin/git config --global user.name "Hermes Agent"
 
+      - name: Install pnpm via corepack
+        run: /usr/lib/node_modules/corepack/cli.js corepack enable && /usr/bin/pnpm --version
+
       - name: Install dependencies
         run: /usr/bin/pnpm install --frozen-lockfile
 
