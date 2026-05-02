@@ -11,7 +11,7 @@ on:
 
 jobs:
   unit-tests:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     container:
       image: node:22
       options: --network host
