@@ -36,12 +36,13 @@ code=$(curl -sS -o /dev/null -w "%{http_code}" --max-time 5 "$GW/health" || echo
 chk "GET /v1/models" "$GW/v1/models"
 
 echo
-echo "── 2. OUVIDOS (STT → faster-whisper :8204) ──"
+echo "── 2. OUVIDOS (STT → routed via ai-gateway) ──"
+# faster-whisper was removed from stack 2026-05-01 — STT is now via OpenAI-compatible gateway
 curl -s --max-time 5 http://localhost:8204/health 2>/dev/null | grep -q "ok" \
-  && ok "faster-whisper :8204 /health" || bad "faster-whisper :8204 offline"
+  && ok "faster-whisper :8204 /health" || warn "faster-whisper :8204 offline (deprecado)"
 
 curl -s --max-time 5 http://localhost:8204/v1/models 2>/dev/null | grep -q "faster-whisper" \
-  && ok "faster-whisper model" || warn "faster-whisper model endpoint"
+  && ok "faster-whisper model" || warn "faster-whisper model endpoint (deprecado)"
 
 # Gateway STT endpoint (sem ficheiro — só verificar routing)
 code=$(curl -sS -o /dev/null -w "%{http_code}" --max-time 5 \
