@@ -12,17 +12,13 @@ on:
 jobs:
   unit-tests:
     runs-on: ubuntu-latest
-    container:
-      image: node:22
-      options: --network host
     name: Unit Tests
 
     steps:
       - name: Checkout monorepo
-        run: |
-          git clone --depth=1 http://127.0.0.1:3300/will-zappro/monorepo.git /home/node/monorepo
-          cd /home/node/monorepo
-          git fetch --depth=1 origin main
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
 
       - name: Configure Git
         run: |
@@ -30,9 +26,7 @@ jobs:
           git config --global user.name "Hermes Agent"
 
       - name: Install dependencies
-        working-directory: /home/node/monorepo
         run: pnpm install --frozen-lockfile
 
       - name: Run unit tests
-        working-directory: /home/node/monorepo
         run: pnpm turbo test
