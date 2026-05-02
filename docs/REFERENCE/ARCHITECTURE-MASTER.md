@@ -64,7 +64,7 @@
 │   │   ├── SPEC-README.md
 │   │   ├── SPEC-TEMPLATE.md
 │   │   ├── SPEC-001-template-fusionado.md   [COMPLETED]
-│   │   ├── SPEC-001-workflow-performatico.md [DRAFT]
+│   │   ├── SPEC-004-autonomous-execution-pipeline.md [DRAFT]
 │   │   ├── SPEC-002-homelab-network-refactor.md [DRAFT]
 │   │   ├── SPEC-004-
 │   │   ├── SPEC-005-wav2vec2-stt-kit.md

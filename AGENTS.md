@@ -4,6 +4,19 @@
 > **Authority:** Claude Code CLI + Gitea Actions + Antigravity Kit (.agent/)
 > **Stack:** pnpm workspaces + Turbo pipeline + Biome lint + Playwright E2E
 
+## Leia Primeiro — Verdade Operacional Atual
+
+Este monorepo tem documentação histórica. Para evitar drift, use esta ordem antes de qualquer task:
+
+1. [docs/START-HERE.md](docs/START-HERE.md) — entrada operacional anti-salada.
+2. `bash scripts/sre-check.sh ci --json` — contrato local do repo.
+3. `bash scripts/sre-check.sh prod-readonly --markdown` — smoke read-only de produção.
+4. [docs/SPECS/SPEC-002-homelab-control-plane.md](docs/SPECS/SPEC-002-homelab-control-plane.md) — SRE 7 dias, SLO 99,5%, GitHub primário.
+5. `.claude/skills/monorepo-navigator/SKILL.md` — escolha de rota no repo.
+6. `.claude/skills/sre-operator/SKILL.md` — health, deploy readiness e incidente.
+
+**Estado atual:** GitHub Actions é o CI primário. Gitea é espelho/fallback. `pnpm` é o package manager. Produção é `diagnose_only` por padrão: nenhuma mutação sem aprovação humana explícita.
+
 ---
 
 ## Arquitectura Unified (09/04/2026)

@@ -1,4 +1,6 @@
 ---
+**Last reviewed:** 2026-05-02
+**Owner:** SRE/homelab
 spec_id: SPEC-004
 title: Autonomous Execution Pipeline
 status: active
@@ -7,10 +9,11 @@ owner: Platform Engineering
 supersedes:
   - SPEC-090
   - SPEC-091
-  - docs/SPECs/SPEC-PLAN-MODE
+  - docs/SPECs/SPEC-007-context-auto
 ---
 
-# SPEC-004: Autonomous Execution Pipeline
+# SPEC-004 — Autonomous Execution Pipeline
+Autonomous Execution Pipeline
 
 ## Objective
 

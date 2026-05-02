@@ -1,4 +1,6 @@
 ---
+**Last reviewed:** 2026-05-02
+**Owner:** SRE/homelab
 spec_id: SPEC-001
 title: "MVP CRM Serviços — Dark Mode + Verde Ácido"
 status: active
@@ -7,7 +9,8 @@ priority: P0
 created: 2026-04-30
 ---
 
-# SPEC-001 — MVP CRM para Serviços Técnicos
+# SPEC-001 — Crm Mvp
+— MVP CRM para Serviços Técnicos
 
 ## 1. Visão
 
@@ -34,7 +37,7 @@ O CRM atual (monorepo apps/web + apps/api) foi movido para branch `archive/crm-l
 | Kanban | ❌ Removido | Não essencial |
 | Calendário Editorial | ❌ Removido | Marketing, não core |
 | Journal Entries | ❌ Removido | Diário pessoal |
-| RAG/Trieve | ❌ Removido | AI avançada, adicionar depois |
+| RAG/Haystack | ❌ Removido | AI avançada, adicionar depois |
 
 ## 3. Funcionalidades (Módulos)
 

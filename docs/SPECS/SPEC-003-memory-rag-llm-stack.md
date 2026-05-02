@@ -1,4 +1,6 @@
 ---
+**Last reviewed:** 2026-05-02
+**Owner:** SRE/homelab
 spec_id: SPEC-003
 title: Memory RAG LLM Stack
 status: active
@@ -11,11 +13,12 @@ supersedes:
   - SPEC-121
   - SPEC-122
   - SPEC-130
-  - docs/SPECs/SPEC-3LAYER-MEMORY
-  - docs/SPECs/SPEC-VIBE-BRAIN-REFACTOR
+  - docs/SPECs/SPEC-003-memory-rag-llm-stack
+  - docs/SPECs/SPEC-007-context-auto
 ---
 
-# SPEC-003: Memory RAG LLM Stack
+# SPEC-003 — Memory Rag Llm Stack
+Memory RAG LLM Stack
 
 ## Objective
 
@@ -23,7 +26,7 @@ Hermes needs three separate knowledge layers. Mixing them caused drift and
 debug loops. The active stack is:
 
 1. Repo docs as source of truth.
-2. Qdrant/Trieve as retrieval.
+2. Qdrant/Haystack as retrieval.
 3. Mem0/Qdrant as dynamic working memory.
 4. LiteLLM/Ollama as reasoning and embedding infrastructure.
 
@@ -32,7 +35,7 @@ debug loops. The active stack is:
 | Layer | Stores | Does not store | Canonical path/service |
 |---|---|---|---|
 | Repo | Specs, ADRs, runbooks, tasks | Session chatter, secrets | `/srv/monorepo`, second brain repo |
-| RAG | Indexed docs/chunks | Preferences, secrets | Trieve + Qdrant |
+| RAG | Indexed docs/chunks | Preferences, secrets | Haystack + Qdrant |
 | Memory | Preferences, recent state, summaries | Canonical facts, secrets | Mem0 + Qdrant |
 | Reasoning | No durable data by default | Secrets in prompts/logs | LiteLLM + Ollama |
 
@@ -41,7 +44,7 @@ debug loops. The active stack is:
 | Service | Purpose | Config |
 |---|---|---|
 | Qdrant | Vector DB for RAG and memory | `QDRANT_URL`, `QDRANT_API_KEY` |
-| Trieve | RAG datasets and hybrid search | `TRIEVE_URL`, `TRIEVE_API_KEY`, `TRIEVE_DEFAULT_DATASET_ID` |
+| Haystack | RAG datasets and hybrid search | `HAYSTACK_URL`, `HAYSTACK_API_KEY`, `HAYSTACK_DEFAULT_DATASET_ID` |
 | Mem0 | Dynamic memory facade | `MEM0_*`, Qdrant backend |
 | Ollama | Local embeddings/models | `OLLAMA_URL`, `OLLAMA_EMBED_MODEL` |
 | LiteLLM | Provider gateway | `LITELLM_LOCAL_URL`, `LITELLM_MASTER_KEY` |
@@ -53,7 +56,7 @@ debug loops. The active stack is:
 |---|---|---|
 | Embedding dimension drift | `.env.example` says 768, code uses 1024 in `mem0/embeddings.ts` and `qdrant/client.ts` | Pick one model/dimension and enforce it in code/env/docs |
 | Old result specs contain operational secrets | Historical SPEC-121/122 had values copied from `.env` | Keep values redacted and scan docs/tasks |
-| Trieve endpoints are implemented but not health-gated | `rag-instance-organizer.ts` catches failures and returns empty context | Add `/health/rag` or startup warning |
+| Haystack endpoints are implemented but not health-gated | `rag-instance-organizer.ts` catches failures and returns empty context | Add `/health/rag` or startup warning |
 | LiteLLM MiniMax API base drift | Old docs mention path duplication | Keep API base host-only in env docs |
 | Memory fallback pseudo-embedding can hide outages | Fallback preserves function but degrades retrieval quality | Emit metric/log and expose degraded status |
 
