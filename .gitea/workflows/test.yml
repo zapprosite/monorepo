@@ -11,8 +11,10 @@ on:
 
 jobs:
   unit-tests:
-    runs-on: self-hosted
-    container: {}
+    runs-on: ubuntu-latest
+    container:
+      image: act-node22:latest
+      options: --network host
     name: Unit Tests
 
     steps:
