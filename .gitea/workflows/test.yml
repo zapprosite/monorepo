@@ -15,18 +15,18 @@ jobs:
     name: Unit Tests
 
     steps:
-      - name: Checkout monorepo (git clone)
+      - name: Checkout monorepo
         run: |
-          git clone --depth=1 http://localhost:3300/will-zappro/monorepo.git .
-          git fetch --depth=1 origin main
+          /usr/bin/git clone --depth=1 http://localhost:3300/will-zappro/monorepo.git .
+          /usr/bin/git fetch --depth=1 origin main
 
       - name: Configure Git
         run: |
-          git config --global user.email "hermes@zappro.site"
-          git config --global user.name "Hermes Agent"
+          /usr/bin/git config --global user.email "hermes@zappro.site"
+          /usr/bin/git config --global user.name "Hermes Agent"
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: /usr/local/bin/pnpm install --frozen-lockfile
 
       - name: Run unit tests
-        run: pnpm turbo test
+        run: /usr/local/bin/pnpm turbo test
