@@ -4,10 +4,10 @@ log:
   trace: false
 
 runner:
-  capacity: 1
+  capacity: 2
   name: prod-runner-1
   labels:
-    - self-hosted
+    - "ubuntu-node:docker://localhost:5000/gitea-runner-ubuntu-node:22"
 
 cache:
   enabled: false
