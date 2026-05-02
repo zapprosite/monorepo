@@ -22,9 +22,12 @@ jobs:
       GITHUB_API_URL: http://127.0.0.1:3300/api/v1
 
     steps:
-      - uses: actions/checkout@v4
-        with:
-          persist-credentials: false
+      - name: Checkout monorepo (git clone directly)
+        run: |
+          git clone --bare http://127.0.0.1:3300/will-zappro/monorepo.git /workspace
+          cd /workspace
+          git config --local --add safe.directory /workspace
+          git checkout main
 
       - name: Configure Git
         run: |
