@@ -26,7 +26,7 @@ jobs:
           /usr/bin/git config --global user.name "Hermes Agent"
 
       - name: Install dependencies
-        run: /usr/local/bin/pnpm install --frozen-lockfile
+        run: /usr/bin/pnpm install --frozen-lockfile
 
       - name: Run unit tests
-        run: /usr/local/bin/pnpm turbo test
+        run: /usr/bin/pnpm turbo test
