@@ -14,12 +14,11 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: act-node22:latest
-      options: --network host
     name: Unit Tests
 
     env:
-      GITHUB_SERVER_URL: http://192.168.15.83:3300
-      GITHUB_API_URL: http://192.168.15.83:3300/api/v1
+      GITHUB_SERVER_URL: http://127.0.0.1:3300
+      GITHUB_API_URL: http://127.0.0.1:3300/api/v1
 
     steps:
       - uses: actions/checkout@v4
