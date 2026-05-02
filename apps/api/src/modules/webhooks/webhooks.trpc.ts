@@ -2,9 +2,6 @@ import { protectedProcedure, trpcRouter } from "@backend/trpc";
 import {
 	webhookCreateInputZod,
 	webhookUpdateInputZod,
-	webhookSelectAllZod,
-	webhookDeliverySelectAllZod,
-	eventoSelectAllZod,
 } from "@connected-repo/zod-schemas/webhooks.zod";
 import { db } from "@backend/db/db";
 import { TRPCError } from "@trpc/server";
@@ -18,7 +15,7 @@ export const webhookRouter = trpcRouter({
 			// Verify client belongs to user's team
 			const client = await db.clients
 				.where({ clientId: input.clienteId, teamId: ctx.user.teamId })
-				.findOptional();
+				.first();
 			if (!client) {
 				throw new TRPCError({ code: "FORBIDDEN", message: "Cliente não pertence ao seu time" });
 			}
@@ -40,7 +37,7 @@ export const webhookRouter = trpcRouter({
 			// Verify client belongs to user's team
 			const client = await db.clients
 				.where({ clientId: input.clienteId, teamId: ctx.user.teamId })
-				.findOptional();
+				.first();
 			if (!client) {
 				throw new TRPCError({ code: "FORBIDDEN", message: "Cliente não pertence ao seu time" });
 			}
@@ -61,7 +58,7 @@ export const webhookRouter = trpcRouter({
 			// Verify webhook belongs to user's team
 			const client = await db.clients
 				.where({ clientId: webhook.clienteId, teamId: ctx.user.teamId })
-				.findOptional();
+				.first();
 			if (!client) {
 				throw new TRPCError({ code: "FORBIDDEN", message: "Webhook não pertence ao seu time" });
 			}
@@ -81,7 +78,7 @@ export const webhookRouter = trpcRouter({
 			// Verify webhook belongs to user's team
 			const client = await db.clients
 				.where({ clientId: webhook.clienteId, teamId: ctx.user.teamId })
-				.findOptional();
+				.first();
 			if (!client) {
 				throw new TRPCError({ code: "FORBIDDEN", message: "Webhook não pertence ao seu time" });
 			}
@@ -99,7 +96,7 @@ export const webhookRouter = trpcRouter({
 			// Verify webhook belongs to user's team
 			const client = await db.clients
 				.where({ clientId: webhook.clienteId, teamId: ctx.user.teamId })
-				.findOptional();
+				.first();
 			if (!client) {
 				throw new TRPCError({ code: "FORBIDDEN", message: "Webhook não pertence ao seu time" });
 			}
@@ -120,7 +117,7 @@ export const webhookRouter = trpcRouter({
 			// Verify webhook belongs to user's team
 			const client = await db.clients
 				.where({ clientId: webhook.clienteId, teamId: ctx.user.teamId })
-				.findOptional();
+				.first();
 			if (!client) {
 				throw new TRPCError({ code: "FORBIDDEN", message: "Webhook não pertence ao seu time" });
 			}
@@ -146,7 +143,7 @@ export const webhookRouter = trpcRouter({
 			if (!webhook) throw new TRPCError({ code: "NOT_FOUND", message: "Webhook não encontrado" });
 			const client = await db.clients
 				.where({ clientId: webhook.clienteId, teamId: ctx.user.teamId })
-				.findOptional();
+				.first();
 			if (!client) {
 				throw new TRPCError({ code: "FORBIDDEN", message: "Webhook não pertence ao seu time" });
 			}
@@ -160,7 +157,7 @@ export const webhookRouter = trpcRouter({
 			// Verify client belongs to user's team
 			const client = await db.clients
 				.where({ clientId: input.clienteId, teamId: ctx.user.teamId })
-				.findOptional();
+				.first();
 			if (!client) {
 				throw new TRPCError({ code: "FORBIDDEN", message: "Cliente não pertence ao seu time" });
 			}
@@ -182,7 +179,7 @@ export const webhookRouter = trpcRouter({
 			// Verify event's client belongs to user's team
 			const client = await db.clients
 				.where({ clientId: evento.clienteId, teamId: ctx.user.teamId })
-				.findOptional();
+				.first();
 			if (!client) {
 				throw new TRPCError({ code: "FORBIDDEN", message: "Evento não pertence ao seu time" });
 			}

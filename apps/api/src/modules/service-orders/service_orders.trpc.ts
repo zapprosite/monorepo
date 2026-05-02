@@ -27,7 +27,7 @@ export const serviceOrdersRouterTrpc = trpcRouter({
 		.input(listServiceOrdersFilterZod)
 		.query(async ({ ctx, input }) => {
 			const { teamId } = ctx.user;
-			let query = db.serviceOrders.select("serviceOrders.*").innerJoin("clients", "serviceOrders.clienteId", "clients.clientId").where("clients.teamId", teamId);
+			let query = db.serviceOrders.select("*").innerJoin("clients", "serviceOrders.clienteId", "clients.clientId").where("clients.teamId", teamId);
 
 			if (input.clienteId) query = query.where({ "serviceOrders.clienteId": input.clienteId });
 			if (input.tecnicoId) query = query.where({ "serviceOrders.tecnicoId": input.tecnicoId });

@@ -24,7 +24,7 @@ export const equipmentRouterTrpc = trpcRouter({
 			const { teamId } = ctx.user;
 			const cliente = await db.clients.where({ clientId: clienteId, teamId }).findOptional(clienteId);
 			if (!cliente) throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado" });
-			return db.units.select("units.*").innerJoin("clients", "units.clienteId", "clients.clientId").where({ "clients.teamId": teamId, "units.clienteId": clienteId }).order({ nome: "ASC" });
+			return db.units.select("*").innerJoin("clients", "units.clienteId", "clients.clientId").where({ "clients.teamId": teamId, "units.clienteId": clienteId }).order({ nome: "ASC" });
 		}),
 
 	getUnitDetail: protectedProcedure.input(unitGetByIdZod).query(async ({ ctx, input: { unitId } }) => {
@@ -56,7 +56,7 @@ export const equipmentRouterTrpc = trpcRouter({
 	// --- EQUIPMENT ---
 	listEquipment: protectedProcedure.input(listEquipmentFilterZod).query(async ({ ctx, input }) => {
 		const { teamId } = ctx.user;
-		let query = db.equipment.select("equipment.*").innerJoin("clients", "equipment.clienteId", "clients.clientId").where("clients.teamId", teamId);
+		let query = db.equipment.select("*").innerJoin("clients", "equipment.clienteId", "clients.clientId").where("clients.teamId", teamId);
 		if (input.clienteId) query = query.where({ "equipment.clienteId": input.clienteId });
 		if (input.unitId) query = query.where({ unitId: input.unitId });
 		if (input.status) query = query.where({ status: input.status });
@@ -70,7 +70,7 @@ export const equipmentRouterTrpc = trpcRouter({
 			const { teamId } = ctx.user;
 			const cliente = await db.clients.where({ clientId: clienteId, teamId }).findOptional(clienteId);
 			if (!cliente) throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado" });
-			return db.equipment.select("equipment.*").innerJoin("clients", "equipment.clienteId", "clients.clientId").where({ "clients.teamId": teamId, "equipment.clienteId": clienteId }).order({ nome: "ASC" });
+			return db.equipment.select("*").innerJoin("clients", "equipment.clienteId", "clients.clientId").where({ "clients.teamId": teamId, "equipment.clienteId": clienteId }).order({ nome: "ASC" });
 		}),
 
 	listEquipmentByUnit: protectedProcedure

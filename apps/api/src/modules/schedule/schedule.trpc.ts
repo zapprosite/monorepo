@@ -15,7 +15,7 @@ export const scheduleRouterTrpc = trpcRouter({
 	listSchedules: protectedProcedure.input(listScheduleFilterZod).query(async ({ ctx, input }) => {
 		const { teamId } = ctx.user;
 		let query = db.schedules
-			.select("schedules.*")
+			.select("*")
 			.innerJoin("clients", "schedules.clienteId", "clients.clientId")
 			.where("clients.teamId", teamId);
 
