@@ -1,0 +1,41 @@
+groups:
+  - name: zappro-sre-burn-rate
+    rules:
+      - alert: CriticalServiceAvailabilityBurnRateFast
+        expr: |
+          (
+            1 - avg_over_time(probe_success{tier="critical"}[5m])
+          ) > (0.005 * 14.4)
+        for: 5m
+        labels:
+          severity: page
+          slo: "99.5"
+        annotations:
+          summary: "Burn rate rapido em servico critico"
+          description: "Erro em servico critico acima do budget permitido na janela de 5 minutos."
+
+      - alert: CriticalServiceAvailabilityBurnRateMedium
+        expr: |
+          (
+            1 - avg_over_time(probe_success{tier="critical"}[1h])
+          ) > (0.005 * 6)
+        for: 15m
+        labels:
+          severity: urgent-ticket
+          slo: "99.5"
+        annotations:
+          summary: "Burn rate sustentado em servico critico"
+          description: "Erro em servico critico acima do budget permitido na janela de 1 hora."
+
+      - alert: CriticalServiceAvailabilityBurnRateSlow
+        expr: |
+          (
+            1 - avg_over_time(probe_success{tier="critical"}[6h])
+          ) > (0.005 * 3)
+        for: 30m
+        labels:
+          severity: ticket
+          slo: "99.5"
+        annotations:
+          summary: "Burn rate lento em servico critico"
+          description: "Erro em servico critico consumindo budget na janela de 6 horas."
