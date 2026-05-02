@@ -226,3 +226,4 @@ sudo zfs list -t snapshot -r tank | tail -10
 
 Este sistema de marcadores foi criado 2026-04-08 após incidentes onde LLMs propuseram "otimizações" que quebraram voice pipeline estável.
 **Próxima revisão:** 2026-05-08
+Updated: 2026-05-01

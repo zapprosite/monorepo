@@ -250,3 +250,4 @@ Documentos que protegem configurações estáveis de "otimizações" que quebram
 **Gerado:** 2026-03-16
 **Próxima Revisão:** Semanal (junto com SYSTEM_ARCHITECTURE.md)
 **Linguagem:** 🇧🇷 Português Brasileiro Obrigatório
+Updated: 2026-05-01

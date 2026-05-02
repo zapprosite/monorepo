@@ -1,6 +1,4 @@
 # Gitea Actions Runner config
-# Runner connects via env vars GITEA_INSTANCE_URL, GITEA_RUNNER_REGISTRATION_TOKEN
-# This file exists to satisfy the bind mount requirement
 log:
   level: info
   trace: false
@@ -9,7 +7,13 @@ runner:
   capacity: 1
   name: prod-runner-1
   labels:
-    - ubuntu-latest
+    - self-hosted
 
 cache:
   enabled: false
+
+env:
+  GITHUB_API_URL: http://127.0.0.1:3300/api/v1
+  GITHUB_SERVER_URL: http://127.0.0.1:3300
+  ACTIONS_RESULTS_URL: http://127.0.0.1:3300
+  ACTIONS_RUNTIME_URL: http://127.0.0.1:3300/api/actions_pipeline/

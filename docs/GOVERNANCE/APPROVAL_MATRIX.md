@@ -221,3 +221,4 @@ This is the single source of truth for "can I do this?" decisions.
 **Last Updated:** 2026-03-16
 **Enforcement:** Check before every action
 **Questions:** Consult CONTRACT.md, GUARDRAILS.md, or ask human
+Updated: 2026-05-01

@@ -10,10 +10,21 @@ services:
     volumes:
       - /srv/monorepo/config/litellm/config.yaml:/app/config/config.yaml:ro
     ports:
-      - "4017:4000"
+      - "4018:4000"
     command: --config /app/config/config.yaml --port 4000 --num_workers 2
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:4000/health"]
       interval: 30s
       timeout: 10s
       retries: 3
+    networks:
+      - monorepo_default
+      - zappro-lite_default
+
+networks:
+  monorepo_default:
+    external: true
+    name: monorepo_default
+  zappro-lite_default:
+    external: true
+    name: zappro-lite_default

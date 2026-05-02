@@ -333,8 +333,6 @@ importers:
         specifier: ^4.1.0
         version: 4.1.4(@types/node@22.19.17)(@vitest/coverage-v8@4.1.4)(jsdom@29.0.2)(msw@2.14.2(@types/node@22.19.17)(typescript@5.9.3))(vite@7.3.2(@types/node@22.19.17)(jiti@2.4.2)(terser@5.46.2)(tsx@4.21.0)(yaml@2.8.3))
 
-  mcps/mcp-postgres: {}
-
   packages/config: {}
 
   packages/db:
