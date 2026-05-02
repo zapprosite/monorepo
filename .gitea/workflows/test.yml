@@ -12,9 +12,7 @@ on:
 jobs:
   unit-tests:
     runs-on: self-hosted
-    container:
-      image: act-node22:latest
-      options: --network host
+    container: {}
     name: Unit Tests
 
     steps:
