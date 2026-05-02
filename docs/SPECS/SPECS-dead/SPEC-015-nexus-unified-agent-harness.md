@@ -1,14 +1,14 @@
 ---
 **Last reviewed:** 2026-05-02
 **Owner:** SRE/homelab
-spec: SPEC-015-nexus-unified-agent-harness
+spec: SPEC-208-nexus-prevc-unified-architecture
 title: Nexus — Unified Agent Harness Framework
 status: active
 date: 2026-04-24
 author: Agent Architecture Team
 ---
 
-# SPEC-015 — Nexus Unified Agent Harness
+# SPEC-208 — Nexus Unified Agent Harness
 — Nexus: Unified Agent Harness Framework
 
 ## 1. Overview
@@ -366,7 +366,7 @@ Any agent with vision input → qwen2.5vl:3b
 
 **Execution Flow:**
 ```bash
-nexus.sh --spec SPEC-015-nexus-unified-agent-harness --phase execute --parallel 15
+nexus.sh --spec SPEC-208-nexus-prevc-unified-architecture --phase execute --parallel 15
 ```
 
 ---
@@ -380,16 +380,16 @@ nexus.sh --spec SPEC-015-nexus-unified-agent-harness --phase execute --parallel 
 **Usage:**
 ```bash
 # Start from SPEC
-nexus.sh --spec SPEC-015-nexus-unified-agent-harness --phase plan
+nexus.sh --spec SPEC-208-nexus-prevc-unified-architecture --phase plan
 
 # Execute with parallel workers
-nexus.sh --spec SPEC-015-nexus-unified-agent-harness --phase execute --parallel 15
+nexus.sh --spec SPEC-208-nexus-prevc-unified-architecture --phase execute --parallel 15
 
 # Resume interrupted run
 nexus.sh --resume
 
 # Skip to specific phase
-nexus.sh --spec SPEC-015-nexus-unified-agent-harness --phase verify
+nexus.sh --spec SPEC-208-nexus-prevc-unified-architecture --phase verify
 ```
 
 **Phases:**
@@ -403,7 +403,7 @@ nexus.sh --spec SPEC-015-nexus-unified-agent-harness --phase verify
 
 ```json
 {
-  "spec": "SPEC-015-nexus-unified-agent-harness",
+  "spec": "SPEC-208-nexus-prevc-unified-architecture",
   "phase": "execute",
   "total": 24,
   "pending": 20,
@@ -458,7 +458,7 @@ tank@nexus-{spec}-{phase}-{timestamp}
 
 **Rollback:**
 ```bash
-sudo zfs rollback -r tank@nexus-SPEC-015-nexus-unified-agent-harness-execute-20260424T120000
+sudo zfs rollback -r tank@nexus-SPEC-208-nexus-prevc-unified-architecture-execute-20260424T120000
 ```
 
 ---
@@ -484,7 +484,7 @@ sudo zfs rollback -r tank@nexus-SPEC-015-nexus-unified-agent-harness-execute-202
 │       ├── docs-agent/
 │       └── deploy-agent/
 └── docs/
-    └── SPEC-015-nexus-unified-agent-harness.md               # This specification
+    └── SPEC-208-nexus-prevc-unified-architecture.md               # This specification
 ```
 
 ---
@@ -539,9 +539,9 @@ sudo zfs rollback -r tank@nexus-SPEC-015-nexus-unified-agent-harness-execute-202
 
 - vibe-kit SPEC: `/srv/monorepo/.claude/vibe-kit/SPEC.md`
 - PREVC workflow: MCP dotcontext `workflow-*` tools
-- LangGraph: `SPEC-015.md`
+- LangGraph: `SPEC-208.md`
 - Agent frameworks: Research findings (agent-frameworks-1 through -5)
-- Monorepo SOUL: `/srv/monorepo/docs/SPECS/SPEC-015.md`
+- Monorepo SOUL: `/srv/monorepo/docs/SPECS/SPEC-208.md`
 
 ---
 
