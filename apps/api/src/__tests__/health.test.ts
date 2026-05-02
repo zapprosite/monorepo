@@ -6,6 +6,6 @@ describe('health', () => {
   })
 
   it('environment is test', () => {
-    expect(process.env.NODE_ENV).toBeDefined()
+    expect(process.env['NODE_ENV']).toBeDefined()
   })
 })

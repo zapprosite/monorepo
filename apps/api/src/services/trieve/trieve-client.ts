@@ -5,10 +5,7 @@
  */
 
 import type {
-  CreateDatasetRequest,
   RagRetrieveResult,
-  TrieveSearchResult,
-  UploadChunkRequest,
 } from './types.js';
 
 // ── Config ──────────────────────────────────────────────────────────────────────

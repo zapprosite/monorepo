@@ -25,10 +25,10 @@ export const loggerConfig: Record<
 						translateTime: "HH:MM:ss Z",
 						ignore: "pid,hostname",
 						// if axiom is enabled, we will send the logs to axiom
-						...(process.env.AXIOM_DATASET && process.env.AXIOM_TOKEN
+						...(process.env['AXIOM_DATASET'] && process.env['AXIOM_TOKEN']
 							? {
-									dataset: process.env.AXIOM_DATASET,
-									token: process.env.AXIOM_TOKEN,
+									dataset: process.env['AXIOM_DATASET'],
+									token: process.env['AXIOM_TOKEN'],
 								}
 							: {}),
 					},

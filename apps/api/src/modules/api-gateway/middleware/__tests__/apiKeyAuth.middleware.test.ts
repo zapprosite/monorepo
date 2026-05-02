@@ -1,5 +1,5 @@
 import { apiKeyAuthHook } from "../apiKeyAuth.middleware";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi, beforeEach } from "vitest";
 
 // Mock db and verifyApiKey
 vi.mock("@backend/db/db", () => ({

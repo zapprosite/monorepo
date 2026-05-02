@@ -1,6 +1,5 @@
 import { db } from "@backend/db/db";
 import { generateApiKey, hashApiKey } from "@backend/modules/api-gateway/utils/apiKeyGenerator.utils";
-import { sql } from "@backend/db/base_table";
 
 /**
  * Seed development team and API key for local testing
@@ -14,7 +13,7 @@ import { sql } from "@backend/db/base_table";
  */
 export async function seedDevTeam() {
 	// Production guard - never run seed in production
-	if (process.env.NODE_ENV === 'production') {
+	if (process.env['NODE_ENV'] === 'production') {
 		throw new Error('Dev team seed should not run in production');
 	}
 

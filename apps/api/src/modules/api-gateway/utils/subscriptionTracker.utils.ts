@@ -132,4 +132,7 @@ export async function checkAndQueueWebhookAt90Percent(subscription: {
 			return await Promise.all([createWebhook, markNotified]);
 		});
 	}
+
+	// Usage threshold not met or already notified - no action needed
+	return undefined;
 }

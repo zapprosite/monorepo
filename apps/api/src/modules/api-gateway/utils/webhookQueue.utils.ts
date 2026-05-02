@@ -74,7 +74,7 @@ export async function sendWebhook(
 
 		// Add Authorization header if bearer token is provided
 		if (bearerToken) {
-			headers.Authorization = `Bearer ${bearerToken}`;
+			headers['Authorization'] = `Bearer ${bearerToken}`;
 		}
 
 		const response = await axios.post(url, payload, {
