@@ -180,7 +180,7 @@ importers:
   apps/orchestrator:
     dependencies:
       '@connected-repo/zod-schemas':
-        specifier: '*'
+        specifier: workspace:*
         version: link:../../packages/zod-schemas
       '@trpc/server':
         specifier: ^11.7.0
@@ -367,11 +367,17 @@ importers:
         version: 4.8.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
     devDependencies:
       '@repo/typescript-config':
-        specifier: '*'
+        specifier: workspace:*
         version: link:../config
       '@types/react':
         specifier: ^19.2.2
         version: 19.2.14
+      tsc-alias:
+        specifier: ^1.8.16
+        version: 1.8.16
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
 
   packages/env:
     dependencies:
@@ -395,11 +401,17 @@ importers:
         version: 4.3.6
     devDependencies:
       '@repo/typescript-config':
-        specifier: '*'
+        specifier: workspace:*
         version: link:../config
       '@types/node':
         specifier: ^20.11.0
         version: 20.19.39
+      tsc-alias:
+        specifier: ^1.8.16
+        version: 1.8.16
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
 
   packages/ui:
     dependencies:
@@ -440,6 +452,12 @@ importers:
       '@types/react-dom':
         specifier: ^19.2.2
         version: 19.2.3(@types/react@19.2.14)
+      tsc-alias:
+        specifier: ^1.8.16
+        version: 1.8.16
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
 
   packages/zod-schemas:
     dependencies:
