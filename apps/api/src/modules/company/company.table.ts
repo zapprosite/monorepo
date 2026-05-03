@@ -19,7 +19,7 @@ export class CompanyTable extends BaseTable {
     primaryColor: t.string(7).default('#39FF14'),
     secondaryColor: t.string(7).default('#0A0A0F'),
     ownerSignature: t.text().nullable(),
-    createdAt: t.timestamp('created_at').defaultNow(),
-    updatedAt: t.timestamp('updated_at').defaultNow(),
+    createdAt: t.timestamp('created_at').default(t.sql`now()`),
+    updatedAt: t.timestamp('updated_at').default(t.sql`now()`),
   }));
 }

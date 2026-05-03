@@ -1,3 +1,5 @@
+import { z } from 'zod';
+
 import { db } from '@backend/db/db';
 import { protectedProcedure, trpcRouter } from '@backend/trpc';
 import {
@@ -196,4 +198,4 @@ export const equipmentRouterTrpc = trpcRouter({
 		}),
 });
 
-import { z } from 'zod';
+// No extra import needed — z is imported at top of file
