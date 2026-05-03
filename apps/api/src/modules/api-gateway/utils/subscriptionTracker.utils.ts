@@ -57,7 +57,7 @@ export async function incrementSubscriptionUsage(subscriptionId: string) {
 		// This is now protected by the surrounding transaction
 		await checkAndQueueWebhookAt90Percent(updatedSubscription).catch((error) => {
 			// Not throwing error as it might fail due to race-conditions in marking notified.
-			logger.error('Error checking and queueing webhook at 90% usage:', error);
+			logger.error({ err: error }, 'Error checking and queueing webhook at 90% usage');
 		});
 
 		return updatedSubscription;

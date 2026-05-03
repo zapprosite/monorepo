@@ -10,16 +10,26 @@
   },
   "agentsDir": ".claude/agents",
   "skillsDir": ".claude/skills",
-  "hooks": [
-    {
-      "match": "Write|Edit",
-      "matchFiles": "*.go",
-      "hook": ".claude/hooks/check-spec-exists.sh"
-    },
-    {
-      "match": "Write|Edit",
-      "matchFiles": "*.go",
-      "hook": ".claude/hooks/run-go-checks.sh"
-    }
-  ]
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/check-spec-exists.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/run-go-checks.sh"
+          }
+        ]
+      }
+    ]
+  }
 }

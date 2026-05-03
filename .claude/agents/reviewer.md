@@ -1,6 +1,6 @@
 ---
 name: reviewer
-purpose: Revisão de diffs, conformidade com políticas e inspeção anti-regressão.
+description: Revisão de diffs, conformidade com políticas e inspeção anti-regressão.
 rules:
   - ferramentas apenas de leitura por padrão (diff, grep, inspect)
   - focado em auditoria de segurança e segredos (Secrets)

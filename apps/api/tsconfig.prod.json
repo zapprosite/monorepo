@@ -11,7 +11,8 @@
 		"rootDir": "src",
 		"baseUrl": ".",
 		"paths": {
-			"@backend/*": ["src/*"]
+			"@backend/*": ["dist/*"],
+			"@repo/zod-schemas/*": ["../../packages/zod-schemas/dist/*"]
 		}
 	},
 	"include": ["src"],

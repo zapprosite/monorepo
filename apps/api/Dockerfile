@@ -27,6 +27,14 @@ RUN printf 'node-linker=hoisted\nvirtual-store-dir=/app/.pnpm-store\nlink-worksp
 # Install dependencies — creates flat node_modules with real files, no symlinks
 RUN pnpm install
 
+# Step 0: Build zod-schemas first (needed for api type resolution)
+RUN cd /app/packages/zod-schemas && rm -rf dist && ../../node_modules/typescript/bin/tsc
+
+# Build TypeScript to CommonJS with resolved path aliases
+# Step 1: tsc with dist/* paths (imports from zod-schemas/dist, not src)
+# Step 2: tsc-alias rewrites @backend/app → ./app and @repo/zod-schemas/ → ../../packages/zod-schemas/dist/
+RUN cd /app/apps/api && rm -rf dist && (../../node_modules/typescript/bin/tsc -p tsconfig.build.json || true) && ../../node_modules/.bin/tsc-alias -p tsconfig.prod.json
+
 # Verify hoisted layout (should exist in root node_modules, not symlinks)
 RUN ls -la /app/node_modules/dotenv && ls -la /app/node_modules/zod
 
@@ -42,10 +50,8 @@ ENV NODE_ENV=production
 # NOTE: node-linker=hoisted hoists third-party deps to root, but workspace
 # packages (@connected-repo/*) stay in apps/api/node_modules as symlinks
 COPY --from=builder /app/apps/api/dist ./apps/api/dist
-COPY --from=builder /app/apps/api/src ./apps/api/src
 COPY --from=builder /app/apps/api/package.json ./apps/api/
 COPY --from=builder /app/apps/api/tsconfig.json ./apps/api/
-COPY --from=builder /app/apps/api/tsconfig.prod.json ./apps/api/
 COPY --from=builder /app/apps/api/node_modules ./apps/api/node_modules
 COPY --from=builder /app/packages/zod-schemas/dist ./packages/zod-schemas/dist
 COPY --from=builder /app/packages/zod-schemas/package.json ./packages/zod-schemas/

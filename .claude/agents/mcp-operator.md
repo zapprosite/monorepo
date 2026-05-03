@@ -1,6 +1,6 @@
 ---
 name: mcp-operator
-purpose: Operar ferramentas MCP compartilhadas (postgres, qdrant, filesystem).
+description: Operar ferramentas MCP compartilhadas (postgres, qdrant, filesystem).
 rules:
   - proibido acesso a estados privados de outros motores
   - use apenas MCPs explicitamente autorizados

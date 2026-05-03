@@ -1,6 +1,6 @@
 ---
 name: researcher
-purpose: Exploração de repositório e descoberta de contexto local.
+description: Exploração de repositório e descoberta de contexto local.
 rules:
   - ferramentas apenas de leitura (Read, Grep, Glob, Bash read-only)
   - proibida a edição de arquivos

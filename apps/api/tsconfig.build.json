@@ -1,0 +1,28 @@
+{
+	"compilerOptions": {
+		"target": "ES2022",
+		"lib": ["ES2022"],
+		"module": "commonjs",
+		"moduleResolution": "node",
+		"esModuleInterop": true,
+		"allowSyntheticDefaultImports": true,
+		"resolveJsonModule": true,
+		"declaration": false,
+		"strict": false,
+		"noImplicitAny": false,
+		"strictNullChecks": false,
+		"skipLibCheck": true,
+		"noEmitOnError": false,
+		"outDir": "dist",
+		"rootDir": "src",
+		"baseUrl": ".",
+		"paths": {
+			"@backend/*": ["src/*"],
+			"@repo/zod-schemas/*": ["../../packages/zod-schemas/dist/*"],
+			"orchid-orm/node-postgres": ["../../node_modules/orchid-orm/dist/node-postgres"],
+			"orchid-orm/migrations/node-postgres": ["../../node_modules/orchid-orm/dist/migrations/node-postgres"]
+		}
+	},
+	"include": ["src"],
+	"exclude": ["node_modules", "dist", "**/__tests__", "src/db/db_script.ts", "src/db/migrations", "src/db/seed"]
+}
