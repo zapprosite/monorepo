@@ -13,8 +13,8 @@ services:
       DB_NAME: ${DB_NAME:-connected_repo_db}
       SESSION_SECRET: ${SESSION_SECRET:-crm-prod-secret-min-32-chars-xyz}
       INTERNAL_API_SECRET: ${INTERNAL_API_SECRET:-S8viXSauVSUtYYsTk+wXPE87D03l71/DQgASYOs6fLQ=}
-      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
-      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
       ALLOWED_ORIGINS: https://crm.zappro.site,https://web.zappro.site
       WEBAPP_URL: https://crm.zappro.site
       API_BASE_URL: https://api.zappro.site

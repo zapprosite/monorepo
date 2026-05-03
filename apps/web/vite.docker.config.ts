@@ -19,13 +19,9 @@ export default defineConfig({
 		rollupOptions: {
 			output: {
 				manualChunks(id) {
-					if (
-						id.includes('node_modules/react') ||
-						id.includes('node_modules/react-dom') ||
-						id.includes('node_modules/scheduler')
-					) {
-						return 'react-vendor';
-					}
+					// NOTE: DO NOT split react/react-dom into separate chunk —
+					// react-dom's DevTools symbol mapping breaks across chunks with
+					// "Cannot set properties of undefined (setting 'AsyncMode')"
 					if (id.includes('node_modules/@mui') || id.includes('node_modules/@emotion')) {
 						return 'mui-vendor';
 					}

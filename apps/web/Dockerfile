@@ -42,7 +42,9 @@ RUN mkdir -p /app/apps/web/node_modules/@repo /app/node_modules/@connected-repo 
 
 # Build the web app directly with vite (bypasses tsc -b type-check gate)
 # Uses vite.docker.config.ts which excludes the bundle analyzer plugin
+# NODE_ENV=production ensures React DevTools hooks are stripped from the bundle
 WORKDIR /app/apps/web
+ENV NODE_ENV=production
 RUN /app/node_modules/.bin/vite build --config /app/apps/web/vite.docker.config.ts
 
 # ---------------------------------------------------------------------------
