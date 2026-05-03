@@ -30,6 +30,7 @@ export class EquipmentTable extends BaseTable {
 		ultimaManutencao: t.date().nullable(),
 		observacoes: t.text().nullable(),
 		ativo: t.boolean().default(true),
+		sequenceNumber: t.integer().nullable(), // RG subdomain: 001, 002, ...
 		...t.timestamps(),
 	}));
 }

@@ -54,5 +54,4 @@ Archived 96 specs moved to `SPECS-dead/`. All historical content preserved.
 - New specs: use next available number in `SPEC-XXX-title.md` format
 - Status values: `draft | active | in_progress | pending | ready | completed | canonical`
 - Runtime truth beats aspirational docs
-- CRM is stable priority: `SPEC-001-crm-mvp`
 - Rest is SRE/infrastructure

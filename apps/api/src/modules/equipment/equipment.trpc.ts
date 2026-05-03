@@ -112,4 +112,47 @@ export const equipmentRouterTrpc = trpcRouter({
 			if (!cliente) throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado" });
 			return db.equipment.find(equipmentId).update(data);
 		}),
+
+	// --- RG SUBDOMAIN ---
+	listEquipmentForRg: protectedProcedure.query(async ({ ctx }) => {
+		// Returns active equipment with assigned sequence numbers for RG subdomain
+		const { teamId } = ctx.user;
+		const equipment = await db.equipment
+			.select("*")
+			.innerJoin("clients", "equipment.clienteId", "clients.clientId")
+			.where("clients.teamId", teamId)
+			.where({ ativo: true })
+			.order({ sequenceNumber: "ASC" });
+
+		return equipment.filter((e) => e.sequenceNumber !== null);
+	}),
+
+	assignRgNumber: protectedProcedure
+		.input(z.object({ equipmentId: z.string().uuid() }))
+		.mutation(async ({ ctx, input }) => {
+			const { teamId } = ctx.user;
+			const eq = await db.equipment.find(input.equipmentId);
+			if (!eq) throw new Error("Equipamento não encontrado");
+			const cliente = await db.clients.where({ clientId: eq.clienteId, teamId }).findOptional(eq.clienteId);
+			if (!cliente) throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado" });
+
+			// Get next sequence number for this team
+			const allEquipment = await db.equipment
+				.select("sequenceNumber")
+				.innerJoin("clients", "equipment.clienteId", "clients.clientId")
+				.where("clients.teamId", teamId);
+
+			const usedNumbers = allEquipment
+				.map((e) => e.sequenceNumber)
+				.filter((n) => n !== null) as number[];
+
+			let nextNumber = 1;
+			while (usedNumbers.includes(nextNumber)) {
+				nextNumber++;
+			}
+
+			return db.equipment.find(input.equipmentId).update({ sequenceNumber: nextNumber });
+		}),
 });
+
+import { z } from "zod";

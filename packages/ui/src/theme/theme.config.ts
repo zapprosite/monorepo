@@ -141,12 +141,13 @@ export const createAppTheme = (mode: PaletteMode = "light") => {
 						},
 					}
 				: {
-						// Dark mode colors
+						// Dark mode — HVAC CRM + Verde Ácido (#39FF14)
 						primary: {
-							main: "#4da3ff",
-							light: "#80bdff",
-							dark: "#007bff",
-							lighter: "rgba(77, 163, 255, 0.12)",
+							main: "#39FF14",
+							light: "#6FFF50",
+							dark: "#2ECC71",
+							lighter: "rgba(57, 255, 20, 0.12)",
+							contrastText: "#000000",
 						},
 						secondary: {
 							main: "#868e96",
@@ -155,11 +156,11 @@ export const createAppTheme = (mode: PaletteMode = "light") => {
 							contrastText: "#fff",
 						},
 						success: {
-							main: "#48b461",
-							light: "#6ec283",
-							dark: "#28a745",
-							lighter: "rgba(72, 180, 97, 0.12)",
-							contrastText: "#fff",
+							main: "#39FF14",
+							light: "#6FFF50",
+							dark: "#2ECC71",
+							lighter: "rgba(57, 255, 20, 0.12)",
+							contrastText: "#000000",
 						},
 						error: {
 							main: "#e35d6a",
@@ -181,13 +182,13 @@ export const createAppTheme = (mode: PaletteMode = "light") => {
 							contrastText: "#fff",
 						},
 						background: {
-							default: "#121212",
-							paper: "#1e1e1e",
+							default: "#0A0A0F",
+							paper: "#12121A",
 						},
 						text: {
-							primary: "#ffffff",
-							secondary: "#b0b0b0",
-							disabled: "#666666",
+							primary: "#FFFFFF",
+							secondary: "#A0A0B0",
+							disabled: "#6B6B7B",
 						},
 					}),
 		},
@@ -195,6 +196,7 @@ export const createAppTheme = (mode: PaletteMode = "light") => {
 };
 
 /**
- * Default light theme (for backwards compatibility)
+ * Default dark theme for HVAC CRM
+ * Verde ácido (#39FF14) as accent
  */
-export const theme = createAppTheme("light");
+export const theme = createAppTheme("dark");

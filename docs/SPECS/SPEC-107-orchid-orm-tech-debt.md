@@ -146,6 +146,6 @@ git push origin main
 
 ## Notes
 
-- The CRM-REFRIMIX legacy system (`/srv/crm-mvp`) uses Nx monorepo and may have similar issues
+- The CRM-REFRIMIX legacy system () uses Nx monorepo and may have similar issues
 - orchid-orm v1.65.1 is current version in use
 - Upgrading to v1.66.0+ did NOT resolve the errors

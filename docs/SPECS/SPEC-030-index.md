@@ -12,8 +12,6 @@
 
 | # | Title | Status | Notes |
 |---|-------|--------|-------|
-| SPEC-001-crm-mvp.md | Template Claude-Code-Minimax Fusionado | DONE | |
-| SPEC-001-crm-mvp.md | Workflow Performatico de AI Tools | DRAFT | In hvacr-swarm context |
 | SPEC-002-homelab-control-plane.md | Homelab Monitor Agent | DRAFT | |
 | SPEC-002-homelab-control-plane.md | Homelab Infrastructure Refactoring | DRAFT | |
 | SPEC-004-autonomous-execution-pipeline.md | Playwright E2E + Chrome Extension Testing | DRAFT | |

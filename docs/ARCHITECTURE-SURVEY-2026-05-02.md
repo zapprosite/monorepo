@@ -121,7 +121,6 @@ Standalone:
   docker-compose.gitea-runner.yml → gitea-runner
   docker-compose.telegram-dev.yml → telegram-dev
 
-crm-mvp/:
   docker-compose.yml              → postgres, redis, api, web
   docker-compose.coolify.yml     → postgres, redis, api, web (Coolify deploy)
 ```

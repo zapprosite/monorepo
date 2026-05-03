@@ -110,7 +110,6 @@ hermes-second-brain/
 │   ├── agents/
 │   ├── rotinas/
 │   └── skills/
-├── refrimix/           # Projeto Refrimix
 │   ├── Captacao/
 │   ├── Context/
 │   ├── Obras/

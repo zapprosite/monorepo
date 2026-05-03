@@ -8,10 +8,18 @@ export const maintenanceRouter = trpcRouter({
 	createPlan: protectedProcedure
 		.input(
 			z.object({
+				planType: z.enum(["simples", "pmoc"]).default("simples"),
 				nomeEmpresa: z.string().min(1),
 				tipoEquipamento: z.enum(["ar-condicionado", "refrigerador"]),
 				periodicidadeDias: z.number().int().min(1),
 				clienteId: z.string().uuid().optional(),
+				// PMOC-specific fields
+				creaResponsavel: z.string().optional(),
+				laudoTecnico: z.string().optional(),
+				numeroEquipamentos: z.number().int().optional(),
+				potenciaTotal: z.number().optional(),
+				cargaTermica: z.number().optional(),
+				vazioSanitario: z.number().int().optional(),
 			}),
 		)
 		.mutation(async ({ ctx, input }) => {
@@ -72,10 +80,18 @@ export const maintenanceRouter = trpcRouter({
 		.input(
 			z.object({
 				planId: z.string().uuid(),
+				planType: z.enum(["simples", "pmoc"]).optional(),
 				nomeEmpresa: z.string().min(1).optional(),
 				tipoEquipamento: z.enum(["ar-condicionado", "refrigerador"]).optional(),
 				periodicidadeDias: z.number().int().min(1).optional(),
 				clienteId: z.string().uuid().optional(),
+				// PMOC-specific fields
+				creaResponsavel: z.string().nullable().optional(),
+				laudoTecnico: z.string().nullable().optional(),
+				numeroEquipamentos: z.number().int().nullable().optional(),
+				potenciaTotal: z.number().nullable().optional(),
+				cargaTermica: z.number().nullable().optional(),
+				vazioSanitario: z.number().int().nullable().optional(),
 			}),
 		)
 		.mutation(async ({ ctx, input: { planId, ...data } }) => {

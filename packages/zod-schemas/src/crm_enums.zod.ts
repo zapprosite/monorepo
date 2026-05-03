@@ -188,6 +188,10 @@ export const STATUS_MANUTENCAO_ENUM = [
 export const statusManutencaoZod = z.enum(STATUS_MANUTENCAO_ENUM);
 export type StatusManutencao = z.infer<typeof statusManutencaoZod>;
 
+export const MAINTENANCE_PLAN_TYPE_ENUM = ['simples', 'pmoc'] as const;
+export const maintenancePlanTypeZod = z.enum(MAINTENANCE_PLAN_TYPE_ENUM);
+export type MaintenancePlanType = z.infer<typeof maintenancePlanTypeZod>;
+
 // Slice 11 - Loyalty / Fidelization
 export const NIVEL_FIDELIDADE_ENUM = ['bronze', 'prata', 'ouro', 'platinum'] as const;
 export const nivelFidelidadeZod = z.enum(NIVEL_FIDELIDADE_ENUM);

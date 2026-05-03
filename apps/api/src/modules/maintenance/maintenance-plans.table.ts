@@ -1,5 +1,5 @@
 import { BaseTable } from "@backend/db/base_table";
-import { TIPO_EQUIPAMENTO_ENUM } from "@connected-repo/zod-schemas/crm_enums.zod";
+import { MAINTENANCE_PLAN_TYPE_ENUM, TIPO_EQUIPAMENTO_ENUM } from "@connected-repo/zod-schemas/crm_enums.zod";
 
 export class MaintenancePlansTable extends BaseTable {
 	readonly table = "maintenance_plans";
@@ -7,6 +7,7 @@ export class MaintenancePlansTable extends BaseTable {
 // @ts-ignore TS2742 — pqb internal type inference not portable
 	columns = this.setColumns((t) => ({
 		id: t.uuid().primaryKey().default(t.sql`gen_random_uuid()`),
+		planType: t.enum("maintenance_plan_type", MAINTENANCE_PLAN_TYPE_ENUM).default("simples"),
 		nomeEmpresa: t.text(),
 		descricao: t.text().nullable(),
 		tipoEquipamento: t.enum("tipo_equipamento", TIPO_EQUIPAMENTO_ENUM),
@@ -36,6 +37,13 @@ export class MaintenancePlansTable extends BaseTable {
 			onUpdate: "RESTRICT",
 			onDelete: "RESTRICT",
 		}),
+		// PMOC-specific fields (only for commercial plans with CREA)
+		creaResponsavel: t.text().nullable(), // Engineer responsible for PMOC
+		laudoTecnico: t.text().nullable(),   // Technical report PDF URL
+		numeroEquipamentos: t.integer().nullable(), // Count of registered equipment
+		potenciaTotal: t.decimal(12, 2).nullable(), // Total BTU/kW capacity
+		cargaTermica: t.decimal(12, 2).nullable(),   // Thermal load
+		vazioSanitario: t.integer().nullable(),       // Sanitary void period (days)
 		...t.timestamps(),
 	}));
 }

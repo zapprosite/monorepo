@@ -217,7 +217,7 @@ Mem0 self-hosted requer PostgreSQL para facts estruturados. Não encontrado no h
 
 1. **Usar haystack-postgres leftover** — o container foi removido, mas o volume pode existir
 2. **Instalar PostgreSQL nativo** — apt install
-3. **Usar Supabase Postgres** — já existe em `/srv/monorepo/crm-mvp/`
+3. **Usar Supabase Postgres** — 
 
 **Recomendação:** Investigar se algum Postgres existente pode ser compartilhado, ou instalar PostgreSQL 16 nativo em `:5432`.
 
