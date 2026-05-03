@@ -20,6 +20,7 @@ services:
       API_BASE_URL: https://api.zappro.site
     ports:
       - "127.0.0.1:4001:4001"
+      - "127.0.0.1:4000:4001"
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4001/health"]
       interval: 30s
