@@ -5,7 +5,7 @@ import {
 	editorialGetByIdZod,
 	editorialUpdateInputZod,
 	listEditorialFilterZod,
-} from '@connected-repo/zod-schemas/editorial.zod';
+} from '@repo/zod-schemas/editorial.zod';
 import { TRPCError } from '@trpc/server';
 
 const EDITORIAL_MAX_LIMIT = 500;

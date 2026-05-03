@@ -4,7 +4,7 @@ import { SubscriptionsTable } from '@backend/modules/subscriptions/tables/subscr
 export class WebhookCallQueueTable extends BaseTable {
 	readonly table = 'webhook_call_queue';
 
-	// @ts-expect-error TS2742 — pqb internal type inference not portable
+	// @ts-ignore TS2742 — pqb internal type inference not portable
 	columns = this.setColumns(
 		(t) => ({
 			webhookCallQueueId: t.ulid().primaryKey(),

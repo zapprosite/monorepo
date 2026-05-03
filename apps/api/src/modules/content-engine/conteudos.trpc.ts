@@ -6,7 +6,7 @@ import {
 	conteudoRevisaoCreateInputZod,
 	conteudoRevisaoUpdateInputZod,
 	conteudoUpdateInputZod,
-} from '@connected-repo/zod-schemas/conteudos.zod';
+} from '@repo/zod-schemas/conteudos.zod';
 import { TRPCError } from '@trpc/server';
 import z from 'zod';
 

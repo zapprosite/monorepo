@@ -1,7 +1,7 @@
 import { db } from '@backend/db/db';
 import { updateSessionUserId } from '@backend/modules/auth/session.auth.utils';
 import { protectedProcedure, publicProcedure, trpcRouter } from '@backend/trpc';
-import { userCreateInputZod, userGetByIdInputZod } from '@connected-repo/zod-schemas/user.zod';
+import { userCreateInputZod, userGetByIdInputZod } from '@repo/zod-schemas/user.zod';
 import { TRPCError } from '@trpc/server';
 
 export const usersRouterTrpc = trpcRouter({

@@ -34,18 +34,18 @@ import {
 	subscriptionCheckHook,
 	teamRateLimitHook,
 } from '@backend/modules/api-gateway/middleware';
-import { apiProductRequestLogSelectAllZod } from '@connected-repo/zod-schemas/api_request_log.zod';
-import { apiProductRequestStatusZod } from '@connected-repo/zod-schemas/enums.zod';
+import { apiProductRequestLogSelectAllZod } from '@repo/zod-schemas/api_request_log.zod';
+import { apiProductRequestStatusZod } from '@repo/zod-schemas/enums.zod';
 import {
 	journalEntryCreateInputZod,
 	journalEntrySelectAllZod,
-} from '@connected-repo/zod-schemas/journal_entry.zod';
+} from '@repo/zod-schemas/journal_entry.zod';
 import {
 	type SubscriptionSelectAll,
 	subscriptionSelectAllZod,
-} from '@connected-repo/zod-schemas/subscription.zod';
-import type { TeamSelectAll } from '@connected-repo/zod-schemas/team.zod';
-import { zString, zTimeEpoch } from '@connected-repo/zod-schemas/zod_utils';
+} from '@repo/zod-schemas/subscription.zod';
+import type { TeamSelectAll } from '@repo/zod-schemas/team.zod';
+import { zString, zTimeEpoch } from '@repo/zod-schemas/zod_utils';
 import type { FastifyInstance } from 'fastify';
 import type { FastifyZodOpenApiSchema, FastifyZodOpenApiTypeProvider } from 'fastify-zod-openapi';
 import z from 'zod';

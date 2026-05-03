@@ -3,17 +3,17 @@ import { protectedProcedure, trpcRouter } from '@backend/trpc';
 import {
 	addressCreateInputZod,
 	addressesByClientZod,
-} from '@connected-repo/zod-schemas/address.zod';
+} from '@repo/zod-schemas/address.zod';
 import {
 	clientCreateInputZod,
 	clientGetByIdZod,
 	clientUpdateInputZod,
 	listClientsFilterZod,
-} from '@connected-repo/zod-schemas/client.zod';
+} from '@repo/zod-schemas/client.zod';
 import {
 	contactCreateInputZod,
 	contactsByClientZod,
-} from '@connected-repo/zod-schemas/contact.zod';
+} from '@repo/zod-schemas/contact.zod';
 import { TRPCError } from '@trpc/server';
 import z from 'zod';
 

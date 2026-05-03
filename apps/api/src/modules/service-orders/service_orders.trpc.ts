@@ -3,18 +3,18 @@ import { protectedProcedure, trpcRouter } from '@backend/trpc';
 import {
 	materialItemCreateInputZod,
 	materialItemsByServiceOrderZod,
-} from '@connected-repo/zod-schemas/material_item.zod';
+} from '@repo/zod-schemas/material_item.zod';
 import {
 	listServiceOrdersFilterZod,
 	serviceOrderCreateInputZod,
 	serviceOrderGetByIdZod,
 	serviceOrderUpdateInputZod,
-} from '@connected-repo/zod-schemas/service_order.zod';
+} from '@repo/zod-schemas/service_order.zod';
 import {
 	technicalReportByServiceOrderZod,
 	technicalReportCreateInputZod,
 	technicalReportUpdateInputZod,
-} from '@connected-repo/zod-schemas/technical_report.zod';
+} from '@repo/zod-schemas/technical_report.zod';
 import { TRPCError } from '@trpc/server';
 
 const SERVICE_ORDERS_MAX_LIMIT = 200;

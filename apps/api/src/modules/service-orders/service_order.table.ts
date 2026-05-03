@@ -2,12 +2,12 @@ import { BaseTable } from '@backend/db/base_table';
 import {
 	SERVICE_ORDER_STATUS_ENUM,
 	SERVICE_TYPE_ENUM,
-} from '@connected-repo/zod-schemas/crm_enums.zod';
+} from '@repo/zod-schemas/crm_enums.zod';
 
 export class ServiceOrderTable extends BaseTable {
 	readonly table = 'service_orders';
 
-	// @ts-expect-error TS2742 — pqb internal type inference not portable
+	// @ts-ignore TS2742 — pqb internal type inference not portable
 	columns = this.setColumns((t) => ({
 		serviceOrderId: t.uuid().primaryKey().default(t.sql`gen_random_uuid()`),
 		numero: t

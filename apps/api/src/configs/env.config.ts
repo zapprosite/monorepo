@@ -1,5 +1,5 @@
-import { NODE_ENV_ZOD } from '@connected-repo/zod-schemas/node_env';
-import { zString } from '@connected-repo/zod-schemas/zod_utils';
+import { NODE_ENV_ZOD } from '@repo/zod-schemas/node_env';
+import { zString } from '@repo/zod-schemas/zod_utils';
 import 'dotenv/config';
 import { z } from 'zod';
 

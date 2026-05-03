@@ -7,13 +7,13 @@ import {
 	equipmentsByUnitZod,
 	equipmentUpdateInputZod,
 	listEquipmentFilterZod,
-} from '@connected-repo/zod-schemas/equipment.zod';
+} from '@repo/zod-schemas/equipment.zod';
 import {
 	unitCreateInputZod,
 	unitGetByIdZod,
 	unitsByClientZod,
 	unitUpdateInputZod,
-} from '@connected-repo/zod-schemas/unit.zod';
+} from '@repo/zod-schemas/unit.zod';
 import { TRPCError } from '@trpc/server';
 
 export const equipmentRouterTrpc = trpcRouter({

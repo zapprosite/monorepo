@@ -2,12 +2,12 @@ import { BaseTable } from '@backend/db/base_table';
 import {
 	NIVEL_FIDELIDADE_ENUM,
 	STATUS_REATIVACAO_ENUM,
-} from '@connected-repo/zod-schemas/crm_enums.zod';
+} from '@repo/zod-schemas/crm_enums.zod';
 
 export class LoyaltyScoresTable extends BaseTable {
 	readonly table = 'loyalty_scores';
 
-	// @ts-expect-error TS2742 — pqb internal type inference not portable
+	// @ts-ignore TS2742 — pqb internal type inference not portable
 	columns = this.setColumns((t) => ({
 		id: t.uuid().primaryKey().default(t.sql`gen_random_uuid()`),
 		clienteId: t.uuid().foreignKey('clients', 'clientId', {

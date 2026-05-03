@@ -2,12 +2,12 @@ import { BaseTable } from '@backend/db/base_table';
 import {
 	CONTEUDO_STATUS_ENUM,
 	CONTEUDO_TIPO_ENUM,
-} from '@connected-repo/zod-schemas/crm_enums.zod';
+} from '@repo/zod-schemas/crm_enums.zod';
 
 export class ConteudosTable extends BaseTable {
 	readonly table = 'conteudos';
 
-	// @ts-expect-error TS2742 — pqb internal type inference not portable
+	// @ts-ignore TS2742 — pqb internal type inference not portable
 	columns = this.setColumns((t) => ({
 		id: t.uuid().primaryKey().default(t.sql`gen_random_uuid()`),
 		titulo: t.text(),

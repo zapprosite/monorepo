@@ -7,7 +7,7 @@ import {
 import { TRPCError } from '@trpc/server';
 import z from 'zod';
 
-// @ts-expect-error TS2742 — pqb internal type inference not portable
+// @ts-ignore TS2742 — pqb internal type inference not portable
 export const webhookRouter = trpcRouter({
 	// Webhooks
 	create: protectedProcedure.input(webhookCreateInputZod).mutation(async ({ input, ctx }) => {

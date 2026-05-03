@@ -2,12 +2,12 @@ import { BaseTable } from '@backend/db/base_table';
 import {
 	MAINTENANCE_PLAN_TYPE_ENUM,
 	TIPO_EQUIPAMENTO_ENUM,
-} from '@connected-repo/zod-schemas/crm_enums.zod';
+} from '@repo/zod-schemas/crm_enums.zod';
 
 export class MaintenancePlansTable extends BaseTable {
 	readonly table = 'maintenance_plans';
 
-	// @ts-expect-error TS2742 — pqb internal type inference not portable
+	// @ts-ignore TS2742 — pqb internal type inference not portable
 	columns = this.setColumns((t) => ({
 		id: t.uuid().primaryKey().default(t.sql`gen_random_uuid()`),
 		planType: t.enum('maintenance_plan_type', MAINTENANCE_PLAN_TYPE_ENUM).default('simples'),

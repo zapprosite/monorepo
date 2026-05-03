@@ -5,7 +5,7 @@ import {
 	reminderCreateInputZod,
 	reminderGetByIdZod,
 	reminderUpdateInputZod,
-} from '@connected-repo/zod-schemas/reminder.zod';
+} from '@repo/zod-schemas/reminder.zod';
 import { TRPCError } from '@trpc/server';
 
 const REMINDERS_MAX_LIMIT = 500;

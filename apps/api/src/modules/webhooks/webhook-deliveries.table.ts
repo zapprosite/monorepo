@@ -2,12 +2,12 @@ import { BaseTable } from '@backend/db/base_table';
 import {
 	WEBHOOK_EVENTO_TIPO_ENUM,
 	WEBHOOK_STATUS_ENUM,
-} from '@connected-repo/zod-schemas/crm_enums.zod';
+} from '@repo/zod-schemas/crm_enums.zod';
 
 export class WebhookDeliveriesTable extends BaseTable {
 	readonly table = 'webhook_deliveries';
 
-	// @ts-expect-error TS2742 — pqb internal type inference not portable
+	// @ts-ignore TS2742 — pqb internal type inference not portable
 	columns = this.setColumns((t) => ({
 		id: t.uuid().primaryKey().default(t.sql`gen_random_uuid()`),
 		webhookId: t.uuid().foreignKey('webhooks', 'id', {

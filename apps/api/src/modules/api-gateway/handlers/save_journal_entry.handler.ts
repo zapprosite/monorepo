@@ -2,7 +2,7 @@ import { db } from '@backend/db/db';
 import type {
 	JournalEntryCreateInput,
 	JournalEntrySelectAll,
-} from '@connected-repo/zod-schemas/journal_entry.zod';
+} from '@repo/zod-schemas/journal_entry.zod';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 
 /**

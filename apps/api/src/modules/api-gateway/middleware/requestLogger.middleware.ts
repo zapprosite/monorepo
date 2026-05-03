@@ -1,7 +1,7 @@
 import { db } from '@backend/db/db';
 import { incrementSubscriptionUsage } from '@backend/modules/api-gateway/utils/subscriptionTracker.utils';
 import { getClientIpAddress } from '@backend/utils/request-metadata.utils';
-import type { ApiRequestMethod } from '@connected-repo/zod-schemas/enums.zod';
+import type { ApiRequestMethod } from '@repo/zod-schemas/enums.zod';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 
 // Extend request to store start time and request data

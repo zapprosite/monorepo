@@ -3,12 +3,12 @@ import {
 	CONTRACT_FREQUENCY_ENUM,
 	CONTRACT_STATUS_ENUM,
 	CONTRACT_TYPE_ENUM,
-} from '@connected-repo/zod-schemas/crm_enums.zod';
+} from '@repo/zod-schemas/crm_enums.zod';
 
 export class ContractsTable extends BaseTable {
 	readonly table = 'contracts';
 
-	// @ts-expect-error TS2742 — pqb internal type inference not portable
+	// @ts-ignore TS2742 — pqb internal type inference not portable
 	columns = this.setColumns((t) => ({
 		contractId: t.uuid().primaryKey().default(t.sql`gen_random_uuid()`),
 		clienteId: t.uuid().foreignKey('clients', 'clientId', {

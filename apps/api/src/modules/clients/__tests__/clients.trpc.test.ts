@@ -168,7 +168,6 @@ describe('clients — createClient validation', () => {
 		await expect(
 			caller.clients.createClient({
 				nome: 'Test',
-				// @ts-expect-error — invalid enum value for test
 				tipo: 'Tipo Inválido',
 			} as any),
 		).rejects.toThrow();
@@ -254,7 +253,6 @@ describe('clients — updateClient validation', () => {
 		await expect(
 			caller.clients.updateClient({
 				clientId: FAKE_UUID,
-				// @ts-expect-error — invalid enum
 				tipo: 'Tipo Inválido',
 			} as any),
 		).rejects.toThrow();

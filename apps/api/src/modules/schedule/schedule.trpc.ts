@@ -5,7 +5,7 @@ import {
 	scheduleCreateInputZod,
 	scheduleGetByIdZod,
 	scheduleUpdateInputZod,
-} from '@connected-repo/zod-schemas/schedule.zod';
+} from '@repo/zod-schemas/schedule.zod';
 import { TRPCError } from '@trpc/server';
 import z from 'zod';
 

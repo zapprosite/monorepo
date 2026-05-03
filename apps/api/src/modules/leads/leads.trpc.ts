@@ -1,12 +1,12 @@
 import { db } from '@backend/db/db';
 import { protectedProcedure, trpcRouter } from '@backend/trpc';
-import { clientTypeZod } from '@connected-repo/zod-schemas/crm_enums.zod';
+import { clientTypeZod } from '@repo/zod-schemas/crm_enums.zod';
 import {
 	leadCreateInputZod,
 	leadGetByIdZod,
 	leadUpdateInputZod,
 	listLeadsFilterZod,
-} from '@connected-repo/zod-schemas/lead.zod';
+} from '@repo/zod-schemas/lead.zod';
 import { TRPCError } from '@trpc/server';
 
 const LEADS_MAX_LIMIT = 200;

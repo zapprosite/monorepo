@@ -3,7 +3,7 @@ import { protectedProcedure, trpcRouter } from '@backend/trpc';
 import {
 	mcpConectorCreateInputZod,
 	mcpConectorUpdateInputZod,
-} from '@connected-repo/zod-schemas/mcp-conectores.zod';
+} from '@repo/zod-schemas/mcp-conectores.zod';
 import { TRPCError } from '@trpc/server';
 import z from 'zod';
 
@@ -24,7 +24,7 @@ async function verifyConectorTeamAccess(conectorId: string, teamId: string) {
 	return conector;
 }
 
-// @ts-expect-error TS2742 — pqb internal type inference not portable
+// @ts-ignore TS2742 — pqb internal type inference not portable
 export const mcpConectorRouter = trpcRouter({
 	create: protectedProcedure.input(mcpConectorCreateInputZod).mutation(async ({ input, ctx }) => {
 		const { teamId } = ctx.user;

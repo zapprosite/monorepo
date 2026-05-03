@@ -1,10 +1,8 @@
 import { BaseTable, sql } from '@backend/db/base_table';
 import { UserTable } from '@backend/modules/users/users/users.table';
-
 export class SessionTable extends BaseTable {
 	readonly table = 'session';
-
-	// @ts-expect-error TS2742 — pqb internal type inference not portable
+	
 	columns = this.setColumns(
 		(t) => ({
 			sessionId: t.string().primaryKey(),
@@ -31,7 +29,6 @@ export class SessionTable extends BaseTable {
 			]),
 		],
 	);
-
 	relations = {
 		user: this.belongsTo(() => UserTable, {
 			columns: ['userId'],
@@ -40,7 +37,6 @@ export class SessionTable extends BaseTable {
 			foreignKey: false,
 		}),
 	};
-
 	scopes = this.setScopes({
 		default: (q) =>
 			q.where({

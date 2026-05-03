@@ -3,9 +3,9 @@ import { protectedProcedure, trpcRouter } from '@backend/trpc';
 import {
 	emailCampaignCreateZod,
 	emailCampaignListZod,
-} from '@connected-repo/zod-schemas/email.zod';
+} from '@repo/zod-schemas/email.zod';
 
-// @ts-expect-error TS2742 — pqb internal type inference not portable
+// @ts-ignore TS2742 — pqb internal type inference not portable
 export const emailRouter = trpcRouter({
 	listCampaigns: protectedProcedure.input(emailCampaignListZod).query(async ({ input }) => {
 		let query = db.emailCampaigns.select('*');

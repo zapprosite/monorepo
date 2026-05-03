@@ -1,7 +1,7 @@
 import { db } from '@backend/db/db';
 import { findActiveSubscription } from '@backend/modules/api-gateway/utils/subscriptionTracker.utils';
-import type { ApiProductSku } from '@connected-repo/zod-schemas/enums.zod';
-import { zString } from '@connected-repo/zod-schemas/zod_utils';
+import type { ApiProductSku } from '@repo/zod-schemas/enums.zod';
+import { zString } from '@repo/zod-schemas/zod_utils';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import z from 'zod';
 

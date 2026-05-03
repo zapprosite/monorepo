@@ -3,7 +3,7 @@ import { protectedProcedure, trpcRouter } from '@backend/trpc';
 import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
 
-// @ts-expect-error TS2742 — pqb internal type inference not portable
+// @ts-ignore TS2742 — pqb internal type inference not portable
 export const maintenanceRouter = trpcRouter({
 	createPlan: protectedProcedure
 		.input(
@@ -23,7 +23,6 @@ export const maintenanceRouter = trpcRouter({
 			}),
 		)
 		.mutation(async ({ ctx, input }) => {
-			// @ts-expect-error - teamId exists at runtime but not in type definition
 			const { teamId } = ctx.user;
 			if (!teamId)
 				throw new TRPCError({ code: 'FORBIDDEN', message: 'Team não encontrado no contexto' });
@@ -32,7 +31,6 @@ export const maintenanceRouter = trpcRouter({
 			if (input.clienteId) {
 				const cliente = await db.clients.findOptional(input.clienteId);
 				if (!cliente) throw new TRPCError({ code: 'NOT_FOUND', message: 'Cliente não encontrado' });
-				// @ts-expect-error - teamId check pattern
 				if (cliente.teamId !== teamId)
 					throw new TRPCError({ code: 'FORBIDDEN', message: 'Acesso negado' });
 			}
@@ -41,7 +39,6 @@ export const maintenanceRouter = trpcRouter({
 		}),
 
 	listPlans: protectedProcedure.query(async ({ ctx }) => {
-		// @ts-expect-error - teamId exists at runtime but not in type definition
 		const { teamId } = ctx.user;
 		if (!teamId)
 			throw new TRPCError({ code: 'FORBIDDEN', message: 'Team não encontrado no contexto' });
@@ -62,7 +59,6 @@ export const maintenanceRouter = trpcRouter({
 	getPlanById: protectedProcedure
 		.input(z.object({ planId: z.string().uuid() }))
 		.query(async ({ ctx, input }) => {
-			// @ts-expect-error - teamId exists at runtime but not in type definition
 			const { teamId } = ctx.user;
 			if (!teamId)
 				throw new TRPCError({ code: 'FORBIDDEN', message: 'Team não encontrado no contexto' });
@@ -73,7 +69,6 @@ export const maintenanceRouter = trpcRouter({
 			// IDOR FIX: Verify plan belongs to team via client relationship
 			if (plan.clienteId) {
 				const cliente = await db.clients.findOptional(plan.clienteId);
-				// @ts-expect-error - teamId check pattern
 				if (!cliente || cliente.teamId !== teamId)
 					throw new TRPCError({ code: 'FORBIDDEN', message: 'Acesso negado' });
 			}
@@ -100,7 +95,6 @@ export const maintenanceRouter = trpcRouter({
 			}),
 		)
 		.mutation(async ({ ctx, input: { planId, ...data } }) => {
-			// @ts-expect-error - teamId exists at runtime but not in type definition
 			const { teamId } = ctx.user;
 			if (!teamId)
 				throw new TRPCError({ code: 'FORBIDDEN', message: 'Team não encontrado no contexto' });
@@ -111,7 +105,6 @@ export const maintenanceRouter = trpcRouter({
 			// IDOR FIX: Verify plan belongs to team via client relationship
 			if (plan.clienteId) {
 				const cliente = await db.clients.findOptional(plan.clienteId);
-				// @ts-expect-error - teamId check pattern
 				if (!cliente || cliente.teamId !== teamId)
 					throw new TRPCError({ code: 'FORBIDDEN', message: 'Acesso negado' });
 			}
@@ -119,7 +112,6 @@ export const maintenanceRouter = trpcRouter({
 			// If updating clienteId, verify new client belongs to team
 			if (data.clienteId) {
 				const newCliente = await db.clients.findOptional(data.clienteId);
-				// @ts-expect-error - teamId check pattern
 				if (!newCliente || newCliente.teamId !== teamId)
 					throw new TRPCError({ code: 'FORBIDDEN', message: 'Acesso negado' });
 			}
@@ -130,7 +122,6 @@ export const maintenanceRouter = trpcRouter({
 	deletePlan: protectedProcedure
 		.input(z.object({ planId: z.string().uuid() }))
 		.mutation(async ({ ctx, input }) => {
-			// @ts-expect-error - teamId exists at runtime but not in type definition
 			const { teamId } = ctx.user;
 			if (!teamId)
 				throw new TRPCError({ code: 'FORBIDDEN', message: 'Team não encontrado no contexto' });
@@ -141,7 +132,6 @@ export const maintenanceRouter = trpcRouter({
 			// IDOR FIX: Verify plan belongs to team via client relationship
 			if (plan.clienteId) {
 				const cliente = await db.clients.findOptional(plan.clienteId);
-				// @ts-expect-error - teamId check pattern
 				if (!cliente || cliente.teamId !== teamId)
 					throw new TRPCError({ code: 'FORBIDDEN', message: 'Acesso negado' });
 			}
@@ -158,7 +148,6 @@ export const maintenanceRouter = trpcRouter({
 			}),
 		)
 		.query(async ({ ctx, input }) => {
-			// @ts-expect-error - teamId exists at runtime but not in type definition
 			const { teamId } = ctx.user;
 			if (!teamId)
 				throw new TRPCError({ code: 'FORBIDDEN', message: 'Team não encontrado no contexto' });
@@ -186,7 +175,6 @@ export const maintenanceRouter = trpcRouter({
 	getScheduleById: protectedProcedure
 		.input(z.object({ scheduleId: z.string().uuid() }))
 		.query(async ({ ctx, input }) => {
-			// @ts-expect-error - teamId exists at runtime but not in type definition
 			const { teamId } = ctx.user;
 			if (!teamId)
 				throw new TRPCError({ code: 'FORBIDDEN', message: 'Team não encontrado no contexto' });
@@ -201,7 +189,6 @@ export const maintenanceRouter = trpcRouter({
 
 			if (plan.clienteId) {
 				const cliente = await db.clients.findOptional(plan.clienteId);
-				// @ts-expect-error - teamId check pattern
 				if (!cliente || cliente.teamId !== teamId)
 					throw new TRPCError({ code: 'FORBIDDEN', message: 'Acesso negado' });
 			}
@@ -218,7 +205,6 @@ export const maintenanceRouter = trpcRouter({
 			}),
 		)
 		.mutation(async ({ ctx, input }) => {
-			// @ts-expect-error - teamId exists at runtime but not in type definition
 			const { teamId } = ctx.user;
 			if (!teamId)
 				throw new TRPCError({ code: 'FORBIDDEN', message: 'Team não encontrado no contexto' });
@@ -229,7 +215,6 @@ export const maintenanceRouter = trpcRouter({
 
 			if (plan.clienteId) {
 				const cliente = await db.clients.findOptional(plan.clienteId);
-				// @ts-expect-error - teamId check pattern
 				if (!cliente || cliente.teamId !== teamId)
 					throw new TRPCError({ code: 'FORBIDDEN', message: 'Acesso negado' });
 			}
@@ -255,7 +240,6 @@ export const maintenanceRouter = trpcRouter({
 			}),
 		)
 		.mutation(async ({ ctx, input: { scheduleId, ...data } }) => {
-			// @ts-expect-error - teamId exists at runtime but not in type definition
 			const { teamId } = ctx.user;
 			if (!teamId)
 				throw new TRPCError({ code: 'FORBIDDEN', message: 'Team não encontrado no contexto' });
@@ -270,7 +254,6 @@ export const maintenanceRouter = trpcRouter({
 
 			if (plan.clienteId) {
 				const cliente = await db.clients.findOptional(plan.clienteId);
-				// @ts-expect-error - teamId check pattern
 				if (!cliente || cliente.teamId !== teamId)
 					throw new TRPCError({ code: 'FORBIDDEN', message: 'Acesso negado' });
 			}
@@ -281,7 +264,6 @@ export const maintenanceRouter = trpcRouter({
 	deleteSchedule: protectedProcedure
 		.input(z.object({ scheduleId: z.string().uuid() }))
 		.mutation(async ({ ctx, input }) => {
-			// @ts-expect-error - teamId exists at runtime but not in type definition
 			const { teamId } = ctx.user;
 			if (!teamId)
 				throw new TRPCError({ code: 'FORBIDDEN', message: 'Team não encontrado no contexto' });
@@ -296,7 +278,6 @@ export const maintenanceRouter = trpcRouter({
 
 			if (plan.clienteId) {
 				const cliente = await db.clients.findOptional(plan.clienteId);
-				// @ts-expect-error - teamId check pattern
 				if (!cliente || cliente.teamId !== teamId)
 					throw new TRPCError({ code: 'FORBIDDEN', message: 'Acesso negado' });
 			}

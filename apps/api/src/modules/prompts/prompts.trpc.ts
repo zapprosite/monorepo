@@ -1,6 +1,6 @@
 import { db } from '@backend/db/db';
 import { publicProcedure, trpcRouter } from '@backend/trpc';
-import { promptGetActiveZod, promptGetByIdZod } from '@connected-repo/zod-schemas/prompt.zod';
+import { promptGetActiveZod, promptGetByIdZod } from '@repo/zod-schemas/prompt.zod';
 
 export const promptsRouterTrpc = trpcRouter({
 	// Get all active prompts

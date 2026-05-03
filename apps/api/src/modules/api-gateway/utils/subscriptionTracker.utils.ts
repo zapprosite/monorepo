@@ -1,8 +1,8 @@
 import { logger } from '@backend/app';
 import { sql } from '@backend/db/base_table';
 import { db } from '@backend/db/db';
-import type { ApiProductSku } from '@connected-repo/zod-schemas/enums.zod';
-import { subscriptionAlertWebhookPayloadZod } from '@connected-repo/zod-schemas/webhook_call_queue.zod';
+import type { ApiProductSku } from '@repo/zod-schemas/enums.zod';
+import { subscriptionAlertWebhookPayloadZod } from '@repo/zod-schemas/webhook_call_queue.zod';
 import {
 	SUBSCRIPTION_USAGE_ALERT_THRESHOLD_PERCENT,
 	WEBHOOK_MAX_RETRY_ATTEMPTS,

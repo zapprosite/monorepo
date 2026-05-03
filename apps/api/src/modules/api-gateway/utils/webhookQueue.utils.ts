@@ -13,7 +13,7 @@
 import { logger } from '@backend/app';
 import { sql } from '@backend/db/base_table';
 import { db } from '@backend/db/db';
-import type { SubscriptionAlertWebhookPayload } from '@connected-repo/zod-schemas/webhook_call_queue.zod';
+import type { SubscriptionAlertWebhookPayload } from '@repo/zod-schemas/webhook_call_queue.zod';
 import axios, { type AxiosError } from 'axios';
 import { WEBHOOK_BATCH_PROCESSING_LIMIT } from '../constants/apiGateway.constants';
 

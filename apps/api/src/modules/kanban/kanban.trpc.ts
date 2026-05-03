@@ -11,7 +11,7 @@ import {
 	columnUpdateInputZod,
 	listBoardFilterZod,
 	listCardFilterZod,
-} from '@connected-repo/zod-schemas/kanban.zod';
+} from '@repo/zod-schemas/kanban.zod';
 import { TRPCError } from '@trpc/server';
 import z from 'zod';
 

@@ -5,7 +5,7 @@ import {
 	journalEntryDeleteZod,
 	journalEntryGetByIdZod,
 	journalEntryGetByUserZod,
-} from '@connected-repo/zod-schemas/journal_entry.zod';
+} from '@repo/zod-schemas/journal_entry.zod';
 
 export const journalEntriesRouterTrpc = trpcRouter({
 	// Get all journal entries for a team

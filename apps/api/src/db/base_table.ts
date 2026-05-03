@@ -3,11 +3,11 @@ import {
 	API_REQUEST_METHOD_ENUM,
 	apiProductSkuEnum,
 	WEBHOOK_STATUS_ENUM,
-} from '@connected-repo/zod-schemas/enums.zod';
+} from '@repo/zod-schemas/enums.zod';
 import { createBaseTable } from 'orchid-orm';
 import { ulid } from 'ulid';
 
-// @ts-expect-error TS2742 — pqb internal type inference not portable
+// @ts-ignore TS2742 — pqb internal type inference not portable
 export const BaseTable = createBaseTable({
 	autoForeignKeys: false,
 	nowSQL: `now() AT TIME ZONE 'UTC'`,
@@ -29,5 +29,5 @@ export const BaseTable = createBaseTable({
 	}),
 });
 
-// @ts-expect-error TS2742 — pqb internal type inference not portable
+// @ts-ignore TS2742 — pqb internal type inference not portable
 export const { sql } = BaseTable;

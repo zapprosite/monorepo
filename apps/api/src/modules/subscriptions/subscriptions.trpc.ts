@@ -6,7 +6,7 @@ import {
 	subscriptionGetActiveByTeamInputZod,
 	subscriptionSelectAllZod,
 	subscriptionUpdateInputZod,
-} from '@connected-repo/zod-schemas/subscription.zod';
+} from '@repo/zod-schemas/subscription.zod';
 import { TRPCError } from '@trpc/server';
 
 export const subscriptionsRouterTrpc = trpcRouter({

@@ -4,7 +4,7 @@ import {
 	listUserRoleFilterZod,
 	userRoleAssignZod,
 	userRoleRevokeZod,
-} from '@connected-repo/zod-schemas/user-role.zod';
+} from '@repo/zod-schemas/user-role.zod';
 import { TRPCError } from '@trpc/server';
 
 async function assertAdmin(userId: string): Promise<void> {

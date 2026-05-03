@@ -5,7 +5,7 @@ import {
 	contractGetByIdZod,
 	contractUpdateInputZod,
 	listContractFilterZod,
-} from '@connected-repo/zod-schemas/contract.zod';
+} from '@repo/zod-schemas/contract.zod';
 import { TRPCError } from '@trpc/server';
 import z from 'zod';
 

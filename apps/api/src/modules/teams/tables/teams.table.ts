@@ -3,7 +3,7 @@ import { BaseTable } from '@backend/db/base_table';
 export class TeamTable extends BaseTable {
 	readonly table = 'teams';
 
-	// @ts-expect-error TS2742 — pqb internal type inference not portable
+	// @ts-ignore TS2742 — pqb internal type inference not portable
 	columns = this.setColumns((t) => ({
 		teamId: t.uuid().primaryKey().default(t.sql`gen_random_uuid()`),
 

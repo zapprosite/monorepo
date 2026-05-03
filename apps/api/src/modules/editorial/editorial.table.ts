@@ -3,12 +3,12 @@ import {
 	EDITORIAL_CHANNEL_ENUM,
 	EDITORIAL_FORMAT_ENUM,
 	EDITORIAL_STATUS_ENUM,
-} from '@connected-repo/zod-schemas/crm_enums.zod';
+} from '@repo/zod-schemas/crm_enums.zod';
 
 export class EditorialTable extends BaseTable {
 	readonly table = 'editorial_calendar_items';
 
-	// @ts-expect-error TS2742 — pqb internal type inference not portable
+	// @ts-ignore TS2742 — pqb internal type inference not portable
 	columns = this.setColumns((t) => ({
 		editorialId: t.uuid().primaryKey().default(t.sql`gen_random_uuid()`),
 		teamId: t.uuid(),

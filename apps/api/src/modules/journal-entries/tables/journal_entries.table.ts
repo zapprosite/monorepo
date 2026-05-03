@@ -4,7 +4,7 @@ import { UserTable } from '@backend/modules/users/users/users.table';
 export class JournalEntryTable extends BaseTable {
 	readonly table = 'journal_entries';
 
-	// @ts-expect-error TS2742 — pqb internal type inference not portable
+	// @ts-ignore TS2742 — pqb internal type inference not portable
 	columns = this.setColumns((t) => ({
 		journalEntryId: t.ulid().primaryKey(),
 
