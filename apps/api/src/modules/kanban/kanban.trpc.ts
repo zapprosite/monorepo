@@ -1,6 +1,5 @@
-import { TRPCError } from "@trpc/server";
-import { db } from "@backend/db/db";
-import { protectedProcedure, trpcRouter } from "@backend/trpc";
+import { db } from '@backend/db/db';
+import { protectedProcedure, trpcRouter } from '@backend/trpc';
 import {
 	boardCreateInputZod,
 	boardGetByIdZod,
@@ -12,31 +11,32 @@ import {
 	columnUpdateInputZod,
 	listBoardFilterZod,
 	listCardFilterZod,
-} from "@connected-repo/zod-schemas/kanban.zod";
-import z from "zod";
+} from '@connected-repo/zod-schemas/kanban.zod';
+import { TRPCError } from '@trpc/server';
+import z from 'zod';
 
 // Helper function to verify board belongs to team
 async function assertBoardTeamAccess(boardId: string, teamId: string): Promise<void> {
 	const board = await db.kanbanBoards.findOptional(boardId);
-	if (!board) throw new TRPCError({ code: "NOT_FOUND", message: "Board não encontrado" });
-	if ("teamId" in board && board.teamId !== teamId) {
-		throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado" });
+	if (!board) throw new TRPCError({ code: 'NOT_FOUND', message: 'Board não encontrado' });
+	if ('teamId' in board && board.teamId !== teamId) {
+		throw new TRPCError({ code: 'FORBIDDEN', message: 'Acesso negado' });
 	}
 }
 
 // Helper function to verify column belongs to team via its board
 async function assertColumnTeamAccess(columnId: string, teamId: string): Promise<void> {
 	const column = await db.kanbanColumns.findOptional(columnId);
-	if (!column) throw new TRPCError({ code: "NOT_FOUND", message: "Coluna não encontrada" });
+	if (!column) throw new TRPCError({ code: 'NOT_FOUND', message: 'Coluna não encontrada' });
 	await assertBoardTeamAccess(column.boardId, teamId);
 }
 
 // Helper function to verify card belongs to team via its column -> board
 async function assertCardTeamAccess(cardId: string, teamId: string): Promise<void> {
 	const card = await db.kanbanCards.findOptional(cardId);
-	if (!card) throw new TRPCError({ code: "NOT_FOUND", message: "Card não encontrado" });
+	if (!card) throw new TRPCError({ code: 'NOT_FOUND', message: 'Card não encontrado' });
 	const column = await db.kanbanColumns.findOptional(card.columnId);
-	if (!column) throw new TRPCError({ code: "NOT_FOUND", message: "Coluna não encontrada" });
+	if (!column) throw new TRPCError({ code: 'NOT_FOUND', message: 'Coluna não encontrada' });
 	await assertBoardTeamAccess(column.boardId, teamId);
 }
 
@@ -47,14 +47,14 @@ export const kanbanRouterTrpc = trpcRouter({
 
 	listBoards: protectedProcedure.input(listBoardFilterZod).query(async ({ ctx, input }) => {
 		const { teamId } = ctx.user;
-		let query = db.kanbanBoards.select("*").where({ teamId });
+		let query = db.kanbanBoards.select('*').where({ teamId } as any);
 
 		if (input.setor) {
 			const setor = input.setor;
 			query = query.where({ setor });
 		}
 
-		return query.order({ createdAt: "DESC" });
+		return query.order({ createdAt: 'DESC' });
 	}),
 
 	getBoardDetail: protectedProcedure
@@ -62,15 +62,12 @@ export const kanbanRouterTrpc = trpcRouter({
 		.query(async ({ ctx, input: { boardId } }) => {
 			const { teamId } = ctx.user;
 			const board = await db.kanbanBoards.findOptional(boardId);
-			if (!board) throw new TRPCError({ code: "NOT_FOUND", message: "Board não encontrado" });
-			if ("teamId" in board && board.teamId !== teamId) {
-				throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado" });
+			if (!board) throw new TRPCError({ code: 'NOT_FOUND', message: 'Board não encontrado' });
+			if ('teamId' in board && board.teamId !== teamId) {
+				throw new TRPCError({ code: 'FORBIDDEN', message: 'Acesso negado' });
 			}
 
-			const columns = await db.kanbanColumns
-				.where({ boardId })
-				.select("*")
-				.order({ ordem: "ASC" });
+			const columns = await db.kanbanColumns.where({ boardId }).select('*').order({ ordem: 'ASC' });
 
 			const columnIds = columns.map((c) => c.columnId);
 
@@ -78,8 +75,8 @@ export const kanbanRouterTrpc = trpcRouter({
 				columnIds.length > 0
 					? await db.kanbanCards
 							.where({ columnId: { in: columnIds } })
-							.select("*")
-							.order({ ordem: "ASC" })
+							.select('*')
+							.order({ ordem: 'ASC' })
 					: [];
 
 			return {
@@ -91,12 +88,10 @@ export const kanbanRouterTrpc = trpcRouter({
 			};
 		}),
 
-	createBoard: protectedProcedure
-		.input(boardCreateInputZod)
-		.mutation(async ({ ctx, input }) => {
-			const { teamId } = ctx.user;
-			return db.kanbanBoards.create({ ...input, teamId });
-		}),
+	createBoard: protectedProcedure.input(boardCreateInputZod).mutation(async ({ ctx, input }) => {
+		const { teamId } = ctx.user;
+		return db.kanbanBoards.create({ ...input, teamId });
+	}),
 
 	updateBoard: protectedProcedure
 		.input(boardUpdateInputZod)
@@ -118,13 +113,11 @@ export const kanbanRouterTrpc = trpcRouter({
 	// Columns
 	// -------------------------------------------------------------------------
 
-	createColumn: protectedProcedure
-		.input(columnCreateInputZod)
-		.mutation(async ({ ctx, input }) => {
-			const { teamId } = ctx.user;
-			await assertBoardTeamAccess(input.boardId, teamId);
-			return db.kanbanColumns.create(input);
-		}),
+	createColumn: protectedProcedure.input(columnCreateInputZod).mutation(async ({ ctx, input }) => {
+		const { teamId } = ctx.user;
+		await assertBoardTeamAccess(input.boardId, teamId);
+		return db.kanbanColumns.create(input);
+	}),
 
 	updateColumn: protectedProcedure
 		.input(columnUpdateInputZod)
@@ -155,9 +148,9 @@ export const kanbanRouterTrpc = trpcRouter({
 			await Promise.all(
 				columnIds.map(async (columnId, index) => {
 					const column = await db.kanbanColumns.findOptional(columnId);
-					if (!column) throw new TRPCError({ code: "NOT_FOUND", message: "Coluna não encontrada" });
+					if (!column) throw new TRPCError({ code: 'NOT_FOUND', message: 'Coluna não encontrada' });
 					if (column.boardId !== boardId) {
-						throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado" });
+						throw new TRPCError({ code: 'FORBIDDEN', message: 'Acesso negado' });
 					}
 					return db.kanbanColumns.where({ columnId }).update({ ordem: index });
 				}),
@@ -171,7 +164,7 @@ export const kanbanRouterTrpc = trpcRouter({
 
 	listCards: protectedProcedure.input(listCardFilterZod).query(async ({ ctx, input }) => {
 		const { teamId } = ctx.user;
-		let query = db.kanbanCards.select("*");
+		let query = db.kanbanCards.select('*');
 
 		if (input.columnId) {
 			await assertColumnTeamAccess(input.columnId, teamId);
@@ -186,15 +179,13 @@ export const kanbanRouterTrpc = trpcRouter({
 		if (input.boardId) {
 			await assertBoardTeamAccess(input.boardId, teamId);
 			const boardId = input.boardId;
-			const columns = await db.kanbanColumns
-				.where({ boardId })
-				.select("columnId");
+			const columns = await db.kanbanColumns.where({ boardId }).select('columnId');
 			const columnIds = columns.map((c) => c.columnId);
 			if (columnIds.length === 0) return [];
 			query = query.where({ columnId: { in: columnIds } });
 		}
 
-		return query.order({ ordem: "ASC" });
+		return query.order({ ordem: 'ASC' });
 	}),
 
 	getCardDetail: protectedProcedure
@@ -203,23 +194,21 @@ export const kanbanRouterTrpc = trpcRouter({
 			const { teamId } = ctx.user;
 			await assertCardTeamAccess(cardId, teamId);
 			const card = await db.kanbanCards.findOptional(cardId);
-			if (!card) throw new TRPCError({ code: "NOT_FOUND", message: "Card não encontrado" });
+			if (!card) throw new TRPCError({ code: 'NOT_FOUND', message: 'Card não encontrado' });
 			return card;
 		}),
 
-	createCard: protectedProcedure
-		.input(cardCreateInputZod)
-		.mutation(async ({ ctx, input }) => {
-			const { teamId } = ctx.user;
-			await assertColumnTeamAccess(input.columnId, teamId);
-			const { ordem, prioridade, status, ...rest } = input;
-			return db.kanbanCards.create({
-				...rest,
-				prioridade: prioridade ?? "Media",
-				status: status ?? "Aberto",
-				...(ordem != null ? { ordem } : {}),
-			});
-		}),
+	createCard: protectedProcedure.input(cardCreateInputZod).mutation(async ({ ctx, input }) => {
+		const { teamId } = ctx.user;
+		await assertColumnTeamAccess(input.columnId, teamId);
+		const { ordem, prioridade, status, ...rest } = input;
+		return db.kanbanCards.create({
+			...rest,
+			prioridade: prioridade ?? 'Media',
+			status: status ?? 'Aberto',
+			...(ordem != null ? { ordem } : {}),
+		});
+	}),
 
 	updateCard: protectedProcedure
 		.input(cardUpdateInputZod)

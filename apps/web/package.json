@@ -9,7 +9,7 @@
 	"scripts": {
 		"check-types": "tsc --noEmit",
 		"clean": "rm -rf node_modules && rm -rf dist",
-		"build": "npx -p typescript tsc -b && vite build",
+		"build": "npx -p typescript tsc --noEmit && vite build",
 		"build:debug": "tsc -b && vite build --debug",
 		"dev": "vite",
 		"preview": "vite preview",
@@ -18,7 +18,7 @@
 		"test:e2e": "playwright test"
 	},
 	"dependencies": {
-		"@connected-repo/zod-schemas": "workspace:*",
+		"@repo/zod-schemas": "workspace:*",
 		"@emotion/react": "^11.14.0",
 		"@emotion/styled": "^11.14.1",
 		"@hookform/resolvers": "^5.2.2",

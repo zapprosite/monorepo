@@ -10,18 +10,18 @@
  * - `Authorization: Bearer <your-token>`
  */
 
-import { logger } from "@backend/app";
-import { sql } from "@backend/db/base_table";
-import { db } from "@backend/db/db";
-import type { SubscriptionAlertWebhookPayload } from "@connected-repo/zod-schemas/webhook_call_queue.zod";
-import axios, { type AxiosError } from "axios";
-import { WEBHOOK_BATCH_PROCESSING_LIMIT } from "../constants/apiGateway.constants";
+import { logger } from '@backend/app';
+import { sql } from '@backend/db/base_table';
+import { db } from '@backend/db/db';
+import type { SubscriptionAlertWebhookPayload } from '@connected-repo/zod-schemas/webhook_call_queue.zod';
+import axios, { type AxiosError } from 'axios';
+import { WEBHOOK_BATCH_PROCESSING_LIMIT } from '../constants/apiGateway.constants';
 
 /**
  * Structured log for webhook events
  */
 function logWebhookEvent(
-	level: "info" | "warn" | "error",
+	level: 'info' | 'warn' | 'error',
 	event: string,
 	data: {
 		webhookId?: string;
@@ -68,8 +68,8 @@ export async function sendWebhook(
 
 	try {
 		const headers: Record<string, string> = {
-			"Content-Type": "application/json",
-			"User-Agent": "API-Gateway-Webhook/1.0",
+			'Content-Type': 'application/json',
+			'User-Agent': 'API-Gateway-Webhook/1.0',
 		};
 
 		// Add Authorization header if bearer token is provided
@@ -85,7 +85,7 @@ export async function sendWebhook(
 
 		const duration = Date.now() - startTime;
 
-		logWebhookEvent("info", "send_success", {
+		logWebhookEvent('info', 'send_success', {
 			url,
 			status: response.status,
 			duration,
@@ -109,13 +109,13 @@ export async function sendWebhook(
 		} else if (axiosError.request) {
 			// Request made but no response received
 			errorMessage =
-				axiosError.code === "ECONNABORTED" ? "Request timeout" : "No response from server";
+				axiosError.code === 'ECONNABORTED' ? 'Request timeout' : 'No response from server';
 		} else {
 			// Error setting up the request
-			errorMessage = axiosError.message || "Unknown error occurred";
+			errorMessage = axiosError.message || 'Unknown error occurred';
 		}
 
-		logWebhookEvent("warn", "send_failure", {
+		logWebhookEvent('warn', 'send_failure', {
 			url,
 			status,
 			error: errorMessage,
@@ -149,11 +149,11 @@ export async function processWebhookQueue() {
 	// Get pending webhooks that are ready to be processed
 	const pendingWebhooks = await db.webhookCallQueues
 		.where({
-			status: "Pending",
+			status: 'Pending',
 			scheduledFor: { lt: sql`NOW()` },
 			attempts: { lt: sql`"max_attempts"` },
 		})
-		.order({ scheduledFor: "ASC" })
+		.order({ scheduledFor: 'ASC' })
 		.limit(WEBHOOK_BATCH_PROCESSING_LIMIT);
 
 	const results = {
@@ -164,14 +164,14 @@ export async function processWebhookQueue() {
 		deadLettered: 0,
 	};
 
-	logWebhookEvent("info", "batch_start", {
+	logWebhookEvent('info', 'batch_start', {
 		webhookId: `batch:${pendingWebhooks.length} webhooks`,
 	});
 
 	for (const webhook of pendingWebhooks) {
 		results.processed++;
 
-		logWebhookEvent("info", "processing", {
+		logWebhookEvent('info', 'processing', {
 			webhookId: webhook.webhookCallQueueId,
 			teamId: webhook.teamId,
 			url: webhook.webhookUrl,
@@ -180,9 +180,7 @@ export async function processWebhookQueue() {
 		});
 
 		// Fetch team webhook bearer token (optional)
-		const team = await db.teams
-			.select("subscriptionAlertWebhookBearerToken")
-			.find(webhook.teamId);
+		const team = await db.teams.select('subscriptionAlertWebhookBearerToken').find(webhook.teamId);
 
 		// Send webhook with bearer token (if configured)
 		const result = await sendWebhook(
@@ -196,14 +194,17 @@ export async function processWebhookQueue() {
 
 		if (result.success) {
 			// Mark as sent
-			await db.webhookCallQueues.find(webhook.webhookCallQueueId).update({
-				status: "Sent",
-				lastAttemptAt: () => sql`NOW()`,
-				sentAt: () => sql`NOW()`,
-				errorMessage: null,
-			}).increment("attempts");
+			await db.webhookCallQueues
+				.find(webhook.webhookCallQueueId)
+				.update({
+					status: 'Sent',
+					lastAttemptAt: () => sql`NOW()`,
+					sentAt: () => sql`NOW()`,
+					errorMessage: null,
+				})
+				.increment('attempts');
 
-			logWebhookEvent("info", "sent", {
+			logWebhookEvent('info', 'sent', {
 				webhookId: webhook.webhookCallQueueId,
 				teamId: webhook.teamId,
 				attempt: newAttempts,
@@ -217,13 +218,17 @@ export async function processWebhookQueue() {
 				// Schedule retry with exponential backoff
 				const backoffMs = calculateBackoff(newAttempts);
 
-				await db.webhookCallQueues.find(webhook.webhookCallQueueId).update({
-					lastAttemptAt: () => sql`NOW()`,
-					scheduledFor: () => sql`NOW() + ((${Number(backoffMs)})::numeric * INTERVAL '1 millisecond')`,
-					errorMessage: result.error || "Unknown error",
-				}).increment("attempts");
+				await db.webhookCallQueues
+					.find(webhook.webhookCallQueueId)
+					.update({
+						lastAttemptAt: () => sql`NOW()`,
+						scheduledFor: () =>
+							sql`NOW() + ((${Number(backoffMs)})::numeric * INTERVAL '1 millisecond')`,
+						errorMessage: result.error || 'Unknown error',
+					})
+					.increment('attempts');
 
-				logWebhookEvent("warn", "retry_scheduled", {
+				logWebhookEvent('warn', 'retry_scheduled', {
 					webhookId: webhook.webhookCallQueueId,
 					teamId: webhook.teamId,
 					attempt: newAttempts,
@@ -234,13 +239,16 @@ export async function processWebhookQueue() {
 				results.retried++;
 			} else {
 				// Max attempts reached, move to Dead Letter Queue
-				await db.webhookCallQueues.find(webhook.webhookCallQueueId).update({
-					status: "DeadLetter",
-					lastAttemptAt: () => sql`NOW()`,
-					errorMessage: result.error || "Max retry attempts exceeded",
-				}).increment("attempts");
+				await db.webhookCallQueues
+					.find(webhook.webhookCallQueueId)
+					.update({
+						status: 'DeadLetter',
+						lastAttemptAt: () => sql`NOW()`,
+						errorMessage: result.error || 'Max retry attempts exceeded',
+					})
+					.increment('attempts');
 
-				logWebhookEvent("error", "dead_lettered", {
+				logWebhookEvent('error', 'dead_lettered', {
 					webhookId: webhook.webhookCallQueueId,
 					teamId: webhook.teamId,
 					attempt: newAttempts,
@@ -254,7 +262,7 @@ export async function processWebhookQueue() {
 		}
 	}
 
-	logWebhookEvent("info", "batch_complete", {
+	logWebhookEvent('info', 'batch_complete', {
 		webhookId: `batch:${results.processed} processed`,
 	});
 
@@ -280,10 +288,10 @@ export async function getDeadLetterQueue(): Promise<
 	}>
 > {
 	const dlqWebhooks = await db.webhookCallQueues
-		.where({ status: "DeadLetter" })
-		.order({ lastAttemptAt: "DESC" });
+		.where({ status: 'DeadLetter' })
+		.order({ lastAttemptAt: 'DESC' });
 
-	logWebhookEvent("info", "dlq_fetched", {
+	logWebhookEvent('info', 'dlq_fetched', {
 		webhookId: `count:${dlqWebhooks.length} dead-lettered webhooks`,
 	});
 
@@ -301,28 +309,28 @@ export async function retryFromDeadLetter(webhookCallQueueId: string): Promise<{
 	const webhook = await db.webhookCallQueues.find(webhookCallQueueId);
 
 	if (!webhook) {
-		logWebhookEvent("error", "dlq_retry_not_found", {
+		logWebhookEvent('error', 'dlq_retry_not_found', {
 			webhookId: webhookCallQueueId,
 		});
-		return { success: false, error: "Webhook not found" };
+		return { success: false, error: 'Webhook not found' };
 	}
 
-	if (webhook.status !== "DeadLetter") {
-		logWebhookEvent("warn", "dlq_retry_invalid_status", {
+	if (webhook.status !== 'DeadLetter') {
+		logWebhookEvent('warn', 'dlq_retry_invalid_status', {
 			webhookId: webhookCallQueueId,
-			status: webhook.status as string,
+			status: webhook.status as unknown as string,
 		});
 		return { success: false, error: `Webhook is not in DeadLetter status: ${webhook.status}` };
 	}
 
 	// Reset attempts and move back to Pending
 	await db.webhookCallQueues.find(webhookCallQueueId).update({
-		status: "Pending",
+		status: 'Pending',
 		scheduledFor: () => sql`NOW()`,
 		errorMessage: null,
 	});
 
-	logWebhookEvent("info", "dlq_retry_initiated", {
+	logWebhookEvent('info', 'dlq_retry_initiated', {
 		webhookId: webhookCallQueueId,
 		teamId: webhook.teamId,
 	});
@@ -340,26 +348,26 @@ export async function discardDeadLetter(webhookCallQueueId: string): Promise<{
 	const webhook = await db.webhookCallQueues.find(webhookCallQueueId);
 
 	if (!webhook) {
-		logWebhookEvent("error", "dlq_discard_not_found", {
+		logWebhookEvent('error', 'dlq_discard_not_found', {
 			webhookId: webhookCallQueueId,
 		});
-		return { success: false, error: "Webhook not found" };
+		return { success: false, error: 'Webhook not found' };
 	}
 
-	if (webhook.status !== "DeadLetter") {
-		logWebhookEvent("warn", "dlq_discard_invalid_status", {
+	if (webhook.status !== 'DeadLetter') {
+		logWebhookEvent('warn', 'dlq_discard_invalid_status', {
 			webhookId: webhookCallQueueId,
-			status: webhook.status as string,
+			status: webhook.status as unknown as string,
 		});
 		return { success: false, error: `Webhook is not in DeadLetter status: ${webhook.status}` };
 	}
 
 	// Mark as Failed (not DeadLetter) to indicate it's been reviewed and discarded
 	await db.webhookCallQueues.find(webhookCallQueueId).update({
-		status: "Failed",
+		status: 'Failed',
 	});
 
-	logWebhookEvent("info", "dlq_discarded", {
+	logWebhookEvent('info', 'dlq_discarded', {
 		webhookId: webhookCallQueueId,
 		teamId: webhook.teamId,
 	});

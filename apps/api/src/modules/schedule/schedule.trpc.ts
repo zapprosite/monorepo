@@ -1,13 +1,13 @@
-import { TRPCError } from "@trpc/server";
-import { db } from "@backend/db/db";
-import { protectedProcedure, trpcRouter } from "@backend/trpc";
+import { db } from '@backend/db/db';
+import { protectedProcedure, trpcRouter } from '@backend/trpc';
 import {
 	listScheduleFilterZod,
 	scheduleCreateInputZod,
 	scheduleGetByIdZod,
 	scheduleUpdateInputZod,
-} from "@connected-repo/zod-schemas/schedule.zod";
-import z from "zod";
+} from '@connected-repo/zod-schemas/schedule.zod';
+import { TRPCError } from '@trpc/server';
+import z from 'zod';
 
 const SCHEDULES_MAX_LIMIT = 200;
 
@@ -15,12 +15,12 @@ export const scheduleRouterTrpc = trpcRouter({
 	listSchedules: protectedProcedure.input(listScheduleFilterZod).query(async ({ ctx, input }) => {
 		const { teamId } = ctx.user;
 		let query = db.schedules
-			.select("*")
-			.innerJoin("clients", "schedules.clienteId", "clients.clientId")
-			.where("clients.teamId", teamId);
+			.select('*')
+			.innerJoin('clients', 'schedules.clienteId', 'clients.clientId')
+			.where('clients.teamId', teamId);
 
 		if (input.clienteId) {
-			query = query.where({ "schedules.clienteId": input.clienteId });
+			query = query.where({ 'schedules.clienteId': input.clienteId });
 		}
 		if (input.tecnicoId) {
 			query = query.where({ tecnicoId: input.tecnicoId });
@@ -40,7 +40,7 @@ export const scheduleRouterTrpc = trpcRouter({
 			query = query.whereSql`"dataHora" <= ${fim}::timestamptz`;
 		}
 
-		return query.order({ dataHora: "ASC" }).limit(SCHEDULES_MAX_LIMIT);
+		return query.order({ dataHora: 'ASC' }).limit(SCHEDULES_MAX_LIMIT);
 	}),
 
 	getScheduleDetail: protectedProcedure
@@ -48,48 +48,54 @@ export const scheduleRouterTrpc = trpcRouter({
 		.query(async ({ ctx, input: { scheduleId } }) => {
 			const { teamId } = ctx.user;
 			const schedule = await db.schedules.findOptional(scheduleId);
-			if (!schedule) throw new TRPCError({ code: "NOT_FOUND", message: "Agendamento não encontrado" });
+			if (!schedule)
+				throw new TRPCError({ code: 'NOT_FOUND', message: 'Agendamento não encontrado' });
 
 			const cliente = await db.clients
 				.where({ clientId: schedule.clienteId, teamId })
 				.findOptional(schedule.clienteId);
-			if (!cliente) throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado" });
+			if (!cliente) throw new TRPCError({ code: 'FORBIDDEN', message: 'Acesso negado' });
 
 			return schedule;
 		}),
 
-	createSchedule: protectedProcedure.input(scheduleCreateInputZod).mutation(async ({ ctx, input }) => {
-		const { teamId } = ctx.user;
-		const cliente = await db.clients
-			.where({ clientId: input.clienteId, teamId })
-			.findOptional(input.clienteId);
-		if (!cliente) throw new TRPCError({ code: "NOT_FOUND", message: "Cliente não encontrado" });
-		if (input.tecnicoId) {
-			const tecnico = await db.users
-				.where({ userId: input.tecnicoId, teamId })
-				.findOptional(input.tecnicoId);
-			if (!tecnico) throw new TRPCError({ code: "FORBIDDEN", message: "Técnico não pertence à equipe" });
-		}
-		return db.schedules.create(input);
-	}),
+	createSchedule: protectedProcedure
+		.input(scheduleCreateInputZod)
+		.mutation(async ({ ctx, input }) => {
+			const { teamId } = ctx.user;
+			const cliente = await db.clients
+				.where({ clientId: input.clienteId, teamId })
+				.findOptional(input.clienteId);
+			if (!cliente) throw new TRPCError({ code: 'NOT_FOUND', message: 'Cliente não encontrado' });
+			if (input.tecnicoId) {
+				const tecnico = await db.users
+					.where({ userId: input.tecnicoId, teamId })
+					.findOptional(input.tecnicoId);
+				if (!tecnico)
+					throw new TRPCError({ code: 'FORBIDDEN', message: 'Técnico não pertence à equipe' });
+			}
+			return db.schedules.create(input);
+		}),
 
 	updateSchedule: protectedProcedure
 		.input(scheduleUpdateInputZod)
 		.mutation(async ({ ctx, input: { scheduleId, ...data } }) => {
 			const { teamId } = ctx.user;
 			const schedule = await db.schedules.findOptional(scheduleId);
-			if (!schedule) throw new TRPCError({ code: "NOT_FOUND", message: "Agendamento não encontrado" });
+			if (!schedule)
+				throw new TRPCError({ code: 'NOT_FOUND', message: 'Agendamento não encontrado' });
 
 			const cliente = await db.clients
 				.where({ clientId: schedule.clienteId, teamId })
 				.findOptional(schedule.clienteId);
-			if (!cliente) throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado" });
+			if (!cliente) throw new TRPCError({ code: 'FORBIDDEN', message: 'Acesso negado' });
 
 			if (data.tecnicoId) {
 				const tecnico = await db.users
 					.where({ userId: data.tecnicoId, teamId })
 					.findOptional(data.tecnicoId);
-				if (!tecnico) throw new TRPCError({ code: "FORBIDDEN", message: "Técnico não pertence à equipe" });
+				if (!tecnico)
+					throw new TRPCError({ code: 'FORBIDDEN', message: 'Técnico não pertence à equipe' });
 			}
 
 			return db.schedules.where({ scheduleId }).update(data);
@@ -100,14 +106,15 @@ export const scheduleRouterTrpc = trpcRouter({
 		.mutation(async ({ ctx, input: { scheduleId } }) => {
 			const { teamId } = ctx.user;
 			const schedule = await db.schedules.findOptional(scheduleId);
-			if (!schedule) throw new TRPCError({ code: "NOT_FOUND", message: "Agendamento não encontrado" });
+			if (!schedule)
+				throw new TRPCError({ code: 'NOT_FOUND', message: 'Agendamento não encontrado' });
 
 			const cliente = await db.clients
 				.where({ clientId: schedule.clienteId, teamId })
 				.findOptional(schedule.clienteId);
-			if (!cliente) throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado" });
+			if (!cliente) throw new TRPCError({ code: 'FORBIDDEN', message: 'Acesso negado' });
 
-			return db.schedules.where({ scheduleId }).update({ status: "Confirmado" });
+			return db.schedules.where({ scheduleId }).update({ status: 'Confirmado' });
 		}),
 
 	iniciarAtendimento: protectedProcedure
@@ -115,14 +122,15 @@ export const scheduleRouterTrpc = trpcRouter({
 		.mutation(async ({ ctx, input: { scheduleId } }) => {
 			const { teamId } = ctx.user;
 			const schedule = await db.schedules.findOptional(scheduleId);
-			if (!schedule) throw new TRPCError({ code: "NOT_FOUND", message: "Agendamento não encontrado" });
+			if (!schedule)
+				throw new TRPCError({ code: 'NOT_FOUND', message: 'Agendamento não encontrado' });
 
 			const cliente = await db.clients
 				.where({ clientId: schedule.clienteId, teamId })
 				.findOptional(schedule.clienteId);
-			if (!cliente) throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado" });
+			if (!cliente) throw new TRPCError({ code: 'FORBIDDEN', message: 'Acesso negado' });
 
-			return db.schedules.where({ scheduleId }).update({ status: "Em Andamento" });
+			return db.schedules.where({ scheduleId }).update({ status: 'Em Andamento' });
 		}),
 
 	concluirAtendimento: protectedProcedure
@@ -130,14 +138,15 @@ export const scheduleRouterTrpc = trpcRouter({
 		.mutation(async ({ ctx, input: { scheduleId } }) => {
 			const { teamId } = ctx.user;
 			const schedule = await db.schedules.findOptional(scheduleId);
-			if (!schedule) throw new TRPCError({ code: "NOT_FOUND", message: "Agendamento não encontrado" });
+			if (!schedule)
+				throw new TRPCError({ code: 'NOT_FOUND', message: 'Agendamento não encontrado' });
 
 			const cliente = await db.clients
 				.where({ clientId: schedule.clienteId, teamId })
 				.findOptional(schedule.clienteId);
-			if (!cliente) throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado" });
+			if (!cliente) throw new TRPCError({ code: 'FORBIDDEN', message: 'Acesso negado' });
 
-			return db.schedules.where({ scheduleId }).update({ status: "Concluído" });
+			return db.schedules.where({ scheduleId }).update({ status: 'Concluído' });
 		}),
 
 	cancelarAgendamento: protectedProcedure
@@ -150,13 +159,38 @@ export const scheduleRouterTrpc = trpcRouter({
 		.mutation(async ({ ctx, input: { scheduleId, motivoCancelamento } }) => {
 			const { teamId } = ctx.user;
 			const schedule = await db.schedules.findOptional(scheduleId);
-			if (!schedule) throw new TRPCError({ code: "NOT_FOUND", message: "Agendamento não encontrado" });
+			if (!schedule)
+				throw new TRPCError({ code: 'NOT_FOUND', message: 'Agendamento não encontrado' });
 
 			const cliente = await db.clients
 				.where({ clientId: schedule.clienteId, teamId })
 				.findOptional(schedule.clienteId);
-			if (!cliente) throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado" });
+			if (!cliente) throw new TRPCError({ code: 'FORBIDDEN', message: 'Acesso negado' });
 
-			return db.schedules.where({ scheduleId }).update({ status: "Cancelado", motivoCancelamento: motivoCancelamento ?? null });
+			return db.schedules
+				.where({ scheduleId })
+				.update({ status: 'Cancelado', motivoCancelamento: motivoCancelamento ?? null });
+		}),
+
+	deleteSchedule: protectedProcedure
+		.input(scheduleGetByIdZod)
+		.mutation(async ({ ctx, input: { scheduleId } }) => {
+			const { teamId } = ctx.user;
+			const schedule = await db.schedules.findOptional(scheduleId);
+			if (!schedule)
+				throw new TRPCError({ code: 'NOT_FOUND', message: 'Agendamento não encontrado' });
+
+			const cliente = await db.clients
+				.where({ clientId: schedule.clienteId, teamId })
+				.findOptional(schedule.clienteId);
+			if (!cliente) throw new TRPCError({ code: 'FORBIDDEN', message: 'Acesso negado' });
+
+			if (schedule.status === 'Concluído' || schedule.status === 'Cancelado') {
+				throw new TRPCError({
+					code: 'BAD_REQUEST',
+					message: "Não é possível excluir agendamento com status 'Concluído' ou 'Cancelado'",
+				});
+			}
+			return db.schedules.where({ scheduleId }).update({ status: 'Cancelado' });
 		}),
 });

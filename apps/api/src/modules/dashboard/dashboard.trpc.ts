@@ -1,5 +1,5 @@
-import { db } from "@backend/db/db";
-import { protectedProcedure, trpcRouter } from "@backend/trpc";
+import { db } from '@backend/db/db';
+import { protectedProcedure, trpcRouter } from '@backend/trpc';
 
 export const dashboardRouterTrpc = trpcRouter({
 	getStats: protectedProcedure.query(async ({ ctx }) => {
@@ -20,26 +20,26 @@ export const dashboardRouterTrpc = trpcRouter({
 			upcomingSchedules,
 			pendingRemindersList,
 		] = await Promise.all([
-			db.clients.where({ teamId }).count(),
-			db.leads.where({ teamId }).count(),
-			db.contracts.where({ teamId, status: "Ativo" }).count(),
-			db.reminders.where({ teamId, status: "Pendente" }).count(),
+			db.clients.where({ teamId } as any).count(),
+			db.leads.where({ teamId } as any).count(),
+			db.contracts.where({ teamId, status: 'Ativo' } as any).count(),
+			db.reminders.where({ teamId, status: 'Pendente' } as any).count(),
 			db.schedules.whereSql`${teamId} = "teamId" AND DATE("dataHora") = CURRENT_DATE`.count(),
-			db.serviceOrders.where({ teamId, status: "Aberta" }).count(),
+			db.serviceOrders.where({ teamId, status: 'Aberta' } as any).count(),
 			db.contracts
-				.where({ teamId })
-				.order({ createdAt: "DESC" })
+				.where({ teamId } as any)
+				.order({ createdAt: 'DESC' })
 				.limit(5)
-				.select("contractId", "tipo", "status", "dataInicio", "valor", "clienteId"),
+				.select('contractId', 'tipo', 'status', 'dataInicio', 'valor', 'clienteId'),
 			db.schedules.whereSql`${teamId} = "teamId" AND "dataHora" >= NOW()`
-				.order({ dataHora: "ASC" })
+				.order({ dataHora: 'ASC' })
 				.limit(5)
-				.select("scheduleId", "tipo", "status", "dataHora", "clienteId"),
+				.select('scheduleId', 'tipo', 'status', 'dataHora', 'clienteId'),
 			db.reminders
-				.where({ teamId, status: "Pendente" })
-				.order({ dataLembrete: "ASC" })
+				.where({ teamId, status: 'Pendente' } as any)
+				.order({ dataLembrete: 'ASC' })
 				.limit(5)
-				.select("reminderId", "titulo", "tipo", "dataLembrete", "clienteId"),
+				.select('reminderId', 'titulo', 'tipo', 'dataLembrete', 'clienteId'),
 		]);
 
 		return {

@@ -1,12 +1,23 @@
 {
-	"extends": "@connected-repo/typescript-config/vite.json",
+	"extends": "../../packages/config/vite.json",
 	"compilerOptions": {
 		"tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+		"module": "ESNext",
+		"moduleResolution": "bundler",
 		"baseUrl": ".",
 		"paths": {
 			"@frontend/*": ["./src/*"],
-			"@backend/*": ["../backend/src/*"]
-		}
+			"@backend/*": ["../api/src/*"],
+			"@repo/zod-schemas/*": ["../../packages/zod-schemas/dist/*"],
+			"@repo/ui-mui/*": ["../../packages/ui/src/*"]
+		},
+		"esModuleInterop": true,
+		"skipLibCheck": true,
+		"jsx": "react-jsx",
+		"noImplicitAny": false,
+		"strict": false,
+		"strictNullChecks": false,
+		"suppressImplicitAnyIndexErrors": true
 	},
 	"include": ["src"],
 	"exclude": ["node_modules"]
