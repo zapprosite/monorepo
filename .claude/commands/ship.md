@@ -1,23 +1,51 @@
-# /ship — End-of-session sync pattern
+---
+description: Deploy completo — review → sync docs → commit → push dual remotes → PR. Para end-of-session e pre-deploy.
+---
 
-## Description
+# /ship — End-of-Session Deploy
 
-Pre-launch checklist + production deploy preparation.
+> Fluxo completo de fim de sessão. Para commit rápido sem PR, usa `/turbo`.
 
-## Actions
+## Fluxo
 
-1. Run `/review` — verify no hardcoded secrets
-2. Sync docs → memory: `bash scripts/sync-memory.sh`
-3. Commit: `git add` + `git commit`
-4. Push dual remotes (Gitea + GitHub)
-5. Create PR if needed
+```
+REVIEW → SYNC DOCS → COMMIT → PUSH GITEA+GITHUB → PR
+```
 
-## When
+## Passos
 
-- End of session before marking done
-- Pre-deploy validation
+### 1. Review (secrets audit)
+```bash
+bash /srv/monorepo/scripts/sre-check.sh ci --json
+```
 
-## Refs
+### 2. Sync docs → memory
+```bash
+bash /srv/monorepo/scripts/sync-memory.sh
+```
 
-- `AGENTS.md` ship workflow
-- `.claude/rules/REVIEW-SKILLS.md`
+### 3. Commit semântico
+```bash
+git add -A
+git diff --cached --stat
+git commit -m "feat|fix|chore(scope): description"
+```
+
+### 4. Push dual remotes (Gitea + GitHub)
+```bash
+BRANCH=$(git branch --show-current)
+git push --force-with-lease gitea "$BRANCH"
+git push --force-with-lease origin "$BRANCH"
+```
+
+### 5. Criar PR (Gitea)
+```bash
+gh pr create --title "..." --body "..." --base main --repo will-zappro/monorepo
+```
+
+## Safety
+
+- ❌ Não roda em `main`
+- ✅ `--force-with-lease` (nunca `--force`)
+- ✅ Secrets audit antes do push
+- ✅ Ambos remotes sempre

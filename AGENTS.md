@@ -1,21 +1,13 @@
 # AGENTS.md — Monorepo Command Center
 
-> **Data:** 2026-04-09
-> **Authority:** Claude Code CLI + Gitea Actions + Antigravity Kit (.agent/)
-> **Stack:** pnpm workspaces + Turbo pipeline + Biome lint + Playwright E2E
+> **Data:** 2026-05-03
+> **Canonical reference:** `docs/HOMELAB.md`
 
-## Leia Primeiro — Verdade Operacional Atual
+## Leia Primeiro
 
-Este monorepo tem documentação histórica. Para evitar drift, use esta ordem antes de qualquer task:
-
-1. [docs/START-HERE.md](docs/START-HERE.md) — entrada operacional anti-salada.
-2. `bash scripts/sre-check.sh ci --json` — contrato local do repo.
-3. `bash scripts/sre-check.sh prod-readonly --markdown` — smoke read-only de produção.
-4. [docs/SPECS/SPEC-002-homelab-control-plane.md](docs/SPECS/SPEC-002-homelab-control-plane.md) — SRE 7 dias, SLO 99,5%, GitHub primário.
-5. `.claude/skills/monorepo-navigator/SKILL.md` — escolha de rota no repo.
-6. `.claude/skills/sre-operator/SKILL.md` — health, deploy readiness e incidente.
-
-**Estado atual:** GitHub Actions é o CI primário. Gitea é espelho/fallback. `pnpm` é o package manager. Produção é `diagnose_only` por padrão: nenhuma mutação sem aprovação humana explícita.
+1. [docs/HOMELAB.md](docs/HOMELAB.md) — referência canônica de infraestrutura
+2. `bash scripts/sre-check.sh ci --json` — contrato local do repo
+3. [docs/SPECS/SPEC-208-nexus-prevc-unified-architecture.md](docs/SPECS/SPEC-208-nexus-prevc-unified-architecture.md) — arquitetura de execução
 
 ---
 
@@ -33,19 +25,19 @@ Este monorepo tem documentação histórica. Para evitar drift, use esta ordem a
 │  turbo.json defines build/lint/test pipeline                │
 │  yarn workspaces (apps/, packages/)                         │
 ├─────────────────────────────────────────────────────────────┤
-│  .gitea/workflows/        .agent/                          │
-│  → 4 Gitea Actions       → 18 specialist agents             │
+│  .gitea/workflows/        .claude/agents/                    │
+│  → 6 Gitea Actions        → 9 specialist agents              │
 │  → ci-feature            → 20 workflows (Antigravity Kit)  │
 │  → code-review                                           │
 │  → deploy-main                                          │
 │  → rollback                                              │
 ├─────────────────────────────────────────────────────────────┤
-│  scripts/          smoke-tests/        docs/specflow/      │
-│  → health-check    → E2E (Playwright) → 15+ SPECs        │
-│  → deploy          → smoke-chat        → tasks.md          │
-│  → backup           → smoke-
-│  → restore          → +more                                   │
-│  → mirror-push                                       │
+│  scripts/          smoke-tests/        docs/               │
+│  → health-check    → E2E (Playwright)   → HOMELAB.md       │
+│  → deploy          → smoke-chat         → SPECS/           │
+│  → backup           → smoke-             → runbooks/       │
+│  → restore                                                                     │
+│  → nexus-aider-exec.sh
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -72,9 +64,9 @@ Este monorepo tem documentação histórica. Para evitar drift, use esta ordem a
 | `apps/web` | Web | React 19 + MUI + tRPC | — |
 | `apps/orchestrator` | Agent | Node.js + tRPC + YAML | Human gates |
 | `apps/perplexity-agent` | Agent | Python + Streamlit + LangChain | Browser automation |
-| `packages/ui-mui` | UI Lib | React + Material UI | → frontend |
+| `packages/ui` | UI Lib | React + Material UI | → frontend |
 | `packages/zod-schemas` | Schemas | TypeScript + Zod | → backend, frontend, orchestrator |
-| `packages/typescript-config` | Config | TypeScript | Dev tooling |
+| `packages/config` | Config | TypeScript | Dev tooling |
 
 ---
 
@@ -212,6 +204,7 @@ Este monorepo tem documentação histórica. Para evitar drift, use esta ordem a
 | `restore.sh <name>` | Restore from named backup | DR |
 | `mirror-push.sh` | Push Gitea + GitHub | Feature branches |
 | `sync-env.js` | .env → workspaces | Pre-build |
+| `env-vault-sync.sh` | ZFS snapshot + .env → .env.example (anti-hardcode) | Pre-commit |
 
 ---
 
@@ -234,13 +227,14 @@ Este monorepo tem documentação histórica. Para evitar drift, use esta ordem a
 | `code-review.yml` | PR | 5 gates: lint + test + security + AI review + human |
 | `deploy-main.yml` | Merge main | build → human gate → Coolify deploy |
 | `rollback.yml` | Manual dispatch | Coolify rollback + audit |
-| `deploy-perplexity-agent.yml` | Push | Coolify API deploy |
+| `failure-report.yml` | CI fail | Alerta de falha |
+| `daily-report.yml` | Cron 9h | Relatório diário |
 
 ---
 
-## Antigravity Kit (`.agent/`)
+## Antigravity Kit (`.claude/agents/`)
 
-18 agents especializados + 20 workflows, 10 skills:
+9 agentes especializados + 2 skills legacy:
 
 ### Agentes
 `architect-specialist`, `backend-specialist`, `bug-fixer`, `code-reviewer`, `database-specialist`, `debugger`, `devops-specialist`, `documentation-writer`, `feature-developer`, `frontend-specialist`, `mobile-specialist`, `module-architect`, `orchestrator`, `performance-optimizer`, `refactoring-specialist`, `security-auditor`, `executive-ceo`, `context-optimizer`
@@ -291,8 +285,8 @@ PUSH → Gitea Actions (ci-feature)
                 ↓
              Smoke tests E2E
                 ↓
-             PASS → done
-             FAIL → rollback workflow
+             ✅ PASS → done
+             ❌ FAIL → rollback workflow
 ```
 
 **AI Self-Fix Loop (a implementar):**
@@ -393,11 +387,11 @@ EOF
 
 | Remote | URL | Uso |
 |--------|-----|-----|
-| `origin` | `git@github.com:zapprosite/monorepo.git` | GitHub mirror |
-| `gitea` | `ssh://git@127.0.0.1:2222/will-zappro/monorepo.git` | Gitea primary |
+| `gitea` | `ssh://git@127.0.0.1:2222/will-zappro/monorepo.git` | Primary CI/CD |
+| `origin` | `git@github.com:zapprosite/monorepo.git` | Mirror |
 
 ```bash
-# Push to both
+# Push to both (usado por /turbo e /ship)
 git push --force-with-lease gitea HEAD && git push --force-with-lease origin HEAD
 ```
 
@@ -444,6 +438,7 @@ yarn lint
 
 # Sync env
 node scripts/sync-env.js
+bash scripts/env-vault-sync.sh
 ```
 
 ---

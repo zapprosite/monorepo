@@ -127,15 +127,21 @@ EOF
     echo "$prompt_file"
 }
 
-# ─── Phase 4: Execute Claude CLI ───────────────────────────────────────────
+# ─── Phase 4: Execute Claude CLI (RARV Cycle) ─────────────────────────────
+# RARV = Reason → Act → Reflect → Verify (inspired by loki-mode)
+# Reason:  Claude reads context bundle, plans edits
+# Act:     Claude edits files
+# Reflect: Claude runs tests, analyzes results
+# Verify:  Tests pass → commit; Fail → retry (max iterations)
 execute_claude() {
     local task_id="$1"
     local system_prompt="$2"
     local context_bundle="$3"
     local max_iter="$4"
+    local agent="${5:-implementer}"
     local exit_code=0
 
-    log "Launching Claude CLI for task: $task_id"
+    log "Launching Claude CLI for task: $task_id (agent: $agent)"
 
     # Build the prompt — include task description inline for lean context
     local task_desc
@@ -160,8 +166,10 @@ execute_claude() {
         -p \
         --output-format text \
         --max-turns "$exec_turns" \
-        --allowedTools "Edit,Write,Bash,Read,Grep,Glob" \
+        --allowedTools "Edit,Write,Bash,Read,Grep,Glob,Task,Agent" \
+        --dangerously-skip-permissions \
         --add-dir "$MONOREPO" \
+        --agent "$agent" \
         --system-prompt "$sys_prompt_content" \
         "Execute this task: $task_desc. Read context bundle at file://${context_bundle}. Then edit files, run tests, and commit." \
         2>&1 | tee "$TMP_DIR/claude-output-${task_id}.log" || exit_code=$?
@@ -221,7 +229,7 @@ main() {
         fail "failed to parse pipeline.json — invalid JSON"
     }
 
-    local task_id task_desc task_files test_cmd commit_msg scope max_iter
+    local task_id task_desc task_files test_cmd commit_msg scope max_iter agent
     task_id=$(echo "$task" | jq -r '.id // "T00"')
     task_desc=$(echo "$task" | jq -r '.description // ""')
     task_files=$(echo "$task" | jq -c '.files // []')
@@ -229,10 +237,12 @@ main() {
     commit_msg=$(echo "$task" | jq -r '.commit_msg // "chore: automated task"')
     scope=$(jq -r '.hermes.scope // ""' "$pipeline_json" 2>/dev/null || echo "")
     max_iter=$(jq -r '.limits.max_iterations // "5"' "$pipeline_json" 2>/dev/null || echo "5")
+    agent=$(jq -r '.hermes.agent // "implementer"' "$pipeline_json" 2>/dev/null || echo "implementer")
 
     echo -e "${CYAN}━━━ Nexus Aider Executor ━━━${NC}"
     echo -e "  Task:     ${CYAN}$task_id${NC} — ${task_desc:0:80}..."
     echo -e "  Scope:    ${scope:-root}"
+    echo -e "  Agent:    $agent"
     echo -e "  Files:    $(echo "$task_files" | jq -r 'join(", ")' 2>/dev/null || echo "none")"
     echo -e "  Test:     $test_cmd"
     echo -e "  Max Iter: $max_iter"
@@ -251,7 +261,7 @@ main() {
     prompt_file=$(build_system_prompt "$task_id" "$task_desc" "$task_files" "$test_cmd" "$commit_msg" "$bundle_file")
 
     # Phase 4: Execute
-    if execute_claude "$task_id" "$prompt_file" "$bundle_file" "$max_iter"; then
+    if execute_claude "$task_id" "$prompt_file" "$bundle_file" "$max_iter" "$agent"; then
         # Phase 5: Verify
         verify_task "$test_cmd" || fail "post-execution verification failed"
 

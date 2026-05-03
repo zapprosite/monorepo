@@ -1,9 +1,46 @@
 {
-	"current_phase": 3,
-	"current_task": "Hermes install冲刺 — 12 agents running in parallel",
-	"dirty": true,
-	"last_updated": "2026-04-14T00:40:00Z",
-	"project": "homelab-monorepo",
-	"branch": "feature/quantum-helix-done",
-	"notes": "Hermes install: hermes binary install + claw migrate + secrets + config MiniMax primary + SOUL.md rescue + OpenWebUI setup + cron + launcher + status script"
+  "version": "2.0",
+  "description": "Nexus Aider Pipeline — task definition for Claude CLI subprocess executor",
+  "executor": "nexus-aider-exec.sh",
+
+  "hermes": {
+    "scope": "apps/api",
+    "context_bundle_enabled": true,
+    "repo_map_enabled": true
+  },
+
+  "task": {
+    "id": "T01",
+    "description": "Implement user authentication middleware",
+    "files": [
+      "apps/api/src/middleware/auth.ts",
+      "apps/api/src/routes/auth.ts"
+    ],
+    "test_cmd": "pnpm test --filter=apps-api -- --no-coverage",
+    "commit_msg": "feat: add user authentication middleware"
+  },
+
+  "limits": {
+    "max_iterations": 5,
+    "context_window": "12k"
+  },
+
+  "_batch_example": {
+    "tasks": [
+      {
+        "id": "T01",
+        "description": "Task 1",
+        "files": ["apps/api/src/foo.ts"],
+        "test_cmd": "pnpm test --filter=apps-api",
+        "commit_msg": "feat: foo"
+      },
+      {
+        "id": "T02",
+        "description": "Task 2",
+        "files": ["apps/web/src/bar.tsx"],
+        "test_cmd": "pnpm test --filter=apps-web",
+        "commit_msg": "feat: bar"
+      }
+    ]
+  }
 }

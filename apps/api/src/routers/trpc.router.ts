@@ -22,7 +22,6 @@ import { usersRouterTrpc } from '@backend/modules/users/users.trpc';
 import { webhookRouter } from '@backend/modules/webhooks/webhooks.trpc';
 import { publicProcedure, trpcRouter } from '@backend/trpc';
 
-// @ts-expect-error TS2742 — pqb internal type inference not portable
 export const appTrpcRouter = trpcRouter({
 	hello: publicProcedure.query(async () => {
 		await new Promise((resolve) => setTimeout(resolve, 1000));

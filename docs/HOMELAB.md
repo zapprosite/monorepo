@@ -1,0 +1,195 @@
+# HOMELAB.md — Canonical Infrastructure Reference
+
+> **Verificado:** 2026-05-03 | **Versão:** 1.0 | **Zero placeholder**
+
+---
+
+## Serviços Ativos (21 containers, 35 portas)
+
+| Serviço | Porta | Container | Status |
+|---------|-------|-----------|--------|
+| Hermes API | `:8642` (127) | `hermes-second-brain-qdrant-1` | ✅ |
+| Qdrant HTTP | `:6333` (127) | `hermes-second-brain-qdrant-1` | ✅ |
+| Qdrant gRPC | `:6334` (127) | `hermes-second-brain-qdrant-1` | ✅ |
+| Ollama | `:11434` | nativo (systemd) | ✅ |
+| LiteLLM | `:4018→4000` | `litellm-proxy` | ✅ |
+| AI Gateway | `:4002` | `zappro-ai-gateway` | ✅ |
+| Keycloak | `:8080, :8443` | `keycloak` | ✅ |
+| Gitea HTTP | `:3300` (127) | `zappro-gitea` | ✅ |
+| Gitea SSH | `:2222` (127) | `zappro-gitea` | ✅ |
+| Coolify | `:8000` (127) | `coolify` | ✅ |
+| Coolify Realtime | `:6001-6002` (127) | `coolify-realtime` | ✅ |
+| pgAdmin | `:4050` (127) | `zappro-pgadmin` | ✅ |
+| Grafana | `:3100` (127) | `grafana` | ✅ |
+| Prometheus | `:9090` (127) | `prometheus` | ✅ |
+| Alertmanager | `:9093` (127) | `alertmanager` | ✅ |
+| Redis | `:6379` (127) | `zappro-redis` | ✅ |
+| Docker Registry | `:5000` | `registry` | ✅ |
+| Edge TTS | `:8012` (127) | `zappro-edge-tts` | ✅ |
+| OpenWebUI HVAC | `:3000` (interno) | `openwebui-hvac` | ✅ |
+| Gitea Runner | — | `gitea-runner` | ✅ |
+| Netdata | `:19999` | nativo | ✅ |
+
+## Serviços Desligados/Removidos
+
+| Serviço | Motivo |
+|---------|--------|
+| Whisper STT (`:8204`) | Substituído por Groq API |
+| Hermes MCP (`:8092`) | Nunca deployado |
+| Orchestrator JSON-RPC (`:8095`) | Spec-only |
+| Vault (`:8200`) | Substituído por Infisical |
+
+---
+
+## Stack Principal
+
+| Layer | Tecnologia |
+|-------|------------|
+| Monorepo | pnpm + Turbo + Biome |
+| API | Fastify + OrchidORM + tRPC (:3000) |
+| Web | React 19 + MUI + tRPC (:5173 dev) |
+| Orchestrator | TypeScript workflow engine (YAML→exec) |
+| Memória | Mem0 + Qdrant (Gen5 NVMe) + Ollama |
+| LLM Gateway | LiteLLM → MiniMax M2.7 / Claude |
+| CI/CD | Gitea Actions (13 workflows) + Coolify |
+| Auth | Keycloak OIDC |
+| Monitoramento | Prometheus + Grafana + Alertmanager |
+
+---
+
+## Systemd Timers
+
+| Timer | Status |
+|-------|--------|
+| `hermes-ops-health` (5min) | ✅ |
+| `hermes-ops-docker-health` (5min) | ✅ |
+| `homelab-health-check` (15min) | ✅ |
+| `backup-qdrant` (diário) | ✅ |
+| `hermes-backup-snapshot` (diário) | ❌ FAILED |
+| `hermes-backup-incremental` (diário) | ❌ FAILED |
+| `hermes-backup-qdrant` (diário) | ❌ FAILED |
+
+---
+
+## Cron (`/etc/cron.d/hermes-ops`)
+
+**15/21 scripts existem.** 6 ausentes: `hermes-metrics.sh`, `gpu-monitor.sh`, `zfs-prune-snapshots.sh`, `zfs-incremental-backup.sh`, `scan-chinese-cron.sh`, `hermes-alert-processor.sh`
+
+---
+
+## Diretórios e Discos
+
+```
+/srv/monorepo/    ← Source of truth (pnpm monorepo)
+/srv/hermes-second-brain/ ← Mem0 memory layer
+/srv/ops/         ← IaC, governance, secrets
+/srv/data/        ← Dados persistentes (Coolify, Gitea, etc.)
+/tank/qdrant/     ← Qdrant Gen5 NVMe (Crucial T700 4TB)
+/tank/backups/    ← Backups (15.6GB)
+/tank/docker-data/ ← Docker volumes (239GB)
+```
+
+**Disco sistema:** 86% cheio (38GB livre de 274GB)
+
+---
+
+## Modelos Ollama
+
+| Modelo | Uso |
+|--------|-----|
+| `nomic-embed-text` | Embeddings 768D (Qdrant) |
+| `qwen2.5-coder:14b-q6k` | Code generation |
+| `qwen2.5vl:3b` | Vision |
+
+---
+
+## Qdrant Collections (6)
+
+| Coleção | Pontos | Status |
+|---------|--------|--------|
+| `mem0` | 26 | ✅ Mem0 memory |
+| `hermes-knowledge` | — | ✅ Knowledge graph |
+| `skills` | — | ✅ Agent skills |
+| `hvac_manuals_v1` | 442 | ✅ HVAC RAG corpus |
+| `will` | 0 | 🟡 Zombie |
+| `mem0migrations` | 0 | 🟡 Zombie |
+
+---
+
+## Stack Completa de Compose
+
+```
+hermes-second-brain/ → API (:8642) + Qdrant (:6333)
+litellm/             → LiteLLM (:4018)
+edge-tts/            → Edge TTS (:8012)
+openwebui/           → OpenWebUI HVAC (:3000 interno)
+coolify/             → Coolify (:8000) + DB + Redis
+gitea/               → Gitea (:3300, :2222)
+monitoring/          → Prometheus (:9090) + Grafana (:3100)
+```
+
+---
+
+## Governança
+
+- **Secrets:** `/srv/monorepo/.env` (fonte canônica)
+- **Segurança:** `/srv/ops/ai-governance/CONTRACT.md`
+- **Portas:** `/srv/ops/ai-governance/PORTS.md`
+- **Subdomínios:** `/srv/ops/ai-governance/SUBDOMAINS.md`
+
+---
+
+## Env Vault (SRE-Pro)
+
+**Canônico:** `/srv/monorepo/.env` (chmod 600, gitignored)
+**Template LLM:** `.env.example` — auto-gerado com `${VAR_NAME}` para secrets
+**Vault:** `tank/monorepo@env-vault-*` (ZFS snapshot a cada sync)
+
+```bash
+bash scripts/env-vault-sync.sh        # sync .env → .env.example + ZFS snapshot
+bash scripts/env-vault-sync.sh --dry-run  # preview changes
+```
+
+Todas as apps (api, web, orchestrator) e serviços (hermes-second-brain, ollama) apontam para o canônico via symlink.
+
+---
+
+## Execution Framework
+
+### Nexus (`.nexus/`)
+```bash
+nexus doctor          # environment health check (9 CLI + 5 services + 5 motor)
+nexus quality-gates   # lint + test + secrets audit antes de ship
+nexus plan <json>     # SPEC → chunks
+nexus next            # execute next chunk
+nexus status/review/destroy
+```
+
+### Git Commands (`.claude/commands/`)
+```bash
+/turbo   # commit → push gitea+github → merge main → tag → nova branch
+/ship    # review → sync docs → commit → push dual remotes → PR
+```
+
+### CI/CD (`.gitea/workflows/`)
+```
+ci-feature → code-review → deploy-main → rollback
+```
+
+### Multi-CLI (Hermes)
+```bash
+hermes-cli-invoke.sh claude "task"    # Claude Code CLI 2.1.126
+hermes-cli-invoke.sh codex "task"     # Codex CLI 0.125.0
+hermes-cli-invoke.sh opencode "task"  # OpenCode CLI 1.14.33
+```
+
+## MiniMax M2.7 — Primary LLM (DIRECT)
+
+MiniMax vai direto para `api.minimax.io/v1` ($50 token plan).
+**NÃO** passa pelo LiteLLM (:4000). LiteLLM é só para fallback/outros modelos.
+
+```bash
+MINIMAX_API_KEY=${MINIMAX_API_KEY}    # do .env canônico
+MINIMAX_API_BASE=https://api.minimax.io
+HERMES_MINIMAX_BASE=https://api.minimax.io/anthropic/v1  # Claude Code CLI
+```

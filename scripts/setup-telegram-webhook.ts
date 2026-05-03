@@ -20,271 +20,271 @@ import * as readline from 'node:readline';
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 interface BotConfig {
-  name: string;
-  envToken: string;
-  envWebhookUrl: string;
-  webhookPath: string;
-  description: string;
+	name: string;
+	envToken: string;
+	envWebhookUrl: string;
+	webhookPath: string;
+	description: string;
 }
 
 interface WebhookInfo {
-  url: string | null;
-  has_custom_certificate: boolean;
-  pending_update_count: number;
-  max_connections: number;
-  is_disabled: boolean;
+	url: string | null;
+	has_custom_certificate: boolean;
+	pending_update_count: number;
+	max_connections: number;
+	is_disabled: boolean;
 }
 
 // ── Bot Configurations ────────────────────────────────────────────────────────
 
 const BOT_CONFIGS: Record<string, BotConfig> = {
-  CEO_REFRIMIX: {
-    name: 'CEO_REFRIMIX',
-    envToken: 'TELEGRAM_BOT_TOKEN',
-    envWebhookUrl: 'HERMES_GATEWAY_WEBHOOK_URL',
-    webhookPath: '/webhook/ceo_refrimix',
-    description: 'CEO Refrimix Bot - Agent lider, roteamento de campanhas',
-  },
-  ATHLOS: {
-    name: 'ATHLOS',
-    envToken: 'ATHLOS_BOT_TOKEN',
-    envWebhookUrl: 'ATHLOS_WEBHOOK_URL',
-    webhookPath: '/webhook/athlos_life',
-    description: 'Athlos Life Bot - Brand identity Athlos',
-  },
-  HOMELAB: {
-    name: 'HOMELAB',
-    envToken: 'HOMELAB_LOGS_BOT_TOKEN',
-    envWebhookUrl: 'HOMELAB_LOGS_WEBHOOK_URL',
-    webhookPath: '/webhook/homelab_logs',
-    description: 'Homelab Logs Bot - System alerts, CI/CD notifications',
-  },
+	CEO_REFRIMIX: {
+		name: 'CEO_REFRIMIX',
+		envToken: 'TELEGRAM_BOT_TOKEN',
+		envWebhookUrl: 'HERMES_GATEWAY_WEBHOOK_URL',
+		webhookPath: '/webhook/ceo_refrimix',
+		description: 'CEO Refrimix Bot - Agent lider, roteamento de campanhas',
+	},
+	ATHLOS: {
+		name: 'ATHLOS',
+		envToken: 'ATHLOS_BOT_TOKEN',
+		envWebhookUrl: 'ATHLOS_WEBHOOK_URL',
+		webhookPath: '/webhook/athlos_life',
+		description: 'Athlos Life Bot - Brand identity Athlos',
+	},
+	HOMELAB: {
+		name: 'HOMELAB',
+		envToken: 'HOMELAB_LOGS_BOT_TOKEN',
+		envWebhookUrl: 'HOMELAB_LOGS_WEBHOOK_URL',
+		webhookPath: '/webhook/homelab_logs',
+		description: 'Homelab Logs Bot - System alerts, CI/CD notifications',
+	},
 };
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function getBaseUrl(): string {
-  return process.env['TELEGRAM_WEBHOOK_BASE_URL'] ?? 'https://hermes.zappro.site';
+	return process.env['TELEGRAM_WEBHOOK_BASE_URL'] ?? 'https://hermes.zappro.site';
 }
 
 function getToken(config: BotConfig): string {
-  const token = process.env[config.envToken];
-  if (!token) {
-    throw new Error(`Missing ${config.envToken} in environment`);
-  }
-  return token;
+	const token = process.env[config.envToken];
+	if (!token) {
+		throw new Error(`Missing ${config.envToken} in environment`);
+	}
+	return token;
 }
 
 function getWebhookUrl(config: BotConfig): string {
-  const baseUrl = getBaseUrl();
-  // Allow override via env var for flexibility
-  const envUrl = process.env[config.envWebhookUrl];
-  if (envUrl) {
-    return `${envUrl}${config.webhookPath}`;
-  }
-  return `${baseUrl}${config.webhookPath}`;
+	const baseUrl = getBaseUrl();
+	// Allow override via env var for flexibility
+	const envUrl = process.env[config.envWebhookUrl];
+	if (envUrl) {
+		return `${envUrl}${config.webhookPath}`;
+	}
+	return `${baseUrl}${config.webhookPath}`;
 }
 
 async function setWebhook(
-  token: string,
-  webhookUrl: string,
+	token: string,
+	webhookUrl: string,
 ): Promise<{ ok: boolean; description: string }> {
-  const url = `https://api.telegram.org/bot${token}/setWebhook`;
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      url: webhookUrl,
-      max_connections: 100,
-      allowed_updates: ['message', 'callback_query', 'inline_query'],
-    }),
-  });
-  return response.json() as Promise<{ ok: boolean; description: string }>;
+	const url = `https://api.telegram.org/bot${token}/setWebhook`;
+	const response = await fetch(url, {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify({
+			url: webhookUrl,
+			max_connections: 100,
+			allowed_updates: ['message', 'callback_query', 'inline_query'],
+		}),
+	});
+	return response.json() as Promise<{ ok: boolean; description: string }>;
 }
 
 async function getWebhookInfo(token: string): Promise<WebhookInfo> {
-  const url = `https://api.telegram.org/bot${token}/getWebhookInfo`;
-  const response = await fetch(url);
-  return response.json() as Promise<WebhookInfo>;
+	const url = `https://api.telegram.org/bot${token}/getWebhookInfo`;
+	const response = await fetch(url);
+	return response.json() as Promise<WebhookInfo>;
 }
 
-async function deleteWebhook(
-  token: string,
-): Promise<{ ok: boolean; description: string }> {
-  const url = `https://api.telegram.org/bot${token}/deleteWebhook`;
-  const response = await fetch(url, { method: 'POST' });
-  return response.json() as Promise<{ ok: boolean; description: string }>;
+async function deleteWebhook(token: string): Promise<{ ok: boolean; description: string }> {
+	const url = `https://api.telegram.org/bot${token}/deleteWebhook`;
+	const response = await fetch(url, { method: 'POST' });
+	return response.json() as Promise<{ ok: boolean; description: string }>;
 }
 
-async function getMe(token: string): Promise<{ ok: boolean; result: { username: string; id: number } }> {
-  const url = `https://api.telegram.org/bot${token}/getMe`;
-  const response = await fetch(url);
-  return response.json() as Promise<{ ok: boolean; result: { username: string; id: number } }>;
+async function getMe(
+	token: string,
+): Promise<{ ok: boolean; result: { username: string; id: number } }> {
+	const url = `https://api.telegram.org/bot${token}/getMe`;
+	const response = await fetch(url);
+	return response.json() as Promise<{ ok: boolean; result: { username: string; id: number } }>;
 }
 
 // ── Actions ───────────────────────────────────────────────────────────────────
 
 async function setupBot(botKey: string): Promise<void> {
-  const config = BOT_CONFIGS[botKey];
-  if (!config) {
-    console.error(`❌ Bot desconhecido: ${botKey}`);
-    console.error(`   Bots disponíveis: ${Object.keys(BOT_CONFIGS).join(', ')}`);
-    process.exit(1);
-  }
+	const config = BOT_CONFIGS[botKey];
+	if (!config) {
+		console.error(`❌ Bot desconhecido: ${botKey}`);
+		console.error(`   Bots disponíveis: ${Object.keys(BOT_CONFIGS).join(', ')}`);
+		process.exit(1);
+	}
 
-  console.log(`\n🔧 Configurando ${config.name}`);
-  console.log(`   ${config.description}`);
+	console.log(`\n🔧 Configurando ${config.name}`);
+	console.log(`   ${config.description}`);
 
-  const token = getToken(config);
-  const webhookUrl = getWebhookUrl(config);
+	const token = getToken(config);
+	const webhookUrl = getWebhookUrl(config);
 
-  // Verify bot token
-  console.log(`\n   Verificando token...`);
-  const me = await getMe(token);
-  if (!me.ok) {
-    console.error(`❌ Token inválido: ${me.description}`);
-    process.exit(1);
-  }
-  console.log(`   ✅ Bot: @${me.result.username}`);
+	// Verify bot token
+	console.log(`\n   Verificando token...`);
+	const me = await getMe(token);
+	if (!me.ok) {
+		console.error(`❌ Token inválido: ${me.description}`);
+		process.exit(1);
+	}
+	console.log(`   ✅ Bot: @${me.result.username}`);
 
-  // Setup webhook
-  console.log(`\n   Configurando webhook...`);
-  console.log(`   URL: ${webhookUrl}`);
-  const result = await setWebhook(token, webhookUrl);
-  if (!result.ok) {
-    console.error(`❌ Erro ao configurar webhook: ${result.description}`);
-    process.exit(1);
-  }
-  console.log(`   ✅ Webhook configurado`);
+	// Setup webhook
+	console.log(`\n   Configurando webhook...`);
+	console.log(`   URL: ${webhookUrl}`);
+	const result = await setWebhook(token, webhookUrl);
+	if (!result.ok) {
+		console.error(`❌ Erro ao configurar webhook: ${result.description}`);
+		process.exit(1);
+	}
+	console.log(`   ✅ Webhook configurado`);
 
-  // Verify webhook
-  console.log(`\n   Verificando webhook...`);
-  const info = await getWebhookInfo(token);
-  console.log(`   URL: ${info.url ?? '(none)'}`);
-  console.log(`   Pending updates: ${info.pending_update_count}`);
-  console.log(`   Max connections: ${info.max_connections}`);
-  console.log(`   Disabled: ${info.is_disabled}`);
+	// Verify webhook
+	console.log(`\n   Verificando webhook...`);
+	const info = await getWebhookInfo(token);
+	console.log(`   URL: ${info.url ?? '(none)'}`);
+	console.log(`   Pending updates: ${info.pending_update_count}`);
+	console.log(`   Max connections: ${info.max_connections}`);
+	console.log(`   Disabled: ${info.is_disabled}`);
 
-  if (info.url !== webhookUrl) {
-    console.warn(`⚠️  Webhook URL não corresponde ao esperado`);
-  }
+	if (info.url !== webhookUrl) {
+		console.warn(`⚠️  Webhook URL não corresponde ao esperado`);
+	}
 
-  console.log(`\n✅ ${config.name} configurado com sucesso!`);
+	console.log(`\n✅ ${config.name} configurado com sucesso!`);
 }
 
 async function verifyBot(botKey: string): Promise<void> {
-  const config = BOT_CONFIGS[botKey];
-  if (!config) {
-    console.error(`❌ Bot desconhecido: ${botKey}`);
-    process.exit(1);
-  }
+	const config = BOT_CONFIGS[botKey];
+	if (!config) {
+		console.error(`❌ Bot desconhecido: ${botKey}`);
+		process.exit(1);
+	}
 
-  console.log(`\n🔍 Verificando ${config.name}...`);
+	console.log(`\n🔍 Verificando ${config.name}...`);
 
-  const token = getToken(config);
+	const token = getToken(config);
 
-  // Verify bot token
-  const me = await getMe(token);
-  if (!me.ok) {
-    console.error(`❌ Token inválido: ${me.description}`);
-    process.exit(1);
-  }
-  console.log(`   Bot: @${me.result.username}`);
+	// Verify bot token
+	const me = await getMe(token);
+	if (!me.ok) {
+		console.error(`❌ Token inválido: ${me.description}`);
+		process.exit(1);
+	}
+	console.log(`   Bot: @${me.result.username}`);
 
-  // Get webhook info
-  const info = await getWebhookInfo(token);
-  console.log(`\n   Webhook Status:`);
-  console.log(`   URL: ${info.url ?? '(none)'}`);
-  console.log(`   Has certificate: ${info.has_custom_certificate}`);
-  console.log(`   Pending updates: ${info.pending_update_count}`);
-  console.log(`   Max connections: ${info.max_connections}`);
-  console.log(`   Is disabled: ${info.is_disabled}`);
+	// Get webhook info
+	const info = await getWebhookInfo(token);
+	console.log(`\n   Webhook Status:`);
+	console.log(`   URL: ${info.url ?? '(none)'}`);
+	console.log(`   Has certificate: ${info.has_custom_certificate}`);
+	console.log(`   Pending updates: ${info.pending_update_count}`);
+	console.log(`   Max connections: ${info.max_connections}`);
+	console.log(`   Is disabled: ${info.is_disabled}`);
 
-  if (info.url) {
-    console.log(`\n✅ Webhook activo para ${config.name}`);
-  } else {
-    console.log(`\n⚠️  Webhook não está activo para ${config.name}`);
-  }
+	if (info.url) {
+		console.log(`\n✅ Webhook activo para ${config.name}`);
+	} else {
+		console.log(`\n⚠️  Webhook não está activo para ${config.name}`);
+	}
 }
 
 async function deleteBotWebhook(botKey: string): Promise<void> {
-  const config = BOT_CONFIGS[botKey];
-  if (!config) {
-    console.error(`❌ Bot desconhecido: ${botKey}`);
-    process.exit(1);
-  }
+	const config = BOT_CONFIGS[botKey];
+	if (!config) {
+		console.error(`❌ Bot desconhecido: ${botKey}`);
+		process.exit(1);
+	}
 
-  console.log(`\n🗑️  Removendo webhook de ${config.name}...`);
+	console.log(`\n🗑️  Removendo webhook de ${config.name}...`);
 
-  const token = getToken(config);
-  const result = await deleteWebhook(token);
+	const token = getToken(config);
+	const result = await deleteWebhook(token);
 
-  if (!result.ok) {
-    console.error(`❌ Erro ao remover webhook: ${result.description}`);
-    process.exit(1);
-  }
+	if (!result.ok) {
+		console.error(`❌ Erro ao remover webhook: ${result.description}`);
+		process.exit(1);
+	}
 
-  console.log(`✅ Webhook removido de ${config.name}`);
+	console.log(`✅ Webhook removido de ${config.name}`);
 }
 
 async function verifyAllBots(): Promise<void> {
-  console.log('\n🔍 Verificando todos os bots...\n');
+	console.log('\n🔍 Verificando todos os bots...\n');
 
-  for (const botKey of Object.keys(BOT_CONFIGS)) {
-    try {
-      await verifyBot(botKey);
-    } catch (err) {
-      console.error(`❌ Erro ao verificar ${botKey}:`, err);
-    }
-    console.log('\n' + '─'.repeat(60));
-  }
+	for (const botKey of Object.keys(BOT_CONFIGS)) {
+		try {
+			await verifyBot(botKey);
+		} catch (err) {
+			console.error(`❌ Erro ao verificar ${botKey}:`, err);
+		}
+		console.log('\n' + '─'.repeat(60));
+	}
 }
 
 async function setupAllBots(): Promise<void> {
-  console.log('\n🔧 Configurando todos os bots...\n');
+	console.log('\n🔧 Configurando todos os bots...\n');
 
-  for (const botKey of Object.keys(BOT_CONFIGS)) {
-    try {
-      await setupBot(botKey);
-    } catch (err) {
-      console.error(`❌ Erro ao configurar ${botKey}:`, err);
-    }
-    console.log('\n' + '─'.repeat(60));
-  }
+	for (const botKey of Object.keys(BOT_CONFIGS)) {
+		try {
+			await setupBot(botKey);
+		} catch (err) {
+			console.error(`❌ Erro ao configurar ${botKey}:`, err);
+		}
+		console.log('\n' + '─'.repeat(60));
+	}
 }
 
 // ── CLI Parser ────────────────────────────────────────────────────────────────
 
 function parseArgs(): { action: string; bot?: string } {
-  const args = process.argv.slice(2);
-  let action = 'setup';
-  let bot: string | undefined;
+	const args = process.argv.slice(2);
+	let action = 'setup';
+	let bot: string | undefined;
 
-  for (let i = 0; i < args.length; i++) {
-    const arg = args[i]!.toLowerCase();
-    if (arg === '--bot' || arg === '-b') {
-      bot = args[++i]?.toUpperCase();
-    } else if (arg === '--all' || arg === '-a') {
-      action = 'all';
-    } else if (arg === '--verify' || arg === '-v') {
-      action = 'verify';
-    } else if (arg === '--delete' || arg === '-d') {
-      action = 'delete';
-    } else if (arg === '--help' || arg === '-h') {
-      action = 'help';
-    } else if (arg.startsWith('--')) {
-      console.warn(`⚠️  Opção desconhecida: ${arg}`);
-    } else {
-      // Positional argument
-      bot = arg.toUpperCase();
-    }
-  }
+	for (let i = 0; i < args.length; i++) {
+		const arg = args[i]!.toLowerCase();
+		if (arg === '--bot' || arg === '-b') {
+			bot = args[++i]?.toUpperCase();
+		} else if (arg === '--all' || arg === '-a') {
+			action = 'all';
+		} else if (arg === '--verify' || arg === '-v') {
+			action = 'verify';
+		} else if (arg === '--delete' || arg === '-d') {
+			action = 'delete';
+		} else if (arg === '--help' || arg === '-h') {
+			action = 'help';
+		} else if (arg.startsWith('--')) {
+			console.warn(`⚠️  Opção desconhecida: ${arg}`);
+		} else {
+			// Positional argument
+			bot = arg.toUpperCase();
+		}
+	}
 
-  return { action, bot };
+	return { action, bot };
 }
 
 function showHelp(): void {
-  console.log(`
+	console.log(`
 🤖 Homelab — Telegram Bot Webhook Setup
 
 USO
@@ -334,54 +334,54 @@ VARIÁVEIS DE AMBIENTE
 // ── Main ──────────────────────────────────────────────────────────────────────
 
 async function main(): Promise<void> {
-  const { action, bot } = parseArgs();
+	const { action, bot } = parseArgs();
 
-  // Validate bot argument for non-all actions
-  if (action !== 'all' && action !== 'help' && !bot) {
-    console.error('❌ Erro: --bot é obrigatório');
-    console.error('   Use --help para ajuda');
-    process.exit(1);
-  }
+	// Validate bot argument for non-all actions
+	if (action !== 'all' && action !== 'help' && !bot) {
+		console.error('❌ Erro: --bot é obrigatório');
+		console.error('   Use --help para ajuda');
+		process.exit(1);
+	}
 
-  if (action === 'help') {
-    showHelp();
-    return;
-  }
+	if (action === 'help') {
+		showHelp();
+		return;
+	}
 
-  if (action === 'all') {
-    await setupAllBots();
-    return;
-  }
+	if (action === 'all') {
+		await setupAllBots();
+		return;
+	}
 
-  if (action === 'verify') {
-    if (bot) {
-      await verifyBot(bot);
-    } else {
-      await verifyAllBots();
-    }
-    return;
-  }
+	if (action === 'verify') {
+		if (bot) {
+			await verifyBot(bot);
+		} else {
+			await verifyAllBots();
+		}
+		return;
+	}
 
-  if (action === 'delete') {
-    if (bot) {
-      await deleteBotWebhook(bot);
-    } else {
-      console.error('❌ Erro: --bot é obrigatório para --delete');
-      process.exit(1);
-    }
-    return;
-  }
+	if (action === 'delete') {
+		if (bot) {
+			await deleteBotWebhook(bot);
+		} else {
+			console.error('❌ Erro: --bot é obrigatório para --delete');
+			process.exit(1);
+		}
+		return;
+	}
 
-  // Default: setup
-  if (bot) {
-    await setupBot(bot);
-  } else {
-    console.error('❌ Erro: --bot é obrigatório');
-    process.exit(1);
-  }
+	// Default: setup
+	if (bot) {
+		await setupBot(bot);
+	} else {
+		console.error('❌ Erro: --bot é obrigatório');
+		process.exit(1);
+	}
 }
 
 main().catch((err) => {
-  console.error('❌ Erro fatal:', err);
-  process.exit(1);
+	console.error('❌ Erro fatal:', err);
+	process.exit(1);
 });

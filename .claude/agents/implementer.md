@@ -17,8 +17,9 @@ tools:
     - Write
     - Edit
     - mcp__filesystem__*
-  prohibited:
+    - Task
     - Agent
+  prohibited: []
 ---
 
 # Implementer Agent

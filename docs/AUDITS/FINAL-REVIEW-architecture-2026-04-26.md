@@ -20,7 +20,7 @@
 
 - [HIGH] **apps/api/src/db/db.ts — GOD MODULE**: Single file imports 30+ table definitions (lines 1-37). Every module in `modules/` imports from this one file. Adding a new table requires editing this central file, creating a bottleneck and compile-time coupling for all 27 modules.
 
-- [MEDIUM] **27 modules in apps/api/src/modules/**: Auth, clients, contracts, editorial, email, equipment, journal-entries, kanban, leads, logs, loyalty, maintenance, mcp-connectors, prompts, reminders, schedule, service-orders, subscriptions, teams, haystack, users, webhooks. Many of these could be independent packages with their own `db.ts`, `*.trpc.ts`, and `*.router.ts`.
+- [MEDIUM] **27 modules in apps/api/src/modules/**: Auth, clients, contracts, editorial, email, equipment, journal-entries, kanban, leads, logs, loyalty, maintenance, mcp-connectors, prompts, reminders, schedule, service-orders, subscriptions, teams, trieve, users, webhooks. Many of these could be independent packages with their own `db.ts`, `*.trpc.ts`, and `*.router.ts`.
 
 - [LOW] **packages/ underutilized**: Only 3 packages (`config`, `ui`, `zod-schemas`). The `packages/` workspace is underutilized for decomposing the god module.
 

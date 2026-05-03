@@ -1,80 +1,66 @@
 ---
-description: Quick feature ship — commit → push → merge main → tag → nova branch. Sem PR. Dual remotes.
+description: Quick ship — commit → push ambos remotes → merge main → tag → nova branch. Uso diário.
 ---
 
 # /turbo — Quick Feature Ship
 
-> Quick flow quando a feature está pronta e queres fazer merge sem PR. Sem docs sync, sem PR creation. Para end-of-session completo, usa `/ship`.
-
-**⚠️ AVISO:** Execute apenas se `.gitignore` contém `.env` e secrets antes de continuar.
+> Sem PR, sem docs sync. Para ciclo completo usa `/ship`.
 
 ## Fluxo
 
 ```
-STAGE → COMMIT → PUSH → MERGE MAIN → TAG → NOVA BRANCH
+STAGE → COMMIT → PUSH GITEA+GITHUB → MERGE MAIN → TAG → NOVA BRANCH
 ```
 
 ## Passos
 
-### 1. Stage
+### 1. Stage tudo
 ```bash
 git add -A
-```
-
-### 2. Commit Semântico
-```bash
-# Detectar tipo e escopo do diff
 git diff --cached --stat
-
-# Conventional commit
-git commit -m "[feat|fix|chore|docs|refactor](escopo): descrição
-
-Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>"
 ```
 
-### 3. Push (ambos remotes)
+### 2. Commit semântico
+```bash
+git commit -m "feat|fix|chore(scope): descrição"
+```
+
+### 3. Push ambos remotes
 ```bash
 BRANCH=$(git branch --show-current)
-git push origin HEAD 2>&1
-git push gitea HEAD 2>&1
+git push --force-with-lease gitea "$BRANCH"
+git push --force-with-lease origin "$BRANCH"
 ```
 
-### 4. Merge em Main
+### 4. Merge na main
 ```bash
 git checkout main
 git pull origin main --ff-only
-git push origin main
+git merge "$BRANCH" --ff-only
 git push gitea main
+git push origin main
 git checkout "$BRANCH"
 ```
 
-### 5. Tag
+### 5. Tag automática
 ```bash
-git tag v$(date +%Y%m%d%H%M) -m "release: v$(date +%Y%m%d%H%M)"
+TAG="v$(date +%Y%m%d%H%M)"
+git tag "$TAG" -m "release: $TAG"
+git push gitea --tags
 git push origin --tags
 ```
 
-### 6. Nova Feature Branch
+### 6. Nova branch aleatória
 ```bash
-TIMESTAMP=$(date +%s)
-ADJETIVO=$(shuf -n1 <<< "quantum iron silent stellar neon micro swift")
-SUBSTANTIVO=$(shuf -n1 <<< "kernel matrix conduit ledger engine forge helix")
-git checkout -b "feature/$ADJETIVO-$SUBSTANTIVO-$TIMESTAMP"
+ADJ="quantum iron silent stellar neon micro swift"
+SUB="kernel matrix conduit ledger engine forge helix"
+NOME=$(echo "$ADJ" | tr ' ' '\n' | shuf -n1)-$(echo "$SUB" | tr ' ' '\n' | shuf -n1)-$(date +%s)
+git checkout -b "feature/$NOME"
 ```
-
-## Diferença
-
-| | `/ship` | `/turbo` |
-|--|---------|----------|
-| Docs sync | ✅ Sim | ❌ Não |
-| PR criada | ❌ Não | ❌ Não |
-| Dual remotes | ✅ origin + gitea | ✅ origin + gitea |
-| Merge main | ✅ Sempre | ✅ Sempre |
-| Tag | ❌ Não | ✅ Sim |
-| Quando | Fim de sessão | Feature pronta |
 
 ## Safety
 
-- ❌ Não executa em `main` diretamente
-- ✅ Usa `--ff-only` no merge (evita conflitos)
-- ✅ Push para ambos remotes sempre
+- ❌ Não roda em `main`
+- ✅ `--ff-only` no merge
+- ✅ `--force-with-lease` no push
+- ✅ Dual remotes (gitea + origin) sempre

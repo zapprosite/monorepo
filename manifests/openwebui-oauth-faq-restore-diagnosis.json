@@ -1,84 +1,84 @@
 {
-  "diagnostic_timestamp": "2026-05-02T13:09:00Z",
-  "oauth_status": "BROKEN",
-  "faq_zappro_status": "UNCERTAIN",
-  "root_cause": "OpenWebUI PersistentConfig overriding env vars with stale DB values",
-  "details": {
-    "webui_url_current": "https://chat.zappro.site (correct in env, but not in DB)",
-    "redirect_uri_current": "https://chat.zappro.site/oauth/google/callback (in env)",
-    "openai_base_url_from_env": "http://localhost:4017/v1 (correct)",
-    "openai_base_url_from_db": "http://localhost:4000/v1 (STALE - from original LiteLLM setup)",
-    "default_models_from_env": "zappro-clima-tutor",
-    "default_models_from_db": "minimax-m2.7 (STALE)",
-    "google_oauth_env": {
-      "GOOGLE_CLIENT_ID": "29245472860-6d5bvhphmk2pl3s1volthifqfhbg0iji.apps.googleusercontent.com",
-      "GOOGLE_REDIRECT_URI": "https://chat.zappro.site/oauth/google/callback",
-      "ENABLE_OAUTH_SIGNUP": "true",
-      "ENABLE_LOGIN_FORM": "true"
-    },
-    "user_table_count": 0,
-    "config_table_count": 1,
-    "config_json_stored": {
-      "version": 0,
-      "ui.enable_signup": false,
-      "openai.enable": true,
-      "openai.api_base_urls": ["http://localhost:4000/v1"],
-      "openai.api_keys": ["sk-zap-n0p1-R6b9-L1t3llm-M4st3r-K3y-f0r-z4ppr0-3dg3-2024"],
-      "openai.api_configs.pipeline.url": "http://localhost:4017",
-      "openai.api_configs.pipeline.pipelines": ["minimax-m2.7"],
-      "openai.api_configs.pipeline.type": "filter"
-    }
-  },
-  "faq_zappro_config_found": false,
-  "models_exposed": ["zappro-clima-tutor"],
-  "litellm_health": "ok",
-  "litellm_models_endpoint": "http://127.0.0.1:4017/v1",
-  "public_endpoints_check": {
-    "chat.zappro.site": "HTTP 200",
-    "chat.zappro.site/oauth/google/callback": "HTTP 200"
-  },
-  "recommended_restore_plan": [
-    {
-      "step": 1,
-      "action": "DUMP current DB config as JSON backup",
-      "command": "docker exec openwebui-hvac python3 -c \"import sqlite3,json; conn=sqlite3.connect('/app/backend/data/webui.db'); c=conn.cursor(); c.execute('SELECT value FROM config'); print(c.fetchone()[0])\" > /srv/ops/backups/openwebui-config-pre-restore.json"
-    },
-    {
-      "step": 2,
-      "action": "UPDATE openai.api_base_urls in DB to http://localhost:4017/v1",
-      "command": "docker exec openwebui-hvac python3 -c \"...\" (update sqlite config json)"
-    },
-    {
-      "step": 3,
-      "action": "UPDATE default model in DB to zappro-clima-tutor",
-      "command": "docker exec openwebui-hvac python3 -c \"...\" (update sqlite config json)"
-    },
-    {
-      "step": 4,
-      "action": "UPDATE enable_signup to true in DB config",
-      "command": "docker exec openwebui-hvac python3 -c \"...\""
-    },
-    {
-      "step": 5,
-      "action": "RESTART openwebui-hvac container",
-      "command": "docker restart openwebui-hvac"
-    },
-    {
-      "step": 6,
-      "action": "VALIDATE OAuth flow at https://chat.zappro.site",
-      "method": "browser"
-    },
-    {
-      "step": 7,
-      "action": "VALIDATE FAQ ZapPRO still works (was it a separate model connection or embedded in zappro-clima-tutor?)",
-      "method": "need more investigation - grep for faq in litellm config"
-    }
-  ],
-  "oauth_broken_cause_suspected": "WEBUI_URL and OAuth settings are in .env correctly, but OpenWebUI's PersistentConfig system (config table JSON) is overriding with stale values from previous deployment. The DB still has enable_signup=false and old LiteLLM port 4000.",
-  "restore_warnings": [
-    "FAQ ZapPRO status is UNCERTAIN - need to verify if it was a separate OpenWebUI model connection or part of zappro-clima-tutor pipeline",
-    "User table is empty (count=0) - no users stored, only OAuth session tokens",
-    "DO NOT run docker volume rm - that would destroy all data",
-    "DO NOT reset/update WEBUI_URL in .env - it is already correct"
-  ]
+	"diagnostic_timestamp": "2026-05-02T13:09:00Z",
+	"oauth_status": "BROKEN",
+	"faq_zappro_status": "UNCERTAIN",
+	"root_cause": "OpenWebUI PersistentConfig overriding env vars with stale DB values",
+	"details": {
+		"webui_url_current": "https://chat.zappro.site (correct in env, but not in DB)",
+		"redirect_uri_current": "https://chat.zappro.site/oauth/google/callback (in env)",
+		"openai_base_url_from_env": "http://localhost:4017/v1 (correct)",
+		"openai_base_url_from_db": "http://localhost:4000/v1 (STALE - from original LiteLLM setup)",
+		"default_models_from_env": "zappro-clima-tutor",
+		"default_models_from_db": "minimax-m2.7 (STALE)",
+		"google_oauth_env": {
+			"GOOGLE_CLIENT_ID": "29245472860-6d5bvhphmk2pl3s1volthifqfhbg0iji.apps.googleusercontent.com",
+			"GOOGLE_REDIRECT_URI": "https://chat.zappro.site/oauth/google/callback",
+			"ENABLE_OAUTH_SIGNUP": "true",
+			"ENABLE_LOGIN_FORM": "true"
+		},
+		"user_table_count": 0,
+		"config_table_count": 1,
+		"config_json_stored": {
+			"version": 0,
+			"ui.enable_signup": false,
+			"openai.enable": true,
+			"openai.api_base_urls": ["http://localhost:4000/v1"],
+			"openai.api_keys": ["sk-zap-n0p1-R6b9-L1t3llm-M4st3r-K3y-f0r-z4ppr0-3dg3-2024"],
+			"openai.api_configs.pipeline.url": "http://localhost:4017",
+			"openai.api_configs.pipeline.pipelines": ["minimax-m2.7"],
+			"openai.api_configs.pipeline.type": "filter"
+		}
+	},
+	"faq_zappro_config_found": false,
+	"models_exposed": ["zappro-clima-tutor"],
+	"litellm_health": "ok",
+	"litellm_models_endpoint": "http://127.0.0.1:4017/v1",
+	"public_endpoints_check": {
+		"chat.zappro.site": "HTTP 200",
+		"chat.zappro.site/oauth/google/callback": "HTTP 200"
+	},
+	"recommended_restore_plan": [
+		{
+			"step": 1,
+			"action": "DUMP current DB config as JSON backup",
+			"command": "docker exec openwebui-hvac python3 -c \"import sqlite3,json; conn=sqlite3.connect('/app/backend/data/webui.db'); c=conn.cursor(); c.execute('SELECT value FROM config'); print(c.fetchone()[0])\" > /srv/ops/backups/openwebui-config-pre-restore.json"
+		},
+		{
+			"step": 2,
+			"action": "UPDATE openai.api_base_urls in DB to http://localhost:4017/v1",
+			"command": "docker exec openwebui-hvac python3 -c \"...\" (update sqlite config json)"
+		},
+		{
+			"step": 3,
+			"action": "UPDATE default model in DB to zappro-clima-tutor",
+			"command": "docker exec openwebui-hvac python3 -c \"...\" (update sqlite config json)"
+		},
+		{
+			"step": 4,
+			"action": "UPDATE enable_signup to true in DB config",
+			"command": "docker exec openwebui-hvac python3 -c \"...\""
+		},
+		{
+			"step": 5,
+			"action": "RESTART openwebui-hvac container",
+			"command": "docker restart openwebui-hvac"
+		},
+		{
+			"step": 6,
+			"action": "VALIDATE OAuth flow at https://chat.zappro.site",
+			"method": "browser"
+		},
+		{
+			"step": 7,
+			"action": "VALIDATE FAQ ZapPRO still works (was it a separate model connection or embedded in zappro-clima-tutor?)",
+			"method": "need more investigation - grep for faq in litellm config"
+		}
+	],
+	"oauth_broken_cause_suspected": "WEBUI_URL and OAuth settings are in .env correctly, but OpenWebUI's PersistentConfig system (config table JSON) is overriding with stale values from previous deployment. The DB still has enable_signup=false and old LiteLLM port 4000.",
+	"restore_warnings": [
+		"FAQ ZapPRO status is UNCERTAIN - need to verify if it was a separate OpenWebUI model connection or part of zappro-clima-tutor pipeline",
+		"User table is empty (count=0) - no users stored, only OAuth session tokens",
+		"DO NOT run docker volume rm - that would destroy all data",
+		"DO NOT reset/update WEBUI_URL in .env - it is already correct"
+	]
 }

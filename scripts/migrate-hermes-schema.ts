@@ -9,34 +9,34 @@
  *   npx tsx scripts/migrate-hermes-schema.ts --schema hermes
  */
 
-import * as fs from "fs";
-import * as path from "path";
+import * as fs from 'fs';
+import * as path from 'path';
 
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
 
 interface Column {
-  name: string;
-  type: string;
-  nullable?: boolean;
-  default?: string | null;
-  primary_key?: boolean;
+	name: string;
+	type: string;
+	nullable?: boolean;
+	default?: string | null;
+	primary_key?: boolean;
 }
 
 interface TableDefinition {
-  name: string;
-  columns: Column[];
+	name: string;
+	columns: Column[];
 }
 
 interface MigrationOptions {
-  schema: string;
-  seed: boolean;
-  host?: string;
-  port?: number;
-  user?: string;
-  password?: string;
-  database?: string;
+	schema: string;
+	seed: boolean;
+	host?: string;
+	port?: number;
+	user?: string;
+	password?: string;
+	database?: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -44,67 +44,67 @@ interface MigrationOptions {
 // ---------------------------------------------------------------------------
 
 const CORE_TABLES: TableDefinition[] = [
-  {
-    name: "clients",
-    columns: [
-      { name: "id", type: "UUID", primary_key: true, default: "gen_random_uuid()" },
-      { name: "name", type: "TEXT", nullable: false },
-      { name: "plan", type: "TEXT", default: "'basic'" },
-      { name: "health_score", type: "INT", default: "100" },
-      { name: "chat_id", type: "BIGINT" },
-      { name: "created_at", type: "TIMESTAMPTZ", default: "now()" },
-      { name: "metadata", type: "JSONB" },
-    ],
-  },
-  {
-    name: "campaigns",
-    columns: [
-      { name: "id", type: "UUID", primary_key: true, default: "gen_random_uuid()" },
-      { name: "client_id", type: "UUID", references: "clients(id)" },
-      { name: "name", type: "TEXT", nullable: false },
-      { name: "status", type: "TEXT", default: "'draft'" },
-      { name: "created_at", type: "TIMESTAMPTZ", default: "now()" },
-    ],
-  },
-  {
-    name: "tasks",
-    columns: [
-      { name: "id", type: "UUID", primary_key: true, default: "gen_random_uuid()" },
-      { name: "campaign_id", type: "UUID", references: "campaigns(id)" },
-      { name: "title", type: "TEXT", nullable: false },
-      { name: "status", type: "TEXT", default: "'pending'" },
-      { name: "assigned_to", type: "TEXT" },
-      { name: "due_date", type: "TIMESTAMPTZ" },
-      { name: "priority", type: "INT", default: "0" },
-    ],
-  },
-  {
-    name: "deliverables",
-    columns: [
-      { name: "id", type: "UUID", primary_key: true, default: "gen_random_uuid()" },
-      { name: "campaign_id", type: "UUID", references: "campaigns(id)" },
-      { name: "task_id", type: "UUID", references: "tasks(id)" },
-      { name: "name", type: "TEXT", nullable: false },
-      { name: "type", type: "TEXT", default: "'report'" },
-      { name: "status", type: "TEXT", default: "'draft'" },
-      { name: "url", type: "TEXT" },
-      { name: "created_at", type: "TIMESTAMPTZ", default: "now()" },
-    ],
-  },
-  {
-    name: "metrics",
-    columns: [
-      { name: "id", type: "UUID", primary_key: true, default: "gen_random_uuid()" },
-      { name: "campaign_id", type: "UUID", references: "campaigns(id)" },
-      { name: "metric_date", type: "DATE" },
-      { name: "impressions", type: "INT", default: "0" },
-      { name: "clicks", type: "INT", default: "0" },
-      { name: "conversions", type: "INT", default: "0" },
-      { name: "spend", type: "DECIMAL(10,2)", default: "0" },
-      { name: "revenue", type: "DECIMAL(10,2)", default: "0" },
-      { name: "created_at", type: "TIMESTAMPTZ", default: "now()" },
-    ],
-  },
+	{
+		name: 'clients',
+		columns: [
+			{ name: 'id', type: 'UUID', primary_key: true, default: 'gen_random_uuid()' },
+			{ name: 'name', type: 'TEXT', nullable: false },
+			{ name: 'plan', type: 'TEXT', default: "'basic'" },
+			{ name: 'health_score', type: 'INT', default: '100' },
+			{ name: 'chat_id', type: 'BIGINT' },
+			{ name: 'created_at', type: 'TIMESTAMPTZ', default: 'now()' },
+			{ name: 'metadata', type: 'JSONB' },
+		],
+	},
+	{
+		name: 'campaigns',
+		columns: [
+			{ name: 'id', type: 'UUID', primary_key: true, default: 'gen_random_uuid()' },
+			{ name: 'client_id', type: 'UUID', references: 'clients(id)' },
+			{ name: 'name', type: 'TEXT', nullable: false },
+			{ name: 'status', type: 'TEXT', default: "'draft'" },
+			{ name: 'created_at', type: 'TIMESTAMPTZ', default: 'now()' },
+		],
+	},
+	{
+		name: 'tasks',
+		columns: [
+			{ name: 'id', type: 'UUID', primary_key: true, default: 'gen_random_uuid()' },
+			{ name: 'campaign_id', type: 'UUID', references: 'campaigns(id)' },
+			{ name: 'title', type: 'TEXT', nullable: false },
+			{ name: 'status', type: 'TEXT', default: "'pending'" },
+			{ name: 'assigned_to', type: 'TEXT' },
+			{ name: 'due_date', type: 'TIMESTAMPTZ' },
+			{ name: 'priority', type: 'INT', default: '0' },
+		],
+	},
+	{
+		name: 'deliverables',
+		columns: [
+			{ name: 'id', type: 'UUID', primary_key: true, default: 'gen_random_uuid()' },
+			{ name: 'campaign_id', type: 'UUID', references: 'campaigns(id)' },
+			{ name: 'task_id', type: 'UUID', references: 'tasks(id)' },
+			{ name: 'name', type: 'TEXT', nullable: false },
+			{ name: 'type', type: 'TEXT', default: "'report'" },
+			{ name: 'status', type: 'TEXT', default: "'draft'" },
+			{ name: 'url', type: 'TEXT' },
+			{ name: 'created_at', type: 'TIMESTAMPTZ', default: 'now()' },
+		],
+	},
+	{
+		name: 'metrics',
+		columns: [
+			{ name: 'id', type: 'UUID', primary_key: true, default: 'gen_random_uuid()' },
+			{ name: 'campaign_id', type: 'UUID', references: 'campaigns(id)' },
+			{ name: 'metric_date', type: 'DATE' },
+			{ name: 'impressions', type: 'INT', default: '0' },
+			{ name: 'clicks', type: 'INT', default: '0' },
+			{ name: 'conversions', type: 'INT', default: '0' },
+			{ name: 'spend', type: 'DECIMAL(10,2)', default: '0' },
+			{ name: 'revenue', type: 'DECIMAL(10,2)', default: '0' },
+			{ name: 'created_at', type: 'TIMESTAMPTZ', default: 'now()' },
+		],
+	},
 ];
 
 // ---------------------------------------------------------------------------
@@ -112,29 +112,39 @@ const CORE_TABLES: TableDefinition[] = [
 // ---------------------------------------------------------------------------
 
 interface IndexDefinition {
-  name: string;
-  table: string;
-  columns: string[];
-  unique?: boolean;
-  partial?: string;
+	name: string;
+	table: string;
+	columns: string[];
+	unique?: boolean;
+	partial?: string;
 }
 
 const INDEXES: IndexDefinition[] = [
-  // B-tree indexes
-  { name: "idx_clients_chat_id", table: "clients", columns: ["chat_id"] },
-  { name: "idx_campaigns_client_id", table: "campaigns", columns: ["client_id"] },
-  { name: "idx_campaigns_status", table: "campaigns", columns: ["status"] },
-  { name: "idx_tasks_campaign_id", table: "tasks", columns: ["campaign_id"] },
-  { name: "idx_tasks_status", table: "tasks", columns: ["status"] },
-  { name: "idx_deliverables_campaign_id", table: "deliverables", columns: ["campaign_id"] },
-  { name: "idx_deliverables_task_id", table: "deliverables", columns: ["task_id"] },
-  { name: "idx_metrics_campaign_id", table: "metrics", columns: ["campaign_id"] },
-  { name: "idx_metrics_date", table: "metrics", columns: ["metric_date"] },
-  // GIN index
-  { name: "idx_clients_metadata", table: "clients", columns: ["metadata"], partial: "metadata IS NOT NULL" },
-  // Partial indexes
-  { name: "idx_campaigns_active", table: "campaigns", columns: ["status"], partial: "status = 'active'" },
-  { name: "idx_tasks_pending", table: "tasks", columns: ["status"], partial: "status = 'pending'" },
+	// B-tree indexes
+	{ name: 'idx_clients_chat_id', table: 'clients', columns: ['chat_id'] },
+	{ name: 'idx_campaigns_client_id', table: 'campaigns', columns: ['client_id'] },
+	{ name: 'idx_campaigns_status', table: 'campaigns', columns: ['status'] },
+	{ name: 'idx_tasks_campaign_id', table: 'tasks', columns: ['campaign_id'] },
+	{ name: 'idx_tasks_status', table: 'tasks', columns: ['status'] },
+	{ name: 'idx_deliverables_campaign_id', table: 'deliverables', columns: ['campaign_id'] },
+	{ name: 'idx_deliverables_task_id', table: 'deliverables', columns: ['task_id'] },
+	{ name: 'idx_metrics_campaign_id', table: 'metrics', columns: ['campaign_id'] },
+	{ name: 'idx_metrics_date', table: 'metrics', columns: ['metric_date'] },
+	// GIN index
+	{
+		name: 'idx_clients_metadata',
+		table: 'clients',
+		columns: ['metadata'],
+		partial: 'metadata IS NOT NULL',
+	},
+	// Partial indexes
+	{
+		name: 'idx_campaigns_active',
+		table: 'campaigns',
+		columns: ['status'],
+		partial: "status = 'active'",
+	},
+	{ name: 'idx_tasks_pending', table: 'tasks', columns: ['status'], partial: "status = 'pending'" },
 ];
 
 // ---------------------------------------------------------------------------
@@ -181,19 +191,19 @@ INSERT INTO {schema}.metrics (id, campaign_id, metric_date, impressions, clicks,
 // ---------------------------------------------------------------------------
 
 async function getDbConnection(opts: MigrationOptions) {
-  const { default: pg } = await import("pg");
-  const { Client } = pg;
+	const { default: pg } = await import('pg');
+	const { Client } = pg;
 
-  const client = new Client({
-    host: opts.host ?? process.env.MCP_POSTGRES_HOST ?? "localhost",
-    port: opts.port ?? parseInt(process.env.MCP_POSTGRES_PORT ?? "5432"),
-    user: opts.user ?? process.env.MCP_POSTGRES_USER ?? "postgres",
-    password: opts.password ?? process.env.MCP_POSTGRES_PASSWORD ?? "",
-    database: opts.database ?? process.env.MCP_POSTGRES_DB ?? "postgres",
-  });
+	const client = new Client({
+		host: opts.host ?? process.env.MCP_POSTGRES_HOST ?? 'localhost',
+		port: opts.port ?? parseInt(process.env.MCP_POSTGRES_PORT ?? '5432'),
+		user: opts.user ?? process.env.MCP_POSTGRES_USER ?? 'postgres',
+		password: opts.password ?? process.env.MCP_POSTGRES_PASSWORD ?? '',
+		database: opts.database ?? process.env.MCP_POSTGRES_DB ?? 'postgres',
+	});
 
-  await client.connect();
-  return client;
+	await client.connect();
+	return client;
 }
 
 // ---------------------------------------------------------------------------
@@ -201,47 +211,47 @@ async function getDbConnection(opts: MigrationOptions) {
 // ---------------------------------------------------------------------------
 
 function buildCreateTableSQL(table: TableDefinition, schema: string): string {
-  const colDefs = table.columns.map((col) => {
-    let sql = `"${col.name}" ${col.type}`;
-    if (col.default) {
-      sql += ` DEFAULT ${col.default}`;
-    }
-    if (!col.nullable) {
-      sql += " NOT NULL";
-    }
-    return sql;
-  });
+	const colDefs = table.columns.map((col) => {
+		let sql = `"${col.name}" ${col.type}`;
+		if (col.default) {
+			sql += ` DEFAULT ${col.default}`;
+		}
+		if (!col.nullable) {
+			sql += ' NOT NULL';
+		}
+		return sql;
+	});
 
-  const pkCols = table.columns.filter((c) => c.primary_key);
-  if (pkCols.length > 0) {
-    colDefs.push(`PRIMARY KEY (${pkCols.map((c) => `"${c.name}"`).join(", ")})`);
-  }
+	const pkCols = table.columns.filter((c) => c.primary_key);
+	if (pkCols.length > 0) {
+		colDefs.push(`PRIMARY KEY (${pkCols.map((c) => `"${c.name}"`).join(', ')})`);
+	}
 
-  // Add foreign key constraints
-  table.columns.forEach((col) => {
-    if (col.references) {
-      colDefs.push(`REFERENCES ${col.references}`);
-    }
-  });
+	// Add foreign key constraints
+	table.columns.forEach((col) => {
+		if (col.references) {
+			colDefs.push(`REFERENCES ${col.references}`);
+		}
+	});
 
-  return `CREATE TABLE "${schema}"."${table.name}" (${colDefs.join(", ")})`;
+	return `CREATE TABLE "${schema}"."${table.name}" (${colDefs.join(', ')})`;
 }
 
 function buildCreateIndexSQL(index: IndexDefinition, schema: string): string {
-  const cols = index.columns.map((c) => `"${c}"`).join(", ");
-  let sql = `CREATE`;
+	const cols = index.columns.map((c) => `"${c}"`).join(', ');
+	let sql = `CREATE`;
 
-  if (index.unique) {
-    sql += " UNIQUE";
-  }
+	if (index.unique) {
+		sql += ' UNIQUE';
+	}
 
-  sql += ` INDEX IF NOT EXISTS "${schema}"."${index.name}" ON "${schema}"."${index.table}" (${cols})`;
+	sql += ` INDEX IF NOT EXISTS "${schema}"."${index.name}" ON "${schema}"."${index.table}" (${cols})`;
 
-  if (index.partial) {
-    sql += ` WHERE ${index.partial}`;
-  }
+	if (index.partial) {
+		sql += ` WHERE ${index.partial}`;
+	}
 
-  return sql;
+	return sql;
 }
 
 // ---------------------------------------------------------------------------
@@ -249,58 +259,58 @@ function buildCreateIndexSQL(index: IndexDefinition, schema: string): string {
 // ---------------------------------------------------------------------------
 
 async function migrate(opts: MigrationOptions) {
-  console.log(`\n=== PostgreSQL Migration ===`);
-  console.log(`Schema: ${opts.schema}`);
-  console.log(`Seed: ${opts.seed ? "yes" : "no"}\n`);
+	console.log(`\n=== PostgreSQL Migration ===`);
+	console.log(`Schema: ${opts.schema}`);
+	console.log(`Seed: ${opts.seed ? 'yes' : 'no'}\n`);
 
-  const client = await getDbConnection(opts);
+	const client = await getDbConnection(opts);
 
-  try {
-    // Step 1: Create schema
-    console.log(`[1/4] Creating schema "${opts.schema}"...`);
-    await client.query(`CREATE SCHEMA IF NOT EXISTS "${opts.schema}"`);
-    console.log(`  Schema created.`);
+	try {
+		// Step 1: Create schema
+		console.log(`[1/4] Creating schema "${opts.schema}"...`);
+		await client.query(`CREATE SCHEMA IF NOT EXISTS "${opts.schema}"`);
+		console.log(`  Schema created.`);
 
-    // Step 2: Create tables
-    console.log(`[2/4] Creating tables...`);
-    for (const table of CORE_TABLES) {
-      const sql = buildCreateTableSQL(table, opts.schema);
-      console.log(`  Creating table "${table.name}"...`);
-      await client.query(sql);
-      console.log(`  Table "${table.name}" created.`);
-    }
+		// Step 2: Create tables
+		console.log(`[2/4] Creating tables...`);
+		for (const table of CORE_TABLES) {
+			const sql = buildCreateTableSQL(table, opts.schema);
+			console.log(`  Creating table "${table.name}"...`);
+			await client.query(sql);
+			console.log(`  Table "${table.name}" created.`);
+		}
 
-    // Step 3: Create indexes
-    console.log(`[3/4] Creating indexes...`);
-    for (const index of INDEXES) {
-      const sql = buildCreateIndexSQL(index, opts.schema);
-      console.log(`  Creating index "${index.name}"...`);
-      await client.query(sql);
-      console.log(`  Index "${index.name}" created.`);
-    }
+		// Step 3: Create indexes
+		console.log(`[3/4] Creating indexes...`);
+		for (const index of INDEXES) {
+			const sql = buildCreateIndexSQL(index, opts.schema);
+			console.log(`  Creating index "${index.name}"...`);
+			await client.query(sql);
+			console.log(`  Index "${index.name}" created.`);
+		}
 
-    // Step 4: Seed data
-    if (opts.seed) {
-      console.log(`[4/4] Seeding data...`);
-      const seedSql = SEED_SQL.replace(/{schema}/g, opts.schema);
-      await client.query(seedSql);
-      console.log(`  Data seeded.`);
-    } else {
-      console.log(`[4/4] Skipping seed (--no-seed)`);
-    }
+		// Step 4: Seed data
+		if (opts.seed) {
+			console.log(`[4/4] Seeding data...`);
+			const seedSql = SEED_SQL.replace(/{schema}/g, opts.schema);
+			await client.query(seedSql);
+			console.log(`  Data seeded.`);
+		} else {
+			console.log(`[4/4] Skipping seed (--no-seed)`);
+		}
 
-    console.log(`\n=== Migration Complete ===\n`);
+		console.log(`\n=== Migration Complete ===\n`);
 
-    // Verify
-    const { rows } = await client.query(
-      `SELECT table_name FROM information_schema.tables WHERE table_schema = $1 ORDER BY table_name`,
-      [opts.schema]
-    );
-    console.log(`Tables in "${opts.schema}":`);
-    rows.forEach((r) => console.log(`  - ${r.table_name}`));
-  } finally {
-    await client.end();
-  }
+		// Verify
+		const { rows } = await client.query(
+			`SELECT table_name FROM information_schema.tables WHERE table_schema = $1 ORDER BY table_name`,
+			[opts.schema],
+		);
+		console.log(`Tables in "${opts.schema}":`);
+		rows.forEach((r) => console.log(`  - ${r.table_name}`));
+	} finally {
+		await client.end();
+	}
 }
 
 // ---------------------------------------------------------------------------
@@ -308,39 +318,39 @@ async function migrate(opts: MigrationOptions) {
 // ---------------------------------------------------------------------------
 
 function parseArgs(): MigrationOptions {
-  const args = process.argv.slice(2);
-  const opts: MigrationOptions = {
-    schema: "hermes",
-    seed: false,
-  };
+	const args = process.argv.slice(2);
+	const opts: MigrationOptions = {
+		schema: 'hermes',
+		seed: false,
+	};
 
-  for (let i = 0; i < args.length; i++) {
-    const arg = args[i];
-    if (arg === "--schema" && i + 1 < args.length) {
-      opts.schema = args[++i];
-    } else if (arg === "--seed") {
-      opts.seed = true;
-    } else if (arg === "--host" && i + 1 < args.length) {
-      opts.host = args[++i];
-    } else if (arg === "--port" && i + 1 < args.length) {
-      opts.port = parseInt(args[++i]);
-    } else if (arg === "--user" && i + 1 < args.length) {
-      opts.user = args[++i];
-    } else if (arg === "--password" && i + 1 < args.length) {
-      opts.password = args[++i];
-    } else if (arg === "--database" && i + 1 < args.length) {
-      opts.database = args[++i];
-    } else if (arg === "--help") {
-      printHelp();
-      process.exit(0);
-    }
-  }
+	for (let i = 0; i < args.length; i++) {
+		const arg = args[i];
+		if (arg === '--schema' && i + 1 < args.length) {
+			opts.schema = args[++i];
+		} else if (arg === '--seed') {
+			opts.seed = true;
+		} else if (arg === '--host' && i + 1 < args.length) {
+			opts.host = args[++i];
+		} else if (arg === '--port' && i + 1 < args.length) {
+			opts.port = parseInt(args[++i]);
+		} else if (arg === '--user' && i + 1 < args.length) {
+			opts.user = args[++i];
+		} else if (arg === '--password' && i + 1 < args.length) {
+			opts.password = args[++i];
+		} else if (arg === '--database' && i + 1 < args.length) {
+			opts.database = args[++i];
+		} else if (arg === '--help') {
+			printHelp();
+			process.exit(0);
+		}
+	}
 
-  return opts;
+	return opts;
 }
 
 function printHelp() {
-  console.log(`
+	console.log(`
 migrate-hermes-schema.ts
 
 Creates the hermes schema with all core tables, indexes, and optional seed data.
@@ -371,6 +381,6 @@ Examples:
 
 const opts = parseArgs();
 migrate(opts).catch((err) => {
-  console.error("Migration failed:", err);
-  process.exit(1);
+	console.error('Migration failed:', err);
+	process.exit(1);
 });
