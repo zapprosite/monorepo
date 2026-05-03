@@ -55,7 +55,7 @@ services:
         max-file: "10"
 
   api:
-    image: zappro/api:latest
+    image: zappro/api:dev-20260503  # SPEC-210: local build, ID sha256:f775d6d36d2c9c3ac6fddc16e29aaef53219907c4a8757351566a8cd8ac2e927
     ports:
       - "4000:4000"
     depends_on:
@@ -106,7 +106,7 @@ services:
         max-file: "20"
 
   web:
-    image: zappro/web:latest
+    image: zappro/web:dev-20260503  # SPEC-210: local build, ID sha256:d7409e83eb7ac20de262d21fc647a923474564b7cb4562c212e06e56ad8ddd4a
     ports:
       - "80:80"
     depends_on:

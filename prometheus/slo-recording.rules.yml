@@ -1,0 +1,91 @@
+# SLO Recording Rules — SPEC-210 Enterprise
+# 
+# SLI: service uptime measured via synthetic_probe_success
+# SLO targets defined in docs/SPECS/SPEC-210-enterprise-homelab-hardening.md
+#
+# Service     | SLO    | Error Budget (30d)
+# Gitea        | 99.5%  | 3h 36min
+# Coolify      | 99.0%  | 7h 12min
+# Qdrant       | 99.9%  | 43min
+# Ollama       | 99.5%  | 3h 36min
+# LiteLLM      | 99.5%  | 3h 36min
+# Hermes       | 99.0%  | 7h 12min
+
+groups:
+  - name: slo-availability
+    interval: 30s
+    rules:
+
+      # ── SLI: Error rate per service (5m window) ──
+      - record: sli:error_rate_5m
+        expr: |
+          1 - avg_over_time(synthetic_probe_success[5m])
+
+      # ── SLO: 30-day availability ──
+      - record: slo:availability_30d
+        expr: |
+          avg_over_time(synthetic_probe_success[30d])
+
+      # ── Burn rate (fast): how fast error budget is consumed in 1h ──
+      - record: sli:error_budget_burn_rate_1h
+        expr: |
+          (1 - avg_over_time(synthetic_probe_success[1h])) / (1 - 0.995)
+
+      # ── Burn rate (slow): error budget consumption in 6h ──
+      - record: sli:error_budget_burn_rate_6h
+        expr: |
+          (1 - avg_over_time(synthetic_probe_success[6h])) / (1 - 0.995)
+
+  - name: slo-alerts
+    interval: 30s
+    rules:
+
+      # ── Service down (immediate) ──
+      - alert: ServiceDown
+        expr: synthetic_probe_success == 0
+        for: 2m
+        labels:
+          severity: critical
+          slo: "99.5"
+        annotations:
+          summary: "{{ $labels.service }} is DOWN"
+          description: "Service {{ $labels.service }} (tier: {{ $labels.tier }}) has been unreachable for 2+ minutes"
+
+      # ── SLO burn rate critical (1h window) ──
+      - alert: SLOErrorBudgetBurnCritical
+        expr: |
+          (
+            1 - avg_over_time(synthetic_probe_success{tier="critical"}[1h])
+          ) > (0.005 * 14.4)
+        for: 10m
+        labels:
+          severity: page
+          slo: "99.5"
+        annotations:
+          summary: "Critical service {{ $labels.service }} burning error budget fast"
+          description: "Error budget burn rate: {{ $value | humanize }}% in the last hour"
+
+      # ── SLO burn rate warning (6h window) ──
+      - alert: SLOErrorBudgetBurnWarning
+        expr: |
+          (
+            1 - avg_over_time(synthetic_probe_success{tier="critical"}[6h])
+          ) > (0.005 * 6)
+        for: 30m
+        labels:
+          severity: ticket
+          slo: "99.5"
+        annotations:
+          summary: "Critical service {{ $labels.service }} sustained error rate"
+          description: "Error budget burn rate: {{ $value | humanize }}% over the last 6 hours"
+
+      # ── Standard tier SLO warning ──
+      - alert: StandardServiceDegraded
+        expr: synthetic_probe_success{tier="standard"} == 0
+        for: 10m
+        labels:
+          severity: warning
+          slo: "99.0"
+        annotations:
+          summary: "Standard service {{ $labels.service }} is degraded"
+          description: "Service {{ $labels.service }} (tier: standard) unreachable for 10+ minutes"

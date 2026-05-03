@@ -1,7 +1,7 @@
 services:
   perplexity-agent:
     build: .
-    image: perplexity-agent:latest
+    image: perplexity-agent:dev-20260503  # SPEC-210: local build, pin to dated tag
     container_name: perplexity-agent
     ports:
       - "4004:4004"

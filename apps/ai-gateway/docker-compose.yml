@@ -7,7 +7,7 @@ services:
     build:
       context: ../..
       dockerfile: apps/ai-gateway/Dockerfile
-    image: ai-gateway:latest
+    image: ai-gateway:dev-20260503  # SPEC-210: local build, ID sha256:c4cb11e556e0f87f35d223318e0c62ef687594c7785fbcbed55f40152ac710df
     container_name: zappro-ai-gateway
     restart: unless-stopped
     ports:

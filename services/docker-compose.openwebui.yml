@@ -1,6 +1,6 @@
 services:
   openwebui-hvac:
-    image: openwebui/open-webui:latest
+    image: openwebui/open-webui@sha256:c2e4723fdbca5de8f9f0529e22b78acf5bc312a88da730bed88860063d028fe8
     container_name: openwebui-hvac
     restart: unless-stopped
     env_file: /srv/monorepo/.env

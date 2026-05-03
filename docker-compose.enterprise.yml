@@ -1,0 +1,51 @@
+# =============================================================================
+# docker-compose.enterprise.yml — SPEC-210 IaC Unification
+# =============================================================================
+# Single source of truth for all homelab infrastructure.
+# This file includes all sub-compose files from their canonical locations.
+#
+# Usage:
+#   docker compose -f docker-compose.enterprise.yml ps
+#   docker compose -f docker-compose.enterprise.yml config  (dry-run validation)
+#
+# Canonical paths:
+#   /srv/ops/docker/              — unified config directory
+#   /srv/monorepo/deployments/    — monorepo deploy files
+#   /srv/ops/stacks/              — ops service stacks
+#   /srv/ops/gitea/               — Gitea
+#   /srv/edge-tts/                — Edge TTS
+#   /srv/hermes-second-brain/     — Hermes second brain
+#
+# SPEC-210 2026-05-03
+# =============================================================================
+
+include:
+  # ── Core Infrastructure ──────────────────────────────────────────────
+  - path: /srv/monorepo/deployments/docker-compose.yml
+  - path: /srv/ops/gitea/docker-compose.yml
+  - path: /srv/ops/stacks/autoheal/docker-compose.yml
+  - path: /srv/ops/stacks/guardrail/docker-compose.yml
+
+  # ── AI / LLM Services ────────────────────────────────────────────────
+  - path: /srv/monorepo/deployments/docker-compose.litellm.yml
+  - path: /srv/monorepo/deployments/docker-compose.openwebui.yml
+  - path: /srv/monorepo/deployments/docker-compose.gitea-runner.yml
+
+  # ── Edge Services ────────────────────────────────────────────────────
+  - path: /srv/edge-tts/docker-compose.yml
+  - path: /srv/hermes-second-brain/docker-compose.yml
+
+  # ── Dev / Staging ────────────────────────────────────────────────────
+  - path: /srv/monorepo/deployments/docker-compose.staging.yml
+  - path: /srv/monorepo/deployments/docker-compose.telegram-dev.yml
+
+  # ── Production Deploy ────────────────────────────────────────────────
+  - path: /srv/monorepo/deployments/docker-compose.prod.yml
+
+networks:
+  zappro-tts:
+    name: zappro-tts
+    external: true
+  gitea_default:
+    name: gitea_default
+    external: true
