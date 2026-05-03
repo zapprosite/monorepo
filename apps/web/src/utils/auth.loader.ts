@@ -87,7 +87,7 @@ export async function authLoader({ context }: LoaderFunctionArgs) {
 			throw error;
 		}
 
-		console.error('Auth loader error:', error);
+		// Expected: no session, unauthenticated access. Silent redirect.
 		throw redirect('/auth/login');
 	}
 }
@@ -114,7 +114,7 @@ export async function guestLoader() {
 			throw error;
 		}
 
-		console.error('Guest loader error:', error);
+		// Expected: guest check failed silently (no session)
 		return null;
 	}
 }
