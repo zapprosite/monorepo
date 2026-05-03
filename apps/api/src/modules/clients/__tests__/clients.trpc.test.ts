@@ -7,8 +7,8 @@ const createCaller = createCallerFactory(appTrpcRouter);
 
 // Valid UUIDs (not real, but structurally valid)
 const FAKE_UUID = "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11";
-const FAKE_UUID_2 = "b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a22";
-const FAKE_UUID_3 = "c0eebc99-9c0b-4ef8-bb6d-6bb9bd380a33";
+const _FAKE_UUID_2 = "b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a22";
+const _FAKE_UUID_3 = "c0eebc99-9c0b-4ef8-bb6d-6bb9bd380a33";
 
 // ---------------------------------------------------------------------------
 // Auth guard — todas as procedures rejeitam acesso não autenticado
@@ -48,7 +48,6 @@ describe("clients — auth guard (UNAUTHORIZED)", () => {
 			caller.clients.addContact({
 				clienteId: FAKE_UUID,
 				nome: "Contact",
-				tipo: "Telefone",
 			}),
 		).rejects.toMatchObject({ code: "UNAUTHORIZED" });
 	});
@@ -70,7 +69,7 @@ describe("clients — auth guard (UNAUTHORIZED)", () => {
 			caller.clients.addAddress({
 				clienteId: FAKE_UUID,
 				tipo: "Cobrança",
-				logradouro: "Rua Teste",
+				rua: "Rua Teste",
 				cidade: "São Paulo",
 				estado: "SP",
 				cep: "01001-000",
@@ -86,7 +85,7 @@ describe("clients — auth guard (UNAUTHORIZED)", () => {
 
 	it("updateAddress rejeita não autenticado", async () => {
 		await expect(
-			caller.clients.updateAddress({ addressId: FAKE_UUID, logradouro: "Updated" }),
+			caller.clients.updateAddress({ addressId: FAKE_UUID, rua: "Updated" }),
 		).rejects.toMatchObject({ code: "UNAUTHORIZED" });
 	});
 });
@@ -273,7 +272,6 @@ describe("clients — addContact IDOR protection", () => {
 			caller.clients.addContact({
 				clienteId: FAKE_UUID,
 				nome: "Contact Name",
-				tipo: "Telefone",
 			}),
 		).rejects.toMatchObject({ code: "NOT_FOUND" });
 	});
@@ -284,7 +282,6 @@ describe("clients — addContact IDOR protection", () => {
 			callerOtherTeam.clients.addContact({
 				clienteId: FAKE_UUID,
 				nome: "Contact Name",
-				tipo: "Telefone",
 			}),
 		).rejects.toMatchObject({ code: "FORBIDDEN" });
 	});
@@ -347,7 +344,7 @@ describe("clients — addAddress IDOR protection", () => {
 			caller.clients.addAddress({
 				clienteId: FAKE_UUID,
 				tipo: "Cobrança",
-				logradouro: "Rua Teste",
+				rua: "Rua Teste",
 				cidade: "São Paulo",
 				estado: "SP",
 				cep: "01001-000",
@@ -361,7 +358,7 @@ describe("clients — addAddress IDOR protection", () => {
 			callerOtherTeam.clients.addAddress({
 				clienteId: FAKE_UUID,
 				tipo: "Cobrança",
-				logradouro: "Rua Teste",
+				rua: "Rua Teste",
 				cidade: "São Paulo",
 				estado: "SP",
 				cep: "01001-000",
@@ -398,7 +395,7 @@ describe("clients — updateAddress IDOR protection", () => {
 
 	it("updateAddress lança NOT_FOUND para address inexistente", async () => {
 		await expect(
-			caller.clients.updateAddress({ addressId: FAKE_UUID, logradouro: "Updated" }),
+			caller.clients.updateAddress({ addressId: FAKE_UUID, rua: "Updated" }),
 		).rejects.toMatchObject({ code: "NOT_FOUND" });
 	});
 

@@ -11,7 +11,6 @@ import { TRPCError } from '@trpc/server';
 import { db } from '@backend/db/db';
 import { protectedProcedure, trpcRouter } from '@backend/trpc';
 import {
-  ragRetrieve,
   search,
   listDatasets as trieveListDatasets,
   createDataset as trieveCreateDataset,

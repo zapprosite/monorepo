@@ -11,7 +11,7 @@ export async function seedCRM() {
 	}
 
 	// --- Leads ---
-	const _lead1 = await db.leads.create({
+	void db.leads.create({
 		nome: "Supermercado BomPreço",
 		email: "manutencao@bompreco.com.br",
 		telefone: "(11) 98765-4321",
@@ -20,13 +20,13 @@ export async function seedCRM() {
 		observacoes: "Tem 8 splits e 2 câmaras frias. Contrato PMOC em vista.",
 	});
 
-	const _lead2 = await db.leads.create({
+	void db.leads.create({
 		nome: "Clínica Dr. Marcos",
 		email: "clinica@drmarcos.com.br",
 		telefone: "(11) 94321-8765",
 		status: "Proposta",
 		origem: "Site",
-		observacoes: "Ambiente hospitalar, exige manutenção preventiva rigorosa.",
+		observacoes: "Ambidade hospitalar, exige manutenção preventiva rigorosa.",
 	});
 
 	// --- Clients ---

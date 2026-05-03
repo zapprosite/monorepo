@@ -2,14 +2,6 @@ import { protectedProcedure, trpcRouter } from "@backend/trpc";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
-const LoyaltyScoreOutput = z.object({
-	clienteId: z.string(),
-	pontos: z.number(),
-	nivel: z.enum(["bronze", "prata", "ouro", "platinum"]),
-	statusReativacao: z.enum(["ativo", "risco-30d", "risco-60d", "risco-90d", "perdido"]),
-	ultimaCompra: z.date().optional(),
-});
-
 export const loyaltyRouter = trpcRouter({
 	calculateScore: protectedProcedure
 		.input(z.object({ clienteId: z.string().uuid() }))

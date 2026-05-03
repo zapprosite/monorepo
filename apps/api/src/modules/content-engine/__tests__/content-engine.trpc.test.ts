@@ -14,7 +14,7 @@ describe("content-engine — auth guard", () => {
 
 	it("create rejeita não autenticado", async () => {
 		await expect(
-			caller.contentEngine.create({
+			caller.conteudos.create({
 				titulo: "Test",
 				slug: "test",
 				descricao: "Test",
@@ -28,19 +28,19 @@ describe("content-engine — auth guard", () => {
 
 	it("list rejeita não autenticado", async () => {
 		await expect(
-			caller.contentEngine.list({ clienteId: FAKE_UUID }),
+			caller.conteudos.list({ clienteId: FAKE_UUID }),
 		).rejects.toMatchObject({ code: "UNAUTHORIZED" });
 	});
 
 	it("getById rejeita não autenticado", async () => {
 		await expect(
-			caller.contentEngine.getById({ id: FAKE_UUID }),
+			caller.conteudos.getById({ id: FAKE_UUID }),
 		).rejects.toMatchObject({ code: "UNAUTHORIZED" });
 	});
 
 	it("getBySlug rejeita não autenticado", async () => {
 		await expect(
-			caller.contentEngine.getBySlug({ slug: "test", clienteId: FAKE_UUID }),
+			caller.conteudos.getBySlug({ slug: "test", clienteId: FAKE_UUID }),
 		).rejects.toMatchObject({ code: "UNAUTHORIZED" });
 	});
 });
@@ -53,7 +53,7 @@ describe("content-engine — create validation", () => {
 
 	it("create lança erro para UUID inválido em clienteId", async () => {
 		await expect(
-			caller.contentEngine.create({
+			caller.conteudos.create({
 				titulo: "Test",
 				slug: "test",
 				descricao: "Test",
@@ -75,7 +75,7 @@ describe("content-engine — list team isolation", () => {
 
 	it("list lança erro para UUID inválido em clienteId", async () => {
 		await expect(
-			caller.contentEngine.list({ clienteId: "not-a-uuid" }),
+			caller.conteudos.list({ clienteId: "not-a-uuid" }),
 		).rejects.toThrow();
 	});
 });
@@ -88,13 +88,13 @@ describe("content-engine — getById validation", () => {
 
 	it("getById lança NOT_FOUND para conteúdo inexistente", async () => {
 		await expect(
-			caller.contentEngine.getById({ id: FAKE_UUID }),
+			caller.conteudos.getById({ id: FAKE_UUID }),
 		).rejects.toMatchObject({ code: "NOT_FOUND" });
 	});
 
 	it("getById lança erro para UUID inválido", async () => {
 		await expect(
-			caller.contentEngine.getById({ id: "not-a-uuid" }),
+			caller.conteudos.getById({ id: "not-a-uuid" }),
 		).rejects.toThrow();
 	});
 });
@@ -107,13 +107,13 @@ describe("content-engine — getBySlug validation", () => {
 
 	it("getBySlug lança NOT_FOUND para slug inexistente", async () => {
 		await expect(
-			caller.contentEngine.getBySlug({ slug: "inexistente", clienteId: FAKE_UUID }),
+			caller.conteudos.getBySlug({ slug: "inexistente", clienteId: FAKE_UUID }),
 		).rejects.toMatchObject({ code: "NOT_FOUND" });
 	});
 
 	it("getBySlug lança erro para UUID inválido em clienteId", async () => {
 		await expect(
-			caller.contentEngine.getBySlug({ slug: "test", clienteId: "not-a-uuid" }),
+			caller.conteudos.getBySlug({ slug: "test", clienteId: "not-a-uuid" }),
 		).rejects.toThrow();
 	});
 });

@@ -195,7 +195,7 @@ export const conteudoRouter = trpcRouter({
 				.take();
 			if (!conteudo) throw new TRPCError({ code: "FORBIDDEN" });
 
-			const deleted = await db.conteudoRevisoes
+			const _deleted = await db.conteudoRevisoes
 				.where({ id: input.id })
 				.delete();
 			return { success: true };

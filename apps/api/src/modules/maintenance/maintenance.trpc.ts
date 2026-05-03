@@ -3,17 +3,6 @@ import { db } from "@backend/db/db";
 import { protectedProcedure, trpcRouter } from "@backend/trpc";
 import { z } from "zod";
 
-const MaintenancePlanOutput = z.object({
-	id: z.string(),
-	nomeEmpresa: z.string(),
-	tipoEquipamento: z.enum(["ar-condicionado", "refrigerador"]),
-	periodicidadeDias: z.number(),
-	clienteId: z.string().optional(),
-	equipamentoId: z.string().optional(),
-	proxima: z.date().optional(),
-	createdAt: z.date(),
-});
-
 export const maintenanceRouter = trpcRouter({
 	createPlan: protectedProcedure
 		.input(

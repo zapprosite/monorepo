@@ -7,8 +7,8 @@ const createCaller = createCallerFactory(appTrpcRouter);
 
 // Valid UUIDs (not real, but structurally valid)
 const FAKE_UUID = "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11";
-const FAKE_UUID_2 = "b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a22";
-const FAKE_UUID_3 = "c0eebc99-9c0b-4ef8-bb6d-6bb9bd380a33";
+const _FAKE_UUID_2 = "b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a22";
+const _FAKE_UUID_3 = "c0eebc99-9c0b-4ef8-bb6d-6bb9bd380a33";
 
 // ---------------------------------------------------------------------------
 // Auth guard — todas as procedures rejeitam acesso não autenticado

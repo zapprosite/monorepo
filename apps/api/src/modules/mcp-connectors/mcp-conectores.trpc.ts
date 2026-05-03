@@ -41,7 +41,7 @@ export const mcpConectorRouter = trpcRouter({
 
 	list: protectedProcedure
 		.input(z.object({ clienteId: z.string().uuid().optional() }))
-		.query(async ({ input, ctx }) => {
+		.query(async ({ ctx }) => {
 			const { teamId } = ctx.user;
 			// Filter by teamId directly
 			const conectores = await db.mcpConectores
