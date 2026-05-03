@@ -21,6 +21,7 @@ import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router';
 import { ServiceOrderStatusBadge } from '../components/ServiceOrderStatusBadge';
+import { SignatureCanvas } from '@frontend/components/SignatureCanvas';
 
 function formatDateTime(timestamp: number | string): string {
 	const date = typeof timestamp === 'number' ? new Date(timestamp) : new Date(timestamp);
@@ -42,6 +43,10 @@ export default function ServiceOrderDetailPage() {
 	const navigate = useNavigate();
 	const queryClient = useQueryClient();
 	const [addMaterialOpen, setAddMaterialOpen] = useState(false);
+	const [techSignatureOpen, setTechSignatureOpen] = useState(false);
+	const [clientSignatureOpen, setClientSignatureOpen] = useState(false);
+	const [techSignatureData, setTechSignatureData] = useState<string | null>(null);
+	const [clientSignatureData, setClientSignatureData] = useState<string | null>(null);
 
 	if (!serviceOrderId) {
 		return (
@@ -112,6 +117,16 @@ export default function ServiceOrderDetailPage() {
 	);
 	const assinarCliente = useMutation(
 		trpc.serviceOrders.assinarCliente.mutationOptions({ onSuccess: invalidateReport }),
+	);
+	const saveOsSignatures = useMutation(
+		trpc.serviceOrders.saveOsSignatures.mutationOptions({ onSuccess: () => {
+			invalidateReport();
+			invalidateOrder();
+			setTechSignatureOpen(false);
+			setClientSignatureOpen(false);
+			setTechSignatureData(null);
+			setClientSignatureData(null);
+		}}),
 	);
 	const createReport = useMutation(
 		trpc.serviceOrders.createReport.mutationOptions({ onSuccess: invalidateReport }),
@@ -351,8 +366,8 @@ export default function ServiceOrderDetailPage() {
 									<Button
 										variant={r.assinadoTecnico ? 'outlined' : 'contained'}
 										color={r.assinadoTecnico ? 'success' : 'primary'}
-										disabled={r.assinadoTecnico || assinarTecnico.isPending}
-										onClick={() => assinarTecnico.mutate({ serviceOrderId: so.serviceOrderId })}
+										disabled={r.assinadoTecnico ||techSignatureData !== null}
+										onClick={() => setTechSignatureOpen(true)}
 										size="small"
 									>
 										{r.assinadoTecnico ? 'Técnico Assinou' : 'Assinar (Técnico)'}
@@ -360,8 +375,8 @@ export default function ServiceOrderDetailPage() {
 									<Button
 										variant={r.assinadoCliente ? 'outlined' : 'contained'}
 										color={r.assinadoCliente ? 'success' : 'secondary'}
-										disabled={r.assinadoCliente || assinarCliente.isPending}
-										onClick={() => assinarCliente.mutate({ serviceOrderId: so.serviceOrderId })}
+										disabled={r.assinadoCliente || clientSignatureData !== null}
+										onClick={() => setClientSignatureOpen(true)}
 										size="small"
 									>
 										{r.assinadoCliente ? 'Cliente Assinou' : 'Assinar (Cliente)'}
@@ -641,6 +656,107 @@ export default function ServiceOrderDetailPage() {
 					</Button>
 				</DialogActions>
 			</Dialog>
+			{/* Technician Signature Dialog */}
+			<Dialog
+				open={techSignatureOpen}
+				onClose={() => setTechSignatureOpen(false)}
+				maxWidth="sm"
+				fullWidth
+			>
+				<DialogTitle>Assinatura do Técnico</DialogTitle>
+				<DialogContent>
+					<Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+						Desenhe sua assinatura abaixo e confirme.
+					</Typography>
+					<SignatureCanvas
+						onSave={(data) => setTechSignatureData(data)}
+						onClear={() => setTechSignatureData(null)}
+					/>
+				</DialogContent>
+				<DialogActions>
+					<Button variant="outlined" onClick={() => setTechSignatureOpen(false)}>
+						Cancelar
+					</Button>
+					<Button
+						variant="contained"
+						disabled={!techSignatureData || saveOsSignatures.isPending}
+						onClick={() => {
+							if (techSignatureData && clientSignatureData) {
+								saveOsSignatures.mutate({
+									serviceOrderId: so.serviceOrderId,
+									technicianSignature: techSignatureData,
+									clientSignature: clientSignatureData,
+								});
+							} else if (techSignatureData) {
+								setTechSignatureData(techSignatureData);
+								setClientSignatureOpen(true);
+								setTechSignatureOpen(false);
+							}
+						}}
+					>
+						{saveOsSignatures.isPending ? 'Salvando...' : 'Confirmar e Solicitar Assinatura do Cliente'}
+					</Button>
+				</DialogActions>
+			</Dialog>
+
+			{/* Client Signature Dialog */}
+			<Dialog
+				open={clientSignatureOpen}
+				onClose={() => setClientSignatureOpen(false)}
+				maxWidth="sm"
+				fullWidth
+			>
+				<DialogTitle>Assinatura do Cliente</DialogTitle>
+				<DialogContent>
+					<Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+						Desenhe sua assinatura abaixo e confirme.
+					</Typography>
+					<SignatureCanvas
+						onSave={(data) => setClientSignatureData(data)}
+						onClear={() => setClientSignatureData(null)}
+					/>
+				</DialogContent>
+				<DialogActions>
+					<Button variant="outlined" onClick={() => setClientSignatureOpen(false)}>
+						Cancelar
+					</Button>
+					<Button
+						variant="contained"
+						disabled={!clientSignatureData || saveOsSignatures.isPending}
+						onClick={() => {
+							if (techSignatureData && clientSignatureData) {
+								saveOsSignatures.mutate({
+									serviceOrderId: so.serviceOrderId,
+									technicianSignature: techSignatureData,
+									clientSignature: clientSignatureData,
+								});
+							}
+						}}
+					>
+						{saveOsSignatures.isPending ? 'Salvando...' : 'Confirmar Assinatura'}
+					</Button>
+				</DialogActions>
+			</Dialog>
+
+			{/* PDF Link */}
+			{so.status === 'Concluída' && serviceOrder.pdfUrl && (
+				<Paper
+					elevation={0}
+					sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2, p: 3, mt: 3 }}
+				>
+					<Typography variant="h6" fontWeight={600} mb={2}>
+						Documento PDF
+					</Typography>
+					<Button
+						variant="contained"
+						href={`${serviceOrder.pdfUrl}`}
+						target="_blank"
+						rel="noopener noreferrer"
+					>
+						Visualizar PDF da OS
+					</Button>
+				</Paper>
+			)}
 		</Container>
 	);
 }

@@ -1,4 +1,5 @@
 import { env } from '@frontend/configs/env.config';
+import { trpcFetch } from '@frontend/utils/trpc.client';
 import { Typography } from '@repo/ui-mui/data-display/Typography';
 import { Alert } from '@repo/ui-mui/feedback/Alert';
 import { Fade } from '@repo/ui-mui/feedback/Fade';
@@ -6,6 +7,7 @@ import { Button } from '@repo/ui-mui/form/Button';
 import { TextField } from '@repo/ui-mui/form/TextField';
 import { Box } from '@repo/ui-mui/layout/Box';
 import { Container } from '@repo/ui-mui/layout/Container';
+import { Divider } from '@repo/ui-mui/layout/Divider';
 import { Paper } from '@repo/ui-mui/layout/Paper';
 import { Stack } from '@repo/ui-mui/layout/Stack';
 import { useState } from 'react';
@@ -23,10 +25,30 @@ export const LoginPage = () => {
 
 	const [devEmail, setDevEmail] = useState('dev@localhost');
 	const [devPassword, setDevPassword] = useState('dev123');
+	const [showPasswordForm, setShowPasswordForm] = useState(false);
+	const [passwordEmail, setPasswordEmail] = useState('');
+	const [passwordPassword, setPassword] = useState('');
+	const [passwordError, setPasswordError] = useState('');
 
 	const handleGoogleLogin = () => {
 		setIsLoading(true);
 		window.location.href = `${API_URL}/oauth2/google`;
+	};
+
+	const handlePasswordLogin = async (e: React.FormEvent) => {
+		e.preventDefault();
+		setIsLoading(true);
+		setPasswordError('');
+		try {
+			await trpcFetch.auth.loginWithPassword.mutate({
+				email: passwordEmail,
+				password: passwordPassword,
+			});
+			navigate('/dashboard');
+		} catch (err) {
+			setPasswordError(err instanceof Error ? err.message : 'Login failed');
+			setIsLoading(false);
+		}
 	};
 
 	const handleDevLogin = async (e: React.FormEvent) => {
@@ -121,6 +143,14 @@ export const LoginPage = () => {
 								</Fade>
 							)}
 
+							{passwordError && (
+								<Fade in>
+									<Alert severity="error" sx={{ width: '100%', maxWidth: 400, borderRadius: 2 }}>
+										{passwordError}
+									</Alert>
+								</Fade>
+							)}
+
 							{IS_DEV && (
 								<Box sx={{ width: '100%', maxWidth: 360 }}>
 									<form onSubmit={handleDevLogin}>
@@ -150,56 +180,122 @@ export const LoginPage = () => {
 							)}
 
 							{!IS_DEV && (
-								<Box sx={{ width: '100%', maxWidth: 360 }}>
-									<Button
-										variant="outlined"
-										fullWidth
-										onClick={handleGoogleLogin}
-										disabled={isLoading}
-										sx={{
-											py: { xs: 1.75, sm: 1.5 },
-											px: 3,
-											fontSize: { xs: '1rem', sm: '0.95rem' },
-											fontWeight: 600,
-											textTransform: 'none',
-											borderRadius: 2,
-											borderWidth: 2,
-											borderColor: 'divider',
-											color: 'text.primary',
-											bgcolor: 'background.paper',
-											minHeight: { xs: 56, sm: 52 },
-											transition: 'all 0.25s ease-in-out',
-											boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
-											'&:hover': {
-												borderWidth: 2,
-												borderColor: 'primary.main',
-												bgcolor: 'primary.light',
-												transform: 'translateY(-2px)',
-												boxShadow: '0 4px 16px rgba(102, 126, 234, 0.2)',
-											},
-											'&:active': {
-												transform: 'translateY(0)',
-												boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-											},
-											'&.Mui-disabled': {
-												borderColor: 'action.disabledBackground',
-												bgcolor: 'action.disabledBackground',
-												color: 'action.disabled',
-											},
-										}}
-									>
-										<Box
-											sx={{
-												display: 'flex',
-												alignItems: 'center',
-												justifyContent: 'center',
-												gap: 1.5,
-											}}
-										>
-											<span>{isLoading ? 'Conectando...' : 'Continuar com Google'}</span>
+								<>
+									{showPasswordForm ? (
+										<Box sx={{ width: '100%', maxWidth: 360 }}>
+											<form onSubmit={handlePasswordLogin}>
+												<Stack spacing={2}>
+													<TextField
+														label="E-mail"
+														type="email"
+														value={passwordEmail}
+														onChange={(e) => setPasswordEmail(e.target.value)}
+														fullWidth
+														size="small"
+														autoFocus
+													/>
+													<TextField
+														label="Senha"
+														type="password"
+														value={passwordPassword}
+														onChange={(e) => setPassword(e.target.value)}
+														fullWidth
+														size="small"
+													/>
+													<Button type="submit" variant="contained" fullWidth disabled={isLoading}>
+														{isLoading ? 'Entrando...' : 'Entrar com senha'}
+													</Button>
+													<Button
+														type="button"
+														variant="text"
+														fullWidth
+														size="small"
+														onClick={() => setShowPasswordForm(false)}
+													>
+														Voltar
+													</Button>
+												</Stack>
+											</form>
 										</Box>
-									</Button>
-								</Box>
+									) : (
+										<Box sx={{ width: '100%', maxWidth: 360 }}>
+											<Stack spacing={2}>
+												<Button
+													variant="outlined"
+													fullWidth
+													onClick={handleGoogleLogin}
+													disabled={isLoading}
+													sx={{
+														py: { xs: 1.75, sm: 1.5 },
+														px: 3,
+														fontSize: { xs: '1rem', sm: '0.95rem' },
+														fontWeight: 600,
+														textTransform: 'none',
+														borderRadius: 2,
+														borderWidth: 2,
+														borderColor: 'divider',
+														color: 'text.primary',
+														bgcolor: 'background.paper',
+														minHeight: { xs: 56, sm: 52 },
+														transition: 'all 0.25s ease-in-out',
+														boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+														'&:hover': {
+															borderWidth: 2,
+															borderColor: 'primary.main',
+															bgcolor: 'primary.light',
+															transform: 'translateY(-2px)',
+															boxShadow: '0 4px 16px rgba(102, 126, 234, 0.2)',
+														},
+														'&:active': {
+															transform: 'translateY(0)',
+															boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+														},
+														'&.Mui-disabled': {
+															borderColor: 'action.disabledBackground',
+															bgcolor: 'action.disabledBackground',
+															color: 'action.disabled',
+														},
+													}}
+												>
+													<Box
+														sx={{
+															display: 'flex',
+															alignItems: 'center',
+															justifyContent: 'center',
+															gap: 1.5,
+														}}
+													>
+														<span>{isLoading ? 'Conectando...' : 'Continuar com Google'}</span>
+													</Box>
+												</Button>
+
+												<Divider sx={{ my: 1 }}>
+													<Typography variant="caption" color="text.secondary">
+														ou
+													</Typography>
+												</Divider>
+
+												<Button
+													variant="outlined"
+													fullWidth
+													onClick={() => setShowPasswordForm(true)}
+													disabled={isLoading}
+													sx={{
+														py: { xs: 1.75, sm: 1.5 },
+														px: 3,
+														fontSize: { xs: '1rem', sm: '0.95rem' },
+														fontWeight: 600,
+														textTransform: 'none',
+														borderRadius: 2,
+														minHeight: { xs: 56, sm: 52 },
+													}}
+												>
+													Entrar com senha
+												</Button>
+											</Stack>
+										</Box>
+									)}
+								</>
 							)}
 
 							<Box

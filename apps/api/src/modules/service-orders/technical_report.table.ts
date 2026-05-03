@@ -15,6 +15,8 @@ export class TechnicalReportTable extends BaseTable {
 		observacoes: t.text().nullable(),
 		assinadoTecnico: t.boolean().default(false),
 		assinadoCliente: t.boolean().default(false),
+		signatureUrlTecnico: t.string().nullable(),
+		signatureUrlCliente: t.string().nullable(),
 		...t.timestamps(),
 	}));
 }

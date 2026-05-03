@@ -10,6 +10,8 @@ export class UserTable extends BaseTable {
 		name: t.string().nullable(),
 		displayPicture: t.string().nullable(),
 		teamId: t.uuid().nullable(),
+		authType: t.varchar(10).default('google'),
+		passwordHash: t.varchar(255).nullable(),
 		...t.timestamps(),
 	}));
 }

@@ -2,6 +2,7 @@ import { db } from '@backend/db/db';
 import { protectedProcedure, trpcRouter } from '@backend/trpc';
 import { makePdf, type MakePdfOptions } from '@backend/skills/make-pdf';
 import { getCompanyIdentity } from '@backend/lib/company.identity';
+import { uploadToDisk } from '@backend/lib/upload';
 import {
 	materialItemCreateInputZod,
 	materialItemsByServiceOrderZod,
@@ -18,6 +19,7 @@ import {
 	technicalReportUpdateInputZod,
 } from '@repo/zod-schemas/technical_report.zod';
 import { TRPCError } from '@trpc/server';
+import { z } from 'zod';
 
 const SERVICE_ORDERS_MAX_LIMIT = 200;
 const RELATED_MAX_LIMIT = 100;
@@ -149,24 +151,29 @@ export const serviceOrdersRouterTrpc = trpcRouter({
 			const materiais = await db.materialItems.where({ serviceOrderId }).order({ createdAt: 'ASC' }).limit(100);
 			const companyIdentity = await getCompanyIdentity(teamId);
 
+			const primaryAddress = await db.addresses.where({ clienteId: order.clienteId, tipo: 'Técnica' as const }).takeOptional()
+				|| await db.addresses.where({ clienteId: order.clienteId }).takeOptional();
+
+			const rgUrl = equipment?.subdomain ? `https://crm.zappro.site/public/equip/${equipment.subdomain}` : '';
+
 			const pdfData: MakePdfOptions['data'] = {
 				osNumber: order.numero,
-				clientName: cliente.name,
-				clientAddress: cliente.address || '',
-				clientPhone: cliente.phone || '',
-				equipmentName: equipment?.name || '',
-				equipmentModel: equipment?.model || '',
-				equipmentSerial: equipment?.serialNumber || '',
-				equipmentBtu: equipment?.btu || '',
+				clientName: cliente.nome,
+				clientAddress: primaryAddress ? `${primaryAddress.rua}, ${primaryAddress.numero} - ${primaryAddress.bairro}, ${primaryAddress.cidade}/${primaryAddress.estado}` : '',
+				clientPhone: cliente.telefone || '',
+				equipmentName: equipment?.nome || '',
+				equipmentModel: equipment?.modelo || '',
+				equipmentSerial: equipment?.numeroDeSerie || '',
+				equipmentBtu: equipment?.capacidadeBtu ? `${equipment.capacidadeBtu} BTU` : '',
 				technicianName: tecnico?.name || '',
 				serviceDate: new Date(order.dataAbertura).toLocaleDateString('pt-BR'),
 				serviceType: order.tipo,
 				diagnostico: report?.diagnostico || '',
 				servicosExecutados: report?.servicosExecutados || '',
 				photos: [],
-				technicianSignature: '',
-				clientSignature: '',
-				rgUrl: equipment?.rgUrl || '',
+				technicianSignature: report?.signatureUrlTecnico || '',
+				clientSignature: report?.signatureUrlCliente || '',
+				rgUrl,
 				companyName: companyIdentity.name,
 				companyLogo: companyIdentity.logoUrl,
 				companyAddress: companyIdentity.address,
@@ -302,6 +309,48 @@ export const serviceOrdersRouterTrpc = trpcRouter({
 			if (!report)
 				throw new TRPCError({ code: 'NOT_FOUND', message: 'Relatório técnico não encontrado' });
 			return db.technicalReports.where({ serviceOrderId }).update({ assinadoCliente: true });
+		}),
+
+	saveOsSignatures: protectedProcedure
+		.input(
+			z.object({
+				serviceOrderId: z.string().uuid(),
+				technicianSignature: z.string(),
+				clientSignature: z.string(),
+			}),
+		)
+		.mutation(async ({ ctx, input: { serviceOrderId, technicianSignature, clientSignature } }) => {
+			const { teamId } = ctx.user;
+			const order = await db.serviceOrders.findOptional(serviceOrderId);
+			if (!order)
+				throw new TRPCError({ code: 'NOT_FOUND', message: 'Ordem de Serviço não encontrada' });
+			const cliente = await db.clients
+				.where({ clientId: order.clienteId, teamId })
+				.findOptional(order.clienteId);
+			if (!cliente) throw new TRPCError({ code: 'FORBIDDEN', message: 'Acesso negado' });
+
+			const techUrl = await uploadToDisk({
+				base64: technicianSignature.split(',')[1] || technicianSignature,
+				filename: `tech-signature-${serviceOrderId}.png`,
+				teamId,
+				folder: 'signatures',
+				mimeType: 'image/png',
+			});
+
+			const clientUrl = await uploadToDisk({
+				base64: clientSignature.split(',')[1] || clientSignature,
+				filename: `client-signature-${serviceOrderId}.png`,
+				teamId,
+				folder: 'signatures',
+				mimeType: 'image/png',
+			});
+
+			return db.technicalReports.where({ serviceOrderId }).update({
+				signatureUrlTecnico: techUrl,
+				signatureUrlCliente: clientUrl,
+				assinadoTecnico: true,
+				assinadoCliente: true,
+			});
 		}),
 
 	// — Material Items —
