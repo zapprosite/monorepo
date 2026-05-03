@@ -152,11 +152,14 @@ execute_claude() {
     local sys_prompt_content
     sys_prompt_content=$(cat "$system_prompt")
 
+    # Use higher max-turns than pipeline limit (overhead: read ctx + read files + edit + test + commit)
+    local exec_turns=$((max_iter * 3))
+    [ "$exec_turns" -lt 10 ] && exec_turns=10
+
     "$CLAUDE" \
         -p \
         --output-format text \
-        --bare \
-        --max-turns "$max_iter" \
+        --max-turns "$exec_turns" \
         --allowedTools "Edit,Write,Bash,Read,Grep,Glob" \
         --add-dir "$MONOREPO" \
         --system-prompt "$sys_prompt_content" \
