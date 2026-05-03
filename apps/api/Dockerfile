@@ -42,7 +42,10 @@ ENV NODE_ENV=production
 # NOTE: node-linker=hoisted hoists third-party deps to root, but workspace
 # packages (@connected-repo/*) stay in apps/api/node_modules as symlinks
 COPY --from=builder /app/apps/api/dist ./apps/api/dist
+COPY --from=builder /app/apps/api/src ./apps/api/src
 COPY --from=builder /app/apps/api/package.json ./apps/api/
+COPY --from=builder /app/apps/api/tsconfig.json ./apps/api/
+COPY --from=builder /app/apps/api/tsconfig.prod.json ./apps/api/
 COPY --from=builder /app/apps/api/node_modules ./apps/api/node_modules
 COPY --from=builder /app/packages/zod-schemas/dist ./packages/zod-schemas/dist
 COPY --from=builder /app/packages/zod-schemas/package.json ./packages/zod-schemas/
@@ -53,4 +56,4 @@ WORKDIR /app/apps/api
 
 EXPOSE 4001
 
-CMD ["/app/node_modules/.bin/tsx", "dist/server.js"]
+CMD ["node", "dist/server.js"]

@@ -12,11 +12,11 @@ const envSchema = z.object({
 	DB_USER: zString.optional(),
 	DB_PASSWORD: zString.optional(),
 	DB_NAME: zString.optional(),
-	GOOGLE_CLIENT_ID: zString.min(1).includes('.apps.googleusercontent.com'),
-	GOOGLE_CLIENT_SECRET: zString.min(1),
+	GOOGLE_CLIENT_ID: zString.includes('.apps.googleusercontent.com').optional(),
+	GOOGLE_CLIENT_SECRET: zString.optional(),
 	SESSION_SECRET: zString.min(32, 'Session secret must be at least 32 characters'),
-	WEBAPP_URL: z.url(),
-	VITE_API_URL: z.url(),
+	WEBAPP_URL: z.url().optional(),
+	VITE_API_URL: z.url().optional(),
 	INTERNAL_API_SECRET: zString
 		.min(32, 'Internal API secret must be at least 32 characters')
 		.optional(),
