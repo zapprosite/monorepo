@@ -9,8 +9,13 @@
 TELEGRAM_BOT_TOKEN="${TELEGRAM_BOT_TOKEN:-}"
 TEST_CHAT_ID="${TEST_CHAT_ID:-7220607041}"
 OPENCLAW_FQDN="${OPENCLAW_FQDN:-openclaw-qgtzrmi6771lt8l7x8rqx72f.191.17.50.123.sslip.io}"
-TTS_BRIDGE_URL="${TTS_BRIDGE_URL:-http://localhost:8013}"
+TTS_BRIDGE_URL="${TTS_BRIDGE_URL:-http://localhost:8012}"
 WAV2VEC2_URL="${WAV2VEC2_URL:-http://localhost:8203}"
+
+# Load env (takes precedence over hardcoded defaults)
+if [ -f "/srv/monorepo/.env" ]; then
+    set -a; source "/srv/monorepo/.env" 2>/dev/null; set +a
+fi
 
 # =============================================================================
 # Infisical — fetch secrets
@@ -115,7 +120,7 @@ TTS_FILE="/tmp/e2e_tts.mp3"
 TTS_OK=false
 if curl -sf -m 30 -X POST "${TTS_BRIDGE_URL}/v1/audio/speech" \
     -H "Content-Type: application/json" \
-    -d '{"model":"kokoro","input":"Pipeline do Santos FC operando normalmente. Tudo OK!","voice":"pm_santa"}' \
+    -d '{"model":"tts-1","input":"Pipeline do Santos FC operando normalmente. Tudo OK!","voice":"pt-BR-AntonioNeural"}' \
     -o "$TTS_FILE" -w "%{http_code}" | grep -q "200" && [ -s "$TTS_FILE" ]; then
     TTS_OK=true
 fi

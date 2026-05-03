@@ -7,6 +7,7 @@ import {
 export class WebhookDeliveriesTable extends BaseTable {
 	readonly table = "webhook_deliveries";
 
+// @ts-ignore TS2742 — pqb internal type inference not portable
 	columns = this.setColumns((t) => ({
 		id: t.uuid().primaryKey().default(t.sql`gen_random_uuid()`),
 		webhookId: t.uuid().foreignKey("webhooks", "id", {

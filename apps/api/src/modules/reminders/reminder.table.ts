@@ -7,6 +7,7 @@ import {
 export class ReminderTable extends BaseTable {
 	readonly table = "reminders";
 
+// @ts-ignore TS2742 — pqb internal type inference not portable
 	columns = this.setColumns((t) => ({
 		reminderId: t.uuid().primaryKey().default(t.sql`gen_random_uuid()`),
 		clienteId: t.uuid().foreignKey("clients", "clientId", {

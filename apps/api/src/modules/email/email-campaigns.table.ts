@@ -7,6 +7,7 @@ import {
 export class EmailCampaignsTable extends BaseTable {
 	readonly table = "email_campaigns";
 
+// @ts-ignore TS2742 — pqb internal type inference not portable
 	columns = this.setColumns((t) => ({
 		id: t.uuid().primaryKey().default(t.sql`gen_random_uuid()`),
 		nome: t.text(),

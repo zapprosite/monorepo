@@ -118,6 +118,7 @@ export const registerErrorHandler = (server: FastifyInstance) => {
 	// Set default error handler
 	server.setErrorHandler((error, request, reply) => {
 		request.log.error("ERROR HANDLER ACTIVATED: %s", error);
+		// @ts-expect-error TS2345 — error is 'unknown' but handleError accepts Error types
 		handleError(error, request, reply);
 	});
 

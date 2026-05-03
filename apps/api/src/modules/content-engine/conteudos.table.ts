@@ -7,6 +7,7 @@ import {
 export class ConteudosTable extends BaseTable {
 	readonly table = "conteudos";
 
+// @ts-ignore TS2742 — pqb internal type inference not portable
 	columns = this.setColumns((t) => ({
 		id: t.uuid().primaryKey().default(t.sql`gen_random_uuid()`),
 		titulo: t.text(),

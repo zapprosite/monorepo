@@ -22,6 +22,7 @@ async function verifyConectorTeamAccess(conectorId: string, teamId: string) {
 	return conector;
 }
 
+// @ts-ignore TS2742 — pqb internal type inference not portable
 export const mcpConectorRouter = trpcRouter({
 	create: protectedProcedure
 		.input(mcpConectorCreateInputZod)

@@ -3,6 +3,7 @@ import { db } from "@backend/db/db";
 import { protectedProcedure, trpcRouter } from "@backend/trpc";
 import { z } from "zod";
 
+// @ts-ignore TS2742 — pqb internal type inference not portable
 export const maintenanceRouter = trpcRouter({
 	createPlan: protectedProcedure
 		.input(

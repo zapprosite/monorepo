@@ -4,6 +4,7 @@ import { UserTable } from "@backend/modules/users/users/users.table";
 export class SessionTable extends BaseTable {
 	readonly table = "session";
 
+// @ts-ignore TS2742 — pqb internal type inference not portable
 	columns = this.setColumns(
 		(t) => ({
 			sessionId: t.string().primaryKey(),

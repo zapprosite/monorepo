@@ -4,6 +4,7 @@ import { UserTable } from "@backend/modules/users/users/users.table";
 export class ApiProductRequestLogsTable extends BaseTable {
 	readonly table = "api_product_request_logs";
 
+// @ts-ignore TS2742 — pqb internal type inference not portable
 	columns = this.setColumns(
 		(t) => ({
 			apiProductRequestId: t.ulid().primaryKey(),

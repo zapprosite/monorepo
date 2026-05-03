@@ -7,6 +7,7 @@ import {
 export class McpConectoresTable extends BaseTable {
 	readonly table = "mcp_conectores";
 
+// @ts-ignore TS2742 — pqb internal type inference not portable
 	columns = this.setColumns((t) => ({
 		id: t.uuid().primaryKey().default(t.sql`gen_random_uuid()`),
 		provider: t.enum("mcp_provider", MCP_PROVIDER_ENUM),

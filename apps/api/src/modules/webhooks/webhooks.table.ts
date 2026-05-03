@@ -4,6 +4,7 @@ import { WEBHOOK_EVENTO_TIPO_ENUM } from "@connected-repo/zod-schemas/crm_enums.
 export class WebhooksTable extends BaseTable {
 	readonly table = "webhooks";
 
+// @ts-ignore TS2742 — pqb internal type inference not portable
 	columns = this.setColumns((t) => ({
 		id: t.uuid().primaryKey().default(t.sql`gen_random_uuid()`),
 		url: t.text(),

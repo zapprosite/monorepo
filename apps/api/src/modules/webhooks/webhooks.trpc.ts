@@ -7,6 +7,7 @@ import { db } from "@backend/db/db";
 import { TRPCError } from "@trpc/server";
 import z from "zod";
 
+// @ts-ignore TS2742 — pqb internal type inference not portable
 export const webhookRouter = trpcRouter({
 	// Webhooks
 	create: protectedProcedure

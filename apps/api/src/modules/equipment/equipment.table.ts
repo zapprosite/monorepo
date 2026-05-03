@@ -4,6 +4,7 @@ import { EQUIPMENT_STATUS_ENUM } from "@connected-repo/zod-schemas/crm_enums.zod
 export class EquipmentTable extends BaseTable {
 	readonly table = "equipment";
 
+// @ts-ignore TS2742 — pqb internal type inference not portable
 	columns = this.setColumns((t) => ({
 		equipmentId: t.uuid().primaryKey().default(t.sql`gen_random_uuid()`),
 		clienteId: t.uuid().foreignKey("clients", "clientId", {

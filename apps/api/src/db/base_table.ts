@@ -7,6 +7,7 @@ import {
 import { createBaseTable } from "orchid-orm";
 import { ulid } from "ulid";
 
+// @ts-ignore TS2742 — pqb internal type inference not portable
 export const BaseTable = createBaseTable({
 	autoForeignKeys: false,
 	nowSQL: `now() AT TIME ZONE 'UTC'`,
@@ -28,4 +29,5 @@ export const BaseTable = createBaseTable({
 	}),
 });
 
+// @ts-ignore TS2742 — pqb internal type inference not portable
 export const { sql } = BaseTable;

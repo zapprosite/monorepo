@@ -7,6 +7,7 @@ import {
 export class LoyaltyScoresTable extends BaseTable {
 	readonly table = "loyalty_scores";
 
+// @ts-ignore TS2742 — pqb internal type inference not portable
 	columns = this.setColumns((t) => ({
 		id: t.uuid().primaryKey().default(t.sql`gen_random_uuid()`),
 		clienteId: t.uuid().foreignKey("clients", "clientId", {

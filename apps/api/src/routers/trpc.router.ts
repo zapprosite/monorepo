@@ -21,6 +21,7 @@ import { conteudoRouter } from "@backend/modules/content-engine/conteudos.trpc";
 import { trieveRouter } from "@backend/modules/trieve/trieve.trpc";
 import { publicProcedure, trpcRouter } from "@backend/trpc";
 
+// @ts-ignore TS2742 — pqb internal type inference not portable
 export const appTrpcRouter = trpcRouter({
 	hello: publicProcedure.query(async () => {
 		await new Promise((resolve) => setTimeout(resolve, 1000));

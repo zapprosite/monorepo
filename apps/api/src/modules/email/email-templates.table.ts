@@ -4,6 +4,7 @@ import { CATEG_TEMPLATE_ENUM } from "@connected-repo/zod-schemas/crm_enums.zod";
 export class EmailTemplatesTable extends BaseTable {
 	readonly table = "email_templates";
 
+// @ts-ignore TS2742 — pqb internal type inference not portable
 	columns = this.setColumns((t) => ({
 		id: t.uuid().primaryKey().default(t.sql`gen_random_uuid()`),
 		nome: t.text(),

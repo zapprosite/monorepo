@@ -4,6 +4,7 @@ import { SCHEDULE_STATUS_ENUM, SERVICE_TYPE_ENUM } from "@connected-repo/zod-sch
 export class ScheduleTable extends BaseTable {
 	readonly table = "schedules";
 
+// @ts-ignore TS2742 — pqb internal type inference not portable
 	columns = this.setColumns((t) => ({
 		scheduleId: t.uuid().primaryKey().default(t.sql`gen_random_uuid()`),
 		clienteId: t.uuid().foreignKey("clients", "clientId", {

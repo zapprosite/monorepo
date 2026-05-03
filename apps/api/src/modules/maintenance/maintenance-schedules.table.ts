@@ -4,6 +4,7 @@ import { STATUS_MANUTENCAO_ENUM } from "@connected-repo/zod-schemas/crm_enums.zo
 export class MaintenanceSchedulesTable extends BaseTable {
 	readonly table = "maintenance_schedules";
 
+// @ts-ignore TS2742 — pqb internal type inference not portable
 	columns = this.setColumns((t) => ({
 		id: t.uuid().primaryKey().default(t.sql`gen_random_uuid()`),
 		planoManutencaoId: t.uuid().foreignKey("maintenance_plans", "id", {

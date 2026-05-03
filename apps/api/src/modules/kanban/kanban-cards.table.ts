@@ -7,6 +7,7 @@ import {
 export class KanbanCardsTable extends BaseTable {
 	readonly table = "kanban_cards";
 
+// @ts-ignore TS2742 — pqb internal type inference not portable
 	columns = this.setColumns((t) => ({
 		cardId: t.uuid().primaryKey().default(t.sql`gen_random_uuid()`),
 		columnId: t.uuid().foreignKey("kanban_columns", "columnId", {

@@ -7,6 +7,7 @@ import {
 export class ServiceOrderTable extends BaseTable {
 	readonly table = "service_orders";
 
+// @ts-ignore TS2742 — pqb internal type inference not portable
 	columns = this.setColumns((t) => ({
 		serviceOrderId: t.uuid().primaryKey().default(t.sql`gen_random_uuid()`),
 		numero: t

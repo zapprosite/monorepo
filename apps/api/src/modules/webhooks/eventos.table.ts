@@ -4,6 +4,7 @@ import { EVENTO_TIPO_ENUM } from "@connected-repo/zod-schemas/crm_enums.zod";
 export class EventosTable extends BaseTable {
 	readonly table = "eventos";
 
+// @ts-ignore TS2742 — pqb internal type inference not portable
 	columns = this.setColumns((t) => ({
 		id: t.uuid().primaryKey().default(t.sql`gen_random_uuid()`),
 		tipo: t.enum("evento_tipo", EVENTO_TIPO_ENUM),

@@ -8,6 +8,7 @@ import {
 export class EditorialTable extends BaseTable {
 	readonly table = "editorial_calendar_items";
 
+// @ts-ignore TS2742 — pqb internal type inference not portable
 	columns = this.setColumns((t) => ({
 		editorialId: t.uuid().primaryKey().default(t.sql`gen_random_uuid()`),
 		teamId: t.uuid(),

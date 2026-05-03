@@ -19,6 +19,11 @@ TEST_CHAT_ID="${TEST_CHAT_ID:-7220607041}"
 MAX_RESTART_ATTEMPTS=3
 MAX_ALERT_ATTEMPTS=3
 
+# Load env (takes precedence over hardcoded defaults)
+if [ -f "/srv/monorepo/.env" ]; then
+    set -a; source "/srv/monorepo/.env" 2>/dev/null; set +a
+fi
+
 # =============================================================================
 # Infisical — fetch secrets
 # =============================================================================
