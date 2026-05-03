@@ -45,6 +45,7 @@ export class ServiceOrderTable extends BaseTable {
 		status: t.enum('crm_service_order_status_enum', SERVICE_ORDER_STATUS_ENUM),
 		dataAbertura: t.timestamp(),
 		dataFechamento: t.timestamp().nullable(),
+		pdfUrl: t.text().nullable(),
 		descricao: t.text().nullable(),
 		observacoes: t.text().nullable(),
 		...t.timestamps(),

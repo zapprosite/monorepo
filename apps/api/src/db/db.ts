@@ -1,6 +1,7 @@
 import { dbConfig } from '@backend/db/config';
 import { SessionTable } from '@backend/modules/auth/tables/session.auth.table';
 import { AddressesTable } from '@backend/modules/clients/addresses.table';
+import { CompanyTable } from '@backend/modules/company/company.table';
 import { ClientsTable } from '@backend/modules/clients/clients.table';
 import { ContactsTable } from '@backend/modules/clients/contacts.table';
 import { UnitsTable } from '@backend/modules/clients/units.table';
@@ -20,6 +21,7 @@ import { ApiProductRequestLogsTable } from '@backend/modules/logs/tables/api_pro
 import { LoyaltyScoresTable } from '@backend/modules/loyalty/loyalty-scores.table';
 import { MaintenancePlansTable } from '@backend/modules/maintenance/maintenance-plans.table';
 import { MaintenanceSchedulesTable } from '@backend/modules/maintenance/maintenance-schedules.table';
+import { MaintenanceChecklistTable } from '@backend/modules/maintenance/maintenance-checklist.table';
 import { McpConectoresTable } from '@backend/modules/mcp-connectors/mcp-conectores.table';
 import { PromptsTable } from '@backend/modules/prompts/tables/prompts.table';
 import { ReminderTable } from '@backend/modules/reminders/reminder.table';
@@ -55,6 +57,7 @@ export const db = orchidORM(
 		apiProductRequestLogs: ApiProductRequestLogsTable,
 		webhookCallQueues: WebhookCallQueueTable,
 		leads: LeadsTable,
+		company: CompanyTable,
 		clients: ClientsTable,
 		contacts: ContactsTable,
 		addresses: AddressesTable,
@@ -73,6 +76,7 @@ export const db = orchidORM(
 		kanbanCards: KanbanCardsTable,
 		maintenancePlans: MaintenancePlansTable,
 		maintenanceSchedules: MaintenanceSchedulesTable,
+		maintenanceChecklist: MaintenanceChecklistTable,
 		loyaltyScores: LoyaltyScoresTable,
 		emailTemplates: EmailTemplatesTable,
 		emailCampaigns: EmailCampaignsTable,

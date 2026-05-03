@@ -2,6 +2,8 @@ import { internalRouter } from '@backend/modules/api-gateway/internal.router';
 import { oauth2Router } from '@backend/routers/oauth2.router';
 import { openapiPlugin } from '@backend/routers/openapi.plugin';
 import { appTrpcRouter } from '@backend/routers/trpc.router';
+import { publicRouter } from '@backend/routes/public.routes';
+import { uploadRouter } from '@backend/routes/upload.routes';
 import { createTRPCContext, type TrpcContext } from '@backend/trpc';
 import { fastifyTRPCPlugin } from '@trpc/server/adapters/fastify';
 import type { FastifyInstance } from 'fastify';
@@ -97,4 +99,10 @@ export const appRouter = (app: FastifyInstance) => {
 	});
 
 	app.register(openapiPlugin);
+
+	app.register(publicRouter);
+
+	app.register(uploadRouter, {
+		prefix: '/upload',
+	});
 };

@@ -10,6 +10,7 @@ import { kanbanRouterTrpc } from '@backend/modules/kanban/kanban.trpc';
 import { leadsRouterTrpc } from '@backend/modules/leads/leads.trpc';
 import { loyaltyRouter } from '@backend/modules/loyalty/loyalty.trpc';
 import { maintenanceRouter } from '@backend/modules/maintenance/maintenance.trpc';
+import { maintenanceChecklistRouter } from '@backend/modules/maintenance/maintenance-checklist.trpc';
 import { mcpConectorRouter } from '@backend/modules/mcp-connectors/mcp-conectores.trpc';
 import { promptsRouterTrpc } from '@backend/modules/prompts/prompts.trpc';
 import { remindersRouterTrpc } from '@backend/modules/reminders/reminders.trpc';
@@ -17,6 +18,7 @@ import { scheduleRouterTrpc } from '@backend/modules/schedule/schedule.trpc';
 import { subscriptionsRouterTrpc } from '@backend/modules/subscriptions/subscriptions.trpc';
 import { serviceOrdersRouterTrpc } from '@backend/modules/service-orders/service_orders.trpc';
 import { trieveRouter } from '@backend/modules/trieve/trieve.trpc';
+import { uploadRouter } from '@backend/modules/upload/upload.trpc';
 import { userRolesRouterTrpc } from '@backend/modules/users/user-roles.trpc';
 import { usersRouterTrpc } from '@backend/modules/users/users.trpc';
 import { webhookRouter } from '@backend/modules/webhooks/webhooks.trpc';
@@ -45,11 +47,13 @@ export const appTrpcRouter = trpcRouter({
 	userRoles: userRolesRouterTrpc,
 	kanban: kanbanRouterTrpc,
 	maintenance: maintenanceRouter,
+	maintenanceChecklist: maintenanceChecklistRouter,
 	loyalty: loyaltyRouter,
 	webhooks: webhookRouter,
 	mcpConectores: mcpConectorRouter,
 	conteudos: conteudoRouter,
 	trieve: trieveRouter,
+	upload: uploadRouter,
 });
 
 export type AppTrpcRouter = typeof appTrpcRouter;

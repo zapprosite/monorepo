@@ -133,7 +133,8 @@ export const equipmentRouterTrpc = trpcRouter({
 				.where({ clientId: input.clienteId, teamId })
 				.findOptional(input.clienteId);
 			if (!cliente) throw new TRPCError({ code: 'FORBIDDEN', message: 'Acesso negado' });
-			return db.equipment.create(input);
+			const subdomain = Math.random().toString(36).substring(2, 10);
+			return db.equipment.create({ ...input, subdomain });
 		}),
 
 	updateEquipment: protectedProcedure

@@ -31,6 +31,7 @@ export class EquipmentTable extends BaseTable {
 		observacoes: t.text().nullable(),
 		ativo: t.boolean().default(true),
 		sequenceNumber: t.integer().nullable(), // RG subdomain: 001, 002, ...
+		subdomain: t.string(16).nullable().unique(), // Hash aleatório para RG público
 		...t.timestamps(),
 	}));
 }

@@ -1,5 +1,7 @@
 import { db } from '@backend/db/db';
 import { protectedProcedure, trpcRouter } from '@backend/trpc';
+import { makePdf, type MakePdfOptions } from '@backend/skills/make-pdf';
+import { getCompanyIdentity } from '@backend/lib/company.identity';
 import {
 	materialItemCreateInputZod,
 	materialItemsByServiceOrderZod,
@@ -139,9 +141,45 @@ export const serviceOrdersRouterTrpc = trpcRouter({
 					message: 'Data de fechamento não pode ser anterior à data de abertura',
 				});
 			}
+
+			// Generate PDF after order completion
+			const tecnico = order.tecnicoId ? await db.users.findOptional(order.tecnicoId) : null;
+			const equipment = order.equipmentId ? await db.equipment.findOptional(order.equipmentId) : null;
+			const report = await db.technicalReports.where({ serviceOrderId }).takeOptional();
+			const materiais = await db.materialItems.where({ serviceOrderId }).order({ createdAt: 'ASC' }).limit(100);
+			const companyIdentity = await getCompanyIdentity(teamId);
+
+			const pdfData: MakePdfOptions['data'] = {
+				osNumber: order.numero,
+				clientName: cliente.name,
+				clientAddress: cliente.address || '',
+				clientPhone: cliente.phone || '',
+				equipmentName: equipment?.name || '',
+				equipmentModel: equipment?.model || '',
+				equipmentSerial: equipment?.serialNumber || '',
+				equipmentBtu: equipment?.btu || '',
+				technicianName: tecnico?.name || '',
+				serviceDate: new Date(order.dataAbertura).toLocaleDateString('pt-BR'),
+				serviceType: order.tipo,
+				diagnostico: report?.diagnostico || '',
+				servicosExecutados: report?.servicosExecutados || '',
+				photos: [],
+				technicianSignature: '',
+				clientSignature: '',
+				rgUrl: equipment?.rgUrl || '',
+				companyName: companyIdentity.name,
+				companyLogo: companyIdentity.logoUrl,
+				companyAddress: companyIdentity.address,
+				companyPhone: companyIdentity.phone,
+				primaryColor: companyIdentity.primaryColor,
+			};
+
+			const pdfUrl = await makePdf({ data: pdfData });
+
 			return db.serviceOrders.where({ serviceOrderId }).update({
 				status: 'Concluída',
 				dataFechamento,
+				pdfUrl,
 			});
 		}),
 
