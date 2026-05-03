@@ -1,40 +1,40 @@
-import { ErrorAlert } from "@repo/ui-mui/components/ErrorAlert";
-import { LoadingSpinner } from "@repo/ui-mui/components/LoadingSpinner";
-import { Typography } from "@repo/ui-mui/data-display/Typography";
-import { Dialog } from "@repo/ui-mui/feedback/Dialog";
-import { DialogActions } from "@repo/ui-mui/feedback/DialogActions";
-import { DialogContent } from "@repo/ui-mui/feedback/DialogContent";
-import { DialogTitle } from "@repo/ui-mui/feedback/DialogTitle";
-import { Button } from "@repo/ui-mui/form/Button";
-import { TextField } from "@repo/ui-mui/form/TextField";
-import { Box } from "@repo/ui-mui/layout/Box";
-import { Container } from "@repo/ui-mui/layout/Container";
-import { Paper } from "@repo/ui-mui/layout/Paper";
-import type { MaterialItemCreateInput } from "@repo/zod-schemas/material_item.zod";
-import { materialItemCreateInputZod } from "@repo/zod-schemas/material_item.zod";
-import type { TechnicalReportCreateInput } from "@repo/zod-schemas/technical_report.zod";
-import { technicalReportCreateInputZod } from "@repo/zod-schemas/technical_report.zod";
-import { trpc } from "@frontend/utils/trpc.client";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
-import { Controller, useForm } from "react-hook-form";
-import { useNavigate, useParams } from "react-router";
-import { ServiceOrderStatusBadge } from "../components/ServiceOrderStatusBadge";
+import { trpc } from '@frontend/utils/trpc.client';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { ErrorAlert } from '@repo/ui-mui/components/ErrorAlert';
+import { LoadingSpinner } from '@repo/ui-mui/components/LoadingSpinner';
+import { Typography } from '@repo/ui-mui/data-display/Typography';
+import { Dialog } from '@repo/ui-mui/feedback/Dialog';
+import { DialogActions } from '@repo/ui-mui/feedback/DialogActions';
+import { DialogContent } from '@repo/ui-mui/feedback/DialogContent';
+import { DialogTitle } from '@repo/ui-mui/feedback/DialogTitle';
+import { Button } from '@repo/ui-mui/form/Button';
+import { TextField } from '@repo/ui-mui/form/TextField';
+import { Box } from '@repo/ui-mui/layout/Box';
+import { Container } from '@repo/ui-mui/layout/Container';
+import { Paper } from '@repo/ui-mui/layout/Paper';
+import type { MaterialItemCreateInput } from '@repo/zod-schemas/material_item.zod';
+import { materialItemCreateInputZod } from '@repo/zod-schemas/material_item.zod';
+import type { TechnicalReportCreateInput } from '@repo/zod-schemas/technical_report.zod';
+import { technicalReportCreateInputZod } from '@repo/zod-schemas/technical_report.zod';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
+import { useNavigate, useParams } from 'react-router';
+import { ServiceOrderStatusBadge } from '../components/ServiceOrderStatusBadge';
 
 function formatDateTime(timestamp: number | string): string {
-	const date = typeof timestamp === "number" ? new Date(timestamp) : new Date(timestamp);
-	return date.toLocaleString("pt-BR", {
-		day: "2-digit",
-		month: "2-digit",
-		year: "numeric",
-		hour: "2-digit",
-		minute: "2-digit",
+	const date = typeof timestamp === 'number' ? new Date(timestamp) : new Date(timestamp);
+	return date.toLocaleString('pt-BR', {
+		day: '2-digit',
+		month: '2-digit',
+		year: 'numeric',
+		hour: '2-digit',
+		minute: '2-digit',
 	});
 }
 
 function formatCurrency(value: number): string {
-	return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+	return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 }
 
 export default function ServiceOrderDetailPage() {
@@ -55,9 +55,7 @@ export default function ServiceOrderDetailPage() {
 		data: serviceOrder,
 		isLoading,
 		error,
-	} = useQuery(
-		trpc.serviceOrders.getServiceOrderDetail.queryOptions({ serviceOrderId }),
-	);
+	} = useQuery(trpc.serviceOrders.getServiceOrderDetail.queryOptions({ serviceOrderId }));
 
 	const { data: report, isLoading: reportLoading } = useQuery(
 		trpc.serviceOrders.getReportByServiceOrder.queryOptions({ serviceOrderId: serviceOrderId }),
@@ -133,8 +131,8 @@ export default function ServiceOrderDetailPage() {
 		resolver: zodResolver(technicalReportCreateInputZod),
 		defaultValues: {
 			serviceOrderId: serviceOrderId,
-			diagnostico: "",
-			servicosExecutados: "",
+			diagnostico: '',
+			servicosExecutados: '',
 			observacoes: null,
 		},
 	});
@@ -144,9 +142,9 @@ export default function ServiceOrderDetailPage() {
 		resolver: zodResolver(materialItemCreateInputZod),
 		defaultValues: {
 			serviceOrderId: serviceOrderId,
-			descricao: "",
+			descricao: '',
 			quantidade: 1,
-			unidade: "un",
+			unidade: 'un',
 			valorUnitario: null,
 		},
 	});
@@ -156,7 +154,7 @@ export default function ServiceOrderDetailPage() {
 	if (error || !serviceOrder) {
 		return (
 			<Container maxWidth="lg" sx={{ py: 4 }}>
-				<ErrorAlert message={`Erro ao carregar OS: ${error?.message ?? "Não encontrada"}`} />
+				<ErrorAlert message={`Erro ao carregar OS: ${error?.message ?? 'Não encontrada'}`} />
 			</Container>
 		);
 	}
@@ -166,7 +164,7 @@ export default function ServiceOrderDetailPage() {
 		numero: string;
 		clienteId: string;
 		tipo: string;
-		status: "Aberta" | "Em Andamento" | "Aguardando Peças" | "Concluída" | "Cancelada";
+		status: 'Aberta' | 'Em Andamento' | 'Aguardando Peças' | 'Concluída' | 'Cancelada';
 		dataAbertura: string;
 		dataFechamento?: string | null;
 		descricao?: string | null;
@@ -178,9 +176,9 @@ export default function ServiceOrderDetailPage() {
 
 	const totalMateriais = (materials ?? []).reduce((acc, m) => {
 		const item = m as { quantidade: string | number; valorUnitario?: string | number | null };
-		const qty = typeof item.quantidade === "string" ? parseFloat(item.quantidade) : item.quantidade;
+		const qty = typeof item.quantidade === 'string' ? parseFloat(item.quantidade) : item.quantidade;
 		const valor = item.valorUnitario
-			? typeof item.valorUnitario === "string"
+			? typeof item.valorUnitario === 'string'
 				? parseFloat(item.valorUnitario)
 				: item.valorUnitario
 			: null;
@@ -197,12 +195,12 @@ export default function ServiceOrderDetailPage() {
 				<Button
 					variant="text"
 					size="small"
-					onClick={() => navigate("/service-orders")}
-					sx={{ mb: 1, color: "text.secondary" }}
+					onClick={() => navigate('/service-orders')}
+					sx={{ mb: 1, color: 'text.secondary' }}
 				>
 					← Voltar para Ordens de Serviço
 				</Button>
-				<Box sx={{ display: "flex", alignItems: "center", gap: 2, flexWrap: "wrap" }}>
+				<Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
 					<Typography variant="h4" fontWeight={700}>
 						{so.numero}
 					</Typography>
@@ -213,40 +211,40 @@ export default function ServiceOrderDetailPage() {
 				</Box>
 				<Typography variant="body2" color="text.secondary" mt={0.5}>
 					Aberta em {formatDateTime(so.dataAbertura)}
-					{so.dataFechamento ? ` · Fechada em ${formatDateTime(so.dataFechamento)}` : ""}
+					{so.dataFechamento ? ` · Fechada em ${formatDateTime(so.dataFechamento)}` : ''}
 				</Typography>
 			</Box>
 
 			{/* Action buttons */}
-			<Box sx={{ display: "flex", gap: 2, mb: 4, flexWrap: "wrap" }}>
-				{so.status === "Aberta" && (
+			<Box sx={{ display: 'flex', gap: 2, mb: 4, flexWrap: 'wrap' }}>
+				{so.status === 'Aberta' && (
 					<Button
 						variant="contained"
 						color="warning"
 						disabled={isBusy}
 						onClick={() => iniciar.mutate({ serviceOrderId: so.serviceOrderId })}
 					>
-						{iniciar.isPending ? "Iniciando..." : "Iniciar Atendimento"}
+						{iniciar.isPending ? 'Iniciando...' : 'Iniciar Atendimento'}
 					</Button>
 				)}
-				{so.status === "Em Andamento" && (
+				{so.status === 'Em Andamento' && (
 					<Button
 						variant="contained"
 						color="success"
 						disabled={isBusy}
 						onClick={() => concluir.mutate({ serviceOrderId: so.serviceOrderId })}
 					>
-						{concluir.isPending ? "Concluindo..." : "Concluir OS"}
+						{concluir.isPending ? 'Concluindo...' : 'Concluir OS'}
 					</Button>
 				)}
-				{so.status !== "Cancelada" && so.status !== "Concluída" && (
+				{so.status !== 'Cancelada' && so.status !== 'Concluída' && (
 					<Button
 						variant="outlined"
 						color="error"
 						disabled={isBusy}
 						onClick={() => cancelar.mutate({ serviceOrderId: so.serviceOrderId })}
 					>
-						{cancelar.isPending ? "Cancelando..." : "Cancelar OS"}
+						{cancelar.isPending ? 'Cancelando...' : 'Cancelar OS'}
 					</Button>
 				)}
 			</Box>
@@ -254,15 +252,15 @@ export default function ServiceOrderDetailPage() {
 			{/* Info section */}
 			<Paper
 				elevation={0}
-				sx={{ border: "1px solid", borderColor: "divider", borderRadius: 2, p: 3, mb: 3 }}
+				sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2, p: 3, mb: 3 }}
 			>
 				<Typography variant="h6" fontWeight={600} mb={2}>
 					Informações
 				</Typography>
 				<Box
 					sx={{
-						display: "grid",
-						gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
+						display: 'grid',
+						gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' },
 						gap: 2,
 					}}
 				>
@@ -287,7 +285,7 @@ export default function ServiceOrderDetailPage() {
 						</Box>
 					)}
 					{so.descricao && (
-						<Box sx={{ gridColumn: { sm: "span 2" } }}>
+						<Box sx={{ gridColumn: { sm: 'span 2' } }}>
 							<Typography variant="caption" color="text.secondary">
 								Descrição
 							</Typography>
@@ -295,7 +293,7 @@ export default function ServiceOrderDetailPage() {
 						</Box>
 					)}
 					{so.observacoes && (
-						<Box sx={{ gridColumn: { sm: "span 2" } }}>
+						<Box sx={{ gridColumn: { sm: 'span 2' } }}>
 							<Typography variant="caption" color="text.secondary">
 								Observações
 							</Typography>
@@ -308,7 +306,7 @@ export default function ServiceOrderDetailPage() {
 			{/* Technical Report section */}
 			<Paper
 				elevation={0}
-				sx={{ border: "1px solid", borderColor: "divider", borderRadius: 2, p: 3, mb: 3 }}
+				sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2, p: 3, mb: 3 }}
 			>
 				<Typography variant="h6" fontWeight={600} mb={2}>
 					Relatório Técnico
@@ -328,7 +326,7 @@ export default function ServiceOrderDetailPage() {
 							assinadoCliente: boolean;
 						};
 						return (
-							<Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+							<Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
 								<Box>
 									<Typography variant="caption" color="text.secondary">
 										Diagnóstico
@@ -349,24 +347,24 @@ export default function ServiceOrderDetailPage() {
 										<Typography variant="body2">{r.observacoes}</Typography>
 									</Box>
 								)}
-								<Box sx={{ display: "flex", gap: 2, mt: 1, flexWrap: "wrap" }}>
+								<Box sx={{ display: 'flex', gap: 2, mt: 1, flexWrap: 'wrap' }}>
 									<Button
-										variant={r.assinadoTecnico ? "outlined" : "contained"}
-										color={r.assinadoTecnico ? "success" : "primary"}
+										variant={r.assinadoTecnico ? 'outlined' : 'contained'}
+										color={r.assinadoTecnico ? 'success' : 'primary'}
 										disabled={r.assinadoTecnico || assinarTecnico.isPending}
 										onClick={() => assinarTecnico.mutate({ serviceOrderId: so.serviceOrderId })}
 										size="small"
 									>
-										{r.assinadoTecnico ? "Técnico Assinou" : "Assinar (Técnico)"}
+										{r.assinadoTecnico ? 'Técnico Assinou' : 'Assinar (Técnico)'}
 									</Button>
 									<Button
-										variant={r.assinadoCliente ? "outlined" : "contained"}
-										color={r.assinadoCliente ? "success" : "secondary"}
+										variant={r.assinadoCliente ? 'outlined' : 'contained'}
+										color={r.assinadoCliente ? 'success' : 'secondary'}
 										disabled={r.assinadoCliente || assinarCliente.isPending}
 										onClick={() => assinarCliente.mutate({ serviceOrderId: so.serviceOrderId })}
 										size="small"
 									>
-										{r.assinadoCliente ? "Cliente Assinou" : "Assinar (Cliente)"}
+										{r.assinadoCliente ? 'Cliente Assinou' : 'Assinar (Cliente)'}
 									</Button>
 								</Box>
 							</Box>
@@ -377,7 +375,7 @@ export default function ServiceOrderDetailPage() {
 					<Box
 						component="form"
 						onSubmit={reportForm.handleSubmit((data) => createReport.mutate(data))}
-						sx={{ display: "flex", flexDirection: "column", gap: 3 }}
+						sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}
 					>
 						<Typography variant="body2" color="text.secondary">
 							Nenhum relatório registrado. Preencha abaixo para criar.
@@ -418,7 +416,7 @@ export default function ServiceOrderDetailPage() {
 							render={({ field }) => (
 								<TextField
 									{...field}
-									value={field.value ?? ""}
+									value={field.value ?? ''}
 									label="Observações"
 									multiline
 									rows={2}
@@ -428,14 +426,14 @@ export default function ServiceOrderDetailPage() {
 								/>
 							)}
 						/>
-						<Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+						<Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
 							<Button
 								type="submit"
 								variant="contained"
 								disabled={createReport.isPending}
 								sx={{ minWidth: 160 }}
 							>
-								{createReport.isPending ? "Salvando..." : "Criar Relatório"}
+								{createReport.isPending ? 'Salvando...' : 'Criar Relatório'}
 							</Button>
 						</Box>
 					</Box>
@@ -445,13 +443,13 @@ export default function ServiceOrderDetailPage() {
 			{/* Materials section */}
 			<Paper
 				elevation={0}
-				sx={{ border: "1px solid", borderColor: "divider", borderRadius: 2, p: 3 }}
+				sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2, p: 3 }}
 			>
 				<Box
 					sx={{
-						display: "flex",
-						justifyContent: "space-between",
-						alignItems: "center",
+						display: 'flex',
+						justifyContent: 'space-between',
+						alignItems: 'center',
 						mb: 2,
 					}}
 				>
@@ -470,7 +468,7 @@ export default function ServiceOrderDetailPage() {
 						Nenhum material registrado.
 					</Typography>
 				) : (
-					<Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+					<Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
 						{materials.map((m) => {
 							const item = m as {
 								materialItemId: string;
@@ -480,9 +478,9 @@ export default function ServiceOrderDetailPage() {
 								valorUnitario?: string | number | null;
 							};
 							const qty =
-								typeof item.quantidade === "string" ? parseFloat(item.quantidade) : item.quantidade;
+								typeof item.quantidade === 'string' ? parseFloat(item.quantidade) : item.quantidade;
 							const valor = item.valorUnitario
-								? typeof item.valorUnitario === "string"
+								? typeof item.valorUnitario === 'string'
 									? parseFloat(item.valorUnitario)
 									: item.valorUnitario
 								: null;
@@ -490,14 +488,14 @@ export default function ServiceOrderDetailPage() {
 								<Box
 									key={item.materialItemId}
 									sx={{
-										display: "flex",
-										justifyContent: "space-between",
-										alignItems: "center",
+										display: 'flex',
+										justifyContent: 'space-between',
+										alignItems: 'center',
 										p: 1.5,
 										borderRadius: 1,
-										bgcolor: "action.hover",
+										bgcolor: 'action.hover',
 										gap: 2,
-										flexWrap: "wrap",
+										flexWrap: 'wrap',
 									}}
 								>
 									<Typography variant="body2" fontWeight={500} sx={{ flex: 1 }}>
@@ -515,11 +513,11 @@ export default function ServiceOrderDetailPage() {
 						{totalMateriais > 0 && (
 							<Box
 								sx={{
-									display: "flex",
-									justifyContent: "flex-end",
+									display: 'flex',
+									justifyContent: 'flex-end',
 									pt: 1,
-									borderTop: "1px solid",
-									borderColor: "divider",
+									borderTop: '1px solid',
+									borderColor: 'divider',
 									mt: 1,
 								}}
 							>
@@ -548,7 +546,7 @@ export default function ServiceOrderDetailPage() {
 						component="form"
 						id="material-form"
 						onSubmit={materialForm.handleSubmit((data) => addMaterial.mutate(data))}
-						sx={{ display: "flex", flexDirection: "column", gap: 2.5, pt: 1 }}
+						sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, pt: 1 }}
 					>
 						<Controller
 							name="descricao"
@@ -565,8 +563,8 @@ export default function ServiceOrderDetailPage() {
 						/>
 						<Box
 							sx={{
-								display: "grid",
-								gridTemplateColumns: "1fr 1fr 1fr",
+								display: 'grid',
+								gridTemplateColumns: '1fr 1fr 1fr',
 								gap: 2,
 							}}
 						>
@@ -606,9 +604,9 @@ export default function ServiceOrderDetailPage() {
 								render={({ field }) => (
 									<TextField
 										{...field}
-										value={field.value ?? ""}
+										value={field.value ?? ''}
 										onChange={(e) =>
-											field.onChange(e.target.value === "" ? null : Number(e.target.value))
+											field.onChange(e.target.value === '' ? null : Number(e.target.value))
 										}
 										label="Valor Unit."
 										type="number"
@@ -639,7 +637,7 @@ export default function ServiceOrderDetailPage() {
 						variant="contained"
 						disabled={addMaterial.isPending}
 					>
-						{addMaterial.isPending ? "Adicionando..." : "Adicionar"}
+						{addMaterial.isPending ? 'Adicionando...' : 'Adicionar'}
 					</Button>
 				</DialogActions>
 			</Dialog>

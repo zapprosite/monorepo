@@ -1,7 +1,8 @@
 // Agent Pool - In-memory implementation
-import type { AgentSession } from "../../core/types.js";
-import { globalEventBus } from "../../core/event-bus.js";
-import type { AgentConfig, AgentHandle, AgentPool, AgentSessionStore } from "./types.js";
+
+import { globalEventBus } from '../../core/event-bus.js';
+import type { AgentSession } from '../../core/types.js';
+import type { AgentConfig, AgentHandle, AgentPool, AgentSessionStore } from './types.js';
 
 // In-memory store for agent sessions
 class InMemoryAgentStore implements AgentSessionStore {
@@ -29,7 +30,7 @@ class InMemoryAgentStore implements AgentSessionStore {
 
 	async findActive(): Promise<AgentSession[]> {
 		return Array.from(this.sessions.values()).filter(
-			(s) => s.status === "idle" || s.status === "busy"
+			(s) => s.status === 'idle' || s.status === 'busy',
 		);
 	}
 
@@ -47,10 +48,10 @@ export class StandardAgentPool implements AgentPool {
 
 		const session: AgentSession = {
 			agentId,
-			instanceId: "", // Will be set by workflow engine
+			instanceId: '', // Will be set by workflow engine
 			role: config.role,
 			task: config.task,
-			status: "busy",
+			status: 'busy',
 			spawnedAt: Date.now(),
 		};
 
@@ -58,7 +59,7 @@ export class StandardAgentPool implements AgentPool {
 
 		// Emit event
 		globalEventBus.emit({
-			type: "agent.spawned",
+			type: 'agent.spawned',
 			instanceId: session.instanceId,
 			agentId,
 			role: config.role,
@@ -79,13 +80,13 @@ export class StandardAgentPool implements AgentPool {
 		}
 
 		await this.store.update(agentId, {
-			status: "completed",
+			status: 'completed',
 			completedAt: Date.now(),
 			result,
 		});
 
 		globalEventBus.emit({
-			type: "agent.completed",
+			type: 'agent.completed',
 			instanceId: session.instanceId,
 			agentId,
 			result,
@@ -99,12 +100,12 @@ export class StandardAgentPool implements AgentPool {
 		}
 
 		await this.store.update(agentId, {
-			status: "failed",
+			status: 'failed',
 			completedAt: Date.now(),
 		});
 
 		globalEventBus.emit({
-			type: "agent.completed",
+			type: 'agent.completed',
 			instanceId: session.instanceId,
 			agentId,
 			result: { error },
@@ -117,7 +118,7 @@ export class StandardAgentPool implements AgentPool {
 
 	async getAvailable(role: string): Promise<AgentHandle | null> {
 		const sessions = await this.store.findByRole(role);
-		const available = sessions.find((s) => s.status === "idle");
+		const available = sessions.find((s) => s.status === 'idle');
 		return available ? this.toHandle(available) : null;
 	}
 

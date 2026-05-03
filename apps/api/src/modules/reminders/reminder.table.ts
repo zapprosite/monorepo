@@ -1,21 +1,21 @@
-import { BaseTable } from "@backend/db/base_table";
+import { BaseTable } from '@backend/db/base_table';
 import {
 	REMINDER_STATUS_ENUM,
 	REMINDER_TYPE_ENUM,
-} from "@connected-repo/zod-schemas/crm_enums.zod";
+} from '@connected-repo/zod-schemas/crm_enums.zod';
 
 export class ReminderTable extends BaseTable {
-	readonly table = "reminders";
+	readonly table = 'reminders';
 
-// @ts-ignore TS2742 — pqb internal type inference not portable
+	// @ts-expect-error TS2742 — pqb internal type inference not portable
 	columns = this.setColumns((t) => ({
 		reminderId: t.uuid().primaryKey().default(t.sql`gen_random_uuid()`),
-		clienteId: t.uuid().foreignKey("clients", "clientId", {
-			onUpdate: "RESTRICT",
-			onDelete: "RESTRICT",
+		clienteId: t.uuid().foreignKey('clients', 'clientId', {
+			onUpdate: 'RESTRICT',
+			onDelete: 'RESTRICT',
 		}),
-		tipo: t.enum("crm_reminder_type_enum", REMINDER_TYPE_ENUM),
-		status: t.enum("crm_reminder_status_enum", REMINDER_STATUS_ENUM),
+		tipo: t.enum('crm_reminder_type_enum', REMINDER_TYPE_ENUM),
+		status: t.enum('crm_reminder_status_enum', REMINDER_STATUS_ENUM),
 		dataLembrete: t.date(),
 		titulo: t.varchar(255),
 		descricao: t.text().nullable(),

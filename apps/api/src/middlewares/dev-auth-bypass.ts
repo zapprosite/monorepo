@@ -1,6 +1,6 @@
-import { isDev } from "@backend/configs/env.config";
-import type { SessionUser } from "@backend/modules/auth/session.auth.utils";
-import type { FastifyRequest } from "fastify";
+import { isDev } from '@backend/configs/env.config';
+import type { SessionUser } from '@backend/modules/auth/session.auth.utils';
+import type { FastifyRequest } from 'fastify';
 
 /**
  * Dev auth bypass middleware
@@ -18,24 +18,24 @@ import type { FastifyRequest } from "fastify";
  * Default dev users for local testing
  * Keyed by email, these are pre-seeded for convenience
  */
-export const DEV_USERS: Record<string, Omit<SessionUser, "userId">> = {
-	"will@zappro.site": {
-		email: "will@zappro.site",
-		name: "Will (Dev)",
+export const DEV_USERS: Record<string, Omit<SessionUser, 'userId'>> = {
+	'will@zappro.site': {
+		email: 'will@zappro.site',
+		name: 'Will (Dev)',
 		displayPicture: null,
-		teamId: "dev-team-will",
+		teamId: 'dev-team-will',
 	},
-	"admin@zappro.site": {
-		email: "admin@zappro.site",
-		name: "Admin (Dev)",
+	'admin@zappro.site': {
+		email: 'admin@zappro.site',
+		name: 'Admin (Dev)',
 		displayPicture: null,
-		teamId: "dev-team-admin",
+		teamId: 'dev-team-admin',
 	},
-	"test@example.com": {
-		email: "test@example.com",
-		name: "Test User",
+	'test@example.com': {
+		email: 'test@example.com',
+		name: 'Test User',
 		displayPicture: null,
-		teamId: "dev-team-test",
+		teamId: 'dev-team-test',
 	},
 };
 
@@ -48,8 +48,8 @@ export const extractDevUser = (req: FastifyRequest): SessionUser | null => {
 		return null;
 	}
 
-	const devUserHeader = req.headers["x-dev-user"];
-	if (!devUserHeader || typeof devUserHeader !== "string") {
+	const devUserHeader = req.headers['x-dev-user'];
+	if (!devUserHeader || typeof devUserHeader !== 'string') {
 		return null;
 	}
 
@@ -60,7 +60,7 @@ export const extractDevUser = (req: FastifyRequest): SessionUser | null => {
 	if (!devUser) {
 		// Unknown dev user - return a generic dev user with that email
 		return {
-			userId: "dev-user-placeholder", // Placeholder - in real scenario would lookup DB
+			userId: 'dev-user-placeholder', // Placeholder - in real scenario would lookup DB
 			email,
 			name: `Dev User (${email})`,
 			displayPicture: null,
@@ -69,7 +69,7 @@ export const extractDevUser = (req: FastifyRequest): SessionUser | null => {
 	}
 
 	return {
-		userId: "dev-user-placeholder",
+		userId: 'dev-user-placeholder',
 		...devUser,
 	};
 };

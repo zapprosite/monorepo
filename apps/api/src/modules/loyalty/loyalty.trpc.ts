@@ -1,6 +1,6 @@
-import { protectedProcedure, trpcRouter } from "@backend/trpc";
-import { TRPCError } from "@trpc/server";
-import { z } from "zod";
+import { protectedProcedure, trpcRouter } from '@backend/trpc';
+import { TRPCError } from '@trpc/server';
+import { z } from 'zod';
 
 export const loyaltyRouter = trpcRouter({
 	calculateScore: protectedProcedure
@@ -10,16 +10,16 @@ export const loyaltyRouter = trpcRouter({
 				where: { id: input.clienteId, teamId: ctx.user.teamId },
 			});
 			if (!cliente) {
-				throw new TRPCError({ code: "FORBIDDEN", message: "Cliente não pertence a esta equipe" });
+				throw new TRPCError({ code: 'FORBIDDEN', message: 'Cliente não pertence a esta equipe' });
 			}
-			return { pontos: 150, nivel: "prata" };
+			return { pontos: 150, nivel: 'prata' };
 		}),
 
 	listLoyalty: protectedProcedure
 		.input(
 			z.object({
-				status: z.enum(["ativo", "risco-30d", "risco-60d", "risco-90d", "perdido"]).optional(),
-				nivelMinimo: z.enum(["bronze", "prata", "ouro", "platinum"]).optional(),
+				status: z.enum(['ativo', 'risco-30d', 'risco-60d', 'risco-90d', 'perdido']).optional(),
+				nivelMinimo: z.enum(['bronze', 'prata', 'ouro', 'platinum']).optional(),
 				limit: z.number().int().min(1).max(100).default(50),
 				offset: z.number().int().min(0).default(0),
 			}),
@@ -40,7 +40,7 @@ export const loyaltyRouter = trpcRouter({
 				where: { id: input.clienteId, teamId: ctx.user.teamId },
 			});
 			if (!cliente) {
-				throw new TRPCError({ code: "FORBIDDEN", message: "Cliente não pertence a esta equipe" });
+				throw new TRPCError({ code: 'FORBIDDEN', message: 'Cliente não pertence a esta equipe' });
 			}
 			return {
 				cliente,
@@ -56,7 +56,7 @@ export const loyaltyRouter = trpcRouter({
 				where: { id: input.clienteId, teamId: ctx.user.teamId },
 			});
 			if (!cliente) {
-				throw new TRPCError({ code: "FORBIDDEN", message: "Cliente não pertence a esta equipe" });
+				throw new TRPCError({ code: 'FORBIDDEN', message: 'Cliente não pertence a esta equipe' });
 			}
 			return { success: true };
 		}),

@@ -1,7 +1,7 @@
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest';
 
 describe('web app', () => {
-  it('module loads', () => {
-    expect(true).toBe(true)
-  })
-})
+	it('module loads', () => {
+		expect(true).toBe(true);
+	});
+});

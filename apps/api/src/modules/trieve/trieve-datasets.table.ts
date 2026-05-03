@@ -3,12 +3,12 @@
  * Maps teamId to Trieve dataset IDs for multi-tenant isolation
  */
 
-import { BaseTable } from "@backend/db/base_table";
+import { BaseTable } from '@backend/db/base_table';
 
 export class TrieveDatasetsTable extends BaseTable {
-	readonly table = "trieve_datasets";
+	readonly table = 'trieve_datasets';
 
-// @ts-ignore TS2742 — pqb internal type inference not portable
+	// @ts-expect-error TS2742 — pqb internal type inference not portable
 	columns = this.setColumns((t) => ({
 		id: t.uuid().primaryKey().default(t.sql`gen_random_uuid()`),
 		teamId: t.uuid(),

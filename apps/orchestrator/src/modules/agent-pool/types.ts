@@ -1,5 +1,5 @@
 // Agent Pool - Types
-import type { AgentSession } from "../../core/types.js";
+import type { AgentSession } from '../../core/types.js';
 
 export interface AgentConfig {
 	role: string;
@@ -13,7 +13,7 @@ export interface AgentHandle {
 	agentId: string;
 	role: string;
 	task: string;
-	status: "idle" | "busy" | "completed" | "failed";
+	status: 'idle' | 'busy' | 'completed' | 'failed';
 	spawnedAt: number;
 	completedAt?: number;
 	result?: unknown;

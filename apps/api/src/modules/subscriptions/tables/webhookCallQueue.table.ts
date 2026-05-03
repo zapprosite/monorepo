@@ -1,10 +1,10 @@
-import { BaseTable } from "@backend/db/base_table";
-import { SubscriptionsTable } from "@backend/modules/subscriptions/tables/subscriptions.table";
+import { BaseTable } from '@backend/db/base_table';
+import { SubscriptionsTable } from '@backend/modules/subscriptions/tables/subscriptions.table';
 
 export class WebhookCallQueueTable extends BaseTable {
-	readonly table = "webhook_call_queue";
+	readonly table = 'webhook_call_queue';
 
-// @ts-ignore TS2742 — pqb internal type inference not portable
+	// @ts-expect-error TS2742 — pqb internal type inference not portable
 	columns = this.setColumns(
 		(t) => ({
 			webhookCallQueueId: t.ulid().primaryKey(),
@@ -18,14 +18,14 @@ export class WebhookCallQueueTable extends BaseTable {
 			lastAttemptAt: t.timestampNumber().nullable(),
 			scheduledFor: t.timestampNumber(),
 			sentAt: t.timestampNumber().nullable(),
-			subscriptionId: t.string().foreignKey(() => SubscriptionsTable, "subscriptionId", {
-				onDelete: "RESTRICT",
-				onUpdate: "RESTRICT",
+			subscriptionId: t.string().foreignKey(() => SubscriptionsTable, 'subscriptionId', {
+				onDelete: 'RESTRICT',
+				onUpdate: 'RESTRICT',
 			}),
 			errorMessage: t.text().nullable(),
 
 			...t.timestamps(),
 		}),
-		(t) => t.index(["status", "scheduledFor"]),
+		(t) => t.index(['status', 'scheduledFor']),
 	);
 }

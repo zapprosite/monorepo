@@ -1,20 +1,17 @@
-import { Typography } from "@repo/ui-mui/data-display/Typography";
-import { Button } from "@repo/ui-mui/form/Button";
-import { TextField } from "@repo/ui-mui/form/TextField";
-import { Box } from "@repo/ui-mui/layout/Box";
-import { Container } from "@repo/ui-mui/layout/Container";
-import { Paper } from "@repo/ui-mui/layout/Paper";
-import { MenuItem } from "@repo/ui-mui/navigation/MenuItem";
-import {
-	type ClientCreateInput,
-	clientCreateInputZod,
-} from "@repo/zod-schemas/client.zod";
-import { CLIENT_TYPE_ENUM } from "@repo/zod-schemas/crm_enums.zod";
-import { trpc } from "@frontend/utils/trpc.client";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Controller, useForm } from "react-hook-form";
-import { useNavigate } from "react-router";
+import { trpc } from '@frontend/utils/trpc.client';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Typography } from '@repo/ui-mui/data-display/Typography';
+import { Button } from '@repo/ui-mui/form/Button';
+import { TextField } from '@repo/ui-mui/form/TextField';
+import { Box } from '@repo/ui-mui/layout/Box';
+import { Container } from '@repo/ui-mui/layout/Container';
+import { Paper } from '@repo/ui-mui/layout/Paper';
+import { MenuItem } from '@repo/ui-mui/navigation/MenuItem';
+import { type ClientCreateInput, clientCreateInputZod } from '@repo/zod-schemas/client.zod';
+import { CLIENT_TYPE_ENUM } from '@repo/zod-schemas/crm_enums.zod';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { Controller, useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router';
 
 export default function CreateClientPage() {
 	const navigate = useNavigate();
@@ -28,7 +25,7 @@ export default function CreateClientPage() {
 	} = useForm<ClientCreateInput>({
 		resolver: zodResolver(clientCreateInputZod),
 		defaultValues: {
-			tipo: "Pessoa Física",
+			tipo: 'Pessoa Física',
 			ativo: true,
 		},
 	});
@@ -38,11 +35,11 @@ export default function CreateClientPage() {
 			onSuccess: (client) => {
 				queryClient.invalidateQueries({ queryKey: trpc.clients.listClients.queryKey() });
 				reset({
-					nome: "",
-					email: "",
-					telefone: "",
-					cpfCnpj: "",
-					tipo: "Pessoa Física",
+					nome: '',
+					email: '',
+					telefone: '',
+					cpfCnpj: '',
+					tipo: 'Pessoa Física',
 					ativo: true,
 				});
 				navigate(`/clients/${client.clientId}`);
@@ -58,8 +55,8 @@ export default function CreateClientPage() {
 				<Button
 					variant="text"
 					size="small"
-					onClick={() => navigate("/clients")}
-					sx={{ mb: 1, color: "text.secondary" }}
+					onClick={() => navigate('/clients')}
+					sx={{ mb: 1, color: 'text.secondary' }}
 				>
 					← Voltar para Clientes
 				</Button>
@@ -70,14 +67,14 @@ export default function CreateClientPage() {
 
 			<Paper
 				elevation={0}
-				sx={{ border: "1px solid", borderColor: "divider", borderRadius: 2, p: 4 }}
+				sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2, p: 4 }}
 			>
 				<Box
 					component="form"
 					onSubmit={handleSubmit(onSubmit)}
-					sx={{ display: "flex", flexDirection: "column", gap: 3 }}
+					sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}
 				>
-					<Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "2fr 1fr" }, gap: 3 }}>
+					<Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '2fr 1fr' }, gap: 3 }}>
 						<Controller
 							name="nome"
 							control={control}
@@ -113,14 +110,14 @@ export default function CreateClientPage() {
 						/>
 					</Box>
 
-					<Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 3 }}>
+					<Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 3 }}>
 						<Controller
 							name="email"
 							control={control}
 							render={({ field }) => (
 								<TextField
 									{...field}
-									value={field.value ?? ""}
+									value={field.value ?? ''}
 									label="Email"
 									type="email"
 									fullWidth
@@ -135,7 +132,7 @@ export default function CreateClientPage() {
 							render={({ field }) => (
 								<TextField
 									{...field}
-									value={field.value ?? ""}
+									value={field.value ?? ''}
 									label="Telefone"
 									fullWidth
 									error={!!errors.telefone}
@@ -151,7 +148,7 @@ export default function CreateClientPage() {
 						render={({ field }) => (
 							<TextField
 								{...field}
-								value={field.value ?? ""}
+								value={field.value ?? ''}
 								label="CPF / CNPJ"
 								fullWidth
 								error={!!errors.cpfCnpj}
@@ -160,8 +157,8 @@ export default function CreateClientPage() {
 						)}
 					/>
 
-					<Box sx={{ display: "flex", gap: 2, justifyContent: "flex-end", pt: 1 }}>
-						<Button variant="outlined" onClick={() => navigate("/clients")} disabled={isSubmitting}>
+					<Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end', pt: 1 }}>
+						<Button variant="outlined" onClick={() => navigate('/clients')} disabled={isSubmitting}>
 							Cancelar
 						</Button>
 						<Button
@@ -170,7 +167,7 @@ export default function CreateClientPage() {
 							disabled={isSubmitting}
 							sx={{ minWidth: 160 }}
 						>
-							{isSubmitting ? "Salvando..." : "Salvar Cliente"}
+							{isSubmitting ? 'Salvando...' : 'Salvar Cliente'}
 						</Button>
 					</Box>
 				</Box>

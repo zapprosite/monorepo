@@ -1,9 +1,9 @@
-import { areSameSubnet } from "@backend/modules/api-gateway/utils/ipChecker.utils";
+import { areSameSubnet } from '@backend/modules/api-gateway/utils/ipChecker.utils';
 import {
 	generateDeviceFingerprint,
 	getClientIpAddress,
-} from "@backend/utils/request-metadata.utils";
-import type { FastifyRequest } from "fastify";
+} from '@backend/utils/request-metadata.utils';
+import type { FastifyRequest } from 'fastify';
 
 /**
  * Security validation levels for session fingerprint checking
@@ -13,19 +13,19 @@ export enum SessionSecurityLevel {
 	 * Lenient - Only logs suspicious activity, doesn't block
 	 * Use for: Initial rollout, analytics
 	 */
-	LENIENT = "lenient",
+	LENIENT = 'lenient',
 
 	/**
 	 * Moderate - Blocks device changes, warns on IP changes
 	 * Use for: Production with good user experience
 	 */
-	MODERATE = "moderate",
+	MODERATE = 'moderate',
 
 	/**
 	 * Strict - Immediately invalidates sessions with any suspicious activity
 	 * Use for: High-security applications, sensitive operations
 	 */
-	STRICT = "strict",
+	STRICT = 'strict',
 }
 
 /**
@@ -35,7 +35,7 @@ export interface SessionSecurityResult {
 	isValid: boolean;
 	isSuspicious: boolean;
 	reasons: string[];
-	action: "allow" | "warn" | "block";
+	action: 'allow' | 'warn' | 'block';
 }
 
 /**
@@ -53,7 +53,7 @@ export function validateSessionSecurity(
 		isValid: true,
 		isSuspicious: false,
 		reasons: [],
-		action: "allow",
+		action: 'allow',
 	};
 
 	// No session or no user - skip validation
@@ -68,7 +68,7 @@ export function validateSessionSecurity(
 	// Check device fingerprint match
 	if (storedMetadata.deviceFingerprint && storedMetadata.deviceFingerprint !== currentFingerprint) {
 		result.isSuspicious = true;
-		result.reasons.push("Device fingerprint mismatch");
+		result.reasons.push('Device fingerprint mismatch');
 	}
 
 	// Check IP address (allow for dynamic IPs within same subnet)
@@ -86,7 +86,7 @@ export function validateSessionSecurity(
 		switch (securityLevel) {
 			case SessionSecurityLevel.STRICT:
 				result.isValid = false;
-				result.action = "block";
+				result.action = 'block';
 				request.log.warn(
 					{
 						userId: request.session.user.userId,
@@ -97,15 +97,15 @@ export function validateSessionSecurity(
 						storedIp: storedMetadata.ipAddress,
 						currentIp,
 					},
-					"Session security validation failed - BLOCKING (STRICT)",
+					'Session security validation failed - BLOCKING (STRICT)',
 				);
 				break;
 
 			case SessionSecurityLevel.MODERATE:
 				// MODERATE blocks on fingerprint mismatch but allows IP changes
-				if (result.reasons.includes("Device fingerprint mismatch")) {
+				if (result.reasons.includes('Device fingerprint mismatch')) {
 					result.isValid = false;
-					result.action = "block";
+					result.action = 'block';
 					request.log.warn(
 						{
 							userId: request.session.user.userId,
@@ -116,11 +116,11 @@ export function validateSessionSecurity(
 							storedIp: storedMetadata.ipAddress,
 							currentIp,
 						},
-						"Session security validation failed - BLOCKING (MODERATE: device mismatch)",
+						'Session security validation failed - BLOCKING (MODERATE: device mismatch)',
 					);
 				} else {
 					// Only IP change - warn but allow
-					result.action = "warn";
+					result.action = 'warn';
 					request.log.warn(
 						{
 							userId: request.session.user.userId,
@@ -129,20 +129,20 @@ export function validateSessionSecurity(
 							storedIp: storedMetadata.ipAddress,
 							currentIp,
 						},
-						"Session security validation flagged suspicious activity - WARNING (IP change only)",
+						'Session security validation flagged suspicious activity - WARNING (IP change only)',
 					);
 				}
 				break;
 
 			case SessionSecurityLevel.LENIENT:
-				result.action = "allow";
+				result.action = 'allow';
 				request.log.info(
 					{
 						userId: request.session.user.userId,
 						email: request.session.user.email,
 						reasons: result.reasons,
 					},
-					"Session security validation detected anomaly - LOGGING ONLY",
+					'Session security validation detected anomaly - LOGGING ONLY',
 				);
 				break;
 		}
@@ -174,8 +174,8 @@ export function sessionSecurityHook(
 		const result = validateSessionSecurity(request, securityLevel);
 
 		// Block request if validation failed
-		if (result.action === "block") {
-			throw new Error("Session security validation failed. Please log in again.");
+		if (result.action === 'block') {
+			throw new Error('Session security validation failed. Please log in again.');
 		}
 
 		// For moderate level, warnings are logged but the request is allowed to proceed

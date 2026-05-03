@@ -1,42 +1,39 @@
-import { ErrorAlert } from "@repo/ui-mui/components/ErrorAlert";
-import { LoadingSpinner } from "@repo/ui-mui/components/LoadingSpinner";
-import { Chip } from "@repo/ui-mui/data-display/Chip";
-import { Typography } from "@repo/ui-mui/data-display/Typography";
-import { Button } from "@repo/ui-mui/form/Button";
-import { TextField } from "@repo/ui-mui/form/TextField";
-import { Alert } from "@repo/ui-mui/feedback/Alert";
-import { Dialog } from "@repo/ui-mui/feedback/Dialog";
-import { Box } from "@repo/ui-mui/layout/Box";
-import { Container } from "@repo/ui-mui/layout/Container";
-import { Paper } from "@repo/ui-mui/layout/Paper";
-import { MenuItem } from "@repo/ui-mui/navigation/MenuItem";
-import type { KanbanCardPriority, KanbanCardStatus } from "@repo/zod-schemas/crm_enums.zod";
-import type { CardCreateInput } from "@repo/zod-schemas/kanban.zod";
-import { cardCreateInputZod } from "@repo/zod-schemas/kanban.zod";
-import { trpc } from "@frontend/utils/trpc.client";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { DialogActions, DialogContent, DialogTitle } from "@mui/material";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { useNavigate, useParams } from "react-router";
+import { trpc } from '@frontend/utils/trpc.client';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { DialogActions, DialogContent, DialogTitle } from '@mui/material';
+import { ErrorAlert } from '@repo/ui-mui/components/ErrorAlert';
+import { LoadingSpinner } from '@repo/ui-mui/components/LoadingSpinner';
+import { Chip } from '@repo/ui-mui/data-display/Chip';
+import { Typography } from '@repo/ui-mui/data-display/Typography';
+import { Alert } from '@repo/ui-mui/feedback/Alert';
+import { Dialog } from '@repo/ui-mui/feedback/Dialog';
+import { Button } from '@repo/ui-mui/form/Button';
+import { TextField } from '@repo/ui-mui/form/TextField';
+import { Box } from '@repo/ui-mui/layout/Box';
+import { Container } from '@repo/ui-mui/layout/Container';
+import { Paper } from '@repo/ui-mui/layout/Paper';
+import { MenuItem } from '@repo/ui-mui/navigation/MenuItem';
+import type { KanbanCardPriority, KanbanCardStatus } from '@repo/zod-schemas/crm_enums.zod';
+import type { CardCreateInput } from '@repo/zod-schemas/kanban.zod';
+import { cardCreateInputZod } from '@repo/zod-schemas/kanban.zod';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { useNavigate, useParams } from 'react-router';
 
-const PRIORITY_COLORS: Record<KanbanCardPriority, "success" | "info" | "warning" | "error"> = {
-	Baixa: "success",
-	Media: "info",
-	Alta: "warning",
-	Critica: "error",
+const PRIORITY_COLORS: Record<KanbanCardPriority, 'success' | 'info' | 'warning' | 'error'> = {
+	Baixa: 'success',
+	Media: 'info',
+	Alta: 'warning',
+	Critica: 'error',
 };
 
-const STATUS_COLORS: Record<
-	KanbanCardStatus,
-	"default" | "primary" | "error" | "success"
-> = {
-	Aberto: "default",
-	"Em Andamento": "primary",
-	Bloqueado: "error",
-	Concluido: "success",
-	Cancelado: "default",
+const STATUS_COLORS: Record<KanbanCardStatus, 'default' | 'primary' | 'error' | 'success'> = {
+	Aberto: 'default',
+	'Em Andamento': 'primary',
+	Bloqueado: 'error',
+	Concluido: 'success',
+	Cancelado: 'default',
 };
 
 type CardWithDetails = {
@@ -63,9 +60,9 @@ type ColumnWithCards = {
 };
 
 function formatDate(dateStr: string | null | undefined): string {
-	if (!dateStr) return "";
+	if (!dateStr) return '';
 	const date = new Date(`${dateStr}T12:00:00`);
-	return date.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
+	return date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
 }
 
 function CreateCardDialog({
@@ -88,7 +85,7 @@ function CreateCardDialog({
 		formState: { errors },
 	} = useForm<CardCreateInput>({
 		resolver: zodResolver(cardCreateInputZod),
-		defaultValues: { columnId, titulo: "", prioridade: "Media" },
+		defaultValues: { columnId, titulo: '', prioridade: 'Media' },
 	});
 
 	const createCard = useMutation(
@@ -115,13 +112,13 @@ function CreateCardDialog({
 							{createCard.error.message}
 						</Alert>
 					)}
-					<Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+					<Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
 						<TextField
 							label="Coluna"
 							select
 							fullWidth
 							defaultValue={columnId}
-							{...register("columnId")}
+							{...register('columnId')}
 						>
 							{columns.map((col) => (
 								<MenuItem key={col.columnId} value={col.columnId}>
@@ -134,7 +131,7 @@ function CreateCardDialog({
 							fullWidth
 							error={!!errors.titulo}
 							helperText={errors.titulo?.message}
-							{...register("titulo")}
+							{...register('titulo')}
 							autoFocus
 						/>
 						<TextField
@@ -142,7 +139,7 @@ function CreateCardDialog({
 							select
 							fullWidth
 							defaultValue="Media"
-							{...register("prioridade")}
+							{...register('prioridade')}
 						>
 							<MenuItem value="Baixa">Baixa</MenuItem>
 							<MenuItem value="Media">Média</MenuItem>
@@ -154,7 +151,7 @@ function CreateCardDialog({
 							type="date"
 							fullWidth
 							InputLabelProps={{ shrink: true }}
-							{...register("dataVencimento")}
+							{...register('dataVencimento')}
 						/>
 					</Box>
 				</DialogContent>
@@ -163,7 +160,7 @@ function CreateCardDialog({
 						Cancelar
 					</Button>
 					<Button type="submit" variant="contained" disabled={createCard.isPending}>
-						{createCard.isPending ? "Criando..." : "Criar Card"}
+						{createCard.isPending ? 'Criando...' : 'Criar Card'}
 					</Button>
 				</DialogActions>
 			</Box>
@@ -199,7 +196,7 @@ export default function KanbanBoardPage() {
 	if (error || !board) {
 		return (
 			<Container maxWidth="lg" sx={{ py: 4 }}>
-				<ErrorAlert message={`Erro ao carregar board: ${error?.message ?? "Não encontrado"}`} />
+				<ErrorAlert message={`Erro ao carregar board: ${error?.message ?? 'Não encontrado'}`} />
 			</Container>
 		);
 	}
@@ -207,32 +204,32 @@ export default function KanbanBoardPage() {
 	const columns = board.columns as ColumnWithCards[];
 
 	return (
-		<Box sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
+		<Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
 			{/* Header */}
 			<Box
 				sx={{
 					px: { xs: 2, md: 4 },
 					py: 2,
-					borderBottom: "1px solid",
-					borderColor: "divider",
-					bgcolor: "background.paper",
+					borderBottom: '1px solid',
+					borderColor: 'divider',
+					bgcolor: 'background.paper',
 				}}
 			>
 				<Button
 					variant="text"
 					size="small"
-					onClick={() => navigate("/kanban")}
-					sx={{ mb: 0.5, color: "text.secondary" }}
+					onClick={() => navigate('/kanban')}
+					sx={{ mb: 0.5, color: 'text.secondary' }}
 				>
 					← Voltar para Kanban
 				</Button>
-				<Box sx={{ display: "flex", alignItems: "center", gap: 2, flexWrap: "wrap" }}>
+				<Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
 					{board.cor && (
 						<Box
 							sx={{
 								width: 14,
 								height: 14,
-								borderRadius: "50%",
+								borderRadius: '50%',
 								bgcolor: board.cor,
 								flexShrink: 0,
 							}}
@@ -248,17 +245,17 @@ export default function KanbanBoardPage() {
 			{/* Kanban columns */}
 			<Box
 				sx={{
-					display: "flex",
+					display: 'flex',
 					gap: 2,
-					overflowX: "auto",
+					overflowX: 'auto',
 					p: { xs: 2, md: 3 },
 					flexGrow: 1,
-					alignItems: "flex-start",
+					alignItems: 'flex-start',
 					minHeight: 0,
 				}}
 			>
 				{columns.length === 0 ? (
-					<Box sx={{ textAlign: "center", py: 8, px: 3, width: "100%" }}>
+					<Box sx={{ textAlign: 'center', py: 8, px: 3, width: '100%' }}>
 						<Typography variant="h6" color="text.secondary" gutterBottom>
 							Nenhuma coluna criada
 						</Typography>
@@ -275,12 +272,12 @@ export default function KanbanBoardPage() {
 								minWidth: 280,
 								maxWidth: 320,
 								flexShrink: 0,
-								border: "1px solid",
-								borderColor: "divider",
+								border: '1px solid',
+								borderColor: 'divider',
 								borderRadius: 2,
-								display: "flex",
-								flexDirection: "column",
-								bgcolor: "background.default",
+								display: 'flex',
+								flexDirection: 'column',
+								bgcolor: 'background.default',
 							}}
 						>
 							{/* Column header */}
@@ -288,37 +285,37 @@ export default function KanbanBoardPage() {
 								sx={{
 									p: 2,
 									pb: 1.5,
-									borderBottom: "1px solid",
-									borderColor: "divider",
-									display: "flex",
-									alignItems: "center",
-									justifyContent: "space-between",
+									borderBottom: '1px solid',
+									borderColor: 'divider',
+									display: 'flex',
+									alignItems: 'center',
+									justifyContent: 'space-between',
 								}}
 							>
-								<Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+								<Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
 									<Typography variant="subtitle2" fontWeight={600}>
 										{col.nome}
 									</Typography>
 									<Chip
 										label={col.cards.length}
 										size="small"
-										sx={{ height: 20, fontSize: "0.7rem" }}
+										sx={{ height: 20, fontSize: '0.7rem' }}
 									/>
 								</Box>
-								<Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+								<Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
 									{col.limite != null && (
 										<Chip
 											label={`WIP: ${col.limite}`}
 											size="small"
-											color={col.cards.length >= col.limite ? "error" : "default"}
+											color={col.cards.length >= col.limite ? 'error' : 'default'}
 											variant="outlined"
-											sx={{ height: 20, fontSize: "0.7rem" }}
+											sx={{ height: 20, fontSize: '0.7rem' }}
 										/>
 									)}
 									<Button
 										size="small"
 										variant="text"
-										sx={{ minWidth: 32, p: 0.5, fontSize: "1.2rem" }}
+										sx={{ minWidth: 32, p: 0.5, fontSize: '1.2rem' }}
 										onClick={() => setCreateCardColumnId(col.columnId)}
 									>
 										+
@@ -327,34 +324,41 @@ export default function KanbanBoardPage() {
 							</Box>
 
 							{/* Cards */}
-							<Box sx={{ p: 1.5, display: "flex", flexDirection: "column", gap: 1 }}>
+							<Box sx={{ p: 1.5, display: 'flex', flexDirection: 'column', gap: 1 }}>
 								{col.cards.map((card) => (
 									<Paper
 										key={card.cardId}
 										elevation={0}
 										sx={{
-											border: "1px solid",
-											borderColor: "divider",
+											border: '1px solid',
+											borderColor: 'divider',
 											borderRadius: 1.5,
 											p: 1.5,
-											bgcolor: "background.paper",
-											transition: "all 0.15s ease-in-out",
-											"&:hover": {
+											bgcolor: 'background.paper',
+											transition: 'all 0.15s ease-in-out',
+											'&:hover': {
 												boxShadow: 2,
-												borderColor: "primary.light",
+												borderColor: 'primary.light',
 											},
 										}}
 									>
 										<Typography variant="body2" fontWeight={500} mb={1}>
 											{card.titulo}
 										</Typography>
-										<Box sx={{ display: "flex", gap: 0.5, flexWrap: "wrap", mb: card.dataVencimento ? 1 : 0 }}>
+										<Box
+											sx={{
+												display: 'flex',
+												gap: 0.5,
+												flexWrap: 'wrap',
+												mb: card.dataVencimento ? 1 : 0,
+											}}
+										>
 											{card.prioridade && (
 												<Chip
 													label={card.prioridade}
 													size="small"
 													color={PRIORITY_COLORS[card.prioridade]}
-													sx={{ height: 18, fontSize: "0.65rem" }}
+													sx={{ height: 18, fontSize: '0.65rem' }}
 												/>
 											)}
 											{card.status && (
@@ -363,7 +367,7 @@ export default function KanbanBoardPage() {
 													size="small"
 													color={STATUS_COLORS[card.status]}
 													variant="outlined"
-													sx={{ height: 18, fontSize: "0.65rem" }}
+													sx={{ height: 18, fontSize: '0.65rem' }}
 												/>
 											)}
 										</Box>
@@ -388,7 +392,7 @@ export default function KanbanBoardPage() {
 															ordem: 0,
 														})
 													}
-													sx={{ "& .MuiInputBase-root": { fontSize: "0.75rem" } }}
+													sx={{ '& .MuiInputBase-root': { fontSize: '0.75rem' } }}
 												>
 													{columns.map((c) => (
 														<MenuItem key={c.columnId} value={c.columnId}>
@@ -404,7 +408,7 @@ export default function KanbanBoardPage() {
 									<Typography
 										variant="caption"
 										color="text.disabled"
-										sx={{ textAlign: "center", py: 2, display: "block" }}
+										sx={{ textAlign: 'center', py: 2, display: 'block' }}
 									>
 										Nenhum card
 									</Typography>

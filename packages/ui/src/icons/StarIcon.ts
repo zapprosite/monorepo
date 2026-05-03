@@ -1,1 +1,1 @@
-export { default as StarIcon } from "@mui/icons-material/Star";
+export { default as StarIcon } from '@mui/icons-material/Star';

@@ -1,7 +1,7 @@
-import { Typography } from "@repo/ui-mui/data-display/Typography";
-import { Box } from "@repo/ui-mui/layout/Box";
-import { Container } from "@repo/ui-mui/layout/Container";
-import { CreateJournalEntryForm } from "@frontend/components/CreateJournalEntryForm";
+import { CreateJournalEntryForm } from '@frontend/components/CreateJournalEntryForm';
+import { Typography } from '@repo/ui-mui/data-display/Typography';
+import { Box } from '@repo/ui-mui/layout/Box';
+import { Container } from '@repo/ui-mui/layout/Container';
 
 export default function CreateJournalEntryPage() {
 	return (

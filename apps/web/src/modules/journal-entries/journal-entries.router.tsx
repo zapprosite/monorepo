@@ -1,7 +1,7 @@
-import CreateJournalEntryPage from "@frontend/modules/journal-entries/pages/CreateJournalEntry.page";
-import JournalEntriesPage from "@frontend/modules/journal-entries/pages/JournalEntries.page";
-import JournalEntryDetailPage from "@frontend/modules/journal-entries/pages/JournalEntryDetail.page";
-import { Route, Routes } from "react-router";
+import CreateJournalEntryPage from '@frontend/modules/journal-entries/pages/CreateJournalEntry.page';
+import JournalEntriesPage from '@frontend/modules/journal-entries/pages/JournalEntries.page';
+import JournalEntryDetailPage from '@frontend/modules/journal-entries/pages/JournalEntryDetail.page';
+import { Route, Routes } from 'react-router';
 
 export const JournalEntriesRouter = () => {
 	return (

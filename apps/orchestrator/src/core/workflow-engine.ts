@@ -1,20 +1,24 @@
 // Workflow Engine - Loads YAML and Executes Workflows
-import { parse } from "yaml";
-import { readFile } from "fs/promises";
-import { join } from "path";
+
+import { readFile } from 'fs/promises';
+import { join } from 'path';
+import { parse } from 'yaml';
+import { globalEventBus } from './event-bus.js';
+import { createInitialState, WorkflowStateMachine } from './state-machine.js';
 import type {
-	WorkflowDefinition,
-	WorkflowState,
 	PhaseDefinition,
 	StepDefinition,
+	WorkflowDefinition,
 	WorkflowEvent,
-} from "./types.js";
-import { WorkflowStateMachine, createInitialState } from "./state-machine.js";
-import { globalEventBus } from "./event-bus.js";
+	WorkflowState,
+} from './types.js';
 
 export interface WorkflowExecutor {
 	load(workflowPath: string): Promise<WorkflowDefinition>;
-	execute(workflow: WorkflowDefinition, initialContext?: Record<string, unknown>): Promise<WorkflowState>;
+	execute(
+		workflow: WorkflowDefinition,
+		initialContext?: Record<string, unknown>,
+	): Promise<WorkflowState>;
 	pause(instanceId: string): void;
 	resume(instanceId: string): void;
 }
@@ -24,11 +28,11 @@ export class OrchestratorEngine implements WorkflowExecutor {
 	private workflows: Map<string, WorkflowDefinition> = new Map();
 
 	async load(workflowPath: string): Promise<WorkflowDefinition> {
-		const content = await readFile(workflowPath, "utf-8");
+		const content = await readFile(workflowPath, 'utf-8');
 		const workflow = parse(content) as WorkflowDefinition;
 
 		if (!workflow.name || !workflow.phases) {
-			throw new Error("Invalid workflow: missing name or phases");
+			throw new Error('Invalid workflow: missing name or phases');
 		}
 
 		this.workflows.set(workflow.name, workflow);
@@ -39,7 +43,7 @@ export class OrchestratorEngine implements WorkflowExecutor {
 		const workflow = parse(yamlContent) as WorkflowDefinition;
 
 		if (!workflow.name || !workflow.phases) {
-			throw new Error("Invalid workflow: missing name or phases");
+			throw new Error('Invalid workflow: missing name or phases');
 		}
 
 		this.workflows.set(workflow.name, workflow);
@@ -48,11 +52,11 @@ export class OrchestratorEngine implements WorkflowExecutor {
 
 	async execute(
 		workflow: WorkflowDefinition,
-		initialContext: Record<string, unknown> = {}
+		initialContext: Record<string, unknown> = {},
 	): Promise<WorkflowState> {
 		const instanceId = crypto.randomUUID();
 		const machine = new WorkflowStateMachine(
-			createInitialState(workflow.name, instanceId, workflow.name, workflow.version)
+			createInitialState(workflow.name, instanceId, workflow.name, workflow.version),
 		);
 
 		// Initialize context with workflow variables and initial context
@@ -67,7 +71,7 @@ export class OrchestratorEngine implements WorkflowExecutor {
 
 		// Emit started event
 		globalEventBus.emit({
-			type: "workflow.started",
+			type: 'workflow.started',
 			instanceId,
 			timestamp: Date.now(),
 		});
@@ -75,21 +79,21 @@ export class OrchestratorEngine implements WorkflowExecutor {
 		// Start execution
 		try {
 			const result = await this.executePhases(machine, workflow.phases, instanceId);
-			machine.transition({ type: "workflow.completed", instanceId, result });
+			machine.transition({ type: 'workflow.completed', instanceId, result });
 			globalEventBus.emit({
-				type: "workflow.completed",
+				type: 'workflow.completed',
 				instanceId,
 				result,
 			});
 		} catch (error) {
-			const errorMessage = error instanceof Error ? error.message : "Unknown error";
+			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 			machine.transition({
-				type: "workflow.failed",
+				type: 'workflow.failed',
 				instanceId,
 				error: errorMessage,
 			});
 			globalEventBus.emit({
-				type: "workflow.failed",
+				type: 'workflow.failed',
 				instanceId,
 				error: errorMessage,
 			});
@@ -101,7 +105,7 @@ export class OrchestratorEngine implements WorkflowExecutor {
 	private async executePhases(
 		machine: WorkflowStateMachine,
 		phases: PhaseDefinition[],
-		instanceId: string
+		instanceId: string,
 	): Promise<unknown> {
 		for (const phase of phases) {
 			// Check condition if defined
@@ -110,12 +114,12 @@ export class OrchestratorEngine implements WorkflowExecutor {
 			}
 
 			machine.transition({
-				type: "workflow.phase.started",
+				type: 'workflow.phase.started',
 				instanceId,
 				phase: phase.name,
 			});
 			globalEventBus.emit({
-				type: "workflow.phase.started",
+				type: 'workflow.phase.started',
 				instanceId,
 				phase: phase.name,
 			});
@@ -123,18 +127,18 @@ export class OrchestratorEngine implements WorkflowExecutor {
 			// Check if approval gate is required
 			if (phase.approvalGate) {
 				machine.transition({
-					type: "workflow.waiting_approval",
+					type: 'workflow.waiting_approval',
 					instanceId,
 					phase: phase.name,
 					gateId: phase.approvalGate.id,
 				});
 				globalEventBus.emit({
-					type: "workflow.waiting_approval",
+					type: 'workflow.waiting_approval',
 					instanceId,
 					phase: phase.name,
 					gateId: phase.approvalGate.id,
 				});
-				return { status: "waiting_approval", gateId: phase.approvalGate.id };
+				return { status: 'waiting_approval', gateId: phase.approvalGate.id };
 			}
 
 			// Execute steps
@@ -143,24 +147,24 @@ export class OrchestratorEngine implements WorkflowExecutor {
 			}
 
 			machine.transition({
-				type: "workflow.phase.completed",
+				type: 'workflow.phase.completed',
 				instanceId,
 				phase: phase.name,
 			});
 			globalEventBus.emit({
-				type: "workflow.phase.completed",
+				type: 'workflow.phase.completed',
 				instanceId,
 				phase: phase.name,
 			});
 		}
 
-		return { status: "completed" };
+		return { status: 'completed' };
 	}
 
 	private async executeStep(
 		machine: WorkflowStateMachine,
 		step: StepDefinition,
-		instanceId: string
+		instanceId: string,
 	): Promise<void> {
 		if (step.skill) {
 			await this.executeSkill(machine, step.skill.name, step.skill.input, instanceId);
@@ -177,10 +181,10 @@ export class OrchestratorEngine implements WorkflowExecutor {
 		machine: WorkflowStateMachine,
 		skillName: string,
 		input: Record<string, unknown> | undefined,
-		instanceId: string
+		instanceId: string,
 	): Promise<void> {
 		globalEventBus.emit({
-			type: "skill.invoked",
+			type: 'skill.invoked',
 			instanceId,
 			skillName,
 		});
@@ -191,7 +195,7 @@ export class OrchestratorEngine implements WorkflowExecutor {
 		machine.updateContext(`skills.${skillName}`, result);
 
 		globalEventBus.emit({
-			type: "skill.completed",
+			type: 'skill.completed',
 			instanceId,
 			skillName,
 			result,
@@ -202,12 +206,12 @@ export class OrchestratorEngine implements WorkflowExecutor {
 		machine: WorkflowStateMachine,
 		role: string,
 		task: string,
-		instanceId: string
+		instanceId: string,
 	): Promise<void> {
 		const agentId = crypto.randomUUID();
 
 		globalEventBus.emit({
-			type: "agent.spawned",
+			type: 'agent.spawned',
 			instanceId,
 			agentId,
 			role,
@@ -218,7 +222,7 @@ export class OrchestratorEngine implements WorkflowExecutor {
 		machine.updateContext(`agents.${role}`, result);
 
 		globalEventBus.emit({
-			type: "agent.completed",
+			type: 'agent.completed',
 			instanceId,
 			agentId,
 			result,
@@ -227,11 +231,11 @@ export class OrchestratorEngine implements WorkflowExecutor {
 
 	private async executeMcp(
 		machine: WorkflowStateMachine,
-		mcp: NonNullable<StepDefinition["mcp"]>,
-		instanceId: string
+		mcp: NonNullable<StepDefinition['mcp']>,
+		instanceId: string,
 	): Promise<void> {
 		globalEventBus.emit({
-			type: "mcp.called",
+			type: 'mcp.called',
 			instanceId,
 			provider: mcp.provider,
 			tool: mcp.tool,
@@ -247,7 +251,7 @@ export class OrchestratorEngine implements WorkflowExecutor {
 		machine.updateContext(`mcp.${mcp.provider}.${mcp.tool}`, result);
 
 		globalEventBus.emit({
-			type: "mcp.response",
+			type: 'mcp.response',
 			instanceId,
 			provider: mcp.provider,
 			tool: mcp.tool,
@@ -257,11 +261,11 @@ export class OrchestratorEngine implements WorkflowExecutor {
 
 	private async executeWebhook(
 		machine: WorkflowStateMachine,
-		webhook: NonNullable<StepDefinition["webhook"]>,
-		instanceId: string
+		webhook: NonNullable<StepDefinition['webhook']>,
+		instanceId: string,
 	): Promise<void> {
 		globalEventBus.emit({
-			type: "webhook.emitted",
+			type: 'webhook.emitted',
 			instanceId,
 			url: webhook.url,
 		});
@@ -275,10 +279,7 @@ export class OrchestratorEngine implements WorkflowExecutor {
 		machine.updateContext(`webhooks.${webhook.url}`, result);
 	}
 
-	private interpolate(
-		template: string,
-		context: Record<string, unknown>
-	): string {
+	private interpolate(template: string, context: Record<string, unknown>): string {
 		return template.replace(/\{\{(\w+(?:\.\w+)*)\}\}/g, (_, key) => {
 			const value = this.getNestedValue(context, key);
 			return String(value ?? `{{${key}}}`);
@@ -286,21 +287,18 @@ export class OrchestratorEngine implements WorkflowExecutor {
 	}
 
 	private getNestedValue(obj: Record<string, unknown>, path: string): unknown {
-		return path.split(".").reduce((acc: unknown, key) => {
-			if (acc && typeof acc === "object") {
+		return path.split('.').reduce((acc: unknown, key) => {
+			if (acc && typeof acc === 'object') {
 				return (acc as Record<string, unknown>)[key];
 			}
 			return undefined;
 		}, obj);
 	}
 
-	private evaluateCondition(
-		condition: string,
-		context: Record<string, unknown>
-	): boolean {
+	private evaluateCondition(condition: string, context: Record<string, unknown>): boolean {
 		// Simple condition evaluation - in production use a proper expression evaluator
 		// Supported: gate.{phase}.approved == true, phase.{name}.status == 'completed'
-		if (condition.includes("gate.") && condition.includes(".approved")) {
+		if (condition.includes('gate.') && condition.includes('.approved')) {
 			const gateMatch = condition.match(/gate\.(\w+)\.approved/);
 			if (gateMatch) {
 				const gateContext = this.getNestedValue(context, `gate.${gateMatch[1]}`);
@@ -313,16 +311,16 @@ export class OrchestratorEngine implements WorkflowExecutor {
 	pause(instanceId: string): void {
 		const machine = this.machines.get(instanceId);
 		if (machine) {
-			machine.transition({ type: "workflow.paused", instanceId });
-			globalEventBus.emit({ type: "workflow.paused", instanceId });
+			machine.transition({ type: 'workflow.paused', instanceId });
+			globalEventBus.emit({ type: 'workflow.paused', instanceId });
 		}
 	}
 
 	resume(instanceId: string): void {
 		const machine = this.machines.get(instanceId);
 		if (machine) {
-			machine.transition({ type: "workflow.resumed", instanceId });
-			globalEventBus.emit({ type: "workflow.resumed", instanceId });
+			machine.transition({ type: 'workflow.resumed', instanceId });
+			globalEventBus.emit({ type: 'workflow.resumed', instanceId });
 		}
 	}
 

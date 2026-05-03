@@ -1,7 +1,7 @@
-import { type ReactNode, useMemo } from "react";
-import { type FieldValues, type UseFormProps, useForm } from "react-hook-form";
-import type { FormErrorDisplayerProps } from "./FormErrorDisplayer";
-import { RhfFormProvider, type RhfFormProviderProps } from "./RhfFormProvider";
+import { type ReactNode, useMemo } from 'react';
+import { type FieldValues, type UseFormProps, useForm } from 'react-hook-form';
+import type { FormErrorDisplayerProps } from './FormErrorDisplayer';
+import { RhfFormProvider, type RhfFormProviderProps } from './RhfFormProvider';
 
 export interface UseRhfFormProps<T extends FieldValues> {
 	onSubmit: (data: T) => Promise<void>;
@@ -10,8 +10,8 @@ export interface UseRhfFormProps<T extends FieldValues> {
 		props?: FormErrorDisplayerProps;
 	};
 	numLockAlert?: boolean;
-	onInvalid?: RhfFormProviderProps<T>["onInvalid"];
-	onError?: RhfFormProviderProps<T>["onError"];
+	onInvalid?: RhfFormProviderProps<T>['onInvalid'];
+	onError?: RhfFormProviderProps<T>['onError'];
 	clearRootErrorOnChange?: boolean;
 	formConfig?: UseFormProps<T>;
 }
@@ -29,8 +29,8 @@ export const useRhfForm = <T extends FieldValues>({
 }: UseRhfFormProps<T>) => {
 	// Initialize React Hook Form with provided config
 	const formMethods = useForm<T>({
-		mode: "onBlur",
-		reValidateMode: "onChange",
+		mode: 'onBlur',
+		reValidateMode: 'onChange',
 		shouldFocusError: true,
 		delayError: 500,
 		...formConfig,

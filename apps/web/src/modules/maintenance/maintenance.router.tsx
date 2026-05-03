@@ -1,5 +1,5 @@
-import { MaintenancePlansPage } from "@frontend/modules/maintenance/pages/MaintenancePlans.page";
-import { Route, Routes } from "react-router";
+import { MaintenancePlansPage } from '@frontend/modules/maintenance/pages/MaintenancePlans.page';
+import { Route, Routes } from 'react-router';
 
 export const MaintenanceRouter = () => {
 	return (

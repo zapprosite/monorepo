@@ -1,66 +1,55 @@
-import { ErrorAlert } from "@repo/ui-mui/components/ErrorAlert";
-import { LoadingSpinner } from "@repo/ui-mui/components/LoadingSpinner";
-import { Chip } from "@repo/ui-mui/data-display/Chip";
-import { Typography } from "@repo/ui-mui/data-display/Typography";
-import { Alert } from "@repo/ui-mui/feedback/Alert";
-import { CircularProgress } from "@repo/ui-mui/feedback/CircularProgress";
-import { Dialog } from "@repo/ui-mui/feedback/Dialog";
-import { Button } from "@repo/ui-mui/form/Button";
-import { TextField } from "@repo/ui-mui/form/TextField";
-import { Box } from "@repo/ui-mui/layout/Box";
-import { Container } from "@repo/ui-mui/layout/Container";
-import { Paper } from "@repo/ui-mui/layout/Paper";
-import { MenuItem } from "@repo/ui-mui/navigation/MenuItem";
-import {
-	USER_ROLE_ENUM,
-	type UserRole,
-} from "@repo/zod-schemas/crm_enums.zod";
-import { trpc } from "@frontend/utils/trpc.client";
-import {
-	DialogActions,
-	DialogContent,
-	DialogTitle,
-} from "@mui/material";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { trpc } from '@frontend/utils/trpc.client';
+import { DialogActions, DialogContent, DialogTitle } from '@mui/material';
+import { ErrorAlert } from '@repo/ui-mui/components/ErrorAlert';
+import { LoadingSpinner } from '@repo/ui-mui/components/LoadingSpinner';
+import { Chip } from '@repo/ui-mui/data-display/Chip';
+import { Typography } from '@repo/ui-mui/data-display/Typography';
+import { Alert } from '@repo/ui-mui/feedback/Alert';
+import { CircularProgress } from '@repo/ui-mui/feedback/CircularProgress';
+import { Dialog } from '@repo/ui-mui/feedback/Dialog';
+import { Button } from '@repo/ui-mui/form/Button';
+import { TextField } from '@repo/ui-mui/form/TextField';
+import { Box } from '@repo/ui-mui/layout/Box';
+import { Container } from '@repo/ui-mui/layout/Container';
+import { Paper } from '@repo/ui-mui/layout/Paper';
+import { MenuItem } from '@repo/ui-mui/navigation/MenuItem';
+import { USER_ROLE_ENUM, type UserRole } from '@repo/zod-schemas/crm_enums.zod';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useState } from 'react';
 
 const ROLE_COLORS: Record<
 	UserRole,
-	"error" | "warning" | "info" | "success" | "default" | "primary" | "secondary"
+	'error' | 'warning' | 'info' | 'success' | 'default' | 'primary' | 'secondary'
 > = {
-	Admin: "error",
-	Gestor: "warning",
-	Tecnico: "info",
-	Comercial: "success",
-	Marketing: "secondary",
-	Atendimento: "primary",
-	Financeiro: "default",
+	Admin: 'error',
+	Gestor: 'warning',
+	Tecnico: 'info',
+	Comercial: 'success',
+	Marketing: 'secondary',
+	Atendimento: 'primary',
+	Financeiro: 'default',
 };
 
 export default function UserRolesPage() {
 	const queryClient = useQueryClient();
 	const [dialogOpen, setDialogOpen] = useState(false);
-	const [selectedUserId, setSelectedUserId] = useState("");
-	const [selectedRole, setSelectedRole] = useState<UserRole | "">("");
+	const [selectedUserId, setSelectedUserId] = useState('');
+	const [selectedRole, setSelectedRole] = useState<UserRole | ''>('');
 
 	const { data: myRoles, isLoading: myRolesLoading } = useQuery(
 		trpc.userRoles.getMyRoles.queryOptions(),
 	);
 
-	const isAdmin = myRoles?.some((r) => r.role === "Admin") ?? false;
+	const isAdmin = myRoles?.some((r) => r.role === 'Admin') ?? false;
 
-	const { data: users, isLoading: usersLoading } = useQuery(
-		trpc.users.getAll.queryOptions(),
-	);
+	const { data: users, isLoading: usersLoading } = useQuery(trpc.users.getAll.queryOptions());
 
 	const {
 		data: roles,
 		isLoading: rolesLoading,
 		error: rolesError,
 	} = useQuery(
-		trpc.userRoles.listUserRoles.queryOptions(
-			selectedUserId ? { userId: selectedUserId } : {},
-		),
+		trpc.userRoles.listUserRoles.queryOptions(selectedUserId ? { userId: selectedUserId } : {}),
 	);
 
 	const assignMutation = useMutation(
@@ -68,7 +57,7 @@ export default function UserRolesPage() {
 			onSuccess: () => {
 				queryClient.invalidateQueries({ queryKey: trpc.userRoles.listUserRoles.queryKey() });
 				setDialogOpen(false);
-				setSelectedRole("");
+				setSelectedRole('');
 			},
 		}),
 	);
@@ -99,10 +88,10 @@ export default function UserRolesPage() {
 			<Box
 				sx={{
 					mb: 4,
-					display: "flex",
-					justifyContent: "space-between",
-					alignItems: "center",
-					flexWrap: "wrap",
+					display: 'flex',
+					justifyContent: 'space-between',
+					alignItems: 'center',
+					flexWrap: 'wrap',
 					gap: 2,
 				}}
 			>
@@ -111,9 +100,9 @@ export default function UserRolesPage() {
 						variant="h3"
 						component="h1"
 						sx={{
-							fontSize: { xs: "1.75rem", md: "2.5rem" },
+							fontSize: { xs: '1.75rem', md: '2.5rem' },
 							fontWeight: 700,
-							letterSpacing: "-0.01em",
+							letterSpacing: '-0.01em',
 						}}
 					>
 						Usuários e Permissões
@@ -126,8 +115,8 @@ export default function UserRolesPage() {
 					variant="contained"
 					onClick={() => setDialogOpen(true)}
 					sx={{
-						transition: "all 0.2s ease-in-out",
-						"&:hover": { transform: "translateY(-2px)", boxShadow: 4 },
+						transition: 'all 0.2s ease-in-out',
+						'&:hover': { transform: 'translateY(-2px)', boxShadow: 4 },
 					}}
 				>
 					Atribuir Perfil
@@ -137,7 +126,7 @@ export default function UserRolesPage() {
 			{/* User selector */}
 			<Paper
 				elevation={0}
-				sx={{ border: "1px solid", borderColor: "divider", borderRadius: 2, p: 3, mb: 4 }}
+				sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2, p: 3, mb: 4 }}
 			>
 				<Typography variant="subtitle2" fontWeight={600} mb={2}>
 					Selecionar Usuário
@@ -167,13 +156,11 @@ export default function UserRolesPage() {
 			{selectedUserId && (
 				<>
 					{rolesLoading && <LoadingSpinner text="Carregando perfis..." />}
-					{rolesError && (
-						<ErrorAlert message={`Erro ao carregar perfis: ${rolesError.message}`} />
-					)}
+					{rolesError && <ErrorAlert message={`Erro ao carregar perfis: ${rolesError.message}`} />}
 					{!rolesLoading && !rolesError && (
 						<Paper
 							elevation={0}
-							sx={{ border: "1px solid", borderColor: "divider", borderRadius: 2, p: 3 }}
+							sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2, p: 3 }}
 						>
 							<Typography variant="subtitle2" fontWeight={600} mb={2}>
 								Perfis Atribuídos
@@ -183,15 +170,15 @@ export default function UserRolesPage() {
 									Nenhum perfil atribuído a este usuário.
 								</Typography>
 							) : (
-								<Box sx={{ display: "flex", flexWrap: "wrap", gap: 1.5 }}>
+								<Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5 }}>
 									{roles.map((r) => (
 										<Box
 											key={r.userRoleId}
-											sx={{ display: "flex", alignItems: "center", gap: 0.5 }}
+											sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}
 										>
 											<Chip
 												label={r.role}
-												color={ROLE_COLORS[r.role as UserRole] ?? "default"}
+												color={ROLE_COLORS[r.role as UserRole] ?? 'default'}
 												variant="filled"
 												size="medium"
 												onDelete={
@@ -266,9 +253,7 @@ export default function UserRolesPage() {
 							}
 						}}
 					>
-						{assignMutation.isPending ? (
-							<CircularProgress size={18} sx={{ mr: 1 }} />
-						) : null}
+						{assignMutation.isPending ? <CircularProgress size={18} sx={{ mr: 1 }} /> : null}
 						Atribuir
 					</Button>
 				</DialogActions>

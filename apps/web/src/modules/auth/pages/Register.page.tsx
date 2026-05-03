@@ -1,20 +1,20 @@
-import { Avatar } from "@repo/ui-mui/data-display/Avatar";
-import { Typography } from "@repo/ui-mui/data-display/Typography";
-import { CircularProgress } from "@repo/ui-mui/feedback/CircularProgress";
-import { Fade } from "@repo/ui-mui/feedback/Fade";
-import { Box } from "@repo/ui-mui/layout/Box";
-import { Card } from "@repo/ui-mui/layout/Card";
-import { Container } from "@repo/ui-mui/layout/Container";
-import { Stack } from "@repo/ui-mui/layout/Stack";
-import { RhfSubmitButton } from "@repo/ui-mui/rhf-form/RhfSubmitButton";
-import { RhfTextField } from "@repo/ui-mui/rhf-form/RhfTextField";
-import { useRhfForm } from "@repo/ui-mui/rhf-form/useRhfForm";
-import { type UserCreateInput, userCreateInputZod } from "@repo/zod-schemas/user.zod";
-import { trpc, trpcFetch } from "@frontend/utils/trpc.client";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useQuery } from "@tanstack/react-query";
-import { useEffect } from "react";
-import { useNavigate } from "react-router";
+import { trpc, trpcFetch } from '@frontend/utils/trpc.client';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Avatar } from '@repo/ui-mui/data-display/Avatar';
+import { Typography } from '@repo/ui-mui/data-display/Typography';
+import { CircularProgress } from '@repo/ui-mui/feedback/CircularProgress';
+import { Fade } from '@repo/ui-mui/feedback/Fade';
+import { Box } from '@repo/ui-mui/layout/Box';
+import { Card } from '@repo/ui-mui/layout/Card';
+import { Container } from '@repo/ui-mui/layout/Container';
+import { Stack } from '@repo/ui-mui/layout/Stack';
+import { RhfSubmitButton } from '@repo/ui-mui/rhf-form/RhfSubmitButton';
+import { RhfTextField } from '@repo/ui-mui/rhf-form/RhfTextField';
+import { useRhfForm } from '@repo/ui-mui/rhf-form/useRhfForm';
+import { type UserCreateInput, userCreateInputZod } from '@repo/zod-schemas/user.zod';
+import { useQuery } from '@tanstack/react-query';
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router';
 
 type RegisterFormData = UserCreateInput;
 
@@ -31,7 +31,7 @@ const RegisterPage = () => {
 	const { formMethods, RhfFormProvider } = useRhfForm<RegisterFormData>({
 		onSubmit: async (data) => {
 			await trpcFetch.users.create.mutate(data);
-			navigate("/dashboard", { replace: true });
+			navigate('/dashboard', { replace: true });
 		},
 		formConfig: {
 			resolver: zodResolver(userCreateInputZod),
@@ -41,9 +41,9 @@ const RegisterPage = () => {
 	// Pre-fill form with session data
 	useEffect(() => {
 		if (sessionInfo?.user) {
-			formMethods.setValue("email", sessionInfo.user.email);
-			formMethods.setValue("name", sessionInfo.user.name || "");
-			formMethods.setValue("displayPicture", sessionInfo.user.displayPicture || null);
+			formMethods.setValue('email', sessionInfo.user.email);
+			formMethods.setValue('name', sessionInfo.user.name || '');
+			formMethods.setValue('displayPicture', sessionInfo.user.displayPicture || null);
 		}
 	}, [sessionInfo, formMethods]);
 
@@ -54,12 +54,12 @@ const RegisterPage = () => {
 		}
 
 		if (sessionInfo.isRegistered) {
-			navigate("/dashboard", { replace: true });
+			navigate('/dashboard', { replace: true });
 			return;
 		}
 
 		if (!sessionInfo.hasSession) {
-			navigate("/auth/login", { replace: true });
+			navigate('/auth/login', { replace: true });
 		}
 	}, [sessionInfo, navigate]);
 
@@ -67,10 +67,10 @@ const RegisterPage = () => {
 		return (
 			<Box
 				sx={{
-					display: "flex",
-					justifyContent: "center",
-					alignItems: "center",
-					minHeight: "100vh",
+					display: 'flex',
+					justifyContent: 'center',
+					alignItems: 'center',
+					minHeight: '100vh',
 				}}
 			>
 				<CircularProgress />
@@ -81,8 +81,8 @@ const RegisterPage = () => {
 	return (
 		<Box
 			sx={{
-				minHeight: "100vh",
-				bgcolor: "background.default",
+				minHeight: '100vh',
+				bgcolor: 'background.default',
 				py: { xs: 4, md: 8 },
 			}}
 		>
@@ -92,9 +92,9 @@ const RegisterPage = () => {
 						sx={{
 							p: { xs: 3, md: 4 },
 							borderRadius: 2,
-							boxShadow: "0 4px 24px rgba(0,0,0,0.08)",
-							border: "1px solid",
-							borderColor: "divider",
+							boxShadow: '0 4px 24px rgba(0,0,0,0.08)',
+							border: '1px solid',
+							borderColor: 'divider',
 						}}
 					>
 						<Stack spacing={3} alignItems="center">
@@ -106,8 +106,8 @@ const RegisterPage = () => {
 									sx={{
 										width: 80,
 										height: 80,
-										border: "4px solid",
-										borderColor: "primary.main",
+										border: '4px solid',
+										borderColor: 'primary.main',
 										boxShadow: 2,
 									}}
 								/>
@@ -130,9 +130,9 @@ const RegisterPage = () => {
 
 							{/* Form */}
 							<RhfFormProvider>
-								<Stack spacing={3} sx={{ width: "100%" }}>
+								<Stack spacing={3} sx={{ width: '100%' }}>
 									{/* Hidden displayPicture field */}
-									<input type="hidden" {...formMethods.register("displayPicture")} />
+									<input type="hidden" {...formMethods.register('displayPicture')} />
 
 									{/* Email Field (pre-filled, readonly) */}
 									<RhfTextField
@@ -145,8 +145,8 @@ const RegisterPage = () => {
 										}}
 										sx={{
 											mb: 0,
-											"& .MuiOutlinedInput-root": {
-												bgcolor: "action.hover",
+											'& .MuiOutlinedInput-root': {
+												bgcolor: 'action.hover',
 											},
 										}}
 									/>
@@ -159,11 +159,11 @@ const RegisterPage = () => {
 										autoFocus
 										sx={{
 											mb: 0,
-											"& .MuiOutlinedInput-root": {
-												"&.Mui-focused": {
-													"& fieldset": {
+											'& .MuiOutlinedInput-root': {
+												'&.Mui-focused': {
+													'& fieldset': {
 														borderWidth: 2,
-														borderColor: "primary.main",
+														borderColor: 'primary.main',
 													},
 												},
 											},
@@ -175,9 +175,9 @@ const RegisterPage = () => {
 										notSubmittingText="Concluir cadastro"
 										isSubmittingText="Criando conta..."
 										props={{
-											variant: "contained",
+											variant: 'contained',
 											fullWidth: true,
-											size: "large",
+											size: 'large',
 										}}
 									/>
 								</Stack>
@@ -190,8 +190,8 @@ const RegisterPage = () => {
 								textAlign="center"
 								sx={{ mt: 2 }}
 							>
-								Ao concluir o cadastro, você concorda com os nossos Termos de Serviço e a
-								Política de Privacidade.
+								Ao concluir o cadastro, você concorda com os nossos Termos de Serviço e a Política
+								de Privacidade.
 							</Typography>
 						</Stack>
 					</Card>

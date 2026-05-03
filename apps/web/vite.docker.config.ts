@@ -5,10 +5,7 @@ import { envValidationVitePlugin } from './src/utils/env_validation_vite_plugin.
 
 export default defineConfig({
 	base: '/',
-	plugins: [
-		envValidationVitePlugin(),
-		react(),
-	],
+	plugins: [envValidationVitePlugin(), react()],
 	resolve: {
 		alias: {
 			'@frontend': path.resolve(__dirname, './src'),

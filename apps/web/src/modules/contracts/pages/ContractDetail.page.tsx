@@ -1,33 +1,33 @@
-import { ErrorAlert } from "@repo/ui-mui/components/ErrorAlert";
-import { LoadingSpinner } from "@repo/ui-mui/components/LoadingSpinner";
-import { Typography } from "@repo/ui-mui/data-display/Typography";
-import { Button } from "@repo/ui-mui/form/Button";
-import { Box } from "@repo/ui-mui/layout/Box";
-import { Container } from "@repo/ui-mui/layout/Container";
-import { Paper } from "@repo/ui-mui/layout/Paper";
-import type { ContractStatus } from "@repo/zod-schemas/crm_enums.zod";
-import { trpc } from "@frontend/utils/trpc.client";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
-import { useNavigate, useParams } from "react-router";
-import { CancelContractModal } from "../components/CancelContractModal";
-import { ContractStatusBadge } from "../components/ContractStatusBadge";
+import { trpc } from '@frontend/utils/trpc.client';
+import { ErrorAlert } from '@repo/ui-mui/components/ErrorAlert';
+import { LoadingSpinner } from '@repo/ui-mui/components/LoadingSpinner';
+import { Typography } from '@repo/ui-mui/data-display/Typography';
+import { Button } from '@repo/ui-mui/form/Button';
+import { Box } from '@repo/ui-mui/layout/Box';
+import { Container } from '@repo/ui-mui/layout/Container';
+import { Paper } from '@repo/ui-mui/layout/Paper';
+import type { ContractStatus } from '@repo/zod-schemas/crm_enums.zod';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useState } from 'react';
+import { useNavigate, useParams } from 'react-router';
+import { CancelContractModal } from '../components/CancelContractModal';
+import { ContractStatusBadge } from '../components/ContractStatusBadge';
 
 function formatDate(dateStr: string | null | undefined): string {
-	if (!dateStr) return "—";
+	if (!dateStr) return '—';
 	const date = new Date(`${dateStr}T12:00:00`);
-	return date.toLocaleDateString("pt-BR", {
-		day: "2-digit",
-		month: "long",
-		year: "numeric",
+	return date.toLocaleDateString('pt-BR', {
+		day: '2-digit',
+		month: 'long',
+		year: 'numeric',
 	});
 }
 
 function formatCurrency(valor: number | null | undefined): string {
-	if (valor == null) return "—";
-	return valor.toLocaleString("pt-BR", {
-		style: "currency",
-		currency: "BRL",
+	if (valor == null) return '—';
+	return valor.toLocaleString('pt-BR', {
+		style: 'currency',
+		currency: 'BRL',
 	});
 }
 
@@ -39,7 +39,7 @@ export default function ContractDetailPage() {
 
 	const contractDetailOptions = contractId
 		? trpc.contracts.getContractDetail.queryOptions({ contractId })
-		: trpc.contracts.getContractDetail.queryOptions({ contractId: "" });
+		: trpc.contracts.getContractDetail.queryOptions({ contractId: '' });
 
 	const {
 		data: contract,
@@ -81,7 +81,7 @@ export default function ContractDetailPage() {
 	if (error || !contract) {
 		return (
 			<Container maxWidth="lg" sx={{ py: 4 }}>
-				<ErrorAlert message={`Erro ao carregar contrato: ${error?.message ?? "Não encontrado"}`} />
+				<ErrorAlert message={`Erro ao carregar contrato: ${error?.message ?? 'Não encontrado'}`} />
 			</Container>
 		);
 	}
@@ -110,12 +110,12 @@ export default function ContractDetailPage() {
 				<Button
 					variant="text"
 					size="small"
-					onClick={() => navigate("/contracts")}
-					sx={{ mb: 1, color: "text.secondary" }}
+					onClick={() => navigate('/contracts')}
+					sx={{ mb: 1, color: 'text.secondary' }}
 				>
 					← Voltar para Contratos
 				</Button>
-				<Box sx={{ display: "flex", alignItems: "center", gap: 2, flexWrap: "wrap" }}>
+				<Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
 					<Typography variant="h4" fontWeight={700}>
 						{c.tipo}
 					</Typography>
@@ -127,8 +127,8 @@ export default function ContractDetailPage() {
 						color="primary.main"
 						mt={0.5}
 						sx={{
-							cursor: "pointer",
-							"&:hover": { textDecoration: "underline" },
+							cursor: 'pointer',
+							'&:hover': { textDecoration: 'underline' },
 						}}
 						onClick={() => navigate(`/clients/${c.clienteId}`)}
 					>
@@ -138,8 +138,8 @@ export default function ContractDetailPage() {
 			</Box>
 
 			{/* Action buttons */}
-			<Box sx={{ display: "flex", gap: 2, mb: 4, flexWrap: "wrap" }}>
-				{c.status === "Rascunho" && (
+			<Box sx={{ display: 'flex', gap: 2, mb: 4, flexWrap: 'wrap' }}>
+				{c.status === 'Rascunho' && (
 					<Button
 						variant="contained"
 						color="success"
@@ -149,7 +149,7 @@ export default function ContractDetailPage() {
 						Ativar Contrato
 					</Button>
 				)}
-				{c.status === "Ativo" && (
+				{c.status === 'Ativo' && (
 					<>
 						<Button
 							variant="contained"
@@ -169,7 +169,7 @@ export default function ContractDetailPage() {
 						</Button>
 					</>
 				)}
-				{c.status === "Suspenso" && (
+				{c.status === 'Suspenso' && (
 					<>
 						<Button
 							variant="contained"
@@ -189,7 +189,7 @@ export default function ContractDetailPage() {
 						</Button>
 					</>
 				)}
-				{c.status !== "Cancelado" && c.status !== "Encerrado" && (
+				{c.status !== 'Cancelado' && c.status !== 'Encerrado' && (
 					<Button
 						variant="outlined"
 						color="error"
@@ -202,16 +202,16 @@ export default function ContractDetailPage() {
 			</Box>
 
 			{/* Details Grid */}
-			<Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" }, gap: 3 }}>
+			<Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3 }}>
 				{/* Informações do Contrato */}
 				<Paper
 					elevation={0}
-					sx={{ border: "1px solid", borderColor: "divider", borderRadius: 2, p: 3 }}
+					sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2, p: 3 }}
 				>
 					<Typography variant="h6" fontWeight={600} mb={2}>
 						Informações do Contrato
 					</Typography>
-					<Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+					<Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
 						<Box>
 							<Typography variant="caption" color="text.secondary">
 								Tipo
@@ -252,12 +252,12 @@ export default function ContractDetailPage() {
 				{/* Detalhes */}
 				<Paper
 					elevation={0}
-					sx={{ border: "1px solid", borderColor: "divider", borderRadius: 2, p: 3 }}
+					sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2, p: 3 }}
 				>
 					<Typography variant="h6" fontWeight={600} mb={2}>
 						Detalhes
 					</Typography>
-					<Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+					<Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
 						{c.descricao && (
 							<Box>
 								<Typography variant="caption" color="text.secondary">
@@ -294,11 +294,11 @@ export default function ContractDetailPage() {
 				<Paper
 					elevation={0}
 					sx={{
-						border: "1px solid",
-						borderColor: "divider",
+						border: '1px solid',
+						borderColor: 'divider',
 						borderRadius: 2,
 						p: 3,
-						gridColumn: { md: "1 / -1" },
+						gridColumn: { md: '1 / -1' },
 					}}
 				>
 					<Typography variant="h6" fontWeight={600} mb={2}>
@@ -313,11 +313,11 @@ export default function ContractDetailPage() {
 				<Paper
 					elevation={0}
 					sx={{
-						border: "1px solid",
-						borderColor: "divider",
+						border: '1px solid',
+						borderColor: 'divider',
 						borderRadius: 2,
 						p: 3,
-						gridColumn: { md: "1 / -1" },
+						gridColumn: { md: '1 / -1' },
 					}}
 				>
 					<Typography variant="h6" fontWeight={600} mb={2}>

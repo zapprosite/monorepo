@@ -1,17 +1,17 @@
-import { Chip } from "@repo/ui-mui/data-display/Chip";
-import type { LeadStatus } from "@repo/zod-schemas/crm_enums.zod";
+import { Chip } from '@repo/ui-mui/data-display/Chip';
+import type { LeadStatus } from '@repo/zod-schemas/crm_enums.zod';
 
 const STATUS_COLOR: Record<
 	LeadStatus,
-	"default" | "primary" | "secondary" | "success" | "error" | "warning" | "info"
+	'default' | 'primary' | 'secondary' | 'success' | 'error' | 'warning' | 'info'
 > = {
-	Novo: "default",
-	Contato: "info",
-	Qualificado: "primary",
-	Proposta: "secondary",
-	Negociação: "warning",
-	Ganho: "success",
-	Perdido: "error",
+	Novo: 'default',
+	Contato: 'info',
+	Qualificado: 'primary',
+	Proposta: 'secondary',
+	Negociação: 'warning',
+	Ganho: 'success',
+	Perdido: 'error',
 };
 
 interface LeadStatusBadgeProps {

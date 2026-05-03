@@ -1,25 +1,25 @@
-import { BaseTable } from "@backend/db/base_table";
-import { UserTable } from "@backend/modules/users/users/users.table";
+import { BaseTable } from '@backend/db/base_table';
+import { UserTable } from '@backend/modules/users/users/users.table';
 
 export class JournalEntryTable extends BaseTable {
-	readonly table = "journal_entries";
+	readonly table = 'journal_entries';
 
-// @ts-ignore TS2742 — pqb internal type inference not portable
+	// @ts-expect-error TS2742 — pqb internal type inference not portable
 	columns = this.setColumns((t) => ({
 		journalEntryId: t.ulid().primaryKey(),
 
 		prompt: t.string(500).nullable(),
 		promptId: t
 			.smallint()
-			.foreignKey("prompts", "promptId", {
-				onDelete: "SET NULL",
-				onUpdate: "RESTRICT",
+			.foreignKey('prompts', 'promptId', {
+				onDelete: 'SET NULL',
+				onUpdate: 'RESTRICT',
 			})
 			.nullable(),
 		content: t.text(),
-		authorUserId: t.uuid().foreignKey("users", "userId", {
-			onDelete: "CASCADE",
-			onUpdate: "RESTRICT",
+		authorUserId: t.uuid().foreignKey('users', 'userId', {
+			onDelete: 'CASCADE',
+			onUpdate: 'RESTRICT',
 		}),
 
 		...t.timestamps(),
@@ -27,8 +27,8 @@ export class JournalEntryTable extends BaseTable {
 
 	relations = {
 		author: this.belongsTo(() => UserTable, {
-			columns: ["authorUserId"],
-			references: ["userId"],
+			columns: ['authorUserId'],
+			references: ['userId'],
 		}),
 	};
 }

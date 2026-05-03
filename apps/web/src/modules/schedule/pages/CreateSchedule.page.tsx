@@ -1,20 +1,17 @@
-import { Typography } from "@repo/ui-mui/data-display/Typography";
-import { Button } from "@repo/ui-mui/form/Button";
-import { TextField } from "@repo/ui-mui/form/TextField";
-import { Box } from "@repo/ui-mui/layout/Box";
-import { Container } from "@repo/ui-mui/layout/Container";
-import { Paper } from "@repo/ui-mui/layout/Paper";
-import { MenuItem } from "@repo/ui-mui/navigation/MenuItem";
-import { SCHEDULE_STATUS_ENUM, SERVICE_TYPE_ENUM } from "@repo/zod-schemas/crm_enums.zod";
-import {
-	type ScheduleCreateInput,
-	scheduleCreateInputZod,
-} from "@repo/zod-schemas/schedule.zod";
-import { trpc } from "@frontend/utils/trpc.client";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Controller, useForm, useWatch } from "react-hook-form";
-import { useNavigate } from "react-router";
+import { trpc } from '@frontend/utils/trpc.client';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Typography } from '@repo/ui-mui/data-display/Typography';
+import { Button } from '@repo/ui-mui/form/Button';
+import { TextField } from '@repo/ui-mui/form/TextField';
+import { Box } from '@repo/ui-mui/layout/Box';
+import { Container } from '@repo/ui-mui/layout/Container';
+import { Paper } from '@repo/ui-mui/layout/Paper';
+import { MenuItem } from '@repo/ui-mui/navigation/MenuItem';
+import { SCHEDULE_STATUS_ENUM, SERVICE_TYPE_ENUM } from '@repo/zod-schemas/crm_enums.zod';
+import { type ScheduleCreateInput, scheduleCreateInputZod } from '@repo/zod-schemas/schedule.zod';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { Controller, useForm, useWatch } from 'react-hook-form';
+import { useNavigate } from 'react-router';
 
 export default function CreateSchedulePage() {
 	const navigate = useNavigate();
@@ -27,22 +24,22 @@ export default function CreateSchedulePage() {
 	} = useForm<ScheduleCreateInput>({
 		resolver: zodResolver(scheduleCreateInputZod),
 		defaultValues: {
-			status: "Agendado",
+			status: 'Agendado',
 			duracaoMinutos: 60,
 		},
 	});
 
-	const selectedClienteId = useWatch({ control, name: "clienteId" });
+	const selectedClienteId = useWatch({ control, name: 'clienteId' });
 
 	const { data: clients } = useQuery(trpc.clients.listClients.queryOptions({}));
 
 	const { data: units } = useQuery({
-		...trpc.equipment.listUnitsByClient.queryOptions({ clienteId: selectedClienteId ?? "" }),
+		...trpc.equipment.listUnitsByClient.queryOptions({ clienteId: selectedClienteId ?? '' }),
 		enabled: !!selectedClienteId,
 	});
 
 	const { data: equipment } = useQuery({
-		...trpc.equipment.listEquipmentByClient.queryOptions({ clienteId: selectedClienteId ?? "" }),
+		...trpc.equipment.listEquipmentByClient.queryOptions({ clienteId: selectedClienteId ?? '' }),
 		enabled: !!selectedClienteId,
 	});
 
@@ -50,7 +47,7 @@ export default function CreateSchedulePage() {
 		trpc.schedule.createSchedule.mutationOptions({
 			onSuccess: () => {
 				queryClient.invalidateQueries({ queryKey: trpc.schedule.listSchedules.queryKey() });
-				navigate("/schedule");
+				navigate('/schedule');
 			},
 		}),
 	);
@@ -66,8 +63,8 @@ export default function CreateSchedulePage() {
 				<Button
 					variant="text"
 					size="small"
-					onClick={() => navigate("/schedule")}
-					sx={{ mb: 1, color: "text.secondary" }}
+					onClick={() => navigate('/schedule')}
+					sx={{ mb: 1, color: 'text.secondary' }}
 				>
 					← Voltar para Agenda
 				</Button>
@@ -78,12 +75,12 @@ export default function CreateSchedulePage() {
 
 			<Paper
 				elevation={0}
-				sx={{ border: "1px solid", borderColor: "divider", borderRadius: 2, p: 4 }}
+				sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2, p: 4 }}
 			>
 				<Box
 					component="form"
 					onSubmit={handleSubmit(onSubmit)}
-					sx={{ display: "flex", flexDirection: "column", gap: 3 }}
+					sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}
 				>
 					{/* Cliente */}
 					<Controller
@@ -107,7 +104,7 @@ export default function CreateSchedulePage() {
 						)}
 					/>
 
-					<Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 3 }}>
+					<Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 3 }}>
 						{/* Unidade */}
 						<Controller
 							name="unitId"
@@ -115,7 +112,7 @@ export default function CreateSchedulePage() {
 							render={({ field }) => (
 								<TextField
 									{...field}
-									value={field.value ?? ""}
+									value={field.value ?? ''}
 									select
 									label="Unidade"
 									fullWidth
@@ -140,7 +137,7 @@ export default function CreateSchedulePage() {
 							render={({ field }) => (
 								<TextField
 									{...field}
-									value={field.value ?? ""}
+									value={field.value ?? ''}
 									select
 									label="Equipamento"
 									fullWidth
@@ -160,7 +157,7 @@ export default function CreateSchedulePage() {
 					</Box>
 
 					{/* Data/Hora e Duração */}
-					<Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 3 }}>
+					<Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 3 }}>
 						<Controller
 							name="dataHora"
 							control={control}
@@ -197,7 +194,7 @@ export default function CreateSchedulePage() {
 					</Box>
 
 					{/* Tipo e Status */}
-					<Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 3 }}>
+					<Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 3 }}>
 						<Controller
 							name="tipo"
 							control={control}
@@ -248,7 +245,7 @@ export default function CreateSchedulePage() {
 						render={({ field }) => (
 							<TextField
 								{...field}
-								value={field.value ?? ""}
+								value={field.value ?? ''}
 								label="Descrição"
 								multiline
 								rows={3}
@@ -266,7 +263,7 @@ export default function CreateSchedulePage() {
 						render={({ field }) => (
 							<TextField
 								{...field}
-								value={field.value ?? ""}
+								value={field.value ?? ''}
 								label="Observações"
 								multiline
 								rows={3}
@@ -277,10 +274,10 @@ export default function CreateSchedulePage() {
 						)}
 					/>
 
-					<Box sx={{ display: "flex", gap: 2, justifyContent: "flex-end", pt: 1 }}>
+					<Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end', pt: 1 }}>
 						<Button
 							variant="outlined"
-							onClick={() => navigate("/schedule")}
+							onClick={() => navigate('/schedule')}
 							disabled={createSchedule.isPending}
 						>
 							Cancelar
@@ -291,7 +288,7 @@ export default function CreateSchedulePage() {
 							disabled={createSchedule.isPending}
 							sx={{ minWidth: 160 }}
 						>
-							{createSchedule.isPending ? "Salvando..." : "Salvar Agendamento"}
+							{createSchedule.isPending ? 'Salvando...' : 'Salvar Agendamento'}
 						</Button>
 					</Box>
 				</Box>

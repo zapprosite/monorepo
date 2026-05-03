@@ -1,1 +1,1 @@
-export { default as PeopleIcon } from "@mui/icons-material/People";
+export { default as PeopleIcon } from '@mui/icons-material/People';

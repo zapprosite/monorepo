@@ -1,16 +1,16 @@
-import { Chip } from "@repo/ui-mui/data-display/Chip";
-import type { EditorialStatus } from "@repo/zod-schemas/crm_enums.zod";
+import { Chip } from '@repo/ui-mui/data-display/Chip';
+import type { EditorialStatus } from '@repo/zod-schemas/crm_enums.zod';
 
 const STATUS_COLOR: Record<
 	EditorialStatus,
-	"default" | "primary" | "secondary" | "success" | "error" | "warning" | "info"
+	'default' | 'primary' | 'secondary' | 'success' | 'error' | 'warning' | 'info'
 > = {
-	Ideia: "default",
-	"Em Produção": "warning",
-	Revisão: "info",
-	Aprovado: "primary",
-	Publicado: "success",
-	Cancelado: "error",
+	Ideia: 'default',
+	'Em Produção': 'warning',
+	Revisão: 'info',
+	Aprovado: 'primary',
+	Publicado: 'success',
+	Cancelado: 'error',
 };
 
 interface EditorialStatusBadgeProps {

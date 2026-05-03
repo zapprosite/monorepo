@@ -1,18 +1,18 @@
-import type { SxProps, Theme } from "@mui/material/styles";
-import { Controller, useFormContext } from "react-hook-form";
+import type { SxProps, Theme } from '@mui/material/styles';
+import { Controller, useFormContext } from 'react-hook-form';
 import {
 	FormControl,
 	FormControlLabel,
 	type FormControlLabelProps,
 	FormHelperText,
-} from "../form/FormControl";
-import { Switch, type SwitchProps } from "../form/Switch";
+} from '../form/FormControl';
+import { Switch, type SwitchProps } from '../form/Switch';
 
 export interface RhfSwitchProps {
 	name: string;
 	label: string;
 	switchProps?: SwitchProps;
-	formControlLabelProps?: Omit<FormControlLabelProps, "control" | "label">;
+	formControlLabelProps?: Omit<FormControlLabelProps, 'control' | 'label'>;
 	sx?: SxProps<Theme>;
 }
 
@@ -52,7 +52,7 @@ export const RhfSwitch = ({
 						label={label}
 						sx={{
 							ml: 0,
-							alignItems: "flex-start",
+							alignItems: 'flex-start',
 						}}
 						{...formControlLabelProps}
 					/>

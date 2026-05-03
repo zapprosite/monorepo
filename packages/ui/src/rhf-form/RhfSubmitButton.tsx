@@ -1,5 +1,5 @@
-import { useFormState } from "react-hook-form";
-import { Button, type ButtonProps } from "../form/Button";
+import { useFormState } from 'react-hook-form';
+import { Button, type ButtonProps } from '../form/Button';
 
 export interface RhfSubmitButtonProps {
 	props?: ButtonProps;
@@ -9,8 +9,8 @@ export interface RhfSubmitButtonProps {
 
 export const RhfSubmitButton = ({
 	props,
-	isSubmittingText = "Submitting...",
-	notSubmittingText = "Submit",
+	isSubmittingText = 'Submitting...',
+	notSubmittingText = 'Submit',
 }: RhfSubmitButtonProps) => {
 	const { isSubmitting } = useFormState();
 
@@ -24,18 +24,18 @@ export const RhfSubmitButton = ({
 			disabled={isSubmitting}
 			sx={{
 				py: 1.5,
-				fontSize: "1.1rem",
+				fontSize: '1.1rem',
 				fontWeight: 600,
-				textTransform: "none",
+				textTransform: 'none',
 				borderRadius: 2,
 				boxShadow: 2,
-				transition: "all 0.2s ease-in-out",
-				"&:hover": {
-					transform: "translateY(-2px)",
+				transition: 'all 0.2s ease-in-out',
+				'&:hover': {
+					transform: 'translateY(-2px)',
 					boxShadow: 4,
 				},
-				"&:active": {
-					transform: "translateY(0)",
+				'&:active': {
+					transform: 'translateY(0)',
 					boxShadow: 2,
 				},
 			}}

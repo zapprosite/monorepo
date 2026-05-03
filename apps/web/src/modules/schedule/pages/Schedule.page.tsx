@@ -1,35 +1,35 @@
-import { ErrorAlert } from "@repo/ui-mui/components/ErrorAlert";
-import { LoadingSpinner } from "@repo/ui-mui/components/LoadingSpinner";
-import { Typography } from "@repo/ui-mui/data-display/Typography";
-import { Button } from "@repo/ui-mui/form/Button";
-import { TextField } from "@repo/ui-mui/form/TextField";
-import { Box } from "@repo/ui-mui/layout/Box";
-import { Container } from "@repo/ui-mui/layout/Container";
-import { Paper } from "@repo/ui-mui/layout/Paper";
-import { MenuItem } from "@repo/ui-mui/navigation/MenuItem";
-import type { ScheduleStatus, ServiceType } from "@repo/zod-schemas/crm_enums.zod";
-import { SCHEDULE_STATUS_ENUM, SERVICE_TYPE_ENUM } from "@repo/zod-schemas/crm_enums.zod";
-import { trpc } from "@frontend/utils/trpc.client";
-import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
-import { useNavigate } from "react-router";
-import { ScheduleStatusBadge } from "../components/ScheduleStatusBadge";
+import { trpc } from '@frontend/utils/trpc.client';
+import { ErrorAlert } from '@repo/ui-mui/components/ErrorAlert';
+import { LoadingSpinner } from '@repo/ui-mui/components/LoadingSpinner';
+import { Typography } from '@repo/ui-mui/data-display/Typography';
+import { Button } from '@repo/ui-mui/form/Button';
+import { TextField } from '@repo/ui-mui/form/TextField';
+import { Box } from '@repo/ui-mui/layout/Box';
+import { Container } from '@repo/ui-mui/layout/Container';
+import { Paper } from '@repo/ui-mui/layout/Paper';
+import { MenuItem } from '@repo/ui-mui/navigation/MenuItem';
+import type { ScheduleStatus, ServiceType } from '@repo/zod-schemas/crm_enums.zod';
+import { SCHEDULE_STATUS_ENUM, SERVICE_TYPE_ENUM } from '@repo/zod-schemas/crm_enums.zod';
+import { useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
+import { useNavigate } from 'react-router';
+import { ScheduleStatusBadge } from '../components/ScheduleStatusBadge';
 
 function formatDate(timestamp: number | string): string {
-	const date = typeof timestamp === "number" ? new Date(timestamp) : new Date(timestamp);
-	return date.toLocaleDateString("pt-BR", {
-		weekday: "long",
-		day: "2-digit",
-		month: "long",
-		year: "numeric",
+	const date = typeof timestamp === 'number' ? new Date(timestamp) : new Date(timestamp);
+	return date.toLocaleDateString('pt-BR', {
+		weekday: 'long',
+		day: '2-digit',
+		month: 'long',
+		year: 'numeric',
 	});
 }
 
 function formatTime(timestamp: number | string): string {
-	const date = typeof timestamp === "number" ? new Date(timestamp) : new Date(timestamp);
-	return date.toLocaleTimeString("pt-BR", {
-		hour: "2-digit",
-		minute: "2-digit",
+	const date = typeof timestamp === 'number' ? new Date(timestamp) : new Date(timestamp);
+	return date.toLocaleTimeString('pt-BR', {
+		hour: '2-digit',
+		minute: '2-digit',
 	});
 }
 
@@ -38,7 +38,7 @@ function groupByDay(
 ): Map<string, typeof schedules> {
 	const groups = new Map<string, typeof schedules>();
 	for (const s of schedules) {
-		const date = typeof s.dataHora === "number" ? new Date(s.dataHora) : new Date(s.dataHora);
+		const date = typeof s.dataHora === 'number' ? new Date(s.dataHora) : new Date(s.dataHora);
 		const day = date.toISOString().slice(0, 10);
 		if (!groups.has(day)) groups.set(day, []);
 		groups.get(day)?.push(s);
@@ -48,10 +48,10 @@ function groupByDay(
 
 export default function SchedulePage() {
 	const navigate = useNavigate();
-	const [filterStatus, setFilterStatus] = useState<ScheduleStatus | "">("");
-	const [filterTipo, setFilterTipo] = useState<ServiceType | "">("");
-	const [filterDataInicio, setFilterDataInicio] = useState("");
-	const [filterDataFim, setFilterDataFim] = useState("");
+	const [filterStatus, setFilterStatus] = useState<ScheduleStatus | ''>('');
+	const [filterTipo, setFilterTipo] = useState<ServiceType | ''>('');
+	const [filterDataInicio, setFilterDataInicio] = useState('');
+	const [filterDataFim, setFilterDataFim] = useState('');
 
 	const hasActiveFilters = Boolean(filterStatus || filterTipo || filterDataInicio || filterDataFim);
 
@@ -93,9 +93,9 @@ export default function SchedulePage() {
 			<Box
 				sx={{
 					mb: 4,
-					display: "flex",
-					justifyContent: "space-between",
-					alignItems: "center",
+					display: 'flex',
+					justifyContent: 'space-between',
+					alignItems: 'center',
 				}}
 			>
 				<Box>
@@ -103,9 +103,9 @@ export default function SchedulePage() {
 						variant="h3"
 						component="h1"
 						sx={{
-							fontSize: { xs: "2rem", md: "2.5rem" },
+							fontSize: { xs: '2rem', md: '2.5rem' },
 							fontWeight: 700,
-							letterSpacing: "-0.01em",
+							letterSpacing: '-0.01em',
 						}}
 					>
 						Agenda
@@ -116,10 +116,10 @@ export default function SchedulePage() {
 				</Box>
 				<Button
 					variant="contained"
-					onClick={() => navigate("/schedule/new")}
+					onClick={() => navigate('/schedule/new')}
 					sx={{
-						transition: "all 0.2s ease-in-out",
-						"&:hover": { transform: "translateY(-2px)", boxShadow: 4 },
+						transition: 'all 0.2s ease-in-out',
+						'&:hover': { transform: 'translateY(-2px)', boxShadow: 4 },
 					}}
 				>
 					Novo Agendamento
@@ -129,12 +129,12 @@ export default function SchedulePage() {
 			{/* Filters */}
 			<Paper
 				elevation={0}
-				sx={{ border: "1px solid", borderColor: "divider", borderRadius: 2, p: 3, mb: 4 }}
+				sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2, p: 3, mb: 4 }}
 			>
 				<Box
 					sx={{
-						display: "grid",
-						gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr", md: "1fr 1fr 1fr 1fr" },
+						display: 'grid',
+						gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: '1fr 1fr 1fr 1fr' },
 						gap: 2,
 					}}
 				>
@@ -142,7 +142,7 @@ export default function SchedulePage() {
 						select
 						label="Status"
 						value={filterStatus}
-						onChange={(e) => setFilterStatus(e.target.value as ScheduleStatus | "")}
+						onChange={(e) => setFilterStatus(e.target.value as ScheduleStatus | '')}
 						size="small"
 						fullWidth
 					>
@@ -158,7 +158,7 @@ export default function SchedulePage() {
 						select
 						label="Tipo de Serviço"
 						value={filterTipo}
-						onChange={(e) => setFilterTipo(e.target.value as ServiceType | "")}
+						onChange={(e) => setFilterTipo(e.target.value as ServiceType | '')}
 						size="small"
 						fullWidth
 					>
@@ -197,11 +197,11 @@ export default function SchedulePage() {
 				<Paper
 					elevation={0}
 					sx={{
-						border: "1px solid",
-						borderColor: "divider",
+						border: '1px solid',
+						borderColor: 'divider',
 						borderRadius: 2,
 						p: 8,
-						textAlign: "center",
+						textAlign: 'center',
 					}}
 				>
 					<Typography variant="h6" color="text.secondary" gutterBottom>
@@ -210,12 +210,12 @@ export default function SchedulePage() {
 					<Typography variant="body2" color="text.disabled" mb={3}>
 						Crie o primeiro agendamento para organizar a agenda da equipe
 					</Typography>
-					<Button variant="contained" onClick={() => navigate("/schedule/new")}>
+					<Button variant="contained" onClick={() => navigate('/schedule/new')}>
 						Novo Agendamento
 					</Button>
 				</Paper>
 			) : (
-				<Box sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
+				<Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
 					{days.map((day) => {
 						const daySchedules = grouped.get(day)!;
 						const firstDate = new Date(`${day}T12:00:00`);
@@ -227,11 +227,11 @@ export default function SchedulePage() {
 									fontWeight={600}
 									textTransform="capitalize"
 									mb={1.5}
-									sx={{ letterSpacing: "0.02em" }}
+									sx={{ letterSpacing: '0.02em' }}
 								>
 									{formatDate(firstDate.toISOString())}
 								</Typography>
-								<Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+								<Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
 									{daySchedules.map((schedule) => {
 										const s = schedule as {
 											scheduleId: string;
@@ -249,35 +249,35 @@ export default function SchedulePage() {
 												tabIndex={0}
 												onClick={() => navigate(`/schedule/${s.scheduleId}`)}
 												onKeyDown={(event) => {
-													if (event.key === "Enter" || event.key === " ") {
+													if (event.key === 'Enter' || event.key === ' ') {
 														event.preventDefault();
 														navigate(`/schedule/${s.scheduleId}`);
 													}
 												}}
 												sx={{
-													border: "1px solid",
-													borderColor: "divider",
+													border: '1px solid',
+													borderColor: 'divider',
 													borderRadius: 2,
 													p: 3,
-													cursor: "pointer",
-													transition: "all 0.2s ease-in-out",
-													"&:hover": {
-														borderColor: "primary.main",
-														transform: "translateY(-2px)",
+													cursor: 'pointer',
+													transition: 'all 0.2s ease-in-out',
+													'&:hover': {
+														borderColor: 'primary.main',
+														transform: 'translateY(-2px)',
 														boxShadow: 3,
 													},
 												}}
 											>
 												<Box
 													sx={{
-														display: "flex",
-														alignItems: "center",
-														justifyContent: "space-between",
+														display: 'flex',
+														alignItems: 'center',
+														justifyContent: 'space-between',
 														gap: 2,
-														flexWrap: "wrap",
+														flexWrap: 'wrap',
 													}}
 												>
-													<Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+													<Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
 														<Typography
 															variant="h6"
 															fontWeight={700}
@@ -287,15 +287,15 @@ export default function SchedulePage() {
 															{formatTime(s.dataHora)}
 														</Typography>
 														<Box>
-															<Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.5 }}>
+															<Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
 																<Typography variant="subtitle1" fontWeight={600}>
 																	{s.tipo}
 																</Typography>
 																<ScheduleStatusBadge status={s.status} />
 															</Box>
 															<Typography variant="body2" color="text.secondary">
-																{s.duracaoMinutos ? `${s.duracaoMinutos} min` : ""}
-																{s.tecnicoId ? ` · Técnico: ${s.tecnicoId}` : ""}
+																{s.duracaoMinutos ? `${s.duracaoMinutos} min` : ''}
+																{s.tecnicoId ? ` · Técnico: ${s.tecnicoId}` : ''}
 															</Typography>
 														</Box>
 													</Box>

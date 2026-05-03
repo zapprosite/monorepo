@@ -1,14 +1,14 @@
-import { ErrorAlert } from "@repo/ui-mui/components/ErrorAlert";
-import { LoadingSpinner } from "@repo/ui-mui/components/LoadingSpinner";
-import { Typography } from "@repo/ui-mui/data-display/Typography";
-import { Button } from "@repo/ui-mui/form/Button";
-import { Box } from "@repo/ui-mui/layout/Box";
-import { Container } from "@repo/ui-mui/layout/Container";
-import { Paper } from "@repo/ui-mui/layout/Paper";
-import { trpc } from "@frontend/utils/trpc.client";
-import { useQuery } from "@tanstack/react-query";
-import { useNavigate } from "react-router";
-import { LeadStatusBadge } from "../components/LeadStatusBadge";
+import { trpc } from '@frontend/utils/trpc.client';
+import { ErrorAlert } from '@repo/ui-mui/components/ErrorAlert';
+import { LoadingSpinner } from '@repo/ui-mui/components/LoadingSpinner';
+import { Typography } from '@repo/ui-mui/data-display/Typography';
+import { Button } from '@repo/ui-mui/form/Button';
+import { Box } from '@repo/ui-mui/layout/Box';
+import { Container } from '@repo/ui-mui/layout/Container';
+import { Paper } from '@repo/ui-mui/layout/Paper';
+import { useQuery } from '@tanstack/react-query';
+import { useNavigate } from 'react-router';
+import { LeadStatusBadge } from '../components/LeadStatusBadge';
 
 export default function LeadsPage() {
 	const navigate = useNavigate();
@@ -29,10 +29,10 @@ export default function LeadsPage() {
 			<Box
 				sx={{
 					mb: 4,
-					display: "flex",
-					justifyContent: "space-between",
-					alignItems: { xs: "flex-start", sm: "center" },
-					flexDirection: { xs: "column", sm: "row" },
+					display: 'flex',
+					justifyContent: 'space-between',
+					alignItems: { xs: 'flex-start', sm: 'center' },
+					flexDirection: { xs: 'column', sm: 'row' },
 					gap: 2,
 				}}
 			>
@@ -41,25 +41,25 @@ export default function LeadsPage() {
 						variant="h3"
 						component="h1"
 						sx={{
-							fontSize: { xs: "2rem", md: "2.5rem" },
+							fontSize: { xs: '2rem', md: '2.5rem' },
 							fontWeight: 700,
-							letterSpacing: "-0.01em",
+							letterSpacing: '-0.01em',
 						}}
 					>
 						Leads
 					</Typography>
 					<Typography variant="body2" color="text.secondary">
-						{leads?.length ?? 0} {leads?.length === 1 ? "lead no total" : "leads no total"}
+						{leads?.length ?? 0} {leads?.length === 1 ? 'lead no total' : 'leads no total'}
 					</Typography>
 				</Box>
 				<Button
 					variant="contained"
-					onClick={() => navigate("/leads/new")}
+					onClick={() => navigate('/leads/new')}
 					sx={{
-						width: { xs: "100%", sm: "auto" },
+						width: { xs: '100%', sm: 'auto' },
 						minHeight: 44,
-						transition: "all 0.2s ease-in-out",
-						"&:hover": { transform: "translateY(-2px)", boxShadow: 4 },
+						transition: 'all 0.2s ease-in-out',
+						'&:hover': { transform: 'translateY(-2px)', boxShadow: 4 },
 					}}
 				>
 					Novo Lead
@@ -70,11 +70,11 @@ export default function LeadsPage() {
 				<Paper
 					elevation={0}
 					sx={{
-						border: "1px solid",
-						borderColor: "divider",
+						border: '1px solid',
+						borderColor: 'divider',
 						borderRadius: 2,
 						p: 8,
-						textAlign: "center",
+						textAlign: 'center',
 					}}
 				>
 					<Typography variant="h6" color="text.secondary" gutterBottom>
@@ -83,36 +83,36 @@ export default function LeadsPage() {
 					<Typography variant="body2" color="text.disabled" mb={3}>
 						Cadastre o primeiro lead para começar o pipeline comercial
 					</Typography>
-					<Button variant="contained" onClick={() => navigate("/leads/new")}>
+					<Button variant="contained" onClick={() => navigate('/leads/new')}>
 						Cadastrar Lead
 					</Button>
 				</Paper>
 			) : (
-				<Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+				<Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
 					{leads.map((lead) => (
 						<Paper
 							key={lead.leadId}
 							elevation={0}
 							onClick={() => navigate(`/leads/${lead.leadId}`)}
 							sx={{
-								border: "1px solid",
-								borderColor: "divider",
+								border: '1px solid',
+								borderColor: 'divider',
 								borderRadius: 2,
 								p: 3,
-								cursor: "pointer",
-								transition: "all 0.2s ease-in-out",
-								"&:hover": {
-									borderColor: "primary.main",
-									transform: "translateY(-2px)",
+								cursor: 'pointer',
+								transition: 'all 0.2s ease-in-out',
+								'&:hover': {
+									borderColor: 'primary.main',
+									transform: 'translateY(-2px)',
 									boxShadow: 3,
 								},
 							}}
 						>
 							<Box
 								sx={{
-									display: "flex",
-									alignItems: "center",
-									justifyContent: "space-between",
+									display: 'flex',
+									alignItems: 'center',
+									justifyContent: 'space-between',
 									gap: 2,
 								}}
 							>
@@ -121,8 +121,8 @@ export default function LeadsPage() {
 										{lead.nome}
 									</Typography>
 									<Typography variant="body2" color="text.secondary">
-										{lead.origem} {lead.email ? `· ${lead.email}` : ""}{" "}
-										{lead.telefone ? `· ${lead.telefone}` : ""}
+										{lead.origem} {lead.email ? `· ${lead.email}` : ''}{' '}
+										{lead.telefone ? `· ${lead.telefone}` : ''}
 									</Typography>
 								</Box>
 								<LeadStatusBadge status={lead.status} />

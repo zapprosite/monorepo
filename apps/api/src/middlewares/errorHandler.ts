@@ -1,7 +1,7 @@
-import { isDev } from "@backend/configs/env.config";
-import { TRPCError } from "@trpc/server";
-import type { FastifyError, FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
-import { ZodError } from "zod";
+import { isDev } from '@backend/configs/env.config';
+import { TRPCError } from '@trpc/server';
+import type { FastifyError, FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
+import { ZodError } from 'zod';
 
 // Custom API error class
 export class AppError extends Error {
@@ -27,9 +27,9 @@ export const handleError = (
 ) => {
 	// Default error response structure
 	const errorResponse = {
-		status: "error",
-		message: error.message || "Something went wrong",
-		errorCode: "INTERNAL_SERVER_ERROR",
+		status: 'error',
+		message: error.message || 'Something went wrong',
+		errorCode: 'INTERNAL_SERVER_ERROR',
 		stack: isDev ? error.stack : undefined,
 	};
 
@@ -47,8 +47,8 @@ export const handleError = (
 		return reply.status(400).send({
 			...errorResponse,
 			statusCode: 400,
-			message: "Validation failed",
-			errorCode: "VALIDATION_ERROR",
+			message: 'Validation failed',
+			errorCode: 'VALIDATION_ERROR',
 			errors: error.issues,
 		});
 	}
@@ -86,15 +86,15 @@ export const handleError = (
 		return reply.status(400).send({
 			...errorResponse,
 			statusCode: 400,
-			message: "Validation failed",
-			errorCode: "VALIDATION_ERROR",
+			message: 'Validation failed',
+			errorCode: 'VALIDATION_ERROR',
 			errors: (error as FastifyError).validation,
 		});
 	}
 
 	// Handle unknown errors
 	// Log unhandled errors using Fastify logger
-	if (_req && typeof _req.log?.error === "function") {
+	if (_req && typeof _req.log?.error === 'function') {
 		_req.log.error(
 			{
 				url: _req.url,
@@ -102,14 +102,14 @@ export const handleError = (
 				error: error.message,
 				stack: isDev ? error.stack : undefined,
 			},
-			"Unhandled error",
+			'Unhandled error',
 		);
 	}
 
 	return reply.status(500).send({
 		...errorResponse,
 		statusCode: 500,
-		message: "An unexpected error occurred",
+		message: 'An unexpected error occurred',
 	});
 };
 
@@ -117,7 +117,7 @@ export const handleError = (
 export const registerErrorHandler = (server: FastifyInstance) => {
 	// Set default error handler
 	server.setErrorHandler((error, request, reply) => {
-		request.log.error("ERROR HANDLER ACTIVATED: %s", error);
+		request.log.error('ERROR HANDLER ACTIVATED: %s', error);
 		// @ts-expect-error TS2345 — error is 'unknown' but handleError accepts Error types
 		handleError(error, request, reply);
 	});
@@ -125,8 +125,8 @@ export const registerErrorHandler = (server: FastifyInstance) => {
 	// Note: Not Found handler with rate limiting is registered in app.ts
 
 	// Log all errors
-	server.addHook("onError", (request, reply, error, done) => {
-		const logLevel = error instanceof AppError && error.statusCode < 500 ? "warn" : "error";
+	server.addHook('onError', (request, reply, error, done) => {
+		const logLevel = error instanceof AppError && error.statusCode < 500 ? 'warn' : 'error';
 		request.log[logLevel](
 			{
 				url: request.url,
@@ -135,7 +135,7 @@ export const registerErrorHandler = (server: FastifyInstance) => {
 				error: error.message,
 				stack: isDev ? error.stack : undefined,
 			},
-			"Request error",
+			'Request error',
 		);
 		done();
 	});

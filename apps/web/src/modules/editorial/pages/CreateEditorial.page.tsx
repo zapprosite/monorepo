@@ -1,24 +1,24 @@
-import { Typography } from "@repo/ui-mui/data-display/Typography";
-import { Button } from "@repo/ui-mui/form/Button";
-import { TextField } from "@repo/ui-mui/form/TextField";
-import { Box } from "@repo/ui-mui/layout/Box";
-import { Container } from "@repo/ui-mui/layout/Container";
-import { Paper } from "@repo/ui-mui/layout/Paper";
-import { MenuItem } from "@repo/ui-mui/navigation/MenuItem";
+import { trpc } from '@frontend/utils/trpc.client';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Typography } from '@repo/ui-mui/data-display/Typography';
+import { Button } from '@repo/ui-mui/form/Button';
+import { TextField } from '@repo/ui-mui/form/TextField';
+import { Box } from '@repo/ui-mui/layout/Box';
+import { Container } from '@repo/ui-mui/layout/Container';
+import { Paper } from '@repo/ui-mui/layout/Paper';
+import { MenuItem } from '@repo/ui-mui/navigation/MenuItem';
 import {
 	EDITORIAL_CHANNEL_ENUM,
 	EDITORIAL_FORMAT_ENUM,
 	EDITORIAL_STATUS_ENUM,
-} from "@repo/zod-schemas/crm_enums.zod";
+} from '@repo/zod-schemas/crm_enums.zod';
 import {
 	type EditorialCreateInput,
 	editorialCreateInputZod,
-} from "@repo/zod-schemas/editorial.zod";
-import { trpc } from "@frontend/utils/trpc.client";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Controller, useForm } from "react-hook-form";
-import { useNavigate } from "react-router";
+} from '@repo/zod-schemas/editorial.zod';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { Controller, useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router';
 
 export default function CreateEditorialPage() {
 	const navigate = useNavigate();
@@ -31,7 +31,7 @@ export default function CreateEditorialPage() {
 	} = useForm<EditorialCreateInput>({
 		resolver: zodResolver(editorialCreateInputZod),
 		defaultValues: {
-			status: "Ideia",
+			status: 'Ideia',
 		},
 	});
 
@@ -39,7 +39,7 @@ export default function CreateEditorialPage() {
 		trpc.editorial.createEditorialItem.mutationOptions({
 			onSuccess: () => {
 				queryClient.invalidateQueries({ queryKey: trpc.editorial.listEditorialItems.queryKey() });
-				navigate("/editorial");
+				navigate('/editorial');
 			},
 		}),
 	);
@@ -54,8 +54,8 @@ export default function CreateEditorialPage() {
 				<Button
 					variant="text"
 					size="small"
-					onClick={() => navigate("/editorial")}
-					sx={{ mb: 1, color: "text.secondary" }}
+					onClick={() => navigate('/editorial')}
+					sx={{ mb: 1, color: 'text.secondary' }}
 				>
 					← Voltar para Calendário Editorial
 				</Button>
@@ -66,15 +66,15 @@ export default function CreateEditorialPage() {
 
 			<Paper
 				elevation={0}
-				sx={{ border: "1px solid", borderColor: "divider", borderRadius: 2, p: 4 }}
+				sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2, p: 4 }}
 			>
 				<Box
 					component="form"
 					onSubmit={handleSubmit(onSubmit)}
-					sx={{ display: "flex", flexDirection: "column", gap: 3 }}
+					sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}
 				>
 					{/* Row 1: Título + Data Publicação */}
-					<Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "2fr 1fr" }, gap: 3 }}>
+					<Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '2fr 1fr' }, gap: 3 }}>
 						<Controller
 							name="titulo"
 							control={control}
@@ -108,7 +108,7 @@ export default function CreateEditorialPage() {
 
 					{/* Row 2: Canal + Formato + Status */}
 					<Box
-						sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr 1fr" }, gap: 3 }}
+						sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr 1fr' }, gap: 3 }}
 					>
 						<Controller
 							name="canal"
@@ -181,7 +181,7 @@ export default function CreateEditorialPage() {
 						render={({ field }) => (
 							<TextField
 								{...field}
-								value={field.value ?? ""}
+								value={field.value ?? ''}
 								label="Pauta"
 								multiline
 								rows={3}
@@ -199,7 +199,7 @@ export default function CreateEditorialPage() {
 						render={({ field }) => (
 							<TextField
 								{...field}
-								value={field.value ?? ""}
+								value={field.value ?? ''}
 								label="Copy"
 								multiline
 								rows={4}
@@ -211,14 +211,14 @@ export default function CreateEditorialPage() {
 					/>
 
 					{/* Row 5: CTA + Observações */}
-					<Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 3 }}>
+					<Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 3 }}>
 						<Controller
 							name="cta"
 							control={control}
 							render={({ field }) => (
 								<TextField
 									{...field}
-									value={field.value ?? ""}
+									value={field.value ?? ''}
 									label="CTA"
 									fullWidth
 									error={!!errors.cta}
@@ -233,7 +233,7 @@ export default function CreateEditorialPage() {
 							render={({ field }) => (
 								<TextField
 									{...field}
-									value={field.value ?? ""}
+									value={field.value ?? ''}
 									label="Observações"
 									fullWidth
 									error={!!errors.observacoes}
@@ -243,10 +243,10 @@ export default function CreateEditorialPage() {
 						/>
 					</Box>
 
-					<Box sx={{ display: "flex", gap: 2, justifyContent: "flex-end", pt: 1 }}>
+					<Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end', pt: 1 }}>
 						<Button
 							variant="outlined"
-							onClick={() => navigate("/editorial")}
+							onClick={() => navigate('/editorial')}
 							disabled={isSubmitting}
 						>
 							Cancelar
@@ -257,7 +257,7 @@ export default function CreateEditorialPage() {
 							disabled={isSubmitting}
 							sx={{ minWidth: 160 }}
 						>
-							{isSubmitting ? "Salvando..." : "Salvar Item"}
+							{isSubmitting ? 'Salvando...' : 'Salvar Item'}
 						</Button>
 					</Box>
 				</Box>

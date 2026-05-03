@@ -1,17 +1,17 @@
-import { useState } from "react";
-import { Box } from "@repo/ui-mui/layout/Box";
-import { Typography } from "@repo/ui-mui/data-display/Typography";
-import { Container } from "@repo/ui-mui/layout/Container";
-import { LoadingSpinner } from "@repo/ui-mui/components/LoadingSpinner";
-import { ErrorAlert } from "@repo/ui-mui/components/ErrorAlert";
-import { RagSearchBox } from "../components/rag/RagSearchBox";
-import { RagChunksViewer } from "../components/rag/RagChunksViewer";
-import { trpc } from "@frontend/utils/trpc.client";
-import { useQuery } from "@tanstack/react-query";
+import { trpc } from '@frontend/utils/trpc.client';
+import { ErrorAlert } from '@repo/ui-mui/components/ErrorAlert';
+import { LoadingSpinner } from '@repo/ui-mui/components/LoadingSpinner';
+import { Typography } from '@repo/ui-mui/data-display/Typography';
+import { Box } from '@repo/ui-mui/layout/Box';
+import { Container } from '@repo/ui-mui/layout/Container';
+import { useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
+import { RagChunksViewer } from '../components/rag/RagChunksViewer';
+import { RagSearchBox } from '../components/rag/RagSearchBox';
 
 export default function RagSearchPage() {
-	const [searchQuery, setSearchQuery] = useState<string>("");
-	const [selectedDataset, setSelectedDataset] = useState<string>("");
+	const [searchQuery, setSearchQuery] = useState<string>('');
+	const [selectedDataset, setSelectedDataset] = useState<string>('');
 
 	const {
 		data: datasets,
@@ -29,7 +29,7 @@ export default function RagSearchPage() {
 			datasetId: selectedDataset,
 			limit: 10,
 		}),
-		{ enabled: searchQuery.length > 0 && selectedDataset.length > 0 }
+		{ enabled: searchQuery.length > 0 && selectedDataset.length > 0 },
 	);
 
 	const handleSearch = (query: string, datasetId: string) => {
@@ -58,30 +58,26 @@ export default function RagSearchPage() {
 					variant="h3"
 					component="h1"
 					sx={{
-						fontSize: { xs: "2rem", md: "2.5rem" },
+						fontSize: { xs: '2rem', md: '2.5rem' },
 						fontWeight: 700,
-						color: "text.primary",
+						color: 'text.primary',
 						mb: 1,
-						letterSpacing: "-0.01em",
+						letterSpacing: '-0.01em',
 					}}
 				>
 					RAG Search
 				</Typography>
-				<Typography variant="body2" color="text.secondary" sx={{ fontSize: "0.875rem" }}>
+				<Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.875rem' }}>
 					Busca semântica em documentos indexados via Trieve
 				</Typography>
 			</Box>
 
 			{/* Search Component */}
-			<RagSearchBox
-				datasets={datasets ?? []}
-				onSearch={handleSearch}
-				isSearching={searchLoading}
-			/>
+			<RagSearchBox datasets={datasets ?? []} onSearch={handleSearch} isSearching={searchLoading} />
 
 			{/* Results Section */}
 			{searchLoading && (
-				<Box sx={{ display: "flex", justifyContent: "center", py: 8 }}>
+				<Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
 					<LoadingSpinner text="Buscando chunks relevantes..." />
 				</Box>
 			)}
@@ -94,12 +90,10 @@ export default function RagSearchPage() {
 				</Box>
 			)}
 
-			{searchResults && searchResults.length > 0 && (
-				<RagChunksViewer chunks={searchResults} />
-			)}
+			{searchResults && searchResults.length > 0 && <RagChunksViewer chunks={searchResults} />}
 
 			{searchResults && searchResults.length === 0 && searchQuery.length > 0 && (
-				<Box sx={{ py: 8, textAlign: "center" }}>
+				<Box sx={{ py: 8, textAlign: 'center' }}>
 					<Typography variant="h6" color="text.secondary">
 						Nenhum resultado encontrado para "{searchQuery}"
 					</Typography>

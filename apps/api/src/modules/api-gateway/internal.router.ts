@@ -10,10 +10,10 @@
  * - System administrators
  */
 
-import { logger } from "@backend/app";
-import { env } from "@backend/configs/env.config";
-import { runWebhookProcessor } from "@backend/modules/api-gateway/webhookProcessor";
-import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
+import { logger } from '@backend/app';
+import { env } from '@backend/configs/env.config';
+import { runWebhookProcessor } from '@backend/modules/api-gateway/webhookProcessor';
+import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 
 /**
  * Internal API Authentication Hook
@@ -22,11 +22,11 @@ import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 async function internalAuthHook(request: FastifyRequest, reply: FastifyReply) {
 	// Check if INTERNAL_API_SECRET is configured
 	if (!env.INTERNAL_API_SECRET) {
-		logger.warn("INTERNAL_API_SECRET not configured - internal endpoints are disabled");
+		logger.warn('INTERNAL_API_SECRET not configured - internal endpoints are disabled');
 		return reply.code(503).send({
 			statusCode: 503,
-			error: "Service Unavailable",
-			message: "Internal API is not configured",
+			error: 'Service Unavailable',
+			message: 'Internal API is not configured',
 		});
 	}
 
@@ -36,17 +36,17 @@ async function internalAuthHook(request: FastifyRequest, reply: FastifyReply) {
 	if (!authHeader) {
 		return reply.code(401).send({
 			statusCode: 401,
-			error: "Unauthorized",
-			message: "Authorization header required",
+			error: 'Unauthorized',
+			message: 'Authorization header required',
 		});
 	}
 
 	// Check if it's a Bearer token
-	if (!authHeader.startsWith("Bearer ")) {
+	if (!authHeader.startsWith('Bearer ')) {
 		return reply.code(401).send({
 			statusCode: 401,
-			error: "Unauthorized",
-			message: "Invalid authorization format. Expected: Bearer <token>",
+			error: 'Unauthorized',
+			message: 'Invalid authorization format. Expected: Bearer <token>',
 		});
 	}
 
@@ -54,11 +54,11 @@ async function internalAuthHook(request: FastifyRequest, reply: FastifyReply) {
 	const token = authHeader.substring(7); // Remove "Bearer " prefix
 
 	if (token !== env.INTERNAL_API_SECRET) {
-		logger.warn({ ip: request.ip }, "Invalid internal API token attempt");
+		logger.warn({ ip: request.ip }, 'Invalid internal API token attempt');
 		return reply.code(403).send({
 			statusCode: 403,
-			error: "Forbidden",
-			message: "Invalid authorization token",
+			error: 'Forbidden',
+			message: 'Invalid authorization token',
 		});
 	}
 
@@ -67,7 +67,7 @@ async function internalAuthHook(request: FastifyRequest, reply: FastifyReply) {
 
 export const internalRouter = async (app: FastifyInstance) => {
 	// Apply authentication hook to all internal routes
-	app.addHook("preHandler", internalAuthHook);
+	app.addHook('preHandler', internalAuthHook);
 
 	/**
 	 * POST /internal/process-webhooks
@@ -79,9 +79,9 @@ export const internalRouter = async (app: FastifyInstance) => {
 	 * Authentication: Requires INTERNAL_API_SECRET in Authorization header
 	 * Example: Authorization: Bearer <INTERNAL_API_SECRET>
 	 */
-	app.post("/process-webhooks", async (_request, reply) => {
+	app.post('/process-webhooks', async (_request, reply) => {
 		try {
-			logger.info("Manual webhook processing triggered via internal API");
+			logger.info('Manual webhook processing triggered via internal API');
 
 			// Run webhook processor
 			const result = await runWebhookProcessor();
@@ -94,16 +94,16 @@ export const internalRouter = async (app: FastifyInstance) => {
 			return reply.code(500).send({
 				...result,
 				statusCode: 500,
-				error: "Internal Server Error",
-				message: result.error || "Webhook processing failed",
+				error: 'Internal Server Error',
+				message: result.error || 'Webhook processing failed',
 			});
 		} catch (error) {
-			logger.error({ error }, "Unexpected error in webhook processor endpoint");
+			logger.error({ error }, 'Unexpected error in webhook processor endpoint');
 
 			return reply.code(500).send({
 				statusCode: 500,
-				error: "Internal Server Error",
-				message: error instanceof Error ? error.message : "Unknown error occurred",
+				error: 'Internal Server Error',
+				message: error instanceof Error ? error.message : 'Unknown error occurred',
 			});
 		}
 	});
@@ -112,10 +112,10 @@ export const internalRouter = async (app: FastifyInstance) => {
 	 * GET /internal/health
 	 * Health check for internal API
 	 */
-	app.get("/health", async (_request, reply) => {
+	app.get('/health', async (_request, reply) => {
 		return reply.code(200).send({
-			status: "ok",
-			message: "Internal API is operational",
+			status: 'ok',
+			message: 'Internal API is operational',
 		});
 	});
 };

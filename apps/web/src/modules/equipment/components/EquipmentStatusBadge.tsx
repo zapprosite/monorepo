@@ -1,14 +1,14 @@
-import { Chip } from "@repo/ui-mui/data-display/Chip";
-import type { EquipmentStatus } from "@repo/zod-schemas/crm_enums.zod";
+import { Chip } from '@repo/ui-mui/data-display/Chip';
+import type { EquipmentStatus } from '@repo/zod-schemas/crm_enums.zod';
 
 const STATUS_COLOR: Record<
 	EquipmentStatus,
-	"default" | "primary" | "secondary" | "success" | "error" | "warning" | "info"
+	'default' | 'primary' | 'secondary' | 'success' | 'error' | 'warning' | 'info'
 > = {
-	Ativo: "success",
-	"Em Manutenção": "warning",
-	Inativo: "default",
-	Desativado: "error",
+	Ativo: 'success',
+	'Em Manutenção': 'warning',
+	Inativo: 'default',
+	Desativado: 'error',
 };
 
 interface EquipmentStatusBadgeProps {

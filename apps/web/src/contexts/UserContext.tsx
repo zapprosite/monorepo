@@ -1,4 +1,4 @@
-import { createContext, useOutletContext } from "react-router";
+import { createContext, useOutletContext } from 'react-router';
 
 export interface User {
 	email: string;
@@ -29,7 +29,7 @@ export const userContext = createContext<SessionInfo | null>(null);
 export function useSessionInfo(): SessionInfo {
 	const sessionInfo = useOutletContext<SessionInfo>();
 	if (!sessionInfo) {
-		throw new Error("useSessionInfo must be used within authenticated routes (under AppLayout)");
+		throw new Error('useSessionInfo must be used within authenticated routes (under AppLayout)');
 	}
 	return sessionInfo;
 }

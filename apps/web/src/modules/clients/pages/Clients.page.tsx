@@ -1,14 +1,14 @@
-import { ErrorAlert } from "@repo/ui-mui/components/ErrorAlert";
-import { LoadingSpinner } from "@repo/ui-mui/components/LoadingSpinner";
-import { Chip } from "@repo/ui-mui/data-display/Chip";
-import { Typography } from "@repo/ui-mui/data-display/Typography";
-import { Button } from "@repo/ui-mui/form/Button";
-import { Box } from "@repo/ui-mui/layout/Box";
-import { Container } from "@repo/ui-mui/layout/Container";
-import { Paper } from "@repo/ui-mui/layout/Paper";
-import { trpc } from "@frontend/utils/trpc.client";
-import { useQuery } from "@tanstack/react-query";
-import { useNavigate } from "react-router";
+import { trpc } from '@frontend/utils/trpc.client';
+import { ErrorAlert } from '@repo/ui-mui/components/ErrorAlert';
+import { LoadingSpinner } from '@repo/ui-mui/components/LoadingSpinner';
+import { Chip } from '@repo/ui-mui/data-display/Chip';
+import { Typography } from '@repo/ui-mui/data-display/Typography';
+import { Button } from '@repo/ui-mui/form/Button';
+import { Box } from '@repo/ui-mui/layout/Box';
+import { Container } from '@repo/ui-mui/layout/Container';
+import { Paper } from '@repo/ui-mui/layout/Paper';
+import { useQuery } from '@tanstack/react-query';
+import { useNavigate } from 'react-router';
 
 export default function ClientsPage() {
 	const navigate = useNavigate();
@@ -29,10 +29,10 @@ export default function ClientsPage() {
 			<Box
 				sx={{
 					mb: 4,
-					display: "flex",
-					justifyContent: "space-between",
-					alignItems: { xs: "flex-start", sm: "center" },
-					flexDirection: { xs: "column", sm: "row" },
+					display: 'flex',
+					justifyContent: 'space-between',
+					alignItems: { xs: 'flex-start', sm: 'center' },
+					flexDirection: { xs: 'column', sm: 'row' },
 					gap: 2,
 				}}
 			>
@@ -41,9 +41,9 @@ export default function ClientsPage() {
 						variant="h3"
 						component="h1"
 						sx={{
-							fontSize: { xs: "2rem", md: "2.5rem" },
+							fontSize: { xs: '2rem', md: '2.5rem' },
 							fontWeight: 700,
-							letterSpacing: "-0.01em",
+							letterSpacing: '-0.01em',
 						}}
 					>
 						Clientes
@@ -54,11 +54,11 @@ export default function ClientsPage() {
 				</Box>
 				<Button
 					variant="contained"
-					onClick={() => navigate("/clients/new")}
+					onClick={() => navigate('/clients/new')}
 					sx={{
-						alignSelf: { xs: "stretch", sm: "auto" },
-						transition: "all 0.2s ease-in-out",
-						"&:hover": { transform: "translateY(-2px)", boxShadow: 4 },
+						alignSelf: { xs: 'stretch', sm: 'auto' },
+						transition: 'all 0.2s ease-in-out',
+						'&:hover': { transform: 'translateY(-2px)', boxShadow: 4 },
 					}}
 				>
 					Novo Cliente
@@ -69,11 +69,11 @@ export default function ClientsPage() {
 				<Paper
 					elevation={0}
 					sx={{
-						border: "1px solid",
-						borderColor: "divider",
+						border: '1px solid',
+						borderColor: 'divider',
 						borderRadius: 2,
 						p: 8,
-						textAlign: "center",
+						textAlign: 'center',
 					}}
 				>
 					<Typography variant="h6" color="text.secondary" gutterBottom>
@@ -82,36 +82,36 @@ export default function ClientsPage() {
 					<Typography variant="body2" color="text.disabled" mb={3}>
 						Cadastre o primeiro cliente para começar
 					</Typography>
-					<Button variant="contained" onClick={() => navigate("/clients/new")}>
+					<Button variant="contained" onClick={() => navigate('/clients/new')}>
 						Cadastrar Cliente
 					</Button>
 				</Paper>
 			) : (
-				<Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+				<Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
 					{clients.map((client) => (
 						<Paper
 							key={client.clientId}
 							elevation={0}
 							onClick={() => navigate(`/clients/${client.clientId}`)}
 							sx={{
-								border: "1px solid",
-								borderColor: "divider",
+								border: '1px solid',
+								borderColor: 'divider',
 								borderRadius: 2,
 								p: 3,
-								cursor: "pointer",
-								transition: "all 0.2s ease-in-out",
-								"&:hover": {
-									borderColor: "primary.main",
-									transform: "translateY(-2px)",
+								cursor: 'pointer',
+								transition: 'all 0.2s ease-in-out',
+								'&:hover': {
+									borderColor: 'primary.main',
+									transform: 'translateY(-2px)',
 									boxShadow: 3,
 								},
 							}}
 						>
 							<Box
 								sx={{
-									display: "flex",
-									alignItems: "center",
-									justifyContent: "space-between",
+									display: 'flex',
+									alignItems: 'center',
+									justifyContent: 'space-between',
 									gap: 2,
 								}}
 							>
@@ -120,12 +120,12 @@ export default function ClientsPage() {
 										{client.nome}
 									</Typography>
 									<Typography variant="body2" color="text.secondary">
-										{client.email ? `${client.email}` : ""}
-										{client.email && client.telefone ? " · " : ""}
-										{client.telefone ? `${client.telefone}` : ""}
+										{client.email ? `${client.email}` : ''}
+										{client.email && client.telefone ? ' · ' : ''}
+										{client.telefone ? `${client.telefone}` : ''}
 									</Typography>
 								</Box>
-								<Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+								<Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
 									<Chip label={client.tipo} size="small" variant="outlined" />
 									{!client.ativo && <Chip label="Inativo" size="small" color="default" />}
 								</Box>

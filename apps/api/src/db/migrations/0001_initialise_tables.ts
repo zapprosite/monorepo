@@ -1,23 +1,23 @@
 // @ts-nocheck - migration file with complex orchid-orm types
-import { change } from "../db_script";
+import { change } from '../db_script';
 
 change(async (db) => {
-	await db.createEnum("public.api_product_enum", ["journal_entry_create"]);
+	await db.createEnum('public.api_product_enum', ['journal_entry_create']);
 
-	await db.createEnum("public.api_request_method_enum", ["GET", "POST", "PUT", "DELETE"]);
+	await db.createEnum('public.api_request_method_enum', ['GET', 'POST', 'PUT', 'DELETE']);
 
-	await db.createEnum("public.api_status_enum", [
-		"AI Error",
-		"No active subscription",
-		"Requests exhausted",
-		"Pending",
-		"Server Error",
-		"Success",
+	await db.createEnum('public.api_status_enum', [
+		'AI Error',
+		'No active subscription',
+		'Requests exhausted',
+		'Pending',
+		'Server Error',
+		'Success',
 	]);
 
-	await db.createEnum("public.webhook_status_enum", ["Pending", "Sent", "Failed"]);
+	await db.createEnum('public.webhook_status_enum', ['Pending', 'Sent', 'Failed']);
 
-	await db.createTable("users", (t) => ({
+	await db.createTable('users', (t) => ({
 		userId: t.uuid().primaryKey().default(t.sql`gen_random_uuid()`),
 		email: t.string().unique(),
 		name: t.string().nullable(),
@@ -26,7 +26,7 @@ change(async (db) => {
 		updatedAt: t.timestamps().updatedAt,
 	}));
 
-	await db.createTable("prompts", (t) => ({
+	await db.createTable('prompts', (t) => ({
 		promptId: t.smallint().identity().primaryKey(),
 		text: t.string(500),
 		category: t.string(100).nullable(),
@@ -37,7 +37,7 @@ change(async (db) => {
 	}));
 
 	await db.createTable(
-		"session",
+		'session',
 		(t) => ({
 			sessionId: t.string().primaryKey(),
 			userId: t.uuid().nullable(),
@@ -57,19 +57,19 @@ change(async (db) => {
 		}),
 		(t) =>
 			t.index([
-				"sessionId",
+				'sessionId',
 				{
-					column: "expiresAt",
-					order: "DESC",
+					column: 'expiresAt',
+					order: 'DESC',
 				},
 				{
-					column: "markedInvalidAt",
-					order: "DESC",
+					column: 'markedInvalidAt',
+					order: 'DESC',
 				},
 			]),
 	);
 
-	await db.createTable("teams", (t) => ({
+	await db.createTable('teams', (t) => ({
 		teamId: t.uuid().primaryKey().default(t.sql`gen_random_uuid()`),
 		allowedDomains: t.array(t.string()),
 		allowedIPs: t.array(t.string()),
@@ -83,31 +83,31 @@ change(async (db) => {
 	}));
 });
 
-// @ts-ignore - rakeDb types don't expose callable signature
+// @ts-expect-error - rakeDb types don't expose callable signature
 change(async (db) => {
-	await db.createTable("journal_entries", (t) => ({
+	await db.createTable('journal_entries', (t) => ({
 		journalEntryId: t.string(26).primaryKey(),
 		prompt: t.string(500).nullable(),
-		promptId: t.smallint().foreignKey("prompts", "promptId", {
-			onUpdate: "RESTRICT",
-			onDelete: "SET NULL",
+		promptId: t.smallint().foreignKey('prompts', 'promptId', {
+			onUpdate: 'RESTRICT',
+			onDelete: 'SET NULL',
 		}),
 		content: t.text(),
-		authorUserId: t.uuid().foreignKey("users", "userId", {
-			onUpdate: "RESTRICT",
-			onDelete: "CASCADE",
+		authorUserId: t.uuid().foreignKey('users', 'userId', {
+			onUpdate: 'RESTRICT',
+			onDelete: 'CASCADE',
 		}),
 		createdAt: t.timestamps().createdAt,
 		updatedAt: t.timestamps().updatedAt,
 	}));
 
 	await db.createTable(
-		"subscriptions",
+		'subscriptions',
 		(t) => ({
 			subscriptionId: t.string(26).primaryKey(),
 			expiresAt: t.timestamp(),
 			maxRequests: t.integer(),
-			apiProductSku: t.enum("api_product_enum"),
+			apiProductSku: t.enum('api_product_enum'),
 			apiProductQuantity: t.smallint(),
 			requestsConsumed: t.integer(),
 			teamId: t.uuid(),
@@ -120,21 +120,21 @@ change(async (db) => {
 			createdAt: t.timestamps().createdAt,
 			updatedAt: t.timestamps().updatedAt,
 		}),
-		(t) => t.index(["teamId", "teamUserReferenceId", "apiProductSku"]),
+		(t) => t.index(['teamId', 'teamUserReferenceId', 'apiProductSku']),
 	);
 
 	await db.createTable(
-		"api_product_request_logs",
+		'api_product_request_logs',
 		(t) => ({
 			apiProductRequestId: t.string(26).primaryKey(),
 			teamId: t.uuid(),
 			teamUserReferenceId: t.string(),
 			requestBodyText: t.text().nullable(),
 			requestBodyJson: t.json().nullable(),
-			method: t.enum("api_request_method_enum"),
+			method: t.enum('api_request_method_enum'),
 			path: t.string(),
 			ip: t.string(),
-			status: t.enum("api_status_enum").default("Pending"),
+			status: t.enum('api_status_enum').default('Pending'),
 			responseText: t.text().nullable(),
 			responseJson: t.json().nullable(),
 			responseTime: t.integer(),
@@ -143,38 +143,38 @@ change(async (db) => {
 		}),
 		(t) =>
 			t.index([
-				"teamId",
+				'teamId',
 				{
-					column: "createdAt",
-					order: "DESC",
+					column: 'createdAt',
+					order: 'DESC',
 				},
 			]),
 	);
 });
 
-// @ts-ignore - rakeDb types don't expose callable signature
+// @ts-expect-error - rakeDb types don't expose callable signature
 change(async (db) => {
 	await db.createTable(
-		"webhook_call_queue",
+		'webhook_call_queue',
 		(t) => ({
 			webhookCallQueueId: t.string(26).primaryKey(),
 			teamId: t.uuid(),
 			webhookUrl: t.string(),
 			payload: t.json(),
-			status: t.enum("webhook_status_enum"),
+			status: t.enum('webhook_status_enum'),
 			attempts: t.integer().default(0),
 			maxAttempts: t.integer(),
 			lastAttemptAt: t.timestamp().nullable(),
 			scheduledFor: t.timestamp(),
 			sentAt: t.timestamp().nullable(),
-			subscriptionId: t.string().foreignKey("subscriptions", "subscriptionId", {
-				onUpdate: "RESTRICT",
-				onDelete: "RESTRICT",
+			subscriptionId: t.string().foreignKey('subscriptions', 'subscriptionId', {
+				onUpdate: 'RESTRICT',
+				onDelete: 'RESTRICT',
 			}),
 			errorMessage: t.text().nullable(),
 			createdAt: t.timestamps().createdAt,
 			updatedAt: t.timestamps().updatedAt,
 		}),
-		(t) => t.index(["status", "scheduledFor"]),
+		(t) => t.index(['status', 'scheduledFor']),
 	);
 });

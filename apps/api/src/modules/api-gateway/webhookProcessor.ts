@@ -10,10 +10,10 @@
  * - Processes up to 50 webhooks per run
  */
 
-import { fileURLToPath } from "url";
-import { resolve } from "path";
-import { logger } from "@backend/app";
-import { processWebhookQueue } from "./utils/webhookQueue.utils";
+import { logger } from '@backend/app';
+import { resolve } from 'path';
+import { fileURLToPath } from 'url';
+import { processWebhookQueue } from './utils/webhookQueue.utils';
 
 /**
  * Main webhook processor function
@@ -30,7 +30,7 @@ export async function runWebhookProcessor(): Promise<{
 	const startTime = Date.now();
 
 	try {
-		logger.info("Starting webhook processor...");
+		logger.info('Starting webhook processor...');
 
 		// Process webhook queue
 		const results = await processWebhookQueue();
@@ -43,7 +43,7 @@ export async function runWebhookProcessor(): Promise<{
 				duration,
 				...results,
 			},
-			"Webhook processor completed successfully",
+			'Webhook processor completed successfully',
 		);
 
 		// Log details if webhooks were processed
@@ -52,7 +52,7 @@ export async function runWebhookProcessor(): Promise<{
 				`Processed ${results.processed} webhooks: ${results.succeeded} succeeded, ${results.failed} failed, ${results.retried} retried`,
 			);
 		} else {
-			logger.debug("No pending webhooks to process");
+			logger.debug('No pending webhooks to process');
 		}
 
 		return {
@@ -61,14 +61,14 @@ export async function runWebhookProcessor(): Promise<{
 		};
 	} catch (error) {
 		const duration = Date.now() - startTime;
-		const errorMessage = error instanceof Error ? error.message : "Unknown error";
+		const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 
 		logger.error(
 			{
 				error,
 				duration,
 			},
-			"Webhook processor failed with error",
+			'Webhook processor failed with error',
 		);
 
 		return {
@@ -99,7 +99,7 @@ if (process.argv[1] && resolve(process.argv[1]) === __filename) {
 			}
 		})
 		.catch((error) => {
-			logger.error({ error }, "Fatal error in webhook processor");
+			logger.error({ error }, 'Fatal error in webhook processor');
 			process.exit(1);
 		});
 }

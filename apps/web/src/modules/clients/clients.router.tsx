@@ -1,7 +1,7 @@
-import ClientDetailPage from "@frontend/modules/clients/pages/ClientDetail.page";
-import ClientsPage from "@frontend/modules/clients/pages/Clients.page";
-import CreateClientPage from "@frontend/modules/clients/pages/CreateClient.page";
-import { Route, Routes } from "react-router";
+import ClientDetailPage from '@frontend/modules/clients/pages/ClientDetail.page';
+import ClientsPage from '@frontend/modules/clients/pages/Clients.page';
+import CreateClientPage from '@frontend/modules/clients/pages/CreateClient.page';
+import { Route, Routes } from 'react-router';
 
 export const ClientsRouter = () => {
 	return (

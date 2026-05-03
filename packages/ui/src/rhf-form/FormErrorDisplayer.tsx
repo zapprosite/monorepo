@@ -1,24 +1,24 @@
-import { useMemo } from "react";
-import { useFormContext } from "react-hook-form";
-import { List, ListItem, ListItemIcon, ListItemText } from "../data-display/List";
-import { Alert } from "../feedback/Alert";
-import { AlertTitle } from "../feedback/AlertTitle";
-import { Collapse } from "../feedback/Collapse";
-import { ErrorOutlineIcon } from "../icons/ErrorOutlineIcon";
-import { Box } from "../layout/Box";
+import { useMemo } from 'react';
+import { useFormContext } from 'react-hook-form';
+import { List, ListItem, ListItemIcon, ListItemText } from '../data-display/List';
+import { Alert } from '../feedback/Alert';
+import { AlertTitle } from '../feedback/AlertTitle';
+import { Collapse } from '../feedback/Collapse';
+import { ErrorOutlineIcon } from '../icons/ErrorOutlineIcon';
+import { Box } from '../layout/Box';
 
 export interface FormErrorDisplayerProps {
 	showFieldErrors?: boolean;
 	maxErrors?: number;
 	title?: string;
-	severity?: "error" | "warning";
+	severity?: 'error' | 'warning';
 }
 
 export const FormErrorDisplayer = ({
 	showFieldErrors = true,
 	maxErrors = 5,
-	title = "Please fix the following errors:",
-	severity = "error",
+	title = 'Please fix the following errors:',
+	severity = 'error',
 }: FormErrorDisplayerProps) => {
 	const {
 		formState: { errors },
@@ -31,7 +31,7 @@ export const FormErrorDisplayer = ({
 		// Add root error if exists
 		if (errors.root?.message) {
 			messages.push({
-				key: "root",
+				key: 'root',
 				message: String(errors.root.message),
 			});
 		}
@@ -39,10 +39,10 @@ export const FormErrorDisplayer = ({
 		// Add field errors if enabled
 		if (showFieldErrors) {
 			Object.entries(errors).forEach(([field, error]) => {
-				if (field !== "root" && error?.message) {
+				if (field !== 'root' && error?.message) {
 					// Format field name: "firstName" -> "First Name"
 					const formattedField = field
-						.replace(/([A-Z])/g, " $1")
+						.replace(/([A-Z])/g, ' $1')
 						.replace(/^./, (str) => str.toUpperCase())
 						.trim();
 
@@ -76,15 +76,15 @@ export const FormErrorDisplayer = ({
 				sx={{
 					borderRadius: 2,
 					borderWidth: 2,
-					animation: "slideDown 0.3s ease-out",
-					"@keyframes slideDown": {
+					animation: 'slideDown 0.3s ease-out',
+					'@keyframes slideDown': {
 						from: {
 							opacity: 0,
-							transform: "translateY(-20px)",
+							transform: 'translateY(-20px)',
 						},
 						to: {
 							opacity: 1,
-							transform: "translateY(0)",
+							transform: 'translateY(0)',
 						},
 					},
 				}}
@@ -93,14 +93,14 @@ export const FormErrorDisplayer = ({
 
 				{errorMessages.length === 1 ? (
 					// Single error: display inline
-					<Box sx={{ color: "text.primary" }}>{errorMessages[0]?.message}</Box>
+					<Box sx={{ color: 'text.primary' }}>{errorMessages[0]?.message}</Box>
 				) : (
 					// Multiple errors: display as list
 					<List
 						dense
 						disablePadding
 						sx={{
-							"& .MuiListItem-root": {
+							'& .MuiListItem-root': {
 								px: 0,
 								py: 0.5,
 							},
@@ -111,7 +111,7 @@ export const FormErrorDisplayer = ({
 								<ListItemIcon
 									sx={{
 										minWidth: 32,
-										color: severity === "error" ? "error.main" : "warning.main",
+										color: severity === 'error' ? 'error.main' : 'warning.main',
 									}}
 								>
 									<ErrorOutlineIcon fontSize="small" />
@@ -119,8 +119,8 @@ export const FormErrorDisplayer = ({
 								<ListItemText
 									primary={message}
 									primaryTypographyProps={{
-										variant: "body2",
-										color: "text.primary",
+										variant: 'body2',
+										color: 'text.primary',
 									}}
 								/>
 							</ListItem>
@@ -134,13 +134,13 @@ export const FormErrorDisplayer = ({
 							mt: 1,
 							pt: 1,
 							borderTop: 1,
-							borderColor: "divider",
-							color: "text.secondary",
-							fontSize: "0.875rem",
+							borderColor: 'divider',
+							color: 'text.secondary',
+							fontSize: '0.875rem',
 						}}
 					>
 						+ {Object.keys(errors).length - maxErrors} more error
-						{Object.keys(errors).length - maxErrors !== 1 ? "s" : ""}
+						{Object.keys(errors).length - maxErrors !== 1 ? 's' : ''}
 					</Box>
 				)}
 			</Alert>

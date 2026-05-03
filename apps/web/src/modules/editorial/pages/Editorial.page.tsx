@@ -1,46 +1,46 @@
-import { ErrorAlert } from "@repo/ui-mui/components/ErrorAlert";
-import { LoadingSpinner } from "@repo/ui-mui/components/LoadingSpinner";
-import { Chip } from "@repo/ui-mui/data-display/Chip";
-import { Typography } from "@repo/ui-mui/data-display/Typography";
-import { Button } from "@repo/ui-mui/form/Button";
-import { TextField } from "@repo/ui-mui/form/TextField";
-import { Box } from "@repo/ui-mui/layout/Box";
-import { Container } from "@repo/ui-mui/layout/Container";
-import { Paper } from "@repo/ui-mui/layout/Paper";
-import { MenuItem } from "@repo/ui-mui/navigation/MenuItem";
+import { trpc } from '@frontend/utils/trpc.client';
+import { ErrorAlert } from '@repo/ui-mui/components/ErrorAlert';
+import { LoadingSpinner } from '@repo/ui-mui/components/LoadingSpinner';
+import { Chip } from '@repo/ui-mui/data-display/Chip';
+import { Typography } from '@repo/ui-mui/data-display/Typography';
+import { Button } from '@repo/ui-mui/form/Button';
+import { TextField } from '@repo/ui-mui/form/TextField';
+import { Box } from '@repo/ui-mui/layout/Box';
+import { Container } from '@repo/ui-mui/layout/Container';
+import { Paper } from '@repo/ui-mui/layout/Paper';
+import { MenuItem } from '@repo/ui-mui/navigation/MenuItem';
 import type {
 	EditorialChannel,
 	EditorialFormat,
 	EditorialStatus,
-} from "@repo/zod-schemas/crm_enums.zod";
+} from '@repo/zod-schemas/crm_enums.zod';
 import {
 	EDITORIAL_CHANNEL_ENUM,
 	EDITORIAL_FORMAT_ENUM,
 	EDITORIAL_STATUS_ENUM,
-} from "@repo/zod-schemas/crm_enums.zod";
-import { trpc } from "@frontend/utils/trpc.client";
-import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
-import { useNavigate } from "react-router";
-import { EditorialStatusBadge } from "../components/EditorialStatusBadge";
+} from '@repo/zod-schemas/crm_enums.zod';
+import { useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
+import { useNavigate } from 'react-router';
+import { EditorialStatusBadge } from '../components/EditorialStatusBadge';
 
 function formatDate(dateStr: string | null | undefined): string {
-	if (!dateStr) return "—";
+	if (!dateStr) return '—';
 	const date = new Date(`${dateStr}T12:00:00`);
-	return date.toLocaleDateString("pt-BR", {
-		day: "2-digit",
-		month: "2-digit",
-		year: "numeric",
+	return date.toLocaleDateString('pt-BR', {
+		day: '2-digit',
+		month: '2-digit',
+		year: 'numeric',
 	});
 }
 
 export default function EditorialPage() {
 	const navigate = useNavigate();
-	const [filterStatus, setFilterStatus] = useState<EditorialStatus | "">("");
-	const [filterCanal, setFilterCanal] = useState<EditorialChannel | "">("");
-	const [filterFormato, setFilterFormato] = useState<EditorialFormat | "">("");
-	const [filterDataInicio, setFilterDataInicio] = useState("");
-	const [filterDataFim, setFilterDataFim] = useState("");
+	const [filterStatus, setFilterStatus] = useState<EditorialStatus | ''>('');
+	const [filterCanal, setFilterCanal] = useState<EditorialChannel | ''>('');
+	const [filterFormato, setFilterFormato] = useState<EditorialFormat | ''>('');
+	const [filterDataInicio, setFilterDataInicio] = useState('');
+	const [filterDataFim, setFilterDataFim] = useState('');
 
 	const {
 		data: items,
@@ -72,9 +72,9 @@ export default function EditorialPage() {
 			<Box
 				sx={{
 					mb: 4,
-					display: "flex",
-					justifyContent: "space-between",
-					alignItems: "center",
+					display: 'flex',
+					justifyContent: 'space-between',
+					alignItems: 'center',
 				}}
 			>
 				<Box>
@@ -82,9 +82,9 @@ export default function EditorialPage() {
 						variant="h3"
 						component="h1"
 						sx={{
-							fontSize: { xs: "2rem", md: "2.5rem" },
+							fontSize: { xs: '2rem', md: '2.5rem' },
 							fontWeight: 700,
-							letterSpacing: "-0.01em",
+							letterSpacing: '-0.01em',
 						}}
 					>
 						Calendário Editorial
@@ -95,10 +95,10 @@ export default function EditorialPage() {
 				</Box>
 				<Button
 					variant="contained"
-					onClick={() => navigate("/editorial/new")}
+					onClick={() => navigate('/editorial/new')}
 					sx={{
-						transition: "all 0.2s ease-in-out",
-						"&:hover": { transform: "translateY(-2px)", boxShadow: 4 },
+						transition: 'all 0.2s ease-in-out',
+						'&:hover': { transform: 'translateY(-2px)', boxShadow: 4 },
 					}}
 				>
 					Novo Item
@@ -108,12 +108,12 @@ export default function EditorialPage() {
 			{/* Filters */}
 			<Paper
 				elevation={0}
-				sx={{ border: "1px solid", borderColor: "divider", borderRadius: 2, p: 3, mb: 4 }}
+				sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2, p: 3, mb: 4 }}
 			>
 				<Box
 					sx={{
-						display: "grid",
-						gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr", md: "1fr 1fr 1fr 1fr" },
+						display: 'grid',
+						gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: '1fr 1fr 1fr 1fr' },
 						gap: 2,
 					}}
 				>
@@ -121,7 +121,7 @@ export default function EditorialPage() {
 						select
 						label="Status"
 						value={filterStatus}
-						onChange={(e) => setFilterStatus(e.target.value as EditorialStatus | "")}
+						onChange={(e) => setFilterStatus(e.target.value as EditorialStatus | '')}
 						size="small"
 						fullWidth
 					>
@@ -137,7 +137,7 @@ export default function EditorialPage() {
 						select
 						label="Canal"
 						value={filterCanal}
-						onChange={(e) => setFilterCanal(e.target.value as EditorialChannel | "")}
+						onChange={(e) => setFilterCanal(e.target.value as EditorialChannel | '')}
 						size="small"
 						fullWidth
 					>
@@ -153,7 +153,7 @@ export default function EditorialPage() {
 						select
 						label="Formato"
 						value={filterFormato}
-						onChange={(e) => setFilterFormato(e.target.value as EditorialFormat | "")}
+						onChange={(e) => setFilterFormato(e.target.value as EditorialFormat | '')}
 						size="small"
 						fullWidth
 					>
@@ -192,11 +192,11 @@ export default function EditorialPage() {
 				<Paper
 					elevation={0}
 					sx={{
-						border: "1px solid",
-						borderColor: "divider",
+						border: '1px solid',
+						borderColor: 'divider',
 						borderRadius: 2,
 						p: 8,
-						textAlign: "center",
+						textAlign: 'center',
 					}}
 				>
 					<Typography variant="h6" color="text.secondary" gutterBottom>
@@ -205,38 +205,38 @@ export default function EditorialPage() {
 					<Typography variant="body2" color="text.disabled" mb={3}>
 						Crie o primeiro item para organizar sua estratégia de conteúdo
 					</Typography>
-					<Button variant="contained" onClick={() => navigate("/editorial/new")}>
+					<Button variant="contained" onClick={() => navigate('/editorial/new')}>
 						Novo Item
 					</Button>
 				</Paper>
 			) : (
-				<Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+				<Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
 					{items.map((item) => (
 						<Paper
 							key={item.editorialId}
 							elevation={0}
 							onClick={() => navigate(`/editorial/${item.editorialId}`)}
 							sx={{
-								border: "1px solid",
-								borderColor: "divider",
+								border: '1px solid',
+								borderColor: 'divider',
 								borderRadius: 2,
 								p: 3,
-								cursor: "pointer",
-								transition: "all 0.2s ease-in-out",
-								"&:hover": {
-									borderColor: "primary.main",
-									transform: "translateY(-2px)",
+								cursor: 'pointer',
+								transition: 'all 0.2s ease-in-out',
+								'&:hover': {
+									borderColor: 'primary.main',
+									transform: 'translateY(-2px)',
 									boxShadow: 3,
 								},
 							}}
 						>
 							<Box
 								sx={{
-									display: "flex",
-									alignItems: "center",
-									justifyContent: "space-between",
+									display: 'flex',
+									alignItems: 'center',
+									justifyContent: 'space-between',
 									gap: 2,
-									flexWrap: "wrap",
+									flexWrap: 'wrap',
 								}}
 							>
 								<Box sx={{ flex: 1, minWidth: 0 }}>
@@ -245,11 +245,11 @@ export default function EditorialPage() {
 									</Typography>
 									<Box
 										sx={{
-											display: "flex",
-											alignItems: "center",
+											display: 'flex',
+											alignItems: 'center',
 											gap: 1.5,
 											mt: 0.5,
-											flexWrap: "wrap",
+											flexWrap: 'wrap',
 										}}
 									>
 										<Chip label={item.canal} size="small" variant="outlined" />

@@ -1,10 +1,10 @@
-import { db } from "@backend/db/db";
+import { db } from '@backend/db/db';
 import {
 	generateApiKeyLookupHash,
 	verifyApiKey,
-} from "@backend/modules/api-gateway/utils/apiKeyGenerator.utils";
-import { omitKeys } from "@backend/utils/omit.utils";
-import type { FastifyReply, FastifyRequest } from "fastify";
+} from '@backend/modules/api-gateway/utils/apiKeyGenerator.utils';
+import { omitKeys } from '@backend/utils/omit.utils';
+import type { FastifyReply, FastifyRequest } from 'fastify';
 
 /**
  * API Key Authentication Middleware
@@ -13,29 +13,29 @@ import type { FastifyReply, FastifyRequest } from "fastify";
  */
 export async function apiKeyAuthHook(request: FastifyRequest, reply: FastifyReply) {
 	// Extract headers
-	const apiKey = request.headers["x-api-key"];
-	const teamIdFromHeader = request.headers["x-team-id"];
+	const apiKey = request.headers['x-api-key'];
+	const teamIdFromHeader = request.headers['x-team-id'];
 
-	if (!apiKey || typeof apiKey !== "string") {
+	if (!apiKey || typeof apiKey !== 'string') {
 		return reply.code(401).send({
 			statusCode: 401,
-			error: "Unauthorized",
-			message: "Missing or invalid x-api-key header",
+			error: 'Unauthorized',
+			message: 'Missing or invalid x-api-key header',
 		});
 	}
 
-	if (!teamIdFromHeader || typeof teamIdFromHeader !== "string") {
+	if (!teamIdFromHeader || typeof teamIdFromHeader !== 'string') {
 		return reply.code(401).send({
 			statusCode: 401,
-			error: "Unauthorized",
-			message: "Missing or invalid x-team-id header",
+			error: 'Unauthorized',
+			message: 'Missing or invalid x-team-id header',
 		});
 	}
 
 	// O(1) lookup using indexed apiKeyLookupHash, then verify with slow scrypt hash
 	const lookupHash = generateApiKeyLookupHash(apiKey);
 	const candidateTeam = await db.teams
-		.select("*", "apiSecretHash")
+		.select('*', 'apiSecretHash')
 		.where({ apiKeyLookupHash: lookupHash })
 		.take();
 
@@ -47,8 +47,8 @@ export async function apiKeyAuthHook(request: FastifyRequest, reply: FastifyRepl
 	if (!matchedTeam) {
 		return reply.code(401).send({
 			statusCode: 401,
-			error: "Unauthorized",
-			message: "Invalid API key",
+			error: 'Unauthorized',
+			message: 'Invalid API key',
 		});
 	}
 
@@ -58,11 +58,11 @@ export async function apiKeyAuthHook(request: FastifyRequest, reply: FastifyRepl
 	if (matchedTeam.teamId !== teamIdFromHeader) {
 		return reply.code(403).send({
 			statusCode: 403,
-			error: "Forbidden",
-			message: "x-team-id header does not match the team associated with this API key",
+			error: 'Forbidden',
+			message: 'x-team-id header does not match the team associated with this API key',
 		});
 	}
 
 	// Attach team to request object
-	request.team = omitKeys(matchedTeam, ["apiSecretHash"]);
+	request.team = omitKeys(matchedTeam, ['apiSecretHash']);
 }

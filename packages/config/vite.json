@@ -4,7 +4,7 @@
 	"compilerOptions": {
 		"jsx": "react-jsx",
 		"module": "ESNext",
-		"moduleResolution": "Bundler",
+		"moduleResolution": "bundler",
 		"noEmit": true,
 		"allowImportingTsExtensions": true,
 		"lib": ["ES2020", "DOM", "DOM.Iterable"]

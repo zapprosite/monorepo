@@ -1,34 +1,34 @@
-import { ContentCard } from "@repo/ui-mui/components/ContentCard";
-import { SuccessAlert } from "@repo/ui-mui/components/SuccessAlert";
-import { Typography } from "@repo/ui-mui/data-display/Typography";
-import { CircularProgress } from "@repo/ui-mui/feedback/CircularProgress";
-import { Collapse } from "@repo/ui-mui/feedback/Collapse";
-import { ToggleButton } from "@repo/ui-mui/form/ToggleButton";
-import { ToggleButtonGroup } from "@repo/ui-mui/form/ToggleButtonGroup";
-import { Box } from "@repo/ui-mui/layout/Box";
-import { Paper } from "@repo/ui-mui/layout/Paper";
-import { Stack } from "@repo/ui-mui/layout/Stack";
-import { IconButton } from "@repo/ui-mui/navigation/IconButton";
-import { RhfSubmitButton } from "@repo/ui-mui/rhf-form/RhfSubmitButton";
-import { RhfTextField } from "@repo/ui-mui/rhf-form/RhfTextField";
-import { useRhfForm } from "@repo/ui-mui/rhf-form/useRhfForm";
+import { trpc, trpcFetch } from '@frontend/utils/trpc.client';
+import { zodResolver } from '@hookform/resolvers/zod';
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
+import EditNoteIcon from '@mui/icons-material/EditNote';
+import RefreshIcon from '@mui/icons-material/Refresh';
+import { ContentCard } from '@repo/ui-mui/components/ContentCard';
+import { SuccessAlert } from '@repo/ui-mui/components/SuccessAlert';
+import { Typography } from '@repo/ui-mui/data-display/Typography';
+import { CircularProgress } from '@repo/ui-mui/feedback/CircularProgress';
+import { Collapse } from '@repo/ui-mui/feedback/Collapse';
+import { ToggleButton } from '@repo/ui-mui/form/ToggleButton';
+import { ToggleButtonGroup } from '@repo/ui-mui/form/ToggleButtonGroup';
+import { Box } from '@repo/ui-mui/layout/Box';
+import { Paper } from '@repo/ui-mui/layout/Paper';
+import { Stack } from '@repo/ui-mui/layout/Stack';
+import { IconButton } from '@repo/ui-mui/navigation/IconButton';
+import { RhfSubmitButton } from '@repo/ui-mui/rhf-form/RhfSubmitButton';
+import { RhfTextField } from '@repo/ui-mui/rhf-form/RhfTextField';
+import { useRhfForm } from '@repo/ui-mui/rhf-form/useRhfForm';
 import {
 	type JournalEntryCreateInput,
 	journalEntryCreateInputZod,
-} from "@repo/zod-schemas/journal_entry.zod";
-import { trpc, trpcFetch } from "@frontend/utils/trpc.client";
-import { zodResolver } from "@hookform/resolvers/zod";
-import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
-import EditNoteIcon from "@mui/icons-material/EditNote";
-import RefreshIcon from "@mui/icons-material/Refresh";
-import { useQuery } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+} from '@repo/zod-schemas/journal_entry.zod';
+import { useQuery } from '@tanstack/react-query';
+import { useEffect, useState } from 'react';
 
-type WritingMode = "prompted" | "free";
+type WritingMode = 'prompted' | 'free';
 
 export function CreateJournalEntryForm() {
-	const [success, setSuccess] = useState("");
-	const [writingMode, setWritingMode] = useState<WritingMode>("prompted");
+	const [success, setSuccess] = useState('');
+	const [writingMode, setWritingMode] = useState<WritingMode>('prompted');
 
 	// Fetch random prompt
 	const {
@@ -44,15 +44,15 @@ export function CreateJournalEntryForm() {
 			// Set prompt to null if in free writing mode
 			const submitData = {
 				...data,
-				prompt: writingMode === "free" ? null : data.prompt,
-				promptId: writingMode === "free" ? null : (randomPrompt?.promptId ?? null),
+				prompt: writingMode === 'free' ? null : data.prompt,
+				promptId: writingMode === 'free' ? null : (randomPrompt?.promptId ?? null),
 			};
 			await trpcFetch.journalEntries.create.mutate(submitData);
 			formMethods.reset();
-			setSuccess("Entrada do diário criada com sucesso!");
-			setTimeout(() => setSuccess(""), 3000);
+			setSuccess('Entrada do diário criada com sucesso!');
+			setTimeout(() => setSuccess(''), 3000);
 			// Buscar novo prompt after successful submission if in prompted mode
-			if (writingMode === "prompted") {
+			if (writingMode === 'prompted') {
 				refetchPrompt();
 			}
 		},
@@ -67,12 +67,12 @@ export function CreateJournalEntryForm() {
 
 	useEffect(() => {
 		// Clear prompt when switching to free mode
-		if (writingMode === "free") {
-			formMethods.setValue("prompt", null);
+		if (writingMode === 'free') {
+			formMethods.setValue('prompt', null);
 		}
 		// Auto-populate prompt when random prompt loads and in prompted mode
-		else if (writingMode === "prompted" && randomPrompt?.text) {
-			formMethods.setValue("prompt", randomPrompt.text);
+		else if (writingMode === 'prompted' && randomPrompt?.text) {
+			formMethods.setValue('prompt', randomPrompt.text);
 		}
 	}, [writingMode, formMethods, randomPrompt]);
 
@@ -90,10 +90,10 @@ export function CreateJournalEntryForm() {
 		<ContentCard>
 			<Box
 				sx={{
-					display: "flex",
-					flexDirection: { xs: "column", sm: "row" },
-					justifyContent: "space-between",
-					alignItems: { xs: "flex-start", sm: "center" },
+					display: 'flex',
+					flexDirection: { xs: 'column', sm: 'row' },
+					justifyContent: 'space-between',
+					alignItems: { xs: 'flex-start', sm: 'center' },
 					gap: { xs: 2, sm: 0 },
 					mb: 3,
 				}}
@@ -102,7 +102,7 @@ export function CreateJournalEntryForm() {
 					variant="h5"
 					component="h3"
 					sx={{
-						fontSize: { xs: "1.25rem", sm: "1.5rem" },
+						fontSize: { xs: '1.25rem', sm: '1.5rem' },
 					}}
 				>
 					Criar nova entrada no diário
@@ -115,34 +115,34 @@ export function CreateJournalEntryForm() {
 					onChange={handleModeChange}
 					size="small"
 					sx={{
-						width: { xs: "100%", sm: "auto" },
-						"& .MuiToggleButtonGroup-grouped": {
-							flex: { xs: 1, sm: "initial" },
+						width: { xs: '100%', sm: 'auto' },
+						'& .MuiToggleButtonGroup-grouped': {
+							flex: { xs: 1, sm: 'initial' },
 						},
-						"& .MuiToggleButton-root": {
+						'& .MuiToggleButton-root': {
 							px: { xs: 2.5, sm: 2, md: 2.5 },
 							py: { xs: 1.25, sm: 0.75, md: 1 },
 							minHeight: { xs: 44, sm: 36 },
-							textTransform: "none",
-							fontSize: { xs: "0.9375rem", sm: "0.8125rem", md: "0.875rem" },
+							textTransform: 'none',
+							fontSize: { xs: '0.9375rem', sm: '0.8125rem', md: '0.875rem' },
 							fontWeight: 500,
-							border: "1px solid",
-							borderColor: "divider",
-							transition: "all 0.2s ease-in-out",
-							color: "text.primary",
-							"&.Mui-selected": {
-								bgcolor: "primary.main",
-								color: "primary.contrastText",
-								borderColor: "primary.main",
-								"&:hover": {
-									bgcolor: "primary.dark",
+							border: '1px solid',
+							borderColor: 'divider',
+							transition: 'all 0.2s ease-in-out',
+							color: 'text.primary',
+							'&.Mui-selected': {
+								bgcolor: 'primary.main',
+								color: 'primary.contrastText',
+								borderColor: 'primary.main',
+								'&:hover': {
+									bgcolor: 'primary.dark',
 								},
 							},
-							"&:not(.Mui-selected)": {
-								bgcolor: "background.paper",
-								"&:hover": {
-									bgcolor: "action.hover",
-									borderColor: "primary.main",
+							'&:not(.Mui-selected)': {
+								bgcolor: 'background.paper',
+								'&:hover': {
+									bgcolor: 'action.hover',
+									borderColor: 'primary.main',
 								},
 							},
 						},
@@ -172,45 +172,45 @@ export function CreateJournalEntryForm() {
 			<RhfFormProvider>
 				<Stack spacing={3}>
 					{/* Random Prompt Section - Only show in prompted mode */}
-					<Collapse in={writingMode === "prompted"} timeout={300}>
+					<Collapse in={writingMode === 'prompted'} timeout={300}>
 						<Paper
 							elevation={0}
 							sx={{
 								p: 3,
-								background: "linear-gradient(135deg, #667eea15 0%, #764ba215 100%)",
+								background: 'linear-gradient(135deg, #667eea15 0%, #764ba215 100%)',
 								borderRadius: 2,
-								border: "1px solid",
-								borderColor: "divider",
-								position: "relative",
-								overflow: "hidden",
-								"&::before": {
+								border: '1px solid',
+								borderColor: 'divider',
+								position: 'relative',
+								overflow: 'hidden',
+								'&::before': {
 									content: '""',
-									position: "absolute",
+									position: 'absolute',
 									top: 0,
 									left: 0,
 									right: 0,
-									height: "2px",
-									background: "linear-gradient(90deg, #667eea 0%, #764ba2 100%)",
+									height: '2px',
+									background: 'linear-gradient(90deg, #667eea 0%, #764ba2 100%)',
 								},
 							}}
 						>
 							<Box
 								sx={{
-									display: "flex",
-									alignItems: "center",
-									justifyContent: "space-between",
+									display: 'flex',
+									alignItems: 'center',
+									justifyContent: 'space-between',
 									mb: 2,
 								}}
 							>
-								<Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-									<AutoAwesomeIcon sx={{ color: "#667eea", fontSize: 18, opacity: 0.8 }} />
+								<Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+									<AutoAwesomeIcon sx={{ color: '#667eea', fontSize: 18, opacity: 0.8 }} />
 									<Typography
 										variant="overline"
 										sx={{
-											color: "text.secondary",
+											color: 'text.secondary',
 											fontWeight: 600,
-											letterSpacing: "0.08em",
-											fontSize: "0.65rem",
+											letterSpacing: '0.08em',
+											fontSize: '0.65rem',
 										}}
 									>
 										Prompt de hoje
@@ -221,12 +221,12 @@ export function CreateJournalEntryForm() {
 									size="small"
 									disabled={promptLoading}
 									sx={{
-										color: "primary.main",
-										"&:hover": {
-											backgroundColor: "action.hover",
-											transform: "rotate(180deg)",
+										color: 'primary.main',
+										'&:hover': {
+											backgroundColor: 'action.hover',
+											transform: 'rotate(180deg)',
 										},
-										transition: "transform 0.3s ease",
+										transition: 'transform 0.3s ease',
 									}}
 									title="Buscar novo prompt"
 								>
@@ -237,9 +237,9 @@ export function CreateJournalEntryForm() {
 							{promptLoading ? (
 								<Box
 									sx={{
-										display: "flex",
-										justifyContent: "center",
-										alignItems: "center",
+										display: 'flex',
+										justifyContent: 'center',
+										alignItems: 'center',
 										py: 3,
 									}}
 								>
@@ -249,10 +249,10 @@ export function CreateJournalEntryForm() {
 								<Typography
 									color="error"
 									sx={{
-										fontStyle: "italic",
-										textAlign: "center",
+										fontStyle: 'italic',
+										textAlign: 'center',
 										py: 2,
-										fontSize: "0.9rem",
+										fontSize: '0.9rem',
 									}}
 								>
 									Não foi possível carregar o prompt. Tente novamente.
@@ -263,29 +263,29 @@ export function CreateJournalEntryForm() {
 										variant="body1"
 										sx={{
 											fontWeight: 400,
-											color: "text.primary",
+											color: 'text.primary',
 											lineHeight: 1.6,
-											fontStyle: "italic",
-											letterSpacing: "0.005em",
+											fontStyle: 'italic',
+											letterSpacing: '0.005em',
 											px: 1,
 										}}
 									>
 										"{randomPrompt?.text}"
 									</Typography>
 									{randomPrompt?.category && (
-										<Box sx={{ mt: 2, display: "flex", justifyContent: "flex-end" }}>
+										<Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end' }}>
 											<Typography
 												variant="caption"
 												sx={{
-													color: "text.secondary",
+													color: 'text.secondary',
 													fontWeight: 500,
 													px: 1.5,
 													py: 0.5,
-													backgroundColor: "background.paper",
+													backgroundColor: 'background.paper',
 													borderRadius: 1,
-													textTransform: "uppercase",
-													letterSpacing: "0.05em",
-													fontSize: "0.6rem",
+													textTransform: 'uppercase',
+													letterSpacing: '0.05em',
+													fontSize: '0.6rem',
 												}}
 											>
 												{randomPrompt.category}
@@ -298,22 +298,22 @@ export function CreateJournalEntryForm() {
 					</Collapse>
 
 					{/* Hidden prompt field - auto-populated, read-only */}
-					<input type="hidden" {...formMethods.register("prompt")} />
+					<input type="hidden" {...formMethods.register('prompt')} />
 
 					<RhfTextField
 						name="content"
-						label={writingMode === "prompted" ? "Sua resposta" : "Seus pensamentos"}
+						label={writingMode === 'prompted' ? 'Sua resposta' : 'Seus pensamentos'}
 						multiline
 						rows={8}
 						placeholder={
-							writingMode === "prompted"
-								? "Escreva seus pensamentos aqui..."
-								: "Escreva livremente sobre qualquer coisa que esteja na sua mente..."
+							writingMode === 'prompted'
+								? 'Escreva seus pensamentos aqui...'
+								: 'Escreva livremente sobre qualquer coisa que esteja na sua mente...'
 						}
 						helperText={
-							writingMode === "prompted"
-								? "Compartilhe suas reflexões sobre o prompt acima"
-								: "Expresse-se livremente, sem prompts ou limitações"
+							writingMode === 'prompted'
+								? 'Compartilhe suas reflexões sobre o prompt acima'
+								: 'Expresse-se livremente, sem prompts ou limitações'
 						}
 						sx={{ mb: 0 }}
 					/>
@@ -322,8 +322,8 @@ export function CreateJournalEntryForm() {
 						notSubmittingText="Criar entrada"
 						isSubmittingText="Criando..."
 						props={{
-							variant: "contained",
-							color: "success",
+							variant: 'contained',
+							color: 'success',
 							fullWidth: true,
 						}}
 					/>

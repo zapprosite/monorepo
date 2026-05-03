@@ -1,1 +1,1 @@
-export { default as SearchIcon } from "@mui/icons-material/Search";
+export { default as SearchIcon } from '@mui/icons-material/Search';

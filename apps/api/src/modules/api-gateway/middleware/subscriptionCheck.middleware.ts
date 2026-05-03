@@ -1,9 +1,9 @@
-import { db } from "@backend/db/db";
-import { findActiveSubscription } from "@backend/modules/api-gateway/utils/subscriptionTracker.utils";
-import type { ApiProductSku } from "@connected-repo/zod-schemas/enums.zod";
-import { zString } from "@connected-repo/zod-schemas/zod_utils";
-import type { FastifyReply, FastifyRequest } from "fastify";
-import z from "zod";
+import { db } from '@backend/db/db';
+import { findActiveSubscription } from '@backend/modules/api-gateway/utils/subscriptionTracker.utils';
+import type { ApiProductSku } from '@connected-repo/zod-schemas/enums.zod';
+import { zString } from '@connected-repo/zod-schemas/zod_utils';
+import type { FastifyReply, FastifyRequest } from 'fastify';
+import z from 'zod';
 
 /**
  * Subscription Check Middleware
@@ -17,8 +17,8 @@ export function subscriptionCheckHook(apiProductSku: ApiProductSku) {
 		if (!request.team) {
 			return reply.code(401).send({
 				statusCode: 401,
-				error: "Unauthorized",
-				message: "Authentication required",
+				error: 'Unauthorized',
+				message: 'Authentication required',
 			});
 		}
 
@@ -30,8 +30,8 @@ export function subscriptionCheckHook(apiProductSku: ApiProductSku) {
 		if (!user || user.teamId !== teamId) {
 			return reply.code(403).send({
 				statusCode: 403,
-				error: "Forbidden",
-				message: "teamUserReferenceId does not belong to the authenticated team",
+				error: 'Forbidden',
+				message: 'teamUserReferenceId does not belong to the authenticated team',
 			});
 		}
 
@@ -41,7 +41,7 @@ export function subscriptionCheckHook(apiProductSku: ApiProductSku) {
 		if (!subscription) {
 			return reply.code(402).send({
 				statusCode: 402,
-				error: "Payment Required",
+				error: 'Payment Required',
 				message: `No active subscription found for product: ${apiProductSku}`,
 			});
 		}

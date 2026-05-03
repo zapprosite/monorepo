@@ -1,30 +1,30 @@
-import { ErrorAlert } from "@repo/ui-mui/components/ErrorAlert";
-import { LoadingSpinner } from "@repo/ui-mui/components/LoadingSpinner";
-import { Typography } from "@repo/ui-mui/data-display/Typography";
-import { Dialog } from "@repo/ui-mui/feedback/Dialog";
-import { DialogActions } from "@repo/ui-mui/feedback/DialogActions";
-import { DialogContent } from "@repo/ui-mui/feedback/DialogContent";
-import { DialogTitle } from "@repo/ui-mui/feedback/DialogTitle";
-import { Button } from "@repo/ui-mui/form/Button";
-import { TextField } from "@repo/ui-mui/form/TextField";
-import { Box } from "@repo/ui-mui/layout/Box";
-import { Container } from "@repo/ui-mui/layout/Container";
-import { Paper } from "@repo/ui-mui/layout/Paper";
-import { trpc } from "@frontend/utils/trpc.client";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
-import { useNavigate, useParams } from "react-router";
-import { ScheduleStatusBadge } from "../components/ScheduleStatusBadge";
+import { trpc } from '@frontend/utils/trpc.client';
+import { ErrorAlert } from '@repo/ui-mui/components/ErrorAlert';
+import { LoadingSpinner } from '@repo/ui-mui/components/LoadingSpinner';
+import { Typography } from '@repo/ui-mui/data-display/Typography';
+import { Dialog } from '@repo/ui-mui/feedback/Dialog';
+import { DialogActions } from '@repo/ui-mui/feedback/DialogActions';
+import { DialogContent } from '@repo/ui-mui/feedback/DialogContent';
+import { DialogTitle } from '@repo/ui-mui/feedback/DialogTitle';
+import { Button } from '@repo/ui-mui/form/Button';
+import { TextField } from '@repo/ui-mui/form/TextField';
+import { Box } from '@repo/ui-mui/layout/Box';
+import { Container } from '@repo/ui-mui/layout/Container';
+import { Paper } from '@repo/ui-mui/layout/Paper';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useState } from 'react';
+import { useNavigate, useParams } from 'react-router';
+import { ScheduleStatusBadge } from '../components/ScheduleStatusBadge';
 
 function formatDateTime(timestamp: number | string | Date): string {
 	const date = timestamp instanceof Date ? timestamp : new Date(timestamp);
-	return date.toLocaleString("pt-BR", {
-		weekday: "long",
-		day: "2-digit",
-		month: "long",
-		year: "numeric",
-		hour: "2-digit",
-		minute: "2-digit",
+	return date.toLocaleString('pt-BR', {
+		weekday: 'long',
+		day: '2-digit',
+		month: 'long',
+		year: 'numeric',
+		hour: '2-digit',
+		minute: '2-digit',
 	});
 }
 
@@ -41,7 +41,7 @@ export default function ScheduleDetailPage() {
 	}
 	const queryClient = useQueryClient();
 	const [cancelOpen, setCancelOpen] = useState(false);
-	const [motivoCancelamento, setMotivoCancelamento] = useState("");
+	const [motivoCancelamento, setMotivoCancelamento] = useState('');
 
 	const {
 		data: schedule,
@@ -70,7 +70,7 @@ export default function ScheduleDetailPage() {
 			onSuccess: () => {
 				invalidate();
 				setCancelOpen(false);
-				setMotivoCancelamento("");
+				setMotivoCancelamento('');
 			},
 		}),
 	);
@@ -81,7 +81,7 @@ export default function ScheduleDetailPage() {
 		return (
 			<Container maxWidth="lg" sx={{ py: 4 }}>
 				<ErrorAlert
-					message={`Erro ao carregar agendamento: ${error?.message ?? "Não encontrado"}`}
+					message={`Erro ao carregar agendamento: ${error?.message ?? 'Não encontrado'}`}
 				/>
 			</Container>
 		);
@@ -97,12 +97,12 @@ export default function ScheduleDetailPage() {
 				<Button
 					variant="text"
 					size="small"
-					onClick={() => navigate("/schedule")}
-					sx={{ mb: 1, color: "text.secondary" }}
+					onClick={() => navigate('/schedule')}
+					sx={{ mb: 1, color: 'text.secondary' }}
 				>
 					← Voltar para Agenda
 				</Button>
-				<Box sx={{ display: "flex", alignItems: "center", gap: 2, flexWrap: "wrap" }}>
+				<Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
 					<Typography variant="h4" fontWeight={700}>
 						{schedule.tipo}
 					</Typography>
@@ -114,8 +114,8 @@ export default function ScheduleDetailPage() {
 			</Box>
 
 			{/* Action buttons */}
-			<Box sx={{ display: "flex", gap: 2, mb: 4, flexWrap: "wrap" }}>
-				{schedule.status === "Agendado" && (
+			<Box sx={{ display: 'flex', gap: 2, mb: 4, flexWrap: 'wrap' }}>
+				{schedule.status === 'Agendado' && (
 					<Button
 						variant="contained"
 						color="info"
@@ -125,7 +125,7 @@ export default function ScheduleDetailPage() {
 						Confirmar
 					</Button>
 				)}
-				{schedule.status === "Confirmado" && (
+				{schedule.status === 'Confirmado' && (
 					<Button
 						variant="contained"
 						color="warning"
@@ -135,7 +135,7 @@ export default function ScheduleDetailPage() {
 						Iniciar Atendimento
 					</Button>
 				)}
-				{schedule.status === "Em Andamento" && (
+				{schedule.status === 'Em Andamento' && (
 					<Button
 						variant="contained"
 						color="success"
@@ -145,7 +145,7 @@ export default function ScheduleDetailPage() {
 						Concluir Atendimento
 					</Button>
 				)}
-				{schedule.status !== "Cancelado" && schedule.status !== "Concluído" && (
+				{schedule.status !== 'Cancelado' && schedule.status !== 'Concluído' && (
 					<Button
 						variant="outlined"
 						color="error"
@@ -158,15 +158,15 @@ export default function ScheduleDetailPage() {
 			</Box>
 
 			{/* Details */}
-			<Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" }, gap: 3 }}>
+			<Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3 }}>
 				<Paper
 					elevation={0}
-					sx={{ border: "1px solid", borderColor: "divider", borderRadius: 2, p: 3 }}
+					sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2, p: 3 }}
 				>
 					<Typography variant="h6" fontWeight={600} mb={2}>
 						Informações do Agendamento
 					</Typography>
-					<Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+					<Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
 						<Box>
 							<Typography variant="caption" color="text.secondary">
 								Data e Hora
@@ -198,12 +198,12 @@ export default function ScheduleDetailPage() {
 
 				<Paper
 					elevation={0}
-					sx={{ border: "1px solid", borderColor: "divider", borderRadius: 2, p: 3 }}
+					sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2, p: 3 }}
 				>
 					<Typography variant="h6" fontWeight={600} mb={2}>
 						Detalhes
 					</Typography>
-					<Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+					<Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
 						{schedule.descricao && (
 							<Box>
 								<Typography variant="caption" color="text.secondary">
@@ -242,7 +242,7 @@ export default function ScheduleDetailPage() {
 				open={cancelOpen}
 				onClose={() => {
 					setCancelOpen(false);
-					setMotivoCancelamento("");
+					setMotivoCancelamento('');
 				}}
 				maxWidth="sm"
 				fullWidth
@@ -265,7 +265,7 @@ export default function ScheduleDetailPage() {
 					<Button
 						onClick={() => {
 							setCancelOpen(false);
-							setMotivoCancelamento("");
+							setMotivoCancelamento('');
 						}}
 						variant="outlined"
 						disabled={cancelar.isPending}
@@ -283,7 +283,7 @@ export default function ScheduleDetailPage() {
 							})
 						}
 					>
-						{cancelar.isPending ? "Cancelando..." : "Confirmar Cancelamento"}
+						{cancelar.isPending ? 'Cancelando...' : 'Confirmar Cancelamento'}
 					</Button>
 				</DialogActions>
 			</Dialog>

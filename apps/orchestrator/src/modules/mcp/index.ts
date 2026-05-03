@@ -1,2 +1,2 @@
 // MCP Module
-export * from "./mcp-adapter.js";
+export * from './mcp-adapter.js';

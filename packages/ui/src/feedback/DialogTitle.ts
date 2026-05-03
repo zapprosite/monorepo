@@ -1,1 +1,1 @@
-export { type DialogTitleProps, default as DialogTitle } from "@mui/material/DialogTitle";
+export { type DialogTitleProps, default as DialogTitle } from '@mui/material/DialogTitle';

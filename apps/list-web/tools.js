@@ -195,11 +195,11 @@ export const tools = [
 ];
 
 export const categories = {
-  ai: { name: 'Inteligência Artificial', icon: '🤖' },
-  monitoring: { name: 'Monitoramento', icon: '📊' },
-  infra: { name: 'Infraestrutura', icon: '🖧' },
-  dev: { name: 'Desenvolvimento', icon: '💻' },
-  security: { name: 'Segurança', icon: '🔒' },
+	ai: { name: 'Inteligência Artificial', icon: '🤖' },
+	monitoring: { name: 'Monitoramento', icon: '📊' },
+	infra: { name: 'Infraestrutura', icon: '🖧' },
+	dev: { name: 'Desenvolvimento', icon: '💻' },
+	security: { name: 'Segurança', icon: '🔒' },
 };
 
 export default tools;

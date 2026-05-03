@@ -1,23 +1,23 @@
-import { ErrorAlert } from "@repo/ui-mui/components/ErrorAlert";
-import { LoadingSpinner } from "@repo/ui-mui/components/LoadingSpinner";
-import { Typography } from "@repo/ui-mui/data-display/Typography";
-import { Button } from "@repo/ui-mui/form/Button";
-import { Select } from "@repo/ui-mui/form/Select";
-import { TextField } from "@repo/ui-mui/form/TextField";
-import { Box } from "@repo/ui-mui/layout/Box";
-import { Container } from "@repo/ui-mui/layout/Container";
-import { Paper } from "@repo/ui-mui/layout/Paper";
-import { MenuItem } from "@repo/ui-mui/navigation/MenuItem";
-import { trpc } from "@frontend/utils/trpc.client";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import type React from "react";
-import { useState } from "react";
+import { trpc } from '@frontend/utils/trpc.client';
+import { ErrorAlert } from '@repo/ui-mui/components/ErrorAlert';
+import { LoadingSpinner } from '@repo/ui-mui/components/LoadingSpinner';
+import { Typography } from '@repo/ui-mui/data-display/Typography';
+import { Button } from '@repo/ui-mui/form/Button';
+import { Select } from '@repo/ui-mui/form/Select';
+import { TextField } from '@repo/ui-mui/form/TextField';
+import { Box } from '@repo/ui-mui/layout/Box';
+import { Container } from '@repo/ui-mui/layout/Container';
+import { Paper } from '@repo/ui-mui/layout/Paper';
+import { MenuItem } from '@repo/ui-mui/navigation/MenuItem';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import type React from 'react';
+import { useState } from 'react';
 
 export const MaintenancePlansPage = () => {
 	const [showForm, setShowForm] = useState(false);
 	const [formData, setFormData] = useState({
-		nomeEmpresa: "",
-		tipoEquipamento: "ar-condicionado" as const,
+		nomeEmpresa: '',
+		tipoEquipamento: 'ar-condicionado' as const,
 		periodicidadeDias: 90,
 	});
 	const queryClient = useQueryClient();
@@ -30,8 +30,8 @@ export const MaintenancePlansPage = () => {
 				queryClient.invalidateQueries({ queryKey: trpc.maintenance.listPlans.queryKey() });
 				setShowForm(false);
 				setFormData({
-					nomeEmpresa: "",
-					tipoEquipamento: "ar-condicionado",
+					nomeEmpresa: '',
+					tipoEquipamento: 'ar-condicionado',
 					periodicidadeDias: 90,
 				});
 			},
@@ -57,9 +57,9 @@ export const MaintenancePlansPage = () => {
 			<Box
 				sx={{
 					mb: 4,
-					display: "flex",
-					justifyContent: "space-between",
-					alignItems: "center",
+					display: 'flex',
+					justifyContent: 'space-between',
+					alignItems: 'center',
 				}}
 			>
 				<Typography variant="h3" component="h1" fontWeight={700}>
@@ -71,11 +71,11 @@ export const MaintenancePlansPage = () => {
 			</Box>
 
 			{showForm && (
-				<Paper elevation={0} sx={{ p: 3, mb: 4, border: "1px solid", borderColor: "divider" }}>
+				<Paper elevation={0} sx={{ p: 3, mb: 4, border: '1px solid', borderColor: 'divider' }}>
 					<Typography variant="h6" mb={2}>
 						Criar Novo Plano
 					</Typography>
-					<Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+					<Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
 						<TextField
 							label="Nome da Empresa"
 							value={formData.nomeEmpresa}
@@ -106,7 +106,7 @@ export const MaintenancePlansPage = () => {
 							fullWidth
 						/>
 						<Button variant="contained" onClick={onSubmit} disabled={createMutation.isPending}>
-							{createMutation.isPending ? "Salvando..." : "Salvar"}
+							{createMutation.isPending ? 'Salvando...' : 'Salvar'}
 						</Button>
 					</Box>
 				</Paper>
@@ -115,7 +115,7 @@ export const MaintenancePlansPage = () => {
 			{!plans?.data || plans.data.length === 0 ? (
 				<Paper
 					elevation={0}
-					sx={{ p: 6, textAlign: "center", border: "1px solid", borderColor: "divider" }}
+					sx={{ p: 6, textAlign: 'center', border: '1px solid', borderColor: 'divider' }}
 				>
 					<Typography variant="h6" color="text.secondary" gutterBottom>
 						Nenhum plano cadastrado
@@ -128,18 +128,18 @@ export const MaintenancePlansPage = () => {
 					</Button>
 				</Paper>
 			) : (
-				<Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" }, gap: 2 }}>
+				<Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 2 }}>
 					{plans.data.map((plan) => (
 						<Paper
 							key={plan.id}
 							elevation={0}
 							sx={{
 								p: 3,
-								border: "1px solid",
-								borderColor: "divider",
+								border: '1px solid',
+								borderColor: 'divider',
 								borderRadius: 2,
-								transition: "all 0.2s",
-								"&:hover": { borderColor: "primary.main", boxShadow: 2 },
+								transition: 'all 0.2s',
+								'&:hover': { borderColor: 'primary.main', boxShadow: 2 },
 							}}
 						>
 							<Typography variant="subtitle1" fontWeight={600}>

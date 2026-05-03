@@ -1,22 +1,22 @@
-import { ErrorAlert } from "@repo/ui-mui/components/ErrorAlert";
-import { LoadingSpinner } from "@repo/ui-mui/components/LoadingSpinner";
-import { Typography } from "@repo/ui-mui/data-display/Typography";
-import { Button } from "@repo/ui-mui/form/Button";
-import { TextField } from "@repo/ui-mui/form/TextField";
-import { Box } from "@repo/ui-mui/layout/Box";
-import { Container } from "@repo/ui-mui/layout/Container";
-import { Paper } from "@repo/ui-mui/layout/Paper";
-import { MenuItem } from "@repo/ui-mui/navigation/MenuItem";
-import { EQUIPMENT_STATUS_ENUM } from "@repo/zod-schemas/crm_enums.zod";
-import { trpc } from "@frontend/utils/trpc.client";
-import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
-import { useNavigate } from "react-router";
-import { EquipmentStatusBadge } from "../components/EquipmentStatusBadge";
+import { trpc } from '@frontend/utils/trpc.client';
+import { ErrorAlert } from '@repo/ui-mui/components/ErrorAlert';
+import { LoadingSpinner } from '@repo/ui-mui/components/LoadingSpinner';
+import { Typography } from '@repo/ui-mui/data-display/Typography';
+import { Button } from '@repo/ui-mui/form/Button';
+import { TextField } from '@repo/ui-mui/form/TextField';
+import { Box } from '@repo/ui-mui/layout/Box';
+import { Container } from '@repo/ui-mui/layout/Container';
+import { Paper } from '@repo/ui-mui/layout/Paper';
+import { MenuItem } from '@repo/ui-mui/navigation/MenuItem';
+import { EQUIPMENT_STATUS_ENUM } from '@repo/zod-schemas/crm_enums.zod';
+import { useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
+import { useNavigate } from 'react-router';
+import { EquipmentStatusBadge } from '../components/EquipmentStatusBadge';
 
 export default function EquipmentPage() {
 	const navigate = useNavigate();
-	const [statusFilter, setStatusFilter] = useState<string>("");
+	const [statusFilter, setStatusFilter] = useState<string>('');
 
 	const {
 		data: equipment,
@@ -43,10 +43,10 @@ export default function EquipmentPage() {
 			<Box
 				sx={{
 					mb: 4,
-					display: "flex",
-					justifyContent: "space-between",
-					alignItems: "center",
-					flexWrap: "wrap",
+					display: 'flex',
+					justifyContent: 'space-between',
+					alignItems: 'center',
+					flexWrap: 'wrap',
 					gap: 2,
 				}}
 			>
@@ -55,9 +55,9 @@ export default function EquipmentPage() {
 						variant="h3"
 						component="h1"
 						sx={{
-							fontSize: { xs: "2rem", md: "2.5rem" },
+							fontSize: { xs: '2rem', md: '2.5rem' },
 							fontWeight: 700,
-							letterSpacing: "-0.01em",
+							letterSpacing: '-0.01em',
 						}}
 					>
 						Equipamentos
@@ -66,7 +66,7 @@ export default function EquipmentPage() {
 						{equipment?.length ?? 0} equipamentos no total
 					</Typography>
 				</Box>
-				<Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
+				<Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
 					<TextField
 						select
 						label="Status"
@@ -84,10 +84,10 @@ export default function EquipmentPage() {
 					</TextField>
 					<Button
 						variant="contained"
-						onClick={() => navigate("/equipment/new")}
+						onClick={() => navigate('/equipment/new')}
 						sx={{
-							transition: "all 0.2s ease-in-out",
-							"&:hover": { transform: "translateY(-2px)", boxShadow: 4 },
+							transition: 'all 0.2s ease-in-out',
+							'&:hover': { transform: 'translateY(-2px)', boxShadow: 4 },
 						}}
 					>
 						Novo Equipamento
@@ -99,11 +99,11 @@ export default function EquipmentPage() {
 				<Paper
 					elevation={0}
 					sx={{
-						border: "1px solid",
-						borderColor: "divider",
+						border: '1px solid',
+						borderColor: 'divider',
 						borderRadius: 2,
 						p: 8,
-						textAlign: "center",
+						textAlign: 'center',
 					}}
 				>
 					<Typography variant="h6" color="text.secondary" gutterBottom>
@@ -112,36 +112,36 @@ export default function EquipmentPage() {
 					<Typography variant="body2" color="text.disabled" mb={3}>
 						Cadastre o primeiro equipamento para começar a gestão técnica
 					</Typography>
-					<Button variant="contained" onClick={() => navigate("/equipment/new")}>
+					<Button variant="contained" onClick={() => navigate('/equipment/new')}>
 						Cadastrar Equipamento
 					</Button>
 				</Paper>
 			) : (
-				<Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+				<Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
 					{equipment.map((eq) => (
 						<Paper
 							key={eq.equipmentId}
 							elevation={0}
 							onClick={() => navigate(`/equipment/${eq.equipmentId}`)}
 							sx={{
-								border: "1px solid",
-								borderColor: "divider",
+								border: '1px solid',
+								borderColor: 'divider',
 								borderRadius: 2,
 								p: 3,
-								cursor: "pointer",
-								transition: "all 0.2s ease-in-out",
-								"&:hover": {
-									borderColor: "primary.main",
-									transform: "translateY(-2px)",
+								cursor: 'pointer',
+								transition: 'all 0.2s ease-in-out',
+								'&:hover': {
+									borderColor: 'primary.main',
+									transform: 'translateY(-2px)',
 									boxShadow: 3,
 								},
 							}}
 						>
 							<Box
 								sx={{
-									display: "flex",
-									alignItems: "center",
-									justifyContent: "space-between",
+									display: 'flex',
+									alignItems: 'center',
+									justifyContent: 'space-between',
 									gap: 2,
 								}}
 							>
@@ -151,8 +151,8 @@ export default function EquipmentPage() {
 									</Typography>
 									<Typography variant="body2" color="text.secondary">
 										{eq.tipo}
-										{eq.marca ? ` · ${eq.marca}` : ""}
-										{eq.modelo ? ` ${eq.modelo}` : ""}
+										{eq.marca ? ` · ${eq.marca}` : ''}
+										{eq.modelo ? ` ${eq.modelo}` : ''}
 									</Typography>
 								</Box>
 								<EquipmentStatusBadge status={eq.status} />

@@ -1,18 +1,18 @@
-import { BaseTable } from "@backend/db/base_table";
-import { LEAD_SOURCE_ENUM, LEAD_STATUS_ENUM } from "@connected-repo/zod-schemas/crm_enums.zod";
+import { BaseTable } from '@backend/db/base_table';
+import { LEAD_SOURCE_ENUM, LEAD_STATUS_ENUM } from '@connected-repo/zod-schemas/crm_enums.zod';
 
 export class LeadsTable extends BaseTable {
-	readonly table = "leads";
+	readonly table = 'leads';
 
-// @ts-ignore TS2742 — pqb internal type inference not portable
+	// @ts-expect-error TS2742 — pqb internal type inference not portable
 	columns = this.setColumns((t) => ({
 		leadId: t.uuid().primaryKey().default(t.sql`gen_random_uuid()`),
 		nome: t.string(255),
 		email: t.string().nullable(),
 		telefone: t.string(30).nullable(),
-		origem: t.enum("crm_lead_source_enum", LEAD_SOURCE_ENUM),
+		origem: t.enum('crm_lead_source_enum', LEAD_SOURCE_ENUM),
 		canal: t.string(100).nullable(),
-		status: t.enum("crm_lead_status_enum", LEAD_STATUS_ENUM),
+		status: t.enum('crm_lead_status_enum', LEAD_STATUS_ENUM),
 		responsavelId: t.uuid().nullable(),
 		observacoes: t.text().nullable(),
 		convertidoClienteId: t.uuid().nullable(),

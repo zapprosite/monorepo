@@ -1,21 +1,21 @@
 // @ts-nocheck - migration file with complex orchid-orm types
-import { change } from "../db_script";
+import { change } from '../db_script';
 
 change(async (db) => {
-	await db.createEnum("public.crm_equipment_status_enum", [
-		"Ativo",
-		"Em Manutenção",
-		"Inativo",
-		"Desativado",
+	await db.createEnum('public.crm_equipment_status_enum', [
+		'Ativo',
+		'Em Manutenção',
+		'Inativo',
+		'Desativado',
 	]);
 
 	await db.createTable(
-		"units",
+		'units',
 		(t) => ({
 			unitId: t.uuid().primaryKey().default(t.sql`gen_random_uuid()`),
-			clienteId: t.uuid().foreignKey("clients", "clientId", {
-				onUpdate: "RESTRICT",
-				onDelete: "CASCADE",
+			clienteId: t.uuid().foreignKey('clients', 'clientId', {
+				onUpdate: 'RESTRICT',
+				onDelete: 'CASCADE',
 			}),
 			nome: t.string(255),
 			descricao: t.text().nullable(),
@@ -27,27 +27,27 @@ change(async (db) => {
 			createdAt: t.timestamps().createdAt,
 			updatedAt: t.timestamps().updatedAt,
 		}),
-		(t) => [t.index(["clienteId"])],
+		(t) => [t.index(['clienteId'])],
 	);
 
 	await db.createTable(
-		"equipment",
+		'equipment',
 		(t) => ({
 			equipmentId: t.uuid().primaryKey().default(t.sql`gen_random_uuid()`),
-			clienteId: t.uuid().foreignKey("clients", "clientId", {
-				onUpdate: "RESTRICT",
-				onDelete: "RESTRICT",
+			clienteId: t.uuid().foreignKey('clients', 'clientId', {
+				onUpdate: 'RESTRICT',
+				onDelete: 'RESTRICT',
 			}),
 			unitId: t
 				.uuid()
-				.foreignKey("units", "unitId", {
-					onUpdate: "RESTRICT",
-					onDelete: "SET NULL",
+				.foreignKey('units', 'unitId', {
+					onUpdate: 'RESTRICT',
+					onDelete: 'SET NULL',
 				})
 				.nullable(),
 			nome: t.string(255),
 			tipo: t.string(100),
-			status: t.enum("crm_equipment_status_enum"),
+			status: t.enum('crm_equipment_status_enum'),
 			marca: t.string(100).nullable(),
 			modelo: t.string(100).nullable(),
 			numeroDeSerie: t.string(100).nullable(),
@@ -60,6 +60,6 @@ change(async (db) => {
 			createdAt: t.timestamps().createdAt,
 			updatedAt: t.timestamps().updatedAt,
 		}),
-		(t) => [t.index(["clienteId"]), t.index(["unitId"]), t.index(["status"])],
+		(t) => [t.index(['clienteId']), t.index(['unitId']), t.index(['status'])],
 	);
 });

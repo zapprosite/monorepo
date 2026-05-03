@@ -1,19 +1,16 @@
-import { Typography } from "@repo/ui-mui/data-display/Typography";
-import { Dialog } from "@repo/ui-mui/feedback/Dialog";
-import { DialogActions } from "@repo/ui-mui/feedback/DialogActions";
-import { DialogContent } from "@repo/ui-mui/feedback/DialogContent";
-import { DialogTitle } from "@repo/ui-mui/feedback/DialogTitle";
-import { Button } from "@repo/ui-mui/form/Button";
-import { TextField } from "@repo/ui-mui/form/TextField";
-import { Box } from "@repo/ui-mui/layout/Box";
-import {
-	type ContactCreateInput,
-	contactCreateInputZod,
-} from "@repo/zod-schemas/contact.zod";
-import { trpc } from "@frontend/utils/trpc.client";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Controller, useForm } from "react-hook-form";
+import { trpc } from '@frontend/utils/trpc.client';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Typography } from '@repo/ui-mui/data-display/Typography';
+import { Dialog } from '@repo/ui-mui/feedback/Dialog';
+import { DialogActions } from '@repo/ui-mui/feedback/DialogActions';
+import { DialogContent } from '@repo/ui-mui/feedback/DialogContent';
+import { DialogTitle } from '@repo/ui-mui/feedback/DialogTitle';
+import { Button } from '@repo/ui-mui/form/Button';
+import { TextField } from '@repo/ui-mui/form/TextField';
+import { Box } from '@repo/ui-mui/layout/Box';
+import { type ContactCreateInput, contactCreateInputZod } from '@repo/zod-schemas/contact.zod';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { Controller, useForm } from 'react-hook-form';
 
 interface ContactModalProps {
 	clienteId: string;
@@ -56,7 +53,7 @@ export function ContactModal({ clienteId, open, onClose }: ContactModalProps) {
 				</Typography>
 			</DialogTitle>
 			<Box component="form" onSubmit={handleSubmit(onSubmit)}>
-				<DialogContent sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}>
+				<DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
 					<Controller
 						name="nome"
 						control={control}
@@ -70,14 +67,14 @@ export function ContactModal({ clienteId, open, onClose }: ContactModalProps) {
 							/>
 						)}
 					/>
-					<Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 2 }}>
+					<Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
 						<Controller
 							name="email"
 							control={control}
 							render={({ field }) => (
 								<TextField
 									{...field}
-									value={field.value ?? ""}
+									value={field.value ?? ''}
 									label="Email"
 									fullWidth
 									error={!!errors.email}
@@ -91,7 +88,7 @@ export function ContactModal({ clienteId, open, onClose }: ContactModalProps) {
 							render={({ field }) => (
 								<TextField
 									{...field}
-									value={field.value ?? ""}
+									value={field.value ?? ''}
 									label="Telefone"
 									fullWidth
 									error={!!errors.telefone}
@@ -106,7 +103,7 @@ export function ContactModal({ clienteId, open, onClose }: ContactModalProps) {
 						render={({ field }) => (
 							<TextField
 								{...field}
-								value={field.value ?? ""}
+								value={field.value ?? ''}
 								label="Cargo"
 								fullWidth
 								error={!!errors.cargo}
@@ -120,7 +117,7 @@ export function ContactModal({ clienteId, open, onClose }: ContactModalProps) {
 						Cancelar
 					</Button>
 					<Button type="submit" variant="contained" disabled={isSubmitting}>
-						{isSubmitting ? "Salvando..." : "Adicionar"}
+						{isSubmitting ? 'Salvando...' : 'Adicionar'}
 					</Button>
 				</DialogActions>
 			</Box>

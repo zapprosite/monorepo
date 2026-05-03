@@ -1,8 +1,8 @@
-import { userContext } from "@frontend/contexts/UserContext";
-import { queryClient } from "@frontend/utils/queryClient";
-import { trpc } from "@frontend/utils/trpc.client";
-import type { LoaderFunctionArgs } from "react-router";
-import { isRouteErrorResponse, redirect } from "react-router";
+import { userContext } from '@frontend/contexts/UserContext';
+import { queryClient } from '@frontend/utils/queryClient';
+import { trpc } from '@frontend/utils/trpc.client';
+import type { LoaderFunctionArgs } from 'react-router';
+import { isRouteErrorResponse, redirect } from 'react-router';
 
 const IS_DEV = import.meta.env.DEV;
 
@@ -17,7 +17,7 @@ function readDevSessionUser(): DevSessionUser | null {
 		return null;
 	}
 
-	const devUser = sessionStorage.getItem("dev_user");
+	const devUser = sessionStorage.getItem('dev_user');
 	if (!devUser) {
 		return null;
 	}
@@ -25,7 +25,7 @@ function readDevSessionUser(): DevSessionUser | null {
 	try {
 		const parsedUser = JSON.parse(devUser) as Partial<DevSessionUser>;
 		if (!parsedUser.id || !parsedUser.email) {
-			sessionStorage.removeItem("dev_user");
+			sessionStorage.removeItem('dev_user');
 			return null;
 		}
 
@@ -35,7 +35,7 @@ function readDevSessionUser(): DevSessionUser | null {
 			name: parsedUser.name ?? null,
 		};
 	} catch {
-		sessionStorage.removeItem("dev_user");
+		sessionStorage.removeItem('dev_user');
 		return null;
 	}
 }
@@ -73,11 +73,11 @@ export async function authLoader({ context }: LoaderFunctionArgs) {
 		const sessionInfo = await queryClient.fetchQuery(trpc.auth.getSessionInfo.queryOptions());
 
 		if (!sessionInfo.hasSession) {
-			throw redirect("/auth/login");
+			throw redirect('/auth/login');
 		}
 
 		if (!sessionInfo.isRegistered) {
-			throw redirect("/auth/register");
+			throw redirect('/auth/register');
 		}
 
 		context.set(userContext, sessionInfo);
@@ -87,8 +87,8 @@ export async function authLoader({ context }: LoaderFunctionArgs) {
 			throw error;
 		}
 
-		console.error("Auth loader error:", error);
-		throw redirect("/auth/login");
+		console.error('Auth loader error:', error);
+		throw redirect('/auth/login');
 	}
 }
 
@@ -98,14 +98,14 @@ export async function authLoader({ context }: LoaderFunctionArgs) {
  */
 export async function guestLoader() {
 	if (getDevSessionInfo()) {
-		return redirect("/dashboard");
+		return redirect('/dashboard');
 	}
 
 	try {
 		const sessionInfo = await queryClient.fetchQuery(trpc.auth.getSessionInfo.queryOptions());
 
 		if (sessionInfo.hasSession && sessionInfo.isRegistered) {
-			return redirect("/dashboard");
+			return redirect('/dashboard');
 		}
 
 		return sessionInfo;
@@ -114,7 +114,7 @@ export async function guestLoader() {
 			throw error;
 		}
 
-		console.error("Guest loader error:", error);
+		console.error('Guest loader error:', error);
 		return null;
 	}
 }

@@ -1,6 +1,6 @@
-import { isIPWhitelisted } from "@backend/modules/api-gateway/utils/ipChecker.utils";
-import { getClientIpAddress } from "@backend/utils/request-metadata.utils";
-import type { FastifyReply, FastifyRequest } from "fastify";
+import { isIPWhitelisted } from '@backend/modules/api-gateway/utils/ipChecker.utils';
+import { getClientIpAddress } from '@backend/utils/request-metadata.utils';
+import type { FastifyReply, FastifyRequest } from 'fastify';
 
 /**
  * Domain/IP Whitelist Middleware
@@ -12,8 +12,8 @@ export async function ipWhitelistCheckHook(request: FastifyRequest, reply: Fasti
 	if (!request.team) {
 		return reply.code(401).send({
 			statusCode: 401,
-			error: "Unauthorized",
-			message: "Authentication required",
+			error: 'Unauthorized',
+			message: 'Authentication required',
 		});
 	}
 
@@ -23,11 +23,11 @@ export async function ipWhitelistCheckHook(request: FastifyRequest, reply: Fasti
 	if (allowedIPs && allowedIPs.length > 0) {
 		const clientIp = getClientIpAddress(request);
 
-		if (!clientIp || clientIp === "unknown") {
+		if (!clientIp || clientIp === 'unknown') {
 			return reply.code(403).send({
 				statusCode: 403,
-				error: "Forbidden",
-				message: "Client IP not detected",
+				error: 'Forbidden',
+				message: 'Client IP not detected',
 			});
 		}
 
@@ -38,8 +38,8 @@ export async function ipWhitelistCheckHook(request: FastifyRequest, reply: Fasti
 		if (!isIPAllowed) {
 			return reply.code(403).send({
 				statusCode: 403,
-				error: "Forbidden",
-				message: "Client IP not whitelisted",
+				error: 'Forbidden',
+				message: 'Client IP not whitelisted',
 			});
 		}
 	}

@@ -1,26 +1,26 @@
-import { BaseTable } from "@backend/db/base_table";
+import { BaseTable } from '@backend/db/base_table';
 import {
 	CONTRACT_FREQUENCY_ENUM,
 	CONTRACT_STATUS_ENUM,
 	CONTRACT_TYPE_ENUM,
-} from "@connected-repo/zod-schemas/crm_enums.zod";
+} from '@connected-repo/zod-schemas/crm_enums.zod';
 
 export class ContractsTable extends BaseTable {
-	readonly table = "contracts";
+	readonly table = 'contracts';
 
-// @ts-ignore TS2742 — pqb internal type inference not portable
+	// @ts-expect-error TS2742 — pqb internal type inference not portable
 	columns = this.setColumns((t) => ({
 		contractId: t.uuid().primaryKey().default(t.sql`gen_random_uuid()`),
-		clienteId: t.uuid().foreignKey("clients", "clientId", {
-			onUpdate: "RESTRICT",
-			onDelete: "RESTRICT",
+		clienteId: t.uuid().foreignKey('clients', 'clientId', {
+			onUpdate: 'RESTRICT',
+			onDelete: 'RESTRICT',
 		}),
-		tipo: t.enum("crm_contract_type_enum", CONTRACT_TYPE_ENUM),
-		status: t.enum("crm_contract_status_enum", CONTRACT_STATUS_ENUM),
+		tipo: t.enum('crm_contract_type_enum', CONTRACT_TYPE_ENUM),
+		status: t.enum('crm_contract_status_enum', CONTRACT_STATUS_ENUM),
 		dataInicio: t.date(),
 		dataFim: t.date().nullable(),
 		valor: t.decimal(12, 2).nullable(),
-		frequencia: t.enum("crm_contract_frequency_enum", CONTRACT_FREQUENCY_ENUM).nullable(),
+		frequencia: t.enum('crm_contract_frequency_enum', CONTRACT_FREQUENCY_ENUM).nullable(),
 		descricao: t.text().nullable(),
 		observacoes: t.text().nullable(),
 		motivoCancelamento: t.text().nullable(),

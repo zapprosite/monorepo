@@ -1,3 +1,4 @@
 // Agent Pool Module
-export * from "./types.js";
-export * from "./agent-pool.js";
+
+export * from './agent-pool.js';
+export * from './types.js';

@@ -1,7 +1,7 @@
-import ContractDetailPage from "@frontend/modules/contracts/pages/ContractDetail.page";
-import ContractsPage from "@frontend/modules/contracts/pages/Contracts.page";
-import CreateContractPage from "@frontend/modules/contracts/pages/CreateContract.page";
-import { Route, Routes } from "react-router";
+import ContractDetailPage from '@frontend/modules/contracts/pages/ContractDetail.page';
+import ContractsPage from '@frontend/modules/contracts/pages/Contracts.page';
+import CreateContractPage from '@frontend/modules/contracts/pages/CreateContract.page';
+import { Route, Routes } from 'react-router';
 
 export const ContractsRouter = () => {
 	return (

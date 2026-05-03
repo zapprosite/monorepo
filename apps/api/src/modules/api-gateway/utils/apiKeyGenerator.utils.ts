@@ -1,5 +1,5 @@
-import crypto from "node:crypto";
-import { promisify } from "node:util";
+import crypto from 'node:crypto';
+import { promisify } from 'node:util';
 
 const scrypt = promisify(crypto.scrypt);
 
@@ -9,7 +9,7 @@ const scrypt = promisify(crypto.scrypt);
  */
 export function generateApiKey(): string {
 	const randomBytes = crypto.randomBytes(24); // 24 bytes = 32 base64 chars
-	const randomString = randomBytes.toString("base64url").slice(0, 32);
+	const randomString = randomBytes.toString('base64url').slice(0, 32);
 	return `sk_live_${randomString}`;
 }
 
@@ -19,9 +19,9 @@ export function generateApiKey(): string {
  * @returns Hash in format: salt:hash (both hex encoded)
  */
 export async function hashApiKey(plainKey: string): Promise<string> {
-	const salt = crypto.randomBytes(16).toString("hex");
+	const salt = crypto.randomBytes(16).toString('hex');
 	const derivedKey = (await scrypt(plainKey, salt, 64)) as Buffer;
-	return `${salt}:${derivedKey.toString("hex")}`;
+	return `${salt}:${derivedKey.toString('hex')}`;
 }
 
 /**
@@ -30,7 +30,7 @@ export async function hashApiKey(plainKey: string): Promise<string> {
  * The actual verification still uses the slow scrypt hash.
  */
 export function generateApiKeyLookupHash(plainKey: string): string {
-	return crypto.createHash("sha256").update(plainKey).digest("hex");
+	return crypto.createHash('sha256').update(plainKey).digest('hex');
 }
 
 /**
@@ -40,14 +40,14 @@ export function generateApiKeyLookupHash(plainKey: string): string {
  * @returns True if the key matches the hash, false otherwise
  */
 export async function verifyApiKey(plainKey: string, hash: string): Promise<boolean> {
-	const [salt, storedHash] = hash.split(":");
+	const [salt, storedHash] = hash.split(':');
 	if (!salt || !storedHash) {
 		return false;
 	}
 
 	const derivedKey = (await scrypt(plainKey, salt, 64)) as Buffer;
-	const derivedHash = derivedKey.toString("hex");
+	const derivedHash = derivedKey.toString('hex');
 
 	// Use timing-safe comparison
-	return crypto.timingSafeEqual(Buffer.from(storedHash, "hex"), Buffer.from(derivedHash, "hex"));
+	return crypto.timingSafeEqual(Buffer.from(storedHash, 'hex'), Buffer.from(derivedHash, 'hex'));
 }

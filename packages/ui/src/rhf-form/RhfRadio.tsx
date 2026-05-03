@@ -1,7 +1,7 @@
-import type { SxProps, Theme } from "@mui/material/styles";
-import { Controller, useFormContext } from "react-hook-form";
-import { FormControl, FormControlLabel, FormHelperText, FormLabel } from "../form/FormControl";
-import { Radio, RadioGroup, type RadioGroupProps } from "../form/Radio";
+import type { SxProps, Theme } from '@mui/material/styles';
+import { Controller, useFormContext } from 'react-hook-form';
+import { FormControl, FormControlLabel, FormHelperText, FormLabel } from '../form/FormControl';
+import { Radio, RadioGroup, type RadioGroupProps } from '../form/Radio';
 
 export interface RhfRadioOption {
 	value: string | number;
@@ -9,7 +9,7 @@ export interface RhfRadioOption {
 	disabled?: boolean;
 }
 
-export interface RhfRadioProps extends Omit<RadioGroupProps, "name"> {
+export interface RhfRadioProps extends Omit<RadioGroupProps, 'name'> {
 	name: string;
 	label?: string;
 	options: RhfRadioOption[];

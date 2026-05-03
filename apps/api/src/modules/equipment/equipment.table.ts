@@ -1,26 +1,26 @@
-import { BaseTable } from "@backend/db/base_table";
-import { EQUIPMENT_STATUS_ENUM } from "@connected-repo/zod-schemas/crm_enums.zod";
+import { BaseTable } from '@backend/db/base_table';
+import { EQUIPMENT_STATUS_ENUM } from '@connected-repo/zod-schemas/crm_enums.zod';
 
 export class EquipmentTable extends BaseTable {
-	readonly table = "equipment";
+	readonly table = 'equipment';
 
-// @ts-ignore TS2742 — pqb internal type inference not portable
+	// @ts-expect-error TS2742 — pqb internal type inference not portable
 	columns = this.setColumns((t) => ({
 		equipmentId: t.uuid().primaryKey().default(t.sql`gen_random_uuid()`),
-		clienteId: t.uuid().foreignKey("clients", "clientId", {
-			onUpdate: "RESTRICT",
-			onDelete: "RESTRICT",
+		clienteId: t.uuid().foreignKey('clients', 'clientId', {
+			onUpdate: 'RESTRICT',
+			onDelete: 'RESTRICT',
 		}),
 		unitId: t
 			.uuid()
-			.foreignKey("units", "unitId", {
-				onUpdate: "RESTRICT",
-				onDelete: "SET NULL",
+			.foreignKey('units', 'unitId', {
+				onUpdate: 'RESTRICT',
+				onDelete: 'SET NULL',
 			})
 			.nullable(),
 		nome: t.string(255),
 		tipo: t.string(100),
-		status: t.enum("crm_equipment_status_enum", EQUIPMENT_STATUS_ENUM),
+		status: t.enum('crm_equipment_status_enum', EQUIPMENT_STATUS_ENUM),
 		marca: t.string(100).nullable(),
 		modelo: t.string(100).nullable(),
 		numeroDeSerie: t.string(100).nullable(),

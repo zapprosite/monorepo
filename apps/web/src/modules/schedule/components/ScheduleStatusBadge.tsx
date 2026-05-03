@@ -1,15 +1,15 @@
-import { Chip } from "@repo/ui-mui/data-display/Chip";
-import type { ScheduleStatus } from "@repo/zod-schemas/crm_enums.zod";
+import { Chip } from '@repo/ui-mui/data-display/Chip';
+import type { ScheduleStatus } from '@repo/zod-schemas/crm_enums.zod';
 
 const STATUS_COLOR: Record<
 	ScheduleStatus,
-	"default" | "primary" | "secondary" | "success" | "error" | "warning" | "info"
+	'default' | 'primary' | 'secondary' | 'success' | 'error' | 'warning' | 'info'
 > = {
-	Agendado: "default",
-	Confirmado: "info",
-	"Em Andamento": "warning",
-	Concluído: "success",
-	Cancelado: "error",
+	Agendado: 'default',
+	Confirmado: 'info',
+	'Em Andamento': 'warning',
+	Concluído: 'success',
+	Cancelado: 'error',
 };
 
 interface ScheduleStatusBadgeProps {

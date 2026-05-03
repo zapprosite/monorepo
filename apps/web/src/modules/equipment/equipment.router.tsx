@@ -1,7 +1,7 @@
-import CreateEquipmentPage from "@frontend/modules/equipment/pages/CreateEquipment.page";
-import EquipmentPage from "@frontend/modules/equipment/pages/Equipment.page";
-import EquipmentDetailPage from "@frontend/modules/equipment/pages/EquipmentDetail.page";
-import { Route, Routes } from "react-router";
+import CreateEquipmentPage from '@frontend/modules/equipment/pages/CreateEquipment.page';
+import EquipmentPage from '@frontend/modules/equipment/pages/Equipment.page';
+import EquipmentDetailPage from '@frontend/modules/equipment/pages/EquipmentDetail.page';
+import { Route, Routes } from 'react-router';
 
 export const EquipmentRouter = () => {
 	return (

@@ -1,23 +1,17 @@
-import { Typography } from "@repo/ui-mui/data-display/Typography";
-import { Button } from "@repo/ui-mui/form/Button";
-import { TextField } from "@repo/ui-mui/form/TextField";
-import { Box } from "@repo/ui-mui/layout/Box";
-import { Container } from "@repo/ui-mui/layout/Container";
-import { Paper } from "@repo/ui-mui/layout/Paper";
-import { MenuItem } from "@repo/ui-mui/navigation/MenuItem";
-import {
-	REMINDER_STATUS_ENUM,
-	REMINDER_TYPE_ENUM,
-} from "@repo/zod-schemas/crm_enums.zod";
-import {
-	type ReminderCreateInput,
-	reminderCreateInputZod,
-} from "@repo/zod-schemas/reminder.zod";
-import { trpc } from "@frontend/utils/trpc.client";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Controller, useForm } from "react-hook-form";
-import { useNavigate } from "react-router";
+import { trpc } from '@frontend/utils/trpc.client';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Typography } from '@repo/ui-mui/data-display/Typography';
+import { Button } from '@repo/ui-mui/form/Button';
+import { TextField } from '@repo/ui-mui/form/TextField';
+import { Box } from '@repo/ui-mui/layout/Box';
+import { Container } from '@repo/ui-mui/layout/Container';
+import { Paper } from '@repo/ui-mui/layout/Paper';
+import { MenuItem } from '@repo/ui-mui/navigation/MenuItem';
+import { REMINDER_STATUS_ENUM, REMINDER_TYPE_ENUM } from '@repo/zod-schemas/crm_enums.zod';
+import { type ReminderCreateInput, reminderCreateInputZod } from '@repo/zod-schemas/reminder.zod';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { Controller, useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router';
 
 export default function CreateReminderPage() {
 	const navigate = useNavigate();
@@ -32,7 +26,7 @@ export default function CreateReminderPage() {
 	} = useForm<ReminderCreateInput>({
 		resolver: zodResolver(reminderCreateInputZod),
 		defaultValues: {
-			status: "Pendente",
+			status: 'Pendente',
 		},
 	});
 
@@ -40,7 +34,7 @@ export default function CreateReminderPage() {
 		trpc.reminders.createReminder.mutationOptions({
 			onSuccess: () => {
 				queryClient.invalidateQueries({ queryKey: trpc.reminders.listReminders.queryKey() });
-				navigate("/reminders");
+				navigate('/reminders');
 			},
 		}),
 	);
@@ -55,8 +49,8 @@ export default function CreateReminderPage() {
 				<Button
 					variant="text"
 					size="small"
-					onClick={() => navigate("/reminders")}
-					sx={{ mb: 1, color: "text.secondary" }}
+					onClick={() => navigate('/reminders')}
+					sx={{ mb: 1, color: 'text.secondary' }}
 				>
 					← Voltar para Lembretes
 				</Button>
@@ -67,15 +61,15 @@ export default function CreateReminderPage() {
 
 			<Paper
 				elevation={0}
-				sx={{ border: "1px solid", borderColor: "divider", borderRadius: 2, p: 4 }}
+				sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2, p: 4 }}
 			>
 				<Box
 					component="form"
 					onSubmit={handleSubmit(onSubmit)}
-					sx={{ display: "flex", flexDirection: "column", gap: 3 }}
+					sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}
 				>
 					{/* Row 1: Cliente + Data Lembrete */}
-					<Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "2fr 1fr" }, gap: 3 }}>
+					<Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '2fr 1fr' }, gap: 3 }}>
 						<Controller
 							name="clienteId"
 							control={control}
@@ -115,7 +109,7 @@ export default function CreateReminderPage() {
 					</Box>
 
 					{/* Row 2: Tipo + Status */}
-					<Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 3 }}>
+					<Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 3 }}>
 						<Controller
 							name="tipo"
 							control={control}
@@ -181,7 +175,7 @@ export default function CreateReminderPage() {
 						render={({ field }) => (
 							<TextField
 								{...field}
-								value={field.value ?? ""}
+								value={field.value ?? ''}
 								label="Descrição"
 								multiline
 								rows={3}
@@ -192,10 +186,10 @@ export default function CreateReminderPage() {
 						)}
 					/>
 
-					<Box sx={{ display: "flex", gap: 2, justifyContent: "flex-end", pt: 1 }}>
+					<Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end', pt: 1 }}>
 						<Button
 							variant="outlined"
-							onClick={() => navigate("/reminders")}
+							onClick={() => navigate('/reminders')}
 							disabled={isSubmitting}
 						>
 							Cancelar
@@ -206,7 +200,7 @@ export default function CreateReminderPage() {
 							disabled={isSubmitting}
 							sx={{ minWidth: 160 }}
 						>
-							{isSubmitting ? "Salvando..." : "Salvar Lembrete"}
+							{isSubmitting ? 'Salvando...' : 'Salvar Lembrete'}
 						</Button>
 					</Box>
 				</Box>

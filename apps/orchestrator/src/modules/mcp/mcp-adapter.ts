@@ -1,5 +1,5 @@
 // MCP Adapter - Provider Abstraction
-export type McpProvider = "claude" | "anthropic" | "make" | "zapier";
+export type McpProvider = 'claude' | 'anthropic' | 'make' | 'zapier';
 
 export interface McpTool {
 	name: string;
@@ -14,7 +14,7 @@ export interface McpResponse {
 }
 
 export interface HealthStatus {
-	status: "healthy" | "unhealthy" | "unknown";
+	status: 'healthy' | 'unhealthy' | 'unknown';
 	latencyMs?: number;
 	error?: string;
 }
@@ -28,22 +28,19 @@ export interface McpAdapter {
 
 	executeTool(tool: string, input: Record<string, unknown>): Promise<McpResponse>;
 
-	executeToolStream(
-		tool: string,
-		input: Record<string, unknown>
-	): AsyncIterable<McpResponse>;
+	executeToolStream(tool: string, input: Record<string, unknown>): AsyncIterable<McpResponse>;
 }
 
 // Factory for creating adapters
 export function createMcpAdapter(provider: McpProvider): McpAdapter {
 	switch (provider) {
-		case "claude":
+		case 'claude':
 			return new ClaudeMcpAdapter();
-		case "anthropic":
+		case 'anthropic':
 			return new AnthropicMcpAdapter();
-		case "make":
+		case 'make':
 			return new MakeMcpAdapter();
-		case "zapier":
+		case 'zapier':
 			return new ZapierMcpAdapter();
 		default:
 			throw new Error(`Unknown MCP provider: ${provider}`);
@@ -52,7 +49,7 @@ export function createMcpAdapter(provider: McpProvider): McpAdapter {
 
 // Claude AI Adapter
 class ClaudeMcpAdapter implements McpAdapter {
-	readonly provider = "claude" as const;
+	readonly provider = 'claude' as const;
 	private apiKey?: string;
 
 	async initialize(apiKey: string): Promise<void> {
@@ -61,18 +58,15 @@ class ClaudeMcpAdapter implements McpAdapter {
 
 	async healthCheck(): Promise<HealthStatus> {
 		if (!this.apiKey) {
-			return { status: "unhealthy", error: "API key not configured" };
+			return { status: 'unhealthy', error: 'API key not configured' };
 		}
 		// In production, make a test API call
-		return { status: "healthy", latencyMs: 50 };
+		return { status: 'healthy', latencyMs: 50 };
 	}
 
-	async executeTool(
-		tool: string,
-		input: Record<string, unknown>
-	): Promise<McpResponse> {
+	async executeTool(tool: string, input: Record<string, unknown>): Promise<McpResponse> {
 		if (!this.apiKey) {
-			return { success: false, error: "API key not configured" };
+			return { success: false, error: 'API key not configured' };
 		}
 
 		// In production, call Claude API
@@ -90,7 +84,7 @@ class ClaudeMcpAdapter implements McpAdapter {
 
 	async *executeToolStream(
 		tool: string,
-		input: Record<string, unknown>
+		input: Record<string, unknown>,
 	): AsyncIterable<McpResponse> {
 		const result = await this.executeTool(tool, input);
 		yield result;
@@ -99,7 +93,7 @@ class ClaudeMcpAdapter implements McpAdapter {
 
 // Anthropic Adapter
 class AnthropicMcpAdapter implements McpAdapter {
-	readonly provider = "anthropic" as const;
+	readonly provider = 'anthropic' as const;
 	private apiKey?: string;
 
 	async initialize(apiKey: string): Promise<void> {
@@ -107,27 +101,24 @@ class AnthropicMcpAdapter implements McpAdapter {
 	}
 
 	async healthCheck(): Promise<HealthStatus> {
-		return { status: "unknown", error: "Not implemented" };
+		return { status: 'unknown', error: 'Not implemented' };
 	}
 
-	async executeTool(
-		tool: string,
-		input: Record<string, unknown>
-	): Promise<McpResponse> {
-		return { success: false, error: "Not implemented" };
+	async executeTool(tool: string, input: Record<string, unknown>): Promise<McpResponse> {
+		return { success: false, error: 'Not implemented' };
 	}
 
 	async *executeToolStream(
 		tool: string,
-		input: Record<string, unknown>
+		input: Record<string, unknown>,
 	): AsyncIterable<McpResponse> {
-		yield { success: false, error: "Not implemented" };
+		yield { success: false, error: 'Not implemented' };
 	}
 }
 
 // Make.com Adapter
 class MakeMcpAdapter implements McpAdapter {
-	readonly provider = "make" as const;
+	readonly provider = 'make' as const;
 	private apiKey?: string;
 
 	async initialize(apiKey: string): Promise<void> {
@@ -135,27 +126,24 @@ class MakeMcpAdapter implements McpAdapter {
 	}
 
 	async healthCheck(): Promise<HealthStatus> {
-		return { status: "unknown", error: "Not implemented" };
+		return { status: 'unknown', error: 'Not implemented' };
 	}
 
-	async executeTool(
-		tool: string,
-		input: Record<string, unknown>
-	): Promise<McpResponse> {
-		return { success: false, error: "Not implemented" };
+	async executeTool(tool: string, input: Record<string, unknown>): Promise<McpResponse> {
+		return { success: false, error: 'Not implemented' };
 	}
 
 	async *executeToolStream(
 		tool: string,
-		input: Record<string, unknown>
+		input: Record<string, unknown>,
 	): AsyncIterable<McpResponse> {
-		yield { success: false, error: "Not implemented" };
+		yield { success: false, error: 'Not implemented' };
 	}
 }
 
 // Zapier Adapter
 class ZapierMcpAdapter implements McpAdapter {
-	readonly provider = "zapier" as const;
+	readonly provider = 'zapier' as const;
 	private apiKey?: string;
 
 	async initialize(apiKey: string): Promise<void> {
@@ -163,20 +151,17 @@ class ZapierMcpAdapter implements McpAdapter {
 	}
 
 	async healthCheck(): Promise<HealthStatus> {
-		return { status: "unknown", error: "Not implemented" };
+		return { status: 'unknown', error: 'Not implemented' };
 	}
 
-	async executeTool(
-		tool: string,
-		input: Record<string, unknown>
-	): Promise<McpResponse> {
-		return { success: false, error: "Not implemented" };
+	async executeTool(tool: string, input: Record<string, unknown>): Promise<McpResponse> {
+		return { success: false, error: 'Not implemented' };
 	}
 
 	async *executeToolStream(
 		tool: string,
-		input: Record<string, unknown>
+		input: Record<string, unknown>,
 	): AsyncIterable<McpResponse> {
-		yield { success: false, error: "Not implemented" };
+		yield { success: false, error: 'Not implemented' };
 	}
 }

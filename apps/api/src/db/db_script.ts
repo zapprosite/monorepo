@@ -1,23 +1,25 @@
-import { BaseTable } from "@backend/db/base_table";
-import { dbConfig } from "@backend/db/config";
-import { rakeDb } from "orchid-orm/migrations/node-postgres";
+import { BaseTable } from '@backend/db/base_table';
+import { dbConfig } from '@backend/db/config';
+import { rakeDb } from 'orchid-orm/migrations/node-postgres';
 
 export const change = rakeDb(
 	// @ts-expect-error TS2345 — rakeDb config type mismatch with dbConfig
-	[dbConfig], {
-	baseTable: BaseTable,
-	dbPath: "./db",
-	migrationId: "serial",
-	migrationsPath: "./migrations",
-	commands: {
-		async seed() {
-			const { seed } = await import("./seed/index.js");
-			await seed();
+	[dbConfig],
+	{
+		baseTable: BaseTable,
+		dbPath: './db',
+		migrationId: 'serial',
+		migrationsPath: './migrations',
+		commands: {
+			async seed() {
+				const { seed } = await import('./seed/index.js');
+				await seed();
+			},
 		},
+		import: (path: string) => import(path),
+		//   beforeMigrate?(db: Db): Promise<void>;
+		//   afterMigrate?(db: Db): Promise<void>;
+		//   beforeRollback?(db: Db): Promise<void>;
+		//   afterRollback?(db: Db): Promise<void>;
 	},
-	import: (path: string) => import(path),
-	//   beforeMigrate?(db: Db): Promise<void>;
-	//   afterMigrate?(db: Db): Promise<void>;
-	//   beforeRollback?(db: Db): Promise<void>;
-	//   afterRollback?(db: Db): Promise<void>;
-});
+);

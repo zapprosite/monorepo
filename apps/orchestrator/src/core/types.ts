@@ -1,19 +1,19 @@
 // Universal Orchestrator - Core Types
 
 export type WorkflowStatus =
-	| "pending"
-	| "running"
-	| "waiting_approval"
-	| "paused"
-	| "completed"
-	| "failed"
-	| "cancelled";
+	| 'pending'
+	| 'running'
+	| 'waiting_approval'
+	| 'paused'
+	| 'completed'
+	| 'failed'
+	| 'cancelled';
 
-export type PhaseStatus = "pending" | "running" | "completed" | "skipped" | "failed";
+export type PhaseStatus = 'pending' | 'running' | 'completed' | 'skipped' | 'failed';
 
-export type GateType = "approval" | "choice" | "manual";
+export type GateType = 'approval' | 'choice' | 'manual';
 
-export type ApprovalStatus = "pending" | "approved" | "rejected" | "expired";
+export type ApprovalStatus = 'pending' | 'approved' | 'rejected' | 'expired';
 
 // Workflow execution state
 export interface WorkflowState {
@@ -47,7 +47,7 @@ export interface WorkflowDefinition {
 }
 
 export interface Trigger {
-	type: "webhook" | "schedule" | "manual";
+	type: 'webhook' | 'schedule' | 'manual';
 	event?: string;
 	cron?: string;
 }
@@ -78,7 +78,7 @@ export interface AgentStep {
 }
 
 export interface McpStep {
-	provider: "claude" | "anthropic" | "make" | "zapier";
+	provider: 'claude' | 'anthropic' | 'make' | 'zapier';
 	tool: string;
 	input: Record<string, unknown>;
 	timeout?: number;
@@ -105,24 +105,30 @@ export interface OnFailureDefinition {
 
 // Events for the event bus
 export type WorkflowEvent =
-	| { type: "workflow.started"; instanceId: string; timestamp: number }
-	| { type: "workflow.phase.started"; instanceId: string; phase: string }
-	| { type: "workflow.phase.completed"; instanceId: string; phase: string }
-	| { type: "workflow.waiting_approval"; instanceId: string; phase: string; gateId: string }
-	| { type: "workflow.approved"; instanceId: string; gateId: string; approverId: string }
-	| { type: "workflow.rejected"; instanceId: string; gateId: string; approverId: string; reason: string }
-	| { type: "workflow.completed"; instanceId: string; result: unknown }
-	| { type: "workflow.failed"; instanceId: string; error: string }
-	| { type: "workflow.paused"; instanceId: string }
-	| { type: "workflow.resumed"; instanceId: string }
-	| { type: "skill.invoked"; instanceId: string; skillName: string }
-	| { type: "skill.completed"; instanceId: string; skillName: string; result: unknown }
-	| { type: "agent.spawned"; instanceId: string; agentId: string; role: string }
-	| { type: "agent.completed"; instanceId: string; agentId: string; result: unknown }
-	| { type: "mcp.called"; instanceId: string; provider: string; tool: string }
-	| { type: "mcp.response"; instanceId: string; provider: string; tool: string; result: unknown }
-	| { type: "webhook.emitted"; instanceId: string; url: string }
-	| { type: "webhook.callback"; instanceId: string; payload: unknown };
+	| { type: 'workflow.started'; instanceId: string; timestamp: number }
+	| { type: 'workflow.phase.started'; instanceId: string; phase: string }
+	| { type: 'workflow.phase.completed'; instanceId: string; phase: string }
+	| { type: 'workflow.waiting_approval'; instanceId: string; phase: string; gateId: string }
+	| { type: 'workflow.approved'; instanceId: string; gateId: string; approverId: string }
+	| {
+			type: 'workflow.rejected';
+			instanceId: string;
+			gateId: string;
+			approverId: string;
+			reason: string;
+	  }
+	| { type: 'workflow.completed'; instanceId: string; result: unknown }
+	| { type: 'workflow.failed'; instanceId: string; error: string }
+	| { type: 'workflow.paused'; instanceId: string }
+	| { type: 'workflow.resumed'; instanceId: string }
+	| { type: 'skill.invoked'; instanceId: string; skillName: string }
+	| { type: 'skill.completed'; instanceId: string; skillName: string; result: unknown }
+	| { type: 'agent.spawned'; instanceId: string; agentId: string; role: string }
+	| { type: 'agent.completed'; instanceId: string; agentId: string; result: unknown }
+	| { type: 'mcp.called'; instanceId: string; provider: string; tool: string }
+	| { type: 'mcp.response'; instanceId: string; provider: string; tool: string; result: unknown }
+	| { type: 'webhook.emitted'; instanceId: string; url: string }
+	| { type: 'webhook.callback'; instanceId: string; payload: unknown };
 
 // Human approval request
 export interface ApprovalRequest {
@@ -146,7 +152,7 @@ export interface AgentSession {
 	instanceId: string;
 	role: string;
 	task: string;
-	status: "idle" | "busy" | "completed" | "failed";
+	status: 'idle' | 'busy' | 'completed' | 'failed';
 	spawnedAt: number;
 	completedAt?: number;
 	result?: unknown;

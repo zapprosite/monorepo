@@ -1,77 +1,77 @@
-import { ErrorAlert } from "@repo/ui-mui/components/ErrorAlert";
-import { LoadingSpinner } from "@repo/ui-mui/components/LoadingSpinner";
-import { Typography } from "@repo/ui-mui/data-display/Typography";
-import { Alert } from "@repo/ui-mui/feedback/Alert";
+import { trpc } from '@frontend/utils/trpc.client';
+import { ErrorAlert } from '@repo/ui-mui/components/ErrorAlert';
+import { LoadingSpinner } from '@repo/ui-mui/components/LoadingSpinner';
+import { Typography } from '@repo/ui-mui/data-display/Typography';
+import { Alert } from '@repo/ui-mui/feedback/Alert';
 import {
 	Dialog,
 	DialogActions,
 	DialogContent,
 	DialogContentText,
 	DialogTitle,
-} from "@repo/ui-mui/feedback/Dialog";
-import { Button } from "@repo/ui-mui/form/Button";
-import { TextField } from "@repo/ui-mui/form/TextField";
-import { ArrowBackIcon } from "@repo/ui-mui/icons/ArrowBackIcon";
-import { CalendarTodayIcon } from "@repo/ui-mui/icons/CalendarTodayIcon";
-import { DeleteIcon } from "@repo/ui-mui/icons/DeleteIcon";
-import { Box } from "@repo/ui-mui/layout/Box";
-import { Card, CardContent } from "@repo/ui-mui/layout/Card";
-import { Container } from "@repo/ui-mui/layout/Container";
-import { Divider } from "@repo/ui-mui/layout/Divider";
-import { Stack } from "@repo/ui-mui/layout/Stack";
-import { trpc } from "@frontend/utils/trpc.client";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { useState } from "react";
-import { useNavigate, useParams } from "react-router";
+} from '@repo/ui-mui/feedback/Dialog';
+import { Button } from '@repo/ui-mui/form/Button';
+import { TextField } from '@repo/ui-mui/form/TextField';
+import { ArrowBackIcon } from '@repo/ui-mui/icons/ArrowBackIcon';
+import { CalendarTodayIcon } from '@repo/ui-mui/icons/CalendarTodayIcon';
+import { DeleteIcon } from '@repo/ui-mui/icons/DeleteIcon';
+import { Box } from '@repo/ui-mui/layout/Box';
+import { Card, CardContent } from '@repo/ui-mui/layout/Card';
+import { Container } from '@repo/ui-mui/layout/Container';
+import { Divider } from '@repo/ui-mui/layout/Divider';
+import { Stack } from '@repo/ui-mui/layout/Stack';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
+import { useNavigate, useParams } from 'react-router';
 
 export default function JournalEntryDetailPage() {
 	const navigate = useNavigate();
 	const { entryId } = useParams<{ entryId: string }>();
 	const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-	const [confirmationText, setConfirmationText] = useState("");
+	const [confirmationText, setConfirmationText] = useState('');
 	const [deleteError, setDeleteError] = useState<string | null>(null);
 
 	const {
 		data: journalEntry,
 		isLoading,
 		error,
-	} = useQuery(trpc.journalEntries.getById.queryOptions({ journalEntryId: entryId || "" }));
+	} = useQuery(trpc.journalEntries.getById.queryOptions({ journalEntryId: entryId || '' }));
 
 	const deleteMutation = useMutation(trpc.journalEntries.delete.mutationOptions());
 
 	const handleDeleteClick = () => {
 		setDeleteDialogOpen(true);
-		setConfirmationText("");
+		setConfirmationText('');
 		setDeleteError(null);
 	};
 
 	const handleDeleteConfirm = async () => {
-		if (confirmationText.toLowerCase() !== "excluir") {
+		if (confirmationText.toLowerCase() !== 'excluir') {
 			setDeleteError('Digite "EXCLUIR" para confirmar');
 			return;
 		}
 
 		try {
-			await deleteMutation.mutateAsync({ journalEntryId: entryId || "" });
-			navigate("/journal-entries", { replace: true });
+			await deleteMutation.mutateAsync({ journalEntryId: entryId || '' });
+			navigate('/journal-entries', { replace: true });
 		} catch (_error) {
-			setDeleteError("Não foi possível excluir a entrada do diário. Tente novamente.");
+			setDeleteError('Não foi possível excluir a entrada do diário. Tente novamente.');
 		}
 	};
 
 	const handleDeleteCancelar = () => {
 		setDeleteDialogOpen(false);
-		setConfirmationText("");
+		setConfirmationText('');
 		setDeleteError(null);
 	};
 
 	const formatDate = (timestamp: number) => {
-		return new Date(timestamp).toLocaleDateString("pt-BR", {
-			year: "numeric",
-			month: "long",
-			day: "numeric",
-			hour: "2-digit",
-			minute: "2-digit",
+		return new Date(timestamp).toLocaleDateString('pt-BR', {
+			year: 'numeric',
+			month: 'long',
+			day: 'numeric',
+			hour: '2-digit',
+			minute: '2-digit',
 		});
 	};
 
@@ -99,13 +99,13 @@ export default function JournalEntryDetailPage() {
 			{/* Back Button */}
 			<Button
 				startIcon={<ArrowBackIcon />}
-				onClick={() => navigate("/journal-entries")}
+				onClick={() => navigate('/journal-entries')}
 				sx={{
 					mb: 3,
-					color: "text.secondary",
-					"&:hover": {
-						color: "primary.main",
-						bgcolor: "action.hover",
+					color: 'text.secondary',
+					'&:hover': {
+						color: 'primary.main',
+						bgcolor: 'action.hover',
 					},
 				}}
 			>
@@ -117,10 +117,10 @@ export default function JournalEntryDetailPage() {
 				sx={{
 					boxShadow: 3,
 					borderRadius: 2,
-					border: "1px solid",
-					borderColor: "divider",
-					transition: "box-shadow 0.3s ease-in-out",
-					"&:hover": {
+					border: '1px solid',
+					borderColor: 'divider',
+					transition: 'box-shadow 0.3s ease-in-out',
+					'&:hover': {
 						boxShadow: 6,
 					},
 				}}
@@ -128,14 +128,14 @@ export default function JournalEntryDetailPage() {
 				<CardContent sx={{ p: { xs: 3, md: 4 } }}>
 					{/* Header Section */}
 					<Stack
-						direction={{ xs: "column", sm: "row" }}
+						direction={{ xs: 'column', sm: 'row' }}
 						justifyContent="space-between"
-						alignItems={{ xs: "flex-start", sm: "center" }}
+						alignItems={{ xs: 'flex-start', sm: 'center' }}
 						spacing={2}
 						sx={{ mb: 3 }}
 					>
-						<Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-							<CalendarTodayIcon sx={{ fontSize: 20, color: "text.secondary" }} />
+						<Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+							<CalendarTodayIcon sx={{ fontSize: 20, color: 'text.secondary' }} />
 							<Typography variant="body2" color="text.secondary">
 								{formatDate(journalEntry.createdAt)}
 							</Typography>
@@ -146,9 +146,9 @@ export default function JournalEntryDetailPage() {
 							startIcon={<DeleteIcon />}
 							onClick={handleDeleteClick}
 							sx={{
-								transition: "all 0.2s ease-in-out",
-								"&:hover": {
-									transform: "translateY(-2px)",
+								transition: 'all 0.2s ease-in-out',
+								'&:hover': {
+									transform: 'translateY(-2px)',
 									boxShadow: 2,
 								},
 							}}
@@ -167,8 +167,8 @@ export default function JournalEntryDetailPage() {
 								color="primary.main"
 								sx={{
 									fontWeight: 600,
-									letterSpacing: "0.1em",
-									display: "block",
+									letterSpacing: '0.1em',
+									display: 'block',
 									mb: 1,
 								}}
 							>
@@ -176,9 +176,9 @@ export default function JournalEntryDetailPage() {
 							</Typography>
 							<Box
 								sx={{
-									bgcolor: "primary.lighter",
-									borderLeft: "4px solid",
-									borderColor: "primary.main",
+									bgcolor: 'primary.lighter',
+									borderLeft: '4px solid',
+									borderColor: 'primary.main',
 									p: 2,
 									borderRadius: 1,
 								}}
@@ -186,8 +186,8 @@ export default function JournalEntryDetailPage() {
 								<Typography
 									variant="body1"
 									sx={{
-										fontStyle: "italic",
-										color: "text.primary",
+										fontStyle: 'italic',
+										color: 'text.primary',
 										lineHeight: 1.7,
 									}}
 								>
@@ -204,8 +204,8 @@ export default function JournalEntryDetailPage() {
 							color="text.secondary"
 							sx={{
 								fontWeight: 600,
-								letterSpacing: "0.1em",
-								display: "block",
+								letterSpacing: '0.1em',
+								display: 'block',
 								mb: 2,
 							}}
 						>
@@ -214,10 +214,10 @@ export default function JournalEntryDetailPage() {
 						<Typography
 							variant="body1"
 							sx={{
-								whiteSpace: "pre-wrap",
+								whiteSpace: 'pre-wrap',
 								lineHeight: 1.8,
-								color: "text.primary",
-								fontSize: "1.05rem",
+								color: 'text.primary',
+								fontSize: '1.05rem',
 							}}
 						>
 							{journalEntry.content}
@@ -231,10 +231,10 @@ export default function JournalEntryDetailPage() {
 				<DialogTitle>Excluir entrada do diário?</DialogTitle>
 				<DialogContent>
 					<DialogContentText sx={{ mb: 3 }}>
-						Esta ação não pode ser desfeita. Para confirmar a exclusão, digite{" "}
+						Esta ação não pode ser desfeita. Para confirmar a exclusão, digite{' '}
 						<Typography component="span" fontWeight={600} color="error.main">
 							EXCLUIR
-						</Typography>{" "}
+						</Typography>{' '}
 						abaixo.
 					</DialogContentText>
 					<TextField
@@ -246,8 +246,8 @@ export default function JournalEntryDetailPage() {
 						helperText={deleteError}
 						autoFocus
 						sx={{
-							"& .MuiOutlinedInput-root": {
-								"&.Mui-focused fieldset": {
+							'& .MuiOutlinedInput-root': {
+								'&.Mui-focused fieldset': {
 									borderWidth: 2,
 								},
 							},
@@ -264,14 +264,14 @@ export default function JournalEntryDetailPage() {
 						variant="contained"
 						disabled={deleteMutation.isPending}
 						sx={{
-							transition: "all 0.2s ease-in-out",
-							"&:hover": {
-								transform: "translateY(-2px)",
+							transition: 'all 0.2s ease-in-out',
+							'&:hover': {
+								transform: 'translateY(-2px)',
 								boxShadow: 4,
 							},
 						}}
 					>
-						{deleteMutation.isPending ? "Excluindo..." : "Excluir entrada"}
+						{deleteMutation.isPending ? 'Excluindo...' : 'Excluir entrada'}
 					</Button>
 				</DialogActions>
 			</Dialog>

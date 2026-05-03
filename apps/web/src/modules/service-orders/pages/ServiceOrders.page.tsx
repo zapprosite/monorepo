@@ -1,36 +1,33 @@
-import { ErrorAlert } from "@repo/ui-mui/components/ErrorAlert";
-import { LoadingSpinner } from "@repo/ui-mui/components/LoadingSpinner";
-import { Typography } from "@repo/ui-mui/data-display/Typography";
-import { Button } from "@repo/ui-mui/form/Button";
-import { TextField } from "@repo/ui-mui/form/TextField";
-import { Box } from "@repo/ui-mui/layout/Box";
-import { Container } from "@repo/ui-mui/layout/Container";
-import { Paper } from "@repo/ui-mui/layout/Paper";
-import { MenuItem } from "@repo/ui-mui/navigation/MenuItem";
-import type { ServiceOrderStatus, ServiceType } from "@repo/zod-schemas/crm_enums.zod";
-import {
-	SERVICE_ORDER_STATUS_ENUM,
-	SERVICE_TYPE_ENUM,
-} from "@repo/zod-schemas/crm_enums.zod";
-import { trpc } from "@frontend/utils/trpc.client";
-import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
-import { useNavigate } from "react-router";
-import { ServiceOrderStatusBadge } from "../components/ServiceOrderStatusBadge";
+import { trpc } from '@frontend/utils/trpc.client';
+import { ErrorAlert } from '@repo/ui-mui/components/ErrorAlert';
+import { LoadingSpinner } from '@repo/ui-mui/components/LoadingSpinner';
+import { Typography } from '@repo/ui-mui/data-display/Typography';
+import { Button } from '@repo/ui-mui/form/Button';
+import { TextField } from '@repo/ui-mui/form/TextField';
+import { Box } from '@repo/ui-mui/layout/Box';
+import { Container } from '@repo/ui-mui/layout/Container';
+import { Paper } from '@repo/ui-mui/layout/Paper';
+import { MenuItem } from '@repo/ui-mui/navigation/MenuItem';
+import type { ServiceOrderStatus, ServiceType } from '@repo/zod-schemas/crm_enums.zod';
+import { SERVICE_ORDER_STATUS_ENUM, SERVICE_TYPE_ENUM } from '@repo/zod-schemas/crm_enums.zod';
+import { useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
+import { useNavigate } from 'react-router';
+import { ServiceOrderStatusBadge } from '../components/ServiceOrderStatusBadge';
 
 function formatDate(iso: string): string {
-	return new Date(iso).toLocaleDateString("pt-BR", {
-		day: "2-digit",
-		month: "2-digit",
-		year: "numeric",
+	return new Date(iso).toLocaleDateString('pt-BR', {
+		day: '2-digit',
+		month: '2-digit',
+		year: 'numeric',
 	});
 }
 
 export default function ServiceOrdersPage() {
 	const navigate = useNavigate();
-	const [filterStatus, setFilterStatus] = useState<ServiceOrderStatus | "">("");
-	const [filterTipo, setFilterTipo] = useState<ServiceType | "">("");
-	const [filterSearch, setFilterSearch] = useState("");
+	const [filterStatus, setFilterStatus] = useState<ServiceOrderStatus | ''>('');
+	const [filterTipo, setFilterTipo] = useState<ServiceType | ''>('');
+	const [filterSearch, setFilterSearch] = useState('');
 
 	const {
 		data: serviceOrders,
@@ -60,9 +57,9 @@ export default function ServiceOrdersPage() {
 			<Box
 				sx={{
 					mb: 4,
-					display: "flex",
-					justifyContent: "space-between",
-					alignItems: "center",
+					display: 'flex',
+					justifyContent: 'space-between',
+					alignItems: 'center',
 				}}
 			>
 				<Box>
@@ -70,23 +67,23 @@ export default function ServiceOrdersPage() {
 						variant="h3"
 						component="h1"
 						sx={{
-							fontSize: { xs: "2rem", md: "2.5rem" },
+							fontSize: { xs: '2rem', md: '2.5rem' },
 							fontWeight: 700,
-							letterSpacing: "-0.01em",
+							letterSpacing: '-0.01em',
 						}}
 					>
 						Ordens de Serviço
 					</Typography>
 					<Typography variant="body2" color="text.secondary">
-						{serviceOrders?.length ?? 0} {(serviceOrders?.length ?? 0) === 1 ? "ordem" : "ordens"}
+						{serviceOrders?.length ?? 0} {(serviceOrders?.length ?? 0) === 1 ? 'ordem' : 'ordens'}
 					</Typography>
 				</Box>
 				<Button
 					variant="contained"
-					onClick={() => navigate("/service-orders/new")}
+					onClick={() => navigate('/service-orders/new')}
 					sx={{
-						transition: "all 0.2s ease-in-out",
-						"&:hover": { transform: "translateY(-2px)", boxShadow: 4 },
+						transition: 'all 0.2s ease-in-out',
+						'&:hover': { transform: 'translateY(-2px)', boxShadow: 4 },
 					}}
 				>
 					+ Nova OS
@@ -96,12 +93,12 @@ export default function ServiceOrdersPage() {
 			{/* Filters */}
 			<Paper
 				elevation={0}
-				sx={{ border: "1px solid", borderColor: "divider", borderRadius: 2, p: 3, mb: 4 }}
+				sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2, p: 3, mb: 4 }}
 			>
 				<Box
 					sx={{
-						display: "grid",
-						gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr", md: "1fr 1fr 1fr" },
+						display: 'grid',
+						gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: '1fr 1fr 1fr' },
 						gap: 2,
 					}}
 				>
@@ -118,7 +115,7 @@ export default function ServiceOrdersPage() {
 						select
 						label="Status"
 						value={filterStatus}
-						onChange={(e) => setFilterStatus(e.target.value as ServiceOrderStatus | "")}
+						onChange={(e) => setFilterStatus(e.target.value as ServiceOrderStatus | '')}
 						size="small"
 						fullWidth
 					>
@@ -134,7 +131,7 @@ export default function ServiceOrdersPage() {
 						select
 						label="Tipo de Serviço"
 						value={filterTipo}
-						onChange={(e) => setFilterTipo(e.target.value as ServiceType | "")}
+						onChange={(e) => setFilterTipo(e.target.value as ServiceType | '')}
 						size="small"
 						fullWidth
 					>
@@ -153,11 +150,11 @@ export default function ServiceOrdersPage() {
 				<Paper
 					elevation={0}
 					sx={{
-						border: "1px solid",
-						borderColor: "divider",
+						border: '1px solid',
+						borderColor: 'divider',
 						borderRadius: 2,
 						p: 8,
-						textAlign: "center",
+						textAlign: 'center',
 					}}
 				>
 					<Typography variant="h6" color="text.secondary" gutterBottom>
@@ -166,12 +163,12 @@ export default function ServiceOrdersPage() {
 					<Typography variant="body2" color="text.disabled" mb={3}>
 						Crie a primeira OS para gerenciar os atendimentos da equipe
 					</Typography>
-					<Button variant="contained" onClick={() => navigate("/service-orders/new")}>
+					<Button variant="contained" onClick={() => navigate('/service-orders/new')}>
 						+ Nova OS
 					</Button>
 				</Paper>
 			) : (
-				<Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+				<Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
 					{serviceOrders.map((so) => {
 						const order = so as {
 							serviceOrderId: string;
@@ -187,29 +184,29 @@ export default function ServiceOrdersPage() {
 								elevation={0}
 								onClick={() => navigate(`/service-orders/${order.serviceOrderId}`)}
 								sx={{
-									border: "1px solid",
-									borderColor: "divider",
+									border: '1px solid',
+									borderColor: 'divider',
 									borderRadius: 2,
 									p: 3,
-									cursor: "pointer",
-									transition: "all 0.2s ease-in-out",
-									"&:hover": {
-										borderColor: "primary.main",
-										transform: "translateY(-2px)",
+									cursor: 'pointer',
+									transition: 'all 0.2s ease-in-out',
+									'&:hover': {
+										borderColor: 'primary.main',
+										transform: 'translateY(-2px)',
 										boxShadow: 3,
 									},
 								}}
 							>
 								<Box
 									sx={{
-										display: "flex",
-										alignItems: "center",
-										justifyContent: "space-between",
+										display: 'flex',
+										alignItems: 'center',
+										justifyContent: 'space-between',
 										gap: 2,
-										flexWrap: "wrap",
+										flexWrap: 'wrap',
 									}}
 								>
-									<Box sx={{ display: "flex", alignItems: "center", gap: 2, flex: 1 }}>
+									<Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flex: 1 }}>
 										<Typography
 											variant="subtitle1"
 											fontWeight={700}
@@ -219,14 +216,14 @@ export default function ServiceOrdersPage() {
 											{order.numero}
 										</Typography>
 										<Box sx={{ flex: 1 }}>
-											<Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.5 }}>
+											<Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
 												<Typography variant="subtitle1" fontWeight={600}>
 													{order.tipo}
 												</Typography>
 												<ServiceOrderStatusBadge status={order.status} />
 											</Box>
 											<Typography variant="body2" color="text.secondary">
-												Cliente: {order.clienteId} &middot; Aberta em{" "}
+												Cliente: {order.clienteId} &middot; Aberta em{' '}
 												{formatDate(order.dataAbertura)}
 											</Typography>
 										</Box>

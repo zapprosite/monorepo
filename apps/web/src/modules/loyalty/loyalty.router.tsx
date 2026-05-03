@@ -1,5 +1,5 @@
-import { LoyaltyDashboardPage } from "@frontend/modules/loyalty/pages/LoyaltyDashboard.page";
-import { Route, Routes } from "react-router";
+import { LoyaltyDashboardPage } from '@frontend/modules/loyalty/pages/LoyaltyDashboard.page';
+import { Route, Routes } from 'react-router';
 
 export const LoyaltyRouter = () => {
 	return (

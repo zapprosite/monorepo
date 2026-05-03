@@ -1,9 +1,9 @@
-import { Box } from "@repo/ui-mui/layout/Box";
-import { Typography } from "@repo/ui-mui/data-display/Typography";
-import { Chip } from "@repo/ui-mui/data-display/Chip";
-import { Divider } from "@repo/ui-mui/layout/Divider";
-import { FileTextIcon } from "@repo/ui-mui/icons/FileTextIcon";
-import { StarIcon } from "@repo/ui-mui/icons/StarIcon";
+import { Chip } from '@repo/ui-mui/data-display/Chip';
+import { Typography } from '@repo/ui-mui/data-display/Typography';
+import { FileTextIcon } from '@repo/ui-mui/icons/FileTextIcon';
+import { StarIcon } from '@repo/ui-mui/icons/StarIcon';
+import { Box } from '@repo/ui-mui/layout/Box';
+import { Divider } from '@repo/ui-mui/layout/Divider';
 
 interface TrieveChunk {
 	id: string;
@@ -25,12 +25,12 @@ export function RagChunksViewer({ chunks }: RagChunksViewerProps) {
 	return (
 		<Box sx={{ mt: 4 }}>
 			{/* Header */}
-			<Box sx={{ mb: 3, display: "flex", alignItems: "center", gap: 2 }}>
+			<Box sx={{ mb: 3, display: 'flex', alignItems: 'center', gap: 2 }}>
 				<Typography
 					variant="h5"
 					sx={{
 						fontWeight: 600,
-						color: "text.primary",
+						color: 'text.primary',
 					}}
 				>
 					Chunks Retrieved
@@ -46,8 +46,8 @@ export function RagChunksViewer({ chunks }: RagChunksViewerProps) {
 			{/* Chunks List */}
 			<Box
 				sx={{
-					display: "flex",
-					flexDirection: "column",
+					display: 'flex',
+					flexDirection: 'column',
 					gap: 3,
 				}}
 			>
@@ -55,31 +55,31 @@ export function RagChunksViewer({ chunks }: RagChunksViewerProps) {
 					<Box
 						key={result.id}
 						sx={{
-							bgcolor: "background.paper",
+							bgcolor: 'background.paper',
 							borderRadius: 2,
 							p: { xs: 3, md: 4 },
 							boxShadow: 1,
-							border: "1px solid",
-							borderColor: "divider",
-							transition: "all 0.2s ease-in-out",
-							"&:hover": {
+							border: '1px solid',
+							borderColor: 'divider',
+							transition: 'all 0.2s ease-in-out',
+							'&:hover': {
 								boxShadow: 2,
-								borderColor: "primary.light",
+								borderColor: 'primary.light',
 							},
 						}}
 					>
 						{/* Chunk Header */}
 						<Box
 							sx={{
-								display: "flex",
-								justifyContent: "space-between",
-								alignItems: "flex-start",
+								display: 'flex',
+								justifyContent: 'space-between',
+								alignItems: 'flex-start',
 								mb: 2,
 								gap: 2,
 							}}
 						>
-							<Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-								<FileTextIcon sx={{ color: "primary.main", fontSize: 20 }} />
+							<Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+								<FileTextIcon sx={{ color: 'primary.main', fontSize: 20 }} />
 								<Box>
 									<Typography variant="subtitle2" fontWeight={600} color="text.primary">
 										Chunk #{index + 1}
@@ -95,15 +95,15 @@ export function RagChunksViewer({ chunks }: RagChunksViewerProps) {
 							{/* Relevance Score */}
 							<Box
 								sx={{
-									display: "flex",
-									alignItems: "center",
+									display: 'flex',
+									alignItems: 'center',
 									gap: 0.5,
 									bgcolor:
 										result.score >= 0.8
-											? "success.light"
+											? 'success.light'
 											: result.score >= 0.6
-												? "warning.light"
-												: "error.light",
+												? 'warning.light'
+												: 'error.light',
 									px: 1.5,
 									py: 0.5,
 									borderRadius: 1,
@@ -116,10 +116,10 @@ export function RagChunksViewer({ chunks }: RagChunksViewerProps) {
 										fontWeight: 600,
 										color:
 											result.score >= 0.8
-												? "success.dark"
+												? 'success.dark'
 												: result.score >= 0.6
-													? "warning.dark"
-													: "error.dark",
+													? 'warning.dark'
+													: 'error.dark',
 									}}
 								>
 									{(result.score * 100).toFixed(0)}%
@@ -130,7 +130,7 @@ export function RagChunksViewer({ chunks }: RagChunksViewerProps) {
 						{/* Chunk Content */}
 						<Box
 							sx={{
-								bgcolor: "background.default",
+								bgcolor: 'background.default',
 								borderRadius: 1,
 								p: 2,
 								mb: 2,
@@ -139,11 +139,11 @@ export function RagChunksViewer({ chunks }: RagChunksViewerProps) {
 							<Typography
 								variant="body2"
 								sx={{
-									whiteSpace: "pre-wrap",
-									fontFamily: "monospace",
-									fontSize: "0.875rem",
+									whiteSpace: 'pre-wrap',
+									fontFamily: 'monospace',
+									fontSize: '0.875rem',
 									lineHeight: 1.6,
-									color: "text.primary",
+									color: 'text.primary',
 								}}
 							>
 								{result.chunk.content}
@@ -154,7 +154,7 @@ export function RagChunksViewer({ chunks }: RagChunksViewerProps) {
 						{result.chunk.metadata && Object.keys(result.chunk.metadata).length > 0 && (
 							<>
 								<Divider sx={{ my: 2 }} />
-								<Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+								<Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
 									{Object.entries(result.chunk.metadata).map(([key, value]) => (
 										<Chip
 											key={key}
@@ -162,7 +162,7 @@ export function RagChunksViewer({ chunks }: RagChunksViewerProps) {
 											size="small"
 											variant="outlined"
 											sx={{
-												fontSize: "0.75rem",
+												fontSize: '0.75rem',
 												height: 24,
 											}}
 										/>

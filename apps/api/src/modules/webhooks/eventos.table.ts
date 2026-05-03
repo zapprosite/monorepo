@@ -1,16 +1,16 @@
-import { BaseTable } from "@backend/db/base_table";
-import { EVENTO_TIPO_ENUM } from "@connected-repo/zod-schemas/crm_enums.zod";
+import { BaseTable } from '@backend/db/base_table';
+import { EVENTO_TIPO_ENUM } from '@connected-repo/zod-schemas/crm_enums.zod';
 
 export class EventosTable extends BaseTable {
-	readonly table = "eventos";
+	readonly table = 'eventos';
 
-// @ts-ignore TS2742 — pqb internal type inference not portable
+	// @ts-expect-error TS2742 — pqb internal type inference not portable
 	columns = this.setColumns((t) => ({
 		id: t.uuid().primaryKey().default(t.sql`gen_random_uuid()`),
-		tipo: t.enum("evento_tipo", EVENTO_TIPO_ENUM),
-		clienteId: t.uuid().foreignKey("clients", "clientId", {
-			onUpdate: "RESTRICT",
-			onDelete: "RESTRICT",
+		tipo: t.enum('evento_tipo', EVENTO_TIPO_ENUM),
+		clienteId: t.uuid().foreignKey('clients', 'clientId', {
+			onUpdate: 'RESTRICT',
+			onDelete: 'RESTRICT',
 		}),
 		teamId: t.uuid().nullable(), // IDOR fix: team isolation for events
 		entidadeId: t.uuid(),

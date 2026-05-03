@@ -1,27 +1,24 @@
-import { Typography } from "@repo/ui-mui/data-display/Typography";
-import { Button } from "@repo/ui-mui/form/Button";
-import { TextField } from "@repo/ui-mui/form/TextField";
-import { Box } from "@repo/ui-mui/layout/Box";
-import { Container } from "@repo/ui-mui/layout/Container";
-import { Paper } from "@repo/ui-mui/layout/Paper";
-import { MenuItem } from "@repo/ui-mui/navigation/MenuItem";
-import {
-	SERVICE_ORDER_STATUS_ENUM,
-	SERVICE_TYPE_ENUM,
-} from "@repo/zod-schemas/crm_enums.zod";
+import { trpc } from '@frontend/utils/trpc.client';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Typography } from '@repo/ui-mui/data-display/Typography';
+import { Button } from '@repo/ui-mui/form/Button';
+import { TextField } from '@repo/ui-mui/form/TextField';
+import { Box } from '@repo/ui-mui/layout/Box';
+import { Container } from '@repo/ui-mui/layout/Container';
+import { Paper } from '@repo/ui-mui/layout/Paper';
+import { MenuItem } from '@repo/ui-mui/navigation/MenuItem';
+import { SERVICE_ORDER_STATUS_ENUM, SERVICE_TYPE_ENUM } from '@repo/zod-schemas/crm_enums.zod';
 import {
 	type ServiceOrderCreateInput,
 	serviceOrderCreateInputZod,
-} from "@repo/zod-schemas/service_order.zod";
-import { trpc } from "@frontend/utils/trpc.client";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Controller, useForm, useWatch } from "react-hook-form";
-import { useEffect } from "react";
-import { useNavigate } from "react-router";
+} from '@repo/zod-schemas/service_order.zod';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useEffect } from 'react';
+import { Controller, useForm, useWatch } from 'react-hook-form';
+import { useNavigate } from 'react-router';
 
 function toLocalDatetimeString(date: Date): string {
-	const pad = (n: number) => String(n).padStart(2, "0");
+	const pad = (n: number) => String(n).padStart(2, '0');
 	return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
 }
 
@@ -37,25 +34,25 @@ export default function CreateServiceOrderPage() {
 	} = useForm<ServiceOrderCreateInput>({
 		resolver: zodResolver(serviceOrderCreateInputZod),
 		defaultValues: {
-			status: "Aberta",
+			status: 'Aberta',
 			dataAbertura: toLocalDatetimeString(new Date()),
 		},
 	});
 
-	const selectedClienteId = useWatch({ control, name: "clienteId" });
+	const selectedClienteId = useWatch({ control, name: 'clienteId' });
 
 	const { data: clients } = useQuery(trpc.clients.listClients.queryOptions({}));
 
 	const { data: equipment } = useQuery({
 		...trpc.equipment.listEquipmentByClient.queryOptions({
-			clienteId: selectedClienteId ?? "",
+			clienteId: selectedClienteId ?? '',
 		}),
 		enabled: !!selectedClienteId,
 	});
 
 	useEffect(() => {
 		if (selectedClienteId) {
-			setValue("equipmentId", null, { shouldDirty: true, shouldValidate: true });
+			setValue('equipmentId', null, { shouldDirty: true, shouldValidate: true });
 		}
 	}, [selectedClienteId, setValue]);
 
@@ -65,7 +62,7 @@ export default function CreateServiceOrderPage() {
 				queryClient.invalidateQueries({
 					queryKey: trpc.serviceOrders.listServiceOrders.queryKey(),
 				});
-				navigate("/service-orders");
+				navigate('/service-orders');
 			},
 		}),
 	);
@@ -80,8 +77,8 @@ export default function CreateServiceOrderPage() {
 				<Button
 					variant="text"
 					size="small"
-					onClick={() => navigate("/service-orders")}
-					sx={{ mb: 1, color: "text.secondary" }}
+					onClick={() => navigate('/service-orders')}
+					sx={{ mb: 1, color: 'text.secondary' }}
 				>
 					← Voltar para Ordens de Serviço
 				</Button>
@@ -92,12 +89,12 @@ export default function CreateServiceOrderPage() {
 
 			<Paper
 				elevation={0}
-				sx={{ border: "1px solid", borderColor: "divider", borderRadius: 2, p: 4 }}
+				sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2, p: 4 }}
 			>
 				<Box
 					component="form"
 					onSubmit={handleSubmit(onSubmit)}
-					sx={{ display: "flex", flexDirection: "column", gap: 3 }}
+					sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}
 				>
 					{/* Cliente */}
 					<Controller
@@ -106,7 +103,7 @@ export default function CreateServiceOrderPage() {
 						render={({ field }) => (
 							<TextField
 								{...field}
-								value={field.value ?? ""}
+								value={field.value ?? ''}
 								select
 								label="Cliente *"
 								fullWidth
@@ -126,14 +123,14 @@ export default function CreateServiceOrderPage() {
 					/>
 
 					{/* Tipo e Status */}
-					<Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 3 }}>
+					<Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 3 }}>
 						<Controller
 							name="tipo"
 							control={control}
 							render={({ field }) => (
 								<TextField
 									{...field}
-									value={field.value ?? ""}
+									value={field.value ?? ''}
 									select
 									label="Tipo de Serviço *"
 									fullWidth
@@ -155,7 +152,7 @@ export default function CreateServiceOrderPage() {
 							render={({ field }) => (
 								<TextField
 									{...field}
-									value={field.value ?? "Aberta"}
+									value={field.value ?? 'Aberta'}
 									select
 									label="Status *"
 									fullWidth
@@ -196,7 +193,7 @@ export default function CreateServiceOrderPage() {
 						render={({ field }) => (
 							<TextField
 								{...field}
-								value={field.value ?? ""}
+								value={field.value ?? ''}
 								select
 								label="Equipamento"
 								fullWidth
@@ -204,7 +201,7 @@ export default function CreateServiceOrderPage() {
 								error={!!errors.equipmentId}
 								helperText={
 									errors.equipmentId?.message ??
-									(!selectedClienteId ? "Selecione um cliente primeiro" : undefined)
+									(!selectedClienteId ? 'Selecione um cliente primeiro' : undefined)
 								}
 							>
 								<MenuItem value="">Sem equipamento</MenuItem>
@@ -224,7 +221,7 @@ export default function CreateServiceOrderPage() {
 						render={({ field }) => (
 							<TextField
 								{...field}
-								value={field.value ?? ""}
+								value={field.value ?? ''}
 								label="Descrição"
 								multiline
 								rows={4}
@@ -235,10 +232,10 @@ export default function CreateServiceOrderPage() {
 						)}
 					/>
 
-					<Box sx={{ display: "flex", gap: 2, justifyContent: "flex-end", pt: 1 }}>
+					<Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end', pt: 1 }}>
 						<Button
 							variant="outlined"
-							onClick={() => navigate("/service-orders")}
+							onClick={() => navigate('/service-orders')}
 							disabled={isSubmitting || createServiceOrder.isPending}
 						>
 							Cancelar
@@ -249,7 +246,7 @@ export default function CreateServiceOrderPage() {
 							disabled={isSubmitting || createServiceOrder.isPending}
 							sx={{ minWidth: 160 }}
 						>
-							{createServiceOrder.isPending ? "Salvando..." : "Salvar OS"}
+							{createServiceOrder.isPending ? 'Salvando...' : 'Salvar OS'}
 						</Button>
 					</Box>
 				</Box>

@@ -1,24 +1,18 @@
-import { ErrorAlert } from "@repo/ui-mui/components/ErrorAlert";
-import { Typography } from "@repo/ui-mui/data-display/Typography";
-import { Button } from "@repo/ui-mui/form/Button";
-import { TextField } from "@repo/ui-mui/form/TextField";
-import { Box } from "@repo/ui-mui/layout/Box";
-import { Container } from "@repo/ui-mui/layout/Container";
-import { Paper } from "@repo/ui-mui/layout/Paper";
-import { MenuItem } from "@repo/ui-mui/navigation/MenuItem";
-import {
-	type ContractCreateInput,
-	contractCreateInputZod,
-} from "@repo/zod-schemas/contract.zod";
-import {
-	CONTRACT_FREQUENCY_ENUM,
-	CONTRACT_TYPE_ENUM,
-} from "@repo/zod-schemas/crm_enums.zod";
-import { trpc } from "@frontend/utils/trpc.client";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Controller, useForm, useWatch } from "react-hook-form";
-import { useNavigate } from "react-router";
+import { trpc } from '@frontend/utils/trpc.client';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { ErrorAlert } from '@repo/ui-mui/components/ErrorAlert';
+import { Typography } from '@repo/ui-mui/data-display/Typography';
+import { Button } from '@repo/ui-mui/form/Button';
+import { TextField } from '@repo/ui-mui/form/TextField';
+import { Box } from '@repo/ui-mui/layout/Box';
+import { Container } from '@repo/ui-mui/layout/Container';
+import { Paper } from '@repo/ui-mui/layout/Paper';
+import { MenuItem } from '@repo/ui-mui/navigation/MenuItem';
+import { type ContractCreateInput, contractCreateInputZod } from '@repo/zod-schemas/contract.zod';
+import { CONTRACT_FREQUENCY_ENUM, CONTRACT_TYPE_ENUM } from '@repo/zod-schemas/crm_enums.zod';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { Controller, useForm, useWatch } from 'react-hook-form';
+import { useNavigate } from 'react-router';
 
 export default function CreateContractPage() {
 	const navigate = useNavigate();
@@ -31,11 +25,11 @@ export default function CreateContractPage() {
 	} = useForm<ContractCreateInput>({
 		resolver: zodResolver(contractCreateInputZod),
 		defaultValues: {
-			status: "Rascunho",
+			status: 'Rascunho',
 		},
 	});
 
-	const selectedTipo = useWatch({ control, name: "tipo" });
+	const selectedTipo = useWatch({ control, name: 'tipo' });
 
 	const { data: clients } = useQuery(trpc.clients.listClients.queryOptions({}));
 
@@ -43,7 +37,7 @@ export default function CreateContractPage() {
 		trpc.contracts.createContract.mutationOptions({
 			onSuccess: () => {
 				queryClient.invalidateQueries({ queryKey: trpc.contracts.listContracts.queryKey() });
-				navigate("/contracts");
+				navigate('/contracts');
 			},
 		}),
 	);
@@ -52,7 +46,7 @@ export default function CreateContractPage() {
 		await createContract.mutateAsync(data);
 	};
 
-	const showFrequencia = selectedTipo === "PMOC" || selectedTipo === "Residencial";
+	const showFrequencia = selectedTipo === 'PMOC' || selectedTipo === 'Residencial';
 	const isBusy = createContract.isPending;
 
 	return (
@@ -61,8 +55,8 @@ export default function CreateContractPage() {
 				<Button
 					variant="text"
 					size="small"
-					onClick={() => navigate("/contracts")}
-					sx={{ mb: 1, color: "text.secondary" }}
+					onClick={() => navigate('/contracts')}
+					sx={{ mb: 1, color: 'text.secondary' }}
 				>
 					← Voltar para Contratos
 				</Button>
@@ -73,7 +67,7 @@ export default function CreateContractPage() {
 
 			<Paper
 				elevation={0}
-				sx={{ border: "1px solid", borderColor: "divider", borderRadius: 2, p: 4 }}
+				sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2, p: 4 }}
 			>
 				{createContract.error && (
 					<ErrorAlert
@@ -84,10 +78,10 @@ export default function CreateContractPage() {
 				<Box
 					component="form"
 					onSubmit={handleSubmit(onSubmit)}
-					sx={{ display: "flex", flexDirection: "column", gap: 3 }}
+					sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}
 				>
 					{/* Row 1: Cliente + Tipo */}
-					<Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "2fr 1fr" }, gap: 3 }}>
+					<Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '2fr 1fr' }, gap: 3 }}>
 						<Controller
 							name="clienteId"
 							control={control}
@@ -132,7 +126,7 @@ export default function CreateContractPage() {
 					</Box>
 
 					{/* Row 2: Datas */}
-					<Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 3 }}>
+					<Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 3 }}>
 						<Controller
 							name="dataInicio"
 							control={control}
@@ -155,7 +149,7 @@ export default function CreateContractPage() {
 							render={({ field }) => (
 								<TextField
 									{...field}
-									value={field.value ?? ""}
+									value={field.value ?? ''}
 									label="Data Fim"
 									type="date"
 									fullWidth
@@ -170,8 +164,8 @@ export default function CreateContractPage() {
 					{/* Row 3: Valor + Frequência */}
 					<Box
 						sx={{
-							display: "grid",
-							gridTemplateColumns: { xs: "1fr", sm: showFrequencia ? "1fr 1fr" : "1fr" },
+							display: 'grid',
+							gridTemplateColumns: { xs: '1fr', sm: showFrequencia ? '1fr 1fr' : '1fr' },
 							gap: 3,
 						}}
 					>
@@ -181,10 +175,10 @@ export default function CreateContractPage() {
 							render={({ field }) => (
 								<TextField
 									{...field}
-									value={field.value ?? ""}
+									value={field.value ?? ''}
 									onChange={(e) => {
 										const v = e.target.value;
-										field.onChange(v === "" ? undefined : Number(v));
+										field.onChange(v === '' ? undefined : Number(v));
 									}}
 									label="Valor Mensal (R$)"
 									type="number"
@@ -203,7 +197,7 @@ export default function CreateContractPage() {
 								render={({ field }) => (
 									<TextField
 										{...field}
-										value={field.value ?? ""}
+										value={field.value ?? ''}
 										select
 										label="Frequência"
 										fullWidth
@@ -229,7 +223,7 @@ export default function CreateContractPage() {
 						render={({ field }) => (
 							<TextField
 								{...field}
-								value={field.value ?? ""}
+								value={field.value ?? ''}
 								label="Descrição"
 								multiline
 								rows={3}
@@ -247,7 +241,7 @@ export default function CreateContractPage() {
 						render={({ field }) => (
 							<TextField
 								{...field}
-								value={field.value ?? ""}
+								value={field.value ?? ''}
 								label="Observações"
 								multiline
 								rows={3}
@@ -258,21 +252,12 @@ export default function CreateContractPage() {
 						)}
 					/>
 
-					<Box sx={{ display: "flex", gap: 2, justifyContent: "flex-end", pt: 1 }}>
-						<Button
-							variant="outlined"
-							onClick={() => navigate("/contracts")}
-							disabled={isBusy}
-						>
+					<Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end', pt: 1 }}>
+						<Button variant="outlined" onClick={() => navigate('/contracts')} disabled={isBusy}>
 							Cancelar
 						</Button>
-						<Button
-							type="submit"
-							variant="contained"
-							disabled={isBusy}
-							sx={{ minWidth: 160 }}
-						>
-							{isBusy ? "Salvando..." : "Salvar Contrato"}
+						<Button type="submit" variant="contained" disabled={isBusy} sx={{ minWidth: 160 }}>
+							{isBusy ? 'Salvando...' : 'Salvar Contrato'}
 						</Button>
 					</Box>
 				</Box>

@@ -1,13 +1,13 @@
-import { Typography } from "@repo/ui-mui/data-display/Typography";
-import { Box } from "@repo/ui-mui/layout/Box";
-import { Paper } from "@repo/ui-mui/layout/Paper";
-import { AppBar } from "@repo/ui-mui/navigation/AppBar";
-import { BottomNavigation } from "@repo/ui-mui/navigation/BottomNavigation";
-import { BottomNavigationAction } from "@repo/ui-mui/navigation/BottomNavigationAction";
-import { Toolbar } from "@repo/ui-mui/navigation/Toolbar";
-import { navItems } from "@frontend/config/nav.config";
-import { useLocation, useNavigate } from "react-router";
-import { UserProfileMenu } from "./UserProfileMenu";
+import { navItems } from '@frontend/config/nav.config';
+import { Typography } from '@repo/ui-mui/data-display/Typography';
+import { Box } from '@repo/ui-mui/layout/Box';
+import { Paper } from '@repo/ui-mui/layout/Paper';
+import { AppBar } from '@repo/ui-mui/navigation/AppBar';
+import { BottomNavigation } from '@repo/ui-mui/navigation/BottomNavigation';
+import { BottomNavigationAction } from '@repo/ui-mui/navigation/BottomNavigationAction';
+import { Toolbar } from '@repo/ui-mui/navigation/Toolbar';
+import { useLocation, useNavigate } from 'react-router';
+import { UserProfileMenu } from './UserProfileMenu';
 
 export const MobileNavbar = () => {
 	const navigate = useNavigate();
@@ -20,7 +20,7 @@ export const MobileNavbar = () => {
 		if (navIndex !== -1) return navIndex;
 
 		// Profile is the last item
-		if (location.pathname === "/profile") return navItems.length;
+		if (location.pathname === '/profile') return navItems.length;
 
 		return 0; // Default to first nav item (Dashboard)
 	};
@@ -28,7 +28,7 @@ export const MobileNavbar = () => {
 	const handleBottomNavChange = (_event: React.SyntheticEvent, newValue: number) => {
 		// If profile is clicked (last item), navigate to profile
 		if (newValue === navItems.length) {
-			navigate("/profile");
+			navigate('/profile');
 			return;
 		}
 
@@ -46,24 +46,24 @@ export const MobileNavbar = () => {
 				position="sticky"
 				elevation={0}
 				sx={{
-					bgcolor: "#0B1F3A",
-					borderBottom: "1px solid rgba(255,255,255,0.08)",
+					bgcolor: '#0B1F3A',
+					borderBottom: '1px solid rgba(255,255,255,0.08)',
 				}}
 			>
 				<Toolbar
 					sx={{
 						minHeight: 56,
 						px: 2,
-						justifyContent: "space-between",
+						justifyContent: 'space-between',
 					}}
 				>
 					{/* Logo */}
 					<Box
-						onClick={() => navigate("/dashboard")}
+						onClick={() => navigate('/dashboard')}
 						sx={{
-							display: "flex",
-							alignItems: "center",
-							cursor: "pointer",
+							display: 'flex',
+							alignItems: 'center',
+							cursor: 'pointer',
 						}}
 					>
 						<Box>
@@ -72,7 +72,7 @@ export const MobileNavbar = () => {
 								component="div"
 								sx={{
 									fontWeight: 700,
-									color: "#ffffff",
+									color: '#ffffff',
 									letterSpacing: -0.3,
 									lineHeight: 1.2,
 								}}
@@ -82,9 +82,9 @@ export const MobileNavbar = () => {
 							<Typography
 								variant="caption"
 								sx={{
-									color: "#06B6D4",
+									color: '#06B6D4',
 									fontWeight: 500,
-									fontSize: "0.6rem",
+									fontSize: '0.6rem',
 									letterSpacing: 0.3,
 								}}
 							>
@@ -101,13 +101,13 @@ export const MobileNavbar = () => {
 			{/* Bottom Navigation */}
 			<Paper
 				sx={{
-					position: "fixed",
+					position: 'fixed',
 					bottom: 0,
 					left: 0,
 					right: 0,
 					zIndex: 1000,
-					borderTop: "1px solid",
-					borderColor: "divider",
+					borderTop: '1px solid',
+					borderColor: 'divider',
 				}}
 				elevation={3}
 			>
@@ -117,18 +117,18 @@ export const MobileNavbar = () => {
 					showLabels
 					sx={{
 						height: 64,
-						"& .MuiBottomNavigationAction-root": {
+						'& .MuiBottomNavigationAction-root': {
 							minWidth: 60,
 							px: 0,
-							transition: "all 0.2s ease-in-out",
-							"&.Mui-selected": {
-								color: "primary.main",
-								"& .MuiSvgIcon-root": {
-									transform: "scale(1.1)",
+							transition: 'all 0.2s ease-in-out',
+							'&.Mui-selected': {
+								color: 'primary.main',
+								'& .MuiSvgIcon-root': {
+									transform: 'scale(1.1)',
 								},
 							},
-							"&:active": {
-								transform: "scale(0.95)",
+							'&:active': {
+								transform: 'scale(0.95)',
 							},
 						},
 					}}
@@ -140,8 +140,8 @@ export const MobileNavbar = () => {
 							label={item.label}
 							icon={item.mobileIcon || item.desktopIcon}
 							sx={{
-								"&:hover": {
-									bgcolor: "action.hover",
+								'&:hover': {
+									bgcolor: 'action.hover',
 								},
 							}}
 						/>

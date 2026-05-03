@@ -1,15 +1,15 @@
-import { BaseTable } from "@backend/db/base_table";
-import { CLIENT_TYPE_ENUM } from "@connected-repo/zod-schemas/crm_enums.zod";
+import { BaseTable } from '@backend/db/base_table';
+import { CLIENT_TYPE_ENUM } from '@connected-repo/zod-schemas/crm_enums.zod';
 
 export class ClientsTable extends BaseTable {
-	readonly table = "clients";
+	readonly table = 'clients';
 
-// @ts-ignore TS2742 — pqb internal type inference not portable
+	// @ts-expect-error TS2742 — pqb internal type inference not portable
 	columns = this.setColumns((t) => ({
 		clientId: t.uuid().primaryKey().default(t.sql`gen_random_uuid()`),
 		teamId: t.uuid(), // IDOR fix: team isolation
 		nome: t.string(255),
-		tipo: t.enum("crm_client_type_enum", CLIENT_TYPE_ENUM),
+		tipo: t.enum('crm_client_type_enum', CLIENT_TYPE_ENUM),
 		email: t.string().nullable(),
 		telefone: t.string(30).nullable(),
 		cpfCnpj: t.string(18).nullable(),

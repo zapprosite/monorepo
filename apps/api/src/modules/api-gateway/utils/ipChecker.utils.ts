@@ -8,27 +8,27 @@ function normalizeIPv6(ipv6: string): string {
 	ipv6 = ipv6.trim();
 
 	// Split by ":"
-	const parts = ipv6.split(":");
+	const parts = ipv6.split(':');
 
 	// Find the position of "::" (if it exists)
-	const doubleColonIndex = ipv6.indexOf("::");
+	const doubleColonIndex = ipv6.indexOf('::');
 
 	if (doubleColonIndex !== -1) {
 		// Expand "::" notation
-		const leftParts = ipv6.slice(0, doubleColonIndex).split(":").filter(Boolean);
+		const leftParts = ipv6.slice(0, doubleColonIndex).split(':').filter(Boolean);
 		const rightParts = ipv6
 			.slice(doubleColonIndex + 2)
-			.split(":")
+			.split(':')
 			.filter(Boolean);
 		const missingParts = 8 - leftParts.length - rightParts.length;
 
-		const expanded = [...leftParts, ...Array(missingParts).fill("0"), ...rightParts];
+		const expanded = [...leftParts, ...Array(missingParts).fill('0'), ...rightParts];
 
-		return expanded.map((part) => part.padStart(4, "0")).join(":");
+		return expanded.map((part) => part.padStart(4, '0')).join(':');
 	}
 
 	// Already in full form, just pad each hextet
-	return parts.map((part) => part.padStart(4, "0")).join(":");
+	return parts.map((part) => part.padStart(4, '0')).join(':');
 }
 
 /**
@@ -43,13 +43,13 @@ function normalizeIPv6(ipv6: string): string {
 export function areSameSubnet(ip1: string, ip2: string): boolean {
 	try {
 		// Check if both are IPv4
-		const isIPv4_1 = ip1.includes(".") && !ip1.includes(":");
-		const isIPv4_2 = ip2.includes(".") && !ip2.includes(":");
+		const isIPv4_1 = ip1.includes('.') && !ip1.includes(':');
+		const isIPv4_2 = ip2.includes('.') && !ip2.includes(':');
 
 		if (isIPv4_1 && isIPv4_2) {
 			// IPv4: Compare first 3 octets (/24 subnet)
-			const parts1 = ip1.split(".");
-			const parts2 = ip2.split(".");
+			const parts1 = ip1.split('.');
+			const parts2 = ip2.split('.');
 
 			if (parts1.length !== 4 || parts2.length !== 4) {
 				return false;
@@ -59,16 +59,16 @@ export function areSameSubnet(ip1: string, ip2: string): boolean {
 		}
 
 		// Check if both are IPv6
-		const isIPv6_1 = ip1.includes(":");
-		const isIPv6_2 = ip2.includes(":");
+		const isIPv6_1 = ip1.includes(':');
+		const isIPv6_2 = ip2.includes(':');
 
 		if (isIPv6_1 && isIPv6_2) {
 			// IPv6: Compare first 4 hextets (/64 subnet)
 			const normalized1 = normalizeIPv6(ip1);
 			const normalized2 = normalizeIPv6(ip2);
 
-			const parts1 = normalized1.split(":");
-			const parts2 = normalized2.split(":");
+			const parts1 = normalized1.split(':');
+			const parts2 = normalized2.split(':');
 
 			if (parts1.length !== 8 || parts2.length !== 8) {
 				return false;
@@ -100,8 +100,8 @@ export function areSameSubnet(ip1: string, ip2: string): boolean {
  */
 export function isIPWhitelisted(ip: string, whitelistEntry: string): boolean {
 	// Check if both are IPv6
-	const isIPv6Client = ip.includes(":");
-	const isIPv6Whitelist = whitelistEntry.includes(":");
+	const isIPv6Client = ip.includes(':');
+	const isIPv6Whitelist = whitelistEntry.includes(':');
 
 	if (isIPv6Client && isIPv6Whitelist) {
 		// Normalize both IPv6 addresses before comparison
@@ -142,7 +142,7 @@ export function isDomainWhitelisted(requestOrigin: string, whitelistEntry: strin
 	}
 
 	// Wildcard subdomain match (*.example.com)
-	if (whitelistEntry.startsWith("*.")) {
+	if (whitelistEntry.startsWith('*.')) {
 		const baseDomain = whitelistEntry.slice(2); // Remove "*."
 		return domain.endsWith(`.${baseDomain}`) || domain === baseDomain;
 	}

@@ -1,7 +1,7 @@
 // In-Memory Approval Store
 // In production, replace with Orchid ORM database table
-import type { ApprovalRequest, ApprovalStatus } from "../../core/types.js";
-import type { ApprovalStore } from "./types.js";
+import type { ApprovalRequest, ApprovalStatus } from '../../core/types.js';
+import type { ApprovalStore } from './types.js';
 
 export class InMemoryApprovalStore implements ApprovalStore {
 	private requests: Map<string, ApprovalRequest> = new Map();
@@ -24,20 +24,20 @@ export class InMemoryApprovalStore implements ApprovalStore {
 	}
 
 	async findByInstance(instanceId: string): Promise<ApprovalRequest[]> {
-		return Array.from(this.requests.values()).filter(
-			(r) => r.instanceId === instanceId
-		);
+		return Array.from(this.requests.values()).filter((r) => r.instanceId === instanceId);
 	}
 
 	async findPending(approverId?: string): Promise<ApprovalRequest[]> {
 		return Array.from(this.requests.values()).filter((r) => {
-			if (r.status !== "pending") return false;
+			if (r.status !== 'pending') return false;
 			if (r.timeoutAt < Date.now()) return false;
 			if (approverId) {
 				// Check if this request was assigned to the specific approver
 				// Approver info is stored in payload from the gate definition
 				const payload = r.payload as Record<string, unknown>;
-				const approvers = payload.approvers as Array<{ userId?: string; role?: string }> | undefined;
+				const approvers = payload.approvers as
+					| Array<{ userId?: string; role?: string }>
+					| undefined;
 				if (approvers) {
 					return approvers.some((a) => a.userId === approverId);
 				}
@@ -49,7 +49,7 @@ export class InMemoryApprovalStore implements ApprovalStore {
 
 	async findExpired(): Promise<ApprovalRequest[]> {
 		return Array.from(this.requests.values()).filter(
-			(r) => r.status === "pending" && r.timeoutAt < Date.now()
+			(r) => r.status === 'pending' && r.timeoutAt < Date.now(),
 		);
 	}
 }

@@ -1,7 +1,7 @@
-import { sql } from "@backend/db/base_table";
-import type { db } from "@backend/db/db";
-import type { SessionStore } from "@fastify/session";
-import type { FastifyRequest } from "fastify";
+import { sql } from '@backend/db/base_table';
+import type { db } from '@backend/db/db';
+import type { SessionStore } from '@fastify/session';
+import type { FastifyRequest } from 'fastify';
 
 type Database = typeof db;
 
@@ -25,7 +25,7 @@ export class DatabaseSessionStore implements SessionStore {
 	 */
 	async set(
 		sessionId: string,
-		session: FastifyRequest["session"],
+		session: FastifyRequest['session'],
 		callback: (err?: Error) => void,
 	): Promise<void> {
 		try {
@@ -72,12 +72,12 @@ export class DatabaseSessionStore implements SessionStore {
 	 */
 	async get(
 		sessionId: string,
-		callback: (err: Error | null, session?: FastifyRequest["session"]) => void,
+		callback: (err: Error | null, session?: FastifyRequest['session']) => void,
 	): Promise<void> {
 		try {
 			const sessionData = await this.db.sessions
-				.select("*", {
-					user: (q) => q.user.select("name", "displayPicture"),
+				.select('*', {
+					user: (q) => q.user.select('name', 'displayPicture'),
 				})
 				.findOptional(sessionId);
 
@@ -108,7 +108,7 @@ export class DatabaseSessionStore implements SessionStore {
 				},
 			};
 
-			callback(null, session as FastifyRequest["session"]);
+			callback(null, session as FastifyRequest['session']);
 		} catch (error) {
 			callback(error as Error);
 		}
@@ -134,7 +134,7 @@ export class DatabaseSessionStore implements SessionStore {
 	 */
 	async touch(
 		sessionId: string,
-		_session: FastifyRequest["session"],
+		_session: FastifyRequest['session'],
 		callback: (err?: Error) => void,
 	): Promise<void> {
 		try {

@@ -1,13 +1,13 @@
-import { Chip } from "@repo/ui-mui/data-display/Chip";
-import type { ReminderStatus } from "@repo/zod-schemas/crm_enums.zod";
+import { Chip } from '@repo/ui-mui/data-display/Chip';
+import type { ReminderStatus } from '@repo/zod-schemas/crm_enums.zod';
 
 const STATUS_COLOR: Record<
 	ReminderStatus,
-	"default" | "primary" | "secondary" | "success" | "error" | "warning" | "info"
+	'default' | 'primary' | 'secondary' | 'success' | 'error' | 'warning' | 'info'
 > = {
-	Pendente: "warning",
-	Concluído: "success",
-	Cancelado: "error",
+	Pendente: 'warning',
+	Concluído: 'success',
+	Cancelado: 'error',
 };
 
 interface ReminderStatusBadgeProps {

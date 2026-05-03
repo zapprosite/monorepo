@@ -1,11 +1,11 @@
-import { BaseTable } from "@backend/db/base_table";
-import { WebhookCallQueueTable } from "@backend/modules/subscriptions/tables/webhookCallQueue.table";
-import { UserTable } from "@backend/modules/users/users/users.table";
+import { BaseTable } from '@backend/db/base_table';
+import { WebhookCallQueueTable } from '@backend/modules/subscriptions/tables/webhookCallQueue.table';
+import { UserTable } from '@backend/modules/users/users/users.table';
 
 export class SubscriptionsTable extends BaseTable {
-	readonly table = "subscriptions";
+	readonly table = 'subscriptions';
 
-// @ts-ignore TS2742 — pqb internal type inference not portable
+	// @ts-expect-error TS2742 — pqb internal type inference not portable
 	columns = this.setColumns(
 		(t) => ({
 			subscriptionId: t.ulid().primaryKey(),
@@ -26,17 +26,17 @@ export class SubscriptionsTable extends BaseTable {
 
 			...t.timestamps(),
 		}),
-		(t) => t.index(["teamId", "teamUserReferenceId", "apiProductSku"]),
+		(t) => t.index(['teamId', 'teamUserReferenceId', 'apiProductSku']),
 	);
 
 	relations = {
 		webHooksCalled: this.hasMany(() => WebhookCallQueueTable, {
-			columns: ["subscriptionId"],
-			references: ["subscriptionId"],
+			columns: ['subscriptionId'],
+			references: ['subscriptionId'],
 		}),
 		user: this.belongsTo(() => UserTable, {
-			columns: ["teamUserReferenceId"],
-			references: ["userId"],
+			columns: ['teamUserReferenceId'],
+			references: ['userId'],
 			foreignKey: false, // Disable foreign key constraint so that detail is not lost from subscriptions.
 		}),
 	};

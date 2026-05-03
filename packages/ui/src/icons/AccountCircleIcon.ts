@@ -1,1 +1,1 @@
-export { default as AccountCircleIcon } from "@mui/icons-material/AccountCircle";
+export { default as AccountCircleIcon } from '@mui/icons-material/AccountCircle';

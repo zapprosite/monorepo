@@ -1,21 +1,18 @@
-import { Typography } from "@repo/ui-mui/data-display/Typography";
-import { Dialog } from "@repo/ui-mui/feedback/Dialog";
-import { DialogActions } from "@repo/ui-mui/feedback/DialogActions";
-import { DialogContent } from "@repo/ui-mui/feedback/DialogContent";
-import { DialogTitle } from "@repo/ui-mui/feedback/DialogTitle";
-import { Button } from "@repo/ui-mui/form/Button";
-import { TextField } from "@repo/ui-mui/form/TextField";
-import { Box } from "@repo/ui-mui/layout/Box";
-import { MenuItem } from "@repo/ui-mui/navigation/MenuItem";
-import {
-	type AddressCreateInput,
-	addressCreateInputZod,
-} from "@repo/zod-schemas/address.zod";
-import { ADDRESS_TYPE_ENUM } from "@repo/zod-schemas/crm_enums.zod";
-import { trpc } from "@frontend/utils/trpc.client";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Controller, useForm } from "react-hook-form";
+import { trpc } from '@frontend/utils/trpc.client';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Typography } from '@repo/ui-mui/data-display/Typography';
+import { Dialog } from '@repo/ui-mui/feedback/Dialog';
+import { DialogActions } from '@repo/ui-mui/feedback/DialogActions';
+import { DialogContent } from '@repo/ui-mui/feedback/DialogContent';
+import { DialogTitle } from '@repo/ui-mui/feedback/DialogTitle';
+import { Button } from '@repo/ui-mui/form/Button';
+import { TextField } from '@repo/ui-mui/form/TextField';
+import { Box } from '@repo/ui-mui/layout/Box';
+import { MenuItem } from '@repo/ui-mui/navigation/MenuItem';
+import { type AddressCreateInput, addressCreateInputZod } from '@repo/zod-schemas/address.zod';
+import { ADDRESS_TYPE_ENUM } from '@repo/zod-schemas/crm_enums.zod';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { Controller, useForm } from 'react-hook-form';
 
 interface AddressModalProps {
 	clienteId: string;
@@ -58,15 +55,15 @@ export function AddressModal({ clienteId, open, onClose }: AddressModalProps) {
 				</Typography>
 			</DialogTitle>
 			<Box component="form" onSubmit={handleSubmit(onSubmit)}>
-				<DialogContent sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}>
+				<DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
 					<Controller
 						name="tipo"
 						control={control}
 						render={({ field }) => (
 							<TextField
 								{...field}
-								value={field.value ?? ""}
-								onChange={(e) => field.onChange(e.target.value === "" ? null : e.target.value)}
+								value={field.value ?? ''}
+								onChange={(e) => field.onChange(e.target.value === '' ? null : e.target.value)}
 								select
 								label="Tipo"
 								fullWidth
@@ -82,7 +79,7 @@ export function AddressModal({ clienteId, open, onClose }: AddressModalProps) {
 							</TextField>
 						)}
 					/>
-					<Box sx={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 2 }}>
+					<Box sx={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 2 }}>
 						<Controller
 							name="rua"
 							control={control}
@@ -116,7 +113,7 @@ export function AddressModal({ clienteId, open, onClose }: AddressModalProps) {
 						render={({ field }) => (
 							<TextField
 								{...field}
-								value={field.value ?? ""}
+								value={field.value ?? ''}
 								label="Complemento"
 								fullWidth
 								error={!!errors.complemento}
@@ -124,7 +121,7 @@ export function AddressModal({ clienteId, open, onClose }: AddressModalProps) {
 							/>
 						)}
 					/>
-					<Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 2 }}>
+					<Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
 						<Controller
 							name="bairro"
 							control={control}
@@ -152,7 +149,7 @@ export function AddressModal({ clienteId, open, onClose }: AddressModalProps) {
 							)}
 						/>
 					</Box>
-					<Box sx={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 2 }}>
+					<Box sx={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 2 }}>
 						<Controller
 							name="cidade"
 							control={control}
@@ -187,7 +184,7 @@ export function AddressModal({ clienteId, open, onClose }: AddressModalProps) {
 						Cancelar
 					</Button>
 					<Button type="submit" variant="contained" disabled={isSubmitting}>
-						{isSubmitting ? "Salvando..." : "Adicionar"}
+						{isSubmitting ? 'Salvando...' : 'Adicionar'}
 					</Button>
 				</DialogActions>
 			</Box>

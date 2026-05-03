@@ -1,7 +1,7 @@
-import CreateLeadPage from "@frontend/modules/leads/pages/CreateLead.page";
-import LeadDetailPage from "@frontend/modules/leads/pages/LeadDetail.page";
-import LeadsPage from "@frontend/modules/leads/pages/Leads.page";
-import { Route, Routes } from "react-router";
+import CreateLeadPage from '@frontend/modules/leads/pages/CreateLead.page';
+import LeadDetailPage from '@frontend/modules/leads/pages/LeadDetail.page';
+import LeadsPage from '@frontend/modules/leads/pages/Leads.page';
+import { Route, Routes } from 'react-router';
 
 export const LeadsRouter = () => {
 	return (

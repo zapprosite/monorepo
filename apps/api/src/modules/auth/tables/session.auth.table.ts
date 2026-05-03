@@ -1,10 +1,10 @@
-import { BaseTable, sql } from "@backend/db/base_table";
-import { UserTable } from "@backend/modules/users/users/users.table";
+import { BaseTable, sql } from '@backend/db/base_table';
+import { UserTable } from '@backend/modules/users/users/users.table';
 
 export class SessionTable extends BaseTable {
-	readonly table = "session";
+	readonly table = 'session';
 
-// @ts-ignore TS2742 — pqb internal type inference not portable
+	// @ts-expect-error TS2742 — pqb internal type inference not portable
 	columns = this.setColumns(
 		(t) => ({
 			sessionId: t.string().primaryKey(),
@@ -25,17 +25,17 @@ export class SessionTable extends BaseTable {
 		}),
 		(t) => [
 			t.index([
-				"sessionId",
-				{ column: "expiresAt", order: "DESC" },
-				{ column: "markedInvalidAt", order: "DESC" },
+				'sessionId',
+				{ column: 'expiresAt', order: 'DESC' },
+				{ column: 'markedInvalidAt', order: 'DESC' },
 			]),
 		],
 	);
 
 	relations = {
 		user: this.belongsTo(() => UserTable, {
-			columns: ["userId"],
-			references: ["userId"],
+			columns: ['userId'],
+			references: ['userId'],
 			// Foreign Key is set to false to preserve userId data in event of user deletion.
 			foreignKey: false,
 		}),

@@ -1,5 +1,5 @@
-import { EmailCampaignsPage } from "@frontend/modules/email/pages/EmailCampaigns.page";
-import { Route, Routes } from "react-router";
+import { EmailCampaignsPage } from '@frontend/modules/email/pages/EmailCampaigns.page';
+import { Route, Routes } from 'react-router';
 
 export const EmailRouter = () => {
 	return (

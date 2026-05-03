@@ -1,11 +1,11 @@
-import { db } from "@backend/db/db";
-import { protectedProcedure, trpcRouter } from "@backend/trpc";
+import { db } from '@backend/db/db';
+import { protectedProcedure, trpcRouter } from '@backend/trpc';
 import {
 	journalEntryCreateInputZod,
 	journalEntryDeleteZod,
 	journalEntryGetByIdZod,
 	journalEntryGetByUserZod,
-} from "@connected-repo/zod-schemas/journal_entry.zod";
+} from '@connected-repo/zod-schemas/journal_entry.zod';
 
 export const journalEntriesRouterTrpc = trpcRouter({
 	// Get all journal entries for a team
@@ -16,7 +16,7 @@ export const journalEntriesRouterTrpc = trpcRouter({
 			},
 		}) => {
 			const journalEntries = await db.journalEntries
-				.select("*", {
+				.select('*', {
 					author: (t) => t.author.selectAll(),
 				})
 				.where({ authorUserId: userId });
@@ -37,7 +37,7 @@ export const journalEntriesRouterTrpc = trpcRouter({
 				.where({ authorUserId: userId });
 
 			if (!journalEntry) {
-				throw new Error("Journal entry not found");
+				throw new Error('Journal entry not found');
 			}
 
 			return journalEntry;
@@ -60,11 +60,11 @@ export const journalEntriesRouterTrpc = trpcRouter({
 	// Get journal entries by user
 	getByUser: protectedProcedure.input(journalEntryGetByUserZod).query(async ({ input }) => {
 		const journalEntries = await db.journalEntries
-			.select("*", {
+			.select('*', {
 				author: (t) => t.author.selectAll(),
 			})
 			.where({ authorUserId: input.authorUserId })
-			.order({ createdAt: "DESC" });
+			.order({ createdAt: 'DESC' });
 
 		return journalEntries;
 	}),

@@ -1,17 +1,17 @@
-import { ErrorAlert } from "@repo/ui-mui/components/ErrorAlert";
-import { LoadingSpinner } from "@repo/ui-mui/components/LoadingSpinner";
-import { Typography } from "@repo/ui-mui/data-display/Typography";
-import { Button } from "@repo/ui-mui/form/Button";
-import { Box } from "@repo/ui-mui/layout/Box";
-import { Container } from "@repo/ui-mui/layout/Container";
-import { Paper } from "@repo/ui-mui/layout/Paper";
-import { trpc } from "@frontend/utils/trpc.client";
-import { useQuery } from "@tanstack/react-query";
-import { useNavigate, useParams } from "react-router";
-import { EquipmentStatusBadge } from "../components/EquipmentStatusBadge";
+import { trpc } from '@frontend/utils/trpc.client';
+import { ErrorAlert } from '@repo/ui-mui/components/ErrorAlert';
+import { LoadingSpinner } from '@repo/ui-mui/components/LoadingSpinner';
+import { Typography } from '@repo/ui-mui/data-display/Typography';
+import { Button } from '@repo/ui-mui/form/Button';
+import { Box } from '@repo/ui-mui/layout/Box';
+import { Container } from '@repo/ui-mui/layout/Container';
+import { Paper } from '@repo/ui-mui/layout/Paper';
+import { useQuery } from '@tanstack/react-query';
+import { useNavigate, useParams } from 'react-router';
+import { EquipmentStatusBadge } from '../components/EquipmentStatusBadge';
 
 function InfoRow({ label, value }: { label: string; value: string | number | null | undefined }) {
-	if (value === null || value === undefined || value === "") return null;
+	if (value === null || value === undefined || value === '') return null;
 	return (
 		<Box>
 			<Typography variant="caption" color="text.secondary">
@@ -38,7 +38,7 @@ export default function EquipmentDetailPage() {
 		return (
 			<Container maxWidth="lg" sx={{ py: 4 }}>
 				<ErrorAlert
-					message={`Erro ao carregar equipamento: ${error?.message ?? "Equipamento não encontrado"}`}
+					message={`Erro ao carregar equipamento: ${error?.message ?? 'Equipamento não encontrado'}`}
 				/>
 			</Container>
 		);
@@ -50,12 +50,12 @@ export default function EquipmentDetailPage() {
 				<Button
 					variant="text"
 					size="small"
-					onClick={() => navigate("/equipment")}
-					sx={{ mb: 1, color: "text.secondary" }}
+					onClick={() => navigate('/equipment')}
+					sx={{ mb: 1, color: 'text.secondary' }}
 				>
 					← Voltar para Equipamentos
 				</Button>
-				<Box sx={{ display: "flex", alignItems: "center", gap: 2, flexWrap: "wrap" }}>
+				<Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
 					<Typography variant="h4" fontWeight={700}>
 						{equipment.nome}
 					</Typography>
@@ -66,7 +66,7 @@ export default function EquipmentDetailPage() {
 							sx={{
 								px: 1,
 								py: 0.5,
-								bgcolor: "action.disabledBackground",
+								bgcolor: 'action.disabledBackground',
 								borderRadius: 1,
 							}}
 						>
@@ -81,20 +81,20 @@ export default function EquipmentDetailPage() {
 
 			<Box
 				sx={{
-					display: "grid",
-					gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" },
+					display: 'grid',
+					gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
 					gap: 3,
 				}}
 			>
 				{/* Identificação */}
 				<Paper
 					elevation={0}
-					sx={{ border: "1px solid", borderColor: "divider", borderRadius: 2, p: 3 }}
+					sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2, p: 3 }}
 				>
 					<Typography variant="h6" fontWeight={600} mb={2}>
 						Identificação
 					</Typography>
-					<Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+					<Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
 						<InfoRow label="Marca" value={equipment.marca} />
 						<InfoRow label="Modelo" value={equipment.modelo} />
 						<InfoRow label="Número de Série" value={equipment.numeroDeSerie} />
@@ -106,12 +106,12 @@ export default function EquipmentDetailPage() {
 				{/* Manutenção */}
 				<Paper
 					elevation={0}
-					sx={{ border: "1px solid", borderColor: "divider", borderRadius: 2, p: 3 }}
+					sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2, p: 3 }}
 				>
 					<Typography variant="h6" fontWeight={600} mb={2}>
 						Manutenção
 					</Typography>
-					<Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+					<Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
 						<InfoRow label="Data de Instalação" value={equipment.dataInstalacao} />
 						<InfoRow label="Última Manutenção" value={equipment.ultimaManutencao} />
 						{equipment.observacoes && (
@@ -119,7 +119,7 @@ export default function EquipmentDetailPage() {
 								<Typography variant="caption" color="text.secondary">
 									Observações
 								</Typography>
-								<Typography variant="body2" sx={{ whiteSpace: "pre-wrap" }}>
+								<Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>
 									{equipment.observacoes}
 								</Typography>
 							</Box>
@@ -128,8 +128,8 @@ export default function EquipmentDetailPage() {
 				</Paper>
 			</Box>
 
-			<Box sx={{ mt: 3, display: "flex", justifyContent: "flex-end" }}>
-				<Button variant="outlined" onClick={() => navigate("/equipment")}>
+			<Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
+				<Button variant="outlined" onClick={() => navigate('/equipment')}>
 					Voltar
 				</Button>
 			</Box>

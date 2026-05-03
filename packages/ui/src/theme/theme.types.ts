@@ -3,9 +3,9 @@
  * Extends the default MUI palette to include custom properties
  */
 
-import "@mui/material/styles";
+import '@mui/material/styles';
 
-declare module "@mui/material/styles" {
+declare module '@mui/material/styles' {
 	interface PaletteColor {
 		/**
 		 * Lighter shade for hover/selected states

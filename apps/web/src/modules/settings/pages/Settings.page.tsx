@@ -1,8 +1,8 @@
-import { Typography } from "@repo/ui-mui/data-display/Typography";
-import { Box } from "@repo/ui-mui/layout/Box";
-import { Container } from "@repo/ui-mui/layout/Container";
-import { Paper } from "@repo/ui-mui/layout/Paper";
-import { useNavigate } from "react-router";
+import { Typography } from '@repo/ui-mui/data-display/Typography';
+import { Box } from '@repo/ui-mui/layout/Box';
+import { Container } from '@repo/ui-mui/layout/Container';
+import { Paper } from '@repo/ui-mui/layout/Paper';
+import { useNavigate } from 'react-router';
 
 export default function SettingsPage() {
 	const navigate = useNavigate();
@@ -14,9 +14,9 @@ export default function SettingsPage() {
 					variant="h3"
 					component="h1"
 					sx={{
-						fontSize: { xs: "1.75rem", md: "2.5rem" },
+						fontSize: { xs: '1.75rem', md: '2.5rem' },
 						fontWeight: 700,
-						letterSpacing: "-0.01em",
+						letterSpacing: '-0.01em',
 					}}
 				>
 					Configurações
@@ -28,24 +28,24 @@ export default function SettingsPage() {
 
 			<Box
 				sx={{
-					display: "grid",
-					gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" },
+					display: 'grid',
+					gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
 					gap: 3,
 				}}
 			>
 				<Paper
 					elevation={0}
-					onClick={() => navigate("/settings/roles")}
+					onClick={() => navigate('/settings/roles')}
 					sx={{
-						border: "1px solid",
-						borderColor: "divider",
+						border: '1px solid',
+						borderColor: 'divider',
 						borderRadius: 2,
 						p: 3,
-						cursor: "pointer",
-						transition: "all 0.2s ease-in-out",
-						"&:hover": {
-							borderColor: "primary.main",
-							transform: "translateY(-2px)",
+						cursor: 'pointer',
+						transition: 'all 0.2s ease-in-out',
+						'&:hover': {
+							borderColor: 'primary.main',
+							transform: 'translateY(-2px)',
 							boxShadow: 3,
 						},
 					}}

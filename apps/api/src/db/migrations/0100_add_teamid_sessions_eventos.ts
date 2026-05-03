@@ -1,6 +1,6 @@
-import { change } from "../db_script";
+import { change } from '../db_script';
 
-// @ts-ignore - rakeDb types don't expose callable signature
+// @ts-expect-error - rakeDb types don't expose callable signature
 change(async (db) => {
 	// Add teamId to sessions table for IDOR protection
 	await db.sql`

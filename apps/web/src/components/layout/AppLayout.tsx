@@ -1,10 +1,10 @@
-import { Box } from "@repo/ui-mui/layout/Box";
-import type { SessionInfo } from "@frontend/contexts/UserContext";
-import { useMediaQuery } from "@mui/material";
-import { useTheme } from "@mui/material/styles";
-import { Outlet, useLoaderData } from "react-router";
-import { DesktopNavbar } from "./DesktopNavbar";
-import { MobileNavbar } from "./MobileNavbar";
+import type { SessionInfo } from '@frontend/contexts/UserContext';
+import { useMediaQuery } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
+import { Box } from '@repo/ui-mui/layout/Box';
+import { Outlet, useLoaderData } from 'react-router';
+import { DesktopNavbar } from './DesktopNavbar';
+import { MobileNavbar } from './MobileNavbar';
 
 /**
  * AppLayout - Main layout wrapper for authenticated pages
@@ -18,7 +18,7 @@ import { MobileNavbar } from "./MobileNavbar";
  */
 export const AppLayout = () => {
 	const theme = useTheme();
-	const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+	const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
 	// Get session data from authLoader
 	const sessionInfo = useLoaderData() as SessionInfo;
@@ -26,10 +26,10 @@ export const AppLayout = () => {
 	return (
 		<Box
 			sx={{
-				display: "flex",
-				flexDirection: "column",
-				minHeight: "100vh",
-				bgcolor: "background.default",
+				display: 'flex',
+				flexDirection: 'column',
+				minHeight: '100vh',
+				bgcolor: 'background.default',
 			}}
 		>
 			{isMobile ? <MobileNavbar /> : <DesktopNavbar />}

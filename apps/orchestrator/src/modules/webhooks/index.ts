@@ -1,2 +1,2 @@
 // Webhooks Module
-export * from "./webhook-emitter.js";
+export * from './webhook-emitter.js';

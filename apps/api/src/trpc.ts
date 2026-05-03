@@ -1,15 +1,15 @@
-import { isDev } from "@backend/configs/env.config";
+import { isDev } from '@backend/configs/env.config';
+import { extractDevUser } from '@backend/middlewares/dev-auth-bypass';
 import {
 	SessionSecurityLevel,
 	validateSessionSecurity,
-} from "@backend/middlewares/sessionSecurity.middleware";
-import { extractDevUser } from "@backend/middlewares/dev-auth-bypass";
-import type { SessionUser } from "@backend/modules/auth/session.auth.utils";
-import { trpcErrorParser } from "@backend/utils/errorParser";
-import { getClientIpAddress } from "@backend/utils/request-metadata.utils";
-import { initTRPC, TRPCError } from "@trpc/server";
-import type { CreateFastifyContextOptions } from "@trpc/server/adapters/fastify";
-import { BurstyRateLimiter, RateLimiterMemory } from "rate-limiter-flexible";
+} from '@backend/middlewares/sessionSecurity.middleware';
+import type { SessionUser } from '@backend/modules/auth/session.auth.utils';
+import { trpcErrorParser } from '@backend/utils/errorParser';
+import { getClientIpAddress } from '@backend/utils/request-metadata.utils';
+import { initTRPC, TRPCError } from '@trpc/server';
+import type { CreateFastifyContextOptions } from '@trpc/server/adapters/fastify';
+import { BurstyRateLimiter, RateLimiterMemory } from 'rate-limiter-flexible';
 
 // Define user type
 export const createTRPCContext = (input: CreateFastifyContextOptions) => {
@@ -75,8 +75,8 @@ export const centralTrpcErrorMiddleware = t.middleware(async ({ next }) => {
 
 		// Convert other errors to TRPCError with the original cause preserved
 		throw new TRPCError({
-			code: "INTERNAL_SERVER_ERROR",
-			message: cause instanceof Error ? cause.message : "An unexpected error occurred",
+			code: 'INTERNAL_SERVER_ERROR',
+			message: cause instanceof Error ? cause.message : 'An unexpected error occurred',
 			cause,
 		});
 	}
@@ -89,7 +89,7 @@ export const trpcRouter = t.router;
 // isAuthenticated middleware
 const isAuthenticatedMiddleware = t.middleware(({ ctx, next }) => {
 	if (!ctx.user?.userId) {
-		throw new TRPCError({ code: "UNAUTHORIZED", message: "User is not authenticated" });
+		throw new TRPCError({ code: 'UNAUTHORIZED', message: 'User is not authenticated' });
 	}
 
 	return next({
@@ -111,10 +111,10 @@ const sessionSecurityMiddleware = (
 	t.middleware(({ ctx, next }) => {
 		const result = validateSessionSecurity(ctx.req, securityLevel);
 
-		if (result.action === "block") {
+		if (result.action === 'block') {
 			throw new TRPCError({
-				code: "FORBIDDEN",
-				message: "Session security validation failed. Please log in again.",
+				code: 'FORBIDDEN',
+				message: 'Session security validation failed. Please log in again.',
 			});
 		}
 
@@ -139,11 +139,11 @@ export const sensitiveProcedure = protectedProcedure.use(
 const rateLimiters = {
 	moderate: new BurstyRateLimiter(
 		new RateLimiterMemory({ points: 20, duration: 60 }), // 20 req/min
-		new RateLimiterMemory({ keyPrefix: "burst", points: 5, duration: 120 }),
+		new RateLimiterMemory({ keyPrefix: 'burst', points: 5, duration: 120 }),
 	),
 	strict: new BurstyRateLimiter(
 		new RateLimiterMemory({ points: 5, duration: 60 }), // 5 req/min
-		new RateLimiterMemory({ keyPrefix: "burst", points: 2, duration: 300 }),
+		new RateLimiterMemory({ keyPrefix: 'burst', points: 2, duration: 300 }),
 	),
 };
 
@@ -156,8 +156,8 @@ export const moderateRateLimit = t.middleware(async ({ ctx, next }) => {
 		return next();
 	} catch {
 		throw new TRPCError({
-			code: "TOO_MANY_REQUESTS",
-			message: "Too many requests. Please try again later.",
+			code: 'TOO_MANY_REQUESTS',
+			message: 'Too many requests. Please try again later.',
 		});
 	}
 });
@@ -169,8 +169,8 @@ export const strictRateLimit = t.middleware(async ({ ctx, next }) => {
 		return next();
 	} catch {
 		throw new TRPCError({
-			code: "TOO_MANY_REQUESTS",
-			message: "Too many attempts. Please wait and try again.",
+			code: 'TOO_MANY_REQUESTS',
+			message: 'Too many attempts. Please wait and try again.',
 		});
 	}
 });

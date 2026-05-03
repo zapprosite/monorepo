@@ -1,31 +1,31 @@
-import { ErrorAlert } from "@repo/ui-mui/components/ErrorAlert";
-import { LoadingSpinner } from "@repo/ui-mui/components/LoadingSpinner";
-import { Typography } from "@repo/ui-mui/data-display/Typography";
-import { ToggleButton } from "@repo/ui-mui/form/ToggleButton";
-import { ToggleButtonGroup } from "@repo/ui-mui/form/ToggleButtonGroup";
-import { GridViewIcon } from "@repo/ui-mui/icons/GridViewIcon";
-import { TableRowsIcon } from "@repo/ui-mui/icons/TableRowsIcon";
-import { Box } from "@repo/ui-mui/layout/Box";
-import { Container } from "@repo/ui-mui/layout/Container";
-import { Pagination } from "@repo/ui-mui/navigation/Pagination";
-import { JournalEntriesEmptyState } from "@frontend/components/JournalEntriesEmptyState";
-import { JournalEntryCardView } from "@frontend/components/JournalEntryCardView";
-import { JournalEntryTableView } from "@frontend/components/JournalEntryTableView";
-import { trpc } from "@frontend/utils/trpc.client";
-import { useMediaQuery, useTheme } from "@mui/material";
-import { useQuery } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
-import { useNavigate } from "react-router";
+import { JournalEntriesEmptyState } from '@frontend/components/JournalEntriesEmptyState';
+import { JournalEntryCardView } from '@frontend/components/JournalEntryCardView';
+import { JournalEntryTableView } from '@frontend/components/JournalEntryTableView';
+import { trpc } from '@frontend/utils/trpc.client';
+import { useMediaQuery, useTheme } from '@mui/material';
+import { ErrorAlert } from '@repo/ui-mui/components/ErrorAlert';
+import { LoadingSpinner } from '@repo/ui-mui/components/LoadingSpinner';
+import { Typography } from '@repo/ui-mui/data-display/Typography';
+import { ToggleButton } from '@repo/ui-mui/form/ToggleButton';
+import { ToggleButtonGroup } from '@repo/ui-mui/form/ToggleButtonGroup';
+import { GridViewIcon } from '@repo/ui-mui/icons/GridViewIcon';
+import { TableRowsIcon } from '@repo/ui-mui/icons/TableRowsIcon';
+import { Box } from '@repo/ui-mui/layout/Box';
+import { Container } from '@repo/ui-mui/layout/Container';
+import { Pagination } from '@repo/ui-mui/navigation/Pagination';
+import { useQuery } from '@tanstack/react-query';
+import { useMemo, useState } from 'react';
+import { useNavigate } from 'react-router';
 
 const ITEMS_PER_PAGE = 12;
 
-type ViewMode = "card" | "table";
+type ViewMode = 'card' | 'table';
 
 export default function JournalEntriesPage() {
 	const navigate = useNavigate();
 	const theme = useTheme();
-	const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-	const [viewMode, setViewMode] = useState<ViewMode>("card");
+	const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+	const [viewMode, setViewMode] = useState<ViewMode>('card');
 	const [currentPage, setCurrentPage] = useState(1);
 
 	const {
@@ -85,10 +85,10 @@ export default function JournalEntriesPage() {
 			<Box
 				sx={{
 					mb: 5,
-					display: "flex",
-					flexDirection: "row",
-					justifyContent: "space-between",
-					alignItems: "center",
+					display: 'flex',
+					flexDirection: 'row',
+					justifyContent: 'space-between',
+					alignItems: 'center',
 					gap: 3,
 				}}
 			>
@@ -97,17 +97,18 @@ export default function JournalEntriesPage() {
 						variant="h3"
 						component="h1"
 						sx={{
-							fontSize: { xs: "2rem", md: "2.5rem" },
+							fontSize: { xs: '2rem', md: '2.5rem' },
 							fontWeight: 700,
-							color: "text.primary",
+							color: 'text.primary',
 							mb: 1,
-							letterSpacing: "-0.01em",
+							letterSpacing: '-0.01em',
 						}}
 					>
 						Meu diário
 					</Typography>
-					<Typography variant="body2" color="text.secondary" sx={{ fontSize: "0.875rem" }}>
-						{journalEntries.length} {journalEntries.length === 1 ? "entrada no total" : "entradas no total"}
+					<Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.875rem' }}>
+						{journalEntries.length}{' '}
+						{journalEntries.length === 1 ? 'entrada no total' : 'entradas no total'}
 					</Typography>
 				</Box>
 
@@ -118,41 +119,41 @@ export default function JournalEntriesPage() {
 					onChange={handleViewModeChange}
 					aria-label="view mode"
 					sx={{
-						bgcolor: "background.paper",
+						bgcolor: 'background.paper',
 						boxShadow: 1,
 						borderRadius: 1.5,
-						"& .MuiToggleButton-root": {
+						'& .MuiToggleButton-root': {
 							px: { xs: 1.5, md: 2.5 },
 							py: 1,
-							border: "none",
-							minWidth: { xs: 44, md: "auto" },
-							fontSize: "0.875rem",
+							border: 'none',
+							minWidth: { xs: 44, md: 'auto' },
+							fontSize: '0.875rem',
 							fontWeight: 500,
-							textTransform: "none",
-							color: "text.secondary",
-							transition: "all 0.2s ease-in-out",
-							"&:hover": {
-								bgcolor: "action.hover",
-								color: "text.primary",
+							textTransform: 'none',
+							color: 'text.secondary',
+							transition: 'all 0.2s ease-in-out',
+							'&:hover': {
+								bgcolor: 'action.hover',
+								color: 'text.primary',
 							},
-							"&.Mui-selected": {
-								bgcolor: "primary.main",
-								color: "primary.contrastText",
-								"&:hover": {
-									bgcolor: "primary.dark",
+							'&.Mui-selected': {
+								bgcolor: 'primary.main',
+								color: 'primary.contrastText',
+								'&:hover': {
+									bgcolor: 'primary.dark',
 								},
 							},
 						},
 					}}
 				>
 					<ToggleButton value="card" aria-label="card view">
-						<Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+						<Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
 							<GridViewIcon sx={{ fontSize: 20 }} />
 							{!isMobile && <span>Cards</span>}
 						</Box>
 					</ToggleButton>
 					<ToggleButton value="table" aria-label="table view">
-						<Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+						<Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
 							<TableRowsIcon sx={{ fontSize: 20 }} />
 							{!isMobile && <span>Tabela</span>}
 						</Box>
@@ -162,7 +163,7 @@ export default function JournalEntriesPage() {
 
 			{/* Content Section */}
 			<Box sx={{ mb: 4 }}>
-				{viewMode === "card" ? (
+				{viewMode === 'card' ? (
 					<JournalEntryCardView entries={paginatedEntries} onEntryClick={handleEntryClick} />
 				) : (
 					<JournalEntryTableView entries={paginatedEntries} onEntryClick={handleEntryClick} />
@@ -171,7 +172,7 @@ export default function JournalEntriesPage() {
 
 			{/* Pagination */}
 			{totalPages > 1 && (
-				<Box sx={{ display: "flex", justifyContent: "center", mt: 5 }}>
+				<Box sx={{ display: 'flex', justifyContent: 'center', mt: 5 }}>
 					<Pagination
 						count={totalPages}
 						page={currentPage}
@@ -181,12 +182,12 @@ export default function JournalEntriesPage() {
 						showFirstButton
 						showLastButton
 						sx={{
-							"& .MuiPaginationItem-root": {
-								fontSize: "1rem",
+							'& .MuiPaginationItem-root': {
+								fontSize: '1rem',
 								fontWeight: 500,
-								transition: "all 0.2s ease-in-out",
-								"&:hover": {
-									transform: "translateY(-2px)",
+								transition: 'all 0.2s ease-in-out',
+								'&:hover': {
+									transform: 'translateY(-2px)',
 								},
 							},
 						}}

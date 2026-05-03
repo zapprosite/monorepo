@@ -1,9 +1,9 @@
-import { db } from "@backend/db/db";
+import { db } from '@backend/db/db';
 import type {
 	JournalEntryCreateInput,
 	JournalEntrySelectAll,
-} from "@connected-repo/zod-schemas/journal_entry.zod";
-import type { FastifyReply, FastifyRequest } from "fastify";
+} from '@connected-repo/zod-schemas/journal_entry.zod';
+import type { FastifyReply, FastifyRequest } from 'fastify';
 
 /**
  * Save Journal Entry Handler
@@ -22,8 +22,8 @@ export async function saveJournalEntryHandler(
 	if (!request.team || !request.subscription) {
 		return reply.code(401).send({
 			statusCode: 401,
-			error: "Unauthorized",
-			message: "Authentication required",
+			error: 'Unauthorized',
+			message: 'Authentication required',
 		});
 	}
 
@@ -56,7 +56,7 @@ export async function saveJournalEntryHandler(
 				promptLength: prompt?.length ?? 0,
 				contentLength: content.length,
 			},
-			"Journal entry saved successfully",
+			'Journal entry saved successfully',
 		);
 
 		return reply.code(201).send(journalEntry);
@@ -67,13 +67,13 @@ export async function saveJournalEntryHandler(
 				teamId,
 				teamUserReferenceId,
 			},
-			"Failed to save journal entry",
+			'Failed to save journal entry',
 		);
 
 		return reply.code(500).send({
 			statusCode: 500,
-			error: "Internal Server Error",
-			message: "Failed to save journal entry",
+			error: 'Internal Server Error',
+			message: 'Failed to save journal entry',
 		});
 	}
 }

@@ -1,14 +1,14 @@
-import { db } from "@backend/db/db";
-import { publicProcedure, trpcRouter } from "@backend/trpc";
-import { promptGetActiveZod, promptGetByIdZod } from "@connected-repo/zod-schemas/prompt.zod";
+import { db } from '@backend/db/db';
+import { publicProcedure, trpcRouter } from '@backend/trpc';
+import { promptGetActiveZod, promptGetByIdZod } from '@connected-repo/zod-schemas/prompt.zod';
 
 export const promptsRouterTrpc = trpcRouter({
 	// Get all active prompts
 	getAllActive: publicProcedure.query(async () => {
 		const prompts = await db.prompts
 			.where({ isActive: true })
-			.select("*")
-			.order({ createdAt: "DESC" });
+			.select('*')
+			.order({ createdAt: 'DESC' });
 
 		return prompts;
 	}),
@@ -19,7 +19,7 @@ export const promptsRouterTrpc = trpcRouter({
 		const count = await db.prompts.count();
 
 		if (count === 0) {
-			throw new Error("No active prompts available");
+			throw new Error('No active prompts available');
 		}
 
 		// Try up to 3 times to get a random prompt
@@ -30,7 +30,7 @@ export const promptsRouterTrpc = trpcRouter({
 			// Get the first active prompt at this offset
 			const prompt = await db.prompts
 				.where({ isActive: true, promptId: { gte: randomIndex } })
-				.select("*")
+				.select('*')
 				.limit(1)
 				.take();
 
@@ -40,7 +40,7 @@ export const promptsRouterTrpc = trpcRouter({
 		}
 
 		// If all 3 attempts failed, throw error
-		throw new Error("Failed to retrieve a random active prompt after 3 attempts");
+		throw new Error('Failed to retrieve a random active prompt after 3 attempts');
 	}),
 
 	// Get prompt by ID
@@ -48,7 +48,7 @@ export const promptsRouterTrpc = trpcRouter({
 		const prompt = await db.prompts.find(promptId);
 
 		if (!prompt) {
-			throw new Error("Prompt not found");
+			throw new Error('Prompt not found');
 		}
 
 		return prompt;
@@ -58,8 +58,8 @@ export const promptsRouterTrpc = trpcRouter({
 	getByCategory: publicProcedure.input(promptGetActiveZod).query(async ({ input }) => {
 		const prompts = await db.prompts
 			.where({ isActive: input.isActive })
-			.select("*")
-			.order({ createdAt: "DESC" });
+			.select('*')
+			.order({ createdAt: 'DESC' });
 
 		return prompts;
 	}),

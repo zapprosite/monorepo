@@ -1,1 +1,1 @@
-export { type DialogContentProps, default as DialogContent } from "@mui/material/DialogContent";
+export { type DialogContentProps, default as DialogContent } from '@mui/material/DialogContent';

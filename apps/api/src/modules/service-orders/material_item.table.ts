@@ -1,14 +1,14 @@
-import { BaseTable } from "@backend/db/base_table";
+import { BaseTable } from '@backend/db/base_table';
 
 export class MaterialItemTable extends BaseTable {
-	readonly table = "material_items";
+	readonly table = 'material_items';
 
-// @ts-ignore TS2742 — pqb internal type inference not portable
+	// @ts-expect-error TS2742 — pqb internal type inference not portable
 	columns = this.setColumns((t) => ({
 		materialItemId: t.uuid().primaryKey().default(t.sql`gen_random_uuid()`),
-		serviceOrderId: t.uuid().foreignKey("service_orders", "serviceOrderId", {
-			onUpdate: "RESTRICT",
-			onDelete: "CASCADE",
+		serviceOrderId: t.uuid().foreignKey('service_orders', 'serviceOrderId', {
+			onUpdate: 'RESTRICT',
+			onDelete: 'CASCADE',
 		}),
 		descricao: t.varchar(255),
 		quantidade: t.numeric(10, 3),

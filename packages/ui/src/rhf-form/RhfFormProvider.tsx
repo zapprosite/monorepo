@@ -1,7 +1,7 @@
-import { useCallback } from "react";
-import { type FieldValues, FormProvider, type UseFormReturn } from "react-hook-form";
-import { NumLockAlert } from "../feedback/NumLockAlert";
-import { FormErrorDisplayer, type FormErrorDisplayerProps } from "./FormErrorDisplayer";
+import { useCallback } from 'react';
+import { type FieldValues, FormProvider, type UseFormReturn } from 'react-hook-form';
+import { NumLockAlert } from '../feedback/NumLockAlert';
+import { FormErrorDisplayer, type FormErrorDisplayerProps } from './FormErrorDisplayer';
 
 export interface RhfFormProviderProps<T extends FieldValues> {
 	children: React.ReactNode;
@@ -12,7 +12,7 @@ export interface RhfFormProviderProps<T extends FieldValues> {
 	numLockAlert?: boolean;
 	formMethods: UseFormReturn<T>;
 	onSubmit: (data: T) => Promise<void>;
-	onInvalid?: (errors: UseFormReturn<T>["formState"]["errors"]) => void;
+	onInvalid?: (errors: UseFormReturn<T>['formState']['errors']) => void;
 	onError?: (error: unknown) => void;
 	clearRootErrorOnChange?: boolean;
 }
@@ -35,7 +35,7 @@ export const RhfFormProvider = <T extends FieldValues>({
 	if (clearRootErrorOnChange) {
 		watch(() => {
 			if (formMethods.formState.errors.root) {
-				clearErrors("root");
+				clearErrors('root');
 			}
 		});
 	}
@@ -50,12 +50,12 @@ export const RhfFormProvider = <T extends FieldValues>({
 				await onSubmit(data);
 			} catch (error: unknown) {
 				// Log error for debugging
-				console.error("Form submission error:", error);
+				console.error('Form submission error:', error);
 
 				// Set as root error for display
-				setError("root", {
+				setError('root', {
 					message:
-						error instanceof Error ? error.message : "Form submission failed. Please try again.",
+						error instanceof Error ? error.message : 'Form submission failed. Please try again.',
 				});
 
 				// Call optional error callback
@@ -74,7 +74,7 @@ export const RhfFormProvider = <T extends FieldValues>({
 	const onInvalidSubmit = useCallback(
 		(errors: typeof formMethods.formState.errors) => {
 			// Log validation errors for debugging
-			console.error("Form validation errors:", {
+			console.error('Form validation errors:', {
 				errors,
 				values: formMethods.getValues(),
 			});

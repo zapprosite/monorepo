@@ -1,8 +1,8 @@
-import type { SxProps, Theme } from "@mui/material/styles";
-import { Controller, useFormContext } from "react-hook-form";
-import { FormControl, FormHelperText, InputLabel } from "../form/FormControl";
-import { MenuItem } from "../form/MenuItem";
-import { Select, type SelectProps } from "../form/Select";
+import type { SxProps, Theme } from '@mui/material/styles';
+import { Controller, useFormContext } from 'react-hook-form';
+import { FormControl, FormHelperText, InputLabel } from '../form/FormControl';
+import { MenuItem } from '../form/MenuItem';
+import { Select, type SelectProps } from '../form/Select';
 
 export interface RhfSelectOption {
 	value: string | number;
@@ -10,7 +10,7 @@ export interface RhfSelectOption {
 	disabled?: boolean;
 }
 
-export interface RhfSelectProps extends Omit<SelectProps, "name"> {
+export interface RhfSelectProps extends Omit<SelectProps, 'name'> {
 	name: string;
 	label?: string;
 	options: RhfSelectOption[];
@@ -44,8 +44,8 @@ export const RhfSelect = ({ name, label, options, placeholder, sx, ...props }: R
 						label={label}
 						displayEmpty={!!placeholder}
 						sx={{
-							"& .MuiSelect-select": {
-								fontSize: { xs: "16px", md: "14px" }, // Prevent iOS zoom on focus
+							'& .MuiSelect-select': {
+								fontSize: { xs: '16px', md: '14px' }, // Prevent iOS zoom on focus
 							},
 						}}
 						{...props}

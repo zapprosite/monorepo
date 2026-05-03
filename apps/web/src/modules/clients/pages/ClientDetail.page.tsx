@@ -1,31 +1,31 @@
-import { ErrorAlert } from "@repo/ui-mui/components/ErrorAlert";
-import { LoadingSpinner } from "@repo/ui-mui/components/LoadingSpinner";
-import { Chip } from "@repo/ui-mui/data-display/Chip";
-import { Typography } from "@repo/ui-mui/data-display/Typography";
-import { Button } from "@repo/ui-mui/form/Button";
-import { Box } from "@repo/ui-mui/layout/Box";
-import { Container } from "@repo/ui-mui/layout/Container";
-import { Paper } from "@repo/ui-mui/layout/Paper";
-import { trpc } from "@frontend/utils/trpc.client";
-import { useQuery } from "@tanstack/react-query";
-import { lazy, Suspense, useMemo, useState } from "react";
-import { useNavigate, useParams } from "react-router";
-import { AddressModal } from "../components/AddressModal";
-import { ContactModal } from "../components/ContactModal";
+import { trpc } from '@frontend/utils/trpc.client';
+import { ErrorAlert } from '@repo/ui-mui/components/ErrorAlert';
+import { LoadingSpinner } from '@repo/ui-mui/components/LoadingSpinner';
+import { Chip } from '@repo/ui-mui/data-display/Chip';
+import { Typography } from '@repo/ui-mui/data-display/Typography';
+import { Button } from '@repo/ui-mui/form/Button';
+import { Box } from '@repo/ui-mui/layout/Box';
+import { Container } from '@repo/ui-mui/layout/Container';
+import { Paper } from '@repo/ui-mui/layout/Paper';
+import { useQuery } from '@tanstack/react-query';
+import { lazy, Suspense, useMemo, useState } from 'react';
+import { useNavigate, useParams } from 'react-router';
+import { AddressModal } from '../components/AddressModal';
+import { ContactModal } from '../components/ContactModal';
 
 // Lazy cross-module imports (equipment module)
 const AddEquipmentModal = lazy(() =>
-	import("@frontend/modules/equipment/components/AddEquipmentModal").then((m) => ({
+	import('@frontend/modules/equipment/components/AddEquipmentModal').then((m) => ({
 		default: m.AddEquipmentModal,
 	})),
 );
 const EquipmentStatusBadge = lazy(() =>
-	import("@frontend/modules/equipment/components/EquipmentStatusBadge").then((m) => ({
+	import('@frontend/modules/equipment/components/EquipmentStatusBadge').then((m) => ({
 		default: m.EquipmentStatusBadge,
 	})),
 );
 const UnitModal = lazy(() =>
-	import("@frontend/modules/equipment/components/UnitModal").then((m) => ({
+	import('@frontend/modules/equipment/components/UnitModal').then((m) => ({
 		default: m.UnitModal,
 	})),
 );
@@ -44,23 +44,23 @@ export default function ClientDetailPage() {
 		isLoading,
 		error,
 	} = useQuery({
-		...trpc.clients.getClientDetail.queryOptions({ clientId: clientId ?? "" }),
+		...trpc.clients.getClientDetail.queryOptions({ clientId: clientId ?? '' }),
 		enabled: hasClientId,
 	});
 	const { data: contacts } = useQuery({
-		...trpc.clients.listContacts.queryOptions({ clienteId: clientId ?? "" }),
+		...trpc.clients.listContacts.queryOptions({ clienteId: clientId ?? '' }),
 		enabled: hasClientId,
 	});
 	const { data: addresses } = useQuery({
-		...trpc.clients.listAddresses.queryOptions({ clienteId: clientId ?? "" }),
+		...trpc.clients.listAddresses.queryOptions({ clienteId: clientId ?? '' }),
 		enabled: hasClientId,
 	});
 	const { data: units } = useQuery({
-		...trpc.equipment.listUnitsByClient.queryOptions({ clienteId: clientId ?? "" }),
+		...trpc.equipment.listUnitsByClient.queryOptions({ clienteId: clientId ?? '' }),
 		enabled: hasClientId,
 	});
 	const { data: equipmentList } = useQuery({
-		...trpc.equipment.listEquipmentByClient.queryOptions({ clienteId: clientId ?? "" }),
+		...trpc.equipment.listEquipmentByClient.queryOptions({ clienteId: clientId ?? '' }),
 		enabled: hasClientId,
 	});
 	const unitNamesById = useMemo(
@@ -82,7 +82,7 @@ export default function ClientDetailPage() {
 		return (
 			<Container maxWidth="lg" sx={{ py: 4 }}>
 				<ErrorAlert
-					message={`Erro ao carregar cliente: ${error?.message ?? "Cliente não encontrado"}`}
+					message={`Erro ao carregar cliente: ${error?.message ?? 'Cliente não encontrado'}`}
 				/>
 			</Container>
 		);
@@ -94,12 +94,12 @@ export default function ClientDetailPage() {
 				<Button
 					variant="text"
 					size="small"
-					onClick={() => navigate("/clients")}
-					sx={{ mb: 1, color: "text.secondary" }}
+					onClick={() => navigate('/clients')}
+					sx={{ mb: 1, color: 'text.secondary' }}
 				>
 					← Voltar para Clientes
 				</Button>
-				<Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+				<Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
 					<Typography variant="h4" fontWeight={700}>
 						{client.nome}
 					</Typography>
@@ -108,16 +108,16 @@ export default function ClientDetailPage() {
 				</Box>
 			</Box>
 
-			<Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" }, gap: 3 }}>
+			<Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3 }}>
 				{/* Info */}
 				<Paper
 					elevation={0}
-					sx={{ border: "1px solid", borderColor: "divider", borderRadius: 2, p: 3 }}
+					sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2, p: 3 }}
 				>
 					<Typography variant="h6" fontWeight={600} mb={2}>
 						Informações
 					</Typography>
-					<Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+					<Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
 						{client.email && (
 							<Box>
 								<Typography variant="caption" color="text.secondary">
@@ -148,10 +148,10 @@ export default function ClientDetailPage() {
 				{/* Contacts */}
 				<Paper
 					elevation={0}
-					sx={{ border: "1px solid", borderColor: "divider", borderRadius: 2, p: 3 }}
+					sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2, p: 3 }}
 				>
 					<Box
-						sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}
+						sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}
 					>
 						<Typography variant="h6" fontWeight={600}>
 							Contatos
@@ -165,14 +165,19 @@ export default function ClientDetailPage() {
 							Nenhum contato cadastrado
 						</Typography>
 					) : (
-						<Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+						<Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
 							{contacts.map((c) => {
-								const contactMeta = [c.cargo, c.email, c.telefone].filter(Boolean).join(" · ");
+								const contactMeta = [c.cargo, c.email, c.telefone].filter(Boolean).join(' · ');
 
 								return (
 									<Box
 										key={c.contactId}
-										sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 2 }}
+										sx={{
+											display: 'flex',
+											justifyContent: 'space-between',
+											alignItems: 'center',
+											gap: 2,
+										}}
 									>
 										<Box>
 											<Typography variant="body2" fontWeight={500}>
@@ -196,15 +201,15 @@ export default function ClientDetailPage() {
 				<Paper
 					elevation={0}
 					sx={{
-						border: "1px solid",
-						borderColor: "divider",
+						border: '1px solid',
+						borderColor: 'divider',
 						borderRadius: 2,
 						p: 3,
-						gridColumn: { md: "1 / -1" },
+						gridColumn: { md: '1 / -1' },
 					}}
 				>
 					<Box
-						sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}
+						sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}
 					>
 						<Typography variant="h6" fontWeight={600}>
 							Endereços
@@ -220,8 +225,8 @@ export default function ClientDetailPage() {
 					) : (
 						<Box
 							sx={{
-								display: "grid",
-								gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr", md: "1fr 1fr 1fr" },
+								display: 'grid',
+								gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: '1fr 1fr 1fr' },
 								gap: 2,
 							}}
 						>
@@ -230,15 +235,15 @@ export default function ClientDetailPage() {
 									key={a.addressId}
 									sx={{
 										p: 2,
-										border: "1px solid",
-										borderColor: "divider",
+										border: '1px solid',
+										borderColor: 'divider',
 										borderRadius: 1.5,
 									}}
 								>
 									{a.tipo && <Chip label={a.tipo} size="small" sx={{ mb: 1 }} />}
 									<Typography variant="body2">
 										{a.rua}, {a.numero}
-										{a.complemento ? ` - ${a.complemento}` : ""}
+										{a.complemento ? ` - ${a.complemento}` : ''}
 									</Typography>
 									<Typography variant="body2" color="text.secondary">
 										{a.bairro} · {a.cidade}/{a.estado} · {a.cep}
@@ -252,10 +257,10 @@ export default function ClientDetailPage() {
 				{/* Units */}
 				<Paper
 					elevation={0}
-					sx={{ border: "1px solid", borderColor: "divider", borderRadius: 2, p: 3 }}
+					sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2, p: 3 }}
 				>
 					<Box
-						sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}
+						sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}
 					>
 						<Typography variant="h6" fontWeight={600}>
 							Unidades
@@ -271,21 +276,21 @@ export default function ClientDetailPage() {
 					) : (
 						<Box
 							sx={{
-								display: "grid",
-								gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr", md: "1fr 1fr 1fr" },
+								display: 'grid',
+								gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: '1fr 1fr 1fr' },
 								gap: 2,
 							}}
 						>
 							{units.map((u) => (
 								<Box
 									key={u.unitId}
-									sx={{ p: 2, border: "1px solid", borderColor: "divider", borderRadius: 1.5 }}
+									sx={{ p: 2, border: '1px solid', borderColor: 'divider', borderRadius: 1.5 }}
 								>
 									<Box
 										sx={{
-											display: "flex",
-											alignItems: "center",
-											justifyContent: "space-between",
+											display: 'flex',
+											alignItems: 'center',
+											justifyContent: 'space-between',
 											mb: 0.5,
 										}}
 									>
@@ -293,14 +298,14 @@ export default function ClientDetailPage() {
 											{u.nome}
 										</Typography>
 										<Chip
-											label={u.ativa ? "Ativa" : "Inativa"}
-											color={u.ativa ? "success" : "default"}
+											label={u.ativa ? 'Ativa' : 'Inativa'}
+											color={u.ativa ? 'success' : 'default'}
 											size="small"
 										/>
 									</Box>
 									{(u.cidade || u.estado) && (
 										<Typography variant="caption" color="text.secondary">
-											{[u.cidade, u.estado].filter(Boolean).join("/")}
+											{[u.cidade, u.estado].filter(Boolean).join('/')}
 										</Typography>
 									)}
 								</Box>
@@ -313,15 +318,15 @@ export default function ClientDetailPage() {
 				<Paper
 					elevation={0}
 					sx={{
-						border: "1px solid",
-						borderColor: "divider",
+						border: '1px solid',
+						borderColor: 'divider',
 						borderRadius: 2,
 						p: 3,
-						gridColumn: { md: "1 / -1" },
+						gridColumn: { md: '1 / -1' },
 					}}
 				>
 					<Box
-						sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}
+						sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}
 					>
 						<Typography variant="h6" fontWeight={600}>
 							Equipamentos
@@ -337,21 +342,21 @@ export default function ClientDetailPage() {
 					) : (
 						<Box
 							sx={{
-								display: "grid",
-								gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr", md: "1fr 1fr 1fr" },
+								display: 'grid',
+								gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: '1fr 1fr 1fr' },
 								gap: 2,
 							}}
 						>
 							{equipmentList.map((eq) => (
 								<Box
 									key={eq.equipmentId}
-									sx={{ p: 2, border: "1px solid", borderColor: "divider", borderRadius: 1.5 }}
+									sx={{ p: 2, border: '1px solid', borderColor: 'divider', borderRadius: 1.5 }}
 								>
 									<Box
 										sx={{
-											display: "flex",
-											alignItems: "center",
-											justifyContent: "space-between",
+											display: 'flex',
+											alignItems: 'center',
+											justifyContent: 'space-between',
 											mb: 0.5,
 										}}
 									>
@@ -364,7 +369,7 @@ export default function ClientDetailPage() {
 										{eq.tipo}
 										{eq.unitId && unitNamesById.has(eq.unitId)
 											? ` · ${unitNamesById.get(eq.unitId)}`
-											: ""}
+											: ''}
 									</Typography>
 								</Box>
 							))}

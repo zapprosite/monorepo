@@ -23,9 +23,9 @@
  * });
  */
 
-import { sql } from "@backend/db/base_table";
-import { db } from "@backend/db/db";
-import { saveJournalEntryHandler } from "@backend/modules/api-gateway/handlers/save_journal_entry.handler";
+import { sql } from '@backend/db/base_table';
+import { db } from '@backend/db/db';
+import { saveJournalEntryHandler } from '@backend/modules/api-gateway/handlers/save_journal_entry.handler';
 import {
 	apiKeyAuthHook,
 	corsValidationHook,
@@ -33,26 +33,26 @@ import {
 	requestLoggerHooks,
 	subscriptionCheckHook,
 	teamRateLimitHook,
-} from "@backend/modules/api-gateway/middleware";
-import { apiProductRequestLogSelectAllZod } from "@connected-repo/zod-schemas/api_request_log.zod";
-import { apiProductRequestStatusZod } from "@connected-repo/zod-schemas/enums.zod";
+} from '@backend/modules/api-gateway/middleware';
+import { apiProductRequestLogSelectAllZod } from '@connected-repo/zod-schemas/api_request_log.zod';
+import { apiProductRequestStatusZod } from '@connected-repo/zod-schemas/enums.zod';
 import {
 	journalEntryCreateInputZod,
 	journalEntrySelectAllZod,
-} from "@connected-repo/zod-schemas/journal_entry.zod";
+} from '@connected-repo/zod-schemas/journal_entry.zod';
 import {
 	type SubscriptionSelectAll,
 	subscriptionSelectAllZod,
-} from "@connected-repo/zod-schemas/subscription.zod";
-import type { TeamSelectAll } from "@connected-repo/zod-schemas/team.zod";
-import { zString, zTimeEpoch } from "@connected-repo/zod-schemas/zod_utils";
-import type { FastifyInstance } from "fastify";
-import type { FastifyZodOpenApiSchema, FastifyZodOpenApiTypeProvider } from "fastify-zod-openapi";
-import z from "zod";
+} from '@connected-repo/zod-schemas/subscription.zod';
+import type { TeamSelectAll } from '@connected-repo/zod-schemas/team.zod';
+import { zString, zTimeEpoch } from '@connected-repo/zod-schemas/zod_utils';
+import type { FastifyInstance } from 'fastify';
+import type { FastifyZodOpenApiSchema, FastifyZodOpenApiTypeProvider } from 'fastify-zod-openapi';
+import z from 'zod';
 
-declare module "fastify" {
+declare module 'fastify' {
 	interface FastifyRequest {
-		team?: Omit<TeamSelectAll, "apiSecretHash">;
+		team?: Omit<TeamSelectAll, 'apiSecretHash'>;
 		subscription?: SubscriptionSelectAll;
 		requestStartTime?: number;
 	}
@@ -61,8 +61,8 @@ declare module "fastify" {
 // API Key header schema for OpenAPI documentation
 // Made optional so middleware can handle dev-mode bypass
 const apiKeyHeaderZod = z.object({
-	"x-api-key": zString.optional().describe("API key for authentication"),
-	"x-team-id": z.uuid().optional().describe("Team ID"),
+	'x-api-key': zString.optional().describe('API key for authentication'),
+	'x-team-id': z.uuid().optional().describe('Team ID'),
 });
 
 // Generic error response schema
@@ -79,20 +79,20 @@ const errorResponseZod = z.object({
 // Use .withTypeProvider<FastifyZodOpenApiTypeProvider>() for type safety
 export const apiGatewayRouter = async (app: FastifyInstance) => {
 	// Handle OPTIONS preflight requests BEFORE auth chain
-	app.addHook("preHandler", corsValidationHook);
-	app.addHook("preHandler", apiKeyAuthHook);
-	app.addHook("preHandler", ipWhitelistCheckHook);
-	app.addHook("preHandler", teamRateLimitHook);
+	app.addHook('preHandler', corsValidationHook);
+	app.addHook('preHandler', apiKeyAuthHook);
+	app.addHook('preHandler', ipWhitelistCheckHook);
+	app.addHook('preHandler', teamRateLimitHook);
 	/**
 	 * POST /api/v1/journal_entry_create
 	 * Save a journal entry with full middleware chain
 	 */
 	app.withTypeProvider<FastifyZodOpenApiTypeProvider>().route({
-		method: "POST",
-		url: "/v1/journal_entry/create",
+		method: 'POST',
+		url: '/v1/journal_entry/create',
 		schema: {
-			description: "Save a journal entry",
-			tags: ["Product API"],
+			description: 'Save a journal entry',
+			tags: ['Product API'],
 			headers: apiKeyHeaderZod,
 			body: journalEntryCreateInputZod,
 			response: {
@@ -107,7 +107,7 @@ export const apiGatewayRouter = async (app: FastifyInstance) => {
 				teamUserReferenceId: z.string(),
 			}),
 		} satisfies FastifyZodOpenApiSchema,
-		preHandler: [subscriptionCheckHook("journal_entry_create")],
+		preHandler: [subscriptionCheckHook('journal_entry_create')],
 		onRequest: requestLoggerHooks.onRequest,
 		onResponse: requestLoggerHooks.onResponse,
 		handler: saveJournalEntryHandler,
@@ -118,11 +118,11 @@ export const apiGatewayRouter = async (app: FastifyInstance) => {
 	 * Get a specific API request log by ID
 	 */
 	app.withTypeProvider<FastifyZodOpenApiTypeProvider>().route({
-		method: "GET",
-		url: "/v1/logs/:requestId",
+		method: 'GET',
+		url: '/v1/logs/:requestId',
 		schema: {
-			description: "Get specific API request log by ID",
-			tags: ["Management API"],
+			description: 'Get specific API request log by ID',
+			tags: ['Management API'],
 			headers: apiKeyHeaderZod,
 			params: z.object({
 				requestId: z.string(),
@@ -140,8 +140,8 @@ export const apiGatewayRouter = async (app: FastifyInstance) => {
 			if (!teamId) {
 				return reply.code(401).send({
 					statusCode: 401,
-					error: "Unauthorized",
-					message: "Authentication required",
+					error: 'Unauthorized',
+					message: 'Authentication required',
 				});
 			}
 
@@ -151,8 +151,8 @@ export const apiGatewayRouter = async (app: FastifyInstance) => {
 			if (!log) {
 				return reply.code(404).send({
 					statusCode: 404,
-					error: "Not Found",
-					message: "Log not found or does not belong to your team",
+					error: 'Not Found',
+					message: 'Log not found or does not belong to your team',
 				});
 			}
 
@@ -165,11 +165,11 @@ export const apiGatewayRouter = async (app: FastifyInstance) => {
 	 * Get paginated API request logs for team with optional filters
 	 */
 	app.withTypeProvider<FastifyZodOpenApiTypeProvider>().route({
-		method: "GET",
-		url: "/v1/logs",
+		method: 'GET',
+		url: '/v1/logs',
 		schema: {
-			description: "Get paginated API request logs for team with optional filters",
-			tags: ["Management API"],
+			description: 'Get paginated API request logs for team with optional filters',
+			tags: ['Management API'],
 			headers: apiKeyHeaderZod,
 			querystring: z.object({
 				page: z.coerce.number().int().min(1).default(1),
@@ -195,8 +195,8 @@ export const apiGatewayRouter = async (app: FastifyInstance) => {
 			if (!teamId) {
 				return reply.code(401).send({
 					statusCode: 401,
-					error: "Unauthorized",
-					message: "Authentication required",
+					error: 'Unauthorized',
+					message: 'Authentication required',
 				});
 			}
 
@@ -222,7 +222,7 @@ export const apiGatewayRouter = async (app: FastifyInstance) => {
 
 			// Get paginated logs
 			const logs = await query
-				.order({ createdAt: "DESC" })
+				.order({ createdAt: 'DESC' })
 				.limit(limit)
 				.offset((page - 1) * limit);
 
@@ -243,11 +243,11 @@ export const apiGatewayRouter = async (app: FastifyInstance) => {
 	 * Get active subscriptions for team with optional product filter
 	 */
 	app.withTypeProvider<FastifyZodOpenApiTypeProvider>().route({
-		method: "GET",
-		url: "/v1/journal_entry/subscriptions/active",
+		method: 'GET',
+		url: '/v1/journal_entry/subscriptions/active',
 		schema: {
-			description: "Get active subscriptions for team with optional product filter",
-			tags: ["Management API"],
+			description: 'Get active subscriptions for team with optional product filter',
+			tags: ['Management API'],
 			headers: apiKeyHeaderZod,
 			querystring: z.object({
 				teamUserReferenceId: z.string(),
@@ -263,8 +263,8 @@ export const apiGatewayRouter = async (app: FastifyInstance) => {
 			if (!teamId) {
 				return reply.code(401).send({
 					statusCode: 401,
-					error: "Unauthorized",
-					message: "Authentication required",
+					error: 'Unauthorized',
+					message: 'Authentication required',
 				});
 			}
 
@@ -272,9 +272,9 @@ export const apiGatewayRouter = async (app: FastifyInstance) => {
 
 			// Build query
 			const subscriptions = await db.subscriptions
-				.where({ teamId, teamUserReferenceId, apiProductSku: "journal_entry_create" })
+				.where({ teamId, teamUserReferenceId, apiProductSku: 'journal_entry_create' })
 				.where({ expiresAt: { gt: sql`NOW()` } })
-				.order({ createdAt: "DESC" });
+				.order({ createdAt: 'DESC' });
 
 			return reply.code(200).send(subscriptions);
 		},

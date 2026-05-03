@@ -1,40 +1,37 @@
-import { ErrorAlert } from "@repo/ui-mui/components/ErrorAlert";
-import { LoadingSpinner } from "@repo/ui-mui/components/LoadingSpinner";
-import { Chip } from "@repo/ui-mui/data-display/Chip";
-import { Typography } from "@repo/ui-mui/data-display/Typography";
-import { Button } from "@repo/ui-mui/form/Button";
-import { TextField } from "@repo/ui-mui/form/TextField";
-import { Box } from "@repo/ui-mui/layout/Box";
-import { Container } from "@repo/ui-mui/layout/Container";
-import { Paper } from "@repo/ui-mui/layout/Paper";
-import { MenuItem } from "@repo/ui-mui/navigation/MenuItem";
-import type { ReminderStatus, ReminderType } from "@repo/zod-schemas/crm_enums.zod";
-import {
-	REMINDER_STATUS_ENUM,
-	REMINDER_TYPE_ENUM,
-} from "@repo/zod-schemas/crm_enums.zod";
-import { trpc } from "@frontend/utils/trpc.client";
-import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
-import { useNavigate } from "react-router";
-import { ReminderStatusBadge } from "../components/ReminderStatusBadge";
+import { trpc } from '@frontend/utils/trpc.client';
+import { ErrorAlert } from '@repo/ui-mui/components/ErrorAlert';
+import { LoadingSpinner } from '@repo/ui-mui/components/LoadingSpinner';
+import { Chip } from '@repo/ui-mui/data-display/Chip';
+import { Typography } from '@repo/ui-mui/data-display/Typography';
+import { Button } from '@repo/ui-mui/form/Button';
+import { TextField } from '@repo/ui-mui/form/TextField';
+import { Box } from '@repo/ui-mui/layout/Box';
+import { Container } from '@repo/ui-mui/layout/Container';
+import { Paper } from '@repo/ui-mui/layout/Paper';
+import { MenuItem } from '@repo/ui-mui/navigation/MenuItem';
+import type { ReminderStatus, ReminderType } from '@repo/zod-schemas/crm_enums.zod';
+import { REMINDER_STATUS_ENUM, REMINDER_TYPE_ENUM } from '@repo/zod-schemas/crm_enums.zod';
+import { useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
+import { useNavigate } from 'react-router';
+import { ReminderStatusBadge } from '../components/ReminderStatusBadge';
 
 function formatDate(dateStr: string | null | undefined): string {
-	if (!dateStr) return "—";
+	if (!dateStr) return '—';
 	const date = new Date(`${dateStr}T12:00:00`);
-	return date.toLocaleDateString("pt-BR", {
-		day: "2-digit",
-		month: "2-digit",
-		year: "numeric",
+	return date.toLocaleDateString('pt-BR', {
+		day: '2-digit',
+		month: '2-digit',
+		year: 'numeric',
 	});
 }
 
 export default function RemindersPage() {
 	const navigate = useNavigate();
-	const [filterStatus, setFilterStatus] = useState<ReminderStatus | "">("");
-	const [filterTipo, setFilterTipo] = useState<ReminderType | "">("");
-	const [filterDataInicio, setFilterDataInicio] = useState("");
-	const [filterDataFim, setFilterDataFim] = useState("");
+	const [filterStatus, setFilterStatus] = useState<ReminderStatus | ''>('');
+	const [filterTipo, setFilterTipo] = useState<ReminderType | ''>('');
+	const [filterDataInicio, setFilterDataInicio] = useState('');
+	const [filterDataFim, setFilterDataFim] = useState('');
 
 	const {
 		data: reminders,
@@ -65,9 +62,9 @@ export default function RemindersPage() {
 			<Box
 				sx={{
 					mb: 4,
-					display: "flex",
-					justifyContent: "space-between",
-					alignItems: "center",
+					display: 'flex',
+					justifyContent: 'space-between',
+					alignItems: 'center',
 				}}
 			>
 				<Box>
@@ -75,9 +72,9 @@ export default function RemindersPage() {
 						variant="h3"
 						component="h1"
 						sx={{
-							fontSize: { xs: "2rem", md: "2.5rem" },
+							fontSize: { xs: '2rem', md: '2.5rem' },
 							fontWeight: 700,
-							letterSpacing: "-0.01em",
+							letterSpacing: '-0.01em',
 						}}
 					>
 						Lembretes
@@ -88,10 +85,10 @@ export default function RemindersPage() {
 				</Box>
 				<Button
 					variant="contained"
-					onClick={() => navigate("/reminders/new")}
+					onClick={() => navigate('/reminders/new')}
 					sx={{
-						transition: "all 0.2s ease-in-out",
-						"&:hover": { transform: "translateY(-2px)", boxShadow: 4 },
+						transition: 'all 0.2s ease-in-out',
+						'&:hover': { transform: 'translateY(-2px)', boxShadow: 4 },
 					}}
 				>
 					Novo Lembrete
@@ -101,12 +98,12 @@ export default function RemindersPage() {
 			{/* Filters */}
 			<Paper
 				elevation={0}
-				sx={{ border: "1px solid", borderColor: "divider", borderRadius: 2, p: 3, mb: 4 }}
+				sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2, p: 3, mb: 4 }}
 			>
 				<Box
 					sx={{
-						display: "grid",
-						gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr", md: "1fr 1fr 1fr 1fr" },
+						display: 'grid',
+						gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: '1fr 1fr 1fr 1fr' },
 						gap: 2,
 					}}
 				>
@@ -114,7 +111,7 @@ export default function RemindersPage() {
 						select
 						label="Status"
 						value={filterStatus}
-						onChange={(e) => setFilterStatus(e.target.value as ReminderStatus | "")}
+						onChange={(e) => setFilterStatus(e.target.value as ReminderStatus | '')}
 						size="small"
 						fullWidth
 					>
@@ -130,7 +127,7 @@ export default function RemindersPage() {
 						select
 						label="Tipo"
 						value={filterTipo}
-						onChange={(e) => setFilterTipo(e.target.value as ReminderType | "")}
+						onChange={(e) => setFilterTipo(e.target.value as ReminderType | '')}
 						size="small"
 						fullWidth
 					>
@@ -169,11 +166,11 @@ export default function RemindersPage() {
 				<Paper
 					elevation={0}
 					sx={{
-						border: "1px solid",
-						borderColor: "divider",
+						border: '1px solid',
+						borderColor: 'divider',
 						borderRadius: 2,
 						p: 8,
-						textAlign: "center",
+						textAlign: 'center',
 					}}
 				>
 					<Typography variant="h6" color="text.secondary" gutterBottom>
@@ -182,38 +179,38 @@ export default function RemindersPage() {
 					<Typography variant="body2" color="text.disabled" mb={3}>
 						Crie o primeiro lembrete para acompanhar suas tarefas de CRM
 					</Typography>
-					<Button variant="contained" onClick={() => navigate("/reminders/new")}>
+					<Button variant="contained" onClick={() => navigate('/reminders/new')}>
 						Novo Lembrete
 					</Button>
 				</Paper>
 			) : (
-				<Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+				<Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
 					{reminders.map((reminder) => (
 						<Paper
 							key={reminder.reminderId}
 							elevation={0}
 							onClick={() => navigate(`/reminders/${reminder.reminderId}`)}
 							sx={{
-								border: "1px solid",
-								borderColor: "divider",
+								border: '1px solid',
+								borderColor: 'divider',
 								borderRadius: 2,
 								p: 3,
-								cursor: "pointer",
-								transition: "all 0.2s ease-in-out",
-								"&:hover": {
-									borderColor: "primary.main",
-									transform: "translateY(-2px)",
+								cursor: 'pointer',
+								transition: 'all 0.2s ease-in-out',
+								'&:hover': {
+									borderColor: 'primary.main',
+									transform: 'translateY(-2px)',
 									boxShadow: 3,
 								},
 							}}
 						>
 							<Box
 								sx={{
-									display: "flex",
-									alignItems: "center",
-									justifyContent: "space-between",
+									display: 'flex',
+									alignItems: 'center',
+									justifyContent: 'space-between',
 									gap: 2,
-									flexWrap: "wrap",
+									flexWrap: 'wrap',
 								}}
 							>
 								<Box sx={{ flex: 1, minWidth: 0 }}>
@@ -222,16 +219,16 @@ export default function RemindersPage() {
 									</Typography>
 									<Box
 										sx={{
-											display: "flex",
-											alignItems: "center",
+											display: 'flex',
+											alignItems: 'center',
 											gap: 1.5,
 											mt: 0.5,
-											flexWrap: "wrap",
+											flexWrap: 'wrap',
 										}}
 									>
 										<Chip label={reminder.tipo} size="small" variant="outlined" />
 										<Typography variant="body2" color="text.secondary">
-											{reminder.clienteNome ?? "—"}
+											{reminder.clienteNome ?? '—'}
 										</Typography>
 										<Typography variant="body2" color="text.secondary">
 											{formatDate(reminder.dataLembrete)}

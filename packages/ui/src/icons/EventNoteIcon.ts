@@ -1,1 +1,1 @@
-export { default as EventNoteIcon } from "@mui/icons-material/EventNote";
+export { default as EventNoteIcon } from '@mui/icons-material/EventNote';

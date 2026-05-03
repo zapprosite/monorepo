@@ -1,9 +1,9 @@
-import { guestLoader } from "@frontend/utils/auth.loader";
-import { LoginPage } from "@frontend/modules/auth/pages/Login.page";
-import { lazy } from "react";
-import { Navigate, Route, Routes } from "react-router";
+import { LoginPage } from '@frontend/modules/auth/pages/Login.page';
+import { guestLoader } from '@frontend/utils/auth.loader';
+import { lazy } from 'react';
+import { Navigate, Route, Routes } from 'react-router';
 
-const RegisterPage = lazy(() => import("@frontend/modules/auth/pages/Register.page"));
+const RegisterPage = lazy(() => import('@frontend/modules/auth/pages/Register.page'));
 
 const AuthRouter = () => {
 	return (

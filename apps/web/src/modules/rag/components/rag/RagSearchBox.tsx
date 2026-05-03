@@ -1,12 +1,12 @@
-import { useState } from "react";
-import { Box } from "@repo/ui-mui/layout/Box";
-import { TextField } from "@repo/ui-mui/form/TextField";
-import { Button } from "@repo/ui-mui/form/Button";
-import { Select } from "@repo/ui-mui/form/Select";
-import { MenuItem } from "@mui/material";
-import { Typography } from "@repo/ui-mui/data-display/Typography";
-import { SearchIcon } from "@repo/ui-mui/icons/SearchIcon";
-import { CircularProgress } from "@repo/ui-mui/feedback/CircularProgress";
+import { MenuItem } from '@mui/material';
+import { Typography } from '@repo/ui-mui/data-display/Typography';
+import { CircularProgress } from '@repo/ui-mui/feedback/CircularProgress';
+import { Button } from '@repo/ui-mui/form/Button';
+import { Select } from '@repo/ui-mui/form/Select';
+import { TextField } from '@repo/ui-mui/form/TextField';
+import { SearchIcon } from '@repo/ui-mui/icons/SearchIcon';
+import { Box } from '@repo/ui-mui/layout/Box';
+import { useState } from 'react';
 
 interface Dataset {
 	id: string;
@@ -21,8 +21,8 @@ interface RagSearchBoxProps {
 }
 
 export function RagSearchBox({ datasets, onSearch, isSearching }: RagSearchBoxProps) {
-	const [query, setQuery] = useState("");
-	const [selectedDatasetId, setSelectedDatasetId] = useState("");
+	const [query, setQuery] = useState('');
+	const [selectedDatasetId, setSelectedDatasetId] = useState('');
 
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
@@ -38,7 +38,7 @@ export function RagSearchBox({ datasets, onSearch, isSearching }: RagSearchBoxPr
 			component="form"
 			onSubmit={handleSubmit}
 			sx={{
-				bgcolor: "background.paper",
+				bgcolor: 'background.paper',
 				borderRadius: 2,
 				p: { xs: 3, md: 4 },
 				boxShadow: 1,
@@ -52,18 +52,18 @@ export function RagSearchBox({ datasets, onSearch, isSearching }: RagSearchBoxPr
 					sx={{
 						fontWeight: 600,
 						mb: 1,
-						color: "text.primary",
+						color: 'text.primary',
 					}}
 				>
-				 Dataset
+					Dataset
 				</Typography>
 				<Select
 					value={selectedDatasetId}
 					onChange={(e) => setSelectedDatasetId(e.target.value)}
 					displayEmpty
 					sx={{
-						width: "100%",
-						bgcolor: "background.default",
+						width: '100%',
+						bgcolor: 'background.default',
 					}}
 				>
 					<MenuItem value="" disabled>
@@ -95,7 +95,7 @@ export function RagSearchBox({ datasets, onSearch, isSearching }: RagSearchBoxPr
 					sx={{
 						fontWeight: 600,
 						mb: 1,
-						color: "text.primary",
+						color: 'text.primary',
 					}}
 				>
 					Query
@@ -107,13 +107,13 @@ export function RagSearchBox({ datasets, onSearch, isSearching }: RagSearchBoxPr
 					fullWidth
 					disabled={isSearching}
 					onKeyDown={(e) => {
-						if (e.key === "Enter" && !isDisabled) {
+						if (e.key === 'Enter' && !isDisabled) {
 							handleSubmit(e);
 						}
 					}}
 					InputProps={{
 						startAdornment: (
-							<Box sx={{ color: "text.secondary", mr: 1, display: "flex" }}>
+							<Box sx={{ color: 'text.secondary', mr: 1, display: 'flex' }}>
 								<SearchIcon sx={{ fontSize: 20 }} />
 							</Box>
 						),
@@ -122,7 +122,7 @@ export function RagSearchBox({ datasets, onSearch, isSearching }: RagSearchBoxPr
 			</Box>
 
 			{/* Submit Button */}
-			<Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+			<Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
 				<Button
 					type="submit"
 					variant="contained"
@@ -138,14 +138,14 @@ export function RagSearchBox({ datasets, onSearch, isSearching }: RagSearchBoxPr
 						px: { xs: 3, md: 4 },
 						py: 1.5,
 						fontWeight: 600,
-						textTransform: "none",
+						textTransform: 'none',
 						boxShadow: 2,
-						"&:hover": {
+						'&:hover': {
 							boxShadow: 3,
 						},
 					}}
 				>
-					{isSearching ? "Buscando..." : "Buscar"}
+					{isSearching ? 'Buscando...' : 'Buscar'}
 				</Button>
 			</Box>
 		</Box>

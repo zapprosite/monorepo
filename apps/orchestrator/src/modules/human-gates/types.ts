@@ -1,13 +1,18 @@
 // Human Gates - Types and Interfaces
-import type { ApprovalGateDefinition, ApprovalRequest, ApprovalStatus, GateType } from "../../core/types.js";
+import type {
+	ApprovalGateDefinition,
+	ApprovalRequest,
+	ApprovalStatus,
+	GateType,
+} from '../../core/types.js';
 
-export { ApprovalStatus, GateType };
+export type { ApprovalStatus, GateType };
 
 export interface ApprovalGateService {
 	createRequest(
 		instanceId: string,
 		gate: ApprovalGateDefinition,
-		context: Record<string, unknown>
+		context: Record<string, unknown>,
 	): Promise<ApprovalRequest>;
 
 	approve(requestId: string, approverId: string, notes?: string): Promise<void>;
@@ -22,7 +27,7 @@ export interface ApprovalGateService {
 }
 
 export interface NotificationChannel {
-	type: "email" | "webhook" | "push";
+	type: 'email' | 'webhook' | 'push';
 	config: Record<string, unknown>;
 }
 
@@ -33,8 +38,8 @@ export interface NotificationService {
 
 	sendApprovalNotification(
 		request: ApprovalRequest,
-		outcome: "approved" | "rejected",
-		notes?: string
+		outcome: 'approved' | 'rejected',
+		notes?: string,
 	): Promise<void>;
 }
 

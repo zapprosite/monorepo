@@ -1,5 +1,5 @@
 // Event Bus for Workflow Orchestration
-import type { WorkflowEvent } from "./types.js";
+import type { WorkflowEvent } from './types.js';
 
 type EventHandler = (event: WorkflowEvent) => void | Promise<void>;
 
@@ -18,10 +18,10 @@ export class EventBus {
 			try {
 				const result = handler(event);
 				if (result instanceof Promise) {
-					result.catch((err) => console.error("Event handler error:", err));
+					result.catch((err) => console.error('Event handler error:', err));
 				}
 			} catch (err) {
-				console.error("Event handler error:", err);
+				console.error('Event handler error:', err);
 			}
 		}
 
@@ -32,10 +32,10 @@ export class EventBus {
 				try {
 					const result = handler(event);
 					if (result instanceof Promise) {
-						result.catch((err) => console.error("Event handler error:", err));
+						result.catch((err) => console.error('Event handler error:', err));
 					}
 				} catch (err) {
-					console.error("Event handler error:", err);
+					console.error('Event handler error:', err);
 				}
 			}
 		}
@@ -51,7 +51,7 @@ export class EventBus {
 			const handlers = this.subscriptions.get(eventType) || [];
 			this.subscriptions.set(
 				eventType,
-				handlers.filter((h) => h.handler !== handler)
+				handlers.filter((h) => h.handler !== handler),
 			);
 		};
 	}

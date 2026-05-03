@@ -1,7 +1,7 @@
-import type { AlertProps } from "@mui/material/Alert";
-import Alert from "@mui/material/Alert";
+import type { AlertProps } from '@mui/material/Alert';
+import Alert from '@mui/material/Alert';
 
-export interface ErrorAlertProps extends Omit<AlertProps, "severity"> {
+export interface ErrorAlertProps extends Omit<AlertProps, 'severity'> {
 	message: string;
 }
 

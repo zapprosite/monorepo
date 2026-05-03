@@ -6,19 +6,19 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  */
-import "dotenv/config";
+import 'dotenv/config';
 
-import { app, logger } from "@backend/app";
-import { env, isDev, isProd, isStaging, isTest } from "@backend/configs/env.config";
-import cors from "@fastify/cors";
-import helmet from "@fastify/helmet";
+import { app, logger } from '@backend/app';
+import { env, isDev, isProd, isStaging, isTest } from '@backend/configs/env.config';
+import cors from '@fastify/cors';
+import helmet from '@fastify/helmet';
 
 // Extend allowed origins with Capacitor/Ionic local origins
-const allowedOrigins = [...(env.ALLOWED_ORIGINS?.split(",") || [])];
+const allowedOrigins = [...(env.ALLOWED_ORIGINS?.split(',') || [])];
 
-logger.info({ isDev, isProd, isStaging, isTest }, "Environment:");
-logger.info(allowedOrigins, "Allowed Origins:");
-logger.info(env.ALLOWED_ORIGINS, "ALLOWED_ORIGINS env:");
+logger.info({ isDev, isProd, isStaging, isTest }, 'Environment:');
+logger.info(allowedOrigins, 'Allowed Origins:');
+logger.info(env.ALLOWED_ORIGINS, 'ALLOWED_ORIGINS env:');
 
 export const build = async () => {
 	const server = app;
@@ -33,15 +33,15 @@ export const build = async () => {
 	// before they reach the team-specific validation.
 	await server.register(cors, {
 		origin: isDev ? true : allowedOrigins, // Dev: permissive; Prod: strict
-		methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+		methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
 		credentials: true,
 	});
 
 	// Add validation hook for non-/api routes to enforce ALLOWED_ORIGINS
 	// /api/* routes are validated by team-specific corsValidationHook
-	server.addHook("onRequest", async (request, reply) => {
+	server.addHook('onRequest', async (request, reply) => {
 		// Skip CORS validation for /api/* routes - they use team-specific validation
-		if (request.url.startsWith("/api/")) {
+		if (request.url.startsWith('/api/')) {
 			return;
 		}
 
@@ -53,8 +53,8 @@ export const build = async () => {
 			if (origin && !allowedOrigins.includes(origin)) {
 				reply.code(403).send({
 					statusCode: 403,
-					error: "Forbidden",
-					message: "Origin not allowed by CORS policy",
+					error: 'Forbidden',
+					message: 'Origin not allowed by CORS policy',
 				});
 			}
 		}
@@ -65,7 +65,7 @@ export const build = async () => {
 		// In dev, frontend and API run on different ports (cross-origin).
 		// Allow cross-origin resource policy so the browser doesn't block
 		// tRPC responses after CORS preflight succeeds.
-		crossOriginResourcePolicy: isDev ? { policy: "cross-origin" } : { policy: "same-origin" },
+		crossOriginResourcePolicy: isDev ? { policy: 'cross-origin' } : { policy: 'same-origin' },
 		contentSecurityPolicy: {
 			directives: {
 				defaultSrc: ["'self'"],
@@ -74,8 +74,8 @@ export const build = async () => {
 				imgSrc: ["'self'"],
 			},
 		},
-		xFrameOptions: { action: "sameorigin" },
-		referrerPolicy: { policy: "origin" },
+		xFrameOptions: { action: 'sameorigin' },
+		referrerPolicy: { policy: 'origin' },
 	});
 
 	return server;
@@ -84,13 +84,13 @@ export const build = async () => {
 const start = async () => {
 	try {
 		const server = await build();
-		await server.listen({ port: env.PORT, host: "0.0.0.0" });
+		await server.listen({ port: env.PORT, host: '0.0.0.0' });
 		if (process.send) {
-			process.send("ready"); // ✅ Let PM2 know the app is ready
+			process.send('ready'); // ✅ Let PM2 know the app is ready
 		}
-		logger.info({ url: `http://localhost:${env.PORT}` }, "Server running");
+		logger.info({ url: `http://localhost:${env.PORT}` }, 'Server running');
 	} catch (err) {
-		logger.error("Server failed to start");
+		logger.error('Server failed to start');
 		logger.error(err);
 		process.exit(1);
 	}

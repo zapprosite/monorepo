@@ -1,1 +1,1 @@
-export { default as MenuItem, type MenuItemProps } from "@mui/material/MenuItem";
+export { default as MenuItem, type MenuItemProps } from '@mui/material/MenuItem';

@@ -1,5 +1,5 @@
-import { moderateRateLimit, publicProcedure, trpcRouter } from "@backend/trpc";
-import { clearSession } from "./session.auth.utils";
+import { moderateRateLimit, publicProcedure, trpcRouter } from '@backend/trpc';
+import { clearSession } from './session.auth.utils';
 
 export const authRouterTrpc = trpcRouter({
 	// Get current session info (for pre-filling registration form)

@@ -1,13 +1,13 @@
-import { Typography } from "@repo/ui-mui/data-display/Typography";
-import { Dialog } from "@repo/ui-mui/feedback/Dialog";
-import { DialogActions } from "@repo/ui-mui/feedback/DialogActions";
-import { DialogContent } from "@repo/ui-mui/feedback/DialogContent";
-import { DialogTitle } from "@repo/ui-mui/feedback/DialogTitle";
-import { Button } from "@repo/ui-mui/form/Button";
-import { TextField } from "@repo/ui-mui/form/TextField";
-import { trpc } from "@frontend/utils/trpc.client";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { trpc } from '@frontend/utils/trpc.client';
+import { Typography } from '@repo/ui-mui/data-display/Typography';
+import { Dialog } from '@repo/ui-mui/feedback/Dialog';
+import { DialogActions } from '@repo/ui-mui/feedback/DialogActions';
+import { DialogContent } from '@repo/ui-mui/feedback/DialogContent';
+import { DialogTitle } from '@repo/ui-mui/feedback/DialogTitle';
+import { Button } from '@repo/ui-mui/form/Button';
+import { TextField } from '@repo/ui-mui/form/TextField';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useState } from 'react';
 
 interface CancelContractModalProps {
 	open: boolean;
@@ -22,7 +22,7 @@ export function CancelContractModal({
 	contractId,
 	onSuccess,
 }: CancelContractModalProps) {
-	const [motivoCancelamento, setMotivoCancelamento] = useState("");
+	const [motivoCancelamento, setMotivoCancelamento] = useState('');
 	const queryClient = useQueryClient();
 
 	const cancelContract = useMutation(
@@ -32,14 +32,14 @@ export function CancelContractModal({
 				queryClient.invalidateQueries({
 					queryKey: trpc.contracts.getContractDetail.queryKey({ contractId }),
 				});
-				setMotivoCancelamento("");
+				setMotivoCancelamento('');
 				onSuccess();
 			},
 		}),
 	);
 
 	const handleClose = () => {
-		setMotivoCancelamento("");
+		setMotivoCancelamento('');
 		onClose();
 	};
 
@@ -74,7 +74,7 @@ export function CancelContractModal({
 						})
 					}
 				>
-					{cancelContract.isPending ? "Cancelando..." : "Confirmar Cancelamento"}
+					{cancelContract.isPending ? 'Cancelando...' : 'Confirmar Cancelamento'}
 				</Button>
 			</DialogActions>
 		</Dialog>

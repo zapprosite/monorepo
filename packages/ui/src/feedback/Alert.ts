@@ -1,1 +1,1 @@
-export { type AlertProps, default as Alert } from "@mui/material/Alert";
+export { type AlertProps, default as Alert } from '@mui/material/Alert';

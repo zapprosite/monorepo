@@ -1,7 +1,7 @@
-import { Typography } from "@repo/ui-mui/data-display/Typography";
-import { Box } from "@repo/ui-mui/layout/Box";
-import { Paper } from "@repo/ui-mui/layout/Paper";
-import type { LeadSelectAll } from "@repo/zod-schemas/lead.zod";
+import { Typography } from '@repo/ui-mui/data-display/Typography';
+import { Box } from '@repo/ui-mui/layout/Box';
+import { Paper } from '@repo/ui-mui/layout/Paper';
+import type { LeadSelectAll } from '@repo/zod-schemas/lead.zod';
 
 interface LeadTimelineProps {
 	lead: LeadSelectAll;
@@ -12,8 +12,8 @@ export function LeadTimeline({ lead }: LeadTimelineProps) {
 		<Paper
 			elevation={0}
 			sx={{
-				border: "1px solid",
-				borderColor: "divider",
+				border: '1px solid',
+				borderColor: 'divider',
 				borderRadius: 2,
 				p: 3,
 			}}
@@ -21,14 +21,14 @@ export function LeadTimeline({ lead }: LeadTimelineProps) {
 			<Typography variant="h6" fontWeight={600} mb={2}>
 				Histórico
 			</Typography>
-			<Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-				<Box sx={{ display: "flex", gap: 2, alignItems: "flex-start" }}>
+			<Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+				<Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-start' }}>
 					<Box
 						sx={{
 							width: 8,
 							height: 8,
-							borderRadius: "50%",
-							bgcolor: "primary.main",
+							borderRadius: '50%',
+							bgcolor: 'primary.main',
 							mt: 0.75,
 							flexShrink: 0,
 						}}
@@ -38,7 +38,7 @@ export function LeadTimeline({ lead }: LeadTimelineProps) {
 							Lead criado
 						</Typography>
 						<Typography variant="caption" color="text.secondary">
-							{new Date(lead.createdAt).toLocaleString("pt-BR")}
+							{new Date(lead.createdAt).toLocaleString('pt-BR')}
 						</Typography>
 					</Box>
 				</Box>

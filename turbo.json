@@ -1,39 +1,39 @@
 {
-  "$schema": "https://turbo.build/schema.json",
-  "globalDependencies": ["turbo.json", ".env", ".env.example", "**/.env.*local"],
-  "globalEnv": ["NODE_ENV"],
-  "tasks": {
-    "build": {
-      "dependsOn": ["^build"],
-      "outputs": [".next/**", "dist/**"]
-    },
-    "test": {
-      "outputs": ["coverage/**"]
-    },
-    "lint": {
-      "outputs": []
-    },
-    "check-types": {
-      "dependsOn": ["build"],
-      "outputs": []
-    },
-    "typecheck": {
-      "dependsOn": ["build"],
-      "outputs": []
-    },
-    "dev": {
-      "cache": false,
-      "persistent": true
-    },
-    "db:migrate": {
-      "cache": false
-    },
-    "db:seed": {
-      "cache": false
-    },
-    "clean": {
-      "cache": false,
-      "outputs": []
-    }
-  }
+	"$schema": "https://turbo.build/schema.json",
+	"globalDependencies": ["turbo.json", ".env", ".env.example", "**/.env.*local"],
+	"globalEnv": ["NODE_ENV"],
+	"tasks": {
+		"build": {
+			"dependsOn": ["^build"],
+			"outputs": [".next/**", "dist/**"]
+		},
+		"test": {
+			"outputs": ["coverage/**"]
+		},
+		"lint": {
+			"outputs": []
+		},
+		"check-types": {
+			"dependsOn": ["build"],
+			"outputs": []
+		},
+		"typecheck": {
+			"dependsOn": ["build"],
+			"outputs": []
+		},
+		"dev": {
+			"cache": false,
+			"persistent": true
+		},
+		"db:migrate": {
+			"cache": false
+		},
+		"db:seed": {
+			"cache": false
+		},
+		"clean": {
+			"cache": false,
+			"outputs": []
+		}
+	}
 }

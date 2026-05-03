@@ -1,12 +1,9 @@
 // Approval Service Implementation
-import type {
-	ApprovalGateDefinition,
-	ApprovalRequest,
-	WorkflowEvent,
-} from "../../core/types.js";
-import { globalEventBus } from "../../core/event-bus.js";
-import type { ApprovalGateService, NotificationService } from "./types.js";
-import { approvalStore } from "./approval-store.js";
+
+import { globalEventBus } from '../../core/event-bus.js';
+import type { ApprovalGateDefinition, ApprovalRequest, WorkflowEvent } from '../../core/types.js';
+import { approvalStore } from './approval-store.js';
+import type { ApprovalGateService, NotificationService } from './types.js';
 
 export class ApprovalGateServiceImpl implements ApprovalGateService {
 	constructor(private notificationService?: NotificationService) {}
@@ -14,15 +11,15 @@ export class ApprovalGateServiceImpl implements ApprovalGateService {
 	async createRequest(
 		instanceId: string,
 		gate: ApprovalGateDefinition,
-		context: Record<string, unknown>
+		context: Record<string, unknown>,
 	): Promise<ApprovalRequest> {
 		const request: ApprovalRequest = {
 			requestId: crypto.randomUUID(),
 			instanceId,
 			gateId: gate.id,
 			gateType: gate.type,
-			status: "pending",
-			requestedBy: "system",
+			status: 'pending',
+			requestedBy: 'system',
 			payload: context,
 			timeoutAt: Date.now() + gate.timeout * 1000,
 			createdAt: Date.now(),
@@ -32,7 +29,7 @@ export class ApprovalGateServiceImpl implements ApprovalGateService {
 
 		// Emit event
 		globalEventBus.emit({
-			type: "workflow.waiting_approval",
+			type: 'workflow.waiting_approval',
 			instanceId,
 			phase: gate.id,
 			gateId: gate.id,
@@ -46,22 +43,18 @@ export class ApprovalGateServiceImpl implements ApprovalGateService {
 		return request;
 	}
 
-	async approve(
-		requestId: string,
-		approverId: string,
-		notes?: string
-	): Promise<void> {
+	async approve(requestId: string, approverId: string, notes?: string): Promise<void> {
 		const request = await approvalStore.findById(requestId);
 		if (!request) {
 			throw new Error(`Approval request not found: ${requestId}`);
 		}
 
-		if (request.status !== "pending") {
+		if (request.status !== 'pending') {
 			throw new Error(`Request is not pending: ${requestId}`);
 		}
 
 		await approvalStore.update(requestId, {
-			status: "approved",
+			status: 'approved',
 			approverId,
 			notes,
 			respondedAt: Date.now(),
@@ -69,7 +62,7 @@ export class ApprovalGateServiceImpl implements ApprovalGateService {
 
 		// Emit approval event
 		globalEventBus.emit({
-			type: "workflow.approved",
+			type: 'workflow.approved',
 			instanceId: request.instanceId,
 			gateId: request.gateId,
 			approverId,
@@ -77,30 +70,22 @@ export class ApprovalGateServiceImpl implements ApprovalGateService {
 
 		// Send notification
 		if (this.notificationService) {
-			await this.notificationService.sendApprovalNotification(
-				request,
-				"approved",
-				notes
-			);
+			await this.notificationService.sendApprovalNotification(request, 'approved', notes);
 		}
 	}
 
-	async reject(
-		requestId: string,
-		approverId: string,
-		reason: string
-	): Promise<void> {
+	async reject(requestId: string, approverId: string, reason: string): Promise<void> {
 		const request = await approvalStore.findById(requestId);
 		if (!request) {
 			throw new Error(`Approval request not found: ${requestId}`);
 		}
 
-		if (request.status !== "pending") {
+		if (request.status !== 'pending') {
 			throw new Error(`Request is not pending: ${requestId}`);
 		}
 
 		await approvalStore.update(requestId, {
-			status: "rejected",
+			status: 'rejected',
 			approverId,
 			notes: reason,
 			respondedAt: Date.now(),
@@ -108,7 +93,7 @@ export class ApprovalGateServiceImpl implements ApprovalGateService {
 
 		// Emit rejection event
 		globalEventBus.emit({
-			type: "workflow.rejected",
+			type: 'workflow.rejected',
 			instanceId: request.instanceId,
 			gateId: request.gateId,
 			approverId,
@@ -117,11 +102,7 @@ export class ApprovalGateServiceImpl implements ApprovalGateService {
 
 		// Send notification
 		if (this.notificationService) {
-			await this.notificationService.sendApprovalNotification(
-				request,
-				"rejected",
-				reason
-			);
+			await this.notificationService.sendApprovalNotification(request, 'rejected', reason);
 		}
 	}
 
@@ -138,13 +119,13 @@ export class ApprovalGateServiceImpl implements ApprovalGateService {
 
 		for (const request of expired) {
 			await approvalStore.update(request.requestId, {
-				status: "expired",
+				status: 'expired',
 				respondedAt: Date.now(),
 			});
 
 			// Emit expiration event
 			globalEventBus.emit({
-				type: "workflow.failed",
+				type: 'workflow.failed',
 				instanceId: request.instanceId,
 				error: `Approval request expired: ${request.gateId}`,
 			} as WorkflowEvent);

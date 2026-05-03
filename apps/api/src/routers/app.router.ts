@@ -1,67 +1,67 @@
-import { internalRouter } from "@backend/modules/api-gateway/internal.router";
-import { oauth2Router } from "@backend/routers/oauth2.router";
-import { openapiPlugin } from "@backend/routers/openapi.plugin";
-import { appTrpcRouter } from "@backend/routers/trpc.router";
-import { createTRPCContext, type TrpcContext } from "@backend/trpc";
-import { fastifyTRPCPlugin } from "@trpc/server/adapters/fastify";
-import type { FastifyInstance } from "fastify";
+import { internalRouter } from '@backend/modules/api-gateway/internal.router';
+import { oauth2Router } from '@backend/routers/oauth2.router';
+import { openapiPlugin } from '@backend/routers/openapi.plugin';
+import { appTrpcRouter } from '@backend/routers/trpc.router';
+import { createTRPCContext, type TrpcContext } from '@backend/trpc';
+import { fastifyTRPCPlugin } from '@trpc/server/adapters/fastify';
+import type { FastifyInstance } from 'fastify';
 
 export const appRouter = (app: FastifyInstance) => {
 	app.get(
-		"/",
+		'/',
 		{
 			schema: {
 				response: {
 					200: {
-						type: "object",
+						type: 'object',
 						properties: {
-							message: { type: "string" },
+							message: { type: 'string' },
 						},
-						required: ["message"],
+						required: ['message'],
 					},
 				},
 			},
 		},
 		async () => {
-			app.log.info("Root endpoint hit app.router.ts");
-			return { message: "Backend is live." };
+			app.log.info('Root endpoint hit app.router.ts');
+			return { message: 'Backend is live.' };
 		},
 	);
 
 	app.get(
-		"/health",
+		'/health',
 		{
 			schema: {
 				response: {
 					200: {
-						type: "object",
+						type: 'object',
 						properties: {
-							status: { type: "string" },
-							timestamp: { type: "string" },
+							status: { type: 'string' },
+							timestamp: { type: 'string' },
 						},
-						required: ["status", "timestamp"],
+						required: ['status', 'timestamp'],
 					},
 				},
 			},
 		},
 		async () => {
 			return {
-				status: "ok",
+				status: 'ok',
 				timestamp: new Date().toISOString(),
 			};
 		},
 	);
 
 	app.register(oauth2Router, {
-		prefix: "/oauth2",
+		prefix: '/oauth2',
 	});
 
 	app.register(internalRouter, {
-		prefix: "/internal",
+		prefix: '/internal',
 	});
 
 	app.register(fastifyTRPCPlugin, {
-		prefix: "/trpc",
+		prefix: '/trpc',
 		trpcOptions: {
 			router: appTrpcRouter,
 			createContext: createTRPCContext,
@@ -90,7 +90,7 @@ export const appRouter = (app: FastifyInstance) => {
 						input,
 						userId: ctx?.user?.userId,
 					},
-					"tRPC error",
+					'tRPC error',
 				);
 			},
 		},

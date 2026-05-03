@@ -1,23 +1,23 @@
-import { ErrorAlert } from "@repo/ui-mui/components/ErrorAlert";
-import { LoadingSpinner } from "@repo/ui-mui/components/LoadingSpinner";
-import { Typography } from "@repo/ui-mui/data-display/Typography";
-import { Button } from "@repo/ui-mui/form/Button";
-import { Box } from "@repo/ui-mui/layout/Box";
-import { Container } from "@repo/ui-mui/layout/Container";
-import { Paper } from "@repo/ui-mui/layout/Paper";
-import type { EditorialStatus } from "@repo/zod-schemas/crm_enums.zod";
-import { trpc } from "@frontend/utils/trpc.client";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useNavigate, useParams } from "react-router";
-import { EditorialStatusBadge } from "../components/EditorialStatusBadge";
+import { trpc } from '@frontend/utils/trpc.client';
+import { ErrorAlert } from '@repo/ui-mui/components/ErrorAlert';
+import { LoadingSpinner } from '@repo/ui-mui/components/LoadingSpinner';
+import { Typography } from '@repo/ui-mui/data-display/Typography';
+import { Button } from '@repo/ui-mui/form/Button';
+import { Box } from '@repo/ui-mui/layout/Box';
+import { Container } from '@repo/ui-mui/layout/Container';
+import { Paper } from '@repo/ui-mui/layout/Paper';
+import type { EditorialStatus } from '@repo/zod-schemas/crm_enums.zod';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useNavigate, useParams } from 'react-router';
+import { EditorialStatusBadge } from '../components/EditorialStatusBadge';
 
 function formatDate(dateStr: string | null | undefined): string {
-	if (!dateStr) return "—";
+	if (!dateStr) return '—';
 	const date = new Date(`${dateStr}T12:00:00`);
-	return date.toLocaleDateString("pt-BR", {
-		day: "2-digit",
-		month: "long",
-		year: "numeric",
+	return date.toLocaleDateString('pt-BR', {
+		day: '2-digit',
+		month: 'long',
+		year: 'numeric',
 	});
 }
 
@@ -61,7 +61,7 @@ export default function EditorialDetailPage() {
 		return (
 			<Container maxWidth="lg" sx={{ py: 4 }}>
 				<ErrorAlert
-					message={`Erro ao carregar item editorial: ${error?.message ?? "Não encontrado"}`}
+					message={`Erro ao carregar item editorial: ${error?.message ?? 'Não encontrado'}`}
 				/>
 			</Container>
 		);
@@ -82,12 +82,12 @@ export default function EditorialDetailPage() {
 				<Button
 					variant="text"
 					size="small"
-					onClick={() => navigate("/editorial")}
-					sx={{ mb: 1, color: "text.secondary" }}
+					onClick={() => navigate('/editorial')}
+					sx={{ mb: 1, color: 'text.secondary' }}
 				>
 					← Voltar para Calendário Editorial
 				</Button>
-				<Box sx={{ display: "flex", alignItems: "center", gap: 2, flexWrap: "wrap" }}>
+				<Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
 					<Typography variant="h4" fontWeight={700}>
 						{item.titulo}
 					</Typography>
@@ -96,8 +96,8 @@ export default function EditorialDetailPage() {
 			</Box>
 
 			{/* Action buttons */}
-			<Box sx={{ display: "flex", gap: 2, mb: 4, flexWrap: "wrap" }}>
-				{status === "Ideia" && (
+			<Box sx={{ display: 'flex', gap: 2, mb: 4, flexWrap: 'wrap' }}>
+				{status === 'Ideia' && (
 					<Button
 						variant="contained"
 						color="warning"
@@ -107,7 +107,7 @@ export default function EditorialDetailPage() {
 						Iniciar Produção
 					</Button>
 				)}
-				{status === "Em Produção" && (
+				{status === 'Em Produção' && (
 					<Button
 						variant="contained"
 						color="info"
@@ -117,7 +117,7 @@ export default function EditorialDetailPage() {
 						Enviar para Revisão
 					</Button>
 				)}
-				{status === "Revisão" && (
+				{status === 'Revisão' && (
 					<Button
 						variant="contained"
 						color="primary"
@@ -127,7 +127,7 @@ export default function EditorialDetailPage() {
 						Aprovar
 					</Button>
 				)}
-				{status === "Aprovado" && (
+				{status === 'Aprovado' && (
 					<Button
 						variant="contained"
 						color="success"
@@ -137,7 +137,7 @@ export default function EditorialDetailPage() {
 						Marcar Publicado
 					</Button>
 				)}
-				{status !== "Publicado" && status !== "Cancelado" && (
+				{status !== 'Publicado' && status !== 'Cancelado' && (
 					<Button
 						variant="outlined"
 						color="error"
@@ -150,16 +150,16 @@ export default function EditorialDetailPage() {
 			</Box>
 
 			{/* Details Grid */}
-			<Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" }, gap: 3 }}>
+			<Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3 }}>
 				{/* Info panel */}
 				<Paper
 					elevation={0}
-					sx={{ border: "1px solid", borderColor: "divider", borderRadius: 2, p: 3 }}
+					sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2, p: 3 }}
 				>
 					<Typography variant="h6" fontWeight={600} mb={2}>
 						Informações
 					</Typography>
-					<Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+					<Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
 						<Box>
 							<Typography variant="caption" color="text.secondary">
 								Canal
@@ -192,18 +192,18 @@ export default function EditorialDetailPage() {
 				{/* Content panel */}
 				<Paper
 					elevation={0}
-					sx={{ border: "1px solid", borderColor: "divider", borderRadius: 2, p: 3 }}
+					sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2, p: 3 }}
 				>
 					<Typography variant="h6" fontWeight={600} mb={2}>
 						Conteúdo
 					</Typography>
-					<Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+					<Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
 						{item.pauta && (
 							<Box>
 								<Typography variant="caption" color="text.secondary">
 									Pauta
 								</Typography>
-								<Typography variant="body2" sx={{ whiteSpace: "pre-wrap" }}>
+								<Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>
 									{item.pauta}
 								</Typography>
 							</Box>
@@ -213,7 +213,7 @@ export default function EditorialDetailPage() {
 								<Typography variant="caption" color="text.secondary">
 									Copy
 								</Typography>
-								<Typography variant="body2" sx={{ whiteSpace: "pre-wrap" }}>
+								<Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>
 									{item.copy}
 								</Typography>
 							</Box>

@@ -1,13 +1,13 @@
-import { sql } from "@backend/db/base_table";
-import { db } from "@backend/db/db";
+import { sql } from '@backend/db/base_table';
+import { db } from '@backend/db/db';
 import {
 	generateDeviceFingerprint,
 	getClientIpAddress,
 	parseUserAgent,
-} from "@backend/utils/request-metadata.utils";
-import type { FastifySessionObject } from "@fastify/session";
-import { TRPCError } from "@trpc/server";
-import type { FastifyRequest } from "fastify";
+} from '@backend/utils/request-metadata.utils';
+import type { FastifySessionObject } from '@fastify/session';
+import { TRPCError } from '@trpc/server';
+import type { FastifyRequest } from 'fastify';
 
 /**
  * User info stored in session
@@ -35,7 +35,7 @@ export interface SessionMetadata {
 /**
  * Augment Fastify types to include session
  */
-declare module "fastify" {
+declare module 'fastify' {
 	interface Session {
 		user?: SessionUser;
 		metadata?: SessionMetadata;
@@ -55,7 +55,7 @@ export const setSession = (request: FastifyRequest, sessionUser: SessionUser) =>
 	// Store user info in session (works with any OAuth provider)
 	request.session.user = sessionUser;
 
-	const userAgentString = request.headers["user-agent"] || "unknown";
+	const userAgentString = request.headers['user-agent'] || 'unknown';
 	const parsedUA = parseUserAgent(userAgentString);
 
 	// Automatically capture request metadata for security tracking
@@ -105,16 +105,16 @@ export async function invalidateAllUserSessions(userId: string): Promise<number>
 export async function updateSessionUserId(request: FastifyRequest, userId: string): Promise<void> {
 	if (!request.session.user) {
 		throw new TRPCError({
-			code: "UNAUTHORIZED",
-			message: "No session user found to update userId",
+			code: 'UNAUTHORIZED',
+			message: 'No session user found to update userId',
 		});
 	}
 
 	const sessionId = request.session.sessionId;
 	if (!sessionId) {
 		throw new TRPCError({
-			code: "INTERNAL_SERVER_ERROR",
-			message: "Session ID not found",
+			code: 'INTERNAL_SERVER_ERROR',
+			message: 'Session ID not found',
 		});
 	}
 

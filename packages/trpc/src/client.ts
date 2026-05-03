@@ -14,13 +14,13 @@ import type { AppRouter } from './server.js';
  * ```
  */
 export function createTRPCClient() {
-  return createTRPCProxyClient<AppRouter>({
-    links: [
-      httpBatchLink({
-        url: process.env.API_URL || 'http://localhost:3000/api',
-      }),
-    ],
-  });
+	return createTRPCProxyClient<AppRouter>({
+		links: [
+			httpBatchLink({
+				url: process.env.API_URL || 'http://localhost:3000/api',
+			}),
+		],
+	});
 }
 
 export type { AppRouter } from './server.js';

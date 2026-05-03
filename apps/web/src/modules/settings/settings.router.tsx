@@ -1,6 +1,6 @@
-import SettingsPage from "@frontend/modules/settings/pages/Settings.page";
-import UserRolesPage from "@frontend/modules/settings/pages/UserRoles.page";
-import { Route, Routes } from "react-router";
+import SettingsPage from '@frontend/modules/settings/pages/Settings.page';
+import UserRolesPage from '@frontend/modules/settings/pages/UserRoles.page';
+import { Route, Routes } from 'react-router';
 
 export const SettingsRouter = () => {
 	return (

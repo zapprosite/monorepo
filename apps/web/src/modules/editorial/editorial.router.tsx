@@ -1,7 +1,7 @@
-import CreateEditorialPage from "@frontend/modules/editorial/pages/CreateEditorial.page";
-import EditorialPage from "@frontend/modules/editorial/pages/Editorial.page";
-import EditorialDetailPage from "@frontend/modules/editorial/pages/EditorialDetail.page";
-import { Route, Routes } from "react-router";
+import CreateEditorialPage from '@frontend/modules/editorial/pages/CreateEditorial.page';
+import EditorialPage from '@frontend/modules/editorial/pages/Editorial.page';
+import EditorialDetailPage from '@frontend/modules/editorial/pages/EditorialDetail.page';
+import { Route, Routes } from 'react-router';
 
 export const EditorialRouter = () => {
 	return (

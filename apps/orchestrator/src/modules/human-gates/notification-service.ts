@@ -1,6 +1,6 @@
 // Notification Service - Sends notifications for approval requests
-import type { ApprovalRequest } from "../../core/types.js";
-import type { NotificationService } from "./types.js";
+import type { ApprovalRequest } from '../../core/types.js';
+import type { NotificationService } from './types.js';
 
 export class WebhookNotificationService implements NotificationService {
 	constructor(private webhookUrl: string) {}
@@ -14,7 +14,7 @@ export class WebhookNotificationService implements NotificationService {
 
 		// Example webhook payload structure
 		const payload = {
-			type: "approval_request",
+			type: 'approval_request',
 			requestId: request.requestId,
 			gateId: request.gateId,
 			gateType: request.gateType,
@@ -38,8 +38,8 @@ export class WebhookNotificationService implements NotificationService {
 
 	async sendApprovalNotification(
 		request: ApprovalRequest,
-		outcome: "approved" | "rejected",
-		notes?: string
+		outcome: 'approved' | 'rejected',
+		notes?: string,
 	): Promise<void> {
 		console.log(`[Notification] Request ${request.requestId}: ${outcome}`);
 		if (notes) {
@@ -50,11 +50,7 @@ export class WebhookNotificationService implements NotificationService {
 	private buildPrompt(request: ApprovalRequest): string {
 		// Build a human-readable prompt from the approval gate
 		const payload = request.payload as Record<string, unknown>;
-		const lines = [
-			`Approval Required: ${request.gateId}`,
-			`Type: ${request.gateType}`,
-			"",
-		];
+		const lines = [`Approval Required: ${request.gateId}`, `Type: ${request.gateType}`, ''];
 
 		// Add relevant context from payload
 		for (const [key, value] of Object.entries(payload)) {
@@ -63,6 +59,6 @@ export class WebhookNotificationService implements NotificationService {
 			}
 		}
 
-		return lines.join("\n");
+		return lines.join('\n');
 	}
 }

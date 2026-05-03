@@ -1,5 +1,8 @@
-import { db } from "@backend/db/db";
-import { generateApiKey, hashApiKey } from "@backend/modules/api-gateway/utils/apiKeyGenerator.utils";
+import { db } from '@backend/db/db';
+import {
+	generateApiKey,
+	hashApiKey,
+} from '@backend/modules/api-gateway/utils/apiKeyGenerator.utils';
 
 /**
  * Seed development team and API key for local testing
@@ -18,44 +21,41 @@ export async function seedDevTeam() {
 	}
 
 	// Check if dev team already exists - use takeOptional to avoid throwing
-	const existingTeam = await db.teams
-		.where({ name: "Dev Team" })
-		.limit(1)
-		.takeOptional();
+	const existingTeam = await db.teams.where({ name: 'Dev Team' }).limit(1).takeOptional();
 
 	if (existingTeam) {
-		console.log("Dev team already exists, skipping seed.");
-		console.log("If you need a new API key, delete the team and re-run.");
+		console.log('Dev team already exists, skipping seed.');
+		console.log('If you need a new API key, delete the team and re-run.');
 		return existingTeam;
 	}
 
-	console.log("Seeding dev team for local testing...");
+	console.log('Seeding dev team for local testing...');
 
 	// Generate API key BEFORE creating team so we can store hash
 	const plainApiKey = generateApiKey();
 	const apiSecretHash = await hashApiKey(plainApiKey);
 
 	const devTeam = await db.teams.create({
-		name: "Dev Team",
-		allowedDomains: ["http://localhost:5173", "http://localhost:3000"],
-		allowedIPs: ["127.0.0.1", "::1", "localhost"],
+		name: 'Dev Team',
+		allowedDomains: ['http://localhost:5173', 'http://localhost:3000'],
+		allowedIPs: ['127.0.0.1', '::1', 'localhost'],
 		rateLimitPerMinute: 1000, // High limit for dev
 		apiSecretHash, // This is required according to the table schema
-		subscriptionAlertWebhookUrl: "", // Required field, empty for dev
+		subscriptionAlertWebhookUrl: '', // Required field, empty for dev
 	});
 
-	console.log("\n===========================================");
-	console.log("DEV TEAM CREATED - Credentials saved to secure storage");
-	console.log("===========================================");
+	console.log('\n===========================================');
+	console.log('DEV TEAM CREATED - Credentials saved to secure storage');
+	console.log('===========================================');
 	console.log(`Team ID: ${devTeam.teamId}`);
 	// NEVER log the API key
-	console.log("\nUse these headers for local API testing:");
+	console.log('\nUse these headers for local API testing:');
 	console.log(`  X-Team-Id: ${devTeam.teamId}`);
 	console.log(`  X-Api-Key: <stored in config>`);
 	console.log(`  Base URL: http://localhost:4002`);
-	console.log("\nFor tRPC endpoints, use X-Dev-User header:");
+	console.log('\nFor tRPC endpoints, use X-Dev-User header:');
 	console.log(`  curl -H "X-Dev-User: will@zappro.site" http://localhost:4002/trpc/...`);
-	console.log("===========================================\n");
+	console.log('===========================================\n');
 
 	return devTeam;
 }
@@ -65,10 +65,7 @@ export async function seedDevTeam() {
  * Returns null if not seeded yet
  */
 export async function getDevTeamCredentials() {
-	const devTeam = await db.teams
-		.where({ name: "Dev Team" })
-		.limit(1)
-		.takeOptional();
+	const devTeam = await db.teams.where({ name: 'Dev Team' }).limit(1).takeOptional();
 
 	if (!devTeam) return null;
 

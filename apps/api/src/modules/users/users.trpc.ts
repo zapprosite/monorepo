@@ -1,8 +1,8 @@
-import { db } from "@backend/db/db";
-import { updateSessionUserId } from "@backend/modules/auth/session.auth.utils";
-import { protectedProcedure, publicProcedure, trpcRouter } from "@backend/trpc";
-import { userCreateInputZod, userGetByIdInputZod } from "@connected-repo/zod-schemas/user.zod";
-import { TRPCError } from "@trpc/server";
+import { db } from '@backend/db/db';
+import { updateSessionUserId } from '@backend/modules/auth/session.auth.utils';
+import { protectedProcedure, publicProcedure, trpcRouter } from '@backend/trpc';
+import { userCreateInputZod, userGetByIdInputZod } from '@connected-repo/zod-schemas/user.zod';
+import { TRPCError } from '@trpc/server';
 
 export const usersRouterTrpc = trpcRouter({
 	// Get all users for the current team
@@ -11,54 +11,55 @@ export const usersRouterTrpc = trpcRouter({
 		const teamId = ctx.user.teamId;
 		const users = await db.users
 			.where({ teamId })
-			.select("userId", "email", "name", "createdAt", "updatedAt");
+			.select('userId', 'email', 'name', 'createdAt', 'updatedAt');
 		return users;
 	}),
 
 	// Get user by ID
-	getById: protectedProcedure.input(userGetByIdInputZod).query(async ({ ctx, input: { userId } }) => {
-		// IDOR fix: verify target user belongs to the same team
-		const teamId = ctx.user.teamId;
-		const targetUser = await db.users
-			.select("userId", "email", "name", "teamId", "createdAt", "updatedAt")
-			.where({ userId })
-			.take();
+	getById: protectedProcedure
+		.input(userGetByIdInputZod)
+		.query(async ({ ctx, input: { userId } }) => {
+			// IDOR fix: verify target user belongs to the same team
+			const teamId = ctx.user.teamId;
+			const targetUser = await db.users
+				.select('userId', 'email', 'name', 'teamId', 'createdAt', 'updatedAt')
+				.where({ userId })
+				.take();
 
+			// Users can only access users in their own team
+			if (targetUser.teamId !== teamId) {
+				throw new TRPCError({
+					code: 'FORBIDDEN',
+					message: 'Você só pode acessar usuários da sua equipe.',
+				});
+			}
 
-		// Users can only access users in their own team
-		if (targetUser.teamId !== teamId) {
-			throw new TRPCError({
-				code: "FORBIDDEN",
-				message: "Você só pode acessar usuários da sua equipe.",
-			});
-		}
-
-		return targetUser;
-	}),
+			return targetUser;
+		}),
 
 	// Register user from OAuth flow
 	create: publicProcedure.input(userCreateInputZod).mutation(async ({ input, ctx }) => {
 		// Validate session exists
 		if (!ctx.req.session?.user) {
 			throw new TRPCError({
-				code: "UNAUTHORIZED",
-				message: "No active session found. Please login via OAuth first.",
+				code: 'UNAUTHORIZED',
+				message: 'No active session found. Please login via OAuth first.',
 			});
 		}
 
 		// Security check: ensure email matches session email
 		if (ctx.req.session.user.email !== input.email) {
 			throw new TRPCError({
-				code: "FORBIDDEN",
-				message: "Email mismatch. Cannot register with a different email than your OAuth account.",
+				code: 'FORBIDDEN',
+				message: 'Email mismatch. Cannot register with a different email than your OAuth account.',
 			});
 		}
 
 		// Check if session already has a userId (user already registered)
 		if (ctx.req.session.user.userId) {
 			throw new TRPCError({
-				code: "BAD_REQUEST",
-				message: "User already registered. Please go to dashboard.",
+				code: 'BAD_REQUEST',
+				message: 'User already registered. Please go to dashboard.',
 			});
 		}
 

@@ -1,9 +1,9 @@
-import { Chip } from "@repo/ui-mui/data-display/Chip";
-import { Typography } from "@repo/ui-mui/data-display/Typography";
-import { Box } from "@repo/ui-mui/layout/Box";
-import { Card, CardContent } from "@repo/ui-mui/layout/Card";
-import type { journalEntrySelectAllZod } from "@repo/zod-schemas/journal_entry.zod";
-import type { z } from "zod";
+import { Chip } from '@repo/ui-mui/data-display/Chip';
+import { Typography } from '@repo/ui-mui/data-display/Typography';
+import { Box } from '@repo/ui-mui/layout/Box';
+import { Card, CardContent } from '@repo/ui-mui/layout/Card';
+import type { journalEntrySelectAllZod } from '@repo/zod-schemas/journal_entry.zod';
+import type { z } from 'zod';
 
 type JournalEntry = z.infer<typeof journalEntrySelectAllZod>;
 
@@ -19,33 +19,33 @@ export function JournalEntryCardView({ entries, onEntryClick }: JournalEntryCard
 	};
 
 	const formatDate = (date: number | string | Date) => {
-		return new Date(date).toLocaleDateString("pt-BR", {
-			year: "numeric",
-			month: "short",
-			day: "numeric",
+		return new Date(date).toLocaleDateString('pt-BR', {
+			year: 'numeric',
+			month: 'short',
+			day: 'numeric',
 		});
 	};
 
 	return (
 		<Box
 			sx={{
-				display: "grid",
+				display: 'grid',
 				gridTemplateColumns: {
-					xs: "1fr",
-					sm: "repeat(2, 1fr)",
-					lg: "repeat(3, 1fr)",
+					xs: '1fr',
+					sm: 'repeat(2, 1fr)',
+					lg: 'repeat(3, 1fr)',
 				},
 				gap: { xs: 2, sm: 2.5, lg: 3 },
-				width: "100%",
-				maxWidth: "100%",
-				overflow: "hidden",
+				width: '100%',
+				maxWidth: '100%',
+				overflow: 'hidden',
 			}}
 		>
 			{entries.map((entry) => (
 				<Box
 					key={entry.journalEntryId}
 					sx={{
-						display: "flex",
+						display: 'flex',
 						minHeight: 0,
 						minWidth: 0,
 					}}
@@ -53,38 +53,38 @@ export function JournalEntryCardView({ entries, onEntryClick }: JournalEntryCard
 					<Card
 						onClick={() => onEntryClick(entry.journalEntryId)}
 						sx={{
-							height: "100%",
-							width: "100%",
-							display: "flex",
-							flexDirection: "column",
-							cursor: "pointer",
-							border: "1px solid",
-							borderColor: "divider",
-							transition: "all 0.25s ease-in-out",
-							"&:hover": {
-								transform: "translateY(-6px)",
+							height: '100%',
+							width: '100%',
+							display: 'flex',
+							flexDirection: 'column',
+							cursor: 'pointer',
+							border: '1px solid',
+							borderColor: 'divider',
+							transition: 'all 0.25s ease-in-out',
+							'&:hover': {
+								transform: 'translateY(-6px)',
 								boxShadow: 6,
-								borderColor: "primary.main",
+								borderColor: 'primary.main',
 							},
 						}}
 					>
 						<CardContent
 							sx={{
 								flexGrow: 1,
-								display: "flex",
-								flexDirection: "column",
+								display: 'flex',
+								flexDirection: 'column',
 								p: { xs: 2, sm: 2.5, lg: 3 },
 							}}
 						>
 							{/* Prompt Section */}
 							<Box sx={{ mb: 2 }}>
 								<Chip
-									label={entry.prompt || "Entrada no diário"}
+									label={entry.prompt || 'Entrada no diário'}
 									color="primary"
 									size="small"
 									sx={{
 										fontWeight: 600,
-										fontSize: "0.75rem",
+										fontSize: '0.75rem',
 										mb: 1.5,
 									}}
 								/>
@@ -98,10 +98,10 @@ export function JournalEntryCardView({ entries, onEntryClick }: JournalEntryCard
 									flexGrow: 1,
 									mb: 2,
 									lineHeight: 1.7,
-									overflow: "hidden",
-									display: "-webkit-box",
+									overflow: 'hidden',
+									display: '-webkit-box',
 									WebkitLineClamp: 4,
-									WebkitBoxOrient: "vertical",
+									WebkitBoxOrient: 'vertical',
 								}}
 							>
 								{truncateContent(entry.content)}
@@ -110,12 +110,12 @@ export function JournalEntryCardView({ entries, onEntryClick }: JournalEntryCard
 							{/* Date Footer */}
 							<Box
 								sx={{
-									display: "flex",
-									justifyContent: "space-between",
-									alignItems: "center",
+									display: 'flex',
+									justifyContent: 'space-between',
+									alignItems: 'center',
 									pt: 2,
-									borderTop: "1px solid",
-									borderColor: "divider",
+									borderTop: '1px solid',
+									borderColor: 'divider',
 								}}
 							>
 								<Typography variant="caption" color="text.secondary" fontWeight={500}>
@@ -126,8 +126,8 @@ export function JournalEntryCardView({ entries, onEntryClick }: JournalEntryCard
 									color="primary.main"
 									fontWeight={600}
 									sx={{
-										textTransform: "uppercase",
-										letterSpacing: "0.5px",
+										textTransform: 'uppercase',
+										letterSpacing: '0.5px',
 									}}
 								>
 									Ler mais →

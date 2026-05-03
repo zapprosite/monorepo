@@ -1,9 +1,9 @@
-import { BaseTable } from "@backend/db/base_table";
+import { BaseTable } from '@backend/db/base_table';
 
 export class PromptsTable extends BaseTable {
-	readonly table = "prompts";
+	readonly table = 'prompts';
 
-// @ts-ignore TS2742 — pqb internal type inference not portable
+	// @ts-expect-error TS2742 — pqb internal type inference not portable
 	columns = this.setColumns((t) => ({
 		promptId: t.smallint().identity().primaryKey(),
 

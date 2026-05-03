@@ -1,14 +1,14 @@
-import { BaseTable } from "@backend/db/base_table";
+import { BaseTable } from '@backend/db/base_table';
 
 export class ContactsTable extends BaseTable {
-	readonly table = "contacts";
+	readonly table = 'contacts';
 
-// @ts-ignore TS2742 — pqb internal type inference not portable
+	// @ts-expect-error TS2742 — pqb internal type inference not portable
 	columns = this.setColumns((t) => ({
 		contactId: t.uuid().primaryKey().default(t.sql`gen_random_uuid()`),
-		clienteId: t.uuid().foreignKey("clients", "clientId", {
-			onUpdate: "RESTRICT",
-			onDelete: "CASCADE",
+		clienteId: t.uuid().foreignKey('clients', 'clientId', {
+			onUpdate: 'RESTRICT',
+			onDelete: 'CASCADE',
 		}),
 		teamId: t.uuid(), // IDOR fix: team isolation
 		nome: t.string(255),

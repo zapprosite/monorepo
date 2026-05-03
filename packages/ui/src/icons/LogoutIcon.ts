@@ -1,1 +1,1 @@
-export { default as LogoutIcon } from "@mui/icons-material/Logout";
+export { default as LogoutIcon } from '@mui/icons-material/Logout';

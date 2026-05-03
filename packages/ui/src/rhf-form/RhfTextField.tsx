@@ -1,8 +1,8 @@
-import type { SxProps, Theme } from "@mui/material/styles";
-import { Controller, useFormContext } from "react-hook-form";
-import { TextField, type TextFieldProps } from "../form/TextField";
+import type { SxProps, Theme } from '@mui/material/styles';
+import { Controller, useFormContext } from 'react-hook-form';
+import { TextField, type TextFieldProps } from '../form/TextField';
 
-export interface RhfTextFieldProps extends Omit<TextFieldProps, "name"> {
+export interface RhfTextFieldProps extends Omit<TextFieldProps, 'name'> {
 	name: string;
 	sx?: SxProps<Theme>;
 }
@@ -24,13 +24,13 @@ export const RhfTextField = ({ name, sx, ...props }: RhfTextFieldProps) => {
 					sx={{
 						// Base styling
 						mb: { xs: 2, md: 2.5 },
-						"& .MuiInputBase-input": {
-							fontSize: { xs: "16px", md: "14px" }, // Prevent iOS zoom on focus
+						'& .MuiInputBase-input': {
+							fontSize: { xs: '16px', md: '14px' }, // Prevent iOS zoom on focus
 						},
 						// Custom styling override
 						...sx,
 					}}
-					value={field.value ?? ""}
+					value={field.value ?? ''}
 				/>
 			)}
 		/>

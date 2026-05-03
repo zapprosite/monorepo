@@ -1,6 +1,6 @@
-import type { PaletteMode } from "@mui/material";
-import { createTheme } from "@mui/material/styles";
-import "./theme.types"; // Import type augmentations
+import type { PaletteMode } from '@mui/material';
+import { createTheme } from '@mui/material/styles';
+import './theme.types'; // Import type augmentations
 
 /**
  * Base theme configuration shared across light and dark modes
@@ -8,36 +8,36 @@ import "./theme.types"; // Import type augmentations
 const baseThemeConfig = {
 	typography: {
 		fontFamily: [
-			"-apple-system",
-			"BlinkMacSystemFont",
+			'-apple-system',
+			'BlinkMacSystemFont',
 			'"Segoe UI"',
-			"Roboto",
+			'Roboto',
 			'"Helvetica Neue"',
-			"Arial",
-			"sans-serif",
-		].join(","),
+			'Arial',
+			'sans-serif',
+		].join(','),
 		h1: {
-			fontSize: "2.5rem",
+			fontSize: '2.5rem',
 			fontWeight: 500,
 		},
 		h2: {
-			fontSize: "2rem",
+			fontSize: '2rem',
 			fontWeight: 500,
 		},
 		h3: {
-			fontSize: "1.75rem",
+			fontSize: '1.75rem',
 			fontWeight: 500,
 		},
 		h4: {
-			fontSize: "1.5rem",
+			fontSize: '1.5rem',
 			fontWeight: 500,
 		},
 		h5: {
-			fontSize: "1.25rem",
+			fontSize: '1.25rem',
 			fontWeight: 500,
 		},
 		h6: {
-			fontSize: "1rem",
+			fontSize: '1rem',
 			fontWeight: 500,
 		},
 	},
@@ -49,7 +49,7 @@ const baseThemeConfig = {
 		MuiButton: {
 			styleOverrides: {
 				root: {
-					textTransform: "none" as const,
+					textTransform: 'none' as const,
 					fontWeight: 500,
 				},
 			},
@@ -59,14 +59,14 @@ const baseThemeConfig = {
 		},
 		MuiTextField: {
 			defaultProps: {
-				variant: "outlined" as const,
-				size: "small" as const,
+				variant: 'outlined' as const,
+				size: 'small' as const,
 			},
 		},
 		MuiCard: {
 			styleOverrides: {
 				root: {
-					boxShadow: "0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)",
+					boxShadow: '0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)',
 				},
 			},
 		},
@@ -84,111 +84,111 @@ const baseThemeConfig = {
  * Creates a theme with the specified mode (light or dark)
  * Preserves all component overrides and customizations
  */
-export const createAppTheme = (mode: PaletteMode = "light") => {
+export const createAppTheme = (mode: PaletteMode = 'light') => {
 	return createTheme({
 		...baseThemeConfig,
 		palette: {
 			mode,
-			...(mode === "light"
+			...(mode === 'light'
 				? {
 						// Refrimix Tecnologia — paleta oficial
 						primary: {
-							main: "#1D4ED8", // Azul institucional Refrimix
-							light: "#3B6FE8",
-							dark: "#123057", // Navy 800
-							lighter: "rgba(29, 78, 216, 0.08)",
+							main: '#1D4ED8', // Azul institucional Refrimix
+							light: '#3B6FE8',
+							dark: '#123057', // Navy 800
+							lighter: 'rgba(29, 78, 216, 0.08)',
 						},
 						secondary: {
-							main: "#6D28D9", // Roxo IA/automação
-							light: "#8B5CF6",
-							dark: "#4C1D95",
-							contrastText: "#fff",
+							main: '#6D28D9', // Roxo IA/automação
+							light: '#8B5CF6',
+							dark: '#4C1D95',
+							contrastText: '#fff',
 						},
 						success: {
-							main: "#16A34A", // Verde sucesso Refrimix
-							light: "#22C55E",
-							dark: "#15803D",
-							lighter: "rgba(22, 163, 74, 0.08)",
-							contrastText: "#fff",
+							main: '#16A34A', // Verde sucesso Refrimix
+							light: '#22C55E',
+							dark: '#15803D',
+							lighter: 'rgba(22, 163, 74, 0.08)',
+							contrastText: '#fff',
 						},
 						error: {
-							main: "#DC2626", // Vermelho crítico Refrimix
-							light: "#EF4444",
-							dark: "#B91C1C",
-							lighter: "rgba(220, 38, 38, 0.08)",
-							contrastText: "#fff",
+							main: '#DC2626', // Vermelho crítico Refrimix
+							light: '#EF4444',
+							dark: '#B91C1C',
+							lighter: 'rgba(220, 38, 38, 0.08)',
+							contrastText: '#fff',
 						},
 						warning: {
-							main: "#F59E0B", // Amarelo alerta Refrimix
-							light: "#FCD34D",
-							dark: "#D97706",
-							contrastText: "#000",
+							main: '#F59E0B', // Amarelo alerta Refrimix
+							light: '#FCD34D',
+							dark: '#D97706',
+							contrastText: '#000',
 						},
 						info: {
-							main: "#06B6D4", // Ciano tecnológico Refrimix
-							light: "#22D3EE",
-							dark: "#0891B2",
-							contrastText: "#fff",
+							main: '#06B6D4', // Ciano tecnológico Refrimix
+							light: '#22D3EE',
+							dark: '#0891B2',
+							contrastText: '#fff',
 						},
 						background: {
-							default: "#F5F7FB", // Fundo claro Refrimix
-							paper: "#ffffff",
+							default: '#F5F7FB', // Fundo claro Refrimix
+							paper: '#ffffff',
 						},
 						text: {
-							primary: "#0B1F3A", // Navy 900 para texto principal
-							secondary: "#64748B", // Texto secundário Refrimix
-							disabled: "#94A3B8",
+							primary: '#0B1F3A', // Navy 900 para texto principal
+							secondary: '#64748B', // Texto secundário Refrimix
+							disabled: '#94A3B8',
 						},
 					}
 				: {
 						// Dark mode — HVAC CRM + Verde Ácido (#39FF14)
 						primary: {
-							main: "#39FF14",
-							light: "#6FFF50",
-							dark: "#2ECC71",
-							lighter: "rgba(57, 255, 20, 0.12)",
-							contrastText: "#000000",
+							main: '#39FF14',
+							light: '#6FFF50',
+							dark: '#2ECC71',
+							lighter: 'rgba(57, 255, 20, 0.12)',
+							contrastText: '#000000',
 						},
 						secondary: {
-							main: "#868e96",
-							light: "#adb5bd",
-							dark: "#6c757d",
-							contrastText: "#fff",
+							main: '#868e96',
+							light: '#adb5bd',
+							dark: '#6c757d',
+							contrastText: '#fff',
 						},
 						success: {
-							main: "#39FF14",
-							light: "#6FFF50",
-							dark: "#2ECC71",
-							lighter: "rgba(57, 255, 20, 0.12)",
-							contrastText: "#000000",
+							main: '#39FF14',
+							light: '#6FFF50',
+							dark: '#2ECC71',
+							lighter: 'rgba(57, 255, 20, 0.12)',
+							contrastText: '#000000',
 						},
 						error: {
-							main: "#e35d6a",
-							light: "#e97c86",
-							dark: "#dc3545",
-							lighter: "rgba(227, 93, 106, 0.12)",
-							contrastText: "#fff",
+							main: '#e35d6a',
+							light: '#e97c86',
+							dark: '#dc3545',
+							lighter: 'rgba(227, 93, 106, 0.12)',
+							contrastText: '#fff',
 						},
 						warning: {
-							main: "#ffcd38",
-							light: "#ffd966",
-							dark: "#ffc107",
-							contrastText: "#000",
+							main: '#ffcd38',
+							light: '#ffd966',
+							dark: '#ffc107',
+							contrastText: '#000',
 						},
 						info: {
-							main: "#45b5c6",
-							light: "#6dc4d2",
-							dark: "#17a2b8",
-							contrastText: "#fff",
+							main: '#45b5c6',
+							light: '#6dc4d2',
+							dark: '#17a2b8',
+							contrastText: '#fff',
 						},
 						background: {
-							default: "#0A0A0F",
-							paper: "#12121A",
+							default: '#0A0A0F',
+							paper: '#12121A',
 						},
 						text: {
-							primary: "#FFFFFF",
-							secondary: "#A0A0B0",
-							disabled: "#6B6B7B",
+							primary: '#FFFFFF',
+							secondary: '#A0A0B0',
+							disabled: '#6B6B7B',
 						},
 					}),
 		},
@@ -199,4 +199,4 @@ export const createAppTheme = (mode: PaletteMode = "light") => {
  * Default dark theme for HVAC CRM
  * Verde ácido (#39FF14) as accent
  */
-export const theme = createAppTheme("dark");
+export const theme = createAppTheme('dark');

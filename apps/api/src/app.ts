@@ -6,16 +6,16 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  */
-import { env, isDev, isProd } from "@backend/configs/env.config";
-import { loggerConfig } from "@backend/configs/logger.config";
-import { db } from "@backend/db/db";
-import { registerErrorHandler } from "@backend/middlewares/errorHandler";
-import { DatabaseSessionStore } from "@backend/modules/auth/session.auth.store";
-import { appRouter } from "@backend/routers/app.router";
-import cookie from "@fastify/cookie";
-import rateLimit from "@fastify/rate-limit";
-import session from "@fastify/session";
-import fastify from "fastify";
+import { env, isDev, isProd } from '@backend/configs/env.config';
+import { loggerConfig } from '@backend/configs/logger.config';
+import { db } from '@backend/db/db';
+import { registerErrorHandler } from '@backend/middlewares/errorHandler';
+import { DatabaseSessionStore } from '@backend/modules/auth/session.auth.store';
+import { appRouter } from '@backend/routers/app.router';
+import cookie from '@fastify/cookie';
+import rateLimit from '@fastify/rate-limit';
+import session from '@fastify/session';
+import fastify from 'fastify';
 
 export const app = fastify({
 	logger: loggerConfig[env.NODE_ENV],
@@ -33,11 +33,11 @@ app.register(rateLimit, {
 	max: 200, // 200 requests
 	timeWindow: 1000 * 60, // per minute per IP
 	cache: 10000, // Keep 10k IPs in memory
-	allowList: isDev ? ["127.0.0.1", "::1", "localhost"] : undefined, // Skip rate limit in dev for localhost
+	allowList: isDev ? ['127.0.0.1', '::1', 'localhost'] : undefined, // Skip rate limit in dev for localhost
 	errorResponseBuilder: () => ({
 		statusCode: 429,
-		error: "Too Many Requests",
-		message: "Rate limit exceeded. Please try again later.",
+		error: 'Too Many Requests',
+		message: 'Rate limit exceeded. Please try again later.',
 	}),
 });
 
@@ -55,12 +55,12 @@ app.register(session, {
 		secure: isProd, // true in production (HTTPS), false in development (HTTP)
 		httpOnly: true, // Prevents client-side JavaScript from accessing the cookie
 		maxAge: cookieMaxAge, // Cookie expiration time
-		sameSite: "lax", // Provides some CSRF protection
-		path: "/", // Cookie available for all paths
+		sameSite: 'lax', // Provides some CSRF protection
+		path: '/', // Cookie available for all paths
 		// IMPORTANT: For cross-port localhost communication (dev: :3000 ↔ :5173)
 		// we need domain=localhost and sameSite=lax
 		// In production, COOKIE_DOMAIN enables cross-subdomain sessions (e.g. .zappro.site)
-		domain: isDev ? "localhost" : (env.COOKIE_DOMAIN || undefined),
+		domain: isDev ? 'localhost' : env.COOKIE_DOMAIN || undefined,
 	},
 });
 
@@ -82,8 +82,8 @@ app.after(() => {
 		(_request, reply) => {
 			reply.code(404).send({
 				statusCode: 404,
-				error: "Not Found",
-				message: "Route not found",
+				error: 'Not Found',
+				message: 'Route not found',
 			});
 		},
 	);

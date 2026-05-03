@@ -1,12 +1,12 @@
-import { logger } from "@backend/app";
-import { sql } from "@backend/db/base_table";
-import { db } from "@backend/db/db";
-import type { ApiProductSku } from "@connected-repo/zod-schemas/enums.zod";
-import { subscriptionAlertWebhookPayloadZod } from "@connected-repo/zod-schemas/webhook_call_queue.zod";
+import { logger } from '@backend/app';
+import { sql } from '@backend/db/base_table';
+import { db } from '@backend/db/db';
+import type { ApiProductSku } from '@connected-repo/zod-schemas/enums.zod';
+import { subscriptionAlertWebhookPayloadZod } from '@connected-repo/zod-schemas/webhook_call_queue.zod';
 import {
 	SUBSCRIPTION_USAGE_ALERT_THRESHOLD_PERCENT,
 	WEBHOOK_MAX_RETRY_ATTEMPTS,
-} from "../constants/apiGateway.constants";
+} from '../constants/apiGateway.constants';
 
 /**
  * Find an active subscription for a team and product
@@ -27,7 +27,7 @@ export async function findActiveSubscription(
 			expiresAt: { gt: sql`NOW()` },
 			requestsConsumed: { lt: sql`"max_requests"` },
 		})
-		.order({ createdAt: "DESC" })
+		.order({ createdAt: 'DESC' })
 		.takeOptional();
 
 	return subscription;
@@ -47,7 +47,7 @@ export async function incrementSubscriptionUsage(subscriptionId: string) {
 		const updatedSubscription = await db.subscriptions
 			.selectAll()
 			.find(subscriptionId)
-			.increment("requestsConsumed");
+			.increment('requestsConsumed');
 
 		if (!updatedSubscription) {
 			throw new Error(`Subscription ${subscriptionId} not found`);
@@ -57,7 +57,7 @@ export async function incrementSubscriptionUsage(subscriptionId: string) {
 		// This is now protected by the surrounding transaction
 		await checkAndQueueWebhookAt90Percent(updatedSubscription).catch((error) => {
 			// Not throwing error as it might fail due to race-conditions in marking notified.
-			logger.error("Error checking and queueing webhook at 90% usage:", error);
+			logger.error('Error checking and queueing webhook at 90% usage:', error);
 		});
 
 		return updatedSubscription;
@@ -98,7 +98,7 @@ export async function checkAndQueueWebhookAt90Percent(subscription: {
 		}
 
 		const payload = subscriptionAlertWebhookPayloadZod.parse({
-			event: "subscription.usage_alert",
+			event: 'subscription.usage_alert',
 			subscriptionId: subscription.subscriptionId,
 			teamId: subscription.teamId,
 			apiProductSku: subscription.apiProductSku,
@@ -114,7 +114,7 @@ export async function checkAndQueueWebhookAt90Percent(subscription: {
 				teamId: subscription.teamId,
 				subscriptionId: subscription.subscriptionId,
 				webhookUrl: team.subscriptionAlertWebhookUrl,
-				status: "Pending",
+				status: 'Pending',
 				attempts: 0,
 				maxAttempts: WEBHOOK_MAX_RETRY_ATTEMPTS,
 				scheduledFor: () => sql`NOW()`,

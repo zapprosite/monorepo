@@ -1,1 +1,1 @@
-export { MaterialReactTable } from "material-react-table";
+export { MaterialReactTable } from 'material-react-table';

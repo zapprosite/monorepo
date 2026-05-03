@@ -1,9 +1,9 @@
-import { Box } from "@repo/ui-mui/layout/Box";
-import { MaterialReactTable } from "@repo/ui-mui/mrt/MaterialReactTable";
-import type { journalEntrySelectAllZod } from "@repo/zod-schemas/journal_entry.zod";
-import type { MRT_ColumnDef } from "material-react-table";
-import { useMemo } from "react";
-import type { z } from "zod";
+import { Box } from '@repo/ui-mui/layout/Box';
+import { MaterialReactTable } from '@repo/ui-mui/mrt/MaterialReactTable';
+import type { journalEntrySelectAllZod } from '@repo/zod-schemas/journal_entry.zod';
+import type { MRT_ColumnDef } from 'material-react-table';
+import { useMemo } from 'react';
+import type { z } from 'zod';
 
 type JournalEntry = z.infer<typeof journalEntrySelectAllZod>;
 
@@ -19,20 +19,20 @@ export function JournalEntryTableView({ entries, onEntryClick }: JournalEntryTab
 	};
 
 	const formatDate = (date: number | string | Date) => {
-		return new Date(date).toLocaleDateString("pt-BR", {
-			year: "numeric",
-			month: "short",
-			day: "numeric",
-			hour: "2-digit",
-			minute: "2-digit",
+		return new Date(date).toLocaleDateString('pt-BR', {
+			year: 'numeric',
+			month: 'short',
+			day: 'numeric',
+			hour: '2-digit',
+			minute: '2-digit',
 		});
 	};
 
 	const columns = useMemo<MRT_ColumnDef<JournalEntry>[]>(
 		() => [
 			{
-				accessorKey: "prompt",
-				header: "Prompt" as const,
+				accessorKey: 'prompt',
+				header: 'Prompt' as const,
 				size: 200,
 				// Cell: ({ cell }) => (
 				// 	<Chip
@@ -44,15 +44,15 @@ export function JournalEntryTableView({ entries, onEntryClick }: JournalEntryTab
 				// ),
 			},
 			{
-				accessorKey: "content",
-				header: "Prévia da entrada",
+				accessorKey: 'content',
+				header: 'Prévia da entrada',
 				size: 400,
 				Cell: ({ cell }) => (
 					<Box
 						sx={{
-							overflow: "hidden",
-							textOverflow: "ellipsis",
-							whiteSpace: "nowrap",
+							overflow: 'hidden',
+							textOverflow: 'ellipsis',
+							whiteSpace: 'nowrap',
 						}}
 					>
 						{truncateContent(cell.getValue<string>())}
@@ -60,8 +60,8 @@ export function JournalEntryTableView({ entries, onEntryClick }: JournalEntryTab
 				),
 			},
 			{
-				accessorKey: "createdAt",
-				header: "Data",
+				accessorKey: 'createdAt',
+				header: 'Data',
 				size: 180,
 				Cell: ({ cell }) => formatDate(cell.getValue<number>()),
 			},
@@ -80,24 +80,24 @@ export function JournalEntryTableView({ entries, onEntryClick }: JournalEntryTab
 			enableFullScreenToggle={false}
 			enableHiding={false}
 			initialState={{
-				density: "comfortable",
-				sorting: [{ id: "createdAt", desc: true }],
+				density: 'comfortable',
+				sorting: [{ id: 'createdAt', desc: true }],
 			}}
 			muiTableBodyRowProps={({ row }) => ({
 				onClick: () => onEntryClick(row.original.journalEntryId),
 				sx: {
-					cursor: "pointer",
-					transition: "background-color 0.2s ease-in-out",
-					"&:hover": {
-						backgroundColor: "action.hover",
+					cursor: 'pointer',
+					transition: 'background-color 0.2s ease-in-out',
+					'&:hover': {
+						backgroundColor: 'action.hover',
 					},
 				},
 			})}
 			muiTablePaperProps={{
 				sx: {
-					border: "1px solid",
-					borderColor: "divider",
-					boxShadow: "none",
+					border: '1px solid',
+					borderColor: 'divider',
+					boxShadow: 'none',
 				},
 			}}
 		/>

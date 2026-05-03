@@ -1,21 +1,21 @@
-import { Avatar } from "@repo/ui-mui/data-display/Avatar";
-import { Typography } from "@repo/ui-mui/data-display/Typography";
-import { MenuItem } from "@repo/ui-mui/form/MenuItem";
-import { DarkModeIcon } from "@repo/ui-mui/icons/DarkModeIcon";
-import { DashboardIcon } from "@repo/ui-mui/icons/DashboardIcon";
-import { LightModeIcon } from "@repo/ui-mui/icons/LightModeIcon";
-import { LogoutIcon } from "@repo/ui-mui/icons/LogoutIcon";
-import { SettingsIcon } from "@repo/ui-mui/icons/SettingsIcon";
-import { Box } from "@repo/ui-mui/layout/Box";
-import { Divider } from "@repo/ui-mui/layout/Divider";
-import { IconButton } from "@repo/ui-mui/navigation/IconButton";
-import { Menu } from "@repo/ui-mui/navigation/Menu";
-import { useThemeMode } from "@repo/ui-mui/theme/ThemeContext";
-import type { SessionInfo } from "@frontend/contexts/UserContext";
-import { trpc } from "@frontend/utils/trpc.client";
-import { useMutation } from "@tanstack/react-query";
-import { useState } from "react";
-import { useLoaderData, useNavigate } from "react-router";
+import type { SessionInfo } from '@frontend/contexts/UserContext';
+import { trpc } from '@frontend/utils/trpc.client';
+import { Avatar } from '@repo/ui-mui/data-display/Avatar';
+import { Typography } from '@repo/ui-mui/data-display/Typography';
+import { MenuItem } from '@repo/ui-mui/form/MenuItem';
+import { DarkModeIcon } from '@repo/ui-mui/icons/DarkModeIcon';
+import { DashboardIcon } from '@repo/ui-mui/icons/DashboardIcon';
+import { LightModeIcon } from '@repo/ui-mui/icons/LightModeIcon';
+import { LogoutIcon } from '@repo/ui-mui/icons/LogoutIcon';
+import { SettingsIcon } from '@repo/ui-mui/icons/SettingsIcon';
+import { Box } from '@repo/ui-mui/layout/Box';
+import { Divider } from '@repo/ui-mui/layout/Divider';
+import { IconButton } from '@repo/ui-mui/navigation/IconButton';
+import { Menu } from '@repo/ui-mui/navigation/Menu';
+import { useThemeMode } from '@repo/ui-mui/theme/ThemeContext';
+import { useMutation } from '@tanstack/react-query';
+import { useState } from 'react';
+import { useLoaderData, useNavigate } from 'react-router';
 
 interface UserProfileMenuProps {
 	/** Optional custom trigger button. If not provided, uses default avatar */
@@ -36,19 +36,19 @@ export const UserProfileMenu = ({ trigger, showUserInfo = true }: UserProfileMen
 
 	// Theme toggle
 	const { mode, toggleTheme } = useThemeMode();
-	const isDarkMode = mode === "dark";
+	const isDarkMode = mode === 'dark';
 
 	// Logout mutation
 	const logoutMutation = useMutation(
 		trpc.auth.logout.mutationOptions({
 			onSuccess: () => {
 				// Redirect to login after successful logout
-				navigate("/auth/login");
+				navigate('/auth/login');
 			},
 			onError: (error) => {
-				console.error("Logout failed:", error);
+				console.error('Logout failed:', error);
 				// Still redirect to login even if mutation fails
-				navigate("/auth/login");
+				navigate('/auth/login');
 			},
 		}),
 	);
@@ -82,25 +82,25 @@ export const UserProfileMenu = ({ trigger, showUserInfo = true }: UserProfileMen
 			onClick={handleOpen}
 			size="small"
 			sx={{
-				transition: "transform 0.2s ease-in-out",
-				"&:hover": {
-					transform: "scale(1.05)",
+				transition: 'transform 0.2s ease-in-out',
+				'&:hover': {
+					transform: 'scale(1.05)',
 				},
 			}}
 			aria-label="User menu"
 		>
 			<Avatar
 				src={user?.displayPicture || undefined}
-				alt={user?.name || user?.email || "User"}
+				alt={user?.name || user?.email || 'User'}
 				sx={{
 					width: 40,
 					height: 40,
-					border: "2px solid",
-					borderColor: open ? "primary.main" : "divider",
-					transition: "all 0.2s ease-in-out",
+					border: '2px solid',
+					borderColor: open ? 'primary.main' : 'divider',
+					transition: 'all 0.2s ease-in-out',
 				}}
 			>
-				{!user?.displayPicture && (user?.name?.[0] || user?.email?.[0] || "U")}
+				{!user?.displayPicture && (user?.name?.[0] || user?.email?.[0] || 'U')}
 			</Avatar>
 		</IconButton>
 	);
@@ -114,8 +114,8 @@ export const UserProfileMenu = ({ trigger, showUserInfo = true }: UserProfileMen
 				open={open}
 				onClose={handleClose}
 				onClick={handleClose}
-				transformOrigin={{ horizontal: "right", vertical: "top" }}
-				anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+				transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+				anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
 				slotProps={{
 					paper: {
 						elevation: 3,
@@ -123,23 +123,23 @@ export const UserProfileMenu = ({ trigger, showUserInfo = true }: UserProfileMen
 							mt: 1.5,
 							minWidth: 220,
 							borderRadius: 2,
-							overflow: "visible",
-							border: "1px solid",
-							borderColor: "divider",
-							"&:before": {
+							overflow: 'visible',
+							border: '1px solid',
+							borderColor: 'divider',
+							'&:before': {
 								content: '""',
-								display: "block",
-								position: "absolute",
+								display: 'block',
+								position: 'absolute',
 								top: 0,
 								right: 14,
 								width: 10,
 								height: 10,
-								bgcolor: "background.paper",
-								transform: "translateY(-50%) rotate(45deg)",
+								bgcolor: 'background.paper',
+								transform: 'translateY(-50%) rotate(45deg)',
 								zIndex: 0,
-								borderLeft: "1px solid",
-								borderTop: "1px solid",
-								borderColor: "divider",
+								borderLeft: '1px solid',
+								borderTop: '1px solid',
+								borderColor: 'divider',
 							},
 						},
 					},
@@ -149,9 +149,9 @@ export const UserProfileMenu = ({ trigger, showUserInfo = true }: UserProfileMen
 				{showUserInfo && user && (
 					<Box sx={{ px: 2, py: 1.5 }}>
 						<Typography variant="subtitle2" fontWeight={600} color="text.primary" noWrap>
-							{user.name || "User"}
+							{user.name || 'User'}
 						</Typography>
-						<Typography variant="caption" color="text.secondary" noWrap sx={{ display: "block" }}>
+						<Typography variant="caption" color="text.secondary" noWrap sx={{ display: 'block' }}>
 							{user.email}
 						</Typography>
 					</Box>
@@ -160,14 +160,14 @@ export const UserProfileMenu = ({ trigger, showUserInfo = true }: UserProfileMen
 
 				{/* Dashboard */}
 				<MenuItem
-					onClick={() => handleNavigation("/dashboard")}
+					onClick={() => handleNavigation('/dashboard')}
 					sx={{
 						py: 1.5,
 						gap: 1.5,
-						transition: "all 0.15s ease-in-out",
-						"&:hover": {
-							bgcolor: "action.hover",
-							transform: "translateX(4px)",
+						transition: 'all 0.15s ease-in-out',
+						'&:hover': {
+							bgcolor: 'action.hover',
+							transform: 'translateX(4px)',
 						},
 					}}
 				>
@@ -177,14 +177,14 @@ export const UserProfileMenu = ({ trigger, showUserInfo = true }: UserProfileMen
 
 				{/* Profile/Settings */}
 				<MenuItem
-					onClick={() => handleNavigation("/settings")}
+					onClick={() => handleNavigation('/settings')}
 					sx={{
 						py: 1.5,
 						gap: 1.5,
-						transition: "all 0.15s ease-in-out",
-						"&:hover": {
-							bgcolor: "action.hover",
-							transform: "translateX(4px)",
+						transition: 'all 0.15s ease-in-out',
+						'&:hover': {
+							bgcolor: 'action.hover',
+							transform: 'translateX(4px)',
 						},
 					}}
 				>
@@ -200,15 +200,15 @@ export const UserProfileMenu = ({ trigger, showUserInfo = true }: UserProfileMen
 					sx={{
 						py: 1.5,
 						gap: 1.5,
-						transition: "all 0.15s ease-in-out",
-						"&:hover": {
-							bgcolor: "action.hover",
-							transform: "translateX(4px)",
+						transition: 'all 0.15s ease-in-out',
+						'&:hover': {
+							bgcolor: 'action.hover',
+							transform: 'translateX(4px)',
 						},
 					}}
 				>
 					{isDarkMode ? <LightModeIcon fontSize="small" /> : <DarkModeIcon fontSize="small" />}
-					<Typography variant="body2">{isDarkMode ? "Light Mode" : "Dark Mode"}</Typography>
+					<Typography variant="body2">{isDarkMode ? 'Light Mode' : 'Dark Mode'}</Typography>
 				</MenuItem>
 
 				<Divider />
@@ -219,11 +219,11 @@ export const UserProfileMenu = ({ trigger, showUserInfo = true }: UserProfileMen
 					sx={{
 						py: 1.5,
 						gap: 1.5,
-						color: "error.main",
-						transition: "all 0.15s ease-in-out",
-						"&:hover": {
-							bgcolor: "error.lighter",
-							transform: "translateX(4px)",
+						color: 'error.main',
+						transition: 'all 0.15s ease-in-out',
+						'&:hover': {
+							bgcolor: 'error.lighter',
+							transform: 'translateX(4px)',
 						},
 					}}
 				>

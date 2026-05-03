@@ -1,30 +1,30 @@
-import { ContentCard } from "@repo/ui-mui/components/ContentCard";
-import { ErrorAlert } from "@repo/ui-mui/components/ErrorAlert";
-import { PrimaryButton } from "@repo/ui-mui/components/PrimaryButton";
-import { SuccessAlert } from "@repo/ui-mui/components/SuccessAlert";
-import { Typography } from "@repo/ui-mui/data-display/Typography";
-import { TextField } from "@repo/ui-mui/form/TextField";
-import { Stack } from "@repo/ui-mui/layout/Stack";
-import { queryClient } from "@frontend/utils/queryClient";
-import { trpc } from "@frontend/utils/trpc.client";
-import { useMutation } from "@tanstack/react-query";
-import { useState } from "react";
+import { queryClient } from '@frontend/utils/queryClient';
+import { trpc } from '@frontend/utils/trpc.client';
+import { ContentCard } from '@repo/ui-mui/components/ContentCard';
+import { ErrorAlert } from '@repo/ui-mui/components/ErrorAlert';
+import { PrimaryButton } from '@repo/ui-mui/components/PrimaryButton';
+import { SuccessAlert } from '@repo/ui-mui/components/SuccessAlert';
+import { Typography } from '@repo/ui-mui/data-display/Typography';
+import { TextField } from '@repo/ui-mui/form/TextField';
+import { Stack } from '@repo/ui-mui/layout/Stack';
+import { useMutation } from '@tanstack/react-query';
+import { useState } from 'react';
 
 export function CreateUserForm() {
-	const [name, setName] = useState("");
-	const [email, setEmail] = useState("");
-	const [error, setError] = useState("");
-	const [success, setSuccess] = useState("");
+	const [name, setName] = useState('');
+	const [email, setEmail] = useState('');
+	const [error, setError] = useState('');
+	const [success, setSuccess] = useState('');
 
 	const createUserMutation = useMutation(
 		trpc.users.create.mutationOptions({
 			onSuccess: () => {
 				queryClient.invalidateQueries({ queryKey: trpc.users.getAll.queryKey() });
-				setName("");
-				setEmail("");
-				setSuccess("User created successfully!");
-				setError("");
-				setTimeout(() => setSuccess(""), 3000);
+				setName('');
+				setEmail('');
+				setSuccess('User created successfully!');
+				setError('');
+				setTimeout(() => setSuccess(''), 3000);
 			},
 			onError: (error) => {
 				// Use the user-friendly message from our centralized error handling
@@ -32,7 +32,7 @@ export function CreateUserForm() {
 				const actionRequired = error.data?.actionRequired;
 
 				setError(actionRequired ? `${errorMessage} - ${actionRequired}` : errorMessage);
-				setSuccess("");
+				setSuccess('');
 			},
 		}),
 	);
@@ -40,7 +40,7 @@ export function CreateUserForm() {
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
 		if (!name.trim() || !email.trim()) {
-			setError("Name and email are required");
+			setError('Name and email are required');
 			return;
 		}
 

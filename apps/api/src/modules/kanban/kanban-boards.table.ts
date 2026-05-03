@@ -1,9 +1,9 @@
-import { BaseTable } from "@backend/db/base_table";
+import { BaseTable } from '@backend/db/base_table';
 
 export class KanbanBoardsTable extends BaseTable {
-	readonly table = "kanban_boards";
+	readonly table = 'kanban_boards';
 
-// @ts-ignore TS2742 — pqb internal type inference not portable
+	// @ts-expect-error TS2742 — pqb internal type inference not portable
 	columns = this.setColumns((t) => ({
 		boardId: t.uuid().primaryKey().default(t.sql`gen_random_uuid()`),
 		nome: t.text(),

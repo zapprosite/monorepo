@@ -1,18 +1,18 @@
-import { BaseTable } from "@backend/db/base_table";
+import { BaseTable } from '@backend/db/base_table';
 
 export class TeamMembersTable extends BaseTable {
-	readonly table = "team_members";
+	readonly table = 'team_members';
 
-// @ts-ignore TS2742 — pqb internal type inference not portable
+	// @ts-expect-error TS2742 — pqb internal type inference not portable
 	columns = this.setColumns((t) => ({
 		teamMemberId: t.ulid().primaryKey(),
-		teamId: t.uuid().foreignKey("teams", "teamId", {
-			onDelete: "CASCADE",
-			onUpdate: "RESTRICT",
+		teamId: t.uuid().foreignKey('teams', 'teamId', {
+			onDelete: 'CASCADE',
+			onUpdate: 'RESTRICT',
 		}),
-		userId: t.uuid().foreignKey("users", "userId", {
-			onDelete: "CASCADE",
-			onUpdate: "RESTRICT",
+		userId: t.uuid().foreignKey('users', 'userId', {
+			onDelete: 'CASCADE',
+			onUpdate: 'RESTRICT',
 		}),
 		isAdmin: t.boolean().default(false),
 		...t.timestamps(),

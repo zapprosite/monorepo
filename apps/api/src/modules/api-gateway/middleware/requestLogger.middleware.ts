@@ -1,8 +1,8 @@
-import { db } from "@backend/db/db";
-import { incrementSubscriptionUsage } from "@backend/modules/api-gateway/utils/subscriptionTracker.utils";
-import { getClientIpAddress } from "@backend/utils/request-metadata.utils";
-import type { ApiRequestMethod } from "@connected-repo/zod-schemas/enums.zod";
-import type { FastifyReply, FastifyRequest } from "fastify";
+import { db } from '@backend/db/db';
+import { incrementSubscriptionUsage } from '@backend/modules/api-gateway/utils/subscriptionTracker.utils';
+import { getClientIpAddress } from '@backend/utils/request-metadata.utils';
+import type { ApiRequestMethod } from '@connected-repo/zod-schemas/enums.zod';
+import type { FastifyReply, FastifyRequest } from 'fastify';
 
 // Extend request to store start time and request data
 interface RequestWithLogging extends FastifyRequest {
@@ -30,10 +30,10 @@ export async function requestLoggerOnRequest(request: FastifyRequest) {
 	// Capture request body if present
 	if (request.body) {
 		try {
-			if (typeof request.body === "string") {
+			if (typeof request.body === 'string') {
 				req._logData.requestBody = request.body;
 				req._logData.requestBodyJson = JSON.parse(request.body) as Record<string, unknown>;
-			} else if (typeof request.body === "object") {
+			} else if (typeof request.body === 'object') {
 				req._logData.requestBodyJson = request.body as Record<string, unknown>;
 				req._logData.requestBody = JSON.stringify(request.body);
 			}
@@ -69,11 +69,11 @@ export async function requestLoggerOnResponse(request: FastifyRequest, reply: Fa
 	const clientIp = getClientIpAddress(request);
 
 	// Determine status based on HTTP status code
-	let status: "Success" | "Server Error" | "AI Error" = "Success";
+	let status: 'Success' | 'Server Error' | 'AI Error' = 'Success';
 	if (reply.statusCode >= 500) {
-		status = "Server Error";
+		status = 'Server Error';
 	} else if (reply.statusCode >= 400) {
-		status = "AI Error";
+		status = 'AI Error';
 	}
 
 	try {
@@ -87,7 +87,7 @@ export async function requestLoggerOnResponse(request: FastifyRequest, reply: Fa
 			status,
 			requestBodyText: req._logData.requestBody,
 			requestBodyJson: req._logData.requestBodyJson,
-			responseText: "",
+			responseText: '',
 			responseJson: null,
 			responseTime,
 		});
@@ -96,7 +96,7 @@ export async function requestLoggerOnResponse(request: FastifyRequest, reply: Fa
 		await incrementSubscriptionUsage(request.subscription.subscriptionId);
 	} catch (error) {
 		// Log error but don't fail the request
-		request.log.error({ error, teamId: request.team.teamId }, "Failed to log API request");
+		request.log.error({ error, teamId: request.team.teamId }, 'Failed to log API request');
 	}
 }
 

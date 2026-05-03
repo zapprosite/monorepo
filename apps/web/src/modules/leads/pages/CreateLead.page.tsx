@@ -1,18 +1,18 @@
-import { Alert } from "@repo/ui-mui/feedback/Alert";
-import { Typography } from "@repo/ui-mui/data-display/Typography";
-import { Button } from "@repo/ui-mui/form/Button";
-import { TextField } from "@repo/ui-mui/form/TextField";
-import { Box } from "@repo/ui-mui/layout/Box";
-import { Container } from "@repo/ui-mui/layout/Container";
-import { Paper } from "@repo/ui-mui/layout/Paper";
-import { MenuItem } from "@repo/ui-mui/navigation/MenuItem";
-import { LEAD_SOURCE_ENUM, LEAD_STATUS_ENUM } from "@repo/zod-schemas/crm_enums.zod";
-import { type LeadCreateInput, leadCreateInputZod } from "@repo/zod-schemas/lead.zod";
-import { trpc } from "@frontend/utils/trpc.client";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Controller, useForm } from "react-hook-form";
-import { useNavigate } from "react-router";
+import { trpc } from '@frontend/utils/trpc.client';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Typography } from '@repo/ui-mui/data-display/Typography';
+import { Alert } from '@repo/ui-mui/feedback/Alert';
+import { Button } from '@repo/ui-mui/form/Button';
+import { TextField } from '@repo/ui-mui/form/TextField';
+import { Box } from '@repo/ui-mui/layout/Box';
+import { Container } from '@repo/ui-mui/layout/Container';
+import { Paper } from '@repo/ui-mui/layout/Paper';
+import { MenuItem } from '@repo/ui-mui/navigation/MenuItem';
+import { LEAD_SOURCE_ENUM, LEAD_STATUS_ENUM } from '@repo/zod-schemas/crm_enums.zod';
+import { type LeadCreateInput, leadCreateInputZod } from '@repo/zod-schemas/lead.zod';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { Controller, useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router';
 
 export default function CreateLeadPage() {
 	const navigate = useNavigate();
@@ -26,8 +26,8 @@ export default function CreateLeadPage() {
 	} = useForm<LeadCreateInput>({
 		resolver: zodResolver(leadCreateInputZod),
 		defaultValues: {
-			status: "Novo",
-			origem: "Site",
+			status: 'Novo',
+			origem: 'Site',
 		},
 	});
 
@@ -35,12 +35,12 @@ export default function CreateLeadPage() {
 		trpc.leads.createLead.mutationOptions({
 			onSuccess: () => {
 				queryClient.invalidateQueries({ queryKey: trpc.leads.listLeads.queryKey() });
-				navigate("/leads");
+				navigate('/leads');
 			},
 			onError: (error) => {
-				setError("root", {
-					type: "server",
-					message: error.message || "Não foi possível salvar o lead. Tente novamente.",
+				setError('root', {
+					type: 'server',
+					message: error.message || 'Não foi possível salvar o lead. Tente novamente.',
 				});
 			},
 		}),
@@ -56,8 +56,8 @@ export default function CreateLeadPage() {
 				<Button
 					variant="text"
 					size="small"
-					onClick={() => navigate("/leads")}
-					sx={{ mb: 1, color: "text.secondary" }}
+					onClick={() => navigate('/leads')}
+					sx={{ mb: 1, color: 'text.secondary' }}
 				>
 					← Voltar para Leads
 				</Button>
@@ -68,12 +68,12 @@ export default function CreateLeadPage() {
 
 			<Paper
 				elevation={0}
-				sx={{ border: "1px solid", borderColor: "divider", borderRadius: 2, p: 4 }}
+				sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2, p: 4 }}
 			>
 				<Box
 					component="form"
 					onSubmit={handleSubmit(onSubmit)}
-					sx={{ display: "flex", flexDirection: "column", gap: 3 }}
+					sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}
 				>
 					{errors.root?.message && <Alert severity="error">{errors.root.message}</Alert>}
 					<Controller
@@ -90,14 +90,14 @@ export default function CreateLeadPage() {
 						)}
 					/>
 
-					<Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 3 }}>
+					<Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 3 }}>
 						<Controller
 							name="email"
 							control={control}
 							render={({ field }) => (
 								<TextField
 									{...field}
-									value={field.value ?? ""}
+									value={field.value ?? ''}
 									label="Email"
 									type="email"
 									fullWidth
@@ -112,7 +112,7 @@ export default function CreateLeadPage() {
 							render={({ field }) => (
 								<TextField
 									{...field}
-									value={field.value ?? ""}
+									value={field.value ?? ''}
 									label="Telefone"
 									fullWidth
 									error={!!errors.telefone}
@@ -122,7 +122,7 @@ export default function CreateLeadPage() {
 						/>
 					</Box>
 
-					<Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 3 }}>
+					<Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 3 }}>
 						<Controller
 							name="origem"
 							control={control}
@@ -171,7 +171,7 @@ export default function CreateLeadPage() {
 						render={({ field }) => (
 							<TextField
 								{...field}
-								value={field.value ?? ""}
+								value={field.value ?? ''}
 								label="Observações"
 								multiline
 								rows={3}
@@ -182,8 +182,8 @@ export default function CreateLeadPage() {
 						)}
 					/>
 
-					<Box sx={{ display: "flex", gap: 2, justifyContent: "flex-end", pt: 1 }}>
-						<Button variant="outlined" onClick={() => navigate("/leads")} disabled={isSubmitting}>
+					<Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end', pt: 1 }}>
+						<Button variant="outlined" onClick={() => navigate('/leads')} disabled={isSubmitting}>
 							Cancelar
 						</Button>
 						<Button
@@ -192,7 +192,7 @@ export default function CreateLeadPage() {
 							disabled={isSubmitting || createLead.isPending}
 							sx={{ minWidth: 140, minHeight: 44 }}
 						>
-							{isSubmitting || createLead.isPending ? "Salvando..." : "Salvar lead"}
+							{isSubmitting || createLead.isPending ? 'Salvando...' : 'Salvar lead'}
 						</Button>
 					</Box>
 				</Box>

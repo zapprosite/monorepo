@@ -1,16 +1,16 @@
-import { Typography } from "@repo/ui-mui/data-display/Typography";
-import { Dialog } from "@repo/ui-mui/feedback/Dialog";
-import { DialogActions } from "@repo/ui-mui/feedback/DialogActions";
-import { DialogContent } from "@repo/ui-mui/feedback/DialogContent";
-import { DialogTitle } from "@repo/ui-mui/feedback/DialogTitle";
-import { Button } from "@repo/ui-mui/form/Button";
-import { TextField } from "@repo/ui-mui/form/TextField";
-import { Box } from "@repo/ui-mui/layout/Box";
-import { type UnitCreateInput, unitCreateInputZod } from "@repo/zod-schemas/unit.zod";
-import { trpc } from "@frontend/utils/trpc.client";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Controller, useForm } from "react-hook-form";
+import { trpc } from '@frontend/utils/trpc.client';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Typography } from '@repo/ui-mui/data-display/Typography';
+import { Dialog } from '@repo/ui-mui/feedback/Dialog';
+import { DialogActions } from '@repo/ui-mui/feedback/DialogActions';
+import { DialogContent } from '@repo/ui-mui/feedback/DialogContent';
+import { DialogTitle } from '@repo/ui-mui/feedback/DialogTitle';
+import { Button } from '@repo/ui-mui/form/Button';
+import { TextField } from '@repo/ui-mui/form/TextField';
+import { Box } from '@repo/ui-mui/layout/Box';
+import { type UnitCreateInput, unitCreateInputZod } from '@repo/zod-schemas/unit.zod';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { Controller, useForm } from 'react-hook-form';
 
 interface UnitModalProps {
 	clienteId: string;
@@ -53,7 +53,7 @@ export function UnitModal({ clienteId, open, onClose }: UnitModalProps) {
 				</Typography>
 			</DialogTitle>
 			<Box component="form" onSubmit={handleSubmit(onSubmit)}>
-				<DialogContent sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}>
+				<DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
 					<Controller
 						name="nome"
 						control={control}
@@ -74,7 +74,7 @@ export function UnitModal({ clienteId, open, onClose }: UnitModalProps) {
 						render={({ field }) => (
 							<TextField
 								{...field}
-								value={field.value ?? ""}
+								value={field.value ?? ''}
 								label="Descrição"
 								fullWidth
 								multiline
@@ -90,7 +90,7 @@ export function UnitModal({ clienteId, open, onClose }: UnitModalProps) {
 						render={({ field }) => (
 							<TextField
 								{...field}
-								value={field.value ?? ""}
+								value={field.value ?? ''}
 								label="Endereço"
 								fullWidth
 								error={!!errors.endereco}
@@ -98,14 +98,14 @@ export function UnitModal({ clienteId, open, onClose }: UnitModalProps) {
 							/>
 						)}
 					/>
-					<Box sx={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 2 }}>
+					<Box sx={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 2 }}>
 						<Controller
 							name="cidade"
 							control={control}
 							render={({ field }) => (
 								<TextField
 									{...field}
-									value={field.value ?? ""}
+									value={field.value ?? ''}
 									label="Cidade"
 									fullWidth
 									error={!!errors.cidade}
@@ -119,7 +119,7 @@ export function UnitModal({ clienteId, open, onClose }: UnitModalProps) {
 							render={({ field }) => (
 								<TextField
 									{...field}
-									value={field.value ?? ""}
+									value={field.value ?? ''}
 									label="UF"
 									fullWidth
 									inputProps={{ maxLength: 2 }}
@@ -136,7 +136,7 @@ export function UnitModal({ clienteId, open, onClose }: UnitModalProps) {
 						Cancelar
 					</Button>
 					<Button type="submit" variant="contained" disabled={isSubmitting}>
-						{isSubmitting ? "Salvando..." : "Adicionar"}
+						{isSubmitting ? 'Salvando...' : 'Adicionar'}
 					</Button>
 				</DialogActions>
 			</Box>

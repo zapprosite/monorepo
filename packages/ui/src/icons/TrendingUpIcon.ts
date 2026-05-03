@@ -1,1 +1,1 @@
-export { default as TrendingUpIcon } from "@mui/icons-material/TrendingUp";
+export { default as TrendingUpIcon } from '@mui/icons-material/TrendingUp';

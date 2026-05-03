@@ -1,5 +1,5 @@
 {
-	"extends": "@connected-repo/typescript-config/base.json",
+	"extends": "../../packages/config/base.json",
 	"compilerOptions": {
 		"tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
 		"module": "ESNext",

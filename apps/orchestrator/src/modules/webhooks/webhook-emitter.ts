@@ -1,6 +1,6 @@
 // Webhook Emitter - Event emission with retry logic
-import { globalEventBus } from "../../core/event-bus.js";
-import type { WorkflowEvent } from "../../core/types.js";
+import { globalEventBus } from '../../core/event-bus.js';
+import type { WorkflowEvent } from '../../core/types.js';
 
 export interface WebhookDelivery {
 	url: string;
@@ -38,10 +38,7 @@ export class WebhookEmitter {
 	private queue: QueuedDelivery[] = [];
 	private callbacks: Map<string, WebhookCallback> = new Map();
 
-	async emit(
-		event: WorkflowEvent,
-		callback?: WebhookCallback
-	): Promise<string> {
+	async emit(event: WorkflowEvent, callback?: WebhookCallback): Promise<string> {
 		const deliveryId = crypto.randomUUID();
 
 		// Store callback if provided
@@ -93,14 +90,14 @@ export class WebhookEmitter {
 				// Remove from queue on success
 				this.queue = this.queue.filter((d) => d.deliveryId !== delivery.deliveryId);
 			} catch (error) {
-				const errorMessage = error instanceof Error ? error.message : "Unknown error";
+				const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 				console.error(`[Webhook] Delivery failed: ${delivery.deliveryId}`, errorMessage);
 
 				// Check retry policy
-				if (delivery.attempt < (DEFAULT_RETRY_POLICY.maxAttempts - 1)) {
+				if (delivery.attempt < DEFAULT_RETRY_POLICY.maxAttempts - 1) {
 					const backoff =
 						DEFAULT_RETRY_POLICY.backoffMs *
-						Math.pow(DEFAULT_RETRY_POLICY.backoffMultiplier, delivery.attempt);
+						DEFAULT_RETRY_POLICY.backoffMultiplier ** delivery.attempt;
 					delivery.scheduledFor = Date.now() + backoff;
 					delivery.attempt++;
 				} else {
@@ -114,7 +111,7 @@ export class WebhookEmitter {
 
 	private async sendWebhook(delivery: QueuedDelivery): Promise<void> {
 		const headers: Record<string, string> = {
-			"Content-Type": "application/json",
+			'Content-Type': 'application/json',
 			...delivery.headers,
 		};
 
@@ -122,9 +119,9 @@ export class WebhookEmitter {
 		if (delivery.secret) {
 			const signature = this.computeHmacSignature(
 				JSON.stringify(delivery.payload),
-				delivery.secret
+				delivery.secret,
 			);
-			headers["X-Webhook-Signature"] = `sha256=${signature}`;
+			headers['X-Webhook-Signature'] = `sha256=${signature}`;
 		}
 
 		// In production, use fetch
@@ -146,14 +143,11 @@ export class WebhookEmitter {
 	private computeHmacSignature(payload: string, secret: string): string {
 		// In production, use crypto.createHmac
 		// For now, return a mock signature
-		return "mock-signature-" + Buffer.from(payload).toString("base64").slice(0, 32);
+		return 'mock-signature-' + Buffer.from(payload).toString('base64').slice(0, 32);
 	}
 
 	// Handle incoming webhook callback
-	async processCallback(
-		callbackId: string,
-		payload: unknown
-	): Promise<void> {
+	async processCallback(callbackId: string, payload: unknown): Promise<void> {
 		const callback = this.callbacks.get(callbackId);
 		if (!callback) {
 			console.warn(`[Webhook] Callback not found: ${callbackId}`);
@@ -162,7 +156,7 @@ export class WebhookEmitter {
 
 		// Emit callback event
 		globalEventBus.emit({
-			type: "webhook.callback",
+			type: 'webhook.callback',
 			instanceId: callbackId,
 			payload,
 		} as WorkflowEvent);

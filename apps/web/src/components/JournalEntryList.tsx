@@ -1,11 +1,11 @@
-import { ErrorAlert } from "@repo/ui-mui/components/ErrorAlert";
-import { LoadingSpinner } from "@repo/ui-mui/components/LoadingSpinner";
-import { List, ListItem } from "@repo/ui-mui/data-display/List";
-import { Typography } from "@repo/ui-mui/data-display/Typography";
-import { Box } from "@repo/ui-mui/layout/Box";
-import { Card, CardContent } from "@repo/ui-mui/layout/Card";
-import { trpc } from "@frontend/utils/trpc.client";
-import { useQuery } from "@tanstack/react-query";
+import { trpc } from '@frontend/utils/trpc.client';
+import { ErrorAlert } from '@repo/ui-mui/components/ErrorAlert';
+import { LoadingSpinner } from '@repo/ui-mui/components/LoadingSpinner';
+import { List, ListItem } from '@repo/ui-mui/data-display/List';
+import { Typography } from '@repo/ui-mui/data-display/Typography';
+import { Box } from '@repo/ui-mui/layout/Box';
+import { Card, CardContent } from '@repo/ui-mui/layout/Card';
+import { useQuery } from '@tanstack/react-query';
 
 export function JournalEntryList() {
 	const {
@@ -27,10 +27,10 @@ export function JournalEntryList() {
 				Entradas do diário
 			</Typography>
 			{journalEntries && journalEntries.length > 0 ? (
-				<List sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+				<List sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
 					{journalEntries.map((entry) => (
 						<ListItem key={entry.journalEntryId} sx={{ p: 0 }}>
-							<Card sx={{ width: "100%", border: "1px solid", borderColor: "divider" }}>
+							<Card sx={{ width: '100%', border: '1px solid', borderColor: 'divider' }}>
 								<CardContent>
 									<Typography variant="h6" component="h3" gutterBottom color="primary">
 										{entry.prompt}
