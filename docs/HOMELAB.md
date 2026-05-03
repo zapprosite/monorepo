@@ -1,6 +1,6 @@
 # HOMELAB.md — Canonical Infrastructure Reference
 
-> **Verificado:** 2026-05-03 | **Versão:** 1.0 | **Zero placeholder**
+> **Verificado:** 2026-05-03 | **Versão:** 2.0 (enterprise roadmap ativado) | **Zero placeholder**
 
 ---
 
@@ -130,9 +130,74 @@ monitoring/          → Prometheus (:9090) + Grafana (:3100)
 
 ---
 
+## Service Dependency Map
+
+```
+                    ┌──────────────┐
+                    │ Cloudflare   │
+                    │ Tunnel (×3)  │
+                    └──────┬───────┘
+                           │
+              ┌────────────┼────────────┐
+              ▼            ▼            ▼
+        ┌─────────┐  ┌─────────┐  ┌──────────┐
+        │ Coolify │  │ Gitea   │  │ Keycloak │
+        │ :8000   │  │ :3300   │  │ :8080    │
+        └────┬────┘  └────┬────┘  └────┬─────┘
+             │            │            │
+    ┌────────┼────────────┼────────────┼──────────┐
+    ▼        ▼            ▼            ▼           ▼
+┌───────┐ ┌──────────┐ ┌────────┐ ┌─────────┐ ┌──────────┐
+│Redis  │ │LiteLLM   │ │Qdrant  │ │Ollama   │ │Hermes    │
+│:6379  │ │:4000     │ │:6333   │ │:11434   │ │:8642     │
+└───┬───┘ └────┬─────┘ └───┬────┘ └────┬────┘ └────┬─────┘
+    │          │            │          │            │
+    ▼          ▼            ▼          ▼            ▼
+┌────────────────────────────────────────────────────────┐
+│       PostgreSQL (coolify-db / litellm-db)             │
+│       ZFS tank/docker-data (239G)                      │
+│       ZFS tank/monorepo (15.8G)                        │
+└────────────────────────────────────────────────────────┘
+```
+
+**Critical path:** Cloudflare → Coolify → PostgreSQL → (all apps)
+**SPOF:** NVMe físico (4TB Gen5). Mitigado: ZFS checksums + scrub automático + backups.
+**RTO:** 30min (redeploy containers) | **RPO:** 6h (ZFS snapshots)
+
+---
+
+## SLOs (Service Level Objectives)
+
+| Service | SLO Target | Error Budget (30d) | Probe |
+|---------|-----------|---------------------|-------|
+| Gitea (`git.zappro.site`) | 99.5% | 3h 36min | `/api/v1/version` |
+| Coolify (`coolify.zappro.site`) | 99.0% | 7h 12min | `/api/health` |
+| Qdrant | 99.9% | 43min | `/health` |
+| Ollama | 99.5% | 3h 36min | `/api/tags` |
+| LiteLLM (`llm.zappro.site`) | 99.5% | 3h 36min | `/health` |
+| Hermes Gateway | 99.0% | 7h 12min | `/health` |
+| Keycloak | 99.5% | 3h 36min | `/health/ready` |
+| Edge TTS | 99.0% | 7h 12min | `/health` |
+
+**SLI:** `up{job}` via Prometheus blackbox-exporter / synthetic prober
+**Burn rate alerts:** Fast burn (1h budget consumed in 5min) → P1. Slow burn (2% in 1h) → P2.
+
+---
+
+## Image Version Policy (Enterprise)
+
+- **`docs/REFERENCE/VERSIONS.md`** — Manifesto canônico com pinned digests (`@sha256:`)
+- **`:latest` / `:nightly` tags são PROIBIDAS** em qualquer compose file
+- **Audit diário** 07:00 via `docker-digest-audit.sh` (reporta Telegram se violação)
+- **Local builds** (ai-gateway, edge-tts, hermes-orchestrator) exigem ZFS snapshot antes do build
+
+---
+
 ## Governança
 
-- **Secrets:** `/srv/monorepo/.env` (fonte canônica)
+- **Secrets:** `/srv/monorepo/.env` (fonte canônica, chmod 600)
+- **Versions:** `docs/REFERENCE/VERSIONS.md` (pinned digests)
+- **Enterprise spec:** `docs/SPECS/SPEC-210-enterprise-homelab-hardening.md`
 - **Segurança:** `/srv/ops/ai-governance/CONTRACT.md`
 - **Portas:** `/srv/ops/ai-governance/PORTS.md`
 - **Subdomínios:** `/srv/ops/ai-governance/SUBDOMAINS.md`
