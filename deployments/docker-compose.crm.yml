@@ -28,6 +28,7 @@ services:
       retries: 3
     networks:
       - crm-network
+      - zappro-lite_default
 
   crm-web:
     image: crm-web:local
@@ -51,3 +52,5 @@ services:
 networks:
   crm-network:
     driver: bridge
+  zappro-lite_default:
+    external: true
