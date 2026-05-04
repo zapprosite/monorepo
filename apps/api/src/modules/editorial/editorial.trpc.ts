@@ -1,4 +1,5 @@
 import { db } from '@backend/db/db';
+import { createCrudRouter } from '@backend/lib/crud-router.factory';
 import { protectedProcedure, trpcRouter } from '@backend/trpc';
 import {
 	editorialCreateInputZod,
@@ -11,59 +12,31 @@ import { TRPCError } from '@trpc/server';
 const EDITORIAL_MAX_LIMIT = 500;
 
 export const editorialRouterTrpc = trpcRouter({
-	listEditorialItems: protectedProcedure
-		.input(listEditorialFilterZod)
-		.query(async ({ ctx, input }) => {
-			let query = db.editorialItems.select('*').where({ teamId: ctx.user.teamId });
-
-			if (input.status) {
-				query = query.where({ status: input.status });
-			}
-			if (input.canal) {
-				query = query.where({ canal: input.canal });
-			}
-			if (input.formato) {
-				query = query.where({ formato: input.formato });
-			}
-			if (input.dataInicio) {
-				const inicio = input.dataInicio;
-				query = query.whereSql`"dataPublicacao" >= ${inicio}::date`;
-			}
-			if (input.dataFim) {
-				const fim = input.dataFim;
-				query = query.whereSql`"dataPublicacao" <= ${fim}::date`;
-			}
-
-			return query.order({ dataPublicacao: 'ASC' }).limit(EDITORIAL_MAX_LIMIT);
-		}),
-
-	getEditorialDetail: protectedProcedure
-		.input(editorialGetByIdZod)
-		.query(async ({ ctx, input: { editorialId } }) => {
-			const item = await db.editorialItems.findOptional(editorialId);
-			if (!item)
-				throw new TRPCError({ code: 'NOT_FOUND', message: 'Item editorial não encontrado' });
-			if (item.teamId !== ctx.user.teamId)
-				throw new TRPCError({ code: 'NOT_FOUND', message: 'Item editorial não encontrado' });
-			return item;
-		}),
-
-	createEditorialItem: protectedProcedure
-		.input(editorialCreateInputZod)
-		.mutation(async ({ ctx, input }) => {
-			return db.editorialItems.create({ ...input, teamId: ctx.user.teamId });
-		}),
-
-	updateEditorialItem: protectedProcedure
-		.input(editorialUpdateInputZod)
-		.mutation(async ({ ctx, input: { editorialId, ...data } }) => {
-			const item = await db.editorialItems.findOptional(editorialId);
-			if (!item)
-				throw new TRPCError({ code: 'NOT_FOUND', message: 'Item editorial não encontrado' });
-			if (item.teamId !== ctx.user.teamId)
-				throw new TRPCError({ code: 'NOT_FOUND', message: 'Item editorial não encontrado' });
-			return db.editorialItems.where({ editorialId }).update(data);
-		}),
+	...createCrudRouter({
+		table: db.editorialItems,
+		schemas: {
+			list: listEditorialFilterZod,
+			create: editorialCreateInputZod,
+			update: editorialUpdateInputZod,
+			delete: editorialGetByIdZod,
+			getById: editorialGetByIdZod,
+		},
+		idColumn: 'editorialId',
+		teamColumn: 'teamId',
+		maxListLimit: EDITORIAL_MAX_LIMIT,
+		defaultOrder: { dataPublicacao: 'ASC' },
+		hooks: {
+			buildListQuery: (query, input: any) => {
+				if (input.dataInicio) {
+					query = query.whereSql`"dataPublicacao" >= ${input.dataInicio}::date`;
+				}
+				if (input.dataFim) {
+					query = query.whereSql`"dataPublicacao" <= ${input.dataFim}::date`;
+				}
+				return query;
+			},
+		},
+	}),
 
 	moveToProducao: protectedProcedure
 		.input(editorialGetByIdZod)
