@@ -17,8 +17,8 @@ export async function oauth2Router(app: FastifyInstance) {
 	// Strict rate limiting for OAuth2 routes
 	// 5 requests per 15 minutes per IP - prevents abuse while allowing legitimate retries
 	await app.register(rateLimit, {
-		max: 5,
-		timeWindow: '15 minutes',
+		max: 30,
+		timeWindow: '5 minutes',
 		errorResponseBuilder: () => ({
 			statusCode: 429,
 			error: 'Too Many Requests',
