@@ -36,14 +36,14 @@ Organizar, estabilizar e documentar todo o homelab (/srv e Ubuntu Desktop) antes
 ```
 CRM-REFRIMIX (4088)       → Produção
 Keycloak (8080/8443)      → Auth
-Trieve (8090) + Qdrant    → Search/RAG
+Hermes (8642) + Qdrant    → Memory/RAG
 Coolify (8000)            → Deploy
 Gitea (3300/2222)         → Git
 Grafana/Prometheus        → Monitoring
 OpenWebUI x2              → AI Chat UI
 Searxng                   → Search
 Edge TTS (8012)           → TTS
-Qdrant (6333)             → DUPLICADO (tank + trieve + standalone)
+Qdrant (6333)             → Vector DB
 Litellm (4000)            → LLM Gateway
 node-exporter             → Metrics
 ```
@@ -69,7 +69,7 @@ FSTAB: /swap.img none swap sw 0 0
 
 - [ ] **1.1** Desligar swap (`swapoff -a`, comentar fstab)
 - [ ] **1.2** Audit containers órfãos (openwebui-hvac, kind_easley, competent_heyrovsky)
-- [ ] **1.3** Desduplicar Qdrant (manter só tank/qdrant + trieve-qdrant)
+- [ ] **1.3** Desduplicar Qdrant (manter só tank/qdrant + hermes-qdrant)
 
 ### FASE 2: Reorganização /srv
 
@@ -127,4 +127,4 @@ sudo zfs rollback -r tank@pre-polymer-20260430-172434
 
 - fit-tracker e hvacr-swarm são duplicados do monorepo — apps são os mesmos
 - AGENTS.md do hvacr-swarm marcado como DEPRECATED desde 2026-04-09
-- Qdrant a correr em 3 lugares: tank/qdrant (ZFS), trieve-qdrant (docker), hermes-second-brain-qdrant (docker)
+- Qdrant a correr em 2 lugares: tank/qdrant (ZFS), hermes-second-brain-qdrant (docker)

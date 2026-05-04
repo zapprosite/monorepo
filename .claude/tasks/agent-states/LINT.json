@@ -1,6 +1,6 @@
 {
   "agent": "LINT",
-  "spec": "092-trieve-rag-integration",
+  "spec": "092-deprecated-trieve-replaced-by-mem0",
   "status": "completed",
   "finished": "2026-04-23T02:11:08-03:00",
   "command": "pnpm lint"

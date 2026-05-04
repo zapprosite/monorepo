@@ -19,9 +19,9 @@
 - [ ] Prometheus alerting
 
 ### June 2026
-- [ ] Multi-provider API (SPEC-130)
-- [ ] Hermes v3 redesign (SPEC-090)
-- [ ] Trieve RAG integration (SPEC-092)
+- [x] Multi-provider API (SPEC-130)
+- [x] Hermes v3 redesign (SPEC-090)
+- [x] Mem0 + Qdrant RAG integration (replaces Trieve)
 
 ---
 
@@ -73,7 +73,6 @@
 | SPEC-068 | AI Team | P2 | Active |
 | SPEC-090 | Platform | P1 | Active |
 | SPEC-091 | Docs | P3 | Active |
-| SPEC-092 | AI Team | P2 | Active |
 | SPEC-093 | Architecture | P1 | Active |
 | SPEC-106 | AI Team | P1 | Active |
 | SPEC-115 | Frontend | P2 | Active |

@@ -1,9 +1,11 @@
-# SPEC-092 — Trieve RAG Integration
+# SPEC-092 — Trieve RAG Integration (DEPRECATED)
 
 **Data:** 2026-04-23
-**Estado:** Active
+**Estado:** DEPRECATED — Substituído por Mem0 + Qdrant (Hermes Second Brain)
 **Autor:** Hermes Agent (William Rodrigues)
 **Review:** William
+
+> ⚠️ **AVISO:** O Trieve foi removido do monorepo em 2026-05-04. A integração RAG agora é feita via Hermes Second Brain (`:8642`) que usa Mem0 + Qdrant (`:6333`). Veja `apps/api/src/modules/memory/` e `/srv/hermes-second-brain/` para a implementação atual.
 
 ---
 

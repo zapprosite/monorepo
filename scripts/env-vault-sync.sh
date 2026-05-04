@@ -208,7 +208,7 @@ FOOTER
 
 # ─── Sync to Workspace Apps ────────────────────────────────────────────────
 sync_to_apps() {
-    local apps=("api" "web" "orchestrator")
+    local apps=("api" "web")
     local synced=0
 
     for app in "${apps[@]}"; do

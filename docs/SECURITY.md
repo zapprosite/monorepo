@@ -34,7 +34,7 @@
 | user-roles.trpc.ts | 4 | ✅ Fixed |
 | content-engine/conteudos.trpc.ts | 11 | ✅ Fixed |
 | editorial.trpc.ts | 9 | ✅ Fixed |
-| trieve.trpc.ts | 4 | ✅ Fixed |
+| memory.trpc.ts | 4 | ✅ Fixed |
 | dashboard.trpc.ts | 1 | ✅ Fixed |
 
 **Pattern Applied:**

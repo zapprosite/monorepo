@@ -95,7 +95,7 @@ O sistema implementa 4 camadas de inteligência:
 │  └──────┬───────┘                                           │
 │         │                                                   │
 │  ┌──────▼───────┐                                           │
-│  │   KNOWLEDGE  │  Trieve RAG (:6435)                       │
+│  │   KNOWLEDGE  │  Mem0 + Qdrant (:6333)                    │
 │  │   LAYER      │  Retrieval de documentos indexados        │
 │  └──────┬───────┘                                           │
 │         │                                                   │
@@ -112,8 +112,8 @@ O sistema implementa 4 camadas de inteligência:
 | Provider | Port | Collection | Purpose |
 |----------|------|------------|---------|
 | Qdrant | :6333 | `mem0` | Mem0 managed vectors |
-| Qdrant | :6333 | `hermes` | Agency session history |
-| Qdrant | :6333 | `trieve` | RAG knowledge base |
+| Qdrant | :6333 | `hermes-knowledge` | Knowledge graph |
+| Qdrant | :6333 | `hvac_manuals_v1` | HVAC RAG corpus |
 
 **Mem0 Collections:**
 - `clients` — perfis e preferências de clientes
@@ -124,13 +124,14 @@ O sistema implementa 4 camadas de inteligência:
 - `tasks` — tarefas e estado
 - `working_memory` — contexto atual da sessão
 
-### 2.2 Knowledge Layer (Trieve RAG)
+### 2.2 Knowledge Layer (Mem0 + Qdrant)
 
-| Dataset | Purpose | Source |
+| Collection | Purpose | Source |
 |---------|---------|--------|
-| `hermes-second-brain` | Skills e procedures | `~/Desktop/hermes-second-brain/docs/` |
+| `hermes-knowledge` | Skills e procedures | `~/Desktop/hermes-second-brain/docs/` |
 | `monorepo-specs` | SPECs ativos | `/srv/monorepo/docs/SPECS/` |
 | `ops-governance` | Regras operacionais | `/srv/ops/ai-governance/` |
+| `hvac_manuals_v1` | Manuais técnicos HVAC | `/srv/data/hvac-manuals/` |
 
 ### 2.3 Reasoning Layer (LLM Providers)
 
@@ -163,8 +164,8 @@ CEO_REFRIMIX_bot (agency-ceo skill)
     ├──► MEM0 (Qdrant :6333)
     │    └──► Busca preferências + histórico
     │
-    ├──► TRIEVE RAG (:6435)
-    │    └──► Recupera conhecimento relevante
+    ├──► HERMES MEMORY (:8642)
+    │    └──► Recupera conhecimento relevante (Mem0+Qdrant)
     │
     ├──► POSTGRESQL (MCP :4017)
     │    └──► Dados estruturados (leads, campaigns)
@@ -193,7 +194,7 @@ SKILL SPECIALIZADA (ex: agency-creative)
    │
    ├─► Mem0.get() → user profile (tags: client_id)
    │
-   ├─► Trieve.search() → relevant docs (top_k=5)
+    ├─► Hermes.search() → relevant docs (top_k=5)
    │
    └─► MCP postgres → client record (if client_id known)
          │
@@ -323,16 +324,16 @@ HALF_OPEN (testing)
 Qdrant (:6333)
 │
 ├── mem0 (Mem0 managed)
-│   ├── vectors: 1024-float (qwen2.5:3b)
+│   ├── vectors: 768-float (nomic-embed-text)
 │   └── payload: text, tags, source, user_id, created_at
 │
-├── hermes (Agency sessions)
-│   ├── vectors: 1024-float
-│   └── payload: session_id, role, content, timestamp, metadata
+├── hermes-knowledge (Knowledge graph)
+│   ├── vectors: 768-float
+│   └── payload: content, metadata {source, type, tags}
 │
-└── trieve (Knowledge base)
-    ├── vectors: 768-float (bge-m3)
-    └── payload: content, metadata {source, type, dataset_id}
+└── hvac_manuals_v1 (HVAC corpus)
+    ├── vectors: 768-float
+    └── payload: content, metadata {brand, model, page}
 ```
 
 ### 6.2 Mem0 Schema
@@ -367,9 +368,9 @@ Qdrant (:6333)
 
 ---
 
-## 7. Knowledge Architecture (Trieve RAG)
+## 7. Knowledge Architecture (Mem0 + Qdrant)
 
-### 7.1 Dataset Sources
+### 7.1 Collection Sources
 
 ```
 FASE 1 — Indexação inicial
@@ -395,21 +396,21 @@ FASE 2 — Expansão
 
 ### 7.3 Embedding Model
 
-**Primary:** `BAAI/bge-m3` (768-float)
-**Fallback:** `nomic-ai/qwen2.5:3b` (1024-float)
+**Primary:** `nomic-embed-text` (768-float via Ollama)
+**Fallback:** `qwen2.5:3b` (1024-float via Ollama)
 
-### 7.4 Trieve API
+### 7.4 Hermes Memory API
 
 ```
-Base URL: http://localhost:6435/api/v1
+Base URL: http://localhost:8642
 
 Endpoints:
-  POST /datasets              — Create dataset
-  POST /chunks                — Upload chunks
-  POST /search                — Semantic search
-  POST /datasets/{id}/chunks  — Search dataset
+  POST /memory/               — Save memory
+  POST /memory/query          — Semantic search
+  GET  /memory/               — List recent memories
+  GET  /memory/stats/by-agent — Stats by agent
 
-Auth: Bearer token (TRIEVE_API_KEY)
+No auth required (localhost only)
 ```
 
 ---
@@ -532,11 +533,9 @@ export async function invokeWorkflow(
 |----------|---------|-------------|
 | `QDRANT_URL` | `http://localhost:6333` | Qdrant endpoint |
 | `QDRANT_API_KEY` | — | Qdrant API key |
-| `MEM0_API_KEY` | — | Mem0 API key |
+| `HERMES_API_URL` | `http://localhost:8642` | Hermes Second Brain API |
 | `OLLAMA_URL` | `http://localhost:11434` | Ollama endpoint |
-| `OLLAMA_MODEL` | `nomic-ai/qwen2.5:3b` | Embedding model |
-| `TRIEVE_API_KEY` | — | Trieve API key |
-| `TRIEVE_URL` | `http://localhost:6435` | Trieve endpoint |
+| `OLLAMA_MODEL` | `nomic-embed-text` | Embedding model |
 
 ### 10.3 PostgreSQL (MCP)
 
@@ -587,7 +586,7 @@ export async function invokeWorkflow(
 |---------|------|----------|---------|
 | LiteLLM | 4000 | Docker Compose | LLM proxy |
 | Qdrant | 6333 | Coolify | Vector DB |
-| Trieve | 6435 | Coolify | RAG API |
+| Hermes | 8642 | Docker Compose | Memory API (Mem0+Qdrant) |
 | Grafana | 3100 | Docker Compose | Metrics |
 | Loki | 3101 | Docker Compose | Logs |
 | Prometheus | 9090 | Docker Compose | Metrics collection |
@@ -629,8 +628,8 @@ curl http://localhost:4000/health
 # Qdrant
 curl http://localhost:6333/health
 
-# Trieve
-curl http://localhost:6435/api/v1/health
+# Hermes (Mem0+Qdrant)
+curl http://localhost:8642/health
 
 # Ollama
 curl http://localhost:11434/api/tags
@@ -662,7 +661,6 @@ curl http://localhost:3001/health/circuit-breakers?userId=7220607041
 |------|-------|--------------|
 | SPEC-068 | Circuit Breaker | Per-skill breakers |
 | SPEC-074 | Mem0 Second Brain | Memory layer |
-| SPEC-092 | Trieve RAG | Knowledge layer |
 | SPEC-090 | Orchestrator v3 | Multi-agent pipeline |
 
 ---

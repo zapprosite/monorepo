@@ -25,7 +25,7 @@ function checkEnv() {
 		process.exit(1);
 	}
 	console.log('[OK] .env validated');
-	const apps = ['list-web', 'obsidian-web', 'ai-gateway', 'api', 'web'];
+	const apps = ['ai-gateway', 'api', 'web'];
 	for (const app of apps) {
 		const appEnv = path.resolve(MONOREPO_ROOT, 'apps', app, '.env');
 		if (fs.existsSync(appEnv)) {

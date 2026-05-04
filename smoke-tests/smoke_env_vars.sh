@@ -19,7 +19,7 @@ echo "=== Token Validation ==="
 # Check .env files don't have old/placeholder tokens
 for env in /home/will/zappro-lite/.env /srv/monorepo/.env; do
     if [ -f "$env" ]; then
-        if grep -q "your-trieve-api-key\|your-openai-key\|TODO" "$env" 2>/dev/null; then
+        if grep -q "your-openai-key\|TODO" "$env" 2>/dev/null; then
             echo "⚠️ Placeholder tokens found in $env"
         fi
     fi

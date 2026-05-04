@@ -103,7 +103,7 @@ skills/
   index.ts                    (287 linhas) — 13 skills registry
   tool_registry.ts           (625 linhas) — tool execution
   circuit_breaker.ts         (110 linhas) — circuit breaker ✅
-  rag-instance-organizer.ts  — RAG/Trieve
+  rag-instance-organizer.ts  — RAG/Qdrant
 langgraph/
   supervisor.ts              (160 linhas) — workflow dispatcher
   content_pipeline.ts       (367 linhas) — TRUE LangGraph StateGraph

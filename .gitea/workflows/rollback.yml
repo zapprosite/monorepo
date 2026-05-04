@@ -12,7 +12,6 @@ on:
         type: choice
         options:
           - monorepo-web
-          - perplexity-agent
           - backend
           - frontend
       deployment_id:

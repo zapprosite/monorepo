@@ -20,7 +20,7 @@
 │                         DOCKER (zappro-lite_default)                       │
 │                                                                             │
 │  ┌──────────────┐     ┌─────────────────┐     ┌──────────────────┐       │
-│  │  OpenWebUI   │────▶│  trieve-redis   │     │  LiteLLM          │       │
+  │  │  OpenWebUI   │────▶│  redis          │     │  LiteLLM          │       │
 │  │  :3456       │     │  :6379           │     │  :4000            │       │
 │  └──────────────┘     └─────────────────┘     └──────────────────┘       │
 │         │                                                  │              │
@@ -47,7 +47,7 @@
 | HVAC RAG Pipe   | 4017            | 4017      | HTTP     | RAG filter (host mode)  |
 | LiteLLM         | 4000            | 4000      | HTTP     | LLM gateway              |
 | Qdrant          | 6333            | -         | HTTP     | Vector database          |
-| trieve-redis    | 6379            | -         | TCP      | Session cache (open)     |
+| redis    | 6379            | -         | TCP      | Session cache (open)     |
 | zappro-redis    | 6379            | 127.0.0.1  | TCP      | Has auth (unused)        |
 | zappro-litellm-db| 5432           | -         | TCP      | PostgreSQL               |
 
@@ -61,7 +61,7 @@
   - zappro-litellm (10.0.3.3)
   - zappro-litellm-db (10.0.3.4)
   - zappro-redis (10.0.3.2)
-  - trieve-redis (10.0.8.5 - connected via network)
+  - redis (10.0.8.5 - connected via network)
 
 ### Host Network
 - hvac-rag-pipe.py runs on host network (port 4017)
@@ -78,8 +78,8 @@
 6. LiteLLM → OpenRouter API [external]
 
 ### Redis Flow
-- OpenWebUI → trieve-redis (:6379) [session/cache]
-- No authentication required for trieve-redis
+- OpenWebUI → redis (:6379) [session/cache]
+- No authentication required for redis
 
 ## Service Definitions
 
@@ -90,7 +90,7 @@ networks: [zappro-lite_default]
 ports: [3456:3456]
 env:
   OPENAI_API_BASE_URL: http://host.docker.internal:4017/v1
-  REDIS_HOST: trieve-redis
+  REDIS_HOST: redis
   DEFAULT_MODEL: zappro-clima-tutor
 ```
 
@@ -124,6 +124,6 @@ depends_on: [zappro-litellm-db]
 ### DON'T
 1. ❌ Use localhost in containers
 2. ❌ Mix host network_mode with bridge networks
-3. ❌ Leave Redis without authentication (except trieve-redis)
+3. ❌ Leave Redis without authentication (except redis)
 4. ❌ Modify locked configs without version bump
 5. ❌ Commit secrets to git

@@ -33,7 +33,7 @@ In scope:
 - Hermes Gateway (TypeScript) and Hermes Gateway (Python).
 - Codex CLI, Claude Code, `mclaude`, `opencode-go-cli`, and `opencode` as CLI tools.
 - Coolify operations through API/MCP adapters.
-- Qdrant, Mem0, Trieve RAG, Ollama, LiteLLM, Redis, and PostgreSQL MCP.
+- Qdrant, Mem0, Hermes Second Brain, Ollama, LiteLLM, Redis, and PostgreSQL MCP.
 - Gitea Actions as CI/deploy executor.
 - `tasks/pipeline.json` as the active queue for monorepo work.
 
@@ -51,7 +51,7 @@ Out of scope:
 | Repo | `/srv/monorepo` | Source of truth for code, specs, tasks, pipelines |
 | Runtime | `apps/hermes-gateway` + Hermes Gateway (Python) | Agent routing and execution |
 | Memory | Mem0 + Qdrant | User/session preferences and working memory |
-| Knowledge | Trieve + Qdrant | Docs/specs/runbooks retrieval |
+| Knowledge | Hermes + Qdrant | Docs/specs/runbooks retrieval |
 | Reasoning | LiteLLM + Ollama | External and local model access |
 | Action | CLI/API adapters | Codex, Claude, mclaude, opencode, Coolify, Gitea, shell |
 | State | `tasks/` | Queue, agent states, smoke results, snapshots |
@@ -77,7 +77,7 @@ Out of scope:
 | Qdrant | `QDRANT_URL` | `6333` | Vector DB |
 | Ollama | `OLLAMA_URL` | `11434` | Local models/embeddings |
 | Redis | `REDIS_HOST`/`REDIS_PORT` | `6379` | Rate limit, locks |
-| Trieve | `TRIEVE_URL` | `6435` | RAG API |
+| Hermes | `HERMES_API_URL` | `8642` | Memory API (Mem0+Qdrant) |
 | Coolify | `COOLIFY_URL` | `8000` | PaaS control |
 
 ## Current Reality
@@ -87,7 +87,7 @@ This repo has useful implementation, not just placeholders:
 - `apps/hermes-gateway/src/router/router.ts` routes messages to skills.
 - `apps/hermes-gateway/src/skills/index.ts` declares the active skill registry.
 - `apps/hermes-gateway/src/mem0/client.ts` persists working memory into Qdrant.
-- `apps/hermes-gateway/src/skills/rag-instance-organizer.ts` integrates Trieve.
+- `apps/hermes-gateway/src/skills/rag-instance-organizer.ts` integrates Qdrant.
 - `apps/ai-gateway/src/index.ts` exposes the OpenAI-compatible facade.
 - `scripts/pipeline-helpers/` contains phase/gate/snapshot helper scripts.
 - `tasks/agent-states/` and `tasks/smoke-tests/` already hold operational state.

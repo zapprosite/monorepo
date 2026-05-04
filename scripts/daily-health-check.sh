@@ -23,7 +23,7 @@ declare -A SERVICES=(
     ["qdrant:6333"]="http://localhost:6333/health"
     ["qdrant-dashboard:6334"]="http://localhost:6334/health"
     ["ollama:11434"]="http://localhost:11434/api/tags"
-    ["trieve:6435"]="http://localhost:6435/api/v1/health"
+    ["hermes:8642"]="http://localhost:8642/health"
     ["grafana:3000"]="http://localhost:3000/api/health"
     ["coolify:8000"]="http://localhost:8000/api/health"
 )

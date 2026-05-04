@@ -10,7 +10,7 @@ Durante a sessão de debug, vários testes Vitest foram "mascarados" em vez de c
 
 1. **`router-integration.test.ts`** — `vi.mocked()` returns `undefined` ✅ CORRIGIDO
 2. **`litellm-proxy.test.ts`** — `vi.stubGlobal()` não existe no Vitest ✅ CORRIGIDO
-3. **`trieve-integration.test.ts`** — Isolation failure ⚠️ REQUER REFATORAÇÃO
+3. ~~`trieve-integration.test.ts`~~ — REMOVIDO (Trieve foi substituído por Mem0+Qdrant)
 
 ## Estado Actual dos Testes
 
@@ -67,16 +67,9 @@ const { default: fetch } = await import('node:fetch');
 fetch.mockResolvedValueOnce({...});
 ```
 
-### 3. Test isolation failure em `trieve-integration.test.ts`
+### 3. ~~Test isolation failure em `trieve-integration.test.ts`~~
 
-**Problema:** Quando executado com todos os testes (247 tests), 83 falham. Quando executado sozinho (39 tests), passa.
-
-**Causa:** Multiple test files a fazer `global.fetch = mockFetch` em paralelo, causando conflitos. O `globalThis.fetch` é partilhado entre todos os módulos.
-
-**Solução correta:**
-1. Cada teste deve fazer mock de `node:fetch` via `vi.mock()`, não via assignment global
-2. Ou usar `afterEach` para fazer cleanup do global state
-3. Ou isolar cada teste com `vi.resetModules()`
+**Status:** REMOVIDO — Trieve foi substituído por Mem0+Qdrant (Hermes Second Brain). O módulo `trieve/` foi deletado do monorepo.
 
 ## Plano de Correção
 
@@ -125,16 +118,7 @@ describe('LiteLLM Proxy', () => {
 })
 ```
 
-### Step 3: Corrigir `trieve-integration.test.ts` isolation
-
-**Ficheiro:** `apps/hermes-gateway/src/__tests__/trieve-integration.test.ts`
-
-**Mudanças:**
-- Remover `global.fetch = mockFetch`
-- Usar `vi.mock('node:fetch')` para cada teste
-- Adicionar `afterEach` com cleanup se necessário
-
-### Step 4: Verificar que todos os testes passam
+### Step 3: Verificar que todos os testes passam
 
 > **PENDENTE** — Awaiting correction of steps 1-3 before running
 
@@ -151,12 +135,12 @@ QDRANT_API_KEY=... bun test 2>&1 | tail -20
 |----------|-------|------------|
 | `router-integration.test.ts` | `vi.mocked` undefined | P0 |
 | `litellm-proxy.test.ts` | `vi.stubGlobal` não existe | P1 |
-| `trieve-integration.test.ts` | Isolation failure | P1 |
+| ~~`trieve-integration.test.ts`~~ | REMOVIDO | — |
 
 ## Notes
 
 - O teste `sanitizeForPrompt — removes control characters` em `router-integration.test.ts` verifica o prompt COMPLETO que tem newlines intencionais. O teste original foi restaurado para não mascarar o problema real.
-- O problema de isolation em `trieve-integration.test.ts` é um bug conhecido do Vitest quando múltiplos ficheiros de teste modificam globals partilhados.
+- O `trieve-integration.test.ts` foi removido juntamente com o módulo Trieve (substituído por Mem0+Qdrant).
 - O `litellm-proxy.test.ts` foi deletado porque mascarava em vez de testar correctamente.
 
 ---
@@ -165,5 +149,5 @@ QDRANT_API_KEY=... bun test 2>&1 | tail -20
 
 - [ ] Corrigir `vi.mocked` → type assertion em `router-integration.test.ts`
 - [ ] Criar `litellm-proxy.test.ts` com mock correcto de `node:fetch`
-- [ ] Corrigir isolation de `global.fetch` em `trieve-integration.test.ts`
-- [ ] Verificar que todos os 247 tests passam com 0 failures
+- [x] ~~Corrigir isolation de `global.fetch` em `trieve-integration.test.ts`~~ — REMOVIDO
+- [ ] Verificar que todos os tests passam com 0 failures

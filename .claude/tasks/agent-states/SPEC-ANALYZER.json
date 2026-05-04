@@ -1,6 +1,6 @@
 {
   "agent": "SPEC-ANALYZER",
-  "spec": "092-trieve-rag-integration",
+  "spec": "092-deprecated-trieve-replaced-by-mem0",
   "status": "running",
   "started": "2026-04-23T02:11:07-03:00",
   "command": "/researcher"
