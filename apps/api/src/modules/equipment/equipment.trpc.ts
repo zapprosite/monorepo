@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 import { db } from '@backend/db/db';
+import { createCrudRouter } from '@backend/lib/crud-router.factory';
 import { protectedProcedure, trpcRouter } from '@backend/trpc';
 import {
 	equipmentCreateInputZod,
@@ -18,149 +19,135 @@ import {
 } from '@repo/zod-schemas/unit.zod';
 import { TRPCError } from '@trpc/server';
 
-export const equipmentRouterTrpc = trpcRouter({
-	// --- UNITS ---
-	listUnitsByClient: protectedProcedure
-		.input(unitsByClientZod)
-		.query(async ({ ctx, input: { clienteId } }) => {
-			const { teamId } = ctx.user;
-			const cliente = await db.clients
-				.where({ clientId: clienteId, teamId })
-				.findOptional(clienteId);
-			if (!cliente) throw new TRPCError({ code: 'FORBIDDEN', message: 'Acesso negado' });
-			return db.units
-				.select('*')
+async function assertClientTeamAccess(clienteId: string, teamId: string | null | undefined) {
+	const client = await db.clients.findOptional(clienteId);
+	if (!client || client.teamId !== teamId)
+		throw new TRPCError({ code: 'FORBIDDEN', message: 'Acesso negado' });
+}
+
+async function assertEquipmentTeamAccess(equipmentId: string, teamId: string | null | undefined) {
+	const eq = await db.equipment.findOptional(equipmentId);
+	if (!eq) throw new TRPCError({ code: 'NOT_FOUND', message: 'Equipamento não encontrado' });
+	await assertClientTeamAccess(eq.clienteId, teamId);
+	return eq;
+}
+
+async function assertUnitTeamAccess(unitId: string, teamId: string | null | undefined) {
+	const unit = await db.units.findOptional(unitId);
+	if (!unit) throw new TRPCError({ code: 'NOT_FOUND', message: 'Unidade não encontrada' });
+	await assertClientTeamAccess(unit.clienteId, teamId);
+	return unit;
+}
+
+const unitsCrud = createCrudRouter({
+	table: db.units,
+	schemas: {
+		list: unitsByClientZod,
+		create: unitCreateInputZod,
+		update: unitUpdateInputZod,
+		delete: unitGetByIdZod,
+		getById: unitGetByIdZod,
+	},
+	idColumn: 'unitId',
+	defaultOrder: { nome: 'ASC' },
+	hooks: {
+		buildListQuery: (query: any, input: any, ctx: any) => {
+			query = query
 				// @ts-ignore TS2339 innerJoin not in type but exists at runtime
 				.innerJoin('clients', 'units.clienteId', 'clients.clientId')
-				.where({ 'clients.teamId': teamId, 'units.clienteId': clienteId })
-				.order({ nome: 'ASC' });
-		}),
+				.where({ 'clients.teamId': ctx.user.teamId, 'units.clienteId': input.clienteId });
+			return query;
+		},
+		transformCreateInput: async (input: any, ctx: any) => {
+			await assertClientTeamAccess(input.clienteId, ctx.user.teamId);
+			return input;
+		},
+		onBeforeUpdate: async (input: any, ctx: any) => {
+			await assertUnitTeamAccess(input.unitId, ctx.user.teamId);
+		},
+		onBeforeDelete: async (input: any, ctx: any) => {
+			await assertUnitTeamAccess(input.unitId, ctx.user.teamId);
+		},
+	},
+});
 
-	getUnitDetail: protectedProcedure
-		.input(unitGetByIdZod)
-		.query(async ({ ctx, input: { unitId } }) => {
-			const { teamId } = ctx.user;
-			const unit = await db.units.find(unitId);
-			if (!unit) throw new Error('Unidade não encontrada');
-			const cliente = await db.clients
-				.where({ clientId: unit.clienteId, teamId })
-				.findOptional(unit.clienteId);
-			if (!cliente) throw new TRPCError({ code: 'FORBIDDEN', message: 'Acesso negado' });
-			return unit;
-		}),
+const equipmentCrud = createCrudRouter({
+	table: db.equipment,
+	schemas: {
+		list: listEquipmentFilterZod,
+		create: equipmentCreateInputZod,
+		update: equipmentUpdateInputZod,
+		delete: equipmentGetByIdZod,
+		getById: equipmentGetByIdZod,
+	},
+	idColumn: 'equipmentId',
+	defaultOrder: { nome: 'ASC' },
+	hooks: {
+		buildListQuery: (query: any, input: any, ctx: any) => {
+			query = query
+				// @ts-ignore TS2339 innerJoin not in type but exists at runtime
+				.innerJoin('clients', 'equipment.clienteId', 'clients.clientId')
+				.where('clients.teamId', ctx.user.teamId);
+			if (input.clienteId) query = query.where({ 'equipment.clienteId': input.clienteId });
+			if (input.unitId) query = query.where({ unitId: input.unitId });
+			if (input.status) query = query.where({ status: input.status });
+			if (input.ativo !== undefined) query = query.where({ ativo: input.ativo });
+			return query;
+		},
+		transformCreateInput: async (input: any, ctx: any) => {
+			await assertClientTeamAccess(input.clienteId, ctx.user.teamId);
+			const subdomain = crypto.randomUUID().substring(0, 8);
+			return { ...input, subdomain };
+		},
+		onBeforeUpdate: async (input: any, ctx: any) => {
+			await assertEquipmentTeamAccess(input.equipmentId, ctx.user.teamId);
+		},
+		onBeforeDelete: async (input: any, ctx: any) => {
+			await assertEquipmentTeamAccess(input.equipmentId, ctx.user.teamId);
+		},
+	},
+});
 
-	createUnit: protectedProcedure.input(unitCreateInputZod).mutation(async ({ ctx, input }) => {
-		const { teamId } = ctx.user;
-		const cliente = await db.clients
-			.where({ clientId: input.clienteId, teamId })
-			.findOptional(input.clienteId);
-		if (!cliente) throw new TRPCError({ code: 'NOT_FOUND', message: 'Cliente não encontrado' });
-		return db.units.create(input);
-	}),
+export const equipmentRouterTrpc = trpcRouter({
+	listUnitsByClient: unitsCrud.list,
+	getUnitDetail: unitsCrud.getById,
+	createUnit: unitsCrud.create,
+	updateUnit: unitsCrud.update,
+	deleteUnit: unitsCrud.delete,
 
-	updateUnit: protectedProcedure
-		.input(unitUpdateInputZod)
-		.mutation(async ({ ctx, input: { unitId, ...data } }) => {
-			const { teamId } = ctx.user;
-			const unit = await db.units.find(unitId);
-			const cliente = await db.clients
-				.where({ clientId: unit.clienteId, teamId })
-				.findOptional(unit.clienteId);
-			if (!cliente) throw new TRPCError({ code: 'FORBIDDEN', message: 'Acesso negado' });
-			return db.units.find(unitId).update(data);
-		}),
-
-	// --- EQUIPMENT ---
-	listEquipment: protectedProcedure.input(listEquipmentFilterZod).query(async ({ ctx, input }) => {
-		const { teamId } = ctx.user;
-		let query = db.equipment
-			.select('*')
-			// @ts-ignore TS2339 innerJoin not in type but exists at runtime
-			.innerJoin('clients', 'equipment.clienteId', 'clients.clientId')
-			.where('clients.teamId', teamId);
-		if (input.clienteId) query = query.where({ 'equipment.clienteId': input.clienteId });
-		if (input.unitId) query = query.where({ unitId: input.unitId });
-		if (input.status) query = query.where({ status: input.status });
-		if (input.ativo !== undefined) query = query.where({ ativo: input.ativo });
-		return query.order({ nome: 'ASC' });
-	}),
-
+	listEquipment: equipmentCrud.list,
 	listEquipmentByClient: protectedProcedure
 		.input(equipmentsByClientZod)
 		.query(async ({ ctx, input: { clienteId } }) => {
-			const { teamId } = ctx.user;
-			const cliente = await db.clients
-				.where({ clientId: clienteId, teamId })
-				.findOptional(clienteId);
-			if (!cliente) throw new TRPCError({ code: 'FORBIDDEN', message: 'Acesso negado' });
+			await assertClientTeamAccess(clienteId, ctx.user.teamId);
 			return db.equipment
 				.select('*')
 				// @ts-ignore TS2339 innerJoin not in type but exists at runtime
 				.innerJoin('clients', 'equipment.clienteId', 'clients.clientId')
-				.where({ 'clients.teamId': teamId, 'equipment.clienteId': clienteId })
+				.where({ 'clients.teamId': ctx.user.teamId, 'equipment.clienteId': clienteId })
 				.order({ nome: 'ASC' });
 		}),
 
 	listEquipmentByUnit: protectedProcedure
 		.input(equipmentsByUnitZod)
 		.query(async ({ ctx, input: { unitId } }) => {
-			const { teamId } = ctx.user;
-			const unit = await db.units.find(unitId);
-			if (!unit) throw new Error('Unidade não encontrada');
-			const cliente = await db.clients
-				.where({ clientId: unit.clienteId, teamId })
-				.findOptional(unit.clienteId);
-			if (!cliente) throw new TRPCError({ code: 'FORBIDDEN', message: 'Acesso negado' });
+			const unit = await db.units.findOptional(unitId);
+			if (!unit) throw new TRPCError({ code: 'NOT_FOUND', message: 'Unidade não encontrada' });
+			await assertClientTeamAccess(unit.clienteId, ctx.user.teamId);
 			return db.equipment.where({ unitId }).order({ nome: 'ASC' });
 		}),
 
-	getEquipmentDetail: protectedProcedure
-		.input(equipmentGetByIdZod)
-		.query(async ({ ctx, input: { equipmentId } }) => {
-			const { teamId } = ctx.user;
-			const eq = await db.equipment.find(equipmentId);
-			if (!eq) throw new Error('Equipamento não encontrado');
-			const cliente = await db.clients
-				.where({ clientId: eq.clienteId, teamId })
-				.findOptional(eq.clienteId);
-			if (!cliente) throw new TRPCError({ code: 'FORBIDDEN', message: 'Acesso negado' });
-			return eq;
-		}),
+	getEquipmentDetail: equipmentCrud.getById,
+	createEquipment: equipmentCrud.create,
+	updateEquipment: equipmentCrud.update,
+	deleteEquipment: equipmentCrud.delete,
 
-	createEquipment: protectedProcedure
-		.input(equipmentCreateInputZod)
-		.mutation(async ({ ctx, input }) => {
-			const { teamId } = ctx.user;
-			const cliente = await db.clients
-				.where({ clientId: input.clienteId, teamId })
-				.findOptional(input.clienteId);
-			if (!cliente) throw new TRPCError({ code: 'FORBIDDEN', message: 'Acesso negado' });
-			const subdomain = crypto.randomUUID().substring(0, 8);
-			return db.equipment.create({ ...input, subdomain });
-		}),
-
-	updateEquipment: protectedProcedure
-		.input(equipmentUpdateInputZod)
-		.mutation(async ({ ctx, input: { equipmentId, ...data } }) => {
-			const { teamId } = ctx.user;
-			const eq = await db.equipment.find(equipmentId);
-			if (!eq) throw new Error('Equipamento não encontrado');
-			const cliente = await db.clients
-				.where({ clientId: eq.clienteId, teamId })
-				.findOptional(eq.clienteId);
-			if (!cliente) throw new TRPCError({ code: 'FORBIDDEN', message: 'Acesso negado' });
-			return db.equipment.find(equipmentId).update(data);
-		}),
-
-	// --- RG SUBDOMAIN ---
 	listEquipmentForRg: protectedProcedure.query(async ({ ctx }) => {
-		// Returns active equipment with assigned sequence numbers for RG subdomain
-		const { teamId } = ctx.user;
 		const equipment = await db.equipment
 			.select('*')
 			// @ts-ignore TS2339 innerJoin not in type but exists at runtime
 			.innerJoin('clients', 'equipment.clienteId', 'clients.clientId')
-			.where('clients.teamId', teamId)
+			.where('clients.teamId', ctx.user.teamId)
 			.where({ ativo: true })
 			.order({ sequenceNumber: 'ASC' });
 
@@ -171,14 +158,8 @@ export const equipmentRouterTrpc = trpcRouter({
 		.input(z.object({ equipmentId: z.string().uuid() }))
 		.mutation(async ({ ctx, input }) => {
 			const { teamId } = ctx.user;
-			const eq = await db.equipment.find(input.equipmentId);
-			if (!eq) throw new Error('Equipamento não encontrado');
-			const cliente = await db.clients
-				.where({ clientId: eq.clienteId, teamId })
-				.findOptional(eq.clienteId);
-			if (!cliente) throw new TRPCError({ code: 'FORBIDDEN', message: 'Acesso negado' });
+			await assertEquipmentTeamAccess(input.equipmentId, teamId);
 
-			// Get next sequence number for this team
 			const allEquipment = await db.equipment
 				.select('sequenceNumber')
 				// @ts-ignore TS2339 innerJoin not in type but exists at runtime
@@ -197,5 +178,3 @@ export const equipmentRouterTrpc = trpcRouter({
 			return db.equipment.find(input.equipmentId).update({ sequenceNumber: nextNumber });
 		}),
 });
-
-// No extra import needed — z is imported at top of file
