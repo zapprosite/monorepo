@@ -314,7 +314,7 @@ Any .
 | STT | wav2vec2 :8201 | Deepgram, Whisper |
 | TTS Bridge | :8013 | |
 | TTS Voices | pm_santa, pf_dora | Outras vozes |
-| LLM Primary | minimax/MiniMax-M2.7 | LiteLLM como primario |
+| LLM Primary | openrouter/hermes-brain | LiteLLM como primario |
 | Vision | litellm/llava | Outros VL |
 
 ## Leader Pattern

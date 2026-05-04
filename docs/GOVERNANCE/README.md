@@ -21,7 +21,7 @@ cat /srv/monorepo/AGENTS.md | tail -200
 - 7 agentes especializados
 - Network & Port Governance
 - Anti-Hardcoded Pattern
-- LLM Tiering (MiniMax + Ollama)
+- LLM Tiering (OpenRouter + Ollama)
 
 ### 2. Second Brain TREE (Estrutura de Conhecimento)
 
@@ -72,7 +72,7 @@ cat ~/Desktop/SYSTEM_ARCHITECTURE.md 2>/dev/null
 PC PRINCIPAL (Gen5 4TB NVMe + RTX 4090 24GB + 64GB RAM)
   ├── Headless Ubuntu Server (SSH do PC secundario)
   ├── ZFS pool: tank (4TB RAID-Z)
-  └── VRAM: 23GB livre quando Gemma4 nao esta em uso
+  └── VRAM: 23GB livre quando Qwen2.5 Coder nao esta em uso
 
 PC SECUNDARIO (Gen3 1TB NVMe + RTX 3060 12GB + 32GB RAM)
   └── Dashboard principal (SSH para PC principal)
@@ -83,7 +83,7 @@ SERVICOS PRINCIPAIS:
   ├── Gitea (3000) → tank/gitea
   ├── Coolify (80/443) → tank/coolify
   ├── Hermes Gateway (3001) → ~/.hermes
-  └── LiteLLM (4000) → pooling para MiniMax/GPT
+  └── LiteLLM (4018/v1) → gateway OpenAI-compat (Ollama + OpenRouter)
 ```
 
 ---
@@ -166,9 +166,10 @@ INTERNET → Cloudflare → cloudflared → TRAEFIK (80/443/8080) → UFW → SE
 | Porta | Servico | Status |
 |-------|---------|--------|
 | :3000 | Open WebUI proxy | RESERVED |
-| :4000 | LiteLLM production | RESERVED |
+| :4000 | API/CRM legacy mapping | RESERVED |
 | :4001 | Hermes Agent Bot | RESERVED |
-| :4002 | ai-gateway OpenAI compat | RESERVED |
+| :4002 | Reservada (legado ai-gateway) | RESERVED |
+| :4018 | LiteLLM Proxy | RESERVED |
 | :8000 | Coolify PaaS | RESERVED |
 | :8080 | Open WebUI (Coolify managed) | RESERVED |
 | :3001 | Hermes Gateway | RESERVED |
@@ -204,14 +205,14 @@ curl -X POST https://api.groq.com/openai/v1/audio/transcriptions \
 
 | Modelo | Uso | Custo |
 |--------|-----|-------|
-| MiniMax M2.7 | Chat principal (via LiteLLM :4000) | Token plan |
-| GPT-4o-mini | Fallback automatico | $0.15/1M tokens |
-| Gemma4:26b-q4 | Codigo local (Ollama) | Gratis |
+| hermes-auto | Alias padrão (local + fallback cloud via LiteLLM) | Grátis / Token plan |
+| hermes-local-code | Code/texto local (Qwen2.5 Coder 14B via Ollama) | Grátis |
+| hermes-brain | Escalada cloud (DeepSeek V4 Pro via OpenRouter) | Token plan |
 
 ### VRAM Strategy
 
-- Gemma4 carregado sob demanda (22GB VRAM)
-- LiteLLM faz pooling automatico entre MiniMax/GPT
+- Ollama carrega modelos sob demanda (Qwen2.5 Coder ~7GB, Qwen2.5VL ~4.5GB, Nomic ~0.5GB)
+- LiteLLM faz roteamento e fallback automático entre Ollama (local) e OpenRouter (cloud)
 
 ---
 
@@ -220,7 +221,7 @@ curl -X POST https://api.groq.com/openai/v1/audio/transcriptions \
 Antes de implementar algo, questione:
 
 - ✅ Isso e necessario mesmo? Reduz complexidade ou só adiciona?
-- ✅ Segue a estrategia de custo-beneficio? (MiniMax + GPT Plus + OpenAI API)
+- ✅ Segue a estrategia de custo-beneficio? (OpenRouter + GPT Plus + OpenAI API)
 - ✅ Vie useful life do hardware? (evitar swap no Gen5)
 - ✅ Documentado? (ADR se mudanca estrutural)
 

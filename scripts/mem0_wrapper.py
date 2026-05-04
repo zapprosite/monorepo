@@ -2,7 +2,7 @@
 """
 Hermes Mem0 Wrapper — Universal Memory Layer
 ============================================
-Mem0 v2.0.0 + Ollama (nomic-embed-text 768D) + LiteLLM (MiniMax-M2.7)
+Mem0 v2.0.0 + Ollama (nomic-embed-text 768D) + LiteLLM (hermes-brain)
 
 Usage:
     python3 mem0_wrapper.py add "fact" --category user_pref
@@ -45,7 +45,7 @@ def get_memory():
     config = MemoryConfig(
         llm=LlmConfig(
             provider="litellm",
-            config={"model": "minimax-m2.7"}
+            config={"model": "hermes-brain"}
         ),
         embedder=EmbedderConfig(
             provider="ollama",

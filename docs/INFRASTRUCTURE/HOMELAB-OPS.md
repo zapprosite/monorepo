@@ -109,33 +109,21 @@ Para homelab single-admin, aplica-se processo simplificado:
 | mcp-memory | 4016 | UP | — | mcp-memory |
 | zappro- | — | UP | — | bridge |
 | coolify-sentinel | — | UP | healthy | coolify |
-| painel-organism | — | UP | — | bridge |
-| prometheus | 9090 | UP | healthy | monitoring_monitoring |
-| zappro-gitea | 3300 | UP | — | gitea_default |
-| pgadmin-* | 4050 | UP | healthy | bridge |
-| zappro-litellm | 4000 | UP | — | litellm_default |
+| zappro-litellm | 4018 | UP | healthy | litellm_default |
 | zappro-litellm-db | — | UP | healthy | litellm_default |
 | node-exporter | 9100 | UP | healthy | monitoring_monitoring |
-| mcp-coolify-mcp-coolify-1 | 4012 | UP | — | mcp-coolify |
-| mcp-ollama-mcp-ollama-1 | 4013 | UP | — | mcp-ollama |
-| mcp-system-mcp-system-1 | 4014 | UP | — | mcp-system |
-| mcp-cron-mcp-cron-1 | 4015 | UP | — | mcp-cron |
-| mcp-qdrant | 4011 | UP | — | mcp-qdrant |
-| qwen2-vl7b | 11436 | UP | — | bridge |
-| edge-tts-server | — | UP | — | bridge |
-| obsidian-web | 4081 | UP | healthy | bridge |
+| prometheus | 9090 | UP | healthy | monitoring_monitoring |
+| grafana | 3100 | UP | healthy | monitoring_monitoring |
+| edge-tts-server | 8012 | UP | healthy | bridge |
 | qdrant | 6333 | UP | healthy | coolify |
-| static-web | — | UP | healthy | bridge |
 | gitea-runner | — | UP | healthy | bridge |
-| openwebui | 3456 | UP | healthy | openwebui_net |
 | opencode-searxng | 8888 | UP | — | bridge |
-| perplexity-agent | — | UP | healthy | bridge |
 | coolify-redis | 6381 | UP | healthy | coolify |
 | coolify-realtime | 6001/6002 | UP | healthy | coolify |
 | coolify-proxy | 80/443 | UP | healthy | coolify |
 | zappro-redis | 6379 | UP | healthy | litellm_default |
 | redis-opencode | — | UP | healthy | bridge |
-| **zappro-ai-gateway** | 4002 | UP | **UNHEALTHY** | ai-gateway_default |
+| **zappro-ai-gateway** | 4002 | UP | healthy | ai-gateway_default |
 
 ### 3.2 Serviços Principais
 
@@ -889,10 +877,9 @@ curl -s http://localhost:9835/metrics | grep nvidia
 | chat.zappro.site | 10.0.5.3:8080 | OpenWebUI |
 | coolify.zappro.site | localhost:8000 | Coolify PaaS |
 | git.zappro.site | localhost:3300 | Gitea Git |
-| grafana.zappro.site | localhost:3100 | Monitoring (DNS removido) |
-| list.zappro.site | localhost:4080 | Tools list |
-| llm.zappro.site | localhost:4002 | ai-gateway |
-| md.zappro.site | localhost:4081 | Obsidian vault |
+| grafana.zappro.site | localhost:3100 | Monitoring |
+| llm.zappro.site | localhost:4018 | LiteLLM Proxy |
+| api.zappro.site | localhost:4002 | Voice Gateway (TTS + STT) |
 | qdrant.zappro.site | localhost:6333 | Vector DB |
 | pgadmin.zappro.site | localhost:4050 | PostgreSQL admin |
 
@@ -1013,9 +1000,8 @@ nvidia-smi
 | 4014 | mcp-system | mcp-system-mcp-system-1 | localhost |
 | 4015 | mcp-cron | mcp-cron-mcp-cron-1 | localhost |
 | 4016 | mcp-memory | mcp-memory | localhost |
+| 4018 | LiteLLM Proxy | litellm-proxy | host |
 | 4050 | pgAdmin | pgadmin-* | localhost |
-| 4080 | list-web | list-web | host |
-| 4081 | obsidian-web | obsidian-web | host |
 | 5173-5180 | Vite dev | vite | localhost |
 | 6333 | Qdrant | qdrant | Coolify net |
 | 6334 | Qdrant gRPC | qdrant | localhost |

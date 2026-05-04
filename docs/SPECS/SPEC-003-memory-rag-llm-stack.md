@@ -57,7 +57,7 @@ debug loops. The active stack is:
 | Embedding dimension drift | `.env.example` says 768, code uses 1024 in `mem0/embeddings.ts` and `qdrant/client.ts` | Pick one model/dimension and enforce it in code/env/docs |
 | Old result specs contain operational secrets | Historical SPEC-121/122 had values copied from `.env` | Keep values redacted and scan docs/tasks |
 | Haystack endpoints are implemented but not health-gated | `rag-instance-organizer.ts` catches failures and returns empty context | Add `/health/rag` or startup warning |
-| LiteLLM MiniMax API base drift | Old docs mention path duplication | Keep API base host-only in env docs |
+| LiteLLM OpenRouter API base drift | Old docs mention path duplication | Keep API base host-only in env docs |
 | Memory fallback pseudo-embedding can hide outages | Fallback preserves function but degrades retrieval quality | Emit metric/log and expose degraded status |
 
 ## Canonical Embedding Decision

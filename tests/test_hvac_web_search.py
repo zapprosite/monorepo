@@ -80,7 +80,7 @@ def test_prompt_pt_br_has_no_cjk_or_cyrillic():
         "missing_info": [],
     }
 
-    prompt = pipe.build_minimax_system_prompt(pkg)
+    prompt = pipe.build_openrouter_system_prompt(pkg)
 
     assert not re.search(r"[\u0400-\u04FF\u4E00-\u9FFF]", prompt)
     assert "checagem externa" in prompt
@@ -148,26 +148,26 @@ def test_default_provider_order_places_tavily_before_ddg():
     assert order.index("tavily") < order.index("ddg")
 
 
-def test_web_search_provider_default_is_tavily_not_minimax_mcp(monkeypatch):
-    """Verify WEB_SEARCH_PROVIDER defaults to 'tavily', not 'minimax_mcp'."""
+def test_web_search_provider_default_is_tavily_not_openrouter_mcp(monkeypatch):
+    """Verify WEB_SEARCH_PROVIDER defaults to 'tavily', not 'openrouter_mcp'."""
     monkeypatch.delenv("WEB_SEARCH_PROVIDER", raising=False)
     web = load_module("hvac_web_search_default_provider_test", "hvac_web_search.py")
 
     assert web.WEB_SEARCH_PROVIDER == "tavily"
 
 
-def test_minimax_mcp_stub_not_called_when_tavily_is_default(monkeypatch):
-    """minimax_mcp stub returns empty list and is skipped when tavily is default."""
+def test_openrouter_mcp_stub_not_called_when_tavily_is_default(monkeypatch):
+    """openrouter_mcp stub returns empty list and is skipped when tavily is default."""
     monkeypatch.delenv("WEB_SEARCH_PROVIDER", raising=False)
     monkeypatch.setenv("TAVILY_API_KEY", "test-key")
-    web = load_module("hvac_web_search_minimax_stub_test", "hvac_web_search.py")
+    web = load_module("hvac_web_search_openrouter_stub_test", "hvac_web_search.py")
 
-    # The minimax_mcp stub should return empty list
+    # The openrouter_mcp stub should return empty list
     import asyncio
-    result = asyncio.get_event_loop().run_until_complete(web.search_web_minimax_mcp("test query"))
+    result = asyncio.get_event_loop().run_until_complete(web.search_web_openrouter_mcp("test query"))
     assert result == []
 
-    # And WEB_SEARCH_PROVIDER should still be tavily, not minimax_mcp
+    # And WEB_SEARCH_PROVIDER should still be tavily, not openrouter_mcp
     assert web.WEB_SEARCH_PROVIDER == "tavily"
 
 
@@ -221,7 +221,7 @@ def test_provider_name_not_in_response_text():
         "missing_info": [],
     }
 
-    prompt = pipe.build_minimax_system_prompt(pkg)
+    prompt = pipe.build_openrouter_system_prompt(pkg)
 
     # Provider names must not appear in the prompt
     assert "ddg" not in prompt.lower()

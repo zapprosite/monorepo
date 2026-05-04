@@ -358,7 +358,7 @@ tm autopilot start → RED phase (write failing test)
 
 | Layer | Technology | Notes |
 |-------|------------|-------|
-| AI Code Generation | Claude 4, GPT-4o, MiniMax M2.7 | Multimodal, long context |
+| AI Code Generation | Claude 4, GPT-4o, OpenRouter via hermes-brain | Multimodal, long context |
 | CI/CD Engine | Gitea Actions, GitHub Actions | GitOps-native |
 | Secret Management | | Vault with SDK |
 | Service Orchestration | Coolify | Docker compose + API |

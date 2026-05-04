@@ -11,7 +11,7 @@ Evidence Levels (priority order):
     4. graph_internal   — knowledge graph internal match
     5. official_web     — Tavily search with official manufacturer domains
     6. web_fallback     — general web search
-    7. llm_triage       — MiniMax M2.7 provides safe triage without exact data
+    7. llm_triage       — OpenRouter via hermes-brain provides safe triage without exact data
     8. insufficient_context — cannot provide diagnosis, requires more info
 """
 
@@ -535,7 +535,7 @@ def _describe_evidence_level(level: str) -> str:
         "graph_internal": "Knowledge graph has relevant connections",
         "official_web": "Official manufacturer documentation accessible via web",
         "web_fallback": "General web search available for this brand",
-        "llm_triage": "MiniMax M2.7 can provide safe triage based on general knowledge",
+        "llm_triage": "OpenRouter via hermes-brain can provide safe triage based on general knowledge",
         "insufficient_context": "Not enough information to provide reliable guidance",
     }
     return descriptions.get(level, f"Unknown evidence level: {level}")

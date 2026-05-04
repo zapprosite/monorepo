@@ -3,7 +3,7 @@
 // Usage: npx tsx scripts/rag-search.ts --query "search text" [--dataset name] [--limit 5] [--json]
 // Environment: TRIEVE_URL, TRIEVE_API_KEY, OLLAMA_URL (default: http://localhost:11434)
 
-import { parseArgs } from 'util';
+import { parseArgs } from 'node:util';
 
 const EMBEDDING_MODEL = 'nomic-embed-text';
 
@@ -98,7 +98,7 @@ async function searchTrieve(
 		'Content-Type': 'application/json',
 		'TR-Dataset': datasetId,
 	};
-	if (apiKey) headers['Authorization'] = `ApiKey ${apiKey}`;
+	if (apiKey) headers.Authorization = `ApiKey ${apiKey}`;
 
 	const body = {
 		embedding: queryEmbedding,
@@ -134,8 +134,8 @@ async function searchTrieve(
 		content: result.chunk_html,
 		metadata: result.metadata || {},
 		score: result.score,
-		source: result.metadata?.['source'] as string | undefined,
-		heading: result.metadata?.['heading'] as string | undefined,
+		source: result.metadata?.source as string | undefined,
+		heading: result.metadata?.heading as string | undefined,
 	}));
 }
 
@@ -149,7 +149,7 @@ async function findDatasetId(
 	datasetName: string,
 ): Promise<string | null> {
 	const headers: Record<string, string> = {};
-	if (apiKey) headers['Authorization'] = `ApiKey ${apiKey}`;
+	if (apiKey) headers.Authorization = `ApiKey ${apiKey}`;
 
 	const response = await fetch(`${trieveUrl}/api/v1/datasets`, { headers });
 
@@ -185,7 +185,7 @@ function formatResults(results: SearchResult[]): void {
 		console.log(divider);
 		// Truncate very long content for display
 		const content =
-			result.content.length > 800 ? result.content.slice(0, 800) + '...' : result.content;
+			result.content.length > 800 ? `${result.content.slice(0, 800)}...` : result.content;
 		console.log(content);
 
 		if (Object.keys(result.metadata).length > 0) {
@@ -217,9 +217,9 @@ function outputJson(results: SearchResult[]): void {
 async function runSearch(opts: SearchOptions): Promise<void> {
 	const { query, dataset, limit, json } = opts;
 
-	const trieveUrl = process.env['TRIEVE_URL'] ?? 'http://localhost:6435';
-	const ollamaUrl = process.env['OLLAMA_URL'] ?? 'http://localhost:11434';
-	const apiKey = process.env['TRIEVE_API_KEY'];
+	const trieveUrl = process.env.TRIEVE_URL ?? 'http://localhost:6435';
+	const ollamaUrl = process.env.OLLAMA_URL ?? 'http://localhost:11434';
+	const apiKey = process.env.TRIEVE_API_KEY;
 
 	console.log(`\n=== RAG Search ===`);
 	console.log(`Query: ${query}`);
@@ -241,7 +241,7 @@ async function runSearch(opts: SearchOptions): Promise<void> {
 	} else {
 		// Use first available dataset
 		const headers: Record<string, string> = {};
-		if (apiKey) headers['Authorization'] = `ApiKey ${apiKey}`;
+		if (apiKey) headers.Authorization = `ApiKey ${apiKey}`;
 
 		const listRes = await fetch(`${trieveUrl}/api/v1/datasets`, { headers });
 		if (!listRes.ok) {

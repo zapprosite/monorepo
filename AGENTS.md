@@ -11,33 +11,22 @@
 
 ---
 
-## Arquitectura Unified (09/04/2026)
+## Arquitetura Mínima Viável — 2 Gateways (Poda Agressiva)
+
+**Regra:** LiteLLM :4018/v1 é o ÚNICO gateway LLM. Voice Gateway :4002 é o ÚNICO gateway de voz. Tudo que não for esses dois é lixo.
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    CLAUDE CODE CLI                          │
-│  (Orchestrator principal — tokens infinitos, 20 agents)     │
+│                    LITELLM :4018/v1                         │
+│  Gateway canônico: text · code · instruction · embedding    │
+│  Aliases: hermes-auto, hermes-local-code, hermes-vision,    │
+│           hermes-embed, hermes-cloud-*, hermes-brain        │
 ├─────────────────────────────────────────────────────────────┤
-│  .claude/commands/    .claude/skills/    .claude/workflows/│
-│  → 33 slash commands  → 33 skills         → 7 workflows     │
+│                    VOICE GATEWAY :4002                      │
+│  TTS (Edge-tts :8012) + STT (Groq cloud whisper-large-v3)   │
 ├─────────────────────────────────────────────────────────────┤
-│                    TURBO PIPELINE                           │
-│  turbo.json defines build/lint/test pipeline                │
-│  yarn workspaces (apps/, packages/)                         │
-├─────────────────────────────────────────────────────────────┤
-│  .gitea/workflows/        .claude/agents/                    │
-│  → 6 Gitea Actions        → 9 specialist agents              │
-│  → ci-feature            → 20 workflows (Antigravity Kit)  │
-│  → code-review                                           │
-│  → deploy-main                                          │
-│  → rollback                                              │
-├─────────────────────────────────────────────────────────────┤
-│  scripts/          smoke-tests/        docs/               │
-│  → health-check    → E2E (Playwright)   → HOMELAB.md       │
-│  → deploy          → smoke-chat         → SPECS/           │
-│  → backup           → smoke-             → runbooks/       │
-│  → restore                                                                     │
-│  → nexus-aider-exec.sh
+│  Backends: Ollama :11434  |  OpenRouter (cloud fallback)   │
+│            Qdrant :6333   |  Edge-tts :8012                 │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -56,17 +45,22 @@
 
 ---
 
-## Apps & Packages
+## Apps & Packages — Mínimo Viável (Poda Agressiva 2026-05-04)
 
-| App/Package | Tipo | Stack | Notas |
-|-------------|------|-------|-------|
-| `apps/api` | API | Fastify + OrchidORM + tRPC | PostgreSQL |
+| App/Package | Tipo | Stack | Gateway |
+|-------------|------|-------|---------|
+| `apps/api` | API | Fastify + OrchidORM + tRPC | — |
 | `apps/web` | Web | React 19 + MUI + tRPC | — |
-| `apps/orchestrator` | Agent | Node.js + tRPC + YAML | Human gates |
-| `apps/perplexity-agent` | Agent | Python + Streamlit + LangChain | Browser automation |
-| `packages/ui` | UI Lib | React + Material UI | → frontend |
-| `packages/zod-schemas` | Schemas | TypeScript + Zod | → backend, frontend, orchestrator |
-| `packages/config` | Config | TypeScript | Dev tooling |
+| `apps/ai-gateway` | Voice Gateway | Fastify + edge-tts + Groq STT | :4002 (TTS + STT) |
+| `packages/ui` | UI Lib | React + Material UI | — |
+| `packages/zod-schemas` | Schemas | TypeScript + Zod | — |
+| `packages/config` | Config | TypeScript | — |
+
+**Removidos (duplicados/legado):**
+- `apps/perplexity-agent` → Hermes-second-brain já cobre
+- `apps/hvac-manual-downloader` → Script em `scripts/hvac-rag/hvac_manual_downloader.py`
+- `apps/list-web` + `obsidian-web` + `painel-organism` → Integrados no `apps/web`
+- `apps/orchestrator` → Duplicado de `services/orchestrator`
 
 ---
 
@@ -151,9 +145,6 @@
 
 | Container | Risco | Fallback |
 |-----------|-------|----------|
-| 
-| perplexity-agent | GitOps gap (DNS up, container down) | Verificar container existe |
-| wav2vec2 | TCP bridge isolation | Health check sem route |
 | gitea-runner | Token expiry | Regenerar token |
 | node-exporter/cadvisor | OOM kills | Não restartar em loop |
 

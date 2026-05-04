@@ -2,7 +2,7 @@
 
 **Data:** 2026-04-22
 **Blueprint:** CLAUDE_CODE_BLUEPRINT.md
-**Stack:** MiniMax-M2.7 (primary) + GPT-4o-mini (fallback) + Gemma4:26b-q4 (local)
+**Stack:** hermes-brain (primary) + GPT-4o-mini (fallback) + Qwen2.5 Coder 14B Q6_K (local)
 
 ---
 
@@ -17,7 +17,7 @@ Microfone (Telegram Voice)
 Groq Whisper Turbo (STT cloud, 150min/dia gratis)
     │
     ▼
-MiniMax-M2.7 (LLM primário, via LiteLLM :4000)
+hermes-brain (LLM primário, via LiteLLM :4000)
     │
     ▼
 Edge TTS (pt-BR-AntonioNeural) ──→ Telegram Voice
@@ -92,16 +92,16 @@ O `tts-edge.py` possui um TextScanner single-pass que:
 
 ## LLM — Processamento
 
-### Primario: MiniMax-M2.7
+### Primario: hermes-brain
 
 **Endpoint:** LiteLLM em `localhost:4000`
 **Routing:** Automatico via LiteLLM
 
 ### Fallback: GPT-4o-mini
 
-**Estratégia:** LiteLLM faz failover automatico entre MiniMax e GPT quando necessario.
+**Estratégia:** LiteLLM faz failover automatico entre OpenRouter e GPT quando necessario.
 
-### Local: Gemma4:26b-q4
+### Local: Qwen2.5 Coder 14B Q6_K
 
 **VRAM:** ~22GB (carregado sob demanda)
 **Uso:** Codigo local via Ollama `:11434`
@@ -114,7 +114,7 @@ O `tts-edge.py` possui um TextScanner single-pass que:
 1. Usuario grava audio no Telegram
 2. Hermes Gateway recebe voz
 3. STT: Groq Whisper Turbo transcreve → texto
-4. LLM: MiniMax-M2.7 processa entrada
+4. LLM: hermes-brain processa entrada
 5. TTS: Edge TTS (pt-BR-AntonioNeural) gera audio
 6. Hermes Gateway envia audio de volta ao Telegram
 ```
@@ -145,7 +145,7 @@ O `tts-edge.py` possui um TextScanner single-pass que:
 ┌─────────────────┐     ┌──────────────────┐
 │    LiteLLM      │     │  GPT-4o-mini     │
 │    :4000        │────▶│  (fallback)     │
-│  MiniMax-M2.7   │     └──────────────────┘
+│  hermes-brain   │     └──────────────────┘
 └──────┬──────────┘
        │ texto
        ▼
@@ -174,8 +174,8 @@ GROQ_API_KEY=***                    # Groq cloud (STT primary)
 STT_DIRECT_URL=http://localhost:8204   # fallback faster-whisper
 
 # LLM
-MINIMAX_API_KEY=***                    # MiniMax M2.7 primary
-MINIMAX_GROUP_ID=2034696179689731017
+OPENROUTER_API_KEY=***                    # hermes-brain primary
+OPENROUTER_GROUP_ID=2034696179689731017
 OLLAMA_URL=http://localhost:11434
 LITELLM_URL=http://localhost:4000
 ```

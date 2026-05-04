@@ -238,7 +238,7 @@ QUERO FAZER:
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                    CURSOR LOOP LEADER                            │
-│  Modelo: cm (MiniMax M2.7)                                      │
+│  Modelo: cm (OpenRouter via hermes-brain)                                      │
 │  Lê: tasks/pipeline.json antes de iniciar                       │
 └─────────────────────────────────────────────────────────────────┘
 
@@ -298,7 +298,7 @@ QUERO FAZER:
 ┌─────────────────────────────────────────────────────┐
 │              CURSOR LOOP AGENTS                      │
 │  Dir: .claude/agents/cursor-loop-*.md              │
-│  Modelo: cm (MiniMax M2.7 para todos)               │
+│  Modelo: cm (OpenRouter via hermes-brain para todos)               │
 └─────────────────────────────────────────────────────┘
 
   leader          → Orquestra o loop, lê pipeline.json
@@ -408,8 +408,8 @@ VOZ ()
 ───────────────
   STT:         wav2vec2 (:8201) via Deepgram proxy
   TTS:         (:8880) via TTS Bridge (:8013)
-  LLM:         MiniMax M2.7 (direct, não LiteLLM)
-  Vision:      litellm/qwen2.5-vl
+  LLM:         LiteLLM :4018/v1 (hermes-auto -> hermes-brain em escalada)
+  Vision:      LiteLLM :4018/v1 (hermes-vision)
 ```
 
 ---

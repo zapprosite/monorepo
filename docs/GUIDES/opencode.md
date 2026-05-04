@@ -1,11 +1,11 @@
-# OpenCode + MiniMax M2.7 - Guia Rápido
+# OpenCode + hermes-brain - Guia Rápido
 
 ## Configuração Atual
 
 | Item | Valor |
 |------|-------|
-| **Modelo** | MiniMax-M2.7 |
-| **Provider** | MiniMax API |
+| **Modelo** | hermes-brain |
+| **Provider** | OpenRouter API |
 | **Bypass** | `permission: allow` (auto-aprove) |
 
 ## Arquivos de Configuração
@@ -26,7 +26,7 @@ opencode
 opencode "sua pergunta"
 
 # Com modelo específico
-opencode --model minimax/MiniMax-M2.7 "pergunta"
+opencode --model openrouter/hermes-brain "pergunta"
 ```
 
 ## Atalhos (Leader Key = `Ctrl+X`)
@@ -90,15 +90,15 @@ opencode --model minimax/MiniMax-M2.7 "pergunta"
   "theme": "opencode",
   "autoshare": false,
   "permission": "allow",
-  "model": "minimax/MiniMax-M2.7",
+  "model": "openrouter/hermes-brain",
   "provider": {
-    "minimax": {
-      "npm": "@ai-sdk/minimax",
-      "name": "MiniMax",
-      "env": ["MINIMAX_API_KEY"],
+    "openrouter": {
+      "npm": "@ai-sdk/openrouter",
+      "name": "OpenRouter",
+      "env": ["OPENROUTER_API_KEY"],
       "models": {
-        "MiniMax-M2.7": {
-          "name": "MiniMax M2.7",
+        "hermes-brain": {
+          "name": "hermes-brain",
           "attachment": true,
           "reasoning": true,
           "tool_call": true

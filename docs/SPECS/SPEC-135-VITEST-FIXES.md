@@ -106,7 +106,7 @@ describe('LiteLLM Proxy', () => {
     fetch.mockReset()
   })
 
-  it('should route to minimax-m2.7 model', async () => {
+  it('should route to hermes-brain model', async () => {
     const { default: fetch } = await import('node:fetch')
     fetch.mockResolvedValueOnce({
       ok: true,

@@ -14,7 +14,7 @@ William exige:
 1. **Memoria infinita** — nunca perder contexto entre sessoes
 2. **Pipeline RAG** — buscar contexto do second-brain via Qdrant
 3. **Mem0** — facts estruturados para personalidade e preferencias
-4. **Zero API key externa** — tudo local ou MiniMax
+4. **Zero API key externa** — tudo local ou OpenRouter
 5. **NUNCA resetar** — "Approved" nao pode limpar sessao
 
 **Stack atual (4 colecoes Qdrant ativas):**
@@ -52,7 +52,7 @@ HERMES AGENT
      +-- Session ------------> SQLite FTS5 (hermes_state.db)
      |                               (append-only, never reset)
      |
-     +-- LLM generation ----> LiteLLM (4018) --> MiniMax-M2.7
+     +-- LLM generation ----> LiteLLM (4018) --> hermes-brain
      |
      +-- TTS ---------------> Edge TTS (AntonioNeural, +10%)
 ```
@@ -62,7 +62,7 @@ HERMES AGENT
 ## 3. Mem0 Configuration (IMPLEMENTED)
 
 **Stack implementado:**
-- LLM: `litellm` provider → `minimax-m2.7` (via LiteLLM port 4018)
+- LLM: `litellm` provider → `hermes-brain` (via LiteLLM port 4018)
 - Embedder: `ollama` provider → `nomic-embed-text` 768D (direto `localhost:11434`)
 - Vector store: `qdrant` → collection `mem0` em `127.0.0.1:6333`
 - History DB: SQLite at `/home/will/.mem0/history.db`
@@ -93,7 +93,7 @@ OPENAI_API_KEY=not-needed  # placeholder
 ```
 
 **Regras de uso:**
-- `infer=False` sempre — MiniMax-M2.7 nao suporta function calling
+- `infer=False` sempre — hermes-brain nao suporta function calling
 - `filters={'user_id': 'will'}` obrigatorio em `search()` e `get_all()`
 - 20 facts populadas (2026-05-02)
 
@@ -125,7 +125,7 @@ User query
     +-> Mem0.search(query) --> facts about user/project
     +-> Qdrant RAG (hermes-knowledge) --> top-k docs
     +-> session_search(query) --> past conversations
-    +-> LiteLLM (MiniMax-M2.7)
+    +-> LiteLLM (hermes-brain)
             |
             v
     [system prompt] + [Mem0 facts] + [RAG docs] + [session]
@@ -171,7 +171,7 @@ User query
 
 - LiteLLM `nomic-embed-text` via LiteLLM proxy nao funciona (Ollama not reachable from Docker)
   - Solucao: Mem0 usa Ollama diretamente para embeddings (`localhost:11434`)
-  - LiteLLM usado apenas para chat (MiniMax-M2.7)
+  - LiteLLM usado apenas para chat (hermes-brain)
 - `haystack-rag-pipeline.py` usa LiteLLM port 4018 (corrigido)
 - `network_mode: host` no LiteLLM container quebrar acesso ao PostgreSQL — NAO usar
 - `extra_hosts: host-gateway` nao resolve (Ollama nativo nao esta na rede Docker)

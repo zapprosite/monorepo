@@ -1,180 +1,148 @@
 # LiteLLM Proxy Configuration Template
-# Generated: 2026-04-26
-# For zappro-lite deployment
 
-# ─────────────────────────────────────────────
-# GENERAL SETTINGS
-# ─────────────────────────────────────────────
-general_settings:
-  # Master key for all admin operations
-  # Override via LITELLM_MASTER_KEY environment variable
-  master_key: os.environ/LITELLM_MASTER_KEY
+Padrão Hermes/LiteLLM 05/2026. O arquivo ativo é `config/litellm/config.yaml`.
 
-  # UI settings (optional)
-  # ui_access_mode: "admin"  # uncomment to restrict UI access
+```yaml
+# LiteLLM Proxy: http://127.0.0.1:4018
+# Ollama host:    http://127.0.0.1:11434
 
-# ─────────────────────────────────────────────
-# LITELLM SETTINGS (module-level defaults)
-# ─────────────────────────────────────────────
-litellm_settings:
-  # Drop unsupported parameters from requests
-  drop_params: true
-
-  # Enforce rate limits per model
-  enforce_model_rate_limits: true
-
-  # Retry configuration
-  num_retries: 3
-  request_timeout: 300
-  stream_timeout: 300
-
-  # Optional: Custom callback URLs
-  # callbacks: ["http://your-callback-endpoint.com"]
-
-# ─────────────────────────────────────────────
-# MODEL LIST
-# ─────────────────────────────────────────────
 model_list:
-
-  # ── TTS (Text-to-Speech) ───────────────────
-  # Edge TTS — Microsoft neural voices (PT-BR)
-  # OpenAI /v1/audio/speech compatible
-  - model_name: tts-1
+  - model_name: hermes-local-code
     litellm_params:
-      model: openai/tts-1
-      api_base: http://127.0.0.1:8012
-      api_key: fake-key
-      timeout: 60
-      rpm: 30
-      stream: false
-    model_info:
-      mode: audio_speech
-      supports_vision: false
-
-  # ── STT (Speech-to-Text) ───────────────────
-  # Groq Whisper Turbo — Cloud API
-  - model_name: whisper-1
-    litellm_params:
-      model: groq/whisper-large-v3-turbo
-      api_key: os.environ/GROQ_API_KEY
-      rpm: 30
-    model_info:
-      mode: audio_transcription
-      supports_vision: false
-
-  # ── STT FALLBACK (Local) ───────────────────
-  # faster-whisper via local container
-  - model_name: whisper-local
-    litellm_params:
-      model: openai/whisper-1
-      api_base: http://host.docker.internal:8204
-      api_key: fake-key
+      model: ollama_chat/qwen2.5-coder:14b-q6k
+      api_base: os.environ/LITELLM_OLLAMA_URL
+      keep_alive: -1
+      temperature: 0.1
       timeout: 300
-      rpm: 30
     model_info:
-      mode: audio_transcription
-      supports_vision: false
+      mode: chat
+      description: "Local principal: Qwen2.5 Coder 14B Q6_K para code/texto"
 
-  # ── TEXT (Chat Completion) ─────────────────
-  # MiniMax-M2.7 — Primary LLM
-  - model_name: minimax-m2.7
+  - model_name: hermes-auto
     litellm_params:
-      model: minimax/MiniMax-M2.7
-      api_key: os.environ/MINIMAX_API_KEY
-      api_base: os.environ/MINIMAX_API_BASE
-      rpm: 30
-      max_parallel_requests: 3
+      model: ollama_chat/qwen2.5-coder:14b-q6k
+      api_base: os.environ/LITELLM_OLLAMA_URL
+      keep_alive: -1
+      temperature: 0.1
+      timeout: 300
     model_info:
-      mode: chat_complete
-      supports_vision: false
+      mode: chat
+      description: "Alias padrão do Hermes: local primeiro"
 
-  # ── VL (Vision-Language) — Primary ─────────
-  # Qwen2.5-VL-3B via Ollama (GPU local)
-  - model_name: qwen2.5vl-3b
+  - model_name: hermes-vision
     litellm_params:
-      model: ollama/qwen2.5vl:3b
-      api_base: http://host.docker.internal:11434
-      rpm: 10
+      model: ollama_chat/qwen2.5vl:3b
+      api_base: os.environ/LITELLM_OLLAMA_URL
+      keep_alive: 10m
+      temperature: 0.15
+      timeout: 240
     model_info:
-      mode: chat_complete
+      mode: chat
       supports_vision: true
+      description: "Visão local: Qwen2.5 VL 3B"
 
-  # ── VL FALLBACK (Cloud — no GPU) ───────────
-  # Qwen3.5-Flash via OpenRouter
-  - model_name: qwen3.5-vl
+  - model_name: hermes-embed
     litellm_params:
-      model: openrouter/qwen/qwen3.5-flash-02-23
-      api_key: os.environ/OPENROUTER_API_KEY
-      rpm: 60
-    model_info:
-      mode: chat_complete
-      supports_vision: true
-
-  # ── VL FALLBACK #2 ─────────────────────────
-  # Seed-2.0-Mini via OpenRouter
-  - model_name: seed-vl-mini
-    litellm_params:
-      model: openrouter/bytedance-seed/seed-2.0-mini
-      api_key: os.environ/OPENROUTER_API_KEY
-      rpm: 60
-    model_info:
-      mode: chat_complete
-      supports_vision: true
-
-  # ── EMBEDDINGS ─────────────────────────────
-  # Ollama — nomic-embed-text (local)
-  - model_name: embedding-nomic
-    litellm_params:
-      model: ollama/nomic-embed-text
-      api_base: http://host.docker.internal:11434
-      api_key: fake-key
-      rpm: 120
+      model: ollama/nomic-embed-text:pinned-20260503
+      api_base: os.environ/LITELLM_OLLAMA_URL
+      timeout: 180
     model_info:
       mode: embedding
+      description: "Embedding local pinned"
 
-# ─────────────────────────────────────────────
-# ROUTER SETTINGS
-# ─────────────────────────────────────────────
+  - model_name: hermes-embed-latest
+    litellm_params:
+      model: ollama/nomic-embed-text:latest
+      api_base: os.environ/LITELLM_OLLAMA_URL
+      timeout: 180
+    model_info:
+      mode: embedding
+      description: "Embedding local latest, backup manual"
+
+  - model_name: hermes-cloud-cheap
+    litellm_params:
+      model: openrouter/deepseek/deepseek-v4-flash
+      api_key: os.environ/OPENROUTER_API_KEY
+      temperature: 0.15
+      timeout: 360
+      extra_headers:
+        HTTP-Referer: "http://localhost"
+        X-Title: "will-hermes-litellm"
+    model_info:
+      mode: chat
+      description: "DeepSeek V4 Flash via OpenRouter"
+
+  - model_name: hermes-cloud-pro
+    litellm_params:
+      model: openrouter/deepseek/deepseek-v4-pro
+      api_key: os.environ/OPENROUTER_API_KEY
+      temperature: 0.1
+      timeout: 600
+      extra_headers:
+        HTTP-Referer: "http://localhost"
+        X-Title: "will-hermes-litellm"
+    model_info:
+      mode: chat
+      description: "DeepSeek V4 Pro via OpenRouter"
+
+  - model_name: hermes-cloud-ui
+    litellm_params:
+      model: openrouter/moonshotai/kimi-k2.6
+      api_key: os.environ/OPENROUTER_API_KEY
+      temperature: 0.15
+      timeout: 600
+      extra_headers:
+        HTTP-Referer: "http://localhost"
+        X-Title: "will-hermes-litellm"
+    model_info:
+      mode: chat
+      supports_vision: true
+      description: "Kimi K2.6 via OpenRouter"
+
+  - model_name: hermes-brain
+    litellm_params:
+      model: openrouter/deepseek/deepseek-v4-pro
+      api_key: os.environ/OPENROUTER_API_KEY
+      temperature: 0.1
+      timeout: 600
+      extra_headers:
+        HTTP-Referer: "http://localhost"
+        X-Title: "will-hermes-litellm"
+    model_info:
+      mode: chat
+      description: "Alias forte para arquitetura, PRD e repo grande"
+
+general_settings:
+  master_key: os.environ/LITELLM_MASTER_KEY
+
+litellm_settings:
+  drop_params: true
+  set_verbose: false
+  fallbacks:
+    - hermes-auto:
+        - hermes-cloud-cheap
+        - hermes-cloud-pro
+    - hermes-local-code:
+        - hermes-cloud-cheap
+        - hermes-cloud-pro
+    - hermes-vision:
+        - hermes-cloud-ui
+    - hermes-cloud-cheap:
+        - hermes-cloud-pro
+
 router_settings:
-  # Routing strategy
-  routing_strategy: least-busy  # Options: simple-shuffle, least-busy, latency-based
-
-  # Retry configuration
-  num_retries: 3
+  routing_strategy: simple-shuffle
+  num_retries: 1
+  timeout: 600
+  enable_pre_call_checks: true
   allowed_fails: 3
   cooldown_time: 30
+```
 
-  # Redis for distributed caching
-  redis_host: zappro-redis
-  redis_port: 6379
-  redis_password: os.environ/REDIS_PASSWORD
+Notas:
 
-# ─────────────────────────────────────────────
-# ENVIRONMENT FILTERS (optional)
-# ─────────────────────────────────────────────
-# model_list:
-#   - model_name: gpt-4o
-#     litellm_params:
-#       model: azure/gpt-4o
-#       api_base: https://example.openai.azure.com
-#       api_key: os.environ/AZURE_API_KEY
-#     model_info:
-#       supported_environments:
-#         - production
-#         - staging
-
-# ─────────────────────────────────────────────
-# NOTES
-# ─────────────────────────────────────────────
-# 1. api_base should NOT include paths — LiteLLM adds them automatically
-#    WRONG: http://localhost:11434/v1/chat/completions
-#    RIGHT: http://localhost:11434 (LiteLLM adds /v1/chat/completions)
-#
-# 2. For Docker networking, use host.docker.internal to reach host from container
-#    OLLAMA_HOST=host.docker.internal:11434
-#
-# 3. OpenRouter does NOT need api_base — native LiteLLM support
-#
-# 4. Environment variables use os.environ/VAR_NAME syntax
-#
-# 5. Start proxy: litellm --config /path/to/config.yaml
+- Usar `ollama_chat` para chat Ollama.
+- `api_base` deve apontar para o servidor Ollama, sem caminho `/v1`.
+- No Docker, `LITELLM_OLLAMA_URL=http://host.docker.internal:11434`.
+- OpenRouter usa `model: openrouter/<slug>`.
+- Redis, cache e budgets devem entrar em patch separado depois do gateway estável.

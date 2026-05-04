@@ -114,7 +114,7 @@ DONE / HUMAN GATE
   "models": {
     "main": { "provider": "anthropic", "modelId": "claude-sonnet-4-6-20260101" },
     "research": { "provider": "anthropic", "modelId": "claude-opus-4-6-20260201" },
-    "fallback": { "provider": "minimax", "modelId": "MiniMax-M2.7" }
+    "fallback": { "provider": "openrouter", "modelId": "hermes-brain" }
   },
   "global": { "projectName": "zappro-monorepo", "defaultSubtasks": 5 }
 }

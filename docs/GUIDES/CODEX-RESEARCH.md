@@ -82,9 +82,9 @@ args = ["-lc", "set -a; [ -f /srv/monorepo/.env ] && . /srv/monorepo/.env; set +
 command = "npx"
 args = ["-y", "--package=task-master-ai", "task-master-ai"]
 
-[mcp_servers.minimax]
+[mcp_servers.openrouter]
 command = "sh"
-args = ["-lc", "set -a; [ -f /srv/monorepo/.env ] && . /srv/monorepo/.env; set +a; : \"${MINIMAX_API_KEY:?MINIMAX_API_KEY is required}\"; export MINIMAX_API_HOST=\"${MINIMAX_API_HOST:-https://api.minimax.io}\"; exec uvx minimax-mcp -y"]
+args = ["-lc", "set -a; [ -f /srv/monorepo/.env ] && . /srv/monorepo/.env; set +a; : \"${OPENROUTER_API_KEY:?OPENROUTER_API_KEY is required}\"; export OPENROUTER_API_HOST=\"${OPENROUTER_API_HOST:-https://openrouter.ai/api/v1}\"; exec uvx openrouter-mcp -y"]
 
 [mcp_servers.github]
 command = "sh"
@@ -310,7 +310,7 @@ codex --version
 
 1. **Auth:** `OPENAI_API_KEY` env var + `codex login --with-api-key` for non-interactive
 2. **Config:** TOML at `~/.codex/config.toml` with profile and MCP server support
-3. **MCP:** Already integrated with context7, github, minimax, task-master-ai via env-sourced keys
+3. **MCP:** Already integrated with context7, github, openrouter, task-master-ai via env-sourced keys
 4. **Hooks:** `~/.codex/hooks.json` supports PostToolUse events for observability
 5. **Exec:** Non-interactive via `codex exec --full-auto --json` for pipeline use
 6. **Review:** `codex review --uncommitted` for automated code review

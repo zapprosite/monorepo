@@ -11,8 +11,8 @@ declare -A MODEL_WINDOWS=(
   ["claude-opus-4"]=200000
   ["claude-sonnet-4"]=100000
   ["claude-haiku-4"]=32000
-  ["MiniMax-M2.7"]=100000
-  ["MiniMax-M2"]=100000
+  ["hermes-brain"]=100000
+  ["hermes-brain"]=100000
 )
 
 DEFAULT_WINDOW=200000
@@ -33,7 +33,7 @@ detect_model() {
     return 0
   fi
 
-  echo "MiniMax-M2.7"
+  echo "hermes-brain"
 }
 
 get_window_size() {

@@ -82,7 +82,7 @@ QDRANT_URL = os.environ.get("QDRANT_URL", "http://127.0.0.1:6333")
 QDRANT_API_KEY = os.environ.get("QDRANT_API_KEY", "")
 OLLAMA_URL = os.environ.get("OLLAMA_URL", "http://127.0.0.1:11434")
 EMBEDDING_MODEL = os.environ.get("HVAC_EMBEDDING_MODEL", "nomic-embed-text:latest")
-LITELLM_URL = os.environ.get("LITELLM_URL", "http://127.0.0.1:4000/v1")
+LITELLM_URL = os.environ.get("LITELLM_URL", "http://127.0.0.1:4018/v1")
 LITELLM_API_KEY = os.environ.get("LITELLM_API_KEY", "sk-dummy")
 COLLECTION_NAME = "hvac_manuals_v1"
 
@@ -102,8 +102,8 @@ EMBED_TIMEOUT = 60
 SEARCH_TIMEOUT = 20
 CHAT_TIMEOUT = 120
 
-# MiniMax primary model for final answer formatting
-PRIMARY_LLM_MODEL = "minimax-m2.7"
+# OpenRouter primary model alias for final answer formatting.
+PRIMARY_LLM_MODEL = os.environ.get("LITELLM_DEFAULT_MODEL", "hermes-auto")
 
 # HVAC domain keywords — out-of-domain queries are blocked
 HVAC_COMPONENTS = {
@@ -489,9 +489,9 @@ def build_retrieval_package(user_query: str, hits: list, juiz_meta: dict,
                              merged_state: Optional[dict] = None,
                              resolver_evidence_level: Optional[str] = None) -> dict:
     """
-    Build a structured retrieval package for MiniMax to format the final answer.
+    Build a structured retrieval package for OpenRouter to format the final answer.
 
-    The package contains all context MiniMax needs to write a good response,
+    The package contains all context OpenRouter needs to write a good response,
     replacing the old pattern of returning raw RAG chunks + fixed prompt.
     """
     pkg = {
@@ -603,17 +603,17 @@ def apply_web_results_to_package(pkg: dict, web_results: list[dict]) -> dict:
     pkg["web_context"] = web_results
     pkg["web_provider"] = web_results[0].get("provider", "web")
     pkg["web_confidence"] = max(float(r.get("confidence", 0.0) or 0.0) for r in web_results)
-    if pkg["web_provider"] in ("minimax_mcp_web_search", "minimax_mcp", "tavily_api", "tavily_mcp"):
+    if pkg["web_provider"] in ("openrouter_mcp_web_search", "openrouter_mcp", "tavily_api", "tavily_mcp"):
         pkg["evidence_level"] = "official_web"
     else:
         pkg["evidence_level"] = "web_fallback"
     return pkg
 
 
-def build_minimax_system_prompt(pkg: dict) -> str:
+def build_openrouter_system_prompt(pkg: dict) -> str:
     """
-    Build the system prompt sent to MiniMax for final answer formatting.
-    MiniMax receives structured context and formats it as a friendly tutor response.
+    Build the system prompt sent to OpenRouter for final answer formatting.
+    OpenRouter receives structured context and formats it as a friendly tutor response.
     """
     lines = [
         "Você é o Zappro Clima Tutor — assistente amigável de climatização inverter.",
@@ -809,10 +809,10 @@ async def chat_completions(request: ChatCompletionRequest, http_request: Request
 
     Router logic:
       printable query  → /v1/chat/completions/printable (internal redirect)
-      else             → guided_triage via MiniMax M2.7 + friendly rewriter
+      else             → guided_triage via OpenRouter + friendly rewriter
 
-    MiniMax M2.7 is the primary reasoning/writing engine.
-    Qdrant provides context; MiniMax formats the final answer.
+    OpenRouter is the primary reasoning/writing engine.
+    Qdrant provides context; OpenRouter formats the final answer.
     The friendly rewriter is a safety net for tone/polish.
     """
     # Extract user message and system content
@@ -937,7 +937,7 @@ async def chat_completions(request: ChatCompletionRequest, http_request: Request
                 "choices": [{"index": 0, "message": {"role": "assistant", "content": friendly_ask}, "finish_reason": "stop"}],
             }
 
-    # ── APPROVED — build retrieval package + call MiniMax ─────────────────────
+    # ── APPROVED — build retrieval package + call OpenRouter ─────────────────
     # Universal Resolver — coverage check before Qdrant search
     coverage_map = _hvac_coverage.check_coverage(intake_result)
 
@@ -968,14 +968,14 @@ async def chat_completions(request: ChatCompletionRequest, http_request: Request
             _safe_log(f"[web-search] No external results; using triagem_tecnica {_log_query_meta(user_query)}")
 
 
-    # Build MiniMax system prompt (primary reasoning engine)
-    minimax_system = build_minimax_system_prompt(pkg)
+    # Build OpenRouter system prompt (primary reasoning engine)
+    openrouter_system = build_openrouter_system_prompt(pkg)
 
     # Prepend HVAC system prompt, preserving any existing system content
     if system_content:
-        final_system = f"{minimax_system}\n\n[System original do usuário]\n{system_content}"
+        final_system = f"{openrouter_system}\n\n[System original do usuário]\n{system_content}"
     else:
-        final_system = minimax_system
+        final_system = openrouter_system
 
     messages_for_llm = [{"role": "system", "content": final_system}]
     for msg in request.messages:
@@ -984,7 +984,7 @@ async def chat_completions(request: ChatCompletionRequest, http_request: Request
 
     _safe_log(f"Tutor: hits={len(hits)} ctx={len(context)} mode=guided_tutor {_log_query_meta(user_query)}")
 
-    # ── Call MiniMax M2.7 as primary LLM ─────────────────────────────────────
+    # ── Call OpenRouter as primary LLM ───────────────────────────────────────
     async with httpx.AsyncClient(timeout=CHAT_TIMEOUT) as client:
         try:
             litellm_payload = {
@@ -1002,7 +1002,7 @@ async def chat_completions(request: ChatCompletionRequest, http_request: Request
             if r.status_code == 200:
                 result = r.json()
                 message = result.get("choices", [{}])[0].get("message", {})
-                # MiniMax M2.7 puts extended thinking in reasoning_content
+                # Some OpenRouter models expose extended thinking in reasoning_content.
                 raw_content = message.get("content") or message.get("reasoning_content") or ""
                 # Apply friendly rewriter as safety net
                 friendly_content = enforce_ptbr_charset(rewrite_response(raw_content, user_query=user_query))
@@ -1355,7 +1355,7 @@ async def root():
     return {
         "service": "HVAC RAG Pipe — Zappro Clima Tutor",
         "version": "2.0.0",
-        "strategy": "minimax_primary_rag_context_tutor",
+        "strategy": "openrouter_primary_rag_context_tutor",
         "public_model": MODEL_NAME,
         "internal_models": INTERNAL_MODELS,
         "endpoints": [

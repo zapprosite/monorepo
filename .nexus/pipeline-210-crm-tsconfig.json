@@ -1,0 +1,43 @@
+{
+  "name": "SPEC-210-CRM-FIX-tsconfig-paths",
+  "description": "Fix CRM-API production build with tsconfig-paths/register — no src in container",
+  "version": "1.0.0",
+  "continue_on_error": false,
+  "tasks": [
+    {
+      "id": "B1",
+      "type": "terminal",
+      "description": "Install tsconfig-paths dependency in apps/api",
+      "command": "cd /srv/monorepo/apps/api && pnpm add tsconfig-paths 2>&1 | tail -3",
+      "timeout": 30
+    },
+    {
+      "id": "B2",
+      "type": "terminal",
+      "description": "Verify tsconfig-paths is in package.json",
+      "command": "grep 'tsconfig-paths' /srv/monorepo/apps/api/package.json",
+      "timeout": 5
+    },
+    {
+      "id": "B3",
+      "type": "patch",
+      "path": "/srv/monorepo/apps/api/src/server.ts",
+      "old_string": "import 'dotenv/config';",
+      "new_string": "import 'tsconfig-paths/register';\nimport 'dotenv/config';"
+    },
+    {
+      "id": "B4",
+      "type": "terminal",
+      "description": "Rebuild TypeScript (tsc + tsc-alias)",
+      "command": "cd /srv/monorepo/apps/api && npx -p typescript tsc 2>&1 | tail -3 && npx -p typescript tsc-alias 2>&1 | tail -3 && echo 'Build OK'",
+      "timeout": 60
+    },
+    {
+      "id": "B5",
+      "type": "terminal",
+      "description": "Verify dist/server.js uses resolve_path and no @backend in JS",
+      "command": "head -5 /srv/monorepo/apps/api/dist/server.js && echo '---' && grep -c '@backend' /srv/monorepo/apps/api/dist/server.js 2>/dev/null || echo '0,@backend refs'",
+      "timeout": 5
+    }
+  ]
+}

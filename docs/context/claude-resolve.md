@@ -15,7 +15,7 @@
 │  │  @CEO_REFRIMIX   │    │                                  │  │
 │  └─────────────────┘    └──────────────────────────────────┘  │
 │         │                                                      │
-│         │ liteLLM/minimax-m2.7  ──►  LiteLLM (10.0.1.1:4000) │
+│         │ liteLLM/hermes-brain  ──►  LiteLLM (10.0.1.1:4000) │
 │         │                                                       │
 │         │ OPENAI_TTS_BASE_URL ──► (10.0.19.6:8880)    │
 │         │                                                       │
@@ -52,7 +52,7 @@
 
 | Serviço | IP:Port | Status | Teste |
 |---------|---------|--------|-------|
-| MiniMax API (direto) | api.minimax.io | ✅ OK | `curl` testado |
+| OpenRouter API (direto) | openrouter.ai/api/v1 | ✅ OK | `curl` testado |
 | LiteLLM Proxy | 10.0.1.1:4000 | ✅ OK | Auth error (precisa key) |
 | Ollama (GPU) | 10.0.1.1:11434 | ✅ OK | `gemma4`, `llava`, `nomic-embed-text` |
 | | 10.0.19.6:8880 | ✅ OK | Responde na porta |
@@ -75,19 +75,19 @@
 {
   "agents": {
     "defaults": {
-      "model": { "primary": "liteLLM/minimax-m2.7" }
+      "model": { "primary": "liteLLM/hermes-brain" }
     }
   },
   "providers": {
-    "minimax": {
-      "baseUrl": "https://api.minimax.io/anthropic",
-      "apiKey": "${MINIMAX_API_KEY}",
-      "models": [{ "id": "MiniMax-M2.1" }]  // ⚠️ SÓ TEM M2.1!
+    "openrouter": {
+      "baseUrl": "https://openrouter.ai/api/v1/anthropic",
+      "apiKey": "${OPENROUTER_API_KEY}",
+      "models": [{ "id": "hermes-brain.1" }]  // ⚠️ SÓ TEM M2.1!
     },
     "liteLLM": {
       "baseUrl": "http://10.0.1.1:4000/v1",
       "apiKey": "${LITELLM_KEY}",
-      "models": [{ "id": "minimax-m2.7" }]
+      "models": [{ "id": "hermes-brain" }]
     }
   }
 }
@@ -126,17 +126,17 @@ model_list:
 - model_name: qwen3.6-plus
   litellm_params:
     model: openrouter/qwen/qwen3.6-plus
-- model_name: minimax-m2.7
+- model_name: hermes-brain
   litellm_params:
-    model: openrouter/minimax/minimax-m2.7
+    model: openrouter/openrouter/hermes-brain
 ```
 
 ---
 
 ## O QUE JÁ TENTAMOS
 
-1. ✅ `OPENCLAW_PRIMARY_MODEL=MiniMax-M2.7` → Não funfou (provider só tem M2.1)
-2. ✅ `liteLLM/minimax-m2.7` → Gateway aceita mas não responde
+1. ✅ `OPENCLAW_PRIMARY_MODEL=hermes-brain` → Não funfou (provider só tem M2.1)
+2. ✅ `liteLLM/hermes-brain` → Gateway aceita mas não responde
 3. ✅ Restart gateway → Não resolveu
 4. ✅ Pairing list → Sem pending requests
 5. ✅ Telegram mode: polling → OK
@@ -147,7 +147,7 @@ model_list:
 
 ## HIPÓTESES
 
-1. **Provider minimax** só tem `MiniMax-M2.1` mas configuramos `M2.7` — API aceita?
+1. **Provider openrouter** só tem `hermes-brain.1` mas configuramos `hermes-brain` — API aceita?
 2. **LiteLLM auth** — ?
 3. **Coolify .env** — `OPENCLAW_PRIMARY_MODEL` reseta após deploy
 4. **nginx basic auth** — Interfere com Telegram webhook?
@@ -158,8 +158,8 @@ model_list:
 ## O QUE PRECISA
 
 1. **Estabilizar** `OPENCLAW_PRIMARY_MODEL` persistente (não resetar)
-2. **Confirmar** se `liteLLM/minimax-m2.7` realmente funciona ou é rota morta
-3. **Testar** MiniMax direto no (sem LiteLLM) — corrigir provider M2.7
+2. **Confirmar** se `liteLLM/hermes-brain` realmente funciona ou é rota morta
+3. **Testar** OpenRouter direto no (sem LiteLLM) — corrigir provider hermes-brain
 4. **Verificar** se Telegram recebe messages mas gateway ignora
 5. **Pinning** versão 
 
@@ -184,10 +184,10 @@ docker exec 6771lt8l7x8rqx72f
 curl -H "Authorization: Bearer ${LITELLM_KEY}" \
   http://10.0.1.1:4000/v1/models
 
-# Testar MiniMax direto
-curl -X POST "https://api.minimax.io/anthropic/v1/messages" \
-  -H "Authorization: Bearer ${MINIMAX_API_KEY}" \
-  -d '{"model":"MiniMax-M2.7","max_tokens":10,"messages":[{"role":"user","content":"hi"}]}'
+# Testar OpenRouter direto
+curl -X POST "https://openrouter.ai/api/v1/messages" \
+  -H "Authorization: Bearer ${OPENROUTER_API_KEY}" \
+  -d '{"model":"hermes-brain","max_tokens":10,"messages":[{"role":"user","content":"hi"}]}'
 ```
 
 ---
@@ -196,7 +196,7 @@ curl -X POST "https://api.minimax.io/anthropic/v1/messages" \
 
 1. **** — onde a msg é perdida?
 2. **LiteLLM `/v1/chat/completions`** — está sendo chamado? Com que params?
-3. **Provider resolution** — como `liteLLM/minimax-m2.7` é resolvido?
+3. **Provider resolution** — como `liteLLM/hermes-brain` é resolvido?
 4. **Auth flow** — Telegram → Gateway → Agent → Provider → Model
 
 **Arquivos pra auditar:**
@@ -207,25 +207,25 @@ curl -X POST "https://api.minimax.io/anthropic/v1/messages" \
 
 ---
 
-## PROVIDERS.MINIMAX — SÓ TEM M2.1
+## PROVIDERS.OPENROUTER — SÓ TEM M2.1
 
-O provider `minimax` no `MiniMax-M2.1`:
+O provider `openrouter` no `hermes-brain.1`:
 
 ```json
-"minimax": {
+"openrouter": {
   "models": [
-    { "id": "MiniMax-M2.1", "contextWindow": 200000, ... }
+    { "id": "hermes-brain.1", "contextWindow": 200000, ... }
   ]
 }
 ```
 
-**Mas** a API aceita `MiniMax-M2.7`. Provavelmente:
+**Mas** a API aceita `hermes-brain`. Provavelmente:
 - Ou o modelo é registrado automaticamente na primeira chamada
 - Ou precisa adicionar manualmente no config
 
-**Testar adicionar M2.7 ao provider:**
+**Testar adicionar hermes-brain ao provider:**
 ```bash
-docker exec 6771lt8l7x8rqx72f .minimax.models '[{"id":"MiniMax-M2.7","contextWindow":200000}]'
+docker exec 6771lt8l7x8rqx72f .openrouter.models '[{"id":"hermes-brain","contextWindow":200000}]'
 ```
 
 ---

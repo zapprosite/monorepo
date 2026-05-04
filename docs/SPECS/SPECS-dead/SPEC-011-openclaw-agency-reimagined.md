@@ -141,7 +141,7 @@ O , onde:
 ║  │   LLM / VISÃO    │  │  VOZ PIPELINE   │  │    MEMÓRIA        │          ║
 ║  │                  │  │                 │  │                   │          ║
 ║  │ LiteLLM :4000    │  │ wav2vec2 :8201  │  │ Qdrant :6333      │          ║
-║  │ ├─ MiniMax M2.7  │  │ (STT PT-BR)     │  │ (768d vectors)    │          ║
+║  │ ├─ hermes-brain  │  │ (STT PT-BR)     │  │ (768d vectors)    │          ║
 ║  │ ├─ llava         │  │                 │  │                   │          ║
 ║  │ └─ nomic-embed   │  │ :8880    │  │ nomic-embed-text  │          ║
 ║  │    (embedding)   │  │ (TTS engine)    │  │ (embedding model) │          ║
@@ -2704,7 +2704,7 @@ Trigger: inotifywait evento em ~/./workspace/clientes/
 
 | # | Risco | Probabilidade | Impacto | Score | Mitigação |
 |---|-------|--------------|---------|-------|----------|
-| R01 | Falha do LiteLLM (modelo indisponível) | Médio | Alto | 🔴 Alto | Fallback chain: MiniMax M2.7 → GPT-4o-mini; retry 3x |
+| R01 | Falha do LiteLLM (modelo indisponível) | Médio | Alto | 🔴 Alto | Fallback chain: hermes-brain → GPT-4o-mini; retry 3x |
 | R02 | Qdrant OOM com muitos clientes | Baixo | Alto | 🟡 Médio | Sharding por cliente; monitoramento de memória |
 | R03 | wav2vec2 timeout em vídeos longos | Alto | Médio | 🟡 Médio | Chunking de 10min; processamento assíncrono |
 | R04 | llava falsa negativa em brand check | Médio | Médio | 🟡 Médio | Revisão humana obrigatória para score 7-8 |
@@ -2901,7 +2901,7 @@ Semana 23-24: Multi-cliente Escala
       "enabled": true,
       "soul": "agents/ceo-mix/SOUL.md",
       "skills": ["skills/ceo-mix/SKILL.md"],
-      "model": "minimax-m2.7",
+      "model": "hermes-brain",
       "voice": "pm_santa",
       "channels": ["telegram-main", "whatsapp-agency"],
       "memory": {
@@ -2914,7 +2914,7 @@ Semana 23-24: Multi-cliente Escala
       "enabled": true,
       "soul": "agents/video-editor/SOUL.md",
       "skills": ["skills/video-editor/SKILL.md"],
-      "model": "minimax-m2.7",
+      "model": "hermes-brain",
       "voice": "pm_santa",
       "channels": [],
       "sandbox": {"mode": "docker", "mounts": ["workspace/clientes:/workspace/clientes:rw"]},
@@ -2928,7 +2928,7 @@ Semana 23-24: Multi-cliente Escala
       "enabled": true,
       "soul": "agents/organizador/SOUL.md",
       "skills": ["skills/organizador/SKILL.md"],
-      "model": "minimax-m2.7",
+      "model": "hermes-brain",
       "voice": "pm_santa",
       "channels": [],
       "memory": {
@@ -2941,7 +2941,7 @@ Semana 23-24: Multi-cliente Escala
       "enabled": true,
       "soul": "agents/onboarding/SOUL.md",
       "skills": ["skills/onboarding/SKILL.md"],
-      "model": "minimax-m2.7",
+      "model": "hermes-brain",
       "voice": "pf_dora",
       "channels": [],
       "memory": {
@@ -2954,7 +2954,7 @@ Semana 23-24: Multi-cliente Escala
       "enabled": true,
       "soul": "agents/creative/SOUL.md",
       "skills": ["skills/creative/SKILL.md"],
-      "model": "minimax-m2.7",
+      "model": "hermes-brain",
       "voice": "pf_dora",
       "channels": [],
       "memory": {
@@ -2967,7 +2967,7 @@ Semana 23-24: Multi-cliente Escala
       "enabled": true,
       "soul": "agents/design/SOUL.md",
       "skills": ["skills/design/SKILL.md"],
-      "model": "minimax-m2.7",
+      "model": "hermes-brain",
       "voice": "pf_dora",
       "channels": [],
       "memory": {
@@ -2980,7 +2980,7 @@ Semana 23-24: Multi-cliente Escala
       "enabled": true,
       "soul": "agents/social-media/SOUL.md",
       "skills": ["skills/social-media/SKILL.md"],
-      "model": "minimax-m2.7",
+      "model": "hermes-brain",
       "voice": "pf_dora",
       "channels": [],
       "memory": {
@@ -2993,7 +2993,7 @@ Semana 23-24: Multi-cliente Escala
       "enabled": true,
       "soul": "agents/project-manager/SOUL.md",
       "skills": ["skills/project-manager/SKILL.md"],
-      "model": "minimax-m2.7",
+      "model": "hermes-brain",
       "voice": "pm_santa",
       "channels": [],
       "memory": {
@@ -3006,7 +3006,7 @@ Semana 23-24: Multi-cliente Escala
       "enabled": true,
       "soul": "agents/analytics/SOUL.md",
       "skills": ["skills/analytics/SKILL.md"],
-      "model": "minimax-m2.7",
+      "model": "hermes-brain",
       "voice": "pm_santa",
       "channels": [],
       "memory": {
@@ -3019,7 +3019,7 @@ Semana 23-24: Multi-cliente Escala
       "enabled": true,
       "soul": "agents/brand-guardian/SOUL.md",
       "skills": ["skills/brand-guardian/SKILL.md"],
-      "model": "minimax-m2.7",
+      "model": "hermes-brain",
       "voice": "pm_santa",
       "channels": [],
       "memory": {
@@ -3032,7 +3032,7 @@ Semana 23-24: Multi-cliente Escala
       "enabled": true,
       "soul": "agents/client-success/SOUL.md",
       "skills": ["skills/client-success/SKILL.md"],
-      "model": "minimax-m2.7",
+      "model": "hermes-brain",
       "voice": "pf_dora",
       "channels": [],
       "memory": {

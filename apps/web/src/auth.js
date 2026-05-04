@@ -156,7 +156,7 @@ function validateToken() {
 		return false;
 	}
 
-	const expiresAt = session.expires_at || parseInt(sessionStorage.getItem('expires_at'));
+	const expiresAt = session.expires_at || parseInt(sessionStorage.getItem('expires_at'), 10);
 
 	if (!expiresAt) {
 		return false;

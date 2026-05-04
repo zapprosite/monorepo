@@ -3,12 +3,8 @@ import { expect, test } from '@playwright/test';
 const API_BASE = process.env.API_URL || 'https://api.zappro.site';
 
 test.describe('CRM Security E2E — P0/P1 Fixes', () => {
-
 	test('P0-1: prompts endpoints require authentication', async ({ request }) => {
-		const endpoints = [
-			'/trpc/prompts.getAllActive',
-			'/trpc/prompts.getRandomActive',
-		];
+		const endpoints = ['/trpc/prompts.getAllActive', '/trpc/prompts.getRandomActive'];
 
 		for (const endpoint of endpoints) {
 			const res = await request.get(`${API_BASE}${endpoint}`);
@@ -21,8 +17,12 @@ test.describe('CRM Security E2E — P0/P1 Fixes', () => {
 		}
 	});
 
-	test('P0-2: email campaigns endpoint requires authentication or is not registered', async ({ request }) => {
-		const res = await request.get(`${API_BASE}/trpc/email.listCampaigns?input=%7B%22limit%22%3A10%2C%22offset%22%3A0%7D`);
+	test('P0-2: email campaigns endpoint requires authentication or is not registered', async ({
+		request,
+	}) => {
+		const res = await request.get(
+			`${API_BASE}/trpc/email.listCampaigns?input=%7B%22limit%22%3A10%2C%22offset%22%3A0%7D`,
+		);
 		const body = await res.json();
 
 		const isAuth = body.error?.data?.code === 'UNAUTHORIZED' || res.status() === 401;

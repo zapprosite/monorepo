@@ -7,7 +7,7 @@ import { beforeAll, describe, expect, it } from 'vitest';
 // Set env before importing module (anti-hardcoded)
 beforeAll(() => {
 	process.env.AI_GATEWAY_FACADE_KEY = 'test-key-32-bytes-xxxxxxxxxxxxxxxxxxx';
-	process.env.LITELLM_LOCAL_URL = 'http://localhost:4000/v1';
+	process.env.LITELLM_LOCAL_URL = 'http://localhost:4018/v1';
 	process.env.LITELLM_MASTER_KEY = 'test-litellm-key';
 	process.env.TTS_BRIDGE_URL = 'http://localhost:8013';
 	process.env.STT_PROXY_URL = 'http://localhost:8203';

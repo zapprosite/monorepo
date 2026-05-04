@@ -25,7 +25,7 @@ Claude Code does **not** store API keys directly. It relies on environment varia
 
 | Storage Type | Location | Contents |
 |---|---|---|
-| Environment variables | Process env | `ANTHROPIC_API_KEY`, `MINIMAX_API_KEY`, etc. |
+| Environment variables | Process env | `ANTHROPIC_API_KEY`, `OPENROUTER_API_KEY`, etc. |
 | MCP server config | `~/.claude/mcp-servers.json` | Env vars passed to MCP server processes |
 | Settings | `~/.claude/settings.json` | No secrets — only flags, hooks, permissions |
 
@@ -41,12 +41,12 @@ Claude Code does **not** store API keys directly. It relies on environment varia
       "args": ["-y", "@upstash/context7-mcp@latest"],
       "env": { "CONTEXT7_API_KEY": "${CONTEXT7_API_KEY}" }
     },
-    "minimax": {
+    "openrouter": {
       "command": "uvx",
-      "args": ["minimax-mcp", "-y"],
+      "args": ["openrouter-mcp", "-y"],
       "env": {
-        "MINIMAX_API_KEY": "${MINIMAX_API_KEY}",
-        "MINIMAX_API_HOST": "https://api.minimax.io"
+        "OPENROUTER_API_KEY": "${OPENROUTER_API_KEY}",
+        "OPENROUTER_API_HOST": "https://openrouter.ai/api/v1"
       }
     },
     "github": {
@@ -222,17 +222,17 @@ codex exec --env 2>&1 | head -20  # shows env block
   "version": "1.0.0",
   "providers": [
     {
-      "name": "minimax",
-      "type": "minimax",
-      "apiKeyEnvVar": "MINIMAX_API_KEY",
-      "apiHost": "https://api.minimax.io"
+      "name": "openrouter",
+      "type": "openrouter",
+      "apiKeyEnvVar": "OPENROUTER_API_KEY",
+      "apiHost": "https://openrouter.ai/api/v1"
     }
   ],
   "installations": [
     {
       "name": "crm-ownership",
-      "provider": "minimax",
-      "model": "MiniMax-M2.7",
+      "provider": "openrouter",
+      "model": "hermes-brain",
       "claudeDir": "/srv/monorepo/.claude/instances/crm-ownership"
     }
   ]
@@ -268,10 +268,10 @@ test -f ~/.multi-claude/config.json && echo "Config exists"
 mclaude --list-providers
 
 # Verify a specific provider's env var is accessible (no exposure)
-test -n "${MINIMAX_API_KEY:-}" && echo "MINIMAX_API_KEY is set"
+test -n "${OPENROUTER_API_KEY:-}" && echo "OPENROUTER_API_KEY is set"
 
 # Test provider connectivity (without exposing key)
-mclaude --test-provider minimax
+mclaude --test-provider openrouter
 ```
 
 ### Security Pattern
@@ -326,7 +326,7 @@ set +a
 
 # Then verify (no exposure)
 test -n "${ANTHROPIC_API_KEY:-}" && echo "ANTHROPIC_API_KEY is set"
-test -n "${MINIMAX_API_KEY:-}" && echo "MINIMAX_API_KEY is set"
+test -n "${OPENROUTER_API_KEY:-}" && echo "OPENROUTER_API_KEY is set"
 ```
 
 ### 4. Verification Commands (All CLIs)
@@ -339,7 +339,7 @@ test -n "${ANTHROPIC_API_KEY:-}" && echo "set"
 test -n "${OPENAI_API_KEY:-}" && echo "set"
 
 # mclaude
-test -n "${MINIMAX_API_KEY:-}" && echo "set"
+test -n "${OPENROUTER_API_KEY:-}" && echo "set"
 mclaude --list-providers
 ```
 

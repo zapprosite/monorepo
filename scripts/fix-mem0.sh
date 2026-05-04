@@ -32,17 +32,17 @@ config = MemoryConfig(
     llm=LlmConfig(
         provider="openai",
         config={
-            "model": "Gemma4-12b-it",
+            "model": "hermes-auto",
             "api_key": litellm_key,
-            "openai_base_url": "http://localhost:4000/v1",
+            "openai_base_url": "http://localhost:4018/v1",
         }
     ),
     embedder=EmbedderConfig(
         provider="openai",
         config={
-            "model": "embedding-nomic",
+            "model": "hermes-embed",
             "api_key": litellm_key,
-            "openai_base_url": "http://localhost:4000/v1",
+            "openai_base_url": "http://localhost:4018/v1",
         }
     ),
 )

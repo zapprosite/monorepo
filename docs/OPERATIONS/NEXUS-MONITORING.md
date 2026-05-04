@@ -337,9 +337,9 @@ grep '"component":"nexus-worker"' /srv/monorepo/logs/nexus/nexus-worker.log \
 # Identify slow task type
 scripts/nexus.sh tasks --slow --threshold 60s --since 15m
 
-# Check model provider latency directly
-curl -s -w "%{time_total}" https://api.openrouter.com/v1/models \
-  -H "Authorization: Bearer ${OPENROUTER_API_KEY}" | tail -1
+# Check model gateway latency through LiteLLM
+curl -s -w "%{time_total}" http://127.0.0.1:4018/v1/models \
+  -H "Authorization: Bearer ${LITELLM_MASTER_KEY}" | tail -1
 
 # Check disk latency on queue volume
 iostat -x 1 5 | grep sd

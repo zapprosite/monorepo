@@ -1,46 +1,39 @@
 package agents
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
 	"log"
-	"net/http"
-	"os"
 	"sort"
 	"strings"
-	"time"
 
 	"github.com/google/uuid"
 	"github.com/will-zappro/hvacr-swarm/internal/memory"
 )
 
-// RankingAgent re-ranks candidates using MiniMax as judge.
+// RankingAgent re-ranks candidates using LiteLLM as judge.
 type RankingAgent struct {
-	redis        RedisCacheLayer
-	minScore     float64
-	maxTokens    int
-	minimaxAPIKey string
-	redisClient  RedisEnqueuer
+	redis            RedisCacheLayer
+	minScore         float64
+	maxTokens        int
+	liteLLMClient *LiteLLMClient
+	redisClient      RedisEnqueuer
 }
 
 // NewRankingAgent creates a new RankingAgent.
-func NewRankingAgent(redis RedisCacheLayer, minimaxAPIKey string) *RankingAgent {
-	if minimaxAPIKey == "" {
-		minimaxAPIKey = os.Getenv("MINIMAX_API_KEY")
-	}
+func NewRankingAgent(redis RedisCacheLayer, liteLLMAPIKey string) *RankingAgent {
 	return &RankingAgent{
-		redis:        redis,
-		minScore:     0.5,
-		maxTokens:    4000,
-		minimaxAPIKey: minimaxAPIKey,
+		redis:            redis,
+		minScore:         0.5,
+		maxTokens:        4000,
+		liteLLMClient:    NewLiteLLMClientWithModel(liteLLMAPIKey, HermesAutoModel),
 	}
 }
 
 // NewRankingAgentWithRedis creates a RankingAgent with Redis client for routing.
-func NewRankingAgentWithRedis(redis RedisCacheLayer, minimaxAPIKey string, redisClient RedisEnqueuer) *RankingAgent {
-	agent := NewRankingAgent(redis, minimaxAPIKey)
+func NewRankingAgentWithRedis(redis RedisCacheLayer, liteLLMAPIKey string, redisClient RedisEnqueuer) *RankingAgent {
+	agent := NewRankingAgent(redis, liteLLMAPIKey)
 	agent.redisClient = redisClient
 	return agent
 }
@@ -60,7 +53,7 @@ func DefaultRankingConfig() RankingConfig {
 		MinScore:    0.5,
 		MaxTokens:   4000,
 		TopN:        5,
-		UseReranker: false, // Use MiniMax as judge by default
+		UseReranker: false, // Use LiteLLM as judge by default
 	}
 }
 
@@ -124,10 +117,10 @@ func (r *RankingAgent) Execute(ctx context.Context, task *SwarmTask) (map[string
 		}
 		// Continue to routing step even with empty results
 	} else {
-		// Step 2: Re-rank using cross-encoder or MiniMax
-		ranked, err := r.rerankWithMiniMax(ctx, candidates, query, config)
+		// Step 2: Re-rank using cross-encoder or LiteLLM
+		ranked, err := r.rerankWithLiteLLM(ctx, candidates, query, config)
 		if err != nil {
-			// Fallback to original scores if MiniMax fails
+			// Fallback to original scores if LiteLLM fails
 			ranked = candidates
 		}
 
@@ -268,14 +261,14 @@ func (r *RankingAgent) extractCandidatesFromInput(input map[string]any) []memory
 	return candidates
 }
 
-// rerankWithMiniMax re-ranks candidates using MiniMax as judge.
-func (r *RankingAgent) rerankWithMiniMax(ctx context.Context, candidates []memory.SearchResult, query string, config RankingConfig) ([]memory.SearchResult, error) {
+// rerankWithLiteLLM re-ranks candidates using LiteLLM as judge.
+func (r *RankingAgent) rerankWithLiteLLM(ctx context.Context, candidates []memory.SearchResult, query string, config RankingConfig) ([]memory.SearchResult, error) {
 	if query == "" {
 		query = "relevant document"
 	}
 
-	// If no MiniMax API key, fall back to score-based sorting
-	if r.minimaxAPIKey == "" {
+	// If no LiteLLM client is configured, fall back to score-based sorting.
+	if r.liteLLMClient == nil || !r.liteLLMClient.Configured() {
 		sorted := make([]memory.SearchResult, len(candidates))
 		copy(sorted, candidates)
 		sort.Slice(sorted, func(i, j int) bool {
@@ -284,7 +277,7 @@ func (r *RankingAgent) rerankWithMiniMax(ctx context.Context, candidates []memor
 		return sorted, nil
 	}
 
-	// Build context from candidates for MiniMax evaluation
+	// Build context from candidates for LiteLLM evaluation.
 	var candidateDocs strings.Builder
 	for i, c := range candidates {
 		docContent := ""
@@ -296,7 +289,6 @@ func (r *RankingAgent) rerankWithMiniMax(ctx context.Context, candidates []memor
 		candidateDocs.WriteString(fmt.Sprintf("[%d] %s\n", i+1, docContent))
 	}
 
-	// Prompt MiniMax to evaluate relevance
 	prompt := fmt.Sprintf(`Evaluar a relevância dos seguintes documentos para a consulta: "%s"
 
 Documentos:
@@ -305,7 +297,7 @@ Documentos:
 Para cada documento, indique sua relevância como: alta, média, baixa ou irrelevante.
 Responda em JSON array com campos: index (1-based), relevance (alta/média/baixa/irrelevante), reason (breve justificativa).`, query, candidateDocs.String())
 
-	resp, err := r.callMiniMax(ctx, prompt)
+	resp, err := r.callLiteLLM(ctx, prompt, 2000)
 	if err != nil {
 		// Fallback to score-based sorting on error
 		sorted := make([]memory.SearchResult, len(candidates))
@@ -316,7 +308,7 @@ Responda em JSON array com campos: index (1-based), relevance (alta/média/baixa
 		return sorted, nil
 	}
 
-	// Parse MiniMax's relevance evaluation
+	// Parse LiteLLM's relevance evaluation.
 	var evaluations []struct {
 		Index      int    `json:"index"`
 		Relevance string `json:"relevance"`
@@ -363,59 +355,12 @@ Responda em JSON array com campos: index (1-based), relevance (alta/média/baixa
 	return sorted, nil
 }
 
-// callMiniMax calls the MiniMax API for text generation.
-func (r *RankingAgent) callMiniMax(ctx context.Context, prompt string) (string, error) {
-	if r.minimaxAPIKey == "" {
-		return "", fmt.Errorf("minimax API key not configured")
+// callLiteLLM calls LiteLLM for text generation.
+func (r *RankingAgent) callLiteLLM(ctx context.Context, prompt string, maxTokens int) (string, error) {
+	if r.liteLLMClient == nil {
+		return "", fmt.Errorf("litellm client not configured")
 	}
-
-	reqBody := MiniMaxRequest{
-		Model: "MiniMax-M2",
-		Messages: []MiniMaxMessage{
-			{
-				Role:    "user",
-				Content: prompt,
-			},
-		},
-		MaxTokens: 2000,
-	}
-
-	jsonBody, err := json.Marshal(reqBody)
-	if err != nil {
-		return "", fmt.Errorf("marshal request: %w", err)
-	}
-
-	endpoint := "https://api.minimax.io/v1/messages"
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, endpoint, bytes.NewReader(jsonBody))
-	if err != nil {
-		return "", fmt.Errorf("create request: %w", err)
-	}
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer "+r.minimaxAPIKey)
-	req.Header.Set("anthropic-version", "2023-06-01")
-	req.Header.Set("anthropic-dangerous-direct-browser-access", "true")
-
-	client := &http.Client{Timeout: 10 * time.Second}
-	resp, err := client.Do(req)
-	if err != nil {
-		return "", fmt.Errorf("execute request: %w", err)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("MiniMax API returned status %d", resp.StatusCode)
-	}
-
-	var result MiniMaxResponse
-	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return "", fmt.Errorf("decode response: %w", err)
-	}
-
-	if len(result.Content) == 0 || result.Content[0].Text == "" {
-		return "", fmt.Errorf("empty response from MiniMax")
-	}
-
-	return result.Content[0].Text, nil
+	return r.liteLLMClient.Chat(ctx, prompt, maxTokens)
 }
 
 // assembleContext combines top results into a single context string.

@@ -15,7 +15,7 @@ O homelab tem múltiplos problemas identificados:
 ## Estado Actual (antes do polish)
 
 ### .env corrigido (2026-04-23)
-- `MINIMAX_API_KEY` → presente em `.env` ✅
+- `OPENROUTER_API_KEY` → presente em `.env` ✅
 - `QDRANT_API_KEY` → presente em `.env` ✅
 
 ### Container env vars (reais)

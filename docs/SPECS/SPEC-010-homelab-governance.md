@@ -154,9 +154,9 @@ python -c "from transformers import AutoModel; AutoModel.from_pretrained('jonata
 # 4. Se WER melhorou E latency OK: usar nova versão
 ```
 
-### 2.5 MiniMax M2.7 — Upgrade do Provider
+### 2.5 hermes-brain — Upgrade do Provider
 
-**Arquitetura:** Chamada direta a `https://api.minimax.io/anthropic` (NÃO via LiteLLM). LiteLLM não tem campo `api` compatível — causa crash `api: undefined`.
+**Arquitetura 05/2026:** Hermes chama LiteLLM em `http://127.0.0.1:4018/v1`; o alias `hermes-brain` escala para OpenRouter quando necessário. Não chamar OpenRouter direto.
 
 ```bash
 # Mudar para novo endpoint API requer:
@@ -599,17 +599,17 @@ Policy 2: Allow
 | "Trocar " | ❌ REJEITAR — |
 | "Usar Deepgram direto" | ❌ REJEITAR — wav2vec2 é o STT kanônico |
 | "TTS direto ao " | ❌ REJEITAR — usar TTS Bridge :8013 |
-| "LiteLLM como primario MiniMax" | ❌ REJEITAR — causa `api: undefined` crash |
+| "LiteLLM como primario OpenRouter" | ❌ REJEITAR — causa `api: undefined` crash |
 | "Vamos limpar containers órfãos" | ❌ REJEITAR — pode remover modelos Ollama |
 | "Usar porta 8080" | ❌ REJEITAR — coolify-proxy + cloudflared usam |
 
-### 8.2 Circuit Breaker para MiniMax API
+### 8.2 Circuit Breaker para OpenRouter API
 
-**Problema:** Se MiniMax API falha, .
+**Problema:** Se OpenRouter API falha, .
 
 **Fallback chain:**
 ```
-MiniMax M2.7 (direct)
+hermes-brain (direct)
   └→ FAIL (5xx, timeout) → retry once
        └→ FAIL → circuit open 60s
             └→ fallback: text-only mode (no voice)
@@ -698,7 +698,7 @@ Se um agente viola este governance:
 | ZFS send to USB (3-2-1 copy 2) | 🔄 Script pronto, USB needed |
 | Backup verification quarterly | 🔄 Procedures documented |
 | Ollama VRAM monitoring alert | 🔄 Config documented |
-| Anti-fragility circuit breaker MiniMax | 🔄 Design documented |
+| Anti-fragility circuit breaker OpenRouter | 🔄 Design documented |
 | Grafana homelab overview dashboard | 🔄 Panels documented |
 
 ### P2 — Medium (este mês)

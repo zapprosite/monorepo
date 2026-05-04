@@ -10,7 +10,6 @@ import { Container } from '@repo/ui-mui/layout/Container';
 import { Paper } from '@repo/ui-mui/layout/Paper';
 import { MenuItem } from '@repo/ui-mui/navigation/MenuItem';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import type React from 'react';
 import { useState } from 'react';
 
 export const EmailCampaignsPage = () => {

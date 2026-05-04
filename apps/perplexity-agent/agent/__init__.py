@@ -1,1 +1,0 @@
-# Perplexity Browser Agent

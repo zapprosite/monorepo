@@ -1,4 +1,4 @@
-import { loadEnv, type Plugin } from 'vite';
+import type { Plugin } from 'vite';
 import { prettifyError, ZodError } from 'zod';
 import { envSchemaZod } from './env_validator.zod.utils';
 

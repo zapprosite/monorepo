@@ -20,11 +20,11 @@ Implementar todos os 8 agentes do swarm.
 | Agent | Workers | LLM | Timeout |
 |-------|---------|-----|---------|
 | intake_agent | 2 | — | 10s |
-| classifier_agent | 2 | MiniMax M2.7 | 8s |
+| classifier_agent | 2 | OpenRouter via hermes-brain | 8s |
 | access_control_agent | 1 | — | 3s |
-| rag_agent | 3 | MiniMax Embedding | 30s |
-| ranking_agent | 2 | MiniMax M2.7 | 15s |
-| response_agent | 2 | MiniMax M2.7 | 20s |
+| rag_agent | 3 | OpenRouter Embedding | 30s |
+| ranking_agent | 2 | OpenRouter via hermes-brain | 15s |
+| response_agent | 2 | OpenRouter via hermes-brain | 20s |
 | billing_agent | 1 | — | 10s |
 | memory_agent | 1 | — | 5s |
 
@@ -115,7 +115,7 @@ type RAGAgent struct{}
 func (r *RAGAgent) Execute(ctx context.Context, task *SwarmTask) (map[string]any, error) {
     // 1. Read rewritten_query, entities from state
     // 2. Check cache
-    // 3. Generate embedding (MiniMax)
+    // 3. Generate embedding (OpenRouter)
     // 4. Hybrid search Qdrant
     // 5. Return top-20 candidates
 }
@@ -130,7 +130,7 @@ type RankingAgent struct{}
 
 func (r *RankingAgent) Execute(ctx context.Context, task *SwarmTask) (map[string]any, error) {
     // 1. Read candidates from state
-    // 2. Re-rank with cross-encoder or MiniMax
+    // 2. Re-rank with cross-encoder or OpenRouter
     // 3. Filter score < 0.5
     // 4. Assemble context (max 4000 tokens)
 }
@@ -145,7 +145,7 @@ type ResponseAgent struct{}
 
 func (r *ResponseAgent) Execute(ctx context.Context, task *SwarmTask) (map[string]any, error) {
     // 1. Read assembled_context from state
-    // 2. LLM: generate response (MiniMax M2.7)
+    // 2. LLM: generate response (OpenRouter via hermes-brain)
     // 3. Anti-hallucination check
     // 4. Format for WhatsApp (4096 char limit)
     // 5. Send via WhatsApp Cloud API

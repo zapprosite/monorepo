@@ -1,199 +1,199 @@
 {
-  "pipeline_id": "PIPE-POLISH-001",
-  "name": "TypeScript Zero-Error Polish — pqb Suppression + Port Drift",
-  "version": "1.0.0",
-  "created": "2026-05-03",
-  "status": "in_progress",
-  "spec_ref": "SPEC-ENTERPRISE",
-  "adr_ref": "ADR-030",
-  "description": "Zero TypeScript errors across monorepo. 274 errors remaining: TS2742 pqb suppression in packages/db + TS2339 .first() across all trpc routers. Phase-gated with 10 parallel agents.",
+	"pipeline_id": "PIPE-POLISH-001",
+	"name": "TypeScript Zero-Error Polish — pqb Suppression + Port Drift",
+	"version": "1.0.0",
+	"created": "2026-05-03",
+	"status": "in_progress",
+	"spec_ref": "SPEC-ENTERPRISE",
+	"adr_ref": "ADR-030",
+	"description": "Zero TypeScript errors across monorepo. 274 errors remaining: TS2742 pqb suppression in packages/db + TS2339 .first() across all trpc routers. Phase-gated with 10 parallel agents.",
 
-  "phases": [
-    {
-      "phase_id": "P1",
-      "name": "pqb TS2742 Suppression — packages/db",
-      "order": 1,
-      "status": "pending",
-      "tasks": [
-        {
-          "task_id": "P1-T1",
-          "name": "Suppress packages/db TS2742 errors",
-          "type": "code",
-          "files": ["packages/db/src/schema.ts", "packages/db/src/*.ts"],
-          "command": "pnpm typecheck --filter @repo/db 2>&1 | grep 'error TS' | wc -l",
-          "verify": "0 errors in packages/db"
-        }
-      ]
-    },
-    {
-      "phase_id": "P2",
-      "name": "pqb .first() TS2339 Suppression",
-      "order": 2,
-      "status": "pending",
-      "depends_on": ["P1"],
-      "tasks": [
-        {
-          "task_id": "P2-T1",
-          "name": "Suppress .first() TS2339 in webhooks.trpc.ts (12 errors)",
-          "type": "code",
-          "files": ["apps/api/src/modules/webhooks/webhooks.trpc.ts"]
-        },
-        {
-          "task_id": "P2-T2",
-          "name": "Suppress .first() TS2339 in maintenance.trpc.ts (30 errors)",
-          "type": "code",
-          "files": ["apps/api/src/modules/maintenance/maintenance.trpc.ts"]
-        },
-        {
-          "task_id": "P2-T3",
-          "name": "Suppress .first() TS2339 in clients.trpc.ts (18 errors)",
-          "type": "code",
-          "files": ["apps/api/src/modules/clients/clients.trpc.ts"]
-        },
-        {
-          "task_id": "P2-T4",
-          "name": "Suppress .first() TS2339 in kanban.trpc.ts (14 errors)",
-          "type": "code",
-          "files": ["apps/api/src/modules/kanban/kanban.trpc.ts"]
-        },
-        {
-          "task_id": "P2-T5",
-          "name": "Suppress .first() TS2339 in equipment.trpc.ts (9 errors)",
-          "type": "code",
-          "files": ["apps/api/src/modules/equipment/equipment.trpc.ts"]
-        },
-        {
-          "task_id": "P2-T6",
-          "name": "Suppress .first() TS2339 in remaining trpc routers",
-          "type": "code",
-          "files": [
-            "apps/api/src/modules/leads/leads.trpc.ts",
-            "apps/api/src/modules/contracts/contracts.trpc.ts",
-            "apps/api/src/modules/schedule/schedule.trpc.ts",
-            "apps/api/src/modules/reminders/reminders.trpc.ts",
-            "apps/api/src/modules/service-orders/service_orders.trpc.ts",
-            "apps/api/src/modules/auth/auth.trpc.ts",
-            "apps/api/src/modules/editorial/editorial.trpc.ts",
-            "apps/api/src/modules/content-engine/conteudos.trpc.ts",
-            "apps/api/src/modules/dashboard/dashboard.trpc.ts",
-            "apps/api/src/modules/email/email.trpc.ts",
-            "apps/api/src/modules/loyalty/loyalty.trpc.ts",
-            "apps/api/src/modules/prompts/prompts.trpc.ts",
-            "apps/api/src/modules/users/users.trpc.ts",
-            "apps/api/src/modules/users/user-roles.trpc.ts",
-            "apps/api/src/modules/teams/tables/*.table.ts",
-            "apps/api/src/modules/trieve/trieve.trpc.ts",
-            "apps/api/src/modules/journal-entries/journal_entries.trpc.ts",
-            "apps/api/src/modules/mcp-connectors/mcp-conectores.trpc.ts",
-            "apps/api/src/modules/api-gateway/api-gateway.router.ts",
-            "apps/api/src/db/base_table.ts"
-          ]
-        }
-      ]
-    },
-    {
-      "phase_id": "P3",
-      "name": "TS2578 + TS2307 Cleanup",
-      "order": 3,
-      "status": "pending",
-      "depends_on": ["P2"],
-      "tasks": [
-        {
-          "task_id": "P3-T1",
-          "name": "Remove unused @ts-expect-error (TS2578)",
-          "type": "refactor",
-          "command": "pnpm typecheck 2>&1 | grep 'TS2578' | head -10"
-        },
-        {
-          "task_id": "P3-T2",
-          "name": "Fix webhooks.zod missing import (TS2307)",
-          "type": "code",
-          "command": "ls packages/zod-schemas/src/webhooks.zod.ts 2>/dev/null || echo 'NOT_FOUND'"
-        }
-      ]
-    },
-    {
-      "phase_id": "P4",
-      "name": "Port Drift — LiteLLM Documentation",
-      "order": 4,
-      "status": "pending",
-      "tasks": [
-        {
-          "task_id": "P4-T1",
-          "name": "Document LiteLLM port drift in PORTS.md",
-          "type": "infra",
-          "description": "Update /srv/ops/ai-governance/PORTS.md: LiteLLM running on :4018 (not :4000). Add note about actual port vs reserved port.",
-          "verify": "grep -q '4018' /srv/ops/ai-governance/PORTS.md"
-        }
-      ]
-    },
-    {
-      "phase_id": "P5",
-      "name": "Smoke Tests + Final Validation",
-      "order": 5,
-      "status": "pending",
-      "depends_on": ["P2", "P3"],
-      "tasks": [
-        {
-          "task_id": "P5-T1",
-          "name": "Full typecheck — 0 errors",
-          "type": "quality",
-          "verify": "pnpm typecheck 2>&1 | grep -c 'error TS' == 0"
-        },
-        {
-          "task_id": "P5-T2",
-          "name": "Web build still passes",
-          "type": "deploy",
-          "verify": "cd apps/web && pnpm build 2>&1 | grep -c 'error' == 0"
-        },
-        {
-          "task_id": "P5-T3",
-          "name": "API health endpoint",
-          "type": "test",
-          "verify": "curl -sf http://localhost:4000/health 2>/dev/null | jq -r .status == 'ok'"
-        }
-      ]
-    }
-  ],
+	"phases": [
+		{
+			"phase_id": "P1",
+			"name": "pqb TS2742 Suppression — packages/db",
+			"order": 1,
+			"status": "pending",
+			"tasks": [
+				{
+					"task_id": "P1-T1",
+					"name": "Suppress packages/db TS2742 errors",
+					"type": "code",
+					"files": ["packages/db/src/schema.ts", "packages/db/src/*.ts"],
+					"command": "pnpm typecheck --filter @repo/db 2>&1 | grep 'error TS' | wc -l",
+					"verify": "0 errors in packages/db"
+				}
+			]
+		},
+		{
+			"phase_id": "P2",
+			"name": "pqb .first() TS2339 Suppression",
+			"order": 2,
+			"status": "pending",
+			"depends_on": ["P1"],
+			"tasks": [
+				{
+					"task_id": "P2-T1",
+					"name": "Suppress .first() TS2339 in webhooks.trpc.ts (12 errors)",
+					"type": "code",
+					"files": ["apps/api/src/modules/webhooks/webhooks.trpc.ts"]
+				},
+				{
+					"task_id": "P2-T2",
+					"name": "Suppress .first() TS2339 in maintenance.trpc.ts (30 errors)",
+					"type": "code",
+					"files": ["apps/api/src/modules/maintenance/maintenance.trpc.ts"]
+				},
+				{
+					"task_id": "P2-T3",
+					"name": "Suppress .first() TS2339 in clients.trpc.ts (18 errors)",
+					"type": "code",
+					"files": ["apps/api/src/modules/clients/clients.trpc.ts"]
+				},
+				{
+					"task_id": "P2-T4",
+					"name": "Suppress .first() TS2339 in kanban.trpc.ts (14 errors)",
+					"type": "code",
+					"files": ["apps/api/src/modules/kanban/kanban.trpc.ts"]
+				},
+				{
+					"task_id": "P2-T5",
+					"name": "Suppress .first() TS2339 in equipment.trpc.ts (9 errors)",
+					"type": "code",
+					"files": ["apps/api/src/modules/equipment/equipment.trpc.ts"]
+				},
+				{
+					"task_id": "P2-T6",
+					"name": "Suppress .first() TS2339 in remaining trpc routers",
+					"type": "code",
+					"files": [
+						"apps/api/src/modules/leads/leads.trpc.ts",
+						"apps/api/src/modules/contracts/contracts.trpc.ts",
+						"apps/api/src/modules/schedule/schedule.trpc.ts",
+						"apps/api/src/modules/reminders/reminders.trpc.ts",
+						"apps/api/src/modules/service-orders/service_orders.trpc.ts",
+						"apps/api/src/modules/auth/auth.trpc.ts",
+						"apps/api/src/modules/editorial/editorial.trpc.ts",
+						"apps/api/src/modules/content-engine/conteudos.trpc.ts",
+						"apps/api/src/modules/dashboard/dashboard.trpc.ts",
+						"apps/api/src/modules/email/email.trpc.ts",
+						"apps/api/src/modules/loyalty/loyalty.trpc.ts",
+						"apps/api/src/modules/prompts/prompts.trpc.ts",
+						"apps/api/src/modules/users/users.trpc.ts",
+						"apps/api/src/modules/users/user-roles.trpc.ts",
+						"apps/api/src/modules/teams/tables/*.table.ts",
+						"apps/api/src/modules/trieve/trieve.trpc.ts",
+						"apps/api/src/modules/journal-entries/journal_entries.trpc.ts",
+						"apps/api/src/modules/mcp-connectors/mcp-conectores.trpc.ts",
+						"apps/api/src/modules/api-gateway/api-gateway.router.ts",
+						"apps/api/src/db/base_table.ts"
+					]
+				}
+			]
+		},
+		{
+			"phase_id": "P3",
+			"name": "TS2578 + TS2307 Cleanup",
+			"order": 3,
+			"status": "pending",
+			"depends_on": ["P2"],
+			"tasks": [
+				{
+					"task_id": "P3-T1",
+					"name": "Remove unused @ts-expect-error (TS2578)",
+					"type": "refactor",
+					"command": "pnpm typecheck 2>&1 | grep 'TS2578' | head -10"
+				},
+				{
+					"task_id": "P3-T2",
+					"name": "Fix webhooks.zod missing import (TS2307)",
+					"type": "code",
+					"command": "ls packages/zod-schemas/src/webhooks.zod.ts 2>/dev/null || echo 'NOT_FOUND'"
+				}
+			]
+		},
+		{
+			"phase_id": "P4",
+			"name": "Port Drift — LiteLLM Documentation",
+			"order": 4,
+			"status": "pending",
+			"tasks": [
+				{
+					"task_id": "P4-T1",
+					"name": "Document LiteLLM port drift in PORTS.md",
+					"type": "infra",
+					"description": "Update /srv/ops/ai-governance/PORTS.md: LiteLLM running on :4018 (not :4000). Add note about actual port vs reserved port.",
+					"verify": "grep -q '4018' /srv/ops/ai-governance/PORTS.md"
+				}
+			]
+		},
+		{
+			"phase_id": "P5",
+			"name": "Smoke Tests + Final Validation",
+			"order": 5,
+			"status": "pending",
+			"depends_on": ["P2", "P3"],
+			"tasks": [
+				{
+					"task_id": "P5-T1",
+					"name": "Full typecheck — 0 errors",
+					"type": "quality",
+					"verify": "pnpm typecheck 2>&1 | grep -c 'error TS' == 0"
+				},
+				{
+					"task_id": "P5-T2",
+					"name": "Web build still passes",
+					"type": "deploy",
+					"verify": "cd apps/web && pnpm build 2>&1 | grep -c 'error' == 0"
+				},
+				{
+					"task_id": "P5-T3",
+					"name": "API health endpoint",
+					"type": "test",
+					"verify": "curl -sf http://localhost:4000/health 2>/dev/null | jq -r .status == 'ok'"
+				}
+			]
+		}
+	],
 
-  "inventory": {
-    "current_errors": 274,
-    "errors_by_category": {
-      "packages/db (TS2742)": 138,
-      "TS2339 .first() all trpc routers": 100,
-      "TS2578 unused @ts-expect-error": 1,
-      "TS2307 missing webhooks.zod": 1,
-      "TS2322 webhookQueue type mismatch (already suppressed)": 2,
-      "other": 32
-    },
-    "top_error_files": [
-      "maintenance.trpc.ts (30)",
-      "clients.trpc.ts (18)",
-      "kanban.trpc.ts (14)",
-      "webhooks.trpc.ts (12)",
-      "equipment.trpc.ts (9)",
-      "leads.trpc.ts (7)",
-      "packages/db/src (138 total)"
-    ]
-  },
+	"inventory": {
+		"current_errors": 274,
+		"errors_by_category": {
+			"packages/db (TS2742)": 138,
+			"TS2339 .first() all trpc routers": 100,
+			"TS2578 unused @ts-expect-error": 1,
+			"TS2307 missing webhooks.zod": 1,
+			"TS2322 webhookQueue type mismatch (already suppressed)": 2,
+			"other": 32
+		},
+		"top_error_files": [
+			"maintenance.trpc.ts (30)",
+			"clients.trpc.ts (18)",
+			"kanban.trpc.ts (14)",
+			"webhooks.trpc.ts (12)",
+			"equipment.trpc.ts (9)",
+			"leads.trpc.ts (7)",
+			"packages/db/src (138 total)"
+		]
+	},
 
-  "vars": {
-    "target": "0 TypeScript errors",
-    "current_errors": 274,
-    "strategy": "@ts-ignore suppression (same pattern as e82825e)"
-  },
+	"vars": {
+		"target": "0 TypeScript errors",
+		"current_errors": 274,
+		"strategy": "@ts-ignore suppression (same pattern as e82825e)"
+	},
 
-  "commands": {
-    "typecheck": "pnpm typecheck",
-    "build": "pnpm build",
-    "build_web": "cd apps/web && pnpm build",
-    "smoke": "pnpm test --filter @connected-repo/backend"
-  },
+	"commands": {
+		"typecheck": "pnpm typecheck",
+		"build": "pnpm build",
+		"build_web": "cd apps/web && pnpm build",
+		"smoke": "pnpm test --filter @connected-repo/backend"
+	},
 
-  "gates": {
-    "P5_to_complete": {
-      "requires": ["P5-T1", "P5-T2", "P5-T3"],
-      "blocking": true
-    }
-  }
+	"gates": {
+		"P5_to_complete": {
+			"requires": ["P5-T1", "P5-T2", "P5-T3"],
+			"blocking": true
+		}
+	}
 }

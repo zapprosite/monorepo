@@ -21,7 +21,7 @@ Sistema multimodal que combina interface web (OpenWebUI), assistente HVAC (zappr
 ### Fluxo Completo
 
 ```
-[Usuário] → [OpenWebUI chat.zappro.site] → [zappro-clima-tutor] → [LiteLLM api.zappro.site] → [MiniMax M2.7]
+[Usuário] → [OpenWebUI chat.zappro.site] → [zappro-clima-tutor] → [LiteLLM api.zappro.site] → [OpenRouter via hermes-brain]
    ↑                    ↓                                                    ↓
    └──────── TTS ←─── [Edge TTS]                               [Qwen2.5VL via Ollama]
    ↓
@@ -58,7 +58,7 @@ Sistema multimodal que combina interface web (OpenWebUI), assistente HVAC (zappr
 ┌─────────────────────────────────────────────────────────────────────────────────────┐
 │                          LiteLLM (api.zappro.site:4000)                              │
 │  ┌──────────────────────────────────────────────────────────────────────┐            │
-│  │                          MiniMax M2.7                                 │            │
+│  │                          OpenRouter via hermes-brain                                 │            │
 │  │                    (texto, chat, raciocínio)                         │            │
 │  └──────────────────────────────────────────────────────────────────────┘            │
 └─────────────────────────────────────────────────────────────────────────────────────┘
@@ -93,7 +93,7 @@ Sistema multimodal que combina interface web (OpenWebUI), assistente HVAC (zappr
 |---|---|---|
 | OpenWebUI | chat.zappro.site (443) | Interface web, entrada de texto/áudio/imagem |
 | zappro-clima-tutor | llm.zappro.site:4017 | Cérebro — roteamento, RAG, resposta amigável |
-| LiteLLM | api.zappro.site:4000 | Gateway de modelos (MiniMax M2.7) |
+| LiteLLM | api.zappro.site:4000 | Gateway de modelos (OpenRouter via hermes-brain) |
 | Groq STT | api.groq.com | Voz → texto (Whisper-large-v3) |
 | Edge TTS | localhost:5050 | Texto → voz (pt-BR, EdgeSpeech) |
 | Qwen2.5VL | localhost:11434 | Visão → texto/descrição (Ollama) |
@@ -119,7 +119,7 @@ Sistema multimodal que combina interface web (OpenWebUI), assistente HVAC (zappr
 |---|---|---|
 | `LITELLM_BASE_URL` | `http://api.zappro.site:4000` | Endpoint LiteLLM |
 | `LITELLM_API_KEY` | `sk-zappro-...` | Chave API LiteLLM |
-| `LITELLM_MODEL` | `minimax/m2.7` | Modelo padrão MiniMax |
+| `LITELLM_MODEL` | `hermes-brain` | Modelo padrão OpenRouter |
 | `LITELLM_MAX_TOKENS` | `8192` | Limite de tokens por resposta |
 | `LITELLM_REQUEST_TIMEOUT` | `60` | Timeout em segundos |
 | `LITELLM_TEMPERATURE` | `0.7` | Temperatura de geração |
@@ -188,7 +188,7 @@ Sistema multimodal que combina interface web (OpenWebUI), assistente HVAC (zappr
     │               [Qdrant RAG — busca contexto]
     │                    │
     │                    ▼
-    │               [LiteLLM → MiniMax M2.7]
+    │               [LiteLLM → OpenRouter via hermes-brain]
     │                    │
     │                    ▼
     │               [Friendly Rewriter]
@@ -271,7 +271,7 @@ Sistema multimodal que combina interface web (OpenWebUI), assistente HVAC (zappr
 | Max contexto RAG | 6 chunks | top_k=6 |
 | Max perguntas de follow-up | 1 | Por resposta |
 
-### LiteLLM / MiniMax M2.7
+### LiteLLM / OpenRouter via hermes-brain
 
 | Limite | Valor | Observação |
 |---|---|---|
@@ -506,6 +506,6 @@ curl http://localhost:6333/
 - Ollama: http://localhost:11434
 - Groq STT: api.groq.com
 - Qdrant: http://localhost:6333
-- MiniMax M2.7: via LiteLLM
+- OpenRouter via hermes-brain: via LiteLLM
 - Qwen2.5VL: via Ollama
 - Edge TTS: http://localhost:5050

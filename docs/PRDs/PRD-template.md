@@ -90,8 +90,8 @@ Ideia 3:
 execution:
   # Workers e Rate Limit
   max_workers: 5                    # max workers paralelo
-  rate_limit_rpm: 500               # MiniMax 500 rpm ou definir outro
-  context_window: 240000             # tokens (MiniMax 240k)
+  rate_limit_rpm: 500               # OpenRouter 500 rpm ou definir outro
+  context_window: 240000             # tokens (OpenRouter 240k)
 
   # Comportamento
   context_reset_per_task: true       # cada task começa fresh

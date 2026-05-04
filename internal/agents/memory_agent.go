@@ -1,20 +1,17 @@
 package agents
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
-	"net/http"
-	"os"
 	"strings"
 	"time"
 )
 
 // MemoryAgent handles conversation persistence and fact extraction.
 type MemoryAgent struct {
-	redisClient   MemoryRedisInterface
-	minimaxAPIKey string
+	redisClient      MemoryRedisInterface
+	liteLLMClient *LiteLLMClient
 }
 
 // MemoryRedisInterface defines Redis operations needed by MemoryAgent.
@@ -50,10 +47,10 @@ type ExtractedFact struct {
 }
 
 // NewMemoryAgent creates a new MemoryAgent.
-func NewMemoryAgent(redisClient MemoryRedisInterface, minimaxAPIKey string) *MemoryAgent {
+func NewMemoryAgent(redisClient MemoryRedisInterface, liteLLMAPIKey string) *MemoryAgent {
 	return &MemoryAgent{
-		redisClient:   redisClient,
-		minimaxAPIKey: minimaxAPIKey,
+		redisClient:      redisClient,
+		liteLLMClient: NewLiteLLMClientWithModel(liteLLMAPIKey, HermesAutoModel),
 	}
 }
 
@@ -214,11 +211,7 @@ func (m *MemoryAgent) extractFacts(ctx context.Context, input MemoryInput) ([]Ex
 		return []ExtractedFact{}, nil
 	}
 
-	// Check API key
-	if m.minimaxAPIKey == "" {
-		m.minimaxAPIKey = os.Getenv("MINIMAX_API_KEY")
-	}
-	if m.minimaxAPIKey == "" {
+	if m.liteLLMClient == nil || !m.liteLLMClient.Configured() {
 		return []ExtractedFact{}, nil
 	}
 
@@ -236,7 +229,7 @@ Exemplos de fatos extraídos:
 
 Responda em JSON array com objetos contendo: subject, predicate, object, confidence (0-1).`, input.UserMessage, input.Intent)
 
-	resp, err := m.callMiniMax(ctx, prompt)
+	resp, err := m.callLiteLLM(ctx, prompt, 1024)
 	if err != nil {
 		return []ExtractedFact{}, nil
 	}
@@ -250,59 +243,12 @@ Responda em JSON array com objetos contendo: subject, predicate, object, confide
 	return facts, nil
 }
 
-// callMiniMax calls the MiniMax API for text generation.
-func (m *MemoryAgent) callMiniMax(ctx context.Context, prompt string) (string, error) {
-	if m.minimaxAPIKey == "" {
-		return "", fmt.Errorf("minimax API key not configured")
+// callLiteLLM calls LiteLLM for text generation.
+func (m *MemoryAgent) callLiteLLM(ctx context.Context, prompt string, maxTokens int) (string, error) {
+	if m.liteLLMClient == nil {
+		return "", fmt.Errorf("litellm client not configured")
 	}
-
-	reqBody := MiniMaxRequest{
-		Model: "MiniMax-M2",
-		Messages: []MiniMaxMessage{
-			{
-				Role:    "user",
-				Content: prompt,
-			},
-		},
-		MaxTokens: 1024,
-	}
-
-	jsonBody, err := json.Marshal(reqBody)
-	if err != nil {
-		return "", fmt.Errorf("marshal request: %w", err)
-	}
-
-	endpoint := "https://api.minimax.io/v1/messages"
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, endpoint, bytes.NewReader(jsonBody))
-	if err != nil {
-		return "", fmt.Errorf("create request: %w", err)
-	}
-	req.Header.Set("Authorization", "Bearer "+m.minimaxAPIKey)
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("anthropic-version", "2023-06-01")
-	req.Header.Set("anthropic-dangerous-direct-browser-access", "true")
-
-	client := &http.Client{Timeout: 10 * time.Second}
-	resp, err := client.Do(req)
-	if err != nil {
-		return "", fmt.Errorf("execute request: %w", err)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("MiniMax API returned status %d", resp.StatusCode)
-	}
-
-	var result MiniMaxResponse
-	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return "", fmt.Errorf("decode response: %w", err)
-	}
-
-	if len(result.Content) == 0 {
-		return "", fmt.Errorf("empty response from MiniMax")
-	}
-
-	return result.Content[0].Text, nil
+	return m.liteLLMClient.Chat(ctx, prompt, maxTokens)
 }
 
 // writeAuditLog writes an audit log entry.

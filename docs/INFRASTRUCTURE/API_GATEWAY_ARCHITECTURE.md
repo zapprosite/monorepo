@@ -96,14 +96,14 @@ LITELLM_URL=http://localhost:4000/v1
 LITELLM_PORT=4000
 LITELLM_HOST=0.0.0.0
 LITELLM_MASTER_KEY=<redacted: source .env>
-LITELLM_MODEL_LIST=embedding-nomic,Gemma4-12b-it,qwen2.5vl:3b
-LITELLM_EMBEDDING_MODEL=embedding-nomic
+LITELLM_MODEL_LIST=hermes-embed,hermes-auto,qwen2.5vl:3b
+LITELLM_EMBEDDING_MODEL=hermes-embed
 LITELLM_DROP_params=True
 ```
 
 **Exposed Models:**
-- `embedding-nomic` — Text embeddings
-- `Gemma4-12b-it` — Primary instruction-follow model
+- `hermes-embed` — Text embeddings
+- `hermes-auto` — Primary instruction-follow model
 - `qwen2.5vl:3b` — Vision model
 
 **Provider Keys:**
@@ -113,7 +113,7 @@ GROQ_API_KEY=<redacted: source .env>
 OPENROUTER_API_KEY=<redacted: source .env>
 OPENCODE_API_KEY=<redacted: source .env>
 HF_TOKEN=<redacted: source .env>
-MINIMAX_API_KEY=<redacted: source .env>
+OPENROUTER_API_KEY=<redacted: source .env>
 ```
 
 ---
@@ -340,7 +340,7 @@ HERMES_WEBHOOK_URL=https://hermes-gateway.zappro.site/webhook
 # LiteLLM
 LITELLM_PORT=4000
 LITELLM_MASTER_KEY=<redacted: source .env>
-LITELLM_MODEL_LIST=Gemma4-12b-it,qwen2.5vl:3b,embedding-nomic
+LITELLM_MODEL_LIST=hermes-auto,qwen2.5vl:3b,hermes-embed
 
 # Hermes Gateway
 HERMES_GATEWAY_URL=http://127.0.0.1:8642

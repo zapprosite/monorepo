@@ -1,115 +1,104 @@
-# Arquitetura — MiniMax vs LiteLLM (Padronização)
+# Arquitetura — Hermes LLM Gateway via LiteLLM (Padronização)
 
-**Data:** 2026-04-08
+**Data:** 2026-05-04
 **Status:** Padrão — seguir em todos os serviços
 
 ---
 
 ## Regra Principal
 
-> **MiniMax e LiteLLM são SEPARADOS.** Nunca misturar.
+> **LiteLLM é o gateway único.** Todos os serviços chamam `localhost:4018/v1` com aliases `hermes-*`. OpenRouter é um provider interno do LiteLLM, nunca chamado diretamente.
 
-| | MiniMax Official | LiteLLM Proxy |
+| | LiteLLM Proxy (Gateway) | OpenRouter (Provider Interno) |
 |--|--|--|
-| **Tipo** | API oficial do provedor | Proxy/ gateway p/ múltiplos provedores |
-| **Endpoint** | `https://api.minimax.chat` | `https://api.zappro.site` |
-| **Auth** | `MINIMAX_TOKEN` | `LITELLM_MASTER_KEY` |
-| **Models** | `MiniMax-Text-01`, `MiniMax-Embedding` | Unificado (OpenAI-style) |
-| **Uso direto** | ✅ Sim | ✅ Sim |
-| **Via proxy LiteLLM** | ✅ Configurado como provider | N/A |
+| **Tipo** | Proxy/gateway OpenAI-compat | Provedor cloud (escalada) |
+| **Endpoint** | `http://127.0.0.1:4018/v1` | `https://openrouter.ai/api/v1` (via LiteLLM) |
+| **Auth** | `LITELLM_MASTER_KEY` | `OPENROUTER_API_KEY` (config do LiteLLM) |
+| **Models expostos** | `hermes-*` (aliases unificados) | `deepseek-v4-*`, `kimi-k2.6` (mapeados pelos aliases) |
+| **Uso direto por agents** | ✅ SEMPRE | ❌ NUNCA (somente LiteLLM consome) |
 
 ---
 
-## MiniMax Official API
+## Aliases Hermes (Modelos Expostos)
 
-**Quando usar:** Chamadas diretas ao provedor MiniMax, sem passar pelo LiteLLM.
-
-```python
-# Exemplo Python
-import os
-MINIMAX_API_KEY = os.environ.get("MINIMAX_TOKEN")
-
-response = requests.post(
-    "https://api.minimax.chat/v1/text/chatcompletion_v2",
-    headers={"Authorization": f"Bearer {MINIMAX_TOKEN}"},
-    json={...}
-)
-```
-
-**Env vars:**
-- `MINIMAX_API_KEY` ou `MINIMAX_TOKEN`
+| Alias | Backend | Uso |
+|-------|---------|-----|
+| `hermes-auto` | Ollama `qwen2.5-coder:14b-q6k` | Padrão — local primeiro, fallback cloud |
+| `hermes-local-code` | Ollama `qwen2.5-coder:14b-q6k` | Code/texto local determinístico |
+| `hermes-vision` | Ollama `qwen2.5vl:3b` | Visão/multimodal local |
+| `hermes-embed` | Ollama `nomic-embed-text:pinned-20260503` | Embedding local |
+| `hermes-cloud-cheap` | OpenRouter `deepseek/deepseek-v4-flash` | Fallback barato cloud |
+| `hermes-cloud-pro` | OpenRouter `deepseek/deepseek-v4-pro` | Escalada qualidade |
+| `hermes-cloud-ui` | OpenRouter `moonshotai/kimi-k2.6` | UI/multimodal cloud |
+| `hermes-brain` | OpenRouter `deepseek/deepseek-v4-pro` | Alias forte para tarefas difíceis |
 
 ---
 
-## LiteLLM Proxy (api.zappro.site)
-
-**Quando usar:** Proxy unificado para múltiplos provedores (OpenAI, Claude, Groq, MiniMax, etc.)
+## Como Chamar (Python)
 
 ```python
-# Exemplo Python —via LiteLLM
-import os
-LITELLM_KEY = os.environ.get("LITELLM_MASTER_KEY")
+import os, requests
 
+base_url = os.environ.get("OPENAI_BASE_URL", "http://127.0.0.1:4018/v1")
+key = os.environ["LITELLM_MASTER_KEY"]
+
+# Chat
 response = requests.post(
-    "https://api.zappro.site/v1/chat/completions",
-    headers={"Authorization": f"Bearer {LITELLM_KEY}"},
-    json={"model": "gpt-4o", ...}
+    f"{base_url}/chat/completions",
+    headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"},
+    json={"model": "hermes-auto", "messages": [{"role": "user", "content": "..."}]}
+)
+
+# Embedding
+response = requests.post(
+    f"{base_url}/embeddings",
+    headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"},
+    json={"model": "hermes-embed", "input": "..."}
 )
 ```
 
-**Models disponíveis no LiteLLM local:**
-```
-gpt-4o, gpt-4o-mini, claude-3-5-sonnet, groq/llama-3.3-70b,
-minimax-ot-01 (MiniMax via LiteLLM), ...
-```
-
-**Env vars:**
-- `LITELLM_MASTER_KEY` — master key do proxy
-- `LITELLM_VIRTUAL_KEY` — virtual key (mesmo valor)
+**Env vars obrigatórias:**
+- `OPENAI_BASE_URL=http://127.0.0.1:4018/v1`
+- `LITELLM_MASTER_KEY`
+- `OPENROUTER_API_KEY` (só o LiteLLM consome — não exponha a agents)
 
 ---
 
 ## Arquitetura de Rede
 
 ```
-                    ┌─────────────────────────────────────┐
-                    │           api.zappro.site           │
-                    │            (LiteLLM proxy)          │
-                    │                                     │
-  
-  OpenWebUI ───────│                                     │
-  MCP-Qdrant ──────│                                     │
-                    └─────────────────────────────────────┘
-                                    │
-                                    │ (pode rotear para
-                                    │  MiniMax, OpenAI,
-                                    │  Claude, etc.)
-                                    ▼
-                         ┌──────────────────┐
-                         │   api.minimax.chat│
-                         │  (MiniMax oficial)│
-                         │                  │
-                         │  MINIMAX_TOKEN ──►│
-                         └──────────────────┘
-
-  
-  (chamadas diretas)     │   MINIMAX_TOKEN (não via proxy)
-                         └────────────────────────────────►
+              Agente / App / OpenWebUI / MCP
+                           │
+                           │ OPENAI_BASE_URL
+                           │ http://127.0.0.1:4018/v1
+                           │ Authorization: Bearer LITELLM_MASTER_KEY
+                           ▼
+              ┌────────────────────────────┐
+              │     LiteLLM Proxy          │
+              │     :4018/v1               │
+              │  (OpenAI-compatible)       │
+              └────────────┬───────────────┘
+                           │
+           ┌───────────────┼───────────────┐
+           │               │               │
+           ▼               ▼               ▼
+    ┌────────────┐  ┌────────────┐  ┌────────────┐
+    │   Ollama   │  │  OpenRouter│  │  OpenRouter│
+    │  :11434    │  │ (escalada) │  │ (escalada) │
+    │  (local)   │  │ cheap/pro  │  │    ui      │
+    └────────────┘  └────────────┘  └────────────┘
 ```
 
 ---
 
-## 
-
-**Referência:** `/srv/data/
+## Env Vars (`.env`)
 
 ```
-LITELLM_MASTER_KEY=sk-master-b83cfa00...   # LiteLLM proxy (api.zappro.site)
-MINIMAX_TOKEN=${MINIMAX_TOKEN}              # MiniMax direto
+OPENAI_BASE_URL=http://127.0.0.1:4018/v1
+LITELLM_MASTER_KEY=sk-master-...
+LITELLM_OLLAMA_URL=http://host.docker.internal:11434
+OPENROUTER_API_KEY=sk-or-...
 ```
-
-- LiteLLM para models via proxy
-- MiniMax Token para chamadas diretas ao MiniMax
 
 ---
 
@@ -117,16 +106,17 @@ MINIMAX_TOKEN=${MINIMAX_TOKEN}              # MiniMax direto
 
 | Erro | Causa | Solução |
 |------|-------|---------|
-| Misturar `MINIMAX_TOKEN` como key do LiteLLM | Confundir serviços | São SEPARADOS |
-| Usar `MINIMAX_TOKEN` no header do LiteLLM | Provedor diferente | LiteLLM usa `LITELLM_MASTER_KEY` |
-| Chamar `api.minimax.chat` com key do LiteLLM | Endereço errado | Usar endpoint correto |
+| Chamar OpenRouter direto com `OPENROUTER_API_KEY` | Bypass do gateway | Sempre usar LiteLLM (`hermes-*`) |
+| Usar `OPENROUTER_API_KEY` no header do LiteLLM | Confundir chaves | LiteLLM usa `LITELLM_MASTER_KEY` |
+| Usar alias antigo (`zappro-clima-tutor`, `embedding-nomic`) | Config desatualizada | Migrar para `hermes-*` |
+| Apontar para `localhost:4000` ou `4002` | Porta legada | Usar `4018/v1` |
 
 ---
 
 ## Checklist para Novos Serviços
 
-- [ ] Descobrir se usa LiteLLM proxy ou MiniMax direto
-- [ ] Se LiteLLM → usar `LITELLM_MASTER_KEY` no header
-- [ ] Se MiniMax direto → usar `MINIMAX_TOKEN` / `MINIMAX_API_KEY`
-- [ ] NUNCA trocar as chaves entre eles
-- [ ] NUNCA usar `MINIMAX_TOKEN` no lugar de `LITELLM_MASTER_KEY`
+- [ ] Sempre usar `OPENAI_BASE_URL=http://127.0.0.1:4018/v1`
+- [ ] Sempre usar `LITELLM_MASTER_KEY` no header `Authorization: Bearer ...`
+- [ ] Selecionar alias `hermes-*` conforme tier (auto, local-code, vision, embed, brain)
+- [ ] NUNCA chamar OpenRouter diretamente
+- [ ] NUNCA hardcodar `OPENROUTER_API_KEY` em código de agente

@@ -1,7 +1,7 @@
 # RAG Architecture — Homelab Knowledge Layer
 
 **Status:** ATIVO (Haystack removido 2026-05-02)
-**Stack:** Haystack 2.x + Qdrant + Ollama (nomic-embed-text) + LiteLLM (MiniMax-M2.7)
+**Stack:** Haystack 2.x + Qdrant + Ollama (nomic-embed-text) + LiteLLM (hermes-brain)
 
 ---
 
@@ -41,7 +41,7 @@ RAG (Retrieval-Augmented Generation) fornece busca de conhecimento factual para 
 ┌─────────────────────────────────────────────────────────────────┐
 │               Mem0 v2 — Session + Facts Memory                    │
 │  Coleção: `will` (2044 pontos)                                   │
-│  Provider: LiteLLM (minimax-m2.7) via Qdrant                   │
+│  Provider: LiteLLM (hermes-brain) via Qdrant                   │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -79,7 +79,7 @@ Proxy LLM multi-provider.
 
 - **Host:** `localhost:4018` (não 4000!)
 - **Auth:** `LITELLM_MASTER_KEY`
-- **Models:** `minimax-m2.7`, `minimax-m2.7-highspeed`
+- **Models:** `hermes-brain`, `hermes-cloud-cheap`
 
 ---
 
@@ -100,7 +100,7 @@ User query
     │         ↓
     ├─→ Mem0.search() (facts sobre user/project)
     │
-    └─→ MiniMax-M2.7 (via LiteLLM 4018)
+    └─→ hermes-brain (via LiteLLM 4018)
              ↓
       [system prompt] + [RAG chunks] + [Mem0 facts]
              ↓
@@ -141,7 +141,7 @@ python3 /srv/monorepo/scripts/haystack-rag-pipeline.py --test
 ```bash
 # Provider: LiteLLM (self-hosted, sem OpenAI key)
 MEM0_LLM_PROVIDER=litellm
-MEM0_LLM_MODEL=minimax-m2.7
+MEM0_LLM_MODEL=hermes-brain
 MEM0_LITELLM_API_BASE=http://localhost:4018
 MEM0_LITELLM_API_KEY=<LITELLM_MASTER_KEY>
 
@@ -187,7 +187,7 @@ Padrão: `{app}[-{lead}][-{type}]`
 | `OLLAMA_URL` | `http://localhost:11434` | Ollama host |
 | `OLLAMA_MODEL` | `nomic-embed-text` | Embedding model |
 | `LITELLM_URL` | `http://localhost:4018` | LiteLLM host (não 4000!) |
-| `LITELLM_MODEL` | `MiniMax-M2.7` | Chat model |
+| `LITELLM_MODEL` | `hermes-brain` | Chat model |
 
 ---
 

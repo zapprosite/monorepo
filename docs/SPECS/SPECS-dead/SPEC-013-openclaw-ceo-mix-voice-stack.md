@@ -142,7 +142,7 @@ CEO MIX (Telegram)
 {
   "agents": {
     "defaults": {
-      "model": "minimax/MiniMax-M2.7",
+      "model": "openrouter/hermes-brain",
       "workspace": "/data/workspace"
     }
   },
@@ -174,7 +174,7 @@ CEO MIX (Telegram)
           }
         ]
       },
-      "minimax": {
+      "openrouter": {
         "apiKey": "Bearer tok_b9k2mxQp4rf7qSv8f3w4n6t1c5d8e0g3h6i9j2k4l7m0p1"
       }
     }
@@ -370,7 +370,7 @@ O modelo `qwen2.5-vl` é o modelo configured (llava FOI SUBSTITUIDO 2026-04-09) 
 - **PROIBIDO:** , outras vozes
 
 ### LLM Primário
-- **ÚNICO:** minimax/MiniMax-M2.7 direto (não via LiteLLM)
+- **ÚNICO:** openrouter/hermes-brain direto (não via LiteLLM)
 - **PROIBIDO:** liteLLM como primario
 
 ### LiteLLM (apenas para)

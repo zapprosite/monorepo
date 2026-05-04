@@ -68,7 +68,7 @@ classify_intent() {
     result=$(curl -s -X POST http://localhost:11434/v1/chat/completions \
         -H "Content-Type: application/json" \
         -d "$(jq -n \
-            --arg model "gemma4:latest" \
+            --arg model "qwen2.5-coder:14b-q6k" \
             --arg content "Classify:
 $input
 

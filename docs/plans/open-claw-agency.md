@@ -132,15 +132,15 @@ CEO MIX (main) orquestra e delega para 4 subagents:
 
 | Agente | Especialidade | Modelo |
 |---|---|---|
-| `creative` | Copywriting, headlines, textos, AIDA/PAS | minimax/MiniMax-M2.7 |
-| `design` | Briefs visuais, brand guides, analise de imagem (llava) | minimax/MiniMax-M2.7 |
-| `social` | Calendario editorial, tendencias, timing, publicacao | minimax/MiniMax-M2.7 |
-| `project` | Gestao de tarefas, timeline, status reports | minimax/MiniMax-M2.7 |
+| `creative` | Copywriting, headlines, textos, AIDA/PAS | openrouter/hermes-brain |
+| `design` | Briefs visuais, brand guides, analise de imagem (llava) | openrouter/hermes-brain |
+| `social` | Calendario editorial, tendencias, timing, publicacao | openrouter/hermes-brain |
+| `project` | Gestao de tarefas, timeline, status reports | openrouter/hermes-brain |
 
 ### 5.1 Criar agentes
 ```bash
 docker exec 6771lt8l7x8rqx72f \
-  --workspace /data/workspace/agents/creative --model "minimax/MiniMax-M2.7"
+  --workspace /data/workspace/agents/creative --model "openrouter/hermes-brain"
 # Repetir para design, social, project
 ```
 
@@ -208,7 +208,7 @@ Dia 8-10: FASE 7 — Skills extras + documentacao
 |---|---|
 | memory-lancedb incompativel com nomic (768 dims) | Usar skill customizada qdrant-rag |
 | Supabase em rede separada | `docker network connect` |
-| Tokens MiniMax caros para subagents | Considerar gemma4 local para subagents |
+| Tokens OpenRouter caros para subagents | Considerar gemma4 local para subagents |
 | Container sem obsidian-cli | Nao instalar — usar tools nativos |
 | Dashboard incompativel com 2026.2.6 | Testar local antes de Coolify |
 
@@ -218,7 +218,7 @@ Apos cada fase:
 1. Snapshot ZFS
 2. Testar funcionalidade end-to-end via Telegram
 3. Verificar logs: `docker logs 6771lt8l7x8rqx72f --tail 20`
-4. Confirmar que modelo primario continua `minimax/MiniMax-M2.7`
+4. Confirmar que modelo primario continua `openrouter/hermes-brain`
 
 ---
 
@@ -233,7 +233,7 @@ Apos cada fase:
 ## REGRA DE OURO (para qualquer LLM)
 
 ```
-MODELO PRIMARIO = minimax/MiniMax-M2.7 DIRETO (api.minimax.io)
+MODELO PRIMARIO = openrouter/hermes-brain DIRETO (openrouter.ai/api/v1)
 LITELLM = SOMENTE proxy GPU (llava, gemma4, nomic, )
 NUNCA rotear o modelo primario pelo LiteLLM
 ```

@@ -50,7 +50,7 @@
 | Web | React 19 + MUI + tRPC (:5173 dev) |
 | Orchestrator | TypeScript workflow engine (YAML→exec) |
 | Memória | Mem0 + Qdrant (Gen5 NVMe) + Ollama |
-| LLM Gateway | LiteLLM → MiniMax M2.7 / Claude |
+| LLM Gateway | LiteLLM → hermes-brain / Claude |
 | CI/CD | Gitea Actions (13 workflows) + Coolify |
 | Auth | Keycloak OIDC |
 | Monitoramento | Prometheus + Grafana + Alertmanager |
@@ -248,13 +248,18 @@ hermes-cli-invoke.sh codex "task"     # Codex CLI 0.125.0
 hermes-cli-invoke.sh opencode "task"  # OpenCode CLI 1.14.33
 ```
 
-## MiniMax M2.7 — Primary LLM (DIRECT)
+## Hermes/LiteLLM 05/2026
 
-MiniMax vai direto para `api.minimax.io/v1` ($50 token plan).
-**NÃO** passa pelo LiteLLM (:4000). LiteLLM é só para fallback/outros modelos.
+Hermes usa sempre o LiteLLM como gateway OpenAI-compatible em `http://127.0.0.1:4018/v1`.
+O padrão é local primeiro via Ollama, com OpenRouter apenas para fallback ou escalada explícita.
 
 ```bash
-MINIMAX_API_KEY=${MINIMAX_API_KEY}    # do .env canônico
-MINIMAX_API_BASE=https://api.minimax.io
-HERMES_MINIMAX_BASE=https://api.minimax.io/anthropic/v1  # Claude Code CLI
+OPENAI_BASE_URL=http://127.0.0.1:4018/v1
+OPENAI_API_KEY=$LITELLM_MASTER_KEY
+
+LITELLM_URL=http://127.0.0.1:4018/v1
+LITELLM_OLLAMA_URL=http://host.docker.internal:11434
+OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
 ```
+
+Aliases canônicos: `hermes-auto`, `hermes-local-code`, `hermes-vision`, `hermes-embed`, `hermes-cloud-cheap`, `hermes-cloud-pro`, `hermes-cloud-ui`, `hermes-brain`.

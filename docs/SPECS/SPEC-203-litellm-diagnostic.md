@@ -37,7 +37,7 @@ cd /home/will/zappro-lite && docker compose up -d
 ## Se problema persistir
 
 1. Verificar `/srv/data/zappro-router/config.yaml` (yaml válido)
-2. Verificar `MINIMAX_API_BASE=https://api.minimax.io` (SEM `/anthropic/v1`)
+2. Verificar `OPENROUTER_API_BASE=https://openrouter.ai/api/v1` (SEM `/anthropic/v1`)
 3. Verificar variáveis de ambiente no compose
 
 ## Status

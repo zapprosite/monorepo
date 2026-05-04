@@ -541,7 +541,7 @@ journalctl -u ollama -f
 
 # Testar LLM (completion)
 curl -s http://localhost:11434/api/generate \
-  -d '{"model":"qwen3.5","prompt":"Olá","stream":false}' | python3 -m json.tool
+  -d '{"model":"qwen2.5-coder","prompt":"Olá","stream":false}' | python3 -m json.tool
 
 # Testar embedding
 curl -s http://localhost:11434/api/embed \
@@ -555,8 +555,8 @@ curl -s http://localhost:11434/api/embed \
 ```
 
 **Modelos disponíveis:**
-- `gemma4` — 12B Q4_K_M, instruction-tuned, ~7 GB VRAM
-- `llava` — 7B Q4_K_M, vision model, ~4.5 GB VRAM
+- `qwen2.5-coder:14b-q6k` — 12B Q4_K_M, instruction-tuned, ~7 GB VRAM
+- `qwen2.5vl:3b` — 7B Q4_K_M, vision model, ~4.5 GB VRAM
 - `nomic-embed-text` — embedding model, lazy load
 
 **Skills de diagnóstico:**
@@ -578,11 +578,11 @@ ps aux | grep litellm | grep -v grep
 # Testar health
 curl -s -H "Authorization: Bearer sk-test" http://localhost:4000/health
 
-# Testar gemma4 via Ollama
+# Testar qwen2.5-coder:14b-q6k via Ollama
 curl -s -X POST http://localhost:4000/v1/chat/completions \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer sk-test" \
-  -d '{"model":"gemma4","messages":[{"role":"user","content":"hi"}],"max_tokens":10}'
+  -d '{"model":"qwen2.5-coder:14b-q6k","messages":[{"role":"user","content":"hi"}],"max_tokens":10}'
 
 # Logs
 tail -f /tmp/litellm.log 2>/dev/null || journalctl --user -u litellm -f

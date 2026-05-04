@@ -37,8 +37,10 @@ nexus.sh --spec SPEC-NNN --phase complete
 # Direct vibe-kit execution
 SPEC=SPEC-068 APP=crm-ownership vibe-kit.sh
 
-# Headless worker
-mclaude --provider minimax --model MiniMax-M2.7 -p "task prompt..."
+# Headless worker via LiteLLM
+OPENAI_BASE_URL=http://127.0.0.1:4018/v1 \
+OPENAI_API_KEY="$LITELLM_MASTER_KEY" \
+mclaude --provider openai --model hermes-brain -p "task prompt..."
 ```
 
 ---
@@ -422,9 +424,9 @@ SPEC.md ──► nexus.sh --phase plan ──► queue.json
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                             │
 │  ┌─────────────┐     ┌─────────────┐     ┌─────────────┐                  │
-│  │  MiniMax    │     │   Ollama    │     │  LiteLLM     │                  │
-│  │  API        │     │  (local)    │     │   Proxy      │                  │
-│  │  (M2.7)     │     │             │     │  (:4000)     │                  │
+│  │  LiteLLM    │     │   Ollama    │     │ OpenRouter   │                  │
+│  │  Proxy      │     │  (local)    │     │  Cloud       │                  │
+│  │  (:4018/v1) │     │             │     │ escalada     │                  │
 │  └─────────────┘     └─────────────┘     └─────────────┘                  │
 │         │                   │                   │                          │
 │         │                   │                   │                          │
@@ -462,9 +464,9 @@ SPEC.md ──► nexus.sh --phase plan ──► queue.json
 
 | Service | Purpose | Connection | Health Check |
 |---------|---------|------------|--------------|
-| MiniMax API | LLM inference (M2.7) | Remote API | `curl -s` |
+| LiteLLM Proxy | Gateway LLM OpenAI-compatible | localhost:4018/v1 | `curl -s /v1/models` |
 | Ollama | Local inference fallback | localhost:11434 | `curl -s /v1/models` |
-| LiteLLM Proxy | Unified LLM interface | localhost:4000 | `curl -s /health` |
+| OpenRouter API | Escalada cloud via LiteLLM | Remote API | fallback/escalada |
 | Redis | Task queue + pub/sub | localhost:6379 | `redis-cli ping` |
 | Qdrant | Vector storage + embeddings | localhost:6333 | `curl -s /collections` |
 | Coolify | Deployment target | coolify.zappro.site | API polling |
@@ -499,8 +501,8 @@ SPEC.md ──► nexus.sh --phase plan ──► queue.json
                     │            │            │
                     ▼            ▼            ▼
              ┌───────────┐ ┌───────────┐ ┌───────────┐
-             │ MiniMax   │ │  Ollama   │ │ LiteLLM  │
-             │   API     │ │  (local)  │ │  Proxy   │
+             │ LiteLLM   │ │  Ollama   │ │OpenRouter│
+             │ :4018/v1 │ │  (local)  │ │ escalada │
              └───────────┘ └───────────┘ └───────────┘
                     │            │            │
                     └────────────┼────────────┘
@@ -706,7 +708,7 @@ nexus_queue_depth
 # Individual service health
 curl -s localhost:6379/ping                    # Redis
 curl -s localhost:6333/collections             # Qdrant
-curl -s localhost:4000/health                 # LiteLLM
+curl -s localhost:4018/v1/models              # LiteLLM
 curl -s localhost:11434/api/tags              # Ollama
 
 # ZFS status

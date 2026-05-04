@@ -1,7 +1,7 @@
 """
 HVAC Memory Context — Fetch + Writeback para o pipe RAG.
 Busca memórias de 3 fontes (Mem0, Postgres, Qdrant) e permite writeback
-após cada interação com o MiniMax.
+após cada interação com o OpenRouter.
 """
 
 import asyncio
@@ -472,7 +472,7 @@ def memory_writeback(
     metadata: Optional[dict] = None,
 ) -> None:
     """
-    Writeback após cada resposta MiniMax.
+    Writeback após cada resposta OpenRouter.
     - Postgres: INSERT interaction (sempre, se não houver segredo)
     - Mem0: só se is_decision ou is_preference
     - Qdrant: NUNCA
@@ -522,7 +522,7 @@ def memory_writeback(
 
 def build_context_pack(fetch_result: dict) -> str:
     """
-    Converte o dict do context_fetch em string para injetar no prompt MiniMax.
+    Converte o dict do context_fetch em string para injetar no prompt OpenRouter.
     Limite: 2500 tokens — corta do final se exceder.
     """
     parts = []

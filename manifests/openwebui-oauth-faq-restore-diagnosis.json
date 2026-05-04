@@ -9,7 +9,7 @@
 		"openai_base_url_from_env": "http://localhost:4017/v1 (correct)",
 		"openai_base_url_from_db": "http://localhost:4000/v1 (STALE - from original LiteLLM setup)",
 		"default_models_from_env": "zappro-clima-tutor",
-		"default_models_from_db": "minimax-m2.7 (STALE)",
+		"default_models_from_db": "hermes-brain (STALE)",
 		"google_oauth_env": {
 			"GOOGLE_CLIENT_ID": "29245472860-6d5bvhphmk2pl3s1volthifqfhbg0iji.apps.googleusercontent.com",
 			"GOOGLE_REDIRECT_URI": "https://chat.zappro.site/oauth/google/callback",
@@ -25,7 +25,7 @@
 			"openai.api_base_urls": ["http://localhost:4000/v1"],
 			"openai.api_keys": ["sk-zap-n0p1-R6b9-L1t3llm-M4st3r-K3y-f0r-z4ppr0-3dg3-2024"],
 			"openai.api_configs.pipeline.url": "http://localhost:4017",
-			"openai.api_configs.pipeline.pipelines": ["minimax-m2.7"],
+			"openai.api_configs.pipeline.pipelines": ["hermes-brain"],
 			"openai.api_configs.pipeline.type": "filter"
 		}
 	},

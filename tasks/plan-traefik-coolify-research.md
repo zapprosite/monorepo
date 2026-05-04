@@ -226,5 +226,5 @@ for r in routers:
 "
 
 # Smoke test 1.2/1.3 devem passar
-LITELLM_KEY=... MINIMAX_API_KEY=... bash tasks/smoke-tests/pipeline-.sh
+LITELLM_KEY=... OPENROUTER_API_KEY=... bash tasks/smoke-tests/pipeline-.sh
 ```

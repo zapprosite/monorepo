@@ -112,7 +112,9 @@ mclaude --version
 ls ~/.multi-claude/config.json
 
 # Configurar provider padrao para nexus (opcional)
-mclaude --provider minimax --model MiniMax-M2.7 -p "test"
+OPENAI_BASE_URL=http://127.0.0.1:4018/v1 \
+OPENAI_API_KEY="$LITELLM_MASTER_KEY" \
+mclaude --provider litellm --model hermes-auto -p "test"
 ```
 
 ### 2.4 Permissoes necessarias
@@ -177,14 +179,18 @@ bash .claude/vibe-kit/vibe-kit.sh
 ### 3.3 Executar worker unico mclaude
 
 ```bash
-# Worker unico com provider minimax
-mclaude --provider minimax --model MiniMax-M2.7 -p "Implement authentication module"
+# Worker unico via LiteLLM
+OPENAI_BASE_URL=http://127.0.0.1:4018/v1 \
+OPENAI_API_KEY="$LITELLM_MASTER_KEY" \
+mclaude --provider litellm --model hermes-local-code -p "Implement authentication module"
 
-# Worker com provider ollama (local)
-mclaude --provider ollama --model qwen2.5 -p "Review this PR"
+# Worker com escalada cloud explicita via LiteLLM
+OPENAI_BASE_URL=http://127.0.0.1:4018/v1 \
+OPENAI_API_KEY="$LITELLM_MASTER_KEY" \
+mclaude --provider litellm --model hermes-brain -p "Review this PR"
 
 # Worker com timeout customizado
-timeout 300 mclaude --provider minimax --model MiniMax-M2.7 -p "Task..."
+timeout 300 mclaude --provider litellm --model hermes-auto -p "Task..."
 
 # Ver logs do worker
 tail -f .claude/vibe-kit/logs/workers/worker-01.log
@@ -219,17 +225,17 @@ jq '.stats' .claude/vibe-kit/queue.json
 # Configuracao via ~/.multi-claude/config.json
 {
   "providers": {
-    "minimax": {
-      "api_key": "${MINIMAX_API_KEY}",
-      "model": "MiniMax-M2.7",
-      "base_url": "https://api.minimax.chat/v1"
+    "litellm": {
+      "api_key": "${LITELLM_MASTER_KEY}",
+      "model": "hermes-brain",
+      "base_url": "http://127.0.0.1:4018/v1"
     },
     "ollama": {
-      "model": "qwen2.5",
+      "model": "qwen2.5-coder:14b-q6k",
       "base_url": "http://localhost:11434/v1"
     }
   },
-  "active_provider": "minimax"
+  "active_provider": "litellm"
 }
 ```
 
@@ -349,7 +355,9 @@ bun install -g @leogomide/multi-claude
 echo $PATH | tr ':' '\n' | grep -E "bun|local"
 
 # Testar mclaude diretamente
-mclaude --provider minimax --model MiniMax-M2.7 -p "echo test"
+OPENAI_BASE_URL=http://127.0.0.1:4018/v1 \
+OPENAI_API_KEY="$LITELLM_MASTER_KEY" \
+mclaude --provider litellm --model hermes-auto -p "echo test"
 ```
 
 #### Tasks orfaas (stuck)

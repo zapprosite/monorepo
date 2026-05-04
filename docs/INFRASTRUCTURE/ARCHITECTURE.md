@@ -18,7 +18,7 @@ PC PRINCIPAL (Gen5 4TB NVMe + RTX 4090 24GB + 64GB RAM)
 ├── │  Bare Metal Services                                        │
 │   │  • Hermes Gateway :3001 (Telegram bot + voice agent)       │
 │   │  • Hermes MCP :8092 (MCPO bridge para Claude Code)         │
-│   │  • Ollama :11434 (RTX 4090 — Gemma4 local)                 │
+│   │  • Ollama :11434 (RTX 4090 — Qwen2.5 Coder local)                 │
 │   │  • zappro-api :4003 (FastAPI auth JWT)                     │
 │   │  • ai-gateway :4002 (OpenAI-compat facade — TTS/STT/Vision)│
 │   │  • opencode-go :9000 (OpenCode CLI)                        │
@@ -26,7 +26,7 @@ PC PRINCIPAL (Gen5 4TB NVMe + RTX 4090 24GB + 64GB RAM)
 │
 ├── ┌─────────────────────────────────────────────────────────────┐
 ├── │  Docker Compose Stack                                       │
-│   │  • LiteLLM :4000 (multi-provider proxy — MiniMax/GPT)     │
+│   │  • LiteLLM :4000 (multi-provider proxy — OpenRouter/GPT)     │
 │   │  • Grafana :3100 (dashboards)                              │
 │   │  • Loki :3101 (logs)                                      │
 │   │  • Prometheus :9090 (metrics)                              │
@@ -115,7 +115,7 @@ Python asyncio agent que executa em `~/.hermes/hermes-agent`:
 ```
 CPU:    Gen5 (generacao atual)
 NVMe:   4TB (RAID-Z ZFS pool)
-GPU:    RTX 4090 24GB (VRAM — 23GB livre quando Gemma4 nao carregado)
+GPU:    RTX 4090 24GB (VRAM — 23GB livre quando Qwen2.5 Coder nao carregado)
 RAM:    64GB
 OS:     Ubuntu Server (headless)
 Rede:   SSH so via PC secundario
@@ -135,9 +135,9 @@ Funcao: SSH para PC principal, monitor, terminal
 
 ### VRAM Strategy
 
-- **Gemma4:26b-q4** carregado sob demanda (22GB VRAM)
-- **LiteLLM** faz pooling automatico entre MiniMax/GPT
-- Quando Gemma4 carregado: VRAM disponivel cai para ~1GB
+- **Qwen2.5 Coder 14B Q6_K** carregado sob demanda (22GB VRAM)
+- **LiteLLM** faz pooling automatico entre OpenRouter/GPT
+- Quando Qwen2.5 Coder carregado: VRAM disponivel cai para ~1GB
 
 ---
 
@@ -263,20 +263,20 @@ curl -X POST https://api.groq.com/openai/v1/audio/transcriptions \
 
 | Modelo | Uso | Custo | Provider |
 |--------|-----|-------|----------|
-| **MiniMax M2.7** | Chat principal | Token plan | LiteLLM :4000 |
+| **OpenRouter via hermes-brain** | Chat principal | Token plan | LiteLLM :4000 |
 | **GPT-4o-mini** | Fallback automatico | $0.15/1M tokens | LiteLLM :4000 |
-| **Gemma4:26b-q4** | Codigo local (Ollama) | Grátis | Ollama :11434 |
+| **Qwen2.5 Coder 14B Q6_K** | Codigo local (Ollama) | Grátis | Ollama :11434 |
 
 ### 7.2 VRAM Strategy
 
 ```
 RTX 4090 24GB VRAM:
-├── 22GB → Gemma4:26b-q4 (sob demanda)
+├── 22GB → Qwen2.5 Coder 14B Q6_K (sob demanda)
 └── 1-2GB → Reserved (drivers + fallback)
 ```
 
-- **Gemma4** carregado sob demanda (22GB)
-- **LiteLLM** faz pooling automatico entre MiniMax/GPT
+- **Qwen2.5 Coder** carregado sob demanda (22GB)
+- **LiteLLM** faz pooling automatico entre OpenRouter/GPT
 - Sem swap no Gen5 (SSD rapido mas wear leveling)
 
 ### 7.3 Diagrama de Roteamento
@@ -294,8 +294,8 @@ RTX 4090 24GB VRAM:
          ┌─────────────┼─────────────┐
          │             │             │
     ┌────▼────┐   ┌────▼────┐   ┌────▼────┐
-    │MiniMax  │   │ GPT-4o │   │ Ollama  │
-    │ M2.7    │   │ mini   │   │(RTX4090)│
+    │OpenRouter  │   │ GPT-4o │   │ Ollama  │
+    │ hermes-brain    │   │ mini   │   │(RTX4090)│
     └─────────┘   └─────────┘   └─────────┘
          │             │             │
          └─────────────┼─────────────┘

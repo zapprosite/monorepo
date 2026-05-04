@@ -85,7 +85,7 @@ Sistema de eventos que permite comunicação entre múltiplas CLIs de IA (Claude
 │   ├── opencode-config.toml
 │   └── opencode-wrappers/
 │       ├── opencode-original
-│       ├── opencode-minimax
+│       ├── opencode-openrouter
 │       └── opencode-gpt
 ├── scripts/
 │   ├── install-links.sh           # Cria symlinks e ativa serviços

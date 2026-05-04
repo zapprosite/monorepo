@@ -1,37 +1,24 @@
 /**
  * SPEC-048 — POST /v1/audio/transcriptions
- * STT pipeline (cópia exacta da lógica do voice.sh / F12):
- *   1. Receber áudio (multipart, ogg/mp3/wav)
- *   2. ffmpeg → WAV 16kHz mono
- *   3. faster-whisper :8204 → transcrição raw PT-BR (whisper-medium-pt)
- *   4. applyPtbrFilter (mode='stt') → correcção PT-BR (PTBR_FILTER_MODEL)
+ * STT pipeline via Groq cloud (whisper-large-v3) — fast, no local GPU/ffmpeg needed.
  *
- * Anti-hardcoded: STT_DIRECT_URL via process.env
+ * Mínimo viável voice gateway:
+ *   • ai-gateway :4002 = voice facade (TTS + STT)
+ *   • TTS backend = edge-tts :8012 (Microsoft Edge Neural PT-BR)
+ *   • STT backend = Groq cloud whisper-large-v3 (OpenAI-compatible)
+ *
+ * Groq accepts: mp3, mp4, mpeg, mpga, m4a, wav, webm — no ffmpeg conversion required.
+ * Anti-hardcoded: GROQ_API_KEY via process.env
  */
 
-import { execFile } from 'node:child_process';
 import { randomBytes } from 'node:crypto';
-import * as fs from 'node:fs';
-import * as http from 'node:http';
-import * as os from 'node:os';
-import * as path from 'node:path';
-import { promisify } from 'node:util';
+import * as https from 'node:https';
 import type { FastifyInstance } from 'fastify';
 import { applyPtbrFilter } from '../middleware/ptbr-filter.js';
 
-const execFileAsync = promisify(execFile);
-
-// SSRF Protection: Validate STT_URL before use
-const ALLOWED_STT_HOSTS = ['api.openai.com', 'api.anthropic.com', 'localhost', '127.0.0.1'];
-const STT_URL = process.env['STT_DIRECT_URL'] ?? 'http://localhost:8204';
-try {
-	const parsed = new URL(STT_URL);
-	if (!ALLOWED_STT_HOSTS.includes(parsed.hostname)) {
-		throw new Error(`SSRF Protection: STT_URL hostname '${parsed.hostname}' not allowed`);
-	}
-} catch (e) {
-	console.error(`[SECURITY] Invalid STT_URL: ${STT_URL} - ${e}`);
-	process.exit(1);
+const GROQ_API_KEY = process.env.GROQ_API_KEY ?? '';
+if (!GROQ_API_KEY) {
+	console.error('[SECURITY] GROQ_API_KEY not set — STT will fail');
 }
 
 // ── Multipart extractor ────────────────────────────────────────────────────
@@ -44,7 +31,7 @@ interface ParsedMultipart {
 
 function parseMultipart(body: Buffer, contentType: string): ParsedMultipart {
 	const bm = contentType.match(/boundary=["']?([^\s"';]+)["']?/);
-	if (!bm) return { fileBytes: body, fileExt: 'ogg', responseFormat: 'json' };
+	if (!bm) return { fileBytes: body, fileExt: 'mp3', responseFormat: 'json' };
 
 	const boundary = `--${bm[1]}`;
 	const sep = `\r\n${boundary}`;
@@ -52,7 +39,7 @@ function parseMultipart(body: Buffer, contentType: string): ParsedMultipart {
 	const parts = bodyStr.split(sep);
 
 	let fileBytes: Buffer | null = null;
-	let fileExt = 'ogg';
+	let fileExt = 'mp3';
 	let responseFormat = 'json';
 
 	for (const part of parts) {
@@ -67,7 +54,7 @@ function parseMultipart(body: Buffer, contentType: string): ParsedMultipart {
 		}
 		if (headers.includes('name="file"') || headers.match(/content-type:\s*audio\//i)) {
 			const ctMatch = headers.match(/content-type:\s*audio\/([^\r\n;]+)/i);
-			fileExt = (ctMatch ? (ctMatch[1] ?? 'ogg').trim().replace('mpeg', 'mp3') : 'ogg')
+			fileExt = (ctMatch ? (ctMatch[1] ?? 'mp3').trim().replace('mpeg', 'mp3') : 'mp3')
 				.replace('ogg-opus', 'ogg')
 				.replace('opus', 'ogg');
 			fileBytes = Buffer.from(dataStr, 'binary');
@@ -77,64 +64,45 @@ function parseMultipart(body: Buffer, contentType: string): ParsedMultipart {
 	return { fileBytes: fileBytes ?? body, fileExt, responseFormat };
 }
 
-// ── ffmpeg OGG/MP3/M4A → WAV 16kHz mono ───────────────────────────────────
+// ── Send audio to Groq STT (OpenAI-compatible) ─────────────────────────────
 
-async function toWav16k(audioBytes: Buffer, ext: string): Promise<Buffer> {
-	const id = randomBytes(6).toString('hex');
-	const tmpIn = path.join(os.tmpdir(), `gw-stt-in-${id}.${ext}`);
-	const tmpOut = path.join(os.tmpdir(), `gw-stt-out-${id}.wav`);
-	try {
-		fs.writeFileSync(tmpIn, audioBytes);
-		await execFileAsync('ffmpeg', ['-y', '-i', tmpIn, '-ar', '16000', '-ac', '1', tmpOut], {
-			timeout: 30000,
-		});
-		return fs.readFileSync(tmpOut);
-	} finally {
-		try {
-			fs.unlinkSync(tmpIn);
-		} catch {
-			/* ignore */
-		}
-		try {
-			fs.unlinkSync(tmpOut);
-		} catch {
-			/* ignore */
-		}
-	}
-}
-
-// ── Send WAV to wav2vec2 ───────────────────────────────────────────────────
-
-function transcribeWav(wavBytes: Buffer): Promise<string> {
+function transcribeWithGroq(audioBytes: Buffer, ext: string): Promise<string> {
 	const boundary = `----boundary${randomBytes(8).toString('hex')}`;
 	const header = Buffer.from(
-		`--${boundary}\r\nContent-Disposition: form-data; name="file"; filename="audio.wav"\r\nContent-Type: audio/wav\r\n\r\n`,
+		`--${boundary}\r\nContent-Disposition: form-data; name="file"; filename="audio.${ext}"\r\nContent-Type: audio/${ext}\r\n\r\n`,
+	);
+	const modelField = Buffer.from(
+		`\r\n--${boundary}\r\nContent-Disposition: form-data; name="model"\r\n\r\nwhisper-large-v3\r\n`,
+	);
+	const languageField = Buffer.from(
+		`\r\n--${boundary}\r\nContent-Disposition: form-data; name="language"\r\n\r\npt\r\n`,
 	);
 	const footer = Buffer.from(`\r\n--${boundary}--\r\n`);
-	const reqBody = Buffer.concat([header, wavBytes, footer]);
-	const url = new URL(`${STT_URL}/v1/audio/transcriptions`);
+	const reqBody = Buffer.concat([header, audioBytes, modelField, languageField, footer]);
 
 	return new Promise((resolve, reject) => {
-		const req = http.request(
+		const req = https.request(
 			{
-				hostname: url.hostname,
-				port: Number(url.port) || 80,
-				path: url.pathname,
+				hostname: 'api.groq.com',
+				port: 443,
+				path: '/openai/v1/audio/transcriptions',
 				method: 'POST',
 				headers: {
+					Authorization: `Bearer ${GROQ_API_KEY}`,
 					'Content-Type': `multipart/form-data; boundary=${boundary}`,
 					'Content-Length': reqBody.length,
 				},
-				timeout: 60000,
+				timeout: 30000,
 			},
 			(res) => {
 				const chunks: Buffer[] = [];
 				res.on('data', (c: Buffer) => chunks.push(c));
 				res.on('end', () => {
 					try {
-						resolve(JSON.parse(Buffer.concat(chunks).toString('utf8')).text ?? '');
+						const data = JSON.parse(Buffer.concat(chunks).toString('utf8'));
+						resolve(data.text ?? '');
 					} catch (e) {
-						reject(new Error(`wav2vec2 parse: ${e}`));
+						reject(new Error(`Groq STT parse: ${e}`));
 					}
 				});
 			},
@@ -142,7 +110,7 @@ function transcribeWav(wavBytes: Buffer): Promise<string> {
 		req.on('error', reject);
 		req.on('timeout', () => {
 			req.destroy();
-			reject(new Error('wav2vec2 timeout'));
+			reject(new Error('Groq STT timeout'));
 		});
 		req.write(reqBody);
 		req.end();
@@ -171,8 +139,7 @@ export async function audioTranscriptionsRoute(app: FastifyInstance) {
 				});
 			}
 
-			const wavBytes = await toWav16k(fileBytes, fileExt);
-			const rawText = await transcribeWav(wavBytes);
+			const rawText = await transcribeWithGroq(fileBytes, fileExt);
 			const text = await applyPtbrFilter(rawText, undefined, 'stt');
 
 			if (responseFormat === 'text') return reply.type('text/plain').send(text);

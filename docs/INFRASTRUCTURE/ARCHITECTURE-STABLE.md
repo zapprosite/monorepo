@@ -14,7 +14,7 @@ Sistema de homelab com arquitetura agente/mensageria baseado num único sistema:
 - Acesso público via cloudflared → hermes.zappro.site
 - Voice/TTS processing via Edge TTS
 
-LiteLLM serve como proxy LLM multi-provedor para Groq, OpenAI, MiniMax, Ollama local. Qdrant + Redis fornecem RAG e cache. Exposição pública via Cloudflare Tunnel em 3 subdomínios.
+LiteLLM serve como proxy LLM multi-provedor para Groq, OpenAI, OpenRouter, Ollama local. Qdrant + Redis fornecem RAG e cache. Exposição pública via Cloudflare Tunnel em 3 subdomínios.
 
 **Tecnologias:** Python, TypeScript, Fastify, LiteLLM, Qdrant, Redis, Docker, ZFS, Cloudflare Tunnel, Telegram API, Ollama (GPU local RTX 4090)
 
@@ -46,7 +46,7 @@ LiteLLM serve como proxy LLM multi-provedor para Groq, OpenAI, MiniMax, Ollama l
                      │     ▼                               │
                      │ ┌──────────────────────────────────────────────┐
                      │ │           LiteLLM Proxy (:4000)              │
-                     │ │    Groq / MiniMax / OpenAI / Ollama local   │
+                     │ │    Groq / OpenRouter / OpenAI / Ollama local   │
                      │ └──────────────────────────────────────────────┘
                      │
                      │     ┌────────────────┐     ┌──────────┐
@@ -137,7 +137,7 @@ LiteLLM serve como proxy LLM multi-provedor para Groq, OpenAI, MiniMax, Ollama l
 ```
 @CEO_REFRIMIX_bot (Telegram) → Hermes Gateway (:8642 bare-metal)
                                               ↓
-                                    LiteLLM (:4000) → Groq/MiniMax/OpenAI
+                                    LiteLLM (:4000) → Groq/OpenRouter/OpenAI
                                               ↓
                                     Redis (:6379) — cache de sessão
                                               ↓
@@ -166,7 +166,7 @@ User → SearXNG (:8080) — motor de busca local, ad-free
 | **GPU** | NVIDIA RTX 4090 (CUDA) |
 | **Storage** | ZFS tank (nvme0n1 3.6TB Gen5) |
 | **Container** | Docker + Docker Compose |
-| **LLM Proxy** | LiteLLM (Groq, OpenAI, MiniMax, Ollama) |
+| **LLM Proxy** | LiteLLM (Groq, OpenAI, OpenRouter, Ollama) |
 | **Vector DB** | Qdrant (RAG/embeddings) |
 | **Cache** | Redis (sessão, pub/sub) |
 | **DB** | PostgreSQL (metadados LiteLLM) |

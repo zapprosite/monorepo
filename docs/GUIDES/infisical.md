@@ -219,7 +219,7 @@ Recriar identity:
 **113 secrets** organizados por serviço (após dedupe e cleanup):
 - Cloudflare (API token, zone ID, account ID)
 - Telegram bots (6 tokens)
-- LLM APIs (OpenRouter, Groq, Google, HuggingFace, MiniMax, Tavily)
+- LLM APIs (OpenRouter, Groq, Google, HuggingFace, OpenRouter, Tavily)
 - LiteLLM (master key, virtual key, postgres)
 - Qdrant (API key)
 - Supabase (postgres password, JWT, anon key, service role)

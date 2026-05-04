@@ -513,7 +513,7 @@ func createWorker(agentType string, redisClient *swarm.RedisClient, registry *sw
 		redisAdapter := &redisClientAdapter{rdb: rdb}
 		agent = agents.NewIntakeAgentWithRedis(os.Getenv("WHATSAPP_SECRET"), os.Getenv("WHATSAPP_TOKEN"), redisAdapter)
 	case "classifier":
-		agent = agents.NewClassifierAgent(os.Getenv("GEMINI_API_KEY"))
+		agent = agents.NewClassifierAgent(liteLLMAPIKey())
 	case "access_control":
 		// Wrap redis.Client to implement RedisClientInterface for access_control agent.
 		redisAdapter := &redisClientAdapter{rdb: rdb}
@@ -526,16 +526,16 @@ func createWorker(agentType string, redisClient *swarm.RedisClient, registry *sw
 		}
 		agent = agents.NewRAGAgent(geminiEmbedder, qdrantLayer, memoryLayer)
 	case "ranking":
-		// Ranking agent needs redis and minimax API key
-		if os.Getenv("MINIMAX_API_KEY") == "" {
-			log.Printf("[swarm] ranking agent skipped: MINIMAX_API_KEY not set")
+		// Ranking agent needs redis and LiteLLM credentials.
+		if liteLLMAPIKey() == "" {
+			log.Printf("[swarm] ranking agent skipped: LITELLM_API_KEY not set")
 			return nil
 		}
-		agent = agents.NewRankingAgent(memoryLayer, os.Getenv("MINIMAX_API_KEY"))
+		agent = agents.NewRankingAgent(memoryLayer, liteLLMAPIKey())
 	case "response":
-		if os.Getenv("MINIMAX_API_KEY") != "" && os.Getenv("WHATSAPP_TOKEN") != "" {
+		if liteLLMAPIKey() != "" && os.Getenv("WHATSAPP_TOKEN") != "" {
 			agent = agents.NewResponseAgent(
-				os.Getenv("MINIMAX_API_KEY"),
+				liteLLMAPIKey(),
 				os.Getenv("WHATSAPP_TOKEN"),
 				os.Getenv("WHATSAPP_PHONE_ID"),
 			)
@@ -558,13 +558,13 @@ func createWorker(agentType string, redisClient *swarm.RedisClient, registry *sw
 		}
 		agent = agents.NewBillingAgent(rdb, stripeBilling)
 	case "memory", "memory_pre", "memory_post":
-		if os.Getenv("GEMINI_API_KEY") == "" {
-			log.Printf("[swarm] memory agent skipped: GEMINI_API_KEY not set")
+		if liteLLMAPIKey() == "" {
+			log.Printf("[swarm] memory agent skipped: LITELLM_API_KEY not set")
 			return nil
 		}
 		// Use memoryRedisAdapter to implement MemoryRedisInterface.
 		memAdapter := &memoryRedisAdapter{rdb: rdb}
-		agent = agents.NewMemoryAgent(memAdapter, os.Getenv("GEMINI_API_KEY"))
+		agent = agents.NewMemoryAgent(memAdapter, liteLLMAPIKey())
 	case "rag_query":
 		// RAG query agent with chunker, refiner, verifier, whitelist
 		if chunker == nil || refiner == nil {
@@ -585,4 +585,11 @@ func createWorker(agentType string, redisClient *swarm.RedisClient, registry *sw
 	}
 
 	return swarm.NewSwarmWorker(agent, redisClient, registry)
+}
+
+func liteLLMAPIKey() string {
+	if key := os.Getenv("LITELLM_API_KEY"); key != "" {
+		return key
+	}
+	return os.Getenv("LITELLM_MASTER_KEY")
 }

@@ -129,7 +129,7 @@ tests/integration/
 
 ### 7.3 ZFS Snapshot (a cada 30 min se workers ativos)
 ```cron
-*/30 * * * * if pgrep -f "mclaude.*MiniMax-M2.7" > /dev/null; then zfs snapshot -r tank@ vibe-$(date +\%Y\%m\%d-\%H\%M\%S)-crm; fi
+*/30 * * * * if pgrep -f "mclaude.*hermes-brain" > /dev/null; then zfs snapshot -r tank@ vibe-$(date +\%Y\%m\%d-\%H\%M\%S)-crm; fi
 ```
 
 ### 7.4 Monitoramento Progresso (a cada 15 min)
@@ -166,7 +166,7 @@ tail -f /srv/monorepo/.claude/vibe-kit/logs/worker-01.log
 watch -n30 "cat /srv/monorepo/.claude/vibe-kit/queue.json | jq '.done/.total'"
 
 # Ver se mclaude esta rodando
-pgrep -fa "mclaude.*MiniMax"
+pgrep -fa "mclaude.*OpenRouter"
 
 # Ver ZFS snapshots
 zfs list -t snapshot | grep vibe

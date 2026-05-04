@@ -50,7 +50,7 @@ O circuit breaker opera em **dois níveis**:
 │  ├── rag_*            → breaker por dataset                 │
 │  ├── mem0_*           → breaker por memory store            │
 │  ├── postgres_*       → breaker por connection pool         │
-│  ├── llm_complete     → breaker por provider (minimax/ollama)│
+│  ├── llm_complete     → breaker por provider (openrouter/ollama)│
 │  └── redis_*         → breaker por operation type          │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -224,7 +224,7 @@ async function executeWithGracefulDegradation(
 ### 4.1 LLM Provider Priority
 
 ```
-Priority 1: MiniMax (via LiteLLM :4000)
+Priority 1: OpenRouter (via LiteLLM :4000)
     ↓ (fail → 5s timeout)
 Priority 2: Ollama (:11434) — gemma4-12b-it
     ↓ (fail → 30s timeout)
@@ -251,7 +251,7 @@ Warning: "Embeddings unavailable — semantic search disabled"
 // src/litellm/fallback-router.ts
 
 const LLM_PROVIDERS = [
-  { name: 'minimax', url: 'http://lite-llm:4000', model: 'minimax-m2.7', timeout: 5000 },
+  { name: 'openrouter', url: 'http://lite-llm:4000', model: 'hermes-brain', timeout: 5000 },
   { name: 'ollama', url: 'http://ollama:11434', model: 'gemma4-12b-it', timeout: 30000 },
   { name: 'groq', url: 'http://lite-llm:4000', model: 'groq/llama-3.3-70b', timeout: 10000 },
   { name: 'openai', url: 'http://lite-llm:4000', model: 'gpt-4o-mini', timeout: 10000 },
@@ -541,7 +541,7 @@ POST /admin/circuit-breaker/{skillId}/reset → Reset specific breaker
 | Scenario | Injection | Expected Behavior |
 |----------|-----------|-------------------|
 | Qdrant down | `CHAOS_TARGET_SERVICE=qdrant CHAOS_FAILURE_RATE=1.0` | Tasks created in-memory, circuit OPEN after 2 failures |
-| Ollama timeout | `CHAOS_TARGET_SERVICE=ollama CHAOS_LATENCY_MS=60000` | Fallback to LiteLLM MiniMax |
+| Ollama timeout | `CHAOS_TARGET_SERVICE=ollama CHAOS_LATENCY_MS=60000` | Fallback to LiteLLM OpenRouter |
 | Mem0 OOM | `CHAOS_TARGET_SERVICE=mem0 CHAOS_FAILURE_RATE=0.5` | Continue without memory context |
 | Network partition | Chaos monkey kills network | Graceful degradation to cached responses |
 | LiteLLM rate limit | 100% 429 responses | Circuit OPEN, fallback chain exhausted, error returned |
@@ -629,7 +629,7 @@ BULKHEAD_POOL_C_CONCURRENT=20
 BULKHEAD_POOL_D_CONCURRENT=50
 
 # Provider Fallback
-LLM_PRIMARY_PROVIDER=minimax
+LLM_PRIMARY_PROVIDER=openrouter
 LLM_FALLBACK_ENABLED=true
 
 # Chaos Engineering

@@ -363,7 +363,7 @@ O `.context/harness/workflows/prevc.json` passa a ser o **formato canônico de e
 | Qdrant | v1.7+ | Vector store (local) |
 | ZFS | any | Snapshots |
 | Docker | any | Containers |
-| MiniMax M2.7 | api.minimax.io | LLM (via LiteLLM) |
+| hermes-brain | openrouter.ai/api/v1 | LLM (via LiteLLM) |
 
 ---
 

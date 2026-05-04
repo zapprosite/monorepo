@@ -120,7 +120,7 @@ sync_env() {
 # Anti-Hardcode Pattern for LLM agents:
 #   Secrets use ${VAR_NAME} placeholders.
 #   To read in code: process.env.VAR_NAME
-#   Example: const key = process.env.MINIMAX_API_KEY; // ✅
+#   Example: const key = process.env.OPENROUTER_API_KEY; // ✅
 #            const key = "sk-cp-...";                // ❌ HARDCODED
 #
 # ZFS Vault: tank/monorepo@env-vault-*

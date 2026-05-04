@@ -43,8 +43,9 @@ Estabilizar e proteger o homelab após auditoria de 12/04/2026 com 15 agents. Im
 - STT: wav2vec2 :8201 (nunca Deepgram direto)
 - TTS: TTS Bridge :8013 (nunca )
 - Vozes: pm_santa (padrao), pf_dora (fallback) — todas outras 400
-- LLM primario: MiniMax M2.7 direto (nao via LiteLLM)
-- Vision: litellm/qwen2.5-vl
+- LLM primario: LiteLLM `hermes-auto` (local primeiro)
+- Escalada: LiteLLM `hermes-brain` via OpenRouter
+- Vision: LiteLLM `hermes-vision`
 
 **Verification:**
 ```bash

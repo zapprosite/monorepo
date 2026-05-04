@@ -1,3 +1,4 @@
+import { SignatureCanvas } from '@frontend/components/SignatureCanvas';
 import { trpc } from '@frontend/utils/trpc.client';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ErrorAlert } from '@repo/ui-mui/components/ErrorAlert';
@@ -21,7 +22,6 @@ import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router';
 import { ServiceOrderStatusBadge } from '../components/ServiceOrderStatusBadge';
-import { SignatureCanvas } from '@frontend/components/SignatureCanvas';
 
 function formatDateTime(timestamp: number | string): string {
 	const date = typeof timestamp === 'number' ? new Date(timestamp) : new Date(timestamp);
@@ -112,21 +112,23 @@ export default function ServiceOrderDetailPage() {
 	const cancelar = useMutation(
 		trpc.serviceOrders.cancelarOrdem.mutationOptions({ onSuccess: invalidateOrder }),
 	);
-	const assinarTecnico = useMutation(
+	const _assinarTecnico = useMutation(
 		trpc.serviceOrders.assinarTecnico.mutationOptions({ onSuccess: invalidateReport }),
 	);
-	const assinarCliente = useMutation(
+	const _assinarCliente = useMutation(
 		trpc.serviceOrders.assinarCliente.mutationOptions({ onSuccess: invalidateReport }),
 	);
 	const saveOsSignatures = useMutation(
-		trpc.serviceOrders.saveOsSignatures.mutationOptions({ onSuccess: () => {
-			invalidateReport();
-			invalidateOrder();
-			setTechSignatureOpen(false);
-			setClientSignatureOpen(false);
-			setTechSignatureData(null);
-			setClientSignatureData(null);
-		}}),
+		trpc.serviceOrders.saveOsSignatures.mutationOptions({
+			onSuccess: () => {
+				invalidateReport();
+				invalidateOrder();
+				setTechSignatureOpen(false);
+				setClientSignatureOpen(false);
+				setTechSignatureData(null);
+				setClientSignatureData(null);
+			},
+		}),
 	);
 	const createReport = useMutation(
 		trpc.serviceOrders.createReport.mutationOptions({ onSuccess: invalidateReport }),
@@ -366,7 +368,7 @@ export default function ServiceOrderDetailPage() {
 									<Button
 										variant={r.assinadoTecnico ? 'outlined' : 'contained'}
 										color={r.assinadoTecnico ? 'success' : 'primary'}
-										disabled={r.assinadoTecnico ||techSignatureData !== null}
+										disabled={r.assinadoTecnico || techSignatureData !== null}
 										onClick={() => setTechSignatureOpen(true)}
 										size="small"
 									>
@@ -694,7 +696,9 @@ export default function ServiceOrderDetailPage() {
 							}
 						}}
 					>
-						{saveOsSignatures.isPending ? 'Salvando...' : 'Confirmar e Solicitar Assinatura do Cliente'}
+						{saveOsSignatures.isPending
+							? 'Salvando...'
+							: 'Confirmar e Solicitar Assinatura do Cliente'}
 					</Button>
 				</DialogActions>
 			</Dialog>

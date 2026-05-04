@@ -1,6 +1,6 @@
 # Zappro Clima Tutor — Template de Resposta PT-BR
 
-**Arquivo canônico** — usado pelo `hvac_rag_pipe.py` via `build_minimax_system_prompt()`.
+**Arquivo canônico** — usado pelo `hvac_rag_pipe.py` via `build_openrouter_system_prompt()`.
 **Não editar sem revisar o pipe.**
 
 ---

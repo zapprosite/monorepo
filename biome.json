@@ -16,7 +16,13 @@
 			"!**/.yarn",
 			"!**/.turbo",
 			"!**/coverage",
-			"!**/.dev"
+			"!**/.dev",
+			"!**/hermes",
+			"!**/hermes-second-brain",
+			"!**/ops",
+			"!**/edge-tts",
+			"!**/archive",
+			"!**/.nexus"
 		]
 	},
 	"formatter": {

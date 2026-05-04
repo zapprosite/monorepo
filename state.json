@@ -13,7 +13,7 @@
 			{
 				"timestamp": "2026-04-30T01:38:43Z",
 				"data": {
-					"cli": "opencode-minimax"
+					"cli": "opencode-openrouter"
 				},
 				"seq": "4c3a1940"
 			},
@@ -34,7 +34,7 @@
 			{
 				"timestamp": "2026-04-30T01:40:53Z",
 				"data": {
-					"cli": "opencode-minimax"
+					"cli": "opencode-openrouter"
 				},
 				"seq": "93e5c820"
 			},
@@ -55,7 +55,7 @@
 			{
 				"timestamp": "2026-04-30T01:42:38Z",
 				"data": {
-					"cli": "opencode-minimax"
+					"cli": "opencode-openrouter"
 				},
 				"seq": "dfdc6a00"
 			},
@@ -76,7 +76,7 @@
 			{
 				"timestamp": "2026-04-30T02:54:34Z",
 				"data": {
-					"cli": "opencode-minimax"
+					"cli": "opencode-openrouter"
 				},
 				"seq": "1361e823"
 			},
@@ -97,7 +97,7 @@
 			{
 				"timestamp": "2026-04-30T03:08:31Z",
 				"data": {
-					"cli": "opencode-minimax"
+					"cli": "opencode-openrouter"
 				},
 				"seq": "c947f274"
 			},
@@ -118,7 +118,7 @@
 			{
 				"timestamp": "2026-04-30T03:09:07Z",
 				"data": {
-					"cli": "opencode-minimax"
+					"cli": "opencode-openrouter"
 				},
 				"seq": "422d0d8c"
 			},
@@ -139,7 +139,7 @@
 			{
 				"timestamp": "2026-04-30T03:09:07Z",
 				"data": {
-					"cli": "opencode-minimax"
+					"cli": "opencode-openrouter"
 				},
 				"seq": "36bec2c2"
 			},
@@ -153,7 +153,7 @@
 			{
 				"timestamp": "2026-04-30T03:09:07Z",
 				"data": {
-					"cli": "opencode-minimax"
+					"cli": "opencode-openrouter"
 				},
 				"seq": "2aaa7a4b"
 			},
@@ -167,7 +167,7 @@
 			{
 				"timestamp": "2026-04-30T03:09:07Z",
 				"data": {
-					"cli": "opencode-minimax"
+					"cli": "opencode-openrouter"
 				},
 				"seq": "2372fd3b"
 			},
@@ -181,14 +181,14 @@
 			{
 				"timestamp": "2026-04-30T03:09:08Z",
 				"data": {
-					"cli": "opencode-minimax"
+					"cli": "opencode-openrouter"
 				},
 				"seq": "7f2644ad"
 			},
 			{
 				"timestamp": "2026-04-30T03:09:08Z",
 				"data": {
-					"cli": "opencode-minimax"
+					"cli": "opencode-openrouter"
 				},
 				"seq": "4dc99489"
 			},
@@ -202,7 +202,7 @@
 			{
 				"timestamp": "2026-04-30T03:09:08Z",
 				"data": {
-					"cli": "opencode-minimax"
+					"cli": "opencode-openrouter"
 				},
 				"seq": "c988bd25"
 			},
@@ -223,14 +223,14 @@
 			{
 				"timestamp": "2026-04-30T03:09:08Z",
 				"data": {
-					"cli": "opencode-minimax"
+					"cli": "opencode-openrouter"
 				},
 				"seq": "461c2682"
 			},
 			{
 				"timestamp": "2026-04-30T03:09:08Z",
 				"data": {
-					"cli": "opencode-minimax"
+					"cli": "opencode-openrouter"
 				},
 				"seq": "1b2fa9a6"
 			},
@@ -244,7 +244,7 @@
 			{
 				"timestamp": "2026-04-30T03:09:08Z",
 				"data": {
-					"cli": "opencode-minimax"
+					"cli": "opencode-openrouter"
 				},
 				"seq": "0e4b9309"
 			},
@@ -258,7 +258,7 @@
 			{
 				"timestamp": "2026-04-30T03:09:08Z",
 				"data": {
-					"cli": "opencode-minimax"
+					"cli": "opencode-openrouter"
 				},
 				"seq": "e8c21de5"
 			},
@@ -272,7 +272,7 @@
 			{
 				"timestamp": "2026-04-30T03:09:08Z",
 				"data": {
-					"cli": "opencode-minimax"
+					"cli": "opencode-openrouter"
 				},
 				"seq": "94319113"
 			},
@@ -293,7 +293,7 @@
 			{
 				"timestamp": "2026-04-30T03:09:08Z",
 				"data": {
-					"cli": "opencode-minimax"
+					"cli": "opencode-openrouter"
 				},
 				"seq": "d2eb65ae"
 			},
@@ -307,7 +307,7 @@
 			{
 				"timestamp": "2026-04-30T03:09:08Z",
 				"data": {
-					"cli": "opencode-minimax"
+					"cli": "opencode-openrouter"
 				},
 				"seq": "55ec0571"
 			},
@@ -321,7 +321,7 @@
 			{
 				"timestamp": "2026-04-30T03:09:08Z",
 				"data": {
-					"cli": "opencode-minimax"
+					"cli": "opencode-openrouter"
 				},
 				"seq": "0a1c6180"
 			},
@@ -342,7 +342,7 @@
 			{
 				"timestamp": "2026-04-30T03:09:08Z",
 				"data": {
-					"cli": "opencode-minimax"
+					"cli": "opencode-openrouter"
 				},
 				"seq": "3135380b"
 			},
@@ -356,7 +356,7 @@
 			{
 				"timestamp": "2026-04-30T03:09:08Z",
 				"data": {
-					"cli": "opencode-minimax"
+					"cli": "opencode-openrouter"
 				},
 				"seq": "e13c847c"
 			},
@@ -370,14 +370,14 @@
 			{
 				"timestamp": "2026-04-30T03:09:08Z",
 				"data": {
-					"cli": "opencode-minimax"
+					"cli": "opencode-openrouter"
 				},
 				"seq": "571ac86b"
 			},
 			{
 				"timestamp": "2026-04-30T03:09:08Z",
 				"data": {
-					"cli": "opencode-minimax"
+					"cli": "opencode-openrouter"
 				},
 				"seq": "26908a83"
 			},
@@ -398,7 +398,7 @@
 			{
 				"timestamp": "2026-04-30T03:09:08Z",
 				"data": {
-					"cli": "opencode-minimax"
+					"cli": "opencode-openrouter"
 				},
 				"seq": "fd9eab4d"
 			},
@@ -412,7 +412,7 @@
 			{
 				"timestamp": "2026-04-30T03:09:08Z",
 				"data": {
-					"cli": "opencode-minimax"
+					"cli": "opencode-openrouter"
 				},
 				"seq": "842152c3"
 			},
@@ -426,14 +426,14 @@
 			{
 				"timestamp": "2026-04-30T03:09:08Z",
 				"data": {
-					"cli": "opencode-minimax"
+					"cli": "opencode-openrouter"
 				},
 				"seq": "26d74c2c"
 			},
 			{
 				"timestamp": "2026-04-30T03:09:08Z",
 				"data": {
-					"cli": "opencode-minimax"
+					"cli": "opencode-openrouter"
 				},
 				"seq": "ef3743c5"
 			},
@@ -454,7 +454,7 @@
 			{
 				"timestamp": "2026-04-30T03:09:08Z",
 				"data": {
-					"cli": "opencode-minimax"
+					"cli": "opencode-openrouter"
 				},
 				"seq": "98414f8b"
 			},
@@ -468,7 +468,7 @@
 			{
 				"timestamp": "2026-04-30T03:09:09Z",
 				"data": {
-					"cli": "opencode-minimax"
+					"cli": "opencode-openrouter"
 				},
 				"seq": "b2b96900"
 			},
@@ -489,14 +489,14 @@
 			{
 				"timestamp": "2026-04-30T03:09:09Z",
 				"data": {
-					"cli": "opencode-minimax"
+					"cli": "opencode-openrouter"
 				},
 				"seq": "f8d4b2de"
 			},
 			{
 				"timestamp": "2026-04-30T03:09:09Z",
 				"data": {
-					"cli": "opencode-minimax"
+					"cli": "opencode-openrouter"
 				},
 				"seq": "9f679b47"
 			},
@@ -517,7 +517,7 @@
 			{
 				"timestamp": "2026-04-30T03:09:09Z",
 				"data": {
-					"cli": "opencode-minimax"
+					"cli": "opencode-openrouter"
 				},
 				"seq": "7014907d"
 			},
@@ -531,7 +531,7 @@
 			{
 				"timestamp": "2026-04-30T03:09:09Z",
 				"data": {
-					"cli": "opencode-minimax"
+					"cli": "opencode-openrouter"
 				},
 				"seq": "fabfd00a"
 			},
@@ -545,7 +545,7 @@
 			{
 				"timestamp": "2026-04-30T03:09:09Z",
 				"data": {
-					"cli": "opencode-minimax"
+					"cli": "opencode-openrouter"
 				},
 				"seq": "a37d520e"
 			},
@@ -559,14 +559,14 @@
 			{
 				"timestamp": "2026-04-30T03:09:09Z",
 				"data": {
-					"cli": "opencode-minimax"
+					"cli": "opencode-openrouter"
 				},
 				"seq": "e50a4443"
 			},
 			{
 				"timestamp": "2026-04-30T03:09:09Z",
 				"data": {
-					"cli": "opencode-minimax"
+					"cli": "opencode-openrouter"
 				},
 				"seq": "8ebf81d2"
 			},
@@ -580,7 +580,7 @@
 			{
 				"timestamp": "2026-04-30T03:09:09Z",
 				"data": {
-					"cli": "opencode-minimax"
+					"cli": "opencode-openrouter"
 				},
 				"seq": "64267965"
 			},
@@ -594,7 +594,7 @@
 			{
 				"timestamp": "2026-04-30T03:09:09Z",
 				"data": {
-					"cli": "opencode-minimax"
+					"cli": "opencode-openrouter"
 				},
 				"seq": "7a059ae3"
 			},
@@ -608,7 +608,7 @@
 			{
 				"timestamp": "2026-04-30T03:09:09Z",
 				"data": {
-					"cli": "opencode-minimax"
+					"cli": "opencode-openrouter"
 				},
 				"seq": "3f2d7353"
 			},
@@ -636,7 +636,7 @@
 			{
 				"timestamp": "2026-04-30T03:09:09Z",
 				"data": {
-					"cli": "opencode-minimax"
+					"cli": "opencode-openrouter"
 				},
 				"seq": "d3eee3db"
 			},
@@ -650,7 +650,7 @@
 			{
 				"timestamp": "2026-04-30T03:09:09Z",
 				"data": {
-					"cli": "opencode-minimax"
+					"cli": "opencode-openrouter"
 				},
 				"seq": "3bb23994"
 			},
@@ -664,7 +664,7 @@
 			{
 				"timestamp": "2026-04-30T03:09:09Z",
 				"data": {
-					"cli": "opencode-minimax"
+					"cli": "opencode-openrouter"
 				},
 				"seq": "9be4b10f"
 			},
@@ -678,7 +678,7 @@
 			{
 				"timestamp": "2026-04-30T03:09:09Z",
 				"data": {
-					"cli": "opencode-minimax"
+					"cli": "opencode-openrouter"
 				},
 				"seq": "686739c2"
 			},
@@ -692,14 +692,14 @@
 			{
 				"timestamp": "2026-04-30T03:09:09Z",
 				"data": {
-					"cli": "opencode-minimax"
+					"cli": "opencode-openrouter"
 				},
 				"seq": "83196dae"
 			},
 			{
 				"timestamp": "2026-04-30T03:09:09Z",
 				"data": {
-					"cli": "opencode-minimax"
+					"cli": "opencode-openrouter"
 				},
 				"seq": "9095e318"
 			},
@@ -720,14 +720,14 @@
 			{
 				"timestamp": "2026-04-30T03:09:09Z",
 				"data": {
-					"cli": "opencode-minimax"
+					"cli": "opencode-openrouter"
 				},
 				"seq": "d341daaa"
 			},
 			{
 				"timestamp": "2026-04-30T03:09:09Z",
 				"data": {
-					"cli": "opencode-minimax"
+					"cli": "opencode-openrouter"
 				},
 				"seq": "444cca55"
 			},
@@ -748,14 +748,14 @@
 			{
 				"timestamp": "2026-04-30T03:09:10Z",
 				"data": {
-					"cli": "opencode-minimax"
+					"cli": "opencode-openrouter"
 				},
 				"seq": "875a0601"
 			},
 			{
 				"timestamp": "2026-04-30T03:09:10Z",
 				"data": {
-					"cli": "opencode-minimax"
+					"cli": "opencode-openrouter"
 				},
 				"seq": "7e76d384"
 			},
@@ -769,7 +769,7 @@
 			{
 				"timestamp": "2026-04-30T03:09:10Z",
 				"data": {
-					"cli": "opencode-minimax"
+					"cli": "opencode-openrouter"
 				},
 				"seq": "4c6c3fa2"
 			},
@@ -797,7 +797,7 @@
 			{
 				"timestamp": "2026-04-30T03:09:10Z",
 				"data": {
-					"cli": "opencode-minimax"
+					"cli": "opencode-openrouter"
 				},
 				"seq": "edb8de69"
 			},
@@ -811,7 +811,7 @@
 			{
 				"timestamp": "2026-04-30T03:09:10Z",
 				"data": {
-					"cli": "opencode-minimax"
+					"cli": "opencode-openrouter"
 				},
 				"seq": "a1814d0b"
 			},
@@ -825,7 +825,7 @@
 			{
 				"timestamp": "2026-04-30T03:09:10Z",
 				"data": {
-					"cli": "opencode-minimax"
+					"cli": "opencode-openrouter"
 				},
 				"seq": "4500c6d5"
 			},
@@ -839,7 +839,7 @@
 			{
 				"timestamp": "2026-04-30T03:09:10Z",
 				"data": {
-					"cli": "opencode-minimax"
+					"cli": "opencode-openrouter"
 				},
 				"seq": "6d94bdf5"
 			},
@@ -1168,7 +1168,7 @@
 			{
 				"timestamp": "2026-04-30T03:13:40Z",
 				"data": {
-					"cli": "opencode-minimax"
+					"cli": "opencode-openrouter"
 				},
 				"seq": "d08de028"
 			},
@@ -1189,7 +1189,7 @@
 			{
 				"timestamp": "2026-04-30T03:17:41Z",
 				"data": {
-					"cli": "opencode-minimax"
+					"cli": "opencode-openrouter"
 				},
 				"seq": "8b5e0f2f"
 			},
@@ -1210,7 +1210,7 @@
 			{
 				"timestamp": "2026-04-30T03:18:53Z",
 				"data": {
-					"cli": "opencode-minimax"
+					"cli": "opencode-openrouter"
 				},
 				"seq": "5ffd946e"
 			},

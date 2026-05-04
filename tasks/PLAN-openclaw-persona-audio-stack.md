@@ -19,7 +19,7 @@ O . O bot esta mencionando servicos antigos (Deepgram) que ja nao sao usados. E 
     │
     ├── Speech Pipeline
     │   ├── STT: wav2vec2 :8201 (PT-BR native) — JA CONFIGURADO
-    │   ├── LLM: MiniMax M2.7 (primario) + LiteLLM/llava (vision)
+    │   ├── LLM: hermes-brain (primario) + LiteLLM/llava (vision)
     │   └── TTS: TTS Bridge :8013 (SO pm_santa + pf_dora) — JA CONFIGURADO
     │
     ├── Audio Files Reference
@@ -41,7 +41,7 @@ O . O bot esta mencionando servicos antigos (Deepgram) que ja nao sao usados. E 
 - Vozes: pm_santa (masculino padrao), pf_dora (feminino fallback)
 - STT: wav2vec2 :8201 — APENAS PT-BR, NAO USAR Deepgram/Whisper
 - TTS Bridge: :8013 — APENAS pm_santa/pf_dora, todas outras retornam 400
-- LLM primário: minimax/MiniMax-M2.7 (direto, NAO via LiteLLM)
+- LLM primário: openrouter/hermes-brain (direto, NAO via LiteLLM)
 - Vision: litellm/llava via LiteLLM
 - **PROIBIDO:** Deepgram, Whisper (local ou cloud), (sem bridge)
 
@@ -63,7 +63,7 @@ O . O bot esta mencionando servicos antigos (Deepgram) que ja nao sao usados. E 
   },
   "agents": {
     "defaults": {
-      "model": { "primary": "minimax/MiniMax-M2.7" },
+      "model": { "primary": "openrouter/hermes-brain" },
       "imageModel": {
         "primary": "litellm/llava",
         "providers": { "litellm/llava": { "provider": "liteLLM" } }
@@ -101,7 +101,7 @@ O . O bot esta mencionando servicos antigos (Deepgram) que ja nao sao usados. E 
 - REGRA: Nunca mencionar Deepgram como alternativa
 - REGRA: Never suggest changing voice to non-PT-BR
 - REGRA: TTS Bridge e o unico ponto de acesso ao 
-- Stack atual: pm_santa + pf_dora (apenas), wav2vec2 (apenas), MiniMax M2.7 (apenas)
+- Stack atual: pm_santa + pf_dora (apenas), wav2vec2 (apenas), hermes-brain (apenas)
 
 **Criterio de aceite:** Ficheiro criado e referenciado em CLAUDE.md
 
@@ -120,7 +120,7 @@ O . O bot esta mencionando servicos antigos (Deepgram) que ja nao sao usados. E 
 | STT | wav2vec2 :8201 | Deepgram, Whisper |
 | TTS Voice | pm_santa, pf_dora | Qualquer outra |
 | TTS Endpoint | TTS Bridge :8013 | |
-| LLM Primario | minimax/MiniMax-M2.7 | LiteLLM para primario |
+| LLM Primario | openrouter/hermes-brain | LiteLLM para primario |
 | Vision | litellm/llava | Outros VL models |
 ```
 
@@ -176,7 +176,7 @@ find /tmp -name "*.wav" -o -name "*.mp3" -o -name "*.ogg" 2>/dev/null | head -20
 ```bash
 # Full smoke test
 LITELLM_KEY="${LITELLM_KEY}" \
-MINIMAX_API_KEY="sk-cp-uA1oy3YNYtSeBSs4-o3kFktK" \
+OPENROUTER_API_KEY="sk-cp-uA1oy3YNYtSeBSs4-o3kFktK" \
 bash tasks/smoke-tests/pipeline-.sh
 
 # Voice filter verification

@@ -31,7 +31,7 @@ PC PRINCIPAL (Gen5 4TB NVMe + RTX 4090 24GB + 64GB RAM)
 │
 ├── ┌─────────────────────────────────────────────────────────────┐
 ├── │  Docker Compose Stack                                       │
-│   │  • LiteLLM :4000 (multi-provider proxy — MiniMax/GPT)    │
+│   │  • LiteLLM :4000 (multi-provider proxy — OpenRouter/GPT)    │
 │   │  • Grafana :3100 (dashboards)                             │
 │   │  • Loki :3101 (logs)                                       │
 │   │  • Prometheus :9090 (metrics)                             │
@@ -90,7 +90,7 @@ O sistema implementa 4 camadas de inteligência:
 │  └──────┬───────┘                                           │
 │         │                                                   │
 │  ┌──────▼───────┐                                           │
-│  │   REASONING  │  LLM (MiniMax M2.7 via LiteLLM)           │
+│  │   REASONING  │  LLM (hermes-brain via LiteLLM)           │
 │  │   LAYER      │  Decide, gera, reasona                    │
 │  └──────┬───────┘                                           │
 │         │                                                   │
@@ -136,7 +136,7 @@ O sistema implementa 4 camadas de inteligência:
 
 | Provider | Model | Custo | Endpoint |
 |----------|-------|-------|----------|
-| MiniMax | M2.7 | Token plan | LiteLLM :4000 |
+| OpenRouter | hermes-brain | Token plan | LiteLLM :4000 |
 | OpenAI | GPT-4o-mini | $0.15/1M | LiteLLM :4000 |
 | Groq | Whisper Turbo | Grátis | API Groq |
 | Ollama | Gemma4:26b-q4 | Grátis | :11434 (RTX 4090) |
@@ -172,7 +172,7 @@ CEO_REFRIMIX_bot (agency-ceo skill)
     ▼
 SKILL SPECIALIZADA (ex: agency-creative)
     │
-    ├──► LiteLLM (:4000) ──► MiniMax / GPT
+    ├──► LiteLLM (:4000) ──► OpenRouter / GPT
     │                       │
     │   ◄───────────────────┘
     │
@@ -208,7 +208,7 @@ SKILL SPECIALIZADA (ex: agency-creative)
    │  Total: ~7200 tokens (under 8k budget)
    │
    ▼
-   LLM (MiniMax M2.7 via LiteLLM)
+   LLM (hermes-brain via LiteLLM)
 ```
 
 ---
@@ -519,8 +519,8 @@ export async function invokeWorkflow(
 |----------|---------|-------------|
 | `LITELLM_API_KEY` | — | LiteLLM API key |
 | `LITELLM_BASE_URL` | `http://localhost:4000` | LiteLLM endpoint |
-| `MINIMAX_API_KEY` | — | MiniMax API key |
-| `MINIMAX_API_BASE` | `https://api.minimax.io/anthropic/v1` | MiniMax endpoint |
+| `OPENROUTER_API_KEY` | — | OpenRouter API key |
+| `OPENROUTER_API_BASE` | `https://openrouter.ai/api/v1` | OpenRouter endpoint |
 | `OPENAI_API_KEY` | — | OpenAI API key |
 | `OPENROUTER_API_KEY` | — | OpenRouter API key |
 | `GROQ_API_KEY` | — | Groq API key |

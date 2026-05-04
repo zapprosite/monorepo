@@ -75,7 +75,7 @@
 3. HVAC RAG → Qdrant (:6333) [vector search]
 4. HVAC RAG → OpenWebUI [enriched prompt]
 5. OpenWebUI → LiteLLM (:4000) [LLM request]
-6. LiteLLM → MiniMax API [external]
+6. LiteLLM → OpenRouter API [external]
 
 ### Redis Flow
 - OpenWebUI → trieve-redis (:6379) [session/cache]

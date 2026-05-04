@@ -210,7 +210,7 @@ curl http://localhost:4000/health
 curl -s http://localhost:6333/health
 
 # Testar API externa
-curl -I https://api.minimax.chat --connect-timeout 3
+curl -I https://openrouter.ai/api/v1 --connect-timeout 3
 ```
 
 ### ping - conectividade

@@ -7,7 +7,6 @@
 	"spec_ref": "SPEC-ENTERPRISE",
 	"adr_ref": "ADR-030",
 	"description": "Enterprise-grade pipeline for the full monorepo: 11 apps, 8 packages, 26+ API modules, HVAC CRM, AI Gateway, and infrastructure.",
-
 	"phases": [
 		{
 			"phase_id": "PE1",
@@ -81,11 +80,31 @@
 			"status": "pending",
 			"depends_on": ["PE2"],
 			"modules": [
-				{ "name": "equipment", "path": "apps/api/src/modules/equipment", "status": "done" },
-				{ "name": "maintenance", "path": "apps/api/src/modules/maintenance", "status": "done" },
-				{ "name": "clients", "path": "apps/api/src/modules/clients", "status": "done" },
-				{ "name": "contracts", "path": "apps/api/src/modules/contracts", "status": "done" },
-				{ "name": "leads", "path": "apps/api/src/modules/leads", "status": "done" },
+				{
+					"name": "equipment",
+					"path": "apps/api/src/modules/equipment",
+					"status": "done"
+				},
+				{
+					"name": "maintenance",
+					"path": "apps/api/src/modules/maintenance",
+					"status": "done"
+				},
+				{
+					"name": "clients",
+					"path": "apps/api/src/modules/clients",
+					"status": "done"
+				},
+				{
+					"name": "contracts",
+					"path": "apps/api/src/modules/contracts",
+					"status": "done"
+				},
+				{
+					"name": "leads",
+					"path": "apps/api/src/modules/leads",
+					"status": "done"
+				},
 				{
 					"name": "service-orders",
 					"path": "apps/api/src/modules/service-orders",
@@ -96,8 +115,16 @@
 					"path": "apps/api/src/modules/subscriptions",
 					"status": "pending"
 				},
-				{ "name": "schedule", "path": "apps/api/src/modules/schedule", "status": "pending" },
-				{ "name": "reminders", "path": "apps/api/src/modules/reminders", "status": "pending" }
+				{
+					"name": "schedule",
+					"path": "apps/api/src/modules/schedule",
+					"status": "pending"
+				},
+				{
+					"name": "reminders",
+					"path": "apps/api/src/modules/reminders",
+					"status": "pending"
+				}
 			],
 			"tasks": [
 				{
@@ -143,8 +170,15 @@
 			"status": "pending",
 			"depends_on": ["PE3"],
 			"modules": [
-				{ "name": "ai-gateway", "path": "apps/ai-gateway", "port": 4002 },
-				{ "name": "orchestrator", "path": "apps/orchestrator" }
+				{
+					"name": "ai-gateway",
+					"path": "apps/ai-gateway",
+					"port": 4002
+				},
+				{
+					"name": "orchestrator",
+					"path": "apps/orchestrator"
+				}
 			],
 			"tasks": [
 				{
@@ -197,9 +231,19 @@
 			"status": "pending",
 			"depends_on": ["PE3"],
 			"apps": [
-				{ "name": "web", "path": "apps/web", "port": 5173 },
-				{ "name": "monitoring", "path": "apps/monitoring" },
-				{ "name": "list-web", "path": "apps/list-web" }
+				{
+					"name": "web",
+					"path": "apps/web",
+					"port": 5173
+				},
+				{
+					"name": "monitoring",
+					"path": "apps/monitoring"
+				},
+				{
+					"name": "list-web",
+					"path": "apps/list-web"
+				}
 			],
 			"tasks": [
 				{
@@ -286,7 +330,6 @@
 			]
 		}
 	],
-
 	"inventory": {
 		"apps": {
 			"count": 11,
@@ -340,16 +383,31 @@
 			"pending": []
 		},
 		"database_tables": {
-			"equipment": { "sequenceNumber": "done", "PMOC": "done" },
-			"maintenance_plans": { "planType": "done", "PMOC_fields": "done" },
-			"clients": { "core": "done" },
-			"units": { "core": "done" },
-			"contracts": { "core": "done" },
-			"service_orders": { "core": "pending" },
-			"subscriptions": { "core": "pending" }
+			"equipment": {
+				"sequenceNumber": "done",
+				"PMOC": "done"
+			},
+			"maintenance_plans": {
+				"planType": "done",
+				"PMOC_fields": "done"
+			},
+			"clients": {
+				"core": "done"
+			},
+			"units": {
+				"core": "done"
+			},
+			"contracts": {
+				"core": "done"
+			},
+			"service_orders": {
+				"core": "pending"
+			},
+			"subscriptions": {
+				"core": "pending"
+			}
 		}
 	},
-
 	"vars": {
 		"accent_color": "#39FF14",
 		"rg_domain": "zappro.site",
@@ -361,11 +419,10 @@
 		"db_host": "zappro-litellm-db",
 		"stack": "Fastify + tRPC + Orchid ORM + PostgreSQL",
 		"frontend": "React 19 + Vite + MUI + Tailwind",
-		"llm_primary": "minimax/MiniMax-M2.7",
+		"llm_primary": "openrouter/hermes-brain",
 		"llm_fallback": "ollama/llama3-portuguese-tomcat-8b-instruct-q8",
 		"auth": "OAuth2 Google + Dev Bypass via X-Dev-User"
 	},
-
 	"commands": {
 		"type_check": "pnpm tsc --noEmit",
 		"lint": "biome check . --write",
@@ -379,11 +436,22 @@
 		"smoke": "pnpm test --filter=./apps/api",
 		"nexus_status": "bash /srv/ops/scripts/nexus-investigate.sh all 3"
 	},
-
 	"gates": {
-		"PE1_to_PE2": { "requires": ["PE1-T1", "PE1-T2"], " блокирующий": true },
-		"PE2_to_PE3": { "requires": ["PE2-T1"], " блокирующий": true },
-		"PE3_to_PE4": { "requires": ["PE3-T1"], " блокирующий": false },
-		"PE7_to_PE8": { "requires": ["PE7-T1", "PE7-T2", "PE7-T3", "PE7-T4"], " блокирующий": true }
+		"PE1_to_PE2": {
+			"requires": ["PE1-T1", "PE1-T2"],
+			" блокирующий": true
+		},
+		"PE2_to_PE3": {
+			"requires": ["PE2-T1"],
+			" блокирующий": true
+		},
+		"PE3_to_PE4": {
+			"requires": ["PE3-T1"],
+			" блокирующий": false
+		},
+		"PE7_to_PE8": {
+			"requires": ["PE7-T1", "PE7-T2", "PE7-T3", "PE7-T4"],
+			" блокирующий": true
+		}
 	}
 }

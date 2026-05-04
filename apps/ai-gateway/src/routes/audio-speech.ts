@@ -11,7 +11,7 @@ import { $fetch } from 'ofetch';
 import { applyPtbrFilter } from '../middleware/ptbr-filter.js';
 import { AudioSpeechRequestSchema } from '../schemas.js';
 
-const TTS_BRIDGE_URL = process.env['TTS_BRIDGE_URL'] ?? 'http://localhost:8012';
+const TTS_BRIDGE_URL = process.env.TTS_BRIDGE_URL ?? 'http://localhost:8012';
 
 // edge-tts: tts-1 → AntonioNeural (male), tts-1-hd → FranciscaNeural (female HD)
 const MODEL_VOICE_MAP: Record<string, string> = {

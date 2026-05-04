@@ -22,7 +22,7 @@ Este documento define a configuracao canonical do . Qualquer LLM ou agente que p
 ┌─────────────────────────────────┐
 │         OPENCLAW BOT            │
 │  identity: Zappro (PT-BR)       │
-│  primary: minimax/MiniMax-M2.7  │
+│  primary: openrouter/hermes-brain  │
 └─────────────────────────────────┘
               │
     ┌─────────┼─────────┐
@@ -125,9 +125,9 @@ Todas as outras 65 vozes `400 Bad Request`:
 
 ## LLM — Language Model
 
-**Primario:** MiniMax M2.7 (direto, sem LiteLLM)
-**Endpoint:** `https://api.minimax.io/anthropic`
-**Provider:** `minimax`
+**Primario:** hermes-brain (direto, sem LiteLLM)
+**Endpoint:** `https://openrouter.ai/api/v1/anthropic`
+**Provider:** `openrouter`
 **API:** `anthropic-messages`
 
 ### PROIBIDO — LLM Primario
@@ -135,7 +135,7 @@ Todas as outras 65 vozes `400 Bad Request`:
 | Config | Razão |
 |--------|-------|
 | LiteLLM como primario | Nao tem campo `api` — causa crash `api: undefined` |
-| Qualquer outro LLM como primario | MiniMax M2.7 e o padrao |
+| Qualquer outro LLM como primario | hermes-brain e o padrao |
 
 ---
 
@@ -198,7 +198,7 @@ Todas as outras 65 vozes `400 Bad Request`:
 | LLM sugere "vamos usar Deepgram" | REJEITAR — wav2vec2 e o STT padrao |
 | LLM sugere "mudar voz para af_sarah" | REJEITAR — apenas pm_santa/pf_dora |
 | LLM propõe "TTS direto ao " | REJEITAR — usar TTS Bridge |
-| LLM sugere "colocar MiniMax no LiteLLM" | REJEITAR — primarios chamam direto |
+| LLM sugere "colocar OpenRouter no LiteLLM" | REJEITAR — primarios chamam direto |
 | LLM propõe "usar Whisper" | REJEITAR — wav2vec2 e PT-BR native |
 
 ---
@@ -210,7 +210,7 @@ ANTES DE PROPOR QUALQUER MUDANCA:
 □ STT: e wav2vec2 :8201? (NAO Deepgram, NAO Whisper)
 □ TTS: esta usando TTS Bridge :8013? (NAO )
 □ TTS Voice: e pm_santa ou pf_dora? (NAO outra)
-□ LLM Primo: e minimax/MiniMax-M2.7? (NAO via LiteLLM)
+□ LLM Primo: e openrouter/hermes-brain? (NAO via LiteLLM)
 □ Vision: e litellm/qwen2.5-vl? (NAO GPT-4V, llava foi substituido)
 □ Identity: Zappro, emoji 🎙️, tema PT-BR?
 ```

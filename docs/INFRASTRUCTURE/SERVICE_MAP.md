@@ -104,24 +104,23 @@
 
 ---
 
-### Stack: LiteLLM (`/srv/apps/litellm/docker-compose.yml`)
+### Stack: LiteLLM (`/srv/monorepo/docker-compose.litellm.yml`)
 
-#### litellm (LLM Gateway)
-- **Imagem:** ghcr.io/berriai/litellm:main-stable
-- **Container:** litellm | **Porta:** 4000 (network_mode: host)
-- **API:** http://localhost:4000/v1 (OpenAI-compatible) → https://llm.zappro.site/v1
-- **UI admin:** http://localhost:4000/ui
-- **Auth:** Bearer token (master key + virtual keys)
-- **Modelos expostos:** `gpt-4o`, `qwen3.5`, `bge-m3`, `text-embedding-ada-002`
-- **Backend:** Ollama em localhost:11434
-- **Depende de:** litellm-db, ollama | **Usado por:** qualquer app via OPENAI_BASE_URL
+#### litellm-proxy (LLM Gateway)
+- **Imagem:** ghcr.io/berriai/litellm:main-latest
+- **Container:** litellm-proxy | **Porta:** 4018→4000 (bridge)
+- **API:** http://localhost:4018/v1 (OpenAI-compatible) → https://llm.zappro.site/v1
+- **Auth:** Bearer token (`LITELLM_MASTER_KEY`)
+- **Modelos expostos (aliases):** `hermes-auto`, `hermes-local-code`, `hermes-vision`, `hermes-embed`, `hermes-cloud-cheap`, `hermes-cloud-pro`, `hermes-cloud-ui`, `hermes-brain`
+- **Backend:** Ollama em localhost:11434 (local) + OpenRouter (cloud fallback)
+- **Depende de:** zappro-litellm-db (Postgres legado zappro-lite), Ollama, Redis | **Usado por:** qualquer app via `OPENAI_BASE_URL=http://127.0.0.1:4018/v1`
 
-#### litellm-db (PostgreSQL interno)
-- **Imagem:** postgres:16-alpine
-- **Container:** litellm-db | **Porta:** 127.0.0.1:5440→5432
-- **Função:** Armazena virtual keys, spend tracking, usuários
-- **Credenciais:** user=litellm, db=litellm
-- **Depende de:** nada | **Usado por:** litellm
+#### zappro-litellm-db (PostgreSQL legado — retenção)
+- **Imagem:** postgres:15-alpine
+- **Container:** zappro-litellm-db | **Porta:** 5432/tcp (interna)
+- **Função:** Persistência de virtual keys, spend tracking, usuários do LiteLLM
+- **Volume:** `zappro-lite_litellm-db-data`
+- **Depende de:** nada | **Usado por:** litellm-proxy
 
 ---
 
@@ -131,14 +130,15 @@
 - **Imagem:** coollabsio/:2026.2.6 (PINADA)
 - **Container:** 6771lt8l7x8rqx72f | **Porta:** 8080 (nginx)
 - **Bot:** @CEO_REFRIMIX_bot (Telegram polling)
-- **Modelo primario:** minimax/MiniMax-M2.7 (DIRETO via api.minimax.io)
-- **Visao (olhos):** liteLLM/llava (via LiteLLM -> Ollama GPU)
+- **Modelo primario:** `hermes-auto` via LiteLLM `:4018/v1`
+- **Escalada:** `hermes-brain` via LiteLLM -> OpenRouter
+- **Visao (olhos):** `hermes-vision` via LiteLLM -> Ollama GPU
 - **TTS (boca):** (10.0.19.6:8880, voice pm_santa)
 - **STT (ouvidos):** Deepgram nova-3 (cloud)
 - **Config:** Volume persistente `/data/./.json`
 - **Health:** `docker logs 6771lt8l7x8rqx72f --tail 5`
 - **Debug:** `/srv/ops/ai-governance/OPENCLAW_DEBUG.md`
-- **Depende de:** MiniMax API (cloud), LiteLLM (visao), (TTS)
+- **Depende de:** LiteLLM, Ollama, OpenRouter API para escalada cloud, TTS
 
 #### Browser (Chrome DevTools)
 - **Imagem:** coollabsio/:latest
@@ -155,15 +155,15 @@
 
 | Modelo | Params | Quant | VRAM | Contexto | Capacidades |
 |--------|--------|-------|------|----------|-------------|
-| qwen3.5 | 9,65B | Q4_K_M | ~6,5 GB | 262.144 tokens | completion, vision, tools, **thinking** |
-| gemma4 | 12B | Q4_K_M | ~7 GB | 32.768 tokens | completion, instruction |
-| llava | 7B | Q4_K_M | ~4,5 GB | 8.192 tokens | vision (multi-modal) |
+| qwen2.5-coder | 9,65B | Q4_K_M | ~6,5 GB | 262.144 tokens | completion, vision, tools, **thinking** |
+| qwen2.5-coder:14b-q6k | 12B | Q4_K_M | ~7 GB | 32.768 tokens | completion, instruction |
+| qwen2.5vl:3b | 7B | Q4_K_M | ~4,5 GB | 8.192 tokens | vision (multi-modal) |
 | nomic-embed-text | 274M | F16 | ~0,5 GB | 8.192 tokens | embedding (1024 dims) |
 | bge-m3 | 566M | F16 | ~1,2 GB | 8.192 tokens | embedding (1024 dims) |
 
 - **Comportamento:** descarrega modelos após ~5 min de inatividade
 - **Verificar carregados:** `curl http://localhost:11434/api/ps`
-- **Depende de:** nada | **Usado por:** n8n, monorepo worker-ai, (llava)
+- **Depende de:** nada | **Usado por:** n8n, monorepo worker-ai, (qwen2.5vl:3b)
 
 ---
 
@@ -200,23 +200,20 @@ RTX 4090 (GPU CDI)
     └── (TTS, ~1,5GB VRAM)
 
 :8080 (@CEO_REFRIMIX_bot)
-    ├── → MiniMax API (cloud, direto, cerebro)
-    ├── → LiteLLM :4000 (llava=olhos via Ollama)
+    ├── → LiteLLM :4018/v1 (roteamento hermes-*)
     ├── → :8880 (TTS=boca)
     └── → Deepgram (cloud, STT=ouvidos)
 
-LiteLLM :4000 (→ llm.zappro.site)
-    ├── → Ollama :11434 (qwen3.5, gemma4, llava, nomic-embed-text)
-    ├── → Whisper API :8201 (STT)
-    ├── → :8012 (TTS)
-    └── → litellm-db :5440 (virtual keys)
+LiteLLM :4018/v1 (→ llm.zappro.site)
+    ├── → Ollama :11434 (hermes-local-code, hermes-vision, hermes-embed via aliases)
+    ├── → OpenRouter (hermes-cloud-*, hermes-brain — escalada cloud)
+    ├── → zappro-litellm-db :5432 (virtual keys / tracking)
+    └── → zappro-redis :6379 (cache / pubsub)
 
 Ollama :11434
-    ├── qwen3.5 (LLM, ~6.5GB VRAM)
-    ├── gemma4 (LLM, ~7GB VRAM)
-    ├── llava (vision, ~4.5GB VRAM)
-    ├── bge-m3 (embeddings, ~1.2GB VRAM)
-    └── nomic-embed-text (embeddings, ~0.5GB VRAM)
+    ├── qwen2.5-coder:14b-q6k (hermes-local-code / hermes-auto, ~7GB VRAM)
+    ├── qwen2.5vl:3b (hermes-vision, ~4.5GB VRAM)
+    └── nomic-embed-text (hermes-embed, ~0.5GB VRAM)
 
 :8012/:8880
     └── → vozes PT-BR (Abigail, Adrian, ..., Thomas)
@@ -238,14 +235,14 @@ n8n :5678
 | Whisper API (faster-whisper large-v3) | ~4 GB | sob demanda |
 | (ONNX) | ~1,5 GB | sob demanda |
 | Qwen 3.5 Q4_K_M | ~6,5 GB | sob demanda (Ollama) |
-| Gemma4 Q4_K_M | ~7 GB | sob demanda (Ollama) |
+| Qwen2.5 Coder Q4_K_M | ~7 GB | sob demanda (Ollama) |
 | Llava Q4_K_M | ~4,5 GB | sob demanda () |
 | BGE-M3 F16 | ~1,2 GB | sob demanda (Ollama) |
 | Nomic-embed-text F16 | ~0,5 GB | sob demanda (Ollama) |
 | **Pior caso total** | **~25,7 GB** | **Excede! Gerenciar carga** |
-| **Estado atual (sem gemma4)** | **~10 GB** | **~14 GB livres** |
+| **Estado atual (sem qwen2.5-coder:14b-q6k)** | **~10 GB** | **~14 GB livres** |
 
-> ⚠️ Carregar gemma4 + qwen3.5 simultaneamente excede VRAM. Ollama descarrega modelos inativos automaticamente.
+> ⚠️ Carregar qwen2.5-coder:14b-q6k + qwen2.5-coder simultaneamente excede VRAM. Ollama descarrega modelos inativos automaticamente.
 
 ---
 
@@ -253,13 +250,12 @@ n8n :5678
 
 ```
 1. Docker Engine (systemd)
-2. docker-compose -f /srv/apps/platform/docker-compose.yml up -d
-3. docker-compose -f /srv/apps/supabase/docker/docker-compose.yml up -d
-4. docker-compose -f /srv/apps/caprover/docker-compose.yml up -d
-5. docker-compose -f /srv/apps/voice/docker-compose.yml up -d
-6. docker-compose -f /srv/apps/monitoring/docker-compose.yml up -d
-7. docker-compose -f /srv/apps/litellm/docker-compose.yml up -d
-8. systemctl start ollama                         (Ollama — se não autostart)
+2. docker compose -f /srv/apps/platform/docker-compose.yml up -d
+3. docker compose -f /srv/apps/monitoring/docker-compose.yml up -d
+4. docker compose -f /srv/monorepo/docker-compose.litellm.yml up -d
+5. systemctl start ollama                         (Ollama — se não autostart)
+
+> ⚠️ Supabase, CapRover e voice stack legado foram removidos. Não iniciar.
 ```
 
 ---

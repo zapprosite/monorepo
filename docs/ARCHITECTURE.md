@@ -26,13 +26,13 @@ PC PRINCIPAL (Gen5 4TB NVMe + RTX 4090 24GB + 64GB RAM)
 │
 ├── ┌─────────────────────────────────────────────────────────────┐
 ├── │  Docker Compose Stack                                       │
-│   │  • LiteLLM :4000 (multi-provider proxy — MiniMax/GPT)     │
+│   │  • LiteLLM :4018/v1 (multi-provider proxy — Ollama/OpenRouter)│
 │   │  • Grafana :3100 (dashboards)                              │
 │   │  • Loki :3101 (logs)                                      │
 │   │  • Prometheus :9090 (metrics)                              │
 │   │  • Qdrant :6333 (vector DB — RAG)                          │
 │   │  • ai-router :4005 (routing inteligente)                   │
-│   │  • nginx-ratelimit :4004 (rate limiting → :4000)           │
+│   │  • nginx-ratelimit :4004 (rate limiting → :4018)           │
 │   └─────────────────────────────────────────────────────────────┘
 │
 └── PC SECUNDARIO (Gen3 1TB NVMe + RTX 3060 12GB + 32GB RAM)
@@ -136,7 +136,7 @@ Funcao: SSH para PC principal, monitor, terminal
 ### VRAM Strategy
 
 - **Gemma4:26b-q4** carregado sob demanda (22GB VRAM)
-- **LiteLLM** faz pooling automatico entre MiniMax/GPT
+- **LiteLLM** faz pooling automatico entre OpenRouter/GPT
 - Quando Gemma4 carregado: VRAM disponivel cai para ~1GB
 
 ---
@@ -148,8 +148,8 @@ Funcao: SSH para PC principal, monitor, terminal
 | Port | Servico | Host | Proposito |
 |------|---------|------|-----------|
 | :3000 | zappro-web | Ubuntu Desktop | React chat UI (dark mode) |
-| :4000 | LiteLLM | Docker Compose | Production LLM proxy |
-| :4002 | ai-gateway | Ubuntu Desktop | OpenAI-compat facade (TTS/STT/Vision) |
+| :4018 | LiteLLM Proxy | Docker Compose | Gateway LLM OpenAI-compatible (hermes-*) |
+| :4002 | — | — | Reservada (legado ai-gateway — não usado) |
 | :4003 | zappro-api | Ubuntu Desktop | FastAPI auth JWT + proxy LiteLLM |
 | :8000 | Coolify | Ubuntu Desktop | Container management (PaaS) |
 | :8080 | OpenWebUI | Coolify | Chat interface |
@@ -181,9 +181,9 @@ Funcao: SSH para PC principal, monitor, terminal
      └──────┬──────┘   └──────┬──────┘   └──────┬──────┘
             │                 │                 │
      ┌──────▼──────┐   ┌──────▼──────┐   ┌──────▼──────┐
-     │   Coolify   │   │  Hermes    │   │   LiteLLM   │
-     │   PaaS      │   │  Gateway   │   │   Proxy     │
-     │   :8000     │   │  :3001     │   │   :4000     │
+      │   Coolify   │   │  Hermes    │   │   LiteLLM   │
+      │   PaaS      │   │  Gateway   │   │   Proxy     │
+      │   :8000     │   │  :3001     │   │  :4018/v1   │
      └──────┬──────┘   └──────┬──────┘   └──────┬──────┘
             │                 │                 │
      ┌──────▼──────┐   ┌──────▼──────┐   ┌──────▼──────┐
@@ -205,7 +205,7 @@ Funcao: SSH para PC principal, monitor, terminal
 ```
 
 - **Motor:** Microsoft Edge TTS (voz AntonioNeural PT-BR)
-- **Integracao:** Via ai-gateway :4002
+- **Integracao:** Via TTS local (:8012 / 10.0.19.7:8880)
 - **Voz:** AntonioNeural (PT-BR) — neural de alta qualidade
 
 ### 6.2 STT — Groq Whisper Turbo
@@ -263,21 +263,23 @@ curl -X POST https://api.groq.com/openai/v1/audio/transcriptions \
 
 | Modelo | Uso | Custo | Provider |
 |--------|-----|-------|----------|
-| **MiniMax M2.7** | Chat principal | Token plan | LiteLLM :4000 |
-| **GPT-4o-mini** | Fallback automatico | $0.15/1M tokens | LiteLLM :4000 |
-| **Gemma4:26b-q4** | Codigo local (Ollama) | Grátis | Ollama :11434 |
+| **hermes-auto** | Alias padrão (local + fallback cloud) | Grátis / Token plan | LiteLLM :4018/v1 |
+| **hermes-local-code** | Code/texto local (Qwen2.5 Coder 14B) | Grátis | Ollama :11434 via LiteLLM |
+| **hermes-brain** | Escalada cloud (DeepSeek V4 Pro) | Token plan | OpenRouter via LiteLLM :4018/v1 |
 
 ### 7.2 VRAM Strategy
 
 ```
 RTX 4090 24GB VRAM:
-├── 22GB → Gemma4:26b-q4 (sob demanda)
-└── 1-2GB → Reserved (drivers + fallback)
+├── ~7GB → qwen2.5-coder:14b-q6k (hermes-local-code, sob demanda)
+├── ~4.5GB → qwen2.5vl:3b (hermes-vision, sob demanda)
+├── ~0.5GB → nomic-embed-text (hermes-embed, sob demanda)
+└── ~12GB → Reserva / outros processos GPU
 ```
 
-- **Gemma4** carregado sob demanda (22GB)
-- **LiteLLM** faz pooling automatico entre MiniMax/GPT
-- Sem swap no Gen5 (SSD rapido mas wear leveling)
+- **LiteLLM** faz roteamento e fallback automático entre Ollama (local) e OpenRouter (cloud)
+- Ollama descarrega modelos inativos após ~5 min
+- Sem swap no Gen5 (SSD rápido mas wear leveling)
 
 ### 7.3 Diagrama de Roteamento
 
@@ -287,15 +289,16 @@ RTX 4090 24GB VRAM:
                          ▼
             ┌────────────────────────┐
             │     LiteLLM Proxy      │
-            │       :4000           │
-            │  (OpenAI-compat)      │
+            │      :4018/v1          │
+            │  (OpenAI-compat)       │
             └──────────┬───────────┘
                        │
          ┌─────────────┼─────────────┐
          │             │             │
     ┌────▼────┐   ┌────▼────┐   ┌────▼────┐
-    │MiniMax  │   │ GPT-4o │   │ Ollama  │
-    │ M2.7    │   │ mini   │   │(RTX4090)│
+    │OpenRouter │   │ Ollama  │   │ OpenRouter│
+    │ cloud-pro│   │ (local) │   │ cloud-ui  │
+    │(escalada)│   │(RTX4090)│   │(escalada) │
     └─────────┘   └─────────┘   └─────────┘
          │             │             │
          └─────────────┼─────────────┘
@@ -370,7 +373,7 @@ zpool status tank
 zfs list -t snapshot
 
 # LiteLLM health
-curl http://localhost:4000/health
+curl -s http://localhost:4018/v1/models -H "Authorization: Bearer ${LITELLM_MASTER_KEY}"
 ```
 
 ---

@@ -164,13 +164,13 @@ tunnel_fqdn: "bot.zappro.site"
 owner: "will-zappro"
 pinned_date: "2026-03-10"
 status: "PINNED"
-primary_model: "minimax/MiniMax-M2.7"
+primary_model: "openrouter/hermes-brain"
 api_format: "anthropic-messages"  # NUNCA MUDAR
 ```
 
 **⚠️ REGRAS CRÍTICAS DO 
 - `model.primary` NUNCA pode ser `liteLLM/*` (crash api:undefined)
-- `minimax.api` SEMPRE deve ser `anthropic-messages`
+- `openrouter.api` SEMPRE deve ser `anthropic-messages`
 - LiteLLM só para GPU/voz/visão (NÃO como provider primário)
 - NÃO usar porta 8080 para outros serviços (reservada)
 
@@ -184,7 +184,7 @@ curl -sf https://bot.zappro.site/ping
 **WHAT_BREAKS_IF_CHANGED:**
 - Bot para de responder
 - Routing via Cloudflare Tunnel quebra
-- Modelo MiniMax-M2.7 é o único validado
+- Modelo hermes-brain é o único validado
 
 ---
 
@@ -202,11 +202,11 @@ why_pinned: "Proxy GPU para TTS, STT, Vision. NÃO é provider primário. Config
 models_pinned:
   - "
   - "whisper-stt"         # → wav2vec2 :8201
-  - "gemma4"              # GPU
-  - "llava"               # Vision
-  - "embedding-nomic"     # Embeddings
-  - "qwen3.6-plus"        # LLM
-  - "minimax-m2.7"        # LLM direto (não via proxy)
+  - "hermes-local-code"              # GPU
+  - "qwen2.5vl:3b"               # Vision
+  - "hermes-embed"     # Embeddings
+  - "hermes-cloud-ui"        # LLM
+  - "hermes-brain"        # LLM direto (não via proxy)
 ```
 
 **Verification CMD:**
@@ -364,7 +364,7 @@ ss -tlnp | grep -E "8012|8201|4000|8080"
 
 === 5. LLM ===
 [PASS] Tom Cat 8B PT-BR via LiteLLM
-[PASS] MiniMax M2.1 API
+[PASS] OpenRouter M2.1 API
 
 ========================================
 Total:   12

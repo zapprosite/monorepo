@@ -62,7 +62,7 @@
 | `QDRANT_API_KEY` | — | Qdrant API key |
 | `SWARM_HTTP_PORT` | `:8080` | HTTP listen address |
 | `SWARM_AGENTS_PATH` | `config/agents.json` | Agents config file |
-| `MINIMAX_API_KEY` | — | MiniMax API key for ranking agent |
+| `OPENROUTER_API_KEY` | — | OpenRouter API key for ranking agent |
 | `GEMINI_API_KEY` | — | Gemini API key for classifier agent |
 | `WHATSAPP_SECRET` | — | WhatsApp app validation secret |
 | `WHATSAPP_TOKEN` | — | WhatsApp access token |

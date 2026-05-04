@@ -1,19 +1,17 @@
 # Skill: LiteLLM Health Check
 
-**Purpose:** Verificar salud do LiteLLM (proxy LLM — Ollama + OpenRouter)
+**Purpose:** Verificar saúde do LiteLLM (proxy LLM — Ollama + OpenRouter)
 **Complexity:** Low
 **Risk:** Read-only
 **When to Use:** Check regular, antes de benchmarking, após mudanças de config
 
 ## LiteLLM Info
 
-- **Endpoint:** `localhost:4000` (direct)
+- **Endpoint:** `http://127.0.0.1:4018/v1`
 - **Tipo:** Docker container (`zappro-litellm`) via docker-compose
-- **Container rede:** `zappro-lite_default` (mesma do wav2vec2, Ollama, )
-- **Config:** `/home/will/zappro-lite/config.yaml`
-- **Models:** whisper-1 (STT/wav2vec2), tts-1 (TTS/), qwen2.5-vl (Vision), tom-cat-8b (LLM PT-BR), embedding-nomic
+- **Config:** `config/litellm/config.yaml`
+- **Models:** `hermes-auto`, `hermes-local-code`, `hermes-vision`, `hermes-embed`, `hermes-cloud-cheap`, `hermes-cloud-pro`, `hermes-cloud-ui`, `hermes-brain`
 - **Database:** PostgreSQL via `zappro-litellm-db` container (persistência de keys/costs)
-- **DB Connection:** `postgresql://litellm:litellm_pass_2026@zappro-litellm-db:5432/litellm`
 
 ## Procedure
 
@@ -28,15 +26,15 @@ ps aux | grep litellm | grep -v grep
 ### 2. Port Listening
 
 ```bash
-ss -tlnp | grep 4000
+ss -tlnp | grep 4018
 ```
 
-**Expected:** `127.0.0.1:4000` | **FAIL:** sem output
+**Expected:** `127.0.0.1:4018` | **FAIL:** sem output
 
 ### 3. API Health (com mock key)
 
 ```bash
-curl -s -H "Authorization: Bearer sk-test" http://localhost:4000/health 2>&1
+curl -s -H "Authorization: Bearer ${LITELLM_MASTER_KEY:-sk-local-will}" http://127.0.0.1:4018/health 2>&1
 ```
 
 **Possible responses:**
@@ -47,14 +45,14 @@ curl -s -H "Authorization: Bearer sk-test" http://localhost:4000/health 2>&1
 ### 4. List Models
 
 ```bash
-curl -s -H "Authorization: Bearer sk-test" http://localhost:4000/model/list 2>&1 | python3 -c "
+curl -s -H "Authorization: Bearer ${LITELLM_MASTER_KEY:-sk-local-will}" http://127.0.0.1:4018/v1/models 2>&1 | python3 -c "
 import json,sys
 try:
     d=json.load(sys.stdin)
     data = d.get('data', d.get('models', []))
     if isinstance(data, list):
         print(f'Models: {len(data)}')
-        [print(f'  {m.get(\"model_name\", m.get(\"model_name\", \"?\"))}') for m in data[:5]]
+        [print(f'  {m.get(\"id\", m.get(\"model_name\", \"?\"))}') for m in data[:10]]
     else:
         print(d)
 except: print(sys.stdin.read()[:200])

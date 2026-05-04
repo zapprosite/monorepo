@@ -120,7 +120,7 @@ async def test_pipeline_models_only_zappro_clima_tutor() -> bool | None:
 
         # Must NOT expose internal aliases
         forbidden = [
-            "minimax-m2.7", "minimax-m2.7-highspeed",
+            "hermes-brain", "hermes-cloud-cheap",
             "hvac-manual-strict", "hvac-field-tutor", "hvac-printable",
             "qwen2.5vl", "qwen2.5vl:3b", "qwen2.5-vl",
         ]
@@ -378,7 +378,7 @@ async def test_openwebui_model_filter() -> bool | None:
                          f"zappro-clima-tutor not found: {model_ids}")
 
         # Check no internal models leak through
-        forbidden = ["minimax", "hvac-manual", "field-tutor", "qwen", "gemma"]
+        forbidden = ["openrouter", "hvac-manual", "field-tutor", "qwen", "gemma"]
         leaked = [m for m in forbidden if any(p in mid for mid in model_ids for p in [m])]
         if leaked:
             return result("test_openwebui_model_filter", False,

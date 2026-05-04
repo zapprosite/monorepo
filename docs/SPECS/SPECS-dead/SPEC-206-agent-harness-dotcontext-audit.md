@@ -102,7 +102,7 @@ nomic-embed-text:latest ← Documentado
 
 | Modelo | Provider | Uso | Status |
 |---|---|---|---|
-| MiniMax-M2.7 | MiniMax API | LLM primário | ✅ |
+| hermes-brain | OpenRouter API | LLM primário | ✅ |
 | llama3-portuguese-tomcat-8b | Ollama | PT-BR filter | ✅ |
 | qwen2.5-coder:14b-q6k | Ollama | **Code Generation** | ✅ Documentado |
 | qwen2.5vl:3b | Ollama | **Vision STT** | ✅ Documentado |
@@ -112,7 +112,7 @@ nomic-embed-text:latest ← Documentado
 
 - SPEC-204 (Nexus Unified Agent Harness) define 7×7=49 agentes
 - **Nenhum agente usa qwen2.5:14b como modelo de code generation**
-- O fluxo atual usa `minimax/MiniMax-M2.7` como único LLM
+- O fluxo atual usa `openrouter/hermes-brain` como único LLM
 - `qwen2.5-coder:14b-q6k` está disponível mas ignorado
 
 ### 4.4 Implicação

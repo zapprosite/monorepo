@@ -41,9 +41,9 @@ status: filled
 | Backend API | Fastify + tRPC + Orchid ORM | :3000 |
 | Frontend | React 19 + MUI + tRPC | :5173 |
 | AI Gateway | OpenAI-compatible facade | :4002 |
-| LLM Primary | MiniMax-M2.7 | — |
+| LLM Primary | hermes-brain | — |
 | LLM Fallback | llama3-portuguese-tomcat-8b | — |
-| Vision | qwen2.5vl:7b (Ollama) | :11434 |
+| Vision | qwen2.5vl:3b (Ollama) | :11434 |
 | TTS | Kokoro (:8013) → TTS Bridge | — |
 | STT | whisper-medium-pt (:8204) | — |
 | Vector DB | Qdrant | :6333 |

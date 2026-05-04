@@ -52,8 +52,8 @@ check_hvac_pipeline() {
 }
 
 check_litellm() {
-    echo -n "Checking LiteLLM (:4000)... "
-    if curl -s --max-time 5 http://localhost:4000/health -H "Authorization: Bearer sk-zappro-lm-2026-s8k3m9x2p7r6t5w1v4c8n0d5j7f9g3h6i2k4l6m8n0p1" 2>/dev/null | grep -q "healthy"; then
+    echo -n "Checking LiteLLM (:4018)... "
+    if curl -s --max-time 5 http://localhost:4018/v1/models -H "Authorization: Bearer ${LITELLM_MASTER_KEY:-}" 2>/dev/null | grep -q "hermes-auto"; then
         echo -e "${GREEN}OK${NC}"
         return 0
     else

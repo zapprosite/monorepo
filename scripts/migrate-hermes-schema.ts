@@ -1,16 +1,4 @@
 #!/usr/bin/env npx tsx
-/**
- * migrate-hermes-schema.ts
- *
- * Creates the hermes schema with all core tables, indexes, and optional seed data.
- *
- * Usage:
- *   npx tsx scripts/migrate-hermes-schema.ts --schema hermes_will --seed
- *   npx tsx scripts/migrate-hermes-schema.ts --schema hermes
- */
-
-import * as fs from 'fs';
-import * as path from 'path';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -196,7 +184,7 @@ async function getDbConnection(opts: MigrationOptions) {
 
 	const client = new Client({
 		host: opts.host ?? process.env.MCP_POSTGRES_HOST ?? 'localhost',
-		port: opts.port ?? parseInt(process.env.MCP_POSTGRES_PORT ?? '5432'),
+		port: opts.port ?? parseInt(process.env.MCP_POSTGRES_PORT ?? '5432', 10),
 		user: opts.user ?? process.env.MCP_POSTGRES_USER ?? 'postgres',
 		password: opts.password ?? process.env.MCP_POSTGRES_PASSWORD ?? '',
 		database: opts.database ?? process.env.MCP_POSTGRES_DB ?? 'postgres',
@@ -333,7 +321,7 @@ function parseArgs(): MigrationOptions {
 		} else if (arg === '--host' && i + 1 < args.length) {
 			opts.host = args[++i];
 		} else if (arg === '--port' && i + 1 < args.length) {
-			opts.port = parseInt(args[++i]);
+			opts.port = parseInt(args[++i], 10);
 		} else if (arg === '--user' && i + 1 < args.length) {
 			opts.user = args[++i];
 		} else if (arg === '--password' && i + 1 < args.length) {

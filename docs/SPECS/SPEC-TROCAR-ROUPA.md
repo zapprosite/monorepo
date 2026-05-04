@@ -135,10 +135,10 @@ Trocar a "roupa" externa (estrutura de apps/packages/tooling) do monorepo e do t
 
 **2. ALIASES ~/.bashrc:**
 ```bash
-# cm = Claude Code via MiniMax (mclaude)
-alias cm='ANTHROPIC_BASE_URL="https://api.minimax.io/anthropic" \
-  ANTHROPIC_AUTH_TOKEN="${MINIMAX_API_KEY}" \
-  ANTHROPIC_MODEL="MiniMax-M2.7" \
+# cm = Claude Code via OpenRouter (mclaude)
+alias cm='ANTHROPIC_BASE_URL="https://openrouter.ai/api/v1/anthropic" \
+  ANTHROPIC_AUTH_TOKEN="${OPENROUTER_API_KEY}" \
+  ANTHROPIC_MODEL="hermes-brain" \
   API_TIMEOUT_MS="3000000" \
   CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC="1" \
   claude'
@@ -164,7 +164,7 @@ alias cd='claude --dangerously-skip-permissions=false'
 ## REGRAS ABSOLUTAS DE SEGURANÇA
 
 1. **NUNCA** reescrever mcp-servers.json
-2. **NUNCA** hardcodar ANTHROPIC_AUTH_TOKEN ou MINIMAX_API_KEY
+2. **NUNCA** hardcodar ANTHROPIC_AUTH_TOKEN ou OPENROUTER_API_KEY
 3. **SEMPRE** usar ${ENV_VAR} nos aliases
 4. bypassPermissions **DEVE** ser false
 5. Se secret em plaintext → CRITICAL_SECRET_EXPOSED (não apagar)

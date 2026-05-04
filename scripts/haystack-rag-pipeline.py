@@ -10,8 +10,8 @@ Uso:
   python3 haystack-rag-pipeline.py --health
 
 Stack:
-  - LiteLLM :4018 (minimax-m2.7) — chat LLM
-  - Ollama :11434 (nomic-embed-text 768D) — embeddings (direto, nao via LiteLLM)
+  - LiteLLM :4018 (hermes-brain) — chat LLM
+  - LiteLLM :4018 (hermes-embed) — embeddings via Ollama local
   - Qdrant :6333 — vector store (collection: hermes-knowledge)
 """
 
@@ -41,7 +41,7 @@ OLLAMA_URL      = os.environ.get("OLLAMA_BASE_URL", "http://localhost:11434")
 EMBEDDING_MODEL = "nomic-embed-text"
 EMBEDDING_DIM   = 768
 LITELLM_URL     = "http://localhost:4018"
-LITELLM_MODEL   = "minimax-m2.7"
+LITELLM_MODEL   = "hermes-auto"
 QDRANT_API_KEY  = os.environ.get("QDRANT_API_KEY", "")
 LITELLM_KEY     = os.environ.get("LITELLM_MASTER_KEY", "")
 
@@ -199,7 +199,7 @@ Pergunta: {question}
 
 # ─── LLM ─────────────────────────────────────────────────────────────────────
 def _llm_generate(prompt: str) -> str:
-    """Call LiteLLM (MiniMax-M2.7) for text generation."""
+    """Call LiteLLM (hermes-brain) for text generation."""
     if not LITELLM_KEY:
         return "[LLM unavailable: LITELLM_MASTER_KEY not set]"
 

@@ -28,7 +28,7 @@ func parseAddr(addr string) (host string, port int, err error) {
 const (
 	// CollectionName is the Qdrant collection name for HVAC service manuals
 	CollectionName = "hvac_service_manuals"
-	// VectorSize is the embedding dimension (MiniMax = 1024D)
+	// VectorSize is the embedding dimension (OpenRouter = 1024D)
 	VectorSize = 1024
 )
 

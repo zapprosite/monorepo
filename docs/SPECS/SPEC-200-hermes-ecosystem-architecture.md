@@ -27,7 +27,7 @@ O ecossistema segue o padrão definido em `/home/will/.hermes/SOUL.md`:
 
 | Função | Provider | Endpoint |
 |--------|----------|----------|
-| **Text Primary** | MiniMax M2.7 | `api.minimax.io` (token plan) |
+| **Text Primary** | hermes-brain | `openrouter.ai/api/v1` (token plan) |
 | **Vision** | Qwen2.5-VL-3B | `:3999` container (RTX 4090, ~4GB VRAM) |
 | **STT** | Groq Whisper Turbo | API cloud (150min/dia gratis) |
 | **TTS** | Edge TTS | `pt-BR-AntonioNeural` via tts-edge.sh |
@@ -56,10 +56,10 @@ O ecossistema segue o padrão definido em `/home/will/.hermes/SOUL.md`:
 ### zappro-litellm
 - **Path:** `/home/will/zappro-lite/`
 - **Porta:** `:4000` (OpenAI-compat)
-- **Modelos:** minimax-m2.7, qwen2.5vl-3b, qwen3.5-vl, seed-vl-mini
+- **Modelos:** hermes-brain, qwen2.5vl-3b, qwen3.5-vl, seed-vl-mini
 - **Config:** `/srv/data/zappro-router/config.yaml` (model_fallbacks cascade)
 - **Cache:** Redis (zappro-redis:6379)
-- **API Base Rule:** `https://api.minimax.io` (SEM `/anthropic/v1`)
+- **API Base Rule:** `https://openrouter.ai/api/v1` (SEM `/anthropic/v1`)
 
 ---
 
@@ -69,7 +69,7 @@ O ecossistema segue o padrão definido em `/home/will/.hermes/SOUL.md`:
 - **Processo:** `/home/will/.hermes/hermes-agent/venv/bin/python -m hermes_cli.main gateway run --replace`
 - **Porta:** `:8642` (localhost only)
 - **Bot:** `@CEO_REFRIMIX_bot` (token `${TELEGRAM_BOT_TOKEN}`)
-- **Modelo primário:** `minimax/MiniMax-M2.7` via LiteLLM
+- **Modelo primário:** `openrouter/hermes-brain` via LiteLLM
 - **Config:** `/home/will/.hermes/config.yaml`
 - **Env:** `/home/will/.hermes/.env` → symlink → `/srv/monorepo/.env`
 - **Skills:** coolify_sre, perplexity_browser, claude_code
@@ -90,7 +90,7 @@ O ecossistema segue o padrão definido em `/home/will/.hermes/SOUL.md`:
 - **Bot:** `@hermes-editor-social-bot` (token `${EDITOR_SOCIAL_BOT_TOKEN}`)
 - **Source:** `/srv/monorepo/apps/hermes-gateway/`
 - **Skills:** 23 tools — RAG, LangGraph, campaign, analytics, social media
-- **Modelo:** MiniMax M2.7 via `HERMES_MINIMAX_BASE=https://api.minimax.io/anthropic/v1`
+- **Modelo:** hermes-brain via `HERMES_OPENROUTER_BASE=https://openrouter.ai/api/v1`
 
 ---
 
@@ -133,8 +133,8 @@ Symlinks ativos:
 ### VARS CRÍTICAS
 | Var | Valor | Uso |
 |-----|-------|-----|
-| `MINIMAX_API_BASE` | `https://api.minimax.io` | LiteLLM (SEM path) |
-| `HERMES_MINIMAX_BASE` | `https://api.minimax.io/anthropic/v1` | Hermes Gateway router.ts (COM path) |
+| `OPENROUTER_API_BASE` | `https://openrouter.ai/api/v1` | LiteLLM (SEM path) |
+| `HERMES_OPENROUTER_BASE` | `https://openrouter.ai/api/v1` | Hermes Gateway router.ts (COM path) |
 | `TELEGRAM_BOT_TOKEN` | `${TELEGRAM_BOT_TOKEN}` | @CEO_REFRIMIX_bot (Python gateway) |
 | `EDITOR_SOCIAL_BOT_TOKEN` | `${EDITOR_SOCIAL_BOT_TOKEN}` | @hermes-editor-social-bot (TS agency) |
 

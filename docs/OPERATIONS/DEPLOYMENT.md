@@ -93,8 +93,8 @@ cp /srv/monorepo/.env.example ~/.env
 ```bash
 LITELLM_HOST=0.0.0.0
 LITELLM_PORT=4000
-LITELLM_MODEL_LIST=embedding-nomic,Gemma4-12b-it,qwen2.5vl:3b
-LITELLM_EMBEDDING_MODEL=embedding-nomic
+LITELLM_MODEL_LIST=hermes-embed,hermes-auto,qwen2.5vl:3b
+LITELLM_EMBEDDING_MODEL=hermes-embed
 LITELLM_EMBEDDING_DIM=768
 LITELLM_DROP_params=True
 ```

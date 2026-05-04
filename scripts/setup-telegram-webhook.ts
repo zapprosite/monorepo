@@ -15,7 +15,23 @@
  *   npx tsx scripts/setup-telegram-webhook.ts --delete --bot CEO_REFRIMIX
  */
 
-import * as readline from 'node:readline';
+export {};
+
+/**
+ * setup-telegram-webhook.ts
+ *
+ * Configura webhooks para os bots Telegram do homelab.
+ * Suporta configuração individual ou de todos os bots.
+ *
+ * Uso:
+ *   npx tsx scripts/setup-telegram-webhook.ts --bot CEO_REFRIMIX
+ *   npx tsx scripts/setup-telegram-webhook.ts --bot ATHLOS
+ *   npx tsx scripts/setup-telegram-webhook.ts --bot HOMELAB
+ *   npx tsx scripts/setup-telegram-webhook.ts --all
+ *   npx tsx scripts/setup-telegram-webhook.ts --verify
+ *   npx tsx scripts/setup-telegram-webhook.ts --verify --bot CEO_REFRIMIX
+ *   npx tsx scripts/setup-telegram-webhook.ts --delete --bot CEO_REFRIMIX
+ */
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -64,7 +80,7 @@ const BOT_CONFIGS: Record<string, BotConfig> = {
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function getBaseUrl(): string {
-	return process.env['TELEGRAM_WEBHOOK_BASE_URL'] ?? 'https://hermes.zappro.site';
+	return process.env.TELEGRAM_WEBHOOK_BASE_URL ?? 'https://hermes.zappro.site';
 }
 
 function getToken(config: BotConfig): string {
@@ -236,7 +252,7 @@ async function verifyAllBots(): Promise<void> {
 		} catch (err) {
 			console.error(`❌ Erro ao verificar ${botKey}:`, err);
 		}
-		console.log('\n' + '─'.repeat(60));
+		console.log(`\n${'─'.repeat(60)}`);
 	}
 }
 
@@ -249,7 +265,7 @@ async function setupAllBots(): Promise<void> {
 		} catch (err) {
 			console.error(`❌ Erro ao configurar ${botKey}:`, err);
 		}
-		console.log('\n' + '─'.repeat(60));
+		console.log(`\n${'─'.repeat(60)}`);
 	}
 }
 

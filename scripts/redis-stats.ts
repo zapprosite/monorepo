@@ -7,9 +7,9 @@ import Redis from 'ioredis';
 
 // ── Config ───────────────────────────────────────────────────────────────────
 
-const REDIS_HOST = process.env['REDIS_HOST'] ?? 'zappro-redis';
-const REDIS_PORT = parseInt(process.env['REDIS_PORT'] ?? '6379', 10);
-const REDIS_PASSWORD = process.env['REDIS_PASSWORD'];
+const REDIS_HOST = process.env.REDIS_HOST ?? 'zappro-redis';
+const REDIS_PORT = parseInt(process.env.REDIS_PORT ?? '6379', 10);
+const REDIS_PASSWORD = process.env.REDIS_PASSWORD;
 if (!REDIS_PASSWORD) throw new Error('REDIS_PASSWORD not set in environment');
 
 const PATTERNS = [
@@ -140,7 +140,7 @@ async function main() {
 		// ── Key counts per pattern ──────────────────────────────────────────────
 
 		console.log(`\n[Key Counts — ${PATTERNS.length} patterns]`);
-		console.log(pad('Pattern', 40) + pad('Count', 10) + 'Category');
+		console.log(`${pad('Pattern', 40) + pad('Count', 10)}Category`);
 		console.log(pad('', 40, '─') + pad('', 10, '─') + ''.padEnd(20, '─'));
 
 		const categories: Record<string, string> = {
@@ -179,7 +179,7 @@ async function main() {
 		if (evictedKeys > 0) warnings.push(`${evictedKeys.toLocaleString()} evicted keys`);
 		if (Number(hitRate) < 80) warnings.push(`Hit rate < 80% (${hitRate}%)`);
 
-		console.log('\n' + separator);
+		console.log(`\n${separator}`);
 		if (warnings.length > 0) {
 			console.log('\n[Warnings]');
 			for (const w of warnings) {

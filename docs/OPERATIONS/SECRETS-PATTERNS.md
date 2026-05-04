@@ -17,7 +17,7 @@ Este padrão verifica presença SEM expor o valor.
 
 ### Format: `sk-` (API Keys)
 - `ANTHROPIC_API_KEY` — Anthropic API key (formato: `sk-cp-...`)
-- `MINIMAX_API_KEY` — MiniMax API key (formato: `sk-cp-...`)
+- `OPENROUTER_API_KEY` — OpenRouter API key (formato: `sk-cp-...`)
 - `OPENAI_API_KEY` — OpenAI API key (formato: `sk-...`)
 - `LITELLM_KEY` — LiteLLM master key (formato: `sk-zappro-...`)
 - `GROQ_API_KEY` — Groq API key

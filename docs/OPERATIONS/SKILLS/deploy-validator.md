@@ -35,7 +35,7 @@ prerequisites:
   - docker
   - zfs (tank pool)
   - curl, nslookup, python3
-  - LITELLM_KEY, MINIMAX_API_KEY (for smoke test)
+  - LITELLM_KEY, OPENROUTER_API_KEY (for smoke test)
 uses:
   - CLI (human operator)
   - CI/CD (Gitea Actions)
@@ -60,7 +60,7 @@ docker ps
 
 # 3. Smoke test dependencies
 [ -n "$LITELLM_KEY" ]    || echo "WARN: LITELLM_KEY not set — some tests will be skipped"
-[ -n "$MINIMAX_API_KEY" ] || echo "WARN: MINIMAX_API_KEY not set — some tests will be skipped"
+[ -n "$OPENROUTER_API_KEY" ] || echo "WARN: OPENROUTER_API_KEY not set — some tests will be skipped"
 
 # 4. Smoke test script exists
 [ -f "tasks/smoke-tests/pipeline-.sh" ] \
@@ -377,7 +377,7 @@ echo ""
 
 # Required env vars
 : "${LITELLM_KEY:?LITELLM_KEY required}"
-: "${MINIMAX_API_KEY:?MINIMAX_API_KEY required}"
+: "${OPENROUTER_API_KEY:?OPENROUTER_API_KEY required}"
 
 # Run smoke test (capture exit code)
 bash tasks/smoke-tests/pipeline-.sh
@@ -647,7 +647,7 @@ jobs:
       - name: PHASE 5 — Smoke Test
         env:
           LITELLM_KEY: ${{ secrets.LITELLM_KEY }}
-          MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
         run: |
           bash tasks/smoke-tests/pipeline-.sh
           SMOKE_EXIT=$?
@@ -726,7 +726,7 @@ jobs:
 
 ```bash
 # ONE-LINER: Full validation (all phases)
-# Requires: LITELLM_KEY, MINIMAX_API_KEY
+# Requires: LITELLM_KEY, OPENROUTER_API_KEY
 sudo zfs snapshot -r "tank@pre-$(date +%Y%m%d-%H%M%S)-$(whoami)-deploy" \
 && bash tasks/smoke-tests/pipeline-.sh \
 && echo "✅ Deploy validated"

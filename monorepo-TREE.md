@@ -1,171 +1,80 @@
 ---
 type: tree
 name: monorepo-TREE
-description: Machine-readable monorepo structure for hermes-second-brain
-generated: 2026-04-25
+description: Machine-readable monorepo structure after SPEC-300 prune
+generated: 2026-05-04
 status: filled
 ---
 
 # Monorepo Tree
 
-**Generated:** 2026-04-25
-**Purpose:** Clean CORE structure after SPEC-091 prune
+**Generated:** 2026-05-04
+**Purpose:** CORE structure after SPEC-300 aggressive prune
 
 ## CORE Directories
 
 ```
 /
-├── apps/                          # PRODUCTION SERVICES
-│   ├── ai-gateway/                # OpenAI-compatible facade (Hermes)
-│   ├── api/                       # Fastify + tRPC backend
-│   └── monitoring/                # SRE monitoring dashboard
-├── archive/
-│   ├── clients/                   # Archived client projects
-│   │   ├── CRM-REFRIMIX/
-│   │   ├── fit-v3/
-│   │   ├── list-web/
-│   │   ├── obsidian-web/
-│   │   ├── painel-organism/
-│   │   ├── web/
-│   │   └── zappro-web/
-│   └── [legacy research, logs, tasks]
+├── apps/                          # PRODUCTION SERVICES (3 only)
+│   ├── ai-gateway/                # Voice Gateway :4002 (TTS + STT)
+│   ├── api/                       # CRM backend (Fastify + tRPC)
+│   └── web/                       # Frontend (React + MUI)
+├── archive/                       # Dead projects (not versioned)
+│   └── CRM-REFRIMIX/
+├── config/
+│   ├── litellm/                   # LiteLLM config.yaml
+│   └── monitoring/                # Grafana + Prometheus configs
 ├── docs/
-│   ├── SPECS/             # Active specs (SPEC-001 to SPEC-204)
-│   ├── SPECS-dead/        # Dead/pruned specs
-│   │   └── SPEC-074-hermes-second-brain-mem0.md
-│   ├── ADRs/              # Architecture decision records
-│   ├── adr/               # ADR drafts
-│   ├── GUIDES/            # How-to guides
-│   ├── OPERATIONS/        # Operations docs
-│   ├── OPS/               # Ops docs
-│   ├── INFRASTRUCTURE/     # Infrastructure docs
-│   ├── GOVERNANCE/        # Governance docs
-│   ├── topology/          # Network topology docs
-│   └── *.md               # Architecture docs (ARCHITECTURE, CICD, DEPLOYMENT, FAULT_TOLERANCE, etc.)
-├── mcps/
-│   ├── mcp-memory/        # Memory MCP
-│   └── mcp-postgres/      # Postgres MCP
-├── runner/
-│   ├── config.yaml
-│   └── data/
-├── scripts/
-│   ├── backup.sh
-│   ├── bootstrap-check.sh
-│   ├── daily-health-check.sh
-│   ├── health-check.sh
-│   ├── migrate-hermes-schema.ts
-│   ├── rag-ingest.ts
-│   ├── redis-stats.ts
-│   ├── setup-telegram-webhook.ts
-│   ├── sync-second-brain.sh
-│   ├── test-llm-providers.ts
-│   ├── vibe.sh
-│   ├── prune-docs.sh
-│   ├── prune-subdomain.sh
-│   └── vibe/              # Vibe scripts
-├── smoke-tests/
-│   ├── conftest.py
-│   ├── smoke-env-vars.sh
-│   ├── smoke-hermes-ready.sh
-│   ├── smoke-hermes-telegram.sh
-│   ├── smoke-litellm-minimax.py
-│   ├── smoke-mcp-memory.py
-│   ├── smoke-mem0.sh
-│   ├── smoke-multimodal-stack.sh
-│   ├── smoke-orchestrator-v3.sh
-│   ├── smoke-postgres-mcp.sh
-│   ├── smoke_qdrant_redis.py
-│   ├── smoke_trieve_rag.py
-│   ├── smoke-trieve-rag.sh
-│   ├── smoke-trieve.sh
-│   └── fixtures/
+│   ├── SPECS/                     # Active specs
+│   ├── SPECS-dead/                # Pruned specs
+│   ├── ADRs/                      # Architecture decisions
+│   ├── GUIDES/                    # How-to guides
+│   ├── OPERATIONS/                # Runbooks
+│   ├── INFRASTRUCTURE/            # Architecture, ports, services
+│   └── GOVERNANCE/                # Rules, contracts
 ├── packages/
-│   ├── config/            # Shared config
-│   ├── ui/                # UI components
-│   └── zod-schemas/       # Zod schemas
-├── .claude/
-│   ├── agents/
-│   ├── brain-refactor/
-│   ├── commands/
-│   ├── decisions/
-│   ├── hooks/
-│   ├── MISSIONS.md
-│   ├── pipeline.json
-│   ├── rules/
-│   ├── scheduled_tasks.json
-│   ├── settings.local.json
-│   ├── skills/
-│   ├── tasks/
-│   └── vibe-kit/
-├── .context/
-│   ├── agents/
-│   ├── cache/
-│   ├── docs/
-│   ├── harness/
-│   ├── skills/
-│   └── workflow/
-├── hermes/              # symlink → ~/.hermes
-├── grafana/
-│   └── dashboards/
-├── docker/
-│   └── nginx-rate-limit/
-└── test-results/
-    ├── smoke-Hermes-Agency-E2E-hermes-health-check/
-    └── smoke-LiteLLM-Smoke-E2E-embeddings-endpoint-accepts-POST/
+│   ├── config/                    # Shared config
+│   ├── ui/                        # UI components
+│   └── zod-schemas/               # Zod schemas
+├── scripts/
+│   ├── hvac-rag/                  # RAG pipeline
+│   ├── nexus-*.sh                 # SRE automation
+│   └── sre-check.sh               # Health check unificado
+├── services/
+│   └── orchestrator/              # Hermes JSON-RPC
+├── smoke-tests/                   # E2E smoke tests
+├── .claude/                       # Agent skills + commands
+└── AGENTS.md                      # Source of truth
 ```
 
-## Core Systems (3 Pillars)
+## 3 Pillars (Post-Prune)
 
-| System | Location | Purpose |
+| Pillar | Location | Purpose |
 |--------|----------|---------|
-| Nexus | `.claude/vibe-kit/` | 49-agent framework (7×7 modes) |
-| Hermes | `apps/ai-gateway/` | OpenAI-compatible facade |
-| Flow-Next | `.claude/flow-next/` | Plan-first workflow engine |
+| **LiteLLM** | `config/litellm/` | Gateway único LLM :4018/v1 |
+| **Voice Gateway** | `apps/ai-gateway/` | TTS + STT :4002 |
+| **Hermes Orchestrator** | `services/orchestrator/` | Agent orchestration + memory |
 
-> **Note:** `hermes/` at repo root is a symlink to `~/.hermes`
+## Stack
 
-### 4. Flow-Next (Workflow Engine)
-- Location: `.claude/flow-next/`
-- Purpose: Plan-first workflow, 16 agent-native skills
-- Integration: Claude Code plugin
-- Key features: Re-anchoring, cross-model review, zero external deps
-
-## Key Scripts
-
-| Script | Purpose |
-|--------|---------|
-| `/flow-next:plan` | Create task queue from SPEC |
-| `/flow-next:work` | Execute with workers |
-
-## Stack Diagram
-
-```
-┌─────────────────────────────────────────┐
-│           Flow-Next (Workflow)          │  ← workflow layer above Nexus
-├─────────────────────────────────────────┤
-│           Nexus (49 Agents)             │
-├─────────────────────────────────────────┤
-│  Hermes Agency  │  AI Gateway  │  Apps  │
-├─────────────────────────────────────────┤
-│        Infra (Docker/nginx)            │
-└─────────────────────────────────────────┘
-```
+| Layer | Tech |
+|-------|------|
+| Frontend | React 19 + MUI + tRPC |
+| Backend | Fastify + OrchidORM + tRPC |
+| AI Gateway | LiteLLM proxy :4018/v1 |
+| Voice | Edge-tts :8012 + Groq STT |
+| Vector DB | Qdrant :6333 |
+| PaaS | Coolify :8000 |
+| Git | Gitea :3300 |
 
 ## Key Docs
 
 | Doc | Purpose |
 |-----|---------|
-| `ARCHITECTURE.md` | System architecture |
-| `CICD.md` | CI/CD pipeline |
-| `DEPLOYMENT_ARCHITECTURE.md` | Deployment setup |
-| `FAULT_TOLERANCE.md` | Fault tolerance patterns |
-| `HOMELAB-OPS.md` | Homelab operations |
-| `NEXUS_GUIDE.md` | Nexus 49-agent framework |
-| `OPS_RUNBOOK.md` | Operations runbook |
-| `RAG_ARCHITECTURE.md` | RAG system |
-| `SECURITY_ARCHITECTUREURE.md` | Security |
-| `SPEC-204.md` | Nexus SPEC |
-| `SPEC-091.md` | Docs prune spec |
+| `AGENTS.md` | Source of truth for agents |
+| `docs/INFRASTRUCTURE/ARCHITECTURE.md` | System architecture |
+| `docs/INFRASTRUCTURE/PORTS.md` | Port allocations |
+| `docs/INFRASTRUCTURE/SERVICE_MAP.md` | Service inventory |
 
 ## Active SPECs (selected)
 
@@ -175,25 +84,21 @@ status: filled
 | 003 | Memory RAG LLM Stack | active |
 | 068 | Langgraph Circuit Breaker | active |
 | 090 | Orchestrator v3 Redesign | active |
-| 091 | Docs Prune Holistic Cleanup | active |
 | 093 | Homelab Intelligence Architecture | active |
 | 106 | Hermes Multi-Agent Architecture | active |
-| 115 | Painel Organism | active |
 | 204 | Nexus Framework | active |
+| 300 | Monorepo Prune Total | active |
 
 ## Smoke Tests
 
 ```bash
-# Run all smoke tests
 bash smoke-tests/smoke-env-vars.sh
-
-# Individual
 bash smoke-tests/smoke-hermes-ready.sh
-bash smoke-tests/smoke-hermes-telegram.sh
-bash smoke-tests/smoke-mem0.sh
+bash smoke-tests/smoke-litellm-openrouter.py
 ```
 
 ## Archive
 
-Items moved to `docs/SPECS-dead/`:
-- `SPEC-074-hermes-second-brain-mem0.md`
+Items in `docs/SPECS-dead/`:
+- `SPEC-006-playwright-e2e.md`
+- `SPEC-115-painel-organism.md`

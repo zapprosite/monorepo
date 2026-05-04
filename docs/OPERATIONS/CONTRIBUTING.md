@@ -116,7 +116,7 @@ cat .claude/vibe-kit/queue.json | jq '{done: .done, failed: .failed, pending: .p
 tail -f .claude/vibe-kit/logs/worker-01.log
 
 # Check running workers
-pgrep -fa "mclaude.*MiniMax"
+pgrep -fa "mclaude.*OpenRouter"
 ```
 
 ### Step 5: Verify and Ship

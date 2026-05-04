@@ -21,7 +21,7 @@ Implementar a arquitetura multimodal completa para o zappro-clima-tutor:
 OpenWebUI = interface (chat, voz, anexos)
 zappro-clima-tutor / llm.zappro.site = cérebro (memória, RAG, router)
 LiteLLM / api.zappro.site = gateway de modelos
-MiniMax M2.7 = primary LLM
+hermes-brain = primary LLM
 Groq = STT (whisper-large-v3-turbo)
 Edge TTS = TTS (pt-BR-FranciscaNeural)
 Qwen2.5VL:3B = visão (Ollama local)
@@ -32,7 +32,7 @@ Qdrant/Mem0/Postgres/Hermes = memória e RAG
 
 ### Fluxo de Texto/Instrução
 ```
-OpenWebUI → zappro-clima-tutor → llm.zappro.site → LiteLLM → MiniMax M2.7
+OpenWebUI → zappro-clima-tutor → llm.zappro.site → LiteLLM → hermes-brain
 ```
 
 ### Fluxo STT
@@ -47,7 +47,7 @@ zappro-clima-tutor → OpenWebUI → Edge TTS (pt-BR-FranciscaNeural)
 
 ### Fluxo de Visão
 ```
-OpenWebUI anexo → zappro-clima-tutor → Qwen2.5VL:3B (Ollama :11434) → extrai código → estado → MiniMax
+OpenWebUI anexo → zappro-clima-tutor → Qwen2.5VL:3B (Ollama :11434) → extrai código → estado → OpenRouter
 ```
 
 ## Tarefas
@@ -79,12 +79,12 @@ OpenWebUI anexo → zappro-clima-tutor → Qwen2.5VL:3B (Ollama :11434) → extr
 - AUDIO_TTS_VOICE=pt-BR-AntonioNeural
 - AUDIO_TTS_SPLIT_ON=punctuation
 
-### T-OW04: Config LiteLLM — MiniMax Primary
+### T-OW04: Config LiteLLM — OpenRouter Primary
 **Arquivo:** `config/litellm/config.yaml` ou `docker-compose.litellm.yml`
-- model_name: minimax-m2.7
-- model: openai/MiniMax-M2.7
-- api_base: https://api.minimax.io/v1
-- fallback: minimax-m2.7-highspeed
+- model_name: hermes-brain
+- model: openai/hermes-brain
+- api_base: https://openrouter.ai/api/v1
+- fallback: hermes-cloud-cheap
 - temperature: 0.45-0.55, top_p: 0.9, max_tokens: 1800-2500
 
 ### T-OW05: Config Qwen2.5VL — Ollama Visão
@@ -99,7 +99,7 @@ OpenWebUI anexo → zappro-clima-tutor → Qwen2.5VL:3B (Ollama :11434) → extr
 - OpenWebUI (:3456 ou subdomain)
 - zappro-clima-tutor (:4017)
 - LiteLLM/api.zappro.site (:4018)
-- MiniMax model alias
+- OpenRouter model alias
 - Groq STT endpoint
 - Edge TTS endpoint
 - Ollama qwen2.5vl
@@ -127,11 +127,11 @@ OpenWebUI anexo → zappro-clima-tutor → Qwen2.5VL:3B (Ollama :11434) → extr
 ### T-OW09: Verificação — Modelo Único Visível
 **Validar:**
 - OpenWebUI mostra SOMENTE zappro-clima-tutor
-- NÃO mostra: minimax-m2.7, qwen2.5vl, hvac-manual-strict, field-tutor, printable, LiteLLM
+- NÃO mostra: hermes-brain, qwen2.5vl, hvac-manual-strict, field-tutor, printable, LiteLLM
 
 ### T-OW10: Verificação — Fluxo de Texto
 **Validar:**
-- Chat → zappro-clima-tutor → LiteLLM → MiniMax
+- Chat → zappro-clima-tutor → LiteLLM → OpenRouter
 - Resposta volta com formato de tutor técnico PT-BR
 
 ### T-OW11: Verificação — Segurança
@@ -183,8 +183,8 @@ Sistema agora reconhece todas as marcas principais de AC no Brasil:
 ### Fluxo de Fallback Universal
 ```
 Qdrant miss (modelo não indexado)
-  → Triagem técnica via MiniMax M2.7 (sempre responde)
-  → Checagem externa (MiniMax MCP → Tavily HTTP API → DuckDuckGo Lite → Google News RSS)
+  → Triagem técnica via hermes-brain (sempre responde)
+  → Checagem externa (OpenRouter MCP → Tavily HTTP API → DuckDuckGo Lite → Google News RSS)
   → LLM formata resposta em PT-BR
 ```
 

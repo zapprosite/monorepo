@@ -7,7 +7,6 @@ import { Box } from '@repo/ui-mui/layout/Box';
 import { Container } from '@repo/ui-mui/layout/Container';
 import { Paper } from '@repo/ui-mui/layout/Paper';
 import { useQuery } from '@tanstack/react-query';
-import type React from 'react';
 
 export const LoyaltyDashboardPage = () => {
 	const {

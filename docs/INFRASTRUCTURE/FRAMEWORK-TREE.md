@@ -195,7 +195,7 @@ mcp__claude_ai_Hugging_Face__hf_hub_query
 
 | Model | Provider | Purpose |
 |-------|----------|---------|
-| MiniMax-M2.7 | MiniMax API | LLM primário |
+| hermes-brain | OpenRouter API | LLM primário |
 | llama3-portuguese-tomcat-8b | Ollama | PT-BR filter |
 | Groq models | via LiteLLM | Fast inference |
 | GPT-4o | via LiteLLM | Fallback |

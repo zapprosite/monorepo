@@ -235,8 +235,8 @@ func TestResponseAgent_Stress_RapidIntentChanges(t *testing.T) {
 	}
 }
 
-// TestResponseAgent_Stress_EscalateToMiniMax testa escalateToMiniMax com diferentes inputs
-func TestResponseAgent_Stress_EscalateToMiniMax(t *testing.T) {
+// TestResponseAgent_Stress_EscalateToLiteLLM testa escalateToLiteLLM com diferentes inputs.
+func TestResponseAgent_Stress_EscalateToLiteLLM(t *testing.T) {
 	ctx := context.Background()
 	agent := NewResponseAgent("", "", "") // Sem API key - vai falhar
 
@@ -270,7 +270,7 @@ func TestResponseAgent_Stress_EscalateToMiniMax(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// Sem API key, deve retornar erro
-			_, err := agent.escalateToMiniMax(ctx, tt.query, tt.intent, tt.entities, tt.context)
+			_, err := agent.escalateToLiteLLM(ctx, tt.query, tt.intent, tt.entities, tt.context)
 			require.Error(t, err) // Espera erro porque não tem API key
 		})
 	}

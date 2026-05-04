@@ -51,7 +51,7 @@ queue.json (atomic, per-task isolated)
   ↓
 run-vibe.sh (executor, reads SPEC + queue)
   ↓
-Workers (max 5, respect 500 rpm MiniMax)
+Workers (max 5, respect 500 rpm OpenRouter)
   ↓
 Branch → PR → Gitea CI
   ↓
@@ -252,7 +252,7 @@ TASKComplexity = HIGH → human approval at start (PRD) and end (final review)
 ## Métricas de Sucesso
 
 - Lead agent can run overnight (8+ hours) without human intervention
-- Context window never exceeds 240k tokens (MiniMax limit)
+- Context window never exceeds 240k tokens (OpenRouter limit)
 - Smoke test passes before human is notified
 - Gitea CI loop completes task within 3 retries max
 - All tasks traceable: who did what, when, pass/fail status

@@ -33,7 +33,7 @@ Aplicar os fixes de auditoria identificados pelos 12 agentes (Phase 1 = SPEC con
 |---|---------|-------|-------|
 | H1 | Memory `homelab-estado.md` heavily outdated — references SPEC-023 that doesn't exist, stale model names | Memory audit | memory/homelab-estado.md |
 | H2 | Memory `ai-context.md` contains false paths (`/srv/ops/ai-governance/SYSTEM_STATE.md`, `docs/context/`) | Memory audit | memory/ai-context.md |
-| H3 | Memory `08-04-2026.md` stale (MiniMax M2.1 vs M2.7, whisper vs wav2vec2) | Memory audit | memory/08-04-2026.md |
+| H3 | Memory `08-04-2026.md` stale (OpenRouter M2.1 vs hermes-brain, whisper vs wav2vec2) | Memory audit | memory/08-04-2026.md |
 | H4 | HOMELAB-SURVIVAL-GUIDE.md describes old voice stack (speaches:8010, chatterbox:8011) | OPERATIONS audit | docs/OPERATIONS/HOMELAB-SURVIVAL-GUIDE.md |
 | H5 | `wav2vec2-proxy:8203` in .md but absent from newer docs | GOVERNANCE audit | docs/GOVERNANCE/.rules/.md |
 | H6 | .md references `docs/specflow/SPEC-009-...` (non-existent path) | rules vs docs audit | .claude/rules/.md |

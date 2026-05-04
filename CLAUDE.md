@@ -3,51 +3,50 @@
 > **⚠️ READ FIRST:** See `HARDWARE_HIERARCHY.md` for complete infrastructure map
 >
 > **Project:** Homelab Monorepo | **Status:** Production
-> **Model:** MiniMax-M2.7 | **Context:** 100K tokens
+> **Model:** hermes-brain | **Context:** 100K tokens
 > **Updated:** 2026-04-26
 
 ---
 
-## 🏠 Complete Homelab Structure
+## 🏠 Homelab Structure — Mínimo Viável (2 Gateways)
 
-This monorepo is the **SINGLE SOURCE OF TRUTH** for the entire homelab:
+This monorepo is the **SINGLE SOURCE OF TRUTH**:
 
 ```
 /srv/monorepo/                    ← YOU ARE HERE
 │
-├── [SYMLINKS - Full Access to All Services]
-│   ├── ops/                    → /srv/ops              # IaC + Governance
-│   ├── hermes-second-brain/    → /srv/hermes-second-brain  # Mem0 Memory
-│   ├── hermes/                 → ~/.hermes            # Hermes Agency
-│   ├── fit-tracker/            → /srv/fit-tracker-v2  # Fitness App
-│   ├── hvacr-swarm/            → /srv/hvacr-swarm     # HVAC Automation
-│   └── edge-tts/               → /srv/edge-tts        # TTS Service
-│
-├── apps/                        # PRODUCTION SERVICES
-│   ├── ai-gateway/             # OpenAI-compatible facade
+├── apps/
+│   ├── ai-gateway/             # Voice Gateway :4002 (TTS + STT)
 │   ├── api/                    # Fastify + tRPC backend
-│   └── monitoring/             # SRE dashboard
+│   └── perplexity-agent/       # Browser automation (via LiteLLM)
+│
+├── config/
+│   └── litellm/
+│       └── config.yaml         # hermes-* aliases (Ollama + OpenRouter)
 │
 ├── docs/                        # Enterprise Documentation
-│   ├── NEXUS-SRE-GUIDE.md     # SRE Automation Guide
-│   ├── VOICE-STT-STACK.md     # Voice Pipeline (STT/TTS)
-│   └── [full docs in /srv/ops/HOMELAB.md]
+│   ├── INFRASTRUCTURE/         # Architecture, ports, services
+│   └── SPECS/                  # Feature specs
 │
-└── .claude/vibe-kit/           # NEXUS FRAMEWORK
-    └── nexus.sh                 # 49-Agent Orchestrator
+└── scripts/                     # SRE + Health checks
 ```
+
+**2 Gateways Only:**
+- **LiteLLM :4018/v1** — text, code, instruction, embedding (hermes-*)
+- **Voice Gateway :4002** — TTS (Edge-tts :8012) + STT (Groq cloud)
 
 ---
 
-## 🎯 Project Overview
+## 🎯 Project Overview — Mínimo Viável
 
-This monorepo powers **zappro.site** — a self-hosted AI platform with:
+This monorepo powers **zappro.site** — self-hosted AI platform.
 
-- **Nexus SRE Framework** — 7×7=49 specialized agents for automation
-- **Hermes + Mem0** — Multi-agent orchestration with persistent memory
-- **Qdrant Vector DB** — RAG infrastructure
-- **LiteLLM** — Multi-provider LLM gateway
-- **Gitea** — Git hosting with CI/CD
+**Stack (poda agressiva):**
+- **LiteLLM :4018/v1** — Gateway canônico LLM (text, code, instruction, embedding)
+- **Voice Gateway :4002** — TTS (Edge) + STT (Groq cloud)
+- **Qdrant :6333** — Vector DB
+- **Gitea :3300** — Git + CI/CD
+- **Coolify :8000** — PaaS deploys
 
 ---
 

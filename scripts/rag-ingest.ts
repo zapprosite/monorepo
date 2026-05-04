@@ -3,11 +3,11 @@
 // Usage: npx tsx scripts/rag-ingest.ts --app hermes --lead will
 // Environment: TRIEVE_URL, TRIEVE_API_KEY, OLLAMA_URL (default: http://localhost:11434)
 
-import { parseArgs } from 'util';
+import { parseArgs } from 'node:util';
 
 const BULK_LIMIT = 120;
 const EMBEDDING_MODEL = 'nomic-embed-text';
-const EMBEDDING_DIM = 768;
+const _EMBEDDING_DIM = 768;
 
 // ---------------------------------------------------------------------------
 // Types
@@ -82,8 +82,8 @@ async function* walkDirectory(
 	dir: string,
 	extensions = ['.md', '.txt', '.ts', '.tsx', '.yaml', '.yml', '.json'],
 ): AsyncGenerator<string> {
-	const fs = await import('fs');
-	const path = await import('path');
+	const fs = await import('node:fs');
+	const path = await import('node:path');
 
 	try {
 		const entries = fs.readdirSync(dir, { withFileTypes: true });
@@ -321,7 +321,7 @@ async function indexChunks(
 		'Content-Type': 'application/json',
 		'TR-Dataset': datasetId,
 	};
-	if (apiKey) headers['Authorization'] = `ApiKey ${apiKey}`;
+	if (apiKey) headers.Authorization = `ApiKey ${apiKey}`;
 
 	// Bulk limit: 120 chunks per request
 	for (let i = 0; i < chunks.length; i += BULK_LIMIT) {
@@ -330,7 +330,7 @@ async function indexChunks(
 			chunks: batch.map((chunk) => ({
 				chunk_html: chunk.content,
 				metadata: chunk.metadata,
-				tag_set: (chunk.metadata['type'] as string) ?? 'general',
+				tag_set: (chunk.metadata.type as string) ?? 'general',
 			})),
 		};
 
@@ -367,9 +367,9 @@ function buildDatasetName(app: string, lead?: string, type = 'knowledge'): strin
 async function runIngestion(opts: IngestOptions): Promise<void> {
 	const { app, lead, type, chunking, dryRun } = opts;
 
-	const trieveUrl = process.env['TRIEVE_URL'] ?? 'http://localhost:6435';
-	const ollamaUrl = process.env['OLLAMA_URL'] ?? 'http://localhost:11434';
-	const apiKey = process.env['TRIEVE_API_KEY'];
+	const trieveUrl = process.env.TRIEVE_URL ?? 'http://localhost:6435';
+	const ollamaUrl = process.env.OLLAMA_URL ?? 'http://localhost:11434';
+	const apiKey = process.env.TRIEVE_API_KEY;
 
 	const datasetName = buildDatasetName(app, lead, type);
 	console.log(`\n=== RAG Ingestion Pipeline ===`);
@@ -416,8 +416,8 @@ async function runIngestion(opts: IngestOptions): Promise<void> {
 
 	// Step 2: Read and chunk content
 	console.log(`\n[2/4] Reading and chunking content (strategy: ${chunking})...`);
-	const fs = await import('fs');
-	const path = await import('path');
+	const fs = await import('node:fs');
+	const path = await import('node:path');
 	const allChunks: Chunk[] = [];
 
 	for (const file of allFiles) {

@@ -23,14 +23,14 @@ const TEST_PROMPT = 'Respond with exactly: "OK" and nothing else.';
 
 const PROVIDERS: TestConfig[] = [
 	{
-		name: 'MiniMax (via API)',
-		url: 'https://api.minimax.io/anthropic/v1/messages',
+		name: 'OpenRouter (via API)',
+		url: 'https://openrouter.ai/api/v1/chat/completions',
 		headers: {
 			'Content-Type': 'application/json',
-			Authorization: `Bearer ${process.env.MINIMAX_API_KEY ?? ''}`,
+			Authorization: `Bearer ${process.env.OPENROUTER_API_KEY ?? ''}`,
 		},
 		body: {
-			model: 'minimax-m2.7',
+			model: process.env.OPENROUTER_MODEL ?? 'deepseek/deepseek-v4-flash',
 			messages: [{ role: 'user', content: TEST_PROMPT }],
 			max_tokens: 10,
 		},
@@ -42,13 +42,13 @@ const PROVIDERS: TestConfig[] = [
 	},
 	{
 		name: 'LiteLLM Proxy',
-		url: 'http://localhost:4000/v1/messages',
+		url: 'http://localhost:4018/v1/chat/completions',
 		headers: {
 			'Content-Type': 'application/json',
-			Authorization: 'Bearer ${QDRANT_API_KEY}-key',
+			Authorization: `Bearer ${process.env.LITELLM_API_KEY ?? process.env.LITELLM_MASTER_KEY ?? ''}`,
 		},
 		body: {
-			model: 'minimax-m2.7',
+			model: 'hermes-auto',
 			messages: [{ role: 'user', content: TEST_PROMPT }],
 			max_tokens: 10,
 		},
@@ -59,11 +59,11 @@ const PROVIDERS: TestConfig[] = [
 		},
 	},
 	{
-		name: 'Ollama (Gemma4-12b-it)',
+		name: 'Ollama (qwen2.5-coder:14b-q6k)',
 		url: 'http://localhost:11434/api/chat',
 		headers: { 'Content-Type': 'application/json' },
 		body: {
-			model: 'gemma4-12b-it',
+			model: 'qwen2.5-coder:14b-q6k',
 			messages: [{ role: 'user', content: TEST_PROMPT }],
 			stream: false,
 		},
@@ -74,11 +74,11 @@ const PROVIDERS: TestConfig[] = [
 		},
 	},
 	{
-		name: 'Ollama (qwen2.5vl:7b)',
+		name: 'Ollama (qwen2.5vl:3b)',
 		url: 'http://localhost:11434/api/chat',
 		headers: { 'Content-Type': 'application/json' },
 		body: {
-			model: 'qwen2.5vl:7b',
+			model: 'qwen2.5vl:3b',
 			messages: [{ role: 'user', content: TEST_PROMPT }],
 			stream: false,
 		},

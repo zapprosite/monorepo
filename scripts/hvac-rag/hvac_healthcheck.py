@@ -5,7 +5,7 @@ HVAC RAG Healthcheck — Periodic pipe health verification
 Checks:
   - OpenWebUI (chat.zappro.site/:3456)
   - zappro-clima-tutor (:4017) /health + /v1/models
-  - LiteLLM (:4000 / api.zappro.site) — MiniMax model alias
+  - LiteLLM (:4000 / api.zappro.site) — OpenRouter model alias
   - Groq STT (api.groq.com /v1/audio/transcriptions)
   - Edge TTS (:8012 / TTS_BRIDGE_URL)
   - Ollama qwen2.5vl (:11434) — list models
@@ -322,7 +322,7 @@ async def check_openwebui() -> dict:
 
 
 async def check_litellm_models() -> dict:
-    """Check LiteLLM /v1/models for MiniMax availability."""
+    """Check LiteLLM /v1/models for OpenRouter availability."""
     litellm_key = os.environ.get("LITELLM_MASTER_KEY", "")
     headers = {"Authorization": f"Bearer {litellm_key}"} if litellm_key else {}
     try:
@@ -332,14 +332,14 @@ async def check_litellm_models() -> dict:
                 data = r.json()
                 models = data.get("data", [])
                 model_ids = [m.get("id", "") for m in models]
-                # Check for MiniMax model
-                minimax_found = any("minimax" in mid.lower() or "mm" in mid.lower() for mid in model_ids)
+                # Check for OpenRouter model
+                openrouter_found = any("openrouter" in mid.lower() or "mm" in mid.lower() for mid in model_ids)
                 return {
                     "status": "pass",
                     "service": "litellm",
                     "url": LITELLM_URL,
                     "models_available": len(models),
-                    "minimax_available": minimax_found,
+                    "openrouter_available": openrouter_found,
                     "latency_ms": r.elapsed.total_seconds() * 1000
                 }
             return {

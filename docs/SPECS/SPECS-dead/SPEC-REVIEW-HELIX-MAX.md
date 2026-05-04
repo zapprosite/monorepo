@@ -44,7 +44,7 @@ Ferramentas nativas do Helix para discovery rápido:
 ## Scope
 
 - `/srv/monorepo/` completo
-- Rate limit: 500 RPM (MiniMax M2.7)
+- Rate limit: 500 RPM (OpenRouter via hermes-brain)
 - Max parallel workers: 7
 
 ## Execução
@@ -57,7 +57,7 @@ hx --batch /srv/monorepo -c 'grep -r "sk-\|api_key"'
 # 2. Nexus: 7 agents em paralelo
 cd /srv/monorepo
 for AGENT in correctness readability architecture security perf dependency quality; do
-  claude --model minimax-minimax -p "$(cat .claude/vibe-kit/agents/review/${AGENT}-reviewer/system-prompt.md)" &
+  claude --model openrouter-openrouter -p "$(cat .claude/vibe-kit/agents/review/${AGENT}-reviewer/system-prompt.md)" &
 done
 ```
 

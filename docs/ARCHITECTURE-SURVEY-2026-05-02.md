@@ -54,7 +54,7 @@
 | Cache | Redis |
 | Vector DB | Qdrant (RAG) |
 | AI Gateway | LiteLLM `:4018` |
-| LLM Chat | MiniMax M2.7 |
+| LLM Chat | OpenRouter via hermes-brain |
 | VL Model | Qwen2.5-VL-3B (Ollama `:11434`) |
 | STT | Groq Whisper Turbo |
 | TTS | Edge TTS |
@@ -88,10 +88,10 @@ Scripts:   scripts/hvac-rag/, scripts/vibe/, scripts/*.sh
 
 ```
 RAG Pipeline:
-  User → tRPC API → Qdrant (vector search) → LiteLLM :4018 → MiniMax M2.7 → Response
+  User → tRPC API → Qdrant (vector search) → LiteLLM :4018 → OpenRouter via hermes-brain → Response
 
 Voice Pipeline:
-  Telegram Voice → Groq Whisper (STT) → MiniMax M2.7 (LLM) → Edge TTS → Telegram Voice
+  Telegram Voice → Groq Whisper (STT) → OpenRouter via hermes-brain (LLM) → Edge TTS → Telegram Voice
 
 Auth Flow:
   OAuth/credentials → apps/api/src/modules/auth/ → Redis (sessions) → JWT → client

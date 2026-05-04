@@ -10,7 +10,7 @@
 #   4. "Salada" detection (too many file types in one directory)
 #   5. Architecture violation detection (wrong file locations)
 #
-# RATE LIMIT: Uses minimax 500 RPM via Claude Code CLI integration
+# RATE LIMIT: Uses LiteLLM routing and provider limits via Claude Code CLI integration
 #
 # USAGE:
 #   nexus-legacy-detector.sh scan <path> [days]

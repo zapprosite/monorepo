@@ -40,7 +40,7 @@ Source: [SPEC-HVAC-004](../../docs/SPECS/products/HVAC/SPEC-HVAC-004-juiz-field-
 
 ## Phase 5 — v2.0.0 Simplification ✅
 
-- [x] T11: Router com modo `guided_triage` — MiniMax como primary writing engine
+- [x] T11: Router com modo `guided_triage` — OpenRouter como primary writing engine
 - [x] T12: Retrieval package builder (`build_retrieval_package()`)
 - [x] T13: Friendly response rewriter (`hvac-friendly-response.py`, 4/4 PASS)
 - [x] T14: `/v1/models` expõe só `zappro-clima-tutor` (internals ocultos)
@@ -83,7 +83,7 @@ Source: [SPEC-HVAC-004](../../docs/SPECS/products/HVAC/SPEC-HVAC-004-juiz-field-
 - httpx (async HTTP)
 - Qdrant (running at 127.0.0.1:6333)
 - Ollama (nomic-embed-text at 127.0.0.1:11434)
-- LiteLLM (minimax-m2.7 at 127.0.0.1:4000)
+- LiteLLM (hermes-brain at 127.0.0.1:4000)
 
 ---
 

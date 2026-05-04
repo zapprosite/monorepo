@@ -1,91 +1,73 @@
 # Models
 
-Lista dos modelos de IA disponíveis no sistema multi-claude.
+Lista dos modelos de IA disponíveis no padrão Hermes/LiteLLM 05/2026.
 
----
+## Gateway Padrão
 
-## Modelos Disponíveis
+Todos os agentes Hermes devem usar a API OpenAI-compatible do LiteLLM:
 
-| Modelo | Provider | Tipo | Custo |
-|--------|----------|------|-------|
-| **MiniMax M2.7** | MiniMax API | Chat | Token plan |
-| **GPT-4o-mini** | OpenAI API | Chat | $0.15/1M tokens |
-| **Gemma4:26b-q4** | Ollama (local) | Chat | Grátis |
-| **Whisper-large-v3-turbo** | Groq | STT | Gratuito (150min/dia) |
-| **Edge TTS** | Microsoft (local) | TTS | Grátis |
+```bash
+OPENAI_BASE_URL=http://127.0.0.1:4018/v1
+OPENAI_API_KEY=$LITELLM_MASTER_KEY
+```
 
----
+O Hermes não chama Ollama nem OpenRouter direto. O LiteLLM centraliza aliases, parâmetros, retries e fallbacks.
 
-## MiniMax M2.7 (Primário)
+## Inventário Local Real
 
-- **Modelo:** `MiniMax-M2.7`
-- **Provider:** MiniMax API via LiteLLM
-- **Endpoint:** `localhost:4000`
-- **Uso:** Chat principal
+| Modelo Ollama | Uso | Observação |
+|---------------|-----|------------|
+| `qwen2.5-coder:14b-q6k` | Chat, code, texto | Modelo local principal |
+| `qwen2.5vl:3b` | Visão | Apenas imagem/screenshot/UI visual |
+| `nomic-embed-text:pinned-20260503` | Embeddings | Principal, 768D |
+| `nomic-embed-text:latest` | Embeddings | Backup manual |
 
----
+Não adicionar modelo local que não apareça em `ollama list`.
 
-## GPT-4o-mini (Fallback)
+## Aliases LiteLLM
 
-- **Modelo:** `gpt-4o-mini`
-- **Provider:** OpenAI API via LiteLLM
-- **Custo:** $0.15/1M tokens
-- **Uso:** Fallback automático quando MiniMax falha
+| Alias | Provider | Modelo real | Uso |
+|-------|----------|-------------|-----|
+| `hermes-auto` | Ollama via LiteLLM | `qwen2.5-coder:14b-q6k` | Padrão do Hermes, local primeiro |
+| `hermes-local-code` | Ollama via LiteLLM | `qwen2.5-coder:14b-q6k` | Código, YAML, Docker, shell, refactor pequeno |
+| `hermes-vision` | Ollama via LiteLLM | `qwen2.5vl:3b` | Imagem, screenshot, UI visual |
+| `hermes-embed` | Ollama via LiteLLM | `nomic-embed-text:pinned-20260503` | RAG, memória, busca semântica |
+| `hermes-embed-latest` | Ollama via LiteLLM | `nomic-embed-text:latest` | Backup manual de embedding |
+| `hermes-cloud-cheap` | OpenRouter via LiteLLM | `deepseek/deepseek-v4-flash` | Primeiro fallback cloud |
+| `hermes-cloud-pro` | OpenRouter via LiteLLM | `deepseek/deepseek-v4-pro` | Escalada de qualidade |
+| `hermes-cloud-ui` | OpenRouter via LiteLLM | `moonshotai/kimi-k2.6` | UI, multimodal e visão complexa |
+| `hermes-brain` | OpenRouter via LiteLLM | `deepseek/deepseek-v4-pro` | PRD, arquitetura, repo grande |
 
----
+## Regras de Roteamento
 
-## Gemma4:26b-q4 (Local)
+| Tarefa | Alias |
+|--------|-------|
+| Pergunta simples, explicação, bash pequeno | `hermes-auto` |
+| Código normal, debug, Docker, YAML, Go, Python | `hermes-local-code` |
+| Repo inteiro, arquitetura, PRD, agente longo | `hermes-brain` |
+| Imagem, screenshot, inspeção visual | `hermes-vision` |
+| Visão local falhou ou tarefa visual complexa | `hermes-cloud-ui` |
+| RAG, memória, busca semântica | `hermes-embed` |
 
-- **Modelo:** `gemma4:26b-q4`
-- **Provider:** Ollama local
-- **VRAM:** ~22GB sob demanda
-- **Custo:** Grátis
-- **Uso:** Código local, tarefas leves
+## Fallbacks
 
----
+OpenRouter entra somente por fallback ou por aliases cloud explícitos:
 
-## Whisper-large-v3-turbo (STT)
+```text
+hermes-auto        -> hermes-cloud-cheap -> hermes-cloud-pro
+hermes-local-code  -> hermes-cloud-cheap -> hermes-cloud-pro
+hermes-vision      -> hermes-cloud-ui
+hermes-cloud-cheap -> hermes-cloud-pro
+```
 
-- **Modelo:** `whisper-large-v3-turbo`
-- **Provider:** Groq Cloud
-- **Custo:** Gratuito (150min/dia)
-- **Latência:** ~216x tempo real
-- **Uso:** Transcrição de áudio
+Atenção: fallback local para cloud envia prompt/código para OpenRouter. Use `hermes-local-code` sem fallback apenas se a tarefa exigir privacidade rígida.
 
----
+## Critérios Negativos
 
-## Edge TTS
+Estes modelos não fazem parte do padrão 05/2026 e não devem aparecer em config ativo:
 
-- **Modelo:** `tts-1`
-- **Provider:** Microsoft Edge TTS
-- **Endpoint:** `http://10.0.2.4:8015/v1`
-- **Vozes:** pt-BR-AntonioNeural, pt-BR-BrendaNeural
-- **Custo:** Grátis
-- **Uso:** Síntese de voz PT-BR
-
----
-
-## Vision-Language (VL)
-
-| Modelo | Provider | VRAM | Custo |
-|--------|----------|------|-------|
-| **Qwen2.5-VL-3B** | Ollama (local) | ~4GB | Grátis |
-| **Qwen3.5-Flash** | OpenRouter | - | $0.325/1M tokens |
-
----
-
-## LiteLLM Mapping
-
-| LiteLLM Model | Provider | API |
-|--------------|----------|-----|
-| `minimax-m2.7` | MiniMax | Minimax API |
-| `gpt-4o-mini` | OpenAI | OpenAI API |
-| `gemma4:26b-q4` | Ollama | localhost:11434 |
-| `whisper-1` | Groq | api.groq.com |
-| `tts-1` | Edge TTS | 10.0.2.4:8015 |
-| `qwen2.5vl-3b` | Ollama | qwen2-vl7b:11434 |
-| `qwen3.5-vl` | OpenRouter | openrouter.ai |
-
----
-
-Ver também: [/srv/ops/ai-governance/MODEL-ROUTING.md](./OPS/MODEL-ROUTING.md)
+- `qwen2.5:14b`
+- `qwen3-coder`
+- `devstral`
+- `gpt-oss`
+- qualquer modelo local ausente de `ollama list`

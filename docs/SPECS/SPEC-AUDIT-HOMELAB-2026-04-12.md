@@ -30,7 +30,7 @@ specRef: SPEC-AUDIT-FIXES-2026-04-12.md, SPEC-009-.md, SPEC-HOMELAB-GOVERNANCE-D
 
 ### 3. Governance de Audio Imutável
 - SPEC-004, SPEC-005, SPEC-009 como PROTEGIDO
-- Regras claras: NÃO usar Deepgram direto, NÃO usar LiteLLM como primario para MiniMax-M2.7
+- Regras claras: NÃO usar Deepgram direto, NÃO usar LiteLLM como primario para hermes-brain
 - Dual-layer protection: IMMUTABLE + PINNED
 
 ### 4. CI/CD Enterprise

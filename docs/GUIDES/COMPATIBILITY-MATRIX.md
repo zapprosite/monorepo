@@ -9,7 +9,7 @@
 | `qdrant` (qdrant/go-client) | 1.17.1 | 1.21 | 1.26 | Stable |
 | `stripe-go` (stripe-go/v80) | 80.2.1 | 1.18 | 1.26 | Stable |
 | `gemini` (internal embedder) | gemini-embedding-002 | - | - | Custom HTTP |
-| `minimax` (internal client) | OpenAI-compatible | - | - | Custom HTTP |
+| `openrouter` (internal client) | OpenAI-compatible | - | - | Custom HTTP |
 
 ## Notes
 
@@ -33,9 +33,9 @@
 - Model: `gemini-embedding-002` (768 dimensions)
 - No Go library dependency — direct REST calls
 
-### minimax (internal)
+### openrouter (internal)
 - Custom HTTP client, OpenAI-compatible API format
-- Base: `https://api.minimax.io/anthropic`
+- Base: `https://openrouter.ai/api/v1/anthropic`
 - No official Go SDK — direct REST calls
 
 ## Update Recommendations
@@ -46,4 +46,4 @@
 | qdrant | Can upgrade to latest v1.x | Low |
 | stripe-go | **Deferred** — v80→v84 requires API migration | High |
 | gemini | Monitor Google API deprecations | Low |
-| minimax | Monitor MiniMax API changes | Low |
+| openrouter | Monitor OpenRouter API changes | Low |

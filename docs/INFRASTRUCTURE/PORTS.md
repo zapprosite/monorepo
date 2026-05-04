@@ -20,9 +20,8 @@
 | Porta | Container | Acesso | Função | Subdomínio |
 |-------|-----------|--------|--------|------------|
 | **3100** | grafana | host | Dashboard | monitor.zappro.site |
-| **3334** | zappro-litellm | host | LiteLLM UI/dashboard interno | — |
-| **4000** | zappro-litellm | host | LiteLLM proxy (venv) | api.zappro.site / llm.zappro.site |
-| **4004** | nginx-ratelimit | host | nginx rate-limited proxy → :4000 | — |
+| **4018** | litellm-proxy | host | LiteLLM proxy (OpenAI-compatible) | api.zappro.site / llm.zappro.site |
+| **4004** | nginx-ratelimit | host | nginx rate-limited proxy → :4018 | — |
 | **4005** | ai-router | host | AI Router (FastAPI) - intelligent routing | — |
 | **5678** | n8n | host | Workflow automation | n8n.zappro.site |
 | **6333** | zappro-qdrant | host | Qdrant REST | qdrant.zappro.site |
@@ -43,7 +42,7 @@
 | Porta | Processo | Acesso | Função |
 |-------|----------|--------|--------|
 | **22** | sshd | host | SSH |
-| **11434** | ollama (systemd) | localhost + docker0 bridge | LLM local (gemma4, llava, nomic-embed-text) — GPU via `10.0.1.1:11434` |
+| **11434** | ollama (systemd) | localhost + docker0 bridge | LLM local (qwen2.5-coder:14b-q6k, qwen2.5vl:3b, nomic-embed-text) — GPU via `10.0.1.1:11434` |
 | **8201** | whisper-api (host) | localhost + docker0 bridge | Faster-Whisper small STT (OpenAI-compatible `/v1/audio/transcriptions`) |
 
 ---
@@ -63,7 +62,7 @@
 
 | Porta | Container | Acesso | Função | Subdomínio |
 |-------|-----------|--------|--------|------------|
-| **4002** | — | localhost | ShieldGemma 9B (PENDENTE — nunca deployado) | — |
+| **4002** | — | localhost | Reservada (legado ai-gateway — nunca deployado) | — |
 | **4003** | python http.server | host | Claude Code Panel HTML estático | painel.zappro.site |
 | **8200** | | localhost | | vault.zappro.site |
 
@@ -91,7 +90,7 @@
 
 | Porta | Destino | Rede Destino | Acesso via |
 |-------|---------|--------------|------------|
-| **4000** | LiteLLM Proxy | docker0 (10.0.1.1) | Coolify containers via `10.0.1.1:4000` |
+| **4018** | LiteLLM Proxy | docker0 (10.0.1.1) | Coolify containers via `10.0.1.1:4018` |
 | **8880** | | bridge (10.0.19.7) | Coolify containers via `10.0.19.7:8880` |
 | **6333** | Qdrant (Coolify) | Coolify network (10.0.19.5) | Containers via `10.0.19.5:6333` |
 
@@ -114,7 +113,7 @@
 
 ```
 ❌ NUNCA usar :8000 → Coolify
-❌ NUNCA usar :4000 em dev local sem checar zappro-litellm
+❌ NUNCA usar :4018 em dev local sem checar litellm-proxy
 ❌ NUNCA usar :3000 → reservada para Open WebUI (Coolify)
 ❌ NUNCA usar :4001 → reservada para (Coolify)
 ✅ Dev local no monorepo: usar PORT=4002+ ou PORT=5173 (Vite)

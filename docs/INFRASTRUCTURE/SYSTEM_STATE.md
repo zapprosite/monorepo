@@ -120,12 +120,12 @@ Livre:   ~16.000 MiB
 
 | Alias | Backend | Uso |
 |-------|---------|-----|
-| `gpt-4o` | ollama/qwen3.5 | Completion (alias OpenAI) |
-| `qwen3.5` | ollama/qwen3.5 | Completion (thinking model) |
-| `gemma4` | ollama/gemma4 | Completion (instruction) |
+| `gpt-4o` | ollama/qwen2.5-coder | Completion (alias OpenAI) |
+| `qwen2.5-coder` | ollama/qwen2.5-coder | Completion (thinking model) |
+| `qwen2.5-coder:14b-q6k` | ollama/qwen2.5-coder:14b-q6k | Completion (instruction) |
 | `text-embedding-ada-002` | ollama/bge-m3 | Embeddings (alias OpenAI) |
 | `bge-m3` | ollama/bge-m3 | Embeddings 1024 dims |
-| `llava` | ollama/llava | Vision (multi-modal) |
+| `qwen2.5vl:3b` | ollama/qwen2.5vl:3b | Vision (multi-modal) |
 
 ---
 
@@ -136,9 +136,9 @@ Livre:   ~16.000 MiB
 
 | Modelo | Params | Quant | VRAM | Contexto | Capacidades |
 |--------|--------|-------|------|----------|-------------|
-| qwen3.5:latest | 9,65B | Q4_K_M | ~6,5 GB | **262.144 tokens** | completion · vision · tools · **thinking** |
-| gemma4:latest | 12B | Q4_K_M | ~7 GB | **32.768 tokens** | completion · instruction |
-| llava:latest | 7B | Q4_K_M | ~4,5 GB | 8.192 tokens | vision · completion |
+| qwen2.5-coder:latest | 9,65B | Q4_K_M | ~6,5 GB | **262.144 tokens** | completion · vision · tools · **thinking** |
+| qwen2.5-coder:14b-q6k | 12B | Q4_K_M | ~7 GB | **32.768 tokens** | completion · instruction |
+| qwen2.5vl:3b:latest | 7B | Q4_K_M | ~4,5 GB | 8.192 tokens | vision · completion |
 | nomic-embed-text:latest | 274M | F16 | ~0,5 GB | 8.192 tokens | embedding (1024 dims) |
 | bge-m3:latest | 566,7M | F16 | ~1,2 GB | 8.192 tokens | embedding (1024 dims) |
 

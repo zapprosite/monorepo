@@ -120,7 +120,7 @@ sudo nvidia-smi --gpu-reset
 
 **Exemplo prático:**
 ```bash
-# Verificar VRAM disponível (Gemma4 usa ~22GB)
+# Verificar VRAM disponível (Qwen2.5 Coder usa ~22GB)
 nvidia-smi --query-gpu=memory.free,memory.total --format=csv
 
 # Ver processos usando GPU
@@ -210,7 +210,7 @@ curl http://localhost:4000/health
 curl -s http://localhost:6333/health
 
 # Testar API externa
-curl -I https://api.minimax.chat --connect-timeout 3
+curl -I https://openrouter.ai/api/v1 --connect-timeout 3
 ```
 
 ### ping - conectividade

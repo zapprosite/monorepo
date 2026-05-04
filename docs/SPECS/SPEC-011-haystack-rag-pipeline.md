@@ -47,7 +47,7 @@ FONTE DE DOCUMENTOS
 │  2. Embedder: OllamaDocumentEmbedder    │
 │     (nomic-embed-text, 768D)             │
 │  3. Rehaystackr: InMemoryEmbeddingRehaystackr │
-│  4. Generator: MiniMax via LiteLLM      │
+│  4. Generator: OpenRouter via LiteLLM      │
 └─────────────────────────────────────────┘
          │
          ▼
@@ -74,7 +74,7 @@ FONTE DE DOCUMENTOS
 | Vector DB | Qdrant :6333 | ✅ hermes-second-brain-qdrant-1 |
 | Structured DB | PostgreSQL (TBD) | ⚠️ Não encontrado |
 | Memory layer | Mem0 v2.0.1 | ⚠️ INVALID API key |
-| LLM Query | MiniMax-M2.7 via API direta | ✅ Funcionando |
+| LLM Query | hermes-brain via API direta | ✅ Funcionando |
 
 ---
 
@@ -184,8 +184,8 @@ Documentos: {% for doc in documents %}{{ doc.content }}{% endfor %}
 )
 
 llm = OpenAIChatGenerator(
-    model="MiniMax/MiniMax-Text-01",
-    api_key=Secret.from_env_var("MINIMAX_API_KEY"),
+    model="OpenRouter/OpenRouter-Text-01",
+    api_key=Secret.from_env_var("OPENROUTER_API_KEY"),
 )
 
 query_pipe = Pipeline()

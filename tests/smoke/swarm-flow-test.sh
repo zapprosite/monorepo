@@ -276,7 +276,7 @@ test_swarm_worker() {
     log_test "Test: Run swarm worker (simulation mode)"
 
     # For simulation mode, we need to set env vars to use rules-based agents
-    # WHATSAPP_TOKEN set but no MINIMAX_API_KEY triggers RulesResponseAgent fallback
+    # WHATSAPP_TOKEN set but no OPENROUTER_API_KEY triggers RulesResponseAgent fallback
     export REDIS_ADDR="${REDIS_ADDR}"
     export SWARM_HTTP_PORT=":8089"
     export SWARM_AGENTS_PATH="${AGENTS_CONFIG}"

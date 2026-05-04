@@ -19,8 +19,7 @@ GRAFANA_TOKEN="${GRAFANA_TOKEN:-}"
 
 # ── Services Configuration ─────────────────────────────────────
 declare -A SERVICES=(
-    ["ai-gateway:4002"]="http://localhost:4002/health"
-    ["litellm:4000"]="http://localhost:4000/health"
+    ["litellm:4018"]="http://localhost:4018/health"
     ["qdrant:6333"]="http://localhost:6333/health"
     ["qdrant-dashboard:6334"]="http://localhost:6334/health"
     ["ollama:11434"]="http://localhost:11434/api/tags"

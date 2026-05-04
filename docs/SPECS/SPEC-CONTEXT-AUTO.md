@@ -49,7 +49,7 @@ context-auto.sh
 ```bash
 # Detecta modelo atual do provider
 ./context-auto.sh --detect-model
-# Output: "claude-opus-4-7" ou "MiniMax-M2.7"
+# Output: "claude-opus-4-7" ou "hermes-brain"
 ```
 
 ### F3: Task Complexity Estimator

@@ -18,7 +18,7 @@ memory_categories:
       - "zappro-clima-tutor é o modelo público"
       - "escopo é ar-condicionado inverter Brasil"
       - "não expor hvac-manual-strict no seletor"
-      - "MiniMax M2.7 é primary answer model"
+      - "OpenRouter via hermes-brain é primary answer model"
     ttl_days: 999
 
   hvac_domain_rules:

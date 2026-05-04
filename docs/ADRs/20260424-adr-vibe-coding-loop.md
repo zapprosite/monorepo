@@ -125,7 +125,7 @@ Memória dinâmica: padrões de coding, preferências do utilizador, contexto de
 ```
 UserPreferences:
   coding_style: "concise, no-comments"
-  llm_provider: "minimax/MiniMax-M2.7"
+  llm_provider: "openrouter/hermes-brain"
   memory_recall_threshold: 0.85
   preferred_stack: ["fastify", "tRPC", "react", "postgres"]
 ```

@@ -3,7 +3,7 @@
 HVAC web search providers.
 
 Runtime order:
-  MiniMax MCP web search -> Tavily HTTP API -> DuckDuckGo Lite -> Google News RSS.
+  OpenRouter MCP web search -> Tavily HTTP API -> DuckDuckGo Lite -> Google News RSS.
 
 Tavily Remote MCP is kept for agent validation/health, but runtime uses the
 Tavily HTTP API as requested.
@@ -31,7 +31,7 @@ def _env_int(name: str, default: int) -> int:
 
 
 WEB_SEARCH_TIMEOUT = int(os.environ.get("WEB_SEARCH_TIMEOUT", "15"))
-# Default changed to tavily; minimax_mcp is a stub placeholder (not implemented in runtime).
+# Default changed to tavily; openrouter_mcp is a stub placeholder (not implemented in runtime).
 WEB_SEARCH_PROVIDER = os.environ.get("WEB_SEARCH_PROVIDER", "tavily").strip().lower()
 WEB_SEARCH_FALLBACKS = [
     p.strip().lower()
@@ -72,15 +72,15 @@ def _provider_result(provider: str, title: str, url: str, snippet: str, confiden
     }
 
 
-async def search_web_minimax_mcp(query: str) -> list[dict]:
+async def search_web_openrouter_mcp(query: str) -> list[dict]:
     """
-    Placeholder for MiniMax MCP web_search.
+    Placeholder for OpenRouter MCP web_search.
 
-    The local runtime does not have a MiniMax web_search MCP endpoint configured
+    The local runtime does not have an OpenRouter web_search MCP endpoint configured
     yet. Keep this provider in the router so it can become primary without
     changing callers once the endpoint is available.
     """
-    _safe_log("minimax_mcp web_search not configured")
+    _safe_log("openrouter_mcp web_search not configured")
     return []
 
 
@@ -354,10 +354,10 @@ async def search_web(query: str) -> list[dict]:
     """Provider router. Primary provider first, configured fallbacks after."""
     providers = [WEB_SEARCH_PROVIDER] + [p for p in WEB_SEARCH_FALLBACKS if p != WEB_SEARCH_PROVIDER]
     for provider in providers:
-        if provider in ("minimax", "minimax_mcp", "minimax_mcp_web_search", "minimax_token_plan_mcp"):
-            if provider == "minimax_token_plan_mcp":
-                _safe_log("minimax_token_plan_mcp is not implemented in the runtime; skipping")
-            results = await search_web_minimax_mcp(query)
+        if provider in ("openrouter", "openrouter_mcp", "openrouter_mcp_web_search", "openrouter_token_plan_mcp"):
+            if provider == "openrouter_token_plan_mcp":
+                _safe_log("openrouter_token_plan_mcp is not implemented in the runtime; skipping")
+            results = await search_web_openrouter_mcp(query)
         elif provider in ("tavily", "tavily_api"):
             results = await search_web_tavily_api(query)
         elif provider == "tavily_mcp":

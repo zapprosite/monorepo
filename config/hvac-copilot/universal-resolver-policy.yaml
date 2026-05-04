@@ -61,8 +61,8 @@ safety:
   always_ask_before Measure_energized: true
 
 model_selection:
-  primary: "minimax-m2.7"
-  triage_fallback: "minimax-m2.7"
+  primary: "hermes-brain"
+  triage_fallback: "hermes-brain"
   evidence_threshold_for_direct_response: 0.75
 
 answer_constraints:

@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { test } from '@playwright/test';
 
 test('screenshot dashboard after login', async ({ page }) => {
 	page.on('request', (req) => console.log('>> REQUEST:', req.url()));

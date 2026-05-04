@@ -32,7 +32,7 @@ Usar Nexus 7 review agents em paralelo:
 ## Scope
 
 - `/srv/monorepo/` — todos os arquivos core
-- Rate limit: 500 RPM (MiniMax M2.7)
+- Rate limit: 500 RPM (OpenRouter via hermes-brain)
 
 ## Acceptance Criteria
 
@@ -44,7 +44,7 @@ Usar Nexus 7 review agents em paralelo:
 ## Tech Stack
 
 - Nexus Framework (vibe-kit)
-- MiniMax M2.7 (500 RPM)
+- OpenRouter via hermes-brain (500 RPM)
 - mclaude CLI
 
 ## Riscos

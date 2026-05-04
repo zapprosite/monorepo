@@ -82,8 +82,9 @@ validate_port() {
   # Check reserved ports
   case "$port" in
     3000) error "Port 3000 reserved: OpenWebUI" && return 1 ;;
-    4000) error "Port 4000 reserved: LiteLLM" && return 1 ;;
+    4000) error "Port 4000 reserved: API/CRM legacy mapping" && return 1 ;;
     4001) error "Port 4001 reserved: OpenClaw Bot" && return 1 ;;
+    4018) error "Port 4018 reserved: LiteLLM" && return 1 ;;
     8000) error "Port 8000 reserved: Coolify" && return 1 ;;
     8080) error "Port 8080 reserved: aurelia-api" && return 1 ;;
   esac

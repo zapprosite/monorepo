@@ -55,8 +55,8 @@ export WORKSPACE_ROOT
 #   Cursor:       CURSOR_API_KEY > OPENAI_API_KEY
 #   Zed:          ZED_API_KEY
 #
-# Note: mclaude wrapper handles its own API key via --provider flag
-# and reads from provider-specific env vars (MINIMAX_API_KEY, etc.)
+# Note: mclaude wrapper handles its own API key via --provider flag.
+# Nexus standard provider is LiteLLM with LITELLM_MASTER_KEY/OPENAI_API_KEY.
 
 _assign_api_key() {
     case "$CLI_TYPE" in
@@ -99,7 +99,7 @@ export API_KEY
 #                 --allowedTools "Bash,Read,Edit,Write,Search"
 #                 --max-iterations N
 #   OpenCode:     opencode run --dangerously-skip-permissions --format json
-#                 --dir /srv/monorepo --model minimax/MiniMax-M2.7
+#                 --dir /srv/monorepo --model hermes-brain
 #                 [--config /path/to/.opencode.json]
 #   Codex:        codex agent --project /srv/monorepo
 #   Cursor:       cursor --headless [--model MODEL]

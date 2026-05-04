@@ -304,11 +304,11 @@ REGISTRO:
 
 ### 8.3 Via n8n (Auditoria Automática Semanal)
 
-Workflow n8n + qwen3.5:
+Workflow n8n + qwen2.5-coder:
 1. Coleta schemas reais do PostgreSQL
 2. Coleta collections reais do Qdrant
 3. Compara com `catalog.schema_registry` e `catalog.collection_registry`
-4. Gera relatório de divergências com qwen3.5
+4. Gera relatório de divergências com qwen2.5-coder
 5. Log em `/srv/ops/ai-governance/logs/catalog-audit.log`
 
 ---

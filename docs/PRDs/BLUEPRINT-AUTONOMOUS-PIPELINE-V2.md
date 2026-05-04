@@ -70,7 +70,7 @@ queue.json (atomic, per-task isolated)
   ↓
 run-vibe.sh ←→ queue-manager.py ←→ context-reset.sh
   ↓
-Workers (max 5, 500 rpm MiniMax)
+Workers (max 5, 500 rpm OpenRouter)
   ↓
 Branch → PR → Gitea agent-loop.yml
   ↓

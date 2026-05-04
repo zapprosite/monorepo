@@ -2,170 +2,97 @@
 
 ## Overview
 
-The LLM provider architecture uses a tiered strategy with MiniMax M2.7 as the primary provider, Ollama for local/vision tasks, Groq and OpenAI via LiteLLM proxy, and OpenRouter for aggregated provider access.
-
-## Provider Priority Chain
+Padrão 05/2026: Hermes usa o LiteLLM como gateway único OpenAI-compatible em `http://127.0.0.1:4018/v1`.
+Ollama é a rota econômica e padrão. OpenRouter entra somente por fallback controlado ou por aliases cloud explícitos.
 
 ```
-Primary: MiniMax M2.7 (via LiteLLM :4000)
-  ↓ (failure or timeout > 10s)
-Fallback 1: Ollama Gemma4-12b-it (:11434)
-  ↓ (failure or timeout > 30s)
-Fallback 2: Groq via LiteLLM
-  ↓ (failure or timeout > 30s)
-Fallback 3: OpenAI GPT-4o via LiteLLM
-  ↓ (ALL FAIL)
-Error: last failure reason
+Hermes Agent
+  -> LiteLLM :4018/v1
+    -> Ollama local para economia
+    -> OpenRouter para fallback/escalada
 ```
+
+## Inventário Local Permitido
+
+| Modelo | Uso |
+|--------|-----|
+| `qwen2.5-coder:14b-q6k` | Texto, code, debug, YAML, Docker |
+| `qwen2.5vl:3b` | Visão local |
+| `nomic-embed-text:pinned-20260503` | Embeddings principais |
+| `nomic-embed-text:latest` | Backup manual de embeddings |
+
+Não referenciar modelos locais ausentes de `ollama list`.
 
 ## Provider Endpoints
 
-| Provider    | Endpoint                     | Port  | Use Case                    |
-|-------------|------------------------------|-------|-----------------------------|
-| MiniMax     | api.minimax.io               | 443   | Primary text, CEO routing  |
-| Ollama      | localhost                     | 11434 | Vision, STT, local fallback |
-| Groq        | via LiteLLM                  | 4000  | Fast inference               |
-| OpenAI      | via LiteLLM                  | 4000  | GPT models                   |
-| OpenRouter  | via LiteLLM                  | 4000  | Aggregated providers        |
-| LiteLLM     | localhost                    | 4000  | Unified proxy               |
+| Provider | Endpoint | Uso |
+|----------|----------|-----|
+| LiteLLM | `http://127.0.0.1:4018/v1` | Gateway único para Hermes |
+| Ollama | `http://127.0.0.1:11434` | Backend local acessado pelo LiteLLM |
+| OpenRouter | `https://openrouter.ai/api/v1` | Backend cloud acessado pelo LiteLLM |
 
-## Task-to-Provider Mapping
+## Aliases
 
-| Task Type             | Primary        | Fallback           | Notes                     |
-|-----------------------|----------------|--------------------|---------------------------|
-| CEO routing decision  | MiniMax        | Ollama Gemma4     | Fast, cheap               |
-| Creative writing      | MiniMax        | Ollama Gemma4      | Scripts, copy, content    |
-| Code/Analysis         | Ollama qwen2.5-coder:14b-q6k | MiniMax       | Local for privacy         |
-| Vision                | Ollama qwen2.5vl:3b | —               | Always local              |
-| Embeddings            | Ollama nomic-embed-text | OpenAI ada-002 | 768d → 1536d projection  |
-| Portuguese content     | MiniMax        | —                  | Better PT-BR              |
-| Background tasks      | Groq           | OpenAI             | Fast inference            |
-| Complex reasoning     | MiniMax/GPT-4  | —                  | >5s acceptable            |
-| Fast response (<500ms)| Ollama        | Groq                | Local or fast inference  |
+| Alias | Backend | Modelo |
+|-------|---------|--------|
+| `hermes-auto` | Ollama | `ollama_chat/qwen2.5-coder:14b-q6k` |
+| `hermes-local-code` | Ollama | `ollama_chat/qwen2.5-coder:14b-q6k` |
+| `hermes-vision` | Ollama | `ollama_chat/qwen2.5vl:3b` |
+| `hermes-embed` | Ollama | `ollama/nomic-embed-text:pinned-20260503` |
+| `hermes-embed-latest` | Ollama | `ollama/nomic-embed-text:latest` |
+| `hermes-cloud-cheap` | OpenRouter | `openrouter/deepseek/deepseek-v4-flash` |
+| `hermes-cloud-pro` | OpenRouter | `openrouter/deepseek/deepseek-v4-pro` |
+| `hermes-cloud-ui` | OpenRouter | `openrouter/moonshotai/kimi-k2.6` |
+| `hermes-brain` | OpenRouter | `openrouter/deepseek/deepseek-v4-pro` |
 
-## Cost Management
+## Task-to-Alias Mapping
 
-### Token Counting
+| Task Type | Alias | Notes |
+|-----------|-------|-------|
+| Pergunta simples, explicação, bash pequeno | `hermes-auto` | Local primeiro |
+| Código normal, debug, Docker, YAML, Go, Python | `hermes-local-code` | Qwen2.5 Coder local |
+| Repo inteiro, arquitetura, PRD, agente longo | `hermes-brain` | Escalada cloud explícita |
+| Imagem, screenshot, UI visual | `hermes-vision` | Qwen2.5 VL local |
+| Visão complexa ou falha local | `hermes-cloud-ui` | Kimi K2.6 |
+| RAG, memória, busca semântica | `hermes-embed` | Nomic pinned, 768D |
 
-Each provider tracks:
-- `tokensIn`: input tokens
-- `tokensOut`: output tokens
-- `totalCost`: accumulated cost
+## Fallbacks
 
-### Budget Alerts
+Fallbacks ficam no LiteLLM, não nos agentes:
 
-| Threshold | Action                          |
-|-----------|--------------------------------|
-| 80%       | Alert: budget nearly exhausted |
-| 100%      | Route to cheaper providers only |
-
-### Provider Cost Per 1M Tokens
-
-| Provider   | Model           | Input Cost | Output Cost |
-|------------|-----------------|------------|-------------|
-| MiniMax    | minimax-m2.7    | $0.10      | $0.10       |
-| Ollama     | gemma4-12b-it   | $0         | $0          |
-| Ollama     | qwen2.5-coder:14b-q6k    | $0         | $0          |
-| Groq       | llama-3.3-70b   | $0.05      | $0.08       |
-| OpenAI     | gpt-4o          | $2.50      | $10.00      |
-
-## Latency Routing
-
-| Requirement     | Provider | Expected Latency |
-|-----------------|----------|------------------|
-| < 500ms         | Ollama   | Local, minimal   |
-| 1-5s            | Groq     | Fast inference   |
-| > 5s acceptable  | MiniMax  | Complex reasoning|
-| > 5s acceptable | GPT-4o   | Complex reasoning|
-
-## Retry with Backoff
-
-```typescript
-const RETRY_CONFIG = {
-  maxRetries: 3,
-  baseDelay: 1000,    // 1s
-  maxDelay: 4000,     // 4s
-  jitter: 500,        // ±500ms
-  perAttemptTimeout: 30000, // 30s
-};
+```yaml
+litellm_settings:
+  fallbacks:
+    - hermes-auto:
+        - hermes-cloud-cheap
+        - hermes-cloud-pro
+    - hermes-local-code:
+        - hermes-cloud-cheap
+        - hermes-cloud-pro
+    - hermes-vision:
+        - hermes-cloud-ui
+    - hermes-cloud-cheap:
+        - hermes-cloud-pro
 ```
 
-Backoff sequence: 1s → 2s → 4s (±jitter)
+Atenção: fallback local para cloud envia prompt/código ao OpenRouter.
 
 ## Embedding Strategy
 
 ```typescript
 const EMBEDDING_CONFIG = {
-  primary: {
-    provider: 'ollama',
-    model: 'nomic-embed-text',
-    dimensions: 768,
-    endpoint: 'http://localhost:11434/api/embeddings',
-  },
-  fallback: {
-    provider: 'openai',
-    model: 'text-embedding-ada-002',
-    dimensions: 1536,
-    endpoint: 'http://localhost:4018/embeddings',
-  },
+  provider: 'litellm',
+  model: 'hermes-embed',
+  dimensions: 768,
+  endpoint: 'http://127.0.0.1:4018/v1/embeddings',
 };
 ```
 
-### Dimension Projection
-
-When switching from nomic-embed-text (768d) to ada-002 (1536d), apply a projection layer:
-```typescript
-// Project 768d → 1536d via linear projection matrix
-const projectionMatrix = loadProjectionMatrix('nomic-to-ada002.pt');
-```
-
-## LiteLLM Configuration
-
-LiteLLM proxy (:4000) routes to:
-
-```yaml
-model_list:
-  - model_name: minimax-m2.7
-    litellm_params:
-      model: minimax/MiniMax-Text-01
-      api_key: os.environ/MINIMAX_API_KEY
-
-  - model_name: gemma4-12b-it
-    litellm_params:
-      model: ollama/gemma4-12b-it
-      api_base: http://localhost:11434
-
-  - model_name: qwen2.5-coder:14b-q6k
-    litellm_params:
-      model: ollama/qwen2.5-coder:14b-q6k
-      api_base: http://localhost:11434
-
-  - model_name: groq-llama-3.3-70b
-    litellm_params:
-      model: groq/llama-3.3-70b-versatile
-
-  - model_name: gpt-4o
-    litellm_params:
-      model: gpt-4o
-```
-
-## Health Checks
-
-Each provider should be checked periodically:
-
-```typescript
-interface ProviderHealth {
-  provider: string;
-  healthy: boolean;
-  latencyMs: number;
-  lastChecked: Date;
-  error?: string;
-}
-```
+`nomic-embed-text` não deve ser usado como chat. `qwen2.5vl:3b` não deve ser usado como padrão de texto/code.
 
 ## Implementation Notes
 
-- **router.ts** — Primary text routing via MiniMax only
-- **bot.ts** — Vision/STT use Ollama directly
-- **rag-instance-organizer.ts** — Uses Haystack for vector search (not embedding providers directly)
-
+- Agentes escolhem apenas aliases LiteLLM.
+- Agentes não duplicam fallback, budget ou provider routing.
+- Redis, cache e budget entram em patch separado depois do gateway estável.
+- Config ativo: `config/litellm/config.yaml`.

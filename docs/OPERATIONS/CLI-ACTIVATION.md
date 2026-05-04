@@ -108,7 +108,7 @@ opencode run \
        --dangerously-skip-permissions \
        --format json \
        --dir /srv/monorepo \
-       --model minimax/MiniMax-M2.7 \
+       --model hermes-brain \
        [--config /path/to/.opencode.json]
 ```
 
@@ -137,8 +137,8 @@ mclaude --provider PROVIDER --model MODEL -p "prompt"
 
 | Flag | Purpose |
 |------|---------|
-| `--provider` | API provider (e.g., minimax, openrouter, litellm, ollama) |
-| `--model` | Model name (e.g., MiniMax-M2.7, o1-mini) |
+| `--provider` | API provider (padrão Nexus: `litellm`) |
+| `--model` | Model alias (ex.: `hermes-auto`, `hermes-local-code`, `hermes-brain`) |
 | `-p` | Prompt to execute |
 
 ---
@@ -176,8 +176,9 @@ Located at `~/.claude/vibe-kit/.opencode.json` or path via `--config`:
 
 ```json
 {
-  "model": "minimax/MiniMax-M2.7",
-  "apiKey": "${OPENCODE_API_KEY}",
+  "model": "hermes-brain",
+  "apiKey": "${LITELLM_MASTER_KEY}",
+  "baseUrl": "http://127.0.0.1:4018/v1",
   "dir": "/srv/monorepo",
   "dangerouslySkipPermissions": true,
   "format": "json",
@@ -228,7 +229,7 @@ cp /srv/monorepo/templates/.opencode.json ~/.claude/vibe-kit/
 **"Model not found" errors:**
 ```bash
 # Verify model name format: provider/model-name
-opencode --list-models 2>/dev/null | grep minimax
+opencode --list-models 2>/dev/null | grep hermes
 ```
 
 ### Codex
@@ -256,13 +257,15 @@ test -n "${OPENAI_API_KEY:-}" && echo "OK" || echo "MISSING"
 mclaude --help 2>&1 | grep -A 20 "Providers"
 
 # Verify provider name (lowercase)
-mclaude --provider minimax --model MiniMax-M2.7 -p "test" 2>&1
+OPENAI_BASE_URL=http://127.0.0.1:4018/v1 \
+OPENAI_API_KEY="$LITELLM_MASTER_KEY" \
+mclaude --provider litellm --model hermes-auto -p "test" 2>&1
 ```
 
 **"Model not supported" errors:**
 ```bash
 # Check model list for current provider
-mclaude --provider openrouter --list-models 2>/dev/null
+mclaude --provider litellm --list-models 2>/dev/null
 ```
 
 ### General — All CLIs
@@ -300,8 +303,8 @@ vibe-kit is controlled entirely via environment variables. Set them before runni
 export VIBE_PARALLEL=5           # Max parallel mclaude workers (default: 5)
 export VIBE_HOURS=8              # Max runtime in hours (default: 8)
 export VIBE_PHASE=               # Leave empty to run full pipeline; or: plan | do | verify
-export VIBE_PROVIDER=minimax     # API provider (default: minimax)
-export VIBE_MODEL=MiniMax-M2.7   # Model name (default: MiniMax-M2.7)
+export VIBE_PROVIDER=litellm        # API provider (default: litellm)
+export VIBE_MODEL=hermes-auto       # Model alias (default: hermes-auto)
 export VIBE_POLL_INTERVAL=5      # Queue poll interval in seconds (default: 5)
 export VIBE_SNAPSHOT_EVERY=3     # ZFS snapshot interval (default: 3 tasks)
 export VIBE_IDLE_COOLDOWN=180    # Exit after N seconds of empty queue (default: 180)
@@ -320,10 +323,8 @@ mclaude --provider "$VIBE_PROVIDER" --model "$VIBE_MODEL" -p "..."
 ```
 
 Supported providers depend on your `mclaude` installation. Common options:
-- `minimax` — MiniMax API (default)
-- `openrouter` — OpenRouter
-- `litellm` — LiteLLM proxy
-- `ollama` — Local Ollama
+- `litellm` — LiteLLM proxy (padrão Nexus)
+- `ollama` — Local Ollama para testes manuais
 
 ---
 
@@ -348,8 +349,8 @@ ls /srv/monorepo/docs/SPECS/SPEC-*.md
 ```bash
 export VIBE_PARALLEL=5
 export VIBE_HOURS=8
-export VIBE_PROVIDER=minimax
-export VIBE_MODEL=MiniMax-M2.7
+export VIBE_PROVIDER=litellm
+export VIBE_MODEL=hermes-auto
 ```
 
 ### Step 4: Run vibe-kit
@@ -385,8 +386,8 @@ tail -f /srv/monorepo/.claude/vibe-kit/logs/worker-*.log
 | `VIBE_PARALLEL` | `5` | Max concurrent mclaude workers |
 | `VIBE_HOURS` | `8` | Max runtime before forced exit (hours) |
 | `VIBE_PHASE` | (none) | Phase to run: `plan`, `do`, `verify`, or empty for full pipeline |
-| `VIBE_PROVIDER` | `minimax` | API provider passed to `mclaude --provider` |
-| `VIBE_MODEL` | `MiniMax-M2.7` | Model name passed to `mclaude --model` |
+| `VIBE_PROVIDER` | `litellm` | API provider passed to `mclaude --provider` |
+| `VIBE_MODEL` | `hermes-auto` | Model alias passed to `mclaude --model` |
 | `VIBE_POLL_INTERVAL` | `5` | Seconds between queue polling cycles |
 | `VIBE_SNAPSHOT_EVERY` | `3` | Create ZFS snapshot every N completed tasks |
 | `VIBE_IDLE_COOLDOWN` | `180` | Exit after N seconds with empty queue |

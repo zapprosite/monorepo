@@ -29,7 +29,7 @@ system_prompt:
 # ── Generation ──────────────────────────────────────────────────────────────
 
 generation:
-  base_model: minimax-m2.7        # Primary LLM — MiniMax M2.7 does the thinking
+  base_model: hermes-brain        # Primary LLM — hermes-brain does the thinking
   temperature: 0.55               # Friendly + coherent (not too random)
   top_p: 0.9
   max_tokens: 2000
@@ -80,11 +80,11 @@ internal_modes:
     fallback: true
 
   official_search:
-    description: Graph miss — use MiniMax MCP search as controlled external check
+    description: Graph miss — use OpenRouter MCP search as controlled external check
     fallback: true
 
   tavily_search:
-    description: MiniMax MCP miss — use Tavily HTTP API as controlled runtime fallback
+    description: OpenRouter MCP miss — use Tavily HTTP API as controlled runtime fallback
     fallback: true
 
   web_fallback:
@@ -98,7 +98,7 @@ evidence_order:
   - manual_exact        # Qdrant hit with service_manual for exact model
   - manual_family       # Qdrant hit for model family
   - graph_internal      # Internal diagnostic graph (U4/E4 etc.)
-  - official_search     # MiniMax MCP / web search
+  - official_search     # OpenRouter MCP / web search
   - tavily_search       # Tavily HTTP API runtime fallback
   - web_fallback        # DuckDuckGo Lite, then Google News RSS
 

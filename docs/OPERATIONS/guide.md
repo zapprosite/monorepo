@@ -32,7 +32,7 @@ VOZ (GPU — RTX 4090)
 └── voice-proxy :8011 → chatterbox   (TTS ResembleAI, ~5 GB VRAM)
 
 OLLAMA (systemd) :11434
-├── qwen3.5 — 9.65B Q4_K_M, 262K ctx, vision+tools+thinking (~6.5 GB VRAM)
+├── qwen2.5-coder — 9.65B Q4_K_M, 262K ctx, vision+tools+thinking (~6.5 GB VRAM)
 └── bge-m3  — 566M F16, 1024-dim embeddings (~1.2 GB VRAM)
 
 Monorepo      /srv/monorepo       ← Desenvolvimento de apps

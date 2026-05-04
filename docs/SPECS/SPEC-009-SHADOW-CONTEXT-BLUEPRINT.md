@@ -63,7 +63,7 @@ O homelab tem peças desconectadas que desperdiçam potencial:
 
 | Component | Technology | Notes |
 |-----------|------------|-------|
-| **Workers** | mclaude -p (MiniMax-M2.7) | Contexto zero por task |
+| **Workers** | mclaude -p (hermes-brain) | Contexto zero por task |
 | **Vector DB** | Qdrant (:6333) | Auth configurada, HNSW otimizado |
 | **Memory** | mem0 via mcp-memory | Qdrant backend |
 | **Tutor** | Hermes Gateway (:8642) + MCP (:8092) | Gateway API |

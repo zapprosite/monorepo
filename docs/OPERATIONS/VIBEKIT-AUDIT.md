@@ -41,7 +41,7 @@
 - **Dependencies:**
   - External scripts: `/srv/monorepo/scripts/context-reset.sh`, `/srv/monorepo/scripts/smoke-runner.sh`, `/srv/monorepo/scripts/notify-complete.sh`
   - External binaries: `python3`, `jq`, `mclaude`, `git`, `sudo`, `pnpm`
-  - Env vars: `VIBE_PARALLEL` (default 5), `VIBE_HOURS` (default 8), `VIBE_PROVIDER` (default minimax), `VIBE_MODEL` (default MiniMax-M2.7), `VIBE_PHASE`, `QUEUE_FILE`
+  - Env vars: `VIBE_PARALLEL` (default 5), `VIBE_HOURS` (default 8), `VIBE_PROVIDER` (default openrouter), `VIBE_MODEL` (default hermes-brain), `VIBE_PHASE`, `QUEUE_FILE`
   - Files: `queue.json`, `state.json`, `.running_tasks.json`, `context/` dir
 
 ### Failure Modes

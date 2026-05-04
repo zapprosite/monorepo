@@ -18,7 +18,7 @@
 | Qdrant vector DB | ✅ WORKING | API key canonical, 12 collections |
 | mcp-memory memory_add | ✅ WORKING | 200 OK, embeddings flow to Qdrant |
 | Redis | ✅ WORKING | Healthy |
-| MiniMax-M2.7 | ⚠️ PARTIAL | Chat hangs (upstream issue) |
+| hermes-brain | ⚠️ PARTIAL | Chat hangs (upstream issue) |
 | Docker bridge to host LAN (192.168.15.83) | ❌ BROKEN | Cannot reach host Ollama - bypassed via qwen2-vl7b |
 
 ## Ollama Direct Test (from host)
@@ -49,7 +49,7 @@ Config is CORRECT. The problem is network connectivity, not LiteLLM config.
 ## Environment Variables Status
 
 All canonical in `/srv/monorepo/.env`:
-- ✅ MINIMAX_API_KEY = present in `.env`
+- ✅ OPENROUTER_API_KEY = present in `.env`
 - ✅ QDRANT_API_KEY = present in `.env`
 - ✅ COOLIFY_API_KEY = present in `.env`
 
@@ -120,12 +120,12 @@ sudo iptables -t nat -L POSTROUTING -n | grep MASQUERADE
 
 ## Fixes Applied in Session
 
-1. **MINIMAX token fixed** in `/home/will/zappro-lite/.env` (values intentionally redacted; `.env` is the only source of truth)
+1. **OPENROUTER token fixed** in `/home/will/zappro-lite/.env` (values intentionally redacted; `.env` is the only source of truth)
 2. **Qdrant connectivity fixed** - connected `zappro-litellm` to `platform_default` network
 3. **platform_default added** to `docker-compose.yml` networks section
 4. **mcp-memory schema mismatch confirmed resolved** (422 for `content`, 200 for `text`)
 5. **LiteLLM embeddings working** via qwen2-vl7b (768 dims, ~30ms)
-6. **MiniMax chat working** via `os.environ` approach (200 OK after token fix)
+6. **OpenRouter chat working** via `os.environ` approach (200 OK after token fix)
 
 ---
 
@@ -137,7 +137,7 @@ Comprehensive smoke test suite created in `/srv/monorepo/smoke-tests/`:
 
 | File | Tests | Purpose |
 |------|-------|---------|
-| `smoke_litellm_minimax.py` | 5 | LiteLLM + MiniMax chat, embeddings, model list |
+| `smoke_litellm_openrouter.py` | 5 | LiteLLM + OpenRouter chat, embeddings, model list |
 | `smoke_mcp_memory.py` | 6 | mcp-memory health, Qdrant, memory_add/search |
 | `smoke_hermes_agency.py` | 4 | Hermes health, models, skills, Telegram webhook |
 | `smoke_qdrant_redis.py` | 7 | Qdrant collections, search, Redis ping/INFO |
@@ -190,7 +190,7 @@ _Agents completed: TEST-EMBEDDINGS-ENDPOINT, TEST-LITELLM-CHAT, FINAL-SUMMARY, p
 
 ### Pytest Smoke Tests
 - **17 passed**, 7 failed, 9 skipped
-- New tests added: `smoke_litellm_minimax.py`, `smoke_mcp_memory.py`, `smoke_hermes_agency.py`, `smoke_qdrant_redis.py`
+- New tests added: `smoke_litellm_openrouter.py`, `smoke_mcp_memory.py`, `smoke_hermes_agency.py`, `smoke_qdrant_redis.py`
 
 ### Vitest (hermes-gateway)
 - **262 passed**, 9 failed

@@ -1,4 +1,4 @@
-# SPEC-001: Template claude-code-minimax Fusionado
+# SPEC-001: Template claude-code-openrouter Fusionado
 
 **Status:** COMPLETED
 **Created:** 2026-04-07
@@ -6,11 +6,11 @@
 
 ## Summary
 
-Fusionar o template `claude-code-minimax` (zapprosite/claude-code-minimax) em `/srv/monorepo/.claude/` com a estrutura existente, eliminando redundâncias e criando specflow infrastructure.
+Fusionar o template `claude-code-openrouter` (zapprosite/claude-code-openrouter) em `/srv/monorepo/.claude/` com a estrutura existente, eliminando redundâncias e criando specflow infrastructure.
 
 ## Motivation
 
-O template `claude-code-minimax` tinha skills e agents avançados mas não estavam integrados no monorepo. O monorepo tinha docs mas sem workflow spec-driven. A fusão traz:
+O template `claude-code-openrouter` tinha skills e agents avançados mas não estavam integrados no monorepo. O monorepo tinha docs mas sem workflow spec-driven. A fusão traz:
 - Skills locais para todos os slash commands documentados
 - Sistema de cron jobs para auto-orchestration
 - Specflow completo (SPECs, reviews, tasks pipeline)
@@ -75,7 +75,7 @@ docs/specflow/
 
 ## Implementation Notes
 
-- `.claude/agents/` está no .gitignore — agents pessoais pertencem ao template em `~/.claude/projects/claude-code-minimax/`
+- `.claude/agents/` está no .gitignore — agents pessoais pertencem ao template em `~/.claude/projects/claude-code-openrouter/`
 - `scheduled_tasks.json` usa prompts em português para cron jobs
 - Pre-commit hook scanea apenas staged files, não todos os ficheiros do repo
 - Cron jobs verificam antes de agir (silence when OK pattern)
@@ -98,7 +98,7 @@ ls docs/specflow/SPEC-*.md
 
 ## Commit
 
-`fd9bd2d` — feat(claude): add claude-code-minimax template fusion
+`fd9bd2d` — feat(claude): add claude-code-openrouter template fusion
 
 ---
 

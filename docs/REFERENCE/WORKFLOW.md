@@ -91,7 +91,7 @@ c --agent deploy-check          # Antes de deploy
 
 **Use para:**
 - Quick tasks no desktop
-- Quando quer usar modelo diferente (MiniMax direto)
+- Quando quer usar modelo diferente (OpenRouter direto)
 - Tarefas que não precisam de todo contexto do monorepo
 - Skim through código sem peso
 
@@ -102,7 +102,7 @@ c --agent deploy-check          # Antes de deploy
 **Comandos:**
 ```bash
 opencode "pergunta rápida"
-opencode --model minimax/MiniMax-M2.7 "task"
+opencode --model openrouter/hermes-brain "task"
 ```
 
 ---

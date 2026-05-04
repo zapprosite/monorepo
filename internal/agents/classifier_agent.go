@@ -1,13 +1,10 @@
 package agents
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
 	"log"
-	"net/http"
-	"os"
 	"regexp"
 	"strings"
 	"time"
@@ -38,24 +35,24 @@ type Entity struct {
 }
 
 // ClassifierAgent classifies user messages and extracts entities.
-// It uses MiniMax M2 for intent classification and entity extraction.
+// It uses LiteLLM for intent classification and entity extraction.
 type ClassifierAgent struct {
-	minimaxAPIKey string
-	redisClient   RedisEnqueuer
+	liteLLMClient *LiteLLMClient
+	redisClient      RedisEnqueuer
 }
 
 // NewClassifierAgent creates a new ClassifierAgent.
-func NewClassifierAgent(minimaxAPIKey string) *ClassifierAgent {
+func NewClassifierAgent(liteLLMAPIKey string) *ClassifierAgent {
 	return &ClassifierAgent{
-		minimaxAPIKey: minimaxAPIKey,
+		liteLLMClient: NewLiteLLMClientWithModel(liteLLMAPIKey, HermesAutoModel),
 	}
 }
 
 // NewClassifierAgentWithRedis creates a new ClassifierAgent with Redis client for routing.
-func NewClassifierAgentWithRedis(minimaxAPIKey string, redisClient RedisEnqueuer) *ClassifierAgent {
+func NewClassifierAgentWithRedis(liteLLMAPIKey string, redisClient RedisEnqueuer) *ClassifierAgent {
 	return &ClassifierAgent{
-		minimaxAPIKey: minimaxAPIKey,
-		redisClient:   redisClient,
+		liteLLMClient: NewLiteLLMClientWithModel(liteLLMAPIKey, HermesAutoModel),
+		redisClient:    redisClient,
 	}
 }
 
@@ -114,7 +111,7 @@ func (c *ClassifierAgent) Execute(ctx context.Context, task *SwarmTask) (map[str
 	// Read phone for context
 	phone, _ := task.Input["phone"].(string)
 
-	// 2. Classify intent using LLM (MiniMax M2)
+	// 2. Classify intent using LiteLLM via LiteLLM
 	intent, err := c.classifyIntent(ctx, normalizedText, historyText, phone)
 	if err != nil {
 		// Fallback to rule-based classification
@@ -179,9 +176,9 @@ func (c *ClassifierAgent) Execute(ctx context.Context, task *SwarmTask) (map[str
 	return result, nil
 }
 
-// classifyIntent uses MiniMax M2 to classify the user intent.
+// classifyIntent uses LiteLLM to classify the user intent.
 func (c *ClassifierAgent) classifyIntent(ctx context.Context, text, history, phone string) (Intent, error) {
-	if c.minimaxAPIKey == "" || text == "" {
+	if c.liteLLMClient == nil || !c.liteLLMClient.Configured() || text == "" {
 		return c.ruleBasedClassification(text), nil
 	}
 
@@ -204,8 +201,7 @@ Responda APENAS com uma das seguintes intenções (sem texto adicional):
 
 Intenção:`, phone, history, text)
 
-	// Call MiniMax API
-	resp, err := c.callMiniMax(ctx, prompt)
+	resp, err := c.callLiteLLM(ctx, prompt, 100)
 	if err != nil {
 		return IntentUnknown, err
 	}
@@ -227,7 +223,7 @@ Intenção:`, phone, history, text)
 	}
 }
 
-// extractEntities uses MiniMax to extract entities from the message.
+// extractEntities uses LiteLLM to extract entities from the message.
 func (c *ClassifierAgent) extractEntities(ctx context.Context, text string, intent Intent) (*Entity, error) {
 	entity := &Entity{}
 
@@ -235,7 +231,7 @@ func (c *ClassifierAgent) extractEntities(ctx context.Context, text string, inte
 		return entity, nil
 	}
 
-	if c.minimaxAPIKey == "" {
+	if c.liteLLMClient == nil || !c.liteLLMClient.Configured() {
 		return c.ruleBasedEntityExtraction(text), nil
 	}
 
@@ -254,7 +250,7 @@ Mensagem: %s
 
 Responda em JSON com os campos acima (vazios se não mencionados).`, text)
 
-	resp, err := c.callMiniMax(ctx, prompt)
+	resp, err := c.callLiteLLM(ctx, prompt, 100)
 	if err != nil {
 		return c.ruleBasedEntityExtraction(text), nil
 	}
@@ -450,61 +446,12 @@ func (c *ClassifierAgent) ruleBasedEntityExtraction(text string) *Entity {
 	return entity
 }
 
-// callMiniMax calls the MiniMax API for text generation using the Anthropic-compatible endpoint.
-func (c *ClassifierAgent) callMiniMax(ctx context.Context, prompt string) (string, error) {
-	if c.minimaxAPIKey == "" {
-		// Try environment variable as fallback
-		c.minimaxAPIKey = os.Getenv("MINIMAX_API_KEY")
+// callLiteLLM calls LiteLLM for text generation.
+func (c *ClassifierAgent) callLiteLLM(ctx context.Context, prompt string, maxTokens int) (string, error) {
+	if c.liteLLMClient == nil {
+		return "", fmt.Errorf("litellm client not configured")
 	}
-	if c.minimaxAPIKey == "" {
-		return "", fmt.Errorf("minimax API key not configured")
-	}
-
-	reqBody := MiniMaxRequest{
-		Model: "MiniMax-M2",
-		Messages: []MiniMaxMessage{
-			{
-				Role:    "user",
-				Content: prompt,
-			},
-		},
-		MaxTokens: 100,
-	}
-
-	jsonBody, err := json.Marshal(reqBody)
-	if err != nil {
-		return "", fmt.Errorf("marshal request: %w", err)
-	}
-
-	endpoint := "https://api.minimax.io/v1/messages"
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, endpoint, bytes.NewReader(jsonBody))
-	if err != nil {
-		return "", fmt.Errorf("create request: %w", err)
-	}
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer "+c.minimaxAPIKey)
-
-	client := &http.Client{Timeout: 10 * time.Second}
-	resp, err := client.Do(req)
-	if err != nil {
-		return "", fmt.Errorf("execute request: %w", err)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("MiniMax API returned status %d", resp.StatusCode)
-	}
-
-	var result MiniMaxResponse
-	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return "", fmt.Errorf("decode response: %w", err)
-	}
-
-	if len(result.Content) == 0 {
-		return "", fmt.Errorf("empty response from MiniMax")
-	}
-
-	return result.Content[0].Text, nil
+	return c.liteLLMClient.Chat(ctx, prompt, maxTokens)
 }
 
 // Ensure ClassifierAgent implements AgentInterface

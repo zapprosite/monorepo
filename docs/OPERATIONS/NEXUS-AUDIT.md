@@ -88,7 +88,7 @@
 | nexus-tunnel.sh | `sudo systemctl restart cloudflared` — may prompt for password, blocks script | HIGH |
 | nexus-ufw.sh | Lock file mechanism: 30s wait only; `apt-get install ufw` runs without confirming OS type | MEDIUM |
 | nexus-ufw.sh | `exec_sudo()` has 3 fallback methods; method 2 (direct execution) bypasses sudo entirely | HIGH |
-| vibe.sh | `curl` to localhost:11434 with no timeout; gemma4 call blocks if model hangs | HIGH |
+| vibe.sh | `curl` to localhost:11434 with no timeout; qwen2.5-coder:14b-q6k call blocks if model hangs | HIGH |
 | vibe.sh | `SPEC` content uses placeholder text `[Descreva o problema...]` — creates invalid docs | MEDIUM |
 | vibe.sh | `pipeline.json` path hardcoded as `${MONOREPO_DIR}/tasks/pipeline.json`; directory may not exist | MEDIUM |
 | vibe.sh | `grep -E "^\d+\. \[ \]"` for task extraction is fragile; breaks with different checkbox syntax | MEDIUM |
@@ -199,7 +199,7 @@
 10. **nexus-investigate.sh** — Add `--max-time` to all curl calls
 
 ### P2 (Medium - Technical Debt)
-11. **vibe.sh** — Add timeout to gemma4 LLM classification call
+11. **vibe.sh** — Add timeout to qwen2.5-coder:14b-q6k LLM classification call
 12. **nexus-legacy-detector.sh** — Use `stat -L` for portability
 13. **All stats scripts** — Add persistent storage (not /tmp)
 14. **All scripts** — Implement structured JSON logging

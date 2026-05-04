@@ -137,10 +137,10 @@ nexus.sh --spec SPEC-NNN --phase plan|review|execute|verify|complete
   "context7": {
     "env": { "CONTEXT7_API_KEY": "${CONTEXT7_API_KEY}" }
   },
-  "minimax": {
+  "openrouter": {
     "env": {
-      "MINIMAX_API_KEY": "${MINIMAX_API_KEY}",
-      "MINIMAX_API_HOST": "https://api.minimax.io"
+      "OPENROUTER_API_KEY": "${OPENROUTER_API_KEY}",
+      "OPENROUTER_API_HOST": "https://openrouter.ai/api/v1"
     }
   },
   "github": {
@@ -189,12 +189,12 @@ EVENT_DIR=$CLAUDE_DIR/events python3 state-manager.py agent-complete <id> [resul
       "args": ["-y", "--package=task-master-ai", "task-master-ai"],
       "env": {}
     },
-    "minimax": {
+    "openrouter": {
       "command": "uvx",
-      "args": ["minimax-mcp", "-y"],
+      "args": ["openrouter-mcp", "-y"],
       "env": {
-        "MINIMAX_API_KEY": "${MINIMAX_API_KEY}",
-        "MINIMAX_API_HOST": "https://api.minimax.io"
+        "OPENROUTER_API_KEY": "${OPENROUTER_API_KEY}",
+        "OPENROUTER_API_HOST": "https://openrouter.ai/api/v1"
       }
     },
     "github": {

@@ -136,7 +136,7 @@
 | 9100 | Node Exporter | host network | — |
 | 9250 | Cadvisor | 127.0.0.1 (UFW) | — |
 | 9835 | nvidia-gpu-exporter | 0.0.0.0 (UFW) | ⚠️ Exposto LAN — métricas GPU |
-| 11434 | Ollama | 127.0.0.1 (UFW) | GPU models (gemma3, llava, nomic-embed) |
+| 11434 | Ollama | 127.0.0.1 (UFW) | GPU models (gemma3, qwen2.5vl:3b, nomic-embed) |
 
 **Docker Bridge Networks (Coolify):**
 | Rede | Subnet | Serviços |
@@ -199,9 +199,9 @@
 | zappro-wav2vec2-proxy | wav2vec2-deepgram-proxy | :8203 | qgtzrmi... | ✅ UP |
 
 **Modelos disponíveis via LiteLLM (10.0.1.1:4000):**
-- `gemma4` (instruction following, via Ollama host)
-- `llava` (visão, via Ollama host)
-- `embedding-nomic` (embeddings, via Ollama host)
+- `qwen2.5-coder:14b-q6k` (instruction following, via Ollama host)
+- `qwen2.5vl:3b` (visão, via Ollama host)
+- `hermes-embed` (embeddings, via Ollama host)
 
 **TTS:** (`http://10.0.19.7:8880/v1`) com voz `pm_santa` (PT-BR)
 **STT:** whisper-api local (`10.0.19.8:8201`) — OpenAI-compatible `/v1/audio/transcriptions`

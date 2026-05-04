@@ -6,7 +6,7 @@ O `zappro-clima-tutor` nunca mais deve nascer "bebê" em novo chat.
 O fluxo obrigatório é:
 
 ```
-Chat novo → context_fetch → MiniMax → memory_writeback → resposta
+Chat novo → context_fetch → OpenRouter → memory_writeback → resposta
 ```
 
 ## Arquitetura de Memória
@@ -27,7 +27,7 @@ Chat novo → context_fetch → MiniMax → memory_writeback → resposta
 3. Buscar Postgres: `conversation_id` → máx 4 eventos recentes
 4. Buscar Qdrant: `query + filters` → máx 3 chunks
 5. Agregar em context_pack (máx 12 itens, 2500 tokens)
-6. Injetar no prompt MiniMax como seção "## Memória Relevante"
+6. Injetar no prompt OpenRouter como seção "## Memória Relevante"
 
 ### Depois de Responder (memory_writeback)
 

@@ -1,7 +1,7 @@
 # Guia Completo — Claude Code + Memória Persistente
 
 **Host:** will-zappro | **Atualizado:** 2026-04-05
-**Stack:** MiniMax-M2.7 via proxy ($50) · Claude Pro OAuth ($20)
+**Stack:** hermes-brain via proxy ($50) · Claude Pro OAuth ($20)
 **Plugins:** 9 | **MCP Servers:** 7 | **RTX 4090** | **ZFS 3.46TB**
 
 ---
@@ -20,7 +20,7 @@
 **Serviços:**
 | Serviço | IP:Port | Status |
 |--------|---------|--------|
-| LiteLLM Proxy | 10.0.1.1:4000 | ✅ gemma4, llava, qwen3.6-plus, minimax-m2.7 |
+| LiteLLM Proxy | 10.0.1.1:4000 | ✅ gemma4, llava, qwen3.6-plus, hermes-brain |
 | Ollama (GPU) | 10.0.1.1:11434 | ✅ gemma4, llava, nomic-embed |
 | | 10.0.19.6:8880 | ✅ pm_santa |
 | Qdrant (Coolify) | 10.0.19.5:6333 | ✅ |
@@ -45,7 +45,7 @@ curl -X POST http://10.0.1.1:4000/v1/chat/completions \
 ```
 
 **Config :**
-- Modelo: `liteLLM/minimax-m2.7`
+- Modelo: `liteLLM/hermes-brain`
 - TTS: (OPENAI_TTS_BASE_URL=http://10.0.19.6:8880/v1)
 - STT: Deepgram cloud (whisper local não alcançável do Coolify)
 
@@ -56,8 +56,8 @@ curl -X POST http://10.0.1.1:4000/v1/chat/completions \
 | Contexto | Comando | Plano |
 |----------|---------|-------|
 | Claude Pro OAuth (Haiku/Sonnet/Opus) | `c` | $17 |
-| MiniMax | `cm` | $50 |
-| One-shot MiniMax | `cm -p "tarefa"` | $50 |
+| OpenRouter | `cm` | $50 |
+| One-shot OpenRouter | `cm -p "tarefa"` | $50 |
 | One-shot Claude Pro | `c -p "tarefa"` | $17 |
 | Homelab admin | `chost "tarefa"` | — |
 | Monorepo | `cmon` | — |
@@ -70,7 +70,7 @@ curl -X POST http://10.0.1.1:4000/v1/chat/completions \
 
 ```bash
 alias c='claude --permission-mode bypassPermissions'
-alias cm='KEY=$(grep ^MINIMAX_API_KEY= ~/.claude/.secrets | cut -d= -f2-) && ANTHROPIC_BASE_URL="https://api.minimax.io/anthropic" ANTHROPIC_AUTH_TOKEN="$KEY" ANTHROPIC_MODEL="MiniMax-M2.7" API_TIMEOUT_MS="3000000" claude --permission-mode bypassPermissions'
+alias cm='KEY=$(grep ^OPENROUTER_API_KEY= ~/.claude/.secrets | cut -d= -f2-) && ANTHROPIC_BASE_URL="https://openrouter.ai/api/v1/anthropic" ANTHROPIC_AUTH_TOKEN="$KEY" ANTHROPIC_MODEL="hermes-brain" API_TIMEOUT_MS="3000000" claude --permission-mode bypassPermissions'
 alias cp='env -u ANTHROPIC_BASE_URL -u ANTHROPIC_AUTH_TOKEN -u ANTHROPIC_MODEL -u API_TIMEOUT_MS claude --permission-mode bypassPermissions'
 alias chost='/usr/local/bin/codex-host'
 alias cmon='cd /srv/monorepo && claude'
@@ -215,7 +215,7 @@ curl -s http://127.0.0.1:8200/api/status
 | Secret | Origem | Uso |
 |--------|--------|-----|
 | `TAVILY_API_KEY` | `dev/tavily/api_key` | Tavily MCP |
-| `MINIMAX_API_KEY` | `~/.claude/.secrets` | Alias cm |
+| `OPENROUTER_API_KEY` | `~/.claude/.secrets` | Alias cm |
 
 ---
 
@@ -265,8 +265,8 @@ cp ~/.mcp-data/memory-keeper/backups/SEU_BACKUP.db \
 | Arquivo | Por quê |
 |---------|---------|
 | `~/.claude/CLAUDE.md` | Diretivas globais — imutável |
-| `~/.claude/settings.json` | Config MiniMax — bloco env readonly |
-| `~/.claude/.secrets` | MINIMAX_API_KEY — não versionar |
+| `~/.claude/settings.json` | Config OpenRouter — bloco env readonly |
+| `~/.claude/.secrets` | OPENROUTER_API_KEY — não versionar |
 
 ### CVEs Protegidas
 
@@ -320,7 +320,7 @@ claude --doctor
 ~/.claude/
 ├── settings.json              # env + permissions + MCP servers
 ├── CLAUDE.md                 # Diretivas globais (immutable)
-├── .secrets                  # MINIMAX_API_KEY
+├── .secrets                  # OPENROUTER_API_KEY
 ├── memory/                   # Sistema de memória
 │   ├── MEMORY.md
 │   ├── audit-log.md
@@ -495,10 +495,10 @@ cat ~/.claude/pipelines/modo-dormir-*.log
 
 ## 📦 Repositórios GitHub Prontos
 
-### 1. Setup Completo Claude Code + MiniMax
+### 1. Setup Completo Claude Code + OpenRouter
 
 ```
-/home/will/Desktop/claude-code-minimax-setup/
+/home/will/Desktop/claude-code-openrouter-setup/
 ├── README.md              # Guia principal
 ├── SETUP.md              # Instalação detalhada
 ├── GUIA-RAPIDO.md       # Referência rápida
@@ -506,7 +506,7 @@ cat ~/.claude/pipelines/modo-dormir-*.log
 ├── .gitignore
 ├── .bash_profile
 ├── .claude/
-│   ├── settings.json     # Config MiniMax + 7 MCP
+│   ├── settings.json     # Config OpenRouter + 7 MCP
 │   ├── CLAUDE.md        # Suas diretivas globais
 │   ├── agents/          # 7 agentes (inclui modo-dormir)
 │   ├── skills/          # 9 skills
@@ -520,11 +520,11 @@ cat ~/.claude/pipelines/modo-dormir-*.log
 
 **Para subir no GitHub:**
 ```bash
-cd /home/will/Desktop/claude-code-minimax-setup
+cd /home/will/Desktop/claude-code-openrouter-setup
 git init
 git add .
-git commit -m "Initial commit: Claude Code MiniMax setup completo"
-gh repo create claude-code-minimax-setup --public --source=. --push
+git commit -m "Initial commit: Claude Code OpenRouter setup completo"
+gh repo create claude-code-openrouter-setup --public --source=. --push
 ```
 
 ### 2. Modo Dormir (Separado)
@@ -544,4 +544,4 @@ gh repo create modo-dormir-claude --public --source=. --push
 
 ---
 
-*Atualizado: 2026-04-05 — 2 repos GitHub prontos, setup completo Claude Code + MiniMax*
+*Atualizado: 2026-04-05 — 2 repos GitHub prontos, setup completo Claude Code + OpenRouter*

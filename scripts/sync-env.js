@@ -1,6 +1,6 @@
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -12,16 +12,16 @@ const REQUIRED_VARS = ['NODE_ENV', 'PORT'];
 
 function checkEnv() {
 	if (!fs.existsSync(ENV_FILE)) {
-		console.error('FATAL: .env not found at ' + ENV_FILE);
+		console.error(`FATAL: .env not found at ${ENV_FILE}`);
 		process.exit(1);
 	}
 	if (!fs.existsSync(ENV_EXAMPLE)) {
 		console.warn('WARNING: .env.example not found');
 	}
 	const envContent = fs.readFileSync(ENV_FILE, 'utf8');
-	const missing = REQUIRED_VARS.filter((v) => !envContent.includes(v + '='));
+	const missing = REQUIRED_VARS.filter((v) => !envContent.includes(`${v}=`));
 	if (missing.length > 0) {
-		console.error('FATAL: Missing required env vars: ' + missing.join(', '));
+		console.error(`FATAL: Missing required env vars: ${missing.join(', ')}`);
 		process.exit(1);
 	}
 	console.log('[OK] .env validated');
@@ -31,9 +31,9 @@ function checkEnv() {
 		if (fs.existsSync(appEnv)) {
 			const link = fs.readFileSync(appEnv, 'utf8').trim();
 			if (link.startsWith('/srv/monorepo/.env') || link === '.env') {
-				console.log('[OK] apps/' + app + '/.env -> symlink');
+				console.log(`[OK] apps/${app}/.env -> symlink`);
 			} else {
-				console.log('[WARN] apps/' + app + '/.env -> manual config');
+				console.log(`[WARN] apps/${app}/.env -> manual config`);
 			}
 		}
 	}

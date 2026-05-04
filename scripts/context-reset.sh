@@ -108,8 +108,9 @@ _get_cli_api_key() {
             return 1
             ;;
         mclaude)
-            # mclaude uses provider-specific API keys
-            [[ -n "${MINIMAX_API_KEY:-}" ]] && echo "$MINIMAX_API_KEY" && return 0
+            # Nexus/mclaude uses LiteLLM as the gateway.
+            [[ -n "${LITELLM_API_KEY:-}" ]] && echo "$LITELLM_API_KEY" && return 0
+            [[ -n "${LITELLM_MASTER_KEY:-}" ]] && echo "$LITELLM_MASTER_KEY" && return 0
             [[ -n "${OPENAI_API_KEY:-}" ]] && echo "$OPENAI_API_KEY" && return 0
             return 1
             ;;
@@ -299,9 +300,9 @@ EOF
 EOF
             ;;
         mclaude)
-            # mclaude provider config
-            local provider="${MCLAUDE_PROVIDER:-openrouter}"
-            local model="${MCLAUDE_MODEL:-anthropic/claude-3-5-sonnet-20241022}"
+            # mclaude provider config. Keep routing in LiteLLM.
+            local provider="${MCLAUDE_PROVIDER:-litellm}"
+            local model="${MCLAUDE_MODEL:-hermes-auto}"
             cat > "$task_context/.mcluderc" <<EOF
 {
   "cli": "mclaude",

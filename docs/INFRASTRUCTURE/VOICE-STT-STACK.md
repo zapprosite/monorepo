@@ -16,7 +16,7 @@ Microfone (Telegram Voice)
 Groq Whisper Turbo (STT cloud) ── fallback ──▶ faster-whisper (:8204)
     │
     ▼
-MiniMax-M2.7 (LLM primário, :4000)
+hermes-brain (LLM primário, :4000)
     │
     ▼
 Edge TTS (pt-BR-AntonioNeural) ──▶ Telegram Voice
@@ -218,7 +218,7 @@ curl -sf https://api.groq.com/openai/v1/models 2>/dev/null && echo "Groq OK"
 ┌─────────────────┐
 │    LiteLLM       │
 │    :4000        │
-│  MiniMax-M2.7   │
+│  hermes-brain   │
 └──────┬──────────┘
        │ texto
        ▼
@@ -242,7 +242,7 @@ curl -sf https://api.groq.com/openai/v1/models 2>/dev/null && echo "Groq OK"
 | Provider | Model | Input Cost | Output Cost |
 |----------|-------|------------|-------------|
 | Groq | whisper-large-v3-turbo | $0.00 (150min/day free) | — |
-| MiniMax | minimax-m2.7 | $0.10/1M | $0.10/1M |
+| OpenRouter | hermes-brain | $0.10/1M | $0.10/1M |
 | Ollama | qwen2.5:3b | $0 | $0 |
 | Edge TTS | pt-BR-AntonioNeural | $0 | $0 |
 

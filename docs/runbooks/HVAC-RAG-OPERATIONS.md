@@ -10,17 +10,17 @@
 
 ## Overview
 
-The HVAC RAG system provides a friendly tutor-style assistant for field technicians working on HVAC inverter equipment. It combines a Qdrant vector database (context/evidence), an internal diagnostic graph, and MiniMax M2.7 as the **primary writing engine**. A Juiz pre-flight validator protects the system.
+The HVAC RAG system provides a friendly tutor-style assistant for field technicians working on HVAC inverter equipment. It combines a Qdrant vector database (context/evidence), an internal diagnostic graph, and OpenRouter via hermes-brain as the **primary writing engine**. A Juiz pre-flight validator protects the system.
 
-**Architecture principle:** RAG provides evidence. MiniMax writes the answer. The friendly response rewriter is the final safety net.
+**Architecture principle:** RAG provides evidence. OpenRouter writes the answer. The friendly response rewriter is the final safety net.
 
 ```
 User Query → Juiz (validate)
               ↓
          Router (what mode?)
               ↓
-         guided_triage  →  Qdrant (top_k=6)  →  MiniMax M2.7  →  Friendly Rewriter  →  Response
-         field_tutor    →  Qdrant (top_k=10) →  MiniMax M2.7  →  Friendly Rewriter  →  Response
+         guided_triage  →  Qdrant (top_k=6)  →  OpenRouter via hermes-brain  →  Friendly Rewriter  →  Response
+         field_tutor    →  Qdrant (top_k=10) →  OpenRouter via hermes-brain  →  Friendly Rewriter  →  Response
          printable      →  Qdrant + Formatter →  Plain text
               ↓
          No manual?  →  Graph internal / Web search (controlled fallback)
@@ -41,7 +41,7 @@ OpenWebUI (default model: zappro-clima-tutor)
             ├── Router (printable / guided_triage / field_tutor)
             ├── Qdrant hvac_manuals_v1 (context/evidence)
             ├── Ollama (nomic-embed-text embeddings)
-            ├── MiniMax M2.7 (primary writing engine — NOT raw RAG output)
+            ├── OpenRouter via hermes-brain (primary writing engine — NOT raw RAG output)
             └── Friendly Response Rewriter (tone safety net)
 ```
 
@@ -155,7 +155,7 @@ python /srv/monorepo/smoke-tests/smoke_hvac_friendly_tutor_ux.py
 
 ### Friendly Response Rewriter
 
-The `hvac-friendly-response.py` module is the tone safety net — applied after every MiniMax response:
+The `hvac-friendly-response.py` module is the tone safety net — applied after every OpenRouter response:
 
 ```bash
 # Test rewrite rules
@@ -335,4 +335,4 @@ python3 scripts/hvac-rag/hvac-rag-pipe.py &
 - Qdrant Collection: `hvac_manuals_v1` (442 points)
 - LiteLLM: `http://127.0.0.1:4000`
 - Ollama: `http://127.0.0.1:11434`
-- MiniMax M2.7: primary answer model (via LiteLLM)
+- OpenRouter via hermes-brain: primary answer model (via LiteLLM)

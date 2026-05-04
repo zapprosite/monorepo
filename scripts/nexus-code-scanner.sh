@@ -9,7 +9,7 @@
 #   3. Detect patterns: hardcoded, salada, placeholder, legacy
 #   4. Generate actionable reports
 #
-# RATE LIMIT: Respects minimax 500 RPM (built-in to CLI)
+# RATE LIMIT: Respects LiteLLM routing and provider limits (built-in to CLI)
 #
 # USAGE:
 #   nexus-code-scanner.sh analyze <path>

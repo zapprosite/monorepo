@@ -12,7 +12,7 @@ Evidence Ladder (priority order):
     4. graph_internal     → use as diagnostic hint
     5. official_web       → Tavily search, cite source
     6. web_fallback       → general search, note confidence
-    7. llm_triage         → MiniMax safe triage, no invented values
+    7. llm_triage         → OpenRouter safe triage, no invented values
     8. insufficient_context → ask for more info, safety only
 
 IMPORTANT: This module does NOT make actual LLM/RAG calls. It only:
@@ -208,7 +208,7 @@ def resolve(intake_result: dict[str, Any], coverage_map: dict[str, bool], option
         5. graph_internal     → use as diagnostic hint
         6. official_web       → Tavily search, cite source
         7. web_fallback       → general search, note confidence
-        8. llm_triage         → MiniMax safe triage, no invented values
+        8. llm_triage         → OpenRouter safe triage, no invented values
         9. insufficient_context → ask for more info, safety only
     """
     opts = ResolverOptions(**(options or {}))
@@ -364,7 +364,7 @@ def _build_source_citation(level: EvidenceLevel, intake_result: dict[str, Any]) 
         EvidenceLevel.GRAPH_INTERNAL: "graph:internal",
         EvidenceLevel.OFFICIAL_WEB: "web:official",
         EvidenceLevel.WEB_FALLBACK: "web:fallback",
-        EvidenceLevel.LLM_TRIAGE: "llm:minimax_safe",
+        EvidenceLevel.LLM_TRIAGE: "llm:openrouter_safe",
     }
 
     return citations.get(level)
@@ -504,7 +504,7 @@ def _build_provider_hints(level: EvidenceLevel, intake_result: dict[str, Any], c
     elif level == EvidenceLevel.LLM_TRIAGE:
         hints["response_type"] = "safe_triage"
         hints["cite_source"] = "pela triagem técnica"
-        hints["llm_provider"] = "minimax"
+        hints["llm_provider"] = "openrouter"
         hints["no_invented_values"] = True
         hints["confidence_override"] = 0.30
 

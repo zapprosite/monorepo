@@ -28,7 +28,7 @@ This document tracks environment variable completeness, docker-compose usage, an
 | `MCP_CRON_URL` | MCP Servers |
 | `MCP_OLLAMA_URL` | MCP Servers |
 | `MCP_SYSTEM_URL` | MCP Servers |
-| `MINIMAX_API_BASE` | MiniMax |
+| `OPENROUTER_API_BASE` | OpenRouter |
 | `QDRANT_COLLECTION` | Qdrant |
 | `QDRANT_DISTANCE` | Qdrant |
 | `QDRANT_GRPC_URL` | Qdrant |
@@ -44,7 +44,7 @@ This document tracks environment variable completeness, docker-compose usage, an
 
 | Variable | Notes |
 |----------|-------|
-| `MINIMAX_GROUP_ID` | Not present in `.env` — may be unused or rotated |
+| `OPENROUTER_GROUP_ID` | Not present in `.env` — may be unused or rotated |
 
 ---
 
@@ -95,15 +95,15 @@ Add these 22 missing keys to `.env.example` under the appropriate sections:
 LITELLM_PORT=4000
 LITELLM_HOST=0.0.0.0
 LITELLM_API_KEY=sk-replace-with-your-litellm-key
-LITELLM_MODEL_LIST=embedding-nomic,Gemma4-12b-it,qwen2.5vl:3b
-LITELLM_EMBEDDING_MODEL=embedding-nomic
+LITELLM_MODEL_LIST=hermes-embed,hermes-auto,qwen2.5vl:3b
+LITELLM_EMBEDDING_MODEL=hermes-embed
 LITELLM_EMBEDDING_DIM=768
 LITELLM_PUBLIC_URL=https://llm.zappro.site/v1
 ```
 
-**MiniMax section:**
+**OpenRouter section:**
 ```
-MINIMAX_API_BASE=https://api.minimax.io/anthropic/v1
+OPENROUTER_API_BASE=https://openrouter.ai/api/v1
 ```
 
 **Qdrant section:**
@@ -136,9 +136,9 @@ MCP_CRON_URL=http://localhost:4015/sse
 STT_PROXY_URL=http://localhost:8204
 ```
 
-### Medium — Stale MINIMAX_GROUP_ID
+### Medium — Stale OPENROUTER_GROUP_ID
 
-Remove `MINIMAX_GROUP_ID` from `.env.example` or verify it's needed.
+Remove `OPENROUTER_GROUP_ID` from `.env.example` or verify it's needed.
 
 ### Low — Docker-compose env_file
 
@@ -150,8 +150,8 @@ Consider adding `env_file: /srv/monorepo/.env` to root `docker-compose.yml` for 
 
 | Date | Token | Status |
 |------|-------|--------|
-| 2026-04-16 | `sk-api-...` (MiniMax) | ROTATED — insufficient balance |
-| 2026-04-16 | `token_minimax-m2.7_plano` | ROTATED |
+| 2026-04-16 | `sk-api-...` (OpenRouter) | ROTATED — insufficient balance |
+| 2026-04-16 | `token_hermes-brain_plano` | ROTATED |
 
 ---
 
@@ -166,8 +166,8 @@ These are documented in `.env` and `.env.example` as deprecated:
 - `OPENCLAW_USER`
 - `WAV2VEC2_URL`
 - `STT_PROXY_URL` (replaced by STT_DIRECT_URL)
-- `sk-api-...` (MiniMax, rotated)
-- `token_minimax-m2.7_plano` (rotated)
+- `sk-api-...` (OpenRouter, rotated)
+- `token_hermes-brain_plano` (rotated)
 
 ---
 

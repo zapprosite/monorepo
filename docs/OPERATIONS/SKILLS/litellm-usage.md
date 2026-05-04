@@ -107,10 +107,10 @@ unset IMG_DATA  # limpar da memória
 ## LLM — Tom Cat 8B (PT-BR)
 
 ```bash
-RESP=$(curl -s -X POST "$LITELLM_URL/v1/chat/completions" \
+RESP=$(curl -s -X POST "$LITELLM_URL/chat/completions" \
   -H "Authorization: Bearer $LITELLM_KEY" \
   -H "Content-Type: application/json" \
-  -d '{"model":"tom-cat-8b","messages":[{"role":"user","content":"Olá! Como você está? Responda em uma palavra."}],"max_tokens":50}')
+  -d '{"model":"hermes-auto","messages":[{"role":"user","content":"Olá! Como você está? Responda em uma palavra."}],"max_tokens":50}')
 
 echo "$RESP" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d['choices'][0]['message']['content'])"
 ```
@@ -126,11 +126,15 @@ curl -s -H "Authorization: Bearer $LITELLM_KEY" "$LITELLM_URL/v1/models" \
 
 **Output atual:**
 ```
-tts-1
-whisper-1
-qwen2.5-vl
-tom-cat-8b
-embedding-nomic
+hermes-auto
+hermes-local-code
+hermes-vision
+hermes-embed
+hermes-embed-latest
+hermes-cloud-cheap
+hermes-cloud-pro
+hermes-cloud-ui
+hermes-brain
 ```
 
 ---

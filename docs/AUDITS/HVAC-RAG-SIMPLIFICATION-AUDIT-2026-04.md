@@ -12,7 +12,7 @@
 
 | Arquivo | Classificação | Ação |
 |---|---|---|
-| `hvac_rag_pipe.py` | ACTIVE_RUNTIME | Manter — pipe v2.0.0 com router + MiniMax primary |
+| `hvac_rag_pipe.py` | ACTIVE_RUNTIME | Manter — pipe v2.0.0 com router + OpenRouter primary |
 | `hvac_juiz.py` | ACTIVE_RUNTIME | Manter — pre-flight judge (<50ms) |
 | `hvac_field_tutor.py` | ACTIVE_RUNTIME | Manter — contexto expandido para técnicos |
 | `hvac_formatter.py` | ACTIVE_RUNTIME | Manter — saída para impressora térmica |
@@ -130,11 +130,11 @@
 ```
 RAG (Qdrant)  →  contexto/evidência
 Graph interno  →  triagem técnica
-MiniMax M2.7   →  writing engine PRIMÁRIO
+OpenRouter via hermes-brain   →  writing engine PRIMÁRIO
 OpenWebUI      →  interface amigável
 ```
 
-O MiniMax **escreve** a resposta final. O RAG **não é** a resposta final.
+O OpenRouter **escreve** a resposta final. O RAG **não é** a resposta final.
 
 ### 2.3 Prompts consolidados
 
@@ -204,7 +204,7 @@ python3 scripts/hvac-rag/hvac_healthcheck.py
 | Componente | Status |
 |---|---|
 | `/v1/models` expõe só `zappro-clima-tutor` | ✅ Implementado (requer restart) |
-| MiniMax M2.7 como primary writing engine | ✅ Implementado em `hvac_rag_pipe.py` |
+| OpenRouter via hermes-brain como primary writing engine | ✅ Implementado em `hvac_rag_pipe.py` |
 | Qdrant como evidência, não resposta final | ✅ Implementado via `build_retrieval_package()` |
 | Router interno (triage/field/printable) | ✅ Implementado |
 | Friendly response rewriter | ✅ Implementado + 4/4 testes OK |

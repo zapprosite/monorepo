@@ -19,7 +19,7 @@ Internet → Cloudflare Edge → Cloudflare Tunnel → Home Lab Services
               qdrant.zappro.site → localhost:6333
               coolify.zappro.site → localhost:8000
               git.zappro.site  → localhost:3300
-              llm.zappro.site  → localhost:4002
+              llm.zappro.site  → localhost:4018
               pgadmin.zappro.site → localhost:4050
 ```
 

@@ -1,12 +1,8 @@
 package agents
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
 	"fmt"
-	"net/http"
-	"os"
 	"strings"
 	"time"
 
@@ -16,20 +12,20 @@ import (
 
 // ResponseAgent generates and sends responses via WhatsApp.
 type ResponseAgent struct {
-	minimaxAPIKey   string
-	whatsappToken   string
-	phoneNumberID   string
-	whatsappSender  whatsapp.SenderClient
-	refiner         *rag.Refiner
+	liteLLMClient *LiteLLMClient
+	whatsappToken    string
+	phoneNumberID    string
+	whatsappSender   whatsapp.SenderClient
+	refiner          *rag.Refiner
 }
 
 // NewResponseAgent creates a new ResponseAgent.
-func NewResponseAgent(minimaxAPIKey, whatsappToken, phoneNumberID string) *ResponseAgent {
+func NewResponseAgent(liteLLMAPIKey, whatsappToken, phoneNumberID string) *ResponseAgent {
 	agent := &ResponseAgent{
-		minimaxAPIKey:  minimaxAPIKey,
-		whatsappToken:  whatsappToken,
-		phoneNumberID:  phoneNumberID,
-		refiner:        rag.NewRefiner(),
+		liteLLMClient: NewLiteLLMClientWithModel(liteLLMAPIKey, HermesAutoModel),
+		whatsappToken:    whatsappToken,
+		phoneNumberID:    phoneNumberID,
+		refiner:          rag.NewRefiner(),
 	}
 	// Initialize WhatsApp sender - use simulator if DEV_MODE=true or SIMULATE_WHATSAPP=true
 	// This allows outbound message simulation during development without Meta API calls
@@ -101,7 +97,7 @@ func (r *ResponseAgent) Execute(ctx context.Context, task *SwarmTask) (map[strin
 		return nil, fmt.Errorf("missing phone in task input")
 	}
 
-	// 2. Generate response using MiniMax M2.7
+	// 2. Generate response using LiteLLM via LiteLLM
 	responseText, err := r.generateResponse(ctx, query, intent, entities, assembledContext)
 	if err != nil {
 		return nil, fmt.Errorf("generate response: %w", err)
@@ -238,7 +234,7 @@ func (r *ResponseAgent) formatRefinedForWhatsApp(result rag.RefineResult) []stri
 	return messages
 }
 
-// generateResponse generates a response using MiniMax M2.7.
+// generateResponse generates a response using LiteLLM via LiteLLM.
 func (r *ResponseAgent) generateResponse(ctx context.Context, query, intent string, entities map[string]interface{}, context string) (string, error) {
 	if query == "" {
 		return r.getFallbackResponse(intent), nil
@@ -278,16 +274,11 @@ func (r *ResponseAgent) generateResponse(ctx context.Context, query, intent stri
 
 	prompt.WriteString("\n\nResposta (responda apenas com a resposta, sem formatação extra):")
 
-	// Check for API key
-	if r.minimaxAPIKey == "" {
-		r.minimaxAPIKey = os.Getenv("MINIMAX_API_KEY")
-	}
-	if r.minimaxAPIKey == "" {
+	if r.liteLLMClient == nil || !r.liteLLMClient.Configured() {
 		return r.getFallbackResponse(intent), nil
 	}
 
-	// Call MiniMax API
-	resp, err := r.callMiniMax(ctx, prompt.String())
+	resp, err := r.callLiteLLM(ctx, prompt.String(), 1024)
 	if err != nil {
 		return r.getFallbackResponse(intent), nil
 	}
@@ -295,59 +286,36 @@ func (r *ResponseAgent) generateResponse(ctx context.Context, query, intent stri
 	return strings.TrimSpace(resp), nil
 }
 
-// callMiniMax calls the MiniMax API for text generation.
-func (r *ResponseAgent) callMiniMax(ctx context.Context, prompt string) (string, error) {
-	if r.minimaxAPIKey == "" {
-		return "", fmt.Errorf("minimax API key not configured")
+// callLiteLLM calls LiteLLM for text generation.
+func (r *ResponseAgent) callLiteLLM(ctx context.Context, prompt string, maxTokens int) (string, error) {
+	if r.liteLLMClient == nil {
+		return "", fmt.Errorf("litellm client not configured")
+	}
+	return r.liteLLMClient.Chat(ctx, prompt, maxTokens)
+}
+
+func (r *ResponseAgent) escalateToLiteLLM(ctx context.Context, query, intent string, entities map[string]interface{}, contextText string) (string, error) {
+	if r.liteLLMClient == nil || !r.liteLLMClient.Configured() {
+		return "", fmt.Errorf("litellm client not configured")
+	}
+	return r.generateResponse(ctx, query, intent, entities, contextText)
+}
+
+func (r *ResponseAgent) formatForWhatsApp(response string) []string {
+	const maxLength = 4096
+	if len(response) <= maxLength {
+		return []string{response}
 	}
 
-	reqBody := MiniMaxRequest{
-		Model: "MiniMax-M2",
-		Messages: []MiniMaxMessage{
-			{
-				Role:    "user",
-				Content: prompt,
-			},
-		},
-		MaxTokens: 1024,
+	messages := make([]string, 0, (len(response)/maxLength)+1)
+	for len(response) > maxLength {
+		messages = append(messages, response[:maxLength])
+		response = response[maxLength:]
 	}
-
-	jsonBody, err := json.Marshal(reqBody)
-	if err != nil {
-		return "", fmt.Errorf("marshal request: %w", err)
+	if response != "" {
+		messages = append(messages, response)
 	}
-
-	endpoint := "https://api.minimax.io/v1/messages"
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, endpoint, bytes.NewReader(jsonBody))
-	if err != nil {
-		return "", fmt.Errorf("create request: %w", err)
-	}
-	req.Header.Set("Authorization", "Bearer "+r.minimaxAPIKey)
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("anthropic-version", "2023-06-01")
-	req.Header.Set("anthropic-dangerous-direct-browser-access", "true")
-
-	client := &http.Client{Timeout: 15 * time.Second}
-	resp, err := client.Do(req)
-	if err != nil {
-		return "", fmt.Errorf("execute request: %w", err)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("MiniMax API returned status %d", resp.StatusCode)
-	}
-
-	var result MiniMaxResponse
-	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return "", fmt.Errorf("decode response: %w", err)
-	}
-
-	if len(result.Content) == 0 {
-		return "", fmt.Errorf("empty response from MiniMax")
-	}
-
-	return result.Content[0].Text, nil
+	return messages
 }
 
 // checkHallucination checks if the response contains hallucinations.

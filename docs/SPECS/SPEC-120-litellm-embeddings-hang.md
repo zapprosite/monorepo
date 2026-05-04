@@ -88,7 +88,7 @@ curl --max-time 15 -s -X POST "http://127.0.0.1:4000/v1/embeddings" \
 2. **CONFIG-FIX**: Testar diferentes configurações de api_base e model name
 3. **LITELLM-LOGS**: Analisar logs do LiteLLM para embeddings
 4. **OLLAMA-TEST**: Testar mais endpoints do Ollama para isolar o problema
-5. **ALTERNATIVE**: Implementar fallback (OpenRouter ou MiniMax embeddings)
+5. **ALTERNATIVE**: Implementar fallback (OpenRouter ou OpenRouter embeddings)
 6. **VERIFY**: Verificar se fix funciona com testes
 
 ## Acceptance Criteria

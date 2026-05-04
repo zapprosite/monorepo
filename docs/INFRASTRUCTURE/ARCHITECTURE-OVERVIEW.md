@@ -104,7 +104,7 @@
 | COOLIFY_API_KEY      | .env     | Claude Code, hermes-coolify-cli |
 | CLOUDFLARE_API_TOKEN | .env     | Terraform, cloudflared          |
 | GITEA_ACCESS_TOKEN   | .env     | Git push, CI                    |
-| MINIMAX_API_KEY      | .env     | LiteLLM, Hermes                 |
+| OPENROUTER_API_KEY      | .env     | LiteLLM, Hermes                 |
 | TELEGRAM_BOT_TOKEN   | .env     | Hermes Gateway                  |
 
 **Regra:** All secrets sourced from `.env` (canonical).

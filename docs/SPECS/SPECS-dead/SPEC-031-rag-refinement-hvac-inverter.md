@@ -150,13 +150,13 @@ Analyse this document and respond with JSON:
 [none] → "Não encontrei informação relevante na documentação"
 ```
 
-### Task 8: MiniMax Embedding Quality Upgrade
+### Task 8: OpenRouter Embedding Quality Upgrade
 **Owner:** agent-8
 **Goal:** Verificar se embedding-256 é suficiente ou migrar para 1024d
 **Details:**
 - Test: query error code "E8 Springer" vs "CH10 LG" - separar corretamente?
 - Compare: embedding-256 vs bge-m3 (local, 1024d, free)
-- Decision: usar MiniMax ou local Ollama (bge-m3)
+- Decision: usar OpenRouter ou local Ollama (bge-m3)
 **Criteria:** Recall@5 >= 85% para error codes
 
 ### Task 9: PDF Parser Integration
@@ -519,7 +519,7 @@ Qdrant index with content_type="video_transcript"
 
 | # | Question | Impact | Owner |
 |---|----------|--------|-------|
-| OQ-1 | Usar embedding-256 MiniMax ou bge-m3 local (1024d)? | MEDIUM | agent-8 |
+| OQ-1 | Usar embedding-256 OpenRouter ou bge-m3 local (1024d)? | MEDIUM | agent-8 |
 | OQ-2 | Fine-tune Whisper para HVAC terms? | LOW | agent-4 |
 | OQ-3 | Quantos vídeos YouTube indexar inicialmente? | LOW | agent-4 |
 

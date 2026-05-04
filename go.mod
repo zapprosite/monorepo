@@ -34,5 +34,3 @@ require (
 )
 
 replace github.com/will-zappro/hvacr-swarm/internal/whatsapp => ./internal/whatsapp
-
-replace github.com/will-zappro/hvacr-swarm/internal/minimax => ./internal/minimax
