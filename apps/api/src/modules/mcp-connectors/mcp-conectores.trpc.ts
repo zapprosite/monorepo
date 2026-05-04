@@ -7,29 +7,26 @@ import {
 import { TRPCError } from '@trpc/server';
 import z from 'zod';
 
-// Helper to verify team access via clienteId
-async function verifyTeamAccess(clienteId: string, teamId: string): Promise<void> {
+async function verifyClientTeamAccess(clienteId: string, teamId: string): Promise<void> {
 	const client = await db.clients.findOptional(clienteId);
 	if (!client) throw new TRPCError({ code: 'NOT_FOUND', message: 'Cliente não encontrado' });
 	if (client.teamId !== teamId)
 		throw new TRPCError({ code: 'FORBIDDEN', message: 'Acesso negado ao cliente' });
 }
 
-// Helper to verify connector belongs to team (direct teamId check)
 async function verifyConectorTeamAccess(conectorId: string, teamId: string) {
 	const conector = await db.mcpConectores.findOptional(conectorId);
 	if (!conector) throw new TRPCError({ code: 'NOT_FOUND', message: 'Conector não encontrado' });
-	if (conector.teamId !== teamId)
-		throw new TRPCError({ code: 'FORBIDDEN', message: 'Acesso negado ao conector' });
+	await verifyClientTeamAccess(conector.clienteId, teamId);
 	return conector;
 }
 
 // @ts-ignore TS2742 — pqb internal type inference not portable
 export const mcpConectorRouter = trpcRouter({
 	create: protectedProcedure.input(mcpConectorCreateInputZod).mutation(async ({ input, ctx }) => {
-		const { teamId } = ctx.user;
-		await verifyTeamAccess(input.clienteId, teamId);
-		const conector = await db.mcpConectores.insert({
+		const teamId = ctx.user.teamId!;
+		await verifyClientTeamAccess(input.clienteId, teamId);
+		const conector = await db.mcpConectores.create({
 			provider: input.provider,
 			apiKey: input.apiKey,
 			configuracao: input.configuracao,
@@ -43,9 +40,13 @@ export const mcpConectorRouter = trpcRouter({
 	list: protectedProcedure
 		.input(z.object({ clienteId: z.string().uuid().optional() }))
 		.query(async ({ ctx }) => {
-			const { teamId } = ctx.user;
-			// Filter by teamId directly
-			const conectores = await db.mcpConectores.where({ teamId }).select('*');
+			const teamId = ctx.user.teamId!;
+			const clientIds = await db.clients.where({ teamId }).select('clientId');
+			const clientIdList = clientIds.map((c) => c.clientId);
+			// @ts-ignore — pqb where with array
+			const conectores = await db.mcpConectores.where({ clienteId: { in: clientIdList } }).select(
+				'id', 'provider', 'status', 'configuracao', 'clienteId', 'usuarioCriacaoId', 'createdAt', 'updatedAt', 'ultimaTentativaSync', 'erroUltimaTentativa',
+			);
 			return conectores;
 		}),
 
@@ -53,10 +54,20 @@ export const mcpConectorRouter = trpcRouter({
 		.input(z.object({ id: z.string().uuid() }))
 		.query(async ({ input, ctx }) => {
 			const { teamId } = ctx.user;
-			await verifyConectorTeamAccess(input.id, teamId);
-			const conector = await db.mcpConectores.where({ id: input.id }).select('*').take();
-			if (!conector) throw new TRPCError({ code: 'NOT_FOUND' });
-			return conector;
+		const conector = await verifyConectorTeamAccess(input.id, teamId!);
+			// @ts-ignore — subset select
+			return {
+				id: conector.id,
+				provider: conector.provider,
+				status: conector.status,
+				configuracao: conector.configuracao,
+				clienteId: conector.clienteId,
+				usuarioCriacaoId: conector.usuarioCriacaoId,
+				createdAt: conector.createdAt,
+				updatedAt: conector.updatedAt,
+				ultimaTentativaSync: conector.ultimaTentativaSync,
+				erroUltimaTentativa: conector.erroUltimaTentativa,
+			};
 		}),
 
 	update: protectedProcedure
@@ -67,7 +78,7 @@ export const mcpConectorRouter = trpcRouter({
 			}),
 		)
 		.mutation(async ({ input, ctx }) => {
-			const { teamId } = ctx.user;
+			const teamId = ctx.user.teamId!;
 			await verifyConectorTeamAccess(input.id, teamId);
 			const updated = await db.mcpConectores.where({ id: input.id }).update(input.data);
 			if (!updated) throw new TRPCError({ code: 'NOT_FOUND' });
@@ -77,7 +88,7 @@ export const mcpConectorRouter = trpcRouter({
 	delete: protectedProcedure
 		.input(z.object({ id: z.string().uuid() }))
 		.mutation(async ({ input, ctx }) => {
-			const { teamId } = ctx.user;
+			const teamId = ctx.user.teamId!;
 			await verifyConectorTeamAccess(input.id, teamId);
 			const deleted = await db.mcpConectores.where({ id: input.id }).delete();
 			if (!deleted) throw new TRPCError({ code: 'NOT_FOUND' });
@@ -93,7 +104,7 @@ export const mcpConectorRouter = trpcRouter({
 			}),
 		)
 		.mutation(async ({ input, ctx }) => {
-			const { teamId } = ctx.user;
+			const teamId = ctx.user.teamId!;
 			await verifyConectorTeamAccess(input.id, teamId);
 			const updated = await db.mcpConectores.where({ id: input.id }).update({
 				status: input.status,

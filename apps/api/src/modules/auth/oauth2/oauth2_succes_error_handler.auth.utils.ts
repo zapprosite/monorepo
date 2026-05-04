@@ -2,12 +2,18 @@ import { env } from '@backend/configs/env.config';
 import { type SessionUser, setSession } from '@backend/modules/auth/session.auth.utils';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 
-export const oauth2SuccessHandler = (
+export const oauth2SuccessHandler = async (
 	request: FastifyRequest,
 	reply: FastifyReply,
 	sessionUser: SessionUser,
 ) => {
-	setSession(request, sessionUser);
+	await new Promise<void>((resolve, reject) => {
+		request.session.regenerate((err) => {
+			if (err) reject(err);
+			else resolve();
+		});
+	});
+	await setSession(request, sessionUser);
 
 	// Redirect to frontend app
 	if (sessionUser.userId) {

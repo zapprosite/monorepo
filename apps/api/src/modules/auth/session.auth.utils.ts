@@ -51,8 +51,13 @@ declare module 'fastify' {
  * This will automatically persist to database via the custom session store
  * Also captures IP address, user agent, and device fingerprint for security tracking
  */
-export const setSession = (request: FastifyRequest, sessionUser: SessionUser) => {
-	// Store user info in session (works with any OAuth provider)
+export const setSession = async (request: FastifyRequest, sessionUser: SessionUser) => {
+	await new Promise<void>((resolve, reject) => {
+		request.session.regenerate((err) => {
+			if (err) reject(err);
+			else resolve();
+		});
+	});
 	request.session.user = sessionUser;
 
 	const userAgentString = request.headers['user-agent'] || 'unknown';
