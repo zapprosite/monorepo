@@ -17,7 +17,7 @@ import { remindersRouterTrpc } from '@backend/modules/reminders/reminders.trpc';
 import { scheduleRouterTrpc } from '@backend/modules/schedule/schedule.trpc';
 import { subscriptionsRouterTrpc } from '@backend/modules/subscriptions/subscriptions.trpc';
 import { serviceOrdersRouterTrpc } from '@backend/modules/service-orders/service_orders.trpc';
-import { trieveRouter } from '@backend/modules/trieve/trieve.trpc';
+import { memoryRouterTrpc } from '@backend/modules/memory/memory.trpc';
 import { uploadRouter } from '@backend/modules/upload/upload.trpc';
 import { userRolesRouterTrpc } from '@backend/modules/users/user-roles.trpc';
 import { usersRouterTrpc } from '@backend/modules/users/users.trpc';
@@ -52,7 +52,7 @@ export const appTrpcRouter = trpcRouter({
 	webhooks: webhookRouter,
 	mcpConectores: mcpConectorRouter,
 	conteudos: conteudoRouter,
-	trieve: trieveRouter,
+	memory: memoryRouterTrpc,
 	upload: uploadRouter,
 });
 

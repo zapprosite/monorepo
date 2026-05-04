@@ -1,7 +1,11 @@
 // @ts-nocheck - migration file with complex orchid-orm types
 /**
- * Migration 0013: Trieve Datasets Table
+ * Migration 0013: Trieve Datasets Table (DEPRECATED)
  * Creates table to map teamId -> Trieve dataset IDs for multi-tenant isolation
+ * 
+ * ⚠️ DEPRECATED: Trieve was removed from the monorepo on 2026-05-04.
+ * The RAG functionality was replaced by Hermes Second Brain (Mem0 + Qdrant).
+ * This migration is kept for historical record only.
  */
 
 import { change } from '../db_script';
