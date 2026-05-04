@@ -1,6 +1,6 @@
 {
 	"name": "zappro-monorepo",
-	"version": "1.0.1",
+	"version": "1.0.2",
 	"description": "Zappro homelab monorepo \u2014 Fastify, OrchidORM, tRPC, React, OpenTelemetry",
 	"repository": "git@github.com:zapprosite/monorepo.git",
 	"author": "Leonardo Gomide <will@zapprosite.com>",
