@@ -33,7 +33,7 @@ export const GOOGLE_OAUTH2_CONFIG = {
 	},
 	scope: ['profile', 'email'],
 	startRedirectPath: '/',
-	callbackUri: `${env.VITE_API_URL}/oauth2/google/callback`,
+	callbackUri: `${env.API_BASE_URL}/oauth2/google/callback`,
 };
 
 /**

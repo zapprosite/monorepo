@@ -17,24 +17,23 @@ export const loggerConfig: Record<
 	},
 	production: {
 		level: 'info',
-		transport: {
-			targets: [
-				{
-					target: '@axiomhq/pino',
-					options: {
-						translateTime: 'HH:MM:ss Z',
-						ignore: 'pid,hostname',
-						// if axiom is enabled, we will send the logs to axiom
-						...(process.env['AXIOM_DATASET'] && process.env['AXIOM_TOKEN']
-							? {
+		...(process.env['AXIOM_DATASET'] && process.env['AXIOM_TOKEN']
+			? {
+					transport: {
+						targets: [
+							{
+								target: '@axiomhq/pino',
+								options: {
+									translateTime: 'HH:MM:ss Z',
+									ignore: 'pid,hostname',
 									dataset: process.env['AXIOM_DATASET'],
 									token: process.env['AXIOM_TOKEN'],
-								}
-							: {}),
+								},
+							},
+						],
 					},
-				},
-			],
-		},
+				}
+			: {}),
 	},
 	staging: { level: 'info' },
 	test: {

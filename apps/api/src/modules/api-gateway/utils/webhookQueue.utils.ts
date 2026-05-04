@@ -318,7 +318,7 @@ export async function retryFromDeadLetter(webhookCallQueueId: string): Promise<{
 	if (webhook.status !== 'DeadLetter') {
 		logWebhookEvent('warn', 'dlq_retry_invalid_status', {
 			webhookId: webhookCallQueueId,
-			status: webhook.status as unknown as string,
+			status: webhook.status as any,
 		});
 		return { success: false, error: `Webhook is not in DeadLetter status: ${webhook.status}` };
 	}
@@ -357,7 +357,7 @@ export async function discardDeadLetter(webhookCallQueueId: string): Promise<{
 	if (webhook.status !== 'DeadLetter') {
 		logWebhookEvent('warn', 'dlq_discard_invalid_status', {
 			webhookId: webhookCallQueueId,
-			status: webhook.status as unknown as string,
+			status: webhook.status as any,
 		});
 		return { success: false, error: `Webhook is not in DeadLetter status: ${webhook.status}` };
 	}

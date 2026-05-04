@@ -6,7 +6,8 @@ export const loyaltyRouter = trpcRouter({
 	calculateScore: protectedProcedure
 		.input(z.object({ clienteId: z.string().uuid() }))
 		.mutation(async ({ ctx, input }) => {
-			const cliente = await ctx.db.loyalty.findUnique({
+			const db = (ctx as any).db;
+			const cliente = await db.loyalty.findUnique({
 				where: { id: input.clienteId, teamId: ctx.user.teamId },
 			});
 			if (!cliente) {
@@ -25,7 +26,8 @@ export const loyaltyRouter = trpcRouter({
 			}),
 		)
 		.query(async ({ ctx, input }) => {
-			const rows = await ctx.db.loyalty.findMany({
+			const db = (ctx as any).db;
+			const rows = await db.loyalty.findMany({
 				where: { teamId: ctx.user.teamId },
 				skip: input.offset,
 				take: input.limit,
@@ -36,7 +38,8 @@ export const loyaltyRouter = trpcRouter({
 	getDashboard: protectedProcedure
 		.input(z.object({ clienteId: z.string().uuid() }))
 		.query(async ({ ctx, input }) => {
-			const cliente = await ctx.db.clientes.findUnique({
+			const db = (ctx as any).db;
+			const cliente = await db.clientes.findUnique({
 				where: { id: input.clienteId, teamId: ctx.user.teamId },
 			});
 			if (!cliente) {
@@ -52,7 +55,8 @@ export const loyaltyRouter = trpcRouter({
 	triggerReactivation: protectedProcedure
 		.input(z.object({ clienteId: z.string().uuid() }))
 		.mutation(async ({ ctx, input }) => {
-			const cliente = await ctx.db.clientes.findUnique({
+			const db = (ctx as any).db;
+			const cliente = await db.clientes.findUnique({
 				where: { id: input.clienteId, teamId: ctx.user.teamId },
 			});
 			if (!cliente) {

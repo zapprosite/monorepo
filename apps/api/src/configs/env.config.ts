@@ -16,6 +16,7 @@ const envSchema = z.object({
 	GOOGLE_CLIENT_SECRET: zString.optional(),
 	SESSION_SECRET: zString.min(32, 'Session secret must be at least 32 characters'),
 	WEBAPP_URL: z.url().optional(),
+	API_BASE_URL: z.url().optional(),
 	VITE_API_URL: z.url().optional(),
 	INTERNAL_API_SECRET: zString
 		.min(32, 'Internal API secret must be at least 32 characters')

@@ -12,7 +12,6 @@
 
 import { logger } from '@backend/app';
 import { resolve } from 'path';
-import { fileURLToPath } from 'url';
 import { processWebhookQueue } from './utils/webhookQueue.utils';
 
 /**
@@ -86,8 +85,6 @@ export async function runWebhookProcessor(): Promise<{
  * Standalone script execution
  * Run this file directly to process webhooks: node dist/modules/api-gateway/webhookProcessor.js
  */
-const __filename = fileURLToPath(import.meta.url);
-
 if (process.argv[1] && resolve(process.argv[1]) === __filename) {
 	runWebhookProcessor()
 		.then((result) => {

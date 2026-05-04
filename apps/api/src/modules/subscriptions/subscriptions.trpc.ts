@@ -59,12 +59,13 @@ export const subscriptionsRouterTrpc = trpcRouter({
 		.input(subscriptionUpdateInputZod)
 		.mutation(async ({ ctx, input }) => {
 			const { teamId } = ctx.user;
+			const subId = (input as any).subscriptionId;
 
-			if (!input.subscriptionId) {
+			if (!subId) {
 				throw new TRPCError({ code: 'BAD_REQUEST', message: 'subscriptionId is required' });
 			}
 
-			const subscription = await db.subscriptions.findOptional(input.subscriptionId);
+			const subscription = await db.subscriptions.findOptional(subId);
 
 			if (!subscription) {
 				throw new TRPCError({ code: 'NOT_FOUND', message: 'Subscription not found' });
@@ -76,7 +77,7 @@ export const subscriptionsRouterTrpc = trpcRouter({
 
 			const { subscriptionId: _subId, teamId: _teamId, ...updateData } = input;
 
-			return db.subscriptions.where({ subscriptionId: input.subscriptionId }).update(updateData);
+			return db.subscriptions.where({ subscriptionId: subId }).update(updateData as any);
 		}),
 
 	deleteSubscription: protectedProcedure

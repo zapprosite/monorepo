@@ -36,6 +36,7 @@
 		"puppeteer": "^24.42.0",
 		"qrcode": "^1.5.4",
 		"rate-limiter-flexible": "^8.1.0",
+		"tsconfig-paths": "^4.2.0",
 		"ua-parser-js": "^2.0.6"
 	},
 	"devDependencies": {

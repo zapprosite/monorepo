@@ -45,9 +45,7 @@ export const UserProfileMenu = ({ trigger, showUserInfo = true }: UserProfileMen
 				// Redirect to login after successful logout
 				navigate('/auth/login');
 			},
-			onError: (error) => {
-				console.error('Logout failed:', error);
-				// Still redirect to login even if mutation fails
+			onError: () => {
 				navigate('/auth/login');
 			},
 		}),

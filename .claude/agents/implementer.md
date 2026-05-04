@@ -1,6 +1,6 @@
 ---
 name: implementer
-purpose: Aplicar mudanças de código e realizar correções técnicas.
+description: Aplicar mudanças de código e realizar correções técnicas.
 rules:
   - auto-approve permitido apenas para edições locais em Worktrees isoladas
   - proibido acesso à rede por padrão

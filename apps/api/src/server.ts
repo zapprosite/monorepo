@@ -6,6 +6,7 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  */
+import 'tsconfig-paths/register';
 import 'dotenv/config';
 
 import { app, logger } from '@backend/app';
@@ -18,7 +19,7 @@ const allowedOrigins = [...(env.ALLOWED_ORIGINS?.split(',') || [])];
 
 logger.info({ isDev, isProd, isStaging, isTest }, 'Environment:');
 logger.info(allowedOrigins, 'Allowed Origins:');
-logger.info(env.ALLOWED_ORIGINS, 'ALLOWED_ORIGINS env:');
+logger.info({ allowedOrigins: env.ALLOWED_ORIGINS }, 'ALLOWED_ORIGINS env:');
 
 export const build = async () => {
 	const server = app;

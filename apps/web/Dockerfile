@@ -16,7 +16,7 @@ RUN corepack enable && corepack prepare pnpm@9.0.6 --activate
 
 # Build arguments for environment variables consumed by Vite at build time
 ARG VITE_NODE_ENV=production
-ARG VITE_API_URL=http://localhost:4002
+ARG VITE_API_URL=https://api.zappro.site
 ENV VITE_NODE_ENV=${VITE_NODE_ENV}
 ENV VITE_API_URL=${VITE_API_URL}
 
@@ -42,7 +42,9 @@ RUN mkdir -p /app/apps/web/node_modules/@repo /app/node_modules/@connected-repo 
 
 # Build the web app directly with vite (bypasses tsc -b type-check gate)
 # Uses vite.docker.config.ts which excludes the bundle analyzer plugin
+# NODE_ENV=production ensures React DevTools hooks are stripped from the bundle
 WORKDIR /app/apps/web
+ENV NODE_ENV=production
 RUN /app/node_modules/.bin/vite build --config /app/apps/web/vite.docker.config.ts
 
 # ---------------------------------------------------------------------------
