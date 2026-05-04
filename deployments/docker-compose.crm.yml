@@ -3,6 +3,7 @@ services:
     image: crm-api:local
     container_name: crm-api
     restart: unless-stopped
+    env_file: /srv/monorepo/.env
     environment:
       NODE_ENV: production
       PORT: 4001

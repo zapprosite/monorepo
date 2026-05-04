@@ -16,7 +16,7 @@ RUN corepack enable && corepack prepare pnpm@9.0.6 --activate
 
 # Build arguments for environment variables consumed by Vite at build time
 ARG VITE_NODE_ENV=production
-ARG VITE_API_URL=http://localhost:4002
+ARG VITE_API_URL=https://api.zappro.site
 ENV VITE_NODE_ENV=${VITE_NODE_ENV}
 ENV VITE_API_URL=${VITE_API_URL}
 
