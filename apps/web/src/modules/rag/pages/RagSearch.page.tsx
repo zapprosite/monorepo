@@ -11,41 +11,40 @@ import { RagSearchBox } from '../components/rag/RagSearchBox';
 
 export default function RagSearchPage() {
 	const [searchQuery, setSearchQuery] = useState<string>('');
-	const [selectedDataset, setSelectedDataset] = useState<string>('');
+	const [selectedCollection, setSelectedCollection] = useState<string>('');
 
 	const {
-		data: datasets,
-		isLoading: datasetsLoading,
-		error: datasetsError,
-	} = useQuery(trpc.trieve.listDatasets.queryOptions());
+		data: collections,
+		isLoading: collectionsLoading,
+		error: collectionsError,
+	} = useQuery(trpc.memory.listCollections.queryOptions());
 
 	const {
 		data: searchResults,
 		isLoading: searchLoading,
 		error: searchError,
 	} = useQuery(
-		trpc.trieve.search.queryOptions({
+		trpc.memory.search.queryOptions({
 			query: searchQuery,
-			datasetId: selectedDataset,
 			limit: 10,
 		}),
-		{ enabled: searchQuery.length > 0 && selectedDataset.length > 0 },
+		{ enabled: searchQuery.length > 0 },
 	);
 
-	const handleSearch = (query: string, datasetId: string) => {
+	const handleSearch = (query: string, collectionId: string) => {
 		setSearchQuery(query);
-		setSelectedDataset(datasetId);
+		setSelectedCollection(collectionId);
 	};
 
-	if (datasetsLoading) {
-		return <LoadingSpinner text="Carregando datasets..." />;
+	if (collectionsLoading) {
+		return <LoadingSpinner text="Carregando coleções..." />;
 	}
 
-	if (datasetsError) {
-		const errorMessage = datasetsError.data?.userFriendlyMessage || datasetsError.message;
+	if (collectionsError) {
+		const errorMessage = collectionsError.data?.userFriendlyMessage || collectionsError.message;
 		return (
 			<Container maxWidth="lg" sx={{ py: 4 }}>
-				<ErrorAlert message={`Erro ao carregar datasets: ${errorMessage}`} />
+				<ErrorAlert message={`Erro ao carregar coleções: ${errorMessage}`} />
 			</Container>
 		);
 	}
@@ -68,17 +67,21 @@ export default function RagSearchPage() {
 					RAG Search
 				</Typography>
 				<Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.875rem' }}>
-					Busca semântica em documentos indexados via Trieve
+					Busca semântica em memórias indexadas via Mem0 + Qdrant
 				</Typography>
 			</Box>
 
 			{/* Search Component */}
-			<RagSearchBox datasets={datasets ?? []} onSearch={handleSearch} isSearching={searchLoading} />
+			<RagSearchBox
+				datasets={collections ?? []}
+				onSearch={handleSearch}
+				isSearching={searchLoading}
+			/>
 
 			{/* Results Section */}
 			{searchLoading && (
 				<Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
-					<LoadingSpinner text="Buscando chunks relevantes..." />
+					<LoadingSpinner text="Buscando memórias relevantes..." />
 				</Box>
 			)}
 
@@ -90,7 +93,7 @@ export default function RagSearchPage() {
 				</Box>
 			)}
 
-			{searchResults && searchResults.length > 0 && <RagChunksViewer chunks={searchResults} />}
+			{searchResults && searchResults.length > 0 && <RagChunksViewer results={searchResults} />}
 
 			{searchResults && searchResults.length === 0 && searchQuery.length > 0 && (
 				<Box sx={{ py: 8, textAlign: 'center' }}>
@@ -98,7 +101,7 @@ export default function RagSearchPage() {
 						Nenhum resultado encontrado para "{searchQuery}"
 					</Typography>
 					<Typography variant="body2" color="text.disabled" sx={{ mt: 1 }}>
-						Tente ajustar sua busca ou selecionar outro dataset
+						Tente ajustar sua busca ou selecionar outra coleção
 					</Typography>
 				</Box>
 			)}

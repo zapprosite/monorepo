@@ -5,23 +5,19 @@ import { StarIcon } from '@repo/ui-mui/icons/StarIcon';
 import { Box } from '@repo/ui-mui/layout/Box';
 import { Divider } from '@repo/ui-mui/layout/Divider';
 
-interface TrieveChunk {
+export interface MemoryResult {
 	id: string;
 	content: string;
-	metadata: Record<string, string>;
-}
-
-interface SearchResult {
-	id: string;
 	score: number;
-	chunk: TrieveChunk;
+	metadata: Record<string, unknown>;
+	source: string;
 }
 
 interface RagChunksViewerProps {
-	chunks: SearchResult[];
+	results: MemoryResult[];
 }
 
-export function RagChunksViewer({ chunks }: RagChunksViewerProps) {
+export function RagChunksViewer({ results }: RagChunksViewerProps) {
 	return (
 		<Box sx={{ mt: 4 }}>
 			{/* Header */}
@@ -33,17 +29,17 @@ export function RagChunksViewer({ chunks }: RagChunksViewerProps) {
 						color: 'text.primary',
 					}}
 				>
-					Chunks Retrieved
+					Memórias Recuperadas
 				</Typography>
 				<Chip
-					label={`${chunks.length} resultados`}
+					label={`${results.length} resultados`}
 					size="small"
 					color="primary"
 					variant="outlined"
 				/>
 			</Box>
 
-			{/* Chunks List */}
+			{/* Results List */}
 			<Box
 				sx={{
 					display: 'flex',
@@ -51,7 +47,7 @@ export function RagChunksViewer({ chunks }: RagChunksViewerProps) {
 					gap: 3,
 				}}
 			>
-				{chunks.map((result, index) => (
+				{results.map((result, index) => (
 					<Box
 						key={result.id}
 						sx={{
@@ -68,7 +64,7 @@ export function RagChunksViewer({ chunks }: RagChunksViewerProps) {
 							},
 						}}
 					>
-						{/* Chunk Header */}
+						{/* Result Header */}
 						<Box
 							sx={{
 								display: 'flex',
@@ -82,11 +78,11 @@ export function RagChunksViewer({ chunks }: RagChunksViewerProps) {
 								<FileTextIcon sx={{ color: 'primary.main', fontSize: 20 }} />
 								<Box>
 									<Typography variant="subtitle2" fontWeight={600} color="text.primary">
-										Chunk #{index + 1}
+										Resultado #{index + 1}
 									</Typography>
-									{result.chunk.metadata?.source && (
+									{result.source && (
 										<Typography variant="caption" color="text.secondary">
-											{result.chunk.metadata.source}
+											{result.source}
 										</Typography>
 									)}
 								</Box>
@@ -127,7 +123,7 @@ export function RagChunksViewer({ chunks }: RagChunksViewerProps) {
 							</Box>
 						</Box>
 
-						{/* Chunk Content */}
+						{/* Content */}
 						<Box
 							sx={{
 								bgcolor: 'background.default',
@@ -146,19 +142,19 @@ export function RagChunksViewer({ chunks }: RagChunksViewerProps) {
 									color: 'text.primary',
 								}}
 							>
-								{result.chunk.content}
+								{result.content}
 							</Typography>
 						</Box>
 
 						{/* Metadata */}
-						{result.chunk.metadata && Object.keys(result.chunk.metadata).length > 0 && (
+						{result.metadata && Object.keys(result.metadata).length > 0 && (
 							<>
 								<Divider sx={{ my: 2 }} />
 								<Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-									{Object.entries(result.chunk.metadata).map(([key, value]) => (
+									{Object.entries(result.metadata).map(([key, value]) => (
 										<Chip
 											key={key}
-											label={`${key}: ${value}`}
+											label={`${key}: ${String(value)}`}
 											size="small"
 											variant="outlined"
 											sx={{
