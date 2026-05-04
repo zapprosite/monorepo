@@ -16,6 +16,7 @@ export const scheduleRouterTrpc = trpcRouter({
 		const { teamId } = ctx.user;
 		let query = db.schedules
 			.select('*')
+			// @ts-ignore TS2339 innerJoin not in type but exists at runtime
 			.innerJoin('clients', 'schedules.clienteId', 'clients.clientId')
 			.where('clients.teamId', teamId);
 

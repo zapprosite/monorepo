@@ -95,7 +95,7 @@ const isAuthenticatedMiddleware = t.middleware(({ ctx, next }) => {
 	return next({
 		ctx: {
 			...ctx,
-			user: ctx.user as SessionUser & { userId: string },
+			user: ctx.user as SessionUser & { userId: string; teamId?: string | null },
 		},
 	});
 });

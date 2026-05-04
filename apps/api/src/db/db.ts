@@ -24,6 +24,7 @@ import { MaterialItemTable } from '@backend/modules/service-orders/material_item
 import { ServiceOrderTable } from '@backend/modules/service-orders/service_order.table';
 import { TechnicalReportTable } from '@backend/modules/service-orders/technical_report.table';
 import { PromptsTable } from '@backend/modules/prompts/tables/prompts.table';
+import { UserRolesTable } from '@backend/modules/users/user-roles.table';
 import { UserTable } from '@backend/modules/users/users/users.table';
 import { orchidORM } from 'orchid-orm/node-postgres';
 
@@ -36,6 +37,7 @@ export const db = orchidORM(
 	},
 	{
 		users: UserTable,
+		userRoles: UserRolesTable,
 		sessions: SessionTable,
 		journalEntries: JournalEntryTable,
 		leads: LeadsTable,

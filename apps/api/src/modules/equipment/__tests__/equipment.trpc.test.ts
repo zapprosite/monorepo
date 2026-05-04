@@ -33,7 +33,7 @@ describe('equipment — auth guard (UNAUTHORIZED)', () => {
 			caller.equipment.createUnit({
 				clienteId: FAKE_UUID,
 				nome: 'Unidade A',
-				tipo: 'Residencial',
+				
 			}),
 		).rejects.toMatchObject({ code: 'UNAUTHORIZED' });
 	});
@@ -74,6 +74,7 @@ describe('equipment — auth guard (UNAUTHORIZED)', () => {
 				clienteId: FAKE_UUID,
 				nome: 'Equipamento Teste',
 				tipo: 'ar-condicionado',
+				status: 'Ativo',
 			}),
 		).rejects.toMatchObject({ code: 'UNAUTHORIZED' });
 	});
@@ -141,7 +142,7 @@ describe('equipment — createUnit validation', () => {
 			caller.equipment.createUnit({
 				clienteId: FAKE_UUID,
 				nome: 'Unidade Teste',
-				tipo: 'Residencial',
+				
 			}),
 		).rejects.toMatchObject({ code: 'NOT_FOUND' });
 	});
@@ -152,7 +153,7 @@ describe('equipment — createUnit validation', () => {
 			callerOtherTeam.equipment.createUnit({
 				clienteId: FAKE_UUID,
 				nome: 'Unidade Teste',
-				tipo: 'Residencial',
+				
 			}),
 		).rejects.toMatchObject({ code: 'FORBIDDEN' });
 	});
@@ -162,7 +163,7 @@ describe('equipment — createUnit validation', () => {
 			caller.equipment.createUnit({
 				clienteId: 'not-a-uuid',
 				nome: 'Unidade Teste',
-				tipo: 'Residencial',
+				
 			}),
 		).rejects.toThrow();
 	});
@@ -172,7 +173,7 @@ describe('equipment — createUnit validation', () => {
 			caller.equipment.createUnit({
 				clienteId: FAKE_UUID,
 				nome: '',
-				tipo: 'Residencial',
+				
 			}),
 		).rejects.toThrow();
 	});
@@ -333,6 +334,7 @@ describe('equipment — createEquipment validation', () => {
 				clienteId: FAKE_UUID,
 				nome: 'Equipamento Teste',
 				tipo: 'ar-condicionado',
+				status: 'Ativo',
 			}),
 		).rejects.toMatchObject({ code: 'FORBIDDEN' });
 	});
@@ -343,6 +345,7 @@ describe('equipment — createEquipment validation', () => {
 				clienteId: FAKE_UUID,
 				nome: 'Equipamento Teste',
 				tipo: 'ar-condicionado',
+				status: 'Ativo',
 			}),
 		).rejects.toMatchObject({ code: 'FORBIDDEN' });
 	});
@@ -353,6 +356,7 @@ describe('equipment — createEquipment validation', () => {
 				clienteId: 'not-a-uuid',
 				nome: 'Equipamento Teste',
 				tipo: 'ar-condicionado',
+				status: 'Ativo',
 			}),
 		).rejects.toThrow();
 	});
@@ -363,6 +367,7 @@ describe('equipment — createEquipment validation', () => {
 				clienteId: FAKE_UUID,
 				nome: '',
 				tipo: 'ar-condicionado',
+				status: 'Ativo',
 			}),
 		).rejects.toThrow();
 	});

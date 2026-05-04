@@ -12,7 +12,8 @@ export const maintenanceRouter = trpcRouter({
 				nomeEmpresa: z.string().min(1),
 				tipoEquipamento: z.enum(['ar-condicionado', 'refrigerador']),
 				periodicidadeDias: z.number().int().min(1),
-				clienteId: z.string().uuid().optional(),
+				clienteId: z.string().uuid(),
+				equipamentoId: z.string().uuid(),
 				// PMOC-specific fields
 				creaResponsavel: z.string().optional(),
 				laudoTecnico: z.string().optional(),
@@ -28,14 +29,15 @@ export const maintenanceRouter = trpcRouter({
 				throw new TRPCError({ code: 'FORBIDDEN', message: 'Team não encontrado no contexto' });
 
 			// IDOR FIX: Verify client belongs to team before creating plan
-			if (input.clienteId) {
-				const cliente = await db.clients.findOptional(input.clienteId);
-				if (!cliente) throw new TRPCError({ code: 'NOT_FOUND', message: 'Cliente não encontrado' });
-				if (cliente.teamId !== teamId)
-					throw new TRPCError({ code: 'FORBIDDEN', message: 'Acesso negado' });
-			}
+			const cliente = await db.clients.findOptional(input.clienteId);
+			if (!cliente) throw new TRPCError({ code: 'NOT_FOUND', message: 'Cliente não encontrado' });
+			if (cliente.teamId !== teamId)
+				throw new TRPCError({ code: 'FORBIDDEN', message: 'Acesso negado' });
 
-			return db.maintenancePlans.create(input);
+			return db.maintenancePlans.create({
+				...input,
+				usuarioCriacaoId: ctx.user.userId,
+			});
 		}),
 
 	listPlans: protectedProcedure.query(async ({ ctx }) => {
@@ -136,7 +138,7 @@ export const maintenanceRouter = trpcRouter({
 					throw new TRPCError({ code: 'FORBIDDEN', message: 'Acesso negado' });
 			}
 
-			return db.maintenancePlans.delete(input.planId);
+			return db.maintenancePlans.find(input.planId).delete();
 		}),
 
 	// — Maintenance Schedules —
@@ -225,7 +227,10 @@ export const maintenanceRouter = trpcRouter({
 				if (!tecnico) throw new TRPCError({ code: 'NOT_FOUND', message: 'Técnico não encontrado' });
 			}
 
-			return db.maintenanceSchedules.create(input);
+			return db.maintenanceSchedules.create({
+				...input,
+				usuarioCriacaoId: ctx.user.userId,
+			});
 		}),
 
 	updateSchedule: protectedProcedure
@@ -233,7 +238,7 @@ export const maintenanceRouter = trpcRouter({
 			z.object({
 				scheduleId: z.string().uuid(),
 				dataAgendada: z.date().optional(),
-				statusManutencao: z.enum(['agendada', 'em_execucao', 'concluida', 'cancelada']).optional(),
+				statusManutencao: z.enum(['agendada', 'em-progresso', 'concluida', 'cancelada', 'adiada']).optional(),
 				tecnicoAtribuidoId: z.string().uuid().nullable().optional(),
 				notasExecucao: z.string().optional(),
 				tempoExecucao: z.number().int().optional(),
@@ -282,6 +287,6 @@ export const maintenanceRouter = trpcRouter({
 					throw new TRPCError({ code: 'FORBIDDEN', message: 'Acesso negado' });
 			}
 
-			return db.maintenanceSchedules.delete(input.scheduleId);
+			return db.maintenanceSchedules.find(input.scheduleId).delete();
 		}),
 });

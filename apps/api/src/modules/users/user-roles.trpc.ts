@@ -44,12 +44,14 @@ export const userRolesRouterTrpc = trpcRouter({
 
 	listUserRoles: protectedProcedure.input(listUserRoleFilterZod).query(async ({ ctx, input }) => {
 		const requestingUserId = input.userId ?? ctx.user.userId;
+		const teamId = ctx.user.teamId;
+		if (!teamId) throw new TRPCError({ code: 'FORBIDDEN', message: 'Team não encontrado no contexto' });
 
 		// Non-admin users can only see their own roles
 		if (requestingUserId !== ctx.user.userId) {
 			await assertAdmin(ctx.user.userId);
 			// IDOR fix: verify target user is in same team
-			await assertSameTeam(ctx.user.userId, ctx.user.teamId, requestingUserId);
+			await assertSameTeam(ctx.user.userId, teamId, requestingUserId);
 		}
 
 		let query = db.userRoles.where({ userId: requestingUserId });
@@ -62,10 +64,12 @@ export const userRolesRouterTrpc = trpcRouter({
 	}),
 
 	assignRole: protectedProcedure.input(userRoleAssignZod).mutation(async ({ ctx, input }) => {
+		const teamId = ctx.user.teamId;
+		if (!teamId) throw new TRPCError({ code: 'FORBIDDEN', message: 'Team não encontrado no contexto' });
 		await assertAdmin(ctx.user.userId);
 
 		// IDOR fix: verify target user is in same team
-		await assertSameTeam(ctx.user.userId, ctx.user.teamId, input.userId);
+		await assertSameTeam(ctx.user.userId, teamId, input.userId);
 
 		// Verify target user exists
 		const targetUser = await db.users.findOptional(input.userId);
@@ -89,10 +93,12 @@ export const userRolesRouterTrpc = trpcRouter({
 	}),
 
 	revokeRole: protectedProcedure.input(userRoleRevokeZod).mutation(async ({ ctx, input }) => {
+		const teamId = ctx.user.teamId;
+		if (!teamId) throw new TRPCError({ code: 'FORBIDDEN', message: 'Team não encontrado no contexto' });
 		await assertAdmin(ctx.user.userId);
 
 		// IDOR fix: verify target user is in same team
-		await assertSameTeam(ctx.user.userId, ctx.user.teamId, input.userId);
+		await assertSameTeam(ctx.user.userId, teamId, input.userId);
 
 		// Verify target user exists
 		const targetUser = await db.users.findOptional(input.userId);

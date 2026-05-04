@@ -69,7 +69,7 @@ describe('clients — auth guard (UNAUTHORIZED)', () => {
 			caller.clients.addAddress({
 				clienteId: FAKE_UUID,
 				tipo: 'Cobrança',
-				rua: 'Rua Teste',
+				rua: 'Rua Teste', numero: '123', bairro: 'Centro',
 				cidade: 'São Paulo',
 				estado: 'SP',
 				cep: '01001-000',
@@ -85,7 +85,7 @@ describe('clients — auth guard (UNAUTHORIZED)', () => {
 
 	it('updateAddress rejeita não autenticado', async () => {
 		await expect(
-			caller.clients.updateAddress({ addressId: FAKE_UUID, rua: 'Updated' }),
+			caller.clients.updateAddress({ addressId: FAKE_UUID, rua: 'Updated', numero: '123', bairro: 'Centro', cep: '01001-000', cidade: 'São Paulo', estado: 'SP' }),
 		).rejects.toMatchObject({ code: 'UNAUTHORIZED' });
 	});
 });
@@ -342,7 +342,7 @@ describe('clients — addAddress IDOR protection', () => {
 			caller.clients.addAddress({
 				clienteId: FAKE_UUID,
 				tipo: 'Cobrança',
-				rua: 'Rua Teste',
+				rua: 'Rua Teste', numero: '123', bairro: 'Centro',
 				cidade: 'São Paulo',
 				estado: 'SP',
 				cep: '01001-000',
@@ -356,7 +356,7 @@ describe('clients — addAddress IDOR protection', () => {
 			callerOtherTeam.clients.addAddress({
 				clienteId: FAKE_UUID,
 				tipo: 'Cobrança',
-				rua: 'Rua Teste',
+				rua: 'Rua Teste', numero: '123', bairro: 'Centro',
 				cidade: 'São Paulo',
 				estado: 'SP',
 				cep: '01001-000',
@@ -393,20 +393,20 @@ describe('clients — updateAddress IDOR protection', () => {
 
 	it('updateAddress lança NOT_FOUND para address inexistente', async () => {
 		await expect(
-			caller.clients.updateAddress({ addressId: FAKE_UUID, rua: 'Updated' }),
+			caller.clients.updateAddress({ addressId: FAKE_UUID, rua: 'Updated', numero: '123', bairro: 'Centro', cep: '01001-000', cidade: 'São Paulo', estado: 'SP' }),
 		).rejects.toMatchObject({ code: 'NOT_FOUND' });
 	});
 
 	it('updateAddress lança FORBIDDEN quando address pertence a cliente de outro team', async () => {
 		const callerOtherTeam = createCaller(authContext({ teamId: 'team-other' }));
 		await expect(
-			callerOtherTeam.clients.updateAddress({ addressId: FAKE_UUID, logradouro: 'Updated' }),
+			callerOtherTeam.clients.updateAddress({ addressId: FAKE_UUID, rua: 'Updated', numero: '123', bairro: 'Centro', cep: '01001-000', cidade: 'São Paulo', estado: 'SP' }),
 		).rejects.toMatchObject({ code: 'FORBIDDEN' });
 	});
 
 	it('updateAddress lança erro para UUID inválido em addressId', async () => {
 		await expect(
-			caller.clients.updateAddress({ addressId: 'not-a-uuid', logradouro: 'Updated' }),
+			caller.clients.updateAddress({ addressId: 'not-a-uuid', rua: 'Updated', numero: '123', bairro: 'Centro', cep: '01001-000', cidade: 'São Paulo', estado: 'SP' }),
 		).rejects.toThrow();
 	});
 });

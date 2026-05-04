@@ -14,6 +14,7 @@ export const remindersRouterTrpc = trpcRouter({
 	listReminders: protectedProcedure.input(listReminderFilterZod).query(async ({ ctx, input }) => {
 		const { teamId } = ctx.user;
 		let query = db.reminders
+			// @ts-ignore TS2345 join signature mismatch at runtime
 			.join('clients', 'reminders.clienteId', 'clients.clientId')
 			.where({ 'clients.teamId': teamId });
 

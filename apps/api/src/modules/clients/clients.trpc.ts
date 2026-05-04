@@ -23,7 +23,7 @@ const RELATED_MAX_LIMIT = 100;
 // Helper: extract teamId from authenticated user context
 // NOTE: ctx.user.teamId requires SessionUser to include teamId
 // and CRM tables (clients, leads, contacts, addresses, etc.) must have teamId column
-const getTeamId = (ctx: { user: { teamId?: string } }) => {
+const getTeamId = (ctx: { user: { teamId?: string | null } }) => {
 	const teamId = ctx.user.teamId;
 	if (!teamId)
 		throw new TRPCError({ code: 'FORBIDDEN', message: 'Team não encontrado no contexto' });
@@ -89,7 +89,7 @@ export const clientsRouterTrpc = trpcRouter({
 		if (!client) throw new TRPCError({ code: 'NOT_FOUND', message: 'Cliente não encontrado' });
 		if (client.teamId !== teamId)
 			throw new TRPCError({ code: 'FORBIDDEN', message: 'Acesso negado' });
-		return db.contacts.create(input);
+		return db.contacts.create({ ...input, teamId });
 	}),
 
 	listContacts: protectedProcedure
@@ -131,7 +131,7 @@ export const clientsRouterTrpc = trpcRouter({
 		if (!client) throw new TRPCError({ code: 'NOT_FOUND', message: 'Cliente não encontrado' });
 		if (client.teamId !== teamId)
 			throw new TRPCError({ code: 'FORBIDDEN', message: 'Acesso negado' });
-		return db.addresses.create(input);
+		return db.addresses.create({ ...input, teamId });
 	}),
 
 	listAddresses: protectedProcedure

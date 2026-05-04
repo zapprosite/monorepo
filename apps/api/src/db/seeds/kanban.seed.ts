@@ -6,6 +6,7 @@ export async function seedKanbanBoards() {
 	// Create 3 demo boards
 	void db.kanbanBoards.create({
 		boardId: 'board-comercial-001',
+		teamId: 'team-demo-001',
 		nome: 'Comercial',
 		setor: 'Vendas',
 		descricao: 'Pipeline de vendas e leads',
@@ -15,6 +16,7 @@ export async function seedKanbanBoards() {
 
 	void db.kanbanBoards.create({
 		boardId: 'board-tecnico-001',
+		teamId: 'team-demo-001',
 		nome: 'Técnico',
 		setor: 'Suporte',
 		descricao: 'Chamados técnicos e suporte',
@@ -24,6 +26,7 @@ export async function seedKanbanBoards() {
 
 	void db.kanbanBoards.create({
 		boardId: 'board-marketing-001',
+		teamId: 'team-demo-001',
 		nome: 'Marketing',
 		setor: 'Marketing',
 		descricao: 'Campanhas e conteúdo',

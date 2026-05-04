@@ -22,27 +22,27 @@ const VALID_EDITORIAL_INPUT = {
 describe('editorial — auth guard (UNAUTHORIZED)', () => {
 	const caller = createCaller(unauthContext());
 
-	it('listEditorialItems rejeita não autenticado', async () => {
-		await expect(caller.editorial.listEditorialItems({})).rejects.toMatchObject({
+	it('list rejeita não autenticado', async () => {
+		await expect(caller.editorial.list({})).rejects.toMatchObject({
 			code: 'UNAUTHORIZED',
 		});
 	});
 
-	it('getEditorialDetail rejeita não autenticado', async () => {
+	it('getById rejeita não autenticado', async () => {
 		await expect(
-			caller.editorial.getEditorialDetail({ editorialId: FAKE_UUID }),
+			caller.editorial.getById({ editorialId: FAKE_UUID }),
 		).rejects.toMatchObject({ code: 'UNAUTHORIZED' });
 	});
 
-	it('createEditorialItem rejeita não autenticado', async () => {
-		await expect(caller.editorial.createEditorialItem(VALID_EDITORIAL_INPUT)).rejects.toMatchObject(
+	it('create rejeita não autenticado', async () => {
+		await expect(caller.editorial.create(VALID_EDITORIAL_INPUT)).rejects.toMatchObject(
 			{ code: 'UNAUTHORIZED' },
 		);
 	});
 
-	it('updateEditorialItem rejeita não autenticado', async () => {
+	it('update rejeita não autenticado', async () => {
 		await expect(
-			caller.editorial.updateEditorialItem({ editorialId: FAKE_UUID }),
+			caller.editorial.update({ editorialId: FAKE_UUID }),
 		).rejects.toMatchObject({ code: 'UNAUTHORIZED' });
 	});
 
@@ -83,16 +83,16 @@ describe('editorial — auth guard (UNAUTHORIZED)', () => {
 describe('editorial — validação de input (Zod)', () => {
 	const caller = createCaller(authContext());
 
-	it('getEditorialDetail rejeita editorialId inválido', async () => {
+	it('getById rejeita editorialId inválido', async () => {
 		await expect(
-			caller.editorial.getEditorialDetail({ editorialId: INVALID_UUID }),
+			caller.editorial.getById({ editorialId: INVALID_UUID }),
 		).rejects.toThrow();
 	});
 
-	it('createEditorialItem rejeita sem titulo', async () => {
+	it('create rejeita sem titulo', async () => {
 		await expect(
 			// @ts-expect-error — titulo ausente proposital
-			caller.editorial.createEditorialItem({
+			caller.editorial.create({
 				canal: 'Instagram',
 				formato: 'Post',
 				status: 'Ideia' as const,
@@ -101,9 +101,9 @@ describe('editorial — validação de input (Zod)', () => {
 		).rejects.toThrow();
 	});
 
-	it('createEditorialItem rejeita canal inválido', async () => {
+	it('create rejeita canal inválido', async () => {
 		await expect(
-			caller.editorial.createEditorialItem({
+			caller.editorial.create({
 				titulo: 'Título válido',
 				canal: 'TikTokFake' as unknown as 'Instagram',
 				formato: 'Post',
@@ -113,9 +113,9 @@ describe('editorial — validação de input (Zod)', () => {
 		).rejects.toThrow();
 	});
 
-	it('createEditorialItem rejeita formato inválido', async () => {
+	it('create rejeita formato inválido', async () => {
 		await expect(
-			caller.editorial.createEditorialItem({
+			caller.editorial.create({
 				titulo: 'Título válido',
 				canal: 'Instagram',
 				formato: 'FormatoInexistente' as unknown as 'Post',
@@ -125,9 +125,9 @@ describe('editorial — validação de input (Zod)', () => {
 		).rejects.toThrow();
 	});
 
-	it('createEditorialItem rejeita dataPublicacao com formato inválido', async () => {
+	it('create rejeita dataPublicacao com formato inválido', async () => {
 		await expect(
-			caller.editorial.createEditorialItem({
+			caller.editorial.create({
 				titulo: 'Título válido',
 				canal: 'Instagram',
 				formato: 'Post',
@@ -137,9 +137,9 @@ describe('editorial — validação de input (Zod)', () => {
 		).rejects.toThrow();
 	});
 
-	it('updateEditorialItem rejeita editorialId inválido', async () => {
+	it('update rejeita editorialId inválido', async () => {
 		await expect(
-			caller.editorial.updateEditorialItem({ editorialId: INVALID_UUID }),
+			caller.editorial.update({ editorialId: INVALID_UUID }),
 		).rejects.toThrow();
 	});
 

@@ -30,6 +30,7 @@ describe('schedule — auth guard', () => {
 				clienteId: FAKE_UUID,
 				dataHora: '2026-06-01T10:00:00Z',
 				tipo: 'Visita Técnica',
+				status: 'Agendado',
 			}),
 		).rejects.toMatchObject({ code: 'UNAUTHORIZED' });
 	});
@@ -115,6 +116,7 @@ describe('schedule — createSchedule validation', () => {
 				clienteId: FAKE_UUID,
 				dataHora: '2026-06-01T10:00:00Z',
 				tipo: 'Visita Técnica',
+				status: 'Agendado',
 			}),
 		).rejects.toMatchObject({ code: 'NOT_FOUND' });
 	});
@@ -125,6 +127,7 @@ describe('schedule — createSchedule validation', () => {
 				clienteId: FAKE_UUID,
 				dataHora: '2026-06-01T10:00:00Z',
 				tipo: 'Visita Técnica',
+				status: 'Agendado',
 				tecnicoId: FAKE_UUID,
 			}),
 		).rejects.toMatchObject({ code: 'FORBIDDEN' });
@@ -136,6 +139,7 @@ describe('schedule — createSchedule validation', () => {
 				clienteId: 'not-a-uuid',
 				dataHora: '2026-06-01T10:00:00Z',
 				tipo: 'Visita Técnica',
+				status: 'Agendado',
 			}),
 		).rejects.toThrow();
 	});

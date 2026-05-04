@@ -18,6 +18,7 @@ export async function seedCRM() {
 		status: 'Qualificado',
 		origem: 'Indicação',
 		observacoes: 'Tem 8 splits e 2 câmaras frias. Contrato PMOC em vista.',
+		teamId: 'team-demo-001',
 	});
 
 	void db.leads.create({
@@ -27,6 +28,7 @@ export async function seedCRM() {
 		status: 'Proposta',
 		origem: 'Site',
 		observacoes: 'Ambidade hospitalar, exige manutenção preventiva rigorosa.',
+		teamId: 'team-demo-001',
 	});
 
 	// --- Clients ---

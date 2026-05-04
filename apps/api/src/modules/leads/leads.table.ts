@@ -15,6 +15,7 @@ export class LeadsTable extends BaseTable {
 		status: t.enum('crm_lead_status_enum', LEAD_STATUS_ENUM),
 		responsavelId: t.uuid().nullable(),
 		observacoes: t.text().nullable(),
+		teamId: t.uuid(), // IDOR fix: team isolation
 		convertidoClienteId: t.uuid().nullable(),
 		...t.timestamps(),
 	}));
