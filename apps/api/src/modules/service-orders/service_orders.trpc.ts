@@ -149,7 +149,7 @@ export const serviceOrdersRouterTrpc = trpcRouter({
 			const tecnico = order.tecnicoId ? await db.users.findOptional(order.tecnicoId) : null;
 			const equipment = order.equipmentId ? await db.equipment.findOptional(order.equipmentId) : null;
 			const report = await db.technicalReports.where({ serviceOrderId }).takeOptional();
-			const materiais = await db.materialItems.where({ serviceOrderId }).order({ createdAt: 'ASC' }).limit(100);
+			await db.materialItems.where({ serviceOrderId }).order({ createdAt: 'ASC' }).limit(100);
 			const companyIdentity = await getCompanyIdentity(teamId!);
 
 			const primaryAddress = await db.addresses.where({ clienteId: order.clienteId, tipo: 'Técnica' as const }).takeOptional()
@@ -333,7 +333,7 @@ export const serviceOrdersRouterTrpc = trpcRouter({
 			const techUrl = await uploadToDisk({
 				base64: technicianSignature.split(',')[1] || technicianSignature,
 				filename: `tech-signature-${serviceOrderId}.png`,
-				teamId,
+				teamId: teamId!,
 				folder: 'signatures',
 				mimeType: 'image/png',
 			});
@@ -341,7 +341,7 @@ export const serviceOrdersRouterTrpc = trpcRouter({
 			const clientUrl = await uploadToDisk({
 				base64: clientSignature.split(',')[1] || clientSignature,
 				filename: `client-signature-${serviceOrderId}.png`,
-				teamId,
+				teamId: teamId!,
 				folder: 'signatures',
 				mimeType: 'image/png',
 			});

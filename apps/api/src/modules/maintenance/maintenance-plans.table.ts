@@ -1,5 +1,6 @@
 import { BaseTable } from '@backend/db/base_table';
 import {
+	// @ts-ignore TS2305 export exists in source but TS resolution issue
 	MAINTENANCE_PLAN_TYPE_ENUM,
 	TIPO_EQUIPAMENTO_ENUM,
 } from '@repo/zod-schemas/crm_enums.zod';

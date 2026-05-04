@@ -164,7 +164,7 @@ export const equipmentRouterTrpc = trpcRouter({
 			.where({ ativo: true })
 			.order({ sequenceNumber: 'ASC' });
 
-		return equipment.filter((e) => e.sequenceNumber !== null);
+		return equipment.filter((e: any) => e.sequenceNumber !== null);
 	}),
 
 	assignRgNumber: protectedProcedure
@@ -186,8 +186,8 @@ export const equipmentRouterTrpc = trpcRouter({
 				.where('clients.teamId', teamId);
 
 			const usedNumbers = allEquipment
-				.map((e) => e.sequenceNumber)
-				.filter((n) => n !== null) as number[];
+				.map((e: any) => e.sequenceNumber)
+				.filter((n: any) => n !== null) as number[];
 
 			let nextNumber = 1;
 			while (usedNumbers.includes(nextNumber)) {

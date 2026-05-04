@@ -42,14 +42,14 @@ export const contractsRouterTrpc = trpcRouter({
 
 		if (contracts.length === 0) return [];
 
-		const clientIds = [...new Set(contracts.map((c) => c.clienteId))];
+		const clientIds = [...new Set(contracts.map((c: any) => c.clienteId))] as string[];
 		const clients = await db.clients
 			.where({ clientId: { in: clientIds }, teamId })
 			.select('clientId', 'nome');
 
-		const clientMap = new Map(clients.map((c) => [c.clientId, c.nome]));
+		const clientMap = new Map(clients.map((c: any) => [c.clientId, c.nome]));
 
-		return contracts.map((c) => ({
+		return contracts.map((c: any) => ({
 			...c,
 			clienteNome: clientMap.get(c.clienteId) ?? null,
 		}));

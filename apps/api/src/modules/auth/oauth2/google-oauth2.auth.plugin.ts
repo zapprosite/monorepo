@@ -70,7 +70,7 @@ async function fetchGoogleUserInfo(accessToken: string): Promise<GoogleUserInfo>
  */
 export async function googleOAuth2Plugin(app: FastifyInstance) {
 	// Register Google OAuth2
-	await app.register(oauthPlugin, GOOGLE_OAUTH2_CONFIG);
+	await app.register(oauthPlugin as any, GOOGLE_OAUTH2_CONFIG);
 
 	// Register Google OAuth2 callback handler
 	app.get('/callback', async (request, reply) => {

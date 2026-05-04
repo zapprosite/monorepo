@@ -91,7 +91,6 @@ describe('editorial — validação de input (Zod)', () => {
 
 	it('create rejeita sem titulo', async () => {
 		await expect(
-			// @ts-expect-error — titulo ausente proposital
 			caller.editorial.create({
 				canal: 'Instagram',
 				formato: 'Post',

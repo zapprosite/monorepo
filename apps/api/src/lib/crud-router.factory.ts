@@ -18,6 +18,8 @@ export interface CrudFactoryHooks {
 	buildGetByIdQuery?: (query: any, input: any, ctx: TrpcContext) => any;
 	/** Transform input before create */
 	transformCreateInput?: (input: any, ctx: TrpcContext) => any;
+	/** Hook called before update (e.g. validation, team check) */
+	onBeforeUpdate?: (input: any, ctx: TrpcContext) => Promise<void>;
 	/** Transform input before update (id already extracted) */
 	transformUpdateInput?: (input: any, ctx: TrpcContext) => any;
 	/** Hook called before delete (e.g. validation) */
@@ -159,6 +161,10 @@ export function createCrudRouter(config: CrudFactoryConfig) {
 			const idValue = (input as Record<string, any>)[idColumn];
 			if (idValue === undefined) {
 				throw new TRPCError({ code: 'BAD_REQUEST', message: `${idColumn} is required` });
+			}
+
+			if (hooks?.onBeforeUpdate) {
+				await hooks.onBeforeUpdate(input, ctx);
 			}
 
 			let data: any = { ...(input as any) };

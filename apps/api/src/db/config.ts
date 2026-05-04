@@ -1,4 +1,4 @@
-import { env, isProd } from '@backend/configs/env.config';
+import { env } from '@backend/configs/env.config';
 
 export const dbConfig = {
 	host: env.DB_HOST || 'localhost',

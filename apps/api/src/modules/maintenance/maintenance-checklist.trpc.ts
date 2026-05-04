@@ -74,7 +74,7 @@ export const maintenanceChecklistRouter = trpcRouter({
 
 			return db.maintenanceChecklist
 				.where({ scheduleId: input.scheduleId })
-				.findOptional();
+				.takeOptional();
 		}),
 
 	complete: protectedProcedure

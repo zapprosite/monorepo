@@ -1,4 +1,3 @@
-import { db } from '@backend/db/db';
 import { TRPCError } from '@trpc/server';
 import { writeFileSync, mkdirSync, existsSync } from 'fs';
 import { join } from 'path';
