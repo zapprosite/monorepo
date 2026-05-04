@@ -1,0 +1,125 @@
+{
+  "name": "SPEC-211-CRM-Security-Audit-Refactor",
+  "description": "Fix 5 P0 + 6 P1 security findings from CRM audit — auth, IDOR, credential leak, session fixation",
+  "version": "1.0.0",
+  "continue_on_error": false,
+  "tasks": [
+    {
+      "id": "P0-01",
+      "type": "patch",
+      "path": "/srv/monorepo/apps/api/src/modules/prompts/prompts.trpc.ts",
+      "description": "P0-1: Change prompts router from publicProcedure to protectedProcedure, add teamId scoping",
+      "old_string": "import { db } from '@backend/db/db';\nimport { publicProcedure, trpcRouter } from '@backend/trpc';\nimport { promptGetActiveZod, promptGetByIdZod } from '@repo/zod-schemas/prompt.zod';\n\nexport const promptsRouterTrpc = trpcRouter({\n\t// Get all active prompts\n\tgetAllActive: publicProcedure.query(async () => {\n\t\tconst prompts = await db.prompts\n\t\t\t.where({ isActive: true })\n\t\t\t.select('*')\n\t\t\t.order({ createdAt: 'DESC' });\n\n\t\treturn prompts;\n\t}),\n\n\t// Get a random active prompt\n\tgetRandomActive: publicProcedure.query(async () => {\n\t\t// Get count of active prompts\n\t\tconst count = await db.prompts.count();\n\n\t\tif (count === 0) {\n\t\t\tthrow new Error('No active prompts available');\n\t\t}\n\n\t\t// Try up to 3 times to get a random prompt\n\t\tfor (let attempt = 0; attempt < 3; attempt++) {\n\t\t\t// Generate random offset between 0 and count-1\n\t\t\tconst randomIndex = Math.floor(Math.random() * count);\n\n\t\t\t// Get the first active prompt at this offset\n\t\t\tconst prompt = await db.prompts\n\t\t\t\t.where({ isActive: true, promptId: { gte: randomIndex } })\n\t\t\t\t.select('*')\n\t\t\t\t.limit(1)\n\t\t\t\t.take();\n\n\t\t\tif (prompt) {\n\t\t\t\treturn prompt;\n\t\t\t}\n\t\t}\n\n\t\t// If all 3 attempts failed, throw error\n\t\tthrow new Error('Failed to retrieve a random active prompt after 3 attempts');\n\t}),\n\n\t// Get prompt by ID\n\tgetById: publicProcedure.input(promptGetByIdZod).query(async ({ input: { promptId } }) => {\n\t\tconst prompt = await db.prompts.find(promptId);\n\n\t\tif (!prompt) {\n\t\t\tthrow new Error('Prompt not found');\n\t\t}\n\n\t\treturn prompt;\n\t}),\n\n\t// Get prompts by category\n\tgetByCategory: publicProcedure.input(promptGetActiveZod).query(async ({ input }) => {\n\t\tconst prompts = await db.prompts\n\t\t\t.where({ isActive: input.isActive })\n\t\t\t.select('*')\n\t\t\t.order({ createdAt: 'DESC' });\n\n\t\treturn prompts;\n\t}),\n});",
+      "new_string": "import { db } from '@backend/db/db';\nimport { protectedProcedure, trpcRouter } from '@backend/trpc';\nimport { promptGetActiveZod, promptGetByIdZod } from '@repo/zod-schemas/prompt.zod';\nimport { TRPCError } from '@trpc/server';\n\nexport const promptsRouterTrpc = trpcRouter({\n\tgetAllActive: protectedProcedure.query(async ({ ctx }) => {\n\t\tconst prompts = await db.prompts\n\t\t\t.where({ isActive: true, teamId: ctx.user.teamId })\n\t\t\t.select('*')\n\t\t\t.order({ createdAt: 'DESC' });\n\n\t\treturn prompts;\n\t}),\n\n\tgetRandomActive: protectedProcedure.query(async ({ ctx }) => {\n\t\tconst count = await db.prompts.where({ isActive: true, teamId: ctx.user.teamId }).count();\n\n\t\tif (count === 0) {\n\t\t\tthrow new TRPCError({ code: 'NOT_FOUND', message: 'No active prompts available' });\n\t\t}\n\n\t\tfor (let attempt = 0; attempt < 3; attempt++) {\n\t\t\tconst randomIndex = Math.floor(Math.random() * count);\n\t\t\tconst prompt = await db.prompts\n\t\t\t\t.where({ isActive: true, teamId: ctx.user.teamId, promptId: { gte: randomIndex } })\n\t\t\t\t.select('*')\n\t\t\t\t.limit(1)\n\t\t\t\t.take();\n\n\t\t\tif (prompt) {\n\t\t\t\treturn prompt;\n\t\t\t}\n\t\t}\n\n\t\tthrow new TRPCError({ code: 'NOT_FOUND', message: 'Failed to retrieve a random active prompt' });\n\t}),\n\n\tgetById: protectedProcedure.input(promptGetByIdZod).query(async ({ input: { promptId }, ctx }) => {\n\t\tconst prompt = await db.prompts.find(promptId);\n\n\t\tif (!prompt || prompt.teamId !== ctx.user.teamId) {\n\t\t\tthrow new TRPCError({ code: 'NOT_FOUND', message: 'Prompt not found' });\n\t\t}\n\n\t\treturn prompt;\n\t}),\n\n\tgetByCategory: protectedProcedure.input(promptGetActiveZod).query(async ({ input, ctx }) => {\n\t\tconst prompts = await db.prompts\n\t\t\t.where({ isActive: input.isActive, teamId: ctx.user.teamId })\n\t\t\t.select('*')\n\t\t\t.order({ createdAt: 'DESC' });\n\n\t\treturn prompts;\n\t}),\n});"
+    },
+    {
+      "id": "P0-02",
+      "type": "patch",
+      "path": "/srv/monorepo/apps/api/src/modules/email/email.trpc.ts",
+      "description": "P0-2: Add teamId scoping to email campaigns (list + create)",
+      "old_string": "export const emailRouter = trpcRouter({\n\tlistCampaigns: protectedProcedure.input(emailCampaignListZod).query(async ({ input }) => {\n\t\tlet query = db.emailCampaigns.select('*');\n\t\tif (input.status) query = query.where({ statusCampanha: input.status });\n\t\tif (input.tipo) query = query.where({ tipoCampanha: input.tipo });\n\t\tconst rows = await query.order({ createdAt: 'DESC' }).limit(input.limit).offset(input.offset);\n\t\treturn { data: rows };\n\t}),\n\n\tcreateCampaign: protectedProcedure\n\t\t.input(emailCampaignCreateZod)\n\t\t.mutation(async ({ ctx, input }) => {\n\t\t\treturn db.emailCampaigns.create({\n\t\t\t\t...input,\n\t\t\t\tusuarioCriacaoId: ctx.user.userId,\n\t\t\t});\n\t\t}),\n});",
+      "new_string": "export const emailRouter = trpcRouter({\n\tlistCampaigns: protectedProcedure.input(emailCampaignListZod).query(async ({ input, ctx }) => {\n\t\tconst { teamId } = ctx.user;\n\t\tlet query = db.emailCampaigns.where({ teamId }).select('*');\n\t\tif (input.status) query = query.where({ statusCampanha: input.status });\n\t\tif (input.tipo) query = query.where({ tipoCampanha: input.tipo });\n\t\tconst rows = await query.order({ createdAt: 'DESC' }).limit(input.limit).offset(input.offset);\n\t\treturn { data: rows };\n\t}),\n\n\tcreateCampaign: protectedProcedure\n\t\t.input(emailCampaignCreateZod)\n\t\t.mutation(async ({ ctx, input }) => {\n\t\t\tconst { teamId, userId } = ctx.user;\n\t\t\treturn db.emailCampaigns.create({\n\t\t\t\t...input,\n\t\t\t\tteamId,\n\t\t\t\tusuarioCriacaoId: userId,\n\t\t\t});\n\t\t}),\n});"
+    },
+    {
+      "id": "P0-03",
+      "type": "patch",
+      "path": "/srv/monorepo/apps/api/src/modules/journal-entries/journal_entries.trpc.ts",
+      "description": "P0-3: Add teamId scoping to journal entries, fix getByUser IDOR",
+      "old_string": "import { db } from '@backend/db/db';\nimport { protectedProcedure, trpcRouter } from '@backend/trpc';\nimport {\n\tjournalEntryCreateInputZod,\n\tjournalEntryDeleteZod,\n\tjournalEntryGetByIdZod,\n\tjournalEntryGetByUserZod,\n} from '@repo/zod-schemas/journal_entry.zod';\n\nexport const journalEntriesRouterTrpc = trpcRouter({\n\t// Get all journal entries for a team\n\tgetAll: protectedProcedure.query(\n\t\tasync ({\n\t\t\tctx: {\n\t\t\t\tuser: { userId },\n\t\t\t},\n\t\t}) => {\n\t\t\tconst journalEntries = await db.journalEntries\n\t\t\t\t.select('*', {\n\t\t\t\t\tauthor: (t) => t.author.selectAll(),\n\t\t\t\t})\n\t\t\t\t.where({ authorUserId: userId });\n\t\t\treturn journalEntries;\n\t\t},\n\t),\n\n\t// Get journal entry by ID\n\tgetById: protectedProcedure.input(journalEntryGetByIdZod).query(\n\t\tasync ({\n\t\t\tinput: { journalEntryId },\n\t\t\tctx: {\n\t\t\t\tuser: { userId },\n\t\t\t},\n\t\t}) => {\n\t\t\tconst journalEntry = await db.journalEntries\n\t\t\t\t.find(journalEntryId)\n\t\t\t\t.where({ authorUserId: userId });\n\n\t\t\tif (!journalEntry) {\n\t\t\t\tthrow new Error('Journal entry not found');\n\t\t\t}\n\n\t\t\treturn journalEntry;\n\t\t},\n\t),\n\n\t// Create journal entry\n\tcreate: protectedProcedure\n\t\t.input(journalEntryCreateInputZod)\n\t\t.mutation(async ({ input, ctx: { user } }) => {\n\t\t\tconst newJournalEntry = await db.journalEntries.create({\n\t\t\t\tauthorUserId: user.userId,\n\t\t\t\tpromptId: input.promptId,\n\t\t\t\tprompt: input.prompt,\n\t\t\t\tcontent: input.content,\n\t\t\t});\n\t\t\treturn newJournalEntry;\n\t\t}),\n\n\t// Get journal entries by user\n\tgetByUser: protectedProcedure.input(journalEntryGetByUserZod).query(async ({ input }) => {\n\t\tconst journalEntries = await db.journalEntries\n\t\t\t.select('*', {\n\t\t\t\tauthor: (t) => t.author.selectAll(),\n\t\t\t})\n\t\t\t.where({ authorUserId: input.authorUserId })\n\t\t\t.order({ createdAt: 'DESC' });\n\n\t\treturn journalEntries;\n\t}),\n\n\t// Delete journal entry\n\tdelete: protectedProcedure.input(journalEntryDeleteZod).mutation(\n\t\tasync ({\n\t\t\tinput: { journalEntryId },\n\t\t\tctx: {\n\t\t\t\tuser: { userId },\n\t\t\t},\n\t\t}) => {\n\t\t\t\tawait db.journalEntries.find(journalEntryId).where({ authorUserId: userId }).delete();\n\n\t\t\t\treturn { success: true };\n\t\t},\n\t),\n});",
+      "new_string": "import { db } from '@backend/db/db';\nimport { protectedProcedure, trpcRouter } from '@backend/trpc';\nimport {\n\tjournalEntryCreateInputZod,\n\tjournalEntryDeleteZod,\n\tjournalEntryGetByIdZod,\n\tjournalEntryGetByUserZod,\n} from '@repo/zod-schemas/journal_entry.zod';\nimport { TRPCError } from '@trcp/server';\n\nexport const journalEntriesRouterTrpc = trpcRouter({\n\tgetAll: protectedProcedure.query(\n\t\tasync ({\n\t\t\tctx: {\n\t\t\t\tuser: { userId, teamId },\n\t\t\t},\n\t\t}) => {\n\t\t\tconst journalEntries = await db.journalEntries\n\t\t\t\t.select('*', {\n\t\t\t\t\tauthor: (t) => t.author.selectAll(),\n\t\t\t\t})\n\t\t\t\t.where({ authorUserId: userId, teamId });\n\t\t\treturn journalEntries;\n\t\t},\n\t),\n\n\tgetById: protectedProcedure.input(journalEntryGetByIdZod).query(\n\t\tasync ({\n\t\t\tinput: { journalEntryId },\n\t\t\tctx: {\n\t\t\t\tuser: { userId, teamId },\n\t\t\t},\n\t\t}) => {\n\t\t\tconst journalEntry = await db.journalEntries\n\t\t\t\t.find(journalEntryId)\n\t\t\t\t.where({ authorUserId: userId, teamId });\n\n\t\t\tif (!journalEntry) {\n\t\t\t\tthrow new TRPCError({ code: 'NOT_FOUND', message: 'Journal entry not found' });\n\t\t\t}\n\n\t\t\treturn journalEntry;\n\t\t},\n\t),\n\n\tcreate: protectedProcedure\n\t\t.input(journalEntryCreateInputZod)\n\t\t.mutation(async ({ input, ctx: { user } }) => {\n\t\t\tconst newJournalEntry = await db.journalEntries.create({\n\t\t\t\tauthorUserId: user.userId,\n\t\t\t\tteamId: user.teamId,\n\t\t\t\tpromptId: input.promptId,\n\t\t\t\tprompt: input.prompt,\n\t\t\t\tcontent: input.content,\n\t\t\t});\n\t\t\treturn newJournalEntry;\n\t\t}),\n\n\tgetByUser: protectedProcedure.input(journalEntryGetByUserZod).query(async ({ input, ctx }) => {\n\t\tconst { teamId, userId } = ctx.user;\n\t\tif (input.authorUserId !== userId) {\n\t\t\tthrow new TRPCError({ code: 'FORBIDDEN', message: 'Cannot view other users journal entries' });\n\t\t}\n\t\tconst journalEntries = await db.journalEntries\n\t\t\t.select('*', {\n\t\t\t\tauthor: (t) => t.author.selectAll(),\n\t\t\t})\n\t\t\t.where({ authorUserId: userId, teamId })\n\t\t\t.order({ createdAt: 'DESC' });\n\n\t\treturn journalEntries;\n\t}),\n\n\tdelete: protectedProcedure.input(journalEntryDeleteZod).mutation(\n\t\tasync ({\n\t\t\tinput: { journalEntryId },\n\t\t\tctx: {\n\t\t\t\tuser: { userId, teamId },\n\t\t\t},\n\t\t}) => {\n\t\t\t\tawait db.journalEntries.find(journalEntryId).where({ authorUserId: userId, teamId }).delete();\n\n\t\t\t\treturn { success: true };\n\t\t},\n\t),\n});"
+    },
+    {
+      "id": "P0-04",
+      "type": "patch",
+      "path": "/srv/monorepo/apps/api/src/modules/mcp-connectors/mcp-conectores.trpc.ts",
+      "description": "P0-4: Exclude apiKey from MCP connector list/getById responses",
+      "old_string": "\t\tconst conectores = await db.mcpConectores.where({ teamId }).select('*');\n\t\treturn conectores;",
+      "new_string": "\t\tconst conectores = await db.mcpConectores.where({ teamId }).select(\n\t\t\t'id', 'provider', 'status', 'configuracao', 'clienteId', 'teamId', 'usuarioCriacaoId', 'createdAt', 'updatedAt', 'ultimaTentativaSync', 'erroUltimaTentativa',\n\t\t);\n\t\treturn conectores;"
+    },
+    {
+      "id": "P0-04b",
+      "type": "patch",
+      "path": "/srv/monorepo/apps/api/src/modules/mcp-connectors/mcp-conectores.trpc.ts",
+      "description": "P0-4: Exclude apiKey from MCP connector getById response",
+      "old_string": "\t\t\tconst conector = await db.mcpConectores.where({ id: input.id }).select('*').take();",
+      "new_string": "\t\t\tconst conector = await db.mcpConectores.where({ id: input.id }).select(\n\t\t\t\t'id', 'provider', 'status', 'configuracao', 'clienteId', 'teamId', 'usuarioCriacaoId', 'createdAt', 'updatedAt', 'ultimaTentativaSync', 'erroUltimaTentativa',\n\t\t\t).take();"
+    },
+    {
+      "id": "P0-05",
+      "type": "patch",
+      "path": "/srv/monorepo/apps/api/src/modules/auth/auth.trpc.ts",
+      "description": "P0-5: Remove teamId from register input, assign server-side. Fix auth leak.",
+      "old_string": "const registerWithPasswordInputZod = z.object({\n\temail: z.email(),\n\tpassword: z.string().min(8),\n\tname: z.string().optional(),\n\tteamId: z.uuid().optional(),\n});",
+      "new_string": "const registerWithPasswordInputZod = z.object({\n\temail: z.email(),\n\tpassword: z.string().min(8),\n\tname: z.string().optional(),\n});"
+    },
+    {
+      "id": "P0-05b",
+      "type": "patch",
+      "path": "/srv/monorepo/apps/api/src/modules/auth/auth.trpc.ts",
+      "description": "P0-5b: Remove teamId from create user, P1-4: Fix auth leak generic error",
+      "old_string": "\t\t\tif (user.authType !== 'local' || !user.passwordHash) {\n\t\t\t\tthrow new TRPCError({\n\t\t\t\t\tcode: 'UNAUTHORIZED',\n\t\t\t\t\tmessage: 'This account uses Google OAuth. Please login with Google.',\n\t\t\t\t});\n\t\t\t}",
+      "new_string": "\t\t\tif (user.authType !== 'local' || !user.passwordHash) {\n\t\t\t\tthrow new TRPCError({\n\t\t\t\t\tcode: 'UNAUTHORIZED',\n\t\t\t\t\tmessage: 'Invalid credentials',\n\t\t\t\t});\n\t\t\t}"
+    },
+    {
+      "id": "P0-05c",
+      "type": "patch",
+      "path": "/srv/monorepo/apps/api/src/modules/auth/auth.trpc.ts",
+      "description": "P0-5c: Remove teamId from user creation (server assigns)",
+      "old_string": "\t\t\tconst newUser = await db.users.create({\n\t\t\t\temail: input.email,\n\t\t\t\tname: input.name || null,\n\t\t\t\tauthType: 'local',\n\t\t\t\tpasswordHash,\n\t\t\t\tteamId: input.teamId || null,\n\t\t\t\tdisplayPicture: null,\n\t\t\t});",
+      "new_string": "\t\t\tconst newUser = await db.users.create({\n\t\t\t\temail: input.email,\n\t\t\t\tname: input.name || null,\n\t\t\t\tauthType: 'local',\n\t\t\t\tpasswordHash,\n\t\t\t\tteamId: null,\n\t\t\t\tdisplayPicture: null,\n\t\t\t});"
+    },
+    {
+      "id": "P1-01",
+      "type": "patch",
+      "path": "/srv/monorepo/apps/api/src/modules/auth/oauth2/oauth2_succes_error_handler.auth.utils.ts",
+      "description": "P1-1: Add session regeneration before setSession (fix session fixation)",
+      "old_string": "export const oauth2SuccessHandler = (\n\trequest: FastifyRequest,\n\treply: FastifyReply,\n\tsessionUser: SessionUser,\n) => {\n\tsetSession(request, sessionUser);",
+      "new_string": "export const oauth2SuccessHandler = async (\n\trequest: FastifyRequest,\n\treply: FastifyReply,\n\tsessionUser: SessionUser,\n) => {\n\tawait new Promise<void>((resolve, reject) => {\n\t\trequest.session.regenerate((err) => {\n\t\t\tif (err) reject(err);\n\t\t\telse resolve();\n\t\t});\n\t});\n\tsetSession(request, sessionUser);"
+    },
+    {
+      "id": "P1-02",
+      "type": "patch",
+      "path": "/srv/monorepo/apps/api/src/modules/auth/oauth2/google-oauth2.auth.plugin.ts",
+      "description": "P1-2: Add state:true to OAuth2 config for CSRF protection",
+      "old_string": "export const GOOGLE_OAUTH2_CONFIG = {\n\tname: 'googleOAuth2',\n\tcredentials: {\n\t\tclient: {\n\t\t\tid: env.GOOGLE_CLIENT_ID,\n\t\t\tsecret: env.GOOGLE_CLIENT_SECRET,\n\t\t},\n\t\tauth: oauthPlugin.GOOGLE_CONFIGURATION,\n\t},\n\tscope: ['profile', 'email'],\n\tstartRedirectPath: '/',\n\tcallbackUri: `${env.API_BASE_URL}/oauth2/google/callback`,\n};",
+      "new_string": "export const GOOGLE_OAUTH2_CONFIG = {\n\tname: 'googleOAuth2',\n\tcredentials: {\n\t\tclient: {\n\t\t\tid: env.GOOGLE_CLIENT_ID,\n\t\t\tsecret: env.GOOGLE_CLIENT_SECRET,\n\t\t},\n\t\tauth: oauthPlugin.GOOGLE_CONFIGURATION,\n\t},\n\tscope: ['profile', 'email'],\n\tstartRedirectPath: '/',\n\tcallbackUri: `${env.API_BASE_URL}/oauth2/google/callback`,\n\tstate: true,\n};"
+    },
+    {
+      "id": "P1-03",
+      "type": "patch",
+      "path": "/srv/monorepo/apps/api/src/middlewares/dev-auth-bypass.ts",
+      "description": "P1-3: Add DEV_AUTH_ENABLED guard + remove placeholder userId",
+      "old_string": "import { isDev } from '@backend/configs/env.config';\nimport type { SessionUser } from '@backend/modules/auth/session.auth.utils';\nimport type { FastifyRequest } from 'fastify';\n\n/**\n * Dev auth bypass middleware\n *\n * In development mode, allows setting a fake session via X-Dev-User header.\n * This enables local testing without OAuth flow.\n *\n * Header format: X-Dev-User: <email>\n * Example: X-Dev-User: will@zappro.site\n *\n * The corresponding user must exist in the database (or we create a dev user on the fly).\n */\n\n/**\n * Default dev users for local testing\n * Keyed by email, these are pre-seeded for convenience\n */\nexport const DEV_USERS: Record<string, Omit<SessionUser, 'userId'>> = {\n\t'will@zappro.site': {\n\t\temail: 'will@zappro.site',\n\t\tname: 'Will (Dev)',\n\t\tdisplayPicture: null,\n\t\tteamId: 'dev-team-will',\n\t},\n\t'admin@zappro.site': {\n\t\temail: 'admin@zappro.site',\n\t\tname: 'Admin (Dev)',\n\t\tdisplayPicture: null,\n\t\tteamId: 'dev-team-admin',\n\t},\n\t'test@example.com': {\n\t\temail: 'test@example.com',\n\t\tname: 'Test User',\n\t\tdisplayPicture: null,\n\t\tteamId: 'dev-team-test',\n\t},\n};\n\n/**\n * Try to extract dev user from request header\n * Returns null if not in dev mode or header not present\n */\nexport const extractDevUser = (req: FastifyRequest): SessionUser | null => {\n\tif (!isDev) {\n\t\treturn null;\n\t}\n\n\tconst devUserHeader = req.headers['x-dev-user'];\n\tif (!devUserHeader || typeof devUserHeader !== 'string') {\n\t\treturn null;\n\t}\n\n\t// Check if it's a known dev user email\n\tconst email = devUserHeader.toLowerCase().trim();\n\tconst devUser = DEV_USERS[email];\n\n\tif (!devUser) {\n\t\t// Unknown dev user - return a generic dev user with that email\n\t\treturn {\n\t\t\tuserId: 'dev-user-placeholder', // Placeholder - in real scenario would lookup DB\n\t\t\temail,\n\t\t\tname: `Dev User (${email})`,\n\t\t\tdisplayPicture: null,\n\t\t\tteamId: null,\n\t\t};\n\t}\n\n\treturn {\n\t\tuserId: 'dev-user-placeholder',\n\t\t...devUser,\n\t};\n};\n\n/**\n * Check if request has dev auth bypass active\n */\nexport const isDevAuthBypass = (req: FastifyRequest): boolean => {\n\treturn extractDevUser(req) !== null;\n};",
+      "new_string": "import { isDev } from '@backend/configs/env.config';\nimport type { SessionUser } from '@backend/modules/auth/session.auth.utils';\nimport type { FastifyRequest } from 'fastify';\n\nconst DEV_AUTH_ENABLED = process.env.DEV_AUTH_ENABLED === 'true';\n\n/**\n * Dev auth bypass middleware\n *\n * ONLY active when NODE_ENV=development AND DEV_AUTH_ENABLED=true.\n * This dual-gate prevents accidental activation in production.\n * NEVER use in production.\n */\n\nexport const DEV_USERS: Record<string, Omit<SessionUser, 'userId'>> = {\n\t'will@zappro.site': {\n\t\temail: 'will@zappro.site',\n\t\tname: 'Will (Dev)',\n\t\tdisplayPicture: null,\n\t\tteamId: 'dev-team-will',\n\t},\n\t'admin@zappro.site': {\n\t\temail: 'admin@zappro.site',\n\t\tname: 'Admin (Dev)',\n\t\tdisplayPicture: null,\n\t\tteamId: 'dev-team-admin',\n\t},\n\t'test@example.com': {\n\t\temail: 'test@example.com',\n\t\tname: 'Test User',\n\t\tdisplayPicture: null,\n\t\tteamId: 'dev-team-test',\n\t},\n};\n\nexport const extractDevUser = (req: FastifyRequest): SessionUser | null => {\n\tif (!isDev || !DEV_AUTH_ENABLED) {\n\t\treturn null;\n\t}\n\n\tconst devUserHeader = req.headers['x-dev-user'];\n\tif (!devUserHeader || typeof devUserHeader !== 'string') {\n\t\treturn null;\n\t}\n\n\tconst email = devUserHeader.toLowerCase().trim();\n\tconst devUser = DEV_USERS[email];\n\n\tif (!devUser) {\n\t\treturn {\n\t\t\tuserId: null,\n\t\t\temail,\n\t\t\tname: `Dev User (${email})`,\n\t\t\tdisplayPicture: null,\n\t\t\tteamId: null,\n\t\t};\n\t}\n\n\treturn {\n\t\tuserId: null,\n\t\t...devUser,\n\t};\n};\n\nexport const isDevAuthBypass = (req: FastifyRequest): boolean => {\n\treturn extractDevUser(req) !== null;\n};"
+    },
+    {
+      "id": "P1-06",
+      "type": "patch",
+      "path": "/srv/monorepo/apps/api/src/modules/auth/session.auth.utils.ts",
+      "description": "P1-1b: Add session regeneration to setSession for loginWithPassword",
+      "old_string": "export const setSession = (request: FastifyRequest, sessionUser: SessionUser) => {\n\t// Store user info in session (works with any OAuth provider)\n\trequest.session.user = sessionUser;",
+      "new_string": "export const setSession = async (request: FastifyRequest, sessionUser: SessionUser) => {\n\t// Regenerate session ID to prevent session fixation attacks\n\tawait new Promise<void>((resolve, reject) => {\n\t\trequest.session.regenerate((err) => {\n\t\t\tif (err) reject(err);\n\t\t\telse resolve();\n\t\t});\n\t});\n\t// Store user info in session (works with any OAuth provider)\n\trequest.session.user = sessionUser;"
+    },
+    {
+      "id": "TYPECHECK",
+      "type": "terminal",
+      "description": "Run typecheck to verify all changes compile",
+      "command": "cd /srv/monorepo && pnpm --filter api typecheck 2>&1 | tail -20",
+      "timeout": 60
+    },
+    {
+      "id": "LINT",
+      "type": "terminal",
+      "description": "Run linter on changed files",
+      "command": "cd /srv/monorepo && pnpm biome lint apps/api/src/modules/prompts/prompts.trpc.ts apps/api/src/modules/email/email.trpc.ts apps/api/src/modules/journal-entries/journal_entries.trpc.ts apps/api/src/modules/mcp-connectors/mcp-conectores.trpc.ts apps/api/src/modules/auth/auth.trpc.ts apps/api/src/modules/auth/oauth2/oauth2_succes_error_handler.auth.utils.ts apps/api/src/modules/auth/oauth2/google-oauth2.auth.plugin.ts apps/api/src/middlewares/dev-auth-bypass.ts apps/api/src/modules/auth/session.auth.utils.ts 2>&1 | tail -20",
+      "timeout": 30
+    },
+    {
+      "id": "REBUILD-VERIFY",
+      "type": "terminal",
+      "description": "Rebuild CRM API Docker container and verify health",
+      "command": "cd /srv/monorepo && docker restart crm-api && sleep 3 && curl -s http://localhost:4001/health 2>&1 | head -5",
+      "timeout": 30
+    }
+  ]
+}

@@ -6,9 +6,9 @@ import {
 	journalEntryGetByIdZod,
 	journalEntryGetByUserZod,
 } from '@repo/zod-schemas/journal_entry.zod';
+import { TRPCError } from '@trpc/server';
 
 export const journalEntriesRouterTrpc = trpcRouter({
-	// Get all journal entries for a team
 	getAll: protectedProcedure.query(
 		async ({
 			ctx: {
@@ -24,7 +24,6 @@ export const journalEntriesRouterTrpc = trpcRouter({
 		},
 	),
 
-	// Get journal entry by ID
 	getById: protectedProcedure.input(journalEntryGetByIdZod).query(
 		async ({
 			input: { journalEntryId },
@@ -37,14 +36,13 @@ export const journalEntriesRouterTrpc = trpcRouter({
 				.where({ authorUserId: userId });
 
 			if (!journalEntry) {
-				throw new Error('Journal entry not found');
+				throw new TRPCError({ code: 'NOT_FOUND', message: 'Journal entry not found' });
 			}
 
 			return journalEntry;
 		},
 	),
 
-	// Create journal entry
 	create: protectedProcedure
 		.input(journalEntryCreateInputZod)
 		.mutation(async ({ input, ctx: { user } }) => {
@@ -57,19 +55,21 @@ export const journalEntriesRouterTrpc = trpcRouter({
 			return newJournalEntry;
 		}),
 
-	// Get journal entries by user
-	getByUser: protectedProcedure.input(journalEntryGetByUserZod).query(async ({ input }) => {
+	getByUser: protectedProcedure.input(journalEntryGetByUserZod).query(async ({ input, ctx }) => {
+		const { userId } = ctx.user;
+		if (input.authorUserId !== userId) {
+			throw new TRPCError({ code: 'FORBIDDEN', message: 'Cannot view other users journal entries' });
+		}
 		const journalEntries = await db.journalEntries
 			.select('*', {
 				author: (t) => t.author.selectAll(),
 			})
-			.where({ authorUserId: input.authorUserId })
+			.where({ authorUserId: userId })
 			.order({ createdAt: 'DESC' });
 
 		return journalEntries;
 	}),
 
-	// Delete journal entry
 	delete: protectedProcedure.input(journalEntryDeleteZod).mutation(
 		async ({
 			input: { journalEntryId },

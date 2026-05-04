@@ -12,6 +12,7 @@ const envSchema = z.object({
 	DB_USER: zString.optional(),
 	DB_PASSWORD: zString.optional(),
 	DB_NAME: zString.optional(),
+	DB_SSL: z.enum(['true', 'false', 'require', 'prefer']).optional(),
 	GOOGLE_CLIENT_ID: zString.includes('.apps.googleusercontent.com').optional(),
 	GOOGLE_CLIENT_SECRET: zString.optional(),
 	SESSION_SECRET: zString.min(32, 'Session secret must be at least 32 characters'),

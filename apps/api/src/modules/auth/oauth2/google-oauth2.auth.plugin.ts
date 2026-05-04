@@ -34,7 +34,8 @@ export const GOOGLE_OAUTH2_CONFIG = {
 	scope: ['profile', 'email'],
 	startRedirectPath: '/',
 	callbackUri: `${env.API_BASE_URL}/oauth2/google/callback`,
-};
+	state: true,
+} as Record<string, unknown>;
 
 /**
  * Google OAuth2 user info response

@@ -7,8 +7,9 @@ import {
 
 // @ts-ignore TS2742 — pqb internal type inference not portable
 export const emailRouter = trpcRouter({
-	listCampaigns: protectedProcedure.input(emailCampaignListZod).query(async ({ input }) => {
-		let query = db.emailCampaigns.select('*');
+	listCampaigns: protectedProcedure.input(emailCampaignListZod).query(async ({ input, ctx }) => {
+		const { userId } = ctx.user;
+		let query = db.emailCampaigns.where({ usuarioCriacaoId: userId }).select('*');
 		if (input.status) query = query.where({ statusCampanha: input.status });
 		if (input.tipo) query = query.where({ tipoCampanha: input.tipo });
 		const rows = await query.order({ createdAt: 'DESC' }).limit(input.limit).offset(input.offset);
@@ -18,9 +19,10 @@ export const emailRouter = trpcRouter({
 	createCampaign: protectedProcedure
 		.input(emailCampaignCreateZod)
 		.mutation(async ({ ctx, input }) => {
+			const { userId } = ctx.user;
 			return db.emailCampaigns.create({
 				...input,
-				usuarioCriacaoId: ctx.user.userId,
+				usuarioCriacaoId: userId,
 			});
 		}),
 });

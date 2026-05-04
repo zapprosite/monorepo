@@ -14,7 +14,6 @@ const registerWithPasswordInputZod = z.object({
 	email: z.email(),
 	password: z.string().min(8),
 	name: z.string().optional(),
-	teamId: z.uuid().optional(),
 });
 
 export const authRouterTrpc = trpcRouter({
@@ -53,7 +52,7 @@ export const authRouterTrpc = trpcRouter({
 			if (user.authType !== 'local' || !user.passwordHash) {
 				throw new TRPCError({
 					code: 'UNAUTHORIZED',
-					message: 'This account uses Google OAuth. Please login with Google.',
+					message: 'Invalid credentials',
 				});
 			}
 
@@ -89,7 +88,7 @@ export const authRouterTrpc = trpcRouter({
 				name: input.name || null,
 				authType: 'local',
 				passwordHash,
-				teamId: input.teamId || null,
+				teamId: null,
 				displayPicture: null,
 			});
 

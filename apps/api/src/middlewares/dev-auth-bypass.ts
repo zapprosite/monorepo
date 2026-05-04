@@ -2,22 +2,16 @@ import { isDev } from '@backend/configs/env.config';
 import type { SessionUser } from '@backend/modules/auth/session.auth.utils';
 import type { FastifyRequest } from 'fastify';
 
+const DEV_AUTH_ENABLED = process.env.DEV_AUTH_ENABLED === 'true';
+
 /**
  * Dev auth bypass middleware
  *
- * In development mode, allows setting a fake session via X-Dev-User header.
- * This enables local testing without OAuth flow.
- *
- * Header format: X-Dev-User: <email>
- * Example: X-Dev-User: will@zappro.site
- *
- * The corresponding user must exist in the database (or we create a dev user on the fly).
+ * ONLY active when NODE_ENV=development AND DEV_AUTH_ENABLED=true.
+ * This dual-gate prevents accidental activation in production.
+ * NEVER use in production.
  */
 
-/**
- * Default dev users for local testing
- * Keyed by email, these are pre-seeded for convenience
- */
 export const DEV_USERS: Record<string, Omit<SessionUser, 'userId'>> = {
 	'will@zappro.site': {
 		email: 'will@zappro.site',
@@ -39,12 +33,8 @@ export const DEV_USERS: Record<string, Omit<SessionUser, 'userId'>> = {
 	},
 };
 
-/**
- * Try to extract dev user from request header
- * Returns null if not in dev mode or header not present
- */
 export const extractDevUser = (req: FastifyRequest): SessionUser | null => {
-	if (!isDev) {
+	if (!isDev || !DEV_AUTH_ENABLED) {
 		return null;
 	}
 
@@ -53,14 +43,12 @@ export const extractDevUser = (req: FastifyRequest): SessionUser | null => {
 		return null;
 	}
 
-	// Check if it's a known dev user email
 	const email = devUserHeader.toLowerCase().trim();
 	const devUser = DEV_USERS[email];
 
 	if (!devUser) {
-		// Unknown dev user - return a generic dev user with that email
 		return {
-			userId: 'dev-user-placeholder', // Placeholder - in real scenario would lookup DB
+			userId: null,
 			email,
 			name: `Dev User (${email})`,
 			displayPicture: null,
@@ -69,14 +57,11 @@ export const extractDevUser = (req: FastifyRequest): SessionUser | null => {
 	}
 
 	return {
-		userId: 'dev-user-placeholder',
+		userId: null,
 		...devUser,
 	};
 };
 
-/**
- * Check if request has dev auth bypass active
- */
 export const isDevAuthBypass = (req: FastifyRequest): boolean => {
 	return extractDevUser(req) !== null;
 };
