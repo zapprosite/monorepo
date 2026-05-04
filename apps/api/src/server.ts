@@ -25,7 +25,7 @@ export const build = async () => {
 	const server = app;
 
 	// Global CORS configuration
-	// Note: /api/* routes use team-specific CORS validation (see api-gateway.router.ts)
+	// Note: api-gateway module removed during SPEC-302 pruning (was orphan)
 	// This global CORS applies to other routes like /trpc, /oauth2, /, /health
 	//
 	// IMPORTANT: We allow all origins at the CORS plugin level for /api/* routes,

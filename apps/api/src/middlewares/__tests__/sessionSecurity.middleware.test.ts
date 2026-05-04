@@ -1,10 +1,10 @@
-import * as ipChecker from '@backend/modules/api-gateway/utils/ipChecker.utils';
+import * as ipChecker from '@backend/utils/ip-checker.utils';
 import * as requestMeta from '@backend/utils/request-metadata.utils';
 import { describe, expect, it, vi } from 'vitest';
 import { SessionSecurityLevel, validateSessionSecurity } from '../sessionSecurity.middleware';
 
 // Mock IP checker and request metadata utils
-vi.mock('@backend/modules/api-gateway/utils/ipChecker.utils', () => ({
+vi.mock('@backend/utils/ip-checker.utils', () => ({
 	areSameSubnet: vi.fn(() => false),
 }));
 

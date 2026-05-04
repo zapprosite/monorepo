@@ -1,4 +1,4 @@
-import { areSameSubnet } from '@backend/modules/api-gateway/utils/ipChecker.utils';
+import { areSameSubnet } from '@backend/utils/ip-checker.utils';
 import {
 	generateDeviceFingerprint,
 	getClientIpAddress,

@@ -10,7 +10,6 @@
  * - Swagger UI: {API_BASE_URL}/api/documentation
  */
 
-import { apiGatewayRouter } from '@backend/modules/api-gateway/api-gateway.router';
 import swagger from '@fastify/swagger';
 import swaggerUI from '@fastify/swagger-ui';
 import type { FastifyInstance } from 'fastify';
@@ -100,8 +99,5 @@ export const openapiPlugin = async (app: FastifyInstance) => {
 		},
 	});
 
-	// Register API Gateway router
-	app.register(apiGatewayRouter, {
-		prefix: '/api',
-	});
+	// API Gateway router removed during SPEC-302 pruning (api-gateway module was orphan)
 };

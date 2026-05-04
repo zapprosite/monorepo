@@ -1,12 +1,9 @@
 import { dbConfig } from '@backend/db/config';
 import { SessionTable } from '@backend/modules/auth/tables/session.auth.table';
 import { AddressesTable } from '@backend/modules/clients/addresses.table';
-import { CompanyTable } from '@backend/modules/company/company.table';
 import { ClientsTable } from '@backend/modules/clients/clients.table';
 import { ContactsTable } from '@backend/modules/clients/contacts.table';
 import { UnitsTable } from '@backend/modules/clients/units.table';
-import { ConteudoRevsoesTable } from '@backend/modules/content-engine/conteudo-revisoes.table';
-import { ConteudosTable } from '@backend/modules/content-engine/conteudos.table';
 import { ContractsTable } from '@backend/modules/contracts/contracts.table';
 import { EditorialTable } from '@backend/modules/editorial/editorial.table';
 import { EmailCampaignsTable } from '@backend/modules/email/email-campaigns.table';
@@ -17,26 +14,17 @@ import { KanbanBoardsTable } from '@backend/modules/kanban/kanban-boards.table';
 import { KanbanCardsTable } from '@backend/modules/kanban/kanban-cards.table';
 import { KanbanColumnsTable } from '@backend/modules/kanban/kanban-columns.table';
 import { LeadsTable } from '@backend/modules/leads/leads.table';
-import { ApiProductRequestLogsTable } from '@backend/modules/logs/tables/api_product_request_logs.table';
 import { LoyaltyScoresTable } from '@backend/modules/loyalty/loyalty-scores.table';
 import { MaintenancePlansTable } from '@backend/modules/maintenance/maintenance-plans.table';
 import { MaintenanceSchedulesTable } from '@backend/modules/maintenance/maintenance-schedules.table';
 import { MaintenanceChecklistTable } from '@backend/modules/maintenance/maintenance-checklist.table';
-import { McpConectoresTable } from '@backend/modules/mcp-connectors/mcp-conectores.table';
-import { PromptsTable } from '@backend/modules/prompts/tables/prompts.table';
 import { ReminderTable } from '@backend/modules/reminders/reminder.table';
 import { ScheduleTable } from '@backend/modules/schedule/schedule.table';
 import { MaterialItemTable } from '@backend/modules/service-orders/material_item.table';
 import { ServiceOrderTable } from '@backend/modules/service-orders/service_order.table';
 import { TechnicalReportTable } from '@backend/modules/service-orders/technical_report.table';
-import { SubscriptionsTable } from '@backend/modules/subscriptions/tables/subscriptions.table';
-import { WebhookCallQueueTable } from '@backend/modules/subscriptions/tables/webhookCallQueue.table';
-import { TeamTable } from '@backend/modules/teams/tables/teams.table';
-import { UserRolesTable } from '@backend/modules/users/user-roles.table';
+import { PromptsTable } from '@backend/modules/prompts/tables/prompts.table';
 import { UserTable } from '@backend/modules/users/users/users.table';
-import { EventosTable } from '@backend/modules/webhooks/eventos.table';
-import { WebhookDeliveriesTable } from '@backend/modules/webhooks/webhook-deliveries.table';
-import { WebhooksTable } from '@backend/modules/webhooks/webhooks.table';
 import { orchidORM } from 'orchid-orm/node-postgres';
 
 const databaseURL = `postgres://${dbConfig.user}:${dbConfig.password}@${dbConfig.host}:${dbConfig.port}/${dbConfig.database}?ssl=${dbConfig.ssl ? 'require' : 'false'}`;
@@ -48,15 +36,9 @@ export const db = orchidORM(
 	},
 	{
 		users: UserTable,
-		journalEntries: JournalEntryTable,
-		prompts: PromptsTable,
 		sessions: SessionTable,
-		subscriptions: SubscriptionsTable,
-		teams: TeamTable,
-		apiProductRequestLogs: ApiProductRequestLogsTable,
-		webhookCallQueues: WebhookCallQueueTable,
+		journalEntries: JournalEntryTable,
 		leads: LeadsTable,
-		company: CompanyTable,
 		clients: ClientsTable,
 		contacts: ContactsTable,
 		addresses: AddressesTable,
@@ -69,7 +51,6 @@ export const db = orchidORM(
 		materialItems: MaterialItemTable,
 		editorialItems: EditorialTable,
 		reminders: ReminderTable,
-		userRoles: UserRolesTable,
 		kanbanBoards: KanbanBoardsTable,
 		kanbanColumns: KanbanColumnsTable,
 		kanbanCards: KanbanCardsTable,
@@ -79,11 +60,6 @@ export const db = orchidORM(
 		loyaltyScores: LoyaltyScoresTable,
 		emailTemplates: EmailTemplatesTable,
 		emailCampaigns: EmailCampaignsTable,
-		webhooks: WebhooksTable,
-		webhookDeliveries: WebhookDeliveriesTable,
-		eventos: EventosTable,
-		mcpConectores: McpConectoresTable,
-		conteudos: ConteudosTable,
-		conteudoRevisoes: ConteudoRevsoesTable,
+		prompts: PromptsTable,
 	},
 );
