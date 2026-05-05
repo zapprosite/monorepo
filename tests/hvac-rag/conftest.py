@@ -9,6 +9,9 @@ import pytest
 
 # Inject scripts dir so test files can import pipeline functions
 SCRIPTS_DIR = Path("/srv/monorepo/scripts/hvac-rag")
+PIPELINE_DIR = Path("/srv/hvac-pipeline")
+# hvac-pipeline must be first so hvac_normalize is resolvable, then monorepo takes precedence
+sys.path.insert(0, str(PIPELINE_DIR))
 sys.path.insert(0, str(SCRIPTS_DIR))
 
 

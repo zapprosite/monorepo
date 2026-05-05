@@ -130,6 +130,67 @@ def check_inverter(text_lower: str, policy: dict) -> tuple[bool, str | None]:
     return True, None
 
 
+# ── PT-BR language detection ──────────────────────────────────────────────────
+# Signal constants verbatim from /srv/hvac-pipeline/hvac_normalize.py lines 6-8
+PT_SIGNALS = [
+    'instalação', 'unidade', 'segurança', 'alimentação', 'refrigeração',
+    'advertência', 'figura', 'tabela', 'cuidado', 'precauções', 'aviso',
+    'especificação', 'manual de', 'serviço',
+]
+ES_SIGNALS = [
+    'instalación', 'unidad', 'seguridad', 'alimentación', 'refrigeración',
+    'advertencia', 'figura', 'tabla', 'cuidado', 'precaución', 'aviso',
+    'especificación', 'manual de', 'servicio',
+]
+EN_SIGNALS = [
+    'installation', 'unit', 'safety', 'power supply', 'refrigerant',
+    'warning', 'figure', 'table', 'caution', 'specification',
+    'service manual', 'operation', 'usage',
+]
+
+
+def detect_ptbr(md_text: str) -> tuple[str, float]:
+    """Return (language, confidence) using signal-count method.
+    Source: /srv/hvac-pipeline/hvac_normalize.py score_language() lines 16-40.
+    Does NOT require external libraries."""
+    text_lower = md_text.lower()
+    scores: dict[str, float] = {'pt-BR': 0.0, 'es': 0.0, 'en': 0.0}
+    for sig in PT_SIGNALS:
+        scores['pt-BR'] += text_lower.count(sig)
+    for sig in ES_SIGNALS:
+        scores['es'] += text_lower.count(sig)
+    for sig in EN_SIGNALS:
+        scores['en'] += text_lower.count(sig)
+    total = sum(scores.values())
+    if total == 0:
+        return 'unknown', 0.0
+    top_lang = max(scores, key=scores.__getitem__)
+    confidence = scores[top_lang] / total
+    return top_lang, round(confidence, 4)
+
+
+def check_ptbr(md_text: str, policy: dict) -> tuple[bool, str | None]:
+    """Return (allowed, rejection_reason). Rejects ONLY confirmed non-PT manuals.
+    ANTI-PATTERN guard: bilingual PT+EN/ES manuals must NOT be rejected.
+    Threshold: reject when non-PT language scores >= 0.40 AND pt-BR scores < 0.15.
+    Source: RESEARCH.md Pattern 3."""
+    if not policy.get("require_ptbr", False):
+        return True, None
+    lang, conf = detect_ptbr(md_text)
+    if lang == 'pt-BR':
+        return True, None
+    if lang == 'unknown' or conf < 0.40:
+        return True, None  # Low confidence or unknown — accept (could be diagram PDF)
+    # Extra bilingual guard: if PT signals also present at > 0.15 share, accept
+    text_lower = md_text.lower()
+    pt_score = sum(text_lower.count(s) for s in PT_SIGNALS)
+    total_score = pt_score + sum(text_lower.count(s) for s in ES_SIGNALS) + sum(text_lower.count(s) for s in EN_SIGNALS)
+    pt_share = pt_score / total_score if total_score > 0 else 0.0
+    if pt_share >= 0.15:
+        return True, None  # Has enough PT content — bilingual manual
+    return False, f"language_not_ptbr:{lang}({conf:.2f})"
+
+
 # ── catalog match ─────────────────────────────────────────────────────────────
 
 def match_inmetro_catalog(text: str, catalog_path: Path) -> dict:
@@ -277,6 +338,14 @@ def main():
             reject_reason = inv_reason or "inverter_required_not_found"
             reject_source = "policy_inverter"
             print(f"  ❌ Inverter hard-lock: {reject_reason}")
+
+    # 4b.2: PT-BR language check (must come after inverter hard-lock)
+    if not reject_reason and md_text:
+        pt_ok, pt_reason = check_ptbr(md_text, policy)
+        if not pt_ok:
+            reject_reason = pt_reason or "language_not_ptbr"
+            reject_source = "policy_ptbr"
+            print(f"  ❌ PT-BR check: {reject_reason}")
 
     # 4c: policy signal score
     policy_score = 0.0
@@ -452,6 +521,23 @@ def main():
         }
         out_path.write_text(json.dumps(record, indent=2, ensure_ascii=False))
         print(f"  → {out_path}")
+        # Append to pending_review.jsonl for all rejections
+        # Anti-hardcoded: use HVAC_REPORTS_DIR env var (CLAUDE.md anti-hardcoded-env.md)
+        import os as _os
+        _pending_path = Path(_os.environ.get("HVAC_REPORTS_DIR", "/srv/data/hvac-rag/reports")) / "pending_review.jsonl"
+        _pending_path.parent.mkdir(parents=True, exist_ok=True)
+        _pending_entry = {
+            "doc_id":        doc_id,
+            "pdf_path":      str(pdf_path),
+            "brand":         catalog_match.get("matched_brand") if catalog_match else None,
+            "model":         catalog_match.get("matched_model") if catalog_match else None,
+            "reason":        reject_reason,
+            "reject_source": reject_source,
+            "timestamp":     ts,
+        }
+        with _pending_path.open("a", encoding="utf-8") as _fh:
+            _fh.write(json.dumps(_pending_entry, ensure_ascii=False) + "\n")
+        print(f"  → pending_review: {_pending_path}")
         return
 
     # ── Step 8: process (convert + manifest) ────────────────────────────────

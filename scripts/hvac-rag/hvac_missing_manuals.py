@@ -24,7 +24,7 @@ import json
 import os
 import sys
 from collections import defaultdict
-from datetime import datetime
+from datetime import UTC, datetime
 from pathlib import Path
 
 import requests
@@ -43,6 +43,7 @@ REPORTS_DIR = Path(os.environ.get(
     "HVAC_REPORTS_DIR",
     "/srv/data/hvac-rag/reports"
 ))
+COVERAGE_REPORT_PATH = REPORTS_DIR / "coverage_report.md"
 
 # Brands tracked (SPEC-401 §7)
 TRACKED_BRANDS = {
@@ -50,6 +51,9 @@ TRACKED_BRANDS = {
     "gree", "fujitsu", "hitachi", "komeco", "elgin", "agratto",
     "trane", "vrv", "vrf",
 }
+
+TIER1_BRANDS    = {"lg", "samsung", "daikin"}
+SCRAPER_BRANDS  = {"lg", "samsung", "daikin", "springer", "carrier"}
 
 # ── Inverter filter (SPEC-401 §2) ─────────────────────────────────────────────
 INVERTER_TECHNOLOGY_VALUES = {"inverter", "dual inverter", "vrf", "vrv", "multi-split"}
@@ -166,6 +170,67 @@ def load_inmetro_catalog(brand_filter: str | None = None) -> list[dict]:
     return models
 
 
+# ── Coverage table generator ──────────────────────────────────────────────────
+def generate_coverage_table(
+    catalog: list[dict],
+    indexed: set[str],
+    scraper_brands: set[str] | None = None,
+) -> str:
+    """Generate per-brand Markdown coverage table.
+
+    Columns: Marca | Modelos INMETRO | Indexados | Faltantes | Cobertura | Tier | Scraper
+    Uses the same 'brand::model_family' key format as get_indexed_models().
+    Source pattern: RESEARCH.md Pattern 6 + PATTERNS.md generate_coverage_table().
+    """
+    if scraper_brands is None:
+        scraper_brands = SCRAPER_BRANDS
+
+    brand_total:   dict[str, int] = defaultdict(int)
+    brand_indexed: dict[str, int] = defaultdict(int)
+
+    for rec in catalog:
+        brand = (rec.get("brand") or "").lower().strip()
+        if not brand:
+            continue
+        model_family = (rec.get("model_family") or rec.get("indoor_model") or rec.get("model") or "").lower().strip()
+        key = f"{brand}::{model_family}"
+        brand_total[brand] += 1
+        if key in indexed:
+            brand_indexed[brand] += 1
+
+    now = datetime.now(UTC).strftime("%Y-%m-%d %H:%M UTC")
+    lines = [
+        "## Resumo por Marca",
+        "",
+        f"**Atualizado:** {now}  ",
+        "",
+        "| Marca | Modelos INMETRO | Indexados | Faltantes | Cobertura | Tier | Scraper |",
+        "|-------|----------------|-----------|-----------|-----------|------|---------|",
+    ]
+
+    tier1_coverage_values: list[float] = []
+
+    for brand in sorted(brand_total):
+        total   = brand_total[brand]
+        idx     = brand_indexed.get(brand, 0)
+        missing = total - idx
+        pct     = round(100.0 * idx / total, 1) if total else 0.0
+        tier    = "tier-1" if brand in TIER1_BRANDS else "tier-2"
+        scraper = "OK" if brand in scraper_brands else "pendente"
+        lines.append(f"| {brand.upper()} | {total} | {idx} | {missing} | {pct}% | {tier} | {scraper} |")
+        if brand in TIER1_BRANDS:
+            tier1_coverage_values.append(pct)
+
+    lines.append("")
+    if tier1_coverage_values:
+        avg_tier1 = round(sum(tier1_coverage_values) / len(tier1_coverage_values), 1)
+        lines.append(f"**Tier-1 cobertura média: {avg_tier1}%**")
+    else:
+        lines.append("**Tier-1 cobertura média: N/A (sem dados tier-1)**")
+
+    return "\n".join(lines)
+
+
 # ── Report generator ──────────────────────────────────────────────────────────
 def generate_report(
     catalog: list[dict],
@@ -278,6 +343,13 @@ def main() -> None:
     parser.add_argument("--dry-run", action="store_true", help="Exibe relatório sem salvar arquivo")
     parser.add_argument("--brand", type=str, help="Filtrar por marca específica (ex: LG)")
     parser.add_argument("--output", type=str, help="Caminho do arquivo de saída .md")
+    parser.add_argument(
+        "--output-coverage",
+        type=str,
+        default=None,
+        metavar="PATH",
+        help="Write per-brand coverage table to this .md path (default: none)"
+    )
     args = parser.parse_args()
 
     brand_filter = args.brand.strip() if args.brand else None
@@ -321,6 +393,16 @@ def main() -> None:
         # Print summary lines only
         for line in report_md.splitlines()[:20]:
             print(line)
+
+    if args.output_coverage:
+        coverage_path = Path(args.output_coverage)
+        coverage_md = generate_coverage_table(catalog=catalog, indexed=indexed)
+        if args.dry_run:
+            print(f"\n[dry-run] Coverage report NÃO foi salvo: {coverage_path}")
+        else:
+            coverage_path.parent.mkdir(parents=True, exist_ok=True)
+            coverage_path.write_text(coverage_md, encoding="utf-8")
+            print(f"\n✅ Coverage report salvo em: {coverage_path}")
 
 
 if __name__ == "__main__":
