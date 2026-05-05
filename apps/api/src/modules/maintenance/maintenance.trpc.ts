@@ -3,6 +3,8 @@ import { protectedProcedure, trpcRouter } from '@backend/trpc';
 import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
 
+// Legacy by design: plans + schedules share this router with cross-entity team checks, so it stays
+// outside createCrudRouter until the module is split per entity instead of forcing factory sprawl.
 // @ts-ignore TS2742 — pqb internal type inference not portable
 export const maintenanceRouter = trpcRouter({
 	createPlan: protectedProcedure
