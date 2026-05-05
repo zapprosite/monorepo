@@ -1,0 +1,54 @@
+{
+  "id": "HVAC-005",
+  "name": "HVAC-RAG-Pipeline-v2-Metadata-Brand-Isolation",
+  "spec": "docs/SPECS/SPEC-HVAC-005.md",
+  "phases": [
+    {
+      "id": "P0",
+      "name": "snapshot-safety",
+      "gate": "auto",
+      "tasks": [
+        {"id":"P0.1","cmd":"sudo zfs snapshot -r \"tank@pre-$(date +%Y%m%d-%H%M%S)-hvac-005\" && echo 'ZFS snapshot OK'","verify":"zfs list -t snapshot | grep 'hvac-005' | head -1","fatal":true}
+      ]
+    },
+    {
+      "id": "P1",
+      "name": "refactor-enrich",
+      "gate": "auto",
+      "tasks": [
+        {"id":"P1.1","cmd":"cd /srv/monorepo/scripts/hvac-rag && python3 -c \"from hvac_chunk import docling_convert; print('docling OK')\"","verify":"echo $?","fatal":true},
+        {"id":"P1.2","cmd":"cd /srv/monorepo/scripts/hvac-rag && /srv/data/hvac-rag/.venv/bin/python3 hvac_manual_enrich.py '/srv/hvac-pipeline/DATA/PDF/Manual de serviço VRV - VI - SiLA342429B.pdf' --out-dir /srv/data/hvac-rag/processed --index","verify":"ls /srv/data/hvac-rag/processed/faq/*SiLA342429B*faq.json | head -1","fatal":true,"timeout":900},
+        {"id":"P1.3","cmd":"cd /srv/monorepo/scripts/hvac-rag && /srv/data/hvac-rag/.venv/bin/python3 -c \"\nimport json\nwith open('/srv/data/hvac-rag/processed/faq/Manual de serviço VRV - VI - SiLA342429B_faq.json') as f:\n    d=json.load(f)\n    assert d['metadata']['qa_count'] >= 20, 'too few QA'\n    print('QA count:', d['metadata']['qa_count'])\n\"","verify":"echo $?","fatal":true}
+      ]
+    },
+    {
+      "id": "P2",
+      "name": "qdrant-tenant-index",
+      "gate": "auto",
+      "tasks": [
+        {"id":"P2.1","cmd":"export K=$(grep '^QDRANT_API_KEY=' /srv/monorepo/.env | cut -d= -f2-) && curl -s -X PUT -H \"api-key: $K\" -H \"Content-Type: application/json\" http://localhost:6333/collections/hvac_manuals_v1/index -d '{\"field_name\":\"brand\",\"field_schema\":{\"type\":\"keyword\",\"is_tenant\":true}}' | python3 -c \"import sys,json; d=json.load(sys.stdin); print('status:', d.get('status','?'))\"","verify":"echo $?","fatal":false},
+        {"id":"P2.2","cmd":"export K=$(grep '^QDRANT_API_KEY=' /srv/monorepo/.env | cut -d= -f2-) && curl -s -H \"api-key: $K\" http://localhost:6333/collections/hvac_manuals_v1 | python3 -c \"import sys,json; d=json.load(sys.stdin); idx=d['result']['payload_schema'].get('brand',{}); print('tenant:', idx.get('is_tenant',False))\"","verify":"echo $?","fatal":false}
+      ]
+    },
+    {
+      "id": "P3",
+      "name": "swarm-filter-endpoint",
+      "gate": "auto",
+      "tasks": [
+        {"id":"P3.1","cmd":"cd /srv/monorepo && grep -n 'Filter' cmd/swarm/main.go internal/memory/qdrant_layer.go | head -5 || echo 'no filter yet'","verify":"echo 'check code'","fatal":false},
+        {"id":"P3.2","cmd":"export PATH=$PATH:/usr/local/go/bin && cd /srv/monorepo && go build ./...","verify":"echo $?","fatal":true,"timeout":120},
+        {"id":"P3.3","cmd":"sudo systemctl restart swarm-engine && sleep 5 && curl -sf http://localhost:8643/health && echo ' [swarm UP]'","verify":"echo $?","fatal":true}
+      ]
+    },
+    {
+      "id": "P4",
+      "name": "validate",
+      "gate": "auto",
+      "tasks": [
+        {"id":"P4.1","cmd":"curl -sf http://localhost:8643/health && curl -sf http://localhost:8642/health && echo 'ALL UP'","verify":"echo 'ALL UP'","fatal":true},
+        {"id":"P4.2","cmd":"export K=$(grep '^QDRANT_API_KEY=' /srv/monorepo/.env | cut -d= -f2-) && curl -s -H \"api-key: $K\" http://localhost:6333/collections/hvac_manuals_v1 | python3 -c \"import sys,json; d=json.load(sys.stdin); pts=d['result']['points_count']; print('Points:', pts); assert pts > 0\"","verify":"echo $?","fatal":false},
+        {"id":"P4.3","cmd":"echo 'HVAC-005 COMPLETE'","verify":"echo 'HVAC-005 COMPLETE'","fatal":false}
+      ]
+    }
+  ]
+}
