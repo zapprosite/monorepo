@@ -1,8 +1,8 @@
 """
-Nexus Validator — Quality gates
+Nexus Validator — CLI-agnostic quality gates
 
-Validates execution results using primary LLM (Kimi K2.6).
-Acts as a quality gate before accepting Ollama-generated output.
+Validates execution results using the PRIMARY model (whatever CLI invoked us).
+Acts as a quality gate before accepting local model output.
 """
 import os
 import json
@@ -12,11 +12,9 @@ from typing import Optional
 import requests
 
 from .models import Task, ExecutionResult, ValidationResult
+from .config import get_primary_model, LITELLM_URL
 
 logger = logging.getLogger(__name__)
-
-LITELLM_URL = os.environ.get("LITELLM_URL", "http://localhost:4018")
-VALIDATOR_MODEL = os.environ.get("NEXUS_VALIDATOR_MODEL", "hermes-cloud-chat")
 
 VALIDATION_PROMPT = """You are Nexus Validator, a senior engineer reviewing AI-generated code.
 
@@ -52,8 +50,8 @@ Generated Output:
 
 def validate_result(task: Task, result: ExecutionResult, override_model: Optional[str] = None) -> ValidationResult:
     """
-    Validate execution result using cloud LLM.
-    If validation fails, the task should be retried or escalated.
+    Validate execution result using PRIMARY model (CLI-agnostic).
+    If validation fails, task should be retried or escalated.
     """
     if result.error:
         return ValidationResult(
@@ -61,7 +59,7 @@ def validate_result(task: Task, result: ExecutionResult, override_model: Optiona
             passed=False,
             score=0.0,
             issues=[f"Execution error: {result.error}"],
-            suggestions=["Retry with different parameters or escalate to strategic model"],
+            suggestions=["Retry with different parameters or escalate to primary model"],
         )
 
     try:
@@ -78,14 +76,15 @@ def validate_result(task: Task, result: ExecutionResult, override_model: Optiona
 
 
 def _validate_with_llm(task: Task, result: ExecutionResult, model: Optional[str] = None) -> ValidationResult:
-    """Call LiteLLM for validation."""
+    """Call LiteLLM for validation using PRIMARY model."""
     prompt = VALIDATION_PROMPT.format(
         description=task.description,
         files=", ".join(task.files) or "none",
-        output=result.output[:4000],  # Limit context
+        output=result.output[:4000],
     )
 
-    model_alias = model or VALIDATOR_MODEL
+    model_alias = model or get_primary_model()
+    
     resp = requests.post(
         f"{LITELLM_URL}/v1/chat/completions",
         headers={"Content-Type": "application/json"},
@@ -105,7 +104,6 @@ def _validate_with_llm(task: Task, result: ExecutionResult, model: Optional[str]
     data = resp.json()
     raw = data["choices"][0]["message"]["content"]
 
-    # Parse JSON
     try:
         parsed = json.loads(raw)
     except json.JSONDecodeError:

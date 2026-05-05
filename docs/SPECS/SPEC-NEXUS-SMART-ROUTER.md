@@ -4,10 +4,12 @@
 
 ## Visão
 
-Nexus Smart Router é um framework local de roteamento inteligente de tarefas de IA. Ele classifica automaticamente a complexidade de uma tarefa e a envia para o modelo mais adequado:
+Nexus Smart Router é um framework **CLI-agnostic** de roteamento inteligente de tarefas de IA. Funciona com QUALQUER CLI: OpenCode, Codex, Claude Code, Aider, etc.
 
-- **Ollama local** (qwen2.5-coder) — Tarefas mecânicas e analíticas (rápido, barato, privado)
-- **Kimi K2.6** (cloud) — Tarefas estratégicas (raciocínio profundo, decisões arquiteturais)
+Ele classifica automaticamente a complexidade de uma tarefa e a envia para o modelo mais adequado:
+
+- **LOCAL** (Ollama) — Tarefas mecânicas e analíticas (rápido, barato, privado)
+- **PRIMARY** (o modelo que o CLI atual está usando) — Tarefas estratégicas (raciocínio profundo)
 
 ## Arquitetura
 
@@ -107,12 +109,12 @@ O Nexus usa HCE para contexto:
 
 ## Economia de Tokens
 
-| Tipo de Tarefa | Antes (tudo Kimi) | Depois (Nexus) | Economia |
-|----------------|-------------------|----------------|----------|
+| Tipo de Tarefa | Antes (tudo PRIMARY) | Depois (Nexus) | Economia |
+|----------------|----------------------|----------------|----------|
 | Escrever testes | 15K tokens | 2K tokens (Ollama) | **87%** |
 | Code review | 20K tokens | 5K tokens (Ollama) | **75%** |
 | Refactor simples | 10K tokens | 2K tokens (Ollama) | **80%** |
-| Design arquitetura | 25K tokens | 25K tokens (Kimi) | **0%** |
+| Design arquitetura | 25K tokens | 25K tokens (PRIMARY) | **0%** |
 
 **Média:** ~60% economia de tokens em workload típico
 
@@ -126,14 +128,49 @@ O Nexus usa HCE para contexto:
 PYTHONPATH=/srv/monorepo python3 -m pytest tests/test_nexus_*.py -v
 ```
 
+## CLI-Agnostic Detection
+
+Nexus detecta automaticamente qual CLI está invocando-o:
+
+| CLI | Env Var Detectada | Exemplo de Modelo |
+|-----|-------------------|-------------------|
+| **OpenCode** | `OPENCODE_MODEL` | `kimi-k2.6` |
+| **Codex** | `CODEX_MODEL` | `gpt-4o` |
+| **Claude Code** | `CLAUDE_CODE_MODEL` | `claude-sonnet-4` |
+| **Aider** | `AIDER_MODEL` | `deepseek-v3` |
+| **Override** | `NEXUS_CLI_MODEL` | qualquer |
+
+Se nenhum for detectado, fallback para `NEXUS_OLLAMA_FAST`.
+
+### Como usar com seu CLI
+
+**OpenCode:**
+```bash
+export OPENCODE_MODEL=kimi-k2.6
+nexus run -d "Implementar feature X"
+```
+
+**Codex:**
+```bash
+export CODEX_MODEL=gpt-4o
+nexus run -d "Refactor para async"
+```
+
+**Claude Code:**
+```bash
+export CLAUDE_CODE_MODEL=claude-sonnet-4
+nexus classify "Design arquitetura"
+```
+
 ## Variáveis de Ambiente
 
 | Var | Default | Descrição |
 |-----|---------|-----------|
 | `OLLAMA_URL` | http://localhost:11434 | Endpoint Ollama |
 | `LITELLM_URL` | http://localhost:4018 | Proxy LiteLLM |
-| `NEXUS_CLASSIFIER_MODEL` | hermes-auto | Modelo de classificação |
-| `NEXUS_VALIDATOR_MODEL` | hermes-cloud-chat | Modelo de validação |
+| `NEXUS_CLI_MODEL` | (auto-detect) | Override do modelo PRIMARY |
+| `NEXUS_OLLAMA_CODE` | hermes-local-code | Modelo local para código |
+| `NEXUS_OLLAMA_FAST` | hermes-auto | Modelo local rápido |
 
 ## Próximos Passos
 

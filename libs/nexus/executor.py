@@ -1,8 +1,9 @@
 """
-Nexus Executor — Async task execution engine
+Nexus Executor — CLI-agnostic async execution engine
 
-Routes tasks to appropriate model and executes them.
-Supports both Ollama (local) and cloud LLMs via LiteLLM.
+Routes tasks to:
+  - LOCAL model (Ollama) for mechanical/analytical tasks
+  - PRIMARY model (whatever CLI invoked us) for strategic tasks
 """
 import os
 import time
@@ -14,19 +15,9 @@ from typing import Optional
 import aiohttp
 
 from .models import Task, Classification, ExecutionResult, TaskType
+from .config import get_primary_model, get_local_model, OLLAMA_URL, LITELLM_URL
 
 logger = logging.getLogger(__name__)
-
-OLLAMA_URL = os.environ.get("OLLAMA_URL", "http://localhost:11434")
-LITELLM_URL = os.environ.get("LITELLM_URL", "http://localhost:4018")
-
-# Model aliases resolved via LiteLLM
-MODEL_MAP = {
-    "ollama-qwen2.5-coder": "hermes-local-code",
-    "ollama-qwen2.5": "hermes-auto",
-    "ollama-nomic-embed": "hermes-embed",
-    "kimi-k2.6": "hermes-cloud-chat",
-}
 
 SYSTEM_PROMPTS = {
     TaskType.MECHANICAL: """You are a precise code implementation agent.
@@ -43,11 +34,16 @@ Consider the broader context of the codebase.""",
 
 async def execute_task(task: Task, classification: Classification) -> ExecutionResult:
     """
-    Execute task using the model determined by classification.
-    Returns ExecutionResult with output, files modified, and test status.
+    Execute task using the appropriate model.
+    LOCAL = Ollama (fast/cheap), PRIMARY = whatever CLI is using (smart).
     """
     start = time.time()
-    model_alias = MODEL_MAP.get(classification.recommended_model, classification.recommended_model)
+    
+    # Resolve model alias
+    if classification.level == TaskType.STRATEGIC:
+        model_alias = get_primary_model()
+    else:
+        model_alias = get_local_model()
 
     try:
         if classification.level in (TaskType.MECHANICAL, TaskType.ANALYTICAL):
@@ -99,7 +95,7 @@ async def _execute_ollama(task: Task, classification: Classification, model: str
 
 
 async def _execute_litellm(task: Task, classification: Classification, model: str) -> str:
-    """Execute via LiteLLM (cloud proxy)."""
+    """Execute via LiteLLM (cloud proxy — PRIMARY model)."""
     system_prompt = SYSTEM_PROMPTS[classification.level]
     user_prompt = _build_user_prompt(task)
 
