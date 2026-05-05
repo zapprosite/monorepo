@@ -2,6 +2,7 @@ import { authRouterTrpc } from '@backend/modules/auth/auth.trpc';
 import { clientsRouterTrpc } from '@backend/modules/clients/clients.trpc';
 import { contractsRouterTrpc } from '@backend/modules/contracts/contracts.trpc';
 import { editorialRouterTrpc } from '@backend/modules/editorial/editorial.trpc';
+import { emailRouter } from '@backend/modules/email/email.trpc';
 import { equipmentRouterTrpc } from '@backend/modules/equipment/equipment.trpc';
 import { journalEntriesRouterTrpc } from '@backend/modules/journal-entries/journal_entries.trpc';
 import { kanbanRouterTrpc } from '@backend/modules/kanban/kanban.trpc';
@@ -28,11 +29,12 @@ export const appTrpcRouter = trpcRouter({
 	journalEntries: journalEntriesRouterTrpc,
 	leads: leadsRouterTrpc,
 	clients: clientsRouterTrpc,
+	contracts: contractsRouterTrpc,
+	editorial: editorialRouterTrpc,
+	email: emailRouter,
 	equipment: equipmentRouterTrpc,
 	schedule: scheduleRouterTrpc,
-	contracts: contractsRouterTrpc,
 	serviceOrders: serviceOrdersRouterTrpc,
-	editorial: editorialRouterTrpc,
 	reminders: remindersRouterTrpc,
 	kanban: kanbanRouterTrpc,
 	maintenance: maintenanceRouter,
