@@ -4,7 +4,7 @@ HVAC RAG Healthcheck — Periodic pipe health verification
 
 Checks:
   - OpenWebUI (chat.zappro.site/:3456)
-  - zappro-clima-tutor (:4017) /health + /v1/models
+  - hvac-manual-strict (:4017) /health + /v1/models
   - LiteLLM (:4000 / api.zappro.site) — OpenRouter model alias
   - Groq STT (api.groq.com /v1/audio/transcriptions)
   - Edge TTS (:8012 / TTS_BRIDGE_URL)
@@ -189,7 +189,7 @@ async def check_field_tutor_endpoint() -> dict:
     test_query = "RYYQ48BRA error E6 inverter"
     q_hash = safe_query_hash(test_query)
     payload = {
-        "model": "zappro-clima-tutor",
+        "model": "hvac-manual-strict",
         "messages": [{"role": "user", "content": test_query}],
         "temperature": 0.3,
         "max_tokens": 256
@@ -234,7 +234,7 @@ async def check_printable_endpoint() -> dict:
     test_query = "RXYQ20BRA maintenance procedure"
     q_hash = safe_query_hash(test_query)
     payload = {
-        "model": "zappro-clima-tutor",
+        "model": "hvac-manual-strict",
         "messages": [{"role": "user", "content": test_query}],
         "temperature": 0.3,
         "max_tokens": 256

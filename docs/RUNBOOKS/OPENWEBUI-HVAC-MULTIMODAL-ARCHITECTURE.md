@@ -1,8 +1,8 @@
 # OpenWebUI HVAC Multimodal Architecture Runbook
 
-**Service:** OpenWebUI HVAC Multimodal — zappro-clima-tutor
+**Service:** OpenWebUI HVAC Multimodal — hvac-manual-strict
 **Version:** 1.0.0
-**Public Model:** zappro-clima-tutor
+**Public Model:** hvac-manual-strict
 **Status:** Pilot Ready (Internal / Supervised Technical Use Only)
 **Last Updated:** 2026-04-28
 
@@ -10,9 +10,9 @@
 
 ## Overview
 
-Sistema multimodal que combina interface web (OpenWebUI), assistente HVAC (zappro-clima-tutor), reconhecimento de voz (Groq STT), síntese de voz (Edge TTS) e visão computacional (Qwen2.5VL via Ollama). Oferece interação por texto, áudio e imagem para técnicos de campo em equipamentos HVAC.
+Sistema multimodal que combina interface web (OpenWebUI), assistente HVAC (hvac-manual-strict), reconhecimento de voz (Groq STT), síntese de voz (Edge TTS) e visão computacional (Qwen2.5VL via Ollama). Oferece interação por texto, áudio e imagem para técnicos de campo em equipamentos HVAC.
 
-**Princípio arquitetural:** OpenWebUI como interface unificada. zappro-clima-tutor como cérebro. LiteLLM como gateway de modelos. Groq STT e Edge TTS para voz. Qwen2.5VL para visão.
+**Princípio arquitetural:** OpenWebUI como interface unificada. hvac-manual-strict como cérebro. LiteLLM como gateway de modelos. Groq STT e Edge TTS para voz. Qwen2.5VL para visão.
 
 ---
 
@@ -21,7 +21,7 @@ Sistema multimodal que combina interface web (OpenWebUI), assistente HVAC (zappr
 ### Fluxo Completo
 
 ```
-[Usuário] → [OpenWebUI chat.zappro.site] → [zappro-clima-tutor] → [LiteLLM api.zappro.site] → [OpenRouter via hermes-brain]
+[Usuário] → [OpenWebUI chat.zappro.site] → [hvac-manual-strict] → [LiteLLM api.zappro.site] → [OpenRouter via hermes-brain]
    ↑                    ↓                                                    ↓
    └──────── TTS ←─── [Edge TTS]                               [Qwen2.5VL via Ollama]
    ↓
@@ -47,7 +47,7 @@ Sistema multimodal que combina interface web (OpenWebUI), assistente HVAC (zappr
                                     │
                                     ▼
 ┌─────────────────────────────────────────────────────────────────────────────────────┐
-│                        zappro-clima-tutor (:4017)                                   │
+│                        hvac-manual-strict (:4017)                                   │
 │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐                 │
 │  │    Juiz     │  │   Router    │  │  Qdrant     │  │  Friendly   │                 │
 │  │ (validate)  │  │   (mode)    │  │   RAG       │  │  Rewriter   │                 │
@@ -92,7 +92,7 @@ Sistema multimodal que combina interface web (OpenWebUI), assistente HVAC (zappr
 | Componente | URL/Porta | Uso |
 |---|---|---|
 | OpenWebUI | chat.zappro.site (443) | Interface web, entrada de texto/áudio/imagem |
-| zappro-clima-tutor | llm.zappro.site:4017 | Cérebro — roteamento, RAG, resposta amigável |
+| hvac-manual-strict | llm.zappro.site:4017 | Cérebro — roteamento, RAG, resposta amigável |
 | LiteLLM | api.zappro.site:4000 | Gateway de modelos (OpenRouter via hermes-brain) |
 | Groq STT | api.groq.com | Voz → texto (Whisper-large-v3) |
 | Edge TTS | localhost:5050 | Texto → voz (pt-BR, EdgeSpeech) |
@@ -111,7 +111,7 @@ Sistema multimodal que combina interface web (OpenWebUI), assistente HVAC (zappr
 | `OPENWEBUI_URL` | `https://chat.zappro.site` | URL pública do OpenWebUI |
 | `OPENWEBUI_API_KEY` | `sk-...` | API key para autenticação |
 | `OLLAMA_BASE_URL` | `http://localhost:11434` | Base Ollama para imagens |
-| `OPENWEBUI_PIPELINE_URL` | `http://llm.zappro.site:4017` | Pipeline zappro-clima-tutor |
+| `OPENWEBUI_PIPELINE_URL` | `http://llm.zappro.site:4017` | Pipeline hvac-manual-strict |
 
 ### LiteLLM
 
@@ -173,7 +173,7 @@ Sistema multimodal que combina interface web (OpenWebUI), assistente HVAC (zappr
 [OpenWebUI — validação local]
     │
     ▼
-[POST /v1/chat/completions → zappro-clima-tutor:4017]
+[POST /v1/chat/completions → hvac-manual-strict:4017]
     │
     ▼
 [Juiz — validação de domínio HVAC]
@@ -261,7 +261,7 @@ Sistema multimodal que combina interface web (OpenWebUI), assistente HVAC (zappr
 | Session timeout | 30 min | Inatividade |
 | Max history | 50 mensagens | Por conversa |
 
-### zappro-clima-tutor
+### hvac-manual-strict
 
 | Limite | Valor | Observação |
 |---|---|---|
@@ -321,17 +321,17 @@ Sistema multimodal que combina interface web (OpenWebUI), assistente HVAC (zappr
 
 **Diagnóstico:**
 ```bash
-# Verificar se zappro-clima-tutor está rodando
+# Verificar se hvac-manual-strict está rodando
 curl -s http://llm.zappro.site:4017/health
 
 # Verificar logs do pipeline
-journalctl -u zappro-clima-tutor --since "30 minutes ago"
+journalctl -u hvac-manual-strict --since "30 minutes ago"
 ```
 
 **Solução:**
 ```bash
 # Reiniciar pipeline
-sudo systemctl restart zappro-clima-tutor
+sudo systemctl restart hvac-manual-strict
 
 # Verificar firewall
 sudo ufw status | grep 4017

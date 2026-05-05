@@ -1,4 +1,4 @@
-# HVAC Memory Policy — Zappro Clima Tutor
+# HVAC Memory Policy — HVAC Manual Strict
 # Regra: antes de responder, context_fetch. Depois, memory_writeback.
 
 memory_categories:
@@ -15,7 +15,7 @@ memory_categories:
     description: "Decisões de produto, escopo, modelos suportados"
     save_trigger: "decisão de produto ou escopo técnico"
     examples:
-      - "zappro-clima-tutor é o modelo público"
+      - "hvac-manual-strict é o modelo público"
       - "escopo é ar-condicionado inverter Brasil"
       - "não expor hvac-manual-strict no seletor"
       - "OpenRouter via hermes-brain é primary answer model"

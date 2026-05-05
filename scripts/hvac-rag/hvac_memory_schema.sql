@@ -14,7 +14,7 @@ create table if not exists hvac_memory.agent_memory_events (
     content text not null,
     metadata jsonb default '{}'::jsonb,
     content_hash text, -- para dedupe
-    source text default 'zappro-clima-tutor',
+    source text default 'hvac-manual-strict',
     confidence text default 'medium' -- high, medium, low
 );
 

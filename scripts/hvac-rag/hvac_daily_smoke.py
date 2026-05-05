@@ -119,7 +119,7 @@ async def call_chat_endpoint(endpoint: str, query: str, timeout: float = 60) -> 
     """Call a chat completions endpoint and return result metadata."""
     q_hash = safe_query_hash(query)
     payload = {
-        "model": "zappro-clima-tutor",
+        "model": "hvac-manual-strict",
         "messages": [{"role": "user", "content": query}],
         "temperature": 0.55,
         "max_tokens": 1024

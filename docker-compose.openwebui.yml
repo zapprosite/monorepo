@@ -10,9 +10,9 @@ services:
       # WebUI Authentication — via .env (WEBUI_AUTH=true enables Google OAuth)
       # HVAC Pipe — OpenAI-compatible backend at port 4017
       - OPENAI_API_BASE_URL=http://localhost:4017/v1
-      - DEFAULT_MODELS=zappro-clima-tutor
-      - DEFAULT_PINNED_MODELS=zappro-clima-tutor
-      - TASK_MODEL_EXTERNAL=zappro-clima-tutor
+      - DEFAULT_MODELS=hvac-manual-strict
+      - DEFAULT_PINNED_MODELS=hvac-manual-strict
+      - TASK_MODEL_EXTERNAL=hvac-manual-strict
     network_mode: host
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3456/"]

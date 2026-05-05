@@ -50,7 +50,7 @@ export interface HvacHealthResult {
  */
 export async function callHvacPipe(input: HvacQueryInput): Promise<HvacQueryResult> {
 	const sessionId = input.session_id ?? `api-${Date.now()}`;
-	const modelName = input.model ?? 'zappro-clima-tutor';
+	const modelName = input.model ?? 'hvac-manual-strict';
 
 	// Build an OpenAI-compatible messages array
 	const messages: Array<{ role: string; content: string }> = [];

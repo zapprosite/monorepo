@@ -2,7 +2,7 @@
 
 ## Visão Geral
 
-O `zappro-clima-tutor` nunca mais deve nascer "bebê" em novo chat.
+O `hvac-manual-strict` nunca mais deve nascer "bebê" em novo chat.
 O fluxo obrigatório é:
 
 ```

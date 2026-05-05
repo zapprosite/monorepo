@@ -29,7 +29,7 @@ export const hvacQueryBodySchema = {
 		model: {
 			type: 'string',
 			maxLength: 100,
-			description: 'Modelo público do pipe (default: zappro-clima-tutor).',
+			description: 'Modelo público do pipe (default: hvac-manual-strict).',
 		},
 	},
 	additionalProperties: false,

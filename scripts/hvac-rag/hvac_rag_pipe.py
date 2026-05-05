@@ -92,11 +92,9 @@ LITELLM_URL = os.environ.get("LITELLM_URL", "http://127.0.0.1:4018/v1")
 LITELLM_API_KEY = os.environ.get("LITELLM_API_KEY", "sk-dummy")
 COLLECTION_NAME = "hvac_manuals_v1"
 
-# Public model name exposed to OpenWebUI
-MODEL_NAME = "zappro-clima-tutor"
-
-# Internal model aliases (not exposed publicly — used by router internally)
-INTERNAL_MODELS = ["hvac-manual-strict", "hvac-field-tutor", "hvac-printable"]
+# OpenWebUI is dedicated to this project and must expose exactly one model.
+MODEL_NAME = "hvac-manual-strict"
+INTERNAL_MODELS: list[str] = []
 
 PIPELINE_PORT = int(os.environ.get("PIPELINE_PORT", "4017"))
 PIPELINE_HOST = os.environ.get("PIPELINE_HOST", "127.0.0.1")
@@ -800,9 +798,7 @@ class ChatCompletionRequest(BaseModel):
 async def list_models():
     """
     OpenAI-compatible /v1/models endpoint.
-    Exposes only zappro-clima-tutor publicly.
-    Internal aliases (hvac-manual-strict, hvac-field-tutor, hvac-printable)
-    are NOT exposed — they are handled internally by the router.
+    Exposes exactly one model to OpenWebUI: hvac-manual-strict.
     """
     return {
         "object": "list",
@@ -1072,7 +1068,7 @@ async def chat_completions(request: ChatCompletionRequest, http_request: Request
                         answer=friendly_content,
                         metadata={
                             "domain": "hvac",
-                            "model": "zappro-clima-tutor",
+                            "model": MODEL_NAME,
                             "mode": "guided_triage",
                             "evidence": pkg.get("evidence_level", "unknown"),
                             "conversation_state": pkg.get("conversation_state", {}),

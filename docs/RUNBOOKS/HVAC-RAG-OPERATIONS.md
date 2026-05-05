@@ -1,8 +1,8 @@
 # HVAC RAG Operations Runbook
 
-**Service:** HVAC RAG Pipe — Zappro Clima Tutor
+**Service:** HVAC RAG Pipe — HVAC Manual Strict
 **Version:** 2.0.0
-**Public Model:** zappro-clima-tutor
+**Public Model:** hvac-manual-strict
 **Status:** Pilot Ready (Internal / Supervised Technical Use Only)
 **Last Updated:** 2026-04-28
 
@@ -26,7 +26,7 @@ User Query → Juiz (validate)
          No manual?  →  Graph internal / Web search (controlled fallback)
 ```
 
-**Public model exposed:** `zappro-clima-tutor` (only model in `/v1/models`)
+**Public model exposed:** `hvac-manual-strict` (only model in `/v1/models`)
 
 **IMPORTANT:** This system is for **internal technical use only**. Do not expose to end customers without a burn-in period.
 
@@ -35,7 +35,7 @@ User Query → Juiz (validate)
 ## Architecture
 
 ```
-OpenWebUI (default model: zappro-clima-tutor)
+OpenWebUI (default model: hvac-manual-strict)
     └── hvac-rag-pipe.py (port 4017, v2.0.0)
             ├── Juiz (regex pre-flight, <50ms)
             ├── Router (printable / guided_triage / field_tutor)
@@ -49,14 +49,14 @@ OpenWebUI (default model: zappro-clima-tutor)
 
 | Exposto em `/v1/models` | Interno (urls, não exposto) |
 |---|---|
-| `zappro-clima-tutor` | `hvac-manual-strict`, `hvac-field-tutor`, `hvac-printable` |
+| `hvac-manual-strict` | `hvac-manual-strict` |
 
 ### Endpoints
 
 | Endpoint | Purpose | Auth |
 |---|---|---|
 | `GET /health` | Health check (v2.0.0, shows public_model) | None |
-| `GET /v1/models` | Lista só `zappro-clima-tutor` | None |
+| `GET /v1/models` | Lista só `hvac-manual-strict` | None |
 | `POST /v1/chat/completions` | Tutor friendly (default router) | Via OpenWebUI |
 | `POST /v1/chat/completions/field-tutor` | Técnico de campo, contexto expandido | Via OpenWebUI |
 | `POST /v1/chat/completions/printable` | Texto plano para impressora térmica | Via OpenWebUI |
@@ -145,7 +145,7 @@ cat /tmp/hvac-daily-smoke-$(date +%Y%m%d).json
 python /srv/monorepo/smoke-tests/smoke_hvac_friendly_tutor_ux.py
 
 # Tests:
-# - Only zappro-clima-tutor in /v1/models
+# - Only hvac-manual-strict in /v1/models
 # - No "Graph interno" in responses
 # - Max one question at the end
 # - U4-01 friendly response
@@ -327,7 +327,7 @@ python3 scripts/hvac-rag/hvac-rag-pipe.py &
 
 - SPEC-HVAC-004: `docs/SPECS/products/HVAC/SPEC-HVAC-004-juiz-field-tutor.md`
 - Canonical answer template: `config/hvac-copilot/answer-template-ptbr.md`
-- Public model profile: `config/hvac-copilot/zappro-clima-tutor.yaml`
+- Public model profile: `config/hvac-copilot/hvac-manual-strict.yaml`
 - Friendly response rewriter: `scripts/hvac-rag/hvac-friendly-response.py`
 - Unified status: `scripts/hvac-rag/hvac-status.py`
 - Simplification audit: `docs/AUDITS/HVAC-RAG-SIMPLIFICATION-AUDIT-2026-04.md`

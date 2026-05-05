@@ -94,11 +94,8 @@ async def check_public_models() -> dict:
                 return {
                     "ok": True,
                     "models": model_ids,
-                    "public_only_zappro": model_ids == ["zappro-clima-tutor"],
-                    "exposes_internal_aliases": any(
-                        m in model_ids
-                        for m in ["hvac-manual-strict", "hvac-field-tutor", "hvac-printable"]
-                    ),
+                    "public_only_hvac_manual_strict": model_ids == ["hvac-manual-strict"],
+                    "exposes_non_strict_models": model_ids != ["hvac-manual-strict"],
                 }
             return {"ok": False, "error": f"HTTP {r.status_code}"}
     except httpx.ConnectError:
