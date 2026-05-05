@@ -527,6 +527,41 @@ bash scripts/env-vault-sync.sh
 
 ---
 
+## Motor de Workflow — GSD v1.40.0
+
+> **Instalado em:** 2026-05-05 | **ADR:** [ADR-002](docs/ADRs/ADR-002-motor-prevc-deprecation.md)
+
+O Motor PREVC (`queue-control.sh` + `pipeline-plan.py`) foi **descontinuado**.
+O sistema oficial de orquestração spec-driven é o **GSD (Get Shit Done)**.
+
+### Um único comando para começar
+
+```
+/gsd-progress
+```
+
+Detecta automaticamente o estado do projeto e indica o próximo passo.
+
+### Runtimes instalados (global)
+
+| Runtime | Localização |
+|---------|-------------|
+| Antigravity | `~/.gemini/antigravity/skills/gsd-*/` |
+| Claude Code | `~/.claude/skills/gsd-*/` |
+| Hermes Agent | `~/.hermes/skills/gsd/` |
+
+### Fluxo para projeto existente
+
+```
+/gsd-map-codebase   → indexa o codebase
+/gsd-new-project    → inicializa .planning/
+/gsd-progress       → navega o resto automaticamente
+```
+
+> Referências a `queue-control.sh` nos SPECs são **histórico imutável** — ignorar para execução.
+
+---
+
 ## Encoding and Localization Guidance
 
 **Regra:** Docs e UI em PT-BR. Código (variáveis, funções, classes, commits) em EN.
