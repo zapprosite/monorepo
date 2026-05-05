@@ -18,8 +18,8 @@
 **Plans:** 5 plans
 
 Plans:
-- [ ] 02-01-PLAN.md — Wave 0 test scaffolds for all phase requirements
-- [ ] 02-02-PLAN.md — hvac_normalize_document.py normalization bridge
+- [x] 02-01-PLAN.md — Wave 0 test scaffolds for all phase requirements
+- [x] 02-02-PLAN.md — hvac_normalize_document.py normalization bridge
 - [ ] 02-03-PLAN.md — hvac_add_manual.py PT-BR gate + pending_review.jsonl
 - [ ] 02-04-PLAN.md — hvac_missing_manuals.py enriched coverage report
 - [ ] 02-05-PLAN.md — hvac_expansion_pipeline.py checkpoint orchestrator
