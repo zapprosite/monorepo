@@ -86,7 +86,7 @@ def mark_step_done(state: dict, step: str) -> None:
 
 def log_pending_review(rec: dict, reason: str) -> None:
     """Append one entry to pending_review.jsonl for models that cannot be auto-scraped."""
-    HVAC_REPORTS_DIR.mkdir(parents=True, exist_ok=True)
+    PENDING_REVIEW.parent.mkdir(parents=True, exist_ok=True)
     entry = {
         "model": rec.get("indoor_model") or rec.get("model", ""),
         "brand": rec.get("brand", ""),
@@ -98,12 +98,12 @@ def log_pending_review(rec: dict, reason: str) -> None:
 
 
 def generate_batch_file(
-    catalog_path: Path,
+    catalog_path: Path | None,
     indexed_brands_models: set[str],
     output_path: Path,
 ) -> int:
     """Write missing scraper-supported models as brand:model lines."""
-    if not catalog_path.exists():
+    if catalog_path is None or not catalog_path.exists():
         logger.warning("Catalog not found: %s", catalog_path)
         return 0
 
