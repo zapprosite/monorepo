@@ -13,8 +13,12 @@ from datetime import datetime, timezone
 from typing import Optional
 from urllib.parse import urlparse
 
+import hashlib as _hashlib_cache
+import json as _json_cache
+
 import httpx
 import pg8000
+import redis
 from dotenv import load_dotenv
 from qdrant_client import QdrantClient
 from qdrant_client.models import Filter, FieldCondition, MatchValue
@@ -41,6 +45,118 @@ POSTGRES_USER = os.getenv("POSTGRES_USER", "postgres")
 POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD", "")
 MEM0_COLLECTION = os.getenv("MEM0_COLLECTION", "will")
 QDRANT_API_KEY = os.getenv("QDRANT_API_KEY", "")
+
+# Redis cache — SPEC-401 §5.3 (namespace hvac: | db=2)
+REDIS_HOST = os.getenv("REDIS_HOST", "localhost")
+REDIS_PORT = int(os.getenv("REDIS_PORT", "6379"))
+REDIS_DB = int(os.getenv("HVAC_REDIS_DB", "2"))
+REDIS_NS = "hvac:"
+
+_redis_client: redis.Redis | None = None
+
+
+def _get_redis() -> redis.Redis:
+    """Return singleton Redis client (db=2, namespace hvac:)."""
+    global _redis_client
+    if _redis_client is None:
+        _redis_client = redis.Redis(
+            host=REDIS_HOST,
+            port=REDIS_PORT,
+            db=REDIS_DB,
+            decode_responses=True,
+            socket_connect_timeout=1,
+            socket_timeout=1,
+        )
+    return _redis_client
+
+
+def _cache_key(brand: str, query: str) -> str:
+    """Build a namespaced Redis key from brand + query hash."""
+    q_hash = _hashlib_cache.sha256(f"{brand}:{query}".encode()).hexdigest()[:16]
+    return f"{REDIS_NS}resp:{q_hash}"
+
+
+def _session_key(session_id: str) -> str:
+    """Build a namespaced Redis key for session state."""
+    return f"{REDIS_NS}session:{session_id}"
+
+
+def get_cached_response(brand: str, query: str) -> dict | None:
+    """Retrieve a cached HVAC response from Redis (SPEC-401 §5.3).
+
+    Args:
+        brand: Brand identifier (e.g. 'LG', 'Daikin').
+        query: Raw user query.
+
+    Returns:
+        Cached dict or None if not found / Redis unavailable.
+    """
+    try:
+        key = _cache_key(brand, query)
+        raw = _get_redis().get(key)
+        if raw:
+            return _json_cache.loads(raw)
+    except Exception as exc:
+        logger.debug(f"[cache] get_cached_response miss: {exc}")
+    return None
+
+
+def set_cached_response(brand: str, query: str, response: dict, ttl: int = 3600) -> bool:
+    """Store an HVAC response in Redis with TTL (SPEC-401 §5.3).
+
+    Args:
+        brand: Brand identifier.
+        query: Raw user query.
+        response: Dict payload to cache.
+        ttl: TTL in seconds (default 3600 = 1h).
+
+    Returns:
+        True on success, False on Redis error.
+    """
+    try:
+        key = _cache_key(brand, query)
+        _get_redis().setex(key, ttl, _json_cache.dumps(response, ensure_ascii=False))
+        return True
+    except Exception as exc:
+        logger.debug(f"[cache] set_cached_response failed: {exc}")
+        return False
+
+
+def save_session_state(session_id: str, state: dict, ttl: int = 1800) -> bool:
+    """Persist HVAC session state to Redis (SPEC-401 §5.3).
+
+    Args:
+        session_id: Unique session / conversation identifier.
+        state: State dict (brand, model, alarm_code, etc.).
+        ttl: TTL in seconds (default 1800 = 30min).
+
+    Returns:
+        True on success, False on Redis error.
+    """
+    try:
+        key = _session_key(session_id)
+        _get_redis().setex(key, ttl, _json_cache.dumps(state, ensure_ascii=False))
+        return True
+    except Exception as exc:
+        logger.debug(f"[cache] save_session_state failed: {exc}")
+        return False
+
+
+def get_session_state(session_id: str) -> dict | None:
+    """Retrieve HVAC session state from Redis.
+
+    Returns:
+        State dict or None if not found / Redis unavailable.
+    """
+    try:
+        key = _session_key(session_id)
+        raw = _get_redis().get(key)
+        if raw:
+            return _json_cache.loads(raw)
+    except Exception as exc:
+        logger.debug(f"[cache] get_session_state miss: {exc}")
+    return None
+
 
 _qdrant_parsed = urlparse(QDRANT_URL)
 QDRANT_HOST = _qdrant_parsed.hostname or "localhost"

@@ -1,6 +1,7 @@
 import { oauth2Router } from '@backend/routers/oauth2.router';
 import { openapiPlugin } from '@backend/routers/openapi.plugin';
 import { appTrpcRouter } from '@backend/routers/trpc.router';
+import { hvacRouter } from '@backend/routes/hvac.routes';
 import { publicRouter } from '@backend/routes/public.routes';
 import { uploadRouter } from '@backend/routes/upload.routes';
 import { createTRPCContext, type TrpcContext } from '@backend/trpc';
@@ -99,5 +100,10 @@ export const appRouter = (app: FastifyInstance) => {
 
 	app.register(uploadRouter, {
 		prefix: '/upload',
+	});
+
+	// HVAC RAG proxy — POST /api/hvac/query (Open WebUI Tool endpoint)
+	app.register(hvacRouter, {
+		prefix: '/api/hvac',
 	});
 };
