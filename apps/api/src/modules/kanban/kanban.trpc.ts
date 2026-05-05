@@ -15,6 +15,8 @@ import {
 import { TRPCError } from '@trpc/server';
 import z from 'zod';
 
+// Legacy by design: boards, columns, and cards form a hierarchical workflow router with
+// reordering semantics, so this module stays custom instead of collapsing into single-table CRUD.
 // Helper: extract teamId from authenticated user context
 const getTeamId = (ctx: { user: { teamId?: string | null } }) => {
 	const teamId = ctx.user.teamId;
