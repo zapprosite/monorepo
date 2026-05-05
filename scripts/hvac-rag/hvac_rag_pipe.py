@@ -51,6 +51,12 @@ rewrite_ask = _fr_mod.rewrite_ask_clarification_response
 _web_mod = import_local_module("hvac_web_search", "hvac_web_search.py")
 search_web = _web_mod.search_web
 
+# Import Cross-Check Agent (Nexus Analytical)
+_crosscheck_mod = import_local_module("hvac_crosscheck", "hvac_crosscheck.py")
+validate_response = _crosscheck_mod.validate_response
+build_audit_trail = _crosscheck_mod.build_audit_trail
+format_citations = _crosscheck_mod.format_citations
+
 # Import Universal Resolver modules
 _hvac_intake = import_local_module("hvac_intake", "hvac_intake.py")
 _hvac_coverage = import_local_module("hvac_coverage", "hvac_coverage.py")
@@ -388,11 +394,14 @@ def build_rag_context(hits: list, max_chars: int = MAX_CONTEXT_CHARS) -> str:
         safety_tags = payload.get("safety_tags", [])
         text = payload.get("text", "")[:800]
 
+        page_start = payload.get("page_start")
         chunk = f"[Trecho {i + 1}]"
         if doc_id:
             chunk += f" Manual: {doc_id}"
         if heading:
             chunk += f" | Seção: {heading}"
+        if page_start is not None:
+            chunk += f" | Pág: {page_start}"
         if doc_type:
             chunk += f" | Tipo: {doc_type}"
         if models:
@@ -712,16 +721,24 @@ def build_openrouter_system_prompt(pkg: dict) -> str:
 
     lines.extend([
         "",
-        "REGRAS CRÍTICAS:",
-        "- NUNCA mostre 'Graph interno', 'Evidência:' como rótulos — use 'Pela triagem técnica'",
+        "REGRAS CRÍTICAS — SOURCE ENFORCEMENT:",
+        "- Se o contexto HVAC recuperado NÃO contém a informação, diga EXATAMENTE:",
+        "  'NÃO SEI com base nos manuais disponíveis. Para responder precisaria de: [modelo/seção específica]'",
         "- NUNCA invente valores de tensão, resistência, pressão, corrente ou carga de gás",
         "- NUNCA oriente medição energizada sem respaldo explícito do manual",
+        "- NUNCA mostre 'Graph interno', 'Evidência:' como rótulos — use 'Pela triagem técnica'",
         "- Se não há manual exato: diga 'não tenho o manual exato aqui, então trato como triagem técnica'",
         "- Se faltam modelo/código: peça de forma amigável, uma coisa por vez",
+        "",
+        "CITAÇÃO OBRIGATÓRIA:",
+        "- Cada afirmação técnica deve incluir a fonte: [NomeDoManual, pág. N]",
+        "- Exemplo: 'O erro E5 indica falha no IPM [Manual Daikin VRV IV, pág. 125]'",
+        "- Se a página não estiver disponível, cite pelo menos o manual: [NomeDoManual]",
+        "- Se evidência é official_web: cite como checagem externa, não como manual",
+        "",
+        "FORMATO:",
         "- MAX 600 caracteres para respostas normais, 900 para procedimentos técnicos",
         "- MAX uma pergunta no final",
-        "- Se evidência é official_web: cite como checagem externa, não como manual",
-        "- Se evidência é web_fallback: cite como checagem externa, não como manual",
         "- RESPONDA SOMENTE EM PORTUGUÊS DO BRASIL — sem caracteres CJK, Cirílicos ou outros alfabetos não-latinos",
     ])
 
@@ -1011,8 +1028,40 @@ async def chat_completions(request: ChatCompletionRequest, http_request: Request
                     friendly_content,
                     pkg.get("evidence_level", "nenhum"),
                 )
+
+                # Cross-Check Agent (Nexus Analytical) — validate against source chunks
+                chunk_payloads = [h.get("payload", {}) for h in hits]
+                crosscheck_result = None
+                try:
+                    crosscheck_result = await asyncio.wait_for(
+                        validate_response(friendly_content, chunk_payloads),
+                        timeout=5.0,
+                    )
+                    if crosscheck_result.get("recommendation") == "FLAG":
+                        _safe_log(
+                            f"[crosscheck] FLAG unsupported={crosscheck_result.get('unsupported_claims', [])} "
+                            f"confidence={crosscheck_result.get('confidence', '?')} "
+                            f"{_log_query_meta(user_query)}"
+                        )
+                except asyncio.TimeoutError:
+                    _safe_log("[crosscheck] timeout — skipped")
+                except Exception as exc:
+                    _safe_log(f"[crosscheck] error: {exc}")
+
+                # Audit Trail — structured source logging
+                audit = build_audit_trail(user_query, friendly_content, chunk_payloads, crosscheck_result)
+                _safe_log(
+                    f"[audit] sources={audit['source_count']} exact_manual={audit['has_exact_manual']} "
+                    f"query_hash={audit['query_hash']}"
+                )
+
+                # Citations for Citação Indexada feature
+                citations = format_citations(chunk_payloads)
+
                 result["choices"][0]["message"]["content"] = friendly_content
                 result["model"] = MODEL_NAME
+                result["evidence_level"] = pkg.get("evidence_level", "unknown")
+                result["citations"] = citations
 
                 # Salvar interação na memória após resposta
                 try:

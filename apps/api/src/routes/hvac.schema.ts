@@ -61,6 +61,20 @@ export const hvacQueryResponseSchema = {
 			type: 'string',
 			description: 'Modelo de linguagem utilizado.',
 		},
+		citations: {
+			type: 'array',
+			description: 'Citações indexadas dos trechos do manual usados na resposta [Manual X, pág Y].',
+			items: {
+				type: 'object',
+				properties: {
+					doc_id: { type: 'string' },
+					heading: { type: 'string' },
+					page_start: { type: ['number', 'null'] },
+					page_end: { type: ['number', 'null'] },
+					doc_type: { type: 'string' },
+				},
+			},
+		},
 	},
 	additionalProperties: false,
 } as const;

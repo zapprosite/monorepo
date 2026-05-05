@@ -58,6 +58,35 @@ SAFETY_TAGS = [
 def estimate_tokens(text: str) -> int:
     return len(text) // TOKEN_ESTIMATE_CHARS
 
+
+def extract_table_header(text: str) -> str:
+    """Extract the header and separator rows from the first markdown table in text.
+
+    Preserves table column context for continuation chunks (Docling Precision).
+    Returns empty string if no valid table header found.
+    """
+    lines = text.split('\n')
+    header_lines = []
+    found_header = False
+    for line in lines:
+        stripped = line.strip()
+        if not found_header:
+            if stripped.startswith('|') and stripped.count('|') >= 2:
+                header_lines.append(line)
+                found_header = True
+        elif found_header and not header_lines[1:]:
+            # Look for separator row (---|---|---)
+            if stripped.startswith('|') and re.match(r'^[\|\s\-:]+$', stripped):
+                header_lines.append(line)
+                break
+            else:
+                # No separator — not a structured table
+                header_lines = []
+                break
+    if len(header_lines) == 2:
+        return '\n'.join(header_lines)
+    return ''
+
 def split_by_headers(text: str) -> list[dict]:
     lines = text.split('\n')
     sections = []
@@ -255,16 +284,29 @@ def chunk_section(section: dict, doc_meta: dict) -> list[dict]:
             'start_line': 0,
             'end_line': len(text.split('\n')),
         }]
+    # Extract table header for context preservation in continuation chunks
+    section_table_header = extract_table_header(text)
     # Split long section
     lines = text.split('\n')
     chunks = []
     current = []
     current_tokens = 0
+    flush_count = [0]
     def flush():
         nonlocal current, current_tokens
         if not current:
             return
         chunk_text = '\n'.join(current)
+        has_table_rows = any(l.strip().startswith('|') for l in current)
+        # Preserve table header in continuation chunks (Docling Precision)
+        if (section_table_header and has_table_rows and flush_count[0] > 0):
+            header_first = section_table_header.split('\n')[0].strip()
+            if header_first not in chunk_text:
+                chunk_text = (
+                    f"[Tabela — cabeçalho de referência]\n{section_table_header}\n"
+                    f"[...continuação...]\n{chunk_text}"
+                )
+        flush_count[0] += 1
         ec = extract_error_codes(chunk_text) or all_initial_codes or doc_meta.get('error_code_candidates', [])
         has_table = any(l.strip().startswith('|') for l in current)
         chunks.append({

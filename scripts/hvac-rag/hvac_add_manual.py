@@ -31,6 +31,7 @@ from hvac_fingerprint import fingerprint as fp_fingerprint, normalize_text
 from hvac_classify_domain import classify as domain_classify
 from hvac_normalize import detect_doc_type, extract_model_candidates
 from hvac_chunk import docling_convert
+from hvac_intake import is_inverter_technology, is_blacklisted
 
 
 # ── helpers ───────────────────────────────────────────────────────────────────
@@ -113,10 +114,20 @@ def doc_type_blacklisted(doc_type: str, policy: dict) -> bool:
     return doc_type in policy.get("blacklist_doc_types", [])
 
 
-def check_inverter(text_lower: str, policy: dict) -> bool:
+def check_inverter(text_lower: str, policy: dict) -> tuple[bool, str | None]:
+    """
+    Validate inverter technology hard-lock.
+
+    Returns (allowed, rejection_reason).
+    On-Off/window/R-22 manuals are always rejected when inverter_required=True.
+    """
     if not policy.get("inverter_required", False):
-        return True
-    return "inverter" in text_lower
+        return True, None
+    if is_blacklisted(text_lower):
+        return False, "technology_blacklisted_on_off_or_non_inverter"
+    if not is_inverter_technology(text_lower):
+        return False, "inverter_signals_absent"
+    return True, None
 
 
 # ── catalog match ─────────────────────────────────────────────────────────────
@@ -259,11 +270,13 @@ def main():
         reject_reason = reason
         reject_source = "policy_filename"
 
-    # 4b: inverter check
+    # 4b: inverter hard-lock (rejects On-Off/window/R-22 manuals)
     if not reject_reason and md_text:
-        if not check_inverter(md_text.lower(), policy):
-            reject_reason = "inverter_required_not_found"
+        inv_ok, inv_reason = check_inverter(md_text.lower(), policy)
+        if not inv_ok:
+            reject_reason = inv_reason or "inverter_required_not_found"
             reject_source = "policy_inverter"
+            print(f"  ❌ Inverter hard-lock: {reject_reason}")
 
     # 4c: policy signal score
     policy_score = 0.0

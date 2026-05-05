@@ -18,12 +18,21 @@ export interface HvacQueryInput {
 	model?: string;
 }
 
+export interface HvacCitation {
+	doc_id: string;
+	heading: string;
+	page_start: number | null;
+	page_end: number | null;
+	doc_type: string;
+}
+
 export interface HvacQueryResult {
 	answer: string;
 	evidence_level: string;
 	source: string;
 	session_id: string;
 	model?: string;
+	citations?: HvacCitation[];
 }
 
 export interface HvacHealthResult {
@@ -95,6 +104,7 @@ export async function callHvacPipe(input: HvacQueryInput): Promise<HvacQueryResu
 		const answer = data.choices?.[0]?.message?.content ?? '';
 		const evidenceLevel = (data as Record<string, unknown>).evidence_level as string | undefined;
 		const isFallback = Boolean(data.fallback);
+		const citations = (data as Record<string, unknown>).citations as HvacCitation[] | undefined;
 
 		return {
 			answer,
@@ -102,6 +112,7 @@ export async function callHvacPipe(input: HvacQueryInput): Promise<HvacQueryResu
 			source: isFallback ? 'fallback' : 'hvac_rag_pipe',
 			session_id: sessionId,
 			model: data.model ?? modelName,
+			citations: citations ?? [],
 		};
 	} finally {
 		clearTimeout(timeout);
