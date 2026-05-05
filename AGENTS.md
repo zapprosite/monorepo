@@ -94,9 +94,11 @@ SPEC.md > AGENTS.md > CLAUDE.md > Código-fonte
 
 ## Leia Primeiro
 
-1. [docs/HOMELAB.md](docs/HOMELAB.md) — referência canônica de infraestrutura
-2. `bash scripts/sre-check.sh ci --json` — contrato local do repo
-3. [docs/SPECS/SPEC-208-nexus-prevc-unified-architecture.md](docs/SPECS/SPEC-208-nexus-prevc-unified-architecture.md) — arquitetura de execução
+1. **[homelab-context/CONTRACT.md](homelab-context/CONTRACT.md)** — 🦍 Contrato de comportamento (obrigatório)
+2. **[homelab-context/README.md](homelab-context/README.md)** — Mapa do homelab
+3. [docs/HOMELAB.md](docs/HOMELAB.md) — referência canônica de infraestrutura
+4. `bash scripts/sre-check.sh ci --json` — contrato local do repo
+5. [docs/SPECS/SPEC-208-nexus-prevc-unified-architecture.md](docs/SPECS/SPEC-208-nexus-prevc-unified-architecture.md) — arquitetura de execução
 
 ---
 
