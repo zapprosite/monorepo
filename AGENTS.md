@@ -21,6 +21,7 @@
 | R5 | **Docs em PT-BR, código em EN.** Variáveis, funções, classes e commits em inglês. UI/texto em português UTF-8. | Biome/CI falha |
 | R6 | **Zero deploy em produção sem smoke test.** | Rollback automático |
 | R7 | **Toda alteração em AGENTS.md, CLAUDE.md ou SPECs exige commit separado** com prefixo `docs:`. | Revert |
+| R8 | **Hermes é tree-only.** Proibido manter `state.db`, `state.json`, ou qualquer arquivo de estado > 1MB fora do monorepo. Ver ADR-001. | PR bloqueado, alerta CSO |
 
 ### 📋 Convenções Obrigatórias
 
@@ -67,6 +68,27 @@ SPEC.md > AGENTS.md > CLAUDE.md > Código-fonte
 4. **Arquivada:** Registro em `docs/ADRs/INFRACTION-NNN.md` se recorrente
 
 > **LEI FUNDAMENTAL:** *Se uma regra não está escrita aqui, ela não existe. Se uma regra está escrita aqui, ela é absoluta.*
+
+---
+
+### 🌳 Hermes Tree-Only (ADR-001)
+
+**Hermes-second-brain é tree-only.** Não é cérebro persistente. Não é daemon. Não é banco de dados.
+
+| Camada | Ferramenta | Estado |
+|--------|-----------|--------|
+| **Contexto imediato** | `scripts/hermes-tree.py` | Zero state, 50ms, morre |
+| **Contexto sessão** | `libs/memory/manager.py` | SQLite no monorepo, recriável |
+| **Contexto longo** | HCE API :8642 | SQLite + Qdrant, versionado |
+| **Memória vetorial** | Qdrant :6333 | Fonte canônica de embeddings |
+
+**Proibido:**
+- `state.db`, `state.json`, `.skills_prompt_snapshot.json` > 1MB
+- Daemons Python > 512MB RAM para "ler contexto"
+- Duplicar `libs/` fora do monorepo
+- Porta 8642 ocupada por não-HCE
+
+**Ver:** [docs/ADRs/ADR-001-hermes-tree-only.md](docs/ADRs/ADR-001-hermes-tree-only.md)
 
 ---
 
