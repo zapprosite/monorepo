@@ -5,6 +5,7 @@ description: Quick ship — commit → push ambos remotes → merge main → tag
 # /turbo — Quick Feature Ship
 
 > Sem PR, sem docs sync. Para ciclo completo usa `/ship`.
+> Codex CLI: carregue `/srv/monorepo/.env` apenas no ambiente do comando; não imprima secrets.
 
 ## Fluxo
 
@@ -27,6 +28,10 @@ git commit -m "feat|fix|chore(scope): descrição"
 
 ### 3. Push ambos remotes
 ```bash
+set -a
+. /srv/monorepo/.env
+set +a
+export GH_TOKEN="${GITHUB_TOKEN:-${GH_TOKEN:-}}"
 BRANCH=$(git branch --show-current)
 git push --force-with-lease gitea "$BRANCH"
 git push --force-with-lease origin "$BRANCH"
