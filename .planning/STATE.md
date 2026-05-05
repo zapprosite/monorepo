@@ -3,18 +3,18 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: planned
-last_updated: "2026-05-05T20:30:00.000Z"
+last_updated: "2026-05-05T22:10:00.000Z"
 progress:
   total_phases: 4
   completed_phases: 2
-  total_plans: 11
-  completed_plans: 6
+  total_plans: 15
+  completed_plans: 7
 ---
 
 # Project State
 
-- Status: Planned
-- Active Phase: 3 (Manual Finder e Aquisição Automática)
+- Status: In Progress
+- Active Phase: 4 (Reconhecimento de Placas e Componentes via Foto)
 - Last Updated: 2026-05-05
 
 ## Phase 1 — Implemented
@@ -40,3 +40,9 @@ progress:
 - Criar finder canônico para transformar lacunas em URLs candidatas de manual
 - Integrar busca web oficial, ranking de fabricante e validação de PDF
 - Conectar download -> intake -> index -> coverage em loop retomável
+
+## Phase 4 — In Progress
+
+- Definir contrato testável para fotos de PCB/componentes em `hvac_vision.py`
+- Corrigir heurística de classificação para não confundir placa com nameplate
+- Enriquecer state update com board type, labels e conectores visíveis

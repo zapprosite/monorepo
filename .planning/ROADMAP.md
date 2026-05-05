@@ -14,6 +14,19 @@
 
 ---
 
+## Phase 4: Reconhecimento de Placas e Componentes via Foto
+
+**Goal:** Tornar a análise visual de fotos de placas/componentes HVAC utilizável no fluxo técnico, com extração estruturada, classificação confiável de PCB e atualização de estado consumível pelo tutor.
+
+**Plans:** 4 plans
+
+- [x] 04-01-PLAN.md — contratos e estado canônico para fotos de PCB/componentes
+- [ ] 04-02-PLAN.md — integração do vision output com memória/contexto de diagnóstico
+- [ ] 04-03-PLAN.md — endpoint/CLI de intake com validação de imagem e hints
+- [ ] 04-04-PLAN.md — smoke tests com fixtures reais e runbook operacional
+
+---
+
 ## Phase 2: Expansão Massiva de Base Inverter BR
 
 **Goal:** Catálogo INMETRO 100% normalizado + orquestrador de pipeline + scraper batch + validação PT-BR + relatório de cobertura enriquecido por marca.

@@ -95,6 +95,8 @@ def classify_image_type(image_base64: str, context_hints: list[str] | None = Non
     # Quick heuristics before sending to model
     if any(p in combined for p in ["display", "seven segment", "7 segmento", "7-seg", "código", "erro", "fault", "alarm", "u4", "e3", "a1"]):
         return ImageType.DISPLAY
+    if any(p in combined for p in ["pcb", "placa inverter", "inverter board", "main board", "control board", "ipm", "connector", "conector", "capacitor", "resistor", "solda", "led"]):
+        return ImageType.PCB
     if any(p in combined for p in ["nameplate", "placa", "etiqueta", "modelo", "serial", "220v", "380v", "btu", "refrigerant"]):
         return ImageType.NAMEPLATE
     if any(p in combined for p in ["warning", "caution", "danger", "alta tens", "perigo", "seguran"]):
@@ -439,6 +441,15 @@ def state_update_from_vision(result: dict) -> dict:
             update["safety_instructions"] = safety
 
     elif img_type == "pcb":
+        board_type = parsed.get("board_type", "")
+        if board_type:
+            update["pcb_board_type"] = board_type
+        component_labels = parsed.get("component_labels", [])
+        if component_labels:
+            update["pcb_component_labels"] = component_labels
+        connector_pins = parsed.get("connector_pins", [])
+        if connector_pins:
+            update["pcb_connector_pins"] = connector_pins
         defects = parsed.get("visible_defects", "")
         if defects:
             update["pcb_visible_defects"] = defects
