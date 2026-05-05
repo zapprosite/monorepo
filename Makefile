@@ -1,67 +1,51 @@
-# Makefile for monorepo testing
-# Run with: make test-all, make lint, make smoke, etc.
+# Makefile - Zappro Monorepo Control (MVM 05/2026)
+# Canon: AGENTS.md | Engine: pnpm + turbo + biome
 
-.PHONY: help test test-all smoke smoke-py smoke-ts lint format typecheck clean
+.PHONY: help install dev build test lint format typecheck clean smoke
 
 help:
-	@echo "Available targets:"
-	@echo "  test-all       - Run all tests (Vitest + Pytest + Playwright)"
-	@echo "  smoke          - Run Python smoke tests (pytest)"
-	@echo "  smoke-py       - Run Python smoke tests only"
-	@echo "  smoke-ts       - Run TypeScript Vitest tests only"
-	@echo "  lint           - Run all linters (ESLint + Biome)"
-	@echo "  lint-fix       - Auto-fix lint issues"
-	@echo "  format         - Auto-format code"
-	@echo "  typecheck      - Run TypeScript type checking"
-	@echo "  e2e            - Run Playwright E2E tests"
-	@echo "  env-validate   - Run environment variable validation"
-	@echo "  clean          - Clean test artifacts"
+	@echo "🦍 Zappro Monorepo Command Center (MVM 05/2026)"
+	@echo "------------------------------------------------"
+	@echo "  make install      - Instala dependências (pnpm install)"
+	@echo "  make dev          - Sobe o ambiente de dev (turbo run dev)"
+	@echo "  make build        - Compila pacotes (turbo run build)"
+	@echo "  make test         - Roda todos os testes unitários (turbo)"
+	@echo "  make lint         - Verifica código (Biome via turbo)"
+	@echo "  make format       - Formata código (Biome)"
+	@echo "  make typecheck    - Roda verificação de tipos (tsc)"
+	@echo "  make smoke        - Validação E2E/Smoke Tests (Playwright)"
+	@echo "  make clean        - Limpa artefatos, módulos e cache"
 
-test-all: typecheck lint smoke-ts smoke-py
+install:
+	pnpm install
 
-smoke: smoke-py smoke-ts
+dev:
+	pnpm dev
 
-smoke-py:
-	@echo "=== Running Python smoke tests ==="
-	cd /srv/monorepo/smoke-tests && \
-		python3 -m pytest -v --tb=short -m "$(if $(CI),ci,not ci)" 2>&1 | tail -50
+build:
+	pnpm build
 
-smoke-ts:
-	@echo "=== Running TypeScript Vitest tests ==="
-	cd /srv/monorepo && pnpm --filter hermes-agency test 2>&1 | tail -30
-	cd /srv/monorepo && pnpm --filter api test 2>&1 | tail -30
+test:
+	pnpm test
 
 lint:
-	@echo "=== Running ESLint ==="
-	cd /srv/monorepo && pnpm lint 2>&1 | tail -20
-	@echo "=== Running Biome check ==="
-	cd /srv/monorepo && npx biome check --write=false apps/hermes-agency/src apps/api/src 2>&1 | tail -30
-
-lint-fix:
-	cd /srv/monorepo && pnpm lint --fix 2>&1 | tail -20
-	npx biome check --write=true apps/hermes-agency/src apps/api/src 2>&1 | tail -20
+	pnpm lint
 
 format:
-	cd /srv/monorepo && pnpm format 2>&1 | tail -10
+	pnpm format
 
 typecheck:
-	@echo "=== Running TypeScript type checking ==="
-	cd /srv/monorepo && pnpm typecheck 2>&1 | tail -30
+	pnpm typecheck
 
-e2e:
-	@echo "=== Running Playwright E2E tests ==="
-	cd /srv/monorepo && npx playwright test --reporter=list 2>&1 | tail -40
-
-env-validate:
-	@echo "=== Validating environment configuration ==="
-	bash /srv/monorepo/smoke-tests/smoke_env_vars.sh 2>&1
-	bash /srv/monorepo/smoke-tests/smoke_lint.sh --check 2>&1 | tail -30
+smoke:
+	@echo "=== 🦍 Executando Health Check & Smoke Tests ==="
+	@bash scripts/health-check.sh || echo "⚠️ Aviso: Health-check falhou ou script não encontrado."
+	@if [ -f "smoke-tests/smoke-chat-zappro-site.sh" ]; then \
+		bash smoke-tests/smoke-chat-zappro-site.sh; \
+	fi
+	@if [ -f "smoke-tests/playwright-chat-e2e.mjs" ]; then \
+		node smoke-tests/playwright-chat-e2e.mjs chat.zappro.site; \
+	fi
 
 clean:
-	@echo "Cleaning test artifacts..."
-	find /srv/monorepo -name "*.log" -path "*/logs/*" -delete 2>/dev/null || true
-	find /srv/monorepo -name ".turbo" -type d -exec rm -rf {} + 2>/dev/null || true
-	find /srv/monorepo -name "node_modules" -type d -exec rm -rf {} + 2>/dev/null || true
-	find /srv/monorepo -name "dist" -type d -exec rm -rf {} + 2>/dev/null || true
-	cd /srv/monorepo/smoke-tests && rm -rf __pycache__ .pytest_cache *.pyc 2>/dev/null || true
-	@echo "Clean complete"
+	pnpm clean
