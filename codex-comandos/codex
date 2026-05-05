@@ -1,0 +1,146 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+CMD="${1:-ajuda}"
+ARG="${2:-}"
+
+print_header() {
+  cat <<'EOF'
+Cole no Codex CLI:
+
+EOF
+}
+
+case "$CMD" in
+  iniciar)
+    print_header
+    cat <<'EOF'
+Você está em /srv/monorepo.
+
+Use as skills nexus-router, gsd-global, gorila-mode e homelab-context.
+
+Leia AGENTS.md e faça o bootstrap obrigatório do homelab:
+- homelab-context/.rules
+- homelab-context/CONTRACT.md
+- homelab-context/README.md
+- homelab-context/TREE.md
+- homelab-context/PORTS.md
+- homelab-context/SERVICES.md
+- homelab-context/GATEWAYS.md
+
+Depois rode:
+- which nexus
+- nexus status
+- node /home/will/.claude/get-shit-done/bin/gsd-tools.cjs progress --cwd "$PWD" --raw
+- git status --short
+
+Mostre o status em PT-BR e diga qual é o próximo plano GSD incompleto. Não edite arquivos ainda.
+EOF
+    ;;
+
+  status)
+    print_header
+    cat <<'EOF'
+Use as skills nexus-router, gsd-global, gorila-mode e homelab-context.
+
+Mostre o status atual sem alterar arquivos:
+- nexus status
+- node /home/will/.claude/get-shit-done/bin/gsd-tools.cjs progress --cwd "$PWD" --raw
+- git status --short
+- git log --oneline --max-count=5
+
+Responda em PT-BR, curto, com:
+- fase atual
+- próximo plano incompleto
+- branch atual
+- se há pendências no worktree
+EOF
+    ;;
+
+  proximo)
+    print_header
+    cat <<'EOF'
+Use as skills nexus-router, gsd-global, gorila-mode e homelab-context.
+
+Execute apenas o próximo plano GSD incompleto em .planning.
+
+Regras:
+- Use .planning como fonte de verdade.
+- Antes de mudança ampla, rode nexus classify com o plano alvo.
+- Edite arquivos reais.
+- Rode testes focados.
+- Faça commit atômico com scripts/aider-tree.sh no corpo.
+- Não faça merge.
+- Não exponha secrets.
+
+No final, informe em PT-BR:
+- arquivos alterados
+- testes rodados
+- commit criado
+- próximo passo
+EOF
+    ;;
+
+  fase)
+    if [[ -z "$ARG" ]]; then
+      echo "Uso: ./codex-comandos/codex fase 3" >&2
+      exit 1
+    fi
+    print_header
+    cat <<EOF
+Use as skills nexus-router, gsd-global, gorila-mode e homelab-context.
+
+Execute GSD autonomous a partir da fase ${ARG}, usando .planning como fonte de verdade.
+
+Antes de editar:
+- rode node /home/will/.claude/get-shit-done/bin/gsd-tools.cjs phase-plan-index phase${ARG} --cwd "\$PWD" --raw
+- rode nexus classify "execute GSD phase ${ARG}" -f .planning/phases/phase${ARG}/0${ARG}-01-PLAN.md se o arquivo existir
+
+Execute um plano por vez, com testes e commit atômico.
+Não faça merge.
+Não exponha secrets.
+EOF
+    ;;
+
+  ship)
+    print_header
+    cat <<'EOF'
+Use as skills nexus-router, gsd-global, gorila-mode e homelab-context.
+
+Faça o /ship no padrão deste repo:
+- rode testes relevantes
+- rode git status --short
+- carregue /srv/monorepo/.env sem imprimir secrets
+- exporte GH_TOKEN="$GITHUB_TOKEN"
+- valide gh auth status
+- faça commit atômico se houver mudanças
+- push para gitea e origin
+- crie ou atualize PR no GitHub
+
+Não faça merge na main.
+Se algum check falhar, pare e informe o bloqueio.
+EOF
+    ;;
+
+  ajuda|--help|-h)
+    cat <<EOF
+Codex comandos do monorepo
+
+Uso:
+  ./codex-comandos/codex iniciar
+  ./codex-comandos/codex status
+  ./codex-comandos/codex proximo
+  ./codex-comandos/codex fase 3
+  ./codex-comandos/codex ship
+
+Este script imprime prompts em PT-BR para colar no Codex CLI.
+EOF
+    ;;
+
+  *)
+    echo "Comando desconhecido: $CMD" >&2
+    echo "Use: ./codex-comandos/codex ajuda" >&2
+    exit 1
+    ;;
+esac
