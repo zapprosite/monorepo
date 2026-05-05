@@ -34,6 +34,11 @@ const contractsCrud = createCrudRouter({
 	maxListLimit: CONTRACTS_MAX_LIMIT,
 	defaultOrder: { dataInicio: 'DESC' },
 	hooks: {
+		buildGetByIdQuery: (query: any, _input: any, ctx: any) => {
+			return query
+				.innerJoin('clients', 'contracts.clienteId', 'clients.clientId')
+				.where('clients.teamId', ctx.user.teamId);
+		},
 		buildListQuery: (query: any, input: any, ctx: any) => {
 			query = query
 				// @ts-ignore TS2339 innerJoin not in type but exists at runtime
