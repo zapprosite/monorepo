@@ -8,6 +8,8 @@ import {
 } from '@repo/zod-schemas/journal_entry.zod';
 import { TRPCError } from '@trpc/server';
 
+// Legacy by design: owner-scoped getAll/delete and the no-input getAll contract keep this router
+// out of createCrudRouter until the factory grows first-class owner scoping without API churn.
 export const journalEntriesRouterTrpc = trpcRouter({
 	getAll: protectedProcedure.query(
 		async ({
