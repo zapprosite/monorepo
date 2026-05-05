@@ -1,28 +1,49 @@
 import { db } from '@backend/db/db';
-import { protectedProcedure, trpcRouter } from '@backend/trpc';
+import { createCrudRouter } from '@backend/lib/crud-router.factory';
+import { trpcRouter } from '@backend/trpc';
 import {
 	emailCampaignCreateZod,
 	emailCampaignListZod,
+	emailCampaignUpdateZod,
 } from '@repo/zod-schemas/email.zod';
+import { z } from 'zod';
 
-// @ts-ignore TS2742 — pqb internal type inference not portable
-export const emailRouter = trpcRouter({
-	listCampaigns: protectedProcedure.input(emailCampaignListZod).query(async ({ input, ctx }) => {
-		const { userId } = ctx.user;
-		let query = db.emailCampaigns.where({ usuarioCriacaoId: userId }).select('*');
-		if (input.status) query = query.where({ statusCampanha: input.status });
-		if (input.tipo) query = query.where({ tipoCampanha: input.tipo });
-		const rows = await query.order({ createdAt: 'DESC' }).limit(input.limit).offset(input.offset);
-		return { data: rows };
-	}),
+const EMAIL_MAX_LIMIT = 100;
 
-	createCampaign: protectedProcedure
-		.input(emailCampaignCreateZod)
-		.mutation(async ({ ctx, input }) => {
-			const { userId } = ctx.user;
-			return db.emailCampaigns.create({
-				...input,
-				usuarioCriacaoId: userId,
-			});
+const emailCampaignIdZod = z.object({
+	id: z.string().uuid(),
+});
+
+const emailCampaignCrud = createCrudRouter({
+	table: db.emailCampaigns,
+	schemas: {
+		list: emailCampaignListZod,
+		create: emailCampaignCreateZod,
+		update: emailCampaignUpdateZod.extend(emailCampaignIdZod.shape),
+		delete: emailCampaignIdZod,
+		getById: emailCampaignIdZod,
+	},
+	idColumn: 'id',
+	maxListLimit: EMAIL_MAX_LIMIT,
+	defaultOrder: { createdAt: 'DESC' },
+	hooks: {
+		transformListInput: (input: any) => ({
+			statusCampanha: input.status,
+			tipoCampanha: input.tipo,
 		}),
+		buildListQuery: (query: any, _input: any, ctx: any) =>
+			query.where({ usuarioCriacaoId: ctx.user.userId }),
+		buildGetByIdQuery: (query: any, _input: any, ctx: any) =>
+			query.where({ usuarioCriacaoId: ctx.user.userId }),
+		transformCreateInput: (input: any, ctx: any) => ({
+			...input,
+			usuarioCriacaoId: ctx.user.userId,
+		}),
+		transformListResult: (items: any[]) => ({ data: items }),
+	},
+});
+
+export const emailRouter = trpcRouter({
+	listCampaigns: emailCampaignCrud.list,
+	createCampaign: emailCampaignCrud.create,
 });

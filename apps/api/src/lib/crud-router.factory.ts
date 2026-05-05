@@ -12,6 +12,8 @@ export interface CrudSchemas {
 }
 
 export interface CrudFactoryHooks {
+	/** Normalize or remap list input before generic filters are applied */
+	transformListInput?: (input: any, ctx: TrpcContext) => any;
 	/** Mutate or replace the list query before execution */
 	buildListQuery?: (query: any, input: any, ctx: TrpcContext) => any;
 	/** Mutate or replace the getById query before execution */
@@ -83,7 +85,8 @@ export function createCrudRouter(config: CrudFactoryConfig) {
 
 	return {
 		list: protectedProcedure.input(schemas.list).query(async ({ ctx, input: _input }) => {
-			const input = _input as Record<string, any>;
+			const rawInput = _input as Record<string, any>;
+			const input = hooks?.transformListInput ? hooks.transformListInput(rawInput, ctx) : rawInput;
 			let query: any = table.select('*');
 
 			// Apply simple equality filters from input (skip pagination/meta keys)

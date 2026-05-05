@@ -8,6 +8,7 @@ import {
 	editorialGetByIdZod,
 	listEditorialFilterZod,
 } from '@repo/zod-schemas/editorial.zod';
+import { z } from 'zod';
 
 /* -------------------------------------------------------------------------- */
 /*  Mock OrchidORM table builder                                               */
@@ -223,6 +224,35 @@ describe('createCrudRouter factory', () => {
 			const queryAfterSelect = mockTable.select.mock.results[0].value;
 			expect(queryAfterSelect.order).toHaveBeenCalledWith({ dataPublicacao: 'ASC' });
 			expect(queryAfterSelect.limit).toHaveBeenCalledWith(500);
+		});
+
+		it('applies transformListInput before generic equality filters', async () => {
+			const mappedTable = createMockTable();
+			const mappedRouter = trpcRouter({
+				...createCrudRouter({
+					table: mappedTable,
+					schemas: {
+						list: z.object({ statusAlias: z.string().optional() }),
+						create: editorialCreateInputZod,
+						update: editorialUpdateInputZod,
+						delete: editorialGetByIdZod,
+						getById: editorialGetByIdZod,
+					},
+					idColumn: 'editorialId',
+					hooks: {
+						transformListInput: (input: any) => ({
+							status: input.statusAlias,
+						}),
+					},
+				}),
+			});
+			const mappedCaller = createCallerFactory(mappedRouter)(authCtxWithTeam);
+
+			mappedTable._setListResult([]);
+			await mappedCaller.list({ statusAlias: 'Ideia' });
+
+			const queryAfterSelect = mappedTable.select.mock.results[0].value;
+			expect(queryAfterSelect.where).toHaveBeenCalledWith({ status: 'Ideia' });
 		});
 	});
 
