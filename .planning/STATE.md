@@ -2,19 +2,19 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: unknown
-last_updated: "2026-05-05T18:50:03.232Z"
+status: complete
+last_updated: "2026-05-05T19:55:00.000Z"
 progress:
-  total_phases: 1
-  completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
+  total_phases: 2
+  completed_phases: 2
+  total_plans: 6
+  completed_plans: 6
 ---
 
 # Project State
 
-- Status: In Progress
-- Active Phase: 1 (Arquitetura de Fidelidade)
+- Status: Complete
+- Active Phase: 2 (Expansão Massiva de Base Inverter BR)
 - Last Updated: 2026-05-05
 
 ## Phase 1 — Implemented
@@ -25,3 +25,11 @@ progress:
 - Cross-Check Agent: hvac_crosscheck.py (Nexus Analytical) criado e integrado
 - PDF Page Numbers: build_rag_context inclui Pág: N em cada trecho
 - Citação Indexada: format_citations + campo citations na resposta da API
+
+## Phase 2 — Implemented
+
+- Test scaffolds: contratos de catálogo, scraper, intake PT-BR, checkpoint, coverage e pending review
+- Normalization bridge: `hvac_normalize_document.py`
+- PT-BR gate: validação de idioma no intake e pending_review.jsonl
+- Coverage report: `generate_coverage_table()` e `--output-coverage`
+- Expansion pipeline: `hvac_expansion_pipeline.py` com checkpoint, dry-run e report-only
