@@ -18,29 +18,32 @@ export class ServiceOrderTable extends BaseTable {
 		clienteId: t.uuid().foreignKey('clients', 'clientId', {
 			onUpdate: 'RESTRICT',
 			onDelete: 'RESTRICT',
-		}),
+		}).index(),
 		scheduleId: t
 			.uuid()
 			.foreignKey('schedules', 'scheduleId', {
 				onUpdate: 'RESTRICT',
 				onDelete: 'SET NULL',
 			})
-			.nullable(),
+			.nullable()
+			.index(),
 		unitId: t
 			.uuid()
 			.foreignKey('units', 'unitId', {
 				onUpdate: 'RESTRICT',
 				onDelete: 'SET NULL',
 			})
-			.nullable(),
+			.nullable()
+			.index(),
 		equipmentId: t
 			.uuid()
 			.foreignKey('equipment', 'equipmentId', {
 				onUpdate: 'RESTRICT',
 				onDelete: 'SET NULL',
 			})
-			.nullable(),
-		tecnicoId: t.uuid().nullable(),
+			.nullable()
+			.index(),
+		tecnicoId: t.uuid().nullable().index(),
 		tipo: t.enum('crm_service_type_enum', SERVICE_TYPE_ENUM),
 		status: t.enum('crm_service_order_status_enum', SERVICE_ORDER_STATUS_ENUM),
 		dataAbertura: t.timestamp(),

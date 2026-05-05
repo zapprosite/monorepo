@@ -10,14 +10,15 @@ export class EquipmentTable extends BaseTable {
 		clienteId: t.uuid().foreignKey('clients', 'clientId', {
 			onUpdate: 'RESTRICT',
 			onDelete: 'RESTRICT',
-		}),
+		}).index(),
 		unitId: t
 			.uuid()
 			.foreignKey('units', 'unitId', {
 				onUpdate: 'RESTRICT',
 				onDelete: 'SET NULL',
 			})
-			.nullable(),
+			.nullable()
+			.index(),
 		nome: t.string(255),
 		tipo: t.string(100),
 		status: t.enum('crm_equipment_status_enum', EQUIPMENT_STATUS_ENUM),

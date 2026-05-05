@@ -14,7 +14,7 @@ export class ContractsTable extends BaseTable {
 		clienteId: t.uuid().foreignKey('clients', 'clientId', {
 			onUpdate: 'RESTRICT',
 			onDelete: 'RESTRICT',
-		}),
+		}).index(),
 		tipo: t.enum('crm_contract_type_enum', CONTRACT_TYPE_ENUM),
 		status: t.enum('crm_contract_status_enum', CONTRACT_STATUS_ENUM),
 		dataInicio: t.date(),

@@ -7,13 +7,13 @@ export class ClientsTable extends BaseTable {
 	// @ts-ignore TS2742 — pqb internal type inference not portable
 	columns = this.setColumns((t) => ({
 		clientId: t.uuid().primaryKey().default(t.sql`gen_random_uuid()`),
-		teamId: t.uuid(), // IDOR fix: team isolation
+		teamId: t.uuid().index(), // IDOR fix: team isolation
 		nome: t.string(255),
 		tipo: t.enum('crm_client_type_enum', CLIENT_TYPE_ENUM),
 		email: t.string().nullable(),
 		telefone: t.string(30).nullable(),
 		cpfCnpj: t.string(18).nullable(),
-		responsavelId: t.uuid().nullable(),
+		responsavelId: t.uuid().nullable().index(),
 		tags: t.array(t.string()).nullable(),
 		ativo: t.boolean().default(true),
 		...t.timestamps(),

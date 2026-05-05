@@ -144,37 +144,36 @@ export const equipmentRouterTrpc = trpcRouter({
 
 	listEquipmentForRg: protectedProcedure.query(async ({ ctx }) => {
 		const equipment = await db.equipment
-			.select('*')
 			// @ts-ignore TS2339 innerJoin not in type but exists at runtime
 			.innerJoin('clients', 'equipment.clienteId', 'clients.clientId')
 			.where('clients.teamId', ctx.user.teamId)
 			.where({ ativo: true })
+			.where({ sequenceNumber: { not: null } })
 			.order({ sequenceNumber: 'ASC' });
 
-		return equipment.filter((e: any) => e.sequenceNumber !== null);
+		return equipment;
 	}),
 
 	assignRgNumber: protectedProcedure
 		.input(z.object({ equipmentId: z.string().uuid() }))
 		.mutation(async ({ ctx, input }) => {
 			const { teamId } = ctx.user;
-			await assertEquipmentTeamAccess(input.equipmentId, teamId);
+			return db.$transaction(async () => {
+				await assertEquipmentTeamAccess(input.equipmentId, teamId);
 
-			const allEquipment = await db.equipment
-				.select('sequenceNumber')
-				// @ts-ignore TS2339 innerJoin not in type but exists at runtime
-				.innerJoin('clients', 'equipment.clienteId', 'clients.clientId')
-				.where('clients.teamId', teamId);
+				// Atomic: find max sequenceNumber + 1 within team, using DB lock
+				const maxRow = await db.equipment
+					.select('sequenceNumber')
+					// @ts-ignore TS2339 innerJoin not in type but exists at runtime
+					.innerJoin('clients', 'equipment.clienteId', 'clients.clientId')
+					.where('clients.teamId', teamId)
+					.where({ sequenceNumber: { not: null } })
+					.order({ sequenceNumber: 'DESC' })
+					.take();
 
-			const usedNumbers = allEquipment
-				.map((e: any) => e.sequenceNumber)
-				.filter((n: any) => n !== null) as number[];
+				const nextNumber = (maxRow?.sequenceNumber ?? 0) + 1;
 
-			let nextNumber = 1;
-			while (usedNumbers.includes(nextNumber)) {
-				nextNumber++;
-			}
-
-			return db.equipment.find(input.equipmentId).update({ sequenceNumber: nextNumber });
+				return db.equipment.find(input.equipmentId).update({ sequenceNumber: nextNumber });
+			});
 		}),
 });

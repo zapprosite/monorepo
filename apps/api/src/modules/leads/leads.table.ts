@@ -13,9 +13,9 @@ export class LeadsTable extends BaseTable {
 		origem: t.enum('crm_lead_source_enum', LEAD_SOURCE_ENUM),
 		canal: t.string(100).nullable(),
 		status: t.enum('crm_lead_status_enum', LEAD_STATUS_ENUM),
-		responsavelId: t.uuid().nullable(),
+		responsavelId: t.uuid().nullable().index(),
 		observacoes: t.text().nullable(),
-		teamId: t.uuid(), // IDOR fix: team isolation
+		teamId: t.uuid().index(), // IDOR fix: team isolation
 		convertidoClienteId: t.uuid().nullable(),
 		...t.timestamps(),
 	}));
