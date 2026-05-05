@@ -35,7 +35,7 @@
 │   ├── GUIDES/                  # Operational how-to guides
 │   └── OPS/                     # Operations runbooks
 ├── scripts/                     # Operational automation
-│   ├── sync-second-brain.sh    # Sync to hermes-second-brain
+│   ├── hermes-tree.py          # Generate repo tree (HCE v2.1, zero state)
 │   ├── generate-tree.sh        # Generate monorepo-TREE.md
 │   └── prune-docs.sh           # Prune dead SPECs
 ├── tasks/                       # TaskMaster pipeline
@@ -142,7 +142,7 @@
 | Hermes Gateway | Agent (bare metal) | Ubuntu Desktop | 3001 | Operational |
 | Hermes MCP | MCP Server (bare metal) | Ubuntu Desktop | 8092 | Operational |
 | Telegram Bot | Polling | — | — | `@CEO_REFRIMIX_bot` |
-| Hermes Second Brain | Vault | Gitea | — | `hermes-second-brain` |
+| HCE v2.1 | API | localhost | 8642 | `hce` |
 
 ### Hermes Environment Variables
 
@@ -236,11 +236,11 @@ bash smoke-tests/smoke-env-secrets-validate.sh
 # Sync monorepo structure to second-brain
 bash scripts/sync-second-brain.sh
 
-# Boot second brain context
-bash ~/.hermes/scripts/sb-boot.sh
+# Boot HCE context
+python3 scripts/hermes-tree.py /srv/monorepo --depth 2
 
-# Pull latest second-brain
-cd /tmp/hermes-second-brain && git pull origin main
+# Health check HCE
+curl -sf http://localhost:8642/health
 ```
 
 ### 6.4 Docker / Coolify

@@ -10,7 +10,7 @@
 #     -e POSTGRES_DB=hvac_kb \
 #     -e POSTGRES_USER=litellm \
 #     -e POSTGRES_PASSWORD=litellm_pass_2026 \
-#     -e QDRANT_URL=http://hermes-second-brain-qdrant-1:6333 \
+#     -e QDRANT_URL=http://qdrant:6333 \
 #     -e QDRANT_API_KEY=<key> \
 #     -v /srv/monorepo/scripts/hvac-rag:/scripts \
 #     python:3.12-slim bash -c "pip install psycopg2-binary qdrant-client -q && cd /scripts && python3 seed-willrefrimix-daikin-vrv-u4-vee.py"

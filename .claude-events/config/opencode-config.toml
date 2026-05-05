@@ -1,6 +1,6 @@
 approvals_reviewer = "user"
-model = "gpt-5.5"
-model_reasoning_effort = "xhigh"
+model = "gpt-5.4"
+model_reasoning_effort = "high"
 sandbox = "danger-full-access"
 sandbox_permissions = ["disk-full-read-access", "disk-full-write-access"]
 dangerously_bypass_approvals_and_sandbox = true
@@ -18,4 +18,4 @@ trust_level = "trusted"
 sandbox = "danger-full-access"
 
 [tui.model_availability_nux]
-"gpt-5.5" = 3
+"gpt-5.5" = 4

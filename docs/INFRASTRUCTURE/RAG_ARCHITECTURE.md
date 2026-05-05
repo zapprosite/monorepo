@@ -112,7 +112,7 @@ User query
 ```bash
 # Reindexar second-brain (com chunking)
 python3 /srv/monorepo/scripts/haystack-rag-pipeline.py \
-  --index /srv/hermes-second-brain/ --recreate
+  --index /srv/monorepo/ --recreate
 
 # Query única
 python3 /srv/monorepo/scripts/haystack-rag-pipeline.py \

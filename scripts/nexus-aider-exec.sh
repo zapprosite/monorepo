@@ -23,9 +23,8 @@
 set -euo pipefail
 
 MONOREPO="${MONOREPO:-/srv/monorepo}"
-HERMES_DIR="${HERMES_DIR:-/srv/hermes-second-brain}"
-VENV_PY="${HERMES_DIR}/venv/bin/python3"
-REPO_MAP_SCRIPT="${HERMES_DIR}/libs/nexus_repo_map.py"
+VENV_PY="python3"
+REPO_MAP_SCRIPT="${MONOREPO}/scripts/nexus_repo_map.py"
 CONTEXT_WRAP="${MONOREPO}/scripts/nexus-context-wrap.sh"
 CLAUDE="claude"
 TMP_DIR="/tmp/nexus-aider"
@@ -235,9 +234,9 @@ main() {
     task_files=$(echo "$task" | jq -c '.files // []')
     test_cmd=$(echo "$task" | jq -r '.test_cmd // "echo no-tests"')
     commit_msg=$(echo "$task" | jq -r '.commit_msg // "chore: automated task"')
-    scope=$(jq -r '.hermes.scope // ""' "$pipeline_json" 2>/dev/null || echo "")
+    scope=$(jq -r '.hce.scope // ""' "$pipeline_json" 2>/dev/null || echo "")
     max_iter=$(jq -r '.limits.max_iterations // "5"' "$pipeline_json" 2>/dev/null || echo "5")
-    agent=$(jq -r '.hermes.agent // "implementer"' "$pipeline_json" 2>/dev/null || echo "implementer")
+    agent=$(jq -r '.hce.agent // "implementer"' "$pipeline_json" 2>/dev/null || echo "implementer")
 
     echo -e "${CYAN}━━━ Nexus Aider Executor ━━━${NC}"
     echo -e "  Task:     ${CYAN}$task_id${NC} — ${task_desc:0:80}..."

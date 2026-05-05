@@ -81,7 +81,7 @@ from mem0 import MemoryClient
 client = MemoryClient()
 
 session_id = "nexus-session-2026-04-28"
-user_id = "hermes-second-brain"
+user_id = "hce-v2.1"
 
 memory_entry = {
     "task_id": "E-042",

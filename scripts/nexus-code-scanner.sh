@@ -175,7 +175,7 @@ Return a JSON report:
 Focus on actionable findings. Check:
 - /srv/monorepo for the monorepo
 - /srv/ops for infrastructure
-- /srv/hermes-second-brain for knowledge management"
+- /srv/monorepo/docs/ for knowledge and specs"
 
   # Run Claude in print mode
   local result

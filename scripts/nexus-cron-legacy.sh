@@ -20,7 +20,7 @@
 # TARGET REPOS:
 #   - /srv/monorepo
 #   - /srv/ops
-#   - /srv/hermes-second-brain
+#   - /srv/monorepo/services
 # =============================================================================
 
 set -uo pipefail
@@ -39,7 +39,7 @@ ALERT_SCRIPT="${MONOREPO}/scripts/nexus-alert.sh"
 REPOS=(
   "/srv/monorepo"
   "/srv/ops"
-  "/srv/hermes-second-brain"
+  "/srv/monorepo/services"
 )
 
 # Detection thresholds

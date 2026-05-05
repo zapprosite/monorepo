@@ -65,8 +65,8 @@
 ### Deliverables
 | ID | Deliverable | Status |
 |----|-------------|--------|
-| M01 | ~/Desktop/hermes-second-brain/TREE.md | ✅ Created |
-| M02 | ~/Desktop/hermes-second-brain/ | ✅ Populated |
+| M01 | scripts/hermes-tree.py | ✅ Created |
+| M02 | HCE v2.1 tree-only | ✅ Active |
 | M03 | Index 19 SPECs into Qdrant second-brain | ✅ 19 points |
 | M04 | Index 60 skills into Qdrant second-brain | ✅ 60 points |
 | M05 | SPEC-3LAYER-MEMORY.md | ✅ docs/SPECs/ |
@@ -76,7 +76,7 @@
 ### Tasks
 | ID | Task | Est |
 |----|------|-----|
-| M01 | Create ~/Desktop/hermes-second-brain/TREE.md | ✅ 15min |
+| M01 | Create scripts/hermes-tree.py | ✅ 15min |
 | M02 | Index monorepo docs into Qdrant | ✅ 20min |
 | M03 | Index skills into Qdrant | ✅ 15min |
 | M04 | Create second-brain backup cron | ⚠️ pending (use brain-backup skill) |

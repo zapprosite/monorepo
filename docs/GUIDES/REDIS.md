@@ -72,11 +72,11 @@ Two separate systems share the Qdrant instance, each with distinct collection na
 
 | Prefix/Namespace | Owner | Collections |
 |-----------------|-------|-------------|
-| `will` | Mem0 (hermes-second-brain) | Single collection for semantic memory |
+| `will` | Mem0 (HCE v2.1) | Single collection for semantic memory |
 
 ### Mem0 Collection (will)
 
-Defined via `QDRANT_COLLECTION=will` / `MEM0_QDRANT_COLLECTION=will` in `.env` — used by hermes-second-brain for persistent agent memory.
+Defined via `QDRANT_COLLECTION=will` / `MEM0_QDRANT_COLLECTION=will` in `.env` — used by HCE v2.1 for persistent agent memory.
 
 ## Anti-patterns to Avoid
 

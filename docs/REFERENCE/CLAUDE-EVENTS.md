@@ -408,4 +408,4 @@ O sistema de eventos é o **bridge de comunicação** entre o ambiente host e o 
 | `docs/REFERENCE/NEXUS-SECOND-BRAIN-FLOW.md` | Integração Nexus ↔ Hermes Second Brain |
 | `docs/REFERENCE/WORKFLOW.md` | Workflows disponíveis (ship, turbo, spec) |
 | `.claude-events/README.md` | Documentação técnica completa do sistema |
-| `hermes-second-brain/SOUL.md` | Princípios de segurança do Second Brain |
+| `docs/ADRs/ADR-001-hermes-tree-only.md` | Princípios de segurança do HCE (tree-only) |

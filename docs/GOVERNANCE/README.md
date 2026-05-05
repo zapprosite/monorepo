@@ -26,7 +26,7 @@ cat /srv/monorepo/AGENTS.md | tail -200
 ### 2. Second Brain TREE (Estrutura de Conhecimento)
 
 ```bash
-cat ~/Desktop/hermes-second-brain/TREE.md 2>/dev/null || ls ~/Desktop/hermes-second-brain/
+python3 scripts/hermes-tree.py /srv/monorepo --depth 2
 ```
 
 **Purpose:** Mapeia estrutura de conhecimento cross-project.
@@ -60,7 +60,7 @@ cat ~/Desktop/SYSTEM_ARCHITECTURE.md 2>/dev/null
 | Projeto | Path | Tipo | Stack |
 |---------|------|------|-------|
 | **Monorepo** | `/srv/monorepo` | pnpm workspaces + Fastify/tRPC | TypeScript, Biome |
-| **Second Brain** | `~/Desktop/hermes-second-brain` | Obsidian-style vault | Markdown, Git |
+| **HCE** | `/srv/monorepo` | HCE v2.1 tree-only | Python, FastAPI |
 | **Hermes Agent** | `~/.hermes/hermes-agent` | Python asyncio | Claude Code, MCP |
 | **OPS Scripts** | `/srv/ops/scripts` | Bash + Terraform | Docker, ZFS |
 

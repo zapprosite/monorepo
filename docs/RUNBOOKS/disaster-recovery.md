@@ -71,7 +71,7 @@ cd /srv/monorepo
 # Containers via compose
 docker compose -f /srv/ops/gitea/docker-compose.yml up -d
 docker compose -f /srv/edge-tts/docker-compose.yml up -d
-docker compose -f /srv/hermes-second-brain/docker-compose.yml up -d
+docker compose -f /srv/monorepo/services/docker-compose.yml up -d
 
 # Monorepo compose files
 for f in deployments/docker-compose.*.yml; do

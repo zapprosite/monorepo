@@ -18,7 +18,7 @@
 			"!**/coverage",
 			"!**/.dev",
 			"!**/hermes",
-			"!**/hermes-second-brain",
+			"!**/monorepo",
 			"!**/ops",
 			"!**/edge-tts",
 			"!**/archive",

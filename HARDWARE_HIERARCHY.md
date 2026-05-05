@@ -163,7 +163,7 @@ This summary is not a replacement for [ops/ai-governance/PORTS.md](ops/ai-govern
 ```
 monorepo/
 ├── ops/                    -> /srv/ops
-├── hermes-second-brain/    -> /srv/hermes-second-brain
+├── hce/                    -> /srv/monorepo/services (HCE v2.1 tree-only)
 ├── hermes/                 -> ~/.hermes
 ├── fit-tracker/            -> /srv/fit-tracker-v2
 ├── hvacr-swarm/            -> /srv/hvacr-swarm

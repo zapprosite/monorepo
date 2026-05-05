@@ -33,7 +33,7 @@ COMPOSE_DIRS=(
   "/srv/ops/stacks/autoheal"
   "/srv/ops/stacks/guardrail"
   "/srv/edge-tts"
-  "/srv/hermes-second-brain"
+  "/srv/monorepo/services"
 )
 
 echo "1. Service validation by compose dir"

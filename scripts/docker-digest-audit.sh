@@ -22,7 +22,7 @@ SEARCH_PATHS=(
   "/srv/monorepo"
   "/srv/ops"
   "/srv/edge-tts"
-  "/srv/hermes-second-brain"
+  "/srv/monorepo/services"
 )
 
 usage() {

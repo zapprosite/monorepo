@@ -14,7 +14,7 @@
 #   /srv/ops/stacks/              — ops service stacks
 #   /srv/ops/gitea/               — Gitea
 #   /srv/edge-tts/                — Edge TTS
-#   /srv/hermes-second-brain/     — Hermes second brain
+#   /srv/monorepo/services/       — HCE v2.1 tree-only
 #
 # SPEC-210 2026-05-03
 # =============================================================================
@@ -33,7 +33,6 @@ include:
 
   # ── Edge Services ────────────────────────────────────────────────────
   - path: /srv/edge-tts/docker-compose.yml
-  - path: /srv/hermes-second-brain/docker-compose.yml
 
   # ── Dev / Staging ────────────────────────────────────────────────────
   - path: /srv/monorepo/deployments/docker-compose.staging.yml

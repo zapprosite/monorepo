@@ -331,7 +331,7 @@ MY_KEY = ${MY_API_KEY}
 | Projeto | Path | Tipo |
 |---------|------|------|
 | **Monorepo** | `/srv/monorepo` | pnpm workspaces + Fastify/tRPC |
-| **Second Brain** | `~/Desktop/hermes-second-brain` | Obsidian-style vault |
+| **HCE** | `/srv/monorepo` | HCE v2.1 tree-only (zero state) |
 | **Hermes Agent** | `~/.hermes/hermes-agent` | Python asyncio |
 | **OPS Scripts** | `/srv/ops/scripts` | Bash + Terraform |
 

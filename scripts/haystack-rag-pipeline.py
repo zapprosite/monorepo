@@ -4,7 +4,7 @@ Haystack RAG Pipeline — SPEC-094
 Indexacao de documentos + query retrieval + LLM generation via LiteLLM
 
 Uso:
-  python3 haystack-rag-pipeline.py --index ~/Desktop/hermes-second-brain/docs/
+  python3 haystack-rag-pipeline.py --index ~/docs/
   python3 haystack-rag-pipeline.py --query "o que e o Hermes Agent?"
   python3 haystack-rag-pipeline.py --test
   python3 haystack-rag-pipeline.py --health

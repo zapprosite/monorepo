@@ -1,6 +1,6 @@
 # Architecture Survey — Full Ecosystem
 **Date:** 2026-05-02
-**Repos scanned:** `/srv/monorepo`, `/srv/ops`, `/srv/hermes-second-brain`
+**Repos scanned:** `/srv/monorepo`, `/srv/ops`, `/srv/monorepo`
 
 ---
 
@@ -10,7 +10,7 @@
 |------|------|------|-------|
 | **monorepo** | `/srv/monorepo` | Node.js + Go + Python | 752 files (ts/tsx/go/py/sh) |
 | **ops** | `/srv/ops` | Bash + Python + Docker | 165 files (sh/py/md) |
-| **second-brain** | `/srv/hermes-second-brain` | Python + Docs | 26 files (md/py) |
+| **second-brain** | `/srv/monorepo` | Python + Docs | 26 files (md/py) |
 
 ---
 
@@ -207,7 +207,7 @@ gitea/             → Gitea self-hosted
 
 ---
 
-## Repo 3: /srv/hermes-second-brain — Knowledge & Memory
+## Repo 3: /srv/monorepo — Knowledge & Memory
 
 ### Structure
 
@@ -280,7 +280,7 @@ ops
 monorepo
     ├── apps/api → Postgres + Redis + Qdrant
     ├── hermes → /home/will/.hermes (symlink)
-    ├── hermes-second-brain → /srv/hermes-second-brain (symlink)
+    ├── hce → /srv/monorepo (symlink)
     └── ops → /srv/ops (symlink)
 ```
 

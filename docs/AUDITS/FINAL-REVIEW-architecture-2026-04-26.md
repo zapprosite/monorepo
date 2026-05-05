@@ -12,7 +12,7 @@
 
 - [HIGH] **Hermes symlink outside /srv**: `hermes/ → ~/.hermes` links to home directory, not under `/srv/`. This breaks the monorepo's "single source of truth" premise — Hermes state lives outside the controlled `/srv` partition.
 
-- [MEDIUM] **Implicit cross-partition dependencies**: Symlinks to `/srv/ops`, `/srv/hermes-second-brain`, `/srv/edge-tts`, `/srv/hvacr-swarm`, `/srv/fit-tracker-v2` create implicit dependencies on external services. If any target is missing or has permission issues, the monorepo may fail silently.
+- [MEDIUM] **Implicit cross-partition dependencies**: Symlinks to `/srv/ops`, `/srv/monorepo`, `/srv/edge-tts`, `/srv/hvacr-swarm`, `/srv/fit-tracker-v2` create implicit dependencies on external services. If any target is missing or has permission issues, the monorepo may fail silently.
 
 - [LOW] **No symlink validation**: No pre-build check ensures all symlinks resolve correctly.
 

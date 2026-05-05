@@ -83,10 +83,10 @@ monorepo/
 
 ---
 
-## /srv/hermes-second-brain — MEMORY LAYER
+## /srv/monorepo/services — MEMORY LAYER
 
 ```
-hermes-second-brain/
+hce/
 ├── libs/memory/
 │   ├── manager.py              Mem0 Memory client
 │   └── config.py               Mem0 config

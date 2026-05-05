@@ -8,9 +8,9 @@
 
 | Serviço | Porta | Container | Status |
 |---------|-------|-----------|--------|
-| Hermes API | `:8642` (127) | `hermes-second-brain-qdrant-1` | ✅ |
-| Qdrant HTTP | `:6333` (127) | `hermes-second-brain-qdrant-1` | ✅ |
-| Qdrant gRPC | `:6334` (127) | `hermes-second-brain-qdrant-1` | ✅ |
+| HCE API | `:8642` (127) | nativo (python3) | ✅ |
+| Qdrant HTTP | `:6333` (127) | `qdrant` | ✅ |
+| Qdrant gRPC | `:6334` (127) | `qdrant` | ✅ |
 | Ollama | `:11434` | nativo (systemd) | ✅ |
 | LiteLLM | `:4018→4000` | `litellm-proxy` | ✅ |
 | AI Gateway | `:4002` | `zappro-ai-gateway` | ✅ |
@@ -81,7 +81,7 @@
 
 ```
 /srv/monorepo/    ← Source of truth (pnpm monorepo)
-/srv/hermes-second-brain/ ← Mem0 memory layer
+/srv/monorepo/services/ ← HCE v2.1 (tree-only, zero state)
 /srv/ops/         ← IaC, governance, secrets
 /srv/data/        ← Dados persistentes (Coolify, Gitea, etc.)
 /tank/qdrant/     ← Qdrant Gen5 NVMe (Crucial T700 4TB)
@@ -119,7 +119,7 @@
 ## Stack Completa de Compose
 
 ```
-hermes-second-brain/ → API (:8642) + Qdrant (:6333)
+hce/ → HCE API (:8642) + Qdrant (:6333) (tree-only, zero state)
 litellm/             → LiteLLM (:4018)
 edge-tts/            → Edge TTS (:8012)
 openwebui/           → OpenWebUI HVAC (:3000 interno)
@@ -215,7 +215,7 @@ bash scripts/env-vault-sync.sh        # sync .env → .env.example + ZFS snapsho
 bash scripts/env-vault-sync.sh --dry-run  # preview changes
 ```
 
-Todas as apps (api, web, orchestrator) e serviços (hermes-second-brain, ollama) apontam para o canônico via symlink.
+Todas as apps (api, web, orchestrator) e serviços (hce, ollama) apontam para o canônico via symlink.
 
 ---
 

@@ -27,12 +27,13 @@ curl -s -X POST "$GITEA_API/user/repos" \
   -H "Content-Type: application/json" \
   -d '{"name":"nome-repo","private":true}'
 
-# Obter conteúdo de ficheiro (para ler TREE.md)
-curl -s -X GET "$GITEA_API/repos/will-zappro/hermes-second-brain/contents/TREE.md" \
+# Obter conteúdo de ficheiro
+# Exemplo: repos/will-zappro/monorepo/contents/docs/TREE.md
+curl -s -X GET "$GITEA_API/repos/will-zappro/monorepo/contents/docs/TREE.md" \
   -H "Authorization: Bearer $GITEA_TOKEN"
 
 # Atualizar ficheiro (base64-encoded, requer SHA)
-curl -s -X PUT "$GITEA_API/repos/will-zappro/hermes-second-brain/contents/monorepo-TREE.md" \
+curl -s -X PUT "$GITEA_API/repos/will-zappro/monorepo/contents/docs/TREE.md" \
   -H "Authorization: Bearer $GITEA_TOKEN" \
   -H "Content-Type: application/json" \
   -d "{\"message\":\"chore: update\",\"content\":\"$(base64 -w0 < /tmp/tree.md)\",\"sha\":\"$SHA\"}"
@@ -56,7 +57,7 @@ curl -s -X POST "$GITEA_API/repos/will-zappro/monorepo/actions/workflows/test.ym
 
 ```bash
 # Clone via SSH interno ( runner → gitea )
-git clone ssh://git@127.0.0.1:2222/will-zappro/hermes-second-brain.git /tmp/sb
+git clone ssh://git@127.0.0.1:2222/will-zappro/monorepo.git /tmp/monorepo
 ```
 
 ## Gitea API — Ficheiros (Create vs Update)
@@ -65,7 +66,7 @@ git clone ssh://git@127.0.0.1:2222/will-zappro/hermes-second-brain.git /tmp/sb
 
 ```bash
 # 1. Obter SHA (se ficheiro existir)
-SHA=$(curl -s -X GET "$GITEA_API/repos/will-zappro/hermes-second-brain/contents/TREE.md" \
+SHA=$(curl -s -X GET "$GITEA_API/repos/will-zappro/monorepo/contents/docs/TREE.md" \
   -H "Authorization: Bearer $GITEA_TOKEN" \
   | python3 -c "import sys,json; print(json.load(sys.stdin).get('sha',''))")
 
@@ -103,4 +104,4 @@ git pull origin main
 # (ver script scripts/sync-second-brain.sh)
 ```
 
-**Mecanismo**: Gitea Actions no monorepo dispara no `push to main` e atualiza `hermes-second-brain` via API — não precisa de git clone no runner.
+**Mecanismo**: Gitea Actions no monorepo dispara no `push to main` e atualiza `docs/TREE.md` via API — não precisa de git clone no runner.

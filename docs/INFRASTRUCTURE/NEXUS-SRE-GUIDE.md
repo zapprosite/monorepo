@@ -322,7 +322,7 @@ nexus-cron-legacy.sh summary
 **Monitored Repos:**
 - `/srv/monorepo` — Monorepo principal
 - `/srv/ops` — Infrastructure as Code
-- `/srv/hermes-second-brain` — Knowledge management
+- `/srv/hce` — Knowledge management
 
 ### nexus-context-window-manager.sh — Context Window Manager
 

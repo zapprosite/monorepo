@@ -50,7 +50,7 @@ Antes de qualquer tarefa, ler nesta ordem:
 cat /srv/monorepo/AGENTS.md | tail -200
 
 # 2. Second Brain TREE (mapeia estrutura de conhecimento)
-cat ~/Desktop/hermes-second-brain/TREE.md 2>/dev/null || ls ~/Desktop/hermes-second-brain/
+cat /srv/monorepo/TREE.md 2>/dev/null || ls /srv/monorepo/
 
 # 3. OPS Governance (regras operacionais)
 cat /srv/ops/ai-governance/README.md 2>/dev/null
@@ -67,7 +67,7 @@ cat ~/Desktop/SYSTEM_ARCHITECTURE.md 2>/dev/null
 | Projeto | Path | Tipo | Stack |
 |---------|------|------|-------|
 | **Monorepo** | `/srv/monorepo` | pnpm workspaces + Fastify/tRPC | TypeScript, Biome |
-| **Second Brain** | `~/Desktop/hermes-second-brain` | Obsidian-style vault | Markdown, Git |
+| **Second Brain** | `/srv/monorepo` | Obsidian-style vault | Markdown, Git |
 | **Hermes Agent** | `~/.hermes/hermes-agent` | Python asyncio | Claude Code, MCP |
 | **OPS Scripts** | `/srv/ops/scripts` | Bash + Terraform | Docker, ZFS |
 
@@ -94,7 +94,7 @@ cat ~/Desktop/SYSTEM_ARCHITECTURE.md 2>/dev/null
 
 ### 3.2 Second Brain
 
-Vault Obsidian-style em `~/Desktop/hermes-second-brain/` com:
+Vault Obsidian-style em `/srv/monorepo/` com:
 - TREE.md — mapeia toda a estrutura de conhecimento
 - Notas interconnectadas para pesquisa rapida
 - Sincronizado via Git

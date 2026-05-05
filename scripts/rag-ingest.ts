@@ -27,7 +27,7 @@ interface IngestOptions {
 // ---------------------------------------------------------------------------
 
 const KNOWLEDGE_SOURCES: Record<string, string[]> = {
-	hermes: ['hermes-second-brain/'],
+	hce: ['libs/', 'apps/api/context.py', 'services/sync_engine.py'],
 	monorepo: ['docs/', 'SPECS/', 'apps/*/src/'],
 	hvacr: ['apps/hvacr/'],
 	governance: ['/srv/ops/ai-governance/'],

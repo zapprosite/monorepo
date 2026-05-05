@@ -342,4 +342,4 @@ bash .claude/skills/orchestrator/scripts/rollback.sh --list <PIPELINE_ID>
 - **Gitea Actions:** https://git.zappro.site/will-zappro/monorepo/actions
 - **Coolify:** https://coolify.zappro.site
 - **Web (Production):** https://web.zappro.site
-- **Second Brain:** https://git.zappro.site/will-zappro/hermes-second-brain
+- **Second Brain:** https://git.zappro.site/will-zappro/monorepo
