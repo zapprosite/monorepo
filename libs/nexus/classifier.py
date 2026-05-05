@@ -116,7 +116,7 @@ def _classify_heuristic(task: Task) -> Classification:
     strategic_keywords = ["design", "architecture", "choose", "decide", "strategy",
                           "refactor entire", "migrate", "restructure", "breaking change"]
     # Mechanical keywords
-    mechanical_keywords = ["write test", "add type", "fix import", "format", "lint",
+    mechanical_keywords = ["write test", "write tests", "add type", "fix import", "format", "lint",
                            "generate sql", "add docstring", "rename"]
 
     score = 0
