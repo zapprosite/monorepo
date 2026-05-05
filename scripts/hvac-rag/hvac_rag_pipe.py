@@ -102,8 +102,9 @@ EMBED_TIMEOUT = 60
 SEARCH_TIMEOUT = 20
 CHAT_TIMEOUT = 120
 
-# OpenRouter primary model alias for final answer formatting.
-PRIMARY_LLM_MODEL = os.environ.get("LITELLM_DEFAULT_MODEL", "hermes-auto")
+# Primary model alias — Groq llama-3.3-70b-versatile via LiteLLM :4018/v1
+# Env override: LITELLM_DEFAULT_MODEL (e.g. hermes-auto, openrouter/..., groq/...)
+PRIMARY_LLM_MODEL = os.environ.get("LITELLM_DEFAULT_MODEL", "groq/llama-3.3-70b-versatile")
 
 # HVAC domain keywords — out-of-domain queries are blocked
 HVAC_COMPONENTS = {
