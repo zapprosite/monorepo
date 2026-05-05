@@ -65,3 +65,28 @@ def test_post_context_with_session_memory():
     texts = [c["text"] for c in data["chunks"]]
     assert "tell me more" in texts
     assert "previous context about compressors" in texts
+
+
+def test_rate_limit_blocks_excess_requests():
+    from apps.api.rate_limit import _limiter
+    # Temporarily lower threshold to 1 request per window
+    original_max = _limiter.max_requests
+    _limiter.max_requests = 1
+    _limiter._store.clear()
+
+    payload = {
+        "session_id": "rl-test",
+        "query": "first",
+        "sources": [],
+        "max_tokens": 100,
+    }
+    resp1 = client.post("/context", json=payload)
+    assert resp1.status_code == 200
+
+    resp2 = client.post("/context", json=payload)
+    assert resp2.status_code == 429
+    assert resp2.json()["detail"] == "Muitas requisições. Aguarde um momento."
+
+    # Restore
+    _limiter.max_requests = original_max
+    _limiter._store.clear()

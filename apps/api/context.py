@@ -17,6 +17,8 @@ from pydantic import BaseModel
 
 from libs.memory import manager as memory_manager
 from libs.context import ranker
+from apps.api.rate_limit import rate_limit_dependency
+from fastapi import Depends
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -31,7 +33,7 @@ class ContextRequest(BaseModel):
     max_tokens: int = 2048
 
 
-@app.post("/context")
+@app.post("/context", dependencies=[Depends(rate_limit_dependency)])
 def post_context(req: ContextRequest):
     """
     Retrieve ranked context for a session + query.
