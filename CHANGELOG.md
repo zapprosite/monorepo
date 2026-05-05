@@ -4,6 +4,32 @@
 
 ---
 
+## [v2.1.3] — 2026-05-05 — Nexus Smart Router Framework
+
+### Added
+- **Nexus Smart Router** (`libs/nexus/`) — Framework de roteamento inteligente de tarefas AI
+  - `classifier.py` — Classifica tarefas em 3 níveis (mechanical/analytical/strategic)
+  - `executor.py` — Executa async via Ollama (local) ou LiteLLM (cloud)
+  - `validator.py` — Quality gate pós-execução com score 0.0-1.0
+  - `router.py` — Orquestrador com retry e auto-escalation
+  - `models.py` — Pydantic models (Task, Classification, ExecutionResult, ValidationResult)
+- **Nexus API** (`apps/api/nexus.py`) — FastAPI endpoints
+  - `POST /nexus/tasks` — Submeter tarefa
+  - `GET /nexus/tasks/{id}` — Consultar resultado
+  - `POST /nexus/classify` — Classificar sem executar
+  - `GET /nexus/health` — Health check Ollama + LiteLLM
+- **Nexus CLI** (`scripts/nexus`) — Comandos: classify, run, batch, health
+- **11 Tests** — `tests/test_nexus_*.py` (models, classifier, router)
+- **SPEC** — `docs/SPECS/SPEC-NEXUS-SMART-ROUTER.md`
+
+### Architecture
+- Mechanical → Ollama local (qwen2.5-coder) — 80% economia de tokens
+- Analytical → Ollama + validação Kimi — 75% economia
+- Strategic → Kimi K2.6 (cloud) — raciocínio profundo
+- Auto-escalation quando validação < 0.6
+
+---
+
 ## [v2.1.2] — 2026-05-05 — Hermes Prune Total: Tree-Only + Daemons Mortos
 
 ### Added
