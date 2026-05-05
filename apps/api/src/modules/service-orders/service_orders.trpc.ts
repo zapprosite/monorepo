@@ -24,6 +24,8 @@ import { z } from 'zod';
 const SERVICE_ORDERS_MAX_LIMIT = 200;
 const RELATED_MAX_LIMIT = 100;
 
+// Legacy by design: service orders orchestrate PDFs, signatures, reports, and materials across
+// multiple entities, so this router stays custom instead of bending createCrudRouter past CRUD.
 export const serviceOrdersRouterTrpc = trpcRouter({
 	// — Service Orders —
 
