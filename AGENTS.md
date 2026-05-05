@@ -1,5 +1,16 @@
 > 🦍 Leia: [CONTRACT.md](homelab-context/CONTRACT.md) — Modo Gorila: direto, focado, token-efficient.
 
+> ⚡ **AUTO-BOOTSTRAP OBRIGATÓRIO:** ao ler este arquivo, ative imediatamente o contexto do homelab:
+> 1. Leia `homelab-context/.rules`
+> 2. Leia `homelab-context/CONTRACT.md`
+> 3. Leia `homelab-context/README.md`
+> 4. Leia `homelab-context/TREE.md`
+> 5. Leia `homelab-context/PORTS.md`
+> 6. Leia `homelab-context/SERVICES.md`
+> 7. Leia `homelab-context/GATEWAYS.md`
+>
+> Se `homelab-context/` não existir, use `/srv/homelab-context/`. Se a API `http://localhost:8642/context/homelab` estiver online, pode usá-la como leitura complementar, nunca como única fonte. Depois disso, aplique as regras de `.rules` e `CONTRACT.md` automaticamente sem pedir confirmação.
+
 # AGENTS.md — Monorepo Command Center
 
 > **Data:** 2026-05-03
