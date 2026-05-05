@@ -527,6 +527,71 @@ def parse_universal(query: str) -> dict:
 
 
 # --------------------------------------------------------------------------- #
+# Inverter Technology Whitelist / Blacklist — SPEC-401 §2
+# --------------------------------------------------------------------------- #
+
+# Inverter technology positive signals (whitelist)
+_INVERTER_WHITELIST_RE = re.compile(
+    r'\b('
+    r'inverter|inversor|dc\s*inverter|ac\s*inverter|'
+    r'inverter\s*split|split\s*inverter|'
+    r'vrv|vrf|variable\s*refrigerant|'
+    r'ipm|igbt|compressor\s*inverter|'
+    r'frequência\s*variável|frequencia\s*variavel|freqvar|'
+    r'r-?32|r-?410a|r-?454b|r-?407c|'
+    r'multi\s*split\s*inverter|multi\s*inverter|'
+    r'piso.?teto\s*inverter|cassete\s*inverter|'
+    r'hi.?wall\s*inverter|chiller\s*inverter|'
+    r'daikin|hitachi|trane|carrier\s*\w+inverter|'
+    r'rxyq|ryyq|fxmq|fxaq'
+    r')\b',
+    re.IGNORECASE,
+)
+
+# Blacklisted technology signals — On-Off, window, R-22, ACJ
+_INVERTER_BLACKLIST_RE = re.compile(
+    r'\b('
+    r'on.?off|on/off|liga.?desliga|'
+    r'acj|janela|window\s*unit|window\s*ac|'
+    r'portátil|portatil|portable\s*ac|'
+    r'r-?22|r22|r\s*22|freon|'
+    r'não\s*inverter|nao\s*inverter|sem\s*inverter|'
+    r'monofásico\s*on.?off|trifásico\s*on.?off|'
+    r'convencional(?:\s+ac)?'
+    r')\b',
+    re.IGNORECASE,
+)
+
+
+def is_inverter_technology(text: str) -> bool:
+    """Return True if the text contains inverter technology signals.
+
+    Implements SPEC-401 §2 Whitelist:
+    - Inverter/VRV/VRF keywords, IPM, IGBT
+    - Modern refrigerants (R-32, R-410A, R-454B, R-407C)
+    - Inverter equipment types (split inverter, hi-wall inverter, etc.)
+    - Daikin VRV model prefixes (RXYQ, RYYQ, FXMQ, FXAQ)
+    """
+    if not text:
+        return False
+    return bool(_INVERTER_WHITELIST_RE.search(text))
+
+
+def is_blacklisted(text: str) -> bool:
+    """Return True if the text contains blacklisted (non-inverter) signals.
+
+    Implements SPEC-401 §2 Blacklist:
+    - On-Off / Liga-Desliga units
+    - ACJ / Janela / Window AC / Portable AC
+    - R-22 / Freon (legacy non-inverter refrigerant)
+    - Explicitly non-inverter mentions
+    """
+    if not text:
+        return False
+    return bool(_INVERTER_BLACKLIST_RE.search(text))
+
+
+# --------------------------------------------------------------------------- #
 # CLI (basic self-test)
 # --------------------------------------------------------------------------- #
 
