@@ -1,18 +1,28 @@
 """
-Nexus Router — High-level orchestrator
+Nexus Router — CLI-agnostic orchestrator
+
+Works with ANY CLI: OpenCode, Codex, Claude Code, Aider.
+Automatically detects the primary model from env vars.
 
 Usage:
     router = SmartRouter()
     result = await router.process_task(task)
+
+Retry logic:
+    - If execution fails: retry up to task.max_iterations
+    - If validation fails with score < 0.6: escalate to primary model
+    - If validation passes with score >= 0.8: done
+    - If 0.6 <= score < 0.8: apply suggestions and retry
 """
 import asyncio
 import logging
 from typing import Optional
 
-from .models import Task, ExecutionResult, ValidationResult
+from .models import Task, ExecutionResult, ValidationResult, TaskType
 from .classifier import classify_task
 from .executor import execute_task
 from .validator import validate_result
+from .config import get_primary_model
 
 logger = logging.getLogger(__name__)
 
@@ -20,12 +30,7 @@ logger = logging.getLogger(__name__)
 class SmartRouter:
     """
     Orchestrates the full pipeline: classify → execute → validate.
-    
-    Retry logic:
-    - If execution fails: retry up to task.max_iterations
-    - If validation fails with score < 0.6: escalate to strategic model
-    - If validation passes with score >= 0.8: done
-    - If 0.6 <= score < 0.8: apply suggestions and retry
+    CLI-agnostic: works with OpenCode, Codex, Claude Code, Aider, etc.
     """
 
     def __init__(self, max_retries: int = 3):
@@ -54,11 +59,11 @@ class SmartRouter:
 
         # Step 4: Handle validation outcome
         if not validation.passed and validation.score < 0.6:
-            logger.warning("Validation failed (score %.2f), escalating to strategic model", validation.score)
-            # Force strategic execution
-            from .models import TaskType
+            logger.warning("Validation failed (score %.2f), escalating to primary model: %s",
+                          validation.score, get_primary_model())
+            # Force strategic execution with PRIMARY model
             classification.level = TaskType.STRATEGIC
-            classification.recommended_model = "kimi-k2.6"
+            classification.recommended_model = get_primary_model()
             result = await self._execute_with_retries(task, classification)
 
         return result

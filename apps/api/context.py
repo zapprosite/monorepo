@@ -58,6 +58,52 @@ def post_context(req: ContextRequest):
     }
 
 
+# ── Homelab Context Brain ──────────────────────────────────────────────
+# Endpoints para agentes LLM obterem o mapa do homelab sem gastar tokens
+# com ls -R, docker ps, ss -tlnp, etc.
+# Basta: curl -s http://localhost:8642/context/homelab
+
+_HOMELAB_CONTEXT_DIR = Path("/srv/homelab-context")
+
+
+def _read_context_file(filename: str) -> str:
+    p = _HOMELAB_CONTEXT_DIR / filename
+    if p.exists():
+        return p.read_text(encoding="utf-8")
+    return ""
+
+
+@app.get("/context/homelab")
+def get_homelab_context():
+    """Mapa completo do homelab — leia antes de qualquer ação."""
+    return {
+        "service": "homelab-context",
+        "repo": "http://localhost:3300/will-zappro/homelab-context",
+        "contract": _read_context_file("CONTRACT.md"),
+        "tree": _read_context_file("TREE.md"),
+        "ports": _read_context_file("PORTS.md"),
+        "services": _read_context_file("SERVICES.md"),
+        "gateways": _read_context_file("GATEWAYS.md"),
+        "rules": _read_context_file(".rules"),
+        "hint": "Leia 'contract' e 'tree' primeiro. Economize tokens: não faça ls -R nem docker ps.",
+    }
+
+
+@app.get("/context/homelab/tree")
+def get_homelab_tree():
+    return {"tree": _read_context_file("TREE.md")}
+
+
+@app.get("/context/homelab/ports")
+def get_homelab_ports():
+    return {"ports": _read_context_file("PORTS.md")}
+
+
+@app.get("/context/homelab/gateways")
+def get_homelab_gateways():
+    return {"gateways": _read_context_file("GATEWAYS.md")}
+
+
 @app.get("/context/health")
 def context_health():
     return {"status": "ok", "service": "context"}

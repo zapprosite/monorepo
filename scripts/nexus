@@ -1,0 +1,154 @@
+#!/usr/bin/env python3
+"""
+nexus — CLI para Nexus Smart Router Framework
+
+Usage:
+    nexus classify "Implementar rate limit no POST /context"
+    nexus run --description "Refactor para async" --files apps/api/context.py
+    nexus batch tasks.json
+    nexus health
+"""
+import os
+import sys
+import json
+import asyncio
+import argparse
+from pathlib import Path
+
+# Ensure repo root on path
+_REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(_REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(_REPO_ROOT))
+
+from libs.nexus import SmartRouter, Task, classify_task
+from libs.nexus.executor import execute_task
+from libs.nexus.validator import validate_result
+
+router = SmartRouter()
+
+
+def cmd_classify(args):
+    """Classify a single task."""
+    task = Task(description=" ".join(args.description), files=args.files or [])
+    classification = classify_task(task)
+
+    print(f"\n📊 Classification Result")
+    print(f"   Level:      {classification.level.value.upper()}")
+    print(f"   Confidence: {classification.confidence:.2f}")
+    print(f"   Model:      {classification.recommended_model}")
+    print(f"   Est. tokens: {classification.estimated_tokens}")
+    print(f"   Reason:     {classification.reason}")
+    if classification.subtasks:
+        print(f"   Subtasks:   {len(classification.subtasks)}")
+
+
+def cmd_run(args):
+    """Run a single task through full pipeline."""
+    task = Task(
+        description=" ".join(args.description),
+        files=args.files or [],
+        test_cmd=args.test_cmd,
+        max_iterations=args.max_iterations,
+    )
+
+    print(f"\n🚀 Running task: {task.description[:60]}...")
+    result = asyncio.run(router.process_task(task))
+
+    print(f"\n✅ Result")
+    print(f"   Model:      {result.model_used}")
+    print(f"   Duration:   {result.duration_ms}ms")
+    print(f"   Tokens:     {result.tokens_used}")
+    print(f"   Attempts:   {result.attempts}")
+    if result.error:
+        print(f"   ❌ Error:    {result.error}")
+    else:
+        print(f"\n📤 Output:\n{result.output[:2000]}")
+
+
+def cmd_batch(args):
+    """Run multiple tasks from JSON file."""
+    with open(args.file) as f:
+        data = json.load(f)
+
+    tasks = [Task(**t) for t in data.get("tasks", [])]
+    print(f"\n📦 Batch processing {len(tasks)} tasks...")
+
+    results = asyncio.run(router.process_tasks_parallel(tasks))
+
+    for r in results:
+        status = "✅" if not r.error else "❌"
+        print(f"   {status} {r.task_id} ({r.model_used}, {r.duration_ms}ms)")
+
+
+def cmd_health(args):
+    """Check Nexus health."""
+    import aiohttp
+
+    async def check():
+        ollama_ok = False
+        litellm_ok = False
+        async with aiohttp.ClientSession() as session:
+            try:
+                async with session.get("http://localhost:11434/api/tags", timeout=5) as resp:
+                    ollama_ok = resp.status == 200
+            except Exception:
+                pass
+            try:
+                async with session.get("http://localhost:4018/health", timeout=5) as resp:
+                    litellm_ok = resp.status == 200
+            except Exception:
+                pass
+
+        print(f"\n🏥 Nexus Health")
+        print(f"   Ollama (:11434):   {'✅' if ollama_ok else '❌'}")
+        print(f"   LiteLLM (:4018):   {'✅' if litellm_ok else '❌'}")
+        print(f"   HCE API (:8642):   {'✅' if _check_port(8642) else '❌'}")
+
+    asyncio.run(check())
+
+
+def _check_port(port: int) -> bool:
+    import socket
+    try:
+        with socket.create_connection(("localhost", port), timeout=2):
+            return True
+    except Exception:
+        return False
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        prog="nexus",
+        description="Nexus Smart Router — Intelligent AI task routing",
+    )
+    subparsers = parser.add_subparsers(dest="command", required=True)
+
+    # classify
+    p_classify = subparsers.add_parser("classify", help="Classify task complexity")
+    p_classify.add_argument("description", nargs="+", help="Task description")
+    p_classify.add_argument("--files", nargs="+", help="Target files")
+    p_classify.set_defaults(func=cmd_classify)
+
+    # run
+    p_run = subparsers.add_parser("run", help="Run task through full pipeline")
+    p_run.add_argument("--description", "-d", nargs="+", required=True, help="Task description")
+    p_run.add_argument("--files", "-f", nargs="+", help="Target files")
+    p_run.add_argument("--test-cmd", "-t", help="Test command")
+    p_run.add_argument("--max-iterations", "-i", type=int, default=3)
+    p_run.set_defaults(func=cmd_run)
+
+    # batch
+    p_batch = subparsers.add_parser("batch", help="Process batch from JSON")
+    p_batch.add_argument("file", help="JSON file with tasks array")
+    p_batch.set_defaults(func=cmd_batch)
+
+    # health
+    p_health = subparsers.add_parser("health", help="Check service health")
+    p_health.set_defaults(func=cmd_health)
+
+    args = parser.parse_args()
+    args.func(args)
+
+
+if __name__ == "__main__":
+    main()

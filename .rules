@@ -1,0 +1,50 @@
+# 🧠 Monorepo Context Rules
+# Todo agente LLM que trabalhar neste monorepo DEVE seguir estas regras.
+
+## 1. Leitura Obrigatória
+
+ANTES de qualquer ação:
+- [ ] Leia `/srv/homelab-context/README.md`
+- [ ] Leia `/srv/homelab-context/TREE.md`
+- [ ] Leia `/srv/homelab-context/PORTS.md`
+- [ ] Verifique se este arquivo `.rules` mudou desde a última leitura
+
+## 2. Atualização do Contexto
+
+SE você:
+- Criou/deletou um diretório em `/srv/`
+- Adicionou/removeu um container Docker
+- Mudou uma porta
+- Criou um novo repositório
+- Mudou um serviço systemd
+
+ENTÃO:
+1. Atualize `/srv/homelab-context/`
+2. Rode `python3 /srv/homelab-context/scripts/update-homelab-context.py`
+3. Ou manualmente edite os `.md` e commit com `context:`
+
+## 3. Economia de Tokens
+
+- NÃO faça `find /srv/ -type f | head -100` — leia `TREE.md`
+- NÃO faça `docker ps --format ...` — leia `SERVICES.md`
+- NÃO faça `ss -tlnp` — leia `PORTS.md`
+- Se a informação estiver desatualizada, ATUALIZE o contexto, não ignore
+
+## 4. Novos Repositórios
+
+Se você criar um novo repo no homelab:
+1. Crie `.context-link` na raiz: `/srv/homelab-context`
+2. Adicione ao `REPOS.md` do homelab-context
+3. Commit com `context: add repo <nome>`
+
+## 5. Commits neste Monorepo
+
+Sempre que mudar infraestrutura:
+- Prefixo `context:` se afetar o homelab-context
+- Prefixo `feat:` ou `fix:` para código
+- Nunca commitar sem rodar `bash scripts/aider-tree.sh`
+
+## 6. Contato
+
+- Dúvidas sobre o contexto: leia `.rules` em `/srv/homelab-context/.rules`
+- Problemas com scanner: `journalctl -u homelab-context-update.service`
