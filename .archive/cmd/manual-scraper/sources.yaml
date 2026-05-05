@@ -1,0 +1,24 @@
+# Manual Scraper Source Definitions
+# Define data sources for batch scraping operations
+
+sources:
+  - name: lg
+    base_url: "https://lg.com/br/suporte/manual"
+    selectors:
+      pdf_link: "a[href$='.pdf']"
+      product_list: ".product-list a"
+    rate_limit: 2s
+
+  - name: samsung
+    base_url: "https://samsung.com/br/support/manual"
+    selectors:
+      pdf_link: "a.download-manual[href$='.pdf']"
+      product_list: ".support-products a"
+    rate_limit: 2s
+
+  - name: springer
+    base_url: "https://springer.com/br/manuals"
+    selectors:
+      pdf_link: "a[href*='manual'][href$='.pdf']"
+      product_list: ".manual-categories a"
+    rate_limit: 3s
