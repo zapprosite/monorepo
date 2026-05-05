@@ -4,6 +4,8 @@ import { protectedProcedure, publicProcedure, trpcRouter } from '@backend/trpc';
 import { userCreateInputZod, userGetByIdInputZod } from '@repo/zod-schemas/user.zod';
 import { TRPCError } from '@trpc/server';
 
+// Legacy by design: this router mixes protected team reads with a public OAuth-backed create flow,
+// and it still has frontend consumers outside apps/web/src/modules, so it is not treated as orphaned.
 export const usersRouterTrpc = trpcRouter({
 	// Get all users for the current team
 	getAll: protectedProcedure.query(async ({ ctx }) => {
