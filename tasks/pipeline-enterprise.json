@@ -1,565 +1,457 @@
 {
-	"$schema": "https://json-schema.org/draft/2020-12/schema",
-	"name": "NEXUS-VIBE-ENTERPRISE",
+	"pipeline_id": "PIPE-ENTERPRISE-001",
+	"name": "Nexus Enterprise Pipeline — Monorepo Full Stack",
 	"version": "1.0.0",
-	"description": "Pipeline enterprise para nexus + vibe-kit + Claude Code CLI — sem hardcoded",
-	"created": "2026-04-30",
-	"updated": "2026-04-30",
-
-	"env": {
-		"required": [],
-		"optional": {
-			"NEXUS_ROOT": "/srv/monorepo",
-			"VIBE_KIT_DIR": "${NEXUS_ROOT}/.claude/vibe-kit",
-			"QUEUE_FILE": "${VIBE_KIT_DIR}/queue.json",
-			"LOCK_FILE": "${VIBE_KIT_DIR}/.queue.lock",
-			"CONTEXT_DIR": "${VIBE_KIT_DIR}/context",
-			"VIBE_PARALLEL": "15",
-			"VIBE_PHASE": "do",
-			"WORKER_CMD": "mclaude",
-			"WORKER_MODEL": "hermes-brain",
-			"WORKER_PROVIDER": "openrouter",
-			"NEXUS_API_KEY": null,
-			"NEXUS_QUEUE_URL": null,
-			"NEXUS_REDIS_URL": null,
-			"OTEL_ENDPOINT": "http://localhost:4317",
-			"LOG_LEVEL": "info"
-		}
-	},
-
-	"cli": {
-		"supported": ["mclaude", "mclaude-p", "claude-code", "claude"],
-		"detection": "${NEXUS_ROOT}/scripts/multi-cli-adapter.sh",
-		"context_mode": {
-			"mclaude-p": "zero",
-			"claude-code": "session"
-		}
-	},
-
-	"queue": {
-		"backend": "file",
-		"file": "${QUEUE_FILE}",
-		"lock_file": "${LOCK_FILE}",
-		"atomic_write": true,
-		"lock_timeout_seconds": 5,
-		"orphan_threshold_seconds": 3600,
-		"schema": {
-			"spec": "string",
-			"app": "string",
-			"total": "number",
-			"pending": "number",
-			"running": "number",
-			"done": "number",
-			"failed": "number",
-			"frozen": "number",
-			"phase": "string",
-			"parallel_limit": "number",
-			"tasks": "array"
-		},
-		"task_schema": {
-			"id": "string",
-			"name": "string",
-			"description": "string",
-			"app": "string",
-			"spec": "string",
-			"status": "pending|running|done|failed|frozen",
-			"attempts": "number",
-			"worker": "string|null",
-			"created_at": "string",
-			"completed_at": "string|null",
-			"error": "string|null"
-		}
-	},
-
-	"bullmq_patterns": {
-		"retry": {
-			"enabled": true,
-			"max_attempts": 3,
-			"backoff": {
-				"type": "exponential",
-				"base_delay_ms": 1000,
-				"max_delay_ms": 30000,
-				"jitter": true
-			}
-		},
-		"dlq": {
-			"enabled": true,
-			"prefix": "rag:dlq:",
-			"threshold": 10
-		},
-		"priority": {
-			"critical": 1,
-			"high": 5,
-			"normal": 10,
-			"low": 20
-		},
-		"job_states": ["waiting", "active", "completed", "failed", "delayed"]
-	},
-
-	"observability": {
-		"tracing": {
-			"enabled": true,
-			"provider": "opentelemetry",
-			"endpoint": "${OTEL_ENDPOINT}",
-			"format": "w3c",
-			"propagators": ["tracecontext", "baggage"],
-			"service_name": "nexus-vibe",
-			"spans": {
-				"queue_claim": true,
-				"task_execute": true,
-				"worker_spawn": true,
-				"git_commit": true
-			}
-		},
-		"metrics": {
-			"enabled": true,
-			"provider": "prometheus",
-			"port": 9090,
-			"metrics": [
+	"created": "2026-05-03",
+	"status": "in_progress",
+	"spec_ref": "SPEC-ENTERPRISE",
+	"adr_ref": "ADR-030",
+	"description": "Enterprise-grade pipeline for the full monorepo: 11 apps, 8 packages, 26+ API modules, HVAC CRM, AI Gateway, and infrastructure.",
+	"phases": [
+		{
+			"phase_id": "PE1",
+			"name": "Code Quality & Type Safety",
+			"order": 1,
+			"status": "pending",
+			"sensors": ["tsc", "biome", "secret-scan"],
+			"tasks": [
 				{
-					"name": "queue_tasks_total",
-					"type": "counter",
-					"labels": ["status"],
-					"description": "Total tasks by status"
+					"task_id": "PE1-T1",
+					"name": "TypeScript strict mode validation",
+					"type": "quality",
+					"command": "pnpm tsc --noEmit",
+					"sensors": ["tsc"]
 				},
 				{
-					"name": "queue_claim_duration_seconds",
-					"type": "histogram",
-					"buckets": [0.01, 0.05, 0.1, 0.5, 1, 5],
-					"description": "Time to claim task from queue"
+					"task_id": "PE1-T2",
+					"name": "Biome lint + format",
+					"type": "quality",
+					"command": "biome check . --write",
+					"sensors": ["biome"]
 				},
 				{
-					"name": "worker_task_duration_seconds",
-					"type": "histogram",
-					"labels": ["task_id"],
-					"description": "Task execution time"
+					"task_id": "PE1-T3",
+					"name": "Secrets scan pre-commit",
+					"type": "security",
+					"command": "grep -rE 'sk-[a-zA-Z0-9]{20,}|ghp_|cfut_|glpat-' --include='*.ts' --include='*.tsx' --include='*.py' apps/ packages/",
+					"sensors": ["secret-scan"]
 				},
 				{
-					"name": "cache_hit_total",
-					"type": "counter",
-					"labels": ["collection"],
-					"description": "Cache hits"
-				},
-				{
-					"name": "dlq_depth",
-					"type": "gauge",
-					"labels": ["queue"],
-					"description": "Dead letter queue depth"
+					"task_id": "PE1-T4",
+					"name": "Unused imports/vars cleanup",
+					"type": "refactor",
+					"verify": "pnpm tsc --noEmit passes"
 				}
 			]
 		},
-		"logs": {
-			"enabled": true,
-			"format": "json",
-			"timestamp": "iso8601",
-			"level_env": "LOG_LEVEL",
-			"correlation_id": true,
-			"fields": ["timestamp", "level", "message", "trace_id", "span_id", "task_id", "worker_id"]
-		},
-		"slo": {
-			"task_completion_latency_p95_ms": 300000,
-			"cache_hit_rate": 0.6,
-			"job_success_rate": 0.95,
-			"dlq_depth_max": 10
-		},
-		"golden_signals": {
-			"latency": {
-				"task_completion_p95": "worker_task_duration_seconds",
-				"cache_hit_p95": "cache_hit_duration_seconds"
-			},
-			"traffic": {
-				"tasks_per_minute": "queue_tasks_total"
-			},
-			"errors": {
-				"failed_tasks": "queue_tasks_total{status=failed}",
-				"error_rate": "error_rate_ratio"
-			},
-			"saturation": {
-				"workers_active": "workers_running",
-				"dlq_depth": "dlq_depth"
-			}
-		}
-	},
-
-	"nexus_phases": {
-		"plan": {
-			"description": "Parse SPEC.md → extract tasks → write queue.json atomically",
-			"entrypoint": "${VIBE_KIT_DIR}/run-vibe.sh",
-			"env": {
-				"VIBE_PHASE": "plan"
-			}
-		},
-		"do": {
-			"description": "Execute pending queue tasks with workers",
-			"entrypoint": "${VIBE_KIT_DIR}/run-vibe.sh",
-			"env": {
-				"VIBE_PHASE": "do"
-			}
-		},
-		"verify": {
-			"description": "Run verification commands",
-			"commands": ["pnpm test", "pnpm tsc --noEmit", "pnpm lint"],
-			"block_on_fail": true
-		},
-		"ship": {
-			"description": "Git commit + PR creation",
-			"git_remote": "gitea",
-			"branch_prefix": "vibe",
-			"commit_template": "vibe: {spec} completed\n\n{task_list}",
-			"pr_create": true,
-			"pr_target": "main",
-			"auto_cleanup": false
-		}
-	},
-
-	"vibe_kit": {
-		"queue_manager": "${VIBE_KIT_DIR}/queue-manager.py",
-		"run_vibe": "${VIBE_KIT_DIR}/run-vibe.sh",
-		"multi_cli_adapter": "${NEXUS_ROOT}/scripts/multi-cli-adapter.sh",
-		"context_dir": "${CONTEXT_DIR}",
-		"logs_dir": "${VIBE_KIT_DIR}/logs"
-	},
-
-	"safety": {
-		"atomic_writes": true,
-		"lock_timeout_seconds": 5,
-		"zfs_snapshot": {
-			"enabled": false,
-			"pool": "tank",
-			"prefix": "vibe-pre",
-			"every_tasks": 3
-		},
-		"auto_commit": false,
-		"protected_paths": ["/srv/ops/**", "/srv/data/**", "/srv/backups/**"],
-		"forbidden_commands": ["rm -rf /", "dd if=*", "wipefs", "zfs destroy"],
-		"secret_patterns": ["sk-", "cfk_", "cfut_", "ghp_", "eyJ"]
-	},
-
-	"worker": {
-		"max": 15,
-		"max_task_time_seconds": 300,
-		"retry_on_fail": true,
-		"max_retries": 1,
-		"prompt_template": "You are worker-{worker_id}. Execute this task completely.\n\nAPP: {app}\nSPEC: {spec}\nTASK ID: {task_id}\nTASK: {task_name}\nDESCRIPTION: {description}\n\nWorking directory: {nexus_root}\n\nRules:\n- Read SPEC before starting\n- Create files in correct locations\n- Output [COMPLETE] task_id={task_id} result=done when done\n- If you cannot complete, output [COMPLETE] task_id={task_id} result=failed reason=...",
-		"context": {
-			"zero": {
-				"description": "No conversation history, reads from files",
-				"use_case": "mclaude -p workers"
-			},
-			"session": {
-				"description": "Full Claude Code session context",
-				"use_case": "Original claude-code CLI"
-			}
-		}
-	},
-
-	"ship": {
-		"enabled": true,
-		"git_remote": "gitea",
-		"branch_prefix": "vibe",
-		"commit_message_template": "vibe: {spec} completed\n\n{task_list}",
-		"pr_create": true,
-		"pr_target": "main"
-	},
-
-	"tasks": {
-		"nexus_lifecycle": [
-			{
-				"id": "NEXUS-001",
-				"name": "nexus-parse-spec",
-				"description": "Parse SPEC.md and extract tasks",
-				"agent_role": "lead",
-				"phase": "plan",
-				"acceptance_criteria": ["Valid queue.json created", "Tasks atomically written"]
-			},
-			{
-				"id": "NEXUS-002",
-				"name": "nexus-claim-task",
-				"description": "Claim first pending task from queue",
-				"agent_role": "worker",
-				"phase": "do",
-				"acceptance_criteria": ["Task status = running", "Worker ID set"]
-			},
-			{
-				"id": "NEXUS-003",
-				"name": "nexus-execute-task",
-				"description": "Execute task with bounded context",
-				"agent_role": "worker",
-				"phase": "do",
-				"acceptance_criteria": ["Task completed or failed", "Context saved"]
-			},
-			{
-				"id": "NEXUS-004",
-				"name": "nexus-complete-task",
-				"description": "Mark task done/failed in queue",
-				"agent_role": "worker",
-				"phase": "do",
-				"acceptance_criteria": ["Task status updated", "Queue counts recalculated"]
-			},
-			{
-				"id": "NEXUS-005",
-				"name": "nexus-freeze-task",
-				"description": "Freeze protected/blocked task",
-				"agent_role": "lead",
-				"phase": "do",
-				"acceptance_criteria": ["Task frozen not guessed", "Reason logged"]
-			},
-			{
-				"id": "NEXUS-006",
-				"name": "nexus-retry-task",
-				"description": "Retry failed task with backoff",
-				"agent_role": "worker",
-				"phase": "do",
-				"bullmq": {
-					"backoff_type": "exponential",
-					"backoff_delay_ms": 1000
-				},
-				"acceptance_criteria": ["Retry count incremented", "Status = pending"]
-			},
-			{
-				"id": "NEXUS-007",
-				"name": "nexus-dlq-check",
-				"description": "Check DLQ and alert if threshold exceeded",
-				"agent_role": "monitor",
-				"phase": "verify",
-				"acceptance_criteria": ["DLQ depth < 10", "Alert if exceeded"]
-			},
-			{
-				"id": "NEXUS-008",
-				"name": "nexus-snapshot",
-				"description": "ZFS snapshot before risky task",
-				"agent_role": "system",
-				"phase": "do",
-				"acceptance_criteria": ["Snapshot created", "Name logged"]
-			}
-		],
-		"vibe_lifecycle": [
-			{
-				"id": "VIBE-001",
-				"name": "vibe-classify-intent",
-				"description": "Classify input as STAR or COMMAND",
-				"agent_role": "lead",
-				"phase": "plan",
-				"acceptance_criteria": ["Intent classified", "Fast path for commands"]
-			},
-			{
-				"id": "VIBE-002",
-				"name": "vibe-translate-spec",
-				"description": "Translate NL to SPEC.md",
-				"agent_role": "lead",
-				"phase": "plan",
-				"acceptance_criteria": ["SPEC created", "Tasks extracted"]
-			},
-			{
-				"id": "VIBE-003",
-				"name": "vibe-generate-pipeline",
-				"description": "Generate pipeline.json from SPEC",
-				"agent_role": "lead",
-				"phase": "plan",
-				"acceptance_criteria": ["pipeline.json valid", "Tasks defined"]
-			},
-			{
-				"id": "VIBE-004",
-				"name": "vibe-spawn-workers",
-				"description": "Spawn parallel workers",
-				"agent_role": "lead",
-				"phase": "do",
-				"acceptance_criteria": ["Workers <= parallel_limit", "Context propagated"]
-			},
-			{
-				"id": "VIBUS-005",
-				"name": "vibe-verify",
-				"description": "Run verification commands",
-				"agent_role": "lead",
-				"phase": "verify",
-				"acceptance_criteria": ["pnpm test passes", "No regressions"]
-			}
-		],
-		"queue_operations": [
-			{
-				"id": "QUEUE-001",
-				"name": "queue-health-check",
-				"description": "Validate queue.json health",
-				"agent_role": "system",
-				"acceptance_criteria": ["Valid JSON", "Required fields present"]
-			},
-			{
-				"id": "QUEUE-002",
-				"name": "queue-recover-orphaned",
-				"description": "Clean orphaned lock files",
-				"agent_role": "system",
-				"acceptance_criteria": ["Locks cleaned", "Age > threshold"]
-			},
-			{
-				"id": "QUEUE-003",
-				"name": "queue-atomic-write",
-				"description": "Write queue atomically with flock",
-				"agent_role": "system",
-				"acceptance_criteria": ["Temp file + rename", "No corruption"]
-			},
-			{
-				"id": "QUEUE-004",
-				"name": "queue-stats",
-				"description": "Get queue statistics",
-				"agent_role": "monitor",
-				"acceptance_criteria": ["Counts accurate", "JSON output"]
-			}
-		],
-		"observability_tasks": [
-			{
-				"id": "OBS-001",
-				"name": "otel-trace-claim",
-				"description": "Create span for queue claim",
-				"agent_role": "system",
-				"acceptance_criteria": ["Span created", "Trace ID propagated"]
-			},
-			{
-				"id": "OBS-002",
-				"name": "otel-trace-execute",
-				"description": "Create span for task execution",
-				"agent_role": "system",
-				"acceptance_criteria": ["Span created", "Parent set"]
-			},
-			{
-				"id": "OBS-003",
-				"name": "otel-metric-task",
-				"description": "Record task completion metric",
-				"agent_role": "system",
-				"acceptance_criteria": ["Counter incremented", "Labels set"]
-			},
-			{
-				"id": "OBS-004",
-				"name": "otel-metric-dlq",
-				"description": "Record DLQ depth gauge",
-				"agent_role": "system",
-				"acceptance_criteria": ["Gauge updated", "Threshold checked"]
-			}
-		],
-		"security_tasks": [
-			{
-				"id": "SEC-001",
-				"name": "sec-secret-scan",
-				"description": "Scan for hardcoded secrets",
-				"agent_role": "system",
-				"phase": "verify",
-				"acceptance_criteria": ["No sk-, cfk-, ghp- patterns", "Pre-commit hook green"]
-			},
-			{
-				"id": "SEC-002",
-				"name": "sec-protected-paths",
-				"description": "Check protected path access",
-				"agent_role": "system",
-				"acceptance_criteria": ["Protected paths blocked", "Error logged"]
-			},
-			{
-				"id": "SEC-003",
-				"name": "sec-forbidden-commands",
-				"description": "Block dangerous commands",
-				"agent_role": "system",
-				"acceptance_criteria": ["rm -rf / blocked", "DD blocked"]
-			}
-		]
-	},
-
-	"entrypoints": {
-		"vibe_sh": {
-			"path": "${NEXUS_ROOT}/scripts/vibe.sh",
-			"description": "User-facing vibe loop",
-			"phases": ["plan", "do", "verify", "run", "full"]
-		},
-		"nexus_ctl": {
-			"path": "${NEXUS_ROOT}/scripts/nexus-ctl.sh",
-			"description": "Nexus-facing wrapper"
-		},
-		"vibe_ctl": {
-			"path": "${NEXUS_ROOT}/scripts/vibe-ctl.sh",
-			"description": "Runtime status/control"
-		},
-		"run_vibe": {
-			"path": "${VIBE_KIT_DIR}/run-vibe.sh",
-			"description": "Low-level runner"
-		},
-		"queue_manager": {
-			"path": "${VIBE_KIT_DIR}/queue-manager.py",
-			"description": "Atomic queue operations"
-		}
-	},
-
-	"phases": [
 		{
-			"phase": 1,
-			"name": "Plan",
-			"tasks": ["NEXUS-001", "VIBE-001", "VIBE-002", "VIBE-003", "QUEUE-001"],
-			"entrypoint": "vibe_sh --plan"
-		},
-		{
-			"phase": 2,
-			"name": "Execute",
+			"phase_id": "PE2",
+			"name": "Database & Migrations",
+			"order": 2,
+			"status": "pending",
+			"depends_on": ["PE1"],
 			"tasks": [
-				"NEXUS-002",
-				"NEXUS-003",
-				"NEXUS-004",
-				"NEXUS-005",
-				"NEXUS-006",
-				"NEXUS-008",
-				"VIBE-004",
-				"QUEUE-002",
-				"QUEUE-003",
-				"QUEUE-004",
-				"OBS-001",
-				"OBS-002",
-				"OBS-003",
-				"OBS-004"
+				{
+					"task_id": "PE2-T1",
+					"name": "Validate database schema (equipment + PMOC fields)",
+					"type": "db",
+					"tables": [
+						"equipment (sequenceNumber)",
+						"maintenance_plans (planType, creaResponsavel, laudoTecnico, numeroEquipamentos, potenciaTotal, cargaTermica, vazioSanitario)",
+						"clients",
+						"contracts",
+						"service_orders"
+					],
+					"verify": "pnpm db:migrate --dry-run"
+				},
+				{
+					"task_id": "PE2-T2",
+					"name": "Seed development data",
+					"type": "db",
+					"command": "cd apps/api && pnpm db:seed",
+					"depends_on": ["PE2-T1"]
+				}
+			]
+		},
+		{
+			"phase_id": "PE3",
+			"name": "API Modules — Core CRUD",
+			"order": 3,
+			"status": "pending",
+			"depends_on": ["PE2"],
+			"modules": [
+				{
+					"name": "equipment",
+					"path": "apps/api/src/modules/equipment",
+					"status": "done"
+				},
+				{
+					"name": "maintenance",
+					"path": "apps/api/src/modules/maintenance",
+					"status": "done"
+				},
+				{
+					"name": "clients",
+					"path": "apps/api/src/modules/clients",
+					"status": "done"
+				},
+				{
+					"name": "contracts",
+					"path": "apps/api/src/modules/contracts",
+					"status": "done"
+				},
+				{
+					"name": "leads",
+					"path": "apps/api/src/modules/leads",
+					"status": "done"
+				},
+				{
+					"name": "service-orders",
+					"path": "apps/api/src/modules/service-orders",
+					"status": "pending"
+				},
+				{
+					"name": "subscriptions",
+					"path": "apps/api/src/modules/subscriptions",
+					"status": "pending"
+				},
+				{
+					"name": "schedule",
+					"path": "apps/api/src/modules/schedule",
+					"status": "pending"
+				},
+				{
+					"name": "reminders",
+					"path": "apps/api/src/modules/reminders",
+					"status": "pending"
+				}
 			],
-			"entrypoint": "vibe_sh --do",
-			"parallel_limit_env": "VIBE_PARALLEL"
+			"tasks": [
+				{
+					"task_id": "PE3-T1",
+					"name": "tRPC router validation — all done modules",
+					"type": "code",
+					"verify": "pnpm build 2>&1 | grep -c 'error' == 0"
+				},
+				{
+					"task_id": "PE3-T2",
+					"name": "Service Orders module — remaining CRUD",
+					"type": "feature",
+					"module": "service-orders",
+					"files": [
+						"apps/api/src/modules/service-orders/service_order.table.ts",
+						"apps/api/src/modules/service-orders/service_orders.trpc.ts"
+					]
+				},
+				{
+					"task_id": "PE3-T3",
+					"name": "Subscriptions module — remaining CRUD",
+					"type": "feature",
+					"module": "subscriptions"
+				},
+				{
+					"task_id": "PE3-T4",
+					"name": "Schedule module — remaining CRUD",
+					"type": "feature",
+					"module": "schedule"
+				},
+				{
+					"task_id": "PE3-T5",
+					"name": "Reminders module — remaining CRUD",
+					"type": "feature",
+					"module": "reminders"
+				}
+			]
 		},
 		{
-			"phase": 3,
-			"name": "Verify",
-			"tasks": ["NEXUS-007", "VIBE-005", "OBS-004", "SEC-001", "SEC-002", "SEC-003"],
-			"entrypoint": "vibe_sh --verify",
-			"commands": ["pnpm test", "pnpm tsc --noEmit", "pnpm lint"]
+			"phase_id": "PE4",
+			"name": "AI Gateway + LiteLLM Proxy",
+			"order": 4,
+			"status": "pending",
+			"depends_on": ["PE3"],
+			"modules": [
+				{
+					"name": "ai-gateway",
+					"path": "apps/ai-gateway",
+					"port": 4002
+				},
+				{
+					"name": "orchestrator",
+					"path": "apps/orchestrator"
+				}
+			],
+			"tasks": [
+				{
+					"task_id": "PE4-T1",
+					"name": "AI Gateway health check",
+					"type": "deploy",
+					"verify": "curl -sf http://localhost:4002/health | jq .status"
+				},
+				{
+					"task_id": "PE4-T2",
+					"name": "LiteLLM proxy validation",
+					"type": "infra",
+					"verify": "curl -sf http://localhost:4000/v1/models | jq ."
+				}
+			]
 		},
 		{
-			"phase": 4,
-			"name": "Ship",
-			"tasks": [],
-			"entrypoint": "vibe_sh --ship",
-			"auto_create_pr": true
+			"phase_id": "PE5",
+			"name": "Infrastructure — Terraform + Cloudflare",
+			"order": 5,
+			"status": "pending",
+			"depends_on": ["PE4"],
+			"tasks": [
+				{
+					"task_id": "PE5-T1",
+					"name": "Terraform plan — RG subdomain sync",
+					"type": "infra",
+					"command": "cd /srv/ops/terraform/cloudflare && terraform plan",
+					"verify": "terraform plan | grep 'No changes.'"
+				},
+				{
+					"task_id": "PE5-T2",
+					"name": "Sync equipment RG records to DNS",
+					"type": "infra",
+					"command": "bash /srv/ops/scripts/sync-equipment-rg.sh",
+					"verify": "terraform apply (dry-run)"
+				},
+				{
+					"task_id": "PE5-T3",
+					"name": "Cloudflare tunnel health",
+					"type": "infra",
+					"verify": "journalctl -u cloudflared -n 5 | grep -E 'healthy|error'"
+				}
+			]
+		},
+		{
+			"phase_id": "PE6",
+			"name": "Frontend — Web App",
+			"order": 6,
+			"status": "pending",
+			"depends_on": ["PE3"],
+			"apps": [
+				{
+					"name": "web",
+					"path": "apps/web",
+					"port": 5173
+				},
+				{
+					"name": "monitoring",
+					"path": "apps/monitoring"
+				},
+				{
+					"name": "list-web",
+					"path": "apps/list-web"
+				}
+			],
+			"tasks": [
+				{
+					"task_id": "PE6-T1",
+					"name": "Build web app",
+					"type": "ui",
+					"command": "cd apps/web && pnpm build",
+					"verify": "ls dist/*.js | wc -l > 0"
+				},
+				{
+					"task_id": "PE6-T2",
+					"name": "Dark mode + acid green theme validation",
+					"type": "ui",
+					"verify": "grep -r '#39FF14' packages/ui/src/theme/ || grep -r '39FF14' apps/web/src/"
+				},
+				{
+					"task_id": "PE6-T3",
+					"name": "Equipment RG page smoke test",
+					"type": "test",
+					"verify": "playwright test tests/smoke/"
+				}
+			]
+		},
+		{
+			"phase_id": "PE7",
+			"name": "Smoke Tests + Health Checks",
+			"order": 7,
+			"status": "pending",
+			"depends_on": ["PE4", "PE5", "PE6"],
+			"sensors": ["api-health", "db-health", "trpc-health", "smoke-tests"],
+			"tasks": [
+				{
+					"task_id": "PE7-T1",
+					"name": "API health endpoint",
+					"type": "test",
+					"verify": "curl -sf http://localhost:4000/health | jq .status == 'ok'"
+				},
+				{
+					"task_id": "PE7-T2",
+					"name": "tRPC equipment.listEquipment smoke",
+					"type": "test",
+					"verify": "curl -s http://localhost:4000/trpc/equipment.listEquipment?input={} | jq .result.data.json.length >= 0"
+				},
+				{
+					"task_id": "PE7-T3",
+					"name": "PostgreSQL connectivity",
+					"type": "db",
+					"verify": "pg_isready -h $DB_HOST -p $DB_PORT"
+				},
+				{
+					"task_id": "PE7-T4",
+					"name": "Full smoke test suite",
+					"type": "test",
+					"command": "pnpm test --filter=./apps/api",
+					"sensors": ["smoke-tests"]
+				}
+			]
+		},
+		{
+			"phase_id": "PE8",
+			"name": "Deploy & Ship",
+			"order": 8,
+			"status": "pending",
+			"depends_on": ["PE7"],
+			"tasks": [
+				{
+					"task_id": "PE8-T1",
+					"name": "Git commit — if dirty",
+					"type": "deploy",
+					"verify": "git status --short | wc -l > 0 ? commit : skip"
+				},
+				{
+					"task_id": "PE8-T2",
+					"name": "GitHub PR creation",
+					"type": "deploy",
+					"verify": "gh pr create --fill"
+				},
+				{
+					"task_id": "PE8-T3",
+					"name": "Nexus deploy validation",
+					"type": "deploy",
+					"verify": "nexus-investigate.sh all 3"
+				}
+			]
 		}
 	],
-
-	"smoke_tests": [
-		{
-			"name": "smoke-queue-atomic",
-			"description": "Atomic queue write",
-			"command": "python3 ${VIBE_KIT_DIR}/queue-manager.py health"
+	"inventory": {
+		"apps": {
+			"count": 11,
+			"list": [
+				"ai-gateway",
+				"api",
+				"archived",
+				"hvac-manual-downloader",
+				"list-web",
+				"monitoring",
+				"obsidian-web",
+				"orchestrator",
+				"painel-organism",
+				"perplexity-agent",
+				"web"
+			]
 		},
-		{
-			"name": "smoke-context-isolation",
-			"description": "Context files isolated per task"
+		"packages": {
+			"count": 8,
+			"list": ["config", "db", "email", "env", "trpc", "ui", "zod-schemas"]
 		},
-		{
-			"name": "smoke-multi-cli-detector",
-			"description": "Multi-CLI detection works",
-			"command": "bash ${NEXUS_ROOT}/scripts/multi-cli-adapter.sh detect"
+		"api_modules": {
+			"count": 26,
+			"done": [
+				"equipment",
+				"maintenance",
+				"clients",
+				"contracts",
+				"leads",
+				"users",
+				"teams",
+				"auth",
+				"dashboard",
+				"webhooks",
+				"mcp-connectors",
+				"api-gateway",
+				"content-engine",
+				"editorial",
+				"email",
+				"haystack",
+				"journal-entries",
+				"kanban",
+				"logs",
+				"loyalty",
+				"prompts",
+				"schedule",
+				"service-orders",
+				"subscriptions",
+				"trieve"
+			],
+			"pending": []
 		},
-		{
-			"name": "smoke-protected-paths",
-			"description": "Protected paths blocked"
-		},
-		{
-			"name": "smoke-forbidden-commands",
-			"description": "Dangerous commands blocked"
+		"database_tables": {
+			"equipment": {
+				"sequenceNumber": "done",
+				"PMOC": "done"
+			},
+			"maintenance_plans": {
+				"planType": "done",
+				"PMOC_fields": "done"
+			},
+			"clients": {
+				"core": "done"
+			},
+			"units": {
+				"core": "done"
+			},
+			"contracts": {
+				"core": "done"
+			},
+			"service_orders": {
+				"core": "pending"
+			},
+			"subscriptions": {
+				"core": "pending"
+			}
 		}
-	],
-
-	"metrics_targets": {
-		"task_completion_p95_ms": 300000,
-		"cache_hit_rate": 0.6,
-		"job_success_rate": 0.95,
-		"dlq_depth_max": 10,
-		"queue_claim_ms_p95": 50
+	},
+	"vars": {
+		"accent_color": "#39FF14",
+		"rg_domain": "zappro.site",
+		"theme": "dark",
+		"api_port": 4000,
+		"ai_gateway_port": 4002,
+		"web_port": 5173,
+		"db_name": "connected_repo_db",
+		"db_host": "zappro-litellm-db",
+		"stack": "Fastify + tRPC + Orchid ORM + PostgreSQL",
+		"frontend": "React 19 + Vite + MUI + Tailwind",
+		"llm_primary": "openrouter/hermes-brain",
+		"llm_fallback": "ollama/llama3-portuguese-tomcat-8b-instruct-q8",
+		"auth": "OAuth2 Google + Dev Bypass via X-Dev-User"
+	},
+	"commands": {
+		"type_check": "pnpm tsc --noEmit",
+		"lint": "biome check . --write",
+		"build": "pnpm build",
+		"db_migrate": "cd apps/api && pnpm db:migrate",
+		"db_seed": "cd apps/api && pnpm db:seed",
+		"dev": "cd apps/api && pnpm dev",
+		"health": "curl -sf http://localhost:4000/health",
+		"tf_plan": "cd /srv/ops/terraform/cloudflare && terraform plan",
+		"tf_apply": "cd /srv/ops/terraform/cloudflare && terraform apply",
+		"smoke": "pnpm test --filter=./apps/api",
+		"nexus_status": "bash /srv/ops/scripts/nexus-investigate.sh all 3"
+	},
+	"gates": {
+		"PE1_to_PE2": {
+			"requires": ["PE1-T1", "PE1-T2"],
+			" блокирующий": true
+		},
+		"PE2_to_PE3": {
+			"requires": ["PE2-T1"],
+			" блокирующий": true
+		},
+		"PE3_to_PE4": {
+			"requires": ["PE3-T1"],
+			" блокирующий": false
+		},
+		"PE7_to_PE8": {
+			"requires": ["PE7-T1", "PE7-T2", "PE7-T3", "PE7-T4"],
+			" блокирующий": true
+		}
 	}
 }
