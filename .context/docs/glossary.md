@@ -1,76 +1,73 @@
 # Glossary & Domain Concepts
 
-This document defines the core terminology, technical constants, and business logic rules used across the monorepo. It serves as a single source of truth for developers to understand the system's domain-driven design and architectural patterns.
+This document defines core terminology, technical constants, and business logic rules used across the platform. It serves as the primary reference for understanding the system's domain-driven design and architectural patterns.
 
 ## Domain Entities
 
 | Entity | Description | Reference Table |
 | :--- | :--- | :--- |
-| **User** | A natural person authenticated via Google OAuth2. Users can belong to multiple Teams with specific roles. | `UserTable`, `UserRolesTable` |
-| **Team** | The primary unit of multi-tenancy. All business data (Leads, Contracts, etc.) is scoped to a `teamId`. | `TeamTable`, `TeamMembersTable` |
-| **Subscription** | A contractual agreement allowing a Team to consume specific API products (SKUs) within defined quotas. | `SubscriptionsTable` |
-| **Journal Entry** | A time-stamped record, often processed via AI prompts, representing the core functional unit of the platform. | `JournalEntryTable` |
-| **Service Order** | A specialized entity for managing maintenance or technical requests, including technical reports and materials. | `ServiceOrderTable` |
-| **Unit** | A physical or logical location/subset belonging to a Client. | `UnitsTable` |
-| **Technical Report** | Detailed documentation linked to a Service Order, often containing findings and resolutions. | `TechnicalReportTable` |
-| **Kanban Board** | Visual management tool for tasks, organized into `KanbanColumns` and `KanbanCards`. | `KanbanBoardsTable` |
+| **User** | A natural person authenticated via Google OAuth2. | `UserTable`, `UserRolesTable` |
+| **Team** | The primary unit of multi-tenancy. All business data is scoped to a `teamId`. | `TeamTable` |
+| **Subscription** | A contractual agreement defining quotas for API product (SKU) consumption. | `SubscriptionTable` |
+| **Journal Entry** | A time-stamped record, often AI-processed, representing the core functional unit. | `JournalEntryTable` |
+| **Service Order** | Specialized entity for managing maintenance, technical reports, and materials. | `ServiceOrderTable` |
+| **Technical Report** | Detailed documentation linked to a Service Order containing findings and resolutions. | `TechnicalReportTable` |
+| **Leads** | Potential clients or business opportunities. | `LeadsTable` |
+| **Kanban Board** | Visual management tool organized into `Columns` and `Cards`. | `KanbanBoardsTable` |
 
 ---
 
 ## Technical Concepts & Components
 
 ### API & Connectivity
-- **API Gateway**: A specialized router in `apps/api` that handles external REST traffic. It enforces API Key authentication, IP whitelisting, and rate limiting.
-- **tRPC (TypeScript Remote Procedure Call)**: The protocol used for internal communication between the Web app and the API, providing end-to-end type safety. Defined in `apps/api/src/routers/trpc.router.ts`.
-- **MCP (Model Context Protocol)**: A standard used to connect AI models to external tools and data sources via adapters (e.g., Claude, Anthropic, Zapier).
-- **Webhooks**: Outbound notifications sent to external systems when specific events occur, tracked via `WebhookDeliveriesTable`.
+- **API Gateway**: A specialized router (`apps/ai-gateway`) that handles external traffic, enforcing authentication, PT-BR linguistic filters, and rate limiting via the `SlidingWindowLimiter`.
+- **tRPC**: The protocol for internal communication between the Web app and API, ensuring end-to-end type safety. Defined in `apps/api/src/routers/trpc.router.ts`.
+- **MCP (Model Context Protocol)**: A standard for connecting AI models to external tools and data sources.
+- **Webhooks**: Outbound notifications for external systems, tracked via `WebhookDeliveriesTable`.
 
 ### AI & Agency (Hermes)
-- **Orchestrator**: The central engine that manages complex multi-step workflows, agentic iterations, and human-in-the-loop approvals.
-- **Human Gate**: A workflow checkpoint that pauses execution until a human actor provides manual approval (see `approveContentPipeline`).
-- **Prompt**: A managed template used to interact with LLMs, versioned and stored in the `PromptsTable`.
-- **Skill**: A specific capability (e.g., vision analysis, transcription) that the AI Agency can route tasks to.
-- **Distributed Lock**: A mechanism using Redis to prevent race conditions during asynchronous AI processing (see `acquireLock`).
-- **Circuit Breaker**: A pattern implemented in `apps/hermes-agency` to stop calling failing skills or external services to prevent system-wide degradation.
+- **Orchestrator**: The engine managing multi-step workflows, agentic iterations, and human-in-the-loop approvals.
+- **RAG (Retrieval-Augmented Generation)**: A technique utilized in `scripts/hvac-rag` to provide AI models with specific context from vector databases (Qdrant).
+- **Human Gate**: A checkpoint that pauses execution until manual approval is provided (e.g., `approvecontentPipeline`).
+- **Prompt**: A managed template for LLM interaction, versioned in the `PromptsTable`.
+- **Skill**: A modular capability (e.g., `make_pdf`, `vision_analysis`) that the Agency can execute.
 
 ---
 
 ## Key Enumerations
 
-Defined primarily in `packages/zod-schemas/src/enums.zod.ts` and `crm_enums.zod.ts`.
+Defined in `packages/zod-schemas/src/enums.zod.ts` and `crm_enums.zod.ts`.
 
 | Enum | Key Values | Purpose |
 | :--- | :--- | :--- |
-| **`ApiProductSku`** | `journal_entry_create`, `stt_transcription` | Identifies specific billable API features. |
-| **`ApiProductStatus`**| `SUCCESS`, `FAILED`, `EXHAUSTED` | Tracks the outcome of an API request relative to quotas. |
-| **`SessionSecurity`** | `Standard`, `Strict` | Controls the level of validation applied to encrypted session cookies. |
+| **`ApiProductSku`** | `journal_entry_create`, `stt_transcription` | Identifies billable API features. |
+| **`ApiProductStatus`** | `SUCCESS`, `FAILED`, `EXHAUSTED` | Tracks API request outcomes relative to quotas. |
+| **`SessionSecurity`** | `Standard`, `Strict` | Level of validation for encrypted session cookies. |
 | **`AddressType`** | `BILLING`, `SHIPPING`, `RESIDENTIAL` | Categorizes physical locations for CRM entities. |
 | **`WebhookStatus`** | `PENDING`, `SENT`, `FAILED` | Tracks the lifecycle of a webhook delivery attempt. |
-| **`ApiRequestMethod`** | `GET`, `POST`, `PUT`, `DELETE` | Standardizes HTTP methods for API logging and gateway routing. |
 
 ---
 
-## Core Domain Rules & Invariants
+## Business Logic & Invariants
 
-1.  **Multi-Tenancy Isolation**: No query may return data without a `teamId` filter. Cross-team data access is strictly prohibited at the database and middleware levels.
-2.  **Quota Enforcement**:
-    *   The system monitors `api_product_request_logs` against the team's active `Subscription`.
-    *   **90% Rule**: When a team reaches 90% of its monthly quota, the `checkAndQueueWebhookAt90Percent` utility triggers a notification.
-3.  **API Key Security**: API Keys are never stored in plain text. They are authenticated using the `apiKeyAuthHook` which validates hashes against incoming headers.
-4.  **Session Lifecycle**: Sessions are managed via `DatabaseSessionStore`. Invalidation is handled via the `markedInvalidAt` timestamp to maintain audit trails.
-5.  **Webhook Reliability**: Failed webhook deliveries must use **Exponential Backoff** for retries, managed via the `WebhookCallQueueTable`.
+1.  **Multi-Tenancy Isolation**: Queries are strictly filtered by `teamId`. Cross-team data access is prohibited at the database schema and middleware levels.
+2.  **Quota Enforcement**: The system monitors `api_product_request_logs` against the team’s `Subscription`. A notification is triggered when a Team reaches 90% of its monthly quota.
+3.  **Security Guards**:
+    *   **IP Whitelisting**: Managed via `isIPWhitelisted` to restrict access to sensitive endpoints.
+    *   **API Secret Guard**: Internal guard (`validateApiSecret`) allowing tools like Open WebUI to interact with the API without a standard user session.
+4.  **Session Lifecycle**: sessions are stored in `DatabaseSessionStore`. Invalidation utilizes the `markedInvalidAt` timestamp to maintain audit trails while revoking access.
+5.  **Data Persistence**: Primary keys typically use **ULIDs** or standard UUIDs for non-sequential, sortable, and globally unique identification.
 
 ---
 
 ## Acronyms & Abbreviations
 
-*   **RHF**: React Hook Form (Standardized form handling in `packages/ui/src/rhf-form`).
-*   **STT**: Speech-to-Text (e.g., Whisper-based transcription via `transcribeAudio`).
-*   **TTS**: Text-to-Speech (e.g., `synthesizeSpeech`).
-*   **ULID**: Universally Unique Lexicographically Sortable Identifier (Used for non-sequential, sortable DB primary keys).
-*   **LLM**: Large Language Model (e.g., GPT-4, Claude, or local Ollama instances).
-*   **CRM**: Customer Relationship Management (entities like `Clients`, `Contacts`, and `Addresses`).
-*   **PT-BR**: Portuguese (Brazilian). The system includes specific filters (`applyPtbrFilter`) to ensure content follows regional linguistic rules.
+*   **CRM**: Customer Relationship Management (Clients, Contacts, Addresses).
+*   **LLM**: Large Language Model (e.g., GPT-4, Claude).
+*   **PT-BR**: Portuguese (Brazilian). The system uses `applyPtbrFilter` to ensure responses adhere to regional language standards.
+*   **RHF**: React Hook Form (Standardized framework in `packages/ui/src/rhf-form`).
+*   **STT / TTS**: Speech-to-Text and Text-to-Speech capabilities.
+*   **ULID**: Universally Unique Lexicographically Sortable Identifier.
 
 ---
 

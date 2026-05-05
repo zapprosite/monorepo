@@ -1,98 +1,96 @@
-# AI Agent & Skill Protocol (`docs/rules-GEMINI.md`)
+# AI Agent & Skill Protocol Guide
 
-This document defines the mandatory operating procedures for AI agents (Gemini, Claude, GPT) interacting with this monorepo. It establishes a tiered execution model designed to prevent "hallucination-driven" coding and ensure that every change is intentional, researched, and architecture-compliant.
+This documentation outlines the mandatory operational framework for AI agents (Gemini, Claude, GPT) and developers interacting with this monorepo. It defines a structured protocol designed to ensure architectural consistency, prevent technical debt, and eliminate "hallucination-driven" development.
 
-## 📋 Core Execution Lifecycle
+---
 
-Every AI session must follow this strict priority chain before performing any write operations:
+## 🏗 High-Level Architecture
 
-1.  **Read Rules (P0):** Consult this file (`docs/rules-GEMINI.md`) before any action.
-2.  **Check Frontmatter (P1):** Identify the required Agent and Skillset based on the task (e.g., `@[frontend-specialist]`).
-3.  **Load Skills (P2):** Reference the `SKILL.md` index and load only the documentation sections relevant to the task.
+The monorepo is organized into specialized workspaces to separate concerns and maximize reusability:
 
-**Selective Reading Strategy:** Do not ingest entire directories. Read the skill index first, then target-load specific documentation relevant to the current file or logic.
+-   **`packages/zod-schemas`**: Centralized source of truth for all data definitions. Contains Zod schemas used for validation in both the API and the Web frontend.
+-   **`packages/ui`**: Shared UI library built with Material UI (MUI). Includes specialized form wrappers (e.g., `RhfTextField`) and the global `ThemeProvider`.
+-   **`apps/api`**: Fastify-based backend utilizing tRPC for type-safe communication and Drizzle ORM for database management.
+-   **`apps/web`**: React-based frontend application.
+-   **`apps/ai-gateway`**: Specialized service for managing AI model routing, PT-BR filtering, and OpenAI-compatible endpoints.
+-   **`scripts/hvac-rag`**: Python-based Retrieval-Augmented Generation (RAG) pipeline for technical HVAC data.
+
+---
+
+## 📋 The Execution Lifecycle
+
+Every AI-driven or complex manual change must follow these three priority levels:
+
+### P0: Rule Consultation
+Before any action, review the core constraints in `docs/rules-GEMINI.md`. This guide is the primary authority on how code should be written and organized in this repository.
+
+### P1: Persona Identification
+Identify the required expertise based on the task:
+-   **`@[frontend-specialist]`**: For `apps/web` or `packages/ui` tasks. Focuses on React, MUI, and React Hook Form.
+-   **`@[backend-specialist]`**: For `apps/api` or database tasks. Focuses on tRPC, Drizzle, and Fastify.
+-   **`@[ai-specialist]`**: For `apps/ai-gateway`, RAG pipelines, or LangGraph logic.
+
+### P2: Selective Loading
+Do not analyze the entire repository. Use the `SKILL.md` index to find and load only the relevant documentation for the specific module you are touching (e.g., loading `database` skills when creating migrations).
 
 ---
 
 ## 🛑 The Socratic Gate
 
-**Mandatory Rule:** No implementation tools may be used until the request passes the Socratic Gate. The AI must clarify 100% of the intent before writing code.
+**Mandatory Procedure:** No implementation may begin until the request is 100% clarified.
 
-### Strategy by Request Type
-- **New Features:** Ask at least **3 strategic questions** regarding architecture (e.g., "Should this schema live in `packages/zod-schemas` or is it local to the app?").
-- **Bug Fixes:** Confirm the reproduction steps and ask about potential side effects in related modules.
-- **Refactoring:** Ask why the refactor is needed and what the specific success criteria are.
-
-**The Golden Rule:** If even 1% of the request is ambiguous, the AI must ask for clarification instead of assuming.
+-   **Strategic Questioning:** Ask at least 3 questions regarding architectural boundaries (e.g., "Should this validation live in the Zod schema package or the local controller?").
+-   **Reproduction & Side Effects:** For bugs, define the reproduction path and identify potential regressions in downstream modules.
+-   **The 1% Rule:** If any part of the requirement is ambiguous, you must seek clarification rather than assuming a solution.
 
 ---
 
-## 🔍 Request Classification
+## ⚙️ Standard Conventions
 
-The complexity of the task determines which "Tiers" of the AI's capabilities are activated:
+### 1. Language & Typing
+-   **Internal Thought/Plan:** English.
+-   **Code & Docs:** All code (variables, functions, comments) must be in **English**.
+-   **UI:** User-facing labels follow the user's language preference.
+-   **The `any` Ban:** Strict TypeScript is required. Use the exported types from `packages/zod-schemas` (e.g., `UserCreateInput`).
 
-| Class | Activity | Tiers | Outcome |
-| :--- | :--- | :--- | :--- |
-| **QUESTION** | General knowledge / Code explanation | Tier 0 | Direct Answer |
-| **SURVEY** | Analysis of existing codebase patterns | Tier 0 + Explorer | Session Intel / Summary |
-| **SIMPLE CODE** | Single file fixes or minor UI tweaks | Tier 0 + Tier 1 (Lite) | Code Block / Inline Edit |
-| **COMPLEX CODE** | Multi-file features / Database migrations | Tier 0 + Tier 1 + Agent | `{task-slug}.md` Plan |
+### 2. Database & Schemas
+-   **ORM:** All tables must be defined using Drizzle ORM.
+-   **Shared Logic:** If a schema is used by both the API and Web apps, it **must** reside in `packages/zod-schemas`.
+-   **Migrations:** Use the standard migration folder: `apps/api/src/db/migrations`.
 
----
-
-## 🤖 Intelligent Agent Routing
-
-Based on the classification, the AI must adopt a specific persona and declare it to the user:
-
-*   **`@[frontend-specialist]`**: Expertise in `packages/ui` (MUI/React), React Hook Form, and `apps/web`.
-*   **`@[backend-specialist]`**: Expertise in `apps/api`, Drizzle ORM, tRPC, and Fastify.
-*   **`@[devops-specialist]`**: Expertise in monorepo structure, scripts, and deployment.
-*   **`@[ai-specialist]`**: Expertise in `apps/ai-gateway`, `apps/hermes-agency`, and LangGraph.
-
-**Example Trace:**
-> 🤖 **Applying knowledge of `@[backend-specialist]` with skill `@[skills/database]`...**
-> I have determined that we need a new migration in `apps/api/src/db/migrations`. Before I proceed, [Socratic Questions]...
+### 3. UI Development
+-   **Components:** Prefer reusing components from `packages/ui`.
+-   **Forms:** Always use the `RhfFormProvider` and its associated components (`RhfTextField`, `RhfSelect`, `RhfCheckbox`) for consistency and validation.
 
 ---
 
-## 🛠 Global Standards & Conventions
+## 📂 Task Planning (Complex Tasks Only)
 
-### 1. Language & Coding Style
-- **Internal/Thought:** The AI thinks and plans in English.
-- **User Interface:** The AI responds to the user in their preferred language.
-- **Code:** All variables, function names, comments, and internal documentation **must be in English**.
-- **Types:** Strict TypeScript is non-negotiable. Avoid `any` at all costs. Use Zod schemas from `packages/zod-schemas` for data validation.
+For multi-file features or database changes, a planning document must be created at `docs/tasks/{task-slug}.md` containing:
 
-### 2. Architecture Compliance
-- **Schemas:** All shared models must be defined in `packages/zod-schemas` (e.g., `UserCreateInput`, `AddressSelectAll`).
-- **UI Components:** Reusable atoms and molecules belong in `packages/ui`. Use specialized wrappers like `RhfTextField`, `RhfSelect`, or `RhfCheckbox` for forms.
-- **Error Handling:** Use the `AppError` class (found in `apps/api/src/middlewares/errorHandler.ts`) for backend failures.
-- **Database:** All table definitions must use Drizzle ORM (e.g., `UsersTable`, `SubscriptionsTable`, `LeadsTable`).
-
-### 3. Documentation (The `{task-slug}.md` Rule)
-For "Complex Code" or "Design" requests, the AI must create a planning document (`docs/tasks/{task-slug}.md`) before implementation. This document must include:
-1.  **Objective:** High-level summary of the goal.
-2.  **Affected Files:** Specific list of files to be created or modified.
-3.  **Step-by-Step Plan:** The sequence of implementation (e.g., 1. Schema, 2. Migration, 3. tRPC Router, 4. UI Page).
-4.  **Verification:** Definition of done and testing steps.
+1.  **Objective:** A concise statement of "what" and "why".
+2.  **Affected Files:** A manifest of every file to be touched.
+3.  **Step-by-Step Plan:** The logical order of operations (e.g., Define Zod Schema -> Create Migration -> Update tRPC Router -> Build UI Page).
+4.  **Verification:** Specific steps to test and confirm the feature works.
 
 ---
 
-## 📂 Skill Index Reference
+## 🛠 Key Symbols Reference
 
-The AI leverages specialized skill modules located in the `skills/` directory:
-- **`clean-code`**: Standard formatting and architectural patterns.
-- **`database`**: Drizzle ORM usage and migration protocols for tables like `ServiceOrderTable` or `JournalEntryTable`.
-- **`trpc`**: Communication patterns between `web` and `api` using `AppTrpcRouter`.
-- **`ui-components`**: MUI customization, `ThemeProvider`, and building with components in `packages/ui/src/components`.
-- **`ai-agents`**: `apps/hermes-agency` logic, LangGraph implementations, and agency skills (e.g., `routeToSkill`).
+| Symbol | Location | Use Case |
+| :--- | :--- | :--- |
+| `AppTrpcRouter` | `apps/api/src/routers/trpc.router.ts` | The root of all type-safe API calls. |
+| `AppError` | `apps/api/src/middlewares/errorHandler.ts` | Standardized error throwing for the backend. |
+| `RhfFormProvider` | `packages/ui/src/rhf-form/` | Wrapper for all complex data entry forms. |
+| `UserTable` | `apps/api/src/modules/users/users/users.table.ts` | Example of a Drizzle table definition. |
+| `applyPtbrFilter` | `apps/ai-gateway/src/middleware/ptbr-filter.ts` | Middleware for sanitizing AI responses. |
 
-## 🧱 Key System Archetypes
+---
 
-| Category | Primary Symbols |
-| :--- | :--- |
-| **Logic/Controllers** | `ServiceOrderTable`, `UsersTable`, `McpConectoresTable`, `KanbanBoardsTable` |
-| **Data Schemas** | `UserCreateInput`, `AddressSelectAll`, `ChatCompletionRequest`, `TechnicalReportCreateInput` |
-| **Utility/Auth** | `authLoader`, `checkRateLimit`, `applyPtbrFilter`, `acquireLock`, `apiKeyAuthHook` |
-| **Error Handling** | `AppError`, `CustomError`, `errorHandler` |
-| **UI Framework** | `RhfFormProvider`, `useRhfForm`, `ContentCard`, `PrimaryButton` |
+## 📂 Skill Modules Index
+
+-   **`clean-code`**: Principles for formatting and DRY architecture.
+-   **`database`**: Protocals for Drizzle schemas and migrations.
+-   **`trpc`**: Type-safe contract definitions between client and server.
+-   **`ui-components`**: Material UI customization and shared component usage.
+-   **`ai-agents`**: LangGraph implementations and AI gateway routing.

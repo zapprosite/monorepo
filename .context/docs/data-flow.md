@@ -1,6 +1,6 @@
 # Data Flow & Integrations
 
-This document describes the architectural patterns, data movement, and service integrations within the monorepo. The system is a distributed architecture where data flows through three primary channels: internal **tRPC** communication, a secured **REST API Gateway**, and an **Asynchronous Orchestration Engine** for AI workflows.
+This document describes the architectural patterns, data movement, and service integrations within the monorepo. The system follows a distributed architecture where data flows through three primary channels: internal **tRPC** communication, a secured **REST API Gateway**, and an **Asynchronous Orchestration Engine** for AI workflows.
 
 ## Core Data Architecture
 
@@ -9,10 +9,10 @@ The system follows a multi-tenant architecture where data isolation is enforced 
 ### High-Level Component Relationship
 
 *   **apps/web**: React UI using `@trpc/client` for type-safe communication and `packages/zod-schemas` for client-side validation.
-*   **apps/api**: The core backend and persistence layer. It manages the PostgreSQL schema mapping via `Table` classes (e.g., `UsersTable`, `SubscriptionsTable`) and exports the `AppTrpcRouter`.
-*   **apps/hermes-agency**: The "Intelligence" layer. Handles complex LLM orchestration, "skills" execution, and vector database interactions.
-*   **apps/ai-gateway**: A high-performance proxy for AI workloads (STT/TTS/Chat), implementing specialized filters like the `ptbr-filter.ts`.
-*   **packages/zod-schemas**: The "Single Source of Truth." Every request, response, and database entity is defined here to ensure end-to-end type safety.
+*   **apps/api**: The core backend and persistence layer. It manages the PostgreSQL schema mapping via `Table` classes (e.g., `UsersTable`, `ServiceOrderTable`) and exports the `AppTrpcRouter`.
+*   **scripts/hvac-rag**: The "Intelligence" layer. Handles complex HVAC-specific RAG (Retrieval-Augmented Generation), "skills" execution, and vector database interactions via Qdrant.
+*   **apps/ai-gateway**: A high-performance proxy for AI workloads (STT/TTS/Chat), implementing specialized filters like the `ptbr-filter.ts` (Portuguese language optimization).
+*   **packages/zod-schemas**: The "Single Source of Truth." Every request, response, and database entity is defined here to ensure end-to-end type safety across TypeScript and Python services.
 
 ---
 
@@ -23,20 +23,20 @@ The system implements a **"Request-Validate-Execute-Notify"** pattern for all da
 ### 1. Ingress & Middleware
 Requests hitting `apps/api` or `apps/ai-gateway` pass through a tiered security stack:
 *   **Web Authentication**: `sessionSecurity.middleware.ts` validates cookie-based sessions and checks `SessionSecurityLevel`.
-*   **API Authentication**: `apiKeyAuth.middleware.ts` validates external `x-api-key` headers against the `SubscriptionsTable`.
-*   **Rate Limiting**: `checkRateLimit` (in `apps/hermes-agency`) and internal Fastify plugins prevent abuse.
+*   **Internal Security**: `validateApiSecret` (in `hvac.routes.ts`) allows trusted components like Open WebUI to bypass typical session requirements for specific HVAC pipelines.
+*   **Rate Limiting**: Implementation of sliding window limiters (e.g., `SlidingWindowLimiter` in Python) and Fastify plugins prevent API abuse.
 
 ### 2. Validation & Usage Tracking
-*   **Schema Validation**: Input is parsed against Zod types (e.g., `ServiceOrderCreateInput`).
-*   **Quota Check**: For AI-related requests, `subscriptionTracker.utils.ts` verifies if the team has remaining credits. If usage hits 90%, `checkAndQueueWebhookAt90Percent` triggers a notification.
+*   **Schema Validation**: Input is parsed against Zod types (e.g., `ServiceOrderCreateInput` from `packages/zod-schemas`).
+*   **Tracing**: Request metadata like IP address and device fingerprints are extracted using `request-metadata.utils.ts`.
 
 ### 3. Execution & State Transition
-*   **Synchronous Path**: Direct CRUD operations on tables like `ClientsTable`, `ContractsTable`, or `LeadsTable` via Orchid ORM.
-*   **Asynchronous Path**: Complex tasks (e.g., generating a social calendar) are handed off to the **Agency Router**.
+*   **Synchronous Path**: Direct CRUD operations on tables like `ClientsTable`, `ContractsTable`, or `LeadsTable` via Orchid ORM in the API modules.
+*   **Intelligence Path**: HVAC queries are routed via `hvac.client.ts` to specialized RAG pipes that build context packs, resolve technical evidence, and query Qdrant.
 
 ### 4. Egress & Side Effects
-*   **Response**: The original caller receives the processed data or a job ID.
-*   **Events**: Side effects are recorded in `EventosTable`. If a webhook is registered, a task is added to `WebhookCallQueueTable`.
+*   **Response**: The original caller receives processed data or a job status.
+*   **Webhooks**: Long-running or external notifications are managed via `WebhookCallQueueTable` and `WebhookDeliveriesTable` to ensure reliable delivery with retry logic.
 
 ---
 
@@ -45,7 +45,7 @@ Requests hitting `apps/api` or `apps/ai-gateway` pass through a tiered security 
 ```mermaid
 graph TD
     User((User)) -->|tRPC| WebApp[apps/web]
-    External((API Client)) -->|REST| Gateway[API Gateway / Fastify]
+    External((API Client)) -->|REST| Gateway[AI Gateway / Fastify]
     
     subgraph Core Backend
         WebApp --> Router[tRPC Router]
@@ -56,9 +56,9 @@ graph TD
     end
 
     subgraph Intelligence Layer
-        Logic -->|Trigger Skill| Agency[Hermes Agency]
-        Agency -->|Context Retrieval| Qdrant[(Qdrant Vector DB)]
-        Agency -->|Model Call| AIGateway[AI Gateway]
+        Logic -->|Trigger HVAC Pipe| HvacScripts[scripts/hvac-rag]
+        HvacScripts -->|Context Retrieval| Qdrant[(Qdrant Vector DB)]
+        HvacScripts -->|Model Call| AIGateway[AI Gateway]
         AIGateway -->|Filter/Route| LLM[LLM Providers]
     end
 
@@ -74,17 +74,12 @@ graph TD
 
 ### Identity & Access (Auth)
 *   **Google OAuth2**: Handled in `apps/api/src/modules/auth/oauth2`. It manages the exchange of codes for user profiles, syncing with the `UserTable`.
-*   **Session Management**: `DatabaseSessionStore` persists sessions in the `SessionTable`, enabling global session invalidation.
+*   **Session Management**: `DatabaseSessionStore` persists sessions in the `SessionTable`, enabling global session invalidation and cross-service security checks.
 
-### AI & LLM Ecosystem
-*   **Vector Sync**: `apps/hermes-agency/src/qdrant/client.ts` synchronizes relational data into vector space for Retrieval-Augmented Generation (RAG).
-*   **Skill System**: The `agency_router.ts` maps user intents to specific TypeScript/Python "Skills" (e.g., `executeSocialCalendar`).
-*   **Audio Pipeline**: `apps/ai-gateway` routes transcription to `whisper-server-v2.py` and speech synthesis to TTS bridges.
-
-### Reliability & Observability
-*   **API Logging**: Every external request is logged in `ApiProductRequestLogsTable` via `requestLogger.middleware.ts`.
-*   **Webhook Resilience**: Outbound notifications use an exponential backoff strategy (up to 3 retries), tracked in `WebhookDeliveriesTable`.
-*   **Concurrency**: `distributed_lock.ts` uses Redis to prevent race conditions during sensitive operations (e.g., processing duplicate Telegram updates).
+### HVAC RAG & AI Pipeline
+*   **Vector Sync**: Technical data is prepared via `hvac_formatter.py` and indexed into Qdrant using `hvac_index_qdrant.py`.
+*   **Resolution Engine**: `hvac_resolver.py` calculates `EvidenceLevel` and `CoverageMap` to ensure LLM responses are grounded in actual technical documentation.
+*   **Audio Pipeline**: `apps/ai-gateway` routes transcription to Groq/Whisper and speech synthesis to TTS bridges, applying the `ptbr-filter` for better Portuguese phonetics and accuracy.
 
 ---
 
@@ -95,10 +90,11 @@ graph TD
 | **Auth** | `UserTable`, `SessionTable` | `UserSelectAll`, `SessionMetadata` |
 | **CRM** | `ClientsTable`, `AddressesTable` | `ClientCreateInput`, `AddressType` |
 | **Project** | `KanbanBoardsTable`, `KanbanCardsTable` | `BoardCreateInput`, `CardUpdateInput` |
-| **Maintenance** | `ServiceOrderTable`, `EquipmentTable` | `ServiceOrderCreateInput` |
-| **System** | `SubscriptionsTable`, `ApiProductRequestLogsTable` | `SubscriptionSelectAll` |
+| **Maintenance** | `ServiceOrderTable`, `EquipmentTable` | `ServiceOrderCreateInput`, `TechnicalReportSelectAll` |
+| **System** | `SubscriptionsTable`, `ApiProductRequestLogTable` | `SubscriptionSelectAll`, `ApiProductRequestLogCreateInput` |
 
 ---
 **See Also:**
-*   `packages/zod-schemas/README.md` for detailed field definitions.
+*   `packages/zod-schemas/README.md` for detailed field definitions and validation logic.
 *   `apps/api/src/routers/trpc.router.ts` for the full list of available web procedures.
+*   `scripts/hvac-rag/README.md` for the internal logic of the RAG resolution engine.

@@ -1,89 +1,94 @@
-# Architecture Guide
+# System Architecture
 
-This document provides a comprehensive overview of the system architecture, design patterns, and technical structure of the monorepo.
+This document outlines the high-level architecture, design patterns, and technical structure of the monorepo. The system is designed as a **Modular Monolith**, maximizing type safety via shared schemas while maintaining clear boundaries between domains.
 
-## System Topology
+## Core System Topology
 
-The project is structured as a **Modular Monolith** within a monorepo. This approach balances developer productivity and type safety with a clear separation of concerns, allowing specific domains to be extracted into independent services if needed in the future.
+The platform provides a suite of CRM, ERP, and AI-driven workflow tools specifically optimized for the HVAC and service industries.
 
-### Core Architecture Layers
-
-| Layer | Responsibility | Key Technologies |
+| Layer | Responsibility | Primary Technologies |
 |:---|:---|:---|
-| **Frontend** | User interface and client-side state management. | React, Vite, tRPC Client, MUI |
-| **Transport** | Type-safe communication between client and server. | tRPC, Fastify |
-| **API Gateway** | RESTful entry point for external integrations and AI tools. | Fastify, Zod |
-| **Business Logic** | Domain-specific modules (Auth, CRM, Kanban). | TypeScript, Zod |
-| **Orchestrator** | Agentic workflows, LLM routing, and MCP integrations. | LangGraph, LiteLLM, Qdrant |
-| **Data Layer** | Schema definition, migrations, and query building. | PostgreSQL, Orchid ORM |
+| **Frontend** | User Interface & Client State | React, Vite, MUI, tRPC Client |
+| **API Gateway** | Entry point for Web UI and REST integrations | Fastify, tRPC, Zod |
+| **AI Gateway** | Specialized proxy for LLM/OpenAI-compatible flows | Node.js, Groq, OpenAI SDK |
+| **Domain Logic** | Business rules for CRM, HVAC, and Financials | TypeScript, Orchid ORM |
+| **RAG / AI Engine** | Vector retrieval and Agentic workflows | Python, Qdrant, LangGraph |
+| **Data Layer** | Relational and Vector storage | PostgreSQL, Redis, Qdrant |
 
 ---
 
-## Technical Stack & Packages
+## Workspace Structure
 
 ### Shared Packages (`/packages`)
-- **`zod-schemas`**: The single source of truth for validation. It generates the types for the database layer, API validation, and frontend forms.
-- **`ui`**: Centralized library of React components, MUI theme configurations, and custom hook-based form builders (`rhf-form`).
+- **`zod-schemas`**: The core source of truth. Defines Zod schemas used for database modeling, API validation, and frontend form validation.
+- **`ui`**: Shared component library. Includes the MUI theme, layout components, and a custom React Hook Form integration (`rhf-form`).
 
 ### Applications (`/apps`)
-- **`apps/api`**: Primary backend hosting the tRPC server for the web app and a REST API Gateway for external products.
-- **`apps/web`**: Administrative and user dashboard built with React.
-- **`apps/hermes-agency`**: AI/Agentic service managing long-running workflows with LangGraph and vector search via Qdrant.
-- **`apps/ai-gateway`**: Specialized proxy for LLM requests (OpenAI-compatible) with built-in Portuguese language filtering and audio/vision processing.
+- **`apps/api`**: The primary backend. It hosts the tRPC server used by the Web UI and a REST API for external integrations. It handles database migrations and domain modules.
+- **`apps/web`**: The main user dashboard. A Single Page Application (SPA) consuming the tRPC API.
+- **`apps/ai-gateway`**: A specialized proxy designed to handle Portuguese language filtering (`ptbr-filter`), Speech-to-Text (STT) preprocessing, and model routing.
+
+### Scripts & AI Pipes (`/scripts`)
+- **`scripts/hvac-rag`**: A Python-based Retrieval-Augmented Generation (RAG) pipeline. It handles technical manual indexing, field tutor logic, and safety procedure generation.
 
 ---
 
-## Key Design Patterns
+## Architectural Patterns
 
-### 1. Unified Schema Validation
-The system uses Zod schemas defined in `packages/zod-schemas` to synchronize types across the stack.
-*   **Database**: Orchid ORM uses schemas (e.g., `AddressesTable`) for type-safe queries.
-*   **API**: Fastify/tRPC uses inputs like `UserCreateInput` and outputs like `UserSelectAll`.
-*   **Frontend**: React Hook Form uses these schemas via the `useRhfForm` hook for validated inputs.
+### 1. Unified Type-Safe Pipeline
+The system utilizes **Zod** for "End-to-End Type Safety":
+1.  **Database**: Table definitions in `apps/api/src/modules/` (e.g., `ServiceOrderTable`) extend Zod-derived types.
+2.  **Transport**: tRPC procedures (e.g., `user-roles.trpc.ts`) use Zod inputs for automatic runtime validation and TypeScript inference on the client.
+3.  **UI**: The `useRhfForm` hook in `packages/ui` consumes the same Zod schema to provide validation errors and type-safe form submission.
 
 ### 2. Domain-Driven Modules
-Backend logic is partitioned into modules in `apps/api/src/modules/`. Each module typically contains:
-*   `*.table.ts`: Database table definitions (e.g., `LeadsTable`, `ContractsTable`).
-*   `*.router.ts`: tRPC or REST route definitions.
-*   `__tests__`: Domain-specific integration tests.
+The backend is organized into vertical modules within `apps/api/src/modules/`. Each module is self-contained:
+- **Tables**: `*.table.ts` (e.g., `LeadsTable`, `MaintenancePlansTable`).
+- **Logic/Routers**: `*.trpc.ts` or `*.routes.ts`.
+- **Tests**: `__tests__` folder for integration testing of that specific domain.
 
-### 3. Agentic Workflow (Hermes Agency)
-The AI layer uses an **Agentic Router** pattern:
-*   **CEO/Router**: Analyzes user intent using `askCeoToRoute` and routes to specific "Skills".
-*   **Skills**: Modular executable units (e.g., `executeStatusUpdate`, `social_calendar`).
-*   **Human-in-the-loop**: Approval stages in the graph (e.g., `approveContentPipeline`) allow manual oversight via Telegram or Web UI.
+### 3. HVAC RAG Architecture
+The RAG pipeline follows a multi-stage process for technical data:
+- **Resolver**: The `hvac_resolver.py` maps manufacturer-specific error codes and technical specs to a unified context.
+- **Vision**: `hvac_vision.py` processes equipment plate photos to extract model/serial information.
+- **Retriever**: Queries `Qdrant` using filtered payloads to find specific service procedures or safety protocols.
 
-### 4. Distributed Locking & Rate Limiting
-To handle concurrent agent operations and external API constraints:
-*   **Redis-backed locks**: Managed via `distributed_lock.ts` (`acquireLock`) to prevent race conditions during stateful operations.
-*   **Circuit Breakers**: Implemented in `agency_router.ts` to fail fast when external AI services or specific skill integrations are unstable.
-*   **Rate Limiter**: Tracks usage in `rate_limiter.ts` to respect provider limits across distributed instances.
+### 4. Security & Middleware
+- **Session Security**: A multi-level protocol (`sessionSecurity.middleware.ts`) that validates sessions based on IP whitelisting, domain origin, and device fingerprinting.
+- **API Secret Guard**: Used in routes like `hvac.routes.ts` to allow specific internal tools (like Open WebUI) to interact with the API without a standard browser session.
 
 ---
 
 ## Data Flow
 
-1.  **Client Request**: A user interacts with a React component in `apps/web`.
-2.  **Transport**: The tRPC client sends a request. External tools hit `api-gateway` REST endpoints in `apps/api`.
-3.  **Authentication**: Middleware such as `apiKeyAuthHook` or `sessionSecurity` validates the session or API key.
-4.  **Logic Execution**: The corresponding module (e.g., `loyalty`, `kanban`) processes the request using Orchid ORM.
-5.  **Agent Trigger**: If a workflow is required, the API communicates with `apps/hermes-agency` to trigger a LangGraph execution.
-6.  **Response**: Validated data is returned via Zod-serialized objects, ensuring the UI matches the server state exactly.
+### Web Request Flow
+1.  **Frontend**: User submits a form (e.g., creating a Service Order).
+2.  **tRPC**: Client calls a mutation; Zod validates the input on the client.
+3.  **API**: `authMiddleware` verifies the session.
+4.  **Service**: The module logic executes (e.g., `service_order.trpc.ts`).
+5.  **DB**: Orchid ORM performs a type-safe insert into PostgreSQL.
+6.  **Response**: The new record is returned to the UI with exact type matching.
+
+### AI Retrieval Flow (RAG)
+1.  **Input**: Technician asks a question via the UI or Telegram.
+2.  **Search**: `searchMemories` or `callHvacPipe` is triggered in the API.
+3.  **Pipeline**: The Python backend builds a context pack using `hvac_memory_context.py`.
+4.  **LLM**: The context is sent to the LLM (via `ai-gateway`) to generate a grounded technical answer.
 
 ---
 
-## Infrastructure & Observability
+## Database Schema Highlights
 
-- **Database**: PostgreSQL (Primary) + Qdrant (Vector Store for RAG/Agent Memory).
-- **Caching/State**: Redis (used for rate limiting, distributed locks, and session storage).
-- **Error Handling**: Custom `AppError` class and `errorParser` utility provide consistent API error responses.
-- **Logging**: `requestLogger` middleware tracks API product request logs into the `ApiProductRequestLogsTable` for billing and analytics.
+The system uses a highly relational structure in PostgreSQL:
+- **CRM**: `Clients` -> `Addresses` -> `Units` -> `Equipment`.
+- **Operations**: `ServiceOrders`, `MaintenanceSchedules`, and `KanbanBoards`.
+- **Infrastructure**: `Users`, `Teams`, `ApiProductRequestLogs`.
 
 ---
 
-## Development Guidelines
+## Developer Guidelines
 
-- **Adding a Table**: Define the Zod schema in `packages/zod-schemas`, then create the table class inheriting from `BaseTable` in the relevant module in `apps/api/src/modules/`.
-- **Cross-Module Logic**: Avoid tight coupling. Interact through service methods or hooks rather than reaching directly into foreign tables where possible.
-- **Time Handling**: Always use `timestampNumber` (Unix epoch milliseconds) for date-time fields to avoid timezone ambiguity during JSON serialization and across different service runtimes (Python/Node).
-- **UI Components**: Primarily use components from `packages/ui` (e.g., `RhfTextField`, `PrimaryButton`). Avoid creating local versions of buttons or inputs to maintain design system consistency.
+1.  **Schema First**: When adding a feature, start by defining the Zod schema in `packages/zod-schemas`.
+2.  **Shared UI**: Do not rebuild standard inputs. Use the components in `packages/ui/src/rhf-form` (e.g., `RhfTextField`, `RhfSelect`) to ensure consistent styling and validation.
+3.  **Internal APIs**: For cross-app communication (e.g., API calling Python script), use the client wrappers found in `apps/api/src/routes/hvac.client.ts`.
+4.  **Error Handling**: Throw `AppError` on the backend. This ensures the frontend receives a parsed, actionable error message via the `trpcErrorParser`.

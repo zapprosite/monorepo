@@ -1,6 +1,6 @@
 # Security & Compliance Documentation
 
-This document outlines the security architecture, authentication protocols, and safety mechanisms implemented across the monorepo. It serves as a technical reference for developers maintaining the API, AI Gateway, and Hermes Agency services.
+This document outlines the security architecture, authentication protocols, and safety mechanisms implemented across the monorepo. It serves as a technical reference for developers maintaining the API, AI Gateway, and RAG services.
 
 ## Security Philosophy
 
@@ -19,30 +19,30 @@ Primary authentication is handled via **Google OAuth2** in `apps/api/src/modules
 - **Roles**: Users are assigned roles via `UserRolesTable`. Permissions are checked during tRPC procedure execution.
 
 ### Session Management
-Sessions are stateful and managed through `DatabaseSessionStore` (PostgreSQL).
-- **Security Hook**: The `sessionSecurityHook` in `apps/api/src/middlewares/sessionSecurity.middleware.ts` performs real-time verification:
-    - **IP Subnet Integrity**: Uses `areSameSubnet` to prevent session hijacking from impossible locations.
-    - **Fingerprinting**: Compares `User-Agent` and client signatures.
-    - **Levels**: Supports `SessionSecurityLevel.LOW` for general browsing and `STRICT` for sensitive operations.
+Sessions are stateful and managed through `DatabaseSessionStore` (PostgreSQL) in `apps/api/src/modules/auth/session.auth.store.ts`.
+- **Security Hook**: The `sessionSecurityHook` performs real-time verification:
+    - **IP Subnet Integrity**: Uses `areSameSubnet` to prevent session hijacking from "impossible" network jumps.
+    - **Fingerprinting**: `generateDeviceFingerprint` compares `User-Agent` and client signatures across requests.
+    - **Levels**: Supports `SessionSecurityLevel` (LOW for general browsing vs. STRICT for sensitive operations).
 
 ### Programmatic API Access (Gateway)
 External access to the `ai-gateway` and specific API endpoints uses:
 - **API Keys**: Generated as high-entropy strings and stored as **scrypt hashes**.
-- **Middleware**: `apiKeyAuthHook` handles extraction and verification.
-- **IP Filtering**: Requests are limited to `allowedIps` defined in the Team's subscription.
+- **Internal Validation**: `validateApiSecret` in `apps/api/src/routes/hvac.routes.ts` acts as an internal guard for automated services (like Open WebUI) to interact with the API without a browser session.
+- **IP White-listing**: Functions in `apps/api/src/utils/ip-checker.utils.ts` (e.g., `isIPWhitelisted`, `isDomainWhitelisted`) restrict access to known CIDR ranges.
 
 ---
 
 ## Authorization Model (RBAC)
 
-Access is managed through tRPC procedure wrappers that enforce permissions at the controller level.
+Access is managed through tRPC procedure wrappers (found in `apps/api/src/routers/trpc.router.ts`) that enforce permissions at the controller level.
 
 | Procedure Type | Access Requirement | Implementation |
 | :--- | :--- | :--- |
-| `publicProcedure` | None | Open endpoints (e.g., Marketing). |
-| `protectedProcedure` | Valid Session | Standard user actions. |
-| `sensitiveProcedure` | `STRICT` Security Level | Password changes, API Key management. |
-| `adminProcedure` | `assertAdmin` Check | System configuration and moderation. |
+| `publicProcedure` | None | Open endpoints (e.g., Health checks). |
+| `protectedProcedure` | Valid Session | Standard user actions requiring a login. |
+| `sensitiveProcedure` | `STRICT` Security Level | Operations like updating API Keys or secrets. |
+| `adminProcedure` | `assertAdmin` Check | Uses `apps/api/src/modules/users/user-roles.trpc.ts`. |
 
 ---
 
@@ -50,30 +50,31 @@ Access is managed through tRPC procedure wrappers that enforce permissions at th
 
 ### Secrets Management
 Secrets are injected via environment variables and never committed to version control.
-- **Hashing**: `apiSecretHash` is stored using secure hashing algorithms (scrypt), never as plain text.
-- **Log Sanitization**: `requestLogger.middleware.ts` redacts sensitive keys (e.g., `password`, `apiKey`, `token`) from logs.
+- **Log Sanitization**: The system redacts sensitive keys (e.g., `password`, `apiKey`, `token`) from logs.
 - **Data Stripping**: Zod schemas utilize `.strip()` or `.omit()` to ensure sensitive database fields (like `passwordHash`) are never serialized in JSON responses.
+- **Input Validation**: All data entering the system is validated against schemas in `packages/zod-schemas` to prevent XSS or SQL injection.
 
 ### Critical Secrets
 | Environment Variable | Description |
 | :--- | :--- |
 | `INTERNAL_API_SECRET` | Authenticates AI-Gateway to API requests. |
-| `SESSION_SECRET` | Used to sign the session cookies. |
-| `ENCRYPTION_KEY` | Encrypts external integration tokens (e.g., Telegram Bot). |
+| `SESSION_SECRET` | Used to sign session cookies. |
+| `GOOGLE_CLIENT_SECRET` | OAuth2 credential for Google identity management. |
 
 ---
 
 ## AI & Prompt Security
 
-The **AI Gateway** and **Hermes Agency** implement guardrails for LLM interactions:
+The **AI Gateway** and **HVAC RAG** scripts implement guardrails for LLM interactions:
 
 ### Injection & Toxicity Prevention
-- **Prompt Sanitization**: `sanitizeForPrompt` in `apps/hermes-agency/src/router/agency_router.ts` scrubs user text to prevent jailbreak attempts.
-- **Language Filtering**: `applyPtbrFilter` in `apps/ai-gateway/src/middleware/ptbr-filter.ts` ensures language compliance and masks inappropriate content.
+- **Prompt Isolation**: Use of system messages and strict RAG context templates in `scripts/hvac-rag/hvac_rag_pipe.py` prevents user-provided content from overriding model instructions.
+- **Language Filtering**: `applyPtbrFilter` in `apps/ai-gateway/src/middleware/ptbr-filter.ts` ensures language compliance and masks inappropriate content via a sophisticated STT (Speech-to-Text) preprocessing layer.
+- **Safety Assertions**: Python-based assertions like `assert_energized_measurement_safe` in `scripts/hvac-rag/hvac_assertions.py` check AI outputs for safety procedures before presenting them to field technicians.
 
 ### Infrastructure Protection
-- **Rate Limiting**: A Redis-backed sliding window rate limiter (`apps/hermes-agency/src/telegram/rate_limiter.ts`) prevents cost exhaustion.
-- **File Validation**: `validateFile` in `apps/hermes-agency/src/telegram/file_validator.ts` checks magic bytes (MIME types) for uploaded media to prevent malicious file execution.
+- **Rate Limiting**: `SlidingWindowLimiter` in `apps/api/rate_limit.py` prevents cost exhaustion and DoS attacks on expensive AI endpoints.
+- **Vision Guardrails**: `build_vision_prompt` monitors image analysis tasks to ensure they remain within technical HVAC diagnostic bounds.
 
 ---
 
@@ -81,23 +82,23 @@ The **AI Gateway** and **Hermes Agency** implement guardrails for LLM interactio
 
 The outbound webhook system ensures secure delivery to third-party endpoints:
 1.  **HMAC Signatures**: Every request includes an `X-Hub-Signature` (HMAC-SHA256) for sender verification.
-2.  **Retry Strategy**: Employs exponential backoff via `WebhookCallQueueTable` to prevent DoS-ing target servers.
-3.  **Schema Isolation**: Payloads use specific "Public" schemas from `packages/zod-schemas` to prevent leaking internal database IDs or metadata.
+2.  **Retry Strategy**: Employs exponential backoff via `WebhookCallQueueTable` to prevent DoS-ing target servers during outages.
+3.  **Isolation**: Payloads use specific "SelectAll" schemas from `packages/zod-schemas` to ensure internal metadata (like `deletedAt`) is never exposed.
 
 ---
 
 ## Incident Response & Monitoring
 
 ### Audit Trail
-The `ApiProductRequestLogsTable` tracks high-value operations:
-- **Who**: `teamId` and `userId`.
-- **What**: Token usage, model parameters, and endpoint accessed.
-- **Result**: Request status, latency, and success/failure markers.
+The system tracks high-value operations using `ApiProductRequestLogTable`:
+- **Traceability**: Tracks `teamId`, `userId`, `method`, and `status`.
+- **Latency**: Logs performance metrics to identify potential timing attacks or resource exhaustion.
+- **Error Context**: `AppError` and `trpcErrorParser` provide standardized error codes (e.g., `UNAUTHORIZED`, `FORBIDDEN`) while hiding stack traces in production.
 
 ### Emergency Actions
-- **Session Revocation**: Call `invalidateAllUserSessions(userId)` to disconnect a compromised account immediately.
-- **Circuit Breakers**: `circuit_breaker.ts` in Hermes Agency automatically disables failing integrations to isolate failures.
-- **Tracing**: Use the `traceId` found in error logs to query unified logs across `apps/api` and `apps/ai-gateway`.
+- **Session Revocation**: Database-backed sessions allow immediate revocation of a specific `sessionId` or all sessions for a `userId`.
+- **IP Blocking**: Administrators can update white-lists dynamically to block malicious traffic patterns.
+- **Tracing**: Use the `traceId` found in `Fastify` logs to query unified logs across `apps/api` and `apps/ai-gateway`.
 
 ---
 

@@ -4,10 +4,10 @@ This guide outlines the engineering process, branching strategies, and local dev
 
 ## Core Philosophy
 
-*   **Types-First Development**: Define data models in `packages/zod-schemas` before implementing business logic in the API or UI. This ensures a single source of truth for validation.
+*   **Types-First Development**: Define data models in `packages/zod-schemas` before implementing business logic in the API or UI. This ensures a single source of truth for validation across the stack.
 *   **Trunk-Based Development**: Use short-lived feature branches merged frequently into `main`.
-*   **Automated Validation**: All changes must pass CI (Lint, Type Check, Tests) before merging.
-*   **Port Governance**: Adhere to assigned ports to avoid infrastructure conflicts (specifically with CapRover).
+*   **Automated Validation**: All changes must pass CI (Lint, Type Check, Vitest) before merging.
+*   **Port Governance**: Adhere to assigned ports to avoid infrastructure conflicts (specifically with internal deployment tools).
 
 ---
 
@@ -16,15 +16,14 @@ This guide outlines the engineering process, branching strategies, and local dev
 We follow a **Trunk-Based Development** model to ensure the code in `main` is always deployable.
 
 ### Branch Naming Conventions
-Use standardized CLI commands to generate branches:
 *   **`feature/*`**: New functional development or enhancements.
 *   **`fix/*`**: Bug fixes for production or QA issues.
 *   **`chore/*`**: Dependency updates, configuration changes, or non-functional maintenance.
 
 ### Release Process
-1.  **Merge to Main**: Once a PR is approved and CI passes, it is merged into `main`.
-2.  **Semantic Versioning**: We use SemVer. Merges to `main` trigger automated version tagging (e.g., `v1.2.3`) based on conventional commit messages.
-3.  **Deployment**: Successful builds on `main` are automatically deployed to staging or production environments via our CI/CD pipeline.
+1.  **Merge to Main**: Once a Pull Request is approved and CI passes, it is merged into `main`.
+2.  **Semantic Versioning**: Merges to `main` trigger automated version tagging (e.g., `v1.2.3`) based on conventional commit messages.
+3.  **Deployment**: Successful builds on `main` are automatically deployed to staging or production via the CI/CD pipeline.
 
 ---
 
@@ -33,16 +32,17 @@ Use standardized CLI commands to generate branches:
 Follow these steps to initialize your environment and run services locally.
 
 ### 1. Prerequisites
-*   **Node.js**: Ensure the version matches `.nvmrc` (v20+ recommended).
+*   **Node.js**: Version 20+ (managed via `.nvmrc`).
 *   **Yarn**: Version 1.x (Classic).
 *   **Docker**: Required for database (PostgreSQL 15) and cache (Redis) services.
+*   **Python**: v3.10+ (Required for `scripts/hvac-rag` utilities if working on AI features).
 
 ### 2. Initialization
 ```bash
 # Install dependencies across the monorepo
 yarn install
 
-# Start local infrastructure (PostgreSQL 15 and Redis)
+# Start local infrastructure
 docker compose up -d
 
 # Run database migrations (using Orchid ORM)
@@ -50,13 +50,16 @@ yarn db -- up
 ```
 
 ### 3. Running Applications
-Use the root `yarn dev` command to start the core services concurrently:
-*   **Backend API**: `http://localhost:4000`
-*   **Web Frontend**: `http://localhost:5173`
-*   **AI Gateway**: `http://localhost:3001` (Check `apps/ai-gateway/src/index.ts` for dynamic overrides)
+Use the root `yarn dev` command to start core services concurrently. The following ports are standard:
+
+| Service | Local URL | Description |
+| :--- | :--- | :--- |
+| **Backend API** | `http://localhost:4000` | Main Fastify/tRPC server |
+| **Web Frontend** | `http://localhost:5173` | React/Vite dashboard |
+| **AI Gateway** | `http://localhost:3001` | OpenAI-compatible proxy for LLMs |
 
 > [!CAUTION]
-> **Port Safety**: NEVER use port `3000` on your local host. This port is strictly reserved for internal CapRover infrastructure.
+> **Port Safety**: NEVER use port `3000` on your local host. This port is strictly reserved for internal infrastructure (CapRover).
 
 ### 4. Validation Commands
 *   **Type Check**: `yarn check-types`
@@ -71,43 +74,35 @@ All Pull Requests require at least one maintainer approval. Reviews focus on:
 
 ### 1. Type Integrity
 Zod schemas in `packages/zod-schemas` must accurately reflect the database (via Orchid ORM) and API contracts.
-*   **Source of Truth**: If you change a table in `apps/api/src/modules/*/tables/*.table.ts`, update the corresponding `.zod.ts` in `packages/zod-schemas/src/`.
-*   **Example**: `UserSelectAll` (from `packages/zod-schemas/src/user.zod.ts`) must match the fields in `UserTable`.
+*   **Process**: If you modify a table in `apps/api/src/modules/*/tables/*.table.ts`, you **must** update the corresponding `.zod.ts` in `packages/zod-schemas/src/`.
+*   **Validation**: Ensure exported types like `UserSelectAll` or `ServiceOrderCreateInput` match the runtime requirements.
 
 ### 2. Performance
-*   **API**: Check for "N+1" query patterns in `apps/api` controllers and routers. Use Orchid ORM's join capabilities effectively.
-*   **Web**: Audit for unnecessary re-renders in `apps/web` components.
+*   **N+1 Queries**: Audit loaders in `apps/api`. Use Orchid ORM's `.join()` or `.select({ ... })` to fetch nested data efficiently.
+*   **Client Rendering**: Use specialized UI components from `packages/ui` and avoid expensive calculations inside the render cycle of `apps/web`.
 
 ### 3. Consistency
-*   **UI**: Use shared components from `packages/ui` (e.g., `PrimaryButton`, `ContentCard`) instead of raw HTML/CSS.
-*   **Forms**: Utilize the `useRhfForm` hook and `RhfTextField` components from `packages/ui/src/rhf-form` for standardized validation feedback.
+*   **UI Standard**: Use shared components from `packages/ui` (e.g., `PrimaryButton`, `ContentCard`) instead of raw HTML/CSS.
+*   **Forms**: Standardize on the `useRhfForm` hook and `RhfTextField` components from `packages/ui/src/rhf-form`.
 
-### 4. Testing
-Ensure appropriate Vitest or E2E tests are included. Refer to the [Testing Strategy](./testing-strategy.md).
-
----
-
-## AI Agent Collaboration
-
-When using AI tools (Cursor, Claude, etc.), follow the patterns established in [AGENTS.md](../../AGENTS.md). Ensure AI-generated code respects:
-*   The centralized Zod schemas for all data boundaries.
-*   The repository's **Module-based architecture** (grouping routes, tables, and services by domain).
-*   The use of the `AppError` class for consistent error handling in the API.
+### 4. Error Handling
+*   Use the `AppError` class (found in `apps/api/src/middlewares/errorHandler.ts`) for business logic errors.
+*   Ensure the AI Gateway correctly maps errors through `applyPtbrFilter` for Portuguese language support.
 
 ---
 
 ## New Developer Onboarding
 
-If you are new to the codebase, complete these tasks to familiarize yourself with the stack:
+If you are new to the codebase, complete these tasks:
 
-1.  **Explore the Schema**: Compare `packages/zod-schemas/src/user.zod.ts` and `apps/api/src/modules/users/users/users.table.ts`. Observe how types flow from the database layer to the application validation layer.
+1.  **Explore the Schema**: Compare `packages/zod-schemas/src/user.zod.ts` and `apps/api/src/modules/users/users/users.table.ts`. Observe how types flow from the DB to validation.
 2.  **Login to Dashboard**: Run `yarn db:seed`, navigate to the Web app at `localhost:5173`, and log in using the credentials generated in the `seedDevTeam` script.
-3.  **Scaffold a Module**: Run the `/scaffold` command (see [Tooling Guide](./tooling.md)) to generate a new CRUD module. This demonstrates how the API, DB, and UI layers are connected in this monorepo.
-4.  **First Issue**: Search the backlog for `good-first-issue` tags. These typically involve UI adjustments in `packages/ui` or adding fields to existing Zod schemas and tables.
+3.  **Module Exploration**: Look at `apps/api/src/modules/service-orders`. This is a reference implementation of a complete CRUD module with tables, routers, and schemas.
+4.  **AI Pipeline**: If working on retrieval features, check `scripts/hvac-rag/hvac_rag_pipe.py` to see how the RAG context is built and passed to LLMs.
 
 ---
 
 ### Related Resources
 *   [Testing Strategy](./testing-strategy.md) - Unit, Integration, and E2E patterns.
 *   [Tooling Guide](./tooling.md) - Reference for CLI slash commands and automation scripts.
-*   [Agent Guidelines](../../AGENTS.md) - Best practices for AI-assisted engineering in this repository.
+*   [Agent Guidelines](../../AGENTS.md) - Best practices for AI-assisted engineering.

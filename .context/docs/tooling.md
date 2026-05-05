@@ -25,41 +25,41 @@ To contribute effectively, install and configure the following on your local mac
 
 The monorepo architecture segments logic across specialized applications. Ensure these core services are operational for local development:
 
-*   **API Gateway (`apps/ai-gateway`)**: Listens on **Port 4001**. Handles OpenAI-compatible routing, audio transcription (Whisper), and PT-BR content filtering.
-*   **Main API (`apps/api`)**: Listens on **Port 4000**. The primary tRPC server and interface for the PostgreSQL database.
+*   **API Gateway (`apps/ai-gateway`)**: Listens on **Port 4001**. Handles OpenAI-compatible routing, audio transcription (Whisper), and PT-BR content filtering using `applyPtbrFilter`.
+*   **Main API (`apps/api`)**: Listens on **Port 4000**. The primary tRPC server (`AppTrpcRouter`) and interface for the PostgreSQL database.
 *   **Agency Service (`apps/hermes-agency`)**: Orchestrates AI agents using LangGraph and LiteLLM. Integrated with Telegram and Qdrant.
 *   **Frontend (`apps/web`)**: Listens on **Port 5173**. The primary React/Vite administration and CRM dashboard.
-*   **Shared UI (`packages/ui`)**: Atomic components and theme configurations used by the web application.
-*   **Shared Schemas (`packages/zod-schemas`)**: The "Single Source of Truth" for data validation across all apps.
+*   **Shared UI (`packages/ui`)**: Atomic components and theme configurations found in `packages/ui/src/components` and `packages/ui/src/theme`.
+*   **Shared Schemas (`packages/zod-schemas`)**: The "Single Source of Truth" for data validation across all apps (e.g., `UserCreateInput`, `ServiceOrderCreateInput`).
 
 ---
 
 ## Automation Workflows
 
-We automate "plumbing" tasks so you can focus on business logic.
+We automate repetitive tasks to maintain architectural integrity.
 
 ### 1. Code Generation & Scaffolding
 The repository includes a scaffolding system to reduce boilerplate across the stack.
 *   **Module Generation:** Run `.agent/scripts/scaffold-module.sh` to generate a synchronized vertical slice:
-    *   **Backend:** Orchid ORM table definition → Zod Schema → tRPC Router.
-    *   **Frontend:** API Client → React Page → UI Components.
+    *   **Backend:** Orchid ORM table (e.g., `ServiceOrderTable`) → Zod Schema → tRPC Router.
+    *   **Frontend:** API Client (see `apps/api/src/routes/hvac.client.ts`) → React Page → UI Components.
 
 ### 2. Form & Validation (Zod-to-UI)
 We use a centralized Zod pipeline to ensure frontend/backend parity:
 *   **Schema Source:** Define all models and inputs in `packages/zod-schemas` (e.g., `UserCreateInput`).
-*   **Type Safety:** `apps/web` consumes these schemas via the `useRhfForm` hook (`packages/ui/src/rhf-form/useRhfForm.tsx`) and standard components like `RhfTextField`.
-*   **Validation:** Use `yarn check-types` to find breaking changes across the monorepo when a shared schema is updated.
+*   **Type Safety:** `apps/web` consumes these schemas via the `useRhfForm` hook in `packages/ui/src/rhf-form/useRhfForm.tsx`.
+*   **Components:** Logic-heavy forms use `RhfTextField`, `RhfSelect`, and `RhfSwitch` to automatically handle validation and error display via `FormErrorDisplayer`.
 
 ### 3. Database Lifecycle
 Database management is handled via **Orchid ORM** in `apps/api/src/db`.
-*   `yarn db g <name>`: Generate a new migration file.
+*   `yarn db g <name>`: Generate a new migration file in `apps/api/src/db/migrations`.
 *   `yarn db up`: Migrate the local database to the latest version.
-*   `yarn db seed`: Populate the database with essential dev data (Users, Teams, CRM base).
-*   **Safety:** Always audit `apps/api/src/db/migrations` before committing to prevent schema drift.
+*   `yarn db seed`: Populate the database with essential dev data using scripts in `apps/api/src/db/seeds`.
+*   **Safety:** Always audit migration files before committing to prevent schema drift.
 
 ### 4. Git & Commit Quality
-*   **Conventional Commits:** Use `yarn commit` to trigger a scripted flow that generates semantic commit messages based on your `git diff`.
-*   **Pre-commit Hooks:** Managed via `husky`. These run `biome check --apply` and `yarn check-types` on staged files to prevent "lint-only" commits.
+*   **Conventional Commits:** Use `yarn commit` to trigger a scripted flow for generating semantic commit messages.
+*   **Pre-commit Hooks:** Managed via `husky`. These run `biome check --apply` and `yarn check-types` on staged files.
 
 ---
 
@@ -69,7 +69,7 @@ Database management is handled via **Orchid ORM** in `apps/api/src/db`.
 The repository includes `.vscode` settings for an "out-of-the-box" experience:
 *   **Formatter:** Set to **Biome** (`biomejs.biome`).
 *   **TypeScript:** Ensure you use the "Workspace Version" (found in `node_modules`).
-*   **Tailwind CSS:** Essential for the design system in `packages/ui`. Use the `bradlc.vscode-tailwindcss` extension.
+*   **Tailwind CSS:** Essential for the design system settings in `packages/ui`. Use the `bradlc.vscode-tailwindcss` extension.
 
 ### Essential Extensions
 - **Biome:** Fast linting and formatting.
@@ -92,14 +92,14 @@ alias ydb="yarn db"
 ### Development Commands
 *   **Parallel Startup:** `yarn dev` uses **Turbo** to start all apps.
 *   **Targeted Start:** `yarn turbo run dev --filter=api` (Starts only the API).
-*   **Clean Cache:** `yarn clean` recursively deletes `node_modules`, `dist`, and `.turbo` if you encounter persistent build issues.
+*   **Clean Cache:** `yarn clean` recursively deletes `node_modules`, `dist`, and `.turbo`.
 *   **Port Safety:** **Never use Port 3000** locally. It is strictly reserved for CapRover management. Refer to `apps/api/src/configs/app.config.ts` for service port assignments.
 
 ### Diagnostics & Testing
 If AI services or background tasks are failing, use these internal utilities:
-*   **Redis Check:** `yarn tsx apps/hermes-agency/src/telegram/redis.ts` to test connectivity.
+*   **Redis Check:** Test connectivity for the agency service queue.
 *   **Smoke Tests:** Run `python smoke-tests/smoke_hermes_telegram.py` to validate the Telegram bot pipeline.
-*   **API Gateway Logs:** Analyze logs for `apps/ai-gateway` to debug Whisper (STT) or (TTS) connectivity issues.
+*   **API Gateway Logs:** Analyze `apps/ai-gateway` logs to debug Whisper (STT) or Speech (TTS) connectivity issues via `audioTranscriptionsRoute` and `audioSpeechRoute`.
 
 ---
 
