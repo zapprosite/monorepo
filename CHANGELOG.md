@@ -4,6 +4,40 @@
 
 ---
 
+## [v2.1.1] — 2026-05-05 — HCE v2.1 Production Hardening
+
+### Added
+- **HCE Context API** — FastAPI service at port 8642 (`apps/api/context.py`)
+  - `POST /context` — ranked context retrieval with session memory
+  - `GET /context/health` — context service health check
+  - `GET /health` — root health check
+- **Rate Limit Middleware** (`apps/api/rate_limit.py`)
+  - In-memory sliding window per client IP
+  - Configurable via `RATE_LIMIT_REQUESTS` and `RATE_LIMIT_WINDOW_SECONDS`
+  - Returns 429 with PT-BR message: "Muitas requisições. Aguarde um momento."
+- **19 HCE Tests** (`tests/test_*.py`)
+  - `test_ranker.py` — 6 tests (PageRank convergence, token budget, edge cases)
+  - `test_context.py` — 5 tests (health endpoints, POST shape, rate limit 429)
+  - `test_sync_engine.py` — 8 tests (scan, hash, async upsert, skip unchanged)
+- **Async Embeddings + Content-Hash Skip** (`services/sync_engine.py`)
+  - `_embed()` async via `aiohttp`
+  - `_fetch_existing_hashes()` queries Qdrant before upsert
+  - Skips documents with unchanged SHA-256 hash
+  - `run_sync_sync()` backwards-compatible wrapper
+
+### Fixed
+- **SQLite DatabaseError** (`libs/memory/manager.py`)
+  - Detects corruption on import via `PRAGMA schema_version`
+  - If corrupt: logs warning, deletes file, recreates schema
+  - API now starts cleanly every time regardless of DB state
+
+### Changed
+- Renamed `services/sync-engine.py` → `services/sync_engine.py` (valid Python module)
+- Added `libs/` package structure (`libs/memory/`, `libs/context/`)
+- Created SPEC-HCE-v2.1-improvements.md with full execution plan
+
+---
+
 ## [v2.1.0] — 2026-05-04 — SPEC-302 Phase 3: Factory Pattern Mass Migration
 
 ### Added

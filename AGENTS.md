@@ -3,6 +3,73 @@
 > **Data:** 2026-05-03
 > **Canonical reference:** `docs/HOMELAB.md`
 
+---
+
+## 📜 COMUNICADO GLOBAL RULES — Lei Suprema do Repositório
+
+> **Status:** ✅ Em vigor | **Última atualização:** 2026-05-05
+> **Aplicação:** Todos os agentes, humanos e automações que interagem com este repositório.
+
+### 🚫 Regras Absolutas (Quebra = Bloqueio de Deploy)
+
+| # | Regra | Penalidade |
+|---|-------|-----------|
+| R1 | **NUNCA hardcodar secrets, tokens ou keys.** Sempre usar `os.environ.get()`, `process.env.VAR` ou vault. | CI falha, PR bloqueado |
+| R2 | **NUNCA comitar arquivos `.env`, `credentials.json`, `*.pem`, `*.key`.** | Git hook rejeita, alerta CSO |
+| R3 | **Commits atômicos** — uma feature/fix por commit. Squash proibido sem justificativa documentada. | Revert obrigatório |
+| R4 | **Testes antes ou junto com código.** Zero testes = zero merge. | PR rejeitado |
+| R5 | **Docs em PT-BR, código em EN.** Variáveis, funções, classes e commits em inglês. UI/texto em português UTF-8. | Biome/CI falha |
+| R6 | **Zero deploy em produção sem smoke test.** | Rollback automático |
+| R7 | **Toda alteração em AGENTS.md, CLAUDE.md ou SPECs exige commit separado** com prefixo `docs:`. | Revert |
+
+### 📋 Convenções Obrigatórias
+
+| # | Convenção | Exemplo |
+|---|-----------|---------|
+| C1 | **Prefixos de commit:** `feat:`, `fix:`, `docs:`, `test:`, `refactor:`, `chore:`, `ci:` | `feat(api): add rate limit middleware` |
+| C2 | **Branch names:** `feature/descricao-curta` ou `fix/nome-do-bug` | `feature/hce-v2.1-rate-limit` |
+| C3 | **Env vars em SCREAMING_SNAKE_CASE** | `RATE_LIMIT_REQUESTS=10` |
+| C4 | **Números mágicos proibidos** — sempre extrair para constante com nome | `MAX_RETRIES = 3` |
+| C5 | **Funções puras quando possível** — evitar side effects ocultos | — |
+| C6 | **TODO no código exige ticket/PR vinculado** | `TODO(#123): migrar para async` |
+
+### 🔄 Sync Automático — Aider Tree
+
+**Em TODO commit, o script `scripts/aider-tree.sh` DEVE ser executado** para gerar a árvore de arquivos modificados no estilo Aider (tree-like). O output é anexado ao corpo do commit.
+
+```bash
+# Uso obrigatório antes de TODO commit
+bash scripts/aider-tree.sh >> COMMIT_MSG.txt
+git commit -m "feat: ..." -m "$(cat COMMIT_MSG.txt)"
+```
+
+**Requisitos da árvore:**
+- Mostrar apenas arquivos modificados/criados/deletados no staging
+- Formato: tree-like com indentação hierárquica
+- Destacar `N` (novo), `M` (modificado), `D` (deletado)
+- Incluir contagem de linhas alteradas por arquivo
+
+### 🏛️ Hierarquia de Decisão
+
+```
+SPEC.md > AGENTS.md > CLAUDE.md > Código-fonte
+```
+
+- Se um SPEC contradiz AGENTS.md, o SPEC vence para aquela feature.
+- Se não há SPEC, AGENTS.md é a fonte suprema.
+- Todo agente DEVE citar a regra que está seguindo ao explicar uma decisão.
+
+### ⚖️ Processo de Infração
+
+1. **Detectada:** CI, code-review ou agente identifica quebra de regra
+2. **Documentada:** Issue com label `infraction` e referência à regra quebrada
+3. **Corrigida:** Fix obrigatório antes de qualquer merge
+4. **Arquivada:** Registro em `docs/ADRs/INFRACTION-NNN.md` se recorrente
+
+> **LEI FUNDAMENTAL:** *Se uma regra não está escrita aqui, ela não existe. Se uma regra está escrita aqui, ela é absoluta.*
+
+---
+
 ## Leia Primeiro
 
 1. [docs/HOMELAB.md](docs/HOMELAB.md) — referência canônica de infraestrutura
