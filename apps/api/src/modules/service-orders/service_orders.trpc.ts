@@ -161,7 +161,7 @@ export const serviceOrdersRouterTrpc = trpcRouter({
 			const tecnico = order.tecnicoId ? await db.users.findOptional(order.tecnicoId) : null;
 			const equipment = order.equipmentId ? await db.equipment.findOptional(order.equipmentId) : null;
 			const report = await db.technicalReports.where({ serviceOrderId }).takeOptional();
-			await db.materialItems.where({ serviceOrderId }).order({ createdAt: 'ASC' }).limit(100);
+			const materialItems = await db.materialItems.where({ serviceOrderId }).order({ createdAt: 'ASC' }).limit(100);
 			const companyIdentity = await getCompanyIdentity(teamId!);
 
 			const primaryAddress = await db.addresses.where({ clienteId: order.clienteId, tipo: 'Técnica' as const }).takeOptional()
@@ -183,6 +183,11 @@ export const serviceOrdersRouterTrpc = trpcRouter({
 				serviceType: order.tipo,
 				diagnostico: report?.diagnostico || '',
 				servicosExecutados: report?.servicosExecutados || '',
+				materiais: materialItems.map((m: any) => ({
+					descricao: m.descricao,
+					quantidade: m.quantidade,
+					valorUnitario: m.valorUnitario,
+				})),
 				photos: [],
 				technicianSignature: report?.signatureUrlTecnico || '',
 				clientSignature: report?.signatureUrlCliente || '',
@@ -225,9 +230,10 @@ export const serviceOrdersRouterTrpc = trpcRouter({
 
 	deleteServiceOrder: protectedProcedure
 		.input(serviceOrderGetByIdZod)
-		.mutation(async ({ ctx, input: { serviceOrderId } }) => {
+		.mutation(async ({ ctx, input }) => {
+			// Delegates to cancelarOrdem (identical behavior, avoid duplicate logic)
 			const { teamId } = ctx.user;
-			const order = await db.serviceOrders.findOptional(serviceOrderId);
+			const order = await db.serviceOrders.findOptional(input.serviceOrderId);
 			if (!order)
 				throw new TRPCError({ code: 'NOT_FOUND', message: 'Ordem de Serviço não encontrada' });
 			const cliente = await db.clients
@@ -237,10 +243,10 @@ export const serviceOrdersRouterTrpc = trpcRouter({
 			if (order.status === 'Concluída' || order.status === 'Cancelada') {
 				throw new TRPCError({
 					code: 'BAD_REQUEST',
-					message: "Não é possível excluir ordem com status 'Concluída' ou 'Cancelada'",
+					message: 'Não é possível excluir ordem com este status',
 				});
 			}
-			return db.serviceOrders.where({ serviceOrderId }).update({ status: 'Cancelada' });
+			return db.serviceOrders.where({ serviceOrderId: input.serviceOrderId }).update({ status: 'Cancelada' });
 		}),
 
 	// — Technical Reports —

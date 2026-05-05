@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -106,12 +107,17 @@ func (a *memoryRedisAdapter) SMembers(ctx context.Context, key string) ([]string
 
 // Config holds the swarm configuration from environment variables.
 type Config struct {
-	RedisAddr  string
-	QdrantAddr string
-	HTTPPort   string
-	AgentsPath string
-	WorkerCount int
+	RedisAddr     string
+	RedisPassword string
+	QdrantAddr    string
+	QdrantAPIKey  string
+	HTTPPort      string
+	AgentsPath    string
+	WorkerCount   int
 }
+
+// globalRAGQdrantLayer holds the qdrant layer for the /v1/rag HTTP handler.
+var globalRAGQdrantLayer *memory.QdrantLayer
 
 // AgentsConfig represents the parsed agents.json file.
 type AgentsConfig struct {
@@ -136,6 +142,7 @@ func main() {
 	// 2. Connect to Redis.
 	redisClient := redis.NewClient(&redis.Options{
 		Addr:         cfg.RedisAddr,
+		Password:     cfg.RedisPassword,
 		DialTimeout:  5 * time.Second,
 		ReadTimeout:  3 * time.Second,
 		WriteTimeout: 3 * time.Second,
@@ -174,12 +181,17 @@ func main() {
 	var qdrantLayer *memory.QdrantLayer
 	if cfg.QdrantAddr != "" {
 		qdrantClient, err := qdrant.NewClient(&qdrant.Config{
-			Host: cfg.QdrantAddr,
+			Host:   cfg.QdrantAddr,
+			APIKey: cfg.QdrantAPIKey,
 		})
 		if err != nil {
 			log.Printf("[swarm] qdrant client error: %v", err)
 		} else {
 			qdrantLayer = memory.NewQdrantLayerWithEmbedder(qdrantClient, ollamaEmbedder)
+			if coll := os.Getenv("QDRANT_COLLECTION"); coll != "" {
+				qdrantLayer.SetCollection(coll)
+			}
+			globalRAGQdrantLayer = qdrantLayer
 			log.Printf("[swarm] qdrant client ready (addr=%s)", cfg.QdrantAddr)
 		}
 	} else {
@@ -260,6 +272,9 @@ func main() {
 	mux.Handle("POST /webhook/whatsapp", whatsappWebhook)
 	mux.Handle("GET /webhook/whatsapp", whatsappWebhook) // Verification challenge
 
+	// RAG endpoint for OpenWebUI integration.
+	mux.HandleFunc("POST /v1/rag", ragHandler)
+
 	// Health check endpoint.
 	mux.HandleFunc("GET /health", healthHandler)
 
@@ -304,11 +319,13 @@ func main() {
 // loadConfig reads configuration from environment variables.
 func loadConfig() Config {
 	return Config{
-		RedisAddr:  getEnv("REDIS_ADDR", "localhost:6379"),
-		QdrantAddr: getEnv("QDRANT_ADDR", "localhost:6334"),
-		HTTPPort:   getEnv("SWARM_HTTP_PORT", ":8080"),
-		AgentsPath: getEnv("SWARM_AGENTS_PATH", "config/agents.json"),
-		WorkerCount: 10, // default; per-agent pool_size comes from agents.json
+		RedisAddr:     getEnv("REDIS_ADDR", "localhost:6379"),
+		RedisPassword: getEnv("REDIS_PASSWORD", ""),
+		QdrantAddr:    getEnv("QDRANT_ADDR", "localhost:6334"),
+		QdrantAPIKey:  getEnv("QDRANT_API_KEY", ""),
+		HTTPPort:      getEnv("SWARM_HTTP_PORT", ":8080"),
+		AgentsPath:    getEnv("SWARM_AGENTS_PATH", "config/agents.json"),
+		WorkerCount:   10, // default; per-agent pool_size comes from agents.json
 	}
 }
 
@@ -457,6 +474,63 @@ func loadQueueSchemaConfig(path string) (*QueueSchemaConfig, error) {
 		return nil, fmt.Errorf("parse queue_schema.json: %w", err)
 	}
 	return &cfg, nil
+}
+
+// ragHandler handles POST /v1/rag for OpenWebUI RAG integration.
+func ragHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, `{"error":"method not allowed"}`, http.StatusMethodNotAllowed)
+		return
+	}
+	var req struct {
+		Query string `json:"query"`
+		TopK  int    `json:"top_k"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, `{"error":"invalid json"}`, http.StatusBadRequest)
+		return
+	}
+	if req.Query == "" {
+		http.Error(w, `{"error":"query required"}`, http.StatusBadRequest)
+		return
+	}
+	if req.TopK <= 0 {
+		req.TopK = 5
+	}
+	if globalRAGQdrantLayer == nil {
+		http.Error(w, `{"error":"rag not available"}`, http.StatusServiceUnavailable)
+		return
+	}
+	ctx, cancel := context.WithTimeout(r.Context(), 30*time.Second)
+	defer cancel()
+	results, err := globalRAGQdrantLayer.Search(ctx, req.Query, nil, req.TopK)
+	if err != nil {
+		http.Error(w, fmt.Sprintf(`{"error":"search failed: %s"}`, err.Error()), http.StatusInternalServerError)
+		return
+	}
+	sources := make([]map[string]interface{}, 0, len(results))
+	var answerParts []string
+	for _, res := range results {
+		src := map[string]interface{}{
+			"id":      res.ID,
+			"score":   res.Score,
+			"payload": res.Payload,
+		}
+		sources = append(sources, src)
+		if text, ok := res.Payload["text"].(string); ok && text != "" {
+			answerParts = append(answerParts, text)
+		}
+	}
+	answer := strings.Join(answerParts, "\n\n")
+	if answer == "" {
+		answer = "No relevant documents found."
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"answer":  answer,
+		"sources": sources,
+	})
 }
 
 // healthHandler returns JSON {"status": "ok"} for load balancer health checks.

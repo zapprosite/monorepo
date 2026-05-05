@@ -47,6 +47,8 @@ export interface CrudFactoryConfig {
 	defaultOrder?: Record<string, 'ASC' | 'DESC'>;
 	/** Custom hooks for non-standard behaviour */
 	hooks?: CrudFactoryHooks;
+	/** Use soft delete (deletedAt column) instead of physical DELETE */
+	softDelete?: boolean;
 }
 
 /**
@@ -74,7 +76,7 @@ export interface CrudFactoryConfig {
  * ```
  */
 export function createCrudRouter(config: CrudFactoryConfig) {
-	const { table, schemas, idColumn, teamColumn, maxListLimit = 1000, defaultOrder, hooks } = config;
+	const { table, schemas, idColumn, teamColumn, maxListLimit = 1000, defaultOrder, hooks, softDelete } = config;
 
 	const applyTeamWhere = (where: Record<string, any>, ctx: TrpcContext) => {
 		if (teamColumn && ctx.user?.teamId) {
@@ -196,6 +198,14 @@ export function createCrudRouter(config: CrudFactoryConfig) {
 			}
 
 			const where = applyTeamWhere({ [idColumn]: idValue }, ctx);
+
+			// Soft delete: update deletedAt instead of physical DELETE
+			if (softDelete) {
+				const updated = await table.where(where).update({ deletedAt: new Date().toISOString() } as any);
+				if (!updated) throw new TRPCError({ code: 'NOT_FOUND', message: 'Not found' });
+				return { success: true };
+			}
+
 			const deleted = await table.where(where).delete();
 			if (!deleted) {
 				throw new TRPCError({ code: 'NOT_FOUND', message: 'Not found' });

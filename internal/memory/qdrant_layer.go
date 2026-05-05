@@ -47,6 +47,21 @@ func NewQdrantLayerWithEmbedder(client *qdrant.Client, embedder *ollama.Embedder
 	}
 }
 
+// SetCollection overrides the default collection name.
+func (q *QdrantLayer) SetCollection(name string) {
+	q.collection = name
+}
+
+// Search performs dense vector search only (for collections without sparse vectors).
+func (q *QdrantLayer) Search(ctx context.Context, query string, filters map[string]string, limit int) ([]SearchResult, error) {
+	if limit <= 0 {
+		limit = 10
+	}
+	mustConditions := buildFilterConditions(filters)
+	flt := buildFilter(mustConditions)
+	return q.searchDense(ctx, query, flt, limit)
+}
+
 // HybridSearch performs hybrid search with dense + sparse vectors using RRF fusion.
 // Score = RRF(dense_score) + RRF(sparse_score) where RRF(k) = 1/(k+rank)
 func (q *QdrantLayer) HybridSearch(ctx context.Context, query string, filters map[string]string, limit int) ([]SearchResult, error) {
