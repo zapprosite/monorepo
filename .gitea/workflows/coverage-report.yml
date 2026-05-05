@@ -1,0 +1,52 @@
+name: Coverage Report
+
+# Uploads test coverage reports as artifacts and posts a summary.
+# Triggered after CI Feature or Code Review completes successfully.
+on:
+  workflow_run:
+    workflows: ["CI Feature", "Code Review"]
+    types: [completed]
+    branches-ignore:
+      - main
+
+jobs:
+  coverage:
+    name: Collect Coverage Report
+    runs-on: ubuntu-latest
+    if: gitea.event.workflow_run.conclusion == 'success'
+
+    steps:
+      - name: Download coverage artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: coverage
+          pattern: coverage-*
+
+      - name: Generate coverage summary
+        run: |
+          echo "## Coverage Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          for dir in coverage/*/; do
+            APP=$(basename "$dir")
+            echo "### $APP" >> $GITHUB_STEP_SUMMARY
+            if [[ -f "$dir/lcov.info" ]]; then
+              LINES=$(grep -o 'LF:[0-9]*' "$dir/lcov.info" | awk -F: '{sum+=$2} END {print sum}')
+              HIT=$(grep -o 'LH:[0-9]*' "$dir/lcov.info" | awk -F: '{sum+=$2} END {print sum}')
+              if [[ -n "$LINES" && "$LINES" -gt 0 ]]; then
+                PCT=$(( HIT * 100 / LINES ))
+                echo "- Line coverage: ${PCT}% ($HIT / $LINES)" >> $GITHUB_STEP_SUMMARY
+              else
+                echo "- No line data found" >> $GITHUB_STEP_SUMMARY
+              fi
+            else
+              echo "- No lcov.info found" >> $GITHUB_STEP_SUMMARY
+            fi
+          done
+
+      - name: Upload combined coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report-${{ gitea.event.workflow_run.id }}
+          path: coverage/
+          retention-days: 14

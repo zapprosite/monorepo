@@ -2,7 +2,7 @@ name: Failure Report
 
 on:
   workflow_run:
-    workflows: ["CI"]
+    workflows: ["CI Feature", "Code Review", "Deploy Main"]
     types: [completed]
 
 jobs:
@@ -15,7 +15,7 @@ jobs:
 
       - name: Generate failure summary
         run: |
-          echo "## ❌ CI Failed" >> $GITHUB_STEP_SUMMARY
+          echo "## CI Failed" >> $GITHUB_STEP_SUMMARY
           echo "- Workflow: ${{ gitea.event.workflow_run.name }}" >> $GITHUB_STEP_SUMMARY
           echo "- Run: [${{ gitea.run_number }}](https://git.zappro.site/${{ gitea.repository }}/actions/runs/${{ gitea.run_id }})" >> $GITHUB_STEP_SUMMARY
           echo "- Conclusion: ${{ gitea.event.workflow_run.conclusion }}" >> $GITHUB_STEP_SUMMARY

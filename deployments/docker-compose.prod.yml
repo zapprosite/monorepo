@@ -57,7 +57,7 @@ services:
   api:
     image: zappro/api:dev-20260503  # SPEC-210: local build, ID sha256:f775d6d36d2c9c3ac6fddc16e29aaef53219907c4a8757351566a8cd8ac2e927
     ports:
-      - "4000:4000"
+      - "4001:4001"
     depends_on:
       redis:
         condition: service_healthy
@@ -65,7 +65,7 @@ services:
         condition: service_healthy
     environment:
       - NODE_ENV=production
-      - PORT=4000
+      - PORT=4001
       - DB_HOST=${DB_HOST:-zappro-litellm-db}
       - DB_PORT=${DB_PORT:-5432}
       - DB_USER=${DB_USER:-litellm}
@@ -83,7 +83,7 @@ services:
       - QDRANT_URL=http://qdrant:6333
       - QDRANT_GRPC_URL=qdrant:6334
     healthcheck:
-      test: ["CMD", "wget", "-q", "--spider", "http://localhost:4000/health"]
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:4001/health"]
       interval: 10s
       timeout: 5s
       retries: 3

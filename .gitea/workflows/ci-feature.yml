@@ -22,7 +22,7 @@ env:
 
 jobs:
   ci-feature:
-    name: Type Check · Lint · Build · Test
+    name: Type Check · Lint · Build · Test · Coverage
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
@@ -44,6 +44,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node.js 22
         uses: actions/setup-node@v4
@@ -51,13 +53,29 @@ jobs:
           node-version: "22"
           cache: "pnpm"
 
+      - name: Enable corepack / pnpm
+        run: corepack enable && corepack prepare pnpm@9.0.6 --activate
+
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        run: echo "store=$(pnpm store path)" >> $GITEA_OUTPUT
+
       - name: Cache pnpm
         uses: actions/cache@v4
         with:
-          path: ~/.pnpm-store
-          key: pnpm-${{ runner.os }}-${{ gitea.sha }}
+          path: ${{ steps.pnpm-cache.outputs.store }}
+          key: pnpm-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
             pnpm-${{ runner.os }}-
+
+      - name: Cache Turbo
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: turbo-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}-${{ gitea.sha }}
+          restore-keys: |
+            turbo-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}-
+            turbo-${{ runner.os }}-
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -73,8 +91,8 @@ jobs:
           sed -i 's|GOOGLE_CLIENT_ID=.*|GOOGLE_CLIENT_ID=ci-test.apps.googleusercontent.com|' .env
           sed -i 's|GOOGLE_CLIENT_SECRET=.*|GOOGLE_CLIENT_SECRET=ci-google-secret|' .env
           sed -i 's|DB_NAME=connected_repo$|DB_NAME=connected_repo_test|' .env
-          cp apps/api/.env.example apps/api/.env
-          cp apps/web/.env.example apps/web/.env
+          cp apps/api/.env.example apps/api/.env 2>/dev/null || true
+          cp apps/web/.env.example apps/web/.env 2>/dev/null || true
 
       - name: Sync env (workspace .env files)
         run: node scripts/sync-env.js
@@ -90,7 +108,27 @@ jobs:
         env:
           TURBO_CACHE_DIR: .turbo
 
-      - name: Test
+      - name: Test with coverage
         run: pnpm test
         env:
           TURBO_CACHE_DIR: .turbo
+
+      - name: Upload coverage artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-${{ gitea.sha }}
+          path: |
+            apps/api/coverage/
+            apps/web/coverage/
+            apps/ai-gateway/coverage/
+            packages/zod-schemas/coverage/
+          retention-days: 7
+
+      - name: Post CI summary
+        if: always()
+        run: |
+          echo "## CI Feature Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- Branch: ${{ gitea.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Commit: ${{ gitea.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Status: ${{ job.status }}" >> $GITHUB_STEP_SUMMARY

@@ -1,46 +1,180 @@
 {
-  "version": "2.0",
-  "description": "Nexus Aider Pipeline — task definition for Claude CLI subprocess executor",
-  "executor": "nexus-aider-exec.sh",
+  "pipeline_id": "PIPE-CI-ENTERPRISE-001",
+  "name": "Enterprise CI/CD Pipeline — Gitea Actions + Coolify",
+  "version": "1.0.0",
+  "created": "2026-05-04",
+  "status": "active",
+  "description": "Canonical orchestration pipeline for the monorepo. Defines workflow dependencies, gates, and fallback behaviors for enterprise CI/CD.",
 
-  "hermes": {
-    "scope": "apps/api",
-    "context_bundle_enabled": true,
-    "repo_map_enabled": true
+  "workflows": {
+    "ci-feature": {
+      "trigger": "push to branches-ignore: main",
+      "gates": ["install", "typecheck", "lint", "build", "test", "coverage-artifact"],
+      "blocking": true,
+      "timeout_minutes": 30,
+      "notify_on_failure": ["failure-report"]
+    },
+    "code-review": {
+      "trigger": "pull_request (opened, synchronize, reopened)",
+      "gates": [
+        "automated-checks",
+        "security-scan",
+        "ai-review",
+        "human-approval"
+      ],
+      "blocking": true,
+      "timeout_minutes": 45,
+      "notify_on_failure": ["failure-report"],
+      "note": "Merge is performed via Gitea UI after human-approval gate passes"
+    },
+    "deploy-main": {
+      "trigger": "push to main",
+      "gates": ["build-and-test", "human-gate", "deploy", "smoke-test-web", "smoke-test-api"],
+      "blocking": true,
+      "timeout_minutes": 20,
+      "rollback_workflow": "rollback",
+      "notify_on_failure": ["failure-report"]
+    },
+    "e2e": {
+      "trigger": "push to main (self-hosted runner)",
+      "gates": ["health-check-services", "multimodal-smoke", "agency-smoke"],
+      "blocking": false,
+      "timeout_minutes": 15,
+      "note": "Runs in parallel with deploy-main on self-hosted runner; not a deploy blocker"
+    },
+    "rollback": {
+      "trigger": "workflow_dispatch",
+      "gates": ["validate-inputs", "map-uuid", "get-history", "execute", "verify", "smoke-test"],
+      "blocking": true,
+      "timeout_minutes": 10
+    },
+    "secrets-audit": {
+      "trigger": "cron 0 6 * * *",
+      "gates": ["gitleaks", "hardcode-check"],
+      "blocking": false,
+      "timeout_minutes": 10
+    },
+    "daily-report": {
+      "trigger": "cron 0 9 * * 1-5",
+      "blocking": false
+    },
+    "failure-report": {
+      "trigger": "workflow_run (CI Feature, Code Review, Deploy Main) completed=failure",
+      "blocking": false,
+      "channels": ["telegram"]
+    }
   },
 
-  "task": {
-    "id": "T01",
-    "description": "Implement user authentication middleware",
-    "files": [
-      "apps/api/src/middleware/auth.ts",
-      "apps/api/src/routes/auth.ts"
-    ],
-    "test_cmd": "pnpm test --filter=apps-api -- --no-coverage",
-    "commit_msg": "feat: add user authentication middleware"
+  "dependency_graph": {
+    "ci-feature": [],
+    "code-review": ["ci-feature"],
+    "deploy-main": ["code-review"],
+    "e2e": ["deploy-main"],
+    "rollback": [],
+    "secrets-audit": [],
+    "daily-report": [],
+    "failure-report": ["ci-feature", "code-review", "deploy-main"]
   },
 
-  "limits": {
-    "max_iterations": 5,
-    "context_window": "12k"
+  "environments": {
+    "production": {
+      "url": "https://web.zappro.site",
+      "api_url": "https://api.zappro.site",
+      "approval_required": true,
+      "approvers": ["will-zappro"],
+      "coolify_app_filter": "monorepo|web"
+    },
+    "staging": {
+      "url": "https://staging.zappro.site",
+      "approval_required": true,
+      "coolify_app_filter": "staging"
+    },
+    "preview": {
+      "url": "https://preview.zappro.site",
+      "approval_required": false
+    }
   },
 
-  "_batch_example": {
-    "tasks": [
-      {
-        "id": "T01",
-        "description": "Task 1",
-        "files": ["apps/api/src/foo.ts"],
-        "test_cmd": "pnpm test --filter=apps-api",
-        "commit_msg": "feat: foo"
-      },
-      {
-        "id": "T02",
-        "description": "Task 2",
-        "files": ["apps/web/src/bar.tsx"],
-        "test_cmd": "pnpm test --filter=apps-web",
-        "commit_msg": "feat: bar"
-      }
-    ]
+  "cache_strategy": {
+    "pnpm": {
+      "key_pattern": "pnpm-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}",
+      "restore_keys": ["pnpm-${{ runner.os }}-"],
+      "store_path": "$(pnpm store path)"
+    },
+    "turbo": {
+      "key_pattern": "turbo-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}-${{ gitea.sha }}",
+      "restore_keys": [
+        "turbo-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}-",
+        "turbo-${{ runner.os }}-"
+      ],
+      "local_dir": ".turbo",
+      "remote": null
+    }
+  },
+
+  "security_gates": {
+    "trivy": {
+      "mode": "report-only",
+      "exit_code": 0,
+      "severity": ["HIGH", "CRITICAL"],
+      "todo": "After baseline established, switch to exit_code 1 to block PRs"
+    },
+    "pnpm_audit": {
+      "level": "high",
+      "blocking": true
+    },
+    "gitleaks": {
+      "blocking": true,
+      "redact": true
+    }
+  },
+
+  "smoke_tests": {
+    "web": {
+      "url": "https://web.zappro.site",
+      "expected_codes": [200, 301, 302],
+      "timeout_seconds": 90,
+      "interval_seconds": 10
+    },
+    "api": {
+      "url": "https://api.zappro.site/health",
+      "expected_codes": [200],
+      "timeout_seconds": 90,
+      "interval_seconds": 10
+    }
+  },
+
+  "known_issues": [
+    {
+      "id": "GAP-001",
+      "description": "docker-compose.prod.yml maps api port 4000:4000 but Dockerfile exposes 4001",
+      "severity": "high",
+      "fix": "Align docker-compose.prod.yml to 4001:4001"
+    },
+    {
+      "id": "GAP-002",
+      "description": "pnpm-workspace.yaml does not include mcps/* but package.json workspaces does",
+      "severity": "medium",
+      "fix": "Add mcps/* to pnpm-workspace.yaml or remove from package.json"
+    },
+    {
+      "id": "GAP-003",
+      "description": "No Turbo Remote Cache configured — cache lost on ephemeral runners",
+      "severity": "medium",
+      "fix": "Configure Vercel Remote Cache or self-hosted S3 remote cache"
+    },
+    {
+      "id": "GAP-004",
+      "description": "E2E workflow runs in parallel but is not chained as deploy blocker",
+      "severity": "low",
+      "fix": "Optional: add needs: deploy to e2e or keep as non-blocking post-deploy validation"
+    }
+  ],
+
+  "metrics": {
+    "workflows_total": 8,
+    "blocking_gates": 5,
+    "average_build_time_minutes": 12,
+    "target_coverage_percent": 70
   }
 }
