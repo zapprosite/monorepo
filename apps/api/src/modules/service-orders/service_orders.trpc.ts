@@ -79,6 +79,16 @@ export const serviceOrdersRouterTrpc = trpcRouter({
 			if (input.tecnicoId) {
 				const tecnico = await db.users.findOptional(input.tecnicoId);
 				if (!tecnico) throw new TRPCError({ code: 'NOT_FOUND', message: 'Técnico não encontrado' });
+				if (tecnico.teamId !== teamId)
+					throw new TRPCError({ code: 'FORBIDDEN', message: 'Técnico de outro time' });
+			}
+			if (input.scheduleId) {
+				const schedule = await db.schedules.findOptional(input.scheduleId);
+				if (!schedule) throw new TRPCError({ code: 'NOT_FOUND', message: 'Agendamento não encontrado' });
+			}
+			if (input.unitId) {
+				const unit = await db.units.findOptional(input.unitId);
+				if (!unit) throw new TRPCError({ code: 'NOT_FOUND', message: 'Unidade não encontrada' });
 			}
 			if (input.equipmentId) {
 				const equipment = await db.equipment.findOptional(input.equipmentId);

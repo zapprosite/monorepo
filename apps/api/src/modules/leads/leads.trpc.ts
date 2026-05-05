@@ -54,6 +54,13 @@ export const leadsRouterTrpc = trpcRouter({
 				if (lead.teamId !== teamId)
 					throw new TRPCError({ code: 'FORBIDDEN', message: 'Acesso negado' });
 
+				// Validate responsavelId belongs to same team
+				if (lead.responsavelId) {
+					const responsavel = await db.users.findOptional(lead.responsavelId);
+					if (!responsavel || responsavel.teamId !== teamId)
+						throw new TRPCError({ code: 'FORBIDDEN', message: 'Responsável de outro time' });
+				}
+
 				const client = await db.clients.create({
 					nome: lead.nome,
 					tipo: tipo ?? 'Pessoa Física',
