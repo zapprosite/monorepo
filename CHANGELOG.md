@@ -4,6 +4,32 @@
 
 ---
 
+## [v2.1.2] — 2026-05-05 — Hermes Prune Total: Tree-Only + Daemons Mortos
+
+### Added
+- **ADR-001** — `docs/ADRs/ADR-001-hermes-tree-only.md` (arquitetura de contexto)
+- **scripts/hermes-tree.py** — Leitor de repo Aider-like (zero state, 50ms)
+- **Regra R8 no AGENTS.md** — Hermes tree-only, proibido state.db > 1MB fora do monorepo
+
+### Changed
+- **AGENTS.md** — Seção "🌳 Hermes Tree-Only (ADR-001)" adicionada
+- **Porta 8642** — HCE v2.1 é o ÚNICO serviço (hermes-gateway parado)
+- **Porta 6337** — Livre (hermes-second-brain uvicorn morto)
+
+### Removed (Prune Sem Arquivamento)
+- **~/.hermes/hermes-agent/** — Daemon gateway parado (8.6GB RAM liberada)
+- **~/.hermes/state.db** — 760MB de salada SQLite (não arquivado, eliminado)
+- **~/.hermes/response_store.db** — SQLite de respostas (não arquivado, eliminado)
+- **~/.hermes/sessions/** — 139 diretórios de sessão (não arquivados, eliminados)
+- **~/.hermes/snapshots/** — Snapshots automáticos (não arquivados, eliminados)
+- **Duplicate libs/** — `/srv/hermes-second-brain/libs/` abandonado (monorepo é fonte única)
+
+### Infração Zero Tolerância
+- Criar `state.db` > 1MB fora do monorepo = PR bloqueado + CSO alert
+- Daemon de contexto consumindo > 512MB RAM = revert imediato
+
+---
+
 ## [v2.1.1] — 2026-05-05 — HCE v2.1 Production Hardening
 
 ### Added
