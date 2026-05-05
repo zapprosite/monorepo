@@ -90,7 +90,7 @@ git log --all -p -S "40e5c7ae" | head -5
 **Action:**
 1. Gitea UI → Administration → Actions → Runners
 2. Deregister existing runner
-3. Re-register: `docker exec zappro-gitea gitea actions register-repo --name <runner-name> --token <new-token>`
+3. Re-register: `docker exec gitea gitea actions register-repo --name <runner-name> --token <new-token>`
 4. Update new token in Coolify deployment
 
 **Verification:**

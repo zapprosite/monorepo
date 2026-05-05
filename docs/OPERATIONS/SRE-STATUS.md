@@ -8,13 +8,13 @@
 
 | Service | Container | Status | Uptime | Health Check |
 |---------|-----------|--------|--------|-------------|
-| ai-gateway | zappro-ai-gateway | Healthy | 43 min | 200 OK |
+| ai-gateway | ai-gateway | Healthy | 43 min | 200 OK |
 | Qdrant (primary) | qdrant | Healthy | 28 hours | all shards ready |
 | Qdrant (secondary) | qdrant-c95x9bgnhpedt0zp7dfsims7 | Healthy | 2 hours | - |
 | Qdrant (mcp) | mcp-qdrant | Healthy | 41 hours | - |
 | LiteLLM Proxy | zappro-litellm | Healthy | 4 hours | 200 OK (auth expected) |
-| LiteLLM DB | zappro-litellm-db | Healthy | 12 hours | - |
-| Redis (zappro) | zappro-redis | Healthy | 11 hours | PONG |
+| LiteLLM DB | litellm-db | Healthy | 12 hours | - |
+| Redis (zappro) | homelab-redis | Healthy | 11 hours | PONG |
 | Redis (coolify) | coolify-redis | Healthy | 41 hours | PONG |
 | Redis (opencode) | redis-opencode | Healthy | 11 hours | PONG |
 

@@ -73,7 +73,7 @@ spec: SPEC-210
 | Zappro API (builder) | `zappro/api:builder-debug` | `sha256:1ea56cbc9851d88eb3377b54c679156cd5da61199919c1024570538e1a3e71d9` |
 | Zappro API (test) | `zappro/api:test` | `sha256:21e0e589906db9d1d6e81fa04be1092a57b0528e70db89e3f802d507788f866a` |
 | Zappro Web (test) | `zappro/web:test` | `sha256:9fd069e33b6b72d78baf4a9fbc7eb5281b35b66ed827ec1506020c3026faa598` |
-| Hermes Orchestrator | `hermes-orchestrator-snapshot:latest` | `sha256:e509afadb576ee4fcfc4900e3d72017d0dc1f67c86536239d5059407472750f1` |
+| Hermes Orchestrator | `task-orchestrator-snapshot:latest` | `sha256:e509afadb576ee4fcfc4900e3d72017d0dc1f67c86536239d5059407472750f1` |
 | AI Gateway | `ai-gateway:latest` | `sha256:c4cb11e556e0f87f35d223318e0c62ef687594c7785fbcbed55f40152ac710df` |
 | Edge TTS | `edge-tts-edge-tts:latest` | `sha256:5e65be60146b9a7bf35520697199be69b1e0b46fb64b374796b8af21a08cbb8f` |
 | Python 3.11 | `python:3.11-slim` | `sha256:1eee6fcc4d866c86dd8e32a4a1a583767ddac0d640b0fe571b2c22d233b60eee` |

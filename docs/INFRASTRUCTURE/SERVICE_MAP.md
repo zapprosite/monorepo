@@ -113,11 +113,11 @@
 - **Auth:** Bearer token (`LITELLM_MASTER_KEY`)
 - **Modelos expostos (aliases):** `hermes-auto`, `hermes-local-code`, `hermes-vision`, `hermes-embed`, `hermes-cloud-cheap`, `hermes-cloud-pro`, `hermes-cloud-ui`, `hermes-brain`
 - **Backend:** Ollama em localhost:11434 (local) + OpenRouter (cloud fallback)
-- **Depende de:** zappro-litellm-db (Postgres legado zappro-lite), Ollama, Redis | **Usado por:** qualquer app via `OPENAI_BASE_URL=http://127.0.0.1:4018/v1`
+- **Depende de:** litellm-db (Postgres legado zappro-lite), Ollama, Redis | **Usado por:** qualquer app via `OPENAI_BASE_URL=http://127.0.0.1:4018/v1`
 
-#### zappro-litellm-db (PostgreSQL legado — retenção)
+#### litellm-db (PostgreSQL legado — retenção)
 - **Imagem:** postgres:15-alpine
-- **Container:** zappro-litellm-db | **Porta:** 5432/tcp (interna)
+- **Container:** litellm-db | **Porta:** 5432/tcp (interna)
 - **Função:** Persistência de virtual keys, spend tracking, usuários do LiteLLM
 - **Volume:** `zappro-lite_litellm-db-data`
 - **Depende de:** nada | **Usado por:** litellm-proxy
@@ -207,8 +207,8 @@ RTX 4090 (GPU CDI)
 LiteLLM :4018/v1 (→ llm.zappro.site)
     ├── → Ollama :11434 (hermes-local-code, hermes-vision, hermes-embed via aliases)
     ├── → OpenRouter (hermes-cloud-*, hermes-brain — escalada cloud)
-    ├── → zappro-litellm-db :5432 (virtual keys / tracking)
-    └── → zappro-redis :6379 (cache / pubsub)
+    ├── → litellm-db :5432 (virtual keys / tracking)
+    └── → homelab-redis :6379 (cache / pubsub)
 
 Ollama :11434
     ├── qwen2.5-coder:14b-q6k (hermes-local-code / hermes-auto, ~7GB VRAM)

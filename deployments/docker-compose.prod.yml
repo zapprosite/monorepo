@@ -66,7 +66,7 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=4001
-      - DB_HOST=${DB_HOST:-zappro-litellm-db}
+      - DB_HOST=${DB_HOST:-litellm-db}
       - DB_PORT=${DB_PORT:-5432}
       - DB_USER=${DB_USER:-litellm}
       - DB_PASSWORD=${DB_PASSWORD}

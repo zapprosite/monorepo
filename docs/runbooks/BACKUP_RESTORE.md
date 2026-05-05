@@ -36,45 +36,45 @@ cat /srv/backups/.last-backup
 
 ```bash
 # 1. Stop Redis
-docker stop zappro-redis
+docker stop homelab-redis
 
 # 2. Restore
-docker run --rm -v zappro-redis-data:/data -v /srv/backups/redis:/backup ubuntu bash -c "cd /data && tar -xf /backup/redis-latest.tar"
+docker run --rm -v homelab-redis-data:/data -v /srv/backups/redis:/backup ubuntu bash -c "cd /data && tar -xf /backup/redis-latest.tar"
 
 # 3. Start Redis
-docker start zappro-redis
+docker start homelab-redis
 
 # 4. Verify
-docker exec zappro-redis redis-cli -a "$REDIS_PASSWORD" PING
+docker exec homelab-redis redis-cli -a "$REDIS_PASSWORD" PING
 ```
 
 ### PostgreSQL
 
 ```bash
 # 1. Stop database
-docker stop zappro-litellm-db
+docker stop litellm-db
 
 # 2. Restore
-docker run --rm -v zappro-litellm-db-data:/var/lib/postgresql/data -v /srv/backups/postgres:/backup ubuntu bash -c "cd /var/lib/postgresql/data && tar -xf /backup/postgres-latest.tar"
+docker run --rm -v litellm-db-data:/var/lib/postgresql/data -v /srv/backups/postgres:/backup ubuntu bash -c "cd /var/lib/postgresql/data && tar -xf /backup/postgres-latest.tar"
 
 # 3. Start database
-docker start zappro-litellm-db
+docker start litellm-db
 
 # 4. Verify
-docker exec zappro-litellm-db pg_isready
+docker exec litellm-db pg_isready
 ```
 
 ### Gitea
 
 ```bash
 # 1. Stop Gitea
-docker stop zappro-gitea
+docker stop gitea
 
 # 2. Restore git data
 tar -xzf /srv/backups/gitea-latest.tar -C /srv/gitea/
 
 # 3. Start Gitea
-docker start zappro-gitea
+docker start gitea
 
 # 4. Verify
 curl -f http://localhost:3300/health
@@ -87,8 +87,8 @@ curl -f http://localhost:3300/health
 ```bash
 # If everything is lost
 # 1. Recreate volumes
-docker volume create zappro-redis-data
-docker volume create zappro-litellm-db-data
+docker volume create homelab-redis-data
+docker volume create litellm-db-data
 
 # 2. Pull latest backups
 rsync -av /srv/backups/docker-data/ /srv/docker-data/

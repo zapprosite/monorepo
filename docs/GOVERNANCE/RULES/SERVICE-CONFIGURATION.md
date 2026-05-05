@@ -45,8 +45,8 @@ services:
 ```yaml
 # ✅ CORRECT - container name is resolvable in shared network
 environment:
-  - REDIS_HOST=zappro-redis
-  - REDIS_URL=redis://:PASSWORD@zappro-redis:6379
+  - REDIS_HOST=homelab-redis
+  - REDIS_URL=redis://:PASSWORD@homelab-redis:6379
 
 # ❌ WRONG - localhost in container means the container itself
 environment:
@@ -58,10 +58,10 @@ environment:
 
 ```yaml
 # ✅ CORRECT
-- REDIS_URL=redis://:SECRET_PASSWORD@zappro-redis:6379
+- REDIS_URL=redis://:SECRET_PASSWORD@homelab-redis:6379
 
 # ❌ WRONG - no authentication
-- REDIS_URL=redis://zappro-redis:6379
+- REDIS_URL=redis://homelab-redis:6379
 ```
 
 ### 3. Database Configuration
@@ -70,7 +70,7 @@ environment:
 
 ```yaml
 # ✅ CORRECT
-DATABASE_URL=postgresql://user:pass@zappro-litellm-db:5432/dbname
+DATABASE_URL=postgresql://user:pass@litellm-db:5432/dbname
 
 # ❌ WRONG - hostname not resolvable from other networks
 DATABASE_URL=postgresql://user:pass@localhost:5432/dbname
@@ -99,7 +99,7 @@ When a service needs to reach a host service AND container services:
 # ✅ CORRECT - host.docker.internal reaches host, container name reaches other containers
 environment:
   - OPENAI_API_BASE_URL=http://host.docker.internal:4017/v1
-  - REDIS_HOST=zappro-redis
+  - REDIS_HOST=homelab-redis
 
 # For services on host network (like HVAC pipeline at :4017)
 extra_hosts:
@@ -144,13 +144,13 @@ volumes:
 
 # ✅ CORRECT - explicit override
 environment:
-  - REDIS_HOST=zappro-redis  # This overrides env_file
+  - REDIS_HOST=homelab-redis  # This overrides env_file
 
 # ✅ CORRECT - use env_file for common vars
 env_file:
   - /srv/monorepo/.env
 environment:
-  - REDIS_HOST=zappro-redis  # Override specific var
+  - REDIS_HOST=homelab-redis  # Override specific var
 ```
 
 ### 7. Service Dependency Rules
@@ -162,8 +162,8 @@ environment:
 services:
   my-service:
     depends_on:
-      - zappro-redis
-      - zappro-litellm-db
+      - homelab-redis
+      - litellm-db
 ```
 
 ### 8. Health Check Rules
@@ -220,7 +220,7 @@ environment:
 ```
 **Problem**: localhost in a container refers to the container itself, not the host or other containers.
 
-**Fix**: Use container names (`zappro-litellm-db`, `zappro-redis`) as hostnames.
+**Fix**: Use container names (`litellm-db`, `homelab-redis`) as hostnames.
 
 ### Pattern 2: Missing network configuration
 ```yaml

@@ -26,7 +26,7 @@
 | **5678** | n8n | host | Workflow automation | n8n.zappro.site |
 | **6333** | zappro-qdrant | host | Qdrant REST | qdrant.zappro.site |
 | **6334** | zappro-qdrant | host | Qdrant gRPC | — |
-| **6379** | zappro-redis | host | Redis cache/pubsub | — |
+| **6379** | homelab-redis | host | Redis cache/pubsub | — |
 | **6381** | aurelia-redis | localhost | Redis (aurelia stack) | — |
 | **8012** | zappro-| localhost | (GPU) | — |
 | **8880** | zappro-| bridge (Coolify net) | — IP `10.0.19.7:8880` para containers Coolify | — |
@@ -105,7 +105,7 @@
 | 8001 / 8443 / 54323 | Supabase Kong / Studio | Supabase removido |
 | 8020 | whisper-local STT | substituído por Deepgram cloud |
 | 5440 | litellm-db | removido |
-| 6379 | aurelia-redis (legado) | substituído por `zappro-redis` (:6379) + `redis-opencode` (:6381) |
+| 6379 | aurelia-redis (legado) | substituído por `homelab-redis` (:6379) + `redis-opencode` (:6381) |
 
 ---
 

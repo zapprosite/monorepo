@@ -19,14 +19,14 @@
 
 | Container | Status | Uptime | Health |
 |-----------|--------|--------|--------|
-| zappro-ai-gateway | UP | 10h | (healthy) — **previously UNHEALTHY, now resolved** |
+| ai-gateway | UP | 10h | (healthy) — **previously UNHEALTHY, now resolved** |
 | zappro-litellm | UP | 9h | — |
-| zappro-litellm-db | UP | 9h | (healthy) |
+| litellm-db | UP | 9h | (healthy) |
 | qdrant | UP | 11h | (healthy) |
 | qdrant-c95x9bgnhpedt0zp7dfsims7 | UP | 3h | (healthy) |
 | mcp-qdrant | UP | 2 days | — |
 | mcp-ollama-mcp-ollama-1 | UP | 12h | — |
-| zappro-redis | UP | 10h | (healthy) |
+| homelab-redis | UP | 10h | (healthy) |
 | coolify-redis | UP | 2 days | (healthy) |
 | redis-opencode | UP | 21h | (healthy) |
 | prometheus | UP | — | (healthy) |
@@ -36,7 +36,7 @@
 | mcp-system-mcp-system-1 | UP | — | — |
 | mcp-cron-mcp-cron-1 | UP | — | — |
 | mcp-monorepo | UP | — | — |
-| zappro-gitea | UP | — | — |
+| gitea | UP | — | — |
 | gitea-runner | UP | — | (healthy) |
 | coolify-sentinel | UP | — | (healthy) |
 | coolify-proxy | UP | — | (healthy) |
@@ -52,7 +52,7 @@
 
 ### Historical Issues (Resolved)
 
-- **zappro-ai-gateway** — Previously UNHEALTHY (container restart resolved)
+- **ai-gateway** — Previously UNHEALTHY (container restart resolved)
 
 ---
 

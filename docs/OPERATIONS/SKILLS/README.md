@@ -150,7 +150,7 @@ Critical containers monitored by these skills:
 | `6771lt8l7x8rqx72f` | Voice AI bot | verify-network, incident-runbook |
 | `zappro-litellm` | LLM proxy (Ollama + OpenRouter) | litellm-health-check, self-healing-cron |
 | `zappro-wav2vec2` | STT GPU inference | wav2vec2-health-check, self-healing-cron |
-| `zappro-litellm-db` | LiteLLM PostgreSQL | container-health-check |
+| `litellm-db` | LiteLLM PostgreSQL | container-health-check |
 
 ## Network Reference
 

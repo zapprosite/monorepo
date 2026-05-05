@@ -121,7 +121,7 @@ HERMES_WEBHOOK_URL=https://hermes-agency.zappro.site/webhook
 ### 2.3 Database Configuration
 
 ```bash
-DB_HOST=zappro-litellm-db
+DB_HOST=litellm-db
 DB_PORT=5432
 DB_NAME=connected_repo_db
 DB_USER=litellm

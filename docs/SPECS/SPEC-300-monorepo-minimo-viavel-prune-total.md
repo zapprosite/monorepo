@@ -31,11 +31,11 @@ Regra: Se não estiver nesta lista, é candidato a remoção.
 | **CRM** | `apps/api/` + Coolify | Sistema de CRM em produção | ✅ Estável |
 | **OpenWebUI** | Coolify container `openwebui-hvac` | Chat interface para HVAC | ✅ Estável |
 | **FAQ / RAG** | `scripts/hvac-rag/`, Qdrant collection `hvac_manuals_v1` | Pipeline de RAG com embeddings | ✅ Estável |
-| **Hermes Agents** | `services/orchestrator/` (container `hermes-orchestrator`) | Orquestração de agentes + memória | ✅ Estável |
-| **Gitea** | `zappro-gitea` (:3300) | Git hosting + CI/CD | ✅ Estável |
+| **Hermes Agents** | `services/orchestrator/` (container `task-orchestrator`) | Orquestração de agentes + memória | ✅ Estável |
+| **Gitea** | `gitea` (:3300) | Git hosting + CI/CD | ✅ Estável |
 | **Coolify** | `coolify` (:8000) | PaaS para deploys | ✅ Estável |
 | **LiteLLM** | `litellm-proxy` (:4018/v1) | Gateway LLM único | ✅ Estável |
-| **Voice Gateway** | `zappro-ai-gateway` (:4002) | TTS + STT | ✅ Estável |
+| **Voice Gateway** | `ai-gateway` (:4002) | TTS + STT | ✅ Estável |
 | **Qdrant** | `qdrant` (:6333) | Vector DB | ✅ Estável |
 | **Ollama** | systemd (:11434) | LLM local (Qwen, Nomic) | ✅ Estável |
 | **Hermes Second Brain** | `/srv/hermes-second-brain/` | Memória persistente + tasks | ✅ Estável |

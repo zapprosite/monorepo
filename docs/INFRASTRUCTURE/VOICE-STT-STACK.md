@@ -181,8 +181,8 @@ curl -sf https://api.groq.com/openai/v1/models 2>/dev/null && echo "Groq OK"
 ### Edge TTS Down
 
 1. Check container: `docker ps | grep edge-tts`
-2. Check logs: `docker logs zappro-edge-tts --tail 50`
-3. Restart if needed: `docker restart zappro-edge-tts`
+2. Check logs: `docker logs edge-tts --tail 50`
+3. Restart if needed: `docker restart edge-tts`
 
 ### STT Fallback Down
 

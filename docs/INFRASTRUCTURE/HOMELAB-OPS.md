@@ -102,7 +102,7 @@ Para homelab single-admin, aplica-se processo simplificado:
 
 ### 3.1 Containers Docker — Status (2026-04-22)
 
-**Total: 31 containers | Unhealthy: 1 (zappro-ai-gateway)**
+**Total: 31 containers | Unhealthy: 1 (ai-gateway)**
 
 | Container | Porta | Status | Health | Rede |
 |----------|-------|--------|--------|------|
@@ -110,7 +110,7 @@ Para homelab single-admin, aplica-se processo simplificado:
 | zappro- | — | UP | — | bridge |
 | coolify-sentinel | — | UP | healthy | coolify |
 | zappro-litellm | 4018 | UP | healthy | litellm_default |
-| zappro-litellm-db | — | UP | healthy | litellm_default |
+| litellm-db | — | UP | healthy | litellm_default |
 | node-exporter | 9100 | UP | healthy | monitoring_monitoring |
 | prometheus | 9090 | UP | healthy | monitoring_monitoring |
 | grafana | 3100 | UP | healthy | monitoring_monitoring |
@@ -121,9 +121,9 @@ Para homelab single-admin, aplica-se processo simplificado:
 | coolify-redis | 6381 | UP | healthy | coolify |
 | coolify-realtime | 6001/6002 | UP | healthy | coolify |
 | coolify-proxy | 80/443 | UP | healthy | coolify |
-| zappro-redis | 6379 | UP | healthy | litellm_default |
+| homelab-redis | 6379 | UP | healthy | litellm_default |
 | redis-opencode | — | UP | healthy | bridge |
-| **zappro-ai-gateway** | 4002 | UP | healthy | ai-gateway_default |
+| **ai-gateway** | 4002 | UP | healthy | ai-gateway_default |
 
 ### 3.2 Serviços Principais
 
@@ -131,12 +131,12 @@ Para homelab single-admin, aplica-se processo simplificado:
 |--------|-------|----------|-----------|-------|-----|---------------|
 | LiteLLM Proxy | 4000 | zappro-litellm | api.zappro.site / llm.zappro.site | Platform | 99.9% | Redis, Ollama, External APIs |
 | Qdrant | 6333 | qdrant | qdrant.zappro.site | Platform | 99.5% | Coolify net |
-| ai-gateway | 4002 | zappro-ai-gateway | llm.zappro.site | Platform | 99% | LiteLLM |
-| Gitea | 3300 | zappro-gitea | git.zappro.site | Platform | 99% | Docker volumes |
+| ai-gateway | 4002 | ai-gateway | llm.zappro.site | Platform | 99% | LiteLLM |
+| Gitea | 3300 | gitea | git.zappro.site | Platform | 99% | Docker volumes |
 | OpenWebUI | 3456 | openwebui | chat.zappro.site | Platform | 99% | LiteLLM |
 | Ollama | 11434 | (host) | — | Platform | 99% | RTX 4090 GPU |
 | Coolify | 8000 | coolify-sentinel | coolify.zappro.site | Platform | 99% | coolify-redis |
-| Redis | 6379 | zappro-redis | — | Platform | 99.9% | LiteLLM |
+| Redis | 6379 | homelab-redis | — | Platform | 99.9% | LiteLLM |
 | Grafana | 3100 | grafana | grafana.zappro.site (DNS removido) | Platform | 99% | Prometheus |
 | Prometheus | 9090 | prometheus | — | Platform | 99% | node-exporter |
 | Node Exporter | 9100 | node-exporter | — | Platform | 99% | — |
@@ -222,7 +222,7 @@ ls -la /srv/backups/models/
 
 ```bash
 # Ver todos os serviços
-docker logs --since 24h zappro-ai-gateway 2>&1 | grep -iE "error|fatal|panic"
+docker logs --since 24h ai-gateway 2>&1 | grep -iE "error|fatal|panic"
 docker logs --since 24h zappro-litellm 2>&1 | grep -iE "error|fatal|panic"
 docker logs --since 24h qdrant 2>&1 | grep -iE "error|fatal|panic"
 
@@ -283,7 +283,7 @@ sha256sum /srv/backups/redis/redis-*.rdb.gz
 
 # 3. Restore (substituir o arquivo RDB)
 # Parar Redis primeiro
-docker stop zappro-redis
+docker stop homelab-redis
 
 # 4. Backup do arquivo atual
 cp /srv/docker-data/redis.rdb /srv/backups/redis/redis-pre-restore-$(date +%Y%m%d).rdb
@@ -292,10 +292,10 @@ cp /srv/docker-data/redis.rdb /srv/backups/redis/redis-pre-restore-$(date +%Y%m%
 zcat /srv/backups/redis/redis-YYYYMMDD_HHMMSS.rdb.gz > /srv/docker-data/redis.rdb
 
 # 6. Reiniciar Redis
-docker start zappro-redis
+docker start homelab-redis
 
 # 7. Verificar
-docker exec zappro-redis redis-cli PING
+docker exec homelab-redis redis-cli PING
 ```
 
 #### 5.2.2 Qdrant Restore
@@ -341,7 +341,7 @@ zcat /srv/backups/postgres/backup.sql.gz | docker exec -i postgres psql -U postg
 ls -la /srv/backups/gitea-dump-*.tar.gz
 
 # 2. Parar Gitea
-docker stop zappro-gitea
+docker stop gitea
 
 # 3. Criar diretório temporário
 mkdir -p /tmp/gitea-restore
@@ -353,10 +353,10 @@ tar -xzf /srv/backups/gitea-dump-YYYYMMDD.tar.gz -C /tmp/gitea-restore
 ls -la /tmp/gitea-restore/
 
 # 6. Restaurar (seguir instruções do dump)
-# typically: docker exec zappro-gitea bash /path/to/restore.sh
+# typically: docker exec gitea bash /path/to/restore.sh
 
 # 7. Reiniciar Gitea
-docker start zappro-gitea
+docker start gitea
 ```
 
 ### 5.3 Análise de Uso de Disco
@@ -565,7 +565,7 @@ cat /srv/backups/redis/redis-*.sha256
 #### Redis
 ```bash
 # 1. Parar Redis
-docker stop zappro-redis
+docker stop homelab-redis
 
 # 2. Backup atual
 cp /srv/docker-data/redis.rdb /srv/backups/redis/redis-pre-restore-$(date +%Y%m%d).rdb
@@ -574,10 +574,10 @@ cp /srv/docker-data/redis.rdb /srv/backups/redis/redis-pre-restore-$(date +%Y%m%
 zcat /srv/backups/redis/redis-YYYYMMDD_HHMMSS.rdb.gz > /srv/docker-data/redis.rdb
 
 # 4. Reiniciar
-docker start zappro-redis
+docker start homelab-redis
 
 # 5. Verificar
-docker exec zappro-redis redis-cli PING
+docker exec homelab-redis redis-cli PING
 ```
 
 #### Qdrant (tar method)
@@ -595,17 +595,17 @@ docker start qdrant
 #### Gitea
 ```bash
 # 1. Parar Gitea
-docker stop zappro-gitea
+docker stop gitea
 
 # 2. Extrair dump
 mkdir -p /tmp/gitea-restore
 tar -xzf /srv/backups/gitea-dump-YYYYMMDD.tar.gz -C /tmp/gitea-restore
 
 # 3. Restaurar (seguir documentação do dump)
-docker exec zappro-gitea bash /path/to/restore.sh
+docker exec gitea bash /path/to/restore.sh
 
 # 4. Reiniciar
-docker start zappro-gitea
+docker start gitea
 ```
 
 ### 8.4 Estratégia Off-site
@@ -645,7 +645,7 @@ sudo zpool list
 
 **Passo 4: Verificar Health Endpoints**
 ```bash
-for service in zappro-ai-gateway zappro-litellm qdrant; do
+for service in ai-gateway zappro-litellm qdrant; do
   echo -n "$service: "
   curl -sf -m 5 http://localhost:${PORT}/health 2>/dev/null && echo "OK" || echo "FAIL"
 done
@@ -967,7 +967,7 @@ for port in 3001 4000 4002 6333 4016 11434 6435; do
 done
 
 # Restart all AI services
-docker restart zappro-ai-gateway zappro-litellm zappro-qdrant
+docker restart ai-gateway zappro-litellm zappro-qdrant
 
 # Ver erros recentes
 docker logs --since 1h ai-gateway litellm qdrant 2>&1 | grep -iE "error|fatal|panic"
@@ -989,10 +989,10 @@ nvidia-smi
 | Port | Service | Container | Access |
 |------|---------|-----------|--------|
 | 3000 | zappro-web | (bun process) | 0.0.0.0 |
-| 3300 | Gitea | zappro-gitea | localhost |
+| 3300 | Gitea | gitea | localhost |
 | 3456 | OpenWebUI | openwebui | localhost |
 | 4000 | LiteLLM | zappro-litellm | host |
-| 4002 | ai-gateway | zappro-ai-gateway | host |
+| 4002 | ai-gateway | ai-gateway | host |
 | 4003 | zappro-api | (python process) | 0.0.0.0 |
 | 4011 | mcp-qdrant | mcp-qdrant | localhost |
 | 4012 | mcp-coolify | mcp-coolify-mcp-coolify-1 | localhost |
@@ -1005,7 +1005,7 @@ nvidia-smi
 | 5173-5180 | Vite dev | vite | localhost |
 | 6333 | Qdrant | qdrant | Coolify net |
 | 6334 | Qdrant gRPC | qdrant | localhost |
-| 6379 | Redis | zappro-redis | host |
+| 6379 | Redis | homelab-redis | host |
 | 6381 | Coolify Redis | coolify-redis | host |
 | 8000 | Coolify | coolify-sentinel | localhost |
 | 8080 | Coolify proxy | coolify | localhost |
@@ -1023,11 +1023,11 @@ nvidia-smi
 | Container | Restart Policy | Auto-restart | Notas |
 |-----------|---------------|--------------|-------|
 | zappro-litellm | unless-stopped | Yes | |
-| zappro-ai-gateway | unless-stopped | Yes | Currently UNHEALTHY |
+| ai-gateway | unless-stopped | Yes | Currently UNHEALTHY |
 | qdrant | unless-stopped | Yes | |
-| zappro-redis | unless-stopped | Yes | |
+| homelab-redis | unless-stopped | Yes | |
 | coolify-sentinel | unless-stopped | Yes | |
-| zappro-gitea | unless-stopped | Yes | |
+| gitea | unless-stopped | Yes | |
 | openwebui | unless-stopped | Yes | |
 | prometheus | unless-stopped | Yes | |
 | grafana | unless-stopped | Yes | |
@@ -1040,7 +1040,7 @@ nvidia-smi
 # Containers
 alias dps='docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"'
 alias dlogs='docker logs --since 1h'
-alias docker-restart-ai='docker restart zappro-ai-gateway zappro-litellm zappro-qdrant'
+alias docker-restart-ai='docker restart ai-gateway zappro-litellm zappro-qdrant'
 
 # Health check
 alias health-all='for port in 3001 4000 4002 6333 4016 11434 6435; do echo -n "Port $port: "; curl -sf -m 3 http://localhost:$port/health 2>/dev/null && echo "OK" || echo "FAIL"; done'

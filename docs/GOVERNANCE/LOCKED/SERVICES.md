@@ -48,10 +48,10 @@ docker compose -f services/docker-compose.openwebui.yml up -d
 
 ```
 openwebui-hvac
-├── zappro-redis :6379 (required for sessions)
+├── homelab-redis :6379 (required for sessions)
 ├── hvac-rag-pipe :4017 (required for RAG)
 │   └── zappro-litellm :4000 (required for LLM)
-│       ├── zappro-litellm-db :5432 (required for DB)
+│       ├── litellm-db :5432 (required for DB)
 │       └── Qdrant :6333 (required for vector search)
 │           └── hvac-rag-pipe (queries Qdrant)
 └── Google OAuth (external)

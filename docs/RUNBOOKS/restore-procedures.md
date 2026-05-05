@@ -105,9 +105,9 @@ rm -rf /tmp/restore-test
 ls -la /srv/backups/gitea-*
 
 # Restore:
-# 1. Parar Gitea: docker stop zappro-gitea
+# 1. Parar Gitea: docker stop gitea
 # 2. Restore /srv/data/gitea do backup
-# 3. Iniciar Gitea: docker start zappro-gitea
+# 3. Iniciar Gitea: docker start gitea
 # 4. Verificar: curl -s http://localhost:3300/api/v1/version
 ```
 

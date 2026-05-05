@@ -8,7 +8,7 @@
 set -euo pipefail
 
 # Configuration
-# Note: Use redis-opencode on 6381 (no auth) or zappro-redis on 6379 (requires auth)
+# Note: Use redis-opencode on 6381 (no auth) or homelab-redis on 6379 (requires auth)
 REDIS_ADDR="${REDIS_ADDR:-localhost:6381}"
 REDIS_QUEUE="swarm:queue:intake"
 SWARM_BINARY="${SWARM_BINARY:-bin/swarm}"

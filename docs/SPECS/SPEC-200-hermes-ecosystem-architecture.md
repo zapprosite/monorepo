@@ -47,8 +47,8 @@ O ecossistema segue o padrão definido em `/home/will/.hermes/SOUL.md`:
 | Container | Status | Porta | Papel |
 |-----------|--------|-------|-------|
 | `zappro-qdrant` | RUNNING | 127.0.0.1:6333 | Qdrant — DB vetorial (1953 vetores `will`, 79 `second-brain`) |
-| `zappro-redis` | RUNNING | 127.0.0.1:6379 | Redis — cache/sessão (${REDIS_PASSWORD}) |
-| `zappro-edge-tts` | RUNNING | 127.0.0.1:8012 | |
+| `homelab-redis` | RUNNING | 127.0.0.1:6379 | Redis — cache/sessão (${REDIS_PASSWORD}) |
+| `edge-tts` | RUNNING | 127.0.0.1:8012 | |
 | `hermes-gateway` | RUNNING | 127.0.0.1:3001 | TypeScript agency |
 
 **Legado PRUNED:** `aurelia-*` containers foram removidos.
@@ -58,7 +58,7 @@ O ecossistema segue o padrão definido em `/home/will/.hermes/SOUL.md`:
 - **Porta:** `:4000` (OpenAI-compat)
 - **Modelos:** hermes-brain, qwen2.5vl-3b, qwen3.5-vl, seed-vl-mini
 - **Config:** `/srv/data/zappro-router/config.yaml` (model_fallbacks cascade)
-- **Cache:** Redis (zappro-redis:6379)
+- **Cache:** Redis (homelab-redis:6379)
 - **API Base Rule:** `https://openrouter.ai/api/v1` (SEM `/anthropic/v1`)
 
 ---
@@ -148,7 +148,7 @@ Symlinks ativos:
 | 4000 | zappro-litellm | 0.0.0.0 |
 | 6333 | zappro-qdrant | 127.0.0.1 |
 | 6334 | hermes-second-brain | 127.0.0.1 (PENDENTE) |
-| 6379 | zappro-redis | 127.0.0.1 |
+| 6379 | homelab-redis | 127.0.0.1 |
 | 8642 | hermes-gateway | 127.0.0.1 |
 
 ---
@@ -160,7 +160,7 @@ Symlinks ativos:
 3. **aurelia-guardrail** renomeado → **zappro-guardrail** (`/srv/ops/stacks/guardrail/docker-compose.yml`)
 4. **`/home/will/aurelia/`** deletado
 5. **`/srv/ops/ai-governance/env-backups/`** deletado
-6. **zappro-redis mount:** Atualizado de `/home/will/aurelia/data/redis:/data` para `/srv/data/redis:/data`
+6. **homelab-redis mount:** Atualizado de `/home/will/aurelia/data/redis:/data` para `/srv/data/redis:/data`
 
 ---
 

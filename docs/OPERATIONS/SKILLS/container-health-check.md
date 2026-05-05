@@ -22,7 +22,7 @@ The companion script (`container-health-check.sh`) can be run standalone or sche
 | `6771lt8l7x8rqx72f` | Voice AI Bot | `localhost:8080/healthz` | `200` with JSON |
 | `zappro-litellm` | AI Proxy (LLM aggregation) | `localhost:4000/health` | `200` with JSON |
 | `zappro-wav2vec2` | STT GPU inference | `localhost:8201/health` | `200` with JSON |
-| `zappro-litellm-db` | LiteLLM PostgreSQL | Internal: `pg_isready` | N/A (DB healthcheck) |
+| `litellm-db` | LiteLLM PostgreSQL | Internal: `pg_isready` | N/A (DB healthcheck) |
 | `browser-qgtzrmi6771lt8l7x8rqx72f` | Headless browser for | `tcp:9222` | TCP open |
 
 ### High Priority Containers
@@ -342,7 +342,7 @@ The `self-healing.sh` script already monitors critical containers. Use `containe
 | `*` | HTTP 000 | Cloudflare Tunnel down | Check cloudflared status |
 | `*` | unhealthy | internal server error | Check logs: `docker logs 6771lt8l7x8rqx72f` |
 | `zappro-litellm` | Connection refused | Process crash | `docker restart zappro-litellm` |
-| `zappro-litellm-db` | unhealthy | PostgreSQL not ready | Wait 30s or restart |
+| `litellm-db` | unhealthy | PostgreSQL not ready | Wait 30s or restart |
 | `zappro-wav2vec2` | HIGH_MEMORY | GPU OOM | Reduce batch size or restart |
 | `browser-*` | tcp_closed | Browser crashed | `docker restart browser-qgtzrmi6771lt8l7x8rqx72f` |
 | Any | EXCESSIVE_RESTARTS | restart loop | Check logs for segfault/panic |

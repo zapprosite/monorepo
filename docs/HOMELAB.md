@@ -13,19 +13,19 @@
 | Qdrant gRPC | `:6334` (127) | `qdrant` | ✅ |
 | Ollama | `:11434` | nativo (systemd) | ✅ |
 | LiteLLM | `:4018→4000` | `litellm-proxy` | ✅ |
-| AI Gateway | `:4002` | `zappro-ai-gateway` | ✅ |
+| AI Gateway | `:4002` | `ai-gateway` | ✅ |
 | Keycloak | `:8080, :8443` | `keycloak` | ✅ |
-| Gitea HTTP | `:3300` (127) | `zappro-gitea` | ✅ |
-| Gitea SSH | `:2222` (127) | `zappro-gitea` | ✅ |
+| Gitea HTTP | `:3300` (127) | `gitea` | ✅ |
+| Gitea SSH | `:2222` (127) | `gitea` | ✅ |
 | Coolify | `:8000` (127) | `coolify` | ✅ |
 | Coolify Realtime | `:6001-6002` (127) | `coolify-realtime` | ✅ |
-| pgAdmin | `:4050` (127) | `zappro-pgadmin` | ✅ |
+| pgAdmin | `:4050` (127) | `pgadmin` | ✅ |
 | Grafana | `:3100` (127) | `grafana` | ✅ |
 | Prometheus | `:9090` (127) | `prometheus` | ✅ |
 | Alertmanager | `:9093` (127) | `alertmanager` | ✅ |
-| Redis | `:6379` (127) | `zappro-redis` | ✅ |
+| Redis | `:6379` (127) | `homelab-redis` | ✅ |
 | Docker Registry | `:5000` | `registry` | ✅ |
-| Edge TTS | `:8012` (127) | `zappro-edge-tts` | ✅ |
+| Edge TTS | `:8012` (127) | `edge-tts` | ✅ |
 | OpenWebUI HVAC | `:3000` (interno) | `openwebui-hvac` | ✅ |
 | Gitea Runner | — | `gitea-runner` | ✅ |
 | Netdata | `:19999` | nativo | ✅ |
@@ -189,7 +189,7 @@ monitoring/          → Prometheus (:9090) + Grafana (:3100)
 - **`docs/REFERENCE/VERSIONS.md`** — Manifesto canônico com pinned digests (`@sha256:`)
 - **`:latest` / `:nightly` tags são PROIBIDAS** em qualquer compose file
 - **Audit diário** 07:00 via `docker-digest-audit.sh` (reporta Telegram se violação)
-- **Local builds** (ai-gateway, edge-tts, hermes-orchestrator) exigem ZFS snapshot antes do build
+- **Local builds** (ai-gateway, edge-tts, task-orchestrator) exigem ZFS snapshot antes do build
 
 ---
 

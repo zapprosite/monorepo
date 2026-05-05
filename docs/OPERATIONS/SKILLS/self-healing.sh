@@ -22,7 +22,7 @@ CRITICAL_CONTAINERS=(
     "zappro-litellm"
     "zappro-wav2vec2"
     "coolify-proxy"
-    "zappro-litellm-db"
+    "litellm-db"
 )
 
 # Network pairs that should share a Docker network (for isolation check)

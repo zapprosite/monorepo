@@ -20,9 +20,9 @@
     "zappro-wav2vec2-proxy",
     "zappro-wav2vec2",
     "zappro-litellm",
-    "zappro-litellm-db",
+    "litellm-db",
     "zappro-kokoro",
-    "zappro-gitea",
-    "zappro-redis"
+    "gitea",
+    "homelab-redis"
   ]
 }

@@ -33,13 +33,13 @@ Data collected: 2026-04-23
 | mcp-qdrant | 10.0.19.51 | qgtzrmi6771lt8l7x8rqx72f | Yes (NAT) |
 | qwen2-vl7b | 10.0.2.5 | zappro-lite_default | Yes (NAT) |
 | coolify-redis | 10.0.0.2 | coolify | Yes (NAT) |
-| zappro-redis | 10.0.8.2, 10.0.2.3 | -net, zappro-lite_default | Yes (NAT) |
+| homelab-redis | 10.0.8.2, 10.0.2.3 | -net, zappro-lite_default | Yes (NAT) |
 
 ## Notes
 
 - **NAT access**: Containers on bridge networks can reach external networks via Docker's NAT/masquerade. They cannot be directly accessed from the host LAN unless explicit port mappings exist.
 - **host network**: `mcp-memory` uses the host network namespace directly, sharing the host's IP and network stack.
-- **Multi-network containers**: `zappro-litellm` and `zappro-redis` span multiple networks for cross-service communication.
+- **Multi-network containers**: `zappro-litellm` and `homelab-redis` span multiple networks for cross-service communication.
 
 ## Key Service Endpoints
 
@@ -48,5 +48,5 @@ Data collected: 2026-04-23
 | zappro-litellm | ai-gateway_default | 10.0.10.3:4000 |
 | qdrant | platform_default | 10.0.9.2:6333 |
 | coolify-redis | coolify | 10.0.0.2:6379 |
-| zappro-redis | -net | 10.0.8.2:6379 |
+| homelab-redis | -net | 10.0.8.2:6379 |
 | mcp-ollama | qgtzrmi6771lt8l7x8rqx72f | 10.0.19.50:11434 |

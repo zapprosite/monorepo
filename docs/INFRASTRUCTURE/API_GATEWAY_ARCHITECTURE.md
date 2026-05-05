@@ -226,7 +226,7 @@ cloudflare_tunnel_secret=<redacted: source .env>
 **Future Scaling:**
 ```env
 # When adding Redis session affinity
-LITELLM_REDIS_HOST=zappro-redis
+LITELLM_REDIS_HOST=homelab-redis
 LITELLM_REDIS_PORT=6379
 LITELLM_SESSION_STORE=redis
 ```
@@ -286,7 +286,7 @@ Hermes Gateway (:8642)
 | `4002` | AI Gateway | `0.0.0.0` | No | OpenAI facade |
 | `4050` | pgAdmin | `0.0.0.0` | Via tunnel | DB management |
 | `6333` | Qdrant | `localhost` | No | Vector DB |
-| `6379` | Redis | `zappro-redis` | No | Cache/sessions |
+| `6379` | Redis | `homelab-redis` | No | Cache/sessions |
 | `8204` | Whisper STT | `localhost` | No | Speech-to-text |
 | `8642` | Hermes Gateway | `127.0.0.1` | No | Telegram bridge |
 
@@ -312,7 +312,7 @@ GRAFANA_SERVICE_ACCOUNT_TOKEN=<redacted: source .env>
 
 ### Snapshot Points
 - ZFS snapshots before any configuration change
-- Database: PostgreSQL at `zappro-litellm-db:5432`
+- Database: PostgreSQL at `litellm-db:5432`
 - Vector DB: Qdrant at `localhost:6333`
 
 ### Backup Strategy

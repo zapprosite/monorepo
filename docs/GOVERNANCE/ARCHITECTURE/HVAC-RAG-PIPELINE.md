@@ -32,7 +32,7 @@
 │         │     └────────────────────┘                                       │
 │         │                                                                  │
 │         │              ┌─────────────────────────────────┐               │
-│         │              │ zappro-litellm-db :5432          │               │
+│         │              │ litellm-db :5432          │               │
 │         │              │ PostgreSQL (LiteLLM data)        │               │
 │         │              └─────────────────────────────────┘               │
 │         │                                                                  │
@@ -48,8 +48,8 @@
 | LiteLLM         | 4000            | 4000      | HTTP     | LLM gateway              |
 | Qdrant          | 6333            | -         | HTTP     | Vector database          |
 | redis    | 6379            | -         | TCP      | Session cache (open)     |
-| zappro-redis    | 6379            | 127.0.0.1  | TCP      | Has auth (unused)        |
-| zappro-litellm-db| 5432           | -         | TCP      | PostgreSQL               |
+| homelab-redis    | 6379            | 127.0.0.1  | TCP      | Has auth (unused)        |
+| litellm-db| 5432           | -         | TCP      | PostgreSQL               |
 
 ## Network Configuration
 
@@ -59,8 +59,8 @@
 - Containers:
   - openwebui-hvac (10.0.3.5)
   - zappro-litellm (10.0.3.3)
-  - zappro-litellm-db (10.0.3.4)
-  - zappro-redis (10.0.3.2)
+  - litellm-db (10.0.3.4)
+  - homelab-redis (10.0.3.2)
   - redis (10.0.8.5 - connected via network)
 
 ### Host Network
@@ -109,7 +109,7 @@ endpoints:
 image: ghcr.io/berriai/litellm:main-latest
 networks: [zappro-lite_default]
 ports: [4000:4000]
-depends_on: [zappro-litellm-db]
+depends_on: [litellm-db]
 ```
 
 ## Critical Rules

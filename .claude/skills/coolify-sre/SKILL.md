@@ -96,12 +96,12 @@ COOLIFY_APPS = [
 
 DOCKER_CONTAINERS = [
     "zappro-litellm",        # PINNED
-    "zappro-litellm-db",     # PINNED
+    "litellm-db",     # PINNED
     "zappro-wav2vec2",       # PINNED (KIT PROTECTED)
     "zappro-wav2vec2-proxy", # PINNED
     "zappro-tts-bridge",    # PINNED (KIT PROTECTED)
     "zappro-",        # PINNED (KIT PROTECTED)
-    "zappro-redis",          # Active
+    "homelab-redis",          # Active
     "coolify-proxy",         # IMMUTABLE — never touch
     "cloudflared",           # IMMUTABLE — never touch
 ]

@@ -30,8 +30,8 @@ check_docker_network() {
 }
 
 check_redis_connectivity() {
-    echo -n "Checking Redis (zappro-redis)... "
-    if docker exec openwebui-hvac sh -c "python3 -c 'import redis; r=redis.Redis(host=\"zappro-redis\",port=6379,socket_connect_timeout=3);print(r.ping())'" 2>/dev/null | grep -q True; then
+    echo -n "Checking Redis (homelab-redis)... "
+    if docker exec openwebui-hvac sh -c "python3 -c 'import redis; r=redis.Redis(host=\"homelab-redis\",port=6379,socket_connect_timeout=3);print(r.ping())'" 2>/dev/null | grep -q True; then
         echo -e "${GREEN}OK${NC}"
         return 0
     else
@@ -86,9 +86,9 @@ verify_network_config() {
         echo -e "${RED}FAIL - Wrong network${NC}"
     fi
 
-    # Check that zappro-redis is accessible
-    echo -n "zappro-redis accessible from openwebui-hvac... "
-    if docker exec openwebui-hvac sh -c "getent hosts zappro-redis" &>/dev/null; then
+    # Check that homelab-redis is accessible
+    echo -n "homelab-redis accessible from openwebui-hvac... "
+    if docker exec openwebui-hvac sh -c "getent hosts homelab-redis" &>/dev/null; then
         echo -e "${GREEN}OK${NC}"
     else
         echo -e "${RED}FAIL${NC}"
@@ -110,9 +110,9 @@ verify_env_config() {
     fi
 
     # Check REDIS_HOST
-    echo -n "REDIS_HOST is zappro-redis (not localhost)... "
+    echo -n "REDIS_HOST is homelab-redis (not localhost)... "
     local redis_host=$(docker exec openwebui-hvac printenv REDIS_HOST 2>/dev/null || echo "")
-    if [[ "$redis_host" == "zappro-redis" ]]; then
+    if [[ "$redis_host" == "homelab-redis" ]]; then
         echo -e "${GREEN}OK ($redis_host)${NC}"
     else
         echo -e "${RED}FAIL ($redis_host)${NC}"

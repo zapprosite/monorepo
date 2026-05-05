@@ -77,10 +77,10 @@ LiteLLM serve como proxy LLM multi-provedor para Groq, OpenAI, OpenRouter, Ollam
 | Container | Imagem | Porta | Status | Propósito |
 |-----------|--------|-------|--------|-----------|
 | `zappro-litellm` | litellm | 4000/tcp | running | Proxy LLM multi-provedor |
-| `zappro-litellm-db` | postgres:16 | 5432/tcp | healthy | PostgreSQL (metadados LiteLLM) |
+| `litellm-db` | postgres:16 | 5432/tcp | healthy | PostgreSQL (metadados LiteLLM) |
 | `zappro-qdrant` | qdrant | 6333-34/tcp | healthy | DB vetorial (RAG/embeddings) |
-| `zappro-redis` | redis | 6379/tcp | healthy | Cache/pubsub |
-| `zappro-edge-tts` | edge-tts | 8012/tcp | healthy | TTS neural Microsoft |
+| `homelab-redis` | redis | 6379/tcp | healthy | Cache/pubsub |
+| `edge-tts` | edge-tts | 8012/tcp | healthy | TTS neural Microsoft |
 | `grafana` | grafana | 3100/tcp | running | Dashboards métricas |
 | `node-exporter` | node-exp | 9100/tcp | running | Métricas host |
 | `searxng` | searxng | 8080/tcp | running | Motor de busca privativo |
@@ -119,7 +119,7 @@ LiteLLM serve como proxy LLM multi-provedor para Groq, OpenAI, OpenRouter, Ollam
 | 5432 | liteLLM-DB | container | `pg_isready` |
 | 6333 | qdrant REST | 127.0.0.1 | `curl localhost:6333/readyz` |
 | 6334 | qdrant gRPC | 127.0.0.1 | — |
-| 6379 | redis | 127.0.0.1 | `docker exec zappro-redis redis-cli ping` |
+| 6379 | redis | 127.0.0.1 | `docker exec homelab-redis redis-cli ping` |
 | 8012 | edge-tts | 127.0.0.1 | `curl localhost:8012/health` |
 | 8080 | searxng | * | `curl localhost:8080` |
 | 3100 | grafana | * | `curl localhost:3100/api/health` |
@@ -199,7 +199,7 @@ User → SearXNG (:8080) — motor de busca local, ad-free
 curl localhost:8642/health   # Hermes Gateway
 curl localhost:4018/health   # LiteLLM (401 sem key = normal)
 curl localhost:6333/readyz   # Qdrant
-docker exec zappro-redis redis-cli ping  # Redis
+docker exec homelab-redis redis-cli ping  # Redis
 curl localhost:8012/health   # Edge TTS
 
 # Containers

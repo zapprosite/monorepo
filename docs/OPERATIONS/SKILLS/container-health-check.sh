@@ -14,7 +14,7 @@ CRITICAL_CONTAINERS=(
     "openclaw-qgtzrmi6771lt8l7x8rqx72f"
     "zappro-litellm"
     "zappro-wav2vec2"
-    "zappro-litellm-db"
+    "litellm-db"
     "browser-qgtzrmi6771lt8l7x8rqx72f"
 )
 

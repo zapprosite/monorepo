@@ -60,7 +60,7 @@ bash docs/OPERATIONS/SKILLS/verify-network.sh
 | `6771lt8l7x8rqx72f` | Up |
 | `zappro-litellm` | Up |
 | `zappro-wav2vec2` | Up |
-| `zappro-litellm-db` | Up |
+| `litellm-db` | Up |
 
 ---
 
@@ -279,7 +279,7 @@ docker restart coolify-proxy
 | Traefik | `coolify-proxy` |
 | | `6771lt8l7x8rqx72f` |
 | LiteLLM | `zappro-litellm` |
-| LiteLLM DB | `zappro-litellm-db` |
+| LiteLLM DB | `litellm-db` |
 | wav2vec2 STT | `zappro-wav2vec2` |
 
 ### Network Names Reference

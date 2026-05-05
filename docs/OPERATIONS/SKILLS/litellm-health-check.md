@@ -11,7 +11,7 @@
 - **Tipo:** Docker container (`zappro-litellm`) via docker-compose
 - **Config:** `config/litellm/config.yaml`
 - **Models:** `hermes-auto`, `hermes-local-code`, `hermes-vision`, `hermes-embed`, `hermes-cloud-cheap`, `hermes-cloud-pro`, `hermes-cloud-ui`, `hermes-brain`
-- **Database:** PostgreSQL via `zappro-litellm-db` container (persistência de keys/costs)
+- **Database:** PostgreSQL via `litellm-db` container (persistência de keys/costs)
 
 ## Procedure
 

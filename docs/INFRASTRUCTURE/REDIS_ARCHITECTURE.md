@@ -1,6 +1,6 @@
 # Redis Architecture — Hermes Agency
 
-**Redis Endpoint:** `redis://zappro-redis:6379` (password: `${REDIS_PASSWORD}`)
+**Redis Endpoint:** `redis://homelab-redis:6379` (password: `${REDIS_PASSWORD}`)
 **Max Memory:** 512MiB (`GOMEMLIMIT`)
 **Eviction Policy:** `allkeys-lru`
 **AOF:** every 1 second
@@ -290,7 +290,7 @@ appendfsync everysec
 ### Per-Connection Health
 
 ```bash
-redis-cli -h zappro-redis -p 6379 -a '${REDIS_PASSWORD}' PING
+redis-cli -h homelab-redis -p 6379 -a '${REDIS_PASSWORD}' PING
 # Expected: PONG
 ```
 
@@ -337,7 +337,7 @@ redis-cli -h zappro-redis -p 6379 -a '${REDIS_PASSWORD}' PING
 ```typescript
 // src/telegram/redis.ts
 export const redisConfig = {
-  host: process.env['REDIS_HOST'] ?? 'zappro-redis',
+  host: process.env['REDIS_HOST'] ?? 'homelab-redis',
   port: parseInt(process.env['REDIS_PORT'] ?? '6379', 10),
   password: process.env['REDIS_PASSWORD'] ?? '${REDIS_PASSWORD}',
   retryStrategy: (times: number) => {
@@ -356,7 +356,7 @@ export const redisConfig = {
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `REDIS_HOST` | `zappro-redis` | Redis hostname |
+| `REDIS_HOST` | `homelab-redis` | Redis hostname |
 | `REDIS_PORT` | `6379` | Redis port |
 | `REDIS_PASSWORD` | `${REDIS_PASSWORD}` | Redis password |
 | `HERMES_RATE_WINDOW_MS` | `10000` | Rate limit window (ms) |

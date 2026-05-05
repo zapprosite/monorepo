@@ -177,7 +177,7 @@
 | Container | Imagem | Porta | Rede | Status |
 |----------|--------|-------|------|--------|
 | zappro-litellm | ghcr.io/berriai/litellm:main-stable | :4000 | zappro-lite | ✅ UP |
-| zappro-litellm-db | postgres:15-alpine | :5432 | zappro-lite | ✅ healthy |
+| litellm-db | postgres:15-alpine | :5432 | zappro-lite | ✅ healthy |
 | zappro-qdrant | qdrant/qdrant:v1.17.1 | :6333 | bridge | ✅ UP |
 | zappro-| ghcr.io/remsky/:v0.2.2 | :8012→:8880 | bridge | ✅ UP |
 | open-webui-wbmqefx... | ghcr.io/openwebui/open-webui:main | :8080 | wbmqefxhd7vdn2dme3i6s9an + qgtzrmi... | ✅ UP |
@@ -225,7 +225,7 @@
 | firefox-pgasow... | jlesage/firefox | :5800, :5900 | — | ✅ healthy |
 | searxng | searxng/searxng:latest | :8888 | bridge | ✅ UP |
 | connected_repo_db | postgres:15-alpine | :5432 | monorepo_default | ✅ UP |
-| zappro-redis | redis:7.2.4-alpine | :6379 | bridge | ✅ UP |
+| homelab-redis | redis:7.2.4-alpine | :6379 | bridge | ✅ UP |
 | redis-opencode | redis:7.2.4-alpine | :6381 | bridge | ✅ UP |
 
 ---
@@ -239,7 +239,7 @@
 | coolify-db | 15-alpine | Coolify metadata | coolify |
 | | 16-alpine | | |
 | connected_repo_db | 15-alpine | Dev local (monorepo) | monorepo_default |
-| zappro-litellm-db | 15-alpine | LiteLLM virtual keys | zappro-lite |
+| litellm-db | 15-alpine | LiteLLM virtual keys | zappro-lite |
 | postgresql-jbu1zy... | 16-alpine | n8n (Coolify-managed) | coolify |
 | ll01e4eis7wog1fn... | 17.4.1 | Connected Repo (Coolify) | coolify |
 
@@ -253,7 +253,7 @@
 |---------|--------|---------|-------|
 | coolify-redis | 7-alpine | Coolify cache | 6379 |
 | | 7-alpine | | 6379 |
-| zappro-redis | 7.2.4-alpine | zappro stack | 6379 |
+| homelab-redis | 7.2.4-alpine | zappro stack | 6379 |
 | redis-opencode | 7.2.4-alpine | OpenCode cache | 6381 |
 
 **Todos legítimos.** Redis é projetado para multi-tenant isolation.

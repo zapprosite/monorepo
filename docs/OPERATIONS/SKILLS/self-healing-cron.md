@@ -18,7 +18,7 @@ All critical containers must be **Up (healthy)**:
 | `6771lt8l7x8rqx72f` | |
 | `zappro-litellm` | LiteLLM proxy (Ollama + OpenRouter) |
 | `zappro-wav2vec2` | wav2vec2 STT service |
-| `zappro-litellm-db` | LiteLLM PostgreSQL database |
+| `litellm-db` | LiteLLM PostgreSQL database |
 | `coolify-proxy` | Traefik reverse proxy |
 
 ### 2. Route Health
