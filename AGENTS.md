@@ -134,6 +134,16 @@ SPEC.md > AGENTS.md > CLAUDE.md > Código-fonte
 └─────────────────────────────────────────────────────────────┘
 ```
 
+## OpenWebUI HVAC — Modelo Único
+
+**Regra absoluta:** OpenWebUI é exclusivo para HVAC RAG e só pode expor `hvac-manual-strict`.
+
+- Proibido recriar modelos/aliases legados no OpenWebUI.
+- Proibido manter perfis, specs mortas, backups ou docs com identificadores legados de modelo público.
+- A tabela `model` do OpenWebUI deve ter apenas `hvac-manual-strict`.
+- A tabela `function` do OpenWebUI deve ficar vazia, salvo SPEC futuro explícito.
+- Ver runbook: `docs/RUNBOOKS/OPENWEBUI-HVAC-STRICT-ONLY.md`.
+
 ---
 
 ## Tool Stack (Raiz)
