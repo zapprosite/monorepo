@@ -95,6 +95,7 @@ export const contractsRouterTrpc = trpcRouter({
 	activateContract: protectedProcedure
 		.input(contractGetByIdZod)
 		.mutation(async ({ ctx, input: { contractId } }) => {
+			return db.$transaction(async () => {
 			const contract = await assertContractTeamAccess(contractId, ctx.user.teamId);
 			if (contract.status !== 'Rascunho' && contract.status !== 'Suspenso') {
 				throw new TRPCError({
@@ -103,11 +104,13 @@ export const contractsRouterTrpc = trpcRouter({
 				});
 			}
 			return db.contracts.where({ contractId }).update({ status: 'Ativo' });
+			});
 		}),
 
 	suspendContract: protectedProcedure
 		.input(contractGetByIdZod)
 		.mutation(async ({ ctx, input: { contractId } }) => {
+			return db.$transaction(async () => {
 			const contract = await assertContractTeamAccess(contractId, ctx.user.teamId);
 			if (contract.status !== 'Ativo') {
 				throw new TRPCError({
@@ -116,11 +119,13 @@ export const contractsRouterTrpc = trpcRouter({
 				});
 			}
 			return db.contracts.where({ contractId }).update({ status: 'Suspenso' });
+			});
 		}),
 
 	reactivateContract: protectedProcedure
 		.input(contractGetByIdZod)
 		.mutation(async ({ ctx, input: { contractId } }) => {
+			return db.$transaction(async () => {
 			const contract = await assertContractTeamAccess(contractId, ctx.user.teamId);
 			if (contract.status !== 'Suspenso') {
 				throw new TRPCError({

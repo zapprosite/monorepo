@@ -71,6 +71,7 @@ export const serviceOrdersRouterTrpc = trpcRouter({
 	createServiceOrder: protectedProcedure
 		.input(serviceOrderCreateInputZod)
 		.mutation(async ({ ctx, input }) => {
+			return db.$transaction(async () => {
 			const { teamId } = ctx.user;
 			const cliente = await db.clients
 				.where({ clientId: input.clienteId, teamId })
@@ -96,6 +97,7 @@ export const serviceOrdersRouterTrpc = trpcRouter({
 					throw new TRPCError({ code: 'NOT_FOUND', message: 'Equipamento não encontrado' });
 			}
 			return db.serviceOrders.create(input);
+			});
 		}),
 
 	updateServiceOrder: protectedProcedure
