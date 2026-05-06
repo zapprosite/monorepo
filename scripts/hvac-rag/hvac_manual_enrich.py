@@ -76,6 +76,7 @@ BRAZILIAN_BRANDS = {"lg", "samsung", "daikin", "carrier", "springer", "midea", "
 
 sys.path.insert(0, str(Path(__file__).parent))
 from hvac_chunk import docling_convert
+from hvac_faq_generator import generate_faq
 from hvac_fingerprint import normalize_text
 
 # ── Helpers ──────────────────────────────────────────────────────────────────
@@ -250,8 +251,19 @@ def generate_qa_for_chunk(chunk: str, model: str = LLM_MODEL) -> list[dict]:
     return qa_pairs
 
 
-def generate_top50_qa(markdown_text: str, max_pairs: int = MAX_QA_PAIRS) -> list[dict]:
+def generate_top50_qa(markdown_text: str, max_pairs: int = MAX_QA_PAIRS, use_nexus_cli: bool = False) -> list[dict]:
     """Generate up to max_pairs Q&A from the full markdown text."""
+    nexus_pairs = generate_faq(markdown_text, limit=max_pairs, use_nexus_cli=use_nexus_cli)
+    if nexus_pairs:
+        return [
+            {
+                "question": pair["question"],
+                "answer": pair["answer"],
+                "source_chunk": pair.get("source_excerpt", ""),
+            }
+            for pair in nexus_pairs[:max_pairs]
+        ]
+
     chunks = chunk_text(markdown_text, CHUNK_SIZE_CHARS)
     all_qa = []
     logger.info(f"Processing {len(chunks)} chunks for Q&A generation")
@@ -294,15 +306,7 @@ def write_faq_json(qa_pairs: list[dict], dest: Path, metadata: dict) -> None:
 
 
 def get_qdrant_api_key() -> str:
-    key = os.getenv("QDRANT_API_KEY", "")
-    if not key:
-        env_path = Path("/srv/monorepo/.env")
-        if env_path.exists():
-            for line in env_path.read_text().splitlines():
-                if line.startswith("QDRANT_API_KEY="):
-                    key = line.split("=", 1)[1].strip().strip('"')
-                    break
-    return key
+    return os.getenv("QDRANT_API_KEY", "")
 
 
 def embed_text(text: str) -> list[float]:
@@ -392,7 +396,7 @@ def index_qa_in_qdrant(qa_pairs: list[dict], metadata: dict) -> None:
 # ── Main pipeline ────────────────────────────────────────────────────────────
 
 
-def enrich_manual(src_path: Path, out_dir: Path, index_qdrant: bool = False) -> dict:
+def enrich_manual(src_path: Path, out_dir: Path, index_qdrant: bool = False, use_nexus_cli: bool = False) -> dict:
     """
     Full enrichment pipeline with blacklist/whitelist and metadata extraction:
       1. Classify PDF (reject if blacklisted)
@@ -466,7 +470,7 @@ def enrich_manual(src_path: Path, out_dir: Path, index_qdrant: bool = False) -> 
     }
 
     # ── Step 4: Generate Q&A ────────────────────────────────────────────────
-    qa_pairs = generate_top50_qa(markdown_text, max_pairs=MAX_QA_PAIRS)
+    qa_pairs = generate_top50_qa(markdown_text, max_pairs=MAX_QA_PAIRS, use_nexus_cli=use_nexus_cli)
     metadata["qa_count"] = len(qa_pairs)
 
     # ── Step 5: Write outputs ───────────────────────────────────────────────
@@ -496,12 +500,32 @@ def enrich_manual(src_path: Path, out_dir: Path, index_qdrant: bool = False) -> 
 
 def main():
     parser = argparse.ArgumentParser(description="HVAC Manual Enrich — PDF→Markdown + Top 50 Q&A")
-    parser.add_argument("input", type=Path, help="Path to PDF or Markdown file")
+    parser.add_argument("input", type=Path, nargs="?", help="Path to PDF or Markdown file")
     parser.add_argument("--out-dir", type=Path, default=DEFAULT_OUT_DIR, help="Output directory")
     parser.add_argument("--index", action="store_true", help="Index Q&A in Qdrant")
+    parser.add_argument("--generate-faq", action="store_true", help="Generate FAQ for Markdown files under out-dir/markdown")
+    parser.add_argument("--limit", type=int, default=None, help="Limit manuals processed in --generate-faq mode")
+    parser.add_argument("--use-nexus-cli", action="store_true", help="Route FAQ generation through nexus CLI when available")
     args = parser.parse_args()
 
-    result = enrich_manual(args.input, args.out_dir, index_qdrant=args.index)
+    if args.generate_faq:
+        markdown_dir = args.out_dir / "markdown"
+        markdown_files = sorted(markdown_dir.glob("*.md")) if markdown_dir.exists() else []
+        if args.input:
+            markdown_files = [args.input]
+        if args.limit is not None:
+            markdown_files = markdown_files[: args.limit]
+        results = [
+            enrich_manual(path, args.out_dir, index_qdrant=args.index, use_nexus_cli=args.use_nexus_cli)
+            for path in markdown_files
+        ]
+        print(json.dumps({"mode": "generate_faq", "processed": len(results), "results": results}, indent=2))
+        return
+
+    if not args.input:
+        parser.error("input is required unless --generate-faq is used")
+
+    result = enrich_manual(args.input, args.out_dir, index_qdrant=args.index, use_nexus_cli=args.use_nexus_cli)
     print(json.dumps(result, indent=2))
 
 

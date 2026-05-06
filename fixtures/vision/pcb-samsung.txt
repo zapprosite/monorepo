@@ -1,0 +1,2 @@
+Fixture: placa Samsung inverter.
+Use este placeholder textual em testes unitários; smoke real deve substituir por foto local não versionada.

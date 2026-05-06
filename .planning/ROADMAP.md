@@ -11,7 +11,7 @@
 - [ ] Fase 3: Manual Finder e Aquisição Automática (PLANNED)
 
 ### M3: Diagnóstico Visual e IoT
-- [ ] Fase 4: Reconhecimento de Placas e Componentes via Foto (PLANNED)
+- [x] Fase 4: Reconhecimento de Placas e Componentes via Foto (COMPLETE 2026-05-06)
 
 ---
 
@@ -24,7 +24,7 @@
 - [x] 04-01-PLAN.md — contratos e estado canônico para fotos de PCB/componentes (COMPLETE 2026-05-05)
 - [x] 04-02-PLAN.md — integração do vision output com memória/contexto de diagnóstico (COMPLETE 2026-05-05)
 - [x] 04-03-PLAN.md — endpoint/CLI de intake com validação de imagem e hints (COMPLETE 2026-05-06)
-- [ ] 04-04-PLAN.md — smoke tests com fixtures reais e runbook operacional
+- [x] 04-04-PLAN.md — smoke tests com fixtures reais e runbook operacional (COMPLETE 2026-05-06)
 
 ---
 
@@ -48,8 +48,8 @@
 
 **Plans:** 5 plans
 
-- [ ] 03-01-PLAN.md — `hvac_manual_finder.py` canonical CLI and data model
-- [ ] 03-02-PLAN.md — official source search via Tavily/DDG + manufacturer ranking
+- [x] 03-01-PLAN.md — `hvac_manual_finder.py` canonical CLI and data model (COMPLETE 2026-05-05)
+- [x] 03-02-PLAN.md — official source search via Tavily/DDG + manufacturer ranking (COMPLETE 2026-05-06)
 - [ ] 03-03-PLAN.md — PDF downloader validation: content-type, size, hash and duplicate guard
 - [ ] 03-04-PLAN.md — intake integration: dry-run, index, rejection and pending review reasons
 - [ ] 03-05-PLAN.md — coverage feedback loop and report-only automation
@@ -62,6 +62,6 @@
 
 **Plans:** 3 plans
 
-- [ ] 05-01-PLAN.md — Enriquecimento de base: LLM-generated FAQ (Top 50) no Qdrant
-- [ ] 05-02-PLAN.md — Refatoração hvac_rag_pipe.py: Busca dual (Semantic -> Proof text)
+- [x] 05-01-PLAN.md — Enriquecimento de base: LLM-generated FAQ (Top 50) no Qdrant (COMPLETE 2026-05-06)
+- [x] 05-02-PLAN.md — Refatoração hvac_rag_pipe.py: Busca dual (Semantic -> Proof text) (COMPLETE 2026-05-06)
 - [ ] 05-03-PLAN.md — Validação final: Smoke tests de grounding e citação técnica

@@ -1,0 +1,2 @@
+Fixture: etiqueta de modelo HVAC.
+Use este placeholder textual em testes unitários; smoke real deve substituir por foto local não versionada.

@@ -5,6 +5,10 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
+import re
+import urllib.parse
+import urllib.request
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any
@@ -177,11 +181,117 @@ def rank_search_results(
     return sorted(candidates, key=lambda item: (-item.confidence, item.source_domain, item.url))
 
 
+def _infer_brand_model_from_query(query: str) -> tuple[str, str]:
+    normalized = query.strip()
+    brand = ""
+    for known_brand in OFFICIAL_BRAND_DOMAINS:
+        if re.search(rf"\b{re.escape(known_brand)}\b", normalized, re.IGNORECASE):
+            brand = known_brand
+            break
+
+    tokens = re.findall(r"\b[A-Z0-9][A-Z0-9/-]{4,}\b", normalized.upper())
+    model = next((token for token in tokens if token.lower() != brand), "")
+    return brand, model
+
+
+def _normalize_provider_result(result: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "title": result.get("title") or result.get("name") or result.get("url") or "",
+        "url": result.get("url") or result.get("link") or "",
+        "snippet": result.get("snippet") or result.get("content") or result.get("body") or "",
+        "confidence": float(result.get("score", result.get("confidence", 0.5)) or 0.5),
+    }
+
+
+def search_tavily(query: str, limit: int = 8) -> list[dict[str, Any]]:
+    """Search Tavily when TAVILY_API_KEY is available; never hardcode secrets."""
+    api_key = os.environ.get("TAVILY_API_KEY")
+    if not api_key:
+        return []
+
+    payload = json.dumps(
+        {
+            "query": query,
+            "max_results": limit,
+            "search_depth": "basic",
+            "include_answer": False,
+        }
+    ).encode("utf-8")
+    request = urllib.request.Request(
+        "https://api.tavily.com/search",
+        data=payload,
+        headers={"Content-Type": "application/json", "Authorization": f"Bearer {api_key}"},
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=12) as response:
+            data = json.loads(response.read().decode("utf-8"))
+    except Exception:
+        return []
+    return [_normalize_provider_result(item) for item in data.get("results", [])[:limit]]
+
+
+def search_duckduckgo(query: str, limit: int = 8) -> list[dict[str, Any]]:
+    """Best-effort DuckDuckGo HTML search without adding runtime dependencies."""
+    url = "https://duckduckgo.com/html/?" + urllib.parse.urlencode({"q": query})
+    request = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+    try:
+        with urllib.request.urlopen(request, timeout=12) as response:
+            html = response.read().decode("utf-8", errors="ignore")
+    except Exception:
+        return []
+
+    results: list[dict[str, Any]] = []
+    pattern = re.compile(r'class="result__a" href="(?P<href>[^"]+)".*?>(?P<title>.*?)</a>', re.DOTALL)
+    for match in pattern.finditer(html):
+        href = match.group("href")
+        title = re.sub(r"<.*?>", "", match.group("title"))
+        parsed = urllib.parse.urlparse(href)
+        if parsed.path == "/l/":
+            qs = urllib.parse.parse_qs(parsed.query)
+            href = qs.get("uddg", [href])[0]
+        results.append({"title": title, "url": urllib.parse.unquote(href), "snippet": "", "confidence": 0.5})
+        if len(results) >= limit:
+            break
+    return results
+
+
+def official_seed_results(brand: str, model: str) -> list[dict[str, Any]]:
+    """Seed official manufacturer domains so ranking stays official-first when search is unavailable."""
+    seeds: list[dict[str, Any]] = []
+    for domain in OFFICIAL_BRAND_DOMAINS.get(normalize_brand(brand), ()):
+        seeds.append(
+            {
+                "title": f"{brand.upper()} {model} manual suporte oficial",
+                "url": f"https://www.{domain}/search?q={urllib.parse.quote_plus(model + ' manual')}",
+                "snippet": f"Busca oficial do fabricante para manual técnico {model}.",
+                "confidence": 0.45,
+            }
+        )
+    return seeds
+
+
+def search_manual_candidates(query: str, brand: str = "", model: str = "", limit: int = 8) -> list[ManualCandidate]:
+    if not brand or not model:
+        inferred_brand, inferred_model = _infer_brand_model_from_query(query)
+        brand = brand or inferred_brand
+        model = model or inferred_model
+
+    raw_results = search_tavily(query, limit=limit)
+    if not raw_results:
+        raw_results = search_duckduckgo(query, limit=limit)
+    if brand and model:
+        raw_results.extend(official_seed_results(brand, model))
+
+    return rank_search_results(brand, model, query, raw_results)[:limit]
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="HVAC Manual Finder")
     parser.add_argument("--brand", help="Brand name, e.g. lg")
     parser.add_argument("--model", help="Model number, e.g. ARNU12GTMC2")
     parser.add_argument("--catalog-row-json", help="JSON string or path to JSON file")
+    parser.add_argument("--search", help="Search web for a manual query and rank official manufacturer results")
     parser.add_argument("--dry-run", action="store_true", help="Print derived query without web calls")
     parser.add_argument("--output-jsonl", help="Write ranked candidates as JSONL")
     return parser
@@ -212,9 +322,18 @@ def main() -> None:
     args = parser.parse_args()
 
     catalog_row = parse_catalog_row_json(args.catalog_row_json)
-    brand, model = _resolve_brand_model(args, catalog_row)
-    query = build_search_query(brand, model, catalog_row)
+    if args.search:
+        inferred_brand, inferred_model = _infer_brand_model_from_query(args.search)
+        brand = normalize_brand(args.brand or catalog_row.get("brand") or inferred_brand)
+        model = normalize_model(args.model or catalog_row.get("indoor_model") or inferred_model)
+        query = args.search
+    else:
+        brand, model = _resolve_brand_model(args, catalog_row)
+        query = build_search_query(brand, model, catalog_row)
     candidates: list[ManualCandidate] = []
+
+    if args.search and not args.dry_run:
+        candidates = search_manual_candidates(query, brand=brand, model=model)
 
     if args.output_jsonl:
         _write_jsonl(Path(args.output_jsonl), candidates)

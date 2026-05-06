@@ -93,6 +93,7 @@ DIRECT_EMBED_URL = os.environ.get("HVAC_EMBEDDING_URL", os.environ.get("LLAMA_CP
 EMBEDDING_MODEL = os.environ.get("HVAC_EMBEDDING_MODEL", "nomic-embed-cpu")
 EMBED_USE_LITELLM = os.environ.get("EMBED_USE_LITELLM", "false").lower() == "true"
 COLLECTION_NAME = "hvac_manuals_v1"
+FAQ_COLLECTION_NAME = os.environ.get("QDRANT_COLLECTION_FAQ", "hvac_manuals_faq")
 
 # OpenWebUI is dedicated to this project and must expose exactly one model.
 MODEL_NAME = "hvac-manual-strict"
@@ -333,8 +334,21 @@ def is_out_of_domain(query: str) -> bool:
     return False
 
 
-async def search_qdrant(query: str, top_k: int = DEFAULT_TOP_K) -> list:
-    """Search Qdrant with intelligent filters."""
+def _merge_filter_body(base_filter: Optional[dict], extra_filter: Optional[dict]) -> Optional[dict]:
+    if not extra_filter:
+        return base_filter
+    if not base_filter:
+        return extra_filter
+    merged = dict(base_filter)
+    merged["must"] = list(base_filter.get("must", [])) + list(extra_filter.get("must", []))
+    should_clauses = list(base_filter.get("should", [])) + list(extra_filter.get("should", []))
+    if should_clauses:
+        merged["should"] = should_clauses
+    return merged
+
+
+async def search_qdrant_raw(query: str, top_k: int = DEFAULT_TOP_K, extra_filter: Optional[dict] = None) -> list:
+    """Search the raw manual collection with intelligent filters."""
     emb = await get_embedding(query)
     if not emb:
         return []
@@ -351,6 +365,7 @@ async def search_qdrant(query: str, top_k: int = DEFAULT_TOP_K) -> list:
         filter_body = {"should": should_clauses}
     else:
         filter_body = None
+    filter_body = _merge_filter_body(filter_body, extra_filter)
 
     search_payload = {
         "vector": emb,
@@ -374,6 +389,66 @@ async def search_qdrant(query: str, top_k: int = DEFAULT_TOP_K) -> list:
         except Exception as e:
             _safe_log(f"Qdrant search error: {type(e).__name__}")
     return []
+
+
+async def search_qdrant_faq(query: str, top_k: int = 3) -> list:
+    """Search the FAQ intent bridge collection."""
+    emb = await get_embedding(query)
+    if not emb:
+        return []
+
+    search_payload = {"vector": emb, "top": top_k, "with_payload": True}
+    async with httpx.AsyncClient(timeout=SEARCH_TIMEOUT) as client:
+        try:
+            r = await client.post(
+                f"{QDRANT_URL}/collections/{FAQ_COLLECTION_NAME}/points/search",
+                headers=qdrant_headers(),
+                json=search_payload,
+            )
+            if r.status_code == 200:
+                return r.json().get("result", [])
+        except httpx.TimeoutException:
+            _safe_log("Qdrant FAQ search timeout")
+        except Exception as e:
+            _safe_log(f"Qdrant FAQ search error: {type(e).__name__}")
+    return []
+
+
+def _manual_filter_from_faq_hit(faq_hit: dict) -> Optional[dict]:
+    payload = faq_hit.get("payload", {})
+    manual_id = (
+        payload.get("manual_id")
+        or payload.get("doc_id")
+        or payload.get("source_doc")
+        or payload.get("source_pdf")
+        or payload.get("source_md")
+    )
+    if not manual_id:
+        return None
+    return {
+        "should": [
+            {"key": "manual_id", "match": {"value": manual_id}},
+            {"key": "doc_id", "match": {"value": manual_id}},
+            {"key": "source_pdf", "match": {"value": manual_id}},
+            {"key": "source_md", "match": {"value": manual_id}},
+        ]
+    }
+
+
+async def orchestrate_dual_search(query: str, top_k: int = DEFAULT_TOP_K) -> list:
+    """Intent bridge: FAQ first, then raw manual evidence scoped by the top intent."""
+    faq_results = await search_qdrant_faq(query, top_k=3)
+    if faq_results:
+        scoped_filter = _manual_filter_from_faq_hit(faq_results[0])
+        evidence = await search_qdrant_raw(query, top_k=top_k, extra_filter=scoped_filter)
+        if evidence:
+            return evidence
+    return await search_qdrant_raw(query, top_k=top_k)
+
+
+async def search_qdrant(query: str, top_k: int = DEFAULT_TOP_K) -> list:
+    """Backward-compatible entrypoint now backed by dual search."""
+    return await orchestrate_dual_search(query, top_k=top_k)
 
 
 def build_rag_context(hits: list, max_chars: int = MAX_CONTEXT_CHARS) -> str:
@@ -1464,6 +1539,17 @@ async def root():
 # =============================================================================
 
 if __name__ == "__main__":
+    import argparse
+
+    parser = argparse.ArgumentParser(description="HVAC RAG Pipe")
+    parser.add_argument("--query", help="Run a one-shot dual search query and print retrieved context")
+    args = parser.parse_args()
+
+    if args.query:
+        hits = asyncio.run(orchestrate_dual_search(args.query, top_k=DEFAULT_TOP_K))
+        print(json.dumps({"query": args.query, "hits": len(hits), "context": build_rag_context(hits)}, ensure_ascii=False, indent=2))
+        raise SystemExit(0)
+
     _safe_log(f"Starting HVAC RAG Pipe on {PIPELINE_HOST}:{PIPELINE_PORT}")
     _safe_log(f"Qdrant: {QDRANT_URL} | Embed: {DIRECT_EMBED_URL} | LiteLLM: {LITELLM_URL}")
     uvicorn.run(app, host=PIPELINE_HOST, port=PIPELINE_PORT, log_level="warning")
