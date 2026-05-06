@@ -36,18 +36,33 @@ Se o seu PC está pesado e você removeu o `qwen2.5-vl`, aponte o alias de visã
 
 ---
 
-## 🚀 Caso 3: Mudar de Ollama para Llama.cpp
-Se você decidiu usar o `llama.cpp` (server) para ganhar performance:
+## 🚀 Caso 3: Mudar de Ollama para Llama.cpp (Refatorado 2026-05-06)
+Se você decidiu usar o `llama.cpp` para ganhar performance e liberar VRAM:
 
-1. Inicie o `llama.cpp` na porta `8080`.
-2. Edite `config/litellm/config.yaml`:
+1. **Inicie o Llama.cpp Main (GPU)** na porta `8080` (Modelo Qwen 3.6).
+2. **Inicie o Llama.cpp Embeddings (CPU)** na porta `8082` com a flag `-ngl 0` (Nomic Embed).
+3. **Edite `config/litellm/config.yaml`**:
 ```yaml
   - model_name: nexus-auto
     litellm_params:
-      model: openai/any  # Llama.cpp é compatível com o formato OpenAI
-      api_base: "http://host.docker.internal:8080/v1"
-      api_key: "sk-not-needed"
+      model: openai/qwen3.6
+      api_base: os.environ/LLAMA_CPP_MAIN_URL
+      api_key: sk-not-needed
+
+  - model_name: nexus-embed
+    litellm_params:
+      model: openai/nomic-embed-text
+      api_base: os.environ/LLAMA_CPP_EMBED_URL
+      api_key: sk-not-needed
 ```
+
+---
+
+## 🏗️ Configuração de VRAM (RTX 4090)
+Para manter o sistema estável e a GPU livre para tarefas de visão/code:
+*   **LLM (Qwen 3.6)**: GPU (Llama.cpp :8080).
+*   **Embeddings**: CPU (Llama.cpp :8082 - sem offload para GPU).
+*   **Rollback**: Garanta que os binários e pesos estão no `VFS-tank` para snapshots seguros.
 
 ---
 

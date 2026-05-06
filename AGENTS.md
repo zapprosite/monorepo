@@ -123,14 +123,13 @@ SPEC.md > AGENTS.md > CLAUDE.md > Código-fonte
 ┌─────────────────────────────────────────────────────────────┐
 │                    LITELLM :4018/v1                         │
 │  Gateway canônico: text · code · instruction · embedding    │
-│  Aliases: nexus-auto, nexus-local-code, nexus-vision,    │
-│           nexus-embed, nexus-cloud-*, nexus-brain        │
+│  Backends: Llama.cpp (GPU Main) | Llama.cpp (CPU Embed)     │
 ├─────────────────────────────────────────────────────────────┤
 │                    VOICE GATEWAY :4002                      │
 │  TTS (Edge-tts :8012) + STT (Groq cloud whisper-large-v3)   │
 ├─────────────────────────────────────────────────────────────┤
-│  Backends: Ollama :11434  |  OpenRouter (cloud fallback)   │
-│            Qdrant :6333   |  Edge-tts :8012                 │
+│  Backends: Llama.cpp :8080 | OpenRouter (cloud fallback)    │
+│            Qdrant :6333    | Edge-tts :8012                 │
 └─────────────────────────────────────────────────────────────┘
 ```
 
