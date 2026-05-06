@@ -58,11 +58,28 @@ Se você decidiu usar o `llama.cpp` para ganhar performance e liberar VRAM:
 
 ---
 
-## 🏗️ Configuração de VRAM (RTX 4090)
-Para manter o sistema estável e a GPU livre para tarefas de visão/code:
-*   **LLM (Qwen 3.6)**: GPU (Llama.cpp :8080).
-*   **Embeddings**: CPU (Llama.cpp :8082 - sem offload para GPU).
-*   **Rollback**: Garanta que os binários e pesos estão no `VFS-tank` para snapshots seguros.
+## 💎 Padrão Definitivo: Llama.cpp + SPEC-061 (Otimizado 4090)
+Este é o setup recomendado para o monorepo Nexus:
+
+1. **LLM Principal**: Qwen 3.6 (27B) rodando na porta **8001** (GPU).
+2. **Embedding**: Nomic 1.5 rodando na porta **8002** (CPU Only).
+
+### Comandos de Gestão
+```bash
+# Reiniciar Qwen (GPU)
+sudo systemctl restart llama-qwen
+
+# Reiniciar Nomic (CPU)
+sudo systemctl restart llama-nomic
+
+# Verificar consumo
+nvidia-smi --query-gpu=memory.used,utilization.gpu --format=csv
+```
+
+### Por que este setup?
+- **Ollama**: Removido para evitar overhead de memória e processos zumbi.
+- **VRAM**: 4090 focada 100% na inteligência do modelo de 27B.
+- **Embeddings**: Nomic em CPU tem latência negligenciável para RAG e libera ~1-2GB de VRAM.
 
 ---
 
