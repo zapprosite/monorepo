@@ -5,6 +5,7 @@
 ### M1: Fidelidade Técnica e Prova Real
 - [x] Fase 1: Arquitetura de Fidelidade e Evidências Inverter V2 (COMPLETE 2026-05-05)
 - [x] Fase 2: Expansão Massiva de Base Inverter BR (COMPLETE 2026-05-05)
+- [ ] Fase 5: Implementação Dual-Index Semantic Bridge (PLANNED)
 
 ### M2: Aquisição e Cobertura Real de Manuais
 - [ ] Fase 3: Manual Finder e Aquisição Automática (PLANNED)
@@ -52,3 +53,15 @@
 - [ ] 03-03-PLAN.md — PDF downloader validation: content-type, size, hash and duplicate guard
 - [ ] 03-04-PLAN.md — intake integration: dry-run, index, rejection and pending review reasons
 - [ ] 03-05-PLAN.md — coverage feedback loop and report-only automation
+
+---
+
+## Phase 5: Implementação Dual-Index Semantic Bridge
+
+**Goal:** Implementar o sistema de recuperação em dois estágios (Intent Bridge via FAQ + Evidence Retrieval via Raw Manual) para garantir 100% de precisão e zero alucinação técnica.
+
+**Plans:** 3 plans
+
+- [ ] 05-01-PLAN.md — Enriquecimento de base: LLM-generated FAQ (Top 50) no Qdrant
+- [ ] 05-02-PLAN.md — Refatoração hvac_rag_pipe.py: Busca dual (Semantic -> Proof text)
+- [ ] 05-03-PLAN.md — Validação final: Smoke tests de grounding e citação técnica
