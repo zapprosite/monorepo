@@ -15,7 +15,11 @@ import requests
 QDRANT_URL = os.environ.get("QDRANT_URL", "http://127.0.0.1:6333")
 QDRANT_API_KEY = os.environ.get("QDRANT_API_KEY", "")
 OLLAMA_URL = os.environ.get("OLLAMA_URL", "http://127.0.0.1:11434")
-EMBEDDING_MODEL = os.environ.get("HVAC_EMBEDDING_MODEL", "nomic-embed-text:latest")
+LITELLM_URL = os.environ.get("LITELLM_URL", "http://127.0.0.1:4018/v1")
+LITELLM_API_KEY = os.environ.get("LITELLM_API_KEY", "sk-dummy")
+LITELLM_URL = os.environ.get("LITELLM_URL", "http://127.0.0.1:4018/v1")
+LITELLM_API_KEY = os.environ.get("LITELLM_API_KEY", "sk-dummy")
+EMBEDDING_MODEL = os.environ.get("HVAC_EMBEDDING_MODEL", "nexus-embed")
 COLLECTION_NAME = "hvac_manuals_v1"
 
 
@@ -42,14 +46,14 @@ def get_embedding(text: str, model: str = EMBEDDING_MODEL) -> list | None:
     """Get embedding via Ollama."""
     def _embed(txt: str) -> list | None:
         r = requests.post(
-            f"{OLLAMA_URL}/api/embeddings",
+            f"{LITELLM_URL}/embeddings",
             headers=ollama_headers(),
-            json={"model": model, "prompt": txt},
+            json={"model": model, "input": txt},
             timeout=120
         )
         if r.status_code == 200:
             data = r.json()
-            emb = data.get("embedding") or data.get("embeddings", [[]])[0]
+            emb = data.get("data", [{}])[0].get("embedding")
             if emb and len(emb) > 0:
                 return emb
         return None

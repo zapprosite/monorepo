@@ -6,7 +6,7 @@ model_list:
   # ==========================================================
   # LOCAL PRINCIPAL - CODE/TEXTO
   # ==========================================================
-  - model_name: hermes-local-code
+  - model_name: nexus-local-code
     litellm_params:
       model: ollama_chat/qwen2.5-coder:14b-q6k
       api_base: os.environ/LITELLM_OLLAMA_URL
@@ -21,7 +21,7 @@ model_list:
   # AUTO - PADRÃO DO HERMES
   # Local primeiro. OpenRouter só por fallback.
   # ==========================================================
-  - model_name: hermes-auto
+  - model_name: nexus-auto
     litellm_params:
       model: ollama_chat/qwen2.5-coder:14b-q6k
       api_base: os.environ/LITELLM_OLLAMA_URL
@@ -35,7 +35,7 @@ model_list:
   # ==========================================================
   # VISÃO LOCAL
   # ==========================================================
-  - model_name: hermes-vision
+  - model_name: nexus-vision
     litellm_params:
       model: ollama_chat/qwen2.5vl:3b
       api_base: os.environ/LITELLM_OLLAMA_URL
@@ -50,7 +50,7 @@ model_list:
   # ==========================================================
   # EMBEDDING LOCAL - FIXADO/PINNED
   # ==========================================================
-  - model_name: hermes-embed
+  - model_name: nexus-embed
     litellm_params:
       model: ollama/nomic-embed-text:pinned-20260503
       api_base: os.environ/LITELLM_OLLAMA_URL
@@ -62,7 +62,7 @@ model_list:
   # ==========================================================
   # EMBEDDING LOCAL - LATEST, APENAS BACKUP MANUAL
   # ==========================================================
-  - model_name: hermes-embed-latest
+  - model_name: nexus-embed-latest
     litellm_params:
       model: ollama/nomic-embed-text:latest
       api_base: os.environ/LITELLM_OLLAMA_URL
@@ -74,7 +74,7 @@ model_list:
   # ==========================================================
   # OPENROUTER BARATO - PRIMEIRO FALLBACK CLOUD
   # ==========================================================
-  - model_name: hermes-cloud-cheap
+  - model_name: nexus-cloud-cheap
     litellm_params:
       model: openrouter/deepseek/deepseek-v4-flash
       api_key: os.environ/OPENROUTER_API_KEY
@@ -82,7 +82,7 @@ model_list:
       timeout: 360
       extra_headers:
         HTTP-Referer: "http://localhost"
-        X-Title: "will-hermes-litellm"
+        X-Title: "will-nexus-litellm"
     model_info:
       mode: chat
       description: "DeepSeek V4 Flash via OpenRouter: fallback barato para code/agente"
@@ -90,7 +90,7 @@ model_list:
   # ==========================================================
   # OPENROUTER PRO - ESCALADA DE QUALIDADE
   # ==========================================================
-  - model_name: hermes-cloud-pro
+  - model_name: nexus-cloud-pro
     litellm_params:
       model: openrouter/deepseek/deepseek-v4-pro
       api_key: os.environ/OPENROUTER_API_KEY
@@ -98,7 +98,7 @@ model_list:
       timeout: 600
       extra_headers:
         HTTP-Referer: "http://localhost"
-        X-Title: "will-hermes-litellm"
+        X-Title: "will-nexus-litellm"
     model_info:
       mode: chat
       description: "DeepSeek V4 Pro via OpenRouter: arquitetura, repo grande, refactor longo"
@@ -106,7 +106,7 @@ model_list:
   # ==========================================================
   # OPENROUTER UI/MULTIMODAL
   # ==========================================================
-  - model_name: hermes-cloud-ui
+  - model_name: nexus-cloud-ui
     litellm_params:
       model: openrouter/moonshotai/kimi-k2.6
       api_key: os.environ/OPENROUTER_API_KEY
@@ -114,7 +114,7 @@ model_list:
       timeout: 600
       extra_headers:
         HTTP-Referer: "http://localhost"
-        X-Title: "will-hermes-litellm"
+        X-Title: "will-nexus-litellm"
     model_info:
       mode: chat
       supports_vision: true
@@ -123,7 +123,7 @@ model_list:
   # ==========================================================
   # BRAIN - ALIAS FORTE
   # ==========================================================
-  - model_name: hermes-brain
+  - model_name: nexus-brain
     litellm_params:
       model: openrouter/deepseek/deepseek-v4-pro
       api_key: os.environ/OPENROUTER_API_KEY
@@ -131,7 +131,7 @@ model_list:
       timeout: 600
       extra_headers:
         HTTP-Referer: "http://localhost"
-        X-Title: "will-hermes-litellm"
+        X-Title: "will-nexus-litellm"
     model_info:
       mode: chat
       description: "Alias forte para PRD, arquitetura, repo grande e tarefas difíceis"
@@ -143,16 +143,16 @@ litellm_settings:
   drop_params: true
   set_verbose: false
   fallbacks:
-    - hermes-auto:
-        - hermes-cloud-cheap
-        - hermes-cloud-pro
-    - hermes-local-code:
-        - hermes-cloud-cheap
-        - hermes-cloud-pro
-    - hermes-vision:
-        - hermes-cloud-ui
-    - hermes-cloud-cheap:
-        - hermes-cloud-pro
+    - nexus-auto:
+        - nexus-cloud-cheap
+        - nexus-cloud-pro
+    - nexus-local-code:
+        - nexus-cloud-cheap
+        - nexus-cloud-pro
+    - nexus-vision:
+        - nexus-cloud-ui
+    - nexus-cloud-cheap:
+        - nexus-cloud-pro
 
 router_settings:
   routing_strategy: simple-shuffle

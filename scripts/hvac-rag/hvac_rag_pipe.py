@@ -3,7 +3,7 @@
 HVAC RAG Pipe — OpenWebUI OpenAI-Compatible RAG Pipe
 Provides OpenAI-compatible /v1/chat/completions endpoint that:
   1. Extracts model/error_code from query
-  2. Embeds via Ollama (nomic-embed-text)
+  2. Embeds via Ollama (nexus-embed)
   3. Searches Qdrant hvac_manuals_v1 with smart filters
   4. Injects context into the system prompt
   5. Forwards enriched request to LiteLLM
@@ -65,6 +65,7 @@ _hvac_evidence = import_local_module("hvac_evidence", "hvac_evidence.py")
 
 # Memory context — context_fetch + memory_writeback + state extraction
 _mem_ctx_mod = import_local_module("hvac_memory_context", "hvac_memory_context.py")
+_vision_mod = import_local_module("hvac_vision", "hvac_vision.py")
 context_fetch = _mem_ctx_mod.context_fetch
 memory_writeback = _mem_ctx_mod.memory_writeback
 build_context_pack = _mem_ctx_mod.build_context_pack
@@ -87,9 +88,9 @@ from pydantic import BaseModel
 QDRANT_URL = os.environ.get("QDRANT_URL", "http://127.0.0.1:6333")
 QDRANT_API_KEY = os.environ.get("QDRANT_API_KEY", "")
 OLLAMA_URL = os.environ.get("OLLAMA_URL", "http://127.0.0.1:11434")
-EMBEDDING_MODEL = os.environ.get("HVAC_EMBEDDING_MODEL", "nomic-embed-text:latest")
 LITELLM_URL = os.environ.get("LITELLM_URL", "http://127.0.0.1:4018/v1")
 LITELLM_API_KEY = os.environ.get("LITELLM_API_KEY", "sk-dummy")
+EMBEDDING_MODEL = os.environ.get("HVAC_EMBEDDING_MODEL", "nexus-embed")
 COLLECTION_NAME = "hvac_manuals_v1"
 
 # OpenWebUI is dedicated to this project and must expose exactly one model.
@@ -107,7 +108,7 @@ SEARCH_TIMEOUT = 20
 CHAT_TIMEOUT = 120
 
 # Primary model alias — Groq llama-3.3-70b-versatile via LiteLLM :4018/v1
-# Env override: LITELLM_DEFAULT_MODEL (e.g. hermes-auto, openrouter/..., groq/...)
+# Env override: LITELLM_DEFAULT_MODEL (e.g. nexus-auto, openrouter/..., groq/...)
 PRIMARY_LLM_MODEL = os.environ.get("LITELLM_DEFAULT_MODEL", "groq/llama-3.3-70b-versatile")
 
 # HVAC domain keywords — out-of-domain queries are blocked
@@ -280,13 +281,13 @@ async def get_embedding(text: str) -> Optional[list]:
         for attempt in range(2):
             try:
                 r = await client.post(
-                    f"{OLLAMA_URL}/api/embeddings",
-                    headers={"Content-Type": "application/json"},
-                    json={"model": EMBEDDING_MODEL, "prompt": txt},
+                    f"{LITELLM_URL}/embeddings",
+                    headers=litellm_headers(),
+                    json={"model": EMBEDDING_MODEL, "input": txt},
                 )
                 if r.status_code == 200:
                     data = r.json()
-                    emb = data.get("embedding") or data.get("embeddings", [[]])[0]
+                    emb = data.get("data", [{}])[0].get("embedding")
                     if emb and len(emb) > 0:
                         return emb
             except httpx.TimeoutException:
@@ -792,6 +793,12 @@ class ChatCompletionRequest(BaseModel):
     temperature: Optional[float] = 0.3
     max_tokens: Optional[int] = 1024
     stream: Optional[bool] = False
+
+class VisionIntakeRequest(BaseModel):
+    image: str # base64 string
+    hints: Optional[list[str]] = None
+    session_id: str
+    brand: Optional[str] = None
 
 
 @app.get("/v1/models")
@@ -1322,6 +1329,42 @@ async def chat_completions_printable(request: ChatCompletionRequest):
 # =============================================================================
 # OpenWebUI Pipeline Filter Endpoints (backwards compatibility)
 # =============================================================================
+
+@app.post("/v1/vision/intake")
+async def vision_intake(req: VisionIntakeRequest):
+    """
+    Processa uma imagem de campo (PCB/nameplate/etc) e atualiza o estado da sessão (Fase 4).
+    """
+    try:
+        # 1. Extrair informações da imagem (usa qwen2.5vl via Ollama)
+        result = await _vision_mod.extract_from_image(req.image, req.hints)
+        
+        if result.get("error"):
+            return {"status": "error", "message": result["error"]}
+
+        # 2. Converter para state update formatado para o tutor
+        state_update = _vision_mod.state_update_from_vision(result)
+        
+        # 3. Persistir no estado da sessão no Redis
+        current_state = _mem_ctx_mod.get_session_state(req.session_id) or {}
+        current_state.update(state_update)
+        
+        # Se brand foi passado no request e não está no estado, atualiza
+        if req.brand and not current_state.get("brand"):
+            current_state["brand"] = req.brand
+            
+        _mem_ctx_mod.save_session_state(req.session_id, current_state)
+        
+        return {
+            "status": "ok",
+            "image_type": result["image_type"],
+            "model": result["model"],
+            "state_updated": state_update
+        }
+    except Exception as exc:
+        logger.error(f"[vision-intake] failed: {exc}")
+        return {"status": "error", "message": str(exc)}
+
 
 @app.post("/hvac-rag/filter/inlet")
 async def filter_inlet(request: Request):

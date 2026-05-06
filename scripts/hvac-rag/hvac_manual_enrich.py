@@ -28,6 +28,12 @@ logger = logging.getLogger(__name__)
 
 DEFAULT_OUT_DIR = Path("/srv/data/hvac-rag/processed")
 OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434/api/generate")
+LITELLM_URL = os.environ.get("LITELLM_URL", "http://127.0.0.1:4018/v1")
+LITELLM_API_KEY = os.environ.get("LITELLM_API_KEY", "sk-dummy")
+LITELLM_URL = os.environ.get("LITELLM_URL", "http://127.0.0.1:4018/v1")
+LITELLM_API_KEY = os.environ.get("LITELLM_API_KEY", "sk-dummy")
+LITELLM_URL = os.environ.get("LITELLM_URL", "http://127.0.0.1:4018/v1")
+LITELLM_API_KEY = os.environ.get("LITELLM_API_KEY", "sk-dummy")
 OLLAMA_MODEL = os.getenv("OLLAMA_MODEL_QA", "qwen2.5-coder:14b-q6k")
 QDRANT_URL = os.getenv("QDRANT_URL", "http://localhost:6333")
 QDRANT_COLLECTION = os.getenv("QDRANT_COLLECTION_FAQ", "hvac_manuals_faq")
@@ -174,7 +180,7 @@ def call_ollama(prompt: str, model: str = OLLAMA_MODEL, timeout: int = 300) -> s
         "options": {"temperature": 0.3, "num_predict": 4096},
     }
     try:
-        resp = requests.post(OLLAMA_URL, json=payload, timeout=timeout)
+        resp = requests.post(f"{LITELLM_URL}/chat/completions", headers={"Authorization": f"Bearer {LITELLM_API_KEY}"}, json={"model": "nexus-auto", "messages": [{"role": "user", "content": payload["prompt"]}]}, timeout=timeout)
         resp.raise_for_status()
         return resp.json().get("response", "").strip()
     except Exception as e:
@@ -302,9 +308,9 @@ def get_qdrant_api_key() -> str:
 
 
 def embed_text(text: str) -> list[float]:
-    """Embed text using local Ollama nomic-embed-text."""
+    """Embed text using local Ollama nexus-embed."""
     payload = {
-        "model": "nomic-embed-text",
+        "model": "nexus-embed",
         "prompt": text,
         "stream": False,
     }

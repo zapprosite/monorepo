@@ -78,3 +78,45 @@ export const hvacQueryResponseSchema = {
 	},
 	additionalProperties: false,
 } as const;
+
+/** POST /api/hvac/vision — request body schema */
+export const hvacVisionBodySchema = {
+	type: 'object',
+	required: ['image', 'session_id'],
+	properties: {
+		image: {
+			type: 'string',
+			description: 'Imagem em base64 (pode conter prefixo data:image/...).',
+		},
+		hints: {
+			type: 'array',
+			items: { type: 'string' },
+			description: 'Dicas técnicas para auxiliar na classificação.',
+		},
+		session_id: {
+			type: 'string',
+			maxLength: 128,
+			description: 'ID de sessão para persistir a evidência visual.',
+		},
+		brand: {
+			type: 'string',
+			maxLength: 100,
+			description: 'Marca do equipamento se conhecida.',
+		},
+	},
+	additionalProperties: false,
+} as const;
+
+/** POST /api/hvac/vision — response body schema (200 OK) */
+export const hvacVisionResponseSchema = {
+	type: 'object',
+	required: ['status'],
+	properties: {
+		status: { type: 'string' },
+		message: { type: 'string' },
+		image_type: { type: 'string' },
+		model: { type: 'string' },
+		state_updated: { type: 'object', additionalProperties: true },
+	},
+	additionalProperties: false,
+} as const;

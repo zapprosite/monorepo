@@ -5,7 +5,7 @@ HVAC RAG Healthcheck — Periodic pipe health verification
 Checks:
   - OpenWebUI (chat.zappro.site/:3456)
   - hvac-manual-strict (:4017) /health + /v1/models
-  - LiteLLM (:4000 / api.zappro.site) — OpenRouter model alias
+  - LiteLLM (:4018 / api.zappro.site) — OpenRouter model alias
   - Groq STT (api.groq.com /v1/audio/transcriptions)
   - Edge TTS (:8012 / TTS_BRIDGE_URL)
   - Ollama qwen2.5vl (:11434) — list models
@@ -52,7 +52,11 @@ PIPELINE_URL = os.environ.get("HVAC_PIPELINE_URL", "http://127.0.0.1:4017")
 QDRANT_URL = os.environ.get("QDRANT_URL", "http://127.0.0.1:6333")
 QDRANT_API_KEY = os.environ.get("QDRANT_API_KEY", "")
 OLLAMA_URL = os.environ.get("OLLAMA_URL", "http://127.0.0.1:11434")
-LITELLM_URL = os.environ.get("LITELLM_URL", "http://127.0.0.1:4000")
+LITELLM_URL = os.environ.get("LITELLM_URL", "http://127.0.0.1:4018/v1")
+LITELLM_API_KEY = os.environ.get("LITELLM_API_KEY", "sk-dummy")
+LITELLM_URL = os.environ.get("LITELLM_URL", "http://127.0.0.1:4018/v1")
+LITELLM_API_KEY = os.environ.get("LITELLM_API_KEY", "sk-dummy")
+LITELLM_URL = os.environ.get("LITELLM_URL", "http://127.0.0.1:4018")
 OPENWEBUI_URL = os.environ.get("OPENWEBUI_URL", "http://127.0.0.1:3456")
 TTS_BRIDGE_URL = os.environ.get("TTS_BRIDGE_URL", "http://127.0.0.1:8012")
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "")

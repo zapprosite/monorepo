@@ -26,6 +26,10 @@ import httpx
 # Configuration
 # =============================================================================
 OLLAMA_URL = os.environ.get("OLLAMA_URL", "http://127.0.0.1:11434")
+LITELLM_URL = os.environ.get("LITELLM_URL", "http://127.0.0.1:4018/v1")
+LITELLM_API_KEY = os.environ.get("LITELLM_API_KEY", "sk-dummy")
+LITELLM_URL = os.environ.get("LITELLM_URL", "http://127.0.0.1:4018/v1")
+LITELLM_API_KEY = os.environ.get("LITELLM_API_KEY", "sk-dummy")
 VISION_MODEL = os.environ.get("HVAC_VISION_MODEL", "qwen2.5vl:3b")
 OLLAMA_TIMEOUT = 60
 
@@ -231,11 +235,20 @@ def build_vision_prompt(image_type: ImageType, context_hints: list[str] | None =
 
 
 # =============================================================================
-# Ollama Vision API
+# Configuration
 # =============================================================================
+LITELLM_URL = os.environ.get("LITELLM_URL", "http://127.0.0.1:4018/v1")
+LITELLM_API_KEY = os.environ.get("LITELLM_API_KEY", "sk-dummy")
+VISION_MODEL = os.environ.get("OLLAMA_VISION_MODEL", "nexus-vision")
 
-def ollama_headers() -> dict:
-    return {"Content-Type": "application/json"}
+OLLAMA_TIMEOUT = 60
+
+
+def litellm_headers() -> dict:
+    return {
+        "Authorization": f"Bearer {LITELLM_API_KEY}",
+        "Content-Type": "application/json",
+    }
 
 
 async def extract_from_image(
@@ -244,7 +257,7 @@ async def extract_from_image(
     image_type_hint: ImageType | None = None,
 ) -> dict:
     """
-    Send image to qwen2.5vl:3b via Ollama and extract HVAC information.
+    Send image to vision model via LiteLLM and extract HVAC information.
 
     Args:
         image_base64: base64-encoded image data (with or without data URI prefix)
@@ -261,10 +274,10 @@ async def extract_from_image(
             "usage": dict,
         }
     """
-    # Strip data URI prefix if present
+    # Ensure data URI prefix is present for OpenAI format
     b64 = image_base64
-    if "," in b64:
-        b64 = b64.split(",", 1)[1]
+    if not b64.startswith("data:"):
+        b64 = f"data:image/jpeg;base64,{b64}"
 
     # Classify image type
     img_type = image_type_hint or classify_image_type(b64, context_hints)
@@ -277,14 +290,13 @@ async def extract_from_image(
         "messages": [
             {
                 "role": "user",
-                "content": prompt,
-                "images": [b64],
+                "content": [
+                    {"type": "text", "text": prompt},
+                    {"type": "image_url", "image_url": {"url": b64}},
+                ],
             }
         ],
-        "stream": False,
-        "options": {
-            "temperature": 0.1,  # low temperature for structured extraction
-        },
+        "temperature": 0.1,
     }
 
     result = {
@@ -299,26 +311,27 @@ async def extract_from_image(
     try:
         async with httpx.AsyncClient(timeout=OLLAMA_TIMEOUT) as client:
             resp = await client.post(
-                f"{OLLAMA_URL}/api/chat",
-                headers=ollama_headers(),
+                f"{LITELLM_URL}/chat/completions",
+                headers=litellm_headers(),
                 json=payload,
             )
 
             if resp.status_code != 200:
-                result["error"] = f"Ollama returned {resp.status_code}: {resp.text[:200]}"
+                result["error"] = f"LiteLLM returned {resp.status_code}: {resp.text[:200]}"
                 return result
 
             data = resp.json()
-            raw = data.get("message", {}).get("content", "")
+            raw = data.get("choices", [{}])[0].get("message", {}).get("content", "")
             result["raw_response"] = raw
 
             # Parse JSON from response
             result["parsed"] = _parse_json_from_response(raw)
 
             # Usage stats if available
+            usage = data.get("usage", {})
             result["usage"] = {
-                "prompt_eval_count": data.get("prompt_eval_count", 0),
-                "eval_count": data.get("eval_count", 0),
+                "prompt_tokens": usage.get("prompt_tokens", 0),
+                "completion_tokens": usage.get("completion_tokens", 0),
             }
 
     except httpx.TimeoutException:

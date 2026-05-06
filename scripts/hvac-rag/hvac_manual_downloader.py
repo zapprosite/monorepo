@@ -2,7 +2,7 @@
 """HVAC Manual Downloader — Minimal script for downloading service manuals.
 
 Extracted from apps/hvac-manual-downloader (pruned 2026-05-04).
-Uses browser-use + LiteLLM hermes-auto for browser automation.
+Uses browser-use + LiteLLM nexus-auto for browser automation.
 """
 import argparse
 import json

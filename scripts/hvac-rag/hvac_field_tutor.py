@@ -23,7 +23,13 @@ from typing import Optional
 QDRANT_URL = os.environ.get("QDRANT_URL", "http://127.0.0.1:6333")
 QDRANT_API_KEY = os.environ.get("QDRANT_API_KEY", "")
 OLLAMA_URL = os.environ.get("OLLAMA_URL", "http://127.0.0.1:11434")
-EMBEDDING_MODEL = os.environ.get("HVAC_EMBEDDING_MODEL", "nomic-embed-text:latest")
+LITELLM_URL = os.environ.get("LITELLM_URL", "http://127.0.0.1:4018/v1")
+LITELLM_API_KEY = os.environ.get("LITELLM_API_KEY", "sk-dummy")
+LITELLM_URL = os.environ.get("LITELLM_URL", "http://127.0.0.1:4018/v1")
+LITELLM_API_KEY = os.environ.get("LITELLM_API_KEY", "sk-dummy")
+EMBEDDING_MODEL = os.environ.get("HVAC_EMBEDDING_MODEL", "nexus-embed")
+LITELLM_URL = os.environ.get("LITELLM_URL", "http://127.0.0.1:4018/v1")
+LITELLM_API_KEY = os.environ.get("LITELLM_API_KEY", "sk-dummy")
 COLLECTION_NAME = "hvac_manuals_v1"
 
 # Field Tutor settings
@@ -58,13 +64,13 @@ async def get_embedding(text: str) -> Optional[list]:
         for attempt in range(2):
             try:
                 r = await client.post(
-                    f"{OLLAMA_URL}/api/embeddings",
-                    headers={"Content-Type": "application/json"},
-                    json={"model": EMBEDDING_MODEL, "prompt": txt},
+                    f"{LITELLM_URL}/embeddings",
+                    headers={"Content-Type": "application/json", "Authorization": f"Bearer {LITELLM_API_KEY}"},
+                    json={"model": EMBEDDING_MODEL, "input": txt},
                 )
                 if r.status_code == 200:
                     data = r.json()
-                    emb = data.get("embedding") or data.get("embeddings", [[]])[0]
+                    emb = data.get("data", [{}])[0].get("embedding")
                     if emb and len(emb) > 0:
                         return emb
             except (httpx.TimeoutException, Exception):

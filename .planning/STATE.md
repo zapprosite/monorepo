@@ -43,6 +43,7 @@ progress:
 
 ## Phase 4 — In Progress
 
-- Definir contrato testável para fotos de PCB/componentes em `hvac_vision.py`
-- Corrigir heurística de classificação para não confundir placa com nameplate
-- Enriquecer state update com board type, labels e conectores visíveis
+- [x] 04-01: Contratos de Visão (Board type, labels, pins)
+- [x] 04-02: Integração Visão-Memória (Context evidence)
+- [x] 04-03: Endpoint de Intake (API Node + Pipe Python)
+- [ ] 04-04: Smoke Tests (Fixtures reais + Runbook)

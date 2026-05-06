@@ -37,7 +37,9 @@ except Exception:
 # =============================================================================
 QDRANT_URL = os.getenv("QDRANT_URL", "http://localhost:6333")
 OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434")
-OLLAMA_EMBED_MODEL = os.getenv("OLLAMA_EMBED_MODEL", "nomic-embed-text")
+LITELLM_URL = os.environ.get("LITELLM_URL", "http://127.0.0.1:4018/v1")
+LITELLM_API_KEY = os.environ.get("LITELLM_API_KEY", "sk-dummy")
+OLLAMA_EMBED_MODEL = os.getenv("OLLAMA_EMBED_MODEL", "nexus-embed")
 POSTGRES_HOST = os.getenv("POSTGRES_HOST", "localhost")
 POSTGRES_PORT = int(os.getenv("POSTGRES_PORT", "5432"))
 POSTGRES_DB = os.getenv("POSTGRES_DB", "postgres")
@@ -196,14 +198,15 @@ def _estimate_tokens(chars: int) -> int:
 
 
 async def _embed_ollama(text: str) -> list[float]:
-    """Embedding via Ollama nomic-embed-text API."""
-    async with httpx.AsyncClient(timeout=15) as client:
+    """Embedding via Ollama nexus-embed API."""
+    async with httpx.AsyncClient(timeout=20) as client:
         resp = await client.post(
-            f"{OLLAMA_URL}/api/embeddings",
-            json={"model": OLLAMA_EMBED_MODEL, "prompt": text},
+            f"{LITELLM_URL}/embeddings",
+            headers={"Content-Type": "application/json", "Authorization": f"Bearer {LITELLM_API_KEY}"},
+            json={"model": OLLAMA_EMBED_MODEL, "input": text},
         )
         resp.raise_for_status()
-        return resp.json()["embedding"]
+        return resp.json()["data"][0]["embedding"]
 
 
 # =============================================================================
@@ -657,6 +660,21 @@ def build_context_pack(fetch_result: dict) -> str:
 
     state = fetch_result.get("conversation_state", {})
     if state:
+        # Extrair e formatar evidência visual se presente (Fase 4)
+        if state.get("vision_image_type") == "pcb":
+            visual_parts = ["[EVIDÊNCIA VISUAL]"]
+            visual_parts.append(f"Placa: {state.get('pcb_board_type', 'N/A')}")
+            if state.get("pcb_led_status"):
+                visual_parts.append(f"LEDs: {state.get('pcb_led_status')}")
+            if state.get("pcb_component_labels"):
+                visual_parts.append(f"Componentes: {', '.join(state.get('pcb_component_labels'))}")
+            if state.get("pcb_connector_pins"):
+                visual_parts.append(f"Conectores: {', '.join(state.get('pcb_connector_pins'))}")
+            if state.get("pcb_visible_defects"):
+                visual_parts.append(f"Defeitos: {state.get('pcb_visible_defects')}")
+            
+            parts.append(" | ".join(visual_parts))
+
         state_str = json.dumps(state, ensure_ascii=False)
         parts.append(f"- Estado da conversa: {state_str}")
 

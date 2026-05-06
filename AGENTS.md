@@ -123,8 +123,8 @@ SPEC.md > AGENTS.md > CLAUDE.md > Código-fonte
 ┌─────────────────────────────────────────────────────────────┐
 │                    LITELLM :4018/v1                         │
 │  Gateway canônico: text · code · instruction · embedding    │
-│  Aliases: hermes-auto, hermes-local-code, hermes-vision,    │
-│           hermes-embed, hermes-cloud-*, hermes-brain        │
+│  Aliases: nexus-auto, nexus-local-code, nexus-vision,    │
+│           nexus-embed, nexus-cloud-*, nexus-brain        │
 ├─────────────────────────────────────────────────────────────┤
 │                    VOICE GATEWAY :4002                      │
 │  TTS (Edge-tts :8012) + STT (Groq cloud whisper-large-v3)   │

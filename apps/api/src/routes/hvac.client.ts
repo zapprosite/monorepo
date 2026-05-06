@@ -139,3 +139,45 @@ export async function hvacPipeHealth(): Promise<HvacHealthResult> {
 		return { status: 'error', error: message };
 	}
 }
+
+export interface HvacVisionInput {
+	image: string;
+	hints?: string[];
+	session_id: string;
+	brand?: string;
+}
+
+export interface HvacVisionResult {
+	status: string;
+	message?: string;
+	image_type?: string;
+	model?: string;
+	state_updated?: Record<string, unknown>;
+}
+
+/**
+ * Call hvac_rag_pipe.py /v1/vision/intake to process images (Phase 4).
+ */
+export async function callHvacVision(input: HvacVisionInput): Promise<HvacVisionResult> {
+	const controller = new AbortController();
+	// Vision tasks take longer (LLM inference)
+	const timeout = setTimeout(() => controller.abort(), 60_000);
+
+	try {
+		const response = await fetch(`${HVAC_PIPE_URL}/v1/vision/intake`, {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify(input),
+			signal: controller.signal,
+		});
+
+		if (!response.ok) {
+			const errorText = await response.text().catch(() => 'unknown error');
+			throw new Error(`hvac_rag_pipe vision error ${response.status}: ${errorText.slice(0, 200)}`);
+		}
+
+		return (await response.json()) as HvacVisionResult;
+	} finally {
+		clearTimeout(timeout);
+	}
+}
