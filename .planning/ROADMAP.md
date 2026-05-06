@@ -11,7 +11,7 @@
 - [ ] Fase 3: Manual Finder e Aquisição Automática (PLANNED)
 
 ### M3: Diagnóstico Visual e IoT
-- [ ] Fase 4: Reconhecimento de Placas e Componentes via Foto (PENDING)
+- [ ] Fase 4: Reconhecimento de Placas e Componentes via Foto (PLANNED)
 
 ---
 

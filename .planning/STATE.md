@@ -26,12 +26,22 @@ progress:
 
 ## Phase 4 — Implemented (M1/M2 Bridge)
 - [x] 04-01/02/03: Vision Contracts, Memory Integration and Intake Endpoint.
-- [x] 04-04: Smoke Tests (Verified).
+- [ ] 04-04: Smoke Tests (Planned).
 
-## Phase 3 — Planned
-- Manual Finder & Automated Acquisition.
-
-## Phase 5 — In Progress (Autonomous Queue)
+## Phase 5 — In Progress (Autonomous Queue #1)
 - [ ] 05-01: FAQ Generation & Qdrant FAQ Indexing (Planned)
-- [ ] 05-02: RAG Pipe Refactor (Dual Search)
-- [ ] 05-03: Technical Grounding Validation
+- [ ] 05-02: RAG Pipe Refactor (Dual Search) (Planned)
+- [ ] 05-03: Technical Grounding Validation (Planned)
+
+## Phase 3 — Planned (Autonomous Queue #2)
+- [x] 03-01: Manual Finder CLI (Complete)
+- [ ] 03-02: Official Source Search & Ranking (Planned)
+- [ ] 03-03: PDF Downloader & Duplicate Guard (Planned)
+- [ ] 03-04: Intake Integration (Planned)
+- [ ] 03-05: Coverage Feedback Loop (Planned)
+
+## Phase 4 — Planned (Autonomous Queue #3)
+- [x] 04-01: Vision Contracts (Complete)
+- [x] 04-02: Vision-Memory Integration (Complete)
+- [x] 04-03: Intake Endpoint (Complete)
+- [ ] 04-04: Smoke Tests & Runbook (Planned)
