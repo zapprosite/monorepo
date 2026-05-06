@@ -1,15 +1,16 @@
 # Hardware Hierarchy - Homelab Complete Map
 
 **Classification:** INTERNAL | **Owner:** Platform Engineering
-**Version:** 2.1.0 | **Updated:** 2026-04-26
-**Purpose:** Single source of truth for the approved homelab hardware and runtime hierarchy.
+**Version:** 2.2.0 | **Updated:** 2026-05-06
+**Purpose:** Padrão curto e canônico do hardware real e da hierarquia de runtime do homelab.
 
 ---
 
 ## Read First
 
-This file describes the approved target split for the homelab. Operational detail lives in:
+Este arquivo resume o padrão de hardware e runtime. Detalhe operacional e inventário real vivem em:
 
+- [HOMELAB.md](./HOMELAB.md)
 - [Target Architecture](docs/ARCHITECTURE/HOMELAB-TARGET-ARCHITECTURE-2026-04.md)
 - [Deployment Boundaries](docs/REFERENCE/DEPLOYMENT-BOUNDARIES.md)
 - [Security Checklist](docs/REFERENCE/HOMELAB-SECURITY-CHECKLIST.md)
@@ -36,9 +37,9 @@ Public containerized apps
   - internal tools with Cloudflare Access or strong app auth
 
 Bare-metal host
-  - Hermes Gateway
-  - Hermes MCP
-  - Ollama GPU
+  - llama.cpp main GPU
+  - llama.cpp embed CPU
+  - Ollama backup/manual
   - Nexus scripts
   - backups/ZFS
   - observability agent
@@ -61,10 +62,11 @@ Private core infra
 2. Only stateless apps should cross the public ingress boundary.
 3. Internal tools require Cloudflare Access or strong application auth.
 4. Hermes runs outside Coolify as a bare-metal/systemd service.
-5. Ollama runs bare-metal with GPU access.
-6. LiteLLM is the single model gateway for homelab services.
-7. Coolify publishes apps; it does not govern the homelab.
-8. The monorepo is the control plane, not an infinite app dump.
+5. `llama.cpp / llama-server` runs bare-metal as the principal local LLM runtime.
+6. Ollama is backup/manual only and must not be the critical path.
+7. LiteLLM is the single model gateway for homelab services.
+8. Coolify publishes apps; it does not govern the homelab.
+9. The monorepo is the control plane, not an infinite app dump.
 
 ---
 
@@ -72,14 +74,19 @@ Private core infra
 
 | Component | Specification |
 |-----------|---------------|
-| Host | Ubuntu Desktop LTS, bare metal |
-| CPU | See `/srv/ops/hardware/` |
-| GPU | NVIDIA RTX 4090 24GB |
-| RAM | See `/srv/ops/hardware/` |
-| Storage | ZFS pool `tank`, documented as 3.5TB |
+| Host | `will-zappro` |
+| OS | Ubuntu Desktop `24.04.4 LTS` |
+| Motherboard | ASUS `TUF GAMING X670E-PLUS` |
+| CPU | AMD Ryzen 9 `7900X` |
+| GPU dGPU | NVIDIA RTX `4090` `24GB` |
+| GPU iGPU | AMD Raphael |
+| RAM | `32 GiB` DDR5 |
+| System Disk | KINGSTON `SNV3S1000G` `1TB` |
+| Data Disk | Crucial `T700` `4TB` Gen5 |
+| Storage | ZFS pool `tank` for `/srv` |
 | Network Edge | Cloudflare DNS, Tunnel, and Access |
 
-Unknowns must be verified in `/srv/ops/hardware/` before being treated as canonical.
+Fonte de verdade operacional: `docs/HOMELAB.md` + auditoria mais recente em `/srv/audits/`.
 
 ---
 
@@ -90,7 +97,7 @@ Unknowns must be verified in `/srv/ops/hardware/` before being treated as canoni
 | Edge | Cloudflare DNS, Tunnel, Access | Internet-facing | Policy edge for DNS, tunnel routing, and access control. |
 | Ingress | Traefik/Coolify ingress | Public or internal via Cloudflare | Publishes app routes only. |
 | Public Apps | Web apps, dashboards, stateless APIs, internal tools with auth | Allowed when protected by target policy | Apps must not own critical state without explicit backup governance. |
-| Bare Metal | Hermes Gateway, Hermes MCP, Ollama GPU, Nexus scripts, backups/ZFS, observability agent | Private by default | Host-level services are not Coolify workloads. |
+| Bare Metal | llama.cpp main GPU, llama.cpp embed CPU, Ollama backup/manual, Nexus scripts, backups/ZFS, observability agent | Private by default | Host-level services are not Coolify workloads. |
 | Core Infra | LiteLLM, Qdrant, Postgres, Redis, Gitea, Coolify | Private/internal only | Stateful and critical services require backups and access controls. |
 
 ---
@@ -100,8 +107,9 @@ Unknowns must be verified in `/srv/ops/hardware/` before being treated as canoni
 | Service | Target Runtime | Target Exposure | Canonical Notes |
 |---------|----------------|-----------------|-----------------|
 | Hermes Gateway | Bare metal/systemd | INTERNAL | Agent brain. Public hostname is allowed only through Cloudflare Access; runtime stays outside Coolify. |
-| Hermes MCP | Bare metal/systemd | PRIVATE | MCP bridge for Hermes/local agents. |
-| Ollama GPU | Bare metal/systemd | PRIVATE | Local model runtime with RTX 4090 access. |
+| Llama.cpp main | Bare metal/systemd | PRIVATE | Principal LLM local na RTX 4090. |
+| Llama.cpp embed | Bare metal/systemd | PRIVATE | Embedding CPU-only; não consome VRAM. |
+| Ollama | Bare metal/systemd | PRIVATE | Backup manual apenas; fora do caminho crítico. |
 | Nexus scripts | Bare metal filesystem | PRIVATE | Orchestration/control-plane scripts under the monorepo. |
 | Backups/ZFS | Bare metal | PRIVATE | Snapshot and restore foundation for stateful data. |
 | Observability agent | Bare metal | PRIVATE | Host telemetry collection. Public dashboard exposure is a separate app decision. |

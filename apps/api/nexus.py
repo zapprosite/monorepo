@@ -121,13 +121,13 @@ async def classify_only(req: TaskRequest):
 async def nexus_health():
     """Health check with model availability."""
     import aiohttp
-    ollama_ok = False
     litellm_ok = False
+    llama_server_ok = False
 
     async with aiohttp.ClientSession() as session:
         try:
-            async with session.get("http://localhost:11434/api/tags", timeout=5) as resp:
-                ollama_ok = resp.status == 200
+            async with session.get("http://localhost:8001/health", timeout=5) as resp:
+                llama_server_ok = resp.status == 200
         except Exception:
             pass
 
@@ -140,7 +140,7 @@ async def nexus_health():
     return {
         "status": "ok",
         "service": "nexus",
-        "ollama_available": ollama_ok,
+        "llama_server_available": llama_server_ok,
         "litellm_available": litellm_ok,
     }
 

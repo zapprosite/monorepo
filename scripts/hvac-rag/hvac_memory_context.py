@@ -240,17 +240,19 @@ def _get_mem0():
             },
         },
         "llm": {
-            "provider": "ollama",
+            "provider": "openai",
             "config": {
-                "model": "qwen2.5:3b",
-                "ollama_base_url": OLLAMA_URL,
+                "model": "nexus-local-code",
+                "openai_base_url": LITELLM_URL,
+                "api_key": LITELLM_API_KEY,
             },
         },
         "embedder": {
-            "provider": "ollama",
+            "provider": "openai",
             "config": {
                 "model": OLLAMA_EMBED_MODEL,
-                "ollama_base_url": OLLAMA_URL,
+                "openai_base_url": LITELLM_URL,
+                "api_key": LITELLM_API_KEY,
             },
         },
     }

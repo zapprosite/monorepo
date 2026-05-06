@@ -9,7 +9,7 @@
 > 6. Leia `homelab-context/SERVICES.md`
 > 7. Leia `homelab-context/GATEWAYS.md`
 >
-> Se `homelab-context/` não existir, use `/srv/homelab-context/`. Se a API `http://localhost:8642/context/homelab` estiver online, pode usá-la como leitura complementar, nunca como única fonte. Depois disso, aplique as regras de `.rules` e `CONTRACT.md` automaticamente sem pedir confirmação.
+> Se `homelab-context/` não existir, use `/srv/homelab-context/`. Use os arquivos do repositório como fonte primária de contexto. Depois disso, aplique as regras de `.rules` e `CONTRACT.md` automaticamente sem pedir confirmação.
 
 # AGENTS.md — Monorepo Command Center
 
@@ -92,14 +92,14 @@ SPEC.md > AGENTS.md > CLAUDE.md > Código-fonte
 |--------|-----------|--------|
 | **Contexto imediato** | `scripts/hermes-tree.py` | Zero state, 50ms, morre |
 | **Contexto sessão** | `libs/memory/manager.py` | SQLite no monorepo, recriável |
-| **Contexto longo** | HCE API :8642 | SQLite + Qdrant, versionado |
+| **Contexto longo** | `homelab-context/` + docs canônicas | Tree-only, versionado |
 | **Memória vetorial** | Qdrant :6333 | Fonte canônica de embeddings |
 
 **Proibido:**
 - `state.db`, `state.json`, `.skills_prompt_snapshot.json` > 1MB
 - Daemons Python > 512MB RAM para "ler contexto"
 - Duplicar `libs/` fora do monorepo
-- Porta 8642 ocupada por não-HCE
+- Serviços fora do estado canônico não devem reaparecer em docs/mapas
 
 **Ver:** [docs/ADRs/ADR-001-hermes-tree-only.md](docs/ADRs/ADR-001-hermes-tree-only.md)
 
@@ -191,7 +191,7 @@ SPEC.md > AGENTS.md > CLAUDE.md > Código-fonte
 | `/turbo` | `turbo.md` | Commit+merge+tag+branch | Git turbo workflow |
 | `/code-review` | `code-review.md` | Commits → 5-axis review | Full review |
 | `/scaffold` | `scaffold.md` | Template → novo modulo | Scaffold projeto |
-| `/img` | `vision-local.md` | Ollama Qwen2.5-VL | Análise de imagem |
+| `/img` | `vision-local.md` | Vision local | Análise de imagem |
 
 ---
 
@@ -213,7 +213,7 @@ SPEC.md > AGENTS.md > CLAUDE.md > Código-fonte
 | `/heal` | — | Auto-healer Docker containers | cron:5min |
 | `/scraper` | — | Pipeline HVAC: scrape→download→extract→embed→qdrant | chains |
 | `/extract` | — | docling table extraction from PDFs | used by scraper |
-| `/embed` | — | Ollama nomic-embed-text (768D) | used by scraper |
+| `/embed` | — | llama.cpp nomic-embed-cpu (768D) | used by scraper |
 | `/qdrant` | — | Vector upsert/search (hvac_service_manuals) | used by scraper |
 | `/github` | — | Sync GitHub repos HVAC (coolfix, hvac-pro) | cron:daily |
 | `/build` | — | Go build com caching | pre-deploy |

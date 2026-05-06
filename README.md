@@ -7,6 +7,20 @@
 > Self-hosted AI platform powering [zappro.site](https://zappro.site).  
 > **Regra:** 2 gateways only. Tudo que não for esses dois é lixo.
 
+## 🗂️ Repos do Homelab em `/srv`
+
+Este repo é o control plane principal, mas não é o único repo vivo no host.
+
+| Repo | Caminho | Papel |
+|------|---------|-------|
+| `monorepo` | `/srv/monorepo` | Apps, docs e runtime principal |
+| `homelab-context` | `/srv/homelab-context` | Contexto compartilhado para agentes |
+| `nexus` | `/srv/nexus` | Router local-first / cloud-fallback |
+| `ops` | `/srv/ops` | Infra, governança e utilitários operacionais |
+| `hvac-pipeline` | `/srv/hvac-pipeline` | Pipeline HVAC e utilitários RAG |
+
+Referência canônica: [docs/HOMELAB.md](docs/HOMELAB.md).
+
 ## 🏗️ Arquitetura — Mínimo Viável
 
 ```mermaid
@@ -17,7 +31,6 @@ graph TB
     Tunnel --> Qdrant["📊 Qdrant :6333"]
     Tunnel --> Coolify["🚀 Coolify :8000"]
     Tunnel --> Gitea["📝 Gitea :3300"]
-    LLM --> Ollama["🦙 Ollama :11434"]
     Voice --> EdgeTTS["🗣️ Edge TTS :8012"]
 ```
 

@@ -1,7 +1,8 @@
 model = "gpt-5.4"
 model_reasoning_effort = "low"
+approvals_reviewer = "user"
 [projects."/srv/monorepo"]
 trust_level = "trusted"
 
 [tui.model_availability_nux]
-"gpt-5.5" = 1
+"gpt-5.5" = 3
