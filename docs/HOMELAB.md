@@ -50,7 +50,7 @@
 | Web | React 19 + MUI + tRPC (:5173 dev) |
 | Orchestrator | TypeScript workflow engine (YAML→exec) |
 | Memória | Mem0 + Qdrant (Gen5 NVMe) + Ollama |
-| LLM Gateway | LiteLLM → hermes-brain / Claude |
+| LLM Gateway | LiteLLM → nexus-auto / nexus-brain / Claude |
 | CI/CD | Gitea Actions (13 workflows) + Coolify |
 | Auth | Keycloak OIDC |
 | Monitoramento | Prometheus + Grafana + Alertmanager |
@@ -262,4 +262,4 @@ LITELLM_OLLAMA_URL=http://host.docker.internal:11434
 OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
 ```
 
-Aliases canônicos: `hermes-auto`, `hermes-local-code`, `hermes-vision`, `hermes-embed`, `hermes-cloud-cheap`, `hermes-cloud-pro`, `hermes-cloud-ui`, `hermes-brain`.
+Aliases canônicos: `nexus-auto`, `nexus-local-code`, `nexus-vision`, `nexus-embed`, `nexus-cloud-cheap`, `nexus-cloud-pro`, `nexus-cloud-ui`, `nexus-brain`.

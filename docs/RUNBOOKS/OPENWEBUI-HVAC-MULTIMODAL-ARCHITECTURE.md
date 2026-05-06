@@ -21,7 +21,7 @@ Sistema multimodal que combina interface web (OpenWebUI), assistente HVAC (hvac-
 ### Fluxo Completo
 
 ```
-[Usuário] → [OpenWebUI chat.zappro.site] → [hvac-manual-strict] → [LiteLLM api.zappro.site] → [OpenRouter via hermes-brain]
+[Usuário] → [OpenWebUI chat.zappro.site] → [hvac-manual-strict] → [LiteLLM api.zappro.site] → [OpenRouter via nexus-brain]
    ↑                    ↓                                                    ↓
    └──────── TTS ←─── [Edge TTS]                               [Qwen2.5VL via Ollama]
    ↓
@@ -56,9 +56,9 @@ Sistema multimodal que combina interface web (OpenWebUI), assistente HVAC (hvac-
                                   │
                                   ▼
 ┌─────────────────────────────────────────────────────────────────────────────────────┐
-│                          LiteLLM (api.zappro.site:4000)                              │
+│                          LiteLLM (api.zappro.site:4018)                              │
 │  ┌──────────────────────────────────────────────────────────────────────┐            │
-│  │                          OpenRouter via hermes-brain                                 │            │
+│  │                          OpenRouter via nexus-brain                                 │            │
 │  │                    (texto, chat, raciocínio)                         │            │
 │  └──────────────────────────────────────────────────────────────────────┘            │
 └─────────────────────────────────────────────────────────────────────────────────────┘
@@ -68,7 +68,7 @@ Sistema multimodal que combina interface web (OpenWebUI), assistente HVAC (hvac-
                     ▼                               ▼
 ┌─────────────────────────────────┐  ┌─────────────────────────────────┐
 │       Groq STT                  │  │         Ollama                   │
-│   (api.groq.com)                │  │      (:11434)                   │
+│   (api.groq.com)                │  │      (:4018/v1)                   │
 │                                 │  │                                 │
 │   Whisper-large-v3             │  │   Qwen2.5VL                     │
 │   Audio → Texto                 │  │   Image → Texto/Descrição       │
@@ -93,12 +93,12 @@ Sistema multimodal que combina interface web (OpenWebUI), assistente HVAC (hvac-
 |---|---|---|
 | OpenWebUI | chat.zappro.site (443) | Interface web, entrada de texto/áudio/imagem |
 | hvac-manual-strict | llm.zappro.site:4017 | Cérebro — roteamento, RAG, resposta amigável |
-| LiteLLM | api.zappro.site:4000 | Gateway de modelos (OpenRouter via hermes-brain) |
+| LiteLLM | api.zappro.site:4018 | Gateway de modelos (OpenRouter via nexus-brain) |
 | Groq STT | api.groq.com | Voz → texto (Whisper-large-v3) |
 | Edge TTS | localhost:5050 | Texto → voz (pt-BR, EdgeSpeech) |
-| Qwen2.5VL | localhost:11434 | Visão → texto/descrição (Ollama) |
+| Qwen2.5VL | localhost:4018/v1 | Visão → texto/descrição (Ollama) |
 | Qdrant | localhost:6333 | Vector store — manuals HVAC |
-| Ollama Embeddings | localhost:11434 |Embeddings (nomic-embed-text) |
+| Ollama Embeddings | localhost:4018/v1 |Embeddings (nomic-embed-text) |
 
 ---
 
@@ -110,16 +110,16 @@ Sistema multimodal que combina interface web (OpenWebUI), assistente HVAC (hvac-
 |---|---|---|
 | `OPENWEBUI_URL` | `https://chat.zappro.site` | URL pública do OpenWebUI |
 | `OPENWEBUI_API_KEY` | `sk-...` | API key para autenticação |
-| `OLLAMA_BASE_URL` | `http://localhost:11434` | Base Ollama para imagens |
+| `OLLAMA_BASE_URL` | `http://localhost:4018/v1` | Base Ollama para imagens |
 | `OPENWEBUI_PIPELINE_URL` | `http://llm.zappro.site:4017` | Pipeline hvac-manual-strict |
 
 ### LiteLLM
 
 | Variável | Valor | Descrição |
 |---|---|---|
-| `LITELLM_BASE_URL` | `http://api.zappro.site:4000` | Endpoint LiteLLM |
+| `LITELLM_BASE_URL` | `http://api.zappro.site:4018` | Endpoint LiteLLM |
 | `LITELLM_API_KEY` | `sk-zappro-...` | Chave API LiteLLM |
-| `LITELLM_MODEL` | `hermes-brain` | Modelo padrão OpenRouter |
+| `LITELLM_MODEL` | `nexus-brain` | Modelo padrão OpenRouter |
 | `LITELLM_MAX_TOKENS` | `8192` | Limite de tokens por resposta |
 | `LITELLM_REQUEST_TIMEOUT` | `60` | Timeout em segundos |
 | `LITELLM_TEMPERATURE` | `0.7` | Temperatura de geração |
@@ -146,7 +146,7 @@ Sistema multimodal que combina interface web (OpenWebUI), assistente HVAC (hvac-
 
 | Variável | Valor | Descrição |
 |---|---|---|
-| `OLLAMA_HOST` | `http://localhost:11434` | Endpoint Ollama |
+| `OLLAMA_HOST` | `http://localhost:4018/v1` | Endpoint Ollama |
 | `OLLAMA_VISION_MODEL` | `qwen2.5vl` | Modelo de visão |
 | `OLLAMA_EMBED_MODEL` | `nomic-embed-text` | Modelo de embeddings |
 | `OLLAMA_KEEP_ALIVE` | `5m` | Tempo de keep-alive |
@@ -188,7 +188,7 @@ Sistema multimodal que combina interface web (OpenWebUI), assistente HVAC (hvac-
     │               [Qdrant RAG — busca contexto]
     │                    │
     │                    ▼
-    │               [LiteLLM → OpenRouter via hermes-brain]
+    │               [LiteLLM → OpenRouter via nexus-brain]
     │                    │
     │                    ▼
     │               [Friendly Rewriter]
@@ -233,7 +233,7 @@ Sistema multimodal que combina interface web (OpenWebUI), assistente HVAC (hvac-
 [OpenWebUI — detecta imagem]
     │
     ▼
-[Ollama — Qwen2.5VL :11434]
+[Ollama — Qwen2.5VL :4018/v1]
     │
     ▼
 [Descrição textual da imagem]
@@ -271,7 +271,7 @@ Sistema multimodal que combina interface web (OpenWebUI), assistente HVAC (hvac-
 | Max contexto RAG | 6 chunks | top_k=6 |
 | Max perguntas de follow-up | 1 | Por resposta |
 
-### LiteLLM / OpenRouter via hermes-brain
+### LiteLLM / OpenRouter via nexus-brain
 
 | Limite | Valor | Observação |
 |---|---|---|
@@ -386,10 +386,10 @@ python3 -m edge_tts_proxy --port 5050 &
 **Diagnóstico:**
 ```bash
 # Verificar Ollama
-curl http://localhost:11434/api/tags
+curl http://localhost:4018/v1/api/tags
 
 # Testar modelo vision
-curl -X POST http://localhost:11434/api/generate \
+curl -X POST http://localhost:4018/v1/api/generate \
   -d '{"model": "qwen2.5vl", "prompt": "Descreva esta imagem", "images": ["base64..."]}'
 ```
 
@@ -409,11 +409,11 @@ sudo systemctl restart ollama
 **Diagnóstico:**
 ```bash
 # Health check LiteLLM
-curl http://api.zappro.site:4000/health
+curl http://api.zappro.site:4018/health
 
 # Verificar modelo disponível
 curl -H "Authorization: Bearer $LITELLM_API_KEY" \
-  http://api.zappro.site:4000/v1/models
+  http://api.zappro.site:4018/v1/models
 ```
 
 **Solução:**
@@ -464,10 +464,10 @@ curl https://chat.zappro.site/health
 curl http://llm.zappro.site:4017/health
 
 # Verificar LiteLLM
-curl http://api.zappro.site:4000/health
+curl http://api.zappro.site:4018/health
 
 # Verificar Ollama
-curl http://localhost:11434/api/tags
+curl http://localhost:4018/v1/api/tags
 
 # Verificar Qdrant
 curl http://localhost:6333/
@@ -502,10 +502,10 @@ curl http://localhost:6333/
 
 - SPEC-140: OpenWebUI HVAC Multimodal Architecture
 - OpenWebUI: https://chat.zappro.site
-- LiteLLM: http://api.zappro.site:4000
-- Ollama: http://localhost:11434
+- LiteLLM: http://api.zappro.site:4018
+- Ollama: http://localhost:4018/v1
 - Groq STT: api.groq.com
 - Qdrant: http://localhost:6333
-- OpenRouter via hermes-brain: via LiteLLM
+- OpenRouter via nexus-brain: via LiteLLM
 - Qwen2.5VL: via Ollama
 - Edge TTS: http://localhost:5050
