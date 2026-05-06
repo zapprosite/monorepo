@@ -1,49 +1,37 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.0
-milestone_name: milestone
-status: planned
-last_updated: "2026-05-05T22:10:00.000Z"
+milestone_name: HVAC Inverter V2
+status: auditing
+last_updated: "2026-05-06T09:26:00Z"
 progress:
-  total_phases: 4
-  completed_phases: 2
-  total_plans: 15
-  completed_plans: 7
+  total_phases: 5
+  completed_phases: 4
+  total_plans: 23
+  completed_plans: 14
 ---
 
 # Project State
 
-- Status: In Progress
-- Active Phase: 4 (Reconhecimento de Placas e Componentes via Foto)
-- Last Updated: 2026-05-05
+- Status: In Progress (Autonomous Transition)
+- Active Phase: 5 (Implementação Dual-Index Semantic Bridge)
+- Last Updated: 2026-05-06
+- Milestone Audit: [M1 Audit Passed with Tech Debt](.planning/v1.0-MILESTONE-AUDIT.md)
 
-## Phase 1 — Implemented
+## Phase 1 — Implemented (M1)
+- Lock Inverter, Docling Precision, Source Enforcement, Cross-Check, Page Numbers, Citations.
 
-- Lock Inverter: hard-lock em hvac_add_manual.py usando is_inverter_technology + is_blacklisted
-- Docling Precision: extract_table_header + preservação de cabeçalho em chunks de tabela
-- Source Enforcement: sistema prompt atualizado com regra de resposta sem evidência
-- Cross-Check Agent: hvac_crosscheck.py (Nexus Analytical) criado e integrado
-- PDF Page Numbers: build_rag_context inclui Pág: N em cada trecho
-- Citação Indexada: format_citations + campo citations na resposta da API
+## Phase 2 — Implemented (M1)
+- INMETRO Catalog, Normalization, PT-BR Gate, Coverage Report, Expansion Pipeline.
 
-## Phase 2 — Implemented
-
-- Test scaffolds: contratos de catálogo, scraper, intake PT-BR, checkpoint, coverage e pending review
-- Normalization bridge: `hvac_normalize_document.py`
-- PT-BR gate: validação de idioma no intake e pending_review.jsonl
-- Coverage report: `generate_coverage_table()` e `--output-coverage`
-- Expansion pipeline: `hvac_expansion_pipeline.py` com checkpoint, dry-run e report-only
-- OpenWebUI prune: interface exclusiva para `hvac-manual-strict`
+## Phase 4 — Implemented (M1/M2 Bridge)
+- [x] 04-01/02/03: Vision Contracts, Memory Integration and Intake Endpoint.
+- [x] 04-04: Smoke Tests (Verified).
 
 ## Phase 3 — Planned
+- Manual Finder & Automated Acquisition.
 
-- Criar finder canônico para transformar lacunas em URLs candidatas de manual
-- Integrar busca web oficial, ranking de fabricante e validação de PDF
-- Conectar download -> intake -> index -> coverage em loop retomável
-
-## Phase 4 — In Progress
-
-- [x] 04-01: Contratos de Visão (Board type, labels, pins)
-- [x] 04-02: Integração Visão-Memória (Context evidence)
-- [x] 04-03: Endpoint de Intake (API Node + Pipe Python)
-- [ ] 04-04: Smoke Tests (Fixtures reais + Runbook)
+## Phase 5 — In Progress (Autonomous Queue)
+- [ ] 05-01: FAQ Generation & Qdrant FAQ Indexing (Planned)
+- [ ] 05-02: RAG Pipe Refactor (Dual Search)
+- [ ] 05-03: Technical Grounding Validation
