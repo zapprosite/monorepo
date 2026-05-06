@@ -6,7 +6,7 @@ model_list:
     litellm_params:
       model: openai/qwen3.6-27b-code
       api_base: os.environ/LLAMA_CPP_MAIN_URL
-      api_key: "EMPTY"
+      api_key: "sk-local"
       timeout: 300
       temperature: 0.1
     model_info:
@@ -19,7 +19,7 @@ model_list:
     litellm_params:
       model: openai/qwen3.6-27b-code
       api_base: os.environ/LLAMA_CPP_MAIN_URL
-      api_key: "EMPTY"
+      api_key: "sk-local"
       timeout: 300
       temperature: 0.1
     model_info:
@@ -31,23 +31,24 @@ model_list:
   - model_name: hermes-embed
     litellm_params:
       model: openai/nomic-embed-cpu
-      api_base: os.environ/LLAMA_CPP_EMBED_URL
+      api_base: http://172.17.0.1:8002/v1
       api_key: "EMPTY"
-      timeout: 180
+      timeout: 10
     model_info:
       mode: embedding
       input_cost_per_token: 0
-      description: "Canonical CPU-only embedding path via llama.cpp"
+      description: "Best-effort compatibility alias; critical path is direct llama.cpp"
 
   - model_name: hermes-embed-backup
     litellm_params:
-      model: ollama/nomic-embed-text:latest
-      api_base: os.environ/LITELLM_OLLAMA_URL
-      timeout: 180
+      model: openai/nomic-embed-cpu
+      api_base: http://host.docker.internal:8002/v1
+      api_key: "EMPTY"
+      timeout: 10
     model_info:
       mode: embedding
       input_cost_per_token: 0
-      description: "Manual Ollama fallback only; not part of the primary path"
+      description: "Compatibility backup path to the same CPU-only llama.cpp embed server"
 
   - model_name: hermes-cloud-cheap
     litellm_params:
@@ -92,7 +93,7 @@ model_list:
     litellm_params:
       model: openai/qwen3.6-27b-code
       api_base: os.environ/LLAMA_CPP_MAIN_URL
-      api_key: "EMPTY"
+      api_key: "sk-local"
       timeout: 300
       temperature: 0.1
     model_info:
@@ -105,7 +106,7 @@ model_list:
     litellm_params:
       model: openai/qwen3.6-27b-code
       api_base: os.environ/LLAMA_CPP_MAIN_URL
-      api_key: "EMPTY"
+      api_key: "sk-local"
       timeout: 300
       temperature: 0.1
     model_info:
@@ -117,13 +118,13 @@ model_list:
   - model_name: nexus-embed
     litellm_params:
       model: openai/nomic-embed-cpu
-      api_base: os.environ/LLAMA_CPP_EMBED_URL
+      api_base: http://172.17.0.1:8002/v1
       api_key: "EMPTY"
-      timeout: 180
+      timeout: 10
     model_info:
       mode: embedding
       input_cost_per_token: 0
-      description: "Compatibility alias for existing Nexus embedding callers"
+      description: "Deprecated legacy alias for existing Nexus embedding callers"
 
   - model_name: nexus-cloud-cheap
     litellm_params:

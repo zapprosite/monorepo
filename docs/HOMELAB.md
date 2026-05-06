@@ -159,7 +159,7 @@ O homelab não é só o `monorepo`. Estes são os repositórios Git ativos encon
 | Modelo | Runtime | Uso |
 |--------|---------|-----|
 | `Qwen3.6-27B-UD-Q4_K_XL` | llama.cpp GPU | code/chat local principal |
-| `nomic-embed-text-v1.5.Q4_K_M` | llama.cpp CPU | embeddings 768D |
+| `nomic-embed-text-v1.5.Q8_0` | llama.cpp CPU | embeddings 768D |
 
 ---
 
@@ -318,4 +318,12 @@ LITELLM_URL=http://127.0.0.1:4018/v1
 OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
 ```
 
-Aliases canônicos em uso: `hermes-code`, `hermes-auto`, `hermes-embed`, `nexus-local-code`, `nexus-auto`, `nexus-embed`, `hermes-cloud-cheap`, `hermes-cloud-pro`, `nexus-cloud-cheap`, `nexus-cloud-pro`.
+Aliases em uso: `hermes-code`, `hermes-auto`, `hermes-embed`, `nexus-local-code`, `nexus-auto`, `nexus-embed`, `hermes-cloud-cheap`, `hermes-cloud-pro`, `nexus-cloud-cheap`, `nexus-cloud-pro`.
+`hermes-embed` é compatibilidade best-effort; o caminho crítico de ingestão usa `LLAMA_CPP_EMBED_URL`.
+`nexus-embed` é legado/deprecated e só fica por compatibilidade com callers antigos.
+
+## Telemetria leve
+
+`Dozzle` em `http://127.0.0.1:8081` é o viewer canônico de logs Docker.
+Use case aprovado: observabilidade leve de containers, diagnóstico rápido e triagem operacional.
+Subdomínio canônico proposto/gerenciado por Terraform: `logs.zappro.site` com Cloudflare Access.

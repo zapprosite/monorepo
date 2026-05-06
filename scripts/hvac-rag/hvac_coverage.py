@@ -613,22 +613,22 @@ def _build_doc_type_filter(doc_type: str) -> list[dict]:
 
 
 def _get_embedding(text: str) -> list[float] | None:
-    """Get embedding via Ollama."""
+    """Get embedding via the direct CPU endpoint."""
     try:
         import requests
 
-        ollama_url = __import__("os").environ.get("OLLAMA_URL", "http://127.0.0.1:11434")
-        model = __import__("os").environ.get("HVAC_EMBEDDING_MODEL", "nexus-embed")
+        embed_url = __import__("os").environ.get("HVAC_EMBEDDING_URL", __import__("os").environ.get("LLAMA_CPP_EMBED_URL", "http://172.17.0.1:8002/v1"))
+        model = __import__("os").environ.get("HVAC_EMBEDDING_MODEL", "nomic-embed-cpu")
         r = requests.post(
-            f"{ollama_url}/api/embeddings",
+            f"{embed_url}/embeddings",
             headers={"Content-Type": "application/json"},
-            json={"model": model, "prompt": text[:2000]},
-            timeout=120,
+            json={"model": model, "input": f"search_query: {text[:2000]}", "encoding_format": "float"},
+            timeout=8,
         )
         if r.status_code == 200:
             data = r.json()
             emb = data.get("data", [{}])[0].get("embedding")
-            if emb and len(emb) > 0:
+            if emb and len(emb) == 768:
                 return emb
     except Exception:
         pass

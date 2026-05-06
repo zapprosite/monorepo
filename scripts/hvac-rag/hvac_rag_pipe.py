@@ -3,7 +3,7 @@
 HVAC RAG Pipe — OpenWebUI OpenAI-Compatible RAG Pipe
 Provides OpenAI-compatible /v1/chat/completions endpoint that:
   1. Extracts model/error_code from query
-  2. Embeds via Ollama (nexus-embed)
+  2. Embeds direct via llama.cpp CPU-only (:8002), with optional LiteLLM compatibility path
   3. Searches Qdrant hvac_manuals_v1 with smart filters
   4. Injects context into the system prompt
   5. Forwards enriched request to LiteLLM
@@ -87,10 +87,11 @@ from pydantic import BaseModel
 # =============================================================================
 QDRANT_URL = os.environ.get("QDRANT_URL", "http://127.0.0.1:6333")
 QDRANT_API_KEY = os.environ.get("QDRANT_API_KEY", "")
-OLLAMA_URL = os.environ.get("OLLAMA_URL", "http://127.0.0.1:11434")
 LITELLM_URL = os.environ.get("LITELLM_URL", "http://127.0.0.1:4018/v1")
 LITELLM_API_KEY = os.environ.get("LITELLM_API_KEY", "sk-dummy")
-EMBEDDING_MODEL = os.environ.get("HVAC_EMBEDDING_MODEL", "nexus-embed")
+DIRECT_EMBED_URL = os.environ.get("HVAC_EMBEDDING_URL", os.environ.get("LLAMA_CPP_EMBED_URL", "http://172.17.0.1:8002/v1"))
+EMBEDDING_MODEL = os.environ.get("HVAC_EMBEDDING_MODEL", "nomic-embed-cpu")
+EMBED_USE_LITELLM = os.environ.get("EMBED_USE_LITELLM", "false").lower() == "true"
 COLLECTION_NAME = "hvac_manuals_v1"
 
 # OpenWebUI is dedicated to this project and must expose exactly one model.
@@ -1464,5 +1465,5 @@ async def root():
 
 if __name__ == "__main__":
     _safe_log(f"Starting HVAC RAG Pipe on {PIPELINE_HOST}:{PIPELINE_PORT}")
-    _safe_log(f"Qdrant: {QDRANT_URL} | Ollama: {OLLAMA_URL} | LiteLLM: {LITELLM_URL}")
+    _safe_log(f"Qdrant: {QDRANT_URL} | Embed: {DIRECT_EMBED_URL} | LiteLLM: {LITELLM_URL}")
     uvicorn.run(app, host=PIPELINE_HOST, port=PIPELINE_PORT, log_level="warning")

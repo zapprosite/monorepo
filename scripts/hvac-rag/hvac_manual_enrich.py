@@ -2,7 +2,7 @@
 """
 HVAC Manual Enrich — Convert PDF to Markdown and generate Top 50 Q&A.
 
-Uses Docling for PDF→Markdown and local Ollama (qwen2.5-coder:14b-q6k) for Q&A generation.
+Uses Docling for PDF→Markdown and the local LLM gateway for Q&A generation.
 
 Usage:
   python3 hvac_manual_enrich.py <pdf_or_md_path> [--out-dir PATH] [--index]
@@ -27,14 +27,12 @@ logger = logging.getLogger(__name__)
 # ── Configuration ────────────────────────────────────────────────────────────
 
 DEFAULT_OUT_DIR = Path("/srv/data/hvac-rag/processed")
-OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434/api/generate")
 LITELLM_URL = os.environ.get("LITELLM_URL", "http://127.0.0.1:4018/v1")
 LITELLM_API_KEY = os.environ.get("LITELLM_API_KEY", "sk-dummy")
-LITELLM_URL = os.environ.get("LITELLM_URL", "http://127.0.0.1:4018/v1")
-LITELLM_API_KEY = os.environ.get("LITELLM_API_KEY", "sk-dummy")
-LITELLM_URL = os.environ.get("LITELLM_URL", "http://127.0.0.1:4018/v1")
-LITELLM_API_KEY = os.environ.get("LITELLM_API_KEY", "sk-dummy")
-OLLAMA_MODEL = os.getenv("OLLAMA_MODEL_QA", "nexus-local-code")
+DIRECT_EMBED_URL = os.getenv("HVAC_EMBEDDING_URL", os.environ.get("LLAMA_CPP_EMBED_URL", "http://172.17.0.1:8002/v1"))
+EMBED_USE_LITELLM = os.getenv("EMBED_USE_LITELLM", "false").lower() == "true"
+EMBEDDING_MODEL = os.getenv("HVAC_EMBEDDING_MODEL", "nomic-embed-cpu")
+LLM_MODEL = os.getenv("LLM_MODEL_QA", "nexus-local-code")
 QDRANT_URL = os.getenv("QDRANT_URL", "http://localhost:6333")
 QDRANT_COLLECTION = os.getenv("QDRANT_COLLECTION_FAQ", "hvac_manuals_faq")
 MAX_QA_PAIRS = 50
@@ -142,7 +140,7 @@ Trecho (primeiros 3000 caracteres):
 
 Responda APENAS com JSON válido, sem explicações."""
 
-    response = call_ollama(prompt, timeout=60)
+    response = call_llm(prompt, timeout=60)
     try:
         # Extract JSON from response
         json_match = re.search(r'\{.*\}', response, re.DOTALL)
@@ -171,8 +169,8 @@ def file_sha256(path: Path) -> str:
     return h.hexdigest()
 
 
-def call_ollama(prompt: str, model: str = OLLAMA_MODEL, timeout: int = 300) -> str:
-    """Call local Ollama for text generation."""
+def call_llm(prompt: str, model: str = LLM_MODEL, timeout: int = 300) -> str:
+    """Call the local LLM gateway for text generation."""
     payload = {
         "model": model,
         "prompt": prompt,
@@ -184,7 +182,7 @@ def call_ollama(prompt: str, model: str = OLLAMA_MODEL, timeout: int = 300) -> s
         resp.raise_for_status()
         return resp.json().get("response", "").strip()
     except Exception as e:
-        logger.error(f"Ollama call failed: {e}")
+        logger.error(f"LLM call failed: {e}")
         return ""
 
 
@@ -227,10 +225,10 @@ Trecho do manual:
 """
 
 
-def generate_qa_for_chunk(chunk: str, model: str = OLLAMA_MODEL) -> list[dict]:
+def generate_qa_for_chunk(chunk: str, model: str = LLM_MODEL) -> list[dict]:
     """Generate Q&A pairs for a text chunk using local LLM."""
     prompt = QA_GENERATION_PROMPT.format(text=chunk[:8000])
-    response = call_ollama(prompt, model=model)
+    response = call_llm(prompt, model=model)
     qa_pairs = []
     # Parse "P: ...\nR: ..." format
     lines = response.split("\n")
@@ -308,19 +306,35 @@ def get_qdrant_api_key() -> str:
 
 
 def embed_text(text: str) -> list[float]:
-    """Embed text using local Ollama nexus-embed."""
-    payload = {
-        "model": "nexus-embed",
-        "prompt": text,
-        "stream": False,
-    }
+    """Embed text using the direct CPU endpoint, with LiteLLM as optional fallback."""
     try:
-        resp = requests.post("http://localhost:11434/api/embeddings", json=payload, timeout=60)
+        resp = requests.post(
+            f"{DIRECT_EMBED_URL}/embeddings",
+            json={"model": "nomic-embed-cpu", "input": f"search_document: {text}", "encoding_format": "float"},
+            timeout=8,
+        )
         resp.raise_for_status()
-        return resp.json().get("embedding", [])
+        emb = resp.json().get("data", [{}])[0].get("embedding", [])
+        if len(emb) == 768:
+            return emb
+        raise ValueError(f"invalid embedding dim {len(emb)}")
     except Exception as e:
-        logger.error(f"Embedding failed: {e}")
-        return []
+        if not EMBED_USE_LITELLM:
+            logger.error(f"Embedding failed: {e}")
+            return []
+        try:
+            resp = requests.post(
+                f"{LITELLM_URL}/embeddings",
+                headers={"Authorization": f"Bearer {LITELLM_API_KEY}", "Content-Type": "application/json"},
+                json={"model": EMBEDDING_MODEL, "input": f"search_document: {text}", "encoding_format": "float"},
+                timeout=8,
+            )
+            resp.raise_for_status()
+            emb = resp.json().get("data", [{}])[0].get("embedding", [])
+            return emb if len(emb) == 768 else []
+        except Exception as litellm_exc:
+            logger.error(f"Embedding failed direct={e}; litellm={litellm_exc}")
+            return []
 
 
 def index_qa_in_qdrant(qa_pairs: list[dict], metadata: dict) -> None:

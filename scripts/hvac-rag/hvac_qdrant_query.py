@@ -14,20 +14,20 @@ import requests
 
 QDRANT_URL = os.environ.get("QDRANT_URL", "http://127.0.0.1:6333")
 QDRANT_API_KEY = os.environ.get("QDRANT_API_KEY", "")
-OLLAMA_URL = os.environ.get("OLLAMA_URL", "http://127.0.0.1:11434")
 LITELLM_URL = os.environ.get("LITELLM_URL", "http://127.0.0.1:4018/v1")
 LITELLM_API_KEY = os.environ.get("LITELLM_API_KEY", "sk-dummy")
-LITELLM_URL = os.environ.get("LITELLM_URL", "http://127.0.0.1:4018/v1")
-LITELLM_API_KEY = os.environ.get("LITELLM_API_KEY", "sk-dummy")
-EMBEDDING_MODEL = os.environ.get("HVAC_EMBEDDING_MODEL", "nexus-embed")
+DIRECT_EMBED_URL = os.environ.get("HVAC_EMBEDDING_URL", os.environ.get("LLAMA_CPP_EMBED_URL", "http://172.17.0.1:8002/v1"))
+EMBEDDING_MODEL = os.environ.get("HVAC_EMBEDDING_MODEL", "nomic-embed-cpu")
+EMBED_USE_LITELLM = os.environ.get("EMBED_USE_LITELLM", "false").lower() == "true"
 COLLECTION_NAME = "hvac_manuals_v1"
+VECTOR_DIM = 768
 
 
 def qdrant_headers():
     return {"Authorization": f"Bearer {QDRANT_API_KEY}", "Content-Type": "application/json"}
 
 
-def ollama_headers():
+def embed_headers():
     return {"Content-Type": "application/json"}
 
 
@@ -43,28 +43,48 @@ def get_collection_info(name: str) -> dict | None:
 
 
 def get_embedding(text: str, model: str = EMBEDDING_MODEL) -> list | None:
-    """Get embedding via Ollama."""
-    def _embed(txt: str) -> list | None:
+    """Get embedding direct-first, LiteLLM optional."""
+    def _direct(txt: str) -> list | None:
         r = requests.post(
-            f"{LITELLM_URL}/embeddings",
-            headers=ollama_headers(),
-            json={"model": model, "input": txt},
-            timeout=120
+            f"{DIRECT_EMBED_URL}/embeddings",
+            headers=embed_headers(),
+            json={"model": "nomic-embed-cpu", "input": f"search_query: {txt}", "encoding_format": "float"},
+            timeout=8,
         )
         if r.status_code == 200:
             data = r.json()
             emb = data.get("data", [{}])[0].get("embedding")
-            if emb and len(emb) > 0:
+            if emb and len(emb) == VECTOR_DIM:
                 return emb
         return None
 
-    emb = _embed(text)
+    def _litellm(txt: str) -> list | None:
+        r = requests.post(
+            f"{LITELLM_URL}/embeddings",
+            headers={"Content-Type": "application/json", "Authorization": f"Bearer {LITELLM_API_KEY}"},
+            json={"model": model, "input": f"search_query: {txt}", "encoding_format": "float"},
+            timeout=8,
+        )
+        if r.status_code == 200:
+            data = r.json()
+            emb = data.get("data", [{}])[0].get("embedding")
+            if emb and len(emb) == VECTOR_DIM:
+                return emb
+        return None
+
+    if not DIRECT_EMBED_URL:
+        raise RuntimeError("HVAC_EMBEDDING_URL/LLAMA_CPP_EMBED_URL is required")
+
+    emb = _litellm(text) if EMBED_USE_LITELLM else _direct(text)
     if emb:
         return emb
-    emb = _embed(text[:2000])
+    emb = _direct(text)
     if emb:
         return emb
-    return _embed(text[:500])
+    emb = _direct(text[:2000])
+    if emb:
+        return emb
+    return _direct(text[:500])
 
 
 def build_filter(doc_type=None, language=None, model=None, error_code=None, component_tag=None):

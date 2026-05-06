@@ -51,12 +51,9 @@ if os.path.exists(_env_path):
 PIPELINE_URL = os.environ.get("HVAC_PIPELINE_URL", "http://127.0.0.1:4017")
 QDRANT_URL = os.environ.get("QDRANT_URL", "http://127.0.0.1:6333")
 QDRANT_API_KEY = os.environ.get("QDRANT_API_KEY", "")
-OLLAMA_URL = os.environ.get("OLLAMA_URL", "http://127.0.0.1:11434")
 LITELLM_URL = os.environ.get("LITELLM_URL", "http://127.0.0.1:4018/v1")
 LITELLM_API_KEY = os.environ.get("LITELLM_API_KEY", "sk-dummy")
-LITELLM_URL = os.environ.get("LITELLM_URL", "http://127.0.0.1:4018/v1")
-LITELLM_API_KEY = os.environ.get("LITELLM_API_KEY", "sk-dummy")
-LITELLM_URL = os.environ.get("LITELLM_URL", "http://127.0.0.1:4018")
+DIRECT_EMBED_URL = os.environ.get("HVAC_EMBEDDING_URL", os.environ.get("LLAMA_CPP_EMBED_URL", "http://172.17.0.1:8002/v1"))
 OPENWEBUI_URL = os.environ.get("OPENWEBUI_URL", "http://127.0.0.1:3456")
 TTS_BRIDGE_URL = os.environ.get("TTS_BRIDGE_URL", "http://127.0.0.1:8012")
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "")
@@ -107,6 +104,30 @@ def litellm_models_url() -> str:
     if base.endswith("/v1"):
         return f"{base}/models"
     return f"{base}/v1/models"
+
+
+async def check_direct_embedding() -> dict:
+    """Check canonical direct embedding endpoint."""
+    try:
+        async with httpx.AsyncClient(timeout=10) as client:
+            r = await client.post(
+                f"{DIRECT_EMBED_URL}/embeddings",
+                json={"model": "nomic-embed-cpu", "input": "search_query: healthcheck", "encoding_format": "float"},
+                headers={"Content-Type": "application/json"}
+            )
+            if r.status_code == 200:
+                data = r.json()
+                emb = data.get("data", [{}])[0].get("embedding", [])
+                return {
+                    "status": "pass",
+                    "service": "direct_embed",
+                    "url": DIRECT_EMBED_URL,
+                    "embedding_dim": len(emb),
+                    "latency_ms": r.elapsed.total_seconds() * 1000,
+                }
+            return {"status": "fail", "service": "direct_embed", "url": DIRECT_EMBED_URL, "error": f"HTTP {r.status_code}"}
+    except Exception as e:
+        return {"status": "fail", "service": "direct_embed", "url": DIRECT_EMBED_URL, "error": str(e)}
 
 
 async def check_health_endpoint() -> dict:
@@ -326,7 +347,7 @@ async def check_openwebui() -> dict:
 
 
 async def check_litellm_models() -> dict:
-    """Check LiteLLM /v1/models for OpenRouter availability."""
+    """Check LiteLLM /v1/models for compatibility only."""
     litellm_key = os.environ.get("LITELLM_MASTER_KEY", "")
     headers = {"Authorization": f"Bearer {litellm_key}"} if litellm_key else {}
     try:
@@ -336,14 +357,12 @@ async def check_litellm_models() -> dict:
                 data = r.json()
                 models = data.get("data", [])
                 model_ids = [m.get("id", "") for m in models]
-                # Check for OpenRouter model
-                openrouter_found = any("openrouter" in mid.lower() or "mm" in mid.lower() for mid in model_ids)
                 return {
                     "status": "pass",
                     "service": "litellm",
                     "url": LITELLM_URL,
                     "models_available": len(models),
-                    "openrouter_available": openrouter_found,
+                    "embedding_compat": any(mid in ("hermes-embed", "nexus-embed") for mid in model_ids),
                     "latency_ms": r.elapsed.total_seconds() * 1000
                 }
             return {
@@ -418,37 +437,6 @@ async def check_edge_tts() -> dict:
         return {"status": "fail", "service": "edge_tts", "url": TTS_BRIDGE_URL, "error": str(e)}
 
 
-async def check_ollama_models() -> dict:
-    """Check Ollama for qwen2.5vl model availability."""
-    try:
-        async with httpx.AsyncClient(timeout=10) as client:
-            r = await client.get(f"{OLLAMA_URL}/api/tags")
-            if r.status_code == 200:
-                data = r.json()
-                models = data.get("models", [])
-                model_names = [m.get("name", "") for m in models]
-                qwen_found = any("qwen2.5vl" in name for name in model_names)
-                return {
-                    "status": "pass",
-                    "service": "ollama",
-                    "url": OLLAMA_URL,
-                    "models_count": len(models),
-                    "qwen2.5vl_available": qwen_found,
-                    "model_names": model_names[:5],  # First 5 only
-                    "latency_ms": r.elapsed.total_seconds() * 1000
-                }
-            return {
-                "status": "fail",
-                "service": "ollama",
-                "url": OLLAMA_URL,
-                "error": f"HTTP {r.status_code}"
-            }
-    except httpx.ConnectError:
-        return {"status": "fail", "service": "ollama", "url": OLLAMA_URL, "error": "connection refused"}
-    except Exception as e:
-        return {"status": "fail", "service": "ollama", "url": OLLAMA_URL, "error": str(e)}
-
-
 # =============================================================================
 # Main
 # =============================================================================
@@ -458,6 +446,7 @@ async def run_healthcheck() -> dict:
     checks = await asyncio.gather(
         check_health_endpoint(),
         check_models_endpoint(),
+        check_direct_embedding(),
         check_juiz_validation(),
         check_qdrant_collection(),
         check_field_tutor_endpoint(),
@@ -468,7 +457,6 @@ async def run_healthcheck() -> dict:
         check_litellm_models(),
         check_groq_stt(),
         check_edge_tts(),
-        check_ollama_models(),
         return_exceptions=True
     )
 
