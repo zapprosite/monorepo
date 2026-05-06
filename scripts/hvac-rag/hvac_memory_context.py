@@ -36,10 +36,11 @@ except Exception:
 # Config — valores do .env ou defaults
 # =============================================================================
 QDRANT_URL = os.getenv("QDRANT_URL", "http://localhost:6333")
-OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434")
 LITELLM_URL = os.environ.get("LITELLM_URL", "http://127.0.0.1:4018/v1")
 LITELLM_API_KEY = os.environ.get("LITELLM_API_KEY", "sk-dummy")
-OLLAMA_EMBED_MODEL = os.getenv("OLLAMA_EMBED_MODEL", "nexus-embed")
+DIRECT_EMBED_URL = os.getenv("HVAC_EMBEDDING_URL", os.environ.get("LLAMA_CPP_EMBED_URL", "http://172.17.0.1:8002/v1"))
+EMBED_USE_LITELLM = os.getenv("EMBED_USE_LITELLM", "false").lower() == "true"
+EMBEDDING_MODEL = os.getenv("HVAC_EMBEDDING_MODEL", "nomic-embed-cpu")
 POSTGRES_HOST = os.getenv("POSTGRES_HOST", "localhost")
 POSTGRES_PORT = int(os.getenv("POSTGRES_PORT", "5432"))
 POSTGRES_DB = os.getenv("POSTGRES_DB", "postgres")
@@ -197,13 +198,25 @@ def _estimate_tokens(chars: int) -> int:
     return chars // CHARS_PER_TOKEN
 
 
-async def _embed_ollama(text: str) -> list[float]:
-    """Embedding via Ollama nexus-embed API."""
+async def _embed_direct(text: str) -> list[float]:
+    """Embedding via the canonical direct llama.cpp CPU endpoint."""
     async with httpx.AsyncClient(timeout=20) as client:
+        resp = await client.post(
+            f"{DIRECT_EMBED_URL}/embeddings",
+            headers={"Content-Type": "application/json"},
+            json={"model": "nomic-embed-cpu", "input": f"search_query: {text}", "encoding_format": "float"},
+        )
+        resp.raise_for_status()
+        return resp.json()["data"][0]["embedding"]
+
+
+async def _embed_litellm(text: str) -> list[float]:
+    """Best-effort compatibility embedding via LiteLLM."""
+    async with httpx.AsyncClient(timeout=8) as client:
         resp = await client.post(
             f"{LITELLM_URL}/embeddings",
             headers={"Content-Type": "application/json", "Authorization": f"Bearer {LITELLM_API_KEY}"},
-            json={"model": OLLAMA_EMBED_MODEL, "input": text},
+            json={"model": EMBEDDING_MODEL, "input": f"search_query: {text}", "encoding_format": "float"},
         )
         resp.raise_for_status()
         return resp.json()["data"][0]["embedding"]
@@ -240,17 +253,19 @@ def _get_mem0():
             },
         },
         "llm": {
-            "provider": "ollama",
+            "provider": "openai",
             "config": {
-                "model": "qwen2.5:3b",
-                "ollama_base_url": OLLAMA_URL,
+                "model": "nexus-local-code",
+                "openai_base_url": LITELLM_URL,
+                "api_key": LITELLM_API_KEY,
             },
         },
         "embedder": {
-            "provider": "ollama",
+            "provider": "openai",
             "config": {
-                "model": OLLAMA_EMBED_MODEL,
-                "ollama_base_url": OLLAMA_URL,
+                "model": EMBEDDING_MODEL,
+                "openai_base_url": DIRECT_EMBED_URL,
+                "api_key": LITELLM_API_KEY,
             },
         },
     }
@@ -360,11 +375,11 @@ async def _fetch_postgres(conversation_id: str, limit: int = 4) -> tuple[list[di
 
 
 async def _fetch_qdrant(query: str, domain: str = "hvac", limit: int = 3) -> tuple[list[dict], dict]:
-    """Semantic search in Qdrant (hvac_manuals_v1) — embeds query via Ollama."""
+    """Semantic search in Qdrant (hvac_manuals_v1) — embeds query via llama.cpp CPU."""
     source_info = {}
     results = []
     try:
-        vector = await _embed_ollama(query)
+        vector = await (_embed_litellm(query) if EMBED_USE_LITELLM else _embed_direct(query))
         client = QdrantClient(
             url=QDRANT_URL,
             api_key=QDRANT_API_KEY if QDRANT_API_KEY else None,

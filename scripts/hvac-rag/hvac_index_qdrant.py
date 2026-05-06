@@ -17,13 +17,12 @@ from typing import Optional
 import requests
 
 QDRANT_URL = os.environ.get("QDRANT_URL", "http://127.0.0.1:6333")
-QDRANT_API_KEY = os.environ.get("QDRANT_API_KEY", "")  # Must be set via environment
-OLLAMA_URL = os.environ.get("OLLAMA_URL", "http://127.0.0.1:11434")
+QDRANT_API_KEY = os.environ.get("QDRANT_API_KEY", "")
 LITELLM_URL = os.environ.get("LITELLM_URL", "http://127.0.0.1:4018/v1")
 LITELLM_API_KEY = os.environ.get("LITELLM_API_KEY", "sk-dummy")
-LITELLM_URL = os.environ.get("LITELLM_URL", "http://127.0.0.1:4018/v1")
-LITELLM_API_KEY = os.environ.get("LITELLM_API_KEY", "sk-dummy")
-EMBEDDING_MODEL = os.environ.get("HVAC_EMBEDDING_MODEL", "nexus-embed")
+DIRECT_EMBED_URL = os.environ.get("HVAC_EMBEDDING_URL", os.environ.get("LLAMA_CPP_EMBED_URL", "http://172.17.0.1:8002/v1"))
+EMBEDDING_MODEL = os.environ.get("HVAC_EMBEDDING_MODEL", "nomic-embed-cpu")
+EMBED_USE_LITELLM = os.environ.get("EMBED_USE_LITELLM", "false").lower() == "true"
 COLLECTION_NAME = "hvac_manuals_v1"
 VECTOR_DIM = 768
 BATCH_SIZE = 64
@@ -33,7 +32,7 @@ def qdrant_headers():
     return {"Authorization": f"Bearer {QDRANT_API_KEY}", "Content-Type": "application/json"}
 
 
-def ollama_headers():
+def embed_headers():
     return {"Content-Type": "application/json"}
 
 
@@ -87,42 +86,56 @@ def create_payload_index(name: str, field_name: str, field_schema: str = "keywor
 
 
 def get_embedding(text: str, model: str = EMBEDDING_MODEL) -> Optional[list]:
-    """Get embedding for text via Ollama with context length safety."""
-    def _embed(txt: str) -> Optional[list]:
+    """Get embedding direct-first, LiteLLM optional for compatibility only."""
+    def _direct(txt: str) -> Optional[list]:
         r = requests.post(
-            f"{LITELLM_URL}/embeddings",
-            headers=ollama_headers(),
-            json={"model": model, "input": txt},
-            timeout=120
+            f"{DIRECT_EMBED_URL}/embeddings",
+            headers=embed_headers(),
+            json={"model": "nomic-embed-cpu", "input": f"search_document: {txt}", "encoding_format": "float"},
+            timeout=8,
         )
         if r.status_code == 200:
             data = r.json()
             emb = data.get("data", [{}])[0].get("embedding")
-            if emb and len(emb) > 0:
-                return emb
-        elif r.status_code == 500:
-            err = r.json().get("error", "")
-            if "context length" in err.lower():
-                return None  # Signal to retry with shorter text
+            if emb:
+                if len(emb) == VECTOR_DIM:
+                    return emb
+                print(f"  ERROR: direct embedding dim {len(emb)} != {VECTOR_DIM}")
         return None
 
-    # Try full text first
-    emb = _embed(text)
+    def _litellm(txt: str) -> Optional[list]:
+        r = requests.post(
+            f"{LITELLM_URL}/embeddings",
+            headers={"Content-Type": "application/json", "Authorization": f"Bearer {LITELLM_API_KEY}"},
+            json={"model": model, "input": f"search_document: {txt}", "encoding_format": "float"},
+            timeout=8,
+        )
+        if r.status_code == 200:
+            data = r.json()
+            emb = data.get("data", [{}])[0].get("embedding")
+            if emb:
+                if len(emb) == VECTOR_DIM:
+                    return emb
+                print(f"  ERROR: LiteLLM embedding dim {len(emb)} != {VECTOR_DIM}")
+        return None
+
+    if not DIRECT_EMBED_URL:
+        raise RuntimeError("HVAC_EMBEDDING_URL/LLAMA_CPP_EMBED_URL is required")
+
+    emb = _litellm(text) if EMBED_USE_LITELLM else _direct(text)
     if emb:
         return emb
-
-    # Fallback: try first 2000 chars
-    emb = _embed(text[:2000])
+    emb = _direct(text)
     if emb:
         return emb
-
-    # Final fallback: try first 500 chars
-    emb = _embed(text[:500])
-    return emb
+    emb = _direct(text[:2000])
+    if emb:
+        return emb
+    return _direct(text[:500])
 
 
 def detect_vector_dim() -> int:
-    """Detect vector dimension from Ollama embedding."""
+    """Detect vector dimension from the canonical direct embedding endpoint."""
     emb = get_embedding("dimension test")
     if emb:
         dim = len(emb)
@@ -257,7 +270,7 @@ def main():
 
     # Validate required env vars
     print(f"QDRANT_URL: {QDRANT_URL}")
-    print(f"OLLAMA_URL: {OLLAMA_URL}")
+    print(f"DIRECT_EMBED_URL: {DIRECT_EMBED_URL}")
     print(f"EMBEDDING_MODEL: {EMBEDDING_MODEL}")
     if not QDRANT_API_KEY:
         print("ERROR: QDRANT_API_KEY environment variable is required")

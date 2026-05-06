@@ -10,7 +10,7 @@
 
 ## Overview
 
-The HVAC RAG system provides a friendly tutor-style assistant for field technicians working on HVAC inverter equipment. It combines a Qdrant vector database (context/evidence), an internal diagnostic graph, and OpenRouter via hermes-brain as the **primary writing engine**. A Juiz pre-flight validator protects the system.
+The HVAC RAG system provides a friendly tutor-style assistant for field technicians working on HVAC inverter equipment. It combines a Qdrant vector database (context/evidence), an internal diagnostic graph, and OpenRouter via nexus-brain as the **primary writing engine**. A Juiz pre-flight validator protects the system.
 
 **Architecture principle:** RAG provides evidence. OpenRouter writes the answer. The friendly response rewriter is the final safety net.
 
@@ -19,8 +19,8 @@ User Query → Juiz (validate)
               ↓
          Router (what mode?)
               ↓
-         guided_triage  →  Qdrant (top_k=6)  →  OpenRouter via hermes-brain  →  Friendly Rewriter  →  Response
-         field_tutor    →  Qdrant (top_k=10) →  OpenRouter via hermes-brain  →  Friendly Rewriter  →  Response
+         guided_triage  →  Qdrant (top_k=6)  →  OpenRouter via nexus-brain  →  Friendly Rewriter  →  Response
+         field_tutor    →  Qdrant (top_k=10) →  OpenRouter via nexus-brain  →  Friendly Rewriter  →  Response
          printable      →  Qdrant + Formatter →  Plain text
               ↓
          No manual?  →  Graph internal / Web search (controlled fallback)
@@ -41,7 +41,7 @@ OpenWebUI (default model: hvac-manual-strict)
             ├── Router (printable / guided_triage / field_tutor)
             ├── Qdrant hvac_manuals_v1 (context/evidence)
             ├── Ollama (nomic-embed-text embeddings)
-            ├── OpenRouter via hermes-brain (primary writing engine — NOT raw RAG output)
+            ├── OpenRouter via nexus-brain (primary writing engine — NOT raw RAG output)
             └── Friendly Response Rewriter (tone safety net)
 ```
 
@@ -334,5 +334,5 @@ python3 scripts/hvac-rag/hvac-rag-pipe.py &
 - Evaluation Report: `manifests/spec-hvac-004-runtime-reliability-report.json`
 - Qdrant Collection: `hvac_manuals_v1` (442 points)
 - LiteLLM: `http://127.0.0.1:4000`
-- Ollama: `http://127.0.0.1:11434`
-- OpenRouter via hermes-brain: primary answer model (via LiteLLM)
+- Ollama: `http://127.0.0.1:4018/v1`
+- OpenRouter via nexus-brain: primary answer model (via LiteLLM)

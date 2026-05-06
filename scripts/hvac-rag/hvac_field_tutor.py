@@ -22,14 +22,11 @@ from typing import Optional
 # =============================================================================
 QDRANT_URL = os.environ.get("QDRANT_URL", "http://127.0.0.1:6333")
 QDRANT_API_KEY = os.environ.get("QDRANT_API_KEY", "")
-OLLAMA_URL = os.environ.get("OLLAMA_URL", "http://127.0.0.1:11434")
 LITELLM_URL = os.environ.get("LITELLM_URL", "http://127.0.0.1:4018/v1")
 LITELLM_API_KEY = os.environ.get("LITELLM_API_KEY", "sk-dummy")
-LITELLM_URL = os.environ.get("LITELLM_URL", "http://127.0.0.1:4018/v1")
-LITELLM_API_KEY = os.environ.get("LITELLM_API_KEY", "sk-dummy")
-EMBEDDING_MODEL = os.environ.get("HVAC_EMBEDDING_MODEL", "nexus-embed")
-LITELLM_URL = os.environ.get("LITELLM_URL", "http://127.0.0.1:4018/v1")
-LITELLM_API_KEY = os.environ.get("LITELLM_API_KEY", "sk-dummy")
+DIRECT_EMBED_URL = os.environ.get("HVAC_EMBEDDING_URL", os.environ.get("LLAMA_CPP_EMBED_URL", "http://172.17.0.1:8002/v1"))
+EMBED_USE_LITELLM = os.environ.get("EMBED_USE_LITELLM", "false").lower() == "true"
+EMBEDDING_MODEL = os.environ.get("HVAC_EMBEDDING_MODEL", "nomic-embed-cpu")
 COLLECTION_NAME = "hvac_manuals_v1"
 
 # Field Tutor settings
@@ -58,20 +55,27 @@ def qdrant_headers() -> dict:
 
 
 async def get_embedding(text: str) -> Optional[list]:
-    """Get embedding via Ollama."""
+    """Get embedding direct-first; LiteLLM is compatibility only."""
     txt = text[:2500]
     async with httpx.AsyncClient(timeout=EMBED_TIMEOUT) as client:
         for attempt in range(2):
             try:
-                r = await client.post(
-                    f"{LITELLM_URL}/embeddings",
-                    headers={"Content-Type": "application/json", "Authorization": f"Bearer {LITELLM_API_KEY}"},
-                    json={"model": EMBEDDING_MODEL, "input": txt},
-                )
+                if EMBED_USE_LITELLM:
+                    r = await client.post(
+                        f"{LITELLM_URL}/embeddings",
+                        headers={"Content-Type": "application/json", "Authorization": f"Bearer {LITELLM_API_KEY}"},
+                        json={"model": EMBEDDING_MODEL, "input": f"search_query: {txt}", "encoding_format": "float"},
+                    )
+                else:
+                    r = await client.post(
+                        f"{DIRECT_EMBED_URL}/embeddings",
+                        headers={"Content-Type": "application/json"},
+                        json={"model": "nomic-embed-cpu", "input": f"search_query: {txt}", "encoding_format": "float"},
+                    )
                 if r.status_code == 200:
                     data = r.json()
                     emb = data.get("data", [{}])[0].get("embedding")
-                    if emb and len(emb) > 0:
+                    if emb and len(emb) == 768:
                         return emb
             except (httpx.TimeoutException, Exception):
                 if attempt == 0:

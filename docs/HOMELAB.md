@@ -1,17 +1,75 @@
 # HOMELAB.md — Canonical Infrastructure Reference
 
-> **Verificado:** 2026-05-03 | **Versão:** 2.0 (enterprise roadmap ativado) | **Zero placeholder**
+> **Verificado:** 2026-05-06 | **Versão:** 2.1 | **Infra real auditada**
 
 ---
 
-## Serviços Ativos (21 containers, 35 portas)
+## Hardware Canônico do Host
+
+Este é o inventário real do host principal do homelab. Quando houver conflito entre docs antigas e runtime, esta seção vence até nova auditoria.
+
+| Componente | Valor canônico |
+|-----------|-----------------|
+| Host | `will-zappro` |
+| OS | Ubuntu Desktop `24.04.4 LTS` |
+| Kernel | Linux `6.17.0-22-generic` |
+| Placa-mãe | ASUS `TUF GAMING X670E-PLUS` |
+| CPU | AMD Ryzen 9 `7900X` 12-Core / 24 threads |
+| RAM | `32 GiB` DDR5 |
+| GPU dGPU | NVIDIA GeForce RTX `4090` `24 GB` |
+| GPU iGPU | AMD Raphael (`amdgpu`) |
+| Disco do SO | KINGSTON `SNV3S1000G` `1 TB` |
+| Disco de dados | Crucial `T700` `4 TB` Gen5 |
+| Storage de `/srv` | ZFS pool `tank/*` no Crucial T700 |
+
+## Regras de Hardware
+
+- O vídeo do desktop deve usar a iGPU/onboard sempre que possível.
+- A RTX 4090 deve ficar reservada para `llama.cpp / llama-server`.
+- `nomic-embed-cpu` deve rodar sem VRAM (`-ngl 0`).
+- Antes de qualquer mudança destrutiva em `/srv`, criar snapshot ZFS.
+- Se o hardware físico mudar, atualizar esta seção, `docs/HARDWARE_HIERARCHY.md` e `/srv/homelab-context` na mesma janela operacional.
+
+## Perfil Operacional Atual
+
+| Recurso | Padrão atual |
+|---------|--------------|
+| GPU principal de inferência | `llama-server :8001` |
+| Embedding | `llama-server :8002` CPU-only |
+| Gateway LLM | LiteLLM `:4018` |
+| Banco vetorial | Qdrant `:6333` |
+| Publicação/admin | Gitea `:3300`, Coolify `:8000` |
+
+## Repositórios Reais em `/srv`
+
+O homelab não é só o `monorepo`. Estes são os repositórios Git ativos encontrados em `/srv` na auditoria de `2026-05-06`.
+
+| Repo | Caminho | Papel |
+|------|---------|-------|
+| `monorepo` | `/srv/monorepo` | Control plane principal, apps, gateway e docs |
+| `homelab-context` | `/srv/homelab-context` | Contexto global compartilhado do homelab |
+| `nexus` | `/srv/nexus` | Router/orquestração local-first para CLIs e automações |
+| `ops` | `/srv/ops` | Infra as Code, governança, stacks e utilitários SRE |
+| `hvac-pipeline` | `/srv/hvac-pipeline` | Pipeline HVAC/RAG e utilitários do domínio |
+
+### Regra prática
+
+- `monorepo` continua sendo o control plane principal.
+- `homelab-context` é a fonte de contexto compartilhado entre agentes.
+- `ops` guarda governança e operação de infraestrutura.
+- `nexus` é um repo próprio e não deve ser tratado como submódulo mental do monorepo.
+- `hvac-pipeline` é um repo separado de domínio, mesmo quando parte do runtime conversa com serviços do monorepo.
+
+---
+
+## Serviços Ativos (runtime atual)
 
 | Serviço | Porta | Container | Status |
 |---------|-------|-----------|--------|
-| HCE API | `:8642` (127) | nativo (python3) | ✅ |
 | Qdrant HTTP | `:6333` (127) | `qdrant` | ✅ |
 | Qdrant gRPC | `:6334` (127) | `qdrant` | ✅ |
-| Ollama | `:11434` | nativo (systemd) | ✅ |
+| Llama.cpp main | `:8001` | nativo (systemd) | ✅ |
+| Llama.cpp embed | `:8002` | nativo (systemd) | ✅ |
 | LiteLLM | `:4018→4000` | `litellm-proxy` | ✅ |
 | AI Gateway | `:4002` | `zappro-ai-gateway` | ✅ |
 | Keycloak | `:8080, :8443` | `keycloak` | ✅ |
@@ -30,14 +88,15 @@
 | Gitea Runner | — | `gitea-runner` | ✅ |
 | Netdata | `:19999` | nativo | ✅ |
 
-## Serviços Desligados/Removidos
+## Fora do Estado Canônico
 
 | Serviço | Motivo |
 |---------|--------|
-| Whisper STT (`:8204`) | Substituído por Groq API |
-| Hermes MCP (`:8092`) | Nunca deployado |
-| Orchestrator JSON-RPC (`:8095`) | Spec-only |
-| Vault (`:8200`) | Substituído por Infisical |
+| `litellm-proxy` | Funcional, mas healthcheck do container está `unhealthy` |
+| `diun` | Restart loop |
+| `hermes-backup-qdrant.service` | Falho |
+| `hermes-backup-incremental.service` | Falho |
+| `hermes-ops-health.service` | Falho |
 
 ---
 
@@ -49,8 +108,9 @@
 | API | Fastify + OrchidORM + tRPC (:3000) |
 | Web | React 19 + MUI + tRPC (:5173 dev) |
 | Orchestrator | TypeScript workflow engine (YAML→exec) |
-| Memória | Mem0 + Qdrant (Gen5 NVMe) + Ollama |
-| LLM Gateway | LiteLLM → hermes-brain / Claude |
+| Memória | Qdrant (Gen5 NVMe) + llama.cpp embed CPU |
+| LLM Runtime | llama.cpp / llama-server (`:8001`, `:8002`) |
+| LLM Gateway | LiteLLM `:4018` → `hermes-*` / `nexus-*` |
 | CI/CD | Gitea Actions (13 workflows) + Coolify |
 | Auth | Keycloak OIDC |
 | Monitoramento | Prometheus + Grafana + Alertmanager |
@@ -81,25 +141,25 @@
 
 ```
 /srv/monorepo/    ← Source of truth (pnpm monorepo)
+/srv/homelab-context/ ← Contexto global compartilhado do homelab
+/srv/nexus/       ← Router/orquestração local-first
+/srv/ops/         ← IaC, governança, secrets
+/srv/hvac-pipeline/ ← Pipeline HVAC/RAG de domínio
 /srv/monorepo/services/ ← HCE v2.1 (tree-only, zero state)
-/srv/ops/         ← IaC, governance, secrets
 /srv/data/        ← Dados persistentes (Coolify, Gitea, etc.)
 /tank/qdrant/     ← Qdrant Gen5 NVMe (Crucial T700 4TB)
 /tank/backups/    ← Backups (15.6GB)
 /tank/docker-data/ ← Docker volumes (239GB)
 ```
 
-**Disco sistema:** 86% cheio (38GB livre de 274GB)
+**Disco sistema:** verificar via auditoria mais recente em `/srv/audits/`
 
----
+## Modelos Canônicos
 
-## Modelos Ollama
-
-| Modelo | Uso |
-|--------|-----|
-| `nomic-embed-text` | Embeddings 768D (Qdrant) |
-| `qwen2.5-coder:14b-q6k` | Code generation |
-| `qwen2.5vl:3b` | Vision |
+| Modelo | Runtime | Uso |
+|--------|---------|-----|
+| `Qwen3.6-27B-UD-Q4_K_XL` | llama.cpp GPU | code/chat local principal |
+| `nomic-embed-text-v1.5.Q8_0` | llama.cpp CPU | embeddings 768D |
 
 ---
 
@@ -119,7 +179,6 @@
 ## Stack Completa de Compose
 
 ```
-hce/ → HCE API (:8642) + Qdrant (:6333) (tree-only, zero state)
 litellm/             → LiteLLM (:4018)
 edge-tts/            → Edge TTS (:8012)
 openwebui/           → OpenWebUI HVAC (:3000 interno)
@@ -148,8 +207,8 @@ monitoring/          → Prometheus (:9090) + Grafana (:3100)
     ┌────────┼────────────┼────────────┼──────────┐
     ▼        ▼            ▼            ▼           ▼
 ┌───────┐ ┌──────────┐ ┌────────┐ ┌─────────┐ ┌──────────┐
-│Redis  │ │LiteLLM   │ │Qdrant  │ │Ollama   │ │Hermes    │
-│:6379  │ │:4000     │ │:6333   │ │:11434   │ │:8642     │
+│Redis  │ │LiteLLM   │ │Qdrant  │ │Gitea    │ │Coolify   │
+│:6379  │ │:4000     │ │:6333   │ │:3300    │ │:8000     │
 └───┬───┘ └────┬─────┘ └───┬────┘ └────┬────┘ └────┬─────┘
     │          │            │          │            │
     ▼          ▼            ▼          ▼            ▼
@@ -161,7 +220,7 @@ monitoring/          → Prometheus (:9090) + Grafana (:3100)
 ```
 
 **Critical path:** Cloudflare → Coolify → PostgreSQL → (all apps)
-**SPOF:** NVMe físico (4TB Gen5). Mitigado: ZFS checksums + scrub automático + backups.
+**SPOF:** NVMe físico (4TB Gen5). Mitigado: ZFS checksums + scrub automático.
 **RTO:** 30min (redeploy containers) | **RPO:** 6h (ZFS snapshots)
 
 ---
@@ -173,9 +232,7 @@ monitoring/          → Prometheus (:9090) + Grafana (:3100)
 | Gitea (`git.zappro.site`) | 99.5% | 3h 36min | `/api/v1/version` |
 | Coolify (`coolify.zappro.site`) | 99.0% | 7h 12min | `/api/health` |
 | Qdrant | 99.9% | 43min | `/health` |
-| Ollama | 99.5% | 3h 36min | `/api/tags` |
-| LiteLLM (`llm.zappro.site`) | 99.5% | 3h 36min | `/health` |
-| Hermes Gateway | 99.0% | 7h 12min | `/health` |
+| LiteLLM (`llm.zappro.site`) | 99.5% | 3h 36min | `/v1/models` |
 | Keycloak | 99.5% | 3h 36min | `/health/ready` |
 | Edge TTS | 99.0% | 7h 12min | `/health` |
 
@@ -215,7 +272,7 @@ bash scripts/env-vault-sync.sh        # sync .env → .env.example + ZFS snapsho
 bash scripts/env-vault-sync.sh --dry-run  # preview changes
 ```
 
-Todas as apps (api, web, orchestrator) e serviços (hce, ollama) apontam para o canônico via symlink.
+Todas as apps e serviços canônicos apontam para o runtime atual documentado aqui.
 
 ---
 
@@ -251,15 +308,22 @@ hermes-cli-invoke.sh opencode "task"  # OpenCode CLI 1.14.33
 ## Hermes/LiteLLM 05/2026
 
 Hermes usa sempre o LiteLLM como gateway OpenAI-compatible em `http://127.0.0.1:4018/v1`.
-O padrão é local primeiro via Ollama, com OpenRouter apenas para fallback ou escalada explícita.
+O padrão é local primeiro via `llama.cpp`, com OpenRouter apenas para fallback ou escalada explícita.
 
 ```bash
 OPENAI_BASE_URL=http://127.0.0.1:4018/v1
 OPENAI_API_KEY=$LITELLM_MASTER_KEY
 
 LITELLM_URL=http://127.0.0.1:4018/v1
-LITELLM_OLLAMA_URL=http://host.docker.internal:11434
 OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
 ```
 
-Aliases canônicos: `hermes-auto`, `hermes-local-code`, `hermes-vision`, `hermes-embed`, `hermes-cloud-cheap`, `hermes-cloud-pro`, `hermes-cloud-ui`, `hermes-brain`.
+Aliases em uso: `hermes-code`, `hermes-auto`, `hermes-embed`, `nexus-local-code`, `nexus-auto`, `nexus-embed`, `hermes-cloud-cheap`, `hermes-cloud-pro`, `nexus-cloud-cheap`, `nexus-cloud-pro`.
+`hermes-embed` é compatibilidade best-effort; o caminho crítico de ingestão usa `LLAMA_CPP_EMBED_URL`.
+`nexus-embed` é legado/deprecated e só fica por compatibilidade com callers antigos.
+
+## Telemetria leve
+
+`Dozzle` em `http://127.0.0.1:8081` é o viewer canônico de logs Docker.
+Use case aprovado: observabilidade leve de containers, diagnóstico rápido e triagem operacional.
+Subdomínio canônico proposto/gerenciado por Terraform: `logs.zappro.site` com Cloudflare Access.

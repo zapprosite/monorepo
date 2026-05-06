@@ -13,7 +13,8 @@ Estes são os documentos canônicos para contexto:
 | Documento | Uso Principal |
 |-----------|---------------|
 | [START-HERE.md](./START-HERE.md) | Ponto de entrada para **humanos**. |
-| [HOMELAB.md](./HOMELAB.md) | Infraestrutura canônica para **agentes**. |
+| [HOMELAB.md](./HOMELAB.md) | Infraestrutura canônica para **agentes** e inventário real do host. |
+| [HARDWARE_HIERARCHY.md](./HARDWARE_HIERARCHY.md) | Resumo curto do padrão de hardware e runtime. |
 | [AGENTS.md](./AGENTS.md) | Leis supremas e governança do monorepo. |
 | [SECURITY.md](./SECURITY.md) | Diretrizes e checklist de segurança. |
 

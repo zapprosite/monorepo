@@ -8,6 +8,7 @@
       "Bash(go tool cover*)"
     ]
   },
+  "model": "claude-sonnet-4-6",
   "agentsDir": ".claude/agents",
   "skillsDir": ".claude/skills",
   "hooks": {

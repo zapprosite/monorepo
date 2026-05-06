@@ -1,7 +1,5 @@
-# LiteLLM canonical config
-# Primary local path: llama.cpp on :8001
-# Embedding local path: llama.cpp CPU-only on :8002
-# Ollama remains backup/manual only.
+# Canonical path for the LiteLLM gateway config.
+# Keep this file aligned with /srv/monorepo/config/litellm/config.yaml.
 
 model_list:
   - model_name: hermes-code
