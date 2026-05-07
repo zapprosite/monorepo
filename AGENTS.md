@@ -1,3 +1,5 @@
+> 🦍 Leia: [CONTRACT.md](homelab-context/CONTRACT.md) — Modo Gorila: direto, focado, token-efficient.
+
 # AGENTS.md — Vault Governance
 
 > **Estado:** 🪨 Minimalismo Atômico
